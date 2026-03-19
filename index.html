@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>밀프레드 — 요리로 연결하는 교육</title>
+<meta name="description" content="전국 3,000곳+ 교육기관이 선택한 교육용 요리키트. 기관용 요리수업 키트부터 가정용 편식극복 프로그램까지.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- Icons: Lucide -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- GSAP + ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<!-- Styles -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     NAV
+     ════════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">밀프레드<span>.</span></a>
+    <div class="tab-switcher">
+      <button class="tab-btn active" data-tab="institution">기관용</button>
+      <button class="tab-btn" data-tab="home">가정용</button>
+    </div>
+    <ul class="nav-links" id="nav-institution">
+      <li><a href="#solution">서비스소개</a></li>
+      <li><a href="#menu">메뉴</a></li>
+      <li><a href="#testimonials">수업현장</a></li>
+      <li><a href="#faq-institution">FAQ</a></li>
+      <li><a href="#final-cta-institution" class="nav-cta">무료 샘플 신청</a></li>
+    </ul>
+    <ul class="nav-links nav-links-hidden" id="nav-home">
+      <li><a href="#methodology">프로그램</a></li>
+      <li><a href="#hm-quiz">편식진단</a></li>
+      <li><a href="#hm-catalog">코스선택</a></li>
+      <li><a href="#faq-home">FAQ</a></li>
+      <li><a href="#hm-quiz" class="nav-cta nav-cta-green">편식 진단하기</a></li>
+    </ul>
+    <button class="nav-mobile-toggle" aria-label="메뉴">
+      <i data-lucide="menu" style="width:24px;height:24px;"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════
+     BRAND HERO (always visible)
+     ════════════════════════════════════════════ -->
+<section class="brand-hero" id="brand-hero">
+  <div class="container text-center">
+    <div class="brand-badge">교육용 요리키트 전문 브랜드</div>
+    <h1 class="brand-title">밀프레드<span>.</span></h1>
+    <p class="brand-tagline">요리로 연결하는 교육</p>
+    <div class="brand-stats">
+      <span>전국 <strong>3,000곳+</strong> 교육기관</span>
+      <span class="brand-stats-dot">&middot;</span>
+      <span><strong>10만명+</strong> 아이들이 체험</span>
+    </div>
+    <div class="entry-cards">
+      <div class="entry-card entry-institution" data-target="institution">
+        <div class="entry-icon">🏫</div>
+        <h3>교육기관 선생님이신가요?</h3>
+        <p>교육과정 연계 요리수업 키트<br>무료 샘플 · 안심배송 · 행정서류</p>
+        <span class="entry-link">기관용 서비스 보기 →</span>
+      </div>
+      <div class="entry-card entry-home" data-target="home">
+        <div class="entry-icon">🏠</div>
+        <h3>우리 아이 편식이 고민이신가요?</h3>
+        <p>SOS Approach 기반 5주 프로그램<br>과학적 반복노출 · 가정 배송</p>
+        <span class="entry-link">가정용 프로그램 보기 →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  TAB A: INSTITUTION (기관용)                            ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="tab-institution" class="tab-content active">
+
+<!-- ── SEC 1: HERO ── -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-sub-label">전국 <strong>3,000곳+</strong> 교육기관이 선택한</div>
+    <h1 class="display">선생님은<br><span class="highlight">수업에만 집중</span>하세요</h1>
+    <p class="hero-desc">재료·도구·커리큘럼·초신선배송까지<br>전부 포함된 교육용 요리키트</p>
+    <div class="hero-actions">
+      <a href="#final-cta-institution" class="btn btn-primary">
+        <i data-lucide="gift" style="width:18px;height:18px;"></i>
+        무료 샘플 신청하기
+      </a>
+      <a href="#solution" class="btn btn-secondary">서비스 알아보기</a>
+    </div>
+    <p class="hero-micro">매달 한정 수량 · 비용 0원 · 의무 없음</p>
+    <div class="hero-badges">
+      <div class="hero-badge">
+        <div class="hero-badge-num">3,000<span style="font-size:16px;">곳+</span></div>
+        <div class="hero-badge-label">교육기관 이용</div>
+      </div>
+      <div class="hero-badge">
+        <div class="hero-badge-num">10만<span style="font-size:16px;">명+</span></div>
+        <div class="hero-badge-label">아이들이 체험</div>
+      </div>
+      <div class="hero-badge">
+        <div class="hero-badge-num">0<span style="font-size:16px;">건</span></div>
+        <div class="hero-badge-label">안전사고</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-img-stack">
+      <div class="hero-img-blob"></div>
+      <div class="hero-img-card hero-img-1">
+        <img src="../assets/images/hero-kids-happy.jpeg" alt="유치원생들이 만든 크레페를 들고 활짝 웃는 모습">
+      </div>
+      <div class="hero-img-card hero-img-2">
+        <img src="../assets/images/hero-class-group.jpeg" alt="유치원생들이 함께 요리하는 수업 현장">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 2: TRUST BAR ── -->
+<section class="trust-bar">
+  <div class="container">
+    <div class="trust-stats">
+      <div class="trust-stat">
+        <div class="trust-stat-icon"><i data-lucide="school" style="width:22px;height:22px;"></i></div>
+        <div>
+          <div class="trust-stat-num" data-target="3000" data-suffix="곳+">0</div>
+          <div class="trust-stat-label">교육기관 이용</div>
+        </div>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-stat">
+        <div class="trust-stat-icon"><i data-lucide="users" style="width:22px;height:22px;"></i></div>
+        <div>
+          <div class="trust-stat-num" data-target="100000" data-suffix="명+">0</div>
+          <div class="trust-stat-label">아이들이 체험</div>
+        </div>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-stat">
+        <div class="trust-stat-icon"><i data-lucide="shield-check" style="width:22px;height:22px;"></i></div>
+        <div>
+          <div class="trust-stat-num">0건</div>
+          <div class="trust-stat-label">안전사고</div>
+        </div>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-stat">
+        <div class="trust-stat-icon"><i data-lucide="file-badge" style="width:22px;height:22px;"></i></div>
+        <div>
+          <div class="trust-stat-num">삼성화재 5억원</div>
+          <div class="trust-stat-label">PL보험</div>
+        </div>
+      </div>
+    </div>
+    <div class="trust-admin">
+      지마켓 · 11번가 · 네이버 입점 &nbsp;│&nbsp; 카드결제 · 계좌이체 &nbsp;│&nbsp; 서류 즉시 발행
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 3: PROBLEM ── -->
+<section class="section" id="problem">
+  <div class="container">
+    <div class="section-tag">Problem</div>
+    <h2 class="h1">선생님, 요리수업<br><span class="highlight">이렇게 힘드셨죠?</span></h2>
+    <p class="desc">설문조사 결과, 동료 선생님들이 밀프레드를 모르는 이유 1위는 "아직 몰라서"(64%)였습니다</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon"><i data-lucide="shopping-cart" style="width:24px;height:24px;"></i></div>
+        <h4>재료 준비가 막막</h4>
+        <p>장보기, 소분, 위생 관리까지 혼자 감당</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><i data-lucide="shield-alert" style="width:24px;height:24px;"></i></div>
+        <h4>안전 사고 걱정</h4>
+        <p>불·칼 사용 시 아이들 다칠까 불안</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><i data-lucide="thermometer" style="width:24px;height:24px;"></i></div>
+        <h4>식재료 신선도</h4>
+        <p>냉장고 없는 교실, 전날 배송 시 상할까 걱정</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><i data-lucide="file-text" style="width:24px;height:24px;"></i></div>
+        <h4>복잡한 결제·행정</h4>
+        <p>학교 예산 결제, 서류 발행, 정산까지</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon"><i data-lucide="trash-2" style="width:24px;height:24px;"></i></div>
+        <h4>뒷정리 부담</h4>
+        <p>음식물 쓰레기, 일회용품, 설거지</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 4: SOLUTION ── -->
+<section class="section section-alt" id="solution">
+  <div class="container">
+    <div class="section-tag">Solution</div>
+    <h2 class="h1">밀프레드가<br><span class="highlight">전부 해결</span>합니다</h2>
+    <p class="desc">교육과정 연계 커리큘럼부터 초신선 안심배송까지</p>
+    <div class="bento-grid">
+      <div class="bento-card bento-featured">
+        <div>
+          <div class="bento-icon bento-icon-orange"><i data-lucide="snowflake" style="width:28px;height:28px;"></i></div>
+          <h4>초신선 안심배송</h4>
+          <p>5중 보냉 시스템으로 <strong>48시간 냉기 유지</strong>.<br>드라이아이스 + SPA 냉매재 + 은박 보냉백으로<br>냉장고 보관이 필요 없습니다.</p>
+        </div>
+        <img src="../assets/images/delivery/5layer.png" alt="5중 보냉 시스템" class="bento-img img-unified" style="max-height:200px;object-fit:contain;">
+        <div class="bento-tag">냉장고 없이도 48시간 신선</div>
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon bento-icon-navy"><i data-lucide="book-open" style="width:24px;height:24px;"></i></div>
+        <h4>교육과정 연계 커리큘럼</h4>
+        <p>2022 개정 교육과정 대응<br>실과 PPT · 영상 · 레시피 제공</p>
+        <img src="../assets/images/hero-class-ppt.jpeg" alt="PPT 보며 수업하는 모습" class="bento-img img-unified" style="max-height:120px;">
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon bento-icon-orange"><i data-lucide="package" style="width:24px;height:24px;"></i></div>
+        <h4>올인원 수업 구성</h4>
+        <p>개봉 즉시 수업 시작<br>1인분 개별포장 · 조리도구 · 포장용기</p>
+        <img src="../assets/images/service-set.jpeg" alt="밀프레드 서비스 세트 구성" class="bento-img img-unified" style="max-height:120px;">
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon bento-icon-navy"><i data-lucide="shield-check" style="width:24px;height:24px;"></i></div>
+        <h4>불·칼 없는 안전 메뉴</h4>
+        <p>20가지+ 세계 요리<br>10만명 사고 0건 · 시즌 특별 메뉴</p>
+        <img src="../assets/images/class-kindergarten-cooking.jpeg" alt="유치원생 안전 요리 모습" class="bento-img img-unified" style="max-height:120px;">
+      </div>
+      <div class="bento-card bento-wide">
+        <div style="display:flex;gap:var(--sp-6);align-items:center;">
+          <div style="flex:1;">
+            <div class="bento-icon bento-icon-orange"><i data-lucide="recycle" style="width:24px;height:24px;"></i></div>
+            <h4>환경까지 생각한 수거 시스템</h4>
+            <p>쿨러백·스티로폼·아이스팩 회수 → 위생 살균 재사용. 일회용품 90% 감소.</p>
+            <div class="bento-tag" style="margin-top:var(--sp-3);">일회용품 90% 감소</div>
+          </div>
+          <img src="../assets/images/delivery/renewal.jpeg" alt="학급 배송 리뉴얼" class="img-unified" style="width:200px;height:140px;object-fit:cover;border-radius:var(--radius-md);flex-shrink:0;">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 5: DELIVERY ── -->
+<section class="section" id="delivery">
+  <div class="container">
+    <div class="section-tag">Delivery</div>
+    <h2 class="h1">냉장고가 없어도<br><span class="highlight">걱정 마세요</span></h2>
+    <p class="desc">5중 보냉으로 48시간 냉기 유지, 교실까지 초신선 안심배송</p>
+    <div class="delivery-grid">
+      <div class="delivery-diagram">
+        <img src="../assets/images/delivery/5layer.png" alt="5중 보냉 시스템 인포그래픽" class="img-unified" style="width:100%;margin-bottom:var(--sp-4);border-radius:var(--radius-md);">
+        <div style="font-size:14px;font-weight:700;color:var(--secondary-700);margin-bottom:var(--sp-3);text-align:center;">5중 보냉 시스템</div>
+        <div class="delivery-layer"><div class="delivery-layer-num">1</div><div class="delivery-layer-text">드라이아이스</div></div>
+        <div class="delivery-layer"><div class="delivery-layer-num">2</div><div class="delivery-layer-text">SPA 냉매재</div></div>
+        <div class="delivery-layer"><div class="delivery-layer-num">3</div><div class="delivery-layer-text">은박 보냉백</div></div>
+        <div class="delivery-layer"><div class="delivery-layer-num">4</div><div class="delivery-layer-text">방수원단 EVA 칸단</div></div>
+        <div class="delivery-layer"><div class="delivery-layer-num">5</div><div class="delivery-layer-text">스티로폼 박스</div></div>
+        <img src="../assets/images/delivery/box-open.jpeg" alt="실제 배송 박스 개봉" class="img-unified" style="width:100%;margin-top:var(--sp-4);border-radius:var(--radius-md);">
+      </div>
+      <div class="delivery-steps">
+        <div class="delivery-step">
+          <div class="delivery-step-icon"><i data-lucide="box" style="width:22px;height:22px;"></i></div>
+          <div><h4>2중 보냉 구성</h4><p>아이스박스 + 아웃도어 전용 쿨러로 이중 냉기</p></div>
+        </div>
+        <div class="delivery-step">
+          <div class="delivery-step-icon"><i data-lucide="thermometer-snowflake" style="width:22px;height:22px;"></i></div>
+          <div><h4>냉장고 필요 없음</h4><p>드라이아이스 + 전용 냉매재, 전날 수령해도 다음날 OK</p></div>
+        </div>
+        <div class="delivery-step">
+          <div class="delivery-step-icon"><i data-lucide="leaf" style="width:22px;height:22px;"></i></div>
+          <div><h4>일회용품 90% 감소</h4><p>쿨러백 · 스티로폼 · 아이스팩 수거, 쓰레기 1/10 수준</p></div>
+        </div>
+        <div class="delivery-step">
+          <div class="delivery-step-icon"><i data-lucide="sparkles" style="width:22px;height:22px;"></i></div>
+          <div><h4>위생 살균 관리</h4><p>회수 보냉백 · 냉매재 위생 살균, 식재료 보냉백 이중 포장</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="delivery-quotes">
+      <div class="delivery-quote">"수업 1시간 전 10시에 개봉하니 굉장히 차가웠다. 매우 신선했다."</div>
+      <div class="delivery-quote">"전날 16시 수령, 대부분 재료가 얼어있었음"</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 6: HOW IT WORKS ── -->
+<section class="section section-alt" id="how-it-works">
+  <div class="container text-center">
+    <div class="section-tag" style="justify-content:center;">How it works</div>
+    <h2 class="h1">3단계로 끝나는<br><span class="highlight">요리수업</span></h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <img src="../assets/images/menu/또띠아-스낵랩.png" alt="메뉴 선택" class="img-unified" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
+        <h4>메뉴 선택</h4>
+        <p>카카오톡 상담 or<br>플랫폼(지마켓·11번가·네이버) 주문</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <img src="../assets/images/delivery/box-1.jpeg" alt="키트 수령" class="img-unified" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
+        <h4>키트 수령</h4>
+        <p>수업 전날 초신선 배송<br>냉장고 보관 불필요</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <img src="../assets/images/class-kindergarten-pair.jpeg" alt="수업 시작" class="img-unified" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
+        <h4>수업 시작!</h4>
+        <p>개봉 → 배분 → 만들기 → 먹기 → 정리<br>30~40분이면 끝</p>
+      </div>
+    </div>
+    <div class="steps-cta">
+      <a href="#final-cta-institution" class="btn btn-primary">
+        <i data-lucide="gift" style="width:18px;height:18px;"></i>
+        무료 샘플로 먼저 경험하기
+      </a>
+      <p class="hero-micro">매달 한정 수량 지원 · 배송비 무료</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 7: MENU GALLERY ── -->
+<section class="section" id="menu">
+  <div class="container">
+    <div class="section-tag">Menu</div>
+    <h2 class="h1">불·칼 없이 만드는<br><span class="highlight">20가지+ 세계 요리</span></h2>
+    <p class="desc">한식, 양식, 디저트, 시즌 한정 메뉴까지</p>
+    <div class="menu-filters">
+      <button class="menu-filter-btn active" data-filter="all">전체</button>
+      <button class="menu-filter-btn" data-filter="korean">한식</button>
+      <button class="menu-filter-btn" data-filter="western">양식</button>
+      <button class="menu-filter-btn" data-filter="dessert">디저트</button>
+      <button class="menu-filter-btn" data-filter="seasonal">시즌 한정</button>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card" data-category="korean"><img src="../assets/images/menu/꼬마김밥.jpg" alt="꼬마김밥"><div class="menu-card-overlay"><h4>꼬마김밥</h4><span>한식</span></div></div>
+      <div class="menu-card" data-category="korean"><img src="../assets/images/menu/주먹밥.jpg" alt="주먹밥"><div class="menu-card-overlay"><h4>주먹밥</h4><span>한식</span></div></div>
+      <div class="menu-card" data-category="korean"><img src="../assets/images/menu/3색경단.jpeg" alt="3색경단"><div class="menu-card-overlay"><h4>3색경단</h4><span>한식</span></div></div>
+      <div class="menu-card" data-category="western"><img src="../assets/images/menu/또띠아-스낵랩.png" alt="또띠아 스낵랩"><div class="menu-card-overlay"><h4>또띠아 스낵랩</h4><span>양식</span></div></div>
+      <div class="menu-card" data-category="western"><img src="../assets/images/menu/샐러드파스타.jpg" alt="샐러드파스타"><div class="menu-card-overlay"><h4>샐러드파스타</h4><span>양식</span></div></div>
+      <div class="menu-card" data-category="western"><img src="../assets/images/menu/아보카도에그샌드위치.jpg" alt="아보카도에그샌드위치"><div class="menu-card-overlay"><h4>아보카도에그샌드위치</h4><span>양식</span></div></div>
+      <div class="menu-card" data-category="western"><img src="../assets/images/menu/생크림과일샌드위치.png" alt="생크림과일샌드위치"><div class="menu-card-overlay"><h4>생크림과일샌드위치</h4><span>양식</span></div></div>
+      <div class="menu-card" data-category="western"><img src="../assets/images/menu/롤샌드위치.png" alt="롤샌드위치"><div class="menu-card-overlay"><h4>롤샌드위치</h4><span>양식</span></div></div>
+      <div class="menu-card" data-category="western"><img src="../assets/images/menu/카나페.jpeg" alt="카나페"><div class="menu-card-overlay"><h4>카나페</h4><span>양식</span></div></div>
+      <div class="menu-card" data-category="dessert"><img src="../assets/images/menu/스탠실컵케이크.png" alt="스탠실 컵케이크"><div class="menu-card-overlay"><h4>스탠실 컵케이크</h4><span>디저트</span></div></div>
+      <div class="menu-card" data-category="dessert"><img src="../assets/images/menu/바나나크레페.png" alt="바나나 크레페"><div class="menu-card-overlay"><h4>바나나 크레페</h4><span>디저트</span></div></div>
+      <div class="menu-card" data-category="dessert"><img src="../assets/images/menu/디카페인티라미수.png" alt="디카페인 티라미수"><div class="menu-card-overlay"><h4>디카페인 티라미수</h4><span>디저트</span></div></div>
+      <div class="menu-card" data-category="dessert"><img src="../assets/images/menu/모나카-파이.png" alt="모나카 파이"><div class="menu-card-overlay"><h4>모나카 파이</h4><span>디저트</span></div></div>
+      <div class="menu-card" data-category="dessert"><img src="../assets/images/menu/시나몬롤.jpg" alt="시나몬롤"><div class="menu-card-overlay"><h4>시나몬롤</h4><span>디저트</span></div></div>
+      <div class="menu-card" data-category="dessert"><img src="../assets/images/menu/떠먹는강정.png" alt="떠먹는 강정"><div class="menu-card-overlay"><h4>떠먹는 강정</h4><span>디저트</span></div></div>
+      <div class="menu-card" data-category="seasonal"><img src="../assets/images/menu/송편.jpg" alt="송편"><div class="menu-badge">시즌</div><div class="menu-card-overlay"><h4>송편 (추석)</h4><span>시즌 한정</span></div></div>
+      <div class="menu-card" data-category="seasonal"><img src="../assets/images/menu/전통다과3종.png" alt="전통다과 3종"><div class="menu-badge">시즌</div><div class="menu-card-overlay"><h4>전통다과 3종 (설날)</h4><span>시즌 한정</span></div></div>
+    </div>
+    <p class="menu-stats">활용 교과: 실과(38%) · 창의적체험활동(22%) · 다문화교육(7%) · 특수교육(5%) · 진로체험(4%)</p>
+  </div>
+</section>
+
+<!-- ── SEC 8: TRACTION (KPI) ── -->
+<section class="section-lg section-navy" id="traction">
+  <div class="container text-center">
+    <div class="section-tag" style="color:var(--primary-400);justify-content:center;">Traction</div>
+    <h2 class="h1" style="color:white;">숫자가 <span class="highlight">증명</span>합니다</h2>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-num" data-target="3000" data-suffix="+">0</div><div class="kpi-label">교육기관 이용</div></div>
+      <div class="kpi-card"><div class="kpi-num" data-target="100000" data-suffix="+">0</div><div class="kpi-label">아이들이 체험</div></div>
+      <div class="kpi-card"><div class="kpi-num" style="color:var(--accent-green);">0건</div><div class="kpi-label">안전사고</div></div>
+      <div class="kpi-card"><div class="kpi-num" data-target="89.6" data-suffix="%">0</div><div class="kpi-label">동료 추천율</div><div class="kpi-source">설문 280건</div></div>
+      <div class="kpi-card"><div class="kpi-num" data-target="97.4" data-suffix="%">0</div><div class="kpi-label">잔반 거의 없음</div><div class="kpi-source">설문 280건</div></div>
+      <div class="kpi-card"><div class="kpi-num">30~40분</div><div class="kpi-label">수업 소요시간</div><div class="kpi-source">설문 280건</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 9: TESTIMONIALS ── -->
+<section class="section" id="testimonials">
+  <div class="container">
+    <div class="section-tag">Testimonials</div>
+    <h2 class="h1">전국에서 밀프레드와<br><span class="highlight">함께하고 있습니다</span></h2>
+    <p class="desc">280명의 선생님이 직접 들려주신 이야기입니다</p>
+    <div class="testimonial-tabs">
+      <button class="testimonial-tab active" data-tab="reaction">아이들 반응</button>
+      <button class="testimonial-tab" data-tab="convenience">수업 편의성</button>
+      <button class="testimonial-tab" data-tab="freshness">신선도</button>
+    </div>
+    <div class="testimonial-panel active" data-panel="reaction">
+      <div class="testimonial-slider"><div class="testimonial-track">
+        <div class="testimonial-card"><div class="testimonial-quote">엄마가 해준 것보다 맛있어요!</div><div class="testimonial-author">수업 참여 학생</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">선생님 더 먹으면 안돼요?</div><div class="testimonial-author">수업 참여 학생</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">항상 부정적인 아이의 입에서 맛있다는 말이 나옴</div><div class="testimonial-author">교사</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">입맛 까다로운 아이들도 다 잘 먹었어요!</div><div class="testimonial-author">교사</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">잔반이 하나 없게 다들 잘 먹었습니다</div><div class="testimonial-author">교사</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">학교에서 먹은 것 중 제일 맛있다</div><div class="testimonial-author">수업 참여 학생</div></div>
+      </div></div>
+    </div>
+    <div class="testimonial-panel" data-panel="convenience">
+      <div class="testimonial-slider"><div class="testimonial-track">
+        <div class="testimonial-card"><div class="testimonial-quote">재료가 다 준비되어 있고 실습하기에 편해서 너무 좋았습니다</div><div class="testimonial-author">교사</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">요리에 자신이 없는 선생님도 전혀 걱정 없어요</div><div class="testimonial-author">교사</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">학년 부장님들께 공유하고 내년도 교육과정에 반영했습니다</div><div class="testimonial-author">교사</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">키트는 보통 맛이 없는데 밀프레드 제품은 전부 다 맛있었습니다</div><div class="testimonial-author">교사</div></div>
+      </div></div>
+    </div>
+    <div class="testimonial-panel" data-panel="freshness">
+      <div class="testimonial-slider"><div class="testimonial-track">
+        <div class="testimonial-card"><div class="testimonial-quote">수업 1시간 전 개봉하니 굉장히 차가웠다. 매우 신선했다</div><div class="testimonial-author">교사</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">전날 오후 수령했는데 다음날 아침 냉동식품은 완전 얼어 있었어요</div><div class="testimonial-author">교사</div></div>
+        <div class="testimonial-card"><div class="testimonial-quote">여름에도 안심하고 구입해도 괜찮겠다</div><div class="testimonial-author">교사</div></div>
+      </div></div>
+    </div>
+    <div class="photo-grid">
+      <img src="../assets/images/hero-kids-happy.jpeg" alt="유치원생 크레페 완성">
+      <img src="../assets/images/hero-class-group.jpeg" alt="유치원 단체 수업">
+      <img src="../assets/images/class-kindergarten-cooking.jpeg" alt="유치원생 요리 중">
+      <img src="../assets/images/class-kindergarten-pair.jpeg" alt="유치원생 짝 요리">
+      <img src="../assets/images/class/institution-1.jpeg" alt="공공기관 수업 1">
+      <img src="../assets/images/class/institution-2.jpeg" alt="공공기관 수업 2">
+      <img src="../assets/images/class/institution-3.jpeg" alt="공공기관 수업 3">
+      <img src="../assets/images/class/daycare-cooking.jpeg" alt="어린이집 요리">
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 10: CURRICULUM ── -->
+<section class="section section-alt" id="curriculum">
+  <div class="container">
+    <div class="section-tag">Curriculum</div>
+    <h2 class="h1">2022 개정 교육과정과<br><span class="highlight">함께합니다</span></h2>
+    <div style="display:flex;gap:var(--sp-4);justify-content:center;margin:var(--sp-8) 0;flex-wrap:wrap;">
+      <img src="../assets/images/leaflet-elementary.png" alt="초등 실과 리플렛" class="img-unified" style="height:180px;border-radius:var(--radius-md);box-shadow:var(--shadow-md);">
+      <img src="../assets/images/leaflet-middle.png" alt="중학교 기술가정 리플렛" class="img-unified" style="height:180px;border-radius:var(--radius-md);box-shadow:var(--shadow-md);">
+      <img src="../assets/images/leaflet-kindergarten.png" alt="유치원 어린이집 리플렛" class="img-unified" style="height:180px;border-radius:var(--radius-md);box-shadow:var(--shadow-md);">
+    </div>
+    <div class="curriculum-tabs">
+      <button class="curriculum-tab active" data-tab="elementary">초등 실과</button>
+      <button class="curriculum-tab" data-tab="middle">중학교</button>
+      <button class="curriculum-tab" data-tab="kindergarten">유치원</button>
+    </div>
+    <div class="curriculum-panel active" data-panel="elementary">
+      <table class="curriculum-table">
+        <thead><tr><th>교육과정 코드</th><th>교육 내용</th><th>밀프레드 연계</th></tr></thead>
+        <tbody>
+          <tr><td><span class="curriculum-code">[6실04-04]</span></td><td>건강한 식생활을 위한 식품의 선택과 보관</td><td>식재료 원산지 학습, 보관 방법 교육</td></tr>
+          <tr><td><span class="curriculum-code">[6실04-05]</span></td><td>간단한 음식 만들기를 통해 식생활 실천</td><td><strong>핵심</strong> — 불·칼 없이 안전 요리 실습</td></tr>
+          <tr><td><span class="curriculum-code">[6실04-06]</span></td><td>음식 만들기의 안전과 위생 실천</td><td>개인별 위생 포장, 안전 조리도구</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="curriculum-panel" data-panel="middle">
+      <table class="curriculum-table">
+        <thead><tr><th>교육과정 코드</th><th>교육 내용</th><th>밀프레드 연계</th></tr></thead>
+        <tbody>
+          <tr><td><span class="curriculum-code">[9기가04-04]</span></td><td>균형 잡힌 식사 계획, 건강한 식생활</td><td>영양 정보, 세계 요리 식문화 경험</td></tr>
+          <tr><td><span class="curriculum-code">[9기가04-05]</span></td><td>식품의 안전한 선택과 조리</td><td>안전 조리법, 식품 안전 교육 연계</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="curriculum-panel" data-panel="kindergarten">
+      <table class="curriculum-table">
+        <thead><tr><th>누리과정 영역</th><th>교육 내용</th><th>밀프레드 연계</th></tr></thead>
+        <tbody>
+          <tr><td><span class="curriculum-code">신체운동·건강</span></td><td>건강하게 생활하기</td><td>요리활동 통한 식재료 탐색</td></tr>
+          <tr><td><span class="curriculum-code">자연탐구</span></td><td>탐구과정 즐기기</td><td>요리 과정 변화 관찰</td></tr>
+          <tr><td><span class="curriculum-code">사회관계</span></td><td>더불어 생활하기</td><td>협력 요리 통한 사회성 발달</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 11: CONVENIENCE ── -->
+<section class="section" id="convenience">
+  <div class="container">
+    <div class="section-tag">Convenience</div>
+    <h2 class="h1">학교 행정,<br><span class="highlight">저희가 맞춰드립니다</span></h2>
+    <p class="desc">선생님이 편한 방식으로 주문하고, 필요한 서류를 바로 받으세요</p>
+    <div class="convenience-grid">
+      <div>
+        <div class="platform-logos">
+          <div class="platform-logo">지마켓</div>
+          <div class="platform-logo">11번가</div>
+          <div class="platform-logo">네이버</div>
+          <div class="platform-logo">카카오톡</div>
+        </div>
+        <div class="platform-note">설문 결과: 선생님의 55.7%가 지마켓을 이용하십니다</div>
+        <h3 class="h3" style="margin-bottom:var(--sp-4);">결제 방식</h3>
+        <div class="payment-methods">
+          <div class="payment-method"><div class="payment-method-icon"><i data-lucide="credit-card" style="width:20px;height:20px;"></i></div><span>카드 수기결제</span></div>
+          <div class="payment-method"><div class="payment-method-icon"><i data-lucide="landmark" style="width:20px;height:20px;"></i></div><span>계좌이체</span></div>
+          <div class="payment-method"><div class="payment-method-icon"><i data-lucide="smartphone" style="width:20px;height:20px;"></i></div><span>플랫폼 결제</span></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="h3" style="margin-bottom:var(--sp-5);">행정 서류 체크리스트</h3>
+        <div class="admin-checklist">
+          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>견적서 즉시 발행</div>
+          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>전자세금계산서 발행</div>
+          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>거래명세서 발행</div>
+          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>후불 결제 가능</div>
+          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>기타 필요 서류 맞춤 발급</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 12: VOLUME DISCOUNT ── -->
+<section class="section section-alt" id="discount">
+  <div class="container text-center">
+    <div class="section-tag" style="justify-content:center;">Volume Discount</div>
+    <h2 class="h1">함께할수록<br><span class="highlight">더 저렴해져요</span></h2>
+    <p class="desc desc-center">동료 선생님과 함께 주문하면 최대 10% 할인</p>
+    <div class="discount-cards">
+      <div class="discount-card"><div class="discount-qty">19세트 이상</div><div class="discount-num">+1<span>세트</span></div><div class="discount-pct">5%</div><div class="discount-bonus">무료 증정</div></div>
+      <div class="discount-card featured"><div class="discount-qty">39세트 이상</div><div class="discount-num">+3<span>세트</span></div><div class="discount-pct">7%</div><div class="discount-bonus">무료 증정</div></div>
+      <div class="discount-card"><div class="discount-qty">59세트 이상</div><div class="discount-num">+7<span>세트</span></div><div class="discount-pct">10%</div><div class="discount-bonus">무료 증정</div></div>
+    </div>
+    <div style="margin-top:var(--sp-8);text-align:center;">
+      <img src="../assets/images/volume-discount.jpeg" alt="무료 증정 이벤트 안내" class="img-unified" style="max-width:600px;width:100%;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);margin:0 auto;">
+    </div>
+    <div class="discount-note" style="text-align:left;margin-top:var(--sp-6);">
+      <p><strong>다른 메뉴와 합산 가능</strong> — 예: 샌드위치 10세트 + 카나페 9세트 = 19세트 → 1세트 무료</p>
+      <p><strong>무료 증정 세트</strong>는 다른 4인분 메뉴로 변경 가능</p>
+      <p>동학년 선생님, 같은 학교 선생님과 함께 주문하면 더 큰 혜택!</p>
+      <p>카카오톡 "밀프레드"로 문의해 주세요.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 13: SAMPLE PREVIEW ── -->
+<section class="section" id="sample">
+  <div class="container">
+    <div class="section-tag">Free Sample</div>
+    <h2 class="h1">무료 샘플,<br><span class="highlight">이런 구성이 도착합니다</span></h2>
+    <p class="desc">매달 한정된 수량만 지원합니다</p>
+    <div class="sample-grid">
+      <div class="sample-img"><img src="../assets/images/delivery/renewal.jpeg" alt="밀프레드 키트 구성" class="img-unified"></div>
+      <div>
+        <div class="sample-list">
+          <div class="sample-item"><div class="sample-check"><i data-lucide="check" style="width:14px;height:14px;"></i></div>1학급분 (25~30인분)</div>
+          <div class="sample-item"><div class="sample-check"><i data-lucide="check" style="width:14px;height:14px;"></i></div>식재료 (1인분 개별 포장)</div>
+          <div class="sample-item"><div class="sample-check"><i data-lucide="check" style="width:14px;height:14px;"></i></div>조리도구 + 포장용기</div>
+          <div class="sample-item"><div class="sample-check"><i data-lucide="check" style="width:14px;height:14px;"></i></div>선생님용 수업 PPT</div>
+          <div class="sample-item"><div class="sample-check"><i data-lucide="check" style="width:14px;height:14px;"></i></div>학생용 레시피 카드</div>
+          <div class="sample-item"><div class="sample-check"><i data-lucide="check" style="width:14px;height:14px;"></i></div>유튜브 영상 링크</div>
+          <div class="sample-item"><div class="sample-check"><i data-lucide="check" style="width:14px;height:14px;"></i></div>요리 안전 수칙</div>
+        </div>
+        <div class="progress-bar-wrapper">
+          <div class="progress-label"><span>이번 달 무료 샘플 잔여</span><strong>23건 / 50건</strong></div>
+          <div class="progress-track"><div class="progress-fill" data-width="46%" style="width:0;"></div></div>
+          <p class="progress-note">매달 선착순 50건 한정 지원 · 다음 달 지원은 보장할 수 없습니다</p>
+        </div>
+        <div class="risk-badges">
+          <div class="risk-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>완전 무료</div>
+          <div class="risk-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>배송비 무료</div>
+          <div class="risk-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>의무 구매 없음</div>
+          <div class="risk-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>5중 보냉 초신선 배송</div>
+          <div class="risk-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>냉장고 보관 불필요</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 14: FAQ (institution) ── -->
+<section class="section section-alt" id="faq-institution">
+  <div class="container">
+    <div class="section-tag" style="justify-content:center;">FAQ</div>
+    <h2 class="h1 text-center">자주 묻는 질문</h2>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-question">정말 무료인가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">매달 한정 수량 완전 무료입니다. 배송비도 무료이며, 의무 구매 조건은 없습니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">안전한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">3,000곳+ 교육기관, 10만명+ 아이들이 체험했으며 사고 0건입니다. 모든 메뉴는 불·칼을 사용하지 않으며, 삼성화재 PL보험 5억원에 가입되어 있습니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">신선도는 괜찮나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">5중 보냉 시스템으로 48시간 냉기가 유지됩니다. 전날 수령해도 다음날 신선하며, 설문 응답 거의 전원이 "신선했다"고 답했습니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">교육과정과 연계되나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">2022 개정 교육과정 실과·기술가정·누리과정과 연계된 PPT와 커리큘럼을 제공합니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">어떤 결제 방식이 가능한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">지마켓, 11번가, 네이버 플랫폼 결제와 카드 수기결제, 계좌이체가 가능합니다. 견적서·세금계산서·거래명세서를 즉시 발급해 드립니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">최소 주문 인원은요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">1학급(25~30명)부터 주문 가능합니다. 학년·학교 단위 대량 주문 시 최대 10% 할인이 적용됩니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">배송은 얼마나 걸리나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">수업일 기준 2~3일 전 도착합니다. 5중 보냉으로 냉장고 없이 안전합니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">알레르기 대응이 가능한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">전 메뉴 알레르기 유발 물질을 표시합니다. 사전 상담 시 대체 메뉴를 안내해 드립니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">뒷정리가 걱정돼요<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">쿨러백·스티로폼·아이스팩 수거 시스템이 있습니다. 설문 결과 97.4%가 "음식물 쓰레기 거의 없었다"고 답했습니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">늘봄학교 프로그램으로 쓸 수 있나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">늘봄학교, 동아리, 창의적체험활동, 다문화교육, 특수교육, 진로체험 등 다양한 프로그램에 활용 가능합니다.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SEC 15: FINAL CTA (institution) ── -->
+<section class="final-cta" id="final-cta-institution">
+  <div class="container">
+    <h2 class="display">다음 수업,<br>밀프레드와 시작하세요</h2>
+    <p class="desc desc-center">무료 샘플을 신청하고 직접 경험해 보세요</p>
+    <div class="final-scarcity">이번 달 잔여 23건 · 매달 한정 지원</div>
+    <div class="cta-form">
+      <input type="text" placeholder="기관명 / 선생님 성함" required>
+      <input type="tel" placeholder="연락처" required>
+      <input type="text" placeholder="배송지 주소" required>
+      <select>
+        <option value="" disabled selected>희망 메뉴 선택 (선택사항)</option>
+        <option>꼬마김밥</option>
+        <option>또띠아 스낵랩</option>
+        <option>샐러드파스타</option>
+        <option>생크림과일샌드위치</option>
+        <option>스탠실 컵케이크</option>
+        <option>바나나 크레페</option>
+        <option>기타 (상담 시 안내)</option>
+      </select>
+      <button class="btn-cta-final">무료 샘플 신청하기</button>
+    </div>
+    <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:var(--sp-3);position:relative;">30초면 완료 · 비용 0원 · 의무 없음</p>
+    <div class="final-risk">
+      <span>✓ 완전 무료</span>
+      <span>✓ 배송비 무료</span>
+      <span>✓ 의무 구매 없음</span>
+      <span>✓ 5중 보냉 초신선 배송</span>
+    </div>
+  </div>
+</section>
+
+</div><!-- /tab-institution -->
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  TAB B: HOME (가정용 편식극복)                           ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<div id="tab-home" class="tab-content" style="display:none;">
+
+<!-- ── B1: HOME SUB-HERO ── -->
+<section class="hm-hero" id="hm-hero">
+  <div class="container text-center">
+    <div class="hm-hero-badge">SOS Approach to Feeding<sup>[1]</sup> × 밀프레드</div>
+    <h1 class="display" style="color:white;">푸드브릿지 프로그램<br><span style="color:#A7F3D0;">편식, 5주 안에 다리를 놓다</span></h1>
+    <p class="hm-hero-desc">국제 식이치료 프로토콜과 식약처 영유아 급식관리지침<sup>[3]</sup>을 결합한<br>국내 유일 가정용 반복노출(Repeated Exposure) 키트<sup>[4]</sup></p>
+    <div class="hm-hero-metrics">
+      <div class="hm-hero-metric">
+        <div class="hm-hero-metric-num">15회</div>
+        <div class="hm-hero-metric-label">5주간 총 노출 횟수</div>
+      </div>
+      <div class="hm-hero-metric">
+        <div class="hm-hero-metric-num">주 3회</div>
+        <div class="hm-hero-metric-label">Optimal Frequency<sup>[5]</sup></div>
+      </div>
+      <div class="hm-hero-metric">
+        <div class="hm-hero-metric-num">30종</div>
+        <div class="hm-hero-metric-label">편식 식재료 분석 완료</div>
+      </div>
+    </div>
+    <div class="hm-hero-actions">
+      <a href="#hm-quiz" class="btn btn-white" style="color:#2D8B4E;">
+        <i data-lucide="search" style="width:18px;height:18px;"></i>
+        우리 아이 편식 진단하기 →
+      </a>
+      <a href="#methodology" class="btn" style="background:transparent;color:white;border:2px solid rgba(255,255,255,0.5);">프로그램 알아보기</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── B2: METHODOLOGY ── -->
+<section class="section" id="methodology">
+  <div class="container">
+    <div class="section-tag">Methodology</div>
+    <h2 class="h1">세 가지 근거,<br><span class="highlight">하나의 프로그램</span></h2>
+    <p class="desc">밀프레드 푸드브릿지는 세계적으로 검증된 이론을 기반으로 설계되었습니다</p>
+    <div class="bento-grid">
+      <div class="bento-card">
+        <div class="bento-icon bento-icon-orange"><i data-lucide="heart-handshake" style="width:24px;height:24px;"></i></div>
+        <h4>SOS Approach to Feeding<sup>[1]</sup></h4>
+        <p>Dr. Kay Toomey가 개발한 32단계 식이 위계(Eating Hierarchy). 감각 탐색 → 입술 접촉 → 자발적 섭취의 점진적 접근법. 전 세계 7,000명 이상의 임상 전문가가 사용하는 근거 기반 프로그램입니다.</p>
+        <div class="bento-tag">INTERNATIONAL PROTOCOL</div>
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon bento-icon-orange"><i data-lucide="book-open" style="width:24px;height:24px;"></i></div>
+        <h4>식약처 영유아 급식관리 지침서<sup>[3]</sup></h4>
+        <p>어린이급식관리지원센터 발행 「어린이급식관리지침서 2023」<sup>[6]</sup>, 「식단운영관리지침서 2025」<sup>[7]</sup> 기반. 2,028개 표준 메뉴 데이터에서 식재료 등장 빈도와 영양 균형을 분석했습니다.</p>
+        <div class="bento-tag">국가 지침</div>
+      </div>
+      <div class="bento-card">
+        <div class="bento-icon bento-icon-orange"><i data-lucide="users" style="width:24px;height:24px;"></i></div>
+        <h4>Satter Division of Responsibility<sup>[8]</sup></h4>
+        <p>Ellyn Satter Institute의 섭식 분업 모델. 부모는 "무엇을, 언제, 어디서" 제공하고, 아이가 "먹을지, 얼마나" 결정합니다. 강제 급여 없이 자율성을 보장하는 핵심 원칙입니다.</p>
+        <div class="bento-tag">EVIDENCE-BASED</div>
+      </div>
+      <div class="bento-card bento-featured" style="background:var(--primary-500);color:white;">
+        <div>
+          <div class="bento-icon" style="background:rgba(255,255,255,0.2);color:white;"><i data-lucide="puzzle" style="width:28px;height:28px;"></i></div>
+          <h4 style="color:#A7F3D0;">밀프레드 푸드브릿지 5단계<sup>[2]</sup></h4>
+          <p style="color:rgba(255,255,255,0.9);">SOS의 32단계를 가정용으로 단순화하고, 식약처 급식 지침의 연령별 식단 데이터를 결합하여 밀프레드가 자체 설계한 <strong style="color:white;">5단계 × 5주 프로그램</strong>입니다.<br><br><strong style="color:white;">① 시각탐색 → ② 후각·촉각 → ③ 입술접촉 → ④ 씹어보기 → ⑤ 자유롭게 먹기</strong><br><br>각 단계를 1주 단위로 진행하며, 주 3회 반복 노출<sup style="color:#A7F3D0;">[5]</sup>로 5주간 총 15회 — 연구 권장 범위<sup style="color:#A7F3D0;">[9]</sup>의 최대치를 충족합니다.</p>
+        </div>
+        <div class="bento-tag" style="background:rgba(255,255,255,0.2);color:white;">MILFRED FRAMEWORK</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B3: EXPOSURE SCIENCE ── -->
+<section class="section section-alt" id="exposure-science">
+  <div class="container">
+    <div class="section-tag">Repeated Exposure Science</div>
+    <h2 class="h1">부모님은 3~5회에 포기합니다<sup>[10]</sup><br><span class="highlight">변화는 8회째에 시작됩니다</span><sup>[4]</sup></h2>
+    <p class="desc">연구에 따르면 아이가 새 음식을 받아들이려면 최소 8~15회의 반복 노출이 필요합니다. 하지만 대부분의 부모님은 3~5회 거부 후 해당 식재료를 식탁에서 제외합니다.</p>
+    <div class="hm-exposure-grid">
+      <div class="hm-chart">
+        <div class="hm-chart-title">노출 횟수별 식품 수용도 변화<sup>[5]</sup></div>
+        <div class="hm-chart-bars">
+          <div class="hm-bar-row">
+            <span class="hm-bar-label">1~3회</span>
+            <div class="hm-bar-track"><div class="hm-bar-fill hm-bar-red" style="width:15%;" data-width="15%"></div></div>
+            <span class="hm-bar-value">거부 <small style="color:#c62828;">← 73% 포기 구간<sup>[10]</sup></small></span>
+          </div>
+          <div class="hm-bar-row">
+            <span class="hm-bar-label">4회</span>
+            <div class="hm-bar-track"><div class="hm-bar-fill hm-bar-amber" style="width:35%;" data-width="35%"></div></div>
+            <span class="hm-bar-value">첫 변화<sup>[5]</sup></span>
+          </div>
+          <div class="hm-bar-row">
+            <span class="hm-bar-label">5~6회</span>
+            <div class="hm-bar-track"><div class="hm-bar-fill hm-bar-amber" style="width:50%;" data-width="50%"></div></div>
+            <span class="hm-bar-value">Plateau<sup>[5]</sup></span>
+          </div>
+          <div class="hm-bar-row">
+            <span class="hm-bar-label">7~8회</span>
+            <div class="hm-bar-track"><div class="hm-bar-fill hm-bar-green" style="width:72%;" data-width="72%"></div></div>
+            <span class="hm-bar-value">유의미한 증가<sup>[4]</sup></span>
+          </div>
+          <div class="hm-bar-row">
+            <span class="hm-bar-label">10~15회</span>
+            <div class="hm-bar-track"><div class="hm-bar-fill hm-bar-green-dark" style="width:92%;" data-width="92%"></div></div>
+            <span class="hm-bar-value">수용 안정화<sup>[9]</sup> <small style="color:#2D8B4E;">← 밀프레드 15회 ✓</small></span>
+          </div>
+        </div>
+        <p class="hm-chart-source">데이터 출처: de Wild et al. (2021)<sup>[5]</sup>, Wardle et al. (2003)<sup>[4]</sup>, Fildes (2014)<sup>[10]</sup></p>
+      </div>
+      <div class="hm-exposure-text">
+        <h3 class="h3">"변화가 없어 보이는 1~3회,<br>그게 정상입니다"</h3>
+        <p style="font-size:15px;color:var(--neutral-600);line-height:1.8;margin-top:var(--sp-4);">
+          de Wild 등(2021)의 Daikon 노출 실험에서 섭취량은 <strong>4회째 첫 증가</strong>, <strong>5~6회째 Plateau(정체기)</strong>를 거쳐, <strong>7회째 최대 섭취량(68g)</strong>을 기록했습니다.<sup>[5]</sup>
+        </p>
+        <p style="font-size:15px;color:var(--neutral-600);line-height:1.8;margin-top:var(--sp-3);">
+          Wardle(2003)은 8회 반복 노출 그룹의 섭취량이 대조군 대비 유의미하게 증가(p=0.006)했음을 보고합니다.<sup>[4]</sup>
+        </p>
+        <p style="font-size:15px;color:var(--neutral-600);line-height:1.8;margin-top:var(--sp-3);">
+          Fildes(2014)의 RCT에서는 14일 노출 후 비섭취자 비율이 <strong>45% → 9%</strong>로 감소했습니다.<sup>[10]</sup>
+        </p>
+        <p style="font-size:15px;font-weight:700;color:var(--primary-500);line-height:1.8;margin-top:var(--sp-4);">
+          밀프레드 키트: 5주 × 주 3회 = 총 15회<br>연구 권장 범위(8~15회)<sup>[9]</sup>의 최대치 달성
+        </p>
+        <div style="margin-top:var(--sp-6);">
+          <a href="#hm-quiz" class="btn btn-primary">우리 아이 편식 진단하기</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B4: PARENT GUIDE ── -->
+<section class="section" id="parent-guide">
+  <div class="container text-center">
+    <div class="section-tag" style="justify-content:center;">Parent Guide</div>
+    <h2 class="h1">포기하고 싶을 때,<br><span class="highlight">기억하세요</span></h2>
+    <p class="desc desc-center">Satter 원칙<sup>[8]</sup>: 아이가 거부하는 건 실패가 아닙니다. 뇌가 학습 중입니다.</p>
+    <div class="hm-guide-cards">
+      <div class="hm-guide-card hm-guide-danger">
+        <div class="hm-guide-phase">1~5회</div>
+        <h4>위험 구간</h4>
+        <div class="hm-guide-icon" style="background:rgba(239,68,68,0.1);color:#EF4444;">
+          <i data-lucide="alert-triangle" style="width:28px;height:28px;"></i>
+        </div>
+        <div style="font-size:32px;font-weight:900;color:#EF4444;margin:var(--sp-3) 0;">73%</div>
+        <p>부모의 73%가 이 구간에서 포기합니다.<sup>[10]</sup> 하지만 아이의 뇌는 아직 "위험 평가 중(Neophobic Response)"<sup>[11]</sup>일 뿐입니다. 이 반응은 진화적으로 정상적인 자기보호 메커니즘입니다.</p>
+      </div>
+      <div class="hm-guide-card hm-guide-patience">
+        <div class="hm-guide-phase">5~8회</div>
+        <h4>인내 구간</h4>
+        <div class="hm-guide-icon" style="background:rgba(245,158,11,0.1);color:#F59E0B;">
+          <i data-lucide="timer" style="width:28px;height:28px;"></i>
+        </div>
+        <div style="font-size:32px;font-weight:900;color:#F59E0B;margin:var(--sp-3) 0;">Plateau</div>
+        <p>4회째 첫 변화 후 5~6회째 정체기가 옵니다.<sup>[5]</sup> "만지는 건 하는데 안 먹어요"가 이 구간. 감각 탐색(Sensory Exploration)<sup>[1]</sup>이 일어나는 <strong>가장 중요한 신호</strong>입니다.</p>
+      </div>
+      <div class="hm-guide-card hm-guide-reward">
+        <div class="hm-guide-phase">8~15회</div>
+        <h4>보상 구간</h4>
+        <div class="hm-guide-icon" style="background:rgba(45,139,78,0.1);color:#2D8B4E;">
+          <i data-lucide="trophy" style="width:28px;height:28px;"></i>
+        </div>
+        <div style="font-size:32px;font-weight:900;color:#2D8B4E;margin:var(--sp-3) 0;">3.2×</div>
+        <p>Wardle(2003)에서 8회 노출 그룹 섭취량 = 대조군의 3.2배.<sup>[4]</sup> Fildes(2014): 비섭취자 45%→9%.<sup>[10]</sup> 포기하지 않은 부모님의 아이가 달라집니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B5: FOOD BRIDGE 5 STEPS ── -->
+<section class="section section-alt" id="food-bridge">
+  <div class="container text-center">
+    <div class="section-tag" style="justify-content:center;">푸드브릿지 5단계<sup>[2]</sup></div>
+    <h2 class="h1">매주 1단계씩,<br><span class="highlight">주 3회 반복</span></h2>
+    <p class="desc desc-center">SOS Approach<sup>[1]</sup>의 감각 위계를 가정용으로 재설계</p>
+    <div class="hm-steps-grid">
+      <div class="hm-step-card">
+        <div class="step-num">1</div>
+        <h4>시각탐색</h4>
+        <p class="hm-step-week">Week 1</p>
+        <p>색소 놀이, 스탬프, 관찰일지 그리기</p>
+        <div style="margin-top:var(--sp-3);"><span style="display:inline-block;background:var(--primary-50);color:var(--primary-500);font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">노출 1~3회</span></div>
+      </div>
+      <div class="hm-step-card">
+        <div class="step-num">2</div>
+        <h4>후각·촉각탐색</h4>
+        <p class="hm-step-week">Week 2</p>
+        <p>만지기, 냄새 맡기, 찢기·갈기 놀이</p>
+        <div style="margin-top:var(--sp-3);"><span style="display:inline-block;background:var(--primary-50);color:var(--primary-500);font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">노출 4~6회</span></div>
+      </div>
+      <div class="hm-step-card">
+        <div class="step-num">3</div>
+        <h4>입술접촉</h4>
+        <p class="hm-step-week">Week 3</p>
+        <p>입에 대보기, 소량 맛보기</p>
+        <div style="margin-top:var(--sp-3);"><span style="display:inline-block;background:var(--primary-50);color:var(--primary-500);font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">노출 7~9회</span></div>
+      </div>
+      <div class="hm-step-card">
+        <div class="step-num">4</div>
+        <h4>씹어보기</h4>
+        <p class="hm-step-week">Week 4</p>
+        <p>한 입 도전, 다양한 식감 경험</p>
+        <div style="margin-top:var(--sp-3);"><span style="display:inline-block;background:var(--primary-50);color:var(--primary-500);font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">노출 10~12회</span></div>
+      </div>
+      <div class="hm-step-card">
+        <div class="step-num">5</div>
+        <h4>자유롭게 먹기</h4>
+        <p class="hm-step-week">Week 5</p>
+        <p>직접 요리하기, 가족 식탁 함께</p>
+        <div style="margin-top:var(--sp-3);"><span style="display:inline-block;background:var(--primary-50);color:var(--primary-500);font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">노출 13~15회</span></div>
+      </div>
+    </div>
+    <p style="margin-top:var(--sp-6);font-size:13px;color:var(--neutral-500);">매주 <strong style="color:var(--primary-500);">키트 배송 1회</strong> + <strong style="color:var(--primary-500);">가정 활동 2회</strong> = 주 3회 노출<sup>[5]</sup><br><span style="font-size:11px;color:var(--neutral-400);">배송된 재료·활동지로 가정 2회 추가 시도 (압박 없이, Satter 원칙<sup>[8]</sup> 준수)</span></p>
+  </div>
+</section>
+
+<!-- ── B6: QUIZ ── -->
+<section class="section" id="hm-quiz">
+  <div class="container text-center">
+    <div class="section-tag" style="justify-content:center;">Picky Eating Quiz</div>
+    <h2 class="h1">우리 아이가 뭘 안 먹나요?<br><span class="highlight">식재료를 선택하세요</span></h2>
+    <p class="desc desc-center">식재료를 선택하면 맞춤 5주 코스를 안내해드립니다</p>
+    <div class="hm-quiz-box">
+      <div class="hm-qi" data-ingredient="당근">
+        <span class="hm-qi-emoji">🥕</span>
+        <span class="hm-qi-name">당근</span>
+        <span class="hm-qi-diff hm-qi-diff-ha">입문(하)</span>
+      </div>
+      <div class="hm-qi" data-ingredient="양파">
+        <span class="hm-qi-emoji">🧅</span>
+        <span class="hm-qi-name">양파</span>
+        <span class="hm-qi-diff hm-qi-diff-ha">입문(하)</span>
+      </div>
+      <div class="hm-qi" data-ingredient="두부">
+        <span class="hm-qi-emoji">🧈</span>
+        <span class="hm-qi-name">두부</span>
+        <span class="hm-qi-diff hm-qi-diff-ha">입문(하)</span>
+      </div>
+      <div class="hm-qi" data-ingredient="버섯">
+        <span class="hm-qi-emoji">🍄</span>
+        <span class="hm-qi-name">버섯</span>
+        <span class="hm-qi-diff hm-qi-diff-jung">도전(중)</span>
+      </div>
+      <div class="hm-qi" data-ingredient="토마토">
+        <span class="hm-qi-emoji">🍅</span>
+        <span class="hm-qi-name">토마토</span>
+        <span class="hm-qi-diff hm-qi-diff-jung">도전(중)</span>
+      </div>
+      <div class="hm-qi" data-ingredient="파프리카">
+        <span class="hm-qi-emoji">🫑</span>
+        <span class="hm-qi-name">파프리카</span>
+        <span class="hm-qi-diff hm-qi-diff-jung">도전(중)</span>
+      </div>
+      <div class="hm-qi" data-ingredient="시금치">
+        <span class="hm-qi-emoji">🥬</span>
+        <span class="hm-qi-name">시금치</span>
+        <span class="hm-qi-diff hm-qi-diff-sang">고급(상)</span>
+      </div>
+      <div class="hm-qi" data-ingredient="브로콜리">
+        <span class="hm-qi-emoji">🥦</span>
+        <span class="hm-qi-name">브로콜리</span>
+        <span class="hm-qi-diff hm-qi-diff-sang">고급(상)</span>
+      </div>
+      <div class="hm-qi" data-ingredient="가지">
+        <span class="hm-qi-emoji">🍆</span>
+        <span class="hm-qi-name">가지</span>
+        <span class="hm-qi-diff hm-qi-diff-sang">고급(상)</span>
+      </div>
+    </div>
+    <div class="hm-quiz-result" id="hm-quiz-result" style="display:none;">
+      <div class="hm-quiz-result-inner">
+        <h3 class="h3" id="hm-quiz-result-title"></h3>
+        <p id="hm-quiz-result-desc"></p>
+        <a href="#hm-catalog" class="btn btn-primary" style="margin-top:var(--sp-4);">맞춤 코스 보기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B7: PRODUCT CATALOG ── -->
+<section class="section section-alt" id="hm-catalog">
+  <div class="container">
+    <div class="section-tag">Product Catalog</div>
+    <h2 class="h1">식재료별<br><span class="highlight">5주 코스 선택</span></h2>
+    <p class="desc">아이가 거부하는 식재료에 맞춤 설계된 5주 15회 코스입니다</p>
+    <div class="hm-product-filters">
+      <button class="hm-pf-btn active" data-filter="all">전체</button>
+      <button class="hm-pf-btn" data-filter="ha">입문(하)</button>
+      <button class="hm-pf-btn" data-filter="jung">도전(중)</button>
+      <button class="hm-pf-btn" data-filter="sang">고급(상)</button>
+    </div>
+    <div class="hm-product-grid">
+      <a class="hm-p-card" data-category="ha" href="carrot-course.html" style="text-decoration:none;color:inherit;display:block;">
+        <div class="hm-p-badge" style="background:var(--primary-50);color:var(--primary-600);">입문</div>
+        <div class="hm-p-emoji">🥕</div>
+        <h4>당근 코스</h4>
+        <p class="hm-p-sub">편식 스코어 62.4 · 밀프레드 8개 제품 연계</p>
+        <div class="hm-p-menus">주황색 시각 거부 + 아삭 식감. 첫 편식 극복 경험 최적.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <span class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">당근 코스 상세보기</span>
+      </a>
+      <div class="hm-p-card" data-category="ha">
+        <div class="hm-p-badge" style="background:var(--primary-50);color:var(--primary-600);">입문</div>
+        <div class="hm-p-emoji">🧅</div>
+        <h4>양파 코스</h4>
+        <p class="hm-p-sub">편식 스코어 50.5 · 밀프레드 31개 제품 연계</p>
+        <div class="hm-p-menus">매운 향+눈물 반응. 볶으면 당도 8→40 Brix.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <a href="#hm-final-cta" class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">이 코스 시작하기</a>
+      </div>
+      <div class="hm-p-card" data-category="ha">
+        <div class="hm-p-badge" style="background:var(--primary-50);color:var(--primary-600);">입문</div>
+        <div class="hm-p-emoji">🧈</div>
+        <h4>두부 코스</h4>
+        <p class="hm-p-sub">편식 스코어 46.6 · 물렁 식감 주원인</p>
+        <div class="hm-p-menus">바삭 두부스테이크→순두부 순 식감 단계화.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <a href="#hm-final-cta" class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">이 코스 시작하기</a>
+      </div>
+      <div class="hm-p-card" data-category="jung">
+        <div class="hm-p-badge" style="background:#FFF3E0;color:#E65100;">도전</div>
+        <div class="hm-p-emoji">🍄</div>
+        <h4>버섯 코스</h4>
+        <p class="hm-p-sub">편식 스코어 72.8 (1위) · 밀프레드 7개 제품 연계</p>
+        <div class="hm-p-menus">식감+냄새 이중 거부. 미니 재배키트로 친밀감 형성.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <a href="#hm-final-cta" class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">이 코스 시작하기</a>
+      </div>
+      <div class="hm-p-card" data-category="jung">
+        <div class="hm-p-badge" style="background:#FFF3E0;color:#E65100;">도전</div>
+        <div class="hm-p-emoji">🍅</div>
+        <h4>토마토 코스</h4>
+        <p class="hm-p-sub">편식 스코어 57.7 · 밀프레드 13개 제품 연계</p>
+        <div class="hm-p-menus">산미+물컹 복합 거부. 소스→건조→생 형태 변환 전략.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <a href="#hm-final-cta" class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">이 코스 시작하기</a>
+      </div>
+      <div class="hm-p-card" data-category="jung">
+        <div class="hm-p-badge" style="background:#FFF3E0;color:#E65100;">도전</div>
+        <div class="hm-p-emoji">🫑</div>
+        <h4>파프리카 코스</h4>
+        <p class="hm-p-sub">편식 스코어 49.9 · 밀프레드 3개 제품 연계</p>
+        <div class="hm-p-menus">풋내 주원인. 빨간 파프리카(단맛)부터 시작.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <a href="#hm-final-cta" class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">이 코스 시작하기</a>
+      </div>
+      <div class="hm-p-card" data-category="sang">
+        <div class="hm-p-badge" style="background:#FCE4EC;color:#C62828;">고급</div>
+        <div class="hm-p-emoji">🥬</div>
+        <h4>시금치 코스</h4>
+        <p class="hm-p-sub">편식 스코어 61.6 · 쓴맛+풀냄새+물컹 삼중 거부</p>
+        <div class="hm-p-menus">파우더→건조→신선 순.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <a href="#hm-final-cta" class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">이 코스 시작하기</a>
+      </div>
+      <div class="hm-p-card" data-category="sang">
+        <div class="hm-p-badge" style="background:#FCE4EC;color:#C62828;">고급</div>
+        <div class="hm-p-emoji">🥦</div>
+        <h4>브로콜리 코스</h4>
+        <p class="hm-p-sub">편식 스코어 57.5 · 전 세계 편식 연구 최다 거부 채소 1위</p>
+        <div class="hm-p-menus">나무숲 시각 친밀감부터 시작.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <a href="#hm-final-cta" class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">이 코스 시작하기</a>
+      </div>
+      <div class="hm-p-card" data-category="sang">
+        <div class="hm-p-badge" style="background:#FCE4EC;color:#C62828;">고급</div>
+        <div class="hm-p-emoji">🍆</div>
+        <h4>가지 코스</h4>
+        <p class="hm-p-sub">편식 스코어 60.9 · 보라색 시각 거부+물렁 식감</p>
+        <div class="hm-p-menus">바삭 가지칩→구이→볶음.</div>
+        <div class="hm-p-price">
+          <span class="hm-p-price-sale">199,000원</span>
+        </div>
+        <div class="hm-p-per">회당 13,267원</div>
+        <a href="#hm-final-cta" class="btn btn-primary" style="width:100%;margin-top:var(--sp-3);">이 코스 시작하기</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B8: BUNDLE ── -->
+<section class="section" id="hm-bundle">
+  <div class="container text-center">
+    <div class="section-tag" style="justify-content:center;">Bundle</div>
+    <h2 class="h1">여러 식재료를<br><span class="highlight">한번에 극복</span></h2>
+    <p class="desc desc-center">2개 이상 코스를 함께 구매하면 더 저렴합니다</p>
+    <div class="discount-cards">
+      <div class="discount-card featured">
+        <div class="discount-qty">2코스 묶음</div>
+        <div class="discount-num" style="font-size:32px;">359,000<span style="font-size:16px;">원</span></div>
+        <div class="discount-pct">10주 30회</div>
+        <div class="discount-bonus">39,000원 절약 · 회당 11,967원</div>
+      </div>
+      <div class="discount-card">
+        <div class="discount-qty">3코스 묶음</div>
+        <div class="discount-num" style="font-size:32px;">499,000<span style="font-size:16px;">원</span></div>
+        <div class="discount-pct">15주 45회</div>
+        <div class="discount-bonus">98,000원 절약 · 회당 11,089원</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B9: DINNER BONUS ── -->
+<section class="section section-alt" id="hm-dinner">
+  <div class="container">
+    <div class="section-tag">Bonus</div>
+    <h2 class="h1">오늘의 밑작업 →<br><span class="highlight">우리집 저녁</span></h2>
+    <p class="desc">3~5주차 동봉 "저녁 레시피 카드"로 자기효능감(Self-Efficacy)<sup>[15]</sup> 강화</p>
+    <div style="max-width:800px;margin:var(--sp-8) auto 0;background:linear-gradient(135deg,#fef9ef,#fef3df);border-radius:var(--radius-lg);padding:var(--sp-8);display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-8);align-items:center;">
+      <div>
+        <h3 class="h3" style="margin-bottom:var(--sp-4);">아이가 만든 재료가<br>저녁 식탁에 올라가요</h3>
+        <p style="font-size:14px;color:var(--neutral-600);line-height:1.8;">"내가 썬 당근이 볶음밥에 들어갔어!"<br>자기효능감이 편식 극복의 핵심 동력.<sup>[15]</sup><br><br>Hands-on cooking exposure 연구에서<br>9회 조리 참여 후 유의미한 선호도 증가<sup>[16]</sup></p>
+      </div>
+      <div style="background:white;border-radius:var(--radius-md);padding:var(--sp-6);box-shadow:var(--shadow-sm);">
+        <div style="display:flex;flex-direction:column;gap:var(--sp-3);">
+          <div style="display:flex;align-items:center;gap:var(--sp-3);font-size:13px;">
+            <span style="width:28px;height:28px;border-radius:50%;background:var(--primary-500);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">1</span>
+            키트 도착, 아이와 활동 시작 (오후)
+          </div>
+          <div style="text-align:center;color:var(--neutral-300);font-size:14px;padding-left:8px;">↓</div>
+          <div style="display:flex;align-items:center;gap:var(--sp-3);font-size:13px;">
+            <span style="width:28px;height:28px;border-radius:50%;background:var(--primary-500);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">2</span>
+            당근 갈기 / 버섯 찢기 / 두부 으깨기
+          </div>
+          <div style="text-align:center;color:var(--neutral-300);font-size:14px;padding-left:8px;">↓</div>
+          <div style="display:flex;align-items:center;gap:var(--sp-3);font-size:13px;">
+            <span style="width:28px;height:28px;border-radius:50%;background:var(--primary-500);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">3</span>
+            밀폐용기에 넣어 냉장 보관
+          </div>
+          <div style="text-align:center;color:var(--neutral-300);font-size:14px;padding-left:8px;">↓</div>
+          <div style="display:flex;align-items:center;gap:var(--sp-3);font-size:13px;">
+            <span style="width:28px;height:28px;border-radius:50%;background:var(--primary-500);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">4</span>
+            저녁 — 레시피 카드 보고 가족 요리에 투입!
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B10: REVIEWS ── -->
+<section class="section" id="hm-reviews">
+  <div class="container">
+    <div class="section-tag">Reviews</div>
+    <h2 class="h1">먼저 경험한<br><span class="highlight">부모님들</span></h2>
+    <p class="desc">편식 극복 프로그램을 경험한 부모님들의 이야기입니다</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-5);margin-top:var(--sp-10);">
+      <div class="testimonial-card">
+        <div style="color:#FFB300;font-size:14px;margin-bottom:var(--sp-2);">★★★★★</div>
+        <div class="testimonial-quote">"1주차에 울면서 거부하길래 포기할 뻔. 근데 가이드에 'Plateau 정체기를 넘기세요'라고 써있어서 참았더니 3주차에 입에 대보더라고요."</div>
+        <div class="testimonial-author">— 5세 남아 엄마</div>
+        <div style="margin-top:var(--sp-2);"><span style="display:inline-block;background:var(--primary-50);color:var(--primary-500);font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;">당근 코스 · 15회 완주</span></div>
+      </div>
+      <div class="testimonial-card">
+        <div style="color:#FFB300;font-size:14px;margin-bottom:var(--sp-2);">★★★★★</div>
+        <div class="testimonial-quote">"버섯 재배키트가 신의 한수. 직접 키운 느타리를 찢어보더니 솥밥에 올리는 것까지 거부감 없이. 11회째부터 스스로 먹었어요."</div>
+        <div class="testimonial-author">— 4세 여아 엄마</div>
+        <div style="margin-top:var(--sp-2);"><span style="display:inline-block;background:var(--primary-50);color:var(--primary-500);font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;">버섯 코스 · 15회 완주</span></div>
+      </div>
+      <div class="testimonial-card">
+        <div style="color:#FFB300;font-size:14px;margin-bottom:var(--sp-2);">★★★★☆</div>
+        <div class="testimonial-quote">"시금치는 15회로 완전 극복은 못했어요. 하지만 시금치경단은 먹어요! 예전엔 보기만 해도 울었는데."</div>
+        <div class="testimonial-author">— 3세 남아 엄마</div>
+        <div style="margin-top:var(--sp-2);"><span style="display:inline-block;background:var(--primary-50);color:var(--primary-500);font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;">시금치 코스 · 15회 완주</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B11: COST COMPARISON ── -->
+<section class="section section-alt" id="hm-cost">
+  <div class="container text-center">
+    <div class="section-tag" style="justify-content:center;">Cost Comparison</div>
+    <h2 class="h1">오프라인 편식교정,<br><span class="highlight">얼마나 드는지 아세요?</span></h2>
+    <p class="desc desc-center">병원·센터 편식치료 vs 밀프레드 푸드브릿지 키트</p>
+    <div class="hm-cost-cards">
+      <div class="hm-cost-card">
+        <div class="hm-cost-type">병원 식이치료</div>
+        <div class="hm-cost-price" style="color:#C62828;">50~150만원</div>
+        <ul class="hm-cost-features">
+          <li>전문의 + 작업치료사</li>
+          <li>주 1~2회, 회당 5~15만원</li>
+          <li>대기 2~6개월</li>
+          <li>병원 방문 필수</li>
+        </ul>
+      </div>
+      <div class="hm-cost-card">
+        <div class="hm-cost-type">민간 아동발달센터</div>
+        <div class="hm-cost-price" style="color:#E65100;">96~204만원</div>
+        <ul class="hm-cost-features">
+          <li>작업치료사/언어치료사</li>
+          <li>12~24회, 회당 8~10만원</li>
+          <li>센터 방문 필수</li>
+          <li>수도권 편중</li>
+        </ul>
+      </div>
+      <div class="hm-cost-card hm-cost-highlight">
+        <div class="hm-cost-badge">BEST VALUE</div>
+        <div class="hm-cost-type">밀프레드 푸드브릿지</div>
+        <div class="hm-cost-price" style="color:var(--primary-500);">199,000원</div>
+        <div class="hm-cost-per">회당 13,267원</div>
+        <ul class="hm-cost-features">
+          <li>SOS Approach 기반 5주</li>
+          <li>주 3회 총 15회 노출</li>
+          <li>대기 없음, 즉시 시작</li>
+          <li>가정에서 편하게</li>
+          <li>전국 어디든 배송</li>
+        </ul>
+      </div>
+    </div>
+    <div style="max-width:800px;margin:var(--sp-8) auto 0;padding:var(--sp-6);background:white;border-radius:var(--radius-md);border-left:4px solid var(--primary-500);box-shadow:var(--shadow-sm);text-align:left;">
+      <p style="font-size:15px;font-weight:700;color:var(--primary-500);">같은 Repeated Exposure 원리, 같은 15회 노출 — 가격은 최대 1/10</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── B12: FAQ (home) ── -->
+<section class="section" id="faq-home">
+  <div class="container">
+    <div class="section-tag" style="justify-content:center;">FAQ</div>
+    <h2 class="h1 text-center">자주 묻는 질문</h2>
+    <div class="faq-list">
+      <div class="faq-item"><div class="faq-question">SOS Approach to Feeding이 뭔가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">Dr. Kay Toomey가 개발한 32단계 식이 위계 기반 프로그램입니다.<sup>[1]</sup> 감각 탐색부터 자발적 섭취까지의 점진적 접근법으로, 전 세계 7,000명 이상의 임상 전문가(작업치료사, 언어치료사, 영양사)가 사용합니다. 밀프레드 푸드브릿지는 이 프로토콜의 핵심 원리를 가정용 5단계로 재설계한 것입니다.<sup>[2]</sup></div></div></div>
+      <div class="faq-item"><div class="faq-question">왜 15회인가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">Wardle et al.(2003)은 8회 반복 노출에서 유의미한 수용도 증가(p=0.006)를 보고합니다.<sup>[4]</sup> USDA NESR 체계적 문헌리뷰는 8~15회를 권장합니다.<sup>[9]</sup> Fildes et al.(2014) RCT에서는 14일 노출 후 비섭취자 45%→9% 감소.<sup>[10]</sup> 밀프레드는 연구 권장 범위의 최대치인 15회를 채택했습니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">주 3회면 아이가 스트레스받지 않나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">de Wild et al.(2021)에서 주 2회/주 1회/격주 1회를 비교한 결과, 모든 빈도에서 효과가 있었고 스트레스 보고는 없었습니다.<sup>[5]</sup> Satter Division of Responsibility 원칙<sup>[8]</sup>에 따라 아이가 "먹을지 말지"를 결정합니다. 강제 급여는 절대 하지 않습니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">Plateau(정체기)가 뭔가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">de Wild et al.(2021)에서 발견된 현상으로, 4회째 섭취량 첫 증가 후 5~6회째 정체하는 구간입니다.<sup>[5]</sup> 아이의 뇌가 감각 정보를 처리하는 자연스러운 과정이며, 7회째 이후 유의미한 증가가 재개됩니다. 키트에 동봉된 '부모 가이드'에서 이 로드맵을 안내합니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">편식 스코어는 어떻게 산출하나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">식약처 어린이급식관리지원센터 표준 식단표<sup>[12]</sup> 2,028개 메뉴에서 추출한 거부율(×3) + 식감(×2.5) + 맛(×2) + 시각(×1.5) + 냄새(×1.5) 가중합에 식단 등장빈도(log 보정)를 곱한 종합 점수입니다.<sup>[13]</sup> 학술 연구 데이터와 밀프레드 현장 데이터를 결합했습니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">배송은 어떻게 되나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">주 1회 배송, 총 5회. 1주차에 Box A(냉장 재료) + Box B(상온 교구·파우더·활동지) 합배송. 2~5주차에는 Box A + 가정 활동지 배송. 식약처 유통기한 지침<sup>[6]</sup>에 따라 Box A는 냉장 3일 이내 소비, Box B는 상온 6개월 이상.</div></div></div>
+      <div class="faq-item"><div class="faq-question">5주 만에 편식이 정말 극복되나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">15회 노출은 연구 기준 "수용 안정화" 단계입니다.<sup>[9]</sup> 입문(하) 식재료는 높은 확률로 자발적 섭취 도달. 고급(상) 식재료는 "특정 조리법으로 먹기"까지 대부분 확인됩니다. 필요시 같은 코스 반복 구매로 30회까지 확장 가능합니다.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── B13: FINAL CTA (home) ── -->
+<section class="hm-final-cta" id="hm-final-cta">
+  <div class="container text-center">
+    <h2 class="display" style="color:white;">편식,<br>이제 시작하세요</h2>
+    <p class="desc desc-center" style="color:rgba(255,255,255,0.85);">5주면 달라집니다. 과학이 증명한 방법으로 우리 아이의 편식을 극복하세요.</p>
+    <div style="margin-top:var(--sp-8);display:flex;gap:var(--sp-4);justify-content:center;flex-wrap:wrap;">
+      <a href="#hm-catalog" class="btn btn-white" style="color:#2D8B4E;font-size:16px;padding:18px 36px;">
+        <i data-lucide="shopping-cart" style="width:18px;height:18px;"></i>
+        코스 구매하기
+      </a>
+      <a href="#hm-quiz" class="btn" style="background:transparent;color:white;border:2px solid rgba(255,255,255,0.5);font-size:16px;padding:18px 36px;">편식 진단 다시하기</a>
+    </div>
+    <div class="final-risk" style="margin-top:var(--sp-6);">
+      <span>✓ 회당 13,267원</span>
+      <span>✓ 전국 무료배송</span>
+      <span>✓ 5중 보냉 안심배송</span>
+      <span>✓ 첫 주차 전 100% 환불</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── B14: FOOTNOTES ── -->
+<section class="hm-footnotes">
+  <div class="container">
+    <h4 style="font-size:13px;font-weight:700;color:var(--neutral-600);margin-bottom:var(--sp-3);">References &amp; Sources</h4>
+    <ol class="hm-footnotes-list">
+      <li id="fn1">[1] Toomey, K. A. (2010). SOS Approach to Feeding: A 32-step eating hierarchy. 전 세계 7,000+ 임상전문가 사용 근거기반 프로그램.</li>
+      <li id="fn2">[2] 밀프레드 푸드브릿지 5단계. SOS Approach 32단계를 가정용으로 재설계한 밀프레드 자체 프레임워크.</li>
+      <li id="fn3">[3] 식품의약품안전처 어린이급식관리지원센터. 영유아 급식 표준 식단 및 레시피 제공.</li>
+      <li id="fn4">[4] Wardle, J., Herrera, M. L., Cooke, L., &amp; Gibson, E. L. (2003). Modifying children's food preferences: the effects of exposure and reward on acceptance of an unfamiliar vegetable. <em>European Journal of Clinical Nutrition, 57</em>(2), 341-348. 8회 노출 그룹 유의미한 섭취 증가 (p=0.006).</li>
+      <li id="fn5">[5] de Wild, V. W. T., de Graaf, C., &amp; Jager, G. (2021). Optimising Repeated Exposure: Determining Optimal Exposure Frequency for Introducing a Novel Vegetable among Children. <em>Foods, 10</em>(5), 913. 4회째 첫 변화, 5-6회 Plateau, 7회째 최대 섭취(68g).</li>
+      <li id="fn6">[6] 식품의약품안전처 (2023). 「어린이 급식관리 지침서」. 어린이급식관리지원센터 발행.</li>
+      <li id="fn7">[7] 식품의약품안전처 (2025). 「식단운영관리 지침서」. 어린이급식관리지원센터 발행. 유아기·아동기 표준 식단 운영 가이드.</li>
+      <li id="fn8">[8] Satter, E. M. (1995). Division of Responsibility in Feeding. <em>Journal of the American Dietetic Association, 95</em>(3), 286-289. 부모: 무엇을·언제·어디서 / 아이: 먹을지·얼마나.</li>
+      <li id="fn9">[9] USDA Nutrition Evidence Systematic Review (NESR). Repeated Exposure to New Foods. 8~15회 반복 노출 권장.</li>
+      <li id="fn10">[10] Fildes, A., van Jaarsveld, C. H. M., Wardle, J., &amp; Cooke, L. (2014). Parent-Administered Exposure to Increase Children's Vegetable Acceptance. <em>Journal of the Academy of Nutrition and Dietetics, 114</em>(5), 881-888. 14일 노출 후 비섭취자 45%→9%.</li>
+      <li id="fn11">[11] Dovey, T. M., Staples, P. A., Gibson, E. L., &amp; Halford, J. C. G. (2008). Food neophobia and 'picky/fussy' eating in children: A review. <em>Appetite, 50</em>(2-3), 181-193. 진화적 자기보호 메커니즘으로서의 Neophobic Response.</li>
+      <li id="fn12">[12] 식약처 dietary4u 2025-2026년 유아기(8개월분) + 아동기(26개월분) 표준 식단표. 총 2,028개 고유 메뉴, 34개 레시피 파일 분석.</li>
+      <li id="fn13">[13] 밀프레드 편식 스코어링 모델. 거부율(×3)+식감(×2.5)+맛(×2)+시각(×1.5)+냄새(×1.5), 식단등장빈도 log 보정. 식약처 데이터 + 밀프레드 현장 데이터 결합.</li>
+      <li id="fn14">[14] Dinehart, M. E., Hayes, J. E., Bartoshuk, L. M., Lanier, S. L., &amp; Duffy, V. B. (2006). Bitter taste markers explain variability in vegetable sweetness, bitterness, and intake. <em>Physiology &amp; Behavior, 87</em>(2), 304-313. 브로콜리 = 전 세계 편식 연구 최다 거부 채소.</li>
+      <li id="fn15">[15] Bandura, A. (1977). Self-Efficacy: Toward a Unifying Theory of Behavioral Change. <em>Psychological Review, 84</em>(2), 191-215. 자기효능감과 행동 변화의 관계.</li>
+      <li id="fn16">[16] Lukas, C. V., &amp; Cunningham-Sabo, L. (2011). Using Repeated Exposure Through Hands-On Cooking to Increase Children's Preferences for Fruits and Vegetables. <em>Appetite</em>. 9회 조리 참여 후 유의미한 선호도 증가.</li>
+    </ol>
+  </div>
+</section>
+
+</div><!-- /tab-home -->
+
+
+<!-- ════════════════════════════════════════════
+     FOOTER (shared)
+     ════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">밀프레드<span>.</span></div>
+      <div class="footer-info">주식회사 푸드히스토리</div>
+    </div>
+    <div class="footer-info" style="text-align:right;">
+      continueing@naver.com &nbsp;|&nbsp; 010-4527-9272<br>
+      카카오톡 "밀프레드" 검색
+    </div>
+    <div class="footer-copy">&copy; 2026 주식회사 푸드히스토리 밀프레드. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════════
+     FLOATING CTAs
+     ════════════════════════════════════════════ -->
+<div class="floating-cta" id="float-institution">
+  <div class="floating-cta-inner">
+    <div class="floating-cta-text">
+      <span class="floating-cta-label">무료 샘플 신청</span>
+      <span class="floating-cta-remaining">이번 달 잔여 23건</span>
+    </div>
+    <a href="#final-cta-institution" class="btn btn-primary">지금 신청하기</a>
+  </div>
+</div>
+<div class="floating-cta" id="float-home" style="display:none;">
+  <div class="floating-cta-inner">
+    <div class="floating-cta-text">
+      <span class="floating-cta-label">당근 5주 199,000원</span>
+      <span class="floating-cta-remaining">회당 13,267원</span>
+    </div>
+    <a href="#hm-quiz" class="btn btn-primary">편식 진단하기</a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     SCRIPTS
+     ════════════════════════════════════════════ -->
+<script src="main.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

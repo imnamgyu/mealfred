@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥕 당근 5주 코스 — SOS Approach × 푸드브릿지 | 밀프레드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #222;
+    background: #fafaf7;
+    line-height: 1.6;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+  /* ===== HERO SECTION ===== */
+  .hero {
+    background: linear-gradient(135deg, #E67E22 0%, #F39C12 50%, #F5B041 100%);
+    color: #fff;
+    padding: 80px 20px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.08) 0%, transparent 50%);
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .hero-emoji {
+    font-size: 100px;
+    display: block;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 24px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+    opacity: 0.95;
+    line-height: 1.8;
+    margin-bottom: 24px;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+    max-width: 500px;
+    margin: 0 auto 28px;
+  }
+
+  .stat-item {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(4px);
+    border-radius: 14px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .stat-item strong {
+    display: block;
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+
+  .stat-item span {
+    display: block;
+    font-size: 11px;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+
+  .hero-cta {
+    display: inline-block;
+    background: #fff;
+    color: #E67E22;
+    padding: 14px 40px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+  }
+
+  .hero-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  }
+
+  /* ===== SECTION GENERAL ===== */
+  .section {
+    padding: 60px 20px;
+  }
+
+  .section.light { background: #fff; }
+  .section.lighter { background: #fafaf7; }
+  .section.gradient { background: linear-gradient(180deg, #FFF8F0 0%, #fff 100%); }
+
+  .sec-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .sec-label {
+    display: inline-block;
+    background: #FFF3E0;
+    color: #E67E22;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  .sec-label.green {
+    background: #E8F5EC;
+    color: #2D8B4E;
+  }
+
+  .sec-header h2 {
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 900;
+    margin-bottom: 12px;
+    letter-spacing: -0.3px;
+  }
+
+  .sec-header p {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.7;
+  }
+
+  /* ===== WHY CARROT SECTION ===== */
+  .why-carrot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .wc-left {
+    background: #FFF8F0;
+    border-radius: 20px;
+    padding: 32px;
+    border: 2px solid #FDEBD0;
+  }
+
+  .wc-left h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #E67E22;
+    margin-bottom: 20px;
+  }
+
+  .score-item {
+    margin-bottom: 16px;
+  }
+
+  .score-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+  }
+
+  .score-bar {
+    background: #e8d5c5;
+    border-radius: 8px;
+    height: 24px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #E67E22, #F39C12);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .wc-total {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(230, 126, 34, 0.2);
+  }
+
+  .wc-total-number {
+    font-size: 44px;
+    font-weight: 900;
+    color: #E67E22;
+    line-height: 1;
+  }
+
+  .wc-total-label {
+    font-size: 13px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  .wc-right h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #222;
+    margin-bottom: 16px;
+  }
+
+  .wc-fact {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  .wc-fact:last-child {
+    border-bottom: none;
+  }
+
+  .wc-fact-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #E67E22;
+    margin-bottom: 6px;
+  }
+
+  .wc-fact-text {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+  }
+
+  .wc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .tag {
+    display: inline-block;
+    background: #E67E22;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  .tag.green { background: #2D8B4E; }
+
+  /* ===== 5-WEEK TIMELINE ===== */
+  .timeline {
+    position: relative;
+    padding-left: 50px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, #E67E22 0%, #F39C12 20%, #2D8B4E 100%);
+    border-radius: 3px;
+  }
+
+  .week-item {
+    position: relative;
+    margin-bottom: 36px;
+  }
+
+  .week-dot {
+    position: absolute;
+    left: -40px;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .week-dot.w1 { background: #ef5350; }
+  .week-dot.w2 { background: #FFA726; }
+  .week-dot.w3 { background: #42A5F5; }
+  .week-dot.w4 { background: #66BB6A; }
+  .week-dot.w5 { background: #2D8B4E; }
+
+  .week-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.06);
+    border-left: 4px solid #E67E22;
+  }
+
+  .week-card.w5 { border-left-color: #2D8B4E; }
+
+  .week-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .week-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #222;
+  }
+
+  .week-stage {
+    display: inline-block;
+    background: #FFF3E0;
+    color: #E67E22;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 16px;
+  }
+
+  .week-stage.w5 {
+    background: #E8F5EC;
+    color: #2D8B4E;
+  }
+
+  .week-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 18px;
+  }
+
+  .week-col h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #E67E22;
+    margin-bottom: 8px;
+  }
+
+  .week-col p {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+
+  .week-chip {
+    display: inline-block;
+    background: #FFF3E0;
+    color: #E67E22;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-top: 8px;
+  }
+
+  .week-chip.green { background: #E8F5EC; color: #2D8B4E; }
+
+  .week-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 14px;
+    border-top: 1px solid #f0f0f0;
+    font-size: 12px;
+  }
+
+  .week-exposure {
+    font-weight: 700;
+    color: #E67E22;
+  }
+
+  .week-note {
+    color: #999;
+    font-style: italic;
+  }
+
+  .week-note.highlight { color: #2D8B4E; }
+
+  /* ===== WHAT'S IN THE BOX ===== */
+  .boxes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  .box-card {
+    border-radius: 18px;
+    padding: 32px;
+    border: 2px solid #f0f0f0;
+  }
+
+  .box-card.box-a {
+    border-color: #FDEBD0;
+    background: #FFFBF5;
+  }
+
+  .box-card.box-b {
+    border-color: #E8F5EC;
+    background: #F8FFF8;
+  }
+
+  .box-card h3 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #222;
+  }
+
+  .box-subtitle {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 18px;
+  }
+
+  .box-items {
+    list-style: none;
+  }
+
+  .box-items li {
+    font-size: 13px;
+    color: #555;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .box-items li:last-child { border-bottom: none; }
+
+  .box-qty {
+    font-size: 11px;
+    color: #999;
+  }
+
+  /* ===== PRICING COMPARISON ===== */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .compare-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    border: 2px solid #f0f0f0;
+    position: relative;
+  }
+
+  .compare-card.highlight {
+    border-color: #E67E22;
+    background: linear-gradient(135deg, #FFF8F0, #fff);
+    box-shadow: 0 8px 24px rgba(230, 126, 34, 0.15);
+  }
+
+  .compare-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #E67E22;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .compare-card h4 {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    margin-top: 8px;
+    color: #222;
+  }
+
+  .compare-price {
+    font-size: 24px;
+    font-weight: 900;
+    color: #E67E22;
+    margin-bottom: 12px;
+  }
+
+  .compare-info {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+
+  /* ===== SCIENCE SECTION ===== */
+  .science-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .science-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px;
+    border: 1px solid #f0f0f0;
+  }
+
+  .science-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #E67E22;
+    margin-bottom: 8px;
+  }
+
+  .science-card p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.7;
+  }
+
+  /* ===== MATERIALS SECTION ===== */
+  .materials-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .material-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    border-left: 4px solid #E67E22;
+    font-size: 13px;
+    color: #555;
+  }
+
+  /* ===== FAQ SECTION ===== */
+  .faq-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    background: #fff;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+  }
+
+  .faq-q {
+    padding: 18px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+  }
+
+  .faq-q:hover { background: #fafaf7; }
+
+  .faq-toggle {
+    font-size: 20px;
+    color: #E67E22;
+    transition: transform 0.3s;
+  }
+
+  .faq-item.active .faq-toggle { transform: rotate(45deg); }
+
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0 20px;
+  }
+
+  .faq-item.active .faq-a {
+    max-height: 300px;
+    padding: 0 20px 18px;
+  }
+
+  .faq-a p {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.7;
+  }
+
+  /* ===== CTA SECTION ===== */
+  .cta-section {
+    text-align: center;
+    background: linear-gradient(135deg, #FFF8F0, #fff);
+    border-radius: 20px;
+    padding: 48px 32px;
+    border: 2px solid #FDEBD0;
+  }
+
+  .cta-price {
+    font-size: 36px;
+    font-weight: 900;
+    color: #E67E22;
+    margin-bottom: 8px;
+  }
+
+  .cta-breakdown {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 24px;
+  }
+
+  .cta-message {
+    font-size: 15px;
+    color: #555;
+    margin-bottom: 28px;
+    line-height: 1.7;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: #E67E22;
+    color: #fff;
+    padding: 16px 48px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(230, 126, 34, 0.25);
+  }
+
+  .cta-button:hover {
+    background: #d35400;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(230, 126, 34, 0.35);
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    background: #1a1a1a;
+    color: #999;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 12px;
+    line-height: 1.8;
+  }
+
+  .footer-brand {
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  /* ===== STICKY FOOTER ===== */
+  .sticky-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #eee;
+    padding: 14px 20px;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.08);
+  }
+
+  .sticky-info {
+    font-size: 14px;
+    color: #555;
+  }
+
+  .sticky-info strong {
+    font-size: 16px;
+    font-weight: 800;
+    color: #E67E22;
+  }
+
+  .sticky-btn {
+    background: #E67E22;
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sticky-btn:hover {
+    background: #d35400;
+  }
+
+  body {
+    padding-bottom: 70px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 36px; }
+    .hero-stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .hero-emoji { font-size: 80px; }
+
+    .why-carrot { grid-template-columns: 1fr; }
+
+    .week-content { grid-template-columns: 1fr; }
+
+    .boxes-grid { grid-template-columns: 1fr; }
+
+    .comparison-grid { grid-template-columns: 1fr; }
+
+    .science-grid { grid-template-columns: 1fr; }
+
+    .materials-list { grid-template-columns: 1fr; }
+
+    .timeline { padding-left: 35px; }
+    .timeline::before { left: 12px; }
+    .week-dot { left: -32px; width: 32px; height: 32px; font-size: 14px; }
+
+    .sticky-footer { flex-direction: column; gap: 12px; }
+    .sticky-btn { width: 100%; }
+
+    body { padding-bottom: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-emoji">🥕</div>
+      <div class="hero-badge">입문 코스 · 편식극복 첫 경험에 최적</div>
+      <h1>당근 5주 코스</h1>
+      <p class="hero-subtitle">SOS Approach × 푸드브릿지 5단계<br>편식 스코어 62.4점</p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <strong>5주</strong>
+          <span>코스 기간</span>
+        </div>
+        <div class="stat-item">
+          <strong>15회</strong>
+          <span>총 노출 횟수</span>
+        </div>
+        <div class="stat-item">
+          <strong>주 3회</strong>
+          <span>노출 빈도</span>
+        </div>
+        <div class="stat-item">
+          <strong>139,000원</strong>
+          <span>전체 가격</span>
+        </div>
+      </div>
+      <button class="hero-cta" onclick="scrollToSection('cta')">지금 시작하기</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY CARROT ===== -->
+<section class="section gradient">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label">편식 분석</div>
+      <h2>왜 당근부터 시작할까?</h2>
+      <p>거부율은 중상이지만, 식감과 맛 적응이 가장 빠른 입문 식재료</p>
+    </div>
+    <div class="why-carrot">
+      <div class="wc-left">
+        <h3>편식 스코어 분석</h3>
+        <div class="score-item">
+          <div class="score-label">거부율 (높을수록 어려움)</div>
+          <div class="score-bar">
+            <div class="score-fill" style="width: 65%;">6.5/10</div>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">식감 적응도</div>
+          <div class="score-bar">
+            <div class="score-fill" style="width: 55%;">5.5/10</div>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">맛 거부도</div>
+          <div class="score-bar">
+            <div class="score-fill" style="width: 40%;">4.0/10</div>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">시각 자극</div>
+          <div class="score-bar">
+            <div class="score-fill" style="width: 70%;">7.0/10</div>
+          </div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">냄새 거부</div>
+          <div class="score-bar">
+            <div class="score-fill" style="width: 30%;">3.0/10</div>
+          </div>
+        </div>
+        <div class="wc-total">
+          <div class="wc-total-number">62.4</div>
+          <div class="wc-total-label">/ 100 종합 점수</div>
+        </div>
+      </div>
+      <div class="wc-right">
+        <h3>왜 당근이 입문에 좋을까?</h3>
+        <div class="wc-fact">
+          <div class="wc-fact-title">✓ 냄새 거부가 매우 낮음</div>
+          <div class="wc-fact-text">3.0점. 아이들의 뇌가 "위험하지 않다"고 평가하기 쉬워 심리적 진입장벽이 낮습니다.</div>
+        </div>
+        <div class="wc-fact">
+          <div class="wc-fact-title">✓ 맛 적응이 빠름</div>
+          <div class="wc-fact-text">당도가 있고, 익혀지면 단맛으로 변환되어 거부도 적습니다.</div>
+        </div>
+        <div class="wc-fact">
+          <div class="wc-fact-title">✓ 식감 변환이 용이</div>
+          <div class="wc-fact-text">생 → 삶은 → 갈은 → 으깬 순서로 자연스럽게 식감 적응이 가능합니다.</div>
+        </div>
+        <div class="wc-fact">
+          <div class="wc-fact-title">✓ 밀프레드 8개 제품 연계</div>
+          <div class="wc-fact-text">당근이 들어가는 밀프레드 밀키트 8종으로 실제 조리 경험을 쌓을 수 있습니다.</div>
+        </div>
+        <div class="wc-fact">
+          <div class="wc-fact-title">✓ 식약처 표준식단 399회 등장</div>
+          <div class="wc-fact-text">식약처 dietary4u 2,028개 메뉴 중 당근은 3위. 가장 대중적인 식재료입니다.</div>
+        </div>
+        <div class="wc-fact">
+          <div class="wc-fact-title">📊 당근 영양</div>
+          <div class="wc-fact-text">베타카로틴(비타민A 전구체), 비타민C, 식이섬유, 칼륨 풍부. 아이 눈 건강과 소화에 필수입니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 5-WEEK TIMELINE ===== -->
+<section class="section light">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label">5주 로드맵</div>
+      <h2>당근과 친구 되는 15회의 여정</h2>
+      <p>매주 키트 배송 1회 + 가정 활동 2회 = 주 3회 (Satter 원칙: 강제 급여 없음)</p>
+    </div>
+
+    <div class="timeline">
+      <!-- W1 -->
+      <div class="week-item">
+        <div class="week-dot w1">1</div>
+        <div class="week-card">
+          <div class="week-header">
+            <div class="week-title">1주차: 눈으로 만나기</div>
+            <div class="week-stage">① 시각탐색</div>
+          </div>
+          <div class="week-content">
+            <div class="week-col">
+              <h4>📦 키트 활동 (배송일)</h4>
+              <p>당근즙으로 그림 그리기 · 당근 단면 스탬프 · 관찰일지 기록. 당근 4종 색깔 관찰.</p>
+              <span class="week-chip green">Box B: 미니도마판 + 활동지</span>
+            </div>
+            <div class="week-col">
+              <h4>🏠 가정 활동 ×2회</h4>
+              <p>① 냉장고 당근 관찰 그리기<br>② 당근 그림책 함께 읽기</p>
+              <span class="week-chip">활동지 #1-2</span>
+            </div>
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure">누적 노출: 3회 / 15회</span>
+            <span class="week-note">💡 거부해도 정상. 감각 탐색 중</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- W2 -->
+      <div class="week-item">
+        <div class="week-dot w2">2</div>
+        <div class="week-card">
+          <div class="week-header">
+            <div class="week-title">2주차: 만지고 냄새 맡기</div>
+            <div class="week-stage">② 후각·촉각탐색</div>
+          </div>
+          <div class="week-content">
+            <div class="week-col">
+              <h4>📦 키트 활동 (배송일)</h4>
+              <p>생당근 미니강판으로 갈기 · 생 vs 삶은 당근 촉감 비교 · 냄새 맡기 게임.</p>
+              <span class="week-chip green">Box A: 생당근 + 미니강판</span>
+            </div>
+            <div class="week-col">
+              <h4>🏠 가정 활동 ×2회</h4>
+              <p>① 당근주스 색깔 관찰<br>② 갈은 당근으로 모양 만들기</p>
+              <span class="week-chip">활동지 #3-4</span>
+            </div>
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure">누적 노출: 6회 / 15회</span>
+            <span class="week-note">⏸ Plateau 정체기 가능. 만지기만 해도 성공!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- W3 -->
+      <div class="week-item">
+        <div class="week-dot w3">3</div>
+        <div class="week-card">
+          <div class="week-header">
+            <div class="week-title">3주차: 입에 대보기</div>
+            <div class="week-stage">③ 입술접촉</div>
+          </div>
+          <div class="week-content">
+            <div class="week-col">
+              <h4>📦 키트 활동 (배송일)</h4>
+              <p>당근스틱 디핑 놀이 · 꼬마김밥에 당근 직접 넣기 · 소량 맛보기(입 대기만 해도 OK).</p>
+              <span class="week-chip green">밀프레드 꼬마김밥 + 디핑소스</span>
+            </div>
+            <div class="week-col">
+              <h4>🏠 가정 활동 ×2회</h4>
+              <p>① 당근스틱 입에 대보기<br>② 쿠키커터로 모양 놀이</p>
+              <span class="week-chip">활동지 #5-6 · 레시피 카드</span>
+            </div>
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure">누적 노출: 9회 / 15회</span>
+            <span class="week-note highlight">🎉 Breakthrough 구간! 7회 이후 큰 변화 시작</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- W4 -->
+      <div class="week-item">
+        <div class="week-dot w4">4</div>
+        <div class="week-card">
+          <div class="week-header">
+            <div class="week-title">4주차: 한 입 도전</div>
+            <div class="week-stage">④ 씹어보기</div>
+          </div>
+          <div class="week-content">
+            <div class="week-col">
+              <h4>📦 키트 활동 (배송일)</h4>
+              <p>익힌 당근스틱 한 입 · 하야시라이스에 당근 직접 넣고 조리 · 식감 비교(생/삶/구운).</p>
+              <span class="week-chip green">밀프레드 하야시라이스 키트</span>
+            </div>
+            <div class="week-col">
+              <h4>🏠 가정 활동 ×2회</h4>
+              <p>① 저녁 요리에 당근 추가<br>② 쿠키커터로 모양 자르기</p>
+              <span class="week-chip">활동지 #7-8 · 레시피 카드</span>
+            </div>
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure">누적 노출: 12회 / 15회</span>
+            <span class="week-note">비섭취자 45% → 9% 급락 구간</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- W5 -->
+      <div class="week-item">
+        <div class="week-dot w5">5</div>
+        <div class="week-card w5">
+          <div class="week-header">
+            <div class="week-title">5주차: 자유롭게 먹기</div>
+            <div class="week-stage w5">⑤ 자유롭게</div>
+          </div>
+          <div class="week-content">
+            <div class="week-col">
+              <h4>📦 키트 활동 (배송일)</h4>
+              <p>당근볶음밥 직접 요리하기 · 수료증 발급 · 다음 코스 추천 안내.</p>
+              <span class="week-chip green">밀프레드 중화식볶음밥 + 수료증</span>
+            </div>
+            <div class="week-col">
+              <h4>🏠 가정 활동 ×2회</h4>
+              <p>① 가족 저녁에 당근 요리<br>② 자유 선택 먹기</p>
+              <span class="week-chip green">활동지 #9-10 · 축하 카드</span>
+            </div>
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure" style="color: #2D8B4E;">누적 노출: 15회 / 15회 ✓ 완주!</span>
+            <span class="week-note highlight">수용 안정화 단계 도달</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT'S IN THE BOX ===== -->
+<section class="section lighter">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label">WHAT'S IN THE BOX</div>
+      <h2>5주간 받게 될 것들</h2>
+    </div>
+
+    <div class="boxes-grid">
+      <div class="box-card box-a">
+        <h3>📦 Box B — 상온 교구</h3>
+        <div class="box-subtitle">1주차 합배송 · 유통기한 6개월+</div>
+        <ul class="box-items">
+          <li>
+            <span>미니강판</span>
+            <span class="box-qty">1개</span>
+          </li>
+          <li>
+            <span>미니도마판</span>
+            <span class="box-qty">1개</span>
+          </li>
+          <li>
+            <span>쿠키커터</span>
+            <span class="box-qty">3개</span>
+          </li>
+          <li>
+            <span>관찰일지 + 스티커</span>
+            <span class="box-qty">1세트</span>
+          </li>
+          <li>
+            <span>활동지 #1~10</span>
+            <span class="box-qty">10매</span>
+          </li>
+          <li>
+            <span>레시피 카드</span>
+            <span class="box-qty">3매</span>
+          </li>
+          <li>
+            <span>수료증</span>
+            <span class="box-qty">1매</span>
+          </li>
+          <li>
+            <span>부모 가이드 브로셔</span>
+            <span class="box-qty">1부</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="box-card box-b">
+        <h3>🧊 Box A — 냉장 식재료</h3>
+        <div class="box-subtitle">매주 배송 · 냉장 3일 이내</div>
+        <ul class="box-items">
+          <li>
+            <span><strong>W1:</strong> 유기농 생당근, 당근즙, 미니당근, 컬러당근</span>
+            <span class="box-qty">200g+</span>
+          </li>
+          <li>
+            <span><strong>W2:</strong> 생당근, 삶은당근, 동결건조칩, 당근퓨레, 수프파우더</span>
+            <span class="box-qty">200g+</span>
+          </li>
+          <li>
+            <span><strong>W3:</strong> 당근스틱 3종, 디핑소스 3종, 꼬마김밥 키트</span>
+            <span class="box-qty">280g</span>
+          </li>
+          <li>
+            <span><strong>W4:</strong> 팬케이크 믹스, 당근퓨레, 메이플시럽, 하야시라이스 키트</span>
+            <span class="box-qty">520g</span>
+          </li>
+          <li>
+            <span><strong>W5:</strong> 미니피자 도우, 모짜렐라, 토마토소스, 당근 토핑, 중화식볶음밥 키트</span>
+            <span class="box-qty">480g</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICING COMPARISON ===== -->
+<section class="section light">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label">비용 비교</div>
+      <h2>같은 원리, 10배 저렴합니다</h2>
+      <p>Repeated Exposure 과학에 기반한 가격 비교</p>
+    </div>
+
+    <div class="comparison-grid">
+      <div class="compare-card">
+        <h4>병원 식이치료</h4>
+        <div class="compare-price">50~150만원</div>
+        <div class="compare-info">
+          주 1~2회 방문<br>
+          대기 2~6개월<br>
+          전문의 상담 필수
+        </div>
+      </div>
+
+      <div class="compare-card">
+        <h4>민간 발달센터</h4>
+        <div class="compare-price">96~204만원</div>
+        <div class="compare-info">
+          월 12~24회 방문<br>
+          시간·장소 제약<br>
+          추가 수업료 가능
+        </div>
+      </div>
+
+      <div class="compare-card highlight">
+        <div class="compare-badge">강력 추천</div>
+        <h4>밀프레드 키트</h4>
+        <div class="compare-price">139,000원</div>
+        <div class="compare-info">
+          5주 15회 노출<br>
+          대기 없음<br>
+          집에서 시작
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SCIENCE BACKING ===== -->
+<section class="section lighter">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label green">과학 근거</div>
+      <h2>이 방법이 정말 작동합니다</h2>
+    </div>
+
+    <div class="science-grid">
+      <div class="science-card">
+        <h4>SOS Approach to Feeding</h4>
+        <p>Dr. Kay Toomey (University of Colorado). 감각 탐색부터 식사까지 5단계 위계. 아이의 신경계 발달 과정 완벽 반영.</p>
+      </div>
+
+      <div class="science-card">
+        <h4>Satter Division of Responsibility</h4>
+        <p>Ellyn Satter (eating disorder expert). "부모: 무엇·언제·어디서 / 아이: 먹을지·얼마나". 강제 급여 없이 수용 유도.</p>
+      </div>
+
+      <div class="science-card">
+        <h4>Repeated Exposure (de Wild, 2021)</h4>
+        <p>4회째 첫 변화, 7회째 최대 섭취. 15회 반복 노출로 음식 거부 45% → 9% 급락. 뇌의 신경가소성 활용.</p>
+      </div>
+
+      <div class="science-card">
+        <h4>Neophobic Response (Dovey, 2008)</h4>
+        <p>아이의 식품공포는 진화적 생존본능. 1~3회 거부 정상. 5회 이후부터 적응 신호 발생.</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 24px; background: #FFF8F0; border-radius: 14px; text-align: center;">
+      <p style="font-size: 13px; color: #555; line-height: 1.8;">
+        <strong style="color: #E67E22;">식약처 dietary4u</strong>: 2,028개 표준식단 분석 결과 당근 399회 등장(3위 식재료)<br>
+        밀프레드 당근 코스는 식약처 급식관리지침 + 학문적 근거를 모두 충족합니다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== INCLUDED MATERIALS ===== -->
+<section class="section light">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label">포함 제공물</div>
+      <h2>5주간 완주하는 데 필요한 모든 것</h2>
+    </div>
+
+    <div class="materials-list">
+      <div class="material-item">
+        <strong>스탬프카드</strong> — 15회 노출 진행 관리 & 시각 피드백
+      </div>
+      <div class="material-item">
+        <strong>주차별 브로셔</strong> — 1~5주차 코칭 가이드 (부모용)
+      </div>
+      <div class="material-item">
+        <strong>사전교육 가이드</strong> — 코스 시작 전 꼭 읽어야 할 이론
+      </div>
+      <div class="material-item">
+        <strong>위기대응 가이드</strong> — "거부할 때" "안 먹을 때" 대응법
+      </div>
+      <div class="material-item">
+        <strong>Plateau 로드맵</strong> — 정체기 원리 및 극복 전략
+      </div>
+      <div class="material-item">
+        <strong>수료증</strong> — 코스 완주 시 발급 (아이 동기부여)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section lighter">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label">FAQ</div>
+      <h2>당근 코스 자주 묻는 질문</h2>
+    </div>
+
+    <div class="faq-container">
+      <div class="faq-item" onclick="this.classList.toggle('active')">
+        <div class="faq-q">
+          <span>아이가 당근을 아예 안 보려고 하는데 괜찮나요?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-a">
+          <p>완전히 정상입니다. 1~3회 거부는 "식품공포반응(Neophobic Response)"로, 아이의 뇌가 안전성 평가를 하는 과정입니다. 울어도, 거부해도 성공입니다. 4회째부터 변화의 신호가 시작되며, 부모 가이드의 Plateau 로드맵을 참고하세요.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('active')">
+        <div class="faq-q">
+          <span>미니당근은 일반 당근과 다른 건가요?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-a">
+          <p>미니당근(Baby carrot)은 아이 손 크기에 최적화된 품종으로, 일반 당근보다 부드럽고 단맛이 강합니다. 1주차 시각 탐색 때 색깔 다양성(주황, 보라, 노랑)을 경험하고, 이후 스스로 집을 수 있는 크기로 자신감을 높여줍니다.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('active')">
+        <div class="faq-q">
+          <span>디핑소스에 알레르기 성분이 있나요?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-a">
+          <p>3주차 디핑소스는 치즈(유제품), 허니요거트(유제품+벌꿀), 고구마 기반이므로 <strong>유제품과 꿀 알레르기</strong>가 있을 경우 미리 알려주세요. 코스 신청 시 맞춤 대체 소스(두유베이스, 견과류버터 등)로 준비할 수 있습니다.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('active')">
+        <div class="faq-q">
+          <span>팬케이크 믹스 성분이 궁금해요</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-a">
+          <p>4주차 당근 팬케이크 믹스는 밀가루 + 당근분말 + 설탕 + 베이킹파우더만 포함하며, <strong>인공첨가물·계란·우유·견과류 없음</strong>입니다. 아이와 함께 섞고 구우며 성취감을 높이는 수준의 활동 난이도로 설계됐습니다.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('active')">
+        <div class="faq-q">
+          <span>5주 후에도 안 먹으면요?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-a">
+          <p>같은 코스를 반복 구매(10% 할인)하여 30회까지 확장 가능합니다. 당근은 입문 난이도이므로, 대부분 15회 내 "특정 조리법으로 먹기" 단계까지 도달합니다. 혹시 안 먹어도 감각 친숙화 자체가 이미 성공입니다.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('active')">
+        <div class="faq-q">
+          <span>다음 코스는 뭘 하면 좋나요?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-a">
+          <p>같은 입문 난이도의 <strong>양파 또는 두부 코스</strong>를 추천합니다. 성공 경험이 쌓이면 → 도전(버섯·토마토·파프리카) → 고급(시금치·브로콜리·가지) 순서로 진행하세요. 3코스 묶음 시 16% 할인을 받을 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA SECTION ===== -->
+<section class="section light" id="cta">
+  <div class="container">
+    <div class="cta-section">
+      <div class="cta-price">139,000원</div>
+      <div class="cta-breakdown">5주 15회 노출 · 회당 9,267원 · 배송비 포함</div>
+      <p class="cta-message">
+        <strong>카페 라떼 + 마카롱 1개 가격</strong>으로<br>
+        아이의 평생 식습관을 바꿉니다
+      </p>
+      <button class="cta-button" onclick="alert('당근 코스를 장바구니에 담았습니다! (데모)')">
+        지금 시작하기
+      </button>
+      <div style="margin-top: 20px; font-size: 12px; color: #999;">
+        같은 코스 반복 구매 10% 할인 · 2코스 묶음 11% · 3코스 묶음 16% 할인
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-brand">밀프레드 MILFRED</div>
+  <p>푸드브릿지 프로그램 · SOS Approach × 식약처 급식관리지침</p>
+  <p style="margin-top: 12px; font-size: 11px; opacity: 0.6;">© 2026 MILFRED Co., Ltd. All rights reserved.</p>
+</footer>
+
+<!-- ===== STICKY FOOTER ===== -->
+<div class="sticky-footer">
+  <div class="sticky-info">🥕 당근 코스 <strong>139,000원</strong> · 5주 15회</div>
+  <button class="sticky-btn" onclick="alert('당근 코스를 장바구니에 담았습니다! (데모)')">
+    주문하기
+  </button>
+</div>
+
+<script>
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// FAQ toggle
+document.querySelectorAll('.faq-item').forEach(item => {
+  item.addEventListener('click', (e) => {
+    if (e.target.closest('.faq-q')) {
+      item.classList.toggle('active');
+    }
+  });
+});
+</script>
+</body>
+</html>
