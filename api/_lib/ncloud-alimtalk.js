@@ -41,7 +41,7 @@ async function sendAlimtalk({ phone, referralCode, referralLink, course }) {
 나만의 개인 링크가 발급되었습니다.
 아래 링크를 주변에 공유해보세요!
 
-${referralLink}
+🔗 ${referralLink}
 
 이 링크를 통해 방문한 수에 따라 추가 할인 혜택을 드립니다.
 
