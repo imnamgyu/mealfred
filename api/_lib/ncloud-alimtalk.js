@@ -34,27 +34,20 @@ async function sendAlimtalk({ phone, referralCode, referralLink, course }) {
       {
         countryCode: '82',
         to: phone,
-        content: `밀프레드 편식극복키트 얼리버드 등록이 완료되었습니다!
+        content: `밀프레드 편식극복키트 얼리버드 등록이 완료되었습니다.
 
-🎁 얼리버드 특별가: 199,000원 (49% OFF)
-${course ? '📦 관심 코스: ' + course + '\n' : ''}
-🔗 나만의 개인 링크
+출시 시 이 번호로 알림을 보내드리겠습니다.
+
+나만의 개인 링크가 발급되었습니다.
+아래 링크를 주변에 공유해보세요!
+
 ${referralLink}
 
-이 링크로 방문자가 들어오면 추가 할인!
-✅ 10명 방문 → 5% 할인 쿠폰
-✅ 50명 방문 → 10% 할인 쿠폰
-✅ 100명 방문 → 15% 할인 쿠폰
+이 링크를 통해 방문한 수에 따라 추가 할인 혜택을 드립니다.
 
-출시 시 알림톡으로 안내드리겠습니다.`,
-        buttons: [
-          {
-            type: 'WL',
-            name: '내 링크 확인하기',
-            linkMobile: referralLink,
-            linkPc: referralLink
-          }
-        ]
+10명 이상 방문 → 5% 할인 쿠폰
+50명 이상 방문 → 10% 할인 쿠폰
+100명 이상 방문 → 15% 할인 쿠폰`
       }
     ]
   });
