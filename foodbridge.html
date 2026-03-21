@@ -300,8 +300,11 @@
     .qi .emoji{font-size:20px;}
     .g-card{padding:20px 16px;}
     .g-card .big-num{font-size:26px;}
-    .nuri-row{grid-template-columns:repeat(2,1fr);gap:8px;}
-    .nuri-row .nuri-card:last-child{grid-column:span 2;}
+    .nuri-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+    .nuri-row .nuri-card{flex:0 0 calc(33.33% - 6px);padding:14px 8px;}
+    .nuri-row .nuri-card .ni{font-size:24px;}
+    .nuri-row .nuri-card h4{font-size:11px;}
+    .nuri-row .nuri-card p{font-size:9px;}
     .phone-wrap{flex-direction:column;align-items:center;}
     .phone{width:200px;}
     .sticky{flex-direction:column;gap:6px;padding:8px 14px;}
