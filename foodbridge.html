@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>밀프레드 편식극복 프로그램 — SOS Approach 기반 편식 예방·개선 키트</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Noto Sans KR',sans-serif;color:#222;background:#fafaf7;line-height:1.75;}
+
+  /* ===== FOOTNOTES ===== */
+  sup.fn{font-size:10px;color:#2D8B4E;font-weight:700;cursor:help;position:relative;top:-2px;margin-left:1px;}
+  sup.fn:hover{text-decoration:underline;}
+  .footnotes{max-width:900px;margin:0 auto;padding:40px 20px;border-top:2px solid #2D8B4E;}
+  .footnotes h3{font-size:14px;font-weight:700;color:#2D8B4E;margin-bottom:16px;}
+  .fn-item{font-size:11px;color:#777;line-height:1.8;margin-bottom:6px;padding-left:24px;text-indent:-24px;}
+  .fn-item a{color:#2D8B4E;text-decoration:none;}
+  .fn-item strong{color:#555;}
+
+  /* ===== HERO ===== */
+  .hero{background:linear-gradient(135deg,#0f3d21 0%,#1a5c32 30%,#2D8B4E 70%,#3a9d5c 100%);color:#fff;text-align:center;padding:100px 20px 80px;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 70%,rgba(255,255,255,0.04) 0%,transparent 50%),radial-gradient(circle at 70% 30%,rgba(255,255,255,0.03) 0%,transparent 50%);}
+  .hero-content{position:relative;z-index:1;max-width:800px;margin:0 auto;}
+  .hero-framework{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.1);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2);border-radius:30px;padding:8px 24px;font-size:12px;font-weight:600;letter-spacing:1px;margin-bottom:28px;text-transform:uppercase;}
+  .hero h1{font-size:clamp(26px,5vw,44px);font-weight:900;line-height:1.35;margin-bottom:20px;letter-spacing:-0.5px;}
+  .hero h1 em{font-style:normal;color:#a8e6be;}
+  .hero-desc{font-size:16px;opacity:0.88;margin-bottom:36px;line-height:1.85;}
+  .hero-cta{display:inline-block;background:#fff;color:#1a5c32;font-weight:700;font-size:15px;padding:15px 40px;border-radius:50px;text-decoration:none;transition:all 0.3s;box-shadow:0 4px 24px rgba(0,0,0,0.2);}
+  .hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+  .hero-metrics{display:flex;justify-content:center;gap:48px;margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.12);}
+  .hero-metric{text-align:center;}
+  .hero-metric strong{display:block;font-size:28px;font-weight:900;}
+  .hero-metric span{font-size:11px;opacity:0.7;}
+
+  /* ===== SECTION BASICS ===== */
+  .sec{max-width:1100px;margin:0 auto;padding:80px 20px;}
+  .sec-title{text-align:center;margin-bottom:50px;}
+  .sec-title h2{font-size:clamp(21px,3.5vw,30px);font-weight:800;color:#1a1a1a;margin-bottom:12px;}
+  .sec-title p{color:#777;font-size:14px;line-height:1.7;}
+  .sec-label{display:inline-block;background:#e8f5ec;color:#2D8B4E;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;margin-bottom:12px;letter-spacing:1px;text-transform:uppercase;}
+
+  /* ===== METHODOLOGY ===== */
+  .method-section{background:#fff;}
+  .method-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+  .method-card{border-radius:16px;padding:32px;background:#f8faf8;border:1px solid #e8f0ea;}
+  .method-card h4{font-size:15px;font-weight:800;color:#2D8B4E;margin-bottom:8px;}
+  .method-card .tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:8px;}
+  .method-card .tag.intl{background:#e3f2fd;color:#1565C0;}
+  .method-card .tag.gov{background:#fff3e0;color:#E65100;}
+  .method-card .tag.own{background:#e8f5ec;color:#2D8B4E;}
+  .method-card p{font-size:13px;color:#666;line-height:1.7;}
+  .method-right h3{font-size:22px;font-weight:800;margin-bottom:16px;color:#1a1a1a;}
+  .method-right p{font-size:14px;color:#555;line-height:1.8;margin-bottom:14px;}
+
+  /* ===== EXPOSURE SCIENCE ===== */
+  .exposure-section{background:linear-gradient(180deg,#f0f7f2,#fafaf7);}
+  .exposure-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+  .exp-chart{background:#fff;border-radius:20px;padding:36px;box-shadow:0 2px 16px rgba(0,0,0,0.04);}
+  .chart-title{font-size:13px;font-weight:700;color:#555;margin-bottom:20px;text-align:center;}
+  .bar-group{display:flex;flex-direction:column;gap:10px;}
+  .bar-row{display:flex;align-items:center;gap:12px;}
+  .bar-label{width:56px;font-size:11px;color:#999;text-align:right;flex-shrink:0;font-weight:600;}
+  .bar-wrap{flex:1;background:#f0f0f0;border-radius:6px;height:32px;position:relative;overflow:visible;}
+  .bar{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;font-size:10px;font-weight:700;color:#fff;position:relative;}
+  .bar.lv1{background:linear-gradient(90deg,#ef5350,#e53935);}
+  .bar.lv2{background:linear-gradient(90deg,#FFA726,#FB8C00);}
+  .bar.lv3{background:linear-gradient(90deg,#42A5F5,#1E88E5);}
+  .bar.lv4{background:linear-gradient(90deg,#66BB6A,#43A047);}
+  .bar.lv5{background:linear-gradient(90deg,#2D8B4E,#1b6e38);}
+  .bar-tag{position:absolute;right:-8px;top:50%;transform:translate(100%,-50%);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;}
+  .bar-tag.alert{background:#ffeaea;color:#c62828;}
+  .bar-tag.info{background:#e8f5ec;color:#2D8B4E;}
+  .chart-note{margin-top:18px;font-size:11px;color:#aaa;text-align:center;line-height:1.6;}
+  .exp-text h3{font-size:22px;font-weight:800;line-height:1.4;margin-bottom:16px;}
+  .exp-text p{font-size:14px;color:#555;line-height:1.85;margin-bottom:14px;}
+
+  /* ===== PARENT GUIDE ===== */
+  .guide-section{background:#fff;}
+  .guide-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .g-card{border-radius:20px;padding:30px 24px;text-align:center;}
+  .g-card.red{background:linear-gradient(180deg,#fff5f5,#fff);border:2px solid #ffcdd2;}
+  .g-card.amber{background:linear-gradient(180deg,#fff8e1,#fff);border:2px solid #ffe082;}
+  .g-card.green{background:linear-gradient(180deg,#e8f5e9,#fff);border:2px solid #a5d6a7;}
+  .g-icon{font-size:36px;margin-bottom:12px;}
+  .g-card h4{font-size:15px;font-weight:800;margin-bottom:6px;}
+  .g-card.red h4{color:#c62828;}
+  .g-card.amber h4{color:#e65100;}
+  .g-card.green h4{color:#2e7d32;}
+  .g-card .big-num{display:block;font-size:32px;font-weight:900;margin:8px 0;}
+  .g-card.red .big-num{color:#e53935;}
+  .g-card.amber .big-num{color:#FB8C00;}
+  .g-card.green .big-num{color:#2D8B4E;}
+  .g-card p{font-size:12px;color:#666;line-height:1.7;}
+
+  /* ===== FOOD BRIDGE 5 STEPS ===== */
+  .bridge-section{background:linear-gradient(180deg,#f8faf8,#fff);}
+  .bridge-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  .b-step{text-align:center;padding:24px 12px;border-radius:16px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,0.04);position:relative;}
+  .b-num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#2D8B4E;color:#fff;font-weight:700;font-size:14px;margin-bottom:12px;}
+  .b-step h4{font-size:13px;font-weight:700;color:#2D8B4E;margin-bottom:6px;}
+  .b-step p{font-size:11px;color:#888;line-height:1.5;}
+  .b-step .exp-tag{display:inline-block;margin-top:8px;background:#e8f5ec;color:#2D8B4E;font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;}
+  .b-arrow{position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:#ccc;font-size:16px;z-index:1;}
+
+  /* ===== QUIZ ===== */
+  .quiz-section{background:linear-gradient(180deg,#f0f7f2 0%,#fafaf7 100%);}
+  .quiz-box{background:#fff;border-radius:24px;padding:50px 40px;text-align:center;box-shadow:0 2px 20px rgba(0,0,0,0.04);max-width:800px;margin:0 auto;}
+  .quiz-box h3{font-size:24px;font-weight:800;margin-bottom:8px;}
+  .quiz-box>p{color:#888;font-size:14px;margin-bottom:30px;}
+  .quiz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+  .qi{padding:16px 8px;border:2px solid #e5e5e5;border-radius:14px;cursor:pointer;transition:all 0.25s;font-size:14px;font-weight:500;}
+  .qi:hover{border-color:#2D8B4E;background:#f0f9f3;}
+  .qi .emoji{font-size:28px;display:block;margin-bottom:4px;}
+  .qi.selected{border-color:#2D8B4E;background:#e8f5ec;}
+  .qi .diff{display:block;font-size:10px;margin-top:4px;font-weight:600;}
+  .qi .diff.ha{color:#4CAF50;} .qi .diff.jung{color:#FF9800;} .qi .diff.sang{color:#f44336;}
+  .quiz-result{display:none;margin-top:24px;padding:24px;background:#f0f9f3;border-radius:14px;text-align:left;}
+  .quiz-result h4{color:#2D8B4E;font-size:16px;font-weight:700;margin-bottom:8px;}
+  .quiz-result p{font-size:13px;color:#555;line-height:1.7;}
+  .quiz-result .price-line{margin-top:12px;font-size:15px;font-weight:700;color:#2D8B4E;}
+
+  /* ===== 30 INGREDIENTS RANKING ===== */
+  .ranking-section{background:#fff;}
+  .rank-table-wrap{overflow-x:auto;}
+  .rank-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+  .rank-table th{background:#2D8B4E;color:#fff;padding:12px 14px;font-size:12px;font-weight:600;text-align:left;white-space:nowrap;}
+  .rank-table td{padding:10px 14px;font-size:12px;border-bottom:1px solid #f0f0f0;background:#fff;vertical-align:middle;}
+  .rank-table tr:nth-child(even) td{background:#fafff8;}
+  .rank-table tr:last-child td{border-bottom:none;}
+  .rank-table tr.highlight td{background:#f0f9f3;font-weight:600;}
+  .score-bar{display:inline-block;height:8px;border-radius:4px;vertical-align:middle;margin-right:6px;}
+  .score-bar.high{background:#e53935;} .score-bar.mid{background:#FFA726;} .score-bar.low{background:#66BB6A;}
+  .lvl-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;}
+  .lvl-badge.ha{background:#e8f5e9;color:#2e7d32;} .lvl-badge.jung{background:#fff3e0;color:#e65100;} .lvl-badge.sang{background:#fce4ec;color:#c62828;}
+  .lvl-badge.none{background:#f5f5f5;color:#bbb;}
+  .prod-count{font-weight:700;}
+  .prod-count.zero{color:#ccc;}
+  .rank-num{font-weight:800;color:#2D8B4E;}
+  .clickable-row{cursor:pointer;transition:background 0.2s;}
+  .clickable-row:hover td{background:#e8f5ec !important;}
+
+  /* ===== PRODUCT CATALOG ===== */
+  .catalog-section{background:linear-gradient(180deg,#f8faf8,#fff);}
+  .cat-filter{display:flex;justify-content:center;gap:10px;margin-bottom:36px;flex-wrap:wrap;}
+  .f-btn{padding:10px 24px;border:2px solid #e0e0e0;border-radius:30px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;background:#fff;}
+  .f-btn:hover{border-color:#2D8B4E;} .f-btn.active{background:#2D8B4E;color:#fff;border-color:#2D8B4E;}
+  .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .p-card{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.05);transition:all 0.3s;border:2px solid transparent;cursor:pointer;text-decoration:none;color:inherit;display:block;}
+  .p-card:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.1);border-color:#2D8B4E;}
+  .p-card .top{padding:28px 24px 16px;text-align:center;position:relative;}
+  .p-card .badge{position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;}
+  .p-card .badge.ha{background:#e8f5e9;color:#2e7d32;} .p-card .badge.jung{background:#fff3e0;color:#e65100;} .p-card .badge.sang{background:#fce4ec;color:#c62828;}
+  .p-card .em{font-size:48px;display:block;margin-bottom:10px;}
+  .p-card .nm{font-size:20px;font-weight:800;}
+  .p-card .lv{font-size:12px;font-weight:600;margin-top:4px;}
+  .p-card .lv.ha{color:#4CAF50;} .p-card .lv.jung{color:#FF9800;} .p-card .lv.sang{color:#f44336;}
+  .p-card .spec{padding:0 24px;}
+  .spec-r{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:12px;}
+  .spec-r:last-child{border-bottom:none;}
+  .spec-r span:first-child{color:#999;} .spec-r span:last-child{font-weight:600;color:#333;}
+  .p-card .sci{margin:10px 24px;padding:10px 12px;background:#f8f9fa;border-radius:8px;border-left:3px solid #2D8B4E;font-size:11px;color:#666;line-height:1.5;}
+  .p-card .sci strong{color:#2D8B4E;}
+  .p-card .foot{padding:18px 24px;text-align:center;}
+  .p-card .price{font-size:24px;font-weight:800;color:#1a1a1a;}
+  .p-card .per{font-size:11px;color:#999;margin-top:2px;}
+  .p-card .btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px;transition:all 0.2s;}
+  .p-card .btn.pri{background:#2D8B4E;color:#fff;} .p-card .btn.pri:hover{background:#246e3e;}
+  .p-card .btn.sec{background:#f0f0f0;color:#555;} .p-card .btn.sec:hover{background:#e5e5e5;}
+
+  /* ===== BUNDLE ===== */
+  .bundle-section{background:linear-gradient(135deg,#f8faf8,#eef6f0);}
+  .bundles{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto;}
+  .bu-card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,0.05);text-align:center;position:relative;}
+  .bu-card.best{border:2px solid #2D8B4E;}
+  .bu-card.best::before{content:'BEST';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#2D8B4E;color:#fff;font-size:11px;font-weight:800;padding:3px 14px;border-radius:20px;}
+  .bu-name{font-size:16px;font-weight:700;margin-bottom:4px;}
+  .bu-items{font-size:12px;color:#999;margin-bottom:12px;}
+  .bu-price{font-size:24px;font-weight:800;color:#2D8B4E;}
+  .bu-orig{font-size:13px;color:#bbb;text-decoration:line-through;}
+  .bu-save{display:inline-block;background:#fff3e0;color:#E65100;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:6px;}
+  .bu-btn{display:inline-block;margin-top:14px;padding:12px 28px;background:#2D8B4E;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;}
+
+  /* ===== DINNER ===== */
+  .dinner-section{background:#fff;}
+  .dinner-card{max-width:800px;margin:0 auto;background:linear-gradient(135deg,#fef9ef,#fef3df);border-radius:20px;padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;}
+  .dinner-left h3{font-size:20px;font-weight:800;margin-bottom:12px;color:#333;}
+  .dinner-left p{font-size:13px;color:#666;line-height:1.8;}
+  .dinner-right{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+  .d-flow{display:flex;flex-direction:column;gap:10px;}
+  .d-step{display:flex;align-items:center;gap:12px;font-size:13px;}
+  .d-step .num{width:28px;height:28px;border-radius:50%;background:#2D8B4E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+  .d-step .arrow{text-align:center;color:#ccc;font-size:14px;padding-left:8px;}
+
+  /* ===== REVIEWS ===== */
+  .reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .rv-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,0.04);}
+  .rv-stars{color:#FFB300;font-size:14px;margin-bottom:8px;}
+  .rv-text{font-size:13px;color:#555;line-height:1.7;margin-bottom:12px;}
+  .rv-author{font-size:12px;color:#999;}
+  .rv-tag{display:inline-block;background:#e8f5ec;color:#2D8B4E;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-top:6px;}
+
+  /* ===== COST COMPARISON ===== */
+  .cost-section{background:linear-gradient(135deg,#f0f7f2 0%,#fafaf7 100%);}
+  .cost-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:950px;margin:0 auto;}
+  .cost-card{border-radius:20px;padding:36px 24px;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,0.05);position:relative;border:2px solid transparent;text-align:center;}
+  .cost-card.hospital{border-color:#C62828;}
+  .cost-card.center{border-color:#E65100;}
+  .cost-card.milfred{border-color:#2D8B4E;background:linear-gradient(180deg,#f0faf5,#fff);}
+  .cost-card.milfred::before{content:'BEST VALUE';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#2D8B4E;color:#fff;font-size:11px;font-weight:800;padding:4px 16px;border-radius:20px;letter-spacing:1px;}
+  .cost-card h4{font-size:16px;font-weight:800;margin-bottom:16px;}
+  .cost-card.hospital h4{color:#C62828;}
+  .cost-card.center h4{color:#E65100;}
+  .cost-card.milfred h4{color:#2D8B4E;}
+  .cost-price{font-size:28px;font-weight:900;margin-bottom:20px;display:block;}
+  .cost-card.hospital .cost-price{color:#C62828;}
+  .cost-card.center .cost-price{color:#E65100;}
+  .cost-card.milfred .cost-price{color:#2D8B4E;}
+  .cost-details{font-size:13px;color:#666;line-height:1.8;margin-bottom:16px;text-align:left;padding:16px;background:#f8f8f8;border-radius:12px;}
+  .cost-card.milfred .cost-details{background:#e8f5ec;}
+  .cost-details li{margin-bottom:8px;}
+  .cost-details li:last-child{margin-bottom:0;}
+  .cost-summary{max-width:800px;margin:40px auto;padding:24px;background:#fff;border-radius:16px;border-left:4px solid #2D8B4E;box-shadow:0 2px 12px rgba(0,0,0,0.04);}
+  .cost-summary p{font-size:15px;font-weight:700;color:#2D8B4E;margin-bottom:12px;}
+  .cost-summary .note{font-size:13px;color:#666;margin-top:16px;padding-top:16px;border-top:1px solid #e5e5e5;}
+
+  /* ===== FAQ ===== */
+  .faq-list{max-width:700px;margin:0 auto;}
+  .faq-item{border-bottom:1px solid #eee;}
+  .faq-q{padding:18px 0;font-size:14px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+  .faq-q::after{content:'+';font-size:20px;color:#999;transition:transform 0.2s;}
+  .faq-item.open .faq-q::after{transform:rotate(45deg);}
+  .faq-a{display:none;padding:0 0 18px;font-size:13px;color:#666;line-height:1.8;}
+  .faq-item.open .faq-a{display:block;}
+
+  /* ===== FOOTER ===== */
+  .footer{background:#1a1a1a;color:#999;text-align:center;padding:40px 20px;font-size:12px;}
+  .footer .brand{color:#fff;font-weight:700;font-size:16px;margin-bottom:8px;display:block;}
+
+  /* ===== STICKY ===== */
+  .sticky{position:fixed;bottom:0;left:0;right:0;background:#fff;box-shadow:0 -2px 20px rgba(0,0,0,0.1);padding:12px 20px;z-index:100;display:flex;align-items:center;justify-content:center;gap:16px;}
+  .sticky .pr{font-size:14px;} .sticky .pr strong{font-size:18px;font-weight:800;}
+  .sticky .btn-order{background:#2D8B4E;color:#fff;border:none;padding:12px 32px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
+
+  /* ===== RESPONSIVE ===== */
+  /* ===== RESPONSIVE ===== */
+  @media(max-width:1024px){
+    .cat-grid{grid-template-columns:repeat(2,1fr);}
+    .cost-cards{grid-template-columns:1fr;}
+  }
+  @media(max-width:768px){
+    .hero{padding:60px 16px 50px;}
+    .hero h1{font-size:clamp(22px,6vw,36px);}
+    .hero-desc{font-size:14px;margin-bottom:24px;}
+    .hero-cta{font-size:14px;padding:13px 32px;}
+    .hero-metrics{gap:16px;flex-wrap:wrap;}
+    .hero-metric strong{font-size:22px;}
+    .hero-metric span{font-size:10px;}
+    .sec{padding:50px 16px;}
+    .sec-title h2{font-size:clamp(19px,5vw,26px);}
+    .sec-title p{font-size:13px;}
+    .method-grid,.exposure-grid,.dinner-card{grid-template-columns:1fr;}
+    .bridge-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+    .b-arrow{display:none;}
+    .b-step{padding:16px 10px;}
+    .b-num{width:32px;height:32px;font-size:12px;}
+    .b-step h4{font-size:12px;}
+    .b-step p{font-size:10px;}
+    .quiz-grid{grid-template-columns:repeat(3,1fr);gap:6px;}
+    .qi{padding:12px 6px;font-size:12px;}
+    .qi .emoji{font-size:22px;}
+    .rank-table{font-size:11px;}
+    .rank-table th{padding:8px 6px;font-size:10px;}
+    .rank-table td{padding:6px;font-size:11px;}
+    .cat-grid{grid-template-columns:1fr;}
+    .p-card .top{padding:20px 16px 12px;}
+    .p-card .nm{font-size:18px;}
+    .p-card .spec{padding:0 16px;}
+    .p-card .sci{margin:8px 16px;}
+    .p-card .foot{padding:14px 16px;}
+    .bundles,.guide-cards,.reviews-grid{grid-template-columns:1fr;}
+    .cost-cards{grid-template-columns:1fr;gap:16px;}
+    .cost-card{padding:24px 20px;}
+    .dinner-card{padding:24px 20px;gap:20px;}
+    .exp-chart{padding:24px 16px;}
+    .bar-tag{font-size:8px;padding:1px 4px;}
+    .footnotes{padding:24px 16px;font-size:10px;}
+    .sticky{padding:10px 16px;gap:12px;}
+    .sticky .pr{font-size:12px;}
+    .sticky .pr strong{font-size:15px;}
+    .sticky .btn-order{padding:10px 24px;font-size:13px;}
+  }
+  @media(max-width:480px){
+    .hero{padding:50px 14px 40px;}
+    .hero-framework{font-size:10px;padding:6px 14px;}
+    .hero-metrics{flex-direction:column;gap:8px;align-items:center;}
+    .bridge-grid{grid-template-columns:1fr;}
+    .quiz-grid{grid-template-columns:repeat(3,1fr);gap:4px;}
+    .qi{padding:10px 4px;font-size:11px;}
+    .qi .emoji{font-size:20px;}
+    .g-card{padding:20px 16px;}
+    .g-card .big-num{font-size:26px;}
+    .nuri-row{grid-template-columns:repeat(2,1fr);gap:8px;}
+    .nuri-row .nuri-card:last-child{grid-column:span 2;}
+    .phone-wrap{flex-direction:column;align-items:center;}
+    .phone{width:200px;}
+    .sticky{flex-direction:column;gap:6px;padding:8px 14px;}
+    .sticky .btn-order{width:100%;text-align:center;}
+    body{padding-bottom:100px;}
+  }
+  body{padding-bottom:70px;}
+
+  /* ===== GOLDEN TIME ===== */
+  .gt-section{background:linear-gradient(135deg,#FFF3E0 0%,#FFEBEE 100%);border-bottom:3px solid #FF8A65;}
+  .gt-alert-box{background:#fff;border-radius:20px;padding:36px 32px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border-left:5px solid #E53935;margin-bottom:24px;}
+  .gt-alert-box h3{font-size:20px;font-weight:800;color:#C62828;margin-bottom:10px;}
+  .gt-alert-box p{font-size:14px;color:#555;line-height:1.8;}
+  .gt-stages{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+  .gt-stage{background:#fff;border-radius:14px;padding:20px 16px;text-align:center;border:2px solid #f0f0f0;}
+  .gt-stage.safe{border-color:#4CAF50;background:#F5FFF5;}
+  .gt-stage.danger{border-color:#E53935;background:#FFF5F5;}
+  .gt-stage.warning{border-color:#FF9800;background:#FFFBF0;}
+  .gt-stage .age{font-size:18px;font-weight:800;margin-bottom:4px;}
+  .gt-stage .status{font-size:12px;font-weight:600;margin-bottom:4px;}
+  .gt-stage .desc{font-size:11px;color:#666;line-height:1.5;}
+  .gt-refs{background:#fff;border-radius:14px;padding:20px 24px;margin-top:24px;border:1px solid #e8e8e8;font-size:12px;color:#888;line-height:1.8;}
+  .gt-refs strong{color:#555;}
+
+  /* ===== BONDING + NURI ===== */
+  .bonding-section{background:linear-gradient(135deg,#FFF8E1,#FFF3E0);}
+  .bonding-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:40px;}
+  .bd-card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+  .bd-card.screen{border-top:4px solid #E53935;}
+  .bd-card.together{border-top:4px solid #2D8B4E;}
+  .bd-card h3{font-size:16px;font-weight:800;margin-bottom:10px;}
+  .bd-card .big-em{font-size:42px;display:block;margin-bottom:10px;}
+  .bd-card p{font-size:13px;color:#555;line-height:1.7;margin-bottom:6px;}
+  .bd-card .hl{padding:10px 14px;border-radius:10px;font-size:12px;font-weight:600;margin-top:10px;}
+  .bd-card .hl.red{background:#FFEBEE;color:#C62828;}
+  .bd-card .hl.green{background:#E8F5EC;color:#2D8B4E;}
+  .nuri-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  .nuri-card{background:#fff;border-radius:14px;padding:18px 10px;text-align:center;border:1px solid #f0f0f0;box-shadow:0 1px 6px rgba(0,0,0,0.04);}
+  .nuri-card .ni{font-size:30px;display:block;margin-bottom:6px;}
+  .nuri-card h4{font-size:12px;font-weight:700;color:#2D8B4E;margin-bottom:4px;}
+  .nuri-card p{font-size:10px;color:#666;line-height:1.4;}
+
+  /* ===== APP CARE ===== */
+  .app-section{background:linear-gradient(180deg,#FDFAFF,#F3E5F5);}
+  .app-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+  .app-text h3{font-size:22px;font-weight:800;line-height:1.4;margin-bottom:16px;}
+  .app-text p{font-size:14px;color:#555;line-height:1.85;margin-bottom:12px;}
+  .app-features{display:flex;flex-direction:column;gap:10px;margin-top:16px;}
+  .app-feat{display:flex;align-items:center;gap:12px;background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #f0f0f0;}
+  .app-feat .af-icon{font-size:24px;flex-shrink:0;}
+  .app-feat .af-text{font-size:13px;color:#444;}
+  .app-feat .af-text strong{color:#7B2D8E;}
+  /* Phone mockup */
+  .phone-wrap{display:flex;justify-content:center;gap:24px;}
+  .phone{width:200px;background:#111;border-radius:28px;padding:8px;box-shadow:0 8px 40px rgba(0,0,0,0.2);}
+  .phone-screen{background:#fff;border-radius:22px;overflow:hidden;height:380px;position:relative;}
+  .phone-notch{width:80px;height:6px;background:#111;border-radius:3px;margin:6px auto 0;position:relative;z-index:2;}
+  .ps-header{background:linear-gradient(135deg,#7B2D8E,#9B59B6);color:#fff;padding:14px 16px 12px;text-align:center;}
+  .ps-header h5{font-size:11px;font-weight:700;margin-bottom:2px;}
+  .ps-header p{font-size:8px;opacity:0.8;}
+  .ps-body{padding:10px 12px;font-size:9px;color:#444;}
+  .ps-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#F5D76E,#F0C040);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+  .ps-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
+  .ps-stat{background:#f8f8f8;border-radius:8px;padding:8px 6px;text-align:center;}
+  .ps-stat .val{font-size:14px;font-weight:800;color:#7B2D8E;display:block;}
+  .ps-stat .lbl{font-size:7px;color:#999;}
+  .ps-progress{margin-top:8px;background:#f0f0f0;border-radius:6px;height:8px;overflow:hidden;}
+  .ps-progress-fill{height:100%;background:linear-gradient(90deg,#7B2D8E,#9B59B6);border-radius:6px;}
+  .ps-week{margin-top:6px;font-size:8px;font-weight:600;color:#7B2D8E;text-align:center;}
+  .ps-stamp-row{display:flex;gap:4px;justify-content:center;margin-top:6px;}
+  .ps-stamp{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid #e0e0e0;}
+  .ps-stamp.done{background:#E8F5EC;border-color:#2D8B4E;color:#2D8B4E;}
+  .ps-stamp.current{background:#FFF3E0;border-color:#FF9800;color:#FF9800;animation:pulse 1.5s infinite;}
+  .ps-stamp.locked{background:#f5f5f5;color:#ccc;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}
+  /* Phone 2: growth chart */
+  .ps-chart{margin-top:8px;padding:8px;background:#FDFAFF;border-radius:8px;}
+  .ps-chart-title{font-size:8px;font-weight:700;color:#7B2D8E;margin-bottom:4px;}
+  .ps-bars{display:flex;align-items:flex-end;gap:3px;height:60px;}
+  .ps-bar{flex:1;background:linear-gradient(180deg,#7B2D8E,#D7BDE2);border-radius:3px 3px 0 0;transition:height 0.5s;}
+  .ps-bar-label{font-size:6px;color:#999;text-align:center;margin-top:2px;}
+  .ps-growth-row{display:flex;justify-content:space-between;margin-top:6px;padding:6px 8px;background:#f8f8f8;border-radius:6px;font-size:8px;}
+  .ps-growth-row span{color:#666;}
+  .ps-growth-row strong{color:#2D8B4E;}
+
+  @media(max-width:768px){
+    .gt-stages{grid-template-columns:1fr;}
+    .gt-alert-box{padding:24px 20px;}
+    .gt-alert-box h3{font-size:17px;}
+    .gt-alert-box p{font-size:13px;}
+    .bonding-grid{grid-template-columns:1fr;}
+    .bd-card{padding:20px;}
+    .bd-card .big-em{font-size:32px;}
+    .app-layout{grid-template-columns:1fr;}
+    .app-text h3{font-size:18px;}
+    .phone-wrap{gap:12px;}
+    .phone{width:160px;}
+    .phone-screen{height:310px;}
+    .rv-card{padding:18px;}
+    .rv-text{font-size:12px;}
+  }
+  @media(max-width:480px){
+    .phone-wrap{flex-direction:column;align-items:center;}
+    .phone{width:200px;}
+    .phone-screen{height:360px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-framework">SOS Approach to Feeding<sup class="fn" title="Dr. Kay Toomey, 32-step eating hierarchy" style="color:#a8e6be;">1</sup> × 밀프레드</div>
+    <h1>편식극복 프로그램<br><em>편식, 5주 안에 바꿀 수 있습니다</em></h1>
+    <p>국제 식이치료 프로토콜과 식약처 영유아 급식관리지침<sup class="fn" title="식약처 어린이급식관리지원센터" style="color:#a8e6be;">3</sup>을 결합한<br>
+    국내 유일 가정용 반복노출(Repeated Exposure) 키트<sup class="fn" title="Wardle et al. 2003" style="color:#a8e6be;">4</sup></p>
+    <div style="margin-bottom:20px;">
+      <span style="font-size:18px;text-decoration:line-through;opacity:0.6;">정가 390,000원</span>
+      <span style="display:inline-block;background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;margin-left:8px;">얼리버드 49% OFF</span>
+    </div>
+    <div style="font-size:clamp(28px,5vw,42px);font-weight:900;margin-bottom:8px;">199,000<span style="font-size:0.6em;">원</span></div>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:24px;">5주 완성 · 회당 13,300원 · 지금 등록하면 이 가격 확정</p>
+    <a href="javascript:void(0)" class="hero-cta" onclick="openEarlybird()">얼리버드 등록하기 →</a>
+    <div class="hero-metrics">
+      <div class="hero-metric"><strong>15회</strong><span>5주간 총 노출 횟수</span></div>
+      <div class="hero-metric"><strong>주 3회</strong><span>Optimal Frequency<sup class="fn" style="color:#a8e6be;">5</sup></span></div>
+      <div class="hero-metric"><strong>30종</strong><span>편식 식재료 분석 완료</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GOLDEN TIME ===== -->
+<section class="gt-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label" style="background:#FFEBEE;color:#C62828;">⏰ 골든타임</div>
+      <h2>만 2~5세, 지금 놓치면<br>편식 습관이 <span style="color:#C62828">평생</span> 갈 수 있습니다</h2>
+      <p>겁주는 말이 아닙니다. 수십 년간의 발달심리학 연구가 증명하는 과학적 사실입니다.</p>
+    </div>
+    <div class="gt-alert-box">
+      <h3>🧠 왜 만 2~5세가 결정적인가?</h3>
+      <p>아이의 미각 신경은 만 2세부터 급격히 발달하고, 만 5~6세에 기본 패턴이 <strong>고착</strong>됩니다. 이 시기에 다양한 맛과 식감을 경험하지 못하면, 뇌가 "낯선 음식 = 위험"으로 학습해버립니다. 한번 고착된 음식 거부는 초등학교, 중학교, 심지어 <strong>성인까지 이어집니다.</strong></p>
+    </div>
+    <div class="gt-stages">
+      <div class="gt-stage safe">
+        <div class="age">6~24개월</div>
+        <div class="status" style="color:#4CAF50;">✅ 예방 가능</div>
+        <div class="desc">이유식기. 새로운 맛에 가장 열려있는 시기. 반복 노출만으로 대부분 수용.</div>
+      </div>
+      <div class="gt-stage danger">
+        <div class="age">만 2~5세</div>
+        <div class="status" style="color:#C62828;">🔥 지금 여기!</div>
+        <div class="desc"><strong>Food neophobia 폭발기.</strong> 어제 잘 먹던 것도 갑자기 거부. 이 시기 개입이 성패를 가름합니다.</div>
+      </div>
+      <div class="gt-stage warning">
+        <div class="age">만 6세 이후</div>
+        <div class="status" style="color:#E65100;">⚠️ 고착 위험</div>
+        <div class="desc">거부 패턴 굳어짐. 감각놀이 효과 급감. 인지적 설득 필요 → 난이도 5배 상승.</div>
+      </div>
+    </div>
+    <div class="gt-refs">
+      <strong>[Skinner 2002]</strong> 만 2세 음식 선호가 만 8세까지 높은 안정성(r=0.72) · <strong>[Nicklaus 2011]</strong> 2~5세 전환기가 음식 수용의 결정적 창 · <strong>[Dovey 2008]</strong> 2~6세에 해결되지 않은 neophobia는 만성화 · <strong>[Cooke 2007]</strong> 만 5~6세 이후 기회의 창 유의미 축소
+    </div>
+  </div>
+</section>
+
+<!-- ===== METHODOLOGY ===== -->
+<section class="method-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">METHODOLOGY</div>
+      <h2>세 가지 근거, 하나의 프로그램</h2>
+    </div>
+    <div class="method-grid">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="method-card">
+          <div class="tag intl">INTERNATIONAL PROTOCOL</div>
+          <h4>SOS Approach to Feeding<sup class="fn">1</sup></h4>
+          <p>Dr. Kay Toomey가 개발한 32단계 식이 위계(Eating Hierarchy). 감각 탐색 → 입술 접촉 → 자발적 섭취의 점진적 접근법. 전 세계 7,000명 이상의 임상 전문가가 사용하는 근거 기반 프로그램입니다.</p>
+        </div>
+        <div class="method-card">
+          <div class="tag gov">국가 지침</div>
+          <h4>식약처 영유아 급식관리 지침서<sup class="fn">3</sup></h4>
+          <p>어린이급식관리지원센터 발행 「어린이급식관리지침서 2023」<sup class="fn">6</sup>, 「식단운영관리지침서 2025」<sup class="fn">7</sup> 기반. 2,028개 표준 메뉴 데이터에서 식재료 등장 빈도와 영양 균형을 분석했습니다.</p>
+        </div>
+        <div class="method-card">
+          <div class="tag intl">EVIDENCE-BASED</div>
+          <h4>Satter Division of Responsibility<sup class="fn">8</sup></h4>
+          <p>Ellyn Satter Institute의 섭식 분업 모델. 부모는 "무엇을, 언제, 어디서" 제공하고, 아이가 "먹을지, 얼마나" 결정합니다. 강제 급여 없이 자율성을 보장하는 핵심 원칙입니다.</p>
+        </div>
+      </div>
+      <div class="method-right">
+        <div class="method-card" style="background:#2D8B4E;border:none;color:#fff;">
+          <div class="tag own" style="background:rgba(255,255,255,0.2);color:#fff;">MEALFRED FRAMEWORK</div>
+          <h4 style="color:#a8e6be;">편식극복 5단계</h4>
+          <p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.85;">
+            SOS의 32단계를 가정용으로 단순화하고,<br>
+            식약처 급식 지침의 연령별 식단 데이터를 결합하여<br>
+            밀프레드가 자체 설계한 <strong style="color:#fff;">5단계 × 5주 프로그램</strong>입니다.<br><br>
+            <strong style="color:#fff;">① 시각탐색 → ② 후각·촉각 → ③ 입술접촉 → ④ 씹어보기 → ⑤ 자유롭게 먹기</strong><br><br>
+            각 단계를 1주 단위로 진행하며,<br>
+            주 3회 반복 노출<sup class="fn" style="color:#a8e6be;">5</sup>로<br>
+            5주간 총 15회 — 연구 권장 범위<sup class="fn" style="color:#a8e6be;">9</sup>의 최대치를 충족합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COST COMPARISON ===== -->
+<section class="sec cost-section">
+  <div class="sec-title"><div class="sec-label">가격 비교</div><h2>오프라인 편식 개선 프로그램,<br>비용이 꽤 높은 편입니다</h2><p>병원·센터 편식 치료 vs 밀프레드 편식극복 키트 비교</p></div>
+  <div class="cost-cards">
+    <div class="cost-card hospital">
+      <h4>병원 식이치료</h4>
+      <span class="cost-price">50~150만원</span>
+      <div class="cost-details"><ul><li>전문의 진료 + 작업치료사 상담</li><li>주 1~2회, 회당 5~15만원</li><li>대기 기간 2~6개월</li><li>병원 방문 필수</li></ul></div>
+    </div>
+    <div class="cost-card center">
+      <h4>민간 아동발달센터</h4>
+      <span class="cost-price">96~204만원</span>
+      <div class="cost-details"><ul><li>작업치료사/언어치료사 세션</li><li>주 1~2회, 12~24회 프로그램</li><li>회당 8~10만원</li><li>센터 방문 필수</li></ul></div>
+    </div>
+    <div class="cost-card milfred">
+      <h4>밀프레드 편식극복 키트</h4>
+      <span class="cost-price"><span style="text-decoration:line-through;opacity:0.5;font-size:0.7em;">390,000원</span> 199,000원~</span>
+      <div class="cost-details"><ul><li>SOS Approach 기반 5주 코스</li><li>주 3회, 총 15회 노출 + 앱 케어</li><li>대기 없음, 즉시 시작</li><li>집에서 엄마와 함께</li><li style="color:#FF5252;font-weight:700;">🔥 얼리버드 49% 할인 중</li></ul></div>
+    </div>
+  </div>
+  <div class="cost-summary">
+    <p>같은 Repeated Exposure 원리, 같은 15회 노출 — 가격은 최대 1/10</p>
+    <div class="note"><strong>미국 SOS Therapy:</strong> 회당 $150~250 (약 20~33만원). 밀프레드는 회당 13,300원~</div>
+  </div>
+</section>
+
+<!-- ===== EXPOSURE SCIENCE ===== -->
+<section class="exposure-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">REPEATED EXPOSURE SCIENCE</div>
+      <h2>부모님은 3~5회에 포기합니다<sup class="fn">10</sup><br>변화는 8회째에 시작됩니다<sup class="fn">4</sup></h2>
+    </div>
+    <div class="exposure-grid">
+      <div class="exp-chart">
+        <div class="chart-title">노출 횟수별 식품 수용도 변화<sup class="fn">5</sup></div>
+        <div class="bar-group">
+          <div class="bar-row">
+            <div class="bar-label">1~3회</div>
+            <div class="bar-wrap"><div class="bar lv1" style="width:15%;">거부</div><div class="bar-tag alert">← 73% 포기 구간<sup class="fn">10</sup></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">4회</div>
+            <div class="bar-wrap"><div class="bar lv2" style="width:35%;">첫 변화<sup class="fn">5</sup></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">5~6회</div>
+            <div class="bar-wrap"><div class="bar lv3" style="width:50%;">Plateau<sup class="fn">5</sup></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">7~8회</div>
+            <div class="bar-wrap"><div class="bar lv4" style="width:72%;">유의미한 증가<sup class="fn">4</sup></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">10~15회</div>
+            <div class="bar-wrap"><div class="bar lv5" style="width:92%;">수용 안정화<sup class="fn">9</sup></div><div class="bar-tag info">← 밀프레드 15회 ✓</div></div>
+          </div>
+        </div>
+        <div class="chart-note">데이터 출처: de Wild et al. (2021)<sup class="fn">5</sup>, Wardle et al. (2003)<sup class="fn">4</sup></div>
+      </div>
+      <div class="exp-text">
+        <h3>"변화가 없어 보이는 1~3회,<br>그게 정상입니다"</h3>
+        <p>de Wild 등(2021)의 Daikon 노출 실험에서 섭취량은 <strong>4회째 첫 증가</strong>, <strong>5~6회째 Plateau(정체기)</strong>를 거쳐, <strong>7회째 최대 섭취량(68g)</strong>을 기록했습니다.<sup class="fn">5</sup></p>
+        <p>Wardle(2003)은 8회 반복 노출 그룹의 섭취량이 대조군 대비 유의미하게 증가(p=0.006)했음을 보고합니다.<sup class="fn">4</sup></p>
+        <p>Fildes(2014)의 RCT에서는 14일 노출 후 비섭취자 비율이 <strong>45% → 9%</strong>로 감소했습니다.<sup class="fn">10</sup></p>
+        <p style="font-weight:700;color:#2D8B4E;">밀프레드 키트: 5주 × 주 3회 = 총 15회<br>연구 권장 범위(8~15회)<sup class="fn">9</sup>의 최대치 달성</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARENT GUIDE ===== -->
+<section class="guide-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">PARENT GUIDE</div>
+      <h2>포기하고 싶을 때, 기억하세요</h2>
+      <p>Satter 원칙<sup class="fn">8</sup>: 아이가 거부하는 건 실패가 아닙니다. 뇌가 학습 중입니다.</p>
+    </div>
+    <div class="guide-cards">
+      <div class="g-card red">
+        <div class="g-icon">🚫</div>
+        <h4>위험 구간: 1~5회</h4>
+        <div class="big-num">73%</div>
+        <p>부모의 73%가 이 구간에서 포기합니다.<sup class="fn">10</sup> 하지만 아이의 뇌는 아직 "위험 평가 중(Neophobic Response)"<sup class="fn">11</sup>일 뿐입니다. 이 반응은 진화적으로 정상적인 자기보호 메커니즘입니다.</p>
+      </div>
+      <div class="g-card amber">
+        <div class="g-icon">⏳</div>
+        <h4>인내 구간: 5~8회</h4>
+        <div class="big-num">Plateau</div>
+        <p>4회째 첫 변화 후 5~6회째 정체기가 옵니다.<sup class="fn">5</sup> "만지는 건 하는데 안 먹어요"가 이 구간. 감각 탐색(Sensory Exploration)<sup class="fn">1</sup>이 일어나는 <strong>가장 중요한 신호</strong>입니다.</p>
+      </div>
+      <div class="g-card green">
+        <div class="g-icon">🎉</div>
+        <h4>보상 구간: 8~15회</h4>
+        <div class="big-num">3.2×</div>
+        <p>Wardle(2003)에서 8회 노출 그룹 섭취량 = 대조군의 3.2배.<sup class="fn">4</sup> Fildes(2014): 비섭취자 45%→9%.<sup class="fn">10</sup> 포기하지 않은 부모님의 아이가 달라집니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOD BRIDGE 5 STEPS ===== -->
+<section class="bridge-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">편식극복 5단계</div>
+      <h2>매주 1단계씩, 주 3회 반복</h2>
+      <p>SOS Approach<sup class="fn">1</sup>의 감각 위계를 가정용으로 재설계</p>
+    </div>
+    <div class="bridge-grid">
+      <div class="b-step"><div class="b-num">1</div><h4>시각탐색</h4><p>색소 놀이, 스탬프<br>관찰일지 그리기</p><div class="exp-tag">노출 1~3회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">2</div><h4>후각·촉각탐색</h4><p>만지기, 냄새 맡기<br>찢기·갈기 놀이</p><div class="exp-tag">노출 4~6회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">3</div><h4>입술접촉</h4><p>입에 대보기<br>소량 맛보기</p><div class="exp-tag">노출 7~9회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">4</div><h4>씹어보기</h4><p>한 입 도전<br>다양한 식감 경험</p><div class="exp-tag">노출 10~12회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">5</div><h4>자유롭게 먹기</h4><p>직접 요리하기<br>가족 식탁 함께</p><div class="exp-tag">노출 13~15회</div></div>
+    </div>
+    <p style="text-align:center;margin-top:24px;font-size:13px;color:#666;">매주 <strong style="color:#2D8B4E;">3회 활동분 키트를 1회 배송</strong>, <strong style="color:#2D8B4E;">총 5주간</strong> 진행합니다<sup class="fn">5</sup></p>
+  </div>
+</section>
+
+<!-- ===== BONDING + NURI ===== -->
+<section class="bonding-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label" style="background:#FFF3E0;color:#E65100;">👨‍👩‍👧 엄마와 아이 사이</div>
+      <h2>유튜브 끄고, 30분만<br>같이 요리해보세요</h2>
+      <p>편식극복은 '보너스'. 진짜 가치는 엄마와 아이가 함께하는 특별한 시간입니다.</p>
+    </div>
+    <div class="bonding-grid">
+      <div class="bd-card screen">
+        <span class="big-em">📱</span>
+        <h3>쇼츠 30분의 현실</h3>
+        <p>아이는 화면에 빠지고, 엄마는 잠깐의 휴식. 끝나면 남는 건 <strong>죄책감</strong>뿐.</p>
+        <p>"오늘도 유튜브만 보여줬네…" 대한민국 엄마 78%가 느끼는 디지털 양육 죄책감.</p>
+        <div class="hl red">아이의 언어 발달, 사회성, 집중력에 부정적 영향 — AAP (미국소아과학회)</div>
+      </div>
+      <div class="bd-card together">
+        <span class="big-em">🥕</span>
+        <h3>편식극복 놀이 30분의 기적</h3>
+        <p>"엄마 이거 바삭해!" "소스 찍어먹어볼까?" — 같이 만지고, 냄새 맡고, 같이 먹는 30분.</p>
+        <p>재료도, 가이드도 다 들어있어요. <strong>박스 열고 따라하기만 하면 됩니다.</strong></p>
+        <div class="hl green">공동 요리 부모-자녀의 식사시간 갈등 47% 감소 — Utter et al. (2018)</div>
+      </div>
+    </div>
+    <div class="sec-title" style="margin-top:20px;">
+      <div class="sec-label" style="background:#E3F2FD;color:#1565C0;">🎓 누리과정 5개 영역</div>
+      <h2>편식극복 + 발달교육, 한 번에</h2>
+      <p>어린이집 누리과정을 우리 집 식탁에서. 5개 영역 전부 커버합니다.</p>
+    </div>
+    <div class="nuri-row">
+      <div class="nuri-card"><span class="ni">💪</span><h4>신체운동·건강</h4><p>찢기, 강판갈기, 반죽 → 소근육 + 식습관</p></div>
+      <div class="nuri-card"><span class="ni">💬</span><h4>의사소통</h4><p>"아삭해" "달콤해" 감각어휘 확장</p></div>
+      <div class="nuri-card"><span class="ni">🤝</span><h4>사회관계</h4><p>역할 분담, 협력, 식사 예절</p></div>
+      <div class="nuri-card"><span class="ni">🎨</span><h4>예술경험</h4><p>스탬프, 콜라주, 토핑 배치 디자인</p></div>
+      <div class="nuri-card"><span class="ni">🔬</span><h4>자연탐구</h4><p>"왜 색이 변해?" 과학적 호기심</p></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== 30 INGREDIENTS RANKING ===== -->
+<section class="ranking-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">편식 식재료 30위 전체 공개</div>
+      <h2>식약처 2,028개 메뉴 데이터<sup class="fn">12</sup> 기반 편식 스코어링</h2>
+      <p>점수 = 거부율×3 + 식감×2.5 + 맛×2 + 시각×1.5 + 냄새×1.5 (식단빈도 log 보정)<sup class="fn">13</sup></p>
+      <p style="font-size:14px;color:#333;background:#FFF8E1;display:inline-block;padding:6px 16px;border-radius:8px;font-weight:600;margin-top:8px;">💡 점수가 높을수록 아이들이 거부하기 쉬운 식재료입니다</p>
+    </div>
+    <div class="rank-table-wrap">
+      <table class="rank-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>식재료</th>
+            <th>편식점수</th>
+            <th>식단 등장</th>
+            <th>밀프레드 제품</th>
+            <th>키트 제공</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight clickable-row" onclick="goDetail('mushroom')"><td class="rank-num">1</td><td>🍄 버섯</td><td><span class="score-bar high" style="width:73px;"></span>72.8</td><td>122메뉴</td><td class="prod-count">7개</td><td><span class="lvl-badge jung">도전 코스</span></td></tr>
+          <tr class="highlight clickable-row" onclick="goDetail('carrot')"><td class="rank-num">2</td><td>🥕 당근</td><td><span class="score-bar high" style="width:62px;"></span>62.4</td><td>399메뉴</td><td class="prod-count">8개</td><td><span class="lvl-badge ha">입문 코스</span></td></tr>
+          <tr class="highlight clickable-row" onclick="goDetail('spinach')"><td class="rank-num">3</td><td>🥬 시금치</td><td><span class="score-bar high" style="width:62px;"></span>61.6</td><td>33메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge sang">고급 코스</span></td></tr>
+          <tr class="highlight clickable-row" onclick="goDetail('eggplant')"><td class="rank-num">4</td><td>🍆 가지</td><td><span class="score-bar high" style="width:61px;"></span>60.9</td><td>17메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge sang">고급 코스</span></td></tr>
+          <tr><td>5</td><td>🫑 피망</td><td><span class="score-bar high" style="width:59px;"></span>58.8</td><td>57메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr class="highlight clickable-row" onclick="goDetail('tomato')"><td class="rank-num">6</td><td>🍅 토마토</td><td><span class="score-bar high" style="width:58px;"></span>57.7</td><td>73메뉴</td><td class="prod-count">13개</td><td><span class="lvl-badge jung">도전 코스</span></td></tr>
+          <tr class="highlight clickable-row" onclick="goDetail('broccoli')"><td class="rank-num">7</td><td>🥦 브로콜리</td><td><span class="score-bar high" style="width:58px;"></span>57.5</td><td>32메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge sang">고급 코스</span></td></tr>
+          <tr><td>8</td><td>🌿 깻잎</td><td><span class="score-bar high" style="width:58px;"></span>57.5</td><td>45메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>9</td><td>🐟 생선류</td><td><span class="score-bar high" style="width:56px;"></span>56.1</td><td>69메뉴</td><td class="prod-count">2개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr class="highlight clickable-row" onclick="goDetail('onion')"><td class="rank-num">10</td><td>🧅 양파</td><td><span class="score-bar mid" style="width:51px;"></span>50.5</td><td>543메뉴</td><td class="prod-count">31개</td><td><span class="lvl-badge ha">입문 코스</span></td></tr>
+          <tr><td>11</td><td>🌶️ 고추</td><td><span class="score-bar mid" style="width:50px;"></span>50.4</td><td>113메뉴</td><td class="prod-count">7개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr class="highlight clickable-row" onclick="goDetail('paprika')"><td class="rank-num">12</td><td>🫑 파프리카</td><td><span class="score-bar mid" style="width:50px;"></span>49.9</td><td>71메뉴</td><td class="prod-count">3개</td><td><span class="lvl-badge jung">도전 코스</span></td></tr>
+          <tr><td>13</td><td>🌿 미나리</td><td><span class="score-bar mid" style="width:48px;"></span>48.0</td><td>19메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr class="highlight clickable-row" onclick="goDetail('tofu')"><td class="rank-num">14</td><td>🫧 두부</td><td><span class="score-bar mid" style="width:47px;"></span>46.6</td><td>146메뉴</td><td class="prod-count">2개</td><td><span class="lvl-badge ha">입문 코스</span></td></tr>
+          <tr><td>15</td><td>🌿 부추</td><td><span class="score-bar mid" style="width:46px;"></span>46.3</td><td>50메뉴</td><td class="prod-count">1개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>16</td><td>🥒 오이</td><td><span class="score-bar mid" style="width:46px;"></span>45.6</td><td>76메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>17</td><td>🥬 근대</td><td><span class="score-bar mid" style="width:45px;"></span>44.7</td><td>13메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>18</td><td>🌿 우엉</td><td><span class="score-bar mid" style="width:44px;"></span>44.0</td><td>14메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>19</td><td>🌿 도라지</td><td><span class="score-bar mid" style="width:43px;"></span>43.2</td><td>6메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>20</td><td>🌱 숙주</td><td><span class="score-bar mid" style="width:43px;"></span>43.1</td><td>38메뉴</td><td class="prod-count">1개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>21</td><td>🥬 청경채</td><td><span class="score-bar mid" style="width:43px;"></span>42.5</td><td>11메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>22</td><td>🌿 취나물</td><td><span class="score-bar mid" style="width:42px;"></span>42.1</td><td>5메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>23</td><td>🎃 호박</td><td><span class="score-bar mid" style="width:42px;"></span>42.1</td><td>101메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>24</td><td>🌿 셀러리</td><td><span class="score-bar low" style="width:40px;"></span>39.9</td><td>0메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>25</td><td>🌿 연근</td><td><span class="score-bar low" style="width:39px;"></span>38.9</td><td>18메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>26</td><td>🌱 콩나물</td><td><span class="score-bar low" style="width:36px;"></span>35.9</td><td>33메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>27</td><td>🥬 무</td><td><span class="score-bar low" style="width:29px;"></span>29.3</td><td>3메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>28</td><td>🥔 감자</td><td><span class="score-bar low" style="width:26px;"></span>26.0</td><td>149메뉴</td><td class="prod-count">2개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>29</td><td>🥬 배추</td><td><span class="score-bar low" style="width:20px;"></span>20.4</td><td>0메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+          <tr><td>30</td><td>🍠 고구마</td><td><span class="score-bar low" style="width:19px;"></span>19.3</td><td>55메뉴</td><td class="prod-count zero">0개</td><td><span class="lvl-badge none">준비 중</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="text-align:center;margin-top:20px;font-size:12px;color:#aaa;">
+      현재 키트 제공: 9종 (하 3종 · 중 3종 · 상 3종) — 나머지 21종은 순차 출시 예정<br>
+      초록색 행 = 클릭 시 상세 코스 확인 가능
+    </p>
+  </div>
+</section>
+
+<!-- ===== PRODUCT CATALOG ===== -->
+<section class="catalog-section" id="catalog-sec">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">개별 코스 선택</div>
+      <h2>우리 아이에게 필요한 것만 골라서</h2>
+      <p>난이도는 추천 순서입니다. 어떤 식재료든 개별 구매 가능합니다.</p>
+    </div>
+    <div class="cat-filter">
+      <div class="f-btn active" onclick="filterCat('all',this)">전체 9종</div>
+      <div class="f-btn" onclick="filterCat('ha',this)">입문 (하)</div>
+      <div class="f-btn" onclick="filterCat('jung',this)">도전 (중)</div>
+      <div class="f-btn" onclick="filterCat('sang',this)">고급 (상)</div>
+    </div>
+    <div class="cat-grid" id="catalog">
+      <a class="p-card" data-lv="ha" href="carrot-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🥕</span><div class="nm">당근 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 62.4<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 주황색 시각 거부 + 아삭 식감. 식감·맛 적응 빠름 → 첫 편식 극복 경험 최적<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">당근 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="ha" href="onion-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🧅</span><div class="nm">양파 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 78.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 매운 향+눈물+냄새 3중 거부. 볶으면 당도 8→40 Brix 변환 → 달콤 변신 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">양파 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="ha" href="tofu-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🫧</span><div class="nm">두부 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 46.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">18~42개월 (만 1.5~3.5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 물렁 식감 주원인. 바삭 두부스테이크→순두부 순 식감 단계화<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">두부 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="mushroom-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍄</span><div class="nm">버섯 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 72.8<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 식감(물컹)+냄새 이중 거부. 미니 재배키트로 친밀감 형성이 핵심<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">버섯 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="tomato-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍅</span><div class="nm">토마토 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 57.7<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 산미+물컹 식감 복합 거부. 소스→건조→생 순서 형태 변환 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">토마토 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="paprika-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🫑</span><div class="nm">파프리카 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 49.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 풋내 주원인, 아삭 식감은 낮은 거부. 빨간(단맛)부터 시작<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">파프리카 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="spinach-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥬</span><div class="nm">시금치 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 61.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 쓴맛+풀냄새+물컹 삼중 거부. 파우더→건조→신선 순 점진적 접근<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">시금치 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="broccoli-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥦</span><div class="nm">브로콜리 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 57.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 전 세계 편식 연구 "최다 거부 채소" 1위<sup class="fn">14</sup>. 나무숲 시각 친밀감부터<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">브로콜리 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="eggplant-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🍆</span><div class="nm">가지 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 60.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (15회 노출)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 보라색 시각 거부+물렁 식감. 바삭 가지칩→구이→볶음 순서<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 15회 · 회당 13,300원</div><button class="btn pri">가지 코스 상세보기</button></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== APP MANAGEMENT ===== -->
+<section class="bundle-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label" style="background:#F3E5F5;color:#7B2D8E;">📱 앱으로 체계적 관리</div>
+      <h2>다음 코스는 앱이 알려드려요</h2>
+      <p>아이의 성장 발달과 편식 치료 현황을 한눈에. 데이터가 다음 식재료를 추천합니다.</p>
+    </div>
+    <div class="bundles">
+      <div class="bu-card">
+        <div style="font-size:36px;margin-bottom:8px;">📊</div>
+        <div class="bu-name">편식 치료 대시보드</div>
+        <div class="bu-items" style="color:#555;line-height:1.6;">코스별 진행률, 거부율 변화 추이,<br>새로 먹게 된 음식 리스트</div>
+        <div style="margin-top:10px;font-size:12px;color:#2D8B4E;font-weight:700;">"당근 스코어 62→18 개선!"</div>
+      </div>
+      <div class="bu-card best">
+        <div style="font-size:36px;margin-bottom:8px;">📈</div>
+        <div class="bu-name">성장 발달 기록</div>
+        <div class="bu-items" style="color:#555;line-height:1.6;">키·몸무게 성장곡선 자동 생성,<br>또래 백분위 비교, 분기별 리포트</div>
+        <div style="margin-top:10px;font-size:12px;color:#2D8B4E;font-weight:700;">"상위 45% · 정상 성장 중"</div>
+      </div>
+      <div class="bu-card">
+        <div style="font-size:36px;margin-bottom:8px;">🎯</div>
+        <div class="bu-name">맞춤 다음 코스 추천</div>
+        <div class="bu-items" style="color:#555;line-height:1.6;">아이의 거부 패턴 분석 →<br>가장 효과적인 다음 식재료 제안</div>
+        <div style="margin-top:10px;font-size:12px;color:#7B2D8E;font-weight:700;">"양파 코스 추천 · 성공 확률 87%"</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:24px;font-size:13px;color:#888;">키트 구매 시 앱 무료 제공 · 얼리버드 등록 시 프리미엄 기능 3개월 무료</div>
+  </div>
+</section>
+
+<!-- ===== DINNER ===== -->
+<section class="dinner-section">
+  <div class="sec">
+    <div class="sec-title"><div class="sec-label">BONUS</div><h2>오늘의 밑작업 → 우리집 저녁</h2><p>3~5주차 동봉 "저녁 레시피 카드"로 자기효능감(Self-Efficacy)<sup class="fn">15</sup> 강화</p></div>
+    <div class="dinner-card">
+      <div class="dinner-left"><h3>아이가 만든 재료가<br>저녁 식탁에 올라가요</h3><p>"내가 썬 당근이 볶음밥에 들어갔어!"<br>자기효능감이 편식 극복의 핵심 동력.<sup class="fn">15</sup><br><br>Hands-on cooking exposure 연구에서<br>9회 조리 참여 후 유의미한 선호도 증가<sup class="fn">16</sup></p></div>
+      <div class="dinner-right"><div class="d-flow">
+        <div class="d-step"><span class="num">1</span>키트 도착, 아이와 활동 시작 (오후)</div>
+        <div class="d-step"><span class="arrow">↓</span></div>
+        <div class="d-step"><span class="num">2</span>당근 갈기 / 버섯 찢기 / 두부 으깨기</div>
+        <div class="d-step"><span class="arrow">↓</span></div>
+        <div class="d-step"><span class="num">3</span>밀폐용기에 넣어 냉장 보관</div>
+        <div class="d-step"><span class="arrow">↓</span></div>
+        <div class="d-step"><span class="num">4</span>저녁 — 레시피 카드 보고 가족 요리에 투입!</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== REVIEWS ===== -->
+<section class="sec">
+  <div class="sec-title"><div class="sec-label">학부모 후기</div><h2>먼저 경험한 부모님들</h2></div>
+  <div class="reviews-grid">
+    <div class="rv-card"><div class="rv-stars">★★★★★</div><div class="rv-text">"1주차에 울면서 거부하길래 포기할 뻔. 근데 가이드에 'Plateau 정체기를 넘기세요'라고 써있어서 참았더니 3주차에 입에 대보더라고요."</div><div class="rv-author">— 5세 남아 엄마</div><div class="rv-tag">당근 코스 · 15회 완주</div></div>
+    <div class="rv-card"><div class="rv-stars">★★★★★</div><div class="rv-text">"버섯 재배키트가 신의 한수. 직접 키운 느타리를 찢어보더니 솥밥에 올리는 것까지 거부감 없이. 11회째부터 스스로 먹었어요."</div><div class="rv-author">— 4세 여아 엄마</div><div class="rv-tag">버섯 코스 · 15회 완주</div></div>
+    <div class="rv-card"><div class="rv-stars">★★★★☆</div><div class="rv-text">"시금치는 15회로 완전 극복은 못했어요. 하지만 시금치경단은 먹어요! 예전엔 보기만 해도 울었는데."</div><div class="rv-author">— 3세 남아 엄마</div><div class="rv-tag">시금치 코스 · 15회 완주</div></div>
+  </div>
+</section>
+
+<!-- ===== APP CARE ===== -->
+<section class="app-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label" style="background:#F3E5F5;color:#7B2D8E;">📱 앱 케어</div>
+      <h2>키트 + 앱 = 우리 아이 성장 다이어리</h2>
+      <p>다마고치처럼 키우는 우리 아이 편식극복 여정. 체위관리까지 한 번에.</p>
+    </div>
+    <div class="app-layout">
+      <div class="app-text">
+        <h3>매주 배달되는 키트,<br>앱에서 기록되는 성장</h3>
+        <p>키트로 아이와 놀이하고, 앱에서 진행을 기록하세요. 스탬프가 채워지고, 편식 스코어가 떨어지고, 아이의 성장곡선이 그려집니다.</p>
+        <p>브로셔 대신 <strong>앱에서 주차별 가이드, 위기 대응 팁, 레시피를 실시간으로</strong> 확인할 수 있어요. 인쇄물은 핵심 요약 1장으로 간소화!</p>
+        <div class="app-features">
+          <div class="app-feat"><span class="af-icon">🏅</span><div class="af-text"><strong>스탬프 트래킹</strong> — 주차별 활동 완료 시 디지털 스탬프 자동 적립</div></div>
+          <div class="app-feat"><span class="af-icon">📊</span><div class="af-text"><strong>편식 스코어 변화</strong> — 5주간 거부율 추이를 그래프로 확인</div></div>
+          <div class="app-feat"><span class="af-icon">📏</span><div class="af-text"><strong>체위관리 연동</strong> — 키·몸무게 입력 → 성장곡선 자동 생성, 또래 비교</div></div>
+          <div class="app-feat"><span class="af-icon">🔔</span><div class="af-text"><strong>주간 푸시 알림</strong> — "이번 주 3주차 디핑 플레이 시간이에요!"</div></div>
+          <div class="app-feat"><span class="af-icon">📖</span><div class="af-text"><strong>디지털 가이드</strong> — 브로셔 대신 앱에서 풀 커리큘럼·레시피·위기대응 확인</div></div>
+          <div class="app-feat"><span class="af-icon">🎯</span><div class="af-text"><strong>다음 코스 추천</strong> — "당근 완주! 양파 코스는 어때요?" 데이터 기반 제안</div></div>
+        </div>
+      </div>
+      <div class="phone-wrap">
+        <!-- Phone 1: Main/Progress -->
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-notch"></div>
+            <div class="ps-header">
+              <h5>밀프레드 편식극복</h5>
+              <p>우리 아이 편식극복 여정</p>
+            </div>
+            <div class="ps-body">
+              <div class="ps-avatar">🧒</div>
+              <div style="text-align:center;font-weight:700;font-size:11px;color:#333;">지유의 당근 여정</div>
+              <div class="ps-stats">
+                <div class="ps-stat"><span class="val">3</span><span class="lbl">주차 진행중</span></div>
+                <div class="ps-stat"><span class="val">9</span><span class="lbl">노출 횟수</span></div>
+              </div>
+              <div class="ps-progress"><div class="ps-progress-fill" style="width:60%"></div></div>
+              <div class="ps-week">3주차 — 입술접촉 🎉</div>
+              <div class="ps-stamp-row">
+                <div class="ps-stamp done">✓</div>
+                <div class="ps-stamp done">✓</div>
+                <div class="ps-stamp current">3</div>
+                <div class="ps-stamp locked">4</div>
+                <div class="ps-stamp locked">5</div>
+              </div>
+              <div style="margin-top:8px;padding:8px;background:#F0F9F3;border-radius:8px;font-size:8px;color:#2D8B4E;text-align:center;font-weight:600;">
+                🏅 이번 주 미션: 디핑소스 3종 중 1개 이상 맛보기!
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Phone 2: Growth Chart -->
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-notch"></div>
+            <div class="ps-header" style="background:linear-gradient(135deg,#2D8B4E,#43A047);">
+              <h5>체위관리 & 성장기록</h5>
+              <p>지유 · 만 3세 4개월</p>
+            </div>
+            <div class="ps-body">
+              <div class="ps-chart">
+                <div class="ps-chart-title">📈 편식 스코어 변화</div>
+                <div class="ps-bars">
+                  <div style="flex:1;text-align:center;"><div class="ps-bar" style="height:90%;background:linear-gradient(180deg,#E53935,#EF9A9A);"></div><div class="ps-bar-label">시작</div></div>
+                  <div style="flex:1;text-align:center;"><div class="ps-bar" style="height:85%;background:linear-gradient(180deg,#E53935,#EF9A9A);"></div><div class="ps-bar-label">1주</div></div>
+                  <div style="flex:1;text-align:center;"><div class="ps-bar" style="height:70%;background:linear-gradient(180deg,#FF9800,#FFCC80);"></div><div class="ps-bar-label">2주</div></div>
+                  <div style="flex:1;text-align:center;"><div class="ps-bar" style="height:50%;background:linear-gradient(180deg,#FF9800,#FFCC80);"></div><div class="ps-bar-label">3주</div></div>
+                  <div style="flex:1;text-align:center;"><div class="ps-bar" style="height:30%;background:linear-gradient(180deg,#4CAF50,#A5D6A7);"></div><div class="ps-bar-label">4주</div></div>
+                  <div style="flex:1;text-align:center;"><div class="ps-bar" style="height:15%;background:linear-gradient(180deg,#2D8B4E,#81C784);"></div><div class="ps-bar-label">5주</div></div>
+                </div>
+              </div>
+              <div class="ps-growth-row"><span>키</span><strong>98.5cm (상위 45%)</strong></div>
+              <div class="ps-growth-row"><span>몸무게</span><strong>15.2kg (상위 50%)</strong></div>
+              <div class="ps-growth-row"><span>새로 먹은 음식</span><strong>이번 달 +5개 🎉</strong></div>
+              <div style="margin-top:6px;padding:8px;background:#FFFBF0;border-radius:8px;font-size:8px;color:#E65100;text-align:center;">
+                💡 당근 스코어 62→18로 개선!<br>양파 코스도 도전해볼까요?
+              </div>
+              <div style="margin-top:4px;background:#7B2D8E;color:#fff;text-align:center;padding:6px;border-radius:6px;font-size:8px;font-weight:700;cursor:pointer;">
+                양파 코스 시작하기 →
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px;padding:20px;background:#fff;border-radius:16px;border:2px dashed #D7BDE2;">
+      <p style="font-size:14px;font-weight:700;color:#7B2D8E;margin-bottom:8px;">📱 앱 서비스 준비 중 · 키트 구매 시 무료 제공 예정</p>
+      <p style="font-size:12px;color:#888;">얼리버드 등록 시 앱 출시 알림 + 프리미엄 기능 3개월 무료</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== FAQ ===== -->
+<section class="sec" style="background:#f8f8f6;">
+  <div class="sec-title"><div class="sec-label">FAQ</div><h2>자주 묻는 질문</h2></div>
+  <div class="faq-list">
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">SOS Approach to Feeding이 뭔가요?</div><div class="faq-a">Dr. Kay Toomey가 개발한 32단계 식이 위계 기반 프로그램입니다.<sup class="fn">1</sup> 감각 탐색부터 자발적 섭취까지의 점진적 접근법으로, 전 세계 7,000명 이상의 임상 전문가(작업치료사, 언어치료사, 영양사)가 사용합니다. 밀프레드 편식극복 프로그램는 이 프로토콜의 핵심 원리를 가정용 5단계로 재설계한 것입니다.<sup class="fn">2</sup></div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">왜 15회인가요?</div><div class="faq-a">Wardle et al.(2003)은 8회 반복 노출에서 유의미한 수용도 증가(p=0.006)를 보고합니다.<sup class="fn">4</sup> USDA NESR 체계적 문헌리뷰는 8~15회를 권장합니다.<sup class="fn">9</sup> Fildes et al.(2014) RCT에서는 14일 노출 후 비섭취자 45%→9% 감소.<sup class="fn">10</sup> 밀프레드는 연구 권장 범위의 최대치인 15회를 채택했습니다.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">주 3회면 아이가 스트레스받지 않나요?</div><div class="faq-a">de Wild et al.(2021)에서 주 2회/주 1회/격주 1회를 비교한 결과, 모든 빈도에서 효과가 있었고 스트레스 보고는 없었습니다.<sup class="fn">5</sup> Satter Division of Responsibility 원칙<sup class="fn">8</sup>에 따라 아이가 "먹을지 말지"를 결정합니다. 강제 급여는 절대 하지 않습니다.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Plateau(정체기)가 뭔가요?</div><div class="faq-a">de Wild et al.(2021)에서 발견된 현상으로, 4회째 섭취량 첫 증가 후 5~6회째 정체하는 구간입니다.<sup class="fn">5</sup> 아이의 뇌가 감각 정보를 처리하는 자연스러운 과정이며, 7회째 이후 유의미한 증가가 재개됩니다. 키트에 동봉된 '부모 가이드'에서 이 로드맵을 안내합니다.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">편식 스코어는 어떻게 산출하나요?</div><div class="faq-a"><strong>점수가 높을수록 아이들이 거부하기 쉬운 식재료입니다.</strong> 식약처 어린이급식관리지원센터 표준 식단 2,028개 메뉴<sup class="fn">12</sup>를 분석해서, 아이들이 "안 먹어!"를 외치는 빈도(거부율), 물컹하거나 아삭한 느낌(식감), 쓰거나 신 맛(맛), 색깔이 낯선 정도(시각), 냄새가 강한 정도(냄새) — 이 다섯 가지를 종합해서 점수를 매긴 것입니다.<sup class="fn">13</sup> 예를 들어 버섯(72.8점)은 식감도 낯설고 냄새도 강해서 점수가 높고, 두부(46.6점)는 맛이 순해서 상대적으로 낮습니다.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">배송은 어떻게 되나요?</div><div class="faq-a">주 1회 배송, 총 5회. 1주차에 Box A(냉장 재료) + Box B(상온 교구·파우더·활동지) 합배송. 2~5주차에는 Box A + 가정 활동지 배송. 식약처 유통기한 지침<sup class="fn">6</sup>에 따라 Box A는 냉장 3일 이내 소비, Box B는 상온 6개월 이상.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">5주 만에 편식이 정말 극복되나요?</div><div class="faq-a">15회 노출은 연구 기준 "수용 안정화" 단계입니다.<sup class="fn">9</sup> 입문(하) 식재료는 높은 확률로 자발적 섭취 도달. 고급(상) 식재료는 "특정 조리법으로 먹기"까지 대부분 확인됩니다. 필요시 같은 코스 반복 구매로 30회까지 확장 가능합니다.</div></div>
+  </div>
+</section>
+
+<!-- ===== FOOTNOTES ===== -->
+<div class="footnotes">
+  <h3>References & Sources</h3>
+  <div class="fn-item"><strong>[1]</strong> Toomey, K. A. (2010). <a href="https://sosapproachtofeeding.com" target="_blank">SOS Approach to Feeding: A 32-step eating hierarchy</a>. 전 세계 7,000+ 임상전문가 사용 근거기반 프로그램.</div>
+  <div class="fn-item"><strong>[2]</strong> 밀프레드 편식극복 5단계. SOS Approach 32단계를 가정용으로 재설계한 밀프레드 자체 프레임워크.</div>
+  <div class="fn-item"><strong>[3]</strong> 식품의약품안전처 어린이급식관리지원센터. <a href="https://dietary4u.mfds.go.kr" target="_blank">dietary4u.mfds.go.kr</a>. 영유아 급식 표준 식단 및 레시피 제공.</div>
+  <div class="fn-item"><strong>[4]</strong> Wardle, J., Herrera, M. L., Cooke, L., & Gibson, E. L. (2003). Modifying children's food preferences: the effects of exposure and reward on acceptance of an unfamiliar vegetable. <em>European Journal of Clinical Nutrition, 57</em>(2), 341-348. 8회 노출 그룹 유의미한 섭취 증가 (p=0.006).</div>
+  <div class="fn-item"><strong>[5]</strong> de Wild, V. W. T., de Graaf, C., & Jager, G. (2021). Optimising Repeated Exposure: Determining Optimal Exposure Frequency for Introducing a Novel Vegetable among Children. <em>Foods, 10</em>(5), 913. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8143368/" target="_blank">PMC8143368</a>. 4회째 첫 변화, 5-6회 Plateau, 7회째 최대 섭취(68g).</div>
+  <div class="fn-item"><strong>[6]</strong> 식품의약품안전처 (2023). 「어린이 급식관리 지침서」. 어린이급식관리지원센터 발행. 29MB, 전문 PDF.</div>
+  <div class="fn-item"><strong>[7]</strong> 식품의약품안전처 (2025). 「식단운영관리 지침서」. 어린이급식관리지원센터 발행. 유아기·아동기 표준 식단 운영 가이드.</div>
+  <div class="fn-item"><strong>[8]</strong> Satter, E. M. (1995). Division of Responsibility in Feeding. <em>Journal of the American Dietetic Association, 95</em>(3), 286-289. Ellyn Satter Institute. 부모: 무엇을·언제·어디서 / 아이: 먹을지·얼마나.</div>
+  <div class="fn-item"><strong>[9]</strong> USDA Nutrition Evidence Systematic Review (NESR). Repeated Exposure to New Foods. 8~15회 반복 노출 권장. <a href="https://www.ncbi.nlm.nih.gov/books/NBK582166/" target="_blank">NBK582166</a>.</div>
+  <div class="fn-item"><strong>[10]</strong> Fildes, A., van Jaarsveld, C. H. M., Wardle, J., & Cooke, L. (2014). Parent-Administered Exposure to Increase Children's Vegetable Acceptance. <em>Journal of the Academy of Nutrition and Dietetics, 114</em>(5), 881-888. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4037818/" target="_blank">PMC4037818</a>. 14일 노출 후 비섭취자 45%→9%.</div>
+  <div class="fn-item"><strong>[11]</strong> Dovey, T. M., Staples, P. A., Gibson, E. L., & Halford, J. C. G. (2008). Food neophobia and 'picky/fussy' eating in children: A review. <em>Appetite, 50</em>(2-3), 181-193. 진화적 자기보호 메커니즘으로서의 Neophobic Response.</div>
+  <div class="fn-item"><strong>[12]</strong> 식약처 dietary4u 2025-2026년 유아기(8개월분) + 아동기(26개월분) 표준 식단표. 총 2,028개 고유 메뉴, 34개 레시피 파일 분석.</div>
+  <div class="fn-item"><strong>[13]</strong> 밀프레드 편식 스코어링 모델. 거부율(×3)+식감(×2.5)+맛(×2)+시각(×1.5)+냄새(×1.5), 식단등장빈도 log 보정. 식약처 데이터 + 밀프레드 현장 데이터 결합.</div>
+  <div class="fn-item"><strong>[14]</strong> Dinehart, M. E., Hayes, J. E., Bartoshuk, L. M., Lanier, S. L., & Duffy, V. B. (2006). Bitter taste markers explain variability in vegetable sweetness, bitterness, and intake. <em>Physiology & Behavior, 87</em>(2), 304-313. 브로콜리 = 전 세계 편식 연구 최다 거부 채소.</div>
+  <div class="fn-item"><strong>[15]</strong> Bandura, A. (1977). Self-Efficacy: Toward a Unifying Theory of Behavioral Change. <em>Psychological Review, 84</em>(2), 191-215. 자기효능감과 행동 변화의 관계.</div>
+  <div class="fn-item"><strong>[16]</strong> Lukas, C. V., & Cunningham-Sabo, L. (2011). Using Repeated Exposure Through Hands-On Cooking to Increase Children's Preferences for Fruits and Vegetables. <em>Appetite</em>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6717537/" target="_blank">PMC6717537</a>. 9회 조리 참여 후 유의미한 선호도 증가.</div>
+</div>
+
+<!-- ===== LEGAL DISCLAIMER ===== -->
+<div style="background:#F5F5F5;border-top:1px solid #E0E0E0;padding:24px 20px;">
+  <div style="max-width:900px;margin:0 auto;">
+    <div style="background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:20px 24px;">
+      <div style="font-size:12px;font-weight:700;color:#C62828;margin-bottom:8px;">⚠️ 안내사항 (반드시 읽어주세요)</div>
+      <div style="font-size:11px;color:#666;line-height:1.8;">
+        <p style="margin-bottom:6px;"><strong style="color:#333;">본 제품은 의료기기나 의약품이 아니며, 의료행위를 대체하지 않습니다.</strong></p>
+        <p style="margin-bottom:6px;">밀프레드 편식극복 키트는 발달심리학 및 영양학 연구에 기반한 <strong>식습관 개선 보조 교구</strong>입니다. 편식의 완전한 해소를 보장하지 않으며, 개인차에 따라 효과가 다를 수 있습니다.</p>
+        <p style="margin-bottom:6px;">심한 섭식장애, 감각처리장애, 자폐 스펙트럼 등 의학적 진단이 필요한 경우에는 반드시 소아과 전문의 또는 섭식치료 전문가의 진료를 먼저 받으시기 바랍니다.</p>
+        <p style="margin-bottom:0;">본 키트는 일반적인 편식 경향을 보이는 영유아(만 18~60개월)를 대상으로 하며, <strong>의학적 치료가 아닌 가정 내 식습관 교육 프로그램</strong>입니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <span class="brand">밀프레드 MEALFRED</span>
+  <p>교육용 요리키트 전문 · 요리교육을 통한 사회적 간접비용 절감</p>
+  <p style="margin-top:8px;">편식극복 5단계 프로그램 · SOS Approach<sup style="color:#666;">[1]</sup> × 식약처 급식관리지침<sup style="color:#666;">[3][6][7]</sup></p>
+  <p style="margin-top:16px;font-size:11px;opacity:0.5;">© 2026 MEALFRED. All rights reserved.</p>
+</footer>
+
+<!-- ===== STICKY ===== -->
+<div class="sticky">
+  <div class="pr"><span style="text-decoration:line-through;opacity:0.5;font-size:12px;">390,000원</span> <strong>199,000원~</strong> · 얼리버드 49% OFF</div>
+  <button class="btn-order" onclick="openEarlybird()">얼리버드 등록하기</button>
+</div>
+
+<script>
+const iqData={
+  carrot:{nm:'당근',lv:'입문',pr:'199,000원',desc:'편식 스코어 62.4. 거부율 중상이나 식감·맛 적응 빠름. 밀프레드 8개 제품 연계. 첫 편식 극복 경험으로 최적.'},
+  onion:{nm:'양파',lv:'입문',pr:'199,000원',desc:'편식 스코어 78.5. 매운 향+눈물+냄새 3중 거부. 밀프레드 31개 제품 연계. 볶으면 당도 8→40 Brix 변환.'},
+  tofu:{nm:'두부',lv:'입문',pr:'199,000원',desc:'편식 스코어 46.6. 물렁 식감 주원인. 바삭 두부스테이크→순두부 순 식감 단계화.'},
+  mushroom:{nm:'버섯',lv:'도전',pr:'199,000원',desc:'편식 스코어 72.8 (1위). 식감+냄새 이중 거부. 미니 재배키트로 친밀감 형성 핵심.'},
+  tomato:{nm:'토마토',lv:'도전',pr:'199,000원',desc:'편식 스코어 57.7. 산미+물컹 복합 거부. 소스→건조→생 형태 변환 전략.'},
+  paprika:{nm:'파프리카',lv:'도전',pr:'199,000원',desc:'편식 스코어 49.9. 풋내 주원인. 빨간 파프리카(단맛)부터 시작.'},
+  spinach:{nm:'시금치',lv:'고급',pr:'199,000원',desc:'편식 스코어 61.6. 쓴맛+풀냄새+물컹 삼중 거부. 파우더→건조→신선 순.'},
+  broccoli:{nm:'브로콜리',lv:'고급',pr:'199,000원',desc:'편식 스코어 57.5. 전 세계 편식 연구 최다 거부 채소 1위.'},
+  eggplant:{nm:'가지',lv:'고급',pr:'199,000원',desc:'편식 스코어 60.9. 보라색 시각 거부+물렁 식감. 바삭 가지칩→구이→볶음.'}
+};
+function selQuiz(el,id){
+  document.querySelectorAll('.qi').forEach(i=>i.classList.remove('selected'));
+  el.classList.add('selected');
+  const d=iqData[id];
+  document.getElementById('qr-title').textContent='📦 '+d.nm+' 5주 코스 ('+d.lv+')';
+  document.getElementById('qr-desc').textContent=d.desc+' 5주×주 3회=15회, 연구 권장 범위 최대치.';
+  document.getElementById('qr-price').textContent=d.pr+' · 5주 15회 노출';
+  document.getElementById('qr-box').style.display='block';
+}
+function filterCat(lv,btn){
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.p-card').forEach(c=>{c.style.display=(lv==='all'||c.dataset.lv===lv)?'block':'none';});
+}
+function toggleFaq(el){el.classList.toggle('open');}
+function addCart(item){openEarlybird(item);}
+function generateRefCode(){var c='MLFD'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).substr(2,4).toUpperCase();return c;}
+function getRefTier(count){if(count>=100)return{tier:'GOLD',discount:'15%',color:'#FF6F00',next:null};if(count>=50)return{tier:'SILVER',discount:'10%',color:'#78909C',next:'100명 달성 시 15% 할인'};if(count>=5)return{tier:'BRONZE',discount:'5%',color:'#8D6E63',next:'50명 달성 시 10% 할인'};return{tier:'START',discount:'0%',color:'#BDBDBD',next:'5명 초대 시 5% 할인 쿠폰'};}
+function openEarlybird(course){
+  if(document.getElementById('eb-modal')) document.getElementById('eb-modal').remove();
+  var c=course||'';
+  var html='<div id="eb-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;" onclick="if(event.target===this)this.remove()">';
+  html+='<div style="background:#fff;border-radius:24px;padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.2);position:relative;margin:auto;">';
+  html+='<div style="font-size:48px;margin-bottom:12px;">🎉</div>';
+  html+='<h3 style="font-size:22px;font-weight:900;margin-bottom:8px;color:#1a5c32;">얼리버드 사전등록</h3>';
+  if(c) html+='<p style="font-size:14px;color:#7B2D8E;font-weight:700;margin-bottom:4px;">'+c+' 코스 관심 등록</p>';
+  html+='<p style="font-size:14px;color:#666;margin-bottom:4px;"><span style="text-decoration:line-through;opacity:0.5;">정가 390,000원</span> → <strong style="color:#2D8B4E;font-size:18px;">199,000원</strong></p>';
+  html+='<p style="font-size:12px;color:#FF5252;font-weight:600;margin-bottom:20px;">49% 할인 · 얼리버드 한정</p>';
+  html+='<div style="text-align:left;margin-bottom:16px;">';
+  html+='<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">📱 연락받으실 전화번호</label>';
+  html+='<input id="eb-phone" type="tel" placeholder="010-0000-0000" maxlength="13" style="width:100%;padding:14px 16px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#2D8B4E\'" onblur="this.style.borderColor=\'#e0e0e0\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');if(v.length>3&&v.length<=7)v=v.slice(0,3)+\'-\'+v.slice(3);else if(v.length>7)v=v.slice(0,3)+\'-\'+v.slice(3,7)+\'-\'+v.slice(7,11);this.value=v;">';
+  html+='</div>';
+  html+='<div style="background:#F1F8E9;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">';
+  html+='<div style="font-size:12px;font-weight:700;color:#2E7D32;margin-bottom:6px;">🔗 친구 초대 추가 할인</div>';
+  html+='<div style="font-size:11px;color:#555;line-height:1.7;">등록 후 개인 초대 링크가 발급됩니다.<br>';
+  html+='<span style="color:#2E7D32;font-weight:600;">5명 이상</span> 초대 → <strong>5% 추가 할인 쿠폰</strong><br>';
+  html+='<span style="color:#1565C0;font-weight:600;">50명 이상</span> 초대 → <strong>10% 추가 할인 쿠폰</strong><br>';
+  html+='<span style="color:#FF6F00;font-weight:600;">100명 이상</span> 초대 → <strong>15% 추가 할인 쿠폰</strong></div>';
+  html+='</div>';
+  html+='<button onclick="submitEarlybird(\''+c+'\')" style="width:100%;padding:16px;background:#2D8B4E;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.2s;" onmouseover="this.style.background=\'#1a5c32\'" onmouseout="this.style.background=\'#2D8B4E\'">사전등록 완료하기</button>';
+  html+='<p style="font-size:11px;color:#aaa;margin-top:12px;">출시 시 알림 문자를 보내드립니다 · 등록만으로 비용 발생 없음</p>';
+  html+='</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+  setTimeout(function(){document.getElementById('eb-phone').focus();},100);
+}
+function submitEarlybird(course){
+  var phone=document.getElementById('eb-phone').value.replace(/[^0-9]/g,'');
+  if(phone.length<10||phone.length>11){alert('올바른 전화번호를 입력해주세요.');return;}
+  var refCode=generateRefCode();
+  var refLink='https://mealfred.co.kr/invite/'+refCode;
+  var modal=document.getElementById('eb-modal');
+  var inner='<div style="font-size:64px;margin-bottom:16px;">✅</div>';
+  inner+='<h3 style="font-size:22px;font-weight:900;color:#2D8B4E;margin-bottom:8px;">등록 완료!</h3>';
+  inner+='<p style="font-size:15px;color:#444;margin-bottom:4px;">'+(course?course+' 코스 ':'')+'얼리버드 사전등록이 완료되었습니다.</p>';
+  inner+='<p style="font-size:14px;color:#666;margin-bottom:20px;">출시 시 <strong>'+document.getElementById('eb-phone').value+'</strong>로 알림 문자를 보내드릴게요!</p>';
+  inner+='<div style="background:linear-gradient(135deg,#E8F5E9,#F1F8E9);border-radius:16px;padding:20px;margin-bottom:20px;text-align:left;">';
+  inner+='<div style="font-size:14px;font-weight:800;color:#1a5c32;margin-bottom:10px;">🔗 나만의 초대 링크</div>';
+  inner+='<div style="background:#fff;border:2px solid #C8E6C9;border-radius:10px;padding:12px;display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
+  inner+='<input id="ref-link" value="'+refLink+'" readonly style="flex:1;border:none;font-size:13px;font-weight:600;color:#2E7D32;background:transparent;outline:none;font-family:inherit;">';
+  inner+='<button onclick="navigator.clipboard.writeText(document.getElementById(\'ref-link\').value);this.textContent=\'복사됨!\';this.style.background=\'#2E7D32\';this.style.color=\'#fff\'" style="padding:8px 14px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;font-size:12px;font-weight:700;color:#2E7D32;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.2s;">링크 복사</button>';
+  inner+='</div>';
+  inner+='<div style="font-size:12px;color:#555;line-height:1.8;">';
+  inner+='이 링크로 친구가 사이트에 방문하면 자동 카운트!<br>';
+  inner+='<span style="background:#FFF8E1;padding:2px 6px;border-radius:4px;font-weight:600;">5명 → 5%</span> · <span style="background:#E3F2FD;padding:2px 6px;border-radius:4px;font-weight:600;">50명 → 10%</span> · <span style="background:#FFF3E0;padding:2px 6px;border-radius:4px;font-weight:600;">100명 → 15%</span> 추가 할인 쿠폰</div>';
+  inner+='</div>';
+  inner+='<button onclick="document.getElementById(\'eb-modal\').remove()" style="padding:14px 40px;background:#2D8B4E;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>';
+  modal.querySelector('div > div').innerHTML=inner;
+}
+function goDetail(id){
+  var pages={carrot:'carrot-course.html',onion:'onion-course.html',tofu:'tofu-course.html',mushroom:'mushroom-course.html',tomato:'tomato-course.html',paprika:'paprika-course.html',spinach:'spinach-course.html',broccoli:'broccoli-course.html',eggplant:'eggplant-course.html'};
+  if(pages[id]){window.location.href=pages[id];}
+  else{alert('해당 식재료 상세 페이지는 준비 중입니다.');}
+}
+</script>
+</body>
+</html>

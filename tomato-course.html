@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>밀프레드 편식극복키트 — 토마토 5주 코스</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;color:#222;line-height:1.7;background:#fff;padding-bottom:80px}
+.container{max-width:900px;margin:0 auto;padding:0 20px}
+
+/* ===== HERO ===== */
+.hero{background:linear-gradient(135deg,#D32F2F 0%,#E53935 40%,#F44336 70%,#EF9A9A 100%);color:#fff;padding:80px 20px 60px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 70%,rgba(255,255,255,0.08) 0%,transparent 50%);pointer-events:none}
+.hero-emoji{font-size:100px;display:block;margin-bottom:16px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.15))}
+.hero-badge{display:inline-block;background:rgba(255,255,255,0.2);backdrop-filter:blur(8px);border-radius:30px;padding:6px 20px;font-size:13px;font-weight:600;letter-spacing:0.5px;margin-bottom:16px}
+.hero h1{font-size:clamp(32px,6vw,48px);font-weight:900;line-height:1.25;margin-bottom:12px}
+.hero h1 span{color:#FFCC80}
+.hero-sub{font-size:clamp(15px,3vw,18px);font-weight:400;opacity:0.92;margin-bottom:32px;line-height:1.6}
+.hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;max-width:560px;margin:0 auto 32px}
+.hero-stat{background:rgba(255,255,255,0.15);backdrop-filter:blur(6px);border-radius:14px;padding:14px 10px;text-align:center}
+.hero-stat .num{font-size:24px;font-weight:800;display:block}
+.hero-stat .label{font-size:11px;font-weight:500;opacity:0.85}
+.hero-cta{display:inline-block;background:#fff;color:#D32F2F;font-size:17px;font-weight:700;padding:16px 48px;border-radius:16px;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.15);transition:all .3s}
+.hero-cta:hover{background:#F5F5F5;transform:translateY(-2px)}
+
+/* ===== SECTIONS ===== */
+section{padding:60px 20px}
+.sec-label{display:inline-block;font-size:13px;font-weight:700;border-radius:20px;padding:5px 16px;margin-bottom:16px}
+.sec-label.red{background:#FFEBEE;color:#D32F2F}
+.sec-label.lightred{background:#FFEBEE;color:#E53935}
+.sec-label.green{background:#E8F5EC;color:#2D8B4E}
+.sec-label.blue{background:#E3F2FD;color:#1565C0}
+.sec-label.amber{background:#FFF8E1;color:#F57F17}
+h2{font-size:clamp(26px,5vw,36px);font-weight:900;margin-bottom:8px;line-height:1.3}
+.sec-desc{font-size:15px;color:#666;margin-bottom:32px;line-height:1.7}
+
+/* ===== GOLDEN TIME ===== */
+.golden-time{background:linear-gradient(135deg,#FFF3E0 0%,#FFEBEE 100%);border-bottom:3px solid #FF8A65}
+.gt-alert{background:#fff;border-radius:20px;padding:36px 32px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border-left:5px solid #E53935;margin-bottom:24px}
+.gt-alert h3{font-size:22px;font-weight:800;color:#C62828;margin-bottom:12px}
+.gt-alert p{font-size:15px;color:#555;line-height:1.8}
+
+/* ===== WHY TOMATO ===== */
+.why-tomato{background:#FFFBF5}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+.score-box{background:#fff;border-radius:20px;padding:28px;box-shadow:0 2px 14px rgba(0,0,0,0.06);border:1px solid #f0f0f0}
+.score-box h3{font-size:18px;font-weight:800;margin-bottom:20px;color:#D32F2F}
+.score-item{margin-bottom:14px}
+.score-label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px}
+.score-bar{height:22px;background:#f0f0f0;border-radius:11px;overflow:hidden}
+.score-fill{height:100%;border-radius:11px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;font-weight:700;color:#fff}
+.score-fill.high{background:linear-gradient(90deg,#E57373,#C62828)}
+.score-fill.mid{background:linear-gradient(90deg,#FFB74D,#F57C00)}
+.score-fill.low{background:linear-gradient(90deg,#AED581,#689F38)}
+.score-total{margin-top:20px;padding:16px;background:linear-gradient(135deg,#D32F2F,#E53935);border-radius:14px;color:#fff;text-align:center}
+.score-total .big{font-size:32px;font-weight:900;display:block}
+.score-total .note{font-size:12px;opacity:0.85;margin-top:2px}
+.fact-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #f0f0f0;box-shadow:0 1px 8px rgba(0,0,0,0.04);margin-bottom:16px}
+.fact-card .icon{font-size:28px;margin-bottom:6px}
+.fact-card h4{font-size:15px;font-weight:700;margin-bottom:4px;color:#D32F2F}
+.fact-card p{font-size:13px;color:#666;line-height:1.6}
+
+/* ===== TEXTURE STRATEGY ===== */
+.texture-sec{background:#fff}
+.tex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.tex-card{border-radius:16px;padding:24px 16px;text-align:center;border:2px solid #f0f0f0}
+.tex-card .emoji{font-size:36px;display:block;margin-bottom:8px}
+.tex-card h4{font-size:14px;font-weight:800;margin-bottom:4px}
+.tex-card p{font-size:11px;color:#666;line-height:1.5}
+
+/* ===== TIMELINE ===== */
+.timeline-sec{background:#FFFBF5}
+.timeline{position:relative;padding-left:50px;margin-top:20px}
+.timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#E53935 0%,#E53935 25%,#42A5F5 50%,#EF9A9A 75%,#C62828 100%);border-radius:2px}
+.week-card{position:relative;margin-bottom:32px;background:#fff;border-radius:16px;padding:28px 24px;border:1px solid #f0f0f0;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.week-card:last-child{margin-bottom:0}
+.week-dot{position:absolute;left:-42px;top:28px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
+.week-dot.w1{background:#E53935}.week-dot.w2{background:#E53935}.week-dot.w3{background:#42A5F5}.week-dot.w4{background:#EF9A9A}.week-dot.w5{background:#C62828}
+.week-header h3{font-size:18px;font-weight:800;margin-bottom:4px}
+.week-chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-left:8px}
+.week-content{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.week-col h4{font-size:13px;font-weight:700;color:#888;margin-bottom:8px}
+.week-col p{font-size:14px;color:#444;line-height:1.7}
+.week-footer{margin-top:16px;padding-top:12px;border-top:1px dashed #e8e8e8;font-size:12px;color:#888;display:flex;justify-content:space-between}
+.week-card.final{border:2px solid #C62828;background:#FAFFFA}
+.dietary-tag{display:inline-block;background:#E8F5E9;color:#2E7D32;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px}
+
+/* ===== BOX / PRICING / SCIENCE / FAQ / CTA / FOOTER ===== */
+.box-sec{background:#fff}
+.box-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.box-card{border-radius:20px;padding:28px;border:1px solid #f0f0f0}
+.box-card.cold{background:#FFFBF5;border-color:#FFCCCC}
+.box-card.print{background:#FFFBF5;border-color:#FFCCCC}
+.box-card h3{font-size:16px;font-weight:800;margin-bottom:16px}
+.box-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.box-item:last-child{border:none}
+.box-item .qty{font-size:11px;color:#999;font-weight:600}
+.pricing-sec{background:linear-gradient(135deg,#FFFBF5,#fff)}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.price-card{border-radius:20px;padding:28px;text-align:center;border:1px solid #e8e8e8;background:#fff}
+.price-card.recommend{border:2px solid #D32F2F;background:linear-gradient(180deg,#FFFBF5,#fff);box-shadow:0 4px 20px rgba(211,47,47,0.12);position:relative}
+.price-card .badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#D32F2F;color:#fff;font-size:12px;font-weight:700;padding:4px 16px;border-radius:20px;white-space:nowrap}
+.price-card .type{font-size:13px;font-weight:600;color:#888;margin-bottom:8px}
+.price-card .price{font-size:28px;font-weight:900;margin-bottom:8px}
+.price-card .price.red{color:#D32F2F}
+.price-card .info{font-size:12px;color:#888;line-height:1.6}
+.science-sec{background:#F8FBF8}
+.science-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.science-card{background:#fff;border-radius:14px;padding:24px;border:1px solid #e8e8e8}
+.science-card h4{font-size:15px;font-weight:700;color:#2D8B4E;margin-bottom:8px}
+.science-card p{font-size:13px;color:#666;line-height:1.7}
+.faq-sec{background:#fff}
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{border:1px solid #f0f0f0;border-radius:14px;margin-bottom:12px;overflow:hidden}
+.faq-item.active{border-color:#FFCCCC;box-shadow:0 2px 12px rgba(211,47,47,0.08)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;cursor:pointer;font-size:15px;font-weight:600}
+.faq-q:hover{background:#FFFBF5}
+.faq-toggle{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#D32F2F;transition:transform .3s;flex-shrink:0}
+.faq-item.active .faq-toggle{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0 20px}
+.faq-item.active .faq-a{max-height:400px;padding:0 20px 18px}
+.faq-a p{font-size:14px;color:#666;line-height:1.7}
+.cta-sec{text-align:center;background:linear-gradient(180deg,#FFFBF5,#fff);padding:60px 20px}
+.cta-box{background:#fff;border-radius:24px;padding:40px;max-width:600px;margin:0 auto;box-shadow:0 4px 24px rgba(0,0,0,0.08);border:2px solid #FFCCCC}
+.cta-price{font-size:42px;font-weight:900;color:#D32F2F;margin-bottom:4px}
+.cta-price .won{font-size:24px;font-weight:700}
+.cta-sub{font-size:14px;color:#888;margin-bottom:20px}
+.cta-msg{font-size:15px;color:#444;line-height:1.7;margin-bottom:24px}
+.cta-btn{display:inline-block;background:#D32F2F;color:#fff;font-size:17px;font-weight:700;padding:16px 48px;border-radius:16px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(211,47,47,0.3);transition:all .3s}
+.cta-btn:hover{background:#B71C1C;transform:translateY(-2px)}
+footer{background:#1a1a1a;color:#aaa;padding:32px 20px;text-align:center;font-size:12px}
+footer strong{color:#fff;font-weight:700}
+.sticky-footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e8e8e8;padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:20px;z-index:100;box-shadow:0 -2px 12px rgba(0,0,0,0.06)}
+.sticky-footer .info{font-size:13px;color:#555}
+.sticky-footer .info strong{color:#D32F2F}
+.sticky-footer .btn{background:#D32F2F;color:#fff;font-size:14px;font-weight:700;padding:12px 32px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
+.sticky-footer .btn:hover{background:#B71C1C}
+
+@media(max-width:768px){
+.hero-stats{grid-template-columns:repeat(2,1fr)}
+.why-grid,.box-grid,.week-content{grid-template-columns:1fr}
+.tex-grid{grid-template-columns:repeat(2,1fr)}
+.price-grid,.science-grid{grid-template-columns:1fr}
+.timeline{padding-left:40px}
+.week-dot{left:-36px;width:24px;height:24px;font-size:11px}
+.sticky-footer{flex-direction:column;gap:8px;padding:10px 16px;text-align:center}
+.sticky-footer .btn{width:100%}
+body{padding-bottom:120px}
+}
+@media(max-width:480px){
+.hero h1{font-size:28px}
+.hero-emoji{font-size:60px}
+.hero-sub,.hero-subtitle{font-size:14px}
+.sec-header h2,.section h2{font-size:22px}
+.price-grid,.compare-grid,.comparison-grid{grid-template-columns:1fr}
+.tex-grid{grid-template-columns:1fr}
+.cta-section,.cta-box{padding:28px 16px}
+.cta-price,.cta-num{font-size:28px}
+.week-card,.box-card{padding:20px}
+.sticky-footer{text-align:center}
+img{max-width:100%;height:auto}
+body{overflow-x:hidden}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+<div class="container">
+<span class="hero-emoji">🍅</span>
+<div class="hero-badge">편식극복키트 · 토마토 5주 코스</div>
+<h1>빨간 토마토,<br><span>"물렁!"</span> 에서 <span>"새콤달콤!"</span> 으로</h1>
+<p class="hero-sub">토마토는 산미+물컹 식감의 복합 거부 식재료입니다<br>형태를 바꾸면 아이가 먼저 손을 뻗습니다</p>
+<div class="hero-stats">
+<div class="hero-stat"><span class="num">5주</span><span class="label">총 기간</span></div>
+<div class="hero-stat"><span class="num">15+</span><span class="label">감각 노출 횟수</span></div>
+<div class="hero-stat"><span class="num">주1회</span><span class="label">키트 배송</span></div>
+<div class="hero-stat"><span class="num" style="font-size:18px;"><span style="text-decoration:line-through;opacity:0.5;font-size:14px;">390,000원</span><br>199,000<small>원</small></span><span class="label">얼리버드 49% OFF</span></div>
+</div>
+<button class="hero-cta" onclick="openEarlybird('토마토')">얼리버드 등록하기 →</button>
+</div>
+</section>
+
+<!-- ===== GOLDEN TIME ===== -->
+<section class="golden-time">
+<div class="container">
+<span class="sec-label red">⏰ 골든타임</span>
+<h2>만 2.5~5세, 지금 놓치면<br>편식 습관이 <span style="color:#C62828">평생</span> 갈 수 있습니다</h2>
+<p class="sec-desc">이건 겁주는 말이 아닙니다. 수십 년간의 발달심리학 연구가 증명하는 과학적 사실입니다.</p>
+<div class="gt-alert">
+<h3>토마토 거부 → 라이코펜 결핍</h3>
+<p>토마토의 <strong>라이코펜은 항산화·면역 핵심 영양소</strong>입니다. 또한 비타민C, 칼륨이 풍부합니다. 특히 "케찹은 먹지만 생토마토는 거부"하는 아이들이 많습니다. 이는 산미와 물컹한 식감 때문입니다. 형태를 바꾸면 대부분 극복 가능합니다. 아이가 토마토를 거부하면 비타민C·라이코펜·칼륨을 모두 놓치게 됩니다.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== WHY TOMATO ===== -->
+<section class="why-tomato">
+<div class="container">
+<span class="sec-label red">🍅 왜 토마토인가?</span>
+<h2>편식 스코어 57.7 — 형태 변환 코스,<br>소스부터 생토마토까지의 여정</h2>
+<p class="sec-desc">토마토의 거부 요인은 2가지: <strong>신맛(산미) + 물컹한 식감</strong>. 하지만 형태를 바꾸면 아이가 먼저 손을 뻗습니다.</p>
+
+<div class="why-grid">
+<div class="score-box">
+<h3>🍅 토마토 편식 스코어</h3>
+<div class="score-item">
+<div class="score-label"><span>거부율 (×3)</span><span>55%</span></div>
+<div class="score-bar"><div class="score-fill mid" style="width:55%">16.5</div></div>
+</div>
+<div class="score-item">
+<div class="score-label"><span>식감적응도 (×2.5)</span><span>70%</span></div>
+<div class="score-bar"><div class="score-fill mid" style="width:70%">17.5</div></div>
+</div>
+<div class="score-item">
+<div class="score-label"><span>맛거부도 (×2)</span><span>40%</span></div>
+<div class="score-bar"><div class="score-fill low" style="width:40%">8.0</div></div>
+</div>
+<div class="score-item">
+<div class="score-label"><span>시각자극 (×1.5)</span><span>35%</span></div>
+<div class="score-bar"><div class="score-fill low" style="width:35%">5.3</div></div>
+</div>
+<div class="score-item">
+<div class="score-label"><span>냄새거부 (×1.5)</span><span>45%</span></div>
+<div class="score-bar"><div class="score-fill low" style="width:45%">6.8</div></div>
+</div>
+<div class="score-total">
+<span class="big">57.7 / 100</span>
+<span class="note">산미와 식감 복합 거부 → 형태 변환이 핵심</span>
+</div>
+</div>
+
+<div>
+<div class="fact-card">
+<div class="icon">🧪</div>
+<h4>거부 원인 = 산미+물컹 식감 복합</h4>
+<p>새콤한 맛과 터지는 식감이 함께 작용합니다. 당근의 식감 거부와 달리, 토마토는 맛과 식감이 동시에 작용해 복합적 거부를 만듭니다.</p>
+</div>
+<div class="fact-card">
+<div class="icon">🍞</div>
+<h4>"케찹은 OK, 생토마토는 NO" 패턴</h4>
+<p>아이들의 대부분이 이 패턴입니다. 케찹(소스)은 먹지만 생토마토는 거부합니다. <strong>형태 변환 전략의 핵심</strong>: 소스→가열→건조→생 순서로 진행합니다.</p>
+</div>
+<div class="fact-card">
+<div class="icon">💪</div>
+<h4>라이코펜 + 비타민C + 칼륨 — 성장기 필수</h4>
+<p>라이코펜은 항산화 성분, 비타민C는 면역력, 칼륨은 신경 발달에 필수입니다. 성장기 아이의 건강 방어력을 높이는 세 가지 영양소입니다.</p>
+</div>
+<div class="fact-card">
+<div class="icon">🔬</div>
+<h4>가열하면 라이코펜 흡수율 5배 증가</h4>
+<p>생토마토보다 가열한 토마토의 라이코펜 흡수율이 5배 높습니다. 따라서 "소스부터 시작"하는 것이 과학적으로 맞습니다. 산미도 줄어들고 흡수도 좋습니다.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== 형태 변환 전략 ===== -->
+<section class="texture-sec">
+<div class="container">
+<span class="sec-label red">🧪 핵심 기획</span>
+<h2>"소스 → 건조 → 생" <br>형태 변환 전략</h2>
+<p class="sec-desc">토마토 극복의 핵심은 <strong>형태 변환</strong>입니다. 같은 토마토인데 형태를 바꾸면 완전히 다른 음식이 됩니다.</p>
+
+<div class="tex-grid">
+<div class="tex-card" style="border-color:#E53935;background:#FFF5F5;">
+<span class="emoji">🍅</span>
+<h4 style="color:#C62828;">STEP 1: 소스</h4>
+<p>케찹/토마토소스<br>이미 익숙한 형태<br>"아, 이미 먹고 있었네!"</p>
+<div style="font-size:11px;color:#C62828;font-weight:700;margin-top:8px;">→ 친숙함</div>
+</div>
+<div class="tex-card" style="border-color:#FF9800;background:#FFF8E1;">
+<span class="emoji">🔥</span>
+<h4 style="color:#E65100;">STEP 2: 가열</h4>
+<p>구운 토마토<br>토마토 수프<br>산미 감소</p>
+<div style="font-size:11px;color:#E65100;font-weight:700;margin-top:8px;">→ "따뜻해!"</div>
+</div>
+<div class="tex-card" style="border-color:#42A5F5;background:#E3F2FD;">
+<span class="emoji">✨</span>
+<h4 style="color:#1565C0;">STEP 3: 건조</h4>
+<p>건토마토<br>토마토칩<br>식감 변환</p>
+<div style="font-size:11px;color:#1565C0;font-weight:700;margin-top:8px;">→ "바삭해!"</div>
+</div>
+<div class="tex-card" style="border-color:#2D8B4E;background:#E8F5E9;">
+<span class="emoji">🌈</span>
+<h4 style="color:#2E7D32;">STEP 4: 생</h4>
+<p>방울토마토<br>토마토 샐러드<br>최종 목표</p>
+<div style="font-size:11px;color:#2E7D32;font-weight:700;margin-top:8px;">→ "맛있어!"</div>
+</div>
+</div>
+
+<div style="background:#FFEBEE;border-radius:14px;padding:20px 24px;border:1px solid #FFCCCC;">
+<h4 style="font-size:14px;font-weight:700;color:#D32F2F;margin-bottom:8px;">💡 핵심 전략: 형태 변환의 과학</h4>
+<p style="font-size:13px;color:#666;line-height:1.7;">토마토의 산미가 아이를 거부하게 만듭니다. 가열하면 산도가 낮아지고, 라이코펜 흡수율도 5배 증가합니다. <strong>케찹(이미 먹음) → 소스 → 가열 → 건조 → 생</strong> 순서로 형태를 변환하면, 아이가 자연스럽게 토마토에 다가갈 수 있습니다.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== 5주 타임라인 ===== -->
+<section class="timeline-sec">
+<div class="container">
+<span class="sec-label red">📋 5주 커리큘럼</span>
+<h2>편식극복 프로그램 5단계로<br>토마토와 친구 되기</h2>
+<p class="sec-desc">SOS Approach to Feeding 기반. 매주 단계적으로 토마토의 형태를 변환합니다.</p>
+
+<div class="timeline">
+<!-- 1주차 -->
+<div class="week-card">
+<div class="week-dot w1">1</div>
+<div class="week-header">
+<h3>1주차 — 시각탐색 <span class="week-chip" style="background:#FFEBEE;color:#C62828;">①보기만 해도 OK</span></h3>
+</div>
+<div class="week-content">
+<div class="week-col">
+<h4>📦 키트 활동</h4>
+<p><strong>방울토마토 색깔 분류 놀이</strong> — 빨강/노랑/주황 토마토 분류. <strong>토마토 자르기 관찰</strong> — 안전칼로 자르며 "씨앗이 보여!" <strong>토마토 도장 찍기</strong> — 식용색소 토마토 도장으로 그림 그리기.</p>
+</div>
+<div class="week-col">
+<h4>🏠 가정 활동</h4>
+<p>마트 토마토 코너 구경. "어떤 색 토마토가 있을까?" 냉장고에서 토마토 찾기 놀이. 엄마가 토마토 케찹 먹는 모습 보여주기. 토마토 색칠하기.</p>
+</div>
+</div>
+<div class="week-footer">
+<span>누적 노출: 3~4회</span>
+<span>"토마토는 빨간 과일이야! 여러 색도 있어!"</span>
+</div>
+</div>
+
+<!-- 2주차 -->
+<div class="week-card">
+<div class="week-dot w2">2</div>
+<div class="week-header">
+<h3>2주차 — 후각·촉각 <span class="week-chip" style="background:#FFEBEE;color:#D32F2F;">②케찹으로 익숙한 맛</span></h3>
+</div>
+<div class="week-content">
+<div class="week-col">
+<h4>📦 키트 활동</h4>
+<p><strong>토마토 냄새맡기/만지기</strong> — 부드러운 토마토 표면 촉감. 신선한 토마토 냄새. <strong>케찹 그림 그리기</strong> — 케찹으로 화판에 그리기(식용이므로 손가락도 가능). <strong>dietary4u: 닭다리케찹조림</strong> — 케찹으로 익숙한 맛 만나기.</p>
+</div>
+<div class="week-col">
+<h4>🏠 가정 활동</h4>
+<p>토마토 냄새 비교 게임. 케찹 냄새와 생토마토 냄새의 차이. 닭다리 케찹조림 함께 먹기. "케찹도 토마토로 만든 거야!" 설명하기.</p>
+</div>
+</div>
+<div class="week-footer">
+<span>누적 노출: 7~8회 <span class="dietary-tag">dietary4u: 닭다리케찹조림</span></span>
+<span>💡 케찹 = 토마토 이해 단계</span>
+</div>
+</div>
+
+<!-- 3주차 -->
+<div class="week-card">
+<div class="week-dot w3">3</div>
+<div class="week-header">
+<h3>3주차 — 입술접촉 <span class="week-chip" style="background:#E3F2FD;color:#1565C0;">③토마토 소스 도전</span></h3>
+</div>
+<div class="week-content">
+<div class="week-col">
+<h4>📦 키트 활동</h4>
+<p><strong>dietary4u: 미트볼조림</strong> — 토마토 소스에 조린 미트볼. 소스 형태 도전. <strong>토마토소스 스파게티</strong> — 부드러운 소스 형태로 토마토 맛 전달. 스파게티와 함께 즐기기.</p>
+</div>
+<div class="week-col">
+<h4>🏠 가정 활동</h4>
+<p>미트볼 소스를 떠먹기 놀이. "토마토 소스 맛있네?" 반응 보기. 스파게티를 함께 먹으며 "엄마도 이거 맛있어" 표현하기.</p>
+</div>
+</div>
+<div class="week-footer">
+<span>누적 노출: 11~12회 <span class="dietary-tag">dietary4u: 미트볼조림</span></span>
+<span>🎉 토마토 소스를 받아들였다면 진전!</span>
+</div>
+</div>
+
+<!-- 4주차 -->
+<div class="week-card">
+<div class="week-dot w4">4</div>
+<div class="week-header">
+<h3>4주차 — 씹어보기 <span class="week-chip" style="background:#FFE0B2;color:#E65100;">④건조 형태 도전</span></h3>
+</div>
+<div class="week-content">
+<div class="week-col">
+<h4>📦 키트 활동</h4>
+<p><strong>건토마토칩 바삭 체험</strong> — "이게 토마토야?" 놀라기. 건토마토의 달콤한 맛. <strong>구운 방울토마토</strong> — 가열해서 산미 감소. <strong>dietary4u: 과일샐러드</strong> — 체리토마토 작은 크기부터 시작.</p>
+</div>
+<div class="week-col">
+<h4>🏠 가정 활동</h4>
+<p>건토마토칩 ASMR — "바삭! 소리 들려" 함께 듣기. 구운 토마토의 달콤한 맛 비교. 과일샐러드에서 체리토마토를 먼저 집어서 먹기.</p>
+</div>
+</div>
+<div class="week-footer">
+<span>누적 노출: 15~16회 <span class="dietary-tag">dietary4u: 과일샐러드</span></span>
+<span>🔥 건조·가열 형태를 받아들이면 거의 완료!</span>
+</div>
+</div>
+
+<!-- 5주차 -->
+<div class="week-card final">
+<div class="week-dot w5">5</div>
+<div class="week-header">
+<h3>5주차 — 자유롭게 먹기 🎓 <span class="week-chip" style="background:#E0F2F1;color:#00695C;">⑤수료 파티!</span></h3>
+</div>
+<div class="week-content">
+<div class="week-col">
+<h4>📦 키트 활동</h4>
+<p><strong>생 방울토마토 먹기 도전</strong> — 작은 크기부터 시작. 톡 터지는 식감과 새콤달콤한 맛. <strong>토마토 음료</strong> — 토마토 주스나 스무디로 마무리. 수료식 파티!</p>
+</div>
+<div class="week-col">
+<h4>🏠 가정 활동</h4>
+<p>수료증 발급 + 스탬프카드 완성. 아이가 방울토마토를 직접 집어먹는 모습을 사진 촬영. "나는 토마토도 먹을 수 있어!" 선언식. 가족 모두 함께 축하 먹기.</p>
+</div>
+</div>
+<div class="week-footer">
+<span>총 노출: 20회+</span>
+<span>🎓 토마토와 친구가 되었습니다! 축하해요!</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== BOX CONTENTS ===== -->
+<section class="box-sec">
+<div class="container">
+<span class="sec-label red">📦 구성품</span>
+<h2>매주 배달되는 키트 + 인쇄물</h2>
+<p class="sec-desc">특수 식재료는 키트가 챙기고, 흔한 재료는 가정에서 준비해주세요.</p>
+<div class="box-grid">
+<div class="box-card cold">
+<h3>🧊 냉장 식재료 (5주분)</h3>
+<div class="box-item"><span>방울토마토 (신선, 다양한 색)</span><span class="qty">1~5주차</span></div>
+<div class="box-item"><span>토마토 소스 (식약처 기준)</span><span class="qty">2~3주차</span></div>
+<div class="box-item"><span>토마토 파우더</span><span class="qty">1~2주차</span></div>
+<div class="box-item"><span>미트볼 세트 + 토마토소스</span><span class="qty">3주차</span></div>
+<div class="box-item"><span>구운 방울토마토</span><span class="qty">4주차</span></div>
+<div class="box-item"><span>건토마토칩</span><span class="qty">4주차</span></div>
+<div class="box-item"><span>과일샐러드 키트 (체리토마토 포함)</span><span class="qty">4주차</span></div>
+<div class="box-item"><span>토마토 주스/스무디</span><span class="qty">5주차</span></div>
+</div>
+<div class="box-card print">
+<h3>📱 밀프레드 앱 제공</h3>
+<div class="box-item"><span>관찰일지 + 스티커</span><span class="qty">1세트</span></div>
+<div class="box-item"><span>활동지 #1~10</span><span class="qty">10매</span></div>
+<div class="box-item"><span>레시피 카드</span><span class="qty">5세트</span></div>
+<div class="box-item"><span>수료증</span><span class="qty">1매</span></div>
+<br>
+<h3 style="margin-top:12px">📖 인쇄물 (1주차 동봉)</h3>
+<div class="box-item"><span>편식극복 가이드 소책자 (A5 30p)</span><span class="qty">1부</span></div>
+<div class="box-item"><span>편식극복 스탬프카드</span><span class="qty">1장</span></div>
+<div class="box-item"><span>주차별 플레이북 QR코드</span><span class="qty">5장</span></div>
+<br>
+<h3 style="margin-top:12px">🏠 가정 준비물</h3>
+<div class="box-item"><span>1주차: 안전칼, 접시, 식용색소</span></div>
+<div class="box-item"><span>2주차: 색연필, 색칠하기 도구</span></div>
+<div class="box-item"><span>3~4주차: 냄비, 프라이팬</span></div>
+<div class="box-item"><span>5주차: 냄비, 스푼</span></div>
+<div class="box-item"><span>공통: 식탁보, 위생장갑, 물티슈</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== PRICING ===== -->
+<section class="pricing-sec">
+<div class="container">
+<span class="sec-label red">💰 비용 비교</span>
+<h2>편식 치료, 어디서 하시겠어요?</h2>
+<p class="sec-desc">같은 목표, 다른 가격. 병원과 센터 대비 1/5~1/10 비용으로 집에서 시작하세요.</p>
+<div class="price-grid">
+<div class="price-card">
+<div class="type">병원 (섭식치료)</div>
+<div class="price">50~150만원</div>
+<div class="info">회당 5~15만원 × 10~20회<br>대기 2~6개월<br>서울·수도권 위주</div>
+</div>
+<div class="price-card">
+<div class="type">민간 감각통합센터</div>
+<div class="price">96~204만원</div>
+<div class="info">월 24~51만원 × 4개월<br>주 2~3회 방문 필요<br>통원 부담 + 대기</div>
+</div>
+<div class="price-card recommend">
+<div class="badge">강력 추천</div>
+<div class="type">밀프레드 편식극복키트</div>
+<div class="price red"><span style="text-decoration:line-through;opacity:0.4;font-size:16px;">390,000원</span> 199,000원</div>
+<div class="info">5주 완성 프로그램<br>집에서 엄마와 함께<br>매주 키트 배송 + 전문 커리큘럼<br><span style="color:#FF5252;font-weight:700;">🔥 얼리버드 49% OFF</span></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ===== SCIENCE ===== -->
+<section class="science-sec">
+<div class="container">
+<span class="sec-label green">🔬 과학적 근거</span>
+<h2>연구로 검증된 방법론</h2>
+<p class="sec-desc">밀프레드 편식극복키트는 4가지 핵심 이론을 기반으로 설계되었습니다.</p>
+<div class="science-grid">
+<div class="science-card">
+<h4>SOS Approach to Feeding</h4>
+<p>Dr. Kay Toomey의 32단계 식사 접근법. 시각→촉각→후각→미각 순서로 안전하게 새로운 음식에 다가갑니다.</p>
+</div>
+<div class="science-card">
+<h4>Satter Division of Responsibility</h4>
+<p>부모는 "무엇을, 언제, 어디서" 결정하고, 아이는 "먹을지, 얼마나" 결정합니다. 강요 없는 자율 선택이 핵심.</p>
+</div>
+<div class="science-card">
+<h4>반복 노출 이론</h4>
+<p>de Wild(2021): 8~15회 반복 노출 시 거부 채소 수용률 유의미 상승. Wardle(2003): 하루 1회 맛보기 × 14일로 수용 가능.</p>
+</div>
+<div class="science-card">
+<h4>식품 형태 변환 (Food Form Progression)</h4>
+<p>토마토 코스 고유 전략. 소스→가열→건조→생 순서로 산도를 낮추고, 라이코펜 흡수율을 높입니다.</p>
+</div>
+</div>
+<div style="margin-top:24px;background:#FFFBF0;border:1px solid #F0E0C0;border-radius:14px;padding:20px 24px;">
+<h4 style="font-size:14px;font-weight:700;color:#F57F17;margin-bottom:8px;">🏛 식약처 dietary4u 레시피 기반</h4>
+<p style="font-size:13px;color:#666;line-height:1.7;">2~5주차 요리 레시피는 식품의약품안전처 dietary4u 표준 레시피 DB에서 토마토 포함 메뉴를 선별했습니다. 닭다리케찹조림, 미트볼조림, 토마토소스 스파게티, 과일샐러드 — 모두 영양학적으로 검증된 영유아식 레시피입니다.</p>
+</div>
+</div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="faq-sec">
+<div class="container">
+<span class="sec-label red">❓ 자주 묻는 질문</span>
+<h2>토마토 코스 자주 묻는 질문</h2>
+<div class="faq-list">
+<div class="faq-item"><div class="faq-q"><span>몇 살부터 할 수 있나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>만 2~5세(24~60개월)를 권장합니다. 활동은 부모와 함께 진행하며, 아이의 발달 수준에 맞춰 난이도를 조절할 수 있습니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>아이가 식재료를 아예 안 보려고 하는데 괜찮나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>완전히 정상입니다. 처음 1~3회는 거부하는 것이 자연스러운 반응이에요. SOS Approach에서는 이 과정 자체가 학습입니다. "보기만 해도 성공"이라는 마음으로 진행해 주세요. 4회차부터 변화의 신호가 나타나기 시작합니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>알레르기가 있으면 어떡하나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>코스 신청 시 알레르기 정보를 입력해 주시면, 해당 식재료를 제외하거나 대체 재료로 준비해 드립니다. 심한 알레르기가 있는 경우 소아과 상담 후 진행을 권장합니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>키트 배송은 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>매주 1회, 3회 활동분을 한 번에 배송합니다. 총 5주간 5회 배송이며, 밀프레드 보냉 시스템으로 신선하게 도착합니다. 배송 사고 시 전량 재발송해 드립니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>도마, 강판 같은 도구도 제공되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>도마, 강판 등 가정에 기본적으로 있는 조리도구는 별도로 제공하지 않습니다. 쿠키커터 등 특수 교구만 키트에 포함됩니다. 활동지, 관찰일지, 레시피카드, 수료증은 밀프레드 앱에서 제공됩니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>5주 후에도 안 먹으면요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>안 먹어도 괜찮습니다. 감각 친숙화 자체가 이미 큰 성과예요. 같은 코스를 반복하거나, 비슷한 난이도의 다른 식재료 코스로 전환할 수 있습니다. 반복 구매 시 10% 할인이 적용됩니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>환불 규정이 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>코스 시작 전(1주차 배송 전): 전액 환불. 1주차 배송 후~2주차 배송 전: 잔여 4주분의 80% 환불. 2주차 배송 후: 잔여 주차분의 50% 환불. 3주차 배송 이후: 환불 불가 (이미 절반 이상 진행). 배송 사고·품질 문제 시: 해당 주차 전액 재발송 또는 환불. 환불 신청은 카카오톡 "밀프레드"로 문의해 주세요.</p></div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-sec" id="cta">
+<div class="container">
+<div class="cta-box">
+<span style="font-size:48px;display:block;margin-bottom:12px">🍅</span>
+<div style="margin-bottom:8px;"><span style="font-size:18px;text-decoration:line-through;opacity:0.4;">정가 390,000원</span> <span style="background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;">49% OFF</span></div>
+<div class="cta-price">199,000<span class="won">원</span></div>
+<div class="cta-sub">5주 완성 · 주 1회 배송 · 회당 13,300원</div>
+<p class="cta-msg"><strong>편식 스코어 57.7, 도전 코스.</strong><br>케찹은 먹지만 생토마토는 거부하는 아이들을 위해 설계된 형태 변환 전략.<br>소스에서 생토마토까지의 5주 여정을 시작하세요.</p>
+<button class="cta-btn" onclick="openEarlybird('토마토')">얼리버드 등록하기</button>
+<p style="font-size:12px;color:#999;margin-top:12px">전화번호만 남기면 끝 · 비용 발생 없음</p>
+</div>
+</div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+<strong>밀프레드</strong> MEALFRED — 교육용 요리키트 전문 브랜드<br>
+© 2026 밀프레드. All rights reserved.
+</footer>
+
+<!-- ===== STICKY FOOTER ===== -->
+<div class="sticky-footer">
+<div class="info"><span style="text-decoration:line-through;opacity:0.4;font-size:11px;">390,000원</span> <strong>199,000원</strong> · 49% OFF</div>
+<button class="btn" onclick="openEarlybird('토마토')">얼리버드 등록</button>
+</div>
+
+<script>
+function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+
+function openEarlybird(course){
+  if(document.getElementById('eb-modal')) document.getElementById('eb-modal').remove();
+  var c=course||'';
+  var html='<div id="eb-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.remove()">';
+  html+='<div style="background:#fff;border-radius:24px;padding:40px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.2);">';
+  html+='<div style="font-size:48px;margin-bottom:12px;">🎉</div>';
+  html+='<h3 style="font-size:22px;font-weight:900;margin-bottom:8px;color:#D32F2F;">얼리버드 사전등록</h3>';
+  if(c) html+='<p style="font-size:14px;color:#D32F2F;font-weight:700;margin-bottom:4px;">'+c+' 코스 관심 등록</p>';
+  html+='<p style="font-size:14px;color:#666;margin-bottom:4px;"><span style="text-decoration:line-through;opacity:0.5;">정가 390,000원</span> → <strong style="color:#D32F2F;font-size:18px;">199,000원</strong></p>';
+  html+='<p style="font-size:12px;color:#FF5252;font-weight:600;margin-bottom:20px;">49% 할인 · 얼리버드 한정</p>';
+  html+='<div style="text-align:left;margin-bottom:16px;">';
+  html+='<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">📱 연락받으실 전화번호</label>';
+  html+='<input id="eb-phone" type="tel" placeholder="010-0000-0000" maxlength="13" style="width:100%;padding:14px 16px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#D32F2F\'" onblur="this.style.borderColor=\'#e0e0e0\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');if(v.length>3&&v.length<=7)v=v.slice(0,3)+\'-\'+v.slice(3);else if(v.length>7)v=v.slice(0,3)+\'-\'+v.slice(3,7)+\'-\'+v.slice(7,11);this.value=v;">';
+  html+='</div>';
+  html+='<button onclick="submitEarlybird(\''+c+'\')" style="width:100%;padding:16px;background:#D32F2F;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">사전등록 완료하기</button>';
+  html+='<p style="font-size:11px;color:#aaa;margin-top:12px;">출시 시 알림 문자를 보내드립니다 · 등록만으로 비용 발생 없음</p>';
+  html+='</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+  setTimeout(function(){document.getElementById('eb-phone').focus();},100);
+}
+function submitEarlybird(course){
+  var phone=document.getElementById('eb-phone').value.replace(/[^0-9]/g,'');
+  if(phone.length<10||phone.length>11){alert('올바른 전화번호를 입력해주세요.');return;}
+  var modal=document.getElementById('eb-modal');
+  modal.querySelector('div > div').innerHTML='<div style="font-size:64px;margin-bottom:16px;">✅</div><h3 style="font-size:22px;font-weight:900;color:#D32F2F;margin-bottom:8px;">등록 완료!</h3><p style="font-size:15px;color:#444;margin-bottom:4px;">'+(course?course+' 코스 ':'')+'얼리버드 사전등록이 완료되었습니다.</p><p style="font-size:14px;color:#666;margin-bottom:20px;">출시 시 <strong>'+document.getElementById('eb-phone').value+'</strong>로<br>알림 문자를 보내드릴게요!</p><button onclick="document.getElementById(\'eb-modal\').remove()" style="padding:14px 40px;background:#D32F2F;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>';
+}
+
+document.querySelectorAll('.faq-item').forEach(item=>{
+item.querySelector('.faq-q').addEventListener('click',()=>{
+const wasActive=item.classList.contains('active');
+document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('active'));
+if(!wasActive)item.classList.add('active');
+});
+});
+</script>
+<!-- LEGAL DISCLAIMER -->
+<div style="background:#F5F5F5;border-top:1px solid #E0E0E0;padding:24px 20px;">
+  <div style="max-width:900px;margin:0 auto;">
+    <div style="background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:20px 24px;">
+      <div style="font-size:12px;font-weight:700;color:#C62828;margin-bottom:8px;">⚠️ 안내사항 (반드시 읽어주세요)</div>
+      <div style="font-size:11px;color:#666;line-height:1.8;">
+        <p style="margin-bottom:6px;"><strong style="color:#333;">본 제품은 의료기기나 의약품이 아니며, 의료행위를 대체하지 않습니다.</strong></p>
+        <p style="margin-bottom:6px;">밀프레드 편식극복 키트는 발달심리학 및 영양학 연구에 기반한 <strong>식습관 개선 보조 교구</strong>입니다. 편식의 완전한 해소를 보장하지 않으며, 개인차에 따라 효과가 다를 수 있습니다.</p>
+        <p style="margin-bottom:6px;">심한 섭식장애, 감각처리장애, 자폐 스펙트럼 등 의학적 진단이 필요한 경우에는 반드시 소아과 전문의 또는 섭식치료 전문가의 진료를 먼저 받으시기 바랍니다.</p>
+        <p style="margin-bottom:0;">본 키트는 일반적인 편식 경향을 보이는 영유아(만 18~60개월)를 대상으로 하며, <strong>의학적 치료가 아닌 가정 내 식습관 교육 프로그램</strong>입니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

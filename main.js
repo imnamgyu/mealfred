@@ -67,75 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ═══════════════════════════════════════════
-  // TAB SWITCHING
-  // ═══════════════════════════════════════════
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const tabContents = {
-    institution: document.getElementById('tab-institution'),
-    home: document.getElementById('tab-home')
-  };
-  const navLinksInstitution = document.getElementById('nav-institution');
-  const navLinksHome = document.getElementById('nav-home');
-
-  function switchTab(tabName) {
-    if (currentTab === tabName) return;
-    currentTab = tabName;
-
-    // Update tab buttons
-    tabBtns.forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
-    });
-
-    // Show/hide tab content
-    if (tabName === 'institution') {
-      tabContents.institution.style.display = '';
-      tabContents.institution.classList.add('active');
-      tabContents.home.style.display = 'none';
-      tabContents.home.classList.remove('active');
-      // Nav links
-      navLinksInstitution.classList.remove('nav-links-hidden');
-      navLinksHome.classList.add('nav-links-hidden');
-    } else {
-      tabContents.home.style.display = '';
-      tabContents.home.classList.add('active');
-      tabContents.institution.style.display = 'none';
-      tabContents.institution.classList.remove('active');
-      // Nav links
-      navLinksHome.classList.remove('nav-links-hidden');
-      navLinksInstitution.classList.add('nav-links-hidden');
-    }
-
-    // Close mobile nav
-    document.querySelectorAll('.nav-links.mobile-open').forEach(nl => {
-      nl.classList.remove('mobile-open');
-    });
-
-    // Update floating CTA
-    updateFloatingCta();
-
-    // Scroll to brand hero
-    document.getElementById('brand-hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    // Re-init reveals for newly visible tab
-    initScrollReveals();
-
-    // Refresh ScrollTrigger for GSAP counters
-    ScrollTrigger.refresh();
-  }
-
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      switchTab(btn.getAttribute('data-tab'));
-    });
-  });
-
-  // Entry cards (brand hero) also trigger tab switch
-  document.querySelectorAll('.entry-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const target = card.getAttribute('data-target');
-      switchTab(target);
-    });
-  });
+  // TAB SWITCHING — disabled (now scroll-based layout)
+  // Both sections are always visible, entry cards use scrollIntoView via inline onclick
 
   // ═══════════════════════════════════════════
   // SCROLL REVEAL (IntersectionObserver)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🥕 당근 5주 코스 — SOS Approach × 푸드브릿지 | 밀프레드</title>
+<title>🥕 당근 5주 코스 — SOS Approach × 편식극복 프로그램 | 밀프레드</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -776,10 +776,41 @@
     .timeline::before { left: 12px; }
     .week-dot { left: -32px; width: 32px; height: 32px; font-size: 14px; }
 
-    .sticky-footer { flex-direction: column; gap: 12px; }
+    .sticky-footer { flex-direction: column; gap: 12px; text-align: center; }
     .sticky-btn { width: 100%; }
 
     body { padding-bottom: 140px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 28px; }
+    .hero-emoji { font-size: 60px; }
+    .hero-subtitle { font-size: 14px; }
+
+    .sec-header h2 { font-size: 22px; }
+
+    .why-carrot { grid-template-columns: 1fr; }
+    .week-header { flex-direction: column; gap: 8px; }
+    .comparison-grid { grid-template-columns: 1fr; }
+    .week-content { grid-template-columns: 1fr; }
+
+    .cta-section { padding: 32px 20px; }
+    .cta-price { font-size: 28px; }
+    .wc-total-number { font-size: 36px; }
+
+    .week-card { padding: 20px; }
+    .box-card { padding: 24px; }
+    .compare-card { padding: 20px; }
+
+    .score-bar { height: 20px; }
+
+    .faq-q { min-height: 48px; padding: 16px; }
+
+    .sticky-footer { text-align: center; }
+
+    img { max-width: 100%; height: auto; }
+
+    body { overflow-x: hidden; }
   }
 </style>
 </head>
@@ -792,7 +823,7 @@
       <div class="hero-emoji">🥕</div>
       <div class="hero-badge">입문 코스 · 편식극복 첫 경험에 최적</div>
       <h1>당근 5주 코스</h1>
-      <p class="hero-subtitle">SOS Approach × 푸드브릿지 5단계<br>편식 스코어 62.4점</p>
+      <p class="hero-subtitle">SOS Approach × 편식극복 프로그램 5단계<br>편식 스코어 62.4점</p>
       <div class="hero-stats">
         <div class="stat-item">
           <strong>5주</strong>
@@ -807,11 +838,11 @@
           <span>노출 빈도</span>
         </div>
         <div class="stat-item">
-          <strong>139,000원</strong>
-          <span>전체 가격</span>
+          <strong style="font-size:16px;"><span style="text-decoration:line-through;opacity:0.5;font-size:13px;">390,000원</span><br>199,000원</strong>
+          <span>얼리버드 49% OFF</span>
         </div>
       </div>
-      <button class="hero-cta" onclick="scrollToSection('cta')">지금 시작하기</button>
+      <button class="hero-cta" onclick="openEarlybird('당근')">얼리버드 등록하기 →</button>
     </div>
   </div>
 </section>
@@ -877,8 +908,8 @@
           <div class="wc-fact-text">생 → 삶은 → 갈은 → 으깬 순서로 자연스럽게 식감 적응이 가능합니다.</div>
         </div>
         <div class="wc-fact">
-          <div class="wc-fact-title">✓ 밀프레드 8개 제품 연계</div>
-          <div class="wc-fact-text">당근이 들어가는 밀프레드 밀키트 8종으로 실제 조리 경험을 쌓을 수 있습니다.</div>
+          <div class="wc-fact-title">✓ 식약처 표준 레시피 기반</div>
+          <div class="wc-fact-text">dietary4u 검증 레시피(감자완자, 잔치국수, 치즈무른밥, 스파게티 등)로 3~5주차를 구성했습니다.</div>
         </div>
         <div class="wc-fact">
           <div class="wc-fact-title">✓ 식약처 표준식단 399회 등장</div>
@@ -915,7 +946,7 @@
             <div class="week-col">
               <h4>📦 키트 활동 (배송일)</h4>
               <p>당근즙으로 그림 그리기 · 당근 단면 스탬프 · 관찰일지 기록. 당근 4종 색깔 관찰.</p>
-              <span class="week-chip green">Box B: 미니도마판 + 활동지</span>
+              <span class="week-chip green">Box B: 쿠키커터 + 활동지</span>
             </div>
             <div class="week-col">
               <h4>🏠 가정 활동 ×2회</h4>
@@ -941,8 +972,8 @@
           <div class="week-content">
             <div class="week-col">
               <h4>📦 키트 활동 (배송일)</h4>
-              <p>생당근 미니강판으로 갈기 · 생 vs 삶은 당근 촉감 비교 · 냄새 맡기 게임.</p>
-              <span class="week-chip green">Box A: 생당근 + 미니강판</span>
+              <p>생당근 강판으로 갈기 · 생 vs 삶은 당근 촉감 비교 · 냄새 맡기 게임.</p>
+              <span class="week-chip green">Box A: 생당근 (강판·도마는 가정 준비)</span>
             </div>
             <div class="week-col">
               <h4>🏠 가정 활동 ×2회</h4>
@@ -968,13 +999,13 @@
           <div class="week-content">
             <div class="week-col">
               <h4>📦 키트 활동 (배송일)</h4>
-              <p>당근스틱 디핑 놀이 · 꼬마김밥에 당근 직접 넣기 · 소량 맛보기(입 대기만 해도 OK).</p>
-              <span class="week-chip green">밀프레드 꼬마김밥 + 디핑소스</span>
+              <p><strong>감자완자핑거푸드</strong> — 으깬 감자+쇠고기에 당근을 직접 올려 동글동글 빚기. 디핑소스 3종으로 찍어 입술에 대보기.</p>
+              <span class="week-chip green">dietary4u: 감자완자핑거푸드 + 디핑소스</span>
             </div>
             <div class="week-col">
               <h4>🏠 가정 활동 ×2회</h4>
-              <p>① 당근스틱 입에 대보기<br>② 쿠키커터로 모양 놀이</p>
-              <span class="week-chip">활동지 #5-6 · 레시피 카드</span>
+              <p>① <strong>잔치국수</strong> — 당근 채를 고명으로 직접 올리기<br>② 당근스틱 입에 대보기 · 쿠키커터 모양 놀이</p>
+              <span class="week-chip">dietary4u: 잔치국수 · 활동지 #5-6</span>
             </div>
           </div>
           <div class="week-footer">
@@ -995,13 +1026,13 @@
           <div class="week-content">
             <div class="week-col">
               <h4>📦 키트 활동 (배송일)</h4>
-              <p>익힌 당근스틱 한 입 · 하야시라이스에 당근 직접 넣고 조리 · 식감 비교(생/삶/구운).</p>
-              <span class="week-chip green">밀프레드 하야시라이스 키트</span>
+              <p><strong>치즈야채무른밥</strong> — 당근+애호박+양파를 0.5cm로 썰어 치즈와 함께 끓이기. 당근을 직접 넣고 한 입 도전! <strong>명태당근진밥</strong> — 명태살과 당근을 섞어 맛보기.</p>
+              <span class="week-chip green">dietary4u: 치즈야채무른밥 · 명태당근진밥</span>
             </div>
             <div class="week-col">
               <h4>🏠 가정 활동 ×2회</h4>
-              <p>① 저녁 요리에 당근 추가<br>② 쿠키커터로 모양 자르기</p>
-              <span class="week-chip">활동지 #7-8 · 레시피 카드</span>
+              <p>① 저녁에 <strong>닭야채조림</strong> — 당근+감자+닭을 조림<br>② 식감 비교(생/삶/구운 당근) · 모양 자르기</p>
+              <span class="week-chip">dietary4u: 닭야채조림 · 활동지 #7-8</span>
             </div>
           </div>
           <div class="week-footer">
@@ -1022,13 +1053,13 @@
           <div class="week-content">
             <div class="week-col">
               <h4>📦 키트 활동 (배송일)</h4>
-              <p>당근볶음밥 직접 요리하기 · 수료증 발급 · 다음 코스 추천 안내.</p>
-              <span class="week-chip green">밀프레드 중화식볶음밥 + 수료증</span>
+              <p><strong>스파게티</strong> — 당근+양파+쇠고기를 다져 소스에 넣고, 아이가 직접 면 위에 뿌리기! <strong>김치볶음밥</strong> — 당근을 직접 썰어 볶음밥에 투입. 수료증 발급!</p>
+              <span class="week-chip green">dietary4u: 스파게티 · 김치볶음밥 + 수료증</span>
             </div>
             <div class="week-col">
               <h4>🏠 가정 활동 ×2회</h4>
-              <p>① 가족 저녁에 당근 요리<br>② 자유 선택 먹기</p>
-              <span class="week-chip green">활동지 #9-10 · 축하 카드</span>
+              <p>① 가족 저녁에 <strong>닭칼국수</strong> — 당근 채를 직접 올리기<br>② 자유 선택 먹기 · 수료식 파티!</p>
+              <span class="week-chip green">dietary4u: 닭칼국수 · 활동지 #9-10</span>
             </div>
           </div>
           <div class="week-footer">
@@ -1055,17 +1086,20 @@
         <div class="box-subtitle">1주차 합배송 · 유통기한 6개월+</div>
         <ul class="box-items">
           <li>
-            <span>미니강판</span>
-            <span class="box-qty">1개</span>
-          </li>
-          <li>
-            <span>미니도마판</span>
-            <span class="box-qty">1개</span>
-          </li>
-          <li>
             <span>쿠키커터</span>
             <span class="box-qty">3개</span>
           </li>
+          <li>
+            <span>부모 가이드 브로셔</span>
+            <span class="box-qty">1부</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="box-card box-a">
+        <h3>📱 밀프레드 앱 제공</h3>
+        <div class="box-subtitle">밀프레드 앱에서 다운로드 · 언제든지 접근 가능</div>
+        <ul class="box-items">
           <li>
             <span>관찰일지 + 스티커</span>
             <span class="box-qty">1세트</span>
@@ -1081,10 +1115,6 @@
           <li>
             <span>수료증</span>
             <span class="box-qty">1매</span>
-          </li>
-          <li>
-            <span>부모 가이드 브로셔</span>
-            <span class="box-qty">1부</span>
           </li>
         </ul>
       </div>
@@ -1102,16 +1132,16 @@
             <span class="box-qty">200g+</span>
           </li>
           <li>
-            <span><strong>W3:</strong> 당근스틱 3종, 디핑소스 3종, 꼬마김밥 키트</span>
-            <span class="box-qty">280g</span>
+            <span><strong>W3:</strong> 감자+쇠고기 완자재료, 디핑소스 3종, 소면+다시마+계란 (잔치국수)</span>
+            <span class="box-qty">300g</span>
           </li>
           <li>
-            <span><strong>W4:</strong> 팬케이크 믹스, 당근퓨레, 메이플시럽, 하야시라이스 키트</span>
-            <span class="box-qty">520g</span>
+            <span><strong>W4:</strong> 가공치즈+애호박+양파 (치즈무른밥), 명태살+당근 (명태진밥), 닭+감자+양념 (닭야채조림)</span>
+            <span class="box-qty">450g</span>
           </li>
           <li>
-            <span><strong>W5:</strong> 미니피자 도우, 모짜렐라, 토마토소스, 당근 토핑, 중화식볶음밥 키트</span>
-            <span class="box-qty">480g</span>
+            <span><strong>W5:</strong> 스파게티면+소스+쇠고기, 김치+베이컨 (볶음밥), 칼국수면+닭육수팩</span>
+            <span class="box-qty">500g</span>
           </li>
         </ul>
       </div>
@@ -1152,11 +1182,12 @@
       <div class="compare-card highlight">
         <div class="compare-badge">강력 추천</div>
         <h4>밀프레드 키트</h4>
-        <div class="compare-price">139,000원</div>
+        <div class="compare-price"><span style="text-decoration:line-through;opacity:0.4;font-size:16px;">390,000원</span> 199,000원</div>
         <div class="compare-info">
           5주 15회 노출<br>
           대기 없음<br>
-          집에서 시작
+          집에서 시작<br>
+          <span style="color:#FF5252;font-weight:700;">🔥 얼리버드 49% OFF</span>
         </div>
       </div>
     </div>
@@ -1244,41 +1275,51 @@
     <div class="faq-container">
       <div class="faq-item" onclick="this.classList.toggle('active')">
         <div class="faq-q">
-          <span>아이가 당근을 아예 안 보려고 하는데 괜찮나요?</span>
+          <span>몇 살부터 할 수 있나요?</span>
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-a">
-          <p>완전히 정상입니다. 1~3회 거부는 "식품공포반응(Neophobic Response)"로, 아이의 뇌가 안전성 평가를 하는 과정입니다. 울어도, 거부해도 성공입니다. 4회째부터 변화의 신호가 시작되며, 부모 가이드의 Plateau 로드맵을 참고하세요.</p>
+          <p>만 2~5세(24~60개월)를 권장합니다. 활동은 부모와 함께 진행하며, 아이의 발달 수준에 맞춰 난이도를 조절할 수 있습니다.</p>
         </div>
       </div>
 
       <div class="faq-item" onclick="this.classList.toggle('active')">
         <div class="faq-q">
-          <span>미니당근은 일반 당근과 다른 건가요?</span>
+          <span>아이가 식재료를 아예 안 보려고 하는데 괜찮나요?</span>
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-a">
-          <p>미니당근(Baby carrot)은 아이 손 크기에 최적화된 품종으로, 일반 당근보다 부드럽고 단맛이 강합니다. 1주차 시각 탐색 때 색깔 다양성(주황, 보라, 노랑)을 경험하고, 이후 스스로 집을 수 있는 크기로 자신감을 높여줍니다.</p>
+          <p>완전히 정상입니다. 처음 1~3회는 거부하는 것이 자연스러운 반응이에요. SOS Approach에서는 이 과정 자체가 학습입니다. "보기만 해도 성공"이라는 마음으로 진행해 주세요. 4회차부터 변화의 신호가 나타나기 시작합니다.</p>
         </div>
       </div>
 
       <div class="faq-item" onclick="this.classList.toggle('active')">
         <div class="faq-q">
-          <span>디핑소스에 알레르기 성분이 있나요?</span>
+          <span>알레르기가 있으면 어떡하나요?</span>
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-a">
-          <p>3주차 디핑소스는 치즈(유제품), 허니요거트(유제품+벌꿀), 고구마 기반이므로 <strong>유제품과 꿀 알레르기</strong>가 있을 경우 미리 알려주세요. 코스 신청 시 맞춤 대체 소스(두유베이스, 견과류버터 등)로 준비할 수 있습니다.</p>
+          <p>코스 신청 시 알레르기 정보를 입력해 주시면, 해당 식재료를 제외하거나 대체 재료로 준비해 드립니다. 심한 알레르기가 있는 경우 소아과 상담 후 진행을 권장합니다.</p>
         </div>
       </div>
 
       <div class="faq-item" onclick="this.classList.toggle('active')">
         <div class="faq-q">
-          <span>팬케이크 믹스 성분이 궁금해요</span>
+          <span>키트 배송은 어떻게 되나요?</span>
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-a">
-          <p>4주차 당근 팬케이크 믹스는 밀가루 + 당근분말 + 설탕 + 베이킹파우더만 포함하며, <strong>인공첨가물·계란·우유·견과류 없음</strong>입니다. 아이와 함께 섞고 구우며 성취감을 높이는 수준의 활동 난이도로 설계됐습니다.</p>
+          <p>매주 1회, 3회 활동분을 한 번에 배송합니다. 총 5주간 5회 배송이며, 밀프레드 보냉 시스템으로 신선하게 도착합니다. 배송 사고 시 전량 재발송해 드립니다.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" onclick="this.classList.toggle('active')">
+        <div class="faq-q">
+          <span>도마, 강판 같은 도구도 제공되나요?</span>
+          <span class="faq-toggle">+</span>
+        </div>
+        <div class="faq-a">
+          <p>도마, 강판 등 가정에 기본적으로 있는 조리도구는 별도로 제공하지 않습니다. 쿠키커터 등 특수 교구만 키트에 포함됩니다. 활동지, 관찰일지, 레시피카드, 수료증은 밀프레드 앱에서 제공됩니다.</p>
         </div>
       </div>
 
@@ -1288,17 +1329,17 @@
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-a">
-          <p>같은 코스를 반복 구매(10% 할인)하여 30회까지 확장 가능합니다. 당근은 입문 난이도이므로, 대부분 15회 내 "특정 조리법으로 먹기" 단계까지 도달합니다. 혹시 안 먹어도 감각 친숙화 자체가 이미 성공입니다.</p>
+          <p>안 먹어도 괜찮습니다. 감각 친숙화 자체가 이미 큰 성과예요. 같은 코스를 반복하거나, 비슷한 난이도의 다른 식재료 코스로 전환할 수 있습니다. 반복 구매 시 10% 할인이 적용됩니다.</p>
         </div>
       </div>
 
       <div class="faq-item" onclick="this.classList.toggle('active')">
         <div class="faq-q">
-          <span>다음 코스는 뭘 하면 좋나요?</span>
+          <span>환불 규정이 어떻게 되나요?</span>
           <span class="faq-toggle">+</span>
         </div>
         <div class="faq-a">
-          <p>같은 입문 난이도의 <strong>양파 또는 두부 코스</strong>를 추천합니다. 성공 경험이 쌓이면 → 도전(버섯·토마토·파프리카) → 고급(시금치·브로콜리·가지) 순서로 진행하세요. 3코스 묶음 시 16% 할인을 받을 수 있습니다.</p>
+          <p>코스 시작 전(1주차 배송 전): 전액 환불. 1주차 배송 후~2주차 배송 전: 잔여 4주분의 80% 환불. 2주차 배송 후: 잔여 주차분의 50% 환불. 3주차 배송 이후: 환불 불가 (이미 절반 이상 진행). 배송 사고·품질 문제 시: 해당 주차 전액 재발송 또는 환불. 환불 신청은 카카오톡 "밀프레드"로 문의해 주세요.</p>
         </div>
       </div>
     </div>
@@ -1309,17 +1350,18 @@
 <section class="section light" id="cta">
   <div class="container">
     <div class="cta-section">
-      <div class="cta-price">139,000원</div>
-      <div class="cta-breakdown">5주 15회 노출 · 회당 9,267원 · 배송비 포함</div>
+      <div style="margin-bottom:8px;"><span style="font-size:18px;text-decoration:line-through;opacity:0.4;">정가 390,000원</span> <span style="background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;">49% OFF</span></div>
+      <div class="cta-price">199,000원</div>
+      <div class="cta-breakdown">5주 15회 노출 · 회당 13,300원 · 배송비 포함</div>
       <p class="cta-message">
-        <strong>카페 라떼 + 마카롱 1개 가격</strong>으로<br>
+        <strong>만 2~5세 골든타임,</strong><br>
         아이의 평생 식습관을 바꿉니다
       </p>
-      <button class="cta-button" onclick="alert('당근 코스를 장바구니에 담았습니다! (데모)')">
-        지금 시작하기
+      <button class="cta-button" onclick="openEarlybird('당근')">
+        얼리버드 등록하기
       </button>
       <div style="margin-top: 20px; font-size: 12px; color: #999;">
-        같은 코스 반복 구매 10% 할인 · 2코스 묶음 11% · 3코스 묶음 16% 할인
+        전화번호만 남기면 끝 · 출시 시 알림 문자 발송 · 비용 발생 없음
       </div>
     </div>
   </div>
@@ -1327,16 +1369,16 @@
 
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
-  <div class="footer-brand">밀프레드 MILFRED</div>
-  <p>푸드브릿지 프로그램 · SOS Approach × 식약처 급식관리지침</p>
-  <p style="margin-top: 12px; font-size: 11px; opacity: 0.6;">© 2026 MILFRED Co., Ltd. All rights reserved.</p>
+  <div class="footer-brand">밀프레드 MEALFRED</div>
+  <p>편식극복 프로그램 프로그램 · SOS Approach × 식약처 급식관리지침</p>
+  <p style="margin-top: 12px; font-size: 11px; opacity: 0.6;">© 2026 MEALFRED Co., Ltd. All rights reserved.</p>
 </footer>
 
 <!-- ===== STICKY FOOTER ===== -->
 <div class="sticky-footer">
-  <div class="sticky-info">🥕 당근 코스 <strong>139,000원</strong> · 5주 15회</div>
-  <button class="sticky-btn" onclick="alert('당근 코스를 장바구니에 담았습니다! (데모)')">
-    주문하기
+  <div class="sticky-info">🥕 <span style="text-decoration:line-through;opacity:0.4;font-size:11px;">390,000원</span> <strong>199,000원</strong> · 49% OFF</div>
+  <button class="sticky-btn" onclick="openEarlybird('당근')">
+    얼리버드 등록
   </button>
 </div>
 
@@ -1356,6 +1398,47 @@ document.querySelectorAll('.faq-item').forEach(item => {
     }
   });
 });
+
+function openEarlybird(course){
+  if(document.getElementById('eb-modal')) document.getElementById('eb-modal').remove();
+  var c=course||'';
+  var html='<div id="eb-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.remove()">';
+  html+='<div style="background:#fff;border-radius:24px;padding:40px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.2);">';
+  html+='<div style="font-size:48px;margin-bottom:12px;">🎉</div>';
+  html+='<h3 style="font-size:22px;font-weight:900;margin-bottom:8px;color:#E67E22;">얼리버드 사전등록</h3>';
+  if(c) html+='<p style="font-size:14px;color:#E67E22;font-weight:700;margin-bottom:4px;">'+c+' 코스 관심 등록</p>';
+  html+='<p style="font-size:14px;color:#666;margin-bottom:4px;"><span style="text-decoration:line-through;opacity:0.5;">정가 390,000원</span> → <strong style="color:#E67E22;font-size:18px;">199,000원</strong></p>';
+  html+='<p style="font-size:12px;color:#FF5252;font-weight:600;margin-bottom:20px;">49% 할인 · 얼리버드 한정</p>';
+  html+='<div style="text-align:left;margin-bottom:16px;">';
+  html+='<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">📱 연락받으실 전화번호</label>';
+  html+='<input id="eb-phone" type="tel" placeholder="010-0000-0000" maxlength="13" style="width:100%;padding:14px 16px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#E67E22\'" onblur="this.style.borderColor=\'#e0e0e0\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');if(v.length>3&&v.length<=7)v=v.slice(0,3)+\'-\'+v.slice(3);else if(v.length>7)v=v.slice(0,3)+\'-\'+v.slice(3,7)+\'-\'+v.slice(7,11);this.value=v;">';
+  html+='</div>';
+  html+='<button onclick="submitEarlybird(\''+c+'\')" style="width:100%;padding:16px;background:#E67E22;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">사전등록 완료하기</button>';
+  html+='<p style="font-size:11px;color:#aaa;margin-top:12px;">출시 시 알림 문자를 보내드립니다 · 등록만으로 비용 발생 없음</p>';
+  html+='</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+  setTimeout(function(){document.getElementById('eb-phone').focus();},100);
+}
+function submitEarlybird(course){
+  var phone=document.getElementById('eb-phone').value.replace(/[^0-9]/g,'');
+  if(phone.length<10||phone.length>11){alert('올바른 전화번호를 입력해주세요.');return;}
+  var modal=document.getElementById('eb-modal');
+  modal.querySelector('div > div').innerHTML='<div style="font-size:64px;margin-bottom:16px;">✅</div><h3 style="font-size:22px;font-weight:900;color:#E67E22;margin-bottom:8px;">등록 완료!</h3><p style="font-size:15px;color:#444;margin-bottom:4px;">'+(course?course+' 코스 ':'')+'얼리버드 사전등록이 완료되었습니다.</p><p style="font-size:14px;color:#666;margin-bottom:20px;">출시 시 <strong>'+document.getElementById('eb-phone').value+'</strong>로<br>알림 문자를 보내드릴게요!</p><button onclick="document.getElementById(\'eb-modal\').remove()" style="padding:14px 40px;background:#E67E22;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>';
+}
 </script>
+<!-- LEGAL DISCLAIMER -->
+<div style="background:#F5F5F5;border-top:1px solid #E0E0E0;padding:24px 20px;">
+  <div style="max-width:900px;margin:0 auto;">
+    <div style="background:#fff;border:1px solid #E0E0E0;border-radius:12px;padding:20px 24px;">
+      <div style="font-size:12px;font-weight:700;color:#C62828;margin-bottom:8px;">⚠️ 안내사항 (반드시 읽어주세요)</div>
+      <div style="font-size:11px;color:#666;line-height:1.8;">
+        <p style="margin-bottom:6px;"><strong style="color:#333;">본 제품은 의료기기나 의약품이 아니며, 의료행위를 대체하지 않습니다.</strong></p>
+        <p style="margin-bottom:6px;">밀프레드 편식극복 키트는 발달심리학 및 영양학 연구에 기반한 <strong>식습관 개선 보조 교구</strong>입니다. 편식의 완전한 해소를 보장하지 않으며, 개인차에 따라 효과가 다를 수 있습니다.</p>
+        <p style="margin-bottom:6px;">심한 섭식장애, 감각처리장애, 자폐 스펙트럼 등 의학적 진단이 필요한 경우에는 반드시 소아과 전문의 또는 섭식치료 전문가의 진료를 먼저 받으시기 바랍니다.</p>
+        <p style="margin-bottom:0;">본 키트는 일반적인 편식 경향을 보이는 영유아(만 18~60개월)를 대상으로 하며, <strong>의학적 치료가 아닌 가정 내 식습관 교육 프로그램</strong>입니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
