@@ -58,14 +58,23 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ success: false, message: '등록 중 오류가 발생했습니다.' });
   }
 
-  // TODO: Send 알림톡 via Solapi (활성화 후 주석 해제)
-  // const { sendAlimtalk } = require('./_lib/solapi');
-  // await sendAlimtalk(cleanPhone, referralCode);
+  // Send 알림톡 via Naver Cloud SENS
+  const referralLink = `https://mealfred.com/?ref=${referralCode}`;
+  try {
+    const { sendAlimtalk } = require('./_lib/ncloud-alimtalk');
+    const alimResult = await sendAlimtalk({ phone: cleanPhone, referralCode, referralLink, course: course || null });
+    if (alimResult.success) {
+      await supabase.from('earlybird_registrations').update({ alimtalk_sent: true, alimtalk_sent_at: new Date().toISOString() }).eq('referral_code', referralCode);
+    }
+  } catch (e) {
+    console.error('Alimtalk error:', e);
+    // 알림톡 실패해도 등록은 성공 처리
+  }
 
   return res.status(200).json({
     success: true,
     referralCode,
-    referralLink: `https://mealfred.com/?ref=${referralCode}`,
+    referralLink,
     isExisting: false
   });
 };
