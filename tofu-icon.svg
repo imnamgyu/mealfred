@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Tofu block - cute food emoji style matching 🥕🍅🥦 vibe -->
+  <!-- Shadow -->
+  <ellipse cx="64" cy="118" rx="42" ry="8" fill="#D7CCC8" opacity="0.3"/>
+  <!-- Main tofu block -->
+  <rect x="18" y="28" width="92" height="80" rx="14" fill="#FFF8E1"/>
+  <rect x="18" y="28" width="92" height="80" rx="14" fill="url(#tofuGrad)"/>
+  <!-- Top highlight -->
+  <rect x="24" y="32" width="80" height="24" rx="8" fill="#FFFDE7" opacity="0.6"/>
+  <!-- Cut lines (tofu block pattern) -->
+  <line x1="64" y1="38" x2="64" y2="100" stroke="#E8D5B7" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  <line x1="28" y1="68" x2="100" y2="68" stroke="#E8D5B7" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  <!-- Subtle texture dots -->
+  <circle cx="42" cy="52" r="2" fill="#EED9A0" opacity="0.4"/>
+  <circle cx="86" cy="52" r="2" fill="#EED9A0" opacity="0.4"/>
+  <circle cx="42" cy="84" r="2" fill="#EED9A0" opacity="0.4"/>
+  <circle cx="86" cy="84" r="2" fill="#EED9A0" opacity="0.4"/>
+  <!-- Small soybean accent (top-right) -->
+  <ellipse cx="98" cy="24" rx="10" ry="8" fill="#C5E1A5" transform="rotate(-20,98,24)"/>
+  <ellipse cx="98" cy="24" rx="10" ry="8" fill="url(#beanGrad)" transform="rotate(-20,98,24)"/>
+  <line x1="94" y1="24" x2="102" y2="24" stroke="#8BC34A" stroke-width="1.2" opacity="0.5"/>
+  <!-- Sparkle (freshness) -->
+  <g fill="#FFD54F" opacity="0.7">
+    <polygon points="24,18 26,14 28,18 26,22" />
+    <polygon points="22,16 26,14 30,16 26,18" />
+  </g>
+  <defs>
+    <linearGradient id="tofuGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF8E1"/>
+      <stop offset="100%" stop-color="#F5E6C8"/>
+    </linearGradient>
+    <linearGradient id="beanGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C5E1A5"/>
+      <stop offset="100%" stop-color="#AED581"/>
+    </linearGradient>
+  </defs>
+</svg>
