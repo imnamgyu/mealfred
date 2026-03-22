@@ -444,7 +444,12 @@
       <span style="display:inline-block;background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;margin-left:8px;">얼리버드 49% OFF</span>
     </div>
     <div style="font-size:clamp(28px,5vw,42px);font-weight:900;margin-bottom:8px;">199,000<span style="font-size:0.6em;">원</span></div>
-    <p style="font-size:13px;opacity:0.8;margin-bottom:24px;">5주 완성 · 회당 9,476원 · 지금 등록하면 이 가격 확정</p>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:12px;">5주 완성 · 회당 9,476원 · 지금 등록하면 이 가격 확정</p>
+    <div id="hero-countdown" style="background:rgba(255,82,82,0.15);border:1px solid rgba(255,82,82,0.4);border-radius:12px;padding:10px 16px;margin-bottom:16px;display:inline-block;">
+      <span style="font-size:12px;font-weight:700;color:#FF5252;">⏰ 얼리버드 마감까지</span>
+      <span id="hero-timer" style="font-size:18px;font-weight:900;color:#fff;margin-left:8px;letter-spacing:1px;"></span>
+    </div>
+    <br>
     <a href="javascript:void(0)" class="hero-cta" onclick="openEarlybird()">얼리버드 등록하기 →</a>
     <div class="hero-metrics">
       <div class="hero-metric"><strong>21회</strong><span>5주간 총 노출 횟수</span></div>
@@ -550,7 +555,7 @@
     <div class="cost-card milfred">
       <h4>밀프레드 편식개선 키트</h4>
       <span class="cost-price"><span style="text-decoration:line-through;opacity:0.5;font-size:0.7em;">390,000원</span> 199,000원~</span>
-      <div class="cost-details"><ul><li>SOS Approach 기반 5주 코스</li><li>감각놀이 15회 + 요리 6회 = 총 21회 + 앱 케어</li><li>대기 없음, 즉시 시작</li><li>집에서 엄마와 함께</li><li style="color:#FF5252;font-weight:700;">🔥 얼리버드 49% 할인 중</li></ul></div>
+      <div class="cost-details"><ul><li>SOS Approach 기반 5주 코스</li><li>감각놀이 15회 + 요리 6회 = 총 21회 + 앱 케어</li><li>대기 없음, 즉시 시작</li><li>집에서 엄마와 함께</li><li style="color:#FF5252;font-weight:700;">🔥 얼리버드 49% 할인 · 4/30 자정 마감</li></ul></div>
     </div>
   </div>
   <div class="cost-summary">
@@ -654,6 +659,42 @@
   </div>
 </section>
 
+<!-- ===== PRODUCT CATALOG ===== -->
+<section class="catalog-section" id="catalog-sec">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">개별 코스 선택</div>
+      <h2>우리 아이에게 필요한 것만 골라서</h2>
+      <p>난이도는 추천 순서입니다. 어떤 식재료든 개별 구매 가능합니다.</p>
+    </div>
+    <div class="cat-filter">
+      <div class="f-btn active" onclick="filterCat('all',this)">전체 9종</div>
+      <div class="f-btn" onclick="filterCat('ha',this)">입문 (하)</div>
+      <div class="f-btn" onclick="filterCat('jung',this)">도전 (중)</div>
+      <div class="f-btn" onclick="filterCat('sang',this)">고급 (상)</div>
+    </div>
+    <div class="cat-grid" id="catalog">
+      <a class="p-card" data-lv="ha" href="carrot-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🥕</span><div class="nm">당근 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 62.4<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 주황색 시각 거부 + 아삭 식감. 식감·맛 적응 빠름 → 첫 편식 개선 경험 최적<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">당근 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="ha" href="onion-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🧅</span><div class="nm">양파 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 78.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 매운 향+눈물+냄새 3중 거부. 볶으면 당도 8→40 Brix 변환 → 달콤 변신 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">양파 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="ha" href="tofu-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🫧</span><div class="nm">두부 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 46.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">18~42개월 (만 1.5~3.5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 물렁 식감 주원인. 바삭 두부스테이크→순두부 순 식감 단계화<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">두부 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="mushroom-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍄</span><div class="nm">버섯 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 72.8<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 식감(물컹)+냄새 이중 거부. 미니 재배키트로 친밀감 형성이 핵심<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">버섯 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="tomato-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍅</span><div class="nm">토마토 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 57.7<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 산미+물컹 식감 복합 거부. 소스→건조→생 순서 형태 변환 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">토마토 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="paprika-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🫑</span><div class="nm">파프리카 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 49.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 풋내 주원인, 아삭 식감은 낮은 거부. 빨간(단맛)부터 시작<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">파프리카 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="spinach-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥬</span><div class="nm">시금치 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 61.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 쓴맛+풀냄새+물컹 삼중 거부. 파우더→건조→신선 순 점진적 접근<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">시금치 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="broccoli-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥦</span><div class="nm">브로콜리 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 57.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 전 세계 편식 연구 "최다 거부 채소" 1위<sup class="fn">14</sup>. 나무숲 시각 친밀감부터<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">브로콜리 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="eggplant-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🍆</span><div class="nm">가지 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 60.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 보라색 시각 거부+물렁 식감. 바삭 가지칩→구이→볶음 순서<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">가지 코스 상세보기</button></div></a>
+    </div>
+  </div>
+</section>
+
 <!-- ===== BONDING + NURI ===== -->
 <section class="bonding-section">
   <div class="sec">
@@ -753,42 +794,6 @@
       현재 키트 제공: 9종 (하 3종 · 중 3종 · 상 3종) — 나머지 21종은 순차 출시 예정<br>
       초록색 행 = 클릭 시 상세 코스 확인 가능
     </p>
-  </div>
-</section>
-
-<!-- ===== PRODUCT CATALOG ===== -->
-<section class="catalog-section" id="catalog-sec">
-  <div class="sec">
-    <div class="sec-title">
-      <div class="sec-label">개별 코스 선택</div>
-      <h2>우리 아이에게 필요한 것만 골라서</h2>
-      <p>난이도는 추천 순서입니다. 어떤 식재료든 개별 구매 가능합니다.</p>
-    </div>
-    <div class="cat-filter">
-      <div class="f-btn active" onclick="filterCat('all',this)">전체 9종</div>
-      <div class="f-btn" onclick="filterCat('ha',this)">입문 (하)</div>
-      <div class="f-btn" onclick="filterCat('jung',this)">도전 (중)</div>
-      <div class="f-btn" onclick="filterCat('sang',this)">고급 (상)</div>
-    </div>
-    <div class="cat-grid" id="catalog">
-      <a class="p-card" data-lv="ha" href="carrot-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🥕</span><div class="nm">당근 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 62.4<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 주황색 시각 거부 + 아삭 식감. 식감·맛 적응 빠름 → 첫 편식 개선 경험 최적<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">당근 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="ha" href="onion-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🧅</span><div class="nm">양파 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 78.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 매운 향+눈물+냄새 3중 거부. 볶으면 당도 8→40 Brix 변환 → 달콤 변신 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">양파 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="ha" href="tofu-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🫧</span><div class="nm">두부 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 46.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">18~42개월 (만 1.5~3.5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 물렁 식감 주원인. 바삭 두부스테이크→순두부 순 식감 단계화<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">두부 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="jung" href="mushroom-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍄</span><div class="nm">버섯 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 72.8<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 식감(물컹)+냄새 이중 거부. 미니 재배키트로 친밀감 형성이 핵심<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">버섯 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="jung" href="tomato-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍅</span><div class="nm">토마토 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 57.7<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 산미+물컹 식감 복합 거부. 소스→건조→생 순서 형태 변환 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">토마토 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="jung" href="paprika-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🫑</span><div class="nm">파프리카 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 49.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 풋내 주원인, 아삭 식감은 낮은 거부. 빨간(단맛)부터 시작<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">파프리카 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="sang" href="spinach-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥬</span><div class="nm">시금치 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 61.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 쓴맛+풀냄새+물컹 삼중 거부. 파우더→건조→신선 순 점진적 접근<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">시금치 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="sang" href="broccoli-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥦</span><div class="nm">브로콜리 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 57.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 전 세계 편식 연구 "최다 거부 채소" 1위<sup class="fn">14</sup>. 나무숲 시각 친밀감부터<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">브로콜리 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="sang" href="eggplant-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🍆</span><div class="nm">가지 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 60.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 보라색 시각 거부+물렁 식감. 바삭 가지칩→구이→볶음 순서<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">가지 코스 상세보기</button></div></a>
-    </div>
   </div>
 </section>
 
@@ -1008,11 +1013,34 @@
 
 <!-- ===== STICKY ===== -->
 <div class="sticky">
-  <div class="pr"><span style="text-decoration:line-through;opacity:0.5;font-size:12px;">390,000원</span> <strong>199,000원~</strong> · 얼리버드 49% OFF</div>
+  <div class="pr"><span id="sticky-timer-text" style="font-size:11px;color:#FF5252;font-weight:700;margin-right:6px;"></span><span style="text-decoration:line-through;opacity:0.5;font-size:12px;">390,000원</span> <strong>199,000원~</strong></div>
   <button class="btn-order" onclick="openEarlybird()">얼리버드 등록하기</button>
 </div>
 
 <script>
+// ===== EARLYBIRD COUNTDOWN =====
+(function(){
+  var DEADLINE=new Date('2026-04-30T23:59:59+09:00').getTime();
+  function pad(n){return n<10?'0'+n:n;}
+  function update(){
+    var now=Date.now(),diff=DEADLINE-now;
+    if(diff<=0){
+      var msg='얼리버드 마감';
+      ['hero-timer','sticky-timer-text','modal-timer'].forEach(function(id){
+        var el=document.getElementById(id);if(el)el.textContent=msg;
+      });
+      return;
+    }
+    var d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+    var full=d+'일 '+pad(h)+':'+pad(m)+':'+pad(s);
+    var short=d+'일 '+pad(h)+':'+pad(m)+':'+pad(s);
+    var el1=document.getElementById('hero-timer');if(el1)el1.textContent=full;
+    var el2=document.getElementById('sticky-timer-text');if(el2)el2.textContent='⏰ '+d+'일 '+pad(h)+':'+pad(m)+':'+pad(s)+' 남음';
+    var el3=document.getElementById('modal-timer');if(el3)el3.textContent='남은 시간: '+full;
+  }
+  update();setInterval(update,1000);
+})();
+
 const iqData={
   carrot:{nm:'당근',lv:'입문',pr:'199,000원',desc:'편식 스코어 62.4. 거부율 중상이나 식감·맛 적응 빠름. 밀프레드 8개 제품 연계. 첫 편식 개선 경험으로 최적.'},
   onion:{nm:'양파',lv:'입문',pr:'199,000원',desc:'편식 스코어 78.5. 매운 향+눈물+냄새 3중 거부. 밀프레드 31개 제품 연계. 볶으면 당도 8→40 Brix 변환.'},
@@ -1052,7 +1080,8 @@ function openEarlybird(course){
   html+='<h3 style="font-size:22px;font-weight:900;margin-bottom:8px;color:#1a5c32;">얼리버드 사전등록</h3>';
   if(c) html+='<p style="font-size:14px;color:#7B2D8E;font-weight:700;margin-bottom:4px;">'+c+' 코스 관심 등록</p>';
   html+='<p style="font-size:14px;color:#666;margin-bottom:4px;"><span style="text-decoration:line-through;opacity:0.5;">정가 390,000원</span> → <strong style="color:#2D8B4E;font-size:18px;">199,000원</strong></p>';
-  html+='<p style="font-size:12px;color:#FF5252;font-weight:600;margin-bottom:20px;">49% 할인 · 얼리버드 한정</p>';
+  html+='<p style="font-size:12px;color:#FF5252;font-weight:600;margin-bottom:4px;">49% 할인 · 얼리버드 한정</p>';
+  html+='<div style="background:#FFF3F3;border-radius:8px;padding:8px 12px;margin-bottom:16px;"><span style="font-size:11px;color:#C62828;font-weight:700;">⏰ 마감: 2026년 4월 30일 자정</span><br><span id="modal-timer" style="font-size:14px;font-weight:900;color:#FF5252;"></span></div>';
   html+='<div style="text-align:left;margin-bottom:16px;">';
   html+='<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">📱 전화번호를 입력하면 얼리버드 등록이 완료됩니다</label>';
   html+='<input id="eb-phone" type="tel" placeholder="010-0000-0000" maxlength="13" style="width:100%;padding:14px 16px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#2D8B4E\'" onblur="this.style.borderColor=\'#e0e0e0\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');if(v.length>3&&v.length<=7)v=v.slice(0,3)+\'-\'+v.slice(3);else if(v.length>7)v=v.slice(0,3)+\'-\'+v.slice(3,7)+\'-\'+v.slice(7,11);this.value=v;">';
