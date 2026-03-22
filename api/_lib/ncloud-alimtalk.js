@@ -89,4 +89,76 @@ async function sendAlimtalk({ phone, referralCode, referralLink, course }) {
   });
 }
 
-module.exports = { sendAlimtalk };
+async function sendCouponAlimtalk({ phone, visitCount, discount, nextMessage, referralLink }) {
+  const accessKey = process.env.NCP_ACCESS_KEY;
+  const secretKey = process.env.NCP_SECRET_KEY;
+  const serviceId = process.env.NCP_SENS_PROJECT_ID;
+  const pfId = process.env.NCP_KAKAO_PF_ID;
+  const templateCode = process.env.NCP_UPGRADE_TEMPLATE_CODE || 'couponUpgrade';
+
+  if (!accessKey || !secretKey || !serviceId || !pfId) {
+    return { success: false, error: 'Missing config' };
+  }
+
+  const timestamp = Date.now().toString();
+  const urlPath = `/alimtalk/v2/services/${serviceId}/messages`;
+  const signature = makeSignature('POST', urlPath, timestamp, accessKey, secretKey);
+
+  const body = JSON.stringify({
+    plusFriendId: pfId,
+    templateCode: templateCode,
+    messages: [
+      {
+        countryCode: '82',
+        to: phone,
+        content: `축하합니다!
+
+회원님의 개인 링크로 ${visitCount}명이 방문했습니다.
+${discount} 할인 쿠폰이 발급되었습니다!
+
+${nextMessage}
+
+나의 개인 링크
+🔗 ${referralLink}
+
+계속 공유하면 더 큰 할인을 받을 수 있어요!`
+      }
+    ]
+  });
+
+  return new Promise((resolve) => {
+    const req = https.request(
+      {
+        hostname: 'sens.apigw.ntruss.com',
+        path: urlPath,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'x-ncp-apigw-timestamp': timestamp,
+          'x-ncp-iam-access-key': accessKey,
+          'x-ncp-apigw-signature-v2': signature
+        }
+      },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(data);
+            console.log('Coupon alimtalk response:', parsed);
+            resolve({ success: res.statusCode === 202, data: parsed });
+          } catch (e) {
+            resolve({ success: false, error: data });
+          }
+        });
+      }
+    );
+    req.on('error', (e) => {
+      resolve({ success: false, error: e.message });
+    });
+    req.write(body);
+    req.end();
+  });
+}
+
+module.exports = { sendAlimtalk, sendCouponAlimtalk };
