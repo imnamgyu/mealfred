@@ -71,29 +71,48 @@ h2{font-size:clamp(26px,5vw,36px);font-weight:900;margin-bottom:8px;line-height:
 .tex-card p{font-size:11px;color:#666;line-height:1.5}
 
 /* ===== TIMELINE ===== */
-.timeline-sec{background:#FFFBF5}
-.timeline{position:relative;padding-left:50px;margin-top:20px}
+.sec-header{text-align:center;margin-bottom:48px}
+.sec-header h2{font-size:clamp(26px,5vw,36px);font-weight:900;margin-bottom:12px;letter-spacing:-0.3px}
+.sec-header p{font-size:15px;color:#666;line-height:1.7}
+.timeline{position:relative;padding-left:40px;margin-top:20px}
 .timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#2E7D32 0%,#388E3C 25%,#66BB6A 50%,#81C784 75%,#2E7D32 100%);border-radius:2px}
-.week-card{position:relative;margin-bottom:32px;background:#fff;border-radius:16px;padding:28px 24px;border:1px solid #f0f0f0;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.week-item{position:relative;margin-bottom:32px}
+.week-card{position:relative;background:#fff;border-radius:16px;padding:28px 24px;border:1px solid #f0f0f0;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
 .week-card:last-child{margin-bottom:0}
 .week-dot{position:absolute;left:-42px;top:28px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
 .week-dot.w1{background:#2E7D32}.week-dot.w2{background:#388E3C}.week-dot.w3{background:#66BB6A}.week-dot.w4{background:#81C784}.week-dot.w5{background:#2E7D32}
-.week-header h3{font-size:18px;font-weight:800;margin-bottom:4px}
+.week-header{margin-bottom:12px}
+.week-title{font-size:16px;font-weight:800;color:#1B5E20;margin-bottom:8px}
+.week-stage{display:inline-block;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;background:#E8F5EC;color:#2D8B4E}
 .week-chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-left:8px}
-.week-content{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.week-content{display:grid;grid-template-columns:1fr;gap:20px}
 .week-col h4{font-size:13px;font-weight:700;color:#888;margin-bottom:8px}
-.week-col p{font-size:14px;color:#444;line-height:1.7}
+.week-col p{font-size:13px;color:#555;line-height:1.7;padding:6px 0}
 .week-footer{margin-top:16px;padding-top:12px;border-top:1px dashed #e8e8e8;font-size:12px;color:#888;display:flex;justify-content:space-between}
+.week-exposure{font-weight:600}
+.week-note{text-align:right}
+.week-note.highlight{color:#2D8B4E;font-weight:600}
 .week-card.final{border:2px solid #2E7D32;background:#FAFFFA}
 .dietary-tag{display:inline-block;background:#E8F5E9;color:#2E7D32;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px}
 
 /* ===== BOX / PRICING / SCIENCE / FAQ / CTA / FOOTER ===== */
+.section{padding:60px 20px}
+.section.light{background:#fff}
+.section.lighter{background:#FFFBF5}
+.boxes-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.box-card{border-radius:18px;padding:32px;border:2px solid #f0f0f0}
+.box-card.box-a{border-color:#EFEBE9;background:#FFFBF5}
+.box-card.box-b{border-color:#E8F5EC;background:#F8FFF8}
+.box-card h3{font-size:18px;font-weight:800;margin-bottom:4px;color:#222}
+.box-subtitle{font-size:12px;color:#999;margin-bottom:18px}
+.box-items{list-style:none}
+.box-items li{font-size:13px;color:#555;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center}
+.box-items li:last-child{border-bottom:none}
+.box-qty{font-size:11px;color:#999}
 .box-sec{background:#fff}
 .box-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.box-card{border-radius:20px;padding:28px;border:1px solid #f0f0f0}
 .box-card.cold{background:#E8F5E9;border-color:#A5D6A7}
 .box-card.print{background:#E8F5E9;border-color:#C8E6C9}
-.box-card h3{font-size:16px;font-weight:800;margin-bottom:16px}
 .box-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
 .box-item:last-child{border:none}
 .box-item .qty{font-size:11px;color:#999;font-weight:600}
@@ -179,7 +198,7 @@ body{overflow-x:hidden}
 <p class="hero-sub">시금치는 쓴맛+풀냄새+물컹 식감의 삼중 거부 식재료입니다<br>파우더부터 시작하면 아이도 모르게 친해집니다</p>
 <div class="hero-stats">
 <div class="hero-stat"><span class="num">5주</span><span class="label">총 기간</span></div>
-<div class="hero-stat"><span class="num">15+</span><span class="label">감각 노출 횟수</span></div>
+<div class="hero-stat"><span class="num">21회</span><span class="label">감각놀이+요리</span></div>
 <div class="hero-stat"><span class="num">주1회</span><span class="label">키트 배송</span></div>
 <div class="hero-stat"><span class="num" style="font-size:18px;"><span style="text-decoration:line-through;opacity:0.5;font-size:14px;">390,000원</span><br>199,000<small>원</small></span><span class="label">얼리버드 49% OFF</span></div>
 </div>
@@ -302,168 +321,218 @@ body{overflow-x:hidden}
 </div>
 </section>
 
-<!-- ===== 5주 타임라인 ===== -->
-<section class="timeline-sec">
-<div class="container">
-<span class="sec-label green">📋 5주 커리큘럼</span>
-<h2>편식극복 프로그램 5단계로<br>시금치와 친구 되기</h2>
-<p class="sec-desc">SOS Approach to Feeding 기반. 매주 단계적으로 시금치의 가시성을 높혀갑니다.</p>
+<!-- ===== 5-WEEK TIMELINE ===== -->
+<section class="section light">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label">5주 로드맵</div>
+      <h2>초록 잎채소와 친구 되는 21회의 여정</h2>
+      <p>1~3주차 감각놀이 주 5회 + 4~5주차 요리 주 3회 · 모든 재료 키트에 포함 · 숙제 없음!</p>
+    </div>
 
-<div class="timeline">
-<!-- 1주차 -->
-<div class="week-card">
-<div class="week-dot w1">1</div>
-<div class="week-header">
-<h3>1주차 — 시각탐색 <span class="week-chip" style="background:#E8F5E9;color:#2E7D32;">①보기만 해도 OK</span></h3>
-</div>
-<div class="week-content">
-<div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>시금치 관찰놀이</strong> — 뿌리/줄기/잎 구분하기. 생 시금치 잎으로 그림 찍기(물감에 찍기). <strong>시금치 물들이기</strong> — 손으로 짜면 초록물이 나와요! 부피 변화 관찰(생 시금치 → 데친 시금치). <strong>뽀빠이 동영상 시청</strong> 기회 제공.</p>
-</div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>마트에서 시금치 코너 직접 가보기. "우리 집 냉장고에 시금치 있어?" 찾아보기. 시금치 사진 붙이기. 부모가 시금치 먹는 모습 보여주기(모델링). "뽀빠이처럼 힘쎄져!"</p>
-</div>
-</div>
-<div class="week-footer">
-<span>누적 노출: 3~4회</span>
-<span>"아직 안 먹어도 괜찮아요. 눈으로 친해지는 중!"</span>
-</div>
-</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:32px;text-align:center;">
+      <div style="background:#E8F5EC;border-radius:12px;padding:14px;">
+        <div style="font-size:24px;font-weight:900;color:#2D8B4E;">15회</div>
+        <div style="font-size:11px;color:#888;">1~3주차 감각놀이</div>
+      </div>
+      <div style="background:#E8F5EC;border-radius:12px;padding:14px;">
+        <div style="font-size:24px;font-weight:900;color:#2D8B4E;">6회</div>
+        <div style="font-size:11px;color:#888;">4~5주차 요리</div>
+      </div>
+      <div style="background:#E3F2FD;border-radius:12px;padding:14px;">
+        <div style="font-size:24px;font-weight:900;color:#1565C0;">21회</div>
+        <div style="font-size:11px;color:#888;">총 노출 횟수</div>
+      </div>
+    </div>
 
-<!-- 2주차 -->
-<div class="week-card">
-<div class="week-dot w2">2</div>
-<div class="week-header">
-<h3>2주차 — 후각·촉각 <span class="week-chip" style="background:#C8E6C9;color:#2E7D32;">②파우더로 첫 맛보기</span></h3>
-</div>
-<div class="week-content">
-<div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>시금치 파우더 체험</strong> — 초록 가루를 손가락으로 집어서 냄새 맡아보기. <strong>"뽀빠이 음료" 만들기</strong> — 파우더+우유로 초록 음료 만들기. 아이가 직접 섞어보기! <strong>데치기 전후 비교</strong> — 생 시금치가 열을 받으면 부피가 줄어드는 신기한 변화 관찰! <strong>대구살시금치죽(dietary4u)</strong> — 죽에 파우더가 섞여있지만 파우더라는 걸 모를 수 있어요.</p>
-</div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>파우더로 만든 "뽀빠이 음료" 한두 입 도전. 우유/요구르트에 섞인 파우더 맛보기. "힘이 나니?" 긍정적 강화. 냄새 맡기는 거부 없는지 관찰.</p>
-</div>
-</div>
-<div class="week-footer">
-<span>누적 노출: 7~8회 <span class="dietary-tag">dietary4u: 대구살시금치죽</span></span>
-<span>💡 파우더는 맛도 약하고 보이지 않아 시작하기 좋습니다!</span>
-</div>
-</div>
+    <div class="timeline">
+      <!-- W1 -->
+      <div class="week-item">
+        <div class="week-dot w1">1</div>
+        <div class="week-card">
+          <div class="week-header">
+            <div class="week-title">1주차: 친해지기 — 시각 탐색</div>
+            <div class="week-stage">감각놀이 × 5회</div>
+          </div>
+          <div style="font-size:11px;color:#2D8B4E;font-weight:700;margin-bottom:12px;">SOS Step 1-6: Tolerates · 푸드브릿지 1단계: 친해지기</div>
+          <div class="week-content" style="grid-template-columns:1fr;">
+            <div class="week-col">
+              <p><strong>Day 1: 💪 뽀빠이 놀이</strong> — "뽀빠이가 먹는 시금치!" 시금치 들고 힘자랑 포즈. 사진 찍기</p>
+              <p><strong>Day 2: 🎨 시금치 스탬프</strong> — 시금치 잎에 식용색소 묻혀 나뭇잎 스탬프 찍기</p>
+              <p><strong>Day 3: 🍃 시금치 잎 크기 비교</strong> — 큰 잎/작은 잎/베이비시금치 크기 순서대로 나열</p>
+              <p><strong>Day 4: 🌿 시금치 왕관 만들기</strong> — 시금치 줄기를 엮어 초록 왕관 만들기</p>
+              <p><strong>Day 5: 🎪 색종이 시금치밭</strong> — 초록 색종이로 시금치 모양 만들고 이쑤시개로 줄기 꽂아 밭 만들기</p>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px 14px;background:#F0F8F6;border-radius:10px;font-size:11px;color:#888;">
+            <strong style="color:#2D8B4E;">📦 키트 포함:</strong> 시금치 한 단, 베이비시금치, 식용색소(초록), 도화지 3매, 색종이, 이쑤시개, 눈알스티커
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure">누적 노출: 5회 / 21회</span>
+            <span class="week-note">💡 거부해도 정상. 보고 만지기만 해도 성공!</span>
+          </div>
+        </div>
+      </div>
 
-<!-- 3주차 -->
-<div class="week-card">
-<div class="week-dot w3">3</div>
-<div class="week-header">
-<h3>3주차 — 입술접촉 <span class="week-chip" style="background:#A5D6A7;color:#2E7D32;">③그라탕으로 숨기기</span></h3>
-</div>
-<div class="week-content">
-<div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>닭고기시금치그라탕(dietary4u)</strong> — 시금치를 잘게 다져서 치즈 그라탕에 섞습니다. 치즈의 고소한 맛이 쓸맛을 가려줘요! <strong>시금치 전 만들기</strong> — 계란+시금치를 섞어 팬에서 구우면 녹색이 더 띄어나오지만, 계란 맛이 주입니다. "초록색이 보이지?" 인식시키기.</p>
-</div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>그라탕을 포크로 조금씩 떼어서 맛보기. "여기 초록색이 있어. 뭘까?" 질문하기. 아직 "시금치"라고 명확히 말하지는 말기. "맛있지?" 긍정 강화.</p>
-</div>
-</div>
-<div class="week-footer">
-<span>누적 노출: 11~12회 <span class="dietary-tag">dietary4u: 닭고기시금치그라탕</span></span>
-<span>🎉 숨겨진 시금치를 먹었습니다!</span>
-</div>
-</div>
+      <!-- W2 -->
+      <div class="week-item">
+        <div class="week-dot w2">2</div>
+        <div class="week-card">
+          <div class="week-header">
+            <div class="week-title">2주차: 간접노출 — 촉각·후각 탐색</div>
+            <div class="week-stage">감각놀이 × 5회</div>
+          </div>
+          <div style="font-size:11px;color:#2D8B4E;font-weight:700;margin-bottom:12px;">SOS Step 7-14: Interacts · Smells · 푸드브릿지 2단계: 간접노출</div>
+          <div class="week-content" style="grid-template-columns:1fr;">
+            <div class="week-col">
+              <p><strong>Day 1: 🤚 촉감 비교</strong> — 생시금치(살랑!) vs 데친시금치(미끈!) vs 분말(보슬!) 종이접시에 스티커로 기록</p>
+              <p><strong>Day 2: 👃 향기 맞추기</strong> — 종이컵 3개 뒤집어 놓고 밑에 식재료 조각. 컵 들어올려 "풀 냄새 찾았다!" 맞추기</p>
+              <p><strong>Day 3: 🎨 시금치 초록 물감</strong> — 시금치즙으로 천연 초록 물감 만들어 그림 그리기</p>
+              <p><strong>Day 4: 🏗 시금치 반죽</strong> — 시금치분말 + 밀가루 → 초록 점토! 모양 만들기</p>
+              <p><strong>Day 5: 🧊 시금치 얼음</strong> — 시금치즙 + 물 → 초록 얼음 만들어 관찰</p>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px 14px;background:#F0F8F6;border-radius:10px;font-size:11px;color:#888;">
+            <strong style="color:#2D8B4E;">📦 키트 포함:</strong> 시금치, 데친시금치, 시금치분말, 종이컵(냄새 맞추기용), 밀가루 50g, 지퍼백 5개, 비닐장갑
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure">누적 노출: 10회 / 21회</span>
+            <span class="week-note">⏸ Plateau 가능. 만지기만 해도 성공!</span>
+          </div>
+        </div>
+      </div>
 
-<!-- 4주차 -->
-<div class="week-card">
-<div class="week-dot w4">4</div>
-<div class="week-header">
-<h3>4주차 — 씹어보기 <span class="week-chip" style="background:#81C784;color:#fff;">④보이는 시금치 도전</span></h3>
-</div>
-<div class="week-content">
-<div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>시금치나물(dietary4u)</strong> — 참기름+깨소금으로 고소한 시금치나물. 시금치가 선명하게 보이지만, 고소한 참기름 맛이 강합니다. <strong>시금치 비빔밥</strong> — 흰쌀밥 위에 시금치나물이 보이는 형태로 올려집니다. "이건 시금치야!" 명확하게 알려주기. 아이가 자신의 페이스대로 시금치를 골라 먹을 수 있게 하기.</p>
-</div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>"이건 시금치야. 뽀빠이가 먹는 거야!" 명확하게 소개. 아이가 시금치나물을 몇 줄 빼서 따로 놓을 수 있게 허용. 강요하지 않되, "한 입만 해볼까?" 자연스럽게 제시.</p>
-</div>
-</div>
-<div class="week-footer">
-<span>누적 노출: 15~16회 <span class="dietary-tag">dietary4u: 시금치나물</span></span>
-<span>🔥 보이는 시금치까지 도전했습니다!</span>
-</div>
-</div>
+      <!-- W3 -->
+      <div class="week-item">
+        <div class="week-dot w3">3</div>
+        <div class="week-card">
+          <div class="week-header">
+            <div class="week-title">3주차: 소극적 노출 — 입 근처 접근</div>
+            <div class="week-stage">감각놀이 × 5회</div>
+          </div>
+          <div style="font-size:11px;color:#2D8B4E;font-weight:700;margin-bottom:12px;">SOS Step 15-22: Touches · Tastes · 푸드브릿지 3단계: 소극적 노출</div>
+          <div class="week-content" style="grid-template-columns:1fr;">
+            <div class="week-col">
+              <p><strong>Day 1: 💥 시금치칩 부수기</strong> — 동결건조 시금치칩 바삭 부수기</p>
+              <p><strong>Day 2: 🎭 시금치 머리카락 놀이</strong> — 접시 위 얼굴 그림에 데친 시금치로 머리카락 올리기</p>
+              <p><strong>Day 3: 🌊 시금치 바다 만들기</strong> — 초록색 시금치 퍼뜨려 "바다" 만들고 생선 스티커 놀이</p>
+              <p><strong>Day 4: 👄 시금치 립터치</strong> — 데친 시금치를 입술에 살짝 대보기</p>
+              <p><strong>Day 5: 🫕 디핑 탐험</strong> — 시금치에 깨소스/마요/간장 디핑소스 찍어보기</p>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px 14px;background:#F0F8F6;border-radius:10px;font-size:11px;color:#888;">
+            <strong style="color:#2D8B4E;">📦 키트 포함:</strong> 데친시금치, 시금치칩(동결건조), 디핑소스 3종(깨소스/마요/간장), 시금치전 반죽 재료
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure">누적 노출: 15회 / 21회</span>
+            <span class="week-note highlight">🎉 Breakthrough 구간! 입 근처 접근 성공!</span>
+          </div>
+        </div>
+      </div>
 
-<!-- 5주차 -->
-<div class="week-card final">
-<div class="week-dot w5">5</div>
-<div class="week-header">
-<h3>5주차 — 자유롭게 먹기 🎓 <span class="week-chip" style="background:#E0F2F1;color:#00695C;">⑤수료 파티!</span></h3>
-</div>
-<div class="week-content">
-<div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>시금치 된장국</strong> — 전통 된장국에 시금치를 넣은 한국식 요리. 국물 맛이 주입니다. <strong>시금치 주먹밥 직접 만들기</strong> — 아이가 주도적으로 시금치를 골라 밥에 섞고, 주먹밥을 만듭니다. 수료 파티! "나는 시금치도 먹을 수 있어!" 선언식 진행.</p>
-</div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>수료증 발급 + 스탬프카드 완성. 아이가 직접 만든 시금치 요리 앞에서 사진 촬영. "나는 시금치도 먹을 수 있어! 나는 뽀빠이처럼 강해!" 선언식. 가족 모두 함께 축하 식사.</p>
-</div>
-</div>
-<div class="week-footer">
-<span>총 노출: 20회+ <span class="dietary-tag">dietary4u: 시금치 된장국</span></span>
-<span>🎓 시금치와 친구가 되었습니다! 뽀빠이 힘을 얻었어요!</span>
-</div>
-</div>
-</div>
-</div>
+      <!-- W4 -->
+      <div class="week-item">
+        <div class="week-dot w4">4</div>
+        <div class="week-card">
+          <div class="week-header">
+            <div class="week-title">4주차: 직접노출 — 한 입 도전</div>
+            <div class="week-stage" style="background:#E8F5EC;color:#2D8B4E;">요리 × 3회</div>
+          </div>
+          <div style="font-size:11px;color:#2D8B4E;font-weight:700;margin-bottom:12px;">SOS Step 23-28: Eats · 푸드브릿지 4단계: 직접노출</div>
+          <div class="week-content" style="grid-template-columns:1fr;">
+            <div class="week-col">
+              <p><strong>Day 1: 🥚 시금치 계란말이</strong> — 잘게 다진 시금치 + 계란. 초록 줄무늬 계란말이!</p>
+              <p><strong>Day 2: 🥣 시금치크림스프</strong> — 시금치 + 감자 + 우유 갈아 만든 스프. "초록 마법!"</p>
+              <p><strong>Day 3: 🥞 시금치전</strong> — 시금치 + 계란 + 밀가루 부침개. 바삭하게!</p>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px 14px;background:#F0FFF0;border-radius:10px;font-size:11px;color:#888;">
+            <strong style="color:#2D8B4E;">📦 키트 포함:</strong> 시금치 계란말이 재료, 시금치크림스프 재료, 시금치전 재료
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure">누적 노출: 18회 / 21회</span>
+            <span class="week-note">비섭취자 45% → 9% 급락 구간</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- W5 -->
+      <div class="week-item">
+        <div class="week-dot w5">5</div>
+        <div class="week-card w5">
+          <div class="week-header">
+            <div class="week-title">5주차: 자유롭게 먹기</div>
+            <div class="week-stage w5">요리 × 3회 🎓</div>
+          </div>
+          <div style="font-size:11px;color:#2D8B4E;font-weight:700;margin-bottom:12px;">SOS Step 29-32: Eats variety · 수용 안정화</div>
+          <div class="week-content" style="grid-template-columns:1fr;">
+            <div class="week-col">
+              <p><strong>Day 1: 🍚 시금치볶음밥</strong> — 시금치 직접 넣어 "초록 볶음밥!"</p>
+              <p><strong>Day 2: 🍝 시금치크림파스타</strong> — 시금치 + 크림소스 + 면</p>
+              <p><strong>Day 3: 🎓 시금치나물무침 + 수료식</strong> — 참기름 + 깨 + 시금치 무침. 수료증!</p>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px 14px;background:#F0FFF0;border-radius:10px;font-size:11px;color:#888;">
+            <strong style="color:#2D8B4E;">📦 키트 포함:</strong> 시금치볶음밥 재료, 시금치파스타 재료, 시금치무침 재료
+          </div>
+          <div class="week-footer">
+            <span class="week-exposure" style="color: #2D8B4E;">누적 노출: 21회 / 21회 ✓ 완주!</span>
+            <span class="week-note highlight">수용 안정화 단계 도달</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ===== BOX CONTENTS ===== -->
-<section class="box-sec">
-<div class="container">
-<span class="sec-label green">📦 구성품</span>
-<h2>매주 배달되는 키트 + 인쇄물</h2>
-<p class="sec-desc">특수 식재료는 키트가 챙기고, 흔한 재료는 가정에서 준비해주세요.</p>
-<div class="box-grid">
-<div class="box-card cold">
-<h3>🧊 냉장 식재료 (5주분)</h3>
-<div class="box-item"><span>신선 시금치 세트 (생 시금치)</span><span class="qty">1~5주차</span></div>
-<div class="box-item"><span>시금치 파우더</span><span class="qty">1~2주차</span></div>
-<div class="box-item"><span>대구살+시금치+죽 재료 (죽 세트)</span><span class="qty">2주차</span></div>
-<div class="box-item"><span>닭고기+시금치+그라탕 소스</span><span class="qty">3주차</span></div>
-<div class="box-item"><span>시금치 전 재료 (계란포함)</span><span class="qty">3주차</span></div>
-<div class="box-item"><span>시금치나물 양념 (참기름+깨소금)</span><span class="qty">4주차</span></div>
-<div class="box-item"><span>시금치 비빔밥 재료</span><span class="qty">4주차</span></div>
-<div class="box-item"><span>시금치 된장국 세트</span><span class="qty">5주차</span></div>
-<div class="box-item"><span>시금치 주먹밥 재료</span><span class="qty">5주차</span></div>
-</div>
-<div class="box-card print">
-<h3>📱 밀프레드 앱 제공</h3>
-<div class="box-item"><span>관찰일지 + 스티커</span><span class="qty">1세트</span></div>
-<div class="box-item"><span>활동지 #1~10</span><span class="qty">10매</span></div>
-<div class="box-item"><span>레시피 카드</span><span class="qty">5세트</span></div>
-<div class="box-item"><span>수료증</span><span class="qty">1매</span></div>
-<br>
-<h3 style="margin-top:12px">📖 인쇄물 (1주차 동봉)</h3>
-<div class="box-item"><span>편식극복 가이드 소책자 (A5 30p)</span><span class="qty">1부</span></div>
-<div class="box-item"><span>편식극복 스탬프카드</span><span class="qty">1장</span></div>
-<div class="box-item"><span>주차별 플레이북 QR코드</span><span class="qty">5장</span></div>
-<br>
-<h3 style="margin-top:12px">🏠 가정 준비물</h3>
-<div class="box-item"><span>1주차: 물감, 접시</span></div>
-<div class="box-item"><span>2주차: 냄비, 우유/요구르트</span></div>
-<div class="box-item"><span>3주차: 그라탕접시, 오븐(또는 토스터기)</span></div>
-<div class="box-item"><span>4주차: 냄비, 밥솥, 비빔밥 볼</span></div>
-<div class="box-item"><span>5주차: 냄비, 밥솥</span></div>
-<div class="box-item"><span>공통: 식탁보, 위생장갑, 물티슈</span></div>
-</div>
-</div>
-</div>
+<!-- ===== WHAT'S IN THE BOX ===== -->
+<section class="section lighter">
+  <div class="container">
+    <div class="sec-header">
+      <div class="sec-label">WHAT'S IN THE BOX</div>
+      <h2>5주간 받게 될 것들</h2>
+    </div>
+
+    <div class="boxes-grid">
+      <div class="box-card box-a">
+        <h3>🎨 감각놀이 교구 (1주차 합배송)</h3>
+        <div class="box-subtitle">공산품 위주 · 3주간 사용</div>
+        <ul class="box-items">
+          <li><span>종이접시 + 종이컵</span><span class="box-qty">각 10개</span></li>
+          <li><span>도화지 + 색종이</span><span class="box-qty">각 10매</span></li>
+          <li><span>눈알스티커</span><span class="box-qty">1시트</span></li>
+          <li><span>이쑤시개 + 면봉</span><span class="box-qty">각 20개</span></li>
+          <li><span>양면테이프 + 고무줄</span><span class="box-qty">1롤 + 10개</span></li>
+          <li><span>지퍼백 (소) + 비닐장갑</span><span class="box-qty">10개 + 5쌍</span></li>
+          <li><span>식용색소 (초록)</span><span class="box-qty">1개</span></li>
+          <li><span>디핑소스 3종 + 미니컵</span><span class="box-qty">3주차 배송</span></li>
+        </ul>
+      </div>
+
+      <div class="box-card box-b">
+        <h3>🧊 식재료 (매주 배송)</h3>
+        <div class="box-subtitle">매주 1회 배송 · 보냉 시스템</div>
+        <ul class="box-items">
+          <li><span><strong>W1:</strong> 시금치 한 단, 베이비시금치</span><span class="box-qty">감각놀이용</span></li>
+          <li><span><strong>W2:</strong> 시금치, 데친시금치, 시금치분말</span><span class="box-qty">감각놀이용</span></li>
+          <li><span><strong>W3:</strong> 데친시금치, 시금치칩(동결건조)</span><span class="box-qty">감각놀이용</span></li>
+          <li><span><strong>W4:</strong> 시금치 계란말이 재료, 시금치크림스프 재료, 시금치전 재료</span><span class="box-qty">요리 3회분</span></li>
+          <li><span><strong>W5:</strong> 시금치볶음밥 재료, 시금치파스타 재료, 시금치무침 재료</span><span class="box-qty">요리 3회분</span></li>
+        </ul>
+      </div>
+
+      <div class="box-card box-a">
+        <h3>📱 밀프레드 앱 제공</h3>
+        <div class="box-subtitle">앱에서 다운로드 · 언제든지 접근 가능</div>
+        <ul class="box-items">
+          <li><span>관찰일지 + 스티커</span><span class="box-qty">1세트</span></li>
+          <li><span>활동지</span><span class="box-qty">21매</span></li>
+          <li><span>레시피 카드 (4~5주차)</span><span class="box-qty">6매</span></li>
+          <li><span>수료증</span><span class="box-qty">1매</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ===== PRICING ===== -->
@@ -533,8 +602,8 @@ body{overflow-x:hidden}
 <div class="faq-item"><div class="faq-q"><span>몇 살부터 할 수 있나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>만 2~5세(24~60개월)를 권장합니다. 활동은 부모와 함께 진행하며, 아이의 발달 수준에 맞춰 난이도를 조절할 수 있습니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>아이가 식재료를 아예 안 보려고 하는데 괜찮나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>완전히 정상입니다. 처음 1~3회는 거부하는 것이 자연스러운 반응이에요. SOS Approach에서는 이 과정 자체가 학습입니다. "보기만 해도 성공"이라는 마음으로 진행해 주세요. 4회차부터 변화의 신호가 나타나기 시작합니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>알레르기가 있으면 어떡하나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>코스 신청 시 알레르기 정보를 입력해 주시면, 해당 식재료를 제외하거나 대체 재료로 준비해 드립니다. 심한 알레르기가 있는 경우 소아과 상담 후 진행을 권장합니다.</p></div></div>
-<div class="faq-item"><div class="faq-q"><span>키트 배송은 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>매주 1회, 3회 활동분을 한 번에 배송합니다. 총 5주간 5회 배송이며, 밀프레드 보냉 시스템으로 신선하게 도착합니다. 배송 사고 시 전량 재발송해 드립니다.</p></div></div>
-<div class="faq-item"><div class="faq-q"><span>도마, 강판 같은 도구도 제공되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>도마, 강판 등 가정에 기본적으로 있는 조리도구는 별도로 제공하지 않습니다. 쿠키커터 등 특수 교구만 키트에 포함됩니다. 활동지, 관찰일지, 레시피카드, 수료증은 밀프레드 앱에서 제공됩니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>키트 배송은 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>매주 1회 배송합니다. 1~3주차는 감각놀이 5일치, 4~5주차는 요리 3회분을 한 번에 배송합니다. 총 5주간 5회 배송이며, 밀프레드 보냉 시스템으로 신선하게 도착합니다. 배송 사고 시 전량 재발송해 드립니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>도마, 강판 같은 도구도 제공되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>모든 활동에 필요한 재료와 도구가 키트에 포함되어 있습니다. 쿠키커터 등 특수 교구도 포함됩니다. 활동지, 관찰일지, 레시피카드, 수료증은 밀프레드 앱에서 제공됩니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>5주 후에도 안 먹으면요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>안 먹어도 괜찮습니다. 감각 친숙화 자체가 이미 큰 성과예요. 같은 코스를 반복하거나, 비슷한 난이도의 다른 식재료 코스로 전환할 수 있습니다. 반복 구매 시 10% 할인이 적용됩니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>환불 규정이 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>코스 시작 전(1주차 배송 전): 전액 환불. 1주차 배송 후~2주차 배송 전: 잔여 4주분의 80% 환불. 2주차 배송 후: 잔여 주차분의 50% 환불. 3주차 배송 이후: 환불 불가 (이미 절반 이상 진행). 배송 사고·품질 문제 시: 해당 주차 전액 재발송 또는 환불. 환불 신청은 카카오톡 "밀프레드"로 문의해 주세요.</p></div></div>
 </div>
@@ -548,7 +617,7 @@ body{overflow-x:hidden}
 <span style="font-size:48px;display:block;margin-bottom:12px">🥬</span>
 <div style="margin-bottom:8px;"><span style="font-size:18px;text-decoration:line-through;opacity:0.4;">정가 390,000원</span> <span style="background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;">49% OFF</span></div>
 <div class="cta-price">199,000<span class="won">원</span></div>
-<div class="cta-sub">5주 완성 · 주 1회 배송 · 회당 13,300원</div>
+<div class="cta-sub">5주 완성 · 주 1회 배송 · 회당 9,476원</div>
 <p class="cta-msg"><strong>편식 스코어 61.6, 고급 코스.</strong><br>삼중 거부(쓸맛+풀냄새+물컹함)를 파우더 전략으로 극복하세요.<br>뽀빠이의 힘을 얻는 시금치와의 여정을 시작하세요.</p>
 <button class="cta-btn" onclick="openEarlybird('시금치')">얼리버드 등록하기</button>
 <p style="font-size:12px;color:#999;margin-top:12px">전화번호만 남기면 끝 · 비용 발생 없음</p>

@@ -70,30 +70,53 @@ h2{font-size:clamp(26px,5vw,36px);font-weight:900;margin-bottom:8px;line-height:
 .tex-card h4{font-size:14px;font-weight:800;margin-bottom:4px}
 .tex-card p{font-size:11px;color:#666;line-height:1.5}
 
+/* ===== SECTIONS ===== */
+.section{padding:60px 20px}
+.section.light{background:#fff}
+.section.lighter{background:#fafaf7}
+.sec-header{text-align:center;margin-bottom:48px}
+.sec-header h2{font-size:clamp(26px,5vw,36px);font-weight:900;margin-bottom:12px;letter-spacing:-0.3px}
+.sec-header p{font-size:15px;color:#666;line-height:1.7}
+
 /* ===== TIMELINE ===== */
 .timeline-sec{background:#FFFBF5}
 .timeline{position:relative;padding-left:50px;margin-top:20px}
-.timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#E53935 0%,#E53935 25%,#42A5F5 50%,#EF9A9A 75%,#C62828 100%);border-radius:2px}
-.week-card{position:relative;margin-bottom:32px;background:#fff;border-radius:16px;padding:28px 24px;border:1px solid #f0f0f0;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
-.week-card:last-child{margin-bottom:0}
-.week-dot{position:absolute;left:-42px;top:28px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
-.week-dot.w1{background:#E53935}.week-dot.w2{background:#E53935}.week-dot.w3{background:#42A5F5}.week-dot.w4{background:#EF9A9A}.week-dot.w5{background:#C62828}
-.week-header h3{font-size:18px;font-weight:800;margin-bottom:4px}
+.timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#E53935 0%,#E53935 30%,#E65100 60%,#C62828 100%);border-radius:3px}
+.week-item{position:relative;margin-bottom:36px}
+.week-dot{position:absolute;left:-40px;top:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.week-dot.w1{background:#E53935}.week-dot.w2{background:#E53935}.week-dot.w3{background:#42A5F5}.week-dot.w4{background:#E65100}.week-dot.w5{background:#C62828}
+.week-card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 14px rgba(0,0,0,0.06);border-left:4px solid #D32F2F}
+.week-card.w5{border-left-color:#C62828}
+.week-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.week-title{font-size:18px;font-weight:800;color:#222}
+.week-stage{display:inline-block;background:#FFEBEE;color:#D32F2F;font-size:11px;font-weight:700;padding:5px 12px;border-radius:16px}
+.week-stage.w5{background:#FFE0B2;color:#E65100}
+.week-content{display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:18px}
+.week-col h4{font-size:13px;font-weight:700;color:#D32F2F;margin-bottom:8px}
+.week-col p{font-size:13px;color:#555;line-height:1.7;margin-bottom:10px}
 .week-chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-left:8px}
-.week-content{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.week-col h4{font-size:13px;font-weight:700;color:#888;margin-bottom:8px}
-.week-col p{font-size:14px;color:#444;line-height:1.7}
-.week-footer{margin-top:16px;padding-top:12px;border-top:1px dashed #e8e8e8;font-size:12px;color:#888;display:flex;justify-content:space-between}
+.week-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid #f0f0f0;font-size:12px}
+.week-exposure{font-weight:700;color:#D32F2F}
+.week-note{color:#999;font-style:italic}
+.week-note.highlight{color:#2D8B4E}
 .week-card.final{border:2px solid #C62828;background:#FAFFFA}
 .dietary-tag{display:inline-block;background:#E8F5E9;color:#2E7D32;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px}
+
+/* ===== WHAT'S IN THE BOX ===== */
+.boxes-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.box-card{border-radius:18px;padding:32px;border:2px solid #f0f0f0}
+.box-card.box-a{border-color:#FDEBD0;background:#FFFBF5}
+.box-card.box-b{border-color:#FFE0B2;background:#FFF8F0}
+.box-card h3{font-size:18px;font-weight:800;margin-bottom:4px;color:#222}
+.box-subtitle{font-size:12px;color:#999;margin-bottom:18px}
+.box-items{list-style:none}
+.box-items li{font-size:13px;color:#555;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center}
+.box-items li:last-child{border-bottom:none}
+.box-qty{font-size:11px;color:#999}
 
 /* ===== BOX / PRICING / SCIENCE / FAQ / CTA / FOOTER ===== */
 .box-sec{background:#fff}
 .box-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.box-card{border-radius:20px;padding:28px;border:1px solid #f0f0f0}
-.box-card.cold{background:#FFFBF5;border-color:#FFCCCC}
-.box-card.print{background:#FFFBF5;border-color:#FFCCCC}
-.box-card h3{font-size:16px;font-weight:800;margin-bottom:16px}
 .box-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
 .box-item:last-child{border:none}
 .box-item .qty{font-size:11px;color:#999;font-weight:600}
@@ -178,9 +201,9 @@ body{overflow-x:hidden}
 <h1>빨간 토마토,<br><span>"물렁!"</span> 에서 <span>"새콤달콤!"</span> 으로</h1>
 <p class="hero-sub">토마토는 산미+물컹 식감의 복합 거부 식재료입니다<br>형태를 바꾸면 아이가 먼저 손을 뻗습니다</p>
 <div class="hero-stats">
-<div class="hero-stat"><span class="num">5주</span><span class="label">총 기간</span></div>
-<div class="hero-stat"><span class="num">15+</span><span class="label">감각 노출 횟수</span></div>
-<div class="hero-stat"><span class="num">주1회</span><span class="label">키트 배송</span></div>
+<div class="hero-stat"><span class="num">21회</span><span class="label">총 노출 횟수</span></div>
+<div class="hero-stat"><span class="num">15회</span><span class="label">감각놀이(1~3주)</span></div>
+<div class="hero-stat"><span class="num">6회</span><span class="label">요리(4~5주)</span></div>
 <div class="hero-stat"><span class="num" style="font-size:18px;"><span style="text-decoration:line-through;opacity:0.5;font-size:14px;">390,000원</span><br>199,000<small>원</small></span><span class="label">얼리버드 49% OFF</span></div>
 </div>
 <button class="hero-cta" onclick="openEarlybird('토마토')">얼리버드 등록하기 →</button>
@@ -307,159 +330,210 @@ body{overflow-x:hidden}
 <section class="timeline-sec">
 <div class="container">
 <span class="sec-label red">📋 5주 커리큘럼</span>
-<h2>편식극복 프로그램 5단계로<br>토마토와 친구 되기</h2>
-<p class="sec-desc">SOS Approach to Feeding 기반. 매주 단계적으로 토마토의 형태를 변환합니다.</p>
+<h2>토마토와 친구 되는 21회의 여정</h2>
+<p class="sec-desc">1~3주차 감각놀이 주 5회 + 4~5주차 요리 주 3회 · 모든 재료 키트에 포함 · 숙제 없음!</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:32px;text-align:center;">
+  <div style="background:#FFEBEE;border-radius:12px;padding:14px;">
+    <div style="font-size:24px;font-weight:900;color:#D32F2F;">15회</div>
+    <div style="font-size:11px;color:#888;">1~3주차 감각놀이</div>
+  </div>
+  <div style="background:#FFE0B2;border-radius:12px;padding:14px;">
+    <div style="font-size:24px;font-weight:900;color:#E65100;">6회</div>
+    <div style="font-size:11px;color:#888;">4~5주차 요리</div>
+  </div>
+  <div style="background:#E3F2FD;border-radius:12px;padding:14px;">
+    <div style="font-size:24px;font-weight:900;color:#1565C0;">21회</div>
+    <div style="font-size:11px;color:#888;">총 노출 횟수</div>
+  </div>
+</div>
 
 <div class="timeline">
-<!-- 1주차 -->
-<div class="week-card">
+<!-- W1 -->
+<div class="week-item">
 <div class="week-dot w1">1</div>
+<div class="week-card">
 <div class="week-header">
-<h3>1주차 — 시각탐색 <span class="week-chip" style="background:#FFEBEE;color:#C62828;">①보기만 해도 OK</span></h3>
+<div class="week-title">1주차: 친해지기 — 시각 탐색</div>
+<div class="week-stage">감각놀이 × 5회</div>
 </div>
-<div class="week-content">
+<div style="font-size:11px;color:#D32F2F;font-weight:700;margin-bottom:12px;">SOS Step 1-6: Tolerates · 푸드브릿지 1단계: 친해지기</div>
+<div class="week-content" style="grid-template-columns:1fr;">
 <div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>방울토마토 색깔 분류 놀이</strong> — 빨강/노랑/주황 토마토 분류. <strong>토마토 자르기 관찰</strong> — 안전칼로 자르며 "씨앗이 보여!" <strong>토마토 도장 찍기</strong> — 식용색소 토마토 도장으로 그림 그리기.</p>
+<p><strong>Day 1: 🚦 토마토 신호등</strong> — 빨강/노랑/주황(덜 익은) 방울토마토로 신호등 만들기. "빨간 불이면 멈춰!" 놀이</p>
+<p><strong>Day 2: 🎨 토마토 스탬프 찍기</strong> — 토마토 반으로 잘라 단면에 식용색소 묻혀 꾹꾹 찍기. 씨앗 무늬 관찰!</p>
+<p><strong>Day 3: 🔍 토마토 탐정 — 씨앗 세기</strong> — 반 자른 토마토 속 씨앗을 돋보기로 관찰. "몇 개야?" 세어보기</p>
+<p><strong>Day 4: 🐛 방울토마토 애벌레</strong> — 이쑤시개에 방울토마토 꿰어 애벌레 만들기 + 눈스티커로 얼굴</p>
+<p><strong>Day 5: 🎪 색종이 토마토 정원</strong> — 빨강 색종이 접어 토마토 모양 만들고 이쑤시개로 줄기 꽂기. 실제 방울토마토와 비교</p>
 </div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>마트 토마토 코너 구경. "어떤 색 토마토가 있을까?" 냉장고에서 토마토 찾기 놀이. 엄마가 토마토 케찹 먹는 모습 보여주기. 토마토 색칠하기.</p>
 </div>
+<div style="margin-top:12px;padding:10px 14px;background:#FFF8F0;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#D32F2F;">📦 키트 포함:</strong> 방울토마토 3색(빨강/노랑/주황), 대추토마토, 식용색소, 도화지 3매, 색종이, 이쑤시개, 눈알스티커
 </div>
 <div class="week-footer">
-<span>누적 노출: 3~4회</span>
-<span>"토마토는 빨간 과일이야! 여러 색도 있어!"</span>
+<span class="week-exposure">누적 노출: 5회 / 21회</span>
+<span class="week-note">💡 거부해도 정상. 보고 만지기만 해도 성공!</span>
+</div>
 </div>
 </div>
 
-<!-- 2주차 -->
-<div class="week-card">
+<!-- W2 -->
+<div class="week-item">
 <div class="week-dot w2">2</div>
+<div class="week-card">
 <div class="week-header">
-<h3>2주차 — 후각·촉각 <span class="week-chip" style="background:#FFEBEE;color:#D32F2F;">②케찹으로 익숙한 맛</span></h3>
+<div class="week-title">2주차: 간접노출 — 촉각·후각 탐색</div>
+<div class="week-stage">감각놀이 × 5회</div>
 </div>
-<div class="week-content">
+<div style="font-size:11px;color:#D32F2F;font-weight:700;margin-bottom:12px;">SOS Step 7-14: Interacts · Smells · 푸드브릿지 2단계: 간접노출</div>
+<div class="week-content" style="grid-template-columns:1fr;">
 <div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>토마토 냄새맡기/만지기</strong> — 부드러운 토마토 표면 촉감. 신선한 토마토 냄새. <strong>케찹 그림 그리기</strong> — 케찹으로 화판에 그리기(식용이므로 손가락도 가능). <strong>dietary4u: 닭다리케찹조림</strong> — 케찹으로 익숙한 맛 만나기.</p>
+<p><strong>Day 1: 🤚 촉감 비교</strong> — 생토마토(탱글!) vs 구운토마토(쪼글!) vs 건조칩(바삭!) 종이접시에 스티커로 기록</p>
+<p><strong>Day 2: 👃 향기 맞추기</strong> — 종이컵 3개 뒤집어 놓고 밑에 식재료 조각. 컵 들어올려 "토마토 냄새 찾았다!" 맞추기</p>
+<p><strong>Day 3: 🎨 케찹 핑거페인팅</strong> — 케찹으로 접시 위에 손가락 그림 그리기. "케찹도 토마토야!"</p>
+<p><strong>Day 4: 🏗 토마토 소스 반죽놀이</strong> — 토마토퓨레 + 밀가루 섞어 점토처럼 반죽! 모양 만들기</p>
+<p><strong>Day 5: 📿 방울토마토 꼭지 목걸이</strong> — 방울토마토 꼭지를 실에 꿰어 초록 목걸이 만들기</p>
 </div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>토마토 냄새 비교 게임. 케찹 냄새와 생토마토 냄새의 차이. 닭다리 케찹조림 함께 먹기. "케찹도 토마토로 만든 거야!" 설명하기.</p>
 </div>
+<div style="margin-top:12px;padding:10px 14px;background:#FFF8F0;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#D32F2F;">📦 키트 포함:</strong> 방울토마토, 구운토마토칩, 토마토퓨레, 케첩 미니팩, 종이컵(냄새 맞추기용), 밀가루 50g, 지퍼백 5개, 비닐장갑
 </div>
 <div class="week-footer">
-<span>누적 노출: 7~8회 <span class="dietary-tag">dietary4u: 닭다리케찹조림</span></span>
-<span>💡 케찹 = 토마토 이해 단계</span>
+<span class="week-exposure">누적 노출: 10회 / 21회</span>
+<span class="week-note">⏸ Plateau 가능. 만지기만 해도 성공!</span>
+</div>
 </div>
 </div>
 
-<!-- 3주차 -->
-<div class="week-card">
+<!-- W3 -->
+<div class="week-item">
 <div class="week-dot w3">3</div>
-<div class="week-header">
-<h3>3주차 — 입술접촉 <span class="week-chip" style="background:#E3F2FD;color:#1565C0;">③토마토 소스 도전</span></h3>
-</div>
-<div class="week-content">
-<div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>dietary4u: 미트볼조림</strong> — 토마토 소스에 조린 미트볼. 소스 형태 도전. <strong>토마토소스 스파게티</strong> — 부드러운 소스 형태로 토마토 맛 전달. 스파게티와 함께 즐기기.</p>
-</div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>미트볼 소스를 떠먹기 놀이. "토마토 소스 맛있네?" 반응 보기. 스파게티를 함께 먹으며 "엄마도 이거 맛있어" 표현하기.</p>
-</div>
-</div>
-<div class="week-footer">
-<span>누적 노출: 11~12회 <span class="dietary-tag">dietary4u: 미트볼조림</span></span>
-<span>🎉 토마토 소스를 받아들였다면 진전!</span>
-</div>
-</div>
-
-<!-- 4주차 -->
 <div class="week-card">
-<div class="week-dot w4">4</div>
 <div class="week-header">
-<h3>4주차 — 씹어보기 <span class="week-chip" style="background:#FFE0B2;color:#E65100;">④건조 형태 도전</span></h3>
+<div class="week-title">3주차: 소극적 노출 — 입 근처 접근</div>
+<div class="week-stage">감각놀이 × 5회</div>
 </div>
-<div class="week-content">
+<div style="font-size:11px;color:#D32F2F;font-weight:700;margin-bottom:12px;">SOS Step 15-22: Touches · Tastes · 푸드브릿지 3단계: 소극적 노출</div>
+<div class="week-content" style="grid-template-columns:1fr;">
 <div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>건토마토칩 바삭 체험</strong> — "이게 토마토야?" 놀라기. 건토마토의 달콤한 맛. <strong>구운 방울토마토</strong> — 가열해서 산미 감소. <strong>dietary4u: 과일샐러드</strong> — 체리토마토 작은 크기부터 시작.</p>
+<p><strong>Day 1: 💥 건토마토 부스러뜨리기</strong> — 건조토마토칩을 손으로 부수기. "달콤한 냄새 나!" 코에 가까이</p>
+<p><strong>Day 2: ⭐ 토마토 모양놀이</strong> — 삶은 토마토를 쿠키커터로 자르기. 별/하트 모양 접시에 장식</p>
+<p><strong>Day 3: 🖌 케첩 접시 그림</strong> — 케첩으로 접시 위에 얼굴/동물 그리기. 손가락에 묻은 케첩 냄새 맡기</p>
+<p><strong>Day 4: 👄 토마토 립터치</strong> — 방울토마토를 볼, 입술에 살짝 대보기. "말랑말랑!" 반응 기록</p>
+<p><strong>Day 5: 🫕 디핑 탐험</strong> — 방울토마토에 크림치즈/마요/꿀 디핑소스 찍어보기</p>
 </div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>건토마토칩 ASMR — "바삭! 소리 들려" 함께 듣기. 구운 토마토의 달콤한 맛 비교. 과일샐러드에서 체리토마토를 먼저 집어서 먹기.</p>
 </div>
+<div style="margin-top:12px;padding:10px 14px;background:#FFF8F0;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#D32F2F;">📦 키트 포함:</strong> 건토마토칩, 삶은 방울토마토, 디핑소스 3종, 쿠키커터, 케첩 미니팩, 미니컵 3개
 </div>
 <div class="week-footer">
-<span>누적 노출: 15~16회 <span class="dietary-tag">dietary4u: 과일샐러드</span></span>
-<span>🔥 건조·가열 형태를 받아들이면 거의 완료!</span>
+<span class="week-exposure">누적 노출: 15회 / 21회</span>
+<span class="week-note highlight">🎉 Breakthrough 구간! 입 근처 접근 성공!</span>
+</div>
 </div>
 </div>
 
-<!-- 5주차 -->
-<div class="week-card final">
-<div class="week-dot w5">5</div>
+<!-- W4 -->
+<div class="week-item">
+<div class="week-dot w4">4</div>
+<div class="week-card">
 <div class="week-header">
-<h3>5주차 — 자유롭게 먹기 🎓 <span class="week-chip" style="background:#E0F2F1;color:#00695C;">⑤수료 파티!</span></h3>
+<div class="week-title">4주차: 직접노출 — 한 입 도전</div>
+<div class="week-stage" style="background:#FFE0B2;color:#E65100;">요리 × 3회</div>
 </div>
-<div class="week-content">
+<div style="font-size:11px;color:#E65100;font-weight:700;margin-bottom:12px;">SOS Step 23-28: Eats · 푸드브릿지 4단계: 직접노출</div>
+<div class="week-content" style="grid-template-columns:1fr;">
 <div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>생 방울토마토 먹기 도전</strong> — 작은 크기부터 시작. 톡 터지는 식감과 새콤달콤한 맛. <strong>토마토 음료</strong> — 토마토 주스나 스무디로 마무리. 수료식 파티!</p>
+<p><strong>Day 1: 🍕 미니피자 만들기</strong> — 식빵 위에 토마토소스 바르고 치즈 올려 오븐에! 아이가 직접 소스 바르기</p>
+<p><strong>Day 2: 🥚 토마토계란볶음</strong> — 방울토마토 + 계란 스크램블. 토마토를 직접 넣고 한 입!</p>
+<p><strong>Day 3: 🍖 미트볼 토마토조림</strong> — 미트볼을 토마토소스에 조려 한 입 도전</p>
 </div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>수료증 발급 + 스탬프카드 완성. 아이가 방울토마토를 직접 집어먹는 모습을 사진 촬영. "나는 토마토도 먹을 수 있어!" 선언식. 가족 모두 함께 축하 먹기.</p>
 </div>
+<div style="margin-top:12px;padding:10px 14px;background:#FFE0B2;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#E65100;">📦 키트 포함:</strong> 미니피자 재료(식빵+토마토소스+치즈), 토마토계란볶음 재료, 미트볼조림 재료
 </div>
 <div class="week-footer">
-<span>총 노출: 20회+</span>
-<span>🎓 토마토와 친구가 되었습니다! 축하해요!</span>
+<span class="week-exposure">누적 노출: 18회 / 21회</span>
+<span class="week-note">비섭취자 45% → 9% 급락 구간</span>
+</div>
+</div>
+</div>
+
+<!-- W5 -->
+<div class="week-item">
+<div class="week-dot w5">5</div>
+<div class="week-card w5">
+<div class="week-header">
+<div class="week-title">5주차: 자유롭게 먹기</div>
+<div class="week-stage w5">요리 × 3회 🎓</div>
+</div>
+<div style="font-size:11px;color:#E65100;font-weight:700;margin-bottom:12px;">SOS Step 29-32: Eats variety · 수용 안정화</div>
+<div class="week-content" style="grid-template-columns:1fr;">
+<div class="week-col">
+<p><strong>Day 1: 🍝 나폴리탄 스파게티</strong> — 토마토소스 파스타. 방울토마토 올려 먹기</p>
+<p><strong>Day 2: 🍚 토마토볶음밥</strong> — 다진 토마토 직접 투입! "빨갛게 변했다!"</p>
+<p><strong>Day 3: 🎓 미니또띠아 + 수료식</strong> — 또띠아에 토마토소스 + 치즈 올려 먹기. 수료증!</p>
+</div>
+</div>
+<div style="margin-top:12px;padding:10px 14px;background:#FFE0B2;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#E65100;">📦 키트 포함:</strong> 나폴리탄 스파게티 재료, 토마토볶음밥 재료, 또띠아+토마토소스 재료
+</div>
+<div class="week-footer">
+<span class="week-exposure" style="color: #E65100;">누적 노출: 21회 / 21회 ✓ 완주!</span>
+<span class="week-note highlight">수용 안정화 단계 도달</span>
+</div>
 </div>
 </div>
 </div>
 </div>
 </section>
 
-<!-- ===== BOX CONTENTS ===== -->
-<section class="box-sec">
+<!-- ===== WHAT'S IN THE BOX ===== -->
+<section class="section lighter">
 <div class="container">
-<span class="sec-label red">📦 구성품</span>
-<h2>매주 배달되는 키트 + 인쇄물</h2>
-<p class="sec-desc">특수 식재료는 키트가 챙기고, 흔한 재료는 가정에서 준비해주세요.</p>
-<div class="box-grid">
-<div class="box-card cold">
-<h3>🧊 냉장 식재료 (5주분)</h3>
-<div class="box-item"><span>방울토마토 (신선, 다양한 색)</span><span class="qty">1~5주차</span></div>
-<div class="box-item"><span>토마토 소스 (식약처 기준)</span><span class="qty">2~3주차</span></div>
-<div class="box-item"><span>토마토 파우더</span><span class="qty">1~2주차</span></div>
-<div class="box-item"><span>미트볼 세트 + 토마토소스</span><span class="qty">3주차</span></div>
-<div class="box-item"><span>구운 방울토마토</span><span class="qty">4주차</span></div>
-<div class="box-item"><span>건토마토칩</span><span class="qty">4주차</span></div>
-<div class="box-item"><span>과일샐러드 키트 (체리토마토 포함)</span><span class="qty">4주차</span></div>
-<div class="box-item"><span>토마토 주스/스무디</span><span class="qty">5주차</span></div>
+<div class="sec-header">
+<div class="sec-label red">📦 WHAT'S IN THE BOX</div>
+<h2>5주간 받게 될 것들</h2>
 </div>
-<div class="box-card print">
+
+<div class="boxes-grid">
+<div class="box-card box-a">
+<h3>🎨 감각놀이 교구 (1주차 합배송)</h3>
+<div class="box-subtitle">공산품 위주 · 3주간 사용</div>
+<ul class="box-items">
+<li><span>종이접시 + 종이컵</span><span class="box-qty">각 10개</span></li>
+<li><span>도화지 + 색종이</span><span class="box-qty">각 10매</span></li>
+<li><span>눈알스티커</span><span class="box-qty">1시트</span></li>
+<li><span>이쑤시개 + 면봉</span><span class="box-qty">각 20개</span></li>
+<li><span>양면테이프 + 고무줄</span><span class="box-qty">1롤 + 10개</span></li>
+<li><span>지퍼백 (소) + 비닐장갑</span><span class="box-qty">10개 + 5쌍</span></li>
+<li><span>쿠키커터 (별·하트)</span><span class="box-qty">2개</span></li>
+<li><span>식용색소 (토마토 빨강)</span><span class="box-qty">1개</span></li>
+<li><span>디핑소스 3종 + 미니컵</span><span class="box-qty">3주차 배송</span></li>
+</ul>
+</div>
+
+<div class="box-card box-b">
+<h3>🧊 식재료 (매주 배송)</h3>
+<div class="box-subtitle">매주 1회 배송 · 보냉 시스템</div>
+<ul class="box-items">
+<li><span><strong>W1:</strong> 방울토마토 3색(빨강/노랑/주황), 대추토마토, 식용색소</span><span class="box-qty">감각놀이용</span></li>
+<li><span><strong>W2:</strong> 방울토마토, 구운토마토칩, 토마토퓨레, 케첩</span><span class="box-qty">감각놀이용</span></li>
+<li><span><strong>W3:</strong> 건토마토칩, 삶은 방울토마토, 디핑소스 3종</span><span class="box-qty">감각놀이용</span></li>
+<li><span><strong>W4:</strong> 미니피자 재료, 토마토계란볶음 재료, 미트볼조림 재료</span><span class="box-qty">요리 3회분</span></li>
+<li><span><strong>W5:</strong> 나폴리탄 재료, 토마토볶음밥 재료, 또띠아 재료</span><span class="box-qty">요리 3회분</span></li>
+</ul>
+</div>
+
+<div class="box-card box-a">
 <h3>📱 밀프레드 앱 제공</h3>
-<div class="box-item"><span>관찰일지 + 스티커</span><span class="qty">1세트</span></div>
-<div class="box-item"><span>활동지 #1~10</span><span class="qty">10매</span></div>
-<div class="box-item"><span>레시피 카드</span><span class="qty">5세트</span></div>
-<div class="box-item"><span>수료증</span><span class="qty">1매</span></div>
-<br>
-<h3 style="margin-top:12px">📖 인쇄물 (1주차 동봉)</h3>
-<div class="box-item"><span>편식극복 가이드 소책자 (A5 30p)</span><span class="qty">1부</span></div>
-<div class="box-item"><span>편식극복 스탬프카드</span><span class="qty">1장</span></div>
-<div class="box-item"><span>주차별 플레이북 QR코드</span><span class="qty">5장</span></div>
-<br>
-<h3 style="margin-top:12px">🏠 가정 준비물</h3>
-<div class="box-item"><span>1주차: 안전칼, 접시, 식용색소</span></div>
-<div class="box-item"><span>2주차: 색연필, 색칠하기 도구</span></div>
-<div class="box-item"><span>3~4주차: 냄비, 프라이팬</span></div>
-<div class="box-item"><span>5주차: 냄비, 스푼</span></div>
-<div class="box-item"><span>공통: 식탁보, 위생장갑, 물티슈</span></div>
+<div class="box-subtitle">앱에서 다운로드 · 언제든지 접근 가능</div>
+<ul class="box-items">
+<li><span>관찰일지 + 스티커</span><span class="box-qty">1세트</span></li>
+<li><span>활동지</span><span class="box-qty">21매</span></li>
+<li><span>레시피 카드 (4~5주차)</span><span class="box-qty">6매</span></li>
+<li><span>수료증</span><span class="box-qty">1매</span></li>
+</ul>
 </div>
 </div>
 </div>
@@ -486,7 +560,7 @@ body{overflow-x:hidden}
 <div class="badge">강력 추천</div>
 <div class="type">밀프레드 편식극복키트</div>
 <div class="price red"><span style="text-decoration:line-through;opacity:0.4;font-size:16px;">390,000원</span> 199,000원</div>
-<div class="info">5주 완성 프로그램<br>집에서 엄마와 함께<br>매주 키트 배송 + 전문 커리큘럼<br><span style="color:#FF5252;font-weight:700;">🔥 얼리버드 49% OFF</span></div>
+<div class="info">5주 21회 노출<br>대기 없음<br>집에서 시작<br>1~3주차는 감각놀이 5일치, 4~5주차는 요리 3회분<br><span style="color:#FF5252;font-weight:700;">🔥 얼리버드 49% OFF</span></div>
 </div>
 </div>
 </div>
@@ -532,8 +606,8 @@ body{overflow-x:hidden}
 <div class="faq-item"><div class="faq-q"><span>몇 살부터 할 수 있나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>만 2~5세(24~60개월)를 권장합니다. 활동은 부모와 함께 진행하며, 아이의 발달 수준에 맞춰 난이도를 조절할 수 있습니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>아이가 식재료를 아예 안 보려고 하는데 괜찮나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>완전히 정상입니다. 처음 1~3회는 거부하는 것이 자연스러운 반응이에요. SOS Approach에서는 이 과정 자체가 학습입니다. "보기만 해도 성공"이라는 마음으로 진행해 주세요. 4회차부터 변화의 신호가 나타나기 시작합니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>알레르기가 있으면 어떡하나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>코스 신청 시 알레르기 정보를 입력해 주시면, 해당 식재료를 제외하거나 대체 재료로 준비해 드립니다. 심한 알레르기가 있는 경우 소아과 상담 후 진행을 권장합니다.</p></div></div>
-<div class="faq-item"><div class="faq-q"><span>키트 배송은 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>매주 1회, 3회 활동분을 한 번에 배송합니다. 총 5주간 5회 배송이며, 밀프레드 보냉 시스템으로 신선하게 도착합니다. 배송 사고 시 전량 재발송해 드립니다.</p></div></div>
-<div class="faq-item"><div class="faq-q"><span>도마, 강판 같은 도구도 제공되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>도마, 강판 등 가정에 기본적으로 있는 조리도구는 별도로 제공하지 않습니다. 쿠키커터 등 특수 교구만 키트에 포함됩니다. 활동지, 관찰일지, 레시피카드, 수료증은 밀프레드 앱에서 제공됩니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>키트 배송은 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>매주 1회 배송됩니다. 1~3주차는 감각놀이 5일치, 4~5주차는 요리 3회분씩 배송됩니다. 모든 재료와 교구가 포함되어 있으며, 밀프레드 보냉 시스템으로 신선하게 도착합니다. 배송 사고 시 전량 재발송해 드립니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>도마, 강판 같은 도구도 제공되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>모든 활동에 필요한 재료와 도구가 키트에 포함되어 있습니다. 쿠키커터 등 특수 교구도 포함됩니다. 활동지, 관찰일지, 레시피카드, 수료증은 밀프레드 앱에서 제공됩니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>5주 후에도 안 먹으면요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>안 먹어도 괜찮습니다. 감각 친숙화 자체가 이미 큰 성과예요. 같은 코스를 반복하거나, 비슷한 난이도의 다른 식재료 코스로 전환할 수 있습니다. 반복 구매 시 10% 할인이 적용됩니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>환불 규정이 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>코스 시작 전(1주차 배송 전): 전액 환불. 1주차 배송 후~2주차 배송 전: 잔여 4주분의 80% 환불. 2주차 배송 후: 잔여 주차분의 50% 환불. 3주차 배송 이후: 환불 불가 (이미 절반 이상 진행). 배송 사고·품질 문제 시: 해당 주차 전액 재발송 또는 환불. 환불 신청은 카카오톡 "밀프레드"로 문의해 주세요.</p></div></div>
 </div>
@@ -547,8 +621,8 @@ body{overflow-x:hidden}
 <span style="font-size:48px;display:block;margin-bottom:12px">🍅</span>
 <div style="margin-bottom:8px;"><span style="font-size:18px;text-decoration:line-through;opacity:0.4;">정가 390,000원</span> <span style="background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;">49% OFF</span></div>
 <div class="cta-price">199,000<span class="won">원</span></div>
-<div class="cta-sub">5주 완성 · 주 1회 배송 · 회당 13,300원</div>
-<p class="cta-msg"><strong>편식 스코어 57.7, 도전 코스.</strong><br>케찹은 먹지만 생토마토는 거부하는 아이들을 위해 설계된 형태 변환 전략.<br>소스에서 생토마토까지의 5주 여정을 시작하세요.</p>
+<div class="cta-sub">5주 21회 노출 · 주 1회 배송 · 회당 9,476원</div>
+<p class="cta-msg"><strong>편식 스코어 57.7, 도전 코스.</strong><br>케찹은 먹지만 생토마토는 거부하는 아이들을 위해 설계된 형태 변환 전략.<br>감각놀이 15회 + 요리 6회의 21회 여정을 시작하세요.</p>
 <button class="cta-btn" onclick="openEarlybird('토마토')">얼리버드 등록하기</button>
 <p style="font-size:12px;color:#999;margin-top:12px">전화번호만 남기면 끝 · 비용 발생 없음</p>
 </div>

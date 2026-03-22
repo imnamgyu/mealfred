@@ -70,22 +70,37 @@ h2{font-size:clamp(26px,5vw,36px);font-weight:900;margin-bottom:8px;line-height:
 .tex-card h4{font-size:14px;font-weight:800;margin-bottom:4px}
 .tex-card p{font-size:11px;color:#666;line-height:1.5}
 
+/* ===== SECTIONS ===== */
+.section{padding:60px 20px}
+.section.light{background:#fff}
+.section.lighter{background:#fafaf7}
+.sec-header{text-align:center;margin-bottom:48px}
+.sec-header h2{font-size:clamp(26px,5vw,36px);font-weight:900;margin-bottom:12px;letter-spacing:-0.3px}
+.sec-header p{font-size:15px;color:#666;line-height:1.7}
+
 /* ===== TIMELINE ===== */
-.timeline-sec{background:#FFFBF5}
+.timeline-sec{background:#F8F5FA}
 .timeline{position:relative;padding-left:50px;margin-top:20px}
-.timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#E53935 0%,#6A1B9A 25%,#42A5F5 50%,#66BB6A 75%,#2D8B4E 100%);border-radius:2px}
-.week-card{position:relative;margin-bottom:32px;background:#fff;border-radius:16px;padding:28px 24px;border:1px solid #f0f0f0;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
-.week-card:last-child{margin-bottom:0}
-.week-dot{position:absolute;left:-42px;top:28px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15)}
-.week-dot.w1{background:#E53935}.week-dot.w2{background:#6A1B9A}.week-dot.w3{background:#42A5F5}.week-dot.w4{background:#66BB6A}.week-dot.w5{background:#2D8B4E}
-.week-header h3{font-size:18px;font-weight:800;margin-bottom:4px}
+.timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#6A1B9A 0%,#6A1B9A 30%,#7B1FA2 60%,#6A1B9A 100%);border-radius:3px}
+.week-item{position:relative;margin-bottom:36px}
+.week-dot{position:absolute;left:-40px;top:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.week-dot.w1{background:#6A1B9A}.week-dot.w2{background:#6A1B9A}.week-dot.w3{background:#42A5F5}.week-dot.w4{background:#7B1FA2}.week-dot.w5{background:#4A148C}
+.week-card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 14px rgba(0,0,0,0.06);border-left:4px solid #6A1B9A}
+.week-card.w5{border-left-color:#4A148C}
+.week-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.week-title{font-size:18px;font-weight:800;color:#222}
+.week-stage{display:inline-block;background:#F3E5F5;color:#6A1B9A;font-size:11px;font-weight:700;padding:5px 12px;border-radius:16px}
+.week-stage.w5{background:#E1BEE7;color:#4A148C}
+.week-content{display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:18px}
+.week-col h4{font-size:13px;font-weight:700;color:#6A1B9A;margin-bottom:8px}
+.week-col p{font-size:13px;color:#555;line-height:1.7;margin-bottom:10px}
 .week-chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;margin-left:8px}
-.week-content{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.week-col h4{font-size:13px;font-weight:700;color:#888;margin-bottom:8px}
-.week-col p{font-size:14px;color:#444;line-height:1.7}
-.week-footer{margin-top:16px;padding-top:12px;border-top:1px dashed #e8e8e8;font-size:12px;color:#888;display:flex;justify-content:space-between}
-.week-card.final{border:2px solid #2D8B4E;background:#FAFFFA}
-.dietary-tag{display:inline-block;background:#E8F5E9;color:#2E7D32;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px}
+.week-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid #f0f0f0;font-size:12px}
+.week-exposure{font-weight:700;color:#6A1B9A}
+.week-note{color:#999;font-style:italic}
+.week-note.highlight{color:#4A148C}
+.week-card.final{border:2px solid #4A148C;background:#F5F5FA}
+.dietary-tag{display:inline-block;background:#F3E5F5;color:#6A1B9A;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:6px}
 
 /* ===== BOX / PRICING / SCIENCE / FAQ / CTA / FOOTER ===== */
 .box-sec{background:#fff}
@@ -178,9 +193,9 @@ body{overflow-x:hidden}
 <h1>보라색 가지,<br><span>"물렁!"</span> 에서 <span>"바삭맛있어!"</span> 로</h1>
 <p class="hero-sub">가지는 보라색 시각 거부+물렁 식감의 이중 거부 식재료입니다<br>바삭한 가지칩부터 시작하면 "이게 가지야?" 놀랍니다</p>
 <div class="hero-stats">
-<div class="hero-stat"><span class="num">5주</span><span class="label">총 기간</span></div>
-<div class="hero-stat"><span class="num">15+</span><span class="label">감각 노출 횟수</span></div>
-<div class="hero-stat"><span class="num">주1회</span><span class="label">키트 배송</span></div>
+<div class="hero-stat"><span class="num">21회</span><span class="label">총 노출 횟수</span></div>
+<div class="hero-stat"><span class="num">15회</span><span class="label">감각놀이(1~3주)</span></div>
+<div class="hero-stat"><span class="num">6회</span><span class="label">요리(4~5주)</span></div>
 <div class="hero-stat"><span class="num" style="font-size:18px;"><span style="text-decoration:line-through;opacity:0.5;font-size:14px;">390,000원</span><br>199,000<small>원</small></span><span class="label">얼리버드 49% OFF</span></div>
 </div>
 <button class="hero-cta" onclick="openEarlybird('가지')">얼리버드 등록하기 →</button>
@@ -307,117 +322,158 @@ body{overflow-x:hidden}
 <section class="timeline-sec">
 <div class="container">
 <span class="sec-label purple">📋 5주 커리큘럼</span>
-<h2>편식극복 프로그램 5단계로<br>가지와 친구 되기</h2>
-<p class="sec-desc">SOS Approach to Feeding 기반. 매주 단계적으로 가지와의 거리를 좁혀갑니다.</p>
+<h2>가지와 친구 되는 21회의 여정</h2>
+<p class="sec-desc">1~3주차 감각놀이 주 5회 + 4~5주차 요리 주 3회 · 모든 재료 키트에 포함 · 숙제 없음!</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:32px;text-align:center;">
+  <div style="background:#F3E5F5;border-radius:12px;padding:14px;">
+    <div style="font-size:24px;font-weight:900;color:#6A1B9A;">15회</div>
+    <div style="font-size:11px;color:#888;">1~3주차 감각놀이</div>
+  </div>
+  <div style="background:#E1BEE7;border-radius:12px;padding:14px;">
+    <div style="font-size:24px;font-weight:900;color:#7B1FA2;">6회</div>
+    <div style="font-size:11px;color:#888;">4~5주차 요리</div>
+  </div>
+  <div style="background:#E3F2FD;border-radius:12px;padding:14px;">
+    <div style="font-size:24px;font-weight:900;color:#1565C0;">21회</div>
+    <div style="font-size:11px;color:#888;">총 노출 횟수</div>
+  </div>
+</div>
 
 <div class="timeline">
-<!-- 1주차 -->
-<div class="week-card">
+<!-- W1 -->
+<div class="week-item">
 <div class="week-dot w1">1</div>
+<div class="week-card">
 <div class="week-header">
-<h3>1주차 — 시각탐색 <span class="week-chip" style="background:#FFEBEE;color:#C62828;">①보기만 해도 OK</span></h3>
+<div class="week-title">1주차: 친해지기 — 시각 탐색</div>
+<div class="week-stage">감각놀이 × 5회</div>
 </div>
+<div style="font-size:11px;color:#6A1B9A;font-weight:700;margin-bottom:12px;">SOS Step 1-6: Tolerates · 푸드브릿지 1단계: 친해지기</div>
 <div class="week-content">
 <div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>가지 관찰놀이</strong> — 보라색 껍질 만져보기. 가지 자르면 하얀 속살! 놀라기. 가지 도장 찍기(반달 모양). 가지 꼭지로 꽃 만들기.</p>
+<p><strong>Day 1: 💜 가지 색깔 관찰</strong> — 보라 가지 vs 흰 가지 비교. "가지도 흰색이 있어!" 관찰일지 기록</p>
+<p><strong>Day 2: 🎨 가지 단면 스탬프</strong> — 가지 단면의 별 모양 무늬 관찰 & 식용색소로 스탬프 찍기</p>
+<p><strong>Day 3: 🐧 가지 펭귄 만들기</strong> — 가지 꼭지를 머리로, 눈알스티커 붙이고 색종이로 나비넥타이</p>
+<p><strong>Day 4: 🌌 보라 우주 만들기</strong> — 보라 색종이 접어 별 모양 만들고 가지 조각으로 "보라 행성" 디오라마</p>
+<p><strong>Day 5: ✨ 가지즙 마법 잉크</strong> — 가지 껍질 물들인 보라색 물로 도화지에 그림 그리기</p>
 </div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>마트에서 가지 코너 직접 가보기. "보라색 가지" 찾기 놀이. "가지 관찰 일지" 브로셔에 스티커 붙이기. 엄마가 가지 먹는 모습 보여주기(모델링).</p>
 </div>
+<div style="margin-top:12px;padding:10px 14px;background:#F3E5F5;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#6A1B9A;">📦 키트 포함:</strong> 가지 2개(보라/흰색), 식용색소(보라), 도화지 3매, 색종이, 이쑤시개, 눈알스티커
 </div>
 <div class="week-footer">
-<span>누적 노출: 3~4회</span>
-<span>"아직 안 먹어도 괜찮아요. 눈으로 친해지는 중!"</span>
+<span class="week-exposure">누적 노출: 5회 / 21회</span>
+<span class="week-note">💡 거부해도 정상. 보고 만지기만 해도 성공!</span>
+</div>
 </div>
 </div>
 
-<!-- 2주차 -->
-<div class="week-card">
+<!-- W2 -->
+<div class="week-item">
 <div class="week-dot w2">2</div>
+<div class="week-card">
 <div class="week-header">
-<h3>2주차 — 후각·촉각 <span class="week-chip" style="background:#F3E5F5;color:#6A1B9A;">②만지고 부셔보기</span></h3>
+<div class="week-title">2주차: 간접노출 — 촉각·후각 탐색</div>
+<div class="week-stage">감각놀이 × 5회</div>
 </div>
+<div style="font-size:11px;color:#6A1B9A;font-weight:700;margin-bottom:12px;">SOS Step 7-14: Interacts · Smells · 푸드브릿지 2단계: 간접노출</div>
 <div class="week-content">
 <div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>가지칩(에어프라이) 바삭 체험</strong> — "이게 가지야?!" 놀라기. 가지 껍질 벗기기 놀이. 가지 속살 만져보기(스폰지 같다!). 구운 가지 냄새 맡기.</p>
+<p><strong>Day 1: 🤚 촉감 비교</strong> — 생가지(매끈!) vs 구운가지(쪼글!) vs 가지칩(바삭!) 종이접시에 스티커로 기록</p>
+<p><strong>Day 2: 👃 향기 맞추기</strong> — 종이컵 3개 뒤집어 놓고 밑에 식재료 조각. 컵 들어올려 "이게 뭘까?" 맞추기</p>
+<p><strong>Day 3: 🎨 가지 보라 반죽</strong> — 가지 퓨레 + 밀가루 → 보라색 점토 만들기</p>
+<p><strong>Day 4: 🖌 가지 껍질 도장</strong> — 가지 껍질을 길게 벗겨 물감 묻혀 리본 도장 찍기</p>
+<p><strong>Day 5: 🧊 보라 얼음 만들기</strong> — 가지 물 + 얼음틀 → 보라 얼음 관찰</p>
 </div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>가지칩 ASMR 놀이 — 귀 가까이서 바삭! 소리 들려주기. 가지 촉감 비교 — 반으로 자른 가지(물렁) vs 가지칩(바삭) 만져보기. "어떤 게 좋아?" 물어보기.</p>
 </div>
+<div style="margin-top:12px;padding:10px 14px;background:#F3E5F5;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#6A1B9A;">📦 키트 포함:</strong> 생가지, 구운가지, 가지칩(동결건조), 종이컵(냄새 맞추기용), 밀가루 50g, 지퍼백 5개, 비닐장갑
 </div>
 <div class="week-footer">
-<span>누적 노출: 7~8회</span>
-<span>💡 가지칩은 대부분 아이가 바로 먹어요!</span>
+<span class="week-exposure">누적 노출: 10회 / 21회</span>
+<span class="week-note">⏸ 만지기만 해도 성공!</span>
+</div>
 </div>
 </div>
 
-<!-- 3주차 -->
-<div class="week-card">
+<!-- W3 -->
+<div class="week-item">
 <div class="week-dot w3">3</div>
-<div class="week-header">
-<h3>3주차 — 입술접촉 <span class="week-chip" style="background:#E3F2FD;color:#1565C0;">③바삭한 가지부터!</span></h3>
-</div>
-<div class="week-content">
-<div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>바삭 가지스틱 + 디핑소스 3종</strong> — 에어프라이어로 바삭하게! 양념장 찍기 도전. <strong>가지구이 양념장</strong> — 팬에 노릇하게 구워서 양념장 찍기.</p>
-</div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>가지스틱 남은 것으로 다시 도전. 가지구이 소스 찍기 놀이. "바삭한 거 먹었으니 이것도 해볼까?" 자연스럽게 유도.</p>
-</div>
-</div>
-<div class="week-footer">
-<span>누적 노출: 11~12회</span>
-<span>🎉 바삭한 가지를 먹었다면 큰 진전!</span>
-</div>
-</div>
-
-<!-- 4주차 -->
 <div class="week-card">
-<div class="week-dot w4">4</div>
 <div class="week-header">
-<h3>4주차 — 씹어보기 <span class="week-chip" style="background:#E8F5E9;color:#2E7D32;">④부드러운 가지 도전</span></h3>
+<div class="week-title">3주차: 소극적 노출 — 입 근처 접근</div>
+<div class="week-stage">감각놀이 × 5회</div>
 </div>
+<div style="font-size:11px;color:#6A1B9A;font-weight:700;margin-bottom:12px;">SOS Step 15-22: Touches · Tastes · 푸드브릿지 3단계: 소극적 노출</div>
 <div class="week-content">
 <div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>가지볶음(된장양념)</strong> — 익숙한 된장 맛과 함께. <strong>가지그라탕(치즈+토마토소스)</strong> — 아이가 좋아하는 치즈와 함께 가지의 부드러움을 경험합니다.</p>
+<p><strong>Day 1: 💥 가지칩 부수기</strong> — 동결건조 가지칩 바삭바삭 부수기</p>
+<p><strong>Day 2: ⭐ 가지 모양 놀이</strong> — 구운 가지를 쿠키커터로 모양 자르기</p>
+<p><strong>Day 3: 🎭 가지 얼굴 만들기</strong> — 가지 조각으로 접시 위에 웃는 얼굴 만들기</p>
+<p><strong>Day 4: 👄 가지 립터치</strong> — 구운 가지를 코, 볼, 입술에 살짝 대보기</p>
+<p><strong>Day 5: 🫕 디핑 탐험</strong> — 가지에 된장소스/마요/간장 디핑소스 찍어보기</p>
 </div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>"바삭 가지 vs 부드러운 가지" 비교 먹기. 가지 남은 것으로 도시락 만들기. 도반장 가지 조림도 도전 가능!</p>
 </div>
+<div style="margin-top:12px;padding:10px 14px;background:#F3E5F5;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#6A1B9A;">📦 키트 포함:</strong> 구운가지, 가지칩, 디핑소스 3종(된장소스/마요/간장), 쿠키커터, 미니컵
 </div>
 <div class="week-footer">
-<span>누적 노출: 15~16회</span>
-<span>🔥 부드러운 가지까지 먹으면 거의 완료!</span>
+<span class="week-exposure">누적 노출: 15회 / 21회</span>
+<span class="week-note highlight">🎉 입 근처 접근 성공!</span>
+</div>
 </div>
 </div>
 
-<!-- 5주차 -->
-<div class="week-card final">
-<div class="week-dot w5">5</div>
+<!-- W4 -->
+<div class="week-item">
+<div class="week-dot w4">4</div>
+<div class="week-card">
 <div class="week-header">
-<h3>5주차 — 자유롭게 먹기 🎓 <span class="week-chip" style="background:#E0F2F1;color:#00695C;">⑤수료 파티!</span></h3>
+<div class="week-title">4주차: 직접노출 — 한 입 도전</div>
+<div class="week-stage" style="background:#E1BEE7;color:#4A148C;">요리 × 3회</div>
 </div>
+<div style="font-size:11px;color:#4A148C;font-weight:700;margin-bottom:12px;">SOS Step 23-28: Eats · 푸드브릿지 4단계: 직접노출</div>
 <div class="week-content">
 <div class="week-col">
-<h4>📦 키트 활동</h4>
-<p><strong>가지밥</strong> — 가지+밥+양념장을 섞어 아이가 직접 밥 만들기. <strong>가지 김치볶음</strong> — 매콤한 맛과 함께. 수료식 파티!</p>
+<p><strong>Day 1: 🍳 달콤 가지볶음</strong> — 가지 + 된장 + 꿀 볶음. 달콤한 맛으로 첫 입!</p>
+<p><strong>Day 2: 🧀 가지 치즈그라탕</strong> — 가지 + 토마토소스 + 치즈 → 오븐에! "치즈가 늘어나!"</p>
+<p><strong>Day 3: 🥞 가지전</strong> — 얇게 썬 가지에 계란옷 입혀 부치기. 아이가 직접 뒤집기!</p>
 </div>
-<div class="week-col">
-<h4>🏠 가정 활동</h4>
-<p>수료증 발급 + 스탬프카드 완성. 아이가 직접 만든 가지밥 앞에서 사진 촬영. "나는 가지도 먹을 수 있어!" 선언식. 가족 모두 함께 먹기.</p>
 </div>
+<div style="margin-top:12px;padding:10px 14px;background:#F3E5F5;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#4A148C;">📦 키트 포함:</strong> 가지볶음 재료(가지+된장+참기름), 가지그라탕 재료(가지+치즈+토마토소스), 가지전 재료
 </div>
 <div class="week-footer">
-<span>총 노출: 20회+</span>
-<span>🎓 가지와 친구가 되었습니다! 축하해요!</span>
+<span class="week-exposure">누적 노출: 18회 / 21회</span>
+<span class="week-note">🔥 부드러운 가지까지 먹으면 거의 완료!</span>
+</div>
+</div>
+</div>
+
+<!-- W5 -->
+<div class="week-item">
+<div class="week-dot w5">5</div>
+<div class="week-card w5">
+<div class="week-header">
+<div class="week-title">5주차: 자유롭게 먹기</div>
+<div class="week-stage w5">요리 × 3회 🎓</div>
+</div>
+<div style="font-size:11px;color:#4A148C;font-weight:700;margin-bottom:12px;">SOS Step 29-32: Eats variety · 수용 안정화</div>
+<div class="week-content">
+<div class="week-col">
+<p><strong>Day 1: 🍛 마파가지덮밥</strong> — 두부 + 가지 + 고기 → 밥 위에 올리기</p>
+<p><strong>Day 2: 🍛 가지카레</strong> — 가지를 직접 넣은 카레. "보라색 카레!"</p>
+<p><strong>Day 3: 🎓 가지볶음밥 + 수료식</strong> — 가지 직접 넣어 볶기. 수료증 발급 파티!</p>
+</div>
+</div>
+<div style="margin-top:12px;padding:10px 14px;background:#F3E5F5;border-radius:10px;font-size:11px;color:#888;">
+<strong style="color:#4A148C;">📦 키트 포함:</strong> 마파가지 재료, 가지카레 재료, 가지김치볶음밥 재료
+</div>
+<div class="week-footer">
+<span class="week-exposure" style="color:#4A148C;">누적 노출: 21회 / 21회 ✓ 완주!</span>
+<span class="week-note highlight">🎓 가지와 친구가 되었습니다!</span>
+</div>
 </div>
 </div>
 </div>
@@ -428,38 +484,35 @@ body{overflow-x:hidden}
 <section class="box-sec">
 <div class="container">
 <span class="sec-label purple">📦 구성품</span>
-<h2>매주 배달되는 키트 + 인쇄물</h2>
-<p class="sec-desc">특수 식재료는 키트가 챙기고, 흔한 재료는 가정에서 준비해주세요.</p>
+<h2>5주간 받게 될 것들</h2>
+<p class="sec-desc">모든 재료가 키트에 포함됩니다. 가정에서 별도로 준비할 것 없어요!</p>
 <div class="box-grid">
 <div class="box-card cold">
-<h3>🧊 냉장 식재료 (5주분)</h3>
-<div class="box-item"><span>신선 가지 (5주분 세트)</span><span class="qty">1~3주차</span></div>
-<div class="box-item"><span>가지칩 재료 (에어프라이용 가지)</span><span class="qty">2주차</span></div>
-<div class="box-item"><span>가지구이 양념장 세트</span><span class="qty">3주차</span></div>
-<div class="box-item"><span>가지볶음 재료 (된장양념 포함)</span><span class="qty">4주차</span></div>
-<div class="box-item"><span>가지그라탕 재료 (치즈+토마토소스)</span><span class="qty">4주차</span></div>
-<div class="box-item"><span>가지밥 재료 (가지+양념장)</span><span class="qty">5주차</span></div>
-<div class="box-item"><span>가지 김치볶음 재료</span><span class="qty">5주차</span></div>
+<h3>🎨 감각놀이 교구 (1주차 합배송)</h3>
+<div class="box-item"><span>종이접시 + 종이컵</span><span class="qty">각 10개</span></div>
+<div class="box-item"><span>도화지 + 색종이</span><span class="qty">각 10매</span></div>
+<div class="box-item"><span>눈알스티커</span><span class="qty">1시트</span></div>
+<div class="box-item"><span>이쑤시개 + 면봉</span><span class="qty">각 20개</span></div>
+<div class="box-item"><span>양면테이프 + 고무줄</span><span class="qty">1롤 + 10개</span></div>
+<div class="box-item"><span>지퍼백 (소) + 비닐장갑</span><span class="qty">10개 + 5쌍</span></div>
+<div class="box-item"><span>쿠키커터 (별·하트)</span><span class="qty">2개</span></div>
+<div class="box-item"><span>식용색소 (보라)</span><span class="qty">1개</span></div>
+<div class="box-item"><span>디핑소스 3종 + 미니컵</span><span class="qty">3주차 배송</span></div>
+</div>
+<div class="box-card cold">
+<h3>🧊 식재료 (매주 배송)</h3>
+<div class="box-item"><span><strong>W1:</strong> 가지 2개(보라/흰색), 식용색소</span><span class="qty">감각놀이용</span></div>
+<div class="box-item"><span><strong>W2:</strong> 생가지, 구운가지, 가지칩, 가지퓨레</span><span class="qty">감각놀이용</span></div>
+<div class="box-item"><span><strong>W3:</strong> 구운가지, 가지칩, 디핑소스 3종</span><span class="qty">감각놀이용</span></div>
+<div class="box-item"><span><strong>W4:</strong> 가지볶음, 가지그라탕, 가지전 재료</span><span class="qty">요리 3회분</span></div>
+<div class="box-item"><span><strong>W5:</strong> 마파가지, 가지카레, 가지볶음밥 재료</span><span class="qty">요리 3회분</span></div>
 </div>
 <div class="box-card print">
 <h3>📱 밀프레드 앱 제공</h3>
 <div class="box-item"><span>관찰일지 + 스티커</span><span class="qty">1세트</span></div>
-<div class="box-item"><span>활동지 #1~10</span><span class="qty">10매</span></div>
-<div class="box-item"><span>레시피 카드</span><span class="qty">5세트</span></div>
+<div class="box-item"><span>활동지</span><span class="qty">21매</span></div>
+<div class="box-item"><span>레시피 카드 (4~5주차)</span><span class="qty">6매</span></div>
 <div class="box-item"><span>수료증</span><span class="qty">1매</span></div>
-<br>
-<h3 style="margin-top:12px">📖 인쇄물 (1주차 동봉)</h3>
-<div class="box-item"><span>편식극복 가이드 소책자 (A5 30p)</span><span class="qty">1부</span></div>
-<div class="box-item"><span>편식극복 스탬프카드</span><span class="qty">1장</span></div>
-<div class="box-item"><span>주차별 플레이북 QR코드</span><span class="qty">5장</span></div>
-<br>
-<h3 style="margin-top:12px">🏠 가정 준비물</h3>
-<div class="box-item"><span>1주차: 칼, 접시</span></div>
-<div class="box-item"><span>2주차: 접시, 식탁보</span></div>
-<div class="box-item"><span>3주차: 에어프라이어(오븐), 프라이팬</span></div>
-<div class="box-item"><span>4주차: 프라이팬, 냄비, 오븐</span></div>
-<div class="box-item"><span>5주차: 냄비, 밥솥</span></div>
-<div class="box-item"><span>공통: 물티슈, 위생장갑</span></div>
 </div>
 </div>
 </div>
@@ -527,8 +580,8 @@ body{overflow-x:hidden}
 <div class="faq-item"><div class="faq-q"><span>몇 살부터 할 수 있나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>만 2~5세(24~60개월)를 권장합니다. 활동은 부모와 함께 진행하며, 아이의 발달 수준에 맞춰 난이도를 조절할 수 있습니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>아이가 식재료를 아예 안 보려고 하는데 괜찮나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>완전히 정상입니다. 처음 1~3회는 거부하는 것이 자연스러운 반응이에요. SOS Approach에서는 이 과정 자체가 학습입니다. "보기만 해도 성공"이라는 마음으로 진행해 주세요. 4회차부터 변화의 신호가 나타나기 시작합니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>알레르기가 있으면 어떡하나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>코스 신청 시 알레르기 정보를 입력해 주시면, 해당 식재료를 제외하거나 대체 재료로 준비해 드립니다. 심한 알레르기가 있는 경우 소아과 상담 후 진행을 권장합니다.</p></div></div>
-<div class="faq-item"><div class="faq-q"><span>키트 배송은 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>매주 1회, 3회 활동분을 한 번에 배송합니다. 총 5주간 5회 배송이며, 밀프레드 보냉 시스템으로 신선하게 도착합니다. 배송 사고 시 전량 재발송해 드립니다.</p></div></div>
-<div class="faq-item"><div class="faq-q"><span>도마, 강판 같은 도구도 제공되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>도마, 강판 등 가정에 기본적으로 있는 조리도구는 별도로 제공하지 않습니다. 쿠키커터 등 특수 교구만 키트에 포함됩니다. 활동지, 관찰일지, 레시피카드, 수료증은 밀프레드 앱에서 제공됩니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>키트 배송은 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>매주 1회, 5일치(평일 매일) 활동 재료를 한 번에 배송합니다. 총 5주간 5회 배송이며, 밀프레드 보냉 시스템으로 신선하게 도착합니다. 배송 사고 시 전량 재발송해 드립니다.</p></div></div>
+<div class="faq-item"><div class="faq-q"><span>도마, 강판 같은 도구도 제공되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>모든 활동에 필요한 재료와 도구가 키트에 포함되어 있습니다. 쿠키커터 등 특수 교구도 포함됩니다. 활동지, 관찰일지, 레시피카드, 수료증은 밀프레드 앱에서 제공됩니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>5주 후에도 안 먹으면요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>안 먹어도 괜찮습니다. 감각 친숙화 자체가 이미 큰 성과예요. 같은 코스를 반복하거나, 비슷한 난이도의 다른 식재료 코스로 전환할 수 있습니다. 반복 구매 시 10% 할인이 적용됩니다.</p></div></div>
 <div class="faq-item"><div class="faq-q"><span>환불 규정이 어떻게 되나요?</span><div class="faq-toggle">+</div></div><div class="faq-a"><p>코스 시작 전(1주차 배송 전): 전액 환불. 1주차 배송 후~2주차 배송 전: 잔여 4주분의 80% 환불. 2주차 배송 후: 잔여 주차분의 50% 환불. 3주차 배송 이후: 환불 불가 (이미 절반 이상 진행). 배송 사고·품질 문제 시: 해당 주차 전액 재발송 또는 환불. 환불 신청은 카카오톡 "밀프레드"로 문의해 주세요.</p></div></div>
 </div>
@@ -542,7 +595,7 @@ body{overflow-x:hidden}
 <span style="font-size:48px;display:block;margin-bottom:12px">🍆</span>
 <div style="margin-bottom:8px;"><span style="font-size:18px;text-decoration:line-through;opacity:0.4;">정가 390,000원</span> <span style="background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;">49% OFF</span></div>
 <div class="cta-price">199,000<span class="won">원</span></div>
-<div class="cta-sub">5주 완성 · 주 1회 배송 · 회당 13,300원</div>
+<div class="cta-sub">5주 21회 노출 · 주 1회 배송 · 회당 9,476원</div>
 <p class="cta-msg"><strong>편식 스코어 60.9, 고급 코스.</strong><br>보라색 시각 거부+물렁 식감이 강해도, 바삭 전략으로 충분히 극복 가능합니다.<br>가지 하나를 정복하면, 다른 채소로 자신감도 생깁니다.</p>
 <button class="cta-btn" onclick="openEarlybird('가지')">얼리버드 등록하기</button>
 <p style="font-size:12px;color:#999;margin-top:12px">전화번호만 남기면 끝 · 비용 발생 없음</p>
