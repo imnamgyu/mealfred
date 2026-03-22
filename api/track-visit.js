@@ -8,14 +8,17 @@ module.exports = async function handler(req, res) {
   const { referralCode, pageUrl } = req.body || {};
   if (!referralCode) return res.status(400).json({ success: false });
 
-  // Verify referral code exists
+  // Verify referral code exists and get current state
   const { data: reg } = await supabase
     .from('earlybird_registrations')
-    .select('id')
+    .select('id, phone, referral_visit_count, coupon_tier')
     .eq('referral_code', referralCode)
     .single();
 
   if (!reg) return res.status(404).json({ success: false, message: 'Invalid referral code' });
+
+  const prevTier = reg.coupon_tier;
+  const prevCount = reg.referral_visit_count;
 
   // Create visitor fingerprint from IP + User-Agent
   const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown';
@@ -35,6 +38,31 @@ module.exports = async function handler(req, res) {
       },
       { onConflict: 'referral_code,visitor_fingerprint', ignoreDuplicates: true }
     );
+
+  // Check if tier upgraded (DB trigger already updated the count/tier)
+  const { data: updated } = await supabase
+    .from('earlybird_registrations')
+    .select('referral_visit_count, coupon_tier')
+    .eq('referral_code', referralCode)
+    .single();
+
+  if (updated && updated.coupon_tier !== prevTier && updated.coupon_tier !== 'NONE') {
+    // Tier upgraded! Send notification alimtalk
+    try {
+      const { sendAlimtalk } = require('./_lib/ncloud-alimtalk');
+      const tierInfo = {
+        BRONZE: { name: 'BRONZE', discount: '5%', next: '50명 방문 시 10% 할인 쿠폰으로 업그레이드!' },
+        SILVER: { name: 'SILVER', discount: '10%', next: '100명 방문 시 15% 할인 쿠폰으로 업그레이드!' },
+        GOLD: { name: 'GOLD', discount: '15%', next: '최고 등급 달성! 축하합니다!' }
+      };
+      const info = tierInfo[updated.coupon_tier];
+      // Note: This uses the same alimtalk function but ideally would use a separate template
+      // For now we log it - actual sending requires a separate approved template
+      console.log(`Tier upgrade: ${reg.phone} → ${updated.coupon_tier} (${updated.referral_visit_count} visits)`);
+    } catch (e) {
+      console.error('Tier notification error:', e);
+    }
+  }
 
   return res.status(200).json({ success: true, tracked: !error });
 };

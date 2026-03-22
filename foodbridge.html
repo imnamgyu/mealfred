@@ -1080,20 +1080,26 @@ async function submitEarlybird(course){
     var data=await res.json();
     if(!data.success){alert(data.message||'등록 중 오류가 발생했습니다.');btn.textContent='사전등록 완료하기';btn.disabled=false;return;}
     var refLink=data.referralLink;
+    var isExisting=data.isExisting;
     var modal=document.getElementById('eb-modal');
     var inner='<div style="font-size:64px;margin-bottom:16px;">✅</div>';
-    inner+='<h3 style="font-size:22px;font-weight:900;color:#2D8B4E;margin-bottom:8px;">등록 완료!</h3>';
-    inner+='<p style="font-size:15px;color:#444;margin-bottom:4px;">'+(course?course+' 코스 ':'')+'얼리버드 사전등록이 완료되었습니다.</p>';
-    inner+='<p style="font-size:14px;color:#666;margin-bottom:20px;">입력하신 번호로 <strong>카카오톡 알림톡</strong>을 보내드릴게요!</p>';
+    if(isExisting){
+      inner+='<h3 style="font-size:22px;font-weight:900;color:#2D8B4E;margin-bottom:8px;">이미 등록되어 있습니다!</h3>';
+      inner+='<p style="font-size:15px;color:#444;margin-bottom:20px;">이전에 등록하신 개인 링크를 확인해주세요.</p>';
+    }else{
+      inner+='<h3 style="font-size:22px;font-weight:900;color:#2D8B4E;margin-bottom:8px;">등록 완료!</h3>';
+      inner+='<p style="font-size:15px;color:#444;margin-bottom:4px;">'+(course?course+' 코스 ':'')+'얼리버드 사전등록이 완료되었습니다.</p>';
+      inner+='<p style="font-size:14px;color:#666;margin-bottom:20px;">입력하신 번호로 <strong>카카오톡 알림톡</strong>을 보내드릴게요!</p>';
+    }
     inner+='<div style="background:linear-gradient(135deg,#E8F5E9,#F1F8E9);border-radius:16px;padding:20px;margin-bottom:20px;text-align:left;">';
     inner+='<div style="font-size:14px;font-weight:800;color:#1a5c32;margin-bottom:10px;">🔗 나만의 개인 링크</div>';
-    inner+='<div style="background:#fff;border:2px solid #C8E6C9;border-radius:10px;padding:12px;display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
-    inner+='<input id="ref-link" value="'+refLink+'" readonly style="flex:1;border:none;font-size:13px;font-weight:600;color:#2E7D32;background:transparent;outline:none;font-family:inherit;">';
-    inner+='<button onclick="navigator.clipboard.writeText(document.getElementById(\'ref-link\').value);this.textContent=\'복사됨!\';this.style.background=\'#2E7D32\';this.style.color=\'#fff\'" style="padding:8px 14px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;font-size:12px;font-weight:700;color:#2E7D32;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.2s;">링크 복사</button>';
-    inner+='</div>';
-    inner+='<div style="font-size:12px;color:#555;line-height:1.8;">';
+    inner+='<div style="background:#fff;border:2px solid #C8E6C9;border-radius:10px;padding:12px;margin-bottom:10px;word-break:break-all;font-size:13px;font-weight:600;color:#2E7D32;">'+refLink+'</div>';
+    inner+='<button onclick="navigator.clipboard.writeText(\''+refLink+'\');this.textContent=\'복사 완료!\';this.style.background=\'#2E7D32\';this.style.color=\'#fff\'" style="width:100%;padding:10px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;font-size:13px;font-weight:700;color:#2E7D32;cursor:pointer;font-family:inherit;transition:all 0.2s;margin-bottom:12px;">링크 복사하기</button>';
+    inner+='<div style="font-size:12px;color:#555;line-height:2;">';
     inner+='이 링크로 방문자가 들어오면 추가 할인!<br>';
-    inner+='<span style="background:#FFF8E1;padding:2px 6px;border-radius:4px;font-weight:600;">10명 → 5%</span> · <span style="background:#E3F2FD;padding:2px 6px;border-radius:4px;font-weight:600;">50명 → 10%</span> · <span style="background:#FFF3E0;padding:2px 6px;border-radius:4px;font-weight:600;">100명 → 15%</span> 추가 할인 쿠폰</div>';
+    inner+='<span style="background:#FFF8E1;padding:3px 8px;border-radius:4px;font-weight:600;">10명 방문 → 5% 할인 쿠폰</span><br>';
+    inner+='<span style="background:#E3F2FD;padding:3px 8px;border-radius:4px;font-weight:600;">50명 방문 → 10% 할인 쿠폰</span><br>';
+    inner+='<span style="background:#FFF3E0;padding:3px 8px;border-radius:4px;font-weight:600;">100명 방문 → 15% 할인 쿠폰</span></div>';
     inner+='</div>';
     inner+='<button onclick="document.getElementById(\'eb-modal\').remove()" style="padding:14px 40px;background:#2D8B4E;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>';
     modal.querySelector('div > div').innerHTML=inner;

@@ -661,28 +661,63 @@ function scrollToSection(id){document.getElementById(id).scrollIntoView({behavio
 function openEarlybird(course){
   if(document.getElementById('eb-modal')) document.getElementById('eb-modal').remove();
   var c=course||'';
-  var html='<div id="eb-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.remove()">';
-  html+='<div style="background:#fff;border-radius:24px;padding:40px 32px;max-width:420px;width:100%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.2);">';
+  var html='<div id="eb-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;" onclick="if(event.target===this)this.remove()">';
+  html+='<div style="background:#fff;border-radius:24px;padding:40px 32px;max-width:440px;width:100%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,0.2);position:relative;margin:auto;">';
   html+='<div style="font-size:48px;margin-bottom:12px;">🎉</div>';
-  html+='<h3 style="font-size:22px;font-weight:900;margin-bottom:8px;color:#1B5E20;">얼리버드 사전등록</h3>';
-  if(c) html+='<p style="font-size:14px;color:#1B5E20;font-weight:700;margin-bottom:4px;">'+c+' 코스 관심 등록</p>';
-  html+='<p style="font-size:14px;color:#666;margin-bottom:4px;"><span style="text-decoration:line-through;opacity:0.5;">정가 390,000원</span> → <strong style="color:#1B5E20;font-size:18px;">199,000원</strong></p>';
+  html+='<h3 style="font-size:22px;font-weight:900;margin-bottom:8px;color:#1a5c32;">얼리버드 사전등록</h3>';
+  if(c) html+='<p style="font-size:14px;color:#7B2D8E;font-weight:700;margin-bottom:4px;">'+c+' 코스 관심 등록</p>';
+  html+='<p style="font-size:14px;color:#666;margin-bottom:4px;"><span style="text-decoration:line-through;opacity:0.5;">정가 390,000원</span> → <strong style="color:#2D8B4E;font-size:18px;">199,000원</strong></p>';
   html+='<p style="font-size:12px;color:#FF5252;font-weight:600;margin-bottom:20px;">49% 할인 · 얼리버드 한정</p>';
   html+='<div style="text-align:left;margin-bottom:16px;">';
-  html+='<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">📱 연락받으실 전화번호</label>';
-  html+='<input id="eb-phone" type="tel" placeholder="010-0000-0000" maxlength="13" style="width:100%;padding:14px 16px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e0e0e0\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');if(v.length>3&&v.length<=7)v=v.slice(0,3)+\'-\'+v.slice(3);else if(v.length>7)v=v.slice(0,3)+\'-\'+v.slice(3,7)+\'-\'+v.slice(7,11);this.value=v;">';
+  html+='<label style="font-size:13px;font-weight:600;color:#444;display:block;margin-bottom:6px;">📱 전화번호를 입력하면 얼리버드 등록이 완료됩니다</label>';
+  html+='<input id="eb-phone" type="tel" placeholder="010-0000-0000" maxlength="13" style="width:100%;padding:14px 16px;border:2px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor=\'#2D8B4E\'" onblur="this.style.borderColor=\'#e0e0e0\'" oninput="var v=this.value.replace(/[^0-9]/g,\'\');if(v.length>3&&v.length<=7)v=v.slice(0,3)+\'-\'+v.slice(3);else if(v.length>7)v=v.slice(0,3)+\'-\'+v.slice(3,7)+\'-\'+v.slice(7,11);this.value=v;">';
   html+='</div>';
-  html+='<button onclick="submitEarlybird(\''+c+'\')" style="width:100%;padding:16px;background:#1B5E20;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;">사전등록 완료하기</button>';
-  html+='<p style="font-size:11px;color:#aaa;margin-top:12px;">출시 시 알림 문자를 보내드립니다 · 등록만으로 비용 발생 없음</p>';
+  html+='<div style="background:#F1F8E9;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">';
+  html+='<div style="font-size:12px;font-weight:700;color:#2E7D32;margin-bottom:6px;">🔗 개인 링크로 추가 할인</div>';
+  html+='<div style="font-size:11px;color:#555;line-height:1.7;">등록 후 나만의 개인 링크가 발급됩니다.<br>이 링크로 방문자가 들어오면 추가 할인을 받을 수 있어요!<br>';
+  html+='<span style="color:#2E7D32;font-weight:600;">10명 이상</span> 방문 → <strong>5% 추가 할인 쿠폰</strong><br>';
+  html+='<span style="color:#1565C0;font-weight:600;">50명 이상</span> 방문 → <strong>10% 추가 할인 쿠폰</strong><br>';
+  html+='<span style="color:#FF6F00;font-weight:600;">100명 이상</span> 방문 → <strong>15% 추가 할인 쿠폰</strong></div>';
+  html+='</div>';
+  html+='<button id="eb-submit-btn" onclick="submitEarlybird(\''+c+'\')" style="width:100%;padding:16px;background:#2D8B4E;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.2s;" onmouseover="this.style.background=\'#1a5c32\'" onmouseout="this.style.background=\'#2D8B4E\'">사전등록 완료하기</button>';
+  html+='<p style="font-size:11px;color:#aaa;margin-top:12px;">카카오톡 알림톡으로 등록 확인 발송 · 비용 발생 없음</p>';
   html+='</div></div>';
   document.body.insertAdjacentHTML('beforeend',html);
   setTimeout(function(){document.getElementById('eb-phone').focus();},100);
 }
-function submitEarlybird(course){
+async function submitEarlybird(course){
   var phone=document.getElementById('eb-phone').value.replace(/[^0-9]/g,'');
   if(phone.length<10||phone.length>11){alert('올바른 전화번호를 입력해주세요.');return;}
-  var modal=document.getElementById('eb-modal');
-  modal.querySelector('div > div').innerHTML='<div style="font-size:64px;margin-bottom:16px;">✅</div><h3 style="font-size:22px;font-weight:900;color:#1B5E20;margin-bottom:8px;">등록 완료!</h3><p style="font-size:15px;color:#444;margin-bottom:4px;">'+(course?course+' 코스 ':'')+'얼리버드 사전등록이 완료되었습니다.</p><p style="font-size:14px;color:#666;margin-bottom:20px;">출시 시 <strong>'+document.getElementById('eb-phone').value+'</strong>로<br>알림 문자를 보내드릴게요!</p><button onclick="document.getElementById(\'eb-modal\').remove()" style="padding:14px 40px;background:#1B5E20;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>';
+  var btn=document.getElementById('eb-submit-btn');
+  btn.textContent='등록 중...';btn.disabled=true;
+  var referredBy=sessionStorage.getItem('mealfred_ref')||null;
+  try{
+    var res=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone,course:course||null,referredBy:referredBy})});
+    var data=await res.json();
+    if(!data.success){alert(data.message||'등록 중 오류가 발생했습니다.');btn.textContent='사전등록 완료하기';btn.disabled=false;return;}
+    var refLink=data.referralLink;
+    var isExisting=data.isExisting;
+    var modal=document.getElementById('eb-modal');
+    var inner='<div style="font-size:64px;margin-bottom:16px;">✅</div>';
+    if(isExisting){
+      inner+='<h3 style="font-size:22px;font-weight:900;color:#2D8B4E;margin-bottom:8px;">이미 등록되어 있습니다!</h3>';
+      inner+='<p style="font-size:15px;color:#444;margin-bottom:20px;">이전에 등록하신 개인 링크를 확인해주세요.</p>';
+    }else{
+      inner+='<h3 style="font-size:22px;font-weight:900;color:#2D8B4E;margin-bottom:8px;">등록 완료!</h3>';
+      inner+='<p style="font-size:15px;color:#444;margin-bottom:4px;">'+(course?course+' 코스 ':'')+'얼리버드 사전등록이 완료되었습니다.</p>';
+      inner+='<p style="font-size:14px;color:#666;margin-bottom:20px;">입력하신 번호로 <strong>카카오톡 알림톡</strong>을 보내드릴게요!</p>';
+    }
+    inner+='<div style="background:linear-gradient(135deg,#E8F5E9,#F1F8E9);border-radius:16px;padding:20px;margin-bottom:20px;text-align:left;">';
+    inner+='<div style="font-size:14px;font-weight:800;color:#1a5c32;margin-bottom:10px;">🔗 나만의 개인 링크</div>';
+    inner+='<div style="background:#fff;border:2px solid #C8E6C9;border-radius:10px;padding:12px;margin-bottom:10px;word-break:break-all;font-size:13px;font-weight:600;color:#2E7D32;">'+refLink+'</div>';
+    inner+='<button onclick="navigator.clipboard.writeText(\''+refLink+'\');this.textContent=\'복사 완료!\';this.style.background=\'#2E7D32\';this.style.color=\'#fff\'" style="width:100%;padding:10px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;font-size:13px;font-weight:700;color:#2E7D32;cursor:pointer;font-family:inherit;transition:all 0.2s;margin-bottom:10px;">링크 복사하기</button>';
+    inner+='<div style="font-size:12px;color:#555;line-height:1.8;">';
+    inner+='이 링크로 방문자가 들어오면 추가 할인!<br>';
+    inner+='<span style="background:#FFF8E1;padding:2px 6px;border-radius:4px;font-weight:600;">10명 → 5%</span> · <span style="background:#E3F2FD;padding:2px 6px;border-radius:4px;font-weight:600;">50명 → 10%</span> · <span style="background:#FFF3E0;padding:2px 6px;border-radius:4px;font-weight:600;">100명 → 15%</span> 추가 할인 쿠폰</div>';
+    inner+='</div>';
+    inner+='<button onclick="document.getElementById(\'eb-modal\').remove()" style="padding:14px 40px;background:#2D8B4E;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>';
+    modal.querySelector('div > div').innerHTML=inner;
+  }catch(e){alert('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');btn.textContent='사전등록 완료하기';btn.disabled=false;}
 }
 
 document.querySelectorAll('.faq-item').forEach(item=>{
