@@ -85,7 +85,7 @@ module.exports = async function handler(req, res) {
         GOLD: { discount: '15%', next: '최고 혜택 달성! 축하합니다!' }
       };
       const info = tierInfo[updated.coupon_tier];
-      const refLink = `https://mealfred.com/?ref=${referralCode}`;
+      const refLink = `https://mealfred.com/foodbridge.html?ref=${referralCode}`;
       await sendCouponAlimtalk({
         phone: reg.phone,
         visitCount: updated.referral_visit_count,

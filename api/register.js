@@ -24,7 +24,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       success: true,
       referralCode: existing.referral_code,
-      referralLink: `https://mealfred.com/?ref=${existing.referral_code}`,
+      referralLink: `https://mealfred.com/foodbridge.html?ref=${existing.referral_code}`,
       isExisting: true
     });
   }
@@ -59,7 +59,7 @@ module.exports = async function handler(req, res) {
   }
 
   // Send 알림톡 via Naver Cloud SENS
-  const referralLink = `https://mealfred.com/?ref=${referralCode}`;
+  const referralLink = `https://mealfred.com/foodbridge.html?ref=${referralCode}`;
   try {
     const { sendAlimtalk } = require('./_lib/ncloud-alimtalk');
     const alimResult = await sendAlimtalk({ phone: cleanPhone, referralCode, referralLink, course: course || null });
