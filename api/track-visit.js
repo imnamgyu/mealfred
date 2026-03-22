@@ -18,12 +18,42 @@ module.exports = async function handler(req, res) {
   if (!reg) return res.status(404).json({ success: false, message: 'Invalid referral code' });
 
   const prevTier = reg.coupon_tier;
-  const prevCount = reg.referral_visit_count;
 
   // Create visitor fingerprint from IP + User-Agent
   const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown';
+  const cleanIp = ip.split(',')[0].trim();
   const ua = req.headers['user-agent'] || 'unknown';
   const fingerprint = crypto.createHash('sha256').update(ip + ua).digest('hex').slice(0, 16);
+
+  // === ANTI-ABUSE: IP 기반 시간 제한 ===
+  // 같은 IP에서 같은 레퍼럴 코드로 1시간 내 재방문은 무시
+  const { data: recentFromIp } = await supabase
+    .from('referral_visits')
+    .select('id')
+    .eq('referral_code', referralCode)
+    .eq('visitor_ip', cleanIp)
+    .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString())
+    .limit(1);
+
+  if (recentFromIp && recentFromIp.length > 0) {
+    return res.status(200).json({ success: true, tracked: false, reason: 'recent_visit' });
+  }
+
+  // === ANTI-ABUSE: 같은 레퍼럴 코드에 1시간 내 10개 이상 서로 다른 IP면 의심 ===
+  const { count: recentCount } = await supabase
+    .from('referral_visits')
+    .select('id', { count: 'exact', head: true })
+    .eq('referral_code', referralCode)
+    .gte('created_at', new Date(Date.now() - 60 * 60 * 1000).toISOString());
+
+  if (recentCount >= 10) {
+    console.warn(`Abuse alert: ${referralCode} got ${recentCount} visits in 1 hour`);
+    return res.status(200).json({ success: true, tracked: false, reason: 'rate_limited' });
+  }
+
+  // === ANTI-ABUSE: 자기 자신 클릭 방지 (등록자 IP와 동일하면 무시) ===
+  // 등록 시 IP를 저장하지 않으므로, 레퍼럴 코드 소유자의 전화번호로 등록된 fingerprint 체크
+  // → fingerprint 기반 중복 제거로 이미 처리됨
 
   // Insert visit (ON CONFLICT DO NOTHING for dedup)
   const { error } = await supabase
@@ -32,7 +62,7 @@ module.exports = async function handler(req, res) {
       {
         referral_code: referralCode,
         visitor_fingerprint: fingerprint,
-        visitor_ip: ip.split(',')[0].trim(),
+        visitor_ip: cleanIp,
         user_agent: ua.slice(0, 500),
         page_url: pageUrl || null
       },
