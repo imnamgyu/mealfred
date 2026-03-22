@@ -14,6 +14,11 @@
   var tracked = sessionStorage.getItem('mealfred_ref_tracked_' + ref);
   if (tracked) return;
 
+  // GA4 referral visit event
+  if (typeof gtag === 'function') {
+    gtag('event', 'referral_visit', { referral_code: ref, page: window.location.pathname });
+  }
+
   fetch('/api/track-visit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
