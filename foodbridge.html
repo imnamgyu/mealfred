@@ -1407,7 +1407,7 @@ function filterCat(lv,btn){
 function toggleFaq(el){el.classList.toggle('open');}
 function addCart(item){openEarlybird(item);}
 function generateRefCode(){var c='MLFD'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).substr(2,4).toUpperCase();return c;}
-function getRefTier(count){if(count>=100)return{tier:'GOLD',discount:'50%',color:'#FF6F00',next:null};if(count>=50)return{tier:'SILVER',discount:'25%',color:'#78909C',next:'100명 달성 시 50% 할인'};if(count>=5)return{tier:'BRONZE',discount:'10%',color:'#8D6E63',next:'50명 달성 시 25% 할인'};return{tier:'START',discount:'0%',color:'#BDBDBD',next:'5명 초대 시 10% 할인 쿠폰'};}
+function getRefTier(count){if(count>=50)return{tier:'GOLD',discount:'50%',color:'#FF6F00',next:null};if(count>=20)return{tier:'SILVER',discount:'25%',color:'#78909C',next:'50명 달성 시 50% 할인'};if(count>=5)return{tier:'BRONZE',discount:'10%',color:'#8D6E63',next:'20명 달성 시 25% 할인'};return{tier:'START',discount:'0%',color:'#BDBDBD',next:'5명 초대 시 10% 할인 쿠폰'};}
 function openEarlybird(course){
   if(document.getElementById('eb-modal')) document.getElementById('eb-modal').remove();
   var c=course||'';
@@ -1427,9 +1427,9 @@ function openEarlybird(course){
   html+='<div style="background:#F1F8E9;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">';
   html+='<div style="font-size:12px;font-weight:700;color:#2E7D32;margin-bottom:6px;">🔗 개인 링크로 추가 할인</div>';
   html+='<div style="font-size:11px;color:#555;line-height:1.7;">등록 후 나만의 개인 링크가 발급됩니다.<br>이 링크로 방문자가 들어오면 추가 할인을 받을 수 있어요!<br>';
-  html+='<span style="color:#2E7D32;font-weight:600;">10명 이상</span> 방문 → <strong>10% 추가 할인</strong> <span style="color:#2E7D32;">(179,100원)</span><br>';
-  html+='<span style="color:#1565C0;font-weight:600;">50명 이상</span> 방문 → <strong>25% 추가 할인</strong> <span style="color:#1565C0;">(149,250원)</span><br>';
-  html+='<span style="color:#FF6F00;font-weight:600;">100명 이상</span> 방문 → <strong>50% 추가 할인</strong> <span style="color:#FF6F00;">(99,500원!)</span></div>';
+  html+='<span style="color:#2E7D32;font-weight:600;">5명 이상</span> 방문 → <strong>10% 추가 할인</strong> <span style="color:#2E7D32;">(179,100원)</span><br>';
+  html+='<span style="color:#1565C0;font-weight:600;">20명 이상</span> 방문 → <strong>25% 추가 할인</strong> <span style="color:#1565C0;">(149,250원)</span><br>';
+  html+='<span style="color:#FF6F00;font-weight:600;">50명 이상</span> 방문 → <strong>50% 추가 할인</strong> <span style="color:#FF6F00;">(99,500원!)</span></div>';
   html+='</div>';
   html+='<button id="eb-submit-btn" onclick="submitEarlybird(\''+c+'\')" style="width:100%;padding:16px;background:#2D8B4E;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.2s;" onmouseover="this.style.background=\'#1a5c32\'" onmouseout="this.style.background=\'#2D8B4E\'">사전등록 완료하기</button>';
   html+='<p style="font-size:11px;color:#aaa;margin-top:12px;">카카오톡 알림톡으로 등록 확인 발송 · 비용 발생 없음</p>';
@@ -1467,9 +1467,9 @@ async function submitEarlybird(course){
     inner+='<button onclick="navigator.clipboard.writeText(\''+refLink+'\');this.textContent=\'복사 완료!\';this.style.background=\'#2E7D32\';this.style.color=\'#fff\';gtag(\'event\',\'referral_link_copy\',{referral_code:\''+data.referralCode+'\'})" style="width:100%;padding:10px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;font-size:13px;font-weight:700;color:#2E7D32;cursor:pointer;font-family:inherit;transition:all 0.2s;margin-bottom:12px;">링크 복사하기</button>';
     inner+='<div style="font-size:12px;color:#555;line-height:2;">';
     inner+='이 링크로 방문자가 들어오면 추가 할인!<br>';
-    inner+='<span style="background:#FFF8E1;padding:3px 8px;border-radius:4px;font-weight:600;">10명 방문 → 10% 할인 (179,100원)</span><br>';
-    inner+='<span style="background:#E3F2FD;padding:3px 8px;border-radius:4px;font-weight:600;">50명 방문 → 25% 할인 (149,250원)</span><br>';
-    inner+='<span style="background:#FFF3E0;padding:3px 8px;border-radius:4px;font-weight:600;">100명 방문 → 50% 할인 (99,500원!)</span></div>';
+    inner+='<span style="background:#FFF8E1;padding:3px 8px;border-radius:4px;font-weight:600;">5명 방문 → 10% 할인 (179,100원)</span><br>';
+    inner+='<span style="background:#E3F2FD;padding:3px 8px;border-radius:4px;font-weight:600;">20명 방문 → 25% 할인 (149,250원)</span><br>';
+    inner+='<span style="background:#FFF3E0;padding:3px 8px;border-radius:4px;font-weight:600;">50명 방문 → 50% 할인 (99,500원!)</span></div>';
     inner+='</div>';
     inner+='<button onclick="document.getElementById(\'eb-modal\').remove()" style="padding:14px 40px;background:#2D8B4E;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>';
     modal.querySelector('div > div').innerHTML=inner;
