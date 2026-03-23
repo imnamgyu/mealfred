@@ -8,9 +8,9 @@ function generateReferralCode() {
 }
 
 function getTier(visitCount) {
-  if (visitCount >= 100) return { tier: 'GOLD', discount: '15%' };
-  if (visitCount >= 50) return { tier: 'SILVER', discount: '10%' };
-  if (visitCount >= 10) return { tier: 'BRONZE', discount: '5%' };
+  if (visitCount >= 100) return { tier: 'GOLD', discount: '50%' };
+  if (visitCount >= 50) return { tier: 'SILVER', discount: '25%' };
+  if (visitCount >= 10) return { tier: 'BRONZE', discount: '10%' };
   return { tier: 'NONE', discount: '0%' };
 }
 

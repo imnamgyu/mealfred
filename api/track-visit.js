@@ -80,9 +80,9 @@ module.exports = async function handler(req, res) {
     try {
       const { sendCouponAlimtalk } = require('./_lib/ncloud-alimtalk');
       const tierInfo = {
-        BRONZE: { discount: '5%', next: '50명 방문 시 10% 할인 쿠폰을 받을 수 있어요!' },
-        SILVER: { discount: '10%', next: '100명 방문 시 15% 할인 쿠폰을 받을 수 있어요!' },
-        GOLD: { discount: '15%', next: '최고 혜택 달성! 축하합니다!' }
+        BRONZE: { discount: '10%', next: '50명 방문 시 25% 할인 쿠폰을 받을 수 있어요!' },
+        SILVER: { discount: '25%', next: '100명 방문 시 50% 할인 쿠폰을 받을 수 있어요!' },
+        GOLD: { discount: '50%', next: '최고 혜택 달성! 축하합니다!' }
       };
       const info = tierInfo[updated.coupon_tier];
       const refLink = `https://mealfred.com/foodbridge.html?ref=${referralCode}`;

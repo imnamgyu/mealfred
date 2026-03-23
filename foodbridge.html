@@ -171,6 +171,46 @@
   .p-card .btn{display:block;width:100%;padding:13px;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:12px;transition:all 0.2s;}
   .p-card .btn.pri{background:#2D8B4E;color:#fff;} .p-card .btn.pri:hover{background:#246e3e;}
   .p-card .btn.sec{background:#f0f0f0;color:#555;} .p-card .btn.sec:hover{background:#e5e5e5;}
+  .p-card .btn.kit{background:#FFF3E0;color:#E65100;border:1px solid #FFE0B2;font-size:12px;padding:10px;} .p-card .btn.kit:hover{background:#FFE0B2;}
+
+  /* ===== KIT PREVIEW MODAL ===== */
+  .kit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto;}
+  .kit-modal{background:#fafaf7;border-radius:24px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.25);position:relative;}
+  .kit-modal-header{background:linear-gradient(135deg,#FF8A00,#FF6D00);color:#fff;padding:24px;border-radius:24px 24px 0 0;text-align:center;position:sticky;top:0;z-index:1;}
+  .kit-modal-header h3{font-size:20px;font-weight:900;margin-bottom:4px;}
+  .kit-modal-header p{font-size:12px;opacity:0.9;}
+  .kit-modal-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:20px;width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .kit-modal-body{padding:20px;}
+  .km-section{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 8px rgba(0,0,0,0.04);}
+  .km-section h4{font-size:14px;font-weight:800;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .km-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+  .km-item{text-align:center;background:#f8faf8;border-radius:10px;padding:10px 4px 8px;border:1px solid #e8f0ea;}
+  .km-item .ki{font-size:24px;display:block;margin-bottom:4px;}
+  .km-item .kn{font-size:10px;font-weight:600;color:#444;line-height:1.2;}
+  .km-item .kq{font-size:9px;color:#999;}
+  .km-week{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .km-wnum{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0;}
+  .km-wnum.s{background:#FF8A00;} .km-wnum.c{background:#2D8B4E;}
+  .km-wtitle h5{font-size:13px;font-weight:700;color:#333;} .km-wtitle span{font-size:10px;color:#999;}
+  .km-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .km-chip{display:flex;align-items:center;gap:6px;background:#FFF8F0;border:1px solid #FFE0B2;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:600;color:#BF360C;}
+  .km-chip .ce{font-size:18px;}
+  .km-acts{font-size:11px;color:#888;line-height:1.7;padding-left:4px;}
+  .km-acts strong{color:#555;}
+  .km-home{background:#f0f0f0;border-radius:8px;padding:10px 14px;font-size:11px;color:#777;margin-top:8px;}
+  .km-tl{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+  .km-tl:last-child{border:none;}
+  .km-tl-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .km-tl-icon.pkg{background:#FFF3E0;} .km-tl-icon.play{background:#E3F2FD;} .km-tl-icon.done{background:#E8F5E9;}
+  .km-tl-body{font-size:12px;color:#555;} .km-tl-body strong{color:#333;display:block;margin-bottom:2px;}
+  .km-summary{background:linear-gradient(135deg,#FFF8F0,#FFF3E0);border-radius:16px;padding:20px;text-align:center;border:2px solid #FFE0B2;}
+  .km-summary h4{font-size:16px;font-weight:900;color:#E65100;margin-bottom:12px;}
+  .km-sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+  .km-sum-item{background:#fff;border-radius:10px;padding:10px 6px;}
+  .km-sum-item strong{display:block;font-size:18px;font-weight:900;color:#FF6D00;}
+  .km-sum-item span{font-size:10px;color:#888;}
+  .km-note{font-size:11px;color:#999;line-height:1.6;}
+  @media(max-width:480px){.km-grid{grid-template-columns:repeat(3,1fr);}}
 
   /* ===== BUNDLE ===== */
   .bundle-section{background:linear-gradient(135deg,#f8faf8,#eef6f0);}
@@ -415,6 +455,39 @@
     .phone{width:200px;}
     .phone-screen{height:360px;}
   }
+
+  /* ===== TRUST SECTION ===== */
+  .trust-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px;text-align:center;}
+  .trust-metric-card{background:#fff;border-radius:16px;padding:24px 12px;box-shadow:0 2px 12px rgba(0,0,0,0.05);}
+  .trust-num{font-size:clamp(24px,4vw,36px);font-weight:900;color:#2D8B4E;}
+  .trust-label{font-size:12px;color:#888;margin-top:4px;}
+  .trust-sub{font-size:10px;color:#bbb;}
+  .trust-points{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px;}
+  .trust-point-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.05);border-left:4px solid #2D8B4E;}
+  .tp-title{font-size:14px;font-weight:800;color:#1a1a1a;margin-bottom:8px;}
+  .tp-desc{font-size:12px;color:#777;line-height:1.7;}
+  .trust-highlight{background:linear-gradient(135deg,#E8F5E9,#F1F8E9);border-radius:16px;padding:24px 32px;text-align:center;border:2px solid #C8E6C9;}
+  .trust-highlight-num{font-size:clamp(28px,5vw,40px);font-weight:900;color:#1b6e38;}
+
+  @media(max-width:768px){
+    .trust-metrics{grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:28px;}
+    .trust-metric-card{padding:20px 10px;}
+    .trust-num{font-size:clamp(22px,5vw,30px);}
+    .trust-points{grid-template-columns:1fr;gap:14px;margin-bottom:24px;}
+    .trust-point-card{padding:18px 16px;}
+    .tp-title{font-size:13px;}
+    .tp-desc{font-size:11px;}
+    .trust-highlight{padding:20px 16px;}
+    .trust-highlight-num{font-size:clamp(22px,5vw,32px);}
+  }
+  @media(max-width:480px){
+    .trust-metrics{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .trust-metric-card{padding:16px 8px;border-radius:12px;}
+    .trust-num{font-size:clamp(20px,6vw,28px);}
+    .trust-label{font-size:11px;}
+    .trust-point-card{padding:16px 14px;border-radius:12px;}
+    .trust-highlight{padding:16px 12px;border-radius:12px;}
+  }
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script>
@@ -436,15 +509,16 @@
 <!-- ===== HERO ===== -->
 <section class="hero">
   <div class="hero-content">
-    <div class="hero-framework">SOS Approach to Feeding<sup class="fn" title="Dr. Kay Toomey, 32-step eating hierarchy" style="color:#a8e6be;">1</sup> × 밀프레드</div>
-    <h1><em>편식, 5주 안에 바꿀 수 있습니다</em></h1>
-    <p>식약처 푸드브릿지 기반 편식개선 프로그램<sup class="fn" title="식약처 어린이급식관리지원센터" style="color:#a8e6be;">3</sup></p>
+    <div class="hero-framework">편식개선 5주 홈프로그램 · 밀프레드</div>
+    <h1><em>"안 먹어!" 하던 아이,<br>5주면 한 입 먹어요</em></h1>
+    <p style="font-size:15px;opacity:0.92;line-height:1.8;margin-bottom:8px;">미국 SOS Approach × 식약처 푸드브릿지 기반<br>감각놀이 키트가 매주 집으로 갑니다.</p>
     <div style="margin-bottom:20px;">
       <span style="font-size:18px;text-decoration:line-through;opacity:0.6;">정가 390,000원</span>
       <span style="display:inline-block;background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;margin-left:8px;">얼리버드 49% OFF</span>
     </div>
     <div style="font-size:clamp(28px,5vw,42px);font-weight:900;margin-bottom:8px;">199,000<span style="font-size:0.6em;">원</span></div>
-    <p style="font-size:13px;opacity:0.8;margin-bottom:12px;">5주 완성 · 회당 9,476원 · 지금 등록하면 이 가격 확정</p>
+    <p style="font-size:13px;opacity:0.8;margin-bottom:6px;">5주 완성 · 회당 9,476원 · 지금 등록하면 이 가격 확정</p>
+    <div style="display:block;margin-bottom:12px;"><span style="font-size:12px;opacity:0.8;">💡 친구 소개하면</span> <span style="display:inline-block;background:#FF5252;color:#fff;font-size:12px;font-weight:800;padding:3px 10px;border-radius:8px;margin-left:4px;">최대 50% 추가 할인 → 99,500원</span></div>
     <div id="hero-countdown" style="background:rgba(255,82,82,0.15);border:1px solid rgba(255,82,82,0.4);border-radius:12px;padding:10px 16px;margin-bottom:16px;display:inline-block;">
       <span style="font-size:12px;font-weight:700;color:#FF5252;">⏰ 얼리버드 마감까지</span>
       <span id="hero-timer" style="font-size:18px;font-weight:900;color:#fff;margin-left:8px;letter-spacing:1px;"></span>
@@ -564,6 +638,159 @@
   </div>
 </section>
 
+<!-- ===== MEALFRED TRUST ===== -->
+<section class="trust-section" style="background:linear-gradient(180deg,#f0f7f2,#fff);">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">WHY MEALFRED</div>
+      <h2>전국 1위 교육용 요리키트 전문 브랜드,<br>밀프레드가 만듭니다</h2>
+      <p>전국 학교·어린이집·유치원 전용 요리키트 개발 노하우로 편식 개선을 도와드립니다.</p>
+    </div>
+    <!-- 핵심 수치 -->
+    <div class="trust-metrics">
+      <div class="trust-metric-card">
+        <div class="trust-num">3,000+</div>
+        <div class="trust-label">전국 거래 기관</div>
+        <div class="trust-sub">학교·어린이집·센터</div>
+      </div>
+      <div class="trust-metric-card">
+        <div class="trust-num">100,000+</div>
+        <div class="trust-label">누적 체험 아동수</div>
+        <div class="trust-sub">안전사고 0건</div>
+      </div>
+      <div class="trust-metric-card">
+        <div class="trust-num">89.6%</div>
+        <div class="trust-label">선생님 추천율</div>
+        <div class="trust-sub">280건 설문 결과</div>
+      </div>
+      <div class="trust-metric-card">
+        <div class="trust-num">50+</div>
+        <div class="trust-label">교육용 요리키트 종류</div>
+        <div class="trust-sub">누리과정·초등 실과 연계</div>
+      </div>
+    </div>
+    <!-- 신뢰 포인트 -->
+    <div class="trust-points">
+      <div class="trust-point-card">
+        <div class="tp-title">🛡️ 삼성화재 PL보험 5억원</div>
+        <div class="tp-desc">모든 키트에 생산물배상책임보험 적용. 10만 명 이상 아동 체험, 안전사고 0건의 실적이 증명합니다.</div>
+      </div>
+      <div class="trust-point-card">
+        <div class="tp-title">📰 부산일보 보도</div>
+        <div class="tp-desc">부산 어린이집 13곳에 5,000만 원 상당 요리키트 기부 (2026.03). 사하구 노쇠예방 요리수업 무료 진행 (2024.07).</div>
+      </div>
+      <div class="trust-point-card">
+        <div class="tp-title">📦 콜드 체인 배송 시스템</div>
+        <div class="tp-desc">폭염에도 신선하게 식재료를 배송하는 노하우. 전국 3,000+ 기관 납품 경험으로 안전 배송합니다.</div>
+      </div>
+      <div class="trust-point-card">
+        <div class="tp-title">🎓 누리과정 5개 영역 연계</div>
+        <div class="tp-desc">2022 개정 국가 교육과정(누리과정·초등 실과·중학 기술가정) 정식 연계 커리큘럼으로 설계했습니다.</div>
+      </div>
+    </div>
+    <!-- 97.4% 잔반 -->
+    <div class="trust-highlight">
+      <div style="font-size:13px;color:#2E7D32;font-weight:700;margin-bottom:4px;">밀프레드 키트로 수업한 날</div>
+      <div class="trust-highlight-num">급식 잔반율 97.4% 감소</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;">직접 만든 음식은 아이들이 남기지 않습니다 · 선생님 280명 설문</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOD BRIDGE 5 STEPS ===== -->
+<section class="bridge-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">편식개선 5단계</div>
+      <h2>1~3주차: 감각놀이 주 5회 · 4~5주차: 요리 주 3회</h2>
+      <p>SOS Approach<sup class="fn">1</sup>의 감각 위계를 가정용으로 재설계</p>
+    </div>
+    <div class="bridge-grid">
+      <div class="b-step"><div class="b-num">1</div><h4>시각탐색</h4><p>색소 놀이, 스탬프<br>관찰일지 그리기</p><div class="exp-tag">노출 1~3회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">2</div><h4>후각·촉각탐색</h4><p>만지기, 냄새 맡기<br>찢기·갈기 놀이</p><div class="exp-tag">노출 4~6회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">3</div><h4>입술접촉</h4><p>입에 대보기<br>소량 맛보기</p><div class="exp-tag">노출 7~9회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">4</div><h4>씹어보기</h4><p>한 입 도전<br>다양한 식감 경험</p><div class="exp-tag">노출 10~12회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">5</div><h4>자유롭게 먹기</h4><p>직접 요리하기<br>가족 식탁 함께</p><div class="exp-tag">노출 13~15회</div></div>
+    </div>
+    <p style="text-align:center;margin-top:24px;font-size:13px;color:#666;"><strong style="color:#2D8B4E;">1~3주차: 주 5일(평일 매일) 감각놀이</strong> · <strong style="color:#2D8B4E;">4~5주차: 주 3일 조리활동</strong>, <strong style="color:#2D8B4E;">총 5주간</strong> 진행합니다<sup class="fn">5</sup></p>
+  </div>
+</section>
+
+<!-- ===== PRODUCT CATALOG ===== -->
+<section class="catalog-section" id="catalog-sec">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">개별 코스 선택</div>
+      <h2>우리 아이에게 필요한 것만 골라서</h2>
+      <p>난이도는 추천 순서입니다. 어떤 식재료든 개별 구매 가능합니다.</p>
+    </div>
+    <div class="cat-filter">
+      <div class="f-btn active" onclick="filterCat('all',this)">전체 9종</div>
+      <div class="f-btn" onclick="filterCat('ha',this)">입문 (하)</div>
+      <div class="f-btn" onclick="filterCat('jung',this)">도전 (중)</div>
+      <div class="f-btn" onclick="filterCat('sang',this)">고급 (상)</div>
+    </div>
+    <div class="cat-grid" id="catalog">
+      <a class="p-card" data-lv="ha" href="carrot-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🥕</span><div class="nm">당근 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 62.4<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 주황색 시각 거부 + 아삭 식감. 식감·맛 적응 빠름 → 첫 편식 개선 경험 최적<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('carrot')">📦 키트 구성 확인하기</button><button class="btn pri">당근 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="ha" href="onion-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🧅</span><div class="nm">양파 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 78.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 매운 향+눈물+냄새 3중 거부. 볶으면 당도 8→40 Brix 변환 → 달콤 변신 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('onion')">📦 키트 구성 확인하기</button><button class="btn pri">양파 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="ha" href="tofu-course.html"><div class="top"><span class="badge ha">입문</span><span class="em"><img src="tofu-icon.svg" alt="두부" style="width:1em;height:1em;vertical-align:middle;"></span><div class="nm">두부 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 46.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">18~42개월 (만 1.5~3.5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 물렁 식감 주원인. 바삭 두부스테이크→순두부 순 식감 단계화<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('tofu')">📦 키트 구성 확인하기</button><button class="btn pri">두부 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="mushroom-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍄</span><div class="nm">버섯 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 72.8<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 식감(물컹)+냄새 이중 거부. 미니 재배키트로 친밀감 형성이 핵심<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('mushroom')">📦 키트 구성 확인하기</button><button class="btn pri">버섯 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="tomato-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍅</span><div class="nm">토마토 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 57.7<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 산미+물컹 식감 복합 거부. 소스→건조→생 순서 형태 변환 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('tomato')">📦 키트 구성 확인하기</button><button class="btn pri">토마토 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="jung" href="paprika-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🫑</span><div class="nm">파프리카 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 49.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 풋내 주원인, 아삭 식감은 낮은 거부. 빨간(단맛)부터 시작<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('paprika')">📦 키트 구성 확인하기</button><button class="btn pri">파프리카 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="spinach-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥬</span><div class="nm">시금치 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 61.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 쓴맛+풀냄새+물컹 삼중 거부. 파우더→건조→신선 순 점진적 접근<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('spinach')">📦 키트 구성 확인하기</button><button class="btn pri">시금치 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="broccoli-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥦</span><div class="nm">브로콜리 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 57.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 전 세계 편식 연구 "최다 거부 채소" 1위<sup class="fn">14</sup>. 나무숲 시각 친밀감부터<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('broccoli')">📦 키트 구성 확인하기</button><button class="btn pri">브로콜리 코스 상세보기</button></div></a>
+
+      <a class="p-card" data-lv="sang" href="eggplant-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🍆</span><div class="nm">가지 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 60.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 보라색 시각 거부+물렁 식감. 바삭 가지칩→구이→볶음 순서<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn kit" onclick="event.preventDefault();event.stopPropagation();showKitPreview('eggplant')">📦 키트 구성 확인하기</button><button class="btn pri">가지 코스 상세보기</button></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BONDING + NURI ===== -->
+<section class="bonding-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label" style="background:#FFF3E0;color:#E65100;">👨‍👩‍👧 엄마와 아이 사이</div>
+      <h2>유튜브 끄고, 30분만<br>같이 요리해보세요</h2>
+      <p>편식개선은 '보너스'. 진짜 가치는 엄마와 아이가 함께하는 특별한 시간입니다.</p>
+    </div>
+    <div class="bonding-grid">
+      <div class="bd-card screen">
+        <span class="big-em">📱</span>
+        <h3>쇼츠 30분의 현실</h3>
+        <p>아이는 화면에 빠지고, 엄마는 잠깐의 휴식. 끝나면 남는 건 <strong>죄책감</strong>뿐.</p>
+        <p>"오늘도 유튜브만 보여줬네…" 대한민국 엄마 78%가 느끼는 디지털 양육 죄책감.</p>
+        <div class="hl red">아이의 언어 발달, 사회성, 집중력에 부정적 영향 — AAP (미국소아과학회)</div>
+      </div>
+      <div class="bd-card together">
+        <span class="big-em">🥕</span>
+        <h3>편식개선 놀이 30분의 기적</h3>
+        <p>"엄마 이거 바삭해!" "소스 찍어먹어볼까?" — 같이 만지고, 냄새 맡고, 같이 먹는 30분.</p>
+        <p>재료도, 가이드도 다 들어있어요. <strong>박스 열고 따라하기만 하면 됩니다.</strong></p>
+        <div class="hl green">공동 요리 부모-자녀의 식사시간 갈등 47% 감소 — Utter et al. (2018)</div>
+      </div>
+    </div>
+    <div class="sec-title" style="margin-top:20px;">
+      <div class="sec-label" style="background:#E3F2FD;color:#1565C0;">🎓 누리과정 5개 영역</div>
+      <h2>편식개선 + 발달교육, 한 번에</h2>
+      <p>어린이집 누리과정을 우리 집 식탁에서. 5개 영역 전부 커버합니다.</p>
+    </div>
+    <div class="nuri-row">
+      <div class="nuri-card"><span class="ni">💪</span><h4>신체운동·건강</h4><p>찢기, 강판갈기, 반죽 → 소근육 + 식습관</p></div>
+      <div class="nuri-card"><span class="ni">💬</span><h4>의사소통</h4><p>"아삭해" "달콤해" 감각어휘 확장</p></div>
+      <div class="nuri-card"><span class="ni">🤝</span><h4>사회관계</h4><p>역할 분담, 협력, 식사 예절</p></div>
+      <div class="nuri-card"><span class="ni">🎨</span><h4>예술경험</h4><p>스탬프, 콜라주, 토핑 배치 디자인</p></div>
+      <div class="nuri-card"><span class="ni">🔬</span><h4>자연탐구</h4><p>"왜 색이 변해?" 과학적 호기심</p></div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== EXPOSURE SCIENCE ===== -->
 <section class="exposure-section">
   <div class="sec">
@@ -639,101 +866,6 @@
     </div>
   </div>
 </section>
-
-<!-- ===== FOOD BRIDGE 5 STEPS ===== -->
-<section class="bridge-section">
-  <div class="sec">
-    <div class="sec-title">
-      <div class="sec-label">편식개선 5단계</div>
-      <h2>1~3주차: 감각놀이 주 5회 · 4~5주차: 요리 주 3회</h2>
-      <p>SOS Approach<sup class="fn">1</sup>의 감각 위계를 가정용으로 재설계</p>
-    </div>
-    <div class="bridge-grid">
-      <div class="b-step"><div class="b-num">1</div><h4>시각탐색</h4><p>색소 놀이, 스탬프<br>관찰일지 그리기</p><div class="exp-tag">노출 1~3회</div><span class="b-arrow">→</span></div>
-      <div class="b-step"><div class="b-num">2</div><h4>후각·촉각탐색</h4><p>만지기, 냄새 맡기<br>찢기·갈기 놀이</p><div class="exp-tag">노출 4~6회</div><span class="b-arrow">→</span></div>
-      <div class="b-step"><div class="b-num">3</div><h4>입술접촉</h4><p>입에 대보기<br>소량 맛보기</p><div class="exp-tag">노출 7~9회</div><span class="b-arrow">→</span></div>
-      <div class="b-step"><div class="b-num">4</div><h4>씹어보기</h4><p>한 입 도전<br>다양한 식감 경험</p><div class="exp-tag">노출 10~12회</div><span class="b-arrow">→</span></div>
-      <div class="b-step"><div class="b-num">5</div><h4>자유롭게 먹기</h4><p>직접 요리하기<br>가족 식탁 함께</p><div class="exp-tag">노출 13~15회</div></div>
-    </div>
-    <p style="text-align:center;margin-top:24px;font-size:13px;color:#666;"><strong style="color:#2D8B4E;">1~3주차: 주 5일(평일 매일) 감각놀이</strong> · <strong style="color:#2D8B4E;">4~5주차: 주 3일 조리활동</strong>, <strong style="color:#2D8B4E;">총 5주간</strong> 진행합니다<sup class="fn">5</sup></p>
-  </div>
-</section>
-
-<!-- ===== PRODUCT CATALOG ===== -->
-<section class="catalog-section" id="catalog-sec">
-  <div class="sec">
-    <div class="sec-title">
-      <div class="sec-label">개별 코스 선택</div>
-      <h2>우리 아이에게 필요한 것만 골라서</h2>
-      <p>난이도는 추천 순서입니다. 어떤 식재료든 개별 구매 가능합니다.</p>
-    </div>
-    <div class="cat-filter">
-      <div class="f-btn active" onclick="filterCat('all',this)">전체 9종</div>
-      <div class="f-btn" onclick="filterCat('ha',this)">입문 (하)</div>
-      <div class="f-btn" onclick="filterCat('jung',this)">도전 (중)</div>
-      <div class="f-btn" onclick="filterCat('sang',this)">고급 (상)</div>
-    </div>
-    <div class="cat-grid" id="catalog">
-      <a class="p-card" data-lv="ha" href="carrot-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🥕</span><div class="nm">당근 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 62.4<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 주황색 시각 거부 + 아삭 식감. 식감·맛 적응 빠름 → 첫 편식 개선 경험 최적<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">당근 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="ha" href="onion-course.html"><div class="top"><span class="badge ha">입문</span><span class="em">🧅</span><div class="nm">양파 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 78.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 매운 향+눈물+냄새 3중 거부. 볶으면 당도 8→40 Brix 변환 → 달콤 변신 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">양파 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="ha" href="tofu-course.html"><div class="top"><span class="badge ha">입문</span><span class="em"><img src="tofu-icon.svg" alt="두부" style="width:1em;height:1em;vertical-align:middle;"></span><div class="nm">두부 코스</div><div class="lv ha">LEVEL 1 · 편식 스코어 46.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#2D8B4E;font-weight:700;">18~42개월 (만 1.5~3.5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 물렁 식감 주원인. 바삭 두부스테이크→순두부 순 식감 단계화<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">두부 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="jung" href="mushroom-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍄</span><div class="nm">버섯 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 72.8<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 식감(물컹)+냄새 이중 거부. 미니 재배키트로 친밀감 형성이 핵심<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">버섯 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="jung" href="tomato-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🍅</span><div class="nm">토마토 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 57.7<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">30~60개월 (만 2.5~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 산미+물컹 식감 복합 거부. 소스→건조→생 순서 형태 변환 전략<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">토마토 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="jung" href="paprika-course.html"><div class="top"><span class="badge jung">도전</span><span class="em">🫑</span><div class="nm">파프리카 코스</div><div class="lv jung">LEVEL 2 · 편식 스코어 49.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#E65100;font-weight:700;">24~48개월 (만 2~4세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 풋내 주원인, 아삭 식감은 낮은 거부. 빨간(단맛)부터 시작<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">파프리카 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="sang" href="spinach-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥬</span><div class="nm">시금치 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 61.6<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 쓴맛+풀냄새+물컹 삼중 거부. 파우더→건조→신선 순 점진적 접근<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">시금치 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="sang" href="broccoli-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🥦</span><div class="nm">브로콜리 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 57.5<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 전 세계 편식 연구 "최다 거부 채소" 1위<sup class="fn">14</sup>. 나무숲 시각 친밀감부터<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">브로콜리 코스 상세보기</button></div></a>
-
-      <a class="p-card" data-lv="sang" href="eggplant-course.html"><div class="top"><span class="badge sang">고급</span><span class="em">🍆</span><div class="nm">가지 코스</div><div class="lv sang">LEVEL 3 · 편식 스코어 60.9<sup class="fn">13</sup></div></div><div class="spec"><div class="spec-r"><span>권장 연령</span><span style="color:#c62828;font-weight:700;">36~60개월 (만 3~5세)</span></div><div class="spec-r"><span>기간</span><span>5주 (감각15+요리6=21회)</span></div><div class="spec-r"><span>배송</span><span>주 1회 × 5회</span></div></div><div class="sci"><strong>거부 패턴:</strong> 보라색 시각 거부+물렁 식감. 바삭 가지칩→구이→볶음 순서<sup class="fn">13</sup></div><div class="foot"><div class="price"><span style="text-decoration:line-through;opacity:0.4;font-size:14px;font-weight:400;">390,000원</span> 199,000원</div><div class="per">5주 21회 · 회당 9,476원</div><button class="btn pri">가지 코스 상세보기</button></div></a>
-    </div>
-  </div>
-</section>
-
-<!-- ===== BONDING + NURI ===== -->
-<section class="bonding-section">
-  <div class="sec">
-    <div class="sec-title">
-      <div class="sec-label" style="background:#FFF3E0;color:#E65100;">👨‍👩‍👧 엄마와 아이 사이</div>
-      <h2>유튜브 끄고, 30분만<br>같이 요리해보세요</h2>
-      <p>편식개선은 '보너스'. 진짜 가치는 엄마와 아이가 함께하는 특별한 시간입니다.</p>
-    </div>
-    <div class="bonding-grid">
-      <div class="bd-card screen">
-        <span class="big-em">📱</span>
-        <h3>쇼츠 30분의 현실</h3>
-        <p>아이는 화면에 빠지고, 엄마는 잠깐의 휴식. 끝나면 남는 건 <strong>죄책감</strong>뿐.</p>
-        <p>"오늘도 유튜브만 보여줬네…" 대한민국 엄마 78%가 느끼는 디지털 양육 죄책감.</p>
-        <div class="hl red">아이의 언어 발달, 사회성, 집중력에 부정적 영향 — AAP (미국소아과학회)</div>
-      </div>
-      <div class="bd-card together">
-        <span class="big-em">🥕</span>
-        <h3>편식개선 놀이 30분의 기적</h3>
-        <p>"엄마 이거 바삭해!" "소스 찍어먹어볼까?" — 같이 만지고, 냄새 맡고, 같이 먹는 30분.</p>
-        <p>재료도, 가이드도 다 들어있어요. <strong>박스 열고 따라하기만 하면 됩니다.</strong></p>
-        <div class="hl green">공동 요리 부모-자녀의 식사시간 갈등 47% 감소 — Utter et al. (2018)</div>
-      </div>
-    </div>
-    <div class="sec-title" style="margin-top:20px;">
-      <div class="sec-label" style="background:#E3F2FD;color:#1565C0;">🎓 누리과정 5개 영역</div>
-      <h2>편식개선 + 발달교육, 한 번에</h2>
-      <p>어린이집 누리과정을 우리 집 식탁에서. 5개 영역 전부 커버합니다.</p>
-    </div>
-    <div class="nuri-row">
-      <div class="nuri-card"><span class="ni">💪</span><h4>신체운동·건강</h4><p>찢기, 강판갈기, 반죽 → 소근육 + 식습관</p></div>
-      <div class="nuri-card"><span class="ni">💬</span><h4>의사소통</h4><p>"아삭해" "달콤해" 감각어휘 확장</p></div>
-      <div class="nuri-card"><span class="ni">🤝</span><h4>사회관계</h4><p>역할 분담, 협력, 식사 예절</p></div>
-      <div class="nuri-card"><span class="ni">🎨</span><h4>예술경험</h4><p>스탬프, 콜라주, 토핑 배치 디자인</p></div>
-      <div class="nuri-card"><span class="ni">🔬</span><h4>자연탐구</h4><p>"왜 색이 변해?" 과학적 호기심</p></div>
-    </div>
-  </div>
-</section>
-
 
 <!-- ===== 30 INGREDIENTS RANKING ===== -->
 <section class="ranking-section">
@@ -845,16 +977,6 @@
         <div class="d-step"><span class="num">4</span>저녁 — 레시피 카드 보고 가족 요리에 투입!</div>
       </div></div>
     </div>
-  </div>
-</section>
-
-<!-- ===== REVIEWS ===== -->
-<section class="sec">
-  <div class="sec-title"><div class="sec-label">학부모 후기</div><h2>먼저 경험한 부모님들</h2></div>
-  <div class="reviews-grid">
-    <div class="rv-card"><div class="rv-stars">★★★★★</div><div class="rv-text">"1주차에 울면서 거부하길래 포기할 뻔. 근데 가이드에 'Plateau 정체기를 넘기세요'라고 써있어서 참았더니 3주차에 입에 대보더라고요."</div><div class="rv-author">— 5세 남아 엄마</div><div class="rv-tag">당근 코스 · 15회 완주</div></div>
-    <div class="rv-card"><div class="rv-stars">★★★★★</div><div class="rv-text">"버섯 재배키트가 신의 한수. 직접 키운 느타리를 찢어보더니 솥밥에 올리는 것까지 거부감 없이. 11회째부터 스스로 먹었어요."</div><div class="rv-author">— 4세 여아 엄마</div><div class="rv-tag">버섯 코스 · 15회 완주</div></div>
-    <div class="rv-card"><div class="rv-stars">★★★★☆</div><div class="rv-text">"시금치는 15회로 완전 개선은 못했어요. 하지만 시금치경단은 먹어요! 예전엔 보기만 해도 울었는데."</div><div class="rv-author">— 3세 남아 엄마</div><div class="rv-tag">시금치 코스 · 15회 완주</div></div>
   </div>
 </section>
 
@@ -1061,6 +1183,240 @@ function selQuiz(el,id){
   document.getElementById('qr-price').textContent=d.pr+' · 5주 21회 노출';
   document.getElementById('qr-box').style.display='block';
 }
+function showKitPreview(course){
+  var common=[
+    {e:'🎨',n:'물감 3색',q:'빨·노·파'},{e:'🖍️',n:'색연필 3색',q:'빨·노·초'},{e:'📄',n:'도화지',q:'A4 10매'},
+    {e:'🟡',n:'색종이',q:'15장'},{e:'🍽️',n:'종이접시',q:'8개'},{e:'👀',n:'눈알스티커',q:'1시트'},
+    {e:'🧴',n:'떡풀',q:'1개'},{e:'🥢',n:'이쑤시개',q:'20개'},{e:'🧹',n:'면봉',q:'15개'},
+    {e:'🥤',n:'종이컵',q:'5개'},{e:'🛍️',n:'지퍼백',q:'5개'}
+  ];
+  var kd={
+    carrot:{emoji:'🥕',name:'당근',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🥕',n:'유기농 당근',q:'2개'},{e:'🥕',n:'미니당근',q:'5개'},{e:'🧃',n:'당근즙',q:'50ml'},{e:'📋',n:'색칠 도안',q:'1매'}
+      ],acts:['🎨 당근 스탬프 꽃밭','🐌 나만의 당근 달팽이','✏️ 당근즙 비밀그림','🔍 당근 색깔 탐험','🖌️ 당근 색칠 도안']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🥕',n:'생당근',q:'1개'},{e:'🥕',n:'삶은당근',q:'2개'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 탐정 (딱딱 vs 말랑)','👃 냄새 맞추기 게임','🏖️ 당근 모래놀이','🎭 당근 얼굴 만들기','🧊 당근 얼음 보석']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🥕',n:'삶은당근',q:'3개'},{e:'🥕',n:'당근스틱',q:'8개'},{e:'🧀',n:'크림치즈',q:'미니팩'},{e:'🥛',n:'요거트',q:'미니팩'},{e:'🍯',n:'꿀',q:'미니팩'}
+      ],acts:['⭐ 당근 쿠키커터 모양놀이','🎨 당근 접시 그림','🐌 당근 달팽이 완성','👄 당근 립터치 놀이','🫕 디핑소스 찍기']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🥔',n:'감자완자 재료',q:'감자+당근+쇠고기'},{e:'🧀',n:'치즈야채무른밥',q:'채소+치즈'},{e:'🍜',n:'잔치국수 재료',q:'소면+계란+다시마'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🍳 감자완자 핑거푸드','🧀 치즈야채 무른밥','🍜 잔치국수']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🍝',n:'스파게티 재료',q:'면+소스+고기'},{e:'🍚',n:'당근볶음밥 재료',q:'당근+계란+참기름'},{e:'🍲',n:'닭칼국수 재료',q:'칼국수+닭육수'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🍝 스파게티','🍚 당근볶음밥','🎓 닭칼국수 + 수료식']}
+    ]},
+    tomato:{emoji:'🍅',name:'토마토',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🍅',n:'방울토마토 3색',q:'각3개'},{e:'🍅',n:'대추토마토',q:'3개'},{e:'📋',n:'색칠 도안',q:'1매'}
+      ],acts:['🚦 토마토 신호등','🎨 토마토 스탬프','🐛 방울토마토 애벌레','🔍 토마토 탐정 씨앗세기','🖌 토마토 색칠 도안']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🍅',n:'방울토마토',q:'5개'},{e:'🍅',n:'케첩 미니팩',q:'2개'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎨 케첩 핑거페인팅','🏗 토마토 반죽','📿 방울토마토 꼭지 관찰']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🍅',n:'삶은 방울토마토',q:'5개'},{e:'🫙',n:'디핑소스 3종',q:'3종'},{e:'🍅',n:'케첩 미니팩',q:'1개'}
+      ],acts:['⭐ 토마토 모양놀이','🖌 케첩 접시 그림','🎭 토마토 얼굴','👄 토마토 립터치','🫕 디핑 탐험']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🍕',n:'미니피자 재료',q:'식빵+소스+치즈'},{e:'🥚',n:'토마토계란볶음',q:'재료 포함'},{e:'🍖',n:'미트볼조림 재료',q:'재료 포함'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🍕 미니피자','🥚 토마토계란볶음','🍖 미트볼 토마토조림']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🍝',n:'나폴리탄 스파게티',q:'재료 포함'},{e:'🍚',n:'토마토볶음밥 재료',q:'재료 포함'},{e:'🌯',n:'미니또띠아 재료',q:'재료 포함'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🍝 나폴리탄 스파게티','🍚 토마토볶음밥','🎓 미니또띠아 + 수료식']}
+    ]},
+    broccoli:{emoji:'🥦',name:'브로콜리',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🥦',n:'생 브로콜리',q:'1송이'},{e:'🥦',n:'미니 브로콜리',q:'3개'},{e:'📋',n:'색칠 도안',q:'1매'},{e:'📋',n:'미용실 배경 도안',q:'1매'}
+      ],acts:['🌲 브로콜리 숲','🎨 브로콜리 스탬프','💇 브로콜리 미용실','🔬 브로콜리 탐험대','🖌 브로콜리 색칠 도안']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🥦',n:'생 브로콜리',q:'1송이'},{e:'🥦',n:'데친 브로콜리',q:'3개'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎭 브로콜리 반죽','🏔 브로콜리 화산','💐 브로콜리 꽃다발']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🥦',n:'데친 브로콜리',q:'5개'},{e:'🫙',n:'디핑소스 3종',q:'치즈/마요/간장'}
+      ],acts:['⭐ 브로콜리 모양놀이','🎪 브로콜리 꼬치','🎨 브로콜리 분말 그림','👄 브로콜리 코·입 터치','🫕 디핑 탐험']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🧀',n:'브로콜리치즈스프',q:'재료 포함'},{e:'🥚',n:'브로콜리 계란볶음',q:'재료 포함'},{e:'🍝',n:'크림파스타 재료',q:'재료 포함'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🧀 브로콜리치즈스프','🥚 브로콜리 계란볶음','🍝 크림파스타']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🍚',n:'브로콜리 볶음밥',q:'재료 포함'},{e:'🌯',n:'브로콜리 또띠아랩',q:'재료 포함'},{e:'🥞',n:'브로콜리전 재료',q:'재료 포함'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🍚 브로콜리 볶음밥','🌯 브로콜리 또띠아랩','🎓 브로콜리전 + 수료식']}
+    ]},
+    eggplant:{emoji:'🍆',name:'가지',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🍆',n:'가지',q:'2개'},{e:'📋',n:'색칠 도안',q:'1매'}
+      ],acts:['🎨 가지 단면 스탬프','🐧 가지 펭귄 만들기','✨ 가지즙 마법 잉크','💜 보라 콜라주','🖌 가지 색칠 도안']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🍆',n:'생가지',q:'1개'},{e:'🍆',n:'구운가지',q:'2개'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎨 가지 보라 반죽','🖌 가지 껍질 도장','🎪 가지 링 쌓기']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🍆',n:'구운가지',q:'3개'},{e:'🫙',n:'디핑소스 3종',q:'된장/마요/간장'}
+      ],acts:['⭐ 가지 모양놀이','🎭 가지 얼굴','🎪 가지 꼬치','👄 가지 립터치','🫕 디핑 탐험']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🍳',n:'가지볶음 재료',q:'재료 포함'},{e:'🧀',n:'가지치즈그라탕',q:'재료 포함'},{e:'🥞',n:'가지전 재료',q:'재료 포함'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🍳 달콤 가지볶음','🧀 가지치즈그라탕','🥞 가지전']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🍛',n:'마파가지 재료',q:'재료 포함'},{e:'🍛',n:'가지카레 재료',q:'재료 포함'},{e:'🍚',n:'가지볶음밥 재료',q:'재료 포함'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🍛 마파가지덮밥','🍛 가지카레','🎓 가지볶음밥 + 수료식']}
+    ]},
+    mushroom:{emoji:'🍄',name:'버섯',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🍄',n:'새송이',q:'2개'},{e:'🍄',n:'팽이버섯',q:'1봉'},{e:'🍄',n:'표고버섯',q:'3개'},{e:'🍄',n:'느타리버섯',q:'1봉'},{e:'📋',n:'색칠 도안',q:'1매'}
+      ],acts:['🏠 버섯 마을','🎨 버섯 스탬프','🔬 버섯 탐험대','✂️ 팽이버섯 찢기','🖌 버섯 색칠 도안']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🍄',n:'새송이',q:'2개'},{e:'🍄',n:'느타리',q:'1봉'},{e:'🍄',n:'건표고',q:'3개'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','✂️ 버섯 찢기 놀이','🎨 버섯 반죽','🏰 버섯 성 쌓기']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🍄',n:'구운 새송이',q:'3개'},{e:'🫙',n:'디핑소스 3종',q:'소이마요/크림치즈/바베큐'}
+      ],acts:['⭐ 버섯 모양놀이','🎪 버섯 꼬치','🎭 버섯 얼굴','👄 버섯 립터치','🫕 디핑 탐험']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🥣',n:'버섯크림스프',q:'재료 포함'},{e:'🍚',n:'버섯계란볶음밥',q:'재료 포함'},{e:'🥩',n:'버섯불고기 재료',q:'재료 포함'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🥣 버섯크림스프','🍚 버섯계란볶음밥','🥩 버섯불고기']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🥗',n:'버섯잡채 재료',q:'재료 포함'},{e:'🍖',n:'버섯돈까스 재료',q:'재료 포함'},{e:'🍛',n:'버섯카레 재료',q:'재료 포함'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🥗 버섯잡채','🍖 버섯돈까스','🎓 버섯카레 + 수료식']}
+    ]},
+    onion:{emoji:'🧅',name:'양파',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🧅',n:'양파 2개',q:'흰/자주'},{e:'🧅',n:'쪽파',q:'2대'},{e:'📋',n:'색칠 도안',q:'1매'}
+      ],acts:['🌸 양파 꽃 스탬프','🧅 양파 까기 놀이','🏠 양파 가족','🌈 자주양파 염색','🖌 양파 색칠 도안']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🧅',n:'생양파',q:'1개'},{e:'🧅',n:'볶은양파',q:'2팩'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🧪 양파 물 색깔 실험','🎨 양파 반죽','🧅 양파 링 쌓기']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🧅',n:'볶은양파',q:'3팩'},{e:'🫙',n:'디핑소스 3종',q:'케첩/마요/치즈소스'}
+      ],acts:['⭐ 양파 모양놀이','🎭 양파 링 얼굴','🎪 양파 꼬치','👄 볶은양파 립터치','🫕 디핑 탐험']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🍳',n:'양파볶음밥 재료',q:'재료 포함'},{e:'🥣',n:'양파스프 재료',q:'재료 포함'},{e:'🥞',n:'양파전 재료',q:'재료 포함'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🍳 달콤 양파볶음밥','🥣 양파스프','🥞 양파전']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🍛',n:'양파카레 재료',q:'재료 포함'},{e:'🥩',n:'양파불고기 재료',q:'재료 포함'},{e:'🍝',n:'양파크림파스타',q:'재료 포함'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🍛 양파카레','🥩 양파불고기','🎓 양파크림파스타 + 수료식']}
+    ]},
+    paprika:{emoji:'🫑',name:'파프리카',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🫑',n:'파프리카 3색',q:'빨/노/초록 각1'},{e:'📋',n:'색칠 도안',q:'1매'}
+      ],acts:['🚦 파프리카 신호등','🎨 파프리카 스탬프','🎯 파프리카 링토스','🔍 파프리카 씨앗 탐험','🖌 파프리카 색칠 도안']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🫑',n:'파프리카',q:'1개'},{e:'🫑',n:'구운파프리카',q:'2개'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎪 파프리카 링 목걸이','🎨 파프리카 반죽','🏗 파프리카 컵']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🫑',n:'구운파프리카',q:'3개'},{e:'🫙',n:'디핑소스 3종',q:'크림치즈/마요/꿀'}
+      ],acts:['⭐ 파프리카 모양놀이','🎭 파프리카 얼굴','🎪 파프리카 꼬치','👄 파프리카 립터치','🫕 디핑 탐험']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🥗',n:'파프리카잡채 재료',q:'재료 포함'},{e:'🥚',n:'파프리카계란볶음',q:'재료 포함'},{e:'🍕',n:'파프리카피자 재료',q:'재료 포함'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🥗 파프리카잡채','🥚 파프리카계란볶음','🍕 파프리카피자']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🍚',n:'파프리카볶음밥',q:'재료 포함'},{e:'🍛',n:'파프리카카레 재료',q:'재료 포함'},{e:'🌯',n:'파프리카 또띠아랩',q:'재료 포함'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🍚 파프리카볶음밥','🍛 파프리카카레','🎓 파프리카 또띠아랩 + 수료식']}
+    ]},
+    spinach:{emoji:'🥬',name:'시금치',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🥬',n:'시금치',q:'1단'},{e:'📋',n:'색칠 도안',q:'1매'}
+      ],acts:['🖌 시금치즙 색칠','🎨 시금치 프로타주','🎨 시금치 스탬프','🌿 시금치 꽃다발','💪 뽀빠이 놀이']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🥬',n:'시금치',q:'1단'},{e:'🥬',n:'데친시금치',q:'2팩'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎭 시금치 가면','🎨 시금치 반죽','🧊 시금치 얼음']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🥬',n:'데친시금치',q:'3팩'},{e:'🫙',n:'디핑소스 3종',q:'참깨/마요/간장'}
+      ],acts:['⭐ 시금치 모양놀이','🎭 시금치 얼굴','🎪 시금치 꼬치','👄 시금치 립터치','🫕 디핑 탐험']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🥚',n:'시금치계란볶음',q:'재료 포함'},{e:'🥣',n:'시금치된장국',q:'재료 포함'},{e:'🍝',n:'시금치크림파스타',q:'재료 포함'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🥚 시금치계란볶음','🥣 시금치된장국','🍝 시금치크림파스타']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🍚',n:'시금치볶음밥 재료',q:'재료 포함'},{e:'🥞',n:'시금치전 재료',q:'재료 포함'},{e:'🍛',n:'시금치카레 재료',q:'재료 포함'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🍚 시금치볶음밥','🥞 시금치전','🎓 시금치카레 + 수료식']}
+    ]},
+    tofu:{emoji:'🫧',name:'두부',common:common,weeks:[
+      {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
+        {e:'🫧',n:'부침용 두부',q:'1모'},{e:'🫧',n:'순두부',q:'1팩'},{e:'📋',n:'색칠 도안',q:'1매'}
+      ],acts:['🎨 두부 스탬프','🏠 두부 마을','🧊 두부 촉감 탐험','🎭 두부 얼굴 조각','🖌 두부 색칠 도안']},
+      {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
+        {e:'🫧',n:'부침두부',q:'1모'},{e:'🌾',n:'밀가루',q:'30g'}
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎨 두부 반죽','🧊 두부 얼음','🏗 두부 도미노']},
+      {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
+        {e:'🫧',n:'구운두부',q:'3팩'},{e:'🫙',n:'디핑소스 3종',q:'간장/참기름소스/케첩'}
+      ],acts:['⭐ 두부 모양놀이','🎭 두부 얼굴','🎪 두부 꼬치','👄 두부 립터치','🫕 디핑 탐험']},
+      {n:4,title:'직접노출 — 함께 요리하기',type:'요리활동',tc:'c',items:[
+        {e:'🥞',n:'두부전 재료',q:'재료 포함'},{e:'🥚',n:'두부계란찜 재료',q:'재료 포함'},{e:'🍛',n:'마파두부 재료',q:'재료 포함'},{e:'🧂',n:'아동용 조미료',q:'소분팩'}
+      ],acts:['🥞 두부전','🥚 두부계란찜','🍛 마파두부']},
+      {n:5,title:'자유롭게 — 반복 먹기',type:'요리활동 + 수료식',tc:'c',items:[
+        {e:'🍚',n:'두부볶음밥 재료',q:'재료 포함'},{e:'🫕',n:'순두부찌개 재료',q:'재료 포함'},{e:'🍛',n:'두부카레 재료',q:'재료 포함'},{e:'🎓',n:'수료증',q:'5주 완주!'}
+      ],acts:['🍚 두부볶음밥','🫕 순두부찌개','🎓 두부카레 + 수료식']}
+    ]}
+  };
+  var appGuides=[null,
+    [{e:'📖',t:'{name} 첫 만남 — 시각 탐색 놀이 가이드'},{e:'🎭',t:'역할놀이 대본: "{name}아, 안녕?"'},{e:'📝',t:'우리 아이 첫 반응 관찰 일지'},{e:'💡',t:'"안 먹어!" 했을 때 — 1주차 대처법'}],
+    [{e:'📖',t:'{name} 촉감 탐색 놀이 가이드'},{e:'🎭',t:'역할놀이 대본: "{name} 만져볼까?"'},{e:'📝',t:'감각 수용도 변화 기록지'},{e:'💡',t:'만지기 거부할 때 — 우회 접근법'}],
+    [{e:'📖',t:'{name} 입 근처 노출 가이드'},{e:'🎭',t:'역할놀이 대본: "{name} 맛이 궁금해!"'},{e:'📝',t:'디핑 플레이 반응 체크리스트'},{e:'💡',t:'핥기·뱉기도 성공입니다 — 부모 마인드셋'}],
+    [{e:'📖',t:'{name} 요리 활동 가이드'},{e:'🎭',t:'역할놀이 대본: "오늘은 내가 요리사!"'},{e:'🍳',t:'이번 주 레시피 카드 3종'},{e:'📝',t:'요리 참여도 & 한 입 시도 기록지'},{e:'💡',t:'요리는 했는데 안 먹을 때 — 4주차 Q&A'}],
+    [{e:'📖',t:'{name} 반복 먹기 + 수료 가이드'},{e:'🎭',t:'역할놀이 대본: "나는 {name} 챔피언!"'},{e:'🍳',t:'이번 주 레시피 카드 3종'},{e:'📊',t:'5주 변화 리포트 — 우리 아이 성장 기록'},{e:'💡',t:'수료 후에도 유지하는 법 — 일상 편식 관리 팁'}]
+  ];
+  var d=kd[course];
+  if(!d){
+    var names={onion:'양파',tofu:'두부',mushroom:'버섯',tomato:'토마토',paprika:'파프리카',spinach:'시금치',broccoli:'브로콜리',eggplant:'가지'};
+    var emojis={onion:'🧅',tofu:'🫧',mushroom:'🍄',tomato:'🍅',paprika:'🫑',spinach:'🥬',broccoli:'🥦',eggplant:'🍆'};
+    d={emoji:emojis[course]||'📦',name:names[course]||course,common:kd.carrot.common,weeks:null};
+  }
+  var h='<div class="kit-modal-overlay" onclick="if(event.target===this)this.remove()">';
+  h+='<div class="kit-modal">';
+  h+='<div class="kit-modal-header"><button class="kit-modal-close" onclick="this.closest(\'.kit-modal-overlay\').remove()">✕</button>';
+  h+='<h3>'+d.emoji+' '+d.name+' 코스 키트 구성</h3>';
+  h+='<p>5주간 매주 집 앞으로 배송되는 키트 미리보기</p></div>';
+  h+='<div class="kit-modal-body">';
+  // 공통 교구
+  h+='<div class="km-section"><h4>📦 공통 교구 세트 <span style="font-size:11px;font-weight:400;color:#999;">1주차 합배송</span></h4>';
+  h+='<div class="km-grid">';
+  d.common.forEach(function(i){h+='<div class="km-item"><span class="ki">'+i.e+'</span><div class="kn">'+i.n+'</div><div class="kq">'+i.q+'</div></div>';});
+  h+='</div>';
+  h+='<div class="km-home">🏠 <strong>가정 준비물:</strong> 가위, 필러, 강판, 접시, 냄비</div>';
+  h+='</div>';
+  // 주차별
+  if(d.weeks){
+    d.weeks.forEach(function(w){
+      h+='<div class="km-section">';
+      h+='<div class="km-week"><div class="km-wnum '+(w.tc==='s'?'s':'c')+'">'+w.n+'</div><div class="km-wtitle"><h5>'+w.title+'</h5><span>'+w.type+' · 주 '+(w.n<=3?'5':'3')+'회</span></div></div>';
+      h+='<div class="km-chips">';
+      w.items.forEach(function(i){h+='<div class="km-chip"><span class="ce">'+i.e+'</span>'+i.n+'<span style="font-weight:400;color:#999;font-size:10px;">'+i.q+'</span></div>';});
+      h+='</div>';
+      if(w.n===1){h+='<div style="margin:8px 0 4px;background:#fff;border:2px dashed #e0e0e0;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:11px;color:#999;margin-bottom:6px;">🖌 색칠 도안 예시</div><div style="font-size:48px;opacity:0.3;filter:grayscale(1);">'+d.emoji+'</div><div style="font-size:10px;color:#bbb;">아이가 직접 색칠하는 도안이 포함되어 있어요</div></div>';}
+      h+='<div class="km-acts">';
+      w.acts.forEach(function(a,idx){h+='<strong>Day '+(idx+1)+'</strong> '+a+'<br>';});
+      h+='</div>';
+      if(appGuides[w.n]){h+='<div style="margin-top:10px;background:#F3E8FF;border-radius:10px;padding:12px 14px;border:1px solid #E1BEE7;">';
+      h+='<div style="font-size:11px;font-weight:700;color:#7B2D8E;margin-bottom:8px;">📱 앱 교육자료 (매주 자동 배부)</div>';
+      appGuides[w.n].forEach(function(g){h+='<div style="font-size:12px;color:#555;line-height:2;">'+g.e+' '+g.t.replace(/\{name\}/g,d.name)+'</div>';});
+      h+='</div>';}
+      h+='</div>';
+    });
+  }else{
+    h+='<div class="km-section" style="text-align:center;padding:40px 20px;"><div style="font-size:48px;margin-bottom:12px;">'+d.emoji+'</div>';
+    h+='<h4 style="justify-content:center;">'+d.name+' 코스 상세 키트 구성</h4>';
+    h+='<p style="font-size:13px;color:#888;margin-top:8px;">공통 교구는 동일하며, 매주 '+d.name+'에 맞춘<br>감각놀이 재료와 요리 식재료+조미료가 배송됩니다.</p>';
+    h+='<p style="font-size:12px;color:#2D8B4E;font-weight:700;margin-top:12px;">상세 페이지에서 주차별 구성을 확인하세요!</p></div>';
+  }
+  // 하루 10분
+  h+='<div class="km-section"><h4>⏰ 하루 10분이면 끝!</h4>';
+  h+='<div class="km-tl"><div class="km-tl-icon pkg">📦</div><div class="km-tl-body"><strong>4:00 — 키트 꺼내기 (1분)</strong>이번 주 배송 키트에서 오늘 재료만 꺼내요</div></div>';
+  h+='<div class="km-tl"><div class="km-tl-icon play">🎨</div><div class="km-tl-body"><strong>4:02 — 앱 가이드 보고 놀이 시작 (8분)</strong>역할놀이 대본 따라 읽고 → 아이랑 시작!</div></div>';
+  h+='<div class="km-tl"><div class="km-tl-icon done">✅</div><div class="km-tl-body"><strong>4:10 — 끝! 앱에 기록</strong>아이 반응 체크하면 다음 활동이 자동 추천돼요</div></div>';
+  h+='</div>';
+  // 요약
+  h+='<div class="km-summary"><h4>'+d.emoji+' '+d.name+' 코스 한눈에</h4>';
+  h+='<div class="km-sum-grid">';
+  h+='<div class="km-sum-item"><strong>5주</strong><span>프로그램</span></div>';
+  h+='<div class="km-sum-item"><strong>21회</strong><span>총 활동</span></div>';
+  h+='<div class="km-sum-item"><strong>5번</strong><span>키트 배송</span></div></div>';
+  h+='<div class="km-note">식재료+조미료+교구 키트 배송 + 앱으로 매주 교육자료 자동 배부<br><strong>역할놀이 대본 · 놀이 가이드 · 레시피 · 관찰 기록지까지 전부 포함</strong></div>';
+  h+='</div>';
+  // CTA
+  var courseUrls={carrot:'carrot-course.html',tomato:'tomato-course.html',broccoli:'broccoli-course.html',eggplant:'eggplant-course.html',mushroom:'mushroom-course.html',onion:'onion-course.html',paprika:'paprika-course.html',spinach:'spinach-course.html',tofu:'tofu-course.html'};
+  var detailUrl=courseUrls[course]||'#';
+  h+='<div style="text-align:center;padding:0 0 8px;"><a href="'+detailUrl+'" style="display:block;width:100%;padding:16px;background:#2D8B4E;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;text-align:center;">'+d.name+' 코스 상세보기 →</a></div>';
+  h+='</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+  gtag('event','kit_preview',{course:course});
+}
 function filterCat(lv,btn){
   document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
@@ -1069,7 +1425,7 @@ function filterCat(lv,btn){
 function toggleFaq(el){el.classList.toggle('open');}
 function addCart(item){openEarlybird(item);}
 function generateRefCode(){var c='MLFD'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).substr(2,4).toUpperCase();return c;}
-function getRefTier(count){if(count>=100)return{tier:'GOLD',discount:'15%',color:'#FF6F00',next:null};if(count>=50)return{tier:'SILVER',discount:'10%',color:'#78909C',next:'100명 달성 시 15% 할인'};if(count>=5)return{tier:'BRONZE',discount:'5%',color:'#8D6E63',next:'50명 달성 시 10% 할인'};return{tier:'START',discount:'0%',color:'#BDBDBD',next:'5명 초대 시 5% 할인 쿠폰'};}
+function getRefTier(count){if(count>=100)return{tier:'GOLD',discount:'50%',color:'#FF6F00',next:null};if(count>=50)return{tier:'SILVER',discount:'25%',color:'#78909C',next:'100명 달성 시 50% 할인'};if(count>=5)return{tier:'BRONZE',discount:'10%',color:'#8D6E63',next:'50명 달성 시 25% 할인'};return{tier:'START',discount:'0%',color:'#BDBDBD',next:'5명 초대 시 10% 할인 쿠폰'};}
 function openEarlybird(course){
   if(document.getElementById('eb-modal')) document.getElementById('eb-modal').remove();
   var c=course||'';
@@ -1089,9 +1445,9 @@ function openEarlybird(course){
   html+='<div style="background:#F1F8E9;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left;">';
   html+='<div style="font-size:12px;font-weight:700;color:#2E7D32;margin-bottom:6px;">🔗 개인 링크로 추가 할인</div>';
   html+='<div style="font-size:11px;color:#555;line-height:1.7;">등록 후 나만의 개인 링크가 발급됩니다.<br>이 링크로 방문자가 들어오면 추가 할인을 받을 수 있어요!<br>';
-  html+='<span style="color:#2E7D32;font-weight:600;">10명 이상</span> 방문 → <strong>5% 추가 할인 쿠폰</strong><br>';
-  html+='<span style="color:#1565C0;font-weight:600;">50명 이상</span> 방문 → <strong>10% 추가 할인 쿠폰</strong><br>';
-  html+='<span style="color:#FF6F00;font-weight:600;">100명 이상</span> 방문 → <strong>15% 추가 할인 쿠폰</strong></div>';
+  html+='<span style="color:#2E7D32;font-weight:600;">10명 이상</span> 방문 → <strong>10% 추가 할인</strong> <span style="color:#2E7D32;">(179,100원)</span><br>';
+  html+='<span style="color:#1565C0;font-weight:600;">50명 이상</span> 방문 → <strong>25% 추가 할인</strong> <span style="color:#1565C0;">(149,250원)</span><br>';
+  html+='<span style="color:#FF6F00;font-weight:600;">100명 이상</span> 방문 → <strong>50% 추가 할인</strong> <span style="color:#FF6F00;">(99,500원!)</span></div>';
   html+='</div>';
   html+='<button id="eb-submit-btn" onclick="submitEarlybird(\''+c+'\')" style="width:100%;padding:16px;background:#2D8B4E;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.2s;" onmouseover="this.style.background=\'#1a5c32\'" onmouseout="this.style.background=\'#2D8B4E\'">사전등록 완료하기</button>';
   html+='<p style="font-size:11px;color:#aaa;margin-top:12px;">카카오톡 알림톡으로 등록 확인 발송 · 비용 발생 없음</p>';
@@ -1129,9 +1485,9 @@ async function submitEarlybird(course){
     inner+='<button onclick="navigator.clipboard.writeText(\''+refLink+'\');this.textContent=\'복사 완료!\';this.style.background=\'#2E7D32\';this.style.color=\'#fff\';gtag(\'event\',\'referral_link_copy\',{referral_code:\''+data.referralCode+'\'})" style="width:100%;padding:10px;background:#E8F5E9;border:1px solid #A5D6A7;border-radius:8px;font-size:13px;font-weight:700;color:#2E7D32;cursor:pointer;font-family:inherit;transition:all 0.2s;margin-bottom:12px;">링크 복사하기</button>';
     inner+='<div style="font-size:12px;color:#555;line-height:2;">';
     inner+='이 링크로 방문자가 들어오면 추가 할인!<br>';
-    inner+='<span style="background:#FFF8E1;padding:3px 8px;border-radius:4px;font-weight:600;">10명 방문 → 5% 할인 쿠폰</span><br>';
-    inner+='<span style="background:#E3F2FD;padding:3px 8px;border-radius:4px;font-weight:600;">50명 방문 → 10% 할인 쿠폰</span><br>';
-    inner+='<span style="background:#FFF3E0;padding:3px 8px;border-radius:4px;font-weight:600;">100명 방문 → 15% 할인 쿠폰</span></div>';
+    inner+='<span style="background:#FFF8E1;padding:3px 8px;border-radius:4px;font-weight:600;">10명 방문 → 10% 할인 (179,100원)</span><br>';
+    inner+='<span style="background:#E3F2FD;padding:3px 8px;border-radius:4px;font-weight:600;">50명 방문 → 25% 할인 (149,250원)</span><br>';
+    inner+='<span style="background:#FFF3E0;padding:3px 8px;border-radius:4px;font-weight:600;">100명 방문 → 50% 할인 (99,500원!)</span></div>';
     inner+='</div>';
     inner+='<button onclick="document.getElementById(\'eb-modal\').remove()" style="padding:14px 40px;background:#2D8B4E;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">확인</button>';
     modal.querySelector('div > div').innerHTML=inner;
