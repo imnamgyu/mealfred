@@ -39,15 +39,10 @@ async function sendAlimtalk({ phone, referralCode, referralLink, course }) {
 출시 시 이 번호로 알림을 보내드리겠습니다.
 
 나만의 개인 링크가 발급되었습니다.
-아래 링크를 주변에 공유해보세요!
 
 🔗 ${referralLink}
 
-이 링크를 통해 방문한 수에 따라 추가 할인 혜택을 드립니다.
-
-10명 이상 방문 → 5% 할인 쿠폰
-50명 이상 방문 → 10% 할인 쿠폰
-100명 이상 방문 → 15% 할인 쿠폰`
+※ 본 메시지는 고객님이 직접 사전등록을 신청하여 발송되는 안내 메시지입니다.`
       }
     ]
   });
@@ -89,7 +84,7 @@ async function sendAlimtalk({ phone, referralCode, referralLink, course }) {
   });
 }
 
-async function sendCouponAlimtalk({ phone, visitCount, discount, nextMessage, referralLink }) {
+async function sendCouponAlimtalk({ phone, visitCount, discount, referralLink }) {
   const accessKey = process.env.NCP_ACCESS_KEY;
   const secretKey = process.env.NCP_SECRET_KEY;
   const serviceId = process.env.NCP_SENS_PROJECT_ID;
@@ -111,17 +106,14 @@ async function sendCouponAlimtalk({ phone, visitCount, discount, nextMessage, re
       {
         countryCode: '82',
         to: phone,
-        content: `축하합니다!
+        content: `밀프레드 편식극복키트 할인 쿠폰이 발급되었습니다.
 
-회원님의 개인 링크로 ${visitCount}명이 방문했습니다.
-${discount} 할인 쿠폰이 발급되었습니다!
+회원님의 개인 링크를 통해 ${visitCount}명이 방문하여
+${discount} 할인 쿠폰이 자동 발급되었습니다.
 
-${nextMessage}
-
-나의 개인 링크
 🔗 ${referralLink}
 
-계속 공유하면 더 큰 할인을 받을 수 있어요!`
+※ 본 메시지는 고객님의 사전등록 활동에 따라 자동 지급된 쿠폰 안내 메시지입니다.`
       }
     ]
   });
