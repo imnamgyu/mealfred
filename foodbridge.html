@@ -47,6 +47,7 @@
   /* ===== METHODOLOGY ===== */
   .method-section{background:#fff;}
   .method-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+  .method-3col{grid-template-columns:repeat(3,1fr);gap:16px;}
   .method-card{border-radius:16px;padding:32px;background:#f8faf8;border:1px solid #e8f0ea;}
   .method-card h4{font-size:15px;font-weight:800;color:#2D8B4E;margin-bottom:8px;}
   .method-card .tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:8px;}
@@ -303,7 +304,11 @@
     .sec{padding:50px 16px;}
     .sec-title h2{font-size:clamp(19px,5vw,26px);}
     .sec-title p{font-size:13px;}
-    .method-grid,.exposure-grid,.dinner-card{grid-template-columns:1fr;}
+    .method-grid,.method-3col,.exposure-grid,.dinner-card{grid-template-columns:1fr;}
+    .method-3col{gap:12px;}
+    .method-card{padding:20px 18px;}
+    .method-card h4{font-size:14px;}
+    .method-card p{font-size:12px;}
     .bridge-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
     .b-arrow{display:none;}
     .b-step{padding:16px 10px;}
@@ -512,9 +517,6 @@
     <div class="hero-framework">편식개선 5주 홈프로그램 · 밀프레드</div>
     <h1><em>"안 먹어!" 하던 아이,<br>5주면 한 입 먹어요</em></h1>
     <p style="font-size:14px;opacity:0.85;line-height:1.8;margin-bottom:20px;">미국 SOS Approach × 식약처 푸드브릿지 기반<br>감각놀이 키트가 매주 집으로 갑니다.</p>
-    <div style="margin-bottom:6px;">
-      <span style="display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.25);color:#a8e6be;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">얼리버드 49% OFF · 4/30 마감</span>
-    </div>
     <div style="margin-bottom:4px;">
       <span style="font-size:15px;text-decoration:line-through;opacity:0.45;">390,000원</span>
       <span style="font-size:clamp(32px,6vw,48px);font-weight:900;margin-left:6px;">199,000<span style="font-size:0.55em;">원</span></span>
@@ -572,7 +574,7 @@
       <div class="sec-label">METHODOLOGY</div>
       <h2>세 가지 근거, 하나의 프로그램</h2>
     </div>
-    <div class="method-grid" style="grid-template-columns:repeat(3,1fr);gap:16px;">
+    <div class="method-grid method-3col">
       <div class="method-card">
         <div class="tag intl">INTERNATIONAL PROTOCOL</div>
         <h4>SOS Approach to Feeding<sup class="fn">1</sup></h4>
@@ -597,8 +599,8 @@
   <div class="sec">
     <div class="sec-title">
       <div class="sec-label">편식개선 5단계</div>
-      <h2>1~3주차: 감각놀이 주 5회 · 4~5주차: 요리 주 3회</h2>
-      <p>SOS Approach<sup class="fn">1</sup> 32단계를 가정용으로 단순화하고, 식약처 급식 지침<sup class="fn">3</sup>의 연령별 식단 데이터를 결합하여<br>밀프레드가 자체 설계한 5단계 × 5주 프로그램입니다.</p>
+      <h2>1~3주차: 감각놀이 주 5회<br>4~5주차: 요리 주 3회</h2>
+      <p>SOS Approach<sup class="fn">1</sup> 32단계를 가정용으로 단순화하고,<br>식약처 급식 지침<sup class="fn">3</sup>의 연령별 식단 데이터를 결합하여<br>밀프레드가 자체 설계한 <strong>5단계 × 5주 프로그램</strong>입니다.</p>
     </div>
     <div class="bridge-grid">
       <div class="b-step"><div class="b-num">1</div><h4>시각탐색</h4><p>색소 놀이, 스탬프<br>관찰일지 그리기</p><div class="exp-tag">노출 1~3회</div><span class="b-arrow">→</span></div>
