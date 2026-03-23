@@ -34,7 +34,7 @@ async function sendAlimtalk({ phone, referralCode, referralLink, course }) {
       {
         countryCode: '82',
         to: phone,
-        content: `밀프레드 편식극복키트 얼리버드 등록이 완료되었습니다.
+        content: `밀프레드 편식개선키트 얼리버드 등록이 완료되었습니다.
 
 출시 시 이 번호로 알림을 보내드리겠습니다.
 
@@ -106,7 +106,7 @@ async function sendCouponAlimtalk({ phone, visitCount, discount, referralLink })
       {
         countryCode: '82',
         to: phone,
-        content: `밀프레드 편식극복키트 할인 쿠폰이 발급되었습니다.
+        content: `밀프레드 편식개선키트 할인 쿠폰이 발급되었습니다.
 
 회원님의 개인 링크를 통해 ${visitCount}명이 방문하여
 ${discount} 할인 쿠폰이 자동 발급되었습니다.
