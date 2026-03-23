@@ -511,19 +511,16 @@
   <div class="hero-content">
     <div class="hero-framework">편식개선 5주 홈프로그램 · 밀프레드</div>
     <h1><em>"안 먹어!" 하던 아이,<br>5주면 한 입 먹어요</em></h1>
-    <p style="font-size:15px;opacity:0.92;line-height:1.8;margin-bottom:8px;">미국 SOS Approach × 식약처 푸드브릿지 기반<br>감각놀이 키트가 매주 집으로 갑니다.</p>
-    <div style="margin-bottom:20px;">
-      <span style="font-size:18px;text-decoration:line-through;opacity:0.6;">정가 390,000원</span>
-      <span style="display:inline-block;background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:3px 10px;border-radius:8px;margin-left:8px;">얼리버드 49% OFF</span>
+    <p style="font-size:14px;opacity:0.85;line-height:1.8;margin-bottom:20px;">미국 SOS Approach × 식약처 푸드브릿지 기반<br>감각놀이 키트가 매주 집으로 갑니다.</p>
+    <div style="margin-bottom:6px;">
+      <span style="display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.25);color:#a8e6be;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">얼리버드 49% OFF · 4/30 마감</span>
     </div>
-    <div style="font-size:clamp(28px,5vw,42px);font-weight:900;margin-bottom:8px;">199,000<span style="font-size:0.6em;">원</span></div>
-    <p style="font-size:13px;opacity:0.8;margin-bottom:6px;">5주 완성 · 회당 9,476원 · 지금 등록하면 이 가격 확정</p>
-    <div style="display:block;margin-bottom:12px;"><span style="font-size:12px;opacity:0.8;">💡 친구 소개하면</span> <span style="display:inline-block;background:#FF5252;color:#fff;font-size:12px;font-weight:800;padding:3px 10px;border-radius:8px;margin-left:4px;">최대 50% 추가 할인 → 99,500원</span></div>
-    <div id="hero-countdown" style="background:rgba(255,82,82,0.15);border:1px solid rgba(255,82,82,0.4);border-radius:12px;padding:10px 16px;margin-bottom:16px;display:inline-block;">
-      <span style="font-size:12px;font-weight:700;color:#FF5252;">⏰ 얼리버드 마감까지</span>
-      <span id="hero-timer" style="font-size:18px;font-weight:900;color:#fff;margin-left:8px;letter-spacing:1px;"></span>
+    <div style="margin-bottom:4px;">
+      <span style="font-size:15px;text-decoration:line-through;opacity:0.45;">390,000원</span>
+      <span style="font-size:clamp(32px,6vw,48px);font-weight:900;margin-left:6px;">199,000<span style="font-size:0.55em;">원</span></span>
     </div>
-    <br>
+    <p style="font-size:13px;opacity:0.7;margin-bottom:14px;">친구와 함께 하면 <span style="display:inline-block;background:#FF5252;color:#fff;font-size:13px;font-weight:800;padding:2px 10px;border-radius:6px;">99,500원</span> (50% 추가 할인)</p>
+    <div id="hero-countdown" style="display:none;"></div>
     <a href="javascript:void(0)" class="hero-cta" onclick="openEarlybird()">얼리버드 등록하기 →</a>
     <div class="hero-metrics">
       <div class="hero-metric"><strong>21회</strong><span>5주간 총 노출 횟수</span></div>
@@ -575,40 +572,42 @@
       <div class="sec-label">METHODOLOGY</div>
       <h2>세 가지 근거, 하나의 프로그램</h2>
     </div>
-    <div class="method-grid">
-      <div style="display:flex;flex-direction:column;gap:16px;">
-        <div class="method-card">
-          <div class="tag intl">INTERNATIONAL PROTOCOL</div>
-          <h4>SOS Approach to Feeding<sup class="fn">1</sup></h4>
-          <p>Dr. Kay Toomey가 개발한 32단계 식이 위계(Eating Hierarchy). 감각 탐색 → 입술 접촉 → 자발적 섭취의 점진적 접근법. 전 세계 7,000명 이상의 임상 전문가가 사용하는 근거 기반 프로그램입니다.</p>
-        </div>
-        <div class="method-card">
-          <div class="tag gov">국가 지침</div>
-          <h4>식약처 영유아 급식관리 지침서<sup class="fn">3</sup></h4>
-          <p>어린이급식관리지원센터 발행 「어린이급식관리지침서 2023」<sup class="fn">6</sup>, 「식단운영관리지침서 2025」<sup class="fn">7</sup> 기반. 2,028개 표준 메뉴 데이터에서 식재료 등장 빈도와 영양 균형을 분석했습니다.</p>
-        </div>
-        <div class="method-card">
-          <div class="tag intl">EVIDENCE-BASED</div>
-          <h4>Satter Division of Responsibility<sup class="fn">8</sup></h4>
-          <p>Ellyn Satter Institute의 섭식 분업 모델. 부모는 "무엇을, 언제, 어디서" 제공하고, 아이가 "먹을지, 얼마나" 결정합니다. 강제 급여 없이 자율성을 보장하는 핵심 원칙입니다.</p>
-        </div>
+    <div class="method-grid" style="grid-template-columns:repeat(3,1fr);gap:16px;">
+      <div class="method-card">
+        <div class="tag intl">INTERNATIONAL PROTOCOL</div>
+        <h4>SOS Approach to Feeding<sup class="fn">1</sup></h4>
+        <p>Dr. Kay Toomey가 개발한 32단계 식이 위계(Eating Hierarchy). 감각 탐색 → 입술 접촉 → 자발적 섭취의 점진적 접근법. 전 세계 7,000명 이상의 임상 전문가가 사용하는 근거 기반 프로그램입니다.</p>
       </div>
-      <div class="method-right">
-        <div class="method-card" style="background:#2D8B4E;border:none;color:#fff;">
-          <div class="tag own" style="background:rgba(255,255,255,0.2);color:#fff;">MEALFRED FRAMEWORK</div>
-          <h4 style="color:#a8e6be;">편식개선 5단계</h4>
-          <p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.85;">
-            SOS의 32단계를 가정용으로 단순화하고,<br>
-            식약처 급식 지침의 연령별 식단 데이터를 결합하여<br>
-            밀프레드가 자체 설계한 <strong style="color:#fff;">5단계 × 5주 프로그램</strong>입니다.<br><br>
-            <strong style="color:#fff;">① 시각탐색 → ② 후각·촉각 → ③ 입술접촉 → ④ 씹어보기 → ⑤ 자유롭게 먹기</strong><br><br>
-            1~3주차: 감각놀이(푸드크래프트) 주 5회<br>
-            4~5주차: 조리·섭취 활동 주 3회<br>
-            <strong style="color:#fff;">5주(감각놀이 15회 + 요리 6회) = 21회</strong> — 연구 권장 범위<sup class="fn" style="color:#a8e6be;">9</sup>를 크게 초과 달성합니다.
-          </p>
-        </div>
+      <div class="method-card">
+        <div class="tag gov">국가 지침</div>
+        <h4>식약처 영유아 급식관리 지침서<sup class="fn">3</sup></h4>
+        <p>어린이급식관리지원센터 발행 「어린이급식관리지침서 2023」<sup class="fn">6</sup>, 「식단운영관리지침서 2025」<sup class="fn">7</sup> 기반. 2,028개 표준 메뉴 데이터에서 식재료 등장 빈도와 영양 균형을 분석했습니다.</p>
+      </div>
+      <div class="method-card">
+        <div class="tag intl">EVIDENCE-BASED</div>
+        <h4>Satter Division of Responsibility<sup class="fn">8</sup></h4>
+        <p>Ellyn Satter Institute의 섭식 분업 모델. 부모는 "무엇을, 언제, 어디서" 제공하고, 아이가 "먹을지, 얼마나" 결정합니다. 강제 급여 없이 자율성을 보장하는 핵심 원칙입니다.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ===== FOOD BRIDGE 5 STEPS ===== -->
+<section class="bridge-section">
+  <div class="sec">
+    <div class="sec-title">
+      <div class="sec-label">편식개선 5단계</div>
+      <h2>1~3주차: 감각놀이 주 5회 · 4~5주차: 요리 주 3회</h2>
+      <p>SOS Approach<sup class="fn">1</sup> 32단계를 가정용으로 단순화하고, 식약처 급식 지침<sup class="fn">3</sup>의 연령별 식단 데이터를 결합하여<br>밀프레드가 자체 설계한 5단계 × 5주 프로그램입니다.</p>
+    </div>
+    <div class="bridge-grid">
+      <div class="b-step"><div class="b-num">1</div><h4>시각탐색</h4><p>색소 놀이, 스탬프<br>관찰일지 그리기</p><div class="exp-tag">노출 1~3회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">2</div><h4>후각·촉각탐색</h4><p>만지기, 냄새 맡기<br>찢기·갈기 놀이</p><div class="exp-tag">노출 4~6회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">3</div><h4>입술접촉</h4><p>입에 대보기<br>소량 맛보기</p><div class="exp-tag">노출 7~9회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">4</div><h4>씹어보기</h4><p>한 입 도전<br>다양한 식감 경험</p><div class="exp-tag">노출 10~12회</div><span class="b-arrow">→</span></div>
+      <div class="b-step"><div class="b-num">5</div><h4>자유롭게 먹기</h4><p>직접 요리하기<br>가족 식탁 함께</p><div class="exp-tag">노출 13~15회</div></div>
+    </div>
+    <p style="text-align:center;margin-top:24px;font-size:13px;color:#666;"><strong style="color:#2D8B4E;">1~3주차: 주 5일(평일 매일) 감각놀이</strong> · <strong style="color:#2D8B4E;">4~5주차: 주 3일 조리활동</strong>, <strong style="color:#2D8B4E;">총 5주간</strong> 진행합니다<sup class="fn">5</sup></p>
   </div>
 </section>
 
@@ -694,25 +693,6 @@
       <div class="trust-highlight-num">급식 잔반율 97.4% 감소</div>
       <div style="font-size:12px;color:#888;margin-top:4px;">직접 만든 음식은 아이들이 남기지 않습니다 · 선생님 280명 설문</div>
     </div>
-  </div>
-</section>
-
-<!-- ===== FOOD BRIDGE 5 STEPS ===== -->
-<section class="bridge-section">
-  <div class="sec">
-    <div class="sec-title">
-      <div class="sec-label">편식개선 5단계</div>
-      <h2>1~3주차: 감각놀이 주 5회 · 4~5주차: 요리 주 3회</h2>
-      <p>SOS Approach<sup class="fn">1</sup>의 감각 위계를 가정용으로 재설계</p>
-    </div>
-    <div class="bridge-grid">
-      <div class="b-step"><div class="b-num">1</div><h4>시각탐색</h4><p>색소 놀이, 스탬프<br>관찰일지 그리기</p><div class="exp-tag">노출 1~3회</div><span class="b-arrow">→</span></div>
-      <div class="b-step"><div class="b-num">2</div><h4>후각·촉각탐색</h4><p>만지기, 냄새 맡기<br>찢기·갈기 놀이</p><div class="exp-tag">노출 4~6회</div><span class="b-arrow">→</span></div>
-      <div class="b-step"><div class="b-num">3</div><h4>입술접촉</h4><p>입에 대보기<br>소량 맛보기</p><div class="exp-tag">노출 7~9회</div><span class="b-arrow">→</span></div>
-      <div class="b-step"><div class="b-num">4</div><h4>씹어보기</h4><p>한 입 도전<br>다양한 식감 경험</p><div class="exp-tag">노출 10~12회</div><span class="b-arrow">→</span></div>
-      <div class="b-step"><div class="b-num">5</div><h4>자유롭게 먹기</h4><p>직접 요리하기<br>가족 식탁 함께</p><div class="exp-tag">노출 13~15회</div></div>
-    </div>
-    <p style="text-align:center;margin-top:24px;font-size:13px;color:#666;"><strong style="color:#2D8B4E;">1~3주차: 주 5일(평일 매일) 감각놀이</strong> · <strong style="color:#2D8B4E;">4~5주차: 주 3일 조리활동</strong>, <strong style="color:#2D8B4E;">총 5주간</strong> 진행합니다<sup class="fn">5</sup></p>
   </div>
 </section>
 
@@ -1135,7 +1115,7 @@
 
 <!-- ===== STICKY ===== -->
 <div class="sticky">
-  <div class="pr"><span id="sticky-timer-text" style="font-size:11px;color:#FF5252;font-weight:700;margin-right:6px;"></span><span style="text-decoration:line-through;opacity:0.5;font-size:12px;">390,000원</span> <strong>199,000원~</strong></div>
+  <div class="pr"><span id="sticky-timer-text" style="font-size:10px;color:#999;font-weight:600;margin-right:6px;"></span><span style="text-decoration:line-through;opacity:0.4;font-size:12px;">390,000원</span> <strong>199,000원~</strong></div>
   <button class="btn-order" onclick="openEarlybird()">얼리버드 등록하기</button>
 </div>
 
