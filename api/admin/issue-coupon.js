@@ -70,7 +70,7 @@ module.exports = async (req, res) => {
   let alimtalkSent = false;
   try {
     const result = await sendCouponAlimtalk({
-      phone: formattedPhone,
+      phone: cleanPhone,
       visitCount: 0,
       discount: '100%',
       referralLink: 'https://mealfred.com/foodbridge.html'
