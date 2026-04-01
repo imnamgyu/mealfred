@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>편식개선 5주 프로그램 상세 안내서 — 밀프레드 MEALFRED</title>
+<meta name="description" content="어린이집·유치원 기관용 편식개선 5주 프로그램 상세 안내서. 9개 코스 21회 전체 커리큘럼, 선생님 대본 포함.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+  color: #222;
+  background: #e8e8e8;
+  line-height: 1.65;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-size: 14px;
+}
+
+/* ===== A4 PAGE ===== */
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 20px auto;
+  background: #fff;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.12);
+  padding: 12mm;
+  position: relative;
+  overflow: hidden;
+}
+.page-spacer { height: 64px; }
+
+/* ===== PRINT ===== */
+@page { size: A4; margin: 12mm; }
+@media print {
+  body { background: #fff; }
+  .print-bar, .print-bar *, .page-spacer, .toc-nav { display: none !important; }
+  .page {
+    width: auto; min-height: auto; margin: 0; padding: 0;
+    box-shadow: none;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  .no-break { page-break-inside: avoid; }
+}
+
+/* ===== PRINT BAR ===== */
+.print-bar {
+  position: fixed; top: 0; left: 0; right: 0;
+  background: #fff; border-bottom: 1px solid #e0e0e0;
+  padding: 12px 24px;
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  z-index: 1000;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.print-bar span { font-size: 13px; color: #888; }
+.print-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #2D8B4E; color: #fff; border: none;
+  padding: 10px 28px; border-radius: 8px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s;
+}
+.print-btn:hover { background: #24723f; transform: translateY(-1px); }
+.print-btn svg { width: 18px; height: 18px; }
+
+/* ===== TOC NAV (floating) ===== */
+.toc-nav {
+  position: fixed; right: 20px; top: 80px;
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  padding: 16px; z-index: 999;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto; width: 200px;
+  font-size: 11px;
+}
+.toc-nav h4 { font-size: 12px; font-weight: 800; margin-bottom: 10px; color: #2D8B4E; }
+.toc-nav a {
+  display: block; padding: 4px 8px; color: #555;
+  text-decoration: none; border-radius: 4px;
+  transition: all 0.15s; margin-bottom: 2px;
+}
+.toc-nav a:hover { background: #f0f9f4; color: #2D8B4E; }
+.toc-nav .toc-course { padding-left: 16px; font-size: 10px; }
+
+/* ===== TYPOGRAPHY ===== */
+h1, h2, h3, h4, h5 { line-height: 1.35; }
+
+/* ===== COLORS ===== */
+:root {
+  --green: #2D8B4E;
+  --green-light: #e8f5ee;
+  --green-dark: #1a5c32;
+  --carrot: #FF8C00;
+  --tomato: #E53E3E;
+  --broccoli: #38A169;
+  --eggplant: #805AD5;
+  --mushroom: #A0522D;
+  --onion: #D69E2E;
+  --paprika: #DD6B20;
+  --spinach: #2F855A;
+  --tofu: #ECC94B;
+}
+
+/* ===== COVER PAGE ===== */
+.cover {
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  min-height: calc(297mm - 24mm);
+  text-align: center;
+  background: linear-gradient(170deg, #f0f9f4 0%, #fff 40%, #fff 60%, #f0f9f4 100%);
+  position: relative;
+}
+.cover::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(45,139,78,0.06) 0%, transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(45,139,78,0.04) 0%, transparent 40%);
+}
+.cover > * { position: relative; z-index: 1; }
+.cover-logo {
+  font-size: 42px; font-weight: 900; color: var(--green);
+  letter-spacing: 6px; margin-bottom: 4px;
+}
+.cover-logo-sub {
+  font-size: 14px; font-weight: 500; color: #888;
+  letter-spacing: 4px; margin-bottom: 40px;
+}
+.cover-line {
+  width: 60px; height: 3px; background: var(--green);
+  border-radius: 2px; margin: 0 auto 32px;
+}
+.cover h1 {
+  font-size: 28px; font-weight: 800; color: #1a1a1a;
+  margin-bottom: 12px; letter-spacing: -0.5px;
+}
+.cover h1 em {
+  font-style: normal; color: var(--green);
+}
+.cover .cover-sub {
+  font-size: 16px; color: #666; margin-bottom: 32px;
+}
+.cover-tags {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 36px;
+}
+.cover-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--green-light); color: var(--green-dark);
+  padding: 8px 18px; border-radius: 24px;
+  font-size: 13px; font-weight: 600;
+}
+.cover-date {
+  font-size: 13px; color: #aaa; margin-top: 20px;
+}
+.cover-badge-row {
+  display: flex; gap: 24px; margin-top: 32px;
+}
+.cover-badge {
+  text-align: center;
+}
+.cover-badge .num {
+  font-size: 32px; font-weight: 900; color: var(--green);
+}
+.cover-badge .label {
+  font-size: 11px; color: #888; margin-top: 2px;
+}
+
+/* ===== PAGE HEADER ===== */
+.pg-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 12px; margin-bottom: 20px;
+  border-bottom: 2px solid var(--green);
+}
+.pg-logo { font-size: 16px; font-weight: 900; color: var(--green); letter-spacing: 2px; }
+.pg-logo-sub { font-size: 9px; font-weight: 500; color: #aaa; letter-spacing: 0; display: block; }
+.pg-title { text-align: right; }
+.pg-title h2 { font-size: 15px; font-weight: 800; color: #1a1a1a; }
+.pg-title p { font-size: 10px; color: #999; margin-top: 2px; }
+
+/* ===== SECTION TITLES ===== */
+.sec-title {
+  display: flex; align-items: center; gap: 10px;
+  margin: 24px 0 16px;
+}
+.sec-title h3 { font-size: 15px; font-weight: 800; color: #1a1a1a; white-space: nowrap; }
+.sec-title .line { flex: 1; height: 1px; background: #e0e0e0; }
+.sec-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--green-light); color: var(--green);
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 10px; font-weight: 700;
+}
+
+/* ===== INFOGRAPHIC CARDS ===== */
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-bottom: 20px;
+}
+.info-card {
+  background: #fafafa; border: 1px solid #eee;
+  border-radius: 12px; padding: 18px;
+}
+.info-card h4 {
+  font-size: 13px; font-weight: 700; color: var(--green);
+  margin-bottom: 10px;
+}
+.info-card-full {
+  grid-column: 1 / -1;
+}
+
+/* ===== TIMELINE ===== */
+.timeline {
+  display: flex; gap: 0; margin: 20px 0;
+  position: relative;
+}
+.timeline::before {
+  content: ''; position: absolute;
+  top: 30px; left: 0; right: 0;
+  height: 4px; background: #e0e0e0;
+  border-radius: 2px;
+}
+.tl-week {
+  flex: 1; text-align: center;
+  position: relative; padding-top: 50px;
+}
+.tl-dot {
+  position: absolute; top: 22px; left: 50%;
+  transform: translateX(-50%);
+  width: 20px; height: 20px;
+  border-radius: 50%; background: var(--green);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px var(--green);
+  z-index: 1;
+}
+.tl-week.active .tl-dot { background: #FF8C00; box-shadow: 0 0 0 2px #FF8C00; }
+.tl-label { font-size: 12px; font-weight: 700; color: #333; margin-bottom: 4px; }
+.tl-desc { font-size: 10px; color: #777; }
+.tl-badge {
+  display: inline-block; margin-top: 6px;
+  background: var(--green-light); color: var(--green);
+  padding: 2px 8px; border-radius: 10px;
+  font-size: 9px; font-weight: 600;
+}
+.tl-week.active .tl-badge { background: #fff3e0; color: #e67e00; }
+
+/* ===== STAGE BAR ===== */
+.stage-bar {
+  display: flex; border-radius: 10px; overflow: hidden;
+  margin: 16px 0; height: 40px;
+}
+.stage-bar > div {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; color: #fff;
+}
+.stage-bar .s1 { background: #a0d8b0; flex: 2; }
+.stage-bar .s2 { background: #6bc48d; flex: 2; }
+.stage-bar .s3 { background: #3da864; flex: 2; }
+.stage-bar .s4 { background: #2D8B4E; flex: 1.5; }
+
+/* ===== FLOW DIAGRAM ===== */
+.flow {
+  display: flex; align-items: center; gap: 0;
+  margin: 16px 0; flex-wrap: wrap;
+  justify-content: center;
+}
+.flow-step {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 16px; min-width: 100px;
+}
+.flow-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 8px;
+}
+.flow-step .f-title { font-size: 12px; font-weight: 700; }
+.flow-step .f-time { font-size: 10px; color: #888; }
+.flow-arrow {
+  font-size: 20px; color: #ccc; margin: 0 4px;
+}
+
+/* ===== PRINCIPLE CARDS ===== */
+.principle-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 12px; margin: 16px 0;
+}
+.principle-card {
+  border-radius: 12px; padding: 16px;
+  border: 1px solid #eee; text-align: center;
+}
+.principle-card .p-icon { font-size: 28px; margin-bottom: 8px; }
+.principle-card .p-title { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+.principle-card .p-desc { font-size: 10px; color: #666; }
+.principle-card .p-bad {
+  display: inline-block; background: #fde8e8; color: #c53030;
+  padding: 2px 8px; border-radius: 8px; font-size: 9px; margin-top: 6px; font-weight: 600;
+}
+.principle-card .p-good {
+  display: inline-block; background: #e8f5ee; color: #2D8B4E;
+  padding: 2px 8px; border-radius: 8px; font-size: 9px; margin-top: 4px; font-weight: 600;
+}
+
+/* ===== SCRIPT (CHAT BUBBLES) ===== */
+.script-section { margin: 16px 0; }
+.script-time {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #333; color: #fff;
+  padding: 4px 14px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+  margin: 20px 0 12px;
+}
+.script-time:first-child { margin-top: 0; }
+.script-action {
+  background: #f5f5f5; border-left: 3px solid #ccc;
+  padding: 10px 14px; margin: 8px 0;
+  font-size: 11px; color: #555;
+  border-radius: 0 8px 8px 0;
+}
+.bubble-row {
+  display: flex; gap: 10px; margin: 8px 0;
+  align-items: flex-start;
+}
+.bubble-row.teacher { justify-content: flex-start; }
+.bubble-row.child { justify-content: flex-end; }
+.bubble-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.bubble-row.teacher .bubble-avatar { background: var(--green-light); }
+.bubble-row.child .bubble-avatar { background: #f0f0f0; }
+.bubble {
+  max-width: 75%; padding: 10px 14px;
+  border-radius: 12px; font-size: 12px; line-height: 1.6;
+  position: relative;
+}
+.bubble-row.teacher .bubble {
+  background: var(--green-light); color: #1a5c32;
+  border-bottom-left-radius: 4px;
+}
+.bubble-row.child .bubble {
+  background: #f0f0f0; color: #555;
+  border-bottom-right-radius: 4px;
+}
+.bubble em { font-style: italic; color: #888; font-size: 11px; }
+
+/* ===== COURSE HEADER ===== */
+.course-header {
+  border-radius: 14px; padding: 24px;
+  color: #fff; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 20px;
+}
+.course-emoji { font-size: 48px; }
+.course-info h2 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.course-info .course-meta {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.course-info .course-meta span {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.2); padding: 3px 10px;
+  border-radius: 12px; font-size: 11px; font-weight: 600;
+}
+
+/* ===== COURSE TABLE ===== */
+.course-table {
+  width: 100%; border-collapse: collapse;
+  margin: 12px 0; font-size: 11px;
+}
+.course-table thead th {
+  padding: 8px 6px; text-align: left;
+  font-weight: 700; font-size: 10px;
+  border-bottom: 2px solid #333;
+  color: #333; white-space: nowrap;
+}
+.course-table tbody td {
+  padding: 7px 6px; border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.course-table tbody tr:hover { background: #fafafa; }
+.week-divider td {
+  padding: 10px 6px 6px !important;
+  font-weight: 800; font-size: 12px;
+  border-bottom: 2px solid #ddd !important;
+  background: #fafafa;
+}
+.day-badge {
+  display: inline-block; width: 22px; height: 22px;
+  border-radius: 50%; text-align: center; line-height: 22px;
+  font-size: 9px; font-weight: 700; color: #fff;
+}
+.tag-sense {
+  display: inline-block; background: #e8f5ee; color: #2D8B4E;
+  padding: 1px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;
+}
+.tag-cook {
+  display: inline-block; background: #fff3e0; color: #e67e00;
+  padding: 1px 6px; border-radius: 8px; font-size: 9px; font-weight: 600;
+}
+
+/* ===== TIP BOX ===== */
+.tip-box {
+  border-radius: 10px; padding: 14px 18px;
+  margin: 12px 0; display: flex; align-items: flex-start; gap: 10px;
+}
+.tip-box .tip-icon { font-size: 20px; flex-shrink: 0; }
+.tip-box .tip-text { font-size: 12px; color: #444; line-height: 1.6; }
+.tip-box .tip-text strong { color: #1a1a1a; }
+
+/* ===== KEY MENT ===== */
+.key-ment {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 6px 12px; margin: 12px 0; font-size: 11px;
+}
+.key-ment .km-day {
+  font-weight: 700; white-space: nowrap;
+}
+.key-ment .km-text {
+  color: #555; border-left: 2px solid #e0e0e0;
+  padding-left: 10px;
+}
+
+/* ===== BACK COVER ===== */
+.back-cover {
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  min-height: calc(297mm - 24mm);
+  text-align: center;
+}
+.back-logo { font-size: 36px; font-weight: 900; color: var(--green); letter-spacing: 4px; margin-bottom: 16px; }
+.back-tagline { font-size: 16px; color: #666; margin-bottom: 40px; }
+.back-contact {
+  display: flex; gap: 32px; margin-bottom: 40px; flex-wrap: wrap; justify-content: center;
+}
+.back-contact-item { text-align: center; }
+.back-contact-item .bci-icon { font-size: 24px; margin-bottom: 4px; }
+.back-contact-item .bci-label { font-size: 10px; color: #aaa; }
+.back-contact-item .bci-value { font-size: 13px; font-weight: 600; color: #333; }
+.trust-row {
+  display: flex; gap: 40px; margin-top: 32px;
+}
+.trust-item { text-align: center; }
+.trust-item .t-num { font-size: 28px; font-weight: 900; color: var(--green); }
+.trust-item .t-label { font-size: 11px; color: #888; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 800px) {
+  .page { width: 100%; min-height: auto; margin: 0; padding: 16px; box-shadow: none; }
+  .page-spacer { height: 56px; }
+  .toc-nav { display: none; }
+  .info-grid { grid-template-columns: 1fr; }
+  .principle-grid { grid-template-columns: 1fr; }
+  .timeline { flex-wrap: wrap; }
+  .timeline::before { display: none; }
+  .tl-week { padding-top: 10px; flex: none; width: 50%; margin-bottom: 12px; }
+  .tl-dot { display: none; }
+  .course-header { flex-direction: column; text-align: center; }
+  .cover h1 { font-size: 22px; }
+  .cover-logo { font-size: 32px; }
+  .flow { flex-direction: column; }
+  .flow-arrow { transform: rotate(90deg); }
+  .bubble { max-width: 90%; }
+  .course-table { font-size: 10px; }
+  .back-contact { flex-direction: column; gap: 16px; }
+}
+
+/* ===== UTILITY ===== */
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.text-center { text-align: center; }
+.text-sm { font-size: 12px; }
+.text-xs { font-size: 10px; }
+.text-muted { color: #999; }
+.fw-700 { font-weight: 700; }
+.green { color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- ========== PRINT BAR ========== -->
+<div class="print-bar">
+  <span>밀프레드 편식개선 5주 프로그램 상세 안내서</span>
+  <button class="print-btn" onclick="window.print()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    PDF로 저장하기
+  </button>
+</div>
+
+<!-- ========== TOC NAV ========== -->
+<nav class="toc-nav" id="tocNav">
+  <h4>목차</h4>
+  <a href="#cover">표지</a>
+  <a href="#overview">프로그램 개요</a>
+  <a href="#teacher-guide">선생님 가이드</a>
+  <a href="#day1-example">Day 1 수업 예시</a>
+  <a href="#course-carrot" class="toc-course" style="color:var(--carrot);">🥕 당근</a>
+  <a href="#course-tomato" class="toc-course" style="color:var(--tomato);">🍅 토마토</a>
+  <a href="#course-broccoli" class="toc-course" style="color:var(--broccoli);">🥦 브로콜리</a>
+  <a href="#course-eggplant" class="toc-course" style="color:var(--eggplant);">🍆 가지</a>
+  <a href="#course-mushroom" class="toc-course" style="color:var(--mushroom);">🍄 버섯</a>
+  <a href="#course-onion" class="toc-course" style="color:var(--onion);">🧅 양파</a>
+  <a href="#course-paprika" class="toc-course" style="color:var(--paprika);">🫑 파프리카</a>
+  <a href="#course-spinach" class="toc-course" style="color:var(--spinach);">🥬 시금치</a>
+  <a href="#course-tofu" class="toc-course" style="color:var(--tofu);">🧈 두부</a>
+  <a href="#scripts">선생님 대본</a>
+  <a href="#back">뒤표지</a>
+</nav>
+
+<div class="page-spacer"></div>
+
+<!-- ============================================================
+     PAGE 1: COVER
+     ============================================================ -->
+<div class="page" id="cover">
+  <div class="cover">
+    <div class="cover-logo">MEALFRED</div>
+    <div class="cover-logo-sub">밀프레드</div>
+    <div class="cover-line"></div>
+    <h1><em>편식개선</em> 5주 프로그램</h1>
+    <p class="cover-sub" style="font-size:18px; font-weight:600; color:#444; margin-bottom:8px;">기관용 상세 안내서</p>
+    <p class="cover-sub">어린이집 &middot; 유치원 &middot; 학교</p>
+    <div class="cover-tags">
+      <span class="cover-tag">👶 만 2~5세</span>
+      <span class="cover-tag">📅 5주 21회</span>
+      <span class="cover-tag">🥕 9개 코스</span>
+      <span class="cover-tag">📦 키트 배송</span>
+    </div>
+    <div class="cover-badge-row">
+      <div class="cover-badge">
+        <div class="num">21</div>
+        <div class="label">총 회차</div>
+      </div>
+      <div class="cover-badge">
+        <div class="num">9</div>
+        <div class="label">코스 선택</div>
+      </div>
+      <div class="cover-badge">
+        <div class="num">5</div>
+        <div class="label">주 과정</div>
+      </div>
+      <div class="cover-badge">
+        <div class="num">4</div>
+        <div class="label">단계 노출</div>
+      </div>
+    </div>
+    <p class="cover-date">2026년 4월</p>
+    <p style="margin-top:8px; font-size:11px; color:#bbb;">SOS Approach to Feeding 기반 &middot; 유아교육 전문가 감수</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     PAGE 2: 프로그램 개요 인포그래픽
+     ============================================================ -->
+<div class="page" id="overview">
+  <div class="pg-header">
+    <div>
+      <div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div>
+    </div>
+    <div class="pg-title">
+      <h2>프로그램 개요</h2>
+      <p>5주 21회 커리큘럼 구조</p>
+    </div>
+  </div>
+
+  <!-- 5-week Timeline -->
+  <div class="sec-title">
+    <h3>5주 타임라인</h3>
+    <div class="line"></div>
+    <span class="sec-badge">OVERVIEW</span>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-week">
+      <div class="tl-dot"></div>
+      <div class="tl-label">1주차</div>
+      <div class="tl-desc">시각 탐색</div>
+      <div class="tl-badge">감각놀이 5회</div>
+    </div>
+    <div class="tl-week">
+      <div class="tl-dot"></div>
+      <div class="tl-label">2주차</div>
+      <div class="tl-desc">촉각·후각 탐색</div>
+      <div class="tl-badge">감각놀이 5회</div>
+    </div>
+    <div class="tl-week">
+      <div class="tl-dot"></div>
+      <div class="tl-label">3주차</div>
+      <div class="tl-desc">미각 노출</div>
+      <div class="tl-badge">감각놀이 5회</div>
+    </div>
+    <div class="tl-week active">
+      <div class="tl-dot"></div>
+      <div class="tl-label">4주차</div>
+      <div class="tl-desc">조리완료 체험</div>
+      <div class="tl-badge">조리 3회</div>
+    </div>
+    <div class="tl-week active">
+      <div class="tl-dot"></div>
+      <div class="tl-label">5주차</div>
+      <div class="tl-desc">일상식 통합</div>
+      <div class="tl-badge">조리 3회</div>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h4>📊 주차별 구성</h4>
+      <table style="width:100%; font-size:11px; border-collapse:collapse;">
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:6px 0; font-weight:700;">1~3주차</td>
+          <td style="padding:6px 0;">감각놀이 (주 5회, 30분)</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:6px 0; font-weight:700;">4~5주차</td>
+          <td style="padding:6px 0;">조리완료 체험 (주 3회, 35분)</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; font-weight:700;">총합</td>
+          <td style="padding:6px 0; color:var(--green); font-weight:700;">21회 (15회 감각 + 6회 조리)</td>
+        </tr>
+      </table>
+    </div>
+    <div class="info-card">
+      <h4>🎯 대상 및 규모</h4>
+      <table style="width:100%; font-size:11px; border-collapse:collapse;">
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:6px 0; font-weight:700;">대상 연령</td>
+          <td style="padding:6px 0;">만 2~5세</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee;">
+          <td style="padding:6px 0; font-weight:700;">반 구성</td>
+          <td style="padding:6px 0;">최소 5명 ~ 최대 20명</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; font-weight:700;">선생님</td>
+          <td style="padding:6px 0;">담임 1명 (보조 1명 권장)</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 푸드브릿지 4단계 -->
+  <div class="sec-title">
+    <h3>푸드브릿지 4단계 노출 비율</h3>
+    <div class="line"></div>
+  </div>
+
+  <div class="stage-bar">
+    <div class="s1">1단계<br><span style="font-size:8px;">시각 5~10%</span></div>
+    <div class="s2">2단계<br><span style="font-size:8px;">촉각 20~40%</span></div>
+    <div class="s3">3단계<br><span style="font-size:8px;">미각 50~70%</span></div>
+    <div class="s4">4단계<br><span style="font-size:8px;">통합 90%+</span></div>
+  </div>
+
+  <div class="info-grid" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="info-card" style="text-align:center; border-top: 3px solid #a0d8b0;">
+      <div style="font-size:11px; font-weight:700; color:#666; margin-bottom:4px;">1단계: 시각 노출</div>
+      <div style="font-size:24px; font-weight:900; color:#a0d8b0;">5~10%</div>
+      <div style="font-size:10px; color:#999; margin-top:4px;">눈으로 관찰<br>색깔·모양 탐색</div>
+    </div>
+    <div class="info-card" style="text-align:center; border-top: 3px solid #6bc48d;">
+      <div style="font-size:11px; font-weight:700; color:#666; margin-bottom:4px;">2단계: 촉각·후각</div>
+      <div style="font-size:24px; font-weight:900; color:#6bc48d;">20~40%</div>
+      <div style="font-size:10px; color:#999; margin-top:4px;">만지고 냄새 맡기<br>질감 탐색</div>
+    </div>
+    <div class="info-card" style="text-align:center; border-top: 3px solid #3da864;">
+      <div style="font-size:11px; font-weight:700; color:#666; margin-bottom:4px;">3단계: 미각 노출</div>
+      <div style="font-size:24px; font-weight:900; color:#3da864;">50~70%</div>
+      <div style="font-size:10px; color:#999; margin-top:4px;">입술 터치·디핑<br>맛보기 시도</div>
+    </div>
+    <div class="info-card" style="text-align:center; border-top: 3px solid #2D8B4E;">
+      <div style="font-size:11px; font-weight:700; color:#666; margin-bottom:4px;">4단계: 일상 통합</div>
+      <div style="font-size:24px; font-weight:900; color:#2D8B4E;">90%+</div>
+      <div style="font-size:10px; color:#999; margin-top:4px;">조리완료 음식에<br>자발적 섭취</div>
+    </div>
+  </div>
+
+  <!-- SOS Approach 설명 -->
+  <div class="info-card info-card-full" style="background: linear-gradient(135deg, #f0f9f4, #fff); border: 1px solid #c3e6d1;">
+    <h4>🔬 SOS Approach to Feeding 기반</h4>
+    <p style="font-size:11px; color:#555; margin-bottom:8px;">
+      밀프레드 프로그램은 미국 SOS(Sequential Oral Sensory) Approach를 기반으로 설계되었습니다.
+      아이가 새로운 음식을 받아들이기까지 <strong>같은 방에 있기 → 시각 탐색 → 촉각 탐색 → 후각 탐색 → 미각 노출 → 자발적 섭취</strong>의
+      단계를 자연스럽게 거치도록 합니다.
+    </p>
+    <p style="font-size:11px; color:#555;">
+      <strong>핵심:</strong> 절대 강요하지 않습니다. 아이의 페이스에 맞춰 단계적으로 노출하면,
+      평균 15~20회 반복 노출 후 자발적 섭취가 일어납니다. 밀프레드 21회 과정은 이 연구에 맞춰 설계되었습니다.
+    </p>
+  </div>
+
+  <!-- 9개 코스 미리보기 -->
+  <div class="sec-title" style="margin-top:24px;">
+    <h3>9개 코스 한눈에 보기</h3>
+    <div class="line"></div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;">
+    <div style="background:linear-gradient(135deg,#FF8C00,#FFa940); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🥕</div>
+      <div style="font-size:12px; font-weight:700;">당근</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★★☆</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#E53E3E,#F56565); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🍅</div>
+      <div style="font-size:12px; font-weight:700;">토마토</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★★★</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#38A169,#48BB78); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🥦</div>
+      <div style="font-size:12px; font-weight:700;">브로콜리</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★★☆</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#805AD5,#9F7AEA); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🍆</div>
+      <div style="font-size:12px; font-weight:700;">가지</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★★★</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#A0522D,#C07040); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🍄</div>
+      <div style="font-size:12px; font-weight:700;">버섯</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★★★</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#D69E2E,#ECC94B); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🧅</div>
+      <div style="font-size:12px; font-weight:700;">양파</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★★☆</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#DD6B20,#ED8936); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🫑</div>
+      <div style="font-size:12px; font-weight:700;">파프리카</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★★☆</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#2F855A,#48BB78); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🥬</div>
+      <div style="font-size:12px; font-weight:700;">시금치</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★★★</div>
+    </div>
+    <div style="background:linear-gradient(135deg,#B7950B,#ECC94B); border-radius:10px; padding:12px; color:#fff; text-align:center;">
+      <div style="font-size:24px;">🧈</div>
+      <div style="font-size:12px; font-weight:700;">두부</div>
+      <div style="font-size:9px; opacity:0.8;">난이도 ★☆☆</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PAGE 3: 선생님 가이드
+     ============================================================ -->
+<div class="page" id="teacher-guide">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>선생님 가이드</h2>
+      <p>이렇게 진행하세요</p>
+    </div>
+  </div>
+
+  <!-- 하루 수업 흐름 -->
+  <div class="sec-title">
+    <h3>하루 수업 흐름</h3>
+    <div class="line"></div>
+    <span class="sec-badge">FLOW</span>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-icon" style="background:#fff3e0;">📦</div>
+      <div class="f-title">준비</div>
+      <div class="f-time">5분</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-step">
+      <div class="flow-icon" style="background:#e8f5ee;">👋</div>
+      <div class="f-title">도입</div>
+      <div class="f-time">5분</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-step">
+      <div class="flow-icon" style="background:#e3f2fd;">🎨</div>
+      <div class="f-title">활동</div>
+      <div class="f-time">15분</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-step">
+      <div class="flow-icon" style="background:#fce4ec;">🧹</div>
+      <div class="f-title">마무리</div>
+      <div class="f-time">5분</div>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h4>📦 준비 (5분)</h4>
+      <ul style="font-size:11px; padding-left:16px; color:#555;">
+        <li>키트 박스에서 당일 재료 꺼내기</li>
+        <li>교실 앞 테이블에 재료 세팅</li>
+        <li>활동지·도구 아이 수만큼 배분</li>
+        <li>활동 가이드 카드 한 번 읽기</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h4>👋 도입 (5분)</h4>
+      <ul style="font-size:11px; padding-left:16px; color:#555;">
+        <li>오늘의 식재료 소개</li>
+        <li>"오늘은 먹는 게 아니에요~" 안내</li>
+        <li>지난 시간 활동 간단히 리뷰</li>
+        <li>아이들 관심 유도 질문</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h4>🎨 활동 (15분)</h4>
+      <ul style="font-size:11px; padding-left:16px; color:#555;">
+        <li>가이드 카드에 따라 활동 진행</li>
+        <li>아이 반응 관찰 & 기록</li>
+        <li>거부하는 아이에게 강요 X</li>
+        <li>자발적 참여 칭찬하기</li>
+      </ul>
+    </div>
+    <div class="info-card">
+      <h4>🧹 마무리 (5분)</h4>
+      <ul style="font-size:11px; padding-left:16px; color:#555;">
+        <li>오늘 활동 짧게 복습</li>
+        <li>"다음엔 뭐 할까?" 기대감</li>
+        <li>정리정돈 함께하기</li>
+        <li>관찰 기록 앱에 입력</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 핵심 원칙 -->
+  <div class="sec-title">
+    <h3>핵심 원칙 3가지</h3>
+    <div class="line"></div>
+    <span class="sec-badge">RULES</span>
+  </div>
+
+  <div class="principle-grid">
+    <div class="principle-card" style="background:#fef5f5;">
+      <div class="p-icon">🚫</div>
+      <div class="p-title">"먹어봐" 금지</div>
+      <div class="p-desc">식재료를 먹도록 강요하거나 유도하지 않습니다. 놀이를 통한 자연스러운 노출이 핵심입니다.</div>
+      <div class="p-bad">X "한 입만 먹어봐"</div>
+      <div class="p-good">O "만져보고 싶으면 만져봐~"</div>
+    </div>
+    <div class="principle-card" style="background:#f0f9f4;">
+      <div class="p-icon">🐌</div>
+      <div class="p-title">아이 페이스 존중</div>
+      <div class="p-desc">모든 아이의 속도가 다릅니다. 옆 친구가 먹는다고 비교하지 않습니다.</div>
+      <div class="p-bad">X "OO는 잘 먹는데~"</div>
+      <div class="p-good">O "네 속도대로 하면 돼~"</div>
+    </div>
+    <div class="principle-card" style="background:#fffbf0;">
+      <div class="p-icon">👏</div>
+      <div class="p-title">과정 칭찬</div>
+      <div class="p-desc">결과(먹기)가 아니라 과정(관찰, 만지기, 냄새 맡기)을 칭찬합니다.</div>
+      <div class="p-bad">X "다 먹었네, 잘했어!"</div>
+      <div class="p-good">O "냄새 맡아봤구나, 용감하다!"</div>
+    </div>
+  </div>
+
+  <!-- 추가 팁 -->
+  <div class="tip-box" style="background:#f0f9f4; border:1px solid #c3e6d1;">
+    <div class="tip-icon">💡</div>
+    <div class="tip-text">
+      <strong>선생님 자기 관리 팁:</strong> 수업 전 직접 식재료를 만져보고, 맛보고, 긍정적인 표현을 연습해보세요.
+      선생님의 자연스러운 반응이 아이들에게 가장 큰 영향을 줍니다. "선생님도 오늘 처음 만져보는 건데, 재밌다!"
+    </div>
+  </div>
+
+  <div class="tip-box" style="background:#fff8f0; border:1px solid #f5d6b0;">
+    <div class="tip-icon">⚠️</div>
+    <div class="tip-text">
+      <strong>알레르기 주의:</strong> 수업 시작 전 반드시 학부모에게 알레르기 정보를 확인하세요.
+      밀프레드 키트에는 알레르기 확인서가 동봉되어 있습니다. 알레르기 식재료가 있는 아이는 해당 활동에서 대체 활동(관찰만 하기)으로 참여합니다.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PAGE 4: DAY 1 수업 예시 (당근 코스)
+     ============================================================ -->
+<div class="page" id="day1-example">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>Day 1 수업 예시</h2>
+      <p>당근 코스 — 색깔 탐험대</p>
+    </div>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#FF8C00,#FFa940); border-radius:14px; padding:18px 24px; color:#fff; margin-bottom:20px; display:flex; align-items:center; gap:16px;">
+    <div style="font-size:40px;">🥕</div>
+    <div>
+      <div style="font-size:18px; font-weight:800;">Day 1 — 색깔 탐험대 (3색 당근 비교)</div>
+      <div style="font-size:12px; opacity:0.9;">1주차 월요일 | 시각 탐색 | 30분 | 준비물: 주황·보라·노란 당근, 도화지, 스티커</div>
+    </div>
+  </div>
+
+  <div class="script-section">
+
+    <div class="script-time">⏰ 수업 시작 5분 전 — 준비</div>
+    <div class="script-action">
+      <strong>[준비물 세팅]</strong> 교실 앞 테이블에 키트 박스에서 꺼낸 재료를 놓아주세요.<br>
+      &bull; 유기농 당근 3종 (주황, 보라, 노란) — 각 1개씩<br>
+      &bull; 도화지 (아이 수만큼)<br>
+      &bull; 당근 색깔 스티커 세트 (키트에 포함)<br>
+      &bull; 접시 3개 (각 색깔 당근을 올려놓을 용도)<br>
+      <em>* 당근은 씻어서 흙이 없는 상태로 제공됩니다. 보라 당근이 없으면 빨간 당근으로 대체 가능합니다.</em>
+    </div>
+
+    <div class="script-time">👋 도입 — 5분</div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "얘들아~ 오늘 선생님이 특별한 친구를 데려왔어!<br>
+        짜잔~ 이게 뭘까?"<br>
+        <em>(주황 당근을 들어 보여줌)</em>
+      </div>
+    </div>
+
+    <div class="bubble-row child">
+      <div class="bubble">
+        "당근이요!"
+      </div>
+      <div class="bubble-avatar">👧</div>
+    </div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "맞아~ 당근이야! 그런데 오늘은 당근을 <strong>먹는 게 아니야!</strong><br>
+        당근이랑 <strong>놀 거야!</strong> 먹는 거 아니에요~ 놀이만 할 거예요 😊"<br>
+        <em>(밝은 톤으로, 아이들 긴장을 풀어주기)</em>
+      </div>
+    </div>
+
+    <div class="bubble-row child">
+      <div class="bubble">
+        "놀이요? 당근으로 어떻게 놀아요?"
+      </div>
+      <div class="bubble-avatar">👦</div>
+    </div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "그러게~ 당근으로 어떻게 놀까?<br>
+        선생님이 비밀 하나 알려줄까?<br>
+        당근은 사실... 주황색만 있는 게 아니야!"<br>
+        <em>(신비로운 톤으로 기대감 조성)</em>
+      </div>
+    </div>
+
+    <div class="script-time">🎨 활동 — 15분</div>
+
+    <div class="script-action">
+      <strong>[3색 당근 공개]</strong> 보라, 노란 당근을 하나씩 꺼내면서 아이들 반응을 유도합니다.
+    </div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "자, 여기 당근이 세 개 있는데, 색깔이 다 달라!<br>
+        주황색, 보라색, 노란색!<br>
+        어떤 색이 제일 예쁜 것 같아?"
+      </div>
+    </div>
+
+    <div class="bubble-row child">
+      <div class="bubble">
+        "보라색이요!" / "주황색!" / "노란 당근은 처음 봐요!"
+      </div>
+      <div class="bubble-avatar">👧</div>
+    </div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "우와~ OO이는 보라색이 예쁘구나!<br>
+        △△이는 노란 당근 처음 봤구나~ 신기하지?"<br>
+        <em>(아이들 이름을 불러가며 반응 수용)</em>
+      </div>
+    </div>
+
+    <div class="script-action">
+      <strong>[스티커 활동 안내]</strong> 도화지와 스티커를 배분합니다.
+    </div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "그러면 이 당근들을 만져볼까?<br>
+        ... 아, 아직 만지는 건 다음 주에!<br>
+        오늘은 <strong>눈으로만</strong> 구경하는 거야~<br>
+        자, 도화지에 당근 색깔 스티커를 붙여볼까?<br>
+        주황색 스티커는 여기, 보라색은 여기, 노란색은 여기!"<br>
+        <em>(도화지에 3구역을 가리키며)</em>
+      </div>
+    </div>
+
+    <div class="script-action">
+      <strong>[자유 활동 진행]</strong> 10~12분간 아이들이 자유롭게 스티커를 붙입니다.<br>
+      &bull; 돌아다니면서 "어떤 당근이 제일 크다고 생각해?" 등 열린 질문<br>
+      &bull; 스티커를 다 붙인 아이에게는 "당근한테 이름을 지어줄 수 있어?"<br>
+      &bull; <strong>관찰 포인트:</strong> 당근을 가까이 가져가는 아이, 냄새 맡으려는 아이 기록
+    </div>
+
+    <div class="script-time">🧹 마무리 — 5분</div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "오늘 당근이랑 재미있었어?<br>
+        당근이 세 가지 색깔이라는 거 알았지?<br>
+        <strong>내일은 당근으로 도장 찍기를 할 거야!</strong><br>
+        당근 친구, 내일 또 만나자~ 👋"
+      </div>
+    </div>
+
+    <div class="bubble-row child">
+      <div class="bubble">
+        "내일 또 해요!" / "보라 당근 또 보고 싶어요!"
+      </div>
+      <div class="bubble-avatar">👧</div>
+    </div>
+
+    <div class="script-action">
+      <strong>[정리]</strong> 당근은 키트 박스에 다시 넣어 냉장 보관합니다. 도화지 작품은 교실에 게시하면 효과적입니다.
+    </div>
+  </div>
+
+  <div class="tip-box" style="background:#fff8f0; border:1px solid #f5d6b0;">
+    <div class="tip-icon">💡</div>
+    <div class="tip-text">
+      <strong>당근을 거부하는 아이가 있다면:</strong> 억지로 가까이 가져가지 마세요.
+      "괜찮아, 멀리서 봐도 돼~"라고 말하고, 스티커 활동에만 참여하도록 합니다.
+      1주차에는 식재료와 같은 공간에 있는 것만으로도 충분합니다.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 1: 당근
+     ============================================================ -->
+<div class="page" id="course-carrot">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 1: 당근</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #FF8C00, #FFa940);">
+    <div class="course-emoji">🥕</div>
+    <div class="course-info">
+      <h2>당근 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 주황</span>
+        <span>⭐ 난이도: ★★☆</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr>
+        <th style="width:40px;">주차</th>
+        <th style="width:35px;">Day</th>
+        <th style="width:110px;">활동명</th>
+        <th>활동 설명</th>
+        <th style="width:100px;">제공 재료</th>
+        <th style="width:40px;">시간</th>
+        <th style="width:90px;">선생님 역할</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📗 1주차 — 시각 탐색</td></tr>
+      <tr>
+        <td>W1</td>
+        <td><span class="day-badge" style="background:#FF8C00;">월</span></td>
+        <td><strong>색깔 탐험대</strong></td>
+        <td>주황·보라·노랑 3색 당근을 눈으로 관찰하고 색깔 스티커를 도화지에 붙이기</td>
+        <td>3색 당근, 도화지, 스티커</td>
+        <td>30분</td>
+        <td><span class="tag-sense">시각</span> 관찰 유도, 열린 질문</td>
+      </tr>
+      <tr>
+        <td>W1</td>
+        <td><span class="day-badge" style="background:#FF8C00;">화</span></td>
+        <td><strong>스탬프 아트</strong></td>
+        <td>당근 단면에 물감을 묻혀 도화지에 도장 찍기. 다양한 모양 비교</td>
+        <td>당근(두꺼운 것), 물감, 도화지</td>
+        <td>30분</td>
+        <td><span class="tag-sense">촉각</span> 물감 묻히기 시범</td>
+      </tr>
+      <tr>
+        <td>W1</td>
+        <td><span class="day-badge" style="background:#FF8C00;">수</span></td>
+        <td><strong>해부 탐험</strong></td>
+        <td>당근 단면 관찰 + 달팽이 모양 찾기. 돋보기 사용 권장</td>
+        <td>반으로 자른 당근, 돋보기, 관찰기록지</td>
+        <td>30분</td>
+        <td><span class="tag-sense">시각</span> "뭐가 보여?" 질문</td>
+      </tr>
+      <tr>
+        <td>W1</td>
+        <td><span class="day-badge" style="background:#FF8C00;">목</span></td>
+        <td><strong>컬러당근 무지개</strong></td>
+        <td>3색 당근 조각을 무지개 순서대로 나열. 색 순서 인지 활동</td>
+        <td>3색 당근 조각, 긴 접시</td>
+        <td>30분</td>
+        <td><span class="tag-sense">시각</span> 색 순서 안내</td>
+      </tr>
+      <tr>
+        <td>W1</td>
+        <td><span class="day-badge" style="background:#FF8C00;">금</span></td>
+        <td><strong>당근즙 비밀편지</strong></td>
+        <td>당근즙으로 도화지에 그림 그리기. 마른 후 색깔 변화 관찰</td>
+        <td>당근즙, 면봉, 도화지</td>
+        <td>30분</td>
+        <td><span class="tag-sense">시각</span> 즙 묻히기 시범</td>
+      </tr>
+
+      <tr class="week-divider"><td colspan="7">📗 2주차 — 촉각·후각 탐색</td></tr>
+      <tr>
+        <td>W2</td>
+        <td><span class="day-badge" style="background:#FF8C00;">월</span></td>
+        <td><strong>촉감 탐정</strong></td>
+        <td>생당근, 삶은 당근, 건조 당근의 촉감 비교. "딱딱해/말랑해/거칠어" 표현 유도</td>
+        <td>생당근, 삶은당근, 건조당근</td>
+        <td>30분</td>
+        <td><span class="tag-sense">촉각</span> 촉감 어휘 안내</td>
+      </tr>
+      <tr>
+        <td>W2</td>
+        <td><span class="day-badge" style="background:#FF8C00;">화</span></td>
+        <td><strong>냄새 맞추기</strong></td>
+        <td>눈을 가리고 당근/사과/오이 냄새 구분하기 게임</td>
+        <td>당근, 사과, 오이, 안대</td>
+        <td>30분</td>
+        <td><span class="tag-sense">후각</span> 냄새 비교 유도</td>
+      </tr>
+      <tr>
+        <td>W2</td>
+        <td><span class="day-badge" style="background:#FF8C00;">수</span></td>
+        <td><strong>모래놀이</strong></td>
+        <td>간 당근 + 밀가루를 섞어 모래 질감 놀이. 손으로 주무르기</td>
+        <td>간당근, 밀가루, 트레이</td>
+        <td>30분</td>
+        <td><span class="tag-sense">촉각</span> 질감 비교 유도</td>
+      </tr>
+      <tr>
+        <td>W2</td>
+        <td><span class="day-badge" style="background:#FF8C00;">목</span></td>
+        <td><strong>당근퓨레 핑거페인팅</strong></td>
+        <td>당근퓨레를 물감 대신 사용해 손가락 그림 그리기</td>
+        <td>당근퓨레, 도화지, 앞치마</td>
+        <td>30분</td>
+        <td><span class="tag-sense">촉각</span> 자유롭게 표현</td>
+      </tr>
+      <tr>
+        <td>W2</td>
+        <td><span class="day-badge" style="background:#FF8C00;">금</span></td>
+        <td><strong>당근 얼음 보석</strong></td>
+        <td>당근즙으로 만든 얼음을 손으로 녹이며 색 변화 관찰</td>
+        <td>당근즙 얼음, 트레이, 도화지</td>
+        <td>30분</td>
+        <td><span class="tag-sense">촉각</span> 온도 변화 관찰</td>
+      </tr>
+
+      <tr class="week-divider"><td colspan="7">📗 3주차 — 미각 노출</td></tr>
+      <tr>
+        <td>W3</td>
+        <td><span class="day-badge" style="background:#FF8C00;">월</span></td>
+        <td><strong>당근칩 ASMR</strong></td>
+        <td>당근칩을 부수며 소리 듣기. "바삭바삭" 소리 즐기기</td>
+        <td>당근칩, 지퍼백</td>
+        <td>30분</td>
+        <td><span class="tag-sense">청각</span> 소리 표현 유도</td>
+      </tr>
+      <tr>
+        <td>W3</td>
+        <td><span class="day-badge" style="background:#FF8C00;">화</span></td>
+        <td><strong>쿠키커터 모양</strong></td>
+        <td>삶은 당근 슬라이스를 쿠키커터로 별·하트·꽃 모양 만들기</td>
+        <td>삶은당근 슬라이스, 쿠키커터</td>
+        <td>30분</td>
+        <td><span class="tag-sense">촉각</span> 모양 만들기 보조</td>
+      </tr>
+      <tr>
+        <td>W3</td>
+        <td><span class="day-badge" style="background:#FF8C00;">수</span></td>
+        <td><strong>당근 얼굴 만들기</strong></td>
+        <td>접시 위에 당근 조각으로 얼굴 만들기 (눈, 코, 입)</td>
+        <td>다양한 모양 당근조각, 접시</td>
+        <td>30분</td>
+        <td><span class="tag-sense">시각</span> 창의적 배치 격려</td>
+      </tr>
+      <tr>
+        <td>W3</td>
+        <td><span class="day-badge" style="background:#FF8C00;">목</span></td>
+        <td><strong>립터치</strong></td>
+        <td>당근 조각을 입술에 살짝 대보기. 강요 없이 자발적 참여만</td>
+        <td>당근 스틱</td>
+        <td>30분</td>
+        <td><span class="tag-sense">미각</span> "입술에만~" 안내</td>
+      </tr>
+      <tr>
+        <td>W3</td>
+        <td><span class="day-badge" style="background:#FF8C00;">금</span></td>
+        <td><strong>디핑 체험</strong></td>
+        <td>당근 스틱을 크림치즈/요거트/꿀에 찍어보기. 맛보기 자유</td>
+        <td>당근스틱, 크림치즈, 요거트, 꿀</td>
+        <td>30분</td>
+        <td><span class="tag-sense">미각</span> 소스 선택권 부여</td>
+      </tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr>
+        <td>W4</td>
+        <td><span class="day-badge" style="background:#e67e00;">월</span></td>
+        <td><strong>감자볼+소스찍기</strong></td>
+        <td>당근이 들어간 감자볼을 소스에 찍어 먹기. 직접 소스 선택</td>
+        <td>당근감자볼(조리완료), 소스 3종</td>
+        <td>35분</td>
+        <td><span class="tag-cook">조리</span> 소스 찍기 시범</td>
+      </tr>
+      <tr>
+        <td>W4</td>
+        <td><span class="day-badge" style="background:#e67e00;">화</span></td>
+        <td><strong>치즈야채밥 토핑</strong></td>
+        <td>당근이 포함된 야채밥 위에 치즈를 올려 토핑하기</td>
+        <td>치즈야채밥(조리완료), 치즈</td>
+        <td>35분</td>
+        <td><span class="tag-cook">조리</span> 토핑 방법 안내</td>
+      </tr>
+      <tr>
+        <td>W4</td>
+        <td><span class="day-badge" style="background:#e67e00;">목</span></td>
+        <td><strong>잔치국수 고명</strong></td>
+        <td>잔치국수 위에 당근채 고명 올리기. 국수 먹기 자유</td>
+        <td>잔치국수(조리완료), 당근채 고명</td>
+        <td>35분</td>
+        <td><span class="tag-cook">조리</span> 고명 올리기 시범</td>
+      </tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr>
+        <td>W5</td>
+        <td><span class="day-badge" style="background:#e67e00;">월</span></td>
+        <td><strong>스파게티 토핑</strong></td>
+        <td>스파게티 위에 당근 토핑을 직접 올리기</td>
+        <td>스파게티(조리완료), 당근토핑</td>
+        <td>35분</td>
+        <td><span class="tag-cook">조리</span> 토핑 선택 유도</td>
+      </tr>
+      <tr>
+        <td>W5</td>
+        <td><span class="day-badge" style="background:#e67e00;">목</span></td>
+        <td><strong>볶음밥 섞기</strong></td>
+        <td>당근이 들어간 볶음밥 재료를 직접 섞기</td>
+        <td>볶음밥 재료(조리완료)</td>
+        <td>35분</td>
+        <td><span class="tag-cook">조리</span> 섞기 참여 유도</td>
+      </tr>
+      <tr>
+        <td>W5</td>
+        <td><span class="day-badge" style="background:#e67e00;">금</span></td>
+        <td><strong>닭칼국수 + 수료식</strong></td>
+        <td>당근이 들어간 닭칼국수 함께 먹기. 수료증 수여</td>
+        <td>닭칼국수(조리완료), 수료증</td>
+        <td>35분</td>
+        <td><span class="tag-cook">조리</span> 수료식 진행</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#fff8f0; border:1px solid #f5d6b0;">
+    <div class="tip-icon">🥕</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 당근은 아이들이 비교적 친숙한 식재료입니다. 하지만 '익힌 당근의 물렁한 식감'을 싫어하는 아이가 많습니다. 1~2주차에는 생당근(딱딱한 질감)을 중심으로 진행하고, 3주차부터 익힌 당근을 자연스럽게 노출하면 거부감이 줄어듭니다.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 2: 토마토
+     ============================================================ -->
+<div class="page" id="course-tomato">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 2: 토마토</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #E53E3E, #F56565);">
+    <div class="course-emoji">🍅</div>
+    <div class="course-info">
+      <h2>토마토 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 빨강</span>
+        <span>⭐ 난이도: ★★★</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr>
+        <th style="width:40px;">주차</th>
+        <th style="width:35px;">Day</th>
+        <th style="width:110px;">활동명</th>
+        <th>활동 설명</th>
+        <th style="width:100px;">제공 재료</th>
+        <th style="width:40px;">시간</th>
+        <th style="width:90px;">선생님 역할</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📕 1주차 — 시각 탐색</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#E53E3E;">월</span></td><td><strong>토마토 신호등</strong></td><td>빨강·주황·노랑 3색 토마토를 신호등처럼 배열. 색 비교</td><td>3색 토마토, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 색 이름 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#E53E3E;">화</span></td><td><strong>토마토 스탬프</strong></td><td>반으로 자른 토마토에 물감 묻혀 도장 찍기</td><td>토마토, 물감, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 스탬프 시범</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#E53E3E;">수</span></td><td><strong>토마토 탐정</strong></td><td>토마토 속 씨앗 관찰. 돋보기로 구조 탐색</td><td>반쪽 토마토, 돋보기</td><td>30분</td><td><span class="tag-sense">시각</span> 씨앗 찾기 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#E53E3E;">목</span></td><td><strong>방울토마토 애벌레</strong></td><td>방울토마토를 이쑤시개로 연결해 애벌레 만들기</td><td>방울토마토, 이쑤시개, 눈알스티커</td><td>30분</td><td><span class="tag-sense">시각</span> 안전 주의</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#E53E3E;">금</span></td><td><strong>색종이 토마토 정원</strong></td><td>색종이로 토마토 정원 꾸미기. 토마토 관찰 후 색종이 표현</td><td>색종이, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">시각</span> 자유 표현 격려</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📕 2주차 — 촉각·후각 탐색</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#E53E3E;">월</span></td><td><strong>촉감 비교</strong></td><td>생토마토/구운토마토/건조토마토의 촉감 차이 비교</td><td>생토마토, 구운토마토, 건조토마토</td><td>30분</td><td><span class="tag-sense">촉각</span> 질감 어휘 안내</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#E53E3E;">화</span></td><td><strong>냄새 맞추기</strong></td><td>눈 가리고 토마토/딸기/사과 냄새 구분 게임</td><td>토마토, 딸기, 사과, 안대</td><td>30분</td><td><span class="tag-sense">후각</span> 냄새 비교 유도</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#E53E3E;">수</span></td><td><strong>케첩 핑거페인팅</strong></td><td>케첩을 물감 대신 사용해 손가락 그림 그리기</td><td>케첩, 도화지, 앞치마</td><td>30분</td><td><span class="tag-sense">촉각</span> 자유 표현</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#E53E3E;">목</span></td><td><strong>토마토퓨레 도화지 그림</strong></td><td>토마토퓨레로 도화지에 그림 그리기</td><td>토마토퓨레, 도화지, 붓</td><td>30분</td><td><span class="tag-sense">촉각</span> 붓 사용 안내</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#E53E3E;">금</span></td><td><strong>꼭지 관찰</strong></td><td>토마토 꼭지를 떼어보며 구조 관찰. 별 모양 발견</td><td>꼭지 달린 토마토, 돋보기</td><td>30분</td><td><span class="tag-sense">시각</span> 꼭지 모양 유도</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📕 3주차 — 미각 노출</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#E53E3E;">월</span></td><td><strong>건토마토 부수기</strong></td><td>건조토마토를 손으로 부수며 소리와 질감 탐색</td><td>건조토마토, 지퍼백</td><td>30분</td><td><span class="tag-sense">청각</span> 소리 표현 유도</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#E53E3E;">화</span></td><td><strong>삶은토마토 쿠키커터</strong></td><td>삶은 토마토 슬라이스를 쿠키커터로 모양 만들기</td><td>삶은토마토, 쿠키커터</td><td>30분</td><td><span class="tag-sense">촉각</span> 모양 만들기 보조</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#E53E3E;">수</span></td><td><strong>케첩 접시 얼굴</strong></td><td>접시 위에 케첩으로 얼굴 그리기</td><td>케첩, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 창의적 표현 격려</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#E53E3E;">목</span></td><td><strong>토마토 립터치</strong></td><td>토마토 조각을 입술에 살짝 대보기</td><td>방울토마토 조각</td><td>30분</td><td><span class="tag-sense">미각</span> 강요 없이 유도</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#E53E3E;">금</span></td><td><strong>디핑 체험</strong></td><td>방울토마토를 크림치즈/마요/꿀에 찍어보기</td><td>방울토마토, 크림치즈, 마요, 꿀</td><td>30분</td><td><span class="tag-sense">미각</span> 소스 선택 유도</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#c53030;">월</span></td><td><strong>미니피자 토핑</strong></td><td>미니 피자 위에 토마토 소스와 토핑 올리기</td><td>미니피자(조리완료), 토마토소스</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#c53030;">화</span></td><td><strong>토마토계란볶음 섞기</strong></td><td>토마토계란볶음 재료를 직접 섞기</td><td>토마토계란볶음(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 섞기 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#c53030;">목</span></td><td><strong>미트볼 소스찍기</strong></td><td>미트볼을 토마토 소스에 찍어 먹기</td><td>미트볼(조리완료), 토마토소스</td><td>35분</td><td><span class="tag-cook">조리</span> 소스 찍기 유도</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#c53030;">월</span></td><td><strong>나폴리탄 토핑</strong></td><td>나폴리탄 파스타 위에 토마토 토핑 올리기</td><td>나폴리탄(조리완료), 토핑</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 선택 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#c53030;">목</span></td><td><strong>토마토볶음밥 섞기</strong></td><td>토마토볶음밥 재료 직접 섞기</td><td>볶음밥 재료(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 참여 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#c53030;">금</span></td><td><strong>미니또띠아 + 수료식</strong></td><td>미니 또띠아에 토마토 재료를 올리고 돌돌 말기. 수료증 수여</td><td>또띠아(조리완료), 수료증</td><td>35분</td><td><span class="tag-cook">조리</span> 수료식 진행</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#fef5f5; border:1px solid #fecaca;">
+    <div class="tip-icon">🍅</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 토마토는 '물렁물렁한 질감'과 '새콤한 맛'이 거부 원인인 경우가 많습니다. 방울토마토처럼 단단한 것부터 시작하고, 케첩처럼 친숙한 형태로 접근하면 거부감이 크게 줄어듭니다. 특히 케첩 핑거페인팅은 아이들이 가장 좋아하는 활동입니다.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 3: 브로콜리
+     ============================================================ -->
+<div class="page" id="course-broccoli">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 3: 브로콜리</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #38A169, #48BB78);">
+    <div class="course-emoji">🥦</div>
+    <div class="course-info">
+      <h2>브로콜리 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 초록</span>
+        <span>⭐ 난이도: ★★☆</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr><th style="width:40px;">주차</th><th style="width:35px;">Day</th><th style="width:110px;">활동명</th><th>활동 설명</th><th style="width:100px;">제공 재료</th><th style="width:40px;">시간</th><th style="width:90px;">선생님 역할</th></tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📗 1주차 — 시각 탐색</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#38A169;">월</span></td><td><strong>크기 비교 관찰</strong></td><td>크고 작은 브로콜리 비교. "나무 같다!" 이미지 연결</td><td>큰/작은 브로콜리, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 크기 비교 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#38A169;">화</span></td><td><strong>스탬프</strong></td><td>브로콜리 꽃봉오리로 스탬프. 나무 숲 같은 패턴 만들기</td><td>브로콜리, 물감, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 스탬프 시범</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#38A169;">수</span></td><td><strong>손으로 분리</strong></td><td>브로콜리를 작은 조각으로 손으로 뜯기. 구조 탐색</td><td>브로콜리(데친 것)</td><td>30분</td><td><span class="tag-sense">촉각</span> 뜯기 시범</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#38A169;">목</span></td><td><strong>브로콜리 숲 만들기</strong></td><td>점토 위에 브로콜리 조각을 꽂아 미니 숲 만들기</td><td>브로콜리, 점토, 피규어</td><td>30분</td><td><span class="tag-sense">시각</span> 상상놀이 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#38A169;">금</span></td><td><strong>공룡 세상</strong></td><td>브로콜리 숲에 공룡 피규어를 배치해 상상놀이</td><td>브로콜리, 공룡피규어, 트레이</td><td>30분</td><td><span class="tag-sense">시각</span> 스토리텔링</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📗 2주차 — 촉각·후각 탐색</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#38A169;">월</span></td><td><strong>촉감 비교</strong></td><td>생/데친/분말 브로콜리의 촉감 차이 비교</td><td>생브로콜리, 데친브로콜리, 분말</td><td>30분</td><td><span class="tag-sense">촉각</span> 질감 어휘 안내</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#38A169;">화</span></td><td><strong>냄새 맞추기</strong></td><td>브로콜리/오이/시금치 냄새 구분 게임</td><td>브로콜리, 오이, 시금치, 안대</td><td>30분</td><td><span class="tag-sense">후각</span> 냄새 비교 유도</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#38A169;">수</span></td><td><strong>데친 브로콜리 뜯기</strong></td><td>데친 브로콜리를 손으로 잘게 뜯으며 질감 탐색</td><td>데친 브로콜리</td><td>30분</td><td><span class="tag-sense">촉각</span> 자유롭게 뜯기</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#38A169;">목</span></td><td><strong>분말 도화지 그림</strong></td><td>브로콜리 분말을 풀에 섞어 도화지에 그림 그리기</td><td>브로콜리분말, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 분말 질감 유도</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#38A169;">금</span></td><td><strong>분말 반죽</strong></td><td>브로콜리 분말 + 밀가루 + 물로 초록 반죽 놀이</td><td>브로콜리분말, 밀가루, 물</td><td>30분</td><td><span class="tag-sense">촉각</span> 반죽 시범</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📗 3주차 — 미각 노출</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#38A169;">월</span></td><td><strong>칩 부수기</strong></td><td>브로콜리칩을 부수며 소리와 질감 탐색</td><td>브로콜리칩, 지퍼백</td><td>30분</td><td><span class="tag-sense">청각</span> 소리 표현 유도</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#38A169;">화</span></td><td><strong>쿠키커터 모양놀이</strong></td><td>데친 브로콜리를 눌러 쿠키커터로 모양 만들기</td><td>데친브로콜리, 쿠키커터</td><td>30분</td><td><span class="tag-sense">촉각</span> 모양 만들기</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#38A169;">수</span></td><td><strong>접시 얼굴</strong></td><td>접시 위에 브로콜리 조각으로 얼굴 꾸미기</td><td>데친브로콜리, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 창의적 배치</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#38A169;">목</span></td><td><strong>립터치</strong></td><td>브로콜리 조각을 입술에 살짝 대보기</td><td>데친 브로콜리 조각</td><td>30분</td><td><span class="tag-sense">미각</span> 강요 없이</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#38A169;">금</span></td><td><strong>디핑</strong></td><td>브로콜리를 치즈소스/마요/간장에 찍어보기</td><td>데친브로콜리, 치즈소스, 마요, 간장</td><td>30분</td><td><span class="tag-sense">미각</span> 소스 선택 유도</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#276749;">월</span></td><td><strong>치즈스프 토핑</strong></td><td>브로콜리 치즈스프 위에 크루통·치즈 토핑 올리기</td><td>치즈스프(조리완료), 크루통</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#276749;">화</span></td><td><strong>계란볶음 섞기</strong></td><td>브로콜리 계란볶음 재료를 직접 섞기</td><td>계란볶음(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 섞기 유도</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#276749;">목</span></td><td><strong>크림파스타 토핑</strong></td><td>크림파스타 위에 브로콜리 토핑 올리기</td><td>크림파스타(조리완료), 브로콜리</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#276749;">월</span></td><td><strong>볶음밥 섞기</strong></td><td>브로콜리 볶음밥 재료 직접 섞기</td><td>볶음밥(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 참여 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#276749;">목</span></td><td><strong>또띠아랩 토핑</strong></td><td>또띠아에 브로콜리와 재료를 올려 돌돌 말기</td><td>또띠아(조리완료), 브로콜리</td><td>35분</td><td><span class="tag-cook">조리</span> 말기 시범</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#276749;">금</span></td><td><strong>브로콜리전 + 수료식</strong></td><td>브로콜리전을 함께 먹으며 수료증 수여</td><td>브로콜리전(조리완료), 수료증</td><td>35분</td><td><span class="tag-cook">조리</span> 수료식 진행</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#f0f9f4; border:1px solid #c3e6d1;">
+    <div class="tip-icon">🥦</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 브로콜리를 "나무"에 비유하면 아이들이 친근하게 느낍니다. "우리 교실에 작은 숲을 만들자~"처럼 상상놀이로 접근하세요. 특히 공룡 좋아하는 아이들에게 "공룡이 먹는 나무야!"라고 하면 관심도가 급상승합니다.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 4: 가지
+     ============================================================ -->
+<div class="page" id="course-eggplant">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 4: 가지</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #805AD5, #9F7AEA);">
+    <div class="course-emoji">🍆</div>
+    <div class="course-info">
+      <h2>가지 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 보라</span>
+        <span>⭐ 난이도: ★★★</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr><th style="width:40px;">주차</th><th style="width:35px;">Day</th><th style="width:110px;">활동명</th><th>활동 설명</th><th style="width:100px;">제공 재료</th><th style="width:40px;">시간</th><th style="width:90px;">선생님 역할</th></tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📘 1주차 — 시각 탐색</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#805AD5;">월</span></td><td><strong>색깔 관찰</strong></td><td>보라색 가지와 흰 가지를 비교 관찰</td><td>보라가지, 흰가지, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 색 비교 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#805AD5;">화</span></td><td><strong>단면 스탬프</strong></td><td>가지 단면에 물감 묻혀 도장 찍기</td><td>가지, 물감, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 스탬프 시범</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#805AD5;">수</span></td><td><strong>가지 해부놀이</strong></td><td>가지 속을 관찰. 씨앗과 속살 색 비교</td><td>반쪽 가지, 돋보기</td><td>30분</td><td><span class="tag-sense">시각</span> 속살 관찰 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#805AD5;">목</span></td><td><strong>가지 펭귄</strong></td><td>가지에 눈알 스티커를 붙여 펭귄 캐릭터 만들기</td><td>가지, 눈알스티커, 색종이</td><td>30분</td><td><span class="tag-sense">시각</span> 캐릭터 만들기</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#805AD5;">금</span></td><td><strong>색종이 보라우주</strong></td><td>보라색 색종이로 우주를 꾸미고 가지 로켓 만들기</td><td>색종이, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">시각</span> 상상놀이</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📘 2주차 — 촉각·후각 탐색</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#805AD5;">월</span></td><td><strong>촉감 비교</strong></td><td>생가지/구운가지/가지칩의 촉감 비교</td><td>생가지, 구운가지, 가지칩</td><td>30분</td><td><span class="tag-sense">촉각</span> 질감 어휘</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#805AD5;">화</span></td><td><strong>냄새 맞추기</strong></td><td>가지/고구마/감자 냄새 구분 게임</td><td>가지, 고구마, 감자, 안대</td><td>30분</td><td><span class="tag-sense">후각</span> 냄새 비교</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#805AD5;">수</span></td><td><strong>껍질 벗기기</strong></td><td>가지 껍질을 손으로 벗기며 안팎 색 차이 관찰</td><td>구운가지</td><td>30분</td><td><span class="tag-sense">촉각</span> 벗기기 보조</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#805AD5;">목</span></td><td><strong>가지즙 마법잉크</strong></td><td>가지즙으로 도화지에 그림. 보라색 마법잉크 체험</td><td>가지즙, 면봉, 도화지</td><td>30분</td><td><span class="tag-sense">시각</span> 즙 묻히기</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#805AD5;">금</span></td><td><strong>보라 얼음</strong></td><td>가지즙 얼음을 녹이며 색 변화 관찰</td><td>가지즙 얼음, 트레이</td><td>30분</td><td><span class="tag-sense">촉각</span> 온도 변화</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📘 3주차 — 미각 노출</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#805AD5;">월</span></td><td><strong>가지칩 부수기</strong></td><td>가지칩을 부수며 소리와 질감 탐색</td><td>가지칩, 지퍼백</td><td>30분</td><td><span class="tag-sense">청각</span> 소리 표현</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#805AD5;">화</span></td><td><strong>구운가지 쿠키커터</strong></td><td>구운 가지 슬라이스를 쿠키커터로 모양 만들기</td><td>구운가지, 쿠키커터</td><td>30분</td><td><span class="tag-sense">촉각</span> 모양 만들기</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#805AD5;">수</span></td><td><strong>가지 얼굴</strong></td><td>접시 위에 가지 조각으로 얼굴 만들기</td><td>가지 조각, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 창의적 배치</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#805AD5;">목</span></td><td><strong>가지 립터치</strong></td><td>구운 가지를 입술에 살짝 대보기</td><td>구운 가지 조각</td><td>30분</td><td><span class="tag-sense">미각</span> 강요 없이</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#805AD5;">금</span></td><td><strong>디핑</strong></td><td>가지를 된장/마요/간장에 찍어보기</td><td>구운가지, 된장, 마요, 간장</td><td>30분</td><td><span class="tag-sense">미각</span> 소스 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#6B46C1;">월</span></td><td><strong>가지볶음 토핑</strong></td><td>밥 위에 가지볶음을 토핑으로 올리기</td><td>가지볶음(조리완료), 밥</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#6B46C1;">화</span></td><td><strong>그라탕 치즈 뿌리기</strong></td><td>가지 그라탕 위에 치즈를 뿌려 완성하기</td><td>그라탕(조리완료), 치즈</td><td>35분</td><td><span class="tag-cook">조리</span> 치즈 뿌리기</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#6B46C1;">목</span></td><td><strong>가지전 소스찍기</strong></td><td>가지전을 소스에 찍어 먹기</td><td>가지전(조리완료), 간장소스</td><td>35분</td><td><span class="tag-cook">조리</span> 소스 찍기</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#6B46C1;">월</span></td><td><strong>마파가지 토핑</strong></td><td>마파가지를 밥 위에 올리기</td><td>마파가지(조리완료), 밥</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#6B46C1;">목</span></td><td><strong>가지카레 섞기</strong></td><td>가지카레를 밥과 섞기</td><td>가지카레(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 섞기 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#6B46C1;">금</span></td><td><strong>가지볶음밥 + 수료식</strong></td><td>가지볶음밥 함께 먹기. 수료증 수여</td><td>볶음밥(조리완료), 수료증</td><td>35분</td><td><span class="tag-cook">조리</span> 수료식</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#f5f0ff; border:1px solid #d6bcfa;">
+    <div class="tip-icon">🍆</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 가지는 편식 식재료 중 난이도가 높습니다. '물렁물렁하고 미끈한 질감'이 주된 거부 원인입니다. 가지칩(바삭한 질감)이나 펭귄 만들기 같은 놀이로 먼저 친숙해진 후, 구운 가지부터 단계적으로 접근하세요.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 5: 버섯
+     ============================================================ -->
+<div class="page" id="course-mushroom">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 5: 버섯</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #A0522D, #C07040);">
+    <div class="course-emoji">🍄</div>
+    <div class="course-info">
+      <h2>버섯 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 갈색</span>
+        <span>⭐ 난이도: ★★★</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr><th style="width:40px;">주차</th><th style="width:35px;">Day</th><th style="width:110px;">활동명</th><th>활동 설명</th><th style="width:100px;">제공 재료</th><th style="width:40px;">시간</th><th style="width:90px;">선생님 역할</th></tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📙 1주차 — 시각 탐색</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#A0522D;">월</span></td><td><strong>4종 비교 관찰</strong></td><td>새송이/느타리/표고/팽이 버섯을 비교 관찰</td><td>새송이,느타리,표고,팽이</td><td>30분</td><td><span class="tag-sense">시각</span> 차이점 질문</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#A0522D;">화</span></td><td><strong>버섯 스탬프</strong></td><td>버섯 단면에 물감 묻혀 도장 찍기</td><td>새송이, 물감, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 스탬프 시범</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#A0522D;">수</span></td><td><strong>표고 주름 관찰</strong></td><td>표고버섯 갓 안쪽의 주름 구조를 돋보기로 관찰</td><td>표고버섯, 돋보기</td><td>30분</td><td><span class="tag-sense">시각</span> 주름 찾기 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#A0522D;">목</span></td><td><strong>버섯마을 만들기</strong></td><td>점토 위에 다양한 버섯을 꽂아 마을 만들기</td><td>버섯 모듬, 점토</td><td>30분</td><td><span class="tag-sense">시각</span> 상상놀이</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#A0522D;">금</span></td><td><strong>색종이 버섯동산</strong></td><td>색종이로 버섯동산 꾸미기</td><td>색종이, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">시각</span> 자유 표현</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📙 2주차 — 촉각·후각 탐색</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#A0522D;">월</span></td><td><strong>촉감 비교</strong></td><td>새송이/느타리/건표고의 촉감 차이 비교</td><td>새송이,느타리,건표고</td><td>30분</td><td><span class="tag-sense">촉각</span> 질감 어휘</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#A0522D;">화</span></td><td><strong>냄새 맞추기</strong></td><td>표고/양파/마늘 냄새 구분 게임</td><td>표고,양파,마늘,안대</td><td>30분</td><td><span class="tag-sense">후각</span> 냄새 비교</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#A0522D;">수</span></td><td><strong>팽이버섯 찢기</strong></td><td>팽이버섯을 손으로 가늘게 찢으며 질감 탐색</td><td>팽이버섯</td><td>30분</td><td><span class="tag-sense">촉각</span> 찢기 시범</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#A0522D;">목</span></td><td><strong>버섯 분말 그림</strong></td><td>버섯 분말을 풀에 섞어 도화지에 그림 그리기</td><td>버섯분말, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 분말 질감</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#A0522D;">금</span></td><td><strong>버섯 반죽</strong></td><td>버섯 분말 + 밀가루로 반죽 놀이</td><td>버섯분말, 밀가루, 물</td><td>30분</td><td><span class="tag-sense">촉각</span> 반죽 시범</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📙 3주차 — 미각 노출</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#A0522D;">월</span></td><td><strong>버섯칩 부수기</strong></td><td>버섯칩을 부수며 소리와 질감 탐색</td><td>버섯칩, 지퍼백</td><td>30분</td><td><span class="tag-sense">청각</span> 소리 표현</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#A0522D;">화</span></td><td><strong>구운 새송이 쿠키커터</strong></td><td>구운 새송이 슬라이스를 쿠키커터로 모양 만들기</td><td>구운새송이, 쿠키커터</td><td>30분</td><td><span class="tag-sense">촉각</span> 모양 만들기</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#A0522D;">수</span></td><td><strong>버섯 접시 얼굴</strong></td><td>접시 위에 다양한 버섯으로 얼굴 만들기</td><td>버섯 모듬, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 창의적 배치</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#A0522D;">목</span></td><td><strong>버섯 립터치</strong></td><td>구운 버섯을 입술에 살짝 대보기</td><td>구운 새송이 조각</td><td>30분</td><td><span class="tag-sense">미각</span> 강요 없이</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#A0522D;">금</span></td><td><strong>디핑</strong></td><td>버섯을 소이마요/크림치즈/바베큐소스에 찍기</td><td>구운버섯, 소이마요, 크림치즈, 바베큐소스</td><td>30분</td><td><span class="tag-sense">미각</span> 소스 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#8B4513;">월</span></td><td><strong>크림스프 토핑</strong></td><td>버섯 크림스프에 크루통·버섯 토핑 올리기</td><td>크림스프(조리완료), 토핑</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#8B4513;">화</span></td><td><strong>계란볶음밥 섞기</strong></td><td>버섯 계란볶음밥 재료 직접 섞기</td><td>볶음밥(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 섞기 유도</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#8B4513;">목</span></td><td><strong>불고기 토핑</strong></td><td>불고기 위에 버섯 토핑 올리기</td><td>불고기(조리완료), 버섯</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#8B4513;">월</span></td><td><strong>잡채 섞기</strong></td><td>버섯 잡채 재료를 직접 섞기</td><td>잡채(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 참여 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#8B4513;">목</span></td><td><strong>돈까스 소스찍기</strong></td><td>돈까스를 버섯소스에 찍어 먹기</td><td>돈까스(조리완료), 버섯소스</td><td>35분</td><td><span class="tag-cook">조리</span> 소스 찍기</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#8B4513;">금</span></td><td><strong>카레 + 수료식</strong></td><td>버섯 카레를 함께 먹으며 수료증 수여</td><td>카레(조리완료), 수료증</td><td>35분</td><td><span class="tag-cook">조리</span> 수료식</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#fdf6ef; border:1px solid #e6c9a8;">
+    <div class="tip-icon">🍄</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 버섯의 미끌미끌한 질감이 싫은 아이가 많아요. 1주차에 <strong>마른 버섯 만지기</strong>부터 시작하면 질감 거부감이 줄어듭니다. 팽이버섯 찢기는 아이들이 특히 좋아하는 활동이니 충분한 시간을 주세요.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 6: 양파
+     ============================================================ -->
+<div class="page" id="course-onion">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 6: 양파</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #D69E2E, #ECC94B);">
+    <div class="course-emoji">🧅</div>
+    <div class="course-info">
+      <h2>양파 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 노랑</span>
+        <span>⭐ 난이도: ★★☆</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr><th style="width:40px;">주차</th><th style="width:35px;">Day</th><th style="width:110px;">활동명</th><th>활동 설명</th><th style="width:100px;">제공 재료</th><th style="width:40px;">시간</th><th style="width:90px;">선생님 역할</th></tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📒 1주차 — 시각 탐색</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#D69E2E;">월</span></td><td><strong>3종 비교 관찰</strong></td><td>흰양파/자주양파/쪽파를 비교 관찰</td><td>흰양파, 자주양파, 쪽파</td><td>30분</td><td><span class="tag-sense">시각</span> 차이점 질문</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#D69E2E;">화</span></td><td><strong>양파링 스탬프</strong></td><td>양파 링 단면에 물감 묻혀 동그라미 도장 찍기</td><td>양파링, 물감, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 스탬프 시범</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#D69E2E;">수</span></td><td><strong>양파 까기 놀이</strong></td><td>양파 껍질을 한 겹씩 까며 층 구조 관찰</td><td>양파</td><td>30분</td><td><span class="tag-sense">촉각</span> 층 발견 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#D69E2E;">목</span></td><td><strong>양파 가족 캐릭터</strong></td><td>다양한 크기의 양파에 눈/코/입 꾸며서 가족 만들기</td><td>양파, 스티커, 색종이</td><td>30분</td><td><span class="tag-sense">시각</span> 캐릭터 만들기</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#D69E2E;">금</span></td><td><strong>색종이 양파 캐릭터</strong></td><td>색종이로 양파 캐릭터 오려 붙이기</td><td>색종이, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">시각</span> 자유 표현</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📒 2주차 — 촉각·후각 탐색</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#D69E2E;">월</span></td><td><strong>촉감 비교</strong></td><td>생양파/볶은양파/양파칩의 촉감 비교</td><td>생양파, 볶은양파, 양파칩</td><td>30분</td><td><span class="tag-sense">촉각</span> 질감 어휘</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#D69E2E;">화</span></td><td><strong>냄새 맞추기</strong></td><td>양파/마늘/생강 냄새 구분 게임</td><td>양파, 마늘, 생강, 안대</td><td>30분</td><td><span class="tag-sense">후각</span> 냄새 비교</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#D69E2E;">수</span></td><td><strong>양파물 색깔 실험</strong></td><td>양파 껍질을 물에 넣어 색 변화 관찰</td><td>양파 껍질, 투명컵, 물</td><td>30분</td><td><span class="tag-sense">시각</span> 색 변화 관찰</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#D69E2E;">목</span></td><td><strong>양파 분말 모래그림</strong></td><td>양파 분말로 모래그림처럼 도화지에 그림 그리기</td><td>양파분말, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 분말 질감</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#D69E2E;">금</span></td><td><strong>양파 반죽</strong></td><td>양파 분말 + 밀가루로 반죽 놀이</td><td>양파분말, 밀가루, 물</td><td>30분</td><td><span class="tag-sense">촉각</span> 반죽 시범</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📒 3주차 — 미각 노출</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#D69E2E;">월</span></td><td><strong>양파칩 부수기</strong></td><td>양파칩을 부수며 소리와 질감 탐색</td><td>양파칩, 지퍼백</td><td>30분</td><td><span class="tag-sense">청각</span> 소리 표현</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#D69E2E;">화</span></td><td><strong>볶은양파 쿠키커터</strong></td><td>볶은 양파를 쿠키커터로 모양 만들기</td><td>볶은양파, 쿠키커터</td><td>30분</td><td><span class="tag-sense">촉각</span> 모양 만들기</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#D69E2E;">수</span></td><td><strong>양파 접시 얼굴</strong></td><td>접시 위에 양파로 얼굴 만들기</td><td>양파 조각, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 창의적 배치</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#D69E2E;">목</span></td><td><strong>볶은양파 립터치</strong></td><td>볶은 양파를 입술에 살짝 대보기</td><td>볶은양파 조각</td><td>30분</td><td><span class="tag-sense">미각</span> 강요 없이</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#D69E2E;">금</span></td><td><strong>디핑</strong></td><td>양파를 케첩/마요/치즈소스에 찍기</td><td>볶은양파, 케첩, 마요, 치즈소스</td><td>30분</td><td><span class="tag-sense">미각</span> 소스 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#B7950B;">월</span></td><td><strong>양파스프 토핑</strong></td><td>양파스프에 크루통·치즈 토핑</td><td>양파스프(조리완료), 토핑</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#B7950B;">화</span></td><td><strong>양파계란덮밥 섞기</strong></td><td>양파계란덮밥 재료 직접 섞기</td><td>덮밥(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 섞기 유도</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#B7950B;">목</span></td><td><strong>양파불고기 토핑</strong></td><td>불고기 위에 양파 토핑</td><td>불고기(조리완료), 양파</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#B7950B;">월</span></td><td><strong>양파카레 섞기</strong></td><td>양파카레를 밥과 섞기</td><td>카레(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 참여 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#B7950B;">목</span></td><td><strong>양파짜장밥 토핑</strong></td><td>짜장 위에 양파 토핑 올리기</td><td>짜장밥(조리완료), 양파</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#B7950B;">금</span></td><td><strong>양파전 + 수료식</strong></td><td>양파전을 함께 먹으며 수료증 수여</td><td>양파전(조리완료), 수료증</td><td>35분</td><td><span class="tag-cook">조리</span> 수료식</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#fffbeb; border:1px solid #f5e6a3;">
+    <div class="tip-icon">🧅</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 양파는 '매운 냄새'가 거부 원인인 경우가 많습니다. 볶은 양파는 단맛이 나서 아이들이 의외로 잘 받아들여요. 1주차 양파 까기 놀이에서 "껍질을 까면 눈물이 날 수 있어요"라고 미리 알려주고, 눈물 나면 같이 웃으며 공감해주세요.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 7: 파프리카
+     ============================================================ -->
+<div class="page" id="course-paprika">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 7: 파프리카</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #DD6B20, #ED8936);">
+    <div class="course-emoji">🫑</div>
+    <div class="course-info">
+      <h2>파프리카 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 빨/노/초</span>
+        <span>⭐ 난이도: ★★☆</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr><th style="width:40px;">주차</th><th style="width:35px;">Day</th><th style="width:110px;">활동명</th><th>활동 설명</th><th style="width:100px;">제공 재료</th><th style="width:40px;">시간</th><th style="width:90px;">선생님 역할</th></tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📙 1주차 — 시각 탐색</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#DD6B20;">월</span></td><td><strong>파프리카 신호등</strong></td><td>빨/노/초 3색 파프리카를 신호등처럼 배열</td><td>3색 파프리카</td><td>30분</td><td><span class="tag-sense">시각</span> 색 비교 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#DD6B20;">화</span></td><td><strong>단면 스탬프</strong></td><td>파프리카 단면의 꽃 모양을 발견하며 스탬프</td><td>파프리카, 물감, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 꽃모양 발견</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#DD6B20;">수</span></td><td><strong>해부 탐험</strong></td><td>파프리카 속 씨앗 관찰. 씨앗 수 세기</td><td>반쪽 파프리카, 돋보기</td><td>30분</td><td><span class="tag-sense">시각</span> 씨앗 관찰</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#DD6B20;">목</span></td><td><strong>파프리카 캐릭터</strong></td><td>파프리카에 눈/코/입 꾸며서 캐릭터 만들기</td><td>파프리카, 스티커</td><td>30분</td><td><span class="tag-sense">시각</span> 캐릭터 만들기</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#DD6B20;">금</span></td><td><strong>색종이 정원</strong></td><td>색종이로 파프리카 정원 꾸미기</td><td>색종이, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">시각</span> 자유 표현</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📙 2주차 — 촉각·후각 탐색</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#DD6B20;">월</span></td><td><strong>촉감 비교</strong></td><td>생/구운/칩 파프리카의 촉감 비교</td><td>생파프리카, 구운것, 칩</td><td>30분</td><td><span class="tag-sense">촉각</span> 질감 어휘</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#DD6B20;">화</span></td><td><strong>냄새 맞추기</strong></td><td>파프리카/당근/사과 냄새 구분 게임</td><td>파프리카, 당근, 사과, 안대</td><td>30분</td><td><span class="tag-sense">후각</span> 냄새 비교</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#DD6B20;">수</span></td><td><strong>파프리카채 놀이</strong></td><td>파프리카채를 이용한 자유 놀이 (건축, 패턴)</td><td>파프리카채</td><td>30분</td><td><span class="tag-sense">촉각</span> 자유 놀이</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#DD6B20;">목</span></td><td><strong>파프리카 분말 그림</strong></td><td>파프리카 분말로 도화지에 그림 그리기</td><td>파프리카분말, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 분말 질감</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#DD6B20;">금</span></td><td><strong>파프리카 반죽</strong></td><td>파프리카 분말 + 밀가루로 색깔 반죽 놀이</td><td>파프리카분말, 밀가루, 물</td><td>30분</td><td><span class="tag-sense">촉각</span> 반죽 시범</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📙 3주차 — 미각 노출</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#DD6B20;">월</span></td><td><strong>칩 부수기</strong></td><td>파프리카칩을 부수며 소리와 질감 탐색</td><td>파프리카칩, 지퍼백</td><td>30분</td><td><span class="tag-sense">청각</span> 소리 표현</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#DD6B20;">화</span></td><td><strong>쿠키커터</strong></td><td>구운 파프리카를 쿠키커터로 모양 만들기</td><td>구운파프리카, 쿠키커터</td><td>30분</td><td><span class="tag-sense">촉각</span> 모양 만들기</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#DD6B20;">수</span></td><td><strong>접시 얼굴</strong></td><td>접시 위에 파프리카로 얼굴 꾸미기</td><td>파프리카채, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 창의적 배치</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#DD6B20;">목</span></td><td><strong>립터치</strong></td><td>파프리카를 입술에 살짝 대보기</td><td>파프리카 조각</td><td>30분</td><td><span class="tag-sense">미각</span> 강요 없이</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#DD6B20;">금</span></td><td><strong>디핑</strong></td><td>파프리카를 허머스/크림치즈/마요에 찍기</td><td>파프리카, 허머스, 크림치즈, 마요</td><td>30분</td><td><span class="tag-sense">미각</span> 소스 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#C05621;">월</span></td><td><strong>잡채 토핑</strong></td><td>잡채 위에 파프리카채 토핑 올리기</td><td>잡채(조리완료), 파프리카</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#C05621;">화</span></td><td><strong>계란볶음 섞기</strong></td><td>파프리카 계란볶음 재료 직접 섞기</td><td>계란볶음(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 섞기 유도</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#C05621;">목</span></td><td><strong>미니피자 토핑</strong></td><td>미니피자에 파프리카 토핑 올리기</td><td>미니피자(조리완료), 파프리카</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#C05621;">월</span></td><td><strong>볶음밥 섞기</strong></td><td>파프리카 볶음밥 재료 직접 섞기</td><td>볶음밥(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 참여 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#C05621;">목</span></td><td><strong>닭갈비 토핑</strong></td><td>닭갈비 위에 파프리카 토핑</td><td>닭갈비(조리완료), 파프리카</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#C05621;">금</span></td><td><strong>또띠아 + 수료식</strong></td><td>또띠아에 파프리카 올려 말기. 수료증 수여</td><td>또띠아(조리완료), 수료증</td><td>35분</td><td><span class="tag-cook">조리</span> 수료식</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#fff8f0; border:1px solid #f5d6b0;">
+    <div class="tip-icon">🫑</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 파프리카는 단면이 꽃 모양이라 스탬프 활동에서 아이들이 가장 좋아하는 식재료입니다. "꽃 도장 찍기!"로 접근하면 거부감 없이 시작할 수 있어요. 빨간색 파프리카가 가장 달고, 초록색이 가장 쓴 맛이니 빨간색부터 시작하세요.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 8: 시금치
+     ============================================================ -->
+<div class="page" id="course-spinach">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 8: 시금치</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #2F855A, #48BB78);">
+    <div class="course-emoji">🥬</div>
+    <div class="course-info">
+      <h2>시금치 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 초록</span>
+        <span>⭐ 난이도: ★★★</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr><th style="width:40px;">주차</th><th style="width:35px;">Day</th><th style="width:110px;">활동명</th><th>활동 설명</th><th style="width:100px;">제공 재료</th><th style="width:40px;">시간</th><th style="width:90px;">선생님 역할</th></tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📗 1주차 — 시각 탐색</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#2F855A;">월</span></td><td><strong>색깔 비교</strong></td><td>생시금치(진한 초록) vs 데친 시금치(연한 초록) 비교</td><td>생시금치, 데친시금치</td><td>30분</td><td><span class="tag-sense">시각</span> 색 변화 관찰</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#2F855A;">화</span></td><td><strong>잎 스탬프</strong></td><td>시금치 잎에 물감 묻혀 잎맥 패턴 도장 찍기</td><td>시금치잎, 물감, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 잎맥 관찰</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#2F855A;">수</span></td><td><strong>줄기·잎 분리</strong></td><td>시금치의 줄기와 잎을 분리하며 구조 관찰</td><td>시금치</td><td>30분</td><td><span class="tag-sense">촉각</span> 분리 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#2F855A;">목</span></td><td><strong>시금치 캐릭터</strong></td><td>시금치에 눈알 스티커 붙여 캐릭터 만들기</td><td>시금치, 스티커</td><td>30분</td><td><span class="tag-sense">시각</span> 캐릭터 만들기</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#2F855A;">금</span></td><td><strong>색종이 시금치밭</strong></td><td>색종이로 시금치밭 꾸미기</td><td>색종이, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">시각</span> 자유 표현</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📗 2주차 — 촉각·후각 탐색</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#2F855A;">월</span></td><td><strong>촉감 비교</strong></td><td>생/데친/분말 시금치의 촉감 비교</td><td>생시금치, 데친것, 분말</td><td>30분</td><td><span class="tag-sense">촉각</span> 질감 어휘</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#2F855A;">화</span></td><td><strong>냄새 맞추기</strong></td><td>시금치/상추/깻잎 냄새 구분 게임</td><td>시금치, 상추, 깻잎, 안대</td><td>30분</td><td><span class="tag-sense">후각</span> 냄새 비교</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#2F855A;">수</span></td><td><strong>시금치 찢기</strong></td><td>데친 시금치를 손으로 찢으며 질감 탐색</td><td>데친 시금치</td><td>30분</td><td><span class="tag-sense">촉각</span> 찢기 유도</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#2F855A;">목</span></td><td><strong>시금치즙 핑거페인팅</strong></td><td>시금치즙으로 손가락 그림 그리기</td><td>시금치즙, 도화지, 앞치마</td><td>30분</td><td><span class="tag-sense">촉각</span> 자유 표현</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#2F855A;">금</span></td><td><strong>시금치 반죽</strong></td><td>시금치 분말 + 밀가루로 초록 반죽 놀이</td><td>시금치분말, 밀가루, 물</td><td>30분</td><td><span class="tag-sense">촉각</span> 반죽 시범</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📗 3주차 — 미각 노출</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#2F855A;">월</span></td><td><strong>칩 부수기</strong></td><td>시금치칩을 부수며 소리와 질감 탐색</td><td>시금치칩, 지퍼백</td><td>30분</td><td><span class="tag-sense">청각</span> 소리 표현</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#2F855A;">화</span></td><td><strong>데친 시금치 쿠키커터</strong></td><td>뭉친 시금치를 쿠키커터로 모양 만들기</td><td>데친시금치, 쿠키커터</td><td>30분</td><td><span class="tag-sense">촉각</span> 모양 만들기</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#2F855A;">수</span></td><td><strong>접시 얼굴</strong></td><td>접시 위에 시금치로 얼굴 만들기 (머리카락!)</td><td>데친시금치, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 머리카락 유도</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#2F855A;">목</span></td><td><strong>립터치</strong></td><td>시금치를 입술에 살짝 대보기</td><td>데친 시금치</td><td>30분</td><td><span class="tag-sense">미각</span> 강요 없이</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#2F855A;">금</span></td><td><strong>디핑</strong></td><td>시금치를 참깨소스/마요/간장에 찍기</td><td>데친시금치, 참깨소스, 마요, 간장</td><td>30분</td><td><span class="tag-sense">미각</span> 소스 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#276749;">월</span></td><td><strong>크림스프 + 토핑</strong></td><td>시금치 크림스프에 크루통 토핑</td><td>크림스프(조리완료), 크루통</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#276749;">화</span></td><td><strong>계란볶음 토핑</strong></td><td>시금치 계란볶음 위에 토핑 올리기</td><td>계란볶음(조리완료), 토핑</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 유도</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#276749;">목</span></td><td><strong>미니김밥 조립</strong></td><td>김 위에 밥과 시금치를 올려 미니김밥 말기</td><td>김, 밥, 시금치(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 말기 시범</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#276749;">월</span></td><td><strong>크레페 토핑</strong></td><td>크레페에 시금치 크림 올리기</td><td>크레페(조리완료), 시금치크림</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#276749;">목</span></td><td><strong>볶음밥 섞기</strong></td><td>시금치 볶음밥 재료 직접 섞기</td><td>볶음밥(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 참여 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#276749;">금</span></td><td><strong>파스타 + 수료식</strong></td><td>시금치 크림파스타 함께 먹기. 수료증 수여</td><td>파스타(조리완료), 수료증</td><td>35분</td><td><span class="tag-cook">조리</span> 수료식</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#f0f9f4; border:1px solid #c3e6d1;">
+    <div class="tip-icon">🥬</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 시금치는 '풀 냄새'와 '쓴맛'이 거부 원인인 경우가 많습니다. 접시 얼굴 만들기에서 시금치를 '머리카락'으로 활용하면 아이들이 매우 좋아합니다. "뽀빠이가 힘이 세진 이유가 뭘까?"라는 스토리텔링도 효과적입니다.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     COURSE 9: 두부
+     ============================================================ -->
+<div class="page" id="course-tofu">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>코스 9: 두부</h2>
+      <p>5주 21회 상세 커리큘럼</p>
+    </div>
+  </div>
+
+  <div class="course-header" style="background: linear-gradient(135deg, #B7950B, #ECC94B);">
+    <div class="course-emoji">🧈</div>
+    <div class="course-info">
+      <h2>두부 코스</h2>
+      <div class="course-meta">
+        <span>🎨 테마색: 노랑</span>
+        <span>⭐ 난이도: ★☆☆</span>
+        <span>👶 만 2~5세</span>
+        <span>📅 5주 21회</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr><th style="width:40px;">주차</th><th style="width:35px;">Day</th><th style="width:110px;">활동명</th><th>활동 설명</th><th style="width:100px;">제공 재료</th><th style="width:40px;">시간</th><th style="width:90px;">선생님 역할</th></tr>
+    </thead>
+    <tbody>
+      <tr class="week-divider"><td colspan="7">📒 1주차 — 시각 탐색</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#B7950B;">월</span></td><td><strong>3종 비교</strong></td><td>부침두부/순두부/연두부를 비교 관찰 (단단함 차이)</td><td>부침두부, 순두부, 연두부</td><td>30분</td><td><span class="tag-sense">시각</span> 차이 질문</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#B7950B;">화</span></td><td><strong>두부 스탬프</strong></td><td>두부 단면에 물감 묻혀 도장 찍기</td><td>부침두부, 물감, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 스탬프 시범</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#B7950B;">수</span></td><td><strong>해체 탐험</strong></td><td>두부를 손으로 으깨며 질감 탐색</td><td>부침두부</td><td>30분</td><td><span class="tag-sense">촉각</span> 으깨기 유도</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#B7950B;">목</span></td><td><strong>두부마을 만들기</strong></td><td>두부 블록으로 건물 쌓기 놀이</td><td>부침두부(큐브), 이쑤시개</td><td>30분</td><td><span class="tag-sense">시각</span> 건축 놀이</td></tr>
+      <tr><td>W1</td><td><span class="day-badge" style="background:#B7950B;">금</span></td><td><strong>색종이 두부 캐릭터</strong></td><td>색종이로 두부 캐릭터 만들기</td><td>색종이, 풀, 도화지</td><td>30분</td><td><span class="tag-sense">시각</span> 자유 표현</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📒 2주차 — 촉각·후각 탐색</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#B7950B;">월</span></td><td><strong>촉감 비교</strong></td><td>부침두부/순두부/동결건조두부의 촉감 비교</td><td>부침, 순두부, 동결건조</td><td>30분</td><td><span class="tag-sense">촉각</span> 질감 어휘</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#B7950B;">화</span></td><td><strong>냄새 맞추기</strong></td><td>두부/감자/고구마 냄새 구분 게임</td><td>두부, 감자, 고구마, 안대</td><td>30분</td><td><span class="tag-sense">후각</span> 냄새 비교</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#B7950B;">수</span></td><td><strong>두부 으깨기 놀이</strong></td><td>두부를 손으로 으깨며 말랑한 질감 놀이</td><td>순두부, 트레이</td><td>30분</td><td><span class="tag-sense">촉각</span> 으깨기 유도</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#B7950B;">목</span></td><td><strong>으깬 두부 도화지 아트</strong></td><td>으깬 두부를 도화지에 펴 바르며 아트 활동</td><td>으깬두부, 도화지</td><td>30분</td><td><span class="tag-sense">촉각</span> 자유 표현</td></tr>
+      <tr><td>W2</td><td><span class="day-badge" style="background:#B7950B;">금</span></td><td><strong>두부 반죽</strong></td><td>으깬 두부 + 밀가루로 반죽 놀이</td><td>두부, 밀가루</td><td>30분</td><td><span class="tag-sense">촉각</span> 반죽 시범</td></tr>
+
+      <tr class="week-divider"><td colspan="7">📒 3주차 — 미각 노출</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#B7950B;">월</span></td><td><strong>두부칩 부수기</strong></td><td>동결건조 두부칩을 부수며 소리와 질감 탐색</td><td>두부칩, 지퍼백</td><td>30분</td><td><span class="tag-sense">청각</span> 소리 표현</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#B7950B;">화</span></td><td><strong>부침두부 쿠키커터</strong></td><td>부침두부를 쿠키커터로 모양 만들기</td><td>부침두부, 쿠키커터</td><td>30분</td><td><span class="tag-sense">촉각</span> 모양 만들기</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#B7950B;">수</span></td><td><strong>접시 얼굴</strong></td><td>접시 위에 두부와 채소로 얼굴 만들기</td><td>부침두부, 채소, 접시</td><td>30분</td><td><span class="tag-sense">시각</span> 창의적 배치</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#B7950B;">목</span></td><td><strong>두부 립터치</strong></td><td>두부를 입술에 살짝 대보기</td><td>부침두부 조각</td><td>30분</td><td><span class="tag-sense">미각</span> 강요 없이</td></tr>
+      <tr><td>W3</td><td><span class="day-badge" style="background:#B7950B;">금</span></td><td><strong>디핑</strong></td><td>두부를 간장/참기름소스/케첩에 찍기</td><td>부침두부, 간장, 참기름소스, 케첩</td><td>30분</td><td><span class="tag-sense">미각</span> 소스 선택</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 4주차 — 조리완료 체험</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#8B7B00;">월</span></td><td><strong>마파두부 토핑</strong></td><td>마파두부를 밥 위에 토핑으로 올리기</td><td>마파두부(조리완료), 밥</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 시범</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#8B7B00;">화</span></td><td><strong>계란찜 토핑</strong></td><td>계란찜 위에 두부 토핑 올리기</td><td>계란찜(조리완료), 두부</td><td>35분</td><td><span class="tag-cook">조리</span> 토핑 유도</td></tr>
+      <tr><td>W4</td><td><span class="day-badge" style="background:#8B7B00;">목</span></td><td><strong>된장찌개 두부 넣기</strong></td><td>된장찌개에 두부를 직접 넣기</td><td>된장찌개(조리완료), 두부</td><td>35분</td><td><span class="tag-cook">조리</span> 넣기 시범</td></tr>
+
+      <tr class="week-divider"><td colspan="7">🍳 5주차 — 일상식 통합</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#8B7B00;">월</span></td><td><strong>유부초밥 조립</strong></td><td>유부에 밥을 넣어 유부초밥 만들기</td><td>유부, 밥(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 조립 시범</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#8B7B00;">목</span></td><td><strong>볶음밥 섞기</strong></td><td>두부 볶음밥 재료 직접 섞기</td><td>볶음밥(조리완료)</td><td>35분</td><td><span class="tag-cook">조리</span> 참여 유도</td></tr>
+      <tr><td>W5</td><td><span class="day-badge" style="background:#8B7B00;">금</span></td><td><strong>잔치국수 + 수료식</strong></td><td>두부가 들어간 잔치국수 함께 먹기. 수료증 수여</td><td>잔치국수(조리완료), 수료증</td><td>35분</td><td><span class="tag-cook">조리</span> 수료식</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="background:#fffbeb; border:1px solid #f5e6a3;">
+    <div class="tip-icon">🧈</div>
+    <div class="tip-text">
+      <strong>선생님 한 줄 팁:</strong> 두부는 난이도가 가장 낮은 코스입니다. 맛이 순하고 질감이 부드러워 대부분의 아이들이 잘 받아들여요. 편식이 심한 아이에게는 두부 코스부터 시작하는 것을 추천합니다. 두부 으깨기는 스트레스 해소 효과도 있어 아이들이 좋아합니다.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TEACHER SCRIPTS (대본)
+     ============================================================ -->
+<div class="page" id="scripts">
+  <div class="pg-header">
+    <div><div class="pg-logo">MEALFRED <span class="pg-logo-sub">밀프레드</span></div></div>
+    <div class="pg-title">
+      <h2>선생님 대본</h2>
+      <p>당근 코스 Day 1~2 상세 + 전 회차 핵심 멘트</p>
+    </div>
+  </div>
+
+  <!-- DAY 2 Script -->
+  <div style="background:linear-gradient(135deg,#FF8C00,#FFa940); border-radius:14px; padding:16px 20px; color:#fff; margin-bottom:20px;">
+    <div style="font-size:16px; font-weight:800;">🥕 Day 2 — 스탬프 아트 (당근 도장 찍기)</div>
+    <div style="font-size:11px; opacity:0.9;">1주차 화요일 | 촉각 탐색 | 30분 | 준비물: 두꺼운 당근, 물감 3색, 도화지</div>
+  </div>
+
+  <div class="script-section">
+    <div class="script-time">👋 도입 — 5분</div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "얘들아~ 어제 당근 친구 기억나?<br>
+        오늘은 당근이랑 진짜 재미있는 걸 할 거야!<br>
+        당근으로 <strong>도장 찍기!</strong>"
+      </div>
+    </div>
+
+    <div class="bubble-row child">
+      <div class="bubble">
+        "도장 찍기요?! 어떻게요?"
+      </div>
+      <div class="bubble-avatar">👧</div>
+    </div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "선생님이 보여줄게~ 자, 이렇게 당근 밑에<br>
+        물감을 묻히고... 도화지에 꾹~!<br>
+        짜잔! 동그란 도장이 찍혔어!<br>
+        무슨 모양 같아?"<br>
+        <em>(큰 당근 단면을 시범으로 찍어 보여줌)</em>
+      </div>
+    </div>
+
+    <div class="bubble-row child">
+      <div class="bubble">
+        "동그라미요!" / "해바라기 같아요!" / "저도 하고 싶어요!"
+      </div>
+      <div class="bubble-avatar">👦</div>
+    </div>
+
+    <div class="script-time">🎨 활동 — 15분</div>
+
+    <div class="script-action">
+      <strong>[재료 배분]</strong> 각 아이에게 도화지 1장, 물감 3색(빨강, 노랑, 주황) 배분.<br>
+      당근은 테이블 중앙에 공용으로 놓되, 두께가 다른 것 3~4개 준비.
+    </div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "자, 물감을 고르고, 당근에 묻혀서 찍어봐!<br>
+        큰 당근이랑 작은 당근 도장이 어떻게 다른지도 비교해봐~<br>
+        나무를 만들어도 되고, 꽃을 만들어도 되고,<br>
+        마음대로 찍어보는 거야!"
+      </div>
+    </div>
+
+    <div class="script-action">
+      <strong>[순회 관찰]</strong> 돌아다니며 아이들 작품에 관심을 보입니다.<br>
+      &bull; "우와~ OO이 작품 정말 예쁘다! 이건 뭘 만든 거야?"<br>
+      &bull; "당근 냄새가 좀 나지? 어떤 냄새 같아?" (자연스러운 후각 노출)<br>
+      &bull; <strong>관찰 포인트:</strong> 당근을 만지는 것을 꺼리는 아이, 물감만 사용하는 아이 기록
+    </div>
+
+    <div class="script-time">🧹 마무리 — 5분</div>
+
+    <div class="bubble-row teacher">
+      <div class="bubble-avatar">👩‍🏫</div>
+      <div class="bubble">
+        "오늘 당근 도장 재미있었어?<br>
+        내일은 당근을 반으로 잘라서 속을 구경할 거야!<br>
+        당근 속에 달팽이가 숨어있다는 거 알아?<br>
+        내일 찾아보자~ 🐌"
+      </div>
+    </div>
+
+    <div class="bubble-row child">
+      <div class="bubble">
+        "달팽이요?! 진짜요?!"
+      </div>
+      <div class="bubble-avatar">👧</div>
+    </div>
+  </div>
+
+  <!-- 전 회차 핵심 멘트 -->
+  <div class="sec-title" style="margin-top:32px;">
+    <h3>🥕 당근 코스 — 전 회차 핵심 멘트</h3>
+    <div class="line"></div>
+  </div>
+
+  <div class="key-ment">
+    <div class="km-day" style="color:#FF8C00;">W1 월</div>
+    <div class="km-text">"오늘은 먹는 게 아니에요~ 당근이랑 놀 거예요! 어떤 색이 제일 예쁜 것 같아?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W1 화</div>
+    <div class="km-text">"당근으로 도장 찍기! 큰 당근이랑 작은 당근 도장이 어떻게 다를까?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W1 수</div>
+    <div class="km-text">"당근 속에 달팽이 무늬가 숨어있어! 돋보기로 찾아볼까?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W1 목</div>
+    <div class="km-text">"주황, 보라, 노란 당근으로 무지개를 만들어보자~"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W1 금</div>
+    <div class="km-text">"당근즙으로 비밀편지를 쓸 거야! 마르면 글씨가 사라질까?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W2 월</div>
+    <div class="km-text">"세 가지 당근을 만져봐~ 어떤 게 딱딱하고, 어떤 게 말랑할까?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W2 화</div>
+    <div class="km-text">"눈 가리고 냄새로 맞춰봐! 이건 당근일까, 사과일까?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W2 수</div>
+    <div class="km-text">"간 당근이랑 밀가루를 섞으면 주황 모래가 돼! 만져봐~"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W2 목</div>
+    <div class="km-text">"오늘은 당근 물감으로 그림 그리기! 손가락으로 자유롭게~"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W2 금</div>
+    <div class="km-text">"주황 보석을 찾았어! 이 얼음이 녹으면 뭐가 될까?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W3 월</div>
+    <div class="km-text">"당근칩이 바삭바삭 소리가 나! 부수면 어떤 소리일까?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W3 화</div>
+    <div class="km-text">"말랑 당근으로 별 모양, 하트 모양 만들어보자~"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W3 수</div>
+    <div class="km-text">"당근 조각으로 얼굴을 만들어봐! 눈, 코, 입~ 어디에 놓을까?"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W3 목</div>
+    <div class="km-text">"입술에만 살짝~ 대볼까? 안 해도 괜찮아, 보기만 해도 돼!"</div>
+
+    <div class="km-day" style="color:#FF8C00;">W3 금</div>
+    <div class="km-text">"어떤 소스에 찍어볼까? 크림치즈? 요거트? 꿀? 골라봐~"</div>
+
+    <div class="km-day" style="color:#e67e00;">W4 월</div>
+    <div class="km-text">"감자볼을 소스에 찍어서 먹어봐! 안에 당근이 숨어있어~"</div>
+
+    <div class="km-day" style="color:#e67e00;">W4 화</div>
+    <div class="km-text">"밥 위에 치즈를 올려볼까? 치즈 아래에 당근 친구가 있어!"</div>
+
+    <div class="km-day" style="color:#e67e00;">W4 목</div>
+    <div class="km-text">"국수 위에 예쁜 당근 고명을 올려보자~ 어디에 놓을까?"</div>
+
+    <div class="km-day" style="color:#e67e00;">W5 월</div>
+    <div class="km-text">"스파게티에 당근 친구를 올려줘~ 위에 뿌리면 더 맛있어!"</div>
+
+    <div class="km-day" style="color:#e67e00;">W5 목</div>
+    <div class="km-text">"볶음밥 재료를 섞어봐! 당근이 밥이랑 친구가 됐네~"</div>
+
+    <div class="km-day" style="color:#e67e00;">W5 금</div>
+    <div class="km-text">"5주 동안 당근이랑 정말 많이 놀았지? 오늘은 축하 잔치! 🎉"</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     BACK COVER
+     ============================================================ -->
+<div class="page" id="back">
+  <div class="back-cover">
+    <div class="back-logo">MEALFRED</div>
+    <p style="font-size:14px; color:#888; letter-spacing:3px; margin-bottom:8px;">밀프레드</p>
+    <div class="cover-line"></div>
+    <div class="back-tagline">"편식은 성격이 아니라, 경험의 부족입니다"</div>
+
+    <div class="back-contact">
+      <div class="back-contact-item">
+        <div class="bci-icon">💬</div>
+        <div class="bci-label">카카오톡 채널</div>
+        <div class="bci-value">@밀프레드</div>
+      </div>
+      <div class="back-contact-item">
+        <div class="bci-icon">🌐</div>
+        <div class="bci-label">웹사이트</div>
+        <div class="bci-value">mealfred.com</div>
+      </div>
+      <div class="back-contact-item">
+        <div class="bci-icon">📧</div>
+        <div class="bci-label">이메일</div>
+        <div class="bci-value">hello@mealfred.com</div>
+      </div>
+      <div class="back-contact-item">
+        <div class="bci-icon">📞</div>
+        <div class="bci-label">전화</div>
+        <div class="bci-value">상담 예약제</div>
+      </div>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-item">
+        <div class="t-num">9</div>
+        <div class="t-label">코스 식재료</div>
+      </div>
+      <div class="trust-item">
+        <div class="t-num">21</div>
+        <div class="t-label">총 회차</div>
+      </div>
+      <div class="trust-item">
+        <div class="t-num">5주</div>
+        <div class="t-label">프로그램 기간</div>
+      </div>
+      <div class="trust-item">
+        <div class="t-num">4단계</div>
+        <div class="t-label">SOS 노출 단계</div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px; padding:20px 30px; background:#f0f9f4; border-radius:14px; max-width:500px;">
+      <p style="font-size:12px; color:#555; line-height:1.8;">
+        본 프로그램은 <strong>SOS Approach to Feeding</strong> 이론에 기반하여<br>
+        유아교육 전문가와 영양사가 공동 개발했습니다.<br>
+        모든 재료는 유기농·무농약 인증 제품을 사용합니다.
+      </p>
+    </div>
+
+    <p style="margin-top:40px; font-size:10px; color:#ccc;">
+      &copy; 2026 MEALFRED. All rights reserved.<br>
+      본 자료의 무단 복제 및 배포를 금합니다.
+    </p>
+  </div>
+</div>
+
+<script>
+// Smooth scroll for TOC
+document.querySelectorAll('.toc-nav a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Hide/show TOC on scroll
+let lastScroll = 0;
+const tocNav = document.getElementById('tocNav');
+window.addEventListener('scroll', () => {
+  const st = window.pageYOffset;
+  if (st > 200) {
+    tocNav.style.opacity = '1';
+    tocNav.style.pointerEvents = 'auto';
+  } else {
+    tocNav.style.opacity = '0.5';
+  }
+  lastScroll = st;
+});
+</script>
+
+</body>
+</html>
