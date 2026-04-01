@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>편식개선 5주 프로그램 안내서 — 밀프레드 MEALFRED</title>
+<meta name="description" content="어린이집·유치원 기관용 편식개선 5주 프로그램 안내서. SOS Approach 기반 21회 체계적 식재료 노출, 1인당 80,000원.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans KR', -apple-system, sans-serif;
+    color: #222;
+    background: #f0f0f0;
+    line-height: 1.6;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ===== A4 PAGE CONTAINER ===== */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 20px auto;
+    background: #fff;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.12);
+    padding: 18mm 18mm 15mm;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ===== PRINT BUTTON ===== */
+  .print-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .print-bar span {
+    font-size: 13px;
+    color: #888;
+  }
+  .print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #2D8B4E;
+    color: #fff;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .print-btn:hover { background: #24723f; }
+  .print-btn svg { width: 16px; height: 16px; }
+  .page-spacer { height: 60px; }
+
+  /* ===== PRINT CSS ===== */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  @media print {
+    body { background: #fff; }
+    .print-bar, .page-spacer { display: none !important; }
+    .page {
+      width: auto;
+      min-height: auto;
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1, h2, h3, h4, h5 { line-height: 1.35; }
+
+  /* ===== PAGE 1 STYLES ===== */
+
+  /* Header */
+  .pg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #2D8B4E;
+  }
+  .pg-logo {
+    font-size: 18px;
+    font-weight: 900;
+    color: #2D8B4E;
+    letter-spacing: 2px;
+  }
+  .pg-logo-sub {
+    font-size: 10px;
+    font-weight: 500;
+    color: #888;
+    letter-spacing: 0;
+  }
+  .pg-header-right {
+    text-align: right;
+  }
+  .pg-header-right h2 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1a1a1a;
+  }
+  .pg-header-right p {
+    font-size: 10px;
+    color: #999;
+    margin-top: 2px;
+  }
+
+  /* Hero Box */
+  .hero-box {
+    background: linear-gradient(135deg, #1a5c32, #2D8B4E);
+    border-radius: 14px;
+    padding: 24px 28px;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .hero-box h2 {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+  .hero-box .hero-tags {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .hero-box .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Section Title */
+  .sec-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .sec-title h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1a1a1a;
+  }
+  .sec-title .line {
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+  }
+  .sec-badge {
+    display: inline-block;
+    background: #e8f5ec;
+    color: #2D8B4E;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  /* 5-step Flow */
+  .step-flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .step-card {
+    text-align: center;
+    border: 1.5px solid #e0e8e3;
+    border-radius: 10px;
+    padding: 12px 6px 10px;
+    position: relative;
+    background: #fff;
+    transition: border-color 0.2s;
+  }
+  .step-card:hover { border-color: #2D8B4E; }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #2D8B4E;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .step-card h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2D8B4E;
+    margin-bottom: 4px;
+  }
+  .step-card .step-detail {
+    font-size: 9.5px;
+    color: #888;
+    line-height: 1.5;
+  }
+  .step-card .step-exp {
+    display: inline-block;
+    margin-top: 5px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #2D8B4E;
+    background: #e8f5ec;
+    padding: 2px 8px;
+    border-radius: 8px;
+  }
+  .step-arrow {
+    position: absolute;
+    right: -9px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #ccc;
+    z-index: 2;
+  }
+
+  /* Methodology */
+  .method-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .method-card {
+    border: 1.5px solid #e8ede9;
+    border-radius: 10px;
+    padding: 14px 12px;
+    background: #fafcfa;
+  }
+  .method-card h4 {
+    font-size: 11px;
+    font-weight: 700;
+    color: #2D8B4E;
+    margin-bottom: 4px;
+  }
+  .method-card p {
+    font-size: 9.5px;
+    color: #777;
+    line-height: 1.55;
+  }
+
+  /* Zero Burden */
+  .zero-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 0;
+  }
+  .zero-card {
+    text-align: center;
+    background: #f8faf8;
+    border-radius: 10px;
+    padding: 14px 10px;
+  }
+  .zero-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+  .zero-card h4 {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  .zero-card p {
+    font-size: 9.5px;
+    color: #888;
+    line-height: 1.5;
+  }
+
+  /* Page footer */
+  .pg-footer {
+    position: absolute;
+    bottom: 15mm;
+    left: 18mm;
+    right: 18mm;
+    text-align: center;
+    font-size: 8px;
+    color: #bbb;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+  }
+  .pg-footer-p2 {
+    position: absolute;
+    bottom: 15mm;
+    left: 18mm;
+    right: 18mm;
+  }
+
+  /* ===== PAGE 2 STYLES ===== */
+
+  /* Course Table */
+  .course-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 10px;
+  }
+  .course-table th {
+    background: #2D8B4E;
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 10px;
+  }
+  .course-table th:first-child {
+    border-radius: 8px 0 0 0;
+    width: 52px;
+    text-align: center;
+  }
+  .course-table th:last-child {
+    border-radius: 0 8px 0 0;
+    width: 130px;
+  }
+  .course-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+    line-height: 1.55;
+    color: #444;
+  }
+  .course-table td:first-child {
+    text-align: center;
+    font-weight: 700;
+    color: #2D8B4E;
+    font-size: 11px;
+  }
+  .course-table tr:last-child td {
+    border-bottom: 2px solid #2D8B4E;
+  }
+  .course-table tr:nth-child(even) td {
+    background: #fafcfa;
+  }
+
+  /* 9 Course Grid */
+  .course-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .course-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f6f9f7;
+    border: 1.5px solid #e0e8e3;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #2D8B4E;
+    transition: all 0.2s;
+  }
+  .course-chip:hover {
+    border-color: #2D8B4E;
+    background: #e8f5ec;
+  }
+  .course-emoji { font-size: 18px; }
+
+  /* Pricing Box */
+  .price-box {
+    background: #f8faf8;
+    border: 1.5px solid #d8e8dc;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .price-main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .price-main .price-label {
+    font-size: 10px;
+    color: #888;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .price-main .price-amount {
+    font-size: 26px;
+    font-weight: 900;
+    color: #2D8B4E;
+    letter-spacing: -0.5px;
+  }
+  .price-main .price-amount small {
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    margin-left: 4px;
+  }
+  .price-main .price-per {
+    font-size: 10px;
+    color: #999;
+    margin-top: 2px;
+  }
+  .price-detail h4 {
+    font-size: 10px;
+    font-weight: 700;
+    color: #2D8B4E;
+    margin-bottom: 6px;
+  }
+  .price-detail ul {
+    list-style: none;
+    padding: 0;
+  }
+  .price-detail ul li {
+    font-size: 9.5px;
+    color: #555;
+    line-height: 1.65;
+    padding-left: 12px;
+    position: relative;
+  }
+  .price-detail ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: #2D8B4E;
+    font-weight: 700;
+    font-size: 9px;
+  }
+  .price-detail .not-inc {
+    margin-top: 8px;
+  }
+  .price-detail .not-inc h4 { color: #999; }
+  .price-detail .not-inc li::before { content: '—'; color: #bbb; }
+  .price-note {
+    grid-column: 1 / -1;
+    background: #e8f5ec;
+    border-radius: 8px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: #2D8B4E;
+    font-weight: 600;
+  }
+
+  /* Process */
+  .process-flow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .process-step {
+    text-align: center;
+    position: relative;
+  }
+  .process-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #2D8B4E;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .process-step h4 {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+  }
+  .process-step p {
+    font-size: 9px;
+    color: #999;
+  }
+  .process-arrow {
+    position: absolute;
+    right: -8px;
+    top: 14px;
+    color: #ccc;
+    font-size: 14px;
+    z-index: 1;
+  }
+
+  /* Contact Box */
+  .contact-box {
+    background: linear-gradient(135deg, #1a5c32, #2D8B4E);
+    border-radius: 14px;
+    padding: 20px 24px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .contact-left h3 {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .contact-left p {
+    font-size: 10px;
+    opacity: 0.8;
+    line-height: 1.6;
+  }
+  .contact-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .contact-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .contact-btn.primary {
+    background: #FFE812;
+    color: #3B1E1E;
+  }
+  .contact-btn.primary:hover { background: #ffd700; }
+  .contact-btn.secondary {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .contact-btn.secondary:hover { background: rgba(255,255,255,0.25); }
+
+  /* Stats Footer */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding: 12px 0 4px;
+    margin-top: 14px;
+    border-top: 1px solid #eee;
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-item strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    color: #2D8B4E;
+  }
+  .stat-item span {
+    font-size: 8.5px;
+    color: #aaa;
+  }
+  .copyright {
+    text-align: center;
+    font-size: 8px;
+    color: #ccc;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Print Bar -->
+<div class="print-bar">
+  <span>인쇄 또는 PDF 저장으로 안내서를 보관하세요</span>
+  <button class="print-btn" onclick="window.print()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    PDF로 저장
+  </button>
+</div>
+<div class="page-spacer"></div>
+
+<!-- ==================== PAGE 1 ==================== -->
+<div class="page" id="page1">
+
+  <!-- Header -->
+  <div class="pg-header">
+    <div>
+      <div class="pg-logo">MEALFRED<br><span class="pg-logo-sub">밀프레드</span></div>
+    </div>
+    <div class="pg-header-right">
+      <h2>편식개선 5주 프로그램 안내서</h2>
+      <p>어린이집 · 유치원 기관용</p>
+    </div>
+  </div>
+
+  <!-- Hero Box -->
+  <div class="hero-box">
+    <h2>어린이집·유치원이 편식 바로잡는 골든타임입니다</h2>
+    <div class="hero-tags">
+      <span class="hero-tag">만 2~5세 대상</span>
+      <span class="hero-tag">5주 21회 과정</span>
+      <span class="hero-tag">1인당 80,000원</span>
+    </div>
+  </div>
+
+  <!-- 프로그램 구성 -->
+  <div class="sec-title">
+    <span class="sec-badge">PROGRAM</span>
+    <h3>프로그램 구성 — 5주 21회 체계적 노출</h3>
+    <span class="line"></span>
+  </div>
+
+  <div class="step-flow">
+    <div class="step-card">
+      <span class="step-num">1</span>
+      <h4>시각 탐색</h4>
+      <div class="step-detail">주5회 · 30분<br>눈으로 탐색하기</div>
+      <span class="step-exp">노출 1~5회</span>
+      <span class="step-arrow">&#9654;</span>
+    </div>
+    <div class="step-card">
+      <span class="step-num">2</span>
+      <h4>후각·촉각</h4>
+      <div class="step-detail">주5회 · 30분<br>냄새 맡고 만지기</div>
+      <span class="step-exp">노출 6~10회</span>
+      <span class="step-arrow">&#9654;</span>
+    </div>
+    <div class="step-card">
+      <span class="step-num">3</span>
+      <h4>입술 접촉</h4>
+      <div class="step-detail">주5회 · 30분<br>혀로 탐색하기</div>
+      <span class="step-exp">노출 11~15회</span>
+      <span class="step-arrow">&#9654;</span>
+    </div>
+    <div class="step-card">
+      <span class="step-num">4</span>
+      <h4>씹어보기</h4>
+      <div class="step-detail">주3회 · 35분<br>조리된 음식 경험</div>
+      <span class="step-exp">노출 16~18회</span>
+      <span class="step-arrow">&#9654;</span>
+    </div>
+    <div class="step-card">
+      <span class="step-num">5</span>
+      <h4>자유롭게 먹기</h4>
+      <div class="step-detail">주3회 · 35분<br>다양한 조리법 경험</div>
+      <span class="step-exp">노출 19~21회</span>
+    </div>
+  </div>
+
+  <!-- 방법론 근거 -->
+  <div class="sec-title">
+    <span class="sec-badge">METHODOLOGY</span>
+    <h3>방법론 근거</h3>
+    <span class="line"></span>
+  </div>
+
+  <div class="method-grid">
+    <div class="method-card">
+      <h4>SOS Approach to Feeding</h4>
+      <p>Dr. Kay Toomey의 6대 감각 분류 기반. 전 세계 소아과·작업치료에서 검증된 단계적 식재료 노출 방법론.</p>
+    </div>
+    <div class="method-card">
+      <h4>식약처 급식관리지침서</h4>
+      <p>식품의약품안전처 발간 <em>편식 해결을 위한 10가지 원칙</em>을 프로그램 전 과정에 반영.</p>
+    </div>
+    <div class="method-card">
+      <h4>푸드브릿지 4단계</h4>
+      <p>전국 급식관리지원센터에서 검증된 '보기→만지기→맛보기→먹기' 4단계 접근법 적용.</p>
+    </div>
+  </div>
+
+  <!-- 선생님 부담 ZERO -->
+  <div class="sec-title">
+    <span class="sec-badge">ZERO BURDEN</span>
+    <h3>선생님 부담 ZERO</h3>
+    <span class="line"></span>
+  </div>
+
+  <div class="zero-grid">
+    <div class="zero-card">
+      <div class="zero-icon">📦</div>
+      <h4>매주 배송</h4>
+      <p>식재료 + 활동지 + 영상 가이드<br>별도 준비물 불필요</p>
+    </div>
+    <div class="zero-card">
+      <div class="zero-icon">🎬</div>
+      <h4>영상 가이드 따라하기</h4>
+      <p>수업 영상 그대로 틀어놓으면<br>아이들이 자연스럽게 참여</p>
+    </div>
+    <div class="zero-card">
+      <div class="zero-icon">🍳</div>
+      <h4>4~5주차 조리완료</h4>
+      <p>전자레인지만 있으면 OK<br>조리 시연·화기 걱정 없음</p>
+    </div>
+  </div>
+
+  <!-- Page 1 Footer -->
+  <div class="pg-footer">
+    밀프레드 MEALFRED · 편식개선 5주 프로그램 안내서 &nbsp;|&nbsp; 1 / 2
+  </div>
+</div>
+
+<!-- ==================== PAGE 2 ==================== -->
+<div class="page" id="page2">
+
+  <!-- Header -->
+  <div class="pg-header">
+    <div>
+      <div class="pg-logo">MEALFRED<br><span class="pg-logo-sub">밀프레드</span></div>
+    </div>
+    <div class="pg-header-right">
+      <h2>상세 정보 · 코스 예시 · 가격</h2>
+      <p>어린이집 · 유치원 기관용</p>
+    </div>
+  </div>
+
+  <!-- 당근 코스 예시 -->
+  <div class="sec-title">
+    <span class="sec-badge">COURSE EXAMPLE</span>
+    <h3>당근 코스 — 5주 활동 예시</h3>
+    <span class="line"></span>
+  </div>
+
+  <table class="course-table">
+    <thead>
+      <tr>
+        <th>주차</th>
+        <th>활동 예시</th>
+        <th>제공 재료</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1주차</td>
+        <td>당근 색깔 탐험, 스탬프 아트, 당근즙 비밀편지, 크기 비교 놀이, 그림 그리기</td>
+        <td>유기농 당근 3종, 미니당근, 당근즙</td>
+      </tr>
+      <tr>
+        <td>2주차</td>
+        <td>촉감 비교, 냄새 맞추기, 당근 모래놀이, 꼬리잡기, 감각 카드 매칭</td>
+        <td>생당근, 삶은당근, 건조칩, 퓨레</td>
+      </tr>
+      <tr>
+        <td>3주차</td>
+        <td>당근칩 ASMR, 쿠키커터 모양, 립터치 도전, 디핑 소스 찍기, 미니 시식</td>
+        <td>삶은당근, 당근스틱, 디핑소스 3종</td>
+      </tr>
+      <tr>
+        <td>4주차</td>
+        <td>당근 감자볼 + 소스 찍기, 리조또 토핑, 국수 고명 올리기</td>
+        <td>조리완료 3종 + 토핑 재료</td>
+      </tr>
+      <tr>
+        <td>5주차</td>
+        <td>스파게티 토핑, 볶음밥 섞기, 칼국수 완성 + 수료식</td>
+        <td>조리완료 3종 + 수료증</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 9가지 코스 -->
+  <div class="sec-title">
+    <span class="sec-badge">9 COURSES</span>
+    <h3>선택 가능한 9가지 코스</h3>
+    <span class="line"></span>
+  </div>
+
+  <div class="course-grid">
+    <div class="course-chip"><span class="course-emoji">🥕</span> 당근</div>
+    <div class="course-chip"><span class="course-emoji">🍅</span> 토마토</div>
+    <div class="course-chip"><span class="course-emoji">🥦</span> 브로콜리</div>
+    <div class="course-chip"><span class="course-emoji">🍆</span> 가지</div>
+    <div class="course-chip"><span class="course-emoji">🍄</span> 버섯</div>
+    <div class="course-chip"><span class="course-emoji">🧅</span> 양파</div>
+    <div class="course-chip"><span class="course-emoji">🫑</span> 파프리카</div>
+    <div class="course-chip"><span class="course-emoji">🥬</span> 시금치</div>
+    <div class="course-chip"><span class="course-emoji">🧈</span> 두부</div>
+  </div>
+
+  <!-- 가격 안내 -->
+  <div class="sec-title">
+    <span class="sec-badge">PRICING</span>
+    <h3>가격 안내</h3>
+    <span class="line"></span>
+  </div>
+
+  <div class="price-box">
+    <div class="price-main">
+      <span class="price-label">1인당 · 5주 21회 과정</span>
+      <div class="price-amount">80,000<small>원</small></div>
+      <span class="price-per">회당 3,810원 · 5인 이상 단체 신청</span>
+    </div>
+    <div class="price-detail">
+      <h4>포함 항목</h4>
+      <ul>
+        <li>식재료 5주분 (매주 배송)</li>
+        <li>특수교구 (도장, 커터, 감각도구 등)</li>
+        <li>회차별 활동지</li>
+        <li>영상 가이드 + 수업지도안</li>
+        <li>수료증</li>
+      </ul>
+      <div class="not-inc">
+        <h4>미포함 (원내 비치품)</h4>
+        <ul>
+          <li>개인접시, 개인컵</li>
+          <li>도화지, 색종이, 가위, 풀</li>
+        </ul>
+      </div>
+    </div>
+    <div class="price-note">
+      <span>💡</span> 누리과정 운영비 · 교구비로 집행 가능합니다
+    </div>
+  </div>
+
+  <!-- 도입 절차 -->
+  <div class="sec-title">
+    <span class="sec-badge">PROCESS</span>
+    <h3>도입 절차</h3>
+    <span class="line"></span>
+  </div>
+
+  <div class="process-flow">
+    <div class="process-step">
+      <div class="process-num">1</div>
+      <h4>카카오톡 상담</h4>
+      <p>코스 · 일정 문의</p>
+      <span class="process-arrow">&#9654;</span>
+    </div>
+    <div class="process-step">
+      <div class="process-num">2</div>
+      <h4>인원·일정 확정</h4>
+      <p>결제 및 시작일 조율</p>
+      <span class="process-arrow">&#9654;</span>
+    </div>
+    <div class="process-step">
+      <div class="process-num">3</div>
+      <h4>매주 키트 배송</h4>
+      <p>월요일 도착 기준</p>
+      <span class="process-arrow">&#9654;</span>
+    </div>
+    <div class="process-step">
+      <div class="process-num">4</div>
+      <h4>5주 후 수료!</h4>
+      <p>수료증 · 결과 리포트</p>
+    </div>
+  </div>
+
+  <!-- 문의 -->
+  <div class="contact-box">
+    <div class="contact-left">
+      <h3>도입 상담이 필요하신가요?</h3>
+      <p>밀프레드 MEALFRED · 전국 1위 교육용 요리키트 전문 브랜드<br>www.mealfred.com/foodbridge-school.html</p>
+    </div>
+    <div class="contact-right">
+      <a href="http://pf.kakao.com/_jtyxoxj/chat" target="_blank" class="contact-btn primary">💬 카카오톡 상담</a>
+      <a href="https://www.mealfred.com/foodbridge-school.html" target="_blank" class="contact-btn secondary">🌐 웹사이트 방문</a>
+    </div>
+  </div>
+
+  <!-- Stats + Copyright -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <strong>3,000+</strong>
+      <span>전국 거래 기관</span>
+    </div>
+    <div class="stat-item">
+      <strong>100,000+</strong>
+      <span>아동 체험</span>
+    </div>
+    <div class="stat-item">
+      <strong>89.6%</strong>
+      <span>선생님 추천율</span>
+    </div>
+  </div>
+  <div class="copyright">&copy; 2026 MEALFRED. All rights reserved.</div>
+
+  <!-- Page 2 Footer -->
+  <div class="pg-footer">
+    밀프레드 MEALFRED · 편식개선 5주 프로그램 안내서 &nbsp;|&nbsp; 2 / 2
+  </div>
+</div>
+
+</body>
+</html>
