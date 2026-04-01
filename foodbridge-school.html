@@ -6,16 +6,17 @@
 <title>밀프레드 편식개선 프로그램 — 어린이집·유치원 기관용 | 1인당 80,000원</title>
 <meta name="description" content="어린이집·유치원·학교 전용 편식개선 프로그램. SOS Approach 기반 5주 21회, 1인당 80,000원. 조리완료 키트로 교실에서 바로 수업 가능합니다.">
 
-<!-- Open Graph / KakaoTalk -->
-<meta property="og:title" content="선생님, 우리 원에 편식개선 프로그램 도입해주세요!">
-<meta property="og:description" content="SOS Approach 기반 5주 21회 편식개선 키트. 1인당 80,000원, 회당 3,810원. 조리완료 키트로 교실에서 바로 수업 가능합니다.">
+<!-- Open Graph / KakaoTalk 미리보기 최적화 -->
+<meta property="og:title" content="급식 잔반 줄이는 편식개선 수업 · 1인당 8만원 · 준비물 없음">
+<meta property="og:description" content="5주 21회 프로그램이 매주 원으로 배송됩니다. 조리완료 키트라 전자레인지만 있으면 OK. 선생님은 영상 틀고 함께하시면 됩니다. 전국 3,000+ 기관이 선택한 밀프레드.">
 <meta property="og:image" content="https://www.mealfred.com/og-foodbridge.png">
 <meta property="og:url" content="https://www.mealfred.com/foodbridge-school.html">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="밀프레드 편식개선 프로그램">
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="선생님, 우리 원에 편식개선 프로그램 도입해주세요!">
-<meta name="twitter:description" content="SOS Approach 기반 5주 21회 편식개선 키트. 1인당 80,000원, 회당 3,810원.">
+<meta name="twitter:title" content="급식 잔반 줄이는 편식개선 수업 · 1인당 8만원 · 준비물 없음">
+<meta name="twitter:description" content="5주 21회 프로그램이 매주 원으로 배송됩니다. 조리완료 키트라 전자레인지만 있으면 OK.">
 <meta name="twitter:image" content="https://www.mealfred.com/og-foodbridge.png">
 
 <!-- Google Analytics -->
@@ -141,7 +142,6 @@
   .share-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
   .share-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:50px;font-size:14px;font-weight:700;border:none;cursor:pointer;transition:all 0.3s;text-decoration:none;}
   .share-btn:hover{transform:translateY(-2px);}
-  .share-btn.kakao{background:#FEE500;color:#3C1E1E;}
   .share-btn.link{background:#fff;color:#1565C0;border:2px solid #1565C0;}
 
   /* ===== TRUST ===== */
@@ -230,8 +230,8 @@
 <section class="hero">
   <div class="hero-content">
     <div class="hero-framework">어린이집 · 유치원 · 학교 전용 편식개선 프로그램</div>
-    <h1><em>급식 잔반이 줄어드는<br>5주 편식개선 프로그램</em></h1>
-    <p class="hero-desc">SOS Approach x 푸드브릿지 방법론 기반<br>조리완료 키트로 교실에서 바로 수업 가능합니다</p>
+    <h1><em>어린이집·유치원이<br>편식 바로잡는 골든타임입니다</em></h1>
+    <p class="hero-desc">만 2~5세, 또래와 함께하면 편식개선 효과 2배<br>SOS Approach × 푸드브릿지 방법론 기반 5주 프로그램</p>
     <div class="hero-price">
       <span class="orig">150,000원</span>
       <span class="now">80,000<small>원</small></span>
@@ -512,9 +512,9 @@
       <h3>이 페이지를 우리 원 선생님께 보내주세요!</h3>
       <p>학부모님이시라면, 이 프로그램을 선생님께 알려주세요.<br>선생님이시라면, 원장선생님께 공유해주세요.</p>
       <div class="share-buttons">
-        <button class="share-btn kakao" onclick="shareKakao()">카카오톡으로 공유</button>
-        <button class="share-btn link" onclick="copyLink()">링크 복사</button>
+        <button class="share-btn link" onclick="copyLink()" style="background:#2D8B4E;color:#fff;font-size:15px;padding:14px 32px;">📎 링크 복사해서 카톡으로 보내기</button>
       </div>
+      <p id="share-toast" style="color:#2D8B4E;font-size:12px;margin-top:12px;opacity:0;transition:opacity 0.3s;">복사 완료! 카톡 대화창에 붙여넣기 하시면 미리보기가 자동으로 뜹니다</p>
     </div>
   </div>
 </section>
@@ -549,60 +549,23 @@
   <div class="pr"><strong>1인당 80,000원</strong> · 21회 프로그램</div>
   <div class="sticky-btns">
     <a href="http://pf.kakao.com/_jtyxoxj/chat" target="_blank" class="btn-consult">도입 상담</a>
-    <button class="btn-share" onclick="shareKakao()">선생님께 공유</button>
+    <button class="btn-share" onclick="copyLink()">📎 링크 복사</button>
   </div>
 </div>
 
 <!-- TOAST -->
 <div class="toast" id="toast">링크가 복사되었습니다!</div>
 
-<!-- Kakao JS SDK -->
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2ezmFnkrysYIcCY1LSe0aQUYODq0jQ5MnIBIgEJm6YI3a" crossorigin="anonymous"></script>
-
 <script>
-// ===== Kakao SDK Init =====
-try {
-  Kakao.init('YOUR_KAKAO_APP_KEY');
-} catch(e) {
-  console.log('Kakao SDK init skipped:', e.message);
-}
-
 // ===== FAQ Toggle =====
 function toggleFaq(el) {
   el.classList.toggle('open');
 }
 
-// ===== Kakao Share =====
-function shareKakao() {
-  if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
-    alert('카카오톡 공유 기능을 준비 중입니다.\n링크를 직접 복사해서 보내주세요!');
-    copyLink();
-    return;
-  }
-  Kakao.Share.sendDefault({
-    objectType: 'feed',
-    content: {
-      title: '선생님, 우리 원에 편식개선 프로그램 도입해주세요!',
-      description: 'SOS Approach 기반 5주 21회. 1인당 8만원, 조리완료 키트로 교실에서 바로 수업 가능해요.',
-      imageUrl: 'https://www.mealfred.com/og-foodbridge.png',
-      link: {
-        mobileWebUrl: 'https://www.mealfred.com/foodbridge-school.html',
-        webUrl: 'https://www.mealfred.com/foodbridge-school.html'
-      }
-    },
-    buttons: [{
-      title: '프로그램 자세히 보기',
-      link: {
-        mobileWebUrl: 'https://www.mealfred.com/foodbridge-school.html',
-        webUrl: 'https://www.mealfred.com/foodbridge-school.html'
-      }
-    }]
-  });
-}
-
 // ===== Copy Link =====
 function copyLink() {
   var url = 'https://www.mealfred.com/foodbridge-school.html';
+  var st=document.getElementById('share-toast');if(st)st.style.opacity='1';setTimeout(function(){if(st)st.style.opacity='0';},3000);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(url).then(function() {
       showToast();
