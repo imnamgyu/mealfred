@@ -41,6 +41,8 @@
     .badge-yes { background: #E8F5E9; color: #2E7D32; }
     .badge-no { background: #FFF3E0; color: #E65100; }
 
+    .btn-del { padding: 4px 10px; border: 1px solid #e53935; background: #fff; color: #e53935; border-radius: 6px; font-size: 12px; cursor: pointer; }
+    .btn-del:hover { background: #FFEBEE; }
     .empty { text-align: center; padding: 40px; color: #aaa; }
     .stats { display: flex; gap: 12px; margin-bottom: 20px; }
     .stat { flex: 1; background: #fff; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
@@ -205,6 +207,30 @@
     btn.textContent = '100% 쿠폰 발급 + 알림톡 발송';
   }
 
+  async function deleteCoupon(id, name) {
+    if (!confirm(`"${name}" 쿠폰을 삭제하시겠습니까?`)) return;
+
+    try {
+      const response = await fetch('/api/admin/delete-coupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': adminPassword
+        },
+        body: JSON.stringify({ id })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        loadCoupons();
+      } else {
+        alert('삭제 실패: ' + (data.error || ''));
+      }
+    } catch (e) {
+      alert('서버 오류');
+    }
+  }
+
   async function loadCoupons() {
     try {
       const response = await fetch('/api/admin/list-coupons', {
@@ -229,7 +255,7 @@
 
       let html = `<table>
         <thead><tr>
-          <th>날짜</th><th>이름</th><th>전화번호</th><th>상품</th><th>쿠폰코드</th><th>알림톡</th><th>상태</th>
+          <th>날짜</th><th>이름</th><th>전화번호</th><th>상품</th><th>쿠폰코드</th><th>알림톡</th><th>상태</th><th></th>
         </tr></thead><tbody>`;
 
       for (const c of coupons) {
@@ -241,7 +267,7 @@
           ? '<span class="badge badge-used">사용</span>'
           : '<span class="badge badge-issued">발급</span>';
 
-        html += `<tr>
+        html += `<tr id="row-${c.id}">
           <td>${date}</td>
           <td>${c.name}</td>
           <td>${c.phone}</td>
@@ -249,6 +275,7 @@
           <td><strong>${c.coupon_code}</strong></td>
           <td>${alimtalk}</td>
           <td>${status}</td>
+          <td><button class="btn-del" onclick="deleteCoupon('${c.id}', '${c.name}')">삭제</button></td>
         </tr>`;
       }
 
