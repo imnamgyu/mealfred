@@ -1106,6 +1106,28 @@
   <div class="fn-item"><strong>[16]</strong> Lukas, C. V., & Cunningham-Sabo, L. (2011). Using Repeated Exposure Through Hands-On Cooking to Increase Children's Preferences for Fruits and Vegetables. <em>Appetite</em>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6717537/" target="_blank">PMC6717537</a>. 9회 조리 참여 후 유의미한 선호도 증가.</div>
 </div>
 
+<!-- ===== SHARE TO TEACHER ===== -->
+<section style="background:linear-gradient(135deg,#1565C0,#1976D2);padding:48px 20px;text-align:center;">
+  <div style="max-width:600px;margin:0 auto;">
+    <div style="font-size:36px;margin-bottom:16px;">🏫</div>
+    <h2 style="color:#fff;font-size:clamp(18px,4vw,24px);font-weight:900;margin-bottom:12px;line-height:1.4;">우리 아이 어린이집·유치원에서도<br>편식개선 수업을 할 수 있어요!</h2>
+    <p style="color:rgba(255,255,255,0.85);font-size:14px;line-height:1.7;margin-bottom:24px;">기관용 프로그램은 1인당 80,000원 · 조리완료 키트로 교실에서 바로 수업 가능<br>이 링크를 선생님께 카톡으로 보내주세요!</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a href="https://www.mealfred.com/foodbridge-school.html" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#1565C0;font-weight:700;font-size:14px;padding:14px 28px;border-radius:50px;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,0.15);">📋 기관용 프로그램 보기</a>
+      <button onclick="copySchoolLink()" style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);color:#fff;font-weight:700;font-size:14px;padding:14px 28px;border-radius:50px;border:2px solid rgba(255,255,255,0.4);cursor:pointer;">📎 링크 복사해서 선생님께 전달</button>
+    </div>
+    <p id="copy-toast" style="color:#a5d6a7;font-size:12px;margin-top:12px;opacity:0;transition:opacity 0.3s;">링크가 복사되었습니다! 카톡에 붙여넣기 해주세요</p>
+  </div>
+</section>
+<script>
+function copySchoolLink(){
+  var t='선생님, 우리 원에 편식개선 프로그램 도입 가능한지 확인해주세요!\nSOS Approach 기반 5주 21회, 1인당 8만원이에요.\nhttps://www.mealfred.com/foodbridge-school.html';
+  navigator.clipboard.writeText(t).then(function(){
+    var el=document.getElementById('copy-toast');el.style.opacity='1';setTimeout(function(){el.style.opacity='0';},3000);
+  });
+}
+</script>
+
 <!-- ===== LEGAL DISCLAIMER ===== -->
 <div style="background:#F5F5F5;border-top:1px solid #E0E0E0;padding:24px 20px;">
   <div style="max-width:900px;margin:0 auto;">
@@ -1125,7 +1147,8 @@
 <footer class="footer">
   <span class="brand">밀프레드 MEALFRED</span>
   <p>교육용 요리키트 전문 · 요리교육을 통한 사회적 간접비용 절감</p>
-  <p style="margin-top:8px;">편식개선 5단계 프로그램 · SOS Approach<sup style="color:#666;">[1]</sup> × 식약처 급식관리지침<sup style="color:#666;">[3][6][7]</sup></p>
+  <p style="margin-top:8px;">편식개선 5단계 프로그램 · SOS Approach<sup style="color:#666;">[1]</sup> × 검증된 푸드브릿지 방법론<sup style="color:#666;">[3][6][7]</sup> · 가정 & 기관 모두 가능</p>
+  <p style="margin-top:8px;"><a href="/foodbridge-school.html" style="color:#a8e6be;text-decoration:underline;font-size:13px;">🏫 어린이집·유치원 기관용 프로그램 보기 →</a></p>
   <p style="margin-top:16px;font-size:11px;opacity:0.5;">© 2026 MEALFRED. All rights reserved.</p>
 </footer>
 
