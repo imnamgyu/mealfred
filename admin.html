@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>밀프레드 어드민</title>
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+
+    .login-screen, .admin-screen { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    .login-screen { max-width: 400px; margin-top: 120px; }
+
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #888; margin-bottom: 32px; }
+
+    .card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .card h2 { font-size: 18px; margin-bottom: 16px; }
+
+    label { display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; margin-top: 12px; }
+    label:first-child { margin-top: 0; }
+    input, select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; }
+    input:focus { outline: none; border-color: #4CAF50; }
+
+    .btn { display: inline-block; padding: 12px 24px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 16px; }
+    .btn-primary { background: #4CAF50; color: #fff; }
+    .btn-primary:hover { background: #43A047; }
+    .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+    .result { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 14px; display: none; }
+    .result.success { display: block; background: #E8F5E9; color: #2E7D32; }
+    .result.error { display: block; background: #FFEBEE; color: #C62828; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #eee; color: #888; font-size: 12px; text-transform: uppercase; }
+    td { padding: 10px 8px; border-bottom: 1px solid #f0f0f0; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+    .badge-issued { background: #E3F2FD; color: #1565C0; }
+    .badge-used { background: #E8F5E9; color: #2E7D32; }
+    .badge-yes { background: #E8F5E9; color: #2E7D32; }
+    .badge-no { background: #FFF3E0; color: #E65100; }
+
+    .empty { text-align: center; padding: 40px; color: #aaa; }
+    .stats { display: flex; gap: 12px; margin-bottom: 20px; }
+    .stat { flex: 1; background: #fff; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .stat-num { font-size: 28px; font-weight: 700; color: #4CAF50; }
+    .stat-label { font-size: 12px; color: #888; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div class="login-screen" id="loginScreen">
+  <div class="card">
+    <h1>밀프레드 어드민</h1>
+    <p class="subtitle">관리자 비밀번호를 입력하세요</p>
+    <label for="password">비밀번호</label>
+    <input type="password" id="password" placeholder="비밀번호" onkeydown="if(event.key==='Enter') login()">
+    <button class="btn btn-primary" onclick="login()">로그인</button>
+    <div class="result" id="loginResult"></div>
+  </div>
+</div>
+
+<!-- Admin Screen -->
+<div class="admin-screen" id="adminScreen" style="display:none;">
+  <h1>밀프레드 어드민</h1>
+  <p class="subtitle">인플루언서 100% 쿠폰 관리</p>
+
+  <div class="stats" id="stats">
+    <div class="stat">
+      <div class="stat-num" id="statTotal">-</div>
+      <div class="stat-label">총 발급</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statAlimtalk">-</div>
+      <div class="stat-label">알림톡 발송</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statUsed">-</div>
+      <div class="stat-label">사용 완료</div>
+    </div>
+  </div>
+
+  <!-- Issue Coupon -->
+  <div class="card">
+    <h2>쿠폰 발급</h2>
+    <label for="couponName">인플루언서 이름</label>
+    <input type="text" id="couponName" placeholder="홍길동">
+
+    <label for="couponPhone">전화번호</label>
+    <input type="tel" id="couponPhone" placeholder="010-0000-0000" oninput="formatPhone(this)">
+
+    <label for="couponBlog">블로그 URL (선택)</label>
+    <input type="url" id="couponBlog" placeholder="https://blog.naver.com/...">
+
+    <label for="couponProduct">상품</label>
+    <select id="couponProduct">
+      <option value="편식개선키트">편식개선키트 (전체)</option>
+      <option value="당근코스">당근 5주 코스</option>
+      <option value="양파코스">양파 5주 코스</option>
+      <option value="두부코스">두부 5주 코스</option>
+      <option value="버섯코스">버섯 5주 코스</option>
+      <option value="토마토코스">토마토 5주 코스</option>
+      <option value="파프리카코스">파프리카 5주 코스</option>
+      <option value="시금치코스">시금치 5주 코스</option>
+      <option value="브로콜리코스">브로콜리 5주 코스</option>
+      <option value="가지코스">가지 5주 코스</option>
+    </select>
+
+    <button class="btn btn-primary" id="issueBtn" onclick="issueCoupon()">100% 쿠폰 발급 + 알림톡 발송</button>
+    <div class="result" id="issueResult"></div>
+  </div>
+
+  <!-- Coupon List -->
+  <div class="card">
+    <h2>발급 내역</h2>
+    <div id="couponList">
+      <div class="empty">로딩 중...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let adminPassword = '';
+
+  function formatPhone(input) {
+    let v = input.value.replace(/[^0-9]/g, '');
+    if (v.length > 3 && v.length <= 7) v = v.slice(0,3) + '-' + v.slice(3);
+    else if (v.length > 7) v = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
+    input.value = v;
+  }
+
+  async function login() {
+    adminPassword = document.getElementById('password').value;
+    const res = document.getElementById('loginResult');
+
+    try {
+      const response = await fetch('/api/admin/list-coupons', {
+        headers: { 'x-admin-password': adminPassword }
+      });
+
+      if (response.ok) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminScreen').style.display = 'block';
+        loadCoupons();
+      } else {
+        res.className = 'result error';
+        res.textContent = '비밀번호가 틀렸습니다.';
+      }
+    } catch (e) {
+      res.className = 'result error';
+      res.textContent = '서버 연결 실패';
+    }
+  }
+
+  async function issueCoupon() {
+    const name = document.getElementById('couponName').value.trim();
+    const phone = document.getElementById('couponPhone').value.trim();
+    const blogUrl = document.getElementById('couponBlog').value.trim();
+    const product = document.getElementById('couponProduct').value;
+    const btn = document.getElementById('issueBtn');
+    const res = document.getElementById('issueResult');
+
+    if (!name || !phone) {
+      res.className = 'result error';
+      res.textContent = '이름과 전화번호를 입력하세요.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '발급 중...';
+
+    try {
+      const response = await fetch('/api/admin/issue-coupon', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-password': adminPassword
+        },
+        body: JSON.stringify({ name, phone, blogUrl, product })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        res.className = 'result success';
+        res.textContent = `쿠폰 발급 완료! 코드: ${data.couponCode}` +
+          (data.alimtalkSent ? ' | 알림톡 발송 완료' : ' | 알림톡 발송 실패');
+
+        document.getElementById('couponName').value = '';
+        document.getElementById('couponPhone').value = '';
+        document.getElementById('couponBlog').value = '';
+        loadCoupons();
+      } else {
+        res.className = 'result error';
+        res.textContent = data.error || '발급 실패';
+      }
+    } catch (e) {
+      res.className = 'result error';
+      res.textContent = '서버 오류: ' + e.message;
+    }
+
+    btn.disabled = false;
+    btn.textContent = '100% 쿠폰 발급 + 알림톡 발송';
+  }
+
+  async function loadCoupons() {
+    try {
+      const response = await fetch('/api/admin/list-coupons', {
+        headers: { 'x-admin-password': adminPassword }
+      });
+      const data = await response.json();
+
+      if (!data.success) return;
+
+      // Stats
+      const coupons = data.coupons || [];
+      document.getElementById('statTotal').textContent = coupons.length;
+      document.getElementById('statAlimtalk').textContent = coupons.filter(c => c.alimtalk_sent).length;
+      document.getElementById('statUsed').textContent = coupons.filter(c => c.status === 'used').length;
+
+      // Table
+      const container = document.getElementById('couponList');
+      if (coupons.length === 0) {
+        container.innerHTML = '<div class="empty">발급된 쿠폰이 없습니다.</div>';
+        return;
+      }
+
+      let html = `<table>
+        <thead><tr>
+          <th>날짜</th><th>이름</th><th>전화번호</th><th>상품</th><th>쿠폰코드</th><th>알림톡</th><th>상태</th>
+        </tr></thead><tbody>`;
+
+      for (const c of coupons) {
+        const date = new Date(c.created_at).toLocaleDateString('ko-KR', { month:'short', day:'numeric' });
+        const alimtalk = c.alimtalk_sent
+          ? '<span class="badge badge-yes">발송</span>'
+          : '<span class="badge badge-no">미발송</span>';
+        const status = c.status === 'used'
+          ? '<span class="badge badge-used">사용</span>'
+          : '<span class="badge badge-issued">발급</span>';
+
+        html += `<tr>
+          <td>${date}</td>
+          <td>${c.name}</td>
+          <td>${c.phone}</td>
+          <td>${c.product || '-'}</td>
+          <td><strong>${c.coupon_code}</strong></td>
+          <td>${alimtalk}</td>
+          <td>${status}</td>
+        </tr>`;
+      }
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    } catch (e) {
+      document.getElementById('couponList').innerHTML = '<div class="empty">로딩 실패</div>';
+    }
+  }
+</script>
+
+</body>
+</html>
