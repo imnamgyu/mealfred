@@ -305,7 +305,7 @@ input, select, textarea { font-family: var(--font-primary); }
   filter: brightness(1.03) contrast(1.02) saturate(1.08);
 }
 .hero-img-1 { width: 58%; height: 70%; top: 15%; left: 0; z-index: 2; transform: rotate(-2deg); }
-.hero-img-2 { width: 65%; height: 72%; bottom: 0; right: 0; z-index: 1; transform: rotate(3deg); }
+.hero-img-2 { width: 65%; height: 72%; bottom: 0; right: 8%; z-index: 3; transform: rotate(3deg); }
 .hero-img-1:hover { transform: rotate(-1deg) scale(1.02); }
 .hero-img-2:hover { transform: rotate(2deg) scale(1.02); }
 
