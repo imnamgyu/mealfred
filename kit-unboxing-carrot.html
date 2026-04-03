@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥕 당근 코스 — 키트 구성 미리보기</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Noto Sans KR',sans-serif;background:#fafaf7;color:#222;line-height:1.7;}
+
+  .header{background:linear-gradient(135deg,#FF8A00,#FF6D00);color:#fff;text-align:center;padding:48px 20px 40px;}
+  .header h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+  .header p{font-size:14px;opacity:0.9;}
+
+  .container{max-width:640px;margin:0 auto;padding:0 16px;}
+
+  /* 공통 키트 */
+  .common-kit{background:#fff;border-radius:20px;margin:24px auto;padding:28px 24px;box-shadow:0 2px 16px rgba(0,0,0,0.05);}
+  .common-kit h2{font-size:16px;font-weight:800;color:#2D8B4E;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .common-kit .sub{font-size:12px;color:#999;margin-bottom:16px;}
+  .kit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .kit-item{text-align:center;background:#f8faf8;border-radius:12px;padding:14px 6px 10px;border:1px solid #e8f0ea;transition:transform 0.2s;}
+  .kit-item:hover{transform:translateY(-2px);}
+  .kit-icon{font-size:32px;margin-bottom:6px;display:block;}
+  .kit-name{font-size:11px;font-weight:600;color:#444;line-height:1.3;}
+  .kit-qty{font-size:10px;color:#999;margin-top:2px;}
+
+  /* 주차별 */
+  .week-section{margin:28px auto;}
+  .week-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:0 4px;}
+  .week-num{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0;}
+  .week-num.w1{background:linear-gradient(135deg,#FF8A00,#FF6D00);}
+  .week-num.w2{background:linear-gradient(135deg,#FF6D00,#E65100);}
+  .week-num.w3{background:linear-gradient(135deg,#E65100,#BF360C);}
+  .week-num.w4{background:linear-gradient(135deg,#2D8B4E,#1b6e38);}
+  .week-num.w5{background:linear-gradient(135deg,#1b6e38,#0d4d25);}
+  .week-info h3{font-size:15px;font-weight:800;color:#1a1a1a;}
+  .week-info p{font-size:12px;color:#888;}
+  .week-type{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:2px;}
+  .type-sense{background:#FFF3E0;color:#E65100;}
+  .type-cook{background:#E8F5E9;color:#2D8B4E;}
+
+  .week-card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,0.04);margin-bottom:8px;}
+
+  /* 배송 재료 */
+  .delivery-items{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+  .d-item{display:flex;align-items:center;gap:8px;background:#FFF8F0;border:1px solid #FFE0B2;border-radius:10px;padding:8px 12px;}
+  .d-item .emoji{font-size:24px;}
+  .d-item .info{font-size:12px;font-weight:600;color:#BF360C;}
+  .d-item .info span{display:block;font-size:10px;font-weight:400;color:#999;}
+
+  /* 활동 미리보기 */
+  .activities{border-top:1px solid #f0f0f0;padding-top:14px;}
+  .activities h4{font-size:12px;font-weight:700;color:#999;margin-bottom:10px;letter-spacing:1px;}
+  .act-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8f8f8;}
+  .act-row:last-child{border:none;}
+  .act-day{width:28px;height:28px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#666;flex-shrink:0;}
+  .act-name{font-size:13px;font-weight:600;color:#333;}
+  .act-desc{font-size:11px;color:#999;margin-top:1px;}
+
+  /* 전체 요약 */
+  .summary{background:linear-gradient(135deg,#FFF8F0,#FFF3E0);border-radius:20px;margin:32px auto;padding:28px 24px;text-align:center;border:2px solid #FFE0B2;}
+  .summary h2{font-size:18px;font-weight:900;color:#E65100;margin-bottom:16px;}
+  .sum-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+  .sum-item{background:#fff;border-radius:12px;padding:14px 8px;}
+  .sum-item strong{display:block;font-size:22px;font-weight:900;color:#FF6D00;}
+  .sum-item span{font-size:11px;color:#888;}
+  .summary .note{font-size:12px;color:#999;line-height:1.6;}
+
+  /* 타임라인 */
+  .timeline{background:#fff;border-radius:20px;margin:28px auto;padding:28px 24px;box-shadow:0 2px 16px rgba(0,0,0,0.05);}
+  .timeline h2{font-size:16px;font-weight:800;color:#333;margin-bottom:20px;text-align:center;}
+  .tl-row{display:flex;align-items:flex-start;gap:16px;padding:12px 0;position:relative;}
+  .tl-row:not(:last-child)::after{content:'';position:absolute;left:19px;top:44px;bottom:-12px;width:2px;background:#e0e0e0;}
+  .tl-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;z-index:1;}
+  .tl-icon.pkg{background:#FFF3E0;border:2px solid #FFE0B2;}
+  .tl-icon.play{background:#E3F2FD;border:2px solid #BBDEFB;}
+  .tl-icon.done{background:#E8F5E9;border:2px solid #C8E6C9;}
+  .tl-body h4{font-size:14px;font-weight:700;color:#333;margin-bottom:2px;}
+  .tl-body p{font-size:12px;color:#888;}
+  .tl-time{font-size:11px;font-weight:700;color:#FF6D00;margin-bottom:2px;}
+
+  @media(max-width:480px){
+    .kit-grid{grid-template-columns:repeat(3,1fr);}
+    .sum-grid{grid-template-columns:1fr 1fr 1fr;}
+    .header h1{font-size:22px;}
+    .delivery-items{gap:8px;}
+    .d-item{padding:6px 10px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🥕 당근 코스 키트 구성</h1>
+  <p>5주간 매주 집 앞으로 배송되는 키트를 미리 살펴보세요</p>
+</div>
+
+<div class="container">
+
+<!-- ===== 공통 교구 ===== -->
+<div class="common-kit">
+  <h2>📦 공통 교구 세트</h2>
+  <div class="sub">1주차에 함께 배송 · 5주간 반복 사용</div>
+  <div class="kit-grid">
+    <div class="kit-item">
+      <span class="kit-icon">🎨</span>
+      <div class="kit-name">물감 3색</div>
+      <div class="kit-qty">빨 · 노 · 파</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">🖍️</span>
+      <div class="kit-name">색연필 3색</div>
+      <div class="kit-qty">빨 · 노 · 초</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">📄</span>
+      <div class="kit-name">도화지</div>
+      <div class="kit-qty">A4 · 10매</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">🟡</span>
+      <div class="kit-name">색종이</div>
+      <div class="kit-qty">15장</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">🍽️</span>
+      <div class="kit-name">종이접시</div>
+      <div class="kit-qty">8개</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">👀</span>
+      <div class="kit-name">눈알스티커</div>
+      <div class="kit-qty">1시트</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">🧴</span>
+      <div class="kit-name">떡풀</div>
+      <div class="kit-qty">1개</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">🥢</span>
+      <div class="kit-name">이쑤시개</div>
+      <div class="kit-qty">20개</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">🧹</span>
+      <div class="kit-name">면봉</div>
+      <div class="kit-qty">15개</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">🥤</span>
+      <div class="kit-name">종이컵</div>
+      <div class="kit-qty">5개</div>
+    </div>
+    <div class="kit-item">
+      <span class="kit-icon">🛍️</span>
+      <div class="kit-name">지퍼백</div>
+      <div class="kit-qty">5개</div>
+    </div>
+  </div>
+  <div style="margin-top:16px;background:#f0f0f0;border-radius:10px;padding:12px 16px;font-size:12px;color:#777;">
+    🏠 <strong style="color:#555;">가정 준비물</strong> (집에 있는 것 활용): 가위, 필러, 강판, 접시, 냄비
+  </div>
+</div>
+
+<!-- ===== 1주차 ===== -->
+<div class="week-section">
+  <div class="week-header">
+    <div class="week-num w1">1</div>
+    <div class="week-info">
+      <h3>친해지기 — 눈으로 탐색</h3>
+      <span class="week-type type-sense">👁️ 감각놀이 · 주 5회</span>
+    </div>
+  </div>
+  <div class="week-card">
+    <div class="delivery-items">
+      <div class="d-item"><span class="emoji">🥕</span><div class="info">유기농 당근<span>2개</span></div></div>
+      <div class="d-item"><span class="emoji">🥕</span><div class="info">미니당근<span>5개</span></div></div>
+      <div class="d-item"><span class="emoji">🧃</span><div class="info">당근즙<span>50ml · 1병</span></div></div>
+      <div class="d-item"><span class="emoji">📋</span><div class="info">색칠 도안<span>1매</span></div></div>
+    </div>
+    <div class="activities">
+      <h4>이번 주 활동 5가지</h4>
+      <div class="act-row"><div class="act-day">1</div><div><div class="act-name">🎨 당근 스탬프 꽃밭</div><div class="act-desc">당근 반으로 잘라 물감 찍어 꽃밭 만들기</div></div></div>
+      <div class="act-row"><div class="act-day">2</div><div><div class="act-name">🐌 나만의 당근 달팽이</div><div class="act-desc">필러로 얇게 밀어 돌돌 말아 달팽이 만들기</div></div></div>
+      <div class="act-row"><div class="act-day">3</div><div><div class="act-name">✏️ 당근즙 비밀그림</div><div class="act-desc">면봉에 당근즙 찍어 그리면 마르면서 나타남!</div></div></div>
+      <div class="act-row"><div class="act-day">4</div><div><div class="act-name">🔍 당근 색깔 탐험</div><div class="act-desc">큰 당근 vs 미니당근 크기 비교, 단면 관찰</div></div></div>
+      <div class="act-row"><div class="act-day">5</div><div><div class="act-name">🖌️ 당근 색칠 도안</div><div class="act-desc">색연필 + 당근즙으로 도안 색칠하기</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 2주차 ===== -->
+<div class="week-section">
+  <div class="week-header">
+    <div class="week-num w2">2</div>
+    <div class="week-info">
+      <h3>탐색하기 — 손으로 만지기</h3>
+      <span class="week-type type-sense">✋ 감각놀이 · 주 5회</span>
+    </div>
+  </div>
+  <div class="week-card">
+    <div class="delivery-items">
+      <div class="d-item"><span class="emoji">🥕</span><div class="info">생당근<span>1개</span></div></div>
+      <div class="d-item"><span class="emoji">🥕</span><div class="info">삶은당근<span>2개</span></div></div>
+      <div class="d-item"><span class="emoji">🌾</span><div class="info">밀가루<span>소포장 30g</span></div></div>
+    </div>
+    <div class="activities">
+      <h4>이번 주 활동 5가지</h4>
+      <div class="act-row"><div class="act-day">1</div><div><div class="act-name">🤚 촉감 탐정</div><div class="act-desc">생당근(딱딱!) vs 삶은당근(말랑!) 비교하기</div></div></div>
+      <div class="act-row"><div class="act-day">2</div><div><div class="act-name">👃 냄새 맞추기</div><div class="act-desc">종이컵 속 당근/사과/오이 냄새로 맞추기</div></div></div>
+      <div class="act-row"><div class="act-day">3</div><div><div class="act-name">🏖️ 당근 모래놀이</div><div class="act-desc">간 당근 + 밀가루 반죽 뭉치고 부수기</div></div></div>
+      <div class="act-row"><div class="act-day">4</div><div><div class="act-name">🎭 당근 얼굴 만들기</div><div class="act-desc">삶은 당근 조각으로 종이접시 위 눈코입 배치</div></div></div>
+      <div class="act-row"><div class="act-day">5</div><div><div class="act-name">🧊 당근 얼음 보석</div><div class="act-desc">당근즙 + 물 지퍼백에 넣어 얼리고 꺼내기</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3주차 ===== -->
+<div class="week-section">
+  <div class="week-header">
+    <div class="week-num w3">3</div>
+    <div class="week-info">
+      <h3>가까워지기 — 입 근처로</h3>
+      <span class="week-type type-sense">👄 감각놀이 · 주 5회</span>
+    </div>
+  </div>
+  <div class="week-card">
+    <div class="delivery-items">
+      <div class="d-item"><span class="emoji">🥕</span><div class="info">삶은당근<span>3개</span></div></div>
+      <div class="d-item"><span class="emoji">🥕</span><div class="info">당근스틱<span>8개</span></div></div>
+      <div class="d-item"><span class="emoji">🧀</span><div class="info">크림치즈<span>미니팩</span></div></div>
+      <div class="d-item"><span class="emoji">🥛</span><div class="info">요거트<span>미니팩</span></div></div>
+      <div class="d-item"><span class="emoji">🍯</span><div class="info">꿀<span>미니팩</span></div></div>
+    </div>
+    <div class="activities">
+      <h4>이번 주 활동 5가지</h4>
+      <div class="act-row"><div class="act-day">1</div><div><div class="act-name">⭐ 당근 쿠키커터 모양놀이</div><div class="act-desc">삶은 당근을 별/하트로 찍어 패턴 배열</div></div></div>
+      <div class="act-row"><div class="act-day">2</div><div><div class="act-name">🎨 당근 접시 그림</div><div class="act-desc">삶은 당근 조각으로 동물/꽃 모양 꾸미기</div></div></div>
+      <div class="act-row"><div class="act-day">3</div><div><div class="act-name">🐌 당근 달팽이 완성</div><div class="act-desc">1주차 달팽이에 진짜 당근 등껍질 붙이기</div></div></div>
+      <div class="act-row"><div class="act-day">4</div><div><div class="act-name">👄 당근 립터치 놀이</div><div class="act-desc">당근스틱을 코 끝 → 볼 → 입술에 살짝 대보기</div></div></div>
+      <div class="act-row"><div class="act-day">5</div><div><div class="act-name">🫕 디핑소스 찍기</div><div class="act-desc">당근스틱에 크림치즈/요거트/꿀 찍어보기</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 4주차 ===== -->
+<div class="week-section">
+  <div class="week-header">
+    <div class="week-num w4">4</div>
+    <div class="week-info">
+      <h3>직접노출 — 함께 요리하기</h3>
+      <span class="week-type type-cook">🍳 요리활동 · 주 3회</span>
+    </div>
+  </div>
+  <div class="week-card">
+    <div class="delivery-items">
+      <div class="d-item"><span class="emoji">🥔</span><div class="info">감자완자 재료<span>감자+당근+쇠고기+소금</span></div></div>
+      <div class="d-item"><span class="emoji">🧀</span><div class="info">치즈야채무른밥<span>채소+치즈+밥+조미료</span></div></div>
+      <div class="d-item"><span class="emoji">🍜</span><div class="info">잔치국수 재료<span>소면+계란+다시마+간장</span></div></div>
+      <div class="d-item"><span class="emoji">🧂</span><div class="info">아동용 조미료<span>저염소금·간장 등 소분팩</span></div></div>
+    </div>
+    <div class="activities">
+      <h4>이번 주 활동 3가지</h4>
+      <div class="act-row"><div class="act-day">1</div><div><div class="act-name">🍳 감자완자 핑거푸드</div><div class="act-desc">으깬 감자+쇠고기에 다진 당근 올려 빚고 오븐/에어프라이어로 굽기</div></div></div>
+      <div class="act-row"><div class="act-day">2</div><div><div class="act-name">🧀 치즈야채 무른밥</div><div class="act-desc">당근+애호박+양파 작게 잘라 치즈와 함께 끓이기</div></div></div>
+      <div class="act-row"><div class="act-day">3</div><div><div class="act-name">🍜 잔치국수</div><div class="act-desc">당근 채를 고명으로 직접 올리기 — "내가 올린 당근!"</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 5주차 ===== -->
+<div class="week-section">
+  <div class="week-header">
+    <div class="week-num w5">5</div>
+    <div class="week-info">
+      <h3>자유롭게 — 반복 먹기</h3>
+      <span class="week-type type-cook">🎓 요리활동 · 주 3회 + 수료식</span>
+    </div>
+  </div>
+  <div class="week-card">
+    <div class="delivery-items">
+      <div class="d-item"><span class="emoji">🍝</span><div class="info">스파게티 재료<span>면+토마토소스+고기+올리브유</span></div></div>
+      <div class="d-item"><span class="emoji">🍚</span><div class="info">당근볶음밥 재료<span>당근+계란+참기름</span></div></div>
+      <div class="d-item"><span class="emoji">🍲</span><div class="info">닭칼국수 재료<span>칼국수면+닭육수+당근채</span></div></div>
+      <div class="d-item"><span class="emoji">🎓</span><div class="info">수료증<span>5주 완주 축하!</span></div></div>
+    </div>
+    <div class="activities">
+      <h4>이번 주 활동 3가지</h4>
+      <div class="act-row"><div class="act-day">1</div><div><div class="act-name">🍝 스파게티</div><div class="act-desc">당근+양파+쇠고기 소스, 아이가 면 위에 뿌리기</div></div></div>
+      <div class="act-row"><div class="act-day">2</div><div><div class="act-name">🍚 당근볶음밥</div><div class="act-desc">당근+계란+참기름으로 직접 볶기</div></div></div>
+      <div class="act-row"><div class="act-day">3</div><div><div class="act-name">🎓 닭칼국수 + 수료식</div><div class="act-desc">당근 채 직접 올리고 먹기. 수료증 발급!</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 하루 10분 시뮬레이션 ===== -->
+<div class="timeline">
+  <h2>⏰ 하루 10분이면 끝!</h2>
+  <div class="tl-row">
+    <div class="tl-icon pkg">📦</div>
+    <div class="tl-body">
+      <div class="tl-time">오후 4:00</div>
+      <h4>키트 꺼내기</h4>
+      <p>이번 주 배송된 키트에서 오늘 재료 꺼내요 (1분)</p>
+    </div>
+  </div>
+  <div class="tl-row">
+    <div class="tl-icon play">🎨</div>
+    <div class="tl-body">
+      <div class="tl-time">오후 4:02</div>
+      <h4>가이드 보고 놀이 시작</h4>
+      <p>앱에서 오늘 활동 확인 → 아이랑 시작! (8분)</p>
+    </div>
+  </div>
+  <div class="tl-row">
+    <div class="tl-icon done">✅</div>
+    <div class="tl-body">
+      <div class="tl-time">오후 4:10</div>
+      <h4>오늘 끝! 앱에 기록</h4>
+      <p>아이 반응 체크하면 다음 활동이 자동 추천돼요</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 전체 요약 ===== -->
+<div class="summary">
+  <h2>🥕 당근 코스 한눈에</h2>
+  <div class="sum-grid">
+    <div class="sum-item"><strong>5주</strong><span>프로그램 기간</span></div>
+    <div class="sum-item"><strong>21회</strong><span>총 활동 횟수</span></div>
+    <div class="sum-item"><strong>5번</strong><span>키트 배송</span></div>
+  </div>
+  <div class="sum-grid">
+    <div class="sum-item"><strong>15회</strong><span>감각놀이 (1~3주)</span></div>
+    <div class="sum-item"><strong>6회</strong><span>요리활동 (4~5주)</span></div>
+    <div class="sum-item"><strong>10분</strong><span>하루 소요시간</span></div>
+  </div>
+  <div class="note">
+    매주 월요일 배송 · 식재료+조미료+가이드+레시피 전부 포함<br>
+    <strong>조미료까지 밀프레드가 소분 포장해서 보내드려요</strong><br>
+    부모님이 따로 준비할 건 <strong>거의 없어요</strong>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
