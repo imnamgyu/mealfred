@@ -152,7 +152,10 @@ body{font-family:'Pretendard',sans-serif;background:#f0f2f5;color:#222}
     <div class="nav-item" onclick="showSection('report')"><span class="ico">📋</span>보고서</div>
     <div class="nav-section">분석</div>
     <div class="nav-item" onclick="showSection('analytics')"><span class="ico">📈</span>성과 분석</div>
-    <div class="nav-item" onclick="toast('AI 분석은 데이터 축적 후 제공됩니다')"><span class="ico">🤖</span>AI 인사이트</div>
+    <div class="nav-item" onclick="showSection('ai-insight')"><span class="ico">🤖</span>AI 인사이트</div>
+    <div class="nav-section">참고 자료</div>
+    <div class="nav-item" onclick="showSection('program')"><span class="ico">📚</span>프로그램 소개</div>
+    <div class="nav-item" onclick="showSection('framework')"><span class="ico">🔬</span>편식 진단 기준</div>
     <div class="nav-section">관리</div>
     <div class="nav-item" onclick="toast('기관 설정 (데모)')"><span class="ico">⚙️</span>기관 설정</div>
     <div class="nav-item" onclick="toast('계정 관리 (데모)')"><span class="ico">👤</span>계정 관리</div>
@@ -548,6 +551,354 @@ body{font-family:'Pretendard',sans-serif;background:#f0f2f5;color:#222}
               <div style="font-size:11px;color:#666">두 패턴 혼재</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SECTION: PROGRAM ====== -->
+    <div class="section" id="sec-program">
+      <div class="content">
+        <div class="page-title">📚 프로그램 소개</div>
+        <div class="page-sub">밀프레드 AI 편식개선 프로그램 — 기관 담당자용 안내</div>
+
+        <div class="card">
+          <div class="card-title">프로그램 개요</div>
+          <table>
+            <tr><th style="width:25%">프로그램명</th><td>밀프레드 AI 편식개선 프로그램</td></tr>
+            <tr><th>대상</th><td>만 2~5세 영유아 (어린이집/유치원/가정)</td></tr>
+            <tr><th>기간</th><td>5주 (주 4~5회 활동, 총 21회 반복 노출)</td></tr>
+            <tr><th>구성</th><td>감각놀이 교구 + 조리체험 키트 + 선생님 가이드 + 학부모 안내 + AI 앱</td></tr>
+            <tr><th>방법론</th><td>SOS Approach (미국, 30년 임상) + 식약처 급식관리지침 + 푸드브릿지 4단계</td></tr>
+            <tr><th>핵심 원칙</th><td>비강압적 접근 — "먹어봐"가 아니라 "만져볼래?" → "냄새 맡아볼래?" 순서</td></tr>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">5주 프로그램 구조</div>
+          <div style="display:flex;gap:8px;margin:12px 0">
+            <div style="flex:1;text-align:center;padding:16px;background:#FFF5F0;border-radius:8px;border-top:4px solid #FF6B35">
+              <div style="font-size:18px;font-weight:800;color:#FF6B35">1주차</div>
+              <div style="font-size:13px;font-weight:600;color:#1B2A4A;margin:4px 0">시각 친숙화</div>
+              <div style="font-size:11px;color:#888">색상 관찰, 단면 스탬프<br>캐릭터 만들기</div>
+              <div style="font-size:10px;color:#FF6B35;margin-top:6px">SOS 1~8단계<br>푸드브릿지 1단계</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:16px;background:#FFF5F0;border-radius:8px;border-top:4px solid #FF6B35">
+              <div style="font-size:18px;font-weight:800;color:#FF6B35">2주차</div>
+              <div style="font-size:13px;font-weight:600;color:#1B2A4A;margin:4px 0">촉각·후각 탐색</div>
+              <div style="font-size:11px;color:#888">촉감 비교, 냄새 맞추기<br>반죽 놀이</div>
+              <div style="font-size:10px;color:#FF6B35;margin-top:6px">SOS 9~18단계<br>푸드브릿지 2단계</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:16px;background:#FFF5F0;border-radius:8px;border-top:4px solid #FF6B35">
+              <div style="font-size:18px;font-weight:800;color:#FF6B35">3주차</div>
+              <div style="font-size:13px;font-weight:600;color:#1B2A4A;margin:4px 0">미각 시작</div>
+              <div style="font-size:11px;color:#888">칩 부수기, 립터치<br>디핑 탐험</div>
+              <div style="font-size:10px;color:#FF6B35;margin-top:6px">SOS 19~22단계<br>푸드브릿지 3단계</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:16px;background:#E8ECF1;border-radius:8px;border-top:4px solid #1B2A4A">
+              <div style="font-size:18px;font-weight:800;color:#1B2A4A">4주차</div>
+              <div style="font-size:13px;font-weight:600;color:#1B2A4A;margin:4px 0">조리 체험</div>
+              <div style="font-size:11px;color:#888">레시피킷 요리<br>한 입 도전</div>
+              <div style="font-size:10px;color:#1B2A4A;margin-top:6px">SOS 23~28단계<br>푸드브릿지 4단계</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:16px;background:#E8ECF1;border-radius:8px;border-top:4px solid #1B2A4A">
+              <div style="font-size:18px;font-weight:800;color:#1B2A4A">5주차</div>
+              <div style="font-size:13px;font-weight:600;color:#1B2A4A;margin:4px 0">독립적 섭취</div>
+              <div style="font-size:11px;color:#888">레시피킷 요리<br>수료식</div>
+              <div style="font-size:10px;color:#1B2A4A;margin-top:6px">SOS 29~32단계<br>수료</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">9개 식재료 코스</div>
+          <table>
+            <thead><tr><th>코스</th><th>난이도</th><th>감각 부하</th><th>추천 대상</th><th>밀프레드 보유 상품</th></tr></thead>
+            <tbody>
+              <tr><td>🧅 <b>양파</b></td><td>⭐</td><td>낮음 (익히면 단맛)</td><td>네오포비아 우세, 단맛 선호</td><td>40종</td></tr>
+              <tr><td>🍄 <b>버섯</b></td><td>⭐⭐</td><td>중간 (감칠맛)</td><td>감칠맛 선호, 촉각 OK</td><td>17종</td></tr>
+              <tr><td>🍅 <b>토마토</b></td><td>⭐⭐</td><td>중간 (신맛, 물렁)</td><td>시각 OK, 신맛 수용</td><td>22종</td></tr>
+              <tr><td>⬜ <b>두부</b></td><td>⭐⭐</td><td>낮음 (부드러움)</td><td>구강 민감 높음</td><td>8종</td></tr>
+              <tr><td>🥕 <b>당근</b></td><td>⭐⭐⭐</td><td>중간 (아삭)</td><td>시각 민감도 낮음</td><td>15종</td></tr>
+              <tr><td>🫑 <b>파프리카</b></td><td>⭐⭐⭐</td><td>중간 (3색 시각)</td><td>시각 탐색 가능</td><td>8종</td></tr>
+              <tr><td>🍆 <b>가지</b></td><td>⭐⭐⭐⭐</td><td>높음 (색 진함)</td><td>편식 경미한 아이</td><td>Tier 3</td></tr>
+              <tr><td>🥦 <b>브로콜리</b></td><td>⭐⭐⭐⭐</td><td>높음 (강한 향)</td><td>후각 민감 낮은 아이</td><td>Tier 3</td></tr>
+              <tr><td>🥬 <b>시금치</b></td><td>⭐⭐⭐⭐⭐</td><td>매우 높음</td><td>편식 거의 개선된 아이</td><td>Tier 3</td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:11px;color:#888;margin-top:8px">※ AI가 아이의 편식 프로파일(감각 민감도, 심각도)에 따라 최적 시작 코스를 자동 추천합니다.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">방법론 근거 3가지</div>
+          <div class="grid-3">
+            <div style="padding:16px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:15px;font-weight:700;color:#1B2A4A;margin-bottom:6px">SOS Approach to Feeding</div>
+              <div style="font-size:12px;color:#888;margin-bottom:8px">미국 Dr. Kay Toomey | 1997~현재</div>
+              <div style="font-size:12px;color:#666;line-height:1.6">6대 분류/32단계 감각 위계<br>시각→상호작용→후각→촉각→미각→섭취<br>30년 임상 근거, 2025 PMC 충실도 연구</div>
+            </div>
+            <div style="padding:16px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:15px;font-weight:700;color:#1B2A4A;margin-bottom:6px">식약처 급식관리지침</div>
+              <div style="font-size:12px;color:#888;margin-bottom:8px">식품의약품안전처 | 2023/2025</div>
+              <div style="font-size:12px;color:#666;line-height:1.6">편식 해결 10가지 원칙<br>"10회 이상 반복 노출"<br>소량→점진적 증량, 조리법 변경</div>
+            </div>
+            <div style="padding:16px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:15px;font-weight:700;color:#1B2A4A;margin-bottom:6px">푸드브릿지 4단계</div>
+              <div style="font-size:12px;color:#888;margin-bottom:8px">어린이급식관리지원센터 | 2015~</div>
+              <div style="font-size:12px;color:#666;line-height:1.6">간접→소극적→적극적 노출<br>놀이 기반 비강압적 접근<br>전국 급식센터 현장 검증</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">학술 참고 문헌</div>
+          <table>
+            <thead><tr><th>연구</th><th>핵심 발견</th><th>키트 적용</th></tr></thead>
+            <tbody>
+              <tr><td>Wardle et al. (2003)</td><td>8회 노출에서 유의미한 수용도 증가</td><td>5주 21회 반복 노출 구조</td></tr>
+              <tr><td>de Wild et al. (2021)</td><td>4회째 첫 변화, 7회째 재증가</td><td>1~2주차 감각놀이 → 3주차 미각 전환</td></tr>
+              <tr><td>Coulthard & Blissett (2009)</td><td>구강 감각이 편식과 가장 높은 상관 (r=0.45~0.65)</td><td>3주차 구강 접근 활동 중점</td></tr>
+              <tr><td>Wardle et al. (2001) CEBQ</td><td>Food Fussiness 하위척도 α=0.91</td><td>편식 심각도 자동 산출 기준</td></tr>
+              <tr><td>Dunn (1999) SSP</td><td>감각 처리 7개 영역 표준화</td><td>감각 프로파일 간접 측정 기준</td></tr>
+              <tr><td>Rioux et al. (2017) CFRS</td><td>네오포비아 vs 선택성 분리 측정</td><td>편식 원인 자동 분류 기준</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SECTION: FRAMEWORK ====== -->
+    <div class="section" id="sec-framework">
+      <div class="content">
+        <div class="page-title">🔬 편식 진단 기준 (3축 프레임워크)</div>
+        <div class="page-sub">밀프레드 AI가 아동의 편식을 진단하는 3가지 축 — 모두 학술 검증 척도 기반</div>
+
+        <div class="alert alert-info">
+          💡 <b>핵심 원칙:</b> 부모에게 질문하지 않습니다. 아이가 키트를 사용하는 과정에서 AI가 자동으로 프로파일을 구축합니다. (가입 시 7항목만 입력)
+        </div>
+
+        <!-- Axis 1 -->
+        <div class="card" style="border-left:4px solid #FF6B35">
+          <div class="card-title" style="color:#FF6B35">Axis 1: 편식 심각도 — "얼마나 심한가"</div>
+          <div style="font-size:13px;color:#666;margin-bottom:12px">근거: CEBQ Food Fussiness (Wardle 2001, α=0.91) + SOS Approach 기준</div>
+
+          <div style="font-size:13px;color:#666;margin-bottom:8px"><b>측정 방식:</b> 부모 질문 없이, 5주간 활동 반응(거부/시도/섭취)에서 자동 산출</div>
+          <div style="font-size:12px;color:#888;margin-bottom:12px">공식: 거부비율(40%) + 역행횟수(20%) + 시도까지 평균노출(20%) + 미참여일수(20%)</div>
+
+          <div style="display:flex;gap:8px;margin:12px 0">
+            <div style="flex:1;padding:12px;background:#E8F5E9;border-radius:8px;text-align:center">
+              <div style="font-size:18px;font-weight:800;color:#2E7D32">0~25</div>
+              <div style="font-size:12px;font-weight:600;color:#2E7D32">정상</div>
+              <div style="font-size:11px;color:#888;margin-top:4px">발달적 선호 수준<br>개입 불필요</div>
+            </div>
+            <div style="flex:1;padding:12px;background:#FFF8E1;border-radius:8px;text-align:center">
+              <div style="font-size:18px;font-weight:800;color:#F57F17">26~50</div>
+              <div style="font-size:12px;font-weight:600;color:#F57F17">경미 (Mild)</div>
+              <div style="font-size:11px;color:#888;margin-top:4px">일반적 편식<br>키트로 개선 가능</div>
+            </div>
+            <div style="flex:1;padding:12px;background:#FFF3E0;border-radius:8px;text-align:center">
+              <div style="font-size:18px;font-weight:800;color:#E65100">51~75</div>
+              <div style="font-size:12px;font-weight:600;color:#E65100">중등 (Moderate)</div>
+              <div style="font-size:11px;color:#888;margin-top:4px">식품군 회피 시작<br>감각 접근 강화</div>
+            </div>
+            <div style="flex:1;padding:12px;background:#FFEBEE;border-radius:8px;text-align:center">
+              <div style="font-size:18px;font-weight:800;color:#C62828">76~100</div>
+              <div style="font-size:12px;font-weight:600;color:#C62828">심각 (Severe)</div>
+              <div style="font-size:11px;color:#888;margin-top:4px">ARFID 의심<br>전문가 연계 권고</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#888">※ SOS 기준: 수용 식품 30+가지 = Picky Eater(경미~중등), 20가지 미만 = Problem Feeder(심각)</div>
+        </div>
+
+        <!-- Axis 2 -->
+        <div class="card" style="border-left:4px solid #1B2A4A">
+          <div class="card-title" style="color:#1B2A4A">Axis 2: 편식 원인 프로파일 — "왜 편식하는가"</div>
+          <div style="font-size:13px;color:#666;margin-bottom:16px">4가지 차원으로 편식의 원인을 다각도로 분석합니다.</div>
+
+          <div class="grid-2">
+            <div style="padding:16px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:14px;font-weight:700;color:#1B2A4A;margin-bottom:8px">A. 감각 민감도 (SSP 기반)</div>
+              <div style="font-size:12px;color:#666;line-height:1.8">
+                <b>시각</b> — 1주차 반응에서 추론<br>
+                <b>후각</b> — 2주차 Day 2(냄새 맞추기)에서 추론<br>
+                <b>촉각</b> — 2주차 Day 1,3(촉감/반죽)에서 추론<br>
+                <b>구강</b> — 3주차(립터치/디핑)에서 추론 ← <span style="color:#C62828;font-weight:600">가장 중요</span><br>
+                <b>복합</b> — 4주차(조리체험)에서 추론
+              </div>
+              <div style="font-size:11px;color:#888;margin-top:8px">
+                학술 근거 — 감각별 편식 상관:<br>
+                구강(r=0.45~0.65) > 후각(r=0.35~0.50) > 시각(r=0.25~0.40) > 촉각(r=0.20~0.35)<br>
+                <i>출처: Coulthard & Blissett (2009)</i>
+              </div>
+            </div>
+            <div style="padding:16px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:14px;font-weight:700;color:#1B2A4A;margin-bottom:8px">B. 네오포비아 vs 선택성 (CFRS 기반)</div>
+              <div style="font-size:12px;color:#666;line-height:1.8">
+                <b>네오포비아 우세:</b><br>
+                1주차 거부 높지만 2~3주차 점점 수용 → "새 음식 자체가 무서움"<br>
+                → 반복 노출이 핵심, 개선 빠름<br><br>
+                <b>선택성 우세:</b><br>
+                1~3주차 거부율 일정 or 특정 감각 활동만 거부 → "감각 속성이 문제"<br>
+                → 감각 둔감화(SOS 위계) 필요, 개선 느림
+              </div>
+              <div style="font-size:11px;color:#888;margin-top:8px"><i>출처: Rioux et al. (2017) — 네오포비아와 편식을 경험적으로 분리</i></div>
+            </div>
+            <div style="padding:16px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:14px;font-weight:700;color:#1B2A4A;margin-bottom:8px">C. 맛 선호도</div>
+              <div style="font-size:12px;color:#666;line-height:1.8">
+                가입 시 "잘 먹는 음식 3가지"에서 AI가 초기 추정<br>
+                → 4~5주차 조리체험 반응에서 정밀화<br><br>
+                단맛·감칠맛·짠맛·신맛·쓴맛 5차원<br>
+                → AI 레시피 추천 시 맛 매칭에 활용
+              </div>
+            </div>
+            <div style="padding:16px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:14px;font-weight:700;color:#1B2A4A;margin-bottom:8px">D. 식사 환경</div>
+              <div style="font-size:12px;color:#666;line-height:1.8">
+                가입 시 2문항 (식사 장소, TV/스마트폰 사용)<br><br>
+                환경 요인이 높으면 → 레시피 추천 전에 환경 개선 가이드 우선 제공<br>
+                (식약처 지침 "정해진 시간·장소, 산만한 행동 금지")
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Axis 3 -->
+        <div class="card" style="border-left:4px solid #2E7D32">
+          <div class="card-title" style="color:#2E7D32">Axis 3: 영양 위험도 — "건강에 문제가 되는가"</div>
+          <div style="font-size:13px;color:#666;margin-bottom:12px">근거: 질병관리청 2017 소아 성장도표 + FAO 식품다양성점수(DDS)</div>
+
+          <div class="grid-2">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#1B2A4A;margin-bottom:8px">체위 기반 판정</div>
+              <table>
+                <thead><tr><th>백분위</th><th>판정</th><th>AI 레시피 대응</th></tr></thead>
+                <tbody>
+                  <tr><td>&lt; 3</td><td><span class="tag tag-r">저체중/저신장</span></td><td>고칼로리 우선, 전문가 연계</td></tr>
+                  <tr><td>3~15</td><td><span class="tag tag-o">주의</span></td><td>칼로리 보충 레시피 +20%</td></tr>
+                  <tr><td>15~85</td><td><span class="tag tag-g">정상</span></td><td>균형 중심</td></tr>
+                  <tr><td>85~97</td><td><span class="tag tag-o">과체중 주의</span></td><td>채소 비중 높은 레시피</td></tr>
+                  <tr><td>&gt; 97</td><td><span class="tag tag-r">비만</span></td><td>저칼로리 + 전문가 안내</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#1B2A4A;margin-bottom:8px">식품 다양성 점수 (DDS)</div>
+              <div style="font-size:12px;color:#666;line-height:1.8;margin-bottom:8px">
+                7개 식품군 섭취 여부 → 미섭취 식품군의 영양소를 보충하는 레시피 우선 추천
+              </div>
+              <table>
+                <thead><tr><th>식품군</th><th>미섭취 시 부족 영양소</th></tr></thead>
+                <tbody>
+                  <tr><td>채소류</td><td>비타민A, C, 식이섬유, 엽산</td></tr>
+                  <tr><td>유제품</td><td>칼슘, 비타민D</td></tr>
+                  <tr><td>육류/생선</td><td>철분, 아연, 비타민B12</td></tr>
+                  <tr><td>콩류</td><td>식물성 단백질, 철분</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">프로파일 활용 흐름</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:#666;flex-wrap:wrap">
+            <div style="padding:10px 16px;background:#FFF5F0;border-radius:8px;text-align:center;font-weight:600">가입<br><span style="font-size:11px;font-weight:400">7항목 2분</span></div>
+            <span>→</span>
+            <div style="padding:10px 16px;background:#FFF5F0;border-radius:8px;text-align:center;font-weight:600">1주차<br><span style="font-size:11px;font-weight:400">시각 파악</span></div>
+            <span>→</span>
+            <div style="padding:10px 16px;background:#FFF5F0;border-radius:8px;text-align:center;font-weight:600">2주차<br><span style="font-size:11px;font-weight:400">촉각/후각</span></div>
+            <span>→</span>
+            <div style="padding:10px 16px;background:#FFF5F0;border-radius:8px;text-align:center;font-weight:600">3주차<br><span style="font-size:11px;font-weight:400">구강 + 원인 분류</span></div>
+            <span>→</span>
+            <div style="padding:10px 16px;background:#E8ECF1;border-radius:8px;text-align:center;font-weight:600">4~5주차<br><span style="font-size:11px;font-weight:400">맛 정밀화</span></div>
+            <span>→</span>
+            <div style="padding:10px 16px;background:#E8F5E9;border-radius:8px;text-align:center;font-weight:600;color:#2E7D32">완료<br><span style="font-size:11px;font-weight:400">3축 프로파일 완성</span></div>
+          </div>
+          <div style="font-size:12px;color:#888;margin-top:12px">매주 프로파일이 자동 업데이트됩니다. AI 레시피 추천도 매주 정밀해집니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SECTION: AI INSIGHT ====== -->
+    <div class="section" id="sec-ai-insight">
+      <div class="content">
+        <div class="page-title">🤖 AI 인사이트</div>
+        <div class="page-sub">AI가 데이터를 분석하여 기관에 제공하는 인사이트</div>
+
+        <div class="grid-2">
+          <div class="card" style="border-left:4px solid #FF6B35">
+            <div class="card-title" style="color:#FF6B35">🎯 이번 주 핵심 인사이트</div>
+            <div style="font-size:14px;color:#333;line-height:1.8">
+              <b>1. 3주차 정체 구간 감지</b><br>
+              <span style="color:#666">14명 중 6명이 3주차에서 진행이 멈췄습니다. 이는 "미각 시작" 단계의 자연스러운 저항입니다.</span><br>
+              <span style="color:#FF6B35;font-weight:600">→ 권장: 3주차 감각놀이를 1주 더 연장하면 돌파 확률이 40% 높아집니다.</span>
+            </div>
+          </div>
+          <div class="card" style="border-left:4px solid #2E7D32">
+            <div class="card-title" style="color:#2E7D32">📈 긍정 신호</div>
+            <div style="font-size:14px;color:#333;line-height:1.8">
+              <b>2주차→3주차 시도율이 급증 중</b><br>
+              <span style="color:#666">이번 주 시도율 57% → 지난주 대비 +15%p. 후각 활동(냄새 맞추기)이 특히 효과적이었습니다.</span><br>
+              <span style="color:#2E7D32;font-weight:600">→ 2주차 후각 활동을 강화한 것이 데이터에서 확인됩니다.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🔮 예측 모델</div>
+          <div class="grid-3">
+            <div style="padding:16px;background:#E8F5E9;border-radius:8px;text-align:center">
+              <div style="font-size:13px;color:#888">예상 최종 완주율</div>
+              <div style="font-size:32px;font-weight:800;color:#2E7D32">81%</div>
+              <div style="font-size:11px;color:#2E7D32">현재 추세 기준 (+3%p 예상)</div>
+            </div>
+            <div style="padding:16px;background:#FFF5F0;border-radius:8px;text-align:center">
+              <div style="font-size:13px;color:#888">예상 최종 개선율</div>
+              <div style="font-size:32px;font-weight:800;color:#FF6B35">68%</div>
+              <div style="font-size:11px;color:#FF6B35">현재 추세 기준</div>
+            </div>
+            <div style="padding:16px;background:#E3F2FD;border-radius:8px;text-align:center">
+              <div style="font-size:13px;color:#888">AI 추천 정확도</div>
+              <div style="font-size:32px;font-weight:800;color:#1565C0">72%</div>
+              <div style="font-size:11px;color:#1565C0">주간 추천 3회 기준</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">👶 아동별 AI 분석 요약</div>
+          <table>
+            <thead><tr><th>ID</th><th>편식 유형</th><th>핵심 감각</th><th>AI 권장 전략</th><th>5주 완주 확률</th></tr></thead>
+            <tbody>
+              <tr><td>ID-001</td><td><span class="tag tag-b">선택성 우세</span></td><td>구강 민감</td><td>부드러운 질감 + 단맛 마스킹</td><td style="color:#2E7D32;font-weight:600">89%</td></tr>
+              <tr><td>ID-005</td><td><span class="tag tag-o">혼합</span></td><td>전반적 민감</td><td>완전 숨김 레시피 + 점진적 노출</td><td style="color:#E65100;font-weight:600">62%</td></tr>
+              <tr><td>ID-007</td><td><span class="tag tag-g">네오포비아</span></td><td>시각 중심</td><td>반복 노출 (빠른 개선 예상)</td><td style="color:#2E7D32;font-weight:600">95%</td></tr>
+              <tr><td>ID-018</td><td><span class="tag tag-r">선택성 심각</span></td><td>구강+후각</td><td>SOS 위계 집중 + 3주차 연장 권고</td><td style="color:#C62828;font-weight:600">41%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">📊 AI 레시피 추천 효과 분석</div>
+          <div style="font-size:13px;color:#666;line-height:1.8">
+            <b>가장 수용률 높은 레시피 TOP 3:</b>
+          </div>
+          <table>
+            <thead><tr><th>레시피</th><th>추천 횟수</th><th>수용률</th><th>성공 요인</th></tr></thead>
+            <tbody>
+              <tr><td>🥕 당근치즈 미니소시지</td><td>18회</td><td style="color:#2E7D32;font-weight:600">83%</td><td>소시지 형태 (친숙) + 당근 숨김 + 단맛·감칠맛</td></tr>
+              <tr><td>🥕 당근 카레라이스</td><td>15회</td><td style="color:#2E7D32;font-weight:600">73%</td><td>카레 향으로 당근 마스킹 + 감칠맛</td></tr>
+              <tr><td>🥕 당근 팬케이크</td><td>12회</td><td style="color:#E65100;font-weight:600">58%</td><td>단맛 조합 성공, 시각 거부 일부</td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:12px;color:#888;margin-top:8px">
+            🤖 AI 분석: 감칠맛 기반 레시피(치즈/카레)가 단맛 기반(팬케이크)보다 수용률이 높았습니다.
+            이는 참여 아동 중 감칠맛 선호(65%)가 단맛 선호(52%)보다 높은 것과 일치합니다.
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          💡 AI 인사이트는 참여 아동 수가 늘어날수록 더 정확해집니다. 현재 23명 기준이며, 50명 이상이면 기관 간 벤치마크 비교가 가능해집니다.
         </div>
       </div>
     </div>
