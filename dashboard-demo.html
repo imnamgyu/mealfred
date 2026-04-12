@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 기관 대시보드 데모</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',sans-serif;background:#f0f2f5;color:#222}
+
+/* Layout */
+.layout{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:240px;background:#1B2A4A;color:#fff;padding:20px 0;flex-shrink:0;position:fixed;height:100vh;overflow-y:auto}
+.sidebar .logo{padding:0 20px 24px;font-size:22px;font-weight:800;color:#FF6B35;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar .logo span{color:#fff}
+.sidebar .logo .sub{display:block;font-size:11px;color:rgba(255,255,255,.5);font-weight:400;margin-top:2px}
+.nav-section{padding:16px 20px 8px;font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.nav-item{padding:10px 20px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .15s;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.05)}
+.nav-item.active{background:rgba(255,107,53,.1);border-left-color:#FF6B35;color:#FF6B35;font-weight:600}
+.nav-item .ico{font-size:18px;width:24px;text-align:center}
+
+/* Main */
+.main{margin-left:240px;flex:1;padding:0}
+
+/* Top bar */
+.topbar{background:#fff;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8e8e8;position:sticky;top:0;z-index:50}
+.topbar .org{font-size:16px;font-weight:700;color:#1B2A4A}
+.topbar .org-sub{font-size:12px;color:#999}
+.topbar .user{display:flex;align-items:center;gap:10px}
+.topbar .avatar{width:36px;height:36px;border-radius:50%;background:#E8ECF1;display:flex;align-items:center;justify-content:center;font-size:16px}
+.topbar .badge{background:#FF6B35;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+
+/* Content */
+.content{padding:24px 32px;max-width:1200px}
+
+/* Page title */
+.page-title{font-size:22px;font-weight:700;color:#1B2A4A;margin-bottom:4px}
+.page-sub{font-size:13px;color:#999;margin-bottom:24px}
+
+/* Stat cards */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.stat-card .label{font-size:12px;color:#999;margin-bottom:6px}
+.stat-card .value{font-size:32px;font-weight:800;color:#1B2A4A}
+.stat-card .change{font-size:12px;margin-top:4px}
+.stat-card .change.up{color:#2E7D32}
+.stat-card .change.down{color:#C62828}
+.stat-card.hl{border-left:4px solid #FF6B35}
+.stat-card.hl .value{color:#FF6B35}
+
+/* Cards */
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px}
+.card-title{font-size:15px;font-weight:700;color:#1B2A4A;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title .badge-sm{background:#E8ECF1;color:#1B2A4A;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+
+/* Grid */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* Progress */
+.prog{height:8px;background:#E8ECF1;border-radius:4px;overflow:hidden;margin:4px 0}
+.prog .fill{height:100%;border-radius:4px}
+.fill-g{background:linear-gradient(90deg,#2E7D32,#66BB6A)}
+.fill-o{background:linear-gradient(90deg,#FF6B35,#FF9B6B)}
+.fill-n{background:linear-gradient(90deg,#1B2A4A,#3D5A80)}
+.prog-row{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:2px}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:10px 12px;background:#f9f9f9;color:#666;font-weight:600;border-bottom:1px solid #e8e8e8}
+.tbl td{padding:10px 12px;border-bottom:1px solid #f0f0f0}
+.tbl tr:hover{background:#f9f9f9}
+
+/* Tags */
+.tag{display:inline-block;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-g{background:#E8F5E9;color:#2E7D32}
+.tag-o{background:#FFF3E0;color:#E65100}
+.tag-r{background:#FFEBEE;color:#C62828}
+.tag-b{background:#E3F2FD;color:#1565C0}
+.tag-n{background:#E8ECF1;color:#1B2A4A}
+
+/* Buttons */
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-o{background:#FF6B35;color:#fff}
+.btn-n{background:#1B2A4A;color:#fff}
+.btn-s{background:#E8ECF1;color:#1B2A4A}
+.btn-w{background:#fff;color:#1B2A4A;border:1px solid #ddd}
+.btn+.btn{margin-left:8px}
+
+/* Sensory dots */
+.dots{display:flex;gap:3px;align-items:center}
+.dot{width:12px;height:12px;border-radius:50%;border:2px solid #ddd;background:#fff}
+.dot.f{background:#FF6B35;border-color:#FF6B35}
+.dot.fn{background:#1B2A4A;border-color:#1B2A4A}
+
+/* Chart bars */
+.chart-h{display:flex;gap:3px;height:24px;margin:4px 0}
+.chart-h div{border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:600}
+
+/* Alert */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.alert-warn{background:#FFF3E0;color:#E65100;border-left:4px solid #FF9800}
+.alert-danger{background:#FFEBEE;color:#C62828;border-left:4px solid #F44336}
+.alert-info{background:#E3F2FD;color:#1565C0;border-left:4px solid #2196F3}
+
+/* Report preview */
+.report-box{background:#f9f9f9;border:1px solid #e0e0e0;border-radius:8px;padding:20px}
+.report-title{text-align:center;font-size:16px;font-weight:700;color:#1B2A4A;padding-bottom:12px;border-bottom:2px solid #1B2A4A;margin-bottom:16px}
+
+/* Profile card */
+.profile-card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px;text-align:center}
+.profile-emoji{font-size:36px;margin-bottom:4px}
+.profile-id{font-size:14px;font-weight:600;color:#1B2A4A}
+.profile-meta{font-size:11px;color:#999}
+
+/* Toast */
+.toast{position:fixed;top:20px;right:20px;background:#1B2A4A;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;z-index:1000;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* Section divider */
+.section{display:none}
+.section.active{display:block}
+
+/* Responsive */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .grid-2,.grid-3{grid-template-columns:1fr}
+}
+
+/* Demo badge */
+.demo-banner{background:#FF6B35;color:#fff;text-align:center;padding:6px;font-size:12px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">📋 이것은 데모 화면입니다 — 실제 서비스와 동일한 구성으로 제작되었습니다</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">meal<span>fred</span><span class="sub">기관 관리 시스템</span></div>
+    <div class="nav-section">메인</div>
+    <div class="nav-item active" onclick="showSection('dashboard')"><span class="ico">📊</span>대시보드</div>
+    <div class="nav-item" onclick="showSection('children')"><span class="ico">👶</span>아동 관리</div>
+    <div class="nav-item" onclick="showSection('report')"><span class="ico">📋</span>보고서</div>
+    <div class="nav-section">분석</div>
+    <div class="nav-item" onclick="showSection('analytics')"><span class="ico">📈</span>성과 분석</div>
+    <div class="nav-item" onclick="toast('AI 분석은 데이터 축적 후 제공됩니다')"><span class="ico">🤖</span>AI 인사이트</div>
+    <div class="nav-section">관리</div>
+    <div class="nav-item" onclick="toast('기관 설정 (데모)')"><span class="ico">⚙️</span>기관 설정</div>
+    <div class="nav-item" onclick="toast('계정 관리 (데모)')"><span class="ico">👤</span>계정 관리</div>
+    <div class="nav-section" style="margin-top:auto;padding-top:30px"></div>
+    <div class="nav-item" onclick="window.open('https://mealfred.com/app-demo.html')"><span class="ico">📱</span>부모 앱 데모</div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="org">🏫 해운대 햇살 어린이집</div>
+        <div class="org-sub">기관코드: MF-HU2026 · 당근 코스 운영 중</div>
+      </div>
+      <div class="user">
+        <span class="badge">DEMO</span>
+        <div class="avatar">👩‍🏫</div>
+        <span style="font-size:14px;color:#333">김선생님</span>
+      </div>
+    </div>
+
+    <!-- ====== SECTION: DASHBOARD ====== -->
+    <div class="section active" id="sec-dashboard">
+      <div class="content">
+        <div class="page-title">대시보드</div>
+        <div class="page-sub">2026년 4~5월 · 당근 코스 운영 현황</div>
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="label">참여 아동</div>
+            <div class="value">23</div>
+            <div class="change up">전월 대비 +5명</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">활성 아동 (최근 7일)</div>
+            <div class="value">19</div>
+            <div class="change down">비활성 4명 주의</div>
+          </div>
+          <div class="stat-card hl">
+            <div class="label">완주율</div>
+            <div class="value">78%</div>
+            <div class="change up">목표 70% 초과 달성</div>
+          </div>
+          <div class="stat-card hl">
+            <div class="label">개선율 (거부→시도+섭취)</div>
+            <div class="value">65%</div>
+            <div class="change up">전주 대비 +8%p</div>
+          </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="alert alert-danger">⚠️ <b>ID-042</b> 2주간 미활동 — 선생님 개별 확인 필요</div>
+        <div class="alert alert-warn">📉 <b>ID-018</b> 섭취→거부 역행 패턴 감지 — 3주차 추가 감각놀이 권장</div>
+        <div class="alert alert-info">🤖 <b>AI 예측:</b> 현재 진행률 기준 최종 완주율 81% 예상 (+3%p)</div>
+
+        <div class="grid-2">
+          <!-- 주차별 진행 -->
+          <div class="card">
+            <div class="card-title">📊 주차별 진행 현황</div>
+            <div style="margin-bottom:10px">
+              <div class="prog-row"><span>1주차</span><span>23/23 (100%)</span></div>
+              <div class="prog"><div class="fill fill-g" style="width:100%"></div></div>
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="prog-row"><span>2주차</span><span>19/23 (82%)</span></div>
+              <div class="prog"><div class="fill fill-g" style="width:82%"></div></div>
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="prog-row"><span>3주차</span><span>14/23 (61%)</span></div>
+              <div class="prog"><div class="fill fill-o" style="width:61%"></div></div>
+            </div>
+            <div style="margin-bottom:10px">
+              <div class="prog-row"><span>4주차</span><span>8/23 (35%)</span></div>
+              <div class="prog"><div class="fill fill-o" style="width:35%"></div></div>
+            </div>
+            <div>
+              <div class="prog-row"><span>5주차</span><span>3/23 (13%)</span></div>
+              <div class="prog"><div class="fill fill-n" style="width:13%"></div></div>
+            </div>
+          </div>
+
+          <!-- 반응 분포 -->
+          <div class="card">
+            <div class="card-title">📈 전체 반응 분포</div>
+            <div style="display:flex;gap:16px;margin-bottom:20px">
+              <div style="flex:1;text-align:center">
+                <div style="font-size:28px;font-weight:800;color:#C62828">22%</div>
+                <div style="font-size:12px;color:#999">거부</div>
+              </div>
+              <div style="flex:1;text-align:center">
+                <div style="font-size:28px;font-weight:800;color:#E65100">43%</div>
+                <div style="font-size:12px;color:#999">시도</div>
+              </div>
+              <div style="flex:1;text-align:center">
+                <div style="font-size:28px;font-weight:800;color:#2E7D32">35%</div>
+                <div style="font-size:12px;color:#999">섭취</div>
+              </div>
+            </div>
+            <div class="card-title" style="font-size:13px">주차별 추이</div>
+            <div style="margin-bottom:6px"><span style="font-size:11px;color:#888">1주차</span>
+              <div class="chart-h"><div style="flex:5;background:#FFCDD2">50%</div><div style="flex:3;background:#FFE0B2">30%</div><div style="flex:2;background:#C8E6C9">20%</div></div>
+            </div>
+            <div style="margin-bottom:6px"><span style="font-size:11px;color:#888">2주차</span>
+              <div class="chart-h"><div style="flex:3;background:#FFCDD2">30%</div><div style="flex:4;background:#FFE0B2">40%</div><div style="flex:3;background:#C8E6C9">30%</div></div>
+            </div>
+            <div style="margin-bottom:6px"><span style="font-size:11px;color:#888">3주차</span>
+              <div class="chart-h"><div style="flex:2;background:#FFCDD2">20%</div><div style="flex:4;background:#FFE0B2">45%</div><div style="flex:4;background:#C8E6C9">35%</div></div>
+            </div>
+            <div><span style="font-size:11px;color:#888">4주차</span>
+              <div class="chart-h"><div style="flex:1;background:#FFCDD2">10%</div><div style="flex:4;background:#FFE0B2">45%</div><div style="flex:5;background:#C8E6C9">45%</div></div>
+            </div>
+            <div style="font-size:11px;color:#2E7D32;margin-top:8px;font-weight:600">✓ 섭취 비율이 매주 증가하고 있습니다</div>
+          </div>
+        </div>
+
+        <!-- AI 추천 레시피 수용률 -->
+        <div class="card">
+          <div class="card-title">🤖 AI 추천 레시피 현황 <span class="badge-sm">이번 주</span></div>
+          <div class="grid-3">
+            <div style="text-align:center;padding:12px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:24px;font-weight:800;color:#FF6B35">68%</div>
+              <div style="font-size:12px;color:#888">추천 레시피 수용률</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:24px;font-weight:800;color:#1B2A4A">42</div>
+              <div style="font-size:12px;color:#888">추천 레시피 수</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:#f9f9f9;border-radius:8px">
+              <div style="font-size:24px;font-weight:800;color:#2E7D32">72%</div>
+              <div style="font-size:12px;color:#888">평균 예측 정확도</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SECTION: CHILDREN ====== -->
+    <div class="section" id="sec-children">
+      <div class="content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div class="page-title">아동 관리</div>
+            <div class="page-sub">총 23명 등록 · 비식별 ID 기반 관리</div>
+          </div>
+          <div>
+            <button class="btn btn-s" onclick="toast('필터 (데모)')">필터</button>
+            <button class="btn btn-w" onclick="toast('CSV 내보내기 (데모)')">내보내기</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;overflow:hidden">
+          <table class="tbl">
+            <thead>
+              <tr><th>ID</th><th>연령</th><th>코스</th><th>주차</th><th>편식 심각도</th><th>감각 프로파일</th><th>반응 추이</th><th>상태</th></tr>
+            </thead>
+            <tbody>
+              <tr onclick="showSection('child-detail')" style="cursor:pointer">
+                <td><b>ID-001</b></td><td>만 3세</td><td>🥕 당근</td><td>4주차</td>
+                <td><span style="color:#2E7D32;font-weight:600">32 (경미)</span></td>
+                <td><div class="dots"><div class="dot fn"></div><div class="dot f"></div><div class="dot fn"></div><div class="dot f"></div></div></td>
+                <td><div class="chart-h" style="height:16px;width:100px"><div style="flex:1;background:#FFCDD2"></div><div style="flex:3;background:#FFE0B2"></div><div style="flex:4;background:#C8E6C9"></div></div></td>
+                <td><span class="tag tag-g">정상 진행</span></td>
+              </tr>
+              <tr>
+                <td><b>ID-005</b></td><td>만 4세</td><td>🥕 당근</td><td>3주차</td>
+                <td><span style="color:#E65100;font-weight:600">58 (중등)</span></td>
+                <td><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div></div></td>
+                <td><div class="chart-h" style="height:16px;width:100px"><div style="flex:3;background:#FFCDD2"></div><div style="flex:4;background:#FFE0B2"></div><div style="flex:1;background:#C8E6C9"></div></div></td>
+                <td><span class="tag tag-o">감각 민감</span></td>
+              </tr>
+              <tr>
+                <td><b>ID-018</b></td><td>만 3세</td><td>🥕 당근</td><td>3주차</td>
+                <td><span style="color:#C62828;font-weight:600">71 (중등↑)</span></td>
+                <td><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div></div></td>
+                <td><div class="chart-h" style="height:16px;width:100px"><div style="flex:4;background:#FFCDD2"></div><div style="flex:3;background:#FFE0B2"></div><div style="flex:1;background:#C8E6C9"></div></div></td>
+                <td><span class="tag tag-o">역행 주의</span></td>
+              </tr>
+              <tr>
+                <td><b>ID-042</b></td><td>만 2세</td><td>🥕 당근</td><td>1주차</td>
+                <td><span style="color:#999">— (데이터 부족)</span></td>
+                <td><span style="color:#999;font-size:11px">미파악</span></td>
+                <td><span style="color:#999;font-size:11px">—</span></td>
+                <td><span class="tag tag-r">2주 미활동</span></td>
+              </tr>
+              <tr>
+                <td><b>ID-007</b></td><td>만 5세</td><td>🥕 당근</td><td>5주차</td>
+                <td><span style="color:#2E7D32;font-weight:600">18 (정상)</span></td>
+                <td><div class="dots"><div class="dot fn"></div><div class="dot fn"></div><div class="dot fn"></div><div class="dot fn"></div></div></td>
+                <td><div class="chart-h" style="height:16px;width:100px"><div style="flex:0;background:#FFCDD2"></div><div style="flex:2;background:#FFE0B2"></div><div style="flex:6;background:#C8E6C9"></div></div></td>
+                <td><span class="tag tag-g">수료 임박</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="font-size:11px;color:#999;margin-top:8px">※ 아동 실명은 수집하지 않습니다. 비식별 ID로만 관리됩니다.</div>
+      </div>
+    </div>
+
+    <!-- ====== SECTION: CHILD DETAIL ====== -->
+    <div class="section" id="sec-child-detail">
+      <div class="content">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;cursor:pointer" onclick="showSection('children')">
+          <span style="font-size:18px">←</span>
+          <span style="font-size:14px;color:#888">아동 관리로 돌아가기</span>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:20px">
+          <div>
+            <div class="page-title">ID-001 상세</div>
+            <div class="page-sub">만 3세 · 당근 코스 4주차 · 등록일 2026.04.01</div>
+          </div>
+          <div style="text-align:right">
+            <span class="tag tag-g" style="font-size:13px;padding:6px 14px">정상 진행</span>
+            <span class="tag tag-b" style="font-size:13px;padding:6px 14px">🤖 5주 완주 확률: 89%</span>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">편식 심각도 추이</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
+              <span style="font-size:36px;font-weight:800;color:#2E7D32">32</span>
+              <span style="font-size:14px;color:#888">/100 (경미)</span>
+              <span style="font-size:13px;color:#2E7D32;font-weight:600">▼ 26점 개선</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-end;height:80px;margin-bottom:8px">
+              <div style="flex:1;text-align:center"><div style="height:58px;background:#FFCDD2;border-radius:4px 4px 0 0"></div><div style="font-size:10px;color:#888;margin-top:4px">1주</div><div style="font-size:10px;font-weight:600">58</div></div>
+              <div style="flex:1;text-align:center"><div style="height:48px;background:#FFE0B2;border-radius:4px 4px 0 0"></div><div style="font-size:10px;color:#888;margin-top:4px">2주</div><div style="font-size:10px;font-weight:600">48</div></div>
+              <div style="flex:1;text-align:center"><div style="height:38px;background:#FFE0B2;border-radius:4px 4px 0 0"></div><div style="font-size:10px;color:#888;margin-top:4px">3주</div><div style="font-size:10px;font-weight:600">38</div></div>
+              <div style="flex:1;text-align:center"><div style="height:32px;background:#C8E6C9;border-radius:4px 4px 0 0"></div><div style="font-size:10px;color:#888;margin-top:4px">4주</div><div style="font-size:10px;font-weight:600;color:#2E7D32">32</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">감각 프로파일 (3축)</div>
+            <div style="margin-bottom:10px">
+              <div style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px">
+                <span style="width:50px;color:#666">시각</span>
+                <div class="dots"><div class="dot fn"></div><div class="dot fn"></div><div class="dot"></div></div>
+                <span style="font-size:11px;color:#2E7D32">낮음</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px">
+                <span style="width:50px;color:#666">후각</span>
+                <div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot"></div></div>
+                <span style="font-size:11px;color:#2E7D32">중간 (개선!)</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px">
+                <span style="width:50px;color:#666">촉각</span>
+                <div class="dots"><div class="dot fn"></div><div class="dot"></div><div class="dot"></div></div>
+                <span style="font-size:11px;color:#2E7D32">낮음</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px">
+                <span style="width:50px;color:#666">구강</span>
+                <div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot"></div></div>
+                <span style="font-size:11px;color:#E65100">중간</span>
+              </div>
+            </div>
+            <div style="background:#F0F4FF;border-radius:8px;padding:10px;font-size:12px;color:#1B2A4A;line-height:1.6">
+              🤖 <b>AI 분석:</b> 선택성 우세 패턴. 후각이 2주차 이후 개선 중. 구강 민감도가 남아있어 4~5주차 조리체험에서 부드러운 질감 레시피 권장.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">체위 변화</div>
+          <div style="display:flex;gap:24px">
+            <div style="flex:1"><div style="font-size:12px;color:#888;margin-bottom:4px">키</div><span style="font-size:20px;font-weight:700">97 → 98.2 cm</span><span style="font-size:12px;color:#2E7D32;margin-left:8px">+1.2cm</span><div style="font-size:11px;color:#888;margin-top:2px">50백분위 유지</div></div>
+            <div style="flex:1"><div style="font-size:12px;color:#888;margin-bottom:4px">체중</div><span style="font-size:20px;font-weight:700">15.0 → 15.4 kg</span><span style="font-size:12px;color:#2E7D32;margin-left:8px">+0.4kg</span><div style="font-size:11px;color:#888;margin-top:2px">55백분위 유지</div></div>
+            <div style="flex:1"><div style="font-size:12px;color:#888;margin-bottom:4px">영양 위험도</div><span style="font-size:20px;font-weight:700;color:#2E7D32">정상</span><div style="font-size:11px;color:#888;margin-top:2px">DDS 6/7 (채소류 추가됨)</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SECTION: REPORT ====== -->
+    <div class="section" id="sec-report">
+      <div class="content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div class="page-title">보고서 생성</div>
+            <div class="page-sub">원클릭으로 공공 제출용 보고서를 생성합니다</div>
+          </div>
+          <div>
+            <button class="btn btn-n" onclick="toast('📋 PDF 생성 완료! (데모)')">📋 PDF 생성</button>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="card">
+              <div class="card-title">양식 선택</div>
+              <div style="margin-bottom:8px"><label style="display:flex;align-items:center;gap:8px;padding:10px;border:2px solid #FF6B35;border-radius:8px;background:#FFF5F0;cursor:pointer;font-size:14px"><input type="radio" name="form" checked> 식약처 급식관리지원센터 성과보고</label></div>
+              <div style="margin-bottom:8px"><label style="display:flex;align-items:center;gap:8px;padding:10px;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:14px"><input type="radio" name="form"> 드림스타트 사업성과보고</label></div>
+              <div style="margin-bottom:8px"><label style="display:flex;align-items:center;gap:8px;padding:10px;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:14px"><input type="radio" name="form"> 교육청 늘봄학교 보고</label></div>
+              <div><label style="display:flex;align-items:center;gap:8px;padding:10px;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:14px"><input type="radio" name="form"> 기관 내부용 요약</label></div>
+            </div>
+            <div class="card">
+              <div class="card-title">포함 항목</div>
+              <div style="font-size:13px;line-height:2.2">
+                <label><input type="checkbox" checked> 참여율 / 완주율</label><br>
+                <label><input type="checkbox" checked> 개선율 (노출→시도→섭취 전환)</label><br>
+                <label><input type="checkbox" checked> 편식 심각도 전후 비교 (CEBQ 기반)</label><br>
+                <label><input type="checkbox" checked> 아동별 성장곡선 변화</label><br>
+                <label><input type="checkbox" checked> AI 추천 레시피 수용률</label><br>
+                <label><input type="checkbox" checked> 이상 데이터 제외 표시</label><br>
+                <label><input type="checkbox"> 사진 증빙 포함</label>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div class="card-title">미리보기</div>
+              <div class="report-box">
+                <div class="report-title">편식 개선 프로그램 성과 보고서<br><span style="font-size:12px;font-weight:400;color:#888">해운대 햇살 어린이집 · 2026년 4~5월</span></div>
+                <div style="display:flex;gap:10px;margin-bottom:16px">
+                  <div style="flex:1;text-align:center;padding:10px;background:#E8ECF1;border-radius:6px"><div style="font-size:22px;font-weight:800;color:#1B2A4A">23명</div><div style="font-size:10px;color:#888">참여</div></div>
+                  <div style="flex:1;text-align:center;padding:10px;background:#E8ECF1;border-radius:6px"><div style="font-size:22px;font-weight:800;color:#1B2A4A">78%</div><div style="font-size:10px;color:#888">완주</div></div>
+                  <div style="flex:1;text-align:center;padding:10px;background:#FFF5F0;border-radius:6px"><div style="font-size:22px;font-weight:800;color:#FF6B35">65%</div><div style="font-size:10px;color:#888">개선</div></div>
+                </div>
+                <div style="font-size:12px;color:#666;line-height:1.8">
+                  <b>노출 단계 변화</b><br>
+                  • 거부→시도 전환: 18명 (78%)<br>
+                  • 시도→섭취 전환: 15명 (65%)<br>
+                  • 평균 노출 횟수: 18.3회<br>
+                  • 편식 심각도: 평균 6.2점 개선 (CEBQ 기준)<br><br>
+                  <b>체위 변화</b><br>
+                  • 평균 키: +1.2cm / 체중: +0.4kg<br>
+                  • 저체중 아동 2명 → 정상 범위 진입<br><br>
+                  <b>AI 추천 성과</b><br>
+                  • 추천 레시피 수용률: 68%<br>
+                  • 평균 예측 정확도: 72%
+                </div>
+                <div style="margin-top:12px;padding:8px;background:#FFF8E1;border-radius:4px;font-size:10px;color:#888">
+                  ※ 밀프레드 AI 편식관리 시스템 자동 생성<br>
+                  ※ 이상 데이터 3건 제외 (일괄입력 2, 타임스탬프 불일치 1)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SECTION: ANALYTICS ====== -->
+    <div class="section" id="sec-analytics">
+      <div class="content">
+        <div class="page-title">성과 분석</div>
+        <div class="page-sub">프로그램 전후 비교 · 아동별 개선 추이</div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-title">편식 심각도 분포 변화</div>
+            <div style="margin-bottom:12px">
+              <div style="font-size:12px;color:#888;margin-bottom:4px">프로그램 전</div>
+              <div class="chart-h"><div style="flex:2;background:#C8E6C9">정상 9%</div><div style="flex:5;background:#FFE0B2">경미 48%</div><div style="flex:3;background:#FFCDD2">중등 35%</div><div style="flex:1;background:#E0E0E0">심각 8%</div></div>
+            </div>
+            <div>
+              <div style="font-size:12px;color:#888;margin-bottom:4px">프로그램 후</div>
+              <div class="chart-h"><div style="flex:4;background:#C8E6C9">정상 30%</div><div style="flex:5;background:#FFE0B2">경미 48%</div><div style="flex:2;background:#FFCDD2">중등 18%</div><div style="flex:0;background:#E0E0E0">심각 4%</div></div>
+            </div>
+            <div style="font-size:12px;color:#2E7D32;font-weight:600;margin-top:8px">✓ 정상 비율 9%→30% 증가, 중등+심각 43%→22% 감소</div>
+          </div>
+          <div class="card">
+            <div class="card-title">감각 민감도 평균 변화</div>
+            <div style="font-size:13px;line-height:2.2">
+              시각: 1.8 → 1.5 <span style="color:#2E7D32">▼ 0.3</span><br>
+              후각: 2.4 → 1.9 <span style="color:#2E7D32">▼ 0.5 (가장 큰 개선)</span><br>
+              촉각: 1.6 → 1.4 <span style="color:#2E7D32">▼ 0.2</span><br>
+              구강: 2.6 → 2.1 <span style="color:#2E7D32">▼ 0.5 (가장 큰 개선)</span>
+            </div>
+            <div style="background:#F0F4FF;border-radius:6px;padding:8px;margin-top:10px;font-size:11px;color:#1B2A4A">
+              🤖 AI 인사이트: 후각과 구강 민감도가 가장 크게 개선됨. 2~3주차 감각놀이가 효과적이었음을 시사.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">네오포비아 vs 선택성 분류</div>
+          <div class="grid-3">
+            <div style="text-align:center;padding:16px;background:#E3F2FD;border-radius:8px">
+              <div style="font-size:28px;font-weight:800;color:#1565C0">35%</div>
+              <div style="font-size:13px;color:#888;margin-top:4px">네오포비아 우세</div>
+              <div style="font-size:11px;color:#1565C0">새 음식 자체를 거부</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:#FFF3E0;border-radius:8px">
+              <div style="font-size:28px;font-weight:800;color:#E65100">43%</div>
+              <div style="font-size:13px;color:#888;margin-top:4px">선택성 우세</div>
+              <div style="font-size:11px;color:#E65100">감각(질감/맛)으로 거부</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:#E8ECF1;border-radius:8px">
+              <div style="font-size:28px;font-weight:800;color:#1B2A4A">22%</div>
+              <div style="font-size:13px;color:#888;margin-top:4px">혼합</div>
+              <div style="font-size:11px;color:#666">두 패턴 혼재</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('sec-'+id);
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  event.currentTarget?.classList?.add('active');
+  window.scrollTo(0,0);
+}
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+</script>
+</body>
+</html>
