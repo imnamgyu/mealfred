@@ -335,6 +335,22 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
           <div class="prog-text"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span></div>
         </div>
 
+        <!-- 오늘의 식단 기록 -->
+        <div class="card" onclick="go('s-meal')" style="border-left:4px solid #2E7D32">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="card-title">🍽️ 오늘의 식단 기록</div>
+              <div class="card-sub">사진만 찍으면 AI가 식습관을 분석해요</div>
+            </div>
+            <div style="color:#2E7D32;font-size:14px;font-weight:600">기록 →</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <div style="flex:1;text-align:center;padding:8px;background:#E8F5E9;border-radius:8px;font-size:12px">🌅 아침<br><span style="color:#2E7D32;font-weight:600">완료</span></div>
+            <div style="flex:1;text-align:center;padding:8px;background:#FFF8E1;border-radius:8px;font-size:12px">☀️ 점심<br><span style="color:#F57F17;font-weight:600">미기록</span></div>
+            <div style="flex:1;text-align:center;padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">🌙 저녁<br><span style="color:#999">대기</span></div>
+          </div>
+        </div>
+
         <div class="card" onclick="go('s-weekly')">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div><div class="card-title">📊 주간 리포트</div><div class="card-sub">2주차 진행 상황 확인</div></div>
@@ -420,6 +436,120 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
         <div style="font-size:11px;color:#999;text-align:center;margin-bottom:16px">AI가 사진을 분석하여 섭취 단계를 자동 분류합니다</div>
 
         <div class="btn btn-o" onclick="toast('✅ 기록 완료!');setTimeout(()=>go('s-home'),800)">기록 완료</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: MEAL LOG ====== -->
+  <div class="screen" id="s-meal">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">🍽️ 오늘의 식단 기록</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E8F5E9;border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:#2E7D32;line-height:1.6">
+          🤖 <b>왜 식단 사진이 필요한가요?</b><br>
+          AI가 아이의 평소 식습관을 분석합니다.<br>
+          어떤 식품군을 잘 먹고, 어떤 걸 안 먹는지 자동으로 파악해서<br>
+          더 정확한 맞춤 레시피를 추천해 드려요.
+        </div>
+
+        <div class="sec-title">오늘의 식사</div>
+
+        <!-- 아침 -->
+        <div class="card" style="border-left:4px solid #2E7D32">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A">🌅 아침</div>
+            <span class="tag tag-g">기록 완료</span>
+          </div>
+          <div class="photo-ph" style="height:100px;border-style:solid;border-color:#C8E6C9;background:#f9fff9">
+            <span>🍚 밥 + 🥚 달걀 + 🥛 우유 (AI 분석 완료)</span>
+          </div>
+          <div style="font-size:11px;color:#888;margin-top:6px">
+            AI 분석: 곡류 ✓ · 달걀 ✓ · 유제품 ✓ · <span style="color:#C62828;font-weight:600">채소류 ✗</span>
+          </div>
+        </div>
+
+        <!-- 점심 -->
+        <div class="card" style="border-left:4px solid #F57F17">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A">☀️ 점심</div>
+            <span class="tag tag-o">미기록</span>
+          </div>
+          <div class="photo-ph" onclick="toast('📷 카메라가 열립니다 (데모)')">
+            <span>탭하여 점심 식사 사진 촬영</span>
+          </div>
+          <div style="font-size:11px;color:#999;margin-top:6px">사진만 찍으면 됩니다. AI가 식품군을 자동 분류해요.</div>
+        </div>
+
+        <!-- 저녁 -->
+        <div class="card" style="border-left:4px solid #e0e0e0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A">🌙 저녁</div>
+            <span class="tag tag-n">대기</span>
+          </div>
+          <div class="photo-ph"><span>저녁 식사 후 기록해주세요</span></div>
+        </div>
+
+        <!-- 간식 -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A">🍪 간식 (선택)</div>
+            <span style="font-size:12px;color:#999">기록 안 해도 OK</span>
+          </div>
+          <div class="photo-ph" style="height:80px" onclick="toast('📷 카메라 (데모)')">
+            <span>간식 사진 (선택)</span>
+          </div>
+        </div>
+
+        <div class="sec-title">📊 오늘의 식품군 커버리지</div>
+        <div class="card">
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🍚</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">곡류 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#FFEBEE;border-radius:8px">
+              <div style="font-size:20px">🥬</div>
+              <div style="font-size:11px;color:#C62828;font-weight:600">채소 ✗</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🍎</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">과일 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🥩</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">육류 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🥛</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">유제품 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🥚</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">달걀 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#FFEBEE;border-radius:8px">
+              <div style="font-size:20px">🫘</div>
+              <div style="font-size:11px;color:#C62828;font-weight:600">콩류 ✗</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:13px;color:#666">
+            오늘 DDS: <b>5/7</b> · <span style="color:#C62828">채소류, 콩류 미섭취</span>
+          </div>
+          <div style="background:#FFF5F0;border-radius:8px;padding:10px;margin-top:10px;font-size:12px;color:#E65100">
+            🤖 AI 추천: 저녁에 <b>당근치즈 미니소시지</b>(채소+유제품) 또는 <b>두부 카레</b>(콩류+채소)를 추천드려요
+          </div>
+        </div>
+
+        <div class="sec-title">📈 이번 주 식습관 트렌드</div>
+        <div class="card">
+          <div style="font-size:13px;color:#666;line-height:1.8">
+            • 채소 섭취 일수: <b>2일 / 7일</b> (지난주 1일 → <span style="color:#2E7D32">개선 중</span>)<br>
+            • 가장 많이 먹는 식품군: 곡류, 유제품<br>
+            • 가장 적게 먹는 식품군: <span style="color:#C62828">채소류, 콩류</span><br>
+            • 간식 비율: 하루 평균 1.5회 (적정)
+          </div>
+        </div>
       </div>
     </div>
   </div>
