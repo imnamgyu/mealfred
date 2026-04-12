@@ -260,6 +260,7 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
           <div class="chip-group">
             <div class="chip sel" onclick="selOne(this)">식탁</div>
             <div class="chip" onclick="selOne(this)">TV 앞</div>
+            <div class="chip" onclick="selOne(this)">태블릿 시청</div>
             <div class="chip" onclick="selOne(this)">돌아다님</div>
           </div>
         </div>
@@ -286,7 +287,7 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
         <div style="width:200px;height:200px;margin:0 auto 30px;border:3px solid #FF6B35;border-radius:20px;display:flex;align-items:center;justify-content:center;background:#f9f9f9">
           <div style="font-size:13px;color:#999">[카메라 영역]</div>
         </div>
-        <div class="btn btn-o" onclick="toast('🥕 당근 코스 등록 완료!');setTimeout(()=>go('s-home'),800)">데모: 당근 코스 등록</div>
+        <div class="btn btn-o" onclick="registerKit()">데모: 당근 코스 등록</div>
         <div class="btn btn-s" onclick="go('s-home')" style="margin-top:10px">건너뛰기</div>
       </div>
     </div>
@@ -302,15 +303,15 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
     <div class="content">
       <div class="pad">
         <div class="card">
-          <div class="card-label">🥕 당근 코스 · 2주차</div>
-          <div class="prog"><div class="fill fill-o" style="width:40%"></div></div>
-          <div class="prog-text"><span>Day 7 / 21</span><span>40%</span></div>
+          <div class="card-label" id="home-course-label">🥕 당근 코스 · 2주차</div>
+          <div class="prog"><div class="fill fill-o" id="home-prog" style="width:40%"></div></div>
+          <div class="prog-text"><span id="home-prog-text">Day 7 / 21</span><span id="home-prog-pct">40%</span></div>
         </div>
 
         <div class="act-card" onclick="go('s-activity')">
-          <div class="act-emoji">👃</div>
-          <div class="act-name">냄새 맞추기 게임</div>
-          <div class="act-meta">2주차 Day 2 · 후각 탐색 · 약 15분</div>
+          <div class="act-emoji" id="home-act-emoji">👃</div>
+          <div class="act-name" id="home-act-name">냄새 맞추기 게임</div>
+          <div class="act-meta" id="home-act-meta">2주차 Day 2 · 후각 탐색 · 약 15분</div>
           <div class="btn btn-o">활동 시작하기</div>
         </div>
 
@@ -347,6 +348,25 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
             <div style="flex:1;text-align:center;padding:8px;background:#FFF8E1;border-radius:8px;font-size:12px">☀️ 점심<br><span style="color:#F57F17;font-weight:600">미기록</span></div>
             <div style="flex:1;text-align:center;padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">🌙 저녁<br><span style="color:#999">대기</span></div>
           </div>
+        </div>
+
+        <!-- DDS 실시간 추적 -->
+        <div class="card" style="border-left:4px solid #1B2A4A">
+          <div class="card-label">📊 식품 다양성 실시간 (DDS)</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:24px;font-weight:800;color:#1B2A4A">5<span style="font-size:14px;font-weight:400;color:#999"> / 7</span></div>
+            <div style="font-size:12px;color:#2E7D32;font-weight:600">지난주 4 → 이번주 5 ↑</div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="곡류">🍚</div>
+            <div style="flex:1;height:32px;background:#FFCDD2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.5" title="채소류 미섭취">🥬</div>
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="과일류">🍎</div>
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="육류">🥩</div>
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="유제품">🥛</div>
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="달걀">🥚</div>
+            <div style="flex:1;height:32px;background:#FFCDD2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.5" title="콩류 미섭취">🫘</div>
+          </div>
+          <div style="font-size:11px;color:#C62828;margin-top:6px">오늘 부족: 채소류, 콩류 → <span style="color:#FF6B35;cursor:pointer" onclick="go('s-recipe')">AI 추천 보기</span></div>
         </div>
 
         <div class="card" onclick="go('s-weekly')">
@@ -433,7 +453,7 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
         <div class="photo-ph" onclick="toast('📷 카메라가 열립니다 (데모)')"><span>탭하여 식전/식후 사진 촬영</span></div>
         <div style="font-size:11px;color:#999;text-align:center;margin-bottom:16px">AI가 사진을 분석하여 섭취 단계를 자동 분류합니다</div>
 
-        <div class="btn btn-o" onclick="toast('✅ 기록 완료!');setTimeout(()=>go('s-home'),800)">기록 완료</div>
+        <div class="btn btn-o" onclick="completeRecord()">기록 완료</div>
       </div>
     </div>
   </div>
@@ -885,6 +905,66 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
 </div>
 
 <script>
+// 상태 관리
+let currentDay = 7; // 기본: 2주차 Day 7 (데모 중간 상태)
+
+const ACTIVITIES = [
+  {day:1,week:1,emoji:"🎨",name:"당근 색깔 탐험대",meta:"1주차 Day 1 · 시각 탐색 · 약 10분"},
+  {day:2,week:1,emoji:"🖐️",name:"당근 스탬프 아트",meta:"1주차 Day 2 · 시각 탐색 · 약 15분"},
+  {day:3,week:1,emoji:"🐌",name:"당근 달팽이 만들기",meta:"1주차 Day 3 · 시각 탐색 · 약 15분"},
+  {day:4,week:1,emoji:"🌈",name:"컬러당근 무지개",meta:"1주차 Day 4 · 시각 탐색 · 약 10분"},
+  {day:5,week:1,emoji:"✉️",name:"당근즙 비밀편지",meta:"1주차 Day 5 · 시각 탐색 · 약 15분"},
+  {day:6,week:2,emoji:"✋",name:"촉감 탐정 놀이",meta:"2주차 Day 1 · 촉각 탐색 · 약 10분"},
+  {day:7,week:2,emoji:"👃",name:"냄새 맞추기 게임",meta:"2주차 Day 2 · 후각 탐색 · 약 15분"},
+  {day:8,week:2,emoji:"🏖️",name:"당근 모래놀이",meta:"2주차 Day 3 · 촉각 탐색 · 약 15분"},
+  {day:9,week:2,emoji:"🎨",name:"당근퓨레 그림",meta:"2주차 Day 4 · 촉각 탐색 · 약 10분"},
+  {day:10,week:2,emoji:"💎",name:"당근 얼음 보석",meta:"2주차 Day 5 · 촉각 탐색 · 약 10분"},
+  {day:11,week:3,emoji:"💥",name:"당근칩 부수기 ASMR",meta:"3주차 Day 1 · 미각 시작 · 약 10분"},
+  {day:12,week:3,emoji:"⭐",name:"당근 쿠키커터 놀이",meta:"3주차 Day 2 · 미각 시작 · 약 15분"},
+  {day:13,week:3,emoji:"😊",name:"당근 얼굴 만들기",meta:"3주차 Day 3 · 미각 시작 · 약 10분"},
+  {day:14,week:3,emoji:"😗",name:"당근 립터치 놀이",meta:"3주차 Day 4 · 미각 시작 · 약 10분"},
+  {day:15,week:3,emoji:"🫕",name:"디핑소스 찍기 놀이",meta:"3주차 Day 5 · 미각 시작 · 약 15분"},
+  {day:16,week:4,emoji:"🍳",name:"당근치즈 미니소시지",meta:"4주차 Day 1 · 조리 체험 · 약 20분"},
+  {day:17,week:4,emoji:"🍛",name:"당근 카레라이스",meta:"4주차 Day 2 · 조리 체험 · 약 20분"},
+  {day:18,week:4,emoji:"🥞",name:"당근 팬케이크",meta:"4주차 Day 3 · 조리 체험 · 약 15분"},
+  {day:19,week:5,emoji:"🍚",name:"당근 볶음밥",meta:"5주차 Day 1 · 독립적 섭취 · 약 20분"},
+  {day:20,week:5,emoji:"🥗",name:"당근 샐러드",meta:"5주차 Day 2 · 독립적 섭취 · 약 15분"},
+  {day:21,week:5,emoji:"🏆",name:"수료식 & 나만의 요리",meta:"5주차 Day 3 · 수료 · 약 20분"},
+];
+
+function updateHome(){
+  const a = ACTIVITIES[currentDay-1] || ACTIVITIES[6];
+  const pct = Math.round((currentDay/21)*100);
+  const week = a.week;
+
+  const label = document.getElementById('home-course-label');
+  const prog = document.getElementById('home-prog');
+  const progText = document.getElementById('home-prog-text');
+  const actEmoji = document.getElementById('home-act-emoji');
+  const actName = document.getElementById('home-act-name');
+  const actMeta = document.getElementById('home-act-meta');
+
+  if(label) label.textContent = `🥕 당근 코스 · ${week}주차`;
+  if(prog) prog.style.width = pct+'%';
+  if(progText) progText.textContent = `Day ${currentDay} / 21`;
+  if(document.getElementById('home-prog-pct')) document.getElementById('home-prog-pct').textContent = pct+'%';
+  if(actEmoji) actEmoji.textContent = a.emoji;
+  if(actName) actName.textContent = a.name;
+  if(actMeta) actMeta.textContent = a.meta;
+}
+
+function registerKit(){
+  currentDay = 1;
+  toast('🥕 당근 코스 등록 완료! 1일차를 시작하세요');
+  setTimeout(()=>{updateHome();go('s-home')},800);
+}
+
+function completeRecord(){
+  toast('✅ 기록 완료!');
+  if(currentDay < 21) currentDay++;
+  setTimeout(()=>{updateHome();go('s-home')},800);
+}
+
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(id);
