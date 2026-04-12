@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>편식 개선 프로그램 성과 보고서 — 밀프레드</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',sans-serif;background:#fff;color:#333;padding:0}
+@media print{body{padding:0}@page{margin:15mm}}
+
+.page{max-width:800px;margin:0 auto;padding:40px 48px}
+.header-bar{background:#1B2A4A;color:#fff;padding:20px 48px;max-width:800px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.header-bar .logo{font-size:18px;font-weight:800;color:#FF6B35}
+.header-bar .logo span{color:#fff}
+.header-bar .date{font-size:12px;opacity:.7}
+
+h1{font-size:22px;color:#1B2A4A;text-align:center;margin:24px 0 4px;font-weight:800}
+.subtitle{text-align:center;font-size:13px;color:#888;margin-bottom:24px}
+.section-title{font-size:16px;font-weight:700;color:#1B2A4A;margin:28px 0 12px;padding-bottom:6px;border-bottom:2px solid #1B2A4A}
+
+/* Stat cards */
+.stats{display:flex;gap:12px;margin:16px 0}
+.stat{flex:1;text-align:center;padding:16px;border-radius:8px;background:#f5f5f5}
+.stat .num{font-size:28px;font-weight:800;color:#1B2A4A}
+.stat .lbl{font-size:11px;color:#888;margin-top:2px}
+.stat.hl{background:#FFF5F0}
+.stat.hl .num{color:#FF6B35}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+th{background:#f5f5f5;padding:8px 10px;text-align:left;font-weight:600;color:#666;border-bottom:2px solid #ddd}
+td{padding:8px 10px;border-bottom:1px solid #eee}
+tr:hover{background:#f9f9f9}
+
+/* Bar */
+.bar-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px}
+.bar-label{width:60px;color:#666}
+.bar-bg{flex:1;height:16px;background:#eee;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.bar-val{width:40px;text-align:right;font-weight:600}
+
+/* Horizontal stack */
+.hstack{display:flex;gap:3px;height:24px;margin:6px 0;border-radius:4px;overflow:hidden}
+.hstack div{display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:600}
+
+/* Note */
+.note{background:#FFF8E1;border-radius:6px;padding:10px 14px;font-size:11px;color:#888;margin:16px 0;line-height:1.6}
+
+/* Footer */
+.footer{text-align:center;font-size:11px;color:#bbb;margin-top:30px;padding-top:16px;border-top:1px solid #eee}
+
+/* Print button (hide on print) */
+.print-bar{text-align:center;padding:16px;background:#f5f5f5}
+.print-bar button{padding:10px 30px;background:#1B2A4A;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+@media print{.print-bar{display:none}}
+
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-g{background:#E8F5E9;color:#2E7D32}
+.tag-o{background:#FFF3E0;color:#E65100}
+.tag-r{background:#FFEBEE;color:#C62828}
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+  <button onclick="window.print()">🖨 인쇄 / PDF 저장</button>
+  <span style="margin-left:12px;font-size:12px;color:#999">Ctrl+P로 PDF 저장 가능</span>
+</div>
+
+<div class="header-bar">
+  <div class="logo">밀프레드 <span style="font-size:12px;font-weight:400;opacity:.6">성과 보고서</span></div>
+  <div class="date">자동 생성일: 2026.05.31</div>
+</div>
+
+<div class="page">
+
+<h1>편식 개선 프로그램 성과 보고서</h1>
+<div class="subtitle">식약처 어린이급식관리지원센터 성과보고 양식</div>
+
+<table>
+  <tr><th style="width:30%">기관명</th><td>해운대 햇살 어린이집 (해운대구 어린이급식관리지원센터 관할)</td></tr>
+  <tr><th>프로그램명</th><td>밀프레드 AI 편식개선 프로그램 (당근 코스)</td></tr>
+  <tr><th>운영 기간</th><td>2026년 4월 7일 ~ 2026년 5월 9일 (5주)</td></tr>
+  <tr><th>참여 아동</th><td>23명 (만 2~5세)</td></tr>
+  <tr><th>방법론</th><td>SOS Approach + 식약처 급식관리지침 + 푸드브릿지 4단계 통합</td></tr>
+</table>
+
+<div class="section-title">1. 핵심 성과 지표</div>
+
+<div class="stats">
+  <div class="stat"><div class="num">23명</div><div class="lbl">참여 아동</div></div>
+  <div class="stat"><div class="num">19명</div><div class="lbl">활성 아동</div></div>
+  <div class="stat hl"><div class="num">78%</div><div class="lbl">완주율 (5주 완료)</div></div>
+  <div class="stat hl"><div class="num">65%</div><div class="lbl">개선율 (시도→섭취)</div></div>
+</div>
+
+<div class="section-title">2. 노출 단계 변화</div>
+
+<p style="font-size:13px;color:#666;margin-bottom:12px">프로그램 5주간 아동의 반응 변화 (노출→시도→섭취 SOS 기반 측정)</p>
+
+<table>
+  <thead><tr><th>지표</th><th>결과</th><th>비율</th></tr></thead>
+  <tbody>
+    <tr><td>거부→시도 전환</td><td>18명 / 23명</td><td><b>78%</b></td></tr>
+    <tr><td>시도→섭취 전환</td><td>15명 / 23명</td><td><b>65%</b></td></tr>
+    <tr><td>평균 노출 횟수</td><td colspan="2">18.3회 (프로그램 목표 21회)</td></tr>
+    <tr><td>편식 심각도 변화</td><td colspan="2">평균 58점 → 44점 (CEBQ-FF 기반, <b>24% 개선</b>)</td></tr>
+  </tbody>
+</table>
+
+<div style="font-size:13px;color:#666;margin:12px 0 4px">반응 분포 변화 (주차별)</div>
+
+<div class="bar-row"><span class="bar-label">1주차</span><div class="hstack" style="flex:1"><div style="flex:5;background:#FFCDD2">거부 50%</div><div style="flex:3;background:#FFE0B2">시도 30%</div><div style="flex:2;background:#C8E6C9">섭취 20%</div></div></div>
+<div class="bar-row"><span class="bar-label">2주차</span><div class="hstack" style="flex:1"><div style="flex:3;background:#FFCDD2">30%</div><div style="flex:4;background:#FFE0B2">40%</div><div style="flex:3;background:#C8E6C9">30%</div></div></div>
+<div class="bar-row"><span class="bar-label">3주차</span><div class="hstack" style="flex:1"><div style="flex:2;background:#FFCDD2">20%</div><div style="flex:4.5;background:#FFE0B2">45%</div><div style="flex:3.5;background:#C8E6C9">35%</div></div></div>
+<div class="bar-row"><span class="bar-label">4주차</span><div class="hstack" style="flex:1"><div style="flex:1;background:#FFCDD2">10%</div><div style="flex:4.5;background:#FFE0B2">45%</div><div style="flex:4.5;background:#C8E6C9">45%</div></div></div>
+<div class="bar-row"><span class="bar-label">5주차</span><div class="hstack" style="flex:1"><div style="flex:0.5;background:#FFCDD2">5%</div><div style="flex:4;background:#FFE0B2">40%</div><div style="flex:5.5;background:#C8E6C9">55%</div></div></div>
+
+<div class="section-title">3. 편식 심각도 분포 변화</div>
+
+<div style="display:flex;gap:24px;margin:12px 0">
+  <div style="flex:1">
+    <div style="font-size:13px;color:#666;margin-bottom:6px">프로그램 전</div>
+    <div class="bar-row"><span class="bar-label">정상</span><div class="bar-bg"><div class="bar-fill" style="width:9%;background:#66BB6A"></div></div><span class="bar-val">9%</span></div>
+    <div class="bar-row"><span class="bar-label">경미</span><div class="bar-bg"><div class="bar-fill" style="width:48%;background:#FFB74D"></div></div><span class="bar-val">48%</span></div>
+    <div class="bar-row"><span class="bar-label">중등</span><div class="bar-bg"><div class="bar-fill" style="width:35%;background:#EF5350"></div></div><span class="bar-val">35%</span></div>
+    <div class="bar-row"><span class="bar-label">심각</span><div class="bar-bg"><div class="bar-fill" style="width:8%;background:#C62828"></div></div><span class="bar-val">8%</span></div>
+  </div>
+  <div style="flex:1">
+    <div style="font-size:13px;color:#666;margin-bottom:6px">프로그램 후</div>
+    <div class="bar-row"><span class="bar-label">정상</span><div class="bar-bg"><div class="bar-fill" style="width:30%;background:#66BB6A"></div></div><span class="bar-val" style="color:#2E7D32"><b>30%</b></span></div>
+    <div class="bar-row"><span class="bar-label">경미</span><div class="bar-bg"><div class="bar-fill" style="width:48%;background:#FFB74D"></div></div><span class="bar-val">48%</span></div>
+    <div class="bar-row"><span class="bar-label">중등</span><div class="bar-bg"><div class="bar-fill" style="width:18%;background:#EF5350"></div></div><span class="bar-val" style="color:#2E7D32"><b>18%</b></span></div>
+    <div class="bar-row"><span class="bar-label">심각</span><div class="bar-bg"><div class="bar-fill" style="width:4%;background:#C62828"></div></div><span class="bar-val" style="color:#2E7D32"><b>4%</b></span></div>
+  </div>
+</div>
+
+<div class="section-title">4. 체위 변화</div>
+
+<table>
+  <thead><tr><th>지표</th><th>프로그램 전 평균</th><th>프로그램 후 평균</th><th>변화</th></tr></thead>
+  <tbody>
+    <tr><td>키 (cm)</td><td>96.8</td><td>98.0</td><td style="color:#2E7D32"><b>+1.2</b></td></tr>
+    <tr><td>체중 (kg)</td><td>14.9</td><td>15.3</td><td style="color:#2E7D32"><b>+0.4</b></td></tr>
+    <tr><td>저체중 아동 (3백분위 미만)</td><td>2명</td><td>0명</td><td style="color:#2E7D32"><b>2명 정상 진입</b></td></tr>
+    <tr><td>식품 다양성 점수 (DDS)</td><td>4.2 / 7</td><td>5.6 / 7</td><td style="color:#2E7D32"><b>+1.4</b></td></tr>
+  </tbody>
+</table>
+
+<div class="section-title">5. 감각 민감도 변화</div>
+
+<table>
+  <thead><tr><th>감각 영역</th><th>프로그램 전</th><th>프로그램 후</th><th>변화</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td>시각</td><td>1.8 / 3</td><td>1.5 / 3</td><td style="color:#2E7D32">▼ 0.3</td><td></td></tr>
+    <tr><td>후각</td><td>2.4 / 3</td><td>1.9 / 3</td><td style="color:#2E7D32"><b>▼ 0.5</b></td><td>가장 큰 개선</td></tr>
+    <tr><td>촉각</td><td>1.6 / 3</td><td>1.4 / 3</td><td style="color:#2E7D32">▼ 0.2</td><td></td></tr>
+    <tr><td>구강</td><td>2.6 / 3</td><td>2.1 / 3</td><td style="color:#2E7D32"><b>▼ 0.5</b></td><td>가장 큰 개선</td></tr>
+  </tbody>
+</table>
+<p style="font-size:11px;color:#888;margin-top:4px">* 감각 민감도는 Short Sensory Profile(Dunn, 1999) 기반 간접 측정. 1=낮음, 3=높음(민감)</p>
+
+<div class="section-title">6. AI 맞춤 레시피 성과</div>
+
+<div class="stats">
+  <div class="stat"><div class="num">42건</div><div class="lbl">AI 추천 레시피 수</div></div>
+  <div class="stat hl"><div class="num">68%</div><div class="lbl">추천 레시피 수용률</div></div>
+  <div class="stat"><div class="num">72%</div><div class="lbl">AI 예측 정확도</div></div>
+</div>
+
+<p style="font-size:13px;color:#666;margin:8px 0">AI가 아동별 편식 프로파일(감각 민감도·맛 선호도·체위)을 기반으로 개인화된 레시피를 주간 추천하였으며, 추천 레시피의 68%가 실제 시도 또는 섭취로 이어졌습니다.</p>
+
+<div class="section-title">7. 편식 원인 분류 (네오포비아 vs 선택성)</div>
+
+<table>
+  <thead><tr><th>분류</th><th>아동 수</th><th>비율</th><th>의미</th></tr></thead>
+  <tbody>
+    <tr><td>네오포비아 우세</td><td>8명</td><td>35%</td><td>새 음식 자체를 거부 → 반복 노출로 개선 빠름</td></tr>
+    <tr><td>선택성 우세</td><td>10명</td><td>43%</td><td>감각(질감/맛)으로 거부 → 감각 둔감화 필요</td></tr>
+    <tr><td>혼합</td><td>5명</td><td>22%</td><td>두 패턴 혼재</td></tr>
+  </tbody>
+</table>
+<p style="font-size:11px;color:#888;margin-top:4px">* CFRS(Rioux, 2017) 기반 패턴 분석. 1~3주차 반응 데이터에서 자동 분류</p>
+
+<div class="section-title">8. 주의 아동 현황</div>
+
+<table>
+  <thead><tr><th>ID</th><th>상태</th><th>사유</th><th>조치</th></tr></thead>
+  <tbody>
+    <tr><td>ID-042</td><td><span class="tag tag-r">미활동</span></td><td>2주간 기록 없음</td><td>담당 교사 개별 연락 → 가정 사정 확인</td></tr>
+    <tr><td>ID-018</td><td><span class="tag tag-o">역행</span></td><td>3주차 섭취→거부 역행</td><td>감각놀이 추가 1주 연장 권고</td></tr>
+    <tr><td>ID-031</td><td><span class="tag tag-o">이상데이터</span></td><td>일괄 입력 2회 감지</td><td>해당 기록 보고서에서 별도 표시</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  ※ 본 보고서는 밀프레드 AI 편식관리 시스템에서 자동 생성되었습니다.<br>
+  ※ 편식 심각도는 CEBQ-FF(Wardle, 2001) 기준으로 산출되었습니다.<br>
+  ※ 감각 프로파일은 Short Sensory Profile(Dunn, 1999) 기반 간접 측정입니다.<br>
+  ※ 이상 데이터 3건은 보고서 수치에서 제외되었습니다 (일괄입력 2건, 타임스탬프 불일치 1건).<br>
+  ※ 아동의 개인정보(실명)는 수집하지 않으며, 비식별 ID로만 관리됩니다. 데이터 소유권은 기관에 귀속됩니다.
+</div>
+
+<div class="footer">
+  밀프레드 AI 편식관리 시스템 | mealfred.com | 문의: hello@mealfred.com<br>
+  <span style="color:#FF6B35;font-weight:600">밀프레드</span>
+</div>
+
+</div>
+
+</body>
+</html>
