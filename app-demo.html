@@ -392,9 +392,9 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
     <div class="content">
       <div class="pad">
         <div style="text-align:center;margin-bottom:20px">
-          <div style="font-size:48px">👃</div>
-          <div style="font-size:22px;font-weight:700;color:#1B2A4A;margin:8px 0">냄새 맞추기 게임</div>
-          <div style="font-size:13px;color:#888">2주차 Day 2 · 후각 탐색</div>
+          <div style="font-size:48px" id="guide-emoji">🎨</div>
+          <div style="font-size:22px;font-weight:700;color:#1B2A4A;margin:8px 0" id="guide-name">당근 색깔 탐험대</div>
+          <div style="font-size:13px;color:#888" id="guide-meta">1주차 Day 1 · 시각 탐색</div>
           <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
             <span class="tag tag-b">⏱ 15분</span>
             <span class="tag tag-g">👶 만 2세+</span>
@@ -402,16 +402,16 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
         </div>
         <div class="card">
           <div class="card-label">준비물</div>
-          <div style="font-size:14px;line-height:1.8">• 당근 (생/삶은) ← 키트에 포함<br>• 사과, 오이 (가정 준비)<br>• 빈 컵 3개</div>
+          <div style="font-size:14px;line-height:1.8" id="guide-prep">• 당근 (3색: 주황/노랑/보라) ← 키트에 포함<br>• 흰 종이, 색연필</div>
         </div>
         <div class="card">
           <div class="card-label">활동 방법</div>
-          <div style="font-size:14px;line-height:1.8">
-            <b>1.</b> 컵에 당근, 사과, 오이를 각각 넣고 뚜껑을 덮어요<br>
-            <b>2.</b> 아이에게 눈을 감게 하고, 컵을 코 가까이 가져가세요<br>
-            <b>3.</b> "무슨 냄새일까~?" 하고 물어봐요<br>
-            <b>4.</b> 맞추면 칭찬! 못 맞춰도 OK — 같이 확인해요<br>
-            <b>5.</b> <b>절대 "먹어봐"라고 하지 마세요!</b> 냄새만으로 충분해요
+          <div style="font-size:14px;line-height:1.8" id="guide-steps">
+            <b>1.</b> 3가지 색 당근을 테이블에 놓아주세요<br>
+            <b>2.</b> "어떤 색이 있을까?" 같이 관찰해요<br>
+            <b>3.</b> 각 당근의 색을 종이에 그려봐요<br>
+            <b>4.</b> "이 당근은 무슨 색이야?" 대화해요<br>
+            <b>5.</b> <b>만지거나 먹을 필요 없어요!</b> 보기만으로 충분해요
           </div>
         </div>
         <div class="photo-ph"><span>[활동 사진 예시]</span></div>
@@ -430,8 +430,8 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
     <div class="content">
       <div class="pad">
         <div style="text-align:center;margin-bottom:16px">
-          <div style="font-size:36px">👃</div>
-          <div style="font-size:18px;font-weight:700;color:#1B2A4A;margin:6px 0">냄새 맞추기 게임</div>
+          <div style="font-size:36px" id="record-emoji">🎨</div>
+          <div style="font-size:18px;font-weight:700;color:#1B2A4A;margin:6px 0" id="record-name">당근 색깔 탐험대</div>
           <div style="font-size:13px;color:#888">결과를 알려주세요</div>
         </div>
 
@@ -932,11 +932,23 @@ const ACTIVITIES = [
   {day:21,week:5,emoji:"🏆",name:"수료식 & 나만의 요리",meta:"5주차 Day 3 · 수료 · 약 20분"},
 ];
 
+// 활동별 가이드 데이터
+const GUIDES = {
+  1:{prep:"• 당근 3색 (주황/노랑/보라) ← 키트 포함\n• 흰 종이, 색연필",steps:"<b>1.</b> 3가지 색 당근을 테이블에 놓아주세요<br><b>2.</b> \"어떤 색이 있을까?\" 같이 관찰해요<br><b>3.</b> 각 당근의 색을 종이에 그려봐요<br><b>4.</b> <b>만지거나 먹을 필요 없어요!</b> 보기만으로 충분해요"},
+  2:{prep:"• 당근 (생) ← 키트 포함\n• 물감, 도화지",steps:"<b>1.</b> 당근을 반으로 잘라주세요 (어른이)\n<br><b>2.</b> 단면에 물감을 묻혀요<br><b>3.</b> 종이에 꾹꾹 찍어봐요<br><b>4.</b> \"어떤 모양이 나왔어?\" 대화해요"},
+  3:{prep:"• 당근 (삶은) ← 키트 포함\n• 이쑤시개, 눈알 스티커",steps:"<b>1.</b> 삶은 당근 조각을 이쑤시개로 연결해요<br><b>2.</b> 달팽이/동물 모양을 만들어봐요<br><b>3.</b> 눈알 스티커를 붙여요<br><b>4.</b> 만지는 건 OK, 먹으라고 하지 마세요!"},
+  6:{prep:"• 당근 3종 (생/삶은/건조) ← 키트 포함",steps:"<b>1.</b> 3가지 당근을 나란히 놓아요<br><b>2.</b> \"만져볼래?\" 하나씩 손으로 만져봐요<br><b>3.</b> \"어떤 게 딱딱해? 어떤 게 말랑해?\"<br><b>4.</b> 거부하면 OK, 다음에 다시 시도"},
+  7:{prep:"• 당근/사과/오이 ← 당근만 키트 포함\n• 빈 컵 3개",steps:"<b>1.</b> 컵에 당근, 사과, 오이를 각각 넣고 뚜껑을 덮어요<br><b>2.</b> 아이에게 눈을 감게 하고, 컵을 코 가까이 가져가세요<br><b>3.</b> \"무슨 냄새일까~?\" 하고 물어봐요<br><b>4.</b> 맞추면 칭찬! 못 맞춰도 OK<br><b>5.</b> <b>절대 \"먹어봐\"라고 하지 마세요!</b>"},
+  11:{prep:"• 당근칩 (건조) ← 키트 포함\n• 지퍼백",steps:"<b>1.</b> 당근칩을 지퍼백에 넣어요<br><b>2.</b> 아이가 손으로 부숴봐요 — 바스락!\n<br><b>3.</b> \"소리 들려?\" ASMR 놀이처럼<br><b>4.</b> 입에 가져가면 OK, 안 가져가도 OK"},
+  16:{prep:"• 당근치즈 미니소시지 키트 ← 키트 포함\n• 전자레인지 또는 에어프라이어",steps:"<b>1.</b> 키트 재료를 꺼내요 (당근퓨레+치즈+반죽)<br><b>2.</b> 아이와 함께 소시지 모양으로 빚어요<br><b>3.</b> 에어프라이어 180°C 10분<br><b>4.</b> 케첩으로 눈/입 그리기!<br><b>5.</b> 한 입 도전 — 거부해도 괜찮아요"},
+};
+
 function updateHome(){
-  const a = ACTIVITIES[currentDay-1] || ACTIVITIES[6];
-  const pct = Math.round((currentDay/21)*100);
+  const a = ACTIVITIES[currentDay-1] || ACTIVITIES[0];
+  const pct = Math.round(((currentDay-1)/21)*100);
   const week = a.week;
 
+  // 홈 화면
   const label = document.getElementById('home-course-label');
   const prog = document.getElementById('home-prog');
   const progText = document.getElementById('home-prog-text');
@@ -951,6 +963,26 @@ function updateHome(){
   if(actEmoji) actEmoji.textContent = a.emoji;
   if(actName) actName.textContent = a.name;
   if(actMeta) actMeta.textContent = a.meta;
+
+  // 활동 가이드 화면
+  const ge = document.getElementById('guide-emoji');
+  const gn = document.getElementById('guide-name');
+  const gm = document.getElementById('guide-meta');
+  const gp = document.getElementById('guide-prep');
+  const gs = document.getElementById('guide-steps');
+  if(ge) ge.textContent = a.emoji;
+  if(gn) gn.textContent = a.name;
+  if(gm) gm.textContent = a.meta;
+  // 가이드 상세가 있으면 적용, 없으면 기본 텍스트
+  const guide = GUIDES[currentDay] || GUIDES[Math.min(currentDay,7)];
+  if(guide && gp) gp.innerHTML = guide.prep.replace(/\n/g,'<br>');
+  if(guide && gs) gs.innerHTML = guide.steps;
+
+  // 기록 화면
+  const re = document.getElementById('record-emoji');
+  const rn = document.getElementById('record-name');
+  if(re) re.textContent = a.emoji;
+  if(rn) rn.textContent = a.name;
 }
 
 function registerKit(){
