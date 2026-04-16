@@ -11,6 +11,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{overflow-x:hidden;}
   body{font-family:'Noto Sans KR',sans-serif;color:#222;background:#fafaf7;line-height:1.75;}
 
   /* ===== FOOTNOTES ===== */
@@ -61,7 +62,7 @@
   /* ===== EXPOSURE SCIENCE ===== */
   .exposure-section{background:linear-gradient(180deg,#f0f7f2,#fafaf7);}
   .exposure-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
-  .exp-chart{background:#fff;border-radius:20px;padding:36px;box-shadow:0 2px 16px rgba(0,0,0,0.04);}
+  .exp-chart{background:#fff;border-radius:20px;padding:36px;box-shadow:0 2px 16px rgba(0,0,0,0.04);overflow:hidden;}
   .chart-title{font-size:13px;font-weight:700;color:#555;margin-bottom:20px;text-align:center;}
   .bar-group{display:flex;flex-direction:column;gap:10px;}
   .bar-row{display:flex;align-items:center;gap:12px;}
@@ -1227,7 +1228,7 @@ function showKitPreview(course){
       ],acts:['🎨 당근 스탬프 꽃밭','🐌 나만의 당근 달팽이','✏️ 당근즙 비밀그림','🔍 당근 색깔 탐험','🖌️ 당근 색칠 도안']},
       {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
         {e:'🥕',n:'생당근',q:'1개'},{e:'🥕',n:'삶은당근',q:'2개'},{e:'🌾',n:'밀가루',q:'30g'}
-      ],acts:['🤚 촉감 탐정 (딱딱 vs 말랑)','👃 냄새 맞추기 게임','🏖️ 당근 모래놀이','🎭 당근 얼굴 만들기','<img src='/tofu-icon.svg' alt='두부' style='width:1.1em;height:1.1em;vertical-align:-0.15em;'> 당근 얼음 보석']},
+      ],acts:['🤚 촉감 탐정 (딱딱 vs 말랑)','👃 냄새 맞추기 게임','🏖️ 당근 모래놀이','🎭 당근 얼굴 만들기','<img src=\"/tofu-icon.svg\" alt=\"두부\" style=\"width:1.1em;height:1.1em;vertical-align:-0.15em;\"> 당근 얼음 보석']},
       {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
         {e:'🥕',n:'삶은당근',q:'3개'},{e:'🥕',n:'당근스틱',q:'8개'},{e:'🧀',n:'크림치즈',q:'미니팩'},{e:'🥛',n:'요거트',q:'미니팩'},{e:'🍯',n:'꿀',q:'미니팩'}
       ],acts:['⭐ 당근 쿠키커터 모양놀이','🎨 당근 접시 그림','🐌 당근 달팽이 완성','👄 당근 립터치 놀이','🫕 디핑소스 찍기']},
@@ -1346,7 +1347,7 @@ function showKitPreview(course){
       ],acts:['🖌 시금치즙 색칠','🎨 시금치 프로타주','🎨 시금치 스탬프','🌿 시금치 꽃다발','💪 뽀빠이 놀이']},
       {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
         {e:'🥬',n:'시금치',q:'1단'},{e:'🥬',n:'데친시금치',q:'2팩'},{e:'🌾',n:'밀가루',q:'30g'}
-      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎭 시금치 가면','🎨 시금치 반죽','<img src='/tofu-icon.svg' alt='두부' style='width:1.1em;height:1.1em;vertical-align:-0.15em;'> 시금치 얼음']},
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎭 시금치 가면','🎨 시금치 반죽','<img src=\"/tofu-icon.svg\" alt=\"두부\" style=\"width:1.1em;height:1.1em;vertical-align:-0.15em;\"> 시금치 얼음']},
       {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
         {e:'🥬',n:'데친시금치',q:'3팩'},{e:'🫙',n:'디핑소스 3종',q:'참깨/마요/간장'}
       ],acts:['⭐ 시금치 모양놀이','🎭 시금치 얼굴','🎪 시금치 꼬치','👄 시금치 립터치','🫕 디핑 탐험']},
@@ -1360,10 +1361,10 @@ function showKitPreview(course){
     tofu:{emoji:'🫧',name:'두부',common:common,weeks:[
       {n:1,title:'친해지기 — 눈으로 탐색',type:'감각놀이',tc:'s',items:[
         {e:'🫧',n:'부침용 두부',q:'1모'},{e:'🫧',n:'순두부',q:'1팩'},{e:'📋',n:'색칠 도안',q:'1매'}
-      ],acts:['🎨 두부 스탬프','🏠 두부 마을','<img src='/tofu-icon.svg' alt='두부' style='width:1.1em;height:1.1em;vertical-align:-0.15em;'> 두부 촉감 탐험','🎭 두부 얼굴 조각','🖌 두부 색칠 도안']},
+      ],acts:['🎨 두부 스탬프','🏠 두부 마을','<img src=\"/tofu-icon.svg\" alt=\"두부\" style=\"width:1.1em;height:1.1em;vertical-align:-0.15em;\"> 두부 촉감 탐험','🎭 두부 얼굴 조각','🖌 두부 색칠 도안']},
       {n:2,title:'탐색하기 — 손으로 만지기',type:'감각놀이',tc:'s',items:[
         {e:'🫧',n:'부침두부',q:'1모'},{e:'🌾',n:'밀가루',q:'30g'}
-      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎨 두부 반죽','<img src='/tofu-icon.svg' alt='두부' style='width:1.1em;height:1.1em;vertical-align:-0.15em;'> 두부 얼음','🏗 두부 도미노']},
+      ],acts:['🤚 촉감 비교','👃 냄새 맞추기','🎨 두부 반죽','<img src=\"/tofu-icon.svg\" alt=\"두부\" style=\"width:1.1em;height:1.1em;vertical-align:-0.15em;\"> 두부 얼음','🏗 두부 도미노']},
       {n:3,title:'가까워지기 — 입 근처로',type:'감각놀이',tc:'s',items:[
         {e:'🫧',n:'구운두부',q:'3팩'},{e:'🫙',n:'디핑소스 3종',q:'간장/참기름소스/케첩'}
       ],acts:['⭐ 두부 모양놀이','🎭 두부 얼굴','🎪 두부 꼬치','👄 두부 립터치','🫕 디핑 탐험']},
