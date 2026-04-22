@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>밀프레드 AI 편식관리 앱 데모</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-3FRTKL3NFL');
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -1047,6 +1052,90 @@ function selOne(el){
   el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');
 }
+</script>
+<script>
+/* GA 이벤트 트래킹 — 부모앱 데모 */
+document.addEventListener('DOMContentLoaded', function(){
+  // 화면 전환 추적 (go 함수 래핑)
+  var origGo = window.go;
+  window.go = function(screenId){
+    gtag('event','screen_view',{
+      event_category:'app_demo',
+      event_label: screenId,
+      screen_name: screenId
+    });
+    origGo(screenId);
+  };
+
+  // 모든 버튼 클릭 추적
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.btn, .tab, .react-btn, .int-btn, .chip, .card, .course-card, .day-card');
+    if(!btn) return;
+    var label = btn.textContent.trim().substring(0,40);
+    var cls = btn.className.split(' ').filter(function(c){return c!=='sel'&&c!=='active';}).join(' ');
+    var screen = document.querySelector('.screen.active');
+    var screenId = screen ? screen.id : 'unknown';
+    gtag('event','click',{
+      event_category:'app_demo',
+      event_label: label,
+      button_class: cls,
+      screen_name: screenId
+    });
+  });
+
+  // 탭바 네비게이션 추적
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      gtag('event','tab_click',{
+        event_category:'app_demo',
+        event_label: this.textContent.trim()
+      });
+    });
+  });
+
+  // 감정 반응(react-btn) 선택 추적
+  document.querySelectorAll('.react-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      gtag('event','reaction_select',{
+        event_category:'app_demo',
+        event_label: this.textContent.trim()
+      });
+    });
+  });
+
+  // 상호작용 레벨(int-btn) 선택 추적
+  document.querySelectorAll('.int-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      gtag('event','interaction_select',{
+        event_category:'app_demo',
+        event_label: this.textContent.trim()
+      });
+    });
+  });
+
+  // 알레르기 칩 선택 추적
+  document.querySelectorAll('.chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      gtag('event','chip_toggle',{
+        event_category:'app_demo',
+        event_label: this.textContent.trim(),
+        selected: this.classList.contains('sel') ? 'off' : 'on'
+      });
+    });
+  });
+
+  // 스크롤 깊이 추적 (25%, 50%, 75%, 100%)
+  var scrolled = {};
+  window.addEventListener('scroll', function(){
+    var pct = Math.round(100 * window.scrollY / (document.body.scrollHeight - window.innerHeight));
+    [25,50,75,100].forEach(function(m){
+      if(pct >= m && !scrolled[m]){
+        scrolled[m] = true;
+        gtag('event','scroll_depth',{event_category:'app_demo',event_label:m+'%'});
+      }
+    });
+  }, {passive:true});
+});
 </script>
 </body>
 </html>

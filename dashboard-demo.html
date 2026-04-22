@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>밀프레드 기관 대시보드 데모</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-3FRTKL3NFL');
+</script>
 <style>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -921,6 +926,75 @@ function toast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2000);
 }
+</script>
+<script>
+/* GA 이벤트 트래킹 — 기관 대시보드 데모 */
+document.addEventListener('DOMContentLoaded', function(){
+  // 사이드바 네비게이션 섹션 전환 추적 (showSection 래핑)
+  var origShow = window.showSection;
+  window.showSection = function(sectionId){
+    gtag('event','section_view',{
+      event_category:'dashboard_demo',
+      event_label: sectionId,
+      section_name: sectionId
+    });
+    origShow(sectionId);
+  };
+
+  // 사이드바 메뉴 클릭 추적
+  document.querySelectorAll('.nav-item').forEach(function(item){
+    item.addEventListener('click', function(){
+      gtag('event','nav_click',{
+        event_category:'dashboard_demo',
+        event_label: this.textContent.trim()
+      });
+    });
+  });
+
+  // 버튼 클릭 추적 (필터, 내보내기, PDF 등)
+  document.querySelectorAll('.btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      gtag('event','click',{
+        event_category:'dashboard_demo',
+        event_label: this.textContent.trim().substring(0,40)
+      });
+    });
+  });
+
+  // 테이블 행 클릭 추적 (아동 상세 등)
+  document.querySelectorAll('tr[onclick]').forEach(function(row){
+    row.addEventListener('click', function(){
+      var name = this.querySelector('td') ? this.querySelector('td').textContent.trim() : '';
+      gtag('event','row_click',{
+        event_category:'dashboard_demo',
+        event_label: name
+      });
+    });
+  });
+
+  // 부모 앱 데모 링크 추적
+  document.querySelectorAll('a, [onclick*="window.open"]').forEach(function(el){
+    el.addEventListener('click', function(){
+      var href = this.href || this.getAttribute('onclick') || '';
+      if(href.indexOf('app-demo')>-1 || href.indexOf('report-sample')>-1){
+        gtag('event','outbound_click',{
+          event_category:'dashboard_demo',
+          event_label: href.substring(0,80)
+        });
+      }
+    });
+  });
+
+  // toast 메시지 추적 (데모 기능 클릭)
+  var origToast = window.toast;
+  window.toast = function(msg){
+    gtag('event','demo_action',{
+      event_category:'dashboard_demo',
+      event_label: msg
+    });
+    origToast(msg);
+  };
+});
 </script>
 </body>
 </html>

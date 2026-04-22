@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>편식 개선 프로그램 성과 보고서 — 밀프레드</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-3FRTKL3NFL');
+</script>
 <style>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -210,5 +215,44 @@ tr:hover{background:#f9f9f9}
 
 </div>
 
+<script>
+/* GA 이벤트 트래킹 — 성과 보고서 샘플 */
+document.addEventListener('DOMContentLoaded', function(){
+  // 인쇄 버튼 클릭 추적
+  document.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      gtag('event','click',{
+        event_category:'report_sample',
+        event_label: this.textContent.trim()
+      });
+    });
+  });
+
+  // 스크롤 깊이 추적 (25%, 50%, 75%, 100%)
+  var scrolled = {};
+  window.addEventListener('scroll', function(){
+    var h = document.body.scrollHeight - window.innerHeight;
+    if(h <= 0) return;
+    var pct = Math.round(100 * window.scrollY / h);
+    [25,50,75,100].forEach(function(m){
+      if(pct >= m && !scrolled[m]){
+        scrolled[m] = true;
+        gtag('event','scroll_depth',{event_category:'report_sample',event_label:m+'%'});
+      }
+    });
+  }, {passive:true});
+
+  // 페이지 체류 시간 추적 (30초, 1분, 3분)
+  [30,60,180].forEach(function(sec){
+    setTimeout(function(){
+      gtag('event','time_on_page',{
+        event_category:'report_sample',
+        event_label: sec+'초',
+        value: sec
+      });
+    }, sec * 1000);
+  });
+});
+</script>
 </body>
 </html>
