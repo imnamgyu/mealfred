@@ -307,6 +307,12 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
     </div>
     <div class="content">
       <div class="pad">
+        <!-- 33개 국제기준 배지 (로딩 카피 회전) -->
+        <div style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;line-height:1.5;color:#E65100;border:1px solid #FFCC80">
+          <strong>🌐 전 세계 33개 국제기준 종합</strong> · 한국 최초 편식개선 키트<br>
+          <span style="font-size:11px;color:#BF360C">🇨🇦 캐나다 정부: 새로운 음식, 30회까지 거부는 정상이에요</span>
+        </div>
+
         <div class="card">
           <div class="card-label" id="home-course-label">🥕 당근 코스 · 2주차</div>
           <div class="prog"><div class="fill fill-o" id="home-prog" style="width:40%"></div></div>
@@ -380,12 +386,50 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
             <div style="color:#FF6B35;font-size:14px;font-weight:600">보기 →</div>
           </div>
         </div>
+
+        <!-- 33개 국제기준 통합 기능 6종 진입 -->
+        <div style="margin-top:14px;font-size:13px;font-weight:700;color:#E65100;display:flex;align-items:center;gap:6px">
+          🌐 <span>33개 국제기준 통합 기능</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+          <div class="card" style="margin-bottom:0;padding:14px;border-left:4px solid #0288D1;cursor:pointer" onclick="go('s-icfq')">
+            <div style="font-size:24px;margin-bottom:4px">📋</div>
+            <div style="font-size:13px;font-weight:700;color:#0277BD">ICFQ 6문항</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">사전 스크리닝<br><span style="color:#0288D1">🇺🇸 Feeding Matters</span></div>
+          </div>
+          <div class="card" style="margin-bottom:0;padding:14px;border-left:4px solid #2E7D32;cursor:pointer" onclick="go('s-fooddb')">
+            <div style="font-size:24px;margin-bottom:4px">🥗</div>
+            <div style="font-size:13px;font-weight:700;color:#1B5E20">음식 DB</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">100개 한국 식재료<br><span style="color:#2E7D32">🇺🇸 Solid Starts 한국형</span></div>
+          </div>
+          <div class="card" style="margin-bottom:0;padding:14px;border-left:4px solid #F57C00;cursor:pointer" onclick="go('s-foodbridge')">
+            <div style="font-size:24px;margin-bottom:4px">🌉</div>
+            <div style="font-size:13px;font-weight:700;color:#E65100">Food Bridge</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">자동 생성기<br><span style="color:#F57C00">🔬 Fraker 4축</span></div>
+          </div>
+          <div class="card" style="margin-bottom:0;padding:14px;border-left:4px solid #6A1B9A;cursor:pointer" onclick="go('s-cebq')">
+            <div style="font-size:24px;margin-bottom:4px">📊</div>
+            <div style="font-size:13px;font-weight:700;color:#4A148C">CEBQ 측정</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">8축 표준 도구<br><span style="color:#6A1B9A">🇬🇧 UCL Wardle</span></div>
+          </div>
+          <div class="card" style="margin-bottom:0;padding:14px;border-left:4px solid #C2185B;cursor:pointer" onclick="go('s-family')">
+            <div style="font-size:24px;margin-bottom:4px">👨‍👩‍👧</div>
+            <div style="font-size:13px;font-weight:700;color:#880E4F">Family Meals</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">주 5회 트래커<br><span style="color:#C2185B">👨‍👩‍👧 Satter</span></div>
+          </div>
+          <div class="card" style="margin-bottom:0;padding:14px;border-left:4px solid #00838F;cursor:pointer" onclick="go('s-twobite')">
+            <div style="font-size:24px;margin-bottom:4px">✌️</div>
+            <div style="font-size:13px;font-weight:700;color:#006064">Two Bite Club</div>
+            <div style="font-size:11px;color:#888;margin-top:2px">두 입 인증서<br><span style="color:#00838F">🇺🇸 USDA</span></div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="tab-bar">
       <div class="tab active" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
       <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
       <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab" onclick="go('s-fooddb')"><span class="ico">🌐</span>33개</div>
       <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
     </div>
   </div>
@@ -903,6 +947,324 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
           </div>
         </div>
         <div class="btn btn-n" onclick="toast('📋 PDF 다운로드 (데모)')">PDF 다운로드</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: ICFQ 사전 스크리너 (Feeding Matters) ====== -->
+  <div class="screen" id="s-icfq">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">ICFQ 사전 스크리너</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E1F5FE;border-left:4px solid #0288D1;border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px;line-height:1.7">
+          <strong style="color:#0277BD">🌐 33개 국제기준 중 사전 스크리닝</strong><br>
+          🇺🇸 <strong>Feeding Matters ICFQ</strong>: 정상 picky vs PFD 분기<br>
+          🔬 <strong>Goday 2019 PFD</strong> · 🇨🇦 <strong>CPS 25-35% 정상</strong> · 🇺🇸 <strong>ASHA 5인 팀</strong>
+        </div>
+        <div class="card">
+          <div class="card-label">6문항 체크</div>
+          <div style="font-size:14px;line-height:2">
+            <label style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0">
+              <span>1. 식사 시간 30분 이상 자주?</span>
+              <div><span class="tag tag-r" style="cursor:pointer">예</span><span class="tag tag-g" style="cursor:pointer">아니오</span></div>
+            </label>
+            <label style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0">
+              <span>2. 식사 중 울음·짜증?</span>
+              <div><span class="tag tag-r" style="cursor:pointer">예</span><span class="tag tag-g" style="cursor:pointer">아니오</span></div>
+            </label>
+            <label style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0">
+              <span>3. 특정 음식만 + 3개월 지속?</span>
+              <div><span class="tag tag-r" style="cursor:pointer">예</span><span class="tag tag-g" style="cursor:pointer">아니오</span></div>
+            </label>
+            <label style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0">
+              <span>4. 삼킴·구역질 문제?</span>
+              <div><span class="tag tag-r" style="cursor:pointer">예</span><span class="tag tag-g" style="cursor:pointer">아니오</span></div>
+            </label>
+            <label style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0">
+              <span>5. 체중 부진/영양 결핍 진단?</span>
+              <div><span class="tag tag-r" style="cursor:pointer">예</span><span class="tag tag-g" style="cursor:pointer">아니오</span></div>
+            </label>
+            <label style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
+              <span>6. 가족 식사 스트레스?</span>
+              <div><span class="tag tag-r" style="cursor:pointer">예</span><span class="tag tag-g" style="cursor:pointer">아니오</span></div>
+            </label>
+          </div>
+        </div>
+        <div class="card" style="background:#E8F5E9">
+          <div style="font-size:13px;line-height:1.8">
+            <strong style="color:#2E7D32">✅ 0~1 "예" — 정상 picky / 키트 시작 OK</strong><br>
+            <strong style="color:#E65100">⚠️ 2~3 "예" — 경계 / 5주 후 재평가</strong><br>
+            <strong style="color:#C62828">🚨 4~6 "예" — PFD 가능성 / 소아과·SLP·OT 의뢰 권유</strong>
+          </div>
+        </div>
+        <div class="btn btn-o" onclick="go('s-home')">사전 체크 완료 → 키트 시작</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: 음식 DB (Solid Starts 한국형) ====== -->
+  <div class="screen" id="s-fooddb">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">음식 DB · 100개</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E8F5E9;border-left:4px solid #2E7D32;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.6">
+          <strong style="color:#1B5E20">🇺🇸 Solid Starts 한국형 + 🇰🇷 식약처 어린이급식 정합</strong><br>
+          식재료마다 8개 정보: 자르는법·질식위험·알러지·연령·편식점수·푸드브릿지단계·Food Chaining 4축·영양 핵심
+        </div>
+        <input type="search" placeholder="🔍 식재료 검색 (예: 당근, 시금치)" style="width:100%;padding:12px;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:14px;font-size:14px;font-family:inherit">
+        <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">
+          <span class="tag tag-g" style="white-space:nowrap;cursor:pointer">전체 100</span>
+          <span class="tag tag-o" style="white-space:nowrap;cursor:pointer">🥬 채소 30</span>
+          <span class="tag tag-b" style="white-space:nowrap;cursor:pointer">🍎 과일 20</span>
+          <span class="tag tag-g" style="white-space:nowrap;cursor:pointer">🌾 곡류 15</span>
+          <span class="tag tag-r" style="white-space:nowrap;cursor:pointer">🍖 단백질 20</span>
+          <span class="tag tag-o" style="white-space:nowrap;cursor:pointer">🍢 간식 15</span>
+        </div>
+        <div class="card" style="cursor:pointer">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:36px">🥕</div>
+            <div style="flex:1">
+              <div class="card-title">당근</div>
+              <div class="card-sub">베타카로틴·비타민A · 단맛 친숙</div>
+              <div style="margin-top:6px">
+                <span class="tag tag-g">2세+</span>
+                <span class="tag tag-b">푸드브릿지 1단계</span>
+                <span class="tag tag-o">편식점수 2/3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:36px">🟢</div>
+            <div style="flex:1">
+              <div class="card-title">시금치</div>
+              <div class="card-sub">철·엽산 · 진녹색·쓴맛 (옵션 B)</div>
+              <div style="margin-top:6px">
+                <span class="tag tag-g">2세+</span>
+                <span class="tag tag-b">푸드브릿지 2단계</span>
+                <span class="tag tag-r">편식점수 3/3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:36px">⬜</div>
+            <div style="flex:1">
+              <div class="card-title">두부</div>
+              <div class="card-sub">단백질·콩 · 무미·반죽 (옵션 D)</div>
+              <div style="margin-top:6px">
+                <span class="tag tag-g">1세+</span>
+                <span class="tag tag-b">푸드브릿지 1단계</span>
+                <span class="tag tag-o">편식점수 1/3</span>
+                <span class="tag tag-r">알러지: 콩</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;color:#888;font-size:12px;margin-top:8px">+ 97개 더 보기 (Phase 2 MVP 39개 → Phase 3 100개)</div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
+      <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
+      <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab active" onclick="go('s-fooddb')"><span class="ico">🌐</span>33개</div>
+      <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: Food Bridge 자동 생성기 ====== -->
+  <div class="screen" id="s-foodbridge">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">Food Bridge 생성기</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#FFF3E0;border-left:4px solid #F57C00;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.6">
+          <strong style="color:#E65100">🔬 Food Chaining (Fraker 2007) 4축</strong> + 🇺🇸 <strong>AAP food bridges</strong> + 🇰🇷 <strong>식약처 푸드브릿지</strong><br>
+          한 번에 한 축만 변화 — 색·온도·질감·맛 중 하나씩
+        </div>
+        <div class="card">
+          <div class="card-label">좋아하는 음식</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px;background:#E8F5E9;border-radius:8px;margin-top:6px">
+            <span style="font-size:24px">🍚</span>
+            <span style="font-size:14px;font-weight:600">치즈 야채밥</span>
+          </div>
+          <div class="card-label" style="margin-top:14px">도달하고 싶은 음식</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px;background:#FFEBEE;border-radius:8px;margin-top:6px">
+            <span style="font-size:24px">🟢</span>
+            <span style="font-size:14px;font-weight:600">시금치</span>
+          </div>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#E65100;margin:14px 0 8px">🌉 5단계 다리 음식 시퀀스</div>
+        <div class="card" style="border-left:4px solid #4CAF50">
+          <div style="font-size:13px;color:#888">1단계 [친숙]</div>
+          <div style="font-size:15px;font-weight:600">치즈 야채밥</div>
+        </div>
+        <div class="card" style="border-left:4px solid #FFC107">
+          <div style="font-size:13px;color:#888">2단계 [<strong style="color:#F57C00">색</strong>만 변화]</div>
+          <div style="font-size:15px;font-weight:600">치즈 야채밥 + 시금치 즙(녹색만)</div>
+        </div>
+        <div class="card" style="border-left:4px solid #FF9800">
+          <div style="font-size:13px;color:#888">3단계 [<strong style="color:#F57C00">색·질감</strong>]</div>
+          <div style="font-size:15px;font-weight:600">치즈 야채밥 + 시금치 가루</div>
+        </div>
+        <div class="card" style="border-left:4px solid #FF5722">
+          <div style="font-size:13px;color:#888">4단계 [<strong style="color:#F57C00">색·질감</strong>]</div>
+          <div style="font-size:15px;font-weight:600">치즈 야채밥 + 시금치 잘게</div>
+        </div>
+        <div class="card" style="border-left:4px solid #C62828">
+          <div style="font-size:13px;color:#888">5단계 [도달]</div>
+          <div style="font-size:15px;font-weight:600">치즈 야채밥 + 시금치 큰 잎</div>
+        </div>
+        <div class="btn btn-o" onclick="toast('🌉 다리 시퀀스 저장됨 (데모)')">이 시퀀스 저장 → 5주 키트로</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: CEBQ 측정 (UCL Wardle 8축) ====== -->
+  <div class="screen" id="s-cebq">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">CEBQ 측정 · 8축</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#F3E5F5;border-left:4px solid #6A1B9A;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.6">
+          <strong style="color:#4A148C">🇬🇧 CEBQ (Wardle 2001)</strong> 35문항 8축 표준 도구<br>
+          🇰🇷 한국어판 Park 2014 / Kim 2018 — Day0/Day21/6개월 비교
+        </div>
+        <div class="card">
+          <div class="card-label">사전(Day0) vs 사후(Day21) 비교</div>
+          <div style="font-size:13px;color:#888;margin-bottom:10px">8축 레이더차트 (FF = 편식 핵심 지표)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-top:10px">
+            <div style="padding:8px;background:#f5f5f5;border-radius:6px">
+              <div style="font-weight:700;color:#1B2A4A">FR (음식 반응)</div>
+              <div style="color:#888">3.2 → 3.4 ↑</div>
+            </div>
+            <div style="padding:8px;background:#f5f5f5;border-radius:6px">
+              <div style="font-weight:700;color:#1B2A4A">EF (즐거움)</div>
+              <div style="color:#888">2.8 → 3.1 ↑</div>
+            </div>
+            <div style="padding:8px;background:#FCE4EC;border-radius:6px;border:2px solid #C2185B">
+              <div style="font-weight:700;color:#880E4F">🎯 FF (편식)</div>
+              <div style="color:#C2185B;font-weight:700">4.1 → 3.2 ↓ 22%</div>
+            </div>
+            <div style="padding:8px;background:#f5f5f5;border-radius:6px">
+              <div style="font-weight:700;color:#1B2A4A">SR (포만감)</div>
+              <div style="color:#888">3.5 → 3.6 ↑</div>
+            </div>
+            <div style="padding:8px;background:#f5f5f5;border-radius:6px">
+              <div style="font-weight:700;color:#1B2A4A">SE (속도)</div>
+              <div style="color:#888">3.0 → 2.8 ↓</div>
+            </div>
+            <div style="padding:8px;background:#f5f5f5;border-radius:6px">
+              <div style="font-weight:700;color:#1B2A4A">EOE (감정 과식)</div>
+              <div style="color:#888">2.1 → 2.0</div>
+            </div>
+            <div style="padding:8px;background:#f5f5f5;border-radius:6px">
+              <div style="font-weight:700;color:#1B2A4A">EUE (감정 부진)</div>
+              <div style="color:#888">2.5 → 2.3 ↓</div>
+            </div>
+            <div style="padding:8px;background:#f5f5f5;border-radius:6px">
+              <div style="font-weight:700;color:#1B2A4A">DD (음료)</div>
+              <div style="color:#888">3.0 → 2.9</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="background:#E8F5E9">
+          <div style="font-size:13px;color:#2E7D32;line-height:1.7">
+            <strong>🎯 핵심 결과</strong><br>
+            FF(Food Fussiness) <strong>22% 감소</strong> → 5주 키트 효과 검증<br>
+            <small style="color:#888">N=1 (당사자), 표본 N=150 시범사업 학술지 게재 목표 (2027 Q4 Frontiers)</small>
+          </div>
+        </div>
+        <div class="btn btn-o" onclick="toast('📊 6개월 추적 알림 설정 (데모)')">6개월 추적 알림 설정</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: Family Meals 트래커 (Satter 주 5회) ====== -->
+  <div class="screen" id="s-family">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">Family Meals 트래커</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#FCE4EC;border-left:4px solid #C2185B;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.6">
+          <strong style="color:#880E4F">👨‍👩‍👧 Satter Family Meals</strong>: 주 5회 가족식 = 청소년기까지 식 자율성 보호<br>
+          🇦🇺 NSW Munch & Move Family-Style + 🇨🇦 Canada family-style 정합
+        </div>
+        <div class="card">
+          <div class="card-label">이번 주 (5/5 ⭐)</div>
+          <div style="font-size:36px;text-align:center;margin:10px 0">⭐ ⭐ ⭐ ⭐ ⭐</div>
+          <div style="font-size:13px;color:#2E7D32;text-align:center;font-weight:700">🌟 Satter Family Meals 표준 달성!</div>
+        </div>
+        <div class="card">
+          <div class="card-label">7일 그리드</div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px">
+            <div style="text-align:center;padding:10px 4px;background:#FCE4EC;border-radius:8px;font-size:12px"><div style="color:#888">월</div><div style="font-size:20px">⭐</div></div>
+            <div style="text-align:center;padding:10px 4px;background:#FCE4EC;border-radius:8px;font-size:12px"><div style="color:#888">화</div><div style="font-size:20px">⭐</div></div>
+            <div style="text-align:center;padding:10px 4px;background:#FCE4EC;border-radius:8px;font-size:12px"><div style="color:#888">수</div><div style="font-size:20px">⭐</div></div>
+            <div style="text-align:center;padding:10px 4px;background:#f5f5f5;border-radius:8px;font-size:12px"><div style="color:#888">목</div><div style="font-size:20px;color:#ddd">·</div></div>
+            <div style="text-align:center;padding:10px 4px;background:#FCE4EC;border-radius:8px;font-size:12px"><div style="color:#888">금</div><div style="font-size:20px">⭐</div></div>
+            <div style="text-align:center;padding:10px 4px;background:#FCE4EC;border-radius:8px;font-size:12px"><div style="color:#888">토</div><div style="font-size:20px">⭐</div></div>
+            <div style="text-align:center;padding:10px 4px;background:#f5f5f5;border-radius:8px;font-size:12px"><div style="color:#888">일</div><div style="font-size:20px;color:#ddd">·</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">월간 통계</div>
+          <div style="font-size:13px;line-height:1.8">
+            • 가족식 빈도: 주 5.2회 평균<br>
+            • 키트 식재료 등장: 주 8.4회<br>
+            • 가족식 ↑ 시 채소 등장 ↑ <strong style="color:#2E7D32">+34%</strong>
+          </div>
+        </div>
+        <div class="btn btn-o" onclick="toast('🍽️ 가족과 함께 먹었어요 (1탭 기록)')">+ 가족과 함께 먹었어요</div>
+        <div style="font-size:11px;color:#888;text-align:center;margin-top:10px">⚠️ 강제 X · 권장 ⭕ — 미달은 실패 X (Satter DOR)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: Two Bite Club (USDA 한국어판) ====== -->
+  <div class="screen" id="s-twobite">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">두 입 클럽</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E0F7FA;border-left:4px solid #00838F;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.6">
+          <strong style="color:#006064">🇺🇸 USDA Team Nutrition "The Two Bite Club"</strong> 한국어판<br>
+          새로운 음식을 두 입만 시도해도 인증 — 강요 X · 시도 자체가 가치
+        </div>
+        <div class="card" style="background:linear-gradient(135deg,#E0F7FA,#B2EBF2);border:3px solid #00838F">
+          <div style="text-align:center;padding:14px 0">
+            <div style="font-size:48px">🥗</div>
+            <div style="font-size:18px;font-weight:800;color:#006064;margin-top:6px">두 입 클럽 인증서</div>
+            <div style="font-size:12px;color:#00838F;margin-top:4px">Two Bite Club Certificate</div>
+            <div style="margin-top:14px;padding:8px;background:#fff;border-radius:8px;font-size:14px">
+              <strong style="color:#00838F">수현이</strong>는 새로운 음식을<br><strong style="color:#006064">두 입</strong>이라도 시도한 용감한 탐험가입니다
+            </div>
+            <div style="margin-top:10px;display:flex;justify-content:center;gap:10px">
+              <div style="width:50px;height:50px;border-radius:50%;border:2px dashed #00838F;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#00838F;background:#fff">한 입<br>✓</div>
+              <div style="width:50px;height:50px;border-radius:50%;border:2px dashed #00838F;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#00838F;background:#fff">두 입<br>✓</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">키트 통합 위치</div>
+          <div style="font-size:13px;line-height:1.9">
+            <strong>Day12</strong> 모양 변신 — 첫 발급<br>
+            <strong>Day16</strong> 감자볼 디핑 — 두 번째<br>
+            <strong>Day21</strong> 수료식 — 5주 누적 인증
+          </div>
+        </div>
+        <div class="card" style="background:#FFF8E1">
+          <div style="font-size:13px;color:#E65100;line-height:1.7">
+            <strong>⚠️ 주의</strong>: "두 입 못 먹으면 실패" X. 한 입만 해도 인증.<br>
+            🔬 Galloway 2006: 칭찬·강요 시 거부 ↑ — 시도 자체가 가치
+          </div>
+        </div>
+        <div class="btn btn-o" onclick="toast('🥗 두 입 시도 인증됨 (데모)')">+ 두 입 시도 인증</div>
       </div>
     </div>
   </div>
