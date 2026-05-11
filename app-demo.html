@@ -465,6 +465,14 @@ canvas.p9-chart{max-width:100%;height:auto}
     <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">활동 가이드</span><span></span></div>
     <div class="content">
       <div class="pad">
+        <!-- Phase 12: Day 시연 셀렉터 (T457 5시점 검증용) -->
+        <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-bottom:8px;font-size:11px;color:#888">
+          <span>Day 시연</span>
+          <select id="p12-day-pick" onchange="p12.pickDay(this.value)" style="font-size:12px;padding:4px 6px;border:1px solid #DDD;border-radius:6px">
+            <option value="1">Day 1</option><option value="4">Day 4</option><option value="7" selected>Day 7</option>
+            <option value="12">Day 12</option><option value="14">Day 14</option><option value="17">Day 17</option><option value="21">Day 21</option>
+          </select>
+        </div>
         <div style="text-align:center;margin-bottom:20px">
           <div style="font-size:48px" id="guide-emoji">🎨</div>
           <div style="font-size:22px;font-weight:700;color:#1B2A4A;margin:8px 0" id="guide-name">당근 색깔 탐험대</div>
@@ -489,6 +497,10 @@ canvas.p9-chart{max-width:100%;height:auto}
           </div>
         </div>
         <div class="photo-ph"><span>[활동 사진 예시]</span></div>
+
+        <!-- Phase 12: 7갭 박스 영역 (Day별 자동 렌더) -->
+        <div id="p12-gaps"></div>
+
         <div style="background:#FFF8E1;border-radius:10px;padding:12px;font-size:12px;color:#F57F17;margin-bottom:16px">
           💡 <b>SOS Approach 원칙:</b> 아이가 거부하면 절대 강요하지 않고 이전 단계로 돌아갑니다. "만져볼래?" → "냄새 맡아볼래?" 순서로 점진적으로 접근하세요.
         </div>
@@ -1934,6 +1946,114 @@ window.p9Exp = {
   }
 };
 
+// ============================================================
+// Phase 12: 7갭 박스 — Day별 활동 화면 자동 렌더 (T201 매트릭스)
+// ============================================================
+const P12_GAPS = {
+  // Day별 박힐 갭 (순서대로 렌더)
+  1: [
+    {emoji:'🏃', label:'시작 전 웜업 3분 (SOS)', body:'점프 5번 → 심호흡 5번 → 손가락 풀기 → "준비됐어!"', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'🎯', label:'네가 정해 (RFT Co-created)', body:'"어떤 색 당근부터 인사할래? 주황? 보라? 노랑?" — 어떤 선택이든 OK', color:'#0288D1', bg:'#E1F5FE'},
+    {emoji:'👨‍👩‍👧', label:'가족 함께 (Family-style)', body:'식탁 가운데 당근 3종 놓고, 가족 모두 함께 관찰. 엄마·아빠도 의자에 앉아.', color:'#C2185B', bg:'#FCE4EC'},
+    {emoji:'🧹', label:'활동 마무리 (SOS Clean-up)', body:'"오늘 활동 끝났어, 같이 정리하자" → 도구 제자리 → 손 씻기 → "내일 또 만나"', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  4: [
+    {emoji:'🏃', label:'웜업 3분', body:'점프 + 심호흡 + 손가락 풀기', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'🌉', label:'Food Chaining 오늘의 축: 색 (Fraker)', body:'당근 빨강/노랑/주황 = 색만 다르고 다 같은 당근!', color:'#FBC02D', bg:'#FFF8E1'},
+    {emoji:'👀', label:'부모 모델링 (HabEat ①)', body:'"엄마는 빨간 당근부터 먹어볼게 (실제로 한 입). 너는?" — 모델링이 가장 강력한 예측 변수', color:'#2E7D32', bg:'#E8F5E9'},
+    {emoji:'🧹', label:'Clean-up', body:'정리 → 손 씻기 → 다음 만남 예고', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  7: [
+    {emoji:'🏃', label:'웜업 3분', body:'심호흡 + 손가락 풀기', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'🌉', label:'Food Chaining 4축 풀세트', body:'질감(생/익힌/건조) · 색(주황/빨강/초록) · 온도(실온) · 맛(단/단/약한맛) — 어떤 게 가장 비슷해?', color:'#FBC02D', bg:'#FFF8E1'},
+    {emoji:'👀', label:'부모 모델링', body:'"엄마는 (코로 흡) 당근 냄새가 흙 같아. 너는?"', color:'#2E7D32', bg:'#E8F5E9'},
+    {emoji:'🧹', label:'Clean-up', body:'정리하자', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  12: [
+    {emoji:'🏃', label:'웜업 3분', body:'점프 + 심호흡', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'✌️', label:'Two Bite Club 첫 발급 (USDA)', body:'"오늘 만든 별 모양 당근, 한 입 도전해볼래? 한 입이라도 OK. 두 입이면 첫 Two Bite 인증서!"', color:'#00838F', bg:'#E0F7FA', cta:'인증서 발급', ctaTarget:'s-twobite'},
+    {emoji:'🎯', label:'네가 정해', body:'"별 모양? 하트 모양? 어떤 거 먼저 찍을래?"', color:'#0288D1', bg:'#E1F5FE'},
+    {emoji:'🧹', label:'Clean-up', body:'정리 + 인증서 카드 보관', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  14: [
+    {emoji:'🏃', label:'웜업 3분', body:'심호흡 + 손가락 풀기', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'✌️', label:'Two Bite Club 도전', body:'"입술에 톡 = 첫 입, 입에 넣고 뱉어도 = 두 입 인증!" — Galloway 2006: 강요 시 거부 ↑', color:'#00838F', bg:'#E0F7FA', cta:'두 입 인증', ctaTarget:'s-twobite'},
+    {emoji:'👀', label:'부모 모델링', body:'"엄마 입술에 톡 — 어, 맛이 나네! 너도 해볼래?"', color:'#2E7D32', bg:'#E8F5E9'},
+    {emoji:'🧹', label:'Clean-up', body:'정리하자', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  17: [
+    {emoji:'🏃', label:'웜업 3분', body:'손 씻기 추가 (요리 활동)', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'👨‍👩‍👧', label:'Family-style (Munch & Move)', body:'리조또를 큰 그릇에 담고, 각자 작은 그릇에 덜어가. 양은 본인이 결정 (DOR how much)', color:'#C2185B', bg:'#FCE4EC'},
+    {emoji:'👀', label:'부모 모델링', body:'"엄마는 한 숟갈 떠서 먹어볼게 (먹음). 맛있다!"', color:'#2E7D32', bg:'#E8F5E9'},
+    {emoji:'🔁', label:'Mere Exposure (NESR)', body:'"Day9에 만든 당근 파우더 기억나? 그게 이번엔 리조또 속에. 같은 당근, 또 만났네!"', color:'#43A047', bg:'#E8F5E9'},
+    {emoji:'🧹', label:'Clean-up', body:'정리하자', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  21: [
+    {emoji:'🏃', label:'웜업 3분 (수료식 모드)', body:'5주 회고 + 심호흡', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'✌️', label:'Two Bite Club 누적 인증 (USDA)', body:'"지난 5주 동안 몇 번 도전했는지 보자. 한 입이라도 다 인증이야. 수료 인증서!"', color:'#00838F', bg:'#E0F7FA', cta:'5주 누적 인증', ctaTarget:'s-twobite'},
+    {emoji:'👨‍👩‍👧', label:'Family-style 수료식', body:'수료식 칼국수는 큰 냄비에 끓이고, 가족 모두 둘러앉아 함께. 5주 회고!', color:'#C2185B', bg:'#FCE4EC'},
+    {emoji:'🧹', label:'Clean-up 회고', body:'5주 동안 만난 21가지 활동 회고 → "다음 코스 (양파/두부) 또 만나자"', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+};
+// 디폴트 (Day별 매핑 없을 때) — 웜업 + Clean-up만
+const P12_DEFAULT = [
+  {emoji:'🏃', label:'시작 전 웜업 3분', body:'점프 + 심호흡 + 손가락 풀기', color:'#FF8F00', bg:'#FFF3E0'},
+  {emoji:'🧹', label:'활동 마무리', body:'정리 + 손 씻기 + 다음 만남 예고', color:'#9C27B0', bg:'#F3E5F5'},
+];
+
+window.p12 = {
+  _timer:null,
+  renderGaps(day){
+    const el = document.getElementById('p12-gaps');
+    if(!el) return;
+    const gaps = P12_GAPS[day] || P12_DEFAULT;
+    const html = gaps.map((g, idx) => {
+      // 웜업 박스에는 3분 인터랙티브 타이머 (T450)
+      const isWarmup = g.label.includes('웜업');
+      const timerBtn = isWarmup
+        ? `<div class="btn btn-o" style="margin-top:6px;font-size:12px;padding:6px" onclick="p12.startWarmup(this)">▶ 3분 타이머 시작</div>`
+        : '';
+      const ctaBtn = g.cta
+        ? `<div class="btn btn-o" style="margin-top:6px;font-size:12px;padding:6px" onclick="go('${g.ctaTarget}')">${g.cta}</div>`
+        : '';
+      return `
+      <div style="background:${g.bg};border-left:4px solid ${g.color};padding:8px 12px;border-radius:6px;margin-bottom:8px;font-size:12.5px;line-height:1.55">
+        <div style="font-weight:700;color:${g.color};margin-bottom:3px">${g.emoji} ${g.label}</div>
+        <div style="color:#5D4037">${g.body}</div>
+        ${timerBtn}${ctaBtn}
+      </div>`;
+    }).join('');
+    const dayLabel = `Day ${day} 시연 · 7갭 학술 운영 (Phase 12)`;
+    el.innerHTML = `
+      <div style="font-size:11px;font-weight:700;color:#5D4037;margin:6px 0">📋 ${dayLabel}</div>
+      ${html}`;
+  },
+  pickDay(v){
+    const d = parseInt(v, 10);
+    if(isNaN(d)) return;
+    currentDay = d;
+    try{ updateHome(); }catch(e){}
+    this.renderGaps(d);
+  },
+  startWarmup(btn){
+    if(this._timer){ clearInterval(this._timer); this._timer=null; }
+    let s = 180;
+    btn.textContent = `⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} 진행 중`;
+    btn.style.pointerEvents = 'none';
+    this._timer = setInterval(()=>{
+      s--;
+      if(s<=0){
+        clearInterval(this._timer); this._timer=null;
+        btn.textContent = '✅ 웜업 완료! 활동 시작';
+        btn.style.pointerEvents = 'auto';
+        btn.onclick = ()=>{ btn.textContent='▶ 3분 타이머 시작'; };
+        return;
+      }
+      btn.textContent = `⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} 진행 중`;
+    }, 1000);
+  }
+};
+
 // screen 진입 시 자동 초기화
 (function(){
   const _go = window.go;
@@ -1945,6 +2065,17 @@ window.p9Exp = {
       else if(id==='s-cebq') setTimeout(()=>p9CEBQ.init(), 60);
       else if(id==='s-family') setTimeout(()=>p9Fam.init(), 60);
       else if(id==='s-exposure') p9Exp.init();
+      else if(id==='s-activity') setTimeout(()=>{
+        const d = (typeof currentDay!=='undefined') ? currentDay : 1;
+        const sel = document.getElementById('p12-day-pick');
+        if(sel){
+          // 셀렉터에 해당 Day가 없으면 가장 가까운 시연 Day로 매핑
+          const demoDays = [1,4,7,12,14,17,21];
+          const closest = demoDays.reduce((a,b)=>Math.abs(b-d)<Math.abs(a-d)?b:a);
+          sel.value = String(closest);
+        }
+        p12.renderGaps(d);
+      }, 30);
     }catch(e){ console.error(e); }
   };
 })();
