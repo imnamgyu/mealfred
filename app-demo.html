@@ -327,9 +327,9 @@ canvas.p9-chart{max-width:100%;height:auto}
     </div>
     <div class="content">
       <div class="pad">
-        <!-- 33개 국제기준 배지 (로딩 카피 회전) -->
+        <!-- 35개 국제기준 배지 (로딩 카피 회전) -->
         <div style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;line-height:1.5;color:#E65100;border:1px solid #FFCC80">
-          <strong>🌐 전 세계 33개 국제기준 종합</strong> · 한국 최초 편식개선 키트<br>
+          <strong>🌐 전 세계 35개 국제기준 종합</strong> · 한국 최초 편식개선 키트<br>
           <span style="font-size:11px;color:#BF360C">🇨🇦 캐나다 정부: 새로운 음식, 30회까지 거부는 정상이에요</span>
         </div>
 
@@ -407,10 +407,10 @@ canvas.p9-chart{max-width:100%;height:auto}
           </div>
         </div>
 
-        <!-- 33개 국제기준 — 메뉴식 X, 자동 임베드 상태 박스만 -->
+        <!-- 35개 국제기준 — 메뉴식 X, 자동 임베드 상태 박스만 -->
         <div class="card" style="border-left:4px solid #E65100;padding:14px;margin-top:14px;background:linear-gradient(135deg,#FFFDF6,#FFF8E1)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div style="font-size:13px;font-weight:700;color:#E65100">🌐 33개 국제기준 자동 적용 중</div>
+            <div style="font-size:13px;font-weight:700;color:#E65100">🌐 35개 국제기준 자동 적용 중</div>
             <div style="font-size:11px;color:#999">키트 흐름 안에서 자동 운영</div>
           </div>
           <!-- 자동 운영 상태 (Day 기반 실시간 표시) -->
@@ -425,7 +425,7 @@ canvas.p9-chart{max-width:100%;height:auto}
       <div class="tab active" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
       <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
       <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
-      <div class="tab" onclick="go('s-fooddb')"><span class="ico">🌐</span>33개</div>
+      <div class="tab" onclick="go('s-fooddb')"><span class="ico">🌐</span>35개</div>
       <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
     </div>
   </div>
@@ -1048,7 +1048,7 @@ canvas.p9-chart{max-width:100%;height:auto}
       <div class="tab" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
       <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
       <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
-      <div class="tab active" onclick="go('s-fooddb')"><span class="ico">🌐</span>33개</div>
+      <div class="tab active" onclick="go('s-fooddb')"><span class="ico">🌐</span>35개</div>
       <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
     </div>
   </div>
@@ -1306,7 +1306,7 @@ function updateHome(){
   if(re) re.textContent = a.emoji;
   if(rn) rn.textContent = a.name;
 
-  // 33개 국제기준 자동 운영 상태 (홈 박스)
+  // 35개 국제기준 자동 운영 상태 (홈 박스)
   const autoEl = document.getElementById('home-auto-status');
   if(autoEl){
     const exposed = currentDay;
