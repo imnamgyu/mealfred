@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>밀프레드 MVP UX 제안 — 정적 가이드를 넘어 개인화 코치로</title>
+<meta name="description" content="자녀 개월령·키·몸무게·식사 기록 DB를 활용해 모든 부모님께 같은 자료가 아닌 그 가정만의 맞춤 식교육을 자동 제공하는 MVP UX 제안.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+  body { background: linear-gradient(180deg, #FFF5EB 0%, #FAFAFA 60%); color: var(--neutral-900); font-family: var(--font-primary); min-height: 100vh; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: var(--sp-12) var(--container-pad) var(--sp-20); }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: var(--sp-16); }
+  .eyebrow { display: inline-block; padding: 6px 14px; background: white; border: 1px solid var(--primary-300); color: var(--primary-500); border-radius: var(--radius-full); font-size: 13px; font-weight: 600; margin-bottom: var(--sp-5); }
+  .hero h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; color: var(--secondary-800); margin-bottom: var(--sp-4); }
+  .hero p { font-size: 16px; color: var(--neutral-600); max-width: 700px; margin: 0 auto; line-height: 1.7; }
+
+  /* Section */
+  section { margin-bottom: var(--sp-16); }
+  section h2 { font-size: clamp(22px, 3vw, 26px); font-weight: 800; color: var(--secondary-800); margin-bottom: var(--sp-3); letter-spacing: -0.01em; }
+  section .lead { font-size: 15px; color: var(--neutral-600); margin-bottom: var(--sp-8); line-height: 1.7; }
+
+  /* Before/After Compare */
+  .compare-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--sp-5); align-items: center; }
+  @media (max-width: 720px) { .compare-row { grid-template-columns: 1fr; } .compare-row .arrow { transform: rotate(90deg); } }
+  .compare-card { background: white; border-radius: var(--radius-lg); padding: var(--sp-8); box-shadow: var(--shadow-sm); border-top: 4px solid; }
+  .compare-card.before { border-top-color: var(--neutral-400); }
+  .compare-card.after { border-top-color: var(--primary-500); box-shadow: var(--shadow-md); }
+  .compare-label { font-size: 12px; color: var(--neutral-400); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--sp-3); }
+  .compare-card.after .compare-label { color: var(--primary-500); }
+  .compare-card h3 { font-size: 17px; font-weight: 700; color: var(--secondary-800); margin-bottom: var(--sp-4); }
+  .compare-card ul { list-style: none; padding: 0; margin: 0; }
+  .compare-card li { font-size: 14px; color: var(--neutral-600); line-height: 1.7; padding: 6px 0; padding-left: 18px; position: relative; }
+  .compare-card li::before { content: '·'; position: absolute; left: 6px; color: var(--neutral-400); font-weight: 700; }
+  .compare-card.after li::before { content: '✓'; color: var(--primary-500); font-size: 12px; left: 0; }
+  .arrow { font-size: 32px; color: var(--primary-500); font-weight: 800; text-align: center; }
+
+  /* Phone Mockup Grid */
+  .phone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--sp-5); }
+  .phone { display: flex; flex-direction: column; align-items: center; }
+  .phone-frame { width: 100%; max-width: 280px; background: var(--secondary-800); border-radius: 32px; padding: 14px 10px 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.12); position: relative; }
+  .phone-frame::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 60px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; }
+  .phone-top { background: white; padding: 14px 14px 8px; border-radius: 22px 22px 0 0; font-size: 11px; color: var(--neutral-400); font-weight: 600; text-align: center; letter-spacing: 0.04em; margin-top: 6px; }
+  .phone-body { background: white; padding: 8px 14px 18px; border-radius: 0 0 22px 22px; min-height: 320px; }
+  .phone-caption { margin-top: var(--sp-3); font-size: 12px; color: var(--neutral-600); text-align: center; font-weight: 600; max-width: 280px; }
+
+  /* Phone — 홈 */
+  .kid-card { background: var(--primary-50); border-radius: var(--radius-md); padding: 14px; display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .kid-avatar { width: 44px; height: 44px; background: var(--primary-300); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .kid-name { font-size: 14px; font-weight: 700; color: var(--secondary-800); }
+  .kid-meta { font-size: 11px; color: var(--neutral-600); margin-top: 2px; }
+  .status-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .status-chip { padding: 3px 8px; background: var(--secondary-100); color: var(--secondary-700); font-size: 10px; font-weight: 700; border-radius: 100px; }
+  .status-chip.ok { background: rgba(16,185,129,0.12); color: var(--accent-green); }
+  .today-card { background: linear-gradient(135deg, #FF6B1A, #FF8A47); color: white; padding: 12px 14px; border-radius: var(--radius-md); }
+  .today-label { font-size: 10px; opacity: 0.85; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .today-text { font-size: 13px; font-weight: 700; }
+
+  /* Phone — 가이드 */
+  .age-header { font-size: 13px; font-weight: 700; color: var(--secondary-800); padding: 6px 10px; background: var(--primary-100); border-radius: var(--radius-sm); margin-bottom: 10px; text-align: center; }
+  .dual-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+  .dual-left, .dual-right { padding: 10px; border-radius: var(--radius-md); }
+  .dual-left { background: var(--secondary-100); }
+  .dual-right { background: #FFF3E8; }
+  .dual-tag { font-size: 9px; font-weight: 700; margin-bottom: 4px; }
+  .dual-left .dual-tag { color: var(--secondary-700); }
+  .dual-right .dual-tag { color: var(--primary-500); }
+  .dual-text { font-size: 11px; color: var(--neutral-900); line-height: 1.4; font-weight: 600; }
+  .dual-tip { padding: 8px 10px; background: var(--neutral-50); border-left: 3px solid var(--primary-500); font-size: 11px; color: var(--neutral-900); line-height: 1.4; font-weight: 500; }
+
+  /* Phone — 알림 */
+  .notif { padding: 10px; background: var(--neutral-50); border-radius: var(--radius-md); margin-bottom: 8px; border-left: 3px solid var(--primary-500); }
+  .notif:nth-child(2) { border-left-color: var(--accent-amber); }
+  .notif-time { font-size: 9px; color: var(--neutral-400); font-weight: 600; margin-bottom: 2px; }
+  .notif-title { font-size: 12px; font-weight: 700; color: var(--secondary-800); margin-bottom: 3px; }
+  .notif-body { font-size: 10px; color: var(--neutral-600); line-height: 1.5; }
+
+  /* Phone — AI 코치 */
+  .chat-q { padding: 10px 12px; background: var(--secondary-100); border-radius: 14px 14px 4px 14px; font-size: 11px; color: var(--secondary-800); font-weight: 600; margin-bottom: 10px; max-width: 80%; margin-left: auto; }
+  .chat-a { padding: 10px 12px; background: var(--primary-100); border-radius: 14px 14px 14px 4px; font-size: 11px; color: var(--secondary-800); line-height: 1.6; }
+  .chat-a strong { display: block; margin-bottom: 6px; color: var(--primary-500); font-size: 11px; }
+  .axes div { padding: 3px 0; font-weight: 500; }
+
+  /* Phone — 식사 기록 */
+  .chart-mock { display: flex; gap: 4px; align-items: flex-end; height: 100px; margin-bottom: 8px; padding: 0 4px; }
+  .chart-mock .bar { flex: 1; background: linear-gradient(180deg, var(--primary-400), var(--primary-500)); border-radius: 3px 3px 0 0; }
+  .chart-label { font-size: 10px; color: var(--neutral-600); text-align: center; font-weight: 600; margin-bottom: 10px; }
+  .kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi-row > div { background: var(--neutral-50); padding: 10px; border-radius: var(--radius-md); text-align: center; }
+  .kpi-row strong { display: block; font-size: 18px; font-weight: 800; color: var(--primary-500); }
+  .kpi-row span { font-size: 9px; color: var(--neutral-600); font-weight: 600; }
+
+  /* DB Table */
+  .db-table { background: white; border-radius: var(--radius-lg); padding: 4px; box-shadow: var(--shadow-sm); overflow-x: auto; }
+  .db-table table { width: 100%; border-collapse: collapse; }
+  .db-table th { background: var(--neutral-50); padding: 14px; text-align: left; font-size: 13px; font-weight: 700; color: var(--secondary-800); border-bottom: 2px solid var(--neutral-200); }
+  .db-table td { padding: 14px; font-size: 14px; color: var(--neutral-900); border-bottom: 1px solid var(--neutral-100); vertical-align: top; line-height: 1.6; }
+  .db-table tr:last-child td { border-bottom: none; }
+  .db-table td:first-child { font-weight: 700; color: var(--secondary-700); white-space: nowrap; }
+  .blog-ref { display: inline-block; margin-left: 6px; padding: 1px 6px; background: var(--primary-100); color: var(--primary-500); font-size: 11px; font-weight: 700; border-radius: 100px; }
+
+  /* Next steps */
+  .steps { background: white; border-radius: var(--radius-lg); padding: var(--sp-8); box-shadow: var(--shadow-sm); }
+  .steps ol { padding-left: 20px; margin: 0; }
+  .steps li { font-size: 15px; color: var(--neutral-900); line-height: 1.8; margin-bottom: var(--sp-3); }
+  .steps li strong { color: var(--primary-500); }
+  .steps ul { margin: var(--sp-2) 0 var(--sp-3) 0; padding-left: 18px; }
+  .steps ul li { font-size: 14px; color: var(--neutral-600); margin-bottom: 4px; }
+
+  footer { text-align: center; padding: var(--sp-12) 0 var(--sp-3); font-size: 13px; color: var(--neutral-400); border-top: 1px solid var(--neutral-200); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Hero -->
+  <section class="hero">
+    <span class="eyebrow">MVP Product Proposal · 2026-05-17</span>
+    <h1>정적 가이드를 넘어 — <br>자녀 정보 기반 개인화 코치로</h1>
+    <p>지금 <code style="font-size:13px;background:#FFF3E8;padding:2px 8px;border-radius:4px;color:#FF6B1A;">mealfred.com/blog/feeding-guide-by-age.html</code>은 모든 부모님께 같은 한·미 비교 자료를 보여드립니다. <br>
+       MVP PWA는 <strong>자녀의 개월령·키·몸무게·식사 기록 DB</strong>를 활용해, 그 가정만의 맞춤 권고를 자동 띄울 수 있습니다.</p>
+  </section>
+
+  <!-- Before vs After -->
+  <section>
+    <h2>Before · After</h2>
+    <div class="compare-row">
+      <div class="compare-card before">
+        <div class="compare-label">현재 — 정적 가이드</div>
+        <h3>「개월령별 한·미 식교육 비교」 페이지 한 장</h3>
+        <ul>
+          <li>모든 부모님 같은 콘텐츠</li>
+          <li>본인 자녀가 어느 단계인지 직접 찾아야 함</li>
+          <li>마지막 식사 기록·체중 추이 무관</li>
+          <li>한 번 보고 떠나면 재진입 동기 X</li>
+        </ul>
+      </div>
+      <div class="arrow">→</div>
+      <div class="compare-card after">
+        <div class="compare-label">제안 — MVP 개인화</div>
+        <h3>자녀 정보 기반 자동 권고</h3>
+        <ul>
+          <li>개월령 8.5m → 자동 "이유식 중기" 카드</li>
+          <li>최근 시도 안 한 음식 자동 추천</li>
+          <li>체중 추이 ↓ 신호 시 ARFID 평가 안내</li>
+          <li>매일 푸시 → 재방문·재참여 자연 발생</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Phone Mockup Grid -->
+  <section>
+    <h2>📱 앱 화면 5개 (모각)</h2>
+    <p class="lead">현재 우리가 가진 DB(개월령·키·몸무게·발달·식사 기록)를 활용했을 때 가능한 UX 5개. 각 화면이 정적 블로그 가이드를 어떻게 자동화·개인화하는지 보여드립니다.</p>
+
+    <div class="phone-grid">
+
+      <!-- 홈 -->
+      <div class="phone">
+        <div class="phone-frame">
+          <div class="phone-top">밀프레드 · 홈</div>
+          <div class="phone-body">
+            <div class="kid-card">
+              <div class="kid-avatar">👶</div>
+              <div>
+                <div class="kid-name">하준이</div>
+                <div class="kid-meta">8개월 16일 · 8.2kg · 72cm</div>
+              </div>
+            </div>
+            <div class="status-row">
+              <span class="status-chip">이유식 중기</span>
+              <span class="status-chip ok">발달 정상</span>
+            </div>
+            <div class="today-card">
+              <div class="today-label">오늘의 한 입</div>
+              <div class="today-text">새 음식 도전: 아보카도 (3번째)</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">홈 — 자녀 카드 + 오늘의 미션 자동 생성</div>
+      </div>
+
+      <!-- 개월령 가이드 -->
+      <div class="phone">
+        <div class="phone-frame">
+          <div class="phone-top">개월령 가이드</div>
+          <div class="phone-body">
+            <div class="age-header">현재 단계: 7~8개월</div>
+            <div class="dual-row">
+              <div class="dual-left">
+                <div class="dual-tag">🇰🇷 식약처</div>
+                <div class="dual-text">이유식 중기 — 반고형식, 손으로 집어먹기 시작</div>
+              </div>
+              <div class="dual-right">
+                <div class="dual-tag">🇺🇸 Solid Starts</div>
+                <div class="dual-text">Adding variety — 매시·핑거푸드 OK</div>
+              </div>
+            </div>
+            <div class="dual-tip">밀프레드: 죽 + 부드러운 핑거푸드 둘 다 시도하세요</div>
+          </div>
+        </div>
+        <div class="phone-caption">개월령 가이드 — 자녀 단계 자동 표시 (12편 본문 자동 흡수)</div>
+      </div>
+
+      <!-- 알림 -->
+      <div class="phone">
+        <div class="phone-frame">
+          <div class="phone-top">알림</div>
+          <div class="phone-body">
+            <div class="notif">
+              <div class="notif-time">방금 전 · 위로</div>
+              <div class="notif-title">🥕 오늘은 당근 8번째 시도</div>
+              <div class="notif-body">캐나다 BC주: 새 음식은 12~30번 노출이 정상. 일곱 번째라면 아직 1/4 — 마음 가볍게.</div>
+            </div>
+            <div class="notif">
+              <div class="notif-time">어제 · 주의</div>
+              <div class="notif-title">⚠ 다양성 점수 ↓</div>
+              <div class="notif-body">지난 7일 5종류 미만. 단백질군 추가 권장.</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">푸시 — 식사 기록 기반 자동 발송 (블로그 글이 푸시 카피로 자동 변환)</div>
+      </div>
+
+      <!-- AI 코치 -->
+      <div class="phone">
+        <div class="phone-frame">
+          <div class="phone-top">Food Chaining AI</div>
+          <div class="phone-body">
+            <div class="chat-q">하준이가 당근을 거부해요</div>
+            <div class="chat-a">
+              <strong>4축 변형 제안</strong>
+              <div class="axes">
+                <div>· 맛 → 단호박 (단맛 비슷)</div>
+                <div>· 색 → 노란 파프리카</div>
+                <div>· 모양 → 막대형으로 잘라보기</div>
+                <div>· 식감 → 살짝 데쳐 부드럽게</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">Food Chaining — 거부 음식 → 4축 변형 (킬러 기능)</div>
+      </div>
+
+      <!-- 식사 기록 -->
+      <div class="phone">
+        <div class="phone-frame">
+          <div class="phone-top">식사 기록</div>
+          <div class="phone-body">
+            <div class="chart-mock">
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:70%"></div>
+              <div class="bar" style="height:85%"></div>
+              <div class="bar" style="height:68%"></div>
+              <div class="bar" style="height:90%"></div>
+              <div class="bar" style="height:75%"></div>
+              <div class="bar" style="height:62%"></div>
+            </div>
+            <div class="chart-label">지난 7일 식이 다양성 점수</div>
+            <div class="kpi-row">
+              <div><strong>11</strong><span>새 음식</span></div>
+              <div><strong>5종</strong><span>식품군</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-caption">식사 기록 — 다양성 자동 분석 + 추세 시각화</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DB 활용 -->
+  <section>
+    <h2>🔗 이미 가진 DB → 블로그 글 자동 매핑</h2>
+    <p class="lead">우리가 이미 운영 중인 데이터 필드들이 블로그 12편의 어떤 메시지에 어떻게 연결되는지 — 정적 글이 살아있는 권고로 바뀝니다.</p>
+    <div class="db-table">
+      <table>
+        <thead><tr><th>가진 데이터</th><th>활용 위치</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>아이 개월령</td>
+            <td>홈 카드의 자동 이유식 단계 매핑 → 식약처(이유식 초기/중기/후기) + Solid Starts(6m / 6~9m / 9~12m / 12m+) 자동 비교 카드 <span class="blog-ref">→ 12편</span></td>
+          </tr>
+          <tr>
+            <td>키 / 몸무게 추이</td>
+            <td>체중 추이 ↓ 시 ARFID 평가 안내 알림 → "한 번 소아과 평가를 받아 보시기를 권해 드립니다" 카피 자동 발송 <span class="blog-ref">→ 11편</span></td>
+          </tr>
+          <tr>
+            <td>발달 상태 (앉기·머리 가눔·관심·입으로)</td>
+            <td>4신호 충족 시 BLW 카드 노출 / 미충족 시 한국 죽 중심 권장 — 분기 자동화 <span class="blog-ref">→ 12편</span></td>
+          </tr>
+          <tr>
+            <td>식사 기록 (음식·횟수·반응)</td>
+            <td>"오늘의 미션 — 시도 N번째" 자동 생성. 12~30번 권고(2편 카피)와 자녀 실제 횟수를 매칭해 위로/격려 푸시 <span class="blog-ref">→ 2편</span></td>
+          </tr>
+          <tr>
+            <td>거부 패턴 (어떤 음식 거부)</td>
+            <td>Food Chaining AI — 거부 음식 → 비슷한 맛/색/모양/식감 4축 변형 추천. Claude Sonnet 4.7 API 호출 <span class="blog-ref">→ Phase 9 킬러 기능</span></td>
+          </tr>
+          <tr>
+            <td>다양성 점수 (식품군 N종)</td>
+            <td>다양성 ↓ 알림 — 미시도 식품군 강조. 사회비용(의료비·면역·장 건강) 환기 카피 자동 노출 <span class="blog-ref">→ 3편</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 다음 단계 -->
+  <section>
+    <h2>🚀 다음 단계 제안</h2>
+    <div class="steps">
+      <ol>
+        <li><strong>Supabase 스키마 검증</strong> — 위 6개 데이터 필드가 모두 있는지 확인. 부족하면 추가 합의 (메모리: <code>foodbridge/mvp/supabase/schema.sql</code>)</li>
+        <li>
+          <strong>우선순위 1편 결정</strong> — 5개 화면 중 가장 임팩트 큰 하나부터:
+          <ul>
+            <li>① <strong>홈 자녀 카드 + 오늘의 미션</strong> — 진입점, 매일 만남 (재방문 동력)</li>
+            <li>② <strong>알림(푸시)</strong> — 식사 기록 기반 자동 발송. 사용자 행동 없이도 가치 전달</li>
+            <li>③ <strong>개월령 가이드</strong> — 정적 블로그 페이지 자연 흡수, 블로그 트래픽 → 앱 전환 동력</li>
+          </ul>
+        </li>
+        <li><strong>MVP Sprint M-B 진입</strong> — Phase 9 종합계획(<code>00_설계원칙/INDEX.md</code>)의 다음 Sprint에 이 UX 매핑. 작업지시서 1개 작성.</li>
+        <li><strong>검증 — 어린이집 1곳 베타</strong> — 부산 13개 어린이집 중 1곳에 베타 배포. 부모님 5명 1주 사용 후 인터뷰. 정적 가이드 vs 개인화 푸시 차이 측정.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    밀프레드 MVP UX 제안 · 정적 가이드 → 개인화 코치 마이그레이션 · 2026-05-17
+  </footer>
+
+</div>
+</body>
+</html>
