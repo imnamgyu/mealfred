@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USDA의 두 입씩 클럽 그림책 — 밀프레드 블로그</title>
+<meta name="description" content="미국 USDA 무료 그림책 — &quot;각 식품군에서 두 입씩&quot;">
+<meta property="og:title" content="USDA의 두 입씩 클럽 그림책">
+<meta property="og:description" content="미국 USDA 무료 그림책 — &quot;각 식품군에서 두 입씩&quot;">
+<meta property="og:type" content="article">
+<meta property="og:image" content="../og-image.png">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../style.css">
+<style>
+.blog-wrap { max-width: 760px; margin: 0 auto; padding: var(--sp-6) var(--container-pad) var(--sp-20); font-family: var(--font-primary); color: var(--neutral-900); }
+body.blog-page { background: var(--primary-50); min-height: 100vh; }
+.blog-head { display: flex; justify-content: space-between; align-items: center; padding: var(--sp-3) 0 var(--sp-8); }
+.blog-head a { color: var(--neutral-600); text-decoration: none; font-size: 14px; font-weight: 600; }
+.blog-head a:hover { color: var(--primary-500); }
+.back-link { color: var(--primary-500) !important; }
+
+/* Hero (index) */
+.blog-hero { text-align: center; padding: var(--sp-8) 0 var(--sp-12); }
+.blog-hero .eyebrow { display: inline-block; padding: 6px 14px; background: var(--white); border: 1px solid var(--primary-300); color: var(--primary-500); border-radius: var(--radius-full); font-size: 13px; font-weight: 600; margin-bottom: var(--sp-5); }
+.blog-hero h1 { font-size: clamp(32px, 6vw, 48px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; color: var(--secondary-800); margin-bottom: var(--sp-4); }
+.blog-hero p { font-size: 16px; color: var(--neutral-600); max-width: 560px; margin: 0 auto; line-height: 1.7; }
+
+/* Post grid */
+.post-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-5); }
+@media (max-width: 720px) { .post-grid { grid-template-columns: 1fr; } }
+.card-link { text-decoration: none; color: inherit; }
+.post-card { background: var(--white); border-radius: var(--radius-lg); padding: var(--sp-6); box-shadow: var(--shadow-sm); transition: all var(--dur-fast) var(--ease); border: 1px solid var(--neutral-100); height: 100%; display: flex; flex-direction: column; }
+.post-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--primary-300); }
+.meta-row { display: flex; gap: var(--sp-2); align-items: center; margin-bottom: var(--sp-3); flex-wrap: wrap; }
+.chip { padding: 3px 10px; font-size: 12px; font-weight: 700; border-radius: var(--radius-full); background: var(--secondary-100); color: var(--secondary-700); }
+.chip.snack { background: var(--primary-100); color: var(--primary-500); }
+.cat { font-size: 12px; color: var(--neutral-400); }
+.post-card h3 { font-size: 18px; font-weight: 700; color: var(--secondary-800); line-height: 1.4; margin-bottom: var(--sp-3); }
+.excerpt { font-size: 14px; color: var(--neutral-600); line-height: 1.6; flex: 1; margin-bottom: var(--sp-4); }
+.card-footer { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--neutral-400); padding-top: var(--sp-3); border-top: 1px solid var(--neutral-100); }
+.num { font-weight: 700; color: var(--primary-500); }
+
+/* Article */
+.blog-article { background: var(--white); border-radius: var(--radius-xl); padding: var(--sp-12) var(--sp-10); box-shadow: var(--shadow-sm); }
+@media (max-width: 720px) { .blog-article { padding: var(--sp-8) var(--sp-5); } }
+.blog-meta { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; padding-bottom: var(--sp-6); border-bottom: 1px solid var(--neutral-100); margin-bottom: var(--sp-8); font-size: 13px; color: var(--neutral-400); }
+.blog-meta .phase { color: var(--secondary-700); font-weight: 600; }
+.blog-meta time { margin-left: auto; }
+
+.blog-body h1 { font-size: clamp(26px, 5vw, 36px); font-weight: 800; letter-spacing: -0.02em; color: var(--secondary-800); margin-bottom: var(--sp-8); line-height: 1.25; }
+.blog-body h2 { font-size: clamp(19px, 3vw, 22px); font-weight: 700; color: var(--primary-500); margin: var(--sp-10) 0 var(--sp-4); letter-spacing: -0.01em; line-height: 1.4; }
+.blog-body p { font-size: 16px; line-height: 1.85; color: var(--neutral-900); margin-bottom: var(--sp-5); }
+.blog-body ul { margin: 0 0 var(--sp-5) var(--sp-5); padding: 0; }
+.blog-body li { font-size: 16px; line-height: 1.85; margin-bottom: 6px; }
+.blog-body strong { font-weight: 700; color: var(--secondary-800); }
+.blog-body a { color: var(--primary-500); text-decoration: underline; text-underline-offset: 3px; }
+
+.quote-mark { background: var(--primary-100); border-left: 4px solid var(--primary-500); padding: var(--sp-5) var(--sp-6); margin: var(--sp-5) 0; font-size: 16px; line-height: 1.7; color: var(--secondary-800); font-weight: 500; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+
+/* Citations */
+.blog-citations { background: var(--neutral-50); border-radius: var(--radius-md); padding: var(--sp-6); margin-top: var(--sp-10); border: 1px solid var(--neutral-100); }
+.blog-citations h4 { font-size: 13px; font-weight: 700; color: var(--neutral-600); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--sp-3); }
+.blog-citations ul { list-style: none; margin: 0; padding: 0; }
+.blog-citations li { font-size: 13px; color: var(--neutral-600); line-height: 1.7; padding: 4px 0; word-break: break-word; }
+.blog-citations a { color: var(--primary-500); }
+
+/* Hashtags */
+.blog-hashtags { margin-top: var(--sp-6); display: flex; flex-wrap: wrap; gap: 8px; }
+.blog-hashtags .ht { font-size: 12px; color: var(--neutral-400); padding: 4px 10px; background: var(--neutral-50); border-radius: var(--radius-full); }
+
+/* Pager + CTA */
+.blog-pager { display: flex; justify-content: space-between; margin-top: var(--sp-12); padding-top: var(--sp-6); border-top: 1px solid var(--neutral-100); }
+.blog-pager a { color: var(--primary-500); text-decoration: none; font-weight: 600; font-size: 14px; }
+.blog-pager a:hover { text-decoration: underline; }
+.blog-cta { margin-top: var(--sp-10); background: var(--gradient-navy); color: var(--white); padding: var(--sp-8); border-radius: var(--radius-lg); text-align: center; }
+.blog-cta h3 { font-size: 18px; font-weight: 700; margin-bottom: var(--sp-2); }
+.blog-cta p { font-size: 14px; opacity: 0.85; margin-bottom: var(--sp-5); }
+.cta-button { display: inline-block; padding: 12px 24px; background: var(--white); color: var(--secondary-800); border-radius: var(--radius-full); font-weight: 700; text-decoration: none; font-size: 14px; }
+.cta-button:hover { background: var(--primary-100); }
+
+/* ─── Infographic 컴포넌트 ─── */
+.infographic { background: var(--white); border: 1px solid var(--neutral-200); border-radius: var(--radius-xl); padding: var(--sp-10) var(--sp-8); margin: 0 0 var(--sp-10); text-align: center; }
+.ig-label { font-size: 12px; font-weight: 700; color: var(--neutral-600); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: var(--sp-4); }
+.ig-hero { font-size: clamp(48px, 10vw, 80px); font-weight: 900; color: var(--primary-500); line-height: 1; letter-spacing: -0.03em; margin-bottom: var(--sp-3); }
+.ig-subtitle { font-size: clamp(16px, 2.5vw, 18px); font-weight: 600; color: var(--secondary-800); margin-bottom: var(--sp-6); }
+.ig-chart { margin: var(--sp-5) 0; }
+.ig-source { font-size: 11px; color: var(--neutral-400); margin-top: var(--sp-5); letter-spacing: 0.02em; }
+
+/* bar-100 */
+.ig-bar-100 { display: flex; gap: 2px; height: 32px; align-items: stretch; max-width: 100%; }
+.ig-cell { flex: 1; background: var(--secondary-100); border-radius: 1px; }
+.ig-cell.filled { background: var(--primary-500); }
+
+/* grid-100 */
+.ig-grid-100 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; max-width: 240px; margin: 0 auto; aspect-ratio: 1; }
+.ig-grid-cell { background: var(--secondary-100); border-radius: 2px; }
+.ig-grid-cell.filled { background: var(--primary-500); }
+
+/* gauge-range */
+.ig-gauge { position: relative; height: 18px; max-width: 320px; margin: 0 auto; }
+.ig-gauge-track { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 6px; background: var(--secondary-100); border-radius: 3px; }
+.ig-gauge-range { position: absolute; top: 50%; transform: translateY(-50%); height: 14px; background: var(--gradient-orange); border-radius: 7px; box-shadow: var(--shadow-cta); }
+.ig-gauge-labels { position: relative; height: 24px; margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--secondary-700); }
+.ig-gauge-labels span { position: absolute; transform: translateX(-50%); top: 0; }
+.ig-gauge-labels span:first-child { left: 0; transform: none; color: var(--neutral-400); font-weight: 500; }
+
+/* three-pillars */
+.ig-three-pillars { display: flex; justify-content: center; gap: var(--sp-5); align-items: flex-end; height: 120px; max-width: 360px; margin: 0 auto; }
+.ig-pillar { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.ig-pillar-bar { flex: 1; width: 100%; background: var(--gradient-orange); border-radius: var(--radius-sm) var(--radius-sm) 0 0; margin-bottom: 8px; box-shadow: var(--shadow-cta); }
+.ig-pillar:nth-child(1) .ig-pillar-bar { height: 90%; }
+.ig-pillar:nth-child(2) .ig-pillar-bar { height: 70%; opacity: 0.85; }
+.ig-pillar:nth-child(3) .ig-pillar-bar { height: 80%; opacity: 0.7; }
+.ig-pillar-label { font-size: 13px; font-weight: 700; color: var(--secondary-700); }
+
+/* circle-row */
+.ig-circle-row { display: flex; gap: var(--sp-3); justify-content: center; flex-wrap: wrap; max-width: 480px; margin: 0 auto; }
+.ig-circle-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ig-circle { width: 52px; height: 52px; border-radius: 50%; background: var(--primary-500); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 22px; box-shadow: var(--shadow-cta); }
+.ig-circle-sub { font-size: 11px; color: var(--neutral-600); font-weight: 600; }
+
+/* staircase */
+.ig-staircase { position: relative; height: 140px; max-width: 360px; margin: 0 auto; }
+.ig-step { position: absolute; transform: translate(-50%, 50%); width: 36px; height: 36px; border-radius: 50%; background: var(--white); border: 2px solid var(--primary-500); color: var(--primary-500); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; box-shadow: var(--shadow-sm); }
+.ig-step:last-child { background: var(--primary-500); color: var(--white); border-color: var(--primary-500); }
+
+/* two-curves */
+.ig-two-curves { max-width: 420px; margin: 0 auto; }
+.ig-two-curves svg { width: 100%; height: auto; aspect-ratio: 400/160; }
+.ig-curve { fill: none; stroke-width: 3; }
+.ig-curve-slow { stroke: var(--secondary-700); }
+.ig-curve-fast { stroke: var(--primary-500); }
+.ig-curve-legend { display: flex; justify-content: space-around; margin-top: var(--sp-3); font-size: 12px; font-weight: 700; }
+.ig-curve-legend .slow { color: var(--secondary-700); }
+.ig-curve-legend .fast { color: var(--primary-500); }
+.ig-curve-legend .leg::before { content: '— '; }
+
+/* compare-boxes */
+.ig-compare-boxes { display: flex; gap: 12px; max-width: 480px; margin: 0 auto; }
+.ig-cb-left, .ig-cb-right { border-radius: var(--radius-md); padding: var(--sp-5) var(--sp-4); text-align: center; }
+.ig-cb-left { background: var(--secondary-100); color: var(--secondary-800); }
+.ig-cb-right { background: var(--primary-500); color: var(--white); }
+.ig-cb-title { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+.ig-cb-sub { font-size: 11px; opacity: 0.85; }
+</style>
+</head>
+<body class="blog-page">
+<div class="blog-wrap">
+  <header class="blog-head">
+    <a href="../index.html" class="back-link">← 밀프레드</a>
+    <a href="./index.html" class="all-link">전체 글 보기</a>
+  </header>
+
+  <article class="blog-article">
+    <div class="blog-meta">
+      <span class="chip snack">스낵</span>
+      <span class="phase">Phase — · 스낵</span>
+      <span class="cat">국제</span>
+      <time>2026-05-11</time>
+    </div>
+
+    <h1>Two Bite</h1>
+
+    <figure class="infographic">
+  <div class="ig-label">🇺🇸 USDA</div>
+  <div class="ig-hero">두 입</div>
+  <div class="ig-subtitle">5개 식품군</div>
+  <div class="ig-chart"><div class="ig-circle-row"><div class="ig-circle-item"><div class="ig-circle">2</div><div class="ig-circle-sub">곡류</div></div><div class="ig-circle-item"><div class="ig-circle">2</div><div class="ig-circle-sub">단백질</div></div><div class="ig-circle-item"><div class="ig-circle">2</div><div class="ig-circle-sub">채소</div></div><div class="ig-circle-item"><div class="ig-circle">2</div><div class="ig-circle-sub">과일</div></div><div class="ig-circle-item"><div class="ig-circle">2</div><div class="ig-circle-sub">유제품</div></div></div></div>
+  <figcaption class="ig-source">USDA · Team Nutrition</figcaption>
+</figure>
+
+    <div class="blog-body">
+      <h2>1. "집에서 편식 가르치고 싶은데, 마땅한 교재가 없네요."</h2>
+<p>부모님들이 흔히 하시는 말씀입니다.<br>시중 책은 광고가 많거나 영유아에게는 어렵고,<br>어린이집 자료는 부모 손에 잘 닿지 않습니다.<br>그런데 미국에는 정부가 직접 만든 무료 어린이 그림책이 있는데요.</p>
+<h2>2. "The Two Bite Club — 두 입 클럽."</h2>
+<p>미국 농무부(USDA) 식품영양국이 공식적으로 만든 어린이 그림책입니다.<br>주인공 Anna와 Will이 다섯 식품군에서 "두 입씩만" 도전해 가는 이야기로,<br>PDF와 e북 모두 무료로 받아볼 수 있습니다.</p>
+<p><a href="https://fns-prod.azureedge.us/sites/default/files/resource-files/TwoBiteClub.pdf" target="_blank" rel="noopener">https://fns-prod.azureedge.us/sites/default/files/resource-files/TwoBiteClub.pdf</a></p>
+<p>뒷장에는 컬러링 페이지와 '두 입 클럽' 인증서까지 들어 있어,<br>아이가 직접 참여할 수 있게 구성되어 있지요.</p>
+<h2>3. "그런데, 한 번 함께 생각해볼 부분이 있습니다."</h2>
+<p>"두 입씩 도전"이라는 권유를 어머님·아버님은 어떻게 받아들이시는지요?<br>한쪽에서는 새 음식을 작은 단위로 만나게 하는 부드러운 다리로 보입니다.<br>다른 쪽에서는 "한 입만 먹어봐"와 본질이 같은 권유처럼 느껴지기도 하지요.</p>
+<p>흥미로운 점은, 미국소아과학회(AAP)가 공식 endorse한<br>또 하나의 표준이 정반대 결을 가졌다는 사실입니다.</p>
+<h2>4. "40년 표준 'Satter 식이 책임 분할'"</h2>
+<blockquote class="quote-mark">부모는 무엇·언제·어디만, 아이는 얼마나·먹을지 말지.</blockquote>
+<p>저희가 더 자주 권하는 방식도 '권유'보다 '한 번 더 올려놓기'입니다.<br>식탁 위에 한 번 올려놓는 것 자체가 다음 만남의 토대가 되어 주니까요.</p>
+<h2>5. "📩 부모님 식탁에서는 어떠셨나요?"</h2>
+<p>"두 입 먹어보자"라고 권해 보신 적이 있으시다면, 효과가 있으셨는지<br>또는 오히려 거부감이 커지셨는지 개인차가 있기 때문에 한 번 생각해봐도 좋을 주제입니다.</p>
+<p>밀프레드 드림</p>
+    </div>
+
+    <aside class="blog-citations">
+      <h4>출처 · 인용</h4>
+      <ul><li>출처 1: 미국 농무부(USDA) Food and Nutrition Service · Team Nutrition 「The Two Bite Club」 / <a href="https://www.fns.usda.gov/tn/two-bite-club" target="_blank" rel="noopener">https://www.fns.usda.gov/tn/two-bite-club</a> (2026-05-11 접근)</li><li>출처 2: Ellyn Satter Institute 「Division of Responsibility in Feeding」 (AAP 공식 endorse) / <a href="https://www.ellynsatterinstitute.org/how-to-feed/division-of-responsibility/" target="_blank" rel="noopener">https://www.ellynsatterinstitute.org/how-to-feed/division-of-responsibility/</a> (2026-05-11 접근)</li></ul>
+    </aside><div class="blog-hashtags"><span class="ht">#식교육</span> <span class="ht">#편식</span> <span class="ht">#두입클럽</span> <span class="ht">#TwoBiteClub</span> <span class="ht">#USDA</span> <span class="ht">#SatterDOR</span> <span class="ht">#식이책임분할</span> <span class="ht">#영유아</span> <span class="ht">#밥잘안먹는아이</span> <span class="ht">#육아맘</span></div>
+
+    <nav class="blog-pager">
+      <a href="./003.html">← 3편</a>
+      <a href="./007.html">7편 →</a>
+    </nav>
+
+    <div class="blog-cta">
+      <h3>편식 시리즈 매일 한 편</h3>
+      <p>전 세계 33개 국제기준을 종합한 한국 최초 편식개선 프로그램. 1편부터 정주행 권해 드립니다.</p>
+      <a href="./index.html" class="cta-button">전체 글 보기 →</a>
+    </div>
+  </article>
+</div>
+</body>
+</html>

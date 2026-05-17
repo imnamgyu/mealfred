@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개월령별 한·미 식교육 비교 — 밀프레드</title>
+<meta name="description" content="한국 식약처 어린이급식관리지침서와 미국 Solid Starts를 개월령별로 한 화면에 정리. 부모님이 두 권고를 취사선택할 수 있는 비교 가이드.">
+<meta property="og:title" content="개월령별 한·미 식교육 비교 — 밀프레드">
+<meta property="og:description" content="한국 식약처 vs Solid Starts (미국) · 부모님 취사선택 가이드">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+  body { background: var(--primary-50); color: var(--neutral-900); font-family: var(--font-primary); }
+  .wrap { max-width: 980px; margin: 0 auto; padding: var(--sp-12) var(--container-pad) var(--sp-20); }
+
+  /* Header */
+  .head { text-align: center; margin-bottom: var(--sp-12); }
+  .eyebrow { display: inline-block; padding: 6px 14px; background: var(--white); border: 1px solid var(--primary-300); color: var(--primary-500); border-radius: var(--radius-full); font-size: 13px; font-weight: 600; margin-bottom: var(--sp-5); }
+  .title { font-size: clamp(26px, 5vw, 40px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; color: var(--secondary-800); margin-bottom: var(--sp-3); }
+  .subtitle { font-size: clamp(15px, 2vw, 17px); color: var(--neutral-600); margin-bottom: var(--sp-6); }
+  .source-row { display: inline-flex; gap: var(--sp-3); flex-wrap: wrap; justify-content: center; font-size: 13px; color: var(--neutral-600); }
+  .source-row .chip { background: var(--white); padding: 6px 12px; border-radius: var(--radius-full); border: 1px solid var(--neutral-200); }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 4px; background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: var(--sp-8); scrollbar-width: thin; }
+  .tabs::-webkit-scrollbar { height: 4px; }
+  .tabs::-webkit-scrollbar-thumb { background: var(--neutral-200); border-radius: 2px; }
+  .tab { flex: 0 0 auto; padding: 12px 18px; border: none; background: transparent; color: var(--neutral-600); font-size: 14px; font-weight: 600; border-radius: var(--radius-md); cursor: pointer; transition: all var(--dur-fast) var(--ease); white-space: nowrap; font-family: inherit; }
+  .tab:hover { background: var(--primary-100); color: var(--primary-500); }
+  .tab.active { background: var(--gradient-orange); color: var(--white); box-shadow: var(--shadow-cta); }
+
+  /* Comparison cards */
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.25s var(--ease); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5); margin-bottom: var(--sp-5); }
+  @media (max-width: 720px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: var(--white); border-radius: var(--radius-lg); padding: var(--sp-8); box-shadow: var(--shadow-md); border-top: 4px solid; }
+  .card.kr { border-top-color: var(--secondary-700); }
+  .card.us { border-top-color: var(--primary-500); }
+  .card .flag { font-size: 28px; line-height: 1; margin-bottom: var(--sp-3); }
+  .card .src { font-size: 12px; color: var(--neutral-400); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; font-weight: 600; }
+  .card h3 { font-size: 18px; font-weight: 700; margin-bottom: var(--sp-4); color: var(--secondary-800); }
+  .card.kr h3 { color: var(--secondary-700); }
+  .card.us h3 { color: var(--primary-500); }
+  .card .body { font-size: 15px; line-height: 1.7; color: var(--neutral-900); }
+
+  .diff { background: var(--primary-100); border-radius: var(--radius-lg); padding: var(--sp-6) var(--sp-8); margin-bottom: var(--sp-5); border-left: 4px solid var(--primary-500); }
+  .diff .label { font-size: 12px; color: var(--primary-500); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .diff .body { font-size: 15px; color: var(--secondary-800); line-height: 1.7; }
+
+  .guide { background: var(--gradient-navy); color: var(--white); border-radius: var(--radius-lg); padding: var(--sp-8); box-shadow: var(--shadow-lg); }
+  .guide .label { font-size: 12px; opacity: 0.7; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .guide .body { font-size: 17px; line-height: 1.6; font-weight: 600; }
+
+  /* Reference tables */
+  .ref { margin-top: var(--sp-16); }
+  .ref h2 { font-size: 22px; font-weight: 800; color: var(--secondary-800); margin-bottom: var(--sp-3); letter-spacing: -0.02em; }
+  .ref .caption { font-size: 13px; color: var(--neutral-600); margin-bottom: var(--sp-5); }
+  .ref-table-wrap { overflow-x: auto; background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 4px; margin-bottom: var(--sp-10); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 540px; }
+  th { background: var(--neutral-50); color: var(--secondary-800); font-weight: 700; padding: 12px 10px; text-align: left; border-bottom: 2px solid var(--neutral-200); white-space: nowrap; }
+  td { padding: 12px 10px; border-bottom: 1px solid var(--neutral-100); color: var(--neutral-900); }
+  tr:last-child td { border-bottom: none; }
+  th:first-child, td:first-child { color: var(--secondary-700); font-weight: 600; }
+  td.num { font-variant-numeric: tabular-nums; }
+
+  /* Footer */
+  footer { margin-top: var(--sp-20); padding-top: var(--sp-8); border-top: 1px solid var(--neutral-200); font-size: 13px; color: var(--neutral-600); line-height: 1.7; }
+  footer a { color: var(--primary-500); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  footer .sig { margin-top: var(--sp-5); font-weight: 600; color: var(--secondary-700); }
+
+  /* Print */
+  @media print {
+    body { background: var(--white); }
+    .tabs { display: none; }
+    .panel { display: block !important; break-inside: avoid; page-break-after: always; }
+    .panel:last-of-type { page-break-after: auto; }
+    .cards { grid-template-columns: 1fr 1fr; }
+    .card { box-shadow: none; border: 1px solid var(--neutral-200); }
+    .guide { background: var(--neutral-100); color: var(--secondary-800); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <span class="eyebrow">밀프레드 정리 가이드</span>
+    <h1 class="title">개월령별 한·미 식교육 비교</h1>
+    <p class="subtitle">한국 식약처 어린이급식관리지침서 vs 미국 Solid Starts · 부모님 취사선택 가이드</p>
+    <div class="source-row">
+      <span class="chip">🇰🇷 식약처 2025 어린이급식관리 지침</span>
+      <span class="chip">🇺🇸 Solid Starts First Foods Database</span>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main id="panels"></main>
+
+  <section class="ref">
+    <h2>📊 한국 식약처 — 1일 영양소 섭취기준</h2>
+    <p class="caption">보건복지부·한국영양학회 「2020 한국인 영양소 섭취기준」 기준</p>
+    <div class="ref-table-wrap">
+      <table>
+        <thead><tr><th>연령</th><th>에너지 (kcal)</th><th>단백질 (g)</th><th>비타민A (μg RAE)</th><th>비타민C (mg)</th><th>칼슘 (mg)</th><th>철 (mg)</th></tr></thead>
+        <tbody>
+          <tr><td>0~5개월</td><td class="num">500</td><td class="num">10</td><td class="num">350</td><td class="num">40</td><td class="num">250</td><td class="num">0.3</td></tr>
+          <tr><td>6~11개월</td><td class="num">600</td><td class="num">15</td><td class="num">450</td><td class="num">55</td><td class="num">300</td><td class="num">6</td></tr>
+          <tr><td>1~2세</td><td class="num">900</td><td class="num">20</td><td class="num">250</td><td class="num">40</td><td class="num">500</td><td class="num">6</td></tr>
+          <tr><td>3~5세</td><td class="num">1,400</td><td class="num">25</td><td class="num">300</td><td class="num">45</td><td class="num">600</td><td class="num">7</td></tr>
+          <tr><td>6~8세</td><td class="num">1,600</td><td class="num">35</td><td class="num">425</td><td class="num">50</td><td class="num">700</td><td class="num">9</td></tr>
+          <tr><td>9~11세</td><td class="num">1,900</td><td class="num">48</td><td class="num">575</td><td class="num">70</td><td class="num">800</td><td class="num">11</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>🍱 한국 식약처 — 1~2세 식품군별 1일 제공횟수</h2>
+    <p class="caption">900 kcal 기준 · 중앙급식관리지원센터 「영·유아 단체급식 가이드라인 1인 1회 적정 배식량」 (2021)</p>
+    <div class="ref-table-wrap">
+      <table>
+        <thead><tr><th>식품군</th><th>1일 제공횟수</th><th>아침</th><th>점심</th><th>저녁</th><th>간식</th></tr></thead>
+        <tbody>
+          <tr><td>곡류</td><td class="num">2.3</td><td class="num">0.6</td><td class="num">0.7</td><td class="num">0.7</td><td class="num">0.3</td></tr>
+          <tr><td>고기·생선·달걀·콩류</td><td class="num">4</td><td class="num">1.3</td><td class="num">1.4</td><td class="num">1.3</td><td>—</td></tr>
+          <tr><td>채소류</td><td class="num">6.5</td><td class="num">2</td><td class="num">2.3</td><td class="num">2.3</td><td>—</td></tr>
+          <tr><td>과일류</td><td class="num">1.3</td><td>—</td><td>—</td><td>—</td><td class="num">1.3</td></tr>
+          <tr><td>우유·유제품류</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="num">4</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>출처</strong></p>
+    <p>· 한국: 식품의약품안전처 · 식생활안전관리원 「2025년 어린이급식관리지원센터 식단 운영·관리 지침」 / 부모님 자료 포털 <a href="https://dietary4u.mfds.go.kr/" target="_blank" rel="noopener">dietary4u.mfds.go.kr</a> · 중앙급식관리지원센터 <a href="https://ccfsm.foodnara.go.kr/" target="_blank" rel="noopener">ccfsm.foodnara.go.kr</a></p>
+    <p>· 미국: Solid Starts 「First Foods Database」 (Jenny Best & 6 clinical reviewers, 2024) — <a href="https://solidstarts.com/foods/" target="_blank" rel="noopener">solidstarts.com/foods</a></p>
+    <p>· 참고 임상 표준: AAP HealthyChildren · WHO IYCF · Ellyn Satter Division of Responsibility (DOR)</p>
+    <p class="sig">밀프레드 정리 — 2026-05</p>
+  </footer>
+</div>
+
+<script>
+const data = [
+  { id: '0-5m', label: '0~5개월', kr: { src: '한국 식약처', title: '수유 전용 시기', body: '모유 또는 조제유만 권장. 5~6개월까지는 모유/분유만으로 영양이 충분합니다.<br><br>출생 시 저장철은 4~6개월부터 고갈되기 시작하므로 다음 단계 진입 준비가 필요합니다.<br><br><strong>1일 권장 수유량 (4~6개월)</strong>: 800~1,000 mL' }, us: { src: 'Solid Starts (미국)', title: 'Milk only', body: '6개월 이전 고형식 도입은 권장되지 않습니다 (AAP·WHO 공통 입장).<br><br>4~7개월 사이 발달 신호 4가지 — 도움 없이 앉기 / 머리·목 조절 / 음식 관심 / 입으로 가져가기 — 가 보이는지 확인 단계.' }, diff: '차이 거의 없음 — 6개월 이전 수유 중심은 양국 공통.', guide: '이 시기는 수유에 집중하세요. 고형식 시작 전 발달 신호 4가지를 먼저 확인.' },
+  { id: '4-5m', label: '4~5개월', kr: { src: '한국 식약처', title: '이유식 준비기', body: '이유식 준비기 — 차츰 진행. 본격 이유식 시작은 6개월 권장.<br><br>체중 6~7kg, 고개를 세우고 지지해서 앉을 수 있을 때가 시작 신호입니다.' }, us: { src: 'Solid Starts (미국)', title: 'Readiness check', body: '발달 신호 4가지 충족 시 시작 가능 — 시기보다 신호 중심.<br><br>① 도움 없이 앉기 ② 머리·목 조절 ③ 음식에 관심 ④ 손으로 잡아 입으로 가져가기.' }, diff: '한국은 시기(6개월) 중심 · 미국은 발달 신호 중심.', guide: '6개월을 기준 삼되, 발달 신호 4가지가 모두 보일 때 시작하세요.' },
+  { id: '6m', label: '6개월', kr: { src: '한국 식약처', title: '이유식 초기', body: '이유식 초기 — 데쳐서 거르거나 으깨거나 반고형식(묽은 미음)부터 시작.<br><br>단일 식재료로 알러지 여부 확인하면서 진행. 철분 보충을 위해 붉은 고기 등 권장.' }, us: { src: 'Solid Starts (미국)', title: 'First foods', body: '6개월에 본격 시작. 첫 음식은 iron-rich (육류 퓨레, 철분 강화 시리얼) 또는 mashed avocado.<br><br>알러지 식품 8종 (땅콩·달걀·우유·밀·콩·생선·갑각류·견과) 은 6개월부터 도입 권장 (AAP).' }, diff: '한국은 단일 식재료·곡물 죽 중심 · 미국은 단백질·철분·알러지 식품 조기 도입 권장.', guide: '한국 매뉴얼대로 곡물 죽으로 시작하시되, 7~8개월부터 철분 풍부한 단백질(붉은 고기 퓨레)을 의식적으로. 알러지 식품 도입은 소아과 상담 후.' },
+  { id: '7-8m', label: '7~8개월', kr: { src: '한국 식약처', title: '이유식 중기', body: '이유식 중기 — 데쳐서 거르거나 으깨거나 반고형식.<br><br>8개월에는 손으로 집어먹을 수 있고 간식을 혼자 먹을 수 있는 단계. 식품군 확장 시기.' }, us: { src: 'Solid Starts (미국)', title: 'Adding variety', body: '6~9개월 — 퓨레 → 두툼한 퓨레 → 매시 → 부드러운 핑거푸드로 점진 확장.<br><br>BLW (Baby-Led Weaning) 방식도 가능.' }, diff: '한국은 떠먹이는 죽 중심 · 미국은 핑거푸드·BLW 병행 권장.', guide: '숟가락 죽 + 손으로 집어먹는 부드러운 핑거푸드, 둘 다 시도해 보세요. 둘 다 옳습니다.' },
+  { id: '9-11m', label: '9~11개월', kr: { src: '한국 식약처', title: '이유식 후기', body: '고형식 도입. 음식 종류와 양을 늘려가며 아기가 먹는 데 흥미와 관심을 가질 수 있도록 인내하고 격려합니다.<br><br>⚠ 9개월~2세 사이는 철결핍 빈혈이 흔히 발생하는 시기입니다.' }, us: { src: 'Solid Starts (미국)', title: 'Self-feeding', body: '9~12개월 — Pincer grasp (엄지·검지로 집기) 발달 시기.<br><br>자기 손으로 집어먹는 핑거푸드 본격화. 다양한 텍스처와 맛 노출 권장.' }, diff: '공통 — 자기 손 식사 격려.', guide: '이 시기 식사 거부·놀이는 정상 발달. 강요 X, 다양한 음식을 식탁에 올려두기. 철분 섭취 의식적으로.' },
+  { id: '12-24m', label: '12~24개월', kr: { src: '한국 식약처', title: '유아식 만1~2세', body: '가족들과 같이 먹을 수 있는 시기. 영양이 풍부한 음식을 먹어야 합니다.<br><br>18개월부터 부모와 스스로 하루 3끼 + 2회 간식. 한 가지만 고집하거나 새로운 음식을 거부하는 시기 — 영양 결핍 주의.<br><br><strong>1일 권장 열량</strong>: 900 kcal' }, us: { src: 'Solid Starts (미국)', title: 'Toddler', body: '12~18개월 — 가족 식사 합류. 우유는 12개월부터 허용.<br><br>손으로 + 숟가락 병행. 거부와 고집은 정상 발달 단계로 봅니다.' }, diff: '한국은 영양 결핍 경고 톤 · 미국은 자기조절·자율 강조.', guide: '이 시기 거부와 고집은 정상 발달. 다양한 음식을 식탁에 올려두시되, 양은 아이가 결정하게 하세요.' },
+  { id: '2-3y', label: '2~3세', kr: { src: '한국 식약처', title: '유아식 후반', body: '식품 탐닉 현상 시기. 까다로운 식성. 음식을 삼키지 않고 입에 물고 있을 수 있습니다.<br><br>새로운 음식 수용에 시간이 걸리는 시기입니다.' }, us: { src: 'Solid Starts (미국)', title: 'Toddler eating', body: '네오포비아(새 음식 거부) 정점 시기.<br><br>평균 8~15회 노출 후 수용된다는 연구. 식사 자율 존중.' }, diff: '공통 — 거부는 정상, 노출 반복이 답.', guide: '새 음식 거부는 정상. 같은 음식을 다른 형태로 8~15번 반복 노출해 보세요.' },
+  { id: '3-5y', label: '3~5세', kr: { src: '한국 식약처', title: '유아식 만3~5세', body: '42개월: 편식·저체중 대처 교육이 필요한 시기. 독립심이 왕성해지고 부모와의 갈등이 많아집니다.<br><br>66개월: 집 외 간식 기회가 늘어나므로 올바른 간식 선택이 중요해집니다.<br><br><strong>1일 권장 열량</strong>: 1,400 kcal' }, us: { src: 'Solid Starts (미국)', title: 'Family eating', body: '가족 식탁에 본격 합류하는 시기. 식사 환경 (no pressure) 강조.<br><br>Satter DOR (Division of Responsibility) 표준: 부모는 무엇·언제·어디, 아이는 얼마나·먹을지 말지.' }, diff: '한국은 편식 교육 강조 · 미국은 부모 압력 X, 자율 강조.', guide: '먹어라 권유 X. 같은 음식을 자주 식탁에. 환경은 부모, 양은 아이가 결정.' },
+];
+
+const tabs = document.getElementById('tabs');
+const panels = document.getElementById('panels');
+
+data.forEach((d, i) => {
+  const tab = document.createElement('button');
+  tab.className = 'tab' + (i === 0 ? ' active' : '');
+  tab.textContent = d.label;
+  tab.dataset.target = d.id;
+  tabs.appendChild(tab);
+
+  const panel = document.createElement('section');
+  panel.className = 'panel' + (i === 0 ? ' active' : '');
+  panel.id = 'p-' + d.id;
+  panel.innerHTML = `
+    <div class="cards">
+      <article class="card kr">
+        <div class="flag">🇰🇷</div>
+        <div class="src">${d.kr.src}</div>
+        <h3>${d.kr.title}</h3>
+        <div class="body">${d.kr.body}</div>
+      </article>
+      <article class="card us">
+        <div class="flag">🇺🇸</div>
+        <div class="src">${d.us.src}</div>
+        <h3>${d.us.title}</h3>
+        <div class="body">${d.us.body}</div>
+      </article>
+    </div>
+    <div class="diff">
+      <div class="label">한·미 핵심 차이</div>
+      <div class="body">${d.diff}</div>
+    </div>
+    <div class="guide">
+      <div class="label">밀프레드 한 줄 가이드</div>
+      <div class="body">${d.guide}</div>
+    </div>
+  `;
+  panels.appendChild(panel);
+});
+
+tabs.addEventListener('click', (e) => {
+  const t = e.target.closest('.tab');
+  if (!t) return;
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+  const target = t.dataset.target;
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'p-' + target));
+});
+</script>
+</body>
+</html>
