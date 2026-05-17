@@ -142,6 +142,11 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 .ig-cb-right { background: var(--primary-500); color: var(--white); }
 .ig-cb-title { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
 .ig-cb-sub { font-size: 11px; opacity: 0.85; }
+
+/* card-grid */
+.ig-card-grid { display: grid; gap: 8px; max-width: 320px; margin: 0 auto; }
+.ig-mini-card { aspect-ratio: 5/3; background: var(--secondary-100); border-radius: 6px; border: 1px solid var(--neutral-100); }
+.ig-mini-card.featured { background: var(--primary-500); border-color: var(--primary-500); }
 </style>
 </head>
 <body class="blog-page">
@@ -157,7 +162,20 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
   </section>
 
   <section class="post-grid">
-    <a href="./011.html" class="card-link">
+    <a href="./012.html" class="card-link">
+      <article class="post-card">
+        <div class="meta-row">
+          <span class="chip snack">스낵</span>
+          <span class="cat">국제</span>
+        </div>
+        <h3>Solid Starts — 400+ 음식 백과</h3>
+        <p class="excerpt">미국 Solid Starts 음식 DB — 400+ 음식, 자르는 법·알러지 표준화</p>
+        <div class="card-footer">
+          <span class="num">#12</span>
+          <time>2026-05-17</time>
+        </div>
+      </article>
+    </a><a href="./011.html" class="card-link">
       <article class="post-card">
         <div class="meta-row">
           <span class="chip regular">정주행</span>
