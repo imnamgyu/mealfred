@@ -148,6 +148,11 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 .ig-card-grid { display: grid; gap: 8px; max-width: 320px; margin: 0 auto; }
 .ig-mini-card { aspect-ratio: 5/3; background: var(--secondary-100); border-radius: 6px; border: 1px solid var(--neutral-100); }
 .ig-mini-card.featured { background: var(--primary-500); border-color: var(--primary-500); }
+
+/* infographic with image (12편 등) */
+.infographic-image { padding: 0; overflow: hidden; background: var(--neutral-50); border: 1px solid var(--neutral-200); }
+.ig-image { display: block; width: 100%; height: auto; }
+.infographic-image .ig-source { padding: 14px 24px; text-align: center; background: white; margin-top: 0; border-top: 1px solid var(--neutral-100); }
 </style>
 </head>
 <body class="blog-page">
@@ -167,11 +172,8 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 
     <h1>400+</h1>
 
-    <figure class="infographic">
-  <div class="ig-label">🇺🇸 Solid Starts</div>
-  <div class="ig-hero">400+</div>
-  <div class="ig-subtitle">음식 사전</div>
-  <div class="ig-chart"><div class="ig-card-grid" style="grid-template-columns:repeat(3,1fr);"><div class="ig-mini-card featured"></div><div class="ig-mini-card"></div><div class="ig-mini-card"></div><div class="ig-mini-card"></div><div class="ig-mini-card"></div><div class="ig-mini-card"></div><div class="ig-mini-card"></div><div class="ig-mini-card"></div><div class="ig-mini-card"></div></div></div>
+    <figure class="infographic infographic-image">
+  <img src="./img/solid-starts-foods.png" alt="Solid Starts 앱 화면 — Cucumber 카드 (6~8개월·9개월+·12개월+ 자르는 법) · 50 Fantastic First Foods · Baby Feeding Schedule · Mango 2 Ways" class="ig-image" loading="lazy">
   <figcaption class="ig-source">Solid Starts · First Foods Database</figcaption>
 </figure>
 
@@ -187,6 +189,9 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 질식 위험 여부, 알러지 표지,
 보관·조리 팁까지.</blockquote>
 <p>이 자료는 누구나 무료로 볼 수 있습니다.<br>서비스 공식 약속이<br>'free, forever'라고 명시되어 있지요.<br>소아과 의사·영양사·알러지 전문의 등<br>6명의 임상 전문가가<br>음식 한 가지마다 검토 후 게시한다고<br>공개되어 있습니다.</p>
+<p><strong>어디서 보시나요?</strong></p>
+<ul><li>웹사이트 (영문): <a href="https://solidstarts.com/foods" target="_blank" rel="noopener">https://solidstarts.com/foods</a></li><li>모바일 앱: 앱스토어(iOS) · Play 스토어(Android) 에서 <strong>'Solid Starts'</strong> 검색</li></ul>
+<p>영어가 부담스러우셔도<br>음식 사진과 자르는 법 도식이 직관적이라<br>충분히 활용하실 수 있습니다.</p>
 <p>"한국 공식 표준을 먼저, Solid Starts는 보조 참고로."</p>
 <p>다만 Solid Starts는<br>미국 영유아 식이 방식(BLW) 결을 기본으로 합니다.<br>한국 식약처 「어린이급식관리지침서」와는<br>권고 결이 조금 다르지요.</p>
 <p>부모님이 한 화면에서 비교하실 수 있도록<br>밀프레드가 두 가이드를<br>한 시트에 정리해 두었습니다.</p>
