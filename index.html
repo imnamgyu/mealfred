@@ -203,13 +203,35 @@ footer a{color:#aaa;text-decoration:none;}
 <!-- ===== BLOG ===== -->
 <section style="padding:80px 20px;background:#FAFAFA;">
   <div style="max-width:1000px;margin:0 auto;">
-    <div style="text-align:center;margin-bottom:48px;">
+    <!-- 헤더 -->
+    <div style="text-align:center;margin-bottom:36px;">
       <span style="display:inline-block;padding:6px 14px;background:white;border:1px solid #FFB380;color:#FF6B1A;border-radius:100px;font-size:13px;font-weight:600;margin-bottom:20px;">매일 한 편</span>
-      <h2 style="font-size:clamp(28px,5vw,38px);font-weight:800;color:#0F1D35;letter-spacing:-0.02em;line-height:1.2;margin-bottom:12px;">편식 시리즈 · 인사이트</h2>
-      <p style="font-size:16px;color:#4B5563;max-width:600px;margin:0 auto;line-height:1.7;">전 세계 33개 국제기준을 종합한 한국 최초 편식개선 시리즈.<br>출퇴근길, 아이 잠든 후 — 1~2분에 한 편.</p>
+      <h2 style="font-size:clamp(28px,5vw,38px);font-weight:800;color:#0F1D35;letter-spacing:-0.02em;line-height:1.2;margin-bottom:12px;">블로그</h2>
+      <p style="font-size:16px;color:#4B5563;line-height:1.7;">식교육 인사이트 — 1~2분에 한 편</p>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-bottom:40px;">
+    <!-- 시리즈 탭: 새 시리즈 시작 시 active 추가 / 신규 시리즈는 data-tab 신규 추가 -->
+    <nav style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:32px;" role="tablist">
+      <button data-tab="picky-eating" class="series-tab is-active" style="padding:10px 18px;background:#FF6B1A;color:white;border:1px solid #FF6B1A;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s;" role="tab" aria-selected="true">
+        편식 <span class="series-tab-badge" style="background:rgba(255,255,255,0.25);color:white;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;">연재</span>
+      </button>
+      <button data-tab="child-obesity" class="series-tab" style="padding:10px 18px;background:white;color:#4B5563;border:1px solid #E5E7EB;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s;" role="tab" aria-selected="false">
+        소아비만 <span class="series-tab-badge" style="background:#F3F4F6;color:#9CA3AF;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;">예정</span>
+      </button>
+      <button data-tab="elderly" class="series-tab" style="padding:10px 18px;background:white;color:#4B5563;border:1px solid #E5E7EB;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s;" role="tab" aria-selected="false">
+        노년식 <span class="series-tab-badge" style="background:#F3F4F6;color:#9CA3AF;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;">예정</span>
+      </button>
+      <button data-tab="korean" class="series-tab" style="padding:10px 18px;background:white;color:#4B5563;border:1px solid #E5E7EB;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s;" role="tab" aria-selected="false">
+        한식 <span class="series-tab-badge" style="background:#F3F4F6;color:#9CA3AF;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;">예정</span>
+      </button>
+      <button data-tab="certification" class="series-tab" style="padding:10px 18px;background:white;color:#4B5563;border:1px solid #E5E7EB;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;transition:all .2s;" role="tab" aria-selected="false">
+        자격증 <span class="series-tab-badge" style="background:#F3F4F6;color:#9CA3AF;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:700;">예정</span>
+      </button>
+    </nav>
+
+    <!-- 편식 탭 (활성) -->
+    <div data-panel="picky-eating" class="series-panel" style="display:block;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-bottom:32px;">
       <a href="blog/011.html" style="text-decoration:none;color:inherit;">
         <article style="background:white;padding:24px;border-radius:20px;border:1px solid #E5E7EB;box-shadow:0 1px 3px rgba(0,0,0,0.04);height:100%;display:flex;flex-direction:column;">
           <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;">
@@ -255,9 +277,74 @@ footer a{color:#aaa;text-decoration:none;}
     </div>
 
     <div style="text-align:center;">
-      <a href="blog/index.html" style="display:inline-block;padding:14px 28px;background:#FF6B1A;color:white;border-radius:100px;font-weight:700;text-decoration:none;font-size:14px;box-shadow:0 4px 14px rgba(255,107,26,0.3);">전체 글 보기 →</a>
+      <a href="blog/index.html" style="display:inline-block;padding:14px 28px;background:#FF6B1A;color:white;border-radius:100px;font-weight:700;text-decoration:none;font-size:14px;box-shadow:0 4px 14px rgba(255,107,26,0.3);">편식 시리즈 전체 보기 →</a>
+    </div>
+    </div><!-- /편식 패널 -->
+
+    <!-- 소아비만 탭 -->
+    <div data-panel="child-obesity" class="series-panel" style="display:none;">
+      <div style="background:white;padding:60px 32px;border-radius:20px;border:1px solid #E5E7EB;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">🔜</div>
+        <h3 style="font-size:20px;font-weight:700;color:#0F1D35;margin-bottom:8px;">소아비만 시리즈 · 공개 예정</h3>
+        <p style="font-size:14px;color:#4B5563;line-height:1.7;max-width:480px;margin:0 auto;">한 개의 문제의식을 주제로 끝까지 풀어낸 뒤,<br>다음 시리즈로 자연스럽게 이어갑니다.</p>
+      </div>
+    </div>
+
+    <!-- 노년식 탭 -->
+    <div data-panel="elderly" class="series-panel" style="display:none;">
+      <div style="background:white;padding:60px 32px;border-radius:20px;border:1px solid #E5E7EB;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">🔜</div>
+        <h3 style="font-size:20px;font-weight:700;color:#0F1D35;margin-bottom:8px;">노년식 시리즈 · 공개 예정</h3>
+        <p style="font-size:14px;color:#4B5563;line-height:1.7;max-width:480px;margin:0 auto;">한 개의 문제의식을 주제로 끝까지 풀어낸 뒤,<br>다음 시리즈로 자연스럽게 이어갑니다.</p>
+      </div>
+    </div>
+
+    <!-- 한식 탭 -->
+    <div data-panel="korean" class="series-panel" style="display:none;">
+      <div style="background:white;padding:60px 32px;border-radius:20px;border:1px solid #E5E7EB;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">🔜</div>
+        <h3 style="font-size:20px;font-weight:700;color:#0F1D35;margin-bottom:8px;">한식 시리즈 · 공개 예정</h3>
+        <p style="font-size:14px;color:#4B5563;line-height:1.7;max-width:480px;margin:0 auto;">한 개의 문제의식을 주제로 끝까지 풀어낸 뒤,<br>다음 시리즈로 자연스럽게 이어갑니다.</p>
+      </div>
+    </div>
+
+    <!-- 자격증 탭 -->
+    <div data-panel="certification" class="series-panel" style="display:none;">
+      <div style="background:white;padding:60px 32px;border-radius:20px;border:1px solid #E5E7EB;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">🔜</div>
+        <h3 style="font-size:20px;font-weight:700;color:#0F1D35;margin-bottom:8px;">자격증 시리즈 · 공개 예정</h3>
+        <p style="font-size:14px;color:#4B5563;line-height:1.7;max-width:480px;margin:0 auto;">한 개의 문제의식을 주제로 끝까지 풀어낸 뒤,<br>다음 시리즈로 자연스럽게 이어갑니다.</p>
+      </div>
     </div>
   </div>
+
+  <script>
+  (function() {
+    const tabs = document.querySelectorAll('.series-tab');
+    const panels = document.querySelectorAll('.series-panel');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        tabs.forEach(t => {
+          const isActive = t === tab;
+          t.classList.toggle('is-active', isActive);
+          t.setAttribute('aria-selected', isActive);
+          t.style.background = isActive ? '#FF6B1A' : 'white';
+          t.style.color = isActive ? 'white' : '#4B5563';
+          t.style.border = isActive ? '1px solid #FF6B1A' : '1px solid #E5E7EB';
+          const badge = t.querySelector('.series-tab-badge');
+          if (badge) {
+            badge.style.background = isActive ? 'rgba(255,255,255,0.25)' : '#F3F4F6';
+            badge.style.color = isActive ? 'white' : '#9CA3AF';
+          }
+        });
+        panels.forEach(p => {
+          p.style.display = p.dataset.panel === target ? 'block' : 'none';
+        });
+      });
+    });
+  })();
+  </script>
 </section>
 
 <!-- ===== SOCIAL IMPACT ===== -->
