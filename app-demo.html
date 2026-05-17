@@ -205,6 +205,163 @@ html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;over
 .p9-grid7 .gcell .day{color:#888;font-size:11px}
 .p9-grid7 .gcell .star{font-size:18px;color:#ddd;transition:all 0.15s}
 canvas.p9-chart{max-width:100%;height:auto}
+
+/* ============================================================
+   Food Bridge MVP (T700~T717) — 2026-05-14 흡수 통합 (옵션 B)
+   원본: /foodbridge/mvp/css/style.css (인디고 #283593 톤)
+   prefix: .fb-mvp-* — 데모 기존 클래스와 격리
+   ============================================================ */
+.fb-mvp{
+  --fb-indigo:#283593;--fb-indigo-dark:#1A237E;--fb-indigo-light:#E8EAF6;
+  --fb-indigo-faint:#F5F6FB;--fb-accent:#FF6B35;--fb-text:#1B2A4A;
+  --fb-text-mute:#6B7280;--fb-card:#FFFFFF;--fb-line:#E5E7EB;
+  --fb-success:#2E7D32;--fb-warn:#C45A00;--fb-danger:#C62828;
+  display:flex;flex-direction:column;min-height:100%;
+}
+.fb-mvp-banner{display:flex;align-items:center;justify-content:center;gap:6px;padding:6px 12px;background:#FFF4E6;border-bottom:1px solid #FFD7A8;color:#C45A00;font-size:12px;font-weight:600;letter-spacing:-0.2px}
+.fb-mvp-banner[hidden]{display:none}
+.fb-mvp-screen{display:none;flex-direction:column}
+.fb-mvp-screen.active{display:flex}
+.fb-mvp-screen-inner{padding:20px 16px 28px}
+.fb-mvp-title{font-size:20px;font-weight:800;color:var(--fb-indigo);letter-spacing:-0.5px;margin-bottom:6px;line-height:1.3}
+.fb-mvp-sub{font-size:13px;color:var(--fb-text-mute);margin-bottom:18px;line-height:1.5}
+.fb-mvp-field-label{display:block;font-size:12.5px;font-weight:700;color:var(--fb-text);margin:16px 0 6px}
+.fb-mvp-input{width:100%;padding:13px 14px;border:1.5px solid var(--fb-line);border-radius:11px;font-size:15px;font-family:inherit;background:var(--fb-card);color:var(--fb-text);transition:border-color 0.15s;-webkit-appearance:none}
+.fb-mvp-input:focus{outline:none;border-color:var(--fb-indigo)}
+.fb-mvp-input + .fb-mvp-input{margin-top:8px}
+.fb-mvp-range{width:100%;margin:6px 0;accent-color:var(--fb-indigo)}
+.fb-mvp-range-display{font-size:14px;font-weight:700;color:var(--fb-indigo);text-align:center;margin-top:2px}
+.fb-mvp-chips{display:flex;flex-wrap:wrap;gap:7px}
+.fb-mvp-chip{display:inline-flex;align-items:center;padding:7px 12px;background:var(--fb-card);border:1.5px solid var(--fb-line);border-radius:18px;font-size:12.5px;color:var(--fb-text);cursor:pointer;user-select:none;font-family:inherit;transition:all 0.15s}
+.fb-mvp-chip.selected{background:var(--fb-indigo-light);border-color:var(--fb-indigo);color:var(--fb-indigo);font-weight:600}
+.fb-mvp-btn{display:block;width:100%;padding:14px;border:none;border-radius:13px;font-size:15px;font-weight:700;text-align:center;cursor:pointer;font-family:inherit;transition:transform 0.1s,opacity 0.15s;margin-top:18px}
+.fb-mvp-btn:active{transform:scale(0.98)}
+.fb-mvp-btn:disabled{opacity:0.5;cursor:not-allowed}
+.fb-mvp-btn-primary{background:var(--fb-indigo);color:#fff}
+.fb-mvp-btn-primary:hover{background:var(--fb-indigo-dark)}
+.fb-mvp-btn-secondary{background:var(--fb-card);color:var(--fb-indigo);border:1.5px solid var(--fb-indigo);margin-top:10px}
+.fb-mvp-loading{display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:55vh}
+.fb-mvp-loading-title{font-size:16px;font-weight:700;color:var(--fb-indigo);margin-bottom:22px;text-align:center}
+.fb-mvp-steps{list-style:none;font-size:14px;color:var(--fb-text-mute);padding:0}
+.fb-mvp-steps li{padding:7px 0;opacity:0;transform:translateY(8px);transition:opacity 0.4s,transform 0.4s}
+.fb-mvp-steps li.visible{opacity:1;transform:translateY(0)}
+.fb-mvp-steps li.done{color:var(--fb-success)}
+.fb-mvp-spinner{width:30px;height:30px;border:3px solid var(--fb-indigo-light);border-top-color:var(--fb-indigo);border-radius:50%;animation:fbmvpspin 0.8s linear infinite;margin:0 auto 20px}
+@keyframes fbmvpspin{to{transform:rotate(360deg)}}
+.fb-mvp-bridge-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.fb-mvp-bridge-card{background:var(--fb-card);border:1.5px solid var(--fb-indigo-light);border-left:4px solid var(--fb-indigo);border-radius:12px;padding:14px 16px}
+.fb-mvp-bridge-card.is-start{border-left-color:var(--fb-text-mute);background:var(--fb-indigo-faint)}
+.fb-mvp-bridge-card.is-goal{border-left-color:var(--fb-accent);background:linear-gradient(135deg,#FFF9F3,#FFF3E8)}
+.fb-mvp-bridge-week{font-size:10.5px;font-weight:700;color:var(--fb-indigo);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
+.fb-mvp-bridge-card.is-goal .fb-mvp-bridge-week{color:var(--fb-accent)}
+.fb-mvp-bridge-food{font-size:15.5px;font-weight:700;color:var(--fb-text);margin-bottom:5px;line-height:1.4}
+.fb-mvp-bridge-axis{display:inline-block;font-size:10.5px;font-weight:600;color:var(--fb-indigo);background:var(--fb-indigo-light);padding:2px 8px;border-radius:10px;margin-bottom:5px}
+.fb-mvp-bridge-tone{font-size:13px;color:var(--fb-text-mute);line-height:1.5;font-style:italic}
+.fb-mvp-reason{font-size:11.5px;color:var(--fb-text-mute);background:var(--fb-indigo-faint);padding:9px 11px;border-radius:9px;margin-bottom:14px;line-height:1.5}
+.fb-mvp-error-banner{background:#FFEBEE;border:1.5px solid var(--fb-danger);color:var(--fb-danger);padding:11px 13px;border-radius:9px;font-size:13px;margin:12px 0;display:none}
+.fb-mvp-error-banner.visible{display:block}
+.fb-mvp-footer-tag{font-size:11px;color:var(--fb-text-mute);text-align:center;padding:10px 0 4px}
+
+/* ============================================================
+   ICFQ 결과 화면 (Sprint 9-E) — 2026-05-14 인플레이스 추가
+   prefix: .fb-icfq-* — 데모/MVP 기존 클래스와 격리
+   분기 톤: NORMAL_PICKY 그린 · BORDERLINE 옐로 · PFD_SUSPECT 레드
+   ============================================================ */
+.fb-icfq{
+  --fb-icfq-indigo:#283593;--fb-icfq-indigo-dark:#1A237E;--fb-icfq-indigo-light:#E8EAF6;
+  --fb-icfq-indigo-faint:#F5F6FB;--fb-icfq-text:#1B2A4A;--fb-icfq-text-mute:#6B7280;
+  --fb-icfq-card:#FFFFFF;--fb-icfq-line:#E5E7EB;
+  --fb-icfq-normal:#2E7D32;--fb-icfq-normal-light:#E8F5E9;--fb-icfq-normal-faint:#F4FAF5;
+  --fb-icfq-warn:#F57F17;--fb-icfq-warn-light:#FFF8E1;--fb-icfq-warn-faint:#FFFCF2;
+  --fb-icfq-danger:#C62828;--fb-icfq-danger-light:#FFEBEE;--fb-icfq-danger-faint:#FFF7F7;
+  display:flex;flex-direction:column;min-height:100%;
+}
+.fb-icfq-screen-inner{padding:18px 16px 28px}
+.fb-icfq-hero{margin-bottom:16px}
+.fb-icfq-hero-eyebrow{font-size:11.5px;font-weight:700;color:var(--fb-icfq-indigo);background:var(--fb-icfq-indigo-light);display:inline-block;padding:4px 10px;border-radius:12px;margin-bottom:8px;letter-spacing:-0.2px}
+.fb-icfq-hero-title{font-size:21px;font-weight:800;color:var(--fb-icfq-indigo);letter-spacing:-0.5px;margin:0 0 6px;line-height:1.3}
+.fb-icfq-hero-sub{font-size:12.5px;color:var(--fb-icfq-text-mute);line-height:1.6;margin:0}
+
+.fb-icfq-mock-bar{display:flex;flex-direction:column;gap:6px;padding:10px 12px;background:#FFF9E6;border:1px solid #FFE8A8;border-radius:10px;margin-bottom:14px}
+.fb-icfq-mock-label{font-size:11px;font-weight:700;color:#7A5A00;letter-spacing:-0.2px}
+.fb-icfq-mock-tabs{display:flex;gap:6px}
+.fb-icfq-mock-tab{flex:1;padding:8px 6px;background:#fff;border:1.5px solid #FFE8A8;border-radius:9px;font-size:12px;font-weight:600;color:#7A5A00;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.fb-icfq-mock-tab:hover{background:#FFF4D1}
+.fb-icfq-mock-tab.is-active{background:#7A5A00;color:#fff;border-color:#7A5A00}
+
+.fb-icfq-stage-box{background:var(--fb-icfq-card);border:1.5px solid var(--fb-icfq-line);border-radius:14px;padding:16px 14px;margin-bottom:14px;transition:all 0.2s}
+.fb-icfq-stage-box.stage-normal{background:var(--fb-icfq-normal-faint);border-color:#A5D6A7}
+.fb-icfq-stage-box.stage-borderline{background:var(--fb-icfq-warn-faint);border-color:#FFD54F}
+.fb-icfq-stage-box.stage-pfd{background:var(--fb-icfq-danger-faint);border-color:#EF9A9A}
+.fb-icfq-stage-badge{display:inline-block;padding:5px 12px;border-radius:14px;font-size:13px;font-weight:800;letter-spacing:-0.3px;margin-bottom:8px}
+.fb-icfq-stage-box.stage-normal .fb-icfq-stage-badge{background:var(--fb-icfq-normal);color:#fff}
+.fb-icfq-stage-box.stage-borderline .fb-icfq-stage-badge{background:var(--fb-icfq-warn);color:#fff}
+.fb-icfq-stage-box.stage-pfd .fb-icfq-stage-badge{background:var(--fb-icfq-danger);color:#fff}
+.fb-icfq-stage-risk{font-size:13px;font-weight:700;color:var(--fb-icfq-text);margin-bottom:12px}
+.fb-icfq-stage-risk span{font-size:18px;font-weight:800;color:var(--fb-icfq-indigo)}
+.fb-icfq-stage-box.stage-pfd .fb-icfq-stage-risk span{color:var(--fb-icfq-danger)}
+.fb-icfq-stage-box.stage-borderline .fb-icfq-stage-risk span{color:var(--fb-icfq-warn)}
+.fb-icfq-stage-box.stage-normal .fb-icfq-stage-risk span{color:var(--fb-icfq-normal)}
+
+.fb-icfq-bars{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.fb-icfq-bar-row{display:flex;align-items:center;gap:8px}
+.fb-icfq-bar-label{width:88px;font-size:10.5px;font-weight:600;color:var(--fb-icfq-text-mute);line-height:1.3}
+.fb-icfq-bar-track{flex:1;height:10px;background:#EEF0F4;border-radius:5px;overflow:hidden;position:relative}
+.fb-icfq-bar-fill{height:100%;border-radius:5px;transition:width 0.4s ease}
+.fb-icfq-bar-fill.lvl-0{background:linear-gradient(90deg,#A5D6A7,#66BB6A);width:8%}
+.fb-icfq-bar-fill.lvl-1{background:linear-gradient(90deg,#A5D6A7,#66BB6A);width:25%}
+.fb-icfq-bar-fill.lvl-2{background:linear-gradient(90deg,#FFD54F,#F9A825);width:55%}
+.fb-icfq-bar-fill.lvl-3{background:linear-gradient(90deg,#EF9A9A,#E53935);width:90%}
+.fb-icfq-bar-val{width:34px;font-size:10.5px;font-weight:700;text-align:right;color:var(--fb-icfq-text)}
+.fb-icfq-bars-legend{font-size:10.5px;color:var(--fb-icfq-text-mute);text-align:center;padding-top:4px;border-top:1px dashed var(--fb-icfq-line);line-height:1.5}
+
+.fb-icfq-card{background:var(--fb-icfq-card);border:1.5px solid var(--fb-icfq-line);border-left:4px solid var(--fb-icfq-indigo);border-radius:12px;padding:14px 14px;margin-bottom:12px;transition:border-color 0.2s,background 0.2s}
+.fb-icfq-card.tone-normal{border-left-color:var(--fb-icfq-normal);background:var(--fb-icfq-normal-faint)}
+.fb-icfq-card.tone-borderline{border-left-color:var(--fb-icfq-warn);background:var(--fb-icfq-warn-faint)}
+.fb-icfq-card.tone-pfd{border-left-color:var(--fb-icfq-danger);background:var(--fb-icfq-danger-faint)}
+.fb-icfq-card.tone-neutral{border-left-color:var(--fb-icfq-indigo);background:var(--fb-icfq-indigo-faint)}
+.fb-icfq-card-eyebrow{font-size:11px;font-weight:700;color:var(--fb-icfq-text-mute);letter-spacing:0.3px;text-transform:uppercase;margin-bottom:5px}
+.fb-icfq-card-title{font-size:16px;font-weight:800;color:var(--fb-icfq-text);letter-spacing:-0.3px;margin-bottom:8px;line-height:1.35}
+.fb-icfq-card.tone-normal .fb-icfq-card-title{color:var(--fb-icfq-normal)}
+.fb-icfq-card.tone-borderline .fb-icfq-card-title{color:#B36400}
+.fb-icfq-card.tone-pfd .fb-icfq-card-title{color:var(--fb-icfq-danger)}
+.fb-icfq-card-body{font-size:12.5px;color:var(--fb-icfq-text);line-height:1.65}
+.fb-icfq-card-body strong{color:var(--fb-icfq-text)}
+
+.fb-icfq-collapse-btn{margin-top:10px;background:transparent;border:1px dashed var(--fb-icfq-line);border-radius:8px;padding:7px 10px;font-size:11.5px;font-weight:600;color:var(--fb-icfq-indigo);cursor:pointer;font-family:inherit;width:100%;text-align:left}
+.fb-icfq-collapse-btn:hover{background:var(--fb-icfq-indigo-faint)}
+.fb-icfq-collapse-btn.is-open{background:var(--fb-icfq-indigo-faint)}
+.fb-icfq-refs{margin-top:8px;padding:10px 12px;background:#fff;border:1px solid var(--fb-icfq-line);border-radius:9px;display:flex;flex-direction:column;gap:7px}
+.fb-icfq-refs[hidden]{display:none}
+.fb-icfq-ref-item{font-size:11.5px;color:var(--fb-icfq-text-mute);line-height:1.55}
+.fb-icfq-ref-item strong{color:var(--fb-icfq-indigo);font-weight:700}
+
+.fb-icfq-action-list{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.fb-icfq-action-item{display:flex;gap:10px;padding:9px 11px;background:#fff;border:1px solid var(--fb-icfq-line);border-radius:9px}
+.fb-icfq-action-icon{font-size:18px;flex-shrink:0;line-height:1.2}
+.fb-icfq-action-text{flex:1;font-size:12.5px;color:var(--fb-icfq-text);line-height:1.55}
+.fb-icfq-action-text strong{font-weight:700;color:var(--fb-icfq-text)}
+.fb-icfq-action-cta{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.fb-icfq-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:12px;border:none;border-radius:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform 0.1s,opacity 0.15s;text-decoration:none}
+.fb-icfq-btn:active{transform:scale(0.98)}
+.fb-icfq-btn-primary{background:var(--fb-icfq-indigo);color:#fff}
+.fb-icfq-btn-primary:hover{background:var(--fb-icfq-indigo-dark)}
+.fb-icfq-btn-warn{background:var(--fb-icfq-warn);color:#fff}
+.fb-icfq-btn-danger{background:var(--fb-icfq-danger);color:#fff}
+.fb-icfq-btn-secondary{background:#fff;color:var(--fb-icfq-indigo);border:1.5px solid var(--fb-icfq-indigo)}
+
+.fb-icfq-resource-list{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.fb-icfq-resource-item{padding:11px 12px;background:#fff;border:1px solid var(--fb-icfq-line);border-radius:10px}
+.fb-icfq-resource-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--fb-icfq-text);margin-bottom:5px}
+.fb-icfq-resource-desc{font-size:11.5px;color:var(--fb-icfq-text-mute);line-height:1.55;margin-bottom:8px}
+.fb-icfq-resource-tag{display:inline-block;font-size:10px;font-weight:600;color:var(--fb-icfq-indigo);background:var(--fb-icfq-indigo-light);padding:2px 7px;border-radius:8px;margin-right:4px}
+.fb-icfq-resource-tag.tag-warn{color:#B36400;background:var(--fb-icfq-warn-light)}
+.fb-icfq-resource-tag.tag-danger{color:var(--fb-icfq-danger);background:var(--fb-icfq-danger-light)}
+.fb-icfq-resource-tag.tag-future{color:var(--fb-icfq-text-mute);background:#F0F0F4}
+.fb-icfq-resource-btn{display:inline-block;padding:7px 11px;background:var(--fb-icfq-indigo-faint);border:1px solid var(--fb-icfq-line);border-radius:7px;font-size:11.5px;font-weight:600;color:var(--fb-icfq-indigo);cursor:pointer;font-family:inherit}
+.fb-icfq-resource-btn:hover{background:var(--fb-icfq-indigo-light)}
+
+.fb-icfq-footer-tag{font-size:11px;color:var(--fb-icfq-text-mute);text-align:center;padding:14px 0 4px;line-height:1.6}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -323,7 +480,10 @@ canvas.p9-chart{max-width:100%;height:auto}
     <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
     <div class="header">
       <div class="logo">밀프레드</div>
-      <div style="width:36px;height:36px;border-radius:50%;background:#E8ECF1;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="go('s-profile')">👶</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="position:relative;width:36px;height:36px;border-radius:50%;background:#E8ECF1;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="go('s-notif')">🔔<span style="position:absolute;top:-2px;right:-2px;background:#FF3B30;color:#fff;font-size:9px;font-weight:700;border-radius:10px;padding:1px 5px;line-height:1.2">2</span></div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#E8ECF1;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="go('s-profile')">👶</div>
+      </div>
     </div>
     <div class="content">
       <div class="pad">
@@ -331,6 +491,51 @@ canvas.p9-chart{max-width:100%;height:auto}
         <div style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;line-height:1.5;color:#E65100;border:1px solid #FFCC80">
           <strong>🌐 전 세계 35개 국제기준 종합</strong> · 한국 최초 편식개선 키트<br>
           <span style="font-size:11px;color:#BF360C">🇨🇦 캐나다 정부: 새로운 음식, 30회까지 거부는 정상이에요</span>
+        </div>
+
+        <!-- 자녀 정보 카드 (개월령·키·몸무게·percentile 자동 분석) -->
+        <div class="card" style="background:linear-gradient(135deg,#FFF5F0,#FFE8DC);border:1px solid #FFD4BC;padding:14px;cursor:pointer" onclick="go('s-growth')">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="width:48px;height:48px;border-radius:50%;background:#FFB89B;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">👧</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:800;color:#1B2A4A">수현이 <span style="font-size:12px;color:#888;font-weight:500">· 35개월 17일</span></div>
+              <div style="font-size:12px;color:#666;margin-top:2px">97cm · 15kg · 여아</div>
+            </div>
+            <div style="text-align:right;font-size:11px;color:#FF6B35;font-weight:700">성장 곡선<br>→</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+            <span style="padding:3px 9px;background:#E8F5E9;color:#2E7D32;font-size:10.5px;font-weight:700;border-radius:16px">키 P50</span>
+            <span style="padding:3px 9px;background:#E8F5E9;color:#2E7D32;font-size:10.5px;font-weight:700;border-radius:16px">체중 P55</span>
+            <span style="padding:3px 9px;background:#E8F5E9;color:#2E7D32;font-size:10.5px;font-weight:700;border-radius:16px">✓ 정상 성장</span>
+            <span style="padding:3px 9px;background:#FFF3E0;color:#E65100;font-size:10.5px;font-weight:700;border-radius:16px">🇰🇷 유아식기</span>
+          </div>
+          <div style="font-size:10.5px;color:#888;margin-top:8px;line-height:1.5">
+            🔬 질병관리청 2017 소아청소년 성장도표 · WHO 0-5세 표준 기반 자동 산출
+          </div>
+        </div>
+
+        <!-- 오늘의 한 입 (블로그 2편 — 12~30회 노출 권고 자동 연결) -->
+        <div class="card" style="background:linear-gradient(135deg,#FF6B35,#FF9B6B);color:#fff;padding:14px;cursor:pointer" onclick="go('s-exposure')">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;opacity:.9;margin-bottom:4px">오늘의 한 입</div>
+          <div style="font-size:16px;font-weight:800;margin-bottom:6px">🥕 당근 — 8번째 시도</div>
+          <div style="font-size:12px;line-height:1.55;opacity:.95">
+            12~30번 노출이 정상이에요. 일곱 번 거부도 아직 1/4이니, 오늘은 마음 가볍게.
+          </div>
+          <div style="margin-top:8px;font-size:10.5px;opacity:.85">📚 캐나다 BC주 HealthLink BC · 2024</div>
+        </div>
+
+        <!-- 개월령 가이드 · 성장 곡선 진입 (2-column) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+          <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;text-align:center" onclick="go('s-guide')">
+            <div style="font-size:24px;margin-bottom:4px">📅</div>
+            <div style="font-size:12px;font-weight:700;color:#1B2A4A">개월령 가이드</div>
+            <div style="font-size:10px;color:#888;margin-top:2px">🇰🇷 식약처 vs 🇺🇸 Solid Starts</div>
+          </div>
+          <div style="background:#fff;border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;text-align:center" onclick="go('s-foodbridge')">
+            <div style="font-size:24px;margin-bottom:4px">🌉</div>
+            <div style="font-size:12px;font-weight:700;color:#1B2A4A">Food Chaining AI</div>
+            <div style="font-size:10px;color:#888;margin-top:2px">거부 음식 → 4축 변형</div>
+          </div>
         </div>
 
         <div class="card">
@@ -962,19 +1167,69 @@ canvas.p9-chart{max-width:100%;height:auto}
   <!-- ====== SCREEN: ICFQ 사전 스크리너 (Feeding Matters) ====== -->
   <div class="screen" id="s-icfq">
     <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
-    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">ICFQ 사전 스크리너</span><span></span></div>
-    <div class="content">
-      <div class="pad">
-        <div style="background:#E1F5FE;border-left:4px solid #0288D1;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.55">
-          <strong style="color:#0277BD">🇺🇸 Feeding Matters ICFQ 6문항</strong> · 정상 picky vs PFD 분기<br>
-          🔬 Goday 2019 PFD 4축 · 🇨🇦 CPS 25-35% 정상 통계
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">행동 데이터 기반 PFD 스크리닝</span><span></span></div>
+    <div class="content" style="padding-bottom:80px">
+      <div class="fb-icfq">
+        <div class="fb-icfq-screen-inner">
+          <!-- 헤더 -->
+          <div class="fb-icfq-hero">
+            <div class="fb-icfq-hero-eyebrow">🩺 ICFQ 6 차원 · 키트 21회 행동 자동 분석</div>
+            <h1 class="fb-icfq-hero-title">우리 아이 식사 패턴 진단</h1>
+            <p class="fb-icfq-hero-sub">설문 대신 키트 진행 데이터로 6 차원 위험도를 자동 계산합니다. 결과에 따라 안심 · 행동 · 자원 3 가지 가이드가 표시됩니다.</p>
+          </div>
+
+          <!-- 시나리오 토글 (mock 모드 데모용) -->
+          <div class="fb-icfq-mock-bar">
+            <div class="fb-icfq-mock-label">📊 시나리오 (mock 데모)</div>
+            <div class="fb-icfq-mock-tabs" id="fb-icfq-mock-tabs">
+              <button type="button" class="fb-icfq-mock-tab is-active" data-stage="normal">🌿 안심</button>
+              <button type="button" class="fb-icfq-mock-tab" data-stage="borderline">⚠️ 주의</button>
+              <button type="button" class="fb-icfq-mock-tab" data-stage="pfd">🚨 위험</button>
+            </div>
+          </div>
+
+          <!-- 현재 분기 배지 + 6 차원 막대 그래프 -->
+          <div class="fb-icfq-stage-box" id="fb-icfq-stage-box">
+            <div class="fb-icfq-stage-badge" id="fb-icfq-stage-badge">🌿 안심</div>
+            <div class="fb-icfq-stage-risk">위험 점수 <span id="fb-icfq-risk-total">0</span> / 6</div>
+            <div class="fb-icfq-bars" id="fb-icfq-bars"></div>
+            <div class="fb-icfq-bars-legend">키트 21회 동안 자동 누적된 행동 신호 — 0 = 정상, 1 = 위험</div>
+          </div>
+
+          <!-- 카드 1: 안심 (학술 근거) -->
+          <div class="fb-icfq-card" id="fb-icfq-card-comfort">
+            <div class="fb-icfq-card-eyebrow" id="fb-icfq-comfort-eyebrow">🌿 안심하세요</div>
+            <div class="fb-icfq-card-title" id="fb-icfq-comfort-title"></div>
+            <div class="fb-icfq-card-body" id="fb-icfq-comfort-body"></div>
+            <button type="button" class="fb-icfq-collapse-btn" id="fb-icfq-refs-btn">📚 학술 근거 펼치기 ▼</button>
+            <div class="fb-icfq-refs" id="fb-icfq-refs" hidden>
+              <div class="fb-icfq-ref-item"><strong>CPS Caring for Kids</strong> — 캐나다 소아과학회. 토들러·미취학아 25~35%가 정상 picky 단계를 통과.</div>
+              <div class="fb-icfq-ref-item"><strong>Goday 2019 PFD Consensus</strong> — Pediatric Feeding Disorder 4 영역(medical · nutritional · feeding skill · psychosocial) 합의 정의.</div>
+              <div class="fb-icfq-ref-item"><strong>Feeding Matters ICFQ</strong> — 6 차원 위험 신호 스크리너. 본 앱은 설문 대신 키트 21회 행동 데이터를 6 차원으로 자동 매핑.</div>
+              <div class="fb-icfq-ref-item"><strong>ICD-10 R63.3</strong> — Feeding difficulties 진단 코드. 위험 분기에서 의뢰용 참고.</div>
+            </div>
+          </div>
+
+          <!-- 카드 2: 행동 (다음 단계) -->
+          <div class="fb-icfq-card" id="fb-icfq-card-action">
+            <div class="fb-icfq-card-eyebrow">🎯 다음 단계</div>
+            <div class="fb-icfq-card-title" id="fb-icfq-action-title"></div>
+            <div class="fb-icfq-action-list" id="fb-icfq-action-list"></div>
+            <div class="fb-icfq-action-cta" id="fb-icfq-action-cta"></div>
+          </div>
+
+          <!-- 카드 3: 자원 (전문가 · PDF · 후속 측정) -->
+          <div class="fb-icfq-card" id="fb-icfq-card-resource">
+            <div class="fb-icfq-card-eyebrow">🏥 필요할 때 도움받기</div>
+            <div class="fb-icfq-card-title">자원 안내</div>
+            <div class="fb-icfq-resource-list" id="fb-icfq-resource-list"></div>
+          </div>
+
+          <div class="fb-icfq-footer-tag">
+            mock 모드 · 현재 분기: <span id="fb-icfq-footer-stage">NORMAL_PICKY</span> ·
+            <a href="#" onclick="event.preventDefault(); window.fbIcfq && window.fbIcfq.openReal();" style="color:var(--fb-icfq-indigo);text-decoration:underline">실 데이터 모드(준비중)</a>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-label">6문항 — 각각 예/아니오 선택</div>
-          <div id="p9-icfq-qs"></div>
-          <div class="btn btn-o" style="margin-top:12px" onclick="p9ICFQ.score()">📊 결과 보기</div>
-        </div>
-        <div id="p9-icfq-result"></div>
       </div>
     </div>
   </div>
@@ -1053,24 +1308,95 @@ canvas.p9-chart{max-width:100%;height:auto}
     </div>
   </div>
 
-  <!-- ====== SCREEN: Food Bridge 자동 생성기 ====== -->
+  <!-- ====== SCREEN: Food Bridge 자동 생성기 (T700~T717 MVP 흡수 통합 2026-05-14) ====== -->
+  <!-- 원본: /foodbridge/mvp/index.html — 옵션 B 단일 진입점 통합 -->
   <div class="screen" id="s-foodbridge">
     <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
-    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">Food Chaining 4축 생성기 ★</span><span></span></div>
-    <div class="content">
-      <div class="pad">
-        <div style="background:#FFF3E0;border-left:4px solid #F57C00;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.55">
-          <strong style="color:#E65100">🔬 Fraker 2007</strong> + 🇺🇸 <strong>AAP food bridges</strong> + 🇰🇷 <strong>식약처 푸드브릿지</strong> · <strong>앱만의 킬러 기능 ⭐</strong><br>
-          <span style="font-size:11px;color:#666">한 단계 = 한 축 변화 (질감→색→온도→맛 우선순위)</span>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">Food Bridge 4축 생성기 ★</span><span></span></div>
+    <div class="content" style="padding-bottom:80px">
+      <div class="fb-mvp">
+        <div class="fb-mvp-banner" id="fb-mvp-banner" hidden>
+          <span aria-hidden="true">🎭</span>
+          <span>Mock 모드 (LLM 미연결) — UX·디자인 검증용</span>
         </div>
-        <div class="card">
-          <div class="card-label">1단계 — 좋아하는 음식 (탭하여 선택)</div>
-          <div id="p9-fc-loved" style="margin-top:6px"></div>
-          <div class="card-label" style="margin-top:12px">2단계 — 도달하고 싶은 음식 (1개)</div>
-          <div id="p9-fc-target" style="margin-top:6px"></div>
-          <div class="btn btn-o" style="margin-top:14px" onclick="p9FC.generate()">🌉 다리 시퀀스 생성</div>
+
+        <!-- Screen 1: 입력 (T710) -->
+        <section class="fb-mvp-screen" id="fb-mvp-screen-input">
+          <div class="fb-mvp-screen-inner">
+            <div style="background:#FFF3E0;border-left:4px solid #F57C00;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11.5px;line-height:1.55">
+              <strong style="color:#E65100">🔬 Fraker 2007</strong> + 🇺🇸 <strong>AAP food bridges</strong> + 🇰🇷 <strong>식약처 푸드브릿지</strong> · <strong>앱만의 킬러 기능 ⭐</strong><br>
+              <span style="font-size:11px;color:#666">자녀가 좋아하는 음식 3개 + 거부 음식 1개 → 30초 안에 4축(색·온도·질감·맛) 다리 시퀀스 3~5단계 LLM 생성</span>
+            </div>
+            <h1 class="fb-mvp-title">4축 편식 다리 만들기</h1>
+            <p class="fb-mvp-sub">자녀의 입맛에서 시작해서 한 단계씩 새로운 음식까지. 30초 안에 다리 시퀀스를 생성해드립니다.</p>
+
+            <label class="fb-mvp-field-label">자녀가 좋아하는 음식 3개</label>
+            <input type="text" class="fb-mvp-input" id="fb-mvp-liked-1" placeholder="예: 흰밥" autocomplete="off">
+            <input type="text" class="fb-mvp-input" id="fb-mvp-liked-2" placeholder="예: 계란후라이" autocomplete="off">
+            <input type="text" class="fb-mvp-input" id="fb-mvp-liked-3" placeholder="예: 치즈" autocomplete="off">
+
+            <label class="fb-mvp-field-label">지금 거부하는 음식 1개</label>
+            <input type="text" class="fb-mvp-input" id="fb-mvp-refused" placeholder="예: 시금치" autocomplete="off">
+
+            <label class="fb-mvp-field-label">자녀 연령 <span class="fb-mvp-range-display" id="fb-mvp-age-display">36개월</span></label>
+            <input type="range" class="fb-mvp-range" id="fb-mvp-age-range" min="12" max="84" value="36" step="1">
+
+            <label class="fb-mvp-field-label">알러지 (선택)</label>
+            <div class="fb-mvp-chips" id="fb-mvp-allergen-chips">
+              <button type="button" class="fb-mvp-chip" data-value="milk">우유</button>
+              <button type="button" class="fb-mvp-chip" data-value="egg">계란</button>
+              <button type="button" class="fb-mvp-chip" data-value="wheat">밀</button>
+              <button type="button" class="fb-mvp-chip" data-value="soy">콩</button>
+              <button type="button" class="fb-mvp-chip" data-value="fish">생선</button>
+              <button type="button" class="fb-mvp-chip" data-value="sesame">참깨</button>
+              <button type="button" class="fb-mvp-chip" data-value="nuts">견과</button>
+            </div>
+
+            <div class="fb-mvp-error-banner" id="fb-mvp-input-error" role="alert"></div>
+
+            <button type="button" class="fb-mvp-btn fb-mvp-btn-primary" id="fb-mvp-generate-btn">🌉 다리 생성하기</button>
+          </div>
+        </section>
+
+        <!-- Screen 2: 로딩 (T712) -->
+        <section class="fb-mvp-screen" id="fb-mvp-screen-loading">
+          <div class="fb-mvp-screen-inner fb-mvp-loading">
+            <div class="fb-mvp-spinner" aria-hidden="true"></div>
+            <p class="fb-mvp-loading-title">자녀 맞춤 다리를 만들고 있어요</p>
+            <ul class="fb-mvp-steps" id="fb-mvp-loading-steps" aria-live="polite">
+              <li data-step="color">🎨 색을 분석하는 중...</li>
+              <li data-step="temperature">🌡️ 온도를 분석하는 중...</li>
+              <li data-step="texture">🤲 질감을 분석하는 중...</li>
+              <li data-step="flavor">👅 맛을 분석하는 중...</li>
+              <li data-step="bridge">🌉 4축 다리를 생성하는 중...</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Screen 3: 결과 (T711) -->
+        <section class="fb-mvp-screen" id="fb-mvp-screen-result">
+          <div class="fb-mvp-screen-inner">
+            <h2 class="fb-mvp-title" id="fb-mvp-result-title">자녀 맞춤 4축 다리</h2>
+            <p class="fb-mvp-reason" id="fb-mvp-result-reason" hidden></p>
+            <div class="fb-mvp-bridge-list" id="fb-mvp-bridge-list" role="list"></div>
+            <button type="button" class="fb-mvp-btn fb-mvp-btn-primary" id="fb-mvp-restart-btn">다시 만들기</button>
+            <button type="button" class="fb-mvp-btn fb-mvp-btn-secondary" id="fb-mvp-share-btn">공유하기</button>
+          </div>
+        </section>
+
+        <!-- Screen 4: 에러 (T713) -->
+        <section class="fb-mvp-screen" id="fb-mvp-screen-error">
+          <div class="fb-mvp-screen-inner">
+            <h2 class="fb-mvp-title">잠시 후 다시 시도해주세요</h2>
+            <p class="fb-mvp-sub" id="fb-mvp-error-message">일시적 오류가 발생했습니다.</p>
+            <button type="button" class="fb-mvp-btn fb-mvp-btn-primary" id="fb-mvp-retry-btn">다시 시도</button>
+            <button type="button" class="fb-mvp-btn fb-mvp-btn-secondary" id="fb-mvp-error-back-btn">처음으로</button>
+          </div>
+        </section>
+
+        <div class="fb-mvp-footer-tag">
+          v1-mvp (2026-05-14) · <span id="fb-mvp-footer-mode-tag"></span>
         </div>
-        <div id="p9-fc-result"></div>
       </div>
     </div>
   </div>
@@ -1197,6 +1523,300 @@ canvas.p9-chart{max-width:100%;height:auto}
         </div>
         <div class="btn btn-o" onclick="toast('🥗 두 입 시도 인증됨 (데모)')">+ 두 입 시도 인증</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: 개월령 가이드 (식약처 vs Solid Starts 자동 비교) ====== -->
+  <div class="screen" id="s-guide">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">개월령 가이드</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#FFF3E0;border-left:4px solid #E65100;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11.5px;line-height:1.55">
+          <strong style="color:#E65100">🇰🇷 식약처 어린이급식관리지침서</strong> + <strong style="color:#1B2A4A">🇺🇸 Solid Starts</strong> 자동 비교<br>
+          <span style="font-size:11px;color:#666">수현이(35개월) 단계 자동 매핑 · 한국 매뉴얼 우선 + Solid Starts 보조 참고</span>
+        </div>
+
+        <!-- 자녀 단계 헤더 -->
+        <div style="background:linear-gradient(135deg,#FFF5F0,#FFE8DC);border-radius:12px;padding:12px 14px;margin-bottom:14px;text-align:center">
+          <div style="font-size:11px;color:#888;font-weight:600">수현이 현재 단계</div>
+          <div style="font-size:18px;font-weight:800;color:#1B2A4A;margin-top:4px">🇰🇷 유아식기 · 🇺🇸 Toddler (24~36m+)</div>
+        </div>
+
+        <!-- 좌우 비교 카드 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+          <div style="background:#E8ECF1;border-radius:12px;padding:12px">
+            <div style="font-size:10px;font-weight:700;color:#1B2A4A;margin-bottom:6px">🇰🇷 식약처</div>
+            <div style="font-size:12px;font-weight:700;color:#1B2A4A;margin-bottom:6px">유아식기 (24~60m)</div>
+            <div style="font-size:11px;color:#444;line-height:1.55">
+              · 1일 3끼 + 간식 2회<br>
+              · 어른 반찬 작게 잘라 함께<br>
+              · 식품군별 권장 횟수 준수<br>
+              · 자율 식사·강요 X
+            </div>
+          </div>
+          <div style="background:#FFF3E8;border-radius:12px;padding:12px">
+            <div style="font-size:10px;font-weight:700;color:#FF6B35;margin-bottom:6px">🇺🇸 Solid Starts</div>
+            <div style="font-size:12px;font-weight:700;color:#1B2A4A;margin-bottom:6px">Toddler (24~36m+)</div>
+            <div style="font-size:11px;color:#444;line-height:1.55">
+              · Family meals 가족식 권장<br>
+              · 손가락 음식 자유롭게<br>
+              · 12~30회 노출 정상<br>
+              · Division of Responsibility
+            </div>
+          </div>
+        </div>
+
+        <!-- 밀프레드 통합 권고 -->
+        <div class="card" style="border-left:4px solid #FF6B35;background:#FFFDF6">
+          <div style="font-size:11px;font-weight:700;color:#FF6B35;margin-bottom:6px">🌉 밀프레드 통합 가이드</div>
+          <div style="font-size:13px;line-height:1.65;color:#1B2A4A">
+            한국 매뉴얼을 첫 기준으로, Solid Starts 실용 팁을 보조 참고로.<br>
+            수현이는 어른 식판 그대로 작게 잘라 가족식에 참여시킬 단계입니다.
+          </div>
+        </div>
+
+        <!-- 전체 단계 펼치기 -->
+        <div style="font-size:13px;font-weight:700;color:#1B2A4A;margin:18px 0 8px">전체 개월령 단계</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f5f5f5;border-radius:10px;font-size:11.5px;opacity:.6">
+            <div style="width:36px;font-weight:700;color:#888">0~5m</div>
+            <div style="flex:1;color:#666">완전 모유·분유 · Solid Starts: No solids yet</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f5f5f5;border-radius:10px;font-size:11.5px;opacity:.6">
+            <div style="width:36px;font-weight:700;color:#888">6~8m</div>
+            <div style="flex:1;color:#666">이유식 중기 · Solid Starts: First foods</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f5f5f5;border-radius:10px;font-size:11.5px;opacity:.6">
+            <div style="width:36px;font-weight:700;color:#888">9~11m</div>
+            <div style="flex:1;color:#666">이유식 후기 · Solid Starts: Adding variety</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#f5f5f5;border-radius:10px;font-size:11.5px;opacity:.6">
+            <div style="width:36px;font-weight:700;color:#888">12~23m</div>
+            <div style="flex:1;color:#666">유아식 초기 · Solid Starts: 12m+</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(135deg,#FFF5F0,#FFE8DC);border:2px solid #FFB89B;border-radius:10px;font-size:12px;font-weight:700">
+            <div style="width:36px;color:#FF6B35">24~60m</div>
+            <div style="flex:1;color:#1B2A4A">유아식기 · Solid Starts: Toddler ← <span style="color:#FF6B35">수현이</span></div>
+          </div>
+        </div>
+
+        <div class="btn btn-s" style="margin-top:14px" onclick="window.open('https://www.mealfred.com/blog/feeding-guide-by-age.html','_blank')">📄 전체 한·미 비교 가이드 열기</div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
+      <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
+      <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab" onclick="go('s-fooddb')"><span class="ico">🌐</span>35개</div>
+      <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: 성장 트래커 (WHO/KDC percentile + 영양상태 추정) ====== -->
+  <div class="screen" id="s-growth">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">성장 곡선 · 영양 상태</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E8F5E9;border-left:4px solid #2E7D32;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11.5px;line-height:1.55">
+          <strong style="color:#2E7D32">🔬 질병관리청 2017 소아청소년 성장도표</strong> · WHO 0-5세 표준 결합<br>
+          <span style="font-size:11px;color:#666">개월령별 평균치와 자녀 측정값을 자동 비교해 영양 상태를 추정합니다</span>
+        </div>
+
+        <!-- 현재 측정값 + 종합 평가 -->
+        <div class="card" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:1px solid #A5D6A7">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:700">종합 평가</div>
+              <div style="font-size:20px;font-weight:800;color:#1B5E20;margin-top:2px">✓ 정상 성장</div>
+            </div>
+            <div style="font-size:36px">😊</div>
+          </div>
+          <div style="font-size:12px;color:#1B5E20;line-height:1.6">
+            수현이의 키와 체중 모두 한국 35개월 여아 평균 범위 안입니다.<br>
+            지난 3개월 추세 — 키 +2.1cm / 체중 +0.6kg <strong>안정 상승</strong>.
+          </div>
+        </div>
+
+        <!-- 키 percentile -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div class="card-label" style="margin-bottom:0">📏 키 (Height)</div>
+            <div style="font-size:11px;color:#2E7D32;font-weight:700">정상</div>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
+            <div style="font-size:24px;font-weight:800;color:#1B2A4A">97 cm</div>
+            <div style="font-size:13px;color:#888">/ 평균 96.5cm</div>
+          </div>
+          <!-- percentile 막대 -->
+          <div style="position:relative;height:24px;background:linear-gradient(90deg,#FFCDD2 0%,#FFE0B2 20%,#C8E6C9 30%,#C8E6C9 70%,#FFE0B2 80%,#FFCDD2 100%);border-radius:6px;overflow:hidden">
+            <div style="position:absolute;left:50%;top:0;bottom:0;width:3px;background:#1B2A4A;transform:translateX(-50%)"></div>
+            <div style="position:absolute;left:50%;top:-4px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid #1B2A4A;transform:translateX(-50%)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-top:4px">
+            <span>P3</span><span>P10</span><span style="color:#1B2A4A;font-weight:700">P50 (수현)</span><span>P90</span><span>P97</span>
+          </div>
+        </div>
+
+        <!-- 체중 percentile -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div class="card-label" style="margin-bottom:0">⚖️ 체중 (Weight)</div>
+            <div style="font-size:11px;color:#2E7D32;font-weight:700">정상</div>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
+            <div style="font-size:24px;font-weight:800;color:#1B2A4A">15.0 kg</div>
+            <div style="font-size:13px;color:#888">/ 평균 14.4kg</div>
+          </div>
+          <div style="position:relative;height:24px;background:linear-gradient(90deg,#FFCDD2 0%,#FFE0B2 20%,#C8E6C9 30%,#C8E6C9 70%,#FFE0B2 80%,#FFCDD2 100%);border-radius:6px;overflow:hidden">
+            <div style="position:absolute;left:55%;top:0;bottom:0;width:3px;background:#1B2A4A;transform:translateX(-50%)"></div>
+            <div style="position:absolute;left:55%;top:-4px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid #1B2A4A;transform:translateX(-50%)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-top:4px">
+            <span>P3</span><span>P10</span><span>P50</span><span style="color:#1B2A4A;font-weight:700">P55</span><span>P97</span>
+          </div>
+        </div>
+
+        <!-- BMI for age -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div class="card-label" style="margin-bottom:0">📊 BMI (체질량지수)</div>
+            <div style="font-size:11px;color:#2E7D32;font-weight:700">정상</div>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:6px">
+            <div style="font-size:24px;font-weight:800;color:#1B2A4A">15.9</div>
+            <div style="font-size:13px;color:#888">/ 35개월 평균 15.5</div>
+          </div>
+          <div style="font-size:11px;color:#666;line-height:1.6">
+            정상 범위 (P5~P85). 저체중·과체중 신호 없음.
+          </div>
+        </div>
+
+        <!-- 추세 차트 (6개월) -->
+        <div class="card">
+          <div class="card-label">📈 최근 6개월 추세</div>
+          <div style="display:flex;gap:6px;align-items:flex-end;height:80px;margin:12px 0">
+            <div style="flex:1;background:linear-gradient(180deg,#FFB89B,#FF6B35);border-radius:5px 5px 0 0;height:60%;display:flex;align-items:flex-end;justify-content:center;font-size:9px;color:#fff;font-weight:700;padding-bottom:3px">95</div>
+            <div style="flex:1;background:linear-gradient(180deg,#FFB89B,#FF6B35);border-radius:5px 5px 0 0;height:65%;display:flex;align-items:flex-end;justify-content:center;font-size:9px;color:#fff;font-weight:700;padding-bottom:3px">95.5</div>
+            <div style="flex:1;background:linear-gradient(180deg,#FFB89B,#FF6B35);border-radius:5px 5px 0 0;height:72%;display:flex;align-items:flex-end;justify-content:center;font-size:9px;color:#fff;font-weight:700;padding-bottom:3px">96</div>
+            <div style="flex:1;background:linear-gradient(180deg,#FFB89B,#FF6B35);border-radius:5px 5px 0 0;height:80%;display:flex;align-items:flex-end;justify-content:center;font-size:9px;color:#fff;font-weight:700;padding-bottom:3px">96.5</div>
+            <div style="flex:1;background:linear-gradient(180deg,#FFB89B,#FF6B35);border-radius:5px 5px 0 0;height:88%;display:flex;align-items:flex-end;justify-content:center;font-size:9px;color:#fff;font-weight:700;padding-bottom:3px">96.8</div>
+            <div style="flex:1;background:linear-gradient(180deg,#FFB89B,#FF6B35);border-radius:5px 5px 0 0;height:95%;display:flex;align-items:flex-end;justify-content:center;font-size:9px;color:#fff;font-weight:700;padding-bottom:3px">97</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:#888">
+            <span>30m</span><span>31m</span><span>32m</span><span>33m</span><span>34m</span><span>35m</span>
+          </div>
+          <div style="font-size:11px;color:#2E7D32;font-weight:700;margin-top:8px">✓ 키 P50 유지 · 안정적 성장 곡선</div>
+        </div>
+
+        <!-- ARFID 안내 — 정상이라 정보성으로만 -->
+        <div class="card" style="background:#FFF8E1;border-left:4px solid #F9A825">
+          <div style="font-size:11px;font-weight:700;color:#E65100;margin-bottom:4px">💡 알아두세요 — ARFID 평가는 이렇게</div>
+          <div style="font-size:12px;color:#5D4037;line-height:1.6">
+            만약 <strong>체중 P10 이하</strong>로 떨어지거나 <strong>3개월 연속 체중 하향</strong> 추세면, 단순 편식이 아닌 회피·제한적 음식섭취 장애(ARFID)일 수 있어요.<br>
+            그땐 소아과 평가를 권장드립니다. 지금 수현이는 안심하셔도 좋습니다.
+          </div>
+          <div style="font-size:10.5px;color:#888;margin-top:8px">📚 DSM-5 ARFID · 한국 소아청소년정신의학회 · 11편 본문</div>
+        </div>
+
+        <div class="btn btn-s" style="margin-top:14px" onclick="toast('📏 새 측정 기록 저장됨 (데모)')">+ 새 측정 기록하기</div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
+      <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
+      <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab" onclick="go('s-fooddb')"><span class="ico">🌐</span>35개</div>
+      <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: 알림 인박스 ====== -->
+  <div class="screen" id="s-notif">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">🔔 알림</span><span style="font-size:12px;color:#888;cursor:pointer">모두 읽음</span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="font-size:13px;color:#888;margin-bottom:14px">식사 기록·성장 추세·키트 진행을 자동 분석해 발송됩니다.</div>
+
+        <!-- 오늘 -->
+        <div style="font-size:11px;font-weight:700;color:#999;margin:0 0 8px;letter-spacing:.5px">오늘</div>
+
+        <div style="background:#FFF8E1;border-left:4px solid #F9A825;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer" onclick="go('s-home')">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:10px;font-weight:700;color:#E65100">⚠ 다양성 점수 ↓</div>
+            <div style="font-size:10px;color:#999">10분 전</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#1B2A4A;margin-bottom:4px">지난 7일 식품군 5종 미만</div>
+          <div style="font-size:11.5px;color:#5D4037;line-height:1.55">
+            채소류·콩류 미섭취 신호. 면역·장 건강에 영향 — 오늘은 단호박이나 두부 한 입 어떨까요?
+          </div>
+          <div style="font-size:10.5px;color:#888;margin-top:6px">📚 블로그 3편 — 다양성과 사회비용</div>
+        </div>
+
+        <div style="background:#FFF5F0;border-left:4px solid #FF6B35;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer" onclick="go('s-exposure')">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:10px;font-weight:700;color:#FF6B35">💌 위로</div>
+            <div style="font-size:10px;color:#999">아침 8:30</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#1B2A4A;margin-bottom:4px">🥕 오늘은 당근 8번째 시도</div>
+          <div style="font-size:11.5px;color:#5D4037;line-height:1.55">
+            캐나다 BC주: 새 음식 12~30번 노출이 정상. 일곱 번이라면 아직 1/4 — 마음 가볍게.
+          </div>
+          <div style="font-size:10.5px;color:#888;margin-top:6px">📚 블로그 2편 — HealthLink BC 권고</div>
+        </div>
+
+        <!-- 어제 -->
+        <div style="font-size:11px;font-weight:700;color:#999;margin:16px 0 8px;letter-spacing:.5px">어제</div>
+
+        <div style="background:#E8F5E9;border-left:4px solid #2E7D32;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer" onclick="go('s-growth')">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:10px;font-weight:700;color:#2E7D32">📊 월간 리포트</div>
+            <div style="font-size:10px;color:#999">어제 21:00</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#1B2A4A;margin-bottom:4px">수현이 35개월 성장 리포트</div>
+          <div style="font-size:11.5px;color:#5D4037;line-height:1.55">
+            지난달 대비 키 +0.5cm, 체중 +0.2kg. P50 유지 — 안정적 성장 중입니다.
+          </div>
+        </div>
+
+        <div style="background:#E3F2FD;border-left:4px solid #1565C0;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer" onclick="go('s-activity')">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:10px;font-weight:700;color:#1565C0">🎯 활동 리마인드</div>
+            <div style="font-size:10px;color:#999">어제 19:30</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#1B2A4A;margin-bottom:4px">2주차 Day2 — 후각 탐색 활동</div>
+          <div style="font-size:11.5px;color:#5D4037;line-height:1.55">
+            오늘 약 15분, 당근 냄새 맞추기 게임 어떠세요?
+          </div>
+        </div>
+
+        <!-- 이번 주 -->
+        <div style="font-size:11px;font-weight:700;color:#999;margin:16px 0 8px;letter-spacing:.5px">이번 주</div>
+
+        <div style="background:#F3E5F5;border-left:4px solid #6A1B9A;border-radius:10px;padding:12px 14px;margin-bottom:10px;opacity:.7" onclick="toast('확인됨')">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:10px;font-weight:700;color:#6A1B9A">📋 CEBQ 설문 안내</div>
+            <div style="font-size:10px;color:#999">3일 전</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#1B2A4A;margin-bottom:4px">Day0 비포 설문이 도착했어요</div>
+          <div style="font-size:11.5px;color:#5D4037;line-height:1.55">
+            35문항 · 약 5분. 키트 후 Day21에 비교해 변화를 측정합니다.
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px dashed #ddd;border-radius:10px;padding:14px;text-align:center;font-size:11.5px;color:#999">
+          🔕 알림 자동 발송 기준 설정은 <span style="color:#FF6B35;cursor:pointer;font-weight:700" onclick="go('s-profile')">MY → 알림 설정</span>에서
+        </div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
+      <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
+      <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab" onclick="go('s-fooddb')"><span class="ico">🌐</span>35개</div>
+      <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
     </div>
   </div>
 
@@ -1593,189 +2213,706 @@ function p9Distance(a, b){
 }
 
 // ============================================================
-// Phase 9-C: Food Chaining 4축 개인화 생성기 ★
+// Phase 9-MVP (T700~T717) — Food Bridge 4축 LLM 생성기 (흡수 통합 2026-05-14)
+// 원본: /foodbridge/mvp/js/{api,chain,app}.js — 옵션 B 단일 진입점 통합
+// Mock 모드: data/mock_responses.json 8 시나리오 자동 매칭 (LLM 미연결 OK)
+// Real 모드: ?live=1 또는 localStorage 토글 시 Supabase Edge Function 호출
 // ============================================================
-window.p9FC = {
-  loved: [],
-  target: null,
-  lovedFilter: '전체',
-  init(){
-    this.renderLoved();
-    const targetHTML = P9_FOODS.filter(f=>f.cat==='채소').map(f =>
-      `<span class="p9-chip" data-id="${f.id}" onclick="p9FC.setTarget('${f.id}')">${f.emoji} ${f.name}</span>`
-    ).join('');
-    document.getElementById('p9-fc-target').innerHTML = targetHTML;
-    // 사전 선택 (ICFQ에서 넘어왔거나 데모 첫 인상)
-    if(this.loved.length===0){
-      this.loved = ['cheese_rice','toast','nugget'];
+window.fbMvp = (function(){
+  const SEED_URL = '/foodbridge/mvp/data/food_seed.json';
+  const MOCK_URL = '/foodbridge/mvp/data/mock_responses.json';
+  const CONFIG = {
+    SUPABASE_URL: (window.__FOODBRIDGE_CONFIG__ && window.__FOODBRIDGE_CONFIG__.SUPABASE_URL) || 'https://YOUR-PROJECT.supabase.co',
+    SUPABASE_ANON_KEY: (window.__FOODBRIDGE_CONFIG__ && window.__FOODBRIDGE_CONFIG__.SUPABASE_ANON_KEY) || 'YOUR-ANON-KEY',
+    TIMEOUT_MS: 20000,
+    MOCK_DELAY_MS: 1800,
+  };
+
+  // ===== 모드 결정 =====
+  function resolveMode(){
+    const qs = new URLSearchParams(location.search);
+    if(qs.get('mock') === '1') return 'mock';
+    if(qs.get('live') === '1') return 'real';
+    try{
+      if(window.localStorage.getItem('FOODBRIDGE_API_LIVE') === 'true') return 'real';
+    }catch(_e){}
+    if(CONFIG.SUPABASE_URL.includes('YOUR-PROJECT') || CONFIG.SUPABASE_ANON_KEY.includes('YOUR-ANON-KEY')) return 'mock';
+    return 'mock';
+  }
+  const MODE = resolveMode();
+  window.FOODBRIDGE_MODE = MODE;
+
+  // 콘솔 토글 헬퍼 (임남규 대표용)
+  window.foodbridge = window.foodbridge || {};
+  window.foodbridge.enableLive = function(){
+    try{ window.localStorage.setItem('FOODBRIDGE_API_LIVE','true'); console.info('[foodbridge] LIVE 모드 활성화 — 새로고침 후 실 LLM 호출'); }
+    catch(e){ console.error('[foodbridge] localStorage 사용 불가:', e); }
+  };
+  window.foodbridge.disableLive = function(){
+    try{ window.localStorage.removeItem('FOODBRIDGE_API_LIVE'); console.info('[foodbridge] MOCK 모드 복귀 — 새로고침 후 정적 답변'); }
+    catch(e){ console.error('[foodbridge] localStorage 사용 불가:', e); }
+  };
+  window.foodbridge.mode = function(){ return window.FOODBRIDGE_MODE; };
+
+  // ===== 4축 헬퍼 =====
+  const AXIS_LABEL_KO = { color:'색', temperature:'온도', texture:'질감', flavor:'맛' };
+  function axisLabelKo(axis){
+    if(!axis) return null;
+    if(axis.includes('+')) return axis.split('+').map(a=>AXIS_LABEL_KO[a.trim()]||a).join('+');
+    return AXIS_LABEL_KO[axis] || axis;
+  }
+  function sanitizeLikedFoods(raw){
+    return raw.map(s=>String(s||'').trim()).filter(s=>s.length>0).slice(0,5);
+  }
+  const FORBIDDEN_PHRASES = ['잘 먹었','잘 먹네','잘했어','대단해','한 입 더','더 먹','건강에 좋','안 먹으면','안먹으면'];
+  function validateToneCopy(text){
+    if(!text) return ['empty'];
+    const v = [];
+    for(const p of FORBIDDEN_PHRASES) if(text.includes(p)) v.push('금지 표현: "'+p+'"');
+    if(/\b(잘했|훌륭|대단)\b/.test(text)) v.push('평가 동사');
+    return v;
+  }
+  function validateBridge(bridge){
+    if(!Array.isArray(bridge) || bridge.length<3 || bridge.length>5) return {ok:false, reason:'단계 수 3~5 위반'};
+    for(const step of bridge){
+      if(!step.food || !step.tone_copy) return {ok:false, reason:'step 필드 누락'};
+      const v = validateToneCopy(step.tone_copy);
+      if(v.length>0) return {ok:false, reason:'톤 카피 4룰 위반: '+v.join(', '), step:step};
     }
-    this.renderLoved();
-    if(!this.target) this.setTarget('spinach');
-  },
-  renderLoved(){
-    const cats = ['전체','주식','단백','채소','과일','간식'];
-    const filterHTML = cats.map(c =>
-      `<span class="p9-chip ${this.lovedFilter===c?'sel':''}" onclick="p9FC.setFilter('${c}')">${c}</span>`
-    ).join('');
-    const foods = this.lovedFilter==='전체' ? P9_FOODS : P9_FOODS.filter(f=>f.cat===this.lovedFilter);
-    const lovedHTML = foods.map(f =>
-      `<span class="p9-chip ${this.loved.includes(f.id)?'sel':''}" data-id="${f.id}" onclick="p9FC.toggleLoved('${f.id}')">${f.emoji} ${f.name}</span>`
-    ).join('');
-    document.getElementById('p9-fc-loved').innerHTML =
-      `<div style="margin-bottom:6px;font-size:11px;color:#888">카테고리 (${P9_FOODS.length}개 중 ${foods.length}):</div>` +
-      `<div style="margin-bottom:8px">${filterHTML}</div>` +
-      `<div style="max-height:160px;overflow-y:auto;border:1px solid #eee;border-radius:8px;padding:6px">${lovedHTML}</div>` +
-      `<div style="font-size:11px;color:#666;margin-top:4px">선택됨: <strong>${this.loved.length}</strong>개</div>`;
-  },
-  setFilter(c){ this.lovedFilter = c; this.renderLoved(); },
-  toggleLoved(id){
-    const i = this.loved.indexOf(id);
-    if(i>=0) this.loved.splice(i,1); else if(this.loved.length<10) this.loved.push(id);
-    this.renderLoved();
-  },
-  setTarget(id){
-    this.target = id;
-    document.querySelectorAll('#p9-fc-target .p9-chip').forEach(c=>{
-      c.classList.toggle('sel', c.dataset.id===id);
+    return {ok:true};
+  }
+
+  // ===== Mock 시나리오 로드/매칭 =====
+  let _mockCache = null;
+  async function loadMockScenarios(){
+    if(_mockCache) return _mockCache;
+    const res = await fetch(MOCK_URL);
+    if(!res.ok) throw new Error('mock_responses.json 로드 실패');
+    _mockCache = await res.json();
+    return _mockCache;
+  }
+  function matchScenario(scenarios, payload){
+    const age = Number(payload.age_months) || 0;
+    if(age > 0 && age < 12){
+      return scenarios.find(s=>s.id==='S5_under_12_months_fallback') || scenarios[0];
+    }
+    const liked = (payload.liked_foods||[]).map(s=>String(s||'').trim()).filter(Boolean);
+    const refused = String(payload.refused_food||'').trim();
+    let best = null, bestScore = -1;
+    for(const s of scenarios){
+      if(s.id === 'S5_under_12_months_fallback') continue;
+      const sLiked = s.input.liked_foods || [];
+      const sRefused = s.input.refused_food || '';
+      let score = 0;
+      if(refused && sRefused && refused === sRefused) score += 3;
+      else if(refused && sRefused && (refused.includes(sRefused) || sRefused.includes(refused))) score += 1;
+      for(const lf of liked){
+        if(sLiked.some(x=>x===lf || x.includes(lf) || lf.includes(x))) score += 1;
+      }
+      if(score > bestScore){ bestScore = score; best = s; }
+    }
+    if(!best || bestScore <= 0){
+      return scenarios.find(s=>s.id==='S2_carbs_only_refuse_vegetable') || scenarios[0];
+    }
+    return best;
+  }
+  async function generateMock(payload){
+    const data = await loadMockScenarios();
+    const scenario = matchScenario(data.scenarios || [], payload);
+    const userAllergens = new Set(payload.allergens || []);
+    const allergenMap = { milk:['우유','치즈','요거트'], egg:['계란'], wheat:['빵','밀가루'], soy:['두부','콩'], fish:['생선'], sesame:['참기름','참깨'], nuts:['견과'] };
+    const blocked = [];
+    for(const a of userAllergens) (allergenMap[a]||[]).forEach(kw=>blocked.push(kw));
+    await new Promise(r=>setTimeout(r, CONFIG.MOCK_DELAY_MS));
+    const output = JSON.parse(JSON.stringify(scenario.output));
+    output._mock = { scenario_id: scenario.id, scenario_label: scenario.label, matched_at: new Date().toISOString() };
+    if(Array.isArray(output.bridge_sequence) && blocked.length > 0){
+      const hit = output.bridge_sequence.find(step => blocked.some(kw => (step.food||'').includes(kw)));
+      if(hit){
+        console.warn('[foodbridge] mock 경고 — 입력 알러지 차단 식재료 포함:', hit.food);
+        output.confidence = Math.max(0.4, (output.confidence||0.8) - 0.1);
+      }
+    }
+    return output;
+  }
+  async function generateReal(payload){
+    const url = CONFIG.SUPABASE_URL + '/functions/v1/food-chain';
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), CONFIG.TIMEOUT_MS);
+    try{
+      const res = await fetch(url, {
+        method:'POST',
+        headers:{ 'Authorization':'Bearer '+CONFIG.SUPABASE_ANON_KEY, 'Content-Type':'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      const data = await res.json().catch(()=>({error:'응답 파싱 실패'}));
+      if(!res.ok){
+        const err = new Error(data.error || ('HTTP '+res.status));
+        err.status = res.status;
+        err.detail = data;
+        throw err;
+      }
+      return data;
+    }catch(err){
+      clearTimeout(timer);
+      if(err.name === 'AbortError'){
+        const e = new Error('응답 시간이 초과되었습니다 (20초)');
+        e.code = 'TIMEOUT';
+        throw e;
+      }
+      throw err;
+    }
+  }
+  async function generateFoodChain(payload){
+    if(MODE === 'mock') return generateMock(payload);
+    return generateReal(payload);
+  }
+
+  // ===== UI 컨트롤러 =====
+  const $ = (id)=>document.getElementById(id);
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+  const screenIds = ['fb-mvp-screen-input','fb-mvp-screen-loading','fb-mvp-screen-result','fb-mvp-screen-error'];
+  function showScreen(key){
+    const map = { input:'fb-mvp-screen-input', loading:'fb-mvp-screen-loading', result:'fb-mvp-screen-result', error:'fb-mvp-screen-error' };
+    screenIds.forEach(id=>{
+      const el = $(id);
+      if(el) el.classList.remove('active');
     });
-  },
-  generate(){
-    if(this.loved.length<1 || !this.target){
-      toast('좋아하는 음식 1개+ / 목표 1개 선택해주세요');
+    const target = $(map[key]);
+    if(target) target.classList.add('active');
+    try{ document.querySelector('#s-foodbridge .content').scrollTop = 0; }catch(_e){}
+  }
+
+  function collectAllergens(){
+    return Array.from($('fb-mvp-allergen-chips').querySelectorAll('.fb-mvp-chip.selected')).map(el=>el.dataset.value);
+  }
+  function showInputError(msg){
+    const b = $('fb-mvp-input-error');
+    b.textContent = msg;
+    b.classList.add('visible');
+    b.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  function clearInputError(){ $('fb-mvp-input-error').classList.remove('visible'); }
+
+  function collectInput(){
+    const liked = sanitizeLikedFoods([$('fb-mvp-liked-1').value, $('fb-mvp-liked-2').value, $('fb-mvp-liked-3').value]);
+    const refused = $('fb-mvp-refused').value.trim();
+    const age = parseInt($('fb-mvp-age-range').value, 10);
+    const allergens = collectAllergens();
+    if(liked.length < 1) return {ok:false, error:'좋아하는 음식을 1개 이상 입력해주세요.'};
+    if(!refused) return {ok:false, error:'거부하는 음식을 입력해주세요.'};
+    if(!age || age < 12 || age > 84) return {ok:false, error:'연령은 12~84개월 사이여야 합니다.'};
+    return {ok:true, data:{ liked_foods:liked, refused_food:refused, age_months:age, allergens:allergens }};
+  }
+
+  let _loadingTimer = null;
+  function startLoadingAnimation(){
+    const items = Array.from($('fb-mvp-loading-steps').querySelectorAll('li'));
+    items.forEach(li=>li.classList.remove('visible','done'));
+    items.forEach((li,i)=>{ setTimeout(()=>li.classList.add('visible'), i*600); });
+    items.forEach((li,i)=>{ setTimeout(()=>li.classList.add('done'), i*600 + 1500); });
+    _loadingTimer = setTimeout(()=>{}, 1);
+  }
+  function stopLoadingAnimation(){ if(_loadingTimer){ clearTimeout(_loadingTimer); _loadingTimer = null; } }
+
+  function renderResult(payload){
+    const list = $('fb-mvp-bridge-list');
+    list.innerHTML = '';
+    const seq = Array.isArray(payload.bridge_sequence) ? payload.bridge_sequence : [];
+    if(seq.length === 0 && payload.fallback_message){
+      const card = document.createElement('div');
+      card.className = 'fb-mvp-bridge-card';
+      card.innerHTML =
+        '<div class="fb-mvp-bridge-food">'+escapeHtml(payload.fallback_message)+'</div>' +
+        (payload.redirect ? '<a href="'+escapeAttr(payload.redirect)+'" class="fb-mvp-bridge-tone">'+escapeHtml(payload.redirect)+'</a>' : '');
+      list.appendChild(card);
+      $('fb-mvp-result-reason').hidden = true;
+      showScreen('result');
       return;
     }
-    const targetFood = P9_FOODS.find(f=>f.id===this.target);
-    // 좋아하는 음식 중 목표와 가장 가까운 1개 = 시작점
-    let start = null, minD = Infinity;
-    for(const id of this.loved){
-      const f = P9_FOODS.find(x=>x.id===id);
-      const d = p9Distance(f, targetFood);
-      if(d<minD){ minD=d; start=f; }
+    const reasonEl = $('fb-mvp-result-reason');
+    if(payload.starting_point_reason){
+      reasonEl.textContent = '🧭 ' + payload.starting_point_reason;
+      reasonEl.hidden = false;
+    }else{
+      reasonEl.hidden = true;
     }
-    // 다리: 시작점에서 목표까지 한 축씩 변화 — 가까운 DB 음식 검색
-    const bridge = [start];
-    let current = start;
-    const priority = ['tex','color','temp','fla'];
-    let safety = 0;
-    while(p9Distance(current, targetFood) > 0.3 && safety < 6){
-      safety++;
-      // 다음 후보: 현재와 거리 가까우면서 목표 방향
-      let next = null, bestScore = Infinity;
-      for(const f of P9_FOODS){
-        if(f.id === current.id || bridge.find(b=>b.id===f.id)) continue;
-        const dCurrent = p9Distance(current, f);
-        const dTarget = p9Distance(f, targetFood);
-        // 너무 멀지 않고(점진) 목표에 가까워지는 것
-        if(dCurrent > 0.5) continue;
-        const score = dTarget + dCurrent*0.5;
-        if(score < bestScore){ bestScore = score; next = f; }
-      }
-      if(!next) break;
-      bridge.push(next);
-      current = next;
-    }
-    if(bridge[bridge.length-1].id !== targetFood.id) bridge.push(targetFood);
-    // 변화 축 분석
-    const axisLabel = {tex:'질감', color:'색', temp:'온도', fla:'맛'};
-    const renderStep = (food, prev, step, total) => {
-      let axisStr = '친숙';
-      if(prev){
-        const changes = [];
-        for(const ax of ['tex','color','temp','fla']){
-          if(Math.abs(food[ax]-prev[ax])>=1) changes.push(axisLabel[ax]);
-        }
-        axisStr = changes.length ? changes.join('·') : '미세 조정';
-      }
-      const colors = ['#4CAF50','#FFC107','#FF9800','#FF5722','#C62828','#5D4037'];
-      const c = colors[Math.min(step-1, colors.length-1)];
-      return `<div class="card" style="border-left:4px solid ${c}">
-        <div style="font-size:12px;color:#888">${step}/${total}단계 [<strong style="color:#F57C00">${axisStr}</strong>]</div>
-        <div style="font-size:14.5px;font-weight:600">${food.emoji} ${food.name}</div>
-      </div>`;
-    };
-    let html = `<div style="font-size:13px;font-weight:700;color:#E65100;margin:14px 0 8px">🌉 ${bridge.length}단계 다리 음식 시퀀스 (자동 생성)</div>`;
-    bridge.forEach((f, i) => {
-      html += renderStep(f, i>0?bridge[i-1]:null, i+1, bridge.length);
+    seq.forEach((step, idx)=>{
+      const isStart = idx === 0;
+      const isGoal = idx === seq.length - 1;
+      const card = document.createElement('article');
+      card.className = 'fb-mvp-bridge-card' + (isStart?' is-start':'') + (isGoal?' is-goal':'');
+      card.setAttribute('role','listitem');
+      const week = step.week_label || (isStart ? '지금' : (idx+'주차'));
+      const axisKo = axisLabelKo(step.axis_changed);
+      card.innerHTML =
+        '<div class="fb-mvp-bridge-week">'+escapeHtml(week)+(isGoal?' · 목표':'')+'</div>' +
+        '<div class="fb-mvp-bridge-food">'+escapeHtml(step.food||'')+'</div>' +
+        (axisKo ? '<span class="fb-mvp-bridge-axis">'+escapeHtml(axisKo)+' 변화</span>' : '') +
+        '<div class="fb-mvp-bridge-tone">"'+escapeHtml(step.tone_copy||'')+'"</div>';
+      list.appendChild(card);
     });
-    html += `<div class="card" style="background:#FFF8E1">
-      <div style="font-size:12px;line-height:1.6">
-        <strong style="color:#E65100">📊 알고리즘 결과</strong><br>
-        시작점 거리: ${minD.toFixed(2)} · 단계: ${bridge.length}개 · NESR 8-10회 노출 권장<br>
-        <small style="color:#888">Fraker 2007 우선순위: 질감 → 색 → 온도 → 맛</small>
-      </div>
-    </div>`;
-    html += `<div class="btn btn-o" onclick="toast('🌉 시퀀스 저장 (데모)')">이 시퀀스 저장 → 매일 추천</div>`;
-    document.getElementById('p9-fc-result').innerHTML = html;
+    if(typeof payload.confidence === 'number' && payload.confidence < 0.7){
+      const warn = document.createElement('div');
+      warn.className = 'fb-mvp-reason';
+      warn.style.borderLeft = '3px solid #C45A00';
+      warn.textContent = '⚠️ 자녀의 식습관에 따라 단계를 조정해보세요. 신뢰도: '+(payload.confidence*100).toFixed(0)+'%';
+      list.appendChild(warn);
+    }
+    showScreen('result');
   }
-};
+
+  function showError(message){
+    $('fb-mvp-error-message').textContent = message;
+    showScreen('error');
+  }
+  function mapError(err){
+    if(err.code === 'TIMEOUT') return '응답 시간이 너무 길어요 (20초 초과). 잠시 후 다시 시도해주세요.';
+    if(err.status === 400) return (err.detail && err.detail.error) || '입력값을 확인해주세요.';
+    if(err.status === 502) return 'AI 응답 처리 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    if(err.status === 500) return '서버 오류입니다. 잠시 후 다시 시도해주세요.';
+    if(err.message && err.message.includes('Failed to fetch')) return '인터넷 연결을 확인해주세요.';
+    return err.message || '알 수 없는 오류가 발생했습니다.';
+  }
+
+  let _lastInput = null;
+  async function handleGenerate(){
+    clearInputError();
+    const input = collectInput();
+    if(!input.ok){ showInputError(input.error); return; }
+    _lastInput = input.data;
+    showScreen('loading');
+    startLoadingAnimation();
+    try{
+      const response = await generateFoodChain(input.data);
+      if(response.bridge_sequence && response.bridge_sequence.length > 0){
+        const v = validateBridge(response.bridge_sequence);
+        if(!v.ok) console.warn('[chain] validation:', v.reason, v.step);
+      }
+      stopLoadingAnimation();
+      renderResult(response);
+    }catch(err){
+      stopLoadingAnimation();
+      console.error('[generate] failed:', err);
+      showError(mapError(err));
+    }
+  }
+
+  function applyModeIndicator(){
+    const banner = $('fb-mvp-banner');
+    const footerTag = $('fb-mvp-footer-mode-tag');
+    if(MODE === 'mock'){
+      if(banner) banner.hidden = false;
+      if(footerTag){ footerTag.textContent = '🎭 mock'; footerTag.style.color = '#C45A00'; footerTag.style.fontWeight = '600'; }
+    }else{
+      if(banner) banner.hidden = true;
+      if(footerTag){ footerTag.textContent = '● live'; footerTag.style.color = '#2E7D32'; footerTag.style.fontWeight = '600'; }
+    }
+  }
+
+  let _bound = false;
+  function bindEvents(){
+    if(_bound) return;
+    _bound = true;
+    const ageRange = $('fb-mvp-age-range');
+    const ageDisplay = $('fb-mvp-age-display');
+    if(ageRange && ageDisplay){
+      ageRange.addEventListener('input', ()=>{ ageDisplay.textContent = ageRange.value + '개월'; });
+    }
+    const chips = $('fb-mvp-allergen-chips');
+    if(chips){
+      chips.addEventListener('click', (e)=>{
+        const chip = e.target.closest('.fb-mvp-chip');
+        if(!chip) return;
+        chip.classList.toggle('selected');
+      });
+    }
+    const genBtn = $('fb-mvp-generate-btn');
+    if(genBtn) genBtn.addEventListener('click', handleGenerate);
+    const restart = $('fb-mvp-restart-btn');
+    if(restart) restart.addEventListener('click', ()=>showScreen('input'));
+    const retry = $('fb-mvp-retry-btn');
+    if(retry) retry.addEventListener('click', ()=>{ if(_lastInput) handleGenerate(); else showScreen('input'); });
+    const errBack = $('fb-mvp-error-back-btn');
+    if(errBack) errBack.addEventListener('click', ()=>showScreen('input'));
+    const share = $('fb-mvp-share-btn');
+    if(share){
+      share.addEventListener('click', async ()=>{
+        const shareData = { title:'밀프레드 Food Bridge', text:'30초 안에 자녀 맞춤 편식 다리를 만들어 보세요.', url:'https://www.mealfred.com/app-demo.html#fb-mvp' };
+        if(navigator.share){
+          try{ await navigator.share(shareData); }catch(_e){}
+        }else{
+          try{ await navigator.clipboard.writeText(shareData.url); alert('링크를 복사했어요.'); }
+          catch(_e){ alert('공유 기능을 지원하지 않는 브라우저입니다.'); }
+        }
+      });
+    }
+  }
+
+  let _booted = false;
+  function init(){
+    if(!_booted){
+      console.info('[foodbridge] 모드 = '+MODE+(MODE==='mock'?' (정적 답변 — UX 검증용)':' (실 LLM 호출)'));
+      console.info('[foodbridge] 모드 변경: foodbridge.enableLive() / foodbridge.disableLive() 후 새로고침');
+      _booted = true;
+    }
+    bindEvents();
+    applyModeIndicator();
+    showScreen('input');
+  }
+  return { init };
+})();
+
+// 기존 코드와의 호환성을 위한 alias — p9FC.init() 호출도 새 fbMvp 동작
+window.p9FC = { init: function(){ window.fbMvp.init(); } };
 
 // ============================================================
-// Phase 9-E: ICFQ 6문항 + 분기
+// Phase 9-E: ICFQ 결과 화면 UX (2026-05-14 인플레이스 교체)
+// 행동 데이터 → 6 차원 위험 점수 → 3 분기(NORMAL_PICKY/BORDERLINE/PFD_SUSPECT)
+// 3 카드: 안심(학술 근거) · 행동(다음 단계) · 자원(전문가/PDF/후속)
+// MVP 패턴 정확 재사용: .fb-icfq-* CSS / window.fbIcfq IIFE / window.p9ICFQ alias
 // ============================================================
-window.p9ICFQ = {
-  questions: [
-    {id:1, text:'식사 시간 30분 이상 자주?', axis:'feeding_skill'},
-    {id:2, text:'식사 중 울음·짜증 잦음?', axis:'psychosocial'},
-    {id:3, text:'특정 음식만 + 3개월 지속?', axis:'nutritional'},
-    {id:4, text:'삼킴·구역질·구토 문제?', axis:'feeding_skill'},
-    {id:5, text:'체중 부진/영양 결핍 진단?', axis:'medical'},
-    {id:6, text:'가족 식사가 매번 스트레스?', axis:'psychosocial'},
-  ],
-  answers: {},
-  init(){
-    const html = this.questions.map(q=>`
-      <div class="p9-q" id="p9-q-${q.id}">
-        <div class="qtxt"><strong>Q${q.id}.</strong> ${q.text}</div>
-        <div class="qopts">
-          <div class="qopt" data-q="${q.id}" data-v="yes" onclick="p9ICFQ.answer(${q.id},'yes')">예</div>
-          <div class="qopt" data-q="${q.id}" data-v="no" onclick="p9ICFQ.answer(${q.id},'no')">아니오</div>
-        </div>
+window.fbIcfq = (function(){
+  // ===== Mock 행동 데이터 (키트 21회 진행 시뮬레이션) =====
+  // 6 차원 위험 신호:
+  //   Q1 새 음식 거부 빈도 (0=거의없음 → 3=매우잦음)
+  //   Q2 식사 시간 30분 초과 (0/1)
+  //   Q3 식이 다양성 — 식재료 카운트 (0=다양 → 3=매우적음)
+  //   Q4 식감 거부 1주차 vs 3주차 변화 (0/1)
+  //   Q5 식사 중 부정 감정 빈도 (0/1)
+  //   Q6 성장 우려 (0/1) — 부모 입력 또는 BMI 데이터
+  // 위험 점수 = (q1>=2?1:0) + q2 + (q3>=2?1:0) + q4 + q5 + q6
+  const MOCKS = {
+    normal: {
+      label: 'NORMAL_PICKY',
+      bars: [
+        {label:'Q1 새 음식 거부', val:'주 1회', level:1},
+        {label:'Q2 30분 초과', val:'드물게', level:0},
+        {label:'Q3 식이 다양성', val:'식재료 18종', level:0},
+        {label:'Q4 식감 거부', val:'3주차 ↓', level:0},
+        {label:'Q5 부정 감정', val:'드물게', level:0},
+        {label:'Q6 성장 우려', val:'없음', level:0},
+      ],
+      risk: 0,
+    },
+    borderline: {
+      label: 'BORDERLINE',
+      bars: [
+        {label:'Q1 새 음식 거부', val:'주 4회', level:2},
+        {label:'Q2 30분 초과', val:'주 5회 이상', level:2},
+        {label:'Q3 식이 다양성', val:'식재료 10종', level:2},
+        {label:'Q4 식감 거부', val:'3주차 유지', level:2},
+        {label:'Q5 부정 감정', val:'드물게', level:0},
+        {label:'Q6 성장 우려', val:'없음', level:0},
+      ],
+      risk: 3,
+    },
+    pfd: {
+      label: 'PFD_SUSPECT',
+      bars: [
+        {label:'Q1 새 음식 거부', val:'매끼 거부', level:3},
+        {label:'Q2 30분 초과', val:'매끼', level:3},
+        {label:'Q3 식이 다양성', val:'식재료 5종', level:3},
+        {label:'Q4 식감 거부', val:'3주차 ↑', level:3},
+        {label:'Q5 부정 감정', val:'매끼 울음', level:3},
+        {label:'Q6 성장 우려', val:'BMI 저하', level:3},
+      ],
+      risk: 6,
+    },
+  };
+
+  // ===== 분기별 카피 =====
+  const COPY = {
+    normal: {
+      stageBadge: '🌿 안심 · NORMAL_PICKY',
+      comfortEyebrow: '🌿 안심하세요',
+      comfortTitle: '정상 picky 단계입니다',
+      comfortBody:
+        '캐나다 소아과학회(CPS)는 토들러·미취학아의 <strong>25~35%</strong>가 같은 시기를 통과한다고 보고합니다. ' +
+        '키트 21회 행동 데이터에서 위험 신호는 <strong>0~2개</strong>로, ' +
+        '발달상 정상 범위에 들어옵니다. 당신 잘못이 아닙니다.',
+      actionTitle: '키트 진행 + 행동 누적',
+      actions: [
+        {icon:'✅', text:'<strong>키트 진행 계속</strong> — 현재 5주차 / 9코스 중'},
+        {icon:'📊', text:'매일 행동 기록 자동 누적 (앱 백그라운드)'},
+        {icon:'⏰', text:'<strong>4주 후 자동 재측정</strong> — 변동 시 알림'},
+        {icon:'💚', text:'부모 죄책감 완화 — Satter sDOR 가이드 참고'},
+      ],
+      ctaPrimary: {label:'🌉 Food Chaining 4축 생성기 →', screen:'s-foodbridge', tone:'primary'},
+      ctaSecondary: {label:'📅 21Day 활동 보기', screen:'s-activity', tone:'secondary'},
+    },
+    borderline: {
+      stageBadge: '⚠️ 주의 · BORDERLINE',
+      comfortEyebrow: '⚠️ 주의 깊은 관찰',
+      comfortTitle: '경계 영역 — 임상 의뢰는 아직 이릅니다',
+      comfortBody:
+        '위험 신호 <strong>3개</strong>가 발견되었습니다. ' +
+        'Goday 2019 PFD 합의문 기준 임상 의뢰 컷오프(≥4개)에는 도달하지 않았지만, ' +
+        '식사 시간·식이 다양성·식감 거부 영역에 <strong>지속적 관찰</strong>이 필요합니다. ' +
+        '키트는 계속 진행 가능하며, 4주 후 재측정 결과로 다음 단계를 결정합니다.',
+      actionTitle: '키트 + 정밀 기록 + 6주 후 재평가',
+      actions: [
+        {icon:'⚠️', text:'<strong>키트 진행</strong> + 매끼 식감/감정 정밀 기록'},
+        {icon:'📅', text:'<strong>4주 후 재측정</strong> — 위험 ≥4개 시 자동 의료 의뢰 알림'},
+        {icon:'🏥', text:'정기 소아과 검진 시 <strong>상담 카드 지참</strong>'},
+        {icon:'📲', text:'영양사 1:1 상담 (앱 결제 · v1.5 예정)'},
+        {icon:'🍽️', text:'가족식 주 5회 + 강제 금지(Satter DOR)'},
+      ],
+      ctaPrimary: {label:'🌉 Food Chaining + 정밀 기록 시작', screen:'s-foodbridge', tone:'warn'},
+      ctaSecondary: {label:'📋 소아과 상담 카드 PDF', action:'pdf', tone:'secondary'},
+    },
+    pfd: {
+      stageBadge: '🚨 위험 · PFD_SUSPECT',
+      comfortEyebrow: '🚨 전문가 도움이 필요합니다',
+      comfortTitle: 'Pediatric Feeding Disorder(PFD) 의심',
+      comfortBody:
+        '위험 신호 <strong>5~6개</strong>가 일관되게 관찰됩니다. ' +
+        'Goday 2019 PFD 4 영역(medical · nutritional · feeding skill · psychosocial) ' +
+        '중 다수에 신호가 잡혀 <strong>다학제 평가</strong>가 권장됩니다. ' +
+        'ICD-10 R63.3 진단 가능성이 있으므로 소아과 1차 평가를 우선 진행해 주세요. ' +
+        '키트는 보조 도구로만 사용하고, 메인 치료는 임상가에게 맡깁니다.',
+      actionTitle: '즉시 다학제 전문가 의뢰',
+      actions: [
+        {icon:'🏥', text:'<strong>소아과 1차 평가</strong> — 의료 영역 확인'},
+        {icon:'🗣️', text:'<strong>SLP (언어재활)</strong> — 구강 운동·연하 평가'},
+        {icon:'✋', text:'<strong>OT (작업치료)</strong> — 감각·운동 통합 평가'},
+        {icon:'🥗', text:'<strong>임상 영양사</strong> — 성장·영양 상태 평가'},
+        {icon:'🟡', text:'키트는 <strong>보조 도구로만</strong> — 메인은 임상 치료'},
+      ],
+      ctaPrimary: {label:'📋 의뢰용 행동 데이터 PDF', action:'pdf', tone:'danger'},
+      ctaSecondary: {label:'🏥 한국 임상 클리닉 안내', action:'clinic', tone:'secondary'},
+    },
+  };
+
+  // ===== 자원 카드 (분기별) =====
+  function buildResources(stage){
+    const common = [
+      {
+        title:'🩺 소아과 검진 상담 카드',
+        desc:'21회 행동 그래프 · 6 차원 위험 점수 · 의사선생님께 보여드릴 1 페이지 요약 PDF.',
+        tags:[{label:'모든 분기', cls:''}],
+        btn:{label:'📥 PDF 다운로드', action:'pdf'},
+      },
+      {
+        title:'📅 자동 재측정 알림',
+        desc:'4주 후 동일 6 차원 행동 데이터를 자동 비교. 변동 시 푸시 알림.',
+        tags:[{label:'모든 분기', cls:''}],
+        btn:{label:'🔔 알림 켜기', action:'remind'},
+      },
+      {
+        title:'🎓 학술 자료 더 알아보기',
+        desc:'CPS Caring for Kids · Goday 2019 PFD · Feeding Matters ICFQ 원문 링크. Phase 11 학술지 게재 플랜 안내.',
+        tags:[{label:'근거 기반', cls:''}],
+        btn:{label:'📚 자료실 열기', action:'refs'},
+      },
+    ];
+    if(stage === 'pfd' || stage === 'borderline'){
+      common.splice(1, 0, {
+        title:'📲 영양사 1:1 상담',
+        desc:'앱 내 결제 후 임상 영양사와 30분 화상 상담. v1.5 출시 예정 (현재 사전 등록).',
+        tags:[{label:'v1.5 예정', cls:'tag-future'}],
+        btn:{label:'✉️ 사전 등록', action:'preorder'},
+      });
+    }
+    if(stage === 'pfd'){
+      common.splice(2, 0, {
+        title:'🔗 한국 SOS Approach 인증 클리닉',
+        desc:'한국 내 PFD 다학제 클리닉 디렉토리는 현재 구축 중입니다. 임시로 한국 소아 정신과·발달 클리닉 일반 리소스를 안내합니다.',
+        tags:[{label:'PFD_SUSPECT 전용', cls:'tag-danger'},{label:'구축 중', cls:'tag-future'}],
+        btn:{label:'🏥 임시 리소스 보기', action:'clinic'},
+      });
+    }
+    return common;
+  }
+
+  // ===== State =====
+  let currentStage = 'normal';
+
+  // ===== DOM 헬퍼 =====
+  function $(id){ return document.getElementById(id); }
+
+  function escapeHtml(s){
+    return String(s||'').replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  }
+
+  // ===== 렌더 =====
+  function renderBars(stage){
+    const data = MOCKS[stage];
+    const html = data.bars.map(b=>`
+      <div class="fb-icfq-bar-row">
+        <div class="fb-icfq-bar-label">${escapeHtml(b.label)}</div>
+        <div class="fb-icfq-bar-track"><div class="fb-icfq-bar-fill lvl-${b.level}"></div></div>
+        <div class="fb-icfq-bar-val">${escapeHtml(b.val)}</div>
       </div>
     `).join('');
-    document.getElementById('p9-icfq-qs').innerHTML = html;
-  },
-  answer(qid, v){
-    this.answers[qid] = v;
-    const qEl = document.getElementById(`p9-q-${qid}`);
-    qEl.classList.add('answered');
-    qEl.querySelectorAll('.qopt').forEach(o=>{
-      o.classList.remove('sel-yes','sel-no');
-      if(o.dataset.v===v) o.classList.add(v==='yes'?'sel-yes':'sel-no');
-    });
-  },
-  score(){
-    const total = this.questions.length;
-    const answered = Object.keys(this.answers).length;
-    if(answered<total){ toast(`${total-answered}문항 더 응답해주세요`); return; }
-    const yesCount = Object.values(this.answers).filter(v=>v==='yes').length;
-    let cls, msg, color, bg;
-    if(yesCount<=1){
-      cls = '✅ 정상 picky'; color='#2E7D32'; bg='#E8F5E9';
-      msg = '캐나다 소아과학회(CPS): 영유아 25-35%가 같은 시기를 거칩니다. <strong>5주 9코스 키트 시작 OK</strong>. Food Chaining 4축 생성기로 다음 시도할 음식 추천 받기.';
-    } else if(yesCount<=3){
-      cls = '⚠️ Borderline'; color='#E65100'; bg='#FFF3E0';
-      msg = '경계 영역입니다. 키트는 시작 가능하지만 <strong>6주 후 재측정</strong>을 권장. 동시에 가족식 주 5회(Satter) + 강제 금지(Galloway DOR).';
-    } else {
-      cls = '🚨 PFD 의심'; color='#C62828'; bg='#FFEBEE';
-      msg = 'Goday 2019 PFD 4축 신호. <strong>소아과·OT/SLP 임상가 의뢰 권장</strong>. 키트 단독 사용 권장 X. ICD-10 R63.3 진단 가능성.';
-    }
-    const html = `<div class="card" style="background:${bg};border-left:4px solid ${color}">
-      <div style="font-size:15px;font-weight:800;color:${color};margin-bottom:6px">${cls} (예 ${yesCount}/6)</div>
-      <div style="font-size:12.5px;line-height:1.65;color:#444">${msg}</div>
-    </div>
-    ${yesCount<=3 ? `
-    <div class="card" style="background:#FFF3E0;border-left:4px solid #F57C00">
-      <div style="font-size:12.5px;color:#5D4037;line-height:1.6">
-        <strong style="color:#E65100">🌉 다음 추천: Food Chaining 4축 생성기</strong><br>
-        ICFQ 결과 기반으로 다음 시도할 다리 음식을 알고리즘이 자동 생성합니다.
-      </div>
-      <div class="btn btn-o" style="margin-top:8px" onclick="go('s-foodbridge')">→ Food Chaining 시작</div>
-    </div>` : `
-    <div class="btn btn-o" onclick="go('s-home')">홈으로</div>`}`;
-    document.getElementById('p9-icfq-result').innerHTML = html;
-    // ICFQ → 키트 진입 추적 (실 데모 통계)
-    if(yesCount<=3) window.__p9IcfqPassed = true;
+    $('fb-icfq-bars').innerHTML = html;
+    $('fb-icfq-risk-total').textContent = data.risk;
   }
+
+  function renderStageBox(stage){
+    const box = $('fb-icfq-stage-box');
+    box.classList.remove('stage-normal','stage-borderline','stage-pfd');
+    box.classList.add('stage-'+stage);
+    $('fb-icfq-stage-badge').textContent = COPY[stage].stageBadge;
+    $('fb-icfq-footer-stage').textContent = MOCKS[stage].label;
+  }
+
+  function renderComfort(stage){
+    const c = COPY[stage];
+    const card = $('fb-icfq-card-comfort');
+    card.classList.remove('tone-normal','tone-borderline','tone-pfd');
+    card.classList.add('tone-'+stage);
+    $('fb-icfq-comfort-eyebrow').textContent = c.comfortEyebrow;
+    $('fb-icfq-comfort-title').textContent = c.comfortTitle;
+    $('fb-icfq-comfort-body').innerHTML = c.comfortBody;
+  }
+
+  function renderAction(stage){
+    const c = COPY[stage];
+    const card = $('fb-icfq-card-action');
+    card.classList.remove('tone-normal','tone-borderline','tone-pfd');
+    card.classList.add('tone-neutral');
+    $('fb-icfq-action-title').textContent = c.actionTitle;
+    const list = c.actions.map(a=>`
+      <div class="fb-icfq-action-item">
+        <div class="fb-icfq-action-icon">${a.icon}</div>
+        <div class="fb-icfq-action-text">${a.text}</div>
+      </div>
+    `).join('');
+    $('fb-icfq-action-list').innerHTML = list;
+    // CTA
+    const ctaBtns = [];
+    if(c.ctaPrimary){
+      const cls = 'fb-icfq-btn fb-icfq-btn-' + (c.ctaPrimary.tone||'primary');
+      const onclick = c.ctaPrimary.screen
+        ? `onclick="go('${c.ctaPrimary.screen}')"`
+        : `onclick="window.fbIcfq.handleAction('${c.ctaPrimary.action}')"`;
+      ctaBtns.push(`<button type="button" class="${cls}" ${onclick}>${escapeHtml(c.ctaPrimary.label)}</button>`);
+    }
+    if(c.ctaSecondary){
+      const cls = 'fb-icfq-btn fb-icfq-btn-' + (c.ctaSecondary.tone||'secondary');
+      const onclick = c.ctaSecondary.screen
+        ? `onclick="go('${c.ctaSecondary.screen}')"`
+        : `onclick="window.fbIcfq.handleAction('${c.ctaSecondary.action}')"`;
+      ctaBtns.push(`<button type="button" class="${cls}" ${onclick}>${escapeHtml(c.ctaSecondary.label)}</button>`);
+    }
+    $('fb-icfq-action-cta').innerHTML = ctaBtns.join('');
+  }
+
+  function renderResources(stage){
+    const card = $('fb-icfq-card-resource');
+    card.classList.remove('tone-normal','tone-borderline','tone-pfd');
+    card.classList.add('tone-neutral');
+    const items = buildResources(stage);
+    const html = items.map(it=>{
+      const tags = (it.tags||[]).map(t=>`<span class="fb-icfq-resource-tag ${t.cls||''}">${escapeHtml(t.label)}</span>`).join('');
+      return `
+        <div class="fb-icfq-resource-item">
+          <div class="fb-icfq-resource-title">${escapeHtml(it.title)}</div>
+          <div>${tags}</div>
+          <div class="fb-icfq-resource-desc">${escapeHtml(it.desc)}</div>
+          <button type="button" class="fb-icfq-resource-btn" onclick="window.fbIcfq.handleAction('${it.btn.action}')">${escapeHtml(it.btn.label)}</button>
+        </div>
+      `;
+    }).join('');
+    $('fb-icfq-resource-list').innerHTML = html;
+  }
+
+  // ===== 시나리오 셋팅 =====
+  function setStage(stage){
+    if(!MOCKS[stage]) stage = 'normal';
+    currentStage = stage;
+    // 탭 active
+    document.querySelectorAll('#fb-icfq-mock-tabs .fb-icfq-mock-tab').forEach(t=>{
+      t.classList.toggle('is-active', t.dataset.stage === stage);
+    });
+    renderStageBox(stage);
+    renderBars(stage);
+    renderComfort(stage);
+    renderAction(stage);
+    renderResources(stage);
+    // refs 펼침 상태 초기화
+    const refs = $('fb-icfq-refs');
+    const btn = $('fb-icfq-refs-btn');
+    if(refs && btn){
+      refs.hidden = true;
+      btn.classList.remove('is-open');
+      btn.textContent = '📚 학술 근거 펼치기 ▼';
+    }
+  }
+
+  // ===== 액션 핸들러 =====
+  function handleAction(action){
+    const msgs = {
+      pdf: 'PDF 다운로드 — 향후 구현 (의뢰용 행동 데이터 1페이지 요약)',
+      remind: '4주 후 자동 재측정 알림 설정됨 (mock)',
+      refs: '학술 자료실 — Phase 11 학술지 게재 플랜 연계 (향후 구현)',
+      preorder: '영양사 1:1 상담 사전 등록됨 (mock · v1.5 출시 알림)',
+      clinic: '한국 임상 클리닉 디렉토리 — 임남규 대표가 향후 구축 (placeholder)',
+    };
+    const msg = msgs[action] || action;
+    try{ (typeof toast==='function') ? toast(msg) : alert(msg); }
+    catch(_e){ alert(msg); }
+  }
+
+  function openReal(){
+    const msg = '실 데이터 모드 — Supabase 행동 데이터 fetch + 6 차원 계산 (Phase 11 예정)';
+    try{ (typeof toast==='function') ? toast(msg) : alert(msg); }
+    catch(_e){ alert(msg); }
+  }
+
+  // ===== 초기화 =====
+  function init(){
+    // URL 파라미터로 분기 선택
+    let stage = 'normal';
+    try{
+      const qs = new URLSearchParams(location.search);
+      const p = qs.get('stage');
+      if(p && MOCKS[p]) stage = p;
+    }catch(_e){}
+
+    // 탭 클릭 바인딩 (1회만)
+    const tabs = document.getElementById('fb-icfq-mock-tabs');
+    if(tabs && !tabs.__bound){
+      tabs.addEventListener('click', function(e){
+        const t = e.target.closest('.fb-icfq-mock-tab');
+        if(!t) return;
+        setStage(t.dataset.stage);
+      });
+      tabs.__bound = true;
+    }
+    // refs 토글 바인딩 (1회만)
+    const btn = document.getElementById('fb-icfq-refs-btn');
+    if(btn && !btn.__bound){
+      btn.addEventListener('click', function(){
+        const refs = document.getElementById('fb-icfq-refs');
+        if(!refs) return;
+        const open = refs.hidden;
+        refs.hidden = !open;
+        btn.classList.toggle('is-open', open);
+        btn.textContent = open ? '📚 학술 근거 접기 ▲' : '📚 학술 근거 펼치기 ▼';
+      });
+      btn.__bound = true;
+    }
+
+    setStage(stage);
+  }
+
+  return { init, setStage, handleAction, openReal };
+})();
+
+// p9ICFQ alias — 라우팅 hook 호환 (s-icfq 진입 시 init 호출)
+window.p9ICFQ = {
+  init: function(){ window.fbIcfq.init(); },
+  // 레거시 호출 호환 (혹시 외부에서 score/answer 호출 시 무해 처리)
+  score: function(){ /* 신규 UX는 자동 분기 — 수동 채점 비활성 */ },
+  answer: function(){ /* deprecated */ },
 };
 
 // ============================================================
