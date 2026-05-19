@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>밀프레드 박스 + 앱 콘텐츠 매트릭스 — B2C product 시드</title>
+<meta name="description" content="다양성 노출 박스 × 4축 활동 매트릭스 × 편식키트 통합 funnel. 2026-05-19 세션 정리.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+  body { background: linear-gradient(180deg, #FFF5EB 0%, #FAFAFA 60%); color: var(--neutral-900); font-family: var(--font-primary); min-height: 100vh; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: var(--sp-12) var(--container-pad) var(--sp-20); }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: var(--sp-16); }
+  .eyebrow { display: inline-block; padding: 6px 14px; background: white; border: 1px solid var(--primary-300); color: var(--primary-500); border-radius: var(--radius-full); font-size: 13px; font-weight: 600; margin-bottom: var(--sp-5); }
+  .hero h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; color: var(--secondary-800); margin-bottom: var(--sp-4); }
+  .hero .tagline { font-size: 17px; color: var(--neutral-600); max-width: 720px; margin: 0 auto var(--sp-5); line-height: 1.7; }
+  .hero .meta { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; font-size: 12px; color: var(--neutral-400); }
+
+  /* Section */
+  section { margin-bottom: var(--sp-16); }
+  section h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 800; color: var(--secondary-800); margin-bottom: var(--sp-3); letter-spacing: -0.01em; }
+  section .lead { font-size: 15px; color: var(--neutral-600); margin-bottom: var(--sp-6); line-height: 1.7; }
+  h3 { font-size: 18px; font-weight: 700; color: var(--secondary-800); margin: var(--sp-6) 0 var(--sp-3); }
+  h4 { font-size: 15px; font-weight: 700; color: var(--primary-500); margin: var(--sp-4) 0 var(--sp-2); }
+
+  /* Problem statement */
+  .problem { background: linear-gradient(135deg, #FFF3E8, #FFE6D1); border-radius: var(--radius-lg); padding: var(--sp-7); border: 1px solid var(--primary-300); }
+  .problem .vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--sp-4); align-items: center; margin-top: var(--sp-4); }
+  @media (max-width: 720px) { .problem .vs { grid-template-columns: 1fr; } .problem .vs .mid { transform: rotate(90deg); } }
+  .problem .side { background: white; border-radius: var(--radius-md); padding: var(--sp-4); font-size: 13px; color: var(--neutral-600); line-height: 1.6; }
+  .problem .side strong { color: var(--secondary-800); font-size: 15px; display: block; margin-bottom: 4px; }
+  .problem .mid { font-size: 24px; color: var(--primary-500); font-weight: 800; text-align: center; }
+
+  /* Cards */
+  .card { background: white; border-radius: var(--radius-lg); padding: var(--sp-6); box-shadow: var(--shadow-sm); margin-bottom: var(--sp-4); }
+  .card-tag { display: inline-block; padding: 3px 10px; background: var(--primary-100); color: var(--primary-500); font-size: 11px; font-weight: 700; border-radius: var(--radius-full); margin-bottom: var(--sp-3); letter-spacing: 0.04em; }
+
+  /* Table */
+  .tbl { width: 100%; background: white; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .tbl table { width: 100%; border-collapse: collapse; }
+  .tbl th { background: var(--neutral-50); padding: 12px 14px; text-align: left; font-size: 12px; font-weight: 700; color: var(--secondary-800); border-bottom: 2px solid var(--neutral-200); }
+  .tbl td { padding: 12px 14px; font-size: 13px; color: var(--neutral-900); border-bottom: 1px solid var(--neutral-100); line-height: 1.6; vertical-align: top; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl td:first-child { font-weight: 700; color: var(--secondary-700); white-space: nowrap; }
+
+  /* 4-axis matrix */
+  .axis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-4); }
+  .axis-card { background: white; border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm); border-top: 4px solid var(--primary-500); }
+  .axis-card.eat { border-top-color: #E67E22; }
+  .axis-card.play { border-top-color: #16A085; }
+  .axis-card.observe { border-top-color: #2980B9; }
+  .axis-card.record { border-top-color: #8E44AD; }
+  .axis-card .axis-ico { font-size: 28px; margin-bottom: 6px; }
+  .axis-card h4 { font-size: 16px; color: var(--secondary-800); margin: 0 0 var(--sp-2); }
+  .axis-card ul { list-style: none; padding: 0; margin: 0; }
+  .axis-card li { font-size: 12.5px; color: var(--neutral-600); padding: 4px 0; padding-left: 14px; position: relative; line-height: 1.5; }
+  .axis-card li::before { content: '·'; position: absolute; left: 4px; color: var(--primary-500); font-weight: 700; }
+
+  /* 8 components grid */
+  .comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--sp-4); }
+  .comp-card { background: white; border-radius: var(--radius-lg); padding: var(--sp-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--primary-500); }
+  .comp-card .num { display: inline-block; width: 28px; height: 28px; line-height: 28px; text-align: center; background: var(--primary-500); color: white; font-weight: 800; border-radius: 50%; font-size: 13px; margin-bottom: 6px; }
+  .comp-card h4 { font-size: 15px; color: var(--secondary-800); margin: 0 0 6px; }
+  .comp-card p { font-size: 12.5px; color: var(--neutral-600); line-height: 1.6; margin: 0; }
+
+  /* Funnel */
+  .funnel { background: linear-gradient(180deg, #FFF, #FAFAFA); border-radius: var(--radius-lg); padding: var(--sp-7); box-shadow: var(--shadow-sm); }
+  .funnel-step { display: flex; gap: 16px; align-items: flex-start; padding: 12px 0; border-bottom: 1px dashed var(--neutral-200); }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-step .ico { width: 44px; height: 44px; border-radius: 12px; background: var(--primary-100); color: var(--primary-500); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; font-weight: 800; }
+  .funnel-step .body strong { font-size: 14px; color: var(--secondary-800); display: block; margin-bottom: 4px; }
+  .funnel-step .body p { font-size: 12.5px; color: var(--neutral-600); margin: 0; line-height: 1.55; }
+  .funnel-arrow { text-align: center; color: var(--primary-500); font-size: 18px; padding: 4px 0; }
+
+  /* Phone mockup mini */
+  .mockup { background: var(--secondary-800); border-radius: 22px; padding: 12px 8px; max-width: 280px; margin: 0 auto; }
+  .mockup-inner { background: white; border-radius: 14px; padding: 14px 14px 16px; min-height: 280px; }
+  .mockup-top { font-size: 10px; color: var(--neutral-400); text-align: center; margin-bottom: 8px; font-weight: 600; letter-spacing: 0.04em; }
+  .mockup-pill { padding: 4px 10px; background: var(--secondary-100); color: var(--secondary-700); font-size: 10px; font-weight: 700; border-radius: 100px; display: inline-block; margin-right: 4px; margin-bottom: 4px; }
+  .mockup-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+  .mockup-tab { background: var(--neutral-50); padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: 700; color: var(--secondary-700); }
+  .mockup-tab.active { background: var(--primary-100); color: var(--primary-500); }
+  .mockup-rec { background: var(--primary-50); border-left: 3px solid var(--primary-500); padding: 8px 10px; font-size: 11px; line-height: 1.5; color: var(--neutral-900); border-radius: 6px; margin-top: 6px; }
+
+  /* Pricing tier */
+  .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sp-4); }
+  .tier-card { background: white; border-radius: var(--radius-lg); padding: var(--sp-6); box-shadow: var(--shadow-sm); text-align: center; border: 2px solid transparent; }
+  .tier-card.recommended { border-color: var(--primary-500); box-shadow: var(--shadow-md); position: relative; }
+  .tier-card.recommended::before { content: '추천'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary-500); color: white; padding: 3px 10px; font-size: 11px; font-weight: 700; border-radius: 100px; }
+  .tier-card h4 { margin: 0 0 8px; font-size: 18px; color: var(--secondary-800); }
+  .tier-card .price { font-size: 28px; font-weight: 800; color: var(--primary-500); margin: 8px 0 4px; }
+  .tier-card .price-sub { font-size: 12px; color: var(--neutral-600); margin-bottom: 12px; }
+  .tier-card ul { list-style: none; padding: 0; margin: 0; text-align: left; }
+  .tier-card li { font-size: 12.5px; color: var(--neutral-600); padding: 4px 0; padding-left: 16px; position: relative; line-height: 1.5; }
+  .tier-card li::before { content: '✓'; position: absolute; left: 0; color: var(--primary-500); font-weight: 700; font-size: 12px; }
+
+  /* Roadmap */
+  .roadmap { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-2); }
+  @media (max-width: 720px) { .roadmap { grid-template-columns: 1fr; } }
+  .road-step { background: white; border-radius: var(--radius-md); padding: var(--sp-4); box-shadow: var(--shadow-sm); position: relative; }
+  .road-step .lbl { font-size: 10px; color: var(--primary-500); font-weight: 700; letter-spacing: 0.05em; }
+  .road-step h5 { font-size: 14px; color: var(--secondary-800); margin: 4px 0 6px; }
+  .road-step p { font-size: 12px; color: var(--neutral-600); margin: 0; line-height: 1.55; }
+
+  /* Highlight box */
+  .highlight { background: var(--primary-50); border-left: 4px solid var(--primary-500); border-radius: var(--radius-md); padding: var(--sp-5); margin: var(--sp-4) 0; }
+  .highlight strong { color: var(--primary-500); }
+  .highlight p { font-size: 14px; color: var(--neutral-900); margin: 0; line-height: 1.7; }
+
+  /* Decision card */
+  .decision { background: #FFF8E6; border: 1px solid #F2C94C; border-radius: var(--radius-lg); padding: var(--sp-6); }
+  .decision h4 { color: #8B6914; margin-top: 0; }
+  .decision ul { padding-left: 18px; margin: 0; }
+  .decision li { font-size: 14px; color: var(--neutral-900); line-height: 1.7; margin-bottom: 6px; }
+
+  /* TOC */
+  .toc { background: white; border: 1px solid var(--neutral-200); border-radius: var(--radius-md); padding: var(--sp-5); margin-bottom: var(--sp-12); }
+  .toc h4 { margin: 0 0 var(--sp-3); font-size: 13px; color: var(--neutral-600); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .toc ol { padding-left: 20px; margin: 0; column-count: 2; column-gap: 20px; }
+  @media (max-width: 720px) { .toc ol { column-count: 1; } }
+  .toc li { font-size: 13px; color: var(--secondary-700); padding: 3px 0; }
+  .toc a { color: inherit; text-decoration: none; }
+  .toc a:hover { color: var(--primary-500); text-decoration: underline; }
+
+  footer { text-align: center; padding: var(--sp-12) 0 var(--sp-4); font-size: 13px; color: var(--neutral-400); border-top: 1px solid var(--neutral-200); }
+  footer a { color: var(--primary-500); text-decoration: none; }
+
+  code { font-size: 13px; background: var(--primary-50); padding: 2px 6px; border-radius: 4px; color: var(--primary-500); }
+  pre.ascii { font-family: 'Menlo', monospace; background: var(--neutral-50); padding: var(--sp-4); border-radius: var(--radius-md); font-size: 12px; line-height: 1.55; color: var(--secondary-700); overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Hero -->
+<section class="hero">
+  <span class="eyebrow">B2C Product Seed · 세션 정리</span>
+  <h1>밀프레드 박스 + 앱 콘텐츠 매트릭스</h1>
+  <p class="tagline">정적 가이드를 넘어 — 매달 도착하는 한국 텃밭의 한 입과<br>
+    봉투마다 살아나는 4축 활동으로, 편식키트 자산을 새 매출 엔진과 연결합니다.</p>
+  <div class="meta">
+    <span>2026-05-19 신설</span><span>·</span>
+    <span>대화 정리 — 5개 주제 통합</span><span>·</span>
+    <span>의사결정 대기</span>
+  </div>
+</section>
+
+<!-- TOC -->
+<nav class="toc">
+  <h4>📋 목차</h4>
+  <ol>
+    <li><a href="#problem">문제 인식 — 노출 권고 vs 가정 폐기</a></li>
+    <li><a href="#design">박스 설계 — 개월령별 큐레이션</a></li>
+    <li><a href="#components">8가지 박스 구성 요소</a></li>
+    <li><a href="#matrix">4축 활동 매트릭스</a></li>
+    <li><a href="#app">앱 콘텐츠 흐름 — 4개 진입 경로</a></li>
+    <li><a href="#card">활동 카드 표준 5요소</a></li>
+    <li><a href="#funnel">통합 funnel — 키트 × 박스 × 데이터</a></li>
+    <li><a href="#kit">편식키트 자기진단 (박스 렌즈)</a></li>
+    <li><a href="#pricing">가격 + 티어 + ROI</a></li>
+    <li><a href="#mvp">MVP 출시 scope</a></li>
+    <li><a href="#beta">베타 검증 — 3주 / 10가구</a></li>
+    <li><a href="#roadmap">통합 로드맵 4단계</a></li>
+    <li><a href="#decision">의사결정 3가지</a></li>
+    <li><a href="#next">다음 액션 후보</a></li>
+  </ol>
+</nav>
+
+<!-- 1. 문제 인식 -->
+<section id="problem">
+  <h2>1. 문제 인식 — 권고와 인프라 미스매치</h2>
+  <p class="lead">12~30회 노출 권고(HealthLink BC, Solid Starts, AAP)는 명확합니다. 그런데 시장에서 살 수 있는 최소 단위는 한 봉지 500g. 부모님께 "당근 30번 노출하세요" 권하면서, 정작 30번 노출에 필요한 600g(20g × 30회)을 신선하게 유지할 길이 없어요.</p>
+
+  <div class="problem">
+    <div class="vs">
+      <div class="side"><strong>현재 — 가정에서</strong>당근 1봉지 500g 구매 → 아이가 20g 시도 후 거부 → 신선도 5일 → 나머지 480g 폐기.<br>부모님 죄책감 + 음식물 쓰레기 + 다양성 갈증 미해소.</div>
+      <div class="mid">→</div>
+      <div class="side"><strong>제안 — 박스 구독</strong>당근 20g × 3봉 (소분·블랜치 냉동) → 가벼운 마음으로 3번 노출 → 다음 박스에서 또 3봉 → 5주에 21회 자연 누적.<br>폐기 0g · 다양성 ↑ · 권고 인프라 완성.</div>
+    </div>
+  </div>
+
+  <div class="highlight">
+    <p><strong>과학적 타당성</strong> — Anzman-Frasca 2012 메타분석(40개 연구): 영유아기 식재료 다양성 ↑ → 청소년기 편식률 ↓. Mennella 외: 6~24개월 다양 노출이 평생 미각 폭을 결정 (sensitive period). DDS(식이 다양성 점수)는 직접 면역·장 건강·인지 발달 biomarker.</p>
+  </div>
+</section>
+
+<!-- 2. 박스 설계 -->
+<section id="design">
+  <h2>2. 박스 설계 — 개월령별 큐레이션</h2>
+  <p class="lead">노출 횟수 권고(12~30회) × 1회 노출량(10~30g) × 다양성 6~10종 × 알러지 분리 — 이 4가지 원칙을 개월령별로 슬라이딩합니다.</p>
+
+  <div class="tbl">
+    <table>
+      <thead>
+        <tr><th>개월령</th><th>1회 소분량</th><th>박스당 종수</th><th>봉지 수</th><th>배송 주기</th><th>큐레이션 톤</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>6~8m</td><td>10g</td><td>4~5종</td><td>20~25봉</td><td>2주</td><td>First Foods (호박·아보카도·고구마류)</td></tr>
+        <tr><td>9~11m</td><td>15g</td><td>6~8종</td><td>24~32봉</td><td>2주</td><td>식감 확장 (잎채소·콩류·단백질 첫 등장)</td></tr>
+        <tr><td>12~23m</td><td>20g</td><td>8~10종</td><td>30~40봉</td><td>2주</td><td>본격 노출 (뿌리·잎·꽃·박과·발효)</td></tr>
+        <tr><td>24~60m</td><td>25g</td><td>10~12종</td><td>36~48봉</td><td>2주</td><td>향 강한 채소 + 새 단백질</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>🥕 식재료 풀 (총 100~120종)</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>카테고리</th><th>종수</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td>잎채소</td><td>12</td><td>시금치·근대·청경채·케일·미나리·쑥갓·치커리·로메인·콜라드</td></tr>
+        <tr><td>뿌리·줄기</td><td>10</td><td>당근·비트·우엉·연근·무·돼지감자·아스파라거스</td></tr>
+        <tr><td>꽃·박과</td><td>8</td><td>브로콜리·콜리플라워·단호박·애호박·가지</td></tr>
+        <tr><td>십자화·알리움</td><td>8</td><td>양배추·콜라비·양파(익힌)·대파·마늘(소량)</td></tr>
+        <tr><td>콩·곡류</td><td>15</td><td>병아리콩·렌틸·완두·강낭콩·퀴노아·귀리·보리·수수</td></tr>
+        <tr><td>단백질</td><td>15</td><td>연어·고등어·닭가슴살·소고기·돼지고기·두부·계란노른자</td></tr>
+        <tr><td>과일</td><td>15</td><td>블루베리·키위·복숭아·자두·망고·파파야·석류·체리</td></tr>
+        <tr><td>향·발효</td><td>8</td><td>김·미역·다시마·요거트·치즈·바질·생강·강황</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>🧊 보존 방식 혼합 (콜드체인 최적화)</h3>
+  <ul style="font-size:14px;color:var(--neutral-700);line-height:1.8;padding-left:18px">
+    <li><strong>냉동 블랜치 60%</strong> — 채소·생선·고기 (2개월, 일반 택배 + 보냉 패키지)</li>
+    <li><strong>동결건조 25%</strong> — 과일·잎채소 일부 (6개월 상온)</li>
+    <li><strong>신선 15%</strong> — 그달 추천 1~2종 한정 (콜드체인)</li>
+  </ul>
+</section>
+
+<!-- 3. 8 구성 요소 -->
+<section id="components">
+  <h2>3. 8가지 박스 구성 요소 — 자연·교육·기록 3층</h2>
+  <p class="lead">식재료만 보내면 "고급 채소가게". 밀프레드일 이유는 <strong>경험·교육·기록</strong> 세 층이에요.</p>
+
+  <div class="comp-grid">
+    <div class="comp-card"><div class="num">1</div><h4>식재료 봉투 (30봉)</h4><p>QR 라벨 → 앱 자동 노출 기록 + 자르는 법·알러지 즉시 표시</p></div>
+    <div class="comp-card"><div class="num">2</div><h4>식재료 카드 세트 (10~12장)</h4><p>앞: 산지·농장 이름. 뒤: 자르는 법 + 영양 + 부모님 한 마디. 모서리 맛 chip (단/쓴/흙/시원).</p></div>
+    <div class="comp-card"><div class="num">3</div><h4>"이달의 농장" 책자 (8~12p)</h4><p>이번 달 메인 식재료 1종의 산지 스토리 + 농부 사진 + 자라는 과정.</p></div>
+    <div class="comp-card"><div class="num">4</div><h4>24절기 카드 (월 2장)</h4><p>한국 전통 절기 ↔ 그달 식재료 연결. "입하 — 햇완두콩이 첫 수확되는 때".</p></div>
+    <div class="comp-card"><div class="num">5</div><h4>미니 자연 키트 (월 1개, 순환)</h4><p>새싹 화분 / 식재료 도장 / 압화 / 향 비교 / 자연 관찰 노트 — 12개월 순환.</p></div>
+    <div class="comp-card"><div class="num">6</div><h4>100종 시도 패스포트</h4><p>스티커북. 1년 100종 도장 = "탐험가 인증" + 다음 박스 1회 무료.</p></div>
+    <div class="comp-card"><div class="num">7</div><h4>부모 가이드 카드 (월 1장)</h4><p>영양사·소아과·언어재활사 전문가 한 마디. 신뢰·죄책감 해소.</p></div>
+    <div class="comp-card"><div class="num">8</div><h4>앱 연동 (이미 구축)</h4><p>QR 스캔 → 노출 기록 → DDS 차트 → 알림. 패스포트 디지털 백업 + 가족 공유.</p></div>
+  </div>
+</section>
+
+<!-- 4. 4축 매트릭스 -->
+<section id="matrix">
+  <h2>4. 4축 활동 매트릭스 — 한 식재료 = 12~16개 활동 풀</h2>
+  <p class="lead">매 박스 식재료마다 4개 축에서 활동이 펼쳐집니다. 템플릿 13종이라 식재료 메타데이터만 채우면 자동 생성됩니다.</p>
+
+  <div class="axis-grid">
+    <div class="axis-card eat">
+      <div class="axis-ico">🍽</div>
+      <h4>먹기 (Eat) — 3~5개</h4>
+      <ul>
+        <li>자르는 법 영상 (Solid Starts 스타일)</li>
+        <li>미니 레시피 (20g 1봉용) 3개</li>
+        <li>알러지 첫 노출 체크리스트</li>
+        <li>익힘 vs 생 맛 비교</li>
+      </ul>
+    </div>
+    <div class="axis-card play">
+      <div class="axis-ico">🎨</div>
+      <h4>놀기 (Play) — 3~5개</h4>
+      <ul>
+        <li>후각 게임 (눈가리고 맞추기)</li>
+        <li>단면 도장 찍기 (stamping)</li>
+        <li>가족 무지개 식탁 미션</li>
+        <li>흙·물·돌과 비교 (자연 비교)</li>
+      </ul>
+    </div>
+    <div class="axis-card observe">
+      <div class="axis-ico">🌱</div>
+      <h4>관찰 (Observe) — 2~3개</h4>
+      <ul>
+        <li>잎·뿌리·꽃 실물 비교</li>
+        <li>단면 단면 노트</li>
+        <li>미니 화분 키우기 (씨앗 동봉 시)</li>
+      </ul>
+    </div>
+    <div class="axis-card record">
+      <div class="axis-ico">📝</div>
+      <h4>기록 (Record) — 3개</h4>
+      <ul>
+        <li>표정 반응 기록 (😣😐😊)</li>
+        <li>두 입 클럽 인증 (USDA)</li>
+        <li>100종 패스포트 도장</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="highlight" style="margin-top:var(--sp-6)">
+    <p><strong>콘텐츠 풀 산정</strong> — 100종 × 평균 13개 = <strong>1,300개 활동 카드</strong> 라이브러리. 활동 자체는 템플릿 13종이라 식재료 메타데이터만 채우면 자동 생성. <strong>"콘텐츠 1,300개 작성 X, 메타데이터 200줄 작성 O"</strong></p>
+  </div>
+</section>
+
+<!-- 5. 앱 콘텐츠 흐름 -->
+<section id="app">
+  <h2>5. 앱 콘텐츠 흐름 — 4개 진입 경로</h2>
+  <p class="lead">박스가 도착하면 앱이 4가지 방식으로 부모님과 만나야 합니다. 자동 큐레이션 (수동성) + 자유 탐색 (능동성) 균형.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>경로</th><th>화면</th><th>역할</th></tr></thead>
+      <tbody>
+        <tr><td>① 홈 카드</td><td><code>s-home</code> "이번 박스 진도"</td><td>현재 박스 10종 진행률 7/10. 다음 식재료 미리보기.</td></tr>
+        <tr><td>② 자동 큐레이션</td><td><code>s-home</code> "오늘의 한 입"</td><td>개월령·진도·시간대·반응 기반 매일 1개 활동 자동 추천.</td></tr>
+        <tr><td>③ QR 스캔</td><td>봉지 QR → 식재료 페이지</td><td>박스 봉지 라벨 스캔 → 그 식재료 4탭 페이지 진입.</td></tr>
+        <tr><td>④ 박스 홈</td><td><code>s-box</code> (NEW)</td><td>이번 박스 10종 그리드. 진도·완료 표시. 클릭 → 식재료 페이지.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>🖼 식재료 페이지 mockup (예: 당근)</h3>
+  <div class="mockup">
+    <div class="mockup-inner">
+      <div class="mockup-top">밀프레드 · 식재료</div>
+      <div style="font-size:18px;font-weight:800;color:var(--secondary-800);margin-bottom:4px">🥕 당근</div>
+      <div style="font-size:11px;color:var(--neutral-600);margin-bottom:8px">🇰🇷 강원도 평창 박○○ 농가 · 5월 햇당근</div>
+      <div style="margin-bottom:8px">
+        <span class="mockup-pill">🍯 단맛</span>
+        <span class="mockup-pill">🤤 즙많음</span>
+        <span class="mockup-pill">🟠 주황</span>
+      </div>
+      <div class="mockup-row">
+        <div class="mockup-tab active">🍽 먹기 4</div>
+        <div class="mockup-tab">🎨 놀기 5</div>
+      </div>
+      <div class="mockup-row">
+        <div class="mockup-tab">🌱 관찰 3</div>
+        <div class="mockup-tab">📝 기록 3</div>
+      </div>
+      <div class="mockup-rec">✨ <strong>추천</strong> — 당근잎 향 게임 (3분)</div>
+      <div class="mockup-rec">✨ <strong>추천</strong> — 단면 도장 찍기 (5분)</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. 활동 카드 -->
+<section id="card">
+  <h2>6. 활동 카드 표준 5요소 — 템플릿화</h2>
+  <p class="lead">모든 활동은 동일한 5요소 구조. 식재료 메타데이터 + 활동 템플릿 메타데이터 조합으로 자동 생성됩니다.</p>
+
+  <pre class="ascii">┌──────────────────────────────────┐
+│ 🎨 단면 도장 찍기                  │
+│ ⏱ 5분 · 🌟 12~36m 권장             │
+├──────────────────────────────────┤
+│ 📦 준비물                          │
+│  · 당근 20g (이번 박스 봉지)       │
+│  · 종이 1장 · 물감 (선택)         │
+│                                  │
+│ 📋 진행                            │
+│  1. 당근을 가로로 자르기           │
+│  2. 단면을 보여주기 ("동그라미!")  │
+│  3. 종이에 찍어보기                │
+│                                  │
+│ 📝 기록                            │
+│  · 반응 사진                       │
+│  · 표정 😣 😐 😊                   │
+└──────────────────────────────────┘</pre>
+
+  <div class="card">
+    <div class="card-tag">📁 저장소</div>
+    <p style="font-size:14px;line-height:1.7;color:var(--neutral-900);margin:0">
+      <strong>Notion DB 또는 Airtable</strong> → CSV export → 앱 fetch.<br>
+      현재 블로그 빌드 구조와 동일 패턴 (<code>_TOPICS.csv</code> → <code>_build.js</code>).<br>
+      식재료 풀 100종 + 활동 템플릿 13종 = 메타 매트릭스 1,300 entries.
+    </p>
+  </div>
+</section>
+
+<!-- 7. 통합 funnel -->
+<section id="funnel">
+  <h2>7. 통합 funnel — 키트 × 박스 × 데이터</h2>
+  <p class="lead">박스에서 모은 다양성 데이터가 키트 R&D feeder가 되고, 키트 졸업이 박스 진입을 자연화합니다. 영원한 순환.</p>
+
+  <div class="funnel">
+    <div class="funnel-step">
+      <div class="ico">🟠</div>
+      <div class="body"><strong>① 편식키트 (5주 21회)</strong><p>한 식재료(예: 당근)를 SOS Approach 기반 깊이 정복. 35개 국제기준 자동 임베드.</p></div>
+    </div>
+    <div class="funnel-arrow">↓ 졸업 인증</div>
+    <div class="funnel-step">
+      <div class="ico">🎓</div>
+      <div class="body"><strong>② 졸업식 → 박스 구독 CTA</strong><p>키트 완료 시 박스 첫 달 50% 할인 등 자연 funnel.</p></div>
+    </div>
+    <div class="funnel-arrow">↓</div>
+    <div class="funnel-step">
+      <div class="ico">📦</div>
+      <div class="body"><strong>③ 박스 매월 (10종 만나기)</strong><p>매일 앱 콘텐츠 활동 → 봉지 QR 스캔 → 자동 노출 기록.</p></div>
+    </div>
+    <div class="funnel-arrow">↓ 데이터 누적</div>
+    <div class="funnel-step">
+      <div class="ico">📊</div>
+      <div class="body"><strong>④ DDS ↑ · 거부 식재료 누적</strong><p>다양성 점수 상승 · 어떤 식재료를 N회 거부했는지 자동 트래킹.</p></div>
+    </div>
+    <div class="funnel-arrow">↓ AI 분석</div>
+    <div class="funnel-step">
+      <div class="ico">🚨</div>
+      <div class="body"><strong>⑤ 알림: "시금치 코스 추천"</strong><p>거부 5회 누적 시 → 그 식재료의 새 편식키트 추천. R&D 우선순위 자동 산출.</p></div>
+    </div>
+    <div class="funnel-arrow">↓</div>
+    <div class="funnel-step">
+      <div class="ico">🟠</div>
+      <div class="body"><strong>⑥ 새 편식키트 (시금치)</strong><p>다시 ①번부터 순환. 박스가 키트의 R&D feeder + 키트가 박스의 진입 funnel.</p></div>
+    </div>
+  </div>
+
+  <div class="highlight" style="margin-top:var(--sp-6)">
+    <p><strong>ARPU 가설</strong> — 박스 ₩60k × 12개월 + 키트 ₩50k × 2회/년 = <strong>연 ₩820,000</strong>. 단품 키트 ₩50k 1회 대비 약 16배.</p>
+  </div>
+</section>
+
+<!-- 8. 편식키트 자기진단 -->
+<section id="kit">
+  <h2>8. 편식키트 자기진단 — 박스 렌즈로 다시 보기</h2>
+
+  <h3>✅ 이미 가진 자산 — 박스에 그대로 흐름</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>자산</th><th>박스에 어떻게 흐르나</th></tr></thead>
+      <tbody>
+        <tr><td>35개 국제기준 통합</td><td>박스 마케팅 첫 줄. "임상 표준 기반 다양성 박스"</td></tr>
+        <tr><td>활동 콘텐츠 풀 (후각·두 입 클럽·압화·도장)</td><td>매달 미니 자연 키트 = 이 라이브러리에서 큐레이션. <strong>콘텐츠 제작 비용 거의 0</strong></td></tr>
+        <tr><td>NESR 노출 추적·DDS·CEBQ·ICFQ</td><td>박스 봉지 QR 스캔 → 노출 기록 + 비포애프터 측정</td></tr>
+        <tr><td>공공기관 3,000곳 / 10만 명</td><td>어린이집·교사 추천 → 부모 박스 구독 (B2B→B2C 자연 funnel)</td></tr>
+        <tr><td>앱 28개 화면 + Supabase</td><td>박스 첫날부터 풀스택 인프라 작동</td></tr>
+        <tr><td>Phase 9 Food Chaining 4축</td><td>박스 거부 식재료 감지 → 즉시 4축 변형 제안. <strong>킬러 기능 활성화</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>⚠ 박스 관점에서 본 키트의 약점</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>약점</th><th>박스가 보완</th></tr></thead>
+      <tbody>
+        <tr><td>1회성 구매 (5주 코스 ₩40~50k 단발성)</td><td>박스 = 월 ₩40~80k 구독, 재무 안정성 ↑</td></tr>
+        <tr><td>단일 식재료 집중 → 다양성 갈증 해소 X</td><td>박스 매박스 10종 × 30봉 = 부모 진짜 페인 직접 해결</td></tr>
+        <tr><td>자연 경험 자산 0 (활동지·게임 위주)</td><td>박스 = 농장 책자·24절기·미니 화분 = 정서 깊이</td></tr>
+        <tr><td>B2C 전환 0건</td><td>박스 = 정기성·콘텐츠 풍부함 = "구독하고 싶다" 강함</td></tr>
+        <tr><td>재고 SKU 1개 (당근 코스)</td><td>박스 = 100종 풀 자동 큐레이션 = 운영 확장성 ↑</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 9. 가격 + 티어 -->
+<section id="pricing">
+  <h2>9. 가격 + 티어 + ROI</h2>
+  <p class="lead">Plus를 디폴트로 — Lite는 둘째 출생·예산 절약, Premium은 첫째·여유 있는 가정.</p>
+
+  <div class="tier-grid">
+    <div class="tier-card">
+      <h4>Lite</h4>
+      <div class="price">₩22,000</div>
+      <div class="price-sub">2주 박스 · 월 ₩44,000</div>
+      <ul>
+        <li>식재료 30봉</li>
+        <li>식재료 카드 10장</li>
+        <li>앱 연동 (QR·DDS·노출 기록)</li>
+      </ul>
+    </div>
+    <div class="tier-card recommended">
+      <h4>Plus</h4>
+      <div class="price">₩32,000</div>
+      <div class="price-sub">2주 박스 · 월 ₩64,000</div>
+      <ul>
+        <li>Lite 전체</li>
+        <li>이달의 농장 책자</li>
+        <li>24절기 카드</li>
+        <li>100종 패스포트</li>
+        <li>부모 가이드 카드</li>
+      </ul>
+    </div>
+    <div class="tier-card">
+      <h4>Premium</h4>
+      <div class="price">₩42,000</div>
+      <div class="price-sub">2주 박스 · 월 ₩84,000</div>
+      <ul>
+        <li>Plus 전체</li>
+        <li>미니 자연 키트 (12개월 순환)</li>
+        <li>화분 / 도장 / 압화 / 향 키트</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>💰 원가 구조 (12~23m Plus 박스 기준, ₩32,000)</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>항목</th><th>금액</th></tr></thead>
+      <tbody>
+        <tr><td>식재료 원가 (소량 도매)</td><td>₩5,000</td></tr>
+        <tr><td>소분·라벨·QR</td><td>₩3,000</td></tr>
+        <tr><td>패키징·콜드체인</td><td>₩4,000</td></tr>
+        <tr><td>콘텐츠 (카드·책자·절기)</td><td>₩4,000</td></tr>
+        <tr><td>마진</td><td>₩16,000</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 10. MVP scope -->
+<section id="mvp">
+  <h2>10. MVP 출시 scope — 10종 × 4활동 = 40개 카드</h2>
+  <p class="lead">첫 박스(12~23m 다양성 박스)에 필요한 콘텐츠 부담은 작습니다. 3개월 내 30종 × 4활동 = 120개로 확장.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>단계</th><th>식재료 메타</th><th>활동 풀</th><th>총 카드</th><th>소요</th></tr></thead>
+      <tbody>
+        <tr><td>MVP 출시</td><td>10종</td><td>4 템플릿</td><td>40 카드</td><td>2~3주</td></tr>
+        <tr><td>3개월 후</td><td>30종</td><td>4 템플릿</td><td>120 카드</td><td>+6주</td></tr>
+        <tr><td>1년 후</td><td>100종</td><td>13 템플릿</td><td>1,300 카드</td><td>점진</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 11. 베타 검증 -->
+<section id="beta">
+  <h2>11. 베타 검증 — 3주 / 10가구 / ₩900k</h2>
+  <p class="lead">사업화 전 과학적·운영적·콘텐츠 가설을 한 번에 검증.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>지표</th><th>가설</th></tr></thead>
+      <tbody>
+        <tr><td>DDS (식품군 종수)</td><td>박스 사용 시 평균 ↑ 30% (5종 → 6.5종)</td></tr>
+        <tr><td>노출 횟수</td><td>주 5회 → 7회, ↑ 40%</td></tr>
+        <tr><td>폐기율</td><td>가정 980g → 박스 100g, ↓ 90%</td></tr>
+        <tr><td>콘텐츠 만족도</td><td>책자·키트·카드 각 5점 척도</td></tr>
+        <tr><td>공유 욕구</td><td>인스타·맘카페 인증샷 자발 발생률</td></tr>
+        <tr><td>재구매 의향 NPS</td><td>≥ 50 (콘텐츠 추가 시)</td></tr>
+        <tr><td>자유 응답</td><td>어떤 콘텐츠가 가장 좋았는지 / 빠져도 OK인지</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 12. 로드맵 -->
+<section id="roadmap">
+  <h2>12. 통합 product 로드맵</h2>
+  <div class="roadmap">
+    <div class="road-step"><div class="lbl">1단계 · 현재</div><h5>편식키트 단품</h5><p>5주 코스. B2C 전환 0건. 키트 자산은 충분.</p></div>
+    <div class="road-step"><div class="lbl">2단계 · 제안</div><h5>박스 entry + 키트 depth + B2B scale</h5><p>매월 박스 + intervention 키트 + 기관 코스 3개 라인.</p></div>
+    <div class="road-step"><div class="lbl">3단계 · 이듬해</div><h5>박스 데이터 → 키트 자동 추천</h5><p>거부 식재료 누적 → 키트 우선순위 자동 산출.</p></div>
+    <div class="road-step"><div class="lbl">4단계 · 장기</div><h5>밀프레드_Lab Cluster RCT</h5><p>박스 + 키트 데이터로 학술 출판 + 정책 영향.</p></div>
+  </div>
+</section>
+
+<!-- 13. 의사결정 -->
+<section id="decision">
+  <h2>13. 의사결정 포인트 3가지</h2>
+  <div class="decision">
+    <h4>🎯 다음 세션 첫 결정 필요</h4>
+    <ul>
+      <li><strong>① 포지셔닝 — 박스가 메인이 되나, 보조가 되나?</strong> 메인: 키트는 박스 안 "거부 식재료 정복 옵션"으로 격하 / 보조: 키트 매출 유지 + 박스는 B2C entry</li>
+      <li><strong>② 자원 분배 — 박스 vs 어린이집 B2B 동시 vs 순차?</strong> 박스 ₩900k 베타 ↔ 어린이집 베타 우선순위</li>
+      <li><strong>③ 브랜드 통합 — 같은 이름? 분리?</strong> 통합 "밀프레드 박스 + 키트" / 분리 (예: 텃밭·한입 등 별도 D2C 브랜드)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 14. 다음 액션 -->
+<section id="next">
+  <h2>14. 다음 액션 후보 — 어디부터 갈까</h2>
+  <p class="lead">방향 결정 후 아래 4가지 중 하나부터 진행. 동시 X, 순차로.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>옵션</th><th>아웃풋</th><th>소요</th><th>비용</th></tr></thead>
+      <tbody>
+        <tr><td>A. 식재료 메타데이터 스키마</td><td>Notion/Airtable DB 구조 + 10종 시드 데이터</td><td>3일</td><td>₩0 (이사님 시간)</td></tr>
+        <tr><td>B. 베타 박스 1종 활동 카드 40개</td><td>12~23m 박스 식재료 10 × 활동 4 = 40 카드</td><td>1~2주</td><td>₩0 (콘텐츠 작성)</td></tr>
+        <tr><td>C. 베타 작업지시서 (10가구 3주)</td><td>측정·발송·인터뷰 SOP + 비용·일정</td><td>2일</td><td>₩900k 시작</td></tr>
+        <tr><td>D. 재무모델 (12개월 P&amp;L)</td><td>박스 SKU별 원가·매출·CAC·LTV·BEP</td><td>3일</td><td>₩0</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  밀프레드 박스 + 앱 콘텐츠 매트릭스 · B2C product 시드 · 2026-05-19 ·
+  <a href="/blog">블로그</a> · <a href="/app-demo.html">앱 데모</a> · <a href="/mvp-demo.html">MVP UX 제안</a>
+</footer>
+
+</div>
+</body>
+</html>
