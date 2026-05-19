@@ -144,6 +144,14 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 .ig-cb-title { font-weight: 800; font-size: 15px; margin-bottom: 4px; }
 .ig-cb-sub { font-size: 11px; opacity: 0.85; }
 
+/* three-cards (13편 ARFID 3가지 양상) */
+.ig-three-cards { display: flex; gap: 10px; max-width: 540px; margin: 0 auto; }
+.ig-tc-card { flex: 1; background: var(--neutral-50); border-top: 3px solid var(--primary-500); border-radius: var(--radius-md); padding: var(--sp-4) 10px; text-align: center; min-height: 130px; display: flex; flex-direction: column; gap: 6px; }
+.ig-tc-title { font-weight: 800; font-size: 14px; color: var(--primary-500); }
+.ig-tc-sub { font-size: 11px; color: var(--neutral-600); font-weight: 600; }
+.ig-tc-quote { font-size: 11px; color: var(--secondary-700); margin-top: auto; line-height: 1.4; font-style: italic; opacity: 0.85; }
+@media (max-width: 480px) { .ig-three-cards { max-width: 320px; gap: 6px; } .ig-tc-card { padding: 12px 6px; min-height: 110px; } }
+
 /* card-grid */
 .ig-card-grid { display: grid; gap: 8px; max-width: 320px; margin: 0 auto; }
 .ig-mini-card { aspect-ratio: 5/3; background: var(--secondary-100); border-radius: 6px; border: 1px solid var(--neutral-100); }
@@ -203,7 +211,7 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 
     <nav class="blog-pager">
       <a href="./011.html">← 11편</a>
-      <span></span>
+      <a href="./013.html">13편 →</a>
     </nav>
 
     <div class="blog-cta">
