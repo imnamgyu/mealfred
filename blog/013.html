@@ -152,6 +152,13 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 .ig-tc-quote { font-size: 11px; color: var(--secondary-700); margin-top: auto; line-height: 1.4; font-style: italic; opacity: 0.85; }
 @media (max-width: 480px) { .ig-three-cards { max-width: 320px; gap: 6px; } .ig-tc-card { padding: 12px 6px; min-height: 110px; } }
 
+/* quote-card (14편 NHS 인용 한 줄) */
+.ig-quote-card { max-width: 480px; margin: 0 auto; background: var(--neutral-50); border-left: 4px solid var(--primary-500); border-radius: var(--radius-md); padding: var(--sp-6) var(--sp-6); text-align: left; position: relative; }
+.ig-qc-mark { position: absolute; top: 8px; left: 14px; font-size: 56px; line-height: 1; color: var(--primary-500); opacity: 0.25; font-weight: 900; font-family: Georgia, serif; }
+.ig-qc-quote { font-size: 19px; font-weight: 700; color: var(--secondary-800); line-height: 1.4; padding-left: 32px; margin-bottom: 10px; font-style: italic; }
+.ig-qc-korean { font-size: 13px; color: var(--neutral-600); padding-left: 32px; line-height: 1.5; }
+@media (max-width: 480px) { .ig-qc-quote { font-size: 16px; padding-left: 24px; } .ig-qc-korean { padding-left: 24px; font-size: 12px; } .ig-qc-mark { font-size: 44px; left: 10px; } }
+
 /* card-grid */
 .ig-card-grid { display: grid; gap: 8px; max-width: 320px; margin: 0 auto; }
 .ig-mini-card { aspect-ratio: 5/3; background: var(--secondary-100); border-radius: 6px; border: 1px solid var(--neutral-100); }
@@ -235,7 +242,7 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 
     <nav class="blog-pager">
       <a href="./012.html">← 12편</a>
-      <span></span>
+      <a href="./014.html">14편 →</a>
     </nav>
 
     <div class="blog-cta">
