@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>편식 경과 추적기 — 밀프레드</title>
+<meta name="description" content="음식별 등급(A 필수·B 권장·C 선택)과 거부 기간을 결합해 안심·주의·평가권장 3단계로 알려드립니다. SOS Approach 기반.">
+<meta name="theme-color" content="#283593">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<style>
+  :root{
+    --indigo:#283593;
+    --indigo-dark:#1A237E;
+    --indigo-light:#E8EAF6;
+    --indigo-faint:#F3F4FA;
+    --green:#2E7D32;
+    --green-bg:#E8F5E9;
+    --green-line:#A5D6A7;
+    --yellow:#F57F17;
+    --yellow-bg:#FFF8E1;
+    --yellow-line:#FFD54F;
+    --red:#C62828;
+    --red-bg:#FFEBEE;
+    --red-line:#EF9A9A;
+    --text:#1F2330;
+    --text-mute:#6B7280;
+    --text-faint:#9CA3AF;
+    --line:#E5E7EB;
+    --card:#FFFFFF;
+    --bg:#F5F6FA;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.55}
+  body{padding:0;min-height:100vh}
+  .app{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;padding-bottom:80px}
+  @media(min-width:600px){
+    body{padding:24px 0;background:#EDEEF3}
+    .app{box-shadow:0 4px 24px rgba(0,0,0,.06);border-radius:24px;overflow:hidden;min-height:auto}
+  }
+
+  /* Header */
+  .header{background:linear-gradient(135deg,#283593 0%,#3949AB 100%);color:#fff;padding:28px 22px 24px;position:relative}
+  .header h1{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+  .header .sub{font-size:13.5px;opacity:.88;line-height:1.5}
+  .header .badge-source{display:inline-block;margin-top:12px;padding:5px 10px;background:rgba(255,255,255,.15);border-radius:999px;font-size:11.5px;font-weight:500;letter-spacing:.2px}
+
+  /* SOS Diagnosis Card */
+  .sos-card{margin:-12px 16px 0;background:#fff;border-radius:18px;padding:18px 18px 16px;box-shadow:0 4px 16px rgba(40,53,147,.08);position:relative;z-index:1}
+  .sos-title{font-size:13px;color:var(--text-mute);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .sos-title::before{content:'';display:inline-block;width:4px;height:14px;background:var(--indigo);border-radius:2px}
+  .sos-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+  .sos-stat{padding:12px 8px;border-radius:12px;text-align:center}
+  .sos-stat.green{background:var(--green-bg)}
+  .sos-stat.yellow{background:var(--yellow-bg)}
+  .sos-stat.red{background:var(--red-bg)}
+  .sos-stat .num{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1}
+  .sos-stat.green .num{color:var(--green)}
+  .sos-stat.yellow .num{color:var(--yellow)}
+  .sos-stat.red .num{color:var(--red)}
+  .sos-stat .lbl{font-size:11.5px;color:var(--text);margin-top:5px;font-weight:600}
+  .sos-summary{background:var(--indigo-faint);border:1px solid var(--indigo-light);border-radius:12px;padding:11px 13px;font-size:13px;line-height:1.55}
+  .sos-summary strong{color:var(--indigo);font-weight:700}
+  .sos-meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-mute);margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
+
+  /* Section header */
+  .section{margin-top:22px;padding:0 18px}
+  .section-h{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+  .section-h .small{font-size:11.5px;color:var(--text-mute);font-weight:500}
+  .section-sub{font-size:12.5px;color:var(--text-mute);margin-bottom:12px;line-height:1.5}
+
+  /* Food card */
+  .foods{display:flex;flex-direction:column;gap:10px}
+  .food{background:var(--card);border-radius:14px;padding:14px 14px 13px;border:1px solid var(--line);position:relative;overflow:hidden}
+  .food.status-red{border-color:var(--red-line);background:linear-gradient(180deg,#FFF6F6 0%,#fff 30%)}
+  .food.status-yellow{border-color:var(--yellow-line);background:linear-gradient(180deg,#FFFCEF 0%,#fff 30%)}
+  .food.status-green{border-color:var(--green-line)}
+  .food-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .food-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+  .food-emoji{font-size:28px;flex-shrink:0;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:#F8F9FC;border-radius:11px}
+  .food-info{flex:1;min-width:0}
+  .food-name{font-size:16px;font-weight:700;letter-spacing:-.3px;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+  .grade-tag{display:inline-flex;align-items:center;padding:1.5px 6px;border-radius:5px;font-size:10.5px;font-weight:800;letter-spacing:.3px}
+  .grade-tag.A{background:#FFE7DC;color:#C0410F}
+  .grade-tag.B{background:#E0F2FE;color:#075985}
+  .grade-tag.C{background:#F1F3F5;color:#495057}
+  .food-grade-desc{font-size:11.5px;color:var(--text-mute);line-height:1.3}
+  .status-badge{flex-shrink:0;padding:5px 10px;border-radius:8px;font-size:11.5px;font-weight:700;letter-spacing:.2px;display:flex;align-items:center;gap:4px}
+  .status-badge.green{background:var(--green-bg);color:var(--green)}
+  .status-badge.yellow{background:var(--yellow-bg);color:var(--yellow)}
+  .status-badge.red{background:var(--red-bg);color:var(--red)}
+  .status-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .status-badge.green .status-dot{background:var(--green)}
+  .status-badge.yellow .status-dot{background:var(--yellow)}
+  .status-badge.red .status-dot{background:var(--red)}
+
+  /* Progress bar */
+  .progress-row{margin-top:4px;margin-bottom:10px}
+  .progress-meta{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-mute);margin-bottom:5px}
+  .progress-meta .elapsed{font-weight:600;color:var(--text)}
+  .progress-bar{height:6px;background:#F0F1F5;border-radius:3px;overflow:hidden;position:relative}
+  .progress-fill{height:100%;border-radius:3px;transition:width .3s}
+  .progress-fill.green{background:linear-gradient(90deg,#66BB6A,#2E7D32)}
+  .progress-fill.yellow{background:linear-gradient(90deg,#FFCA28,#F57F17)}
+  .progress-fill.red{background:linear-gradient(90deg,#EF5350,#C62828)}
+  .progress-thresholds{display:flex;justify-content:space-between;font-size:10px;color:var(--text-faint);margin-top:3px}
+
+  /* Recommendation */
+  .reco{margin-top:10px;padding:10px 12px;border-radius:11px;background:var(--indigo-faint);border-left:3px solid var(--indigo);font-size:12.5px;line-height:1.55}
+  .reco strong{color:var(--indigo);font-weight:700}
+  .reco.green{background:var(--green-bg);border-left-color:var(--green)}
+  .reco.green strong{color:var(--green)}
+  .reco.yellow{background:var(--yellow-bg);border-left-color:var(--yellow)}
+  .reco.yellow strong{color:var(--yellow)}
+  .reco.red{background:var(--red-bg);border-left-color:var(--red)}
+  .reco.red strong{color:var(--red)}
+  .reco-cta{display:inline-block;margin-top:7px;padding:6px 12px;background:#fff;border:1px solid currentColor;border-radius:7px;font-size:11.5px;font-weight:700;text-decoration:none;cursor:pointer;color:inherit}
+
+  /* Filter chips */
+  .chips{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex-shrink:0;padding:7px 12px;background:#fff;border:1.5px solid var(--line);border-radius:18px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text-mute);transition:all .15s}
+  .chip.active{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+
+  /* Legend */
+  .legend{margin:24px 18px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .legend-h{font-size:13.5px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+  .legend-h::after{content:'▾';font-size:11px;color:var(--text-mute);transition:transform .2s}
+  .legend.collapsed .legend-h::after{transform:rotate(-90deg)}
+  .legend.collapsed .legend-body{display:none}
+  .legend table{width:100%;font-size:11.5px;border-collapse:collapse;margin-top:6px}
+  .legend th,.legend td{padding:6px 4px;text-align:center;border-bottom:1px solid var(--line)}
+  .legend th{font-weight:700;color:var(--text-mute);font-size:11px;background:#FAFBFD}
+  .legend tr:last-child td{border-bottom:none}
+  .legend td.lbl{text-align:left;font-weight:700;padding-left:6px}
+  .legend .cell-green{background:var(--green-bg);color:var(--green);font-weight:700}
+  .legend .cell-yellow{background:var(--yellow-bg);color:var(--yellow);font-weight:700}
+  .legend .cell-red{background:var(--red-bg);color:var(--red);font-weight:700}
+  .legend-note{font-size:11.5px;color:var(--text-mute);line-height:1.5;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* Footer */
+  .footer{padding:22px 22px 30px;text-align:center;font-size:11.5px;color:var(--text-faint);line-height:1.6}
+  .footer a{color:var(--indigo);text-decoration:none}
+  .footer .quote{font-style:italic;color:var(--text-mute);margin-bottom:10px;padding:10px 14px;background:#fff;border-radius:10px;border-left:3px solid var(--indigo);text-align:left;font-size:12px}
+
+  /* Add button */
+  .add-fab{position:fixed;bottom:18px;right:50%;transform:translateX(228px);width:54px;height:54px;background:var(--indigo);color:#fff;border:none;border-radius:50%;font-size:28px;font-weight:300;cursor:pointer;box-shadow:0 6px 16px rgba(40,53,147,.3);display:flex;align-items:center;justify-content:center;line-height:1}
+  @media(max-width:600px){
+    .add-fab{right:18px;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>편식 경과 추적기</h1>
+    <div class="sub">음식의 영양 등급과 거부 기간을 함께 보고<br>안심·주의·평가권장 3단계로 알려 드립니다.</div>
+    <div class="badge-source">근거 · SOS Approach (Kay Toomey, PhD)</div>
+  </div>
+
+  <!-- SOS Diagnosis Card -->
+  <div class="sos-card">
+    <div class="sos-title">우리 아이 식사 진단</div>
+    <div class="sos-grid">
+      <div class="sos-stat green">
+        <div class="num">4</div>
+        <div class="lbl">안심</div>
+      </div>
+      <div class="sos-stat yellow">
+        <div class="num">4</div>
+        <div class="lbl">주의</div>
+      </div>
+      <div class="sos-stat red">
+        <div class="num">2</div>
+        <div class="lbl">평가권장</div>
+      </div>
+    </div>
+    <div class="sos-summary">
+      먹는 음식 <strong>32가지</strong> · 2년 이상 거부 음식 <strong>0가지</strong><br>
+      <strong>Picky eater 범주</strong>입니다. 전문가 평가가 즉시 필요한 단계는 아닙니다.
+    </div>
+    <div class="sos-meta">
+      <span>📅 마지막 업데이트 · 2시간 전</span>
+      <span>👶 도연이 (만 3세 4개월)</span>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="section">
+    <div class="section-h">
+      <span>음식별 경과 (10가지)</span>
+      <span class="small">▼ 위험도 순</span>
+    </div>
+    <div class="chips">
+      <div class="chip active">전체 (10)</div>
+      <div class="chip">🔴 평가권장 (2)</div>
+      <div class="chip">🟡 주의 (4)</div>
+      <div class="chip">🟢 안심 (4)</div>
+      <div class="chip">A 필수만</div>
+    </div>
+
+    <!-- Food cards -->
+    <div class="foods">
+
+      <!-- 🔴 시금치 -->
+      <div class="food status-red">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🥬</div>
+            <div class="food-info">
+              <div class="food-name">시금치 <span class="grade-tag A">A 필수</span></div>
+              <div class="food-grade-desc">철·엽산·비타민 K · 어린이집 주 4회 등장</div>
+            </div>
+          </div>
+          <div class="status-badge red"><span class="status-dot"></span>평가권장</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">14개월째 거부 중</span>
+            <span>마지막 · 2025년 3월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill red" style="width:95%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>3개월 (주의)</span><span>12개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco red">
+          <strong>오랫동안 거리가 멀어진 음식이에요.</strong><br>
+          A급 필수 음식이 12개월 넘게 멀어진 상태입니다. Food Chaining으로 다리를 만들어 보시거나, 한 번은 소아과·섭식 전문가의 평가를 받아보시는 것을 권해드립니다.
+          <br><a class="reco-cta">🌉 Food Chaining 다리 만들기</a>
+        </div>
+      </div>
+
+      <!-- 🔴 가지 -->
+      <div class="food status-red">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🍆</div>
+            <div class="food-info">
+              <div class="food-name">가지 <span class="grade-tag B">B 권장</span></div>
+              <div class="food-grade-desc">식이섬유·안토시아닌 · 어린이집 주 2-3회 등장</div>
+            </div>
+          </div>
+          <div class="status-badge red"><span class="status-dot"></span>평가권장</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">1년 9개월째 거부 중</span>
+            <span>마지막 · 2024년 8월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill red" style="width:92%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>6개월 (주의)</span><span>18개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco red">
+          <strong>1년 9개월째 거리가 있어요.</strong><br>
+          질감이 까다로운 채소예요. 4축(색·온도·질감·맛) 중 질감 축에서 다리를 놓아보시면 좋습니다.
+          <br><a class="reco-cta">🌉 Food Chaining 다리 만들기</a>
+        </div>
+      </div>
+
+      <!-- 🟡 당근 -->
+      <div class="food status-yellow">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🥕</div>
+            <div class="food-info">
+              <div class="food-name">당근 <span class="grade-tag A">A 필수</span></div>
+              <div class="food-grade-desc">베타카로틴·비타민 A · 어린이집 거의 매일 등장</div>
+            </div>
+          </div>
+          <div class="status-badge yellow"><span class="status-dot"></span>주의</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">4개월째 거부 중</span>
+            <span>마지막 · 2026년 1월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill yellow" style="width:36%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>3개월 (주의)</span><span>12개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco yellow">
+          <strong>주의 단계 진입.</strong><br>
+          A급 필수라 3개월부터 주의로 바뀝니다. 지금이 다리를 놓기 가장 좋은 시점이에요.
+          <br><a class="reco-cta">🌉 다리 만들기</a>
+        </div>
+      </div>
+
+      <!-- 🟡 브로콜리 -->
+      <div class="food status-yellow">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🥦</div>
+            <div class="food-info">
+              <div class="food-name">브로콜리 <span class="grade-tag B">B 권장</span></div>
+              <div class="food-grade-desc">비타민 C·식이섬유 · 어린이집 주 2-3회 등장</div>
+            </div>
+          </div>
+          <div class="status-badge yellow"><span class="status-dot"></span>주의</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">8개월째 거부 중</span>
+            <span>마지막 · 2025년 9월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill yellow" style="width:44%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>6개월 (주의)</span><span>18개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco yellow">
+          <strong>B급 음식, 8개월째 멀어져 있어요.</strong><br>
+          2주 정도 쉬었다가 다시 만나는 것만으로도 받아들임이 좋아질 수 있습니다 (SOS).
+          <br><a class="reco-cta">🌉 다리 만들기</a>
+        </div>
+      </div>
+
+      <!-- 🟡 김치 -->
+      <div class="food status-yellow">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🥬</div>
+            <div class="food-info">
+              <div class="food-name">김치 <span class="grade-tag A">A 필수</span></div>
+              <div class="food-grade-desc">유산균·식이섬유 · 한국 식단 핵심</div>
+            </div>
+          </div>
+          <div class="status-badge yellow"><span class="status-dot"></span>주의</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">3개월 1주째 거부 중</span>
+            <span>마지막 · 2026년 2월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill yellow" style="width:28%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>3개월 (주의)</span><span>12개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco yellow">
+          <strong>이제 막 주의 단계로 넘어왔어요.</strong><br>
+          어린 김치 → 묵은 김치 → 백김치 순으로 매운맛 축을 조정해 다리를 놓을 수 있습니다.
+          <br><a class="reco-cta">🌉 다리 만들기</a>
+        </div>
+      </div>
+
+      <!-- 🟡 새우 -->
+      <div class="food status-yellow">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🦐</div>
+            <div class="food-info">
+              <div class="food-name">새우 <span class="grade-tag C">C 선택</span></div>
+              <div class="food-grade-desc">단백질·아연 · 대체 가능 식재료</div>
+            </div>
+          </div>
+          <div class="status-badge yellow"><span class="status-dot"></span>주의</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">1년 5개월째 거부 중</span>
+            <span>마지막 · 2024년 12월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill yellow" style="width:60%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>12개월 (주의)</span><span>24개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco yellow">
+          <strong>C급이라 1년이 주의 기준이에요.</strong><br>
+          단백질은 다른 음식(계란·고기·두부)으로 충분히 보충되고 있다면 천천히 가도 괜찮습니다.
+        </div>
+      </div>
+
+      <!-- 🟢 두부 -->
+      <div class="food status-green">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🟫</div>
+            <div class="food-info">
+              <div class="food-name">두부 <span class="grade-tag A">A 필수</span></div>
+              <div class="food-grade-desc">식물성 단백질·칼슘 · 어린이집 주 4회 등장</div>
+            </div>
+          </div>
+          <div class="status-badge green"><span class="status-dot"></span>안심</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">5일 전 먹었어요</span>
+            <span>최근 · 2026년 5월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:5%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>3개월 (주의)</span><span>12개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco green">
+          <strong>잘 받아들이고 있어요.</strong> 계속 다양한 조리로 만나게 해주세요.
+        </div>
+      </div>
+
+      <!-- 🟢 계란 -->
+      <div class="food status-green">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🥚</div>
+            <div class="food-info">
+              <div class="food-name">계란 <span class="grade-tag A">A 필수</span></div>
+              <div class="food-grade-desc">완전단백질·콜린 · 어린이집 거의 매일 등장</div>
+            </div>
+          </div>
+          <div class="status-badge green"><span class="status-dot"></span>안심</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">1주 전 먹었어요</span>
+            <span>최근 · 2026년 5월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:7%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>3개월 (주의)</span><span>12개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco green">
+          <strong>꾸준히 잘 먹어요.</strong> 스크램블·삶은계란·계란찜 등 형태를 바꿔 노출을 이어가세요.
+        </div>
+      </div>
+
+      <!-- 🟢 토마토 -->
+      <div class="food status-green">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🍅</div>
+            <div class="food-info">
+              <div class="food-name">토마토 <span class="grade-tag C">C 선택</span></div>
+              <div class="food-grade-desc">리코펜·비타민 C · 대체 가능 식재료</div>
+            </div>
+          </div>
+          <div class="status-badge green"><span class="status-dot"></span>안심</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">10개월째 거부 중</span>
+            <span>마지막 · 2025년 7월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:42%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>12개월 (주의)</span><span>24개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco green">
+          <strong>아직 안심 범위예요.</strong><br>
+          C급은 1년까지 자연스러운 범위. 2주 쉬었다 다시 만나면 받아들임이 좋아질 수 있어요.
+        </div>
+      </div>
+
+      <!-- 🟢 우유 -->
+      <div class="food status-green">
+        <div class="food-top">
+          <div class="food-left">
+            <div class="food-emoji">🥛</div>
+            <div class="food-info">
+              <div class="food-name">우유 <span class="grade-tag A">A 필수</span></div>
+              <div class="food-grade-desc">칼슘·단백질 · 어린이집 매일 등장</div>
+            </div>
+          </div>
+          <div class="status-badge green"><span class="status-dot"></span>안심</div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-meta">
+            <span class="elapsed">오늘 먹었어요</span>
+            <span>최근 · 2026년 5월</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill green" style="width:2%"></div></div>
+          <div class="progress-thresholds">
+            <span>0</span><span>3개월 (주의)</span><span>12개월 (평가)</span>
+          </div>
+        </div>
+        <div class="reco green">
+          <strong>꾸준히 잘 마시고 있어요.</strong>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" id="legend">
+    <div class="legend-h" onclick="document.getElementById('legend').classList.toggle('collapsed')">
+      <span>등급 기준이 궁금하신가요?</span>
+    </div>
+    <div class="legend-body">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;padding-left:6px">음식 등급</th>
+            <th>안심</th>
+            <th>주의</th>
+            <th>평가권장</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="lbl">A 필수<br><span style="font-weight:400;color:var(--text-mute);font-size:10.5px">매일 등장 + 5대 영양소</span></td>
+            <td class="cell-green">~ 3개월</td>
+            <td class="cell-yellow">3~12개월</td>
+            <td class="cell-red">12개월+</td>
+          </tr>
+          <tr>
+            <td class="lbl">B 권장<br><span style="font-weight:400;color:var(--text-mute);font-size:10.5px">주 2-3회 + 영양 보조</span></td>
+            <td class="cell-green">~ 6개월</td>
+            <td class="cell-yellow">6~18개월</td>
+            <td class="cell-red">18개월+</td>
+          </tr>
+          <tr>
+            <td class="lbl">C 선택<br><span style="font-weight:400;color:var(--text-mute);font-size:10.5px">주 1회 이하 + 대체 가능</span></td>
+            <td class="cell-green">~ 12개월</td>
+            <td class="cell-yellow">12~24개월</td>
+            <td class="cell-red">24개월+</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="legend-note">
+        같은 4개월 거부라도 <strong>당근(A)은 주의</strong>, <strong>셀러리(C)는 안심</strong>으로 다르게 봅니다.
+        영양 필수성이 높을수록 빨리 다리를 놓는 편이 좋기 때문이에요.<br><br>
+        <strong>전체 진단</strong>은 SOS Approach 기준 — 먹는 음식이 <strong>20가지 미만</strong>이거나 <strong>2년 이상 거부 음식이 다수</strong>일 때 전문가 평가를 권합니다. 단일 음식 2년 거부만으로는 problem feeder가 아니에요.
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="quote">
+      "Picky eater는 어떤 음식은 2주 정도 쉬었다가 다시 만나면 훨씬 잘 받아들입니다."<br>
+      — SOS Approach, Kay Toomey PhD
+    </div>
+    근거 자료 · 밀프레드 식교육 시리즈 12편<br>
+    <a href="/blog/picky-eater-vs-problem-feeder">"2년이 분기점입니다" 읽기 →</a>
+  </div>
+
+</div>
+
+<button class="add-fab" title="음식 기록 추가">+</button>
+
+</body>
+</html>
