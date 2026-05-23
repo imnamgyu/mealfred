@@ -1045,6 +1045,10 @@ function getChosung(str){
   }
   return r;
 }
+// ★ 147종 부모 입력용 식재료 풀 (4,432 레시피 정규화 추출, 2026-05-23)
+let INGREDIENT_POOL = [];
+fetch('data_ingredient_pool.json').then(r=>r.json()).then(d=>{INGREDIENT_POOL=d.pool;}).catch(()=>{});
+
 let acIdx=-1, acList=[];
 function acHandle(e){
   const q=e.target.value.trim();
@@ -1052,7 +1056,13 @@ function acHandle(e){
   if(!q){dd.classList.remove('show');return}
   const used=new Set([...document.querySelectorAll('#ingTagBox .tag-chip')].map(x=>x.dataset.nm));
   const isChosung=/^[ㄱ-ㅎ]+$/.test(q);
-  acList=INGREDIENTS.filter(ing=>{
+  // 검색 풀: INGREDIENTS(도감 35종, 풍부한 메타) + INGREDIENT_POOL(147종, 4432 레시피 추출). 이름 중복 제거
+  const ingNames=new Set(INGREDIENTS.map(i=>i.nm));
+  const combined=[
+    ...INGREDIENTS.map(i=>({nm:i.nm,em:i.em,nutri:i.nutri,source:'dex'})),
+    ...INGREDIENT_POOL.filter(p=>!ingNames.has(p.nm)).map(p=>({nm:p.nm,em:p.em,nutri:p.cat.replace('_','·'),source:'pool'}))
+  ];
+  acList=combined.filter(ing=>{
     if(used.has(ing.nm))return false;
     if(isChosung)return getChosung(ing.nm).startsWith(q);
     return ing.nm.startsWith(q)||getChosung(ing.nm).startsWith(getChosung(q));
@@ -1061,7 +1071,8 @@ function acHandle(e){
   acIdx=0;
   dd.innerHTML=acList.map((ing,i)=>{
     const hl=ing.nm.startsWith(q)?`<mark>${ing.nm.slice(0,q.length)}</mark>${ing.nm.slice(q.length)}`:ing.nm;
-    return `<div class="ac-item ${i===0?'active':''}" onclick="addTag('${ing.nm}','${ing.em}')"><span class="em">${ing.em}</span><span class="nm">${hl}</span><span class="hint">${ing.nutri.split('·')[0]}</span></div>`;
+    const badge=ing.source==='pool'?`<span style="font-size:8px;background:var(--v50);color:var(--v700);padding:1px 5px;border-radius:100px;font-weight:800;margin-left:4px">✨신규</span>`:'';
+    return `<div class="ac-item ${i===0?'active':''}" onclick="addTag('${ing.nm.replace(/'/g,"\\\\'")}','${ing.em}')"><span class="em">${ing.em}</span><span class="nm">${hl}${badge}</span><span class="hint">${ing.nutri.split('·')[0]}</span></div>`;
   }).join('');
   dd.classList.add('show');
 }
