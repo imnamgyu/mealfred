@@ -2,8 +2,14 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>밀프레드 편식도감 (v2)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFFDFB">
+<title>밀프레드 편식도감</title>
+<meta property="og:title" content="밀프레드 편식도감 — 우리 아이 36종 영양 신호등">
+<meta property="og:description" content="보건복지부 KDRI 2025 만 1-2세 36종 필수 영양소 신호등 + 식습관 4원칙 레시피 추천">
+<meta property="og:type" content="website">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -20,18 +26,21 @@
     --gradeS:#1B5E20;--gradeA:#16A085;--gradeB:#F9A825;--gradeC:#E67E22;--gradeD:#C62828;
     --shS:0 1px 3px rgba(0,0,0,.06);--shM:0 4px 14px rgba(0,0,0,.08);
   }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#F0F2F5;color:var(--n900);margin:0;line-height:1.55;-webkit-font-smoothing:antialiased}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color:var(--n900);line-height:1.55;-webkit-font-smoothing:antialiased;background:#FFFDFB;height:100%;width:100%;overflow:hidden}
 
-  .desktop{padding:32px 16px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-  .desk-header{text-align:center;margin-bottom:24px;max-width:600px}
-  .desk-header .tag{display:inline-block;background:var(--p500);color:white;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:0.05em;margin-bottom:10px}
-  .desk-header h1{font-size:24px;margin:0 0 6px;color:var(--s800);font-weight:800;letter-spacing:-0.02em}
-  .desk-header p{font-size:13px;color:var(--n600);margin:0;line-height:1.65}
+  /* ★ App container — full screen on mobile, phone frame on desktop (app-demo style) */
+  #app{
+    max-width:430px;margin:0 auto;height:100vh;height:100dvh;
+    background:#FFFDFB;position:relative;overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  @media(min-width:500px){
+    body{background:#1B2A4A;display:flex;align-items:center;justify-content:center}
+    #app{height:90vh;max-height:900px;border-radius:36px;box-shadow:0 24px 80px rgba(0,0,0,0.4);border:6px solid #1a1a1a}
+  }
 
-  .phone{background:#1a1a1a;border-radius:42px;padding:14px 8px;width:380px;max-width:95vw;box-shadow:0 24px 64px rgba(0,0,0,0.18)}
-  .screen{background:#FFFDFB;border-radius:32px;height:760px;display:flex;flex-direction:column;overflow:hidden;position:relative}
-  .status-bar{padding:12px 24px 4px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--n700);font-weight:700;flex-shrink:0}
+  .status-bar{padding:max(env(safe-area-inset-top,12px),12px) 24px 4px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--n700);font-weight:700;flex-shrink:0}
   .top-bar{padding:6px 18px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--n100);flex-shrink:0}
   .top-bar .left{display:flex;align-items:center;gap:8px}
   .top-bar h2{font-size:18px;margin:0;font-weight:800;color:var(--s800);letter-spacing:-0.01em}
@@ -41,7 +50,7 @@
   .content{flex:1;overflow-y:auto;padding:0;scroll-behavior:smooth}
   .content::-webkit-scrollbar{width:0}
 
-  .tabs{background:white;border-top:1px solid var(--n200);padding:8px 4px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;flex-shrink:0}
+  .tabs{background:white;border-top:1px solid var(--n200);padding:8px 4px max(env(safe-area-inset-bottom,16px),16px);display:grid;grid-template-columns:repeat(4,1fr);gap:2px;flex-shrink:0}
   .tab{display:flex;flex-direction:column;align-items:center;padding:6px 4px;border-radius:8px;cursor:pointer;border:none;background:none}
   .tab .em{font-size:22px;line-height:1;margin-bottom:2px;filter:grayscale(0.5);opacity:0.55}
   .tab .lbl{font-size:10px;font-weight:700;color:var(--n400);letter-spacing:0.02em}
@@ -448,7 +457,8 @@
   .pref-meta{font-size:10.5px;color:var(--p700);font-weight:700;margin-top:6px;background:var(--p50);padding:5px 8px;border-radius:6px;display:inline-block}
 
   /* Modal */
-  .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:flex-end;justify-content:center;z-index:100;border-radius:32px;overflow:hidden}
+  .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:flex-end;justify-content:center;z-index:100;overflow:hidden}
+  @media(min-width:500px){.modal-bg{border-radius:30px}}
   .modal-bg.show{display:flex}
   .modal{background:#FFFDFB;width:100%;border-radius:24px 24px 0 0;padding:18px;max-height:90%;overflow-y:auto;animation:slideUp .25s ease}
   @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -473,14 +483,7 @@
 </head>
 <body>
 
-<div class="desktop">
-  <div class="desk-header">
-    <span class="tag">🚀 PROTOTYPE · v2</span>
-    <h1>밀프레드 편식도감</h1>
-  </div>
-
-  <div class="phone">
-    <div class="screen">
+<div id="app">
 
       <div class="status-bar"><span>9:41</span><span>📶 ●●●</span></div>
 
@@ -937,12 +940,6 @@
         <button class="tab" data-tab="recipe" onclick="switchTab(this,'recipe')"><span class="em">🍳</span><span class="lbl">레시피</span></button>
       </div>
 
-    </div>
-  </div>
-
-  <div style="text-align:center;margin-top:20px;font-size:12px;color:var(--n500);max-width:380px;line-height:1.7">
-    💡 <strong>5가지 보강 통합</strong>: 권장량 카드 홈으로 / 식단 패턴 평가(죽·미음 비중·인스턴트) / 영양 가족 카테고리 표시 / 시간·장소(Satter) / 도감 먹은 횟수
-  </div>
 </div>
 
 <script>
