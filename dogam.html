@@ -244,14 +244,21 @@
   .plan-meal .info .why .new{color:var(--b700)}
   .plan-meal .info .why .nutri{color:var(--r700)}
 
-  /* ★ 공식 블로그 학습 카드 */
-  .blog-card{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-radius:14px;padding:14px;margin-top:12px;display:flex;align-items:center;gap:12px;cursor:pointer;border:1px solid var(--v500)}
-  .blog-card .em{font-size:30px;flex-shrink:0}
-  .blog-card .body{flex:1}
-  .blog-card .tag{font-size:9.5px;color:var(--v700);font-weight:800;letter-spacing:0.04em;margin-bottom:2px}
-  .blog-card strong{font-size:13.5px;color:var(--s800);font-weight:800;display:block;line-height:1.3}
-  .blog-card .sub{font-size:10.5px;color:var(--v700);font-weight:600;margin-top:2px;line-height:1.4}
-  .blog-card .arrow{color:var(--v500);font-size:20px;font-weight:300}
+  /* ★ 공식 블로그 학습 섹션 (가로 스크롤 카드) */
+  .blog-section{margin-top:14px;margin-bottom:8px}
+  .blog-section .head{display:flex;justify-content:space-between;align-items:baseline;padding:0 2px;margin-bottom:10px}
+  .blog-section .head h3{font-size:14px;font-weight:800;color:var(--s800);letter-spacing:-0.01em;margin:0}
+  .blog-section .head .total{font-size:11px;color:var(--v700);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+  .blog-scroll{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .blog-scroll::-webkit-scrollbar{display:none}
+  .blog-scroll{scrollbar-width:none}
+  .blog-post-card{flex-shrink:0;width:170px;background:linear-gradient(160deg,#F3E5F5,#E1BEE7);border:1.5px solid var(--v500);border-radius:14px;padding:12px;cursor:pointer;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;transition:transform 0.15s}
+  .blog-post-card:hover{transform:translateY(-2px)}
+  .blog-post-card .em{font-size:26px;line-height:1}
+  .blog-post-card .ttl{font-size:12px;font-weight:800;color:var(--s800);line-height:1.35;flex:1;letter-spacing:-0.01em}
+  .blog-post-card .sub{font-size:9.5px;color:var(--v700);font-weight:600;line-height:1.3}
+  .blog-post-card .meta{font-size:9px;color:var(--n500);font-weight:700;letter-spacing:0.03em;margin-top:2px;display:flex;justify-content:space-between}
+  .blog-post-card .meta .read{color:var(--v700)}
 
   .alert-banner{background:white;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shS);border-left:4px solid var(--b500)}
   .alert-banner .ico{width:36px;height:36px;border-radius:50%;background:var(--b50);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
@@ -647,15 +654,13 @@
               <div class="arrow">›</div>
             </div>
 
-            <!-- ★ 밀프레드 공식 블로그 학습 카드 -->
-            <div class="blog-card" onclick="window.open('/blog/','_blank')">
-              <div class="em">📚</div>
-              <div class="body">
-                <div class="tag">━ 밀프레드 편식 백과 ━</div>
-                <strong>편식 357편 정독 시리즈</strong>
-                <div class="sub">학술 + 임상 + 실전 — 공식 블로그에서 공부하기 →</div>
+            <!-- ★ 밀프레드 공식 블로그 — 후킹 제목 카드 캐러셀 -->
+            <div class="blog-section">
+              <div class="head">
+                <h3>📚 편식 백과 — 후킹된 최신글</h3>
+                <span class="total" onclick="window.open('/blog/','_blank')">전체 357편 →</span>
               </div>
-              <div class="arrow">›</div>
+              <div class="blog-scroll" id="blogScroll"></div>
             </div>
 
             <div class="notice">💡 식단을 정확히 기록할수록 점수와 추천이 똑똑해져요</div>
@@ -1113,6 +1118,31 @@ function renderTryList(){
   `).join('');
 }
 renderTryList();
+
+// ★ 블로그 후킹 카드 — 최신 8편
+const BLOG_POSTS = [
+  {em:'🍭', ttl:'단맛 좋아하는 우리 아이,<br>혹시 유전일까요?', sub:'싱가포르 KKH 2024', file:'016.html', time:'3분'},
+  {em:'⏰', ttl:'편식 2년 넘기면<br>위험한 이유', sub:'골든타임의 비밀', file:'015.html', time:'4분'},
+  {em:'🇬🇧', ttl:'NHS 의사가 알려주는<br>거부 한 마디 비법', sub:'영국 공식 가이드', file:'014.html', time:'3분'},
+  {em:'🔍', ttl:'우리 아이 편식,<br>혹시 ARFID일까?', sub:'세 가지 진단 양상', file:'013.html', time:'5분'},
+  {em:'🥕', ttl:'미국 부모들이<br>매일 본다는 그 DB', sub:'Solid Starts 완전 분석', file:'012.html', time:'4분'},
+  {em:'📖', ttl:'의사가 말하는<br>진짜 편식 기준은?', sub:'편식의 의학적 정의', file:'011.html', time:'3분'},
+  {em:'🇦🇺', ttl:'호주 어린이집 87%가<br>따르는 식교육', sub:'NSW 가이드', file:'010.html', time:'4분'},
+  {em:'⚠️', ttl:'독일 의사들이<br>"파우치" 경고하는 이유', sub:'독일 소아과학회', file:'008.html', time:'3분'},
+];
+function renderBlogCards(){
+  const el = document.getElementById('blogScroll');
+  if(!el) return;
+  el.innerHTML = BLOG_POSTS.map(p => `
+    <div class="blog-post-card" onclick="window.open('/blog/${p.file}','_blank')">
+      <div class="em">${p.em}</div>
+      <div class="ttl">${p.ttl}</div>
+      <div class="sub">${p.sub}</div>
+      <div class="meta"><span>밀프레드 블로그</span><span class="read">${p.time} 읽기</span></div>
+    </div>
+  `).join('');
+}
+renderBlogCards();
 
 // ★ daycare-eval에서 진입한 경우 환영 배너 + AI 식단 자동 모달
 (function handleDaycareSource(){
