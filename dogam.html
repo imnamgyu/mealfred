@@ -1544,8 +1544,13 @@ function showMealPlan(){
       <div class="modal-info"><h3>AI 3일 개인 식단</h3><div class="sub">선호 + 도전 + KDRI 부족 영양 종합</div></div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:11.5px;color:var(--g700);font-weight:700;line-height:1.5">
+    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:10px;padding:11px 13px;margin-bottom:8px;font-size:11.5px;color:var(--g700);font-weight:700;line-height:1.55">
       ✨ <strong>개인화 기준</strong>: 좋아하는 메뉴(계란찜·죽·부침개·닭·국) + 도전 식재료(가지·연어·브로콜리) + 부족 영양(철·비D·콜린·오메가3)
+    </div>
+    <div onclick="switchTab(document.querySelector('[data-tab=record]'),'record');closeModal()" style="background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px dashed var(--p500);border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:11.5px;color:var(--p700);font-weight:700;line-height:1.55;cursor:pointer;display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">💡</span>
+      <span style="flex:1"><strong style="color:var(--s800)">최근 3일 식단을 입력하면</strong> 더 정확한 추천을 받을 수 있어요 — <strong>1분</strong>이면 끝</span>
+      <span style="color:var(--p500);font-size:18px;font-weight:300">›</span>
     </div>
     ${MEAL_PLAN.map(d=>`
       <div class="plan-day">
