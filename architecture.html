@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 편식도감 — 백엔드 아키텍처</title>
+<meta property="og:title" content="밀프레드 편식도감 백엔드 아키텍처">
+<meta property="og:description" content="평가 엔진 + 추천 엔진 + OCR + 데이터 인프라 — 4-6주 MVP 설계">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;
+    --b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;
+    --g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;
+    --v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;
+    --r50:#FFEBEE;--r500:#E53935;--r700:#C62828;
+    --y50:#FFF8E1;--y500:#F9A825;--y700:#F57F17;
+    --s700:#2C3E50;--s800:#1F2D3D;
+    --n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;
+    --n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.6;-webkit-font-smoothing:antialiased}
+  code,pre{font-family:ui-monospace,Menlo,monospace}
+
+  /* Hero */
+  .hero{background:linear-gradient(135deg,#1F2D3D 0%,#2C3E50 50%,#3498DB 100%);color:white;padding:60px 24px 40px;text-align:center}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.2);padding:6px 14px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.06em;margin-bottom:16px;backdrop-filter:blur(8px)}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;line-height:1.25;margin-bottom:12px}
+  .hero p{font-size:14px;color:rgba(255,255,255,0.85);font-weight:600;max-width:520px;margin:0 auto;line-height:1.65}
+  .hero .meta{display:flex;justify-content:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.15);padding:5px 11px;border-radius:100px;font-size:11px;font-weight:700;backdrop-filter:blur(8px)}
+
+  /* TOC */
+  .toc{background:white;border-bottom:1px solid var(--n200);padding:16px 24px;position:sticky;top:0;z-index:50;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .toc-inner{max-width:880px;margin:0 auto;display:flex;gap:8px;white-space:nowrap}
+  .toc a{font-size:12px;color:var(--n600);font-weight:700;padding:6px 12px;border-radius:100px;background:var(--n50);text-decoration:none;flex-shrink:0;transition:all 0.15s}
+  .toc a:hover{background:var(--p500);color:white}
+
+  /* Sections */
+  main{max-width:880px;margin:0 auto;padding:24px}
+  section{margin-bottom:48px;scroll-margin-top:70px}
+  .section-tag{display:inline-block;font-size:11px;color:var(--p700);font-weight:800;letter-spacing:0.08em;margin-bottom:6px}
+  h2{font-size:24px;font-weight:800;color:var(--s800);letter-spacing:-0.02em;line-height:1.3;margin-bottom:8px}
+  h3{font-size:17px;font-weight:800;color:var(--s800);margin:20px 0 10px;letter-spacing:-0.01em}
+  h4{font-size:14px;font-weight:800;color:var(--s700);margin:14px 0 6px}
+  p{font-size:14px;color:var(--n700);font-weight:500;margin-bottom:10px;line-height:1.7}
+  ul,ol{margin:8px 0 14px 24px}
+  li{font-size:13.5px;color:var(--n700);margin-bottom:4px;line-height:1.7}
+  strong{color:var(--s800);font-weight:800}
+
+  /* Cards */
+  .card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px;margin-bottom:14px}
+  .card.gradient{background:linear-gradient(135deg,#FFF8F2,#FFE8D1);border-color:var(--p300)}
+  .card.blue{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-color:var(--b500)}
+  .card.green{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:var(--g500)}
+  .card.purple{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-color:var(--v500)}
+  .card.yellow{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-color:var(--y500)}
+  .card.dark{background:var(--s800);color:white;border-color:var(--s800)}
+  .card.dark p,.card.dark li{color:rgba(255,255,255,0.9)}
+  .card.dark strong{color:white}
+
+  /* TL;DR card */
+  .tldr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px}
+  .tldr-item{background:white;border-radius:10px;padding:12px;border:1px solid var(--n200)}
+  .tldr-item .lbl{font-size:10px;font-weight:800;color:var(--p700);letter-spacing:0.04em;margin-bottom:4px}
+  .tldr-item .val{font-size:14px;font-weight:800;color:var(--s800);line-height:1.4}
+
+  /* Mermaid */
+  .mermaid-wrap{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:24px 16px;margin:14px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .mermaid{text-align:center;min-width:600px}
+  @media(max-width:768px){.mermaid{min-width:auto}}
+
+  /* Code block */
+  pre.code{background:#1F2D3D;color:#E0E7EE;padding:16px 18px;border-radius:10px;overflow-x:auto;font-size:12px;line-height:1.65;margin:10px 0}
+  pre.code .kw{color:#FFB375}
+  pre.code .str{color:#9CCC65}
+  pre.code .cm{color:#7A8FA8;font-style:italic}
+  pre.code .fn{color:#42A5F5}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200)}
+  th{background:var(--n50);padding:10px 12px;text-align:left;font-weight:800;color:var(--s800);font-size:11.5px;letter-spacing:0.02em;border-bottom:1px solid var(--n200)}
+  td{padding:9px 12px;border-bottom:1px solid var(--n100);vertical-align:top;color:var(--n700)}
+  tr:last-child td{border-bottom:none}
+  td.num{font-family:ui-monospace,Menlo,monospace;font-weight:700;color:var(--s800);text-align:right}
+
+  /* Stack visualization */
+  .stack{display:flex;flex-direction:column;gap:6px;margin:14px 0}
+  .stack-layer{padding:14px 18px;border-radius:12px;display:flex;align-items:center;gap:14px;border:1.5px solid}
+  .stack-layer.l1{background:#FFF8F2;border-color:var(--p500)}
+  .stack-layer.l2{background:#FFF3E8;border-color:var(--p300)}
+  .stack-layer.l3{background:#FFE8D1;border-color:var(--p500)}
+  .stack-layer.l4{background:#E3F2FD;border-color:var(--b500)}
+  .stack-layer .icon{font-size:28px;flex-shrink:0}
+  .stack-layer .body{flex:1}
+  .stack-layer strong{font-size:14px;font-weight:800;color:var(--s800);display:block;margin-bottom:2px}
+  .stack-layer .desc{font-size:12px;color:var(--n600);font-weight:600}
+
+  /* Cost breakdown */
+  .cost-row{display:grid;grid-template-columns:1fr 120px 100px;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--n100);background:white}
+  .cost-row:first-child{border-top-left-radius:10px;border-top-right-radius:10px}
+  .cost-row:last-child{border-bottom-left-radius:10px;border-bottom-right-radius:10px;border-bottom:none;background:var(--n50);font-weight:800}
+  .cost-row .nm{font-size:12.5px;color:var(--n700);font-weight:700}
+  .cost-row .bar{background:var(--n100);height:6px;border-radius:3px;overflow:hidden;position:relative}
+  .cost-row .bar .fill{height:100%;background:linear-gradient(90deg,var(--p500),var(--p300));border-radius:3px}
+  .cost-row .val{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:800;color:var(--s800);text-align:right}
+
+  /* Timeline */
+  .timeline{display:flex;flex-direction:column;gap:8px}
+  .tline-row{display:grid;grid-template-columns:60px 1fr;gap:14px;align-items:center}
+  .tline-row .week{background:var(--p500);color:white;padding:8px;border-radius:8px;font-weight:800;font-size:12px;text-align:center}
+  .tline-row .bar-wrap{background:white;border:1.5px solid var(--n200);border-radius:8px;padding:10px 14px}
+  .tline-row .ttl{font-size:13px;font-weight:800;color:var(--s800);margin-bottom:3px}
+  .tline-row .out{font-size:11.5px;color:var(--n600);font-weight:600}
+
+  /* Decision cards */
+  .decision-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .decision-card{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:16px;position:relative}
+  .decision-card .num{position:absolute;top:-10px;left:14px;background:var(--p500);color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+  .decision-card h4{margin:4px 0 8px;font-size:14px}
+  .decision-card .options{font-size:12px;color:var(--n600);line-height:1.6}
+
+  /* Pipeline visualization */
+  .pipeline{display:flex;flex-direction:column;gap:0;margin:14px 0}
+  .pipe-stage{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px 16px;position:relative}
+  .pipe-stage:not(:last-child){margin-bottom:24px}
+  .pipe-stage:not(:last-child)::after{content:'↓';position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:20px;color:var(--p500);font-weight:300}
+  .pipe-stage .stage-label{font-size:10px;font-weight:800;color:var(--p700);letter-spacing:0.05em;margin-bottom:6px}
+  .pipe-stage .stage-title{font-size:14px;font-weight:800;color:var(--s800);margin-bottom:4px}
+  .pipe-stage .stage-desc{font-size:12px;color:var(--n600);font-weight:600;line-height:1.6}
+
+  /* Footer */
+  footer{padding:40px 24px;text-align:center;font-size:11px;color:var(--n400);line-height:1.7;border-top:1px solid var(--n100);margin-top:60px}
+  footer a{color:var(--p700);text-decoration:none;font-weight:700}
+
+  /* KPI grid */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:12px 0}
+  .kpi{background:white;padding:14px;border-radius:10px;text-align:center;border:1.5px solid var(--n200)}
+  .kpi .num{font-size:24px;font-weight:800;color:var(--s800);letter-spacing:-0.03em;line-height:1}
+  .kpi .lbl{font-size:11px;color:var(--n600);font-weight:700;margin-top:4px}
+
+  @media(max-width:600px){
+    .hero h1{font-size:26px}
+    h2{font-size:21px}
+    .cost-row{grid-template-columns:1fr 80px}
+    .cost-row .bar{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <span class="tag">🏗 BACKEND ARCHITECTURE · v1</span>
+  <h1>밀프레드 편식도감<br>백엔드 아키텍처</h1>
+  <p>평가 엔진 · 추천 엔진 · OCR · 데이터 인프라 — 프로덕션 4-6주 MVP 설계 문서</p>
+  <div class="meta">
+    <span>📅 2026-05-23</span>
+    <span>🎯 dogam.html → 프로덕션</span>
+    <span>💰 월 ₩300k (100 사용자)</span>
+  </div>
+</header>
+
+<!-- Sticky TOC -->
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#tldr">0. TL;DR</a>
+    <a href="#overview">1. 아키텍처</a>
+    <a href="#data">2. 데이터</a>
+    <a href="#eval">3. 평가</a>
+    <a href="#recommend">4. 추천</a>
+    <a href="#ocr">5. OCR</a>
+    <a href="#cost">6. 비용</a>
+    <a href="#timeline">7. 일정</a>
+    <a href="#security">8. 보안</a>
+    <a href="#stack">9. 스택</a>
+    <a href="#decisions">10. 결정</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- 0. TL;DR -->
+<section id="tldr">
+  <span class="section-tag">━ 0. TL;DR ━</span>
+  <h2>한눈에 보기</h2>
+  <div class="card gradient">
+    <div class="tldr-grid">
+      <div class="tldr-item">
+        <div class="lbl">3 LAYER</div>
+        <div class="val">데이터 + 평가 + 추천</div>
+      </div>
+      <div class="tldr-item">
+        <div class="lbl">평가 엔진</div>
+        <div class="val">Rule-based<br><span style="font-size:11px;color:var(--n500)">7축 × 36 영양소 결정론</span></div>
+      </div>
+      <div class="tldr-item">
+        <div class="lbl">추천 엔진</div>
+        <div class="val">Hybrid<br><span style="font-size:11px;color:var(--n500)">Rule(190) → LLM 정제</span></div>
+      </div>
+      <div class="tldr-item">
+        <div class="lbl">MVP</div>
+        <div class="val">4-6주<br><span style="font-size:11px;color:var(--n500)">enrich 2주 + 백엔드 2주 + 통합 1-2주</span></div>
+      </div>
+      <div class="tldr-item">
+        <div class="lbl">월 운영비</div>
+        <div class="val">~₩300k<br><span style="font-size:11px;color:var(--n500)">100 사용자 기준</span></div>
+      </div>
+      <div class="tldr-item">
+        <div class="lbl">기존 자산</div>
+        <div class="val">4,432 레시피<br><span style="font-size:11px;color:var(--n500)">KDRI 2025 · 농진청 DB</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 1. 전체 아키텍처 -->
+<section id="overview">
+  <span class="section-tag">━ 1. SYSTEM OVERVIEW ━</span>
+  <h2>전체 아키텍처</h2>
+  <p>클라이언트(PWA·iOS·Android) → 엣지 API(Vercel) → 3개 코어 엔진(평가·추천·OCR) → 데이터 레이어(Supabase Postgres) + ETL/배치(GitHub Actions)</p>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+  CLIENT["📱 CLIENT<br/>PWA · iOS · Android<br/>dogam.html · daycare-eval.html"]
+  GATEWAY["⚡ EDGE / API GATEWAY<br/>Vercel Serverless · Supabase Auth<br/>Rate limit · CORS · 캐시"]
+  EVAL["📊 평가 엔진<br/>(Pure Rule)<br/>7축 · 36 신호등 · BMI"]
+  RECO["🍳 추천 엔진<br/>(Hybrid LLM)<br/>4원칙 매칭 · 자연어 생성"]
+  OCR["📷 OCR 엔진<br/>(Claude Vision)<br/>식단표 인식 · 메뉴 추출"]
+  DB[("🗄 DATA LAYER<br/>Supabase Postgres<br/>users · meal_logs · recipes<br/>ingredients · kdri_rni · cache")]
+  ETL["🔄 ETL / BATCH<br/>GitHub Actions cron<br/>4,432 레시피 enrich · 운영 큐"]
+
+  CLIENT <-->|HTTPS / WebSocket| GATEWAY
+  GATEWAY --> EVAL
+  GATEWAY --> RECO
+  GATEWAY --> OCR
+  EVAL --> DB
+  RECO --> DB
+  OCR --> DB
+  ETL --> DB
+  classDef client fill:#FFE8D1,stroke:#E89244,color:#1F2D3D,stroke-width:2px
+  classDef edge fill:#E3F2FD,stroke:#3498DB,color:#1F2D3D,stroke-width:2px
+  classDef engine fill:#E8F5E9,stroke:#16A085,color:#1F2D3D,stroke-width:2px
+  classDef data fill:#F3E5F5,stroke:#9C27B0,color:#1F2D3D,stroke-width:2px
+  classDef batch fill:#FFF8E1,stroke:#F9A825,color:#1F2D3D,stroke-width:2px
+  class CLIENT client
+  class GATEWAY edge
+  class EVAL,RECO,OCR engine
+  class DB data
+  class ETL batch
+    </div>
+  </div>
+</section>
+
+<!-- 2. 데이터 모델 -->
+<section id="data">
+  <span class="section-tag">━ 2. DATA MODEL ━</span>
+  <h2>데이터 모델 (Supabase Postgres)</h2>
+  <p>4개 도메인으로 분리: 사용자/아이 · 식단 기록 · 마스터 데이터 · 캐시</p>
+
+  <div class="card">
+    <h3>📋 14개 핵심 테이블</h3>
+    <table>
+      <tr><th>도메인</th><th>테이블</th><th>역할</th></tr>
+      <tr><td rowspan="3" style="background:var(--p50);font-weight:800">사용자</td><td><strong>users</strong></td><td>보호자 계정 (카카오·구글 OAuth)</td></tr>
+      <tr><td><strong>children</strong></td><td>아이 프로파일 (생년월일·알레르겐·어린이집 유형)</td></tr>
+      <tr><td><strong>growth_stats</strong></td><td>주 1회 키·몸무게·BMI·또래 percentile</td></tr>
+      <tr><td rowspan="3" style="background:var(--b50);font-weight:800">식단 기록</td><td><strong>meal_logs</strong></td><td>끼니별 기록 (시간·장소·식감·자율성·반응)</td></tr>
+      <tr><td><strong>meal_log_ingredients</strong></td><td>끼니 ↔ 식재료 다대다</td></tr>
+      <tr><td><strong>daycare_evals</strong></td><td>어린이집 식단표 평가 (24h TTL)</td></tr>
+      <tr><td rowspan="3" style="background:var(--g50);font-weight:800">마스터</td><td><strong>ingredients</strong></td><td>식재료 + 농진청 영양 36종 (~1,000)</td></tr>
+      <tr><td><strong>recipes</strong></td><td>레시피 + 메타 enrich (4,432종)</td></tr>
+      <tr><td><strong>kdri_rni</strong></td><td>KDRI 2025 연령별 RNI/AI/UL</td></tr>
+      <tr><td rowspan="2" style="background:var(--v50);font-weight:800">캐시</td><td><strong>recommendations</strong></td><td>LLM 추천 결과 24h 캐시</td></tr>
+      <tr><td><strong>ocr_cache</strong></td><td>이미지 해시 → OCR 결과 영구</td></tr>
+    </table>
+  </div>
+
+  <div class="card blue">
+    <h4>🔑 핵심 컬럼 — meal_logs (식단 기록)</h4>
+    <pre class="code"><span class="kw">CREATE TABLE</span> meal_logs (
+  id <span class="kw">UUID PRIMARY KEY</span>,
+  child_id <span class="kw">UUID REFERENCES</span> children(id),
+  eaten_at <span class="kw">DATE</span>,
+  meal_type <span class="kw">ENUM</span>(<span class="str">'아침'</span>,<span class="str">'점심'</span>,<span class="str">'저녁'</span>,<span class="str">'간식'</span>),
+  approx_hour <span class="kw">INT</span>,           <span class="cm">-- 8,10,12... 대략적</span>
+  duration_min <span class="kw">INT</span>,           <span class="cm">-- 10,15,20,30</span>
+  place <span class="kw">ENUM</span>(...),
+  texture_level <span class="kw">ENUM</span>(<span class="str">'미음·페이스트·매시·다진·큐브·스틱·통째'</span>),
+  autonomy <span class="kw">ENUM</span>(<span class="str">'떠먹여줌·반자율·스스로'</span>),
+  reaction <span class="kw">ENUM</span>(<span class="str">'거부·남김·잘먹음·또달라'</span>)
+);</pre>
+  </div>
+</section>
+
+<!-- 3. 평가 엔진 -->
+<section id="eval">
+  <span class="section-tag">━ 3. EVALUATION ENGINE ━</span>
+  <h2>평가 엔진 — Rule-based</h2>
+  <p>모든 평가는 결정론적 계산. LLM 미사용. 빠르고 일관적·재현 가능.</p>
+
+  <h3>3-1. 7축 식단 진단</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+  L["📝 meal_logs<br/>최근 3-7일"]
+  P["👶 child profile<br/>age · allergens"]
+
+  A1["1. 다양성<br/>WHO MDD"]
+  A2["2. 식감 단계<br/>HabEat"]
+  A3["3. 메뉴 반복도<br/>HabEat"]
+  A4["4. 식사 환경<br/>Satter DOR"]
+  A5["5. 식욕 응답<br/>CEBQ"]
+  A6["6. 새 시도<br/>Solid Starts"]
+  A7["7. 자율성<br/>Satter DOR"]
+
+  OUT["📊 7축 자연어 진단<br/>+ 종합 등급"]
+
+  L --> A1 & A2 & A3 & A4 & A5 & A6 & A7
+  P --> A2 & A7
+  A1 & A2 & A3 & A4 & A5 & A6 & A7 --> OUT
+
+  classDef input fill:#E3F2FD,stroke:#3498DB,color:#1F2D3D
+  classDef axis fill:#E8F5E9,stroke:#16A085,color:#1F2D3D
+  classDef output fill:#FFF8E1,stroke:#F9A825,color:#1F2D3D
+  class L,P input
+  class A1,A2,A3,A4,A5,A6,A7 axis
+  class OUT output
+    </div>
+  </div>
+
+  <h3>3-2. KDRI 36종 신호등 (빈도 기반)</h3>
+  <div class="card green">
+    <p style="margin:0"><strong>핵심 아이디어</strong> — 그램 단위 정확 추정 불가 → 끼니 등장 빈도로 KDRI 충족률 추정</p>
+  </div>
+  <pre class="code"><span class="cm"># 의사코드</span>
+<span class="kw">def</span> <span class="fn">signal_36_nutrients</span>(child_id, days=7):
+    logs = get_meal_logs(child_id, days=days)
+    age_band = get_age_band(child_id)  <span class="cm"># '1-2y'</span>
+
+    nutrient_meals = defaultdict(int)
+    <span class="kw">for</span> log <span class="kw">in</span> logs:
+        <span class="kw">for</span> ing <span class="kw">in</span> log.ingredients:
+            <span class="kw">for</span> nutrient, amount <span class="kw">in</span> ing.nutri_per_100g.items():
+                contribution = (amount * ing.estimated_g/100) / KDRI_RNI[age_band][nutrient]
+                <span class="kw">if</span> contribution >= 0.3:
+                    nutrient_meals[nutrient] += 1
+
+    <span class="kw">for</span> nutrient <span class="kw">in</span> KDRI_36_NUTRIENTS:
+        freq_pct = nutrient_meals[nutrient] / weekly_target * 100
+        status = <span class="str">'green'</span> <span class="kw">if</span> freq_pct >= 80 <span class="kw">else</span> <span class="str">'orange'</span> <span class="kw">if</span> freq_pct >= 50 <span class="kw">else</span> <span class="str">'red'</span></pre>
+
+  <h3>3-3. 탄·단·지 + BMI 종합</h3>
+  <p>빈도 단독 평가 부족 → 키·몸무게·BMI percentile 가미. 같은 "매일 먹음"도 BMI 위치에 따라 다른 권고.</p>
+  <table>
+    <tr><th>빈도</th><th>BMI 위치</th><th>탄수화물</th><th>단백질</th><th>지방</th></tr>
+    <tr><td>매일</td><td>정상 (5-85p)</td><td>✅ 적정</td><td>✅ 적정</td><td>✅ 적정</td></tr>
+    <tr><td>매일</td><td>저체중 (&lt;5p)</td><td>✅ 적정</td><td>✅ 보강</td><td>⚠️ 양 부족 가능</td></tr>
+    <tr><td>매일</td><td>과체중 (85p+)</td><td>⚠️ 양 조절</td><td>✅ 유지</td><td>⚠️ 양 조절</td></tr>
+    <tr><td>드물게</td><td>저체중</td><td>⚠️ 양 늘리기</td><td>⚠️ 양 늘리기</td><td>⚠️ 양 늘리기</td></tr>
+  </table>
+</section>
+
+<!-- 4. 추천 엔진 -->
+<section id="recommend">
+  <span class="section-tag">━ 4. RECOMMENDATION ENGINE ━</span>
+  <h2>추천 엔진 — Hybrid (Rule + LLM)</h2>
+  <p>Rule 단독: 자연어 빈약. LLM 단독: 4,432종 컨텍스트 X. 하이브리드: Rule이 후보 압축, LLM이 정제·자연어 생성.</p>
+
+  <div class="pipeline">
+    <div class="pipe-stage" style="border-left:4px solid var(--p500)">
+      <div class="stage-label">━ PHASE 0 ━</div>
+      <div class="stage-title">식습관 프로파일 자동 집계</div>
+      <div class="stage-desc">ingredient_stats · base_stats · texture_distribution · nutrient_status (KDRI 신호등)</div>
+    </div>
+    <div class="pipe-stage" style="border-left:4px solid var(--b500)">
+      <div class="stage-label">━ PHASE 1 ━</div>
+      <div class="stage-title">4가지 원칙별 Rule 필터링 (SQL)</div>
+      <div class="stage-desc">4,432 레시피 → 각 원칙별 50-100개 → 합계 ~190개 후보</div>
+    </div>
+    <div class="pipe-stage" style="border-left:4px solid var(--v500)">
+      <div class="stage-label">━ PHASE 2 ━</div>
+      <div class="stage-title">LLM 정제 (Claude Sonnet 4.7)</div>
+      <div class="stage-desc">프로파일 + 4원칙 + 190 후보 → 6-8 최종 + "왜 우리 아이에게?" 자연어 생성</div>
+    </div>
+    <div class="pipe-stage" style="border-left:4px solid var(--g500)">
+      <div class="stage-label">━ PHASE 3 ━</div>
+      <div class="stage-title">캐싱 + 응답</div>
+      <div class="stage-desc">recommendations 테이블 24h TTL · profile_hash 기반 캐시 hit 시 LLM 호출 스킵</div>
+    </div>
+  </div>
+
+  <h3>4-1. 4가지 원칙 (사용자 정의)</h3>
+  <table>
+    <tr><th>#</th><th>원칙</th><th>트리거 데이터</th><th>적용</th></tr>
+    <tr><td><strong>1</strong></td><td>선호 베이스 + 도전 식재료</td><td>잘먹는 베이스 × 거부·미만남 식재료</td><td>베이스 유지, 도전 식재료는 가림</td></tr>
+    <tr><td><strong>2</strong></td><td>잘먹지만 오랜만 → 원물</td><td>accept_rate↑ AND 미만남↑ AND 가린 형태만</td><td>통째·스틱·큐브로 식감 ↑</td></tr>
+    <tr><td><strong>3</strong></td><td>극도 거부 → 형태 안 보이게</td><td>accept_rate &lt; 30% AND exposure ≥ 5</td><td>즙·페이스트 (인지 차단)</td></tr>
+    <tr><td><strong>4</strong></td><td>부족 영양 보강</td><td>KDRI 신호등 빨강 영양소</td><td>nutrient_highlights 매칭</td></tr>
+  </table>
+
+  <h3>4-2. LLM 프롬프트 구조 (Phase 2)</h3>
+  <pre class="code"><span class="kw">system</span>: |
+  당신은 만 0-5세 영유아의 식습관 데이터를 분석해
+  4가지 원칙에 따라 레시피를 추천하는 영양 전문가입니다.
+
+  원칙: 1) 잘먹는 베이스 + 도전, 2) 잘먹지만 오랜만 → 원물,
+        3) 극도 거부 → 가림, 4) 부족 영양 보강
+
+  각 원칙별 1-2개 선택 + 자연어 "왜 우리 아이에게?" (3-4문장).
+
+<span class="kw">user</span>: |
+  ## 프로파일
+  - 만 28개월 · 잘먹는 베이스: 계란찜 43회·죽 32회·부침개 15회
+  - 거부 식재료: 시금치(36%)·가지(37%, 1년 9개월 미만남)
+  - 신호등 빨강: 철 38%·콜린 42%·비타민D 35%·EPA+DHA 30%
+
+  ## 190개 후보 (Phase 1)
+  [JSON 데이터]
+
+<span class="kw">cache_control</span>: <span class="str">ephemeral (1시간)</span></pre>
+</section>
+
+<!-- 5. OCR -->
+<section id="ocr">
+  <span class="section-tag">━ 5. OCR ENGINE ━</span>
+  <h2>OCR — 어린이집·유치원 식단표 인식</h2>
+  <p>Claude Sonnet 4.7 Vision API. 이미지 해시 기반 영구 캐시 — 같은 식단표 재분석 비용 0.</p>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+sequenceDiagram
+  participant U as 부모
+  participant API as Edge API
+  participant Cache as ocr_cache
+  participant V as Claude Vision
+  participant DB as daycare_evals
+
+  U->>API: POST /api/ocr-menu (이미지)
+  API->>API: sha256(이미지) → hash
+  API->>Cache: 캐시 조회
+  alt 캐시 hit
+    Cache-->>API: 기존 JSON
+  else 캐시 miss
+    API->>V: Vision API (메뉴·날짜·알레르겐 추출)
+    V-->>API: JSON 결과
+    API->>Cache: 저장 (영구)
+  end
+  API->>DB: 평가 결과 + expires_at (24h)
+  API-->>U: 7축 점수 + 가정 보충 가이드
+    </div>
+  </div>
+</section>
+
+<!-- 6. 비용 -->
+<section id="cost">
+  <span class="section-tag">━ 6. COST ━</span>
+  <h2>월 운영 비용 (100 사용자 기준)</h2>
+  <div class="card">
+    <div class="cost-row">
+      <span class="nm">Supabase Pro</span>
+      <div class="bar"><div class="fill" style="width:10%"></div></div>
+      <span class="val">₩30,000</span>
+    </div>
+    <div class="cost-row">
+      <span class="nm">Vercel Pro</span>
+      <div class="bar"><div class="fill" style="width:8%"></div></div>
+      <span class="val">₩25,000</span>
+    </div>
+    <div class="cost-row">
+      <span class="nm">Claude Sonnet 4.7 (추천)</span>
+      <div class="bar"><div class="fill" style="width:19%"></div></div>
+      <span class="val">₩56,000</span>
+    </div>
+    <div class="cost-row">
+      <span class="nm">Claude Vision (OCR)</span>
+      <div class="bar"><div class="fill" style="width:7%"></div></div>
+      <span class="val">₩20,000</span>
+    </div>
+    <div class="cost-row">
+      <span class="nm">Claude Haiku 4.5 (분류 배치)</span>
+      <div class="bar"><div class="fill" style="width:8%"></div></div>
+      <span class="val">₩25,000</span>
+    </div>
+    <div class="cost-row">
+      <span class="nm">Prompt 캐싱 절감</span>
+      <div class="bar"><div class="fill" style="width:14%;background:linear-gradient(90deg,#16A085,#66BB6A)"></div></div>
+      <span class="val" style="color:var(--g700)">-₩40,000</span>
+    </div>
+    <div class="cost-row">
+      <span class="nm">도메인·인증서</span>
+      <div class="bar"><div class="fill" style="width:2%"></div></div>
+      <span class="val">₩5,000</span>
+    </div>
+    <div class="cost-row">
+      <span class="nm" style="color:var(--p700)">월 합계 (예상)</span>
+      <div class="bar"><div class="fill" style="width:100%;background:var(--s800)"></div></div>
+      <span class="val" style="color:var(--p700)">~₩120-300k</span>
+    </div>
+  </div>
+  <p style="font-size:11px;color:var(--n500);margin-top:8px">※ 사용자 1,000명 시 ~₩1.5M 추정. 사용 패턴(추천 호출 빈도)에 따라 변동.</p>
+</section>
+
+<!-- 7. 일정 -->
+<section id="timeline">
+  <span class="section-tag">━ 7. TIMELINE ━</span>
+  <h2>개발 일정 (4-6주 MVP)</h2>
+  <div class="timeline">
+    <div class="tline-row">
+      <div class="week">W1</div>
+      <div class="bar-wrap">
+        <div class="ttl">DB 스키마 + Supabase 셋업 + 레시피 enrich 시작</div>
+        <div class="out">📦 DB 생성 · base_type 분류 (Haiku 4.5 배치)</div>
+      </div>
+    </div>
+    <div class="tline-row">
+      <div class="week">W2</div>
+      <div class="bar-wrap">
+        <div class="ttl">메타 enrich 완료 + 식재료 농진청 매핑 + KDRI 시드</div>
+        <div class="out">📦 4,432 enrich 완료 · 매핑 표</div>
+      </div>
+    </div>
+    <div class="tline-row">
+      <div class="week">W3</div>
+      <div class="bar-wrap">
+        <div class="ttl">평가 엔진 (7축·36 신호등·BMI) Python 구현 + 테스트</div>
+        <div class="out">📦 /api/eval 엔드포인트</div>
+      </div>
+    </div>
+    <div class="tline-row">
+      <div class="week">W4</div>
+      <div class="bar-wrap">
+        <div class="ttl">추천 엔진 (Phase 1 Rule + Phase 2 LLM) + 캐싱</div>
+        <div class="out">📦 /api/recipe-suggest</div>
+      </div>
+    </div>
+    <div class="tline-row">
+      <div class="week">W5</div>
+      <div class="bar-wrap">
+        <div class="ttl">OCR + daycare-eval funnel 통합</div>
+        <div class="out">📦 /api/ocr-menu · funnel 연동</div>
+      </div>
+    </div>
+    <div class="tline-row">
+      <div class="week">W6</div>
+      <div class="bar-wrap">
+        <div class="ttl">통합 테스트 + 데모 → 프로덕션 데이터 전환 + 배포</div>
+        <div class="out">🚀 라이브 서비스 시작</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. 보안 -->
+<section id="security">
+  <span class="section-tag">━ 8. PRIVACY / SECURITY ━</span>
+  <h2>보안 + 프라이버시</h2>
+  <table>
+    <tr><th>항목</th><th>정책</th></tr>
+    <tr><td>어린이집 사진</td><td><strong>24h 후 자동 삭제</strong> (expires_at 컬럼)</td></tr>
+    <tr><td>어린이집 이름</td><td><strong>저장 X</strong> — 식별 정보 미수집</td></tr>
+    <tr><td>가정 식단 사진</td><td>90일 후 자동 삭제</td></tr>
+    <tr><td>아이 개인정보</td><td>별명만 (실명 X) · 생년월일만 (주소 X)</td></tr>
+    <tr><td>평가 결과 공개</td><td>본인만 — <strong>공개 순위·DB 없음</strong></td></tr>
+    <tr><td>공유 카드</td><td>메타 자동 제거 (이름·기관·위치)</td></tr>
+    <tr><td>Row-Level Security</td><td>Supabase RLS — 사용자는 자기 데이터만 접근</td></tr>
+  </table>
+</section>
+
+<!-- 9. 기술 스택 -->
+<section id="stack">
+  <span class="section-tag">━ 9. TECH STACK ━</span>
+  <h2>기술 스택</h2>
+  <div class="stack">
+    <div class="stack-layer l1"><div class="icon">📱</div><div class="body"><strong>FRONTEND</strong><div class="desc">Next.js 15 · TypeScript · Tailwind · Pretendard</div></div></div>
+    <div class="stack-layer l2"><div class="icon">⚡</div><div class="body"><strong>BACKEND</strong><div class="desc">Vercel Serverless Functions · Supabase Edge Functions</div></div></div>
+    <div class="stack-layer l3"><div class="icon">🗄</div><div class="body"><strong>DATABASE</strong><div class="desc">Supabase Postgres (RLS) · Storage (24h TTL) · Auth (OAuth)</div></div></div>
+    <div class="stack-layer l4"><div class="icon">🤖</div><div class="body"><strong>AI / LLM</strong><div class="desc">Claude Sonnet 4.7 (추천·정제) · Haiku 4.5 (분류 배치) · Vision (OCR)</div></div></div>
+    <div class="stack-layer l1"><div class="icon">⚙️</div><div class="body"><strong>INFRA</strong><div class="desc">GitHub Actions (배포·cron) · Sentry (에러) · Vercel Analytics</div></div></div>
+    <div class="stack-layer l2"><div class="icon">🔐</div><div class="body"><strong>CACHE</strong><div class="desc">Redis (Upstash) — 추천 24h · OCR 영구</div></div></div>
+  </div>
+</section>
+
+<!-- 10. 결정 -->
+<section id="decisions">
+  <span class="section-tag">━ 10. NEXT DECISIONS ━</span>
+  <h2>즉시 결정 필요 3가지</h2>
+  <div class="decision-grid">
+    <div class="decision-card">
+      <span class="num">1</span>
+      <h4>DB 인리치먼트 범위</h4>
+      <div class="options"><strong>옵션 A:</strong> 4,432종 전부 enrich (₩42k)<br><strong>옵션 B:</strong> 만 1-2세 우선 131종 (₩2k)<br><br>→ MVP 시기·예산 trade-off</div>
+    </div>
+    <div class="decision-card">
+      <span class="num">2</span>
+      <h4>LLM 모델 분리</h4>
+      <div class="options"><strong>옵션 A:</strong> Sonnet 4.7 단일 (단순)<br><strong>옵션 B:</strong> Haiku 4.5(분류) + Sonnet 4.7(정제) 분리 (-50% 비용)<br><br>→ 비용 vs 복잡도</div>
+    </div>
+    <div class="decision-card">
+      <span class="num">3</span>
+      <h4>MVP 범위</h4>
+      <div class="options"><strong>옵션 A:</strong> 6주 풀스택 (실제 기록·추천)<br><strong>옵션 B:</strong> 3주 데이터 연결만 (기록은 mock 유지)<br><br>→ 빠른 검증 vs 완성도</div>
+    </div>
+  </div>
+</section>
+
+<!-- KPI -->
+<section>
+  <span class="section-tag">━ KPI ━</span>
+  <h2>성공 지표</h2>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="num">&lt; 500ms</div><div class="lbl">API p95 응답</div></div>
+    <div class="kpi"><div class="num">≥ 90%</div><div class="lbl">OCR 정확도</div></div>
+    <div class="kpi"><div class="num">≥ 70%</div><div class="lbl">캐시 hit rate</div></div>
+    <div class="kpi"><div class="num">≥ 40%</div><div class="lbl">daycare → dogam 전환</div></div>
+    <div class="kpi"><div class="num">2/주</div><div class="lbl">식단 기록 빈도</div></div>
+    <div class="kpi"><div class="num">≥ 30%</div><div class="lbl">추천 실제 시도율</div></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 편식도감</strong> · 백엔드 아키텍처 v1 · 2026-05-23</p>
+  <p>관련 문서: <a href="/dogam.html">데모 앱</a> · <a href="/daycare-eval.html">어린이집 식단 평가</a></p>
+  <p>📚 원본 자산: KDRI 2025 (보건복지부) · 4,432 레시피 DB (영아·유아·아동) · WHO MDD · HabEat · Satter DOR · CEBQ (UCL)</p>
+</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#FFF8F2',
+      primaryTextColor: '#1F2D3D',
+      primaryBorderColor: '#E89244',
+      lineColor: '#9CA3AF',
+      fontFamily: 'Pretendard Variable, sans-serif',
+      fontSize: '13px'
+    },
+    flowchart: {curve: 'basis', padding: 16}
+  });
+</script>
+
+</body>
+</html>
