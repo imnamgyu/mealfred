@@ -235,7 +235,9 @@
   .plan-day{background:var(--n50);border-radius:12px;padding:12px;margin-bottom:10px}
   .plan-day .day-head{font-size:12px;font-weight:800;color:var(--s800);margin-bottom:8px;display:flex;justify-content:space-between}
   .plan-day .day-head .gain{font-size:10px;color:var(--g700);font-weight:700}
-  .plan-meal{background:white;border-radius:8px;padding:9px 11px;margin-bottom:5px;display:flex;align-items:center;gap:10px}
+  .plan-meal{background:white;border-radius:8px;padding:9px 11px;margin-bottom:5px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s}
+  .plan-meal:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+  .plan-meal .chev{color:var(--n300);font-size:16px;font-weight:300;margin-left:auto}
   .plan-meal .time{font-size:9px;font-weight:800;color:var(--n400);width:32px;text-align:center;letter-spacing:0.04em}
   .plan-meal .info{flex:1;min-width:0}
   .plan-meal .info .nm{font-size:11.5px;font-weight:800;color:var(--s800);line-height:1.3}
@@ -1518,24 +1520,74 @@ function showNutriDetail(){
 // ★ AI 3일 식단 추천
 const MEAL_PLAN = [
   {day:'1일차', date:'5/24 (토)', gain:'철 +18%, 콜린 +12%', meals:[
-    {time:'아침', nm:'🥚 달걀 노른자 죽 + 시금치 살짝', why:[{t:'pref',v:'좋아하는 죽'},{t:'nutri',v:'콜린·철·엽산 보강'}]},
-    {time:'점심', nm:'🍗 닭고기 채소국 + 잡곡밥', why:[{t:'pref',v:'잘먹는 닭'},{t:'nutri',v:'단백질·크롬'}]},
-    {time:'간식', nm:'🍓 딸기 + 무지방 요거트', why:[{t:'nutri',v:'비타민 C → 철 흡수 ↑'}]},
-    {time:'저녁', nm:'🐟 연어구이 + 으깬 감자', why:[{t:'new',v:'새 도전 연어'},{t:'nutri',v:'EPA+DHA·비타민 D'}]},
+    {time:'아침', nm:'🥚 달걀 노른자 죽 + 시금치 살짝', why:[{t:'pref',v:'좋아하는 죽'},{t:'nutri',v:'콜린·철·엽산 보강'}],
+      recipe:{em:'🥚',nm:'달걀 노른자 죽 + 시금치',sub:'⭐ 좋아하는 죽 + 💊 콜린·철 보강',why:'우리 아이가 32회 좋아한 죽 베이스에 노른자(콜린 110mg)와 시금치 즙(철·엽산)을 자연스럽게. 거부감 거의 0.',ings:['쌀 30g','달걀 노른자 1개','시금치 5g (즙)','멸치육수 250ml','참기름 1방울'],steps:['쌀 30분 불려 약불 푹 끓이기 (15분)','시금치 데쳐 믹서에 갈아 즙 준비','죽 끓는 중 마지막 3분에 시금치 즙 추가','노른자는 죽 한 김 식힌 뒤 풀어 넣고 약불 1분','참기름 1방울 마무리'],tip:'노른자는 마지막에 — 너무 일찍 넣으면 응고. 시금치는 색이 안 보이게 즙 형태로',gain:'콜린 110mg · 철 · 엽산',time:'18분',level:'매시·즙'}},
+    {time:'점심', nm:'🍗 닭고기 채소국 + 잡곡밥', why:[{t:'pref',v:'잘먹는 닭'},{t:'nutri',v:'단백질·크롬'}],
+      recipe:{em:'🍗',nm:'닭고기 채소국 + 잡곡밥',sub:'⭐ 잘먹는 닭 + 💊 단백질·크롬',why:'닭(30회 좋아함) + 잡곡밥(크롬·식이섬유) 조합. 채소는 잘게 다져 자연스럽게.',ings:['닭다리살 30g','잡곡 30g (현미·보리·콩 mix)','당근 10g (다지기)','애호박 10g (다지기)','다시마 1조각','물 350ml'],steps:['잡곡 1시간 불리기','닭살 한입크기로 자르기','다시마+물 끓이고 다시마 건지기','닭살+잡곡 넣고 15분 약불','당근·애호박 다져 마지막 5분에 추가'],tip:'채소는 잘게 다져야 거부감 ↓. 잡곡은 충분히 불려야 식감 좋음',gain:'단백질 8g · 크롬 · 식이섬유',time:'25분',level:'다지기·테이블'}},
+    {time:'간식', nm:'🍓 딸기 + 무지방 요거트', why:[{t:'nutri',v:'비타민 C → 철 흡수 ↑'}],
+      recipe:{em:'🍓',nm:'딸기 요거트 컵',sub:'💊 비타민 C → 철 흡수 3배',why:'딸기 비타민C가 다른 끼니의 식물성 철 흡수율을 3배 높임. 매일 1회 권장.',ings:['딸기 5-6개','무가당 요거트 100g','꿀 1티스푼 (24개월+)'],steps:['딸기 깨끗이 씻어 꼭지 따기','한입 크기로 자르거나 으깨기','요거트와 살살 섞기','선택: 꿀 1티스푼 (24개월 미만은 X)'],tip:'요거트는 무가당 선택. 시판 가당 요거트는 당류 과다',gain:'비타민 C · 칼슘 · 프로바이오틱스',time:'3분',level:'큐브·매시'}},
+    {time:'저녁', nm:'🐟 연어구이 + 으깬 감자', why:[{t:'new',v:'새 도전 연어'},{t:'nutri',v:'EPA+DHA·비타민 D'}],
+      recipe:{em:'🐟',nm:'연어구이 + 으깬 감자',sub:'🆕 도전 연어 + 💊 EPA+DHA·비D',why:'연어는 6개월 만에 다시 시도. 부드러운 으깬 감자와 함께 거부감 ↓. EPA+DHA 30% 부족 한번에 보강.',ings:['연어 살 30g (가시 제거)','감자 1개','우유 30ml','버터 5g','소금 한 꼬집'],steps:['감자 껍질 벗겨 깍둑썰기 → 15분 찌기','감자 곱게 으깨고 우유+버터 섞기','연어는 키친타올로 물기 제거','약불 팬에 올리브유 살짝 + 연어 양면 2분씩','연어 잘게 부숴 으깬 감자에 살짝 섞어 제공'],tip:'연어 굽기 너무 X (DHA 손실). 비린맛 약하게 — 레몬즙 1방울',gain:'EPA+DHA 150mg · 비타민 D 5μg · 단백질',time:'22분',level:'매시·부숨'}},
   ]},
   {day:'2일차', date:'5/25 (일)', gain:'EPA+DHA +20%, 비타민 D +15%', meals:[
-    {time:'아침', nm:'🥞 들깨 부침개 + 🍆 가지 다져', why:[{t:'pref',v:'좋아하는 부침개'},{t:'new',v:'1년 9개월만의 가지'},{t:'nutri',v:'오메가-3'}]},
-    {time:'점심', nm:'🍱 두부 동그랑땡 + 검은콩밥', why:[{t:'nutri',v:'콜린·아연·엽산'}]},
-    {time:'간식', nm:'🥚 삶은 달걀 1개 + 귤', why:[{t:'nutri',v:'콜린 단단히'}]},
-    {time:'저녁', nm:'🍲 소고기 미역국 + 김', why:[{t:'nutri',v:'철·요오드'},{t:'pref',v:'잘먹는 국'}]},
+    {time:'아침', nm:'🥞 들깨 부침개 + 🍆 가지 다져', why:[{t:'pref',v:'좋아하는 부침개'},{t:'new',v:'1년 9개월만의 가지'},{t:'nutri',v:'오메가-3'}],
+      recipe:{em:'🥞',nm:'들깨 부침개 + 가지 다지기',sub:'⭐ 좋아하는 부침개 + 🆕 가지 1년 9개월 만',why:'가지를 1mm로 잘게 다져 부침개 반죽에 섞으면 색·식감 거의 안 보임. 들깨가루로 오메가-3 보강.',ings:['부침가루 50g','들깨가루 1티스푼','가지 5g (1mm 다이스)','달걀 1개','물 50ml','식용유 약간'],steps:['가지 작게 깍둑썰기 (1mm 정도)','부침가루+들깨가루+달걀+물 잘 섞기','다진 가지 추가하고 한번 더 섞기','약불 팬에 식용유 두르고 한 국자씩 부치기','양면 2-3분 노릇하게'],tip:'가지는 잘게 다져야 안 보임. 약불에서 천천히 익혀야 속까지',gain:'오메가-3 · 식이섬유 · 단백질',time:'12분',level:'다지기'}},
+    {time:'점심', nm:'🍱 두부 동그랑땡 + 검은콩밥', why:[{t:'nutri',v:'콜린·아연·엽산'}],
+      recipe:{em:'🍱',nm:'두부 동그랑땡 + 검은콩밥',sub:'💊 콜린·아연·엽산 트리오',why:'두부 + 달걀 = 콜린 풍부. 검은콩밥은 엽산·아연 보강. 한 끼로 3개 영양 동시 채움.',ings:['두부 50g','달걀 1개','다진 양파 10g','검은콩 10g (불려서)','잡곡 30g','부침가루 1스푼'],steps:['검은콩 불려 잡곡과 함께 밥 짓기','두부는 면포로 물기 짜기','두부+달걀+다진 양파+부침가루 섞기','동그랗게 모양 만들기 (한입 크기)','약불 팬에 올리브유 두르고 양면 노릇하게 굽기'],tip:'두부 물기 충분히 짜야 모양 안 흐트러짐. 한입 크기 = 핑거푸드 단계 ↑',gain:'콜린 80mg · 아연 · 엽산 · 단백질',time:'25분',level:'다지기·핑거'}},
+    {time:'간식', nm:'🥚 삶은 달걀 1개 + 귤', why:[{t:'nutri',v:'콜린 단단히'}],
+      recipe:{em:'🥚',nm:'삶은 달걀 + 귤',sub:'💊 콜린 단단히 + 비타민 C',why:'노른자 = 콜린 110mg (만 1-2세 RNI 160mg의 69%). 귤로 비타민C 보충.',ings:['달걀 1개','귤 1개','소금 약간'],steps:['달걀 찬물에 넣고 끓이기','끓기 시작 후 10-12분 (완숙)','찬물에 담가 식히기','껍질 벗기고 4등분','귤은 한 알씩 분리'],tip:'완숙 12분 — 노른자가 살짝 꾸덕해야 콜린 흡수 ↑',gain:'콜린 110mg · 비타민 C 30mg',time:'15분',level:'큐브·통째'}},
+    {time:'저녁', nm:'🍲 소고기 미역국 + 김', why:[{t:'nutri',v:'철·요오드'},{t:'pref',v:'잘먹는 국'}],
+      recipe:{em:'🍲',nm:'소고기 미역국 + 김',sub:'⭐ 잘먹는 국 + 💊 철·요오드',why:'소고기(흡수율 좋은 헴철) + 미역(요오드) + 김(요오드·미네랄) = 빨강 영양 한방에.',ings:['소고기 양지 30g','마른 미역 5g','참기름 1티스푼','다진 마늘 1/2티스푼','국간장 1티스푼','물 400ml','김 1장'],steps:['미역 찬물에 10분 불리기','소고기 한입 크기로 잘라 참기름·마늘로 볶기','미역 추가해 함께 2분 볶기','물 부어 끓이고 약불로 20분','국간장으로 간 맞추기','김은 잘게 부숴 제공'],tip:'미역은 충분히 불려야 식감 좋음. 국간장은 적게 — 저염 권장',gain:'철 · 요오드 · 단백질',time:'30분',level:'매시·다지기'}},
   ]},
   {day:'3일차', date:'5/26 (월)', gain:'식감 단계 ↑ (핑거푸드), 다양성 7/8', meals:[
-    {time:'아침', nm:'🥬 브로콜리 매시 + 치즈 토스트', why:[{t:'new',v:'브로콜리 도전'},{t:'nutri',v:'엽산·크롬'}]},
-    {time:'점심', nm:'🥕 당근 스틱 + 후무스 + 닭고기 큐브', why:[{t:'new',v:'핑거푸드 단계'},{t:'pref',v:'좋아하는 닭'}]},
-    {time:'간식', nm:'🥜 무가당 호두·아몬드 가루 + 바나나', why:[{t:'nutri',v:'EPA+DHA·아연'}]},
-    {time:'저녁', nm:'🍚 잡곡밥 + 두부 김치찌개 (저염)', why:[{t:'nutri',v:'크롬·콜린'}]},
+    {time:'아침', nm:'🥬 브로콜리 매시 + 치즈 토스트', why:[{t:'new',v:'브로콜리 도전'},{t:'nutri',v:'엽산·크롬'}],
+      recipe:{em:'🥬',nm:'브로콜리 매시 + 치즈 토스트',sub:'🆕 브로콜리 도전 + 💊 엽산·크롬',why:'브로콜리는 데쳐서 매시로 시작 (도전 1단계). 치즈 토스트로 칼슘·콜린 보강.',ings:['브로콜리 30g','식빵 1쪽','체다 치즈 1장','버터 5g','우유 1티스푼'],steps:['브로콜리 송이만 잘라 끓는 물에 2분 데치기','찬물에 헹궈 잘게 다지거나 으깨기','우유 1티스푼 섞어 매시화','식빵에 버터 바르고 치즈 올리기','토스터/에어프라이어 3분'],tip:'브로콜리는 잎채소 색이 강해 처음엔 적은 양부터. 치즈는 무염 또는 저염',gain:'엽산 · 크롬 · 칼슘 · 비타민 K',time:'12분',level:'매시·핑거'}},
+    {time:'점심', nm:'🥕 당근 스틱 + 후무스 + 닭고기 큐브', why:[{t:'new',v:'핑거푸드 단계'},{t:'pref',v:'좋아하는 닭'}],
+      recipe:{em:'🥕',nm:'당근 스틱 + 후무스 + 닭 큐브',sub:'🆕 핑거푸드 단계 + ⭐ 좋아하는 닭',why:'28개월 권장 핑거푸드 단계 진입. 당근 스틱(원물) + 두부 후무스(콩 단백질) + 닭 큐브(잘먹음). 자율성 학습.',ings:['당근 1/2개','두부 50g','참기름 1티스푼','닭다리살 30g','소금 한 꼬집'],steps:['당근 스틱으로 자르기 (1cm × 5cm)','당근 스틱 끓는 물에 1분 데치기 (살짝)','닭살 1cm 큐브로 잘라 약불에 굽기 (6분)','두부 곱게 으깨 참기름·소금으로 후무스','당근 스틱 옆에 후무스 디핑 + 닭 큐브 함께'],tip:'당근 스틱은 손으로 잡기 좋은 두께 (1cm+). 너무 가늘면 부러져 위험',gain:'비타민 A · 단백질 · 식이섬유 + 자율성',time:'18분',level:'스틱·큐브'}},
+    {time:'간식', nm:'🥜 무가당 호두·아몬드 가루 + 바나나', why:[{t:'nutri',v:'EPA+DHA·아연'}],
+      recipe:{em:'🥜',nm:'견과 가루 + 바나나',sub:'💊 EPA+DHA · 아연 보강',why:'호두 오메가-3, 아몬드 비타민E. 바나나에 뿌려 거부감 0.',ings:['호두 5g (가루)','아몬드 5g (가루)','바나나 1개'],steps:['호두·아몬드를 믹서에 갈아 가루로 (또는 시판 무가당)','바나나 껍질 까고 한입 크기로 자르기','견과 가루를 위에 살짝 뿌리기'],tip:'견과는 통째 X (질식 위험) — 반드시 가루로. 무가당 시판 제품도 OK',gain:'EPA+DHA · 아연 · 비타민 E · 칼륨',time:'3분',level:'가루·큐브'}},
+    {time:'저녁', nm:'🍚 잡곡밥 + 두부 김치찌개 (저염)', why:[{t:'nutri',v:'크롬·콜린'}],
+      recipe:{em:'🍚',nm:'잡곡밥 + 두부 김치찌개 (저염)',sub:'💊 크롬·콜린 마무리',why:'잡곡(크롬) + 두부(콜린) + 약간의 김치(프로바이오틱스). 저염 조리.',ings:['잡곡 30g','두부 50g','배추김치 20g (씻어서 짜기)','대파 5g','참기름 1티스푼','물 300ml','다시마 1조각'],steps:['잡곡 30분 불려 밥 짓기','김치 찬물에 헹궈 짜서 잘게 썰기 (염분 ↓)','다시마+물 끓이고 다시마 건지기','김치+두부 넣고 약불 10분','참기름 1방울로 마무리'],tip:'김치는 반드시 헹궈서 짜야 염분 ↓. 24개월 미만은 김치 X',gain:'크롬 · 콜린 · 단백질 · 프로바이오틱스',time:'25분',level:'매시·큐브'}},
   ]},
 ];
+
+// ★ 통합 레시피 상세 모달 템플릿 (showFridgeRecipe·showMealRecipe 공용)
+function renderRecipeDetailHTML(r){
+  return `
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--p100)">${r.em}</div>
+      <div class="modal-info"><h3 style="font-size:15px">${r.nm}</h3><div class="sub">${r.sub||''}</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:11.5px;color:var(--g700);font-weight:700;line-height:1.6">
+      <strong style="color:var(--s800)">왜 우리 아이에게?</strong><br>${r.why}
+    </div>
+    <div class="modal-card">
+      <div class="lbl">━ 🛒 재료 (1인분) ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.8">${r.ings.map(x=>`• ${x}`).join('<br>')}</div>
+    </div>
+    <div class="modal-card">
+      <div class="lbl">━ 👩‍🍳 조리 순서 ━</div>
+      <ol style="font-size:11.5px;color:var(--n700);line-height:1.7;padding-left:18px;margin:4px 0">${r.steps.map(s=>`<li style="margin-bottom:4px">${s}</li>`).join('')}</ol>
+    </div>
+    <div class="modal-card" style="background:var(--y50);border:1px solid #FFE082">
+      <div class="lbl" style="color:var(--y700)">━ 💡 우리 아이 적용 팁 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.6">${r.tip}</div>
+    </div>
+    <div class="modal-card pref">
+      <div class="lbl">━ 📊 매칭 정보 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.6">⏱ <strong>${r.time}</strong> · ✋ <strong>${r.level}</strong> · 💊 <strong>${r.gain}</strong></div>
+    </div>
+    <button class="modal-cta" onclick="closeModal()">📝 오늘 식단으로 기록하기</button>
+    <button class="modal-cta" onclick="closeModal()" style="background:var(--p500);margin-top:6px">📥 내일 식단에 추가</button>
+  `;
+}
+function showMealRecipe(dayIdx, mealIdx){
+  const meal = MEAL_PLAN[dayIdx]?.meals[mealIdx];
+  if(!meal?.recipe) return;
+  document.getElementById('modalContent').innerHTML = renderRecipeDetailHTML(meal.recipe);
+  document.getElementById('modalBg').classList.add('show');
+}
 
 function showMealPlan(){
   const html = `
@@ -1552,16 +1604,17 @@ function showMealPlan(){
       <span style="flex:1"><strong style="color:var(--s800)">최근 3일 식단을 입력하면</strong> 더 정확한 추천을 받을 수 있어요 — <strong>1분</strong>이면 끝</span>
       <span style="color:var(--p500);font-size:18px;font-weight:300">›</span>
     </div>
-    ${MEAL_PLAN.map(d=>`
+    ${MEAL_PLAN.map((d,di)=>`
       <div class="plan-day">
         <div class="day-head"><span>📅 ${d.day} · ${d.date}</span><span class="gain">${d.gain}</span></div>
-        ${d.meals.map(m=>`
-          <div class="plan-meal">
+        ${d.meals.map((m,mi)=>`
+          <div class="plan-meal" onclick="showMealRecipe(${di},${mi})">
             <div class="time">${m.time}</div>
             <div class="info">
               <div class="nm">${m.nm}</div>
               <div class="why">${m.why.map(w=>`<span class="${w.t}">${w.t==='pref'?'⭐':w.t==='new'?'🆕':'💊'} ${w.v}</span>`).join(' · ')}</div>
             </div>
+            <div class="chev">›</div>
           </div>`).join('')}
       </div>`).join('')}
     <button class="modal-cta" onclick="closeModal()">📥 이 식단으로 장보기 리스트 받기</button>
