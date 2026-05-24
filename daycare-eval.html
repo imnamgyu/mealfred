@@ -126,12 +126,6 @@
   .compare-table td.diff-down{color:var(--r700);font-weight:800}
   .compare-table tr.total td{background:#FFF8F2;font-weight:800;font-size:13px}
 
-  .safety-card{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border:1.5px solid var(--b500);border-radius:14px;padding:18px;margin-top:20px}
-  .safety-card h3{font-size:14px;font-weight:800;color:var(--b700);margin-bottom:10px;display:flex;align-items:center;gap:6px}
-  .safety-list{display:flex;flex-direction:column;gap:6px}
-  .safety-item{font-size:11.5px;color:var(--n700);font-weight:600;display:flex;gap:8px;line-height:1.5}
-  .safety-item .check{color:var(--g500);font-weight:800;flex-shrink:0}
-
   /* 공유 인센티브 */
   .share-cta{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border-radius:16px;padding:20px;text-align:center;margin-top:30px;border:1.5px solid var(--p300)}
   .share-cta .em{font-size:36px;margin-bottom:8px}
@@ -337,22 +331,6 @@
   </div>
 </section>
 
-<!-- 법적 안전 -->
-<section>
-  <span class="section-tag">━ 안심하셔도 됩니다 ━</span>
-  <div class="safety-card">
-    <h3>🔒 개인정보 + 법적 보호</h3>
-    <div class="safety-list">
-      <div class="safety-item"><span class="check">✓</span>식단 출처(기관 이름·주소·연락처) <strong>수집하지 않습니다</strong></div>
-      <div class="safety-item"><span class="check">✓</span>업로드한 사진은 <strong>24시간 후 자동 삭제</strong></div>
-      <div class="safety-item"><span class="check">✓</span>평가 결과는 <strong>본인만 열람 가능</strong> — 공개 순위·DB 없음</div>
-      <div class="safety-item"><span class="check">✓</span>"계획 식단 기준" 분석 — <strong>실제 급식 평가 아님</strong> 명시</div>
-      <div class="safety-item"><span class="check">✓</span>특정 시설 비교·랭킹·식별 <strong>일절 금지</strong></div>
-      <div class="safety-item"><span class="check">✓</span>교육·정보 제공 목적 — 의료 진단 아님</div>
-    </div>
-  </div>
-</section>
-
 <!-- 공유 인센티브 -->
 <section>
   <div class="share-cta">
@@ -402,7 +380,7 @@
     </div>
 
     <button class="modal-cta" onclick="mockUpload()">🚀 평가 시작</button>
-    <div style="font-size:10px;color:var(--n400);text-align:center;margin-top:10px;line-height:1.6">사진은 24시간 후 자동 삭제 · 기관 식별 정보 미수집</div>
+    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·기관·위치</strong> 같은 개인·기관 식별 정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong><br>업로드한 사진은 24시간 후 자동 삭제</div>
   </div>
 </div>
 
