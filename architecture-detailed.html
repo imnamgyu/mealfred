@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 편식도감 — 상세 아키텍처 (스키마·UX·알고리즘)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;--g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;--v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FFEBEE;--r500:#E53935;--r700:#C62828;--y50:#FFF8E1;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.65;-webkit-font-smoothing:antialiased}
+  code,pre{font-family:ui-monospace,Menlo,monospace}
+
+  .hero{background:linear-gradient(135deg,#1F2D3D,#2C3E50,#3498DB);color:white;padding:48px 24px 36px;text-align:center}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.2);padding:5px 12px;border-radius:100px;font-size:10.5px;font-weight:800;letter-spacing:0.06em;margin-bottom:14px}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px}
+  .hero p{font-size:13.5px;color:rgba(255,255,255,0.85);max-width:580px;margin:0 auto;font-weight:600}
+  .hero .meta{display:flex;justify-content:center;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+  .toc{background:white;border-bottom:1px solid var(--n200);padding:14px 24px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1000px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--n600);font-weight:700;padding:6px 11px;border-radius:100px;background:var(--n50);text-decoration:none;flex-shrink:0;transition:all 0.15s}
+  .toc a:hover{background:var(--p500);color:white}
+  .toc a.active{background:var(--s800);color:white}
+
+  main{max-width:1000px;margin:0 auto;padding:24px}
+  section{margin-bottom:56px;scroll-margin-top:70px}
+  .section-tag{display:inline-block;font-size:11px;color:var(--p700);font-weight:800;letter-spacing:0.08em;margin-bottom:6px}
+  h2{font-size:26px;font-weight:800;color:var(--s800);letter-spacing:-0.02em;margin-bottom:8px;border-bottom:3px solid var(--p500);padding-bottom:8px}
+  h3{font-size:18px;font-weight:800;color:var(--s800);margin:24px 0 10px;letter-spacing:-0.01em;padding-left:12px;border-left:4px solid var(--p500)}
+  h4{font-size:14px;font-weight:800;color:var(--s700);margin:14px 0 6px;letter-spacing:-0.01em}
+  p{font-size:13.5px;color:var(--n700);font-weight:500;margin-bottom:10px}
+  ul,ol{margin:8px 0 14px 22px}
+  li{font-size:13px;color:var(--n700);margin-bottom:4px}
+  strong{color:var(--s800);font-weight:800}
+
+  .card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin-bottom:14px}
+  .card.gradient{background:linear-gradient(135deg,#FFF8F2,#FFE8D1);border-color:var(--p300)}
+  .card.blue{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-color:var(--b500)}
+  .card.green{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:var(--g500)}
+  .card.purple{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-color:var(--v500)}
+  .card.yellow{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-color:var(--y500)}
+
+  .mermaid-wrap{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px 12px;margin:14px 0;overflow-x:auto}
+  .mermaid{text-align:center;min-width:600px}
+
+  pre.code{background:#1F2D3D;color:#E0E7EE;padding:14px 16px;border-radius:10px;overflow-x:auto;font-size:11.5px;line-height:1.7;margin:8px 0}
+  pre.code .kw{color:#FFB375;font-weight:700}
+  pre.code .str{color:#9CCC65}
+  pre.code .cm{color:#7A8FA8;font-style:italic}
+  pre.code .fn{color:#42A5F5}
+  pre.code .num{color:#FF8A65}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200)}
+  th{background:var(--s800);color:white;padding:10px 12px;text-align:left;font-weight:800;font-size:11px;letter-spacing:0.03em}
+  td{padding:8px 12px;border-bottom:1px solid var(--n100);vertical-align:top;color:var(--n700)}
+  tr:last-child td{border-bottom:none}
+  td.mono{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--p700)}
+  td.center{text-align:center}
+
+  /* Schema table styling */
+  .schema-table{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:16px;margin:12px 0}
+  .schema-table .tname{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--p500)}
+  .schema-table .tname strong{font-size:15px;color:var(--s800);font-family:ui-monospace,Menlo,monospace}
+  .schema-table .tname .pill{background:var(--p500);color:white;padding:2px 8px;border-radius:100px;font-size:9px;font-weight:800;letter-spacing:0.04em}
+  .schema-table table{margin:0;font-size:11.5px;border:none}
+  .schema-table th{background:var(--n50);color:var(--s800);padding:7px 10px;font-size:10px}
+  .schema-table td{padding:6px 10px}
+  .col-key{font-weight:800;font-family:ui-monospace,Menlo,monospace;color:var(--s800)}
+  .col-type{color:var(--b700);font-family:ui-monospace,Menlo,monospace;font-size:10.5px}
+  .col-cstr{color:var(--p700);font-size:10px;font-weight:700}
+  .col-desc{color:var(--n600);font-size:11px}
+
+  /* Use Case styling */
+  .uc-section{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+  .uc-card{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px;position:relative}
+  .uc-card .uc-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+  .uc-card .uc-num{background:var(--p500);color:white;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0}
+  .uc-card .uc-title{flex:1}
+  .uc-card .uc-title h4{font-size:14px;color:var(--s800);margin:0 0 2px}
+  .uc-card .uc-title .actor{font-size:10.5px;color:var(--n500);font-weight:700}
+  .uc-card .uc-body{font-size:12.5px;color:var(--n700);line-height:1.65;padding-left:40px}
+  .uc-card .uc-body .label{font-size:9.5px;font-weight:800;color:var(--p700);letter-spacing:0.04em;margin-top:6px;margin-bottom:2px;display:block;text-transform:uppercase}
+  .uc-card .uc-flow{background:var(--n50);border-radius:8px;padding:9px 12px;margin-top:6px;font-size:11.5px;line-height:1.7}
+  .uc-card .uc-flow code{background:white;padding:1px 6px;border-radius:4px;font-size:10.5px;color:var(--p700)}
+
+  /* Algorithm cards */
+  .algo-card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px;margin-bottom:18px;border-left:5px solid var(--v500)}
+  .algo-card.eval{border-left-color:var(--g500)}
+  .algo-card.reco{border-left-color:var(--p500)}
+  .algo-card.ocr{border-left-color:var(--b500)}
+  .algo-card .algo-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+  .algo-card .algo-id{font-size:11px;font-weight:800;color:var(--n400);font-family:ui-monospace,Menlo,monospace;letter-spacing:0.03em}
+  .algo-card h4{margin:0;font-size:16px}
+  .algo-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0;background:var(--n50);padding:10px;border-radius:8px}
+  .algo-meta-item .lbl{font-size:9.5px;color:var(--n500);font-weight:800;letter-spacing:0.04em;text-transform:uppercase}
+  .algo-meta-item .val{font-size:12px;color:var(--s800);font-weight:700;margin-top:2px}
+
+  .step-list{counter-reset:step;margin:10px 0;padding-left:0;list-style:none}
+  .step-list li{counter-increment:step;position:relative;padding-left:32px;margin-bottom:6px;font-size:12.5px;color:var(--n700);line-height:1.65}
+  .step-list li::before{content:counter(step);position:absolute;left:0;top:0;background:var(--p500);color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+
+  .example-box{background:var(--y50);border:1px dashed var(--y500);border-radius:10px;padding:12px;margin:8px 0;font-size:11.5px}
+  .example-box strong{color:var(--y700)}
+
+  .kv-grid{display:grid;grid-template-columns:160px 1fr;gap:8px 12px;margin:8px 0}
+  .kv-grid .k{font-size:11px;font-weight:800;color:var(--n500);letter-spacing:0.02em}
+  .kv-grid .v{font-size:12.5px;color:var(--n700)}
+
+  footer{padding:30px 24px;text-align:center;font-size:11px;color:var(--n400);border-top:1px solid var(--n100);margin-top:60px}
+  footer a{color:var(--p700);text-decoration:none;font-weight:700}
+
+  @media(max-width:600px){
+    .hero h1{font-size:24px}
+    h2{font-size:21px}
+    .kv-grid{grid-template-columns:1fr}
+    .uc-card .uc-body{padding-left:0;margin-top:8px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">🏗 DETAILED ARCHITECTURE · v2</span>
+  <h1>밀프레드 편식도감<br>스키마 · UX · 알고리즘</h1>
+  <p>14개 테이블 ER 다이어그램 + 34개 유즈케이스 + 18개 핵심 알고리즘 상세 명세</p>
+  <div class="meta">
+    <span>📊 ER Diagram</span>
+    <span>👥 34 Use Cases</span>
+    <span>⚙️ 18 Algorithms</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#schema">📊 1. DB 스키마</a>
+    <a href="#usecases">👥 2. 유즈케이스 34</a>
+    <a href="#eval-engine">📊 3. 평가 엔진</a>
+    <a href="#reco-engine">🍳 4. 추천 엔진</a>
+    <a href="#ocr-engine">📷 5. OCR 엔진</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ==================== 1. DB SCHEMA ==================== -->
+<section id="schema">
+  <span class="section-tag">━ PART 1. DATABASE SCHEMA ━</span>
+  <h2>14개 테이블 + ER 다이어그램</h2>
+
+  <h3>1-1. ER 다이어그램</h3>
+  <p>4개 도메인 14 테이블의 관계. <strong>1:N</strong> (사용자→아이→기록), <strong>N:M</strong> (식단↔식재료, 레시피↔식재료).</p>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+erDiagram
+  users ||--o{ children : "보호자"
+  children ||--o{ growth_stats : "주1회 키몸무게"
+  children ||--o{ meal_logs : "끼니별 기록"
+  children ||--o{ daycare_evals : "식단표 평가"
+  children ||--o{ recommendations : "추천 캐시"
+
+  meal_logs ||--o{ meal_log_ingredients : "끼니↔재료"
+  ingredients ||--o{ meal_log_ingredients : "사용된 재료"
+
+  recipes ||--o{ recipe_ingredients : "레시피↔재료"
+  ingredients ||--o{ recipe_ingredients : "구성 재료"
+
+  ingredients }o--|| kdri_rni : "영양소 매핑"
+  daycare_evals ||--|| ocr_cache : "이미지 캐시"
+
+  users {
+    UUID id PK
+    TEXT email UK
+    ENUM parent_type "mom·dad·other"
+    TIMESTAMPTZ created_at
+  }
+  children {
+    UUID id PK
+    UUID user_id FK
+    TEXT nickname
+    DATE birth_date
+    ENUM sex "M·F"
+    JSONB allergens
+  }
+  meal_logs {
+    UUID id PK
+    UUID child_id FK
+    DATE eaten_at
+    ENUM meal_type "아침·점심·저녁·간식"
+    INT approx_hour
+    ENUM texture_level
+    ENUM autonomy
+    ENUM reaction
+  }
+  ingredients {
+    UUID id PK
+    TEXT name UK
+    TEXT category
+    JSONB nutri_per_100g
+    ENUM status "verified·estimated·pending"
+  }
+  recipes {
+    UUID id PK
+    TEXT name
+    TEXT base_type
+    TEXT texture_level
+    JSONB nutri_total
+    TEXT_arr nutrient_highlights
+  }
+  kdri_rni {
+    TEXT age_band PK
+    TEXT nutrient_code PK
+    DECIMAL rni
+    DECIMAL ul
+  }
+    </div>
+  </div>
+
+  <h3>1-2. 도메인별 14 테이블 상세 스키마</h3>
+
+  <h4 style="color:var(--p700)">👤 도메인 A — 사용자/아이/성장</h4>
+
+  <div class="schema-table">
+    <div class="tname"><strong>users</strong><span class="pill">DOMAIN A</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">id</td><td class="col-type">UUID</td><td class="col-cstr">PK</td><td class="col-desc">사용자 고유 ID (uuid_generate_v4)</td></tr>
+      <tr><td class="col-key">email</td><td class="col-type">TEXT</td><td class="col-cstr">UK, NOT NULL</td><td class="col-desc">이메일 (OAuth provider에서 받음)</td></tr>
+      <tr><td class="col-key">parent_type</td><td class="col-type">ENUM</td><td class="col-cstr">DEFAULT 'mom'</td><td class="col-desc">'mom' | 'dad' | 'other' — 인사말 어조용</td></tr>
+      <tr><td class="col-key">oauth_provider</td><td class="col-type">ENUM</td><td class="col-cstr">NOT NULL</td><td class="col-desc">'kakao' | 'google' | 'apple'</td></tr>
+      <tr><td class="col-key">push_token</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">FCM/APNS 토큰 (알림용)</td></tr>
+      <tr><td class="col-key">created_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr">DEFAULT now()</td><td class="col-desc">가입 시각</td></tr>
+      <tr><td class="col-key">deleted_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr"></td><td class="col-desc">soft delete (30일 보존 후 hard delete)</td></tr>
+    </table>
+  </div>
+
+  <div class="schema-table">
+    <div class="tname"><strong>children</strong><span class="pill">DOMAIN A</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">id</td><td class="col-type">UUID</td><td class="col-cstr">PK</td><td class="col-desc">아이 고유 ID</td></tr>
+      <tr><td class="col-key">user_id</td><td class="col-type">UUID</td><td class="col-cstr">FK→users.id, NOT NULL</td><td class="col-desc">보호자 FK</td></tr>
+      <tr><td class="col-key">nickname</td><td class="col-type">TEXT</td><td class="col-cstr">NOT NULL</td><td class="col-desc">별명 (실명 X — 프라이버시)</td></tr>
+      <tr><td class="col-key">birth_date</td><td class="col-type">DATE</td><td class="col-cstr">NOT NULL</td><td class="col-desc">생년월일 (월·년만 사용)</td></tr>
+      <tr><td class="col-key">sex</td><td class="col-type">ENUM</td><td class="col-cstr">NOT NULL</td><td class="col-desc">'M' | 'F' — KDC 성장도표 percentile 계산용</td></tr>
+      <tr><td class="col-key">allergens</td><td class="col-type">JSONB</td><td class="col-cstr">DEFAULT '[]'</td><td class="col-desc">['난류','우유','땅콩'] — 17 대 알레르겐</td></tr>
+      <tr><td class="col-key">care_type</td><td class="col-type">ENUM</td><td class="col-cstr"></td><td class="col-desc">'어린이집' | '유치원' | '가정' | '없음'</td></tr>
+      <tr><td class="col-key">created_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr">DEFAULT now()</td><td class="col-desc"></td></tr>
+    </table>
+  </div>
+
+  <div class="schema-table">
+    <div class="tname"><strong>growth_stats</strong><span class="pill">DOMAIN A</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">child_id</td><td class="col-type">UUID</td><td class="col-cstr">FK→children.id</td><td class="col-desc">아이 FK</td></tr>
+      <tr><td class="col-key">recorded_at</td><td class="col-type">DATE</td><td class="col-cstr">PK(child_id,date)</td><td class="col-desc">측정 일자</td></tr>
+      <tr><td class="col-key">height_cm</td><td class="col-type">DECIMAL(5,1)</td><td class="col-cstr">NOT NULL</td><td class="col-desc">키 cm</td></tr>
+      <tr><td class="col-key">weight_kg</td><td class="col-type">DECIMAL(4,1)</td><td class="col-cstr">NOT NULL</td><td class="col-desc">몸무게 kg</td></tr>
+      <tr><td class="col-key">bmi</td><td class="col-type">DECIMAL(4,1)</td><td class="col-cstr">GENERATED</td><td class="col-desc">weight_kg / (height_cm/100)² 자동 계산</td></tr>
+      <tr><td class="col-key">pct_height</td><td class="col-type">INT</td><td class="col-cstr">CHECK 0-100</td><td class="col-desc">KDC 성장도표 키 백분위</td></tr>
+      <tr><td class="col-key">pct_weight</td><td class="col-type">INT</td><td class="col-cstr">CHECK 0-100</td><td class="col-desc">KDC 몸무게 백분위</td></tr>
+      <tr><td class="col-key">pct_bmi</td><td class="col-type">INT</td><td class="col-cstr">CHECK 0-100</td><td class="col-desc">KDC BMI 백분위 (5/85/95)</td></tr>
+    </table>
+  </div>
+
+  <h4 style="color:var(--b700)">📝 도메인 B — 식단 기록</h4>
+
+  <div class="schema-table">
+    <div class="tname"><strong>meal_logs</strong><span class="pill">DOMAIN B</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">id</td><td class="col-type">UUID</td><td class="col-cstr">PK</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">child_id</td><td class="col-type">UUID</td><td class="col-cstr">FK→children.id</td><td class="col-desc">INDEX(child_id, eaten_at DESC)</td></tr>
+      <tr><td class="col-key">eaten_at</td><td class="col-type">DATE</td><td class="col-cstr">NOT NULL</td><td class="col-desc">먹은 날짜 (소급 입력 가능)</td></tr>
+      <tr><td class="col-key">meal_type</td><td class="col-type">ENUM</td><td class="col-cstr">NOT NULL</td><td class="col-desc">'아침' | '점심' | '저녁' | '간식'</td></tr>
+      <tr><td class="col-key">approx_hour</td><td class="col-type">INT</td><td class="col-cstr">CHECK 0-23</td><td class="col-desc">대략 몇 시 (정확한 시간 X)</td></tr>
+      <tr><td class="col-key">duration_min</td><td class="col-type">INT</td><td class="col-cstr"></td><td class="col-desc">먹은 시간 분 (10/15/20/30+)</td></tr>
+      <tr><td class="col-key">place</td><td class="col-type">ENUM</td><td class="col-cstr"></td><td class="col-desc">'집' | '어린이집' | '외식' | '이동'</td></tr>
+      <tr><td class="col-key">photo_url</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">Supabase Storage URL (90일 TTL)</td></tr>
+      <tr><td class="col-key">photo_hash</td><td class="col-type">TEXT</td><td class="col-cstr">INDEX</td><td class="col-desc">sha256 — OCR 캐시 키</td></tr>
+      <tr><td class="col-key">texture_level</td><td class="col-type">ENUM</td><td class="col-cstr"></td><td class="col-desc">'미음·페이스트·매시·다진·큐브·스틱·통째'</td></tr>
+      <tr><td class="col-key">autonomy</td><td class="col-type">ENUM</td><td class="col-cstr"></td><td class="col-desc">'떠먹여줌·반자율·스스로'</td></tr>
+      <tr><td class="col-key">reaction</td><td class="col-type">ENUM</td><td class="col-cstr">NOT NULL</td><td class="col-desc">'거부·남김·잘먹음·또달라'</td></tr>
+      <tr><td class="col-key">note</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">특이사항 메모</td></tr>
+      <tr><td class="col-key">created_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr">DEFAULT now()</td><td class="col-desc">기록 시각 (소급 입력 추적)</td></tr>
+    </table>
+  </div>
+
+  <div class="schema-table">
+    <div class="tname"><strong>meal_log_ingredients</strong><span class="pill">DOMAIN B · 다대다</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">meal_log_id</td><td class="col-type">UUID</td><td class="col-cstr">FK, PK</td><td class="col-desc">끼니 FK</td></tr>
+      <tr><td class="col-key">ingredient_id</td><td class="col-type">UUID</td><td class="col-cstr">FK, PK</td><td class="col-desc">식재료 FK</td></tr>
+      <tr><td class="col-key">source</td><td class="col-type">ENUM</td><td class="col-cstr">NOT NULL</td><td class="col-desc">'ai_detected' | 'manual' | 'autocomplete'</td></tr>
+      <tr><td class="col-key">confidence</td><td class="col-type">DECIMAL(3,2)</td><td class="col-cstr"></td><td class="col-desc">AI 인식 신뢰도 0.00-1.00</td></tr>
+      <tr><td class="col-key">estimated_g</td><td class="col-type">INT</td><td class="col-cstr"></td><td class="col-desc">추정 분량 (LLM 또는 카테고리 평균)</td></tr>
+    </table>
+  </div>
+
+  <div class="schema-table">
+    <div class="tname"><strong>daycare_evals</strong><span class="pill">DOMAIN B · 24h TTL</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">id</td><td class="col-type">UUID</td><td class="col-cstr">PK</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">child_id</td><td class="col-type">UUID</td><td class="col-cstr">FK</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">evaluated_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr">DEFAULT now()</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">source_image_url</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">Supabase Storage (24h TTL — pg_cron 자동 삭제)</td></tr>
+      <tr><td class="col-key">image_hash</td><td class="col-type">TEXT</td><td class="col-cstr">FK→ocr_cache</td><td class="col-desc">OCR 캐시 키</td></tr>
+      <tr><td class="col-key">expires_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr">DEFAULT now()+24h</td><td class="col-desc">자동 삭제 트리거</td></tr>
+      <tr><td class="col-key">ocr_extracted</td><td class="col-type">JSONB</td><td class="col-cstr"></td><td class="col-desc">{days:[{date,menus,allergens}], footer}</td></tr>
+      <tr><td class="col-key">scores</td><td class="col-type">JSONB</td><td class="col-cstr"></td><td class="col-desc">{diversity:88, texture:55, ...}</td></tr>
+      <tr><td class="col-key">total_score</td><td class="col-type">INT</td><td class="col-cstr">CHECK 0-100</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">grade</td><td class="col-type">ENUM</td><td class="col-cstr"></td><td class="col-desc">'S·A·B·C·D'</td></tr>
+    </table>
+  </div>
+
+  <h4 style="color:var(--g700)">🗂 도메인 C — 마스터 데이터</h4>
+
+  <div class="schema-table">
+    <div class="tname"><strong>ingredients</strong><span class="pill">DOMAIN C · ~1,000건</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">id</td><td class="col-type">UUID</td><td class="col-cstr">PK</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">name</td><td class="col-type">TEXT</td><td class="col-cstr">UK</td><td class="col-desc">정규화 이름 (예: '시금치')</td></tr>
+      <tr><td class="col-key">raw_aliases</td><td class="col-type">TEXT[]</td><td class="col-cstr"></td><td class="col-desc">['시금치, 잎, 생것', '시금치_생것'] 변형들</td></tr>
+      <tr><td class="col-key">category</td><td class="col-type">TEXT</td><td class="col-cstr">INDEX</td><td class="col-desc">16 카테고리 (잎채소·뿌리·생선...)</td></tr>
+      <tr><td class="col-key">emoji</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">UI 표시용</td></tr>
+      <tr><td class="col-key">chosung</td><td class="col-type">TEXT</td><td class="col-cstr">INDEX</td><td class="col-desc">초성 (자동완성용 — 'ㅅㄱㅊ')</td></tr>
+      <tr><td class="col-key">nutri_per_100g</td><td class="col-type">JSONB</td><td class="col-cstr"></td><td class="col-desc">{iron_mg:2.7, calcium_mg:81, ...} 36 영양</td></tr>
+      <tr><td class="col-key">allergens</td><td class="col-type">TEXT[]</td><td class="col-cstr"></td><td class="col-desc">매핑된 알레르겐</td></tr>
+      <tr><td class="col-key">exposure_target</td><td class="col-type">INT</td><td class="col-cstr">DEFAULT 30</td><td class="col-desc">권장 노출 횟수 (Solid Starts)</td></tr>
+      <tr><td class="col-key">status</td><td class="col-type">ENUM</td><td class="col-cstr">DEFAULT 'estimated'</td><td class="col-desc">'verified' | 'ai_estimated' | 'pending_review'</td></tr>
+      <tr><td class="col-key">source</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">'농진청·KDRI·LLM_estimated'</td></tr>
+    </table>
+  </div>
+
+  <div class="schema-table">
+    <div class="tname"><strong>recipes</strong><span class="pill">DOMAIN C · 4,432건 enrich</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">id</td><td class="col-type">UUID</td><td class="col-cstr">PK</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">name</td><td class="col-type">TEXT</td><td class="col-cstr">NOT NULL</td><td class="col-desc">메뉴명</td></tr>
+      <tr><td class="col-key">base_type</td><td class="col-type">TEXT</td><td class="col-cstr">INDEX</td><td class="col-desc">15분류 (죽·계란찜·부침개·국·볶음...)</td></tr>
+      <tr><td class="col-key">texture_level</td><td class="col-type">TEXT</td><td class="col-cstr">INDEX</td><td class="col-desc">7단계</td></tr>
+      <tr><td class="col-key">steps</td><td class="col-type">TEXT[]</td><td class="col-cstr"></td><td class="col-desc">조리 순서 (배열)</td></tr>
+      <tr><td class="col-key">tip</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">조리 팁</td></tr>
+      <tr><td class="col-key">age_group</td><td class="col-type">TEXT</td><td class="col-cstr">INDEX</td><td class="col-desc">'6-11m·1-2y·3-5y·6-11y'</td></tr>
+      <tr><td class="col-key">allergens</td><td class="col-type">TEXT[]</td><td class="col-cstr"></td><td class="col-desc">자동 추출</td></tr>
+      <tr><td class="col-key">cook_minutes</td><td class="col-type">INT</td><td class="col-cstr"></td><td class="col-desc">조리 시간</td></tr>
+      <tr><td class="col-key">difficulty</td><td class="col-type">ENUM</td><td class="col-cstr"></td><td class="col-desc">'easy·medium·hard'</td></tr>
+      <tr><td class="col-key">nutri_total</td><td class="col-type">JSONB</td><td class="col-cstr"></td><td class="col-desc">계산된 영양 합계 36종</td></tr>
+      <tr><td class="col-key">nutrient_highlights</td><td class="col-type">TEXT[]</td><td class="col-cstr">GIN INDEX</td><td class="col-desc">30%+ RNI 기여 영양소 (Phase 4 매칭)</td></tr>
+      <tr><td class="col-key">concealment</td><td class="col-type">JSONB</td><td class="col-cstr"></td><td class="col-desc">{시금치:'high', 가지:'mid'} 가림 정도</td></tr>
+      <tr><td class="col-key">source</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">'영아기·유아기·아동기·월별식단'</td></tr>
+    </table>
+  </div>
+
+  <div class="schema-table">
+    <div class="tname"><strong>recipe_ingredients</strong><span class="pill">DOMAIN C · 다대다</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">recipe_id</td><td class="col-type">UUID</td><td class="col-cstr">FK, PK</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">ingredient_id</td><td class="col-type">UUID</td><td class="col-cstr">FK, PK</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">amount_g</td><td class="col-type">DECIMAL(5,1)</td><td class="col-cstr"></td><td class="col-desc">분량 (g)</td></tr>
+      <tr><td class="col-key">form</td><td class="col-type">ENUM</td><td class="col-cstr"></td><td class="col-desc">'즙·다진·매시·큐브·스틱·통째·페이스트·가루'</td></tr>
+      <tr><td class="col-key">is_main</td><td class="col-type">BOOLEAN</td><td class="col-cstr">DEFAULT false</td><td class="col-desc">주재료 vs 조미료</td></tr>
+    </table>
+  </div>
+
+  <div class="schema-table">
+    <div class="tname"><strong>kdri_rni</strong><span class="pill">DOMAIN C · KDRI 2025</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">age_band</td><td class="col-type">TEXT</td><td class="col-cstr">PK(band,code)</td><td class="col-desc">'0-5m·6-11m·1-2y·3-5y·6-11y...'</td></tr>
+      <tr><td class="col-key">nutrient_code</td><td class="col-type">TEXT</td><td class="col-cstr">PK(band,code)</td><td class="col-desc">'iron·calcium·choline·vit_d...'</td></tr>
+      <tr><td class="col-key">rni</td><td class="col-type">DECIMAL</td><td class="col-cstr"></td><td class="col-desc">권장섭취량 (있는 영양소만)</td></tr>
+      <tr><td class="col-key">ai</td><td class="col-type">DECIMAL</td><td class="col-cstr"></td><td class="col-desc">충분섭취량 (RNI 없을 때)</td></tr>
+      <tr><td class="col-key">ul</td><td class="col-type">DECIMAL</td><td class="col-cstr"></td><td class="col-desc">상한섭취량</td></tr>
+      <tr><td class="col-key">unit</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">'mg·μg·g·kcal'</td></tr>
+      <tr><td class="col-key">priority</td><td class="col-type">INT</td><td class="col-cstr"></td><td class="col-desc">표시 우선순위 (높을수록 빨강 임계 우선)</td></tr>
+    </table>
+  </div>
+
+  <h4 style="color:var(--v700)">🗄 도메인 D — 캐시</h4>
+
+  <div class="schema-table">
+    <div class="tname"><strong>recommendations</strong><span class="pill">DOMAIN D · 24h TTL</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">child_id</td><td class="col-type">UUID</td><td class="col-cstr">INDEX</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">type</td><td class="col-type">ENUM</td><td class="col-cstr">INDEX</td><td class="col-desc">'3day_plan·single_recipe·ingredient_followup'</td></tr>
+      <tr><td class="col-key">profile_hash</td><td class="col-type">TEXT</td><td class="col-cstr">INDEX</td><td class="col-desc">sha256(프로파일 요약) — 캐시 hit 판정</td></tr>
+      <tr><td class="col-key">result</td><td class="col-type">JSONB</td><td class="col-cstr"></td><td class="col-desc">LLM 응답 그대로</td></tr>
+      <tr><td class="col-key">generated_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr">DEFAULT now()</td><td class="col-desc"></td></tr>
+      <tr><td class="col-key">expires_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr">DEFAULT now()+24h</td><td class="col-desc"></td></tr>
+    </table>
+  </div>
+
+  <div class="schema-table">
+    <div class="tname"><strong>ocr_cache</strong><span class="pill">DOMAIN D · 영구</span></div>
+    <table>
+      <tr><th width="20%">컬럼</th><th width="20%">타입</th><th width="15%">제약</th><th>설명</th></tr>
+      <tr><td class="col-key">image_hash</td><td class="col-type">TEXT</td><td class="col-cstr">PK</td><td class="col-desc">sha256(이미지 바이트)</td></tr>
+      <tr><td class="col-key">extracted</td><td class="col-type">JSONB</td><td class="col-cstr"></td><td class="col-desc">Vision API 결과</td></tr>
+      <tr><td class="col-key">confidence</td><td class="col-type">DECIMAL</td><td class="col-cstr"></td><td class="col-desc">전체 OCR 신뢰도</td></tr>
+      <tr><td class="col-key">model_version</td><td class="col-type">TEXT</td><td class="col-cstr"></td><td class="col-desc">'claude-sonnet-4-7' — 모델 교체 시 invalidate</td></tr>
+      <tr><td class="col-key">created_at</td><td class="col-type">TIMESTAMPTZ</td><td class="col-cstr">DEFAULT now()</td><td class="col-desc"></td></tr>
+    </table>
+  </div>
+
+  <h3>1-3. 인덱스 + RLS (Row Level Security) 정책</h3>
+  <pre class="code"><span class="cm">-- 핵심 인덱스</span>
+<span class="kw">CREATE INDEX</span> idx_meal_logs_child_date <span class="kw">ON</span> meal_logs (child_id, eaten_at <span class="kw">DESC</span>);
+<span class="kw">CREATE INDEX</span> idx_recipes_highlights <span class="kw">ON</span> recipes <span class="kw">USING GIN</span> (nutrient_highlights);
+<span class="kw">CREATE INDEX</span> idx_ingredients_chosung <span class="kw">ON</span> ingredients (chosung text_pattern_ops);
+<span class="kw">CREATE INDEX</span> idx_reco_lookup <span class="kw">ON</span> recommendations (child_id, type, profile_hash);
+
+<span class="cm">-- RLS: 사용자는 자기 데이터만</span>
+<span class="kw">ALTER TABLE</span> children <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">CREATE POLICY</span> "own children" <span class="kw">ON</span> children
+  <span class="kw">FOR ALL USING</span> (user_id = auth.uid());
+
+<span class="kw">CREATE POLICY</span> "own meal_logs" <span class="kw">ON</span> meal_logs
+  <span class="kw">FOR ALL USING</span> (child_id <span class="kw">IN</span> (<span class="kw">SELECT</span> id <span class="kw">FROM</span> children <span class="kw">WHERE</span> user_id = auth.uid()));
+
+<span class="cm">-- 24h TTL 자동 삭제 (pg_cron)</span>
+<span class="kw">SELECT</span> cron.schedule(<span class="str">'expire-daycare-evals'</span>, <span class="str">'0 * * * *'</span>,
+  <span class="str">'DELETE FROM daycare_evals WHERE expires_at &lt; NOW()'</span>);</pre>
+</section>
+
+<!-- ==================== 2. USE CASES ==================== -->
+<section id="usecases">
+  <span class="section-tag">━ PART 2. USE CASES (UX) ━</span>
+  <h2>34개 유즈케이스 — 고객은 무엇을 할 수 있나?</h2>
+
+  <h3>2-1. Actor 다이어그램</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+  P((👩 부모<br/>주 사용자))
+  K((👶 아이<br/>대상))
+  N((🧑‍🔬 영양사<br/>운영))
+
+  P -->|온보딩 1-4| OB[온보딩]
+  P -->|기록 5-13| REC[식단 기록]
+  P -->|평가 14-22| EVAL[평가 보기]
+  P -->|레시피 23-28| RCP[레시피]
+  P -->|도감 29-32| DEX[도감]
+  P -->|공유 33| SHR[공유]
+  N -->|운영 34| ADM[운영]
+
+  classDef actor fill:#FFE8D1,stroke:#E89244,color:#1F2D3D
+  classDef cat fill:#E3F2FD,stroke:#3498DB,color:#1F2D3D
+  class P,K,N actor
+  class OB,REC,EVAL,RCP,DEX,SHR,ADM cat
+    </div>
+  </div>
+
+  <h3>2-2. 카테고리 A — 온보딩 (UC-01 ~ UC-04)</h3>
+  <div class="uc-section">
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">01</div>
+        <div class="uc-title"><h4>회원가입 / 로그인</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 카카오·구글·애플 OAuth로 빠르게 가입할 수 있다.</p>
+        <span class="label">전제</span>스마트폰 + 해당 SNS 계정 보유
+        <div class="uc-flow"><strong>흐름</strong>: 진입 → SNS 선택 → OAuth 인증 → 첫 진입 시 UC-02로 자동 이동 / 재방문 시 홈으로</div>
+        <span class="label">예외</span>OAuth 실패 시 재시도 / 이메일 권한 거부 시 푸시 알림 제한
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">02</div>
+        <div class="uc-title"><h4>아이 프로필 등록</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 별명·생년월일·성별·알레르겐·돌봄 유형(어린이집/유치원/가정)을 한 화면에서 등록할 수 있다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 별명 입력 → 생년월일 휠 → 성별 toggle → 알레르겐 17 chip 다중선택 → 돌봄 chip 선택 → <code>POST /api/children</code> → KDC 성장도표 기반 적정 키·몸무게 범위 초기 계산</div>
+        <span class="label">출력</span><code>child_id</code> 발급 + 홈 화면 이동
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">03</div>
+        <div class="uc-title"><h4>키·몸무게 입력 (주 1회)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 주 1회 키·몸무게를 기록하고 BMI percentile을 즉시 확인할 수 있다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 기록 탭 → 📏 카드 → 키(cm) + 몸무게(kg) 입력 → 저장 → <code>BMI = w/(h/100)²</code> 자동 계산 → KDC percentile lookup → 결과 표시 (정상/저체중/과체중)</div>
+        <span class="label">알림</span>주 1회 미입력 시 리마인더 푸시
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">04</div>
+        <div class="uc-title"><h4>엄마/아빠 토글</h4><div class="actor">👩👨 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 인사말의 보호자 호칭을 엄마↔아빠로 즉시 바꿀 수 있다.</p>
+        <div class="uc-flow">설정 메뉴 → toggle → <code>users.parent_type</code> 업데이트 → 모든 인사 자연어 갱신</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>2-3. 카테고리 B — 식단 기록 (UC-05 ~ UC-13)</h3>
+  <div class="uc-section">
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">05</div>
+        <div class="uc-title"><h4>날짜 선택 + 소급 입력</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 오늘/어제/그저께 chip 또는 캘린더로 임의 날짜의 기록을 입력·수정할 수 있다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 기록 탭 진입 → 날짜 chip (빠진 날 빨간 점) → 선택 → 해당 날짜로 입력 폼 로드 → 빈 칸 알림 배너 ("어제 점심·저녁, 오늘 아침 3끼 비어있어요")</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">06</div>
+        <div class="uc-title"><h4>식사 종류 선택 (간식 포함)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 아침·점심·저녁·간식 중 한 종류를 선택해 기록할 수 있다.</p>
+        <div class="uc-flow">chip 4개 라디오 → 선택 → <code>meal_type</code> 값 저장</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">07</div>
+        <div class="uc-title"><h4>사진 업로드 + AI 식재료 자동 인식</h4><div class="actor">👩 부모 + 🤖 AI</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 음식 사진 1장만 올리면 AI가 식재료를 자동 인식해 해시태그로 미리 채워준다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 📸 박스 탭 → 카메라/갤러리 → 업로드 → Supabase Storage 저장 → <code>POST /api/ocr-food</code> → Claude Vision → 식재료 리스트 추출 → ingredient_pool 매칭 → 해시태그 chip 자동 추가 (✨ AI 마크) → 부모 수정 가능</div>
+        <span class="label">정확도</span>≥80% (사용자 수정으로 학습)
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">08</div>
+        <div class="uc-title"><h4>해시태그 식재료 입력 + 한글 자동완성</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 식재료를 텍스트로 입력하면 첫글자·초성으로 자동완성 받을 수 있다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 태그 박스 클릭 → "ㅂㄹㅋㄹ" 입력 → INGREDIENTS 35 + INGREDIENT_POOL 147 통합 검색 → 매칭 결과 dropdown → ↑↓ 이동, Enter 선택 → chip 추가</div>
+        <span class="label">신규</span>풀에 없는 단어 입력 시 ✨신규 뱃지 + 운영 큐에 적재
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">09</div>
+        <div class="uc-title"><h4>식감 단계 입력</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 죽·다진·핑거푸드·테이블푸드 중 하나를 선택해 식감 단계를 기록할 수 있다.</p>
+        <div class="uc-flow"><strong>용도</strong>: HabEat 권고와 비교한 식감 단계 진행 평가</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">10</div>
+        <div class="uc-title"><h4>자율성 입력</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 떠먹여줌·도와줌·스스로 중 하나로 자율성을 기록할 수 있다.</p>
+        <div class="uc-flow"><strong>용도</strong>: Satter Division of Responsibility 7축 평가</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">11</div>
+        <div class="uc-title"><h4>식사 반응 입력</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 거부·남김·잘먹음·또달라 중 하나로 아이 반응을 기록할 수 있다.</p>
+        <div class="uc-flow"><strong>용도</strong>: 식재료별 accept_rate 자동 집계 → 4원칙 추천에 반영</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">12</div>
+        <div class="uc-title"><h4>메모 + 퀵노트</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 자유 메모 또는 quick chip ("김 가루로 덮으니 먹음")으로 특이사항을 기록할 수 있다.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">13</div>
+        <div class="uc-title"><h4>월간 PDF 리포트 다운로드</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 한 달 식습관 PDF를 다운로드받아 소아과·어린이집에 공유할 수 있다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 기록 탭 → 📄 월간 리포트 → PDF 생성 (서버사이드 puppeteer) → 다운로드</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>2-4. 카테고리 C — 평가 (UC-14 ~ UC-22)</h3>
+  <div class="uc-section">
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">14</div>
+        <div class="uc-title"><h4>영양 점수 보기</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 홈에서 "현재 지우 영양 점수는 60점이에요" 한 줄로 종합 진단을 즉시 확인할 수 있다.</p>
+        <div class="uc-flow"><strong>계산</strong>: 7축 점수 가중평균 → 5등급(S/A/B/C/D) → 자연어 라벨</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">15</div>
+        <div class="uc-title"><h4>36종 영양 신호등</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> KDRI 2025 36 영양소를 잘챙김/조금부족/결핍위험 3색으로 한눈에 볼 수 있다.</p>
+        <div class="uc-flow"><strong>계산</strong>: ALG-EVAL-02 참조 — 빈도 → 충족률 → 색상</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">16</div>
+        <div class="uc-title"><h4>신호등 자세히 보기 (게이지바)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 신호등 카드 클릭으로 36종 가로 게이지바 + 빈도 자연어("거의 매일"/"드물게"/"못 만남")를 볼 수 있다.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">17</div>
+        <div class="uc-title"><h4>탄·단·지 + BMI 종합</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 빈도 + BMI percentile 조합으로 다량영양소가 과한지 부족한지 정밀 평가를 받을 수 있다.</p>
+        <div class="uc-flow"><strong>로직</strong>: ALG-EVAL-04 참조</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">18</div>
+        <div class="uc-title"><h4>결핍 영양 → 보충 식재료 보기</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 빨강 영양소(예: 콜린) 아래에 자동 추천된 보충 식재료 카드를 클릭해 도감 진입할 수 있다.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">19</div>
+        <div class="uc-title"><h4>3일 식단 진단 (7축)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 다양성·식감·반복·환경·응답·새시도·자율성 7축을 한 카드에서 자연어로 받을 수 있다.</p>
+        <div class="uc-flow"><strong>로직</strong>: ALG-EVAL-01 참조</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">20</div>
+        <div class="uc-title"><h4>식단표 평가받기 (어린이집·유치원·가정 식단)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 종이 식단표 사진 1장 업로드로 한 달치 7축 평가를 30초 안에 받을 수 있다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: daycare-eval 진입 → 만 나이 선택 → 사진 업로드 → ALG-OCR-01 → ALG-EVAL-05 → 결과 카드</div>
+        <span class="label">프라이버시</span>기관 이름 X · 사진 24h 후 자동 삭제</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">21</div>
+        <div class="uc-title"><h4>식단표 결과 → 보충 레시피 받기</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 평가받은 결과의 부족 영양소를 채우는 레시피를 받기 위해 도감 앱으로 자연스럽게 진입한다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 결과 모달 CTA → <code>/dogam.html?source=daycare&grade=B+&deficits=콜린,비D,EPA-DHA</code> → 환영 배너 + AI 식단 모달 자동 오픈</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">22</div>
+        <div class="uc-title"><h4>오늘 만난 영양 가족 (8 식품군)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> WHO MDD 8 식품군 카테고리 그리드로 오늘 만난 그룹을 한눈에 본다.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>2-5. 카테고리 D — 레시피 (UC-23 ~ UC-28)</h3>
+  <div class="uc-section">
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">23</div>
+        <div class="uc-title"><h4>레시피 추천받기</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 홈 점수 카드 CTA를 눌러 4원칙 기반 맞춤 레시피 6-8개를 즉시 받을 수 있다.</p>
+        <div class="uc-flow"><strong>로직</strong>: ALG-RECO-01 (Phase 0~3) 참조</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">24</div>
+        <div class="uc-title"><h4>레시피 클릭 → 상세 보기</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 레시피 카드 클릭 시 재료(1인분 g)·조리 순서·우리 아이 적용 팁·매칭 정보 통합 모달을 본다.</p>
+        <div class="uc-flow">통합 템플릿 <code>renderRecipeDetailHTML()</code></div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">25</div>
+        <div class="uc-title"><h4>AI 3일 식단 받기</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> "AI에게 3일 식단 받기" 클릭으로 일자별 4끼(아침·점심·간식·저녁) × 3일 = 12끼 맞춤 식단을 받는다.</p>
+        <div class="uc-flow"><strong>로직</strong>: ALG-RECO-02 (3day plan generator)</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">26</div>
+        <div class="uc-title"><h4>레시피 → 오늘 식단 기록</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 레시피 상세 모달 하단의 "📝 오늘 식단으로 기록" 버튼으로 즉시 meal_log 생성한다.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">27</div>
+        <div class="uc-title"><h4>레시피 → 내일 식단 예약</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 레시피 상세에서 "📥 내일 식단에 추가" 버튼으로 미래 끼니 예약 + 장보기 리스트 생성 가능.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">28</div>
+        <div class="uc-title"><h4>레시피 탭 4원칙별 보기</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 레시피 탭에서 4원칙(선호+도전·원물·가림·영양보강) 섹션별로 분류된 추천을 본다.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>2-6. 카테고리 E — 도감 (UC-29 ~ UC-32)</h3>
+  <div class="uc-section">
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">29</div>
+        <div class="uc-title"><h4>도감 (식재료 친해지기 훈련)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 식재료별 노출·먹은 횟수, 마지막 만난 시점, 친해지기 진행도를 본다.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">30</div>
+        <div class="uc-title"><h4>식재료 클릭 → 영양 특성 + 패턴 맞춤 요리</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 식재료 클릭 시 KDRI 영양 특성·흡수율 팁·우리 아이 패턴 분석·맞춤 요리 5종(원칙별 분류)을 받는다.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">31</div>
+        <div class="uc-title"><h4>이번 주 시도해볼 TOP 10</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 오래 못 만난·거부도 높은 식재료 TOP 10을 빈도순 랭킹으로 본다.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">32</div>
+        <div class="uc-title"><h4>친해지기 SOS 키트 추천</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 22번 노출에도 8번만 먹는 식재료 발견 시 SOS 6단계 키트 추천 알림을 받는다.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>2-7. 카테고리 F — 공유·학습·운영 (UC-33 ~ UC-34)</h3>
+  <div class="uc-section">
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">33</div>
+        <div class="uc-title"><h4>공식 블로그 후킹 카드 (가로 스크롤)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 홈 하단 가로 스크롤 카드에서 최신 블로그 8편의 후킹 제목을 보고 클릭으로 학습한다.</p>
+        <div class="uc-flow">+ 평가 결과 카드 PNG 저장 · 친구 공유 (navigator.share API)</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">34</div>
+        <div class="uc-title"><h4>운영자 — 신규 식재료 검수</h4><div class="actor">🧑‍🔬 영양사</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>영양사는</strong> 부모가 입력한 신규 식재료 목록을 검토하고 영양 정보·알레르겐을 확정해 마스터 DB에 승격할 수 있다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 운영 대시보드 → status='pending_review' 큐 → 검수 → verified 승격 → 다음 사용자부터 정확 매칭</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 3. EVALUATION ENGINE ==================== -->
+<section id="eval-engine">
+  <span class="section-tag">━ PART 3. EVALUATION ENGINE ━</span>
+  <h2>평가 엔진 — Pure Rule (5 알고리즘 상세)</h2>
+
+  <h3>3-0. 엔진 아키텍처</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+  IN["📝 입력<br/>meal_logs (최근 3-7일)<br/>+ child profile (age·sex·allergens)<br/>+ growth_stats (최신 BMI)"]
+  PRE["🔧 전처리<br/>1. 식재료 정규화 (alias → id)<br/>2. 끼니별 영양 합산<br/>3. accept_rate 계산"]
+  A1["ALG-EVAL-01<br/>7축 식단 진단"]
+  A2["ALG-EVAL-02<br/>36 영양 신호등<br/>(빈도 → 충족률)"]
+  A3["ALG-EVAL-03<br/>BMI percentile<br/>(KDC lookup)"]
+  A4["ALG-EVAL-04<br/>탄·단·지 + BMI<br/>(빈도 × BMI 매트릭스)"]
+  A5["ALG-EVAL-05<br/>OCR 식단표 평가<br/>(7축 변형)"]
+  POST["📤 출력<br/>scores JSONB + grade + 자연어 진단"]
+
+  IN --> PRE
+  PRE --> A1 & A2 & A3 & A5
+  A3 --> A4
+  A2 --> A4
+  A1 & A2 & A4 & A5 --> POST
+
+  classDef in fill:#E3F2FD,stroke:#3498DB,color:#1F2D3D
+  classDef proc fill:#E8F5E9,stroke:#16A085,color:#1F2D3D
+  classDef out fill:#FFF8E1,stroke:#F9A825,color:#1F2D3D
+  class IN in
+  class PRE,A1,A2,A3,A4,A5 proc
+  class POST out
+    </div>
+  </div>
+
+  <h3>3-1. 5개 평가 알고리즘 상세</h3>
+
+  <div class="algo-card eval">
+    <div class="algo-head"><span class="algo-id">ALG-EVAL-01</span><h4>7축 식단 진단</h4></div>
+    <p>WHO·HabEat·Satter·CEBQ·Solid Starts 기반 학술 7축 평가.</p>
+    <div class="algo-meta">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">meal_logs 3-7일</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">7축 × {pct, status, detail}</div></div>
+      <div class="algo-meta-item"><div class="lbl">복잡도</div><div class="val">O(N·M) N=끼니, M=평균재료</div></div>
+      <div class="algo-meta-item"><div class="lbl">의존</div><div class="val">ingredients.category</div></div>
+    </div>
+    <h4>축별 계산식</h4>
+    <ol class="step-list">
+      <li><strong>다양성 (WHO MDD)</strong>: 8 식품군(곡물·콩·유제품·고기생선·계란·진한채소·기타채소·과일) 중 등장한 종류 수 → pct = (등장 수/8) × 100</li>
+      <li><strong>식감 단계 (HabEat)</strong>: texture_level 분포 vs 연령 권장 분포 KL-divergence → 0-100 점수</li>
+      <li><strong>메뉴 반복도 (HabEat)</strong>: 4주 내 동일 메뉴명 등장 횟수 → 5+ = D, 3-4 = C, 1-2 = B, 0 = A</li>
+      <li><strong>식사 환경 (Satter DOR)</strong>: avg(duration_min) — 20분 이내 = A, 20-30 = B, 30+ = C / + 정해진 장소 여부</li>
+      <li><strong>식욕 응답 (CEBQ)</strong>: 잘먹음·또달라 비율 = (긍정 reaction / 전체) × 100</li>
+      <li><strong>새 시도 (Solid Starts)</strong>: 7일 내 신규 식재료(이전 30일 미만남) 개수 — 권장 1-2개/주</li>
+      <li><strong>자율성 (Satter DOR)</strong>: '스스로' autonomy 비율 — 만 24m+ = 50%+ 권장</li>
+    </ol>
+    <pre class="code"><span class="kw">def</span> <span class="fn">axis_diversity</span>(logs):
+    families_met = <span class="kw">set</span>()
+    <span class="kw">for</span> log <span class="kw">in</span> logs:
+        <span class="kw">for</span> ing <span class="kw">in</span> log.ingredients:
+            families_met.add(FOOD_FAMILY_MAP[ing.category])
+    pct = <span class="kw">len</span>(families_met) / <span class="num">8</span> * <span class="num">100</span>
+    <span class="kw">return</span> {
+        <span class="str">'pct'</span>: pct,
+        <span class="str">'status'</span>: <span class="str">'green'</span> <span class="kw">if</span> pct >= <span class="num">80</span> <span class="kw">else</span> <span class="str">'orange'</span> <span class="kw">if</span> pct >= <span class="num">50</span> <span class="kw">else</span> <span class="str">'red'</span>,
+        <span class="str">'detail'</span>: f<span class="str">'{len(families_met)}/8 식품군'</span>,
+        <span class="str">'narrative'</span>: generate_diversity_narrative(families_met, missing=ALL_FAMILIES - families_met)
+    }</pre>
+    <div class="example-box"><strong>예시 출력</strong>: <code>{pct: 62.5, status: 'orange', detail: '5/8 식품군', narrative: '곡물·콩·유제품·고기·과일은 충분히 만났어요. 진한 채소·기타 채소·계란 3가지가 빠져있어요.'}</code></div>
+  </div>
+
+  <div class="algo-card eval">
+    <div class="algo-head"><span class="algo-id">ALG-EVAL-02</span><h4>36종 KDRI 신호등 (빈도 → 충족률 추정)</h4></div>
+    <p>그램 단위 정확 측정 불가 → 끼니 등장 빈도 기반 추정. KDRI 2025 만 1-2세 RNI/AI 기준.</p>
+    <div class="algo-meta">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">meal_logs 7일 + ingredients.nutri_per_100g</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">36 영양소 × {pct, status, freq_label}</div></div>
+      <div class="algo-meta-item"><div class="lbl">복잡도</div><div class="val">O(N·M·K) K=영양소 36</div></div>
+      <div class="algo-meta-item"><div class="lbl">의존</div><div class="val">kdri_rni, ingredients.nutri_per_100g</div></div>
+    </div>
+    <h4>단계</h4>
+    <ol class="step-list">
+      <li>각 끼니의 식재료별 영양 기여도 계산: <code>contribution_pct = (nutri_per_100g × estimated_g/100) / KDRI_RNI[age_band][nutrient]</code></li>
+      <li>30% 이상 기여하면 "이 끼니에 등장" 카운트 → nutrient_meals[n] += 1</li>
+      <li>주간 권장 빈도와 비교: <code>freq_pct = nutrient_meals / (days × 2) × 100</code></li>
+      <li>status 분류: ≥80 green / 50-80 orange / &lt;50 red</li>
+      <li>자연어 빈도 라벨: 90+ "거의 매일", 75-90 "주 4-5회", ... 15&lt; "거의 못 만남"</li>
+    </ol>
+    <pre class="code"><span class="kw">def</span> <span class="fn">signal_36_nutrients</span>(child_id, days=<span class="num">7</span>):
+    logs = get_meal_logs(child_id, days=days)
+    age_band = get_age_band(child_id)  <span class="cm"># '1-2y'</span>
+    nutrient_meals = defaultdict(<span class="kw">int</span>)
+
+    <span class="kw">for</span> log <span class="kw">in</span> logs:
+        contributions = defaultdict(<span class="kw">float</span>)
+        <span class="kw">for</span> ing <span class="kw">in</span> log.ingredients:
+            est_g = ing.estimated_g <span class="kw">or</span> CATEGORY_AVG_G[ing.category]
+            <span class="kw">for</span> nutrient, amt_per_100g <span class="kw">in</span> ing.nutri_per_100g.items():
+                rni = KDRI_RNI[age_band].get(nutrient)
+                <span class="kw">if</span> <span class="kw">not</span> rni: <span class="kw">continue</span>
+                contributions[nutrient] += (amt_per_100g * est_g / <span class="num">100</span>) / rni
+        <span class="kw">for</span> n, c <span class="kw">in</span> contributions.items():
+            <span class="kw">if</span> c >= <span class="num">0.3</span>:
+                nutrient_meals[n] += <span class="num">1</span>
+
+    weekly_target = days * <span class="num">2</span>
+    <span class="kw">return</span> {n: {
+        <span class="str">'pct'</span>: nutrient_meals[n] / weekly_target * <span class="num">100</span>,
+        <span class="str">'status'</span>: classify(nutrient_meals[n] / weekly_target),
+        <span class="str">'freq_label'</span>: freq_to_label(nutrient_meals[n] / weekly_target * <span class="num">100</span>)
+    } <span class="kw">for</span> n <span class="kw">in</span> KDRI_36_NUTRIENTS}</pre>
+    <div class="example-box"><strong>예시</strong>: 철 → 7일 × 2 = 14 권장 끼니. 8 끼니에 30%+ 기여 → 57% → orange → "주 3-4회"</div>
+  </div>
+
+  <div class="algo-card eval">
+    <div class="algo-head"><span class="algo-id">ALG-EVAL-03</span><h4>BMI percentile (KDC 표준성장도표)</h4></div>
+    <p>한국질병관리청 2017 소아청소년 성장도표 LMS 파라미터로 percentile 정확 계산.</p>
+    <div class="algo-meta">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">height, weight, sex, age_months</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">pct_height, pct_weight, pct_bmi + status</div></div>
+      <div class="algo-meta-item"><div class="lbl">의존</div><div class="val">KDC_LMS_TABLE (월별)</div></div>
+    </div>
+    <ol class="step-list">
+      <li>BMI 계산: <code>BMI = weight_kg / (height_cm/100)²</code></li>
+      <li>월령 기반 LMS 파라미터 lookup: <code>L, M, S = KDC_LMS[sex][age_months]['bmi']</code></li>
+      <li>Z-score 계산: <code>Z = ((BMI/M)^L - 1) / (L·S)</code> (L≠0)</li>
+      <li>Z-score → percentile (정규분포 cumulative): <code>pct = round(scipy.stats.norm.cdf(Z) * 100)</code></li>
+      <li>분류: &lt;5p 저체중 / 5-85p 정상 / 85-95p 과체중 / 95p+ 비만</li>
+    </ol>
+    <div class="example-box"><strong>예시 (지우 만 28개월 여, 88.5cm/12.4kg)</strong>: BMI=15.83, KDC 28m 여 LMS(BMI)={L:-0.85, M:15.99, S:0.071} → Z=-0.13 → pct=45% → 정상</div>
+  </div>
+
+  <div class="algo-card eval">
+    <div class="algo-head"><span class="algo-id">ALG-EVAL-04</span><h4>탄·단·지 + BMI 종합</h4></div>
+    <p>빈도(매일·가끔·드물게) × BMI percentile 매트릭스로 다량영양소 양 평가.</p>
+    <div class="algo-meta">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">macro 빈도 + BMI status</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">탄·단·지 × {status, message}</div></div>
+    </div>
+    <pre class="code">MATRIX = {
+    (<span class="str">'daily'</span>, <span class="str">'normal'</span>):     {<span class="str">'carb'</span>: <span class="str">'ok'</span>, <span class="str">'protein'</span>: <span class="str">'ok'</span>, <span class="str">'fat'</span>: <span class="str">'ok'</span>},
+    (<span class="str">'daily'</span>, <span class="str">'underweight'</span>):{<span class="str">'carb'</span>: <span class="str">'ok'</span>, <span class="str">'protein'</span>: <span class="str">'boost'</span>, <span class="str">'fat'</span>: <span class="str">'warn_low'</span>},
+    (<span class="str">'daily'</span>, <span class="str">'overweight'</span>): {<span class="str">'carb'</span>: <span class="str">'warn_high'</span>, <span class="str">'protein'</span>: <span class="str">'ok'</span>, <span class="str">'fat'</span>: <span class="str">'warn_high'</span>},
+    (<span class="str">'rare'</span>, <span class="str">'underweight'</span>): {<span class="str">'carb'</span>: <span class="str">'warn_low'</span>, <span class="str">'protein'</span>: <span class="str">'warn_low'</span>, <span class="str">'fat'</span>: <span class="str">'warn_low'</span>},
+    <span class="cm"># ... 모든 조합</span>
+}
+MESSAGES = {
+    <span class="str">'warn_low'</span>:  <span class="str">'양 부족 — 견과·아보카도·EPA+DHA 보강'</span>,
+    <span class="str">'warn_high'</span>: <span class="str">'양 조절 — 잡곡 비중↑, 간식 줄이기'</span>,
+    <span class="str">'boost'</span>:     <span class="str">'성장기 필요 — 충분히 OK'</span>,
+}</pre>
+  </div>
+
+  <div class="algo-card eval">
+    <div class="algo-head"><span class="algo-id">ALG-EVAL-05</span><h4>식단표 OCR 평가 (7축 변형)</h4></div>
+    <p>한 달치 식단표 한 장에서 OCR로 추출한 메뉴를 7축으로 평가. 가정 기록과 다른 점: 가공식품 비율·계절성 추가.</p>
+    <div class="algo-meta">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">OCR 결과 (~30일 메뉴)</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">7축 점수 + 총점 + 등급</div></div>
+    </div>
+    <ol class="step-list">
+      <li>OCR 결과 → recipes 매칭 (메뉴명 fuzzy match) → 영양 합계 계산</li>
+      <li>다양성·식감·반복·KDRI 36종 (ALG-EVAL-01~02 재사용)</li>
+      <li>알레르겐 표시 안전: 알레르겐 번호 표기 비율</li>
+      <li>가공식품 비율: 가공식품 카테고리 등장 비율</li>
+      <li>계절성·국산: 4월=봄나물 매핑 + 원산지 표기 점수</li>
+      <li>총점 가중평균 → 5등급</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ==================== 4. RECOMMENDATION ENGINE ==================== -->
+<section id="reco-engine">
+  <span class="section-tag">━ PART 4. RECOMMENDATION ENGINE ━</span>
+  <h2>추천 엔진 — Hybrid (7 알고리즘 상세)</h2>
+
+  <h3>4-0. 엔진 아키텍처</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+  REQ["📥 요청<br/>POST /api/recipe-suggest<br/>{child_id, type, context}"]
+  CACHE{"💾 캐시<br/>profile_hash 일치?"}
+  P0["ALG-RECO-00<br/>식습관 프로파일 자동 집계"]
+  P1A["원칙 1<br/>선호 + 도전"]
+  P1B["원칙 2<br/>오랜만 → 원물"]
+  P1C["원칙 3<br/>가림 형태"]
+  P1D["원칙 4<br/>영양 보강"]
+  RANK["ALG-RECO-05<br/>후보 랭킹<br/>(가중합)"]
+  P2["ALG-RECO-06<br/>LLM 정제<br/>Claude Sonnet 4.7"]
+  P3["💾 캐시 저장<br/>24h TTL"]
+  OUT["📤 응답<br/>6-8 레시피 + 자연어"]
+
+  REQ --> CACHE
+  CACHE -->|HIT| OUT
+  CACHE -->|MISS| P0
+  P0 --> P1A & P1B & P1C & P1D
+  P1A & P1B & P1C & P1D --> RANK
+  RANK --> P2
+  P2 --> P3
+  P3 --> OUT
+
+  classDef io fill:#FFF8E1,stroke:#F9A825,color:#1F2D3D
+  classDef proc fill:#E8F5E9,stroke:#16A085,color:#1F2D3D
+  classDef llm fill:#F3E5F5,stroke:#9C27B0,color:#1F2D3D
+  class REQ,OUT,CACHE,P3 io
+  class P0,P1A,P1B,P1C,P1D,RANK proc
+  class P2 llm
+    </div>
+  </div>
+
+  <div class="algo-card reco">
+    <div class="algo-head"><span class="algo-id">ALG-RECO-00</span><h4>Phase 0 — 식습관 프로파일 자동 집계</h4></div>
+    <div class="algo-meta">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">meal_logs 30일</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">profile dict (식재료·베이스·식감·신호등)</div></div>
+    </div>
+    <pre class="code">profile = {
+    <span class="str">'ingredient_stats'</span>: {
+        <span class="str">'시금치'</span>: {
+            <span class="str">'exposure_count'</span>: <span class="num">22</span>,
+            <span class="str">'eat_count'</span>: <span class="num">8</span>,
+            <span class="str">'accept_rate'</span>: <span class="num">0.36</span>,
+            <span class="str">'last_seen_days_ago'</span>: <span class="num">3</span>,
+            <span class="str">'preferred_forms'</span>: [<span class="str">'즙'</span>, <span class="str">'다진'</span>],
+            <span class="str">'rejected_forms'</span>: [<span class="str">'통째'</span>]
+        }, ...
+    },
+    <span class="str">'base_stats'</span>: {
+        <span class="str">'계란찜'</span>: {<span class="str">'eat_count'</span>: <span class="num">43</span>, <span class="str">'preference_score'</span>: <span class="num">0.95</span>}, ...
+    },
+    <span class="str">'texture_distribution'</span>: {<span class="str">'죽'</span>: <span class="num">0.65</span>, <span class="str">'매시'</span>: <span class="num">0.25</span>, ...},
+    <span class="str">'nutrient_status'</span>: {<span class="str">'iron'</span>: <span class="str">'red'</span>, <span class="str">'choline'</span>: <span class="str">'red'</span>, ...}
+}</pre>
+  </div>
+
+  <div class="algo-card reco">
+    <div class="algo-head"><span class="algo-id">ALG-RECO-01</span><h4>원칙 1: 선호 베이스 × 도전 식재료</h4></div>
+    <pre class="code"><span class="kw">WITH</span> preferred_bases <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> r.base_type, <span class="kw">SUM</span>(<span class="fn">CASE</span> <span class="kw">WHEN</span> ml.reaction <span class="kw">IN</span> (<span class="str">'잘먹음'</span>,<span class="str">'또달라'</span>) <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span>) <span class="kw">AS</span> cnt
+  <span class="kw">FROM</span> meal_logs ml <span class="kw">JOIN</span> meal_log_ingredients mli <span class="kw">ON</span> ml.id = mli.meal_log_id
+                  <span class="kw">JOIN</span> recipes r <span class="kw">ON</span> (...메뉴명 매칭...)
+  <span class="kw">WHERE</span> ml.child_id = $<span class="num">1</span> <span class="kw">AND</span> ml.eaten_at > <span class="kw">NOW</span>() - <span class="kw">INTERVAL</span> <span class="str">'30 days'</span>
+  <span class="kw">GROUP BY</span> r.base_type <span class="kw">ORDER BY</span> cnt <span class="kw">DESC LIMIT</span> <span class="num">5</span>
+),
+challenge_ings <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> id <span class="kw">FROM</span> ingredients
+  <span class="kw">WHERE</span> id <span class="kw">IN</span> (<span class="kw">SELECT</span> ing_id <span class="kw">FROM</span> low_accept_view <span class="kw">WHERE</span> child_id = $<span class="num">1</span>)
+  <span class="kw">LIMIT</span> <span class="num">10</span>
+)
+<span class="kw">SELECT</span> r.*,
+  <span class="fn">base_score</span>(r.base_type) * <span class="fn">concealment_score</span>(r.id) <span class="kw">AS</span> score
+<span class="kw">FROM</span> recipes r
+<span class="kw">WHERE</span> r.base_type <span class="kw">IN</span> (<span class="kw">SELECT</span> base_type <span class="kw">FROM</span> preferred_bases)
+  <span class="kw">AND EXISTS</span> (
+    <span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> recipe_ingredients ri
+    <span class="kw">WHERE</span> ri.recipe_id = r.id
+      <span class="kw">AND</span> ri.ingredient_id <span class="kw">IN</span> (<span class="kw">SELECT</span> id <span class="kw">FROM</span> challenge_ings)
+      <span class="kw">AND</span> ri.form <span class="kw">IN</span> (<span class="str">'즙'</span>,<span class="str">'다진'</span>,<span class="str">'매시'</span>)
+  )
+<span class="kw">ORDER BY</span> score <span class="kw">DESC LIMIT</span> <span class="num">50</span>;</pre>
+  </div>
+
+  <div class="algo-card reco">
+    <div class="algo-head"><span class="algo-id">ALG-RECO-02</span><h4>원칙 2: 잘먹지만 오랜만 → 원물 노출</h4></div>
+    <ol class="step-list">
+      <li>대상 식재료: <code>accept_rate ≥ 0.7 AND last_seen_days_ago > 30 AND 모든 preferred_forms이 가린 형태('즙','다진','매시')</code></li>
+      <li>레시피 필터: 해당 재료를 통째·스틱·큐브 형태로 사용하는 레시피</li>
+      <li>texture_level &gt; 현재 사용자 최대 texture (점진 단계 ↑)</li>
+      <li>랭킹: <code>age_appropriateness(texture, age_months) × loved_score(ing)</code></li>
+    </ol>
+  </div>
+
+  <div class="algo-card reco">
+    <div class="algo-head"><span class="algo-id">ALG-RECO-03</span><h4>원칙 3: 극도 거부 → 형태 안 보이게</h4></div>
+    <ol class="step-list">
+      <li>대상: <code>accept_rate &lt; 0.3 AND exposure_count ≥ 5</code></li>
+      <li>레시피 필터: <code>concealment[ing] == 'high'</code> (즙·페이스트)</li>
+      <li>추가: base_type ∈ preferred_bases (베이스도 친숙)</li>
+      <li>랭킹: <code>concealment_score × base_preference_score</code></li>
+    </ol>
+  </div>
+
+  <div class="algo-card reco">
+    <div class="algo-head"><span class="algo-id">ALG-RECO-04</span><h4>원칙 4: 부족 영양 보강</h4></div>
+    <pre class="code"><span class="kw">WITH</span> red_nutrients <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> nutrient FROM signal_36_view
+  <span class="kw">WHERE</span> child_id = $<span class="num">1</span> <span class="kw">AND</span> status = <span class="str">'red'</span>
+  <span class="kw">ORDER BY</span> pct <span class="kw">ASC LIMIT</span> <span class="num">5</span>
+)
+<span class="kw">SELECT</span> r.*, (
+  <span class="kw">SELECT</span> <span class="kw">SUM</span>(
+    (r.nutri_total->>n.nutrient)::<span class="kw">DECIMAL</span> /
+    (<span class="kw">SELECT</span> rni <span class="kw">FROM</span> kdri_rni <span class="kw">WHERE</span> age_band = $<span class="num">2</span> <span class="kw">AND</span> nutrient_code = n.nutrient)
+  )
+  <span class="kw">FROM</span> red_nutrients n
+) <span class="kw">AS</span> boost_score
+<span class="kw">FROM</span> recipes r
+<span class="kw">WHERE</span> r.nutrient_highlights && <span class="kw">ARRAY</span>(<span class="kw">SELECT</span> nutrient <span class="kw">FROM</span> red_nutrients)
+<span class="kw">ORDER BY</span> boost_score <span class="kw">DESC LIMIT</span> <span class="num">80</span>;</pre>
+  </div>
+
+  <div class="algo-card reco">
+    <div class="algo-head"><span class="algo-id">ALG-RECO-05</span><h4>후보 랭킹 (가중합 score)</h4></div>
+    <pre class="code">score = (
+    base_pref_weight * base_preference_score(recipe.base_type, profile.base_stats) +
+    concealment_weight * concealment_score(recipe, challenge_ings) +
+    nutri_weight * nutrient_boost_score(recipe, red_nutrients) +
+    novelty_weight * (<span class="num">1</span> <span class="kw">if</span> recipe <span class="kw">not in</span> recent_30days <span class="kw">else</span> <span class="num">0</span>) +
+    age_fit_weight * age_appropriateness(recipe.age_group, child.age_months)
+)
+<span class="cm"># 기본 가중치 (튜닝 가능)</span>
+DEFAULTS = {<span class="str">'base_pref'</span>:<span class="num">0.3</span>, <span class="str">'concealment'</span>:<span class="num">0.2</span>, <span class="str">'nutri'</span>:<span class="num">0.3</span>, <span class="str">'novelty'</span>:<span class="num">0.1</span>, <span class="str">'age_fit'</span>:<span class="num">0.1</span>}</pre>
+  </div>
+
+  <div class="algo-card reco">
+    <div class="algo-head"><span class="algo-id">ALG-RECO-06</span><h4>Phase 2 — LLM 정제 (Claude Sonnet 4.7)</h4></div>
+    <p>Phase 1 결과 190 후보 → Claude에 전달 → 원칙별 최적 + 자연어 이유 생성.</p>
+    <pre class="code"><span class="kw">def</span> <span class="fn">refine_with_llm</span>(profile, candidates_190):
+    system = <span class="str">"""당신은 만 0-5세 영유아 식습관 데이터를 분석해..."""</span>
+    user = f<span class="str">"""
+## 프로파일
+{profile_to_natural_language(profile)}
+
+## 190 후보 (Phase 1)
+{json.dumps(candidates_190, ensure_ascii=False)}
+
+## 출력 형식 (JSON Schema)
+{
+  "principle_1": [{"recipe_id": "uuid", "reason": "3-4문장 자연어"}, ...],
+  "principle_2": [...], "principle_3": [...], "principle_4": [...]
+}
+"""</span>
+    response = anthropic.messages.create(
+        model=<span class="str">"claude-sonnet-4-7"</span>,
+        max_tokens=<span class="num">4000</span>,
+        system=[{<span class="str">"type"</span>:<span class="str">"text"</span>,<span class="str">"text"</span>:system,<span class="str">"cache_control"</span>:{<span class="str">"type"</span>:<span class="str">"ephemeral"</span>}}],
+        messages=[{<span class="str">"role"</span>:<span class="str">"user"</span>,<span class="str">"content"</span>:user}]
+    )
+    <span class="kw">return</span> parse_and_validate(response.content)</pre>
+    <div class="algo-meta">
+      <div class="algo-meta-item"><div class="lbl">호출 비용</div><div class="val">~₩40/회 (캐시 hit 시 ~₩10)</div></div>
+      <div class="algo-meta-item"><div class="lbl">응답 시간</div><div class="val">3-8초 (스트리밍)</div></div>
+    </div>
+  </div>
+
+  <div class="algo-card reco">
+    <div class="algo-head"><span class="algo-id">ALG-RECO-07</span><h4>캐싱 — profile_hash 기반</h4></div>
+    <pre class="code"><span class="kw">def</span> <span class="fn">compute_profile_hash</span>(profile):
+    <span class="cm"># 변동성 낮은 핵심만 해싱 → 캐시 hit rate ↑</span>
+    key_fields = {
+        <span class="str">'top5_bases'</span>: sorted(top_5(profile.base_stats))[:<span class="num">5</span>],
+        <span class="str">'red_nutrients'</span>: sorted(profile.red_nutrients)[:<span class="num">5</span>],
+        <span class="str">'challenge_ings'</span>: sorted(top_10_challenge(profile))[:<span class="num">10</span>],
+        <span class="str">'age_band'</span>: profile.age_band,
+    }
+    <span class="kw">return</span> sha256(json.dumps(key_fields, sort_keys=<span class="kw">True</span>)).hexdigest()</pre>
+    <div class="algo-meta">
+      <div class="algo-meta-item"><div class="lbl">캐시 hit rate 목표</div><div class="val">≥ 70%</div></div>
+      <div class="algo-meta-item"><div class="lbl">TTL</div><div class="val">24시간</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 5. OCR ENGINE ==================== -->
+<section id="ocr-engine">
+  <span class="section-tag">━ PART 5. OCR ENGINE ━</span>
+  <h2>OCR 엔진 — Claude Vision (6 알고리즘 상세)</h2>
+
+  <h3>5-0. 엔진 아키텍처</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+sequenceDiagram
+  autonumber
+  participant U as 👩 부모
+  participant API as Edge API
+  participant Store as Supabase Storage
+  participant Cache as ocr_cache
+  participant V as Claude Vision
+  participant Eval as 평가 엔진
+  participant DB as daycare_evals
+
+  U->>API: POST /api/ocr-menu (FormData: image)
+  API->>API: ALG-OCR-01 전처리 (회전·압축)
+  API->>API: sha256(image) → hash
+  API->>Cache: SELECT WHERE image_hash=hash
+  alt 캐시 HIT
+    Cache-->>API: extracted JSON
+  else 캐시 MISS
+    API->>Store: 업로드 (24h TTL)
+    Store-->>API: signed URL
+    API->>V: ALG-OCR-02 Vision 호출 + 프롬프트
+    V-->>API: 메뉴·날짜·알레르겐 JSON
+    API->>API: ALG-OCR-03 정규화 (메뉴명→recipe_id)
+    API->>API: ALG-OCR-04 알레르겐 매핑
+    API->>API: ALG-OCR-05 신뢰도 스코어링
+    API->>Cache: INSERT (영구)
+  end
+  API->>Eval: ALG-EVAL-05 7축 평가
+  Eval-->>API: scores + grade
+  API->>DB: INSERT daycare_evals (24h TTL)
+  API-->>U: 평가 결과 카드
+    </div>
+  </div>
+
+  <div class="algo-card ocr">
+    <div class="algo-head"><span class="algo-id">ALG-OCR-01</span><h4>이미지 전처리</h4></div>
+    <ol class="step-list">
+      <li>EXIF orientation 자동 회전</li>
+      <li>해상도 최적화: 긴 변 1600px 이하로 리사이즈 (Vision API 토큰 절감)</li>
+      <li>대비/밝기 자동 보정 (Pillow ImageOps.autocontrast)</li>
+      <li>JPEG quality=85로 재인코딩</li>
+      <li>sha256 해시 생성</li>
+    </ol>
+  </div>
+
+  <div class="algo-card ocr">
+    <div class="algo-head"><span class="algo-id">ALG-OCR-02</span><h4>Claude Vision 프롬프트</h4></div>
+    <pre class="code">VISION_PROMPT = <span class="str">"""
+이 한국 어린이집·유치원·가정 식단표 이미지를 분석하여
+다음 JSON 스키마로 출력해주세요. 부정확한 부분은 confidence&lt;0.7로 표기.
+
+{
+  "year_month": "YYYY-MM",
+  "facility_type_hint": "어린이집|유치원|가정|기타",
+  "days": [
+    {
+      "date": "M/D",
+      "weekday": "월|화|...",
+      "is_event_day": false,
+      "meals": {
+        "오전간식": [{"name":"메뉴", "allergen_numbers":[1,5]}],
+        "점심": [...],
+        "오후간식": [...]
+      }
+    }
+  ],
+  "footer": {
+    "nutritionist": "이름 or null",
+    "allergen_legend": [{"num":1, "name":"난류"}, ...],
+    "origin": {"쌀":"국내산", "쇠고기":"호주산", ...}
+  },
+  "confidence": 0.0-1.0
+}
+
+규칙:
+- 메뉴명에서 알레르겐 번호 ⓞⓘⓢ는 allergen_numbers 배열로 분리
+- 날짜는 YYYY-MM-DD 풀 포맷 X, M/D만
+- 식재료 단순 나열이 아닌 메뉴 단위로 분리 (예: '잡곡밥/된장국/시금치나물' → 3개)
+"""</span></pre>
+  </div>
+
+  <div class="algo-card ocr">
+    <div class="algo-head"><span class="algo-id">ALG-OCR-03</span><h4>메뉴 정규화 (메뉴명 → recipe_id)</h4></div>
+    <ol class="step-list">
+      <li>메뉴명 텍스트 클렌징: 알레르겐 번호·괄호·특수문자 제거</li>
+      <li>recipes.name LIKE 매칭 (fuzzy: trigram similarity)</li>
+      <li>top-3 후보 → similarity ≥ 0.7 이면 매칭 성공</li>
+      <li>매칭 실패 시 LLM에 "이 메뉴는 어떤 base_type·texture? 식재료는?" 추가 호출</li>
+      <li>recipe_id 또는 ad-hoc recipe 생성</li>
+    </ol>
+  </div>
+
+  <div class="algo-card ocr">
+    <div class="algo-head"><span class="algo-id">ALG-OCR-04</span><h4>알레르겐 매핑</h4></div>
+    <ol class="step-list">
+      <li>footer.allergen_legend → 숫자↔이름 매핑 테이블 구축</li>
+      <li>각 메뉴의 allergen_numbers → 한글 알레르겐 변환</li>
+      <li>아이 프로필 allergens와 교집합 → 위험 메뉴 자동 플래그</li>
+      <li>UI: "⚠️ ○○ 메뉴에 우유 포함" 알림</li>
+    </ol>
+  </div>
+
+  <div class="algo-card ocr">
+    <div class="algo-head"><span class="algo-id">ALG-OCR-05</span><h4>신뢰도 스코어링 + 사용자 수정</h4></div>
+    <ol class="step-list">
+      <li>전체 confidence = Vision의 self-report × 매칭 success rate</li>
+      <li>0.85+ : 자동 진행</li>
+      <li>0.7-0.85: 사용자에게 확인 UI ("이 메뉴 맞나요?")</li>
+      <li>0.7-: 수동 입력 모드 전환</li>
+      <li>사용자 수정 사항 → 다음 OCR 학습 데이터로 누적</li>
+    </ol>
+  </div>
+
+  <div class="algo-card ocr">
+    <div class="algo-head"><span class="algo-id">ALG-OCR-06</span><h4>식사 사진 OCR (식단 기록용)</h4></div>
+    <p>daycare-eval과 별도 — 부모가 매일 음식 사진 올릴 때 식재료 자동 추출.</p>
+    <pre class="code">FOOD_VISION_PROMPT = <span class="str">"""
+이 음식 사진을 보고 식재료를 추출하세요.
+하나의 메뉴에 들어간 모든 식재료를 나열 (소스·향신 포함).
+
+{
+  "menu_hint": "추정 메뉴명 (예: '시금치 두부 죽')",
+  "ingredients": [
+    {"name": "시금치", "confidence": 0.95},
+    {"name": "두부", "confidence": 0.92},
+    {"name": "쌀", "confidence": 0.88}
+  ],
+  "cooking_method_hint": "죽|볶음|국|...",
+  "texture_hint": "매시|핑거|...",
+  "overall_confidence": 0.0-1.0
+}
+"""</span></pre>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 편식도감</strong> · 상세 아키텍처 v2 · 2026-05-23</p>
+  <p>관련: <a href="/architecture.html">간략 아키텍처 v1</a> · <a href="/dogam.html">데모 앱</a> · <a href="/daycare-eval.html">식단표 평가</a></p>
+  <p>📊 14 테이블 · 👥 34 유즈케이스 · ⚙️ 18 알고리즘 (평가 5 + 추천 7 + OCR 6)</p>
+</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad:true, theme:'base',
+    themeVariables:{primaryColor:'#FFF8F2',primaryTextColor:'#1F2D3D',primaryBorderColor:'#E89244',lineColor:'#9CA3AF',fontFamily:'Pretendard Variable, sans-serif',fontSize:'12px'},
+    flowchart:{curve:'basis',padding:14},
+    er:{layoutDirection:'LR'}
+  });
+</script>
+
+</body>
+</html>
