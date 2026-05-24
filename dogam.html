@@ -262,6 +262,31 @@
   .blog-post-card .meta{font-size:9px;color:var(--n500);font-weight:700;letter-spacing:0.03em;margin-top:2px;display:flex;justify-content:space-between}
   .blog-post-card .meta .read{color:var(--v700)}
 
+  /* ★ 편지 답장 카드 (메모 기반 개인화) */
+  .letter-card{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:16px;padding:16px;margin-bottom:14px;border:1.5px solid var(--y500);cursor:pointer;position:relative;overflow:hidden}
+  .letter-card::before{content:'✉️';position:absolute;top:-10px;right:14px;font-size:80px;opacity:0.12;transform:rotate(12deg)}
+  .letter-card .lbl{font-size:10.5px;font-weight:800;color:var(--y700);letter-spacing:0.05em;margin-bottom:6px;position:relative}
+  .letter-card .ttl{font-size:14px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:6px;position:relative}
+  .letter-card .preview{font-size:11.5px;color:var(--n700);font-weight:600;line-height:1.6;position:relative;font-style:italic}
+  .letter-card .arrow-row{display:flex;justify-content:flex-end;margin-top:8px;position:relative}
+  .letter-card .arrow-row span{font-size:11px;font-weight:800;color:var(--y700)}
+
+  /* ★ SOS 6단계 모달 카드 */
+  .sos-step{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform 0.15s}
+  .sos-step:hover{transform:translateX(3px);border-color:var(--p500)}
+  .sos-step .step-num{background:var(--p500);color:white;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;letter-spacing:0}
+  .sos-step.done .step-num{background:var(--g500)}
+  .sos-step .body{flex:1;min-width:0}
+  .sos-step .body .nm{font-size:13.5px;font-weight:800;color:var(--s800);line-height:1.3}
+  .sos-step .body .desc{font-size:11px;color:var(--n600);font-weight:600;margin-top:2px;line-height:1.55}
+  .sos-step .ico{font-size:24px;flex-shrink:0}
+
+  /* ★ 거부 대처 핵심 5 카드 */
+  .rejection-tip{background:white;border-radius:10px;padding:11px 14px;margin-bottom:7px;display:flex;align-items:flex-start;gap:11px;border-left:4px solid var(--p500)}
+  .rejection-tip .num{background:var(--p500);color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0;margin-top:1px}
+  .rejection-tip .body strong{font-size:13px;color:var(--s800);display:block;margin-bottom:3px;font-weight:800}
+  .rejection-tip .body .desc{font-size:11.5px;color:var(--n600);font-weight:600;line-height:1.6}
+
   .alert-banner{background:white;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shS);border-left:4px solid var(--b500)}
   .alert-banner .ico{width:36px;height:36px;border-radius:50%;background:var(--b50);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
   .alert-banner .body{flex:1}
@@ -520,6 +545,14 @@
           <div class="home-content">
             <div class="home-title" style="margin-top:4px">현재 지우 영양 점수는 <strong style="color:var(--gradeB)">60점</strong>이에요<br><span style="font-size:12px;color:var(--n500);font-weight:600">(최근 3일 데이터 기준)</span></div>
 
+            <!-- ★ 편지 답장 카드 (어제 메모 기반 개인화) -->
+            <div class="letter-card" onclick="showLetterReply()">
+              <div class="lbl">✉️ 어제 일지에 답장이 도착했어요</div>
+              <div class="ttl">"시금치 거부로 속상하셨겠어요.<br>22번 노출 중 8번 — 정상 단계예요"</div>
+              <div class="preview">"…한 입도 안 먹어서 너무 힘들었어요"라는 어제 메모, 마음에 담아두지 마세요.</div>
+              <div class="arrow-row"><span>전체 답장 읽기 ›</span></div>
+            </div>
+
             <div class="daily-mission" onclick="switchTab(document.querySelector('[data-tab=record]'),'record')">
               <div class="ico">🎯</div>
               <div class="body">
@@ -646,7 +679,7 @@
               </div>
             </div>
 
-            <div class="alert-banner" onclick="showIngDetail('spinach')">
+            <div class="alert-banner" onclick="showSosKit('spinach')">
               <div class="ico">⏰</div>
               <div class="body">
                 <div class="tag">친해지기 키트 추천</div>
@@ -820,16 +853,10 @@
                 <div class="reaction-item r4" onclick="setReaction(this)"><span class="em">🤩</span>또 달라</div>
               </div>
 
-              <!-- 메모 -->
-              <div class="field-label">━ 특이사항 메모 (선택) ━</div>
-              <textarea class="note-box" rows="2" placeholder="예: 시금치 거부했는데 김 가루로 덮으니 잘 먹음"></textarea>
-              <div class="quick-notes">
-                <button class="quick-note">😤 한 입도 안 먹음</button>
-                <button class="quick-note">💧 향만 맡음</button>
-                <button class="quick-note">😋 평소보다 많이</button>
-                <button class="quick-note">🚫 골라냄</button>
-                <button class="quick-note">🤝 친구따라 먹음</button>
-              </div>
+              <!-- ★ 메모 + 동적 질문 (매일 1개씩 다른 질문) -->
+              <div class="field-label"><span id="memoLabel">━ 오늘의 질문 ━</span><span style="font-size:9px;background:var(--v50);color:var(--v700);padding:2px 7px;border-radius:100px;font-weight:800;letter-spacing:0.03em">✨ AI</span></div>
+              <textarea id="memoBox" class="note-box" rows="2" placeholder=""></textarea>
+              <div class="quick-notes" id="quickNotes"></div>
 
               <button style="background:var(--s800);color:white;width:100%;padding:12px;border-radius:10px;font-weight:800;font-size:13px;border:none;cursor:pointer;margin-top:14px">오늘 기록 저장 → +1 🔥</button>
             </div>
@@ -1623,6 +1650,99 @@ function showMealPlan(){
   document.getElementById('modalBg').classList.add('show');
 }
 function setReaction(el){el.parentElement.querySelectorAll('.reaction-item').forEach(r=>r.classList.remove('checked'));el.classList.add('checked')}
+
+// ★ 동적 질문 로테이션 — 매일 1개씩 다른 질문 (UI 증가 0, placeholder만 회전)
+const DAILY_QUESTIONS = [
+  {label:'오늘의 질문 — 거부 반응', placeholder:'어떤 식재료가 가장 싫다고 했어요? (선택)', chips:['😤 한 입도 안 먹음','🚫 골라냄','💧 향만 맡음','🤝 친구 따라 먹음','😋 평소보다 많이']},
+  {label:'오늘의 질문 — 식사 환경', placeholder:'식사할 때 분위기는 어땠어요?', chips:['📺 TV 보며','🗣 가족 대화','🍽 조용히','😢 짜증','😆 신나서']},
+  {label:'오늘의 질문 — 새 식재료', placeholder:'처음 본 식재료에 어떤 반응이었어요?', chips:['👀 호기심','😐 무덤덤','🚫 거부','✨ 흥미 폭발','—']},
+  {label:'오늘의 질문 — 식사 시간', placeholder:'식사 시간이 평소와 어떻게 달랐어요?', chips:['⏱ 빨라짐','🐌 길어짐','😴 졸려서 중단','📞 방해됨','🙂 비슷']},
+  {label:'오늘의 질문 — 함께한 사람', placeholder:'누구와 함께 식사했어요?',chips:['👩 엄마만','👨 아빠만','👨‍👩‍👧 온 가족','👵 조부모','🧑‍🤝‍🧑 친구']},
+  {label:'오늘의 질문 — 자율성', placeholder:'스스로 얼마나 먹었어요?', chips:['🍼 떠먹여줌','🤝 도와줌','🙋 스스로 다','🥄 숟가락 시도','🤏 손으로']},
+  {label:'오늘의 질문 — 좋아한 메뉴', placeholder:'오늘 가장 좋아한 메뉴는?', chips:['👍 또 달라','😋 한 그릇 다','🙂 무난','🙅 거부','—']},
+];
+function applyDailyQuestion(){
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+  const q = DAILY_QUESTIONS[dayOfYear % DAILY_QUESTIONS.length];
+  const lbl = document.getElementById('memoLabel');
+  const box = document.getElementById('memoBox');
+  const notes = document.getElementById('quickNotes');
+  if(!lbl || !box || !notes) return;
+  lbl.textContent = '━ ' + q.label + ' ━';
+  box.placeholder = q.placeholder;
+  notes.innerHTML = q.chips.map(c=>`<button class="quick-note">${c}</button>`).join('');
+}
+applyDailyQuestion();
+
+// ★ SOS 6단계 친해지기 모달 (식재료별 적용)
+const SOS_STEPS = [
+  {ico:'👀', nm:'1. 보기', desc:'식탁 위에 식재료를 두기 — 아이가 눈으로 인지하는 단계 (강요 X)'},
+  {ico:'✋', nm:'2. 만지기', desc:'손가락으로 살짝 만져보기 — 촉각 학습'},
+  {ico:'👃', nm:'3. 냄새 맡기', desc:'코로 향 맡기 — 후각 인지 (식재료 친숙도 ↑)'},
+  {ico:'👅', nm:'4. 핥기', desc:'혀끝으로 살짝 핥기 — 안 삼켜도 OK (맛 학습 시작)'},
+  {ico:'🦷', nm:'5. 씹기', desc:'한 입 씹어보기 — 뱉어도 OK (구강 운동 학습)'},
+  {ico:'🍽', nm:'6. 삼키기', desc:'작은 한 입 실제 먹기 — 12~30회 반복하면 자연 수용'},
+];
+function showSosKit(ingredientId){
+  const ing = INGREDIENTS.find(i=>i.id===ingredientId) || {nm:'시금치', em:'🥬', exposure:22, eatCount:8};
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--v50)">🎯</div>
+      <div class="modal-info"><h3>${ing.em} ${ing.nm} 친해지기 SOS 6단계</h3><div class="sub">Toomey SOS Approach · 노출 ${ing.exposure}회 / 먹은 ${ing.eatCount}회</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:11.5px;color:var(--v700);font-weight:700;line-height:1.6">
+      <strong style="color:var(--s800)">강요는 거부를 강화합니다.</strong> 1단계부터 천천히 — 한 번에 1단계만 해도 충분해요. 일주일에 1-2 단계 진행 권장.
+    </div>
+    ${SOS_STEPS.map((s,i)=>`
+      <div class="sos-step ${i<2?'done':''}">
+        <div class="step-num">${i+1}</div>
+        <div class="ico">${s.ico}</div>
+        <div class="body">
+          <div class="nm">${s.nm}</div>
+          <div class="desc">${s.desc}</div>
+        </div>
+      </div>
+    `).join('')}
+    <div style="background:var(--y50);border:1px solid #FFE082;border-radius:10px;padding:11px 13px;margin-top:12px">
+      <div style="font-size:11px;font-weight:800;color:var(--y700);letter-spacing:0.04em;margin-bottom:5px">━ ⚠ 거부할 때 즉시 행동 5가지 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.7;font-weight:600">
+        <strong>1.</strong> 5초만 기다리기 (다시 권하지 X) ·
+        <strong>2.</strong> 표정·말로 반응 X (Satter DOR) ·
+        <strong>3.</strong> 부모가 맛있게 먹는 모습 보여주기 ·
+        <strong>4.</strong> 다음 끼니에 다시 (포기 X) ·
+        <strong>5.</strong> 12-30회 반복 노출 (Cooke & Birch 연구)
+      </div>
+    </div>
+    <button class="modal-cta" onclick="closeModal()" style="margin-top:14px">📦 친해지기 키트 받기 (₩50,000)</button>
+    <button class="modal-cta" onclick="closeModal()" style="background:var(--p500);margin-top:6px">🍳 가정에서 시도할 레시피 보기</button>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
+
+// ★ 편지 답장 모달 — 어제 메모 기반 개인화 답장
+function showLetterReply(){
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--y50)">✉️</div>
+      <div class="modal-info"><h3>어제 일지에 답장</h3><div class="sub">5/23 (금) · 우리가 어제 데이터 보고 한 마디</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--y500)">
+      <div style="font-size:10.5px;color:var(--y700);font-weight:800;letter-spacing:0.04em;margin-bottom:8px">━ 지우 엄마, ━</div>
+      <div style="font-size:13px;color:var(--n700);font-weight:600;line-height:1.85">
+        어제 메모에 <strong style="color:var(--s800)">"시금치 거부했는데 한 입도 안 먹어서 너무 힘들었어요"</strong>라고 남기셨죠. 그 마음이 정말 와닿아요.<br><br>
+        그런데 데이터를 보니 <strong style="color:var(--s800)">시금치는 22번 노출했고 8번 먹었어요</strong>. 학술 연구(Cooke 2011)에서 평균 <strong>12-30번 노출 후 수용</strong>이라고 합니다. <strong>지금 거부 단계는 정상</strong>이에요.<br><br>
+        대신 이번 주는 <strong>시금치 즙을 좋아하는 계란찜에 한 방울</strong>만 시도해보세요. 색·향 거의 안 보입니다.<br><br>
+        그리고 가지는 <strong>1년 9개월째 못 만난 식재료</strong>예요 — 시금치 시도 다음 주에 가지 친해지기도 천천히 시작하면 좋겠어요.
+      </div>
+    </div>
+    <button class="modal-cta" onclick="closeModal();showSosKit('spinach')">🎯 시금치 친해지기 6단계 시작 →</button>
+    <button class="modal-cta" onclick="closeModal();switchTab(document.querySelector('[data-tab=recipe]'),'recipe')" style="background:var(--p500);margin-top:6px">🍳 시금치 즙 계란찜 레시피 보기</button>
+    <div style="font-size:10px;color:var(--n400);text-align:center;margin-top:12px;line-height:1.6">매일 기록하시는 메모가 다음 답장의 재료가 됩니다 ✨</div>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
 </script>
 
 </body>
