@@ -614,6 +614,255 @@ flowchart TD
 }</pre>
 </section>
 
+<!-- ==================== 9. 제철 식재료 기준 ==================== -->
+<section id="seasonal">
+  <span class="stag">━ SEASONAL FOODS ━</span>
+  <h2>9. 제철 식재료 기준 (한국 12개월)</h2>
+  <p>제철 식재료 = 영양가 ↑ · 가격 ↓ · 농약 ↓ · 환경 ↓. <strong>농진청 + 해양수산부 권고 기반</strong> 12개월 마스터.</p>
+
+  <h3>9-1. 한국 12개월 제철 식재료 마스터</h3>
+  <table>
+    <tr><th width="6%">월</th><th width="40%">제철 채소·과일</th><th width="34%">제철 수산물</th><th width="20%">하이라이트</th></tr>
+    <tr><td><strong>1월</strong></td><td>시금치·당근·우엉·연근·미나리·콩나물·배추·무·귤·딸기</td><td>굴·새조개·아귀·꽃게·과메기</td><td>겨울 시금치·굴</td></tr>
+    <tr><td><strong>2월</strong></td><td>시금치·미나리·달래·냉이·연근·딸기·한라봉</td><td>굴·미더덕·황태·과메기·꼬막</td><td>겨울 끝물 + 봄나물 시작</td></tr>
+    <tr><td><strong>3월</strong></td><td>봄나물(달래·냉이·쑥·취나물)·시금치·딸기·앵두</td><td>주꾸미·꼬막·도다리·바지락·소라</td><td>봄나물 본격</td></tr>
+    <tr><td><strong>4월</strong></td><td>봄나물·근대·아욱·상추·딸기·앵두·미나리</td><td>주꾸미·도다리·꼬막·소라·바지락</td><td>잎채소 다양</td></tr>
+    <tr><td><strong>5월</strong></td><td><strong>죽순·아스파라거스·근대·완두콩·딸기·체리·매실</strong></td><td>멸치·갑오징어·새우·해삼·다슬기</td><td>죽순·새우 최성기 🌟</td></tr>
+    <tr><td><strong>6월</strong></td><td>매실·복숭아·살구·자두·블루베리·옥수수·오이·가지·호박</td><td>농어·갈치·전복·붕장어</td><td>여름 시작</td></tr>
+    <tr><td><strong>7월</strong></td><td>옥수수·오이·가지·애호박·복숭아·자두·수박·참외</td><td>민어·갈치·장어·전복</td><td>여름 채소 절정</td></tr>
+    <tr><td><strong>8월</strong></td><td>옥수수·가지·오이·토마토·수박·참외·복숭아·자두·포도</td><td>전복·장어·갈치·민어</td><td>과일 풍성</td></tr>
+    <tr><td><strong>9월</strong></td><td>가지·고구마·호박·사과·배·포도·대추·밤</td><td><strong>전어·꽃게</strong>·갈치·고등어·새우</td><td>전어·꽃게 절정 🍂</td></tr>
+    <tr><td><strong>10월</strong></td><td>고구마·단호박·무·당근·시금치·사과·배·홍시·석류</td><td>꽃게·고등어·전어·삼치·갈치</td><td>가을 영양 풍부</td></tr>
+    <tr><td><strong>11월</strong></td><td>시금치·무·배추·생강·연근·우엉·당근·귤·사과·배</td><td>고등어·갈치·삼치·전어·과메기</td><td>김장 채소</td></tr>
+    <tr><td><strong>12월</strong></td><td>시금치·무·배추·당근·우엉·연근·미나리·귤·사과</td><td>굴·꼬막·과메기·아귀·복어</td><td>겨울 영양 회복</td></tr>
+  </table>
+
+  <h3>9-2. 평가 알고리즘 — 제철 비율 점수</h3>
+  <pre class="code"><span class="kw">const</span> <span class="ty">SEASONAL_TABLE</span>: <span class="ty">Record</span>&lt;<span class="ty">number</span>, <span class="ty">string</span>[]&gt; = {
+  <span class="num">1</span>: [<span class="str">'시금치'</span>, <span class="str">'당근'</span>, <span class="str">'우엉'</span>, <span class="str">'연근'</span>, <span class="str">'굴'</span>, <span class="str">'꽃게'</span>, ...],
+  <span class="num">2</span>: [...], ...
+};
+
+<span class="kw">function</span> <span class="fn">seasonalScore</span>(logs: <span class="ty">MealLog</span>[], currentMonth: <span class="ty">number</span>): <span class="ty">SeasonalResult</span> {
+  <span class="kw">const</span> seasonalIngs = <span class="kw">new</span> <span class="ty">Set</span>(<span class="ty">SEASONAL_TABLE</span>[currentMonth]);
+  <span class="kw">const</span> allUsed = logs.<span class="fn">flatMap</span>(l =&gt; l.ingredients.<span class="fn">map</span>(i =&gt; i.name));
+  <span class="kw">const</span> uniqueUsed = <span class="kw">new</span> <span class="ty">Set</span>(allUsed);
+  <span class="kw">const</span> seasonalUsed = [...uniqueUsed].<span class="fn">filter</span>(i =&gt; seasonalIngs.<span class="fn">has</span>(i));
+  <span class="kw">const</span> ratio = seasonalUsed.length / uniqueUsed.size;
+  <span class="kw">return</span> {
+    pct: ratio * <span class="num">100</span>,
+    seasonalCount: seasonalUsed.length,
+    totalUnique: uniqueUsed.size,
+    matched: seasonalUsed,
+    missing: [...seasonalIngs].<span class="fn">filter</span>(i =&gt; !uniqueUsed.<span class="fn">has</span>(i)).<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">5</span>),
+    status: ratio &gt;= <span class="num">0.30</span> ? <span class="str">'green'</span> : ratio &gt;= <span class="num">0.15</span> ? <span class="str">'orange'</span> : <span class="str">'red'</span>,
+    recommendation: <span class="fn">buildSeasonalRecommendation</span>(seasonalUsed, currentMonth)
+  };
+}</pre>
+
+  <h3>9-3. 임계치</h3>
+  <table>
+    <tr><th>제철 비율</th><th>등급</th><th>narrative</th></tr>
+    <tr><td>≥ 30%</td><td>🟢 green</td><td>"제철 식재료 잘 챙기고 있어요"</td></tr>
+    <tr><td>15-30%</td><td>🟠 orange</td><td>"이번 달 죽순·새우 같은 제철 식재료 1-2종 추가 권장"</td></tr>
+    <tr><td>&lt; 15%</td><td>🔴 red</td><td>"제철 식재료 거의 없음 — 가격·영양·환경 모두 ↓"</td></tr>
+  </table>
+
+  <h3>9-4. 레시피 추천 가산점</h3>
+  <pre class="code"><span class="cm">// 4 원칙 final_score에 0.05 가산</span>
+final_score += seasonal_bonus(recipe, current_month);
+
+<span class="kw">function</span> <span class="fn">seasonalBonus</span>(recipe, currentMonth) {
+  <span class="kw">const</span> seasonalIngs = <span class="ty">SEASONAL_TABLE</span>[currentMonth];
+  <span class="kw">const</span> recipeIngs = recipe.ingredients.<span class="fn">map</span>(i =&gt; i.name);
+  <span class="kw">const</span> matchCount = recipeIngs.<span class="fn">filter</span>(i =&gt; seasonalIngs.<span class="fn">includes</span>(i)).length;
+  <span class="kw">return</span> matchCount &gt;= <span class="num">2</span> ? <span class="num">0.05</span> : matchCount === <span class="num">1</span> ? <span class="num">0.03</span> : <span class="num">0</span>;
+}</pre>
+
+  <h3>9-5. 데모 적용</h3>
+  <ul>
+    <li><strong>홈 진단 카드</strong>에 8번째 축 "제철" 추가 (현재 7축 → 8축)</li>
+    <li><strong>도감 식재료 클릭</strong> 시 "🌸 지금 제철 (5월)" 뱃지</li>
+    <li><strong>레시피 카드</strong>에 "🌸 제철 보너스" 라벨</li>
+    <li><strong>식단표 평가 7축</strong> 中 "계절성·국산"이 이미 있음 — 정밀화</li>
+  </ul>
+</section>
+
+<!-- ==================== 10. 조리 스타일 다양성 ==================== -->
+<section id="cuisine">
+  <span class="stag">━ CUISINE DIVERSITY ━</span>
+  <h2>10. 조리 스타일 다양성 (한식 외 다채로움)</h2>
+  <p>14 sub-카테고리는 식재료 단위. 그러나 <strong>매번 한식만</strong>이면 식습관 폭이 좁아짐. HabEat·EU 코호트 연구는 cuisine variety가 식습관 형성에 결정적이라고 보고.</p>
+
+  <h3>10-1. 6 cuisine 카테고리 (제안)</h3>
+  <table>
+    <tr><th>#</th><th>Cuisine</th><th>대표 메뉴</th><th>핵심 영양</th></tr>
+    <tr><td>1</td><td><strong>한식</strong> (기본)</td><td>밥·국·찌개·반찬·김치·전·찜·무침</td><td>발효식품·미네랄·식이섬유</td></tr>
+    <tr><td>2</td><td><strong>양식</strong></td><td>파스타·스튜·샐러드·오믈렛·리조또·수프</td><td>유제품·올리브유·치즈</td></tr>
+    <tr><td>3</td><td><strong>중식</strong></td><td>볶음밥·짜장·만두·딤섬·당면·동파육</td><td>다양한 채소·콩·견과</td></tr>
+    <tr><td>4</td><td><strong>일식</strong></td><td>덮밥·우동·소바·돈가스·계란말이·미소국</td><td>해산물·다시·간단 조리</td></tr>
+    <tr><td>5</td><td><strong>동남아·아시아</strong></td><td>쌀국수·카레·팟타이·나시고렝·반미</td><td>향신료·코코넛·향초</td></tr>
+    <tr><td>6</td><td><strong>지중해·중동</strong></td><td>후무스·팔라펠·쿠스쿠스·타불레</td><td>올리브유·통곡물·콩</td></tr>
+  </table>
+
+  <h3>10-2. 평가 알고리즘</h3>
+  <pre class="code"><span class="kw">function</span> <span class="fn">cuisineDiversity</span>(logs: <span class="ty">MealLog</span>[]): <span class="ty">CuisineResult</span> {
+  <span class="kw">const</span> cuisineUsed = <span class="kw">new</span> <span class="ty">Set</span>&lt;<span class="ty">CuisineType</span>&gt;();
+  <span class="kw">for</span> (<span class="kw">const</span> log <span class="kw">of</span> logs) {
+    <span class="kw">const</span> cuisine = <span class="fn">classifyCuisine</span>(log.recipe);  <span class="cm">// LLM enrich</span>
+    cuisineUsed.<span class="fn">add</span>(cuisine);
+  }
+  <span class="kw">const</span> uniqueCount = cuisineUsed.size;
+  <span class="kw">return</span> {
+    uniqueCount,
+    distribution: <span class="fn">countBy</span>(logs.<span class="fn">map</span>(l =&gt; l.recipe.cuisine)),
+    status: uniqueCount &gt;= <span class="num">3</span> ? <span class="str">'green'</span> : uniqueCount &gt;= <span class="num">2</span> ? <span class="str">'orange'</span> : <span class="str">'red'</span>,
+    recommendation: uniqueCount &lt; <span class="num">2</span> ? <span class="str">'매번 한식만 — 양식·일식 메뉴 1-2회 시도'</span> : <span class="str">null</span>
+  };
+}</pre>
+
+  <h3>10-3. 임계치 (주간 기준)</h3>
+  <table>
+    <tr><th>주간 cuisine 수</th><th>등급</th><th>narrative</th></tr>
+    <tr><td>3종+</td><td>🟢 green</td><td>"조리 스타일 다양 — 식습관 폭 ↑"</td></tr>
+    <tr><td>2종</td><td>🟠 orange</td><td>"1종 더 시도 권장 (양식 파스타·일식 덮밥 등)"</td></tr>
+    <tr><td>1종 (한식 only)</td><td>🔴 red</td><td>"매번 한식 — 양식·중식·일식 한 끼씩 도전"</td></tr>
+  </table>
+
+  <h3>10-4. 데모 적용</h3>
+  <ul>
+    <li><strong>7축 → 8축 또는 9축 진단</strong>에 "조리 스타일" 추가</li>
+    <li><strong>레시피 탭</strong>에 cuisine 필터 (한식·양식·중식·일식·동남아)</li>
+    <li><strong>도감</strong>에 "이번 주 cuisine: 한식 6 / 양식 1" 시각화</li>
+  </ul>
+</section>
+
+<!-- ==================== 11. LLM 입력 전처리 ==================== -->
+<section id="preprocess">
+  <span class="stag">━ INPUT PREPROCESSING ━</span>
+  <h2>11. LLM 입력 전처리 (자연어·사진 → DB 매칭)</h2>
+  <p>엄마들은 <strong>비결정적 입력</strong> (사진·자연어 메모·퀵노트)을 사용. 우리는 LLM으로 <strong>정확하게 매칭</strong>해야 영양 평가가 정확해짐.</p>
+
+  <h3>11-1. 입력 유형 4가지</h3>
+  <table>
+    <tr><th>입력</th><th>예시</th><th>매칭 대상</th></tr>
+    <tr><td>📸 사진</td><td>음식 사진 1장</td><td>ingredients 마스터 1,070종</td></tr>
+    <tr><td>🏷 해시태그</td><td>"시금치", "당근", "ㅂㄹㅋㄹ"</td><td>INGREDIENT_POOL 147종 (정확)</td></tr>
+    <tr><td>📝 자연어 메모</td><td>"시금치 거부했는데 김 가루로 덮으니 잘 먹음"</td><td>식재료(시금치·김) + 반응(거부→잘먹음) 추출</td></tr>
+    <tr><td>🔘 퀵노트 chip</td><td>"한 입도 안 먹음", "친구따라 먹음"</td><td>CEBQ 코드·동적 질문 차원 매핑</td></tr>
+  </table>
+
+  <h3>11-2. ALG-PREP-01 — 사진 → 식재료 추출</h3>
+  <p>이미 ALG-OCR-06 (engines-deep)에 명세. 신뢰도 ≥ 0.7만 자동 채택 + 사용자 수정 UI.</p>
+
+  <h3>11-3. ALG-PREP-02 — 자연어 메모 → 구조화 데이터 (NEW)</h3>
+  <pre class="code"><span class="kw">const</span> <span class="ty">MEMO_EXTRACT_PROMPT</span> = <span class="str">`엄마가 자유 텍스트로 쓴 식사 메모에서 다음을 추출하세요.
+
+# 입력 예시
+"시금치 거부했는데 김 가루로 덮으니 잘 먹음. 오늘 아침에는 안 먹다가 점심에는 또 달라고 했어요."
+
+# 출력 JSON
+{
+  "ingredients_mentioned": [
+    {"name": "시금치", "reaction": "rejected", "context": "초기 거부"},
+    {"name": "김", "reaction": "well_eaten", "context": "위장 식재료로 활용"}
+  ],
+  "behaviors": [
+    {"type": "rejection", "context": "초기"},
+    {"type": "conceal_success", "context": "다른 식재료로 가림"},
+    {"type": "time_difference", "details": "아침 vs 점심 다른 반응"}
+  ],
+  "parent_emotion": "neutral_with_relief",  // 안도·기쁨·좌절·중립
+  "cebq_signals": ["food_responsiveness", "food_fussiness_partial"]
+}\`</span>;
+
+<span class="kw">async function</span> <span class="fn">extractFromMemo</span>(memo: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">MemoExtraction</span>&gt; {
+  <span class="kw">if</span> (memo.length &lt; <span class="num">5</span>) <span class="kw">return</span> <span class="kw">null</span>;
+  <span class="kw">const</span> response = <span class="kw">await</span> anthropic.messages.<span class="fn">create</span>({
+    model: <span class="str">'claude-haiku-4-5'</span>,  <span class="cm">// 분류 작업이라 Haiku로 충분</span>
+    max_tokens: <span class="num">800</span>,
+    messages: [{ role: <span class="str">'user'</span>, content: <span class="ty">MEMO_EXTRACT_PROMPT</span> + <span class="str">'\n\n# 입력\n'</span> + memo }],
+  });
+  <span class="kw">const</span> extracted = <span class="fn">parseJSON</span>(response.content[<span class="num">0</span>].text);
+  <span class="cm">// 매칭 검증: ingredients_mentioned가 INGREDIENT_POOL에 있는지</span>
+  <span class="kw">for</span> (<span class="kw">const</span> ing <span class="kw">of</span> extracted.ingredients_mentioned) {
+    ing.matched_id = <span class="kw">await</span> <span class="fn">fuzzyMatchIngredient</span>(ing.name);
+  }
+  <span class="kw">return</span> extracted;
+}</pre>
+
+  <h3>11-4. ALG-PREP-03 — 해시태그 정규화 (이미 구현)</h3>
+  <pre class="code"><span class="cm">// 한글 초성 추출 + fuzzy match (dogam.html 이미 구현)</span>
+<span class="kw">function</span> <span class="fn">normalizeIngredientInput</span>(raw: <span class="ty">string</span>): <span class="ty">string</span> | <span class="ty">null</span> {
+  <span class="kw">const</span> trimmed = raw.<span class="fn">trim</span>().<span class="fn">toLowerCase</span>();
+  <span class="cm">// 1. 정확 매칭</span>
+  <span class="kw">const</span> exact = <span class="ty">INGREDIENT_POOL</span>.<span class="fn">find</span>(i =&gt; i.name === trimmed);
+  <span class="kw">if</span> (exact) <span class="kw">return</span> exact.id;
+  <span class="cm">// 2. 초성 매칭 (ㅂㄹㅋㄹ → 브로콜리)</span>
+  <span class="kw">if</span> (/^[ㄱ-ㅎ]+$/.<span class="fn">test</span>(trimmed)) {
+    <span class="kw">return</span> <span class="ty">INGREDIENT_POOL</span>.<span class="fn">find</span>(i =&gt; <span class="fn">getChosung</span>(i.name).<span class="fn">startsWith</span>(trimmed))?.id;
+  }
+  <span class="cm">// 3. 부분 매칭</span>
+  <span class="kw">return</span> <span class="ty">INGREDIENT_POOL</span>.<span class="fn">find</span>(i =&gt; i.name.<span class="fn">startsWith</span>(trimmed))?.id;
+}</pre>
+
+  <h3>11-5. ALG-PREP-04 — 퀵노트 chip → CEBQ 매핑 (NEW)</h3>
+  <pre class="code"><span class="kw">const</span> <span class="ty">QUICK_NOTE_TO_CEBQ</span>: <span class="ty">Record</span>&lt;<span class="ty">string</span>, <span class="ty">CEBQDimension</span>[]&gt; = {
+  <span class="str">'한 입도 안 먹음'</span>: [<span class="str">'food_fussiness'</span>, <span class="str">'satiety_responsiveness'</span>],
+  <span class="str">'골라냄'</span>: [<span class="str">'food_fussiness'</span>],
+  <span class="str">'향만 맡음'</span>: [<span class="str">'food_fussiness_early_stage'</span>],
+  <span class="str">'평소보다 많이'</span>: [<span class="str">'food_responsiveness'</span>, <span class="str">'enjoyment_of_food'</span>],
+  <span class="str">'또 달라'</span>: [<span class="str">'food_responsiveness'</span>],
+  <span class="str">'친구 따라 먹음'</span>: [<span class="str">'social_facilitation'</span>],
+  <span class="str">'TV 보며'</span>: [<span class="str">'environment_distraction'</span>],
+  <span class="str">'스스로 다'</span>: [<span class="str">'autonomy_high'</span>],
+  ...
+};
+
+<span class="kw">function</span> <span class="fn">mapQuickNoteToCEBQ</span>(quickNote: <span class="ty">string</span>): <span class="ty">CEBQDimension</span>[] {
+  <span class="kw">return</span> <span class="ty">QUICK_NOTE_TO_CEBQ</span>[quickNote] || [];
+}</pre>
+
+  <h3>11-6. 전체 전처리 파이프라인</h3>
+  <pre class="code"><span class="kw">async function</span> <span class="fn">preprocessMealInput</span>(input: <span class="ty">RawMealInput</span>): <span class="ty">Promise</span>&lt;<span class="ty">StructuredMealLog</span>&gt; {
+  <span class="kw">const</span> log: <span class="ty">StructuredMealLog</span> = { ...input };
+
+  <span class="cm">// 1. 사진 → 식재료 추출 (있으면)</span>
+  <span class="kw">if</span> (input.photo) {
+    <span class="kw">const</span> photoIngs = <span class="kw">await</span> <span class="fn">extractFromPhoto</span>(input.photo);  <span class="cm">// ALG-PREP-01</span>
+    log.ingredients = [...(log.ingredients || []), ...photoIngs];
+  }
+
+  <span class="cm">// 2. 해시태그 정규화 (이미 입력 시 매칭됨)</span>
+  log.ingredients = log.ingredients.<span class="fn">map</span>(<span class="fn">normalizeIngredientInput</span>);
+
+  <span class="cm">// 3. 자연어 메모 분석 (있으면)</span>
+  <span class="kw">if</span> (input.note &amp;&amp; input.note.length &gt; <span class="num">10</span>) {
+    <span class="kw">const</span> memoData = <span class="kw">await</span> <span class="fn">extractFromMemo</span>(input.note);  <span class="cm">// ALG-PREP-02</span>
+    log.memo_extraction = memoData;
+    <span class="cm">// 메모에서 추가 발견된 식재료 병합 (중복 제외)</span>
+    log.ingredients = <span class="fn">dedup</span>([...log.ingredients, ...memoData.ingredients_mentioned.<span class="fn">map</span>(i =&gt; i.matched_id)]);
+  }
+
+  <span class="cm">// 4. 퀵노트 → CEBQ 매핑</span>
+  log.cebq_signals = (input.quickNotes || []).<span class="fn">flatMap</span>(<span class="fn">mapQuickNoteToCEBQ</span>);
+
+  <span class="cm">// 5. 신뢰도 메타</span>
+  log.preprocessing_confidence = <span class="fn">computeOverallConfidence</span>(log);
+  log.requires_user_confirm = log.preprocessing_confidence &lt; <span class="num">0.75</span>;
+
+  <span class="kw">return</span> log;
+}</pre>
+
+  <h3>11-7. 사용자 수정 인터페이스</h3>
+  <p>신뢰도 &lt; 0.75일 경우 부모에게 확인 받음:</p>
+  <ul>
+    <li>"AI가 인식한 식재료가 맞나요?" — 5개 중 수정·삭제·추가 가능</li>
+    <li>"메모에서 '시금치 거부'로 이해했어요 — 맞나요?" — Y/N</li>
+    <li>수정 시 ML 학습 데이터로 누적 (다음 OCR 정확도 ↑)</li>
+  </ul>
+</section>
+
 <!-- ==================== 8. 학술 출처 풀 리스트 ==================== -->
 <section id="refs">
   <span class="stag">━ ACADEMIC REFERENCES ━</span>
