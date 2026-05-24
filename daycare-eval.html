@@ -103,6 +103,29 @@
   .insight-box strong{color:var(--s800)}
 
   /* 법적 안전 박스 */
+  /* ★ 실제 평가 사례 비교 */
+  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+  @media(max-width:600px){.compare-grid{grid-template-columns:1fr}}
+  .compare-card{background:white;border:1.5px solid var(--n200);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+  .compare-card .img-wrap{aspect-ratio:4/3;background:var(--n50);overflow:hidden;position:relative}
+  .compare-card .img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+  .compare-card .grade-overlay{position:absolute;top:10px;right:10px;background:var(--gradeA);color:white;font-weight:800;font-size:14px;padding:5px 12px;border-radius:100px;letter-spacing:0.04em;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+  .compare-card .grade-overlay.gradeS{background:var(--gradeS)}
+  .compare-card .grade-overlay.gradeB{background:var(--gradeB)}
+  .compare-card .body{padding:12px 14px}
+  .compare-card .ttl{font-size:13px;font-weight:800;color:var(--s800);margin-bottom:3px}
+  .compare-card .meta{font-size:10.5px;color:var(--n500);font-weight:600}
+  .compare-card .score-big{font-size:32px;font-weight:800;color:var(--s800);letter-spacing:-0.03em;line-height:1;margin-top:6px}
+  .compare-card .score-big small{font-size:14px;color:var(--n500);font-weight:700}
+  .compare-table{width:100%;font-size:12px;margin-top:10px;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200)}
+  .compare-table th{background:var(--n50);color:var(--s800);padding:8px 10px;text-align:center;font-size:11px;font-weight:800}
+  .compare-table td{padding:7px 10px;border-bottom:1px solid var(--n100);text-align:center}
+  .compare-table tr:last-child td{border-bottom:none}
+  .compare-table td.l{text-align:left;font-weight:700;color:var(--s800);background:var(--n50);font-size:11.5px}
+  .compare-table td.same{color:var(--g700);font-weight:700}
+  .compare-table td.diff-down{color:var(--r700);font-weight:800}
+  .compare-table tr.total td{background:#FFF8F2;font-weight:800;font-size:13px}
+
   .safety-card{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border:1.5px solid var(--b500);border-radius:14px;padding:18px;margin-top:20px}
   .safety-card h3{font-size:14px;font-weight:800;color:var(--b700);margin-bottom:10px;display:flex;align-items:center;gap:6px}
   .safety-list{display:flex;flex-direction:column;gap:6px}
@@ -263,6 +286,57 @@
   </div>
 </section>
 
+<!-- ★ 실제 평가 사례 비교 (2 식단표) -->
+<section>
+  <span class="section-tag">━ 실제 평가 사례 ━</span>
+  <h2>같은 7축 알고리즘<br>다른 식단, 다른 등급</h2>
+  <p class="section-sub">실제 어린이집·유치원 식단표 두 곳을 평가해본 결과 (이름 비공개). 같은 기준으로 자동 분석합니다.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card">
+      <div class="img-wrap">
+        <img src="/samples/menu-sample-1.jpg" alt="식단표 샘플 1" loading="lazy">
+        <span class="grade-overlay gradeS">A+</span>
+      </div>
+      <div class="body">
+        <div class="ttl">사례 ①</div>
+        <div class="meta">4월 한 달 · 만 3-5세</div>
+        <div class="score-big">93<small>점</small></div>
+      </div>
+    </div>
+    <div class="compare-card">
+      <div class="img-wrap">
+        <img src="/samples/menu-sample-2.jpg" alt="식단표 샘플 2" loading="lazy">
+        <span class="grade-overlay">A</span>
+      </div>
+      <div class="body">
+        <div class="ttl">사례 ②</div>
+        <div class="meta">5월 한 달 · 만 3-5세</div>
+        <div class="score-big">91<small>점</small></div>
+      </div>
+    </div>
+  </div>
+
+  <table class="compare-table">
+    <tr><th style="text-align:left">7축 평가</th><th>사례 ① (A+)</th><th>사례 ② (A)</th></tr>
+    <tr><td class="l">식품군 다양성</td><td class="same">100 (8/8)</td><td class="same">100 (8/8)</td></tr>
+    <tr><td class="l">식감 단계</td><td class="same">90 (A)</td><td class="same">90 (A)</td></tr>
+    <tr><td class="l">KDRI 36종</td><td class="same">90 (A)</td><td class="same">90 (A)</td></tr>
+    <tr><td class="l">메뉴 반복도</td><td class="same">95 (A+)</td><td class="same">95 (A+)</td></tr>
+    <tr><td class="l">알레르겐 표시</td><td class="same">100 (A+)</td><td class="same">100 (A+)</td></tr>
+    <tr><td class="l">가공식품 비율 ⚠️</td><td class="same">78 (27%)</td><td class="diff-down">70 (45%)</td></tr>
+    <tr><td class="l">계절·국산</td><td class="same">95 (A+)</td><td class="diff-down">90 (A)</td></tr>
+    <tr class="total"><td class="l">총점</td><td>93점 (A+)</td><td>91점 (A)</td></tr>
+  </table>
+
+  <div style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:12px;padding:14px;margin-top:14px;border-left:4px solid var(--y500)">
+    <div style="font-size:11px;font-weight:800;color:var(--y700);letter-spacing:0.04em;margin-bottom:6px">━ 💡 두 사례 비교 인사이트 ━</div>
+    <div style="font-size:12.5px;color:var(--n700);line-height:1.7;font-weight:600">
+      두 식단 모두 한국 평균(72점)을 훨씬 웃돕니다. 차이는 단 <strong style="color:var(--s800)">2가지 — 가공식품 비율과 계절성</strong>이에요. 사례 ①은 저염 조리·자연식 비중이 높고, 사례 ②는 잡곡 종류(9가지+)와 메뉴 다양성이 더 풍부해요. <strong style="color:var(--s800)">어느 식단이든 우리 아이가 다니는 곳의 갭을 정확히 짚어드립니다.</strong>
+    </div>
+  </div>
+</section>
+
 <!-- 법적 안전 -->
 <section>
   <span class="section-tag">━ 안심하셔도 됩니다 ━</span>
@@ -387,12 +461,20 @@
       <div class="insight-row"><span class="em">🥕</span>핑거푸드 → 당근·고구마 스틱</div>
     </div>
 
-    <div style="background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border-radius:14px;padding:14px;margin-top:18px;border:1.5px solid var(--p300)">
-      <div style="font-size:11px;font-weight:800;color:var(--p700);letter-spacing:0.04em;margin-bottom:4px">━ 🎁 무료 혜택 ━</div>
-      <div style="font-size:14px;font-weight:800;color:var(--s800);line-height:1.3;margin-bottom:4px">부족한 영양소를<br>집에서 채우는 레시피</div>
-      <div style="font-size:11px;color:var(--n600);font-weight:600;line-height:1.5">콜린·비타민D·EPA+DHA를 잘 먹는 메뉴로 — 우리 아이 식습관 맞춤</div>
+    <!-- ★ 5문장 자연어 요약 (영양사 톤) -->
+    <div style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:18px;border:1.5px solid var(--b500)">
+      <div style="font-size:11px;font-weight:800;color:var(--b700);letter-spacing:0.04em;margin-bottom:8px">━ 👩‍⚕️ 우리 영양사가 한 줄로 말한다면 ━</div>
+      <div style="font-size:13px;color:var(--n700);font-weight:600;line-height:1.75">
+        <strong style="color:var(--s800)">이 식단은 한국 평균(72점) 대비 +6점, 상위 25% 수준이에요.</strong> 잘 짜인 식단이라 큰 보충은 필요 없지만, <strong>비타민 D를 위해 햇볕 산책 15분과 달걀 노른자 매일</strong> 챙기시면 좋아요. <strong>콜린은 어린이집에서 부족할 수 있으니</strong> 노른자죽이나 두부찜으로 보강해주세요. <strong>등푸른 생선(연어·고등어)을 주 2회</strong> 가정에서 추가하면 KDRI 만점에 가깝습니다. 어린이집이 죽 비중이 높으니 <strong>가정에서는 핑거푸드(당근 스틱·고구마 큐브)로 식감 단계도 천천히 올려보세요</strong>.
+      </div>
     </div>
-    <button class="recipe-cta" onclick="goHomeMealPlan()">🍳 부족한 영양 채우는 레시피 얻기 →</button>
+
+    <div style="background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border-radius:14px;padding:14px;margin-top:14px;border:1.5px solid var(--p300)">
+      <div style="font-size:11px;font-weight:800;color:var(--p700);letter-spacing:0.04em;margin-bottom:4px">━ 🎁 무료 혜택 ━</div>
+      <div style="font-size:14px;font-weight:800;color:var(--s800);line-height:1.3;margin-bottom:4px">우리 아이 식습관·신호등 기반<br>맞춤 식단 추천받기</div>
+      <div style="font-size:11px;color:var(--n600);font-weight:600;line-height:1.5">콜린·비타민D·EPA+DHA를 채우는 끼니별 추천 — 우리 아이가 잘 먹는 메뉴로</div>
+    </div>
+    <button class="recipe-cta" onclick="goHomeMealPlan()" style="font-size:14.5px;padding:16px">🍳 식단 추천받기 →</button>
     <div class="share-actions">
       <button class="share-btn save" onclick="alert('결과 카드 PNG 저장 (구현 예정)')">📥 카드 저장</button>
       <button class="share-btn send" onclick="shareSite()">📤 친구에게</button>
