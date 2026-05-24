@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 편식도감 — 엔진 Deep Dive 설계</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;--g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;--v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FFEBEE;--r500:#E53935;--r700:#C62828;--y50:#FFF8E1;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.7}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--n100);padding:1px 6px;border-radius:4px;color:var(--p700)}
+
+  .hero{background:linear-gradient(135deg,#1F2D3D,#16A085,#3498DB);color:white;padding:60px 24px 40px;text-align:center}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.25);padding:6px 14px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.05em;margin-bottom:14px}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px}
+  .hero p{font-size:14px;color:rgba(255,255,255,0.9);max-width:580px;margin:0 auto;font-weight:600}
+  .hero .meta{display:flex;justify-content:center;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+  .toc{background:white;border-bottom:1px solid var(--n200);padding:14px 24px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1100px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--n600);font-weight:700;padding:6px 11px;border-radius:100px;background:var(--n50);text-decoration:none;flex-shrink:0}
+  .toc a:hover{background:var(--g500);color:white}
+
+  main{max-width:1100px;margin:0 auto;padding:24px}
+  section{margin-bottom:72px;scroll-margin-top:60px}
+  .stag{display:inline-block;font-size:11px;color:var(--g700);font-weight:800;letter-spacing:0.08em;margin-bottom:6px}
+  h2{font-size:28px;font-weight:800;color:var(--s800);letter-spacing:-0.02em;margin-bottom:10px;padding:14px 18px;background:linear-gradient(135deg,#FFF8F2,#FFE8D1);border-left:6px solid var(--p500);border-radius:0 12px 12px 0}
+  h3{font-size:20px;font-weight:800;color:var(--s800);margin:30px 0 12px;padding-left:14px;border-left:5px solid var(--g500);letter-spacing:-0.01em}
+  h4{font-size:15px;font-weight:800;color:var(--s700);margin:18px 0 8px;letter-spacing:-0.01em}
+  h5{font-size:13px;font-weight:800;color:var(--n700);margin:12px 0 6px;letter-spacing:0.02em;text-transform:uppercase}
+  p{font-size:14px;color:var(--n700);font-weight:500;margin-bottom:10px}
+  ul,ol{margin:8px 0 14px 22px}
+  li{font-size:13.5px;color:var(--n700);margin-bottom:6px;line-height:1.7}
+  strong{color:var(--s800);font-weight:800}
+
+  .card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin-bottom:14px}
+  .card.green{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:var(--g500)}
+  .card.blue{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-color:var(--b500)}
+  .card.purple{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-color:var(--v500)}
+  .card.yellow{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-color:var(--y500)}
+  .card.red{background:linear-gradient(135deg,#FFEBEE,#FFCDD2);border-color:var(--r500)}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200);margin:8px 0}
+  th{background:var(--s800);color:white;padding:10px 12px;text-align:left;font-size:11px;font-weight:800;letter-spacing:0.03em}
+  td{padding:8px 12px;border-bottom:1px solid var(--n100);vertical-align:top;color:var(--n700)}
+  td.mono{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--p700)}
+  tr:last-child td{border-bottom:none}
+
+  pre.code{background:#1F2D3D;color:#E0E7EE;padding:16px 18px;border-radius:10px;overflow-x:auto;font-size:11.5px;line-height:1.75;margin:8px 0}
+  pre.code .kw{color:#FFB375;font-weight:700}
+  pre.code .str{color:#9CCC65}
+  pre.code .cm{color:#7A8FA8;font-style:italic}
+  pre.code .fn{color:#42A5F5}
+  pre.code .num{color:#FF8A65}
+  pre.code .ty{color:#80DEEA}
+
+  .algo-box{background:linear-gradient(135deg,#F4F8FB,#E8EEF5);border:2px solid var(--b500);border-radius:14px;padding:20px;margin:14px 0}
+  .algo-box .algo-id{display:inline-block;background:var(--b500);color:white;font-size:10.5px;font-weight:800;padding:4px 10px;border-radius:100px;letter-spacing:0.04em;font-family:ui-monospace,Menlo,monospace;margin-bottom:10px}
+  .algo-box h4{margin-top:0;font-size:17px}
+  .algo-meta-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;background:white;border-radius:10px;padding:12px;margin:12px 0}
+  .algo-meta-item .lbl{font-size:9.5px;color:var(--n500);font-weight:800;letter-spacing:0.04em;text-transform:uppercase}
+  .algo-meta-item .val{font-size:12px;color:var(--s800);font-weight:700;margin-top:2px}
+
+  .step-list{counter-reset:step;margin:12px 0;padding-left:0;list-style:none}
+  .step-list li{counter-increment:step;position:relative;padding-left:36px;margin-bottom:10px;font-size:13px;color:var(--n700);line-height:1.7}
+  .step-list li::before{content:counter(step);position:absolute;left:0;top:0;background:var(--g500);color:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+
+  .formula{background:#1F2D3D;color:#9CCC65;padding:14px 18px;border-radius:8px;margin:8px 0;font-family:ui-monospace,Menlo,monospace;font-size:13px;line-height:1.7}
+  .formula .nm{color:#FFB375}
+
+  .test-case{background:white;border:1.5px solid var(--n200);border-left:4px solid var(--v500);border-radius:10px;padding:14px;margin:8px 0}
+  .test-case .label{font-size:11px;color:var(--v700);font-weight:800;letter-spacing:0.04em;margin-bottom:6px}
+  .test-case .grid{display:grid;grid-template-columns:120px 1fr;gap:8px;font-size:12px;line-height:1.6}
+  .test-case .grid .k{font-weight:800;color:var(--n700)}
+  .test-case .grid .v{color:var(--n600)}
+
+  .mermaid-wrap{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin:14px 0;overflow-x:auto}
+  .mermaid{text-align:center;min-width:600px}
+
+  .nav-back{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);padding:18px;border-radius:14px;margin-top:30px;text-align:center}
+  .nav-back a{color:var(--g700);font-weight:800;text-decoration:none;font-size:13.5px;margin:0 12px}
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--n400);border-top:1px solid var(--n100);font-weight:600}
+
+  .anchor-list{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin:14px 0}
+  .anchor-list .anchor-row{display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid var(--n100)}
+  .anchor-list .anchor-row:last-child{border-bottom:none}
+  .anchor-list .num{background:var(--p500);color:white;font-size:11px;font-weight:800;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:ui-monospace,Menlo,monospace}
+  .anchor-list .body strong{font-size:13.5px;color:var(--s800);font-weight:800;display:block;margin-bottom:2px}
+  .anchor-list .body .desc{font-size:11.5px;color:var(--n600);font-weight:600}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">🔬 ENGINE DEEP DIVE · v1</span>
+  <h1>밀프레드 편식도감<br>핵심 엔진 4종 설계 명세</h1>
+  <p>평가 엔진 · 추천 엔진 · OCR 엔진 · AI 코치 시스템 — 알고리즘·자료구조·SQL·LLM 프롬프트·테스트 케이스까지 전부</p>
+  <div class="meta">
+    <span>⚙️ 22 알고리즘 상세</span>
+    <span>📐 TypeScript 인터페이스</span>
+    <span>🧪 테스트 케이스</span>
+    <span>💬 LLM 프롬프트 전문</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#eval">📊 1. 평가 엔진</a>
+    <a href="#reco">🍳 2. 추천 엔진</a>
+    <a href="#ocr">📷 3. OCR 엔진</a>
+    <a href="#coach">✨ 4. AI 코치 시스템</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ==================== 1. 평가 엔진 ==================== -->
+<section id="eval">
+  <h2>1. 평가 엔진 — Evaluation Engine</h2>
+  <p>모든 평가는 <strong>결정론적 Rule</strong> 기반. LLM 미사용. 빠르고(p95 &lt; 50ms) 재현 가능하며 학술적으로 검증 가능.</p>
+
+  <h3>1-0. 엔진 책임·경계</h3>
+  <div class="card green">
+    <h4>책임 (Does)</h4>
+    <ul>
+      <li>식단 기록 → 7축 점수·36 영양 신호등·BMI 진단·종합 등급 산출</li>
+      <li>학술 출처 명시 (KDRI 2025·WHO MDD·HabEat·CEBQ·Satter)</li>
+      <li>자연어 진단 문장 생성 (LLM 호출 X, 룰 기반 템플릿)</li>
+      <li>OCR 식단표 평가 (가정 기록과 별도 변형)</li>
+    </ul>
+    <h4>책임 아님 (Doesn't)</h4>
+    <ul>
+      <li>레시피 추천 (→ 추천 엔진)</li>
+      <li>이미지 OCR (→ OCR 엔진)</li>
+      <li>편지·동적 질문 (→ AI 코치 시스템)</li>
+      <li>의료 진단 (앱 disclaimer)</li>
+    </ul>
+  </div>
+
+  <h3>1-1. 입력 명세 (Interface)</h3>
+  <pre class="code"><span class="cm">// packages/eval-engine/types.ts</span>
+<span class="kw">export interface</span> <span class="ty">EvalInput</span> {
+  childId: <span class="ty">string</span>;          <span class="cm">// UUID</span>
+  ageMonths: <span class="ty">number</span>;        <span class="cm">// 0~71 (만 0-5세)</span>
+  sex: <span class="str">'M'</span> | <span class="str">'F'</span>;
+  ageBand: <span class="ty">AgeBand</span>;         <span class="cm">// '0-5m'·'6-11m'·'1-2y'·'3-5y'</span>
+  windowDays: <span class="ty">number</span>;       <span class="cm">// 3·7·30 (집계 윈도우)</span>
+  mealLogs: <span class="ty">MealLog</span>[];
+  growthLatest: <span class="ty">GrowthStat</span> | <span class="ty">null</span>;
+  childAllergens: <span class="ty">string</span>[];
+}
+
+<span class="kw">export interface</span> <span class="ty">MealLog</span> {
+  id: <span class="ty">string</span>;
+  eatenAt: <span class="ty">Date</span>;
+  mealType: <span class="str">'아침'</span> | <span class="str">'점심'</span> | <span class="str">'저녁'</span> | <span class="str">'간식'</span>;
+  approxHour: <span class="ty">number</span> | <span class="ty">null</span>;
+  durationMin: <span class="ty">number</span> | <span class="ty">null</span>;
+  place: <span class="ty">Place</span> | <span class="ty">null</span>;
+  textureLevel: <span class="ty">TextureLevel</span> | <span class="ty">null</span>;
+  autonomy: <span class="ty">Autonomy</span> | <span class="ty">null</span>;
+  reaction: <span class="ty">Reaction</span>;
+  ingredients: <span class="ty">IngredientUse</span>[];
+}
+
+<span class="kw">export interface</span> <span class="ty">IngredientUse</span> {
+  id: <span class="ty">string</span>;
+  name: <span class="ty">string</span>;
+  category: <span class="ty">IngredientCategory</span>;
+  nutriPer100g: <span class="ty">NutrientMap</span>;   <span class="cm">// {iron_mg: 2.7, calcium_mg: 81, ...}</span>
+  estimatedG: <span class="ty">number</span>;
+}
+
+<span class="kw">export interface</span> <span class="ty">EvalOutput</span> {
+  sevenAxes: <span class="ty">AxisResult</span>[];        <span class="cm">// 7개</span>
+  signal36: <span class="ty">NutrientSignal</span>[];      <span class="cm">// 36개</span>
+  bmi: <span class="ty">BMIResult</span> | <span class="ty">null</span>;
+  macroBMI: <span class="ty">MacroBMIResult</span>;
+  totalScore: <span class="ty">number</span>;             <span class="cm">// 0-100</span>
+  grade: <span class="str">'S'</span> | <span class="str">'A'</span> | <span class="str">'B'</span> | <span class="str">'C'</span> | <span class="str">'D'</span>;
+  narratives: <span class="ty">Narrative</span>[];         <span class="cm">// 자연어 진단 (홈 카드용)</span>
+}</pre>
+
+  <h3>1-2. 핵심 자료구조</h3>
+  <pre class="code"><span class="kw">export interface</span> <span class="ty">AxisResult</span> {
+  axisId: <span class="str">'diversity'</span> | <span class="str">'texture'</span> | <span class="str">'repeat'</span> | <span class="str">'environment'</span> | <span class="str">'appetite'</span> | <span class="str">'novelty'</span> | <span class="str">'autonomy'</span>;
+  pct: <span class="ty">number</span>;              <span class="cm">// 0-100</span>
+  status: <span class="str">'green'</span> | <span class="str">'orange'</span> | <span class="str">'red'</span>;
+  detail: <span class="ty">string</span>;           <span class="cm">// '5/8 식품군'</span>
+  narrative: <span class="ty">string</span>;        <span class="cm">// 자연어 진단</span>
+  evidence: {
+    source: <span class="ty">string</span>;         <span class="cm">// 'WHO MDD 2017' 등</span>
+    rawData: <span class="ty">unknown</span>;
+  };
+}
+
+<span class="kw">export interface</span> <span class="ty">NutrientSignal</span> {
+  nutrient: <span class="ty">NutrientCode</span>;
+  rni: <span class="ty">number</span>;
+  unit: <span class="ty">string</span>;
+  contributingMeals: <span class="ty">number</span>;     <span class="cm">// 30%+ 기여 끼니 수</span>
+  weeklyTarget: <span class="ty">number</span>;
+  freqPct: <span class="ty">number</span>;              <span class="cm">// 0-100+</span>
+  freqLabel: <span class="ty">string</span>;             <span class="cm">// '주 3-4회'</span>
+  status: <span class="str">'green'</span> | <span class="str">'orange'</span> | <span class="str">'red'</span>;
+  topSources: <span class="ty">string</span>[];          <span class="cm">// ['시금치', '들깨']</span>
+  age2025: <span class="kw">boolean</span>;              <span class="cm">// 2025 신규 (예: 콜린)</span>
+}</pre>
+
+  <!-- ALG-EVAL-01 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-EVAL-01</span>
+    <h4>7축 식단 진단</h4>
+    <div class="algo-meta-row">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">EvalInput</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">AxisResult[7]</div></div>
+      <div class="algo-meta-item"><div class="lbl">복잡도</div><div class="val">O(N·M) N=끼니, M=재료</div></div>
+      <div class="algo-meta-item"><div class="lbl">의존</div><div class="val">ingredients.category, AGE_TEXTURE_TABLE</div></div>
+      <div class="algo-meta-item"><div class="lbl">실행 빈도</div><div class="val">실시간 + 5분 캐시</div></div>
+    </div>
+
+    <h5>축 1 — 다양성 (WHO MDD)</h5>
+    <p><strong>학술 출처</strong>: WHO Minimum Dietary Diversity for Children 6-23 Months (2010, revised 2017)</p>
+    <p><strong>8 식품군</strong>: 곡물·콩/콩제품·유제품·고기생선·계란·비타민A 풍부 채소·기타 채소·과일</p>
+    <pre class="code"><span class="kw">function</span> <span class="fn">axisDiversity</span>(logs: <span class="ty">MealLog</span>[]): <span class="ty">AxisResult</span> {
+  <span class="kw">const</span> familiesMet = <span class="kw">new</span> <span class="ty">Set</span>&lt;<span class="ty">FoodFamily</span>&gt;();
+  <span class="kw">for</span> (<span class="kw">const</span> log <span class="kw">of</span> logs) {
+    <span class="kw">for</span> (<span class="kw">const</span> ing <span class="kw">of</span> log.ingredients) {
+      <span class="kw">const</span> fam = <span class="ty">CATEGORY_TO_FAMILY</span>[ing.category];
+      <span class="kw">if</span> (fam) familiesMet.<span class="fn">add</span>(fam);
+    }
+  }
+  <span class="kw">const</span> pct = (familiesMet.size / <span class="num">8</span>) * <span class="num">100</span>;
+  <span class="kw">const</span> missing = <span class="ty">ALL_FAMILIES</span>.<span class="fn">filter</span>(f =&gt; !familiesMet.<span class="fn">has</span>(f));
+  <span class="kw">return</span> {
+    axisId: <span class="str">'diversity'</span>,
+    pct,
+    status: <span class="fn">classify</span>(pct, [<span class="num">80</span>, <span class="num">50</span>]),
+    detail: <span class="str">`${familiesMet.size}/8 식품군`</span>,
+    narrative: <span class="fn">buildDiversityNarrative</span>(familiesMet, missing),
+    evidence: {
+      source: <span class="str">'WHO MDD 2017'</span>,
+      rawData: { met: [...familiesMet], missing }
+    }
+  };
+}</pre>
+
+    <h5>축 2 — 식감 단계 (HabEat)</h5>
+    <p><strong>학술 출처</strong>: HabEat Project (EU FP7, 2010-2014) · Schwartz et al. 2014</p>
+    <p><strong>알고리즘</strong>: 연령별 권장 식감 분포 vs 실제 분포의 KL-divergence 기반 점수</p>
+    <pre class="code"><span class="kw">const</span> <span class="ty">AGE_TEXTURE_TABLE</span>: <span class="ty">Record</span>&lt;<span class="ty">AgeBand</span>, <span class="ty">TextureDistribution</span>&gt; = {
+  <span class="str">'6-11m'</span>:  { 미음:<span class="num">0.20</span>, 페이스트:<span class="num">0.40</span>, 매시:<span class="num">0.30</span>, 다진:<span class="num">0.10</span>, 큐브:<span class="num">0</span>, 스틱:<span class="num">0</span>, 통째:<span class="num">0</span> },
+  <span class="str">'1-2y'</span>:   { 미음:<span class="num">0.05</span>, 페이스트:<span class="num">0.15</span>, 매시:<span class="num">0.30</span>, 다진:<span class="num">0.30</span>, 큐브:<span class="num">0.10</span>, 스틱:<span class="num">0.05</span>, 통째:<span class="num">0.05</span> },
+  <span class="str">'3-5y'</span>:   { 미음:<span class="num">0</span>, 페이스트:<span class="num">0.05</span>, 매시:<span class="num">0.10</span>, 다진:<span class="num">0.20</span>, 큐브:<span class="num">0.25</span>, 스틱:<span class="num">0.20</span>, 통째:<span class="num">0.20</span> },
+};
+
+<span class="kw">function</span> <span class="fn">axisTexture</span>(logs: <span class="ty">MealLog</span>[], band: <span class="ty">AgeBand</span>): <span class="ty">AxisResult</span> {
+  <span class="kw">const</span> actual = <span class="fn">computeDistribution</span>(logs, l =&gt; l.textureLevel);
+  <span class="kw">const</span> expected = <span class="ty">AGE_TEXTURE_TABLE</span>[band];
+  <span class="kw">const</span> divergence = <span class="fn">klDivergence</span>(actual, expected);  <span class="cm">// 0~∞</span>
+  <span class="kw">const</span> pct = <span class="ty">Math</span>.<span class="fn">max</span>(<span class="num">0</span>, <span class="num">100</span> - divergence * <span class="num">100</span>);  <span class="cm">// invert + clamp</span>
+  <span class="kw">return</span> { ... };
+}</pre>
+
+    <h5>축 3-7 (요약)</h5>
+    <table>
+      <tr><th>축</th><th>계산식 핵심</th><th>임계치</th></tr>
+      <tr><td><strong>3. 메뉴 반복</strong></td><td>4주 내 동일 메뉴명 max 등장 횟수</td><td>0=A+ / 1-2=B / 3-4=C / 5+=D</td></tr>
+      <tr><td><strong>4. 식사 환경</strong> (Satter)</td><td>avg(duration_min) + place 분산</td><td>≤20분=A / 20-30=B / 30+=C</td></tr>
+      <tr><td><strong>5. 식욕 응답</strong> (CEBQ)</td><td>(잘먹음+또달라)/전체 × 100</td><td>≥75=green / 50-75=orange / &lt;50=red</td></tr>
+      <tr><td><strong>6. 새 시도</strong></td><td>7일 내 신규 식재료 개수 (이전 30일 미만남)</td><td>≥2=green / 1=orange / 0=red</td></tr>
+      <tr><td><strong>7. 자율성</strong> (Satter DOR)</td><td>'스스로' 비율 (연령 가중)</td><td>24m+: ≥50%=green</td></tr>
+    </table>
+
+    <div class="test-case">
+      <div class="label">━ TEST CASE ━</div>
+      <div class="grid">
+        <div class="k">Input</div>
+        <div class="v">9 끼니 (3일), 8 식품군 중 5개 등장, 모든 끼니 텍스처='죽', 연령=28m</div>
+        <div class="k">Expected Output</div>
+        <div class="v">다양성: 62.5% orange "5/8 식품군 — 콩·유제품·과일 비어요" / 식감: 45% red "28개월에는 핑거푸드 단계 권장"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALG-EVAL-02 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-EVAL-02</span>
+    <h4>36종 KDRI 영양 신호등 (빈도 → 충족률)</h4>
+
+    <h5>핵심 가설</h5>
+    <div class="card yellow">
+      <p>그램 단위 정확 섭취량 측정 불가 (부모가 g 안 잼) → <strong>"끼니별 등장 빈도"</strong>로 KDRI 충족률 <strong>추정</strong>.</p>
+      <p>임계 contribution: <strong>한 끼에서 30% 이상 RNI 기여하면 "이 끼니에 등장"</strong>으로 카운트.</p>
+    </div>
+
+    <h5>핵심 공식</h5>
+    <div class="formula">
+contribution<sub>i,n</sub> = (nutri_per_100g<sub>i,n</sub> × estimated_g<sub>i</sub> / 100) / KDRI_RNI[band][n]<br>
+<br>
+mealCount<sub>n</sub> = count(meals where Σ contribution<sub>i,n</sub> ≥ 0.3)<br>
+<br>
+freqPct<sub>n</sub> = (mealCount<sub>n</sub> / (days × 2)) × 100<br>
+<br>
+status<sub>n</sub> = freqPct ≥ 80 ? green : freqPct ≥ 50 ? orange : red
+    </div>
+
+    <h5>가중치 — 영양소별 임계 조정</h5>
+    <p>일부 영양소는 한 끼에 30% 기여 어려움 → 임계 조정:</p>
+    <table>
+      <tr><th>영양소</th><th>임계 (한 끼 기여)</th><th>이유</th></tr>
+      <tr><td>비타민 D</td><td>15%</td><td>식이 공급 자체 어려움 (햇볕·강화식품)</td></tr>
+      <tr><td>EPA+DHA</td><td>20%</td><td>등푸른 생선 외 공급원 적음</td></tr>
+      <tr><td>철 (heme)</td><td>30% (기본)</td><td>흡수율 차이 — 비타민C 동시 섭취 시 ×3 계수</td></tr>
+      <tr><td>콜린 (2025 신규)</td><td>25%</td><td>달걀 노른자 의존, 한국 식단 자주 어려움</td></tr>
+      <tr><td>나머지 32종</td><td>30%</td><td>기본값</td></tr>
+    </table>
+
+    <h5>구현 (TypeScript)</h5>
+    <pre class="code"><span class="kw">function</span> <span class="fn">signal36</span>(logs: <span class="ty">MealLog</span>[], band: <span class="ty">AgeBand</span>, days: <span class="ty">number</span>): <span class="ty">NutrientSignal</span>[] {
+  <span class="kw">const</span> nutrientMeals: <span class="ty">Record</span>&lt;<span class="ty">NutrientCode</span>, <span class="ty">number</span>&gt; = {};
+  <span class="kw">const</span> topSources: <span class="ty">Record</span>&lt;<span class="ty">NutrientCode</span>, <span class="ty">Map</span>&lt;<span class="ty">string</span>, <span class="ty">number</span>&gt;&gt; = {};
+
+  <span class="kw">for</span> (<span class="kw">const</span> log <span class="kw">of</span> logs) {
+    <span class="kw">const</span> contributions: <span class="ty">Record</span>&lt;<span class="ty">NutrientCode</span>, <span class="ty">number</span>&gt; = {};
+    <span class="kw">for</span> (<span class="kw">const</span> ing <span class="kw">of</span> log.ingredients) {
+      <span class="kw">const</span> g = ing.estimatedG ?? <span class="ty">CATEGORY_AVG_G</span>[ing.category];
+      <span class="kw">for</span> (<span class="kw">const</span> [n, amt] <span class="kw">of</span> <span class="ty">Object</span>.<span class="fn">entries</span>(ing.nutriPer100g)) {
+        <span class="kw">const</span> rni = <span class="ty">KDRI_RNI</span>[band][n]; <span class="kw">if</span> (!rni) <span class="kw">continue</span>;
+        <span class="kw">const</span> contrib = (amt * g / <span class="num">100</span>) / rni;
+        <span class="cm">// 비타민C 보강 시 철 흡수 ×3</span>
+        <span class="kw">const</span> boost = (n === <span class="str">'iron'</span> && <span class="fn">hasVitC</span>(log)) ? <span class="num">3</span> : <span class="num">1</span>;
+        contributions[n] = (contributions[n] ?? <span class="num">0</span>) + contrib * boost;
+        <span class="cm">// top source 추적</span>
+        topSources[n] = topSources[n] ?? <span class="kw">new</span> <span class="ty">Map</span>();
+        topSources[n].<span class="fn">set</span>(ing.name, (topSources[n].<span class="fn">get</span>(ing.name) ?? <span class="num">0</span>) + contrib);
+      }
+    }
+    <span class="kw">for</span> (<span class="kw">const</span> [n, total] <span class="kw">of</span> <span class="ty">Object</span>.<span class="fn">entries</span>(contributions)) {
+      <span class="kw">if</span> (total &gt;= <span class="ty">NUTRIENT_THRESHOLD</span>[n]) {
+        nutrientMeals[n] = (nutrientMeals[n] ?? <span class="num">0</span>) + <span class="num">1</span>;
+      }
+    }
+  }
+
+  <span class="kw">const</span> weeklyTarget = days * <span class="num">2</span>;
+  <span class="kw">return</span> <span class="ty">KDRI_36_NUTRIENTS</span>.<span class="fn">map</span>(n =&gt; ({
+    nutrient: n,
+    rni: <span class="ty">KDRI_RNI</span>[band][n],
+    unit: <span class="ty">KDRI_UNITS</span>[n],
+    contributingMeals: nutrientMeals[n] ?? <span class="num">0</span>,
+    weeklyTarget,
+    freqPct: ((nutrientMeals[n] ?? <span class="num">0</span>) / weeklyTarget) * <span class="num">100</span>,
+    freqLabel: <span class="fn">freqToLabel</span>(...),
+    status: <span class="fn">classify</span>(...),
+    topSources: <span class="fn">topN</span>(topSources[n], <span class="num">3</span>),
+    age2025: n === <span class="str">'choline'</span>,
+  }));
+}</pre>
+
+    <h5>freqToLabel 매핑 (사용자 노출용)</h5>
+    <table>
+      <tr><th>freqPct 범위</th><th>라벨</th></tr>
+      <tr><td>≥ 90</td><td>거의 매일</td></tr>
+      <tr><td>75-89</td><td>주 4-5회</td></tr>
+      <tr><td>60-74</td><td>주 3회</td></tr>
+      <tr><td>50-59</td><td>주 2회</td></tr>
+      <tr><td>40-49</td><td>주 1-2회</td></tr>
+      <tr><td>30-39</td><td>주 1회</td></tr>
+      <tr><td>15-29</td><td>드물게</td></tr>
+      <tr><td>&lt; 15</td><td>거의 못 만남</td></tr>
+    </table>
+  </div>
+
+  <!-- ALG-EVAL-03 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-EVAL-03</span>
+    <h4>BMI percentile (KDC 2017 LMS)</h4>
+    <p><strong>학술 출처</strong>: 한국질병관리청 2017 소아청소년 표준성장도표</p>
+    <p>LMS (Box-Cox 모수) 방법으로 정확한 percentile 계산.</p>
+
+    <h5>LMS 공식</h5>
+    <div class="formula">
+Z = ((BMI / M)<sup>L</sup> - 1) / (L × S)   <span class="cm">// L ≠ 0</span><br>
+Z = ln(BMI / M) / S                <span class="cm">// L = 0</span><br>
+percentile = Φ(Z) × 100             <span class="cm">// 정규분포 누적</span>
+    </div>
+
+    <h5>샘플 LMS 테이블 (만 28개월, 여)</h5>
+    <table>
+      <tr><th>지표</th><th>L</th><th>M</th><th>S</th></tr>
+      <tr><td class="mono">BMI</td><td>-0.853</td><td>15.99</td><td>0.0710</td></tr>
+      <tr><td class="mono">키 (cm)</td><td>1.000</td><td>91.42</td><td>0.0392</td></tr>
+      <tr><td class="mono">몸무게 (kg)</td><td>-0.310</td><td>13.21</td><td>0.1126</td></tr>
+    </table>
+
+    <h5>구현</h5>
+    <pre class="code"><span class="kw">import</span> { <span class="fn">cumulativeNormal</span> } <span class="kw">from</span> <span class="str">'./math'</span>;
+
+<span class="kw">function</span> <span class="fn">computePercentile</span>(value: <span class="ty">number</span>, lms: <span class="ty">LMS</span>): <span class="ty">number</span> {
+  <span class="kw">const</span> { L, M, S } = lms;
+  <span class="kw">const</span> z = <span class="ty">Math</span>.<span class="fn">abs</span>(L) &gt; <span class="num">1e-7</span>
+    ? (<span class="ty">Math</span>.<span class="fn">pow</span>(value / M, L) - <span class="num">1</span>) / (L * S)
+    : <span class="ty">Math</span>.<span class="fn">log</span>(value / M) / S;
+  <span class="kw">return</span> <span class="ty">Math</span>.<span class="fn">round</span>(<span class="fn">cumulativeNormal</span>(z) * <span class="num">100</span>);
+}
+
+<span class="kw">function</span> <span class="fn">evalBMI</span>(growth: <span class="ty">GrowthStat</span>, sex: <span class="str">'M'</span>|<span class="str">'F'</span>, ageMonths: <span class="ty">number</span>): <span class="ty">BMIResult</span> {
+  <span class="kw">const</span> bmi = growth.weightKg / <span class="ty">Math</span>.<span class="fn">pow</span>(growth.heightCm/<span class="num">100</span>, <span class="num">2</span>);
+  <span class="kw">const</span> lms = <span class="ty">KDC_LMS</span>[sex][ageMonths][<span class="str">'bmi'</span>];
+  <span class="kw">const</span> pct = <span class="fn">computePercentile</span>(bmi, lms);
+  <span class="kw">const</span> status = pct &lt; <span class="num">5</span> ? <span class="str">'underweight'</span>
+    : pct &lt; <span class="num">85</span> ? <span class="str">'normal'</span>
+    : pct &lt; <span class="num">95</span> ? <span class="str">'overweight'</span> : <span class="str">'obese'</span>;
+  <span class="kw">return</span> { bmi, percentile: pct, status };
+}</pre>
+
+    <div class="test-case">
+      <div class="label">━ TEST CASE — 지우 (만 28m, 여, 88.5cm/12.4kg) ━</div>
+      <div class="grid">
+        <div class="k">BMI</div>
+        <div class="v">12.4 / (0.885)² = 15.83</div>
+        <div class="k">LMS</div>
+        <div class="v">L=-0.853, M=15.99, S=0.0710</div>
+        <div class="k">Z-score</div>
+        <div class="v">((15.83/15.99)^-0.853 - 1) / (-0.853 × 0.0710) = -0.133</div>
+        <div class="k">Percentile</div>
+        <div class="v">Φ(-0.133) × 100 ≈ 45%</div>
+        <div class="k">Status</div>
+        <div class="v"><strong>normal (5-85p)</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALG-EVAL-04 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-EVAL-04</span>
+    <h4>탄·단·지 + BMI 종합 매트릭스</h4>
+    <h5>9 케이스 전체 매트릭스</h5>
+    <table>
+      <tr><th>BMI 위치</th><th>탄수화물</th><th>단백질</th><th>지방</th></tr>
+      <tr><td>저체중 (&lt;5p)</td><td>warn_low — "양 늘리기"</td><td>boost — "성장기 더 OK"</td><td>warn_low — "견과·아보카도·EPA"</td></tr>
+      <tr><td>정상 (5-85p)</td><td>ok — "적정"</td><td>ok — "적정"</td><td>ok — "적정"</td></tr>
+      <tr><td>과체중 (85-95p)</td><td>warn_high — "잡곡 비중↑·간식↓"</td><td>ok — "유지"</td><td>warn_high — "튀김·기름↓"</td></tr>
+    </table>
+    <p>각 케이스에 따라 <strong>3종 메시지 + CTA</strong> 자동 생성. 자세히 보기 모달에 자연어로 표시.</p>
+  </div>
+
+  <!-- ALG-EVAL-05 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-EVAL-05</span>
+    <h4>OCR 식단표 평가 (가정 기록과의 변형)</h4>
+    <p>한 달 식단표는 가정 기록보다 <strong>2 축 추가</strong> + 일부 축은 가중치 다름.</p>
+    <table>
+      <tr><th>축</th><th>가정 기록 (UC-14~22b)</th><th>식단표 OCR (UC-20)</th></tr>
+      <tr><td>다양성</td><td>3일 8 식품군</td><td>한 달 8 식품군 (더 엄격)</td></tr>
+      <tr><td>식감</td><td>로그 텍스처 분포</td><td>메뉴명 텍스처 추정 (LLM)</td></tr>
+      <tr><td>KDRI 36종</td><td>실시간 빈도</td><td>한 달 평균 빈도</td></tr>
+      <tr><td>메뉴 반복</td><td>4주 내</td><td>한 달 내 동일</td></tr>
+      <tr><td>알레르겐 표시</td><td>X (가정 무관)</td><td><strong>NEW</strong> — 명시 비율</td></tr>
+      <tr><td>가공식품 비율</td><td>X</td><td><strong>NEW</strong> — 25% 이하 권장</td></tr>
+      <tr><td>계절성·국산</td><td>X</td><td><strong>NEW</strong> — 제철 매핑</td></tr>
+    </table>
+  </div>
+
+  <h3>1-3. 종합 점수 + 등급 계산</h3>
+  <pre class="code"><span class="kw">const</span> <span class="ty">AXIS_WEIGHTS</span>: <span class="ty">Record</span>&lt;<span class="ty">AxisId</span>, <span class="ty">number</span>&gt; = {
+  diversity: <span class="num">0.20</span>, texture: <span class="num">0.15</span>, repeat: <span class="num">0.10</span>,
+  environment: <span class="num">0.10</span>, appetite: <span class="num">0.15</span>, novelty: <span class="num">0.10</span>, autonomy: <span class="num">0.10</span>,
+  <span class="cm">// + signal36 가중치 0.10 (별도 계산)</span>
+};
+
+<span class="kw">function</span> <span class="fn">computeTotalScore</span>(axes: <span class="ty">AxisResult</span>[], signal: <span class="ty">NutrientSignal</span>[]): <span class="ty">number</span> {
+  <span class="kw">const</span> axisScore = axes.<span class="fn">reduce</span>((s, a) =&gt; s + a.pct * <span class="ty">AXIS_WEIGHTS</span>[a.axisId], <span class="num">0</span>);
+  <span class="kw">const</span> greenCount = signal.<span class="fn">filter</span>(s =&gt; s.status === <span class="str">'green'</span>).length;
+  <span class="kw">const</span> signalScore = (greenCount / <span class="num">36</span>) * <span class="num">100</span> * <span class="num">0.10</span>;
+  <span class="kw">return</span> <span class="ty">Math</span>.<span class="fn">round</span>(axisScore * <span class="num">0.90</span> + signalScore);
+}
+
+<span class="kw">function</span> <span class="fn">scoreToGrade</span>(score: <span class="ty">number</span>): <span class="str">'S'</span>|<span class="str">'A'</span>|<span class="str">'B'</span>|<span class="str">'C'</span>|<span class="str">'D'</span> {
+  <span class="kw">return</span> score &gt;= <span class="num">90</span> ? <span class="str">'S'</span>
+    : score &gt;= <span class="num">75</span> ? <span class="str">'A'</span>
+    : score &gt;= <span class="num">60</span> ? <span class="str">'B'</span>
+    : score &gt;= <span class="num">45</span> ? <span class="str">'C'</span> : <span class="str">'D'</span>;
+}</pre>
+
+  <h3>1-4. API 응답 형식</h3>
+  <pre class="code"><span class="cm">// GET /api/eval/score?child_id=&days=3</span>
+{
+  <span class="str">"ok"</span>: <span class="kw">true</span>,
+  <span class="str">"data"</span>: {
+    <span class="str">"totalScore"</span>: <span class="num">60</span>,
+    <span class="str">"grade"</span>: <span class="str">"B"</span>,
+    <span class="str">"sevenAxes"</span>: [
+      { <span class="str">"axisId"</span>: <span class="str">"diversity"</span>, <span class="str">"pct"</span>: <span class="num">62.5</span>, <span class="str">"status"</span>: <span class="str">"orange"</span>,
+        <span class="str">"detail"</span>: <span class="str">"5/8 식품군"</span>, <span class="str">"narrative"</span>: <span class="str">"콩·유제품·과일이 비어요"</span> },
+      ...
+    ],
+    <span class="str">"signal36"</span>: [
+      { <span class="str">"nutrient"</span>: <span class="str">"iron"</span>, <span class="str">"freqPct"</span>: <span class="num">38</span>, <span class="str">"status"</span>: <span class="str">"red"</span>,
+        <span class="str">"freqLabel"</span>: <span class="str">"주 1회"</span>, <span class="str">"topSources"</span>: [<span class="str">"시금치"</span>, <span class="str">"들깨"</span>] },
+      ...
+    ],
+    <span class="str">"bmi"</span>: { <span class="str">"bmi"</span>: <span class="num">15.83</span>, <span class="str">"percentile"</span>: <span class="num">45</span>, <span class="str">"status"</span>: <span class="str">"normal"</span> },
+    <span class="str">"macroBMI"</span>: { <span class="str">"carb"</span>: <span class="str">"ok"</span>, <span class="str">"protein"</span>: <span class="str">"ok"</span>, <span class="str">"fat"</span>: <span class="str">"warn_low"</span>, <span class="str">"messages"</span>: {...} },
+    <span class="str">"narratives"</span>: [...]
+  },
+  <span class="str">"meta"</span>: { <span class="str">"cached"</span>: <span class="kw">false</span>, <span class="str">"latencyMs"</span>: <span class="num">23</span>, <span class="str">"version"</span>: <span class="str">"1.0.0"</span> }
+}</pre>
+
+  <h3>1-5. 에러 처리 + Fallback</h3>
+  <ul>
+    <li><strong>데이터 부족</strong> (logs.length &lt; 3): "데이터 부족 — 3끼 이상 입력해주세요" 메시지 + null 반환</li>
+    <li><strong>BMI 계산 불가</strong> (growth 없음): macroBMI 생략 + "키·몸무게 입력 시 정밀 평가 가능"</li>
+    <li><strong>식재료 미매칭</strong>: AI 추정 데이터(status='ai_estimated')로 보강 + 결과에 `confidence: 'low'` 표시</li>
+    <li><strong>KDRI lookup 실패</strong>: 영양소 신호등에서 제외 + 운영팀 알림</li>
+  </ul>
+
+  <h3>1-6. 성능 최적화</h3>
+  <ul>
+    <li><strong>인덱스</strong>: <code>(child_id, eaten_at DESC)</code> covering index</li>
+    <li><strong>캐싱</strong>: 결과를 Redis에 5분 캐시 (key: <code>eval:{child_id}:{date}</code>)</li>
+    <li><strong>배치</strong>: 매일 03:00 KST에 전 사용자 평가 사전 계산 → 홈 진입 시 즉시 응답</li>
+    <li><strong>p95 목표</strong>: 50ms (캐시 hit) / 300ms (cold)</li>
+  </ul>
+</section>
+
+<!-- ==================== 2. 추천 엔진 ==================== -->
+<section id="reco">
+  <h2>2. 추천 엔진 — Recommendation Engine</h2>
+  <p><strong>하이브리드</strong> (Rule 필터 + LLM 정제). 4,432 레시피 풀 → 6-8 최종 추천. Phase 0~4 단계 명확.</p>
+
+  <h3>2-0. 엔진 책임</h3>
+  <div class="card green">
+    <ul>
+      <li>식습관 프로파일 자동 집계 (Phase 0)</li>
+      <li>4가지 원칙별 후보 추출 (Phase 1 Rule)</li>
+      <li>후보 랭킹 (Phase 1.5 가중합)</li>
+      <li>LLM 정제 + 자연어 이유 생성 (Phase 2)</li>
+      <li>캐싱 + 응답 (Phase 3)</li>
+      <li>후처리 안전 필터 (Phase 4 — 알레르겐 검증)</li>
+    </ul>
+  </div>
+
+  <h3>2-1. 핵심 자료구조</h3>
+  <pre class="code"><span class="kw">export interface</span> <span class="ty">ChildProfile</span> {
+  childId: <span class="ty">string</span>;
+  ageBand: <span class="ty">AgeBand</span>;
+  allergens: <span class="ty">string</span>[];
+
+  <span class="cm">// Phase 0 집계 결과</span>
+  ingredientStats: <span class="ty">Record</span>&lt;<span class="ty">string</span>, <span class="ty">IngredientStat</span>&gt;;
+  baseStats: <span class="ty">Record</span>&lt;<span class="ty">BaseType</span>, <span class="ty">BaseStat</span>&gt;;
+  textureDistribution: <span class="ty">Record</span>&lt;<span class="ty">TextureLevel</span>, <span class="ty">number</span>&gt;;
+  nutrientStatus: <span class="ty">Record</span>&lt;<span class="ty">NutrientCode</span>, <span class="ty">Status</span>&gt;;
+  recentMenus: <span class="ty">string</span>[];   <span class="cm">// 최근 7일 메뉴명</span>
+  profileHash: <span class="ty">string</span>;    <span class="cm">// 캐시 키</span>
+}
+
+<span class="kw">export interface</span> <span class="ty">IngredientStat</span> {
+  exposureCount: <span class="ty">number</span>;
+  eatCount: <span class="ty">number</span>;
+  acceptRate: <span class="ty">number</span>;          <span class="cm">// 0~1</span>
+  lastSeenDaysAgo: <span class="ty">number</span>;
+  preferredForms: <span class="ty">Form</span>[];        <span class="cm">// 먹은 형태</span>
+  rejectedForms: <span class="ty">Form</span>[];
+}
+
+<span class="kw">export interface</span> <span class="ty">RecipeCandidate</span> {
+  recipe: <span class="ty">Recipe</span>;
+  principleId: <span class="num">1</span> | <span class="num">2</span> | <span class="num">3</span> | <span class="num">4</span>;
+  rawScore: <span class="ty">number</span>;
+  factors: {
+    basePreference: <span class="ty">number</span>;
+    concealment: <span class="ty">number</span>;
+    nutrientBoost: <span class="ty">number</span>;
+    novelty: <span class="ty">number</span>;
+    ageFit: <span class="ty">number</span>;
+  };
+}</pre>
+
+  <h3>2-2. Phase 0 — 프로파일 자동 집계</h3>
+  <div class="algo-box">
+    <span class="algo-id">ALG-RECO-00</span>
+    <h4>식습관 프로파일 집계</h4>
+    <p><strong>시간 윈도우 가중치</strong>: 최근 7일 ×1.0 / 8-30일 ×0.5 / 31일+ 제외</p>
+
+    <pre class="code"><span class="kw">async function</span> <span class="fn">buildProfile</span>(childId: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">ChildProfile</span>&gt; {
+  <span class="kw">const</span> logs = <span class="kw">await</span> <span class="fn">fetchLogs</span>(childId, { days: <span class="num">30</span> });
+  <span class="kw">const</span> child = <span class="kw">await</span> <span class="fn">fetchChild</span>(childId);
+
+  <span class="cm">// 식재료별 stat (시간 가중치 적용)</span>
+  <span class="kw">const</span> ingStats: <span class="ty">Record</span>&lt;<span class="ty">string</span>, <span class="ty">IngredientStat</span>&gt; = {};
+  <span class="kw">for</span> (<span class="kw">const</span> log <span class="kw">of</span> logs) {
+    <span class="kw">const</span> daysAgo = <span class="fn">daysDiff</span>(<span class="ty">Date</span>.<span class="fn">now</span>(), log.eatenAt);
+    <span class="kw">const</span> weight = daysAgo &lt;= <span class="num">7</span> ? <span class="num">1.0</span> : <span class="num">0.5</span>;
+    <span class="kw">for</span> (<span class="kw">const</span> ing <span class="kw">of</span> log.ingredients) {
+      <span class="kw">const</span> stat = ingStats[ing.id] ??= <span class="fn">emptyStat</span>();
+      stat.exposureCount += weight;
+      <span class="kw">if</span> ([<span class="str">'잘먹음'</span>, <span class="str">'또달라'</span>].<span class="fn">includes</span>(log.reaction)) {
+        stat.eatCount += weight;
+        stat.preferredForms.<span class="fn">push</span>(<span class="fn">inferForm</span>(log, ing));
+      } <span class="kw">else if</span> (log.reaction === <span class="str">'거부'</span>) {
+        stat.rejectedForms.<span class="fn">push</span>(<span class="fn">inferForm</span>(log, ing));
+      }
+      stat.lastSeenDaysAgo = <span class="ty">Math</span>.<span class="fn">min</span>(stat.lastSeenDaysAgo, daysAgo);
+    }
+  }
+  <span class="kw">for</span> (<span class="kw">const</span> stat <span class="kw">of</span> <span class="ty">Object</span>.<span class="fn">values</span>(ingStats)) {
+    stat.acceptRate = stat.exposureCount &gt; <span class="num">0</span> ? stat.eatCount / stat.exposureCount : <span class="num">0</span>;
+  }
+
+  <span class="cm">// 베이스별 stat (메뉴명 → base_type 매핑)</span>
+  <span class="kw">const</span> baseStats = <span class="fn">aggregateBases</span>(logs);
+
+  <span class="cm">// 식감 분포</span>
+  <span class="kw">const</span> textureDist = <span class="fn">computeDistribution</span>(logs, l =&gt; l.textureLevel);
+
+  <span class="cm">// KDRI 신호등 (eval 엔진 호출)</span>
+  <span class="kw">const</span> nutrientStatus = <span class="kw">await</span> <span class="fn">fetchSignal36</span>(childId);
+
+  <span class="kw">const</span> profile = { childId, ageBand: child.ageBand, allergens: child.allergens,
+    ingredientStats: ingStats, baseStats, textureDistribution: textureDist,
+    nutrientStatus, recentMenus: logs.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">21</span>).<span class="fn">map</span>(l =&gt; l.menuName) };
+
+  profile.profileHash = <span class="fn">computeProfileHash</span>(profile);
+  <span class="kw">return</span> profile;
+}
+
+<span class="cm">// 캐시 hit rate 위해 변동성 낮은 키만 사용</span>
+<span class="kw">function</span> <span class="fn">computeProfileHash</span>(p: <span class="ty">ChildProfile</span>): <span class="ty">string</span> {
+  <span class="kw">const</span> key = {
+    ageBand: p.ageBand,
+    top5Bases: <span class="ty">Object</span>.<span class="fn">entries</span>(p.baseStats)
+      .<span class="fn">sort</span>((a, b) =&gt; b[<span class="num">1</span>].eatCount - a[<span class="num">1</span>].eatCount)
+      .<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">5</span>).<span class="fn">map</span>(e =&gt; e[<span class="num">0</span>]),
+    redNutrients: <span class="ty">Object</span>.<span class="fn">entries</span>(p.nutrientStatus)
+      .<span class="fn">filter</span>(([_, s]) =&gt; s === <span class="str">'red'</span>).<span class="fn">map</span>(e =&gt; e[<span class="num">0</span>]).<span class="fn">sort</span>(),
+    top10Challenge: <span class="fn">getTop10Challenge</span>(p.ingredientStats).<span class="fn">map</span>(i =&gt; i.id).<span class="fn">sort</span>(),
+  };
+  <span class="kw">return</span> <span class="fn">sha256</span>(<span class="ty">JSON</span>.<span class="fn">stringify</span>(key));
+}</pre>
+  </div>
+
+  <h3>2-3. Phase 1 — 4 원칙별 Rule SQL</h3>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-RECO-01</span>
+    <h4>원칙 1: 선호 베이스 × 도전 식재료</h4>
+    <pre class="code"><span class="kw">WITH</span> preferred_bases <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> base_type, eat_count
+  <span class="kw">FROM</span> base_stats_view
+  <span class="kw">WHERE</span> child_id = $<span class="num">1</span> <span class="kw">AND</span> eat_count &gt;= <span class="num">5</span>
+  <span class="kw">ORDER BY</span> eat_count <span class="kw">DESC LIMIT</span> <span class="num">5</span>
+),
+challenge_ings <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> ingredient_id
+  <span class="kw">FROM</span> ingredient_stats_view
+  <span class="kw">WHERE</span> child_id = $<span class="num">1</span>
+    <span class="kw">AND</span> (accept_rate &lt; <span class="num">0.5</span> <span class="kw">OR</span> last_seen_days_ago &gt; <span class="num">60</span>)
+  <span class="kw">ORDER BY</span> challenge_priority(accept_rate, last_seen_days_ago) <span class="kw">DESC LIMIT</span> <span class="num">10</span>
+),
+candidates <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> r.*,
+    <span class="fn">base_preference_score</span>(r.base_type, $<span class="num">1</span>) <span class="kw">AS</span> base_score,
+    <span class="fn">concealment_score</span>(r.id, $<span class="num">1</span>) <span class="kw">AS</span> conceal_score,
+    (<span class="kw">SELECT</span> <span class="kw">COUNT</span>(*) <span class="kw">FROM</span> recipe_ingredients ri
+     <span class="kw">WHERE</span> ri.recipe_id = r.id
+       <span class="kw">AND</span> ri.ingredient_id <span class="kw">IN</span> (<span class="kw">SELECT</span> ingredient_id <span class="kw">FROM</span> challenge_ings)
+       <span class="kw">AND</span> ri.form <span class="kw">IN</span> (<span class="str">'즙'</span>, <span class="str">'다진'</span>, <span class="str">'매시'</span>)
+    ) <span class="kw">AS</span> challenge_ing_count
+  <span class="kw">FROM</span> recipes r
+  <span class="kw">WHERE</span> r.base_type <span class="kw">IN</span> (<span class="kw">SELECT</span> base_type <span class="kw">FROM</span> preferred_bases)
+    <span class="kw">AND</span> r.age_group_compatible(<span class="kw">SELECT</span> age_band <span class="kw">FROM</span> children <span class="kw">WHERE</span> id = $<span class="num">1</span>)
+    <span class="kw">AND NOT</span> r.allergens && (<span class="kw">SELECT</span> allergens <span class="kw">FROM</span> children <span class="kw">WHERE</span> id = $<span class="num">1</span>)
+)
+<span class="kw">SELECT</span> *, (base_score * <span class="num">0.4</span> + conceal_score * <span class="num">0.3</span> + challenge_ing_count * <span class="num">0.3</span>) <span class="kw">AS</span> total_score
+<span class="kw">FROM</span> candidates
+<span class="kw">WHERE</span> challenge_ing_count &gt; <span class="num">0</span>
+<span class="kw">ORDER BY</span> total_score <span class="kw">DESC LIMIT</span> <span class="num">50</span>;</pre>
+
+    <h5>SQL 함수 (커스텀)</h5>
+    <pre class="code"><span class="kw">CREATE FUNCTION</span> <span class="fn">base_preference_score</span>(p_base TEXT, p_child_id UUID) <span class="kw">RETURNS</span> NUMERIC <span class="kw">AS</span> $$
+  <span class="kw">SELECT COALESCE</span>(
+    <span class="kw">LEAST</span>(<span class="num">1.0</span>, (eat_count :: NUMERIC) / <span class="num">10</span>),  <span class="cm">-- normalize</span>
+    <span class="num">0.0</span>
+  )
+  <span class="kw">FROM</span> base_stats_view
+  <span class="kw">WHERE</span> base_type = p_base <span class="kw">AND</span> child_id = p_child_id;
+$$ <span class="kw">LANGUAGE</span> SQL <span class="kw">IMMUTABLE</span>;
+
+<span class="kw">CREATE FUNCTION</span> <span class="fn">concealment_score</span>(p_recipe_id UUID, p_child_id UUID) <span class="kw">RETURNS</span> NUMERIC <span class="kw">AS</span> $$
+  <span class="cm">-- 도전 식재료가 가린 형태(즙·다진·매시)일수록 점수 ↑</span>
+  <span class="kw">SELECT COALESCE</span>(
+    <span class="kw">AVG</span>(
+      <span class="kw">CASE</span> ri.form
+        <span class="kw">WHEN</span> <span class="str">'즙'</span> <span class="kw">THEN</span> <span class="num">1.0</span>
+        <span class="kw">WHEN</span> <span class="str">'다진'</span> <span class="kw">THEN</span> <span class="num">0.8</span>
+        <span class="kw">WHEN</span> <span class="str">'매시'</span> <span class="kw">THEN</span> <span class="num">0.6</span>
+        <span class="kw">ELSE</span> <span class="num">0.2</span>
+      <span class="kw">END</span>
+    ), <span class="num">0.5</span>
+  )
+  <span class="kw">FROM</span> recipe_ingredients ri
+  <span class="kw">WHERE</span> ri.recipe_id = p_recipe_id
+    <span class="kw">AND</span> ri.ingredient_id <span class="kw">IN</span> (<span class="kw">SELECT</span> ingredient_id <span class="kw">FROM</span> challenge_ings <span class="kw">WHERE</span> child_id = p_child_id);
+$$ <span class="kw">LANGUAGE</span> SQL <span class="kw">STABLE</span>;</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-RECO-02</span>
+    <h4>원칙 2: 잘먹지만 오랜만 → 원물 노출</h4>
+    <pre class="code"><span class="kw">WITH</span> loved_but_distant <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> ingredient_id
+  <span class="kw">FROM</span> ingredient_stats_view
+  <span class="kw">WHERE</span> child_id = $<span class="num">1</span>
+    <span class="kw">AND</span> accept_rate &gt;= <span class="num">0.7</span>
+    <span class="kw">AND</span> last_seen_days_ago &gt; <span class="num">30</span>
+    <span class="kw">AND NOT</span> (preferred_forms && <span class="kw">ARRAY</span>[<span class="str">'스틱'</span>, <span class="str">'통째'</span>, <span class="str">'큐브'</span>])  <span class="cm">-- 원물 형태 안 만남</span>
+  <span class="kw">LIMIT</span> <span class="num">5</span>
+),
+current_max_texture <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="fn">texture_max</span>(texture_distribution) <span class="kw">AS</span> max_level
+  <span class="kw">FROM</span> profile_view <span class="kw">WHERE</span> child_id = $<span class="num">1</span>
+)
+<span class="kw">SELECT</span> r.*
+<span class="kw">FROM</span> recipes r
+<span class="kw">JOIN</span> recipe_ingredients ri <span class="kw">ON</span> ri.recipe_id = r.id
+<span class="kw">WHERE</span> ri.ingredient_id <span class="kw">IN</span> (<span class="kw">SELECT</span> ingredient_id <span class="kw">FROM</span> loved_but_distant)
+  <span class="kw">AND</span> ri.form <span class="kw">IN</span> (<span class="str">'스틱'</span>, <span class="str">'통째'</span>, <span class="str">'큐브'</span>)
+  <span class="kw">AND</span> <span class="fn">texture_level_index</span>(r.texture_level) &gt; (<span class="kw">SELECT</span> max_level <span class="kw">FROM</span> current_max_texture)
+<span class="kw">ORDER BY</span> <span class="fn">age_appropriateness</span>(r.texture_level, $<span class="num">2</span>) * <span class="fn">loved_score</span>(ri.ingredient_id, $<span class="num">1</span>) <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">30</span>;</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-RECO-03</span>
+    <h4>원칙 3: 극도 거부 → 가림 형태</h4>
+    <pre class="code"><span class="kw">WITH</span> highly_rejected <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> ingredient_id
+  <span class="kw">FROM</span> ingredient_stats_view
+  <span class="kw">WHERE</span> child_id = $<span class="num">1</span>
+    <span class="kw">AND</span> accept_rate &lt; <span class="num">0.3</span>
+    <span class="kw">AND</span> exposure_count &gt;= <span class="num">5</span>
+  <span class="kw">LIMIT</span> <span class="num">5</span>
+)
+<span class="kw">SELECT</span> r.*, <span class="fn">concealment_score</span>(r.id, $<span class="num">1</span>) <span class="kw">AS</span> conceal
+<span class="kw">FROM</span> recipes r
+<span class="kw">WHERE EXISTS</span> (
+  <span class="kw">SELECT</span> <span class="num">1</span> <span class="kw">FROM</span> recipe_ingredients ri
+  <span class="kw">WHERE</span> ri.recipe_id = r.id
+    <span class="kw">AND</span> ri.ingredient_id <span class="kw">IN</span> (<span class="kw">SELECT</span> ingredient_id <span class="kw">FROM</span> highly_rejected)
+    <span class="kw">AND</span> (r.concealment-&gt;&gt;ri.ingredient_id) = <span class="str">'high'</span>  <span class="cm">-- 즙·페이스트</span>
+)
+  <span class="kw">AND</span> r.base_type <span class="kw">IN</span> (<span class="kw">SELECT</span> base_type <span class="kw">FROM</span> preferred_bases_view <span class="kw">WHERE</span> child_id = $<span class="num">1</span>)
+<span class="kw">ORDER BY</span> conceal * <span class="fn">base_preference_score</span>(r.base_type, $<span class="num">1</span>) <span class="kw">DESC LIMIT</span> <span class="num">30</span>;</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-RECO-04</span>
+    <h4>원칙 4: 부족 영양 보강</h4>
+    <pre class="code"><span class="kw">WITH</span> red_nutrients <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> nutrient
+  <span class="kw">FROM</span> signal_36_view
+  <span class="kw">WHERE</span> child_id = $<span class="num">1</span> <span class="kw">AND</span> status = <span class="str">'red'</span>
+  <span class="kw">ORDER BY</span> freq_pct <span class="kw">ASC LIMIT</span> <span class="num">5</span>
+)
+<span class="kw">SELECT</span> r.*, (
+  <span class="kw">SELECT</span> <span class="kw">SUM</span>(
+    (r.nutri_total-&gt;&gt;n.nutrient)::NUMERIC /
+    (<span class="kw">SELECT</span> rni <span class="kw">FROM</span> kdri_rni <span class="kw">WHERE</span> age_band = $<span class="num">2</span> <span class="kw">AND</span> nutrient_code = n.nutrient)
+  )
+  <span class="kw">FROM</span> red_nutrients n
+) <span class="kw">AS</span> boost_score
+<span class="kw">FROM</span> recipes r
+<span class="kw">WHERE</span> r.nutrient_highlights && <span class="kw">ARRAY</span>(<span class="kw">SELECT</span> nutrient <span class="kw">FROM</span> red_nutrients)
+  <span class="kw">AND</span> r.base_type <span class="kw">IN</span> (<span class="kw">SELECT</span> base_type <span class="kw">FROM</span> preferred_bases_view <span class="kw">WHERE</span> child_id = $<span class="num">1</span>)
+<span class="kw">ORDER BY</span> boost_score <span class="kw">DESC LIMIT</span> <span class="num">80</span>;</pre>
+  </div>
+
+  <h3>2-4. Phase 1.5 — 후보 랭킹 (가중합)</h3>
+  <div class="algo-box">
+    <span class="algo-id">ALG-RECO-05</span>
+    <h4>가중합 점수 함수</h4>
+    <pre class="code"><span class="kw">function</span> <span class="fn">rankCandidates</span>(candidates: <span class="ty">RecipeCandidate</span>[], profile: <span class="ty">ChildProfile</span>): <span class="ty">RecipeCandidate</span>[] {
+  <span class="kw">const</span> weights = { basePref: <span class="num">0.30</span>, concealment: <span class="num">0.20</span>, nutri: <span class="num">0.30</span>, novelty: <span class="num">0.10</span>, ageFit: <span class="num">0.10</span> };
+  <span class="kw">return</span> candidates.<span class="fn">map</span>(c =&gt; {
+    <span class="kw">const</span> factors = {
+      basePreference: <span class="fn">basePrefScore</span>(c.recipe.baseType, profile),
+      concealment: <span class="fn">concealmentScore</span>(c.recipe, profile),
+      nutrientBoost: <span class="fn">nutrientBoostScore</span>(c.recipe, profile),
+      novelty: profile.recentMenus.<span class="fn">includes</span>(c.recipe.name) ? <span class="num">0</span> : <span class="num">1</span>,
+      ageFit: <span class="fn">ageAppropriateness</span>(c.recipe.ageGroup, profile.ageBand),
+    };
+    <span class="kw">const</span> rawScore =
+      weights.basePref * factors.basePreference +
+      weights.concealment * factors.concealment +
+      weights.nutri * factors.nutrientBoost +
+      weights.novelty * factors.novelty +
+      weights.ageFit * factors.ageFit;
+    <span class="kw">return</span> { ...c, rawScore, factors };
+  }).<span class="fn">sort</span>((a, b) =&gt; b.rawScore - a.rawScore);
+}</pre>
+
+    <h5>각 factor 함수 디테일</h5>
+    <ul>
+      <li><strong>basePreference</strong>: eat_count 정규화 (min(eat_count, 10) / 10)</li>
+      <li><strong>concealment</strong>: 도전 식재료가 가린 형태인 비율 (0-1)</li>
+      <li><strong>nutrientBoost</strong>: Σ(레시피 영양/RNI) for 빨강 영양소들 (clamp 1)</li>
+      <li><strong>novelty</strong>: 최근 21끼니에 없으면 1, 있으면 0</li>
+      <li><strong>ageFit</strong>: age_group 정확 매칭=1.0 / 한 단계 차이=0.7 / 두 단계 이상=0.3</li>
+    </ul>
+  </div>
+
+  <h3>2-5. Phase 2 — LLM 정제 (Claude Sonnet 4.7)</h3>
+  <div class="algo-box">
+    <span class="algo-id">ALG-RECO-06</span>
+    <h4>LLM 호출 + 프롬프트 전문</h4>
+    <h5>System Prompt (캐싱 대상)</h5>
+    <pre class="code"><span class="kw">const</span> <span class="ty">SYSTEM_PROMPT</span> = <span class="str">`당신은 만 0-5세 영유아의 식습관 데이터를 분석해
+4가지 원칙에 따라 레시피를 추천하는 영양 전문가입니다.
+
+# 4가지 원칙
+1. 선호 베이스 + 도전 식재료 (가림 형태로 거부감 ↓)
+2. 잘먹지만 오랜만 → 원물 노출 (식감 단계 ↑)
+3. 극도 거부 → 형태 안 보이게 (즙·페이스트로 노출 누적)
+4. 부족 영양 보강 (KDRI 신호등 빨강)
+
+# 출력 규칙
+- 각 원칙별 1-2개 레시피 선택 (총 6-8개)
+- 각 레시피마다 "왜 우리 아이에게?" 자연어 이유 (3-4문장)
+- 이유에는 반드시 다음 포함: ① 선호/거부 데이터 인용 ② 학술 근거 ③ 구체 행동 제안
+- 부모 친화 톤 (강요 X · 권유 O · 죄책감 유발 X)
+- "영양사" "의사" 같은 권위 표현 X
+- 학술 출처는 자연어로 ("연구에 따르면" / "권장은")
+
+# 안전
+- 알레르겐 위배 시 절대 추천 금지 (input에서 제거됨)
+- 의료 진단·치료 X — 정보·교육 목적
+
+# JSON Schema
+{
+  "principle_1": [{"recipe_id": "uuid", "reason": "3-4 문장"}, ...],
+  "principle_2": [...], "principle_3": [...], "principle_4": [...]
+}\`</span>;</pre>
+
+    <h5>User Prompt (동적)</h5>
+    <pre class="code"><span class="kw">function</span> <span class="fn">buildUserPrompt</span>(profile: <span class="ty">ChildProfile</span>, candidates: <span class="ty">RecipeCandidate</span>[]): <span class="ty">string</span> {
+  <span class="kw">return</span> <span class="str">`## 우리 아이 프로파일
+- 만 ${profile.ageMonths}개월 · ${profile.sex === 'M' ? '남' : '여'}
+- 잘먹는 베이스 TOP 5: ${formatBases(profile.baseStats)}
+- 거부·도전 식재료: ${formatChallenge(profile.ingredientStats)}
+- 식감 분포: ${formatTexture(profile.textureDistribution)}
+- 신호등 빨강 영양소: ${formatRedNutrients(profile.nutrientStatus)}
+- 최근 21끼 메뉴 (중복 회피용): ${profile.recentMenus.join(', ')}
+- 알레르겐: ${profile.allergens.join(', ') || '없음'}
+
+## ${candidates.length}개 후보 (Phase 1 Rule 통과)
+\`\`\`json
+${JSON.stringify(candidates.map(c =&gt; ({
+  id: c.recipe.id,
+  name: c.recipe.name,
+  base_type: c.recipe.baseType,
+  texture: c.recipe.textureLevel,
+  highlights: c.recipe.nutrientHighlights,
+  ingredients: c.recipe.ingredients.map(i =&gt; i.name).slice(0, 5),
+  principle: c.principleId,
+  factors: c.factors,
+})), null, 2)}
+\`\`\`
+
+원칙별 최적 1-2개 선택 + 자연어 이유.\`</span>;
+}</pre>
+
+    <h5>호출 코드 (Prompt Caching 적용)</h5>
+    <pre class="code"><span class="kw">import</span> <span class="ty">Anthropic</span> <span class="kw">from</span> <span class="str">'@anthropic-ai/sdk'</span>;
+
+<span class="kw">async function</span> <span class="fn">refineWithLLM</span>(profile: <span class="ty">ChildProfile</span>, candidates: <span class="ty">RecipeCandidate</span>[]) {
+  <span class="kw">const</span> client = <span class="kw">new</span> <span class="ty">Anthropic</span>();
+  <span class="kw">const</span> response = <span class="kw">await</span> client.messages.<span class="fn">create</span>({
+    model: <span class="str">'claude-sonnet-4-7'</span>,
+    max_tokens: <span class="num">4000</span>,
+    system: [{
+      type: <span class="str">'text'</span>,
+      text: <span class="ty">SYSTEM_PROMPT</span>,
+      cache_control: { type: <span class="str">'ephemeral'</span> }  <span class="cm">// 1시간 캐시 — 비용 ↓ 50%</span>
+    }],
+    messages: [{ role: <span class="str">'user'</span>, content: <span class="fn">buildUserPrompt</span>(profile, candidates) }],
+  });
+  <span class="kw">return</span> <span class="fn">parseAndValidate</span>(response.content[<span class="num">0</span>].text);
+}</pre>
+
+    <h5>출력 검증 (안전 필터)</h5>
+    <pre class="code"><span class="kw">function</span> <span class="fn">parseAndValidate</span>(rawText: <span class="ty">string</span>): <span class="ty">LLMOutput</span> {
+  <span class="kw">const</span> json = <span class="fn">extractJSON</span>(rawText);
+  <span class="kw">const</span> parsed = <span class="ty">LLMOutputSchema</span>.<span class="fn">parse</span>(json);  <span class="cm">// zod</span>
+  <span class="cm">// 추가 안전 체크</span>
+  <span class="kw">for</span> (<span class="kw">const</span> principle <span class="kw">of</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>]) {
+    <span class="kw">for</span> (<span class="kw">const</span> rec <span class="kw">of</span> parsed[<span class="str">`principle_${principle}`</span>]) {
+      <span class="cm">// 알레르겐 위배 검증 (이중 안전)</span>
+      <span class="kw">const</span> recipe = <span class="fn">findRecipe</span>(rec.recipe_id);
+      <span class="kw">if</span> (recipe.allergens.<span class="fn">some</span>(a =&gt; profile.allergens.<span class="fn">includes</span>(a))) {
+        <span class="kw">throw new</span> <span class="ty">Error</span>(<span class="str">'ALLERGEN_VIOLATION'</span>);
+      }
+      <span class="cm">// 자연어 길이 (3-4 문장 강제)</span>
+      <span class="kw">if</span> (<span class="fn">sentenceCount</span>(rec.reason) &lt; <span class="num">3</span> || <span class="fn">sentenceCount</span>(rec.reason) &gt; <span class="num">5</span>) {
+        rec.reason = <span class="fn">trimSentences</span>(rec.reason, <span class="num">3</span>, <span class="num">4</span>);
+      }
+      <span class="cm">// 금지 표현 ("영양사", "의사" 등)</span>
+      <span class="kw">for</span> (<span class="kw">const</span> word <span class="kw">of</span> <span class="ty">FORBIDDEN_WORDS</span>) {
+        <span class="kw">if</span> (rec.reason.<span class="fn">includes</span>(word)) {
+          rec.reason = rec.reason.<span class="fn">replaceAll</span>(word, <span class="ty">SAFE_REPLACEMENTS</span>[word]);
+        }
+      }
+    }
+  }
+  <span class="kw">return</span> parsed;
+}</pre>
+  </div>
+
+  <h3>2-6. Phase 3 — 캐싱 + Invalidation</h3>
+  <div class="algo-box">
+    <span class="algo-id">ALG-RECO-07</span>
+    <h4>캐싱 전략</h4>
+    <table>
+      <tr><th>레이어</th><th>키</th><th>TTL</th><th>Invalidate 조건</th></tr>
+      <tr><td>Redis 추천 캐시</td><td><code>reco:{child_id}:{profile_hash}</code></td><td>24h</td><td>profile_hash 변경 / 사용자 강제 새로고침</td></tr>
+      <tr><td>Anthropic Prompt Cache</td><td>system prompt (자동)</td><td>1h</td><td>system prompt 변경</td></tr>
+      <tr><td>DB candidate 캐시</td><td><code>candidates:{child_id}:{phase}</code></td><td>1h</td><td>새 meal_log 입력</td></tr>
+    </table>
+
+    <h5>Invalidation 트리거</h5>
+    <pre class="code"><span class="cm">// Supabase Realtime trigger</span>
+<span class="kw">async function</span> <span class="fn">onMealLogInsert</span>(log: <span class="ty">MealLog</span>) {
+  <span class="kw">await</span> redis.<span class="fn">del</span>(<span class="str">`reco:${log.childId}:*`</span>);  <span class="cm">// 추천 캐시 무효화</span>
+  <span class="kw">await</span> redis.<span class="fn">del</span>(<span class="str">`candidates:${log.childId}:*`</span>);
+  <span class="kw">await</span> redis.<span class="fn">del</span>(<span class="str">`eval:${log.childId}:*`</span>);
+}</pre>
+  </div>
+
+  <h3>2-7. 비용 추적 + Fallback</h3>
+  <ul>
+    <li><strong>일일 LLM 비용 한도</strong>: $20/day → 초과 시 Phase 1 룰 결과만 반환 (자연어 이유 X)</li>
+    <li><strong>호출 실패 (timeout/rate limit)</strong>: 3회 재시도 (1s, 2s, 4s) → 실패 시 Phase 1 결과 + 정형 메시지</li>
+    <li><strong>모델 비교 A/B</strong>: 10% 트래픽은 Gemini Flash로 라우팅 → 만족도 측정</li>
+  </ul>
+</section>
+
+<!-- ==================== 3. OCR 엔진 ==================== -->
+<section id="ocr">
+  <h2>3. OCR 엔진 — Vision-based Menu Recognition</h2>
+
+  <h3>3-0. 엔진 책임</h3>
+  <div class="card green">
+    <ul>
+      <li>이미지 전처리 (회전·압축·해시)</li>
+      <li>Claude Vision으로 메뉴·날짜·알레르겐 추출</li>
+      <li>메뉴 → recipe_id 매핑 (fuzzy match + LLM fallback)</li>
+      <li>알레르겐 매핑 (식약처 17대)</li>
+      <li>신뢰도 스코어링 + 사용자 수정 인터페이스</li>
+      <li>식사 사진 OCR (음식 → 식재료 추정)</li>
+    </ul>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-OCR-01</span>
+    <h4>이미지 전처리</h4>
+    <pre class="code"><span class="kw">import</span> sharp <span class="kw">from</span> <span class="str">'sharp'</span>;
+<span class="kw">import</span> crypto <span class="kw">from</span> <span class="str">'crypto'</span>;
+
+<span class="kw">async function</span> <span class="fn">preprocessImage</span>(buffer: <span class="ty">Buffer</span>): <span class="ty">Promise</span>&lt;{ buffer: <span class="ty">Buffer</span>, hash: <span class="ty">string</span> }&gt; {
+  <span class="kw">const</span> processed = <span class="kw">await</span> <span class="fn">sharp</span>(buffer)
+    .<span class="fn">rotate</span>()                          <span class="cm">// EXIF 자동 회전</span>
+    .<span class="fn">resize</span>({ width: <span class="num">1600</span>, withoutEnlargement: <span class="kw">true</span> })
+    .<span class="fn">normalize</span>()                       <span class="cm">// 대비 자동 보정</span>
+    .<span class="fn">jpeg</span>({ quality: <span class="num">85</span>, mozjpeg: <span class="kw">true</span> })
+    .<span class="fn">toBuffer</span>();
+  <span class="kw">const</span> hash = crypto.<span class="fn">createHash</span>(<span class="str">'sha256'</span>).<span class="fn">update</span>(processed).<span class="fn">digest</span>(<span class="str">'hex'</span>);
+  <span class="kw">return</span> { buffer: processed, hash };
+}</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-OCR-02</span>
+    <h4>Claude Vision 프롬프트 + JSON Schema</h4>
+    <pre class="code"><span class="kw">const</span> <span class="ty">VISION_PROMPT</span> = <span class="str">`이 한국 어린이집·유치원·가정 식단표 이미지를 분석하여
+다음 JSON 스키마로 출력해주세요. 부정확한 부분은 confidence&lt;0.7로 표기.
+
+# JSON Schema
+{
+  "year_month": "YYYY-MM",
+  "facility_type_hint": "어린이집|유치원|가정|기타",
+  "days": [
+    {
+      "date": "M/D",
+      "weekday": "월|화|수|목|금|토|일",
+      "is_event_day": boolean,
+      "event_name": string|null,
+      "meals": {
+        "오전간식": [{"name": "메뉴명", "allergen_numbers": [int]}],
+        "점심": [...],
+        "오후간식": [...]
+      }
+    }
+  ],
+  "footer": {
+    "nutritionist": string|null,
+    "allergen_legend": [{"num": int, "name": "한글명"}],
+    "origin": {"식재료명": "국산|수입국명"}
+  },
+  "confidence": float (0.0-1.0)
+}
+
+# 규칙
+- 메뉴명에서 알레르겐 번호 (5), (5.6), ⓞⓘⓢ 등은 allergen_numbers 배열로 분리
+- '잡곡밥/된장국/시금치나물' 처럼 슬래시 분리된 항목은 각각 별도 메뉴로 추출
+- 날짜는 M/D 포맷 (한 자리는 0 padding X)
+- footer.allergen_legend는 페이지 어딘가에 명시된 번호 매핑 (1=난류, 2=우유 등)
+- 이벤트일 (어린이날·재량휴원 등)은 is_event_day=true, event_name 명시
+- 빈 칸은 빈 배열 [] 사용
+\`</span>;
+
+<span class="kw">async function</span> <span class="fn">callVision</span>(imageBuffer: <span class="ty">Buffer</span>): <span class="ty">Promise</span>&lt;<span class="ty">OCRResult</span>&gt; {
+  <span class="kw">const</span> base64 = imageBuffer.<span class="fn">toString</span>(<span class="str">'base64'</span>);
+  <span class="kw">const</span> response = <span class="kw">await</span> anthropic.messages.<span class="fn">create</span>({
+    model: <span class="str">'claude-sonnet-4-7'</span>,
+    max_tokens: <span class="num">8000</span>,
+    messages: [{
+      role: <span class="str">'user'</span>,
+      content: [
+        { type: <span class="str">'image'</span>, source: { type: <span class="str">'base64'</span>, media_type: <span class="str">'image/jpeg'</span>, data: base64 } },
+        { type: <span class="str">'text'</span>, text: <span class="ty">VISION_PROMPT</span> },
+      ]
+    }],
+  });
+  <span class="kw">return</span> <span class="fn">parseJSON</span>(response.content[<span class="num">0</span>].text);
+}</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-OCR-03</span>
+    <h4>메뉴 정규화 — recipe_id 매핑</h4>
+    <pre class="code"><span class="kw">import</span> { fuzzyScore } <span class="kw">from</span> <span class="str">'./trigram'</span>;
+
+<span class="kw">async function</span> <span class="fn">matchMenuToRecipe</span>(menuName: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">RecipeMatch</span>&gt; {
+  <span class="cm">// 1. 텍스트 클렌징</span>
+  <span class="kw">const</span> cleaned = menuName.<span class="fn">replace</span>(/\([0-9.]+\)/g, <span class="str">''</span>)  <span class="cm">// (5.6) 제거</span>
+    .<span class="fn">replace</span>(/[ⓞⓘⓢ]+/g, <span class="str">''</span>).<span class="fn">trim</span>();
+
+  <span class="cm">// 2. Trigram similarity (Postgres pg_trgm)</span>
+  <span class="kw">const</span> { rows } = <span class="kw">await</span> db.<span class="fn">query</span>(<span class="str">`
+    SELECT id, name, similarity(name, $1) AS sim
+    FROM recipes
+    WHERE name % $1   -- pg_trgm operator
+    ORDER BY sim DESC LIMIT 3
+  `</span>, [cleaned]);
+
+  <span class="cm">// 3. 임계값 ≥ 0.7 이면 매칭 성공</span>
+  <span class="kw">if</span> (rows[<span class="num">0</span>]?.sim &gt;= <span class="num">0.7</span>) {
+    <span class="kw">return</span> { recipeId: rows[<span class="num">0</span>].id, confidence: rows[<span class="num">0</span>].sim, source: <span class="str">'fuzzy'</span> };
+  }
+
+  <span class="cm">// 4. Fallback: LLM에 base_type·texture·ingredients 추정</span>
+  <span class="kw">const</span> llmResult = <span class="kw">await</span> <span class="fn">inferRecipeFromName</span>(cleaned);
+  <span class="kw">const</span> adHocId = <span class="kw">await</span> <span class="fn">createAdHocRecipe</span>(llmResult);
+  <span class="kw">return</span> { recipeId: adHocId, confidence: <span class="num">0.5</span>, source: <span class="str">'llm_inferred'</span> };
+}</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-OCR-04</span>
+    <h4>알레르겐 매핑 + 아이 위험 알림</h4>
+    <pre class="code"><span class="kw">const</span> <span class="ty">ALLERGEN_17</span>: <span class="ty">Record</span>&lt;<span class="ty">number</span>, <span class="ty">string</span>&gt; = {
+  <span class="num">1</span>: <span class="str">'난류'</span>, <span class="num">2</span>: <span class="str">'우유'</span>, <span class="num">3</span>: <span class="str">'메밀'</span>, <span class="num">4</span>: <span class="str">'땅콩'</span>, <span class="num">5</span>: <span class="str">'대두'</span>,
+  <span class="num">6</span>: <span class="str">'밀'</span>, <span class="num">7</span>: <span class="str">'고등어'</span>, <span class="num">8</span>: <span class="str">'게'</span>, <span class="num">9</span>: <span class="str">'새우'</span>, <span class="num">10</span>: <span class="str">'돼지고기'</span>,
+  <span class="num">11</span>: <span class="str">'복숭아'</span>, <span class="num">12</span>: <span class="str">'토마토'</span>, <span class="num">13</span>: <span class="str">'아황산류'</span>, <span class="num">14</span>: <span class="str">'호두'</span>, <span class="num">15</span>: <span class="str">'닭고기'</span>,
+  <span class="num">16</span>: <span class="str">'쇠고기'</span>, <span class="num">17</span>: <span class="str">'오징어'</span>
+};
+
+<span class="kw">function</span> <span class="fn">checkAllergenRisk</span>(ocrResult: <span class="ty">OCRResult</span>, childAllergens: <span class="ty">string</span>[]): <span class="ty">RiskAlert</span>[] {
+  <span class="kw">const</span> alerts: <span class="ty">RiskAlert</span>[] = [];
+  <span class="kw">const</span> legend = ocrResult.footer.allergen_legend
+    ? <span class="ty">Object</span>.<span class="fn">fromEntries</span>(ocrResult.footer.allergen_legend.<span class="fn">map</span>(a =&gt; [a.num, a.name]))
+    : <span class="ty">ALLERGEN_17</span>;  <span class="cm">// fallback</span>
+
+  <span class="kw">for</span> (<span class="kw">const</span> day <span class="kw">of</span> ocrResult.days) {
+    <span class="kw">for</span> (<span class="kw">const</span> mealType <span class="kw">of</span> [<span class="str">'오전간식'</span>, <span class="str">'점심'</span>, <span class="str">'오후간식'</span>]) {
+      <span class="kw">for</span> (<span class="kw">const</span> menu <span class="kw">of</span> day.meals[mealType] ?? []) {
+        <span class="kw">const</span> menuAllergens = menu.allergen_numbers.<span class="fn">map</span>(n =&gt; legend[n]).<span class="fn">filter</span>(<span class="ty">Boolean</span>);
+        <span class="kw">const</span> risk = menuAllergens.<span class="fn">filter</span>(a =&gt; childAllergens.<span class="fn">includes</span>(a));
+        <span class="kw">if</span> (risk.length &gt; <span class="num">0</span>) {
+          alerts.<span class="fn">push</span>({ date: day.date, mealType, menu: menu.name, allergens: risk });
+        }
+      }
+    }
+  }
+  <span class="kw">return</span> alerts;
+}</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-OCR-05</span>
+    <h4>신뢰도 스코어링 + 사용자 수정 UI</h4>
+    <pre class="code"><span class="kw">function</span> <span class="fn">computeOverallConfidence</span>(ocr: <span class="ty">OCRResult</span>, matches: <span class="ty">RecipeMatch</span>[]): <span class="ty">number</span> {
+  <span class="kw">const</span> visionConfidence = ocr.confidence;  <span class="cm">// 0.0-1.0</span>
+  <span class="kw">const</span> matchRate = matches.<span class="fn">filter</span>(m =&gt; m.source === <span class="str">'fuzzy'</span>).length / matches.length;
+  <span class="kw">const</span> avgMatchConfidence = matches.<span class="fn">reduce</span>((s, m) =&gt; s + m.confidence, <span class="num">0</span>) / matches.length;
+  <span class="kw">return</span> visionConfidence * <span class="num">0.4</span> + matchRate * <span class="num">0.3</span> + avgMatchConfidence * <span class="num">0.3</span>;
+}
+
+<span class="cm">// 사용자 노출 UI 분기</span>
+<span class="kw">if</span> (overall &gt;= <span class="num">0.85</span>) {
+  <span class="cm">// 자동 진행 (수정 UI 안 보임)</span>
+} <span class="kw">else if</span> (overall &gt;= <span class="num">0.70</span>) {
+  <span class="cm">// "이 메뉴 맞나요?" 확인 UI 노출 (5-10개 핵심만)</span>
+} <span class="kw">else</span> {
+  <span class="cm">// 전체 수동 입력 모드 전환</span>
+}</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-OCR-06</span>
+    <h4>식사 사진 OCR (식단 기록용 — 식단표와 다름)</h4>
+    <pre class="code"><span class="kw">const</span> <span class="ty">FOOD_VISION_PROMPT</span> = <span class="str">`이 음식 사진을 보고 식재료를 추출하세요.
+하나의 메뉴에 들어간 모든 식재료를 나열 (소스·향신 포함).
+
+{
+  "menu_hint": "추정 메뉴명",
+  "ingredients": [
+    {"name": "시금치", "confidence": 0.0-1.0},
+    {"name": "두부", "confidence": 0.92}
+  ],
+  "cooking_method_hint": "죽|볶음|국|구이|찜|...",
+  "texture_hint": "미음|페이스트|매시|다진|큐브|스틱|통째",
+  "overall_confidence": 0.0-1.0
+}\`</span>;
+
+<span class="cm">// 결과는 자동완성 풀(INGREDIENT_POOL 147종)과 매칭</span>
+<span class="kw">function</span> <span class="fn">mapToPool</span>(ocrIngredients: <span class="ty">OCRIngredient</span>[]): <span class="ty">IngredientId</span>[] {
+  <span class="kw">return</span> ocrIngredients.<span class="fn">flatMap</span>(o =&gt; {
+    <span class="kw">const</span> match = <span class="ty">INGREDIENT_POOL</span>.<span class="fn">find</span>(p =&gt;
+      p.name === o.name || p.aliases?.<span class="fn">includes</span>(o.name));
+    <span class="kw">return</span> match ? [match.id] : [];
+  });
+}</pre>
+  </div>
+
+  <h3>3-1. 비용 최적화 (image_hash 캐시)</h3>
+  <pre class="code"><span class="cm">// 같은 식단표 사진 재분석 비용 0 (영구 캐시)</span>
+<span class="kw">async function</span> <span class="fn">ocrWithCache</span>(buffer: <span class="ty">Buffer</span>): <span class="ty">Promise</span>&lt;<span class="ty">OCRResult</span>&gt; {
+  <span class="kw">const</span> { buffer: processed, hash } = <span class="kw">await</span> <span class="fn">preprocessImage</span>(buffer);
+  <span class="kw">const</span> cached = <span class="kw">await</span> db.<span class="fn">query</span>(<span class="str">'SELECT extracted FROM ocr_cache WHERE image_hash = $1'</span>, [hash]);
+  <span class="kw">if</span> (cached.rows[<span class="num">0</span>]) <span class="kw">return</span> cached.rows[<span class="num">0</span>].extracted;
+  <span class="kw">const</span> result = <span class="kw">await</span> <span class="fn">callVision</span>(processed);
+  <span class="kw">await</span> db.<span class="fn">query</span>(<span class="str">'INSERT INTO ocr_cache (image_hash, extracted) VALUES ($1, $2)'</span>, [hash, result]);
+  <span class="kw">return</span> result;
+}</pre>
+</section>
+
+<!-- ==================== 4. AI 코치 시스템 ==================== -->
+<section id="coach">
+  <h2>4. AI 코치 시스템 (NEW)</h2>
+  <p>편지 답장 + 동적 질문 + SOS 6단계 + 주간 인사이트 — <strong>UI 증가 0, 정보 수집은 시계열로 깊어지는</strong> 코칭 레이어.</p>
+
+  <h3>4-0. 시스템 컴포넌트</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+  REC["📝 기록 화면<br/>매일 다른 동적 질문<br/>(UI 동일, placeholder만 회전)"]
+  DB[("🗄 시계열 DB<br/>+ 차원별 데이터 누적")]
+  WK["📊 주간 분석<br/>월요일 자동 트리거"]
+  LT["✉️ 편지 답장<br/>홈 카드 + 모달"]
+  SOS["🎯 SOS 6단계<br/>거부 식재료 대상"]
+  IN["💡 주간 인사이트<br/>홈 진단 카드 통합"]
+  REC --> DB
+  DB --> WK
+  WK --> LT & IN
+  LT --> SOS
+  IN --> SOS
+
+  classDef io fill:#FFF8E1,stroke:#F9A825,color:#1F2D3D
+  classDef data fill:#F3E5F5,stroke:#9C27B0,color:#1F2D3D
+  classDef out fill:#E8F5E9,stroke:#16A085,color:#1F2D3D
+  class REC,LT,SOS,IN out
+  class DB data
+  class WK io
+    </div>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-COACH-01</span>
+    <h4>동적 질문 시스템 (시계열 데이터 수집)</h4>
+    <p><strong>핵심 가치</strong>: 부모는 매일 똑같은 루틴을 하는데, 시스템은 매일 다른 차원의 데이터를 수집.</p>
+
+    <h5>7 질문 시리즈 (요일 회전)</h5>
+    <pre class="code"><span class="kw">const</span> <span class="ty">DAILY_QUESTIONS</span>: <span class="ty">Question</span>[] = [
+  { id: <span class="str">'rejection'</span>, label: <span class="str">'거부 반응'</span>, dimension: <span class="str">'cebq'</span>,
+    placeholder: <span class="str">'어떤 식재료가 가장 싫다고?'</span>,
+    chips: [<span class="str">'한 입도 X'</span>, <span class="str">'골라냄'</span>, <span class="str">'향만'</span>, <span class="str">'친구따라'</span>, <span class="str">'평소보다 많이'</span>] },
+  { id: <span class="str">'environment'</span>, label: <span class="str">'식사 환경'</span>, dimension: <span class="str">'satter_env'</span>,
+    placeholder: <span class="str">'분위기는 어땠어요?'</span>,
+    chips: [<span class="str">'TV'</span>, <span class="str">'가족 대화'</span>, <span class="str">'조용'</span>, <span class="str">'짜증'</span>, <span class="str">'신나서'</span>] },
+  { id: <span class="str">'novelty'</span>, label: <span class="str">'새 식재료'</span>, dimension: <span class="str">'novelty_response'</span>,
+    placeholder: <span class="str">'처음 본 식재료 반응?'</span>,
+    chips: [<span class="str">'호기심'</span>, <span class="str">'무덤덤'</span>, <span class="str">'거부'</span>, <span class="str">'흥미'</span>, <span class="str">'-'</span>] },
+  <span class="cm">// ... 7개 총</span>
+];
+
+<span class="kw">function</span> <span class="fn">getTodayQuestion</span>(today: <span class="ty">Date</span>): <span class="ty">Question</span> {
+  <span class="kw">const</span> dayOfYear = <span class="ty">Math</span>.<span class="fn">floor</span>((today.<span class="fn">getTime</span>() - <span class="kw">new</span> <span class="ty">Date</span>(today.<span class="fn">getFullYear</span>(), <span class="num">0</span>, <span class="num">0</span>).<span class="fn">getTime</span>()) / <span class="num">86400000</span>);
+  <span class="kw">return</span> <span class="ty">DAILY_QUESTIONS</span>[dayOfYear % <span class="ty">DAILY_QUESTIONS</span>.length];
+}</pre>
+
+    <h5>데이터 저장 — meal_logs.dimension_data JSONB</h5>
+    <pre class="code"><span class="cm">// 매 끼니 기록에 차원별 데이터 누적</span>
+<span class="kw">ALTER TABLE</span> meal_logs <span class="kw">ADD COLUMN</span> dimension_data JSONB <span class="kw">DEFAULT</span> <span class="str">'{}'</span>;
+<span class="cm">// 예시 저장 (다양한 시점)</span>
+{
+  <span class="str">"rejection"</span>: <span class="str">"한 입도 X"</span>,        <span class="cm">// 월요일</span>
+  <span class="str">"environment"</span>: <span class="str">"TV"</span>,            <span class="cm">// 화요일</span>
+  <span class="str">"autonomy_quiz"</span>: <span class="str">"손으로"</span>,         <span class="cm">// 일요일</span>
+  ...
+}
+
+<span class="cm">// 30일 동안 7 차원 모두 수집 → 종합 프로파일</span>
+<span class="cm">// 각 차원은 4-5번씩 데이터 누적 (주 1회 회전 × 30일)</span></pre>
+
+    <h5>시계열 분석 (주간 인사이트용)</h5>
+    <pre class="code"><span class="kw">async function</span> <span class="fn">analyzeWeeklyDimensions</span>(childId: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">DimensionInsight</span>[]&gt; {
+  <span class="kw">const</span> logs = <span class="kw">await</span> <span class="fn">fetchLogs</span>(childId, { days: <span class="num">14</span> });  <span class="cm">// 2주 비교</span>
+  <span class="kw">const</span> insights: <span class="ty">DimensionInsight</span>[] = [];
+
+  <span class="cm">// 식사 환경 차원 (Satter)</span>
+  <span class="kw">const</span> envData = logs.<span class="fn">map</span>(l =&gt; l.dimension_data?.environment).<span class="fn">filter</span>(<span class="ty">Boolean</span>);
+  <span class="kw">const</span> tvRatio = envData.<span class="fn">filter</span>(e =&gt; e === <span class="str">'TV'</span>).length / envData.length;
+  <span class="kw">if</span> (tvRatio &gt; <span class="num">0.5</span>) {
+    insights.<span class="fn">push</span>({
+      dimension: <span class="str">'environment'</span>,
+      finding: <span class="str">`최근 2주 TV 시청 식사 ${Math.round(tvRatio*100)}%`</span>,
+      severity: <span class="str">'warn'</span>,
+      recommendation: <span class="str">'식사 중 TV OFF로 식사 시간이 줄어들 수 있어요 (Satter 권장)'</span>,
+      cta: { type: <span class="str">'modal'</span>, target: <span class="str">'sosKit'</span> }
+    });
+  }
+
+  <span class="cm">// 거부 차원 (CEBQ)</span>
+  <span class="kw">const</span> rejectionData = logs.<span class="fn">map</span>(l =&gt; l.dimension_data?.rejection).<span class="fn">filter</span>(<span class="ty">Boolean</span>);
+  <span class="kw">const</span> hardRejection = rejectionData.<span class="fn">filter</span>(r =&gt; r === <span class="str">'한 입도 X'</span>).length;
+  <span class="kw">if</span> (hardRejection &gt;= <span class="num">3</span>) {
+    insights.<span class="fn">push</span>({
+      dimension: <span class="str">'rejection'</span>,
+      finding: <span class="str">`최근 2주 한 입도 안 먹은 케이스 ${hardRejection}회`</span>,
+      severity: <span class="str">'danger'</span>,
+      recommendation: <span class="str">'SOS 6단계 친해지기 시작 시점입니다'</span>,
+      cta: { type: <span class="str">'modal'</span>, target: <span class="str">'sosKit'</span> }
+    });
+  }
+  <span class="kw">return</span> insights;
+}</pre>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-COACH-02</span>
+    <h4>편지 답장 (LLM 기반 개인화)</h4>
+    <h5>트리거</h5>
+    <ul>
+      <li>어제 메모 있는 경우 (note != null)</li>
+      <li>최소 6시간 간격 (스팸 방지)</li>
+      <li>일 1회 최대</li>
+    </ul>
+
+    <h5>프롬프트 구조</h5>
+    <pre class="code"><span class="kw">const</span> <span class="ty">LETTER_PROMPT</span> = <span class="str">`당신은 부모와 함께 아이의 식습관을 지켜보는 친구입니다.
+부모가 어제 일지에 남긴 메모를 보고, 데이터 근거와 함께 따뜻한 답장을 작성하세요.
+
+# 답장 구조 (4-5 문단)
+1. 인사 + 부모 메모 자연어 인용 (큰따옴표) + 공감
+2. 우리가 가진 데이터 근거 제시 (수치)
+3. 학술 근거 (자연어 — "연구에 따르면" / "권장은")
+4. 구체적 다음 행동 제안 (1-2개)
+5. (선택) 다른 식재료·이슈로 자연 연결
+
+# 톤
+- "지우 엄마," 처럼 친근 호명
+- "영양사" "의사" "전문가" 표현 X
+- 강요 X, 권유 O
+- 부모 죄책감 유발 X
+- 데이터는 부드럽게 ("22번 노출했는데 8번만 — 정상 단계예요")
+
+# 입력 데이터
+${profileSummary}
+
+# 어제 메모
+"${yesterdayNote}"
+
+# 어제 끼니 데이터
+${yesterdayMeals}
+
+답장 본문만 작성하세요. JSON X.\`</span>;</pre>
+
+    <h5>호출 + 캐싱</h5>
+    <pre class="code"><span class="kw">async function</span> <span class="fn">generateLetter</span>(childId: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">Letter</span>&gt; {
+  <span class="kw">const</span> profile = <span class="kw">await</span> <span class="fn">buildProfile</span>(childId);
+  <span class="kw">const</span> yesterday = <span class="kw">await</span> <span class="fn">fetchYesterdayLogs</span>(childId);
+  <span class="kw">const</span> note = yesterday.<span class="fn">map</span>(l =&gt; l.note).<span class="fn">filter</span>(<span class="ty">Boolean</span>).<span class="fn">join</span>(<span class="str">' '</span>);
+  <span class="kw">if</span> (!note) <span class="kw">return null</span>;  <span class="cm">// 메모 없으면 편지 X</span>
+
+  <span class="kw">const</span> cacheKey = <span class="str">`letter:${childId}:${today()}`</span>;
+  <span class="kw">const</span> cached = <span class="kw">await</span> redis.<span class="fn">get</span>(cacheKey);
+  <span class="kw">if</span> (cached) <span class="kw">return</span> <span class="ty">JSON</span>.<span class="fn">parse</span>(cached);
+
+  <span class="kw">const</span> response = <span class="kw">await</span> anthropic.messages.<span class="fn">create</span>({
+    model: <span class="str">'claude-sonnet-4-7'</span>,
+    max_tokens: <span class="num">1000</span>,
+    messages: [{ role: <span class="str">'user'</span>, content: <span class="fn">buildLetterPrompt</span>(profile, note, yesterday) }],
+  });
+  <span class="kw">const</span> letter = { body: response.content[<span class="num">0</span>].text, generatedAt: <span class="kw">new</span> <span class="ty">Date</span>() };
+  <span class="kw">await</span> redis.<span class="fn">set</span>(cacheKey, <span class="ty">JSON</span>.<span class="fn">stringify</span>(letter), <span class="str">'EX'</span>, <span class="num">86400</span>);  <span class="cm">// 24h</span>
+  <span class="kw">return</span> letter;
+}</pre>
+
+    <h5>안전 검증</h5>
+    <ul>
+      <li>의료 진단 표현 차단 (정규식 + 사전)</li>
+      <li>다른 아이·다른 가족 언급 차단</li>
+      <li>광고 표현 자동 제거</li>
+      <li>4-5 문단 길이 강제 (trim 또는 재호출)</li>
+    </ul>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-COACH-03</span>
+    <h4>SOS 6단계 친해지기 (Toomey)</h4>
+    <p><strong>학술 출처</strong>: Toomey & Ross, "SOS Approach to Feeding" (2017)</p>
+
+    <h5>단계별 진행 추적</h5>
+    <pre class="code"><span class="kw">CREATE TABLE</span> sos_progress (
+  child_id <span class="kw">UUID REFERENCES</span> children(id),
+  ingredient_id <span class="kw">UUID REFERENCES</span> ingredients(id),
+  step INT <span class="kw">CHECK</span> (step <span class="kw">BETWEEN</span> <span class="num">1</span> <span class="kw">AND</span> <span class="num">6</span>),
+  completed_at TIMESTAMPTZ <span class="kw">DEFAULT NOW</span>(),
+  note TEXT,
+  <span class="kw">PRIMARY KEY</span> (child_id, ingredient_id, step)
+);
+
+<span class="cm">// 6단계: 보기 → 만지기 → 냄새 → 핥기 → 씹기 → 삼키기</span>
+<span class="kw">const</span> <span class="ty">SOS_STEPS</span> = [
+  { id: <span class="num">1</span>, name: <span class="str">'보기'</span>, dur_days_avg: <span class="num">3</span>, science: <span class="str">'시각 인지 학습 (Cooke 2011)'</span> },
+  { id: <span class="num">2</span>, name: <span class="str">'만지기'</span>, dur_days_avg: <span class="num">3</span>, science: <span class="str">'촉각 학습'</span> },
+  { id: <span class="num">3</span>, name: <span class="str">'냄새'</span>, dur_days_avg: <span class="num">2</span>, science: <span class="str">'후각 친숙화'</span> },
+  { id: <span class="num">4</span>, name: <span class="str">'핥기'</span>, dur_days_avg: <span class="num">3</span>, science: <span class="str">'맛 노출 시작'</span> },
+  { id: <span class="num">5</span>, name: <span class="str">'씹기'</span>, dur_days_avg: <span class="num">5</span>, science: <span class="str">'구강 운동'</span> },
+  { id: <span class="num">6</span>, name: <span class="str">'삼키기'</span>, dur_days_avg: <span class="num">7</span>, science: <span class="str">'12-30회 반복 권장 (Birch)'</span> },
+];
+
+<span class="cm">// 트리거: ingredient_stat.exposure_count ≥ 5 AND accept_rate &lt; 0.3 시 SOS 자동 추천</span>
+<span class="kw">async function</span> <span class="fn">shouldRecommendSOS</span>(childId: <span class="ty">string</span>, ingId: <span class="ty">string</span>): <span class="ty">Promise</span>&lt;<span class="ty">boolean</span>&gt; {
+  <span class="kw">const</span> stat = <span class="kw">await</span> <span class="fn">fetchIngStat</span>(childId, ingId);
+  <span class="kw">return</span> stat.exposure_count &gt;= <span class="num">5</span> &amp;&amp; stat.accept_rate &lt; <span class="num">0.3</span>;
+}</pre>
+
+    <h5>거부 대처 5가지 (SOS 모달 내 통합)</h5>
+    <ol class="step-list">
+      <li><strong>5초 룰</strong> — 거부 후 5초만 기다리기 (다시 권하지 X)</li>
+      <li><strong>표정·말 반응 X</strong> — Satter DOR (압박은 거부 강화)</li>
+      <li><strong>모델링</strong> — 부모가 먼저 맛있게 먹는 모습 (Birch 1980)</li>
+      <li><strong>다음 끼니 재시도</strong> — 포기 X · 끼니 단위로 reset</li>
+      <li><strong>12-30회 반복 노출</strong> — Cooke 2011 / Birch & Marlin 1982</li>
+    </ol>
+  </div>
+
+  <div class="algo-box">
+    <span class="algo-id">ALG-COACH-04</span>
+    <h4>주간 인사이트 (월요일 자동)</h4>
+    <h5>트리거 + 출력</h5>
+    <pre class="code"><span class="cm">// Supabase Edge Function (cron: 매주 월요일 06:00 KST)</span>
+<span class="kw">export async function</span> <span class="fn">weeklyInsightJob</span>() {
+  <span class="kw">const</span> children = <span class="kw">await</span> <span class="fn">activeChildrenLastWeek</span>();
+  <span class="kw">for</span> (<span class="kw">const</span> child <span class="kw">of</span> children) {
+    <span class="kw">const</span> dimensionInsights = <span class="kw">await</span> <span class="fn">analyzeWeeklyDimensions</span>(child.id);
+    <span class="kw">const</span> trendInsights = <span class="kw">await</span> <span class="fn">analyzeTrends</span>(child.id);   <span class="cm">// 점수·식감·자율성 추세</span>
+    <span class="kw">const</span> llmSummary = <span class="kw">await</span> <span class="fn">generateInsightSummary</span>(child, dimensionInsights, trendInsights);
+
+    <span class="kw">await</span> db.<span class="fn">query</span>(<span class="str">`
+      INSERT INTO weekly_insights (child_id, week_start, insights_json, summary, created_at)
+      VALUES ($1, $2, $3, $4, NOW())
+    `</span>, [child.id, <span class="fn">mondayDate</span>(), { dimensions: dimensionInsights, trends: trendInsights }, llmSummary]);
+
+    <span class="cm">// 푸시 알림: "이번 주 인사이트가 도착했어요"</span>
+    <span class="kw">await</span> <span class="fn">sendPush</span>(child.userId, {
+      title: <span class="str">'이번 주 우리아이 식습관 인사이트'</span>,
+      body: llmSummary.split(<span class="str">'\n'</span>)[<span class="num">0</span>],  <span class="cm">// 첫 줄만</span>
+    });
+  }
+}</pre>
+
+    <h5>홈에 표시되는 카드</h5>
+    <pre class="code">┌─────────────────────────────────┐
+│ 📊 이번 주 인사이트              │
+│                                   │
+│ 식사 시간 평균 32분 (지난주 28분) │
+│ 시금치 3주 연속 거부 — SOS 시작 시점 │
+│ TV 시청 식사 60% — 줄여보세요    │
+│                                   │
+│ [🎯 시금치 SOS 시작 →]           │
+│ [✉️ 편지로 자세히 보기 →]        │
+└─────────────────────────────────┘</pre>
+
+    <h5>인사이트 생성 LLM 프롬프트</h5>
+    <pre class="code"><span class="kw">const</span> <span class="ty">INSIGHT_PROMPT</span> = <span class="str">`당신은 부모에게 이번 주 아이 식습관을 3-4문장으로 요약해주는 코치입니다.
+
+# 입력 데이터
+- 식습관 프로파일 (지난 주 vs 이번 주 비교)
+- 7 차원 데이터 (거부·환경·자율성 등)
+- 7축 진단 점수 변화
+- 신호등 색상 변화
+
+# 출력 구조
+1. 가장 큰 변화 1개 강조 (점수·식감·환경 중)
+2. 데이터 근거 (수치)
+3. 다음 주 액션 1-2개 제안 (구체적)
+4. (선택) 칭찬 1개 (잘하고 있는 영역)
+
+# 톤
+- 친구·코치 톤 (영양사 X)
+- 부드러운 권유
+- 강요 X · 죄책감 X\`</span>;</pre>
+  </div>
+
+  <h3>4-1. 알림 빈도 제어</h3>
+  <table>
+    <tr><th>알림</th><th>빈도</th><th>조건</th></tr>
+    <tr><td>편지 답장</td><td>일 1회 최대</td><td>어제 메모 있음 + 마지막 편지 ≥ 24h</td></tr>
+    <tr><td>주간 인사이트</td><td>주 1회 (월요일 06:00)</td><td>지난주 기록 ≥ 5끼</td></tr>
+    <tr><td>SOS 추천</td><td>식재료당 1회</td><td>exposure ≥ 5 AND accept_rate &lt; 0.3</td></tr>
+    <tr><td>식단 미기록 푸시</td><td>일 1회 (저녁 8시)</td><td>당일 기록 0건</td></tr>
+  </table>
+</section>
+
+<div class="nav-back">
+  <a href="/docs.html">📚 허브</a>
+  <a href="/architecture.html">📊 아키텍처 v1</a>
+  <a href="/architecture-detailed.html">📐 아키텍처 v2</a>
+  <a href="/dev-spec.html">⚙️ 개발 명세</a>
+</div>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 편식도감</strong> · 엔진 Deep Dive v1 · 2026-05-24</p>
+  <p>22 알고리즘 (평가 5 + 추천 7 + OCR 6 + 코치 4) · TypeScript 인터페이스 · SQL 함수 · LLM 프롬프트 전문</p>
+</footer>
+
+<script>
+  mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#FFF8F2',primaryTextColor:'#1F2D3D',primaryBorderColor:'#E89244',lineColor:'#9CA3AF',fontFamily:'Pretendard Variable, sans-serif',fontSize:'12px'},flowchart:{curve:'basis'}});
+</script>
+</body>
+</html>
