@@ -126,10 +126,10 @@
 <header class="hero">
   <span class="tag">🏗 DETAILED ARCHITECTURE · v2</span>
   <h1>밀프레드 편식도감<br>스키마 · UX · 알고리즘</h1>
-  <p>14개 테이블 ER 다이어그램 + 34개 유즈케이스 + 18개 핵심 알고리즘 상세 명세</p>
+  <p>14개 테이블 ER 다이어그램 + 37개 유즈케이스 + 18개 핵심 알고리즘 상세 명세</p>
   <div class="meta">
     <span>📊 ER Diagram</span>
-    <span>👥 34 Use Cases</span>
+    <span>👥 37 Use Cases</span>
     <span>⚙️ 18 Algorithms</span>
   </div>
 </header>
@@ -437,7 +437,7 @@ erDiagram
 <!-- ==================== 2. USE CASES ==================== -->
 <section id="usecases">
   <span class="section-tag">━ PART 2. USE CASES (UX) ━</span>
-  <h2>34개 유즈케이스 — 고객은 무엇을 할 수 있나?</h2>
+  <h2>37개 유즈케이스 — 고객은 무엇을 할 수 있나?</h2>
 
   <h3>2-1. Actor 다이어그램</h3>
   <div class="mermaid-wrap">
@@ -505,11 +505,13 @@ flowchart LR
     <div class="uc-card">
       <div class="uc-head">
         <div class="uc-num">04</div>
-        <div class="uc-title"><h4>엄마/아빠 토글</h4><div class="actor">👩👨 부모</div></div>
+        <div class="uc-title"><h4>스트릭 🔥 + 데일리 미션</h4><div class="actor">👩 부모</div></div>
       </div>
       <div class="uc-body">
-        <p><strong>고객은</strong> 인사말의 보호자 호칭을 엄마↔아빠로 즉시 바꿀 수 있다.</p>
-        <div class="uc-flow">설정 메뉴 → toggle → <code>users.parent_type</code> 업데이트 → 모든 인사 자연어 갱신</div>
+        <p><strong>고객은</strong> 상단 바의 🔥 N일 뱃지와 홈 상단 데일리 미션 카드("오늘 한 컷 기록하기 · 30초만 · 12일 연속 🔥")로 매일 식단 기록 동기를 받는다.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 식단 1건+ 저장 시 streak 증가 → top-bar에 🔥 12일 표시 + daily-mission 카드 갱신 → 클릭 시 기록 탭 자동 이동</div>
+        <span class="label">알림</span>당일 미기록 시 저녁 8시 푸시 ("오늘 기록 끊기지 마세요")
+        <span class="label">진화 검토</span>날짜 소급 입력 UX와 충돌하지 않게 — "이번 달 25/28일 기록" 같은 부담 적은 지표로 전환 고려
       </div>
     </div>
   </div>
@@ -618,17 +620,17 @@ flowchart LR
     </div>
   </div>
 
-  <h3>2-4. 카테고리 C — 평가 (UC-14 ~ UC-22)</h3>
+  <h3>2-4. 카테고리 C — 평가 (UC-14 ~ UC-22b)</h3>
   <div class="uc-section">
 
     <div class="uc-card">
       <div class="uc-head">
         <div class="uc-num">14</div>
-        <div class="uc-title"><h4>영양 점수 보기</h4><div class="actor">👩 부모</div></div>
+        <div class="uc-title"><h4>영양 점수 카드 (등급·스케일·진척)</h4><div class="actor">👩 부모</div></div>
       </div>
       <div class="uc-body">
-        <p><strong>고객은</strong> 홈에서 "현재 지우 영양 점수는 60점이에요" 한 줄로 종합 진단을 즉시 확인할 수 있다.</p>
-        <div class="uc-flow"><strong>계산</strong>: 7축 점수 가중평균 → 5등급(S/A/B/C/D) → 자연어 라벨</div>
+        <p><strong>고객은</strong> 홈에서 영양 점수를 4단계 시각화로 확인한다: <strong>① 60점 큰 숫자 + B 보통 뱃지 + 지난주 대비 변화(+8)</strong>, <strong>② 5등급 가로 스케일 바</strong> (D→C→B→A→S, 현재 위치 화살표), <strong>③ 이번 주 먹은 식재료 진척도</strong> (18/30종, 다음 등급까지 N종), <strong>④ 🍳 레시피 추천받기 CTA</strong> → 레시피 탭으로.</p>
+        <div class="uc-flow"><strong>계산</strong>: 7축 점수 가중평균 → 5등급(S/A/B/C/D) → 자연어 라벨 + 식재료 카운트</div>
       </div>
     </div>
 
@@ -714,7 +716,18 @@ flowchart LR
         <div class="uc-title"><h4>오늘 만난 영양 가족 (8 식품군)</h4><div class="actor">👩 부모</div></div>
       </div>
       <div class="uc-body">
-        <p><strong>고객은</strong> WHO MDD 8 식품군 카테고리 그리드로 오늘 만난 그룹을 한눈에 본다.</p>
+        <p><strong>고객은</strong> WHO MDD 8 식품군 카테고리 그리드(곡물·콩·유제품·고기생선·계란·진한채소·기타채소·과일)로 오늘 만난 그룹을 한눈에 본다. 만난 식품군은 회색→컬러로 활성화, 카운트 "5 / 8 충족" 표시.</p>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">22b</div>
+        <div class="uc-title"><h4>식감/메뉴 반복 narrative 알림</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 7축 진단의 warn 항목(식감 단계·메뉴 반복)을 별도 narrative 카드로 받고, 클릭으로 레시피 탭 자동 이동한다.</p>
+        <div class="uc-flow"><strong>예시</strong>: "이번 주 죽·미음 비중 65%예요 → 내일 시작 추천: 당근 스틱 + 후무스" / "한 주 동안 닭죽이 5번 → 로테이션: 버섯·콩·생선으로 베이스 바꾸기"</div>
       </div>
     </div>
   </div>
@@ -830,7 +843,7 @@ flowchart LR
     </div>
   </div>
 
-  <h3>2-7. 카테고리 F — 공유·학습·운영 (UC-33 ~ UC-34)</h3>
+  <h3>2-7. 카테고리 F — 공유·학습·알림·운영 (UC-33 ~ UC-34)</h3>
   <div class="uc-section">
 
     <div class="uc-card">
@@ -839,8 +852,30 @@ flowchart LR
         <div class="uc-title"><h4>공식 블로그 후킹 카드 (가로 스크롤)</h4><div class="actor">👩 부모</div></div>
       </div>
       <div class="uc-body">
-        <p><strong>고객은</strong> 홈 하단 가로 스크롤 카드에서 최신 블로그 8편의 후킹 제목을 보고 클릭으로 학습한다.</p>
-        <div class="uc-flow">+ 평가 결과 카드 PNG 저장 · 친구 공유 (navigator.share API)</div>
+        <p><strong>고객은</strong> 홈 하단 보라색 그라데이션 카드 가로 스크롤로 최신 블로그 8편의 <strong>후킹된 제목</strong>(예: "단맛 좋아하는 우리 아이 유전일까?", "편식 2년 골든타임", "NHS 의사 거부 한 마디 비법")을 본다. 우상단 "전체 357편 →" 버튼으로 인덱스 진입. 각 카드 클릭 = 해당 글 새 창.</p>
+        <div class="uc-flow"><strong>제목 후킹 패턴</strong>: 질문형("혹시 ARFID?")·위험형("위험한 이유")·권위형("NHS 의사")·호기심형("그 DB")</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">33b</div>
+        <div class="uc-title"><h4>평가 결과 공유 (카드 PNG · 친구)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> daycare-eval 결과 카드를 PNG로 저장하거나 카카오·인스타로 공유한다. <strong>공유 시 출처(어린이집·유치원 이름) 자동 제거</strong> — 점수와 보충 가이드만 노출.</p>
+        <div class="uc-flow"><strong>흐름</strong>: 결과 모달 → "📥 카드 저장" (html2canvas) / "📤 친구에게" (navigator.share API) → 자동 복사</div>
+      </div>
+    </div>
+
+    <div class="uc-card">
+      <div class="uc-head">
+        <div class="uc-num">33c</div>
+        <div class="uc-title"><h4>알림 (top-bar 🔔)</h4><div class="actor">👩 부모</div></div>
+      </div>
+      <div class="uc-body">
+        <p><strong>고객은</strong> 상단 알림 아이콘 (빨간 dot) 클릭으로 미확인 알림(식단 미기록·신호등 변화·키트 추천·새 블로그)을 본다.</p>
+        <div class="uc-flow"><strong>알림 종류</strong>: 식단 미기록 푸시(저녁 8시) · 신호등 빨강 변화 · 키트 추천 (SOS 6단계) · 신규 블로그 (주 1회)</div>
       </div>
     </div>
 
@@ -1365,7 +1400,7 @@ sequenceDiagram
 <footer>
   <p><strong>밀프레드 편식도감</strong> · 상세 아키텍처 v2 · 2026-05-23</p>
   <p>관련: <a href="/architecture.html">간략 아키텍처 v1</a> · <a href="/dogam.html">데모 앱</a> · <a href="/daycare-eval.html">식단표 평가</a></p>
-  <p>📊 14 테이블 · 👥 34 유즈케이스 · ⚙️ 18 알고리즘 (평가 5 + 추천 7 + OCR 6)</p>
+  <p>📊 14 테이블 · 👥 37 유즈케이스 · ⚙️ 18 알고리즘 (평가 5 + 추천 7 + OCR 6)</p>
 </footer>
 
 <script>
