@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 편식도감 — 레시피 추천 기준 (전체 데이터·이론 명세)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;--g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;--v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FFEBEE;--r500:#E53935;--r700:#C62828;--y50:#FFF8E1;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.75}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--n100);padding:1px 6px;border-radius:4px;color:var(--p700)}
+
+  .hero{background:linear-gradient(135deg,#E89244,#9C27B0,#3498DB);color:white;padding:60px 24px 40px;text-align:center}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.25);padding:6px 14px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.05em;margin-bottom:14px}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px;line-height:1.2}
+  .hero p{font-size:14px;color:rgba(255,255,255,0.92);max-width:600px;margin:0 auto;font-weight:600}
+  .hero .meta{display:flex;justify-content:center;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.18);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+  .toc{background:white;border-bottom:1px solid var(--n200);padding:14px 24px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1100px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--n600);font-weight:700;padding:6px 11px;border-radius:100px;background:var(--n50);text-decoration:none;flex-shrink:0}
+  .toc a:hover{background:var(--p500);color:white}
+
+  main{max-width:1100px;margin:0 auto;padding:24px}
+  section{margin-bottom:64px;scroll-margin-top:60px}
+  .stag{display:inline-block;font-size:11px;color:var(--p700);font-weight:800;letter-spacing:0.08em;margin-bottom:6px}
+  h2{font-size:28px;font-weight:800;color:var(--s800);letter-spacing:-0.02em;margin-bottom:14px;padding:16px 20px;background:linear-gradient(135deg,#FFF8F2,#FFE8D1);border-left:6px solid var(--p500);border-radius:0 14px 14px 0}
+  h3{font-size:19px;font-weight:800;color:var(--s800);margin:26px 0 12px;padding-left:14px;border-left:5px solid var(--v500);letter-spacing:-0.01em}
+  h4{font-size:15px;font-weight:800;color:var(--s700);margin:16px 0 8px}
+  h5{font-size:13px;font-weight:800;color:var(--n700);margin:10px 0 5px;text-transform:uppercase;letter-spacing:0.04em}
+  p{font-size:14px;color:var(--n700);font-weight:500;margin-bottom:10px}
+  ul,ol{margin:8px 0 14px 22px}
+  li{font-size:13.5px;color:var(--n700);margin-bottom:5px;line-height:1.75}
+  strong{color:var(--s800);font-weight:800}
+
+  .card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin-bottom:14px}
+  .card.green{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:var(--g500)}
+  .card.blue{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-color:var(--b500)}
+  .card.purple{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-color:var(--v500)}
+  .card.yellow{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-color:var(--y500)}
+  .card.red{background:linear-gradient(135deg,#FFEBEE,#FFCDD2);border-color:var(--r500)}
+  .card.dark{background:var(--s800);color:white;border-color:var(--s800)}
+  .card.dark h3,.card.dark p,.card.dark li{color:white}
+  .card.dark strong{color:#FFD89C}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200);margin:8px 0}
+  th{background:var(--s800);color:white;padding:10px 12px;text-align:left;font-size:11px;font-weight:800}
+  td{padding:8px 12px;border-bottom:1px solid var(--n100);vertical-align:top;color:var(--n700)}
+  td.mono{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--p700)}
+  tr:last-child td{border-bottom:none}
+
+  pre.code{background:#1F2D3D;color:#E0E7EE;padding:14px 16px;border-radius:10px;overflow-x:auto;font-size:11.5px;line-height:1.75;margin:8px 0}
+  pre.code .kw{color:#FFB375;font-weight:700}
+  pre.code .str{color:#9CCC65}
+  pre.code .cm{color:#7A8FA8;font-style:italic}
+  pre.code .fn{color:#42A5F5}
+  pre.code .num{color:#FF8A65}
+
+  .mermaid-wrap{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px;margin:14px 0;overflow-x:auto}
+  .mermaid{text-align:center;min-width:600px}
+
+  /* Reference card (학술 출처) */
+  .ref-card{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid var(--v500)}
+  .ref-card .name{font-size:14px;font-weight:800;color:var(--s800);margin-bottom:3px}
+  .ref-card .author{font-size:11.5px;color:var(--v700);font-weight:700;margin-bottom:6px}
+  .ref-card .desc{font-size:12.5px;color:var(--n700);line-height:1.7}
+  .ref-card .usage{background:var(--n50);padding:8px 11px;border-radius:8px;margin-top:8px;font-size:11.5px;color:var(--n700);line-height:1.65}
+  .ref-card .usage strong{color:var(--p700)}
+
+  /* Data card */
+  .data-card{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:16px;margin-bottom:10px;border-left:4px solid var(--b500)}
+  .data-card .head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .data-card .ico{font-size:24px}
+  .data-card .nm{font-size:14px;font-weight:800;color:var(--s800)}
+  .data-card .sub{font-size:11px;color:var(--n500);font-weight:600;font-family:ui-monospace,Menlo,monospace}
+
+  /* Principle card */
+  .principle-card{background:linear-gradient(135deg,#FFF8F2,#FFE8D1);border:1.5px solid var(--p500);border-radius:14px;padding:18px;margin-bottom:14px;position:relative}
+  .principle-card .badge{position:absolute;top:-12px;left:20px;background:var(--p500);color:white;font-weight:800;font-size:12px;padding:4px 12px;border-radius:100px}
+  .principle-card h4{margin-top:6px;font-size:16px}
+  .principle-card .data-uses{background:white;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:11.5px;color:var(--n700);line-height:1.7}
+  .principle-card .data-uses strong{color:var(--p700)}
+
+  .nav-back{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);padding:18px;border-radius:14px;margin-top:30px;text-align:center}
+  .nav-back a{color:var(--v700);font-weight:800;text-decoration:none;font-size:13.5px;margin:0 10px}
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--n400);border-top:1px solid var(--n100);font-weight:600}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">🔬 RECIPE RECOMMENDATION CRITERIA · v1</span>
+  <h1>우리는 어떻게<br>레시피를 추천하나?</h1>
+  <p>참조 데이터 6종 · 학술 이론 11종 · 4 원칙 + α · 모든 기준과 출처를 한 페이지에</p>
+  <div class="meta">
+    <span>📚 11 학술 출처</span>
+    <span>📊 6 데이터 소스</span>
+    <span>⚙️ 4 핵심 원칙</span>
+    <span>🥩 메인 반찬 판단</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#summary">🎯 한 줄 요약</a>
+    <a href="#data">📊 1. 참조 데이터</a>
+    <a href="#theory">📚 2. 학술 이론</a>
+    <a href="#principles">⚙️ 3. 4 원칙</a>
+    <a href="#protein">🥩 4. 메인 반찬 판단</a>
+    <a href="#variety">🥬 5. 다양성 2-Layer</a>
+    <a href="#repeat">🔁 6. 반복 회피</a>
+    <a href="#output">📤 7. 최종 출력</a>
+    <a href="#refs">📖 8. 학술 출처</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ==================== 0. 요약 ==================== -->
+<section id="summary">
+  <span class="stag">━ TL;DR ━</span>
+  <h2>한 줄 요약</h2>
+  <div class="card dark">
+    <h3 style="border:none;padding:0;font-size:22px;color:#FFD89C">"우리 아이가 잘 먹는 베이스에<br>학술 근거로 도전 식재료를 자연스럽게 — 매번 다른 방식으로"</h3>
+    <p style="margin-top:14px;font-size:13.5px;line-height:1.8">
+      밀프레드 편식도감 추천은 <strong>6 데이터 소스</strong>를 <strong>11 학술 이론</strong>에 따라 분석하고,
+      <strong>4 핵심 원칙</strong>으로 4,432 레시피에서 6-8개를 골라
+      <strong>"왜 우리 아이에게?" 자연어 이유</strong>와 함께 제공합니다.
+      추천은 매번 다릅니다 — 같은 메뉴는 4주 내 반복하지 않습니다.
+    </p>
+  </div>
+</section>
+
+<!-- ==================== 1. 참조 데이터 ==================== -->
+<section id="data">
+  <span class="stag">━ DATA SOURCES ━</span>
+  <h2>1. 참조 데이터 — 6 소스</h2>
+  <p>레시피 추천은 다음 6가지 데이터를 종합 분석합니다.</p>
+
+  <div class="data-card">
+    <div class="head"><span class="ico">📝</span>
+      <div><div class="nm">데이터 ①: 식단 기록 (meal_logs)</div><div class="sub">최근 30일 · 끼니 단위</div></div>
+    </div>
+    <table>
+      <tr><th>필드</th><th>활용</th></tr>
+      <tr><td>식재료 (ingredients)</td><td>노출 빈도·먹은 빈도·accept_rate 계산</td></tr>
+      <tr><td>반응 (reaction)</td><td>잘먹음/또달라 = 선호 · 거부/남김 = 도전 식재료</td></tr>
+      <tr><td>식감 단계 (texture_level)</td><td>현재 식감 분포 → 점진 단계 ↑ 결정</td></tr>
+      <tr><td>자율성 (autonomy)</td><td>Satter DOR · 스스로 비율 추적</td></tr>
+      <tr><td>식사 환경 (place·duration)</td><td>20분 이내·정해진 장소 권장 체크</td></tr>
+      <tr><td>동적 질문 답변 (dimension_data)</td><td>거부 반응·환경·새 식재료 등 차원별 시계열</td></tr>
+    </table>
+  </div>
+
+  <div class="data-card">
+    <div class="head"><span class="ico">📊</span>
+      <div><div class="nm">데이터 ②: 식습관 프로파일 (집계)</div><div class="sub">실시간 계산 · profile_hash 캐시</div></div>
+    </div>
+    <table>
+      <tr><th>필드</th><th>예시</th></tr>
+      <tr><td>ingredient_stats</td><td>{시금치: {노출 22, 먹음 8, 36%, 마지막 3일 전}}</td></tr>
+      <tr><td>base_stats</td><td>{계란찜: 43회, 죽: 32회, 부침개: 15회} (선호 베이스 TOP 5)</td></tr>
+      <tr><td>texture_distribution</td><td>{죽 65%, 매시 25%, 다진 7%, 핑거 3%}</td></tr>
+      <tr><td>nutrient_status (KDRI 36)</td><td>{철: red, 콜린: red, 비D: red, ...}</td></tr>
+      <tr><td>recent_menus</td><td>최근 21끼 메뉴명 (중복 회피용)</td></tr>
+    </table>
+  </div>
+
+  <div class="data-card">
+    <div class="head"><span class="ico">📏</span>
+      <div><div class="nm">데이터 ③: 아이 프로파일 (children + growth)</div><div class="sub">정적 + 주 1회 갱신</div></div>
+    </div>
+    <table>
+      <tr><th>필드</th><th>활용</th></tr>
+      <tr><td>age_months / age_band</td><td>연령별 권장 (식감·자율성·KDRI band)</td></tr>
+      <tr><td>sex</td><td>KDC 성장도표 lookup</td></tr>
+      <tr><td>allergens</td><td>알레르겐 위배 레시피 자동 제외 (안전 필수)</td></tr>
+      <tr><td>care_type</td><td>어린이집·유치원·가정 → 추천 톤 조정</td></tr>
+      <tr><td>BMI percentile</td><td>탄·단·지 권장 양 조정</td></tr>
+    </table>
+  </div>
+
+  <div class="data-card">
+    <div class="head"><span class="ico">📚</span>
+      <div><div class="nm">데이터 ④: 레시피 마스터 (recipes 4,432종)</div><div class="sub">enrich 완료 후 정적</div></div>
+    </div>
+    <table>
+      <tr><th>필드</th><th>활용</th></tr>
+      <tr><td>base_type (15분류)</td><td>죽·계란찜·부침개·국·볶음·찜·구이·무침·생식·면·밥·간식·찌개·전·튀김</td></tr>
+      <tr><td>texture_level</td><td>미음/페이스트/매시/다진/큐브/스틱/통째 7단계</td></tr>
+      <tr><td>main_protein_type</td><td>붉은고기·흰고기·생선·계란·콩 (메인 반찬 판단용 — §4 참조)</td></tr>
+      <tr><td>ingredients[].form</td><td>즙/다진/매시/큐브/스틱/통째/페이스트/가루 — concealment 판정</td></tr>
+      <tr><td>nutri_total (36)</td><td>레시피 단위 영양 합계 — 부족 영양 보강 매칭</td></tr>
+      <tr><td>nutrient_highlights</td><td>RNI 30%+ 기여 영양소 (예: ['철', '엽산'])</td></tr>
+      <tr><td>concealment</td><td>{식재료: high/mid/low} 가림 정도</td></tr>
+      <tr><td>cook_minutes·difficulty</td><td>현실성 (간식·간단·복잡)</td></tr>
+    </table>
+  </div>
+
+  <div class="data-card">
+    <div class="head"><span class="ico">🥕</span>
+      <div><div class="nm">데이터 ⑤: 식재료 마스터 (ingredients 1,000+)</div><div class="sub">147 자동완성 풀 + enrich</div></div>
+    </div>
+    <table>
+      <tr><th>필드</th><th>활용</th></tr>
+      <tr><td>category / subcategory</td><td>16 카테고리 분류 (잎채소·뿌리·생선·계란 등)</td></tr>
+      <tr><td>species_id</td><td>시금치 vs 케일 vs 상추 = 다른 종 (다양성 2-Layer)</td></tr>
+      <tr><td>nutri_per_100g</td><td>농진청 국가표준식품성분표 36 영양소</td></tr>
+      <tr><td>allergens</td><td>식약처 17대 + 추가</td></tr>
+      <tr><td>seasonality</td><td>제철 월 (계절성 점수)</td></tr>
+      <tr><td>processing_level (NOVA)</td><td>1=자연식 / 2=가공 / 3=초가공 / 4=울트라가공</td></tr>
+    </table>
+  </div>
+
+  <div class="data-card">
+    <div class="head"><span class="ico">📖</span>
+      <div><div class="nm">데이터 ⑥: 학술 기준 마스터 (kdri_rni + standards)</div><div class="sub">KDRI 2025·WHO·HabEat 등</div></div>
+    </div>
+    <table>
+      <tr><th>필드</th><th>활용</th></tr>
+      <tr><td>kdri_rni</td><td>연령별 RNI/AI/UL — 영양 충족률 계산</td></tr>
+      <tr><td>who_mdd_families</td><td>8 식품군 매핑</td></tr>
+      <tr><td>our_subcategories_14</td><td>WHO MDD 세분화 (Layer 2)</td></tr>
+      <tr><td>habeat_texture_table</td><td>연령별 권장 식감 분포</td></tr>
+      <tr><td>satter_dor</td><td>자율성·식사 환경 기준</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ==================== 2. 학술 이론 ==================== -->
+<section id="theory">
+  <span class="stag">━ ACADEMIC THEORIES ━</span>
+  <h2>2. 적용하는 학술 이론 — 11종</h2>
+  <p>모든 추천 결정은 다음 11개 학술 이론에 근거합니다. 임의 룰 X.</p>
+
+  <h3>2-1. 다양성 평가 (5종)</h3>
+
+  <div class="ref-card">
+    <div class="name">① WHO Minimum Dietary Diversity (MDD)</div>
+    <div class="author">World Health Organization, 2010 (revised 2017)</div>
+    <div class="desc">영유아 보완식의 식품군 다양성 평가 — 8 식품군 중 5개 이상 = 통과 (Pass/Fail 이분법)</div>
+    <div class="usage"><strong>활용</strong>: Layer 1 — 통과 기준 (D 등급 cutoff). 5/8 미만 시 강제 다양성 보강 추천</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="name">② Dietary Species Richness (DSR)</div>
+    <div class="author">Lachat et al. 2018, PNAS (Lancet)</div>
+    <div class="desc">MDD 한계 보완 — 종(species) 단위 카운트로 영양 품질과 강한 상관관계 입증. 240종+/년 권장 (성인)</div>
+    <div class="usage"><strong>활용</strong>: Layer 2 — 카테고리 내 종 다양성. "시금치만 5번" = 잎채소 카테고리 통과지만 DSR 1종 → 근대·아욱 추천</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="name">③ Healthy Eating Index (HEI-2020)</div>
+    <div class="author">USDA Center for Nutrition Policy and Promotion</div>
+    <div class="desc">13 components 점수화 (whole grains·dark green vegetables·seafood 등 세분화)</div>
+    <div class="usage"><strong>활용</strong>: 우리 14 sub-카테고리 설계의 모델. 특히 "통곡물 별도 분리", "진한 잎채소 별도" 채택</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="name">④ Food Variety Score (FVS)</div>
+    <div class="author">Hatløy et al. 1998</div>
+    <div class="desc">7일간 unique 식재료 종 수 카운트. 30-40종+/주 권장. 영양 적정성과 강한 상관</div>
+    <div class="usage"><strong>활용</strong>: 주간 unique 종 수 추적. S 등급 cutoff (≥ 25종/주 + 새 시도 ≥ 2종)</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="name">⑤ NOVA Food Classification</div>
+    <div class="author">Monteiro et al. 2019, Brazil</div>
+    <div class="desc">가공도 4단계 (1=자연식 / 2=요리 재료 / 3=가공식품 / 4=초가공). 4 비율 ≤25% 권장</div>
+    <div class="usage"><strong>활용</strong>: 레시피·식단표 평가 시 가공식품 비율 계산. 어린이집 식단표 평가 7축 中 1개</div>
+  </div>
+
+  <h3>2-2. 식습관 형성 이론 (4종)</h3>
+
+  <div class="ref-card">
+    <div class="name">⑥ Food Chaining (Toomey)</div>
+    <div class="author">Cheri Fraker, Sibyl Cox, Mark Fishbein, 2007 "Food Chaining"</div>
+    <div class="desc">아이가 좋아하는 음식을 "체인 시작"으로 점진적으로 비슷한 식감·맛·색으로 확장. 예: 닭너겟 → 닭볶음탕 → 닭다리 구이 → 닭가슴살</div>
+    <div class="usage"><strong>활용</strong>: 원칙 1 — 잘먹는 베이스에 도전 식재료 (계란찜 + 시금치). 단계적 chain 설계</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="name">⑦ Toomey SOS Approach to Feeding</div>
+    <div class="author">Kay Toomey & Erin Ross, 2017 "SOS Approach to Feeding"</div>
+    <div class="desc">거부 식재료 점진 친해지기 6단계: 보기 → 만지기 → 냄새 → 핥기 → 씹기 → 삼키기</div>
+    <div class="usage"><strong>활용</strong>: SOS 6단계 모달 (도감) + 극도 거부 식재료 (accept_rate &lt; 30% AND exposure ≥ 5) 자동 추천</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="name">⑧ Repeated Exposure Theory</div>
+    <div class="author">Cooke 2011 / Birch & Marlin 1982</div>
+    <div class="desc">새 식재료 평균 12-30회 반복 노출 후 수용. 거부 자체가 정상 단계 — 부모 압박은 거부 강화</div>
+    <div class="usage"><strong>활용</strong>: 도감 노출 카운트·SOS 거부 대처 5가지·편지 답장 자연어 근거 ("연구에 따르면 12-30번 노출 후 수용")</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="name">⑨ Satter Division of Responsibility (DOR)</div>
+    <div class="author">Ellyn Satter, 2007 "Eating Competence Model"</div>
+    <div class="desc">부모는 무엇·언제·어디서 / 아이는 얼마나·먹을지 결정. 압박 X · 자율성 ↑</div>
+    <div class="usage"><strong>활용</strong>: 7축 中 환경(식사 시간·장소)·자율성 평가. "20분 이내·정해진 자리" narrative</div>
+  </div>
+
+  <h3>2-3. 영양·식감 이론 (2종)</h3>
+
+  <div class="ref-card">
+    <div class="name">⑩ HabEat Project</div>
+    <div class="author">EU FP7, 2010-2014, Schwartz et al.</div>
+    <div class="desc">EU 7개국 영유아 코호트. 식감 단계·메뉴 반복도가 식습관 형성에 결정적</div>
+    <div class="usage"><strong>활용</strong>: 7축 中 식감·메뉴반복. 연령별 권장 식감 분포 lookup 테이블 (AGE_TEXTURE_TABLE)</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="name">⑪ KDRI 2025 (한국인 영양소 섭취기준)</div>
+    <div class="author">보건복지부 · 한국영양학회, 2025</div>
+    <div class="desc">한국인 36 필수 영양소 RNI/AI/UL. 콜린 2025 신규 제정 (만 1-2세 160 mg/일)</div>
+    <div class="usage"><strong>활용</strong>: 36 영양 신호등·부족 영양 보강 추천·탄·단·지 권장량. 한국 영유아 표준</div>
+  </div>
+</section>
+
+<!-- ==================== 3. 4 원칙 ==================== -->
+<section id="principles">
+  <span class="stag">━ 4 PRINCIPLES ━</span>
+  <h2>3. 추천 4 원칙 + 사용 데이터</h2>
+
+  <div class="principle-card">
+    <span class="badge">원칙 1</span>
+    <h4>⭐ 선호 베이스 + 도전 식재료</h4>
+    <p>잘먹는 베이스(계란찜·죽·부침개)에 거부 식재료를 자연스럽게 — 거부감 ↓</p>
+    <div class="data-uses">
+      <strong>사용 데이터</strong>: base_stats (선호 베이스 TOP 5) · ingredient_stats (accept_rate &lt; 0.5 OR 미만남 &gt; 60일) · recipe_ingredients.form ('즙'/'다진'/'매시')<br>
+      <strong>학술 근거</strong>: Food Chaining (Toomey 2007) + Repeated Exposure (Cooke 2011)
+    </div>
+  </div>
+
+  <div class="principle-card">
+    <span class="badge">원칙 2</span>
+    <h4>🥗 잘먹지만 오랜만 → 원물 노출</h4>
+    <p>accept_rate ≥ 0.7 AND 30일+ 안 만났고 항상 가린 형태(즙·다진)였던 식재료를 통째·스틱·큐브로 식감 단계 ↑</p>
+    <div class="data-uses">
+      <strong>사용 데이터</strong>: ingredient_stats.preferred_forms · texture_distribution (현재 max texture) · recipe.texture_level (한 단계 위)<br>
+      <strong>학술 근거</strong>: HabEat (식감 점진 단계) + Satter DOR (자율성·핑거푸드)
+    </div>
+  </div>
+
+  <div class="principle-card">
+    <span class="badge">원칙 3</span>
+    <h4>🥄 극도 거부 → 형태 안 보이게</h4>
+    <p>accept_rate &lt; 30% AND exposure ≥ 5회인 식재료를 즙·페이스트로 — 노출 누적 우선</p>
+    <div class="data-uses">
+      <strong>사용 데이터</strong>: ingredient_stats (accept_rate·exposure_count) · recipe.concealment (high만) · preferred_bases (베이스도 친숙해야)<br>
+      <strong>학술 근거</strong>: Toomey SOS Approach (단계 4-5) + Cooke 12-30회 반복 노출
+    </div>
+  </div>
+
+  <div class="principle-card">
+    <span class="badge">원칙 4</span>
+    <h4>💊 부족 영양 보강</h4>
+    <p>KDRI 신호등 빨강 영양소 (철·콜린·비타민D·EPA+DHA 등)를 잘먹는 베이스 + 영양 highlight 매칭으로 자연 보강</p>
+    <div class="data-uses">
+      <strong>사용 데이터</strong>: nutrient_status (red) · recipe.nutrient_highlights · recipe.nutri_total · KDRI_RNI[age_band]<br>
+      <strong>학술 근거</strong>: KDRI 2025 (보건복지부) + 농진청 식품성분표
+    </div>
+  </div>
+
+  <h3>3-1. 4 원칙 가중합 랭킹</h3>
+  <pre class="code">final_score = (
+  <span class="num">0.30</span> × base_preference_score +    <span class="cm"># 잘먹는 베이스 (Food Chaining)</span>
+  <span class="num">0.20</span> × concealment_score +        <span class="cm"># 가림 정도 (Toomey SOS)</span>
+  <span class="num">0.30</span> × nutrient_boost_score +     <span class="cm"># KDRI 부족 영양</span>
+  <span class="num">0.10</span> × novelty_score +            <span class="cm"># 최근 21끼 미등장 (반복 회피)</span>
+  <span class="num">0.10</span> × age_appropriateness_score  <span class="cm"># 연령 fit (HabEat)</span>
+)</pre>
+</section>
+
+<!-- ==================== 4. 메인 반찬 판단 (NEW) ==================== -->
+<section id="protein">
+  <span class="stag">━ MAIN DISH DETECTION ━</span>
+  <h2>4. 고단백 메인 반찬 판단 로직 (NEW)</h2>
+
+  <div class="card red">
+    <h4>🚨 문제 — "고기 있다 = 고단백" 단순 체크의 한계</h4>
+    <p><strong>예시</strong>: "소고기 미역국"은 메인이 미역국 (수프). 소고기는 5g 정도 들어간 육수용 — 실제 고단백 메인 X.</p>
+    <p>vs <strong>"갈비찜"</strong>: 메인이 소고기 (50g+). 고단백 메인 ✓</p>
+    <p>단순 ingredients.contains('소고기') 체크로는 두 경우를 구분 못함. <strong>메인 반찬 판단 알고리즘</strong> 필요.</p>
+  </div>
+
+  <h3>4-1. recipes.main_protein_type 필드 (NEW)</h3>
+  <p>레시피 enrich 단계에서 LLM으로 결정:</p>
+  <pre class="code"><span class="kw">type</span> <span class="kw">MainProteinType</span> =
+  | <span class="str">'red_meat'</span>      <span class="cm">// 소·돼지·양 (메인, ≥30g)</span>
+  | <span class="str">'white_meat'</span>    <span class="cm">// 닭·오리 (메인, ≥30g)</span>
+  | <span class="str">'fish'</span>          <span class="cm">// 생선 (메인, ≥30g)</span>
+  | <span class="str">'seafood'</span>       <span class="cm">// 새우·오징어·조개 (메인)</span>
+  | <span class="str">'egg'</span>           <span class="cm">// 계란 (메인, ≥1개)</span>
+  | <span class="str">'soy'</span>           <span class="cm">// 콩·두부 (메인 단백질 ≥40g)</span>
+  | <span class="str">'mixed'</span>         <span class="cm">// 2종 이상 메인 (혼합)</span>
+  | <span class="str">'aux_protein'</span>   <span class="cm">// 보조 단백 (소고기 미역국·멸치육수)</span>
+  | <span class="str">'no_protein'</span>;   <span class="cm">// 단백질 미포함 (밥·면 위주)</span></pre>
+
+  <h3>4-2. 판단 알고리즘 (LLM 분류 + 검증)</h3>
+  <pre class="code"><span class="kw">async function</span> <span class="fn">classifyMainProtein</span>(recipe: <span class="kw">Recipe</span>): <span class="kw">Promise</span>&lt;<span class="kw">MainProteinType</span>&gt; {
+  <span class="cm">// 1차: 룰 기반 — 단백질 식재료 g 기준</span>
+  <span class="kw">const</span> proteinIngs = recipe.ingredients.<span class="fn">filter</span>(i =&gt; <span class="kw">PROTEIN_INGREDIENTS</span>.<span class="fn">has</span>(i.name));
+  <span class="kw">if</span> (proteinIngs.length === <span class="num">0</span>) <span class="kw">return</span> <span class="str">'no_protein'</span>;
+
+  <span class="cm">// 단백질 식재료의 분량 합 (메인 판정)</span>
+  <span class="kw">const</span> mainProtein = proteinIngs.<span class="fn">filter</span>(i =&gt; i.amount_g &gt;= <span class="kw">PROTEIN_MAIN_THRESHOLD</span>[i.type]);
+  <span class="kw">if</span> (mainProtein.length === <span class="num">0</span>) <span class="kw">return</span> <span class="str">'aux_protein'</span>;  <span class="cm">// 보조만</span>
+
+  <span class="cm">// 메인 단백 분류</span>
+  <span class="kw">if</span> (mainProtein.length &gt; <span class="num">1</span>) <span class="kw">return</span> <span class="str">'mixed'</span>;
+  <span class="kw">const</span> main = mainProtein[<span class="num">0</span>];
+  <span class="kw">return</span> <span class="kw">PROTEIN_TYPE_MAP</span>[main.type];
+}
+
+<span class="cm">// 임계값 (메인 판정 기준)</span>
+<span class="kw">const</span> <span class="kw">PROTEIN_MAIN_THRESHOLD</span>: <span class="kw">Record</span>&lt;<span class="kw">string</span>, <span class="kw">number</span>&gt; = {
+  <span class="str">'red_meat'</span>: <span class="num">30</span>,    <span class="cm">// 소고기·돼지고기 ≥30g</span>
+  <span class="str">'white_meat'</span>: <span class="num">30</span>,
+  <span class="str">'fish'</span>: <span class="num">30</span>,
+  <span class="str">'seafood'</span>: <span class="num">20</span>,
+  <span class="str">'egg'</span>: <span class="num">50</span>,         <span class="cm">// 달걀 1개 ≈ 50g</span>
+  <span class="str">'soy'</span>: <span class="num">40</span>,          <span class="cm">// 두부 1/4모 ≈ 40g</span>
+};
+
+<span class="cm">// 검증 사례</span>
+<span class="cm">// 소고기 미역국: 소고기 5g → aux_protein</span>
+<span class="cm">// 갈비찜: 갈비 100g → red_meat</span>
+<span class="cm">// 닭볶음탕: 닭 80g → white_meat</span>
+<span class="cm">// 두부찜: 두부 100g → soy</span></pre>
+
+  <h3>4-3. 고단백 메인 다양성 추적</h3>
+  <p>주간 메인 반찬 단백 유형 다양성:</p>
+  <pre class="code"><span class="kw">function</span> <span class="fn">mainProteinVariety</span>(logs: <span class="kw">MealLog</span>[], days = <span class="num">7</span>): <span class="kw">MainProteinReport</span> {
+  <span class="kw">const</span> mainTypes = logs
+    .<span class="fn">map</span>(l =&gt; l.recipe?.main_protein_type)
+    .<span class="fn">filter</span>(t =&gt; t &amp;&amp; t !== <span class="str">'no_protein'</span> &amp;&amp; t !== <span class="str">'aux_protein'</span>);
+  <span class="kw">const</span> uniqueTypes = <span class="kw">new</span> <span class="kw">Set</span>(mainTypes);
+  <span class="kw">return</span> {
+    totalMainMeals: mainTypes.length,
+    uniqueTypes: uniqueTypes.size,
+    distribution: <span class="fn">countBy</span>(mainTypes),
+    <span class="cm">// 권장: 주 7끼 메인 중 4종 이상 (red·white·fish·soy 최소)</span>
+    status: uniqueTypes.size &gt;= <span class="num">4</span> ? <span class="str">'green'</span> : uniqueTypes.size &gt;= <span class="num">3</span> ? <span class="str">'orange'</span> : <span class="str">'red'</span>
+  };
+}</pre>
+
+  <table>
+    <tr><th>이번 주 메인 반찬</th><th>uniqueTypes</th><th>등급</th><th>narrative</th></tr>
+    <tr><td>매일 닭볶음탕·닭조림·닭구이만 (7끼)</td><td>1 (white_meat)</td><td>🔴 red</td><td>"메인 단백질 변화 없음 — 소고기·생선·두부 도전 권장"</td></tr>
+    <tr><td>닭 3회 + 소고기 2회 (5끼 메인)</td><td>2</td><td>🟠 orange</td><td>"생선·콩 메인 1회씩 추가하면 균형"</td></tr>
+    <tr><td>닭 2회 + 소고기 1 + 생선 2 + 두부 1 + 계란 1</td><td>5</td><td>🟢 green</td><td>"메인 단백질 다양성 우수"</td></tr>
+  </table>
+</section>
+
+<!-- ==================== 5. 다양성 2-Layer ==================== -->
+<section id="variety">
+  <span class="stag">━ DIVERSITY 2-LAYER ━</span>
+  <h2>5. 다양성 2-Layer 시스템</h2>
+
+  <h3>5-1. Layer 1 — WHO MDD (Pass/Fail)</h3>
+  <p>8 식품군 중 N개 등장 여부. 최소 통과 기준.</p>
+  <table>
+    <tr><th>MDD 점수</th><th>등급 cutoff</th></tr>
+    <tr><td>≤ 4/8</td><td>D (Fail)</td></tr>
+    <tr><td>5-6/8</td><td>C (Pass)</td></tr>
+    <tr><td>7-8/8</td><td>B 이상 진입 가능</td></tr>
+  </table>
+
+  <h3>5-2. Layer 2 — 우리 14 sub-카테고리 + 종 다양성</h3>
+  <table>
+    <tr><th>#</th><th>대분류</th><th>sub-카테고리</th><th>주간 권장 종</th><th>예시</th></tr>
+    <tr><td>1</td><td rowspan="2">곡물</td><td>정제곡물</td><td>-</td><td>백미·흰밀가루</td></tr>
+    <tr><td>2</td><td><strong>통곡물·잡곡</strong> ⭐</td><td>2종+</td><td>현미·보리·귀리·메밀·찰미·기장</td></tr>
+    <tr><td>3</td><td rowspan="2">콩</td><td>콩제품</td><td>2종+</td><td>두부·콩나물·연두부·콩가루</td></tr>
+    <tr><td>4</td><td>콩알류·렌틸</td><td>1종+</td><td>검은콩·강낭콩·렌틸·병아리콩·팥</td></tr>
+    <tr><td>5</td><td>유제품</td><td>우유·요거트·치즈</td><td>2종+</td><td>우유·요거트·치즈·버터</td></tr>
+    <tr><td>6</td><td rowspan="3">고기·생선</td><td>붉은 고기</td><td>1종+</td><td>소·돼지·양</td></tr>
+    <tr><td>7</td><td>흰 고기·가금류</td><td>1종+</td><td>닭·오리</td></tr>
+    <tr><td>8</td><td><strong>생선·해산물</strong> ⭐</td><td>2종+</td><td>고등어·연어·새우·오징어·미역</td></tr>
+    <tr><td>9</td><td>계란</td><td>계란류</td><td>1종+</td><td>달걀·메추리알</td></tr>
+    <tr><td>10</td><td rowspan="2">진한 채소</td><td><strong>진한 잎채소</strong> ⭐</td><td>3종+</td><td><strong>시금치·근대·아욱·청경채·케일·상추</strong></td></tr>
+    <tr><td>11</td><td><strong>진한 색 채소</strong> ⭐</td><td>3종+</td><td>당근·단호박·파프리카·토마토·비트</td></tr>
+    <tr><td>12</td><td>기타 채소</td><td>기타 채소</td><td>3종+</td><td>무·오이·양배추·콩나물·숙주·버섯</td></tr>
+    <tr><td>13</td><td>과일</td><td>과일</td><td>3종+</td><td>사과·딸기·바나나·블루베리·키위</td></tr>
+    <tr><td>14</td><td>견과·씨</td><td>견과·씨앗</td><td>1종+</td><td>호두·들깨·참깨·아몬드</td></tr>
+  </table>
+  <p>⭐ <strong>핵심 4 카테고리</strong>는 종 다양성 필수 (Lachat DSR + HabEat). 시금치만 5번 = 잎채소 통과지만 ⭐ 미충족 → A 등급 안 됨.</p>
+
+  <h3>5-3. 등급 cutoff (Layer 1 + 2 종합)</h3>
+  <pre class="code"><span class="kw">function</span> <span class="fn">finalDiversityGrade</span>(layer1: <span class="kw">number</span>, layer2: <span class="kw">VarietyMetrics</span>): <span class="kw">Grade</span> {
+  <span class="kw">if</span> (layer1 &lt;= <span class="num">4</span>) <span class="kw">return</span> <span class="str">'D'</span>;            <span class="cm">// MDD fail</span>
+  <span class="kw">if</span> (layer1 &lt;= <span class="num">6</span>) <span class="kw">return</span> <span class="str">'C'</span>;            <span class="cm">// MDD pass only</span>
+  <span class="kw">if</span> (layer1 === <span class="num">8</span> &amp;&amp; layer2.subcatCount &gt;= <span class="num">10</span>) {
+    <span class="kw">const</span> criticalPass = <span class="kw">CRITICAL_4</span>.<span class="fn">every</span>(c =&gt; layer2.speciesPerSubcat[c] &gt;= <span class="kw">MIN_SPECIES</span>[c]);
+    <span class="kw">if</span> (criticalPass) {
+      <span class="kw">if</span> (layer2.totalUniqueSpecies &gt;= <span class="num">25</span> &amp;&amp; layer2.newSpeciesThisWeek &gt;= <span class="num">2</span>) <span class="kw">return</span> <span class="str">'S'</span>;
+      <span class="kw">return</span> <span class="str">'A'</span>;
+    }
+  }
+  <span class="kw">return</span> <span class="str">'B'</span>;
+}</pre>
+
+  <h3>5-4. 카테고리 내 다양성 narrative 예시</h3>
+  <pre class="code"><span class="cm">// 시금치만 매번 등장 시</span>
+{
+  subcategory: <span class="str">'진한 잎채소'</span>,
+  species_count: <span class="num">1</span>,
+  recommendation: <span class="str">'시금치만 5번 — 근대·아욱·청경채로 잎채소 다양화 권장'</span>,
+  recipes_to_suggest: [<span class="str">'근대된장국'</span>, <span class="str">'아욱죽'</span>, <span class="str">'청경채 무침'</span>]
+}</pre>
+</section>
+
+<!-- ==================== 6. 반복 회피 ==================== -->
+<section id="repeat">
+  <span class="stag">━ REPETITION AVOIDANCE ━</span>
+  <h2>6. 반복 회피 (시계열)</h2>
+
+  <p>같은 메뉴를 4주 내 반복하지 않음 (HabEat 권고). 자동 제외 로직:</p>
+  <pre class="code"><span class="kw">function</span> <span class="fn">noveltyScore</span>(recipe: <span class="kw">Recipe</span>, recentMenus: <span class="kw">string</span>[]): <span class="kw">number</span> {
+  <span class="cm">// 최근 21끼(7일) 메뉴 vs 추천 후보</span>
+  <span class="kw">if</span> (recentMenus.<span class="fn">includes</span>(recipe.name)) <span class="kw">return</span> <span class="num">0</span>;          <span class="cm">// 완전 동일</span>
+  <span class="kw">if</span> (<span class="fn">similarBaseSubstr</span>(recipe.name, recentMenus, <span class="num">0.8</span>)) <span class="kw">return</span> <span class="num">0.3</span>; <span class="cm">// 유사 (찜닭 vs 닭볶음탕)</span>
+  <span class="kw">return</span> <span class="num">1.0</span>;                                          <span class="cm">// 신규</span>
+}
+
+<span class="cm">// 베이스 반복도 추가 체크</span>
+<span class="kw">function</span> <span class="fn">baseRepetitionWarning</span>(profile: <span class="kw">ChildProfile</span>): <span class="kw">Warning</span> | <span class="kw">null</span> {
+  <span class="kw">const</span> top = profile.recentBases[<span class="num">0</span>];  <span class="cm">// 가장 많이 등장한 베이스</span>
+  <span class="kw">if</span> (top.count &gt;= <span class="num">5</span>) {  <span class="cm">// 한 주에 5회 이상 같은 베이스</span>
+    <span class="kw">return</span> {
+      type: <span class="str">'base_repetition'</span>,
+      message: <span class="str">`${top.baseType}이 한 주 ${top.count}번 — 베이스 로테이션 권장`</span>,
+      suggestion: <span class="fn">rotateSuggestion</span>(top.baseType)  <span class="cm">// 죽 → 부침개·국·찜 등</span>
+    };
+  }
+  <span class="kw">return null</span>;
+}</pre>
+</section>
+
+<!-- ==================== 7. 최종 출력 ==================== -->
+<section id="output">
+  <span class="stag">━ FINAL OUTPUT ━</span>
+  <h2>7. 최종 출력 — 6-8 레시피 + 자연어 이유</h2>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+  D1[📝 식단 기록<br/>30일]
+  D2[📊 프로파일<br/>집계]
+  D3[📏 아이 정보<br/>BMI·알레르겐]
+  D4[📚 레시피 풀<br/>4,432종]
+  D5[🥕 식재료 마스터<br/>1000+]
+  D6[📖 학술 기준<br/>KDRI·WHO·HabEat]
+
+  PHASE0[Phase 0<br/>프로파일 집계]
+  PHASE1A[원칙 1<br/>선호+도전]
+  PHASE1B[원칙 2<br/>오랜만 원물]
+  PHASE1C[원칙 3<br/>형태 가림]
+  PHASE1D[원칙 4<br/>영양 보강]
+  RANK[가중합 랭킹<br/>+ 반복 회피]
+  LLM[LLM 정제<br/>Claude Sonnet 4.7]
+  OUT[📤 6-8 레시피<br/>+ 자연어 이유]
+
+  D1 --> PHASE0
+  D2 --> PHASE0
+  D3 --> PHASE0
+  PHASE0 --> PHASE1A & PHASE1B & PHASE1C & PHASE1D
+  D4 --> PHASE1A & PHASE1B & PHASE1C & PHASE1D
+  D5 --> PHASE1A & PHASE1B & PHASE1C & PHASE1D
+  D6 --> PHASE1D
+  PHASE1A & PHASE1B & PHASE1C & PHASE1D --> RANK
+  RANK --> LLM
+  LLM --> OUT
+
+  classDef data fill:#E3F2FD,stroke:#3498DB,color:#1F2D3D
+  classDef phase fill:#E8F5E9,stroke:#16A085,color:#1F2D3D
+  classDef llm fill:#F3E5F5,stroke:#9C27B0,color:#1F2D3D
+  classDef out fill:#FFF8E1,stroke:#F9A825,color:#1F2D3D
+  class D1,D2,D3,D4,D5,D6 data
+  class PHASE0,PHASE1A,PHASE1B,PHASE1C,PHASE1D,RANK phase
+  class LLM llm
+  class OUT out
+    </div>
+  </div>
+
+  <h3>7-1. 출력 예시 (JSON)</h3>
+  <pre class="code">{
+  <span class="str">"recommendations"</span>: [
+    {
+      <span class="str">"principleId"</span>: <span class="num">1</span>,
+      <span class="str">"recipeName"</span>: <span class="str">"시금치 즙 계란찜"</span>,
+      <span class="str">"reasoning"</span>: <span class="str">"우리 아이가 32회 좋아한 계란찜 베이스에 시금치 5g 즙으로 추가했어요.
+                    시금치는 22번 노출 중 8번만 먹은 식재료라 거부 단계가 정상입니다.
+                    학술 연구에 따르면 평균 12-30번 노출 후 수용된다고 합니다.
+                    즙으로 만들면 색·향이 거의 안 보여 부담 0."</span>,
+      <span class="str">"factors"</span>: {
+        <span class="str">"basePreference"</span>: <span class="num">0.95</span>, <span class="str">"concealment"</span>: <span class="num">1.0</span>,
+        <span class="str">"nutrientBoost"</span>: <span class="num">0.6</span>,   <span class="str">"novelty"</span>: <span class="num">1.0</span>,
+        <span class="str">"ageFit"</span>: <span class="num">1.0</span>
+      },
+      <span class="str">"academicSources"</span>: [<span class="str">"Food Chaining 2007"</span>, <span class="str">"Cooke 2011"</span>]
+    },
+    ...
+  ],
+  <span class="str">"narrativeSummary"</span>: <span class="str">"이번 주 핵심: 시금치·콜린·EPA+DHA 3가지 부족 — 위 4 레시피로 자연 보강"</span>,
+  <span class="str">"warnings"</span>: [
+    { <span class="str">"type"</span>: <span class="str">"base_repetition"</span>, <span class="str">"message"</span>: <span class="str">"죽이 한 주 5번 — 부침개·국으로 로테이션"</span> }
+  ]
+}</pre>
+</section>
+
+<!-- ==================== 8. 학술 출처 풀 리스트 ==================== -->
+<section id="refs">
+  <span class="stag">━ ACADEMIC REFERENCES ━</span>
+  <h2>8. 학술 출처 풀 리스트</h2>
+
+  <div class="card blue">
+    <h4>국제 기준 (Diversity)</h4>
+    <ul style="margin:6px 0 0 18px;font-size:12.5px">
+      <li>WHO. (2017). <em>Indicators for assessing infant and young child feeding practices: definitions and measurement methods</em>. Geneva: World Health Organization.</li>
+      <li>Lachat C, et al. (2018). Dietary species richness as a measure of food biodiversity and nutritional quality of diets. <em>PNAS</em>, 115(1), 127-132.</li>
+      <li>USDA. (2020). <em>Healthy Eating Index-2020 (HEI-2020)</em>. Center for Nutrition Policy and Promotion.</li>
+      <li>Hatløy A, et al. (1998). Food variety, socioeconomic status and nutritional status in urban and rural areas in Koutiala (Mali). <em>Public Health Nutrition</em>, 1(3), 205-211.</li>
+      <li>Monteiro CA, et al. (2019). Ultra-processed foods, diet quality, and health using the NOVA classification system. FAO.</li>
+    </ul>
+  </div>
+
+  <div class="card green">
+    <h4>식습관 형성 이론</h4>
+    <ul style="margin:6px 0 0 18px;font-size:12.5px">
+      <li>Fraker C, Fishbein M, Cox S, Walbert L. (2007). <em>Food Chaining: The Proven 6-Step Plan to Stop Picky Eating</em>. Da Capo Lifelong Books.</li>
+      <li>Toomey KA, Ross E. (2017). <em>The SOS Approach to Feeding</em>. SOS Approach to Feeding Conference.</li>
+      <li>Cooke L. (2011). The importance of exposure for healthy eating in childhood. <em>Journal of Human Nutrition and Dietetics</em>, 20(4), 294-301.</li>
+      <li>Birch LL, Marlin DW. (1982). I don't like it; I never tried it: Effects of exposure on two-year-old children's food preferences. <em>Appetite</em>, 3(4), 353-360.</li>
+      <li>Satter E. (2007). Eating Competence: Definition and Evidence for the Satter Eating Competence Model. <em>JNEB</em>, 39(5 Suppl), S142-S153.</li>
+    </ul>
+  </div>
+
+  <div class="card purple">
+    <h4>식감·코호트 연구</h4>
+    <ul style="margin:6px 0 0 18px;font-size:12.5px">
+      <li>Schwartz C, et al. (2014). HabEat Project — Determining factors and critical periods of food habit formation. EU FP7.</li>
+      <li>Northstone K, et al. (2001). Are dietary patterns stable throughout early and mid-childhood? ALSPAC cohort.</li>
+    </ul>
+  </div>
+
+  <div class="card yellow">
+    <h4>한국 기준</h4>
+    <ul style="margin:6px 0 0 18px;font-size:12.5px">
+      <li><strong>보건복지부·한국영양학회. (2025).</strong> <em>2025 한국인 영양소 섭취기준 (KDRI)</em>. 1·2·3권 + 국문/영문 요약본 + 3차 정오표.</li>
+      <li>농촌진흥청. (2024). <em>국가표준식품성분표 v10.0</em>.</li>
+      <li>질병관리청. (2017). <em>소아청소년 표준성장도표</em> (LMS 파라미터).</li>
+      <li>식품의약품안전처. <em>식품 알레르기 17대 표시 의무</em>.</li>
+    </ul>
+  </div>
+
+  <div class="card red">
+    <h4>영유아 특화</h4>
+    <ul style="margin:6px 0 0 18px;font-size:12.5px">
+      <li>Solid Starts. (2024). <em>100+ First Foods</em>. solidstarts.com.</li>
+      <li>Rapley G. (2008). <em>Baby-Led Weaning</em>. Vermilion.</li>
+      <li>NHS. (2024). <em>Your baby's first solid foods</em>. UK National Health Service.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="nav-back">
+  <a href="/docs.html">📚 허브</a>
+  <a href="/engines-deep.html">🔬 엔진 deep</a>
+  <a href="/architecture-detailed.html">📐 아키텍처 상세</a>
+  <a href="/dogam.html">📱 데모</a>
+</div>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 편식도감</strong> · 레시피 추천 기준 v1 · 2026-05-24</p>
+  <p>6 데이터 소스 · 11 학술 이론 · 4 원칙 + 메인 반찬 판단 · 다양성 2-Layer · 모든 기준 한 페이지</p>
+</footer>
+
+<script>
+  mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#FFF8F2',primaryTextColor:'#1F2D3D',primaryBorderColor:'#E89244',lineColor:'#9CA3AF',fontFamily:'Pretendard Variable, sans-serif',fontSize:'12px'}});
+</script>
+</body>
+</html>

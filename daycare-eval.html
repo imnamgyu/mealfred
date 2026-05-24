@@ -458,6 +458,21 @@
       <div style="font-size:11px;color:var(--n600);font-weight:600;line-height:1.5">콜린·비타민D·EPA+DHA·식감·다양성 — 우리 아이가 잘 먹는 메뉴로 자동 매칭</div>
     </div>
     <button class="recipe-cta" onclick="goHomeMealPlan()" style="font-size:14.5px;padding:16px">📋 이대로 식단 받아보기 →</button>
+
+    <!-- ★ 리드 수집 — 정식 출시 알림 등록 -->
+    <div style="background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-radius:14px;padding:16px;margin-top:16px;border:1.5px solid var(--v500)">
+      <div style="font-size:11px;font-weight:800;color:var(--v700);letter-spacing:0.04em;margin-bottom:6px">━ 🔔 정식 출시 알림 받기 ━</div>
+      <div style="font-size:13px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:4px">매일 식단 평가받고 싶다면<br>출시 1순위 알림 받기</div>
+      <div style="font-size:11px;color:var(--v700);font-weight:600;line-height:1.55;margin-bottom:10px">정식 출시 시 알림톡 1회 + <strong style="color:var(--s800)">베타 우선 초대 + 50% 할인 쿠폰</strong></div>
+      <input type="tel" id="leadPhone" placeholder="010-0000-0000" maxlength="13" oninput="formatPhone(this)" style="width:100%;padding:11px 13px;border:1.5px solid var(--n300);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:white;margin-bottom:8px" onfocus="this.style.borderColor='var(--v500)'" onblur="this.style.borderColor='var(--n300)'">
+      <label style="display:flex;align-items:flex-start;gap:8px;font-size:10.5px;color:var(--n600);font-weight:600;line-height:1.5;cursor:pointer;margin-bottom:10px">
+        <input type="checkbox" id="leadConsent" style="margin-top:2px">
+        <span>정식 출시 알림 1회 수신 동의 (마케팅 X) · 출시 후 자동 삭제</span>
+      </label>
+      <button onclick="submitLead()" style="background:var(--v500);color:white;width:100%;padding:13px;border-radius:10px;font-weight:800;font-size:13.5px;border:none;cursor:pointer;font-family:inherit">🔔 출시 알림 등록</button>
+    </div>
+
+    <div class="share-actions" style="margin-top:14px">
     <div class="share-actions">
       <button class="share-btn save" onclick="alert('결과 카드 PNG 저장 (구현 예정)')">📥 카드 저장</button>
       <button class="share-btn send" onclick="shareSite()">📤 친구에게</button>
@@ -535,6 +550,34 @@ function goHomeMealPlan(){
   const deficits = '콜린,비타민D,EPA-DHA';
   const grade = 'B+';
   window.location.href = `/dogam.html?source=daycare&grade=${grade}&deficits=${encodeURIComponent(deficits)}`;
+}
+
+// ★ 전화번호 포맷팅
+function formatPhone(input){
+  let v = input.value.replace(/[^0-9]/g, '');
+  if(v.length >= 8) v = v.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3');
+  else if(v.length >= 4) v = v.replace(/(\d{3})(\d{1,4})/, '$1-$2');
+  input.value = v;
+}
+
+// ★ 리드 등록 (mock — 실제는 Supabase API)
+function submitLead(){
+  const phone = document.getElementById('leadPhone').value.trim();
+  const consent = document.getElementById('leadConsent').checked;
+  if(!/^010-\d{4}-\d{4}$/.test(phone)){
+    alert('전화번호를 정확히 입력해주세요 (010-0000-0000)');
+    return;
+  }
+  if(!consent){
+    alert('알림 수신 동의가 필요합니다');
+    return;
+  }
+  // 임시 localStorage (실제는 POST /api/leads)
+  const leads = JSON.parse(localStorage.getItem('mealfred_leads') || '[]');
+  leads.push({ phone, source: 'daycare-eval', timestamp: new Date().toISOString() });
+  localStorage.setItem('mealfred_leads', JSON.stringify(leads));
+  alert('🎉 등록 완료!\n정식 출시 시 알림톡 1회 + 50% 할인 쿠폰 받으실 거예요.\n\n지금은 데모 앱 미리 체험해보세요 →');
+  goHomeMealPlan();
 }
 </script>
 
