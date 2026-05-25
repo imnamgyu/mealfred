@@ -20,7 +20,7 @@
 <meta name="twitter:title" content="우리 아이 식단표 한 번 평가해 보실래요?">
 <meta name="twitter:description" content="WHO·KDRI·NOVA 8가지 학술 기준 · 30초 평가 · 가정 보충 가이드">
 <meta name="twitter:image" content="https://www.mealfred.com/samples/og-daycare-eval.jpg?v=5">
-<meta name="description" content="우리 아이 어린이집·유치원 식단표 사진 1장으로 한 달치 영양 진단. WHO·HabEat·KDRI·NOVA·농진청 8가지 학술 기준. 익명 분석.">
+<meta name="description" content="우리 아이 유치원·초1·초2 식단표 사진 1장으로 한 달치 영양 진단. 만 3-7세 대상 WHO·HabEat·KDRI·NOVA·농진청 8가지 학술 기준. 익명 분석.">
 <link rel="canonical" href="https://www.mealfred.com/daycare-eval.html">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -389,10 +389,10 @@
     <div class="form-group">
       <label class="form-label">━ 우리 아이 만 나이 ━</label>
       <div class="age-row">
-        <div class="age-chip" onclick="selectAge(this,'6-11m')">6-11개월</div>
-        <div class="age-chip checked" onclick="selectAge(this,'12-23m')">12-23개월</div>
-        <div class="age-chip" onclick="selectAge(this,'24-35m')">24-35개월</div>
-        <div class="age-chip" onclick="selectAge(this,'3-5y')">만 3-5세</div>
+        <div class="age-chip checked" onclick="selectAge(this,'3-4y')">만 3-4세</div>
+        <div class="age-chip" onclick="selectAge(this,'5y')">만 5세</div>
+        <div class="age-chip" onclick="selectAge(this,'6-7y')">만 6-7세<br><span style="font-size:9px;opacity:0.8">(초1·2)</span></div>
+        <div class="age-chip" onclick="selectAge(this,'younger')">3세 미만</div>
       </div>
     </div>
 
@@ -432,7 +432,7 @@
   <div class="modal" id="resultScreen">
     <div class="modal-handle"></div>
     <h2 style="text-align:center">🎉 평가 결과</h2>
-    <p class="desc" style="text-align:center">만 12-23개월 기준 한 달 분석</p>
+    <p class="desc" style="text-align:center">만 3-7세 (유치원·초1·초2) 기준 한 달 분석</p>
 
     <div class="result-card" id="shareCard" style="margin:14px auto;max-width:340px">
       <div class="result-watermark">밀프레드 편식도감</div>
@@ -532,7 +532,7 @@ function openUpload(){
 function closeModal(id){
   document.getElementById(id).classList.remove('show');
 }
-let selectedAge = '12-23m';
+let selectedAge = '3-4y';
 function selectAge(el, val){
   document.querySelectorAll('.age-chip').forEach(x=>x.classList.remove('checked'));
   el.classList.add('checked');
@@ -708,9 +708,11 @@ function evaluate(text, ageBand){
   const totalTexture = Object.values(textureCounts).reduce((a,b)=>a+b,0) || 1;
   const pureeChunkPct = (textureCounts.puree + textureCounts.mashed) / totalTexture;
   let texScore;
-  if(ageBand === '6-11m') texScore = pureeChunkPct > 0.4 ? 90 : 70;
-  else if(ageBand === '12-23m') texScore = pureeChunkPct < 0.3 ? 90 : pureeChunkPct < 0.5 ? 75 : 55;
-  else texScore = pureeChunkPct < 0.15 ? 95 : 80;
+  // 만 3-7세는 핑거푸드·일반식이 정상. 죽·미음 비중 높으면 감점
+  if(ageBand === 'younger') texScore = pureeChunkPct > 0.3 ? 90 : 70;  // 영유아: 죽·으깬 비중 OK
+  else if(ageBand === '3-4y') texScore = pureeChunkPct < 0.2 ? 92 : pureeChunkPct < 0.4 ? 78 : 60;
+  else if(ageBand === '5y') texScore = pureeChunkPct < 0.15 ? 95 : pureeChunkPct < 0.3 ? 80 : 65;
+  else texScore = pureeChunkPct < 0.1 ? 95 : 85;  // 만 6-7세: 일반식 권장
 
   // 3. KDRI 36종 영양 (식재료 다양성 + 핵심 영양 식재료 카운트)
   const nutriSet = new Set();
@@ -772,7 +774,7 @@ function evaluate(text, ageBand){
 // 결과 카드 동적 렌더링
 function renderResult(result, ageBand){
   const g = scoreToGrade(result.total);
-  const ageLabel = {'6-11m':'6-11개월','12-23m':'12-23개월','24-35m':'24-35개월','3-5y':'만 3-5세'}[ageBand];
+  const ageLabel = {'3-4y':'만 3-4세','5y':'만 5세','6-7y':'만 6-7세 (초1·2)','younger':'3세 미만'}[ageBand] || ageBand;
 
   // 헤더
   const card = document.getElementById('shareCard');
@@ -850,7 +852,7 @@ function generateGuide(result, ageBand){
     s += `가장 보완할 부분은 <strong>다양성 — ${missing} 식품군이 빠져있어요</strong>. 가정에서 한 끼라도 추가하면 +15점 가능. `;
   } else if(weakest.name === '식감 단계'){
     if(weakest.raw.pureeChunkPct > 50){
-      s += `가장 보완할 부분은 <strong>식감 — 죽·미음 비중 ${weakest.raw.pureeChunkPct}%</strong>. ${ageBand==='6-11m'?'정상':'당근 스틱·고구마 큐브 같은 핑거푸드'}로 식감 단계를 올려주세요. `;
+      s += `가장 보완할 부분은 <strong>식감 — 죽·미음 비중 ${weakest.raw.pureeChunkPct}%</strong>. ${ageBand==='younger'?'영유아는 정상':'당근 스틱·고구마 큐브 같은 핑거푸드'}로 식감 단계를 올려주세요. `;
     } else {
       s += `식감은 ${scoreToGrade(weakest.score).grade}이에요. `;
     }
@@ -1018,7 +1020,7 @@ function showHistory(){
   }
   const html = h.map((r, i) => {
     const date = new Date(r.ts).toLocaleString('ko-KR', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
-    const ageLabel = {'6-11m':'6-11m','12-23m':'12-23m','24-35m':'24-35m','3-5y':'3-5y'}[r.ageBand] || r.ageBand;
+    const ageLabel = {'3-4y':'만 3-4세','5y':'만 5세','6-7y':'만 6-7세','younger':'영유아'}[r.ageBand] || r.ageBand;
     return `${i+1}. [${date}] ${r.total}점 (${r.grade}) · ${ageLabel} · 식재료 ${r.ingredients}종 · 메뉴 ${r.menus}건`;
   }).join('\n');
   alert(`📜 평가 이력 (최근 ${h.length}건)\n\n${html}\n\n(이력은 이 기기에만 저장돼요)`);
