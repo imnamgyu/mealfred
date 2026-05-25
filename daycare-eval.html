@@ -941,6 +941,21 @@ function startAnalysis(){
       const result = evaluate(text, selectedAge);
       console.log('[mealfred] eval result:', result);
       renderResult(result, selectedAge);
+      // ALG-EVAL-07 — 식단표 시그널 백엔드 누적 (익명, fire-and-forget)
+      try {
+        const extracted = (result.matched || []).map(m => ({
+          name: m.nm, matched: true, cookingMethod: null, menuName: null
+        }));
+        fetch('/api/eval/log', {
+          method: 'POST',
+          headers: {'content-type':'application/json'},
+          body: JSON.stringify({
+            ageBand: selectedAge,
+            extractedIngredients: extracted,
+            totalScore: result.total
+          })
+        }).catch(() => {}); // 실패해도 사용자 UX 영향 X
+      } catch(e) {}
       setTimeout(()=>{
         closeModal('analyzingModal');
         document.getElementById('resultModal').classList.add('show');

@@ -159,6 +159,51 @@ comment on table enrich_queue is 'M3 매일 +50종 자동 enrich 큐';
 comment on table cron_runs is 'cron 작업 실행 로그 (운영 모니터링)';
 
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- M4 · children (자녀 정보) + kakao_messages (SENS 발송 로그)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+create table if not exists children (
+  id uuid primary key default gen_random_uuid(),
+  parent_id uuid not null references auth.users(id) on delete cascade,
+  nickname text not null check (length(nickname) between 1 and 20),
+  age_band text not null check (age_band in ('younger','3-4y','5y','6-7y')),
+  height_cm numeric,
+  weight_kg numeric,
+  allergens text[],
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+create index if not exists idx_children_parent on children(parent_id);
+alter table children enable row level security;
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'children_owner_all') then
+    create policy children_owner_all on children for all using (auth.uid() = parent_id) with check (auth.uid() = parent_id);
+  end if;
+end $$;
+comment on table children is 'M4 가입 직후 자녀 정보 (실명 X, 닉네임만)';
+
+create table if not exists kakao_messages (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  template_id text not null,                -- signup_welcome·stage_change·challenge_complete·inactive_reminder
+  payload jsonb,                            -- {vars, phone(끝4자리만)}
+  status text check (status in ('sent','failed','retry')),
+  sens_message_id text,
+  sent_at timestamptz default now(),
+  cost_krw int default 0,
+  error text
+);
+create index if not exists idx_kakao_user on kakao_messages(user_id, sent_at desc);
+alter table kakao_messages enable row level security;
+-- 본인 메시지만 read, insert는 service_role만
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'kakao_owner_read') then
+    create policy kakao_owner_read on kakao_messages for select using (auth.uid() = user_id);
+  end if;
+end $$;
+comment on table kakao_messages is 'M4 네이버 SENS 알림톡 발송 로그 (비용·실패 추적)';
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- ALG-EVAL-07 — 식단표 역분석 → 도감 자동 enrich 파이프라인
 -- (engines-deep §1 ALG-EVAL-07 정합)
 -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
