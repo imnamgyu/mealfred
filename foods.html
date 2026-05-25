@@ -267,7 +267,9 @@ function filterAndRender(){
 
 const SOS_STEPS = ['👀 보기','✋ 만지기','👃 냄새','👅 핥기','🦷 씹기','🍽 삼키기'];
 
-// Mock 영양 데이터 (실제는 농진청 매핑)
+// Mock 영양 데이터 — M2 마일스톤에서 농진청 국가표준식품성분표 v10.0 (https://koreanfood.rda.go.kr/) 매핑으로 교체
+// 출처: 농촌진흥청 국립농업과학원(NIAS) · 약 3,300+ 식품 · 145 영양 성분 · 무료 CSV·Excel
+// 진행: 다음 세션 M2 시작 시 147종 풀 매핑 → ingredients 테이블 seed → M3에서 매일 +50종 enrich
 const NUTRI_MOCK = {
   '시금치': [{n:'철', s:3, note:'결핍 위험 보충'},{n:'엽산', s:3, note:'150μg DFE'},{n:'비타민 K', s:2, note:''}],
   '당근': [{n:'비타민 A', s:3, note:'250μg RAE 거의 충족'},{n:'식이섬유', s:2, note:''}],
@@ -318,7 +320,7 @@ function showIngredient(idx){
             <span class="note">${n.note}</span>
           </div>
         `).join('')}
-        <p style="margin-top:8px;font-size:10.5px;color:var(--n500)">💡 데이터 enrich 중 — 농진청 식품성분표 v10.0 매핑 진행</p>
+        <p style="margin-top:8px;font-size:10.5px;color:var(--n500)">💡 데이터 enrich 진행 중 — 농진청 국가표준식품성분표 v10.0 매핑 (M2 마일스톤, 2026년 6월 초 완료 예정)</p>
       </div>
 
       <div class="mod-section">
