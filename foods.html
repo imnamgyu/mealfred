@@ -155,6 +155,33 @@
   </div>
 </div>
 
+<!-- 등급 기준 안내 -->
+<div style="max-width:1100px;margin:14px auto 0;padding:0 20px">
+  <details style="background:#FFFBF5;border:1px solid #FFE8D0;border-radius:12px;padding:12px 16px;font-size:13px;color:#5a4a3a;line-height:1.7">
+    <summary style="cursor:pointer;font-weight:700;color:#C45A00">📐 필수·권장 등급 기준이 뭐야?</summary>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #FFD0A0">
+      <p style="margin-bottom:8px"><strong style="color:#1a2b4a">밀프레드 식재료_랭킹_마스터 v4</strong> 기준 — 4가지 지표 통합 Must-Eat 점수로 산정.</p>
+      <ul style="margin-left:18px;line-height:1.85">
+        <li><strong style="color:#1a2b4a">① 등장 빈도</strong> — 식약처·어린이급식관리지원센터 표준 식단(유아 904 + 아동 2,021 = <strong>2,925편</strong>)에서 얼마나 자주 나오는지</li>
+        <li><strong style="color:#1a2b4a">② 영양 가치</strong> — KDRI 2025 만 1-2세 핵심 영양소(단백질·철·칼슘·비타민D·아연 등) 함량 점수</li>
+        <li><strong style="color:#1a2b4a">③ 안전성</strong> — 요오드(다시마·미역) · 나트륨(멸치·치즈) · 수은(가다랑어·갈치) 과섭취 위험 감점</li>
+        <li><strong style="color:#1a2b4a">④ 카테고리 희소성</strong> — 같은 종류 식재료가 흔한지(파·양파) vs 카테고리 내 핵심인지(브로콜리)</li>
+      </ul>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+        <div style="background:#E8F5E9;border-radius:8px;padding:10px 12px">
+          <strong style="color:#1B5E20;font-size:12.5px">⭐⭐⭐ 필수 (Must-Eat 58.3+)</strong>
+          <p style="font-size:11.5px;color:#5a4a3a;margin-top:4px;line-height:1.6">초등 입학 전에 반드시 친숙해져야 할 식재료. <strong>4가지 지표 모두 통과</strong>한 핵심 11종.</p>
+        </div>
+        <div style="background:#FFF8E1;border-radius:8px;padding:10px 12px">
+          <strong style="color:#F57F17;font-size:12.5px">⭐⭐ 권장 (Must-Eat 54.7~58.1)</strong>
+          <p style="font-size:11.5px;color:#5a4a3a;margin-top:4px;line-height:1.6">먹을 줄 알면 좋은 식재료. 빈도·영양 우수, 일부 안전 주의 또는 카테고리 내 보조.</p>
+        </div>
+      </div>
+      <p style="font-size:11.5px;color:#8a7a6a;margin-top:10px;font-style:italic">⚠ 표시는 과섭취 주의 (다시마·미역 = 요오드 / 멸치 = 나트륨 / 가다랑어 = 수은). 학교 급식에선 1회 분량 조절돼 있어 OK, 가정에선 빈도 조절 권장.</p>
+    </div>
+  </details>
+</div>
+
 <!-- FILTER -->
 <div class="filter-zone">
   <div class="filter-inner">
@@ -215,13 +242,20 @@ let gradeFilter = 'all';
 let catFilter = 'all';
 let searchQuery = '';
 
-// 데이터 로드 — 농진청 v10.4 영양 매핑된 enriched 우선, fallback 기본
+// 데이터 로드 — 농진청 v10.4 enriched + 레시피 inverted index
 fetch('data_ingredient_pool_enriched.json')
   .then(r => r.ok ? r.json() : Promise.reject())
   .then(d => { pool = d.pool; filterAndRender(); console.log('[foods] enriched 농진청 v10.4 로드:', d.meta.matched, '/', d.meta.total, '매칭'); })
   .catch(() => {
     fetch('data_ingredient_pool_graded.json').then(r=>r.json()).then(d=>{ pool=d.pool; filterAndRender(); console.warn('[foods] fallback graded 사용 — enriched 없음'); });
   });
+
+// 식재료별 추천 레시피 DB (2,041개 레시피 inverted index)
+let RECIPES_BY_ING = {};
+fetch('data_recipes_by_ingredient.json')
+  .then(r => r.json())
+  .then(d => { RECIPES_BY_ING = d.by_ingredient; console.log('[foods] 레시피 DB 로드:', Object.keys(d.by_ingredient).length, '식재료'); })
+  .catch(() => console.warn('[foods] 레시피 DB 로드 실패'));
 
 function setGradeFilter(el, g){
   document.querySelectorAll('[data-grade]').forEach(x => x.classList.remove('active'));
@@ -385,11 +419,15 @@ function showIngredient(idx){
       </div>
 
       <div class="mod-section">
-        <div class="lbl">━ 🍳 일반 추천 레시피 ━</div>
-        <ul>
-          <li>${p.em?p.em+' ':''}${p.nm} 즙 계란찜 — 거부감 ↓ (선호 베이스 매칭)</li>
-          <li>${p.em?p.em+' ':''}${p.nm} 다진 죽 — 좋아하는 베이스 위에</li>
-          <li>통째 ${p.nm} 핑거푸드 — 식감 단계 ↑ (만 24m+)</li>
+        <div class="lbl">━ 🍳 일반 추천 레시피 (2,041 레시피 DB 기반) ━</div>
+        ${(() => {
+          const r = RECIPES_BY_ING[p.nm];
+          if (r && r.top_recipes && r.top_recipes.length) {
+            return `<ul>${r.top_recipes.map(t => `<li><span style="display:inline-block;background:var(--p50);color:var(--p700);font-size:9.5px;font-weight:800;padding:1px 7px;border-radius:100px;margin-right:6px">${t.method}</span>${t.name}${t.allergens?` <span style="font-size:9.5px;color:var(--n400)">(${t.allergens})</span>`:''}</li>`).join('')}</ul>
+              <p style="margin-top:6px;font-size:10.5px;color:var(--n500)">💡 ${p.nm}이(가) 들어간 ${r.total_count}개 레시피 중 조리법 다양성 기준 Top ${r.top_recipes.length}. 개인화는 가입 후 추천 엔진이 자녀별로 다시 매칭.</p>`;
+          }
+          return `<ul><li>${p.em?p.em+' ':''}${p.nm} 죽·계란찜·구이 등 기본 조리법<br><span style="font-size:11px;color:var(--n500)">DB 매칭 없음 — 가입 후 개인화 레시피로 안내</span></li></ul>`;
+        })()}
         </ul>
         <p style="margin-top:6px;font-size:10.5px;color:var(--n500)">위는 일반 레시피 — 우리 아이 식습관·신호등·거부도에 맞춤 추천 받으려면 ↓</p>
         <div onclick="window.location.href='/personal-coming.html'" style="background:linear-gradient(135deg,#1F2D3D,#2C3E50);color:white;border-radius:10px;padding:14px 16px;margin-top:10px;cursor:pointer;display:flex;align-items:center;gap:12px">

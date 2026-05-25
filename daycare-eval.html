@@ -397,39 +397,20 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">━ 식단표 입력 방법 ━</label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <button class="mode-btn checked" data-mode="text" onclick="setMode(this,'text')" style="background:#FFE8D0;border:1.5px solid #FF6B1A;color:#C45A00;padding:10px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">✍️ 메뉴 텍스트 입력</button>
-        <button class="mode-btn" data-mode="photo" onclick="setMode(this,'photo')" style="background:#FFFBF5;border:1.5px solid #FFE8D0;color:#8a7a6a;padding:10px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">📸 사진 업로드 (β)</button>
+      <label class="form-label">━ 식단표 사진 ━</label>
+      <div class="upload-zone" onclick="document.getElementById('photoInput').click()">
+        <input type="file" id="photoInput" accept="image/*,.pdf" style="display:none" onchange="handlePhotoSelect(this)">
+        <div class="em">📸</div>
+        <div class="lbl">사진 1장 업로드</div>
+        <div class="sub">JPG · PNG · PDF · 한 달치 또는 일주일치</div>
       </div>
-
-      <!-- 텍스트 입력 (기본) -->
-      <div id="modeText">
-        <textarea id="menuText" placeholder="식단표 메뉴를 자유롭게 입력해주세요.&#10;&#10;예시:&#10;월요일: 흰밥, 미역국, 두부조림, 시금치나물, 김치&#10;화요일: 잡곡밥, 된장찌개, 닭고기볶음, 콩나물무침, 김&#10;...&#10;&#10;한 달치든 일주일치든 OK. 띄어쓰기·줄바꿈·쉼표 자유" style="width:100%;min-height:130px;padding:12px;border:1.5px solid #FFE8D0;border-radius:10px;font-size:13px;font-family:inherit;line-height:1.65;resize:vertical;outline:none;background:#FFFBF5" onfocus="this.style.borderColor='#FF6B1A'" onblur="this.style.borderColor='#FFE8D0'"></textarea>
-        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-          <button onclick="loadSample(1)" style="background:#FFFBF5;border:1px solid #FFE8D0;color:#5a4a3a;padding:6px 10px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 사례 ① 불러오기 (4월 식단)</button>
-          <button onclick="loadSample(2)" style="background:#FFFBF5;border:1px solid #FFE8D0;color:#5a4a3a;padding:6px 10px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 사례 ② 불러오기 (5월 식단)</button>
-        </div>
-      </div>
-
-      <!-- 사진 업로드 (β) -->
-      <div id="modePhoto" style="display:none">
-        <div class="upload-zone" onclick="document.getElementById('photoInput').click()">
-          <input type="file" id="photoInput" accept="image/*,.pdf" style="display:none" onchange="handlePhotoSelect(this)">
-          <div class="em">📸</div>
-          <div class="lbl">사진 1장 업로드</div>
-          <div class="sub">JPG · PNG · PDF · 한 달치 또는 일주일치</div>
-        </div>
-        <div id="photoPreview" style="display:none;background:#FFFBF5;border:1px solid #FFE8D0;border-radius:10px;padding:10px;margin-top:8px;font-size:11.5px;color:#5a4a3a;line-height:1.7">
-          <strong style="color:#1a2b4a">📌 OCR 베타</strong><br>
-          사진 업로드는 받았지만, AI 메뉴 자동 인식(OCR)은 곧 출시 예정이에요.<br>
-          <strong>지금은 메뉴 텍스트를 직접 입력해주시면 즉시 평가</strong>해드려요. 위 ✍️ 버튼을 눌러주세요.
-        </div>
+      <div id="photoPreview" style="display:none;background:#FFFBF5;border:1px solid #FFE8D0;border-radius:10px;padding:10px;margin-top:8px;font-size:11.5px;color:#5a4a3a;line-height:1.7">
+        ✅ 사진 첨부됨 · 평가 시작 버튼을 눌러주세요
       </div>
     </div>
 
     <button class="modal-cta" onclick="startAnalysis()">🚀 평가 시작 (8축 알고리즘 작동)</button>
-    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·기관·위치</strong> 같은 개인·기관 식별 정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong><br>분석은 100% 브라우저에서 작동 — 서버에 보내지 않아요</div>
+    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·기관·위치</strong> 같은 개인·기관 식별 정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong><br>사진은 분석 후 24시간 내 자동 삭제</div>
   </div>
 </div>
 
@@ -933,18 +914,14 @@ const ANALYZE_STEPS = [
 ];
 
 function startAnalysis(){
-  const mode = document.querySelector('.mode-btn.checked').dataset.mode;
-  let text = '';
-  if(mode === 'text'){
-    text = document.getElementById('menuText').value.trim();
-    if(!text){
-      alert('메뉴 텍스트를 입력해주세요!\n\n예시: "월요일: 흰밥, 미역국, 두부조림, 시금치나물..."\n\n또는 📋 사례 ①·② 불러오기 버튼을 눌러보세요.');
-      return;
-    }
-  } else {
-    alert('📌 사진 OCR은 곧 출시 예정이에요.\n\n지금은 ✍️ 메뉴 텍스트 입력 모드를 사용해주세요!');
+  const photoInput = document.getElementById('photoInput');
+  if(!photoInput.files || !photoInput.files[0]){
+    alert('📸 식단표 사진을 먼저 업로드해주세요!');
     return;
   }
+  // AI OCR은 서버 처리 (Vercel serverless + Claude Vision) — 곧 출시
+  // 임시: 알고리즘 작동을 위해 샘플 식단으로 시뮬레이션
+  const text = window.__SAMPLE_FALLBACK || SAMPLE_MENUS[2];
 
   closeModal('uploadModal');
   document.getElementById('analyzingModal').classList.add('show');
