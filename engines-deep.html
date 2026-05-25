@@ -96,19 +96,21 @@
 <body>
 
 <header class="hero">
-  <span class="tag">🔬 ENGINE DEEP DIVE · v1</span>
-  <h1>밀프레드 편식도감<br>핵심 엔진 4종 설계 명세</h1>
-  <p>평가 엔진 · 추천 엔진 · OCR 엔진 · AI 코치 시스템 — 알고리즘·자료구조·SQL·LLM 프롬프트·테스트 케이스까지 전부</p>
+  <span class="tag">🔬 ENGINE DEEP DIVE · v2 (2026-05-25)</span>
+  <h1>밀프레드 편식도감<br>핵심 엔진 5종 설계 명세</h1>
+  <p>평가 · 추천 · OCR · AI 코치 · <strong>입력 전처리(LLM Normalizer)</strong> — 알고리즘·자료구조·SQL·LLM 프롬프트·테스트 케이스까지 전부</p>
   <div class="meta">
-    <span>⚙️ 22 알고리즘 상세</span>
+    <span>⚙️ 27 알고리즘 상세</span>
     <span>📐 TypeScript 인터페이스</span>
     <span>🧪 테스트 케이스</span>
     <span>💬 LLM 프롬프트 전문</span>
+    <span>🛡 prompt injection 방어</span>
   </div>
 </header>
 
 <nav class="toc">
   <div class="toc-inner">
+    <a href="#prep">🧹 0. 입력 전처리</a>
     <a href="#eval">📊 1. 평가 엔진</a>
     <a href="#reco">🍳 2. 추천 엔진</a>
     <a href="#ocr">📷 3. OCR 엔진</a>
@@ -118,10 +120,281 @@
 
 <main>
 
+<!-- ==================== 0. 입력 전처리 엔진 (NEW) ==================== -->
+<section id="prep">
+  <h2>0. 입력 전처리 엔진 — Input Preprocessing (LLM Normalizer)</h2>
+  <p><strong>모든 사용자 입력의 첫 관문.</strong> 자유 텍스트("닭볶음탕에 시금치 좀 줬는데 거의 안 먹음")를 정형 schema(<code>MealLog</code>)로 변환해 평가·추천 엔진에 전달. <strong>LLM 필수 사용 (Claude Haiku 4.5 + Sonnet 4.7 fallback)</strong>. 출력은 zod로 100% 스키마 검증.</p>
+
+  <div class="card yellow" style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);border:2px solid #F9A825;padding:18px;margin:14px 0;border-radius:14px">
+    <h4>🚨 왜 별도 엔진인가?</h4>
+    <p style="font-size:13px;color:#374151;font-weight:600;line-height:1.7;margin-top:6px">평가 엔진은 <strong>결정론적 Rule + Schema 입력</strong> 전제. 부정확·자유로운 사용자 입력을 직접 받으면 룰이 깨짐. 따라서 LLM은 평가 엔진 안에 두지 않고 <strong>전처리 레이어에 격리</strong>. 평가 엔진은 항상 검증된 깨끗한 데이터만 받음 (관심사 분리).</p>
+  </div>
+
+  <h3>0-0. 엔진 책임·경계</h3>
+  <div class="card green">
+    <h4>책임 (Does)</h4>
+    <ul>
+      <li><strong>자유 텍스트 → 구조화</strong>: "오전에 시금치 죽 줬는데 한 숟갈 먹고 거부" → MealLog 객체</li>
+      <li><strong>식재료 fuzzy 매칭</strong>: "시금치"·"시그치"·"sigeum" → ingredient_id (147 풀 + ai_estimated)</li>
+      <li><strong>meal_chip 추론</strong>: 시간 컨텍스트 + 단어("아침에"·"새벽") → 6 chip 매핑</li>
+      <li><strong>reaction·texture·autonomy 추론</strong>: 자연어 → 0-5 정량 점수</li>
+      <li><strong>Schema validation</strong>: zod로 100% 검증, 실패 시 재질문 흐름 트리거</li>
+      <li><strong>보안 가드</strong>: prompt injection 방어, PII 자동 마스킹</li>
+    </ul>
+    <h4>책임 아님 (Doesn't)</h4>
+    <ul>
+      <li>영양·다양성 평가 (→ 평가 엔진)</li>
+      <li>레시피 추천 (→ 추천 엔진)</li>
+      <li>이미지 → 텍스트 (→ OCR 엔진)</li>
+      <li>편지·답장 생성 (→ AI 코치)</li>
+    </ul>
+  </div>
+
+  <h3>0-1. 입출력 명세</h3>
+  <pre class="code"><span class="cm">// packages/prep-engine/types.ts</span>
+<span class="kw">export interface</span> <span class="ty">PrepInput</span> {
+  childId: <span class="ty">string</span>;
+  ageMonths: <span class="ty">number</span>;
+  rawText: <span class="ty">string</span>;              <span class="cm">// 사용자가 입력한 자유 텍스트</span>
+  imageUrls?: <span class="ty">string</span>[];        <span class="cm">// 첨부 사진 (Vision 분석)</span>
+  contextTimestamp: <span class="ty">Date</span>;     <span class="cm">// 입력 시각 (chip 추론용)</span>
+  recentMeals: <span class="ty">MealLog</span>[];     <span class="cm">// 최근 3끼 컨텍스트</span>
+  knownIngredients: <span class="ty">string</span>[]; <span class="cm">// 자녀 잘 먹는 베이스 (학습됨)</span>
+}
+
+<span class="kw">export interface</span> <span class="ty">PrepOutput</span> {
+  status: <span class="str">'ok'</span> | <span class="str">'needs_clarification'</span> | <span class="str">'rejected'</span>;
+  mealLog?: <span class="ty">MealLog</span>;          <span class="cm">// status='ok' 시 — 평가 엔진에 그대로 전달 가능</span>
+  clarification?: {                  <span class="cm">// 'needs_clarification' 시</span>
+    questions: <span class="ty">string</span>[];      <span class="cm">// 사용자에게 다시 물을 질문 (1-2개)</span>
+    suggestedFields: <span class="ty">string</span>[]; <span class="cm">// 어떤 필드가 비었는지</span>
+  };
+  rejectReason?: <span class="ty">string</span>;        <span class="cm">// 'rejected' (prompt injection 등) 시</span>
+  llmMeta: {
+    model: <span class="str">'haiku'</span> | <span class="str">'sonnet'</span>;
+    costKrw: <span class="ty">number</span>;
+    tokensIn: <span class="ty">number</span>;
+    tokensOut: <span class="ty">number</span>;
+    latencyMs: <span class="ty">number</span>;
+    cached: <span class="ty">boolean</span>;
+  };
+  confidence: <span class="ty">number</span>;          <span class="cm">// 0-1, &lt; 0.7 시 평가 결과에 'low confidence' 플래그</span>
+}</pre>
+
+  <!-- ALG-PREP-01 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-PREP-01</span>
+    <h4>자유 텍스트 → MealLog 구조화 (LLM 핵심)</h4>
+    <div class="algo-meta-row">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">rawText + context</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">MealLog · zod-validated</div></div>
+      <div class="algo-meta-item"><div class="lbl">LLM</div><div class="val">Haiku 4.5 → Sonnet 4.7 fallback</div></div>
+      <div class="algo-meta-item"><div class="lbl">p95 지연</div><div class="val">800ms (Haiku) · 2.5s (Sonnet)</div></div>
+      <div class="algo-meta-item"><div class="lbl">캐시</div><div class="val">정확 일치 7일</div></div>
+    </div>
+
+    <h5>프롬프트 (system)</h5>
+    <pre class="code">너는 한국 영유아 식사 기록 전처리 어시스턴트야. 부모가 입력한 자유 텍스트를
+구조화된 JSON으로 변환한다. **추가 정보를 추정하거나 만들어내지 말 것.**
+명시되지 않은 필드는 null로 둘 것.
+
+스키마:
+{
+  "mealChip": "아침"|"오전간식"|"점심"|"오후간식"|"저녁"|"야간"|null,
+  "ingredients": [{"name": string, "confidence": 0-1}],
+  "reaction": {
+    "score": 0-5,    // 0=완전 거부, 5=한 그릇 끝
+    "evidence": string
+  }|null,
+  "textureLevel": "puree"|"mashed"|"chopped"|"finger"|"family"|null,
+  "autonomy": "fed_by_parent"|"helped"|"self"|null,
+  "approxHour": number|null,
+  "note": string|null,
+  "needsClarification": [string],   // 부족한 정보가 있으면 1-2개 질문
+  "confidence": 0-1
+}
+
+규칙:
+1. 식재료명은 자녀가 실제 먹은 것만. 안 먹은 식재료는 reaction.evidence에 기재.
+2. 시간 명시 X 시: contextTimestamp 사용해 mealChip 추론.
+3. 부모 감정·의견은 note에. 평가 객관성을 위해 reaction.score 산정엔 영향 X.
+4. 모호하면 needsClarification 채우고 confidence 낮춤.</pre>
+
+    <h5>실제 호출 코드</h5>
+    <pre class="code"><span class="kw">async function</span> <span class="fn">parseMealText</span>(input: <span class="ty">PrepInput</span>): <span class="ty">Promise</span>&lt;<span class="ty">PrepOutput</span>&gt; {
+  <span class="cm">// 1. 캐시 확인 (rawText hash + ageMonths)</span>
+  <span class="kw">const</span> cacheKey = <span class="fn">sha256</span>(input.rawText + input.ageMonths);
+  <span class="kw">const</span> cached = <span class="kw">await</span> redis.<span class="fn">get</span>(<span class="str">`prep:</span>${cacheKey}<span class="str">`</span>);
+  <span class="kw">if</span> (cached) <span class="kw">return</span> { ...cached, llmMeta: { ...cached.llmMeta, cached: <span class="kw">true</span> } };
+
+  <span class="cm">// 2. 보안 가드 (prompt injection 차단)</span>
+  <span class="kw">const</span> sanitized = <span class="fn">sanitizeUserInput</span>(input.rawText);
+  <span class="kw">if</span> (<span class="fn">detectInjection</span>(sanitized)) <span class="kw">return</span> { status: <span class="str">'rejected'</span>, rejectReason: <span class="str">'injection_detected'</span> };
+
+  <span class="cm">// 3. Haiku 우선 (저비용·빠름)</span>
+  <span class="kw">let</span> result = <span class="kw">await</span> anthropic.messages.<span class="fn">create</span>({
+    model: <span class="str">'claude-haiku-4-5-20251001'</span>,
+    system: PREP_SYSTEM_PROMPT,
+    messages: [{ role: <span class="str">'user'</span>, content: <span class="fn">buildContextMessage</span>(input, sanitized) }],
+    max_tokens: <span class="num">800</span>
+  });
+
+  <span class="cm">// 4. Schema validation (zod)</span>
+  <span class="kw">let</span> parsed = <span class="ty">MealLogSchema</span>.<span class="fn">safeParse</span>(<span class="fn">extractJSON</span>(result.content[<span class="num">0</span>].text));
+
+  <span class="cm">// 5. 실패 시 Sonnet fallback (복잡 케이스)</span>
+  <span class="kw">if</span> (!parsed.success || parsed.data.confidence &lt; <span class="num">0.5</span>) {
+    result = <span class="kw">await</span> anthropic.messages.<span class="fn">create</span>({
+      model: <span class="str">'claude-sonnet-4-6'</span>,
+      system: PREP_SYSTEM_PROMPT + EXAMPLES_FEW_SHOT,
+      messages: [{ role: <span class="str">'user'</span>, content: <span class="fn">buildContextMessage</span>(input, sanitized) }],
+      max_tokens: <span class="num">1200</span>
+    });
+    parsed = <span class="ty">MealLogSchema</span>.<span class="fn">safeParse</span>(<span class="fn">extractJSON</span>(result.content[<span class="num">0</span>].text));
+  }
+
+  <span class="cm">// 6. 그래도 실패 시 재질문 요청</span>
+  <span class="kw">if</span> (!parsed.success) <span class="kw">return</span> { status: <span class="str">'needs_clarification'</span>, ... };
+
+  <span class="cm">// 7. 캐시 저장 + 반환</span>
+  <span class="kw">const</span> output = { status: <span class="str">'ok'</span>, mealLog: parsed.data, llmMeta: {...}, confidence: parsed.data.confidence };
+  <span class="kw">await</span> redis.<span class="fn">setex</span>(<span class="str">`prep:</span>${cacheKey}<span class="str">`</span>, <span class="num">604800</span>, output);
+  <span class="kw">return</span> output;
+}</pre>
+  </div>
+
+  <!-- ALG-PREP-02 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-PREP-02</span>
+    <h4>식재료 fuzzy 매칭 (147 풀 → ingredient_id)</h4>
+    <p>LLM이 추출한 식재료명을 우리 도감 147종 (확장 가능)에 매핑. 매칭 실패 시 ai_estimated 상태로 저장.</p>
+    <pre class="code"><span class="kw">function</span> <span class="fn">resolveIngredient</span>(name: <span class="ty">string</span>): <span class="ty">IngredientMatch</span> {
+  <span class="cm">// 1. 정확 일치 (정규화: 공백·괄호·이형 제거)</span>
+  <span class="kw">const</span> exact = INGREDIENT_POOL.<span class="fn">find</span>(i =&gt; <span class="fn">normalize</span>(i.name) === <span class="fn">normalize</span>(name));
+  <span class="kw">if</span> (exact) <span class="kw">return</span> { id: exact.id, confidence: <span class="num">1.0</span>, source: <span class="str">'pool'</span> };
+
+  <span class="cm">// 2. 별칭 매칭 (시그치 → 시금치, 토마토 = 도마도)</span>
+  <span class="kw">const</span> alias = ALIAS_MAP[<span class="fn">normalize</span>(name)];
+  <span class="kw">if</span> (alias) <span class="kw">return</span> { id: alias, confidence: <span class="num">0.95</span>, source: <span class="str">'alias'</span> };
+
+  <span class="cm">// 3. Levenshtein 거리 ≤ 2 + 카테고리 일치</span>
+  <span class="kw">const</span> fuzzy = INGREDIENT_POOL
+    .<span class="fn">map</span>(i =&gt; ({ id: i.id, dist: <span class="fn">levenshtein</span>(<span class="fn">normalize</span>(i.name), <span class="fn">normalize</span>(name)) }))
+    .<span class="fn">filter</span>(x =&gt; x.dist &lt;= <span class="num">2</span>)
+    .<span class="fn">sort</span>((a, b) =&gt; a.dist - b.dist)[<span class="num">0</span>];
+  <span class="kw">if</span> (fuzzy) <span class="kw">return</span> { id: fuzzy.id, confidence: <span class="num">0.8</span> - fuzzy.dist * <span class="num">0.1</span>, source: <span class="str">'fuzzy'</span> };
+
+  <span class="cm">// 4. 미매칭 — ai_estimated로 enrich queue에 추가</span>
+  <span class="kw">await</span> enrich_queue.<span class="fn">insert</span>({ name, source: <span class="str">'user_input'</span>, status: <span class="str">'pending'</span> });
+  <span class="kw">return</span> { id: <span class="kw">null</span>, confidence: <span class="num">0.3</span>, source: <span class="str">'ai_estimated'</span>, rawName: name };
+}</pre>
+  </div>
+
+  <!-- ALG-PREP-03 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-PREP-03</span>
+    <h4>재질문 흐름 (Clarification Loop)</h4>
+    <p>LLM confidence &lt; 0.7 또는 필수 필드 누락 시 사용자에게 1-2개 짧은 질문으로 보강. 3회 이상 누락 시 강제 저장 (low_confidence 플래그).</p>
+    <table>
+      <tr><th>케이스</th><th>재질문 예시</th></tr>
+      <tr><td>식재료 모호</td><td>"오늘 '국' 드셨다고 적어주셨는데, 어떤 국이었나요? (예: 미역국·된장국·소고기뭇국)"</td></tr>
+      <tr><td>reaction 없음</td><td>"잘 먹었는지 살짝 알려주세요 (👍 잘 먹음 / 😐 보통 / 👎 거부)"</td></tr>
+      <tr><td>meal_chip 모호</td><td>"이번 식사는 언제 드셨나요? (아침·점심·간식·저녁)"</td></tr>
+      <tr><td>autonomy 추정</td><td>"아이가 스스로 먹었나요, 부모님이 떠먹여주셨나요?"</td></tr>
+    </table>
+  </div>
+
+  <!-- ALG-PREP-04 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-PREP-04</span>
+    <h4>Prompt Injection·PII 방어</h4>
+    <p>사용자 입력은 항상 untrusted로 취급. LLM 시스템 지시 변조·민감 정보 탈취·우리 비밀 키 노출 시도 차단.</p>
+    <pre class="code"><span class="kw">function</span> <span class="fn">detectInjection</span>(text: <span class="ty">string</span>): <span class="kw">boolean</span> {
+  <span class="kw">const</span> patterns = [
+    <span class="str">/ignore\s+(previous|above|all)\s+(instructions?|prompts?)/i</span>,
+    <span class="str">/you\s+are\s+now\s+(a|an)\s+/i</span>,
+    <span class="str">/system\s*[:：]\s*/i</span>,
+    <span class="str">/\\n*system\s*:/i</span>,
+    <span class="str">/&lt;\|.*?\|&gt;/</span>,                    <span class="cm">// special tokens</span>
+    <span class="str">/api[_-]?key|secret|password/i</span>,    <span class="cm">// 비밀 정보 요청</span>
+  ];
+  <span class="kw">return</span> patterns.<span class="fn">some</span>(p =&gt; p.<span class="fn">test</span>(text));
+}
+
+<span class="kw">function</span> <span class="fn">sanitizeUserInput</span>(text: <span class="ty">string</span>): <span class="ty">string</span> {
+  <span class="kw">return</span> text
+    .<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">2000</span>)                <span class="cm">// 최대 2000자</span>
+    .<span class="fn">replace</span>(<span class="str">/&lt;[^&gt;]+&gt;/g</span>, <span class="str">''</span>)        <span class="cm">// HTML 제거</span>
+    .<span class="fn">replace</span>(<span class="str">/\\u200b/g</span>, <span class="str">''</span>)           <span class="cm">// zero-width</span>
+    .<span class="fn">replace</span>(<span class="str">/[\\x00-\\x1F]/g</span>, <span class="str">' '</span>)      <span class="cm">// 제어 문자</span>
+    .<span class="fn">trim</span>();
+}
+
+<span class="cm">// 사용자 입력은 user 메시지에 격리. system 프롬프트와 절대 섞지 않음.</span>
+<span class="cm">// LLM 응답은 항상 zod schema로 통과 — 자유 응답을 그대로 사용 X.</span></pre>
+  </div>
+
+  <!-- ALG-PREP-05 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-PREP-05</span>
+    <h4>비용·캐시 정책</h4>
+    <table>
+      <tr><th>항목</th><th>정책</th></tr>
+      <tr><td>모델 우선순위</td><td>Haiku 4.5 (95% 케이스) → Sonnet 4.7 (5% 복잡)</td></tr>
+      <tr><td>건당 평균 비용</td><td>Haiku ₩4 · Sonnet ₩25 (입출력 합산)</td></tr>
+      <tr><td>캐시</td><td>(rawText + ageMonths) hash 키 · Redis 7일</td></tr>
+      <tr><td>일일 사용자 한도</td><td>500 호출/사용자/일 (영유아 5끼 × 100배 마진)</td></tr>
+      <tr><td>일일 시스템 한도</td><td>$50/day → 초과 시 Haiku만 사용, Sonnet fallback 차단</td></tr>
+      <tr><td>실패 fallback</td><td>전처리 실패 시 → 사용자에게 chip+자동완성 UI 강제 (LLM 우회)</td></tr>
+      <tr><td>p95 비용 목표</td><td>MAU 1만 시 월 ₩300k 이내</td></tr>
+    </table>
+  </div>
+
+  <h3>0-2. 평가·추천 엔진과의 인터페이스</h3>
+  <div class="mermaid-wrap" style="background:white;border:1.5px solid #E5E7EB;border-radius:14px;padding:18px;margin:14px 0;overflow-x:auto">
+    <div class="mermaid" style="text-align:center;min-width:600px">
+flowchart LR
+  USER[사용자 자유 입력<br/>'시금치 죽 줬는데 거부']
+  PREP[🧹 전처리 엔진<br/>LLM Normalizer<br/>Haiku/Sonnet]
+  SCHEMA{Schema OK?}
+  RETRY[재질문 흐름]
+  MEAL[(MealLog<br/>검증된 객체)]
+  EVAL[📊 평가 엔진<br/>결정론적 Rule]
+  RECO[🍳 추천 엔진<br/>Hybrid]
+  RESULT[결과 + 신호등 + 레시피]
+
+  USER --> PREP --> SCHEMA
+  SCHEMA -->|fail| RETRY --> USER
+  SCHEMA -->|ok| MEAL
+  MEAL --> EVAL --> RESULT
+  MEAL --> RECO --> RESULT
+
+  classDef llm fill:#FFF8E1,stroke:#F9A825,color:#1F2D3D
+  classDef rule fill:#E8F5E9,stroke:#16A085,color:#1F2D3D
+  classDef hybrid fill:#F3E5F5,stroke:#9C27B0,color:#1F2D3D
+  class PREP llm
+  class EVAL rule
+  class RECO hybrid
+    </div>
+  </div>
+
+  <h3>0-3. 모니터링 지표 (필수)</h3>
+  <ul>
+    <li><strong>status=ok 비율</strong> ≥ 85% (첫 호출 성공)</li>
+    <li><strong>재질문 트리거율</strong> ≤ 12%</li>
+    <li><strong>rejected (injection 감지)</strong> 0.1% 이내</li>
+    <li><strong>평균 confidence</strong> ≥ 0.82</li>
+    <li><strong>Haiku → Sonnet escalation</strong> ≤ 5%</li>
+    <li><strong>Schema validation 실패</strong> ≤ 3% (LLM 출력 형식 오류)</li>
+    <li><strong>캐시 hit rate</strong> ≥ 30% (반복 끼니 자연 캐시)</li>
+  </ul>
+</section>
+
 <!-- ==================== 1. 평가 엔진 ==================== -->
 <section id="eval">
   <h2>1. 평가 엔진 — Evaluation Engine</h2>
-  <p>모든 평가는 <strong>결정론적 Rule</strong> 기반. LLM 미사용. 빠르고(p95 &lt; 50ms) 재현 가능하며 학술적으로 검증 가능.</p>
+  <p>평가 엔진 자체는 <strong>결정론적 Rule</strong> 기반. <strong>LLM 미사용</strong>. 빠르고(p95 &lt; 50ms) 재현 가능하며 학술적으로 검증 가능.</p>
+  <p style="font-size:13px;color:#374151;background:#FFF8E1;border-left:4px solid #F9A825;padding:10px 14px;border-radius:0 10px 10px 0;margin:8px 0"><strong>📌 단, 사용자의 자유 텍스트 입력은 §0 전처리 엔진(LLM Normalizer)에서 검증된 schema로 정규화한 뒤 본 엔진에 전달됨.</strong> 본 엔진은 항상 깨끗한 <code>MealLog</code> 객체만 받는다는 전제. LLM의 비결정성은 전처리 레이어에 격리되어 평가의 재현성·감사 가능성을 보장.</p>
 
   <h3>1-0. 엔진 책임·경계</h3>
   <div class="card green">
@@ -1452,7 +1725,7 @@ ${yesterdayMeals}
 
 <footer>
   <p><strong>밀프레드 편식도감</strong> · 엔진 Deep Dive v1 · 2026-05-24</p>
-  <p>22 알고리즘 (평가 5 + 추천 7 + OCR 6 + 코치 4) · TypeScript 인터페이스 · SQL 함수 · LLM 프롬프트 전문</p>
+  <p>27 알고리즘 (전처리 5 + 평가 5 + 추천 7 + OCR 6 + 코치 4) · TypeScript 인터페이스 · SQL 함수 · LLM 프롬프트 전문 · prompt injection 방어</p>
 </footer>
 
 <script>
