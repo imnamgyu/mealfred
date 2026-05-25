@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 — 바이럴 엔진 PRD (마일리지·반감기·90일 챌린지 풀스택)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;--g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;--v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FFEBEE;--r500:#E53935;--r700:#C62828;--y50:#FFF8E1;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.75}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--n100);padding:1px 6px;border-radius:4px;color:var(--p700)}
+
+  .hero{background:linear-gradient(135deg,#6A1B9A,#E89244,#F9A825);color:white;padding:50px 24px 36px;text-align:center}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.25);padding:6px 14px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.05em;margin-bottom:14px}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px;line-height:1.2}
+  .hero p{font-size:14px;color:rgba(255,255,255,0.92);max-width:600px;margin:0 auto;font-weight:600}
+  .hero .meta{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.18);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+  .toc{background:white;border-bottom:1px solid var(--n200);padding:14px 24px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1100px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--n600);font-weight:700;padding:6px 11px;border-radius:100px;background:var(--n50);text-decoration:none;flex-shrink:0}
+  .toc a:hover{background:var(--v500);color:white}
+
+  main{max-width:1100px;margin:0 auto;padding:24px}
+  section{margin-bottom:48px;scroll-margin-top:60px}
+  .stag{display:inline-block;font-size:11px;color:var(--v700);font-weight:800;letter-spacing:0.08em;margin-bottom:6px}
+  h2{font-size:26px;font-weight:800;color:var(--s800);margin-bottom:14px;padding:14px 18px;background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-left:6px solid var(--v500);border-radius:0 12px 12px 0;letter-spacing:-0.02em}
+  h3{font-size:18px;font-weight:800;color:var(--s800);margin:22px 0 12px;padding-left:12px;border-left:4px solid var(--p500);letter-spacing:-0.01em}
+  h4{font-size:14px;font-weight:800;color:var(--s700);margin:14px 0 6px}
+  p{font-size:14px;color:var(--n700);font-weight:500;margin-bottom:10px}
+  ul,ol{margin:8px 0 14px 22px}
+  li{font-size:13.5px;color:var(--n700);margin-bottom:5px;line-height:1.75}
+  strong{color:var(--s800);font-weight:800}
+
+  .card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin-bottom:14px}
+  .card.green{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:var(--g500)}
+  .card.yellow{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-color:var(--y500)}
+  .card.blue{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-color:var(--b500)}
+  .card.dark{background:var(--s800);color:white;border-color:var(--s800)}
+  .card.dark h3,.card.dark p,.card.dark li{color:white}
+  .card.dark strong{color:#FFD89C}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200);margin:8px 0}
+  th{background:var(--s800);color:white;padding:10px 12px;text-align:left;font-size:11px;font-weight:800}
+  td{padding:8px 12px;border-bottom:1px solid var(--n100);vertical-align:top;color:var(--n700)}
+  td.mono{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--p700)}
+  td.num{text-align:right;font-family:ui-monospace,Menlo,monospace;font-weight:700}
+  td.green{color:var(--g700);background:var(--g50);font-weight:700;text-align:right;font-family:ui-monospace,Menlo,monospace}
+  tr:last-child td{border-bottom:none}
+
+  pre.code{background:#1F2D3D;color:#E0E7EE;padding:14px 16px;border-radius:10px;overflow-x:auto;font-size:11.5px;line-height:1.75;margin:8px 0}
+  pre.code .kw{color:#FFB375;font-weight:700}
+  pre.code .str{color:#9CCC65}
+  pre.code .cm{color:#7A8FA8;font-style:italic}
+  pre.code .fn{color:#42A5F5}
+  pre.code .num{color:#FF8A65}
+
+  .mermaid-wrap{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin:14px 0;overflow-x:auto}
+  .mermaid{text-align:center;min-width:600px}
+
+  .req-card{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px;margin-bottom:10px;border-left:5px solid var(--v500)}
+  .req-card.fr{border-left-color:var(--g500)}
+  .req-card.nfr{border-left-color:var(--b500)}
+  .req-card .id{display:inline-block;background:var(--v500);color:white;font-size:11px;font-weight:800;padding:3px 10px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;letter-spacing:0.03em;margin-bottom:6px}
+  .req-card.fr .id{background:var(--g500)}
+  .req-card.nfr .id{background:var(--b500)}
+  .req-card h4{margin:0 0 6px;font-size:14.5px;color:var(--s800)}
+  .req-card .desc{font-size:12.5px;color:var(--n600);font-weight:600;line-height:1.65}
+  .req-card .accept{background:var(--n50);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:11.5px;color:var(--n700);font-weight:600;line-height:1.7}
+  .req-card .accept strong{color:var(--v700)}
+
+  .nav-back{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);padding:16px;border-radius:14px;margin-top:30px;text-align:center}
+  .nav-back a{color:var(--v700);font-weight:800;text-decoration:none;font-size:13px;margin:0 10px}
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--n400);border-top:1px solid var(--n100);font-weight:600}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">📋 PRD · 바이럴 엔진 (마일리지·반감기·90일 챌린지)</span>
+  <h1>바이럴 엔진 — PRD</h1>
+  <p>비트코인 반감기 모델 + Lally 2010 습관 형성 + Skinner 가변비율 강화 · 풀스택 개발 명세</p>
+  <div class="meta">
+    <span>🎯 18 기능 요구</span>
+    <span>📐 6 비기능 요구</span>
+    <span>🗃 5 DB 테이블</span>
+    <span>🔌 9 API</span>
+    <span>⏰ 4 cron</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#overview">1. 개요</a>
+    <a href="#components">2. 컴포넌트</a>
+    <a href="#fr">3. 기능 요구</a>
+    <a href="#nfr">4. 비기능</a>
+    <a href="#data">5. DB</a>
+    <a href="#api">6. API</a>
+    <a href="#algorithm">7. 알고리즘</a>
+    <a href="#cron">8. Cron</a>
+    <a href="#fraud">9. Anti-Fraud</a>
+    <a href="#release">10. 릴리즈</a>
+    <a href="#kpi">11. KPI</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="overview">
+  <span class="stag">━ 1. PRODUCT OVERVIEW ━</span>
+  <h2>1. 개요</h2>
+
+  <div class="card dark">
+    <h3 style="border:none;color:#FFD89C;margin-top:0">"90일 습관 챌린지 = 평생 식습관"</h3>
+    <p style="font-size:13.5px;margin-top:10px">끼니 입력마다 마일리지 적립 → 반감기로 초반 강한 보상 → 90일 완주 시 골고루 키트 무료 → CAC ₩15k로 LTV ₩820k/연 사용자 획득. 광고 ROI 27x.</p>
+  </div>
+
+  <h3>1-1. 학술 근거</h3>
+  <table>
+    <tr><th>이론</th><th>적용</th></tr>
+    <tr><td>Lally et al. 2010 (UCL)</td><td>습관 형성 평균 66일 → 90일 챌린지 설계 근거</td></tr>
+    <tr><td>Skinner 가변비율 강화</td><td>룰렛 도파민 루프 (예측 불가 보상)</td></tr>
+    <tr><td>비트코인 반감기 (4단계)</td><td>초반 강한 보상 → 후반 절약 → 매출 보호</td></tr>
+    <tr><td>Cialdini 6 원칙 (상호성·일관성)</td><td>친구 초대 + 90일 약속 행동</td></tr>
+    <tr><td>BJ Fogg Tiny Habits</td><td>끼니 입력 = 작은 행동 단위</td></tr>
+  </table>
+
+  <h3>1-2. 핵심 원칙</h3>
+  <ul>
+    <li><strong>1 마일리지 = 1원</strong> 키트 결제 차감 가능 (현금 환전 X)</li>
+    <li><strong>인플레 한도 X</strong> — 슈퍼 사용자 환영 (어차피 우리 키트 매출)</li>
+    <li><strong>최소 사용 단위 X</strong> — 1마일리지부터 결제 차감</li>
+    <li><strong>적립 단위 = 끼니 입력 1건</strong> (출석 X)</li>
+    <li><strong>일일 한도 5끼</strong> (영유아 자연 한도, farming 방지)</li>
+    <li><strong>유효 기간 X</strong> (또는 12개월 후 검토)</li>
+  </ul>
+</section>
+
+<section id="components">
+  <span class="stag">━ 2. SYSTEM COMPONENTS ━</span>
+  <h2>2. 시스템 컴포넌트</h2>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TB
+  USER[사용자 끼니 입력]
+  EARN[Earn Service<br/>적립 검증·계산]
+  STAGE[Stage Controller<br/>반감기 4단계 결정]
+  FRAUD[Anti-Fraud<br/>한도·간격 체크]
+  LEDGER[(Mileage Ledger<br/>append-only)]
+  BALANCE[(Balance Cache)]
+  REDEEM[Redeem Service<br/>키트 결제 차감]
+  REFERRAL[Referral Tracker<br/>친구 초대]
+  ROULETTE[Roulette Engine<br/>가변비율 강화]
+  CHALLENGE[Challenge Service<br/>90일 완주 트리거]
+  KAKAO[KakaoTalk SENS<br/>알림톡 발송]
+  CRON[Cron Jobs]
+
+  USER --> EARN --> FRAUD --> STAGE --> LEDGER --> BALANCE
+  USER --> ROULETTE --> LEDGER
+  REFERRAL --> LEDGER
+  CHALLENGE --> LEDGER
+  BALANCE --> REDEEM
+  CRON --> CHALLENGE
+  CRON --> KAKAO
+
+  classDef core fill:#FFE8D1,stroke:#E89244,color:#1F2D3D
+  classDef store fill:#E3F2FD,stroke:#3498DB,color:#1F2D3D
+  classDef ext fill:#F3E5F5,stroke:#9C27B0,color:#1F2D3D
+  class EARN,STAGE,FRAUD,REDEEM,ROULETTE,CHALLENGE core
+  class LEDGER,BALANCE store
+  class KAKAO,CRON ext
+    </div>
+  </div>
+</section>
+
+<section id="fr">
+  <span class="stag">━ 3. FUNCTIONAL REQUIREMENTS ━</span>
+  <h2>3. 기능 요구사항 (18개)</h2>
+
+  <h3>3-1. 마일리지 적립</h3>
+  <div class="req-card fr"><span class="id">FR-V01</span><h4>끼니 입력 시 마일리지 적립</h4>
+    <div class="desc">사용자가 식사 기록 1건 저장 시 현재 stage에 따라 마일리지 자동 적립.</div>
+    <div class="accept"><strong>승인</strong>: Stage 1 +100·Stage 2 +50·Stage 3 +25·Stage 4 +12 / 토스트 즉시 표시 / ledger·balance 동시 갱신 (트랜잭션)</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V02</span><h4>일일 한도 5끼 검증</h4>
+    <div class="desc">하루 5건 초과 입력 시 기록은 저장하되 마일리지 X.</div>
+    <div class="accept"><strong>승인</strong>: 6번째 입력 시 "5끼 한도 도달, 기록만 저장" 안내 / 자정 KST 리셋</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V03</span><h4>끼니 간격 1시간 검증</h4>
+    <div class="desc">직전 끼니 입력 시각 + 60분 이내 입력은 마일리지 X.</div>
+    <div class="accept"><strong>승인</strong>: 검증 실패 시 "마지막 입력 후 1시간 지나야 적립" 메시지</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V04</span><h4>chip 중복 차단</h4>
+    <div class="desc">같은 chip (예: 오전간식) 같은 날 중복 입력 시 마일리지 X.</div>
+    <div class="accept"><strong>승인</strong>: 6 chip (아침·오전간식·점심·오후간식·저녁·야간) 각 1회만 적립</div>
+  </div>
+
+  <h3>3-2. Stage Controller (반감기)</h3>
+  <div class="req-card fr"><span class="id">FR-V05</span><h4>가입일 기준 stage 자동 결정</h4>
+    <div class="desc">user.created_at 기준 일수로 stage 1-4 자동 결정.</div>
+    <div class="accept"><strong>승인</strong>: 1-21일 Stage 1 · 22-45일 Stage 2 · 46-66일 Stage 3 · 67-90일 Stage 4 · 91일+ Stage 4 유지</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V06</span><h4>stage 전환 알림</h4>
+    <div class="desc">stage 변경 시 카톡 알림톡 자동 발송.</div>
+    <div class="accept"><strong>승인</strong>: cron 매일 09:00 KST · "오늘부터 마일리지가 절반으로 줄어요. 90일 완주까지 X일 남았어요"</div>
+  </div>
+
+  <h3>3-3. 90일 챌린지</h3>
+  <div class="req-card fr"><span class="id">FR-V07</span><h4>90일 완주 보너스 적립</h4>
+    <div class="desc">가입 91일째 자정 cron, 90일 중 60일 이상 입력 시 +50,774 보너스 자동 적립.</div>
+    <div class="accept"><strong>승인</strong>: ledger 별도 트랜잭션 (kind='challenge_completion') · 카톡 알림 "🎉 90일 완주! 골고루 키트 무료 결제하세요"</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V08</span><h4>챌린지 진행률 표시</h4>
+    <div class="desc">홈 화면 상단에 "X/90일 · Stage N · 누적 마일리지" 카드.</div>
+    <div class="accept"><strong>승인</strong>: 매 입력마다 즉시 갱신 · 진행 바 시각화 · 다음 stage 전환일 표시</div>
+  </div>
+
+  <h3>3-4. 친구 초대</h3>
+  <div class="req-card fr"><span class="id">FR-V09</span><h4>고유 초대 링크 생성</h4>
+    <div class="desc">사용자별 referral code (8자) 생성. /signup?ref=ABCD1234.</div>
+    <div class="accept"><strong>승인</strong>: URL 단축 X (gh-pages friendly) · 카톡 공유 시 OG 이미지 자동</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V10</span><h4>초대 성공 시 양방향 적립</h4>
+    <div class="desc">피초대자가 가입 + 첫 끼니 입력 완료 시 초대자 +3,000·피초대자 +1,000.</div>
+    <div class="accept"><strong>승인</strong>: 동일 IP·동일 디바이스 fingerprint 차단 / 월 5명 한도</div>
+  </div>
+
+  <h3>3-5. 룰렛 (가변비율 강화)</h3>
+  <div class="req-card fr"><span class="id">FR-V11</span><h4>일 1회 무료 룰렛</h4>
+    <div class="desc">하루 첫 끼니 입력 후 룰렛 1회 무료. 보상 분포: 10원 30%·50원 40%·100원 20%·500원 8%·5000원 2%.</div>
+    <div class="accept"><strong>승인</strong>: 확률 서버 검증 (클라이언트 조작 차단) · 결과 ledger 기록 · 애니메이션 3초</div>
+  </div>
+
+  <h3>3-6. 댓글·리뷰 보상</h3>
+  <div class="req-card fr"><span class="id">FR-V12</span><h4>도감 댓글 작성 시 보상</h4>
+    <div class="desc">로그인 사용자가 도감 댓글 작성 시 +500. 모더레이션 통과 후 지급.</div>
+    <div class="accept"><strong>승인</strong>: 1 식재료당 1회 / 일 최대 5건 / 통과 후 적립 (T+1)</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V13</span><h4>키트 리뷰 작성 시 보상</h4>
+    <div class="desc">키트 구매 후 리뷰 작성 시 +5,000. 사진 포함 시 +5,000 추가.</div>
+    <div class="accept"><strong>승인</strong>: 구매 검증 / 1 키트당 1회 / 리뷰 모더레이션 통과 후 적립</div>
+  </div>
+
+  <h3>3-7. 사용처 (Redeem)</h3>
+  <div class="req-card fr"><span class="id">FR-V14</span><h4>키트 결제 시 마일리지 차감</h4>
+    <div class="desc">결제 화면 "마일리지 사용" 입력 → 1마일리지 = 1원 차감.</div>
+    <div class="accept"><strong>승인</strong>: 보유 마일리지 표시 / 100% 차감 가능 (전액 무료 결제 OK) / 차감 후 결제 실패 시 자동 환원 (트랜잭션)</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V15</span><h4>마일리지 내역 조회</h4>
+    <div class="desc">사용자 마이페이지 → 적립·차감 전체 내역 (페이지네이션).</div>
+    <div class="accept"><strong>승인</strong>: 30일/3개월/1년/전체 필터 · CSV 다운로드 옵션</div>
+  </div>
+
+  <h3>3-8. 카카오 알림톡 푸시</h3>
+  <div class="req-card fr"><span class="id">FR-V16</span><h4>주요 이벤트 카톡 발송</h4>
+    <div class="desc">stage 전환·90일 완주·친구 가입·룰렛 잭팟·1주 미입력 리마인드 자동 카톡.</div>
+    <div class="accept"><strong>승인</strong>: 네이버 클라우드 SENS 알림톡 / 템플릿 사전 심사 / 발송 실패 시 재시도 3회 / 건당 ₩8 비용 모니터링</div>
+  </div>
+
+  <h3>3-9. 어드민·운영</h3>
+  <div class="req-card fr"><span class="id">FR-V17</span><h4>운영자 수동 적립·차감</h4>
+    <div class="desc">CS 이슈·이벤트 보상 시 운영자 수동 ledger 입력.</div>
+    <div class="accept"><strong>승인</strong>: 운영자 인증 / 사유 필수 입력 / 모든 변경 audit log 기록</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-V18</span><h4>실시간 대시보드</h4>
+    <div class="desc">총 발행·차감·DAU·키트 결제 차감 비율 일/주/월 대시보드.</div>
+    <div class="accept"><strong>승인</strong>: Metabase·Retool 임베드 / 발행 vs 차감 비율 모니터링 (인플레 자체 추적)</div>
+  </div>
+</section>
+
+<section id="nfr">
+  <span class="stag">━ 4. NON-FUNCTIONAL REQUIREMENTS ━</span>
+  <h2>4. 비기능 요구사항 (6개)</h2>
+
+  <div class="req-card nfr"><span class="id">NFR-V01</span><h4>적립 응답 시간 &lt; 300ms</h4>
+    <div class="desc">끼니 입력 → 마일리지 토스트까지 300ms 이내.</div>
+    <div class="accept">balance cache 활용 / append-only ledger / DB 트랜잭션 최적화</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-V02</span><h4>적립 정확성 100%</h4>
+    <div class="desc">중복·누락·오적립 0%.</div>
+    <div class="accept">idempotency key 적용 / append-only ledger / 자정 정합성 검증 cron</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-V03</span><h4>fraud 차단율 ≥ 95%</h4>
+    <div class="desc">동일 IP·동일 디바이스·짧은 간격 등 farming 95% 이상 차단.</div>
+    <div class="accept">디바이스 fingerprint + IP + 시간 간격 조합 검증 / 의심 계정 큐 자동 분류</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-V04</span><h4>카톡 발송 ≥ 99%</h4>
+    <div class="desc">알림톡 발송 성공률 99% 이상.</div>
+    <div class="accept">SENS 재시도 3회 / 실패 시 SMS fallback / 발송 로그 30일 보관</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-V05</span><h4>비용 — 월 ₩100k 이내 (1만 MAU)</h4>
+    <div class="desc">알림톡 + DB 호출 + cron 비용 합산.</div>
+    <div class="accept">알림톡 평균 사용자당 월 8건 × ₩8 = ₩640 × 1만 = ₩6.4M (보수) — 또는 push 우선 사용자 segmentation으로 ₩100k 이내 유지</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-V06</span><h4>회계 감사 대비</h4>
+    <div class="desc">전체 ledger 5년 이상 보관, 외부 회계 감사 시 추출 가능.</div>
+    <div class="accept">append-only / S3 백업 / 마일리지는 부채 인식 (1마일리지 = ₩1)</div>
+  </div>
+</section>
+
+<section id="data">
+  <span class="stag">━ 5. DATA MODEL ━</span>
+  <h2>5. 데이터 모델 (Supabase Postgres)</h2>
+
+  <pre class="code"><span class="cm">-- 마일리지 ledger (append-only, 모든 변동 기록)</span>
+<span class="kw">CREATE TABLE</span> mileage_ledger (
+  id <span class="kw">BIGSERIAL PRIMARY KEY</span>,
+  user_id <span class="kw">UUID NOT NULL REFERENCES</span> users(id),
+  kind <span class="kw">TEXT NOT NULL</span>,
+    <span class="cm">-- 'meal_input'·'referral_inviter'·'referral_invitee'·'roulette'·'comment'·'review'·'challenge_completion'·'redeem_kit'·'admin_adjust'</span>
+  amount <span class="kw">INT NOT NULL</span>,                  <span class="cm">-- +/- (적립 양수, 차감 음수)</span>
+  meta <span class="kw">JSONB</span>,                            <span class="cm">-- {meal_chip, stage, order_id, ref_user_id, ...}</span>
+  idempotency_key <span class="kw">TEXT UNIQUE</span>,           <span class="cm">-- 중복 적립 방지</span>
+  balance_after <span class="kw">INT NOT NULL</span>,            <span class="cm">-- 거래 후 잔액 (감사용)</span>
+  created_at <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+<span class="kw">CREATE INDEX</span> idx_ledger_user_created <span class="kw">ON</span> mileage_ledger(user_id, created_at <span class="kw">DESC</span>);
+
+<span class="cm">-- 잔액 캐시 (read 성능)</span>
+<span class="kw">CREATE TABLE</span> mileage_balance (
+  user_id <span class="kw">UUID PRIMARY KEY REFERENCES</span> users(id),
+  balance <span class="kw">INT DEFAULT</span> 0,
+  total_earned <span class="kw">INT DEFAULT</span> 0,
+  total_redeemed <span class="kw">INT DEFAULT</span> 0,
+  updated_at <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+
+<span class="cm">-- 친구 초대 트래킹</span>
+<span class="kw">CREATE TABLE</span> referrals (
+  id <span class="kw">UUID PRIMARY KEY</span>,
+  inviter_id <span class="kw">UUID REFERENCES</span> users(id),
+  invitee_id <span class="kw">UUID REFERENCES</span> users(id),
+  referral_code <span class="kw">TEXT</span>,
+  status <span class="kw">TEXT</span>,                            <span class="cm">-- 'invited'·'signed_up'·'first_input'·'rewarded'</span>
+  inviter_ip <span class="kw">INET</span>,
+  invitee_ip <span class="kw">INET</span>,
+  invitee_device_fingerprint <span class="kw">TEXT</span>,
+  rewarded_at <span class="kw">TIMESTAMPTZ</span>,
+  created_at <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+
+<span class="cm">-- 90일 챌린지 상태</span>
+<span class="kw">CREATE TABLE</span> challenges (
+  user_id <span class="kw">UUID PRIMARY KEY REFERENCES</span> users(id),
+  started_at <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>(),
+  current_stage <span class="kw">INT DEFAULT</span> 1,
+  days_input <span class="kw">INT DEFAULT</span> 0,                 <span class="cm">-- 입력한 일수</span>
+  completion_bonus_paid <span class="kw">BOOLEAN DEFAULT FALSE</span>,
+  completed_at <span class="kw">TIMESTAMPTZ</span>
+);
+
+<span class="cm">-- 카톡 알림톡 발송 로그</span>
+<span class="kw">CREATE TABLE</span> kakao_messages (
+  id <span class="kw">UUID PRIMARY KEY</span>,
+  user_id <span class="kw">UUID REFERENCES</span> users(id),
+  template_id <span class="kw">TEXT</span>,                       <span class="cm">-- 'stage_change'·'challenge_complete'·'reminder'·'jackpot'</span>
+  payload <span class="kw">JSONB</span>,
+  status <span class="kw">TEXT</span>,                              <span class="cm">-- 'sent'·'failed'·'retry'</span>
+  sens_message_id <span class="kw">TEXT</span>,
+  sent_at <span class="kw">TIMESTAMPTZ</span>,
+  cost_krw <span class="kw">INT</span>
+);</pre>
+</section>
+
+<section id="api">
+  <span class="stag">━ 6. API SPECIFICATIONS ━</span>
+  <h2>6. API 명세 (9 엔드포인트)</h2>
+
+  <table>
+    <tr><th>Method</th><th>Path</th><th>Description</th><th>인증</th></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/mileage/earn</td><td>끼니 입력 등 적립 (idempotency key 필수)</td><td>JWT</td></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/mileage/balance</td><td>현재 잔액 + 누적 적립/차감</td><td>JWT</td></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/mileage/history</td><td>ledger 내역 페이지네이션</td><td>JWT</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/mileage/redeem</td><td>키트 결제 차감 (atomic)</td><td>JWT</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/referrals/invite</td><td>초대 링크 생성</td><td>JWT</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/referrals/redeem</td><td>피초대자 가입 처리</td><td>JWT</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/roulette/spin</td><td>룰렛 1회 실행 (서버 결정)</td><td>JWT</td></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/challenges/me</td><td>90일 챌린지 현재 상태</td><td>JWT</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/admin/mileage</td><td>운영자 수동 입력</td><td>admin</td></tr>
+  </table>
+
+  <h3>6-1. POST /api/mileage/earn — 예시 페이로드</h3>
+  <pre class="code">{
+  <span class="str">"kind"</span>: <span class="str">"meal_input"</span>,
+  <span class="str">"meta"</span>: {
+    <span class="str">"meal_chip"</span>: <span class="str">"점심"</span>,
+    <span class="str">"meal_id"</span>: <span class="str">"abc-123"</span>,
+    <span class="str">"input_time"</span>: <span class="str">"2026-05-25T12:30:00+09:00"</span>
+  },
+  <span class="str">"idempotency_key"</span>: <span class="str">"meal_abc-123"</span>
+}
+
+<span class="cm">// 응답</span>
+{
+  <span class="str">"earned"</span>: <span class="num">100</span>,
+  <span class="str">"stage"</span>: <span class="num">1</span>,
+  <span class="str">"balance"</span>: <span class="num">4200</span>,
+  <span class="str">"daily_count"</span>: <span class="num">3</span>,
+  <span class="str">"daily_limit"</span>: <span class="num">5</span>,
+  <span class="str">"toast"</span>: <span class="str">"+100 마일리지 적립!"</span>
+}
+
+<span class="cm">// 한도 도달 응답</span>
+{
+  <span class="str">"earned"</span>: <span class="num">0</span>,
+  <span class="str">"reason"</span>: <span class="str">"daily_limit_reached"</span>,
+  <span class="str">"message"</span>: <span class="str">"5끼 한도 도달 — 기록만 저장"</span>
+}</pre>
+</section>
+
+<section id="algorithm">
+  <span class="stag">━ 7. ALGORITHM SPECIFICATIONS ━</span>
+  <h2>7. 알고리즘</h2>
+
+  <h3>7-1. Stage 결정</h3>
+  <pre class="code"><span class="fn">function</span> determineStage(user) {
+  <span class="kw">const</span> daysSinceSignup = differenceInDays(now(), user.created_at);
+  <span class="kw">if</span> (daysSinceSignup &lt;= <span class="num">21</span>) <span class="kw">return</span> { stage: <span class="num">1</span>, reward: <span class="num">100</span> };
+  <span class="kw">if</span> (daysSinceSignup &lt;= <span class="num">45</span>) <span class="kw">return</span> { stage: <span class="num">2</span>, reward: <span class="num">50</span> };
+  <span class="kw">if</span> (daysSinceSignup &lt;= <span class="num">66</span>) <span class="kw">return</span> { stage: <span class="num">3</span>, reward: <span class="num">25</span> };
+  <span class="kw">return</span> { stage: <span class="num">4</span>, reward: <span class="num">12</span> };  <span class="cm">// 67일+</span>
+}</pre>
+
+  <h3>7-2. 적립 검증 흐름</h3>
+  <pre class="code"><span class="fn">async function</span> earnMileage(userId, payload) {
+  <span class="cm">// 1. Idempotency 체크 (중복 차단)</span>
+  <span class="kw">if</span> (<span class="kw">await</span> ledger.exists(payload.idempotency_key)) <span class="kw">return</span> previousResult;
+
+  <span class="cm">// 2. 일일 한도 (5끼) 체크</span>
+  <span class="kw">const</span> todayCount = <span class="kw">await</span> ledger.countToday(userId, <span class="str">'meal_input'</span>);
+  <span class="kw">if</span> (todayCount &gt;= <span class="num">5</span>) <span class="kw">return</span> { earned: <span class="num">0</span>, reason: <span class="str">'daily_limit_reached'</span> };
+
+  <span class="cm">// 3. 끼니 간격 1시간 체크</span>
+  <span class="kw">const</span> lastMeal = <span class="kw">await</span> ledger.lastMeal(userId);
+  <span class="kw">if</span> (lastMeal &amp;&amp; minutesSince(lastMeal) &lt; <span class="num">60</span>) <span class="kw">return</span> { earned: <span class="num">0</span>, reason: <span class="str">'too_soon'</span> };
+
+  <span class="cm">// 4. chip 중복 체크</span>
+  <span class="kw">if</span> (<span class="kw">await</span> ledger.todayChip(userId, payload.meta.meal_chip)) <span class="kw">return</span> { earned: <span class="num">0</span>, reason: <span class="str">'chip_duplicate'</span> };
+
+  <span class="cm">// 5. Stage 결정</span>
+  <span class="kw">const</span> { stage, reward } = determineStage(user);
+
+  <span class="cm">// 6. Append-only ledger 기록 + balance 갱신 (트랜잭션)</span>
+  <span class="kw">await</span> db.transaction(<span class="kw">async</span> (tx) =&gt; {
+    <span class="kw">await</span> tx.ledger.insert({ user_id: userId, kind: <span class="str">'meal_input'</span>, amount: reward, meta: { ...payload.meta, stage } });
+    <span class="kw">await</span> tx.balance.increment(userId, reward);
+  });
+  <span class="kw">return</span> { earned: reward, stage, balance: newBalance };
+}</pre>
+
+  <h3>7-3. 룰렛 분포 (서버 결정)</h3>
+  <table>
+    <tr><th>보상</th><th>확률</th><th>기대값</th></tr>
+    <tr><td>10원</td><td class="num">30%</td><td class="num">3</td></tr>
+    <tr><td>50원</td><td class="num">40%</td><td class="num">20</td></tr>
+    <tr><td>100원</td><td class="num">20%</td><td class="num">20</td></tr>
+    <tr><td>500원</td><td class="num">8%</td><td class="num">40</td></tr>
+    <tr><td>5000원 (잭팟)</td><td class="num">2%</td><td class="num">100</td></tr>
+    <tr><td><strong>기대값/회</strong></td><td><strong>100%</strong></td><td class="green">183원</td></tr>
+  </table>
+  <p style="font-size:11.5px;color:var(--n500)">90일 = 90회 룰렛 = 약 ₩16,500 평균 보상. 잭팟 2% × 90일 = 1.8회 발생 가능.</p>
+
+  <h3>7-4. 90일 완주 판정 cron</h3>
+  <pre class="code"><span class="fn">async function</span> processCompletionBonus() {
+  <span class="kw">const</span> due = <span class="kw">await</span> challenges.findDue();  <span class="cm">// signup +90일 + 미지급</span>
+  <span class="kw">for</span> (<span class="kw">const</span> user <span class="kw">of</span> due) {
+    <span class="kw">if</span> (user.days_input &gt;= <span class="num">60</span>) {  <span class="cm">// 90일 중 60일 이상 입력</span>
+      <span class="kw">await</span> ledger.insert({ user_id: user.id, kind: <span class="str">'challenge_completion'</span>, amount: <span class="num">50774</span> });
+      <span class="kw">await</span> challenges.markCompleted(user.id);
+      <span class="kw">await</span> kakao.send(user.id, <span class="str">'challenge_complete'</span>);
+    }
+  }
+}</pre>
+</section>
+
+<section id="cron">
+  <span class="stag">━ 8. CRON JOBS ━</span>
+  <h2>8. Cron Jobs (4개)</h2>
+
+  <table>
+    <tr><th>이름</th><th>스케줄</th><th>역할</th></tr>
+    <tr><td><strong>stage_transition</strong></td><td class="mono">매일 09:00 KST</td><td>stage 전환 사용자 식별 → 카톡 알림</td></tr>
+    <tr><td><strong>completion_bonus</strong></td><td class="mono">매일 00:30 KST</td><td>90일 완주자 +50,774 보너스 지급</td></tr>
+    <tr><td><strong>inactive_reminder</strong></td><td class="mono">매일 19:00 KST</td><td>3일 미입력 사용자 카톡 리마인드</td></tr>
+    <tr><td><strong>balance_audit</strong></td><td class="mono">매일 03:00 KST</td><td>ledger 합산 vs balance_cache 정합성 검증</td></tr>
+  </table>
+</section>
+
+<section id="fraud">
+  <span class="stag">━ 9. ANTI-FRAUD ━</span>
+  <h2>9. Farming 방지</h2>
+
+  <div class="card yellow">
+    <h4>핵심 원칙</h4>
+    <p>마일리지 = 우리 키트 매출만 차감 가능. 현금 환전 불가 → farming 동기 자체가 낮음. 다만 친구 초대 보너스 +3,000은 IP/디바이스 fingerprint로 엄격 차단.</p>
+  </div>
+
+  <table>
+    <tr><th>위협</th><th>방어</th></tr>
+    <tr><td>한 사용자가 하루 종일 끼니 입력</td><td>일일 5건 한도 + chip 중복 차단 + 1시간 간격</td></tr>
+    <tr><td>여러 계정으로 셀프 초대</td><td>동일 IP + 디바이스 fingerprint + 결제 카드 검증</td></tr>
+    <tr><td>봇이 끼니 입력 자동화</td><td>Cloudflare Turnstile 가입 시 / 의심 패턴 시 재인증</td></tr>
+    <tr><td>리뷰 보너스 farming</td><td>구매 검증 + 모더레이션 통과 후 적립 (T+1)</td></tr>
+    <tr><td>마일리지 부정 적립 (개발자 백도어)</td><td>모든 적립 audit log + 운영자 수동 적립 사유 필수</td></tr>
+  </table>
+</section>
+
+<section id="release">
+  <span class="stag">━ 10. RELEASE PLAN ━</span>
+  <h2>10. 출시 단계 (3 phase)</h2>
+
+  <div class="card">
+    <h4>v0 MVP (M4-M5) — 핵심 적립만</h4>
+    <ul>
+      <li>FR-V01~V06 (끼니 입력·한도·stage·반감기)</li>
+      <li>FR-V14 (키트 결제 차감)</li>
+      <li>FR-V18 (운영자 대시보드)</li>
+      <li>DB·API·cron 기본 구축</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4>v1 (M6) — 바이럴 가속</h4>
+    <ul>
+      <li>FR-V09~V11 (친구 초대·룰렛)</li>
+      <li>FR-V07~V08 (90일 챌린지·완주 보너스)</li>
+      <li>FR-V16 (카톡 알림톡 4 템플릿)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h4>v2 (M7+) — 운영 고도화</h4>
+    <ul>
+      <li>FR-V12~V13 (댓글·리뷰 보상)</li>
+      <li>FR-V15 (마일리지 내역 + CSV)</li>
+      <li>FR-V17 (운영자 수동 적립)</li>
+      <li>Anti-fraud 디바이스 fingerprint 강화</li>
+    </ul>
+  </div>
+</section>
+
+<section id="kpi">
+  <span class="stag">━ 11. KPI ━</span>
+  <h2>11. KPI</h2>
+
+  <table>
+    <tr><th>지표</th><th>3개월 목표</th><th>측정</th></tr>
+    <tr><td>가입 → 첫 끼니 입력 전환율</td><td class="num">≥ 70%</td><td>onboarding funnel</td></tr>
+    <tr><td>90일 챌린지 시작률</td><td class="num">≥ 50%</td><td>가입 후 3일 내 끼니 입력</td></tr>
+    <tr><td>90일 챌린지 완주율</td><td class="num">≥ 40%</td><td>가입 90일 후 60일 이상 입력</td></tr>
+    <tr><td>평균 친구 초대 수</td><td class="num">≥ 1.5명</td><td>referrals 테이블</td></tr>
+    <tr><td>완주 보너스 → 키트 결제 차감 비율</td><td class="num">≥ 80%</td><td>ledger 분석</td></tr>
+    <tr><td>일일 마일리지 적립 평균</td><td class="num">~250 (2.5끼)</td><td>ledger 일별 평균</td></tr>
+    <tr><td>fraud 차단율</td><td class="num">≥ 95%</td><td>의심 계정 자동 큐</td></tr>
+    <tr><td>카톡 발송 성공률</td><td class="num">≥ 99%</td><td>SENS 응답</td></tr>
+  </table>
+</section>
+
+<div class="nav-back">
+  <a href="/docs.html">📚 허브</a>
+  <a href="/리워드시스템.html">🎁 리워드 시스템</a>
+  <a href="/dex-prd.html">🗂 도감 PRD</a>
+  <a href="/roadmap.html">📅 로드맵</a>
+  <a href="/growth-strategy.html">📈 성장 전략</a>
+</div>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 바이럴 엔진 PRD</strong> · v1 · 2026-05-25</p>
+  <p>18 FR · 6 NFR · 5 DB · 9 API · 4 cron · 3 릴리즈 단계</p>
+</footer>
+
+<script>
+  mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#F3E5F5',primaryTextColor:'#1F2D3D',primaryBorderColor:'#9C27B0',lineColor:'#9CA3AF',fontFamily:'Pretendard Variable, sans-serif',fontSize:'12px'}});
+</script>
+</body>
+</html>

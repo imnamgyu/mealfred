@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 — 식재료 도감 PRD + 디자인 IA (라이브 배포 명세)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;--g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;--v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FFEBEE;--r500:#E53935;--r700:#C62828;--y50:#FFF8E1;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.75}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--n100);padding:1px 6px;border-radius:4px;color:var(--p700)}
+
+  .hero{background:linear-gradient(135deg,#1F2D3D,#16A085,#E89244);color:white;padding:50px 24px 36px;text-align:center}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.25);padding:6px 14px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.05em;margin-bottom:14px}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px;line-height:1.2}
+  .hero p{font-size:14px;color:rgba(255,255,255,0.92);max-width:600px;margin:0 auto;font-weight:600}
+  .hero .meta{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.18);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+  .toc{background:white;border-bottom:1px solid var(--n200);padding:14px 24px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1100px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--n600);font-weight:700;padding:6px 11px;border-radius:100px;background:var(--n50);text-decoration:none;flex-shrink:0}
+  .toc a:hover{background:var(--g500);color:white}
+
+  main{max-width:1100px;margin:0 auto;padding:24px}
+  section{margin-bottom:48px;scroll-margin-top:60px}
+  .stag{display:inline-block;font-size:11px;color:var(--p700);font-weight:800;letter-spacing:0.08em;margin-bottom:6px}
+  h2{font-size:26px;font-weight:800;color:var(--s800);margin-bottom:14px;padding:14px 18px;background:linear-gradient(135deg,#FFF8F2,#FFE8D1);border-left:6px solid var(--p500);border-radius:0 12px 12px 0;letter-spacing:-0.02em}
+  h3{font-size:18px;font-weight:800;color:var(--s800);margin:22px 0 12px;padding-left:12px;border-left:4px solid var(--g500);letter-spacing:-0.01em}
+  h4{font-size:14px;font-weight:800;color:var(--s700);margin:14px 0 6px}
+  p{font-size:14px;color:var(--n700);font-weight:500;margin-bottom:10px}
+  ul,ol{margin:8px 0 14px 22px}
+  li{font-size:13.5px;color:var(--n700);margin-bottom:5px;line-height:1.75}
+  strong{color:var(--s800);font-weight:800}
+
+  .card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin-bottom:14px}
+  .card.green{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:var(--g500)}
+  .card.yellow{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-color:var(--y500)}
+  .card.blue{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-color:var(--b500)}
+  .card.dark{background:var(--s800);color:white;border-color:var(--s800)}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200);margin:8px 0}
+  th{background:var(--s800);color:white;padding:10px 12px;text-align:left;font-size:11px;font-weight:800}
+  td{padding:8px 12px;border-bottom:1px solid var(--n100);vertical-align:top;color:var(--n700)}
+  td.mono{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--p700)}
+  td.priority-high{background:var(--r50);color:var(--r700);font-weight:800;text-align:center}
+  td.priority-med{background:var(--y50);color:var(--y700);font-weight:700;text-align:center}
+  td.priority-low{background:var(--g50);color:var(--g700);font-weight:600;text-align:center}
+  tr:last-child td{border-bottom:none}
+
+  pre.code{background:#1F2D3D;color:#E0E7EE;padding:14px 16px;border-radius:10px;overflow-x:auto;font-size:11.5px;line-height:1.75;margin:8px 0}
+  pre.code .kw{color:#FFB375;font-weight:700}
+  pre.code .str{color:#9CCC65}
+  pre.code .cm{color:#7A8FA8;font-style:italic}
+  pre.code .fn{color:#42A5F5}
+  pre.code .num{color:#FF8A65}
+
+  .mermaid-wrap{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin:14px 0;overflow-x:auto}
+  .mermaid{text-align:center;min-width:600px}
+
+  .req-card{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px;margin-bottom:10px;border-left:5px solid var(--p500)}
+  .req-card.fr{border-left-color:var(--g500)}
+  .req-card.nfr{border-left-color:var(--b500)}
+  .req-card .id{display:inline-block;background:var(--p500);color:white;font-size:11px;font-weight:800;padding:3px 10px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;letter-spacing:0.03em;margin-bottom:6px}
+  .req-card.fr .id{background:var(--g500)}
+  .req-card.nfr .id{background:var(--b500)}
+  .req-card h4{margin:0 0 6px;font-size:14.5px;color:var(--s800)}
+  .req-card .desc{font-size:12.5px;color:var(--n600);font-weight:600;line-height:1.65}
+  .req-card .accept{background:var(--n50);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:11.5px;color:var(--n700);font-weight:600;line-height:1.7}
+  .req-card .accept strong{color:var(--p700)}
+
+  .ia-tree{background:#1F2D3D;color:#E0E7EE;border-radius:10px;padding:18px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.85;overflow-x:auto;white-space:pre}
+
+  .release-stage{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:16px;margin-bottom:12px;border-top:4px solid var(--p500)}
+  .release-stage.v0{border-top-color:var(--g500)}
+  .release-stage.v1{border-top-color:var(--y500)}
+  .release-stage.v2{border-top-color:var(--v500)}
+  .release-stage h4{display:flex;justify-content:space-between;align-items:baseline}
+  .release-stage h4 .when{font-size:11px;color:var(--p700);font-weight:700;letter-spacing:0.04em}
+
+  .nav-back{background:linear-gradient(135deg,#FFF8F2,#FFE8D1);padding:16px;border-radius:14px;margin-top:30px;text-align:center}
+  .nav-back a{color:var(--p700);font-weight:800;text-decoration:none;font-size:13px;margin:0 10px}
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--n400);border-top:1px solid var(--n100);font-weight:600}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">📋 PRD · 식재료 도감 라이브 배포 명세</span>
+  <h1>식재료 도감 — PRD + IA</h1>
+  <p>147종 → 650종 → 10,000+종 확장 로드맵 · 페이지·기능·API·DB·릴리즈 단계 풀 명세</p>
+  <div class="meta">
+    <span>🎯 23 기능 요구</span>
+    <span>📐 7 비기능 요구</span>
+    <span>🗂 5 페이지</span>
+    <span>🚀 3 릴리즈 단계</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#overview">1. 개요</a>
+    <a href="#personas">2. 페르소나</a>
+    <a href="#ia">3. IA</a>
+    <a href="#fr">4. 기능 요구</a>
+    <a href="#nfr">5. 비기능</a>
+    <a href="#screens">6. 화면</a>
+    <a href="#data">7. 데이터</a>
+    <a href="#api">8. API</a>
+    <a href="#enrich">9. Enrich</a>
+    <a href="#release">10. 릴리즈</a>
+    <a href="#kpi">11. KPI</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="overview">
+  <span class="stag">━ 1. PRODUCT OVERVIEW ━</span>
+  <h2>1. 개요</h2>
+
+  <div class="card dark">
+    <h3 style="border:none;color:#FFD89C;margin-top:0">"우리 아이 평생 식습관 사전"</h3>
+    <p style="font-size:13.5px;margin-top:10px">로그인 X · 누구나 · 식재료 한 개씩 클릭하며 영양·제철·SOS·레시피·부모 경험 수집. SEO 폭발 + 가입 funnel + 키트 구매 진입로.</p>
+  </div>
+
+  <h3>1-1. 비전</h3>
+  <ul>
+    <li>한국 모든 영유아 부모가 "이 식재료 어떻게 먹여야?" 검색하면 <strong>밀프레드 도감이 첫 결과</strong></li>
+    <li>로그인 없이 <strong>편식 솔루션의 진입로</strong> — 도감 → 가입 → 키트 → 정기 구독 funnel</li>
+    <li>모든 식재료에 부모 경험 댓글 = <strong>한국 영유아 식습관 위키피디아</strong></li>
+  </ul>
+
+  <h3>1-2. 사용자 가치</h3>
+  <table>
+    <tr><th>가치</th><th>설명</th></tr>
+    <tr><td>📚 학습</td><td>식재료별 KDRI 영양·제철·SOS 가이드 한 곳에</td></tr>
+    <tr><td>💬 공유</td><td>다른 부모 경험 댓글 자유 열람·작성</td></tr>
+    <tr><td>🎯 행동</td><td>친해지기 SOS 6단계 → 키트 진입</td></tr>
+    <tr><td>🌸 계절</td><td>이번 달 제철 식재료 자동 노출</td></tr>
+    <tr><td>⭐ 등급</td><td>"초등 입학 전 꼭 친해질 21종" — 마케팅 후크</td></tr>
+  </table>
+
+  <h3>1-3. 비즈니스 가치</h3>
+  <ul>
+    <li><strong>SEO</strong> — 650 페이지 × 평균 검색량 1k/월 = <strong>월 65만 방문</strong></li>
+    <li><strong>가입 funnel</strong> — 도감 → 개인화 페이지 → 가입 전환율 5% 가정 = <strong>월 32,500 가입</strong></li>
+    <li><strong>키트 funnel</strong> — 식재료 상세에서 키트 직접 클릭 → 구매 전환 1% 가정 = 월 650 키트 매출 = <strong>월 ₩40M 이상</strong></li>
+    <li><strong>UGC</strong> — 댓글 수집 = 다른 식재료 SEO 가치 ↑</li>
+  </ul>
+</section>
+
+<section id="personas">
+  <span class="stag">━ 2. PERSONAS ━</span>
+  <h2>2. 사용자 페르소나</h2>
+
+  <div class="card">
+    <h4>👩 첫째 엄마 (28-35세, 직장맘) — 1순위 타겟</h4>
+    <p>"우리 아이 시금치 거부하는데 어떻게 해야 하지?" 네이버 검색 → 도감 진입 → 식재료 SOS 6단계 학습 → 가입 → 키트 구매</p>
+  </div>
+
+  <div class="card">
+    <h4>👨 둘째 아빠 (32-40세) — 2순위 타겟</h4>
+    <p>"첫째 시행착오 반복 X. 둘째는 처음부터 학술 근거로." → 도감 전체 둘러보기 → 21 초등 필수 종 → 골고루 키트 구독</p>
+  </div>
+
+  <div class="card">
+    <h4>👵 손주 양육 조부모 (60-70세) — 3순위 타겟</h4>
+    <p>"옛날엔 다 어떻게든 먹였는데..." → 큰 글씨 · 이모지 · SOS 6단계 그림 가이드 → 며느리에게 도움 보탬</p>
+  </div>
+
+  <div class="card">
+    <h4>🧑‍⚕️ 영양사·소아과 의사 (전문가) — 4순위 타겟</h4>
+    <p>"환자에게 식재료 정보 안내" → KDRI 정확한 영양 데이터·학술 출처 → 추천 도구로 활용</p>
+  </div>
+</section>
+
+<section id="ia">
+  <span class="stag">━ 3. INFORMATION ARCHITECTURE ━</span>
+  <h2>3. IA + 사이트 맵</h2>
+
+  <div class="ia-tree">밀프레드 식재료 도감 (/dex)
+│
+├── /dex                          ← 도감 메인 (전체 147종 그리드)
+│   ├── 검색 + 필터 (등급·카테고리)
+│   └── 식재료 카드 그리드
+│
+├── /dex/시금치                   ← 개별 식재료 페이지 (SSG)
+├── /dex/당근                     ← (650 페이지 자동 생성)
+├── /dex/...
+│
+├── /dex/grade/필수21              ← 등급별 모음
+├── /dex/grade/권장50
+├── /dex/grade/핵심76
+│
+├── /dex/category/잎채소            ← 카테고리별
+├── /dex/category/뿌리채소
+├── /dex/category/...
+│
+├── /dex/season/1월                ← 제철별
+├── /dex/season/2월
+├── /dex/season/...
+│
+└── /dex/sitemap.xml               ← SEO 자동 생성
+  </div>
+
+  <h3>3-1. URL 구조 + SEO</h3>
+  <table>
+    <tr><th>URL 패턴</th><th>예시</th><th>SEO 가치</th></tr>
+    <tr><td class="mono">/dex</td><td>/dex</td><td>"식재료 도감 영유아"</td></tr>
+    <tr><td class="mono">/dex/:slug</td><td>/dex/시금치</td><td>"시금치 이유식", "시금치 영유아", "시금치 거부"</td></tr>
+    <tr><td class="mono">/dex/grade/:grade</td><td>/dex/grade/필수21</td><td>"초등 입학 전 식재료", "초등 필수 영양"</td></tr>
+    <tr><td class="mono">/dex/category/:cat</td><td>/dex/category/잎채소</td><td>"영유아 잎채소 추천"</td></tr>
+    <tr><td class="mono">/dex/season/:month</td><td>/dex/season/5월</td><td>"5월 제철 식재료 아기"</td></tr>
+  </table>
+
+  <h3>3-2. 페이지 위계</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+  HOME[/dex<br/>도감 메인]
+  DETAIL[/dex/:slug<br/>식재료 상세]
+  GRADE[/dex/grade/:g<br/>등급별]
+  CAT[/dex/category/:c<br/>카테고리별]
+  SEASON[/dex/season/:m<br/>제철별]
+  PERSONAL[/personal-coming<br/>가입 유도]
+  KIT_FOCUS[/kits/focus<br/>집중 키트]
+  KIT_BALANCE[/kits/balance<br/>골고루 키트]
+
+  HOME --> DETAIL
+  HOME --> GRADE
+  HOME --> CAT
+  HOME --> SEASON
+  GRADE --> DETAIL
+  CAT --> DETAIL
+  SEASON --> DETAIL
+  DETAIL -->|"우리 아이만을 위한 레시피"| PERSONAL
+  DETAIL -->|"집중 키트"| KIT_FOCUS
+  DETAIL -->|"골고루 키트"| KIT_BALANCE
+  PERSONAL -->|"가입 완료"| HOME
+
+  classDef main fill:#FFE8D1,stroke:#E89244,color:#1F2D3D
+  classDef sub fill:#E8F5E9,stroke:#16A085,color:#1F2D3D
+  classDef cta fill:#F3E5F5,stroke:#9C27B0,color:#1F2D3D
+  class HOME,DETAIL main
+  class GRADE,CAT,SEASON sub
+  class PERSONAL,KIT_FOCUS,KIT_BALANCE cta
+    </div>
+  </div>
+</section>
+
+<section id="fr">
+  <span class="stag">━ 4. FUNCTIONAL REQUIREMENTS ━</span>
+  <h2>4. 기능 요구사항 (23개)</h2>
+
+  <h3>4-1. 도감 메인 페이지 (/dex)</h3>
+  <div class="req-card fr"><span class="id">FR-01</span><h4>식재료 카드 그리드 표시</h4>
+    <div class="desc">147종을 등급별로 정렬하여 카드 그리드 표시. 등급별 색상 코딩.</div>
+    <div class="accept"><strong>승인 기준</strong>: ⭐⭐⭐⭐ 21종 우선 표시 · 카드에 이모지·이름·카테고리·등급 라벨 모두 표시 · 등장 빈도 (학교 급식·영유아) 작은 글씨로 표시</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-02</span><h4>실시간 검색</h4>
+    <div class="desc">식재료명 부분 일치 검색 (한글). 입력 시 즉시 결과 갱신.</div>
+    <div class="accept"><strong>승인 기준</strong>: 150ms 이내 응답 · 한글 초성 검색 지원 (예: "ㅅㄱㅊ" → 시금치)</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-03</span><h4>등급 필터 chip</h4>
+    <div class="desc">전체·초등 필수·초등 권장·영유아 핵심·조미료 5개 chip.</div>
+    <div class="accept"><strong>승인 기준</strong>: 활성 chip 시각적 강조 · 단일 선택 · URL 파라미터 동기화 (?grade=필수21)</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-04</span><h4>카테고리 필터 chip</h4>
+    <div class="desc">14 카테고리 chip (잎채소·뿌리·열매·버섯·콩·고기·생선·갑각·계란·유제품·곡물·과일·해조·견과).</div>
+    <div class="accept"><strong>승인 기준</strong>: 가로 스크롤 · 활성 chip 강조 · 등급 필터와 AND 결합</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-05</span><h4>결과 카운트 표시</h4>
+    <div class="desc">"N종" 카운트 실시간 갱신.</div>
+    <div class="accept"><strong>승인 기준</strong>: 필터 변경 시 즉시 갱신 · "0종" 시 안내 메시지</div>
+  </div>
+
+  <h3>4-2. 식재료 상세 페이지 (/dex/:slug)</h3>
+  <div class="req-card fr"><span class="id">FR-06</span><h4>식재료 헤더 (이름·등급·카테고리)</h4>
+    <div class="desc">큰 이모지 + 한글 이름 + 등급 라벨 + 카테고리.</div>
+    <div class="accept"><strong>승인 기준</strong>: SSG 빌드 시 OG 이미지 자동 생성 (식재료별 도장)</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-07</span><h4>학교 급식·영유아 등장 빈도</h4>
+    <div class="desc">아동기 3,397 + 영유아 1,035 레시피 빈도 표시.</div>
+    <div class="accept"><strong>승인 기준</strong>: 초등 필수 시 강조 메시지 "초등 입학 전 꼭 친해지길"</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-08</span><h4>KDRI 36 영양 매핑</h4>
+    <div class="desc">100g당 핵심 영양소 ★★★ 등급으로 표시.</div>
+    <div class="accept"><strong>승인 기준</strong>: 농진청 식품성분표 v10.0 매핑 · 비타민C와 함께 먹으면 철 흡수 3배 같은 흡수율 팁 포함</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-09</span><h4>제철 정보</h4>
+    <div class="desc">월별 제철 표시 + 현재 달이 제철이면 강조.</div>
+    <div class="accept"><strong>승인 기준</strong>: 농진청 + 해양수산부 권고 기반</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-10</span><h4>친해지기 SOS 6단계</h4>
+    <div class="desc">Toomey SOS Approach 6단계 시각화.</div>
+    <div class="accept"><strong>승인 기준</strong>: 각 단계별 이모지·설명 + "강요는 거부를 강화" 안내</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-11</span><h4>일반 레시피 3개 + 가입 유도 CTA</h4>
+    <div class="desc">레시피 mock 3개 (즙·다진·통째) + "우리 아이만을 위한 레시피 받기" CTA → /personal-coming.</div>
+    <div class="accept"><strong>승인 기준</strong>: CTA가 검은 박스 + 황금 텍스트 + 가입 1분 설명 포함</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-12</span><h4>부모 댓글 (Disqus 임베드)</h4>
+    <div class="desc">로그인 X 누구나 작성. 기존 댓글 표시 + 작성 폼.</div>
+    <div class="accept"><strong>승인 기준</strong>: Disqus 임베드 · 광고·외부 링크 자동 모더레이션 안내</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-13</span><h4>키트 CTA 2종</h4>
+    <div class="desc">집중 키트 ₩200k + 골고루 키트 월 ₩108k 자연 노출.</div>
+    <div class="accept"><strong>승인 기준</strong>: 식재료 친해지기 어려움 = 집중 키트 / 다양성 보강 = 골고루 키트 컨텍스트 정합</div>
+  </div>
+
+  <h3>4-3. 필터 페이지 (등급·카테고리·제철)</h3>
+  <div class="req-card fr"><span class="id">FR-14</span><h4>등급별 모음 (/dex/grade/:g)</h4>
+    <div class="desc">필수21·권장50·핵심76·조미료 4 페이지 자동 생성.</div>
+    <div class="accept"><strong>승인 기준</strong>: SEO 메타 자동 · 필수21 페이지는 "초등 입학 전 식재료 21종" 헤드라인</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-15</span><h4>카테고리별 모음 (/dex/category/:c)</h4>
+    <div class="desc">14 카테고리 페이지 자동 생성.</div>
+    <div class="accept"><strong>승인 기준</strong>: 카테고리별 한글 가이드 (잎채소 = 시금치·근대·아욱·청경채·케일·상추)</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-16</span><h4>제철별 모음 (/dex/season/:month)</h4>
+    <div class="desc">12개월 페이지 자동 생성.</div>
+    <div class="accept"><strong>승인 기준</strong>: 현재 달 자동 우선 노출 · 5월 = 죽순·새우·딸기 강조</div>
+  </div>
+
+  <h3>4-4. SEO + Meta</h3>
+  <div class="req-card fr"><span class="id">FR-17</span><h4>자동 메타 태그 생성</h4>
+    <div class="desc">각 페이지 title·description·OG·canonical 자동 생성.</div>
+    <div class="accept"><strong>승인 기준</strong>: 검색 노출 시 한글 제목·설명 정확 · "시금치 영유아" 검색 시 상위 5위 목표</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-18</span><h4>sitemap.xml 자동 갱신</h4>
+    <div class="desc">매일 enrich 후 자동 sitemap 업데이트 + Google·Naver push.</div>
+    <div class="accept"><strong>승인 기준</strong>: cron 04:00 KST · 650+ URL · 변경된 URL만 lastmod 갱신</div>
+  </div>
+
+  <h3>4-5. 댓글 모더레이션</h3>
+  <div class="req-card fr"><span class="id">FR-19</span><h4>크론탭 자동 클리닝</h4>
+    <div class="desc">매일 03:00 신규 댓글 Claude Haiku로 분류 → safe/review/delete.</div>
+    <div class="accept"><strong>승인 기준</strong>: 광고·욕설·외부 링크 99% 자동 차단 · 운영자 큐 표시 · soft delete (복구 가능)</div>
+  </div>
+
+  <h3>4-6. 가입·키트 funnel</h3>
+  <div class="req-card fr"><span class="id">FR-20</span><h4>"우리 아이만을 위한 레시피 받기" CTA</h4>
+    <div class="desc">식재료 상세 모달 안에 검은 박스 CTA → /personal-coming.</div>
+    <div class="accept"><strong>승인 기준</strong>: 모든 식재료 페이지 노출 · 1초 이내 페이지 전환</div>
+  </div>
+  <div class="req-card fr"><span class="id">FR-21</span><h4>키트 노출 (집중·골고루)</h4>
+    <div class="desc">식재료 컨텍스트에 맞춰 자연 추천.</div>
+    <div class="accept"><strong>승인 기준</strong>: 거부도 낮은 식재료 = 집중 키트 우선 · 일반 = 골고루 키트 우선</div>
+  </div>
+
+  <h3>4-7. 매일 enrich</h3>
+  <div class="req-card fr"><span class="id">FR-22</span><h4>매일 +50종 자동 enrich</h4>
+    <div class="desc">cron 04:00 농진청 DB에서 next 50종 → LLM 분류 → SSG 빌드.</div>
+    <div class="accept"><strong>승인 기준</strong>: 1년 후 ~18,000종 도달 · 비용 월 ₩12k 이내</div>
+  </div>
+
+  <h3>4-8. 분석·모니터링</h3>
+  <div class="req-card fr"><span class="id">FR-23</span><h4>PostHog 이벤트 트래킹</h4>
+    <div class="desc">페이지 view, 검색, 필터, 카드 클릭, CTA 클릭, 가입 전환 추적.</div>
+    <div class="accept"><strong>승인 기준</strong>: 일/주/월 대시보드 · 식재료별 인기도 · 검색어 분석</div>
+  </div>
+</section>
+
+<section id="nfr">
+  <span class="stag">━ 5. NON-FUNCTIONAL REQUIREMENTS ━</span>
+  <h2>5. 비기능 요구사항 (7개)</h2>
+
+  <div class="req-card nfr"><span class="id">NFR-01</span><h4>성능 — LCP &lt; 2초</h4>
+    <div class="desc">Lighthouse 모바일 점수 95+. 도감 메인·상세 모두 LCP 2초 이내.</div>
+    <div class="accept">SSG + ISR · 이미지 최적화 (WebP·AVIF) · 코드 분할</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-02</span><h4>SEO — 한국 검색 노출</h4>
+    <div class="desc">"식재료명 + 영유아·이유식·아기" 검색 시 상위 5위 목표.</div>
+    <div class="accept">개별 URL · meta 자동 · OG 이미지 · sitemap · canonical · Naver Search Advisor 등록</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-03</span><h4>접근성 — WCAG AA</h4>
+    <div class="desc">색 대비 4.5:1+ · 키보드 네비 · 스크린 리더 대응.</div>
+    <div class="accept">aria-label · 색에만 의존 X · 폰트 최소 14px (caption 11px)</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-04</span><h4>모바일 우선</h4>
+    <div class="desc">DAU 80%+ 모바일 가정. 반응형 + 터치 영역 44×44.</div>
+    <div class="accept">스와이프 chip 가로 스크롤 · 모달 bottom sheet · safe-area-inset</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-05</span><h4>보안 — 댓글 XSS</h4>
+    <div class="desc">댓글 입력 sanitize · prompt injection 방지.</div>
+    <div class="accept">React 자동 escape · Disqus 자체 보안 · 운영자 백도어 X</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-06</span><h4>비용 — 월 ₩15k 이내</h4>
+    <div class="desc">enrich + Vercel + 도메인 합산.</div>
+    <div class="accept">SSG로 서버 호출 최소화 · Haiku 분류만 사용 · CDN 캐시 활용</div>
+  </div>
+  <div class="req-card nfr"><span class="id">NFR-07</span><h4>국제화 (Phase 2)</h4>
+    <div class="desc">한·영 다국어 지원 (글로벌 진출 시).</div>
+    <div class="accept">i18n 라이브러리 · /en/dex/spinach · hreflang 메타</div>
+  </div>
+</section>
+
+<section id="screens">
+  <span class="stag">━ 6. SCREEN SPECIFICATIONS ━</span>
+  <h2>6. 화면 명세 (5 페이지)</h2>
+
+  <h3>6-1. 화면 목록</h3>
+  <table>
+    <tr><th>화면</th><th>URL</th><th>핵심 컴포넌트</th><th>참조</th></tr>
+    <tr><td>도감 메인</td><td class="mono">/dex</td><td>Hero·통계·필터·그리드</td><td>FR-01~05·17</td></tr>
+    <tr><td>식재료 상세</td><td class="mono">/dex/:slug</td><td>헤더·빈도·영양·제철·SOS·레시피·댓글·키트</td><td>FR-06~13·20·21</td></tr>
+    <tr><td>등급별</td><td class="mono">/dex/grade/:g</td><td>Hero·필터된 그리드</td><td>FR-14</td></tr>
+    <tr><td>카테고리별</td><td class="mono">/dex/category/:c</td><td>Hero·필터된 그리드</td><td>FR-15</td></tr>
+    <tr><td>제철별</td><td class="mono">/dex/season/:m</td><td>Hero·필터된 그리드·월 강조</td><td>FR-16</td></tr>
+  </table>
+
+  <h3>6-2. 디자인 토큰 (design-spec.html 참조)</h3>
+  <p>컬러: <code>--p500 #E89244</code>·<code>--g500 #16A085</code>·<code>--s800 #1F2D3D</code>·등급별 컬러 코딩</p>
+  <p>타이포: <code>Pretendard Variable</code>·H1 32px·H2 24px·Body 14px·Caption 11px</p>
+  <p>간격: 4px 그리드 (4·8·12·14·16·20·24·32)</p>
+</section>
+
+<section id="data">
+  <span class="stag">━ 7. DATA MODEL ━</span>
+  <h2>7. 데이터 모델 (Supabase Postgres)</h2>
+
+  <pre class="code"><span class="cm">-- 식재료 마스터 (확장 가능)</span>
+<span class="kw">CREATE TABLE</span> ingredients (
+  id <span class="kw">UUID PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  slug <span class="kw">TEXT UNIQUE NOT NULL</span>,           <span class="cm">-- '시금치', URL용</span>
+  name <span class="kw">TEXT NOT NULL</span>,                   <span class="cm">-- 한글 정식명</span>
+  name_en <span class="kw">TEXT</span>,                          <span class="cm">-- 영문 (다국어)</span>
+  emoji <span class="kw">TEXT</span>,
+  category <span class="kw">TEXT</span>,                          <span class="cm">-- 14 카테고리</span>
+  grade <span class="kw">TEXT</span>,                             <span class="cm">-- '초등 필수'·'권장'·'핵심'·'조미료'</span>
+  elem_count <span class="kw">INT</span>,                          <span class="cm">-- 아동기 레시피 등장 빈도</span>
+  infant_count <span class="kw">INT</span>,                        <span class="cm">-- 영유아 등장 빈도</span>
+  nutri_per_100g <span class="kw">JSONB</span>,                    <span class="cm">-- KDRI 36 영양소</span>
+  allergens <span class="kw">TEXT</span>[],
+  seasonality <span class="kw">INT</span>[],                        <span class="cm">-- 제철 월 [5,6,7]</span>
+  status <span class="kw">TEXT</span>,                              <span class="cm">-- 'verified'·'ai_enriched'</span>
+  source <span class="kw">TEXT</span>,                              <span class="cm">-- '농진청'·'KDRI'·'LLM'</span>
+  enriched_at <span class="kw">TIMESTAMPTZ</span>,
+  meta <span class="kw">JSONB</span>                                <span class="cm">-- 추가 메타 (SOS·tip 등)</span>
+);
+
+<span class="cm">-- 댓글 (Disqus 미러 또는 자체)</span>
+<span class="kw">CREATE TABLE</span> ingredient_comments (
+  id <span class="kw">UUID PRIMARY KEY</span>,
+  ingredient_id <span class="kw">UUID REFERENCES</span> ingredients(id),
+  author_nickname <span class="kw">TEXT</span>,                    <span class="cm">-- 익명 닉네임</span>
+  body <span class="kw">TEXT NOT NULL</span>,
+  like_count <span class="kw">INT DEFAULT</span> 0,
+  status <span class="kw">TEXT DEFAULT</span> <span class="str">'pending'</span>,         <span class="cm">-- pending·approved·rejected</span>
+  moderation_reason <span class="kw">TEXT</span>,
+  deleted_at <span class="kw">TIMESTAMPTZ</span>,
+  created_at <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+
+<span class="cm">-- enrich 큐 (매일 +50종)</span>
+<span class="kw">CREATE TABLE</span> ingredient_enrich_queue (
+  id <span class="kw">UUID PRIMARY KEY</span>,
+  name <span class="kw">TEXT</span>,
+  scheduled_for <span class="kw">DATE</span>,
+  status <span class="kw">TEXT</span>,                              <span class="cm">-- pending·processing·done·failed</span>
+  source_db <span class="kw">TEXT</span>,                            <span class="cm">-- '농진청'</span>
+  processed_at <span class="kw">TIMESTAMPTZ</span>
+);
+
+<span class="cm">-- RLS: 댓글 조회는 공개, 작성은 IP rate limit</span>
+<span class="kw">CREATE POLICY</span> "public read approved" <span class="kw">ON</span> ingredient_comments
+  <span class="kw">FOR SELECT USING</span> (status = <span class="str">'approved'</span>);</pre>
+</section>
+
+<section id="api">
+  <span class="stag">━ 8. API SPECIFICATIONS ━</span>
+  <h2>8. API 명세 (6 엔드포인트)</h2>
+
+  <table>
+    <tr><th>Method</th><th>Path</th><th>Description</th><th>인증</th></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/dex/ingredients</td><td>전체 식재료 목록 (페이지네이션)</td><td>X (공개)</td></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/dex/:slug</td><td>식재료 상세</td><td>X</td></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/dex/:slug/comments</td><td>승인된 댓글 목록</td><td>X</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/dex/:slug/comments</td><td>댓글 작성 (rate limit IP 5/시간)</td><td>X</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/dex/comments/:id/like</td><td>좋아요 (IP 중복 차단)</td><td>X</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/admin/enrich</td><td>enrich 수동 트리거</td><td>admin</td></tr>
+  </table>
+</section>
+
+<section id="enrich">
+  <span class="stag">━ 9. DAILY ENRICH PIPELINE ━</span>
+  <h2>9. 매일 +50종 enrich 파이프라인</h2>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+  CRON[cron 04:00 KST]
+  QUEUE[(enrich_queue<br/>50종 pick)]
+  HAIKU[Claude Haiku<br/>분류·메타데이터]
+  NONGJIN[농진청 DB<br/>영양 매핑]
+  VISION[Claude Vision<br/>일러스트<br/>or stock]
+  SAVE[(ingredients<br/>upsert)]
+  BUILD[Next.js<br/>ISR 빌드]
+  SITEMAP[sitemap.xml<br/>업데이트]
+  PUSH[Google·Naver<br/>색인 push]
+
+  CRON --> QUEUE --> HAIKU --> NONGJIN --> VISION --> SAVE --> BUILD --> SITEMAP --> PUSH
+    </div>
+  </div>
+
+  <h3>9-1. 비용</h3>
+  <table>
+    <tr><th>항목</th><th>월 비용</th></tr>
+    <tr><td>Haiku 분류 (50종/일 × 30일)</td><td class="mono">₩2,000</td></tr>
+    <tr><td>Vision 일러스트 (또는 stock)</td><td class="mono">₩10,000</td></tr>
+    <tr><td>Vercel ISR 빌드</td><td class="mono">₩0 (free tier)</td></tr>
+    <tr><td><strong>합계</strong></td><td class="mono"><strong>~₩12,000/월</strong></td></tr>
+  </table>
+</section>
+
+<section id="release">
+  <span class="stag">━ 10. RELEASE PLAN ━</span>
+  <h2>10. 출시 단계 (3 phase)</h2>
+
+  <div class="release-stage v0">
+    <h4>v0 MVP (현재 라이브) <span class="when">DAY 0</span></h4>
+    <ul>
+      <li>147종 정적 SSG · 단일 페이지 (/dex.html)</li>
+      <li>mock 댓글 · localStorage 리드</li>
+      <li>가입 유도 CTA · 키트 노출</li>
+    </ul>
+  </div>
+
+  <div class="release-stage v1">
+    <h4>v1 (1개월) <span class="when">DAY 30</span></h4>
+    <ul>
+      <li>Next.js 15 마이그레이션 · 개별 URL (/dex/:slug)</li>
+      <li>Supabase 통합 · Disqus 임베드</li>
+      <li>등급별·카테고리별·제철별 자동 페이지 (총 ~30 페이지)</li>
+      <li>크론탭 댓글 클리닝 작동</li>
+      <li>매일 +50종 enrich 자동화 시작</li>
+      <li>Google·Naver Search Console 등록</li>
+    </ul>
+  </div>
+
+  <div class="release-stage v2">
+    <h4>v2 (3개월) <span class="when">DAY 90</span></h4>
+    <ul>
+      <li>650+ 종 도달 (농진청 핵심 완료)</li>
+      <li>한국어 SEO 검색 결과 상위 3위 (50+ 키워드)</li>
+      <li>월 방문 50,000+ 달성</li>
+      <li>도감 → 가입 전환율 5%+ 달성</li>
+      <li>다국어 (영·일) 준비</li>
+    </ul>
+  </div>
+</section>
+
+<section id="kpi">
+  <span class="stag">━ 11. KPI ━</span>
+  <h2>11. KPI · 성공 지표</h2>
+
+  <table>
+    <tr><th>지표</th><th>3개월 목표</th><th>6개월 목표</th><th>측정 도구</th></tr>
+    <tr><td>월 방문 (도감)</td><td class="mono">50,000</td><td class="mono">200,000</td><td>PostHog · Google Analytics</td></tr>
+    <tr><td>평균 체류 시간</td><td class="mono">≥ 3분</td><td class="mono">≥ 5분</td><td>PostHog</td></tr>
+    <tr><td>식재료 상세 모달 오픈율</td><td class="mono">≥ 60%</td><td class="mono">≥ 70%</td><td>이벤트 트래킹</td></tr>
+    <tr><td>가입 전환율 (도감 → personal-coming)</td><td class="mono">≥ 3%</td><td class="mono">≥ 5%</td><td>funnel 분석</td></tr>
+    <tr><td>SEO — 검색 노출 (상위 10위)</td><td class="mono">100 키워드</td><td class="mono">500 키워드</td><td>Search Console</td></tr>
+    <tr><td>댓글 수 (UGC)</td><td class="mono">500개</td><td class="mono">5,000개</td><td>DB</td></tr>
+    <tr><td>키트 진입 클릭</td><td class="mono">월 1,000</td><td class="mono">월 10,000</td><td>이벤트</td></tr>
+  </table>
+</section>
+
+<div class="nav-back">
+  <a href="/docs.html">📚 허브</a>
+  <a href="/dex.html">🗂 도감 라이브</a>
+  <a href="/viral-engine-prd.html">🎁 바이럴 엔진 PRD</a>
+  <a href="/engines-deep.html">🔬 엔진 deep</a>
+</div>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 식재료 도감 PRD</strong> · v1 · 2026-05-25</p>
+  <p>23 FR · 7 NFR · 5 페이지 · 6 API · 3 릴리즈 단계</p>
+</footer>
+
+<script>
+  mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#FFF8F2',primaryTextColor:'#1F2D3D',primaryBorderColor:'#E89244',lineColor:'#9CA3AF',fontFamily:'Pretendard Variable, sans-serif',fontSize:'12px'}});
+</script>
+</body>
+</html>

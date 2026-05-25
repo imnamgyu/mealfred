@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 — 성장 전략 (출사표 + 기능 열리는 순서 + 바이럴 엔진 + 운영)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.75}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--n100);padding:1px 6px;border-radius:4px;color:var(--p700)}
+
+  .hero{background:linear-gradient(135deg,#1F2D3D,#E89244 70%,#F9A825);color:white;padding:70px 24px 50px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-150px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent);border-radius:50%}
+  .hero-inner{max-width:760px;margin:0 auto;position:relative;z-index:1}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.25);padding:7px 16px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.06em;margin-bottom:18px;backdrop-filter:blur(8px)}
+  .hero h1{font-size:36px;font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:14px}
+  .hero h1 .accent{background:linear-gradient(180deg,transparent 60%,rgba(255,216,156,0.4) 60%);padding:0 4px}
+  .hero p{font-size:15px;color:rgba(255,255,255,0.92);max-width:600px;margin:0 auto;font-weight:600;line-height:1.7}
+  .hero .one-liner{margin-top:24px;font-size:18px;font-style:italic;color:#FFD89C;font-weight:700;line-height:1.6}
+
+  .toc{background:white;border-bottom:1px solid var(--n200);padding:14px 24px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1000px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--n600);font-weight:700;padding:6px 11px;border-radius:100px;background:var(--n50);text-decoration:none;flex-shrink:0}
+  .toc a:hover{background:var(--p500);color:white}
+
+  main{max-width:1000px;margin:0 auto;padding:24px}
+  section{margin-bottom:50px;scroll-margin-top:60px}
+  .stag{display:inline-block;font-size:11px;color:var(--p700);font-weight:800;letter-spacing:0.08em;margin-bottom:6px}
+  h2{font-size:26px;font-weight:800;color:var(--s800);letter-spacing:-0.02em;margin-bottom:14px;padding-bottom:8px;border-bottom:3px solid var(--p500)}
+  h3{font-size:18px;font-weight:800;color:var(--s800);margin:22px 0 10px;padding-left:12px;border-left:4px solid var(--p500)}
+  h4{font-size:14.5px;font-weight:800;color:var(--s700);margin:14px 0 6px}
+  p{font-size:14px;color:var(--n700);font-weight:500;margin-bottom:10px}
+  ul,ol{margin:8px 0 14px 22px}
+  li{font-size:13.5px;color:var(--n700);margin-bottom:6px;line-height:1.75}
+  strong{color:var(--s800);font-weight:800}
+
+  .card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px;margin-bottom:14px}
+  .card.hl{background:linear-gradient(135deg,#FFF8F2,#FFE8D1);border-color:var(--p300)}
+  .card.warn{background:linear-gradient(135deg,#FFEBEE,#FFCDD2);border-color:var(--r500)}
+  .card.good{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:var(--g500)}
+  .card.dark{background:var(--s800);color:white;border-color:var(--s800)}
+  .card.dark h3,.card.dark p,.card.dark li{color:white}
+  .card.dark strong{color:#FFD89C}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200);margin:10px 0}
+  th{background:var(--s800);color:white;padding:11px 12px;text-align:left;font-size:11.5px;font-weight:800;letter-spacing:0.03em}
+  td{padding:9px 12px;border-bottom:1px solid var(--n100);color:var(--n700);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+
+  .mermaid-wrap{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin:14px 0;overflow-x:auto}
+  .mermaid{text-align:center;min-width:600px}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+  .stat{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:16px 12px;text-align:center}
+  .stat .v{font-size:26px;font-weight:800;color:var(--p700);letter-spacing:-0.03em;line-height:1}
+  .stat .l{font-size:11.5px;color:var(--n600);font-weight:700;margin-top:6px;line-height:1.4}
+
+  .phase{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin-bottom:12px;border-top:5px solid var(--p500);position:relative}
+  .phase.p1{border-top-color:var(--g500)}
+  .phase.p2{border-top-color:var(--b500)}
+  .phase.p3{border-top-color:var(--v500)}
+  .phase.p4{border-top-color:var(--y500)}
+  .phase .ph-id{position:absolute;top:-14px;left:18px;background:var(--p500);color:white;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:800;letter-spacing:0.04em}
+  .phase.p1 .ph-id{background:var(--g500)}
+  .phase.p2 .ph-id{background:var(--b500)}
+  .phase.p3 .ph-id{background:var(--v500)}
+  .phase.p4 .ph-id{background:var(--y500)}
+  .phase h3{margin-top:6px;padding-left:0;border:none;font-size:17px}
+  .phase .when{font-size:11px;color:var(--n500);font-weight:700;margin-bottom:6px}
+
+  .loop-card{background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border:2px solid var(--v500);border-radius:14px;padding:18px;margin:14px 0}
+  .loop-card h4{color:var(--v700);font-size:15px;margin-bottom:8px}
+
+  .nav-back{background:linear-gradient(135deg,#FFF8F2,#FFE8D1);padding:18px;border-radius:14px;margin-top:30px;text-align:center}
+  .nav-back a{color:var(--p700);font-weight:800;text-decoration:none;font-size:13.5px;margin:0 10px}
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--n400);border-top:1px solid var(--n100);font-weight:600}
+  footer a{color:var(--p700);text-decoration:none;font-weight:700}
+
+  @media(max-width:600px){.hero h1{font-size:28px}.hero .one-liner{font-size:15px}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">📈 GROWTH STRATEGY · v1 (2026-05-25)</span>
+    <h1>도감으로 사람들을 모으고<br><span class="accent">90일 챌린지</span>로 평생 고객을 만든다</h1>
+    <p>한국 첫 영유아 편식 통합 플랫폼의 출사표 — 기능이 열리는 순서, 바이럴 엔진 구조, 운영 전략</p>
+    <p class="one-liner">"광고비 0원 · 무료 제공으로 가치 입증 · 키트로 매출. SEO·바이럴·습관 형성 3중 엔진"</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#manifesto">1. 출사표</a>
+    <a href="#gtm">2. GTM</a>
+    <a href="#feature-order">3. 기능 순서</a>
+    <a href="#viral">4. 바이럴 엔진</a>
+    <a href="#ops">5. 운영 전략</a>
+    <a href="#kpi-stage">6. 단계별 KPI</a>
+    <a href="#risk">7. 위험·대응</a>
+    <a href="#year1">8. 1년 후</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="manifesto">
+  <span class="stag">━ 1. MANIFESTO ━</span>
+  <h2>출사표</h2>
+
+  <div class="card hl">
+    <h3 style="border:none;padding:0;color:var(--p700);font-size:22px;line-height:1.4">한국 부모는 매일 묻습니다.<br>"오늘 우리 아이 뭐 먹여야 할까?"</h3>
+    <p style="margin-top:14px;font-size:14px;color:var(--n700)">하지만 검색하면 광고와 맘카페만 나옵니다. 학술 근거? 없습니다. 우리 아이 맞춤? 없습니다. 어린이집 식단에 무엇을 보충해야 할지? 모릅니다.</p>
+    <p style="font-size:14px;color:var(--n700);margin-top:8px"><strong>밀프레드는 이 질문에 매일 데이터로 답합니다.</strong> 광고 없이. 구독료 없이. 평생 무료로.</p>
+  </div>
+
+  <h3>3가지 약속</h3>
+  <ol>
+    <li><strong>도감·블로그·앱은 평생 무료</strong> — 자녀 영양 정보에 매월 결제 요구하지 않습니다.</li>
+    <li><strong>키트는 선택, 강요 없음</strong> — 90일 습관이 끝나면 골고루 키트는 무료. 정기 구독은 자발적.</li>
+    <li><strong>학술 근거 100% 공개</strong> — KDRI·WHO·HabEat·Cooke·Toomey 등 모든 출처 표기.</li>
+  </ol>
+
+  <h3>왜 우리가 해야 하는가</h3>
+  <ul>
+    <li>한국 최초로 KDRI 2025 36 영양소 매핑 · WHO MDD 8 식품군 진단 · 4,432 레시피 풀 구축 완료</li>
+    <li>1년 무료 기부로 시작하는 B2B = 페인포인트 진심 탐색 (세일즈 X)</li>
+    <li>밀프레드_Lab 학술 협업 트랙 = 임팩트 + 학술 성취 이중 트랙</li>
+  </ul>
+</section>
+
+<section id="gtm">
+  <span class="stag">━ 2. GO-TO-MARKET ━</span>
+  <h2>시장 진입 전략 — "웹 우선·앱 후속·키트 매출"</h2>
+
+  <div class="card warn">
+    <h4 style="color:var(--r700)">❌ 안 하는 것</h4>
+    <ul>
+      <li>광고 집행 (퍼포먼스 광고 X)</li>
+      <li>매월 구독료 ₩9,900 Freemium (폐기)</li>
+      <li>네이티브 앱 (iOS·Android) — PWA로 충분</li>
+      <li>자체 푸시 인프라 (카카오톡 알림톡으로 처리)</li>
+      <li>B2B 유료 세일즈 (페인포인트 검증 후 가격 결정)</li>
+    </ul>
+  </div>
+
+  <div class="card good">
+    <h4 style="color:var(--g700)">✅ 하는 것</h4>
+    <ul>
+      <li><strong>도감 SEO</strong> — 650~10,000종 자동 enrich, 한국 영유아 식재료 위키피디아 포지셔닝</li>
+      <li><strong>357편 블로그 연재</strong> — 후킹 제목, 학술 + 실전, 가입 funnel 가속</li>
+      <li><strong>식단표 평가 hook</strong> — 어린이집 식단 사진 1장 → 9축 평가 → 가입</li>
+      <li><strong>카카오톡 알림톡</strong> — 가입자 알림은 자체 푸시 X, 카톡으로 처리 (건당 ₩8)</li>
+      <li><strong>키트 D2C 단일 매출원</strong> — 집중 ₩200k + 골고루 월 ₩108k</li>
+      <li><strong>90일 챌린지 바이럴 엔진</strong> — 마일리지·반감기·친구 초대·룰렛 통합</li>
+      <li><strong>B2B 1년 무료 기부 10곳</strong> — 진심 페인포인트 탐색</li>
+    </ul>
+  </div>
+
+  <h3>3중 진입 엔진</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+  SEO[🌐 SEO 엔진<br/>도감 650+ 페이지<br/>월 50k 방문]
+  CONTENT[📚 콘텐츠 엔진<br/>블로그 357편<br/>학술+실전]
+  HOOK[📋 Hook 엔진<br/>식단표 평가<br/>30초 가치 즉시]
+  SIGN[✍️ 가입]
+  HABIT[🎯 90일 챌린지<br/>습관 형성]
+  VIRAL[🔁 바이럴 엔진<br/>친구 초대·룰렛·완주 보너스]
+  KIT[💰 키트 매출<br/>집중·골고루·박스]
+
+  SEO --> SIGN
+  CONTENT --> SIGN
+  HOOK --> SIGN
+  SIGN --> HABIT
+  HABIT --> VIRAL
+  VIRAL --> SIGN
+  HABIT --> KIT
+  VIRAL --> KIT
+
+  classDef entry fill:#E3F2FD,stroke:#3498DB,color:#1F2D3D
+  classDef habit fill:#F3E5F5,stroke:#9C27B0,color:#1F2D3D
+  classDef money fill:#FFE8D1,stroke:#E89244,color:#1F2D3D
+  class SEO,CONTENT,HOOK entry
+  class SIGN,HABIT,VIRAL habit
+  class KIT money
+    </div>
+  </div>
+</section>
+
+<section id="feature-order">
+  <span class="stag">━ 3. FEATURE OPENING ORDER ━</span>
+  <h2>기능이 열리는 순서</h2>
+
+  <div class="phase p1">
+    <span class="ph-id">PHASE 1 — 웹 강화</span>
+    <div class="when">M1-M4 · 4주 · 2026-05-26 ~ 2026-06-22</div>
+    <h3>🌐 SEO + 가입 funnel</h3>
+    <ul>
+      <li><strong>도감 개별 URL</strong>: 147 → 650 → 10,000+ 자동 enrich</li>
+      <li><strong>식단표 평가 강화</strong>: 9축 평가 + 가정 보충 가이드</li>
+      <li><strong>블로그 가속</strong>: 16편 → 50편 (주 3편 페이스)</li>
+      <li><strong>가입</strong>: 전화번호 30초 + 카카오 OAuth</li>
+      <li><strong>카카오톡 알림톡 채널 활성화</strong></li>
+    </ul>
+    <p style="font-size:12px;color:var(--n600);font-style:italic">→ 끝: 도감 → 가입 funnel 작동, 트래픽 빌드업 시작</p>
+  </div>
+
+  <div class="phase p2">
+    <span class="ph-id">PHASE 2 — 앱 (PWA)</span>
+    <div class="when">M5-M6 · 4주 · 2026-06-23 ~ 2026-07-20</div>
+    <h3>📊 식습관 기록 + 신호등</h3>
+    <ul>
+      <li><strong>PWA 식사 기록</strong>: 6 chip·147 식재료 자동완성·사진 AI 분석</li>
+      <li><strong>36 영양 신호등</strong>: KDRI 2025 매핑·BMI 보정</li>
+      <li><strong>7축 진단</strong>: 다양성·균형·신선도·식감·자율성·반복도·제철</li>
+      <li><strong>주간 리포트</strong>: PDF 다운로드 + 카톡 발송</li>
+    </ul>
+    <p style="font-size:12px;color:var(--n600);font-style:italic">→ 끝: 가입자가 매일 쓰는 도구 완성. retention 결정 단계</p>
+  </div>
+
+  <div class="phase p3">
+    <span class="ph-id">PHASE 3 — 바이럴 엔진</span>
+    <div class="when">M7-M9 · 5주 · 2026-07-21 ~ 2026-08-24</div>
+    <h3>🎁 마일리지 + 90일 챌린지 + 친구 초대</h3>
+    <ul>
+      <li><strong>마일리지 v0</strong>: 끼니 입력 → 반감기 4단계 (100·50·25·12원)</li>
+      <li><strong>90일 챌린지</strong>: 완주 시 +50,774 = 골고루 키트 무료</li>
+      <li><strong>친구 초대</strong>: 양방향 +3,000 / +1,000</li>
+      <li><strong>룰렛</strong>: 일 1회, 2% 잭팟 ₩5,000</li>
+      <li><strong>카톡 알림 4종</strong>: stage 전환·완주·잭팟·미입력 리마인드</li>
+    </ul>
+    <p style="font-size:12px;color:var(--n600);font-style:italic">→ 끝: 자가 증식 바이럴 루프 작동</p>
+  </div>
+
+  <div class="phase p4">
+    <span class="ph-id">PHASE 4 — 매출 + UGC + AI</span>
+    <div class="when">M10-M12 · 6주 · 2026-08-25 ~ 2026-10-05</div>
+    <h3>💰 키트 결제 + 도감 댓글 + AI 개인화</h3>
+    <ul>
+      <li><strong>키트 결제</strong>: 집중 ₩200k + 골고루 월 ₩108k 정기 구독</li>
+      <li><strong>마일리지 차감</strong>: 1:1, 전액 무료 결제 가능</li>
+      <li><strong>도감 댓글</strong>: UGC + 모더레이션 cron</li>
+      <li><strong>AI 추천 레시피</strong>: 4원칙 매주 새 메뉴</li>
+      <li><strong>운영 대시보드</strong>: KPI 9개 실시간</li>
+    </ul>
+    <p style="font-size:12px;color:var(--n600);font-style:italic">→ 끝: 첫 매출 발생, 개인화 핵심 완성</p>
+  </div>
+
+  <div class="phase">
+    <span class="ph-id">PHASE 5 — SCALE</span>
+    <div class="when">M13 · 8주 · 2026-10-06 ~ 2026-12-05</div>
+    <h3>🏢 B2B + 박스 + 학술 RCT</h3>
+    <ul>
+      <li><strong>B2B 무료 기부 10곳</strong>: 어린이집 페인포인트 검증</li>
+      <li><strong>밀프레드 박스</strong>: 다양성 노출 20g 소분 + 4축 활동</li>
+      <li><strong>학술 RCT 데이터 수집</strong>: IRB·10 어린이집 × 200명+ × 12주</li>
+      <li><strong>다국어 준비</strong>: 영·일 인프라</li>
+    </ul>
+  </div>
+</section>
+
+<section id="viral">
+  <span class="stag">━ 4. VIRAL ENGINE ━</span>
+  <h2>바이럴 엔진 — 어떻게 자가 증식하는가</h2>
+
+  <p>핵심: <strong>광고비 0원</strong>. 사용자가 사용자를 데려오고, 사용자가 매출을 만든다. 3개의 강화 루프.</p>
+
+  <div class="loop-card">
+    <h4>🔁 Loop 1 — SEO 자가 증식 (도감 + UGC)</h4>
+    <p style="font-size:13px;color:var(--n700);margin:8px 0">방문자가 도감 댓글 작성 → UGC가 SEO 점수 ↑ → 더 많은 방문 → 더 많은 댓글</p>
+    <p style="font-size:11.5px;color:var(--n500);font-style:italic">강화 요소: 댓글 작성 시 +500 마일리지 (FR-V12) · 매일 +50 enrich로 페이지 증가</p>
+  </div>
+
+  <div class="loop-card">
+    <h4>🔁 Loop 2 — 친구 초대 양방향 보상</h4>
+    <p style="font-size:13px;color:var(--n700);margin:8px 0">90일 챌린지 중인 부모 → 같은 고민 가진 부모에게 카톡 공유 → 양방향 적립 → 둘 다 키트 무료 결제 가속</p>
+    <p style="font-size:11.5px;color:var(--n500);font-style:italic">강화 요소: 초대자 +3,000 · 피초대자 +1,000 · 월 5명 한도로 farming 방지</p>
+  </div>
+
+  <div class="loop-card">
+    <h4>🔁 Loop 3 — 90일 챌린지 완주 후 입소문</h4>
+    <p style="font-size:13px;color:var(--n700);margin:8px 0">완주자가 골고루 키트 무료로 받음 → 후기 작성 시 +5,000 → 인증샷 공유 → 신규 가입자 유입</p>
+    <p style="font-size:11.5px;color:var(--n500);font-style:italic">강화 요소: 키트 받은 순간 "내가 해냈다" 성취감 → 자발적 공유 동기 (Cialdini 일관성 원칙)</p>
+  </div>
+
+  <h3>경제성 — CAC vs LTV</h3>
+  <table>
+    <tr><th>지표</th><th>값</th><th>설명</th></tr>
+    <tr><td>광고비 CAC (시장 평균)</td><td>~₩300,000</td><td>육아 카테고리 전환 광고</td></tr>
+    <tr><td><strong>밀프레드 effective CAC</strong></td><td><strong>~₩15,000</strong></td><td>도감 SEO + 90일 완주 보너스</td></tr>
+    <tr><td>1년 LTV (평균 사용자)</td><td>~₩820,000</td><td>키트 5박스 정기 + 집중 1회</td></tr>
+    <tr><td><strong>ROI</strong></td><td><strong>~55배</strong></td><td>820k / 15k</td></tr>
+  </table>
+
+  <h3>왜 결제 차감 마일리지인가? (현금 환전 X)</h3>
+  <ul>
+    <li><strong>매출 안전</strong> — 마일리지는 우리 매출만 차감. 슈퍼 사용자도 결국 우리 매출</li>
+    <li><strong>farming 동기 X</strong> — 현금 환전 불가 → 부정 적립 동기 자체가 낮음</li>
+    <li><strong>장부 단순</strong> — 발행·차감만 추적 → 외부 정산 X</li>
+    <li><strong>인플레 한도 X</strong> 가능 — "100만 마일리지 = 키트 10박스 무료" = 우리 입장 어차피 키트 10박스 정기 구매</li>
+  </ul>
+
+  <p style="font-size:12px;color:var(--n600);font-style:italic">상세: <a href="/viral-engine-prd.html" style="color:var(--p700);font-weight:700">바이럴 엔진 PRD</a> · <a href="/리워드시스템.html" style="color:var(--p700);font-weight:700">리워드 시스템</a></p>
+</section>
+
+<section id="ops">
+  <span class="stag">━ 5. OPERATIONS ━</span>
+  <h2>운영 전략</h2>
+
+  <h3>5-1. 콘텐츠 운영</h3>
+  <table>
+    <tr><th>채널</th><th>페이스</th><th>책임</th></tr>
+    <tr><td>블로그 (357편 목표)</td><td>주 3편</td><td>임남규 이사 + Claude</td></tr>
+    <tr><td>도감 enrich</td><td>매일 +50종 자동</td><td>cron + 운영자 검수 1일 1회</td></tr>
+    <tr><td>댓글 모더레이션</td><td>cron 03:00 자동 + 의심 큐 검토</td><td>운영자 1일 10분</td></tr>
+    <tr><td>식단표 평가 응답</td><td>실시간 AI</td><td>자동</td></tr>
+  </table>
+
+  <h3>5-2. 카카오톡 알림톡 운영</h3>
+  <ul>
+    <li><strong>채널</strong>: @밀프레드 (공식 채널 검수 완료)</li>
+    <li><strong>발송사</strong>: 네이버 클라우드 SENS (건당 ₩8)</li>
+    <li><strong>템플릿 사전 심사</strong> (4-7일 소요): stage_change · challenge_complete · jackpot · reminder · weekly_report · referral_success</li>
+    <li><strong>예상 비용</strong>: 사용자당 월 8건 × ₩8 = ₩64 · MAU 1만 → 월 ₩640k (선별 발송으로 ₩100k 이내 유지)</li>
+    <li><strong>발송 시간 정책</strong>: 09:00~21:00 KST만 발송 (광고법 준수)</li>
+  </ul>
+
+  <h3>5-3. 키트 매출 funnel</h3>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+  DEX[도감 식재료 상세]
+  TRIGGER1{거부도 높음?}
+  FOCUS[🎯 집중 키트<br/>₩200,000]
+  BALANCE[🌈 골고루 키트<br/>월 ₩108,000]
+  COMPLETE[90일 완주]
+  FREE[키트 1박스 무료]
+  REVIEW[리뷰 +5,000]
+  SHARE[카톡 공유]
+  NEW[신규 가입자]
+
+  DEX --> TRIGGER1
+  TRIGGER1 -->|예| FOCUS
+  TRIGGER1 -->|아니오| BALANCE
+  COMPLETE --> FREE --> REVIEW --> SHARE --> NEW
+
+  classDef hl fill:#FFE8D1,stroke:#E89244,color:#1F2D3D
+  class FOCUS,BALANCE,FREE hl
+    </div>
+  </div>
+
+  <h3>5-4. B2B 페인포인트 탐색 (세일즈 X)</h3>
+  <ul>
+    <li><strong>1년 무료 기부 대상 10곳 발굴</strong> — 어린이집·유치원·기관</li>
+    <li>현재 인터뷰 24곳 추출 완료, 기관 컨택 진행</li>
+    <li>식단 분석 SaaS는 페인포인트 검증 후 가격 결정 — 지금은 절대 가격 X</li>
+    <li>이미 진행: 남양주 어린이식습관 캠프 (2026-08-13~14, v2.4 송부)</li>
+  </ul>
+
+  <h3>5-5. 학술 협업 (밀프레드_Lab)</h3>
+  <ul>
+    <li><strong>RCT 1차</strong>: 10 어린이집 × 200명+ × 12주 · AI Agent 편식코치</li>
+    <li>임남규 = 공저자 · PI = 1저자 · 이중 트랙</li>
+    <li>학술 결과 → 신뢰성 → 마케팅 자료 → 다음 RCT 펀딩</li>
+  </ul>
+</section>
+
+<section id="kpi-stage">
+  <span class="stag">━ 6. STAGED KPI ━</span>
+  <h2>단계별 KPI</h2>
+
+  <table>
+    <tr><th>Phase</th><th>핵심 지표</th><th>목표</th></tr>
+    <tr><td>P1 웹 강화</td><td>도감 월 방문</td><td>10,000 (3개월 내)</td></tr>
+    <tr><td>P1 웹 강화</td><td>가입 funnel 작동</td><td>도감 → 가입 ≥ 3%</td></tr>
+    <tr><td>P2 PWA</td><td>D7 retention</td><td>≥ 40%</td></tr>
+    <tr><td>P2 PWA</td><td>주간 평균 기록</td><td>≥ 2.5회</td></tr>
+    <tr><td>P3 바이럴</td><td>90일 챌린지 완주율</td><td>≥ 40%</td></tr>
+    <tr><td>P3 바이럴</td><td>평균 친구 초대</td><td>≥ 1.5명</td></tr>
+    <tr><td>P4 매출</td><td>가입 → 키트 전환율</td><td>≥ 10%</td></tr>
+    <tr><td>P4 매출</td><td>월 매출</td><td>₩10M (3개월 후 ₩50M)</td></tr>
+    <tr><td>P5 SCALE</td><td>B2B 페인포인트 검증</td><td>10곳</td></tr>
+    <tr><td>P5 SCALE</td><td>박스 첫 출시</td><td>100건</td></tr>
+  </table>
+</section>
+
+<section id="risk">
+  <span class="stag">━ 7. RISK ━</span>
+  <h2>위험 + 대응</h2>
+
+  <table>
+    <tr><th>위험</th><th>발생 가능성</th><th>대응</th></tr>
+    <tr><td>도감 SEO 색인 지연</td><td>높음 (한국 검색 보수적)</td><td>Naver Search Advisor + 블로그 백링크 + 카톡 공유</td></tr>
+    <tr><td>카톡 알림톡 템플릿 심사 거절</td><td>중간</td><td>심사 가이드 사전 학습 · 영업적 표현 X · 2-3회 재신청</td></tr>
+    <tr><td>키트 정기 구독 해지율 ↑</td><td>중간</td><td>해지 사유 수집 · 일시정지 옵션 · 마일리지 적립 가속</td></tr>
+    <tr><td>친구 초대 farming</td><td>중간</td><td>IP + 디바이스 fingerprint + 결제카드 검증</td></tr>
+    <tr><td>SENS 비용 폭증</td><td>낮음</td><td>발송 segment 선별 · MAU 5만 넘으면 인-앱 알림 우선</td></tr>
+    <tr><td>키트 재고·배송 이슈</td><td>중간</td><td>CJ 대한통운 + 식품 가공 협력사 사전 계약</td></tr>
+    <tr><td>경쟁사 진입</td><td>중간</td><td>학술 RCT + 도감 SEO 선점 = 1-2년 moat</td></tr>
+  </table>
+</section>
+
+<section id="year1">
+  <span class="stag">━ 8. ONE YEAR LATER ━</span>
+  <h2>1년 후 그림 (2027-05)</h2>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="v">650+</div><div class="l">도감 종</div></div>
+    <div class="stat"><div class="v">200k</div><div class="l">월 도감 방문</div></div>
+    <div class="stat"><div class="v">10,000</div><div class="l">가입자</div></div>
+    <div class="stat"><div class="v">≥ 4,000</div><div class="l">90일 챌린지<br>완주자</div></div>
+    <div class="stat"><div class="v">≥ 1,000</div><div class="l">월 정기 구독자</div></div>
+    <div class="stat"><div class="v">₩140M</div><div class="l">월 매출</div></div>
+    <div class="stat"><div class="v">10곳</div><div class="l">B2B 무료 기부<br>(페인포인트 검증)</div></div>
+    <div class="stat"><div class="v">RCT 결과</div><div class="l">학술 1차 publication</div></div>
+  </div>
+
+  <div class="card dark" style="margin-top:20px">
+    <h3 style="border:none;color:#FFD89C;margin-top:0">"우리 아이 영양 = 밀프레드"라는 카테고리 등재</h3>
+    <p style="font-size:13.5px;margin-top:10px">광고비 0원으로 한국 영유아 영양 카테고리 1위. 학술 신뢰 + UGC 백과 + 90일 습관 형성으로 1-2년 moat. 다음 단계: 일본·동남아 진출 + 박스 B2C 확장 + RCT 2차.</p>
+  </div>
+</section>
+
+<div class="nav-back">
+  <a href="/docs.html">📚 허브</a>
+  <a href="/proposal.html">💡 제안서</a>
+  <a href="/roadmap.html">📅 로드맵</a>
+  <a href="/dex-prd.html">🗂 도감 PRD</a>
+  <a href="/viral-engine-prd.html">🎁 바이럴 엔진 PRD</a>
+</div>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 성장 전략</strong> · v1 · 2026-05-25</p>
+  <p>관련 문서: <a href="/proposal.html">제안서</a> · <a href="/roadmap.html">로드맵</a> · <a href="/dex-prd.html">도감 PRD</a> · <a href="/viral-engine-prd.html">바이럴 엔진 PRD</a></p>
+</footer>
+
+<script>
+  mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#FFF8F2',primaryTextColor:'#1F2D3D',primaryBorderColor:'#E89244',lineColor:'#9CA3AF',fontFamily:'Pretendard Variable, sans-serif',fontSize:'12px'}});
+</script>
+</body>
+</html>

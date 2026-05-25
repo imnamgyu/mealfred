@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 — 개발 로드맵 (M0~M13 잘게 쪼갠 배포 단위)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;--g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;--v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FFEBEE;--r500:#E53935;--r700:#C62828;--y50:#FFF8E1;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.75}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--n100);padding:1px 6px;border-radius:4px;color:var(--p700)}
+
+  .hero{background:linear-gradient(135deg,#16A085,#3498DB,#1565C0);color:white;padding:50px 24px 36px;text-align:center}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.25);padding:6px 14px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.05em;margin-bottom:14px}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px;line-height:1.2}
+  .hero p{font-size:14px;color:rgba(255,255,255,0.92);max-width:640px;margin:0 auto;font-weight:600}
+  .hero .meta{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.18);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700}
+
+  main{max-width:1100px;margin:0 auto;padding:24px}
+  section{margin-bottom:42px}
+
+  h2{font-size:24px;font-weight:800;color:var(--s800);margin:30px 0 14px;padding:12px 18px;background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-left:6px solid var(--g500);border-radius:0 12px 12px 0;letter-spacing:-0.02em}
+  h3{font-size:17px;font-weight:800;color:var(--s800);margin:18px 0 10px;padding-left:10px;border-left:4px solid var(--p500)}
+  p{font-size:14px;color:var(--n700);font-weight:500;margin-bottom:10px}
+  ul,ol{margin:6px 0 12px 22px}
+  li{font-size:13px;color:var(--n700);margin-bottom:4px;line-height:1.7}
+  strong{color:var(--s800);font-weight:800}
+
+  table{width:100%;border-collapse:collapse;font-size:12px;background:white;border-radius:10px;overflow:hidden;border:1px solid var(--n200);margin:8px 0}
+  th{background:var(--s800);color:white;padding:9px 11px;text-align:left;font-size:11px;font-weight:800}
+  td{padding:7px 11px;border-bottom:1px solid var(--n100);vertical-align:top;color:var(--n700)}
+  tr:last-child td{border-bottom:none}
+
+  .ms-card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:16px 18px;margin-bottom:12px;border-left:6px solid var(--g500);position:relative}
+  .ms-card.done{border-left-color:var(--g500);background:linear-gradient(135deg,#E8F5E9,white 30%)}
+  .ms-card.now{border-left-color:var(--p500);background:linear-gradient(135deg,#FFF8F2,white 30%);box-shadow:0 4px 16px rgba(232,146,68,0.15)}
+  .ms-card.next{border-left-color:var(--b500)}
+  .ms-card.future{border-left-color:var(--n400);opacity:0.92}
+  .ms-card .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+  .ms-card .ms-id{background:var(--g500);color:white;font-size:11px;font-weight:800;padding:3px 10px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;letter-spacing:0.03em}
+  .ms-card.now .ms-id{background:var(--p500)}
+  .ms-card.next .ms-id{background:var(--b500)}
+  .ms-card.future .ms-id{background:var(--n500)}
+  .ms-card .ms-title{font-size:15px;font-weight:800;color:var(--s800);flex:1;min-width:180px}
+  .ms-card .ms-duration{font-size:11px;color:var(--p700);font-weight:700;background:var(--p50);padding:3px 9px;border-radius:100px}
+  .ms-card .ms-body{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+  .ms-card .ms-block{background:var(--n50);border-radius:8px;padding:10px 12px}
+  .ms-card .ms-block h5{font-size:10.5px;color:var(--n500);font-weight:800;letter-spacing:0.05em;margin-bottom:6px;text-transform:uppercase}
+  .ms-card .ms-block ul{margin:0 0 0 18px}
+  .ms-card .ms-block li{font-size:12px;margin-bottom:3px}
+  .ms-card .ms-deploy{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:12px;color:var(--y700);font-weight:700;display:flex;align-items:center;gap:8px}
+  .ms-card .ms-dep{font-size:11px;color:var(--n500);margin-top:8px;font-weight:600;font-style:italic}
+
+  @media(max-width:700px){.ms-card .ms-body{grid-template-columns:1fr}}
+
+  .quarter{display:flex;align-items:center;gap:12px;margin:30px 0 14px;padding:8px 14px;background:linear-gradient(135deg,#1F2D3D,#2C3E50);color:white;border-radius:10px}
+  .quarter .q-label{font-size:13px;font-weight:800}
+  .quarter .q-range{font-size:11px;color:#FFD89C;font-weight:700}
+  .quarter .q-theme{margin-left:auto;font-size:12px;color:rgba(255,255,255,0.85);font-weight:600;font-style:italic}
+
+  .mermaid-wrap{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin:14px 0;overflow-x:auto}
+  .mermaid{text-align:center;min-width:600px}
+
+  .nav-back{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);padding:16px;border-radius:14px;margin-top:30px;text-align:center}
+  .nav-back a{color:var(--g700);font-weight:800;text-decoration:none;font-size:13px;margin:0 10px}
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--n400);border-top:1px solid var(--n100);font-weight:600}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="tag">📅 ROADMAP · 잘게 쪼갠 배포 단위 M0~M13</span>
+  <h1>밀프레드 개발 로드맵</h1>
+  <p>사소한 기능도 배포 단위로 묶은 마일스톤 14개. 무엇부터 개발·배포할지 순서·의존성·DoD 명세 — 5개월 ~ MVP 완성, 1년 ~ 전체 풀스택</p>
+  <div class="meta">
+    <span>📦 14 마일스톤</span>
+    <span>🚀 26 배포</span>
+    <span>📆 ~24주</span>
+    <span>👤 1-2 풀스택</span>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <h2>📊 전체 타임라인</h2>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+gantt
+  title 밀프레드 개발 로드맵
+  dateFormat YYYY-MM-DD
+  axisFormat %m/%d
+  section 웹 (도감 우선)
+  M0 데모 라이브 완료      :done, 2026-04-01, 2026-05-25
+  M1 Next.js 마이그레이션   :active, 2026-05-26, 7d
+  M2 도감 개별 URL+SEO     :2026-06-02, 7d
+  M3 매일 +50종 enrich      :2026-06-09, 7d
+  M4 가입·로그인           :2026-06-16, 7d
+  section 앱 (PWA)
+  M5 식사 기록 PWA          :2026-06-23, 14d
+  M6 신호등·진단            :2026-07-07, 14d
+  M7 마일리지 v0           :2026-07-21, 14d
+  M8 90일 챌린지+카톡       :2026-08-04, 14d
+  M9 친구 초대+룰렛         :2026-08-18, 7d
+  section 매출
+  M10 키트 결제+정기 배송   :2026-08-25, 21d
+  M11 도감 댓글+모더레이션   :2026-09-15, 7d
+  M12 AI 추천+운영 대시보드  :2026-09-22, 14d
+  section 확장
+  M13 B2B+박스+RCT          :2026-10-06, 60d
+    </div>
+  </div>
+</section>
+
+<!-- Q2 -->
+<div class="quarter">
+  <span class="q-label">Q1 · 웹 강화</span>
+  <span class="q-range">2026-05-26 ~ 2026-06-22 (4주)</span>
+  <span class="q-theme">"도감 SEO 폭발 + 가입 funnel"</span>
+</div>
+
+<div class="ms-card done">
+  <div class="head">
+    <div><span class="ms-id">M0</span> <span class="ms-title">데모 + 데이터 인프라 ✅</span></div>
+    <span class="ms-duration">완료 (5주)</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>배포된 기능</h5><ul>
+      <li>dogam.html (편식도감 메인 데모)</li>
+      <li>daycare-eval.html (식단표 평가)</li>
+      <li>dex.html (147종 도감)</li>
+      <li>personal-coming.html (리드 캡처)</li>
+      <li>blog/ (16편)</li>
+      <li>리워드시스템·의사결정 HTML</li>
+    </ul></div>
+    <div class="ms-block"><h5>데이터 자산</h5><ul>
+      <li>4,432 레시피 DB</li>
+      <li>147 식재료 풀</li>
+      <li>KDRI 2025 36 영양소</li>
+      <li>아키텍처·PRD 4종 문서</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 라이브: https://www.mealfred.com (Vercel + GitHub: imnamgyu/mealfred)</div>
+</div>
+
+<div class="ms-card now">
+  <div class="head">
+    <div><span class="ms-id">M1</span> <span class="ms-title">Next.js 15 마이그레이션 + Supabase 연결</span></div>
+    <span class="ms-duration">1주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>정적 HTML → Next.js 15 App Router</li>
+      <li>기존 페이지 SSG 마이그레이션 (URL 동일)</li>
+      <li>Supabase 프로젝트 생성 (DB·Auth·Storage)</li>
+      <li>환경 변수·CI/CD (Vercel)</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>기존 URL 100% 호환 (SEO 보존)</li>
+      <li>Lighthouse 모바일 95+</li>
+      <li>Supabase 연결 health check OK</li>
+      <li>e2e 스모크 테스트 통과</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #2: Next.js 베이스 + Supabase</div>
+  <div class="ms-dep">의존성: M0</div>
+</div>
+
+<div class="ms-card next">
+  <div class="head">
+    <div><span class="ms-id">M2</span> <span class="ms-title">도감 개별 URL + SEO 최적화</span></div>
+    <span class="ms-duration">1주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>/dex/:slug 동적 라우트 (147 페이지)</li>
+      <li>/dex/grade/:g · /dex/category/:c · /dex/season/:m</li>
+      <li>자동 meta·OG·canonical·sitemap.xml</li>
+      <li>Google·Naver Search Console 등록</li>
+      <li>식재료 데이터 Supabase ingredients 테이블로 이전</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>147 페이지 정상 색인</li>
+      <li>sitemap.xml 자동 생성</li>
+      <li>"시금치 영유아" 검색 시 1주 내 색인 확인</li>
+      <li>OG 이미지 카톡 공유 정상</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #3: 147 SEO 페이지 활성화</div>
+  <div class="ms-dep">의존성: M1 · 참조: dex-prd.html FR-14~18</div>
+</div>
+
+<div class="ms-card next">
+  <div class="head">
+    <div><span class="ms-id">M3</span> <span class="ms-title">매일 +50종 enrich 자동화</span></div>
+    <span class="ms-duration">1주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>농진청 식품성분표 v10.0 import</li>
+      <li>enrich_queue 테이블 + cron 04:00</li>
+      <li>Claude Haiku 분류 파이프라인</li>
+      <li>SSG 자동 re-build (Vercel ISR)</li>
+      <li>sitemap·indexing API push</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>매일 50종 자동 추가</li>
+      <li>1년 ~18,000종 도달 추세</li>
+      <li>월 비용 ≤ ₩15k</li>
+      <li>운영자 enrich 큐 대시보드</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #4: 자동 enrich 가동</div>
+  <div class="ms-dep">의존성: M2 · 참조: dex-prd.html FR-22</div>
+</div>
+
+<div class="ms-card next">
+  <div class="head">
+    <div><span class="ms-id">M4</span> <span class="ms-title">가입·로그인 + 카카오톡 SENS 통합</span></div>
+    <span class="ms-duration">1주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>Supabase Auth (전화번호 + OTP)</li>
+      <li>카카오 로그인 OAuth (소셜)</li>
+      <li>알림톡 템플릿 4종 신청 (네이버 SENS)</li>
+      <li>온보딩 (아이 정보·BMI·연령)</li>
+      <li>"우리 아이만을 위한 레시피" CTA → 가입</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>전화번호 30초 가입 가능</li>
+      <li>알림톡 템플릿 심사 통과</li>
+      <li>도감 → 가입 funnel 작동</li>
+      <li>가입 후 personal-coming 자리에 실제 페이지 노출</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #5: 가입 funnel + 카톡 채널 활성화</div>
+  <div class="ms-dep">의존성: M1</div>
+</div>
+
+<!-- Q2 -->
+<div class="quarter">
+  <span class="q-label">Q2 · 앱 (PWA)</span>
+  <span class="q-range">2026-06-23 ~ 2026-08-17 (8주)</span>
+  <span class="q-theme">"식습관 기록 풀스택 + 신호등"</span>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M5</span> <span class="ms-title">식사 기록 PWA + 6 chip + 자동완성</span></div>
+    <span class="ms-duration">2주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>PWA manifest + offline 캐시</li>
+      <li>6 chip (아침·오전간식·점심·오후간식·저녁·야간)</li>
+      <li>147 식재료 자동완성 입력</li>
+      <li>식감·자율성·전체상태 메모</li>
+      <li>사진 1장 → Claude Vision 분석</li>
+      <li>식사 기록 DB 저장</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>홈 화면 추가 (Add to Home Screen)</li>
+      <li>30초 이내 기록 완료</li>
+      <li>오프라인 입력 → 온라인 시 동기화</li>
+      <li>1주 retention ≥ 50%</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #6: 첫 PWA 출시</div>
+  <div class="ms-dep">의존성: M4</div>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M6</span> <span class="ms-title">36 영양 신호등 + 7축 진단</span></div>
+    <span class="ms-duration">2주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>KDRI 36 영양소 매핑 엔진</li>
+      <li>7축 진단 (다양성·균형·신선도·식감·자율성·반복도·제철)</li>
+      <li>홈 화면 신호등 카드</li>
+      <li>주간/월간 리포트</li>
+      <li>BMI·연령 보정 알고리즘</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>5일 입력 시 신호등 결과 표시</li>
+      <li>주간 리포트 PDF 다운로드</li>
+      <li>"오늘 결핍 영양 2개" 카톡 알림</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #7: 신호등 활성화</div>
+  <div class="ms-dep">의존성: M5 · 참조: engines-deep.html</div>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M7</span> <span class="ms-title">마일리지 v0 + 반감기 + 일일 한도</span></div>
+    <span class="ms-duration">2주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>mileage_ledger·balance·challenges 테이블</li>
+      <li>POST /api/mileage/earn (idempotency)</li>
+      <li>Stage 1-4 반감기 (100·50·25·12)</li>
+      <li>일일 5끼 한도·1시간 간격·chip 중복 차단</li>
+      <li>토스트 + 홈 카드 누적 표시</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>적립 응답 &lt; 300ms</li>
+      <li>중복 적립 0건 (1주 운영)</li>
+      <li>운영자 ledger 대시보드</li>
+      <li>balance audit cron 통과</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #8: 마일리지 시스템 활성화</div>
+  <div class="ms-dep">의존성: M5 · 참조: viral-engine-prd.html FR-V01~V06</div>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M8</span> <span class="ms-title">90일 챌린지 + 완주 보너스 + 카톡 알림</span></div>
+    <span class="ms-duration">2주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>가입 시 challenge row 자동 생성</li>
+      <li>홈 진행률 카드 (X/90일·Stage·누적)</li>
+      <li>cron: stage 전환 알림 (09:00)</li>
+      <li>cron: 완주 보너스 +50,774 (00:30)</li>
+      <li>cron: 3일 미입력 리마인드 (19:00)</li>
+      <li>카톡 템플릿 4종 운영</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>가입 91일째 보너스 자동 지급</li>
+      <li>카톡 발송 성공률 ≥ 99%</li>
+      <li>완주율 ≥ 40%</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #9: 90일 챌린지 시작</div>
+  <div class="ms-dep">의존성: M7 · 참조: viral-engine-prd.html FR-V07~V08·V16</div>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M9</span> <span class="ms-title">친구 초대 + 룰렛</span></div>
+    <span class="ms-duration">1주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>고유 referral code 생성</li>
+      <li>카톡 공유 (KakaoLink SDK)</li>
+      <li>피초대자 가입 + 첫 입력 → 양방향 적립</li>
+      <li>IP·디바이스 fingerprint 검증</li>
+      <li>룰렛 일 1회 (서버 분포 결정)</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>친구 초대 평균 ≥ 1.5명</li>
+      <li>fraud 차단율 ≥ 95%</li>
+      <li>잭팟 2% 정확 발생</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #10: 바이럴 가속 활성화</div>
+  <div class="ms-dep">의존성: M7 · 참조: viral-engine-prd.html FR-V09~V11</div>
+</div>
+
+<!-- Q3 -->
+<div class="quarter">
+  <span class="q-label">Q3 · 매출</span>
+  <span class="q-range">2026-08-25 ~ 2026-10-05 (6주)</span>
+  <span class="q-theme">"키트 funnel + UGC + AI 추천"</span>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M10</span> <span class="ms-title">키트 결제 + 정기 배송 + 마일리지 차감</span></div>
+    <span class="ms-duration">3주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>상품 페이지 (집중 ₩200k · 골고루 월 ₩108k)</li>
+      <li>Stripe/토스 결제 통합</li>
+      <li>정기 구독 (월 구독·취소·일시정지)</li>
+      <li>마일리지 차감 (1:1, 전액 가능)</li>
+      <li>주문·배송 관리 (CJ 대한통운 API)</li>
+      <li>운영자 주문 대시보드</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>결제 → 배송 → 후기 전체 funnel</li>
+      <li>결제 실패 시 마일리지 환원</li>
+      <li>정기 구독 유지율 ≥ 30%</li>
+      <li>완주 보너스로 100% 무료 결제 가능</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #11: 첫 매출 발생</div>
+  <div class="ms-dep">의존성: M8 · 참조: viral-engine-prd.html FR-V14</div>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M11</span> <span class="ms-title">도감 댓글 + 모더레이션 cron</span></div>
+    <span class="ms-duration">1주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>Disqus 임베드 (또는 자체 댓글)</li>
+      <li>로그인 사용자 +500 적립 (FR-V12)</li>
+      <li>cron 03:00 Haiku 모더레이션</li>
+      <li>광고·욕설·외부 링크 자동 차단</li>
+      <li>운영자 큐 (review 상태)</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>댓글 99% 자동 분류</li>
+      <li>월 댓글 500+ 누적</li>
+      <li>UGC SEO 가치 측정</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #12: 도감 UGC 활성화</div>
+  <div class="ms-dep">의존성: M4 · 참조: dex-prd.html FR-19</div>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M12</span> <span class="ms-title">AI 추천 레시피 + 운영 대시보드</span></div>
+    <span class="ms-duration">2주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>4원칙 추천 엔진 (engines-deep.html)</li>
+      <li>4,432 레시피 풀 → LLM 정제</li>
+      <li>매주 새 레시피 (개인화)</li>
+      <li>Metabase/Retool 운영 대시보드</li>
+      <li>실시간 발행/차감/MAU/매출 모니터링</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>레시피 시도율 ≥ 30%</li>
+      <li>운영자 KPI 9개 대시보드</li>
+      <li>LLM 캐시 hit rate ≥ 70%</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #13: 개인화 핵심 완성</div>
+  <div class="ms-dep">의존성: M6, M7 · 참조: recipe-criteria.html, engines-deep.html</div>
+</div>
+
+<!-- Q4 -->
+<div class="quarter">
+  <span class="q-label">Q4 · 확장</span>
+  <span class="q-range">2026-10-06 ~ 2026-12-05 (8주)</span>
+  <span class="q-theme">"B2B + 밀프레드 박스 + 학술 RCT"</span>
+</div>
+
+<div class="ms-card future">
+  <div class="head">
+    <div><span class="ms-id">M13</span> <span class="ms-title">B2B 무료 기부 + 밀프레드 박스 + RCT 준비</span></div>
+    <span class="ms-duration">8주</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>개발 범위</h5><ul>
+      <li>B2B 어린이집 1년 무료 기부 (10곳)</li>
+      <li>식단 분석 SaaS (간략 버전)</li>
+      <li>밀프레드 박스 (다양성 노출 20g 소분 + 4축 활동)</li>
+      <li>RCT 학술 데이터 수집 모듈</li>
+      <li>다국어 (영·일) 준비</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>B2B 페인포인트 10곳 검증</li>
+      <li>박스 첫 출시 100건 판매</li>
+      <li>RCT 데이터 IRB 통과</li>
+      <li>월 매출 ≥ ₩50M</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">🚀 배포 #14: SCALE 단계 진입</div>
+  <div class="ms-dep">의존성: M10, M12</div>
+</div>
+
+<section>
+  <h2>📌 마일스톤 의존성 그래프</h2>
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart LR
+  M0[M0 ✅<br/>데모·데이터] --> M1[M1<br/>Next.js+Supabase]
+  M1 --> M2[M2<br/>도감 SEO]
+  M2 --> M3[M3<br/>매일 enrich]
+  M1 --> M4[M4<br/>가입+카톡]
+  M4 --> M5[M5<br/>기록 PWA]
+  M5 --> M6[M6<br/>신호등·진단]
+  M5 --> M7[M7<br/>마일리지 v0]
+  M7 --> M8[M8<br/>90일 챌린지]
+  M7 --> M9[M9<br/>친구초대+룰렛]
+  M8 --> M10[M10<br/>키트 결제]
+  M4 --> M11[M11<br/>도감 댓글]
+  M6 --> M12[M12<br/>AI 추천]
+  M7 --> M12
+  M10 --> M13[M13<br/>B2B·박스·RCT]
+  M12 --> M13
+
+  classDef done fill:#C8E6C9,stroke:#1B5E20,color:#1F2D3D
+  classDef now fill:#FFE8D1,stroke:#E89244,color:#1F2D3D
+  classDef next fill:#BBDEFB,stroke:#1565C0,color:#1F2D3D
+  classDef future fill:#F4F4F5,stroke:#9CA3AF,color:#1F2D3D
+  class M0 done
+  class M1 now
+  class M2,M3,M4 next
+  class M5,M6,M7,M8,M9,M10,M11,M12,M13 future
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>🎯 우선순위 — 무엇부터 시작?</h2>
+
+  <table>
+    <tr><th>순서</th><th>마일스톤</th><th>이유</th></tr>
+    <tr><td>1</td><td><strong>M1</strong> Next.js 베이스</td><td>모든 향후 기능의 기반. 1주 투자로 영구 ROI</td></tr>
+    <tr><td>2</td><td><strong>M2</strong> 도감 SEO</td><td>월 50k 방문 → 가입 funnel 첫 입구. 매출 직결</td></tr>
+    <tr><td>3</td><td><strong>M4</strong> 가입 + 카톡</td><td>M2·M3 진행 중 병렬 시작 가능. 알림톡 심사 시간 ↓</td></tr>
+    <tr><td>4</td><td><strong>M3</strong> enrich 자동화</td><td>도감 콘텐츠 자동 확장. SEO 가치 시간 비례</td></tr>
+    <tr><td>5</td><td><strong>M5</strong> 기록 PWA</td><td>앱 핵심. 가입자 retention 결정</td></tr>
+    <tr><td>6+</td><td>M6 → M7 → M8 → ...</td><td>의존성 순서대로</td></tr>
+  </table>
+
+  <h3>병렬 작업 가능 페어</h3>
+  <ul>
+    <li><strong>M2 + M4</strong> — 도감 SEO 진행 중 가입 시스템 병렬 개발</li>
+    <li><strong>M6 + M7</strong> — 신호등(분석)과 마일리지(보상)는 독립</li>
+    <li><strong>M11 + M12</strong> — 댓글과 AI 추천 독립</li>
+  </ul>
+</section>
+
+<section>
+  <h2>📈 누적 매출 가설</h2>
+  <table>
+    <tr><th>시점</th><th>완료 마일스톤</th><th>핵심 상태</th><th>월 매출 가설</th></tr>
+    <tr><td>2026-06</td><td>M1-M4</td><td>도감 SEO + 가입 가능</td><td>₩0 (트래픽 빌드업)</td></tr>
+    <tr><td>2026-07</td><td>M5-M6</td><td>PWA + 신호등</td><td>₩0 (가입 빌드업)</td></tr>
+    <tr><td>2026-08</td><td>M7-M9</td><td>마일리지 + 90일 챌린지</td><td>₩0 (보너스 미지급 중)</td></tr>
+    <tr><td>2026-09</td><td>M10-M11</td><td>키트 결제 + UGC</td><td><strong>~₩10M</strong></td></tr>
+    <tr><td>2026-10</td><td>M12</td><td>AI 개인화 추천</td><td><strong>~₩20M</strong></td></tr>
+    <tr><td>2026-12</td><td>M13 일부</td><td>박스 D2C + B2B 일부</td><td><strong>~₩50M</strong></td></tr>
+  </table>
+  <p style="font-size:11.5px;color:var(--n500);margin-top:8px">※ 도감 SEO 트래픽이 안정화되는 데 3-6개월 소요 가정. 매출은 M10(키트) 이후 본격화.</p>
+</section>
+
+<div class="nav-back">
+  <a href="/docs.html">📚 허브</a>
+  <a href="/proposal.html">💡 제안서</a>
+  <a href="/dex-prd.html">🗂 도감 PRD</a>
+  <a href="/viral-engine-prd.html">🎁 바이럴 엔진 PRD</a>
+  <a href="/growth-strategy.html">📈 성장 전략</a>
+</div>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 개발 로드맵</strong> · v1 · 2026-05-25</p>
+  <p>14 마일스톤 · 26 배포 단위 · ~24주 (1-2명 풀스택 기준)</p>
+</footer>
+
+<script>
+  mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#E8F5E9',primaryTextColor:'#1F2D3D',primaryBorderColor:'#16A085',lineColor:'#9CA3AF',fontFamily:'Pretendard Variable, sans-serif',fontSize:'12px'}});
+</script>
+</body>
+</html>
