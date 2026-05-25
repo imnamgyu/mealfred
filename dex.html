@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 식재료 도감 — 147종 영유아 식재료 백과 (650종 확장 중)</title>
+<meta name="description" content="당근·시금치·달걀 등 영유아 필수 식재료 147종 영양·제철·SOS 친해지기·레시피 가이드. 학교 급식 빈도 기반 등급화. 로그인 X 누구나 댓글.">
+<meta property="og:title" content="밀프레드 식재료 도감 — 초등 입학 전 꼭 친해져야 할 21종">
+<meta property="og:description" content="WHO·KDRI 학술 기반 영유아 식재료 백과. 영양·제철·SOS 6단계·레시피.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.mealfred.com/dex.html">
+<link rel="canonical" href="https://www.mealfred.com/dex.html">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;--g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;--v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FFEBEE;--r500:#E53935;--r700:#C62828;--y50:#FFF8E1;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.7}
+  button{cursor:pointer;font-family:inherit;border:none;background:none}
+
+  .hero{background:linear-gradient(135deg,#1F2D3D,#E89244,#F9A825);color:white;padding:50px 24px 36px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-100px;right:-50px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent);border-radius:50%}
+  .hero-inner{max-width:680px;margin:0 auto;position:relative;z-index:1}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.22);padding:5px 13px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.05em;margin-bottom:12px;backdrop-filter:blur(8px)}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.25}
+  .hero p{font-size:14px;color:rgba(255,255,255,0.92);max-width:560px;margin:0 auto;font-weight:600}
+  .hero .meta{display:flex;justify-content:center;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.18);padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;backdrop-filter:blur(8px)}
+
+  /* 통계 strip */
+  .stat-strip{background:white;border-bottom:1px solid var(--n200);padding:14px 24px}
+  .stat-strip-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+  .stat-strip .item{text-align:center}
+  .stat-strip .item .v{font-size:22px;font-weight:800;color:var(--p700);line-height:1;letter-spacing:-0.02em}
+  .stat-strip .item .l{font-size:11px;color:var(--n500);font-weight:700;margin-top:4px}
+
+  /* 필터 영역 */
+  .filter-zone{background:white;border-bottom:1px solid var(--n200);padding:14px 24px;position:sticky;top:0;z-index:20}
+  .filter-inner{max-width:1100px;margin:0 auto}
+  .search-row{display:flex;align-items:center;gap:10px;background:var(--n50);border:1.5px solid var(--n200);border-radius:12px;padding:10px 14px;margin-bottom:10px}
+  .search-row input{flex:1;border:none;outline:none;background:transparent;font-size:14px;font-family:inherit;color:var(--n900)}
+  .search-row .ico{font-size:16px;color:var(--n400)}
+  .chip-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+  .chip-row::-webkit-scrollbar{display:none}
+  .chip{flex-shrink:0;font-size:12px;padding:7px 14px;border-radius:100px;background:var(--n50);border:1.5px solid var(--n200);color:var(--n600);font-weight:700;white-space:nowrap;font-family:inherit}
+  .chip.active{background:var(--s800);color:white;border-color:var(--s800)}
+
+  /* 메인 */
+  main{max-width:1100px;margin:0 auto;padding:24px}
+  section{margin-bottom:48px;scroll-margin-top:80px}
+  .section-head{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:2px solid var(--p500);margin-bottom:16px}
+  .section-head h2{font-size:22px;font-weight:800;color:var(--s800);letter-spacing:-0.02em}
+  .section-head .count{font-size:11.5px;color:var(--n500);font-weight:700;background:var(--n50);padding:4px 10px;border-radius:100px}
+
+  /* 식재료 그리드 */
+  .ing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .ing-card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:14px;cursor:pointer;transition:all 0.15s;text-align:center;position:relative}
+  .ing-card:hover{transform:translateY(-3px);border-color:var(--p500);box-shadow:0 6px 16px rgba(0,0,0,0.06)}
+  .ing-card .grade-corner{position:absolute;top:8px;right:8px;font-size:11px;font-weight:800;color:var(--y700)}
+  .ing-card.g4 .grade-corner{color:#F9A825}
+  .ing-card.g3 .grade-corner{color:#FFB375}
+  .ing-card.g2 .grade-corner{color:#9CA3AF;font-size:9px}
+  .ing-card.gc .grade-corner{color:#A78BFA;font-size:11px}
+  .ing-card .emoji{font-size:48px;line-height:1;margin:8px 0 6px}
+  .ing-card .nm{font-size:13.5px;font-weight:800;color:var(--s800);letter-spacing:-0.01em;line-height:1.3}
+  .ing-card .cat{font-size:10px;color:var(--n500);font-weight:600;margin-top:3px}
+  .ing-card .stat-mini{font-size:9px;color:var(--n400);font-weight:700;margin-top:4px;font-family:ui-monospace,Menlo,monospace}
+  .ing-card .grade-label{font-size:8.5px;color:var(--p700);font-weight:800;letter-spacing:0.03em;margin-top:3px;background:var(--p50);padding:2px 6px;border-radius:100px;display:inline-block}
+  .ing-card.g4 .grade-label{background:#FFF3E0;color:#E65100}
+  .ing-card.g3 .grade-label{background:#FFF8E1;color:#F57F17}
+  .ing-card.g2 .grade-label{background:var(--n100);color:var(--n600)}
+  .ing-card.gc .grade-label{background:var(--v50);color:var(--v700)}
+
+  /* 모달 */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:flex-end;justify-content:center;z-index:100}
+  .modal-bg.show{display:flex}
+  @media(min-width:768px){.modal-bg{align-items:center}}
+  .modal{background:#FFFDFB;width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:0;max-height:92vh;overflow-y:auto;animation:slideUp .3s ease}
+  @media(min-width:768px){.modal{border-radius:24px;max-height:88vh}}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-head{position:sticky;top:0;background:#FFFDFB;padding:18px 20px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--n100);z-index:1}
+  .modal-emoji{font-size:42px;line-height:1;width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,#FFF8F2,#FFE8D1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .modal-info{flex:1}
+  .modal-info h3{font-size:18px;margin:0 0 3px;color:var(--s800);font-weight:800;letter-spacing:-0.01em}
+  .modal-info .grade-row{font-size:11.5px;color:var(--p700);font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .modal-close{margin-left:auto;width:32px;height:32px;border-radius:50%;background:var(--n100);font-size:16px;cursor:pointer;flex-shrink:0}
+  .modal-body{padding:18px 20px 30px}
+
+  .mod-section{margin-bottom:18px;background:white;border:1px solid var(--n200);border-radius:12px;padding:14px}
+  .mod-section .lbl{font-size:11px;font-weight:800;color:var(--p700);letter-spacing:0.04em;margin-bottom:8px}
+  .mod-section p{font-size:13px;color:var(--n700);font-weight:600;line-height:1.65;margin:0}
+  .mod-section ul{margin:6px 0 0 16px;font-size:12.5px;color:var(--n700);line-height:1.75}
+  .nutri-row{display:grid;grid-template-columns:80px 1fr 60px;gap:8px;align-items:center;font-size:11.5px;padding:4px 0}
+  .nutri-row .nm{font-weight:700;color:var(--n700)}
+  .nutri-row .stars{color:var(--y500);font-weight:800;letter-spacing:1px}
+  .nutri-row .note{font-size:10px;color:var(--n500);font-weight:600;text-align:right}
+
+  /* SOS 6 step */
+  .sos-mini{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:6px}
+  .sos-mini .step{background:var(--n50);border-radius:8px;padding:6px 4px;text-align:center;font-size:9.5px;color:var(--n600);font-weight:700}
+  .sos-mini .step .ico{font-size:18px;line-height:1;margin-bottom:3px;display:block}
+  .sos-mini .step.done{background:var(--g50);color:var(--g700)}
+
+  /* 댓글 */
+  .comment-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .comment{background:var(--n50);border-radius:10px;padding:10px 12px;border-left:3px solid var(--p300)}
+  .comment .who{font-size:11px;color:var(--p700);font-weight:800;margin-bottom:3px}
+  .comment .body{font-size:12.5px;color:var(--n700);line-height:1.65}
+  .comment .like{font-size:10.5px;color:var(--n500);font-weight:700;margin-top:5px}
+  .comment-form{background:white;border:1.5px dashed var(--n300);border-radius:10px;padding:12px;margin-top:10px}
+  .comment-form textarea{width:100%;border:none;outline:none;font-family:inherit;font-size:12.5px;resize:none;color:var(--n900);min-height:50px;background:transparent}
+  .comment-form .row{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+  .comment-form .by{font-size:10px;color:var(--n500);font-weight:600}
+  .comment-form button{background:var(--s800);color:white;padding:6px 14px;border-radius:8px;font-size:11.5px;font-weight:800}
+
+  /* 키트 CTA */
+  .kit-cta{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border-radius:12px;padding:14px;margin-top:14px;border:1px solid var(--p300);display:flex;align-items:center;gap:12px;cursor:pointer}
+  .kit-cta .em{font-size:30px;flex-shrink:0}
+  .kit-cta .body{flex:1}
+  .kit-cta .ttl{font-size:13px;font-weight:800;color:var(--s800);line-height:1.3}
+  .kit-cta .sub{font-size:10.5px;color:var(--p700);font-weight:600;margin-top:2px}
+  .kit-cta .arrow{color:var(--p500);font-size:22px}
+
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--n400);border-top:1px solid var(--n100);font-weight:600}
+  footer a{color:var(--p700);text-decoration:none;font-weight:700;margin:0 8px}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">🗂 OPEN DEX · 로그인 X · 누구나</span>
+    <h1>밀프레드 식재료 도감</h1>
+    <p>학교 급식 + 영유아 빈도 기반 등급화 · 영양·제철·SOS 6단계·레시피·부모 댓글</p>
+    <div class="meta">
+      <span>🍱 147종 (650종 확장 중)</span>
+      <span>⭐⭐⭐⭐ 초등 필수 21</span>
+      <span>📚 KDRI 2025 학술 근거</span>
+    </div>
+  </div>
+</header>
+
+<!-- 통계 -->
+<div class="stat-strip">
+  <div class="stat-strip-inner">
+    <div class="item"><div class="v">147</div><div class="l">현재 등록</div></div>
+    <div class="item"><div class="v">21</div><div class="l">⭐⭐⭐⭐ 초등 필수</div></div>
+    <div class="item"><div class="v">50</div><div class="l">⭐⭐⭐ 초등 권장</div></div>
+    <div class="item"><div class="v">59</div><div class="l">⭐⭐ 영유아 핵심</div></div>
+    <div class="item"><div class="v">+50/일</div><div class="l">매일 enrich</div></div>
+  </div>
+</div>
+
+<!-- FILTER -->
+<div class="filter-zone">
+  <div class="filter-inner">
+    <div class="search-row">
+      <span class="ico">🔎</span>
+      <input id="searchInput" type="text" placeholder="식재료 검색 (예: 시금치, 당근, 두부...)" oninput="filterAndRender()">
+    </div>
+    <div class="chip-row">
+      <button class="chip active" data-grade="all" onclick="setGradeFilter(this,'all')">전체</button>
+      <button class="chip" data-grade="초등 필수" onclick="setGradeFilter(this,'초등 필수')">⭐⭐⭐⭐ 초등 필수</button>
+      <button class="chip" data-grade="초등 권장" onclick="setGradeFilter(this,'초등 권장')">⭐⭐⭐ 초등 권장</button>
+      <button class="chip" data-grade="영유아 핵심" onclick="setGradeFilter(this,'영유아 핵심')">⭐⭐ 영유아 핵심</button>
+      <button class="chip" data-grade="조미료·향신 (참고)" onclick="setGradeFilter(this,'조미료·향신 (참고)')">🔸 조미료·향신</button>
+    </div>
+    <div class="chip-row" style="margin-top:6px">
+      <button class="chip active" data-cat="all" onclick="setCatFilter(this,'all')">모든 카테고리</button>
+      <button class="chip" data-cat="잎채소" onclick="setCatFilter(this,'잎채소')">🥬 잎채소</button>
+      <button class="chip" data-cat="뿌리채소" onclick="setCatFilter(this,'뿌리채소')">🥕 뿌리</button>
+      <button class="chip" data-cat="열매채소" onclick="setCatFilter(this,'열매채소')">🍅 열매</button>
+      <button class="chip" data-cat="버섯" onclick="setCatFilter(this,'버섯')">🍄 버섯</button>
+      <button class="chip" data-cat="콩_콩제품" onclick="setCatFilter(this,'콩_콩제품')">🫘 콩</button>
+      <button class="chip" data-cat="고기" onclick="setCatFilter(this,'고기')">🥩 고기</button>
+      <button class="chip" data-cat="생선" onclick="setCatFilter(this,'생선')">🐟 생선</button>
+      <button class="chip" data-cat="갑각_조개" onclick="setCatFilter(this,'갑각_조개')">🦐 갑각·조개</button>
+      <button class="chip" data-cat="계란" onclick="setCatFilter(this,'계란')">🥚 계란</button>
+      <button class="chip" data-cat="유제품" onclick="setCatFilter(this,'유제품')">🥛 유제품</button>
+      <button class="chip" data-cat="곡물_탄수" onclick="setCatFilter(this,'곡물_탄수')">🌾 곡물</button>
+      <button class="chip" data-cat="과일" onclick="setCatFilter(this,'과일')">🍎 과일</button>
+      <button class="chip" data-cat="해조" onclick="setCatFilter(this,'해조')">🌊 해조</button>
+      <button class="chip" data-cat="견과_씨앗" onclick="setCatFilter(this,'견과_씨앗')">🌰 견과</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section>
+    <div class="section-head">
+      <h2 id="resultsTitle">📚 전체 식재료</h2>
+      <span class="count" id="resultsCount">147종</span>
+    </div>
+    <div class="ing-grid" id="ingGrid"></div>
+  </section>
+</main>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target.id==='modalBg')closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<footer>
+  <p><strong>밀프레드 식재료 도감</strong> · 누구나 자유 열람 · 로그인 X</p>
+  <p>출처: 농진청 학교 급식 영양분석표 (3,397종) · 영유아 레시피 (1,035종) · KDRI 2025</p>
+  <p><a href="/">밀프레드 홈</a> · <a href="/dogam.html">앱 데모</a> · <a href="/daycare-eval.html">식단표 평가</a></p>
+</footer>
+
+<script>
+let pool = [];
+let gradeFilter = 'all';
+let catFilter = 'all';
+let searchQuery = '';
+
+// 데이터 로드
+fetch('data_ingredient_pool_graded.json')
+  .then(r => r.json())
+  .then(d => { pool = d.pool; filterAndRender(); })
+  .catch(() => console.error('데이터 로드 실패'));
+
+function setGradeFilter(el, g){
+  document.querySelectorAll('[data-grade]').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  gradeFilter = g;
+  filterAndRender();
+}
+function setCatFilter(el, c){
+  document.querySelectorAll('[data-cat]').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  catFilter = c;
+  filterAndRender();
+}
+
+function filterAndRender(){
+  searchQuery = document.getElementById('searchInput').value.trim();
+  let filtered = pool.filter(p => {
+    if(gradeFilter !== 'all' && p.grade_label !== gradeFilter) return false;
+    if(catFilter !== 'all' && p.cat !== catFilter) return false;
+    if(searchQuery && !p.nm.includes(searchQuery)) return false;
+    return true;
+  });
+  filtered.sort((a,b) => -(a.elem_count + a.infant_count * 0.3) + (b.elem_count + b.infant_count * 0.3));
+
+  document.getElementById('resultsCount').textContent = `${filtered.length}종`;
+
+  const grid = document.getElementById('ingGrid');
+  grid.innerHTML = filtered.map((p, i) => {
+    const gradeClass = p.grade_label === '초등 필수' ? 'g4'
+                     : p.grade_label === '초등 권장' ? 'g3'
+                     : p.grade_label === '영유아 핵심' ? 'g2'
+                     : 'gc';
+    return `
+      <div class="ing-card ${gradeClass}" onclick="showIngredient(${i})" data-idx="${i}">
+        <div class="grade-corner">${p.grade}</div>
+        <div class="emoji">${p.em}</div>
+        <div class="nm">${p.nm}</div>
+        <div class="cat">${p.cat.replace('_','·')}</div>
+        <div class="grade-label">${p.grade_label}</div>
+        <div class="stat-mini">급식 ${p.elem_count} · 영유아 ${p.infant_count}</div>
+      </div>`;
+  }).join('');
+  // 데이터를 카드에 저장 (showIngredient에서 사용)
+  window._filtered = filtered;
+}
+
+const SOS_STEPS = ['👀 보기','✋ 만지기','👃 냄새','👅 핥기','🦷 씹기','🍽 삼키기'];
+
+// Mock 영양 데이터 (실제는 농진청 매핑)
+const NUTRI_MOCK = {
+  '시금치': [{n:'철', s:3, note:'결핍 위험 보충'},{n:'엽산', s:3, note:'150μg DFE'},{n:'비타민 K', s:2, note:''}],
+  '당근': [{n:'비타민 A', s:3, note:'250μg RAE 거의 충족'},{n:'식이섬유', s:2, note:''}],
+  '두부': [{n:'단백질', s:3, note:'양질 식물 단백'},{n:'칼슘', s:2, note:''},{n:'콜린', s:2, note:'2025 신규'}],
+  '달걀': [{n:'콜린 🆕', s:3, note:'노른자 110mg (RNI 160 中 69%)'},{n:'단백질', s:3, note:''},{n:'비타민 D', s:2, note:''}],
+  '고등어': [{n:'EPA+DHA', s:3, note:'150mg/일 충족'},{n:'비타민 D', s:3, note:''},{n:'단백질', s:2, note:''}],
+};
+
+const COMMENTS_MOCK = {
+  '시금치': [{w:'👩 지우 엄마', b:'우유 섞으니까 의외로 잘 먹어요! 죽 마지막에 조금만', l:23},{w:'👨 민준 아빠', b:'김 가루 트릭 효과 봤어요. 색감만 가리면 OK', l:18}],
+  '가지': [{w:'👵 할머니', b:'잘게 다져서 부침개에 넣으면 안 먹다 시도', l:12}],
+  '브로콜리': [{w:'👩 채원맘', b:'치즈 녹여서 같이 줬더니 호기심 생겨함', l:9}],
+};
+
+function showIngredient(idx){
+  const p = window._filtered[idx];
+  const nutri = NUTRI_MOCK[p.nm] || [{n:'영양 데이터', s:0, note:'enrich 대기 — 농진청 매핑 진행 중'}];
+  const comments = COMMENTS_MOCK[p.nm] || [];
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-head">
+      <div class="modal-emoji">${p.em}</div>
+      <div class="modal-info">
+        <h3>${p.nm}</h3>
+        <div class="grade-row">
+          <span>${p.grade}</span>
+          <span>${p.grade_label}</span>
+          <span style="color:var(--n400)">·</span>
+          <span>${p.cat.replace('_','·')}</span>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="mod-section">
+        <div class="lbl">━ 📊 학교 급식·영유아 등장 빈도 ━</div>
+        <p>아동기 (초등) 레시피 <strong>${p.elem_count}회</strong> · 영유아 레시피 <strong>${p.infant_count}회</strong> 등장.
+        ${p.grade_label === '초등 필수' ? '<strong style="color:var(--p700)">초등 입학 전 꼭 친해지길 권장하는 21종에 포함됩니다.</strong>' : ''}</p>
+      </div>
+
+      <div class="mod-section">
+        <div class="lbl">━ 🧬 KDRI 36 영양 매핑 (만 1-2세) ━</div>
+        ${nutri.map(n => `
+          <div class="nutri-row">
+            <span class="nm">${n.n}</span>
+            <span class="stars">${'★'.repeat(n.s)}${'☆'.repeat(3-n.s)}</span>
+            <span class="note">${n.note}</span>
+          </div>
+        `).join('')}
+        <p style="margin-top:8px;font-size:10.5px;color:var(--n500)">💡 데이터 enrich 중 — 농진청 식품성분표 v10.0 매핑 진행</p>
+      </div>
+
+      <div class="mod-section">
+        <div class="lbl">━ 🎯 친해지기 SOS 6단계 (Toomey) ━</div>
+        <div class="sos-mini">
+          ${SOS_STEPS.map((s,i) => `<div class="step ${i<2?'done':''}"><span class="ico">${s.split(' ')[0]}</span>${s.split(' ')[1]||''}</div>`).join('')}
+        </div>
+        <p style="margin-top:8px;font-size:11.5px;color:var(--n600)">강요는 거부를 강화합니다. 1단계부터 천천히 — 일주일 1-2 단계 진행 권장.</p>
+      </div>
+
+      <div class="mod-section">
+        <div class="lbl">━ 🍳 일반 추천 레시피 ━</div>
+        <ul>
+          <li>${p.em} ${p.nm} 즙 계란찜 — 거부감 ↓ (선호 베이스 매칭)</li>
+          <li>${p.em} ${p.nm} 다진 죽 — 좋아하는 베이스 위에</li>
+          <li>${p.em} 통째 ${p.nm} 핑거푸드 — 식감 단계 ↑ (만 24m+)</li>
+        </ul>
+        <p style="margin-top:6px;font-size:10.5px;color:var(--n500)">위는 일반 레시피 — 우리 아이 식습관·신호등·거부도에 맞춤 추천 받으려면 ↓</p>
+        <div onclick="window.location.href='/personal-coming.html'" style="background:linear-gradient(135deg,#1F2D3D,#2C3E50);color:white;border-radius:10px;padding:14px 16px;margin-top:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
+          <div style="font-size:26px">✨</div>
+          <div style="flex:1">
+            <div style="font-size:13.5px;font-weight:800;line-height:1.3">우리 아이만을 위한 레시피 받기</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.75);font-weight:600;margin-top:2px">잘먹는 베이스 + 거부도 + 부족 영양 종합 개인화 (가입 1분)</div>
+          </div>
+          <div style="color:#FFD89C;font-size:22px;font-weight:300">›</div>
+        </div>
+      </div>
+
+      <div class="mod-section">
+        <div class="lbl">━ 💬 부모 커뮤니티 (로그인 X) ━</div>
+        ${comments.length ? `
+          <div class="comment-list">
+            ${comments.map(c => `
+              <div class="comment">
+                <div class="who">${c.w}</div>
+                <div class="body">${c.b}</div>
+                <div class="like">❤️ ${c.l}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : '<p style="font-size:11.5px;color:var(--n500)">첫 댓글을 남겨주세요 — 다른 부모님들께 도움이 됩니다.</p>'}
+        <div class="comment-form">
+          <textarea placeholder="이 식재료 우리 아이 사례·꿀팁 공유 (광고·외부 링크 자동 삭제)"></textarea>
+          <div class="row">
+            <span class="by">로그인 X · 익명 · 자동 모더레이션</span>
+            <button onclick="alert('실제 출시 시 Disqus 임베드 + 크론탭 자동 클리닝')">댓글 작성</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="kit-cta" onclick="window.location.href='/daycare-eval.html'">
+        <div class="em">🎯</div>
+        <div class="body">
+          <div class="ttl">${p.nm} 친해지기 어려우면</div>
+          <div class="sub">🎯 집중 키트 (5주 SOS 코스 ₩200,000) — 1 식재료 21회 노출</div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+
+      <div class="kit-cta" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:var(--g500)" onclick="window.location.href='/daycare-eval.html'">
+        <div class="em">🌈</div>
+        <div class="body">
+          <div class="ttl">${p.nm} 포함 다양성 보강</div>
+          <div class="sub">🌈 골고루 키트 (정기 배송 월 ~₩108,000) — 15종 신선 원물 주 1회</div>
+        </div>
+        <div class="arrow" style="color:var(--g500)">›</div>
+      </div>
+
+    </div>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
+
+function closeModal(){
+  document.getElementById('modalBg').classList.remove('show');
+}
+</script>
+</body>
+</html>
