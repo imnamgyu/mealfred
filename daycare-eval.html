@@ -486,17 +486,12 @@
     </div>
     <button class="recipe-cta" onclick="goHomeMealPlan()" style="font-size:14.5px;padding:16px">📋 이대로 식단 받아보기 →</button>
 
-    <!-- ★ 리드 수집 — 정식 출시 알림 등록 -->
-    <div style="background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-radius:14px;padding:16px;margin-top:16px;border:1.5px solid var(--v500)">
-      <div style="font-size:11px;font-weight:800;color:var(--v700);letter-spacing:0.04em;margin-bottom:6px">━ 🔔 정식 출시 알림 받기 ━</div>
-      <div style="font-size:13px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:4px">매일 식단 평가받고 싶다면<br>출시 1순위 알림 받기</div>
-      <div style="font-size:11px;color:var(--v700);font-weight:600;line-height:1.55;margin-bottom:10px">정식 출시 시 알림톡 1회 + <strong style="color:var(--s800)">베타 우선 초대 + 50% 할인 쿠폰</strong></div>
-      <input type="tel" id="leadPhone" placeholder="010-0000-0000" maxlength="13" oninput="formatPhone(this)" style="width:100%;padding:11px 13px;border:1.5px solid var(--n300);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:white;margin-bottom:8px" onfocus="this.style.borderColor='var(--v500)'" onblur="this.style.borderColor='var(--n300)'">
-      <label style="display:flex;align-items:flex-start;gap:8px;font-size:10.5px;color:var(--n600);font-weight:600;line-height:1.5;cursor:pointer;margin-bottom:10px">
-        <input type="checkbox" id="leadConsent" style="margin-top:2px">
-        <span>정식 출시 알림 1회 수신 동의 (마케팅 X) · 출시 후 자동 삭제</span>
-      </label>
-      <button onclick="submitLead()" style="background:var(--v500);color:white;width:100%;padding:13px;border-radius:10px;font-weight:800;font-size:13.5px;border:none;cursor:pointer;font-family:inherit">🔔 출시 알림 등록</button>
+    <!-- ★ 도감 CTA — 출시 알림 폼 대신 바로 도감으로 -->
+    <div onclick="window.location.href='/foods.html'" style="background:linear-gradient(135deg,#FFF5EB,#FFD0A0);border-radius:14px;padding:16px;margin-top:16px;border:1.5px solid #FF6B1A;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <div style="font-size:11px;font-weight:800;color:#C45A00;letter-spacing:0.04em;margin-bottom:6px">━ 🗂 식재료 도감 ━</div>
+      <div style="font-size:14px;font-weight:800;color:#1a2b4a;line-height:1.45;margin-bottom:4px">우리 아이가 친해질 식재료, 더 자세히 알고 싶다면</div>
+      <div style="font-size:12px;color:#5a4a3a;font-weight:600;line-height:1.6;margin-bottom:10px">147종 → 650종 영유아 식재료 백과. 영양·제철·SOS 6단계·레시피·부모 경험 댓글까지 무료로 열람</div>
+      <div style="background:linear-gradient(135deg,#FF6B1A,#C45A00);color:white;padding:13px;border-radius:10px;font-weight:800;font-size:13.5px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px">🗂 식재료 도감 열기 →</div>
     </div>
 
     <div class="share-actions" style="margin-top:14px">
@@ -579,33 +574,7 @@ function goHomeMealPlan(){
   window.location.href = `/dogam.html?source=daycare&grade=${grade}&deficits=${encodeURIComponent(deficits)}`;
 }
 
-// ★ 전화번호 포맷팅
-function formatPhone(input){
-  let v = input.value.replace(/[^0-9]/g, '');
-  if(v.length >= 8) v = v.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3');
-  else if(v.length >= 4) v = v.replace(/(\d{3})(\d{1,4})/, '$1-$2');
-  input.value = v;
-}
-
-// ★ 리드 등록 (mock — 실제는 Supabase API)
-function submitLead(){
-  const phone = document.getElementById('leadPhone').value.trim();
-  const consent = document.getElementById('leadConsent').checked;
-  if(!/^010-\d{4}-\d{4}$/.test(phone)){
-    alert('전화번호를 정확히 입력해주세요 (010-0000-0000)');
-    return;
-  }
-  if(!consent){
-    alert('알림 수신 동의가 필요합니다');
-    return;
-  }
-  // 임시 localStorage (실제는 POST /api/leads)
-  const leads = JSON.parse(localStorage.getItem('mealfred_leads') || '[]');
-  leads.push({ phone, source: 'daycare-eval', timestamp: new Date().toISOString() });
-  localStorage.setItem('mealfred_leads', JSON.stringify(leads));
-  alert('🎉 등록 완료!\n정식 출시 시 알림톡 1회 + 50% 할인 쿠폰 받으실 거예요.\n\n지금은 데모 앱 미리 체험해보세요 →');
-  goHomeMealPlan();
-}
+// (전화번호 리드 수집 폼은 제거됨 — 결과 카드 하단에서 도감으로 바로 유도)
 </script>
 
 </body>

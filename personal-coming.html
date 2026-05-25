@@ -83,7 +83,7 @@
     <div style="font-size:10px;color:var(--n400);text-align:center;margin-top:10px;line-height:1.6">개인 식별 정보는 출시 알림 외 사용되지 않습니다</div>
   </div>
 
-  <a href="/dex.html" class="back-link">← 도감으로 돌아가기</a>
+  <a href="/foods.html" class="back-link">← 도감으로 돌아가기</a>
 </main>
 
 <footer>
@@ -110,7 +110,7 @@ function submitLead(){
   leads.push({ phone, source: 'personal-coming', timestamp: new Date().toISOString() });
   localStorage.setItem('mealfred_leads', JSON.stringify(leads));
   alert('🎉 등록 완료!\n출시 시 알림톡 1회 + 베타 초대 + 50% 할인 쿠폰을 받으실 거예요.');
-  window.location.href = '/dex.html';
+  window.location.href = '/foods.html';
 }
 </script>
 </body>
