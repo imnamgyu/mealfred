@@ -535,14 +535,20 @@ function axisDiversity(logs) {
     <tr><td colspan="5">참고 — 매출 (월 ₩35M 보수 / ₩140M 낙관)</td><td class="num">ROI 19~76배</td></tr>
   </table>
 
-  <h3>만약 모든 자연어를 LLM으로 했다면?</h3>
-  <ul>
-    <li>도감 식재료 설명도 LLM → +₩2M/월</li>
-    <li>레시피 모든 카드 자연어 → +₩3M/월</li>
-    <li>신호등 모든 영양소 자연어 → +₩5M/월</li>
-    <li>총: <strong>월 ₩12M+</strong> (현재 대비 6.5배)</li>
-  </ul>
-  <p style="font-size:12px;color:var(--brown-mid)">→ 룰로 처리 가능한 22개를 LLM에 맡기면 비용·속도·재현성 모두 손해. 분리가 핵심.</p>
+  <h3>왜 룰 분리가 핵심인가 (비용은 부수적)</h3>
+  <p style="font-size:13px;color:var(--brown-mid)">사실 도감·레시피 같은 정적 콘텐츠는 LLM으로 만들어도 한 번 생성 후 영구 캐시되므로 추가 비용 ≈ 0. <strong>비용보다 진짜 이유는 따로 있다.</strong></p>
+
+  <table class="cost-table">
+    <tr><th>이유</th><th>룰 (Cat A)</th><th>LLM 사용 시</th><th>왜 중요</th></tr>
+    <tr><td><strong>재현성</strong></td><td>같은 입력 → 항상 같은 출력</td><td>같은 입력에도 매번 다른 표현</td><td>RCT 학술 데이터 검증 가능성</td></tr>
+    <tr><td><strong>응답 속도</strong></td><td class="num">p95 50ms</td><td class="num">p95 800ms~2.5s</td><td>홈 진입·신호등은 즉시 떠야</td></tr>
+    <tr><td><strong>오프라인</strong></td><td>지하철·비행기 OK</td><td>네트워크 필수</td><td>식사 기록은 어디서나</td></tr>
+    <tr><td><strong>장애 내성</strong></td><td>Anthropic 장애에도 작동</td><td>API 다운 시 기능 중단</td><td>핵심 22개 기능 항상 유지</td></tr>
+    <tr><td><strong>감사·디버그</strong></td><td>코드 추적 명확</td><td>black box</td><td>잘못된 점수 원인 파악</td></tr>
+    <tr><td><strong>비용</strong></td><td class="num">₩0</td><td class="num">캐시 가능 시 ≈ ₩0</td><td>(비용 차이는 크지 않음 — 부수적)</td></tr>
+  </table>
+
+  <p style="font-size:12px;color:var(--brown-mid)">→ 룰 분리의 진짜 이유는 <strong>재현성·속도·오프라인·장애 내성</strong>. 비용 차이는 미미하지만, 위 4가지는 학술·UX·신뢰성에 결정적.</p>
 </section>
 
 <!-- 9. 가드레일 -->
