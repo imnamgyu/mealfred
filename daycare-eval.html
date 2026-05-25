@@ -440,7 +440,7 @@
         <div class="grade B">B+</div>
         <div class="top-info">
           <div class="ttl">이번 달 식단 종합</div>
-          <div class="sub">86점 (8축 평균) · 전체 평균(72점) ↑</div>
+          <div class="sub">86점 (8축 평균)</div>
         </div>
       </div>
       <div class="axis-bar"><span class="nm">1. 다양성<br><span style="font-size:9.5px;color:var(--n500)">MDD 8/8 = B · 14 sub 충족 시 A</span></span><div class="b"><div class="f B" style="width:85%"></div></div><span class="g B">B+</span></div>
@@ -480,7 +480,7 @@
     <div style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:18px;border:1.5px solid var(--b500)">
       <div style="font-size:11px;font-weight:800;color:var(--b700);letter-spacing:0.04em;margin-bottom:8px">━ 💡 집에서는 이렇게 먹여주세요 ━</div>
       <div id="guideText" style="font-size:13px;color:var(--n700);font-weight:600;line-height:1.75">
-        <strong style="color:var(--s800)">이 식단은 한국 평균(72점) 대비 +14점, 상위 25%로 잘 짜여 있어요.</strong> 가장 큰 약점은 <strong>조리 스타일이 한식에 치우친 것</strong>이라, 가정에서 <strong>주 1-2회 양식(스파게티·오믈렛) 또는 일식(우동·계란찜)</strong>을 더해주면 +20점 가능해요.
+        <strong style="color:var(--s800)">8축 평균 86점이에요.</strong> 가장 큰 약점은 <strong>조리 스타일이 한식에 치우친 것</strong>이라, 가정에서 <strong>주 1-2회 양식(스파게티·오믈렛) 또는 일식(우동·계란찜)</strong>을 더해주면 +20점 가능해요.
       </div>
       <div onclick="goHomeMealPlan()" style="background:white;border:1.5px dashed var(--b500);border-radius:10px;padding:10px 12px;margin-top:12px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--b700)">
         <span style="font-size:16px">✨</span>
@@ -836,10 +836,10 @@ function generateGuide(result, ageBand){
   const weakest = result.axes.reduce((a,b) => a.score<b.score ? a : b);
 
   let s = '';
-  if(diff >= 14) s += `<strong style="color:var(--s800)">이 식단은 한국 평균(72점) 대비 +${diff}점, 상위 25%로 잘 짜여 있어요.</strong> `;
-  else if(diff >= 5) s += `<strong style="color:var(--s800)">이 식단은 한국 평균(72점) 대비 +${diff}점, 평균 이상이에요.</strong> `;
-  else if(diff >= 0) s += `<strong style="color:var(--s800)">이 식단은 한국 평균(72점) 수준이에요.</strong> `;
-  else s += `<strong style="color:var(--s800)">이 식단은 한국 평균(72점)보다 ${Math.abs(diff)}점 낮아요. 가정 보충이 중요해요.</strong> `;
+  if(g.grade.startsWith('A')) s += `<strong style="color:var(--s800)">8축 평균 ${result.total}점 (${g.grade}) — 잘 짜인 식단이에요.</strong> `;
+  else if(g.grade === 'B+') s += `<strong style="color:var(--s800)">8축 평균 ${result.total}점 (B+) — 평균 이상이에요.</strong> `;
+  else if(g.grade === 'B') s += `<strong style="color:var(--s800)">8축 평균 ${result.total}점 (B) — 무난한 수준이에요.</strong> `;
+  else s += `<strong style="color:var(--s800)">8축 평균 ${result.total}점 (${g.grade}) — 가정 보충이 중요해요.</strong> `;
 
   // 가장 강한 축
   s += `가장 잘 챙긴 영역은 <strong>${strongest.name}(${scoreToGrade(strongest.score).grade})</strong>이에요. `;

@@ -859,6 +859,80 @@ percentile = Φ(Z) × 100             <span class="cm">// 정규분포 누적</s
     </ul>
   </div>
 
+  <!-- ★ ALG-EVAL-07 NEW: 식단표 역분석 → 도감 자동 enrich -->
+  <div class="algo-box" style="border:2px solid #9C27B0">
+    <span class="algo-id" style="background:#9C27B0">ALG-EVAL-07 ★ NEW</span>
+    <h4>식단표 역분석 → 도감 자동 enrich 파이프라인</h4>
+    <p><strong>피드백</strong>: '어머니들이 업로드한 식단표 = 가장 정확한 한국 영유아 실식단 시그널'. 역으로 분석해 자주 등장하는 새 식재료를 도감 enrich_queue에 자동 push.</p>
+
+    <h5>흐름 (M2~M4 통합)</h5>
+    <pre class="code"><span class="fn">async function</span> <span class="fn">harvestFromEvaluation</span>(evalText: <span class="ty">string</span>, evalResult: <span class="ty">EvalOutput</span>) {
+  <span class="cm">// 1. 메뉴 텍스트에서 추출된 식재료 (147 풀과 매칭된 것 + 미매칭된 것)</span>
+  <span class="kw">const</span> { matched, unmatched } = <span class="fn">extractIngredients</span>(evalText);
+
+  <span class="cm">// 2. 미매칭 식재료 카운터 증가 (어머니 식단표 누적)</span>
+  <span class="kw">for</span> (<span class="kw">const</span> name <span class="kw">of</span> unmatched) {
+    <span class="kw">await</span> supabase.<span class="fn">from</span>(<span class="str">'unmatched_ingredient_signals'</span>).<span class="fn">upsert</span>({
+      name,
+      sighting_count: { increment: <span class="num">1</span> },
+      first_seen_at: <span class="kw">new</span> <span class="ty">Date</span>(),
+      last_seen_at: <span class="kw">new</span> <span class="ty">Date</span>(),
+      source: <span class="str">'daycare-eval'</span>,
+    }, { onConflict: <span class="str">'name'</span> });
+  }
+
+  <span class="cm">// 3. 임계치 도달 시 enrich_queue로 자동 push</span>
+  <span class="kw">const</span> { data: ready } = <span class="kw">await</span> supabase
+    .<span class="fn">from</span>(<span class="str">'unmatched_ingredient_signals'</span>)
+    .<span class="fn">select</span>(<span class="str">'*'</span>)
+    .<span class="fn">gte</span>(<span class="str">'sighting_count'</span>, <span class="num">5</span>)              <span class="cm">// 5회 이상 등장</span>
+    .<span class="fn">is</span>(<span class="str">'promoted_to_queue_at'</span>, <span class="kw">null</span>);
+
+  <span class="kw">for</span> (<span class="kw">const</span> sig <span class="kw">of</span> ready || []) {
+    <span class="kw">await</span> supabase.<span class="fn">from</span>(<span class="str">'enrich_queue'</span>).<span class="fn">insert</span>({
+      name: sig.name,
+      source_db: <span class="str">'daycare-eval 시그널 (어머니 식단표)'</span>,
+      scheduled_for: <span class="kw">new</span> <span class="ty">Date</span>(),
+      status: <span class="str">'pending'</span>,
+    });
+    <span class="kw">await</span> supabase.<span class="fn">from</span>(<span class="str">'unmatched_ingredient_signals'</span>).<span class="fn">update</span>({
+      promoted_to_queue_at: <span class="kw">new</span> <span class="ty">Date</span>(),
+    }).<span class="fn">eq</span>(<span class="str">'id'</span>, sig.id);
+  }
+}</pre>
+
+    <h5>DB schema 추가</h5>
+    <pre class="code"><span class="kw">CREATE TABLE</span> unmatched_ingredient_signals (
+  id <span class="kw">UUID PRIMARY KEY DEFAULT</span> uuid_generate_v4(),
+  name <span class="kw">TEXT UNIQUE NOT NULL</span>,             <span class="cm">-- 어머니 식단표에서 추출된 미매칭 식재료명</span>
+  sighting_count <span class="kw">INT DEFAULT</span> 1,           <span class="cm">-- 누적 등장 횟수</span>
+  source <span class="kw">TEXT</span>,                              <span class="cm">-- 'daycare-eval'·'sns'·'comment' 등</span>
+  first_seen_at <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>(),
+  last_seen_at <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>(),
+  promoted_to_queue_at <span class="kw">TIMESTAMPTZ</span>,           <span class="cm">-- enrich_queue로 push된 시점</span>
+  enriched_ingredient_id <span class="kw">UUID REFERENCES</span> ingredients(id),
+  notes <span class="kw">TEXT</span>
+);
+<span class="kw">CREATE INDEX</span> idx_unmatched_ready <span class="kw">ON</span> unmatched_ingredient_signals(sighting_count <span class="kw">DESC</span>)
+  <span class="kw">WHERE</span> promoted_to_queue_at <span class="kw">IS NULL</span>;</pre>
+
+    <h5>가드레일</h5>
+    <ul>
+      <li><strong>익명 보장</strong>: name만 추출, 사용자·기관 식별 정보 X</li>
+      <li><strong>임계치 5회</strong>: 한 명만 입력한 식재료(오타·고유명사)는 도감 진입 X</li>
+      <li><strong>운영자 큐 검토</strong>: enrich_queue 진입 후에도 ai_enriched 상태로 표시 → 운영자 verified 승급 필요</li>
+      <li><strong>금지 리스트</strong>: '알약·영양제·인공감미료' 등 비식재료는 자동 차단</li>
+    </ul>
+
+    <h5>예상 효과 (3개월 후)</h5>
+    <ul>
+      <li>월 500명 부모 × 평균 식단표 1건 = <strong>500 식단표/월</strong> 자동 수집</li>
+      <li>식단표당 미매칭 식재료 평균 3개 → 월 1,500 시그널</li>
+      <li>임계치 5회 도달 신규 식재료 = <strong>월 ~30종 자동 도감 진입</strong></li>
+      <li>"한국 어머니가 실제로 먹이는 식재료" 도감 — 농진청 표준 식단보다 정확한 현장 데이터</li>
+    </ul>
+  </div>
+
   <!-- ALG-EVAL-05 -->
   <div class="algo-box">
     <span class="algo-id">ALG-EVAL-05</span>

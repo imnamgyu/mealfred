@@ -4,10 +4,10 @@
     "graded_count": 130,
     "condiments_count": 17,
     "grade_distribution": {
-      "필수": 10,
-      "(라벨X)": 112,
-      "권장": 18,
-      "향신료": 7
+      "필수": 26,
+      "(라벨X)": 65,
+      "권장": 50,
+      "향신료": 6
     },
     "source": "아동기 3,397 + 영유아 1,035 레시피 빈도 (영유아 가중 0.3, 향신·조미료 제외)",
     "date": "2026-05-25",
@@ -39,15 +39,18 @@
     "emoji_audit": "2026-05-25 — 정확한 1:1 매핑만 유지, 애매한 식재료는 빈 문자열",
     "category_fix": "다시마/미역=해조류, 파·대파·부추=기타채소, 김치=발효식품 등 보정",
     "grade_legend": {
-      "필수": "초등학교 입학 전에 반드시 먹어놓아야 할 식재료 (학교 급식 가장 자주 등장)",
-      "권장": "먹을 줄 알면 좋은 식재료 (급식에 자주 등장)",
-      "향신료": "향신·양념 식재료 (평가 외)"
+      "필수": "초등학교 입학 전 반드시 친해져야 할 식재료 (Must-Eat v4 S+A 등급, 54.7+)",
+      "권장": "먹을 줄 알면 좋은 식재료 (B+C 등급, 영양 가치 있으나 빈도·안전 일부 주의)",
+      "향신료": "향신·양념 식재료",
+      "(해조류)": "요오드 과섭취 위험으로 등급 표시 제외 (김·다시마·미역·파래·매생이) — 학교 급식 분량 OK, 가정 빈도 조절 권장"
     },
     "relabel_at": "2026-05-25 — 빈도 기반 정직한 라벨 (영유아 핵심 → 급식 가끔)",
     "relabel_v2": "2026-05-25 — 3단계 체계 (필수/권장/향신료) + 나머지 라벨 X",
     "v4_master": "식재료_랭킹_마스터_v4.xlsx (영양·안전·빈도 통합 Must-Eat 점수)",
     "v4_matched": 88,
-    "v4_relabel_at": "2026-05-25 — v4 기준 S=필수·A=권장·B/C/D=라벨X"
+    "v4_relabel_at": "2026-05-25 — v4 기준 S=필수·A=권장·B/C/D=라벨X",
+    "grade_relabel_v3": "2026-05-25 — S+A=필수(28종) · B=권장(29종) · 향신료 · 그 외 라벨X",
+    "grade_relabel_v4": "2026-05-25 — S+A=필수 · B+C=권장 · 해조류는 요오드 위험으로 라벨X · 향신료"
   },
   "pool": [
     {
@@ -169,7 +172,7 @@
       "infant_count": 97,
       "score": 433.1,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 366.0,
         "water_g": 13.2,
@@ -210,7 +213,7 @@
       "infant_count": 94,
       "score": 377.2,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 140.0,
         "water_g": 76.7,
@@ -252,7 +255,7 @@
       "infant_count": 91,
       "score": 376.3,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 333.0,
         "water_g": 10.6,
@@ -286,7 +289,7 @@
       "infant_count": 80,
       "score": 259.0,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 97.0,
         "water_g": 81.2,
@@ -362,7 +365,7 @@
       "infant_count": 58,
       "score": 234.4,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 268.0,
         "water_g": 59.93,
@@ -403,7 +406,7 @@
       "infant_count": 61,
       "score": 214.3,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 203.0,
         "water_g": 66.5,
@@ -486,7 +489,7 @@
       "infant_count": 56,
       "score": 174.8,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 115.0,
         "water_g": 73.1,
@@ -520,7 +523,7 @@
       "infant_count": 41,
       "score": 171.3,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 45.0,
         "water_g": 84.1,
@@ -637,7 +640,7 @@
       "infant_count": 27,
       "score": 129.1,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 13.0,
         "water_g": 95.7,
@@ -671,7 +674,7 @@
       "infant_count": 28,
       "score": 118.4,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 71.0,
         "water_g": 81.7,
@@ -733,7 +736,7 @@
       "infant_count": 29,
       "score": 105.7,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 29.0,
         "water_g": 91.0,
@@ -774,7 +777,7 @@
       "infant_count": 41,
       "score": 102.3,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 67.0,
         "water_g": 87.6,
@@ -816,7 +819,7 @@
       "infant_count": 23,
       "score": 97.9,
       "grade": "⭐⭐⭐",
-      "grade_label": "필수",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 12.0,
         "water_g": 90.5,
@@ -919,7 +922,7 @@
       "infant_count": 26,
       "score": 90.8,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 356.0,
         "water_g": 41.46,
@@ -961,7 +964,7 @@
       "infant_count": 21,
       "score": 82.3,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 94.0,
         "water_g": 78.3,
@@ -1027,7 +1030,7 @@
       "infant_count": 15,
       "score": 79.5,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 15.0,
         "water_g": 91.9,
@@ -1068,7 +1071,7 @@
       "infant_count": 21,
       "score": 73.3,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 63.0,
         "water_g": 86.3,
@@ -1103,7 +1106,7 @@
       "infant_count": 21,
       "score": 67.3,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 13.0,
         "water_g": 95.6,
@@ -1179,7 +1182,7 @@
       "infant_count": 16,
       "score": 60.8,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 43.0,
         "water_g": 90.1,
@@ -1302,7 +1305,7 @@
       "infant_count": 29,
       "score": 55.7,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 147.0,
         "water_g": 62.2,
@@ -1378,7 +1381,7 @@
       "infant_count": 14,
       "score": 54.2,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 22.0,
         "water_g": 88.8,
@@ -1419,7 +1422,7 @@
       "infant_count": 13,
       "score": 52.9,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 20.0,
         "water_g": 92.9,
@@ -1605,7 +1608,7 @@
       "infant_count": 10,
       "score": 48.0,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 21.0,
         "water_g": 89.0,
@@ -1646,7 +1649,7 @@
       "infant_count": 8,
       "score": 45.4,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 15.0,
         "water_g": 94.6,
@@ -1687,7 +1690,7 @@
       "infant_count": 16,
       "score": 43.8,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 19.0,
         "water_g": 94.2,
@@ -1728,7 +1731,7 @@
       "infant_count": 12,
       "score": 43.6,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 14.0,
         "water_g": 95.6,
@@ -1867,7 +1870,7 @@
       "infant_count": 9,
       "score": 39.7,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 118.0,
         "water_g": 70.4,
@@ -1908,7 +1911,7 @@
       "infant_count": 14,
       "score": 39.2,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 364.0,
         "water_g": 13.6,
@@ -1949,7 +1952,7 @@
       "infant_count": 14,
       "score": 39.2,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 15.0,
         "water_g": 91.9,
@@ -2074,7 +2077,7 @@
       "infant_count": 10,
       "score": 35.0,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 16.0,
         "water_g": 94.2,
@@ -2115,7 +2118,7 @@
       "infant_count": 10,
       "score": 35.0,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 75.0,
         "water_g": 80.0,
@@ -2191,7 +2194,7 @@
       "infant_count": 8,
       "score": 32.4,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 19.0,
         "water_g": 93.9,
@@ -2262,7 +2265,7 @@
       "infant_count": 7,
       "score": 30.1,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 69.0,
         "water_g": 81.0,
@@ -2455,7 +2458,7 @@
       "infant_count": 7,
       "score": 28.1,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 74.0,
         "water_g": 80.4,
@@ -2530,7 +2533,7 @@
       "infant_count": 7,
       "score": 27.1,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 27.0,
         "water_g": 94.5,
@@ -2585,7 +2588,7 @@
       "infant_count": 7,
       "score": 25.1,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 18.0,
         "water_g": 93.0,
@@ -2661,7 +2664,7 @@
       "infant_count": 8,
       "score": 24.4,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 82.0,
         "water_g": 79.7,
@@ -2691,7 +2694,7 @@
       "infant_count": 4,
       "score": 23.2,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 688.0,
         "water_g": 2.9,
@@ -2732,7 +2735,7 @@
       "infant_count": 7,
       "score": 23.1,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 10.0,
         "water_g": 95.9,
@@ -2773,7 +2776,7 @@
       "infant_count": 7,
       "score": 23.1,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 658.0,
         "water_g": 0.3,
@@ -2814,7 +2817,7 @@
       "infant_count": 8,
       "score": 22.4,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 146.0,
         "water_g": 75.4,
@@ -2856,7 +2859,7 @@
       "infant_count": 8,
       "score": 22.4,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 129.0,
         "water_g": 72.3,
@@ -2890,7 +2893,7 @@
       "infant_count": 8,
       "score": 22.4,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 86.0,
         "water_g": 78.6,
@@ -2927,7 +2930,7 @@
       "infant_count": 7,
       "score": 22.1,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 112.0,
         "water_g": 76.0,
@@ -2985,7 +2988,7 @@
       "infant_count": 6,
       "score": 20.8,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 117.0,
         "water_g": 76.8,
@@ -3027,7 +3030,7 @@
       "infant_count": 9,
       "score": 20.7,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 37.0,
         "water_g": 87.4,
@@ -3068,7 +3071,7 @@
       "infant_count": 8,
       "score": 20.4,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 183.0,
         "water_g": 68.1,
@@ -3193,7 +3196,7 @@
       "infant_count": 10,
       "score": 17.0,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 45.0,
         "water_g": 86.9,
@@ -3234,7 +3237,7 @@
       "infant_count": 10,
       "score": 14.0,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 77.0,
         "water_g": 78.0,
@@ -3275,7 +3278,7 @@
       "infant_count": 5,
       "score": 13.5,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 149.0,
         "water_g": 72.7,
@@ -3314,7 +3317,7 @@
       "infant_count": 7,
       "score": 13.1,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 14.0,
         "water_g": 95.1,
@@ -3355,7 +3358,7 @@
       "infant_count": 2,
       "score": 12.6,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 349.0,
         "water_g": 11.8,
@@ -3431,7 +3434,7 @@
       "infant_count": 2,
       "score": 11.6,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 56.0,
         "water_g": 83.0,
@@ -3547,7 +3550,7 @@
       "infant_count": 4,
       "score": 11.2,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 65.0,
         "water_g": 82.0,
@@ -3588,7 +3591,7 @@
       "infant_count": 3,
       "score": 10.9,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 40.0,
         "water_g": 88.1,
@@ -3629,7 +3632,7 @@
       "infant_count": 6,
       "score": 10.8,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 55.0,
         "water_g": 84.3,
@@ -3670,7 +3673,7 @@
       "infant_count": 1,
       "score": 10.3,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 77.0,
         "water_g": 79.9,
@@ -3738,7 +3741,7 @@
       "infant_count": 4,
       "score": 10.2,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 48.0,
         "water_g": 86.7,
@@ -3971,7 +3974,7 @@
       "infant_count": 2,
       "score": 6.6,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 37.0,
         "water_g": 87.3,
@@ -4047,7 +4050,7 @@
       "infant_count": 4,
       "score": 6.2,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 39.0,
         "water_g": 86.7,
@@ -4240,7 +4243,7 @@
       "infant_count": 2,
       "score": 4.6,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 80.0,
         "water_g": 78.7,
@@ -4400,7 +4403,7 @@
       "infant_count": 1,
       "score": 4.3,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 401.0,
         "water_g": 10.5,
@@ -4476,7 +4479,7 @@
       "infant_count": 1,
       "score": 4.3,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 27.0,
         "water_g": 91.6,
@@ -4690,7 +4693,7 @@
       "infant_count": 5,
       "score": 1.5,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched",
@@ -4811,7 +4814,7 @@
       "infant_count": 42,
       "score": 166.6,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 22.0,
         "water_g": 93.5,
@@ -4852,7 +4855,7 @@
       "infant_count": 29,
       "score": 107.7,
       "grade": "",
-      "grade_label": "",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 28.0,
         "water_g": 91.2,
@@ -4893,7 +4896,7 @@
       "infant_count": 19,
       "score": 85.7,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 46.0,
         "water_g": 86.1,
@@ -5017,7 +5020,7 @@
       "infant_count": 1,
       "score": 24.3,
       "grade": "",
-      "grade_label": "향신료",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 85.0,
         "water_g": 77.4,
@@ -5107,7 +5110,7 @@
       "infant_count": 5,
       "score": 14.5,
       "grade": "⭐⭐",
-      "grade_label": "권장",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 11.0,
         "water_g": 93.8,
