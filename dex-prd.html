@@ -184,50 +184,50 @@
   <span class="stag">━ 3. INFORMATION ARCHITECTURE ━</span>
   <h2>3. IA + 사이트 맵</h2>
 
-  <div class="ia-tree">밀프레드 식재료 도감 (/dex)
+  <div class="ia-tree">밀프레드 식재료 도감 (/foods)
 │
-├── /dex                          ← 도감 메인 (전체 147종 그리드)
+├── /foods          ← 도감 메인 (전체 147종 그리드)
 │   ├── 검색 + 필터 (등급·카테고리)
 │   └── 식재료 카드 그리드
 │
-├── /dex/시금치                   ← 개별 식재료 페이지 (SSG)
-├── /dex/당근                     ← (650 페이지 자동 생성)
-├── /dex/...
+├── /foods/시금치                   ← 개별 식재료 페이지 (SSG)
+├── /foods/당근                     ← (650 페이지 자동 생성)
+├── /foods/...
 │
-├── /dex/grade/필수21              ← 등급별 모음
-├── /dex/grade/권장50
-├── /dex/grade/핵심76
+├── /foods/grade/필수21              ← 등급별 모음
+├── /foods/grade/권장50
+├── /foods/grade/핵심76
 │
-├── /dex/category/잎채소            ← 카테고리별
-├── /dex/category/뿌리채소
-├── /dex/category/...
+├── /foods/category/잎채소            ← 카테고리별
+├── /foods/category/뿌리채소
+├── /foods/category/...
 │
-├── /dex/season/1월                ← 제철별
-├── /dex/season/2월
-├── /dex/season/...
+├── /foods/season/1월                ← 제철별
+├── /foods/season/2월
+├── /foods/season/...
 │
-└── /dex/sitemap.xml               ← SEO 자동 생성
+└── /foods/sitemap.xml               ← SEO 자동 생성
   </div>
 
   <h3>3-1. URL 구조 + SEO</h3>
   <table>
     <tr><th>URL 패턴</th><th>예시</th><th>SEO 가치</th></tr>
-    <tr><td class="mono">/dex</td><td>/dex</td><td>"식재료 도감 영유아"</td></tr>
-    <tr><td class="mono">/dex/:slug</td><td>/dex/시금치</td><td>"시금치 이유식", "시금치 영유아", "시금치 거부"</td></tr>
-    <tr><td class="mono">/dex/grade/:grade</td><td>/dex/grade/필수21</td><td>"초등 입학 전 식재료", "초등 필수 영양"</td></tr>
-    <tr><td class="mono">/dex/category/:cat</td><td>/dex/category/잎채소</td><td>"영유아 잎채소 추천"</td></tr>
-    <tr><td class="mono">/dex/season/:month</td><td>/dex/season/5월</td><td>"5월 제철 식재료 아기"</td></tr>
+    <tr><td class="mono">/foods</td><td>/foods</td><td>"식재료 도감 영유아"</td></tr>
+    <tr><td class="mono">/foods/:slug</td><td>/foods/시금치</td><td>"시금치 이유식", "시금치 영유아", "시금치 거부"</td></tr>
+    <tr><td class="mono">/foods/grade/:grade</td><td>/foods/grade/필수21</td><td>"초등 입학 전 식재료", "초등 필수 영양"</td></tr>
+    <tr><td class="mono">/foods/category/:cat</td><td>/foods/category/잎채소</td><td>"영유아 잎채소 추천"</td></tr>
+    <tr><td class="mono">/foods/season/:month</td><td>/foods/season/5월</td><td>"5월 제철 식재료 아기"</td></tr>
   </table>
 
   <h3>3-2. 페이지 위계</h3>
   <div class="mermaid-wrap">
     <div class="mermaid">
 flowchart TD
-  HOME[/dex<br/>도감 메인]
-  DETAIL[/dex/:slug<br/>식재료 상세]
-  GRADE[/dex/grade/:g<br/>등급별]
-  CAT[/dex/category/:c<br/>카테고리별]
-  SEASON[/dex/season/:m<br/>제철별]
+  HOME[/foods<br/>도감 메인]
+  DETAIL[/foods/:slug<br/>식재료 상세]
+  GRADE[/foods/grade/:g<br/>등급별]
+  CAT[/foods/category/:c<br/>카테고리별]
+  SEASON[/foods/season/:m<br/>제철별]
   PERSONAL[/personal-coming<br/>가입 유도]
   KIT_FOCUS[/kits/focus<br/>집중 키트]
   KIT_BALANCE[/kits/balance<br/>골고루 키트]
@@ -258,7 +258,7 @@ flowchart TD
   <span class="stag">━ 4. FUNCTIONAL REQUIREMENTS ━</span>
   <h2>4. 기능 요구사항 (23개)</h2>
 
-  <h3>4-1. 도감 메인 페이지 (/dex)</h3>
+  <h3>4-1. 도감 메인 페이지 (/foods)</h3>
   <div class="req-card fr"><span class="id">FR-01</span><h4>식재료 카드 그리드 표시</h4>
     <div class="desc">147종을 등급별로 정렬하여 카드 그리드 표시. 등급별 색상 코딩.</div>
     <div class="accept"><strong>승인 기준</strong>: ⭐⭐⭐⭐ 21종 우선 표시 · 카드에 이모지·이름·카테고리·등급 라벨 모두 표시 · 등장 빈도 (학교 급식·영유아) 작은 글씨로 표시</div>
@@ -280,7 +280,7 @@ flowchart TD
     <div class="accept"><strong>승인 기준</strong>: 필터 변경 시 즉시 갱신 · "0종" 시 안내 메시지</div>
   </div>
 
-  <h3>4-2. 식재료 상세 페이지 (/dex/:slug)</h3>
+  <h3>4-2. 식재료 상세 페이지 (/foods/:slug)</h3>
   <div class="req-card fr"><span class="id">FR-06</span><h4>식재료 헤더 (이름·등급·카테고리)</h4>
     <div class="desc">큰 이모지 + 한글 이름 + 등급 라벨 + 카테고리.</div>
     <div class="accept"><strong>승인 기준</strong>: SSG 빌드 시 OG 이미지 자동 생성 (식재료별 도장)</div>
@@ -315,15 +315,15 @@ flowchart TD
   </div>
 
   <h3>4-3. 필터 페이지 (등급·카테고리·제철)</h3>
-  <div class="req-card fr"><span class="id">FR-14</span><h4>등급별 모음 (/dex/grade/:g)</h4>
+  <div class="req-card fr"><span class="id">FR-14</span><h4>등급별 모음 (/foods/grade/:g)</h4>
     <div class="desc">필수21·권장50·핵심76·조미료 4 페이지 자동 생성.</div>
     <div class="accept"><strong>승인 기준</strong>: SEO 메타 자동 · 필수21 페이지는 "초등 입학 전 식재료 21종" 헤드라인</div>
   </div>
-  <div class="req-card fr"><span class="id">FR-15</span><h4>카테고리별 모음 (/dex/category/:c)</h4>
+  <div class="req-card fr"><span class="id">FR-15</span><h4>카테고리별 모음 (/foods/category/:c)</h4>
     <div class="desc">14 카테고리 페이지 자동 생성.</div>
     <div class="accept"><strong>승인 기준</strong>: 카테고리별 한글 가이드 (잎채소 = 시금치·근대·아욱·청경채·케일·상추)</div>
   </div>
-  <div class="req-card fr"><span class="id">FR-16</span><h4>제철별 모음 (/dex/season/:month)</h4>
+  <div class="req-card fr"><span class="id">FR-16</span><h4>제철별 모음 (/foods/season/:month)</h4>
     <div class="desc">12개월 페이지 자동 생성.</div>
     <div class="accept"><strong>승인 기준</strong>: 현재 달 자동 우선 노출 · 5월 = 죽순·새우·딸기 강조</div>
   </div>
@@ -397,7 +397,7 @@ flowchart TD
   </div>
   <div class="req-card nfr"><span class="id">NFR-07</span><h4>국제화 (Phase 2)</h4>
     <div class="desc">한·영 다국어 지원 (글로벌 진출 시).</div>
-    <div class="accept">i18n 라이브러리 · /en/dex/spinach · hreflang 메타</div>
+    <div class="accept">i18n 라이브러리 · /en/foods/spinach · hreflang 메타</div>
   </div>
 </section>
 
@@ -408,11 +408,11 @@ flowchart TD
   <h3>6-1. 화면 목록</h3>
   <table>
     <tr><th>화면</th><th>URL</th><th>핵심 컴포넌트</th><th>참조</th></tr>
-    <tr><td>도감 메인</td><td class="mono">/dex</td><td>Hero·통계·필터·그리드</td><td>FR-01~05·17</td></tr>
-    <tr><td>식재료 상세</td><td class="mono">/dex/:slug</td><td>헤더·빈도·영양·제철·SOS·레시피·댓글·키트</td><td>FR-06~13·20·21</td></tr>
-    <tr><td>등급별</td><td class="mono">/dex/grade/:g</td><td>Hero·필터된 그리드</td><td>FR-14</td></tr>
-    <tr><td>카테고리별</td><td class="mono">/dex/category/:c</td><td>Hero·필터된 그리드</td><td>FR-15</td></tr>
-    <tr><td>제철별</td><td class="mono">/dex/season/:m</td><td>Hero·필터된 그리드·월 강조</td><td>FR-16</td></tr>
+    <tr><td>도감 메인</td><td class="mono">/foods</td><td>Hero·통계·필터·그리드</td><td>FR-01~05·17</td></tr>
+    <tr><td>식재료 상세</td><td class="mono">/foods/:slug</td><td>헤더·빈도·영양·제철·SOS·레시피·댓글·키트</td><td>FR-06~13·20·21</td></tr>
+    <tr><td>등급별</td><td class="mono">/foods/grade/:g</td><td>Hero·필터된 그리드</td><td>FR-14</td></tr>
+    <tr><td>카테고리별</td><td class="mono">/foods/category/:c</td><td>Hero·필터된 그리드</td><td>FR-15</td></tr>
+    <tr><td>제철별</td><td class="mono">/foods/season/:m</td><td>Hero·필터된 그리드·월 강조</td><td>FR-16</td></tr>
   </table>
 
   <h3>6-2. 디자인 토큰 (design-spec.html 참조)</h3>
@@ -479,11 +479,11 @@ flowchart TD
 
   <table>
     <tr><th>Method</th><th>Path</th><th>Description</th><th>인증</th></tr>
-    <tr><td class="mono">GET</td><td class="mono">/api/dex/ingredients</td><td>전체 식재료 목록 (페이지네이션)</td><td>X (공개)</td></tr>
-    <tr><td class="mono">GET</td><td class="mono">/api/dex/:slug</td><td>식재료 상세</td><td>X</td></tr>
-    <tr><td class="mono">GET</td><td class="mono">/api/dex/:slug/comments</td><td>승인된 댓글 목록</td><td>X</td></tr>
-    <tr><td class="mono">POST</td><td class="mono">/api/dex/:slug/comments</td><td>댓글 작성 (rate limit IP 5/시간)</td><td>X</td></tr>
-    <tr><td class="mono">POST</td><td class="mono">/api/dex/comments/:id/like</td><td>좋아요 (IP 중복 차단)</td><td>X</td></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/foods/ingredients</td><td>전체 식재료 목록 (페이지네이션)</td><td>X (공개)</td></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/foods/:slug</td><td>식재료 상세</td><td>X</td></tr>
+    <tr><td class="mono">GET</td><td class="mono">/api/foods/:slug/comments</td><td>승인된 댓글 목록</td><td>X</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/foods/:slug/comments</td><td>댓글 작성 (rate limit IP 5/시간)</td><td>X</td></tr>
+    <tr><td class="mono">POST</td><td class="mono">/api/foods/comments/:id/like</td><td>좋아요 (IP 중복 차단)</td><td>X</td></tr>
     <tr><td class="mono">POST</td><td class="mono">/api/admin/enrich</td><td>enrich 수동 트리거</td><td>admin</td></tr>
   </table>
 </section>
@@ -535,7 +535,7 @@ flowchart LR
   <div class="release-stage v1">
     <h4>v1 (1개월) <span class="when">DAY 30</span></h4>
     <ul>
-      <li>Next.js 15 마이그레이션 · 개별 URL (/dex/:slug)</li>
+      <li>Next.js 15 마이그레이션 · 개별 URL (/foods/:slug)</li>
       <li>Supabase 통합 · Disqus 임베드</li>
       <li>등급별·카테고리별·제철별 자동 페이지 (총 ~30 페이지)</li>
       <li>크론탭 댓글 클리닝 작동</li>
