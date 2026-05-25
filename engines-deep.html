@@ -100,7 +100,7 @@
   <h1>밀프레드 편식도감<br>핵심 엔진 5종 설계 명세</h1>
   <p>평가 · 추천 · OCR · AI 코치 · <strong>입력 전처리(LLM Normalizer)</strong> — 알고리즘·자료구조·SQL·LLM 프롬프트·테스트 케이스까지 전부</p>
   <div class="meta">
-    <span>⚙️ 29 알고리즘 상세</span>
+    <span>⚙️ 30 알고리즘 상세</span>
     <span>📐 TypeScript 인터페이스</span>
     <span>🧪 테스트 케이스</span>
     <span>💬 LLM 프롬프트 전문</span>
@@ -193,32 +193,44 @@
       <div class="algo-meta-item"><div class="lbl">캐시</div><div class="val">정확 일치 7일</div></div>
     </div>
 
-    <h5>프롬프트 (system)</h5>
+    <h5>프롬프트 (system) — v3 (served ≠ consumed 분리 명시)</h5>
     <pre class="code">너는 한국 영유아 식사 기록 전처리 어시스턴트야. 부모가 입력한 자유 텍스트를
 구조화된 JSON으로 변환한다. **추가 정보를 추정하거나 만들어내지 말 것.**
-명시되지 않은 필드는 null로 둘 것.
+명시되지 않은 필드는 null 또는 'unknown'으로 둘 것.
+
+⚠️ 가장 중요: 메뉴에 들어간 식재료(served)와 실제 먹은 식재료(consumed)를
+반드시 분리해야 한다. "소고기 무국 먹음" ≠ 소고기를 먹었음.
+부모가 명시적으로 골라냄·남김·한 입만·향만 등 표현하면 state='rejected'로.
 
 스키마:
 {
   "mealChip": "아침"|"오전간식"|"점심"|"오후간식"|"저녁"|"야간"|null,
-  "ingredients": [{"name": string, "confidence": 0-1}],
-  "reaction": {
-    "score": 0-5,    // 0=완전 거부, 5=한 그릇 끝
-    "evidence": string
-  }|null,
+  "ingredients": [
+    {
+      "name": string,
+      "state": "consumed"|"partial"|"rejected"|"unknown",
+        // consumed = 다 먹음 / partial = 일부 / rejected = 한 입도 X / unknown = 미상
+      "rejectionTag": string|null,   // "골라냄"·"한 입 시도"·"향만 핥음" 같은 자유 표현
+      "confidence": 0-1
+    }
+  ],
+  "overallReaction": { "score": 0-5, "evidence": string }|null,
   "textureLevel": "puree"|"mashed"|"chopped"|"finger"|"family"|null,
   "autonomy": "fed_by_parent"|"helped"|"self"|null,
   "approxHour": number|null,
   "note": string|null,
-  "needsClarification": [string],   // 부족한 정보가 있으면 1-2개 질문
+  "needsClarification": [string],
   "confidence": 0-1
 }
 
 규칙:
-1. 식재료명은 자녀가 실제 먹은 것만. 안 먹은 식재료는 reaction.evidence에 기재.
-2. 시간 명시 X 시: contextTimestamp 사용해 mealChip 추론.
-3. 부모 감정·의견은 note에. 평가 객관성을 위해 reaction.score 산정엔 영향 X.
-4. 모호하면 needsClarification 채우고 confidence 낮춤.</pre>
+1. 메뉴명 자체를 식재료로 등록 X ("소고기 무국" → 소고기+무+파+간장 분해 후 각각 state)
+2. 명시적 거부 표현 시 state='rejected', rejectionTag에 부모 표현 그대로 보존
+   예: "소고기 골라냄" → {name:'소고기', state:'rejected', rejectionTag:'골라냄'}
+3. 명시 없으면 unknown으로 두고 needsClarification에 "혹시 안 먹은 식재료 있어요?" 질문 제안
+4. 양 정보 없으면 servedG/consumedG는 null. 평가 엔진이 카테고리 평균치로 추정.
+5. 부모 감정·의견은 note에 별도 보존.
+6. raw_text는 가공·요약 금지 — 그대로 raw_note 테이블에 저장됨 (다른 엔진이 사용)</pre>
 
     <h5>실제 호출 코드</h5>
     <pre class="code"><span class="kw">async function</span> <span class="fn">parseMealText</span>(input: <span class="ty">PrepInput</span>): <span class="ty">Promise</span>&lt;<span class="ty">PrepOutput</span>&gt; {
@@ -444,9 +456,30 @@ flowchart LR
   id: <span class="ty">string</span>;
   name: <span class="ty">string</span>;
   category: <span class="ty">IngredientCategory</span>;
-  nutriPer100g: <span class="ty">NutrientMap</span>;   <span class="cm">// {iron_mg: 2.7, calcium_mg: 81, ...}</span>
-  estimatedG: <span class="ty">number</span>;
+  nutriPer100g: <span class="ty">NutrientMap</span>;
+
+  <span class="cm">// ★ v3 핵심 — '제공 ≠ 섭취' 분리 (소고기 무국에서 소고기 골라냄 케이스)</span>
+  servedG: <span class="ty">number</span>;                 <span class="cm">// 메뉴에 들어간 양 (제공)</span>
+  consumedG: <span class="ty">number</span>;               <span class="cm">// 실제 먹은 양 (0이면 완전 거부)</span>
+  state: <span class="str">'consumed'</span> | <span class="str">'partial'</span> | <span class="str">'rejected'</span> | <span class="str">'unknown'</span>;
+    <span class="cm">// consumed = 다 먹음 / partial = 일부 / rejected = 한 입도 X / unknown = 미상 (LLM이 확신 X 시)</span>
+  rejectionTag: <span class="ty">string</span> | <span class="ty">null</span>;   <span class="cm">// 부모 자유 입력 ("골라냄", "향만 핥음", "한 입 시도")</span>
+  attemptCount: <span class="ty">number</span>;            <span class="cm">// 평생 누적 시도 횟수 (서버 집계)</span>
+  successCount: <span class="ty">number</span>;            <span class="cm">// 평생 누적 섭취 횟수 (서버 집계)</span>
 }
+
+<span class="cm">/* ────────────────────────────────────────────────────────────────
+   ⚠️ CRITICAL — 평가 엔진은 반드시 state를 구분해서 카운팅
+   ────────────────────────────────────────────────────────────────
+   ❌ 잘못: "소고기 무국 먹음" → 소고기·무 모두 +1 (consumed 카운트)
+   ✅ 옳음: "소고기 무국 먹음, 소고기 골라냄"
+           → 소고기: state='rejected', consumedG=0, attemptCount+1
+           → 무:     state='consumed', consumedG=&gt;0, successCount+1
+
+   - 다양성·영양·KDRI 평가 = consumed/partial 만 카운트 (rejected X)
+   - Toomey SOS 시도 횟수 = 모든 served 카운트 (rejected 포함)
+   - 친해지기 진전도 = successCount / attemptCount
+   ────────────────────────────────────────────────────────────────*/
 
 <span class="kw">export interface</span> <span class="ty">EvalOutput</span> {
   sevenAxes: <span class="ty">AxisResult</span>[];        <span class="cm">// 7개</span>
@@ -721,6 +754,109 @@ percentile = Φ(Z) × 100             <span class="cm">// 정규분포 누적</s
       <tr><td>과체중 (85-95p)</td><td>warn_high — "잡곡 비중↑·간식↓"</td><td>ok — "유지"</td><td>warn_high — "튀김·기름↓"</td></tr>
     </table>
     <p>각 케이스에 따라 <strong>3종 메시지 + CTA</strong> 자동 생성. 자세히 보기 모달에 자연어로 표시.</p>
+  </div>
+
+  <!-- ★ ALG-EVAL-06 NEW: 시도 vs 섭취 진전도 (Toomey 노출 카운팅) -->
+  <div class="algo-box" style="border:2px solid #16A085">
+    <span class="algo-id" style="background:#16A085">ALG-EVAL-06 ★ NEW</span>
+    <h4>시도 vs 섭취 분리 카운팅 + 친해지기 진전도 (Toomey 노출)</h4>
+    <p><strong>핵심</strong>: 평가 엔진의 모든 식재료 카운트는 <code>IngredientUse.state</code>를 반드시 분리. "소고기 무국에서 소고기 골라냄" = 다양성 카운트에는 안 들어가지만, Toomey SOS 시도 횟수 +1.</p>
+
+    <h5>축별 state 사용 규칙</h5>
+    <table>
+      <tr><th>평가 축</th><th>카운트 대상</th><th>예시</th></tr>
+      <tr><td>다양성 (WHO MDD·14 sub)</td><td><code>consumed</code> + <code>partial</code></td><td>골라낸 소고기는 식품군 카운트 X</td></tr>
+      <tr><td>KDRI 36 영양 신호등</td><td><code>consumed</code>만 (partial은 50% 환산)</td><td>소고기 골라냄 → 철 섭취 0</td></tr>
+      <tr><td>메뉴 반복도</td><td><code>served</code> 전체 (먹었든 안 먹었든)</td><td>닭죽 5회 제공 = 반복 5회</td></tr>
+      <tr><td><strong>Toomey SOS 노출 횟수</strong></td><td><code>served</code> 전체</td><td>시금치 거부 10회도 노출 10회 (Cooke 반복 노출)</td></tr>
+      <tr><td><strong>친해지기 진전도</strong></td><td><code>successCount / attemptCount</code></td><td>10번 시도 / 1번 먹음 = 0.1 (낮음 → 집중 키트 추천)</td></tr>
+      <tr><td>가공식품 비율</td><td><code>served</code> 전체</td><td>제공 시 표시 (실제 섭취 무관)</td></tr>
+      <tr><td>알레르겐 표시</td><td><code>served</code> 전체</td><td>제공된 알레르겐 표기 의무</td></tr>
+    </table>
+
+    <h5>구현 — 핵심 함수</h5>
+    <pre class="code"><span class="kw">function</span> <span class="fn">filterByState</span>(logs: <span class="ty">MealLog</span>[], states: <span class="ty">State</span>[]): <span class="ty">IngredientUse</span>[] {
+  <span class="kw">return</span> logs.<span class="fn">flatMap</span>(l =&gt; l.ingredients.<span class="fn">filter</span>(i =&gt; states.<span class="fn">includes</span>(i.state)));
+}
+
+<span class="cm">// 다양성: consumed/partial 만 (rejected 제외)</span>
+<span class="kw">const</span> diversityPool = <span class="fn">filterByState</span>(logs, [<span class="str">'consumed'</span>, <span class="str">'partial'</span>]);
+
+<span class="cm">// KDRI 영양 (partial은 50% 가중)</span>
+<span class="kw">function</span> <span class="fn">nutrientSum</span>(logs: <span class="ty">MealLog</span>[], nutrient: <span class="ty">string</span>): <span class="ty">number</span> {
+  <span class="kw">return</span> logs.<span class="fn">flatMap</span>(l =&gt; l.ingredients).<span class="fn">reduce</span>((sum, i) =&gt; {
+    <span class="kw">const</span> weight = i.state === <span class="str">'consumed'</span> ? <span class="num">1.0</span>
+                 : i.state === <span class="str">'partial'</span>  ? <span class="num">0.5</span>
+                 : <span class="num">0</span>;  <span class="cm">// rejected/unknown = 0</span>
+    <span class="kw">return</span> sum + (i.consumedG ?? i.servedG * weight) * i.nutriPer100g[nutrient] / <span class="num">100</span>;
+  }, <span class="num">0</span>);
+}
+
+<span class="cm">// 친해지기 진전도 (Toomey + Cooke)</span>
+<span class="kw">function</span> <span class="fn">familiarityScore</span>(ingredientId: <span class="ty">string</span>, childId: <span class="ty">string</span>): <span class="ty">FamiliarityResult</span> {
+  <span class="kw">const</span> stats = <span class="kw">await</span> db.ingredient_attempts.<span class="fn">aggregate</span>({
+    where: { ingredientId, childId },
+    sum: { attemptCount: <span class="kw">true</span>, successCount: <span class="kw">true</span> }
+  });
+  <span class="kw">const</span> rate = stats.successCount / stats.attemptCount;
+  <span class="kw">const</span> sosStage =
+    stats.attemptCount === <span class="num">0</span> ? <span class="num">0</span>           <span class="cm">// 미노출</span>
+    : rate === <span class="num">0</span> &amp;&amp; stats.attemptCount &lt; <span class="num">3</span> ? <span class="num">1</span>  <span class="cm">// 보기</span>
+    : rate === <span class="num">0</span> ? <span class="num">2</span>                       <span class="cm">// 거부 지속 — 만지기·냄새 단계</span>
+    : rate &lt; <span class="num">0.3</span> ? <span class="num">3</span>                      <span class="cm">// 핥기·한 입 시도</span>
+    : rate &lt; <span class="num">0.7</span> ? <span class="num">4</span>                      <span class="cm">// 씹기</span>
+    : <span class="num">5</span>;                                <span class="cm">// 삼키기·반복 섭취</span>
+
+  <span class="kw">return</span> { rate, sosStage, attemptCount: stats.attemptCount, successCount: stats.successCount };
+}</pre>
+
+    <h5>DB schema 영향</h5>
+    <pre class="code"><span class="cm">-- 식재료별 시도·섭취 누적 (자녀 평생 통계)</span>
+<span class="kw">CREATE TABLE</span> ingredient_attempts (
+  child_id <span class="kw">UUID REFERENCES</span> children(id),
+  ingredient_id <span class="kw">UUID REFERENCES</span> ingredients(id),
+  attempt_count <span class="kw">INT DEFAULT</span> 0,        <span class="cm">-- served 누적</span>
+  success_count <span class="kw">INT DEFAULT</span> 0,        <span class="cm">-- consumed/partial 누적</span>
+  last_attempted_at <span class="kw">TIMESTAMPTZ</span>,
+  last_consumed_at <span class="kw">TIMESTAMPTZ</span>,
+  current_sos_stage <span class="kw">INT</span>,             <span class="cm">-- 0-5 자동 갱신</span>
+  rejection_tags <span class="kw">TEXT</span>[],              <span class="cm">-- 누적된 거부 표현 ['골라냄', '향만 핥음']</span>
+  <span class="kw">PRIMARY KEY</span>(child_id, ingredient_id)
+);
+
+<span class="cm">-- meal_log → ingredient_attempts 자동 누적 트리거</span>
+<span class="kw">CREATE TRIGGER</span> update_attempts <span class="kw">AFTER INSERT ON</span> meal_log_ingredients
+  <span class="kw">FOR EACH ROW EXECUTE</span> update_ingredient_attempts();</pre>
+
+    <h5>UI 영향 — 입력 화면 (해시태그 분리)</h5>
+    <pre style="background:#FFFBF5;color:#1a2b4a;padding:14px;border-radius:10px;font-size:11.5px;line-height:1.7;border:1px solid #FFE8D0;font-family:ui-monospace,Menlo,monospace">━ 오늘 식사 ━
+[ 소고기 무국 ] ← 메뉴 자유 입력 (LLM 자동 분해)
+
+━ 자동 분해된 식재료 ━ (chip 각각 토글)
+[ ✓ 소고기 ]   ← 길게 누르면 '✗ 남김' 전환
+[ ✓ 무       ]
+[ ✓ 파       ]
+[ ✓ 간장    ] (조미료 — 평가 X)
+
+━ 부모 메모 (선택, raw_note 저장) ━
+[ "소고기 골라냈음. 무만 다 먹음" ]
+                ↓ LLM 전처리
+                {
+                  ingredients: [
+                    { name:'소고기', state:'rejected', rejectionTag:'골라냄' },
+                    { name:'무',     state:'consumed' },
+                    { name:'파',     state:'unknown' }
+                  ],
+                  needsClarification: ["파는 어땠어요?"]
+                }</pre>
+
+    <h5>왜 'unknown' 상태가 필요한가</h5>
+    <ul>
+      <li>"소고기 무국 먹음"만 적었으면 무·파는 unknown (확신 X)</li>
+      <li><strong>unknown은 평가에 반영 X</strong> (소고기 먹음 + 무·파 unknown)</li>
+      <li>다음 입력 시 LLM이 "어제 무국에서 무·파는 어땠어요?" 역질문 (정성 체이닝 §4와 연결)</li>
+      <li>강제로 consumed로 가정하면 다양성·영양 과대 평가 위험</li>
+    </ul>
   </div>
 
   <!-- ALG-EVAL-05 -->
@@ -1904,7 +2040,7 @@ ${yesterdayMeals}
 
 <footer>
   <p><strong>밀프레드 편식도감</strong> · 엔진 Deep Dive v1 · 2026-05-24</p>
-  <p>29 알고리즘 (전처리 5 + 평가 5 + 추천 7 + OCR 6 + 코치 6 — 정성 시계열 체이닝 포함) · TypeScript 인터페이스 · SQL 함수 · LLM 프롬프트 전문 · prompt injection 방어 · PII·삭제 권리</p>
+  <p>30 알고리즘 (전처리 5 + 평가 6 + 추천 7 + OCR 6 + 코치 6 — <strong>★ served vs consumed 분리 카운팅 + Toomey 진전도</strong> 포함) · TypeScript 인터페이스 · SQL 함수 · LLM 프롬프트 전문 · prompt injection 방어 · PII·삭제 권리</p>
 </footer>
 
 <script>

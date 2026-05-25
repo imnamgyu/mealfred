@@ -130,12 +130,12 @@
   <div class="hero-inner">
     <span class="tag">🧭 ENGINE STRATEGY · v1 (2026-05-25)</span>
     <h1>룰 vs LLM <span class="accent">결정 매트릭스</span><br>— 어디서 어디까지 LLM 쓸까</h1>
-    <p>점수 계산은 룰. <strong>자연어 인사이트는 LLM</strong>. 부모 정성 노트는 LLM 코어. 41개 핵심 기능을 3 카테고리(Pure Rule · Rule+LLM Narration · LLM-Primary)로 분류 + 비용·가드레일까지.</p>
+    <p>점수 계산은 룰. <strong>자연어 인사이트는 LLM</strong>. 부모 정성 노트는 LLM 코어. 44개 핵심 기능을 3 카테고리(Pure Rule · Rule+LLM Narration · LLM-Primary)로 분류 + 비용·가드레일까지. <strong>★ served ≠ consumed 분리 카운팅 포함</strong>.</p>
     <div class="meta">
-      <span>🟢 Pure Rule 22개</span>
+      <span>🟢 Pure Rule 24개</span>
       <span>🟡 Rule + LLM 11개</span>
-      <span>🟣 LLM-Primary 8개</span>
-      <span>💰 월 ₩1.4M (1만 MAU)</span>
+      <span>🟣 LLM-Primary 9개</span>
+      <span>💰 월 ₩1.85M (1만 MAU)</span>
     </div>
   </div>
 </header>
@@ -315,11 +315,14 @@ flowchart TD
     <tr><td>8</td><td class="feat">미매칭 식재료 → ai_estimated 추론</td><td class="cat cat-c">C</td><td class="model">Haiku</td><td>새 식재료 분류</td></tr>
     <tr><td>9</td><td class="feat">사진 → 식사 분석 (Vision)</td><td class="cat cat-c">C</td><td class="model">Claude Vision</td><td>이미지 이해</td></tr>
     <tr><td>10</td><td class="feat">meal_chip·시간·자율성 룰 검증</td><td class="cat cat-a">A</td><td>—</td><td>schema validation</td></tr>
+    <tr><td>10b</td><td class="feat"><strong>★ served vs consumed 자유 텍스트 분리</strong> ("소고기 골라냄")</td><td class="cat cat-c">C</td><td class="model">Haiku</td><td>거부 표현 인식 + state 분류</td></tr>
+    <tr><td>10c</td><td class="feat">★ 식재료 chip [✓ 먹음] / [✗ 남김] 토글 UI</td><td class="cat cat-a">A</td><td>—</td><td>UI 상태 토글 (룰)</td></tr>
 
     <!-- ━━━ 평가 엔진 ━━━ -->
-    <tr><td>11</td><td class="feat">WHO MDD 다양성 카운트 (8/8)</td><td class="cat cat-a">A</td><td>—</td><td>set 카운트</td></tr>
-    <tr><td>12</td><td class="feat">14 sub-카테고리 깊이 카운트</td><td class="cat cat-a">A</td><td>—</td><td>set 카운트</td></tr>
-    <tr><td>13</td><td class="feat">KDRI 36 영양소 빈도 추정</td><td class="cat cat-a">A</td><td>—</td><td>frequency 룰</td></tr>
+    <tr><td>11</td><td class="feat">WHO MDD 다양성 카운트 (consumed/partial만)</td><td class="cat cat-a">A</td><td>—</td><td>set 카운트 + state 필터</td></tr>
+    <tr><td>12</td><td class="feat">14 sub-카테고리 깊이 카운트 (consumed/partial만)</td><td class="cat cat-a">A</td><td>—</td><td>set 카운트 + state 필터</td></tr>
+    <tr><td>13</td><td class="feat">KDRI 36 영양소 빈도 추정 (partial=50% 환산)</td><td class="cat cat-a">A</td><td>—</td><td>state 가중 frequency</td></tr>
+    <tr><td>13b</td><td class="feat"><strong>★ 시도 vs 섭취 진전도 (Toomey SOS 단계 자동 산출)</strong></td><td class="cat cat-a">A</td><td>—</td><td>successCount / attemptCount + 임계치</td></tr>
     <tr><td>14</td><td class="feat">영양 신호등 색상 결정 (green/orange/red)</td><td class="cat cat-a">A</td><td>—</td><td>임계치 룰</td></tr>
     <tr><td>15</td><td class="feat">BMI·백분위 계산 (성장 곡선)</td><td class="cat cat-a">A</td><td>—</td><td>WHO 차트 룩업</td></tr>
     <tr><td>16</td><td class="feat">8축 점수·총점·등급 산출</td><td class="cat cat-a">A</td><td>—</td><td>가중 평균 + 매핑</td></tr>
@@ -361,7 +364,7 @@ flowchart TD
   </table>
 
   <p style="font-size:12px;color:var(--brown-soft);margin-top:8px;font-style:italic">
-    🟢 A (Pure Rule) <strong>22개</strong> · 🟡 B (Rule + LLM) <strong>11개</strong> · 🟣 C (LLM-Primary) <strong>8개</strong> · 합 41개
+    🟢 A (Pure Rule) <strong>24개</strong> · 🟡 B (Rule + LLM) <strong>11개</strong> · 🟣 C (LLM-Primary) <strong>9개</strong> · 합 44개
   </p>
 </section>
 
