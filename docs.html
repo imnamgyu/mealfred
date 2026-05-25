@@ -13,13 +13,13 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
 
-  .hero{padding:60px 24px 40px;text-align:center;background:linear-gradient(135deg,#1F2D3D 0%,#2C3E50 100%);color:white;position:relative;overflow:hidden}
-  .hero::before{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(232,146,68,0.35),transparent);border-radius:50%}
+  .hero{padding:64px 24px 44px;text-align:center;background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
   .hero-inner{position:relative;z-index:1;max-width:760px;margin:0 auto}
-  .hero .tag{display:inline-block;background:rgba(232,146,68,0.25);color:#FFD89C;padding:6px 14px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.05em;margin-bottom:18px;backdrop-filter:blur(8px)}
-  .hero h1{font-size:34px;font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:12px}
-  .hero p{font-size:14.5px;color:rgba(255,255,255,0.85);max-width:600px;margin:0 auto;font-weight:600;line-height:1.7}
-  .hero .changelog{margin-top:18px;background:rgba(255,216,156,0.18);border:1px solid rgba(255,216,156,0.4);border-radius:10px;padding:10px 14px;font-size:11.5px;color:#FFD89C;font-weight:700;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25);backdrop-filter:blur(6px)}
+  .hero h1{font-size:34px;font-weight:800;letter-spacing:-0.03em;line-height:1.25;margin-bottom:12px;color:#1a2b4a}
+  .hero p{font-size:14.5px;color:#5a4a3a;max-width:600px;margin:0 auto;font-weight:500;line-height:1.75}
+  .hero .changelog{margin-top:18px;background:rgba(255,255,255,0.55);border:1px solid rgba(255,107,26,0.2);border-radius:10px;padding:10px 14px;font-size:11.5px;color:#C45A00;font-weight:700;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;backdrop-filter:blur(6px)}
 
   main{max-width:1100px;margin:0 auto;padding:32px 24px 60px}
 
@@ -255,8 +255,8 @@ mindmap
       <span class="badge spec">ENGINE DEEP</span>
       <div class="ico">🔬</div>
       <h4>엔진 Deep Dive (5 엔진 · v2)</h4>
-      <p class="desc"><strong>🧹 입력 전처리(LLM Normalizer)</strong> + 평가·추천·OCR·AI코치 5개 엔진. 자유 텍스트 → MealLog 정규화, prompt injection 방어, Haiku/Sonnet 비용 정책, 27 알고리즘 풀 명세</p>
-      <div class="meta"><span>27 ALGOS · 5 ENGINES</span><span class="arrow">→</span></div>
+      <p class="desc"><strong>🧹 입력 전처리(LLM)</strong> + 평가·추천·OCR + <strong>🧠 AI 코치(정성 시계열 체이닝)</strong> 5엔진. 자유 텍스트 → MealLog 정규화, 부모 raw_note 보존·주간 LLM 분석·다음 입력 시 역질문, prompt injection 방어, 29 알고리즘 풀 명세</p>
+      <div class="meta"><span>29 ALGOS · 5 ENGINES</span><span class="arrow">→</span></div>
     </a>
     <a href="/recipe-criteria.html" class="doc-card cat-arch">
       <span class="badge spec">RECIPE CRITERIA</span>

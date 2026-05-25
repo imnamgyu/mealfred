@@ -13,14 +13,15 @@
   body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.75}
   code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--n100);padding:1px 6px;border-radius:4px;color:var(--p700)}
 
-  .hero{background:linear-gradient(135deg,#1F2D3D,#E89244 70%,#F9A825);color:white;padding:70px 24px 50px;text-align:center;position:relative;overflow:hidden}
-  .hero::before{content:'';position:absolute;top:-150px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(255,255,255,0.15),transparent);border-radius:50%}
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;padding:70px 24px 50px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
   .hero-inner{max-width:760px;margin:0 auto;position:relative;z-index:1}
-  .hero .tag{display:inline-block;background:rgba(255,255,255,0.25);padding:7px 16px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:0.06em;margin-bottom:18px;backdrop-filter:blur(8px)}
-  .hero h1{font-size:36px;font-weight:800;letter-spacing:-0.03em;line-height:1.2;margin-bottom:14px}
-  .hero h1 .accent{background:linear-gradient(180deg,transparent 60%,rgba(255,216,156,0.4) 60%);padding:0 4px}
-  .hero p{font-size:15px;color:rgba(255,255,255,0.92);max-width:600px;margin:0 auto;font-weight:600;line-height:1.7}
-  .hero .one-liner{margin-top:24px;font-size:18px;font-style:italic;color:#FFD89C;font-weight:700;line-height:1.6}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.06em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25);backdrop-filter:blur(6px)}
+  .hero h1{font-size:36px;font-weight:800;letter-spacing:-0.03em;line-height:1.25;margin-bottom:14px;color:#1a2b4a}
+  .hero h1 .accent{color:#FF8A47;padding:0 4px}
+  .hero p{font-size:15px;color:#5a4a3a;max-width:600px;margin:0 auto;font-weight:500;line-height:1.75}
+  .hero p strong{color:#C45A00;font-weight:700}
+  .hero .one-liner{margin-top:24px;font-size:17px;font-style:italic;color:#FF6B1A;font-weight:700;line-height:1.6}
 
   .toc{background:white;border-bottom:1px solid var(--n200);padding:14px 24px;position:sticky;top:0;z-index:50;overflow-x:auto}
   .toc-inner{max-width:1000px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>밀프레드 Food Bridge — 4축 편식 다리 생성기</title>
+<meta name="description" content="자녀가 좋아하는 음식 3개 + 거부 음식 1개를 입력하면 30초 안에 4축(색·온도·질감·맛) 기반 편식 다리 시퀀스 3~5단계를 생성합니다.">
+<meta name="theme-color" content="#283593">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Food Bridge">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="밀프레드 Food Bridge — 4축 편식 다리 생성기">
+<meta property="og:description" content="30초 안에 자녀 맞춤 편식 다리 시퀀스를 만들어 드립니다.">
+<meta property="og:url" content="https://www.mealfred.com/foodbridge/mvp/">
+<meta property="og:image" content="https://www.mealfred.com/og-foodbridge.png">
+
+<!-- PWA -->
+<link rel="manifest" href="/foodbridge/mvp/manifest.json">
+<link rel="apple-touch-icon" href="/og-foodbridge.png">
+
+<link rel="stylesheet" href="/foodbridge/mvp/css/style.css">
+</head>
+<body>
+
+<div id="app">
+  <header class="app-header">
+    <button class="back" id="back-btn" aria-label="뒤로" hidden>←</button>
+    <div class="logo">밀프레드 <span class="accent">Food Bridge</span></div>
+    <span style="width:32px;"><!-- spacer --></span>
+  </header>
+
+  <!-- Mock 모드 배지 (api.js가 mode = 'mock'일 때만 표시) -->
+  <div class="mode-banner" id="mode-banner" hidden>
+    <span class="mode-banner-icon" aria-hidden="true">🎭</span>
+    <span class="mode-banner-text">Mock 모드 (LLM 미연결) — UX·디자인 검증용</span>
+  </div>
+
+  <!-- ========== Screen 1: 입력 (T710) ========== -->
+  <section class="screen active" id="screen-input">
+    <div class="screen-inner">
+      <h1 class="section-title">4축 편식 다리 만들기</h1>
+      <p class="section-sub">자녀의 입맛에서 시작해서 한 단계씩 새로운 음식까지. 30초 안에 다리 시퀀스를 생성해드립니다.</p>
+
+      <label class="field-label">자녀가 좋아하는 음식 3개</label>
+      <input type="text" class="input-text" id="liked-1" placeholder="예: 흰밥" autocomplete="off">
+      <input type="text" class="input-text" id="liked-2" placeholder="예: 계란후라이" autocomplete="off">
+      <input type="text" class="input-text" id="liked-3" placeholder="예: 치즈" autocomplete="off">
+
+      <label class="field-label">지금 거부하는 음식 1개</label>
+      <input type="text" class="input-text" id="refused" placeholder="예: 시금치" autocomplete="off">
+
+      <label class="field-label">자녀 연령
+        <span class="range-display" id="age-display">36개월</span>
+      </label>
+      <input type="range" class="input-range" id="age-range" min="12" max="84" value="36" step="1">
+
+      <label class="field-label">알러지 (선택)</label>
+      <div class="chips" id="allergen-chips">
+        <button type="button" class="chip" data-value="milk">우유</button>
+        <button type="button" class="chip" data-value="egg">계란</button>
+        <button type="button" class="chip" data-value="wheat">밀</button>
+        <button type="button" class="chip" data-value="soy">콩</button>
+        <button type="button" class="chip" data-value="fish">생선</button>
+        <button type="button" class="chip" data-value="sesame">참깨</button>
+        <button type="button" class="chip" data-value="nuts">견과</button>
+      </div>
+
+      <div class="error-banner" id="input-error" role="alert"></div>
+
+      <button type="button" class="btn btn-primary" id="generate-btn">다리 생성하기</button>
+    </div>
+  </section>
+
+  <!-- ========== Screen 2: 로딩 (T712) ========== -->
+  <section class="screen" id="screen-loading">
+    <div class="screen-inner">
+      <div class="spinner" aria-hidden="true"></div>
+      <p class="loading-title">자녀 맞춤 다리를 만들고 있어요</p>
+      <ul class="loading-steps" id="loading-steps" aria-live="polite">
+        <li data-step="color">🎨 색을 분석하는 중...</li>
+        <li data-step="temperature">🌡️ 온도를 분석하는 중...</li>
+        <li data-step="texture">🤲 질감을 분석하는 중...</li>
+        <li data-step="flavor">👅 맛을 분석하는 중...</li>
+        <li data-step="bridge">🌉 4축 다리를 생성하는 중...</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ========== Screen 3: 결과 (T711) ========== -->
+  <section class="screen" id="screen-result">
+    <div class="screen-inner">
+      <h2 class="section-title" id="result-title">자녀 맞춤 4축 다리</h2>
+      <p class="starting-reason" id="result-reason" hidden></p>
+
+      <div class="bridge-list" id="bridge-list" role="list"></div>
+
+      <button type="button" class="btn btn-primary" id="restart-btn">다시 만들기</button>
+      <button type="button" class="btn btn-secondary" id="share-btn">공유하기</button>
+    </div>
+  </section>
+
+  <!-- ========== Screen 4: 에러 (T713) ========== -->
+  <section class="screen" id="screen-error">
+    <div class="screen-inner">
+      <h2 class="section-title">잠시 후 다시 시도해주세요</h2>
+      <p class="section-sub" id="error-message">일시적 오류가 발생했습니다.</p>
+      <button type="button" class="btn btn-primary" id="retry-btn">다시 시도</button>
+      <button type="button" class="btn btn-secondary" id="error-back-btn">처음으로</button>
+    </div>
+  </section>
+
+  <footer class="app-footer">
+    <a href="https://www.mealfred.com" target="_blank" rel="noopener">mealfred.com</a>
+    · v1-mvp (2026-05-14)
+    · <span id="footer-mode-tag"></span>
+  </footer>
+</div>
+
+<!-- ========== Scripts ========== -->
+<script type="module" src="/foodbridge/mvp/js/api.js"></script>
+<script type="module" src="/foodbridge/mvp/js/chain.js"></script>
+<script type="module" src="/foodbridge/mvp/js/app.js"></script>
+
+<!-- Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/foodbridge/mvp/sw.js', { scope: '/foodbridge/mvp/' })
+        .catch(function (err) { console.warn('SW register failed', err); });
+    });
+  }
+</script>
+
+</body>
+</html>

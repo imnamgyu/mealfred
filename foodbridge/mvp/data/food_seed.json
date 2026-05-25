@@ -1,0 +1,59 @@
+{
+  "version": "v1-mvp",
+  "updated": "2026-05-14",
+  "source": "T700/T701/T702 — Sprint M-A · Food Chaining 4축 LLM-Lite MVP",
+  "axis_scales": {
+    "color": {
+      "0": "흰", "1": "노", "2": "연두", "3": "녹", "4": "주황",
+      "5": "빨강", "6": "자주", "7": "갈", "8": "검", "9": "다색"
+    },
+    "temperature": {
+      "0": "차", "1": "미지근", "2": "따뜻", "3": "뜨거움"
+    },
+    "texture": {
+      "0": "액체", "1": "퓨레", "2": "부드러움", "3": "약간 결",
+      "4": "쫀쫀", "5": "단단·잎"
+    },
+    "flavor": {
+      "0": "무미", "1": "약단", "2": "단", "3": "짠",
+      "4": "짠+단", "5": "시", "6": "쓴", "7": "강향"
+    }
+  },
+  "notes": [
+    "조리 후 표준 기준으로 라벨링 (생식·날것 아님).",
+    "Solid Starts·Fraker(2007) 단행본과 ±1 이내 적합성 검수 권장.",
+    "30개 중 9코스 9개 + 친숙 Tier 1 15개 + 한식 기본 6개 균등 분포."
+  ],
+  "foods": [
+    {"id": 1,  "name_ko": "당근",       "category": "9코스",   "tier": "course", "vector": {"color": 4, "temperature": 2, "texture": 3, "flavor": 2}, "allergens": [],            "min_age_months": 6},
+    {"id": 2,  "name_ko": "토마토",     "category": "9코스",   "tier": "course", "vector": {"color": 5, "temperature": 1, "texture": 2, "flavor": 5}, "allergens": [],            "min_age_months": 6},
+    {"id": 3,  "name_ko": "파프리카",   "category": "9코스",   "tier": "course", "vector": {"color": 5, "temperature": 2, "texture": 3, "flavor": 2}, "allergens": [],            "min_age_months": 8},
+    {"id": 4,  "name_ko": "시금치",     "category": "9코스",   "tier": "course", "vector": {"color": 3, "temperature": 2, "texture": 5, "flavor": 6}, "allergens": [],            "min_age_months": 6},
+    {"id": 5,  "name_ko": "브로콜리",   "category": "9코스",   "tier": "course", "vector": {"color": 3, "temperature": 2, "texture": 5, "flavor": 6}, "allergens": [],            "min_age_months": 6},
+    {"id": 6,  "name_ko": "양파",       "category": "9코스",   "tier": "course", "vector": {"color": 0, "temperature": 2, "texture": 3, "flavor": 7}, "allergens": [],            "min_age_months": 8},
+    {"id": 7,  "name_ko": "버섯",       "category": "9코스",   "tier": "course", "vector": {"color": 7, "temperature": 2, "texture": 4, "flavor": 7}, "allergens": [],            "min_age_months": 8},
+    {"id": 8,  "name_ko": "가지",       "category": "9코스",   "tier": "course", "vector": {"color": 6, "temperature": 2, "texture": 2, "flavor": 1}, "allergens": [],            "min_age_months": 8},
+    {"id": 9,  "name_ko": "두부",       "category": "9코스",   "tier": "course", "vector": {"color": 0, "temperature": 2, "texture": 2, "flavor": 0}, "allergens": ["soy"],       "min_age_months": 6},
+    {"id": 10, "name_ko": "흰밥",       "category": "친숙",    "tier": "tier1",  "vector": {"color": 0, "temperature": 2, "texture": 2, "flavor": 0}, "allergens": [],            "min_age_months": 6},
+    {"id": 11, "name_ko": "계란",       "category": "친숙",    "tier": "tier1",  "vector": {"color": 1, "temperature": 2, "texture": 2, "flavor": 1}, "allergens": ["egg"],       "min_age_months": 6},
+    {"id": 12, "name_ko": "우유",       "category": "친숙",    "tier": "tier1",  "vector": {"color": 0, "temperature": 1, "texture": 0, "flavor": 1}, "allergens": ["milk"],      "min_age_months": 12},
+    {"id": 13, "name_ko": "치즈",       "category": "친숙",    "tier": "tier1",  "vector": {"color": 1, "temperature": 1, "texture": 4, "flavor": 3}, "allergens": ["milk"],      "min_age_months": 9},
+    {"id": 14, "name_ko": "바나나",     "category": "친숙",    "tier": "tier1",  "vector": {"color": 1, "temperature": 0, "texture": 2, "flavor": 2}, "allergens": [],            "min_age_months": 6},
+    {"id": 15, "name_ko": "사과",       "category": "친숙",    "tier": "tier1",  "vector": {"color": 5, "temperature": 0, "texture": 5, "flavor": 2}, "allergens": [],            "min_age_months": 6},
+    {"id": 16, "name_ko": "딸기",       "category": "친숙",    "tier": "tier1",  "vector": {"color": 5, "temperature": 0, "texture": 3, "flavor": 2}, "allergens": [],            "min_age_months": 6},
+    {"id": 17, "name_ko": "감자",       "category": "친숙",    "tier": "tier1",  "vector": {"color": 1, "temperature": 2, "texture": 2, "flavor": 0}, "allergens": [],            "min_age_months": 6},
+    {"id": 18, "name_ko": "고구마",     "category": "친숙",    "tier": "tier1",  "vector": {"color": 4, "temperature": 2, "texture": 2, "flavor": 2}, "allergens": [],            "min_age_months": 6},
+    {"id": 19, "name_ko": "소고기",     "category": "친숙",    "tier": "tier1",  "vector": {"color": 7, "temperature": 2, "texture": 4, "flavor": 3}, "allergens": [],            "min_age_months": 6},
+    {"id": 20, "name_ko": "돼지고기",   "category": "친숙",    "tier": "tier1",  "vector": {"color": 7, "temperature": 2, "texture": 4, "flavor": 3}, "allergens": [],            "min_age_months": 6},
+    {"id": 21, "name_ko": "닭고기",     "category": "친숙",    "tier": "tier1",  "vector": {"color": 1, "temperature": 2, "texture": 4, "flavor": 3}, "allergens": [],            "min_age_months": 6},
+    {"id": 22, "name_ko": "생선",       "category": "친숙",    "tier": "tier1",  "vector": {"color": 0, "temperature": 2, "texture": 2, "flavor": 3}, "allergens": ["fish"],      "min_age_months": 6},
+    {"id": 23, "name_ko": "요거트",     "category": "친숙",    "tier": "tier1",  "vector": {"color": 0, "temperature": 0, "texture": 1, "flavor": 5}, "allergens": ["milk"],      "min_age_months": 9},
+    {"id": 24, "name_ko": "빵",         "category": "친숙",    "tier": "tier1",  "vector": {"color": 7, "temperature": 1, "texture": 3, "flavor": 1}, "allergens": ["wheat"],     "min_age_months": 9},
+    {"id": 25, "name_ko": "김치",       "category": "한식",    "tier": "korean", "vector": {"color": 5, "temperature": 1, "texture": 3, "flavor": 4}, "allergens": [],            "min_age_months": 18},
+    {"id": 26, "name_ko": "된장",       "category": "한식",    "tier": "korean", "vector": {"color": 7, "temperature": 2, "texture": 1, "flavor": 3}, "allergens": ["soy"],       "min_age_months": 12},
+    {"id": 27, "name_ko": "미역",       "category": "한식",    "tier": "korean", "vector": {"color": 8, "temperature": 2, "texture": 3, "flavor": 3}, "allergens": [],            "min_age_months": 6},
+    {"id": 28, "name_ko": "콩나물",     "category": "한식",    "tier": "korean", "vector": {"color": 1, "temperature": 2, "texture": 4, "flavor": 0}, "allergens": ["soy"],       "min_age_months": 9},
+    {"id": 29, "name_ko": "다진마늘",   "category": "한식",    "tier": "korean", "vector": {"color": 0, "temperature": 2, "texture": 1, "flavor": 7}, "allergens": [],            "min_age_months": 12},
+    {"id": 30, "name_ko": "참기름",     "category": "한식",    "tier": "korean", "vector": {"color": 1, "temperature": 1, "texture": 0, "flavor": 7}, "allergens": ["sesame"],    "min_age_months": 6}
+  ]
+}

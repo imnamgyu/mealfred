@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>밀프레드 AI 편식관리 앱 데모</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-3FRTKL3NFL');
+</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{font-family:'Pretendard',sans-serif;background:#f5f5f5;color:#222;overflow:hidden;height:100%;width:100%}
+
+/* App container - phone frame on desktop, fullscreen on mobile */
+#app{
+  max-width:430px;margin:0 auto;height:100vh;height:100dvh;
+  background:#fff;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;
+}
+@media(min-width:500px){
+  body{background:#1B2A4A;display:flex;align-items:center;justify-content:center}
+  #app{height:90vh;border-radius:32px;box-shadow:0 20px 80px rgba(0,0,0,0.4);border:6px solid #333}
+}
+
+/* Status bar */
+.status-bar{height:env(safe-area-inset-top,44px);min-height:44px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:600;flex-shrink:0}
+
+/* Header */
+.header{padding:8px 20px 12px;background:#fff;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f0f0;flex-shrink:0}
+.header .logo{font-size:22px;font-weight:800;color:#FF6B35}
+.header .logo span{color:#1B2A4A}
+.header .back{font-size:18px;cursor:pointer;padding:8px}
+.header .title{font-size:17px;font-weight:700;color:#1B2A4A}
+.header .right{font-size:14px;color:#FF6B35;font-weight:600}
+
+/* Content */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px}
+.pad{padding:20px}
+
+/* Tab bar */
+.tab-bar{display:flex;background:#fff;border-top:1px solid #e8e8e8;padding:6px 0 max(env(safe-area-inset-bottom,16px),16px);position:absolute;bottom:0;left:0;right:0;z-index:100}
+.tab{flex:1;text-align:center;font-size:10px;color:#999;cursor:pointer;padding-top:2px}
+.tab.active{color:#FF6B35}
+.tab .ico{font-size:24px;display:block;margin-bottom:1px}
+
+/* Screen management */
+.screen{display:none;flex-direction:column;height:100%}
+.screen.active{display:flex}
+
+/* Cards */
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.card-label{font-size:11px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.card-title{font-size:17px;font-weight:700;color:#1B2A4A;margin-bottom:3px}
+.card-sub{font-size:13px;color:#888}
+
+/* Progress */
+.prog{height:8px;background:#E8ECF1;border-radius:4px;overflow:hidden;margin:8px 0}
+.prog .fill{height:100%;border-radius:4px;transition:width .5s}
+.fill-o{background:linear-gradient(90deg,#FF6B35,#FF9B6B)}
+.fill-n{background:linear-gradient(90deg,#1B2A4A,#3D5A80)}
+.fill-g{background:linear-gradient(90deg,#2E7D32,#66BB6A)}
+.prog-text{display:flex;justify-content:space-between;font-size:11px;color:#999}
+
+/* Buttons */
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:14px;font-size:16px;font-weight:700;text-align:center;cursor:pointer;font-family:inherit;transition:transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-o{background:#FF6B35;color:#fff}
+.btn-n{background:#1B2A4A;color:#fff}
+.btn-s{background:#E8ECF1;color:#1B2A4A}
+.btn-w{background:#fff;color:#1B2A4A;border:2px solid #e0e0e0}
+.btn+.btn{margin-top:10px}
+
+/* Activity card */
+.act-card{background:linear-gradient(135deg,#FFF5F0,#FFF0E8);border:2px solid #FFD4BC;border-radius:16px;padding:20px;margin-bottom:14px}
+.act-emoji{font-size:40px;margin-bottom:6px}
+.act-name{font-size:20px;font-weight:700;color:#1B2A4A;margin-bottom:3px}
+.act-meta{font-size:13px;color:#888;margin-bottom:14px}
+
+/* AI card */
+.ai-card{background:linear-gradient(135deg,#F0F4FF,#E8ECF1);border:2px solid #B8C9E8;border-radius:16px;padding:18px;margin-bottom:14px}
+.ai-badge{display:inline-block;background:#1B2A4A;color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:8px}
+.ai-name{font-size:17px;font-weight:700;color:#1B2A4A;margin-bottom:3px}
+.ai-prob{font-size:13px;color:#FF6B35;font-weight:600;margin-bottom:10px}
+.ai-reason{font-size:12px;color:#666;line-height:1.6;background:#fff;border-radius:8px;padding:10px}
+
+/* Reaction buttons */
+.react-btns{display:flex;gap:10px;margin:16px 0}
+.react-btn{flex:1;padding:18px 8px;border-radius:16px;text-align:center;cursor:pointer;border:2px solid #e0e0e0;background:#fff;transition:all .15s}
+.react-btn.sel{border-color:#FF6B35;background:#FFF5F0;transform:scale(1.05)}
+.react-btn .em{font-size:36px;display:block;margin-bottom:6px}
+.react-btn .lb{font-size:14px;font-weight:700;color:#333}
+
+/* Intensity */
+.int-btns{display:flex;gap:12px;justify-content:center;margin:14px 0}
+.int-btn{width:80px;height:80px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #e0e0e0;background:#fff;cursor:pointer;transition:all .15s}
+.int-btn.sel{border-color:#FF6B35;background:#FFF5F0}
+.int-btn .em{font-size:28px}
+.int-btn .lb{font-size:10px;color:#888;margin-top:3px}
+
+/* Sensory bars */
+.sns-bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}
+.sns-label{width:45px;color:#666;font-size:12px}
+.dots{display:flex;gap:3px}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid #ddd;background:#fff}
+.dot.f{background:#FF6B35;border-color:#FF6B35}
+.dot.fn{background:#1B2A4A;border-color:#1B2A4A}
+.sns-val{font-size:11px;margin-left:4px}
+
+/* Tags */
+.tag{display:inline-block;padding:3px 9px;border-radius:16px;font-size:11px;font-weight:600;margin:2px}
+.tag-g{background:#E8F5E9;color:#2E7D32}
+.tag-o{background:#FFF3E0;color:#E65100}
+.tag-r{background:#FFEBEE;color:#C62828}
+.tag-b{background:#E3F2FD;color:#1565C0}
+
+/* Profile type card */
+.type-card{background:linear-gradient(135deg,#FF6B35,#FF9B6B);border-radius:20px;padding:22px;color:#fff;margin-bottom:14px}
+.type-name{font-size:22px;font-weight:800;margin-bottom:8px}
+.type-desc{font-size:13px;line-height:1.5;opacity:.9}
+
+/* Input */
+.input-group{margin-bottom:16px}
+.input-label{font-size:13px;font-weight:600;color:#555;margin-bottom:6px}
+.input{width:100%;padding:14px 16px;border:2px solid #e0e0e0;border-radius:12px;font-size:15px;font-family:inherit;outline:none;transition:border .2s}
+.input:focus{border-color:#FF6B35}
+
+/* List */
+.list-item{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
+.list-item:last-child{border-bottom:none}
+.list-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:12px;flex-shrink:0}
+.list-info{flex:1}
+.list-name{font-size:14px;font-weight:600;color:#333}
+.list-meta{font-size:12px;color:#999}
+
+/* Photo placeholder */
+.photo-ph{width:100%;height:140px;background:#f5f5f5;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed #ccc;margin:10px 0;cursor:pointer}
+.photo-ph span{color:#999;font-size:13px}
+
+/* Weekly chart */
+.wk-chart{display:flex;gap:6px;align-items:flex-end;height:80px;margin:12px 0}
+.wk-bar{flex:1;border-radius:5px 5px 0 0;text-align:center;font-size:9px;color:#fff;font-weight:600;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;min-height:8px;transition:height .5s}
+
+/* Section title */
+.sec-title{font-size:14px;font-weight:700;color:#1B2A4A;margin:18px 0 10px;display:flex;align-items:center;gap:6px}
+
+/* Option */
+.opt{display:flex;align-items:center;padding:13px 14px;border:2px solid #e0e0e0;border-radius:12px;margin-bottom:8px;cursor:pointer;font-size:14px;transition:all .15s}
+.opt.sel{border-color:#FF6B35;background:#FFF5F0}
+.opt .radio{width:20px;height:20px;border-radius:50%;border:2px solid #ccc;margin-right:12px;flex-shrink:0;transition:all .15s}
+.opt.sel .radio{border-color:#FF6B35;background:#FF6B35;box-shadow:inset 0 0 0 4px #fff}
+
+/* Toast */
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#1B2A4A;color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:1000;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.stat-box{background:#f9f9f9;border-radius:12px;padding:14px;text-align:center}
+.stat-num{font-size:28px;font-weight:800;color:#1B2A4A}
+.stat-lbl{font-size:11px;color:#888;margin-top:2px}
+.stat-box.hl{background:#FFF5F0}
+.stat-box.hl .stat-num{color:#FF6B35}
+
+/* Animation */
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.slide-in{animation:slideIn .3s ease}
+.fade-in{animation:fadeIn .3s ease}
+
+/* Allergy chips */
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chip{padding:8px 14px;border-radius:20px;border:2px solid #e0e0e0;font-size:13px;cursor:pointer;transition:all .15s;background:#fff}
+.chip.sel{border-color:#FF6B35;background:#FFF5F0;color:#FF6B35;font-weight:600}
+
+/* Splash */
+.splash{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#1B2A4A,#2D4A7A)}
+.splash .logo-big{font-size:42px;font-weight:800;color:#FF6B35;margin-bottom:4px}
+.splash .logo-big span{color:#fff}
+.splash .tagline{font-size:14px;color:rgba(255,255,255,.7);margin-bottom:40px}
+
+/* Dashboard (institution view) */
+.dash-badge{display:inline-block;background:#FF6B35;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700}
+
+/* Phase 9 인터랙티브 프로토타입 (2026-05-11) */
+.p9-chip{display:inline-block;padding:5px 10px;background:#fff;border:1.5px solid #FFCBB7;border-radius:14px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;margin:3px 3px 0 0}
+.p9-chip.sel{background:#BF360C;color:#fff;border-color:#BF360C}
+.p9-chip:hover{border-color:#BF360C}
+.p9-q{padding:10px 0;border-bottom:1px solid #f0f0f0}
+.p9-q.answered{background:#FFF8E1}
+.p9-q .qtxt{font-size:13.5px;margin-bottom:6px}
+.p9-q .qopts{display:flex;gap:6px}
+.p9-q .qopt{flex:1;text-align:center;padding:6px;border:1.5px solid #ddd;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.p9-q .qopt.sel-yes{background:#FFEBEE;border-color:#C62828;color:#C62828}
+.p9-q .qopt.sel-no{background:#E8F5E9;border-color:#2E7D32;color:#2E7D32}
+.p9-grid7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.p9-grid7 .gcell{text-align:center;padding:10px 4px;background:#f5f5f5;border-radius:8px;font-size:12px;cursor:pointer;transition:all 0.15s}
+.p9-grid7 .gcell.on{background:#FCE4EC}
+.p9-grid7 .gcell.on .star{color:#C2185B}
+.p9-grid7 .gcell .day{color:#888;font-size:11px}
+.p9-grid7 .gcell .star{font-size:18px;color:#ddd;transition:all 0.15s}
+canvas.p9-chart{max-width:100%;height:auto}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div id="app">
+  <div id="toast" class="toast"></div>
+
+  <!-- ====== SCREEN: SPLASH ====== -->
+  <div class="screen active" id="s-splash">
+    <div class="splash" onclick="go('s-login')">
+      <div class="logo-big">밀프레드</div>
+      <div class="tagline">AI 편식관리 앱</div>
+      <div class="btn btn-o" style="width:200px;font-size:15px">시작하기</div>
+      <div style="color:rgba(255,255,255,.4);font-size:11px;margin-top:30px">데모 버전 · 탭하여 시작</div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: LOGIN ====== -->
+  <div class="screen" id="s-login">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="content">
+      <div class="pad" style="padding-top:60px;text-align:center">
+        <div style="font-size:36px;font-weight:800;color:#FF6B35;margin-bottom:4px">밀프레드</div>
+        <div style="font-size:14px;color:#888;margin-bottom:50px">우리 아이 맞춤 편식 관리</div>
+        <div class="btn" style="background:#FEE500;color:#3C1E1E;margin-bottom:12px" onclick="go('s-register')">카카오로 시작하기</div>
+        <div class="btn" style="background:#03C75A;color:#fff;margin-bottom:12px" onclick="go('s-register')">네이버로 시작하기</div>
+        <div class="btn btn-w" onclick="go('s-register')">이메일로 시작하기</div>
+        <div style="font-size:11px;color:#bbb;margin-top:24px">가입 시 <u>이용약관</u> 및 <u>개인정보처리방침</u>에 동의합니다</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: REGISTER ====== -->
+  <div class="screen" id="s-register">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-login')">←</span><span class="title">아이 등록</span><span class="right">1/2</span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="font-size:13px;color:#888;margin-bottom:20px">2분이면 끝나요. 나머지는 AI가 알아서 파악합니다.</div>
+        <div class="input-group"><div class="input-label">아이 이름/별명</div><input class="input" placeholder="수현" value="수현"></div>
+        <div class="input-group"><div class="input-label">생년월</div><input class="input" type="month" value="2023-06"></div>
+        <div class="input-group"><div class="input-label">성별</div>
+          <div style="display:flex;gap:8px"><div class="chip sel">여아</div><div class="chip">남아</div></div>
+        </div>
+        <div style="display:flex;gap:12px">
+          <div class="input-group" style="flex:1"><div class="input-label">키 (cm)</div><input class="input" type="number" placeholder="97" value="97"></div>
+          <div class="input-group" style="flex:1"><div class="input-label">체중 (kg)</div><input class="input" type="number" placeholder="15" value="15"></div>
+        </div>
+        <div style="background:#F0F4FF;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#1B2A4A">
+          📊 자동 산출: 키 50백분위 · 체중 55백분위 · 정상 성장
+        </div>
+        <div class="input-group"><div class="input-label">알레르기 (해당 항목 선택)</div>
+          <div class="chip-group">
+            <div class="chip" onclick="this.classList.toggle('sel')">우유</div>
+            <div class="chip sel" onclick="this.classList.toggle('sel')">견과류</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">밀</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">달걀</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">대두</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">갑각류</div>
+            <div class="chip" onclick="this.classList.toggle('sel')">없음</div>
+          </div>
+        </div>
+        <div class="btn btn-o" onclick="go('s-register2')">다음</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: REGISTER 2 ====== -->
+  <div class="screen" id="s-register2">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-register')">←</span><span class="title">아이 등록</span><span class="right">2/2</span></div>
+    <div class="content">
+      <div class="pad">
+        <div class="input-group"><div class="input-label">잘 먹는 음식 3가지</div><input class="input" placeholder="밥, 김, 소시지" value="밥, 김, 소시지"></div>
+        <div class="input-group"><div class="input-label">싫어하는 음식 3가지</div><input class="input" placeholder="당근, 브로콜리, 시금치" value="당근, 브로콜리, 시금치"></div>
+        <div class="input-group"><div class="input-label">식사 장소 (선택)</div>
+          <div class="chip-group">
+            <div class="chip sel" onclick="selOne(this)">식탁</div>
+            <div class="chip" onclick="selOne(this)">TV 앞</div>
+            <div class="chip" onclick="selOne(this)">태블릿 시청</div>
+            <div class="chip" onclick="selOne(this)">돌아다님</div>
+          </div>
+        </div>
+        <div class="input-group"><div class="input-label">기관 코드 (선택)</div><input class="input" placeholder="기관에서 받은 6자리 코드"></div>
+        <div style="background:#FFF5F0;border-radius:10px;padding:12px 14px;margin:16px 0;font-size:12px;color:#E65100;line-height:1.5">
+          🤖 AI가 잘 먹는/싫어하는 음식에서 맛 선호도를 추정합니다.<br>
+          나머지 편식 프로파일은 키트 활동 중 자동으로 파악됩니다.<br>
+          <b>추가 질문 없이 2분 만에 등록 완료!</b>
+        </div>
+        <div class="btn btn-o" onclick="go('s-scan')">등록 완료</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: QR SCAN ====== -->
+  <div class="screen" id="s-scan">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-register2')">←</span><span class="title">키트 등록</span><span></span></div>
+    <div class="content">
+      <div class="pad" style="text-align:center;padding-top:40px">
+        <div style="font-size:64px;margin-bottom:16px">📦</div>
+        <div style="font-size:20px;font-weight:700;color:#1B2A4A;margin-bottom:8px">키트 QR 코드를 스캔하세요</div>
+        <div style="font-size:13px;color:#888;margin-bottom:30px">키트 박스 옆면의 QR 코드를 카메라로 찍어주세요</div>
+        <div style="width:200px;height:200px;margin:0 auto 30px;border:3px solid #FF6B35;border-radius:20px;display:flex;align-items:center;justify-content:center;background:#f9f9f9">
+          <div style="font-size:13px;color:#999">[카메라 영역]</div>
+        </div>
+        <div class="btn btn-o" onclick="registerKit()">데모: 당근 코스 등록</div>
+        <div class="btn btn-s" onclick="go('s-home')" style="margin-top:10px">건너뛰기</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: HOME ====== -->
+  <div class="screen" id="s-home">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header">
+      <div class="logo">밀프레드</div>
+      <div style="width:36px;height:36px;border-radius:50%;background:#E8ECF1;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="go('s-profile')">👶</div>
+    </div>
+    <div class="content">
+      <div class="pad">
+        <!-- 35개 국제기준 배지 (로딩 카피 회전) -->
+        <div style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;line-height:1.5;color:#E65100;border:1px solid #FFCC80">
+          <strong>🌐 전 세계 35개 국제기준 종합</strong> · 한국 최초 편식개선 키트<br>
+          <span style="font-size:11px;color:#BF360C">🇨🇦 캐나다 정부: 새로운 음식, 30회까지 거부는 정상이에요</span>
+        </div>
+
+        <div class="card">
+          <div class="card-label" id="home-course-label">🥕 당근 코스 · 2주차</div>
+          <div class="prog"><div class="fill fill-o" id="home-prog" style="width:40%"></div></div>
+          <div class="prog-text"><span id="home-prog-text">Day 7 / 21</span><span id="home-prog-pct">40%</span></div>
+        </div>
+
+        <div class="act-card" onclick="go('s-activity')">
+          <div class="act-emoji" id="home-act-emoji">👃</div>
+          <div class="act-name" id="home-act-name">냄새 맞추기 게임</div>
+          <div class="act-meta" id="home-act-meta">2주차 Day 2 · 후각 탐색 · 약 15분</div>
+          <div class="btn btn-o">활동 시작하기</div>
+        </div>
+
+        <div class="ai-card" onclick="go('s-recipe')">
+          <div class="ai-badge">🤖 AI 추천</div>
+          <div class="ai-name">당근치즈 미니소시지</div>
+          <div class="ai-prob">수용 확률 72% · 비타민A 40%</div>
+          <div class="ai-reason">수현이가 좋아하는 소시지 형태 + 당근 20% 함유<br>단맛·감칠맛 조합으로 거부감 최소화</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">이번 주 반응</div>
+          <div class="wk-chart">
+            <div class="wk-bar" style="height:30%;background:#FFCDD2">😣</div>
+            <div class="wk-bar" style="height:60%;background:#FFE0B2">😐</div>
+            <div class="wk-bar" style="height:80%;background:#C8E6C9">😊</div>
+            <div class="wk-bar" style="height:50%;background:#FFE0B2">😐</div>
+            <div class="wk-bar" style="height:15%;background:#eee"></div>
+          </div>
+          <div class="prog-text"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span></div>
+        </div>
+
+        <!-- 오늘의 식단 기록 -->
+        <div class="card" onclick="go('s-meal')" style="border-left:4px solid #2E7D32">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="card-title">🍽️ 오늘의 식단 기록</div>
+              <div class="card-sub">사진만 찍으면 AI가 식습관을 분석해요</div>
+            </div>
+            <div style="color:#2E7D32;font-size:14px;font-weight:600">기록 →</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <div style="flex:1;text-align:center;padding:8px;background:#E8F5E9;border-radius:8px;font-size:12px">🌅 아침<br><span style="color:#2E7D32;font-weight:600">완료</span></div>
+            <div style="flex:1;text-align:center;padding:8px;background:#FFF8E1;border-radius:8px;font-size:12px">☀️ 점심<br><span style="color:#F57F17;font-weight:600">미기록</span></div>
+            <div style="flex:1;text-align:center;padding:8px;background:#f5f5f5;border-radius:8px;font-size:12px">🌙 저녁<br><span style="color:#999">대기</span></div>
+          </div>
+        </div>
+
+        <!-- DDS 실시간 추적 -->
+        <div class="card" style="border-left:4px solid #1B2A4A">
+          <div class="card-label">📊 식품 다양성 실시간 (DDS)</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:24px;font-weight:800;color:#1B2A4A">5<span style="font-size:14px;font-weight:400;color:#999"> / 7</span></div>
+            <div style="font-size:12px;color:#2E7D32;font-weight:600">지난주 4 → 이번주 5 ↑</div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="곡류">🍚</div>
+            <div style="flex:1;height:32px;background:#FFCDD2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.5" title="채소류 미섭취">🥬</div>
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="과일류">🍎</div>
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="육류">🥩</div>
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="유제품">🥛</div>
+            <div style="flex:1;height:32px;background:#C8E6C9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px" title="달걀">🥚</div>
+            <div style="flex:1;height:32px;background:#FFCDD2;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.5" title="콩류 미섭취">🫘</div>
+          </div>
+          <div style="font-size:11px;color:#C62828;margin-top:6px">오늘 부족: 채소류, 콩류 → <span style="color:#FF6B35;cursor:pointer" onclick="go('s-recipe')">AI 추천 보기</span></div>
+        </div>
+
+        <div class="card" onclick="go('s-weekly')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div class="card-title">📊 주간 리포트</div><div class="card-sub">2주차 진행 상황 확인</div></div>
+            <div style="color:#FF6B35;font-size:14px;font-weight:600">보기 →</div>
+          </div>
+        </div>
+
+        <!-- 35개 국제기준 — 메뉴식 X, 자동 임베드 상태 박스만 -->
+        <div class="card" style="border-left:4px solid #E65100;padding:14px;margin-top:14px;background:linear-gradient(135deg,#FFFDF6,#FFF8E1)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:13px;font-weight:700;color:#E65100">🌐 35개 국제기준 자동 적용 중</div>
+            <div style="font-size:11px;color:#999">키트 흐름 안에서 자동 운영</div>
+          </div>
+          <!-- 자동 운영 상태 (Day 기반 실시간 표시) -->
+          <div id="home-auto-status" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11.5px;color:#5D4037"></div>
+          <div style="font-size:10.5px;color:#888;margin-top:8px;line-height:1.5">
+            ICFQ(🇺🇸 Feeding Matters) · 음식 DB(🇺🇸 Solid Starts 한국형) · Food Bridge(🔬 Fraker 4축) · CEBQ(🇬🇧 UCL Wardle) · Family Meals(👨‍👩‍👧 Satter) · Two Bite Club(🇺🇸 USDA) · 노출 추적(🇺🇸 NESR) — 모두 활동지·기록 화면 안에 자동 임베드
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab active" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
+      <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
+      <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab" onclick="go('s-fooddb')"><span class="ico">🌐</span>35개</div>
+      <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: ACTIVITY GUIDE ====== -->
+  <div class="screen" id="s-activity">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">활동 가이드</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <!-- Phase 12: Day 시연 셀렉터 (T457 5시점 검증용) -->
+        <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-bottom:8px;font-size:11px;color:#888">
+          <span>Day 시연</span>
+          <select id="p12-day-pick" onchange="p12.pickDay(this.value)" style="font-size:12px;padding:4px 6px;border:1px solid #DDD;border-radius:6px">
+            <option value="1">Day 1</option><option value="4">Day 4</option><option value="7" selected>Day 7</option>
+            <option value="12">Day 12</option><option value="14">Day 14</option><option value="17">Day 17</option><option value="21">Day 21</option>
+          </select>
+        </div>
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="font-size:48px" id="guide-emoji">🎨</div>
+          <div style="font-size:22px;font-weight:700;color:#1B2A4A;margin:8px 0" id="guide-name">당근 색깔 탐험대</div>
+          <div style="font-size:13px;color:#888" id="guide-meta">1주차 Day 1 · 시각 탐색</div>
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+            <span class="tag tag-b">⏱ 15분</span>
+            <span class="tag tag-g">👶 만 2세+</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">준비물</div>
+          <div style="font-size:14px;line-height:1.8" id="guide-prep">• 당근 (3색: 주황/노랑/보라) ← 키트에 포함<br>• 흰 종이, 색연필</div>
+        </div>
+        <div class="card">
+          <div class="card-label">활동 방법</div>
+          <div style="font-size:14px;line-height:1.8" id="guide-steps">
+            <b>1.</b> 3가지 색 당근을 테이블에 놓아주세요<br>
+            <b>2.</b> "어떤 색이 있을까?" 같이 관찰해요<br>
+            <b>3.</b> 각 당근의 색을 종이에 그려봐요<br>
+            <b>4.</b> "이 당근은 무슨 색이야?" 대화해요<br>
+            <b>5.</b> <b>만지거나 먹을 필요 없어요!</b> 보기만으로 충분해요
+          </div>
+        </div>
+        <div class="photo-ph"><span>[활동 사진 예시]</span></div>
+
+        <!-- Phase 12: 7갭 박스 영역 (Day별 자동 렌더) -->
+        <div id="p12-gaps"></div>
+
+        <div style="background:#FFF8E1;border-radius:10px;padding:12px;font-size:12px;color:#F57F17;margin-bottom:16px">
+          💡 <b>SOS Approach 원칙:</b> 아이가 거부하면 절대 강요하지 않고 이전 단계로 돌아갑니다. "만져볼래?" → "냄새 맡아볼래?" 순서로 점진적으로 접근하세요.
+        </div>
+        <div class="btn btn-o" onclick="go('s-record')">활동 완료 → 기록하기</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: RECORD ====== -->
+  <div class="screen" id="s-record">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">활동 기록</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:36px" id="record-emoji">🎨</div>
+          <div style="font-size:18px;font-weight:700;color:#1B2A4A;margin:6px 0" id="record-name">당근 색깔 탐험대</div>
+          <div style="font-size:13px;color:#888">결과를 알려주세요</div>
+        </div>
+
+        <div class="sec-title">아이의 반응은?</div>
+        <div class="react-btns">
+          <div class="react-btn" onclick="selReact(this)"><span class="em">🚫</span><span class="lb">거부</span></div>
+          <div class="react-btn" onclick="selReact(this)"><span class="em">👆</span><span class="lb">시도</span></div>
+          <div class="react-btn" onclick="selReact(this)"><span class="em">😋</span><span class="lb">섭취</span></div>
+        </div>
+
+        <div class="sec-title">반응 강도는?</div>
+        <div class="int-btns">
+          <div class="int-btn" onclick="selInt(this)"><span class="em">😣</span><span class="lb">싫어했어요</span></div>
+          <div class="int-btn" onclick="selInt(this)"><span class="em">😐</span><span class="lb">보통이에요</span></div>
+          <div class="int-btn" onclick="selInt(this)"><span class="em">😊</span><span class="lb">좋아했어요</span></div>
+        </div>
+
+        <div class="sec-title">📷 사진 (선택)</div>
+        <div class="photo-ph" onclick="toast('📷 카메라가 열립니다 (데모)')"><span>탭하여 식전/식후 사진 촬영</span></div>
+        <div style="font-size:11px;color:#999;text-align:center;margin-bottom:16px">AI가 사진을 분석하여 섭취 단계를 자동 분류합니다</div>
+
+        <div class="btn btn-o" onclick="completeRecord()">기록 완료</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: MEAL LOG ====== -->
+  <div class="screen" id="s-meal">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">🍽️ 오늘의 식단 기록</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E8F5E9;border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:#2E7D32;line-height:1.6">
+          🤖 <b>왜 식단 사진이 필요한가요?</b><br>
+          AI가 아이의 평소 식습관을 분석합니다.<br>
+          어떤 식품군을 잘 먹고, 어떤 걸 안 먹는지 자동으로 파악해서<br>
+          더 정확한 맞춤 레시피를 추천해 드려요.
+        </div>
+
+        <div class="sec-title">오늘의 식사</div>
+
+        <!-- 아침 -->
+        <div class="card" style="border-left:4px solid #2E7D32">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A">🌅 아침</div>
+            <span class="tag tag-g">기록 완료</span>
+          </div>
+          <div class="photo-ph" style="height:100px;border-style:solid;border-color:#C8E6C9;background:#f9fff9">
+            <span>🍚 밥 + 🥚 달걀 + 🥛 우유 (AI 분석 완료)</span>
+          </div>
+          <div style="font-size:11px;color:#888;margin-top:6px">
+            AI 분석: 곡류 ✓ · 달걀 ✓ · 유제품 ✓ · <span style="color:#C62828;font-weight:600">채소류 ✗</span>
+          </div>
+        </div>
+
+        <!-- 점심 -->
+        <div class="card" style="border-left:4px solid #F57F17">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A">☀️ 점심</div>
+            <span class="tag tag-o">미기록</span>
+          </div>
+          <div class="photo-ph" onclick="toast('📷 카메라가 열립니다 (데모)')">
+            <span>탭하여 점심 식사 사진 촬영</span>
+          </div>
+          <div style="font-size:11px;color:#999;margin-top:6px">사진만 찍으면 됩니다. AI가 식품군을 자동 분류해요.</div>
+        </div>
+
+        <!-- 저녁 -->
+        <div class="card" style="border-left:4px solid #e0e0e0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A">🌙 저녁</div>
+            <span class="tag tag-n">대기</span>
+          </div>
+          <div class="photo-ph"><span>저녁 식사 후 기록해주세요</span></div>
+        </div>
+
+        <!-- 간식 -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A">🍪 간식 (선택)</div>
+            <span style="font-size:12px;color:#999">기록 안 해도 OK</span>
+          </div>
+          <div class="photo-ph" style="height:80px" onclick="toast('📷 카메라 (데모)')">
+            <span>간식 사진 (선택)</span>
+          </div>
+        </div>
+
+        <div class="sec-title">📊 오늘의 식품군 커버리지</div>
+        <div class="card">
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🍚</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">곡류 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#FFEBEE;border-radius:8px">
+              <div style="font-size:20px">🥬</div>
+              <div style="font-size:11px;color:#C62828;font-weight:600">채소 ✗</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🍎</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">과일 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🥩</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">육류 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🥛</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">유제품 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#E8F5E9;border-radius:8px">
+              <div style="font-size:20px">🥚</div>
+              <div style="font-size:11px;color:#2E7D32;font-weight:600">달걀 ✓</div>
+            </div>
+            <div style="flex:1;min-width:80px;text-align:center;padding:10px;background:#FFEBEE;border-radius:8px">
+              <div style="font-size:20px">🫘</div>
+              <div style="font-size:11px;color:#C62828;font-weight:600">콩류 ✗</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;font-size:13px;color:#666">
+            오늘 DDS: <b>5/7</b> · <span style="color:#C62828">채소류, 콩류 미섭취</span>
+          </div>
+          <div style="background:#FFF5F0;border-radius:8px;padding:10px;margin-top:10px;font-size:12px;color:#E65100">
+            🤖 AI 추천: 저녁에 <b>당근치즈 미니소시지</b>(채소+유제품) 또는 <b>두부 카레</b>(콩류+채소)를 추천드려요
+          </div>
+        </div>
+
+        <div class="sec-title">📈 이번 주 식습관 트렌드</div>
+        <div class="card">
+          <div style="font-size:13px;color:#666;line-height:1.8">
+            • 채소 섭취 일수: <b>2일 / 7일</b> (지난주 1일 → <span style="color:#2E7D32">개선 중</span>)<br>
+            • 가장 많이 먹는 식품군: 곡류, 유제품<br>
+            • 가장 적게 먹는 식품군: <span style="color:#C62828">채소류, 콩류</span><br>
+            • 간식 비율: 하루 평균 1.5회 (적정)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: AI RECIPE ====== -->
+  <div class="screen" id="s-recipe">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">🤖 AI 맞춤 레시피</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="font-size:13px;color:#888;margin-bottom:14px">수현이의 편식 패턴을 분석하여 추천합니다</div>
+
+        <div class="ai-card">
+          <div style="display:flex;justify-content:space-between;align-items:start">
+            <div><div class="ai-badge">이번 주 추천</div><div class="ai-name">당근치즈 미니소시지</div></div>
+            <div style="text-align:right"><div style="font-size:28px;font-weight:800;color:#FF6B35">72%</div><div style="font-size:10px;color:#888">수용 확률</div></div>
+          </div>
+          <div class="photo-ph" style="height:120px"><span>[레시피 사진]</span></div>
+          <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+            <span class="tag tag-b">⏱ 15분</span><span class="tag tag-g">👨‍🍳 쉬움</span><span class="tag tag-o">🥕 당근 20%</span>
+          </div>
+          <div class="ai-reason">
+            <b>왜 이 레시피?</b><br>
+            • 좋아하는 소시지 형태 (구강 민감도 대응)<br>
+            • 당근이 갈린 형태라 시각 자극 최소<br>
+            • 단맛+감칠맛 조합 (치즈)<br>
+            • 비타민A 40% · 칼슘 15% 보충
+          </div>
+          <div class="btn btn-o" style="margin-top:12px" onclick="go('s-recipe-detail')">레시피 보기</div>
+        </div>
+
+        <div class="card" onclick="toast('🍛 당근 카레라이스 레시피 (데모)')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div class="list-name">당근 카레라이스</div><div class="list-meta">수용 확률 65% · 20분 · 보통</div></div>
+            <div style="color:#FF6B35;font-size:13px;font-weight:600">보기→</div>
+          </div>
+        </div>
+        <div class="card" onclick="toast('🥞 당근 팬케이크 레시피 (데모)')">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div class="list-name">당근 팬케이크</div><div class="list-meta">수용 확률 58% · 10분 · 쉬움</div></div>
+            <div style="color:#FF6B35;font-size:13px;font-weight:600">보기→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
+      <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
+      <div class="tab active" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: RECIPE DETAIL ====== -->
+  <div class="screen" id="s-recipe-detail">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-recipe')">←</span><span class="title">레시피</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div class="photo-ph" style="height:180px"><span>[완성 요리 사진]</span></div>
+        <div style="font-size:22px;font-weight:700;color:#1B2A4A;margin:12px 0 4px">당근치즈 미니소시지</div>
+        <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap">
+          <span class="tag tag-b">⏱ 15분</span><span class="tag tag-g">👨‍🍳 쉬움</span><span class="tag tag-b">🔥 180kcal</span>
+        </div>
+        <div class="card">
+          <div class="card-label">재료 (1인분)</div>
+          <div style="font-size:14px;line-height:2">• 당근 30g (간 것)<br>• 모짜렐라 치즈 20g<br>• 소시지 피 또는 밀가루 반죽<br>• 달걀물 약간</div>
+        </div>
+        <div class="card">
+          <div class="card-label">만드는 법</div>
+          <div style="font-size:14px;line-height:2">
+            <b>1.</b> 당근을 곱게 갈아주세요<br>
+            <b>2.</b> 간 당근 + 치즈를 섞어 소시지 모양으로 만들어요<br>
+            <b>3.</b> 달걀물을 발라 에어프라이어 180°C 10분<br>
+            <b>4.</b> 🧒 아이와 함께: 케첩으로 눈/입 그리기!
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">영양 정보</div>
+          <div style="display:flex;gap:16px;text-align:center;margin-top:8px">
+            <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#FF6B35">40%</div><div style="font-size:11px;color:#888">비타민A</div></div>
+            <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#1B2A4A">15%</div><div style="font-size:11px;color:#888">칼슘</div></div>
+            <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#1B2A4A">8g</div><div style="font-size:11px;color:#888">단백질</div></div>
+            <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#1B2A4A">180</div><div style="font-size:11px;color:#888">kcal</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: WEEKLY REPORT ====== -->
+  <div class="screen" id="s-weekly">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">2주차 리포트</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-num">7</div><div class="stat-lbl">완료 활동</div></div>
+          <div class="stat-box hl"><div class="stat-num">57%</div><div class="stat-lbl">시도율</div></div>
+          <div class="stat-box"><div class="stat-num">2</div><div class="stat-lbl">섭취 성공</div></div>
+          <div class="stat-box"><div class="stat-num">3</div><div class="stat-lbl">AI 추천 수용</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">🤖 AI가 파악한 수현이 (2주차)</div>
+          <div class="sns-bar"><span class="sns-label">시각</span><div class="dots"><div class="dot fn"></div><div class="dot fn"></div><div class="dot"></div></div><span class="sns-val" style="color:#2E7D32">낮음</span></div>
+          <div class="sns-bar"><span class="sns-label">후각</span><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div></div><span class="sns-val" style="color:#E65100">높음 ← 이번 주 파악</span></div>
+          <div class="sns-bar"><span class="sns-label">촉각</span><div class="dots"><div class="dot fn"></div><div class="dot"></div><div class="dot"></div></div><span class="sns-val" style="color:#2E7D32">낮음</span></div>
+          <div class="sns-bar"><span class="sns-label">구강</span><div class="dots"><div class="dot" style="border-color:#bbb"></div><div class="dot" style="border-color:#bbb"></div><div class="dot" style="border-color:#bbb"></div></div><span class="sns-val" style="color:#999">3주차에 파악 예정</span></div>
+          <div style="font-size:12px;color:#666;margin-top:12px;line-height:1.6;background:#F0F4FF;border-radius:8px;padding:10px">
+            수현이는 시각·촉각에는 괜찮지만 <b>후각에 민감</b>해요.<br>
+            → 다음 주 AI 레시피는 <b>향이 약한 조리법</b> 위주로 추천할게요.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">반응 추이</div>
+          <div style="display:flex;gap:4px;margin:8px 0">
+            <div style="flex:3;height:24px;background:#FFCDD2;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#C62828">거부 3</div>
+            <div style="flex:4;height:24px;background:#FFE0B2;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#E65100">시도 4</div>
+            <div style="flex:2;height:24px;background:#C8E6C9;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#2E7D32">섭취 2</div>
+          </div>
+          <div style="font-size:12px;color:#888;margin-top:4px">1주차 대비 시도율 +15%p 개선!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: PROFILE ====== -->
+  <div class="screen" id="s-profile">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">아이 프로필</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="font-size:48px">👶</div>
+          <div style="font-size:20px;font-weight:700;color:#1B2A4A;margin:8px 0">수현</div>
+          <div style="font-size:13px;color:#888">2023년 6월생 · 만 3세 · 여아</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">체위 측정</div>
+          <div style="display:flex;gap:12px;margin:10px 0">
+            <div style="flex:1;text-align:center;padding:14px;background:#f9f9f9;border-radius:12px">
+              <div style="font-size:26px;font-weight:800;color:#1B2A4A">97</div>
+              <div style="font-size:11px;color:#888">키 (cm)</div>
+              <div style="font-size:10px;color:#2E7D32;margin-top:3px">50백분위</div>
+            </div>
+            <div style="flex:1;text-align:center;padding:14px;background:#f9f9f9;border-radius:12px">
+              <div style="font-size:26px;font-weight:800;color:#1B2A4A">15.2</div>
+              <div style="font-size:11px;color:#888">체중 (kg)</div>
+              <div style="font-size:10px;color:#2E7D32;margin-top:3px">55백분위</div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:#999;text-align:center">질병관리청 2017 성장도표 기준</div>
+          <div class="btn btn-s" style="margin-top:10px;font-size:13px">체위 재측정</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">편식 프로파일 (2주차 기준)</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:10px 0">
+            <div style="font-size:14px;font-weight:600;color:#1B2A4A">편식 심각도</div>
+            <div><span style="font-size:20px;font-weight:800;color:#FF6B35">중등</span><span style="font-size:12px;color:#888;margin-left:6px">58/100</span></div>
+          </div>
+          <div class="prog"><div class="fill fill-o" style="width:58%"></div></div>
+          <div style="font-size:11px;color:#888;margin-top:4px">CEBQ 기반 자동 산출 · 매주 업데이트</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">감각 프로파일</div>
+          <div class="sns-bar"><span class="sns-label">시각</span><div class="dots"><div class="dot fn"></div><div class="dot fn"></div><div class="dot"></div></div><span class="sns-val" style="color:#2E7D32">낮음</span></div>
+          <div class="sns-bar"><span class="sns-label">후각</span><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot f"></div></div><span class="sns-val" style="color:#E65100">높음</span></div>
+          <div class="sns-bar"><span class="sns-label">촉각</span><div class="dots"><div class="dot fn"></div><div class="dot"></div><div class="dot"></div></div><span class="sns-val" style="color:#2E7D32">낮음</span></div>
+          <div class="sns-bar"><span class="sns-label">구강</span><div class="dots"><div class="dot" style="border-color:#bbb"></div><div class="dot" style="border-color:#bbb"></div><div class="dot" style="border-color:#bbb"></div></div><span class="sns-val" style="color:#999">3주차 파악 예정</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">맛 선호도</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+            <span class="tag tag-g">단맛 ★★★</span><span class="tag tag-g">감칠맛 ★★</span><span class="tag tag-o">짠맛 ★★</span><span class="tag tag-r">쓴맛 ★</span><span class="tag tag-r">신맛 ★</span>
+          </div>
+          <div style="font-size:11px;color:#888;margin-top:6px">가입 시 "잘 먹는 음식"에서 AI 추정 → 4주차 후 정밀화</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">알레르기</div>
+          <div style="margin-top:6px"><span class="tag tag-r">🥜 견과류</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">프로그램 이력</div>
+          <div class="list-item">
+            <div class="list-ico" style="background:#FFF5F0">🥕</div>
+            <div class="list-info"><div class="list-name">당근 코스</div><div class="list-meta">진행중 · 2주차 · 40%</div></div>
+            <div style="color:#FF6B35;font-size:12px;font-weight:700">진행중</div>
+          </div>
+        </div>
+
+        <div class="btn btn-s" onclick="go('s-dash')" style="margin-top:10px;font-size:13px">기관 대시보드 보기 (데모)</div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
+      <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
+      <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab active" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: COMPLETION ====== -->
+  <div class="screen" id="s-complete">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="content">
+      <div class="pad" style="text-align:center;padding-top:30px">
+        <div style="font-size:64px;margin-bottom:12px">🎉</div>
+        <div style="font-size:24px;font-weight:800;color:#1B2A4A;margin-bottom:4px">축하해요!</div>
+        <div style="font-size:15px;color:#888;margin-bottom:24px">수현이가 당근 코스 5주를 완주했어요</div>
+        <div class="type-card">
+          <div style="font-size:13px;opacity:.8">5주 성과 요약</div>
+          <div style="font-size:32px;font-weight:800;margin:8px 0">편식 심각도 25% 개선</div>
+          <div style="font-size:14px;opacity:.9">58점 → 44점 (중등 → 경미)</div>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-box hl"><div class="stat-num">78%</div><div class="stat-lbl">완주율</div></div>
+          <div class="stat-box hl"><div class="stat-num">65%</div><div class="stat-lbl">시도→섭취 전환</div></div>
+          <div class="stat-box"><div class="stat-num">+1.2</div><div class="stat-lbl">키 변화 (cm)</div></div>
+          <div class="stat-box"><div class="stat-num">68%</div><div class="stat-lbl">AI 추천 수용률</div></div>
+        </div>
+        <div class="card" style="text-align:left">
+          <div class="card-label">최종 편식 프로파일</div>
+          <div class="sns-bar"><span class="sns-label">시각</span><div class="dots"><div class="dot fn"></div><div class="dot fn"></div><div class="dot"></div></div><span class="sns-val" style="color:#2E7D32">낮음</span></div>
+          <div class="sns-bar"><span class="sns-label">후각</span><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot"></div></div><span class="sns-val" style="color:#2E7D32">개선! (3→2)</span></div>
+          <div class="sns-bar"><span class="sns-label">촉각</span><div class="dots"><div class="dot fn"></div><div class="dot"></div><div class="dot"></div></div><span class="sns-val" style="color:#2E7D32">낮음</span></div>
+          <div class="sns-bar"><span class="sns-label">구강</span><div class="dots"><div class="dot f"></div><div class="dot f"></div><div class="dot"></div></div><span class="sns-val" style="color:#E65100">중간 (첫 파악)</span></div>
+        </div>
+        <div class="ai-card" style="text-align:left">
+          <div class="ai-badge">🤖 AI 추천</div>
+          <div style="font-size:16px;font-weight:700;color:#1B2A4A;margin-bottom:6px">다음 추천 코스: 🧅 양파</div>
+          <div style="font-size:13px;color:#666">후각 민감도가 개선되고 있어요. 양파는 익히면 단맛이 나서 수현이에게 맞아요.</div>
+        </div>
+        <div class="btn btn-o" onclick="go('s-home')">홈으로</div>
+        <div class="btn btn-s" onclick="go('s-dash')">기관 대시보드 보기</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: INSTITUTION DASHBOARD ====== -->
+  <div class="screen" id="s-dash">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header" style="background:#1B2A4A"><span class="back" onclick="go('s-home')" style="color:#fff">←</span><span class="title" style="color:#fff">🏫 기관 대시보드</span><span class="dash-badge">DEMO</span></div>
+    <div class="content" style="background:#f5f5f5">
+      <div class="pad">
+        <div style="font-size:15px;font-weight:700;color:#1B2A4A;margin-bottom:4px">해운대 햇살 어린이집</div>
+        <div style="font-size:12px;color:#888;margin-bottom:14px">2026년 4~5월 · 당근 코스</div>
+
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-num">23</div><div class="stat-lbl">참여 아동</div></div>
+          <div class="stat-box"><div class="stat-num">19</div><div class="stat-lbl">활성 아동</div></div>
+          <div class="stat-box hl"><div class="stat-num">78%</div><div class="stat-lbl">완주율</div></div>
+          <div class="stat-box hl"><div class="stat-num">65%</div><div class="stat-lbl">개선율</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">주차별 진행 현황</div>
+          <div style="margin-top:8px">
+            <div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px"><span>1주차</span><span>100%</span></div><div class="prog"><div class="fill fill-g" style="width:100%"></div></div></div>
+            <div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px"><span>2주차</span><span>82%</span></div><div class="prog"><div class="fill fill-g" style="width:82%"></div></div></div>
+            <div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px"><span>3주차</span><span>61%</span></div><div class="prog"><div class="fill fill-o" style="width:61%"></div></div></div>
+            <div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px"><span>4주차</span><span>35%</span></div><div class="prog"><div class="fill fill-o" style="width:35%"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:11px"><span>5주차</span><span>15%</span></div><div class="prog"><div class="fill fill-n" style="width:15%"></div></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">⚠️ 주의 필요 아동</div>
+          <div class="list-item">
+            <div class="list-ico" style="background:#FFEBEE">⚠️</div>
+            <div class="list-info"><div class="list-name">ID-042</div><div class="list-meta">2주 미활동 · 당근 1주차</div></div>
+            <span class="tag tag-r">위험</span>
+          </div>
+          <div class="list-item">
+            <div class="list-ico" style="background:#FFF3E0">📉</div>
+            <div class="list-info"><div class="list-name">ID-018</div><div class="list-meta">섭취→거부 역행 · 3주차</div></div>
+            <span class="tag tag-o">주의</span>
+          </div>
+        </div>
+
+        <div class="btn btn-n" onclick="go('s-report')">📋 보고서 생성</div>
+        <div class="btn btn-s" onclick="go('s-complete')">수료 화면 보기 (데모)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: REPORT ====== -->
+  <div class="screen" id="s-report">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header" style="background:#1B2A4A"><span class="back" onclick="go('s-dash')" style="color:#fff">←</span><span class="title" style="color:#fff">보고서 생성</span><span></span></div>
+    <div class="content" style="background:#f5f5f5">
+      <div class="pad">
+        <div class="sec-title">양식 선택</div>
+        <div class="opt sel" onclick="selOpt(this)"><div class="radio"></div>식약처 급식관리지원센터 성과보고</div>
+        <div class="opt" onclick="selOpt(this)"><div class="radio"></div>드림스타트 사업성과보고</div>
+        <div class="opt" onclick="selOpt(this)"><div class="radio"></div>교육청 늘봄학교 보고</div>
+        <div class="opt" onclick="selOpt(this)"><div class="radio"></div>기관 내부용 요약</div>
+
+        <div class="sec-title">포함 항목</div>
+        <div style="font-size:13px;line-height:2.2">
+          ☑ 참여율 / 완주율<br>☑ 개선율 (노출→시도→섭취 전환)<br>☑ 아동별 성장곡선 변화<br>☑ AI 추천 레시피 수용률<br>☑ 이상 데이터 제외 표시<br>☐ 사진 증빙 포함
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-label">미리보기</div>
+          <div style="text-align:center;padding:12px 0;border-bottom:2px solid #1B2A4A;margin-bottom:12px">
+            <div style="font-size:15px;font-weight:700;color:#1B2A4A">편식 개선 프로그램 성과 보고서</div>
+            <div style="font-size:11px;color:#888">해운대 햇살 어린이집 · 2026년 4~5월</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <div style="flex:1;text-align:center;padding:8px;background:#E8ECF1;border-radius:6px"><div style="font-size:18px;font-weight:800;color:#1B2A4A">23명</div><div style="font-size:10px;color:#888">참여</div></div>
+            <div style="flex:1;text-align:center;padding:8px;background:#E8ECF1;border-radius:6px"><div style="font-size:18px;font-weight:800;color:#1B2A4A">78%</div><div style="font-size:10px;color:#888">완주</div></div>
+            <div style="flex:1;text-align:center;padding:8px;background:#FFF5F0;border-radius:6px"><div style="font-size:18px;font-weight:800;color:#FF6B35">65%</div><div style="font-size:10px;color:#888">개선</div></div>
+          </div>
+          <div style="font-size:11px;color:#666;line-height:1.7">
+            • 거부→시도 전환: 18명 (78%)<br>
+            • 시도→섭취 전환: 15명 (65%)<br>
+            • 평균 노출: 18.3회 (목표 21회)<br>
+            • AI 추천 수용률: 68%<br>
+            • 편식 심각도: 평균 6.2점 개선
+          </div>
+        </div>
+        <div class="btn btn-n" onclick="toast('📋 PDF 다운로드 (데모)')">PDF 다운로드</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: ICFQ 사전 스크리너 (Feeding Matters) ====== -->
+  <div class="screen" id="s-icfq">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">ICFQ 사전 스크리너</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E1F5FE;border-left:4px solid #0288D1;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.55">
+          <strong style="color:#0277BD">🇺🇸 Feeding Matters ICFQ 6문항</strong> · 정상 picky vs PFD 분기<br>
+          🔬 Goday 2019 PFD 4축 · 🇨🇦 CPS 25-35% 정상 통계
+        </div>
+        <div class="card">
+          <div class="card-label">6문항 — 각각 예/아니오 선택</div>
+          <div id="p9-icfq-qs"></div>
+          <div class="btn btn-o" style="margin-top:12px" onclick="p9ICFQ.score()">📊 결과 보기</div>
+        </div>
+        <div id="p9-icfq-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: 음식 DB (Solid Starts 한국형) ====== -->
+  <div class="screen" id="s-fooddb">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">음식 DB · 100개</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E8F5E9;border-left:4px solid #2E7D32;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.6">
+          <strong style="color:#1B5E20">🇺🇸 Solid Starts 한국형 + 🇰🇷 식약처 어린이급식 정합</strong><br>
+          식재료마다 8개 정보: 자르는법·질식위험·알러지·연령·편식점수·푸드브릿지단계·Food Chaining 4축·영양 핵심
+        </div>
+        <input type="search" placeholder="🔍 식재료 검색 (예: 당근, 시금치)" style="width:100%;padding:12px;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:14px;font-size:14px;font-family:inherit">
+        <div style="display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px">
+          <span class="tag tag-g" style="white-space:nowrap;cursor:pointer">전체 100</span>
+          <span class="tag tag-o" style="white-space:nowrap;cursor:pointer">🥬 채소 30</span>
+          <span class="tag tag-b" style="white-space:nowrap;cursor:pointer">🍎 과일 20</span>
+          <span class="tag tag-g" style="white-space:nowrap;cursor:pointer">🌾 곡류 15</span>
+          <span class="tag tag-r" style="white-space:nowrap;cursor:pointer">🍖 단백질 20</span>
+          <span class="tag tag-o" style="white-space:nowrap;cursor:pointer">🍢 간식 15</span>
+        </div>
+        <div class="card" style="cursor:pointer">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:36px">🥕</div>
+            <div style="flex:1">
+              <div class="card-title">당근</div>
+              <div class="card-sub">베타카로틴·비타민A · 단맛 친숙</div>
+              <div style="margin-top:6px">
+                <span class="tag tag-g">2세+</span>
+                <span class="tag tag-b">푸드브릿지 1단계</span>
+                <span class="tag tag-o">편식점수 2/3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:36px">🟢</div>
+            <div style="flex:1">
+              <div class="card-title">시금치</div>
+              <div class="card-sub">철·엽산 · 진녹색·쓴맛 (옵션 B)</div>
+              <div style="margin-top:6px">
+                <span class="tag tag-g">2세+</span>
+                <span class="tag tag-b">푸드브릿지 2단계</span>
+                <span class="tag tag-r">편식점수 3/3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="cursor:pointer">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="font-size:36px">⬜</div>
+            <div style="flex:1">
+              <div class="card-title">두부</div>
+              <div class="card-sub">단백질·콩 · 무미·반죽 (옵션 D)</div>
+              <div style="margin-top:6px">
+                <span class="tag tag-g">1세+</span>
+                <span class="tag tag-b">푸드브릿지 1단계</span>
+                <span class="tag tag-o">편식점수 1/3</span>
+                <span class="tag tag-r">알러지: 콩</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;color:#888;font-size:12px;margin-top:8px">+ 97개 더 보기 (Phase 2 MVP 39개 → Phase 3 100개)</div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab" onclick="go('s-home')"><span class="ico">🏠</span>홈</div>
+      <div class="tab" onclick="go('s-record')"><span class="ico">📝</span>기록</div>
+      <div class="tab" onclick="go('s-recipe')"><span class="ico">🤖</span>추천</div>
+      <div class="tab active" onclick="go('s-fooddb')"><span class="ico">🌐</span>35개</div>
+      <div class="tab" onclick="go('s-profile')"><span class="ico">👤</span>MY</div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: Food Bridge 자동 생성기 ====== -->
+  <div class="screen" id="s-foodbridge">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">Food Chaining 4축 생성기 ★</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#FFF3E0;border-left:4px solid #F57C00;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.55">
+          <strong style="color:#E65100">🔬 Fraker 2007</strong> + 🇺🇸 <strong>AAP food bridges</strong> + 🇰🇷 <strong>식약처 푸드브릿지</strong> · <strong>앱만의 킬러 기능 ⭐</strong><br>
+          <span style="font-size:11px;color:#666">한 단계 = 한 축 변화 (질감→색→온도→맛 우선순위)</span>
+        </div>
+        <div class="card">
+          <div class="card-label">1단계 — 좋아하는 음식 (탭하여 선택)</div>
+          <div id="p9-fc-loved" style="margin-top:6px"></div>
+          <div class="card-label" style="margin-top:12px">2단계 — 도달하고 싶은 음식 (1개)</div>
+          <div id="p9-fc-target" style="margin-top:6px"></div>
+          <div class="btn btn-o" style="margin-top:14px" onclick="p9FC.generate()">🌉 다리 시퀀스 생성</div>
+        </div>
+        <div id="p9-fc-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: CEBQ 측정 (UCL Wardle 8축) ====== -->
+  <div class="screen" id="s-cebq">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">CEBQ 8축 비포-애프터</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#F3E5F5;border-left:4px solid #6A1B9A;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.55">
+          <strong style="color:#4A148C">🇬🇧 CEBQ (Wardle/Cooke UCL)</strong> 35문항 8축 · Day0 vs Day21 비포-애프터<br>
+          🎯 학술지 게재 데이터 (Frontiers Public Health 2027 Q4 목표)
+        </div>
+        <div class="card">
+          <div class="card-label">8축 레이더차트 (Day0 회색 vs Day21 보라)</div>
+          <canvas id="p9-cebq-chart" class="p9-chart" width="320" height="320"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-label">8축 변화 표</div>
+          <div id="p9-cebq-table" style="font-size:12px"></div>
+        </div>
+        <div class="card" style="background:#E8F5E9">
+          <div style="font-size:12.5px;color:#2E7D32;line-height:1.6">
+            <strong>🎯 핵심: FF(편식) <span id="p9-cebq-ff">22% 감소</span></strong><br>
+            <small style="color:#888">표본 N=150 시범사업 누적 → 학술지 익명화 export</small>
+          </div>
+        </div>
+        <div class="btn btn-o" onclick="toast('📊 CSV export (IRB 정합 익명화) — 데모')">학술지 데이터 export (CSV)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: Family Meals 트래커 (Satter 주 5회) ====== -->
+  <div class="screen" id="s-family">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">Family Meals 트래커</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#FCE4EC;border-left:4px solid #C2185B;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.55">
+          <strong style="color:#880E4F">👨‍👩‍👧 Satter Family Meals</strong> 주 5회 권장 · 🔬 <strong>HabEat 결정요인 ①</strong> (부모 모델링 = 가장 강력한 예측 변수)
+        </div>
+        <div class="card">
+          <div class="card-label">이번 주 (탭하여 토글)</div>
+          <div style="font-size:32px;text-align:center;margin:8px 0" id="p9-fam-stars">⭐ ⭐ ⭐ ⭐ ⭐</div>
+          <div id="p9-fam-msg" style="font-size:12.5px;text-align:center;font-weight:700;color:#2E7D32"></div>
+          <div class="p9-grid7" id="p9-fam-grid" style="margin-top:10px"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">🔬 HabEat 결정요인 ① — 부모 모델링 × 아이 수용도 상관</div>
+          <canvas id="p9-fam-chart" class="p9-chart" width="320" height="200"></canvas>
+          <div style="font-size:11px;color:#666;margin-top:6px">엄마 채소 등장 빈도가 높을수록 아이 수용도 ↑ (HabEat EU FP7 검증)</div>
+        </div>
+        <div style="font-size:11px;color:#888;text-align:center;margin-top:10px">⚠️ 강제 X · 권장 ⭕ — 미달은 실패 X (Satter DOR)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: 노출 횟수 자동 트래킹 (Phase 9-D, 신규) ====== -->
+  <div class="screen" id="s-exposure">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">노출 횟수 자동 트래킹</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E8F5E9;border-left:4px solid #2E7D32;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.55">
+          <strong style="color:#1B5E20">🇺🇸 NESR USDA 2019</strong> 8-10회 plateau · 🔬 <strong>HabEat 결정요인 ④</strong> (반복 노출)<br>
+          식단 입력 시 식재료 자동 인식 → 누적 카운트
+        </div>
+        <div class="card">
+          <div class="card-label">식단 입력 (예: "당근볶음밥, 시금치무침")</div>
+          <input type="text" id="p9-exp-input" placeholder="오늘 먹은 음식 입력..." style="width:100%;padding:10px;border:1.5px solid #e0e0e0;border-radius:8px;font-family:inherit;font-size:13px;margin-top:6px">
+          <div class="btn btn-o" style="margin-top:10px" onclick="p9Exp.add()">+ 식단 추가</div>
+        </div>
+        <div class="card">
+          <div class="card-label">9코스 식재료 노출 현황 (NESR 권고 8회 기준)</div>
+          <div id="p9-exp-bars" style="margin-top:8px"></div>
+        </div>
+        <div class="card" style="background:#FFF8E1">
+          <div style="font-size:12px;color:#E65100;line-height:1.7" id="p9-exp-msg">
+            💡 식단을 입력하면 자동으로 식재료를 인식해 노출 횟수를 카운트합니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== SCREEN: Two Bite Club (USDA 한국어판) ====== -->
+  <div class="screen" id="s-twobite">
+    <div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+    <div class="header"><span class="back" onclick="go('s-home')">←</span><span class="title">두 입 클럽</span><span></span></div>
+    <div class="content">
+      <div class="pad">
+        <div style="background:#E0F7FA;border-left:4px solid #00838F;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.6">
+          <strong style="color:#006064">🇺🇸 USDA Team Nutrition "The Two Bite Club"</strong> 한국어판<br>
+          새로운 음식을 두 입만 시도해도 인증 — 강요 X · 시도 자체가 가치
+        </div>
+        <div class="card" style="background:linear-gradient(135deg,#E0F7FA,#B2EBF2);border:3px solid #00838F">
+          <div style="text-align:center;padding:14px 0">
+            <div style="font-size:48px">🥗</div>
+            <div style="font-size:18px;font-weight:800;color:#006064;margin-top:6px">두 입 클럽 인증서</div>
+            <div style="font-size:12px;color:#00838F;margin-top:4px">Two Bite Club Certificate</div>
+            <div style="margin-top:14px;padding:8px;background:#fff;border-radius:8px;font-size:14px">
+              <strong style="color:#00838F">수현이</strong>는 새로운 음식을<br><strong style="color:#006064">두 입</strong>이라도 시도한 용감한 탐험가입니다
+            </div>
+            <div style="margin-top:10px;display:flex;justify-content:center;gap:10px">
+              <div style="width:50px;height:50px;border-radius:50%;border:2px dashed #00838F;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#00838F;background:#fff">한 입<br>✓</div>
+              <div style="width:50px;height:50px;border-radius:50%;border:2px dashed #00838F;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#00838F;background:#fff">두 입<br>✓</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">키트 통합 위치</div>
+          <div style="font-size:13px;line-height:1.9">
+            <strong>Day12</strong> 모양 변신 — 첫 발급<br>
+            <strong>Day16</strong> 감자볼 디핑 — 두 번째<br>
+            <strong>Day21</strong> 수료식 — 5주 누적 인증
+          </div>
+        </div>
+        <div class="card" style="background:#FFF8E1">
+          <div style="font-size:13px;color:#E65100;line-height:1.7">
+            <strong>⚠️ 주의</strong>: "두 입 못 먹으면 실패" X. 한 입만 해도 인증.<br>
+            🔬 Galloway 2006: 칭찬·강요 시 거부 ↑ — 시도 자체가 가치
+          </div>
+        </div>
+        <div class="btn btn-o" onclick="toast('🥗 두 입 시도 인증됨 (데모)')">+ 두 입 시도 인증</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// 상태 관리
+let currentDay = 7; // 기본: 2주차 Day 7 (데모 중간 상태)
+
+const ACTIVITIES = [
+  // 1주차: 시각 탐색 (주 5회, SOS 1-6)
+  {day:1,week:1,emoji:"🥕",name:"당근 마을에서 온 초대장",meta:"1주차 Day 1 · 시각 탐색 · 10~15분"},
+  {day:2,week:1,emoji:"🖐️",name:"당근이의 도장 놀이터",meta:"1주차 Day 2 · 시각 탐색 · 15~20분"},
+  {day:3,week:1,emoji:"🐌",name:"당근이의 비밀 지도",meta:"1주차 Day 3 · 시각 탐색 · 10~15분"},
+  {day:4,week:1,emoji:"🌈",name:"무지개 마을을 만들자!",meta:"1주차 Day 4 · 시각 탐색 · 10~15분"},
+  {day:5,week:1,emoji:"✉️",name:"당근이의 비밀 편지",meta:"1주차 Day 5 · 시각 탐색 · 15~20분"},
+  // 2주차: 촉각/후각 (주 5회, SOS 7-14)
+  {day:6,week:2,emoji:"✋",name:"당근이의 변신! 촉감 탐정",meta:"2주차 Day 6 · 촉각 탐색 · 10~15분"},
+  {day:7,week:2,emoji:"👃",name:"코로 찾아라! 냄새 탐정",meta:"2주차 Day 7 · 후각 탐색 · 10~15분"},
+  {day:8,week:2,emoji:"🔪",name:"당근이를 변신시켜! 강판 놀이",meta:"2주차 Day 8 · 촉각 탐색 · 15~20분"},
+  {day:9,week:2,emoji:"✨",name:"당근 파우더 마법사",meta:"2주차 Day 9 · 촉각 탐색 · 10~15분"},
+  {day:10,week:2,emoji:"💎",name:"당근 보석을 만들자!",meta:"2주차 Day 10 · 촉각 탐색 · 10분+얼리기"},
+  // 3주차: 입 근처 접근 (주 5회, SOS 15-22)
+  {day:11,week:3,emoji:"💥",name:"바삭바삭 ASMR!",meta:"3주차 Day 11 · 입 근처 접근 · 10분"},
+  {day:12,week:3,emoji:"⭐",name:"당근이 모양 변신!",meta:"3주차 Day 12 · 입 근처 접근 · 15분"},
+  {day:13,week:3,emoji:"😊",name:"당근이 얼굴 만들기",meta:"3주차 Day 13 · 입 근처 접근 · 15분"},
+  {day:14,week:3,emoji:"😗",name:"당근이가 뽀뽀해도 돼?",meta:"3주차 Day 14 · 입 근처 접근 · 5~10분"},
+  {day:15,week:3,emoji:"🫕",name:"찍어 먹기 대모험!",meta:"3주차 Day 15 · 입 근처 접근 · 15~20분"},
+  // 4주차: 한 입 도전 (주 3회, SOS 23-28, RTE)
+  {day:16,week:4,emoji:"🟠",name:"당근 감자볼 + 디핑소스 대결",meta:"4주차 Day 16 · 한 입 도전 · 10~15분"},
+  {day:17,week:4,emoji:"🧀",name:"당근 치즈 리조또",meta:"4주차 Day 17 · 한 입 도전 · 10~15분"},
+  {day:18,week:4,emoji:"🍜",name:"당근 잔치국수",meta:"4주차 Day 18 · 한 입 도전 · 10~15분"},
+  // 5주차: 수료 (주 3회, SOS 29-32, RTE)
+  {day:19,week:5,emoji:"🍝",name:"당근 미트소스 파스타",meta:"5주차 Day 19 · 반복 먹기 · 10~15분"},
+  {day:20,week:5,emoji:"🍚",name:"당근 볶음밥 셰프",meta:"5주차 Day 20 · 반복 먹기 · 10분"},
+  {day:21,week:5,emoji:"🏆",name:"당근 닭칼국수 + 수료식!",meta:"5주차 Day 21 · 수료 · 15~20분"},
+];
+
+// 활동별 가이드 데이터
+const GUIDES = {
+  // 1주차: 시각 탐색
+  1:{prep:"• 당근 3종 (주황/보라/노랑) ← 키트 포함\n• 출력물: 당근 마을에서 온 초대장",steps:"<b>1.</b> 당근 3종을 식탁에 나란히 놓아요<br><b>2.</b> 초대장 출력물을 함께 봐요 — \"당근이가 놀러오래!\"<br><b>3.</b> \"이게 뭘까? 색깔이 다 다르네!\"<br><b>4.</b> 출력물 뒷면에 당근을 보고 그려봐요<br><b>5.</b> <b>만지거나 먹을 필요 없어요!</b> 보기만으로 충분해요"},
+  2:{prep:"• 당근 1개 + 당근즙 ← 키트 포함\n• 넓은 접시 (가정)\n• 출력물: 당근이의 도장 놀이터",steps:"<b>1.</b> 부모가 당근을 반으로 잘라요 (아이에게 칼 주지 마세요)<br><b>2.</b> 당근즙을 넓은 접시에 부어 물감 팔레트를 만들어요<br><b>3.</b> 출력물 앞면 만화를 함께 봐요 — \"당근 속에 동그라미가!\"<br><b>4.</b> 당근 단면을 즙에 찍고 출력물 뒷면에 꾹꾹 찍어요<br><b>5.</b> \"너도 해볼래?\" — 직접 찍어도, 보기만 해도 성공!"},
+  3:{prep:"• 당근 반쪽 (Day 2 남은 것)\n• 이쑤시개 2~3개, 눈알스티커 (가정)\n• 출력물: 당근이의 비밀 지도",steps:"<b>1.</b> 출력물 앞면 만화를 봐요 — \"당근 속에 비밀 지도가!\"<br><b>2.</b> 당근 단면의 심(가운데)과 외피(바깥) 색 차이 관찰<br><b>3.</b> 당근 반쪽에 이쑤시개로 더듬이를 꽂아요<br><b>4.</b> 눈알스티커를 붙여 달팽이 완성!<br><b>5.</b> \"이름 뭐라고 할까?\" — 출력물 뒷면에 이름 적기"},
+  4:{prep:"• 당근 자투리 (Day 1~3 남은 것)\n• 색종이, 양면테이프 (가정)\n• 출력물: 무지개 마을을 만들자!",steps:"<b>1.</b> 부모가 당근을 얇게 동그랗게 썰어요<br><b>2.</b> 출력물 앞면 만화 — \"우리가 모이면 무지개가 돼!\"<br><b>3.</b> 출력물 뒷면 배경판에 당근 조각을 무지개처럼 배열<br><b>4.</b> 색종이로 구름을 만들어 붙여요<br><b>5.</b> 당근 조각을 직접 옮기면 대성공!"},
+  5:{prep:"• 당근즙 (Day 2 남은 것)\n• 면봉 3~5개 (가정)\n• 출력물: 당근이의 비밀 편지",steps:"<b>1.</b> 출력물 앞면 만화 — \"당근즙으로 그리면 마법이!\"<br><b>2.</b> 당근즙을 접시에 부어 팔레트를 만들어요<br><b>3.</b> 면봉에 즙을 찍어 출력물 뒷면에 비밀 편지 쓰기<br><b>4.</b> 마르면 주황색으로 나타남! \"비밀 그림이 나왔다!\"<br><b>5.</b> 아이가 손에 묻은 즙을 핥으면? 아무렇지 않은 척!"},
+  // 2주차: 촉각/후각
+  6:{prep:"• 생당근 + 삶은당근 + 건조칩 ← 키트 포함\n• 접시 3개 (가정)\n• 출력물: 촉감 탐정",steps:"<b>1.</b> 접시 3개에 생/삶은/건조를 각각 놓아요<br><b>2.</b> 출력물 앞면 만화 — \"당근이가 변신했어!\"<br><b>3.</b> 손가락으로 살짝 눌러보기 — \"딱딱해? 말랑해? 바삭해?\"<br><b>4.</b> 출력물 뒷면에 느낌 체크하고 기록해요<br><b>5.</b> 만지기 싫으면 부모가 먼저 만져보고 표정으로 보여주기"},
+  7:{prep:"• 간 당근 (부모가 강판에 갈아서)\n• 사과/오이 조각 (가정 냉장고)\n• 컵 또는 그릇 3개 (가정)\n• 출력물: 냄새 탐정",steps:"<b>1.</b> 당근/사과/오이를 각각 컵에 넣고 손으로 덮어요<br><b>2.</b> 출력물 앞면 만화 — \"당근이가 숨었어! 코로 찾아줘!\"<br><b>3.</b> 아이가 컵 가까이 코를 대고 냄새 맡기<br><b>4.</b> \"무슨 냄새일까~?\" 출력물 뒷면에 기록<br><b>5.</b> <b>절대 \"먹어봐\"라고 하지 마세요!</b>"},
+  8:{prep:"• 생당근 1개 ← 키트 포함\n• 미니강판 ← 키트 포함\n• 접시 1개 (가정)\n• 출력물: 강판 놀이",steps:"<b>1.</b> 출력물 앞면 만화 — \"미끄럼틀이다! 슈슈슉!\"<br><b>2.</b> 부모가 당근을 잡고, 아이가 강판에 갈아봐요<br><b>3.</b> \"당근이가 가루가 됐어! 어떻게 변했지?\"<br><b>4.</b> 간 당근을 출력물 뒷면에 핑거페인팅<br><b>5.</b> 만지기 싫으면 숟가락으로 으깨기만 해도 OK"},
+  9:{prep:"• 당근파우더 15g ← 키트 포함\n• 물, 접시, 숟가락 (가정)\n• 출력물: 파우더 마법사",steps:"<b>1.</b> 출력물 앞면 만화 — \"물을 넣으면 마법이!\"<br><b>2.</b> 당근파우더를 접시에 부어요<br><b>3.</b> 물을 조금씩 넣으며 섞기 → 반죽처럼 변해요!<br><b>4.</b> 출력물 뒷면 가이드에 맞춰 모양 만들기 (동그라미/세모/하트)<br><b>5.</b> 묽게 섞으면 물감처럼 그림도 그릴 수 있어요"},
+  10:{prep:"• 당근즙 + 당근 조각 (남은 것)\n• 지퍼백 또는 얼음틀 (가정)\n• 출력물: 당근 보석",steps:"<b>1.</b> 출력물 앞면 만화 — \"당근이가 보석이 된대!\"<br><b>2.</b> 지퍼백에 당근즙 + 당근 조각을 넣어요<br><b>3.</b> 냉동실에 넣기 — 2~3시간 기다리기<br><b>4.</b> 꺼내서 관찰! \"차갑다! 미끌미끌!\" 촉감 탐색<br><b>5.</b> 출력물 뒷면에 내가 만든 보석 그리기 + 2주차 완료 축하!"},
+  // 3주차: 입 근처 접근
+  11:{prep:"• 건조당근칩 ← 키트 포함\n• 지퍼백 (가정)\n• 출력물: 바삭바삭 ASMR",steps:"<b>1.</b> 출력물 앞면 만화 — \"바삭바삭 소리를 들어봐!\"<br><b>2.</b> 당근칩을 지퍼백에 넣고 밀봉<br><b>3.</b> 손으로 꾹꾹/톡톡 부수기 — 바삭! 뿌직!<br><b>4.</b> 열어서 조각 관찰 → 코 가까이 냄새 맡기<br><b>5.</b> 입에 대보고 싶으면 OK, 안 해도 OK"},
+  12:{prep:"• 삶은당근 ← 키트 포함\n• 쿠키커터 (별/하트) ← 키트 포함\n• 출력물: 모양 변신",steps:"<b>1.</b> 부모가 삶은당근을 5mm 두께로 동그랗게 잘라요<br><b>2.</b> 출력물 앞면 만화 — \"쿠키커터로 꾹 누르면...\"<br><b>3.</b> 아이가 쿠키커터로 꾹 찍어 모양 만들기<br><b>4.</b> 출력물 뒷면에 만든 모양 배열하기<br><b>5.</b> \"별 모양 당근! 하트 모양 당근!\" 이름 붙이기"},
+  13:{prep:"• 당근 모양 조각 (Day 12 남은 것)\n• 케첩/마요 등 소스 (가정 냉장고)\n• 접시 1개 (가정)\n• 출력물: 얼굴 만들기",steps:"<b>1.</b> 출력물 앞면 만화 — \"내 얼굴을 만들어줘!\"<br><b>2.</b> 접시 가운데에 당근 조각으로 코/입 배치<br><b>3.</b> 소스로 눈/눈썹 그리기<br><b>4.</b> \"웃는 얼굴? 우는 얼굴?\" 표정 바꿔보기<br><b>5.</b> 출력물 뒷면에 내가 만든 얼굴 그리기"},
+  14:{prep:"• 생당근 스틱 (부모가 잘라서)\n• 출력물: 뽀뽀 놀이",steps:"<b>1.</b> 출력물 앞면 — 코→볼→입술 순서 그림<br><b>2.</b> 부모가 먼저 시범: 당근을 코에 톡 → 볼에 톡 → 입술에 톡<br><b>3.</b> \"간지러워! 당근이가 뽀뽀한대!\"<br><b>4.</b> 아이에게 권유 — <b>절대 강요 금지!</b> 코까지만 해도 대성공<br><b>5.</b> 출력물 뒷면에 어디까지 했는지 체크"},
+  15:{prep:"• 당근 스틱 ← 키트 포함\n• 디핑소스 3종 (크림치즈/요거트/꿀) ← 키트 포함\n• 소스 그릇 3개 (가정)\n• 출력물: 디핑 대모험",steps:"<b>1.</b> 출력물 앞면 만화 — \"소스 풀장에 풍덩!\"<br><b>2.</b> 소스 3종을 각각 그릇에 담아요<br><b>3.</b> \"어떤 소스에 찍어볼까? 네가 골라!\"<br><b>4.</b> 찍어서 맛보기 — 안 먹어도 찍기만 해도 OK<br><b>5.</b> 출력물 뒷면에 소스별 맛 평가 + 감각놀이 15회 완료 축하!"},
+  // 4주차: 한 입 도전 (RTE)
+  16:{prep:"• 당근 감자볼 6개 (조리완료) ← 키트 포함\n• 디핑소스 3종 ← 키트 포함\n• 전자레인지, 소스 그릇 3개 (가정)",steps:"<b>1.</b> 감자볼을 전자레인지에 <b>2분</b> 데워요<br><b>2.</b> 소스 3종을 각각 그릇에 담아요<br><b>3.</b> 출력물 앞면 만화 — \"당근이가 동글동글 변신!\"<br><b>4.</b> \"어떤 소스에 찍어볼까? 네가 골라!\" → 아이가 스스로 선택<br><b>5.</b> 한 입이라도 먹으면 대성공! 안 먹어도 찍기만 해도 OK"},
+  17:{prep:"• 당근 치즈 리조또 (조리완료) ← 키트 포함\n• 당근 다이스팩 + 치즈가루팩 ← 키트 포함\n• 전자레인지, 그릇 (가정)",steps:"<b>1.</b> 리조또를 전자레인지에 <b>3분</b> 데워요<br><b>2.</b> 출력물 앞면 만화 — \"당근이가 치즈 이불을 덮고 싶대!\"<br><b>3.</b> 아이가 당근 다이스를 직접 올리고 치즈가루를 뿌려요<br><b>4.</b> <b>\"내가 만들었다!\"</b> 효과 → 자발적 섭취 유도<br><b>5.</b> 한 숟가락이라도 먹으면 대성공. 당근만 골라내도 정상!"},
+  18:{prep:"• 당근 잔치국수 (조리완료, 면+육수) ← 키트 포함\n• 당근채팩 + 계란지단팩 ← 키트 포함\n• 끓는 물(냄비), 그릇 (가정)",steps:"<b>1.</b> 면을 끓는 물에 <b>3분</b> 데우고 육수를 부어요<br><b>2.</b> 출력물 앞면 만화 — \"당근이가 수영하고 싶대!\"<br><b>3.</b> 아이가 당근채와 계란지단을 직접 올려요<br><b>4.</b> 함께 먹기 — 국수만 먹고 당근은 남겨도 OK<br><b>5.</b> 출력물 뒷면에 4주차 미션 완료 기록!"},
+  // 5주차: 수료
+  19:{prep:"• 당근 미트소스 파스타 (조리완료, 면+소스) ← 키트 포함\n• 당근 다이스팩 ← 키트 포함\n• 전자레인지, 접시 (가정)",steps:"<b>1.</b> 면과 소스를 전자레인지에 <b>3분</b> 데워요<br><b>2.</b> 출력물 앞면 만화 — \"당근이의 파스타 파티!\"<br><b>3.</b> 아이가 당근 다이스 올리기 + 소스 섞기<br><b>4.</b> 함께 먹기!<br><b>5.</b> 출력물 뒷면에 맛 평가 기록"},
+  20:{prep:"• 당근 볶음밥 (조리완료) ← 키트 포함\n• 당근 다이스팩 + 김가루팩 ← 키트 포함\n• 전자레인지, 그릇 (가정)",steps:"<b>1.</b> 볶음밥을 전자레인지에 <b>2분</b> 데워요<br><b>2.</b> 출력물 앞면 만화 — \"당근이의 볶음밥 셰프!\"<br><b>3.</b> 아이가 당근 다이스 뿌리기 + 김가루 뿌리기<br><b>4.</b> 섞어서 함께 먹기 — <b>\"내가 만든 볶음밥!\"</b><br><b>5.</b> 사진 찍기 (앱에 기록)"},
+  21:{prep:"• 당근 닭칼국수 (조리완료, 면+육수) ← 키트 포함\n• 당근채팩 ← 키트 포함\n• 수료증 ← 키트 포함\n• 끓는 물(냄비), 그릇 (가정)",steps:"<b>1.</b> 면을 끓는 물에 <b>3분</b> 데우고 육수를 부어요<br><b>2.</b> 출력물 앞면 — \"축하해! 당근 마을 탐험대원!\"<br><b>3.</b> 아이가 당근채를 직접 올리고 함께 먹기<br><b>4.</b> <b>수료식!</b> 수료증 수여 + 사진 촬영<br><b>5.</b> \"5주 동안 당근 마을 탐험대를 해줘서 고마워!\""},
+};
+
+function updateHome(){
+  const a = ACTIVITIES[currentDay-1] || ACTIVITIES[0];
+  const pct = Math.round(((currentDay-1)/21)*100);
+  const week = a.week;
+
+  // 홈 화면
+  const label = document.getElementById('home-course-label');
+  const prog = document.getElementById('home-prog');
+  const progText = document.getElementById('home-prog-text');
+  const actEmoji = document.getElementById('home-act-emoji');
+  const actName = document.getElementById('home-act-name');
+  const actMeta = document.getElementById('home-act-meta');
+
+  if(label) label.textContent = `🥕 당근 코스 · ${week}주차`;
+  if(prog) prog.style.width = pct+'%';
+  if(progText) progText.textContent = `Day ${currentDay} / 21`;
+  if(document.getElementById('home-prog-pct')) document.getElementById('home-prog-pct').textContent = pct+'%';
+  if(actEmoji) actEmoji.textContent = a.emoji;
+  if(actName) actName.textContent = a.name;
+  if(actMeta) actMeta.textContent = a.meta;
+
+  // 활동 가이드 화면
+  const ge = document.getElementById('guide-emoji');
+  const gn = document.getElementById('guide-name');
+  const gm = document.getElementById('guide-meta');
+  const gp = document.getElementById('guide-prep');
+  const gs = document.getElementById('guide-steps');
+  if(ge) ge.textContent = a.emoji;
+  if(gn) gn.textContent = a.name;
+  if(gm) gm.textContent = a.meta;
+  // 가이드 상세가 있으면 적용, 없으면 기본 텍스트
+  const guide = GUIDES[currentDay] || GUIDES[Math.min(currentDay,7)];
+  if(guide && gp) gp.innerHTML = guide.prep.replace(/\n/g,'<br>');
+  if(guide && gs) gs.innerHTML = guide.steps;
+
+  // 기록 화면
+  const re = document.getElementById('record-emoji');
+  const rn = document.getElementById('record-name');
+  if(re) re.textContent = a.emoji;
+  if(rn) rn.textContent = a.name;
+
+  // 35개 국제기준 자동 운영 상태 (홈 박스)
+  const autoEl = document.getElementById('home-auto-status');
+  if(autoEl){
+    const exposed = currentDay;
+    const nesrCheck = exposed >= 8 ? '✅ NESR 8회 도달' : `${8-exposed}회 더 → plateau`;
+    const twobiteIssued = [12,14,16,21].filter(d=>d<=currentDay).length;
+    const familyWeek = Math.min(Math.floor(currentDay/3), 5);
+    const icfqDone = currentDay >= 1 ? '✅ 사전 통과' : '대기';
+    const cebqLine = currentDay >= 14 ? '🔔 중간 측정 (Day 14)' : (currentDay >= 21 ? '✅ 사후 측정' : '21일 후 자동');
+    const bridgeActive = [4,7,9].includes(currentDay) ? '🔔 활동 중 (Day '+currentDay+')' : '활동 시 자동';
+    autoEl.innerHTML = `
+      <div>📋 ICFQ: ${icfqDone}</div>
+      <div>🔁 노출: ${exposed}/21 (${nesrCheck})</div>
+      <div>✌️ Two Bite: ${twobiteIssued}/4 인증</div>
+      <div>👨‍👩‍👧 가족식: ${familyWeek}회/주</div>
+      <div>📊 CEBQ: ${cebqLine}</div>
+      <div>🌉 Food Bridge: ${bridgeActive}</div>
+    `;
+  }
+}
+
+function registerKit(){
+  currentDay = 1;
+  toast('🥕 당근 코스 등록 완료! 1일차를 시작하세요');
+  setTimeout(()=>{updateHome();go('s-home')},800);
+}
+
+function completeRecord(){
+  toast('✅ 기록 완료!');
+  if(currentDay < 21) currentDay++;
+  setTimeout(()=>{updateHome();go('s-home')},800);
+}
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById(id);
+  if(el){el.classList.add('active','slide-in');setTimeout(()=>el.classList.remove('slide-in'),300)}
+}
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1500);
+}
+function selReact(el){
+  el.parentElement.querySelectorAll('.react-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function selInt(el){
+  el.parentElement.querySelectorAll('.int-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function selOpt(el){
+  el.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  el.querySelector('.radio').style.background='';
+}
+function selOne(el){
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+</script>
+<script>
+/* GA 이벤트 트래킹 — 부모앱 데모 */
+document.addEventListener('DOMContentLoaded', function(){
+  // 화면 전환 추적 (go 함수 래핑)
+  var origGo = window.go;
+  window.go = function(screenId){
+    gtag('event','screen_view',{
+      event_category:'app_demo',
+      event_label: screenId,
+      screen_name: screenId
+    });
+    origGo(screenId);
+  };
+
+  // 모든 버튼 클릭 추적
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.btn, .tab, .react-btn, .int-btn, .chip, .card, .course-card, .day-card');
+    if(!btn) return;
+    var label = btn.textContent.trim().substring(0,40);
+    var cls = btn.className.split(' ').filter(function(c){return c!=='sel'&&c!=='active';}).join(' ');
+    var screen = document.querySelector('.screen.active');
+    var screenId = screen ? screen.id : 'unknown';
+    gtag('event','click',{
+      event_category:'app_demo',
+      event_label: label,
+      button_class: cls,
+      screen_name: screenId
+    });
+  });
+
+  // 탭바 네비게이션 추적
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      gtag('event','tab_click',{
+        event_category:'app_demo',
+        event_label: this.textContent.trim()
+      });
+    });
+  });
+
+  // 감정 반응(react-btn) 선택 추적
+  document.querySelectorAll('.react-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      gtag('event','reaction_select',{
+        event_category:'app_demo',
+        event_label: this.textContent.trim()
+      });
+    });
+  });
+
+  // 상호작용 레벨(int-btn) 선택 추적
+  document.querySelectorAll('.int-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      gtag('event','interaction_select',{
+        event_category:'app_demo',
+        event_label: this.textContent.trim()
+      });
+    });
+  });
+
+  // 알레르기 칩 선택 추적
+  document.querySelectorAll('.chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      gtag('event','chip_toggle',{
+        event_category:'app_demo',
+        event_label: this.textContent.trim(),
+        selected: this.classList.contains('sel') ? 'off' : 'on'
+      });
+    });
+  });
+
+  // 스크롤 깊이 추적 (25%, 50%, 75%, 100%)
+  var scrolled = {};
+  window.addEventListener('scroll', function(){
+    var pct = Math.round(100 * window.scrollY / (document.body.scrollHeight - window.innerHeight));
+    [25,50,75,100].forEach(function(m){
+      if(pct >= m && !scrolled[m]){
+        scrolled[m] = true;
+        gtag('event','scroll_depth',{event_category:'app_demo',event_label:m+'%'});
+      }
+    });
+  }, {passive:true});
+});
+
+/* ============================================================
+   Phase 9 인터랙티브 프로토타입 모듈 (2026-05-11)
+   - Food Chaining 4축 알고리즘 (T064 정합)
+   - ICFQ 6문항 분기
+   - CEBQ 8축 Chart.js radar
+   - Family Meals 주 5회 + HabEat 결정요인 ① 상관
+   - 노출 횟수 자동 트래킹 (NESR 8-10회 plateau)
+   ============================================================ */
+
+// 한국 식재료 mini DB (4축 벡터, T151 정합)
+// 축 스케일: 색 0-9 / 온도 0-3 / 질감 0-5 / 맛 0-7
+const P9_FOODS = [
+  // 친숙·주식
+  {id:'cheese_rice', name:'치즈 야채밥', emoji:'🍚', cat:'주식', color:1, temp:2, tex:2, fla:4},
+  {id:'bokkeumbap', name:'볶음밥', emoji:'🍳', cat:'주식', color:1, temp:2, tex:2, fla:4},
+  {id:'spaghetti', name:'토마토 스파게티', emoji:'🍝', cat:'주식', color:5, temp:2, tex:3, fla:3},
+  {id:'toast', name:'치즈 토스트', emoji:'🍞', cat:'주식', color:1, temp:2, tex:3, fla:2},
+  {id:'kalguksu', name:'잔치국수', emoji:'🍜', cat:'주식', color:1, temp:3, tex:3, fla:3},
+  // 단백
+  {id:'meatball', name:'미트볼', emoji:'🍖', cat:'단백', color:7, temp:2, tex:3, fla:4},
+  {id:'nugget', name:'닭너겟', emoji:'🍗', cat:'단백', color:7, temp:2, tex:3, fla:4},
+  {id:'egg_roll', name:'계란말이', emoji:'🍳', cat:'단백', color:1, temp:2, tex:2, fla:2},
+  {id:'tofu_soft', name:'연두부', emoji:'🧆', cat:'단백', color:0, temp:1, tex:1, fla:0},
+  {id:'tofu_firm', name:'단단두부', emoji:'⬜', cat:'단백', color:0, temp:2, tex:3, fla:0},
+  // 채소 (목표)
+  {id:'carrot', name:'당근 (생)', emoji:'🥕', cat:'채소', color:4, temp:0, tex:5, fla:2},
+  {id:'carrot_cooked', name:'당근 (익힘)', emoji:'🥕', cat:'채소', color:4, temp:2, tex:3, fla:2},
+  {id:'spinach', name:'시금치 (큰 잎)', emoji:'🥬', cat:'채소', color:3, temp:0, tex:5, fla:6},
+  {id:'spinach_paste', name:'시금치 페스토', emoji:'🥬', cat:'채소', color:3, temp:1, tex:1, fla:5},
+  {id:'broccoli', name:'브로콜리', emoji:'🥦', cat:'채소', color:3, temp:2, tex:5, fla:6},
+  {id:'tomato_cherry', name:'방울토마토', emoji:'🍅', cat:'채소', color:5, temp:0, tex:4, fla:3},
+  {id:'tomato_sauce', name:'토마토 소스', emoji:'🍅', cat:'채소', color:5, temp:2, tex:1, fla:3},
+  {id:'onion_raw', name:'생양파', emoji:'🧅', cat:'채소', color:0, temp:0, tex:4, fla:7},
+  {id:'onion_caramel', name:'캐러멜라이즈 양파', emoji:'🧅', cat:'채소', color:7, temp:2, tex:2, fla:2},
+  {id:'eggplant', name:'가지 (구이)', emoji:'🍆', cat:'채소', color:6, temp:2, tex:2, fla:5},
+  {id:'paprika', name:'파프리카 (생)', emoji:'🫑', cat:'채소', color:5, temp:0, tex:4, fla:2},
+  {id:'mushroom', name:'버섯 (구이)', emoji:'🍄', cat:'채소', color:7, temp:2, tex:3, fla:5},
+  {id:'cabbage', name:'양배추', emoji:'🥬', cat:'채소', color:2, temp:0, tex:4, fla:1},
+  {id:'cucumber', name:'오이', emoji:'🥒', cat:'채소', color:2, temp:0, tex:4, fla:1},
+  // 친숙 간식·과일
+  {id:'apple', name:'사과', emoji:'🍎', cat:'과일', color:5, temp:0, tex:4, fla:2},
+  {id:'banana', name:'바나나', emoji:'🍌', cat:'과일', color:1, temp:0, tex:2, fla:2},
+  {id:'strawberry', name:'딸기', emoji:'🍓', cat:'과일', color:5, temp:0, tex:3, fla:2},
+  {id:'cookie', name:'쿠키', emoji:'🍪', cat:'간식', color:7, temp:1, tex:3, fla:2},
+  {id:'yogurt', name:'요거트', emoji:'🥛', cat:'간식', color:0, temp:0, tex:1, fla:1},
+  {id:'cheese_slice', name:'치즈 슬라이스', emoji:'🧀', cat:'간식', color:1, temp:1, tex:2, fla:2},
+  // === DB 확장 (2026-05-11, T153 — 30 → 100) ===
+  // 주식 확장
+  {id:'rice_white', name:'흰 밥', emoji:'🍚', cat:'주식', color:0, temp:2, tex:2, fla:0},
+  {id:'rice_brown', name:'현미밥', emoji:'🍚', cat:'주식', color:7, temp:2, tex:3, fla:1},
+  {id:'porridge', name:'죽', emoji:'🥣', cat:'주식', color:0, temp:2, tex:1, fla:1},
+  {id:'kimbap', name:'김밥', emoji:'🍙', cat:'주식', color:9, temp:1, tex:2, fla:3},
+  {id:'pizza_mini', name:'미니피자', emoji:'🍕', cat:'주식', color:5, temp:2, tex:3, fla:4},
+  {id:'sandwich', name:'샌드위치', emoji:'🥪', cat:'주식', color:9, temp:1, tex:3, fla:3},
+  {id:'tteok', name:'떡 (작게)', emoji:'🍡', cat:'주식', color:0, temp:1, tex:4, fla:2},
+  {id:'pancake', name:'팬케이크', emoji:'🥞', cat:'주식', color:7, temp:2, tex:2, fla:2},
+  {id:'tortilla_wrap', name:'또띠아 랩', emoji:'🌯', cat:'주식', color:1, temp:2, tex:3, fla:3},
+  {id:'jajangmyeon', name:'짜장면', emoji:'🍜', cat:'주식', color:7, temp:3, tex:3, fla:4},
+  {id:'risotto', name:'리조또', emoji:'🍲', cat:'주식', color:1, temp:3, tex:2, fla:3},
+  // 단백 확장
+  {id:'ham_slice', name:'슬라이스 햄', emoji:'🥓', cat:'단백', color:5, temp:1, tex:3, fla:3},
+  {id:'sausage', name:'소시지', emoji:'🌭', cat:'단백', color:5, temp:2, tex:3, fla:4},
+  {id:'fish_white', name:'흰 살 생선', emoji:'🐟', cat:'단백', color:0, temp:2, tex:2, fla:1},
+  {id:'fish_salmon', name:'연어', emoji:'🍣', cat:'단백', color:4, temp:1, tex:2, fla:3},
+  {id:'shrimp', name:'새우', emoji:'🦐', cat:'단백', color:4, temp:2, tex:3, fla:3},
+  {id:'beef_bulgogi', name:'불고기', emoji:'🥩', cat:'단백', color:7, temp:2, tex:3, fla:4},
+  {id:'chicken_leg', name:'닭다리', emoji:'🍗', cat:'단백', color:7, temp:2, tex:4, fla:4},
+  {id:'chicken_breast', name:'닭가슴살', emoji:'🍗', cat:'단백', color:1, temp:2, tex:3, fla:2},
+  {id:'pork_belly', name:'삼겹살', emoji:'🥓', cat:'단백', color:7, temp:2, tex:3, fla:4},
+  {id:'egg_boiled', name:'삶은 계란', emoji:'🥚', cat:'단백', color:1, temp:1, tex:2, fla:0},
+  {id:'egg_scrambled', name:'스크램블 에그', emoji:'🍳', cat:'단백', color:1, temp:2, tex:1, fla:1},
+  {id:'beans_cooked', name:'삶은 콩', emoji:'🫘', cat:'단백', color:7, temp:2, tex:2, fla:1},
+  {id:'meatball_korean', name:'완자 (한식)', emoji:'🍡', cat:'단백', color:7, temp:2, tex:3, fla:4},
+  // 채소 확장 (9코스 외 추가)
+  {id:'potato_mash', name:'으깬 감자', emoji:'🥔', cat:'채소', color:1, temp:2, tex:1, fla:1},
+  {id:'potato_chip', name:'감자 (구이)', emoji:'🥔', cat:'채소', color:1, temp:2, tex:3, fla:1},
+  {id:'sweet_potato', name:'고구마 (찐)', emoji:'🍠', cat:'채소', color:4, temp:2, tex:2, fla:2},
+  {id:'corn', name:'옥수수', emoji:'🌽', cat:'채소', color:1, temp:2, tex:3, fla:2},
+  {id:'pumpkin', name:'단호박', emoji:'🎃', cat:'채소', color:4, temp:2, tex:2, fla:2},
+  {id:'lettuce', name:'상추', emoji:'🥬', cat:'채소', color:2, temp:0, tex:5, fla:1},
+  {id:'perilla', name:'깻잎', emoji:'🌿', cat:'채소', color:3, temp:0, tex:5, fla:6},
+  {id:'green_onion', name:'대파 (익힘)', emoji:'🧅', cat:'채소', color:2, temp:2, tex:3, fla:5},
+  {id:'garlic', name:'마늘 (구이)', emoji:'🧄', cat:'채소', color:1, temp:2, tex:3, fla:7},
+  {id:'radish', name:'무 (생)', emoji:'🥕', cat:'채소', color:0, temp:0, tex:5, fla:5},
+  {id:'kimchi_radish', name:'무 (익힘)', emoji:'🥕', cat:'채소', color:0, temp:2, tex:2, fla:3},
+  {id:'beansprout', name:'콩나물', emoji:'🌱', cat:'채소', color:1, temp:2, tex:4, fla:1},
+  {id:'zucchini', name:'애호박', emoji:'🥒', cat:'채소', color:2, temp:2, tex:2, fla:1},
+  {id:'spinach_short', name:'시금치 (다진 것)', emoji:'🥬', cat:'채소', color:3, temp:2, tex:2, fla:5},
+  {id:'broccoli_small', name:'브로콜리 (잘게)', emoji:'🥦', cat:'채소', color:3, temp:2, tex:3, fla:5},
+  {id:'carrot_powder', name:'당근 가루', emoji:'🥕', cat:'채소', color:4, temp:1, tex:1, fla:2},
+  {id:'spinach_powder', name:'시금치 가루', emoji:'🥬', cat:'채소', color:3, temp:1, tex:1, fla:4},
+  {id:'mushroom_paste', name:'버섯 페이스트', emoji:'🍄', cat:'채소', color:7, temp:2, tex:1, fla:3},
+  // 과일 확장
+  {id:'orange', name:'오렌지', emoji:'🍊', cat:'과일', color:4, temp:0, tex:4, fla:2},
+  {id:'grape', name:'포도 (반)', emoji:'🍇', cat:'과일', color:6, temp:0, tex:3, fla:2},
+  {id:'kiwi', name:'키위', emoji:'🥝', cat:'과일', color:2, temp:0, tex:2, fla:2},
+  {id:'blueberry', name:'블루베리', emoji:'🫐', cat:'과일', color:6, temp:0, tex:3, fla:2},
+  {id:'mango', name:'망고', emoji:'🥭', cat:'과일', color:4, temp:0, tex:2, fla:2},
+  {id:'pear', name:'배', emoji:'🍐', cat:'과일', color:2, temp:0, tex:4, fla:2},
+  {id:'persimmon', name:'단감', emoji:'🍑', cat:'과일', color:4, temp:0, tex:3, fla:2},
+  {id:'watermelon', name:'수박', emoji:'🍉', cat:'과일', color:5, temp:0, tex:3, fla:2},
+  // 간식·유제품 확장
+  {id:'milk', name:'우유', emoji:'🥛', cat:'간식', color:0, temp:0, tex:0, fla:1},
+  {id:'cheese_string', name:'스트링 치즈', emoji:'🧀', cat:'간식', color:1, temp:0, tex:3, fla:2},
+  {id:'cracker', name:'크래커', emoji:'🍪', cat:'간식', color:1, temp:1, tex:3, fla:3},
+  {id:'pretzel', name:'프레첼', emoji:'🥨', cat:'간식', color:7, temp:1, tex:3, fla:3},
+  {id:'pudding', name:'푸딩', emoji:'🍮', cat:'간식', color:1, temp:0, tex:1, fla:2},
+  {id:'rice_cake_baby', name:'쌀과자', emoji:'🍘', cat:'간식', color:0, temp:1, tex:3, fla:0},
+  // 한식 특화 (장류·김치 어른용은 키트 외 학습 참고)
+  {id:'soybean_paste_soup', name:'된장국 (순한)', emoji:'🍲', cat:'주식', color:7, temp:3, tex:0, fla:4},
+  {id:'kimchi_water', name:'백김치', emoji:'🥬', cat:'채소', color:0, temp:0, tex:4, fla:5},
+  {id:'seaweed_dry', name:'김 (구운)', emoji:'🌿', cat:'간식', color:8, temp:1, tex:3, fla:3},
+  {id:'soy_sauce_egg', name:'간장계란밥', emoji:'🍚', cat:'주식', color:1, temp:2, tex:2, fla:3},
+  {id:'fishcake', name:'어묵', emoji:'🍢', cat:'단백', color:1, temp:2, tex:3, fla:3},
+  {id:'crabstick', name:'게맛살', emoji:'🦀', cat:'단백', color:5, temp:1, tex:3, fla:3},
+  // 추가 가공식 (Food Chaining 출발점 — 친숙)
+  {id:'hotdog', name:'핫도그', emoji:'🌭', cat:'단백', color:5, temp:2, tex:3, fla:4},
+  {id:'nugget_baked', name:'베이크드 너겟', emoji:'🍗', cat:'단백', color:7, temp:2, tex:3, fla:3},
+  {id:'pasta_cream', name:'크림 파스타', emoji:'🍝', cat:'주식', color:0, temp:2, tex:3, fla:2},
+  {id:'curry', name:'카레 (순한)', emoji:'🍛', cat:'주식', color:4, temp:3, tex:2, fla:3},
+  {id:'gimbap_veg', name:'야채 김밥', emoji:'🍙', cat:'주식', color:9, temp:1, tex:2, fla:3},
+  // 보완식·이유식 친숙 (어린 연령)
+  {id:'baby_rice', name:'쌀미음', emoji:'🥣', cat:'주식', color:0, temp:2, tex:0, fla:0},
+  {id:'baby_pumpkin_puree', name:'단호박 퓨레', emoji:'🥣', cat:'채소', color:4, temp:1, tex:1, fla:2},
+  {id:'baby_apple_puree', name:'사과 퓨레', emoji:'🥣', cat:'과일', color:1, temp:0, tex:1, fla:2},
+  // 견과·기타 (1세+)
+  {id:'almond_ground', name:'아몬드 가루', emoji:'🌰', cat:'간식', color:7, temp:1, tex:1, fla:2},
+  {id:'walnut_ground', name:'호두 가루', emoji:'🌰', cat:'간식', color:7, temp:1, tex:1, fla:2},
+];
+
+const P9_SCALES = {color:9, temp:3, tex:5, fla:7};
+const P9_WEIGHTS = {tex:1.5, color:1.0, fla:1.2, temp:0.7}; // Fraker 우선순위
+
+function p9Distance(a, b){
+  let s = 0;
+  for(const ax of ['color','temp','tex','fla']){
+    const d = (a[ax]-b[ax]) / P9_SCALES[ax];
+    s += P9_WEIGHTS[ax] * d * d;
+  }
+  return Math.sqrt(s);
+}
+
+// ============================================================
+// Phase 9-C: Food Chaining 4축 개인화 생성기 ★
+// ============================================================
+window.p9FC = {
+  loved: [],
+  target: null,
+  lovedFilter: '전체',
+  init(){
+    this.renderLoved();
+    const targetHTML = P9_FOODS.filter(f=>f.cat==='채소').map(f =>
+      `<span class="p9-chip" data-id="${f.id}" onclick="p9FC.setTarget('${f.id}')">${f.emoji} ${f.name}</span>`
+    ).join('');
+    document.getElementById('p9-fc-target').innerHTML = targetHTML;
+    // 사전 선택 (ICFQ에서 넘어왔거나 데모 첫 인상)
+    if(this.loved.length===0){
+      this.loved = ['cheese_rice','toast','nugget'];
+    }
+    this.renderLoved();
+    if(!this.target) this.setTarget('spinach');
+  },
+  renderLoved(){
+    const cats = ['전체','주식','단백','채소','과일','간식'];
+    const filterHTML = cats.map(c =>
+      `<span class="p9-chip ${this.lovedFilter===c?'sel':''}" onclick="p9FC.setFilter('${c}')">${c}</span>`
+    ).join('');
+    const foods = this.lovedFilter==='전체' ? P9_FOODS : P9_FOODS.filter(f=>f.cat===this.lovedFilter);
+    const lovedHTML = foods.map(f =>
+      `<span class="p9-chip ${this.loved.includes(f.id)?'sel':''}" data-id="${f.id}" onclick="p9FC.toggleLoved('${f.id}')">${f.emoji} ${f.name}</span>`
+    ).join('');
+    document.getElementById('p9-fc-loved').innerHTML =
+      `<div style="margin-bottom:6px;font-size:11px;color:#888">카테고리 (${P9_FOODS.length}개 중 ${foods.length}):</div>` +
+      `<div style="margin-bottom:8px">${filterHTML}</div>` +
+      `<div style="max-height:160px;overflow-y:auto;border:1px solid #eee;border-radius:8px;padding:6px">${lovedHTML}</div>` +
+      `<div style="font-size:11px;color:#666;margin-top:4px">선택됨: <strong>${this.loved.length}</strong>개</div>`;
+  },
+  setFilter(c){ this.lovedFilter = c; this.renderLoved(); },
+  toggleLoved(id){
+    const i = this.loved.indexOf(id);
+    if(i>=0) this.loved.splice(i,1); else if(this.loved.length<10) this.loved.push(id);
+    this.renderLoved();
+  },
+  setTarget(id){
+    this.target = id;
+    document.querySelectorAll('#p9-fc-target .p9-chip').forEach(c=>{
+      c.classList.toggle('sel', c.dataset.id===id);
+    });
+  },
+  generate(){
+    if(this.loved.length<1 || !this.target){
+      toast('좋아하는 음식 1개+ / 목표 1개 선택해주세요');
+      return;
+    }
+    const targetFood = P9_FOODS.find(f=>f.id===this.target);
+    // 좋아하는 음식 중 목표와 가장 가까운 1개 = 시작점
+    let start = null, minD = Infinity;
+    for(const id of this.loved){
+      const f = P9_FOODS.find(x=>x.id===id);
+      const d = p9Distance(f, targetFood);
+      if(d<minD){ minD=d; start=f; }
+    }
+    // 다리: 시작점에서 목표까지 한 축씩 변화 — 가까운 DB 음식 검색
+    const bridge = [start];
+    let current = start;
+    const priority = ['tex','color','temp','fla'];
+    let safety = 0;
+    while(p9Distance(current, targetFood) > 0.3 && safety < 6){
+      safety++;
+      // 다음 후보: 현재와 거리 가까우면서 목표 방향
+      let next = null, bestScore = Infinity;
+      for(const f of P9_FOODS){
+        if(f.id === current.id || bridge.find(b=>b.id===f.id)) continue;
+        const dCurrent = p9Distance(current, f);
+        const dTarget = p9Distance(f, targetFood);
+        // 너무 멀지 않고(점진) 목표에 가까워지는 것
+        if(dCurrent > 0.5) continue;
+        const score = dTarget + dCurrent*0.5;
+        if(score < bestScore){ bestScore = score; next = f; }
+      }
+      if(!next) break;
+      bridge.push(next);
+      current = next;
+    }
+    if(bridge[bridge.length-1].id !== targetFood.id) bridge.push(targetFood);
+    // 변화 축 분석
+    const axisLabel = {tex:'질감', color:'색', temp:'온도', fla:'맛'};
+    const renderStep = (food, prev, step, total) => {
+      let axisStr = '친숙';
+      if(prev){
+        const changes = [];
+        for(const ax of ['tex','color','temp','fla']){
+          if(Math.abs(food[ax]-prev[ax])>=1) changes.push(axisLabel[ax]);
+        }
+        axisStr = changes.length ? changes.join('·') : '미세 조정';
+      }
+      const colors = ['#4CAF50','#FFC107','#FF9800','#FF5722','#C62828','#5D4037'];
+      const c = colors[Math.min(step-1, colors.length-1)];
+      return `<div class="card" style="border-left:4px solid ${c}">
+        <div style="font-size:12px;color:#888">${step}/${total}단계 [<strong style="color:#F57C00">${axisStr}</strong>]</div>
+        <div style="font-size:14.5px;font-weight:600">${food.emoji} ${food.name}</div>
+      </div>`;
+    };
+    let html = `<div style="font-size:13px;font-weight:700;color:#E65100;margin:14px 0 8px">🌉 ${bridge.length}단계 다리 음식 시퀀스 (자동 생성)</div>`;
+    bridge.forEach((f, i) => {
+      html += renderStep(f, i>0?bridge[i-1]:null, i+1, bridge.length);
+    });
+    html += `<div class="card" style="background:#FFF8E1">
+      <div style="font-size:12px;line-height:1.6">
+        <strong style="color:#E65100">📊 알고리즘 결과</strong><br>
+        시작점 거리: ${minD.toFixed(2)} · 단계: ${bridge.length}개 · NESR 8-10회 노출 권장<br>
+        <small style="color:#888">Fraker 2007 우선순위: 질감 → 색 → 온도 → 맛</small>
+      </div>
+    </div>`;
+    html += `<div class="btn btn-o" onclick="toast('🌉 시퀀스 저장 (데모)')">이 시퀀스 저장 → 매일 추천</div>`;
+    document.getElementById('p9-fc-result').innerHTML = html;
+  }
+};
+
+// ============================================================
+// Phase 9-E: ICFQ 6문항 + 분기
+// ============================================================
+window.p9ICFQ = {
+  questions: [
+    {id:1, text:'식사 시간 30분 이상 자주?', axis:'feeding_skill'},
+    {id:2, text:'식사 중 울음·짜증 잦음?', axis:'psychosocial'},
+    {id:3, text:'특정 음식만 + 3개월 지속?', axis:'nutritional'},
+    {id:4, text:'삼킴·구역질·구토 문제?', axis:'feeding_skill'},
+    {id:5, text:'체중 부진/영양 결핍 진단?', axis:'medical'},
+    {id:6, text:'가족 식사가 매번 스트레스?', axis:'psychosocial'},
+  ],
+  answers: {},
+  init(){
+    const html = this.questions.map(q=>`
+      <div class="p9-q" id="p9-q-${q.id}">
+        <div class="qtxt"><strong>Q${q.id}.</strong> ${q.text}</div>
+        <div class="qopts">
+          <div class="qopt" data-q="${q.id}" data-v="yes" onclick="p9ICFQ.answer(${q.id},'yes')">예</div>
+          <div class="qopt" data-q="${q.id}" data-v="no" onclick="p9ICFQ.answer(${q.id},'no')">아니오</div>
+        </div>
+      </div>
+    `).join('');
+    document.getElementById('p9-icfq-qs').innerHTML = html;
+  },
+  answer(qid, v){
+    this.answers[qid] = v;
+    const qEl = document.getElementById(`p9-q-${qid}`);
+    qEl.classList.add('answered');
+    qEl.querySelectorAll('.qopt').forEach(o=>{
+      o.classList.remove('sel-yes','sel-no');
+      if(o.dataset.v===v) o.classList.add(v==='yes'?'sel-yes':'sel-no');
+    });
+  },
+  score(){
+    const total = this.questions.length;
+    const answered = Object.keys(this.answers).length;
+    if(answered<total){ toast(`${total-answered}문항 더 응답해주세요`); return; }
+    const yesCount = Object.values(this.answers).filter(v=>v==='yes').length;
+    let cls, msg, color, bg;
+    if(yesCount<=1){
+      cls = '✅ 정상 picky'; color='#2E7D32'; bg='#E8F5E9';
+      msg = '캐나다 소아과학회(CPS): 영유아 25-35%가 같은 시기를 거칩니다. <strong>5주 9코스 키트 시작 OK</strong>. Food Chaining 4축 생성기로 다음 시도할 음식 추천 받기.';
+    } else if(yesCount<=3){
+      cls = '⚠️ Borderline'; color='#E65100'; bg='#FFF3E0';
+      msg = '경계 영역입니다. 키트는 시작 가능하지만 <strong>6주 후 재측정</strong>을 권장. 동시에 가족식 주 5회(Satter) + 강제 금지(Galloway DOR).';
+    } else {
+      cls = '🚨 PFD 의심'; color='#C62828'; bg='#FFEBEE';
+      msg = 'Goday 2019 PFD 4축 신호. <strong>소아과·OT/SLP 임상가 의뢰 권장</strong>. 키트 단독 사용 권장 X. ICD-10 R63.3 진단 가능성.';
+    }
+    const html = `<div class="card" style="background:${bg};border-left:4px solid ${color}">
+      <div style="font-size:15px;font-weight:800;color:${color};margin-bottom:6px">${cls} (예 ${yesCount}/6)</div>
+      <div style="font-size:12.5px;line-height:1.65;color:#444">${msg}</div>
+    </div>
+    ${yesCount<=3 ? `
+    <div class="card" style="background:#FFF3E0;border-left:4px solid #F57C00">
+      <div style="font-size:12.5px;color:#5D4037;line-height:1.6">
+        <strong style="color:#E65100">🌉 다음 추천: Food Chaining 4축 생성기</strong><br>
+        ICFQ 결과 기반으로 다음 시도할 다리 음식을 알고리즘이 자동 생성합니다.
+      </div>
+      <div class="btn btn-o" style="margin-top:8px" onclick="go('s-foodbridge')">→ Food Chaining 시작</div>
+    </div>` : `
+    <div class="btn btn-o" onclick="go('s-home')">홈으로</div>`}`;
+    document.getElementById('p9-icfq-result').innerHTML = html;
+    // ICFQ → 키트 진입 추적 (실 데모 통계)
+    if(yesCount<=3) window.__p9IcfqPassed = true;
+  }
+};
+
+// ============================================================
+// Phase 9-F: CEBQ 8축 Chart.js radar
+// ============================================================
+window.p9CEBQ = {
+  axes: ['FR\n(반응)','EF\n(즐거움)','FF\n(편식)','SR\n(포만감)','SE\n(속도)','EOE\n(과식)','EUE\n(부진)','DD\n(음료)'],
+  day0: [3.2, 2.8, 4.1, 3.5, 3.0, 2.1, 2.5, 3.0],
+  day21: [3.4, 3.1, 3.2, 3.6, 2.8, 2.0, 2.3, 2.9],
+  chart: null,
+  init(){
+    if(this.chart) this.chart.destroy();
+    const ctx = document.getElementById('p9-cebq-chart');
+    if(!ctx) return;
+    this.chart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: this.axes,
+        datasets: [
+          {label:'Day0 (사전)', data:this.day0, borderColor:'#9E9E9E', backgroundColor:'rgba(158,158,158,0.15)', pointRadius:3},
+          {label:'Day21 (사후)', data:this.day21, borderColor:'#6A1B9A', backgroundColor:'rgba(106,27,154,0.25)', pointRadius:3},
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: true,
+        scales: {r: {min:0, max:5, ticks:{stepSize:1, font:{size:9}}, pointLabels:{font:{size:10}}}},
+        plugins: {legend: {position:'bottom', labels:{font:{size:11}}}}
+      }
+    });
+    // 8축 표
+    const labels = ['FR (음식 반응)','EF (즐거움)','FF (편식 ⭐)','SR (포만감)','SE (속도)','EOE (감정 과식)','EUE (감정 부진)','DD (음료)'];
+    const tbl = labels.map((l,i)=>{
+      const d=this.day21[i]-this.day0[i];
+      const sign = d>0?'↑':(d<0?'↓':'');
+      const color = (i===2)?(d<0?'#2E7D32':'#C62828'):'#888'; // FF는 감소가 좋음
+      return `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #eee">
+        <span>${l}</span>
+        <span style="color:${color};font-weight:600">${this.day0[i].toFixed(1)} → ${this.day21[i].toFixed(1)} ${sign}</span>
+      </div>`;
+    }).join('');
+    document.getElementById('p9-cebq-table').innerHTML = tbl;
+    const ffChange = ((this.day0[2]-this.day21[2])/this.day0[2]*100).toFixed(0);
+    document.getElementById('p9-cebq-ff').textContent = `${ffChange}% 감소`;
+  }
+};
+
+// ============================================================
+// Phase 9-G: Family Meals 7일 그리드 + HabEat 결정요인 ① 상관
+// ============================================================
+window.p9Fam = {
+  days: ['월','화','수','목','금','토','일'],
+  state: [1,1,1,0,1,1,0], // 기본 5/7
+  chart: null,
+  init(){
+    this.renderGrid();
+    this.renderChart();
+  },
+  toggle(i){
+    const wasOn = this.state[i];
+    this.state[i] = wasOn?0:1;
+    this.renderGrid();
+    // 가족식 켜면 코스 식재료 자동 1개 +1 (HabEat 결정요인 ① 실증)
+    if(!wasOn && window.p9Exp && window.p9Exp.counts){
+      const ing = ['당근','시금치','양파','두부','토마토'][i % 5];
+      p9Exp.counts[ing] = (p9Exp.counts[ing]||0) + 1;
+      toast(`🍽️ 가족식 기록 + ${ing} 노출 +1 (자동 연동)`);
+    }
+  },
+  renderGrid(){
+    const total = this.state.reduce((a,b)=>a+b,0);
+    document.getElementById('p9-fam-stars').textContent = '⭐ '.repeat(total) + '· '.repeat(7-total);
+    const msg = total>=5?'🌟 Satter Family Meals 표준 달성!':
+                total>=3?`${total}/5 — 조금만 더 (강제 X, 권장 ⭕)`:
+                `${total}/5 — Satter 권장 도달을 응원합니다`;
+    const color = total>=5?'#2E7D32':total>=3?'#E65100':'#5D4037';
+    const msgEl = document.getElementById('p9-fam-msg');
+    msgEl.textContent = msg;
+    msgEl.style.color = color;
+    const grid = this.days.map((d,i)=>`
+      <div class="gcell ${this.state[i]?'on':''}" onclick="p9Fam.toggle(${i})">
+        <div class="day">${d}</div><div class="star">${this.state[i]?'⭐':'·'}</div>
+      </div>
+    `).join('');
+    document.getElementById('p9-fam-grid').innerHTML = grid;
+  },
+  renderChart(){
+    if(this.chart) this.chart.destroy();
+    const ctx = document.getElementById('p9-fam-chart');
+    if(!ctx) return;
+    // mock 데이터: 부모 채소 등장 빈도 vs 아이 수용도 (양의 상관)
+    const data = [
+      {x:1,y:18},{x:2,y:24},{x:2,y:30},{x:3,y:35},{x:3,y:42},
+      {x:4,y:48},{x:4,y:55},{x:5,y:62},{x:5,y:70},{x:6,y:78},{x:6,y:82}
+    ];
+    this.chart = new Chart(ctx, {
+      type: 'scatter',
+      data: {datasets: [{
+        label:'가족(N=11)',
+        data: data,
+        backgroundColor:'#C2185B',
+        pointRadius: 5
+      }]},
+      options: {
+        responsive:true, maintainAspectRatio:true,
+        scales: {
+          x: {title:{display:true,text:'엄마 채소 등장 횟수/주', font:{size:10}}, min:0, max:7, ticks:{font:{size:9}}},
+          y: {title:{display:true,text:'아이 수용도 (%)', font:{size:10}}, min:0, max:100, ticks:{font:{size:9}}}
+        },
+        plugins: {legend:{display:false}}
+      }
+    });
+  }
+};
+
+// ============================================================
+// Phase 9-D: 노출 횟수 자동 트래킹 (NESR 8-10회 plateau)
+// ============================================================
+window.p9Exp = {
+  ingredients: ['당근','토마토','파프리카','시금치','브로콜리','양파','버섯','가지','두부'],
+  emojis: {'당근':'🥕','토마토':'🍅','파프리카':'🫑','시금치':'🥬','브로콜리':'🥦','양파':'🧅','버섯':'🍄','가지':'🍆','두부':'🧆'},
+  counts: {'당근':5,'토마토':3,'파프리카':1,'시금치':2,'브로콜리':0,'양파':6,'버섯':1,'가지':0,'두부':4},
+  init(){ this.render(); },
+  add(){
+    const input = document.getElementById('p9-exp-input');
+    const text = (input.value||'').trim();
+    if(!text){ toast('식단을 입력하세요'); return; }
+    let found = [];
+    for(const ing of this.ingredients){
+      if(text.includes(ing)){
+        this.counts[ing]++;
+        found.push(ing);
+      }
+    }
+    if(found.length===0){
+      document.getElementById('p9-exp-msg').innerHTML = `🔎 입력 "${text}"에서 9코스 식재료를 인식하지 못했어요 (DB 100개 확장 예정)`;
+    } else {
+      document.getElementById('p9-exp-msg').innerHTML = `✅ 인식: <strong>${found.join(', ')}</strong> 노출 +1 (NESR 8회 권고 대비)`;
+    }
+    input.value = '';
+    this.render();
+  },
+  render(){
+    const bars = this.ingredients.map(ing=>{
+      const c = this.counts[ing];
+      const pct = Math.min(c/8*100, 100);
+      const reached = c>=8;
+      const color = reached?'#2E7D32':(c>=5?'#FF8F00':'#9E9E9E');
+      return `<div style="margin:6px 0">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+          <span>${this.emojis[ing]} ${ing}</span>
+          <span style="color:${color};font-weight:700">${c}/8 ${reached?'✅':''}</span>
+        </div>
+        <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden">
+          <div style="height:100%;background:${color};width:${pct}%;transition:width 0.3s"></div>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('p9-exp-bars').innerHTML = bars;
+  }
+};
+
+// ============================================================
+// Phase 12: 7갭 박스 — Day별 활동 화면 자동 렌더 (T201 매트릭스)
+// ============================================================
+const P12_GAPS = {
+  // Day별 박힐 갭 (순서대로 렌더)
+  1: [
+    {emoji:'📋', label:'ICFQ 사전 스크리닝 (Feeding Matters)', body:'키트 시작 전 6문항으로 정상 picky vs PFD 분기. 4개 이상 "예"면 소아과·OT 의뢰 권유.', color:'#0277BD', bg:'#E1F5FE', cta:'6문항 시작', ctaTarget:'s-icfq'},
+    {emoji:'🏃', label:'시작 전 웜업 3분 (SOS)', body:'점프 5번 → 심호흡 5번 → 손가락 풀기 → "준비됐어!"', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'🎯', label:'네가 정해 (RFT Co-created)', body:'"어떤 색 당근부터 인사할래? 주황? 보라? 노랑?" — 어떤 선택이든 OK', color:'#0288D1', bg:'#E1F5FE'},
+    {emoji:'👨‍👩‍👧', label:'가족 함께 (Family-style)', body:'식탁 가운데 당근 3종 놓고, 가족 모두 함께 관찰. 엄마·아빠도 의자에 앉아.', color:'#C2185B', bg:'#FCE4EC'},
+    {emoji:'🧹', label:'활동 마무리 (SOS Clean-up)', body:'"오늘 활동 끝났어, 같이 정리하자" → 도구 제자리 → 손 씻기 → "내일 또 만나"', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  4: [
+    {emoji:'🏃', label:'웜업 3분', body:'점프 + 심호흡 + 손가락 풀기', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'🌉', label:'Food Chaining 오늘의 축: 색 (Fraker 4축)', body:'당근 빨강/노랑/주황 = 색만 다르고 다 같은 당근! 다른 식재료로 확장하려면 4축 시각화.', color:'#FBC02D', bg:'#FFF8E1', cta:'Food Bridge 4축', ctaTarget:'s-foodbridge'},
+    {emoji:'👀', label:'부모 모델링 (HabEat ①)', body:'"엄마는 빨간 당근부터 먹어볼게 (실제로 한 입). 너는?" — 모델링이 가장 강력한 예측 변수', color:'#2E7D32', bg:'#E8F5E9'},
+    {emoji:'🧹', label:'Clean-up', body:'정리 → 손 씻기 → 다음 만남 예고', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  7: [
+    {emoji:'🏃', label:'웜업 3분', body:'심호흡 + 손가락 풀기', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'🌉', label:'Food Chaining 4축 풀세트 (Fraker)', body:'질감(생/익힌/건조) · 색(주황/빨강/초록) · 온도(실온) · 맛(단/단/약한맛) — 4축 모두 변환. 다음 식재료 가교 만들기.', color:'#FBC02D', bg:'#FFF8E1', cta:'4축 생성기', ctaTarget:'s-foodbridge'},
+    {emoji:'👀', label:'부모 모델링', body:'"엄마는 (코로 흡) 당근 냄새가 흙 같아. 너는?"', color:'#2E7D32', bg:'#E8F5E9'},
+    {emoji:'🧹', label:'Clean-up', body:'정리하자', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  12: [
+    {emoji:'🏃', label:'웜업 3분', body:'점프 + 심호흡', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'✌️', label:'Two Bite Club 첫 발급 (USDA)', body:'"오늘 만든 별 모양 당근, 한 입 도전해볼래? 한 입이라도 OK. 두 입이면 첫 Two Bite 인증서!"', color:'#00838F', bg:'#E0F7FA', cta:'인증서 발급', ctaTarget:'s-twobite'},
+    {emoji:'🎯', label:'네가 정해', body:'"별 모양? 하트 모양? 어떤 거 먼저 찍을래?"', color:'#0288D1', bg:'#E1F5FE'},
+    {emoji:'🧹', label:'Clean-up', body:'정리 + 인증서 카드 보관', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  14: [
+    {emoji:'🏃', label:'웜업 3분', body:'심호흡 + 손가락 풀기', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'📊', label:'CEBQ 8축 중간 측정 (UCL Wardle)', body:'14일 시점 — 사전 35문항과 비교해 8축 변화 확인. 키트 효과 객관 측정.', color:'#6A1B9A', bg:'#F3E5F5', cta:'중간 측정 시작', ctaTarget:'s-cebq'},
+    {emoji:'✌️', label:'Two Bite Club 도전', body:'"입술에 톡 = 첫 입, 입에 넣고 뱉어도 = 두 입 인증!" — Galloway 2006: 강요 시 거부 ↑', color:'#00838F', bg:'#E0F7FA', cta:'두 입 인증', ctaTarget:'s-twobite'},
+    {emoji:'👀', label:'부모 모델링', body:'"엄마 입술에 톡 — 어, 맛이 나네! 너도 해볼래?"', color:'#2E7D32', bg:'#E8F5E9'},
+    {emoji:'🧹', label:'Clean-up', body:'정리하자', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  17: [
+    {emoji:'🏃', label:'웜업 3분', body:'손 씻기 추가 (요리 활동)', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'👨‍👩‍👧', label:'Family-style (Munch & Move + Satter)', body:'리조또를 큰 그릇에 담고, 각자 작은 그릇에 덜어가. 양은 본인이 결정 (DOR how much). 주 5회 가족식 트래커 자동 +1.', color:'#C2185B', bg:'#FCE4EC', cta:'가족식 +1 기록', ctaTarget:'s-family'},
+    {emoji:'👀', label:'부모 모델링', body:'"엄마는 한 숟갈 떠서 먹어볼게 (먹음). 맛있다!"', color:'#2E7D32', bg:'#E8F5E9'},
+    {emoji:'🔁', label:'Mere Exposure (NESR USDA 2019)', body:'"Day9에 만든 당근 파우더 기억나? 그게 이번엔 리조또 속에. 같은 당근, 또 만났네!" 17/21 누적.', color:'#43A047', bg:'#E8F5E9', cta:'노출 추적 보기', ctaTarget:'s-exposure'},
+    {emoji:'🧹', label:'Clean-up', body:'정리하자', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+  21: [
+    {emoji:'🏃', label:'웜업 3분 (수료식 모드)', body:'5주 회고 + 심호흡', color:'#FF8F00', bg:'#FFF3E0'},
+    {emoji:'✌️', label:'Two Bite Club 누적 인증 (USDA)', body:'"지난 5주 동안 몇 번 도전했는지 보자. 한 입이라도 다 인증이야. 수료 인증서!"', color:'#00838F', bg:'#E0F7FA', cta:'5주 누적 인증', ctaTarget:'s-twobite'},
+    {emoji:'👨‍👩‍👧', label:'Family-style 수료식', body:'수료식 칼국수는 큰 냄비에 끓이고, 가족 모두 둘러앉아 함께. 5주 회고!', color:'#C2185B', bg:'#FCE4EC'},
+    {emoji:'🧹', label:'Clean-up 회고', body:'5주 동안 만난 21가지 활동 회고 → "다음 코스 (양파/두부) 또 만나자"', color:'#9C27B0', bg:'#F3E5F5'},
+  ],
+};
+// 디폴트 (Day별 매핑 없을 때) — 웜업 + Clean-up만
+const P12_DEFAULT = [
+  {emoji:'🏃', label:'시작 전 웜업 3분', body:'점프 + 심호흡 + 손가락 풀기', color:'#FF8F00', bg:'#FFF3E0'},
+  {emoji:'🧹', label:'활동 마무리', body:'정리 + 손 씻기 + 다음 만남 예고', color:'#9C27B0', bg:'#F3E5F5'},
+];
+
+window.p12 = {
+  _timer:null,
+  renderGaps(day){
+    const el = document.getElementById('p12-gaps');
+    if(!el) return;
+    const gaps = P12_GAPS[day] || P12_DEFAULT;
+    const html = gaps.map((g, idx) => {
+      // 웜업 박스에는 3분 인터랙티브 타이머 (T450)
+      const isWarmup = g.label.includes('웜업');
+      const timerBtn = isWarmup
+        ? `<div class="btn btn-o" style="margin-top:6px;font-size:12px;padding:6px" onclick="p12.startWarmup(this)">▶ 3분 타이머 시작</div>`
+        : '';
+      const ctaBtn = g.cta
+        ? `<div class="btn btn-o" style="margin-top:6px;font-size:12px;padding:6px" onclick="go('${g.ctaTarget}')">${g.cta}</div>`
+        : '';
+      return `
+      <div style="background:${g.bg};border-left:4px solid ${g.color};padding:8px 12px;border-radius:6px;margin-bottom:8px;font-size:12.5px;line-height:1.55">
+        <div style="font-weight:700;color:${g.color};margin-bottom:3px">${g.emoji} ${g.label}</div>
+        <div style="color:#5D4037">${g.body}</div>
+        ${timerBtn}${ctaBtn}
+      </div>`;
+    }).join('');
+    const dayLabel = `Day ${day} 시연 · 7갭 학술 운영 (Phase 12)`;
+    el.innerHTML = `
+      <div style="font-size:11px;font-weight:700;color:#5D4037;margin:6px 0">📋 ${dayLabel}</div>
+      ${html}`;
+  },
+  pickDay(v){
+    const d = parseInt(v, 10);
+    if(isNaN(d)) return;
+    currentDay = d;
+    try{ updateHome(); }catch(e){}
+    this.renderGaps(d);
+  },
+  startWarmup(btn){
+    if(this._timer){ clearInterval(this._timer); this._timer=null; }
+    let s = 180;
+    btn.textContent = `⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} 진행 중`;
+    btn.style.pointerEvents = 'none';
+    this._timer = setInterval(()=>{
+      s--;
+      if(s<=0){
+        clearInterval(this._timer); this._timer=null;
+        btn.textContent = '✅ 웜업 완료! 활동 시작';
+        btn.style.pointerEvents = 'auto';
+        btn.onclick = ()=>{ btn.textContent='▶ 3분 타이머 시작'; };
+        return;
+      }
+      btn.textContent = `⏱ ${Math.floor(s/60)}:${String(s%60).padStart(2,'0')} 진행 중`;
+    }, 1000);
+  }
+};
+
+// screen 진입 시 자동 초기화
+(function(){
+  const _go = window.go;
+  window.go = function(id){
+    _go(id);
+    try{
+      if(id==='s-foodbridge') p9FC.init();
+      else if(id==='s-icfq') p9ICFQ.init();
+      else if(id==='s-cebq') setTimeout(()=>p9CEBQ.init(), 60);
+      else if(id==='s-family') setTimeout(()=>p9Fam.init(), 60);
+      else if(id==='s-exposure') p9Exp.init();
+      else if(id==='s-activity') setTimeout(()=>{
+        const d = (typeof currentDay!=='undefined') ? currentDay : 1;
+        const sel = document.getElementById('p12-day-pick');
+        if(sel){
+          // 셀렉터에 해당 Day가 없으면 가장 가까운 시연 Day로 매핑
+          const demoDays = [1,4,7,12,14,17,21];
+          const closest = demoDays.reduce((a,b)=>Math.abs(b-d)<Math.abs(a-d)?b:a);
+          sel.value = String(closest);
+        }
+        p12.renderGaps(d);
+      }, 30);
+    }catch(e){ console.error(e); }
+  };
+})();
+</script>
+</body>
+</html>

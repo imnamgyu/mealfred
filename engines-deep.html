@@ -100,7 +100,7 @@
   <h1>밀프레드 편식도감<br>핵심 엔진 5종 설계 명세</h1>
   <p>평가 · 추천 · OCR · AI 코치 · <strong>입력 전처리(LLM Normalizer)</strong> — 알고리즘·자료구조·SQL·LLM 프롬프트·테스트 케이스까지 전부</p>
   <div class="meta">
-    <span>⚙️ 27 알고리즘 상세</span>
+    <span>⚙️ 29 알고리즘 상세</span>
     <span>📐 TypeScript 인터페이스</span>
     <span>🧪 테스트 케이스</span>
     <span>💬 LLM 프롬프트 전문</span>
@@ -1436,8 +1436,187 @@ ${JSON.stringify(candidates.map(c =&gt; ({
 
 <!-- ==================== 4. AI 코치 시스템 ==================== -->
 <section id="coach">
-  <h2>4. AI 코치 시스템 (NEW)</h2>
-  <p>편지 답장 + 동적 질문 + SOS 6단계 + 주간 인사이트 — <strong>UI 증가 0, 정보 수집은 시계열로 깊어지는</strong> 코칭 레이어.</p>
+  <h2>4. AI 코치 시스템 (정성 데이터 시계열 체이닝 + 동적 질문 + 편지)</h2>
+  <p>편지 답장 + 동적 질문 + SOS 6단계 + 주간 인사이트 + <strong>정성 데이터 시계열 LLM 분석 + 양방향 체이닝</strong> — <strong>UI 증가 0, 정보 수집은 시계열로 깊어지는</strong> 코칭 레이어.</p>
+
+  <div class="card" style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);border:2px solid #F9A825;padding:18px;margin:14px 0;border-radius:14px">
+    <h4 style="color:#F57F17;font-size:14px;margin-bottom:6px">🧠 핵심 철학 — 정성 데이터는 정량화하지 않고 시계열로 보존</h4>
+    <p style="font-size:13px;color:#374151;font-weight:600;line-height:1.7;margin-top:6px">"오늘 시금치 한 입 먹었는데 평소보다 잘 먹었어요" 같은 부모의 자연어 메모를 강제로 0-5 reaction 점수로만 정규화하면 <strong>맥락·뉘앙스·고민·관찰이 모두 사라짐</strong>. 정량 데이터는 평가 엔진용, <strong>정성 raw_note는 별도 보존해서 시계열 LLM 분석 + 다음 입력 시 역질문 체이닝에 활용</strong>. 이게 개인화 데이터의 핵심.</p>
+  </div>
+
+  <!-- ★ NEW: ALG-COACH-00 정성 데이터 메모리 & 체이닝 -->
+  <div class="algo-box" style="border:2px solid #9C27B0">
+    <span class="algo-id" style="background:#9C27B0">ALG-COACH-00 ★</span>
+    <h4>정성 데이터 메모리 + 양방향 체이닝 (NEW v3)</h4>
+    <div class="algo-meta-row">
+      <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">raw_note 시계열 + 평가/추천 결과</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">통찰 + 다음 질문 1-2개</div></div>
+      <div class="algo-meta-item"><div class="lbl">LLM</div><div class="val">Sonnet 4.7 (주 1회·심화) + Haiku (매 입력 시·다음 질문)</div></div>
+      <div class="algo-meta-item"><div class="lbl">갱신</div><div class="val">매 입력 시 (Haiku) + 주 1회 (Sonnet)</div></div>
+    </div>
+
+    <h5>핵심 데이터 흐름 — "체이닝"</h5>
+    <div class="mermaid-wrap">
+      <div class="mermaid">
+flowchart TB
+  M1["1주차 입력<br/>'시금치 죽 한 입 먹고 거부<br/>근데 평소보다 덜 화냄'"]
+  M2["2주차 입력<br/>'시금치 으깬 거 살짝 핥음<br/>처음으로 토 안 함'"]
+  M3["3주차 입력<br/>'시금치 들어간 계란찜 다 먹음!<br/>몰랐던 듯'"]
+  THREAD[("📜 qualitative_threads<br/>식재료별 시계열 raw_note")]
+  ANALYSIS["🧠 주간 LLM 분석 (Sonnet)<br/>'시금치 거부도 점진적 ↓ · Food Chaining 효과<br/>다음 단계: 시금치 누들·시금치 빵 시도'"]
+  QUESTION["💬 다음 입력 시 (Haiku)<br/>'지난주 계란찜 잘 먹었던데,<br/>오늘 시금치 좀 다르게 시도해보셨나요?'"]
+  PARENT[("👩 부모<br/>또 다른 raw_note 입력")]
+
+  M1 & M2 & M3 --> THREAD
+  THREAD --> ANALYSIS
+  ANALYSIS --> QUESTION
+  QUESTION --> PARENT
+  PARENT --> M3
+
+  classDef in fill:#FFF8E1,stroke:#F9A825
+  classDef ai fill:#F3E5F5,stroke:#9C27B0
+  classDef out fill:#E8F5E9,stroke:#16A085
+  class M1,M2,M3,PARENT in
+  class ANALYSIS,QUESTION ai
+  class THREAD out
+      </div>
+    </div>
+
+    <h5>왜 정량화만으로는 안 되는가</h5>
+    <table>
+      <tr><th>정량만 저장</th><th>정량 + 정성 시계열 (우리 방식)</th></tr>
+      <tr><td>reaction: 2/5</td><td>reaction: 2/5 + raw: "한 입 먹고 거부, 근데 평소보다 덜 화냄"</td></tr>
+      <tr><td>다음 추천: 다른 식재료</td><td>다음 추천: <strong>시금치 식감만 살짝 변경</strong> (LLM이 '덜 화냄'을 진전 신호로 인식)</td></tr>
+      <tr><td>다음 질문: 동일 회전 질문</td><td>다음 질문: <strong>"지난번 덜 화냈는데, 오늘은 어땠어요?"</strong> (체이닝)</td></tr>
+      <tr><td>3주 후: 데이터 빈약</td><td>3주 후: <strong>시금치 거부 진전 곡선 + 부모 관찰 패턴</strong> 완전 매핑</td></tr>
+    </table>
+
+    <h5>저장 schema (정량 + 정성 분리)</h5>
+    <pre class="code"><span class="cm">-- 정량 (평가 엔진용)</span>
+<span class="kw">CREATE TABLE</span> meal_logs (
+  id, child_id, eaten_at, meal_chip, reaction_score, autonomy, texture_level, ...
+);
+
+<span class="cm">-- 정성 (코치 엔진용, 시계열 LLM 입력)</span>
+<span class="kw">CREATE TABLE</span> qualitative_notes (
+  id <span class="kw">UUID PRIMARY KEY</span>,
+  child_id <span class="kw">UUID REFERENCES</span> children(id),
+  meal_log_id <span class="kw">UUID REFERENCES</span> meal_logs(id),    <span class="cm">-- 연결</span>
+  raw_text <span class="kw">TEXT NOT NULL</span>,                       <span class="cm">-- 부모 자유 입력 원본 — 절대 가공·정규화 X</span>
+  contextual_question <span class="kw">TEXT</span>,                     <span class="cm">-- 우리가 던진 동적 질문 (있으면)</span>
+  parent_emotion <span class="ty">TEXT</span>,                          <span class="cm">-- LLM 추정 (joy·worry·frustration) 별도 컬럼</span>
+  llm_insights <span class="kw">JSONB</span>,                            <span class="cm">-- 주 1회 Sonnet 분석 결과 캐시</span>
+  thread_id <span class="kw">UUID</span>,                                <span class="cm">-- 같은 식재료/주제 grouping</span>
+  created_at <span class="kw">TIMESTAMPTZ DEFAULT NOW</span>()
+);
+<span class="kw">CREATE INDEX</span> idx_notes_child_thread <span class="kw">ON</span> qualitative_notes(child_id, thread_id, created_at);
+
+<span class="cm">-- 시계열 thread (식재료·고민·주제별 grouping)</span>
+<span class="kw">CREATE TABLE</span> qualitative_threads (
+  id <span class="kw">UUID PRIMARY KEY</span>,
+  child_id <span class="kw">UUID</span>,
+  topic <span class="kw">TEXT</span>,                                    <span class="cm">-- '시금치 친해지기'·'식감 단계 진전'·'밥 양 감소' 등</span>
+  topic_type <span class="kw">TEXT</span>,                               <span class="cm">-- 'ingredient'·'behavior'·'concern'</span>
+  status <span class="kw">TEXT</span>,                                   <span class="cm">-- 'active'·'resolved'·'archived'</span>
+  llm_summary <span class="kw">TEXT</span>,                              <span class="cm">-- 주 1회 갱신되는 thread 요약</span>
+  next_question <span class="kw">TEXT</span>,                            <span class="cm">-- 다음 입력 시 던질 질문 (LLM 생성)</span>
+  next_question_chips <span class="kw">TEXT</span>[],                    <span class="cm">-- 빠른 선택 chip</span>
+  started_at <span class="kw">TIMESTAMPTZ</span>,
+  last_updated <span class="kw">TIMESTAMPTZ</span>
+);</pre>
+
+    <h5>주간 LLM 분석 프롬프트 (Sonnet, 매주 월요일 03:00 KST)</h5>
+    <pre class="code"><span class="cm">// system</span>
+너는 영유아 식습관 코치다. 한 자녀의 지난 주 정성 기록(부모 자유 텍스트)을
+시계열로 읽고 다음을 추출한다:
+
+1. 활성 thread 식별 (식재료별·고민별·진전별)
+2. thread 별 진전 곡선 ("거부 → 핥기 → 한 입" 등)
+3. Toomey SOS 단계 평가 (보기·만지기·냄새·핥기·씹기·삼키기 중 어디?)
+4. Food Chaining 기회 ("X 잘먹음 + Y 거부 → X와 비슷한 Z로 우회")
+5. 부모 감정 변화 (좌절 → 희망 / 자신감 → 걱정)
+6. **다음 1주일 동안 던질 동적 질문 1-2개** (raw_text 맥락 그대로 인용)
+
+규칙:
+- 부모 raw_text를 그대로 인용 ("지난주 '시금치 들어간 계란찜 다 먹음' 하셨던데,...")
+- 강요·평가 X. "성취 인정 + 다음 시도 제안"
+- 학술 용어 (Toomey SOS, Cooke 반복) 부모에겐 자연어 번역
+
+<span class="cm">// user (시계열 raw_text 5-10 entry)</span>
+{
+  child_age_months: 32,
+  threads: [
+    { topic: '시금치 친해지기', notes: [
+      { date: '2026-05-04', raw: '시금치 죽 한 입 먹고 거부, 평소보다 덜 화냄' },
+      { date: '2026-05-11', raw: '시금치 으깬 거 살짝 핥음, 토 안 함' },
+      { date: '2026-05-18', raw: '시금치 들어간 계란찜 다 먹음! 모르고 먹은듯' }
+    ]}
+  ]
+}
+
+<span class="cm">// 출력 schema</span>
+{
+  thread_id: ...,
+  summary: "시금치 거부도 점진적 ↓. Toomey SOS 5단계(씹기) 도달. Food Chaining 효과 입증.",
+  evidence_quotes: ["'평소보다 덜 화냄'", "'토 안 함'", "'다 먹음!'"],
+  next_question: "지난번 계란찜 잘 먹었던데, 오늘은 시금치를 어떻게 시도해보셨어요?",
+  next_question_chips: ["계란찜에 또", "다진 시금치 누들", "시금치 빵·과자", "아직 시도 X"],
+  parent_emotion_trend: "frustration → cautious_hope",
+  weekly_letter: {  <span class="cm">// 홈 카드용</span>
+    title: "지우 어머니, 3주 만에 시금치 한 입!",
+    body: "5/4엔 '덜 화냄', 5/11엔 '토 안 함', 5/18엔 '다 먹음!'..."
+  }
+}</pre>
+
+    <h5>매 입력 시 Haiku 호출 (다음 질문 동적 생성)</h5>
+    <pre class="code"><span class="kw">async function</span> <span class="fn">generateNextQuestion</span>(childId: <span class="ty">string</span>) {
+  <span class="cm">// 1. 활성 thread 중 가장 최근 업데이트된 1-2개 가져옴</span>
+  <span class="kw">const</span> activeThreads = <span class="kw">await</span> db.threads.<span class="fn">find</span>({
+    child_id: childId, status: <span class="str">'active'</span>
+  }).<span class="fn">orderBy</span>(<span class="str">'last_updated'</span>, <span class="str">'desc'</span>).<span class="fn">limit</span>(<span class="num">2</span>);
+
+  <span class="cm">// 2. thread.next_question 이미 있으면 그대로 사용 (Sonnet 주간 분석이 미리 생성)</span>
+  <span class="kw">if</span> (activeThreads[<span class="num">0</span>]?.next_question) <span class="kw">return</span> activeThreads[<span class="num">0</span>];
+
+  <span class="cm">// 3. 없으면 Haiku로 즉석 생성 (저비용·빠름)</span>
+  <span class="kw">const</span> recentNotes = <span class="kw">await</span> db.notes.<span class="fn">find</span>({
+    child_id: childId
+  }).<span class="fn">orderBy</span>(<span class="str">'created_at'</span>, <span class="str">'desc'</span>).<span class="fn">limit</span>(<span class="num">5</span>);
+
+  <span class="kw">return</span> <span class="kw">await</span> haiku.<span class="fn">generate</span>(NEXT_Q_PROMPT, recentNotes);
+}</pre>
+
+    <h5>구체 흐름 — 부모 입장</h5>
+    <ul>
+      <li><strong>1주차 월요일</strong>: 평소처럼 끼니 입력. 자유 메모 칸에 "시금치 죽 한 입 먹고 거부, 평소보다 덜 화냄" 자유롭게 적음.</li>
+      <li><strong>1주차 토요일</strong>: 평소처럼 입력. <strong>저장 직전 질문 카드: "지난번 '평소보다 덜 화냄'이라고 적으셨던데, 이번 주 시금치 어땠어요?"</strong> + chip [더 잘 먹음 · 비슷 · 다시 거부].</li>
+      <li><strong>2주차 월요일</strong>: 시스템이 자동 편지: "지우 어머니, 지난 주 시금치 진전 곡선이에요. 3주 만에 한 입 먹은 거예요! 다음 단계는..."</li>
+      <li><strong>4주차</strong>: thread.status = 'resolved' (다 먹음 확인), 다른 thread 활성화.</li>
+    </ul>
+
+    <h5>비용·캐시 정책</h5>
+    <table>
+      <tr><th>호출</th><th>모델</th><th>빈도</th><th>건당</th></tr>
+      <tr><td>매 입력 시 다음 질문 생성</td><td>Haiku 4.5</td><td>1회/입력</td><td>~₩4</td></tr>
+      <tr><td>주간 thread 심층 분석</td><td>Sonnet 4.7</td><td>1회/주/자녀</td><td>~₩40</td></tr>
+      <tr><td>편지 답장 (특별 이벤트)</td><td>Sonnet 4.7</td><td>1회/2주/자녀</td><td>~₩50</td></tr>
+      <tr><td>MAU 1만 시 월 예상</td><td>—</td><td>—</td><td><strong>~₩800k</strong></td></tr>
+    </table>
+  </div>
+
+  <!-- ★ NEW: ALG-COACH-00b PII·보안 -->
+  <div class="algo-box">
+    <span class="algo-id">ALG-COACH-00b</span>
+    <h4>정성 데이터 보안·PII·삭제 권리</h4>
+    <ul>
+      <li><strong>PII 자동 마스킹</strong>: raw_text에 전화번호·이름·주소 자동 탐지·마스킹 (저장 전)</li>
+      <li><strong>자녀 별명만 LLM 전달</strong>: 실명 → "지우" 같은 별명만 LLM 컨텍스트에 포함</li>
+      <li><strong>부모 삭제 권리</strong>: thread 단위 또는 전체 raw_note 즉시 삭제 + LLM 캐시 무효화</li>
+      <li><strong>외부 학습 X</strong>: Anthropic API 호출 시 always_log=false, 운영 외 보관 X</li>
+      <li><strong>5년 보관 후 자동 익명화</strong>: child_id 제거, 학술 통계 용도만 보존</li>
+    </ul>
+  </div>
+
 
   <h3>4-0. 시스템 컴포넌트</h3>
   <div class="mermaid-wrap">
@@ -1725,7 +1904,7 @@ ${yesterdayMeals}
 
 <footer>
   <p><strong>밀프레드 편식도감</strong> · 엔진 Deep Dive v1 · 2026-05-24</p>
-  <p>27 알고리즘 (전처리 5 + 평가 5 + 추천 7 + OCR 6 + 코치 4) · TypeScript 인터페이스 · SQL 함수 · LLM 프롬프트 전문 · prompt injection 방어</p>
+  <p>29 알고리즘 (전처리 5 + 평가 5 + 추천 7 + OCR 6 + 코치 6 — 정성 시계열 체이닝 포함) · TypeScript 인터페이스 · SQL 함수 · LLM 프롬프트 전문 · prompt injection 방어 · PII·삭제 권리</p>
 </footer>
 
 <script>

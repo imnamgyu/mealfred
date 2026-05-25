@@ -1,0 +1,27 @@
+{
+  "name": "밀프레드 Food Bridge",
+  "short_name": "Food Bridge",
+  "description": "4축(색·온도·질감·맛) 기반 편식 다리 시퀀스 — 30초 안에 자녀 맞춤 다리 생성",
+  "start_url": "/foodbridge/mvp/",
+  "scope": "/foodbridge/mvp/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#283593",
+  "lang": "ko",
+  "categories": ["health", "education", "lifestyle"],
+  "icons": [
+    {
+      "src": "/og-foodbridge.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/og-foodbridge.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
