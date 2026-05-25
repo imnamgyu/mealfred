@@ -6,21 +6,31 @@
 
 ---
 
-## 🎯 다음 세션 시작점 (2026-05-25 갱신)
+## 🎯 다음 세션 시작점 (2026-05-25 22:00 갱신)
 
-**이번 세션 산출**: design-spec v3 + 정성 시계열 LLM 체이닝 + 룰 vs LLM 매트릭스 + served vs consumed 분리 + URL /dex → /foods 일괄 변경 + 두 페이지 디자인 정합.
+**이번 세션 (2026-05-25) 산출 — 8 주요 영역**:
+1. design-spec v3 + 7개 페이지 hero 베이지 정합
+2. 정성 시계열 LLM 체이닝 (engines-deep §4 ALG-COACH-00)
+3. 룰 vs LLM 결정 매트릭스 (rule-vs-llm.html, 44 기능)
+4. served vs consumed 분리 (engines-deep §1 ALG-EVAL-06)
+5. URL /dex → /foods + 도감 페이지 baseline 정리
+6. 농진청 v10.4 영양 매핑 (132/147 매칭) + 식재료 DB 정합
+7. **v4 마스터 랭킹 채택** (필수 26 · 권장 50 · 향신료 6 · 해조류 라벨X)
+8. **M1 부트스트랩 완료** + M2 SSG 라우트 + M3 enrich cron 골격
+
+**환경변수 — Vercel 등록 완료 ✅**:
+- ✅ `NEXT_PUBLIC_SUPABASE_URL` = `https://spopsngwvpxvbokoefem.supabase.co`
+- ✅ `NEXT_PUBLIC_SUPABASE_ANON_KEY` (sb_publishable_...)
+- ✅ `SUPABASE_SERVICE_ROLE_KEY` (sb_secret_...)
+- ✅ `ANTHROPIC_API_KEY` (sk-ant-api03-...)
+- RTF 보관: `/Users/ing/Desktop/편식극복키트/10_개발관련/`
 
 **다음 세션 시작 시 가장 먼저 할 일**:
-1. `사용자에게 Supabase 키 요청` (다음 항목 ❶ 참조) — 받는 즉시 M1 부트스트랩 진입
-2. 키 받기 전까지 가능한 작업 진행 중 (이번 세션 후반 작업 = daycare-eval 라이브 수준 + 농진청 식품성분표 다운로드·매핑 사전 작업)
-
-**M1 (Next.js + Supabase) 진입 전 사용자에게 받아야 할 토큰** ❶:
-- `NEXT_PUBLIC_SUPABASE_URL` (예: https://xxx.supabase.co)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` (jwt)
-- `SUPABASE_SERVICE_ROLE_KEY` (서버용, .env.local만)
-- `ANTHROPIC_API_KEY` (M3 enrich 시작 시 필요, M1·M2엔 X)
-- 기존 mealfred Supabase 프로젝트의 기존 테이블 스키마 (있다면)
-- 카카오 OAuth Redirect URL 등록 (M4 가입 시)
+1. Vercel 별도 프로젝트 등록 (`mealfred-app`, Root Directory: `deploy/web`) — 사용자 작업
+2. Supabase SQL Editor → `deploy/supabase/schema.sql` 적용 (필수)
+3. seed 실행: `cd deploy/web && node --env-file=.env.local ../supabase/seed-ingredients.mjs`
+4. enrich_queue seed (농진청 미매칭 식재료): `node ../supabase/seed-enrich-queue.mjs`
+5. `/foods` Next.js SSG 정상 동작 확인 → 본 mealfred.com에 통합 (vercel.json rewrites)
 
 ---
 
@@ -38,30 +48,42 @@
 - [ ] 농진청 식품성분표 다운로드 + 147 풀 매핑 사전 작업 (이번 세션 진행)
 - [ ] daycare-eval 라이브 수준 작업 (이번 세션 진행)
 
-### ⏳ 다음 세션 (사용자 토큰 받은 후)
+### ⏳ 다음 세션
 
-#### M1 — Next.js + Supabase 부트스트랩 (1주)
-- [ ] `deploy/web/` 폴더에 Next.js 15 부트스트랩 (App Router · TS · Tailwind)
-- [ ] design-spec v3 컬러 토큰 → tailwind.config.ts 매핑
-- [ ] Supabase 클라이언트 (`lib/supabase/{server,client}.ts`)
-- [ ] `/web/health` 라우트 — Supabase ping + version
-- [ ] `vercel.json` rewrites — `/web/*`만 Next.js, 나머지 정적 보존
-- [ ] 로컬 npm run dev 검증 + Vercel preview
+#### M1 — Next.js + Supabase 부트스트랩 ✅ 완료 (2026-05-25)
+- [x] `deploy/web/` Next.js 15 부트스트랩 (App Router · TS · Tailwind v4)
+- [x] design-spec v3 컬러 토큰 → `globals.css` @theme inline
+- [x] Supabase 클라이언트 (`lib/supabase/{server,client}.ts`)
+- [x] `/health` 라우트 — Supabase ping + version
+- [x] `web/vercel.json` (framework nextjs + 2 cron)
+- [x] `.env.local.example` + README
+- [ ] **Vercel 별도 프로젝트 등록** (사용자 작업, Root Directory: deploy/web)
+- [ ] 본 mealfred.com과 통합 (vercel.json rewrites)
 
-#### M2 — 도감 SEO 폭발 (1주)
-- [ ] ingredients 테이블 스키마 (slug, name, category, grade, nutri_per_100g jsonb, ...)
-- [ ] 147종 JSON + 농진청 매핑 → Supabase seed
-- [ ] `/foods` 동적 라우트 (SSG, 검색·필터)
-- [ ] `/foods/:slug` 동적 라우트 (147 페이지 정적 생성)
-- [ ] `/foods/grade/:g`, `/foods/category/:c`, `/foods/season/:m`
-- [ ] 자동 meta·OG·sitemap.xml
-- [ ] Google·Naver Search Console 등록
+#### M2 — 도감 SEO 폭발 ✅ 코드 완료, DB 적용 대기
+- [x] supabase/schema.sql (ingredients · recipes · comments · enrich_queue · cron_runs + RLS)
+- [x] supabase/seed-ingredients.mjs (147 + 660 recipes 멱등 시드)
+- [x] `/foods` 도감 메인 SSG (필수·권장·향신료·기타 그룹)
+- [x] `/foods/[slug]` 147 동적 SSG (영양·SOS·레시피·CTA)
+- [x] `app/sitemap.ts` (자동 sitemap.xml)
+- [x] `lib/ingredients.ts` (loadPool·findIngredient·KDRI 유틸)
+- [ ] **사용자 작업**: Supabase 대시보드 → SQL Editor → schema.sql 적용
+- [ ] **사용자 작업**: `node --env-file=.env.local ../supabase/seed-ingredients.mjs`
+- [ ] `/foods/grade/[g]` · `/foods/category/[c]` · `/foods/season/[m]` (다음 세션)
+- [ ] Google·Naver Search Console 등록 (배포 후)
 
-#### M3 — 매일 +50종 enrich 자동화 (1주)
-- [ ] 농진청 식품성분표 v10.0 전체 import (~3,300종)
-- [ ] enrich_queue 테이블 + cron 04:00
-- [ ] Claude Haiku 분류·메타 생성 파이프라인
-- [ ] Vercel ISR 자동 빌드 + sitemap·indexing API push
+#### M3 — 매일 +50종 enrich ✅ 골격 완료
+- [x] `web/app/api/cron/enrich/route.ts` (Vercel Cron + Haiku 분류 파이프라인)
+- [x] CRON_SECRET 검증 + cron_runs 로그 + 비용 추적
+- [x] 미매칭 식재료 alias·정확한 이모지 가드
+- [ ] **enrich_queue seed** — 농진청 v10.4 3,200+ 미매칭 종을 큐에 push
+- [ ] Vercel Cron 실제 작동 검증 (Supabase·키 적용 후)
+
+#### M4 — 가입 + 카카오톡 알림톡 (1주)
+- [ ] Supabase Auth 전화번호 + OTP
+- [ ] 카카오 OAuth (소셜 로그인)
+- [ ] 네이버 SENS 알림톡 템플릿 4종 신청 (심사 4-7일)
+- [ ] 온보딩 (자녀 정보·BMI·연령)
 
 #### M4 — 가입 + 카카오톡 알림톡 (1주)
 - [ ] Supabase Auth 전화번호 + OTP
@@ -132,6 +154,50 @@
 - 현재: 모든 식재료 mock 영양 데이터 사용
 - M2에서 147종 실데이터로 일괄 교체
 - M3부터 매일 +50종 자동 enrich → 1년 후 ~18,000종
+
+#### Phase 4 — 정합·정직 (저녁)
+- **농진청 v10.4 영양 매핑** (132/147 = 89.8% 성공): `data_ingredient_pool_enriched.json` 75KB · 19 영양 컬럼
+- **2,041 레시피 inverted index**: `data_recipes_by_ingredient.json` · 132/147 매칭 · 조리법 다양성 Top 5
+- **이모지 화이트리스트 일괄 보정**: 70/147 변경 · 46종 빈 문자열 (정확한 매핑 없으면 달지말기)
+- **카테고리 보정**: 다시마/미역=해조류 · 파/대파=기타채소 · 김치=발효식품 등 16종
+- **김치 이모지 🍙(주먹밥) → 빈 문자열**: 한국 김치 정확한 이모지 없음
+- **메인 index에 /foods·/daycare-eval 카드 추가**: 4 제품 카드로 확장
+- **NEXT_PUBLIC_SUPABASE_URL vs SUPABASE_URL 같은 값 OK 답변**: 둘 다 등록 정상
+- **인플레 한도 가짜 추정 정정**: rule-vs-llm '월 ₩12M / 6.5배' → 진짜 이유 (재현성·속도·오프라인)
+
+#### Phase 5 — v4 마스터 랭킹 채택 (식재료_랭킹_마스터_v4.xlsx)
+- 9 시트 정본 데이터: S~D 등급 + Must-Eat v4 통합 점수 + 안전 경고
+- 사용자 결정: **S+A → 필수 · B+C → 권장 · 해조류 라벨X** (요오드 위험)
+- 최종 분포: 필수 26 · 권장 50 · 향신료 6 · 라벨X 65 (해조류 5 포함)
+
+#### Phase 6 — M1 후속 (Next.js 부트스트랩 완료)
+- `deploy/web/` Next.js 15 + Tailwind v4 + @supabase/ssr
+- `app/health/page.tsx` · `lib/supabase/{server,client}.ts` · `globals.css` design v3
+- `.env.local.example` 템플릿 (RTF 키 위치 안내)
+- README.md M1 가이드
+
+#### Phase 7 — M2+M3 코드 일괄
+- `supabase/schema.sql`: ingredients·recipes·comments·enrich_queue·cron_runs + RLS
+- `supabase/seed-ingredients.mjs`: 147 + 660 recipes 멱등 시드
+- `web/app/foods/page.tsx`: 도감 메인 SSG (4 그룹)
+- `web/app/foods/[slug]/page.tsx`: 147 동적 SSG + 자동 SEO meta
+- `web/app/sitemap.ts`: Next.js 15 표준 sitemap.xml
+- `web/app/api/cron/enrich/route.ts`: M3 매일 +50종 Haiku enrich
+
+#### Phase 8 — 정직성 + 카피 정합
+- **'영유아 레시피' → '식약처 급식관리지원센터 레시피'**: 출처 권위 명확화
+- **'한국 평균 72점' 정직 제거**: 근거 없는 임의 수치 → 단순 점수만 표시
+- **'36 영양 신호등' → '필수 36가지 영양소 자동 점검'**: 사용자 가치 중심
+- **'필수·권장 기준이 뭐야?' → '우리 아이한테 꼭 필요한 식재료, 어떻게 골랐을까요?'**: 부드러운 권유 톤
+- **타겟 연령 재정의**: 만 3-7세 (유치원·초1·초2) · 앱 사용자 자녀 목표 = 초등 2학년까지
+- **키트 CTA → 개인화 통합**: 식재료 상세에서 집중·골고루 키트 제거 → /personal-coming 단일 CTA
+- **'+50/일 매일 enrich' 통계 제거**: 아직 안 작동하는 기능 거짓 약속 X
+
+#### 신규 설계 ALG-EVAL-07 (engines-deep §1)
+- 식단표 역분석 → 도감 자동 enrich 파이프라인
+- daycare-eval에서 미매칭 식재료 → `unmatched_ingredient_signals` 누적
+- 5회 도달 시 enrich_queue 자동 push (M3 cron 처리)
+- '한국 어머니가 실제 먹이는 식재료 도감' 생성 기반
 
 ---
 

@@ -157,3 +157,66 @@ comment on table ingredient_recipes is '4,432 레시피 → 식재료별 inverte
 comment on table ingredient_comments is '도감 댓글 (익명) + Haiku 자동 모더레이션';
 comment on table enrich_queue is 'M3 매일 +50종 자동 enrich 큐';
 comment on table cron_runs is 'cron 작업 실행 로그 (운영 모니터링)';
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- ALG-EVAL-07 — 식단표 역분석 → 도감 자동 enrich 파이프라인
+-- (engines-deep §1 ALG-EVAL-07 정합)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+-- 어머니 식단표 평가에서 추출된 식재료 빈도 누적
+-- '한국 어머니가 실제로 먹이는 식재료' 시그널 (익명)
+create table if not exists daycare_eval_signals (
+  id uuid primary key default gen_random_uuid(),
+  ingredient_name text not null,            -- 메뉴에서 추출된 식재료명 (정규화 전)
+  normalized_name text,                     -- 147 풀과 매칭된 정규화 이름 (null = 미매칭)
+  ingredient_id uuid references ingredients(id),  -- 매칭된 식재료 (null = 신규 후보)
+  age_band text,                            -- '3-4y'·'5y'·'6-7y'·'younger'
+  cooking_method text,                      -- '국·탕'·'볶음·구이'·'밥·면류' 등 (추정)
+  sighting_count int default 1,             -- 같은 식재료 누적 등장 횟수
+  total_evals int default 1,                -- 등장한 평가 수
+  first_seen_at timestamptz default now(),
+  last_seen_at timestamptz default now(),
+  -- ALG-EVAL-07 promotion
+  promoted_to_queue_at timestamptz,         -- enrich_queue로 push된 시점 (미매칭만)
+  promoted_to_grade_eval_at timestamptz,    -- 필수/권장 등급 평가에 반영된 시점
+  source text default 'daycare-eval'
+);
+create unique index if not exists idx_daycare_signals_name on daycare_eval_signals(ingredient_name);
+create index if not exists idx_daycare_signals_promote on daycare_eval_signals(sighting_count desc)
+  where promoted_to_queue_at is null and normalized_name is null;
+create index if not exists idx_daycare_signals_matched on daycare_eval_signals(ingredient_id, sighting_count desc)
+  where ingredient_id is not null;
+comment on table daycare_eval_signals is 'ALG-EVAL-07 어머니 식단표 → 식재료 빈도 시그널 (미매칭 = enrich 후보 / 매칭 = 등급 영향)';
+
+-- 식단표 → 식재료 추천 레시피 보강 (매칭된 식재료가 자주 등장하는 조리법 컨텍스트)
+create table if not exists daycare_recipe_hints (
+  id bigserial primary key,
+  ingredient_id uuid references ingredients(id) on delete cascade,
+  menu_name text not null,                  -- 어머니 식단표의 메뉴명
+  cooking_method text,
+  age_band text,
+  sighting_count int default 1,
+  last_seen_at timestamptz default now(),
+  source text default 'daycare-eval',
+  promoted_to_recipes_at timestamptz        -- ingredient_recipes로 승급된 시점
+);
+create index if not exists idx_daycare_hints_ing on daycare_recipe_hints(ingredient_id, sighting_count desc);
+comment on table daycare_recipe_hints is '식단표에서 등장한 메뉴-식재료 매핑 → 추천 레시피 후보 (5회+ 자동 승급)';
+
+-- daycare_eval_signals → enrich_queue 자동 promotion (트리거 또는 cron)
+-- 비매칭 식재료가 5회+ 등장 시 enrich_queue로 push (M3 cron이 처리)
+-- 정책: 운영자 검토 후 ingredients 테이블에 verified 승급 가능
+alter table daycare_eval_signals enable row level security;
+alter table daycare_recipe_hints enable row level security;
+
+-- RLS: anon insert 가능 (daycare-eval 평가 시 자동 누적)
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'daycare_signals_anon_insert') then
+    create policy daycare_signals_anon_insert on daycare_eval_signals
+      for insert with check (length(ingredient_name) between 1 and 100);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'daycare_hints_anon_insert') then
+    create policy daycare_hints_anon_insert on daycare_recipe_hints
+      for insert with check (length(menu_name) between 1 and 200);
+  end if;
+end $$;

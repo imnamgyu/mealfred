@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFFDFB">
+<title>밀프레드 편식도감</title>
+<meta property="og:title" content="밀프레드 편식도감 — 우리 아이 36종 영양 신호등">
+<meta property="og:description" content="보건복지부 KDRI 2025 만 1-2세 36종 필수 영양소 신호등 + 식습관 4원칙 레시피 추천">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;
+    --b50:#E3F2FD;--b500:#3498DB;--b700:#1565C0;
+    --g50:#E8F5E9;--g500:#16A085;--g700:#1B5E20;
+    --v50:#F3E5F5;--v500:#9C27B0;--v700:#6A1B9A;
+    --r50:#FFEBEE;--r100:#FFCDD2;--r500:#E53935;--r700:#C62828;
+    --y50:#FFF8E1;--y100:#FFECB3;--y500:#F9A825;--y700:#F57F17;
+    --s700:#2C3E50;--s800:#1F2D3D;
+    --n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;
+    --n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827;
+    --gradeS:#1B5E20;--gradeA:#16A085;--gradeB:#F9A825;--gradeC:#E67E22;--gradeD:#C62828;
+    --shS:0 1px 3px rgba(0,0,0,.06);--shM:0 4px 14px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+  html,body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color:var(--n900);line-height:1.55;-webkit-font-smoothing:antialiased;background:#FFFDFB;height:100%;width:100%;overflow:hidden}
+
+  /* ★ App container — full screen on mobile, phone frame on desktop (app-demo style) */
+  #app{
+    max-width:430px;margin:0 auto;height:100vh;height:100dvh;
+    background:#FFFDFB;position:relative;overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+  @media(min-width:500px){
+    body{background:#1B2A4A;display:flex;align-items:center;justify-content:center}
+    #app{height:90vh;max-height:900px;border-radius:36px;box-shadow:0 24px 80px rgba(0,0,0,0.4);border:6px solid #1a1a1a}
+  }
+
+  .status-bar{padding:max(env(safe-area-inset-top,12px),12px) 24px 4px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--n700);font-weight:700;flex-shrink:0}
+  .top-bar{padding:6px 18px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--n100);flex-shrink:0}
+  .top-bar .left{display:flex;align-items:center;gap:8px}
+  .top-bar h2{font-size:18px;margin:0;font-weight:800;color:var(--s800);letter-spacing:-0.01em}
+  .streak{background:linear-gradient(135deg,#FF6B6B,#FFB375);color:white;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:800;display:inline-flex;align-items:center;gap:3px}
+  .top-bar .icon-btn{width:32px;height:32px;border-radius:50%;background:var(--n50);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;border:none;position:relative}
+  .top-bar .icon-btn .dot{position:absolute;top:5px;right:7px;width:7px;height:7px;background:var(--r500);border-radius:50%;border:1.5px solid white}
+  .content{flex:1;overflow-y:auto;padding:0;scroll-behavior:smooth}
+  .content::-webkit-scrollbar{width:0}
+
+  .tabs{background:white;border-top:1px solid var(--n200);padding:8px 4px max(env(safe-area-inset-bottom,16px),16px);display:grid;grid-template-columns:repeat(4,1fr);gap:2px;flex-shrink:0}
+  .tab{display:flex;flex-direction:column;align-items:center;padding:6px 4px;border-radius:8px;cursor:pointer;border:none;background:none}
+  .tab .em{font-size:22px;line-height:1;margin-bottom:2px;filter:grayscale(0.5);opacity:0.55}
+  .tab .lbl{font-size:10px;font-weight:700;color:var(--n400);letter-spacing:0.02em}
+  .tab.active .em{filter:none;opacity:1}
+  .tab.active .lbl{color:var(--p500)}
+
+  /* ========== HOME ========== */
+  .home-content{padding:18px 18px 24px}
+  .home-greet{font-size:13px;color:var(--n500);margin-bottom:4px;font-weight:600}
+  .home-greet strong{color:var(--s800);font-weight:800}
+  .home-title{font-size:21px;font-weight:800;color:var(--s800);margin-bottom:14px;letter-spacing:-0.02em;line-height:1.3}
+
+  .daily-mission{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:12px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+  .daily-mission .ico{width:32px;height:32px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .daily-mission .body{flex:1;font-size:12px;color:var(--g700);font-weight:700;line-height:1.4}
+  .daily-mission strong{color:var(--s800);display:block;font-size:13px;margin-bottom:1px}
+  .daily-mission .arrow{color:var(--g500);font-size:18px;font-weight:300}
+
+  /* 영양 점수 카드 */
+  .score-card{background:white;border-radius:20px;padding:22px 20px;margin-bottom:14px;box-shadow:var(--shS);border:1.5px solid var(--n200);position:relative;overflow:hidden}
+  .score-card.gradeB{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-color:var(--gradeB)}
+  .score-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .score-head .lbl{font-size:11px;font-weight:700;letter-spacing:0.06em;color:var(--n700)}
+  .score-grade-badge{font-size:13px;padding:5px 14px;border-radius:100px;font-weight:800;letter-spacing:0.04em;color:white;background:var(--gradeB)}
+  .score-number-row{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+  .score-number{font-size:60px;font-weight:800;color:var(--s800);line-height:1;letter-spacing:-0.04em}
+  .score-number small{font-size:22px;font-weight:700;color:var(--n500)}
+  .score-meta{font-size:12px;color:var(--n600);font-weight:600;flex:1;text-align:right;line-height:1.5}
+  .score-meta strong{color:var(--s800)}
+  .grade-scale{margin-top:14px;margin-bottom:10px}
+  .grade-bar-bg{background:linear-gradient(90deg,var(--gradeD) 0%,var(--gradeC) 25%,var(--gradeB) 50%,var(--gradeA) 75%,var(--gradeS) 100%);height:8px;border-radius:4px;position:relative;margin-bottom:8px}
+  .grade-pointer{position:absolute;top:-6px;width:6px;height:20px;background:var(--s800);border-radius:3px;border:2px solid white}
+  .grade-labels{display:grid;grid-template-columns:repeat(5,1fr);font-size:10px;font-weight:800;text-align:center;letter-spacing:0.02em}
+  .grade-labels span:nth-child(1){color:var(--gradeD)}
+  .grade-labels span:nth-child(2){color:var(--gradeC)}
+  .grade-labels span:nth-child(3){color:var(--gradeB)}
+  .grade-labels span:nth-child(4){color:var(--gradeA)}
+  .grade-labels span:nth-child(5){color:var(--gradeS)}
+  .grade-labels span.current{transform:scale(1.15);text-decoration:underline}
+  .score-progress{background:white;border-radius:12px;padding:10px 12px;margin-top:12px;border:1px solid rgba(0,0,0,0.06)}
+  .score-progress .row1{display:flex;justify-content:space-between;font-size:11px;color:var(--n600);font-weight:700;margin-bottom:6px}
+  .score-progress .row1 strong{color:var(--s800)}
+  .score-progress .pbar{background:var(--n100);height:6px;border-radius:3px;overflow:hidden}
+  .score-progress .pfill{height:100%;background:linear-gradient(90deg,var(--gradeB),var(--gradeA));border-radius:3px}
+  .score-progress .next{font-size:11px;color:var(--n600);text-align:center;margin-top:8px;font-weight:600}
+  .score-progress .next strong{color:var(--p700)}
+  .score-cta{background:var(--s800);color:white;width:100%;padding:13px;border-radius:12px;font-weight:800;font-size:14px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shM);margin-top:14px}
+  .score-cta-sub{font-size:10.5px;color:var(--n500);text-align:center;margin-top:8px;line-height:1.5}
+
+  /* ★ 권장량 카드 (홈으로 이동) */
+  .nutri-card{background:white;border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shS)}
+  .nutri-card .head{font-size:11px;color:var(--n500);font-weight:700;letter-spacing:0.04em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  .nutri-card .head strong{color:var(--s800);font-size:13px}
+  .nutri-card .head .age{font-size:10px;color:var(--n400);font-weight:700}
+  .nutri-bar-row{display:grid;grid-template-columns:60px 1fr 60px;gap:10px;align-items:center;padding:5px 0;font-size:11.5px}
+  .nutri-bar-row .nm{font-weight:700;color:var(--n700)}
+  .nutri-bar-row .b{background:var(--n100);height:6px;border-radius:3px;overflow:hidden;position:relative}
+  .nutri-bar-row .f{height:100%;border-radius:3px}
+  .nutri-bar-row .f.ok{background:linear-gradient(90deg,var(--g500),#66BB6A)}
+  .nutri-bar-row .f.warn{background:linear-gradient(90deg,var(--y500),#FFD54F)}
+  .nutri-bar-row .f.danger{background:linear-gradient(90deg,var(--r500),#FF7676)}
+  .nutri-bar-row .v{text-align:right;font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:11px;color:var(--s800)}
+  .nutri-bar-row .v.danger{color:var(--r700)}
+  .nutri-warn-text{background:var(--r50);color:var(--r700);font-size:11px;padding:8px 10px;border-radius:8px;margin-top:8px;font-weight:700;line-height:1.5}
+
+  /* ★ 3일 식단 종합 진단 (7축 통합) */
+  .diagnose-card{background:linear-gradient(135deg,#F4F8FB,#E8EEF5);border-radius:16px;padding:16px;margin-bottom:12px;border:1.5px solid #CFD8DC}
+  .diagnose-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .diagnose-card .head .lbl{font-size:11px;font-weight:800;letter-spacing:0.05em;color:var(--s700)}
+  .diagnose-card .head .grade-mini{background:var(--gradeB);color:white;font-weight:800;font-size:13px;padding:3px 11px;border-radius:100px;letter-spacing:0.03em}
+  .diagnose-card .head .grade-mini.gradeA{background:var(--gradeA)}
+  .diagnose-card .head .grade-mini.gradeS{background:var(--gradeS)}
+  .diagnose-card .head .grade-mini.gradeC{background:var(--gradeC)}
+  .diagnose-card .head .grade-mini.gradeD{background:var(--gradeD)}
+  .diagnose-card .summary{font-size:12.5px;line-height:1.6;color:var(--n700);font-weight:600;margin:0 0 12px}
+  .diagnose-card .summary strong{color:var(--s800);font-weight:800}
+  .axes-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;background:white;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.04)}
+  .axis-row{display:flex;align-items:center;gap:8px;padding:5px 4px;font-size:11px}
+  .axis-row .dot{width:8px;height:8px;border-radius:50%;background:var(--n300);flex-shrink:0}
+  .axis-row.ok .dot{background:var(--g500)}
+  .axis-row.warn .dot{background:var(--y500)}
+  .axis-row.danger .dot{background:var(--r500)}
+  .axis-row .nm{flex:1;font-weight:700;color:var(--n700);font-size:11px}
+  .axis-row .badge{font-size:10px;color:var(--n500);font-weight:700;font-family:ui-monospace,Menlo,monospace}
+  .axis-row.warn .badge{color:var(--y700)}
+  .axis-row.danger .badge{color:var(--r700)}
+  .axis-row.ok .badge{color:var(--g700)}
+  .diagnose-card .why{font-size:10.5px;color:var(--n500);text-align:center;margin-top:9px;line-height:1.5;font-weight:600}
+  .diagnose-card .why strong{color:var(--s700)}
+
+  /* ★ 식단 패턴 평가 알림 카드 */
+  .pattern-card{background:white;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:var(--shS);border-left:4px solid var(--y500)}
+  .pattern-card.danger{border-left-color:var(--r500)}
+  .pattern-card.good{border-left-color:var(--g500)}
+  .pattern-card .lbl{font-size:10px;font-weight:800;letter-spacing:0.05em;color:var(--y700);margin-bottom:4px}
+  .pattern-card.danger .lbl{color:var(--r700)}
+  .pattern-card.good .lbl{color:var(--g700)}
+  .pattern-card .ttl{font-size:14px;font-weight:800;color:var(--s800);line-height:1.4;margin-bottom:5px}
+  .pattern-card .desc{font-size:11.5px;color:var(--n600);line-height:1.6;margin-bottom:8px}
+  .pattern-card .desc strong{color:var(--s800)}
+  .pattern-card .suggest{background:var(--p50);padding:9px 11px;border-radius:8px;font-size:11.5px;color:var(--p700);font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer}
+  .pattern-card .suggest .em{font-size:15px}
+  .pattern-card .suggest .arrow{margin-left:auto;color:var(--p500)}
+
+  /* ★ 오늘 영양 가족 (카테고리 기준) */
+  .today-card{background:white;border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shS)}
+  .today-card .label{font-size:11px;color:var(--n500);font-weight:700;letter-spacing:0.04em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+  .today-card .label strong{color:var(--s800);font-size:13px}
+  .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .cat-item{padding:10px 6px;border-radius:10px;text-align:center;background:var(--n50);border:1.5px solid var(--n200)}
+  .cat-item.done{background:var(--g50);border-color:var(--g500)}
+  .cat-item .em{font-size:22px;line-height:1;margin-bottom:3px;display:block;filter:grayscale(0.7);opacity:0.5}
+  .cat-item.done .em{filter:none;opacity:1}
+  .cat-item .nm{font-size:10px;font-weight:800;color:var(--n400)}
+  .cat-item.done .nm{color:var(--g700)}
+  .cat-item .ing{font-size:9px;color:var(--g500);font-weight:600;margin-top:2px;line-height:1.3;min-height:11px}
+
+  /* Top 10 try list */
+  .try-list-card{background:white;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shS)}
+  .try-list-card .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .try-list-card .head h3{font-size:14px;margin:0;color:var(--s800);font-weight:800;letter-spacing:-0.01em}
+  .try-list-card .head .sub{font-size:10px;color:var(--n500);font-weight:700;letter-spacing:0.04em}
+  .try-row{display:grid;grid-template-columns:24px 36px 1fr 60px;gap:8px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--n100);cursor:pointer;transition:all .15s}
+  .try-row:last-child{border-bottom:none}
+  .try-row:hover{background:var(--n50);border-radius:6px}
+  .try-row .rank{font-size:12px;font-weight:800;color:var(--n400);text-align:center;font-family:ui-monospace,Menlo,monospace}
+  .try-row .em{font-size:22px;line-height:1;text-align:center}
+  .try-row .info .nm{font-size:13px;font-weight:800;color:var(--s800);line-height:1.3}
+  .try-row .info .meta{font-size:10.5px;color:var(--r700);margin-top:1px;font-weight:600}
+  .try-row .info .meta.warn{color:var(--y700)}
+  .try-row .action{font-size:9px;background:var(--p50);color:var(--p700);padding:5px 8px;border-radius:6px;font-weight:800;text-align:center;letter-spacing:-0.01em}
+
+  /* ★ 36종 KDRI 영양 신호등 카드 */
+  .signal-card{background:white;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shS);border:1.5px solid var(--n200)}
+  .signal-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .signal-card .head strong{font-size:13px;color:var(--s800);font-weight:800}
+  .signal-card .head .age{font-size:10px;color:var(--n400);font-weight:700}
+  .signal-card .src{font-size:10px;color:var(--n500);font-weight:600;margin-bottom:12px}
+  .signal-card .src strong{color:var(--s800)}
+  .signal-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+  .sig-stat{padding:14px 6px;border-radius:12px;text-align:center;border:1.5px solid}
+  .sig-stat.green{background:#E8F5E9;border-color:var(--g500)}
+  .sig-stat.orange{background:#FFF4D6;border-color:var(--y500)}
+  .sig-stat.red{background:#FFEBEE;border-color:var(--r500)}
+  .sig-stat .num{font-size:30px;font-weight:800;line-height:1;letter-spacing:-0.04em}
+  .sig-stat.green .num{color:var(--g700)}
+  .sig-stat.orange .num{color:var(--y700)}
+  .sig-stat.red .num{color:var(--r700)}
+  .sig-stat .lbl{font-size:11px;font-weight:800;margin-top:5px}
+  .sig-stat.green .lbl{color:var(--g700)}
+  .sig-stat.orange .lbl{color:var(--y700)}
+  .sig-stat.red .lbl{color:var(--r700)}
+  .sig-stat .sub{font-size:9px;color:var(--n500);font-weight:600;margin-top:2px}
+  .signal-summary{background:var(--r50);color:var(--r700);font-size:11.5px;font-weight:700;padding:9px 11px;border-radius:8px;margin-bottom:10px;line-height:1.5}
+  .signal-summary strong{color:var(--s800)}
+  .signal-detail-btn{width:100%;background:var(--s800);color:white;border:none;padding:11px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+
+  /* ★ 36종 자세히 보기 모달 */
+  .nutri-grid-modal{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}
+  .nutri-pill{padding:6px 4px;border-radius:6px;text-align:center;font-size:9.5px;font-weight:700;border:1.5px solid;background:white;cursor:pointer}
+  .nutri-pill.green{background:#F1F8F4;border-color:#C8E6C9;color:var(--g700)}
+  .nutri-pill.orange{background:#FFFBEC;border-color:#FFE082;color:var(--y700)}
+  .nutri-pill.red{background:#FFF5F5;border-color:#FFCDD2;color:var(--r700);font-weight:800}
+  .nutri-pill .nm{font-size:10.5px}
+  .nutri-pill .val{font-size:8.5px;color:var(--n500);font-weight:600;margin-top:1px}
+  .red-foods{background:linear-gradient(135deg,#FFEBEE,#FFCDD2);border-radius:12px;padding:12px;margin-top:12px}
+  .red-foods h4{font-size:12px;font-weight:800;color:var(--r700);margin:0 0 6px}
+  .red-foods .item{background:white;border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;cursor:pointer}
+  .red-foods .item .em{font-size:18px}
+  .red-foods .item .body{flex:1}
+  .red-foods .item .nm{font-size:11.5px;font-weight:800;color:var(--s800);line-height:1.3}
+  .red-foods .item .sub{font-size:10px;color:var(--n500);font-weight:600;margin-top:1px}
+  .red-foods .item .arrow{color:var(--r500)}
+
+  /* ★ AI 3일 식단 추천 CTA + 모달 */
+  .ai-plan-cta{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border-radius:14px;padding:14px;margin-top:10px;display:flex;align-items:center;gap:12px;cursor:pointer;border:1px solid var(--p300)}
+  .ai-plan-cta .em{font-size:30px;flex-shrink:0}
+  .ai-plan-cta .body{flex:1}
+  .ai-plan-cta .body strong{font-size:13px;font-weight:800;color:var(--s800);display:block;line-height:1.3}
+  .ai-plan-cta .body .sub{font-size:10.5px;color:var(--p700);font-weight:600;margin-top:2px}
+  .ai-plan-cta .arrow{color:var(--p500);font-size:22px}
+  .plan-day{background:var(--n50);border-radius:12px;padding:12px;margin-bottom:10px}
+  .plan-day .day-head{font-size:12px;font-weight:800;color:var(--s800);margin-bottom:8px;display:flex;justify-content:space-between}
+  .plan-day .day-head .gain{font-size:10px;color:var(--g700);font-weight:700}
+  .plan-meal{background:white;border-radius:8px;padding:9px 11px;margin-bottom:5px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s}
+  .plan-meal:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+  .plan-meal .chev{color:var(--n300);font-size:16px;font-weight:300;margin-left:auto}
+  .plan-meal .time{font-size:9px;font-weight:800;color:var(--n400);width:32px;text-align:center;letter-spacing:0.04em}
+  .plan-meal .info{flex:1;min-width:0}
+  .plan-meal .info .nm{font-size:11.5px;font-weight:800;color:var(--s800);line-height:1.3}
+  .plan-meal .info .why{font-size:9.5px;color:var(--n500);font-weight:600;margin-top:1px}
+  .plan-meal .info .why .pref{color:var(--p700)}
+  .plan-meal .info .why .new{color:var(--b700)}
+  .plan-meal .info .why .nutri{color:var(--r700)}
+
+  /* ★ 공식 블로그 학습 섹션 (가로 스크롤 카드) */
+  .blog-section{margin-top:14px;margin-bottom:8px}
+  .blog-section .head{display:flex;justify-content:space-between;align-items:baseline;padding:0 2px;margin-bottom:10px}
+  .blog-section .head h3{font-size:14px;font-weight:800;color:var(--s800);letter-spacing:-0.01em;margin:0}
+  .blog-section .head .total{font-size:11px;color:var(--v700);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+  .blog-scroll{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .blog-scroll::-webkit-scrollbar{display:none}
+  .blog-scroll{scrollbar-width:none}
+  .blog-post-card{flex-shrink:0;width:170px;background:linear-gradient(160deg,#F3E5F5,#E1BEE7);border:1.5px solid var(--v500);border-radius:14px;padding:12px;cursor:pointer;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px;transition:transform 0.15s}
+  .blog-post-card:hover{transform:translateY(-2px)}
+  .blog-post-card .em{font-size:26px;line-height:1}
+  .blog-post-card .ttl{font-size:12px;font-weight:800;color:var(--s800);line-height:1.35;flex:1;letter-spacing:-0.01em}
+  .blog-post-card .sub{font-size:9.5px;color:var(--v700);font-weight:600;line-height:1.3}
+  .blog-post-card .meta{font-size:9px;color:var(--n500);font-weight:700;letter-spacing:0.03em;margin-top:2px;display:flex;justify-content:space-between}
+  .blog-post-card .meta .read{color:var(--v700)}
+
+  /* ★ 편지 답장 카드 (메모 기반 개인화) */
+  .letter-card{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:16px;padding:16px;margin-bottom:14px;border:1.5px solid var(--y500);cursor:pointer;position:relative;overflow:hidden}
+  .letter-card::before{content:'✉️';position:absolute;top:-10px;right:14px;font-size:80px;opacity:0.12;transform:rotate(12deg)}
+  .letter-card .lbl{font-size:10.5px;font-weight:800;color:var(--y700);letter-spacing:0.05em;margin-bottom:6px;position:relative}
+  .letter-card .ttl{font-size:14px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:6px;position:relative}
+  .letter-card .preview{font-size:11.5px;color:var(--n700);font-weight:600;line-height:1.6;position:relative;font-style:italic}
+  .letter-card .arrow-row{display:flex;justify-content:flex-end;margin-top:8px;position:relative}
+  .letter-card .arrow-row span{font-size:11px;font-weight:800;color:var(--y700)}
+
+  /* ★ SOS 6단계 모달 카드 */
+  .sos-step{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform 0.15s}
+  .sos-step:hover{transform:translateX(3px);border-color:var(--p500)}
+  .sos-step .step-num{background:var(--p500);color:white;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;letter-spacing:0}
+  .sos-step.done .step-num{background:var(--g500)}
+  .sos-step .body{flex:1;min-width:0}
+  .sos-step .body .nm{font-size:13.5px;font-weight:800;color:var(--s800);line-height:1.3}
+  .sos-step .body .desc{font-size:11px;color:var(--n600);font-weight:600;margin-top:2px;line-height:1.55}
+  .sos-step .ico{font-size:24px;flex-shrink:0}
+
+  /* ★ 거부 대처 핵심 5 카드 */
+  .rejection-tip{background:white;border-radius:10px;padding:11px 14px;margin-bottom:7px;display:flex;align-items:flex-start;gap:11px;border-left:4px solid var(--p500)}
+  .rejection-tip .num{background:var(--p500);color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0;margin-top:1px}
+  .rejection-tip .body strong{font-size:13px;color:var(--s800);display:block;margin-bottom:3px;font-weight:800}
+  .rejection-tip .body .desc{font-size:11.5px;color:var(--n600);font-weight:600;line-height:1.6}
+
+  .alert-banner{background:white;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shS);border-left:4px solid var(--b500)}
+  .alert-banner .ico{width:36px;height:36px;border-radius:50%;background:var(--b50);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .alert-banner .body{flex:1}
+  .alert-banner .tag{font-size:9px;color:var(--n400);font-weight:700;letter-spacing:0.05em;margin-bottom:1px}
+  .alert-banner strong{font-size:13px;color:var(--s800);font-weight:800;display:block;line-height:1.4}
+  .alert-banner .sub{font-size:11px;color:var(--n600);margin-top:2px}
+  .alert-banner .arrow{margin-left:auto;color:var(--n300);font-size:18px;font-weight:300}
+
+  /* ========== DEX ========== */
+  .dex-summary{background:white;padding:18px 18px 14px;border-bottom:1px solid var(--n100)}
+  .dex-sum-title{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .dex-sum-title h3{font-size:14px;margin:0;color:var(--s700);font-weight:700}
+  .dex-sum-title .date{font-size:10px;color:var(--n400);font-weight:700}
+  .dex-sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .sum-cell{background:var(--n50);border-radius:10px;padding:10px 4px;text-align:center}
+  .sum-cell .v{font-size:20px;font-weight:800;line-height:1;letter-spacing:-0.02em}
+  .sum-cell .v.g{color:var(--g700)}
+  .sum-cell .v.r{color:var(--r700)}
+  .sum-cell .v.p{color:var(--p500)}
+  .sum-cell .lbl{font-size:10px;color:var(--n500);margin-top:4px;font-weight:700}
+
+  .search-zone{background:#FFFDFB;padding:12px 18px 10px;position:sticky;top:0;z-index:10;border-bottom:1px solid var(--n100)}
+  .search-bar{background:var(--n50);border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .search-bar input{flex:1;border:none;outline:none;background:transparent;font-size:13px;font-family:inherit}
+  .filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+  .filter-row::-webkit-scrollbar{display:none}
+  .filter-chip{flex-shrink:0;font-size:11px;padding:5px 11px;border-radius:100px;background:var(--n50);border:1px solid var(--n200);color:var(--n600);font-weight:700;cursor:pointer;white-space:nowrap}
+  .filter-chip.active{background:var(--s800);color:white;border-color:var(--s800)}
+
+  .list-zone{padding:14px 18px 24px}
+  .ing-card{background:white;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shS);border:1.5px solid var(--n200);position:relative;cursor:pointer}
+  .ing-card.danger{background:#FFF5F5;border-color:var(--r100)}
+  .ing-card.warn{background:#FFFBEC;border-color:var(--y100)}
+  .ing-card.good{background:#F1F8F4;border-color:#C8E6C9}
+  .ing-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+  .ing-emoji{width:48px;height:48px;border-radius:12px;background:var(--n100);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;position:relative}
+  .ing-card.danger .ing-emoji{background:#FFE5E5}
+  .ing-card.warn .ing-emoji{background:#FFF4D6}
+  .ing-card.good .ing-emoji{background:#D6F5DD}
+  .eat-count-badge{position:absolute;bottom:-4px;right:-4px;background:var(--s800);color:white;font-size:10px;font-weight:800;padding:2px 6px;border-radius:100px;min-width:24px;text-align:center;border:2px solid white}
+  .ing-info{flex:1;min-width:0}
+  .ing-name-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px}
+  .ing-name{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-0.01em}
+  .ing-grade{font-size:10px;padding:2px 7px;border-radius:5px;font-weight:800;letter-spacing:0.04em}
+  .ing-grade.S{background:#FFD89C;color:#7A3F00}
+  .ing-grade.A{background:#FFE8D1;color:#B86A20}
+  .ing-grade.B{background:#E3F2FD;color:#1565C0}
+  .ing-grade.C{background:#F3E5F5;color:#6A1B9A}
+  .ing-grade.D{background:#FFEBEE;color:#C62828}
+  .ing-nutri{font-size:11.5px;color:var(--n500);font-weight:600}
+  .ing-status{position:absolute;top:14px;right:14px;font-size:10px;padding:3px 9px;border-radius:100px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+  .ing-status.danger{background:#FFE5E5;color:var(--r700)}
+  .ing-status.warn{background:#FFF4D6;color:var(--y700)}
+  .ing-status.good{background:#D6F5DD;color:var(--g700)}
+  .ing-status.danger::before{content:'●';color:var(--r500)}
+  .ing-status.warn::before{content:'●';color:var(--y500)}
+  .ing-status.good::before{content:'●';color:var(--g500)}
+  .ing-progress-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .ing-period{font-size:13.5px;font-weight:800;color:var(--s800)}
+  .ing-period.danger{color:var(--r700)}
+  .ing-period.warn{color:var(--y700)}
+  .ing-period.good{color:var(--g700)}
+  .ing-last{font-size:10.5px;color:var(--n500);font-weight:600}
+  .ing-bar{background:var(--n200);height:6px;border-radius:3px;overflow:hidden;margin-bottom:10px}
+  .ing-bar-fill{height:100%;border-radius:3px}
+  .ing-bar-fill.danger{background:linear-gradient(90deg,var(--r500),#FF7676)}
+  .ing-bar-fill.warn{background:linear-gradient(90deg,var(--y500),#FFD54F)}
+  .ing-bar-fill.good{background:linear-gradient(90deg,var(--g500),#66BB6A)}
+  .exposure-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0 0;border-top:1px dashed rgba(0,0,0,0.08);margin-top:4px}
+  .exposure-row .ex-label{font-size:10.5px;color:var(--n500);font-weight:700;letter-spacing:0.04em}
+  .exposure-row .ex-count{font-size:13px;font-weight:800;color:var(--s800)}
+  .exposure-row .ex-count .target{font-size:11px;color:var(--n400);font-weight:700}
+  .exposure-bar{background:var(--n100);height:5px;border-radius:3px;overflow:hidden;margin-top:6px}
+  .exposure-fill{height:100%;background:linear-gradient(90deg,var(--p500),var(--p300));border-radius:3px}
+  .focus-care-cta{background:linear-gradient(135deg,var(--v50),#E1BEE7);border:1px solid var(--v500);border-radius:10px;padding:11px 12px;margin-top:10px;display:flex;align-items:center;gap:8px;cursor:pointer}
+  .focus-care-cta .em{font-size:22px;flex-shrink:0}
+  .focus-care-cta .body{flex:1}
+  .focus-care-cta .nm{font-size:12px;font-weight:800;color:var(--v700);line-height:1.3}
+  .focus-care-cta .desc{font-size:10.5px;color:var(--n600);margin-top:2px}
+  .focus-care-cta .arrow{color:var(--v500);font-size:18px;font-weight:300}
+
+  /* ========== RECORD ========== */
+  .record-content{padding:18px}
+  .record-content .input-card{background:white;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:var(--shS)}
+  /* ★ 날짜 선택 + 빈 칸 알림 (소급 입력) */
+  .date-picker-card{background:white;border-radius:14px;padding:12px 14px;margin-bottom:12px;box-shadow:var(--shS)}
+  .date-picker-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .date-picker-card .head .ttl{font-size:12px;font-weight:800;color:var(--s800)}
+  .date-picker-card .head .cal-btn{font-size:10.5px;background:var(--n50);border:1px solid var(--n200);padding:4px 10px;border-radius:100px;color:var(--n600);font-weight:700;cursor:pointer;font-family:inherit}
+  .date-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .date-chip{background:var(--n50);border:1.5px solid var(--n200);border-radius:8px;padding:7px 4px;text-align:center;cursor:pointer;font-size:10.5px;font-weight:700;color:var(--n600);position:relative}
+  .date-chip.checked{background:var(--p500);border-color:var(--p500);color:white}
+  .date-chip .d{font-size:9px;color:var(--n400);font-weight:600;margin-top:1px}
+  .date-chip.checked .d{color:rgba(255,255,255,0.8)}
+  .date-chip .gap-dot{position:absolute;top:4px;right:5px;width:6px;height:6px;background:var(--r500);border-radius:50%}
+  .date-chip.checked .gap-dot{background:white}
+  .gap-banner{background:linear-gradient(135deg,#FFF4D6,#FFECB3);border-radius:10px;padding:10px 12px;margin-top:10px;display:flex;align-items:center;gap:10px;cursor:pointer;border:1px solid var(--y500)}
+  .gap-banner .em{font-size:22px;flex-shrink:0}
+  .gap-banner .body{flex:1;font-size:11.5px;color:var(--y700);font-weight:700;line-height:1.4}
+  .gap-banner .body strong{color:var(--s800)}
+  .gap-banner .arrow{color:var(--y700);font-size:18px;font-weight:300}
+  .record-content .input-card h3{font-size:14px;margin:0 0 10px;color:var(--s800);font-weight:800}
+  .photo-box{background:var(--n50);border:2px dashed var(--n300);border-radius:12px;padding:24px;text-align:center;cursor:pointer;position:relative}
+  .photo-box .em{font-size:32px}
+  .photo-box .lbl{font-size:11px;color:var(--n500);margin-top:4px;font-weight:700}
+  .photo-box.detected{background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:2px solid var(--g500);border-style:solid;padding:14px 16px;text-align:left;display:flex;align-items:center;gap:12px}
+  .photo-box.detected .thumb{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#FFD89C,#FFB375);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+  .photo-box.detected .body{flex:1;min-width:0}
+  .photo-box.detected .body .ttl{font-size:12.5px;font-weight:800;color:var(--g700);line-height:1.3;margin-bottom:2px}
+  .photo-box.detected .body .ttl .ai{background:var(--g500);color:white;font-size:9px;padding:1px 6px;border-radius:4px;letter-spacing:0.04em;margin-left:5px;vertical-align:middle}
+  .photo-box.detected .body .sub{font-size:10.5px;color:var(--g700);font-weight:600;line-height:1.4}
+  .photo-box.detected .retake{background:white;border:1px solid var(--g500);color:var(--g700);font-size:10px;font-weight:800;padding:6px 10px;border-radius:8px;cursor:pointer;flex-shrink:0}
+  .ai-hint{font-size:10px;color:var(--g700);font-weight:700;background:var(--g50);padding:5px 9px;border-radius:6px;margin-top:6px;margin-bottom:6px;display:inline-flex;align-items:center;gap:5px}
+  .ai-hint .em{font-size:11px}
+  .field-label{font-size:10px;color:var(--n400);margin-top:14px;font-weight:700;letter-spacing:0.04em;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+  .field-label .ai-tag{font-size:9px;background:var(--g50);color:var(--g700);padding:2px 7px;border-radius:100px;font-weight:800;letter-spacing:0.03em}
+  .check-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .check-item{background:var(--n50);border:1.5px solid var(--n200);border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;font-size:9.5px;font-weight:700;color:var(--n600);position:relative}
+  .check-item.checked{background:var(--g50);border-color:var(--g500);color:var(--g700)}
+  .check-item.ai-pre{background:var(--g50);border-color:var(--g500);color:var(--g700)}
+  .check-item.ai-pre::after{content:'✨';position:absolute;top:-4px;right:-4px;font-size:11px;background:white;border-radius:50%;padding:1px}
+  .check-item .em{font-size:18px;line-height:1;display:block;margin-bottom:2px}
+
+  /* ★ 해시태그 식재료 입력 (AI 자동 + 직접 추가 + 자동완성) */
+  .tag-box{background:var(--n50);border:1.5px solid var(--n200);border-radius:10px;padding:8px;min-height:48px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;cursor:text}
+  .tag-box:focus-within{border-color:var(--g500);background:white}
+  .tag-chip{background:var(--g500);color:white;padding:4px 8px 4px 10px;border-radius:100px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:5px;line-height:1}
+  .tag-chip.ai::before{content:'✨';font-size:10px}
+  .tag-chip .x{cursor:pointer;background:rgba(255,255,255,0.25);border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;margin-left:1px}
+  .tag-chip .x:hover{background:rgba(255,255,255,0.45)}
+  .tag-input{border:none;outline:none;background:transparent;font-size:12px;font-family:inherit;padding:5px 6px;flex:1;min-width:90px;color:var(--n900);font-weight:600}
+  .tag-input::placeholder{color:var(--n400);font-weight:600}
+  .autocomplete-wrap{position:relative}
+  .ac-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1.5px solid var(--g500);border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.12);max-height:180px;overflow-y:auto;z-index:50;display:none}
+  .ac-dropdown.show{display:block}
+  .ac-item{padding:9px 12px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--n100)}
+  .ac-item:last-child{border-bottom:none}
+  .ac-item:hover,.ac-item.active{background:var(--g50)}
+  .ac-item .em{font-size:18px}
+  .ac-item .nm{font-weight:700;color:var(--s800)}
+  .ac-item .hint{font-size:10px;color:var(--n400);margin-left:auto;font-weight:600}
+  .ac-item mark{background:#FFE082;color:var(--s800);padding:0 2px;border-radius:3px;font-weight:800}
+
+  /* ★ 시간·장소 입력 (Satter 기법 유지용) */
+  .time-place-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  .tp-field{background:var(--n50);border:1.5px solid var(--n200);border-radius:10px;padding:9px 11px}
+  .tp-field .l{font-size:9.5px;color:var(--n500);font-weight:700;letter-spacing:0.04em;margin-bottom:3px}
+  .tp-field .v{font-size:13px;font-weight:800;color:var(--s800);font-family:ui-monospace,Menlo,monospace}
+  .tp-field input{background:transparent;border:none;outline:none;font-size:13px;font-weight:800;color:var(--s800);font-family:ui-monospace,Menlo,monospace;width:100%;padding:0}
+  .duration-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}
+  .duration-chip{background:var(--n50);border:1.5px solid var(--n200);border-radius:8px;padding:6px 4px;text-align:center;cursor:pointer;font-size:10.5px;font-weight:700;color:var(--n600)}
+  .duration-chip.checked{background:var(--b50);border-color:var(--b500);color:var(--b700)}
+  .place-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}
+  .place-chip{background:var(--n50);border:1.5px solid var(--n200);border-radius:8px;padding:8px 4px;text-align:center;cursor:pointer;font-size:10px;font-weight:700;color:var(--n600)}
+  .place-chip.checked{background:var(--v50);border-color:var(--v500);color:var(--v700)}
+  .place-chip .em{font-size:16px;line-height:1;display:block;margin-bottom:2px}
+
+  .reaction-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .reaction-item{background:var(--n50);border:1.5px solid var(--n200);border-radius:8px;padding:10px 4px;text-align:center;cursor:pointer;font-size:10px;font-weight:800;color:var(--n600)}
+  .reaction-item .em{font-size:22px;line-height:1;display:block;margin-bottom:3px}
+  .reaction-item.r1.checked{background:#FFEBEE;border-color:var(--r500);color:var(--r700)}
+  .reaction-item.r2.checked{background:#FFF3E0;border-color:var(--y500);color:var(--y700)}
+  .reaction-item.r3.checked{background:#E8F5E9;border-color:var(--g500);color:var(--g700)}
+  .reaction-item.r4.checked{background:#E0F7FA;border-color:#00ACC1;color:#006064}
+
+  .note-box{background:var(--n50);border:1.5px solid var(--n200);border-radius:10px;padding:10px 12px;width:100%;font-family:inherit;font-size:12px;color:var(--n900);resize:none;outline:none}
+  .note-box:focus{border-color:var(--p500);background:white}
+  .quick-notes{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+  .quick-note{background:var(--n100);color:var(--n600);padding:4px 9px;border-radius:100px;font-size:10.5px;font-weight:700;cursor:pointer;border:none;font-family:inherit}
+
+  .satter-tip{background:var(--p50);color:var(--p700);padding:8px 10px;border-radius:8px;font-size:10.5px;line-height:1.5;font-weight:600;margin-top:10px}
+  .satter-tip strong{color:var(--p700);font-weight:800}
+
+  .body-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .body-stat{background:var(--n50);border-radius:8px;padding:8px;text-align:center}
+  .body-stat .lbl{font-size:9px;color:var(--n500);font-weight:700;letter-spacing:0.04em}
+  .body-stat .v{font-size:18px;font-weight:800;color:var(--p500);line-height:1;margin-top:3px}
+  .body-stat .sub{font-size:9px;color:var(--g700);font-weight:600;margin-top:2px}
+
+  /* ========== RECIPE ========== */
+  .recipe-content{padding:18px}
+  .recipe-content .search-bar{background:white;box-shadow:var(--shS);margin-bottom:14px}
+  /* ★ 원칙별 섹션 헤더 */
+  .principle-head{font-size:11px;font-weight:800;color:var(--s800);letter-spacing:0.04em;margin:14px 4px 8px;display:flex;align-items:baseline;gap:6px}
+  .principle-head .num{background:var(--s800);color:white;font-size:9px;padding:2px 6px;border-radius:100px;letter-spacing:0;font-weight:800}
+  .principle-head .why{font-size:9.5px;color:var(--n500);font-weight:600;margin-left:auto}
+  .rec-card .match{font-size:10px;color:var(--g700);font-weight:700;background:var(--g50);padding:4px 7px;border-radius:6px;margin-top:6px;display:inline-block;line-height:1.4}
+  .rec-card.principle1{border-left-color:var(--p500)}
+  .rec-card.principle2{border-left-color:#FFB300}
+  .rec-card.principle3{border-left-color:var(--r500)}
+  .rec-card.principle4{border-left-color:var(--v500)}
+  .pref-banner{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border-radius:16px;padding:18px;margin-bottom:14px;border:1px solid var(--p300)}
+  .pref-banner .lbl{font-size:10px;color:var(--p700);font-weight:800;letter-spacing:0.05em;margin-bottom:8px}
+  .pref-banner h3{font-size:17px;margin:0 0 6px;color:var(--s800);font-weight:800;line-height:1.3;letter-spacing:-0.01em}
+  .pref-banner h3 .accent{color:var(--p700)}
+  .pref-banner .desc{font-size:12px;color:var(--n700);line-height:1.6;margin-bottom:10px}
+  .axes{display:flex;gap:4px;flex-wrap:wrap}
+  .ax{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700}
+  .ax.b{background:#FF6B6B;color:white}
+  .ax.t{background:#4ECDC4;color:#003a36}
+  .ax.f{background:#FFD93D;color:#5a4500}
+  .ax.p{background:#95E1D3;color:#1a3a35}
+  .ax.a{background:#C780FA;color:white}
+  .rec-card{background:white;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:var(--shS);border-left:4px solid var(--p500);cursor:pointer}
+  .rec-card.b{border-left-color:var(--b500)}
+  .rec-card.v{border-left-color:var(--v500)}
+  .rec-card .tag{font-size:9px;color:var(--n400);font-weight:700;letter-spacing:0.05em;margin-bottom:3px}
+  .rec-card h3{font-size:14px;margin:0 0 4px;color:var(--s800);font-weight:800}
+  .rec-card .desc{font-size:11px;color:var(--n600);line-height:1.55;margin-bottom:6px}
+  .rec-meta{display:flex;gap:8px;font-size:9px;color:var(--n500);margin-top:6px;font-weight:600}
+  .pref-meta{font-size:10.5px;color:var(--p700);font-weight:700;margin-top:6px;background:var(--p50);padding:5px 8px;border-radius:6px;display:inline-block}
+
+  /* Modal */
+  .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:flex-end;justify-content:center;z-index:100;overflow:hidden}
+  @media(min-width:500px){.modal-bg{border-radius:30px}}
+  .modal-bg.show{display:flex}
+  .modal{background:#FFFDFB;width:100%;border-radius:24px 24px 0 0;padding:18px;max-height:90%;overflow-y:auto;animation:slideUp .25s ease}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--n100)}
+  .modal-emoji{font-size:40px;line-height:1;width:60px;height:60px;border-radius:14px;background:var(--n100);display:flex;align-items:center;justify-content:center}
+  .modal-info h3{margin:0 0 4px;font-size:18px;font-weight:800;color:var(--s800)}
+  .modal-info .sub{font-size:11px;color:var(--n500);font-weight:700}
+  .modal-close{margin-left:auto;width:32px;height:32px;border-radius:50%;background:var(--n100);border:none;font-size:16px;cursor:pointer}
+  .modal-card{background:var(--n50);border-radius:10px;padding:12px;margin-bottom:8px;font-size:12px}
+  .modal-card.pref{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1px dashed var(--p500)}
+  .modal-card.focus{background:linear-gradient(135deg,var(--v50),#E1BEE7);border:1px solid var(--v500)}
+  .modal-card .lbl{font-size:10px;font-weight:700;color:var(--p700);letter-spacing:0.04em;margin-bottom:4px}
+  .modal-card.focus .lbl{color:var(--v700)}
+  .modal-card .ttl{font-weight:800;color:var(--s800);font-size:13px;margin-bottom:3px;line-height:1.4}
+  .modal-card .ttl .accent{color:var(--p700)}
+  .modal-card .desc{font-size:11.5px;color:var(--n600);line-height:1.55}
+  .modal-cta{background:var(--s800);color:white;width:100%;padding:12px;border-radius:10px;font-weight:800;font-size:13px;border:none;cursor:pointer;margin-top:8px}
+  .modal-cta.v{background:var(--v700)}
+
+  .notice{font-size:9.5px;color:var(--n400);text-align:center;padding:14px 0;line-height:1.6}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+      <div class="status-bar"><span>9:41</span><span>📶 ●●●</span></div>
+
+      <div class="top-bar">
+        <div class="left">
+          <h2 id="topTitle">🏠 밀프레드 편식도감</h2>
+          <span class="streak">🔥 12일</span>
+        </div>
+        <button class="icon-btn" id="topAction">🔔<span class="dot"></span></button>
+      </div>
+
+      <div class="content" id="content">
+
+        <!-- ========== HOME ========== -->
+        <section id="screen-home" class="screen-section">
+          <div class="home-content">
+            <div class="home-title" style="margin-top:4px">현재 지우 영양 점수는 <strong style="color:var(--gradeB)">60점</strong>이에요<br><span style="font-size:12px;color:var(--n500);font-weight:600">(최근 3일 데이터 기준)</span></div>
+
+            <!-- ★ 편지 답장 카드 (어제 메모 기반 개인화) -->
+            <div class="letter-card" onclick="showLetterReply()">
+              <div class="lbl">✉️ 어제 일지에 답장이 도착했어요</div>
+              <div class="ttl">"시금치 거부로 속상하셨겠어요.<br>22번 노출 중 8번 — 정상 단계예요"</div>
+              <div class="preview">"…한 입도 안 먹어서 너무 힘들었어요"라는 어제 메모, 마음에 담아두지 마세요.</div>
+              <div class="arrow-row"><span>전체 답장 읽기 ›</span></div>
+            </div>
+
+            <div class="daily-mission" onclick="switchTab(document.querySelector('[data-tab=record]'),'record')">
+              <div class="ico">🎯</div>
+              <div class="body">
+                <strong>오늘 한 컷 기록하기</strong>
+                30초만 · 12일 연속 🔥
+              </div>
+              <div class="arrow">›</div>
+            </div>
+
+            <!-- 영양 점수 5등급 -->
+            <div class="score-card gradeB">
+              <div class="score-head">
+                <div class="lbl">━ 우리 아이 영양 점수 ━</div>
+                <span class="score-grade-badge">B 보통</span>
+              </div>
+              <div class="score-number-row">
+                <div class="score-number">60<small>점</small></div>
+                <div class="score-meta">지난주 <strong>52점 → 60점</strong> (+8)<br>이번 주 +8 상승 중</div>
+              </div>
+              <div class="grade-scale">
+                <div class="grade-bar-bg"><div class="grade-pointer" style="left:60%"></div></div>
+                <div class="grade-labels">
+                  <span>D 경고</span><span>C 주의</span><span class="current">B 보통</span><span>A 좋음</span><span>S 매우좋음</span>
+                </div>
+              </div>
+              <div class="score-progress">
+                <div class="row1"><span>이번 주 먹은 식재료</span><strong>18 / 30종</strong></div>
+                <div class="pbar"><div class="pfill" style="width:60%"></div></div>
+                <div class="next">다음 등급 <strong>A 좋음 (70점)</strong>까지 <strong>4종 더</strong>!</div>
+              </div>
+              <button class="score-cta" onclick="switchTab(document.querySelector('[data-tab=recipe]'),'recipe')">🍳 레시피 추천받기</button>
+              <div class="score-cta-sub">우리 아이 식습관·신호등 기반 맞춤 레시피</div>
+            </div>
+
+            <!-- ★ 36종 KDRI 영양 신호등 카드 (만 1-2세 보건복지부 KDRI 2025 기준) -->
+            <div class="signal-card">
+              <div class="head">
+                <strong>🚦 36종 필수 영양소 신호등</strong>
+                <span class="age">만 28개월 · 이번 주</span>
+              </div>
+              <div class="src">기준: <strong>보건복지부 한국인 영양소 섭취기준 (KDRI) 2025</strong> · 만 1-2세 RNI/AI 36종</div>
+              <div class="signal-row">
+                <div class="sig-stat green"><div class="num">20</div><div class="lbl">잘 챙김</div><div class="sub">≥ 80% 충족</div></div>
+                <div class="sig-stat orange"><div class="num">9</div><div class="lbl">조금 부족</div><div class="sub">50-80%</div></div>
+                <div class="sig-stat red"><div class="num">7</div><div class="lbl">결핍 위험</div><div class="sub">＜ 50%</div></div>
+              </div>
+              <div class="signal-summary">⚠ <strong>철·비타민D·콜린</strong>이 가장 부족 — 우리아이 성장 핵심 영양소예요</div>
+              <button class="signal-detail-btn" onclick="showNutriDetail()">📋 36종 자세히 + 보충 식재료 →</button>
+            </div>
+
+            <!-- ★ 3일 식단 종합 진단 (7축 통합 · 자연어) -->
+            <div class="diagnose-card">
+              <div class="head">
+                <div class="lbl">📊 최근 3일 식단 진단</div>
+                <div class="grade-mini gradeB">B</div>
+              </div>
+              <p class="summary">전체적으로 잘 챙기고 있어요. <strong>식감 단계와 메뉴 반복</strong> 두 가지만 신경 쓰면 다음 주 A 등급도 가능해요.</p>
+              <div style="font-size:10px;color:var(--n500);font-weight:600;line-height:1.5;background:white;padding:8px 10px;border-radius:8px;margin-bottom:8px">💡 <strong style="color:var(--s800)">8개 식품군</strong> = 곡물·콩·유제품·고기생선·계란·진한채소·기타채소·과일 (WHO MDD 기준)</div>
+              <div class="axes-grid">
+                <div class="axis-row ok"><span class="dot"></span><span class="nm">식품군 다양성</span><span class="badge">5/8 식품군</span></div>
+                <div class="axis-row warn"><span class="dot"></span><span class="nm">식감 단계</span><span class="badge">죽 65%</span></div>
+                <div class="axis-row warn"><span class="dot"></span><span class="nm">메뉴 반복</span><span class="badge">닭죽 5회</span></div>
+                <div class="axis-row ok"><span class="dot"></span><span class="nm">식사 환경</span><span class="badge">평균 18분</span></div>
+                <div class="axis-row ok"><span class="dot"></span><span class="nm">잘먹음 비율</span><span class="badge">75%</span></div>
+                <div class="axis-row warn"><span class="dot"></span><span class="nm">새 식재료 시도</span><span class="badge">0개</span></div>
+                <div class="axis-row ok"><span class="dot"></span><span class="nm">스스로 먹기</span><span class="badge">55%</span></div>
+                <div class="axis-row"><span class="dot"></span><span class="nm">종합 등급</span><span class="badge">B (지난 주 B)</span></div>
+              </div>
+              <div class="why">학계 기준 <strong>CEBQ · MDD · HabEat · Satter</strong> 7축으로 자동 평가</div>
+            </div>
+
+            <!-- ★ 액션 가능한 narrative 카드 2개 (진단의 warn 항목과 연결) -->
+            <div class="pattern-card">
+              <div class="lbl">⚠ 식감 단계 — 핑거푸드 시점</div>
+              <div class="ttl">이번 주 <strong>죽·미음 비중 65%</strong>예요</div>
+              <div class="desc">만 28개월 권장은 <strong>핑거푸드·테이블푸드</strong>. 씹는 근육이 자라는 시기라 단계를 살짝 도전해볼 때예요. 한 번에 다 바꾸지 않아도 돼요 — <strong>한 끼는 핑거푸드</strong>부터.</div>
+              <div class="suggest" onclick="switchTab(document.querySelector('[data-tab=recipe]'),'recipe')">
+                <span class="em">🥕</span>
+                <span>내일 시작 추천: <strong>당근 스틱 + 후무스</strong></span>
+                <span class="arrow">›</span>
+              </div>
+            </div>
+
+            <div class="pattern-card">
+              <div class="lbl">🔁 메뉴 반복 — 닭죽 5회</div>
+              <div class="ttl">한 주 동안 <strong>비슷한 메뉴</strong>가 자주 나왔어요</div>
+              <div class="desc">아이가 좋아한다고 같은 식재료 반복은 <strong>맛 학습의 좁아짐</strong>으로 이어져요 (HabEat 연구). 베이스는 비슷해도 <strong>채소 조합만 바꿔도</strong> 새 노출이 됩니다.</div>
+              <div class="suggest" onclick="switchTab(document.querySelector('[data-tab=recipe]'),'recipe')">
+                <span class="em">🍲</span>
+                <span>로테이션: <strong>버섯·콩·생선</strong>으로 베이스 바꾸기</span>
+                <span class="arrow">›</span>
+              </div>
+            </div>
+
+            <!-- ★ 오늘 영양 가족 (카테고리 기준) -->
+            <div class="today-card">
+              <div class="label"><strong>오늘 만난 영양 가족</strong><span>5 / 8 충족</span></div>
+              <div class="cat-grid">
+                <div class="cat-item done"><span class="em">🌾</span><div class="nm">곡물</div><div class="ing">쌀</div></div>
+                <div class="cat-item"><span class="em">🫘</span><div class="nm">콩</div><div class="ing"></div></div>
+                <div class="cat-item"><span class="em">🥛</span><div class="nm">유제품</div><div class="ing"></div></div>
+                <div class="cat-item done"><span class="em">🍗</span><div class="nm">고기·생선</div><div class="ing">닭</div></div>
+                <div class="cat-item done"><span class="em">🥚</span><div class="nm">계란</div><div class="ing">달걀</div></div>
+                <div class="cat-item done"><span class="em">🥕</span><div class="nm">진한 채소</div><div class="ing">당근·시금치</div></div>
+                <div class="cat-item done"><span class="em">🥬</span><div class="nm">기타 채소</div><div class="ing">시금치</div></div>
+                <div class="cat-item"><span class="em">🍓</span><div class="nm">과일</div><div class="ing"></div></div>
+              </div>
+            </div>
+
+            <!-- Top 10 + AI 3일 식단 추천 -->
+            <div class="try-list-card">
+              <div class="head">
+                <h3>🍱 이번 주 시도해볼 식재료</h3>
+                <span class="sub">TOP 10</span>
+              </div>
+              <div id="tryList"></div>
+              <div class="ai-plan-cta" onclick="showMealPlan()">
+                <span class="em">🤖</span>
+                <div class="body">
+                  <strong>AI에게 3일 식단 받기</strong>
+                  <div class="sub">잘 먹는 메뉴 + 새 도전 + 부족 영양 종합 개인화</div>
+                </div>
+                <span class="arrow">›</span>
+              </div>
+            </div>
+
+            <div class="alert-banner" onclick="showSosKit('spinach')">
+              <div class="ico">⏰</div>
+              <div class="body">
+                <div class="tag">친해지기 키트 추천</div>
+                <strong>🥬 시금치 22번 노출했는데 안 먹어요</strong>
+                <div class="sub">놀이형 SOS 키트로 시작해볼까요?</div>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+
+            <!-- ★ 밀프레드 공식 블로그 — 후킹 제목 카드 캐러셀 -->
+            <div class="blog-section">
+              <div class="head">
+                <h3>📚 편식 백과 — 후킹된 최신글</h3>
+                <span class="total" onclick="window.open('/blog/','_blank')">전체 357편 →</span>
+              </div>
+              <div class="blog-scroll" id="blogScroll"></div>
+            </div>
+
+            <div class="notice">💡 식단을 정확히 기록할수록 점수와 추천이 똑똑해져요</div>
+          </div>
+        </section>
+
+        <!-- ========== DEX ========== -->
+        <section id="screen-dex" class="screen-section" style="display:none">
+          <div class="dex-summary">
+            <div class="dex-sum-title">
+              <h3>급식 잘 먹기 — 식재료 친해지기 훈련</h3>
+              <span class="date">2026년 5월</span>
+            </div>
+            <div class="dex-sum-grid">
+              <div class="sum-cell"><div class="v g">45<small style="font-size:11px;color:var(--n400)">종</small></div><div class="lbl">잘 먹고 있어요</div></div>
+              <div class="sum-cell"><div class="v r">14<small style="font-size:11px;color:var(--n400)">종</small></div><div class="lbl">오래 안 먹은</div></div>
+              <div class="sum-cell"><div class="v p">+7</div><div class="lbl">이번 달 새 만남</div></div>
+            </div>
+          </div>
+
+          <div class="search-zone">
+            <div class="search-bar">
+              <span style="font-size:14px;color:var(--n400)">🔎</span>
+              <input type="text" placeholder="식재료 검색" id="searchInput" oninput="renderList()">
+            </div>
+            <div class="filter-row">
+              <div class="filter-chip active" onclick="filterDex(this,'all')">전체</div>
+              <div class="filter-chip" onclick="filterDex(this,'danger')">🚨 오래 안 먹음</div>
+              <div class="filter-chip" onclick="filterDex(this,'leaf')">🥬 잎채소</div>
+              <div class="filter-chip" onclick="filterDex(this,'fruit-veg')">🎃 박과</div>
+              <div class="filter-chip" onclick="filterDex(this,'root')">🥕 뿌리</div>
+              <div class="filter-chip" onclick="filterDex(this,'bean')">🫘 콩</div>
+              <div class="filter-chip" onclick="filterDex(this,'fish')">🐟 생선·해산물</div>
+              <div class="filter-chip" onclick="filterDex(this,'mushroom')">🍄 버섯</div>
+              <div class="filter-chip" onclick="filterDex(this,'fruit')">🍓 과일</div>
+              <div class="filter-chip" onclick="filterDex(this,'dairy')">🥛 유제품</div>
+              <div class="filter-chip" onclick="filterDex(this,'grain')">🌾 곡물</div>
+              <div class="filter-chip" onclick="filterDex(this,'meat')">🍗 고기</div>
+            </div>
+          </div>
+
+          <div class="list-zone" id="ingList"></div>
+        </section>
+
+        <!-- ========== RECORD ========== -->
+        <section id="screen-record" class="screen-section" style="display:none">
+          <div class="record-content">
+
+            <!-- ★ 날짜 선택 (소급 입력 — 바빠서 빼먹은 날 채우기) -->
+            <div class="date-picker-card">
+              <div class="head">
+                <div class="ttl">📅 어느 날 기록?</div>
+                <button class="cal-btn">📆 전체 캘린더</button>
+              </div>
+              <div class="date-chips">
+                <div class="date-chip" onclick="setExclusive(this,'.date-chip')"><span class="gap-dot"></span>그저께<div class="d">5/21</div></div>
+                <div class="date-chip" onclick="setExclusive(this,'.date-chip')"><span class="gap-dot"></span>어제<div class="d">5/22</div></div>
+                <div class="date-chip checked" onclick="setExclusive(this,'.date-chip')">오늘<div class="d">5/23</div></div>
+                <div class="date-chip" onclick="setExclusive(this,'.date-chip')">+ 다른 날</div>
+              </div>
+              <div class="gap-banner">
+                <span class="em">⏰</span>
+                <div class="body"><strong>어제 점심·저녁, 오늘 아침</strong> 3끼가 비어있어요<br>지금 1~2분이면 채울 수 있어요</div>
+                <span class="arrow">›</span>
+              </div>
+            </div>
+
+            <div class="input-card">
+              <h3>🍽 그날 우리 아이가 먹은 음식</h3>
+
+              <!-- ★ 식사 종류 (아침·점심·저녁·간식 — 간식까지 입력) -->
+              <div class="field-label" style="margin-top:2px">━ 어떤 식사? ━</div>
+              <div class="check-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:10px">
+                <div class="check-item meal-type" onclick="setExclusive(this,'.meal-type')"><span class="em">🌅</span>아침</div>
+                <div class="check-item meal-type checked" onclick="setExclusive(this,'.meal-type')"><span class="em">🍱</span>점심</div>
+                <div class="check-item meal-type" onclick="setExclusive(this,'.meal-type')"><span class="em">🌙</span>저녁</div>
+                <div class="check-item meal-type" onclick="setExclusive(this,'.meal-type')"><span class="em">🍪</span>간식</div>
+              </div>
+
+              <div class="photo-box detected">
+                <div class="thumb">🍱</div>
+                <div class="body">
+                  <div class="ttl">사진 인식 완료<span class="ai">AI</span></div>
+                  <div class="sub">시금치·당근·쌀·달걀 5개 자동 선택 · 수정 가능</div>
+                </div>
+                <button class="retake">다시</button>
+              </div>
+
+              <!-- ★ 식사 시간 (느슨하게 — 대략 시간 + 지속 분) -->
+              <div class="field-label">━ 식사 시간 (대략) ━</div>
+              <div class="check-row" style="grid-template-columns:repeat(4,1fr)">
+                <div class="check-item" onclick="this.classList.toggle('checked')">7시</div>
+                <div class="check-item" onclick="this.classList.toggle('checked')">9시</div>
+                <div class="check-item" onclick="this.classList.toggle('checked')">10시</div>
+                <div class="check-item checked" onclick="this.classList.toggle('checked')">12시</div>
+                <div class="check-item" onclick="this.classList.toggle('checked')">14시</div>
+                <div class="check-item" onclick="this.classList.toggle('checked')">16시</div>
+                <div class="check-item" onclick="this.classList.toggle('checked')">18시</div>
+                <div class="check-item" onclick="this.classList.toggle('checked')">20시</div>
+              </div>
+              <div class="field-label">━ 먹은 시간 (대충 몇 분?) ━</div>
+              <div class="duration-row">
+                <div class="duration-chip">~10분</div>
+                <div class="duration-chip checked">15분</div>
+                <div class="duration-chip">20분</div>
+                <div class="duration-chip">30분+</div>
+              </div>
+
+              <div class="field-label">━ 식사 장소 ━</div>
+              <div class="place-row">
+                <div class="place-chip checked"><span class="em">🏠</span>집</div>
+                <div class="place-chip"><span class="em">🏫</span>어린이집</div>
+                <div class="place-chip"><span class="em">🍴</span>외식</div>
+                <div class="place-chip"><span class="em">🚗</span>차·이동</div>
+              </div>
+              <div class="satter-tip">💡 <strong>Satter 기법</strong> — 식사 시간 20분 이내·정해진 자리에서 먹는 게 권장돼요</div>
+
+              <!-- 식재료 (해시태그 입력 + AI 자동 + 자동완성) -->
+              <div class="field-label"><span>━ 식재료 ━</span><span class="ai-tag">✨ AI + 직접 추가</span></div>
+              <div class="ai-hint"><span class="em">✨</span>사진에서 4개 자동 인식 — 빠진 거 직접 추가, 잘못된 건 X로 빼세요</div>
+              <div class="autocomplete-wrap">
+                <div class="tag-box" id="ingTagBox" onclick="document.getElementById('ingInput').focus()">
+                  <span class="tag-chip ai" data-nm="시금치">시금치<span class="x" onclick="removeTag(event,this)">✕</span></span>
+                  <span class="tag-chip ai" data-nm="당근">당근<span class="x" onclick="removeTag(event,this)">✕</span></span>
+                  <span class="tag-chip ai" data-nm="쌀">쌀<span class="x" onclick="removeTag(event,this)">✕</span></span>
+                  <span class="tag-chip ai" data-nm="달걀">달걀<span class="x" onclick="removeTag(event,this)">✕</span></span>
+                  <input id="ingInput" class="tag-input" type="text" placeholder="추가 식재료 입력 (예: ㅂㄹㅋㄹ → 브로콜리)" oninput="acHandle(event)" onkeydown="acKey(event)" autocomplete="off">
+                </div>
+                <div class="ac-dropdown" id="acDropdown"></div>
+              </div>
+
+              <!-- ★ 식감 단계 (NEW — 7축 평가 #2 데이터) -->
+              <div class="field-label">━ 식감 단계 (씹기 도전 수준) ━</div>
+              <div class="check-row" style="grid-template-columns:repeat(4,1fr)">
+                <div class="check-item texture-row" onclick="setExclusive(this,'.texture-row')"><span class="em">🥣</span>죽·미음</div>
+                <div class="check-item checked texture-row" onclick="setExclusive(this,'.texture-row')"><span class="em">🥄</span>다진·매시</div>
+                <div class="check-item texture-row" onclick="setExclusive(this,'.texture-row')"><span class="em">🤏</span>핑거푸드</div>
+                <div class="check-item texture-row" onclick="setExclusive(this,'.texture-row')"><span class="em">🍽</span>테이블푸드</div>
+              </div>
+
+              <!-- ★ 자율성 (NEW — 7축 평가 #7 Satter DOR 데이터) -->
+              <div class="field-label">━ 누가 먹였어요? (자율성) ━</div>
+              <div class="check-row" style="grid-template-columns:repeat(3,1fr)">
+                <div class="check-item autonomy-row" onclick="setExclusive(this,'.autonomy-row')"><span class="em">🤱</span>떠먹여줌</div>
+                <div class="check-item checked autonomy-row" onclick="setExclusive(this,'.autonomy-row')"><span class="em">🍼</span>도와줌</div>
+                <div class="check-item autonomy-row" onclick="setExclusive(this,'.autonomy-row')"><span class="em">🙋</span>스스로</div>
+              </div>
+
+              <!-- 식사 반응 -->
+              <div class="field-label">━ 우리 아이 반응 ━</div>
+              <div class="reaction-row">
+                <div class="reaction-item r1" onclick="setReaction(this)"><span class="em">😤</span>거부</div>
+                <div class="reaction-item r2" onclick="setReaction(this)"><span class="em">😶</span>남김</div>
+                <div class="reaction-item r3 checked" onclick="setReaction(this)"><span class="em">😊</span>잘 먹음</div>
+                <div class="reaction-item r4" onclick="setReaction(this)"><span class="em">🤩</span>또 달라</div>
+              </div>
+
+              <!-- ★ 메모 + 동적 질문 (매일 1개씩 다른 질문) -->
+              <div class="field-label"><span id="memoLabel">━ 오늘의 질문 ━</span><span style="font-size:9px;background:var(--v50);color:var(--v700);padding:2px 7px;border-radius:100px;font-weight:800;letter-spacing:0.03em">✨ AI</span></div>
+              <textarea id="memoBox" class="note-box" rows="2" placeholder=""></textarea>
+              <div class="quick-notes" id="quickNotes"></div>
+
+              <button style="background:var(--s800);color:white;width:100%;padding:12px;border-radius:10px;font-weight:800;font-size:13px;border:none;cursor:pointer;margin-top:14px">오늘 기록 저장 → +1 🔥</button>
+            </div>
+
+            <div class="input-card">
+              <h3>📏 키·몸무게 (주 1회)</h3>
+              <div class="body-grid">
+                <div class="body-stat"><div class="lbl">키</div><div class="v">88.5<span style="font-size:10px;color:var(--n400)">cm</span></div><div class="sub">+0.8 / 1개월</div></div>
+                <div class="body-stat"><div class="lbl">몸무게</div><div class="v">12.4<span style="font-size:10px;color:var(--n400)">kg</span></div><div class="sub">+0.2 / 1개월</div></div>
+              </div>
+            </div>
+
+            <div style="background:white;border-radius:14px;padding:16px;text-align:center;box-shadow:var(--shS)">
+              <h3 style="margin:0 0 4px;font-size:14px;color:var(--s800);font-weight:800">📄 월간 리포트</h3>
+              <p style="font-size:12px;color:var(--n600);margin-bottom:8px">이번 달 우리 아이의 식습관 기록</p>
+              <button style="background:var(--p500);color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:800;font-size:11px;cursor:pointer">PDF 다운로드</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== RECIPE ========== -->
+        <section id="screen-recipe" class="screen-section" style="display:none">
+          <div class="recipe-content">
+
+
+            <div class="search-bar">
+              <span style="font-size:14px;color:var(--n400)">🔎</span>
+              <input type="text" placeholder="식재료·메뉴 검색">
+            </div>
+
+            <!-- ★ 원칙 1: 선호 베이스 + 도전 식재료 -->
+            <div class="principle-head"><span class="num">1</span>⭐ 잘먹는 베이스 + 도전 식재료<span class="why">거부감 없이 만남 시작</span></div>
+
+            <div class="rec-card principle1" onclick="showFridgeRecipe(0)">
+              <div class="tag">━ 시금치 22번 노출 8번 먹음 ━</div>
+              <h3>🥚 시금치 즙 계란찜</h3>
+              <p class="desc">계란찜 43회 ⭐ 최선호 + 시금치 즙으로 색감 거의 안 보임</p>
+              
+              <div class="axes"><span class="ax b">계란찜</span><span class="ax t">매시</span><span class="ax f">감칠</span><span class="ax p">즙으로</span><span class="ax a">먹기</span></div>
+              <div class="rec-meta"><span>⏱ 7분</span><span>· 즙 형태</span><span>· 💊 철·엽산</span></div>
+            </div>
+
+            <div class="rec-card principle1" onclick="showFridgeRecipe(1)">
+              <div class="tag">━ 가지 1년 9개월째 못 만남 ━</div>
+              <h3>🍚 가지 다진 닭죽</h3>
+              <p class="desc">죽 32회 ⭐ 좋아하는 베이스 + 가지 5g 잘게 다져 마지막에</p>
+              
+              <div class="axes"><span class="ax b">죽</span><span class="ax t">크리미</span><span class="ax f">감칠</span><span class="ax p">다지기</span><span class="ax a">먹기</span></div>
+              <div class="rec-meta"><span>⏱ 12분</span><span>· 다지기</span><span>· 💊 식이섬유</span></div>
+            </div>
+
+            <!-- ★ 원칙 2: 잘먹지만 오래 안만남 → 원물에 가깝게 -->
+            <div class="principle-head"><span class="num">2</span>🥗 잘먹지만 오랜만 → 원물 노출<span class="why">식재료 자체 맛 학습</span></div>
+
+            <div class="rec-card principle2" onclick="showFridgeRecipe(2)">
+              <div class="tag">━ 당근 잘 먹지만 다진 형태만 ━</div>
+              <h3>🥕 당근 스틱 + 두부 후무스</h3>
+              <p class="desc">당근은 매시·죽으로만 만남 → 통째 스틱으로 식감 단계 ↑ (28개월 핑거푸드 권장)</p>
+              
+              <div class="axes"><span class="ax b">생식</span><span class="ax t">아삭</span><span class="ax f">단맛</span><span class="ax p">스틱</span><span class="ax a">집어먹기</span></div>
+              <div class="rec-meta"><span>⏱ 5분</span><span>· 핑거푸드</span><span>· 💊 비타민 A</span></div>
+            </div>
+
+            <!-- ★ 원칙 3: 극도 거부 → 다지기·즙·페이스트 -->
+            <div class="principle-head"><span class="num">3</span>🥄 극도 거부 식재료 → 형태 안 보이게<span class="why">노출 횟수 누적 우선</span></div>
+
+            <div class="rec-card principle3" onclick="showFridgeRecipe(3)">
+              <div class="tag">━ 가지 수용 37% · 색감 거부 ━</div>
+              <h3>🥞 가지 즙 부침개</h3>
+              <p class="desc">가지 즙을 부침개 반죽에 — 색·향·식감 거의 인식 안 됨. 거부 단계에서 노출 횟수 늘리는 용</p>
+              
+              <div class="axes"><span class="ax b">부침개</span><span class="ax t">폭신</span><span class="ax f">고소</span><span class="ax p">즙으로</span><span class="ax a">먹기</span></div>
+              <div class="rec-meta"><span>⏱ 8분</span><span>· 즙 형태</span><span>· 💊 식이섬유</span></div>
+            </div>
+
+            <!-- ★ 원칙 4: 부족 영양 보강 -->
+            <div class="principle-head"><span class="num">4</span>💊 부족 영양 보강<span class="why">신호등 빨강 7종 채움</span></div>
+
+            <div class="rec-card principle4" onclick="showFridgeRecipe(4)">
+              <div class="tag">━ 철·오메가3 결핍 위험 ━</div>
+              <h3>🌰 들깨 검은콩 죽</h3>
+              <p class="desc">잘먹는 죽 베이스 + 들깨가루·검은콩 으깨 → 철 + 오메가-3 한번에 보강</p>
+              
+              <div class="axes"><span class="ax b">죽</span><span class="ax t">크리미</span><span class="ax f">고소</span><span class="ax p">으깨</span><span class="ax a">먹기</span></div>
+              <div class="rec-meta"><span>⏱ 10분</span><span>· 페이스트</span><span>· 💊 철·오메가3</span></div>
+            </div>
+
+            <div class="rec-card principle4" onclick="showFridgeRecipe(5)">
+              <div class="tag">━ 콜린·비타민D 결핍 위험 ━</div>
+              <h3>🥚 노른자 두부찜</h3>
+              <p class="desc">콜린 최고급원 노른자 + 두부 — 만 1-2세 콜린 160mg 충분섭취량 거의 한 그릇으로</p>
+              
+              <div class="axes"><span class="ax b">찜</span><span class="ax t">부드러움</span><span class="ax f">담백</span><span class="ax p">통째</span><span class="ax a">먹기</span></div>
+              <div class="rec-meta"><span>⏱ 8분</span><span>· 매시</span><span>· 💊 콜린·비D</span></div>
+            </div>
+
+            <div class="notice">💡 4가지 원칙: ⭐ 선호 매칭 / 🥗 원물 노출 / 🥄 형태 가리기 / 💊 영양 보강<br>매일 우리 아이 식단·반응·신호등으로 자동 갱신</div>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="modal-bg" id="recBg" onclick="closeRec(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+          <div class="modal-head">
+            <div class="modal-emoji" style="background:var(--p100)">📦</div>
+            <div class="modal-info"><h3>일주일치 추천 7종</h3><div class="sub">선호 조리법 매칭 · 평균 +10점</div></div>
+            <button class="modal-close" onclick="closeRec()">✕</button>
+          </div>
+          <div class="modal-card pref">
+            <div class="lbl">━ 7종 + 선호 조리법 다리 놓기 ━</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+              <div style="background:white;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px"><div style="font-size:22px">🥬</div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--s800)">시금치</div><div style="font-size:10px;color:var(--p700);font-weight:600">🥚 계란찜에 다져 넣기</div></div></div>
+              <div style="background:white;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px"><div style="font-size:22px">🍆</div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--s800)">가지</div><div style="font-size:10px;color:var(--p700);font-weight:600">🥞 부침개에 다져 넣기</div></div></div>
+              <div style="background:white;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px"><div style="font-size:22px">🥦</div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--s800)">브로콜리</div><div style="font-size:10px;color:var(--p700);font-weight:600">🍚 죽에 매시해 넣기</div></div></div>
+              <div style="background:white;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px"><div style="font-size:22px">🍄</div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--s800)">표고</div><div style="font-size:10px;color:var(--p700);font-weight:600">🍲 국 베이스로</div></div></div>
+              <div style="background:white;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px"><div style="font-size:22px">🫘</div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--s800)">검은콩</div><div style="font-size:10px;color:var(--p700);font-weight:600">🍚 죽에 으깨 넣기</div></div></div>
+              <div style="background:white;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px"><div style="font-size:22px">🍓</div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--s800)">딸기</div><div style="font-size:10px;color:var(--p700);font-weight:600">🥛 요거트에 곁들이기</div></div></div>
+              <div style="background:white;border-radius:8px;padding:10px;display:flex;align-items:center;gap:10px"><div style="font-size:22px">🥛</div><div style="flex:1"><div style="font-size:12px;font-weight:800;color:var(--s800)">요거트</div><div style="font-size:10px;color:var(--p700);font-weight:600">간식 → 미션 클리어</div></div></div>
+            </div>
+          </div>
+          <button style="background:var(--s800);color:white;width:100%;padding:14px;border-radius:12px;font-weight:800;font-size:14px;border:none;cursor:pointer">받아보기 (3일 후 도착)</button>
+        </div>
+      </div>
+
+      <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()" id="modalContent"></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="home" onclick="switchTab(this,'home')"><span class="em">🏠</span><span class="lbl">홈</span></button>
+        <button class="tab" data-tab="dex" onclick="switchTab(this,'dex')"><span class="em">📖</span><span class="lbl">도감</span></button>
+        <button class="tab" data-tab="record" onclick="switchTab(this,'record')"><span class="em">📝</span><span class="lbl">기록</span></button>
+        <button class="tab" data-tab="recipe" onclick="switchTab(this,'recipe')"><span class="em">🍳</span><span class="lbl">레시피</span></button>
+      </div>
+
+</div>
+
+<script>
+const INGREDIENTS = [
+  {id:'spinach',em:'🥬',nm:'시금치',cat:'leaf',grade:'A',nutri:'철·엽산',freq:'어린이집 주 4회',months:14,lastDate:'2025-03',status:'danger',chain:'🥚 계란찜에 다져 넣기',exposure:22,target:30,eatCount:8,focusCare:true},
+  {id:'eggplant',em:'🍆',nm:'가지',cat:'fruit-veg',grade:'B',nutri:'식이섬유',freq:'주 2~3회',months:21,lastDate:'2024-08',status:'danger',chain:'🥞 부침개에 다져 넣기',exposure:8,target:30,eatCount:3,focusCare:false},
+  {id:'carrot',em:'🥕',nm:'당근',cat:'root',grade:'A',nutri:'베타카로틴',freq:'거의 매일',months:4,lastDate:'2026-01',status:'warn',chain:'🥚 계란찜에 다져 넣기',exposure:28,target:30,eatCount:24,focusCare:false},
+  {id:'broccoli',em:'🥦',nm:'브로콜리',cat:'fruit-veg',grade:'B',nutri:'비타민 C·식이섬유',freq:'주 1~2회',months:8,lastDate:'2025-09',status:'warn',chain:'🍚 죽에 매시해 넣기',exposure:15,target:30,eatCount:9,focusCare:false},
+  {id:'cabbage',em:'🥬',nm:'배추',cat:'leaf',grade:'A',nutri:'비타민 C',freq:'주 2회',months:6,lastDate:'2025-11',status:'warn',chain:'🍲 국으로',exposure:20,target:30,eatCount:16,focusCare:false},
+  {id:'lettuce',em:'🥗',nm:'상추',cat:'leaf',grade:'B',nutri:'엽산',freq:'주 1~2회',months:11,lastDate:'2025-06',status:'danger',chain:'🍙 쌈으로',exposure:6,target:30,eatCount:2,focusCare:false},
+  {id:'kale',em:'🥬',nm:'케일',cat:'leaf',grade:'B',nutri:'비타민 K·A',freq:'드물게',months:0,lastDate:'미만남',status:'good',chain:'🥗 페스토로',exposure:0,target:30,eatCount:0,focusCare:false},
+  {id:'potato',em:'🥔',nm:'감자',cat:'root',grade:'A',nutri:'탄수·비타민 C',freq:'주 3회',months:1,lastDate:'2026-04',status:'good',chain:'🍚 죽에',exposure:30,target:30,eatCount:28,focusCare:false},
+  {id:'sweet',em:'🍠',nm:'고구마',cat:'root',grade:'B',nutri:'식이섬유',freq:'주 2회',months:2,lastDate:'2026-03',status:'good',chain:'🍳 으깨서',exposure:25,target:30,eatCount:23,focusCare:false},
+  {id:'beet',em:'🟣',nm:'비트',cat:'root',grade:'D',nutri:'엽산·철',freq:'거의 못 만남',months:0,lastDate:'미만남',status:'good',chain:'🍚 죽에 살짝',exposure:0,target:30,eatCount:0,focusCare:false},
+  {id:'pumpkin',em:'🎃',nm:'단호박',cat:'fruit-veg',grade:'A',nutri:'베타카로틴',freq:'거의 매일',months:1,lastDate:'2026-04',status:'good',chain:'🍚 죽으로',exposure:30,target:30,eatCount:29,focusCare:false},
+  {id:'tomato',em:'🍅',nm:'토마토',cat:'fruit-veg',grade:'B',nutri:'리코펜',freq:'주 2~3회',months:3,lastDate:'2026-02',status:'warn',chain:'🍳 볶음에',exposure:14,target:30,eatCount:11,focusCare:false},
+  {id:'cucumber',em:'🥒',nm:'오이',cat:'fruit-veg',grade:'B',nutri:'수분',freq:'주 1회',months:5,lastDate:'2025-12',status:'warn',chain:'🥗 스틱으로',exposure:18,target:30,eatCount:13,focusCare:false},
+  {id:'tofu',em:'🧈',nm:'두부',cat:'bean',grade:'A',nutri:'단백질',freq:'주 2~3회',months:1,lastDate:'2026-04',status:'good',chain:'🍲 국에',exposure:25,target:30,eatCount:22,focusCare:false},
+  {id:'chickpea',em:'🫘',nm:'병아리콩',cat:'bean',grade:'D',nutri:'단백질',freq:'거의 못 만남',months:0,lastDate:'미만남',status:'good',chain:'🍚 죽에 으깨',exposure:0,target:30,eatCount:0,focusCare:false},
+  {id:'soybean',em:'🫘',nm:'검은콩',cat:'bean',grade:'C',nutri:'단백질·철',freq:'드물게',months:0,lastDate:'미만남',status:'good',chain:'🍚 죽에 으깨',exposure:0,target:30,eatCount:0,focusCare:false},
+  {id:'anchovy',em:'🐟',nm:'멸치',cat:'fish',grade:'S',nutri:'칼슘·단백질',freq:'거의 매일',months:0,lastDate:'2026-05',status:'good',chain:'🍲 국 베이스',exposure:30,target:30,eatCount:30,focusCare:false},
+  {id:'salmon',em:'🐟',nm:'연어',cat:'fish',grade:'C',nutri:'오메가3·비타민 D',freq:'드물게',months:6,lastDate:'2025-11',status:'warn',chain:'🥚 계란찜에 살짝',exposure:5,target:30,eatCount:2,focusCare:false},
+  {id:'shrimp',em:'🦐',nm:'새우',cat:'fish',grade:'A',nutri:'단백질',freq:'주 1회',months:2,lastDate:'2026-03',status:'good',chain:'🍳 볶음밥에',exposure:18,target:30,eatCount:15,focusCare:false},
+  {id:'seaweed',em:'🌊',nm:'미역',cat:'algae',grade:'B',nutri:'칼슘·식이섬유',freq:'주 1~2회',months:1,lastDate:'2026-04',status:'good',chain:'🍲 국으로',exposure:22,target:30,eatCount:20,focusCare:false},
+  {id:'egg',em:'🥚',nm:'달걀',cat:'egg',grade:'A',nutri:'단백질·비타민 D',freq:'거의 매일',months:0,lastDate:'2026-05',status:'good',chain:'🥚 계란찜 마스터',exposure:30,target:30,eatCount:30,focusCare:false},
+  {id:'apple',em:'🍎',nm:'사과',cat:'fruit',grade:'B',nutri:'식이섬유',freq:'주 3회',months:0,lastDate:'2026-05',status:'good',chain:'🥗 다져서',exposure:30,target:30,eatCount:28,focusCare:false},
+  {id:'strawberry',em:'🍓',nm:'딸기',cat:'fruit',grade:'B',nutri:'비타민 C',freq:'주 2회',months:1,lastDate:'2026-04',status:'good',chain:'🥛 요거트에',exposure:25,target:30,eatCount:24,focusCare:false},
+  {id:'kiwi',em:'🥝',nm:'키위',cat:'fruit',grade:'C',nutri:'비타민 C',freq:'드물게',months:7,lastDate:'2025-10',status:'warn',chain:'🥛 스무디로',exposure:9,target:30,eatCount:6,focusCare:false},
+  {id:'milk',em:'🥛',nm:'우유',cat:'dairy',grade:'A',nutri:'칼슘·단백질',freq:'매일',months:0,lastDate:'2026-05',status:'good',chain:'그대로',exposure:30,target:30,eatCount:30,focusCare:false},
+  {id:'cheese',em:'🧀',nm:'치즈',cat:'dairy',grade:'B',nutri:'칼슘',freq:'주 1회',months:5,lastDate:'2025-12',status:'warn',chain:'🥚 계란찜에 녹여',exposure:14,target:30,eatCount:10,focusCare:false},
+  {id:'rice',em:'🌾',nm:'쌀',cat:'grain',grade:'S',nutri:'탄수화물',freq:'매일',months:0,lastDate:'2026-05',status:'good',chain:'베이스',exposure:30,target:30,eatCount:30,focusCare:false},
+  {id:'oat',em:'🌾',nm:'귀리',cat:'grain',grade:'D',nutri:'베타글루칸',freq:'거의 못 만남',months:0,lastDate:'미만남',status:'good',chain:'🍚 죽에 섞어',exposure:0,target:30,eatCount:0,focusCare:false},
+  {id:'chicken',em:'🍗',nm:'닭',cat:'meat',grade:'A',nutri:'단백질',freq:'주 3회',months:0,lastDate:'2026-05',status:'good',chain:'🍚 죽 베이스',exposure:30,target:30,eatCount:30,focusCare:false},
+  {id:'sesame',em:'🟤',nm:'들깨',cat:'nut',grade:'A',nutri:'오메가3·철',freq:'주 2회',months:3,lastDate:'2026-02',status:'warn',chain:'🍚 죽 위에 흩뿌리기',exposure:12,target:30,eatCount:10,focusCare:false},
+  {id:'walnut',em:'🌰',nm:'호두',cat:'nut',grade:'B',nutri:'오메가3',freq:'드물게',months:9,lastDate:'2025-08',status:'danger',chain:'🥞 분태로 부침개에',exposure:28,target:30,eatCount:5,focusCare:true},
+  {id:'shiitake',em:'🍄',nm:'표고',cat:'mushroom',grade:'B',nutri:'비타민 D',freq:'주 1회',months:4,lastDate:'2026-01',status:'warn',chain:'🍲 국 베이스',exposure:16,target:30,eatCount:11,focusCare:false},
+  {id:'enoki',em:'🍄',nm:'팽이',cat:'mushroom',grade:'B',nutri:'식이섬유',freq:'주 1회',months:6,lastDate:'2025-11',status:'warn',chain:'🥘 볶음으로',exposure:10,target:30,eatCount:7,focusCare:false},
+  {id:'kingoyster',em:'🍄',nm:'새송이',cat:'mushroom',grade:'D',nutri:'식이섬유',freq:'거의 못 만남',months:0,lastDate:'미만남',status:'good',chain:'🥚 계란찜에 다져',exposure:0,target:30,eatCount:0,focusCare:false},
+];
+
+const TAB_TITLES = {
+  home:{title:'🏠 밀프레드 편식도감',action:'🔔'},
+  dex:{title:'📖 도감',action:'👤'},
+  record:{title:'📝 오늘 기록',action:'📅'},
+  recipe:{title:'🍳 레시피',action:'🔎'},
+};
+function switchTab(btn,name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.screen-section').forEach(s=>s.style.display='none');
+  document.getElementById('screen-'+name).style.display='block';
+  document.getElementById('topTitle').textContent=TAB_TITLES[name].title;
+  document.getElementById('topAction').textContent=TAB_TITLES[name].action;
+  document.getElementById('content').scrollTop=0;
+}
+
+// 라디오 식 단일 선택 (식사종류·식감·자율성)
+function setExclusive(el, selector){
+  document.querySelectorAll(selector).forEach(x=>x.classList.remove('checked'));
+  el.classList.add('checked');
+}
+function setReaction(el){
+  document.querySelectorAll('.reaction-item').forEach(x=>x.classList.remove('checked'));
+  el.classList.add('checked');
+}
+function toggleParent(){
+  const el=document.getElementById('parentName');
+  el.textContent = el.textContent.includes('엄마') ? '지우 아빠' : '지우 엄마';
+}
+
+// ★ 한글 초성 추출 + 자동완성
+const CHOSUNG=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function getChosung(str){
+  let r='';
+  for(let i=0;i<str.length;i++){
+    const c=str.charCodeAt(i);
+    if(c>=0xAC00&&c<=0xD7A3){r+=CHOSUNG[Math.floor((c-0xAC00)/(21*28))]}
+    else r+=str[i];
+  }
+  return r;
+}
+// ★ 147종 부모 입력용 식재료 풀 (4,432 레시피 정규화 추출, 2026-05-23)
+let INGREDIENT_POOL = [];
+fetch('data_ingredient_pool.json').then(r=>r.json()).then(d=>{INGREDIENT_POOL=d.pool;}).catch(()=>{});
+
+let acIdx=-1, acList=[];
+function acHandle(e){
+  const q=e.target.value.trim();
+  const dd=document.getElementById('acDropdown');
+  if(!q){dd.classList.remove('show');return}
+  const used=new Set([...document.querySelectorAll('#ingTagBox .tag-chip')].map(x=>x.dataset.nm));
+  const isChosung=/^[ㄱ-ㅎ]+$/.test(q);
+  // 검색 풀: INGREDIENTS(도감 35종, 풍부한 메타) + INGREDIENT_POOL(147종, 4432 레시피 추출). 이름 중복 제거
+  const ingNames=new Set(INGREDIENTS.map(i=>i.nm));
+  const combined=[
+    ...INGREDIENTS.map(i=>({nm:i.nm,em:i.em,nutri:i.nutri,source:'dex'})),
+    ...INGREDIENT_POOL.filter(p=>!ingNames.has(p.nm)).map(p=>({nm:p.nm,em:p.em,nutri:p.cat.replace('_','·'),source:'pool'}))
+  ];
+  acList=combined.filter(ing=>{
+    if(used.has(ing.nm))return false;
+    if(isChosung)return getChosung(ing.nm).startsWith(q);
+    return ing.nm.startsWith(q)||getChosung(ing.nm).startsWith(getChosung(q));
+  }).slice(0,8);
+  if(!acList.length){dd.classList.remove('show');return}
+  acIdx=0;
+  dd.innerHTML=acList.map((ing,i)=>{
+    const hl=ing.nm.startsWith(q)?`<mark>${ing.nm.slice(0,q.length)}</mark>${ing.nm.slice(q.length)}`:ing.nm;
+    const badge=ing.source==='pool'?`<span style="font-size:8px;background:var(--v50);color:var(--v700);padding:1px 5px;border-radius:100px;font-weight:800;margin-left:4px">✨신규</span>`:'';
+    return `<div class="ac-item ${i===0?'active':''}" onclick="addTag('${ing.nm.replace(/'/g,"\\\\'")}','${ing.em}')"><span class="em">${ing.em}</span><span class="nm">${hl}${badge}</span><span class="hint">${ing.nutri.split('·')[0]}</span></div>`;
+  }).join('');
+  dd.classList.add('show');
+}
+function acKey(e){
+  const dd=document.getElementById('acDropdown');
+  if(!dd.classList.contains('show'))return;
+  if(e.key==='ArrowDown'){e.preventDefault();acIdx=Math.min(acList.length-1,acIdx+1);updateAcActive()}
+  else if(e.key==='ArrowUp'){e.preventDefault();acIdx=Math.max(0,acIdx-1);updateAcActive()}
+  else if(e.key==='Enter'){e.preventDefault();if(acList[acIdx])addTag(acList[acIdx].nm,acList[acIdx].em)}
+  else if(e.key==='Escape'){dd.classList.remove('show')}
+  else if(e.key==='Backspace'&&!e.target.value){
+    const chips=document.querySelectorAll('#ingTagBox .tag-chip');
+    if(chips.length)chips[chips.length-1].remove();
+  }
+}
+function updateAcActive(){
+  document.querySelectorAll('#acDropdown .ac-item').forEach((x,i)=>x.classList.toggle('active',i===acIdx));
+}
+function addTag(nm,em){
+  const box=document.getElementById('ingTagBox'), input=document.getElementById('ingInput');
+  const chip=document.createElement('span');
+  chip.className='tag-chip';chip.dataset.nm=nm;
+  chip.innerHTML=`${nm}<span class="x" onclick="removeTag(event,this)">✕</span>`;
+  box.insertBefore(chip,input);
+  input.value='';
+  document.getElementById('acDropdown').classList.remove('show');
+  input.focus();
+}
+function removeTag(e,el){
+  e.stopPropagation();
+  el.parentElement.remove();
+}
+function toggleNutri(){
+  const ex=document.getElementById('nutriExtra'),btn=document.getElementById('nutriMore');
+  const open=ex.style.display!=='none'&&ex.style.display!=='';
+  if(open){ex.style.display='none';btn.textContent='＋ 미량영양소 전체 보기 (10가지 더)'}
+  else{ex.style.display='block';btn.textContent='− 접기'}
+}
+
+let currentFilter='all';
+function periodLabel(m){if(m===0)return'아직 못 만남';if(m<12)return`${m}개월째 안 친해진`;const y=Math.floor(m/12),x=m%12;return x===0?`${y}년째 안 친해진`:`${y}년 ${x}개월째 안 친해진`}
+function shortPeriodLabel(m){if(m===0)return'아직 못 만남';if(m<12)return`${m}개월째`;const y=Math.floor(m/12),x=m%12;return x===0?`${y}년째`:`${y}년 ${x}개월`}
+function barPct(m){if(m===0)return 5;if(m>=24)return 100;return Math.min(100,10+m*4)}
+
+function renderTryList(){
+  const sorted=[...INGREDIENTS].filter(i=>i.status==='danger'||i.status==='warn'||(i.months===0&&i.grade==='D')).sort((a,b)=>{if(a.status==='danger'&&b.status!=='danger')return-1;if(b.status==='danger'&&a.status!=='danger')return 1;return b.months-a.months}).slice(0,10);
+  document.getElementById('tryList').innerHTML=sorted.map((i,idx)=>`
+    <div class="try-row" onclick="showIngDetail('${i.id}')">
+      <div class="rank">${idx+1}</div>
+      <div class="em">${i.em}</div>
+      <div class="info"><div class="nm">${i.nm}</div><div class="meta ${i.status==='warn'?'warn':''}">${shortPeriodLabel(i.months)} · ${i.eatCount}회 먹음</div></div>
+      <div class="action">${i.focusCare?'친해지기키트':i.status==='danger'?'도전하기':'시도하기'} →</div>
+    </div>
+  `).join('');
+}
+renderTryList();
+
+// ★ 블로그 후킹 카드 — 최신 8편
+const BLOG_POSTS = [
+  {em:'🍭', ttl:'단맛 좋아하는 우리 아이,<br>혹시 유전일까요?', sub:'싱가포르 KKH 2024', file:'016.html', time:'3분'},
+  {em:'⏰', ttl:'편식 2년 넘기면<br>위험한 이유', sub:'골든타임의 비밀', file:'015.html', time:'4분'},
+  {em:'🇬🇧', ttl:'NHS 의사가 알려주는<br>거부 한 마디 비법', sub:'영국 공식 가이드', file:'014.html', time:'3분'},
+  {em:'🔍', ttl:'우리 아이 편식,<br>혹시 ARFID일까?', sub:'세 가지 진단 양상', file:'013.html', time:'5분'},
+  {em:'🥕', ttl:'미국 부모들이<br>매일 본다는 그 DB', sub:'Solid Starts 완전 분석', file:'012.html', time:'4분'},
+  {em:'📖', ttl:'의사가 말하는<br>진짜 편식 기준은?', sub:'편식의 의학적 정의', file:'011.html', time:'3분'},
+  {em:'🇦🇺', ttl:'호주 어린이집 87%가<br>따르는 식교육', sub:'NSW 가이드', file:'010.html', time:'4분'},
+  {em:'⚠️', ttl:'독일 의사들이<br>"파우치" 경고하는 이유', sub:'독일 소아과학회', file:'008.html', time:'3분'},
+];
+function renderBlogCards(){
+  const el = document.getElementById('blogScroll');
+  if(!el) return;
+  el.innerHTML = BLOG_POSTS.map(p => `
+    <div class="blog-post-card" onclick="window.open('/blog/${p.file}','_blank')">
+      <div class="em">${p.em}</div>
+      <div class="ttl">${p.ttl}</div>
+      <div class="sub">${p.sub}</div>
+      <div class="meta"><span>밀프레드 블로그</span><span class="read">${p.time} 읽기</span></div>
+    </div>
+  `).join('');
+}
+renderBlogCards();
+
+// ★ daycare-eval에서 진입한 경우 환영 배너 + AI 식단 자동 모달
+(function handleDaycareSource(){
+  const params = new URLSearchParams(location.search);
+  if(params.get('source') !== 'daycare') return;
+  const grade = params.get('grade') || 'B+';
+  const deficits = (params.get('deficits') || '').split(',').filter(Boolean);
+
+  // 환영 배너를 홈 최상단에 삽입
+  const banner = document.createElement('div');
+  banner.style.cssText = 'background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:1.5px solid var(--g500);border-radius:14px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;cursor:pointer';
+  banner.innerHTML = `
+    <div style="font-size:28px">🎯</div>
+    <div style="flex:1">
+      <div style="font-size:11px;font-weight:800;color:var(--g700);letter-spacing:0.04em;margin-bottom:2px">━ 어린이집 평가 ${grade} ━</div>
+      <div style="font-size:13px;font-weight:800;color:var(--s800);line-height:1.3">${deficits.length?'부족한 <strong>'+deficits.join('·')+'</strong>을<br>채우는 레시피 준비됨':'부족 영양 보강 레시피 준비됨'}</div>
+    </div>
+    <div style="color:var(--g700);font-size:20px;font-weight:300">›</div>
+  `;
+  banner.onclick = () => showMealPlan();
+  const homeContent = document.querySelector('.home-content');
+  if(homeContent && homeContent.firstChild) homeContent.insertBefore(banner, homeContent.firstChild);
+
+  // 1초 후 AI 식단 모달 자동 오픈
+  setTimeout(() => showMealPlan(), 1000);
+})();
+
+function renderList(){
+  const s=(document.getElementById('searchInput')?.value||'').trim();
+  const filtered=INGREDIENTS.filter(i=>{if(s&&!i.nm.includes(s)&&!i.nutri.includes(s))return false;if(currentFilter==='all')return true;if(currentFilter==='danger')return i.status==='danger';return i.cat===currentFilter}).sort((a,b)=>{if(a.status==='danger'&&b.status!=='danger')return-1;if(b.status==='danger'&&a.status!=='danger')return 1;if(a.status==='warn'&&b.status==='good')return-1;if(b.status==='warn'&&a.status==='good')return 1;return b.months-a.months});
+  const sl={danger:'관심 필요',warn:'주의',good:'잘 진행 중'};
+  const gl={S:'필수',A:'필수',B:'권장',C:'도전',D:'신비'};
+  document.getElementById('ingList').innerHTML=filtered.map(i=>{
+    const pct=barPct(i.months),ePct=Math.min(100,(i.exposure/i.target)*100);
+    return `
+      <div class="ing-card ${i.status}" onclick="showIngDetail('${i.id}')">
+        <div class="ing-status ${i.status}">${sl[i.status]}</div>
+        <div class="ing-head">
+          <div class="ing-emoji">${i.em}${i.eatCount>0?`<span class="eat-count-badge">${i.eatCount}회</span>`:''}</div>
+          <div class="ing-info">
+            <div class="ing-name-row"><span class="ing-name">${i.nm}</span><span class="ing-grade ${i.grade}">${i.grade} ${gl[i.grade]}</span></div>
+            <div class="ing-nutri">${i.nutri} · ${i.freq}</div>
+          </div>
+        </div>
+        <div class="ing-progress-row"><span class="ing-period ${i.status}">${periodLabel(i.months)}</span><span class="ing-last">마지막 ${i.lastDate}</span></div>
+        <div class="ing-bar"><div class="ing-bar-fill ${i.status}" style="width:${pct}%"></div></div>
+        <div class="exposure-row"><span class="ex-label">먹은 횟수 / 노출 (학술 권고 30회)</span><span class="ex-count">${i.eatCount}<span class="target"> 먹음 · ${i.exposure}회 노출</span></span></div>
+        <div class="exposure-bar"><div class="exposure-fill" style="width:${ePct}%"></div></div>
+        ${i.focusCare?`<div class="focus-care-cta"><span class="em">🎯</span><div class="body"><div class="nm">${i.exposure}번 노출했는데 ${i.eatCount}번만 먹어요</div><div class="desc">친해지기 키트로 놀이부터 시작</div></div><div class="arrow">›</div></div>`:''}
+      </div>
+    `;
+  }).join('')||'<div style="text-align:center;padding:40px 20px;color:var(--n400);font-size:13px">검색 결과가 없습니다</div>';
+}
+function filterDex(c,cat){document.querySelectorAll('.filter-chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');currentFilter=cat;renderList()}
+renderList();
+
+// ★ 식재료별 영양 특성 + 패턴 기반 요리 데이터
+const ING_RICH = {
+  spinach:{nutrients:[{nm:'철',star:3,note:'결핍 위험 7종 중 하나 — 우리 아이 최우선 보충'},{nm:'엽산',star:3,note:'150μg DFE/일 (만 1-2세) — 시금치 50g = 충분'},{nm:'비타민 K',star:2,note:'25μg 충족 — 잘 챙김'}],absorbTip:'비타민 C(딸기·귤·파프리카)와 함께 먹으면 철 흡수율 3배 ↑. 우유는 같이 X (흡수 방해)',acceptLevel:'중-거부 (36% 수용)',recipes:[{em:'🥚',nm:'계란찜에 시금치 5g 다져',pref:'⭐ 최선호',why:'좋아하는 계란찜 43회 매칭 + 형태 안 보임',gain:'철+엽산 한번에',time:'7분',level:'다지기'},{em:'🍚',nm:'죽 마지막에 시금치 풀어',pref:'⭐ 선호',why:'좋아하는 죽 32회 + 마지막 30초만 더',gain:'철+엽산',time:'5분',level:'즙'},{em:'🥞',nm:'부침개 반죽에 시금치 즙',pref:'⭐ 선호',why:'부침개 베이스 + 색감 거의 안 보임',gain:'엽산',time:'8분',level:'즙'},{em:'🍲',nm:'닭고기 시금치국',pref:'🆕 새형태',why:'좋아하는 닭 + 잎채소 통째 시도',gain:'철+단백질',time:'15분',level:'다지기'},{em:'🥗',nm:'시금치 페스토 (한 입 도전)',pref:'🚀 다음 단계',why:'시금치 자체 맛 인식 시작',gain:'순수 시금치',time:'10분',level:'페이스트'}]},
+  eggplant:{nutrients:[{nm:'식이섬유',star:3,note:'10g/일 목표의 15% 1회 분량'},{nm:'안토시아닌',star:2,note:'항산화 — 자색 채소 다양성'},{nm:'칼륨',star:2,note:'1,500mg/일 보강'}],absorbTip:'기름과 함께 조리하면 안토시아닌 흡수 ↑. 너무 푹 익히지 말기',acceptLevel:'고-거부 (37% 수용, 1년 9개월 미만남)',recipes:[{em:'🥞',nm:'부침개 반죽에 가지 다져 (5g)',pref:'⭐ 최선호',why:'좋아하는 부침개 베이스 + 색감 가림',gain:'식이섬유',time:'8분',level:'다지기'},{em:'🍳',nm:'가지 볶음밥 (1cm 큐브)',pref:'🆕 새형태',why:'식감 흡수 학습',gain:'식이섬유+칼륨',time:'10분',level:'큐브'},{em:'🍲',nm:'가지 된장국 (얇게)',pref:'🆕 새형태',why:'국물 베이스로 거부감 ↓',gain:'식이섬유',time:'12분',level:'얇게'}]},
+  carrot:{nutrients:[{nm:'베타카로틴',star:3,note:'비타민 A 250μg RAE 거의 단일 식재료로 충족'},{nm:'식이섬유',star:2,note:'10g/일 보강'},{nm:'비타민 K',star:1,note:''}],absorbTip:'기름과 함께 먹으면 베타카로틴→비타민 A 전환 ↑. 익히면 영양 손실 적음',acceptLevel:'고-수용 (86% — 잘 먹음)',recipes:[{em:'🥚',nm:'계란찜에 당근 다져 (이미 잘 먹음)',pref:'⭐ 최선호',why:'반복으로 정착시키기',gain:'비타민 A',time:'7분',level:'다지기'},{em:'🤏',nm:'당근 스틱 + 후무스 (핑거푸드)',pref:'🚀 단계 ↑',why:'씹기 단계 도전 — 28개월 권장',gain:'비타민 A+식이섬유',time:'5분',level:'스틱'}]},
+  salmon:{nutrients:[{nm:'EPA+DHA',star:3,note:'150mg/일 목표 — 연어 30g = 1일치 충족'},{nm:'비타민 D',star:3,note:'결핍 위험 — 5μg/일 50% 충족'},{nm:'단백질',star:2,note:''}],absorbTip:'기름지방 함께 흡수. 너무 굽지 말기 (DHA 손실)',acceptLevel:'저-수용 (40%, 6개월 미만남)',recipes:[{em:'🥚',nm:'계란찜에 연어 잘게 (10g)',pref:'⭐ 최선호',why:'좋아하는 계란찜 + 살짝',gain:'EPA·DHA·비D',time:'8분',level:'다지기'},{em:'🥞',nm:'연어 부침개 (반죽에 으깨)',pref:'⭐ 선호',why:'부침개 베이스',gain:'EPA·DHA',time:'10분',level:'으깨'},{em:'🍚',nm:'연어 죽 (살만 풀어)',pref:'🆕 새형태',why:'죽 베이스 + 비린맛 약화',gain:'EPA·비D',time:'12분',level:'얇게'}]},
+};
+
+function showIngDetail(id){
+  const i=INGREDIENTS.find(x=>x.id===id);if(!i)return;
+  const ePct=Math.min(100,(i.exposure/i.target)*100);
+  const acceptPct=i.exposure?Math.round((i.eatCount/i.exposure)*100):0;
+  const rich=ING_RICH[id]||null;
+
+  document.getElementById('modalContent').innerHTML=`
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:${i.status==='danger'?'#FFE5E5':i.status==='warn'?'#FFF4D6':'#D6F5DD'}">${i.em}</div>
+      <div class="modal-info"><h3>${i.nm}</h3><div class="sub">${i.nutri} · ${i.freq}</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-card">
+      <div class="lbl">━ 우리 아이 현황 ━</div>
+      <div class="ttl">${periodLabel(i.months)}</div>
+      <div class="desc">노출 <strong>${i.exposure}회</strong> · 먹은 횟수 <strong>${i.eatCount}회</strong> · 수용률 <strong>${acceptPct}%</strong> · 마지막 ${i.lastDate}</div>
+      <div style="background:white;height:6px;border-radius:3px;overflow:hidden;margin-top:8px"><div style="height:100%;background:linear-gradient(90deg,var(--p500),var(--p300));width:${ePct}%"></div></div>
+    </div>
+
+    <!-- ★ 영양 특성 (KDRI 매핑) -->
+    <div class="modal-card" style="background:linear-gradient(135deg,#F4F8FB,#E8EEF5);border:1px solid #CFD8DC">
+      <div class="lbl" style="color:var(--s700)">━ 🧬 영양 특성 (KDRI 2025 만 1-2세) ━</div>
+      ${rich?rich.nutrients.map(n=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed rgba(0,0,0,0.06)">
+          <span style="font-size:11px;font-weight:800;color:var(--s800);min-width:70px">${n.nm}</span>
+          <span style="color:var(--y500);font-size:12px">${'★'.repeat(n.star)}${'☆'.repeat(3-n.star)}</span>
+          <span style="font-size:10.5px;color:var(--n600);font-weight:600;flex:1">${n.note}</span>
+        </div>`).join(''):`<div style="font-size:11.5px;color:var(--n700)">${i.nutri} 풍부</div>`}
+      ${rich?`<div style="background:var(--y50);color:var(--y700);padding:8px 10px;border-radius:8px;margin-top:8px;font-size:10.5px;font-weight:700;line-height:1.5">💡 ${rich.absorbTip}</div>`:''}
+    </div>
+
+    <!-- ★ 우리 아이 패턴 분석 -->
+    ${rich?`
+      <div class="modal-card" style="background:var(--p50)">
+        <div class="lbl" style="color:var(--p700)">━ 📊 우리 아이 패턴 분석 ━</div>
+        <div style="font-size:11.5px;color:var(--n700);line-height:1.6"><strong>수용 단계:</strong> ${rich.acceptLevel}<br><strong>좋아하는 베이스:</strong> 계란찜·죽·부침개<br><strong>추천 형태:</strong> ${rich.recipes[0].level} → ${rich.recipes[rich.recipes.length-1].level} (점진 단계 ↑)</div>
+      </div>
+    `:''}
+
+    <!-- ★ 패턴 맞춤 요리 추천 -->
+    ${rich?`
+      <div style="margin-top:14px;margin-bottom:8px;font-size:11px;font-weight:800;color:var(--s800);letter-spacing:0.04em;padding:0 4px">━ 🍳 우리 아이 패턴 맞춤 요리 (${rich.recipes.length}종) ━</div>
+      ${rich.recipes.map((r,idx)=>`
+        <div class="rec-card" onclick="showRecipe('${id}',${idx})" style="margin-bottom:8px;border-left-color:${r.pref.includes('⭐')?'var(--p500)':r.pref.includes('🆕')?'var(--b500)':'var(--v500)'}">
+          <div class="tag">${r.pref}</div>
+          <h3 style="font-size:13px;margin:2px 0 4px">${r.em} ${r.nm}</h3>
+          <p class="desc">${r.why}</p>
+          <div class="rec-meta"><span>⏱ ${r.time}</span><span>· ${r.level}</span><span>· 💊 ${r.gain}</span></div>
+        </div>
+      `).join('')}
+    `:''}
+
+    ${i.focusCare?`
+      <div class="modal-card focus" style="margin-top:10px">
+        <div class="lbl">━ 🎯 친해지기 키트 추천 ━</div>
+        <div class="ttl">${i.exposure}번 노출했는데 ${i.eatCount}번만 먹어요</div>
+        <div class="desc">반복 노출만으로 부족 — SOS 6단계 친해지기 키트로 놀이부터.</div>
+        <button class="modal-cta v">친해지기 키트 자세히 →</button>
+      </div>
+    `:''}
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
+
+// ★ 레시피 카드 모달 (요리 클릭 시)
+function showRecipe(id,idx){
+  const i=INGREDIENTS.find(x=>x.id===id);
+  const rich=ING_RICH[id];if(!rich)return;
+  const r=rich.recipes[idx];
+  const mockIngredients={
+    '계란찜':['달걀 2개','시금치 5g (다져)','멸치육수 100ml','참기름 1방울'],
+    '죽':['쌀 30g','시금치 5g (즙)','닭육수 200ml'],
+    '부침개':['부침가루 50g','시금치 즙 1큰술','달걀 1개','물 50ml'],
+    '국':['닭다리 1개','시금치 한 줌','다시마 한 조각','물 400ml'],
+    '페스토':['시금치 30g','잣 10g','올리브유 1큰술','파마산 1티스푼'],
+  };
+  const baseKey=Object.keys(mockIngredients).find(k=>r.nm.includes(k))||'계란찜';
+  const ings=mockIngredients[baseKey];
+
+  document.getElementById('modalContent').innerHTML=`
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--p100)">${r.em}</div>
+      <div class="modal-info"><h3 style="font-size:15px">${r.nm}</h3><div class="sub">${r.pref} · ⏱ ${r.time} · ${r.level}</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:11.5px;color:var(--g700);font-weight:700;line-height:1.5">
+      <strong style="color:var(--s800)">왜 우리 아이에게?</strong><br>${r.why}
+    </div>
+
+    <div class="modal-card">
+      <div class="lbl">━ 🛒 재료 (1인분) ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.8">${ings.map(x=>`• ${x}`).join('<br>')}</div>
+    </div>
+
+    <div class="modal-card">
+      <div class="lbl">━ 👩‍🍳 조리 순서 ━</div>
+      <ol style="font-size:11.5px;color:var(--n700);line-height:1.7;padding-left:18px;margin:4px 0">
+        <li>${i.nm} 깨끗이 씻어 ${r.level==='다지기'?'잘게 다져':r.level==='즙'?'믹서에 갈아 즙으로':r.level==='페이스트'?'블렌더에 갈아 페이스트로':'한입 크기로 자르기'} 준비</li>
+        <li>${baseKey} 베이스 만들기 — 평소 방식대로</li>
+        <li>${r.level==='즙'?'마지막에 즙을 넣고 잘 섞기':'완성 1분 전 넣어 살짝만 익히기'}</li>
+        <li>식기 전에 따뜻하게 제공</li>
+      </ol>
+    </div>
+
+    <div class="modal-card pref">
+      <div class="lbl">━ 💡 우리 아이 매칭 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.6">⭐ <strong>선호 베이스</strong>: ${baseKey} 매칭<br>✨ <strong>도전 형태</strong>: ${r.level} 단계<br>💊 <strong>KDRI 보강</strong>: ${r.gain}</div>
+    </div>
+
+    <button class="modal-cta" onclick="closeModal()">📝 오늘 식단으로 기록하기</button>
+    <button class="modal-cta" onclick="closeModal()" style="background:var(--p500);margin-top:6px">📥 내일 식단에 추가</button>
+  `;
+}
+function closeModal(e){if(e&&e.target.id!=='modalBg')return;document.getElementById('modalBg').classList.remove('show')}
+function showRecommend(){switchTab(document.querySelector('[data-tab=recipe]'),'recipe')}
+
+// ★ 레시피 상세 (6종, 원칙 4가지)
+const FRIDGE_RECIPES = [
+  {em:'🥚',nm:'시금치 즙 계란찜',principle:'⭐ 원칙 1 — 잘먹는 베이스 + 도전 식재료',why:'계란찜은 우리 아이가 43회나 좋아한 ⭐ 최선호 메뉴. 시금치를 즙으로 만들어 노른자 색에 묻히면 거부감 거의 0. 시금치 거부 단계(8/22 수용)에서 노출 횟수 누적용으로 최적.',ings:['달걀 2개','시금치 5g (즙으로)','멸치육수 100ml','참기름 1방울'],steps:['시금치 데쳐 믹서에 갈아 즙 준비','달걀 잘 풀어 멸치육수와 섞기','시금치 즙 1티스푼 넣고 잘 섞기','약불 8분 (뚜껑 덮고)','참기름 1방울 마무리'],tip:'시금치 색이 잘 보이지 않게 노른자 위주로. 더 가리고 싶으면 즙 양 줄이기',gain:'철·엽산·비타민 K',time:'7분',level:'즙'},
+  {em:'🍚',nm:'가지 다진 닭죽',principle:'⭐ 원칙 1 — 잘먹는 베이스 + 도전 식재료',why:'죽 32회 ⭐ 좋아함 + 닭 30회 매일 잘먹음 = 익숙한 베이스 2개 위에 가지 5g. 가지는 1년 9개월 못 만남이라 인지 자체가 없는 상태 — 익숙한 맛 사이에 살짝.',ings:['쌀 30g','닭다리살 20g (잘게)','가지 5g (1mm 다이스)','멸치육수 250ml','참기름·소금 약간'],steps:['쌀 30분 불리기','닭살과 함께 약불 15분 푹 끓이기','가지 1mm로 잘게 다져 마지막 3분만 넣기','으깨면서 마무리'],tip:'가지가 보이지 않게 죽 위에 김 가루 살짝',gain:'식이섬유·단백질',time:'12분',level:'다지기'},
+  {em:'🥕',nm:'당근 스틱 + 두부 후무스',principle:'🥗 원칙 2 — 잘먹지만 오랜만 → 원물 노출',why:'당근은 매일 잘먹지만 매시·죽으로만 만남. 통째 스틱 형태로 식감 단계 ↑ — 28개월에는 핑거푸드 권장 시점. 후무스에 찍어먹는 행위 자체가 자율성 ↑',ings:['당근 1/2개 (1cm × 5cm 스틱)','두부 50g (으깨서)','참기름 1티스푼','소금 한 꼬집'],steps:['당근 깨끗이 씻어 스틱으로 자르기','당근 스틱 살짝 데치기 (1분)','두부 곱게 으깨 참기름·소금 섞어 후무스','당근 스틱 옆에 후무스 디핑'],tip:'손으로 잡기 좋은 두께 (1cm 이상). 너무 가늘면 부러져 위험',gain:'비타민 A·식이섬유 + 자율성 학습',time:'5분',level:'스틱'},
+  {em:'🥞',nm:'가지 즙 부침개',principle:'🥄 원칙 3 — 극도 거부 → 형태 안 보이게',why:'가지는 수용률 37%로 색감·식감 모두 거부. 즙으로 만들면 부침개 색에 묻혀 인지가 거의 안 됨. 거부 단계에서는 "먹었다"는 사실 자체가 노출 누적으로 의미 있음.',ings:['부침가루 50g','가지 즙 1큰술','달걀 1개','물 50ml','식용유'],steps:['가지 작게 썰어 믹서에 갈아 즙 준비','부침가루+달걀+물 섞은 반죽에 가지 즙 추가','약불에 노릇하게 부치기 (양면 2-3분)','한 입 크기로 자르기'],tip:'색감이 살짝 진해질 수 있음 → 어두운 접시 사용',gain:'식이섬유·칼륨 노출',time:'8분',level:'즙'},
+  {em:'🌰',nm:'들깨 검은콩 죽',principle:'💊 원칙 4 — 부족 영양 보강',why:'우리 아이 신호등 🔴 빨강 7종 중 철(38%)·오메가-3(30%) 두 가지를 한 그릇에. 잘먹는 죽 베이스에 들깨가루·검은콩 으깨 넣기만 하면 끝. 비타민 C 함유 식재료(딸기·귤)와 함께 먹이면 철 흡수 3배 ↑',ings:['쌀 30g','검은콩 10g (불려서)','들깨가루 1티스푼','멸치 5g','육수 250ml'],steps:['검은콩 충분히 불려 푹 삶기','쌀·삶은 콩·멸치를 육수와 함께 죽 끓이기 (20분)','마지막에 들깨가루 1티스푼 뿌려 잘 섞기','으깨면서 마무리'],tip:'딸기·귤 디저트와 함께 = 철 흡수 ↑',gain:'철 · 오메가-3 · 단백질',time:'10분',level:'페이스트'},
+  {em:'🥚',nm:'노른자 두부찜',principle:'💊 원칙 4 — 부족 영양 보강',why:'2025 KDRI 신규 제정 영양소 콜린 — 만 1-2세 충분섭취량 160mg/일. 달걀 노른자가 단연 최고급원 (1개에 약 110mg). 두부와 미역까지 더하면 콜린 + 비타민 D + 요오드 트리오 보강.',ings:['달걀 노른자 2개','두부 50g','다진 미역 5g','육수 100ml','참기름 약간'],steps:['두부 곱게 으깨기','노른자만 분리해 두부와 잘 섞기','미역 잘게 다져 추가','육수 부어 약불 8분 (뚜껑 덮고)','참기름 1방울'],tip:'노른자만 사용 — 흰자는 알레르기 위험 줄임 (만 1세 미만 X)',gain:'콜린·비타민 D·요오드',time:'8분',level:'매시'},
+];
+
+function showFridgeRecipe(idx){
+  const r=FRIDGE_RECIPES[idx];if(!r)return;
+  document.getElementById('modalContent').innerHTML=`
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--p100)">${r.em}</div>
+      <div class="modal-info"><h3 style="font-size:15px">${r.nm}</h3><div class="sub">${r.principle}</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:11.5px;color:var(--g700);font-weight:700;line-height:1.6">
+      <strong style="color:var(--s800)">왜 우리 아이에게?</strong><br>${r.why}
+    </div>
+
+    <div class="modal-card">
+      <div class="lbl">━ 🛒 재료 (1인분) ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.8">${r.ings.map(x=>`• ${x}`).join('<br>')}</div>
+    </div>
+
+    <div class="modal-card">
+      <div class="lbl">━ 👩‍🍳 조리 순서 ━</div>
+      <ol style="font-size:11.5px;color:var(--n700);line-height:1.7;padding-left:18px;margin:4px 0">${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+    </div>
+
+    <div class="modal-card" style="background:var(--y50);border:1px solid #FFE082">
+      <div class="lbl" style="color:var(--y700)">━ 💡 우리 아이 적용 팁 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.6">${r.tip}</div>
+    </div>
+
+    <div class="modal-card pref">
+      <div class="lbl">━ 📊 매칭 정보 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.6">⏱ <strong>${r.time}</strong> · ✋ <strong>${r.level}</strong> · 💊 <strong>${r.gain}</strong></div>
+    </div>
+
+    <button class="modal-cta" onclick="closeModal()">📝 오늘 식단으로 기록하기</button>
+    <button class="modal-cta" onclick="closeModal()" style="background:var(--p500);margin-top:6px">📥 내일 식단에 추가</button>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeRec(e){if(e&&e.target.id!=='recBg')return;document.getElementById('recBg').classList.remove('show')}
+
+// ★ 36종 KDRI 영양 신호등 데이터 (만 1-2세 보건복지부 KDRI 2025)
+const KDRI_NUTRIENTS = [
+  // 다량영양소 5
+  {nm:'에너지', val:'900 kcal', status:'green', pct:92},
+  {nm:'단백질', val:'20 g', status:'green', pct:95},
+  {nm:'탄수화물', val:'130 g', status:'green', pct:88},
+  {nm:'식이섬유', val:'10 g', status:'green', pct:85},
+  {nm:'수분', val:'1,000 mL', status:'orange', pct:72},
+  // 필수지방산 3
+  {nm:'리놀레산', val:'6 g', status:'green', pct:90},
+  {nm:'α-리놀렌산', val:'0.6 g', status:'orange', pct:60},
+  {nm:'EPA+DHA', val:'150 mg', status:'red', pct:30, foods:[{em:'🐟',nm:'고등어·연어',sub:'주 2회 굽거나 죽에'},{em:'🌰',nm:'들깨가루',sub:'죽·전에 1티스푼'},{em:'🌰',nm:'호두',sub:'다진 후 부침개'}]},
+  // 지용성 비타민 4
+  {nm:'비타민 A', val:'250 μg RAE', status:'green', pct:88},
+  {nm:'비타민 D', val:'5 μg', status:'red', pct:35, foods:[{em:'🥚',nm:'달걀 노른자',sub:'매일 1개'},{em:'🐟',nm:'연어·고등어',sub:'주 2회'},{em:'☀️',nm:'햇볕 15분',sub:'야외 산책'}]},
+  {nm:'비타민 E', val:'5 mg', status:'green', pct:85},
+  {nm:'비타민 K', val:'25 μg', status:'green', pct:92},
+  // 수용성 비타민 9
+  {nm:'비타민 C', val:'40 mg', status:'orange', pct:72},
+  {nm:'티아민 B1', val:'0.5 mg', status:'green', pct:90},
+  {nm:'리보플라빈 B2', val:'0.5 mg', status:'green', pct:88},
+  {nm:'니아신', val:'6 mg NE', status:'green', pct:85},
+  {nm:'비타민 B6', val:'0.6 mg', status:'green', pct:82},
+  {nm:'엽산', val:'150 μg DFE', status:'orange', pct:65, foods:[{em:'🥬',nm:'시금치·근대',sub:'살짝 데쳐 다지기'},{em:'🫘',nm:'검은콩·렌틸',sub:'죽에 으깨'},{em:'🥦',nm:'브로콜리',sub:'매시'}]},
+  {nm:'비타민 B12', val:'0.9 μg', status:'green', pct:90},
+  {nm:'판토텐산', val:'2 mg', status:'green', pct:88},
+  {nm:'비오틴', val:'9 μg', status:'green', pct:90},
+  // 비타민 유사 1 (NEW 2025)
+  {nm:'콜린 🆕', val:'160 mg', status:'red', pct:42, foods:[{em:'🥚',nm:'달걀 노른자',sub:'매일 1개 — 콜린 최고급원'},{em:'🍗',nm:'닭간·돼지간',sub:'주 1회 다져 죽에'},{em:'🫘',nm:'대두·콩',sub:'두부로 매일'}]},
+  // 다량 무기질 5
+  {nm:'칼슘', val:'500 mg', status:'green', pct:85},
+  {nm:'인', val:'450 mg', status:'green', pct:90},
+  {nm:'나트륨', val:'≤1,000 mg', status:'orange', pct:55},
+  {nm:'칼륨', val:'1,500 mg', status:'orange', pct:68},
+  {nm:'마그네슘', val:'70 mg', status:'green', pct:82},
+  // 미량 무기질 9
+  {nm:'철 🩸', val:'6 mg', status:'red', pct:38, foods:[{em:'🥩',nm:'소고기·간',sub:'주 2-3회 갈아서'},{em:'🥬',nm:'시금치+비타민C',sub:'딸기·귤과 함께 흡수↑'},{em:'🫘',nm:'검은콩·렌틸',sub:'죽에 으깨'},{em:'🌰',nm:'들깨가루',sub:'매일 1티스푼'}]},
+  {nm:'아연', val:'3 mg', status:'orange', pct:70, foods:[{em:'🥩',nm:'소고기',sub:'주 2회'},{em:'🥚',nm:'달걀',sub:'매일'},{em:'🫘',nm:'호박씨·콩',sub:'갈아서 죽에'}]},
+  {nm:'구리', val:'290 μg', status:'green', pct:85},
+  {nm:'불소', val:'0.6 mg', status:'green', pct:88},
+  {nm:'망간', val:'1.5 mg', status:'green', pct:90},
+  {nm:'요오드', val:'70 μg', status:'green', pct:92},
+  {nm:'셀레늄', val:'23 μg', status:'green', pct:85},
+  {nm:'몰리브덴', val:'10 μg', status:'green', pct:88},
+  {nm:'크롬', val:'9 μg', status:'red', pct:45, foods:[{em:'🌾',nm:'통곡물·현미',sub:'백미 대신 잡곡밥'},{em:'🥦',nm:'브로콜리',sub:'주 2-3회'}]},
+];
+
+function freqLabel(pct){
+  if(pct>=90) return '거의 매일';
+  if(pct>=75) return '주 4-5회';
+  if(pct>=60) return '주 3회';
+  if(pct>=50) return '주 2회';
+  if(pct>=40) return '주 1-2회';
+  if(pct>=30) return '주 1회';
+  if(pct>=15) return '드물게';
+  return '거의 못 만남';
+}
+function showNutriDetail(){
+  const reds = KDRI_NUTRIENTS.filter(n=>n.status==='red');
+  const oranges = KDRI_NUTRIENTS.filter(n=>n.status==='orange');
+  const greens = KDRI_NUTRIENTS.filter(n=>n.status==='green');
+  const barCls = s=>s==='red'?'danger':s==='orange'?'warn':'ok';
+  const renderBar = n=>`
+    <div class="nutri-bar-row">
+      <span class="nm">${n.nm}</span>
+      <div class="b"><div class="f ${barCls(n.status)}" style="width:${n.pct}%"></div></div>
+      <span class="v ${n.status==='red'?'danger':''}">${freqLabel(n.pct)}</span>
+    </div>`;
+  const html = `
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:#FFEBEE">🚦</div>
+      <div class="modal-info"><h3>36종 필수 영양소 신호등</h3><div class="sub">KDRI 2025 · 만 1-2세 · 이번 주 기준</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="font-size:10.5px;color:var(--n500);font-weight:600;line-height:1.5;background:var(--n50);padding:10px 12px;border-radius:8px;margin-bottom:12px">정확한 섭취량 측정 불가 → <strong style="color:var(--s800)">"이번 주 식단표에서 얼마나 자주 만났나"</strong> 빈도로 평가</div>
+
+    <!-- ★ 탄·단·지 + BMI 종합 평가 (KDRI 신호등과 별도 다량영양소 + 체위 평가) -->
+    <div style="background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border-radius:14px;padding:14px;margin-bottom:12px;border:1px solid var(--p300)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <strong style="font-size:13px;color:var(--s800)">💪 탄·단·지 + BMI 종합</strong>
+        <span style="font-size:10px;color:var(--p700);font-weight:700">만 28개월 · 88.5cm / 12.4kg</span>
+      </div>
+      <div style="background:white;border-radius:10px;padding:10px 12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--n600);font-weight:700;margin-bottom:8px">
+          <span>BMI <strong style="color:var(--s800);font-size:13px">15.8</strong></span>
+          <span style="color:var(--g700)">정상 범위 · 또래 5-25%ile</span>
+        </div>
+        <div style="background:linear-gradient(90deg,#FFCDD2 0%,#FFE082 18%,#A5D6A7 35%,#A5D6A7 65%,#FFE082 82%,#FFCDD2 100%);height:8px;border-radius:4px;position:relative;margin-bottom:4px">
+          <div style="position:absolute;top:-3px;left:22%;width:4px;height:14px;background:var(--s800);border-radius:2px;border:2px solid white;transform:translateX(-50%)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--n400);font-weight:700">
+          <span>저체중</span><span>정상</span><span>과체중</span>
+        </div>
+      </div>
+      <div style="background:white;border-radius:10px;padding:8px 12px;margin-bottom:8px">
+        <div class="nutri-bar-row"><span class="nm">탄수화물 🍚</span><div class="b"><div class="f ok" style="width:88%"></div></div><span class="v" style="color:var(--g700)">매일 · 적정</span></div>
+        <div class="nutri-bar-row"><span class="nm">단백질 🥩</span><div class="b"><div class="f ok" style="width:95%"></div></div><span class="v" style="color:var(--g700)">매일 · 적정</span></div>
+        <div class="nutri-bar-row"><span class="nm">지방 🥑</span><div class="b"><div class="f warn" style="width:55%"></div></div><span class="v" style="color:var(--y700)">매일 · 양 부족</span></div>
+      </div>
+      <div style="background:var(--y50);color:var(--y700);padding:9px 11px;border-radius:8px;font-size:11px;font-weight:700;line-height:1.55">
+        💡 <strong>BMI 정상 하단(5-25%ile)</strong> — 매일 먹지만 <strong>지방 양 부족</strong>. 견과류·아보카도·EPA+DHA로 보강
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#FFEBEE,#FFCDD2);border-radius:12px;padding:14px;margin-bottom:12px">
+      <div style="font-size:12px;font-weight:800;color:var(--r700);letter-spacing:0.04em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><span>🔴 결핍 위험 ${reds.length}종</span><span style="font-size:10px;font-weight:700">거의 못 만남</span></div>
+      <div style="background:white;border-radius:10px;padding:10px 12px">${reds.map(renderBar).join('')}</div>
+    </div>
+    ${reds.filter(n=>n.foods).map(n=>`
+      <div class="red-foods">
+        <h4>🔴 ${n.nm} 보충 → 추천 식재료</h4>
+        ${n.foods.map(f=>`<div class="item" onclick="closeModal();switchTab(document.querySelector('[data-tab=dex]'),'dex')"><span class="em">${f.em}</span><div class="body"><div class="nm">${f.nm}</div><div class="sub">${f.sub}</div></div><span class="arrow">›</span></div>`).join('')}
+      </div>`).join('')}
+
+    <div style="background:linear-gradient(135deg,#FFF4D6,#FFECB3);border-radius:12px;padding:14px;margin:12px 0">
+      <div style="font-size:12px;font-weight:800;color:var(--y700);letter-spacing:0.04em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><span>🟠 조금 부족 ${oranges.length}종</span><span style="font-size:10px;font-weight:700">가끔만 만남</span></div>
+      <div style="background:white;border-radius:10px;padding:10px 12px">${oranges.map(renderBar).join('')}</div>
+    </div>
+
+    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:12px;padding:14px">
+      <div style="font-size:12px;font-weight:800;color:var(--g700);letter-spacing:0.04em;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center"><span>🟢 잘 챙김 ${greens.length}종</span><span style="font-size:10px;font-weight:700">자주 만남</span></div>
+      <div style="background:white;border-radius:10px;padding:10px 12px">${greens.map(renderBar).join('')}</div>
+    </div>
+
+    <div style="font-size:10px;color:var(--n400);text-align:center;padding:14px 0 4px;line-height:1.6">기준: 보건복지부 한국인 영양소 섭취기준 (KDRI) 2025</div>`;
+  document.getElementById('modalContent').innerHTML=html;
+  document.getElementById('modalBg').classList.add('show');
+}
+
+// ★ AI 3일 식단 추천
+const MEAL_PLAN = [
+  {day:'1일차', date:'5/24 (토)', gain:'철 +18%, 콜린 +12%', meals:[
+    {time:'아침', nm:'🥚 달걀 노른자 죽 + 시금치 살짝', why:[{t:'pref',v:'좋아하는 죽'},{t:'nutri',v:'콜린·철·엽산 보강'}],
+      recipe:{em:'🥚',nm:'달걀 노른자 죽 + 시금치',sub:'⭐ 좋아하는 죽 + 💊 콜린·철 보강',why:'우리 아이가 32회 좋아한 죽 베이스에 노른자(콜린 110mg)와 시금치 즙(철·엽산)을 자연스럽게. 거부감 거의 0.',ings:['쌀 30g','달걀 노른자 1개','시금치 5g (즙)','멸치육수 250ml','참기름 1방울'],steps:['쌀 30분 불려 약불 푹 끓이기 (15분)','시금치 데쳐 믹서에 갈아 즙 준비','죽 끓는 중 마지막 3분에 시금치 즙 추가','노른자는 죽 한 김 식힌 뒤 풀어 넣고 약불 1분','참기름 1방울 마무리'],tip:'노른자는 마지막에 — 너무 일찍 넣으면 응고. 시금치는 색이 안 보이게 즙 형태로',gain:'콜린 110mg · 철 · 엽산',time:'18분',level:'매시·즙'}},
+    {time:'점심', nm:'🍗 닭고기 채소국 + 잡곡밥', why:[{t:'pref',v:'잘먹는 닭'},{t:'nutri',v:'단백질·크롬'}],
+      recipe:{em:'🍗',nm:'닭고기 채소국 + 잡곡밥',sub:'⭐ 잘먹는 닭 + 💊 단백질·크롬',why:'닭(30회 좋아함) + 잡곡밥(크롬·식이섬유) 조합. 채소는 잘게 다져 자연스럽게.',ings:['닭다리살 30g','잡곡 30g (현미·보리·콩 mix)','당근 10g (다지기)','애호박 10g (다지기)','다시마 1조각','물 350ml'],steps:['잡곡 1시간 불리기','닭살 한입크기로 자르기','다시마+물 끓이고 다시마 건지기','닭살+잡곡 넣고 15분 약불','당근·애호박 다져 마지막 5분에 추가'],tip:'채소는 잘게 다져야 거부감 ↓. 잡곡은 충분히 불려야 식감 좋음',gain:'단백질 8g · 크롬 · 식이섬유',time:'25분',level:'다지기·테이블'}},
+    {time:'간식', nm:'🍓 딸기 + 무지방 요거트', why:[{t:'nutri',v:'비타민 C → 철 흡수 ↑'}],
+      recipe:{em:'🍓',nm:'딸기 요거트 컵',sub:'💊 비타민 C → 철 흡수 3배',why:'딸기 비타민C가 다른 끼니의 식물성 철 흡수율을 3배 높임. 매일 1회 권장.',ings:['딸기 5-6개','무가당 요거트 100g','꿀 1티스푼 (24개월+)'],steps:['딸기 깨끗이 씻어 꼭지 따기','한입 크기로 자르거나 으깨기','요거트와 살살 섞기','선택: 꿀 1티스푼 (24개월 미만은 X)'],tip:'요거트는 무가당 선택. 시판 가당 요거트는 당류 과다',gain:'비타민 C · 칼슘 · 프로바이오틱스',time:'3분',level:'큐브·매시'}},
+    {time:'저녁', nm:'🐟 연어구이 + 으깬 감자', why:[{t:'new',v:'새 도전 연어'},{t:'nutri',v:'EPA+DHA·비타민 D'}],
+      recipe:{em:'🐟',nm:'연어구이 + 으깬 감자',sub:'🆕 도전 연어 + 💊 EPA+DHA·비D',why:'연어는 6개월 만에 다시 시도. 부드러운 으깬 감자와 함께 거부감 ↓. EPA+DHA 30% 부족 한번에 보강.',ings:['연어 살 30g (가시 제거)','감자 1개','우유 30ml','버터 5g','소금 한 꼬집'],steps:['감자 껍질 벗겨 깍둑썰기 → 15분 찌기','감자 곱게 으깨고 우유+버터 섞기','연어는 키친타올로 물기 제거','약불 팬에 올리브유 살짝 + 연어 양면 2분씩','연어 잘게 부숴 으깬 감자에 살짝 섞어 제공'],tip:'연어 굽기 너무 X (DHA 손실). 비린맛 약하게 — 레몬즙 1방울',gain:'EPA+DHA 150mg · 비타민 D 5μg · 단백질',time:'22분',level:'매시·부숨'}},
+  ]},
+  {day:'2일차', date:'5/25 (일)', gain:'EPA+DHA +20%, 비타민 D +15%', meals:[
+    {time:'아침', nm:'🥞 들깨 부침개 + 🍆 가지 다져', why:[{t:'pref',v:'좋아하는 부침개'},{t:'new',v:'1년 9개월만의 가지'},{t:'nutri',v:'오메가-3'}],
+      recipe:{em:'🥞',nm:'들깨 부침개 + 가지 다지기',sub:'⭐ 좋아하는 부침개 + 🆕 가지 1년 9개월 만',why:'가지를 1mm로 잘게 다져 부침개 반죽에 섞으면 색·식감 거의 안 보임. 들깨가루로 오메가-3 보강.',ings:['부침가루 50g','들깨가루 1티스푼','가지 5g (1mm 다이스)','달걀 1개','물 50ml','식용유 약간'],steps:['가지 작게 깍둑썰기 (1mm 정도)','부침가루+들깨가루+달걀+물 잘 섞기','다진 가지 추가하고 한번 더 섞기','약불 팬에 식용유 두르고 한 국자씩 부치기','양면 2-3분 노릇하게'],tip:'가지는 잘게 다져야 안 보임. 약불에서 천천히 익혀야 속까지',gain:'오메가-3 · 식이섬유 · 단백질',time:'12분',level:'다지기'}},
+    {time:'점심', nm:'🍱 두부 동그랑땡 + 검은콩밥', why:[{t:'nutri',v:'콜린·아연·엽산'}],
+      recipe:{em:'🍱',nm:'두부 동그랑땡 + 검은콩밥',sub:'💊 콜린·아연·엽산 트리오',why:'두부 + 달걀 = 콜린 풍부. 검은콩밥은 엽산·아연 보강. 한 끼로 3개 영양 동시 채움.',ings:['두부 50g','달걀 1개','다진 양파 10g','검은콩 10g (불려서)','잡곡 30g','부침가루 1스푼'],steps:['검은콩 불려 잡곡과 함께 밥 짓기','두부는 면포로 물기 짜기','두부+달걀+다진 양파+부침가루 섞기','동그랗게 모양 만들기 (한입 크기)','약불 팬에 올리브유 두르고 양면 노릇하게 굽기'],tip:'두부 물기 충분히 짜야 모양 안 흐트러짐. 한입 크기 = 핑거푸드 단계 ↑',gain:'콜린 80mg · 아연 · 엽산 · 단백질',time:'25분',level:'다지기·핑거'}},
+    {time:'간식', nm:'🥚 삶은 달걀 1개 + 귤', why:[{t:'nutri',v:'콜린 단단히'}],
+      recipe:{em:'🥚',nm:'삶은 달걀 + 귤',sub:'💊 콜린 단단히 + 비타민 C',why:'노른자 = 콜린 110mg (만 1-2세 RNI 160mg의 69%). 귤로 비타민C 보충.',ings:['달걀 1개','귤 1개','소금 약간'],steps:['달걀 찬물에 넣고 끓이기','끓기 시작 후 10-12분 (완숙)','찬물에 담가 식히기','껍질 벗기고 4등분','귤은 한 알씩 분리'],tip:'완숙 12분 — 노른자가 살짝 꾸덕해야 콜린 흡수 ↑',gain:'콜린 110mg · 비타민 C 30mg',time:'15분',level:'큐브·통째'}},
+    {time:'저녁', nm:'🍲 소고기 미역국 + 김', why:[{t:'nutri',v:'철·요오드'},{t:'pref',v:'잘먹는 국'}],
+      recipe:{em:'🍲',nm:'소고기 미역국 + 김',sub:'⭐ 잘먹는 국 + 💊 철·요오드',why:'소고기(흡수율 좋은 헴철) + 미역(요오드) + 김(요오드·미네랄) = 빨강 영양 한방에.',ings:['소고기 양지 30g','마른 미역 5g','참기름 1티스푼','다진 마늘 1/2티스푼','국간장 1티스푼','물 400ml','김 1장'],steps:['미역 찬물에 10분 불리기','소고기 한입 크기로 잘라 참기름·마늘로 볶기','미역 추가해 함께 2분 볶기','물 부어 끓이고 약불로 20분','국간장으로 간 맞추기','김은 잘게 부숴 제공'],tip:'미역은 충분히 불려야 식감 좋음. 국간장은 적게 — 저염 권장',gain:'철 · 요오드 · 단백질',time:'30분',level:'매시·다지기'}},
+  ]},
+  {day:'3일차', date:'5/26 (월)', gain:'식감 단계 ↑ (핑거푸드), 다양성 7/8', meals:[
+    {time:'아침', nm:'🥬 브로콜리 매시 + 치즈 토스트', why:[{t:'new',v:'브로콜리 도전'},{t:'nutri',v:'엽산·크롬'}],
+      recipe:{em:'🥬',nm:'브로콜리 매시 + 치즈 토스트',sub:'🆕 브로콜리 도전 + 💊 엽산·크롬',why:'브로콜리는 데쳐서 매시로 시작 (도전 1단계). 치즈 토스트로 칼슘·콜린 보강.',ings:['브로콜리 30g','식빵 1쪽','체다 치즈 1장','버터 5g','우유 1티스푼'],steps:['브로콜리 송이만 잘라 끓는 물에 2분 데치기','찬물에 헹궈 잘게 다지거나 으깨기','우유 1티스푼 섞어 매시화','식빵에 버터 바르고 치즈 올리기','토스터/에어프라이어 3분'],tip:'브로콜리는 잎채소 색이 강해 처음엔 적은 양부터. 치즈는 무염 또는 저염',gain:'엽산 · 크롬 · 칼슘 · 비타민 K',time:'12분',level:'매시·핑거'}},
+    {time:'점심', nm:'🥕 당근 스틱 + 후무스 + 닭고기 큐브', why:[{t:'new',v:'핑거푸드 단계'},{t:'pref',v:'좋아하는 닭'}],
+      recipe:{em:'🥕',nm:'당근 스틱 + 후무스 + 닭 큐브',sub:'🆕 핑거푸드 단계 + ⭐ 좋아하는 닭',why:'28개월 권장 핑거푸드 단계 진입. 당근 스틱(원물) + 두부 후무스(콩 단백질) + 닭 큐브(잘먹음). 자율성 학습.',ings:['당근 1/2개','두부 50g','참기름 1티스푼','닭다리살 30g','소금 한 꼬집'],steps:['당근 스틱으로 자르기 (1cm × 5cm)','당근 스틱 끓는 물에 1분 데치기 (살짝)','닭살 1cm 큐브로 잘라 약불에 굽기 (6분)','두부 곱게 으깨 참기름·소금으로 후무스','당근 스틱 옆에 후무스 디핑 + 닭 큐브 함께'],tip:'당근 스틱은 손으로 잡기 좋은 두께 (1cm+). 너무 가늘면 부러져 위험',gain:'비타민 A · 단백질 · 식이섬유 + 자율성',time:'18분',level:'스틱·큐브'}},
+    {time:'간식', nm:'🥜 무가당 호두·아몬드 가루 + 바나나', why:[{t:'nutri',v:'EPA+DHA·아연'}],
+      recipe:{em:'🥜',nm:'견과 가루 + 바나나',sub:'💊 EPA+DHA · 아연 보강',why:'호두 오메가-3, 아몬드 비타민E. 바나나에 뿌려 거부감 0.',ings:['호두 5g (가루)','아몬드 5g (가루)','바나나 1개'],steps:['호두·아몬드를 믹서에 갈아 가루로 (또는 시판 무가당)','바나나 껍질 까고 한입 크기로 자르기','견과 가루를 위에 살짝 뿌리기'],tip:'견과는 통째 X (질식 위험) — 반드시 가루로. 무가당 시판 제품도 OK',gain:'EPA+DHA · 아연 · 비타민 E · 칼륨',time:'3분',level:'가루·큐브'}},
+    {time:'저녁', nm:'🍚 잡곡밥 + 두부 김치찌개 (저염)', why:[{t:'nutri',v:'크롬·콜린'}],
+      recipe:{em:'🍚',nm:'잡곡밥 + 두부 김치찌개 (저염)',sub:'💊 크롬·콜린 마무리',why:'잡곡(크롬) + 두부(콜린) + 약간의 김치(프로바이오틱스). 저염 조리.',ings:['잡곡 30g','두부 50g','배추김치 20g (씻어서 짜기)','대파 5g','참기름 1티스푼','물 300ml','다시마 1조각'],steps:['잡곡 30분 불려 밥 짓기','김치 찬물에 헹궈 짜서 잘게 썰기 (염분 ↓)','다시마+물 끓이고 다시마 건지기','김치+두부 넣고 약불 10분','참기름 1방울로 마무리'],tip:'김치는 반드시 헹궈서 짜야 염분 ↓. 24개월 미만은 김치 X',gain:'크롬 · 콜린 · 단백질 · 프로바이오틱스',time:'25분',level:'매시·큐브'}},
+  ]},
+];
+
+// ★ 통합 레시피 상세 모달 템플릿 (showFridgeRecipe·showMealRecipe 공용)
+function renderRecipeDetailHTML(r){
+  return `
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--p100)">${r.em}</div>
+      <div class="modal-info"><h3 style="font-size:15px">${r.nm}</h3><div class="sub">${r.sub||''}</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:11.5px;color:var(--g700);font-weight:700;line-height:1.6">
+      <strong style="color:var(--s800)">왜 우리 아이에게?</strong><br>${r.why}
+    </div>
+    <div class="modal-card">
+      <div class="lbl">━ 🛒 재료 (1인분) ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.8">${r.ings.map(x=>`• ${x}`).join('<br>')}</div>
+    </div>
+    <div class="modal-card">
+      <div class="lbl">━ 👩‍🍳 조리 순서 ━</div>
+      <ol style="font-size:11.5px;color:var(--n700);line-height:1.7;padding-left:18px;margin:4px 0">${r.steps.map(s=>`<li style="margin-bottom:4px">${s}</li>`).join('')}</ol>
+    </div>
+    <div class="modal-card" style="background:var(--y50);border:1px solid #FFE082">
+      <div class="lbl" style="color:var(--y700)">━ 💡 우리 아이 적용 팁 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.6">${r.tip}</div>
+    </div>
+    <div class="modal-card pref">
+      <div class="lbl">━ 📊 매칭 정보 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.6">⏱ <strong>${r.time}</strong> · ✋ <strong>${r.level}</strong> · 💊 <strong>${r.gain}</strong></div>
+    </div>
+    <button class="modal-cta" onclick="closeModal()">📝 오늘 식단으로 기록하기</button>
+    <button class="modal-cta" onclick="closeModal()" style="background:var(--p500);margin-top:6px">📥 내일 식단에 추가</button>
+  `;
+}
+function showMealRecipe(dayIdx, mealIdx){
+  const meal = MEAL_PLAN[dayIdx]?.meals[mealIdx];
+  if(!meal?.recipe) return;
+  document.getElementById('modalContent').innerHTML = renderRecipeDetailHTML(meal.recipe);
+  document.getElementById('modalBg').classList.add('show');
+}
+
+function showMealPlan(){
+  const html = `
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--p100)">🤖</div>
+      <div class="modal-info"><h3>AI 3일 개인 식단</h3><div class="sub">선호 + 도전 + KDRI 부족 영양 종합</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-radius:10px;padding:11px 13px;margin-bottom:8px;font-size:11.5px;color:var(--g700);font-weight:700;line-height:1.55">
+      ✨ <strong>개인화 기준</strong>: 좋아하는 메뉴(계란찜·죽·부침개·닭·국) + 도전 식재료(가지·연어·브로콜리) + 부족 영양(철·비D·콜린·오메가3)
+    </div>
+    <div onclick="switchTab(document.querySelector('[data-tab=record]'),'record');closeModal()" style="background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px dashed var(--p500);border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:11.5px;color:var(--p700);font-weight:700;line-height:1.55;cursor:pointer;display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">💡</span>
+      <span style="flex:1"><strong style="color:var(--s800)">최근 3일 식단을 입력하면</strong> 더 정확한 추천을 받을 수 있어요 — <strong>1분</strong>이면 끝</span>
+      <span style="color:var(--p500);font-size:18px;font-weight:300">›</span>
+    </div>
+    ${MEAL_PLAN.map((d,di)=>`
+      <div class="plan-day">
+        <div class="day-head"><span>📅 ${d.day} · ${d.date}</span><span class="gain">${d.gain}</span></div>
+        ${d.meals.map((m,mi)=>`
+          <div class="plan-meal" onclick="showMealRecipe(${di},${mi})">
+            <div class="time">${m.time}</div>
+            <div class="info">
+              <div class="nm">${m.nm}</div>
+              <div class="why">${m.why.map(w=>`<span class="${w.t}">${w.t==='pref'?'⭐':w.t==='new'?'🆕':'💊'} ${w.v}</span>`).join(' · ')}</div>
+            </div>
+            <div class="chev">›</div>
+          </div>`).join('')}
+      </div>`).join('')}
+    <button class="modal-cta" onclick="closeModal()">📥 이 식단으로 장보기 리스트 받기</button>
+    <div style="font-size:10px;color:var(--n400);text-align:center;padding:12px 0;line-height:1.6">⭐ 좋아하는 메뉴 · 🆕 도전 식재료 · 💊 부족 영양 보강<br>KDRI 2025 · 만 1-2세 기준`;
+  document.getElementById('modalContent').innerHTML=html;
+  document.getElementById('modalBg').classList.add('show');
+}
+function setReaction(el){el.parentElement.querySelectorAll('.reaction-item').forEach(r=>r.classList.remove('checked'));el.classList.add('checked')}
+
+// ★ 동적 질문 로테이션 — 매일 1개씩 다른 질문 (UI 증가 0, placeholder만 회전)
+const DAILY_QUESTIONS = [
+  {label:'오늘의 질문 — 거부 반응', placeholder:'어떤 식재료가 가장 싫다고 했어요? (선택)', chips:['😤 한 입도 안 먹음','🚫 골라냄','💧 향만 맡음','🤝 친구 따라 먹음','😋 평소보다 많이']},
+  {label:'오늘의 질문 — 식사 환경', placeholder:'식사할 때 분위기는 어땠어요?', chips:['📺 TV 보며','🗣 가족 대화','🍽 조용히','😢 짜증','😆 신나서']},
+  {label:'오늘의 질문 — 새 식재료', placeholder:'처음 본 식재료에 어떤 반응이었어요?', chips:['👀 호기심','😐 무덤덤','🚫 거부','✨ 흥미 폭발','—']},
+  {label:'오늘의 질문 — 식사 시간', placeholder:'식사 시간이 평소와 어떻게 달랐어요?', chips:['⏱ 빨라짐','🐌 길어짐','😴 졸려서 중단','📞 방해됨','🙂 비슷']},
+  {label:'오늘의 질문 — 함께한 사람', placeholder:'누구와 함께 식사했어요?',chips:['👩 엄마만','👨 아빠만','👨‍👩‍👧 온 가족','👵 조부모','🧑‍🤝‍🧑 친구']},
+  {label:'오늘의 질문 — 자율성', placeholder:'스스로 얼마나 먹었어요?', chips:['🍼 떠먹여줌','🤝 도와줌','🙋 스스로 다','🥄 숟가락 시도','🤏 손으로']},
+  {label:'오늘의 질문 — 좋아한 메뉴', placeholder:'오늘 가장 좋아한 메뉴는?', chips:['👍 또 달라','😋 한 그릇 다','🙂 무난','🙅 거부','—']},
+];
+function applyDailyQuestion(){
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+  const q = DAILY_QUESTIONS[dayOfYear % DAILY_QUESTIONS.length];
+  const lbl = document.getElementById('memoLabel');
+  const box = document.getElementById('memoBox');
+  const notes = document.getElementById('quickNotes');
+  if(!lbl || !box || !notes) return;
+  lbl.textContent = '━ ' + q.label + ' ━';
+  box.placeholder = q.placeholder;
+  notes.innerHTML = q.chips.map(c=>`<button class="quick-note">${c}</button>`).join('');
+}
+applyDailyQuestion();
+
+// ★ SOS 6단계 친해지기 모달 (식재료별 적용)
+const SOS_STEPS = [
+  {ico:'👀', nm:'1. 보기', desc:'식탁 위에 식재료를 두기 — 아이가 눈으로 인지하는 단계 (강요 X)'},
+  {ico:'✋', nm:'2. 만지기', desc:'손가락으로 살짝 만져보기 — 촉각 학습'},
+  {ico:'👃', nm:'3. 냄새 맡기', desc:'코로 향 맡기 — 후각 인지 (식재료 친숙도 ↑)'},
+  {ico:'👅', nm:'4. 핥기', desc:'혀끝으로 살짝 핥기 — 안 삼켜도 OK (맛 학습 시작)'},
+  {ico:'🦷', nm:'5. 씹기', desc:'한 입 씹어보기 — 뱉어도 OK (구강 운동 학습)'},
+  {ico:'🍽', nm:'6. 삼키기', desc:'작은 한 입 실제 먹기 — 12~30회 반복하면 자연 수용'},
+];
+function showSosKit(ingredientId){
+  const ing = INGREDIENTS.find(i=>i.id===ingredientId) || {nm:'시금치', em:'🥬', exposure:22, eatCount:8};
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--v50)">🎯</div>
+      <div class="modal-info"><h3>${ing.em} ${ing.nm} 친해지기 SOS 6단계</h3><div class="sub">Toomey SOS Approach · 노출 ${ing.exposure}회 / 먹은 ${ing.eatCount}회</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#F3E5F5,#E1BEE7);border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:11.5px;color:var(--v700);font-weight:700;line-height:1.6">
+      <strong style="color:var(--s800)">강요는 거부를 강화합니다.</strong> 1단계부터 천천히 — 한 번에 1단계만 해도 충분해요. 일주일에 1-2 단계 진행 권장.
+    </div>
+    ${SOS_STEPS.map((s,i)=>`
+      <div class="sos-step ${i<2?'done':''}">
+        <div class="step-num">${i+1}</div>
+        <div class="ico">${s.ico}</div>
+        <div class="body">
+          <div class="nm">${s.nm}</div>
+          <div class="desc">${s.desc}</div>
+        </div>
+      </div>
+    `).join('')}
+    <div style="background:var(--y50);border:1px solid #FFE082;border-radius:10px;padding:11px 13px;margin-top:12px">
+      <div style="font-size:11px;font-weight:800;color:var(--y700);letter-spacing:0.04em;margin-bottom:5px">━ ⚠ 거부할 때 즉시 행동 5가지 ━</div>
+      <div style="font-size:11.5px;color:var(--n700);line-height:1.7;font-weight:600">
+        <strong>1.</strong> 5초만 기다리기 (다시 권하지 X) ·
+        <strong>2.</strong> 표정·말로 반응 X (Satter DOR) ·
+        <strong>3.</strong> 부모가 맛있게 먹는 모습 보여주기 ·
+        <strong>4.</strong> 다음 끼니에 다시 (포기 X) ·
+        <strong>5.</strong> 12-30회 반복 노출 (Cooke & Birch 연구)
+      </div>
+    </div>
+    <button class="modal-cta" onclick="closeModal()" style="margin-top:14px">📦 친해지기 키트 받기 (₩50,000)</button>
+    <button class="modal-cta" onclick="closeModal()" style="background:var(--p500);margin-top:6px">🍳 가정에서 시도할 레시피 보기</button>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
+
+// ★ 편지 답장 모달 — 어제 메모 기반 개인화 답장
+function showLetterReply(){
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-head">
+      <div class="modal-emoji" style="background:var(--y50)">✉️</div>
+      <div class="modal-info"><h3>어제 일지에 답장</h3><div class="sub">5/23 (금) · 우리가 어제 데이터 보고 한 마디</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--y500)">
+      <div style="font-size:10.5px;color:var(--y700);font-weight:800;letter-spacing:0.04em;margin-bottom:8px">━ 지우 엄마, ━</div>
+      <div style="font-size:13px;color:var(--n700);font-weight:600;line-height:1.85">
+        어제 메모에 <strong style="color:var(--s800)">"시금치 거부했는데 한 입도 안 먹어서 너무 힘들었어요"</strong>라고 남기셨죠. 그 마음이 정말 와닿아요.<br><br>
+        그런데 데이터를 보니 <strong style="color:var(--s800)">시금치는 22번 노출했고 8번 먹었어요</strong>. 학술 연구(Cooke 2011)에서 평균 <strong>12-30번 노출 후 수용</strong>이라고 합니다. <strong>지금 거부 단계는 정상</strong>이에요.<br><br>
+        대신 이번 주는 <strong>시금치 즙을 좋아하는 계란찜에 한 방울</strong>만 시도해보세요. 색·향 거의 안 보입니다.<br><br>
+        그리고 가지는 <strong>1년 9개월째 못 만난 식재료</strong>예요 — 시금치 시도 다음 주에 가지 친해지기도 천천히 시작하면 좋겠어요.
+      </div>
+    </div>
+    <button class="modal-cta" onclick="closeModal();showSosKit('spinach')">🎯 시금치 친해지기 6단계 시작 →</button>
+    <button class="modal-cta" onclick="closeModal();switchTab(document.querySelector('[data-tab=recipe]'),'recipe')" style="background:var(--p500);margin-top:6px">🍳 시금치 즙 계란찜 레시피 보기</button>
+    <div style="font-size:10px;color:var(--n400);text-align:center;margin-top:12px;line-height:1.6">매일 기록하시는 메모가 다음 답장의 재료가 됩니다 ✨</div>
+  `;
+  document.getElementById('modalBg').classList.add('show');
+}
+</script>
+
+</body>
+</html>
