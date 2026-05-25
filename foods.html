@@ -62,7 +62,9 @@
   .ing-card.g3 .grade-corner{color:#FFB375}
   .ing-card.g2 .grade-corner{color:#9CA3AF;font-size:9px}
   .ing-card.gc .grade-corner{color:#A78BFA;font-size:11px}
-  .ing-card .emoji{font-size:48px;line-height:1;margin:8px 0 6px}
+  .ing-card .emoji{font-size:48px;line-height:1;margin:8px 0 6px;min-height:50px}
+  .ing-card .emoji-placeholder{font-size:11px;color:var(--n400);font-weight:700;letter-spacing:0.04em;margin:18px 0 14px;min-height:50px;display:flex;align-items:center;justify-content:center;background:var(--n50);border-radius:50%;width:54px;height:54px;margin-left:auto;margin-right:auto;text-align:center;padding:4px;line-height:1.2}
+  .ing-card.no-emoji .nm{margin-top:6px}
   .ing-card .nm{font-size:13.5px;font-weight:800;color:var(--s800);letter-spacing:-0.01em;line-height:1.3}
   .ing-card .cat{font-size:10px;color:var(--n500);font-weight:600;margin-top:3px}
   .ing-card .stat-mini{font-size:9px;color:var(--n400);font-weight:700;margin-top:4px;font-family:ui-monospace,Menlo,monospace}
@@ -131,7 +133,7 @@
 <!-- HERO -->
 <header class="hero">
   <div class="hero-inner">
-    <span class="tag">🗂 OPEN DEX · 로그인 X · 누구나</span>
+    <span class="tag">🗂 초등학교 급식 전에 반드시 먹어야 할 식재료들</span>
     <h1>밀프레드 식재료 도감</h1>
     <p>학교 급식 + 영유아 빈도 기반 등급화 · 영양·제철·SOS 6단계·레시피·부모 댓글</p>
     <div class="meta">
@@ -253,10 +255,15 @@ function filterAndRender(){
                      : p.grade_label === '초등 권장' ? 'g3'
                      : p.grade_label === '영유아 핵심' ? 'g2'
                      : 'gc';
+    // 이모지가 비어있으면 카드를 더 텍스트 중심으로 (placeholder 카테고리 라벨)
+    const hasEmoji = p.em && p.em.trim();
     return `
-      <div class="ing-card ${gradeClass}" onclick="showIngredient(${i})" data-idx="${i}">
+      <div class="ing-card ${gradeClass} ${hasEmoji?'':'no-emoji'}" onclick="showIngredient(${i})" data-idx="${i}">
         <div class="grade-corner">${p.grade}</div>
-        <div class="emoji">${p.em}</div>
+        ${hasEmoji
+          ? `<div class="emoji">${p.em}</div>`
+          : `<div class="emoji-placeholder">${p.cat.replace('_','·').split('·')[0]}</div>`
+        }
         <div class="nm">${p.nm}</div>
         <div class="cat">${p.cat.replace('_','·')}</div>
         <div class="grade-label">${p.grade_label}</div>
@@ -331,7 +338,7 @@ function showIngredient(idx){
 
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-head">
-      <div class="modal-emoji">${p.em}</div>
+      <div class="modal-emoji" style="${p.em?'':'font-size:13px;color:var(--n500);font-weight:700'}">${p.em || p.cat.replace('_','·').split('·')[0]}</div>
       <div class="modal-info">
         <h3>${p.nm}</h3>
         <div class="grade-row">
@@ -380,9 +387,9 @@ function showIngredient(idx){
       <div class="mod-section">
         <div class="lbl">━ 🍳 일반 추천 레시피 ━</div>
         <ul>
-          <li>${p.em} ${p.nm} 즙 계란찜 — 거부감 ↓ (선호 베이스 매칭)</li>
-          <li>${p.em} ${p.nm} 다진 죽 — 좋아하는 베이스 위에</li>
-          <li>${p.em} 통째 ${p.nm} 핑거푸드 — 식감 단계 ↑ (만 24m+)</li>
+          <li>${p.em?p.em+' ':''}${p.nm} 즙 계란찜 — 거부감 ↓ (선호 베이스 매칭)</li>
+          <li>${p.em?p.em+' ':''}${p.nm} 다진 죽 — 좋아하는 베이스 위에</li>
+          <li>통째 ${p.nm} 핑거푸드 — 식감 단계 ↑ (만 24m+)</li>
         </ul>
         <p style="margin-top:6px;font-size:10.5px;color:var(--n500)">위는 일반 레시피 — 우리 아이 식습관·신호등·거부도에 맞춤 추천 받으려면 ↓</p>
         <div onclick="window.location.href='/personal-coming.html'" style="background:linear-gradient(135deg,#1F2D3D,#2C3E50);color:white;border-radius:10px;padding:14px 16px;margin-top:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
