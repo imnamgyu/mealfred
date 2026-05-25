@@ -397,16 +397,39 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">━ 식단표 사진 또는 PDF ━</label>
-      <div class="upload-zone" onclick="mockUpload()">
-        <div class="em">📸</div>
-        <div class="lbl">사진 1장 업로드</div>
-        <div class="sub">JPG · PNG · PDF · 한 달치 또는 일주일치</div>
+      <label class="form-label">━ 식단표 입력 방법 ━</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <button class="mode-btn checked" data-mode="text" onclick="setMode(this,'text')" style="background:#FFE8D0;border:1.5px solid #FF6B1A;color:#C45A00;padding:10px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">✍️ 메뉴 텍스트 입력</button>
+        <button class="mode-btn" data-mode="photo" onclick="setMode(this,'photo')" style="background:#FFFBF5;border:1.5px solid #FFE8D0;color:#8a7a6a;padding:10px;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">📸 사진 업로드 (β)</button>
+      </div>
+
+      <!-- 텍스트 입력 (기본) -->
+      <div id="modeText">
+        <textarea id="menuText" placeholder="식단표 메뉴를 자유롭게 입력해주세요.&#10;&#10;예시:&#10;월요일: 흰밥, 미역국, 두부조림, 시금치나물, 김치&#10;화요일: 잡곡밥, 된장찌개, 닭고기볶음, 콩나물무침, 김&#10;...&#10;&#10;한 달치든 일주일치든 OK. 띄어쓰기·줄바꿈·쉼표 자유" style="width:100%;min-height:130px;padding:12px;border:1.5px solid #FFE8D0;border-radius:10px;font-size:13px;font-family:inherit;line-height:1.65;resize:vertical;outline:none;background:#FFFBF5" onfocus="this.style.borderColor='#FF6B1A'" onblur="this.style.borderColor='#FFE8D0'"></textarea>
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+          <button onclick="loadSample(1)" style="background:#FFFBF5;border:1px solid #FFE8D0;color:#5a4a3a;padding:6px 10px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 사례 ① 불러오기 (4월 식단)</button>
+          <button onclick="loadSample(2)" style="background:#FFFBF5;border:1px solid #FFE8D0;color:#5a4a3a;padding:6px 10px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 사례 ② 불러오기 (5월 식단)</button>
+        </div>
+      </div>
+
+      <!-- 사진 업로드 (β) -->
+      <div id="modePhoto" style="display:none">
+        <div class="upload-zone" onclick="document.getElementById('photoInput').click()">
+          <input type="file" id="photoInput" accept="image/*,.pdf" style="display:none" onchange="handlePhotoSelect(this)">
+          <div class="em">📸</div>
+          <div class="lbl">사진 1장 업로드</div>
+          <div class="sub">JPG · PNG · PDF · 한 달치 또는 일주일치</div>
+        </div>
+        <div id="photoPreview" style="display:none;background:#FFFBF5;border:1px solid #FFE8D0;border-radius:10px;padding:10px;margin-top:8px;font-size:11.5px;color:#5a4a3a;line-height:1.7">
+          <strong style="color:#1a2b4a">📌 OCR 베타</strong><br>
+          사진 업로드는 받았지만, AI 메뉴 자동 인식(OCR)은 곧 출시 예정이에요.<br>
+          <strong>지금은 메뉴 텍스트를 직접 입력해주시면 즉시 평가</strong>해드려요. 위 ✍️ 버튼을 눌러주세요.
+        </div>
       </div>
     </div>
 
-    <button class="modal-cta" onclick="mockUpload()">🚀 평가 시작</button>
-    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·기관·위치</strong> 같은 개인·기관 식별 정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong><br>업로드한 사진은 24시간 후 자동 삭제</div>
+    <button class="modal-cta" onclick="startAnalysis()">🚀 평가 시작 (8축 알고리즘 작동)</button>
+    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·기관·위치</strong> 같은 개인·기관 식별 정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong><br>분석은 100% 브라우저에서 작동 — 서버에 보내지 않아요</div>
   </div>
 </div>
 
@@ -451,26 +474,32 @@
 
     <div style="margin-top:16px">
       <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--g700);margin-bottom:6px">━ ✅ 강점 ━</div>
-      <div class="insight-row"><span class="em">🥇</span>WHO MDD 8 식품군 모두 충족 (B 등급)</div>
-      <div class="insight-row"><span class="em">🥈</span>알레르겐 17종 모두 명시 (A+)</div>
-      <div class="insight-row"><span class="em">🥉</span>봄철 제철 식재료 풍부 (A)</div>
+      <div id="strengthsList">
+        <div class="insight-row"><span class="em">🥇</span>WHO MDD 8 식품군 모두 충족 (B 등급)</div>
+        <div class="insight-row"><span class="em">🥈</span>알레르겐 17종 모두 명시 (A+)</div>
+        <div class="insight-row"><span class="em">🥉</span>봄철 제철 식재료 풍부 (A)</div>
+      </div>
 
       <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--r700);margin:14px 0 6px">━ ⚠️ 주의 ━</div>
-      <div class="insight-row warn"><span class="em">📉</span>14 sub 깊이 부족 — 통곡물·잎채소 다양화 시 A+ 도달</div>
-      <div class="insight-row warn"><span class="em">📉</span>조리 스타일 한식 only (D) — 양식·일식·중식 추가 필요</div>
-      <div class="insight-row warn"><span class="em">📉</span>식감 단계 — 죽 60% (14m는 핑거푸드 권장)</div>
+      <div id="concernsList">
+        <div class="insight-row warn"><span class="em">📉</span>14 sub 깊이 부족 — 통곡물·잎채소 다양화 시 A+ 도달</div>
+        <div class="insight-row warn"><span class="em">📉</span>조리 스타일 한식 only (D) — 양식·일식·중식 추가 필요</div>
+        <div class="insight-row warn"><span class="em">📉</span>식감 단계 — 죽 60% (14m는 핑거푸드 권장)</div>
+      </div>
 
       <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--p700);margin:14px 0 6px">━ 💡 가정 보충 ━</div>
-      <div class="insight-row"><span class="em">🌾</span>14 sub 깊이 → 잡곡 (귀리·흑미·수수) · 잎채소 (시금치·근대·아욱)</div>
-      <div class="insight-row"><span class="em">🌍</span>조리 스타일 → 양식 1회 + 일식 1회 / 주</div>
-      <div class="insight-row"><span class="em">🥕</span>핑거푸드 → 당근·고구마 스틱 / KDRI 부족 영양 → 달걀 노른자 + 연어</div>
+      <div id="tipsList">
+        <div class="insight-row"><span class="em">🌾</span>14 sub 깊이 → 잡곡 (귀리·흑미·수수) · 잎채소 (시금치·근대·아욱)</div>
+        <div class="insight-row"><span class="em">🌍</span>조리 스타일 → 양식 1회 + 일식 1회 / 주</div>
+        <div class="insight-row"><span class="em">🥕</span>핑거푸드 → 당근·고구마 스틱 / KDRI 부족 영양 → 달걀 노른자 + 연어</div>
+      </div>
     </div>
 
     <!-- ★ 5문장 자연어 — 어떻게 먹일지 구체 권고 -->
     <div style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:18px;border:1.5px solid var(--b500)">
       <div style="font-size:11px;font-weight:800;color:var(--b700);letter-spacing:0.04em;margin-bottom:8px">━ 💡 집에서는 이렇게 먹여주세요 ━</div>
-      <div style="font-size:13px;color:var(--n700);font-weight:600;line-height:1.75">
-        <strong style="color:var(--s800)">이 식단은 한국 평균(72점) 대비 +14점, 상위 25%로 잘 짜여 있어요.</strong> 가장 큰 약점은 <strong>조리 스타일이 한식에 치우친 것</strong>이라, 가정에서 <strong>주 1-2회 양식(스파게티·오믈렛) 또는 일식(우동·계란찜)</strong>을 더해주면 +20점 가능해요. <strong>곡물·잎채소 sub 깊이도 늘리면</strong> 다양성이 B → A+로 올라갑니다 — 귀리·흑미·수수, 시금치·근대·아욱 같은 종류를 번갈아 노출해주세요. <strong>비타민 D·콜린·EPA+DHA가 KDRI에서 자주 부족한 영양</strong>이라 햇볕 산책 15분, 달걀 노른자 매일, 연어 주 2회로 챙기면 좋아요. 죽 비중이 높은 식단이라 <strong>당근 스틱·고구마 큐브 같은 핑거푸드로 식감 단계도 천천히</strong> 올려보세요.
+      <div id="guideText" style="font-size:13px;color:var(--n700);font-weight:600;line-height:1.75">
+        <strong style="color:var(--s800)">이 식단은 한국 평균(72점) 대비 +14점, 상위 25%로 잘 짜여 있어요.</strong> 가장 큰 약점은 <strong>조리 스타일이 한식에 치우친 것</strong>이라, 가정에서 <strong>주 1-2회 양식(스파게티·오믈렛) 또는 일식(우동·계란찜)</strong>을 더해주면 +20점 가능해요.
       </div>
       <div onclick="goHomeMealPlan()" style="background:white;border:1.5px dashed var(--b500);border-radius:10px;padding:10px 12px;margin-top:12px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--b700)">
         <span style="font-size:16px">✨</span>
@@ -496,8 +525,11 @@
 
     <div class="share-actions" style="margin-top:14px">
     <div class="share-actions">
-      <button class="share-btn save" onclick="alert('결과 카드 PNG 저장 (구현 예정)')">📥 카드 저장</button>
+      <button class="share-btn save" onclick="saveCardPng()">📥 카드 저장 (PNG)</button>
       <button class="share-btn send" onclick="shareSite()">📤 친구에게</button>
+    </div>
+    <div style="margin-top:10px;text-align:center">
+      <button onclick="showHistory()" style="background:transparent;border:1px dashed #FFE8D0;color:#8a7a6a;padding:8px 14px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📜 내 평가 이력 보기</button>
     </div>
     <div style="font-size:10px;color:var(--n400);text-align:center;margin-top:14px;line-height:1.6">공유 카드에는 출처 표시 없이<br>점수와 보충 가이드만 공유돼요</div>
   </div>
@@ -519,32 +551,417 @@ function openUpload(){
 function closeModal(id){
   document.getElementById(id).classList.remove('show');
 }
+let selectedAge = '12-23m';
 function selectAge(el, val){
   document.querySelectorAll('.age-chip').forEach(x=>x.classList.remove('checked'));
   el.classList.add('checked');
+  selectedAge = val;
+}
+
+function setMode(el, mode){
+  document.querySelectorAll('.mode-btn').forEach(b=>{
+    b.classList.remove('checked');
+    b.style.background='#FFFBF5'; b.style.border='1.5px solid #FFE8D0'; b.style.color='#8a7a6a';
+  });
+  el.classList.add('checked');
+  el.style.background='#FFE8D0'; el.style.border='1.5px solid #FF6B1A'; el.style.color='#C45A00';
+  document.getElementById('modeText').style.display = mode==='text'?'block':'none';
+  document.getElementById('modePhoto').style.display = mode==='photo'?'block':'none';
+}
+
+function handlePhotoSelect(input){
+  if(input.files && input.files[0]){
+    document.getElementById('photoPreview').style.display='block';
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 8축 평가 알고리즘 (룰베이스 · 클라이언트 사이드 · API 토큰 X)
+// design-spec v3 · rule-vs-llm.html Cat A (Pure Rule) 정합
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// 147 식재료 풀 (data_ingredient_pool_graded.json에서 추출, 핵심 80종만)
+const INGREDIENT_POOL = [
+  // 곡물·면류
+  {nm:'쌀',cat:'곡류'},{nm:'잡곡',cat:'곡류'},{nm:'현미',cat:'곡류'},{nm:'귀리',cat:'곡류'},{nm:'흑미',cat:'곡류'},{nm:'수수',cat:'곡류'},{nm:'보리',cat:'곡류'},
+  {nm:'국수',cat:'면류'},{nm:'우동',cat:'면류'},{nm:'파스타',cat:'면류'},{nm:'라면',cat:'면류'},{nm:'당면',cat:'면류'},{nm:'쌀국수',cat:'면류'},
+  // 뿌리채소 (비타민A)
+  {nm:'당근',cat:'뿌리채소'},{nm:'무',cat:'뿌리채소'},{nm:'감자',cat:'뿌리채소'},{nm:'고구마',cat:'뿌리채소'},{nm:'연근',cat:'뿌리채소'},{nm:'우엉',cat:'뿌리채소'},
+  // 잎채소 (비타민A·엽산)
+  {nm:'시금치',cat:'잎채소'},{nm:'근대',cat:'잎채소'},{nm:'아욱',cat:'잎채소'},{nm:'배추',cat:'잎채소'},{nm:'양배추',cat:'잎채소'},{nm:'상추',cat:'잎채소'},{nm:'케일',cat:'잎채소'},{nm:'청경채',cat:'잎채소'},{nm:'깻잎',cat:'잎채소'},
+  // 열매·기타 채소
+  {nm:'토마토',cat:'열매채소'},{nm:'호박',cat:'열매채소'},{nm:'가지',cat:'열매채소'},{nm:'오이',cat:'열매채소'},{nm:'파프리카',cat:'열매채소'},{nm:'피망',cat:'열매채소'},
+  {nm:'브로콜리',cat:'십자화과'},{nm:'콜리플라워',cat:'십자화과'},
+  {nm:'양파',cat:'기타채소'},{nm:'대파',cat:'기타채소'},{nm:'마늘',cat:'기타채소'},{nm:'콩나물',cat:'기타채소'},{nm:'숙주',cat:'기타채소'},
+  // 버섯
+  {nm:'표고버섯',cat:'버섯'},{nm:'느타리',cat:'버섯'},{nm:'팽이',cat:'버섯'},{nm:'양송이',cat:'버섯'},
+  // 콩제품
+  {nm:'두부',cat:'콩제품'},{nm:'콩',cat:'콩제품'},{nm:'된장',cat:'콩제품'},{nm:'청국장',cat:'콩제품'},{nm:'순두부',cat:'콩제품'},{nm:'유부',cat:'콩제품'},
+  // 고기
+  {nm:'소고기',cat:'고기'},{nm:'돼지고기',cat:'고기'},{nm:'닭고기',cat:'고기'},{nm:'닭',cat:'고기'},{nm:'닭가슴살',cat:'고기'},{nm:'안심',cat:'고기'},
+  // 생선·해산물
+  {nm:'멸치',cat:'생선'},{nm:'고등어',cat:'생선'},{nm:'연어',cat:'생선'},{nm:'갈치',cat:'생선'},{nm:'명태',cat:'생선'},{nm:'삼치',cat:'생선'},{nm:'조기',cat:'생선'},{nm:'동태',cat:'생선'},
+  {nm:'오징어',cat:'해산물'},{nm:'새우',cat:'해산물'},{nm:'바지락',cat:'해산물'},{nm:'홍합',cat:'해산물'},{nm:'미역',cat:'해조류'},{nm:'다시마',cat:'해조류'},{nm:'김',cat:'해조류'},
+  // 계란
+  {nm:'계란',cat:'계란'},{nm:'달걀',cat:'계란'},{nm:'메추리알',cat:'계란'},
+  // 유제품
+  {nm:'우유',cat:'유제품'},{nm:'치즈',cat:'유제품'},{nm:'요거트',cat:'유제품'},{nm:'요구르트',cat:'유제품'},
+  // 과일
+  {nm:'사과',cat:'과일'},{nm:'배',cat:'과일'},{nm:'바나나',cat:'과일'},{nm:'딸기',cat:'과일'},{nm:'블루베리',cat:'과일'},{nm:'키위',cat:'과일'},{nm:'포도',cat:'과일'},{nm:'귤',cat:'과일'},{nm:'수박',cat:'과일'},{nm:'참외',cat:'과일'},
+  // 견과
+  {nm:'호두',cat:'견과'},{nm:'아몬드',cat:'견과'},{nm:'땅콩',cat:'견과'},{nm:'잣',cat:'견과'},
+];
+
+// 카테고리 → WHO MDD 8 식품군 매핑
+const MDD_GROUP = {
+  '곡류':'grain','면류':'grain',
+  '뿌리채소':'vitaminA','잎채소':'vitaminA',
+  '열매채소':'other','기타채소':'other','십자화과':'other','버섯':'other','해조류':'other',
+  '콩제품':'legume',
+  '고기':'meat','생선':'meat','해산물':'meat',
+  '계란':'egg',
+  '유제품':'dairy',
+  '과일':'fruit',
+  '견과':'other'
+};
+const MDD_LABELS = {grain:'곡물', legume:'콩류', dairy:'유제품', meat:'고기·생선', egg:'계란', vitaminA:'비타민A 채소', other:'기타 채소', fruit:'과일'};
+
+// NOVA 가공식품 키워드 (NOVA 4)
+const NOVA4_KW = ['소시지','햄','베이컨','너겟','라면','과자','음료','주스','아이스크림','시리얼','피자','인스턴트','튀김','어묵','만두','떡갈비','맛살'];
+
+// 식감 추정 키워드
+const TEXTURE_KW = {
+  puree: ['죽','미음','퓨레','수프'],
+  mashed: ['으깬','걸쭉','맛탕','잼','크림'],
+  chopped: ['다진','잘게','잘게 자른','잘게 썬','채썬'],
+  finger: ['스틱','큐브','한 입','구이','튀김'],
+  family: ['찌개','조림','볶음','국','밥','반찬']
+};
+
+// 조리 스타일 cuisine
+const CUISINE_KW = {
+  korean: ['김치','된장','미역','나물','조림','무침','쌈','국밥','비빔','갈비','불고기','잡채','떡','죽','전','튀김','찜','국','찌개','구이','볶음'],
+  western: ['스파게티','파스타','오믈렛','샐러드','샌드위치','햄버거','피자','스튜','리조또','크림','수프'],
+  japanese: ['우동','돈부리','소바','오니기리','낫토','미소','돈가스','계란찜','초밥','롤','데리야끼','규동'],
+  chinese: ['짜장','짬뽕','탕수육','깐풍기','마파두부','볶음밥','꽃빵','만두','잡채'],
+  asian: ['카레','쌀국수','월남쌈','반미','팟타이','나시고렝']
+};
+
+// 제철 (월별 식재료)
+const SEASON_MAP = {
+  1:['배추','무','시금치','굴','대구','명태'], 2:['시금치','달래','쪽파','꼬막','명태','대구'],
+  3:['딸기','달래','쑥','냉이','미나리','주꾸미','바지락'], 4:['딸기','봄나물','달래','쑥','두릅','쪽파','참다랑어','꽃게'],
+  5:['죽순','딸기','새우','강낭콩','아스파라거스','마늘쫑','참외'], 6:['매실','오디','체리','풋콩','감자','마늘','갈치'],
+  7:['수박','복숭아','자두','옥수수','오이','가지','민어','병어'], 8:['수박','복숭아','자두','옥수수','가지','풋고추','전복','오징어'],
+  9:['배','포도','단감','버섯','연근','고등어','전어','꽃게'], 10:['배','단감','사과','밤','고구마','연어','꽁치','대하'],
+  11:['배','사과','단감','무','배추','새우','대구','과메기'], 12:['귤','배추','무','시금치','꼬막','대구','명태']
+};
+
+// 알레르겐 17종 (식약처)
+const ALLERGEN_KW = ['우유','계란','달걀','메밀','땅콩','대두','콩','밀','새우','게','고등어','조개','복숭아','토마토','호두','잣','아황산'];
+
+// 핵심 영양소 매핑 (KDRI 36 중 핵심 10)
+const NUTRI_MAP = {
+  '당근':['비타민A','비타민K'],'시금치':['철','엽산','비타민K','비타민A'],'근대':['철','엽산'],
+  '계란':['콜린','비타민D','단백질'],'달걀':['콜린','비타민D','단백질'],
+  '연어':['비타민D','EPA-DHA','단백질'],'고등어':['EPA-DHA','비타민D'],
+  '두부':['칼슘','단백질','이소플라본'],'우유':['칼슘','비타민D','단백질'],'치즈':['칼슘','단백질'],
+  '소고기':['철','아연','단백질','비타민B12'],'돼지고기':['비타민B1','단백질'],'닭고기':['단백질','니아신'],
+  '미역':['요오드','칼슘'],'김':['철','요오드','비타민A'],
+  '브로콜리':['비타민C','비타민K','엽산'],'토마토':['리코펜','비타민C'],
+  '고구마':['비타민A','비타민C','식이섬유'],'감자':['비타민C','칼륨'],
+  '사과':['비타민C','식이섬유'],'바나나':['칼륨','마그네슘'],'블루베리':['안토시아닌','비타민C'],
+  '호두':['오메가3','마그네슘'],'아몬드':['비타민E','마그네슘'],
+};
+
+// 등급 매핑 (design-spec v3 통일)
+function scoreToGrade(s){
+  if(s>=95) return {grade:'A+',cls:'A',color:'#16A085'};
+  if(s>=90) return {grade:'A',cls:'A',color:'#16A085'};
+  if(s>=85) return {grade:'B+',cls:'B',color:'#F9A825'};
+  if(s>=80) return {grade:'B',cls:'B',color:'#F9A825'};
+  if(s>=70) return {grade:'C',cls:'C',color:'#E67E22'};
+  return {grade:'D',cls:'D',color:'#C62828'};
+}
+
+// 메뉴 텍스트에서 식재료 추출
+function extractIngredients(text){
+  const found = new Set();
+  const cats = new Set();
+  const matched = [];
+  INGREDIENT_POOL.forEach(ing => {
+    if(text.includes(ing.nm)){
+      found.add(ing.nm);
+      cats.add(ing.cat);
+      matched.push(ing);
+    }
+  });
+  return {ingredients:[...found], categories:[...cats], matched};
+}
+
+// 8축 평가 알고리즘
+function evaluate(text, ageBand){
+  const {ingredients, categories, matched} = extractIngredients(text);
+  const lines = text.split(/[\n,，/·]/).map(s=>s.trim()).filter(Boolean);
+  const totalMenus = lines.length;
+
+  // 1. 다양성 (WHO MDD + 14 sub 깊이)
+  const mddGroups = new Set();
+  matched.forEach(i => { const g = MDD_GROUP[i.cat]; if(g) mddGroups.add(g); });
+  const mddSatisfied = mddGroups.size;
+  const subDepth = categories.length;
+  let divScore;
+  if(mddSatisfied < 5) divScore = 60 + mddSatisfied*4;        // MDD 미달
+  else if(subDepth >= 10) divScore = 95;                       // A+
+  else if(subDepth >= 7) divScore = 90;                        // A
+  else if(subDepth >= 5) divScore = 85;                        // B+
+  else divScore = 80;                                          // B (MDD만 만족)
+
+  // 2. 식감 단계 (HabEat 연령 권장)
+  let textureCounts = {puree:0,mashed:0,chopped:0,finger:0,family:0};
+  lines.forEach(line => {
+    Object.entries(TEXTURE_KW).forEach(([k, kws]) => {
+      if(kws.some(kw => line.includes(kw))) textureCounts[k]++;
+    });
+  });
+  const totalTexture = Object.values(textureCounts).reduce((a,b)=>a+b,0) || 1;
+  const pureeChunkPct = (textureCounts.puree + textureCounts.mashed) / totalTexture;
+  let texScore;
+  if(ageBand === '6-11m') texScore = pureeChunkPct > 0.4 ? 90 : 70;
+  else if(ageBand === '12-23m') texScore = pureeChunkPct < 0.3 ? 90 : pureeChunkPct < 0.5 ? 75 : 55;
+  else texScore = pureeChunkPct < 0.15 ? 95 : 80;
+
+  // 3. KDRI 36종 영양 (식재료 다양성 + 핵심 영양 식재료 카운트)
+  const nutriSet = new Set();
+  matched.forEach(i => { const n = NUTRI_MAP[i.nm]; if(n) n.forEach(x => nutriSet.add(x)); });
+  const nutriCount = nutriSet.size;
+  const kdriScore = Math.min(100, 50 + nutriCount * 4);   // 12종 매칭 = 98점
+
+  // 4. 메뉴 반복도
+  const menuFreq = {};
+  lines.forEach(line => { const key = line.replace(/[\s,]/g,'').toLowerCase().slice(0,8); if(key) menuFreq[key] = (menuFreq[key]||0)+1; });
+  const maxRepeat = Math.max(1, ...Object.values(menuFreq));
+  const repeatScore = maxRepeat <= 2 ? 95 : maxRepeat <= 4 ? 80 : maxRepeat <= 6 ? 60 : 40;
+
+  // 5. 알레르겐 표시 (메뉴 텍스트에 알레르겐 keyword 포함 시 = 정상 표시)
+  const allergenMatches = ALLERGEN_KW.filter(k => text.includes(k)).length;
+  const allergenScore = allergenMatches >= 3 ? 100 : 80;
+
+  // 6. NOVA 가공식품
+  const novaCount = NOVA4_KW.reduce((acc, kw) => acc + (text.match(new RegExp(kw, 'g'))||[]).length, 0);
+  const novaPct = totalMenus > 0 ? novaCount / totalMenus : 0;
+  const novaScore = novaPct < 0.1 ? 95 : novaPct < 0.2 ? 85 : novaPct < 0.35 ? 75 : 60;
+
+  // 7. 제철 식재료
+  const currentMonth = new Date().getMonth() + 1;
+  const seasonItems = SEASON_MAP[currentMonth] || [];
+  const seasonMatch = seasonItems.filter(s => text.includes(s)).length;
+  const seasonScore = seasonMatch >= 3 ? 95 : seasonMatch >= 2 ? 90 : seasonMatch >= 1 ? 85 : 75;
+
+  // 8. 조리 스타일 다양성
+  const cuisineSet = new Set();
+  Object.entries(CUISINE_KW).forEach(([k, kws]) => {
+    if(kws.some(kw => text.includes(kw))) cuisineSet.add(k);
+  });
+  const cuisineDiv = cuisineSet.size;
+  const cuisineScore = cuisineDiv >= 4 ? 95 : cuisineDiv >= 3 ? 85 : cuisineDiv >= 2 ? 70 : 60;
+
+  // 총점 (8축 평균)
+  const total = Math.round((divScore + texScore + kdriScore + repeatScore + allergenScore + novaScore + seasonScore + cuisineScore) / 8);
+
+  return {
+    total,
+    axes: [
+      {idx:1, name:'식품군 다양성', sub:`WHO MDD ${mddSatisfied}/8 · 14 sub ${subDepth}종`, score:divScore, raw:{mddSatisfied, subDepth, missing:[...Object.keys(MDD_LABELS)].filter(g => !mddGroups.has(g)).map(g => MDD_LABELS[g])}},
+      {idx:2, name:'식감 단계', sub:`HabEat 연령(${ageBand}) 기준`, score:texScore, raw:{textureCounts, pureeChunkPct:Math.round(pureeChunkPct*100), ageBand}},
+      {idx:3, name:'KDRI 36종 영양', sub:`매핑 영양소 ${nutriCount}종`, score:kdriScore, raw:{nutriSet:[...nutriSet], nutriCount}},
+      {idx:4, name:'메뉴 반복도', sub:`최다 반복 ${maxRepeat}회`, score:repeatScore, raw:{maxRepeat, menuFreq}},
+      {idx:5, name:'알레르겐 표시', sub:`알레르겐 ${allergenMatches}종 표시`, score:allergenScore, raw:{allergenMatches}},
+      {idx:6, name:'가공식품 (NOVA)', sub:`NOVA 4 ${novaCount}건 (${Math.round(novaPct*100)}%)`, score:novaScore, raw:{novaCount, novaPct:Math.round(novaPct*100)}},
+      {idx:7, name:'🌸 제철 식재료', sub:`${currentMonth}월 제철 ${seasonMatch}종 매칭`, score:seasonScore, raw:{seasonMatch, seasonItems}},
+      {idx:8, name:'🌍 조리 스타일', sub:`${cuisineDiv}개 요리 cuisine`, score:cuisineScore, raw:{cuisineDiv, cuisines:[...cuisineSet]}},
+    ],
+    matched: matched.slice(0, 20),
+    totalMenus,
+    ingredients,
+    cuisineSet:[...cuisineSet]
+  };
+}
+
+// 결과 카드 동적 렌더링
+function renderResult(result, ageBand){
+  const g = scoreToGrade(result.total);
+  const ageLabel = {'6-11m':'6-11개월','12-23m':'12-23개월','24-35m':'24-35개월','3-5y':'만 3-5세'}[ageBand];
+
+  // 헤더
+  const card = document.getElementById('shareCard');
+  card.querySelector('.grade').textContent = g.grade;
+  card.querySelector('.grade').style.color = g.color;
+  card.querySelector('.ttl').textContent = '이번 식단 종합';
+  const avg72 = 72;
+  const diff = result.total - avg72;
+  card.querySelector('.sub').textContent = `${result.total}점 (8축 평균) · 전체 평균(${avg72}점) ${diff>=0?'↑':'↓'} ${Math.abs(diff)}`;
+
+  // 8축 막대
+  const axisHtml = result.axes.map(a => {
+    const ag = scoreToGrade(a.score);
+    return `<div class="axis-bar">
+      <span class="nm">${a.idx}. ${a.name}<br><span style="font-size:9.5px;color:var(--n500)">${a.sub}</span></span>
+      <div class="b"><div class="f ${ag.cls}" style="width:${a.score}%"></div></div>
+      <span class="g ${ag.cls}">${ag.grade}</span>
+    </div>`;
+  }).join('');
+  card.innerHTML = `
+    <div class="result-watermark">밀프레드 편식도감</div>
+    <div class="top">
+      <div class="grade" style="color:${g.color};font-size:48px;font-weight:800;line-height:1;letter-spacing:-0.04em">${g.grade}</div>
+      <div class="top-info">
+        <div class="ttl" style="font-size:13px;font-weight:800;color:var(--s800)">이번 식단 종합</div>
+        <div class="sub" style="font-size:11px;color:var(--n500);font-weight:600;margin-top:3px">${result.total}점 (8축 평균) · 전체 평균(${avg72}점) ${diff>=0?'↑':'↓'} ${Math.abs(diff)}</div>
+        <div style="font-size:10px;color:var(--n400);margin-top:2px;font-weight:600">${ageLabel} 기준 · 식재료 ${result.ingredients.length}종 · 메뉴 ${result.totalMenus}건</div>
+      </div>
+    </div>
+    ${axisHtml}
+  `;
+
+  // 강점·주의·보충 동적 생성
+  const strengths = result.axes.filter(a => a.score >= 85).sort((a,b)=>b.score-a.score).slice(0,3);
+  const concerns = result.axes.filter(a => a.score < 75).sort((a,b)=>a.score-b.score).slice(0,3);
+
+  document.getElementById('strengthsList').innerHTML = strengths.length
+    ? strengths.map((a,i) => `<div class="insight-row"><span class="em">${['🥇','🥈','🥉'][i]}</span>${a.name} ${scoreToGrade(a.score).grade} 등급 (${a.sub})</div>`).join('')
+    : '<div class="insight-row"><span class="em">🌱</span>모든 축 개선 여지 있음 — 아래 가이드 참고</div>';
+
+  document.getElementById('concernsList').innerHTML = concerns.length
+    ? concerns.map(a => `<div class="insight-row warn"><span class="em">📉</span>${a.name} ${scoreToGrade(a.score).grade} — ${a.sub}</div>`).join('')
+    : '<div class="insight-row"><span class="em">✨</span>주의할 축 없음 — 모든 영역 양호</div>';
+
+  // 자연어 보충 가이드 생성 (룰 템플릿, LLM 없이도 동적)
+  const guideHtml = generateGuide(result, ageBand);
+  document.getElementById('guideText').innerHTML = guideHtml;
+
+  // 가정 보충 동적
+  const tipsHtml = generateTips(result);
+  document.getElementById('tipsList').innerHTML = tipsHtml;
+
+  // localStorage 이력 저장
+  saveHistory(result, ageBand);
+}
+
+function generateGuide(result, ageBand){
+  const g = scoreToGrade(result.total);
+  const diff = result.total - 72;
+  const strongest = result.axes.reduce((a,b) => a.score>b.score ? a : b);
+  const weakest = result.axes.reduce((a,b) => a.score<b.score ? a : b);
+
+  let s = '';
+  if(diff >= 14) s += `<strong style="color:var(--s800)">이 식단은 한국 평균(72점) 대비 +${diff}점, 상위 25%로 잘 짜여 있어요.</strong> `;
+  else if(diff >= 5) s += `<strong style="color:var(--s800)">이 식단은 한국 평균(72점) 대비 +${diff}점, 평균 이상이에요.</strong> `;
+  else if(diff >= 0) s += `<strong style="color:var(--s800)">이 식단은 한국 평균(72점) 수준이에요.</strong> `;
+  else s += `<strong style="color:var(--s800)">이 식단은 한국 평균(72점)보다 ${Math.abs(diff)}점 낮아요. 가정 보충이 중요해요.</strong> `;
+
+  // 가장 강한 축
+  s += `가장 잘 챙긴 영역은 <strong>${strongest.name}(${scoreToGrade(strongest.score).grade})</strong>이에요. `;
+
+  // 가장 약한 축별 맞춤 조언
+  if(weakest.name === '식품군 다양성'){
+    const missing = weakest.raw.missing.slice(0,2).join('·');
+    s += `가장 보완할 부분은 <strong>다양성 — ${missing} 식품군이 빠져있어요</strong>. 가정에서 한 끼라도 추가하면 +15점 가능. `;
+  } else if(weakest.name === '식감 단계'){
+    if(weakest.raw.pureeChunkPct > 50){
+      s += `가장 보완할 부분은 <strong>식감 — 죽·미음 비중 ${weakest.raw.pureeChunkPct}%</strong>. ${ageBand==='6-11m'?'정상':'당근 스틱·고구마 큐브 같은 핑거푸드'}로 식감 단계를 올려주세요. `;
+    } else {
+      s += `식감은 ${scoreToGrade(weakest.score).grade}이에요. `;
+    }
+  } else if(weakest.name === 'KDRI 36종 영양'){
+    s += `<strong>비타민 D·콜린·EPA+DHA가 KDRI에서 자주 부족한 영양</strong>이라 햇볕 산책 15분, 달걀 노른자 매일, 연어 주 2회로 챙기면 좋아요. `;
+  } else if(weakest.name === '메뉴 반복도'){
+    s += `<strong>메뉴 반복 ${weakest.raw.maxRepeat}회</strong>는 부모님이 다양화 노력해 주세요. 가정에서 새로운 식재료 1-2개 도입 권장. `;
+  } else if(weakest.name === '가공식품 (NOVA)'){
+    s += `<strong>가공식품 비율이 ${weakest.raw.novaPct}%</strong>로 다소 높아요. 자연식 식재료 위주로 가정 보충해주세요. `;
+  } else if(weakest.name === '🌸 제철 식재료'){
+    s += `가장 보완할 부분은 <strong>제철 식재료 — ${new Date().getMonth()+1}월 제철을 더 활용</strong>해주세요. `;
+  } else if(weakest.name === '🌍 조리 스타일'){
+    s += `가장 큰 약점은 <strong>조리 스타일이 ${weakest.raw.cuisineDiv}개 cuisine으로 단조</strong>, 가정에서 <strong>주 1-2회 양식(스파게티·오믈렛) 또는 일식(우동·계란찜)</strong>을 더해주면 +20점 가능해요. `;
+  }
+  s += `밀프레드 앱으로 매일 식단을 기록하면 36 영양 신호등으로 자동 점검 가능합니다.`;
+  return s;
+}
+
+function generateTips(result){
+  const tips = [];
+  const weakest = result.axes.reduce((a,b) => a.score<b.score ? a : b);
+
+  if(weakest.name === '식품군 다양성'){
+    tips.push({em:'🌾', text:`빠진 식품군 → 잡곡·콩·유제품·과일 중 1-2종 추가`});
+  }
+  if(weakest.name === '🌍 조리 스타일'){
+    tips.push({em:'🌍', text:'양식 1회 + 일식 1회 / 주 시도'});
+  }
+  if(weakest.score < 70 && weakest.name.includes('가공')){
+    tips.push({em:'⚠️', text:'가공식품 → 자연 식재료로 대체 (예: 소시지 → 닭고기)'});
+  }
+  // 항상 포함
+  tips.push({em:'🥕', text:'핑거푸드 → 당근·고구마 스틱 / KDRI 부족 영양 → 달걀 노른자 + 연어'});
+
+  return tips.map(t => `<div class="insight-row"><span class="em">${t.em}</span>${t.text}</div>`).join('');
+}
+
+// localStorage 이력 저장
+function saveHistory(result, ageBand){
+  try {
+    const h = JSON.parse(localStorage.getItem('mealfred_eval_history') || '[]');
+    h.unshift({
+      ts: new Date().toISOString(),
+      ageBand,
+      total: result.total,
+      grade: scoreToGrade(result.total).grade,
+      ingredients: result.ingredients.length,
+      menus: result.totalMenus
+    });
+    localStorage.setItem('mealfred_eval_history', JSON.stringify(h.slice(0, 20)));
+  } catch(e) { console.warn('history save failed', e); }
 }
 
 const ANALYZE_STEPS = [
-  '메뉴 인식 중... (OCR)',
-  'WHO 8 식품군 다양성 계산...',
+  '메뉴 파싱 중...',
+  'WHO 8 식품군 + 14 sub 다양성 계산...',
   'KDRI 36종 영양소 매칭...',
   '메뉴 반복도 + 식감 단계 평가...',
+  '제철·NOVA·조리 스타일 평가...',
   '결과 카드 정리 중...'
 ];
 
-function mockUpload(){
+function startAnalysis(){
+  const mode = document.querySelector('.mode-btn.checked').dataset.mode;
+  let text = '';
+  if(mode === 'text'){
+    text = document.getElementById('menuText').value.trim();
+    if(!text){
+      alert('메뉴 텍스트를 입력해주세요!\n\n예시: "월요일: 흰밥, 미역국, 두부조림, 시금치나물..."\n\n또는 📋 사례 ①·② 불러오기 버튼을 눌러보세요.');
+      return;
+    }
+  } else {
+    alert('📌 사진 OCR은 곧 출시 예정이에요.\n\n지금은 ✍️ 메뉴 텍스트 입력 모드를 사용해주세요!');
+    return;
+  }
+
   closeModal('uploadModal');
   document.getElementById('analyzingModal').classList.add('show');
   const fill = document.getElementById('progressFill');
   const msg = document.getElementById('analyzeMsg');
   let step = 0;
   msg.textContent = ANALYZE_STEPS[0];
-  fill.style.width = '20%';
+  fill.style.width = '15%';
   const iv = setInterval(()=>{
     step++;
     if(step >= ANALYZE_STEPS.length){
       clearInterval(iv);
       fill.style.width = '100%';
+      // 실제 평가 알고리즘 실행
+      const result = evaluate(text, selectedAge);
+      console.log('[mealfred] eval result:', result);
+      renderResult(result, selectedAge);
       setTimeout(()=>{
         closeModal('analyzingModal');
         document.getElementById('resultModal').classList.add('show');
@@ -552,8 +969,82 @@ function mockUpload(){
       return;
     }
     msg.textContent = ANALYZE_STEPS[step];
-    fill.style.width = (20 + step*20) + '%';
-  }, 900);
+    fill.style.width = (15 + step*15) + '%';
+  }, 600);
+}
+
+// 샘플 식단 (4월·5월 어린이집 식단 예시)
+const SAMPLE_MENUS = {
+  1: `4월 어린이집 한 달 식단 (만 3-5세)
+1주차
+월: 흰밥, 미역국, 닭고기조림, 시금치나물, 김치, 사과
+화: 잡곡밥, 된장찌개, 두부조림, 콩나물무침, 김, 배
+수: 카레라이스, 미역국, 멸치볶음, 깍두기, 우유
+목: 흰밥, 소고기무국, 계란찜, 시금치나물, 김치, 바나나
+금: 짜장밥, 만두국, 단무지, 콩나물, 사과
+2주차
+월: 흰밥, 미역국, 돈가스, 시금치나물, 김치
+화: 잡곡밥, 김치찌개, 두부조림, 콩나물, 김, 배
+수: 흰밥, 미역국, 닭고기볶음, 시금치나물, 김치, 우유
+목: 흰밥, 미역국, 계란말이, 시금치나물, 김치, 사과
+금: 흰밥, 미역국, 멸치볶음, 시금치, 김, 바나나`,
+  2: `5월 유치원 한 달 식단 (만 3-5세)
+1주차
+월: 잡곡밥(흑미·귀리·수수), 죽순나물, 갈치구이, 시금치무침, 깍두기, 딸기
+화: 흰밥, 새우탕, 두부조림, 근대나물, 김, 사과
+수: 우동, 계란찜, 김치, 단무지, 우유
+목: 잡곡밥(보리·현미·흑미), 된장찌개, 닭고기구이, 양배추쌈, 김치, 바나나
+금: 스파게티(토마토소스), 샐러드, 우유, 키위
+2주차
+월: 흰밥, 미역국, 멸치볶음, 시금치, 김치, 사과
+화: 잡곡밥(수수·차조), 콩나물국, 두부조림, 깻잎무침, 김, 배
+수: 짜장밥, 계란탕, 단무지, 키위
+목: 카레라이스, 양배추샐러드, 우유, 사과
+금: 잡곡밥(귀리·흑미·잡곡), 미역국, 갈치구이, 시금치나물, 김치, 딸기`
+};
+
+function loadSample(n){
+  document.getElementById('menuText').value = SAMPLE_MENUS[n];
+  const ta = document.getElementById('menuText');
+  ta.style.borderColor = '#16A085';
+  setTimeout(()=>{ ta.style.borderColor = '#FFE8D0'; }, 1000);
+}
+
+// PNG 카드 저장 (html2canvas CDN 동적 로드)
+function saveCardPng(){
+  const ensureLib = new Promise((resolve, reject)=>{
+    if(window.html2canvas) return resolve();
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+  ensureLib.then(()=>{
+    const card = document.getElementById('shareCard');
+    window.html2canvas(card, {backgroundColor:'#FFFFFF', scale:2}).then(canvas=>{
+      const link = document.createElement('a');
+      link.download = `mealfred-eval-${new Date().toISOString().slice(0,10)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }).catch(()=>{
+    alert('PNG 저장 라이브러리 로드 실패. 다시 시도해주세요.');
+  });
+}
+
+// 평가 이력 보기
+function showHistory(){
+  const h = JSON.parse(localStorage.getItem('mealfred_eval_history') || '[]');
+  if(h.length === 0){
+    alert('아직 평가 이력이 없어요.\n첫 평가를 받아보세요!');
+    return;
+  }
+  const html = h.map((r, i) => {
+    const date = new Date(r.ts).toLocaleString('ko-KR', {month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+    const ageLabel = {'6-11m':'6-11m','12-23m':'12-23m','24-35m':'24-35m','3-5y':'3-5y'}[r.ageBand] || r.ageBand;
+    return `${i+1}. [${date}] ${r.total}점 (${r.grade}) · ${ageLabel} · 식재료 ${r.ingredients}종 · 메뉴 ${r.menus}건`;
+  }).join('\n');
+  alert(`📜 평가 이력 (최근 ${h.length}건)\n\n${html}\n\n(이력은 이 기기에만 저장돼요)`);
 }
 
 function shareSite(){
