@@ -138,7 +138,7 @@
     <p>학교 급식 + 영유아 빈도 기반 등급화 · 영양·제철·SOS 6단계·레시피·부모 댓글</p>
     <div class="meta">
       <span>🍱 147종 (650종 확장 중)</span>
-      <span>⭐⭐⭐⭐ 초등 필수 21</span>
+      <span>⭐⭐⭐ 필수 10종</span>
       <span>📚 KDRI 2025 학술 근거</span>
     </div>
   </div>
@@ -148,9 +148,9 @@
 <div class="stat-strip">
   <div class="stat-strip-inner">
     <div class="item"><div class="v">147</div><div class="l">현재 등록</div></div>
-    <div class="item"><div class="v">21</div><div class="l">⭐⭐⭐⭐ 초등 필수</div></div>
-    <div class="item"><div class="v">50</div><div class="l">⭐⭐⭐ 초등 권장</div></div>
-    <div class="item"><div class="v">59</div><div class="l">⭐⭐ 영유아 핵심</div></div>
+    <div class="item"><div class="v">10</div><div class="l">⭐⭐⭐ 필수 (초등 전 반드시)</div></div>
+    <div class="item"><div class="v">18</div><div class="l">⭐⭐ 권장 (먹을 줄 알면 좋음)</div></div>
+    <div class="item"><div class="v">7</div><div class="l">🌿 향신료</div></div>
     <div class="item"><div class="v">+50/일</div><div class="l">매일 enrich</div></div>
   </div>
 </div>
@@ -164,10 +164,9 @@
     </div>
     <div class="chip-row">
       <button class="chip active" data-grade="all" onclick="setGradeFilter(this,'all')">전체</button>
-      <button class="chip" data-grade="초등 필수" onclick="setGradeFilter(this,'초등 필수')">⭐⭐⭐⭐ 초등 필수</button>
-      <button class="chip" data-grade="초등 권장" onclick="setGradeFilter(this,'초등 권장')">⭐⭐⭐ 초등 권장</button>
-      <button class="chip" data-grade="영유아 핵심" onclick="setGradeFilter(this,'영유아 핵심')">⭐⭐ 영유아 핵심</button>
-      <button class="chip" data-grade="조미료·향신 (참고)" onclick="setGradeFilter(this,'조미료·향신 (참고)')">🔸 조미료·향신</button>
+      <button class="chip" data-grade="필수" onclick="setGradeFilter(this,'필수')">⭐⭐⭐ 필수</button>
+      <button class="chip" data-grade="권장" onclick="setGradeFilter(this,'권장')">⭐⭐ 권장</button>
+      <button class="chip" data-grade="향신료" onclick="setGradeFilter(this,'향신료')">🌿 향신료</button>
     </div>
     <div class="chip-row" style="margin-top:6px">
       <button class="chip active" data-cat="all" onclick="setCatFilter(this,'all')">모든 카테고리</button>
@@ -251,23 +250,24 @@ function filterAndRender(){
 
   const grid = document.getElementById('ingGrid');
   grid.innerHTML = filtered.map((p, i) => {
-    const gradeClass = p.grade_label === '초등 필수' ? 'g4'
-                     : p.grade_label === '초등 권장' ? 'g3'
-                     : p.grade_label === '영유아 핵심' ? 'g2'
-                     : 'gc';
+    const gradeClass = p.grade_label === '필수' ? 'g4'
+                     : p.grade_label === '권장' ? 'g3'
+                     : p.grade_label === '향신료' ? 'gc'
+                     : 'g2';  // 라벨 없음
     // 이모지가 비어있으면 카드를 더 텍스트 중심으로 (placeholder 카테고리 라벨)
     const hasEmoji = p.em && p.em.trim();
     return `
       <div class="ing-card ${gradeClass} ${hasEmoji?'':'no-emoji'}" onclick="showIngredient(${i})" data-idx="${i}">
-        <div class="grade-corner">${p.grade}</div>
+        ${p.grade ? `<div class="grade-corner">${p.grade}</div>` : ''}
+        ${p.warning ? `<div style="position:absolute;top:8px;left:8px;font-size:11px;font-weight:800;color:#C62828" title="${p.warning}">⚠</div>` : ''}
         ${hasEmoji
           ? `<div class="emoji">${p.em}</div>`
           : `<div class="emoji-placeholder">${p.cat.replace('_','·').split('·')[0]}</div>`
         }
         <div class="nm">${p.nm}</div>
         <div class="cat">${p.cat.replace('_','·')}</div>
-        <div class="grade-label">${p.grade_label}</div>
-        <div class="stat-mini">급식 ${p.elem_count} · 영유아 ${p.infant_count}</div>
+        ${p.grade_label ? `<div class="grade-label">${p.grade_label}</div>` : '<div style="height:18px"></div>'}
+        <div class="stat-mini">급식 ${p.v4_freq_total || p.elem_count} · v4 ${p.v4_score?p.v4_score.toFixed(1):'—'}</div>
       </div>`;
   }).join('');
   // 데이터를 카드에 저장 (showIngredient에서 사용)

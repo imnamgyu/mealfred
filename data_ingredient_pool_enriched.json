@@ -4,10 +4,10 @@
     "graded_count": 130,
     "condiments_count": 17,
     "grade_distribution": {
-      "초등 필수": 21,
-      "초등 권장": 50,
-      "영유아 핵심": 59,
-      "조미료·향신 (참고)": 17
+      "필수": 10,
+      "(라벨X)": 112,
+      "권장": 18,
+      "향신료": 7
     },
     "source": "아동기 3,397 + 영유아 1,035 레시피 빈도 (영유아 가중 0.3, 향신·조미료 제외)",
     "date": "2026-05-25",
@@ -37,7 +37,17 @@
       "vitD_ug"
     ],
     "emoji_audit": "2026-05-25 — 정확한 1:1 매핑만 유지, 애매한 식재료는 빈 문자열",
-    "category_fix": "다시마/미역=해조류, 파·대파·부추=기타채소, 김치=발효식품 등 보정"
+    "category_fix": "다시마/미역=해조류, 파·대파·부추=기타채소, 김치=발효식품 등 보정",
+    "grade_legend": {
+      "필수": "초등학교 입학 전에 반드시 먹어놓아야 할 식재료 (학교 급식 가장 자주 등장)",
+      "권장": "먹을 줄 알면 좋은 식재료 (급식에 자주 등장)",
+      "향신료": "향신·양념 식재료 (평가 외)"
+    },
+    "relabel_at": "2026-05-25 — 빈도 기반 정직한 라벨 (영유아 핵심 → 급식 가끔)",
+    "relabel_v2": "2026-05-25 — 3단계 체계 (필수/권장/향신료) + 나머지 라벨 X",
+    "v4_master": "식재료_랭킹_마스터_v4.xlsx (영양·안전·빈도 통합 Must-Eat 점수)",
+    "v4_matched": 88,
+    "v4_relabel_at": "2026-05-25 — v4 기준 S=필수·A=권장·B/C/D=라벨X"
   },
   "pool": [
     {
@@ -48,8 +58,8 @@
       "elem_count": 634,
       "infant_count": 186,
       "score": 689.8,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "⭐⭐⭐",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 33.0,
         "water_g": 90.7,
@@ -73,7 +83,13 @@
       },
       "nong_name": "당근, 뿌리, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 62.3,
+      "v4_rank": 2,
+      "v4_freq_total": 539,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심"
     },
     {
       "nm": "멸치",
@@ -83,8 +99,8 @@
       "elem_count": 539,
       "infant_count": 145,
       "score": 582.5,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "⭐⭐⭐",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 127.0,
         "water_g": 73.4,
@@ -100,7 +116,14 @@
       },
       "nong_name": "멸치, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 66.4,
+      "v4_rank": 1,
+      "v4_freq_total": 450,
+      "v4_safety": "🚨 위험",
+      "v4_reason": "급식 핵심 · 필수 카테고리 · 고단백 · 고칼슘 · 고철분 · 비타민D · ⚠ 🚨 나트륨 위험",
+      "warning": "🚨 위험"
     },
     {
       "nm": "참깨",
@@ -110,8 +133,8 @@
       "elem_count": 488,
       "infant_count": 125,
       "score": 525.5,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 549.0,
         "water_g": 2.7,
@@ -145,8 +168,8 @@
       "elem_count": 404,
       "infant_count": 97,
       "score": 433.1,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 366.0,
         "water_g": 13.2,
@@ -170,7 +193,13 @@
       },
       "nong_name": "멥쌀, 백미, 생것",
       "nong_group": "곡류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 51.5,
+      "v4_rank": 45,
+      "v4_freq_total": 330,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심"
     },
     {
       "nm": "달걀",
@@ -180,8 +209,8 @@
       "elem_count": 349,
       "infant_count": 94,
       "score": 377.2,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 140.0,
         "water_g": 76.7,
@@ -205,7 +234,14 @@
       },
       "nong_name": "달걀, 생것",
       "nong_group": "난류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 54.9,
+      "v4_rank": 26,
+      "v4_freq_total": 307,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "급식 핵심 · 비타민D · ⚠ ⚠ 포화지방 주의",
+      "warning": "⚠ 주의"
     },
     {
       "nm": "밀",
@@ -215,8 +251,8 @@
       "elem_count": 349,
       "infant_count": 91,
       "score": 376.3,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 333.0,
         "water_g": 10.6,
@@ -233,7 +269,13 @@
       },
       "nong_name": "밀, 도정, 생것",
       "nong_group": "곡류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 56.6,
+      "v4_rank": 15,
+      "v4_freq_total": 264,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심 · 고철분"
     },
     {
       "nm": "두부",
@@ -243,8 +285,8 @@
       "elem_count": 235,
       "infant_count": 80,
       "score": 259.0,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 97.0,
         "water_g": 81.2,
@@ -268,7 +310,13 @@
       },
       "nong_name": "두부",
       "nong_group": "두류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 58.1,
+      "v4_rank": 12,
+      "v4_freq_total": 212,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심 · 고칼슘"
     },
     {
       "nm": "다시마",
@@ -278,8 +326,8 @@
       "elem_count": 236,
       "infant_count": 55,
       "score": 252.5,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 12.0,
         "water_g": 91.0,
@@ -296,7 +344,14 @@
       },
       "nong_name": "다시마, 생것",
       "nong_group": "해조류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 52.8,
+      "v4_rank": 36,
+      "v4_freq_total": 189,
+      "v4_safety": "🚨🚨 매우 위험",
+      "v4_reason": "급식 핵심 · 필수 카테고리 · 고칼슘 · 고철분 · ⚠ 🚨🚨 요오드 매우위험 / 🚨🚨 나트륨 매우위험",
+      "warning": "🚨🚨 매우 위험"
     },
     {
       "nm": "소고기",
@@ -306,8 +361,8 @@
       "elem_count": 217,
       "infant_count": 58,
       "score": 234.4,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 268.0,
         "water_g": 59.93,
@@ -330,7 +385,14 @@
       },
       "nong_name": "소고기, 수입산, 목심(목심살), 생것",
       "nong_group": "육류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 50.6,
+      "v4_rank": 52,
+      "v4_freq_total": 182,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "급식 핵심 · 고단백 · 고철분 · ⚠ ⚠ 포화지방 주의",
+      "warning": "⚠ 주의"
     },
     {
       "nm": "돼지고기",
@@ -340,8 +402,8 @@
       "elem_count": 196,
       "infant_count": 61,
       "score": 214.3,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 203.0,
         "water_g": 66.5,
@@ -365,7 +427,14 @@
       },
       "nong_name": "돼지고기, 살코기, 생것",
       "nong_group": "육류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 49.4,
+      "v4_rank": 59,
+      "v4_freq_total": 183,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "급식 핵심 · 고단백 · ⚠ ⚠ 포화지방 주의",
+      "warning": "⚠ 주의"
     },
     {
       "nm": "무",
@@ -375,8 +444,8 @@
       "elem_count": 195,
       "infant_count": 60,
       "score": 213.0,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "⭐⭐⭐",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 21.0,
         "water_g": 93.8,
@@ -400,7 +469,13 @@
       },
       "nong_name": "무, 조선무, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 60.7,
+      "v4_rank": 4,
+      "v4_freq_total": 163,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심 · 카테고리 내 희소"
     },
     {
       "nm": "닭고기",
@@ -410,8 +485,8 @@
       "elem_count": 158,
       "infant_count": 56,
       "score": 174.8,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 115.0,
         "water_g": 73.1,
@@ -428,7 +503,13 @@
       },
       "nong_name": "닭고기, 살코기, 생것",
       "nong_group": "육류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 50.8,
+      "v4_rank": 49,
+      "v4_freq_total": 150,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심 · 고단백"
     },
     {
       "nm": "호박",
@@ -438,8 +519,8 @@
       "elem_count": 159,
       "infant_count": 41,
       "score": 171.3,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 45.0,
         "water_g": 84.1,
@@ -463,7 +544,13 @@
       },
       "nong_name": "호박, 잎, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 48.8,
+      "v4_rank": 62,
+      "v4_freq_total": 132,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심"
     },
     {
       "nm": "애호박",
@@ -473,8 +560,8 @@
       "elem_count": 159,
       "infant_count": 5,
       "score": 160.5,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 22.0,
         "water_g": 93.1,
@@ -508,8 +595,8 @@
       "elem_count": 139,
       "infant_count": 64,
       "score": 158.2,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "⭐⭐⭐",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 67.0,
         "water_g": 81.9,
@@ -533,7 +620,13 @@
       },
       "nong_name": "감자, 대지, 생것",
       "nong_group": "감자류 및 전분류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 60.5,
+      "v4_rank": 5,
+      "v4_freq_total": 134,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심 · 카테고리 내 희소"
     },
     {
       "nm": "오이",
@@ -543,8 +636,8 @@
       "elem_count": 121,
       "infant_count": 27,
       "score": 129.1,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 13.0,
         "water_g": 95.7,
@@ -561,7 +654,13 @@
       },
       "nong_name": "오이, 겨울살이청장, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 49,
+      "v4_rank": 61,
+      "v4_freq_total": 94,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "—"
     },
     {
       "nm": "새우",
@@ -571,8 +670,8 @@
       "elem_count": 110,
       "infant_count": 28,
       "score": 118.4,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 71.0,
         "water_g": 81.7,
@@ -588,7 +687,13 @@
       },
       "nong_name": "새우, 가시발새우, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 51.3,
+      "v4_rank": 46,
+      "v4_freq_total": 96,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "고단백 · 비타민D"
     },
     {
       "nm": "빵",
@@ -598,8 +703,8 @@
       "elem_count": 99,
       "infant_count": 30,
       "score": 108.0,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 263.0,
         "water_g": 35.7,
@@ -627,8 +732,8 @@
       "elem_count": 97,
       "infant_count": 29,
       "score": 105.7,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 29.0,
         "water_g": 91.0,
@@ -652,7 +757,13 @@
       },
       "nong_name": "양배추, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 52.3,
+      "v4_rank": 38,
+      "v4_freq_total": 85,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "우유",
@@ -662,8 +773,8 @@
       "elem_count": 90,
       "infant_count": 41,
       "score": 102.3,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 67.0,
         "water_g": 87.6,
@@ -687,7 +798,14 @@
       },
       "nong_name": "우유",
       "nong_group": "우유 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 43.2,
+      "v4_rank": 80,
+      "v4_freq_total": 91,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "고칼슘 · ⚠ ⚠ 포화지방 주의",
+      "warning": "⚠ 주의"
     },
     {
       "nm": "김",
@@ -697,8 +815,8 @@
       "elem_count": 91,
       "infant_count": 23,
       "score": 97.9,
-      "grade": "⭐⭐⭐⭐",
-      "grade_label": "초등 필수",
+      "grade": "⭐⭐⭐",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 12.0,
         "water_g": 90.5,
@@ -713,7 +831,14 @@
       },
       "nong_name": "김, 참김, 생것",
       "nong_group": "해조류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 61.7,
+      "v4_rank": 3,
+      "v4_freq_total": 82,
+      "v4_safety": "⚠⚠ 경계",
+      "v4_reason": "필수 카테고리 · 고칼슘 · 고철분 · ⚠ ⚠⚠ 요오드 경계 / ⚠ 나트륨 주의",
+      "warning": "⚠⚠ 경계"
     },
     {
       "nm": "김치",
@@ -723,8 +848,8 @@
       "elem_count": 92,
       "infant_count": 17,
       "score": 97.1,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 37.0,
         "water_g": 86.4,
@@ -758,8 +883,8 @@
       "elem_count": 89,
       "infant_count": 17,
       "score": 94.1,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 213.0,
         "water_g": 46.4,
@@ -793,8 +918,8 @@
       "elem_count": 83,
       "infant_count": 26,
       "score": 90.8,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 356.0,
         "water_g": 41.46,
@@ -818,7 +943,14 @@
       },
       "nong_name": "치즈, 고다",
       "nong_group": "우유 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 49.2,
+      "v4_rank": 60,
+      "v4_freq_total": 80,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "고단백 · 고칼슘 · ⚠ ⚠ 나트륨 주의 / ⚠ 포화지방 다량",
+      "warning": "⚠ 주의"
     },
     {
       "nm": "오징어",
@@ -828,8 +960,8 @@
       "elem_count": 76,
       "infant_count": 21,
       "score": 82.3,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 94.0,
         "water_g": 78.3,
@@ -852,7 +984,13 @@
       },
       "nong_name": "오징어, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 52,
+      "v4_rank": 40,
+      "v4_freq_total": 66,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "고단백"
     },
     {
       "nm": "들깨",
@@ -862,8 +1000,8 @@
       "elem_count": 76,
       "infant_count": 20,
       "score": 82.0,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 17.0,
         "water_g": 95.1,
@@ -888,8 +1026,8 @@
       "elem_count": 75,
       "infant_count": 15,
       "score": 79.5,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 15.0,
         "water_g": 91.9,
@@ -913,7 +1051,13 @@
       },
       "nong_name": "느타리버섯, 생것",
       "nong_group": "버섯류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 42.3,
+      "v4_rank": 82,
+      "v4_freq_total": 56,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "배추",
@@ -923,8 +1067,8 @@
       "elem_count": 67,
       "infant_count": 21,
       "score": 73.3,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 63.0,
         "water_g": 86.3,
@@ -942,7 +1086,13 @@
       },
       "nong_name": "배추, 싹, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 55.8,
+      "v4_rank": 19,
+      "v4_freq_total": 57,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "숙주나물",
@@ -952,8 +1102,8 @@
       "elem_count": 61,
       "infant_count": 21,
       "score": 67.3,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 13.0,
         "water_g": 95.6,
@@ -977,7 +1127,13 @@
       },
       "nong_name": "숙주나물, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 48.2,
+      "v4_rank": 64,
+      "v4_freq_total": 53,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "어묵",
@@ -987,8 +1143,8 @@
       "elem_count": 61,
       "infant_count": 16,
       "score": 65.8,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 169.0,
         "water_g": 61.1,
@@ -1022,8 +1178,8 @@
       "elem_count": 56,
       "infant_count": 16,
       "score": 60.8,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 43.0,
         "water_g": 90.1,
@@ -1047,7 +1203,13 @@
       },
       "nong_name": "콩나물, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 50.2,
+      "v4_rank": 55,
+      "v4_freq_total": 50,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "미역",
@@ -1057,8 +1219,8 @@
       "elem_count": 54,
       "infant_count": 12,
       "score": 57.6,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 12.0,
         "water_g": 91.2,
@@ -1081,7 +1243,14 @@
       },
       "nong_name": "미역, 생것",
       "nong_group": "해조류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 54.2,
+      "v4_rank": 31,
+      "v4_freq_total": 40,
+      "v4_safety": "🚨🚨 매우 위험",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고칼슘 · 고철분 · ⚠ 🚨🚨 요오드 매우위험 / 🚨 나트륨 위험",
+      "warning": "🚨🚨 매우 위험"
     },
     {
       "nm": "시금치",
@@ -1092,7 +1261,7 @@
       "infant_count": 20,
       "score": 56.0,
       "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 29.0,
         "water_g": 89.6,
@@ -1116,7 +1285,13 @@
       },
       "nong_name": "시금치, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 58.6,
+      "v4_rank": 9,
+      "v4_freq_total": 46,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 고철분"
     },
     {
       "nm": "고구마",
@@ -1126,8 +1301,8 @@
       "elem_count": 47,
       "infant_count": 29,
       "score": 55.7,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 147.0,
         "water_g": 62.2,
@@ -1151,7 +1326,13 @@
       },
       "nong_name": "고구마, 생것",
       "nong_group": "감자류 및 전분류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 56,
+      "v4_rank": 18,
+      "v4_freq_total": 47,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "국수",
@@ -1161,8 +1342,8 @@
       "elem_count": 52,
       "infant_count": 9,
       "score": 54.7,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 291.0,
         "water_g": 30.5,
@@ -1196,8 +1377,8 @@
       "elem_count": 50,
       "infant_count": 14,
       "score": 54.2,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 22.0,
         "water_g": 88.8,
@@ -1221,7 +1402,13 @@
       },
       "nong_name": "표고버섯, 배지재배, 생것",
       "nong_group": "버섯류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 44.3,
+      "v4_rank": 75,
+      "v4_freq_total": 39,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 비타민D"
     },
     {
       "nm": "상추",
@@ -1231,8 +1418,8 @@
       "elem_count": 49,
       "infant_count": 13,
       "score": 52.9,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 20.0,
         "water_g": 92.9,
@@ -1256,7 +1443,13 @@
       },
       "nong_name": "상추, 잎상추, 치마상추, 녹색, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 56.5,
+      "v4_rank": 16,
+      "v4_freq_total": 42,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "게맛살",
@@ -1266,8 +1459,8 @@
       "elem_count": 49,
       "infant_count": 11,
       "score": 52.3,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 119.0,
         "water_g": 69.2,
@@ -1302,7 +1495,7 @@
       "infant_count": 10,
       "score": 52.0,
       "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 80.0,
         "water_g": 80.3,
@@ -1319,7 +1512,13 @@
       },
       "nong_name": "명태, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 58.5,
+      "v4_rank": 10,
+      "v4_freq_total": 36,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고단백 · 비타민D"
     },
     {
       "nm": "햄",
@@ -1329,8 +1528,8 @@
       "elem_count": 49,
       "infant_count": 4,
       "score": 50.2,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 121.0,
         "water_g": 71.2,
@@ -1364,8 +1563,8 @@
       "elem_count": 41,
       "infant_count": 24,
       "score": 48.2,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 52.0,
         "water_g": 85.5,
@@ -1389,7 +1588,13 @@
       },
       "nong_name": "사과, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 37.2,
+      "v4_rank": 102,
+      "v4_freq_total": 38,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "—"
     },
     {
       "nm": "팽이버섯",
@@ -1399,8 +1604,8 @@
       "elem_count": 45,
       "infant_count": 10,
       "score": 48.0,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 21.0,
         "water_g": 89.0,
@@ -1424,7 +1629,13 @@
       },
       "nong_name": "팽이버섯, 생것",
       "nong_group": "버섯류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 44.7,
+      "v4_rank": 74,
+      "v4_freq_total": 34,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "쑥갓",
@@ -1434,8 +1645,8 @@
       "elem_count": 43,
       "infant_count": 8,
       "score": 45.4,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 15.0,
         "water_g": 94.6,
@@ -1459,7 +1670,13 @@
       },
       "nong_name": "쑥갓, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 58.1,
+      "v4_rank": 13,
+      "v4_freq_total": 30,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 고철분"
     },
     {
       "nm": "토마토",
@@ -1469,8 +1686,8 @@
       "elem_count": 39,
       "infant_count": 16,
       "score": 43.8,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 19.0,
         "water_g": 94.2,
@@ -1494,7 +1711,13 @@
       },
       "nong_name": "토마토, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 50.1,
+      "v4_rank": 56,
+      "v4_freq_total": 41,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "양상추",
@@ -1504,8 +1727,8 @@
       "elem_count": 40,
       "infant_count": 12,
       "score": 43.6,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 14.0,
         "water_g": 95.6,
@@ -1529,7 +1752,13 @@
       },
       "nong_name": "상추, 결구(양상추), 녹색, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 54.7,
+      "v4_rank": 27,
+      "v4_freq_total": 38,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "만두",
@@ -1539,8 +1768,8 @@
       "elem_count": 40,
       "infant_count": 9,
       "score": 42.7,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 223.0,
         "water_g": 55.1,
@@ -1574,8 +1803,8 @@
       "elem_count": 39,
       "infant_count": 11,
       "score": 42.3,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -1588,8 +1817,8 @@
       "elem_count": 39,
       "infant_count": 7,
       "score": 41.1,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -1602,8 +1831,8 @@
       "elem_count": 38,
       "infant_count": 8,
       "score": 40.4,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 117.0,
         "water_g": 58.3,
@@ -1637,8 +1866,8 @@
       "elem_count": 37,
       "infant_count": 9,
       "score": 39.7,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 118.0,
         "water_g": 70.4,
@@ -1662,7 +1891,13 @@
       },
       "nong_name": "옥수수, 단옥수수, 생것",
       "nong_group": "곡류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 48.6,
+      "v4_rank": 63,
+      "v4_freq_total": 27,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "찹쌀",
@@ -1672,8 +1907,8 @@
       "elem_count": 35,
       "infant_count": 14,
       "score": 39.2,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 364.0,
         "water_g": 13.6,
@@ -1697,7 +1932,13 @@
       },
       "nong_name": "찹쌀, 백미, 생것",
       "nong_group": "곡류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 50.4,
+      "v4_rank": 54,
+      "v4_freq_total": 34,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "양송이버섯",
@@ -1707,8 +1948,8 @@
       "elem_count": 35,
       "infant_count": 14,
       "score": 39.2,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 15.0,
         "water_g": 91.9,
@@ -1732,7 +1973,13 @@
       },
       "nong_name": "양송이버섯, 생것",
       "nong_group": "버섯류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 44.1,
+      "v4_rank": 76,
+      "v4_freq_total": 35,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "버터",
@@ -1742,8 +1989,8 @@
       "elem_count": 29,
       "infant_count": 21,
       "score": 35.3,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 760.0,
         "water_g": 15.3,
@@ -1777,8 +2024,8 @@
       "elem_count": 32,
       "infant_count": 11,
       "score": 35.3,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 148.0,
         "water_g": 63.2,
@@ -1812,8 +2059,8 @@
       "elem_count": 6,
       "infant_count": 97,
       "score": 35.099999999999994,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -1826,8 +2073,8 @@
       "elem_count": 32,
       "infant_count": 10,
       "score": 35.0,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 16.0,
         "water_g": 94.2,
@@ -1851,7 +2098,13 @@
       },
       "nong_name": "미나리, 돌미나리, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 57,
+      "v4_rank": 14,
+      "v4_freq_total": 29,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "연근",
@@ -1861,8 +2114,8 @@
       "elem_count": 32,
       "infant_count": 10,
       "score": 35.0,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 75.0,
         "water_g": 80.0,
@@ -1886,7 +2139,13 @@
       },
       "nong_name": "연근, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 53.2,
+      "v4_rank": 34,
+      "v4_freq_total": 28,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "큰느타리버섯(새송이버섯)",
@@ -1896,8 +2155,8 @@
       "elem_count": 33,
       "infant_count": 4,
       "score": 34.2,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 20.0,
         "water_g": 89.6,
@@ -1931,8 +2190,8 @@
       "elem_count": 30,
       "infant_count": 8,
       "score": 32.4,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 19.0,
         "water_g": 93.9,
@@ -1956,7 +2215,13 @@
       },
       "nong_name": "가지, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 48.1,
+      "v4_rank": 65,
+      "v4_freq_total": 24,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "토마토 소스",
@@ -1966,8 +2231,8 @@
       "elem_count": 30,
       "infant_count": 6,
       "score": 31.8,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 41.0,
         "water_g": 87.1,
@@ -1996,8 +2261,8 @@
       "elem_count": 28,
       "infant_count": 7,
       "score": 30.1,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 69.0,
         "water_g": 81.0,
@@ -2021,7 +2286,13 @@
       },
       "nong_name": "우엉, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 49.9,
+      "v4_rank": 57,
+      "v4_freq_total": 20,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "딸기",
@@ -2031,8 +2302,8 @@
       "elem_count": 27,
       "infant_count": 10,
       "score": 30.0,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 33.0,
         "water_g": 90.6,
@@ -2056,7 +2327,13 @@
       },
       "nong_name": "딸기, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 40,
+      "v4_rank": 94,
+      "v4_freq_total": 32,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "—"
     },
     {
       "nm": "요구르트",
@@ -2066,8 +2343,8 @@
       "elem_count": 25,
       "infant_count": 16,
       "score": 29.8,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 65.0,
         "water_g": 83.2,
@@ -2101,8 +2378,8 @@
       "elem_count": 27,
       "infant_count": 9,
       "score": 29.7,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 57.0,
         "water_g": 83.8,
@@ -2126,7 +2403,13 @@
       },
       "nong_name": "포도, 거봉, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 39.9,
+      "v4_rank": 95,
+      "v4_freq_total": 23,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "—"
     },
     {
       "nm": "크림",
@@ -2136,8 +2419,8 @@
       "elem_count": 24,
       "infant_count": 16,
       "score": 28.8,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 368.0,
         "water_g": 54.9,
@@ -2171,8 +2454,8 @@
       "elem_count": 26,
       "infant_count": 7,
       "score": 28.1,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 74.0,
         "water_g": 80.4,
@@ -2195,7 +2478,13 @@
       },
       "nong_name": "바지락, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 52.7,
+      "v4_rank": 37,
+      "v4_freq_total": 23,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소 · 고철분"
     },
     {
       "nm": "단무지",
@@ -2205,8 +2494,8 @@
       "elem_count": 10,
       "infant_count": 60,
       "score": 28.0,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 12.0,
         "water_g": 95.4,
@@ -2240,8 +2529,8 @@
       "elem_count": 25,
       "infant_count": 7,
       "score": 27.1,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 27.0,
         "water_g": 94.5,
@@ -2265,7 +2554,13 @@
       },
       "nong_name": "아몬드 음료",
       "nong_group": "음료류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 43.8,
+      "v4_rank": 78,
+      "v4_freq_total": 20,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "고단백 · 고칼슘 · 고철분"
     },
     {
       "nm": "새우젓",
@@ -2275,8 +2570,8 @@
       "elem_count": 23,
       "infant_count": 8,
       "score": 25.4,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -2289,8 +2584,8 @@
       "elem_count": 23,
       "infant_count": 7,
       "score": 25.1,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 18.0,
         "water_g": 93.0,
@@ -2314,7 +2609,13 @@
       },
       "nong_name": "근대, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 56.2,
+      "v4_rank": 17,
+      "v4_freq_total": 19,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소"
     },
     {
       "nm": "게걸무",
@@ -2324,8 +2625,8 @@
       "elem_count": 7,
       "infant_count": 60,
       "score": 25.0,
-      "grade": "⭐⭐⭐",
-      "grade_label": "초등 권장",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 57.0,
         "water_g": 83.5,
@@ -2359,8 +2660,8 @@
       "elem_count": 22,
       "infant_count": 8,
       "score": 24.4,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 82.0,
         "water_g": 79.7,
@@ -2373,7 +2674,13 @@
       },
       "nong_name": "담치, 참담치(홍합), 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 53.1,
+      "v4_rank": 35,
+      "v4_freq_total": 18,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소 · 고철분"
     },
     {
       "nm": "호두",
@@ -2383,8 +2690,8 @@
       "elem_count": 22,
       "infant_count": 4,
       "score": 23.2,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 688.0,
         "water_g": 2.9,
@@ -2408,7 +2715,13 @@
       },
       "nong_name": "호두, 말린것",
       "nong_group": "견과류 및 종실류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 43.4,
+      "v4_rank": 79,
+      "v4_freq_total": 17,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "고단백 · 고철분"
     },
     {
       "nm": "청경채",
@@ -2419,7 +2732,7 @@
       "infant_count": 7,
       "score": 23.1,
       "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 10.0,
         "water_g": 95.9,
@@ -2443,7 +2756,13 @@
       },
       "nong_name": "청경채, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 55.3,
+      "v4_rank": 23,
+      "v4_freq_total": 17,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고칼슘"
     },
     {
       "nm": "땅콩",
@@ -2453,8 +2772,8 @@
       "elem_count": 21,
       "infant_count": 7,
       "score": 23.1,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 658.0,
         "water_g": 0.3,
@@ -2478,7 +2797,13 @@
       },
       "nong_name": "땅콩 버터",
       "nong_group": "유지류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 45.9,
+      "v4_rank": 72,
+      "v4_freq_total": 16,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "고단백 · 고철분"
     },
     {
       "nm": "메추리알",
@@ -2488,8 +2813,8 @@
       "elem_count": 20,
       "infant_count": 8,
       "score": 22.4,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 146.0,
         "water_g": 75.4,
@@ -2513,7 +2838,14 @@
       },
       "nong_name": "메추리알, 생것",
       "nong_group": "난류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 49.5,
+      "v4_rank": 58,
+      "v4_freq_total": 15,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "카테고리 내 희소 · 고철분 · 비타민D · ⚠ ⚠ 포화지방 주의 / ⚠ 콜레스테롤 다량",
+      "warning": "⚠ 주의"
     },
     {
       "nm": "가자미",
@@ -2523,8 +2855,8 @@
       "elem_count": 20,
       "infant_count": 8,
       "score": 22.4,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 129.0,
         "water_g": 72.3,
@@ -2541,7 +2873,13 @@
       },
       "nong_name": "가자미, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 54.5,
+      "v4_rank": 29,
+      "v4_freq_total": 16,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고단백 · 비타민D"
     },
     {
       "nm": "대구",
@@ -2552,7 +2890,7 @@
       "infant_count": 8,
       "score": 22.4,
       "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 86.0,
         "water_g": 78.6,
@@ -2568,7 +2906,17 @@
       },
       "nong_name": "대구, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 54.7,
+      "v4_rank": 28,
+      "v4_freq_total": 19,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고단백 · 비타민D",
+      "mercury": {
+        "level": "low",
+        "guide": "주 3~4회 가능"
+      }
     },
     {
       "nm": "삼치",
@@ -2579,7 +2927,7 @@
       "infant_count": 7,
       "score": 22.1,
       "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 112.0,
         "water_g": 76.0,
@@ -2602,7 +2950,17 @@
       },
       "nong_name": "삼치, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 55.7,
+      "v4_rank": 21,
+      "v4_freq_total": 18,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고단백 · 비타민D",
+      "mercury": {
+        "level": "low",
+        "guide": "주 3~4회 가능"
+      }
     },
     {
       "nm": "무시래기",
@@ -2612,8 +2970,8 @@
       "elem_count": 21,
       "infant_count": 3,
       "score": 21.9,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -2626,8 +2984,8 @@
       "elem_count": 19,
       "infant_count": 6,
       "score": 20.8,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 117.0,
         "water_g": 76.8,
@@ -2651,7 +3009,14 @@
       },
       "nong_name": "오리고기, 살코기, 생것",
       "nong_group": "육류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 47.2,
+      "v4_rank": 68,
+      "v4_freq_total": 17,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "카테고리 내 희소 · 고단백 · 고철분 · ⚠ ⚠ 포화지방 주의",
+      "warning": "⚠ 주의"
     },
     {
       "nm": "아욱",
@@ -2662,7 +3027,7 @@
       "infant_count": 9,
       "score": 20.7,
       "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 37.0,
         "water_g": 87.4,
@@ -2686,7 +3051,13 @@
       },
       "nong_name": "아욱, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 55.7,
+      "v4_rank": 20,
+      "v4_freq_total": 18,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고칼슘"
     },
     {
       "nm": "고등어",
@@ -2697,7 +3068,7 @@
       "infant_count": 8,
       "score": 20.4,
       "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 183.0,
         "water_g": 68.1,
@@ -2714,7 +3085,18 @@
       },
       "nong_name": "고등어, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 55.4,
+      "v4_rank": 22,
+      "v4_freq_total": 17,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고단백 · 비타민D · ⚠ ⚠ 포화지방 주의",
+      "warning": "⚠ 주의",
+      "mercury": {
+        "level": "low",
+        "guide": "주 3~4회 가능"
+      }
     },
     {
       "nm": "소시지",
@@ -2724,8 +3106,8 @@
       "elem_count": 19,
       "infant_count": 1,
       "score": 19.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 467.0,
         "water_g": 23.5,
@@ -2758,11 +3140,14 @@
       "elem_count": 18,
       "infant_count": 3,
       "score": 18.9,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "⭐⭐⭐",
+      "grade_label": "필수",
       "nutri": null,
       "nong_name": null,
-      "source": "unmatched"
+      "source": "unmatched",
+      "v4_grade": "S",
+      "v4_score": 59.1,
+      "v4_reason": "급식 핵심 · 카테고리 내 희소"
     },
     {
       "nm": "베이컨",
@@ -2772,8 +3157,8 @@
       "elem_count": 16,
       "infant_count": 7,
       "score": 18.1,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 266.0,
         "water_g": 58.5,
@@ -2807,8 +3192,8 @@
       "elem_count": 14,
       "infant_count": 10,
       "score": 17.0,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 45.0,
         "water_g": 86.9,
@@ -2832,7 +3217,13 @@
       },
       "nong_name": "배, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 40.4,
+      "v4_rank": 91,
+      "v4_freq_total": 16,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "—"
     },
     {
       "nm": "바나나",
@@ -2842,8 +3233,8 @@
       "elem_count": 11,
       "infant_count": 10,
       "score": 14.0,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 77.0,
         "water_g": 78.0,
@@ -2867,7 +3258,13 @@
       },
       "nong_name": "바나나, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 40.5,
+      "v4_rank": 88,
+      "v4_freq_total": 11,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "갈치",
@@ -2877,8 +3274,8 @@
       "elem_count": 12,
       "infant_count": 5,
       "score": 13.5,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 149.0,
         "water_g": 72.7,
@@ -2895,7 +3292,18 @@
       },
       "nong_name": "갈치, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 50.8,
+      "v4_rank": 50,
+      "v4_freq_total": 10,
+      "v4_safety": "⚠ 주의",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고단백 · 비타민D · ⚠ ⚠ 수은 주의 (주 2회 이하) / ⚠ 포화지방 주의",
+      "warning": "⚠ 주의",
+      "mercury": {
+        "level": "medium",
+        "guide": "주 2회 이하, 1회 60g 이하"
+      }
     },
     {
       "nm": "얼갈이배추",
@@ -2905,8 +3313,8 @@
       "elem_count": 11,
       "infant_count": 7,
       "score": 13.1,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 14.0,
         "water_g": 95.1,
@@ -2930,7 +3338,13 @@
       },
       "nong_name": "배추, 얼갈이배추, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 54.2,
+      "v4_rank": 32,
+      "v4_freq_total": 14,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소"
     },
     {
       "nm": "보리",
@@ -2940,8 +3354,8 @@
       "elem_count": 12,
       "infant_count": 2,
       "score": 12.6,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 349.0,
         "water_g": 11.8,
@@ -2965,7 +3379,13 @@
       },
       "nong_name": "보리, 겉보리, 도정, 생것",
       "nong_group": "곡류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 45.7,
+      "v4_rank": 73,
+      "v4_freq_total": 9,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소 · 고철분"
     },
     {
       "nm": "열무",
@@ -2975,8 +3395,8 @@
       "elem_count": 12,
       "infant_count": 1,
       "score": 12.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 14.0,
         "water_g": 94.8,
@@ -3010,8 +3430,8 @@
       "elem_count": 11,
       "infant_count": 2,
       "score": 11.6,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 56.0,
         "water_g": 83.0,
@@ -3035,7 +3455,13 @@
       },
       "nong_name": "달래, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 53.4,
+      "v4_rank": 33,
+      "v4_freq_total": 9,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고칼슘 · 고철분"
     },
     {
       "nm": "매생이",
@@ -3045,8 +3471,8 @@
       "elem_count": 11,
       "infant_count": 1,
       "score": 11.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 39.0,
         "water_g": 84.3,
@@ -3079,8 +3505,8 @@
       "elem_count": 11,
       "infant_count": 1,
       "score": 11.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 36.0,
         "water_g": 89.6,
@@ -3104,7 +3530,13 @@
       },
       "nong_name": "레몬, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 40.4,
+      "v4_rank": 92,
+      "v4_freq_total": 7,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "도라지",
@@ -3114,8 +3546,8 @@
       "elem_count": 10,
       "infant_count": 4,
       "score": 11.2,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 65.0,
         "water_g": 82.0,
@@ -3139,7 +3571,13 @@
       },
       "nong_name": "도라지, 뿌리, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 46.2,
+      "v4_rank": 71,
+      "v4_freq_total": 9,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "참외",
@@ -3149,8 +3587,8 @@
       "elem_count": 10,
       "infant_count": 3,
       "score": 10.9,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 40.0,
         "water_g": 88.1,
@@ -3174,7 +3612,13 @@
       },
       "nong_name": "참외, 생것, 씨 제거",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 40.5,
+      "v4_rank": 89,
+      "v4_freq_total": 8,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "키위",
@@ -3184,8 +3628,8 @@
       "elem_count": 9,
       "infant_count": 6,
       "score": 10.8,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 55.0,
         "water_g": 84.3,
@@ -3209,7 +3653,13 @@
       },
       "nong_name": "키위, 골드, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 41.6,
+      "v4_rank": 84,
+      "v4_freq_total": 11,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "조개",
@@ -3219,8 +3669,8 @@
       "elem_count": 10,
       "infant_count": 1,
       "score": 10.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 77.0,
         "water_g": 79.9,
@@ -3236,7 +3686,13 @@
       },
       "nong_name": "조개, 가무락조개, 생것",
       "nong_group": "어패류 및 그 제품",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 47.3,
+      "v4_rank": 67,
+      "v4_freq_total": 7,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소 · 고철분"
     },
     {
       "nm": "찹쌀떡",
@@ -3246,8 +3702,8 @@
       "elem_count": 10,
       "infant_count": 1,
       "score": 10.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 241.0,
         "water_g": 39.4,
@@ -3281,8 +3737,8 @@
       "elem_count": 9,
       "infant_count": 4,
       "score": 10.2,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 48.0,
         "water_g": 86.7,
@@ -3306,7 +3762,13 @@
       },
       "nong_name": "귤, 만감류, 레드향, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 40.7,
+      "v4_rank": 87,
+      "v4_freq_total": 9,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "시리얼",
@@ -3316,8 +3778,8 @@
       "elem_count": 9,
       "infant_count": 3,
       "score": 9.9,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 390.0,
         "water_g": 2.1,
@@ -3351,8 +3813,8 @@
       "elem_count": 8,
       "infant_count": 1,
       "score": 8.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 77.0,
         "water_g": 80.6,
@@ -3385,8 +3847,8 @@
       "elem_count": 8,
       "infant_count": 0,
       "score": 8.0,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 37.0,
         "water_g": 87.7,
@@ -3420,8 +3882,8 @@
       "elem_count": 7,
       "infant_count": 1,
       "score": 7.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 73.0,
         "water_g": 80.7,
@@ -3453,8 +3915,8 @@
       "elem_count": 6,
       "infant_count": 4,
       "score": 7.2,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 43.0,
         "water_g": 88.1,
@@ -3478,7 +3940,13 @@
       },
       "nong_name": "블루베리, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 39.1,
+      "v4_rank": 99,
+      "v4_freq_total": 7,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "레몬 과즙",
@@ -3488,8 +3956,8 @@
       "elem_count": 6,
       "infant_count": 3,
       "score": 6.9,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -3502,8 +3970,8 @@
       "elem_count": 6,
       "infant_count": 2,
       "score": 6.6,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 37.0,
         "water_g": 87.3,
@@ -3527,7 +3995,13 @@
       },
       "nong_name": "쑥, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 51.8,
+      "v4_rank": 43,
+      "v4_freq_total": 5,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고철분"
     },
     {
       "nm": "메밀 국수",
@@ -3537,8 +4011,8 @@
       "elem_count": 6,
       "infant_count": 1,
       "score": 6.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 291.0,
         "water_g": 28.8,
@@ -3572,8 +4046,8 @@
       "elem_count": 5,
       "infant_count": 4,
       "score": 6.2,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 39.0,
         "water_g": 86.7,
@@ -3590,7 +4064,13 @@
       },
       "nong_name": "참나물, 야생, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 52.2,
+      "v4_rank": 39,
+      "v4_freq_total": 7,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고칼슘"
     },
     {
       "nm": "멸치 육수",
@@ -3600,8 +4080,8 @@
       "elem_count": 5,
       "infant_count": 1,
       "score": 5.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 1.0,
         "water_g": 99.5,
@@ -3635,8 +4115,8 @@
       "elem_count": 4,
       "infant_count": 2,
       "score": 4.6,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 57.0,
         "water_g": 84.1,
@@ -3660,7 +4140,13 @@
       },
       "nong_name": "감, 단감, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 37.4,
+      "v4_rank": 100,
+      "v4_freq_total": 4,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "대구 튀김",
@@ -3670,8 +4156,8 @@
       "elem_count": 4,
       "infant_count": 2,
       "score": 4.6,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 106.0,
         "water_g": 80.5,
@@ -3698,8 +4184,8 @@
       "elem_count": 4,
       "infant_count": 2,
       "score": 4.6,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 30.0,
         "water_g": 91.4,
@@ -3723,7 +4209,13 @@
       },
       "nong_name": "수박, 적육질, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 37,
+      "v4_rank": 103,
+      "v4_freq_total": 4,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "호박고지",
@@ -3733,8 +4225,8 @@
       "elem_count": 4,
       "infant_count": 2,
       "score": 4.6,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -3747,8 +4239,8 @@
       "elem_count": 4,
       "infant_count": 2,
       "score": 4.6,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 80.0,
         "water_g": 78.7,
@@ -3772,7 +4264,13 @@
       },
       "nong_name": "더덕, 뿌리, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 42.3,
+      "v4_rank": 83,
+      "v4_freq_total": 5,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "배추김치",
@@ -3782,8 +4280,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -3796,8 +4294,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 920.0,
         "water_g": 0.0,
@@ -3831,8 +4329,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 589.0,
         "water_g": 4.4,
@@ -3866,8 +4364,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 20.0,
         "water_g": 94.8,
@@ -3901,8 +4399,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 401.0,
         "water_g": 10.5,
@@ -3926,7 +4424,13 @@
       },
       "nong_name": "대두, 검은색, 서리태, 말린것",
       "nong_group": "두류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 51.8,
+      "v4_rank": 44,
+      "v4_freq_total": 2,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고단백 · 고칼슘 · 고철분"
     },
     {
       "nm": "멜론",
@@ -3936,8 +4440,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 36.0,
         "water_g": 89.7,
@@ -3971,8 +4475,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 27.0,
         "water_g": 91.6,
@@ -3996,7 +4500,13 @@
       },
       "nong_name": "순무, 전체, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 40.5,
+      "v4_rank": 90,
+      "v4_freq_total": 4,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "멥쌀밥",
@@ -4006,8 +4516,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 373.0,
         "water_g": 10.9,
@@ -4034,8 +4544,8 @@
       "elem_count": 4,
       "infant_count": 1,
       "score": 4.3,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 49.0,
         "water_g": 85.8,
@@ -4059,7 +4569,13 @@
       },
       "nong_name": "복숭아, 백도, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 35.9,
+      "v4_rank": 105,
+      "v4_freq_total": 3,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "호밀빵",
@@ -4069,8 +4585,8 @@
       "elem_count": 2,
       "infant_count": 3,
       "score": 2.9,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 285.0,
         "water_g": 33.3,
@@ -4104,8 +4620,8 @@
       "elem_count": 2,
       "infant_count": 3,
       "score": 2.9,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 47.0,
         "water_g": 86.5,
@@ -4129,7 +4645,13 @@
       },
       "nong_name": "오렌지, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 35.7,
+      "v4_rank": 108,
+      "v4_freq_total": 2,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "쌀 (백미",
@@ -4139,8 +4661,8 @@
       "elem_count": 0,
       "infant_count": 8,
       "score": 2.4,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -4153,8 +4675,8 @@
       "elem_count": 0,
       "infant_count": 5,
       "score": 1.5,
-      "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade": "",
+      "grade_label": "",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -4168,10 +4690,13 @@
       "infant_count": 5,
       "score": 1.5,
       "grade": "⭐⭐",
-      "grade_label": "영유아 핵심",
+      "grade_label": "권장",
       "nutri": null,
       "nong_name": null,
-      "source": "unmatched"
+      "source": "unmatched",
+      "v4_grade": "A",
+      "v4_score": 54.9,
+      "v4_reason": "완전 단백질"
     },
     {
       "nm": "마늘",
@@ -4181,8 +4706,8 @@
       "elem_count": 1947,
       "infant_count": 566,
       "score": 2116.8,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 128.0,
         "water_g": 64.8,
@@ -4216,8 +4741,8 @@
       "elem_count": 1595,
       "infant_count": 439,
       "score": 1726.7,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 29.0,
         "water_g": 91.4,
@@ -4244,8 +4769,8 @@
       "elem_count": 876,
       "infant_count": 232,
       "score": 945.6,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "⭐⭐⭐",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 29.0,
         "water_g": 92.0,
@@ -4269,7 +4794,13 @@
       },
       "nong_name": "양파, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 58.9,
+      "v4_rank": 8,
+      "v4_freq_total": 744,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "급식 핵심"
     },
     {
       "nm": "파프리카",
@@ -4279,8 +4810,8 @@
       "elem_count": 154,
       "infant_count": 42,
       "score": 166.6,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 22.0,
         "water_g": 93.5,
@@ -4304,7 +4835,13 @@
       },
       "nong_name": "파프리카, 노란색, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 51.3,
+      "v4_rank": 47,
+      "v4_freq_total": 94,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "—"
     },
     {
       "nm": "피망",
@@ -4314,8 +4851,8 @@
       "elem_count": 99,
       "infant_count": 29,
       "score": 107.7,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 28.0,
         "water_g": 91.2,
@@ -4339,7 +4876,13 @@
       },
       "nong_name": "피망, 빨간색, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "B",
+      "v4_score": 51,
+      "v4_rank": 48,
+      "v4_freq_total": 75,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "—"
     },
     {
       "nm": "부추",
@@ -4349,8 +4892,8 @@
       "elem_count": 80,
       "infant_count": 19,
       "score": 85.7,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 46.0,
         "water_g": 86.1,
@@ -4367,7 +4910,13 @@
       },
       "nong_name": "부추, 두메부추, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 55.2,
+      "v4_rank": 24,
+      "v4_freq_total": 66,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리"
     },
     {
       "nm": "들깻잎",
@@ -4377,8 +4926,8 @@
       "elem_count": 65,
       "infant_count": 20,
       "score": 71.0,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "⭐⭐⭐",
+      "grade_label": "필수",
       "nutri": {
         "energy_kcal": 38.0,
         "water_g": 87.2,
@@ -4402,7 +4951,13 @@
       },
       "nong_name": "들깻잎, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "S",
+      "v4_score": 58.3,
+      "v4_rank": 11,
+      "v4_freq_total": 59,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "필수 카테고리 · 고칼슘 · 고철분"
     },
     {
       "nm": "생강",
@@ -4413,7 +4968,7 @@
       "infant_count": 28,
       "score": 51.4,
       "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade_label": "향신료",
       "nutri": {
         "energy_kcal": 42.0,
         "water_g": 88.2,
@@ -4448,7 +5003,7 @@
       "infant_count": 12,
       "score": 40.6,
       "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade_label": "향신료",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -4461,8 +5016,8 @@
       "elem_count": 24,
       "infant_count": 1,
       "score": 24.3,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "",
+      "grade_label": "향신료",
       "nutri": {
         "energy_kcal": 85.0,
         "water_g": 77.4,
@@ -4486,7 +5041,13 @@
       },
       "nong_name": "고추, 빨간색, 생것",
       "nong_group": "채소류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "C",
+      "v4_score": 46.9,
+      "v4_rank": 70,
+      "v4_freq_total": 12,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "마늘 페이스트",
@@ -4497,7 +5058,7 @@
       "infant_count": 5,
       "score": 16.5,
       "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade_label": "향신료",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -4511,7 +5072,7 @@
       "infant_count": 4,
       "score": 17.2,
       "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade_label": "향신료",
       "nutri": {
         "energy_kcal": 20.0,
         "water_g": 92.6,
@@ -4545,8 +5106,8 @@
       "elem_count": 13,
       "infant_count": 5,
       "score": 14.5,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "⭐⭐",
+      "grade_label": "권장",
       "nutri": {
         "energy_kcal": 11.0,
         "water_g": 93.8,
@@ -4569,7 +5130,14 @@
       },
       "nong_name": "파래, 생것",
       "nong_group": "해조류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "A",
+      "v4_score": 55.1,
+      "v4_rank": 25,
+      "v4_freq_total": 11,
+      "v4_safety": "🚨 위험",
+      "v4_reason": "필수 카테고리 · 카테고리 내 희소 · 고단백 · 고칼슘 · 고철분 · ⚠ 🚨 요오드 위험 / 🚨 나트륨 위험",
+      "warning": "🚨 위험"
     },
     {
       "nm": "마늘종",
@@ -4579,8 +5147,8 @@
       "elem_count": 15,
       "infant_count": 1,
       "score": 15.3,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 53.0,
         "water_g": 84.1,
@@ -4615,7 +5183,7 @@
       "infant_count": 11,
       "score": 27.3,
       "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade_label": "향신료",
       "nutri": null,
       "nong_name": null,
       "source": "unmatched"
@@ -4628,8 +5196,8 @@
       "elem_count": 5,
       "infant_count": 2,
       "score": 5.6,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "",
+      "grade_label": "향신료",
       "nutri": {
         "energy_kcal": 53.0,
         "water_g": 85.1,
@@ -4653,7 +5221,13 @@
       },
       "nong_name": "파인애플, 생것",
       "nong_group": "과일류",
-      "source": "농진청 v10.4"
+      "source": "농진청 v10.4",
+      "v4_grade": "D",
+      "v4_score": 39.7,
+      "v4_rank": 97,
+      "v4_freq_total": 6,
+      "v4_safety": "✅ 안전",
+      "v4_reason": "카테고리 내 희소"
     },
     {
       "nm": "대파",
@@ -4663,8 +5237,8 @@
       "elem_count": 1595,
       "infant_count": 6,
       "score": 1596.8,
-      "grade": "🔸",
-      "grade_label": "조미료·향신 (참고)",
+      "grade": "",
+      "grade_label": "",
       "nutri": {
         "energy_kcal": 23.0,
         "water_g": 92.8,
