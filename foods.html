@@ -214,11 +214,13 @@ let gradeFilter = 'all';
 let catFilter = 'all';
 let searchQuery = '';
 
-// 데이터 로드
-fetch('data_ingredient_pool_graded.json')
-  .then(r => r.json())
-  .then(d => { pool = d.pool; filterAndRender(); })
-  .catch(() => console.error('데이터 로드 실패'));
+// 데이터 로드 — 농진청 v10.4 영양 매핑된 enriched 우선, fallback 기본
+fetch('data_ingredient_pool_enriched.json')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(d => { pool = d.pool; filterAndRender(); console.log('[foods] enriched 농진청 v10.4 로드:', d.meta.matched, '/', d.meta.total, '매칭'); })
+  .catch(() => {
+    fetch('data_ingredient_pool_graded.json').then(r=>r.json()).then(d=>{ pool=d.pool; filterAndRender(); console.warn('[foods] fallback graded 사용 — enriched 없음'); });
+  });
 
 function setGradeFilter(el, g){
   document.querySelectorAll('[data-grade]').forEach(x => x.classList.remove('active'));
@@ -267,16 +269,53 @@ function filterAndRender(){
 
 const SOS_STEPS = ['👀 보기','✋ 만지기','👃 냄새','👅 핥기','🦷 씹기','🍽 삼키기'];
 
-// Mock 영양 데이터 — M2 마일스톤에서 농진청 국가표준식품성분표 v10.0 (https://koreanfood.rda.go.kr/) 매핑으로 교체
-// 출처: 농촌진흥청 국립농업과학원(NIAS) · 약 3,300+ 식품 · 145 영양 성분 · 무료 CSV·Excel
-// 진행: 다음 세션 M2 시작 시 147종 풀 매핑 → ingredients 테이블 seed → M3에서 매일 +50종 enrich
-const NUTRI_MOCK = {
-  '시금치': [{n:'철', s:3, note:'결핍 위험 보충'},{n:'엽산', s:3, note:'150μg DFE'},{n:'비타민 K', s:2, note:''}],
-  '당근': [{n:'비타민 A', s:3, note:'250μg RAE 거의 충족'},{n:'식이섬유', s:2, note:''}],
-  '두부': [{n:'단백질', s:3, note:'양질 식물 단백'},{n:'칼슘', s:2, note:''},{n:'콜린', s:2, note:'2025 신규'}],
-  '달걀': [{n:'콜린 🆕', s:3, note:'노른자 110mg (RNI 160 中 69%)'},{n:'단백질', s:3, note:''},{n:'비타민 D', s:2, note:''}],
-  '고등어': [{n:'EPA+DHA', s:3, note:'150mg/일 충족'},{n:'비타민 D', s:3, note:''},{n:'단백질', s:2, note:''}],
+// ━━━ 농진청 v10.4 영양 매핑 ━━━
+// 식재료 nutri는 enriched JSON의 nutri 객체에서 자동 계산 (100g 당)
+// 출처: 농촌진흥청 국가표준식품성분 Database v10.4 (https://koreanfood.rda.go.kr/)
+
+// KDRI 2025 만 1-2세 RNI/AI (보건복지부 한국인 영양소 섭취기준)
+const KDRI_1_2Y = {
+  energy_kcal: 900, protein_g: 15, fat_g: 30, carb_g: 130, fiber_g: 15,
+  calcium_mg: 500, iron_mg: 6, magnesium_mg: 70, phosphorus_mg: 460,
+  potassium_mg: 1900, sodium_mg: 810, zinc_mg: 3, selenium_ug: 25,
+  vitA_ug: 250, vitD_ug: 5, vitC_mg: 35, vitB12_ug: 0.9,
 };
+// 표시명·단위·강조 (한국어 + 2025 신규 표시)
+const NUTRI_LABELS = {
+  energy_kcal:['에너지','kcal',false], protein_g:['단백질','g',false],
+  calcium_mg:['칼슘','mg',false], iron_mg:['철','mg',false],
+  zinc_mg:['아연','mg',false], magnesium_mg:['마그네슘','mg',false],
+  potassium_mg:['칼륨','mg',false],
+  vitA_ug:['비타민 A','μg',false], vitD_ug:['비타민 D','μg',false],
+  vitC_mg:['비타민 C','mg',false], vitB12_ug:['비타민 B12','μg',false],
+  fiber_g:['식이섬유','g',false], selenium_ug:['셀레늄','μg',false],
+  phosphorus_mg:['인','mg',false], fat_g:['지방','g',false],
+};
+// 100g 당 RNI 충족도 → 별 (룰베이스, Cat A)
+function nutriToStars(value, rni){
+  const pct = (value / rni) * 100;
+  if(pct >= 30) return {s:3, pct:Math.round(pct), label:'한 끼로 충분'};
+  if(pct >= 15) return {s:2, pct:Math.round(pct), label:'보통 보충'};
+  if(pct >= 5)  return {s:1, pct:Math.round(pct), label:'소량 함유'};
+  return null;  // 무의미한 양은 표시 안 함
+}
+// 식재료 → 표시용 영양 array (의미 있는 것 상위 7개)
+function buildNutriDisplay(p){
+  if(!p.nutri) return null;
+  const items = [];
+  Object.entries(p.nutri).forEach(([key, value])=>{
+    const rni = KDRI_1_2Y[key];
+    const label = NUTRI_LABELS[key];
+    if(!rni || !label || value == null) return;
+    const star = nutriToStars(value, rni);
+    if(!star) return;
+    items.push({
+      key, name:label[0], unit:label[1], value, ...star
+    });
+  });
+  // 높은 충족도 순 + 상위 7개
+  return items.sort((a,b)=>b.pct-a.pct).slice(0, 7);
+}
 
 const COMMENTS_MOCK = {
   '시금치': [{w:'👩 지우 엄마', b:'우유 섞으니까 의외로 잘 먹어요! 죽 마지막에 조금만', l:23},{w:'👨 민준 아빠', b:'김 가루 트릭 효과 봤어요. 색감만 가리면 OK', l:18}],
@@ -286,7 +325,8 @@ const COMMENTS_MOCK = {
 
 function showIngredient(idx){
   const p = window._filtered[idx];
-  const nutri = NUTRI_MOCK[p.nm] || [{n:'영양 데이터', s:0, note:'enrich 대기 — 농진청 매핑 진행 중'}];
+  // ★ 농진청 v10.4 실제 영양 데이터 사용 (enriched JSON)
+  const nutriDisplay = buildNutriDisplay(p);
   const comments = COMMENTS_MOCK[p.nm] || [];
 
   document.getElementById('modalContent').innerHTML = `
@@ -312,15 +352,21 @@ function showIngredient(idx){
       </div>
 
       <div class="mod-section">
-        <div class="lbl">━ 🧬 KDRI 36 영양 매핑 (만 1-2세) ━</div>
-        ${nutri.map(n => `
+        <div class="lbl">━ 🧬 KDRI 영양 매핑 (만 1-2세 RNI/AI · 100g 당) ━</div>
+        ${nutriDisplay && nutriDisplay.length ? nutriDisplay.map(n => `
           <div class="nutri-row">
-            <span class="nm">${n.n}</span>
+            <span class="nm">${n.name}</span>
             <span class="stars">${'★'.repeat(n.s)}${'☆'.repeat(3-n.s)}</span>
-            <span class="note">${n.note}</span>
+            <span class="note">${n.value}${n.unit} · RNI ${n.pct}% · ${n.label}</span>
           </div>
-        `).join('')}
-        <p style="margin-top:8px;font-size:10.5px;color:var(--n500)">💡 데이터 enrich 진행 중 — 농진청 국가표준식품성분표 v10.0 매핑 (M2 마일스톤, 2026년 6월 초 완료 예정)</p>
+        `).join('') : `
+          <div class="nutri-row">
+            <span class="nm">영양 데이터</span>
+            <span class="stars">☆☆☆</span>
+            <span class="note">농진청 미매핑 — alias 보정 예정</span>
+          </div>
+        `}
+        <p style="margin-top:8px;font-size:10.5px;color:var(--n500)">${p.nong_name ? `📊 출처: 농진청 v10.4 「${p.nong_name}」 · KDRI 2025 만 1-2세 권장량 대비 % 자동 계산` : '💡 enrich 대기 (15종 미매칭 식재료, M2 alias 보정 예정)'}</p>
       </div>
 
       <div class="mod-section">
