@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* ━━━━━━━━ MEALFRED DESIGN TOKENS v3 ━━━━━━━━
+   메인 사이트(mealfred.com) 정합 — 베이지·피치·오렌지 표준
+   상세: deploy/design-spec.html
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root{
+  /* Hero·배경 베이지 */
+  --bg-warm-0:#FFF5EB; --bg-warm-1:#FFE8D0; --bg-warm-2:#FFDBB8; --bg-warm-3:#FFD0A0;
+  --bg-soft:#FFFBF5; --bg-soft-2:#FFF9F3; --bg-page:#FAFAF7;
+  /* 오렌지 액센트 (CTA·강조 전용) */
+  --orange-main:#FF6B1A; --orange-soft:#FF8A47; --orange-deep:#C45A00; --orange-deeper:#E65100;
+  /* 네이비 (heading 텍스트 전용) */
+  --navy-deep:#0F1D35; --navy:#1a2b4a;
+  /* 브라운 (body 텍스트) */
+  --brown-deep:#3a2a1a; --brown-mid:#5a4a3a; --brown-soft:#8a7a6a;
+  /* Status */
+  --st-safety:#E65100; --st-edu:#FF6B1A; --st-delivery:#1565C0; --st-eco:#2D8B4E; --st-warning:#F9A825;
+  /* Grade */
+  --gradeS:#1B5E20; --gradeA:#16A085; --gradeB:#F9A825; --gradeC:#E67E22; --gradeD:#C62828;
+  /* Neutral */
+  --n50:#FAFAFA; --n100:#F4F4F5; --n200:#E5E7EB; --n300:#D1D5DB;
+  --n400:#9CA3AF; --n500:#6B7280; --n600:#4B5563; --n700:#374151; --n900:#111827;
+  /* Footer (유일 다크 — 다크 브라운, 네이비 X) */
+  --footer-bg:#2A2016;
+}
+
+@theme inline {
+  --color-bg-warm-0: var(--bg-warm-0);
+  --color-bg-warm-1: var(--bg-warm-1);
+  --color-bg-warm-2: var(--bg-warm-2);
+  --color-bg-warm-3: var(--bg-warm-3);
+  --color-bg-soft: var(--bg-soft);
+  --color-bg-page: var(--bg-page);
+  --color-orange-main: var(--orange-main);
+  --color-orange-soft: var(--orange-soft);
+  --color-orange-deep: var(--orange-deep);
+  --color-navy: var(--navy);
+  --color-navy-deep: var(--navy-deep);
+  --color-brown-deep: var(--brown-deep);
+  --color-brown-mid: var(--brown-mid);
+  --color-brown-soft: var(--brown-soft);
+  --color-grade-s: var(--gradeS);
+  --color-grade-a: var(--gradeA);
+  --color-grade-b: var(--gradeB);
+  --color-grade-c: var(--gradeC);
+  --color-grade-d: var(--gradeD);
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+}
+
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
+}
+
+body{
+  background: var(--bg-page);
+  color: var(--navy);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ━━━ Hero 표준 ━━━ */
+.hero{
+  background: linear-gradient(160deg, #FFF5EB 0%, #FFE8D0 40%, #FFDBB8 70%, #FFD0A0 100%);
+  color: var(--brown-deep);
+  padding: 64px 24px 44px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before{
+  content:''; position:absolute; top:-40%; left:-40%;
+  width:180%; height:180%;
+  background:
+    radial-gradient(circle at 30% 70%, rgba(255,120,50,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 70% 20%, rgba(255,255,255,0.3) 0%, transparent 50%);
+  pointer-events: none;
+}
+.hero h1{ color: var(--navy); }
+.hero p{ color: var(--brown-mid); }
+.hero p strong{ color: var(--orange-deep); }
