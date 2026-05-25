@@ -10,6 +10,10 @@ const BASE = 'https://www.mealfred.com';
 export default function sitemap(): MetadataRoute.Sitemap {
   const pool = loadPool();
   const now = new Date();
+  const cats = Array.from(new Set(pool.map((p) => p.cat).filter(Boolean)));
+  const grades = ['필수', '권장', '향신료'];
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+
   return [
     { url: `${BASE}/foods`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
     ...pool.map((p) => ({
@@ -17,6 +21,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: p.grade_label === '필수' ? 0.9 : p.grade_label === '권장' ? 0.8 : 0.6,
+    })),
+    ...grades.map((g) => ({
+      url: `${BASE}/foods/grade/${encodeURIComponent(g)}`,
+      lastModified: now, changeFrequency: 'weekly' as const, priority: 0.85,
+    })),
+    ...cats.map((c) => ({
+      url: `${BASE}/foods/category/${encodeURIComponent(c!)}`,
+      lastModified: now, changeFrequency: 'weekly' as const, priority: 0.75,
+    })),
+    ...months.map((m) => ({
+      url: `${BASE}/foods/season/${m}`,
+      lastModified: now, changeFrequency: 'monthly' as const, priority: 0.7,
     })),
   ];
 }
