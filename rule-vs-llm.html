@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 — 룰 vs LLM 결정 매트릭스 (어디서 어디까지 LLM 쓸까)</title>
+<meta property="og:title" content="밀프레드 룰 vs LLM 매트릭스 — 기능별 결정 정합">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB;--bg-warm-1:#FFE8D0;--bg-warm-2:#FFDBB8;--bg-warm-3:#FFD0A0;
+    --bg-soft:#FFFBF5;--bg-soft-2:#FFF9F3;--bg-page:#FAFAF7;
+    --orange-main:#FF6B1A;--orange-soft:#FF8A47;--orange-deep:#C45A00;--orange-deeper:#E65100;
+    --navy:#1a2b4a;--navy-deep:#0F1D35;
+    --brown-deep:#3a2a1a;--brown-mid:#5a4a3a;--brown-soft:#8a7a6a;
+    --cat-a:#16A085; --cat-a-bg:#E8F5E9;    /* Pure Rule */
+    --cat-b:#F9A825; --cat-b-bg:#FFF8E1;    /* Rule + LLM Narration */
+    --cat-c:#9C27B0; --cat-c-bg:#F3E5F5;    /* LLM-Primary */
+    --card-border:#FFE8D0;
+    --r:14px; --r-sm:8px; --r-lg:20px; --r-pill:100px;
+    --shadow-sm:0 2px 16px rgba(0,0,0,0.05);
+    --shadow:0 4px 20px rgba(0,0,0,0.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:var(--bg-page);color:var(--navy);line-height:1.75;-webkit-font-smoothing:antialiased}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--bg-soft);padding:1px 6px;border-radius:4px;color:var(--orange-deep)}
+
+  /* HERO (design-spec v3 표준) */
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;padding:60px 24px 44px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
+  .hero-inner{max-width:760px;margin:0 auto;position:relative;z-index:1}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25);backdrop-filter:blur(6px)}
+  .hero h1{font-size:32px;font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.25;margin-bottom:12px}
+  .hero h1 .accent{color:var(--orange-soft)}
+  .hero p{font-size:14.5px;color:var(--brown-mid);max-width:640px;margin:0 auto;font-weight:500;line-height:1.75}
+  .hero .meta{display:flex;justify-content:center;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .hero .meta span{background:rgba(255,255,255,0.6);color:var(--orange-deep);padding:5px 12px;border-radius:100px;font-size:11px;font-weight:700;border:1px solid rgba(255,107,26,0.15);backdrop-filter:blur(6px)}
+
+  /* TOC */
+  .toc{background:white;border-bottom:1px solid var(--card-border);padding:14px 24px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1100px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--brown-mid);font-weight:700;padding:6px 11px;border-radius:var(--r-pill);background:var(--bg-soft);text-decoration:none;flex-shrink:0;border:1px solid transparent}
+  .toc a:hover{background:var(--orange-main);color:white;border-color:var(--orange-main)}
+
+  main{max-width:1100px;margin:0 auto;padding:24px}
+  section{margin-bottom:50px;scroll-margin-top:60px}
+  .stag{display:inline-block;font-size:11px;color:var(--orange-deep);font-weight:800;letter-spacing:0.08em;margin-bottom:8px}
+  h2{font-size:24px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:14px;padding:12px 16px;background:linear-gradient(135deg,#FFFBF5,#FFF3E8);border-left:6px solid var(--orange-main);border-radius:0 var(--r) var(--r) 0}
+  h3{font-size:17px;font-weight:800;color:var(--navy);margin:18px 0 10px;padding-left:10px;border-left:4px solid var(--orange-soft)}
+  h4{font-size:14px;font-weight:800;color:var(--navy);margin:14px 0 6px}
+  p{font-size:14px;color:var(--brown-mid);font-weight:500;margin-bottom:10px}
+  ul,ol{margin:8px 0 14px 22px}
+  li{font-size:13.5px;color:var(--brown-mid);margin-bottom:5px;line-height:1.75}
+  strong{color:var(--navy);font-weight:700}
+
+  /* 3 카테고리 카드 */
+  .cat-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+  .cat-card{background:white;border:2px solid var(--card-border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm)}
+  .cat-card.a{border-color:var(--cat-a);background:linear-gradient(180deg,var(--cat-a-bg) 0%,white 25%)}
+  .cat-card.b{border-color:var(--cat-b);background:linear-gradient(180deg,var(--cat-b-bg) 0%,white 25%)}
+  .cat-card.c{border-color:var(--cat-c);background:linear-gradient(180deg,var(--cat-c-bg) 0%,white 25%)}
+  .cat-card .id{display:inline-block;padding:4px 10px;border-radius:var(--r-pill);font-size:11px;font-weight:800;letter-spacing:0.05em;margin-bottom:8px;color:white}
+  .cat-card.a .id{background:var(--cat-a)}
+  .cat-card.b .id{background:var(--cat-b)}
+  .cat-card.c .id{background:var(--cat-c)}
+  .cat-card h4{font-size:15px;margin-bottom:6px}
+  .cat-card .one{font-size:12.5px;color:var(--brown-mid);font-weight:600;line-height:1.6;margin-bottom:10px}
+  .cat-card .stat{font-size:11.5px;color:var(--orange-deep);font-weight:700;margin-top:6px}
+
+  @media(max-width:780px){.cat-3{grid-template-columns:1fr}}
+
+  /* 결정 트리 */
+  .mermaid-wrap{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:18px;margin:14px 0;overflow-x:auto;box-shadow:var(--shadow-sm)}
+  .mermaid{text-align:center;min-width:600px}
+
+  /* 매트릭스 표 */
+  table.matrix{width:100%;border-collapse:collapse;font-size:12.5px;background:white;border-radius:var(--r);overflow:hidden;border:1px solid var(--card-border);margin:10px 0;box-shadow:var(--shadow-sm)}
+  table.matrix th{background:var(--navy);color:white;padding:10px 12px;text-align:left;font-size:11px;font-weight:800;letter-spacing:0.03em}
+  table.matrix th.cat{text-align:center;width:90px}
+  table.matrix td{padding:9px 12px;border-bottom:1px solid var(--bg-soft);vertical-align:top;color:var(--brown-mid)}
+  table.matrix td.feat{font-weight:700;color:var(--navy)}
+  table.matrix td.cat{text-align:center;font-weight:800;letter-spacing:0.05em}
+  table.matrix td.cat-a{background:var(--cat-a-bg);color:var(--cat-a)}
+  table.matrix td.cat-b{background:var(--cat-b-bg);color:#F57F17}
+  table.matrix td.cat-c{background:var(--cat-c-bg);color:var(--cat-c)}
+  table.matrix tr:last-child td{border-bottom:none}
+  table.matrix td.model{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--orange-deep)}
+
+  /* 카테고리 detail 카드 */
+  .detail-card{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:18px;margin-bottom:14px;box-shadow:var(--shadow-sm)}
+  .detail-card.a{border-left:5px solid var(--cat-a)}
+  .detail-card.b{border-left:5px solid var(--cat-b)}
+  .detail-card.c{border-left:5px solid var(--cat-c)}
+
+  /* 비교 박스 */
+  .compare-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0}
+  .compare-box{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:14px}
+  .compare-box.bad{border:2px solid #C62828;opacity:0.95}
+  .compare-box.good{border:2px solid var(--cat-a)}
+  .compare-box .lbl{display:inline-block;font-size:10px;font-weight:800;padding:3px 8px;border-radius:var(--r-pill);margin-bottom:8px}
+  .compare-box.bad .lbl{background:#FFEBEE;color:#C62828}
+  .compare-box.good .lbl{background:var(--cat-a-bg);color:var(--cat-a)}
+  .compare-box .ex{background:var(--bg-soft);border-radius:var(--r-sm);padding:10px 12px;margin-top:6px;font-size:12px;color:var(--brown-mid);font-weight:600;line-height:1.6}
+
+  @media(max-width:600px){.compare-2{grid-template-columns:1fr}}
+
+  /* 비용 표 */
+  .cost-table{width:100%;border-collapse:collapse;font-size:12.5px;background:white;border-radius:var(--r);overflow:hidden;border:1px solid var(--card-border);margin:10px 0}
+  .cost-table th{background:var(--orange-main);color:white;padding:10px;text-align:left;font-size:11px;font-weight:800}
+  .cost-table td{padding:9px 12px;border-bottom:1px solid var(--bg-soft);vertical-align:top}
+  .cost-table td.num{text-align:right;font-family:ui-monospace,Menlo,monospace;font-weight:700;color:var(--navy)}
+  .cost-table tr.total{background:var(--bg-soft-2);font-weight:800}
+  .cost-table tr.total td{color:var(--orange-deep)}
+
+  /* 가드레일 박스 */
+  .guard-box{background:linear-gradient(135deg,#FFF8E1,#FFECB3);border:2px solid var(--cat-b);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+  .guard-box h4{color:#F57F17;font-size:14px;margin-bottom:6px}
+
+  /* footer 네비 */
+  .nav-back{background:linear-gradient(135deg,var(--bg-warm-1),var(--bg-warm-2));padding:16px;border-radius:var(--r);margin-top:30px;text-align:center}
+  .nav-back a{color:var(--orange-deep);font-weight:800;text-decoration:none;font-size:13px;margin:0 10px}
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--brown-soft);border-top:1px solid var(--card-border);font-weight:600}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">🧭 ENGINE STRATEGY · v1 (2026-05-25)</span>
+    <h1>룰 vs LLM <span class="accent">결정 매트릭스</span><br>— 어디서 어디까지 LLM 쓸까</h1>
+    <p>점수 계산은 룰. <strong>자연어 인사이트는 LLM</strong>. 부모 정성 노트는 LLM 코어. 41개 핵심 기능을 3 카테고리(Pure Rule · Rule+LLM Narration · LLM-Primary)로 분류 + 비용·가드레일까지.</p>
+    <div class="meta">
+      <span>🟢 Pure Rule 22개</span>
+      <span>🟡 Rule + LLM 11개</span>
+      <span>🟣 LLM-Primary 8개</span>
+      <span>💰 월 ₩1.4M (1만 MAU)</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#principle">1. 원칙</a>
+    <a href="#categories">2. 3 카테고리</a>
+    <a href="#tree">3. 결정 트리</a>
+    <a href="#matrix">4. 매트릭스</a>
+    <a href="#cat-a">5. Pure Rule 상세</a>
+    <a href="#cat-b">6. Rule + LLM 상세</a>
+    <a href="#cat-c">7. LLM-Primary 상세</a>
+    <a href="#cost">8. 비용</a>
+    <a href="#guard">9. 가드레일</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- 1. 원칙 -->
+<section id="principle">
+  <span class="stag">━ 1. CORE PRINCIPLE ━</span>
+  <h2>1. 핵심 원칙 — "점수는 룰, 멘트는 LLM"</h2>
+
+  <div class="compare-2">
+    <div class="compare-box bad">
+      <span class="lbl">❌ 잘못된 접근</span>
+      <h4>모든 자연어를 코드로 생성</h4>
+      <div class="ex">
+        if(diversity &lt; 50) text = `다양성 부족 — ${missing.join('·')}이 비어요`;<br>
+        if(texture_puree_pct &gt; 60) text += `죽 비중 ${puree_pct}%로 핑거푸드 부족`;
+      </div>
+      <p style="font-size:11.5px;color:#C62828;margin-top:8px;font-weight:600">결과: 부자연스러운 템플릿 문장. 부모 맥락·뉘앙스 X. 매번 똑같은 표현 → 식상.</p>
+    </div>
+    <div class="compare-box good">
+      <span class="lbl">✅ 우리 방식</span>
+      <h4>룰로 데이터, LLM으로 자연어</h4>
+      <div class="ex">
+        <strong>룰</strong>: diversity = {pct: 62.5, missing: ['콩','유제품','과일']}<br>
+        <strong>LLM (Haiku)</strong>: "이번 주 콩·유제품·과일을 못 만났어요. 두부 한 컵 + 우유 한 잔이면 +25점 가능해요."
+      </div>
+      <p style="font-size:11.5px;color:var(--cat-a);margin-top:8px;font-weight:600">결과: 정확한 숫자(룰) + 따뜻한 자연어(LLM). 매번 다른 표현. 부모 맥락 반영.</p>
+    </div>
+  </div>
+
+  <h3>왜 이 분리가 중요한가</h3>
+  <ul>
+    <li><strong>학술 정합성</strong> — 점수·등급은 결정론적 Rule로 재현·감사 가능 (RCT 데이터 신뢰성)</li>
+    <li><strong>비용 통제</strong> — 모든 화면을 LLM으로 채우면 월 ₩수십M. 룰로 95% 처리하고 LLM은 자연어·정성에만</li>
+    <li><strong>속도</strong> — 룰은 p95 50ms · LLM은 800ms~2.5s. 핵심 화면은 룰</li>
+    <li><strong>자연스러움</strong> — 부모는 같은 문구 반복 안 좋아함. LLM이 매번 다른 표현 + 맥락 반영</li>
+    <li><strong>오프라인 작동</strong> — 룰 기능은 LLM 장애에도 작동 (도감·신호등·점수)</li>
+  </ul>
+</section>
+
+<!-- 2. 3 카테고리 -->
+<section id="categories">
+  <span class="stag">━ 2. THREE CATEGORIES ━</span>
+  <h2>2. 3 카테고리 분류</h2>
+
+  <div class="cat-3">
+    <div class="cat-card a">
+      <span class="id">🟢 A · PURE RULE</span>
+      <h4>코드만 (LLM 0%)</h4>
+      <div class="one">정형 데이터 + 결정론적 로직. 자연어 생성 X. 점수·등급·매칭·카운트.</div>
+      <div class="stat">22개 기능 · p95 50ms · 비용 ₩0</div>
+      <ul style="font-size:11.5px;margin-top:10px">
+        <li>도감·레시피 정적 조회</li>
+        <li>WHO MDD 다양성 카운트</li>
+        <li>KDRI 36 영양 신호등</li>
+        <li>BMI·점수·등급 계산</li>
+        <li>마일리지·챌린지·룰렛</li>
+      </ul>
+    </div>
+
+    <div class="cat-card b">
+      <span class="id">🟡 B · RULE + LLM</span>
+      <h4>룰로 데이터, LLM으로 자연어 표현</h4>
+      <div class="one">점수·통계는 룰. 그 결과를 사람한테 설명하는 자연어 멘트만 LLM (Haiku).</div>
+      <div class="stat">11개 기능 · Haiku 95% · 비용 ₩4/회</div>
+      <ul style="font-size:11.5px;margin-top:10px">
+        <li>각 축 진단 멘트 ("죽 65%...")</li>
+        <li>식단표 5문장 자연어 가이드</li>
+        <li>주간 리포트·카톡 알림톡</li>
+        <li>도감 식재료 친해지기 팁</li>
+        <li>결핍 영양 보충 제안 멘트</li>
+      </ul>
+    </div>
+
+    <div class="cat-card c">
+      <span class="id">🟣 C · LLM-PRIMARY</span>
+      <h4>LLM 코어 (룰은 검증·가드만)</h4>
+      <div class="one">자유 텍스트 이해·생성·맥락 추론. 정성 시계열 분석. 양방향 체이닝.</div>
+      <div class="stat">8개 기능 · Haiku+Sonnet · 비용 ₩4~₩50/회</div>
+      <ul style="font-size:11.5px;margin-top:10px">
+        <li>자유 텍스트 → MealLog 전처리</li>
+        <li>정성 노트 시계열 분석</li>
+        <li>다음 입력 시 역질문 생성</li>
+        <li>편지·동적 질문 회전</li>
+        <li>식단표 OCR + 메뉴 매핑</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 결정 트리 -->
+<section id="tree">
+  <span class="stag">━ 3. DECISION TREE ━</span>
+  <h2>3. 결정 트리 — 신규 기능 어디에 넣을까</h2>
+
+  <div class="mermaid-wrap">
+    <div class="mermaid">
+flowchart TD
+  START{새 기능 요구}
+  Q1{입력이 정형 데이터?<br/>(숫자·enum·매핑)}
+  Q2{출력이 정형 데이터?<br/>(점수·등급·매칭 결과)}
+  Q3{출력에 자연어<br/>인사이트·멘트 필요?}
+  Q4{입력이 자유 텍스트<br/>또는 사진?}
+  Q5{시계열 맥락<br/>또는 정성 분석 필요?}
+
+  A[🟢 A · Pure Rule<br/>코드로만]
+  B[🟡 B · Rule + LLM Narration<br/>룰 계산 → Haiku 자연어]
+  C[🟣 C · LLM-Primary<br/>Haiku/Sonnet 코어]
+
+  START --> Q1
+  Q1 -->|"YES"| Q2
+  Q1 -->|"NO (자유 텍스트·사진)"| Q4
+  Q2 -->|"YES"| Q3
+  Q2 -->|"NO"| C
+  Q3 -->|"NO (숫자만)"| A
+  Q3 -->|"YES"| B
+  Q4 -->|"단순 정규화 필요"| C
+  Q4 -->|"시계열 분석·체이닝"| Q5
+  Q5 -->|"YES"| C
+
+  classDef start fill:#FFE8D0,stroke:#C45A00,color:#1a2b4a
+  classDef qst fill:#FFFBF5,stroke:#FF8A47,color:#1a2b4a
+  classDef cata fill:#E8F5E9,stroke:#16A085,color:#1a2b4a,font-weight:bold
+  classDef catb fill:#FFF8E1,stroke:#F9A825,color:#1a2b4a,font-weight:bold
+  classDef catc fill:#F3E5F5,stroke:#9C27B0,color:#1a2b4a,font-weight:bold
+  class START start
+  class Q1,Q2,Q3,Q4,Q5 qst
+  class A cata
+  class B catb
+  class C catc
+    </div>
+  </div>
+
+  <h3>판단 예시 (3가지)</h3>
+  <table class="matrix">
+    <tr><th>요구</th><th>판단</th><th>분류</th></tr>
+    <tr><td>"이번 주 다양성 8/8 채우면 +12점"</td><td>Q1=YES → Q2=YES → Q3=NO (숫자만)</td><td class="cat cat-a">🟢 A</td></tr>
+    <tr><td>"콩·유제품 비어있어요. 두부 한 컵..." 안내 문장</td><td>Q1=YES (룰 결과) → Q2=YES → Q3=YES</td><td class="cat cat-b">🟡 B</td></tr>
+    <tr><td>"오늘 시금치 한 입 먹고 거부, 평소보다 덜 화냄" 노트 분석</td><td>Q1=NO → Q4=YES → Q5=YES</td><td class="cat cat-c">🟣 C</td></tr>
+  </table>
+</section>
+
+<!-- 4. 전체 매트릭스 -->
+<section id="matrix">
+  <span class="stag">━ 4. FULL MATRIX ━</span>
+  <h2>4. 41개 핵심 기능 매트릭스</h2>
+
+  <table class="matrix">
+    <tr><th>#</th><th>기능</th><th class="cat">분류</th><th>LLM 모델</th><th>이유</th></tr>
+
+    <!-- ━━━ 도감·레시피 ━━━ -->
+    <tr><td>1</td><td class="feat">식재료 도감 정적 조회 (147→650)</td><td class="cat cat-a">A</td><td>—</td><td>DB 조회</td></tr>
+    <tr><td>2</td><td class="feat">레시피 카드 표시·검색</td><td class="cat cat-a">A</td><td>—</td><td>DB 매칭·필터</td></tr>
+    <tr><td>3</td><td class="feat">도감 식재료 친해지기 팁 (자녀 맥락)</td><td class="cat cat-b">B</td><td class="model">Haiku 4.5</td><td>자녀 거부도 + 자연어</td></tr>
+    <tr><td>4</td><td class="feat">SOS 6단계 표시 (정적 가이드)</td><td class="cat cat-a">A</td><td>—</td><td>정적 콘텐츠</td></tr>
+    <tr><td>5</td><td class="feat">제철 식재료 매핑 (12개월)</td><td class="cat cat-a">A</td><td>—</td><td>월별 룩업</td></tr>
+
+    <!-- ━━━ 식사 기록·전처리 ━━━ -->
+    <tr><td>6</td><td class="feat">자유 텍스트 → MealLog 정규화</td><td class="cat cat-c">C</td><td class="model">Haiku → Sonnet</td><td>자유 입력 해석</td></tr>
+    <tr><td>7</td><td class="feat">식재료 fuzzy 매칭 (147 풀)</td><td class="cat cat-a">A</td><td>—</td><td>Levenshtein 룰</td></tr>
+    <tr><td>8</td><td class="feat">미매칭 식재료 → ai_estimated 추론</td><td class="cat cat-c">C</td><td class="model">Haiku</td><td>새 식재료 분류</td></tr>
+    <tr><td>9</td><td class="feat">사진 → 식사 분석 (Vision)</td><td class="cat cat-c">C</td><td class="model">Claude Vision</td><td>이미지 이해</td></tr>
+    <tr><td>10</td><td class="feat">meal_chip·시간·자율성 룰 검증</td><td class="cat cat-a">A</td><td>—</td><td>schema validation</td></tr>
+
+    <!-- ━━━ 평가 엔진 ━━━ -->
+    <tr><td>11</td><td class="feat">WHO MDD 다양성 카운트 (8/8)</td><td class="cat cat-a">A</td><td>—</td><td>set 카운트</td></tr>
+    <tr><td>12</td><td class="feat">14 sub-카테고리 깊이 카운트</td><td class="cat cat-a">A</td><td>—</td><td>set 카운트</td></tr>
+    <tr><td>13</td><td class="feat">KDRI 36 영양소 빈도 추정</td><td class="cat cat-a">A</td><td>—</td><td>frequency 룰</td></tr>
+    <tr><td>14</td><td class="feat">영양 신호등 색상 결정 (green/orange/red)</td><td class="cat cat-a">A</td><td>—</td><td>임계치 룰</td></tr>
+    <tr><td>15</td><td class="feat">BMI·백분위 계산 (성장 곡선)</td><td class="cat cat-a">A</td><td>—</td><td>WHO 차트 룩업</td></tr>
+    <tr><td>16</td><td class="feat">8축 점수·총점·등급 산출</td><td class="cat cat-a">A</td><td>—</td><td>가중 평균 + 매핑</td></tr>
+    <tr><td>17</td><td class="feat">메뉴 반복도 (4주 동일 카운트)</td><td class="cat cat-a">A</td><td>—</td><td>group by + 카운트</td></tr>
+    <tr><td>18</td><td class="feat">NOVA 가공식품 비율</td><td class="cat cat-a">A</td><td>—</td><td>NOVA 1-4 카운트</td></tr>
+    <tr><td>19</td><td class="feat">알레르겐 표시 검증</td><td class="cat cat-a">A</td><td>—</td><td>text grep</td></tr>
+    <tr><td>20</td><td class="feat"><strong>각 축 진단 멘트</strong> ("죽 65% — 핑거푸드 부족")</td><td class="cat cat-b">B</td><td class="model">Haiku 4.5</td><td>점수 → 자연어 설명</td></tr>
+    <tr><td>21</td><td class="feat"><strong>식단표 5문장 자연어 가이드</strong></td><td class="cat cat-b">B</td><td class="model">Haiku 4.5</td><td>여러 축 통합 자연어</td></tr>
+    <tr><td>22</td><td class="feat"><strong>결핍 영양 보충 제안 멘트</strong></td><td class="cat cat-b">B</td><td class="model">Haiku 4.5</td><td>자녀 베이스 + 자연어</td></tr>
+    <tr><td>23</td><td class="feat"><strong>주간 리포트 자연어</strong></td><td class="cat cat-b">B</td><td class="model">Haiku 4.5</td><td>7일 통계 → 한 문단</td></tr>
+
+    <!-- ━━━ 추천 엔진 ━━━ -->
+    <tr><td>24</td><td class="feat">이번 주 추천 식재료 Top 5 (룰 필터)</td><td class="cat cat-a">A</td><td>—</td><td>4 원칙 + 빈도 룰</td></tr>
+    <tr><td>25</td><td class="feat">레시피 후보 1차 필터 (Phase 0-1)</td><td class="cat cat-a">A</td><td>—</td><td>알레르겐·식감·식재료 룰</td></tr>
+    <tr><td>26</td><td class="feat"><strong>레시피 LLM 정제 (Phase 2, "이유" 생성)</strong></td><td class="cat cat-b">B</td><td class="model">Sonnet 4.7</td><td>자녀 맥락 + 자연어 이유</td></tr>
+    <tr><td>27</td><td class="feat">Food Chaining 기회 추출</td><td class="cat cat-c">C</td><td class="model">Sonnet 4.7</td><td>정성 + 정량 결합 추론</td></tr>
+
+    <!-- ━━━ OCR ━━━ -->
+    <tr><td>28</td><td class="feat">이미지 전처리·해시 (sharp)</td><td class="cat cat-a">A</td><td>—</td><td>이미지 처리 룰</td></tr>
+    <tr><td>29</td><td class="feat">OCR 식단표 → 텍스트</td><td class="cat cat-c">C</td><td class="model">Claude Vision</td><td>이미지 → 텍스트</td></tr>
+    <tr><td>30</td><td class="feat">OCR 메뉴 → recipe_id fallback</td><td class="cat cat-c">C</td><td class="model">Haiku</td><td>fuzzy 실패 시 LLM</td></tr>
+
+    <!-- ━━━ AI 코치 (정성) ━━━ -->
+    <tr><td>31</td><td class="feat"><strong>정성 raw_note 시계열 분석</strong></td><td class="cat cat-c">C</td><td class="model">Sonnet 4.7</td><td>맥락·뉘앙스·진전 추론</td></tr>
+    <tr><td>32</td><td class="feat"><strong>다음 입력 시 역질문 생성</strong></td><td class="cat cat-c">C</td><td class="model">Haiku 4.5</td><td>thread 기반 동적 질문</td></tr>
+    <tr><td>33</td><td class="feat"><strong>주간 편지 답장</strong></td><td class="cat cat-c">C</td><td class="model">Sonnet 4.7</td><td>raw_text 인용 + 자연어</td></tr>
+    <tr><td>34</td><td class="feat">동적 질문 회전 (7 차원)</td><td class="cat cat-b">B</td><td class="model">Haiku 4.5</td><td>차원 룰 + 자연어 표현</td></tr>
+    <tr><td>35</td><td class="feat">감정 추정 (parent_emotion)</td><td class="cat cat-c">C</td><td class="model">Sonnet 4.7</td><td>자유 텍스트 감정 추론</td></tr>
+
+    <!-- ━━━ 마일리지·바이럴 ━━━ -->
+    <tr><td>36</td><td class="feat">마일리지 적립·반감기·일일 한도</td><td class="cat cat-a">A</td><td>—</td><td>Stage 룰 + 검증</td></tr>
+    <tr><td>37</td><td class="feat">90일 챌린지 완주 판정</td><td class="cat cat-a">A</td><td>—</td><td>일수 카운트</td></tr>
+    <tr><td>38</td><td class="feat">친구 초대·룰렛 (IP·fingerprint·확률)</td><td class="cat cat-a">A</td><td>—</td><td>검증 + 분포 룰</td></tr>
+    <tr><td>39</td><td class="feat"><strong>카톡 알림톡 메시지 personalization</strong></td><td class="cat cat-b">B</td><td class="model">Haiku 4.5</td><td>템플릿 + 자연어 채움</td></tr>
+
+    <!-- ━━━ 도감 enrich·모더레이션 ━━━ -->
+    <tr><td>40</td><td class="feat">매일 +50종 도감 enrich (분류·메타)</td><td class="cat cat-c">C</td><td class="model">Haiku 4.5</td><td>새 식재료 분류·메타 생성</td></tr>
+    <tr><td>41</td><td class="feat">도감 댓글 모더레이션 (광고·욕설 필터)</td><td class="cat cat-c">C</td><td class="model">Haiku 4.5</td><td>자연어 분류</td></tr>
+  </table>
+
+  <p style="font-size:12px;color:var(--brown-soft);margin-top:8px;font-style:italic">
+    🟢 A (Pure Rule) <strong>22개</strong> · 🟡 B (Rule + LLM) <strong>11개</strong> · 🟣 C (LLM-Primary) <strong>8개</strong> · 합 41개
+  </p>
+</section>
+
+<!-- 5. Pure Rule 상세 -->
+<section id="cat-a">
+  <span class="stag">━ 5. CATEGORY A DETAIL ━</span>
+  <h2 style="border-left-color:var(--cat-a);background:linear-gradient(135deg,#E8F5E9,#C8E6C9)">5. 🟢 Pure Rule (22개) — 결정론·재현·빠름</h2>
+
+  <div class="detail-card a">
+    <h4>왜 룰만으로 충분한가</h4>
+    <ul>
+      <li><strong>입출력 모두 정형</strong>: 식재료 ID·점수·등급·일수 등 숫자/enum</li>
+      <li><strong>학술 정합성</strong>: KDRI·WHO·NOVA는 명확한 룩업 테이블 + 카운트 룰</li>
+      <li><strong>재현 가능</strong>: 같은 입력 → 같은 출력 (RCT 검증 가능)</li>
+      <li><strong>빠름·무료</strong>: p95 50ms · 비용 ₩0</li>
+      <li><strong>오프라인 작동</strong>: LLM 장애에도 핵심 기능 유지</li>
+    </ul>
+
+    <h4>대표 알고리즘</h4>
+    <pre style="background:#FFFBF5;color:var(--navy);padding:12px 14px;border-radius:var(--r-sm);font-size:11.5px;line-height:1.7;border:1px solid var(--card-border);font-family:ui-monospace,Menlo,monospace;overflow-x:auto">// WHO MDD 다양성 카운트 (식품군 1-2단계)
+function axisDiversity(logs) {
+  const groups = new Set();
+  logs.forEach(log =&gt; log.ingredients.forEach(i =&gt; groups.add(i.foodGroup)));
+  const mddSatisfied = groups.size &gt;= 5;        // WHO 기준 8 중 5 이상
+
+  // 14 sub 깊이 (1번 축 2단계)
+  const subCats = new Set();
+  logs.forEach(log =&gt; log.ingredients.forEach(i =&gt; subCats.add(i.subCategory)));
+  const subDepth = subCats.size;
+
+  return {
+    pct: !mddSatisfied ? 60 : subDepth &gt;= 10 ? 95 : subDepth &gt;= 6 ? 90 : 85,
+    grade: !mddSatisfied ? 'C' : subDepth &gt;= 10 ? 'A+' : subDepth &gt;= 6 ? 'A' : 'B+',
+    raw: { mddGroups: groups.size, subDepth }
+  };
+}</pre>
+
+    <h4>이 카테고리에 추가 안 되는 것</h4>
+    <ul>
+      <li>❌ "다양성이 부족해요" 같은 자연어 — 카테고리 B로 (Haiku)</li>
+      <li>❌ 자녀별 맥락 추론 — 카테고리 C로 (Sonnet)</li>
+      <li>❌ 부모 노트 해석 — 카테고리 C로 (Sonnet)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6. Rule + LLM Narration 상세 -->
+<section id="cat-b">
+  <span class="stag">━ 6. CATEGORY B DETAIL ━</span>
+  <h2 style="border-left-color:var(--cat-b);background:linear-gradient(135deg,#FFF8E1,#FFECB3)">6. 🟡 Rule + LLM Narration (11개) — 점수는 룰, 멘트는 LLM</h2>
+
+  <div class="detail-card b">
+    <h4>패턴 — 두 단계 호출</h4>
+    <pre style="background:#FFFBF5;color:var(--navy);padding:12px 14px;border-radius:var(--r-sm);font-size:11.5px;line-height:1.7;border:1px solid var(--card-border);font-family:ui-monospace,Menlo,monospace;overflow-x:auto">async function axisNarrative(axisResult, childContext) {
+  // 1단계: 룰로 계산 (Cat A) — 이미 끝남
+  // axisResult = { axisId:'texture', pct:55, grade:'C',
+  //                raw:{pureeChunkPct:65, fingerCount:2, ageMonths:14} }
+
+  // 2단계: 캐시 확인 (같은 raw + ageBand → 자연어 재사용)
+  const cacheKey = sha256(JSON.stringify(axisResult.raw) + childContext.ageBand);
+  const cached = await redis.get(`narr:${cacheKey}`);
+  if (cached) return cached;
+
+  // 3단계: Haiku로 자연어 생성 (5-7일 캐시)
+  const narrative = await haiku.generate(NARRATIVE_PROMPT, {
+    axis: axisResult,
+    childAge: childContext.ageMonths,
+    childName: childContext.nickname,
+    tonePreference: childContext.parentTone || 'friendly'
+  });
+
+  await redis.setex(`narr:${cacheKey}`, 604800, narrative);
+  return narrative;  // "지우 어머니, 죽이 65%네요. 14개월이면..."
+}</pre>
+
+    <h4>왜 LLM이 필요한가</h4>
+    <ul>
+      <li><strong>매번 다른 표현</strong> — 같은 데이터도 부모마다·날마다 다르게</li>
+      <li><strong>자녀 맥락 반영</strong> — 닉네임·연령·잘먹는 베이스 등 결합</li>
+      <li><strong>학술 용어 → 자연어 번역</strong> — "RNI 65%" → "주 3-4회 만남"</li>
+      <li><strong>톤 일관성</strong> — design-spec §10 (권유·긍정) 자동 적용</li>
+    </ul>
+
+    <h4>비용 통제 — 캐시가 핵심</h4>
+    <ul>
+      <li>(raw 데이터 + ageBand) hash 키로 7일 캐시</li>
+      <li>비슷한 식습관의 다른 부모는 캐시 재사용 (수치 동일하면 멘트 동일 OK)</li>
+      <li>예상 cache hit rate: 60%+</li>
+      <li>실 호출 평균: 사용자당 일 1-2회 × ₩4 = 월 ₩120 / 사용자</li>
+    </ul>
+  </div>
+
+  <h4>이 카테고리 11개 기능 한 줄 요약</h4>
+  <table class="matrix">
+    <tr><th>기능</th><th>룰 출력 (정형)</th><th>LLM 출력 (자연어)</th></tr>
+    <tr><td>각 축 진단 멘트</td><td>{axis, pct, raw}</td><td>"죽이 65%네요. 14개월이면 핑거푸드도 시도해볼 때예요."</td></tr>
+    <tr><td>5문장 식단표 가이드</td><td>8축 점수 + 결핍 영양 목록</td><td>"이 식단은 한국 평균 +14점, 상위 25%... 한식 위주라..."</td></tr>
+    <tr><td>결핍 영양 보충 제안</td><td>{nutrient: 'choline', missing: 0.6}</td><td>"콜린이 부족해요. 노른자죽이나 두부찜 한 끼면 OK."</td></tr>
+    <tr><td>도감 식재료 친해지기 팁</td><td>{ingredient, childRejection: 0.8}</td><td>"시금치 거부 강하네요. 계란찜에 살짝 섞어보세요."</td></tr>
+    <tr><td>주간 리포트 자연어</td><td>7일 통계 dict</td><td>"이번 주 신호등 25→28 (+3). 잡곡 늘린 게 효과예요."</td></tr>
+    <tr><td>카톡 알림톡 personalization</td><td>{template, vars}</td><td>"지우 어머니, 90일 챌린지 7일째예요!" (템플릿 변수)</td></tr>
+    <tr><td>레시피 LLM "이유" (Phase 2)</td><td>{recipe, childMatch: 0.85}</td><td>"카레라이스는 지우가 잘 먹는 베이스 + 시금치 도전 매치예요."</td></tr>
+    <tr><td>동적 질문 회전 표현</td><td>{dimension: 'cebq', day: 'mon'}</td><td>"오늘 거부 반응 어땠어요? (한 입도 X / 골라냄 / ...)"</td></tr>
+  </table>
+</section>
+
+<!-- 7. LLM-Primary 상세 -->
+<section id="cat-c">
+  <span class="stag">━ 7. CATEGORY C DETAIL ━</span>
+  <h2 style="border-left-color:var(--cat-c);background:linear-gradient(135deg,#F3E5F5,#E1BEE7)">7. 🟣 LLM-Primary (8개) — LLM 코어, 룰은 검증·가드</h2>
+
+  <div class="detail-card c">
+    <h4>왜 LLM이 코어인가</h4>
+    <ul>
+      <li><strong>입력이 자유 텍스트·이미지</strong>: 정형 데이터로 환원 불가능 (의도·뉘앙스 손실)</li>
+      <li><strong>시계열 맥락 추론</strong>: 3주차 raw_note들을 연결해 진전 곡선 추출 — 룰로 불가능</li>
+      <li><strong>창의적 생성</strong>: 편지·동적 질문은 매번 새로운 문장 필요</li>
+      <li><strong>cross-domain 매칭</strong>: Food Chaining 같이 식재료+거부도+선호도 결합</li>
+    </ul>
+
+    <h4>패턴 — LLM 출력은 항상 검증된 schema로</h4>
+    <pre style="background:#FFFBF5;color:var(--navy);padding:12px 14px;border-radius:var(--r-sm);font-size:11.5px;line-height:1.7;border:1px solid var(--card-border);font-family:ui-monospace,Menlo,monospace;overflow-x:auto">async function llmPrimary(input) {
+  // 1. 입력 sanitize (prompt injection 가드)
+  const safe = sanitizeUserInput(input);
+  if (detectInjection(safe)) return { error: 'rejected' };
+
+  // 2. LLM 호출 (Sonnet — 복잡 추론용)
+  const raw = await sonnet.generate(SYSTEM_PROMPT, safe);
+
+  // 3. zod schema 검증 (LLM 출력은 항상 정형으로 환원)
+  const parsed = OutputSchema.safeParse(extractJSON(raw));
+  if (!parsed.success) return { error: 'schema_fail', retry: true };
+
+  // 4. 룰로 추가 검증 (학술 정합성 가드)
+  if (parsed.data.sosStage &gt; 6) return { error: 'invalid_sos' };
+  if (parsed.data.confidence &lt; 0.3) return { ...parsed.data, lowConfidence: true };
+
+  return parsed.data;
+}</pre>
+
+    <h4>이 카테고리 8개 기능 한 줄 요약</h4>
+    <table class="matrix">
+      <tr><th>기능</th><th>입력</th><th>LLM</th><th>출력</th></tr>
+      <tr><td>자유 텍스트 → MealLog</td><td>rawText + 시간</td><td class="model">Haiku → Sonnet</td><td>MealLog 객체</td></tr>
+      <tr><td>식단표 OCR</td><td>이미지</td><td class="model">Claude Vision</td><td>메뉴 텍스트 + recipe_id 매핑</td></tr>
+      <tr><td>OCR 메뉴 fallback</td><td>fuzzy 실패 텍스트</td><td class="model">Haiku</td><td>recipe_id 추정</td></tr>
+      <tr><td><strong>정성 노트 시계열 분석</strong></td><td>raw_note thread</td><td class="model">Sonnet</td><td>{진전 곡선, SOS 단계, 다음 질문}</td></tr>
+      <tr><td><strong>다음 입력 시 역질문</strong></td><td>최근 5 notes</td><td class="model">Haiku</td><td>"지난번 X 잘 먹었던데..." 문장</td></tr>
+      <tr><td><strong>주간 편지 답장</strong></td><td>1주 thread 요약</td><td class="model">Sonnet</td><td>raw_text 인용한 편지 본문</td></tr>
+      <tr><td>parent_emotion 추정</td><td>raw_note 시계열</td><td class="model">Sonnet</td><td>joy/worry/frustration</td></tr>
+      <tr><td>Food Chaining 기회</td><td>좋아하는 + 거부 식재료</td><td class="model">Sonnet</td><td>우회 식재료·레시피 제안</td></tr>
+      <tr><td>매일 +50종 enrich</td><td>식재료명</td><td class="model">Haiku</td><td>카테고리·KDRI·SOS·이모지 메타</td></tr>
+      <tr><td>댓글 모더레이션</td><td>댓글 텍스트</td><td class="model">Haiku</td><td>safe/review/delete</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 8. 비용 -->
+<section id="cost">
+  <span class="stag">━ 8. COST ANALYSIS ━</span>
+  <h2>8. 비용 분석 (MAU 1만 기준)</h2>
+
+  <table class="cost-table">
+    <tr><th>카테고리</th><th>기능 수</th><th>호출 빈도</th><th>모델</th><th>건당</th><th>월 비용</th></tr>
+    <tr><td>🟢 A · Pure Rule</td><td>22개</td><td>무제한</td><td>—</td><td class="num">₩0</td><td class="num">₩0</td></tr>
+    <tr><td>🟡 B · Rule + LLM<br><span style="font-size:10.5px;color:var(--brown-soft);font-weight:600">각 축 멘트·5문장 가이드·주간 리포트 등</span></td><td>11개</td><td>사용자당 일 2-3회<br>(캐시 hit 60%)</td><td>Haiku 4.5</td><td class="num">₩4</td><td class="num">₩400k</td></tr>
+    <tr><td>🟣 C · LLM-Primary<br><span style="font-size:10.5px;color:var(--brown-soft);font-weight:600">전처리·OCR·정성 분석·편지</span></td><td>8개</td><td>일 1-2 Haiku<br>+ 주 1 Sonnet</td><td>Haiku·Sonnet</td><td class="num">₩4-50</td><td class="num">₩800k</td></tr>
+    <tr><td>일회성·매일 cron<br><span style="font-size:10.5px;color:var(--brown-soft);font-weight:600">enrich 50종·댓글 모더레이션</span></td><td>—</td><td>일 1회 cron</td><td>Haiku</td><td class="num">₩200/일</td><td class="num">₩6k</td></tr>
+    <tr><td>카톡 알림톡 SENS</td><td>—</td><td>월 8건/사용자</td><td>—</td><td class="num">₩8/건</td><td class="num">₩640k</td></tr>
+    <tr class="total"><td colspan="5"><strong>합계 (MAU 1만)</strong></td><td class="num"><strong>~₩1.85M / 월</strong></td></tr>
+    <tr><td colspan="5">참고 — 매출 (월 ₩35M 보수 / ₩140M 낙관)</td><td class="num">ROI 19~76배</td></tr>
+  </table>
+
+  <h3>만약 모든 자연어를 LLM으로 했다면?</h3>
+  <ul>
+    <li>도감 식재료 설명도 LLM → +₩2M/월</li>
+    <li>레시피 모든 카드 자연어 → +₩3M/월</li>
+    <li>신호등 모든 영양소 자연어 → +₩5M/월</li>
+    <li>총: <strong>월 ₩12M+</strong> (현재 대비 6.5배)</li>
+  </ul>
+  <p style="font-size:12px;color:var(--brown-mid)">→ 룰로 처리 가능한 22개를 LLM에 맡기면 비용·속도·재현성 모두 손해. 분리가 핵심.</p>
+</section>
+
+<!-- 9. 가드레일 -->
+<section id="guard">
+  <span class="stag">━ 9. GUARDRAILS ━</span>
+  <h2>9. 가드레일 — LLM이 학술 정합성 깨지 않도록</h2>
+
+  <div class="guard-box">
+    <h4>⚠️ Category B·C 위험 — LLM이 룰 결과를 왜곡하면?</h4>
+    <p style="font-size:13px;color:var(--brown-mid);font-weight:600;line-height:1.7">예: 룰이 "비타민D 결핍 위험"이라고 했는데 LLM이 "괜찮아요"라고 자연어 생성. 학술 신뢰성·법적 책임 문제.</p>
+  </div>
+
+  <h3>가드레일 5종</h3>
+  <ul>
+    <li><strong>① 출력 schema 강제</strong> — LLM 응답은 zod schema 통과 필수. 자유 텍스트만 허용되는 필드(narrative)와 정형 필드(score·grade·status) 분리</li>
+    <li><strong>② 핵심 사실 룰 검증</strong> — narrative 내 인용한 숫자는 룰 출력과 정확 일치 확인 (regex). 불일치 시 폐기 + Sonnet 재호출</li>
+    <li><strong>③ 톤 가드</strong> — design-spec §10 금지 표현(엄마가/정상/조속히 등) 자동 필터. 적발 시 재생성</li>
+    <li><strong>④ 의료 자문 가드</strong> — "진단·치료·약" 표현 차단. 항상 disclaimer 첨부</li>
+    <li><strong>⑤ Confidence threshold</strong> — LLM confidence &lt; 0.7 시 narrative 생략하고 룰 결과만 표시 (안전 fallback)</li>
+  </ul>
+
+  <h3>실패 시 fallback (모든 Cat B·C)</h3>
+  <ul>
+    <li><strong>LLM 호출 실패·timeout</strong> → 룰 결과 + 표준 템플릿 멘트 ("{축} {등급} 등급이에요")</li>
+    <li><strong>일일 LLM 비용 초과</strong> ($50/day) → Haiku만 유지, Sonnet 차단 → 자연어 품질 약간 ↓ but 작동 유지</li>
+    <li><strong>schema 검증 3회 실패</strong> → Cat A 결과만 표시, 사용자에게 "잠시 후 다시 시도해주세요" 안내</li>
+    <li><strong>Anthropic API 장애</strong> → Cat A 22개 기능 100% 정상 작동 (도감·신호등·점수·키트)</li>
+  </ul>
+
+  <h3>모니터링 지표</h3>
+  <ul>
+    <li>일일 LLM 호출 수 (Haiku/Sonnet 분리)</li>
+    <li>cache hit rate (목표 60%+)</li>
+    <li>schema 검증 실패율 (≤ 3%)</li>
+    <li>학술 가드 차단율 (≤ 1%)</li>
+    <li>일일 비용 (목표 $30/day → MAU 1만 시)</li>
+  </ul>
+</section>
+
+<div class="nav-back">
+  <a href="/">🏠 메인</a>
+  <a href="/docs.html">📚 허브</a>
+  <a href="/engines-deep.html">🔬 엔진 Deep</a>
+  <a href="/recipe-criteria.html">🍳 레시피 기준</a>
+  <a href="/design-spec.html">🎨 디자인 명세 v3</a>
+</div>
+
+</main>
+
+<footer>
+  <p><strong>밀프레드 룰 vs LLM 결정 매트릭스</strong> · v1 · 2026-05-25</p>
+  <p>41개 기능 · 22 Pure Rule · 11 Rule+LLM · 8 LLM-Primary · 월 ₩1.85M (MAU 1만)</p>
+</footer>
+
+<script>
+  mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#FFFBF5',primaryTextColor:'#1a2b4a',primaryBorderColor:'#FF8A47',lineColor:'#8a7a6a',fontFamily:'Pretendard Variable, sans-serif',fontSize:'12px'}});
+</script>
+</body>
+</html>
