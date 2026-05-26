@@ -1,123 +1,90 @@
 /**
- * /signup — Supabase Auth 전화번호 OTP 가입 (M4)
+ * /signup — 카카오 OAuth 가입 (M4 MVP)
+ *
+ * MVP 단순화: 카카오 로그인 1버튼.
+ * SMS OTP 없음 (Twilio·NHN Cloud 비용·복잡성 제거).
+ * 전화번호는 /onboarding에서 선택 입력 (알림톡 수신 동의 시만).
  *
  * 흐름:
- *   1. 전화번호 입력 → Supabase signInWithOtp() → SMS OTP 발송
- *   2. OTP 6자리 입력 → verifyOtp() → 세션 발급
- *   3. /onboarding으로 redirect (자녀 정보 입력)
- *
- * 비용: SMS OTP는 Supabase Pro plan 또는 Twilio 별도 연동 (M4 검증 시점에 결정)
+ *   1. '카카오로 가입' 클릭 → supabase.auth.signInWithOAuth({provider:'kakao'})
+ *   2. 카카오 로그인 → /auth/callback → Supabase 세션
+ *   3. callback에서 /onboarding으로 redirect (신규) 또는 /care (재로그인)
  */
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 
 export default function SignupPage() {
-  const router = useRouter();
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const supabase = createSupabaseBrowser();
 
-  function formatPhone(v: string) {
-    const digits = v.replace(/[^0-9]/g, '').slice(0, 11);
-    if (digits.length < 4) return digits;
-    if (digits.length < 8) return `${digits.slice(0,3)}-${digits.slice(3)}`;
-    return `${digits.slice(0,3)}-${digits.slice(3,7)}-${digits.slice(7)}`;
-  }
-
-  async function sendOtp(e: React.FormEvent) {
-    e.preventDefault();
-    if (!/^010-\d{4}-\d{4}$/.test(phone)) {
-      setError('전화번호를 정확히 입력해주세요 (010-0000-0000)');
-      return;
-    }
+  async function loginKakao() {
     setLoading(true); setError(null);
-    const intlPhone = '+82' + phone.replace(/[^0-9]/g, '').replace(/^0/, '');
-    const { error: e2 } = await supabase.auth.signInWithOtp({ phone: intlPhone });
-    setLoading(false);
-    if (e2) setError(e2.message);
-    else setStep('otp');
-  }
-
-  async function verifyOtp(e: React.FormEvent) {
-    e.preventDefault();
-    if (otp.length !== 6) { setError('OTP 6자리를 입력해주세요'); return; }
-    setLoading(true); setError(null);
-    const intlPhone = '+82' + phone.replace(/[^0-9]/g, '').replace(/^0/, '');
-    const { error: e2 } = await supabase.auth.verifyOtp({
-      phone: intlPhone, token: otp, type: 'sms',
+    const { error: e } = await supabase.auth.signInWithOAuth({
+      provider: 'kakao',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: 'profile_nickname,account_email',  // 폰번호는 onboarding에서 선택 입력
+      },
     });
-    setLoading(false);
-    if (e2) { setError(e2.message); return; }
-    router.push('/onboarding');
+    if (e) { setError(e.message); setLoading(false); }
+    // 성공 시 카카오로 redirect (loading 유지)
   }
 
   return (
     <main style={{ maxWidth:480, margin:'0 auto', padding:'40px 24px' }}>
       <header className="hero" style={{ borderRadius:16, marginBottom:24 }}>
         <h1 style={{ fontSize:28, fontWeight:800 }}>📱 밀프레드 가입</h1>
-        <p style={{ marginTop:6 }}>전화번호 1개로 30초 가입 · 평생 무료</p>
+        <p style={{ marginTop:6 }}>카카오 1초 가입 · 평생 무료 · 자녀 식습관 코치</p>
       </header>
 
-      {step === 'phone' && (
-        <form onSubmit={sendOtp} style={{ background:'white', border:'1px solid #FFE8D0', borderRadius:14, padding:18 }}>
-          <label style={{ fontSize:13, fontWeight:800, color:'#1a2b4a' }}>📞 전화번호</label>
-          <input
-            type="tel" value={phone}
-            onChange={(e)=>setPhone(formatPhone(e.target.value))}
-            placeholder="010-0000-0000"
-            maxLength={13}
-            style={{ width:'100%', padding:13, marginTop:8, border:'1.5px solid #FFE8D0', borderRadius:10, fontSize:15, fontFamily:'inherit', outline:'none' }}
-          />
-          <button type="submit" disabled={loading} style={{
-            marginTop:14, width:'100%', padding:14,
-            background:'linear-gradient(135deg,#FF6B1A,#C45A00)', color:'white',
-            border:'none', borderRadius:10, fontWeight:800, fontSize:14, cursor:'pointer',
-          }}>
-            {loading ? '발송 중...' : '🔔 인증번호 받기'}
-          </button>
-          <p style={{ fontSize:11, color:'#8a7a6a', marginTop:10, lineHeight:1.6 }}>
-            🔒 전화번호는 가입·알림톡 외 사용되지 않아요 · 30일 미사용 시 자동 삭제
-          </p>
-        </form>
-      )}
+      <div style={{ background:'white', border:'1px solid #FFE8D0', borderRadius:14, padding:22, textAlign:'center', boxShadow:'0 4px 20px rgba(0,0,0,0.06)' }}>
 
-      {step === 'otp' && (
-        <form onSubmit={verifyOtp} style={{ background:'white', border:'1px solid #FFE8D0', borderRadius:14, padding:18 }}>
-          <p style={{ fontSize:13, color:'#5a4a3a', marginBottom:10 }}>
-            <strong style={{ color:'#1a2b4a' }}>{phone}</strong>으로 인증번호를 보냈어요.
-          </p>
-          <label style={{ fontSize:13, fontWeight:800, color:'#1a2b4a' }}>🔢 인증번호 6자리</label>
-          <input
-            type="text" inputMode="numeric" value={otp}
-            onChange={(e)=>setOtp(e.target.value.replace(/[^0-9]/g, '').slice(0,6))}
-            placeholder="000000"
-            maxLength={6}
-            style={{ width:'100%', padding:13, marginTop:8, border:'1.5px solid #FFE8D0', borderRadius:10, fontSize:24, fontFamily:'inherit', outline:'none', textAlign:'center', letterSpacing:'0.5em' }}
-          />
-          <button type="submit" disabled={loading} style={{
-            marginTop:14, width:'100%', padding:14,
-            background:'linear-gradient(135deg,#FF6B1A,#C45A00)', color:'white',
-            border:'none', borderRadius:10, fontWeight:800, fontSize:14, cursor:'pointer',
-          }}>
-            {loading ? '확인 중...' : '✓ 인증하고 가입 완료'}
-          </button>
-          <button type="button" onClick={()=>setStep('phone')} style={{
-            marginTop:8, background:'transparent', border:'none', color:'#8a7a6a', fontSize:12, cursor:'pointer',
-          }}>← 전화번호 다시 입력</button>
-        </form>
-      )}
+        <div style={{ fontSize:48, marginBottom:14 }}>🌱</div>
+        <h2 style={{ fontSize:18, fontWeight:800, color:'#1a2b4a', marginBottom:8 }}>
+          90일 식습관 챌린지<br/>지금 시작해요
+        </h2>
+        <p style={{ fontSize:13, color:'#5a4a3a', fontWeight:500, lineHeight:1.7, marginBottom:24 }}>
+          KDRI 36 영양 신호등 · 4원칙 레시피 · 도감 무료<br/>
+          매일 한 끼 기록 = +100 마일리지
+        </p>
+
+        <button
+          onClick={loginKakao} disabled={loading}
+          style={{
+            width:'100%', padding:'15px 20px',
+            background:'#FEE500', color:'#000', border:'none', borderRadius:12,
+            fontWeight:800, fontSize:15, cursor:'pointer', fontFamily:'inherit',
+            display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+            boxShadow:'0 4px 14px rgba(254,229,0,0.4)',
+          }}
+        >
+          {loading ? '카카오로 이동 중...' : (
+            <>
+              <svg width="18" height="17" viewBox="0 0 18 17" fill="#000">
+                <path d="M9 .5C4 .5 0 3.6 0 7.5c0 2.5 1.7 4.7 4.2 6L3 17.4c-.1.3.3.5.5.4l4.3-2.8c.4 0 .8.1 1.2.1 5 0 9-3.1 9-7s-4-7-9-7z"/>
+              </svg>
+              카카오로 1초 가입
+            </>
+          )}
+        </button>
+
+        <p style={{ fontSize:10.5, color:'#8a7a6a', marginTop:14, lineHeight:1.7 }}>
+          가입 후 자녀 정보 입력 (30초) · 전화번호는 알림 받고 싶을 때만 선택<br/>
+          🔒 카카오 닉네임·이메일 외 추가 정보 X · 30일 미사용 시 자동 삭제
+        </p>
+      </div>
 
       {error && (
         <div style={{ background:'#FFEBEE', border:'1px solid #FFCDD2', color:'#C62828', padding:12, borderRadius:10, marginTop:14, fontSize:13, fontWeight:600 }}>
           ⚠ {error}
         </div>
       )}
+
+      <div style={{ textAlign:'center', marginTop:24, fontSize:12, color:'#8a7a6a' }}>
+        이미 가입했어요? <a href="/signup" style={{ color:'#C45A00', fontWeight:700 }}>같은 버튼으로 로그인</a>
+      </div>
     </main>
   );
 }

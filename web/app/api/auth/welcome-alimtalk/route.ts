@@ -26,9 +26,11 @@ export async function POST() {
     .limit(1)
     .single();
 
-  const phone = user.phone;
-  if (!phone) {
-    return NextResponse.json({ ok: false, error: 'no phone on user' }, { status: 400 });
+  // 카카오 OAuth 사용자는 user.phone 없음 → user_metadata에서 가져옴 (onboarding 선택 입력)
+  const phone = user.phone || (user.user_metadata as any)?.phone;
+  const alimtalkOk = (user.user_metadata as any)?.alimtalk_consent === true;
+  if (!phone || !alimtalkOk) {
+    return NextResponse.json({ ok: false, error: 'no phone or no consent', skipped: true });
   }
 
   const result = await sendAlimtalkLogged({
