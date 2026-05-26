@@ -6,7 +6,41 @@
 
 ---
 
-## 🎯 다음 세션 시작점 (2026-05-25 22:00 갱신)
+## 🎯 다음 세션 시작점 (2026-05-26 09:30 갱신 — 세션 종료)
+
+**오늘(2026-05-25~26) 종합 산출 — M0~M4 코드 100% 완료**:
+- M0 ✅ 정적 사이트 라이브
+- M1 ✅ Next.js 부트스트랩 (web/) + design v3 + Supabase 클라이언트 + /health
+- M2 ✅ 도감 SSG (~176 SEO URL: /foods·/foods/[slug]·/foods/grade/·/category/·/season/)
+- M3 ✅ enrich cron 골격 + seed 스크립트 (60+ 큐)
+- M4 ✅ **카카오 OAuth MVP** (signup·callback·onboarding) + SENS 알림톡 (4 템플릿) + signals API
+- ALG-EVAL-07 ✅ 식단표 → 도감 자동 enrich 백엔드
+
+**다음 세션 시작 시 진입 가이드** (사용자가 먼저 할 것):
+1. **`/Users/ing/Desktop/밀프레드_내가할일_2026-05-26.html` 열어서 A1 (schema.sql 적용)** ← 가장 먼저
+2. A4: NEXT_PUBLIC_SUPABASE_ANON_KEY (publishable) 받아서 RTF로 저장
+3. 위 둘 완료 후 Claude에게 "schema 적용했어 + anon key 받았어" 한 마디 → 자동 진행:
+   - A3 seed (147 + 660 recipes) 자동 실행
+   - A4 enrich_queue seed (60+) 자동 실행
+   - Vercel 배포 검증
+4. 그 다음 카카오 Developers 등록 (A2) → /signup 작동 검증
+
+**현재 막힌 곳**:
+- A3 seed 시도 → ingredients 테이블 미존재 (schema 미적용)로 실패 (147/147)
+- ANON_KEY 없어서 service_role로 임시 채워둠 (.env.local) — 클라이언트 작동 X
+
+**환경변수 4개 상태**:
+- ✅ NEXT_PUBLIC_SUPABASE_URL = https://spopsngwvpxvbokoefem.supabase.co
+- ⏳ NEXT_PUBLIC_SUPABASE_ANON_KEY (publishable) — Supabase API Keys에서 별도 받기 필요
+- ✅ SUPABASE_SERVICE_ROLE_KEY (RTF + Vercel 등록 완료)
+- ✅ ANTHROPIC_API_KEY (RTF + Vercel 등록 완료)
+
+**로컬 .env.local 자동 생성됨**: `/Users/ing/Desktop/dev/web/landing_page/deploy/web/.env.local`
+(RTF에서 자동 추출, .gitignore 적용됨)
+
+---
+
+## 🎯 이전 세션 시작점 (2026-05-25 22:00 갱신)
 
 **이번 세션 (2026-05-25) 산출 — 8 주요 영역**:
 1. design-spec v3 + 7개 페이지 hero 베이지 정합
