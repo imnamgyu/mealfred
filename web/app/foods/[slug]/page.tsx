@@ -10,7 +10,7 @@ export const dynamic = 'force-static';
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  return loadPool().map((p) => ({ slug: encodeURIComponent(p.nm) }));
+  return loadPool().map((p) => ({ slug: p.nm }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

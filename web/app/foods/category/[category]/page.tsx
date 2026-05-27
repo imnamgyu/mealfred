@@ -11,7 +11,7 @@ export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const cats = new Set(loadPool().map((p) => p.cat).filter(Boolean));
-  return Array.from(cats).map((c) => ({ category: encodeURIComponent(c!) }));
+  return Array.from(cats).map((c) => ({ category: c! }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }) {

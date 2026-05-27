@@ -16,7 +16,7 @@ const GRADE_MAP: Record<string, { label: string; desc: string; emoji: string }> 
 };
 
 export async function generateStaticParams() {
-  return Object.keys(GRADE_MAP).map((grade) => ({ grade: encodeURIComponent(grade) }));
+  return Object.keys(GRADE_MAP).map((grade) => ({ grade }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ grade: string }> }) {
