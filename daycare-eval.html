@@ -567,8 +567,35 @@ function setMode(el, mode){
 }
 
 function handlePhotoSelect(input){
+  const preview = document.getElementById('photoPreview');
   if(input.files && input.files[0]){
-    document.getElementById('photoPreview').style.display='block';
+    const f = input.files[0];
+    const sizeMB = (f.size / 1024 / 1024).toFixed(1);
+    preview.innerHTML = `✅ <strong>${f.name}</strong> (${sizeMB}MB) 첨부 완료<br>아래 <strong>평가 시작</strong> 버튼을 눌러주세요!`;
+    preview.style.display = 'block';
+    // 업로드 존 시각 변경
+    const zone = document.querySelector('.upload-zone');
+    if(zone){
+      zone.style.background = '#E8F5E9';
+      zone.style.borderColor = '#4CAF50';
+      zone.style.borderStyle = 'solid';
+      zone.querySelector('.em').textContent = '✅';
+      zone.querySelector('.lbl').textContent = f.name;
+      zone.querySelector('.sub').textContent = sizeMB + 'MB · 다시 선택하려면 탭';
+    }
+    // 이미지 미리보기
+    if(f.type.startsWith('image/')){
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'max-width:100%;max-height:200px;border-radius:8px;margin-top:8px;border:1px solid #E5E7EB';
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(f);
+    }
+  } else {
+    preview.style.display = 'none';
   }
 }
 
