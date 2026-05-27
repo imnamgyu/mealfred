@@ -404,15 +404,15 @@
         <div class="lbl">사진 1장 업로드</div>
         <div class="sub">JPG · PNG · PDF · 한 달치 또는 일주일치</div>
       </div>
-      <div id="photoPreview" style="display:none;background:#FFF8E1;border:1px solid #F9A825;border-radius:10px;padding:10px;margin-top:8px;font-size:11.5px;color:#5a4a3a;line-height:1.7">
-        ⚠️ 사진 첨부됨 — 현재 OCR 미지원으로 <strong>아래 텍스트 입력</strong>이 있어야 실제 평가됩니다.<br>텍스트 없이 시작하면 샘플 식단으로 시뮬레이션합니다.
+      <div id="photoPreview" style="display:none;background:#E8F5E9;border:1px solid #4CAF50;border-radius:10px;padding:10px;margin-top:8px;font-size:11.5px;color:#1B5E20;line-height:1.7">
+        ✅ 사진 첨부됨 — AI가 식단표를 자동 인식합니다.<br>식단표가 아닌 사진은 자동 거부됩니다.
       </div>
     </div>
 
     <div class="form-group">
       <label class="form-label">━ 또는 식단 텍스트 직접 입력 ━</label>
       <textarea id="manualTextInput" rows="6" placeholder="예: 월: 잡곡밥, 미역국, 닭고기조림, 시금치나물, 김치&#10;화: 흰밥, 된장찌개, 두부조림, 콩나물무침&#10;&#10;식단표에서 복사/붙여넣기 하세요" style="width:100%;border:1.5px solid var(--n200);border-radius:10px;padding:12px;font-family:inherit;font-size:12.5px;line-height:1.7;resize:vertical;background:var(--n50);color:var(--n900)"></textarea>
-      <div style="font-size:10.5px;color:var(--n500);margin-top:4px;font-weight:600">💡 사진 OCR은 다음 업데이트에 출시 예정. 지금은 텍스트 입력이 정확합니다.</div>
+      <div style="font-size:10.5px;color:var(--n500);margin-top:4px;font-weight:600">💡 사진이 잘 안 읽히면 텍스트로 직접 입력하셔도 됩니다.</div>
     </div>
 
     <button class="modal-cta" onclick="startAnalysis()">🚀 평가 시작 (8축 알고리즘 작동)</button>
@@ -986,7 +986,9 @@ const ANALYZE_STEPS = [
   '결과 카드 정리 중...'
 ];
 
-function startAnalysis(){
+const OCR_API = 'https://app.mealfred.com/api/ocr';
+
+async function startAnalysis(){
   const photoInput = document.getElementById('photoInput');
   const textInput = document.getElementById('manualTextInput');
   const manualText = textInput ? textInput.value.trim() : '';
@@ -998,10 +1000,45 @@ function startAnalysis(){
     return;
   }
 
+  closeModal('uploadModal');
+  document.getElementById('analyzingModal').classList.add('show');
+  const fill = document.getElementById('progressFill');
+  const msg = document.getElementById('analyzeMsg');
+  fill.style.width = '10%';
+  msg.textContent = '분석 준비 중...';
+
   let text, inputMode;
+
   if(hasManual){
     text = manualText;
     inputMode = 'manual';
+  } else if(hasPhoto){
+    msg.textContent = '📸 사진에서 식단표 인식 중... (5~10초)';
+    fill.style.width = '20%';
+    try {
+      const formData = new FormData();
+      formData.append('image', photoInput.files[0]);
+      const resp = await fetch(OCR_API, { method: 'POST', body: formData });
+      const data = await resp.json();
+
+      if(!resp.ok || data.error){
+        closeModal('analyzingModal');
+        alert('⚠️ 사진 분석 실패: ' + (data.error || '서버 오류'));
+        return;
+      }
+      if(!data.is_menu){
+        closeModal('analyzingModal');
+        alert('📋 식단표가 아닌 것 같아요.\n\n' + (data.reason || '식단표 사진을 다시 올려주세요.') + '\n\n텍스트 직접 입력도 가능합니다.');
+        return;
+      }
+      text = data.text;
+      inputMode = 'ocr';
+      console.log('[mealfred-eval] OCR 결과:', text.slice(0, 200));
+    } catch(e) {
+      closeModal('analyzingModal');
+      alert('⚠️ 사진 인식 서버에 연결할 수 없습니다.\n텍스트 직접 입력으로 시도해주세요.');
+      return;
+    }
   } else {
     text = SAMPLE_MENUS[2];
     inputMode = 'sample_fallback';
@@ -1019,13 +1056,10 @@ function startAnalysis(){
   };
   console.log('[mealfred-eval] 입력 로그:', logEntry);
 
-  closeModal('uploadModal');
-  document.getElementById('analyzingModal').classList.add('show');
-  const fill = document.getElementById('progressFill');
-  const msg = document.getElementById('analyzeMsg');
-  let step = 0;
-  msg.textContent = ANALYZE_STEPS[0];
-  fill.style.width = '15%';
+  fill.style.width = '50%';
+  msg.textContent = '8개 식품군 다양성 분석 중...';
+
+  let step = 2;
   const iv = setInterval(()=>{
     step++;
     if(step >= ANALYZE_STEPS.length){
@@ -1069,7 +1103,7 @@ function startAnalysis(){
       return;
     }
     msg.textContent = ANALYZE_STEPS[step];
-    fill.style.width = (15 + step*15) + '%';
+    fill.style.width = (50 + step*10) + '%';
   }, 600);
 }
 
