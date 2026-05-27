@@ -170,11 +170,13 @@ export async function POST(req: NextRequest) {
     const message = e instanceof Error ? e.message : 'Unknown error';
     console.error('[ocr] error:', message);
 
-    await supabase.from('ocr_logs').insert({
-      is_menu: false,
-      reject_reason: `error: ${message}`,
-      duration_ms: Date.now() - startMs,
-    }).catch(() => {});
+    try {
+      await supabase.from('ocr_logs').insert({
+        is_menu: false,
+        reject_reason: `error: ${message}`,
+        duration_ms: Date.now() - startMs,
+      });
+    } catch (_) {}
 
     const errCors = getCorsHeaders(req);
     return NextResponse.json(
