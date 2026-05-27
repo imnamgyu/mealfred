@@ -872,7 +872,8 @@ function renderResult(result, ageBand){
   `;
 
   // 강점·주의·보충 동적 생성
-  const strengths = result.axes.filter(a => a.score >= 85).sort((a,b)=>b.score-a.score).slice(0,3);
+  const EXCLUDE_FROM_STRENGTHS = [2, 5]; // 식감단계, 알레르겐 — 강점에서 제외
+  const strengths = result.axes.filter(a => a.score >= 85 && !EXCLUDE_FROM_STRENGTHS.includes(a.idx)).sort((a,b)=>b.score-a.score).slice(0,3);
   const concerns = result.axes.filter(a => a.score < 75).sort((a,b)=>a.score-b.score).slice(0,3);
 
   const strengthTexts = strengths.map((a,i) => {
