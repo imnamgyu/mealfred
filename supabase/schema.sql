@@ -265,3 +265,34 @@ do $$ begin
       for insert with check (length(menu_name) between 1 and 200);
   end if;
 end $$;
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 식단 평가 결과 저장 (기관별 누적 → 통계화)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+create table if not exists eval_results (
+  id uuid primary key default gen_random_uuid(),
+  institution_type text check (institution_type in ('어린이집','유치원','초등학교','기타')),
+  institution_hash text,                    -- SHA256(기관명) 익명 식별용 (같은 기관 추적)
+  age_band text,
+  input_mode text,                          -- manual / sample_fallback
+  total_score int,
+  grade text,
+  axis_scores jsonb,                        -- [{idx,name,score}]
+  matched_count int,
+  total_menus int,
+  matched_ingredients text[],
+  missing_essential text[],                 -- 필수 식재료 중 미등장
+  created_at timestamptz default now()
+);
+create index if not exists idx_eval_results_type on eval_results(institution_type, created_at desc);
+create index if not exists idx_eval_results_stats on eval_results(institution_type)
+  where input_mode = 'manual';
+alter table eval_results enable row level security;
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'eval_results_anon_insert') then
+    create policy eval_results_anon_insert on eval_results
+      for insert with check (total_score between 0 and 100);
+  end if;
+end $$;
+comment on table eval_results is '식단 평가 결과 기관별 누적 — 어린이집/유치원 각 100개 넘으면 통계 크론탭 시작';

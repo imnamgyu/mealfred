@@ -6,10 +6,15 @@
 
 ---
 
-## 🎯 다음 세션 시작점 (2026-05-26 09:30 갱신 — 세션 종료)
+## 🎯 다음 세션 시작점 (2026-05-26 갱신)
 
-**오늘(2026-05-25~26) 종합 산출 — M0~M4 코드 100% 완료**:
-- M0 ✅ 정적 사이트 라이브
+**도메인 확정 (2026-05-26 이사님 결정)**:
+- `mealfred.com` = 정적 랜딩·블로그·제안서 (기존 Vercel 프로젝트, 그대로)
+- **`app.mealfred.com`** = Next.js 앱 (도감·가입·기록·PWA) — 별도 Vercel 프로젝트 `mealfred-app`, 배포 독립
+- 이유: 배포 독립성 최대 보장, 각자 별도 웹서버
+
+**M0~M4 코드 100% 완료**:
+- M0 ✅ 정적 사이트 라이브 (mealfred.com)
 - M1 ✅ Next.js 부트스트랩 (web/) + design v3 + Supabase 클라이언트 + /health
 - M2 ✅ 도감 SSG (~176 SEO URL: /foods·/foods/[slug]·/foods/grade/·/category/·/season/)
 - M3 ✅ enrich cron 골격 + seed 스크립트 (60+ 큐)
@@ -23,7 +28,9 @@
    - A3 seed (147 + 660 recipes) 자동 실행
    - A4 enrich_queue seed (60+) 자동 실행
    - Vercel 배포 검증
-4. 그 다음 카카오 Developers 등록 (A2) → /signup 작동 검증
+4. B1: Vercel 새 프로젝트 등록 (mealfred-app, Root: deploy/web)
+5. D3: `app.mealfred.com` 도메인 연결 (Vercel Settings → Domains)
+6. 카카오 Developers 등록 (A2) → app.mealfred.com/signup 작동 검증
 
 **현재 막힌 곳**:
 - A3 seed 시도 → ingredients 테이블 미존재 (schema 미적용)로 실패 (147/147)
@@ -91,8 +98,8 @@
 - [x] `/health` 라우트 — Supabase ping + version
 - [x] `web/vercel.json` (framework nextjs + 2 cron)
 - [x] `.env.local.example` + README
-- [ ] **Vercel 별도 프로젝트 등록** (사용자 작업, Root Directory: deploy/web)
-- [ ] 본 mealfred.com과 통합 (vercel.json rewrites)
+- [ ] **Vercel 별도 프로젝트 등록** (사용자 작업, Project: mealfred-app, Root: deploy/web)
+- [ ] **app.mealfred.com 도메인 연결** (Vercel Settings → Domains, 2026-05-26 확정)
 
 #### M2 — 도감 SEO 폭발 ✅ 코드 완료, DB 적용 대기
 - [x] supabase/schema.sql (ingredients · recipes · comments · enrich_queue · cron_runs + RLS)
@@ -104,7 +111,7 @@
 - [ ] **사용자 작업**: Supabase 대시보드 → SQL Editor → schema.sql 적용
 - [ ] **사용자 작업**: `node --env-file=.env.local ../supabase/seed-ingredients.mjs`
 - [ ] `/foods/grade/[g]` · `/foods/category/[c]` · `/foods/season/[m]` (다음 세션)
-- [ ] Google·Naver Search Console 등록 (배포 후)
+- [ ] Google·Naver Search Console 등록 (app.mealfred.com 배포 후)
 
 #### M3 — 매일 +50종 enrich ✅ 골격 완료
 - [x] `web/app/api/cron/enrich/route.ts` (Vercel Cron + Haiku 분류 파이프라인)
@@ -242,7 +249,8 @@
 
 ## 🔗 참고 링크
 
-- 라이브: <https://www.mealfred.com>
+- 라이브 (정적): <https://www.mealfred.com>
+- 라이브 (앱): <https://app.mealfred.com> (M1 배포 후 활성)
 - GitHub: <https://github.com/imnamgyu/mealfred>
 - 호스팅: Vercel (Hobby)
 - DB: Supabase
