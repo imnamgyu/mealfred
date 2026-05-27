@@ -29,9 +29,19 @@ export async function POST(req: NextRequest) {
   const startMs = Date.now();
   let logId: string | null = null;
 
+  console.log('[ocr] POST 요청 수신', {
+    origin: req.headers.get('origin'),
+    contentType: req.headers.get('content-type'),
+    hasApiKey: !!process.env.ANTHROPIC_API_KEY,
+    hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+  });
+
   try {
     const formData = await req.formData();
     const file = formData.get('image') as File | null;
+    console.log('[ocr] 파일:', file ? { name: file.name, size: file.size, type: file.type } : 'null');
+
     if (!file) {
       return NextResponse.json(
         { error: '이미지가 없습니다' },
@@ -49,6 +59,7 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const base64 = buffer.toString('base64');
+    console.log('[ocr] base64 변환 완료, 길이:', base64.length);
 
     const ext = file.type.split('/')[1] || 'jpeg';
     const mediaType = (['jpeg', 'png', 'gif', 'webp'].includes(ext)
@@ -64,6 +75,7 @@ export async function POST(req: NextRequest) {
       .from('eval-uploads')
       .upload(storagePath, buffer, { contentType: file.type, upsert: false });
 
+    console.log('[ocr] Storage 업로드:', uploadErr ? `실패 - ${uploadErr.message}` : '성공');
     if (!uploadErr) {
       const { data: urlData } = supabase.storage
         .from('eval-uploads')
@@ -73,7 +85,7 @@ export async function POST(req: NextRequest) {
       console.warn('[ocr] storage upload failed:', uploadErr.message);
     }
 
-    // OCR 호출
+    console.log('[ocr] Claude Vision 호출 시작...');
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
@@ -106,6 +118,7 @@ export async function POST(req: NextRequest) {
       ],
     });
 
+    console.log('[ocr] Claude 응답 수신:', { tokens: response.usage, stopReason: response.stop_reason });
     const content = response.content[0];
     if (content.type !== 'text') {
       return NextResponse.json(
@@ -124,6 +137,7 @@ export async function POST(req: NextRequest) {
 
     const parsed = JSON.parse(jsonMatch[0]);
     const durationMs = Date.now() - startMs;
+    console.log('[ocr] 결과:', { is_menu: parsed.is_menu, durationMs, textLength: parsed.text?.length || 0 });
 
     // DB 로그 저장
     const { data: logRow } = await supabase.from('ocr_logs').insert({
