@@ -519,15 +519,16 @@
     <!-- 평가 한계 고지 -->
     <div style="background:var(--n50);border:1px solid var(--n200);border-radius:10px;padding:12px 14px;margin-top:16px;font-size:11px;color:var(--n500);line-height:1.7;font-weight:600">
       <div style="font-weight:800;color:var(--n700);margin-bottom:4px">📌 이 평가는 참고용입니다</div>
-      본 결과는 <strong style="color:var(--n700)">식단표 메뉴명</strong>만을 기반으로 산출되며, 다음 사항은 반영되지 않습니다.
+      본 결과는 <strong style="color:var(--n700)">식단표 메뉴명</strong>을 기반으로 산출되며, 다음 사항에 유의해주세요.
       <ul style="margin:6px 0 0 16px;color:var(--n600)">
-        <li>실제 조리량(g) 및 1인분 배식량</li>
-        <li>아이가 실제로 먹은 양 (남긴 양)</li>
-        <li>간식·우유·과일 등 식단표 미기재 항목</li>
-        <li>가정에서 먹는 식사</li>
-        <li>양념·소스의 나트륨·당류</li>
+        <li><strong>서브 식재료 추정</strong>: "불고기" → 소고기·양파·대파·마늘 등을 자동 추정합니다. 실제 레시피와 다를 수 있습니다.</li>
+        <li>실제 조리량(g) 및 1인분 배식량은 알 수 없습니다</li>
+        <li>아이가 실제로 먹은 양 (남긴 양)은 반영되지 않습니다</li>
+        <li>간식·우유·과일 등 식단표에 안 적힌 항목은 빠집니다</li>
+        <li>가정에서 먹는 식사는 포함되지 않습니다</li>
+        <li>양념·소스의 나트륨·당류는 반영되지 않습니다</li>
       </ul>
-      <div style="margin-top:8px;color:var(--n700)">정확한 영양 진단은 <strong>매일 아이 식단을 직접 기록</strong>할 때 가능합니다.</div>
+      <div style="margin-top:8px;color:var(--n700)">이 평가는 <strong>대략적인 경향 파악</strong>을 위한 참고 자료입니다. 정확한 영양 진단은 <strong>매일 아이 식단을 직접 기록</strong>할 때 가능합니다.</div>
     </div>
   </div>
 </div>
@@ -687,18 +688,43 @@ const SEASON_MAP = {
 // 알레르겐 17종 (식약처)
 const ALLERGEN_KW = ['우유','계란','달걀','메밀','땅콩','대두','콩','밀','새우','게','고등어','조개','복숭아','토마토','호두','잣','아황산'];
 
-// 핵심 영양소 매핑 (KDRI 36 중 핵심 10)
+// 핵심 영양소 매핑 (KDRI 36종 확장)
 const NUTRI_MAP = {
-  '당근':['비타민A','비타민K'],'시금치':['철','엽산','비타민K','비타민A'],'근대':['철','엽산'],
-  '계란':['콜린','비타민D','단백질'],'달걀':['콜린','비타민D','단백질'],
-  '연어':['비타민D','EPA-DHA','단백질'],'고등어':['EPA-DHA','비타민D'],
-  '두부':['칼슘','단백질','이소플라본'],'우유':['칼슘','비타민D','단백질'],'치즈':['칼슘','단백질'],
-  '소고기':['철','아연','단백질','비타민B12'],'돼지고기':['비타민B1','단백질'],'닭고기':['단백질','니아신'],
-  '미역':['요오드','칼슘'],'김':['철','요오드','비타민A'],
-  '브로콜리':['비타민C','비타민K','엽산'],'토마토':['리코펜','비타민C'],
-  '고구마':['비타민A','비타민C','식이섬유'],'감자':['비타민C','칼륨'],
-  '사과':['비타민C','식이섬유'],'바나나':['칼륨','마그네슘'],'블루베리':['안토시아닌','비타민C'],
-  '호두':['오메가3','마그네슘'],'아몬드':['비타민E','마그네슘'],
+  '당근':['비타민A','비타민K','식이섬유'],'시금치':['철','엽산','비타민K','비타민A','마그네슘'],'근대':['철','엽산','비타민K'],
+  '계란':['콜린','비타민D','단백질','비타민B12','셀레늄'],'달걀':['콜린','비타민D','단백질','비타민B12','셀레늄'],
+  '연어':['비타민D','EPA-DHA','단백질','셀레늄'],'고등어':['EPA-DHA','비타민D','셀레늄'],
+  '두부':['칼슘','단백질','철','마그네슘'],'우유':['칼슘','비타민D','단백질','인','비타민B2'],'치즈':['칼슘','단백질','비타민A'],
+  '소고기':['철','아연','단백질','비타민B12','니아신'],'돼지고기':['비타민B1','단백질','아연','인'],'닭고기':['단백질','니아신','비타민B6','셀레늄'],
+  '미역':['요오드','칼슘','식이섬유'],'김':['철','요오드','비타민A'],'다시마':['요오드','칼슘'],
+  '브로콜리':['비타민C','비타민K','엽산','식이섬유'],'토마토':['리코펜','비타민C','칼륨'],
+  '고구마':['비타민A','비타민C','식이섬유','칼륨'],'감자':['비타민C','칼륨','비타민B6'],
+  '사과':['비타민C','식이섬유'],'바나나':['칼륨','마그네슘','비타민B6'],'블루베리':['안토시아닌','비타민C','식이섬유'],
+  '호두':['오메가3','마그네슘','비타민E'],'아몬드':['비타민E','마그네슘','칼슘'],
+  '양파':['비타민C','식이섬유'],'대파':['비타민A','비타민C'],'마늘':['셀레늄','비타민B6'],
+  '콩나물':['비타민C','엽산','식이섬유'],'배추':['비타민C','엽산','식이섬유'],
+  '양배추':['비타민C','비타민K','식이섬유'],'오이':['비타민K','칼륨'],'호박':['비타민A','비타민C'],
+  '멸치':['칼슘','단백질','비타민D'],'갈치':['단백질','비타민D'],'새우':['셀레늄','단백질','아연'],
+  '귤':['비타민C','엽산'],'딸기':['비타민C','엽산','식이섬유'],'키위':['비타민C','비타민K','칼륨'],
+  '현미':['식이섬유','마그네슘','비타민B1'],'귀리':['식이섬유','철','마그네슘'],'잡곡':['식이섬유','마그네슘'],
+  '된장':['단백질','철','칼륨'],'요거트':['칼슘','단백질','비타민B2'],'요구르트':['칼슘','단백질'],
+};
+
+// 메뉴명 → 서브 식재료 추정 (메뉴에 거의 반드시 들어가는 재료)
+const MENU_SUB_INGREDIENTS = {
+  '불고기':['소고기','양파','대파','마늘'],'된장찌개':['된장','두부','양파','대파','호박'],'김치찌개':['김치','돼지고기','두부','대파'],
+  '미역국':['미역','소고기','마늘'],'소고기무국':['소고기','무','대파','마늘'],'계란찜':['계란','대파'],
+  '계란말이':['계란','당근','대파'],'닭고기조림':['닭고기','감자','당근','양파','마늘'],'돈가스':['돼지고기','계란','양배추'],
+  '카레라이스':['감자','당근','양파','돼지고기'],'카레':['감자','당근','양파'],'짜장밥':['돼지고기','양파','감자','호박'],
+  '짜장':['돼지고기','양파','감자'],'잡채':['당근','양파','시금치','소고기'],'비빔밥':['당근','시금치','콩나물','계란','소고기'],
+  '두부조림':['두부','양파','대파','마늘'],'콩나물국':['콩나물','대파','마늘'],'시금치나물':['시금치','마늘'],
+  '콩나물무침':['콩나물','마늘'],'깍두기':['무'],'스파게티':['토마토','양파','마늘'],'파스타':['토마토','양파','마늘'],
+  '만두국':['만두','대파','계란'],'떡국':['소고기','대파','계란'],'갈비탕':['소고기','무','대파','마늘'],
+  '오므라이스':['계란','양파','당근'],'볶음밥':['계란','양파','당근','대파'],'샐러드':['양배추','토마토','오이'],
+  '우동':['대파','양파'],'탕수육':['돼지고기','양파'],'깐풍기':['닭고기','대파','마늘'],
+  '제육볶음':['돼지고기','양파','대파','마늘','고추'],'닭볶음탕':['닭고기','감자','당근','양파','대파'],
+  '소불고기':['소고기','양파','대파','마늘'],'돼지갈비':['돼지고기','양파','마늘'],
+  '어묵국':['어묵','대파','무'],'순두부찌개':['순두부','계란','대파'],'청국장':['청국장','두부','대파','호박'],
+  '김치볶음밥':['김치','계란','대파'],'참치김밥':['당근','시금치','계란','오이'],'김밥':['당근','시금치','계란','오이'],
 };
 
 // 등급 매핑 (design-spec v3 통일)
@@ -729,11 +755,15 @@ const AXIS_HELP = {
   8: '조리 스타일 — 한식만 있는지, 양식·일식·중식도 섞여 있는지. 4가지 이상이면 A+.'
 };
 
-// 메뉴 텍스트에서 식재료 추출
+// 메뉴 텍스트에서 식재료 추출 (직접 매칭 + 메뉴명→서브 식재료 추정)
 function extractIngredients(text){
   const found = new Set();
   const cats = new Set();
   const matched = [];
+  const poolMap = {};
+  INGREDIENT_POOL.forEach(ing => { poolMap[ing.nm] = ing; });
+
+  // 1차: 직접 키워드 매칭
   INGREDIENT_POOL.forEach(ing => {
     if(text.includes(ing.nm)){
       found.add(ing.nm);
@@ -741,6 +771,20 @@ function extractIngredients(text){
       matched.push(ing);
     }
   });
+
+  // 2차: 메뉴명에서 서브 식재료 추정
+  Object.entries(MENU_SUB_INGREDIENTS).forEach(([menu, subs]) => {
+    if(text.includes(menu)){
+      subs.forEach(subName => {
+        if(!found.has(subName) && poolMap[subName]){
+          found.add(subName);
+          cats.add(poolMap[subName].cat);
+          matched.push(poolMap[subName]);
+        }
+      });
+    }
+  });
+
   return {ingredients:[...found], categories:[...cats], matched};
 }
 
@@ -750,19 +794,21 @@ function evaluate(text, ageBand){
   const lines = text.split(/[\n,，/·]/).map(s=>s.trim()).filter(Boolean);
   const totalMenus = lines.length;
 
-  // 1. 다양성 (WHO MDD + 세부 식재료 종류)
+  // 1. 다양성 (WHO MDD 8개 식품군 + 세부 식재료 종류)
   const mddGroups = new Set();
   matched.forEach(i => { const g = MDD_GROUP[i.cat]; if(g) mddGroups.add(g); });
   const mddSatisfied = mddGroups.size;
   const subDepth = categories.length;
   let divScore;
-  if(mddSatisfied < 5) divScore = 60 + mddSatisfied*4;        // MDD 미달
-  else if(subDepth >= 10) divScore = 95;                       // A+
-  else if(subDepth >= 7) divScore = 90;                        // A
-  else if(subDepth >= 5) divScore = 85;                        // B+
-  else divScore = 80;                                          // B (MDD만 만족)
+  if(mddSatisfied <= 4) divScore = 40 + mddSatisfied*8;        // 4/8 이하 → D~C (40~72)
+  else if(mddSatisfied <= 6) divScore = 55 + mddSatisfied*5;   // 5~6/8 → C~C+ (80~85 → 75~85 하향)
+  else if(mddSatisfied === 7) divScore = 78;                    // 7/8 → B- (하나 빠짐)
+  else if(subDepth >= 10) divScore = 95;                        // 8/8 + 세부 10종 이상 → A+
+  else if(subDepth >= 7) divScore = 90;                         // 8/8 + 세부 7종 이상 → A
+  else if(subDepth >= 5) divScore = 85;                         // 8/8 + 세부 5종 이상 → B+
+  else divScore = 80;                                           // 8/8 달성 = B (기준선)
 
-  // 2. 식감 단계 (HabEat 연령 권장)
+  // 2. 식감 단계 (HabEat 연령 권장 — 식감 다양성 + 연령 적정성)
   let textureCounts = {puree:0,mashed:0,chopped:0,finger:0,family:0};
   lines.forEach(line => {
     Object.entries(TEXTURE_KW).forEach(([k, kws]) => {
@@ -771,18 +817,31 @@ function evaluate(text, ageBand){
   });
   const totalTexture = Object.values(textureCounts).reduce((a,b)=>a+b,0) || 1;
   const pureeChunkPct = (textureCounts.puree + textureCounts.mashed) / totalTexture;
+  const textureTypes = Object.values(textureCounts).filter(v => v > 0).length;
   let texScore;
-  // 만 3-7세는 핑거푸드·일반식이 정상. 죽·미음 비중 높으면 감점
-  if(ageBand === 'younger') texScore = pureeChunkPct > 0.3 ? 90 : 70;  // 영유아: 죽·으깬 비중 OK
-  else if(ageBand === '3-4y') texScore = pureeChunkPct < 0.2 ? 92 : pureeChunkPct < 0.4 ? 78 : 60;
-  else if(ageBand === '5y') texScore = pureeChunkPct < 0.15 ? 95 : pureeChunkPct < 0.3 ? 80 : 65;
-  else texScore = pureeChunkPct < 0.1 ? 95 : 85;  // 만 6-7세: 일반식 권장
+  if(ageBand === 'younger'){
+    // 영유아: 죽·으깬 비중 높아야 정상, 식감 다양성 가산
+    texScore = pureeChunkPct > 0.3 ? 85 + Math.min(10, textureTypes*3) : 65 + textureTypes*3;
+  } else {
+    // 만 3세 이상: 죽 비중 감점 + 식감 다양성(조림·볶음·구이·찌개 등 조리법 수)으로 변별
+    let base = pureeChunkPct < 0.1 ? 80 : pureeChunkPct < 0.2 ? 72 : pureeChunkPct < 0.4 ? 60 : 50;
+    base += Math.min(15, textureTypes * 4); // 식감 종류 다양하면 가산 (최대 +15)
+    texScore = Math.min(95, base);
+  }
 
-  // 3. KDRI 36종 영양 (식재료 다양성 + 핵심 영양 식재료 카운트)
+  // 3. KDRI 36종 영양 (36종 대비 커버 비율)
+  const KDRI_TOTAL = 36;
   const nutriSet = new Set();
   matched.forEach(i => { const n = NUTRI_MAP[i.nm]; if(n) n.forEach(x => nutriSet.add(x)); });
   const nutriCount = nutriSet.size;
-  const kdriScore = Math.min(100, 50 + nutriCount * 4);   // 12종 매칭 = 98점
+  const nutriPct = nutriCount / KDRI_TOTAL;
+  let kdriScore;
+  if(nutriPct >= 0.8) kdriScore = 95;       // 29종+ → A+
+  else if(nutriPct >= 0.6) kdriScore = 90;   // 22종+ → A
+  else if(nutriPct >= 0.45) kdriScore = 85;  // 16종+ → B+
+  else if(nutriPct >= 0.35) kdriScore = 80;  // 13종+ → B
+  else if(nutriPct >= 0.22) kdriScore = 70;  // 8종+ → C
+  else kdriScore = 50 + Math.round(nutriPct * 100); // 8종 미만 → D
 
   // 4. 메뉴 반복도
   const menuFreq = {};
