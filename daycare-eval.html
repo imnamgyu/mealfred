@@ -409,11 +409,6 @@
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">━ 또는 식단 텍스트 직접 입력 ━</label>
-      <textarea id="manualTextInput" rows="6" placeholder="예: 월: 잡곡밥, 미역국, 닭고기조림, 시금치나물, 김치&#10;화: 흰밥, 된장찌개, 두부조림, 콩나물무침&#10;&#10;식단표에서 복사/붙여넣기 하세요" style="width:100%;border:1.5px solid var(--n200);border-radius:10px;padding:12px;font-family:inherit;font-size:12.5px;line-height:1.7;resize:vertical;background:var(--n50);color:var(--n900)"></textarea>
-      <div style="font-size:10.5px;color:var(--n500);margin-top:4px;font-weight:600">💡 사진이 잘 안 읽히면 텍스트로 직접 입력하셔도 됩니다.</div>
-    </div>
 
     <button class="modal-cta" onclick="startAnalysis()">🚀 평가 시작 (8축 알고리즘 작동)</button>
     <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·기관·위치</strong> 같은 개인·기관 식별 정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong><br>사진은 분석 후 24시간 내 자동 삭제</div>
@@ -990,13 +985,8 @@ const OCR_API = 'https://app.mealfred.com/api/ocr';
 
 async function startAnalysis(){
   const photoInput = document.getElementById('photoInput');
-  const textInput = document.getElementById('manualTextInput');
-  const manualText = textInput ? textInput.value.trim() : '';
-  const hasPhoto = photoInput.files && photoInput.files[0];
-  const hasManual = manualText.length > 20;
-
-  if(!hasPhoto && !hasManual){
-    alert('📸 식단표 사진을 업로드하거나, 아래 텍스트 입력란에 식단을 직접 붙여넣어주세요!');
+  if(!photoInput.files || !photoInput.files[0]){
+    alert('📸 식단표 사진을 업로드해주세요!');
     return;
   }
 
@@ -1005,43 +995,34 @@ async function startAnalysis(){
   const fill = document.getElementById('progressFill');
   const msg = document.getElementById('analyzeMsg');
   fill.style.width = '10%';
-  msg.textContent = '분석 준비 중...';
+  msg.textContent = '📸 사진에서 식단표 인식 중... (5~10초)';
 
   let text, inputMode;
 
-  if(hasManual){
-    text = manualText;
-    inputMode = 'manual';
-  } else if(hasPhoto){
-    msg.textContent = '📸 사진에서 식단표 인식 중... (5~10초)';
-    fill.style.width = '20%';
-    try {
-      const formData = new FormData();
-      formData.append('image', photoInput.files[0]);
-      const resp = await fetch(OCR_API, { method: 'POST', body: formData });
-      const data = await resp.json();
+  try {
+    fill.style.width = '25%';
+    const formData = new FormData();
+    formData.append('image', photoInput.files[0]);
+    const resp = await fetch(OCR_API, { method: 'POST', body: formData });
+    const data = await resp.json();
 
-      if(!resp.ok || data.error){
-        closeModal('analyzingModal');
-        alert('⚠️ 사진 분석 실패: ' + (data.error || '서버 오류'));
-        return;
-      }
-      if(!data.is_menu){
-        closeModal('analyzingModal');
-        alert('📋 식단표가 아닌 것 같아요.\n\n' + (data.reason || '식단표 사진을 다시 올려주세요.') + '\n\n텍스트 직접 입력도 가능합니다.');
-        return;
-      }
-      text = data.text;
-      inputMode = 'ocr';
-      console.log('[mealfred-eval] OCR 결과:', text.slice(0, 200));
-    } catch(e) {
+    if(!resp.ok || data.error){
       closeModal('analyzingModal');
-      alert('⚠️ 사진 인식 서버에 연결할 수 없습니다.\n텍스트 직접 입력으로 시도해주세요.');
+      alert('⚠️ 사진 분석 실패: ' + (data.error || '서버 오류'));
       return;
     }
-  } else {
-    text = SAMPLE_MENUS[2];
-    inputMode = 'sample_fallback';
+    if(!data.is_menu){
+      closeModal('analyzingModal');
+      alert('📋 식단표가 아닌 것 같아요.\n\n' + (data.reason || '식단표 사진을 다시 올려주세요.'));
+      return;
+    }
+    text = data.text;
+    inputMode = 'ocr';
+    console.log('[mealfred-eval] OCR 결과:', text.slice(0, 200));
+  } catch(e) {
+    closeModal('analyzingModal');
+    alert('⚠️ 사진 인식 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
+    return;
   }
 
   const logEntry = {
