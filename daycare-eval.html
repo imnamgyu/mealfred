@@ -1093,17 +1093,23 @@ async function startAnalysis(){
 
       renderResult(result, selectedAge);
       try {
-        const extracted = (result.matched || []).map(m => ({
-          name: m.nm, matched: true, cookingMethod: null, menuName: null
-        }));
-        fetch('/api/eval/log', {
+        const ESSENTIAL = ['시금치','브로콜리','당근','고구마','두부','달걀','연어','소고기','우유','멸치','미역','고등어','닭고기','바나나','사과','블루베리','호두','귀리','현미','검은콩'];
+        const foundNames = new Set((result.matched||[]).map(m=>m.nm));
+        const missingEssential = ESSENTIAL.filter(n => !foundNames.has(n));
+        fetch('https://app.mealfred.com/api/eval/save', {
           method: 'POST',
           headers: {'content-type':'application/json'},
           body: JSON.stringify({
-            ageBand: selectedAge,
-            inputMode,
-            extractedIngredients: extracted,
-            totalScore: result.total
+            age_band: selectedAge,
+            input_mode: inputMode,
+            total_score: result.total,
+            grade: scoreToGrade(result.total).grade,
+            axis_scores: result.axes.map(a => ({idx:a.idx, name:a.name, score:a.score})),
+            matched_count: (result.matched||[]).length,
+            total_menus: result.totalMenus,
+            matched_ingredients: [...foundNames],
+            missing_essential: missingEssential,
+            ocr_text: text,
           })
         }).catch(() => {});
       } catch(e) {}
