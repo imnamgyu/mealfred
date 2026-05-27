@@ -296,3 +296,33 @@ do $$ begin
   end if;
 end $$;
 comment on table eval_results is '식단 평가 결과 기관별 누적 — 어린이집/유치원 각 100개 넘으면 통계 크론탭 시작';
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- OCR 로그 (사진 업로드 → AI 인식 결과 추적)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+create table if not exists ocr_logs (
+  id uuid primary key default gen_random_uuid(),
+  image_url text,
+  storage_path text,
+  file_name text,
+  file_size int,
+  file_type text,
+  is_menu boolean,
+  ocr_text text,
+  reject_reason text,
+  duration_ms int,
+  model text,
+  input_tokens int default 0,
+  output_tokens int default 0,
+  created_at timestamptz default now()
+);
+create index if not exists idx_ocr_logs_created on ocr_logs(created_at desc);
+create index if not exists idx_ocr_logs_rejected on ocr_logs(is_menu) where is_menu = false;
+alter table ocr_logs enable row level security;
+comment on table ocr_logs is 'OCR 요청 로그 — 사진·인식 결과·비용·거부 사유 추적';
+
+-- Storage 버킷 (Supabase Dashboard에서도 생성 가능)
+insert into storage.buckets (id, name, public)
+values ('eval-uploads', 'eval-uploads', true)
+on conflict (id) do nothing;
