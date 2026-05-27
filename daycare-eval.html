@@ -1016,34 +1016,55 @@ function generateGuide(result, ageBand){
   return s;
 }
 
+// 카테고리별 필수·권장 식재료 (초등 입학 전 먹을 줄 알아야 할 것)
+const CATEGORY_ESSENTIALS = {
+  '잎채소':    {em:'🥬', items:['시금치','근대','아욱','배추','양배추','상추','케일','깻잎','청경채']},
+  '뿌리채소':  {em:'🥕', items:['당근','무','감자','고구마','연근','우엉']},
+  '열매채소':  {em:'🍅', items:['토마토','호박','가지','오이','파프리카','피망']},
+  '십자화과':  {em:'🥦', items:['브로콜리','콜리플라워']},
+  '버섯':      {em:'🍄', items:['표고버섯','느타리','팽이','양송이']},
+  '콩제품':    {em:'🫘', items:['두부','콩','된장','순두부']},
+  '고기':      {em:'🥩', items:['소고기','돼지고기','닭고기']},
+  '생선':      {em:'🐟', items:['멸치','고등어','연어','갈치','삼치']},
+  '해산물':    {em:'🦐', items:['새우','바지락','오징어']},
+  '해조류':    {em:'🌊', items:['미역','다시마','김']},
+  '계란':      {em:'🥚', items:['계란','메추리알']},
+  '유제품':    {em:'🥛', items:['우유','치즈','요거트']},
+  '과일':      {em:'🍎', items:['사과','배','바나나','딸기','블루베리','키위','포도','귤']},
+  '견과':      {em:'🥜', items:['호두','아몬드','잣']},
+  '곡류':      {em:'🌾', items:['현미','귀리','잡곡']},
+};
+
 function generateTips(result){
   const tips = [];
-  const ESSENTIAL_INGREDIENTS = ['시금치','브로콜리','당근','고구마','두부','달걀','연어','소고기','우유','멸치','미역','고등어','닭고기','바나나','사과','블루베리','호두','귀리','현미','검은콩'];
   const foundNames = new Set((result.matched||[]).map(m=>m.nm));
-  const missingEssential = ESSENTIAL_INGREDIENTS.filter(n => !foundNames.has(n));
+  const foundCats = new Set((result.matched||[]).map(m=>m.cat));
 
-  // 부족 영양소 → 식재료 제안
-  const kdriAxis = result.axes.find(a=>a.idx===3);
-  if(kdriAxis && kdriAxis.raw){
-    const covered = new Set(kdriAxis.raw.nutriSet||[]);
-    if(!covered.has('비타민D')) tips.push({em:'☀️', text:'비타민D 부족 → 달걀 노른자, 연어, 표고버섯'});
-    if(!covered.has('철분')&&!covered.has('철')) tips.push({em:'🩸', text:'철분 부족 → 소고기, 시금치, 검은콩'});
-    if(!covered.has('칼슘')) tips.push({em:'🦴', text:'칼슘 부족 → 우유, 멸치, 두부'});
-    if(!covered.has('오메가3')&&!covered.has('EPA')&&!covered.has('DHA')) tips.push({em:'🐟', text:'오메가3 부족 → 연어, 고등어, 호두'});
-    if(!covered.has('식이섬유')) tips.push({em:'🌾', text:'식이섬유 부족 → 귀리, 현미, 고구마, 브로콜리'});
+  // 카테고리별로 빠진 식재료 추천
+  Object.entries(CATEGORY_ESSENTIALS).forEach(([cat, {em, items}]) => {
+    const missing = items.filter(n => !foundNames.has(n));
+    if(missing.length === 0) return;
+
+    if(!foundCats.has(cat)){
+      // 카테고리 자체가 아예 없음
+      tips.push({em, text:`<strong>${cat}</strong>이 식단에 없어요 → ${missing.slice(0,4).join(' · ')} 추천`, priority:1});
+    } else if(missing.length >= items.length * 0.6){
+      // 카테고리는 있지만 종류가 부족
+      tips.push({em, text:`<strong>${cat}</strong> 종류 부족 → ${missing.slice(0,3).join(' · ')}도 먹어보면 좋아요`, priority:2});
+    }
+  });
+
+  // 우선순위 정렬 (카테고리 아예 없는 것 먼저)
+  tips.sort((a,b) => a.priority - b.priority);
+
+  // 최대 5개만
+  const top = tips.slice(0, 5);
+
+  if(top.length === 0){
+    top.push({em:'✨', text:'대부분의 식품군을 골고루 포함한 식단이에요 — 이 수준을 유지해주세요'});
   }
 
-  // 필수/권장 식재료인데 빈도 낮은 것
-  if(missingEssential.length > 0){
-    const top5 = missingEssential.slice(0,5).join(' · ');
-    tips.push({em:'📋', text:`필수 식재료 중 미등장 → ${top5}`});
-  }
-
-  if(tips.length === 0){
-    tips.push({em:'✨', text:'주요 영양소와 필수 식재료 대부분 충족 — 현 식단 유지 권장'});
-  }
-
-  return tips.map(t => `<div class="insight-row"><span class="em">${t.em}</span>${t.text}</div>`).join('');
+  return top.map(t => `<div class="insight-row"><span class="em">${t.em}</span>${t.text}</div>`).join('');
 }
 
 // localStorage 이력 저장
