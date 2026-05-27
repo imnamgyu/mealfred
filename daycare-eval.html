@@ -410,7 +410,7 @@
     </div>
 
 
-    <button class="modal-cta" onclick="startAnalysis()">🚀 평가 시작 (8축 알고리즘 작동)</button>
+    <button class="modal-cta" id="startBtn" onclick="startAnalysis()" disabled style="opacity:0.4;cursor:not-allowed">📸 식단표 사진을 먼저 선택해주세요</button>
     <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·기관·위치</strong> 같은 개인·기관 식별 정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong><br>사진은 분석 후 24시간 내 자동 삭제</div>
   </div>
 </div>
@@ -583,6 +583,9 @@ function handlePhotoSelect(input){
       zone.querySelector('.lbl').textContent = f.name;
       zone.querySelector('.sub').textContent = sizeMB + 'MB · 다시 선택하려면 탭';
     }
+    // 버튼 활성화
+    const btn = document.getElementById('startBtn');
+    if(btn){ btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; btn.textContent = '🚀 평가 시작 (8축 알고리즘 작동)'; }
     // 이미지 미리보기
     if(f.type.startsWith('image/')){
       const reader = new FileReader();
