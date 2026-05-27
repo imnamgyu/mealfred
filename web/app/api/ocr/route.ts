@@ -8,17 +8,24 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': 'https://www.mealfred.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+function getCorsHeaders(req?: NextRequest) {
+  const origin = req?.headers.get('origin') || '';
+  const allowed = ['https://www.mealfred.com', 'https://mealfred.com', 'https://app.mealfred.com', 'https://mealfred-app.vercel.app'];
+  const matchedOrigin = allowed.includes(origin) ? origin : allowed[0];
+  return {
+    'Access-Control-Allow-Origin': matchedOrigin,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
+const CORS_HEADERS = getCorsHeaders();
 
-export async function OPTIONS() {
-  return NextResponse.json(null, { headers: CORS_HEADERS });
+export async function OPTIONS(req: NextRequest) {
+  return NextResponse.json(null, { headers: getCorsHeaders(req) });
 }
 
 export async function POST(req: NextRequest) {
+  const cors = getCorsHeaders(req);
   const startMs = Date.now();
   let logId: string | null = null;
 
@@ -28,14 +35,14 @@ export async function POST(req: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { error: '이미지가 없습니다' },
-        { status: 400, headers: CORS_HEADERS }
+        { status: 400, headers: cors }
       );
     }
 
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
         { error: '파일 크기가 10MB를 초과합니다' },
-        { status: 400, headers: CORS_HEADERS }
+        { status: 400, headers: cors }
       );
     }
 
@@ -103,7 +110,7 @@ export async function POST(req: NextRequest) {
     if (content.type !== 'text') {
       return NextResponse.json(
         { error: '분석 실패' },
-        { status: 500, headers: CORS_HEADERS }
+        { status: 500, headers: cors }
       );
     }
 
@@ -111,7 +118,7 @@ export async function POST(req: NextRequest) {
     if (!jsonMatch) {
       return NextResponse.json(
         { error: '응답 파싱 실패' },
-        { status: 500, headers: CORS_HEADERS }
+        { status: 500, headers: cors }
       );
     }
 
@@ -143,22 +150,22 @@ export async function POST(req: NextRequest) {
         reason: parsed.reason || null,
         log_id: logId,
       },
-      { headers: CORS_HEADERS }
+      { headers: cors }
     );
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : 'Unknown error';
     console.error('[ocr] error:', message);
 
-    // 에러도 로그
     await supabase.from('ocr_logs').insert({
       is_menu: false,
       reject_reason: `error: ${message}`,
       duration_ms: Date.now() - startMs,
     }).catch(() => {});
 
+    const errCors = getCorsHeaders(req);
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다' },
-      { status: 500, headers: CORS_HEADERS }
+      { status: 500, headers: errCors }
     );
   }
 }
