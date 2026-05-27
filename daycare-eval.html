@@ -1059,9 +1059,8 @@ async function startAnalysis(){
     ts: new Date().toISOString(),
     inputMode,
     ageBand: selectedAge,
-    hasPhoto: !!hasPhoto,
-    photoName: hasPhoto ? photoInput.files[0].name : null,
-    photoSize: hasPhoto ? photoInput.files[0].size : null,
+    photoName: photoInput.files[0].name,
+    photoSize: photoInput.files[0].size,
     textLength: text.length,
     textPreview: text.slice(0, 100)
   };
