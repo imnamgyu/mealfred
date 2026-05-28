@@ -165,12 +165,30 @@ export default function Home() {
         : '기본은 잘 갖췄어요. 빠진 식재료 그룹을 한 끼에 하나씩 더해보세요.';
   const oneLiner = aiOneliner || ruleOneLiner;
 
-  // 이번 주 시도해볼 식재료 — 필수(⭐⭐⭐) 안 먹은 것 우선, 그다음 권장
+  // 이번 주 시도해볼 식재료 — 빈약한 식품군(적게 먹은 카테고리) 우선 + 20슬랏에 카테고리 골고루(라운드로빈)
   const GRADE_RANK: Record<string, number> = { '필수': 0, '권장': 1, '향신료': 3 };
-  const tryRecommend = pool
-    .filter((p) => !eatenSet.has(p.nm))                  // 아직 안 먹은 것
-    .sort((a, b) => (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2))  // 필수 먼저
-    .slice(0, 20);
+  const tryRecommend = (() => {
+    const byCat: Record<string, typeof pool> = {};   // 카테고리별 안 먹은 후보
+    const eatenByCat: Record<string, number> = {};   // 카테고리별 먹은 개수
+    pool.forEach((p) => {
+      if (eatenSet.has(p.nm)) { eatenByCat[p.cat] = (eatenByCat[p.cat] || 0) + 1; return; }
+      (byCat[p.cat] ||= []).push(p);
+    });
+    // 각 카테고리 내부는 필수→권장 우선
+    Object.values(byCat).forEach((arr) => arr.sort((a, b) => (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2)));
+    // 빈약한 식품군(먹은 개수 적은 순) 먼저 — 라운드마다 빈약 그룹이 앞에 옴
+    const cats = Object.keys(byCat).sort((a, b) => (eatenByCat[a] || 0) - (eatenByCat[b] || 0));
+    const out: typeof pool = [];
+    for (let round = 0; out.length < 20; round++) {
+      let added = false;
+      for (const c of cats) {
+        const item = byCat[c][round];
+        if (item) { out.push(item); added = true; if (out.length >= 20) break; }
+      }
+      if (!added) break;
+    }
+    return out;
+  })();
 
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
@@ -230,10 +248,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 36종 신호등 (영양 점수 바로 아래) */}
+        {/* 15대 필수 영양소 신호등 (영양 점수 바로 아래) */}
         <a href="/care/report" className="block rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
           <div className="flex items-center justify-between mb-2">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 36종 필수 영양소 신호등</strong>
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 {D.green + D.yellow + D.red}대 필수 영양소 신호등</strong>
           </div>
           <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>기준: <strong style={{ color: '#1a2b4a' }}>보건복지부 KDRI 2025</strong></div>
           <div className="grid grid-cols-3 gap-2">
@@ -246,7 +264,7 @@ export default function Home() {
               ⚠ <strong>{D.reds.slice(0, 3).join('·')}</strong>이 가장 부족 — 성장 핵심 영양소예요
             </div>
           )}
-          <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 36종 자세히 + 보충 식재료 →</div>
+          <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 {D.green + D.yellow + D.red}대 영양소 자세히 + 보충 식재료 →</div>
         </a>
 
         {/* 최근 3일 식단 진단 — LLM 한줄 */}
