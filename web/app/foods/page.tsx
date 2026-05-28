@@ -32,9 +32,6 @@ function Card({ ing }: { ing: Ingredient }) {
       className="block rounded-2xl border p-4 text-center transition hover:-translate-y-1 hover:shadow-md"
       style={{ background: 'white', borderColor: 'var(--card-border, #FFE8D0)' }}
     >
-      {ing.warning && (
-        <div className="absolute m-1 text-xs font-extrabold text-red-700" title={ing.warning}>⚠</div>
-      )}
       <div className="mt-2 mb-1 text-5xl leading-none min-h-[50px] flex items-center justify-center">
         {hasEm ? ing.em : (
           <span className="text-xs font-bold text-gray-400 bg-gray-50 rounded-full w-14 h-14 flex items-center justify-center px-1">
