@@ -143,9 +143,16 @@ export default function Home() {
             <span className="text-[11px] font-bold" style={{ color: '#6B7280' }}>━ 우리 아이 영양 점수 ━</span>
             <span className="text-xs font-extrabold px-3 py-1 rounded-full text-white" style={{ background: grade.color }}>{grade.g} {grade.label}</span>
           </div>
-          <div className="flex items-end gap-1 mb-3">
-            <span className="text-5xl font-extrabold leading-none" style={{ color: '#1a2b4a' }}>{D.score}</span>
-            <span className="text-lg font-bold mb-1" style={{ color: '#9CA3AF' }}>점</span>
+          <div className="flex items-end justify-between mb-3">
+            <div className="flex items-end gap-1">
+              <span className="text-5xl font-extrabold leading-none" style={{ color: '#1a2b4a' }}>{D.score}</span>
+              <span className="text-lg font-bold mb-1" style={{ color: '#9CA3AF' }}>점</span>
+            </div>
+            {isMockup ? (
+              <div className="text-[11px] text-right font-semibold" style={{ color: '#6B7280' }}>지난주 <strong style={{ color: '#1a2b4a' }}>52점 → 60점</strong> (+8)<br /><span style={{ color: '#16A085' }}>이번 주 +8 상승 중</span></div>
+            ) : (
+              <div className="text-[11px] text-right font-semibold" style={{ color: '#6B7280' }}>최근 {days}일 기록<br /><span style={{ color: '#16A085' }}>매일 기록할수록 정확해져요</span></div>
+            )}
           </div>
           {/* 등급 게이지 */}
           <div className="relative h-2 rounded-full mb-2" style={{ background: 'linear-gradient(90deg,#C62828,#E67E22 25%,#F9A825 50%,#16A085 75%,#1B5E20)' }}>
@@ -158,7 +165,26 @@ export default function Home() {
           <div className="rounded-xl p-3" style={{ background: 'white', border: '1px solid rgba(0,0,0,0.05)' }}>
             <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>이번 주 먹은 식재료</span><strong style={{ color: '#1a2b4a' }}>{D.ingCount} / 30종</strong></div>
             <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (D.ingCount / 30) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
+            {D.ingCount < 30 && (
+              <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>다음 등급까지 <strong style={{ color: '#C45A00' }}>{Math.max(1, 30 - D.ingCount)}종 더</strong>!</div>
+            )}
           </div>
+
+          {/* 레시피 추천받기 */}
+          <button
+            onClick={() => {
+              if (isMockup) {
+                alert('🍳 식단을 3일 기록하면\n우리 아이 식습관·신호등 기반\n맞춤 레시피를 받을 수 있어요!');
+                window.location.href = loggedIn ? '/care' : '/signup';
+              } else {
+                window.location.href = '/care/report';
+              }
+            }}
+            className="w-full mt-3 py-3 rounded-xl font-extrabold text-white text-sm flex items-center justify-center gap-2"
+            style={{ background: '#1a2b4a' }}>
+            🍳 레시피 추천받기
+          </button>
+          <div className="text-[11px] text-center mt-1.5" style={{ color: '#9CA3AF' }}>우리 아이 식습관·신호등 기반 맞춤 레시피</div>
         </div>
 
         {/* 36종 신호등 */}
@@ -199,18 +225,50 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 친해지기 (실데이터 거부 식재료 or 목업) */}
-        {(isMockup || refused.length > 0) && (
-          <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🍱 우리 아이 친해지기 코스</strong>
-            <p className="text-[11px] mt-1 mb-2.5" style={{ color: '#8a7a6a' }}>거부한 식재료, 부드러운 요리부터 천천히</p>
-            <div className="flex flex-wrap gap-1.5">
-              {(isMockup ? ['시금치', '가지', '브로콜리'] : refused.slice(0, 6).map((f) => f.split(/[\s,(]/)[0])).map((f, i) => (
-                <a key={i} href={`/foods/${encodeURIComponent(f)}`} className="text-xs px-3 py-1.5 rounded-full font-bold" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>{f} 친해지기 →</a>
-              ))}
+        {/* 식감·메뉴 인사이트 (목업) */}
+        {isMockup && (
+          <>
+            <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #F9A825' }}>
+              <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#F57F17' }}>⚠ 식감 단계 — 핑거푸드 시점</div>
+              <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>이번 주 죽·미음 비중 <strong style={{ color: '#F57F17' }}>65%</strong>예요</div>
+              <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>씹는 근육이 자라는 시기라 단계를 살짝 도전해볼 때예요. 한 끼는 핑거푸드부터 — <strong>당근 스틱</strong> 추천</div>
             </div>
-          </div>
+            <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #5B8DEF' }}>
+              <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#1565C0' }}>🔁 메뉴 반복 — 닭죽 5회</div>
+              <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>한 주 동안 비슷한 메뉴가 자주 나왔어요</div>
+              <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>같은 식재료 반복은 맛 학습 좁아짐으로 이어져요 (HabEat). 베이스는 비슷해도 <strong>채소 조합만 바꿔도</strong> 새 노출이 됩니다</div>
+            </div>
+          </>
         )}
+
+        {/* Top 10 친해지기 랭킹 */}
+        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+          <div className="flex justify-between items-baseline mb-3">
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🍱 우리 아이 친해지기 코스</strong>
+            <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{isMockup ? '예시 TOP' : 'TOP'}</span>
+          </div>
+          {(isMockup
+            ? [
+                { em: '🥬', nm: '시금치', meta: '22번 노출 · 8번 먹음', status: 'kit' },
+                { em: '🍆', nm: '가지', meta: '8번 노출 · 3번 먹음', status: 'try' },
+                { em: '🥗', nm: '상추', meta: '6번 노출 · 2번 먹음', status: 'try' },
+                { em: '🥦', nm: '브로콜리', meta: '15번 노출 · 9번 먹음', status: 'try' },
+              ]
+            : refused.slice(0, 6).map((f) => ({ em: '🍽', nm: f.split(/[\s,(]/)[0], meta: '거부 기록', status: 'try' as const }))
+          ).map((it, i) => (
+            <a key={i} href={`/foods/${encodeURIComponent(it.nm)}`} className="flex items-center gap-3 py-2.5" style={{ borderTop: i ? '1px solid #F4F4F5' : 'none' }}>
+              <span className="text-sm font-extrabold w-5 text-center" style={{ color: '#9CA3AF' }}>{i + 1}</span>
+              <span className="text-2xl">{it.em}</span>
+              <div className="flex-1">
+                <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>{it.nm}</div>
+                <div className="text-[11px]" style={{ color: '#8a7a6a' }}>{it.meta}</div>
+              </div>
+              <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg" style={{ background: it.status === 'kit' ? '#FFF5EB' : '#FAFAF7', color: it.status === 'kit' ? '#C45A00' : '#FF6B1A', border: `1px solid ${it.status === 'kit' ? '#FFD0A0' : '#FFE8D0'}` }}>
+                {it.status === 'kit' ? '친해지기 키트 →' : '레시피 →'}
+              </span>
+            </a>
+          ))}
+        </div>
 
         {/* 목업 모드 — 하단 CTA */}
         {isMockup && (
