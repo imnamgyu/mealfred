@@ -413,8 +413,10 @@ create table if not exists coach_letters (
   letter_date date not null default current_date,
   letter text,
   oneliner text,
+  source_hash text,                          -- 최근 식단 지문 (바뀌면 재생성)
   created_at timestamptz default now()
 );
+alter table coach_letters add column if not exists source_hash text;
 create unique index if not exists idx_coach_letter_unique on coach_letters(child_id, letter_date);
 alter table coach_letters enable row level security;
 do $$ begin

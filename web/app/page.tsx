@@ -93,32 +93,39 @@ export default function Home() {
           const top = Object.entries(menuFreq).sort((a, b) => b[1] - a[1])[0];
           if (top && top[1] >= 3) setRepeatInsight({ menu: top[0], count: top[1] });
 
-          // 3일 이상 기록 → 코치 편지: 오늘 것 있으면 read, 없으면 1회 생성·저장 (캐싱)
+          // 3일 이상 기록 → 코치 편지 캐싱: 식단 지문(hash) 같으면 read, 바뀌면 1회 재생성
           if (byDay.length >= 3) {
             const today = new Date().toISOString().slice(0, 10);
+            const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
+            // 식단 지문 — 먹은 식재료·거부·부족영양·메모가 바뀌면 달라짐
+            const srcHash = [...allIng].sort().join(',') + '|' + [...new Set(ref)].sort().join(',') + '|' + reds.sort().join(',') + '|' + notes.length;
             const { data: cached } = await supabase.from('coach_letters')
-              .select('letter,oneliner').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
-            if (cached?.letter) {
+              .select('letter,oneliner,source_hash').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
+            if (cached?.letter && cached.source_hash === srcHash) {
+              // 식단 변동 없음 → 캐시 read만
               setAiLetter(cached.letter);
               if (cached.oneliner) setAiOneliner(cached.oneliner);
             } else {
+              // 오늘 첫 생성 OR 식단이 바뀜 → 1회 재생성
               const r = await fetch('https://app.mealfred.com/api/coach', {
                 method: 'POST', headers: { 'content-type': 'application/json' },
                 body: JSON.stringify({
                   childName: child.nickname, ageBand: child.age_band,
-                  recentNotes: notes, refused: [...new Set(ref)],
-                  reds: sig.filter((s) => s.level === 'red').map((s) => s.nutrient),
+                  recentNotes: notes, refused: [...new Set(ref)], reds,
                   eatenCount: new Set(allIng).size,
                 }),
               }).then((r) => r.json()).catch(() => null);
               if (r?.letter) {
                 setAiLetter(r.letter);
                 if (r.oneliner) setAiOneliner(r.oneliner);
-                // 오늘 편지 저장 (다음 방문부터 read)
                 supabase.from('coach_letters').upsert(
-                  { child_id: child.id, parent_id: user.id, letter_date: today, letter: r.letter, oneliner: r.oneliner || null },
+                  { child_id: child.id, parent_id: user.id, letter_date: today, letter: r.letter, oneliner: r.oneliner || null, source_hash: srcHash },
                   { onConflict: 'child_id,letter_date' }
                 ).then(() => {});
+              } else if (cached?.letter) {
+                // 재생성 실패 시 기존 캐시라도 표시
+                setAiLetter(cached.letter);
+                if (cached.oneliner) setAiOneliner(cached.oneliner);
               }
             }
           }
