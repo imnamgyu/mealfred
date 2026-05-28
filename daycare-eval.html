@@ -209,6 +209,13 @@
   .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s800);color:white;padding:12px 24px;border-radius:100px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:200;opacity:0;transition:all 0.3s ease;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  /* 공유 결과(?r=) 단독 페이지 뷰 — 마케팅 랜딩 숨기고 결과만 풀페이지 */
+  body.shared .hero, body.shared .counter, body.shared section, body.shared .sticky-cta, body.shared footer { display:none !important; }
+  body.shared { background:#FFFDFB; }
+  body.shared #resultModal { position:static; inset:auto; background:transparent; display:block }
+  body.shared #resultModal .modal { max-width:600px; margin:0 auto; border-radius:0; max-height:none; box-shadow:none; animation:none; padding-top:28px }
+  body.shared #resultModal .modal-handle { display:none }
+
   @media (max-width:380px){
     .hero h1{font-size:26px}
     .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
@@ -518,6 +525,7 @@
     <div style="margin-top:14px">
       <button class="share-btn send" onclick="shareResult()" style="width:100%">🔗 결과 링크 공유하기</button>
     </div>
+    <button onclick="analyzeAnother()" style="width:100%;margin-top:10px;background:white;border:1.5px solid var(--p500);color:var(--p700);padding:13px;border-radius:12px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit">📋 다른 달 식단 분석하기</button>
     <div style="margin-top:10px;text-align:center">
       <button onclick="showHistory()" style="background:transparent;border:1px dashed #FFE8D0;color:#8a7a6a;padding:8px 14px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📜 내 평가 이력 보기</button>
     </div>
@@ -1433,6 +1441,16 @@ function shareResult(){
 }
 
 // 공유 결과 URL 진입(?r=id) — LLM 없이 저장 스냅샷만 읽어 즉시 렌더
+// "다른 달 식단 분석하기" — 공유 페이지면 새로, 모달이면 업로드 다시
+function analyzeAnother(){
+  if(document.body.classList.contains('shared')){
+    window.location.href = 'https://www.mealfred.com/daycare-eval.html';
+  } else {
+    closeModal('resultModal');
+    openUpload();
+  }
+}
+
 async function loadSharedResult(id){
   try {
     const resp = await fetch('https://app.mealfred.com/api/eval/result?id=' + encodeURIComponent(id));
@@ -1442,9 +1460,11 @@ async function loadSharedResult(id){
     const snap = data.result_json;
     if(!snap || !snap.result){ alert('결과 데이터를 불러오지 못했어요.'); return; }
     currentShareId = id;
+    document.body.classList.add('shared');   // 단독 페이지 뷰
     renderResult(snap.result, snap.ageBand);
     renderOcrTable(snap.items || [], snap.text || '');
     document.getElementById('resultModal').classList.add('show');
+    window.scrollTo(0, 0);
   } catch(e){ alert('결과를 불러오는 중 오류가 났어요.'); }
 }
 (function(){
