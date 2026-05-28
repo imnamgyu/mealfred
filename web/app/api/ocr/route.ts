@@ -79,18 +79,19 @@ interface ClovaField { inferText?: string; lineBreak?: boolean }
 interface ClovaImage { inferResult?: string; tables?: ClovaTable[]; fields?: ClovaField[] }
 interface ClovaResp { images?: ClovaImage[] }
 
-async function clovaOcr(base64: string, format: string): Promise<ClovaResp> {
+async function clovaOcr(base64: string, format: string, tableDetection: boolean): Promise<ClovaResp> {
+  const body: Record<string, unknown> = {
+    version: 'V2',
+    requestId: randomUUID(),
+    timestamp: Date.now(),
+    lang: 'ko',
+    images: [{ format, name: 'menu', data: base64 }],
+  };
+  if (tableDetection) body.enableTableDetection = true;
   const resp = await fetch(CLOVA_OCR_URL, {
     method: 'POST',
     headers: { 'X-OCR-SECRET': CLOVA_OCR_SECRET, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      version: 'V2',
-      requestId: randomUUID(),
-      timestamp: Date.now(),
-      lang: 'ko',
-      enableTableDetection: true,
-      images: [{ format, name: 'menu', data: base64 }],
-    }),
+    body: JSON.stringify(body),
   });
   if (!resp.ok) {
     const t = await resp.text().catch(() => '');
@@ -165,7 +166,16 @@ export async function POST(req: NextRequest) {
     // 2) CLOVA OCR 전사
     let ocrText = '';
     try {
-      const clova = await clovaOcr(base64, format);
+      let clova: ClovaResp;
+      try {
+        clova = await clovaOcr(base64, format, true);     // 표 셀 인식 우선
+      } catch (e1) {
+        const m1 = e1 instanceof Error ? e1.message : '';
+        if (m1.includes('Table detection disabled') || m1.includes('0028')) {
+          console.warn('[ocr] 표 추출 비활성 도메인 → 일반 OCR 폴백');
+          clova = await clovaOcr(base64, format, false);  // 일반 OCR 폴백
+        } else { throw e1; }
+      }
       ocrText = reconstructText(clova);
       console.log('[ocr] CLOVA 전사 길이:', ocrText.length);
     } catch (e) {
