@@ -32,12 +32,16 @@ export const NUTRI_MAP: Record<string, string[]> = {
   '버섯': ['비타민D', '식이섬유'], '표고버섯': ['비타민D', '식이섬유'], '느타리': ['식이섬유', '단백질'],
   '메추리알': ['단백질', '비타민B12', '철'], '오징어': ['단백질', '셀레늄'], '바지락': ['철', '비타민B12'],
   '콩': ['단백질', '철', '식이섬유'], '검은콩': ['단백질', '철', '안토시아닌'], '땅콩': ['단백질', '비타민E'],
+  '무': ['비타민C'], '김치': ['비타민C', '식이섬유'], '명태': ['단백질', '비타민D'],
+  '어묵': ['단백질'], '소시지': ['단백질'], '만두': ['단백질'], '고추': ['비타민C'],
+  '옥수수': ['식이섬유', '비타민B1'], '당면': [], '빵': ['탄수화물'],
 };
 
 // 핵심 추적 영양소 (신호등 표시 — 영유아 결핍 흔한 순)
+// 비타민E 제외: 호두·아몬드만 커버라 거의 항상 빨강 = 노이즈
 export const KEY_NUTRIENTS = [
   '단백질', '칼슘', '철', '비타민A', '비타민C', '비타민D', '오메가3', '식이섬유',
-  '아연', '엽산', '비타민B12', '요오드', '칼륨', '마그네슘', '비타민K', '비타민E',
+  '아연', '엽산', '비타민B12', '요오드', '칼륨', '마그네슘', '비타민K',
 ];
 
 // 카테고리별 필수·권장 식재료 (부족 시 추천)
@@ -84,9 +88,10 @@ export function computeSignals(ingredientsByDay: string[][]): NutrientSignal[] {
     const d = coverDays[n];
     const ratio = d / totalDays;
     let level: 'green' | 'yellow' | 'red';
-    if (ratio >= 0.5) level = 'green';      // 절반 이상 날에 커버
-    else if (ratio > 0) level = 'yellow';   // 가끔
-    else level = 'red';                      // 한 번도 X
+    // 3일 이상 OR 절반 이상 커버 = 충분 (생선·미역 주2회도 인정)
+    if (d >= 3 || ratio >= 0.5) level = 'green';
+    else if (d > 0) level = 'yellow';        // 가끔 (1~2일)
+    else level = 'red';                       // 한 번도 X
     return { nutrient: n, daysCovered: d, level };
   });
 }
