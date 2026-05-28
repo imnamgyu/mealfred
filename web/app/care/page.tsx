@@ -19,8 +19,10 @@ const SLOTS: Slot[] = [
 ];
 
 type Ingredient = { nm: string; cat: string; grade: string };
-type MealEntry = { ingredients: string[]; note: string; ateWell: boolean | null };
+type Tag = { name: string; ai?: boolean };  // ai=true면 AI가 메뉴에서 추정한 것
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null };
 type DayLog = Record<string, MealEntry>;
+const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
 
 const STORAGE_KEY = 'mealfred_care_logs';
 const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -37,7 +39,9 @@ export default function CarePage() {
   const [pool, setPool] = useState<Ingredient[]>([]);
   const [date, setDate] = useState(todayStr());
   const [activeSlot, setActiveSlot] = useState<string>('breakfast');
-  const [entry, setEntry] = useState<MealEntry>({ ingredients: [], note: '', ateWell: null });
+  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null });
+  const [menuInput, setMenuInput] = useState('');
+  const [parsing, setParsing] = useState(false);
   const [query, setQuery] = useState('');
   const [logs, setLogs] = useState<Record<string, DayLog>>({});
   const [saved, setSaved] = useState(false);
@@ -55,21 +59,51 @@ export default function CarePage() {
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
   useEffect(() => {
     const dayLog = logs[date] || {};
-    setEntry(dayLog[activeSlot] || { ingredients: [], note: '', ateWell: null });
+    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null });
   }, [date, activeSlot, logs]);
 
+  const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
+
+  // 메뉴명 입력 → AI 분해 → 식재료 태그 자동 추가
+  async function addMenu(menu: string) {
+    const m = menu.trim();
+    if (!m) return;
+    setMenuInput('');
+    setEntry((e) => ({ ...e, menus: [...e.menus, m] }));
+    setParsing(true);
+    try {
+      const resp = await fetch(MEAL_PARSE_API, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ menu: m }),
+      });
+      const data = await resp.json();
+      const newTags: Tag[] = (data.ingredients || [])
+        .filter((nm: string) => !hasName(nm))
+        .map((nm: string) => ({ name: nm, ai: true }));
+      setEntry((e) => ({ ...e, ingredients: [...e.ingredients, ...newTags.filter((t) => !e.ingredients.some((x) => x.name === t.name))] }));
+    } catch {
+      // 분해 실패해도 메뉴명은 남음
+    } finally {
+      setParsing(false);
+    }
+  }
+
   const suggestions = query.trim()
-    ? pool.filter((p) => p.nm.includes(query.trim()) && !entry.ingredients.includes(p.nm)).slice(0, 8)
+    ? pool.filter((p) => p.nm.includes(query.trim()) && !hasName(p.nm)).slice(0, 8)
     : [];
 
   function addIngredient(nm: string) {
-    if (!nm.trim() || entry.ingredients.includes(nm)) return;
-    setEntry((e) => ({ ...e, ingredients: [...e.ingredients, nm] }));
+    if (!nm.trim() || hasName(nm)) return;
+    setEntry((e) => ({ ...e, ingredients: [...e.ingredients, { name: nm, ai: false }] }));
     setQuery('');
     inputRef.current?.focus();
   }
   function removeIngredient(nm: string) {
-    setEntry((e) => ({ ...e, ingredients: e.ingredients.filter((x) => x !== nm) }));
+    setEntry((e) => ({ ...e, ingredients: e.ingredients.filter((x) => x.name !== nm) }));
+  }
+  function removeMenu(menu: string) {
+    setEntry((e) => ({ ...e, menus: e.menus.filter((x) => x !== menu) }));
   }
 
   function saveEntry() {
@@ -91,7 +125,7 @@ export default function CarePage() {
 
   // 오늘 기록된 슬롯 수
   const todayLog = logs[date] || {};
-  const filledSlots = SLOTS.filter((s) => todayLog[s.key]?.ingredients.length).length;
+  const filledSlots = SLOTS.filter((s) => (todayLog[s.key]?.menus?.length || todayLog[s.key]?.ingredients?.length)).length;
 
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
@@ -136,7 +170,7 @@ export default function CarePage() {
       <div className="px-5 pb-2">
         <div className="flex gap-1.5 overflow-x-auto pb-1">
           {SLOTS.map((s) => {
-            const filled = (todayLog[s.key]?.ingredients.length || 0) > 0;
+            const filled = ((todayLog[s.key]?.menus?.length || 0) + (todayLog[s.key]?.ingredients?.length || 0)) > 0;
             const active = s.key === activeSlot;
             return (
               <button key={s.key} onClick={() => setActiveSlot(s.key)}
@@ -157,22 +191,52 @@ export default function CarePage() {
 
       {/* 입력 영역 */}
       <div className="flex-1 px-5 py-3 overflow-y-auto">
-        {/* 식재료 해시태그 */}
+        {/* 1단계: 메뉴명 입력 */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>먹은 식재료</h3>
+          <h3 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>뭘 먹었나요?</h3>
+          <p className="text-[11px] mb-2.5" style={{ color: '#8a7a6a' }}>메뉴 이름만 적으면 AI가 식재료로 풀어드려요 (예: 야채볶음밥)</p>
           <div className="flex flex-wrap gap-1.5 mb-2">
-            {entry.ingredients.map((nm) => (
-              <span key={nm} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white" style={{ background: '#16A085' }}>
-                {nm}
-                <button onClick={() => removeIngredient(nm)} className="ml-0.5 opacity-70 hover:opacity-100">✕</button>
+            {entry.menus.map((m) => (
+              <span key={m} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>
+                🍽 {m}
+                <button onClick={() => removeMenu(m)} className="ml-0.5 opacity-60 hover:opacity-100">✕</button>
               </span>
             ))}
-            {entry.ingredients.length === 0 && <span className="text-xs" style={{ color: '#9CA3AF' }}>아래에서 검색해 추가하세요</span>}
+          </div>
+          <div className="flex gap-2">
+            <input value={menuInput} onChange={(e) => setMenuInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMenu(menuInput); } }}
+              placeholder="예: 소세지볶음, 미역국"
+              className="flex-1 px-3 py-2.5 rounded-lg text-sm outline-none"
+              style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
+            <button onClick={() => addMenu(menuInput)} disabled={parsing || !menuInput.trim()}
+              className="px-4 rounded-lg text-sm font-bold text-white"
+              style={{ background: parsing ? '#9CA3AF' : '#FF6B1A' }}>
+              {parsing ? '...' : '추가'}
+            </button>
+          </div>
+        </div>
+
+        {/* 2단계: 식재료 태그 (AI 자동 + 직접 편집) */}
+        <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>들어간 식재료</h3>
+            {parsing && <span className="text-[10px] font-bold" style={{ color: '#FF6B1A' }}>✨ 분석 중...</span>}
+          </div>
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {entry.ingredients.map((t) => (
+              <span key={t.name} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white"
+                style={{ background: t.ai ? '#5B8DEF' : '#16A085' }}>
+                {t.ai && '✨'}{t.name}
+                <button onClick={() => removeIngredient(t.name)} className="ml-0.5 opacity-70 hover:opacity-100">✕</button>
+              </span>
+            ))}
+            {entry.ingredients.length === 0 && <span className="text-xs" style={{ color: '#9CA3AF' }}>메뉴를 추가하면 자동으로 채워져요</span>}
           </div>
           <div className="relative">
             <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && query.trim()) addIngredient(suggestions[0]?.nm || query.trim()); }}
-              placeholder="식재료 검색 (예: 시금치)"
+              placeholder="+ 식재료 직접 추가 (예: 시금치)"
               className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
               style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
             {suggestions.length > 0 && (
@@ -189,6 +253,7 @@ export default function CarePage() {
               </div>
             )}
           </div>
+          <p className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>✨ 파란 태그 = AI 추정 · 초록 태그 = 직접 추가 · 틀리면 ✕로 빼세요</p>
         </div>
 
         {/* 자유 메모 (정성 기록) */}
