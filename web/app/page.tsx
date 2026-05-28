@@ -339,7 +339,20 @@ export default function Home() {
             );
           })}
           {!isMockup && tryRecommend.length === 0 && <div className="text-center py-4 text-xs" style={{ color: '#9CA3AF' }}>필수·권장 식재료를 모두 먹어봤어요! 🎉</div>}
-          <a href="/foods" className="block mt-3 py-3 rounded-xl text-center text-sm font-extrabold" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>
+
+          {/* 골고루 키트 CTA */}
+          <a href="https://www.mealfred.com/box-product.html" target="_blank" rel="noopener" className="block mt-3 rounded-xl p-3.5" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">📦</span>
+              <div className="flex-1">
+                <div className="text-sm font-extrabold text-white">골고루 키트로 집에서 만나보세요</div>
+                <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.9)' }}>안 먹어본 식재료, AI가 골라 주 1회 소량 배송</div>
+              </div>
+              <span className="text-white">›</span>
+            </div>
+          </a>
+
+          <a href="/foods" className="block mt-2 py-3 rounded-xl text-center text-sm font-extrabold" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>
             🗂 식재료 도감 전체 보기 →
           </a>
         </div>
