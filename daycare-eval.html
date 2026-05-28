@@ -492,18 +492,18 @@
       </div>
     </div>
 
-    <div id="ocrTableSection" style="display:none;margin-top:18px"></div>
+    <!-- 추천 식재료로 레시피 받아보기 (가정보충 직후 프로미넌트 CTA) -->
+    <div onclick="goHomeMealPlan()" style="background:linear-gradient(135deg,#FF6B1A,#C45A00);color:white;border-radius:14px;padding:15px 16px;margin-top:14px;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 6px 18px rgba(255,107,26,0.25);transition:transform 0.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <span style="font-size:24px">🍳</span>
+      <span style="flex:1;font-size:14.5px;font-weight:800;line-height:1.4">위 식재료로 우리 아이 레시피 받아보기<br><span style="font-size:11px;font-weight:600;opacity:0.9">빠진 식재료를 채우는 맞춤 식단</span></span>
+      <span style="font-size:20px;font-weight:300">›</span>
+    </div>
 
     <!-- ★ 5문장 자연어 — 어떻게 먹일지 구체 권고 -->
-    <div style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:18px;border:1.5px solid var(--b500)">
+    <div style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:12px;border:1.5px solid var(--b500)">
       <div style="font-size:11px;font-weight:800;color:var(--b700);letter-spacing:0.04em;margin-bottom:8px">━ 💡 집에서는 이렇게 먹여주세요 ━</div>
       <div id="guideText" style="font-size:13px;color:var(--n700);font-weight:600;line-height:1.75">
         <strong style="color:var(--s800)">8축 평균 86점이에요.</strong> 가장 큰 약점은 <strong>조리 스타일이 한식에 치우친 것</strong>이라, 가정에서 <strong>주 1-2회 양식(스파게티·오믈렛) 또는 일식(우동·계란찜)</strong>을 더해주면 +20점 가능해요.
-      </div>
-      <div onclick="goHomeMealPlan()" style="background:white;border:1.5px dashed var(--b500);border-radius:10px;padding:10px 12px;margin-top:12px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--b700)">
-        <span style="font-size:16px">✨</span>
-        <span style="flex:1">추천 식재료 레시피 받아보기</span>
-        <span style="color:var(--b500);font-size:16px;font-weight:300">›</span>
       </div>
     </div>
 
@@ -538,6 +538,9 @@
       </ul>
       <div style="margin-top:8px;color:var(--n700)">이 평가는 <strong>대략적인 경향 파악</strong>을 위한 참고 자료입니다. 정확한 영양 진단은 <strong>매일 아이 식단을 직접 기록</strong>할 때 가능합니다.</div>
     </div>
+
+    <!-- 메뉴별 식단분석 (맨 아래, 바이럴보다 아래) -->
+    <div id="ocrTableSection" style="display:none;margin-top:18px"></div>
   </div>
 </div>
 
@@ -1062,7 +1065,7 @@ const CATEGORY_ESSENTIALS = {
   '잎채소': {em:'🥬', must:['배추','시금치','상추','쑥갓','양상추','미나리','근대','청경채','아욱','들깻잎'], rec:['양배추','얼갈이배추','달래','쑥','참나물']},
   '뿌리채소': {em:'🥕', must:['당근','무'], rec:['토마토','연근','우엉','도라지','더덕','순무']},
   '열매채소': {em:'🍅', must:[], rec:['호박','오이','가지','파프리카','피망']},
-  '곡물_탄수': {em:'🌾', must:['밀','감자','고구마'], rec:['멥쌀','옥수수','찹쌀','보리']},
+  '곡물_탄수': {em:'🌾', must:['통밀빵','감자','고구마'], rec:['현미','옥수수','찹쌀','보리']},
   '콩_콩제품': {em:'🫘', must:['두부','검은콩'], rec:['콩나물','숙주나물','완두콩','땅콩']},
   '생선': {em:'🐟', must:['멸치','명태','대구','삼치','고등어'], rec:['오징어','가자미','갈치']},
   '고기': {em:'🥩', must:[], rec:['소고기','돼지고기','닭고기','오리고기']},
@@ -1364,7 +1367,7 @@ function renderOcrTable(items, ocrText){
   }
   if(entries.length===0){section.style.display='none'; return;}
 
-  let html='<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--b700);margin-bottom:8px">━ 📋 OCR 추출 식단 · 우리 아이한테 ━</div>';
+  let html='<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--b700);margin-bottom:8px">━ 🍽 메뉴별 식단분석 ━</div>';
   html+='<div class="ocr-table-wrap"><table class="ocr-table"><thead><tr><th style="width:34px">날짜</th><th>메뉴</th><th>우리 아이한테</th></tr></thead><tbody>';
   let lastKey='';
   entries.forEach(({date,day,menu,ingredients,note})=>{
