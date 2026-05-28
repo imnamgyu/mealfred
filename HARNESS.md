@@ -227,6 +227,23 @@
 
 ---
 
+### 2026-05-28 (저녁) — OCR을 CLOVA로 전환 (Sonnet 비전 → 전용 OCR)
+
+**배경**: 실제 김해 금관어린이집 10월 식단표(한 달 격자)로 테스트하니 Sonnet 비전 OCR이 "개판" — "(동그랑땡)" 거의 모든 칸에 복제(degenerate 루프), "사이다" 환각, 한글 깨짐("병아리콩죽"→"병어리종죽"), 요일 오배치. 원인: ① 내가 effort:low+thinking:disabled로 정확도 과하게 깎음 ② Sonnet 고해상도 비전 없어 밀집 격자에 약함.
+
+**결정 (이사님)**: 한국어 밀집표는 범용 비전 LLM보다 전용 OCR이 우위 → **OCR만 네이버 CLOVA로**, 분해는 LLM 유지. (타일 분할안도 검토했으나 CLOVA가 전체 표 처리하므로 불필요)
+
+**구현**:
+- `web/app/api/ocr/route.ts` 전면 재작성: 사진 → **CLOVA General OCR**(`enableTableDetection:true`, 표 셀 구조 인식) → 텍스트 재구성(셀 우선, 필드 폴백) → **Claude Haiku 4.5**가 메뉴→식재료 분해 + 정리(구조화 출력 JSON, date·day·menu·ingredients)
+- 프론트 타일 분할 코드 제거 → 단일 풀이미지 호출(`ocrOneImage`)
+- evaluate: items(중복제거) 기준으로 메뉴수·반복도 계산, scanText로 가공/제철/조리/알레르겐 스캔(타일 겹침 부풀림 제거). 반복도에서 밥·김치·우유·물·차 등 **주식 제외**(이사님 지적 예외처리)
+- 비용: 스캔당 대략 CLOVA(₩수원)+Haiku(₩30~40) ≈ ₩40~80 (최저가 구간)
+- env: `CLOVA_OCR_URL`·`CLOVA_OCR_SECRET` (Vercel mealfred-app + 로컬 .env.local). 시크릿 출처: `/Users/ing/Desktop/편식극복키트/10_개발관련/clova-ocr.rtf`
+
+**주의/미검증**: `enableTableDetection` 미지원 도메인이면 CLOVA 400 가능 → 그 옵션만 빼면 폴백. 실제 식단표 사진으로 정확도 검증 필요.
+
+---
+
 ### 2026-05-28 (오후) — OCR 고도화(Sonnet+구조화) + 식재료 분해 + 건강포인트 표 + 결과 URL 공유
 
 #### OCR 엔진 고도화 (`web/app/api/ocr/route.ts`)

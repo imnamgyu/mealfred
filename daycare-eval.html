@@ -814,11 +814,19 @@ function extractIngredientsFromItems(items){
 
 // 8축 평가 알고리즘
 function evaluate(text, ageBand, items){
-  const {ingredients, categories, matched} = (items && items.length)
+  const hasItems = items && items.length;
+  const {ingredients, categories, matched} = hasItems
     ? extractIngredientsFromItems(items)
     : extractIngredients(text);
-  const lines = text.split(/[\n,，/·]/).map(s=>s.trim()).filter(Boolean);
+  // 메뉴 목록: items(중복 제거됨) 우선 — 타일 겹침으로 부풀려진 text 대신
+  const lines = hasItems
+    ? items.map(it => String(it.menu||'')).filter(Boolean)
+    : text.split(/[\n,，/·]/).map(s=>s.trim()).filter(Boolean);
   const totalMenus = lines.length;
+  // 키워드 스캔용(가공식품·제철·조리·알레르겐): 중복 제거된 메뉴+식재료
+  const scanText = hasItems
+    ? items.map(it => String(it.menu||'') + ' ' + (it.ingredients||[]).join(' ')).join('\n')
+    : text;
 
   // 1. 다양성 (WHO MDD 8개 식품군 + 세부 식재료 종류)
   const mddGroups = new Set();
@@ -869,31 +877,36 @@ function evaluate(text, ageBand, items){
   else if(nutriPct >= 0.22) kdriScore = 70;  // 8종+ → C
   else kdriScore = 50 + Math.round(nutriPct * 100); // 8종 미만 → D
 
-  // 4. 메뉴 반복도
+  // 4. 메뉴 반복도 (매일 나오는 밥·김치·우유·물·차 등 주식은 반복 카운트에서 제외)
+  const STAPLE_KW = ['우유','김치','깍두기','단무지','보리차','둥글레차','메밀차','옥수수차','생수','요구르트','요거트','백미밥','잡곡밥','흰밥','기장밥','수수밥','쌀밥','현미밥','찹쌀밥'];
   const menuFreq = {};
-  lines.forEach(line => { const key = line.replace(/[\s,]/g,'').toLowerCase().slice(0,8); if(key) menuFreq[key] = (menuFreq[key]||0)+1; });
+  lines.forEach(line => {
+    if(STAPLE_KW.some(k => line.includes(k))) return;
+    const key = line.replace(/[\s,]/g,'').toLowerCase().slice(0,8);
+    if(key) menuFreq[key] = (menuFreq[key]||0)+1;
+  });
   const maxRepeat = Math.max(1, ...Object.values(menuFreq));
   const repeatScore = maxRepeat <= 2 ? 95 : maxRepeat <= 4 ? 80 : maxRepeat <= 6 ? 60 : 40;
 
   // 5. 알레르겐 표시 (메뉴 텍스트에 알레르겐 keyword 포함 시 = 정상 표시)
-  const allergenMatches = ALLERGEN_KW.filter(k => text.includes(k)).length;
+  const allergenMatches = ALLERGEN_KW.filter(k => scanText.includes(k)).length;
   const allergenScore = allergenMatches >= 3 ? 100 : 80;
 
   // 6. NOVA 가공식품
-  const novaCount = NOVA4_KW.reduce((acc, kw) => acc + (text.match(new RegExp(kw, 'g'))||[]).length, 0);
+  const novaCount = NOVA4_KW.reduce((acc, kw) => acc + (scanText.match(new RegExp(kw, 'g'))||[]).length, 0);
   const novaPct = totalMenus > 0 ? novaCount / totalMenus : 0;
   const novaScore = novaPct < 0.1 ? 95 : novaPct < 0.2 ? 85 : novaPct < 0.35 ? 75 : 60;
 
   // 7. 제철 식재료
   const currentMonth = new Date().getMonth() + 1;
   const seasonItems = SEASON_MAP[currentMonth] || [];
-  const seasonMatch = seasonItems.filter(s => text.includes(s)).length;
+  const seasonMatch = seasonItems.filter(s => scanText.includes(s)).length;
   const seasonScore = seasonMatch >= 3 ? 95 : seasonMatch >= 2 ? 90 : seasonMatch >= 1 ? 85 : 75;
 
   // 8. 조리 스타일 다양성
   const cuisineSet = new Set();
   Object.entries(CUISINE_KW).forEach(([k, kws]) => {
-    if(kws.some(kw => text.includes(kw))) cuisineSet.add(k);
+    if(kws.some(kw => scanText.includes(kw))) cuisineSet.add(k);
   });
   const cuisineDiv = cuisineSet.size;
   const cuisineScore = cuisineDiv >= 4 ? 95 : cuisineDiv >= 3 ? 85 : cuisineDiv >= 2 ? 70 : 60;
@@ -1127,6 +1140,15 @@ const ANALYZE_STEPS = [
 
 const OCR_API = 'https://app.mealfred.com/api/ocr';
 
+// 식단표 사진 1장 → 서버에서 CLOVA OCR(전사) + Claude(식재료 분해) 처리
+async function ocrOneImage(file){
+  const fd = new FormData();
+  fd.append('image', file);
+  const resp = await fetch(OCR_API, { method:'POST', body: fd });
+  if(!resp.ok){ let d = {}; try { d = await resp.json(); } catch(_){} return { error: d.error || ('HTTP ' + resp.status) }; }
+  return resp.json();
+}
+
 async function startAnalysis(){
   const photoInput = document.getElementById('photoInput');
   if(!photoInput.files || !photoInput.files[0]){
@@ -1144,15 +1166,14 @@ async function startAnalysis(){
   let text, inputMode, ocrItems = [];
 
   try {
-    fill.style.width = '25%';
-    const formData = new FormData();
-    formData.append('image', photoInput.files[0]);
-    const resp = await fetch(OCR_API, { method: 'POST', body: formData });
-    const data = await resp.json();
+    fill.style.width = '30%';
+    msg.textContent = '📸 식단표 글자 인식 중... (CLOVA OCR)';
+    const data = await ocrOneImage(photoInput.files[0]);
+    fill.style.width = '45%';
 
-    if(!resp.ok || data.error){
+    if(data.error){
       closeModal('analyzingModal');
-      alert('⚠️ 사진 분석 실패: ' + (data.error || '서버 오류'));
+      alert('⚠️ 사진 분석 실패: ' + data.error);
       return;
     }
     if(!data.is_menu){
@@ -1160,10 +1181,10 @@ async function startAnalysis(){
       alert('📋 식단표가 아닌 것 같아요.\n\n' + (data.reason || '식단표 사진을 다시 올려주세요.'));
       return;
     }
-    text = data.text;
+    text = data.text || '';
     ocrItems = data.items || [];
     inputMode = 'ocr';
-    console.log('[mealfred-eval] OCR 결과:', text.slice(0, 200));
+    console.log('[mealfred-eval] OCR 결과:', text.slice(0, 200), '· items', ocrItems.length);
   } catch(e) {
     closeModal('analyzingModal');
     alert('⚠️ 사진 인식 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
@@ -1331,17 +1352,17 @@ function renderOcrTable(items, ocrText){
 
   let entries=[];
   if(items && items.length){
-    entries=items.map(it=>({day:it.day||'', menu:it.menu||'', ingredients:it.ingredients||[]}));
+    entries=items.map(it=>({date:it.date||'', day:it.day||'', menu:it.menu||'', ingredients:it.ingredients||[]}));
   } else if(ocrText){
     ocrText.split(/\n/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
       const dayMatch=line.match(/^(월|화|수|목|금|토|일)\s*[:：]\s*(.+)/);
       if(dayMatch){
         dayMatch[2].split(/[,，·、]/).map(s=>s.trim()).filter(Boolean).forEach(m=>{
-          entries.push({day:dayMatch[1], menu:m, ingredients:deriveIngredients(m)});
+          entries.push({date:'', day:dayMatch[1], menu:m, ingredients:deriveIngredients(m)});
         });
       } else if(line.length>6&&!/[주차]|식단|기준|어린이|유치원|^\d+월/.test(line)){
         line.split(/[,，·、]/).map(s=>s.trim()).filter(s=>s.length>1).forEach(m=>{
-          entries.push({day:'', menu:m, ingredients:deriveIngredients(m)});
+          entries.push({date:'', day:'', menu:m, ingredients:deriveIngredients(m)});
         });
       }
     });
@@ -1349,14 +1370,15 @@ function renderOcrTable(items, ocrText){
   if(entries.length===0){section.style.display='none'; return;}
 
   let html='<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--b700);margin-bottom:8px">━ 📋 OCR 추출 식단 · 우리 아이한테 ━</div>';
-  html+='<div class="ocr-table-wrap"><table class="ocr-table"><thead><tr><th style="width:26px">요일</th><th>메뉴</th><th>우리 아이한테</th></tr></thead><tbody>';
-  let lastDay='';
-  entries.forEach(({day,menu,ingredients})=>{
-    const showDay=day&&day!==lastDay;
-    if(day)lastDay=day;
+  html+='<div class="ocr-table-wrap"><table class="ocr-table"><thead><tr><th style="width:34px">날짜</th><th>메뉴</th><th>우리 아이한테</th></tr></thead><tbody>';
+  let lastKey='';
+  entries.forEach(({date,day,menu,ingredients})=>{
+    const label = date ? (date+'일'+(day?' '+day:'')) : day;
+    const showLabel = label && label!==lastKey;
+    if(label)lastKey=label;
     const hp=menuHealthPoint(menu, ingredients, seasonItems);
     const ingSub=(ingredients&&ingredients.length)?`<div style="font-size:9px;color:var(--n400);margin-top:1px">${ingredients.join('·')}</div>`:'';
-    html+=`<tr><td class="day-cell">${showDay?day:''}</td><td class="menu-cell">${menu}${ingSub}</td><td class="comment-cell">${hp}</td></tr>`;
+    html+=`<tr><td class="day-cell">${showLabel?label:''}</td><td class="menu-cell">${menu}${ingSub}</td><td class="comment-cell">${hp}</td></tr>`;
   });
   html+='</tbody></table></div>';
   html+='<div style="font-size:10px;color:var(--n400);margin-top:6px;font-weight:600;text-align:center">AI가 메뉴를 식재료로 분해한 결과예요 · 실제 조리와 다를 수 있어요</div>';
