@@ -97,7 +97,9 @@ export default function Home() {
       {/* 헤더 */}
       <header className="flex items-center justify-between px-5 pt-6 pb-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>🏠 밀프레드 편식도감</h2>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-sm.png" alt="밀프레드" width={28} height={28} style={{ borderRadius: 8 }} />
+          <h2 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>밀프레드 편식 관리</h2>
           {!isMockup && days >= 1 && <span className="text-[10px] font-extrabold text-white px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg,#FF6B6B,#FFB375)' }}>🔥 {days}일</span>}
         </div>
       </header>
