@@ -1,51 +1,20 @@
 /**
  * POST /api/meal/parse — 메뉴명 → 식재료 자동 분해
  *
- * 엄마가 "야채볶음밥, 소세지볶음" 입력하면 식재료로 분해.
+ * 0차: 레시피 사전(menu-dict) 정확 일치
  * 1차: 룰 매핑 (흔한 메뉴, 무료·즉시)
- * 2차: 룰에 없으면 Claude Haiku로 추정 (~₩3/건)
+ * 2차: substring 스캔 (메뉴에 식재료명 포함)
+ * 3차: Claude Haiku 추정 (마지막 수단, 표준 어휘로 검증)
+ * 표준 식재료명·스캔·검증 로직은 lib/menuMap.ts에 일원화.
  *
  * body: { menu: "야채볶음밥" }
- * resp: { ingredients: ["쌀","당근","양파","계란"], processed: false, source: "rule"|"llm" }
+ * resp: { ingredients: ["쌀","당근","양파","계란"], processed, source: "dict"|"rule"|"scan"|"llm" }
  */
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import fs from 'fs';
-import path from 'path';
+import { mapMenuLocal, canon, CANON_VOCAB } from '@/lib/menuMap';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-// 147 식재료 풀 로드 (substring 스캔 + LLM 출력 검증용)
-let POOL_NAMES: string[] = [];
-try {
-  const fp = path.join(process.cwd(), 'public', 'ingredients-light.json');
-  POOL_NAMES = (JSON.parse(fs.readFileSync(fp, 'utf-8')).ingredients as { nm: string }[]).map((x) => x.nm);
-} catch { POOL_NAMES = []; }
-// 풀에 빠졌지만 흔한 핵심 식재료 보강 (도감 데이터 갭 — 별도 보강 예정)
-const EXTRA = ['브로콜리', '연어', '검은콩', '귀리', '현미', '콜리플라워', '요거트', '아보카도'];
-const POOL_SET = new Set([...POOL_NAMES, ...EXTRA]);
-const ALL_NAMES = [...POOL_NAMES, ...EXTRA];
-
-// 메뉴 문자열에 등장하는 식재료 별칭 → 풀 정식명
-const ALIAS: Record<string, string> = {
-  '닭': '닭고기', '돼지': '돼지고기', '소': '소고기', '달걀': '계란', '계란': '계란',
-  '고구마': '고구마', '감자': '감자', '단호박': '호박', '애호박': '애호박',
-};
-// substring 스캔 — 메뉴에 풀 식재료명(또는 별칭)이 들어있으면 추출
-function scanIngredients(menu: string): string[] {
-  const found = new Set<string>();
-  // 긴 이름 먼저 (예: '고등어'가 '고등'보다 우선)
-  const names = [...ALL_NAMES].sort((a, b) => b.length - a.length);
-  for (const nm of names) {
-    if (nm.length >= 2 && menu.includes(nm)) found.add(nm);
-  }
-  for (const [al, real] of Object.entries(ALIAS)) {
-    if (menu.includes(al) && POOL_SET.has(real)) found.add(real);
-  }
-  // 밥/죽/면 곡물 보정
-  if (/밥|죽|미음|볶음밥/.test(menu) && POOL_SET.has('쌀')) found.add('쌀');
-  return [...found];
-}
 
 const ALLOWED_ORIGINS = [
   'https://www.mealfred.com', 'https://mealfred.com',
@@ -60,81 +29,6 @@ function cors(req: NextRequest) {
   };
 }
 
-// 흔한 메뉴 → 식재료 룰 매핑 (무료·즉시)
-const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = {
-  '야채볶음밥': { ing: ['쌀','당근','양파','계란','대파'] },
-  '볶음밥': { ing: ['쌀','계란','양파','당근','대파'] },
-  '김치볶음밥': { ing: ['쌀','김치','계란','대파'] },
-  '소세지볶음': { ing: ['소시지','양파','피망'], processed: true },
-  '소시지볶음': { ing: ['소시지','양파','피망'], processed: true },
-  '불고기': { ing: ['소고기','양파','대파','마늘'] },
-  '제육볶음': { ing: ['돼지고기','양파','대파','마늘','고추'] },
-  '된장찌개': { ing: ['된장','두부','양파','대파','호박'] },
-  '김치찌개': { ing: ['김치','돼지고기','두부','대파'], processed: false },
-  '미역국': { ing: ['미역','소고기','마늘'] },
-  '소고기무국': { ing: ['소고기','무','대파','마늘'] },
-  '계란찜': { ing: ['계란','대파'] },
-  '계란말이': { ing: ['계란','당근','대파'] },
-  '닭볶음탕': { ing: ['닭고기','감자','당근','양파','대파'] },
-  '카레라이스': { ing: ['감자','당근','양파','돼지고기','쌀'] },
-  '카레': { ing: ['감자','당근','양파'] },
-  '짜장밥': { ing: ['돼지고기','양파','감자','호박','쌀'] },
-  '잡채': { ing: ['당면','당근','양파','시금치','소고기'] },
-  '비빔밥': { ing: ['쌀','당근','시금치','콩나물','계란','소고기'] },
-  '두부조림': { ing: ['두부','양파','대파','마늘'] },
-  '시금치나물': { ing: ['시금치','마늘'] },
-  '콩나물무침': { ing: ['콩나물','마늘'] },
-  '돈가스': { ing: ['돼지고기','계란','양배추'], processed: true },
-  '스파게티': { ing: ['토마토','양파','마늘'], processed: false },
-  '오므라이스': { ing: ['계란','양파','당근','쌀'] },
-  '만두국': { ing: ['만두','대파','계란'], processed: true },
-  '떡국': { ing: ['소고기','대파','계란'] },
-  '김밥': { ing: ['쌀','당근','시금치','계란','오이'] },
-  '주먹밥': { ing: ['쌀','계란','당근'] },
-  // 흔한 반찬·국·단품 (LLM 안 거치게)
-  '김': { ing: ['김'] }, '김자반': { ing: ['김'] }, '조미김': { ing: ['김'] },
-  '멸치볶음': { ing: ['멸치'] }, '잔멸치볶음': { ing: ['멸치'] },
-  '어묵볶음': { ing: ['어묵','양파'], processed: true }, '어묵국': { ing: ['어묵','무','대파'], processed: true },
-  '콩나물국': { ing: ['콩나물','대파','마늘'] }, '북엇국': { ing: ['명태','계란','대파'] },
-  '두부부침': { ing: ['두부'] }, '두부구이': { ing: ['두부'] },
-  '갈치조림': { ing: ['갈치','무','양파'] }, '고등어조림': { ing: ['고등어','무','양파'] },
-  '무생채': { ing: ['무'] }, '오이무침': { ing: ['오이'] }, '깍두기': { ing: ['무'] },
-  '배추김치': { ing: ['김치'] }, '나물': { ing: ['시금치'] }, '근대나물': { ing: ['근대'] },
-  '브로콜리무침': { ing: ['브로콜리'] }, '단호박찜': { ing: ['호박'] }, '단호박': { ing: ['호박'] },
-  '옥수수': { ing: ['옥수수'] }, '감자조림': { ing: ['감자','양파'] }, '감자볶음': { ing: ['감자','양파'] },
-  '시금치된장국': { ing: ['시금치','된장'] }, '시금치국': { ing: ['시금치'] },
-  '생선구이': { ing: ['갈치'] }, '고등어구이': { ing: ['고등어'] }, '연어': { ing: ['연어'] }, '연어스테이크': { ing: ['연어'] },
-  // 생선 단품·구이·조림 (LLM 환각 방지)
-  '삼치': { ing: ['삼치'] }, '삼치구이': { ing: ['삼치'] }, '삼치조림': { ing: ['삼치','무'] },
-  '고등어': { ing: ['고등어'] }, '갈치': { ing: ['갈치'] }, '갈치구이': { ing: ['갈치'] },
-  '조기': { ing: ['조기'] }, '조기구이': { ing: ['조기'] }, '명태': { ing: ['명태'] }, '동태': { ing: ['명태'] },
-  '가자미': { ing: ['가자미'] }, '가자미구이': { ing: ['가자미'] }, '임연수': { ing: ['임연수'] }, '임연수구이': { ing: ['임연수'] },
-  '연어구이': { ing: ['연어'] }, '멸치': { ing: ['멸치'] }, '새우구이': { ing: ['새우'] }, '오징어': { ing: ['오징어'] },
-  '닭가슴살': { ing: ['닭고기'] }, '소고기': { ing: ['소고기'] }, '돼지고기': { ing: ['돼지고기'] }, '닭고기': { ing: ['닭고기'] },
-  '소고기구이': { ing: ['소고기'] }, '닭갈비': { ing: ['닭고기','양배추','고구마','대파'] }, '삼겹살': { ing: ['돼지고기'] },
-  '구운계란': { ing: ['계란'] }, '삶은계란': { ing: ['계란'] }, '계란후라이': { ing: ['계란'] },
-  '요거트': { ing: ['요거트'] }, '요구르트': { ing: ['요거트'] }, '치즈': { ing: ['치즈'] }, '우유': { ing: ['우유'] },
-  '사과': { ing: ['사과'] }, '바나나': { ing: ['바나나'] }, '딸기': { ing: ['딸기'] }, '귤': { ing: ['귤'] },
-  '블루베리': { ing: ['블루베리'] }, '키위': { ing: ['키위'] }, '토마토': { ing: ['토마토'] }, '방울토마토': { ing: ['토마토'] },
-  '흰밥': { ing: ['쌀'] }, '쌀밥': { ing: ['쌀'] }, '잡곡밥': { ing: ['잡곡','쌀'] }, '현미밥': { ing: ['현미'] },
-  '밥': { ing: ['쌀'] }, '진밥': { ing: ['쌀'] }, '죽': { ing: ['쌀'] }, '미음': { ing: ['쌀'] }, '누룽지': { ing: ['쌀'] },
-  '식빵': { ing: ['빵'] }, '토스트': { ing: ['빵'] }, '국수': { ing: ['국수'] }, '라면': { ing: ['라면'], processed: true },
-  '짜파게티': { ing: ['국수','짜장'], processed: true }, '짜장면': { ing: ['국수','양파','감자','돼지고기'] },
-};
-
-// 부분일치용 키 — 2글자 이상, 길이 내림차순 (긴 키 우선 = 더 구체적)
-const PARTIAL_KEYS = Object.keys(MENU_MAP).filter((k) => k.length >= 2).sort((a, b) => b.length - a.length);
-function ruleParse(menu: string): { ing: string[]; processed: boolean } | null {
-  const m = menu.replace(/\s/g, '');
-  // 1) 정확 일치 우선 (밥·김 같은 단품 안전)
-  if (MENU_MAP[m]) return { ing: MENU_MAP[m].ing, processed: !!MENU_MAP[m].processed };
-  // 2) 부분 일치 — 2글자 이상 키만, 긴 것부터 (1글자 키 오작동 방지)
-  for (const key of PARTIAL_KEYS) {
-    if (m.includes(key)) return { ing: MENU_MAP[key].ing, processed: !!MENU_MAP[key].processed };
-  }
-  return null;
-}
-
 export async function OPTIONS(req: NextRequest) {
   return NextResponse.json(null, { headers: cors(req) });
 }
@@ -146,19 +40,15 @@ export async function POST(req: NextRequest) {
     if (!menu || typeof menu !== 'string') {
       return NextResponse.json({ error: '메뉴명이 없습니다' }, { status: 400, headers });
     }
-
     const m = menu.trim();
 
-    // 1차: 룰 매핑 (가장 정확)
-    const ruled = ruleParse(m);
-    if (ruled) {
-      return NextResponse.json({ ingredients: ruled.ing, processed: ruled.processed, source: 'rule' }, { headers });
-    }
-
-    // 2차: substring 스캔 — 메뉴에 식재료명이 들어있으면 직접 추출 (LLM 환각 방지)
-    const scanned = scanIngredients(m.replace(/\s/g, ''));
-    if (scanned.length) {
-      return NextResponse.json({ ingredients: scanned, processed: false, source: 'scan' }, { headers });
+    // 0~2차: 결정론적 매핑 (사전 → 룰 → 스캔)
+    const local = mapMenuLocal(m);
+    if (local) {
+      return NextResponse.json(
+        { ingredients: local.ingredients, processed: local.processed, source: local.source },
+        { headers }
+      );
     }
 
     // 3차: LLM 추정 (마지막 수단)
@@ -172,6 +62,7 @@ export async function POST(req: NextRequest) {
 - 그 메뉴에 확실히 들어가는 재료만. 확실치 않으면 적게. 임의로 채소·과일 추가 절대 금지.
 - 단순 곡물 메뉴(밥·죽·면)는 곡물만(쌀·국수 등). 채소 끼워넣지 말 것.
 - 가공식품(소시지·햄·어묵·라면 등) 포함 시 processed: true
+- 식재료명은 표준 단일명으로(예: 닭안심→닭고기, 단호박→호박, 백미→쌀)
 - JSON만: {"ingredients": ["재료1"], "processed": false}`,
       }],
     });
@@ -185,9 +76,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ingredients: [], source: 'llm_fail' }, { headers });
     }
     const parsed = JSON.parse(match[0]);
-    // LLM 환각 제거 — 147 풀에 있는 식재료만 통과 (풀 비었으면 통과)
+    // LLM 환각 제거 — 표준 어휘로 정규화 후 어휘에 있는 것만 통과
     const raw: string[] = parsed.ingredients || [];
-    const filtered = POOL_SET.size ? raw.filter((nm) => POOL_SET.has(nm)) : raw;
+    const filtered = [...new Set(
+      raw.map(canon).filter((nm): nm is string => !!nm && CANON_VOCAB.has(nm))
+    )];
     return NextResponse.json(
       { ingredients: filtered, processed: !!parsed.processed, source: 'llm' },
       { headers }
