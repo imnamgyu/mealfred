@@ -378,3 +378,26 @@ do $$ begin
   end if;
 end $$;
 comment on table meal_logs is 'M5 식사 기록 — 6 슬롯(아침·오전간식·점심·오후간식·저녁·야간) × 식재료·메모·사진';
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 메뉴 식재료 커스텀 (피드백 루프)
+-- 엄마가 AI 분해 결과를 수정하면 그 사용자의 메뉴는 커스텀으로 기억
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+create table if not exists user_menu_overrides (
+  id uuid primary key default gen_random_uuid(),
+  parent_id uuid not null references auth.users(id) on delete cascade,
+  menu text not null,                        -- 정규화된 메뉴명 (공백 제거)
+  ingredients text[] not null,               -- 사용자가 확정한 식재료
+  updated_at timestamptz default now(),
+  created_at timestamptz default now()
+);
+create unique index if not exists idx_menu_override_unique on user_menu_overrides(parent_id, menu);
+alter table user_menu_overrides enable row level security;
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'menu_override_owner_all') then
+    create policy menu_override_owner_all on user_menu_overrides
+      for all using (auth.uid() = parent_id) with check (auth.uid() = parent_id);
+  end if;
+end $$;
+comment on table user_menu_overrides is '메뉴→식재료 사용자 커스텀 (예: 짜파게티에서 당근 빼면 그 사람 짜파게티는 당근 제외로 기억)';

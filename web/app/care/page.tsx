@@ -21,7 +21,7 @@ const SLOTS: Slot[] = [
 ];
 
 type Ingredient = { nm: string; cat: string; grade: string };
-type Tag = { name: string; ai?: boolean };  // ai=true면 AI가 메뉴에서 추정한 것
+type Tag = { name: string; ai?: boolean; fromMenu?: string };  // ai=true: AI 추정 / fromMenu: 출처 메뉴
 type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string };
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
@@ -152,24 +152,36 @@ export default function CarePage() {
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
 
-  // 메뉴명 입력 → AI 분해 → 식재료 태그 자동 추가
+  // 메뉴명 입력 → (사용자 커스텀 우선) → AI 분해 → 식재료 태그 자동 추가
   async function addMenu(menu: string) {
     const m = menu.trim();
     if (!m) return;
+    const key = m.replace(/\s/g, '');
     setMenuInput('');
     setEntry((e) => ({ ...e, menus: [...e.menus, m] }));
     setParsing(true);
     try {
-      const resp = await fetch(MEAL_PARSE_API, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ menu: m }),
-      });
-      const data = await resp.json();
       const EXCLUDE = ['물', '육수', '소금', '간장', '설탕', '식용유', '참기름'];
-      const newTags: Tag[] = (data.ingredients || [])
-        .filter((nm: string) => !hasName(nm) && !EXCLUDE.includes(nm))
-        .map((nm: string) => ({ name: nm, ai: true }));
+      let ingredients: string[] = [];
+
+      // 1) 사용자 커스텀 override 우선
+      if (userId) {
+        const { data: ov } = await supabase.from('user_menu_overrides')
+          .select('ingredients').eq('parent_id', userId).eq('menu', key).maybeSingle();
+        if (ov?.ingredients?.length) ingredients = ov.ingredients;
+      }
+      // 2) 없으면 AI 분해
+      if (!ingredients.length) {
+        const resp = await fetch(MEAL_PARSE_API, {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ menu: m }),
+        });
+        const data = await resp.json();
+        ingredients = (data.ingredients || []).filter((nm: string) => !EXCLUDE.includes(nm));
+      }
+      const newTags: Tag[] = ingredients
+        .filter((nm) => !hasName(nm))
+        .map((nm) => ({ name: nm, ai: true, fromMenu: key }));
       setEntry((e) => ({ ...e, ingredients: [...e.ingredients, ...newTags.filter((t) => !e.ingredients.some((x) => x.name === t.name))] }));
     } catch {
       // 분해 실패해도 메뉴명은 남음
@@ -182,14 +194,32 @@ export default function CarePage() {
     ? pool.filter((p) => p.nm.includes(query.trim()) && !hasName(p.nm)).slice(0, 8)
     : [];
 
+  // 메뉴 커스텀 저장 (피드백 루프) — 그 사용자의 해당 메뉴 식재료를 기억
+  async function saveMenuOverride(menuKey: string, names: string[]) {
+    if (!userId || !menuKey) return;
+    await supabase.from('user_menu_overrides').upsert(
+      { parent_id: userId, menu: menuKey, ingredients: names, updated_at: new Date().toISOString() },
+      { onConflict: 'parent_id,menu' }
+    ).then(({ error }) => { if (error) console.warn('[override] save:', error.message); });
+  }
+
   function addIngredient(nm: string) {
     if (!nm.trim() || hasName(nm)) return;
-    setEntry((e) => ({ ...e, ingredients: [...e.ingredients, { name: nm, ai: false }] }));
+    const onlyMenu = entry.menus.length === 1 ? entry.menus[0].replace(/\s/g, '') : null;
+    const newTag: Tag = { name: nm, ai: false, fromMenu: onlyMenu || undefined };
+    const next = [...entry.ingredients, newTag];
+    setEntry((e) => ({ ...e, ingredients: next }));
     setQuery('');
     inputRef.current?.focus();
+    // 메뉴가 하나면 그 메뉴 커스텀 재학습
+    if (onlyMenu) saveMenuOverride(onlyMenu, next.filter((x) => x.fromMenu === onlyMenu).map((x) => x.name));
   }
   function removeIngredient(nm: string) {
-    setEntry((e) => ({ ...e, ingredients: e.ingredients.filter((x) => x.name !== nm) }));
+    const tag = entry.ingredients.find((x) => x.name === nm);
+    const next = entry.ingredients.filter((x) => x.name !== nm);
+    setEntry((e) => ({ ...e, ingredients: next }));
+    // 특정 메뉴 출처 식재료를 빼면 → 그 메뉴 커스텀 재학습 (예: 짜파게티에서 당근 빼기)
+    if (tag?.fromMenu) saveMenuOverride(tag.fromMenu, next.filter((x) => x.fromMenu === tag.fromMenu).map((x) => x.name));
   }
   function removeMenu(menu: string) {
     setEntry((e) => ({ ...e, menus: e.menus.filter((x) => x !== menu) }));
