@@ -33,6 +33,10 @@ export async function GET(req: NextRequest) {
   if (!id) {
     return NextResponse.json({ error: 'id 누락' }, { status: 400, headers });
   }
+  // UUID가 아니면(URL 조작 등) DB 캐스트 에러 노출 없이 깔끔한 404
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return NextResponse.json({ error: 'not_found' }, { status: 404, headers });
+  }
   try {
     const { data, error } = await supabase
       .from('eval_results')
