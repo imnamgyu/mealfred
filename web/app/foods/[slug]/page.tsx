@@ -152,8 +152,8 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
         )}
       </section>
 
-      <Link href="/personal-coming.html" className="block bg-[var(--navy)] text-white rounded-xl p-4 text-center font-extrabold text-sm">
-        ✨ 우리 아이만을 위한 레시피 받기 →
+      <Link href="/care" className="block bg-[var(--navy)] text-white rounded-xl p-4 text-center font-extrabold text-sm">
+        ✏️ 우리 아이 식사 기록하러 가기 →
       </Link>
     </main>
   );
