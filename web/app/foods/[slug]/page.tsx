@@ -5,6 +5,18 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { loadPool, loadRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars } from '@/lib/ingredients';
+import RefusedBadge from '@/components/RefusedBadge';
+
+// SOS 식감 난이도 순서 (부드러움 → 단단함) — 거부 식재료 친해지기 정렬
+function textureRank(method: string): number {
+  const m = method || '';
+  if (/죽|미음|퓨레|수프/.test(m)) return 1;
+  if (/국|탕|찌개/.test(m)) return 2;
+  if (/무침|나물|샐러드/.test(m)) return 3;
+  if (/조림|찜/.test(m)) return 4;
+  if (/볶음|구이|전|튀김|밥|면/.test(m)) return 5;
+  return 3;
+}
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -116,20 +128,24 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
         <p className="text-[11.5px] text-[var(--brown-mid)] mt-3 font-semibold">강요는 거부를 강화합니다. 1단계부터 천천히 — 일주일 1-2 단계 진행 권장.</p>
       </section>
 
+      <RefusedBadge ingredient={ing.nm} />
+
       <section className="bg-white rounded-2xl border border-orange-100 p-5 mb-4 shadow-sm">
-        <h2 className="text-sm font-extrabold text-orange-700 mb-3">━ 🍳 추천 레시피 (2,041 레시피 DB) ━</h2>
+        <h2 className="text-sm font-extrabold text-orange-700 mb-1">━ 🍳 친해지기 레시피 ━</h2>
+        <p className="text-[11px] text-[var(--brown-soft)] mb-3">부드러운 요리부터 순서대로 — 죽·국으로 먼저, 익숙해지면 볶음·구이로</p>
         {recipes && recipes.top_recipes.length > 0 ? (
           <>
             <ul className="space-y-2">
-              {recipes.top_recipes.map((r, i) => (
+              {[...recipes.top_recipes].sort((a, b) => textureRank(a.method) - textureRank(b.method)).map((r, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className="text-[9px] font-extrabold w-5 h-5 rounded-full shrink-0 flex items-center justify-center text-white" style={{ background: ['#16A085','#16A085','#F9A825','#E67E22','#C62828'][textureRank(r.method)-1] }}>{textureRank(r.method)}</span>
                   <span className="bg-orange-50 text-orange-700 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0">{r.method}</span>
                   <span className="text-[var(--navy)]">{r.name}</span>
                   {r.allergens && <span className="text-[10px] text-gray-400">({r.allergens})</span>}
                 </li>
               ))}
             </ul>
-            <p className="text-[10.5px] text-[var(--brown-soft)] mt-3">💡 {ing.nm}이(가) 들어간 <strong>{recipes.total_count}개</strong> 레시피 중 조리법 다양성 기준 Top {recipes.top_recipes.length}.</p>
+            <p className="text-[10.5px] text-[var(--brown-soft)] mt-3">💡 {ing.nm}이(가) 들어간 <strong>{recipes.total_count}개</strong> 레시피 중 식감 난이도 순 Top {recipes.top_recipes.length}. 숫자 1(부드러움)→5(단단함) 순으로 도전하세요.</p>
           </>
         ) : (
           <p className="text-xs text-[var(--brown-soft)]">DB 매칭 없음 — 가입 후 개인화 레시피로 안내 예정</p>
