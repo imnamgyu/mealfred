@@ -22,7 +22,7 @@ const SLOTS: Slot[] = [
 
 type Ingredient = { nm: string; cat: string; grade: string };
 type Tag = { name: string; ai?: boolean };  // ai=true면 AI가 메뉴에서 추정한 것
-type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string };
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string };
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
 
@@ -38,7 +38,7 @@ function saveLogs(logs: Record<string, DayLog>) {
 }
 
 // Supabase row ↔ MealEntry 변환
-type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null };
+type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null };
 function rowToEntry(r: MealRow): MealEntry {
   return {
     menus: r.menus || [],
@@ -46,6 +46,8 @@ function rowToEntry(r: MealRow): MealEntry {
     note: r.note || '',
     ateWell: r.ate_well,
     refused: r.refused || '',
+    texture: r.texture || '',
+    autonomy: r.autonomy || '',
   };
 }
 function entryToRow(e: MealEntry, childId: string, userId: string, date: string, slot: string) {
@@ -59,6 +61,8 @@ function entryToRow(e: MealEntry, childId: string, userId: string, date: string,
     note: e.note || null,
     refused: e.refused || null,
     ate_well: e.ateWell,
+    texture: e.texture || null,
+    autonomy: e.autonomy || null,
     updated_at: new Date().toISOString(),
   };
 }
@@ -67,7 +71,7 @@ export default function CarePage() {
   const [pool, setPool] = useState<Ingredient[]>([]);
   const [date, setDate] = useState(todayStr());
   const [activeSlot, setActiveSlot] = useState<string>('breakfast');
-  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null, refused: '' });
+  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '' });
   const [menuInput, setMenuInput] = useState('');
   const [parsing, setParsing] = useState(false);
   const [query, setQuery] = useState('');
@@ -101,7 +105,7 @@ export default function CarePage() {
 
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
-        .select('log_date,slot,menus,ingredients,note,ate_well,refused')
+        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy')
         .eq('child_id', child.id);
 
       const cloud: Record<string, DayLog> = {};
@@ -135,7 +139,7 @@ export default function CarePage() {
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
   useEffect(() => {
     const dayLog = logs[date] || {};
-    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null, refused: '' });
+    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '' });
   }, [date, activeSlot, logs]);
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
@@ -394,6 +398,44 @@ export default function CarePage() {
                 style={{ background: 'white', border: '1.5px solid #FFCDD2', color: '#374151' }} />
             </div>
           )}
+        </div>
+
+        {/* 식감 단계 + 자율성 (선택 · 8축 진단 데이터) */}
+        <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+          <h3 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>씹기·자율성 <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택 · 진단에 반영)</span></h3>
+          <div className="text-[11px] mb-2" style={{ color: '#8a7a6a' }}>식감 단계</div>
+          <div className="grid grid-cols-4 gap-1.5 mb-3">
+            {[
+              { v: 'puree', label: '🥣 죽·미음' },
+              { v: 'mashed', label: '🥄 다진' },
+              { v: 'finger', label: '🤏 핑거푸드' },
+              { v: 'table', label: '🍽 일반식' },
+            ].map((o) => (
+              <button key={o.v} onClick={() => setEntry((x) => ({ ...x, texture: x.texture === o.v ? '' : o.v }))}
+                className="rounded-lg py-2 text-[11px] font-bold transition"
+                style={{
+                  background: entry.texture === o.v ? '#1a2b4a' : '#FAFAF7',
+                  color: entry.texture === o.v ? 'white' : '#6B7280',
+                  border: `1.5px solid ${entry.texture === o.v ? '#1a2b4a' : '#E5E7EB'}`,
+                }}>{o.label}</button>
+            ))}
+          </div>
+          <div className="text-[11px] mb-2" style={{ color: '#8a7a6a' }}>누가 먹였나요?</div>
+          <div className="grid grid-cols-3 gap-1.5">
+            {[
+              { v: 'fed', label: '🤱 떠먹여줌' },
+              { v: 'helped', label: '🍼 도와줌' },
+              { v: 'self', label: '🙋 스스로' },
+            ].map((o) => (
+              <button key={o.v} onClick={() => setEntry((x) => ({ ...x, autonomy: x.autonomy === o.v ? '' : o.v }))}
+                className="rounded-lg py-2 text-[11px] font-bold transition"
+                style={{
+                  background: entry.autonomy === o.v ? '#16A085' : '#FAFAF7',
+                  color: entry.autonomy === o.v ? 'white' : '#6B7280',
+                  border: `1.5px solid ${entry.autonomy === o.v ? '#16A085' : '#E5E7EB'}`,
+                }}>{o.label}</button>
+            ))}
+          </div>
         </div>
       </div>
 
