@@ -106,13 +106,17 @@ export default function Home() {
               setAiLetter(cached.letter);
               if (cached.oneliner) setAiOneliner(cached.oneliner);
             } else {
-              // 오늘 첫 생성 OR 식단이 바뀜 → 1회 재생성
+              // 오늘 첫 생성 OR 식단이 바뀜 → 1회 재생성 (과거 편지 맥락 포함)
+              const { data: past } = await supabase.from('coach_letters')
+                .select('letter_date,letter').eq('child_id', child.id).neq('letter_date', today)
+                .order('letter_date', { ascending: false }).limit(5);
+              const pastLetters = (past || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter }));
               const r = await fetch('https://app.mealfred.com/api/coach', {
                 method: 'POST', headers: { 'content-type': 'application/json' },
                 body: JSON.stringify({
                   childName: child.nickname, ageBand: child.age_band,
                   recentNotes: notes, refused: [...new Set(ref)], reds,
-                  eatenCount: new Set(allIng).size,
+                  eatenCount: new Set(allIng).size, pastLetters,
                 }),
               }).then((r) => r.json()).catch(() => null);
               if (r?.letter) {

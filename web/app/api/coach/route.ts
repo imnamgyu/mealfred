@@ -51,12 +51,17 @@ export async function POST(req: NextRequest) {
     const refused: string[] = (b.refused || []).slice(0, 10);
     const reds: string[] = (b.reds || []).slice(0, 8);
     const eatenCount = b.eatenCount ?? 0;
+    const pastLetters: { date: string; letter: string }[] = (b.pastLetters || []).slice(0, 5);
 
     const context = `아이: ${childName} (${age})
 먹어본 식재료: ${eatenCount}가지 (목표 30가지 → 초등 전 130가지)
 부족 영양소: ${reds.length ? reds.join(', ') : '없음'}
 최근 거부한 음식: ${refused.length ? refused.join(', ') : '없음'}
 부모가 남긴 메모(정성 기록): ${notes.length ? notes.map((n) => `"${n}"`).join(' / ') : '없음'}`;
+
+    const history = pastLetters.length
+      ? `\n[지난 코칭 편지 — 연속성 위해 참고 (가장 최근 순)]\n${pastLetters.map((p) => `(${p.date}) ${p.letter}`).join('\n')}\n`
+      : '';
 
     const resp = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -67,13 +72,17 @@ export async function POST(req: NextRequest) {
 부모는 죄책감·불안·무력감을 느낍니다. 점수로 다그치지 말고, 먼저 안심시키고, 구체적 다음 행동 하나를 주세요.
 
 ${METHODOLOGY}
-
+${history}
 [이번 주 상황]
 ${context}
 
+작성 지침:
+- 지난 코칭 편지가 있으면 그 흐름을 이어가세요. (예: "지난번에 권한 ○○는 어떠셨나요", "조금씩 늘고 있어요")
+- 같은 조언을 반복하지 말고, 진전·변화에 맞춰 다음 단계를 제시하세요.
+
 아래 2가지를 JSON으로 작성하세요:
-1. "letter": 부모에게 보내는 짧은 편지 (3~4문장). 부모의 노력을 인정하고, 거부는 정상임을 안심시키고(반복 노출 원리 언급), 오늘 시도할 구체적 행동 1개를 방법론에 맞춰 제안. 따뜻한 반말 X, 정중한 존댓말. 점수·등급 언급 금지.
-2. "oneliner": 최근 식단 진단 한 줄 (1문장). 잘하는 점 + 가장 신경 쓸 점 1개를 방법론 근거로. 격려 톤.
+1. "letter": 부모에게 보내는 짧은 편지 (3~4문장). 노력 인정 + 거부는 정상(반복 노출 원리) 안심 + 지난 코칭과 이어지는 오늘의 행동 1개. 정중한 존댓말. 점수·등급 언급 금지.
+2. "oneliner": 최근 식단 진단 한 줄. 잘하는 점 + 신경 쓸 점 1개, 방법론 근거, 격려 톤.
 
 반드시 JSON만: {"letter": "...", "oneliner": "..."}`,
       }],
