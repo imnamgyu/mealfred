@@ -8,22 +8,13 @@
 import fs from 'fs';
 import path from 'path';
 import { NUTRI_MAP } from './nutrition.ts';
+import { LEXICON } from './lexicon.ts';
 
 // ── 표준 어휘 ───────────────────────────────────────────────
 // 풀에 빠졌지만 흔한 핵심 식재료 보강 (도감 데이터 갭 — 별도 보강 예정)
 export const EXTRA = ['브로콜리', '연어', '검은콩', '귀리', '현미', '콜리플라워', '요거트', '아보카도', '오리고기', '조개', '홍합'];
 
-// 더러운/별칭 이름 → 표준명. 풀(멥쌀…)·레시피(닭안심…) 토큰을 한 이름으로 모음.
-const CANON: Record<string, string> = {
-  '달걀': '계란', '멥쌀': '쌀', '멥쌀밥': '쌀', '백미': '쌀', '멥쌀떡': '떡', '찹쌀떡': '떡',
-  '요구르트': '요거트', '단호박': '호박', '늙은호박': '호박',
-  '닭안심': '닭고기', '닭가슴살': '닭고기', '순두부': '두부',
-  '잔멸치': '멸치', '명태살': '명태', '동태': '명태', '북어': '명태', '황태': '명태',
-  '가자미살': '가자미', '대구살': '대구', '오리살': '오리고기', '오리': '오리고기',
-  '바지락살': '바지락', '조갯살': '조개', '조개살': '조개', '홍합살': '홍합',
-  '대두': '콩', '대두(콩)': '콩', '아몬드가루': '아몬드', '호두가루': '호두',
-  '오트밀': '귀리', '아기치즈': '치즈', '슬라이스치즈': '치즈',
-};
+// 표기 변형·별칭 → 대표어는 lib/lexicon.ts(LEXICON)에 일원화 (클라이언트 입력 정규화와 공유).
 // 양념·물·육수·기름 등 식재료로 치지 않는 토큰
 const EXCLUDE = new Set([
   '물', '참기름', '들기름', '식용유', '소금', '간장', '국간장', '진간장', '설탕', '올리고당',
@@ -39,12 +30,11 @@ try {
 } catch { POOL_NAMES = []; }
 
 function cleanName(raw: string): string {
-  let t = raw.replace(/\s*\(.*$/, '').trim();   // '쌀 (백미' / '쌀 (백미)' → '쌀'
-  if (CANON[t]) t = CANON[t];
-  return t;
+  const t = raw.replace(/\s*\(.*$/, '').trim();   // '쌀 (백미' / '쌀 (백미)' → '쌀'
+  return LEXICON[t] || t;
 }
 export const CANON_VOCAB = new Set<string>([
-  ...Object.keys(NUTRI_MAP).map((n) => CANON[n] || n),
+  ...Object.keys(NUTRI_MAP).map((n) => LEXICON[n] || n),
   ...EXTRA,
   ...POOL_NAMES.map(cleanName).filter((n) => n.length >= 2 && !EXCLUDE.has(n)),
 ]);
@@ -63,7 +53,7 @@ export function canon(raw: string): string | null {
 const SCAN_TOKENS: [string, string][] = (() => {
   const m = new Map<string, string>();
   for (const n of CANON_VOCAB) if (n.length >= 2) m.set(n, n);
-  for (const [surface, real] of Object.entries(CANON)) if (surface.length >= 2) m.set(surface, real);
+  for (const [surface, real] of Object.entries(LEXICON)) if (surface.length >= 2) m.set(surface, real);
   // 메뉴에 흔한 표면형 추가
   [['표고', '표고버섯'], ['느타리', '느타리버섯'], ['팽이', '버섯'], ['새송이', '버섯'],
    ['닭다리', '닭고기'], ['닭', '닭고기'], ['계란', '계란'], ['달걀', '계란']].forEach(([s, r]) => {

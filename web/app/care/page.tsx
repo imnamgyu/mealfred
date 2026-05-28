@@ -9,6 +9,7 @@
 import { useState, useEffect, useRef } from 'react';
 import BottomNav from '@/components/BottomNav';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
+import { normalizeIngredient } from '@/lib/lexicon';
 
 type Slot = { key: string; label: string; emoji: string; time: string };
 const SLOTS: Slot[] = [
@@ -223,7 +224,7 @@ export default function CarePage() {
         const data = await resp.json();
         ingredients = (data.ingredients || []).filter((nm: string) => !EXCLUDE.includes(nm));
       }
-      const newTags: Tag[] = ingredients
+      const newTags: Tag[] = [...new Set(ingredients.map(normalizeIngredient).filter(Boolean))]
         .filter((nm) => !hasName(nm))
         .map((nm) => ({ name: nm, ai: true, fromMenu: key }));
       setEntry((e) => ({ ...e, ingredients: [...e.ingredients, ...newTags.filter((t) => !e.ingredients.some((x) => x.name === t.name))] }));
@@ -247,8 +248,9 @@ export default function CarePage() {
     ).then(({ error }) => { if (error) console.warn('[override] save:', error.message); });
   }
 
-  function addIngredient(nm: string) {
-    if (!nm.trim() || hasName(nm)) return;
+  function addIngredient(raw: string) {
+    const nm = normalizeIngredient(raw);   // 소세지→소시지, 멥쌀→쌀 등 대표어로 정규화 후 저장
+    if (!nm || hasName(nm)) return;
     const onlyMenu = entry.menus.length === 1 ? entry.menus[0].replace(/\s/g, '') : null;
     const newTag: Tag = { name: nm, ai: false, fromMenu: onlyMenu || undefined };
     const next = [...entry.ingredients, newTag];
