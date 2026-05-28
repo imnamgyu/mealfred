@@ -35,19 +35,19 @@ export default function SignupPage() {
   return (
     <main style={{ maxWidth:480, margin:'0 auto', padding:'40px 24px' }}>
       <header className="hero" style={{ borderRadius:16, marginBottom:24 }}>
-        <h1 style={{ fontSize:28, fontWeight:800 }}>📱 밀프레드 가입</h1>
-        <p style={{ marginTop:6 }}>카카오 1초 가입 · 평생 무료 · 자녀 식습관 코치</p>
+        <h1 style={{ fontSize:28, fontWeight:800 }}>📱 밀프레드 시작하기</h1>
+        <p style={{ marginTop:6 }}>카카오 1초 가입 · 우리 아이 편식 개선 코치</p>
       </header>
 
       <div style={{ background:'white', border:'1px solid #FFE8D0', borderRadius:14, padding:22, textAlign:'center', boxShadow:'0 4px 20px rgba(0,0,0,0.06)' }}>
 
         <div style={{ fontSize:48, marginBottom:14 }}>🌱</div>
-        <h2 style={{ fontSize:18, fontWeight:800, color:'#1a2b4a', marginBottom:8 }}>
-          90일 식습관 챌린지<br/>지금 시작해요
+        <h2 style={{ fontSize:19, fontWeight:800, color:'#1a2b4a', marginBottom:8, lineHeight:1.4 }}>
+          우리 아이 편식,<br/><span style={{ color:'#FF6B1A' }}>35가지 국제 방법론</span>으로<br/>차근차근 풀어가요
         </h2>
         <p style={{ fontSize:13, color:'#5a4a3a', fontWeight:500, lineHeight:1.7, marginBottom:24 }}>
-          KDRI 36 영양 신호등 · 4원칙 레시피 · 도감 무료<br/>
-          매일 한 끼 기록 = +100 마일리지
+          SOS 접근법 · 푸드브릿지 · HabEat 등<br/>
+          검증된 방법으로 식재료 하나씩 친해지게 — <strong style={{ color:'#C45A00' }}>평생 무료</strong>
         </p>
 
         <button
