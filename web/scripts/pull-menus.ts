@@ -41,6 +41,7 @@ const sameSet = (a: string[], b: string[]) => {
 };
 
 (async () => {
+  const t0 = Date.now();
   const meals = await rest('meal_logs?select=menus,ingredients,log_date&order=log_date.desc&limit=500') as
     { menus: string[] | null; ingredients: string[] | null }[];
   const overrides = await rest('user_menu_overrides?select=menu,ingredients,updated_at&order=updated_at.desc&limit=500') as
@@ -83,4 +84,11 @@ const sameSet = (a: string[], b: string[]) => {
   console.log(conflicts.length ? '  ' + conflicts.join('\n  ') : '  (없음)');
   console.log(`\n🟡 빈약 의심 — 복합메뉴인데 1개만 [${weak.length}]`);
   console.log(weak.length ? '  ' + weak.join('\n  ') : '  (없음)');
+
+  // 마무리 리포트용 집계 (스킬 5단계가 읽는다)
+  const lookups = menus.length + overrides.length;   // 실데이터 룩업(고유메뉴 + 교정)
+  console.log(`\n── 집계 ──`);
+  console.log(`🔍 실데이터 룩업 ${lookups}건 (고유메뉴 ${menus.length} + 교정 ${overrides.length}) · meal_logs ${meals.length}행`);
+  console.log(`🚩 후보 ${uncovered.length + conflicts.length + weak.length}건 (무매핑 ${uncovered.length} / 교정충돌 ${conflicts.length} / 빈약 ${weak.length})`);
+  console.log(`⏱ pull 소요 ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 })();
