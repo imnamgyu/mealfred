@@ -565,14 +565,23 @@
 </div>
 
 <script>
-// 라이브 카운터 (애니메이션)
-let live = 4237;
-setInterval(()=>{
-  if(Math.random() < 0.3){
-    live += 1;
-    document.getElementById('liveCount').textContent = live.toLocaleString();
-  }
-}, 3000);
+// 소셜프루프 카운터: 주별 기준값 + 10분 단위 불규칙 증가(방문자·새로고침 간 일관) + 실제 평가 시 즉시 +1
+const CTR_TICK = 10 * 60 * 1000;
+function ctrHash(n){ const x = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); } // 결정적 0~1
+function ctrWeekStart(){ const t = new Date(); t.setHours(0,0,0,0); t.setDate(t.getDate() - ((t.getDay()+6)%7)); return t.getTime(); } // 이번 주 월요일 00:00
+function ctrRealBump(){ return +(localStorage.getItem('mf_eval_real') || 0); }
+function liveCountValue(){
+  const ws = ctrWeekStart();
+  const wk = Math.floor(ws / 6048e5);                       // 주 번호
+  let n = 4000 + Math.floor(ctrHash(wk) * 500);             // 주별 기준값 4000~4499
+  const buckets = Math.max(0, Math.floor((Date.now() - ws) / CTR_TICK));
+  for(let b = 0; b < buckets; b++) n += 1 + Math.floor(ctrHash(wk * 1009 + b) * 5); // 10분마다 +1~+5(불규칙)
+  return n + ctrRealBump();
+}
+function renderLiveCount(){ const el = document.getElementById('liveCount'); if(el) el.textContent = liveCountValue().toLocaleString(); }
+function bumpRealCount(){ localStorage.setItem('mf_eval_real', ctrRealBump() + 1); renderLiveCount(); } // 실제 평가 1건 → 즉시 +1
+renderLiveCount();
+setInterval(renderLiveCount, 30000);                        // 30초마다 재계산(값은 10분 경계에서 증가)
 
 function openUpload(){
   document.getElementById('uploadModal').classList.add('show');
@@ -1263,6 +1272,7 @@ async function startAnalysis(){
 
   renderResult(result, selectedAge);
   renderOcrTable(ocrItems, text);
+  bumpRealCount();   // 실제 평가 완료 1건 → 카운터 즉시 +1
   try {
     const ESSENTIAL = ['시금치','브로콜리','당근','고구마','두부','달걀','연어','소고기','우유','멸치','미역','고등어','닭고기','바나나','사과','블루베리','호두','귀리','현미','검은콩'];
     const foundNames = new Set((result.matched||[]).map(m=>m.nm));
