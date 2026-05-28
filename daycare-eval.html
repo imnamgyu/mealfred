@@ -408,13 +408,18 @@
     <p class="desc">어디서 받은 식단인지 묻지 않아요 — 평가만 도와드릴게요.</p>
 
     <div class="form-group">
-      <label class="form-label">━ 우리 아이 만 나이 ━</label>
-      <div class="age-row">
-        <div class="age-chip checked" onclick="selectAge(this,'3-4y')">만 3-4세</div>
-        <div class="age-chip" onclick="selectAge(this,'5y')">만 5세</div>
-        <div class="age-chip" onclick="selectAge(this,'6-7y')">만 6-7세<br><span style="font-size:9px;opacity:0.8">(초1·2)</span></div>
-        <div class="age-chip" onclick="selectAge(this,'younger')">3세 미만</div>
+      <label class="form-label">━ 우리 아이 출생 (년 / 월) ━</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="birthYear" onchange="onBirthChange()" style="flex:1;padding:11px;border:1.5px solid var(--n200);border-radius:8px;font-size:13px;font-family:inherit;background:white;color:var(--n900)">
+          <option value="">출생년</option>
+          <option>2026</option><option>2025</option><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option><option>2019</option><option>2018</option>
+        </select>
+        <select id="birthMonth" onchange="onBirthChange()" style="flex:1;padding:11px;border:1.5px solid var(--n200);border-radius:8px;font-size:13px;font-family:inherit;background:white;color:var(--n900)">
+          <option value="">월</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+        </select>
       </div>
+      <div id="ageDisplay" style="font-size:12px;color:var(--n500);font-weight:600;margin-top:8px">생년월을 고르면 만 나이가 자동 계산돼요 (미선택 시 만 3-4세 기준)</div>
     </div>
 
     <div class="form-group">
@@ -577,6 +582,21 @@ function closeModal(id){
 }
 let selectedAge = '3-4y';
 let currentShareId = null;  // 분석 결과 공유 URL용 id (eval_results.id)
+let currentPlanIngredients = [];  // 가정보충에서 추천된 '안 먹는 식재료' — /plan 식단 생성용
+
+// 출생 년·월 → 만 나이/개월 자동 계산 → 연령대(selectedAge)
+function onBirthChange(){
+  const y = +(document.getElementById('birthYear')||{}).value || 0;
+  const m = +(document.getElementById('birthMonth')||{}).value || 0;
+  const disp = document.getElementById('ageDisplay');
+  if(!y || !m){ if(disp) disp.textContent = '생년월을 고르면 만 나이가 자동 계산돼요 (미선택 시 만 3-4세 기준)'; return; }
+  const now = new Date();
+  let months = (now.getFullYear()-y)*12 + (now.getMonth()+1 - m);
+  if(months < 0) months = 0;
+  selectedAge = months < 36 ? 'younger' : months < 60 ? '3-4y' : months < 72 ? '5y' : '6-7y';
+  const label = {younger:'만 1-2세', '3-4y':'만 3-4세', '5y':'만 5세', '6-7y':'만 6-7세(초1·2)'}[selectedAge];
+  if(disp){ disp.style.color='var(--p700)'; disp.textContent = `만 ${Math.floor(months/12)}세 ${months%12}개월 · ${label} 기준으로 평가`; }
+}
 function selectAge(el, val){
   document.querySelectorAll('.age-chip').forEach(x=>x.classList.remove('checked'));
   el.classList.add('checked');
@@ -1121,6 +1141,7 @@ function generateTips(result, ageBand){
   // 식단에 아예 없는 군 먼저, 그다음 빠진 개수 많은 순
   rows.sort((a,b) => (a.absent === b.absent ? b.gap - a.gap : (a.absent ? -1 : 1)));
   const top = rows.slice(0, 7);
+  currentPlanIngredients = top.flatMap(t => t.items);  // /plan 식단 생성용(연령 안전필터 반영됨)
 
   if(top.length === 0){
     return '<div class="insight-row"><span class="em">✨</span>주요 식재료를 골고루 갖춘 식단이에요 — 이대로 유지해주세요!</div>';
@@ -1468,6 +1489,7 @@ async function loadSharedResult(id){
     const snap = data.result_json;
     if(!snap || !snap.result){ alert('결과 데이터를 불러오지 못했어요.'); return; }
     currentShareId = id;
+    selectedAge = snap.ageBand || selectedAge;   // 공유 결과의 아이 연령으로 식단 CTA 정합
     document.body.classList.add('shared');   // 단독 페이지 뷰
     renderResult(snap.result, snap.ageBand);
     renderOcrTable(snap.items || [], snap.text || '');
@@ -1481,10 +1503,10 @@ async function loadSharedResult(id){
 })();
 
 function goHomeMealPlan(){
-  // 어린이집 평가에서 발견한 부족 영양을 URL param으로 전달
-  const deficits = '콜린,비타민D,EPA-DHA';
-  const grade = 'B+';
-  window.location.href = `/care.html?source=daycare&grade=${grade}&deficits=${encodeURIComponent(deficits)}`;
+  // 가정보충에서 추천된 '안 먹는 식재료' + 아이 연령 → 앱 /plan에서 3일 예시 식단 생성
+  const ings = (currentPlanIngredients || []).slice(0, 9)
+    .map(s => s.replace('(갈아서)', '').trim()).filter(Boolean).join(',');
+  window.location.href = `https://app.mealfred.com/plan?ings=${encodeURIComponent(ings)}&age=${encodeURIComponent(selectedAge)}`;
 }
 
 // (전화번호 리드 수집 폼은 제거됨 — 결과 카드 하단에서 도감으로 바로 유도)
