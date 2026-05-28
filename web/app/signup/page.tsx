@@ -12,24 +12,23 @@
  */
 'use client';
 import { useState } from 'react';
-import { createSupabaseBrowser } from '@/lib/supabase/client';
+
+const KAKAO_REST_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_KEY;
 
 export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createSupabaseBrowser();
 
-  async function loginKakao() {
+  // 커스텀 카카오 OAuth — Supabase의 account_email 강제 scope 우회
+  function loginKakao() {
+    if (!KAKAO_REST_KEY) {
+      setError('카카오 설정이 누락되었습니다 (NEXT_PUBLIC_KAKAO_REST_KEY)');
+      return;
+    }
     setLoading(true); setError(null);
-    const { error: e } = await supabase.auth.signInWithOAuth({
-      provider: 'kakao',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        scopes: 'profile_nickname',  // 닉네임만 — 이메일·전화번호는 onboarding에서 선택 입력
-      },
-    });
-    if (e) { setError(e.message); setLoading(false); }
-    // 성공 시 카카오로 redirect (loading 유지)
+    const redirectUri = `${window.location.origin}/auth/kakao/callback`;
+    const authUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_KEY}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=profile_nickname`;
+    window.location.href = authUrl;
   }
 
   return (
