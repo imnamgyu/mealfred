@@ -170,7 +170,7 @@ export default function Home() {
   const tryRecommend = pool
     .filter((p) => !eatenSet.has(p.nm))                  // 아직 안 먹은 것
     .sort((a, b) => (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2))  // 필수 먼저
-    .slice(0, 6);
+    .slice(0, 20);
 
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
@@ -339,6 +339,9 @@ export default function Home() {
             );
           })}
           {!isMockup && tryRecommend.length === 0 && <div className="text-center py-4 text-xs" style={{ color: '#9CA3AF' }}>필수·권장 식재료를 모두 먹어봤어요! 🎉</div>}
+          <a href="/foods" className="block mt-3 py-3 rounded-xl text-center text-sm font-extrabold" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>
+            🗂 식재료 도감 전체 보기 →
+          </a>
         </div>
 
         {/* 목업 모드 — 하단 CTA */}
