@@ -116,7 +116,7 @@
   .nutri-bar-row .v.danger{color:var(--r700)}
   .nutri-warn-text{background:var(--r50);color:var(--r700);font-size:11px;padding:8px 10px;border-radius:8px;margin-top:8px;font-weight:700;line-height:1.5}
 
-  /* ★ 3일 식단 종합 진단 (7축 통합) */
+  /* ★ 3일 식단 종합 진단 (8축 통합) */
   .diagnose-card{background:linear-gradient(135deg,#F4F8FB,#E8EEF5);border-radius:16px;padding:16px;margin-bottom:12px;border:1.5px solid #CFD8DC}
   .diagnose-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
   .diagnose-card .head .lbl{font-size:11px;font-weight:800;letter-spacing:0.05em;color:var(--s700)}
@@ -604,7 +604,7 @@
               <button class="signal-detail-btn" onclick="showNutriDetail()">📋 36종 자세히 + 보충 식재료 →</button>
             </div>
 
-            <!-- ★ 3일 식단 종합 진단 (7축 통합 · 자연어) -->
+            <!-- ★ 3일 식단 종합 진단 (8축 통합 · 자연어) -->
             <div class="diagnose-card">
               <div class="head">
                 <div class="lbl">📊 최근 3일 식단 진단</div>
@@ -622,7 +622,7 @@
                 <div class="axis-row ok"><span class="dot"></span><span class="nm">스스로 먹기</span><span class="badge">55%</span></div>
                 <div class="axis-row"><span class="dot"></span><span class="nm">종합 등급</span><span class="badge">B (지난 주 B)</span></div>
               </div>
-              <div class="why">학계 기준 <strong>CEBQ · MDD · HabEat · Satter</strong> 7축으로 자동 평가</div>
+              <div class="why">학계 기준 <strong>WHO MDD · HabEat · KDRI · NOVA</strong> 등 8축으로 자동 평가</div>
             </div>
 
             <!-- ★ 액션 가능한 narrative 카드 2개 (진단의 warn 항목과 연결) -->
@@ -828,7 +828,7 @@
                 <div class="ac-dropdown" id="acDropdown"></div>
               </div>
 
-              <!-- ★ 식감 단계 (NEW — 7축 평가 #2 데이터) -->
+              <!-- ★ 식감 단계 (8축 평가 #2 데이터) -->
               <div class="field-label">━ 식감 단계 (씹기 도전 수준) ━</div>
               <div class="check-row" style="grid-template-columns:repeat(4,1fr)">
                 <div class="check-item texture-row" onclick="setExclusive(this,'.texture-row')"><span class="em">🥣</span>죽·미음</div>
@@ -837,7 +837,7 @@
                 <div class="check-item texture-row" onclick="setExclusive(this,'.texture-row')"><span class="em">🍽</span>테이블푸드</div>
               </div>
 
-              <!-- ★ 자율성 (NEW — 7축 평가 #7 Satter DOR 데이터) -->
+              <!-- ★ 자율성 (Satter DOR — AI 코치용 정성 데이터, 8축 점수 외) -->
               <div class="field-label">━ 누가 먹였어요? (자율성) ━</div>
               <div class="check-row" style="grid-template-columns:repeat(3,1fr)">
                 <div class="check-item autonomy-row" onclick="setExclusive(this,'.autonomy-row')"><span class="em">🤱</span>떠먹여줌</div>

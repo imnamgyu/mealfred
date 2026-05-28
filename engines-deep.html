@@ -413,7 +413,7 @@ flowchart LR
   <div class="card green">
     <h4>책임 (Does)</h4>
     <ul>
-      <li>식단 기록 → 7축 점수·36 영양 신호등·BMI 진단·종합 등급 산출</li>
+      <li>식단 기록 → 8축 점수·36 영양 신호등·BMI 진단·종합 등급 산출</li>
       <li>학술 출처 명시 (KDRI 2025·WHO MDD·HabEat·CEBQ·Satter)</li>
       <li>자연어 진단 문장 생성 (LLM 호출 X, 룰 기반 템플릿)</li>
       <li>OCR 식단표 평가 (가정 기록과 별도 변형)</li>
@@ -521,7 +521,7 @@ flowchart LR
   <!-- ALG-EVAL-01 -->
   <div class="algo-box">
     <span class="algo-id">ALG-EVAL-01</span>
-    <h4>7축 식단 진단</h4>
+    <h4>8축 식단 진단</h4>
     <div class="algo-meta-row">
       <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">EvalInput</div></div>
       <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">AxisResult[7]</div></div>
@@ -1436,13 +1436,13 @@ ${JSON.stringify(candidates.map(c =&gt; ({
 
 <!-- ==================== 3. OCR 엔진 ==================== -->
 <section id="ocr">
-  <h2>3. OCR 엔진 — Vision-based Menu Recognition</h2>
+  <h2>3. OCR 엔진 — CLOVA(식단표 전사) + Claude(메뉴→식재료 분해)</h2>
 
   <h3>3-0. 엔진 책임</h3>
   <div class="card green">
     <ul>
       <li>이미지 전처리 (회전·압축·해시)</li>
-      <li>Claude Vision으로 메뉴·날짜·알레르겐 추출</li>
+      <li>CLOVA OCR로 식단표 전사(표 셀 인식, 미지원 도메인은 일반 OCR 폴백) → Claude가 메뉴·식재료 분해</li>
       <li>메뉴 → recipe_id 매핑 (fuzzy match + LLM fallback)</li>
       <li>알레르겐 매핑 (식약처 17대)</li>
       <li>신뢰도 스코어링 + 사용자 수정 인터페이스</li>
@@ -2079,7 +2079,7 @@ ${yesterdayMeals}
 # 입력 데이터
 - 식습관 프로파일 (지난 주 vs 이번 주 비교)
 - 7 차원 데이터 (거부·환경·자율성 등)
-- 7축 진단 점수 변화
+- 8축 진단 점수 변화
 - 신호등 색상 변화
 
 # 출력 구조

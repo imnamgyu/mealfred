@@ -123,7 +123,7 @@
   <span class="stag">━ EVALUATION ENGINE TESTS ━</span>
   <h2>1. 평가 엔진 — 32 테스트</h2>
 
-  <h3>1-1. ALG-EVAL-01 7축 진단 (10 케이스)</h3>
+  <h3>1-1. ALG-EVAL-01 8축 진단 (10 케이스)</h3>
   <table>
     <tr><th>ID</th><th width="20%">시나리오</th><th width="35%">Input</th><th width="35%">Expected Output</th><th>우선</th></tr>
     <tr><td class="id-mono">EVAL-01-01</td><td>다양성 정상</td><td>3일 9끼니, 8 식품군 모두 등장</td><td>다양성: 100% green, "8/8"</td><td class="priority-high">🔴</td></tr>
@@ -169,7 +169,7 @@
     <tr><td class="id-mono">EVAL-04-01</td><td>탄·정상</td><td>탄 매일 + BMI 정상</td><td>carb: ok</td><td class="priority-med">🟡</td></tr>
     <tr><td class="id-mono">EVAL-04-02</td><td>지방·저체중</td><td>지방 매일 + BMI 저체중</td><td>fat: warn_low, "양 부족 — 견과 보강"</td><td class="priority-high">🔴</td></tr>
     <tr><td class="id-mono">EVAL-04-03</td><td>탄·과체중</td><td>탄 매일 + BMI 과체중</td><td>carb: warn_high, "잡곡 비중↑·간식↓"</td><td class="priority-high">🔴</td></tr>
-    <tr><td class="id-mono">EVAL-05-01</td><td>OCR 식단표 평가</td><td>한 달 식단표 OCR 결과</td><td>7→9축 평가 (제철·cuisine 추가)</td><td class="priority-high">🔴</td></tr>
+    <tr><td class="id-mono">EVAL-05-01</td><td>OCR 식단표 평가</td><td>한 달 식단표 OCR 결과</td><td>8축 평가 (가공·제철·조리스타일 포함)</td><td class="priority-high">🔴</td></tr>
     <tr><td class="id-mono">EVAL-TOT-01</td><td>종합 점수 S</td><td>모든 축 95+</td><td>총점 95+, grade S</td><td class="priority-med">🟡</td></tr>
     <tr><td class="id-mono">EVAL-TOT-02</td><td>종합 점수 B</td><td>다양성 100·식감 80·반복 70</td><td>총점 60-75, grade B</td><td class="priority-high">🔴</td></tr>
     <tr><td class="id-mono">EVAL-TOT-03</td><td>데이터 부족</td><td>logs &lt; 3개</td><td>null 반환 + "3끼 이상 입력" 안내</td><td class="priority-high">🔴</td></tr>
@@ -352,7 +352,7 @@
     <tr><th>ID</th><th>시나리오</th><th>측정</th><th>Target</th><th>우선</th></tr>
     <tr><td class="id-mono">PERF-01</td><td>평가 API p95</td><td>/api/eval/score</td><td>&lt;500ms (캐시 hit), &lt;1s (cold)</td><td class="priority-high">🔴</td></tr>
     <tr><td class="id-mono">PERF-02</td><td>추천 API p95</td><td>/api/recommend/recipes</td><td>&lt;3s (LLM 호출 포함)</td><td class="priority-high">🔴</td></tr>
-    <tr><td class="id-mono">PERF-03</td><td>OCR API p95</td><td>/api/ocr/menu</td><td>&lt;15s (Vision 호출)</td><td class="priority-high">🔴</td></tr>
+    <tr><td class="id-mono">PERF-03</td><td>OCR API p95</td><td>/api/ocr/menu</td><td>&lt;50s (CLOVA+Claude)</td><td class="priority-high">🔴</td></tr>
     <tr><td class="id-mono">PERF-04</td><td>홈 LCP</td><td>홈 진입 lighthouse</td><td>&lt;2.5s</td><td class="priority-high">🔴</td></tr>
     <tr><td class="id-mono">PERF-05</td><td>FID</td><td>첫 클릭 응답</td><td>&lt;100ms</td><td class="priority-med">🟡</td></tr>
     <tr><td class="id-mono">PERF-06</td><td>CLS</td><td>layout shift</td><td>&lt;0.1</td><td class="priority-med">🟡</td></tr>

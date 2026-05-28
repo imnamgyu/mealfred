@@ -939,13 +939,15 @@ flowchart TD
     </div>
     <h4>축별 계산식</h4>
     <ol class="step-list">
-      <li><strong>다양성 (WHO MDD)</strong>: 8 식품군(곡물·콩·유제품·고기생선·계란·진한채소·기타채소·과일) 중 등장한 종류 수 → pct = (등장 수/8) × 100</li>
-      <li><strong>식감 단계 (HabEat)</strong>: texture_level 분포 vs 연령 권장 분포 KL-divergence → 0-100 점수</li>
-      <li><strong>메뉴 반복도 (HabEat)</strong>: 4주 내 동일 메뉴명 등장 횟수 → 5+ = D, 3-4 = C, 1-2 = B, 0 = A</li>
-      <li><strong>식사 환경 (Satter DOR)</strong>: avg(duration_min) — 20분 이내 = A, 20-30 = B, 30+ = C / + 정해진 장소 여부</li>
-      <li><strong>식욕 응답 (CEBQ)</strong>: 잘먹음·또달라 비율 = (긍정 reaction / 전체) × 100</li>
-      <li><strong>새 시도 (Solid Starts)</strong>: 7일 내 신규 식재료(이전 30일 미만남) 개수 — 권장 1-2개/주</li>
-      <li><strong>자율성 (Satter DOR)</strong>: '스스로' autonomy 비율 — 만 24m+ = 50%+ 권장</li>
+      <li><strong>① 식품군 다양성 (WHO MDD)</strong>: 8 식품군(곡물·콩·유제품·고기생선·계란·진한채소·기타채소·과일) 중 등장 종류 → pct = (등장/8) × 100</li>
+      <li><strong>② 식감 단계 (HabEat)</strong>: texture_level 분포 vs 연령 권장 분포 → 0-100</li>
+      <li><strong>③ KDRI 36 영양 (보건복지부)</strong>: 36종 대비 식재료 커버 비율 (ALG-EVAL-02)</li>
+      <li><strong>④ 메뉴 반복도</strong>: 동일 메뉴 등장 횟수 — 밥·김치·우유 등 주식 제외, 적을수록 A</li>
+      <li><strong>⑤ 알레르겐 표기 (식약처)</strong>: 17대 알레르겐 표기·안전</li>
+      <li><strong>⑥ 가공식품 (NOVA)</strong>: 초가공(강한 감점) + 일반 가공(약한 0.3 가중) 2단계 — 카레·돈가스 등 집밥은 제외</li>
+      <li><strong>⑦ 제철 식재료 (농진청)</strong>: 해당 월 제철 활용도</li>
+      <li><strong>⑧ 조리 스타일 다양성</strong>: 한식·양식·일식·중식 등 cuisine 다양성</li>
+      <li style="opacity:0.72">※ 식사 환경·식욕 응답·새 시도·자율성(Satter DOR·CEBQ) 등 정성 신호는 8축 점수가 아니라 <strong>AI 코치 엔진(정성 시계열)</strong>에서 별도로 다룸 — <strong>점수=룰, 정성=LLM</strong></li>
     </ol>
     <pre class="code"><span class="kw">def</span> <span class="fn">axis_diversity</span>(logs):
     families_met = <span class="kw">set</span>()
