@@ -22,7 +22,7 @@ const SLOTS: Slot[] = [
 
 type Ingredient = { nm: string; cat: string; grade: string };
 type Tag = { name: string; ai?: boolean };  // ai=true면 AI가 메뉴에서 추정한 것
-type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string };
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null };
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
 
@@ -38,7 +38,7 @@ function saveLogs(logs: Record<string, DayLog>) {
 }
 
 // Supabase row ↔ MealEntry 변환
-type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null };
+type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null };
 function rowToEntry(r: MealRow): MealEntry {
   return {
     menus: r.menus || [],
@@ -48,6 +48,8 @@ function rowToEntry(r: MealRow): MealEntry {
     refused: r.refused || '',
     texture: r.texture || '',
     autonomy: r.autonomy || '',
+    environment: r.environment || '',
+    durationMin: r.duration_min ?? null,
   };
 }
 function entryToRow(e: MealEntry, childId: string, userId: string, date: string, slot: string) {
@@ -63,6 +65,8 @@ function entryToRow(e: MealEntry, childId: string, userId: string, date: string,
     ate_well: e.ateWell,
     texture: e.texture || null,
     autonomy: e.autonomy || null,
+    environment: e.environment || null,
+    duration_min: e.durationMin,
     updated_at: new Date().toISOString(),
   };
 }
@@ -71,7 +75,7 @@ export default function CarePage() {
   const [pool, setPool] = useState<Ingredient[]>([]);
   const [date, setDate] = useState(todayStr());
   const [activeSlot, setActiveSlot] = useState<string>('breakfast');
-  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '' });
+  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null });
   const [menuInput, setMenuInput] = useState('');
   const [parsing, setParsing] = useState(false);
   const [query, setQuery] = useState('');
@@ -105,7 +109,7 @@ export default function CarePage() {
 
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
-        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy')
+        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min')
         .eq('child_id', child.id);
 
       const cloud: Record<string, DayLog> = {};
@@ -139,7 +143,7 @@ export default function CarePage() {
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
   useEffect(() => {
     const dayLog = logs[date] || {};
-    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '' });
+    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null });
   }, [date, activeSlot, logs]);
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
@@ -436,6 +440,50 @@ export default function CarePage() {
                 }}>{o.label}</button>
             ))}
           </div>
+        </div>
+
+        {/* 식사 환경 + 시간 (Satter — 진단 반영) */}
+        <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+          <h3 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>식사 환경 <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택 · 진단에 반영)</span></h3>
+          <div className="text-[11px] mb-2" style={{ color: '#8a7a6a' }}>어떻게 먹었나요?</div>
+          <div className="grid grid-cols-2 gap-1.5 mb-3">
+            {[
+              { v: 'table', label: '🪑 식탁에 앉아서', good: true },
+              { v: 'screen', label: '📱 영상·태블릿 보며', good: false },
+              { v: 'roaming', label: '🏃 돌아다니며', good: false },
+              { v: 'play', label: '🧸 놀이하며', good: false },
+            ].map((o) => {
+              const on = entry.environment === o.v;
+              const onColor = o.good ? '#16A085' : '#E67E22';
+              return (
+                <button key={o.v} onClick={() => setEntry((x) => ({ ...x, environment: x.environment === o.v ? '' : o.v }))}
+                  className="rounded-lg py-2 text-[11.5px] font-bold transition"
+                  style={{ background: on ? onColor : '#FAFAF7', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? onColor : '#E5E7EB'}` }}>{o.label}</button>
+              );
+            })}
+          </div>
+          {entry.environment === 'screen' && (
+            <div className="text-[10.5px] mb-3 px-2.5 py-1.5 rounded-lg" style={{ background: '#FFF8E1', color: '#F57F17' }}>💡 영상 보며 먹으면 새 맛을 인지·학습하기 어려워요. 한 끼라도 화면 없이 시도해보세요.</div>
+          )}
+          <div className="text-[11px] mb-2" style={{ color: '#8a7a6a' }}>몇 분 만에 먹었나요?</div>
+          <div className="grid grid-cols-4 gap-1.5">
+            {[
+              { v: 10, label: '~10분' },
+              { v: 15, label: '15분' },
+              { v: 20, label: '20분' },
+              { v: 30, label: '30분+' },
+            ].map((o) => {
+              const on = entry.durationMin === o.v;
+              return (
+                <button key={o.v} onClick={() => setEntry((x) => ({ ...x, durationMin: x.durationMin === o.v ? null : o.v }))}
+                  className="rounded-lg py-2 text-[11px] font-bold transition"
+                  style={{ background: on ? '#1a2b4a' : '#FAFAF7', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? '#1a2b4a' : '#E5E7EB'}` }}>{o.label}</button>
+              );
+            })}
+          </div>
+          {entry.durationMin === 30 && (
+            <div className="text-[10.5px] mt-2 px-2.5 py-1.5 rounded-lg" style={{ background: '#FFF8E1', color: '#F57F17' }}>💡 식사가 30분 넘게 길어지면 집중이 흐려져요. 20분 안에 마무리가 권장돼요 (Satter).</div>
+          )}
         </div>
       </div>
 

@@ -363,6 +363,8 @@ create table if not exists meal_logs (
 -- 기존 DB 마이그레이션 (재실행 안전)
 alter table meal_logs add column if not exists menus text[];
 alter table meal_logs add column if not exists refused text;
+alter table meal_logs add column if not exists environment text;   -- 식사 환경 (table/screen/roaming/play)
+alter table meal_logs add column if not exists duration_min int;   -- 식사 시간 (분)
 create index if not exists idx_meal_logs_child_date on meal_logs(child_id, log_date desc);
 create index if not exists idx_meal_logs_parent on meal_logs(parent_id, log_date desc);
 create unique index if not exists idx_meal_logs_unique on meal_logs(child_id, log_date, slot);
