@@ -92,6 +92,15 @@ export default function Home() {
   const grade = gradeOf(D.score);
   const pointerPct = Math.min(98, Math.max(2, D.score));
 
+  // 최근 3일 식단 진단 한줄 (방법론 기반 · 추후 LLM 대체)
+  const oneLiner = isMockup
+    ? '전체적으로 잘 챙기고 있어요. 식감 단계와 메뉴 반복만 신경 쓰면 다음 주 A 등급도 가능해요.'
+    : D.reds.length > 0
+      ? `${D.reds.slice(0, 2).join('·')}이 부족해요. 그 식재료가 든 메뉴를 한 끼 더해보세요 — 강요 말고 식탁에 자주 올리기.`
+      : D.covered.length >= 7
+        ? '식품군을 골고루 챙기고 있어요. 이 페이스를 유지하며 새 식재료 한 가지씩 도전해보세요.'
+        : '기본은 잘 갖췄어요. 빠진 식재료 그룹을 한 끼에 하나씩 더해보세요.';
+
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
       {/* 헤더 */}
@@ -116,30 +125,7 @@ export default function Home() {
           </div>
         )}
 
-        <div className="text-xl font-extrabold mb-3" style={{ color: '#1a2b4a' }}>
-          {loading ? '...' : <>현재 <span style={{ color: '#C45A00' }}>{D.name}</span> 영양 점수는 <span style={{ color: grade.color }}>{D.score}점</span>이에요<br /><span className="text-xs font-semibold" style={{ color: '#9CA3AF' }}>({isMockup ? '예시 데이터' : `최근 ${days}일 기준`})</span></>}
-        </div>
-
-        {/* 편지 답장 카드 (목업) */}
-        {isMockup && (
-          <div className="rounded-2xl p-4 mb-3 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFECB3)', border: '1.5px solid #F9A825' }}>
-            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#F57F17' }}>✉️ 어제 일지에 답장이 도착했어요</div>
-            <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
-            <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
-          </div>
-        )}
-
-        {/* 오늘 기록 CTA */}
-        <a href="/care" className="block rounded-xl p-3.5 mb-3 flex items-center gap-3" style={{ background: '#E8F5E9', border: '1px solid #C8E6C9' }}>
-          <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-lg flex-shrink-0">🎯</span>
-          <div className="flex-1">
-            <div className="text-sm font-extrabold" style={{ color: '#1B5E20' }}>오늘 한 컷 기록하기</div>
-            <div className="text-[11px]" style={{ color: '#16A085' }}>30초면 끝 · 기록할수록 점수가 똑똑해져요</div>
-          </div>
-          <span style={{ color: '#16A085' }}>›</span>
-        </a>
-
-        {/* 영양 점수 카드 */}
+        {/* 영양 점수 카드 (맨 위) */}
         <div className="rounded-2xl p-5 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFFDF5)', border: `1.5px solid ${grade.color}` }}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-bold" style={{ color: '#6B7280' }}>━ 우리 아이 영양 점수 ━</span>
@@ -171,25 +157,9 @@ export default function Home() {
               <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>다음 등급까지 <strong style={{ color: '#C45A00' }}>{Math.max(1, 30 - D.ingCount)}종 더</strong>!</div>
             )}
           </div>
-
-          {/* 레시피 추천받기 */}
-          <button
-            onClick={() => {
-              if (isMockup) {
-                alert('🍳 식단을 3일 기록하면\n우리 아이 식습관·신호등 기반\n맞춤 레시피를 받을 수 있어요!');
-                window.location.href = loggedIn ? '/care' : '/signup';
-              } else {
-                window.location.href = '/care/report';
-              }
-            }}
-            className="w-full mt-3 py-3 rounded-xl font-extrabold text-white text-sm flex items-center justify-center gap-2"
-            style={{ background: '#1a2b4a' }}>
-            🍳 레시피 추천받기
-          </button>
-          <div className="text-[11px] text-center mt-1.5" style={{ color: '#9CA3AF' }}>우리 아이 식습관·신호등 기반 맞춤 레시피</div>
         </div>
 
-        {/* 36종 신호등 */}
+        {/* 36종 신호등 (영양 점수 바로 아래) */}
         <a href="/care/report" className="block rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
           <div className="flex items-center justify-between mb-2">
             <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 36종 필수 영양소 신호등</strong>
@@ -208,19 +178,48 @@ export default function Home() {
           <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 36종 자세히 + 보충 식재료 →</div>
         </a>
 
-        {/* 영양 가족 8 */}
+        {/* 최근 3일 식단 진단 — LLM 한줄 */}
+        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+          <div className="flex items-center justify-between mb-2">
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>📊 최근 {isMockup ? 3 : days}일 식단 진단</strong>
+            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full text-white" style={{ background: grade.color }}>{grade.g}</span>
+          </div>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>{oneLiner}</p>
+          <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석</div>
+        </div>
+
+        {/* 편지 답장 (안심 — 목업) */}
+        {isMockup && (
+          <div className="rounded-2xl p-4 mb-3 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFECB3)', border: '1.5px solid #F9A825' }}>
+            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#F57F17' }}>✉️ 어제 일지에 답장이 도착했어요</div>
+            <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
+            <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
+          </div>
+        )}
+
+        {/* 오늘 기록 CTA */}
+        <a href="/care" className="block rounded-xl p-3.5 mb-3 flex items-center gap-3" style={{ background: '#E8F5E9', border: '1px solid #C8E6C9' }}>
+          <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-lg flex-shrink-0">🎯</span>
+          <div className="flex-1">
+            <div className="text-sm font-extrabold" style={{ color: '#1B5E20' }}>오늘 한 컷 기록하기</div>
+            <div className="text-[11px]" style={{ color: '#16A085' }}>30초면 끝 · 기록할수록 점수가 똑똑해져요</div>
+          </div>
+          <span style={{ color: '#16A085' }}>›</span>
+        </a>
+
+        {/* 식재료 그룹 8 */}
         <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
           <div className="flex justify-between items-center mb-3">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>오늘 만난 영양 가족</strong>
-            <span className="text-xs font-bold" style={{ color: '#C45A00' }}>{D.covered.length} / 8 충족</span>
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>먹은 식재료 그룹</strong>
+            <span className="text-xs font-bold" style={{ color: '#C45A00' }}>{D.covered.length} / 8</span>
           </div>
           <div className="grid grid-cols-4 gap-2">
             {FOOD_FAMILY.map((f) => {
               const done = D.covered.includes(f.key);
               return (
-                <div key={f.key} className="rounded-xl py-2.5 text-center" style={{ background: done ? '#E8F5E9' : '#FAFAF7', border: `1.5px solid ${done ? '#16A085' : '#E5E7EB'}` }}>
-                  <div className="text-xl leading-none mb-1" style={{ filter: done ? 'none' : 'grayscale(0.7)', opacity: done ? 1 : 0.5 }}>{f.em}</div>
-                  <div className="text-[10px] font-extrabold" style={{ color: done ? '#1B5E20' : '#9CA3AF' }}>{FAMILY_LABEL[f.key]}</div>
+                <div key={f.key} className="rounded-xl py-2.5 text-center" style={{ background: done ? '#E8F5E9' : '#FAFAFA', border: `1.5px solid ${done ? '#16A085' : '#EEEEEE'}`, opacity: done ? 1 : 0.45 }}>
+                  <div className="text-xl leading-none mb-1" style={{ filter: done ? 'none' : 'grayscale(1)' }}>{f.em}</div>
+                  <div className="text-[10px] font-extrabold" style={{ color: done ? '#1B5E20' : '#BDBDBD' }}>{FAMILY_LABEL[f.key]}</div>
                 </div>
               );
             })}
@@ -243,12 +242,13 @@ export default function Home() {
           </>
         )}
 
-        {/* Top 10 친해지기 랭킹 */}
-        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
-          <div className="flex justify-between items-baseline mb-3">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🍱 우리 아이 친해지기 코스</strong>
-            <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{isMockup ? '예시 TOP' : 'TOP'}</span>
+        {/* 이번 주 시도해볼 식재료 (종합 추천 — 맨 하단) */}
+        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFD0A0', background: 'linear-gradient(135deg,#FFFBF5,white)' }}>
+          <div className="flex justify-between items-baseline mb-1">
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🍱 이번 주 시도해볼 식재료</strong>
+            <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{isMockup ? '예시' : '종합 추천'}</span>
           </div>
+          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>부족 영양 · 안 먹은 식재료 · 거부 식재료를 종합한 추천이에요</p>
           {(isMockup
             ? [
                 { em: '🥬', nm: '시금치', meta: '22번 노출 · 8번 먹음', status: 'kit' },
