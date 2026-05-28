@@ -154,7 +154,7 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   '밥': { ing: ['쌀'] }, '진밥': { ing: ['쌀'] }, '죽': { ing: ['쌀'] }, '미음': { ing: ['쌀'] }, '누룽지': { ing: ['쌀'] },
   '식빵': { ing: ['빵'] }, '토스트': { ing: ['빵'] }, '국수': { ing: ['국수'] }, '라면': { ing: ['라면'], processed: true },
   '짜파게티': { ing: ['국수','짜장'], processed: true }, '짜장면': { ing: ['국수','양파','감자','돼지고기'] },
-  // ── /milfred-mapping 실데이터 튜닝 반영 ──
+  // ── /mealfred-food-mapping 실데이터 튜닝 반영 ──
   '피자': { ing: ['빵','치즈','토마토'], processed: true }, '떡갈비': { ing: ['소고기','양파','대파'] },
   '탕평채': { ing: ['소고기','숙주나물','계란','김'] },
 };
