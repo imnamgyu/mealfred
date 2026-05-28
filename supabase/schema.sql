@@ -349,15 +349,20 @@ create table if not exists meal_logs (
   log_date date not null default current_date,
   slot text not null check (slot in ('breakfast','am_snack','lunch','pm_snack','dinner','night')),
   ingredients text[],                        -- 입력된 식재료 (해시태그)
-  menu_text text,                            -- 자유 입력 메뉴명
+  menus text[],                              -- 입력한 메뉴명 (예: 야채볶음밥)
+  menu_text text,                            -- (구) 자유 입력 메뉴명
   photo_url text,                            -- 사진 (선택)
   texture text,                              -- 식감 메모 (선택)
   autonomy text,                             -- 자율성 메모 (스스로 먹음 등)
   note text,                                 -- 전체 상태 자유 메모 (정성 기록, 가공 X)
+  refused text,                              -- 거부/남긴 음식
   ate_well boolean,                          -- 잘 먹었는지
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+-- 기존 DB 마이그레이션 (재실행 안전)
+alter table meal_logs add column if not exists menus text[];
+alter table meal_logs add column if not exists refused text;
 create index if not exists idx_meal_logs_child_date on meal_logs(child_id, log_date desc);
 create index if not exists idx_meal_logs_parent on meal_logs(parent_id, log_date desc);
 create unique index if not exists idx_meal_logs_unique on meal_logs(child_id, log_date, slot);

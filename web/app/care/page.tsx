@@ -8,6 +8,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import BottomNav from '@/components/BottomNav';
+import { createSupabaseBrowser } from '@/lib/supabase/client';
 
 type Slot = { key: string; label: string; emoji: string; time: string };
 const SLOTS: Slot[] = [
@@ -36,6 +37,32 @@ function saveLogs(logs: Record<string, DayLog>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
 }
 
+// Supabase row ↔ MealEntry 변환
+type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null };
+function rowToEntry(r: MealRow): MealEntry {
+  return {
+    menus: r.menus || [],
+    ingredients: (r.ingredients || []).map((name) => ({ name, ai: false })),
+    note: r.note || '',
+    ateWell: r.ate_well,
+    refused: r.refused || '',
+  };
+}
+function entryToRow(e: MealEntry, childId: string, userId: string, date: string, slot: string) {
+  return {
+    child_id: childId,
+    parent_id: userId,
+    log_date: date,
+    slot,
+    menus: e.menus,
+    ingredients: e.ingredients.map((t) => t.name),
+    note: e.note || null,
+    refused: e.refused || null,
+    ate_well: e.ateWell,
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export default function CarePage() {
   const [pool, setPool] = useState<Ingredient[]>([]);
   const [date, setDate] = useState(todayStr());
@@ -46,15 +73,63 @@ export default function CarePage() {
   const [query, setQuery] = useState('');
   const [logs, setLogs] = useState<Record<string, DayLog>>({});
   const [saved, setSaved] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [childId, setChildId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const supabase = createSupabaseBrowser();
 
-  // 식재료 풀 로드
+  // 식재료 풀 로드 + localStorage 우선 표시
   useEffect(() => {
     fetch('/ingredients-light.json')
       .then((r) => r.json())
       .then((d) => setPool(d.ingredients))
       .catch(() => {});
     setLogs(loadLogs());
+  }, []);
+
+  // 로그인 감지 → 자녀 조회 → Supabase 기록 로드 + localStorage 동기화
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;  // 비로그인: localStorage mock 유지
+      setUserId(user.id);
+
+      const { data: child } = await supabase.from('children')
+        .select('id').eq('parent_id', user.id).limit(1).maybeSingle();
+      if (!child) return;  // 자녀 없음 (onboarding 필요)
+      setChildId(child.id);
+
+      // Supabase에서 기존 기록 로드
+      const { data: rows } = await supabase.from('meal_logs')
+        .select('log_date,slot,menus,ingredients,note,ate_well,refused')
+        .eq('child_id', child.id);
+
+      const cloud: Record<string, DayLog> = {};
+      (rows || []).forEach((r: MealRow) => {
+        if (!cloud[r.log_date]) cloud[r.log_date] = {};
+        cloud[r.log_date][r.slot] = rowToEntry(r);
+      });
+
+      // localStorage에만 있는 기록 → Supabase로 1회 동기화 (클라우드 우선)
+      const local = loadLogs();
+      const toSync: ReturnType<typeof entryToRow>[] = [];
+      for (const [d, dayLog] of Object.entries(local)) {
+        for (const [slot, e] of Object.entries(dayLog)) {
+          const hasContent = e.menus?.length || e.ingredients?.length || e.note;
+          if (hasContent && !cloud[d]?.[slot]) {
+            toSync.push(entryToRow(e as MealEntry, child.id, user.id, d, slot));
+            if (!cloud[d]) cloud[d] = {};
+            cloud[d][slot] = e as MealEntry;
+          }
+        }
+      }
+      if (toSync.length) {
+        await supabase.from('meal_logs').upsert(toSync, { onConflict: 'child_id,log_date,slot' });
+      }
+
+      setLogs(cloud);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
@@ -107,14 +182,21 @@ export default function CarePage() {
     setEntry((e) => ({ ...e, menus: e.menus.filter((x) => x !== menu) }));
   }
 
-  function saveEntry() {
+  async function saveEntry() {
     const next = { ...logs };
     if (!next[date]) next[date] = {};
     next[date][activeSlot] = entry;
     setLogs(next);
-    saveLogs(next);
+    saveLogs(next);              // localStorage (오프라인 캐시)
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
+
+    // 로그인 + 자녀 있으면 Supabase 동기화
+    if (userId && childId) {
+      await supabase.from('meal_logs')
+        .upsert(entryToRow(entry, childId, userId, date, activeSlot), { onConflict: 'child_id,log_date,slot' })
+        .then(({ error }) => { if (error) console.warn('[care] save error:', error.message); });
+    }
   }
 
   // 최근 7일 날짜 칩
@@ -140,6 +222,15 @@ export default function CarePage() {
         </div>
         <p className="text-xs mt-1" style={{ color: '#8a7a6a' }}>편식 교정의 핵심은 소량 반복 노출 30번이에요</p>
       </header>
+
+      {/* 비로그인 안내 배너 */}
+      {!userId && (
+        <a href="/signup" className="block mx-5 mt-3 px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2"
+          style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>
+          <span>🔒</span>
+          <span className="flex-1">지금은 이 기기에만 저장돼요. <strong>카카오 로그인</strong>하면 어디서든 기록·진단 →</span>
+        </a>
+      )}
 
       {/* 날짜 선택 */}
       <div className="px-5 py-3">
