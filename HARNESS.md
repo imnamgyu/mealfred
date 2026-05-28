@@ -6,26 +6,29 @@
 
 ---
 
-## 🎯 다음 세션 시작점 (2026-05-27 갱신)
+## 🎯 다음 세션 시작점 (2026-05-28 갱신)
 
-**현재 상태**: M1 인프라 완료, daycare-eval OCR 연동 완료, app.mealfred.com 라이브
+**현재 상태**: M1~M2 인프라 완료, OCR 연동, 점수 체계 개선, GA4 전체 적용, 도감 URL 통합
 
 **도메인 (2026-05-26 확정)**:
 - `mealfred.com` = 정적 랜딩·블로그·제안서 (기존 Vercel)
 - **`app.mealfred.com`** = Next.js 앱 (별도 Vercel `mealfred-app`, 배포 독립)
 
 **완료된 인프라**:
-- ✅ Supabase schema 적용 (9 테이블 + ocr_logs + eval_results + eval-uploads Storage)
-- ✅ ingredients seed 완료 (147종 + 628 레시피)
-- ✅ Vercel `mealfred-app` 프로젝트 등록 + 환경변수 4개
-- ✅ `app.mealfred.com` 도메인 연결 (Valid Configuration)
-- ✅ app.mealfred.com/foods 라이브 (147종 상세 + 등급별 + 카테고리별 + 월별 제철)
+- ✅ Supabase schema (9 테이블 + ocr_logs + eval_results + eval-uploads Storage)
+- ✅ ingredients seed (147종 + 628 레시피)
+- ✅ Vercel `mealfred-app` + 환경변수 4개 + `app.mealfred.com` 도메인
+- ✅ app.mealfred.com/foods 라이브 (147종 SSG, 한글 slug 정상)
+- ✅ daycare-eval OCR (Claude Haiku Vision) + 비식단표 거부
+- ✅ eval_results DB 자동 저장 (/api/eval/save)
+- ✅ GA4 (G-3FRTKL3NFL) 전체 페이지 적용 (정적 40+ 페이지 + Next.js)
+- ✅ 도감 URL 통합 (foods.html·dex.html → app.mealfred.com/foods 리다이렉트)
 
 **다음 세션 시작 시 할 일**:
-1. 로드맵 기준 다음 마일스톤 확인: https://www.mealfred.com/roadmap.html
-2. daycare-eval OCR 테스트 (사진 인식 작동 검증)
-3. 카카오 Developers 등록 (A2) → app.mealfred.com/signup 작동 검증 (M4)
-4. 배치 서비스 (식단 평가 → 카톡 결과 발송) — **잠정 보류** (이사님 결정 2026-05-27)
+1. 로드맵 기준 다음: https://www.mealfred.com/roadmap.html
+2. 카카오 Developers 등록 (A2) → app.mealfred.com/signup 작동 검증 (M4)
+3. 도감 아이콘 디자인 (이모지 → 커스텀 일러스트 교체 계획)
+4. 배치 서비스 (식단 평가 → 카톡 결과 발송) — **잠정 보류**
 
 ---
 
@@ -221,6 +224,50 @@
 - daycare-eval에서 미매칭 식재료 → `unmatched_ingredient_signals` 누적
 - 5회 도달 시 enrich_queue 자동 push (M3 cron 처리)
 - '한국 어머니가 실제 먹이는 식재료 도감' 생성 기반
+
+---
+
+### 2026-05-28 — daycare-eval 피드백 5건 (이사님 모바일 QA)
+
+#### daycare-eval.html 수정 5건
+1. **OCR 추출 식단 표 추가**: 결과 모달에 끼니별 메뉴·추출 식재료·영양 분석 테이블 (요일 그룹핑·초가공 경고·🌸제철·주요 영양소). OCR 정확도 검증 + 디테일 신뢰도 ↑
+2. **알레르겐 칭찬 제거**: generateGuide "집에서는 이렇게 먹여주세요"에서 5번축(알레르겐)을 "가장 잘 챙긴 영역" 후보에서 제외 (`guidableAxes` 필터). 강점 리스트에선 이미 제외 상태였음
+3. **CTA 동어반복 정리**: "이 5가지 보충을 그대로 끼니로 받아보고 싶다면" → "추천 식재료 레시피 받아보기". 아래 "추천한 식재료로 식단 받기"(바이럴 ①) 섹션 전체 삭제
+4. **PNG 저장 UX**: 카드 저장 시 "✅ 카드가 저장되었어요!" 토스트 2.5초 표시 (`.toast` CSS + `showToast()`)
+5. **참고용 레이아웃 깨짐 수정**: `share-actions` 2중 래핑 → 버튼만 2열 그리드, 이력·공유안내·참고용 고지는 정상 블록. (덤으로 미닫힌 modal-bg div 닫힘 정합)
+
+---
+
+### 2026-05-28 — 점수 체계 개선 + 평가 결과 DB 저장 + GA4 전체 적용 + 도감 URL 통합
+
+#### 점수 체계 전면 개선
+- **MDD 다양성**: 8/8 달성 = B 기준선, 7 이하 → C 이하로 하향 (이전: 5/8도 80점)
+- **KDRI 36종**: 36종 대비 비율 계산 (8종=22%=C, 22종+=A, 29종+=A+) (이전: 8종=82점=B)
+- **식감**: 식감 종류 다양성(조림·볶음·구이·찌개 등) 가산으로 변별력 확보
+- **메뉴→서브 식재료 추정**: 30+ 메뉴 매핑 추가 (불고기→소고기·양파·대파·마늘 등)
+- **NUTRI_MAP 확장**: 12 → 30+ 식재료, 36종 커버리지 향상
+
+#### 가정보충 개선
+- 고정 문구("연어·고등어·오메가3") 제거 → v4 마스터 147종 기반 카테고리별 추천
+- 필수 26종 빠지면 최우선, 카테고리 누락 다음, 권장 종류 부족 순으로 표시
+- 15개 식품군 × 필수/권장 분리 (CATEGORY_ESSENTIALS)
+
+#### 평가 결과 DB 저장
+- `/api/eval/save` 엔드포인트 신설 → `eval_results` 테이블 자동 저장
+- 점수·등급·8축·매칭 식재료·필수 미등장 기록 (리더보드·통계 기반)
+
+#### 도감 URL 통합
+- `mealfred.com/foods.html` · `mealfred.com/dex.html` → `app.mealfred.com/foods` 리다이렉트
+- `personal-coming.html` · `docs.html` 내부 링크 갱신
+- generateStaticParams 이중 인코딩 수정 → 한글 slug 404 해소
+
+#### GA4 전체 적용
+- `G-3FRTKL3NFL` 누락 페이지 24개 추가 (정적 사이트 전체 커버)
+- `app.mealfred.com` Next.js layout.tsx에 GA4 적용
+
+#### 한계 고지 보강
+- 서브 식재료 추정 부정확 가능성 명시
+- "대략적인 경향 파악을 위한 참고 자료" 문구 추가
 
 ---
 

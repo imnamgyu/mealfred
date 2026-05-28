@@ -196,6 +196,19 @@
   .share-btn.send{background:white;color:var(--s800);border-color:var(--s800)}
   .recipe-cta{background:linear-gradient(135deg,var(--p500),var(--p700));color:white;width:100%;padding:14px;border-radius:12px;font-weight:800;font-size:13.5px;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px}
 
+  /* OCR 추출 식단 표 */
+  .ocr-table-wrap{max-height:400px;overflow-y:auto;border:1px solid var(--n200);border-radius:10px;-webkit-overflow-scrolling:touch}
+  .ocr-table{width:100%;font-size:11px;border-collapse:collapse;background:white}
+  .ocr-table thead{position:sticky;top:0;z-index:1}
+  .ocr-table th{background:var(--n50);padding:7px 8px;text-align:left;font-size:10px;font-weight:800;color:var(--s800);border-bottom:1px solid var(--n200)}
+  .ocr-table td{padding:5px 8px;border-bottom:1px solid var(--n100);vertical-align:top}
+  .ocr-table .day-cell{font-weight:700;color:var(--p700);width:28px}
+  .ocr-table .menu-cell{font-weight:600;color:var(--n700)}
+  .ocr-table .comment-cell{font-size:10px;color:var(--n600);line-height:1.5}
+  /* 토스트 알림 */
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s800);color:white;padding:12px 24px;border-radius:100px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:200;opacity:0;transition:all 0.3s ease;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
   @media (max-width:380px){
     .hero h1{font-size:26px}
     .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
@@ -478,6 +491,8 @@
       </div>
     </div>
 
+    <div id="ocrTableSection" style="display:none;margin-top:18px"></div>
+
     <!-- ★ 5문장 자연어 — 어떻게 먹일지 구체 권고 -->
     <div style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:18px;border:1.5px solid var(--b500)">
       <div style="font-size:11px;font-weight:800;color:var(--b700);letter-spacing:0.04em;margin-bottom:8px">━ 💡 집에서는 이렇게 먹여주세요 ━</div>
@@ -486,20 +501,12 @@
       </div>
       <div onclick="goHomeMealPlan()" style="background:white;border:1.5px dashed var(--b500);border-radius:10px;padding:10px 12px;margin-top:12px;display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--b700)">
         <span style="font-size:16px">✨</span>
-        <span style="flex:1">이 5가지 보충을 그대로 끼니로 받아보고 싶다면</span>
+        <span style="flex:1">추천 식재료 레시피 받아보기</span>
         <span style="color:var(--b500);font-size:16px;font-weight:300">›</span>
       </div>
     </div>
 
-    <!-- ★ 바이럴 ① 추천 식재료 식단 받아보기 → 앱 -->
-    <div onclick="window.location.href='https://app.mealfred.com'" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:14px;border:1.5px solid var(--b500);cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-      <div style="font-size:11px;font-weight:800;color:var(--b700);letter-spacing:0.04em;margin-bottom:6px">━ 📋 추천한 식재료로 식단 받기 ━</div>
-      <div style="font-size:14px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:4px">위에서 부족한 식재료, 매일 식단으로 받아보세요</div>
-      <div style="font-size:12px;color:var(--n600);font-weight:600;line-height:1.6;margin-bottom:10px">아이 식단을 입력할수록 더 잘 맞는 식단 추천 — <strong style="color:var(--b700)">편식 교정의 핵심은 소량 반복 노출 30번</strong></div>
-      <div style="background:var(--b700);color:white;padding:13px;border-radius:10px;font-weight:800;font-size:13.5px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px">📋 추천 식재료 식단 받아보기 →</div>
-    </div>
-
-    <!-- ★ 바이럴 ② 필수 식재료 → 도감 -->
+    <!-- ★ 바이럴 — 필수 식재료 → 도감 -->
     <div onclick="window.location.href='https://app.mealfred.com/foods'" style="background:linear-gradient(135deg,#FFF5EB,#FFD0A0);border-radius:14px;padding:16px;margin-top:12px;border:1.5px solid #FF6B1A;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
       <div style="font-size:11px;font-weight:800;color:#C45A00;letter-spacing:0.04em;margin-bottom:6px">━ 🗂 식재료 도감 ━</div>
       <div style="font-size:14px;font-weight:800;color:#1a2b4a;line-height:1.45;margin-bottom:4px">초등학교 급식 전까지 반드시 먹어야 할 식재료, 궁금하다면?</div>
@@ -508,7 +515,6 @@
     </div>
 
     <div class="share-actions" style="margin-top:14px">
-    <div class="share-actions">
       <button class="share-btn save" onclick="saveCardPng()">📥 카드 저장 (PNG)</button>
       <button class="share-btn send" onclick="shareSite()">📤 친구에게</button>
     </div>
@@ -980,7 +986,8 @@ function renderResult(result, ageBand){
 
 function generateGuide(result, ageBand){
   const g = scoreToGrade(result.total);
-  const strongest = result.axes.reduce((a,b) => a.score>b.score ? a : b);
+  const guidableAxes = result.axes.filter(a => a.idx !== 5);
+  const strongest = guidableAxes.reduce((a,b) => a.score>b.score ? a : b);
   const weakest = result.axes.reduce((a,b) => a.score<b.score ? a : b);
 
   let s = '';
@@ -1179,6 +1186,7 @@ async function startAnalysis(){
       console.table(result.axes.map(a => ({축:a.name, 점수:a.score, 상세:a.sub})));
 
       renderResult(result, selectedAge);
+      renderOcrTable(text);
       try {
         const ESSENTIAL = ['시금치','브로콜리','당근','고구마','두부','달걀','연어','소고기','우유','멸치','미역','고등어','닭고기','바나나','사과','블루베리','호두','귀리','현미','검은콩'];
         const foundNames = new Set((result.matched||[]).map(m=>m.nm));
@@ -1248,6 +1256,65 @@ function loadSample(n){
   setTimeout(()=>{ ta.style.borderColor = '#FFE8D0'; }, 1000);
 }
 
+// OCR 추출 식단 건바이건 분석
+function analyzeMenuItem(item, seasonItems){
+  if(NOVA4_KW.some(kw=>item.includes(kw))) return '<span style="color:var(--r500);font-weight:700">⚠️ 초가공식품</span>';
+  const ings=new Set();
+  INGREDIENT_POOL.forEach(ing=>{if(item.includes(ing.nm))ings.add(ing.nm);});
+  Object.entries(MENU_SUB_INGREDIENTS).forEach(([menu,subs])=>{if(item.includes(menu))subs.forEach(s=>ings.add(s));});
+  const parts=[];
+  if(ings.size>0) parts.push('<span style="color:var(--n500)">'+[...ings].join('·')+'</span>');
+  const nutris=new Set();
+  ings.forEach(n=>{if(NUTRI_MAP[n])NUTRI_MAP[n].slice(0,2).forEach(x=>nutris.add(x));});
+  if(nutris.size>0) parts.push('<span style="color:var(--g700)">'+[...nutris].slice(0,3).join('·')+'</span>');
+  const seasonal=[...ings].filter(n=>seasonItems.includes(n));
+  if(seasonal.length) parts.push('<span style="color:var(--p700)">🌸제철</span>');
+  return parts.length?parts.join(' '):'<span style="color:var(--n400)">—</span>';
+}
+
+function renderOcrTable(ocrText){
+  const section=document.getElementById('ocrTableSection');
+  if(!section||!ocrText)return;
+  const lines=ocrText.split(/\n/).map(s=>s.trim()).filter(Boolean);
+  const currentMonth=new Date().getMonth()+1;
+  const seasonItems=SEASON_MAP[currentMonth]||[];
+  const entries=[];
+  lines.forEach(line=>{
+    const dayMatch=line.match(/^(월|화|수|목|금|토|일)\s*[:：]\s*(.+)/);
+    if(dayMatch){
+      dayMatch[2].split(/[,，·、]/).map(s=>s.trim()).filter(Boolean).forEach(item=>{
+        entries.push({day:dayMatch[1],item});
+      });
+    } else if(line.length>6&&!/[주차]|식단|기준|어린이|유치원|^\d+월/.test(line)){
+      line.split(/[,，·、]/).map(s=>s.trim()).filter(s=>s.length>1).forEach(item=>{
+        entries.push({day:'',item});
+      });
+    }
+  });
+  if(entries.length===0)return;
+  let html='<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--b700);margin-bottom:8px">━ 📋 OCR 추출 식단 상세 ━</div>';
+  html+='<div class="ocr-table-wrap"><table class="ocr-table"><thead><tr><th style="width:28px">요일</th><th>메뉴</th><th>추출 식재료 · 영양</th></tr></thead><tbody>';
+  let lastDay='';
+  entries.forEach(({day,item})=>{
+    const showDay=day&&day!==lastDay;
+    if(day)lastDay=day;
+    const comment=analyzeMenuItem(item,seasonItems);
+    html+=`<tr><td class="day-cell">${showDay?day:''}</td><td class="menu-cell">${item}</td><td class="comment-cell">${comment}</td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  html+='<div style="font-size:10px;color:var(--n400);margin-top:6px;font-weight:600;text-align:center">OCR 인식 결과입니다 · 실제 식단과 다를 수 있습니다</div>';
+  section.innerHTML=html;
+  section.style.display='block';
+}
+
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);}
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
 // PNG 카드 저장 (html2canvas CDN 동적 로드)
 function saveCardPng(){
   const ensureLib = new Promise((resolve, reject)=>{
@@ -1264,6 +1331,7 @@ function saveCardPng(){
       link.download = `mealfred-eval-${new Date().toISOString().slice(0,10)}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
+      showToast('✅ 카드가 저장되었어요!');
     });
   }).catch(()=>{
     alert('PNG 저장 라이브러리 로드 실패. 다시 시도해주세요.');
