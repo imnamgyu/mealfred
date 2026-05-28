@@ -167,12 +167,17 @@ create table if not exists children (
   parent_id uuid not null references auth.users(id) on delete cascade,
   nickname text not null check (length(nickname) between 1 and 20),
   age_band text not null check (age_band in ('younger','3-4y','5y','6-7y')),
+  birth_year int,                            -- 출생 연도
+  birth_month int check (birth_month between 1 and 12),  -- 출생 월
   height_cm numeric,
   weight_kg numeric,
   allergens text[],
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+-- 기존 DB 마이그레이션 (재실행 안전)
+alter table children add column if not exists birth_year int;
+alter table children add column if not exists birth_month int;
 create index if not exists idx_children_parent on children(parent_id);
 alter table children enable row level security;
 do $$ begin
