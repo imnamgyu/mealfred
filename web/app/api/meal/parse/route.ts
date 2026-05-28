@@ -10,8 +10,42 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import fs from 'fs';
+import path from 'path';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// 147 식재료 풀 로드 (substring 스캔 + LLM 출력 검증용)
+let POOL_NAMES: string[] = [];
+try {
+  const fp = path.join(process.cwd(), 'public', 'ingredients-light.json');
+  POOL_NAMES = (JSON.parse(fs.readFileSync(fp, 'utf-8')).ingredients as { nm: string }[]).map((x) => x.nm);
+} catch { POOL_NAMES = []; }
+// 풀에 빠졌지만 흔한 핵심 식재료 보강 (도감 데이터 갭 — 별도 보강 예정)
+const EXTRA = ['브로콜리', '연어', '검은콩', '귀리', '현미', '콜리플라워', '요거트', '아보카도'];
+const POOL_SET = new Set([...POOL_NAMES, ...EXTRA]);
+const ALL_NAMES = [...POOL_NAMES, ...EXTRA];
+
+// 메뉴 문자열에 등장하는 식재료 별칭 → 풀 정식명
+const ALIAS: Record<string, string> = {
+  '닭': '닭고기', '돼지': '돼지고기', '소': '소고기', '달걀': '계란', '계란': '계란',
+  '고구마': '고구마', '감자': '감자', '단호박': '호박', '애호박': '애호박',
+};
+// substring 스캔 — 메뉴에 풀 식재료명(또는 별칭)이 들어있으면 추출
+function scanIngredients(menu: string): string[] {
+  const found = new Set<string>();
+  // 긴 이름 먼저 (예: '고등어'가 '고등'보다 우선)
+  const names = [...ALL_NAMES].sort((a, b) => b.length - a.length);
+  for (const nm of names) {
+    if (nm.length >= 2 && menu.includes(nm)) found.add(nm);
+  }
+  for (const [al, real] of Object.entries(ALIAS)) {
+    if (menu.includes(al) && POOL_SET.has(real)) found.add(real);
+  }
+  // 밥/죽/면 곡물 보정
+  if (/밥|죽|미음|볶음밥/.test(menu) && POOL_SET.has('쌀')) found.add('쌀');
+  return [...found];
+}
 
 const ALLOWED_ORIGINS = [
   'https://www.mealfred.com', 'https://mealfred.com',
@@ -113,16 +147,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '메뉴명이 없습니다' }, { status: 400, headers });
     }
 
-    // 1차: 룰 매핑
-    const ruled = ruleParse(menu.trim());
+    const m = menu.trim();
+
+    // 1차: 룰 매핑 (가장 정확)
+    const ruled = ruleParse(m);
     if (ruled) {
-      return NextResponse.json(
-        { ingredients: ruled.ing, processed: ruled.processed, source: 'rule' },
-        { headers }
-      );
+      return NextResponse.json({ ingredients: ruled.ing, processed: ruled.processed, source: 'rule' }, { headers });
     }
 
-    // 2차: LLM 추정
+    // 2차: substring 스캔 — 메뉴에 식재료명이 들어있으면 직접 추출 (LLM 환각 방지)
+    const scanned = scanIngredients(m.replace(/\s/g, ''));
+    if (scanned.length) {
+      return NextResponse.json({ ingredients: scanned, processed: false, source: 'scan' }, { headers });
+    }
+
+    // 3차: LLM 추정 (마지막 수단)
     const resp = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 300,
@@ -146,8 +185,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ingredients: [], source: 'llm_fail' }, { headers });
     }
     const parsed = JSON.parse(match[0]);
+    // LLM 환각 제거 — 147 풀에 있는 식재료만 통과 (풀 비었으면 통과)
+    const raw: string[] = parsed.ingredients || [];
+    const filtered = POOL_SET.size ? raw.filter((nm) => POOL_SET.has(nm)) : raw;
     return NextResponse.json(
-      { ingredients: parsed.ingredients || [], processed: !!parsed.processed, source: 'llm' },
+      { ingredients: filtered, processed: !!parsed.processed, source: 'llm' },
       { headers }
     );
   } catch (e: unknown) {
