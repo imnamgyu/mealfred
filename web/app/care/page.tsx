@@ -7,6 +7,7 @@
  */
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import BottomNav from '@/components/BottomNav';
 
 type Slot = { key: string; label: string; emoji: string; time: string };
 const SLOTS: Slot[] = [
@@ -20,7 +21,7 @@ const SLOTS: Slot[] = [
 
 type Ingredient = { nm: string; cat: string; grade: string };
 type Tag = { name: string; ai?: boolean };  // ai=true면 AI가 메뉴에서 추정한 것
-type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null };
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string };
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
 
@@ -39,7 +40,7 @@ export default function CarePage() {
   const [pool, setPool] = useState<Ingredient[]>([]);
   const [date, setDate] = useState(todayStr());
   const [activeSlot, setActiveSlot] = useState<string>('breakfast');
-  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null });
+  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null, refused: '' });
   const [menuInput, setMenuInput] = useState('');
   const [parsing, setParsing] = useState(false);
   const [query, setQuery] = useState('');
@@ -59,7 +60,7 @@ export default function CarePage() {
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
   useEffect(() => {
     const dayLog = logs[date] || {};
-    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null });
+    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null, refused: '' });
   }, [date, activeSlot, logs]);
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
@@ -285,20 +286,40 @@ export default function CarePage() {
               </button>
             ))}
           </div>
+
+          {/* 거부 시 남긴 음식 입력 */}
+          {entry.ateWell === false && (
+            <div className="mt-3 p-3 rounded-lg" style={{ background: '#FFF5F5', border: '1.5px solid #FFCDD2' }}>
+              <label className="text-xs font-bold block mb-1.5" style={{ color: '#C62828' }}>
+                어떤 음식을 남겼나요?
+              </label>
+              <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>
+                거부한 음식을 기록하면, 그 식재료에 천천히 친해지는 코스를 추천해드려요
+              </p>
+              <input value={entry.refused}
+                onChange={(e) => setEntry((x) => ({ ...x, refused: e.target.value }))}
+                placeholder="예: 브로콜리, 가지 (손도 안 댔어요)"
+                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+                style={{ background: 'white', border: '1.5px solid #FFCDD2', color: '#374151' }} />
+            </div>
+          )}
         </div>
       </div>
 
       {/* 저장 버튼 */}
-      <div className="px-5 py-3 border-t sticky bottom-0 bg-white" style={{ borderColor: '#FFE8D0' }}>
+      <div className="px-5 py-3 border-t bg-white" style={{ borderColor: '#FFE8D0' }}>
         <button onClick={saveEntry}
           className="w-full py-3.5 rounded-xl font-extrabold text-white text-sm transition"
           style={{ background: saved ? '#16A085' : '#FF6B1A' }}>
           {saved ? '✓ 저장됐어요' : `${SLOTS.find((s) => s.key === activeSlot)?.label} 기록 저장`}
         </button>
-        <p className="text-[10px] text-center mt-2" style={{ color: '#9CA3AF' }}>
-          현재 기기에 임시 저장됩니다 · 로그인 시 클라우드 동기화 (M4 연동 예정)
-        </p>
+        <button onClick={() => { window.location.href = '/foods'; }}
+          className="w-full mt-2 py-2 text-xs font-semibold" style={{ color: '#8a7a6a' }}>
+          기록 없이 둘러보기 →
+        </button>
       </div>
+
+      <BottomNav active="/care" />
     </main>
   );
 }
