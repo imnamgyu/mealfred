@@ -401,3 +401,28 @@ do $$ begin
   end if;
 end $$;
 comment on table user_menu_overrides is '메뉴→식재료 사용자 커스텀 (예: 짜파게티에서 당근 빼면 그 사람 짜파게티는 당근 제외로 기억)';
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 코치 편지 (하루 1개 생성 → 캐싱, 매 방문 LLM 호출 방지)
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+create table if not exists coach_letters (
+  id uuid primary key default gen_random_uuid(),
+  child_id uuid references children(id) on delete cascade,
+  parent_id uuid references auth.users(id) on delete cascade,
+  letter_date date not null default current_date,
+  letter text,
+  oneliner text,
+  created_at timestamptz default now()
+);
+create unique index if not exists idx_coach_letter_unique on coach_letters(child_id, letter_date);
+alter table coach_letters enable row level security;
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'coach_letter_owner_read') then
+    create policy coach_letter_owner_read on coach_letters for select using (auth.uid() = parent_id);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'coach_letter_owner_insert') then
+    create policy coach_letter_owner_insert on coach_letters for insert with check (auth.uid() = parent_id);
+  end if;
+end $$;
+comment on table coach_letters is '코치 편지 하루 1개 캐싱 (오늘 것 있으면 read, 없으면 생성·저장)';

@@ -93,20 +93,34 @@ export default function Home() {
           const top = Object.entries(menuFreq).sort((a, b) => b[1] - a[1])[0];
           if (top && top[1] >= 3) setRepeatInsight({ menu: top[0], count: top[1] });
 
-          // 3일 이상 기록 → AI 코치 편지·한줄 생성
+          // 3일 이상 기록 → 코치 편지: 오늘 것 있으면 read, 없으면 1회 생성·저장 (캐싱)
           if (byDay.length >= 3) {
-            fetch('https://app.mealfred.com/api/coach', {
-              method: 'POST', headers: { 'content-type': 'application/json' },
-              body: JSON.stringify({
-                childName: child.nickname, ageBand: child.age_band,
-                recentNotes: notes, refused: [...new Set(ref)],
-                reds: sig.filter((s) => s.level === 'red').map((s) => s.nutrient),
-                eatenCount: new Set(allIng).size,
-              }),
-            }).then((r) => r.json()).then((d) => {
-              if (d.letter) setAiLetter(d.letter);
-              if (d.oneliner) setAiOneliner(d.oneliner);
-            }).catch(() => {});
+            const today = new Date().toISOString().slice(0, 10);
+            const { data: cached } = await supabase.from('coach_letters')
+              .select('letter,oneliner').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
+            if (cached?.letter) {
+              setAiLetter(cached.letter);
+              if (cached.oneliner) setAiOneliner(cached.oneliner);
+            } else {
+              const r = await fetch('https://app.mealfred.com/api/coach', {
+                method: 'POST', headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({
+                  childName: child.nickname, ageBand: child.age_band,
+                  recentNotes: notes, refused: [...new Set(ref)],
+                  reds: sig.filter((s) => s.level === 'red').map((s) => s.nutrient),
+                  eatenCount: new Set(allIng).size,
+                }),
+              }).then((r) => r.json()).catch(() => null);
+              if (r?.letter) {
+                setAiLetter(r.letter);
+                if (r.oneliner) setAiOneliner(r.oneliner);
+                // 오늘 편지 저장 (다음 방문부터 read)
+                supabase.from('coach_letters').upsert(
+                  { child_id: child.id, parent_id: user.id, letter_date: today, letter: r.letter, oneliner: r.oneliner || null },
+                  { onConflict: 'child_id,letter_date' }
+                ).then(() => {});
+              }
+            }
           }
         }
       }
@@ -155,7 +169,7 @@ export default function Home() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-sm.png" alt="밀프레드" width={28} height={28} style={{ borderRadius: 8 }} />
           <h2 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>밀프레드 편식 관리</h2>
-          {!isMockup && days >= 1 && <span className="text-[10px] font-extrabold text-white px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg,#FF6B6B,#FFB375)' }}>🔥 {days}일</span>}
+          {!isMockup && days >= 1 && <span className="text-[10px] font-extrabold text-white px-2.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg,#FF6B6B,#FFB375)' }}>🔥 {days}일 연속 기록중</span>}
         </div>
       </header>
 
