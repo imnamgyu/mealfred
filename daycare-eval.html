@@ -666,8 +666,9 @@ const MDD_GROUP = {
 };
 const MDD_LABELS = {grain:'곡물', legume:'콩류', dairy:'유제품', meat:'고기·생선', egg:'계란', vitaminA:'비타민A 채소', other:'기타 채소', fruit:'과일'};
 
-// NOVA 가공식품 키워드 (NOVA 4)
-const NOVA4_KW = ['소시지','햄','베이컨','너겟','라면','과자','음료','주스','아이스크림','시리얼','피자','인스턴트','튀김','어묵','만두','떡갈비','맛살'];
+// 가공식품 키워드 — 초가공(NOVA4, 강한 감점) / 일반 가공(NOVA3, 약한 가중) 분리
+const NOVA4_KW = ['소시지','햄','베이컨','너겟','핫도그','과자','사탕','젤리','음료','탄산','콜라','사이다','주스','아이스크림','인스턴트','라면'];   // 초가공
+const NOVA3_KW = ['어묵','맛살','만두','떡갈비','단무지','피자','시리얼','빵가루'];   // 일반 가공 (카레·돈가스·튀김은 제외 — 집에서도 만드는 요리)
 
 // 식감 추정 키워드
 const TEXTURE_KW = {
@@ -762,7 +763,7 @@ const AXIS_HELP = {
   3: '36가지 영양소 — 보건복지부가 정한 단백질·칼슘·철분·비타민 등 36종이 식단의 식재료로 얼마나 커버되는지 봅니다.',
   4: '메뉴 반복도 — 같은 메뉴가 한 달에 몇 번 나오는지. 2회 이하면 A+, 6회 이상이면 D.',
   5: '알레르겐 표시 — 우유·계란·밀·대두 등 알레르기 유발 식품이 식단표에 표시되어 있는지 확인합니다.',
-  6: '가공식품 — 소시지·너겟·맛살 같은 초가공식품이 전체 메뉴에서 차지하는 비율. 10% 미만이면 A+. WHO NOVA 기준.',
+  6: '가공식품 — 소시지·너겟·과자·음료 같은 초가공은 강하게, 어묵·만두 같은 일반 가공은 약하게 반영해요. 카레·돈가스처럼 집에서도 만드는 요리는 가공으로 안 봅니다. WHO NOVA 기준.',
   7: '제철 식재료 — 이번 달 제철 식재료(농진청 기준)가 식단에 얼마나 활용됐는지.',
   8: '조리 스타일 — 한식만 있는지, 양식·일식·중식도 섞여 있는지. 4가지 이상이면 A+.'
 };
@@ -896,10 +897,12 @@ function evaluate(text, ageBand, items){
   const allergenMatches = ALLERGEN_KW.filter(k => scanText.includes(k)).length;
   const allergenScore = allergenMatches >= 3 ? 100 : 80;
 
-  // 6. NOVA 가공식품
-  const novaCount = NOVA4_KW.reduce((acc, kw) => acc + (scanText.match(new RegExp(kw, 'g'))||[]).length, 0);
-  const novaPct = totalMenus > 0 ? novaCount / totalMenus : 0;
-  const novaScore = novaPct < 0.1 ? 95 : novaPct < 0.2 ? 85 : novaPct < 0.35 ? 75 : 60;
+  // 6. 가공식품 — 초가공(강한 감점) + 일반 가공(약한 가중 0.3)
+  const ultraCount = NOVA4_KW.reduce((acc, kw) => acc + (scanText.match(new RegExp(kw, 'g'))||[]).length, 0);
+  const procCount = NOVA3_KW.reduce((acc, kw) => acc + (scanText.match(new RegExp(kw, 'g'))||[]).length, 0);
+  const novaCount = ultraCount + procCount;
+  const novaPct = totalMenus > 0 ? (ultraCount + procCount * 0.3) / totalMenus : 0;
+  const novaScore = novaPct < 0.08 ? 95 : novaPct < 0.18 ? 88 : novaPct < 0.3 ? 78 : 65;
 
   // 7. 제철 식재료
   const currentMonth = new Date().getMonth() + 1;
@@ -926,7 +929,7 @@ function evaluate(text, ageBand, items){
       {idx:3, name:'KDRI 36종 영양', sub:`매핑 영양소 ${nutriCount}종`, score:kdriScore, raw:{nutriSet:[...nutriSet], nutriCount}},
       {idx:4, name:'메뉴 반복도', sub:`최다 반복 ${maxRepeat}회`, score:repeatScore, raw:{maxRepeat, menuFreq}},
       {idx:5, name:'알레르겐 표시', sub:`알레르겐 ${allergenMatches}종 표시`, score:allergenScore, raw:{allergenMatches}},
-      {idx:6, name:'가공식품', sub:`초가공식품 ${novaCount}건 (${Math.round(novaPct*100)}%)`, score:novaScore, raw:{novaCount, novaPct:Math.round(novaPct*100)}},
+      {idx:6, name:'가공식품', sub:`초가공 ${ultraCount} · 일반가공 ${procCount}건`, score:novaScore, raw:{novaCount, ultraCount, procCount, novaPct:Math.round(novaPct*100)}},
       {idx:7, name:'🌸 제철 식재료', sub:`${currentMonth}월 제철 ${seasonMatch}종 매칭`, score:seasonScore, raw:{seasonMatch, seasonItems}},
       {idx:8, name:'🌍 조리 스타일', sub:`${cuisineDiv}가지 조리법`, score:cuisineScore, raw:{cuisineDiv, cuisines:[...cuisineSet]}},
     ],
@@ -986,7 +989,7 @@ function renderResult(result, ageBand){
     else if(a.idx===3) detail = `${a.raw.nutriCount}종 영양소를 식재료로 커버`;
     else if(a.idx===4) detail = `최다 반복 ${a.raw.maxRepeat}회로 메뉴가 다양`;
     else if(a.idx===5) detail = `알레르겐 ${a.raw.allergenMatches}종을 빠짐없이 표시`;
-    else if(a.idx===6){ const nova = a.raw.novaCount||0; detail = nova===0 ? '가공식품이 하나도 없는 깨끗한 식단' : `가공식품이 ${nova}건밖에 없음`; }
+    else if(a.idx===6){ const u = a.raw.ultraCount||0; detail = u===0 ? '초가공식품이 거의 없는 깨끗한 식단' : `초가공식품이 ${u}건뿐`; }
     else if(a.idx===7) detail = `${new Date().getMonth()+1}월 제철 식재료 ${a.raw.seasonMatch}종 활용`;
     else if(a.idx===8) detail = `${(a.raw.cuisines||[]).join('·')} 등 ${a.raw.cuisineDiv}가지 조리 스타일`;
     return `<div class="insight-row"><span class="em">${['🥇','🥈','🥉'][i]}</span><strong>${a.name} ${ag.grade}</strong> — ${detail}</div>`;
@@ -999,7 +1002,7 @@ function renderResult(result, ageBand){
     const ag = scoreToGrade(a.score);
     let detail = a.sub;
     if(a.idx===1 && a.raw.missing) detail = `${a.raw.missing.slice(0,2).join('·')} 식품군이 빠져있어요`;
-    else if(a.idx===6 && a.raw.novaCount) detail = `가공식품 ${a.raw.novaCount}건 (${a.raw.novaPct}%) — 자연 식재료로 대체 권장`;
+    else if(a.idx===6 && a.raw.novaCount) detail = `초가공 ${a.raw.ultraCount}건·일반가공 ${a.raw.procCount}건 — 초가공 위주로 줄이면 좋아요`;
     else if(a.idx===4) detail = `같은 메뉴가 ${a.raw.maxRepeat}회 반복`;
     else if(a.idx===8) detail = `${a.raw.cuisineDiv}가지 조리법만 사용 — 양식·일식 추가 권장`;
     return `<div class="insight-row warn"><span class="em">📉</span><strong>${a.name} ${ag.grade}</strong> — ${detail}</div>`;
@@ -1322,14 +1325,18 @@ function deriveIngredients(str){
 
 // LLM이 쓴 끼니별 한 줄 멘트 표시 (주의류는 빨강, 영양/효익은 초록)
 function formatMenuNote(note){
-  if(/주의|초가공|당류|튀김|기름/.test(note)) return '<span style="color:var(--r500);font-weight:700">⚠️ '+note+'</span>';
+  if(/초가공|주의/.test(note)) return '<span style="color:var(--r500);font-weight:700">⚠️ '+note+'</span>';
+  if(/가공|튀김|기름|당류/.test(note)) return '<span style="color:var(--y700);font-weight:700">'+note+'</span>';
   return '<span style="color:var(--g700);font-weight:700">'+note+'</span>';
 }
 
 // 메뉴 1건 → "우리 아이한테" 건강 포인트 (LLM note 없을 때 룰 기반 폴백)
 function menuHealthPoint(menu, ingredients, seasonItems){
-  if(NOVA4_KW.some(kw=>menu.includes(kw)) || (ingredients||[]).some(i=>NOVA4_KW.some(kw=>i.includes(kw)))){
+  if(NOVA4_KW.some(kw=>menu.includes(kw))){
     return '<span style="color:var(--r500);font-weight:700">⚠️ 초가공식품</span>';
+  }
+  if(NOVA3_KW.some(kw=>menu.includes(kw))){
+    return '<span style="color:var(--y700);font-weight:700">가공식품</span>';
   }
   const benefits=[]; const seen=new Set();
   (ingredients||[]).forEach(name=>{
