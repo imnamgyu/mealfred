@@ -96,15 +96,47 @@ export default function ReportPage() {
         {loading ? (
           <p className="text-sm text-center py-10" style={{ color: '#9CA3AF' }}>분석 중...</p>
         ) : daysWithData < 3 ? (
-          <div className="text-center py-10">
-            <div className="text-5xl mb-4">📊</div>
-            <h2 className="text-lg font-extrabold mb-2" style={{ color: '#1a2b4a' }}>아직 데이터가 적어요</h2>
-            <p className="text-sm leading-relaxed mb-1" style={{ color: '#8a7a6a' }}>
-              현재 <strong style={{ color: '#FF6B1A' }}>{daysWithData}일</strong> 기록됨 · 3일 이상이면 신호등이 나와요
-            </p>
-            <a href="/care" className="inline-block mt-5 px-5 py-3 rounded-xl font-bold text-white text-sm" style={{ background: '#FF6B1A' }}>
-              식사 기록하러 가기 →
-            </a>
+          <div className="relative">
+            {/* 흐린 샘플 데모 */}
+            <div className="pointer-events-none select-none" style={{ filter: 'blur(3px)', opacity: 0.55 }}>
+              <div className="rounded-2xl p-4 mb-3 text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
+                <div className="text-xs font-bold opacity-90 mb-1">최근 7일 영양 신호등 (예시)</div>
+                <div className="flex gap-4 mt-2">
+                  <div><span className="text-2xl font-extrabold">11</span><span className="text-xs ml-1">충분</span></div>
+                  <div><span className="text-2xl font-extrabold">3</span><span className="text-xs ml-1">가끔</span></div>
+                  <div><span className="text-2xl font-extrabold">1</span><span className="text-xs ml-1">부족</span></div>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+                <h3 className="text-sm font-extrabold mb-3" style={{ color: '#1a2b4a' }}>영양소 신호등</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {[['단백질','green'],['칼슘','green'],['철','yellow'],['비타민A','green'],['비타민C','green'],['비타민D','yellow'],['오메가3','red'],['식이섬유','green']].map(([n, lv]) => (
+                    <div key={n} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: LEVEL_BG[lv as 'green'|'yellow'|'red'] }}>
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ background: LEVEL_COLOR[lv as 'green'|'yellow'|'red'] }} />
+                      <span className="text-xs font-bold flex-1" style={{ color: '#1a2b4a' }}>{n}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* 잠금 오버레이 */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+              <div className="bg-white rounded-2xl shadow-lg border px-6 py-7 max-w-xs" style={{ borderColor: '#FFD0A0' }}>
+                <div className="text-4xl mb-3">🔒</div>
+                <h2 className="text-base font-extrabold mb-2" style={{ color: '#1a2b4a' }}>
+                  우리 아이 진짜 진단을 받아보세요
+                </h2>
+                <p className="text-xs leading-relaxed mb-4" style={{ color: '#8a7a6a' }}>
+                  위는 <strong>예시 화면</strong>이에요.<br />
+                  <strong style={{ color: '#FF6B1A' }}>3일만 기록</strong>하면 우리 아이 식단으로<br />
+                  영양 신호등·부족 영양소·맞춤 레시피를 받아요.<br />
+                  <span className="text-[11px]">(현재 {daysWithData}일 기록됨)</span>
+                </p>
+                <a href="/care" className="block px-5 py-3 rounded-xl font-bold text-white text-sm" style={{ background: '#FF6B1A' }}>
+                  🍽 지금 첫 끼 기록하기
+                </a>
+              </div>
+            </div>
           </div>
         ) : (
           <>
