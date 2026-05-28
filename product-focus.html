@@ -78,6 +78,35 @@
   .cull-down li::before{content:'↓';color:var(--y700);font-weight:800}
   .cull-cut li::before{content:'✕';color:var(--r500);font-weight:800}
 
+  /* 30→130 지표 */
+  .metric-flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:16px 0}
+  .metric{flex:1;min-width:150px;border-radius:14px;padding:18px 14px;text-align:center;color:white}
+  .metric .m-num{font-size:34px;font-weight:800;line-height:1;letter-spacing:-0.03em}
+  .metric .m-unit{font-size:14px;font-weight:700}
+  .metric .m-t{font-size:13px;font-weight:800;margin-top:8px}
+  .metric .m-d{font-size:11px;font-weight:500;margin-top:3px;line-height:1.5;opacity:0.92}
+  .metric .m-src{font-size:9.5px;font-weight:700;margin-top:8px;opacity:0.8;letter-spacing:0.02em}
+  .metric-arrow{display:flex;align-items:center;font-size:20px;color:var(--p500);font-weight:300}
+
+  /* 탭 소거 테이블 */
+  .tab-table{width:100%;border-collapse:collapse;font-size:13px;background:white;border-radius:12px;overflow:hidden;border:1px solid var(--n200);margin:8px 0}
+  .tab-table th{background:var(--s800);color:white;padding:10px 12px;text-align:left;font-size:12px;font-weight:800}
+  .tab-table td{padding:10px 12px;border-bottom:1px solid var(--n100);vertical-align:top;color:var(--n700)}
+  .tab-table tr:last-child td{border-bottom:none}
+  .tab-table .keep{color:var(--g700);font-weight:800}
+  .tab-table .cut{color:var(--r700);font-weight:800}
+  .tab-table .down{color:var(--y700);font-weight:800}
+  .keep-cut{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
+  .kc-box{border-radius:10px;padding:12px 14px}
+  .kc-keep{background:#E8F5E9;border:1px solid var(--g500)}
+  .kc-cut{background:#FFEBEE;border:1px solid var(--r500)}
+  .kc-box .kc-h{font-size:12px;font-weight:800;margin-bottom:6px}
+  .kc-keep .kc-h{color:var(--g700)} .kc-cut .kc-h{color:var(--r700)}
+  .kc-box ul{list-style:none;font-size:12px}
+  .kc-box li{padding:3px 0;color:var(--n700);font-weight:500}
+  .kc-keep li::before{content:'✓ ';color:var(--g500);font-weight:800}
+  .kc-cut li::before{content:'✕ ';color:var(--r500);font-weight:800}
+
   /* 핵심 루프 */
   .loop{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:16px 0}
   .loop-step{flex:1;min-width:130px;background:white;border:1.5px solid var(--p300);border-radius:12px;padding:14px;text-align:center;position:relative}
@@ -217,6 +246,96 @@
     <div class="loop-step"><div class="ls-em">🍳</div><div class="ls-t">친해지기 레시피</div><div class="ls-d">거부 식재료<br>죽→핑거푸드</div></div>
     <div class="loop-arrow">→</div>
     <div class="loop-step"><div class="ls-em">📈</div><div class="ls-t">노출 진척</div><div class="ls-d">"30번 향해<br>가는 중"</div></div>
+  </div>
+</section>
+
+<!-- 핵심 지표 30→130 -->
+<section>
+  <span class="section-tag">━ 부모에게 심을 핵심 숫자 ━</span>
+  <h2><span class="em">🎯</span>핵심 지표 — 30번 · 30가지 · 130가지</h2>
+  <p class="lead">막막한 엄마에게 손에 잡히는 목표 게이지. 죄책감(점수)이 아니라 미션(진척)으로.</p>
+  <div class="metric-flow">
+    <div class="metric" style="background:linear-gradient(135deg,#5B8DEF,#1565C0)">
+      <div><span class="m-num">30</span><span class="m-unit">번</span></div>
+      <div class="m-t">각 식재료 시도</div>
+      <div class="m-d">거부해도 최대 30번까지 천천히 만나면 받아들여요</div>
+      <div class="m-src">Cooke 반복 노출 (8~15회, 편식 심하면 ↑)</div>
+    </div>
+    <div class="metric-arrow">→</div>
+    <div class="metric" style="background:linear-gradient(135deg,#16A085,#1B5E20)">
+      <div><span class="m-num">30</span><span class="m-unit">가지+</span></div>
+      <div class="m-t">지금 목표 (최소)</div>
+      <div class="m-d">30가지 미만이면 편식 신호. 여기서 시작</div>
+      <div class="m-src">SOS Toomey (20가지 미만 = 문제적 섭식)</div>
+    </div>
+    <div class="metric-arrow">→</div>
+    <div class="metric" style="background:linear-gradient(135deg,#FF8A47,#C45A00)">
+      <div><span class="m-num">130</span><span class="m-unit">가지</span></div>
+      <div class="m-t">초등 입학 전까지</div>
+      <div class="m-d">골든타임 안에 여기까지 = 평생 골고루</div>
+      <div class="m-src">밀프레드 큐레이션 (147종 풀 기준)</div>
+    </div>
+  </div>
+  <div class="golden-box" style="background:#FFF8E1;border:1px solid rgba(249,168,37,0.4);border-radius:12px;padding:14px 16px;font-size:13px;font-weight:600;color:var(--n700);line-height:1.7">
+    💬 <strong style="color:#C45A00">한 줄 메시지:</strong> "한 식재료는 30번까지 도전, 전체는 30가지에서 시작해 초등 가기 전 130가지까지 — 그럼 평생 골고루 먹어요."
+    <div style="font-size:11px;color:var(--n500);margin-top:6px;font-weight:500">⚠ 정직 표기: 30번·30가지는 학술 근거(Cooke·SOS) / 130가지는 밀프레드 자체 큐레이션 (연구 정설 아님)</div>
+  </div>
+</section>
+
+<!-- care.html 탭·기능 소거 -->
+<section>
+  <span class="section-tag">━ care 앱 구조 정리 ━</span>
+  <h2><span class="em">📱</span>탭 소거 — 4탭 → 3탭</h2>
+  <p class="lead">안심→행동→증거 루프에 직결되는 것만. 도감은 SEO용 웹페이지로 빼고 탭에서 제거.</p>
+  <table class="tab-table">
+    <tr><th>탭</th><th>결정</th><th>이유</th></tr>
+    <tr><td>📝 기록</td><td class="keep">✅ 유지</td><td>거부 추적 = 모든 것의 출발점</td></tr>
+    <tr><td>🍳 레시피</td><td class="keep">✅ 유지</td><td>거부 식재료 → 친해지기 (행동)</td></tr>
+    <tr><td>🏠 홈</td><td class="keep">✅ 유지 (대폭 단순화)</td><td>안심(코치 답장) + 증거(30→130 게이지)</td></tr>
+    <tr><td>📖 도감</td><td class="down">🔽 탭에서 제거</td><td>SEO용 웹페이지로만. 친해지기 랭킹은 홈에 흡수</td></tr>
+  </table>
+
+  <div style="font-size:14px;font-weight:800;color:var(--s800);margin:18px 0 8px">🏠 홈에서 남길 것 / 뺄 것</div>
+  <div class="keep-cut">
+    <div class="kc-box kc-keep">
+      <div class="kc-h">✅ 남김</div>
+      <ul>
+        <li>편지 답장 (안심 — 핵심)</li>
+        <li>30→130 진척 게이지 (증거)</li>
+        <li>오늘 기록 CTA</li>
+        <li>거부 식재료 친해지기 진입</li>
+      </ul>
+    </div>
+    <div class="kc-box kc-cut">
+      <div class="kc-h">✕ 뺌</div>
+      <ul>
+        <li>영양 점수 60점 (죄책감)</li>
+        <li>36종 신호등 (불안 자극)</li>
+        <li>8축 진단 카드 (복잡)</li>
+        <li>영양 가족 8칸 · 블로그 (산만)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="font-size:14px;font-weight:800;color:var(--s800);margin:14px 0 8px">📝 기록 / 🍳 레시피</div>
+  <div class="keep-cut">
+    <div class="kc-box kc-keep">
+      <div class="kc-h">✅ 남김</div>
+      <ul>
+        <li>메뉴명 → AI 식재료 분해</li>
+        <li>거부/잘먹음 반응 + 거부 메모</li>
+        <li>식감 단계·자율성 (선택)</li>
+        <li>거부 식재료 식감 난이도 순 레시피</li>
+      </ul>
+    </div>
+    <div class="kc-box kc-cut">
+      <div class="kc-h">✕ 뺌</div>
+      <ul>
+        <li>식사 시간(몇시)·장소 입력</li>
+        <li>사진 인식 (메뉴명으로 대체)</li>
+        <li>AI 3일 식단 (편식 핵심 아님)</li>
+      </ul>
+    </div>
   </div>
 </section>
 
