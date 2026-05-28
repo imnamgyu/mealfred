@@ -196,7 +196,7 @@
       </div>
       <div class="tldr-item">
         <div class="lbl">평가 엔진</div>
-        <div class="val">Rule-based<br><span style="font-size:11px;color:var(--n500)">7축 × 36 영양소 결정론</span></div>
+        <div class="val">Rule-based<br><span style="font-size:11px;color:var(--n500)">8축 × 36 영양소 결정론</span></div>
       </div>
       <div class="tldr-item">
         <div class="lbl">추천 엔진</div>
@@ -228,9 +228,9 @@
 flowchart TD
   CLIENT["📱 CLIENT<br/>PWA · iOS · Android<br/>care.html · daycare-eval.html"]
   GATEWAY["⚡ EDGE / API GATEWAY<br/>Vercel Serverless · Supabase Auth<br/>Rate limit · CORS · 캐시"]
-  EVAL["📊 평가 엔진<br/>(Pure Rule)<br/>7축 · 36 신호등 · BMI"]
+  EVAL["📊 평가 엔진<br/>(Pure Rule)<br/>8축 · 36 신호등 · BMI"]
   RECO["🍳 추천 엔진<br/>(Hybrid LLM)<br/>4원칙 매칭 · 자연어 생성"]
-  OCR["📷 OCR 엔진<br/>(Claude Vision)<br/>식단표 인식 · 메뉴 추출"]
+  OCR["📷 OCR 엔진<br/>(CLOVA OCR + Claude 분해)<br/>식단표 전사 · 메뉴→식재료"]
   DB[("🗄 DATA LAYER<br/>Supabase Postgres<br/>users · meal_logs · recipes<br/>ingredients · kdri_rni · cache")]
   ETL["🔄 ETL / BATCH<br/>GitHub Actions cron<br/>4,432 레시피 enrich · 운영 큐"]
 
@@ -303,7 +303,7 @@ flowchart TD
   <h2>평가 엔진 — Rule-based</h2>
   <p>모든 평가는 결정론적 계산. LLM 미사용. 빠르고 일관적·재현 가능.</p>
 
-  <h3>3-1. 7축 식단 진단</h3>
+  <h3>3-1. 8축 식단 진단</h3>
   <div class="mermaid-wrap">
     <div class="mermaid">
 flowchart LR
@@ -318,7 +318,7 @@ flowchart LR
   A6["6. 새 시도<br/>Solid Starts"]
   A7["7. 자율성<br/>Satter DOR"]
 
-  OUT["📊 7축 자연어 진단<br/>+ 종합 등급"]
+  OUT["📊 8축 자연어 진단<br/>+ 종합 등급"]
 
   L --> A1 & A2 & A3 & A4 & A5 & A6 & A7
   P --> A2 & A7
@@ -429,7 +429,7 @@ flowchart LR
 <section id="ocr">
   <span class="section-tag">━ 5. OCR ENGINE ━</span>
   <h2>OCR — 어린이집·유치원 식단표 인식</h2>
-  <p>Claude Sonnet 4.7 Vision API. 이미지 해시 기반 영구 캐시 — 같은 식단표 재분석 비용 0.</p>
+  <p>네이버 CLOVA OCR로 식단표 전사 → Claude Haiku가 메뉴를 식재료로 분해. 표 추출(table extractor) 미지원 도메인은 일반 OCR로 자동 폴백.</p>
 
   <div class="mermaid-wrap">
     <div class="mermaid">
@@ -451,7 +451,7 @@ sequenceDiagram
     API->>Cache: 저장 (영구)
   end
   API->>DB: 평가 결과 + expires_at (24h)
-  API-->>U: 7축 점수 + 가정 보충 가이드
+  API-->>U: 8축 점수 + 가정 보충 가이드
     </div>
   </div>
 </section>
@@ -527,7 +527,7 @@ sequenceDiagram
     <div class="tline-row">
       <div class="week">W3</div>
       <div class="bar-wrap">
-        <div class="ttl">평가 엔진 (7축·36 신호등·BMI) Python 구현 + 테스트</div>
+        <div class="ttl">평가 엔진 (8축·36 신호등·BMI) Python 구현 + 테스트</div>
         <div class="out">📦 /api/eval 엔드포인트</div>
       </div>
     </div>

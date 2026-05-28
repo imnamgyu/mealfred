@@ -584,7 +584,7 @@ flowchart LR
       </div>
       <div class="uc-body">
         <p><strong>고객은</strong> 떠먹여줌·도와줌·스스로 중 하나로 자율성을 기록할 수 있다.</p>
-        <div class="uc-flow"><strong>용도</strong>: Satter Division of Responsibility 7축 평가</div>
+        <div class="uc-flow"><strong>용도</strong>: Satter Division of Responsibility 8축 평가</div>
       </div>
     </div>
 
@@ -631,7 +631,7 @@ flowchart LR
       </div>
       <div class="uc-body">
         <p><strong>고객은</strong> 홈에서 영양 점수를 4단계 시각화로 확인한다: <strong>① 60점 큰 숫자 + B 보통 뱃지 + 지난주 대비 변화(+8)</strong>, <strong>② 5등급 가로 스케일 바</strong> (D→C→B→A→S, 현재 위치 화살표), <strong>③ 이번 주 먹은 식재료 진척도</strong> (18/30종, 다음 등급까지 N종), <strong>④ 🍳 레시피 추천받기 CTA</strong> → 레시피 탭으로.</p>
-        <div class="uc-flow"><strong>계산</strong>: 7축 점수 가중평균 → 5등급(S/A/B/C/D) → 자연어 라벨 + 식재료 카운트</div>
+        <div class="uc-flow"><strong>계산</strong>: 8축 점수 가중평균 → 5등급(S/A/B/C/D) → 자연어 라벨 + 식재료 카운트</div>
       </div>
     </div>
 
@@ -680,10 +680,10 @@ flowchart LR
     <div class="uc-card">
       <div class="uc-head">
         <div class="uc-num">19</div>
-        <div class="uc-title"><h4>3일 식단 진단 (7축)</h4><div class="actor">👩 부모</div></div>
+        <div class="uc-title"><h4>3일 식단 진단 (8축)</h4><div class="actor">👩 부모</div></div>
       </div>
       <div class="uc-body">
-        <p><strong>고객은</strong> 다양성·식감·반복·환경·응답·새시도·자율성 7축을 한 카드에서 자연어로 받을 수 있다.</p>
+        <p><strong>고객은</strong> 식품군다양성·식감단계·KDRI 36영양·반복도·알레르겐·가공식품(초가공/일반)·제철·조리스타일 8축을 한 카드에서 자연어로 받을 수 있다.</p>
         <div class="uc-flow"><strong>로직</strong>: ALG-EVAL-01 참조</div>
       </div>
     </div>
@@ -694,7 +694,7 @@ flowchart LR
         <div class="uc-title"><h4>식단표 평가받기 (어린이집·유치원·가정 식단)</h4><div class="actor">👩 부모</div></div>
       </div>
       <div class="uc-body">
-        <p><strong>고객은</strong> 종이 식단표 사진 1장 업로드로 한 달치 7축 평가를 30초 안에 받을 수 있다.</p>
+        <p><strong>고객은</strong> 종이 식단표 사진 1장 업로드로 한 달치 8축 평가를 30초 안에 받을 수 있다.</p>
         <div class="uc-flow"><strong>흐름</strong>: daycare-eval 진입 → 만 나이 선택 → 사진 업로드 → ALG-OCR-01 → ALG-EVAL-05 → 결과 카드</div>
         <span class="label">프라이버시</span>기관 이름 X · 사진 24h 후 자동 삭제</div>
       </div>
@@ -727,7 +727,7 @@ flowchart LR
         <div class="uc-title"><h4>식감/메뉴 반복 narrative 알림</h4><div class="actor">👩 부모</div></div>
       </div>
       <div class="uc-body">
-        <p><strong>고객은</strong> 7축 진단의 warn 항목(식감 단계·메뉴 반복)을 별도 narrative 카드로 받고, 클릭으로 레시피 탭 자동 이동한다.</p>
+        <p><strong>고객은</strong> 8축 진단의 warn 항목(식감 단계·메뉴 반복)을 별도 narrative 카드로 받고, 클릭으로 레시피 탭 자동 이동한다.</p>
         <div class="uc-flow"><strong>예시</strong>: "이번 주 죽·미음 비중 65%예요 → 내일 시작 추천: 당근 스틱 + 후무스" / "한 주 동안 닭죽이 5번 → 로테이션: 버섯·콩·생선으로 베이스 바꾸기"</div>
       </div>
     </div>
@@ -904,11 +904,11 @@ flowchart LR
 flowchart TD
   IN["📝 입력<br/>meal_logs (최근 3-7일)<br/>+ child profile (age·sex·allergens)<br/>+ growth_stats (최신 BMI)"]
   PRE["🔧 전처리<br/>1. 식재료 정규화 (alias → id)<br/>2. 끼니별 영양 합산<br/>3. accept_rate 계산"]
-  A1["ALG-EVAL-01<br/>7축 식단 진단"]
+  A1["ALG-EVAL-01<br/>8축 식단 진단"]
   A2["ALG-EVAL-02<br/>36 영양 신호등<br/>(빈도 → 충족률)"]
   A3["ALG-EVAL-03<br/>BMI percentile<br/>(KDC lookup)"]
   A4["ALG-EVAL-04<br/>탄·단·지 + BMI<br/>(빈도 × BMI 매트릭스)"]
-  A5["ALG-EVAL-05<br/>OCR 식단표 평가<br/>(7축 변형)"]
+  A5["ALG-EVAL-05<br/>OCR 식단표 평가<br/>(8축 변형)"]
   POST["📤 출력<br/>scores JSONB + grade + 자연어 진단"]
 
   IN --> PRE
@@ -929,11 +929,11 @@ flowchart TD
   <h3>3-1. 5개 평가 알고리즘 상세</h3>
 
   <div class="algo-card eval">
-    <div class="algo-head"><span class="algo-id">ALG-EVAL-01</span><h4>7축 식단 진단</h4></div>
-    <p>WHO·HabEat·Satter·CEBQ·Solid Starts 기반 학술 7축 평가.</p>
+    <div class="algo-head"><span class="algo-id">ALG-EVAL-01</span><h4>8축 식단 진단</h4></div>
+    <p>WHO·HabEat·Satter·CEBQ·Solid Starts 기반 학술 8축 평가.</p>
     <div class="algo-meta">
       <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">meal_logs 3-7일</div></div>
-      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">7축 × {pct, status, detail}</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">8축 × {pct, status, detail}</div></div>
       <div class="algo-meta-item"><div class="lbl">복잡도</div><div class="val">O(N·M) N=끼니, M=평균재료</div></div>
       <div class="algo-meta-item"><div class="lbl">의존</div><div class="val">ingredients.category</div></div>
     </div>
@@ -1045,11 +1045,11 @@ MESSAGES = {
   </div>
 
   <div class="algo-card eval">
-    <div class="algo-head"><span class="algo-id">ALG-EVAL-05</span><h4>식단표 OCR 평가 (7축 변형)</h4></div>
-    <p>한 달치 식단표 한 장에서 OCR로 추출한 메뉴를 7축으로 평가. 가정 기록과 다른 점: 가공식품 비율·계절성 추가.</p>
+    <div class="algo-head"><span class="algo-id">ALG-EVAL-05</span><h4>식단표 OCR 평가 (8축 변형)</h4></div>
+    <p>한 달치 식단표 한 장에서 OCR로 추출한 메뉴를 8축으로 평가. 가정 기록과 다른 점: 가공식품 비율·계절성 추가.</p>
     <div class="algo-meta">
       <div class="algo-meta-item"><div class="lbl">입력</div><div class="val">OCR 결과 (~30일 메뉴)</div></div>
-      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">7축 점수 + 총점 + 등급</div></div>
+      <div class="algo-meta-item"><div class="lbl">출력</div><div class="val">8축 점수 + 총점 + 등급</div></div>
     </div>
     <ol class="step-list">
       <li>OCR 결과 → recipes 매칭 (메뉴명 fuzzy match) → 영양 합계 계산</li>
@@ -1257,7 +1257,7 @@ DEFAULTS = {<span class="str">'base_pref'</span>:<span class="num">0.3</span>, <
 <!-- ==================== 5. OCR ENGINE ==================== -->
 <section id="ocr-engine">
   <span class="section-tag">━ PART 5. OCR ENGINE ━</span>
-  <h2>OCR 엔진 — Claude Vision (6 알고리즘 상세)</h2>
+  <h2>OCR 엔진 — CLOVA(식단표 전사) + Claude Vision(기록용 음식 사진) (6 알고리즘 상세)</h2>
 
   <h3>5-0. 엔진 아키텍처</h3>
   <div class="mermaid-wrap">
@@ -1268,7 +1268,7 @@ sequenceDiagram
   participant API as Edge API
   participant Store as Supabase Storage
   participant Cache as ocr_cache
-  participant V as Claude Vision
+  participant V as CLOVA(식단표)/Vision(사진)
   participant Eval as 평가 엔진
   participant DB as daycare_evals
 
@@ -1288,7 +1288,7 @@ sequenceDiagram
     API->>API: ALG-OCR-05 신뢰도 스코어링
     API->>Cache: INSERT (영구)
   end
-  API->>Eval: ALG-EVAL-05 7축 평가
+  API->>Eval: ALG-EVAL-05 8축 평가
   Eval-->>API: scores + grade
   API->>DB: INSERT daycare_evals (24h TTL)
   API-->>U: 평가 결과 카드
