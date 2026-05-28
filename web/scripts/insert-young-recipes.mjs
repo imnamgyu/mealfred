@@ -2,7 +2,10 @@
 // LLM API 미사용 — supabase 삽입만. 배치 추가형(같은 식재료 재실행 시 해당 AI템플릿만 교체).
 //   cd web && node --env-file=.env.local scripts/insert-young-recipes.mjs [--dry]
 import { createClient } from '@supabase/supabase-js';
-import { RECIPES } from './young-recipes-data.mjs';
+import { RECIPES as B1 } from './young-recipes-data.mjs';
+import { RECIPES as B2 } from './young-recipes-data-2.mjs';
+import { RECIPES as B3 } from './young-recipes-data-3.mjs';
+const RECIPES = [...B1, ...B2, ...B3];
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const SOURCE = 'AI 생성(영유아 템플릿)';
