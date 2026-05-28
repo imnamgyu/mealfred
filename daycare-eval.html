@@ -1323,7 +1323,13 @@ function deriveIngredients(str){
   return [...ings];
 }
 
-// 메뉴 1건 → "우리 아이한테" 건강 포인트
+// LLM이 쓴 끼니별 한 줄 멘트 표시 (주의류는 빨강, 영양/효익은 초록)
+function formatMenuNote(note){
+  if(/주의|초가공|당류|튀김|기름/.test(note)) return '<span style="color:var(--r500);font-weight:700">⚠️ '+note+'</span>';
+  return '<span style="color:var(--g700);font-weight:700">'+note+'</span>';
+}
+
+// 메뉴 1건 → "우리 아이한테" 건강 포인트 (LLM note 없을 때 룰 기반 폴백)
 function menuHealthPoint(menu, ingredients, seasonItems){
   if(NOVA4_KW.some(kw=>menu.includes(kw)) || (ingredients||[]).some(i=>NOVA4_KW.some(kw=>i.includes(kw)))){
     return '<span style="color:var(--r500);font-weight:700">⚠️ 초가공식품</span>';
@@ -1352,17 +1358,17 @@ function renderOcrTable(items, ocrText){
 
   let entries=[];
   if(items && items.length){
-    entries=items.map(it=>({date:it.date||'', day:it.day||'', menu:it.menu||'', ingredients:it.ingredients||[]}));
+    entries=items.map(it=>({date:it.date||'', day:it.day||'', menu:it.menu||'', ingredients:it.ingredients||[], note:it.note||''}));
   } else if(ocrText){
     ocrText.split(/\n/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
       const dayMatch=line.match(/^(월|화|수|목|금|토|일)\s*[:：]\s*(.+)/);
       if(dayMatch){
         dayMatch[2].split(/[,，·、]/).map(s=>s.trim()).filter(Boolean).forEach(m=>{
-          entries.push({date:'', day:dayMatch[1], menu:m, ingredients:deriveIngredients(m)});
+          entries.push({date:'', day:dayMatch[1], menu:m, ingredients:deriveIngredients(m), note:''});
         });
       } else if(line.length>6&&!/[주차]|식단|기준|어린이|유치원|^\d+월/.test(line)){
         line.split(/[,，·、]/).map(s=>s.trim()).filter(s=>s.length>1).forEach(m=>{
-          entries.push({date:'', day:'', menu:m, ingredients:deriveIngredients(m)});
+          entries.push({date:'', day:'', menu:m, ingredients:deriveIngredients(m), note:''});
         });
       }
     });
@@ -1372,11 +1378,12 @@ function renderOcrTable(items, ocrText){
   let html='<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--b700);margin-bottom:8px">━ 📋 OCR 추출 식단 · 우리 아이한테 ━</div>';
   html+='<div class="ocr-table-wrap"><table class="ocr-table"><thead><tr><th style="width:34px">날짜</th><th>메뉴</th><th>우리 아이한테</th></tr></thead><tbody>';
   let lastKey='';
-  entries.forEach(({date,day,menu,ingredients})=>{
+  entries.forEach(({date,day,menu,ingredients,note})=>{
     const label = date ? (date+'일'+(day?' '+day:'')) : day;
     const showLabel = label && label!==lastKey;
     if(label)lastKey=label;
-    const hp=menuHealthPoint(menu, ingredients, seasonItems);
+    // 끼니별 멘트: LLM note 우선(메뉴마다 다름), 없으면 룰 기반 폴백
+    const hp = note ? formatMenuNote(note) : menuHealthPoint(menu, ingredients, seasonItems);
     const ingSub=(ingredients&&ingredients.length)?`<div style="font-size:9px;color:var(--n400);margin-top:1px">${ingredients.join('·')}</div>`:'';
     html+=`<tr><td class="day-cell">${showLabel?label:''}</td><td class="menu-cell">${menu}${ingSub}</td><td class="comment-cell">${hp}</td></tr>`;
   });

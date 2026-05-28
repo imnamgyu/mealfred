@@ -240,7 +240,10 @@
 - 비용: 스캔당 대략 CLOVA(₩수원)+Haiku(₩30~40) ≈ ₩40~80 (최저가 구간)
 - env: `CLOVA_OCR_URL`·`CLOVA_OCR_SECRET` (Vercel mealfred-app + 로컬 .env.local). 시크릿 출처: `/Users/ing/Desktop/편식극복키트/10_개발관련/clova-ocr.rtf`
 
-**주의/미검증**: `enableTableDetection` 미지원 도메인이면 CLOVA 400 가능 → 그 옵션만 빼면 폴백. 실제 식단표 사진으로 정확도 검증 필요.
+**검증 완료 (2026-05-28 저녁)**: 실제 김해 금관어린이집 10월 식단표로 라이브 테스트 → HTTP 200, 메뉴 86건 정상, 날짜 배치 정확(1 수/2 목...), 쇠고기→소고기 정규화 작동, 카스텔라→밀가루·계란·설탕 분해. Sonnet "(동그랑땡) 도배·환각·한글깨짐" 완전 해소. 표 추출 버튼 OFF라 일반 OCR 폴백으로 동작(그래도 날짜까지 깔끔).
+**알려진 도메인 설정**: 표 추출(table extractor) 버튼 OFF → `enableTableDetection:true`면 CLOVA 400(code 0028) → 코드가 일반 OCR로 자동 폴백. 콘솔에서 버튼 켜면 셀 단위 인식으로 자동 업그레이드(유료).
+**남은 폴리시(선택)**: Haiku 분해가 물·소금·국물을 식재료에 섞는 경우 있음(점수 무영향, 표만 약간 지저분) → 프롬프트 한 줄 보강 여지.
+**CLOVA 도메인**: 코드 mealfred · 명 밀프레드 · ID 53557 (호출은 URL+X-OCR-SECRET만 필요, 도메인 정보 본문 불필요).
 
 ---
 
