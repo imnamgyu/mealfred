@@ -47,6 +47,8 @@ export default function Home() {
   const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
   const [ingredientCount, setIngredientCount] = useState(0);
   const [refused, setRefused] = useState<string[]>([]);
+  const [aiLetter, setAiLetter] = useState<string>('');
+  const [aiOneliner, setAiOneliner] = useState<string>('');
 
   useEffect(() => {
     (async () => {
@@ -54,22 +56,40 @@ export default function Home() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setLoggedIn(true);
-        const { data: child } = await supabase.from('children').select('id,nickname').eq('parent_id', user.id).limit(1).maybeSingle();
+        const { data: child } = await supabase.from('children').select('id,nickname,age_band').eq('parent_id', user.id).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
-          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused').eq('child_id', child.id).gte('log_date', dates[6]);
-          const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = [];
-          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null }) => {
+          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note').eq('child_id', child.id).gte('log_date', dates[6]);
+          const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
+          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; note: string | null }) => {
             if (!byDate[r.log_date]) byDate[r.log_date] = [];
             (r.ingredients || []).forEach((i) => { byDate[r.log_date].push(i); allIng.push(i); });
             if (r.refused) ref.push(r.refused);
+            if (r.note) notes.push(r.note);
           });
           const byDay = Object.values(byDate).filter((a) => a.length);
+          const sig = computeSignals(byDay);
           setDays(byDay.length);
-          setSignals(computeSignals(byDay));
+          setSignals(sig);
           setGroups(computeFoodGroups(allIng));
           setIngredientCount(new Set(allIng).size);
           setRefused([...new Set(ref)]);
+
+          // 3일 이상 기록 → AI 코치 편지·한줄 생성
+          if (byDay.length >= 3) {
+            fetch('https://app.mealfred.com/api/coach', {
+              method: 'POST', headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({
+                childName: child.nickname, ageBand: child.age_band,
+                recentNotes: notes, refused: [...new Set(ref)],
+                reds: sig.filter((s) => s.level === 'red').map((s) => s.nutrient),
+                eatenCount: new Set(allIng).size,
+              }),
+            }).then((r) => r.json()).then((d) => {
+              if (d.letter) setAiLetter(d.letter);
+              if (d.oneliner) setAiOneliner(d.oneliner);
+            }).catch(() => {});
+          }
         }
       }
       setLoading(false);
@@ -92,14 +112,15 @@ export default function Home() {
   const grade = gradeOf(D.score);
   const pointerPct = Math.min(98, Math.max(2, D.score));
 
-  // 최근 3일 식단 진단 한줄 (방법론 기반 · 추후 LLM 대체)
-  const oneLiner = isMockup
+  // 최근 N일 식단 진단 한줄 — AI 생성 우선, 없으면 방법론 규칙 폴백
+  const ruleOneLiner = isMockup
     ? '전체적으로 잘 챙기고 있어요. 식감 단계와 메뉴 반복만 신경 쓰면 다음 주 A 등급도 가능해요.'
     : D.reds.length > 0
       ? `${D.reds.slice(0, 2).join('·')}이 부족해요. 그 식재료가 든 메뉴를 한 끼 더해보세요 — 강요 말고 식탁에 자주 올리기.`
       : D.covered.length >= 7
         ? '식품군을 골고루 챙기고 있어요. 이 페이스를 유지하며 새 식재료 한 가지씩 도전해보세요.'
         : '기본은 잘 갖췄어요. 빠진 식재료 그룹을 한 끼에 하나씩 더해보세요.';
+  const oneLiner = aiOneliner || ruleOneLiner;
 
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
@@ -188,12 +209,18 @@ export default function Home() {
           <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석</div>
         </div>
 
-        {/* 편지 답장 (안심 — 목업) */}
-        {isMockup && (
+        {/* 편지 답장 (안심) — AI 실제 / 목업 */}
+        {(isMockup || aiLetter) && (
           <div className="rounded-2xl p-4 mb-3 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFECB3)', border: '1.5px solid #F9A825' }}>
-            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#F57F17' }}>✉️ 어제 일지에 답장이 도착했어요</div>
-            <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
-            <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
+            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#F57F17' }}>✉️ 코치 편지가 도착했어요</div>
+            {aiLetter ? (
+              <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
+            ) : (
+              <>
+                <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
+                <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
+              </>
+            )}
           </div>
         )}
 
