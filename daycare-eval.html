@@ -1129,24 +1129,43 @@ function saveHistory(result, ageBand){
   } catch(e) { console.warn('history save failed', e); }
 }
 
-const ANALYZE_STEPS = [
-  '메뉴 파싱 중...',
-  '8개 식품군 다양성 분석 중...',
-  'KDRI 36종 영양소 매칭...',
-  '메뉴 반복도 + 식감 단계 평가...',
-  '제철·가공식품·조리 스타일 평가...',
-  '결과 카드 정리 중...'
-];
+// 서버 처리(CLOVA+Claude, 보통 30~50초) 중 프로그래스를 끊김 없이 진행 + 경과초·단계 안내
+function startProcessingCreep(fill, msg){
+  const start = Date.now();
+  const phases = ['📋 식단표 글자 읽는 중 (CLOVA OCR)','🍳 메뉴를 식재료로 분해 중 (AI)','📊 8축 평가 계산 중','✨ 끼니별 분석 정리 중'];
+  return setInterval(()=>{
+    const t = (Date.now() - start) / 1000;
+    const pct = Math.min(95, 40 + 55 * (1 - Math.exp(-t / 22)));   // 40→95% 점근(멈춘 느낌 제거)
+    fill.style.width = pct.toFixed(1) + '%';
+    const phase = phases[Math.min(phases.length - 1, Math.floor(t / 14))];
+    msg.textContent = `${phase}… (${Math.round(t)}초 · 보통 30~50초)`;
+  }, 300);
+}
 
 const OCR_API = 'https://app.mealfred.com/api/ocr';
 
-// 식단표 사진 1장 → 서버에서 CLOVA OCR(전사) + Claude(식재료 분해) 처리
-async function ocrOneImage(file){
-  const fd = new FormData();
-  fd.append('image', file);
-  const resp = await fetch(OCR_API, { method:'POST', body: fd });
-  if(!resp.ok){ let d = {}; try { d = await resp.json(); } catch(_){} return { error: d.error || ('HTTP ' + resp.status) }; }
-  return resp.json();
+// 식단표 사진 1장 → 서버 CLOVA OCR(전사)+Claude(분해). 업로드 진행률 콜백(onUploadProgress) 지원.
+function ocrOneImage(file, onUploadProgress){
+  return new Promise((resolve)=>{
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', OCR_API);
+    xhr.timeout = 70000;  // 서버 maxDuration 60s + 여유
+    if(xhr.upload && onUploadProgress){
+      xhr.upload.onprogress = (e)=>{ if(e.lengthComputable) onUploadProgress(e.loaded / e.total); };
+      xhr.upload.onload = ()=>{ onUploadProgress(1); };
+    }
+    xhr.onload = ()=>{
+      let d = null;
+      try { d = JSON.parse(xhr.responseText); } catch(_){}
+      if(xhr.status >= 400){ resolve({ error: (d && d.error) || ('HTTP ' + xhr.status) }); return; }
+      resolve(d || { error: '응답 파싱 실패' });
+    };
+    xhr.onerror = ()=> resolve({ error: '네트워크 오류' });
+    xhr.ontimeout = ()=> resolve({ error: '시간 초과 — 잠시 후 다시 시도해주세요' });
+    const fd = new FormData();
+    fd.append('image', file);
+    xhr.send(fd);
+  });
 }
 
 async function startAnalysis(){
@@ -1160,16 +1179,23 @@ async function startAnalysis(){
   document.getElementById('analyzingModal').classList.add('show');
   const fill = document.getElementById('progressFill');
   const msg = document.getElementById('analyzeMsg');
-  fill.style.width = '10%';
-  msg.textContent = '📸 사진에서 식단표 인식 중... (5~10초)';
+  fill.style.width = '6%';
+  msg.textContent = '📤 사진 업로드 준비 중…';
 
   let text, inputMode, ocrItems = [];
+  let creep = null;
 
   try {
-    fill.style.width = '30%';
-    msg.textContent = '📸 식단표 글자 인식 중... (CLOVA OCR)';
-    const data = await ocrOneImage(photoInput.files[0]);
-    fill.style.width = '45%';
+    const data = await ocrOneImage(photoInput.files[0], (frac)=>{
+      if(frac < 1){
+        fill.style.width = (8 + Math.round(frac * 30)) + '%';      // 업로드: 8→38%
+        msg.textContent = `📤 사진 업로드 중… ${Math.round(frac * 100)}%`;
+      } else if(!creep){
+        fill.style.width = '40%';                                   // 업로드 완료 → 서버 처리 구간
+        creep = startProcessingCreep(fill, msg);
+      }
+    });
+    if(creep){ clearInterval(creep); creep = null; }
 
     if(data.error){
       closeModal('analyzingModal');
@@ -1186,79 +1212,49 @@ async function startAnalysis(){
     inputMode = 'ocr';
     console.log('[mealfred-eval] OCR 결과:', text.slice(0, 200), '· items', ocrItems.length);
   } catch(e) {
+    if(creep) clearInterval(creep);
     closeModal('analyzingModal');
     alert('⚠️ 사진 인식 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.');
     return;
   }
 
-  const logEntry = {
-    ts: new Date().toISOString(),
-    inputMode,
-    ageBand: selectedAge,
-    photoName: photoInput.files[0].name,
-    photoSize: photoInput.files[0].size,
-    textLength: text.length,
-    textPreview: text.slice(0, 100)
-  };
-  console.log('[mealfred-eval] 입력 로그:', logEntry);
+  // 8축 평가는 클라이언트에서 즉시 계산 (지연 없음)
+  msg.textContent = '📊 8축 평가 계산 중…';
+  fill.style.width = '97%';
+  const result = evaluate(text, selectedAge, ocrItems);
+  result._inputMode = inputMode;
+  console.log('[mealfred-eval] 평가 결과:', result.total, result.axes.map(a => a.name + ':' + a.score).join(' · '));
 
-  fill.style.width = '50%';
-  msg.textContent = '8개 식품군 다양성 분석 중...';
+  renderResult(result, selectedAge);
+  renderOcrTable(ocrItems, text);
+  try {
+    const ESSENTIAL = ['시금치','브로콜리','당근','고구마','두부','달걀','연어','소고기','우유','멸치','미역','고등어','닭고기','바나나','사과','블루베리','호두','귀리','현미','검은콩'];
+    const foundNames = new Set((result.matched||[]).map(m=>m.nm));
+    const missingEssential = ESSENTIAL.filter(n => !foundNames.has(n));
+    fetch('https://app.mealfred.com/api/eval/save', {
+      method: 'POST',
+      headers: {'content-type':'application/json'},
+      body: JSON.stringify({
+        age_band: selectedAge,
+        input_mode: inputMode,
+        total_score: result.total,
+        grade: scoreToGrade(result.total).grade,
+        axis_scores: result.axes.map(a => ({idx:a.idx, name:a.name, score:a.score})),
+        matched_count: (result.matched||[]).length,
+        total_menus: result.totalMenus,
+        matched_ingredients: [...foundNames],
+        missing_essential: missingEssential,
+        ocr_text: text,
+        result_json: { result, ageBand: selectedAge, items: ocrItems, text },
+      })
+    }).then(r => r.json()).then(d => { if(d && d.id) currentShareId = d.id; }).catch(() => {});
+  } catch(e) {}
 
-  let step = 2;
-  const iv = setInterval(()=>{
-    step++;
-    if(step >= ANALYZE_STEPS.length){
-      clearInterval(iv);
-      fill.style.width = '100%';
-      const result = evaluate(text, selectedAge, ocrItems);
-      result._inputMode = inputMode;
-
-      const evalLog = {
-        ts: new Date().toISOString(),
-        inputMode,
-        ageBand: selectedAge,
-        total: result.total,
-        axes: result.axes.map(a => ({name:a.name, score:a.score})),
-        matchedCount: (result.matched||[]).length,
-        totalMenus: result.totalMenus
-      };
-      console.log('[mealfred-eval] 평가 결과:', evalLog);
-      console.table(result.axes.map(a => ({축:a.name, 점수:a.score, 상세:a.sub})));
-
-      renderResult(result, selectedAge);
-      renderOcrTable(ocrItems, text);
-      try {
-        const ESSENTIAL = ['시금치','브로콜리','당근','고구마','두부','달걀','연어','소고기','우유','멸치','미역','고등어','닭고기','바나나','사과','블루베리','호두','귀리','현미','검은콩'];
-        const foundNames = new Set((result.matched||[]).map(m=>m.nm));
-        const missingEssential = ESSENTIAL.filter(n => !foundNames.has(n));
-        fetch('https://app.mealfred.com/api/eval/save', {
-          method: 'POST',
-          headers: {'content-type':'application/json'},
-          body: JSON.stringify({
-            age_band: selectedAge,
-            input_mode: inputMode,
-            total_score: result.total,
-            grade: scoreToGrade(result.total).grade,
-            axis_scores: result.axes.map(a => ({idx:a.idx, name:a.name, score:a.score})),
-            matched_count: (result.matched||[]).length,
-            total_menus: result.totalMenus,
-            matched_ingredients: [...foundNames],
-            missing_essential: missingEssential,
-            ocr_text: text,
-            result_json: { result, ageBand: selectedAge, items: ocrItems, text },
-          })
-        }).then(r => r.json()).then(d => { if(d && d.id) currentShareId = d.id; }).catch(() => {});
-      } catch(e) {}
-      setTimeout(()=>{
-        closeModal('analyzingModal');
-        document.getElementById('resultModal').classList.add('show');
-      }, 400);
-      return;
-    }
-    msg.textContent = ANALYZE_STEPS[step];
-    fill.style.width = (50 + step*10) + '%';
-  }, 600);
+  fill.style.width = '100%';
+  setTimeout(()=>{
+    closeModal('analyzingModal');
+    document.getElementById('resultModal').classList.add('show');
+  }, 350);
 }
 
 // 샘플 식단 (4월·5월 어린이집 식단 예시)
