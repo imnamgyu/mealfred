@@ -75,12 +75,20 @@ const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = {
   '사과': { ing: ['사과'] }, '바나나': { ing: ['바나나'] }, '딸기': { ing: ['딸기'] }, '귤': { ing: ['귤'] },
   '블루베리': { ing: ['블루베리'] }, '키위': { ing: ['키위'] }, '토마토': { ing: ['토마토'] }, '방울토마토': { ing: ['토마토'] },
   '흰밥': { ing: ['쌀'] }, '쌀밥': { ing: ['쌀'] }, '잡곡밥': { ing: ['잡곡','쌀'] }, '현미밥': { ing: ['현미'] },
+  '밥': { ing: ['쌀'] }, '진밥': { ing: ['쌀'] }, '죽': { ing: ['쌀'] }, '미음': { ing: ['쌀'] }, '누룽지': { ing: ['쌀'] },
+  '식빵': { ing: ['빵'] }, '토스트': { ing: ['빵'] }, '국수': { ing: ['국수'] }, '라면': { ing: ['라면'], processed: true },
+  '짜파게티': { ing: ['국수','짜장'], processed: true }, '짜장면': { ing: ['국수','양파','감자','돼지고기'] },
 };
 
+// 부분일치용 키 — 2글자 이상, 길이 내림차순 (긴 키 우선 = 더 구체적)
+const PARTIAL_KEYS = Object.keys(MENU_MAP).filter((k) => k.length >= 2).sort((a, b) => b.length - a.length);
 function ruleParse(menu: string): { ing: string[]; processed: boolean } | null {
   const m = menu.replace(/\s/g, '');
-  for (const [key, val] of Object.entries(MENU_MAP)) {
-    if (m.includes(key)) return { ing: val.ing, processed: !!val.processed };
+  // 1) 정확 일치 우선 (밥·김 같은 단품 안전)
+  if (MENU_MAP[m]) return { ing: MENU_MAP[m].ing, processed: !!MENU_MAP[m].processed };
+  // 2) 부분 일치 — 2글자 이상 키만, 긴 것부터 (1글자 키 오작동 방지)
+  for (const key of PARTIAL_KEYS) {
+    if (m.includes(key)) return { ing: MENU_MAP[key].ing, processed: !!MENU_MAP[key].processed };
   }
   return null;
 }
@@ -112,11 +120,12 @@ export async function POST(req: NextRequest) {
       max_tokens: 300,
       messages: [{
         role: 'user',
-        content: `한국 가정식 메뉴 "${menu}"에 일반적으로 들어가는 주요 식재료를 분해하세요.
-- 양념(소금·간장·설탕)은 제외, 실제 식재료만
-- 한국 영유아 식단 기준 흔한 재료 위주
-- 가공식품(소시지·햄·어묵 등) 포함 시 processed: true
-- JSON만 응답: {"ingredients": ["재료1","재료2"], "processed": false}`,
+        content: `한국 가정식 메뉴 "${menu}"에 실제로 들어가는 핵심 식재료만 분해하세요.
+- 양념(소금·간장·설탕)·물·육수·기름 제외
+- 그 메뉴에 확실히 들어가는 재료만. 확실치 않으면 적게. 임의로 채소·과일 추가 절대 금지.
+- 단순 곡물 메뉴(밥·죽·면)는 곡물만(쌀·국수 등). 채소 끼워넣지 말 것.
+- 가공식품(소시지·햄·어묵·라면 등) 포함 시 processed: true
+- JSON만: {"ingredients": ["재료1"], "processed": false}`,
       }],
     });
 

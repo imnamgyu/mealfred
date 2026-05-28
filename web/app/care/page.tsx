@@ -166,8 +166,9 @@ export default function CarePage() {
         body: JSON.stringify({ menu: m }),
       });
       const data = await resp.json();
+      const EXCLUDE = ['물', '육수', '소금', '간장', '설탕', '식용유', '참기름'];
       const newTags: Tag[] = (data.ingredients || [])
-        .filter((nm: string) => !hasName(nm))
+        .filter((nm: string) => !hasName(nm) && !EXCLUDE.includes(nm))
         .map((nm: string) => ({ name: nm, ai: true }));
       setEntry((e) => ({ ...e, ingredients: [...e.ingredients, ...newTags.filter((t) => !e.ingredients.some((x) => x.name === t.name))] }));
     } catch {
@@ -309,7 +310,7 @@ export default function CarePage() {
           </div>
           <div className="flex gap-2">
             <input value={menuInput} onChange={(e) => setMenuInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMenu(menuInput); } }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); addMenu(menuInput); } }}
               placeholder="예: 소세지볶음, 미역국"
               className="flex-1 px-3 py-2.5 rounded-lg text-sm outline-none"
               style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
@@ -339,7 +340,7 @@ export default function CarePage() {
           </div>
           <div className="relative">
             <input ref={inputRef} value={query} onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && query.trim()) addIngredient(suggestions[0]?.nm || query.trim()); }}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && query.trim()) addIngredient(suggestions[0]?.nm || query.trim()); }}
               placeholder="+ 식재료 직접 추가 (예: 시금치)"
               className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
               style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
