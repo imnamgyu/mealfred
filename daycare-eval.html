@@ -1457,7 +1457,7 @@ function shareSite(){
 // 결과 자체를 URL로 공유 — 받은 사람은 재분석 없이 저장된 결과를 바로 봄 (3일 유효)
 function shareResult(){
   if(!currentShareId){ shareSite(); return; }
-  const url = 'https://www.mealfred.com/daycare-eval.html?r=' + currentShareId;
+  const url = 'https://app.mealfred.com/eval/' + currentShareId;  // 카톡 미리보기에 등급·점수 노출되는 바이럴 URL
   const text = '우리 아이 식단표 평가 결과예요 — 사진 1장 30초 진단';
   if(navigator.share){
     navigator.share({title:'우리 아이 식단 평가 결과', text, url}).catch(()=>{});
