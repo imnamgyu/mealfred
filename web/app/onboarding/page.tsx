@@ -45,19 +45,10 @@ export default function OnboardingPage() {
   const [weight, setWeight] = useState('');
   const [allergens, setAllergens] = useState<string[]>([]);
   const [customAllergen, setCustomAllergen] = useState('');  // 수동 추가 입력
-  const [phone, setPhone] = useState('');                  // 선택 (알림톡 수신 동의 시)
-  const [alimtalkOk, setAlimtalkOk] = useState(false);     // 알림톡 수신 동의 체크
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const ageBand = (birthYear && birthMonth) ? deriveAgeBand(Number(birthYear), Number(birthMonth)) : '';
-
-  function formatPhone(v: string) {
-    const d = v.replace(/[^0-9]/g, '').slice(0,11);
-    if (d.length < 4) return d;
-    if (d.length < 8) return `${d.slice(0,3)}-${d.slice(3)}`;
-    return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
-  }
 
   const supabase = createSupabaseBrowser();
 
@@ -68,12 +59,6 @@ export default function OnboardingPage() {
     setLoading(true); setError(null);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setError('로그인이 필요해요'); setLoading(false); return; }
-    // 전화번호 검증 (입력 시만)
-    const phoneClean = phone.replace(/[^0-9]/g, '');
-    if (phoneClean && !/^010\d{8}$/.test(phoneClean)) {
-      setError('전화번호 형식이 올바르지 않아요 (010-0000-0000)');
-      setLoading(false); return;
-    }
 
     const { error: e2 } = await supabase.from('children').insert({
       parent_id: user.id,
@@ -88,13 +73,6 @@ export default function OnboardingPage() {
     setLoading(false);
     if (e2) { setError(e2.message); return; }
 
-    // 전화번호 + 알림톡 동의 → user_metadata 저장 (옵션)
-    if (phoneClean && alimtalkOk) {
-      await supabase.auth.updateUser({
-        data: { phone: phoneClean, alimtalk_consent: true },
-      });
-      fetch('/api/auth/welcome-alimtalk', { method:'POST' }).catch(()=>{});
-    }
     router.push('/care');
   }
 
@@ -132,7 +110,7 @@ export default function OnboardingPage() {
           </div>
           {ageBand && (
             <p style={{ fontSize:12, color:'#C45A00', marginTop:6, fontWeight:700 }}>
-              → {AGE_BAND_LABEL[ageBand]} 기준으로 분석해요
+              우리 아이는 <strong>{AGE_BAND_LABEL[ageBand]}</strong>예요 · 이 나이에 맞는 영양 기준으로 분석해드려요
             </p>
           )}
         </div>
@@ -190,22 +168,6 @@ export default function OnboardingPage() {
               style={{ padding:'10px 16px', background:'#1a2b4a', color:'white', border:'none', borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}
             >추가</button>
           </div>
-        </div>
-
-        <div style={{ marginBottom:18, padding:14, background:'#FFFBF5', borderRadius:10, border:'1px dashed #FFD0A0' }}>
-          <label style={{ fontSize:13, fontWeight:800, color:'#1a2b4a' }}>📱 카카오 알림톡 (선택)</label>
-          <p style={{ fontSize:11.5, color:'#8a7a6a', marginTop:4, marginBottom:8, lineHeight:1.6 }}>
-            stage 전환·완주·리마인드만 받기 (광고 X). 전화번호 없으면 알림톡 X, 앱은 정상 작동.
-          </p>
-          <input
-            type="tel" value={phone} onChange={(e)=>setPhone(formatPhone(e.target.value))}
-            placeholder="010-0000-0000 (선택)" maxLength={13}
-            style={{ width:'100%', padding:11, border:'1.5px solid #FFE8D0', borderRadius:8, fontSize:14, fontFamily:'inherit', outline:'none' }}
-          />
-          <label style={{ display:'flex', alignItems:'flex-start', gap:8, fontSize:11, color:'#5a4a3a', marginTop:8, cursor:'pointer' }}>
-            <input type="checkbox" checked={alimtalkOk} onChange={(e)=>setAlimtalkOk(e.target.checked)} style={{ marginTop:2 }} />
-            <span>카카오톡 알림 수신 동의 (stage·완주·미입력 리마인드만 · 광고 X)</span>
-          </label>
         </div>
 
         <button type="submit" disabled={loading} style={{
