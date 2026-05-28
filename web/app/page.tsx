@@ -49,8 +49,13 @@ export default function Home() {
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   const [aiOneliner, setAiOneliner] = useState<string>('');
+  const [textureInsight, setTextureInsight] = useState<{ pureePct: number } | null>(null);
+  const [repeatInsight, setRepeatInsight] = useState<{ menu: string; count: number } | null>(null);
+  const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string }[]>([]);
+  const [eatenSet, setEatenSet] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    fetch('/ingredients-light.json').then((r) => r.json()).then((d) => setPool(d.ingredients)).catch(() => {});
     (async () => {
       const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toISOString().slice(0, 10); });
       const { data: { user } } = await supabase.auth.getUser();
@@ -59,13 +64,16 @@ export default function Home() {
         const { data: child } = await supabase.from('children').select('id,nickname,age_band').eq('parent_id', user.id).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
-          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note').eq('child_id', child.id).gte('log_date', dates[6]);
+          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus').eq('child_id', child.id).gte('log_date', dates[6]);
           const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
-          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; note: string | null }) => {
+          const textures: string[] = []; const menuFreq: Record<string, number> = {};
+          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; note: string | null; texture: string | null; menus: string[] | null }) => {
             if (!byDate[r.log_date]) byDate[r.log_date] = [];
             (r.ingredients || []).forEach((i) => { byDate[r.log_date].push(i); allIng.push(i); });
             if (r.refused) ref.push(r.refused);
             if (r.note) notes.push(r.note);
+            if (r.texture) textures.push(r.texture);
+            (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); menuFreq[k] = (menuFreq[k] || 0) + 1; });
           });
           const byDay = Object.values(byDate).filter((a) => a.length);
           const sig = computeSignals(byDay);
@@ -73,7 +81,17 @@ export default function Home() {
           setSignals(sig);
           setGroups(computeFoodGroups(allIng));
           setIngredientCount(new Set(allIng).size);
+          setEatenSet(new Set(allIng));
           setRefused([...new Set(ref)]);
+
+          // 식감 인사이트 — 죽·다진 비중
+          if (textures.length >= 3) {
+            const soft = textures.filter((t) => t === 'puree' || t === 'mashed').length;
+            setTextureInsight({ pureePct: Math.round((soft / textures.length) * 100) });
+          }
+          // 메뉴 반복 인사이트 — 최다 반복 메뉴
+          const top = Object.entries(menuFreq).sort((a, b) => b[1] - a[1])[0];
+          if (top && top[1] >= 3) setRepeatInsight({ menu: top[0], count: top[1] });
 
           // 3일 이상 기록 → AI 코치 편지·한줄 생성
           if (byDay.length >= 3) {
@@ -121,6 +139,13 @@ export default function Home() {
         ? '식품군을 골고루 챙기고 있어요. 이 페이스를 유지하며 새 식재료 한 가지씩 도전해보세요.'
         : '기본은 잘 갖췄어요. 빠진 식재료 그룹을 한 끼에 하나씩 더해보세요.';
   const oneLiner = aiOneliner || ruleOneLiner;
+
+  // 이번 주 시도해볼 식재료 — 필수(⭐⭐⭐) 안 먹은 것 우선, 그다음 권장
+  const GRADE_RANK: Record<string, number> = { '필수': 0, '권장': 1, '향신료': 3 };
+  const tryRecommend = pool
+    .filter((p) => !eatenSet.has(p.nm))                  // 아직 안 먹은 것
+    .sort((a, b) => (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2))  // 필수 먼저
+    .slice(0, 6);
 
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
@@ -253,20 +278,22 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 식감·메뉴 인사이트 (목업) */}
-        {isMockup && (
-          <>
-            <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #F9A825' }}>
-              <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#F57F17' }}>⚠ 식감 단계 — 핑거푸드 시점</div>
-              <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>이번 주 죽·미음 비중 <strong style={{ color: '#F57F17' }}>65%</strong>예요</div>
-              <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>씹는 근육이 자라는 시기라 단계를 살짝 도전해볼 때예요. 한 끼는 핑거푸드부터 — <strong>당근 스틱</strong> 추천</div>
-            </div>
-            <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #5B8DEF' }}>
-              <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#1565C0' }}>🔁 메뉴 반복 — 닭죽 5회</div>
-              <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>한 주 동안 비슷한 메뉴가 자주 나왔어요</div>
-              <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>같은 식재료 반복은 맛 학습 좁아짐으로 이어져요 (HabEat). 베이스는 비슷해도 <strong>채소 조합만 바꿔도</strong> 새 노출이 됩니다</div>
-            </div>
-          </>
+        {/* 식감 인사이트 — 실데이터(죽 비중 40%+) or 목업 */}
+        {((!isMockup && textureInsight && textureInsight.pureePct >= 40) || isMockup) && (
+          <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #F9A825' }}>
+            <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#F57F17' }}>⚠ 식감 단계 — 핑거푸드 시점</div>
+            <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>이번 주 죽·다진 비중 <strong style={{ color: '#F57F17' }}>{isMockup ? 65 : textureInsight?.pureePct}%</strong>예요</div>
+            <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>씹는 근육이 자라는 시기라 단계를 살짝 도전해볼 때예요. 한 끼는 핑거푸드부터 — <strong>당근 스틱</strong> 추천</div>
+          </div>
+        )}
+
+        {/* 메뉴 반복 인사이트 — 실데이터(3회+ 반복) or 목업 */}
+        {((!isMockup && repeatInsight) || isMockup) && (
+          <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #5B8DEF' }}>
+            <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#1565C0' }}>🔁 메뉴 반복 — {isMockup ? '닭죽 5회' : `${repeatInsight?.menu} ${repeatInsight?.count}회`}</div>
+            <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>한 주 동안 비슷한 메뉴가 자주 나왔어요</div>
+            <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>같은 식재료 반복은 맛 학습 좁아짐으로 이어져요 (HabEat). 베이스는 비슷해도 <strong>채소 조합만 바꿔도</strong> 새 노출이 됩니다</div>
+          </div>
         )}
 
         {/* 이번 주 시도해볼 식재료 (종합 추천 — 맨 하단) */}
@@ -275,28 +302,27 @@ export default function Home() {
             <strong className="text-sm" style={{ color: '#1a2b4a' }}>🍱 이번 주 시도해볼 식재료</strong>
             <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{isMockup ? '예시' : '종합 추천'}</span>
           </div>
-          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>부족 영양 · 안 먹은 식재료 · 거부 식재료를 종합한 추천이에요</p>
+          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>아직 안 먹어본 <strong>필수(⭐⭐⭐) 식재료</strong>부터 도전해보세요</p>
           {(isMockup
             ? [
-                { em: '🥬', nm: '시금치', meta: '22번 노출 · 8번 먹음', status: 'kit' },
-                { em: '🍆', nm: '가지', meta: '8번 노출 · 3번 먹음', status: 'try' },
-                { em: '🥗', nm: '상추', meta: '6번 노출 · 2번 먹음', status: 'try' },
-                { em: '🥦', nm: '브로콜리', meta: '15번 노출 · 9번 먹음', status: 'try' },
+                { em: '🥬', nm: '시금치', grade: '필수' }, { em: '🥦', nm: '브로콜리', grade: '권장' },
+                { em: '🍆', nm: '가지', grade: '권장' }, { em: '🐟', nm: '고등어', grade: '필수' },
               ]
-            : refused.slice(0, 6).map((f) => ({ em: '🍽', nm: f.split(/[\s,(]/)[0], meta: '거부 기록', status: 'try' as const }))
-          ).map((it, i) => (
-            <a key={i} href={`/foods/${encodeURIComponent(it.nm)}`} className="flex items-center gap-3 py-2.5" style={{ borderTop: i ? '1px solid #F4F4F5' : 'none' }}>
-              <span className="text-sm font-extrabold w-5 text-center" style={{ color: '#9CA3AF' }}>{i + 1}</span>
-              <span className="text-2xl">{it.em}</span>
-              <div className="flex-1">
-                <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>{it.nm}</div>
-                <div className="text-[11px]" style={{ color: '#8a7a6a' }}>{it.meta}</div>
-              </div>
-              <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg" style={{ background: it.status === 'kit' ? '#FFF5EB' : '#FAFAF7', color: it.status === 'kit' ? '#C45A00' : '#FF6B1A', border: `1px solid ${it.status === 'kit' ? '#FFD0A0' : '#FFE8D0'}` }}>
-                {it.status === 'kit' ? '친해지기 키트 →' : '레시피 →'}
-              </span>
-            </a>
-          ))}
+            : tryRecommend.map((p) => ({ em: p.em || '🍽', nm: p.nm, grade: p.grade }))
+          ).map((it, i) => {
+            const stars = it.grade === '필수' ? '⭐⭐⭐' : it.grade === '권장' ? '⭐⭐' : '⭐';
+            return (
+              <a key={i} href={`/foods/${encodeURIComponent(it.nm)}`} className="flex items-center gap-3 py-2.5" style={{ borderTop: i ? '1px solid #F4F4F5' : 'none' }}>
+                <span className="text-2xl">{it.em}</span>
+                <div className="flex-1">
+                  <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>{it.nm}</div>
+                  <div className="text-[11px]" style={{ color: '#8a7a6a' }}>{stars} {it.grade || '일반'} · 아직 안 먹어봤어요</div>
+                </div>
+                <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>도전하기 →</span>
+              </a>
+            );
+          })}
+          {!isMockup && tryRecommend.length === 0 && <div className="text-center py-4 text-xs" style={{ color: '#9CA3AF' }}>필수·권장 식재료를 모두 먹어봤어요! 🎉</div>}
         </div>
 
         {/* 목업 모드 — 하단 CTA */}
