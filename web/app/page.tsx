@@ -1,153 +1,224 @@
 /**
- * / — 밀프레드 앱 홈 (care 대시보드)
+ * / — 밀프레드 앱 홈 (care 대시보드, care.html 리치 디자인 포팅)
  *
- * 로그인 시: 자녀 인사 + 오늘 기록 현황 + 영양 신호등 요약 + 거부 식재료 코스 + 빠른 진입
- * 비로그인 시: 가입 유도 + 도감 둘러보기
+ * 데이터 없음(비로그인 or 3일 미만): '예시 지우' 목업 + 🔒 기록 유도
+ * 3일+ 기록: 실제 meal_logs로 영양 점수·신호등·식품군·친해지기 계산
  */
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, type NutrientSignal } from '@/lib/nutrition';
 import BottomNav from '@/components/BottomNav';
 
 const STORAGE_KEY = 'mealfred_care_logs';
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
+const FOOD_FAMILY = [
+  { key: '곡물', em: '🌾' }, { key: '콩류', em: '🫘' }, { key: '유제품', em: '🥛' },
+  { key: '고기생선', em: '🍗' }, { key: '계란', em: '🥚' }, { key: '비타민A채소', em: '🥕' },
+  { key: '기타채소', em: '🥬' }, { key: '과일', em: '🍓' },
+];
+const FAMILY_LABEL: Record<string, string> = {
+  곡물: '곡물', 콩류: '콩', 유제품: '유제품', 고기생선: '고기·생선', 계란: '계란',
+  비타민A채소: '진한 채소', 기타채소: '기타 채소', 과일: '과일',
+};
+
+// 신호등 → 영양 점수 (green=100, yellow=50)
+function scoreFromSignals(sig: NutrientSignal[]): number {
+  if (!sig.length) return 0;
+  const sum = sig.reduce((a, s) => a + (s.level === 'green' ? 100 : s.level === 'yellow' ? 50 : 0), 0);
+  return Math.round(sum / sig.length);
+}
+function gradeOf(score: number) {
+  if (score >= 90) return { g: 'S', label: '매우좋음', color: '#1B5E20' };
+  if (score >= 70) return { g: 'A', label: '좋음', color: '#16A085' };
+  if (score >= 55) return { g: 'B', label: '보통', color: '#F9A825' };
+  if (score >= 40) return { g: 'C', label: '주의', color: '#E67E22' };
+  return { g: 'D', label: '경고', color: '#C62828' };
+}
+
 export default function Home() {
   const supabase = createSupabaseBrowser();
   const [loading, setLoading] = useState(true);
-  const [nickname, setNickname] = useState<string>('');
-  const [childName, setChildName] = useState<string>('');
+  const [childName, setChildName] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
-  const [todayCount, setTodayCount] = useState(0);
-  const [signalSummary, setSignalSummary] = useState({ green: 0, yellow: 0, red: 0, days: 0 });
+  const [days, setDays] = useState(0);
+  const [signals, setSignals] = useState<NutrientSignal[]>([]);
+  const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
+  const [ingredientCount, setIngredientCount] = useState(0);
   const [refused, setRefused] = useState<string[]>([]);
 
   useEffect(() => {
     (async () => {
-      const dates = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(); d.setDate(d.getDate() - i); return d.toISOString().slice(0, 10);
-      });
+      const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toISOString().slice(0, 10); });
       const { data: { user } } = await supabase.auth.getUser();
-
       if (user) {
         setLoggedIn(true);
-        setNickname((user.user_metadata?.nickname as string) || '');
-        const { data: child } = await supabase.from('children')
-          .select('id,nickname').eq('parent_id', user.id).limit(1).maybeSingle();
+        const { data: child } = await supabase.from('children').select('id,nickname').eq('parent_id', user.id).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
-          const { data: rows } = await supabase.from('meal_logs')
-            .select('log_date,slot,ingredients,refused').eq('child_id', child.id).gte('log_date', dates[6]);
-          const byDate: Record<string, string[]> = {};
-          const ref: string[] = [];
-          let tCount = 0;
-          (rows || []).forEach((r: { log_date: string; slot: string; ingredients: string[] | null; refused: string | null }) => {
+          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused').eq('child_id', child.id).gte('log_date', dates[6]);
+          const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = [];
+          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null }) => {
             if (!byDate[r.log_date]) byDate[r.log_date] = [];
-            (r.ingredients || []).forEach((i) => byDate[r.log_date].push(i));
+            (r.ingredients || []).forEach((i) => { byDate[r.log_date].push(i); allIng.push(i); });
             if (r.refused) ref.push(r.refused);
-            if (r.log_date === todayStr()) tCount++;
           });
-          setTodayCount(tCount);
           const byDay = Object.values(byDate).filter((a) => a.length);
-          if (byDay.length) {
-            const sig = computeSignals(byDay);
-            setSignalSummary({
-              green: sig.filter((s) => s.level === 'green').length,
-              yellow: sig.filter((s) => s.level === 'yellow').length,
-              red: sig.filter((s) => s.level === 'red').length,
-              days: byDay.length,
-            });
-          }
+          setDays(byDay.length);
+          setSignals(computeSignals(byDay));
+          setGroups(computeFoodGroups(allIng));
+          setIngredientCount(new Set(allIng).size);
           setRefused([...new Set(ref)]);
         }
-      } else {
-        try {
-          const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-          const today = logs[todayStr()];
-          if (today) setTodayCount(Object.keys(today).length);
-        } catch {}
       }
       setLoading(false);
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const greeting = childName ? `${childName} 보호자님` : nickname ? `${nickname}님` : '안녕하세요';
+  const isMockup = !loading && (!loggedIn || days < 3);
+
+  // 표시 데이터 (실데이터 or 목업)
+  const greenN = signals.filter((s) => s.level === 'green').length;
+  const yellowN = signals.filter((s) => s.level === 'yellow').length;
+  const redN = signals.filter((s) => s.level === 'red').length;
+  const realScore = scoreFromSignals(signals);
+
+  const D = isMockup
+    ? { name: '지우', score: 60, green: 11, yellow: 3, red: 1, ingCount: 18, covered: ['곡물','고기생선','계란','비타민A채소','기타채소'], reds: ['철','비타민D','오메가3'] }
+    : { name: childName || '우리 아이', score: realScore, green: greenN, yellow: yellowN, red: redN, ingCount: ingredientCount, covered: groups.covered, reds: signals.filter((s) => s.level === 'red').map((s) => s.nutrient) };
+
+  const grade = gradeOf(D.score);
+  const pointerPct = Math.min(98, Math.max(2, D.score));
 
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
-      <header className="px-5 pt-7 pb-4" style={{ background: 'linear-gradient(160deg,#FFF5EB,#FFE8D0)' }}>
-        <div className="text-xs font-bold mb-1" style={{ color: '#C45A00' }}>밀프레드</div>
-        <h1 className="text-xl font-extrabold" style={{ color: '#1a2b4a' }}>
-          {loading ? '...' : `${greeting}, 오늘도 한 걸음 🌱`}
-        </h1>
-        <p className="text-xs mt-1" style={{ color: '#8a7a6a' }}>편식 교정의 핵심은 소량 반복 노출 30번이에요</p>
+      {/* 헤더 */}
+      <header className="flex items-center justify-between px-5 pt-6 pb-3">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>🏠 밀프레드 편식도감</h2>
+          {!isMockup && days >= 1 && <span className="text-[10px] font-extrabold text-white px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg,#FF6B6B,#FFB375)' }}>🔥 {days}일</span>}
+        </div>
       </header>
 
-      <div className="flex-1 px-5 py-4">
-        <a href="/care" className="block rounded-2xl p-4 mb-3 text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs font-bold opacity-90">오늘 식사 기록</div>
-              <div className="text-2xl font-extrabold mt-0.5">{todayCount} / 6 끼</div>
-            </div>
-            <div className="text-right">
-              <div className="text-3xl">✏️</div>
-              <div className="text-[11px] font-bold mt-1">기록하기 →</div>
+      <div className="flex-1 px-5 pb-4">
+        {/* 목업 안내 배너 */}
+        {isMockup && (
+          <div className="rounded-xl px-4 py-3 mb-3 flex items-center gap-3" style={{ background: '#FFF5EB', border: '1.5px solid #FFD0A0' }}>
+            <span className="text-xl">👀</span>
+            <div className="flex-1">
+              <div className="text-xs font-extrabold" style={{ color: '#C45A00' }}>아래는 예시 화면이에요</div>
+              <div className="text-[11px] mt-0.5" style={{ color: '#8a7a6a' }}>3일만 기록하면 우리 아이 진짜 점수로 채워져요</div>
             </div>
           </div>
-        </a>
-
-        {loggedIn && signalSummary.days >= 3 && (
-          <a href="/care/report" className="block bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>최근 {signalSummary.days}일 영양 신호등</h3>
-              <span className="text-[11px] font-bold" style={{ color: '#C45A00' }}>자세히 →</span>
-            </div>
-            <div className="flex gap-3">
-              <span className="text-sm font-bold" style={{ color: '#16A085' }}>🟢 {signalSummary.green} 충분</span>
-              <span className="text-sm font-bold" style={{ color: '#F9A825' }}>🟡 {signalSummary.yellow} 가끔</span>
-              <span className="text-sm font-bold" style={{ color: '#E53935' }}>🔴 {signalSummary.red} 부족</span>
-            </div>
-          </a>
         )}
 
-        {refused.length > 0 && (
-          <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-            <h3 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>우리 아이 친해지기 코스</h3>
-            <p className="text-[11px] mb-2.5" style={{ color: '#8a7a6a' }}>거부한 식재료, 부드러운 요리부터 천천히 시작해요</p>
+        <div className="text-xl font-extrabold mb-3" style={{ color: '#1a2b4a' }}>
+          {loading ? '...' : <>현재 <span style={{ color: '#C45A00' }}>{D.name}</span> 영양 점수는 <span style={{ color: grade.color }}>{D.score}점</span>이에요<br /><span className="text-xs font-semibold" style={{ color: '#9CA3AF' }}>({isMockup ? '예시 데이터' : `최근 ${days}일 기준`})</span></>}
+        </div>
+
+        {/* 편지 답장 카드 (목업) */}
+        {isMockup && (
+          <div className="rounded-2xl p-4 mb-3 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFECB3)', border: '1.5px solid #F9A825' }}>
+            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#F57F17' }}>✉️ 어제 일지에 답장이 도착했어요</div>
+            <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
+            <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
+          </div>
+        )}
+
+        {/* 오늘 기록 CTA */}
+        <a href="/care" className="block rounded-xl p-3.5 mb-3 flex items-center gap-3" style={{ background: '#E8F5E9', border: '1px solid #C8E6C9' }}>
+          <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-lg flex-shrink-0">🎯</span>
+          <div className="flex-1">
+            <div className="text-sm font-extrabold" style={{ color: '#1B5E20' }}>오늘 한 컷 기록하기</div>
+            <div className="text-[11px]" style={{ color: '#16A085' }}>30초면 끝 · 기록할수록 점수가 똑똑해져요</div>
+          </div>
+          <span style={{ color: '#16A085' }}>›</span>
+        </a>
+
+        {/* 영양 점수 카드 */}
+        <div className="rounded-2xl p-5 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFFDF5)', border: `1.5px solid ${grade.color}` }}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-bold" style={{ color: '#6B7280' }}>━ 우리 아이 영양 점수 ━</span>
+            <span className="text-xs font-extrabold px-3 py-1 rounded-full text-white" style={{ background: grade.color }}>{grade.g} {grade.label}</span>
+          </div>
+          <div className="flex items-end gap-1 mb-3">
+            <span className="text-5xl font-extrabold leading-none" style={{ color: '#1a2b4a' }}>{D.score}</span>
+            <span className="text-lg font-bold mb-1" style={{ color: '#9CA3AF' }}>점</span>
+          </div>
+          {/* 등급 게이지 */}
+          <div className="relative h-2 rounded-full mb-2" style={{ background: 'linear-gradient(90deg,#C62828,#E67E22 25%,#F9A825 50%,#16A085 75%,#1B5E20)' }}>
+            <div className="absolute -top-1 w-1.5 h-4 rounded-sm" style={{ left: `${pointerPct}%`, background: '#1a2b4a', border: '2px solid white' }} />
+          </div>
+          <div className="grid grid-cols-5 text-[9px] font-extrabold text-center mb-3">
+            <span style={{ color: '#C62828' }}>D 경고</span><span style={{ color: '#E67E22' }}>C 주의</span>
+            <span style={{ color: '#F9A825' }}>B 보통</span><span style={{ color: '#16A085' }}>A 좋음</span><span style={{ color: '#1B5E20' }}>S 매우</span>
+          </div>
+          <div className="rounded-xl p-3" style={{ background: 'white', border: '1px solid rgba(0,0,0,0.05)' }}>
+            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>이번 주 먹은 식재료</span><strong style={{ color: '#1a2b4a' }}>{D.ingCount} / 30종</strong></div>
+            <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (D.ingCount / 30) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
+          </div>
+        </div>
+
+        {/* 36종 신호등 */}
+        <a href="/care/report" className="block rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+          <div className="flex items-center justify-between mb-2">
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 36종 필수 영양소 신호등</strong>
+          </div>
+          <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>기준: <strong style={{ color: '#1a2b4a' }}>보건복지부 KDRI 2025</strong></div>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-xl py-3 text-center" style={{ background: '#E8F5E9', border: '1.5px solid #16A085' }}><div className="text-2xl font-extrabold" style={{ color: '#1B5E20' }}>{D.green}</div><div className="text-[11px] font-extrabold" style={{ color: '#1B5E20' }}>잘 챙김</div></div>
+            <div className="rounded-xl py-3 text-center" style={{ background: '#FFF4D6', border: '1.5px solid #F9A825' }}><div className="text-2xl font-extrabold" style={{ color: '#F57F17' }}>{D.yellow}</div><div className="text-[11px] font-extrabold" style={{ color: '#F57F17' }}>조금 부족</div></div>
+            <div className="rounded-xl py-3 text-center" style={{ background: '#FFEBEE', border: '1.5px solid #E53935' }}><div className="text-2xl font-extrabold" style={{ color: '#C62828' }}>{D.red}</div><div className="text-[11px] font-extrabold" style={{ color: '#C62828' }}>결핍 위험</div></div>
+          </div>
+          {D.reds.length > 0 && (
+            <div className="mt-3 rounded-lg px-3 py-2 text-[11.5px] font-bold" style={{ background: '#FFEBEE', color: '#C62828' }}>
+              ⚠ <strong>{D.reds.slice(0, 3).join('·')}</strong>이 가장 부족 — 성장 핵심 영양소예요
+            </div>
+          )}
+          <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 36종 자세히 + 보충 식재료 →</div>
+        </a>
+
+        {/* 영양 가족 8 */}
+        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+          <div className="flex justify-between items-center mb-3">
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>오늘 만난 영양 가족</strong>
+            <span className="text-xs font-bold" style={{ color: '#C45A00' }}>{D.covered.length} / 8 충족</span>
+          </div>
+          <div className="grid grid-cols-4 gap-2">
+            {FOOD_FAMILY.map((f) => {
+              const done = D.covered.includes(f.key);
+              return (
+                <div key={f.key} className="rounded-xl py-2.5 text-center" style={{ background: done ? '#E8F5E9' : '#FAFAF7', border: `1.5px solid ${done ? '#16A085' : '#E5E7EB'}` }}>
+                  <div className="text-xl leading-none mb-1" style={{ filter: done ? 'none' : 'grayscale(0.7)', opacity: done ? 1 : 0.5 }}>{f.em}</div>
+                  <div className="text-[10px] font-extrabold" style={{ color: done ? '#1B5E20' : '#9CA3AF' }}>{FAMILY_LABEL[f.key]}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 친해지기 (실데이터 거부 식재료 or 목업) */}
+        {(isMockup || refused.length > 0) && (
+          <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🍱 우리 아이 친해지기 코스</strong>
+            <p className="text-[11px] mt-1 mb-2.5" style={{ color: '#8a7a6a' }}>거부한 식재료, 부드러운 요리부터 천천히</p>
             <div className="flex flex-wrap gap-1.5">
-              {refused.slice(0, 6).map((f, i) => (
-                <a key={i} href={`/foods/${encodeURIComponent(f.split(/[\s,(]/)[0])}`}
-                  className="text-xs px-3 py-1.5 rounded-full font-bold" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>
-                  {f.split(/[\s,(]/)[0]} 레시피 →
-                </a>
+              {(isMockup ? ['시금치', '가지', '브로콜리'] : refused.slice(0, 6).map((f) => f.split(/[\s,(]/)[0])).map((f, i) => (
+                <a key={i} href={`/foods/${encodeURIComponent(f)}`} className="text-xs px-3 py-1.5 rounded-full font-bold" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>{f} 친해지기 →</a>
               ))}
             </div>
           </div>
         )}
 
-        {!loading && !loggedIn && (
-          <a href="/signup" className="block bg-white rounded-2xl p-4 mb-3 shadow-sm border text-center" style={{ borderColor: '#FFD0A0' }}>
-            <div className="text-3xl mb-1">🌱</div>
-            <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>카카오로 1초 가입</div>
-            <div className="text-xs mt-1" style={{ color: '#8a7a6a' }}>기록 클라우드 저장 + 영양 진단 + 맞춤 레시피</div>
+        {/* 목업 모드 — 하단 CTA */}
+        {isMockup && (
+          <a href={loggedIn ? '/care' : '/signup'} className="block rounded-2xl p-5 text-center text-white shadow-md" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
+            <div className="text-base font-extrabold mb-1">{loggedIn ? '🍽 지금 첫 끼 기록하기' : '🌱 카카오로 1초 시작하기'}</div>
+            <div className="text-xs opacity-90">3일만 기록하면 이 화면이 우리 아이 진짜 데이터로 채워져요</div>
           </a>
         )}
-
-        <div className="grid grid-cols-2 gap-3 mt-1">
-          <a href="/foods" className="bg-white rounded-2xl p-4 shadow-sm border text-center" style={{ borderColor: '#FFE8D0' }}>
-            <div className="text-3xl mb-1">🗂</div>
-            <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>식재료 도감</div>
-            <div className="text-[11px] mt-0.5" style={{ color: '#8a7a6a' }}>147종 영양·레시피</div>
-          </a>
-          <a href="/care/report" className="bg-white rounded-2xl p-4 shadow-sm border text-center" style={{ borderColor: '#FFE8D0' }}>
-            <div className="text-3xl mb-1">📊</div>
-            <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>영양 진단</div>
-            <div className="text-[11px] mt-0.5" style={{ color: '#8a7a6a' }}>신호등 + 부족 보충</div>
-          </a>
-        </div>
       </div>
 
       <BottomNav active="/" />
