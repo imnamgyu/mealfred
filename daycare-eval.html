@@ -516,12 +516,12 @@
 
     <div class="share-actions" style="margin-top:14px">
       <button class="share-btn save" onclick="saveCardPng()">📥 카드 저장 (PNG)</button>
-      <button class="share-btn send" onclick="shareSite()">📤 친구에게</button>
+      <button class="share-btn send" onclick="shareResult()">🔗 결과 링크 공유</button>
     </div>
     <div style="margin-top:10px;text-align:center">
       <button onclick="showHistory()" style="background:transparent;border:1px dashed #FFE8D0;color:#8a7a6a;padding:8px 14px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📜 내 평가 이력 보기</button>
     </div>
-    <div style="font-size:10px;color:var(--n400);text-align:center;margin-top:14px;line-height:1.6">공유 카드에는 출처 표시 없이<br>점수와 보충 가이드만 공유돼요</div>
+    <div style="font-size:10px;color:var(--n400);text-align:center;margin-top:14px;line-height:1.6">결과 링크는 점수·보충 가이드만 담기고<br>공유 후 <strong>3일 뒤 자동 만료</strong>돼요</div>
 
     <!-- 평가 한계 고지 -->
     <div style="background:var(--n50);border:1px solid var(--n200);border-radius:10px;padding:12px 14px;margin-top:16px;font-size:11px;color:var(--n500);line-height:1.7;font-weight:600">
@@ -557,6 +557,7 @@ function closeModal(id){
   document.getElementById(id).classList.remove('show');
 }
 let selectedAge = '3-4y';
+let currentShareId = null;  // 분석 결과 공유 URL용 id (eval_results.id)
 function selectAge(el, val){
   document.querySelectorAll('.age-chip').forEach(x=>x.classList.remove('checked'));
   el.classList.add('checked');
@@ -795,9 +796,27 @@ function extractIngredients(text){
   return {ingredients:[...found], categories:[...cats], matched};
 }
 
+// LLM이 메뉴를 분해한 식재료(items)로 추출 — 하드코딩 사전 대신
+function extractIngredientsFromItems(items){
+  const found = new Set(), cats = new Set(), matched = [];
+  const poolMap = {};
+  INGREDIENT_POOL.forEach(ing => { poolMap[ing.nm] = ing; });
+  items.forEach(it => {
+    (it.ingredients||[]).forEach(name => {
+      const pool = poolMap[name] || INGREDIENT_POOL.find(p => name.includes(p.nm) || p.nm.includes(name));
+      if(pool && !found.has(pool.nm)){
+        found.add(pool.nm); cats.add(pool.cat); matched.push(pool);
+      }
+    });
+  });
+  return {ingredients:[...found], categories:[...cats], matched};
+}
+
 // 8축 평가 알고리즘
-function evaluate(text, ageBand){
-  const {ingredients, categories, matched} = extractIngredients(text);
+function evaluate(text, ageBand, items){
+  const {ingredients, categories, matched} = (items && items.length)
+    ? extractIngredientsFromItems(items)
+    : extractIngredients(text);
   const lines = text.split(/[\n,，/·]/).map(s=>s.trim()).filter(Boolean);
   const totalMenus = lines.length;
 
@@ -1122,7 +1141,7 @@ async function startAnalysis(){
   fill.style.width = '10%';
   msg.textContent = '📸 사진에서 식단표 인식 중... (5~10초)';
 
-  let text, inputMode;
+  let text, inputMode, ocrItems = [];
 
   try {
     fill.style.width = '25%';
@@ -1142,6 +1161,7 @@ async function startAnalysis(){
       return;
     }
     text = data.text;
+    ocrItems = data.items || [];
     inputMode = 'ocr';
     console.log('[mealfred-eval] OCR 결과:', text.slice(0, 200));
   } catch(e) {
@@ -1170,7 +1190,7 @@ async function startAnalysis(){
     if(step >= ANALYZE_STEPS.length){
       clearInterval(iv);
       fill.style.width = '100%';
-      const result = evaluate(text, selectedAge);
+      const result = evaluate(text, selectedAge, ocrItems);
       result._inputMode = inputMode;
 
       const evalLog = {
@@ -1186,7 +1206,7 @@ async function startAnalysis(){
       console.table(result.axes.map(a => ({축:a.name, 점수:a.score, 상세:a.sub})));
 
       renderResult(result, selectedAge);
-      renderOcrTable(text);
+      renderOcrTable(ocrItems, text);
       try {
         const ESSENTIAL = ['시금치','브로콜리','당근','고구마','두부','달걀','연어','소고기','우유','멸치','미역','고등어','닭고기','바나나','사과','블루베리','호두','귀리','현미','검은콩'];
         const foundNames = new Set((result.matched||[]).map(m=>m.nm));
@@ -1205,8 +1225,9 @@ async function startAnalysis(){
             matched_ingredients: [...foundNames],
             missing_essential: missingEssential,
             ocr_text: text,
+            result_json: { result, ageBand: selectedAge, items: ocrItems, text },
           })
-        }).catch(() => {});
+        }).then(r => r.json()).then(d => { if(d && d.id) currentShareId = d.id; }).catch(() => {});
       } catch(e) {}
       setTimeout(()=>{
         closeModal('analyzingModal');
@@ -1256,53 +1277,89 @@ function loadSample(n){
   setTimeout(()=>{ ta.style.borderColor = '#FFE8D0'; }, 1000);
 }
 
-// OCR 추출 식단 건바이건 분석
-function analyzeMenuItem(item, seasonItems){
-  if(NOVA4_KW.some(kw=>item.includes(kw))) return '<span style="color:var(--r500);font-weight:700">⚠️ 초가공식품</span>';
+// 영양소 → "우리 아이 몸에서 하는 일" 번역 (엄마가 슥슥 스크롤하며 보는 건강 포인트)
+const NUTRI_BENEFIT = {
+  '단백질':{t:'키·근육',e:'💪'},'칼슘':{t:'뼈·치아',e:'🦴'},
+  '철':{t:'두뇌·빈혈예방',e:'🧠'},'철분':{t:'두뇌·빈혈예방',e:'🧠'},
+  '비타민D':{t:'뼈·면역',e:'🦴'},'비타민A':{t:'눈·면역',e:'👁'},
+  '비타민C':{t:'면역·피부',e:'🛡'},'엽산':{t:'두뇌발달',e:'🧠'},
+  'EPA-DHA':{t:'두뇌·집중',e:'🧠'},'오메가3':{t:'두뇌·집중',e:'🧠'},
+  '식이섬유':{t:'장건강·변비',e:'🌿'},'아연':{t:'면역·성장',e:'🛡'},
+  '비타민B12':{t:'두뇌·신경',e:'🧠'},'콜린':{t:'두뇌발달',e:'🧠'},
+  '요오드':{t:'갑상선·성장',e:'🦋'},'비타민K':{t:'뼈·혈액',e:'🦴'},
+  '마그네슘':{t:'근육·신경',e:'💪'},'칼륨':{t:'혈압·근육',e:'💪'},
+  '비타민B1':{t:'에너지',e:'⚡'},'비타민B2':{t:'성장·피부',e:'🌱'},
+  '비타민B6':{t:'두뇌·면역',e:'🧠'},'니아신':{t:'에너지',e:'⚡'},
+  '셀레늄':{t:'면역·항산화',e:'🛡'},'인':{t:'뼈·치아',e:'🦴'},
+  '리코펜':{t:'항산화',e:'🍅'},'안토시아닌':{t:'눈·항산화',e:'👁'},
+};
+
+// 메뉴 문자열 → 식재료 추정 (items 없는 구버전 응답 폴백)
+function deriveIngredients(str){
   const ings=new Set();
-  INGREDIENT_POOL.forEach(ing=>{if(item.includes(ing.nm))ings.add(ing.nm);});
-  Object.entries(MENU_SUB_INGREDIENTS).forEach(([menu,subs])=>{if(item.includes(menu))subs.forEach(s=>ings.add(s));});
+  INGREDIENT_POOL.forEach(ing=>{if(str.includes(ing.nm))ings.add(ing.nm);});
+  Object.entries(MENU_SUB_INGREDIENTS).forEach(([m,subs])=>{if(str.includes(m))subs.forEach(s=>ings.add(s));});
+  return [...ings];
+}
+
+// 메뉴 1건 → "우리 아이한테" 건강 포인트
+function menuHealthPoint(menu, ingredients, seasonItems){
+  if(NOVA4_KW.some(kw=>menu.includes(kw)) || (ingredients||[]).some(i=>NOVA4_KW.some(kw=>i.includes(kw)))){
+    return '<span style="color:var(--r500);font-weight:700">⚠️ 초가공식품</span>';
+  }
+  const benefits=[]; const seen=new Set();
+  (ingredients||[]).forEach(name=>{
+    const pool=INGREDIENT_POOL.find(p=>name===p.nm||name.includes(p.nm)||p.nm.includes(name));
+    const nutris=(pool?NUTRI_MAP[pool.nm]:NUTRI_MAP[name])||[];
+    nutris.forEach(n=>{const b=NUTRI_BENEFIT[n]; if(b&&!seen.has(b.t)){seen.add(b.t); benefits.push(b);}});
+  });
+  const isSeason=(ingredients||[]).some(i=>seasonItems.some(s=>i.includes(s)));
   const parts=[];
-  if(ings.size>0) parts.push('<span style="color:var(--n500)">'+[...ings].join('·')+'</span>');
-  const nutris=new Set();
-  ings.forEach(n=>{if(NUTRI_MAP[n])NUTRI_MAP[n].slice(0,2).forEach(x=>nutris.add(x));});
-  if(nutris.size>0) parts.push('<span style="color:var(--g700)">'+[...nutris].slice(0,3).join('·')+'</span>');
-  const seasonal=[...ings].filter(n=>seasonItems.includes(n));
-  if(seasonal.length) parts.push('<span style="color:var(--p700)">🌸제철</span>');
+  if(benefits.length){
+    parts.push(`<span style="color:var(--g700);font-weight:700">${benefits[0].e} ${benefits.slice(0,3).map(b=>b.t).join('·')}</span>`);
+  }
+  if(isSeason) parts.push('<span style="color:var(--p700)">🌸제철</span>');
   return parts.length?parts.join(' '):'<span style="color:var(--n400)">—</span>';
 }
 
-function renderOcrTable(ocrText){
+// OCR 추출 식단 표 (LLM 분해 items 우선, 없으면 text 파싱 폴백)
+function renderOcrTable(items, ocrText){
   const section=document.getElementById('ocrTableSection');
-  if(!section||!ocrText)return;
-  const lines=ocrText.split(/\n/).map(s=>s.trim()).filter(Boolean);
+  if(!section) return;
   const currentMonth=new Date().getMonth()+1;
   const seasonItems=SEASON_MAP[currentMonth]||[];
-  const entries=[];
-  lines.forEach(line=>{
-    const dayMatch=line.match(/^(월|화|수|목|금|토|일)\s*[:：]\s*(.+)/);
-    if(dayMatch){
-      dayMatch[2].split(/[,，·、]/).map(s=>s.trim()).filter(Boolean).forEach(item=>{
-        entries.push({day:dayMatch[1],item});
-      });
-    } else if(line.length>6&&!/[주차]|식단|기준|어린이|유치원|^\d+월/.test(line)){
-      line.split(/[,，·、]/).map(s=>s.trim()).filter(s=>s.length>1).forEach(item=>{
-        entries.push({day:'',item});
-      });
-    }
-  });
-  if(entries.length===0)return;
-  let html='<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--b700);margin-bottom:8px">━ 📋 OCR 추출 식단 상세 ━</div>';
-  html+='<div class="ocr-table-wrap"><table class="ocr-table"><thead><tr><th style="width:28px">요일</th><th>메뉴</th><th>추출 식재료 · 영양</th></tr></thead><tbody>';
+
+  let entries=[];
+  if(items && items.length){
+    entries=items.map(it=>({day:it.day||'', menu:it.menu||'', ingredients:it.ingredients||[]}));
+  } else if(ocrText){
+    ocrText.split(/\n/).map(s=>s.trim()).filter(Boolean).forEach(line=>{
+      const dayMatch=line.match(/^(월|화|수|목|금|토|일)\s*[:：]\s*(.+)/);
+      if(dayMatch){
+        dayMatch[2].split(/[,，·、]/).map(s=>s.trim()).filter(Boolean).forEach(m=>{
+          entries.push({day:dayMatch[1], menu:m, ingredients:deriveIngredients(m)});
+        });
+      } else if(line.length>6&&!/[주차]|식단|기준|어린이|유치원|^\d+월/.test(line)){
+        line.split(/[,，·、]/).map(s=>s.trim()).filter(s=>s.length>1).forEach(m=>{
+          entries.push({day:'', menu:m, ingredients:deriveIngredients(m)});
+        });
+      }
+    });
+  }
+  if(entries.length===0){section.style.display='none'; return;}
+
+  let html='<div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--b700);margin-bottom:8px">━ 📋 OCR 추출 식단 · 우리 아이한테 ━</div>';
+  html+='<div class="ocr-table-wrap"><table class="ocr-table"><thead><tr><th style="width:26px">요일</th><th>메뉴</th><th>우리 아이한테</th></tr></thead><tbody>';
   let lastDay='';
-  entries.forEach(({day,item})=>{
+  entries.forEach(({day,menu,ingredients})=>{
     const showDay=day&&day!==lastDay;
     if(day)lastDay=day;
-    const comment=analyzeMenuItem(item,seasonItems);
-    html+=`<tr><td class="day-cell">${showDay?day:''}</td><td class="menu-cell">${item}</td><td class="comment-cell">${comment}</td></tr>`;
+    const hp=menuHealthPoint(menu, ingredients, seasonItems);
+    const ingSub=(ingredients&&ingredients.length)?`<div style="font-size:9px;color:var(--n400);margin-top:1px">${ingredients.join('·')}</div>`:'';
+    html+=`<tr><td class="day-cell">${showDay?day:''}</td><td class="menu-cell">${menu}${ingSub}</td><td class="comment-cell">${hp}</td></tr>`;
   });
   html+='</tbody></table></div>';
-  html+='<div style="font-size:10px;color:var(--n400);margin-top:6px;font-weight:600;text-align:center">OCR 인식 결과입니다 · 실제 식단과 다를 수 있습니다</div>';
+  html+='<div style="font-size:10px;color:var(--n400);margin-top:6px;font-weight:600;text-align:center">AI가 메뉴를 식재료로 분해한 결과예요 · 실제 조리와 다를 수 있어요</div>';
   section.innerHTML=html;
   section.style.display='block';
 }
@@ -1363,6 +1420,39 @@ function shareSite(){
     alert('링크가 복사되었어요!\n친구에게 붙여넣기로 공유하세요.');
   }
 }
+
+// 결과 자체를 URL로 공유 — 받은 사람은 재분석 없이 저장된 결과를 바로 봄 (3일 유효)
+function shareResult(){
+  if(!currentShareId){ shareSite(); return; }
+  const url = 'https://www.mealfred.com/daycare-eval.html?r=' + currentShareId;
+  const text = '우리 아이 식단표 평가 결과예요 — 사진 1장 30초 진단';
+  if(navigator.share){
+    navigator.share({title:'우리 아이 식단 평가 결과', text, url}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(url);
+    alert('결과 링크가 복사됐어요! (3일간 유효)\n친구에게 붙여넣기로 공유하세요.');
+  }
+}
+
+// 공유 결과 URL 진입(?r=id) — LLM 없이 저장 스냅샷만 읽어 즉시 렌더
+async function loadSharedResult(id){
+  try {
+    const resp = await fetch('https://app.mealfred.com/api/eval/result?id=' + encodeURIComponent(id));
+    if(resp.status === 410){ alert('이 결과 링크는 만료됐어요 (공유 후 3일).\n새로 평가받아 보세요!'); return; }
+    if(!resp.ok){ alert('결과를 찾을 수 없어요. 링크를 다시 확인해주세요.'); return; }
+    const data = await resp.json();
+    const snap = data.result_json;
+    if(!snap || !snap.result){ alert('결과 데이터를 불러오지 못했어요.'); return; }
+    currentShareId = id;
+    renderResult(snap.result, snap.ageBand);
+    renderOcrTable(snap.items || [], snap.text || '');
+    document.getElementById('resultModal').classList.add('show');
+  } catch(e){ alert('결과를 불러오는 중 오류가 났어요.'); }
+}
+(function(){
+  const r = new URLSearchParams(location.search).get('r');
+  if(r) loadSharedResult(r);
+})();
 
 function goHomeMealPlan(){
   // 어린이집 평가에서 발견한 부족 영양을 URL param으로 전달

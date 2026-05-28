@@ -17,7 +17,7 @@ function cors(req: NextRequest) {
   const origin = req.headers.get('origin') || '';
   return {
     'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
@@ -26,34 +26,32 @@ export async function OPTIONS(req: NextRequest) {
   return NextResponse.json(null, { headers: cors(req) });
 }
 
-export async function POST(req: NextRequest) {
+// 공유 결과 조회 — 분석 시 저장한 스냅샷을 읽어서 반환 (LLM 미사용). 3일 후 만료.
+export async function GET(req: NextRequest) {
   const headers = cors(req);
+  const id = new URL(req.url).searchParams.get('id');
+  if (!id) {
+    return NextResponse.json({ error: 'id 누락' }, { status: 400, headers });
+  }
   try {
-    const body = await req.json();
-
-    const { data, error } = await supabase.from('eval_results').insert({
-      age_band: body.age_band,
-      input_mode: body.input_mode,
-      total_score: body.total_score,
-      grade: body.grade,
-      axis_scores: body.axis_scores,
-      matched_count: body.matched_count,
-      total_menus: body.total_menus,
-      matched_ingredients: body.matched_ingredients,
-      missing_essential: body.missing_essential,
-      result_json: body.result_json ?? null,
-    }).select('id').single();
+    const { data, error } = await supabase
+      .from('eval_results')
+      .select('result_json, expires_at')
+      .eq('id', id)
+      .maybeSingle();
 
     if (error) {
-      console.error('[eval/save] DB error:', error.message);
       return NextResponse.json({ error: error.message }, { status: 500, headers });
     }
-
-    console.log('[eval/save] 저장 완료:', { id: data.id, grade: body.grade, score: body.total_score });
-    return NextResponse.json({ id: data.id }, { headers });
+    if (!data || !data.result_json) {
+      return NextResponse.json({ error: 'not_found' }, { status: 404, headers });
+    }
+    if (data.expires_at && new Date(data.expires_at).getTime() < Date.now()) {
+      return NextResponse.json({ expired: true }, { status: 410, headers });
+    }
+    return NextResponse.json({ result_json: data.result_json }, { headers });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'Unknown error';
-    console.error('[eval/save] error:', msg);
     return NextResponse.json({ error: msg }, { status: 500, headers });
   }
 }

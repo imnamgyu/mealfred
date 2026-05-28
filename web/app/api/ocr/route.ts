@@ -20,6 +20,50 @@ function getCorsHeaders(req?: NextRequest) {
 }
 const CORS_HEADERS = getCorsHeaders();
 
+// Sonnet 비전 + 구조화 출력은 Haiku보다 오래 걸림 — Vercel 타임아웃 상향
+export const maxDuration = 60;
+
+// 구조화 출력 스키마 — 메뉴별 구성 식재료 분해를 모델이 반드시 채우게 강제
+const MENU_SCHEMA: Record<string, unknown> = {
+  type: 'object',
+  properties: {
+    is_menu: { type: 'boolean' },
+    reason: { type: 'string' },
+    text: { type: 'string' },
+    items: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          day: { type: 'string' },
+          menu: { type: 'string' },
+          ingredients: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['day', 'menu', 'ingredients'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['is_menu', 'reason', 'text', 'items'],
+  additionalProperties: false,
+};
+
+const OCR_PROMPT = `이 이미지가 어린이집·유치원·학교 급식 식단표인지 판별하세요.
+
+[식단표가 맞으면]
+1. 모든 메뉴를 빠짐없이 읽으세요. OCR 오탈자는 한국 급식에서 실제 쓰이는 메뉴명으로 교정하세요 (예: "돈까스"→"돈가스", "제육뽁음"→"제육볶음", "옴라이스"→"오므라이스").
+2. 각 메뉴를 만드는 데 들어가는 주요 식재료(원재료)로 분해하세요.
+   - "돈가스" → ["돼지고기","밀가루","빵가루","계란","기름","양배추"]
+   - "불고기" → ["소고기","양파","대파","마늘","간장"]
+   - "미역국" → ["미역","소고기","마늘"]
+   - 튀김옷·양념의 핵심 재료(밀가루·빵가루·기름·간장·고추장 등)도 포함하되, 물·소금·설탕 같은 기본 조미료는 생략하세요.
+   - 식재료명은 원재료 기본형으로 ("소고기","돼지고기","계란","밀가루" 등).
+3. text 필드에는 요일별로 줄바꿈한 전체 식단을 넣으세요 (예: "월: 잡곡밥, 미역국, 닭고기조림, 김치").
+4. items에는 메뉴별로 {day(요일, 없으면 ""), menu(교정한 메뉴명), ingredients(분해한 식재료 배열)}을 넣으세요.
+
+[식단표가 아니면]
+is_menu=false, reason에 한 줄 사유, text="", items=[].`;
+
 export async function OPTIONS(req: NextRequest) {
   return NextResponse.json(null, { headers: getCorsHeaders(req) });
 }
@@ -87,8 +131,13 @@ export async function POST(req: NextRequest) {
 
     console.log('[ocr] Claude Vision 호출 시작...');
     const response = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 8000,
+      thinking: { type: 'disabled' },
+      output_config: {
+        effort: 'low',
+        format: { type: 'json_schema', schema: MENU_SCHEMA },
+      },
       messages: [
         {
           role: 'user',
@@ -99,19 +148,7 @@ export async function POST(req: NextRequest) {
             },
             {
               type: 'text',
-              text: `이 이미지가 어린이집/유치원/학교 식단표인지 판별하세요.
-
-식단표가 맞다면:
-- 모든 메뉴를 빠짐없이 텍스트로 추출하세요
-- 형식: 요일별로 줄바꿈, 각 메뉴는 쉼표로 구분
-- 예: "월: 잡곡밥, 미역국, 닭고기조림, 시금치나물, 김치"
-- 간식도 있으면 포함
-- JSON으로 응답: {"is_menu": true, "text": "추출된 식단 전체"}
-
-식단표가 아니라면:
-- JSON으로 응답: {"is_menu": false, "reason": "식단표가 아닌 이유 한 줄"}
-
-반드시 JSON만 응답하세요. 다른 텍스트 없이.`,
+              text: OCR_PROMPT,
             },
           ],
         },
@@ -119,23 +156,29 @@ export async function POST(req: NextRequest) {
     });
 
     console.log('[ocr] Claude 응답 수신:', { tokens: response.usage, stopReason: response.stop_reason });
-    const content = response.content[0];
-    if (content.type !== 'text') {
+    // thinking 블록이 앞설 수 있으므로 text 블록을 찾는다
+    const textBlock = response.content.find((b) => b.type === 'text');
+    if (!textBlock || textBlock.type !== 'text') {
       return NextResponse.json(
         { error: '분석 실패' },
         { status: 500, headers: cors }
       );
     }
 
-    const jsonMatch = content.text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return NextResponse.json(
-        { error: '응답 파싱 실패' },
-        { status: 500, headers: cors }
-      );
+    // 구조화 출력이라 유효 JSON 보장 — 실패 시에만 정규식 폴백
+    let parsed: { is_menu?: boolean; reason?: string; text?: string; items?: unknown[] };
+    try {
+      parsed = JSON.parse(textBlock.text);
+    } catch {
+      const jsonMatch = textBlock.text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return NextResponse.json(
+          { error: '응답 파싱 실패' },
+          { status: 500, headers: cors }
+        );
+      }
+      parsed = JSON.parse(jsonMatch[0]);
     }
-
-    const parsed = JSON.parse(jsonMatch[0]);
     const durationMs = Date.now() - startMs;
     console.log('[ocr] 결과:', { is_menu: parsed.is_menu, durationMs, textLength: parsed.text?.length || 0 });
 
@@ -150,7 +193,7 @@ export async function POST(req: NextRequest) {
       ocr_text: parsed.text || null,
       reject_reason: parsed.reason || null,
       duration_ms: durationMs,
-      model: 'claude-haiku-4-5-20251001',
+      model: 'claude-sonnet-4-6',
       input_tokens: response.usage?.input_tokens || 0,
       output_tokens: response.usage?.output_tokens || 0,
     }).select('id').single();
@@ -161,6 +204,7 @@ export async function POST(req: NextRequest) {
       {
         is_menu: parsed.is_menu,
         text: parsed.text || null,
+        items: parsed.items || [],
         reason: parsed.reason || null,
         log_id: logId,
       },

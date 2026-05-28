@@ -227,6 +227,36 @@
 
 ---
 
+### 2026-05-28 (오후) — OCR 고도화(Sonnet+구조화) + 식재료 분해 + 건강포인트 표 + 결과 URL 공유
+
+#### OCR 엔진 고도화 (`web/app/api/ocr/route.ts`)
+- **Haiku 4.5 → Sonnet 4.6** (밀집 한글 급식표 인식 정확도↑). 모델 선택은 이사님 결정(비용 vs 정확도: Sonnet 균형)
+- **구조화 출력**(`output_config.format` json_schema) — 유효 JSON 보장, 정규식 추출 해킹 제거. SDK 0.99.0 타입 확인 후 적용
+- **프롬프트 개선**: OCR 오탈자를 급식 메뉴 어휘로 자동 교정(돈까스→돈가스) + **메뉴→구성 식재료 분해**(돈가스→돼지고기·밀가루·빵가루·계란·기름·양배추) 지시
+- `thinking:disabled`(지연 최소), `effort:low`, `max_tokens:8000`, `maxDuration:60`(Vercel 타임아웃 상향)
+- 응답에 `items:[{day,menu,ingredients}]` 추가
+- **비용 모델**: 분석 건수(토큰) 종량제 — 사용자수 무관. 건당 대략 $0.06~0.10 추정
+
+#### 식재료 인식 구조 정리 (돈까스 이슈)
+- 도감(식재료 DB)=원재료만(돈까스 없음이 정상), 메뉴 인식 사전은 요리→식재료 분해 — 하드코딩 사전의 표기변형/누락 한계를 LLM 분해로 해소
+- 프론트 `evaluate`가 LLM 분해 식재료(`items`) 우선 사용 (`extractIngredientsFromItems`)
+
+#### OCR 표 → "우리 아이한테" 건강 포인트 (`daycare-eval.html`)
+- 임상적 "추출 식재료·영양" 컬럼 → 영양소를 아이 몸에서 하는 일로 번역(🧠두뇌·빈혈예방, 🦴뼈·면역, 💪키·근육, ⚠️초가공, 🌸제철). `NUTRI_BENEFIT` 맵
+- 메뉴 아래 분해 식재료 작게(OCR 검증용), 우측은 건강 포인트(엄마 스캔용)
+
+#### 결과 URL 공유 (PNG 느림 대체)
+- **분석=LLM, 조회=read** 분리: 분석 시 전체 스냅샷을 `eval_results.result_json`에 저장 + `expires_at`(3일)
+- `/api/eval/save` 스냅샷 저장 + id 반환, 신규 `GET /api/eval/result?id=` 조회(만료 410)
+- 프론트: `?r={id}` 진입 시 LLM 없이 즉시 렌더(`loadSharedResult`), `shareResult()`로 결과 링크 복사. 카톡 링크 미리보기에 등급카드(동적 OG)는 **다음 단계(Phase 2)**
+- **⚠️ 이사님 작업 대기**: Supabase SQL Editor에 `supabase/migration_eval_share.sql` 실행 (result_json·expires_at 컬럼 추가)
+
+#### 검증
+- route `tsc --noEmit` exit 0 / 프론트 JS 구문 OK
+- **미배포** — Supabase 마이그레이션 후 배포 → 실제 사진으로 OCR·공유 URL 테스트 필요
+
+---
+
 ### 2026-05-28 — daycare-eval 피드백 5건 (이사님 모바일 QA)
 
 #### daycare-eval.html 수정 5건

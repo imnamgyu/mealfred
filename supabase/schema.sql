@@ -283,9 +283,15 @@ create table if not exists eval_results (
   total_menus int,
   matched_ingredients text[],
   missing_essential text[],                 -- 필수 식재료 중 미등장
+  result_json jsonb,                         -- 공유 URL용 렌더 스냅샷 (분석 때만 LLM, 조회는 read)
+  expires_at timestamptz default (now() + interval '3 days'),  -- 결과 공유 링크 만료
   created_at timestamptz default now()
 );
+-- 기존 DB 마이그레이션 (재실행 안전)
+alter table eval_results add column if not exists result_json jsonb;
+alter table eval_results add column if not exists expires_at timestamptz default (now() + interval '3 days');
 create index if not exists idx_eval_results_type on eval_results(institution_type, created_at desc);
+create index if not exists idx_eval_results_expires on eval_results(expires_at) where result_json is not null;
 create index if not exists idx_eval_results_stats on eval_results(institution_type)
   where input_mode = 'manual';
 alter table eval_results enable row level security;
