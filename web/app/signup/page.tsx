@@ -25,7 +25,7 @@ export default function SignupPage() {
       provider: 'kakao',
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
-        scopes: 'profile_nickname,account_email',  // 폰번호는 onboarding에서 선택 입력
+        scopes: 'profile_nickname',  // 닉네임만 — 이메일·전화번호는 onboarding에서 선택 입력
       },
     });
     if (e) { setError(e.message); setLoading(false); }
@@ -72,7 +72,7 @@ export default function SignupPage() {
 
         <p style={{ fontSize:10.5, color:'#8a7a6a', marginTop:14, lineHeight:1.7 }}>
           가입 후 자녀 정보 입력 (30초) · 전화번호는 알림 받고 싶을 때만 선택<br/>
-          🔒 카카오 닉네임·이메일 외 추가 정보 X · 30일 미사용 시 자동 삭제
+          🔒 카카오 닉네임 외 추가 정보 X · 30일 미사용 시 자동 삭제
         </p>
       </div>
 
