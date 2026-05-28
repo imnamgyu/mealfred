@@ -6,44 +6,26 @@
 
 ---
 
-## 🎯 다음 세션 시작점 (2026-05-26 갱신)
+## 🎯 다음 세션 시작점 (2026-05-27 갱신)
 
-**도메인 확정 (2026-05-26 이사님 결정)**:
-- `mealfred.com` = 정적 랜딩·블로그·제안서 (기존 Vercel 프로젝트, 그대로)
-- **`app.mealfred.com`** = Next.js 앱 (도감·가입·기록·PWA) — 별도 Vercel 프로젝트 `mealfred-app`, 배포 독립
-- 이유: 배포 독립성 최대 보장, 각자 별도 웹서버
+**현재 상태**: M1 인프라 완료, daycare-eval OCR 연동 완료, app.mealfred.com 라이브
 
-**M0~M4 코드 100% 완료**:
-- M0 ✅ 정적 사이트 라이브 (mealfred.com)
-- M1 ✅ Next.js 부트스트랩 (web/) + design v3 + Supabase 클라이언트 + /health
-- M2 ✅ 도감 SSG (~176 SEO URL: /foods·/foods/[slug]·/foods/grade/·/category/·/season/)
-- M3 ✅ enrich cron 골격 + seed 스크립트 (60+ 큐)
-- M4 ✅ **카카오 OAuth MVP** (signup·callback·onboarding) + SENS 알림톡 (4 템플릿) + signals API
-- ALG-EVAL-07 ✅ 식단표 → 도감 자동 enrich 백엔드
+**도메인 (2026-05-26 확정)**:
+- `mealfred.com` = 정적 랜딩·블로그·제안서 (기존 Vercel)
+- **`app.mealfred.com`** = Next.js 앱 (별도 Vercel `mealfred-app`, 배포 독립)
 
-**다음 세션 시작 시 진입 가이드** (사용자가 먼저 할 것):
-1. **`/Users/ing/Desktop/밀프레드_내가할일_2026-05-26.html` 열어서 A1 (schema.sql 적용)** ← 가장 먼저
-2. A4: NEXT_PUBLIC_SUPABASE_ANON_KEY (publishable) 받아서 RTF로 저장
-3. 위 둘 완료 후 Claude에게 "schema 적용했어 + anon key 받았어" 한 마디 → 자동 진행:
-   - A3 seed (147 + 660 recipes) 자동 실행
-   - A4 enrich_queue seed (60+) 자동 실행
-   - Vercel 배포 검증
-4. B1: Vercel 새 프로젝트 등록 (mealfred-app, Root: deploy/web)
-5. D3: `app.mealfred.com` 도메인 연결 (Vercel Settings → Domains)
-6. 카카오 Developers 등록 (A2) → app.mealfred.com/signup 작동 검증
+**완료된 인프라**:
+- ✅ Supabase schema 적용 (9 테이블 + ocr_logs + eval_results + eval-uploads Storage)
+- ✅ ingredients seed 완료 (147종 + 628 레시피)
+- ✅ Vercel `mealfred-app` 프로젝트 등록 + 환경변수 4개
+- ✅ `app.mealfred.com` 도메인 연결 (Valid Configuration)
+- ✅ app.mealfred.com/foods 라이브 (147종 상세 + 등급별 + 카테고리별 + 월별 제철)
 
-**현재 막힌 곳**:
-- A3 seed 시도 → ingredients 테이블 미존재 (schema 미적용)로 실패 (147/147)
-- ANON_KEY 없어서 service_role로 임시 채워둠 (.env.local) — 클라이언트 작동 X
-
-**환경변수 4개 상태**:
-- ✅ NEXT_PUBLIC_SUPABASE_URL = https://spopsngwvpxvbokoefem.supabase.co
-- ⏳ NEXT_PUBLIC_SUPABASE_ANON_KEY (publishable) — Supabase API Keys에서 별도 받기 필요
-- ✅ SUPABASE_SERVICE_ROLE_KEY (RTF + Vercel 등록 완료)
-- ✅ ANTHROPIC_API_KEY (RTF + Vercel 등록 완료)
-
-**로컬 .env.local 자동 생성됨**: `/Users/ing/Desktop/dev/web/landing_page/deploy/web/.env.local`
-(RTF에서 자동 추출, .gitignore 적용됨)
+**다음 세션 시작 시 할 일**:
+1. 로드맵 기준 다음 마일스톤 확인: https://www.mealfred.com/roadmap.html
+2. daycare-eval OCR 테스트 (사진 인식 작동 검증)
+3. 카카오 Developers 등록 (A2) → app.mealfred.com/signup 작동 검증 (M4)
+4. 배치 서비스 (식단 평가 → 카톡 결과 발송) — **잠정 보류** (이사님 결정 2026-05-27)
 
 ---
 
@@ -242,8 +224,59 @@
 
 ---
 
+### 2026-05-27 — M1 인프라 완료 + daycare-eval OCR 연동 + 피드백 9건 반영
+
+#### 인프라 (M1 완료)
+- **Supabase schema 적용**: 9 테이블 (ingredients·recipes·comments·enrich_queue·cron_runs·children·kakao_messages·daycare_eval_signals·daycare_recipe_hints) + ocr_logs + eval_results + eval-uploads Storage 버킷
+- **ingredients seed 완료**: 147종 + 628 레시피 성공
+- **Vercel `mealfred-app` 프로젝트 등록**: Root Directory `web`, 환경변수 4개 등록
+- **`app.mealfred.com` 도메인 연결 완료** (Vercel Valid Configuration 확인)
+- **app.mealfred.com/foods 라이브**: 147종 상세 페이지 + 등급별·카테고리별·월별 제철 SSG 정상 빌드
+
+#### daycare-eval OCR 연동
+- **`app.mealfred.com/api/ocr` 엔드포인트 신설**: Claude Haiku Vision으로 식단표 사진 → 메뉴 텍스트 자동 추출
+- **비식단표 거부**: 식단표가 아닌 사진 업로드 시 거부 메시지 + 사유 표시
+- **사진 저장**: Supabase Storage `eval-uploads/` 버킷에 모든 업로드 사진 보관
+- **OCR 로그**: `ocr_logs` 테이블에 사진URL·인식 텍스트·거부 사유·소요 시간·토큰 수 기록
+- **사진 선택 UX 개선**: 파일명·크기·미리보기 표시 + 사진 미선택 시 분석 버튼 비활성화
+
+#### daycare-eval 피드백 9건 반영
+1. **등급표 기준 의미 설명** 추가 (A+~D 각 등급 해석)
+2. **전체평균 72점** 가짜 수치 완전 제거
+3. **eval_results 테이블** 추가 (기관별 등급 데이터 저장 → 통계화 기반)
+4. **축별 ? 팝업** 추가 (8축 모두 탭하면 기준 설명)
+5. **가정보충 개선**: 레시피 제거 → 부족 영양소별 식재료 제안 + 필수 미등장 식재료
+6. **강점 칭찬 구체화**: 실제 수치·식재료명 문장에 삽입 (알레르겐·식감 강점에서 제외)
+7. **통계 크론탭 설계**: 어린이집/유치원 각 100개 넘으면 매일 8축 통계 (DB 준비 완료, 크론 M3)
+8. **바이럴 CTA ①**: "추천 식재료 식단 받아보기" → app.mealfred.com (편식 교정 = 소량 반복 노출 30번)
+9. **바이럴 CTA ②**: "초등 급식 전 반드시 먹어야 할 식재료" → app.mealfred.com/foods
+
+#### 학술 용어 → 쉬운 표현 전면 교체
+- MDD 8/8 → "8개 식품군 중 O개 충족"
+- 14 sub-카테고리 깊이 → "세부 식재료 종류"
+- NOVA 4 → "초가공식품"
+- cuisine variety → "조리 스타일 다양성"
+- 코호트 → "7개국 영유아 식습관 연구"
+
+#### 평가 한계 고지
+- 결과 카드 하단에 "이 평가는 참고용" 안내 추가 (조리량·섭취량·가정식·양념 미반영 5가지 명시)
+
+#### 버그 수정
+- **hasPhoto 미정의 변수** → 분석 모달 무한 로딩 원인 수정
+- **ocr_logs .catch() 타입 에러** → 전체 빌드 실패 원인 수정 (foods 페이지 포함 전부 안 됨)
+
+#### 보류 결정
+- **배치 서비스** (식단 평가 → 카톡 결과 발송): 잠정 보류 (이사님 결정)
+- **리더보드** (월간 최고 식단 기관): 설계 논의 완료, 구현은 데이터 100건+ 이후
+
+#### 세션 관리 개선
+- **MEMORY.md 재구조화**: "지금 하고 있는 일" 섹션 신설, 보류 프로젝트 분리
+- **feedback_session_handoff.md** 신설: 새 세션에서 보류 프로젝트 먼저 꺼내지 말 것
+
+---
+
 ### 이전 일지
-이번 세션이 mealfred 웹사이트 전용 HARNESS의 첫 시작. 이전 작업은 통합 트래커 `/Users/ing/Desktop/편식극복키트/HARNESS.md`에 기록됨.
+이전 작업은 아래 2026-05-25 일지 및 통합 트래커 `/Users/ing/Desktop/편식극복키트/HARNESS.md`에 기록됨.
 
 ---
 
