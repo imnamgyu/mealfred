@@ -483,7 +483,8 @@
         <div class="insight-row warn"><span class="em">📉</span>식감 단계 — 죽 60% (14m는 핑거푸드 권장)</div>
       </div>
 
-      <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--p700);margin:14px 0 6px">━ 💡 가정 보충 ━</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--p700);margin:14px 0 4px">━ 🎒 초등학교 입학 전까지 채워주면 좋아요 ━</div>
+      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-bottom:6px;line-height:1.5">식단표에 안 보이는 것 중, 카테고리별로 자주 쓰이는 식재료예요. 집에서 골고루 챙겨주면 좋아요.</div>
       <div id="tipsList">
         <div class="insight-row"><span class="em">🌾</span>세부 식재료 종류 → 잡곡 (귀리·흑미·수수) · 잎채소 (시금치·근대·아욱)</div>
         <div class="insight-row"><span class="em">🌍</span>조리 스타일 → 양식 1회 + 일식 1회 / 주</div>
@@ -1062,7 +1063,7 @@ const CATEGORY_ESSENTIALS = {
   '뿌리채소': {em:'🥕', must:['당근','무'], rec:['토마토','연근','우엉','도라지','더덕','순무']},
   '열매채소': {em:'🍅', must:[], rec:['호박','오이','가지','파프리카','피망']},
   '곡물_탄수': {em:'🌾', must:['밀','감자','고구마'], rec:['멥쌀','옥수수','찹쌀','보리']},
-  '콩_콩제품': {em:'🫘', must:['두부','콩(대두)'], rec:['숙주나물','콩나물','땅콩','대두']},
+  '콩_콩제품': {em:'🫘', must:['두부','검은콩'], rec:['콩나물','숙주나물','완두콩','땅콩']},
   '생선': {em:'🐟', must:['멸치','명태','대구','삼치','고등어'], rec:['오징어','가자미','갈치']},
   '고기': {em:'🥩', must:[], rec:['소고기','돼지고기','닭고기','오리고기']},
   '계란': {em:'🥚', must:['달걀','계란'], rec:['메추리알']},
@@ -1075,42 +1076,30 @@ const CATEGORY_ESSENTIALS = {
 };
 
 function generateTips(result){
-  const tips = [];
   const foundNames = new Set((result.matched||[]).map(m=>m.nm));
-  // 식재료 풀에서 카테고리 매핑 (INGREDIENT_POOL 기반)
   const foundCats = new Set((result.matched||[]).map(m=>m.cat));
-
   const catLabel = (c) => c.replace('_',' · ').replace('콩 · 콩제품','콩·콩제품').replace('갑각 · 조개','갑각·조개').replace('곡물 · 탄수','곡물').replace('견과 · 씨앗','견과');
 
+  const rows = [];
   Object.entries(CATEGORY_ESSENTIALS).forEach(([cat, {em, must, rec}]) => {
-    const all = [...must, ...rec];
-    const missingMust = must.filter(n => !foundNames.has(n) && !foundNames.has(n.replace('(대두)','')));
-    const missingRec = rec.filter(n => !foundNames.has(n) && !foundNames.has(n.replace('버섯','')));
-    const label = catLabel(cat);
-
-    // 필수 식재료가 빠진 경우 (최우선)
-    if(missingMust.length > 0){
-      tips.push({em, text:`<strong>${label}</strong> 필수 식재료 빠짐 → ${missingMust.slice(0,4).join(' · ')}`, priority:0});
-    }
-    // 카테고리 자체가 아예 없는 경우
-    else if(!foundCats.has(cat) && all.length > 0){
-      const suggest = all.slice(0,4).join(' · ');
-      tips.push({em, text:`<strong>${label}</strong>이 식단에 없어요 → ${suggest} 추천`, priority:1});
-    }
-    // 카테고리는 있지만 권장 식재료 종류가 부족한 경우
-    else if(missingRec.length >= rec.length * 0.6 && missingRec.length >= 2){
-      tips.push({em, text:`<strong>${label}</strong> 종류 더 다양하게 → ${missingRec.slice(0,3).join(' · ')}도 좋아요`, priority:2});
-    }
+    const all = [...must, ...rec];   // 급식 출현빈도 순(필수+권장 통합)
+    // 식단에 안 등장한 것만, 빈도 높은 순 최대 5개
+    const missing = all.filter(n => {
+      const base = n.replace('(대두)','').replace('버섯','');
+      return !foundNames.has(n) && !foundNames.has(base);
+    });
+    if(missing.length === 0) return;
+    rows.push({ em, label: catLabel(cat), items: missing.slice(0,5), absent: !foundCats.has(cat), gap: missing.length });
   });
 
-  tips.sort((a,b) => a.priority - b.priority);
-  const top = tips.slice(0, 5);
+  // 식단에 아예 없는 군 먼저, 그다음 빠진 개수 많은 순
+  rows.sort((a,b) => (a.absent === b.absent ? b.gap - a.gap : (a.absent ? -1 : 1)));
+  const top = rows.slice(0, 7);
 
   if(top.length === 0){
-    top.push({em:'✨', text:'필수·권장 식재료 대부분 포함된 훌륭한 식단이에요 — 이 수준을 유지해주세요'});
+    return '<div class="insight-row"><span class="em">✨</span>주요 식재료를 골고루 갖춘 식단이에요 — 이대로 유지해주세요!</div>';
   }
-
-  return top.map(t => `<div class="insight-row"><span class="em">${t.em}</span>${t.text}</div>`).join('');
+  return top.map(t => `<div class="insight-row"><span class="em">${t.em}</span><strong>${t.label}</strong> — ${t.items.join(' · ')}</div>`).join('');
 }
 
 // localStorage 이력 저장
