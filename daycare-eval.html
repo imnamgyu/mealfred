@@ -515,9 +515,8 @@
       <div style="background:linear-gradient(135deg,#FF6B1A,#C45A00);color:white;padding:13px;border-radius:10px;font-weight:800;font-size:13.5px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px">🗂 식재료 도감 열기 →</div>
     </div>
 
-    <div class="share-actions" style="margin-top:14px">
-      <button class="share-btn save" onclick="saveCardPng()">📥 카드 저장 (PNG)</button>
-      <button class="share-btn send" onclick="shareResult()">🔗 결과 링크 공유</button>
+    <div style="margin-top:14px">
+      <button class="share-btn send" onclick="shareResult()" style="width:100%">🔗 결과 링크 공유하기</button>
     </div>
     <div style="margin-top:10px;text-align:center">
       <button onclick="showHistory()" style="background:transparent;border:1px dashed #FFE8D0;color:#8a7a6a;padding:8px 14px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📜 내 평가 이력 보기</button>
@@ -1393,36 +1392,6 @@ function renderOcrTable(items, ocrText){
   section.style.display='block';
 }
 
-function showToast(msg){
-  let t=document.getElementById('toast');
-  if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t);}
-  t.textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-
-// PNG 카드 저장 (html2canvas CDN 동적 로드)
-function saveCardPng(){
-  const ensureLib = new Promise((resolve, reject)=>{
-    if(window.html2canvas) return resolve();
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-    s.onload = resolve; s.onerror = reject;
-    document.head.appendChild(s);
-  });
-  ensureLib.then(()=>{
-    const card = document.getElementById('shareCard');
-    window.html2canvas(card, {backgroundColor:'#FFFFFF', scale:2}).then(canvas=>{
-      const link = document.createElement('a');
-      link.download = `mealfred-eval-${new Date().toISOString().slice(0,10)}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      showToast('✅ 카드가 저장되었어요!');
-    });
-  }).catch(()=>{
-    alert('PNG 저장 라이브러리 로드 실패. 다시 시도해주세요.');
-  });
-}
 
 // 평가 이력 보기
 function showHistory(){
