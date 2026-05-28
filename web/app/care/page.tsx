@@ -22,7 +22,7 @@ const SLOTS: Slot[] = [
 
 type Ingredient = { nm: string; cat: string; grade: string };
 type Tag = { name: string; ai?: boolean };  // ai=true면 AI가 메뉴에서 추정한 것
-type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null };
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string };
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
 
@@ -38,7 +38,7 @@ function saveLogs(logs: Record<string, DayLog>) {
 }
 
 // Supabase row ↔ MealEntry 변환
-type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null };
+type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null };
 function rowToEntry(r: MealRow): MealEntry {
   return {
     menus: r.menus || [],
@@ -50,6 +50,8 @@ function rowToEntry(r: MealRow): MealEntry {
     autonomy: r.autonomy || '',
     environment: r.environment || '',
     durationMin: r.duration_min ?? null,
+    mealTime: r.meal_time ?? null,
+    reaction: r.reaction || '',
   };
 }
 function entryToRow(e: MealEntry, childId: string, userId: string, date: string, slot: string) {
@@ -67,6 +69,8 @@ function entryToRow(e: MealEntry, childId: string, userId: string, date: string,
     autonomy: e.autonomy || null,
     environment: e.environment || null,
     duration_min: e.durationMin,
+    meal_time: e.mealTime,
+    reaction: e.reaction || null,
     updated_at: new Date().toISOString(),
   };
 }
@@ -75,7 +79,7 @@ export default function CarePage() {
   const [pool, setPool] = useState<Ingredient[]>([]);
   const [date, setDate] = useState(todayStr());
   const [activeSlot, setActiveSlot] = useState<string>('breakfast');
-  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null });
+  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '' });
   const [menuInput, setMenuInput] = useState('');
   const [parsing, setParsing] = useState(false);
   const [query, setQuery] = useState('');
@@ -109,7 +113,7 @@ export default function CarePage() {
 
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
-        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min')
+        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min,meal_time,reaction')
         .eq('child_id', child.id);
 
       const cloud: Record<string, DayLog> = {};
@@ -143,7 +147,7 @@ export default function CarePage() {
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
   useEffect(() => {
     const dayLog = logs[date] || {};
-    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null });
+    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '' });
   }, [date, activeSlot, logs]);
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
