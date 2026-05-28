@@ -274,15 +274,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* 오늘 기록 CTA */}
-        <a href="/care" className="block rounded-xl p-3.5 mb-3 flex items-center gap-3" style={{ background: '#E8F5E9', border: '1px solid #C8E6C9' }}>
-          <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-lg flex-shrink-0">🎯</span>
-          <div className="flex-1">
-            <div className="text-sm font-extrabold" style={{ color: '#1B5E20' }}>오늘 한 컷 기록하기</div>
-            <div className="text-[11px]" style={{ color: '#16A085' }}>30초면 끝 · 기록할수록 점수가 똑똑해져요</div>
-          </div>
-          <span style={{ color: '#16A085' }}>›</span>
-        </a>
 
         {/* 식재료 그룹 8 */}
         <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>

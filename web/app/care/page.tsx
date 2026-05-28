@@ -87,6 +87,7 @@ export default function CarePage() {
   const [saved, setSaved] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [childId, setChildId] = useState<string | null>(null);
+  const [dailyQ, setDailyQ] = useState<{ question: string; chips: string[]; answer: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const supabase = createSupabaseBrowser();
 
@@ -140,9 +141,52 @@ export default function CarePage() {
       }
 
       setLogs(cloud);
+
+      // 오늘의 질문 — 있으면 read, 없으면 LLM 생성·캐싱 (식사 기록 = 상담 창구)
+      const today = todayStr();
+      const { data: q } = await supabase.from('daily_questions')
+        .select('question,chips,answer').eq('child_id', child.id).eq('q_date', today).maybeSingle();
+      if (q?.question) {
+        setDailyQ({ question: q.question, chips: q.chips || [], answer: q.answer || '' });
+      } else {
+        // 최근 식재료·거부·지난 Q&A 수집
+        const recentIng: string[] = []; const recentRef: string[] = [];
+        Object.values(cloud).forEach((day) => Object.values(day).forEach((e) => {
+          e.ingredients.forEach((t) => recentIng.push(t.name));
+          if (e.refused) recentRef.push(e.refused);
+        }));
+        const { data: pastQ } = await supabase.from('daily_questions')
+          .select('question,answer').eq('child_id', child.id).neq('q_date', today)
+          .order('q_date', { ascending: false }).limit(5);
+        const pastQA = (pastQ || []).map((p: { question: string; answer: string | null }) => ({ q: p.question, a: p.answer || '' }));
+        const childData = await supabase.from('children').select('age_band').eq('id', child.id).maybeSingle();
+        const r = await fetch('https://app.mealfred.com/api/coach/question', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            childName: '', ageBand: childData.data?.age_band,
+            recentIngredients: [...new Set(recentIng)], refused: [...new Set(recentRef)], pastQA,
+          }),
+        }).then((r) => r.json()).catch(() => null);
+        if (r?.question) {
+          setDailyQ({ question: r.question, chips: r.chips || [], answer: '' });
+          supabase.from('daily_questions').upsert(
+            { child_id: child.id, parent_id: user.id, q_date: today, question: r.question, topic: r.topic || null, chips: r.chips || null },
+            { onConflict: 'child_id,q_date' }
+          ).then(() => {});
+        }
+      }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 오늘의 질문 답변 저장
+  async function answerDailyQ(ans: string) {
+    setDailyQ((q) => (q ? { ...q, answer: ans } : q));
+    if (userId && childId) {
+      await supabase.from('daily_questions').update({ answer: ans, answered_at: new Date().toISOString() })
+        .eq('child_id', childId).eq('q_date', todayStr());
+    }
+  }
 
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
   useEffect(() => {
@@ -390,6 +434,24 @@ export default function CarePage() {
           </div>
           <p className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>✨ 파란 태그 = AI 추정 · 초록 태그 = 직접 추가 · 틀리면 ✕로 빼세요</p>
         </div>
+
+        {/* 오늘의 질문 (AI 상담 — 하루 1개 캐싱) */}
+        {dailyQ?.question && (
+          <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#F3E5F5,#FCE4EC)', border: '1.5px solid #CE93D8' }}>
+            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#6A1B9A' }}>✨ 오늘의 질문 — 코치가 물어봐요</div>
+            <div className="text-sm font-extrabold mb-2.5" style={{ color: '#1a2b4a' }}>{dailyQ.question}</div>
+            <div className="flex flex-wrap gap-1.5">
+              {dailyQ.chips.map((c) => (
+                <button key={c} onClick={() => answerDailyQ(c)}
+                  className="text-xs font-bold px-3 py-1.5 rounded-full transition"
+                  style={{ background: dailyQ.answer === c ? '#9C27B0' : 'white', color: dailyQ.answer === c ? 'white' : '#6A1B9A', border: `1.5px solid ${dailyQ.answer === c ? '#9C27B0' : '#CE93D8'}` }}>
+                  {c}
+                </button>
+              ))}
+            </div>
+            {dailyQ.answer && <div className="text-[10.5px] mt-2 font-bold" style={{ color: '#6A1B9A' }}>✓ 답변 기록됐어요 — 코칭에 반영됩니다</div>}
+          </div>
+        )}
 
         {/* 자유 메모 (정성 기록) */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>

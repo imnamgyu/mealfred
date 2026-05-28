@@ -428,3 +428,29 @@ do $$ begin
   end if;
 end $$;
 comment on table coach_letters is '코치 편지 하루 1개 캐싱 (오늘 것 있으면 read, 없으면 생성·저장)';
+
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+-- 오늘의 질문 (식사 기록 = 상담 창구, 피드백 루프)
+-- 과거 식단 보고 LLM이 질문 생성 → 하루 1개 캐싱 → 답변은 코칭 데이터
+-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+create table if not exists daily_questions (
+  id uuid primary key default gen_random_uuid(),
+  child_id uuid references children(id) on delete cascade,
+  parent_id uuid references auth.users(id) on delete cascade,
+  q_date date not null default current_date,
+  question text,                             -- LLM 생성 질문
+  topic text,                               -- 방법론 주제 (강요/노출/식감 등)
+  chips text[],                             -- 빠른 답변 칩
+  answer text,                              -- 부모 답변 (데이터)
+  created_at timestamptz default now(),
+  answered_at timestamptz
+);
+create unique index if not exists idx_daily_q_unique on daily_questions(child_id, q_date);
+alter table daily_questions enable row level security;
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'daily_q_owner_all') then
+    create policy daily_q_owner_all on daily_questions for all using (auth.uid() = parent_id) with check (auth.uid() = parent_id);
+  end if;
+end $$;
+comment on table daily_questions is '오늘의 질문 하루 1개 캐싱 + 답변 (식사 기록 상담 피드백 루프)';
