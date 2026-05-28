@@ -37,7 +37,13 @@ const FILTERS = [
   { k: 'dairy', label: '🥛 유제품' },
   { k: 'grain', label: '🌾 곡물' },
 ];
-const GRADE_LABEL: Record<string, string> = { '필수': '필수', '권장': '권장', '향신료': '향신료' };
+// 중요도: 필수 ⭐⭐⭐ · 권장 ⭐⭐ · 일반/향신료 ⭐
+const GRADE_META: Record<string, { stars: string; label: string }> = {
+  '필수': { stars: '⭐⭐⭐', label: '필수' },
+  '권장': { stars: '⭐⭐', label: '권장' },
+  '향신료': { stars: '⭐', label: '향신료' },
+};
+function gradeMeta(g: string) { return GRADE_META[g] || { stars: '⭐', label: '일반' }; }
 
 // 노출 횟수 → 상태 (친해지기 진척)
 function statusOf(s: Stat): 'never' | 'trying' | 'familiar' {
@@ -180,7 +186,7 @@ export default function FoodsDex() {
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>{p.nm}</span>
-                    {p.grade && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: '#FFF5EB', color: '#C45A00' }}>{GRADE_LABEL[p.grade]}</span>}
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: p.grade === '필수' ? '#FFF5EB' : '#FAFAF7', color: p.grade === '필수' ? '#C45A00' : '#9CA3AF' }}>{gradeMeta(p.grade).stars} {gradeMeta(p.grade).label}</span>
                   </div>
                   <div className="text-[11px]" style={{ color: '#8a7a6a' }}>{p.cat.replace('_', '·')}</div>
                 </div>
