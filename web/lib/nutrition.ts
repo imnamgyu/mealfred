@@ -178,3 +178,120 @@ export function computeFoodGroups(allIngredients: string[], catOf?: CatOf): { co
     missing: ALL_GROUPS.filter((g) => !covered.has(g)),
   };
 }
+
+// 채소 계열 카테고리 (풀 catOf 기준) — 시계열 채소 판정 보조
+const VEG_CATS = ['잎채소', '열매채소', '뿌리채소', '기타채소', '십자화과', '버섯', '해조류'];
+/** 식재료가 채소인가 — NUTRI_MAP(비타민A채소) 정확 매핑 우선, 없으면 풀 카테고리로 근사. */
+function isVeg(ing: string, catOf?: CatOf): boolean {
+  const g = FOOD_GROUP[ing];
+  if (g === '비타민A채소' || g === '기타채소') return true;
+  if (nutrientsOf(ing, catOf).includes('비타민A')) return true;
+  const cat = catOf?.(ing);
+  return !!cat && VEG_CATS.includes(cat);
+}
+
+/**
+ * 시계열(추세) 사실 문장 — 코칭엔진 스펙 §4. 크론·홈이 공유(DRY)해 경로별 편차를 없앤다.
+ * LLM이 날짜를 추정하지 않도록 분석이 계산한 사실만 반환한다.
+ * @param assertNoVeg  채소 판정이 신뢰 가능할 때만(catOf 신뢰) '채소 없음'을 단정 (P4 환각 차단)
+ */
+export function computeTimeseries(
+  byDate: Record<string, string[]>,
+  menuFreq: Record<string, number>,
+  catOf: CatOf | undefined,
+  today: string,
+  opts?: { assertNoVeg?: boolean },
+): string[] {
+  const ts: string[] = [];
+  const todayMs = Date.parse(today);
+  const vegDates: string[] = [];
+  for (const [d, ings] of Object.entries(byDate)) {
+    if (ings.some((i) => isVeg(i, catOf))) vegDates.push(d);
+  }
+  if (vegDates.length) {
+    const last = vegDates.sort().slice(-1)[0];
+    const days = Math.round((todayMs - Date.parse(last)) / 86400000);
+    if (days >= 2) ts.push(`채소 기록이 ${days}일째 없음`);
+  } else if (opts?.assertNoVeg) {
+    ts.push('최근 기록에 채소가 없음');
+  }
+  const top = Object.entries(menuFreq).sort((a, b) => b[1] - a[1])[0];
+  if (top && top[1] >= 3) ts.push(`'${top[0]}'를 ${top[1]}회 반복`);
+  return ts;
+}
+
+// ── 36종 KDRI 영양 신호등 (보건복지부 한국인 영양소 섭취기준 2025 · 만 1-2세) ──────
+// 출처: care.html (mealfred.com/care.html)의 KDRI_NUTRIENTS. 단일 소스로 코드 상수화.
+// mapped = 우리 NUTRI_MAP/CATEGORY_NUTRI가 내보내는 내부 영양소 라벨(있으면 실데이터로 개인화).
+//   mapped 없으면 'reference' — 아직 식품→영양소 매핑이 없어 KDRI 기준만 표시(가짜 빨강 방지).
+//   (미매핑 ~12종은 농진청 성분 → DB/매핑 크론으로 점진 보강 — 백로그)
+// sample/samplePct = 비로그인·기록 3일 미만 목업 표시용(care.html과 동일한 예시 아이).
+export type KdriNutrient = { nm: string; val: string; group: string; mapped?: string; sample: 'green' | 'yellow' | 'red'; samplePct: number };
+export const KDRI_NUTRIENTS: KdriNutrient[] = [
+  // 다량영양소 5
+  { nm: '에너지', val: '900 kcal', group: '다량영양소', sample: 'green', samplePct: 92 },
+  { nm: '단백질', val: '20 g', group: '다량영양소', mapped: '단백질', sample: 'green', samplePct: 95 },
+  { nm: '탄수화물', val: '130 g', group: '다량영양소', mapped: '탄수화물', sample: 'green', samplePct: 88 },
+  { nm: '식이섬유', val: '10 g', group: '다량영양소', mapped: '식이섬유', sample: 'green', samplePct: 85 },
+  { nm: '수분', val: '1,000 mL', group: '다량영양소', sample: 'yellow', samplePct: 72 },
+  // 필수지방산 3
+  { nm: '리놀레산', val: '6 g', group: '필수지방산', sample: 'green', samplePct: 90 },
+  { nm: 'α-리놀렌산', val: '0.6 g', group: '필수지방산', sample: 'yellow', samplePct: 60 },
+  { nm: 'EPA+DHA', val: '150 mg', group: '필수지방산', mapped: '오메가3', sample: 'red', samplePct: 30 },
+  // 지용성 비타민 4
+  { nm: '비타민A', val: '250 μg RAE', group: '지용성비타민', mapped: '비타민A', sample: 'green', samplePct: 88 },
+  { nm: '비타민D', val: '5 μg', group: '지용성비타민', mapped: '비타민D', sample: 'red', samplePct: 35 },
+  { nm: '비타민E', val: '5 mg', group: '지용성비타민', mapped: '비타민E', sample: 'green', samplePct: 85 },
+  { nm: '비타민K', val: '25 μg', group: '지용성비타민', mapped: '비타민K', sample: 'green', samplePct: 92 },
+  // 수용성 비타민 9
+  { nm: '비타민C', val: '40 mg', group: '수용성비타민', mapped: '비타민C', sample: 'yellow', samplePct: 72 },
+  { nm: '티아민(B1)', val: '0.5 mg', group: '수용성비타민', mapped: '비타민B1', sample: 'green', samplePct: 90 },
+  { nm: '리보플라빈(B2)', val: '0.5 mg', group: '수용성비타민', mapped: '비타민B2', sample: 'green', samplePct: 88 },
+  { nm: '니아신', val: '6 mg NE', group: '수용성비타민', mapped: '니아신', sample: 'green', samplePct: 85 },
+  { nm: '비타민B6', val: '0.6 mg', group: '수용성비타민', mapped: '비타민B6', sample: 'green', samplePct: 82 },
+  { nm: '엽산', val: '150 μg DFE', group: '수용성비타민', mapped: '엽산', sample: 'yellow', samplePct: 65 },
+  { nm: '비타민B12', val: '0.9 μg', group: '수용성비타민', mapped: '비타민B12', sample: 'green', samplePct: 90 },
+  { nm: '판토텐산', val: '2 mg', group: '수용성비타민', sample: 'green', samplePct: 88 },
+  { nm: '비오틴', val: '9 μg', group: '수용성비타민', sample: 'green', samplePct: 90 },
+  // 비타민 유사 1 (2025 신규)
+  { nm: '콜린', val: '160 mg', group: '비타민유사', mapped: '콜린', sample: 'red', samplePct: 42 },
+  // 다량 무기질 5
+  { nm: '칼슘', val: '500 mg', group: '다량무기질', mapped: '칼슘', sample: 'green', samplePct: 85 },
+  { nm: '인', val: '450 mg', group: '다량무기질', mapped: '인', sample: 'green', samplePct: 90 },
+  { nm: '나트륨', val: '≤1,000 mg', group: '다량무기질', sample: 'yellow', samplePct: 55 },
+  { nm: '칼륨', val: '1,500 mg', group: '다량무기질', mapped: '칼륨', sample: 'yellow', samplePct: 68 },
+  { nm: '마그네슘', val: '70 mg', group: '다량무기질', mapped: '마그네슘', sample: 'green', samplePct: 82 },
+  // 미량 무기질 9
+  { nm: '철', val: '6 mg', group: '미량무기질', mapped: '철', sample: 'red', samplePct: 38 },
+  { nm: '아연', val: '3 mg', group: '미량무기질', mapped: '아연', sample: 'yellow', samplePct: 70 },
+  { nm: '구리', val: '290 μg', group: '미량무기질', sample: 'green', samplePct: 85 },
+  { nm: '불소', val: '0.6 mg', group: '미량무기질', sample: 'green', samplePct: 88 },
+  { nm: '망간', val: '1.5 mg', group: '미량무기질', sample: 'green', samplePct: 90 },
+  { nm: '요오드', val: '70 μg', group: '미량무기질', mapped: '요오드', sample: 'green', samplePct: 92 },
+  { nm: '셀레늄', val: '23 μg', group: '미량무기질', mapped: '셀레늄', sample: 'green', samplePct: 85 },
+  { nm: '몰리브덴', val: '10 μg', group: '미량무기질', sample: 'green', samplePct: 88 },
+  { nm: '크롬', val: '9 μg', group: '미량무기질', sample: 'red', samplePct: 45 },
+];
+
+export type KdriSignal = { nm: string; val: string; group: string; status: 'green' | 'yellow' | 'red' | 'reference'; pct: number };
+
+/**
+ * 36종 KDRI 신호등 — 실데이터(식단표에서 얼마나 자주 만났나=빈도)로 평가.
+ * mapped 영양소만 개인 신호 계산, 미매핑은 'reference'(KDRI 기준만, 오탐 방지).
+ */
+export function computeKdriSignals(ingredientsByDay: string[][], catOf?: CatOf): KdriSignal[] {
+  const totalDays = ingredientsByDay.length || 1;
+  const cover: Record<string, number> = {};
+  ingredientsByDay.forEach((day) => {
+    const set = new Set<string>();
+    day.forEach((ing) => nutrientsOf(ing, catOf).forEach((n) => set.add(n)));
+    set.forEach((n) => { cover[n] = (cover[n] || 0) + 1; });
+  });
+  return KDRI_NUTRIENTS.map((k): KdriSignal => {
+    if (!k.mapped) return { nm: k.nm, val: k.val, group: k.group, status: 'reference', pct: 0 };
+    const d = cover[k.mapped] || 0;
+    const ratio = d / totalDays;
+    const status = d >= 3 || ratio >= 0.5 ? 'green' : d > 0 ? 'yellow' : 'red';
+    return { nm: k.nm, val: k.val, group: k.group, status, pct: Math.min(100, Math.round(ratio * 100)) };
+  });
+}

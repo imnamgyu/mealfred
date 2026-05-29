@@ -7,11 +7,24 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals, computeFoodGroups, type NutrientSignal } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal } from '@/lib/nutrition';
+import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
 const STORAGE_KEY = 'mealfred_care_logs';
-const todayStr = () => new Date().toISOString().slice(0, 10);
+const todayStr = kstToday;   // KST 기준 — 새벽 크론(letter_date)과 동일 앵커
+
+// 빈도(pct) → 친근한 라벨 (care.html freqLabel 동일)
+function freqLabel(pct: number): string {
+  if (pct >= 90) return '거의 매일';
+  if (pct >= 75) return '주 4-5회';
+  if (pct >= 60) return '주 3회';
+  if (pct >= 50) return '주 2회';
+  if (pct >= 40) return '주 1-2회';
+  if (pct >= 30) return '주 1회';
+  if (pct >= 15) return '드물게';
+  return '거의 못 만남';
+}
 
 const FOOD_FAMILY = [
   { key: '곡물', em: '🌾' }, { key: '콩류', em: '🫘' }, { key: '유제품', em: '🥛' },
@@ -44,6 +57,8 @@ export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [days, setDays] = useState(0);
   const [signals, setSignals] = useState<NutrientSignal[]>([]);
+  const [kdri, setKdri] = useState<KdriSignal[]>([]);   // 36종 KDRI 신호등 (실데이터)
+  const [showNutri, setShowNutri] = useState(false);    // 36종 자세히 모달
   const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
   const [ingredientCount, setIngredientCount] = useState(0);
   const [refused, setRefused] = useState<string[]>([]);
@@ -62,29 +77,32 @@ export default function Home() {
         .then((d) => { const m: Record<string, string> = {}; (d.ingredients || []).forEach((x: { nm: string; cat: string }) => { m[x.nm] = x.cat; }); return m; })
         .catch(() => ({} as Record<string, string>));
       const catOf = (ing: string) => catMap[ing];
-      const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toISOString().slice(0, 10); });
+      const dates = Array.from({ length: 7 }, (_, i) => kstDateNDaysAgo(i));   // KST 기준 최근 7일
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setLoggedIn(true);
         const { data: child } = await supabase.from('children').select('id,nickname,age_band').eq('parent_id', user.id).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
-          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus').eq('child_id', child.id).gte('log_date', dates[6]);
+          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus,place').eq('child_id', child.id).gte('log_date', dates[6]);
           const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
+          const homeRef: string[] = []; const daycareRef: string[] = [];   // 거부를 장소별로 분리 (코칭엔진 스펙 §3)
           const textures: string[] = []; const menuFreq: Record<string, number> = {};
-          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; note: string | null; texture: string | null; menus: string[] | null }) => {
+          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; note: string | null; texture: string | null; menus: string[] | null; place: string | null }) => {
             if (!byDate[r.log_date]) byDate[r.log_date] = [];
             (r.ingredients || []).forEach((i) => { byDate[r.log_date].push(i); allIng.push(i); });
-            if (r.refused) ref.push(r.refused);
+            if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
             if (r.note) notes.push(r.note);
             if (r.texture) textures.push(r.texture);
             (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); menuFreq[k] = (menuFreq[k] || 0) + 1; });
           });
           const byDay = Object.values(byDate).filter((a) => a.length);
           const sig = computeSignals(byDay, catOf);
+          const fg = computeFoodGroups(allIng, catOf);
           setDays(byDay.length);
           setSignals(sig);
-          setGroups(computeFoodGroups(allIng, catOf));
+          setKdri(computeKdriSignals(byDay, catOf));   // 36종 KDRI 신호등 (실데이터)
+          setGroups(fg);
           setIngredientCount(new Set(allIng).size);
           setEatenSet(new Set(allIng));
           setRefused([...new Set(ref)]);
@@ -100,8 +118,9 @@ export default function Home() {
 
           // 3일 이상 기록 → 코치 편지 캐싱: 식단 지문(hash) 같으면 read, 바뀌면 1회 재생성
           if (byDay.length >= 3) {
-            const today = new Date().toISOString().slice(0, 10);
+            const today = todayStr();   // KST — 크론과 동일 앵커
             const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
+            const ts = computeTimeseries(byDate, menuFreq, catOf, today, { assertNoVeg: Object.keys(catMap).length > 0 });
             // 식단 지문 — 먹은 식재료·거부·부족영양·메모가 바뀌면 달라짐
             const srcHash = [...allIng].sort().join(',') + '|' + [...new Set(ref)].sort().join(',') + '|' + reds.sort().join(',') + '|' + notes.length;
             const { data: cached } = await supabase.from('coach_letters')
@@ -121,6 +140,8 @@ export default function Home() {
                 body: JSON.stringify({
                   childName: child.nickname, ageBand: child.age_band,
                   recentNotes: notes, refused: [...new Set(ref)], reds,
+                  homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
+                  covered: fg.covered, missing: fg.missing, timeseries: ts,
                   eatenCount: new Set(allIng).size, pastLetters,
                 }),
               }).then((r) => r.json()).catch(() => null);
@@ -159,6 +180,16 @@ export default function Home() {
 
   const grade = gradeOf(D.score);
   const pointerPct = Math.min(98, Math.max(2, D.score));
+
+  // 36종 KDRI 신호등 표시 데이터 — 목업=care.html 예시(전 36종) / 실데이터=매핑된 것만 개인화·나머지 reference
+  const kdriView: KdriSignal[] = isMockup
+    ? KDRI_NUTRIENTS.map((k) => ({ nm: k.nm, val: k.val, group: k.group, status: k.sample, pct: k.samplePct }))
+    : kdri;
+  const kG = kdriView.filter((n) => n.status === 'green').length;
+  const kY = kdriView.filter((n) => n.status === 'yellow').length;
+  const kR = kdriView.filter((n) => n.status === 'red').length;
+  const kRef = kdriView.filter((n) => n.status === 'reference').length;
+  const kReds = kdriView.filter((n) => n.status === 'red').map((n) => n.nm);
 
   // 최근 N일 식단 진단 한줄 — AI 생성 우선, 없으면 방법론 규칙 폴백
   const ruleOneLiner = isMockup
@@ -253,24 +284,24 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 15대 필수 영양소 신호등 (영양 점수 바로 아래) */}
-        <a href="/care/report" className="block rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+        {/* 36종 KDRI 필수 영양소 신호등 (영양 점수 바로 아래) — 탭하면 36종 상세 모달 */}
+        <button onClick={() => setShowNutri(true)} className="block w-full text-left rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
           <div className="flex items-center justify-between mb-2">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 {D.green + D.yellow + D.red}대 필수 영양소 신호등</strong>
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 36종 필수 영양소 신호등</strong>
           </div>
-          <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>기준: <strong style={{ color: '#1a2b4a' }}>보건복지부 KDRI 2025</strong></div>
+          <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>기준: <strong style={{ color: '#1a2b4a' }}>보건복지부 KDRI 2025</strong> · 만 1-2세{!isMockup && kRef > 0 ? ` · ${kG + kY + kR}종 평가 · ${kRef}종 준비중` : ''}</div>
           <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-xl py-3 text-center" style={{ background: '#E8F5E9', border: '1.5px solid #16A085' }}><div className="text-2xl font-extrabold" style={{ color: '#1B5E20' }}>{D.green}</div><div className="text-[11px] font-extrabold" style={{ color: '#1B5E20' }}>잘 챙김</div></div>
-            <div className="rounded-xl py-3 text-center" style={{ background: '#FFF4D6', border: '1.5px solid #F9A825' }}><div className="text-2xl font-extrabold" style={{ color: '#F57F17' }}>{D.yellow}</div><div className="text-[11px] font-extrabold" style={{ color: '#F57F17' }}>조금 부족</div></div>
-            <div className="rounded-xl py-3 text-center" style={{ background: '#FFEBEE', border: '1.5px solid #E53935' }}><div className="text-2xl font-extrabold" style={{ color: '#C62828' }}>{D.red}</div><div className="text-[11px] font-extrabold" style={{ color: '#C62828' }}>결핍 위험</div></div>
+            <div className="rounded-xl py-3 text-center" style={{ background: '#E8F5E9', border: '1.5px solid #16A085' }}><div className="text-2xl font-extrabold" style={{ color: '#1B5E20' }}>{kG}</div><div className="text-[11px] font-extrabold" style={{ color: '#1B5E20' }}>잘 챙김</div></div>
+            <div className="rounded-xl py-3 text-center" style={{ background: '#FFF4D6', border: '1.5px solid #F9A825' }}><div className="text-2xl font-extrabold" style={{ color: '#F57F17' }}>{kY}</div><div className="text-[11px] font-extrabold" style={{ color: '#F57F17' }}>조금 부족</div></div>
+            <div className="rounded-xl py-3 text-center" style={{ background: '#FFEBEE', border: '1.5px solid #E53935' }}><div className="text-2xl font-extrabold" style={{ color: '#C62828' }}>{kR}</div><div className="text-[11px] font-extrabold" style={{ color: '#C62828' }}>결핍 위험</div></div>
           </div>
-          {D.reds.length > 0 && (
+          {kReds.length > 0 && (
             <div className="mt-3 rounded-lg px-3 py-2 text-[11.5px] font-bold" style={{ background: '#FFEBEE', color: '#C62828' }}>
-              ⚠ <strong>{D.reds.slice(0, 3).join('·')}</strong>이 가장 부족 — 성장 핵심 영양소예요
+              ⚠ <strong>{kReds.slice(0, 3).join('·')}</strong>이 가장 부족 — 성장 핵심 영양소예요
             </div>
           )}
-          <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 {D.green + D.yellow + D.red}대 영양소 자세히 + 보충 식재료 →</div>
-        </a>
+          <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 36종 자세히 보기 →</div>
+        </button>
 
         {/* 최근 3일 식단 진단 — LLM 한줄 */}
         <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
@@ -388,6 +419,55 @@ export default function Home() {
           </a>
         )}
       </div>
+
+      {/* 36종 자세히 모달 — 결핍/조금부족/잘챙김 그룹만 (보충 식재료는 홈 하단에서 추천하므로 제외) */}
+      {showNutri && (
+        <div onClick={() => setShowNutri(false)} className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(0,0,0,0.45)' }}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md bg-white rounded-t-3xl max-h-[88vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white px-5 pt-5 pb-3 border-b" style={{ borderColor: '#F0F0F0' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style={{ background: '#FFEBEE' }}>🚦</div>
+                <div className="flex-1">
+                  <h3 className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>36종 필수 영양소 신호등</h3>
+                  <div className="text-[11px]" style={{ color: '#9CA3AF' }}>KDRI 2025 · 만 1-2세 · {isMockup ? '예시' : '이번 주 기준'}</div>
+                </div>
+                <button onClick={() => setShowNutri(false)} className="text-xl px-1" style={{ color: '#9CA3AF' }}>✕</button>
+              </div>
+              <div className="mt-3 text-[10.5px] leading-relaxed rounded-lg px-3 py-2" style={{ background: '#FAFAF7', color: '#6B7280' }}>정확한 섭취량 측정 대신 <strong style={{ color: '#1a2b4a' }}>&ldquo;이번 주 식단표에서 얼마나 자주 만났나&rdquo;</strong> 빈도로 평가해요</div>
+            </div>
+            <div className="px-5 py-4">
+              {[
+                { key: 'red', label: '🔴 결핍 위험', color: '#C62828', bar: '#E53935' },
+                { key: 'yellow', label: '🟡 조금 부족', color: '#F57F17', bar: '#F9A825' },
+                { key: 'green', label: '🟢 잘 챙김', color: '#1B5E20', bar: '#16A085' },
+              ].map((grp) => {
+                const items = kdriView.filter((n) => n.status === grp.key);
+                if (!items.length) return null;
+                return (
+                  <div key={grp.key} className="mb-4">
+                    <div className="text-xs font-extrabold mb-2" style={{ color: grp.color }}>{grp.label} <span style={{ color: '#9CA3AF' }}>{items.length}</span></div>
+                    <div className="space-y-1.5">
+                      {items.map((n) => (
+                        <div key={n.nm} className="flex items-center gap-2">
+                          <span className="text-[12px] font-semibold flex-shrink-0" style={{ color: '#1a2b4a', width: '88px' }}>{n.nm}</span>
+                          <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#F0F0F0' }}><div style={{ width: `${Math.max(4, n.pct)}%`, height: '100%', background: grp.bar }} /></div>
+                          <span className="text-[10.5px] font-bold text-right flex-shrink-0" style={{ color: grp.key === 'red' ? '#C62828' : '#6B7280', width: '60px' }}>{freqLabel(n.pct)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+              {kRef > 0 && (
+                <div className="mt-2 rounded-lg px-3 py-2.5 text-[10.5px] leading-relaxed" style={{ background: '#FAFAF7', color: '#9CA3AF' }}>
+                  🔧 {kRef}종은 아직 개인 평가 준비 중 — KDRI 기준만 표시해요: {kdriView.filter((n) => n.status === 'reference').map((n) => n.nm).join('·')}
+                </div>
+              )}
+              <div className="text-[10px] text-center mt-3 pb-2" style={{ color: '#C0C0C0' }}>기준: 보건복지부 한국인 영양소 섭취기준 (KDRI) 2025</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav active="/" />
     </main>

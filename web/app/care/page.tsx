@@ -11,6 +11,7 @@ import BottomNav from '@/components/BottomNav';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { normalizeIngredient } from '@/lib/lexicon';
 import { createMapper } from '@/lib/menuMapCore';
+import { kstToday } from '@/lib/date';
 
 type Slot = { key: string; label: string; emoji: string; time: string };
 const SLOTS: Slot[] = [
@@ -24,12 +25,27 @@ const SLOTS: Slot[] = [
 
 type Ingredient = { nm: string; cat: string; grade: string };
 type Tag = { name: string; ai?: boolean; fromMenu?: string };  // ai=true: AI 추정 / fromMenu: 출처 메뉴
-type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string };
+// 먹는 장소 — 정량 영양평가는 전부 집계하되, 정성 코칭은 부모가 바꿀 수 있는 곳(집)에 포커스 (코칭엔진 스펙 §3)
+type PlaceVal = 'home' | 'daycare' | '';
+const PLACE_OPTS: { v: PlaceVal; label: string; emoji: string }[] = [
+  { v: 'home', label: '집', emoji: '🏠' },
+  { v: 'daycare', label: '어린이집·유치원', emoji: '🏫' },
+];
+// 슬롯·요일 기반 스마트 기본값 (부모가 토글로 덮어쓸 수 있음): 아침·저녁·야간=집, 점심·간식=평일 기관/주말 집
+function defaultPlace(slot: string, dateStr: string): PlaceVal {
+  if (slot === 'breakfast' || slot === 'dinner' || slot === 'night') return 'home';
+  const day = new Date(dateStr).getUTCDay();  // dateStr=YYYY-MM-DD는 UTC 자정 파싱 → getUTCDay로 요일 일치
+  return day >= 1 && day <= 5 ? 'daycare' : 'home';
+}
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string; place: PlaceVal };
+function emptyEntry(slot: string, dateStr: string): MealEntry {
+  return { menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '', place: defaultPlace(slot, dateStr) };
+}
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
 
 const STORAGE_KEY = 'mealfred_care_logs';
-const todayStr = () => new Date().toISOString().slice(0, 10);
+const todayStr = kstToday;   // KST 기준 — 크론(letter_date/q_date)과 동일 앵커
 
 function loadLogs(): Record<string, DayLog> {
   if (typeof window === 'undefined') return {};
@@ -40,7 +56,7 @@ function saveLogs(logs: Record<string, DayLog>) {
 }
 
 // Supabase row ↔ MealEntry 변환
-type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null };
+type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null; place: string | null };
 function rowToEntry(r: MealRow): MealEntry {
   return {
     menus: r.menus || [],
@@ -54,6 +70,7 @@ function rowToEntry(r: MealRow): MealEntry {
     durationMin: r.duration_min ?? null,
     mealTime: r.meal_time ?? null,
     reaction: r.reaction || '',
+    place: (r.place as PlaceVal) || '',   // 미상은 보존 — 추정값으로 덮어쓰지 않음(저장 시 영구화 방지). 신규 입력만 emptyEntry에서 스마트 기본값
   };
 }
 function entryToRow(e: MealEntry, childId: string, userId: string, date: string, slot: string) {
@@ -73,6 +90,7 @@ function entryToRow(e: MealEntry, childId: string, userId: string, date: string,
     duration_min: e.durationMin,
     meal_time: e.mealTime,
     reaction: e.reaction || null,
+    place: e.place || null,
     updated_at: new Date().toISOString(),
   };
 }
@@ -81,7 +99,7 @@ export default function CarePage() {
   const [pool, setPool] = useState<Ingredient[]>([]);
   const [date, setDate] = useState(todayStr());
   const [activeSlot, setActiveSlot] = useState<string>('breakfast');
-  const [entry, setEntry] = useState<MealEntry>({ menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '' });
+  const [entry, setEntry] = useState<MealEntry>(() => emptyEntry('breakfast', todayStr()));
   const [menuInput, setMenuInput] = useState('');
   const [parsing, setParsing] = useState(false);
   const [query, setQuery] = useState('');
@@ -130,7 +148,7 @@ export default function CarePage() {
 
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
-        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min,meal_time,reaction')
+        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place')
         .eq('child_id', child.id);
 
       const cloud: Record<string, DayLog> = {};
@@ -180,12 +198,25 @@ export default function CarePage() {
       if (q?.question) {
         setDailyQ({ question: q.question, chips: q.chips || [], answer: q.answer || '' });
       } else {
-        // 최근 식재료·거부·지난 Q&A 수집
+        // 최근 식재료·거부·지난 Q&A 수집 + 실제 로그 음식(장소·완식·경과일)·기관 거부 (코칭엔진 스펙 §3·§5.2)
         const recentIng: string[] = []; const recentRef: string[] = [];
-        Object.values(cloud).forEach((day) => Object.values(day).forEach((e) => {
-          e.ingredients.forEach((t) => recentIng.push(t.name));
-          if (e.refused) recentRef.push(e.refused);
-        }));
+        const recentMeals: { food: string; place: PlaceVal; ateWell: boolean | null; slot: string; daysAgo: number }[] = [];
+        const homeRef: string[] = []; const daycareRef: string[] = [];
+        const todayMs = new Date(todayStr()).getTime();
+        // 날짜 내림차순 — first-win dedup이 '식재료별 최신 끼니'를 남기도록
+        Object.entries(cloud).sort((a, b) => b[0].localeCompare(a[0])).forEach(([d, day]) => {
+          const daysAgo = Math.round((todayMs - new Date(d).getTime()) / 86400000);
+          Object.entries(day).forEach(([slot, e]) => {
+            e.ingredients.forEach((t) => {
+              recentIng.push(t.name);
+              if (daysAgo <= 3) recentMeals.push({ food: t.name, place: e.place, ateWell: e.ateWell, slot, daysAgo });
+            });
+            if (e.refused) { recentRef.push(e.refused); if (e.place === 'home') homeRef.push(e.refused); else if (e.place === 'daycare') daycareRef.push(e.refused); }
+          });
+        });
+        // 음식별 최신 1건으로 축약 (질문이 짚을 후보)
+        const seenFood = new Set<string>();
+        const meals = recentMeals.filter((m) => (seenFood.has(m.food) ? false : (seenFood.add(m.food), true))).slice(0, 20);
         const { data: pastQ } = await supabase.from('daily_questions')
           .select('question,answer').eq('child_id', child.id).neq('q_date', today)
           .order('q_date', { ascending: false }).limit(5);
@@ -195,6 +226,7 @@ export default function CarePage() {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             childName: '', ageBand: childData.data?.age_band,
+            recentMeals: meals, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
             recentIngredients: [...new Set(recentIng)], refused: [...new Set(recentRef)], pastQA,
           }),
         }).then((r) => r.json()).catch(() => null);
@@ -222,7 +254,7 @@ export default function CarePage() {
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
   useEffect(() => {
     const dayLog = logs[date] || {};
-    setEntry(dayLog[activeSlot] || { menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '' });
+    setEntry(dayLog[activeSlot] || emptyEntry(activeSlot, date));
   }, [date, activeSlot, logs]);
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
@@ -406,6 +438,23 @@ export default function CarePage() {
 
       {/* 입력 영역 */}
       <div className="flex-1 px-5 py-3 overflow-y-auto">
+        {/* 0단계: 먹는 장소 (집/기관) — 정량은 전부 집계, 정성 코칭은 집 끼니·기관 거부에 포커스 */}
+        <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>어디서 먹었나요?</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {PLACE_OPTS.map((o) => {
+              const on = entry.place === o.v;
+              return (
+                <button key={o.v} onClick={() => setEntry((x) => ({ ...x, place: o.v }))}
+                  className="rounded-lg py-2.5 text-sm font-bold transition"
+                  style={{ background: on ? '#1a2b4a' : '#FAFAF7', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? '#1a2b4a' : '#E5E7EB'}` }}>
+                  {o.emoji} {o.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* 1단계: 메뉴명 입력 */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
           <h3 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>뭘 먹었나요?</h3>
