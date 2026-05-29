@@ -228,11 +228,11 @@
 <!-- Hero -->
 <section class="hero">
   <div class="hero-inner">
-    <span class="tag">⏰ 편식 교정 골든타임 — 초등 입학 전</span>
+    <span class="tag">⏰ 편식 교정 골든타임</span>
     <h1>우리 아이 편식,<br><span class="accent">걱정이라면?</span></h1>
-    <p>매 끼니가 전쟁이신가요. <strong>초등 입학 전</strong>이 편식 교정이 가장 쉬운 시기예요.<br>식단표 <strong>사진 1장</strong>으로 우리 아이 편식 상태부터 확인하세요 — <strong>30초</strong></p>
+    <p>편식 교정 골든타임은 <strong>영유아기</strong> — 지금이 가장 쉬워요.<br>식단표 <strong>사진 1장</strong>으로 <strong>30초</strong> 만에 우리 아이 식단부터 점검하세요.</p>
     <div class="cta-row">
-      <button class="cta-main" onclick="openUpload()">📋 우리 아이 편식 진단받기 →</button>
+      <button class="cta-main" onclick="openUpload()">📋 이번 달 식단표 평가받기 →</button>
       <div class="cta-sub">신용카드 X · 가입 X · 익명 분석</div>
     </div>
     <div class="trust-row">
@@ -247,6 +247,18 @@
 <div class="counter">
   <strong>이번 주 <span class="num" id="liveCount">4,237</span>명</strong>의 부모가 평가받았어요
 </div>
+
+<!-- 왜 평가가 필요한가 (히어로 직후) -->
+<section>
+  <span class="section-tag">━ 왜 평가가 필요한가 ━</span>
+  <h2>아이 하루 식사의 <strong style="color:var(--r700)">60% 이상</strong>이 밖에서 결정됩니다</h2>
+  <p class="section-sub">그런데 부모님은 식단표를 받기만 할 뿐, 그 식단이 <strong>우리 아이 나이에 적합한지·영양이 충분한지</strong> 알 방법이 없었어요.</p>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="big">75%</div><div class="lbl">부모가 식단표<br>그냥 버림</div></div>
+    <div class="stat-card"><div class="big">60%</div><div class="lbl">한국 영유아<br>비타민D 결핍</div></div>
+    <div class="stat-card"><div class="big">5/8</div><div class="lbl">평균 식품군<br>충족 (WHO 8중)</div></div>
+  </div>
+</section>
 
 <!-- ★ 실제 평가 사례 비교 (2 식단표) -->
 <section>
@@ -332,18 +344,6 @@
       <div class="axis-bar"><span class="nm">8. 🌍 조리 스타일</span><div class="b"><div class="f D" style="width:60%"></div></div><span class="g D">D</span></div>
       <div class="insight-box"><strong>💡 가정에서 보충하면 좋아요</strong><br>① 잡곡 다양화 (귀리·흑미·수수) → 1번 축 A+ 가능<br>② 양식·일식·중식 주 1-2회 → 8번 축 +20점<br>③ 가공식품 줄이기 → 콜린·비타민D·EPA+DHA 자연 보충 (달걀 노른자 매일 + 연어 주 2회)</div>
     </div>
-  </div>
-</section>
-
-<!-- 왜 모르고 지나가는가 -->
-<section>
-  <span class="section-tag">━ 왜 평가가 필요한가 ━</span>
-  <h2>아이 하루 식사의 <strong style="color:var(--r700)">60% 이상</strong>이 밖에서 결정됩니다</h2>
-  <p class="section-sub">그런데 부모님은 식단표를 받기만 할 뿐, 그 식단이 <strong>우리 아이 나이에 적합한지·영양이 충분한지</strong> 알 방법이 없었어요.</p>
-  <div class="stats-grid">
-    <div class="stat-card"><div class="big">75%</div><div class="lbl">부모가 식단표<br>그냥 버림</div></div>
-    <div class="stat-card"><div class="big">60%</div><div class="lbl">한국 영유아<br>비타민D 결핍</div></div>
-    <div class="stat-card"><div class="big">5/8</div><div class="lbl">평균 식품군<br>충족 (WHO 8중)</div></div>
   </div>
 </section>
 
@@ -504,13 +504,6 @@
       </div>
     </div>
 
-    <!-- 추천 식재료로 레시피 받아보기 (가정보충 직후 프로미넌트 CTA) -->
-    <div onclick="goHomeMealPlan()" style="background:linear-gradient(135deg,#FF6B1A,#C45A00);color:white;border-radius:14px;padding:15px 16px;margin-top:14px;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 6px 18px rgba(255,107,26,0.25);transition:transform 0.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-      <span style="font-size:24px">🍳</span>
-      <span style="flex:1;font-size:14.5px;font-weight:800;line-height:1.4">위 식재료로 우리 아이 레시피 받아보기<br><span style="font-size:11px;font-weight:600;opacity:0.9">빠진 식재료를 채우는 맞춤 식단</span></span>
-      <span style="font-size:20px;font-weight:300">›</span>
-    </div>
-
     <!-- ★ 5문장 자연어 — 어떻게 먹일지 구체 권고 -->
     <div style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:12px;border:1.5px solid var(--b500)">
       <div style="font-size:11px;font-weight:800;color:var(--b700);letter-spacing:0.04em;margin-bottom:8px">━ 💡 집에서는 이렇게 먹여주세요 ━</div>
@@ -519,20 +512,12 @@
       </div>
     </div>
 
-    <!-- ★ 핵심 CTA — 앱으로 편식 관리 시작 (골든타임) -->
+    <!-- ★ 핵심 CTA — 앱으로 개인화 편식 코칭 (35개 국제기준) -->
     <div onclick="window.location.href='https://app.mealfred.com'" style="background:linear-gradient(135deg,#FF6B1A,#C45A00);border-radius:14px;padding:18px;margin-top:14px;border:none;cursor:pointer;transition:transform 0.15s;color:white" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-      <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;margin-bottom:6px;opacity:0.9">━ ⏰ 초등 입학 전 골든타임 ━</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;margin-bottom:6px;opacity:0.9">━ 🌐 전 세계 35개 국제기준 적용 ━</div>
       <div style="font-size:15px;font-weight:800;line-height:1.45;margin-bottom:6px">식단표 평가는 시작일 뿐이에요</div>
-      <div style="font-size:12.5px;font-weight:500;line-height:1.65;margin-bottom:12px;opacity:0.95">매일 한 끼만 기록하면, 우리 아이가 거부하는 식재료를 <strong>죽부터 단계별로</strong> 친해지게 도와드려요. 한 입 거부는 정상 — <strong>30번까지 천천히</strong>.</div>
-      <div style="background:white;color:#C45A00;padding:13px;border-radius:10px;font-weight:800;font-size:13.5px;text-align:center">🌱 우리 아이 편식 관리 시작하기 →</div>
-    </div>
-
-    <!-- ★ 바이럴 — 필수 식재료 → 도감 -->
-    <div onclick="window.location.href='https://app.mealfred.com/foods'" style="background:linear-gradient(135deg,#FFF5EB,#FFD0A0);border-radius:14px;padding:16px;margin-top:12px;border:1.5px solid #FF6B1A;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-      <div style="font-size:11px;font-weight:800;color:#C45A00;letter-spacing:0.04em;margin-bottom:6px">━ 🗂 식재료 도감 ━</div>
-      <div style="font-size:14px;font-weight:800;color:#1a2b4a;line-height:1.45;margin-bottom:4px">초등학교 급식 전까지 반드시 먹어야 할 식재료, 궁금하다면?</div>
-      <div style="font-size:12px;color:#5a4a3a;font-weight:600;line-height:1.6;margin-bottom:10px">필수 26종 · 권장 50종 — 영양·제철·SOS 6단계·부모 경험까지 무료 열람</div>
-      <div style="background:linear-gradient(135deg,#FF6B1A,#C45A00);color:white;padding:13px;border-radius:10px;font-weight:800;font-size:13.5px;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px">🗂 식재료 도감 열기 →</div>
+      <div style="font-size:12.5px;font-weight:500;line-height:1.65;margin-bottom:12px;opacity:0.95">아이가 <strong>먹는 음식만 입력</strong>하면, WHO·SOS·Satter·푸드브릿지 등 <strong>전 세계 35개 국제기준</strong>으로 분석해 <strong>우리 아이·우리 집에 맞는 편식 지도</strong>를 <strong>하루 한 번</strong> 코칭해드려요.</div>
+      <div style="background:white;color:#C45A00;padding:13px;border-radius:10px;font-weight:800;font-size:13.5px;text-align:center">🌱 우리 아이 편식 코칭 시작하기 →</div>
     </div>
 
     <div style="margin-top:14px">
