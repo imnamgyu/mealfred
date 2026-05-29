@@ -37,6 +37,46 @@ export const NUTRI_MAP: Record<string, string[]> = {
   '옥수수': ['식이섬유', '비타민B1'], '당면': [], '빵': ['탄수화물'],
 };
 
+// ── 빗대기(범주 근사) 영양 ────────────────────────────────────
+// NUTRI_MAP에 없는 식재료는 풀 카테고리(ingredients-light.json의 cat)의 대표 영양 프로필로 근사.
+// 예: 오리고기(고기)·곱창(고기) → 고기 프로필. 정확값은 아니지만 '모름'으로 비우지 않는다.
+export const CATEGORY_NUTRI: Record<string, string[]> = {
+  '고기': ['단백질', '철', '아연', '비타민B12'],
+  '생선': ['단백질', '오메가3', '비타민D'],
+  '갑각_조개': ['단백질', '아연', '비타민B12', '철'],
+  '계란': ['단백질', '비타민B12', '비타민D'],
+  '유제품': ['칼슘', '단백질', '비타민D'],
+  '콩_콩제품': ['단백질', '철', '식이섬유', '칼슘'],
+  '발효식품': ['단백질', '식이섬유'],
+  '곡물_탄수': ['식이섬유', '마그네슘'],
+  '잎채소': ['비타민A', '비타민C', '엽산', '비타민K'],
+  '뿌리채소': ['비타민A', '식이섬유', '칼륨'],
+  '열매채소': ['비타민C', '비타민A'],
+  '기타채소': ['비타민C', '식이섬유'],
+  '해조류': ['요오드', '칼슘', '식이섬유'],
+  '버섯': ['비타민D', '식이섬유'],
+  '과일': ['비타민C', '식이섬유', '칼륨'],
+  '견과_씨앗': ['오메가3', '마그네슘', '단백질'],
+  '가공식품': ['단백질'],
+  '향신_허브': [],
+};
+// 풀 카테고리 → WHO 8식품군 (다양성 빗대기)
+export const CATEGORY_GROUP: Record<string, string> = {
+  '곡물_탄수': '곡물', '콩_콩제품': '콩류', '발효식품': '콩류', '유제품': '유제품',
+  '고기': '고기생선', '생선': '고기생선', '갑각_조개': '고기생선', '가공식품': '고기생선',
+  '계란': '계란', '잎채소': '비타민A채소', '뿌리채소': '비타민A채소',
+  '열매채소': '기타채소', '기타채소': '기타채소', '해조류': '기타채소', '버섯': '기타채소', '과일': '과일',
+};
+
+type CatOf = (ing: string) => string | undefined;
+
+/** 식재료 → 커버 영양소. 정확 매핑 없으면 카테고리로 빗대어 근사. */
+export function nutrientsOf(ing: string, catOf?: CatOf): string[] {
+  if (NUTRI_MAP[ing]) return NUTRI_MAP[ing];
+  const cat = catOf?.(ing);
+  return (cat && CATEGORY_NUTRI[cat]) || [];
+}
+
 // 핵심 추적 영양소 (신호등 표시 — 영유아 결핍 흔한 순)
 // 비타민E 제외: 호두·아몬드만 커버라 거의 항상 빨강 = 노이즈
 export const KEY_NUTRIENTS = [
@@ -70,7 +110,7 @@ export type NutrientSignal = { nutrient: string; daysCovered: number; level: 'gr
  * 기록 묶음(여러 날·끼니)의 식재료 → 영양소 신호등
  * @param ingredientsByDay  날짜별 먹은 식재료 목록 (중복 제거 전)
  */
-export function computeSignals(ingredientsByDay: string[][]): NutrientSignal[] {
+export function computeSignals(ingredientsByDay: string[][], catOf?: CatOf): NutrientSignal[] {
   const totalDays = ingredientsByDay.length || 1;
   // 영양소별 — 며칠 동안 커버됐는지
   const coverDays: Record<string, number> = {};
@@ -79,7 +119,7 @@ export function computeSignals(ingredientsByDay: string[][]): NutrientSignal[] {
   ingredientsByDay.forEach((dayIngredients) => {
     const covered = new Set<string>();
     dayIngredients.forEach((ing) => {
-      (NUTRI_MAP[ing] || []).forEach((n) => covered.add(n));
+      nutrientsOf(ing, catOf).forEach((n) => covered.add(n));   // 정확→범주 빗대기
     });
     covered.forEach((n) => { if (n in coverDays) coverDays[n]++; });
   });
@@ -109,9 +149,12 @@ const FOOD_GROUP: Record<string, string> = {
 };
 const ALL_GROUPS = ['곡물', '콩류', '유제품', '고기생선', '계란', '비타민A채소', '기타채소', '과일'];
 
-export function computeFoodGroups(allIngredients: string[]): { covered: string[]; missing: string[] } {
+export function computeFoodGroups(allIngredients: string[], catOf?: CatOf): { covered: string[]; missing: string[] } {
   const covered = new Set<string>();
-  allIngredients.forEach((ing) => { const g = FOOD_GROUP[ing]; if (g) covered.add(g); });
+  allIngredients.forEach((ing) => {
+    const g = FOOD_GROUP[ing] || (catOf && CATEGORY_GROUP[catOf(ing) || '']);   // 정확→범주 빗대기
+    if (g) covered.add(g);
+  });
   return {
     covered: [...covered],
     missing: ALL_GROUPS.filter((g) => !covered.has(g)),

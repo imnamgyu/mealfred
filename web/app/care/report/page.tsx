@@ -28,6 +28,11 @@ export default function ReportPage() {
 
   useEffect(() => {
     (async () => {
+      // 풀 cat → 빗대기 영양평가 catOf (NUTRI_MAP에 없는 식재료는 범주로 근사)
+      const catMap = await fetch('/ingredients-light.json').then((r) => r.json())
+        .then((d) => { const m: Record<string, string> = {}; (d.ingredients || []).forEach((x: { nm: string; cat: string }) => { m[x.nm] = x.cat; }); return m; })
+        .catch(() => ({} as Record<string, string>));
+      const catOf = (ing: string) => catMap[ing];
       // 최근 7일 날짜
       const dates = Array.from({ length: 7 }, (_, i) => {
         const d = new Date(); d.setDate(d.getDate() - i);
@@ -74,8 +79,8 @@ export default function ReportPage() {
       }
 
       setDaysWithData(daysCount);
-      setSignals(computeSignals(byDay));
-      setFoodGroups(computeFoodGroups(allIng));
+      setSignals(computeSignals(byDay, catOf));
+      setFoodGroups(computeFoodGroups(allIng, catOf));
       setRefusedFoods([...new Set(refused)]);
       setLoading(false);
     })();

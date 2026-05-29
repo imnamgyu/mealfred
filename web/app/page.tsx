@@ -57,6 +57,11 @@ export default function Home() {
   useEffect(() => {
     fetch('/ingredients-light.json').then((r) => r.json()).then((d) => setPool(d.ingredients)).catch(() => {});
     (async () => {
+      // 풀 cat 로드 → 빗대기 영양평가용 catOf (NUTRI_MAP에 없는 식재료는 범주로 근사)
+      const catMap = await fetch('/ingredients-light.json').then((r) => r.json())
+        .then((d) => { const m: Record<string, string> = {}; (d.ingredients || []).forEach((x: { nm: string; cat: string }) => { m[x.nm] = x.cat; }); return m; })
+        .catch(() => ({} as Record<string, string>));
+      const catOf = (ing: string) => catMap[ing];
       const dates = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toISOString().slice(0, 10); });
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -76,10 +81,10 @@ export default function Home() {
             (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); menuFreq[k] = (menuFreq[k] || 0) + 1; });
           });
           const byDay = Object.values(byDate).filter((a) => a.length);
-          const sig = computeSignals(byDay);
+          const sig = computeSignals(byDay, catOf);
           setDays(byDay.length);
           setSignals(sig);
-          setGroups(computeFoodGroups(allIng));
+          setGroups(computeFoodGroups(allIng, catOf));
           setIngredientCount(new Set(allIng).size);
           setEatenSet(new Set(allIng));
           setRefused([...new Set(ref)]);
