@@ -48,13 +48,12 @@ export default async function SeasonPage({ params }: { params: Promise<{ month: 
 
   return (
     <main>
-      <header className="hero">
+      <header className="px-6 pt-8 pb-5" style={{ background: 'linear-gradient(135deg,#FFF8F2,#FFE8D0)' }}>
         <div className="max-w-3xl mx-auto">
-          <span className="inline-block bg-orange-50 border border-orange-200 text-orange-700 px-4 py-1.5 rounded-full text-xs font-bold mb-3">
-            🌸 {m}월 제철 {isCurrent && '· 지금이 제철!'}
-          </span>
-          <h1 className="text-3xl font-extrabold mb-2">{m}월 제철 식재료 {items.length}종</h1>
-          <p className="text-sm">제철 식재료는 영양 가치가 높고 우리 아이가 자연스럽게 친해지기 좋아요.</p>
+          <Link href="/foods" className="text-xs font-bold" style={{ color: '#C45A00' }}>← 도감</Link>
+          <span className="inline-block mt-2.5 mb-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold" style={{ background: '#FFE0C0', color: '#C45A00' }}>🌸 {m}월 제철 {isCurrent && '· 지금이 제철!'}</span>
+          <h1 className="text-2xl font-extrabold" style={{ color: '#1a2b4a' }}>{m}월 제철 식재료 {items.length}종</h1>
+          <p className="text-[13px] mt-1" style={{ color: '#8a7a6a' }}>제철 식재료는 영양 가치가 높고 우리 아이가 자연스럽게 친해지기 좋아요.</p>
         </div>
       </header>
       <div className="max-w-6xl mx-auto px-6 py-8">

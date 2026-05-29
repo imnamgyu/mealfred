@@ -40,13 +40,12 @@ export default async function GradePage({ params }: { params: Promise<{ grade: s
 
   return (
     <main>
-      <header className="hero">
+      <header className="px-6 pt-8 pb-5" style={{ background: 'linear-gradient(135deg,#FFF8F2,#FFE8D0)' }}>
         <div className="max-w-3xl mx-auto">
-          <span className="inline-block bg-orange-50 border border-orange-200 text-orange-700 px-4 py-1.5 rounded-full text-xs font-bold mb-3">
-            {info.emoji} {info.label}
-          </span>
-          <h1 className="text-3xl font-extrabold mb-2">{info.label} {items.length}종</h1>
-          <p className="text-sm">{info.desc}</p>
+          <Link href="/foods" className="text-xs font-bold" style={{ color: '#C45A00' }}>← 도감</Link>
+          <span className="inline-block mt-2.5 mb-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold" style={{ background: '#FFE0C0', color: '#C45A00' }}>{info.emoji} {info.label}</span>
+          <h1 className="text-2xl font-extrabold" style={{ color: '#1a2b4a' }}>{info.label} {items.length}종</h1>
+          <p className="text-[13px] mt-1" style={{ color: '#8a7a6a' }}>{info.desc}</p>
         </div>
       </header>
       <div className="max-w-6xl mx-auto px-6 py-8">

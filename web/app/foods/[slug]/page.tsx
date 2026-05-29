@@ -1,10 +1,10 @@
 /**
  * /foods/[slug] — 식재료 상세 (147 SSG)
- * 각 식재료에 대한 영양·SOS·레시피·안전 경고 풀 페이지.
+ * care.html 디자인 통일: 흰 카드 + 부드러운 헤더 + 영양 빈도 바(별점 대신).
  */
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { loadPool, loadRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars } from '@/lib/ingredients';
+import { loadPool, loadRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars, isSpicyDish } from '@/lib/ingredients';
 import RefusedBadge from '@/components/RefusedBadge';
 
 // SOS 식감 난이도 순서 (부드러움 → 단단함) — 거부 식재료 친해지기 정렬
@@ -40,16 +40,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-const SOS = ['👀 보기','✋ 만지기','👃 냄새','👅 핥기','🦷 씹기','🍽 삼키기'];
+const SOS = ['👀 보기', '✋ 만지기', '👃 냄새', '👅 핥기', '🦷 씹기', '🍽 삼키기'];
 
-function NutriRow({ name, value, unit, rni }: { name: string; value: number; unit: string; rni: number }) {
-  const s = nutriToStars(value, rni);
-  if (!s) return null;
+// 영양 한 줄 — care.html nutri-row 스타일(이름 + 빈도 바 + RNI%·라벨)
+function NutriBar({ name, value, unit, pct, label }: { name: string; value: number; unit: string; pct: number; label: string }) {
+  const color = pct >= 67 ? '#16A085' : pct >= 34 ? '#F9A825' : '#9CA3AF';
   return (
-    <div className="flex items-center gap-2 py-1.5 border-b border-orange-50 text-sm">
-      <span className="font-semibold text-[var(--navy)] min-w-[80px]">{name}</span>
-      <span className="text-orange-700 font-bold">{'★'.repeat(s.s)}{'☆'.repeat(3-s.s)}</span>
-      <span className="text-xs text-[var(--brown-soft)] flex-1">{value}{unit} · RNI {s.pct}% · {s.label}</span>
+    <div className="flex items-center gap-2 mb-2">
+      <span className="text-[12px] font-semibold flex-shrink-0" style={{ color: '#1a2b4a', width: '74px' }}>{name}</span>
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#F0F0F0' }}>
+        <div style={{ width: `${Math.min(100, pct)}%`, height: '100%', background: color }} />
+      </div>
+      <span className="text-[10.5px] font-bold text-right flex-shrink-0" style={{ color: '#6B7280', width: '92px' }}>{value}{unit} · RNI {pct}%</span>
     </div>
   );
 }
@@ -61,6 +63,8 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
 
   const recipesByIng = loadRecipes();
   const recipes = recipesByIng[ing.nm];
+  // 영유아 — 매운 메뉴는 추천에서 제외
+  const safeRecipes = recipes ? [...recipes.top_recipes].filter((r) => !isSpicyDish(r.name)) : [];
   const hasEm = !!ing.em?.trim();
 
   const nutriItems = ing.nutri ? Object.entries(ing.nutri)
@@ -76,83 +80,89 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
     .slice(0, 8) : [];
 
   return (
-    <main className="max-w-3xl mx-auto px-5 py-6">
-      <Link href="/foods" className="inline-block text-xs text-orange-700 font-bold mb-4">← 식재료 도감</Link>
+    <main className="max-w-md mx-auto min-h-screen px-5 py-6" style={{ background: '#FFFDFB' }}>
+      <Link href="/foods" className="inline-block text-xs font-bold mb-4" style={{ color: '#C45A00' }}>← 식재료 도감</Link>
 
-      <header className="rounded-2xl p-5 mb-5 bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200">
+      {/* 헤더 카드 (care.html score-card 스타일) */}
+      <header className="rounded-2xl p-5 mb-3" style={{ background: 'linear-gradient(135deg,#FFF8F2,#FFE8D0)', border: '1.5px solid #FFD8B0' }}>
         <div className="flex items-center gap-4">
-          <div className="text-5xl">{hasEm ? ing.em : <span className="text-xs font-bold text-gray-400 bg-white rounded-full w-16 h-16 flex items-center justify-center px-1">{ing.cat.replace('_','·').split('·')[0]}</span>}</div>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0" style={{ background: 'white' }}>
+            {hasEm ? ing.em : <span className="text-[11px] font-bold" style={{ color: '#9CA3AF' }}>{ing.cat.replace('_', '·').split('·')[0]}</span>}
+          </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-extrabold text-[var(--navy)]">{ing.nm}</h1>
-            <div className="flex flex-wrap gap-2 mt-1.5 text-xs">
-              {ing.grade && <span className="font-bold text-orange-700">{ing.grade}</span>}
-              {ing.grade_label && <span className="bg-orange-200 text-orange-800 px-2 py-0.5 rounded-full font-bold">{ing.grade_label}</span>}
-              <span className="text-[var(--brown-soft)]">{ing.cat.replace('_','·')}</span>
+            <h1 className="text-2xl font-extrabold" style={{ color: '#1a2b4a' }}>{ing.nm}</h1>
+            <div className="flex flex-wrap gap-1.5 mt-1.5 text-xs items-center">
+              {ing.grade_label && <span className="px-2 py-0.5 rounded-full font-extrabold" style={{ background: '#FFE0C0', color: '#C45A00' }}>{ing.grade_label}</span>}
+              <span style={{ color: '#8a7a6a' }}>{ing.cat.replace('_', '·')}</span>
             </div>
           </div>
         </div>
         {ing.warning && (
-          <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-2.5 text-xs text-red-800 font-semibold">⚠ {ing.warning}</div>
+          <div className="mt-3 rounded-lg p-2.5 text-xs font-semibold" style={{ background: '#FFF5F5', border: '1px solid #FFCDD2', color: '#C62828' }}>⚠ {ing.warning}</div>
         )}
       </header>
 
-      <section className="bg-white rounded-2xl border border-orange-100 p-5 mb-4 shadow-sm">
-        <h2 className="text-sm font-extrabold text-orange-700 mb-3">━ 📊 학교 급식·영유아 등장 빈도 ━</h2>
-        <p className="text-sm text-[var(--brown-mid)] leading-relaxed">
-          학교 급식 통합 <strong className="text-[var(--navy)]">{ing.v4_freq_total || ing.elem_count || 0}회</strong> 등장.
+      <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+        <h2 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>📊 학교 급식·영유아 등장 빈도</h2>
+        <p className="text-[13px] leading-relaxed" style={{ color: '#5a4a3a' }}>
+          학교 급식 통합 <strong style={{ color: '#1a2b4a' }}>{ing.v4_freq_total || ing.elem_count || 0}회</strong> 등장.
           {ing.v4_score && <> · Must-Eat 점수 <strong>{ing.v4_score.toFixed(1)}</strong></>}
         </p>
-        {ing.v4_reason && <p className="text-xs text-[var(--brown-soft)] mt-2 italic">{ing.v4_reason}</p>}
+        {ing.v4_reason && <p className="text-[11.5px] mt-2 italic" style={{ color: '#8a7a6a' }}>{ing.v4_reason}</p>}
       </section>
 
-      <section className="bg-white rounded-2xl border border-orange-100 p-5 mb-4 shadow-sm">
-        <h2 className="text-sm font-extrabold text-orange-700 mb-3">━ 🧬 KDRI 영양 (만 1-2세 · 100g 당) ━</h2>
+      <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>🧬 KDRI 영양 <span className="font-normal text-[11px]" style={{ color: '#9CA3AF' }}>만 1-2세 · 100g당</span></h2>
+        </div>
         {nutriItems.length > 0 ? (
-          <>{nutriItems.map((n) => <NutriRow key={n.key} name={n.name} value={n.value} unit={n.unit} rni={KDRI_1_2Y[n.key]} />)}
-          <p className="text-[10.5px] text-[var(--brown-soft)] mt-3">📊 출처: 농진청 v10.4 「{ing.nong_name || ing.nm}」 · KDRI 2025 만 1-2세 RNI/AI 대비 % 자동 계산</p></>
+          <>
+            {nutriItems.map((n) => <NutriBar key={n.key} name={n.name} value={n.value} unit={n.unit} pct={n.pct} label={n.label} />)}
+            <p className="text-[10px] mt-3" style={{ color: '#9CA3AF' }}>📊 출처: 농진청 v10.4 「{ing.nong_name || ing.nm}」 · KDRI 2025 만 1-2세 RNI/AI 대비 % 자동 계산</p>
+          </>
         ) : (
-          <p className="text-xs text-[var(--brown-soft)]">영양 매핑 진행 중 (M2 alias 보정 예정)</p>
+          <p className="text-xs" style={{ color: '#8a7a6a' }}>영양 매핑 진행 중 (M2 alias 보정 예정)</p>
         )}
       </section>
 
-      <section className="bg-white rounded-2xl border border-orange-100 p-5 mb-4 shadow-sm">
-        <h2 className="text-sm font-extrabold text-orange-700 mb-3">━ 🎯 친해지기 SOS 6단계 (Toomey) ━</h2>
+      <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+        <h2 className="text-sm font-extrabold mb-3" style={{ color: '#1a2b4a' }}>🎯 친해지기 SOS 6단계 <span className="font-normal text-[11px]" style={{ color: '#9CA3AF' }}>(Toomey)</span></h2>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
           {SOS.map((s, i) => (
-            <div key={i} className={`text-center text-[10px] font-bold px-1 py-2 rounded-lg ${i<2?'bg-orange-100 text-orange-700':'bg-gray-50 text-gray-400'}`}>
+            <div key={i} className="text-center text-[10px] font-bold px-1 py-2 rounded-lg" style={i < 2 ? { background: '#FFF0E0', color: '#C45A00' } : { background: '#FAFAF7', color: '#9CA3AF' }}>
               <div className="text-base">{s.split(' ')[0]}</div>
               {s.split(' ')[1]}
             </div>
           ))}
         </div>
-        <p className="text-[11.5px] text-[var(--brown-mid)] mt-3 font-semibold">강요는 거부를 강화합니다. 1단계부터 천천히 — 일주일 1-2 단계 진행 권장.</p>
+        <p className="text-[11.5px] mt-3 font-semibold" style={{ color: '#5a4a3a' }}>강요는 거부를 강화합니다. 1단계부터 천천히 — 일주일 1-2 단계 진행 권장.</p>
       </section>
 
       <RefusedBadge ingredient={ing.nm} />
 
-      <section className="bg-white rounded-2xl border border-orange-100 p-5 mb-4 shadow-sm">
-        <h2 className="text-sm font-extrabold text-orange-700 mb-1">━ 🍳 친해지기 레시피 ━</h2>
-        <p className="text-[11px] text-[var(--brown-soft)] mb-3">부드러운 요리부터 순서대로 — 죽·국으로 먼저, 익숙해지면 볶음·구이로</p>
-        {recipes && recipes.top_recipes.length > 0 ? (
+      <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+        <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>🍳 친해지기 레시피</h2>
+        <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>부드러운 요리부터 순서대로 — 죽·국으로 먼저, 익숙해지면 볶음·구이로</p>
+        {safeRecipes.length > 0 ? (
           <>
             <ul className="space-y-2">
-              {[...recipes.top_recipes].sort((a, b) => textureRank(a.method) - textureRank(b.method)).map((r, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm">
-                  <span className="text-[9px] font-extrabold w-5 h-5 rounded-full shrink-0 flex items-center justify-center text-white" style={{ background: ['#16A085','#16A085','#F9A825','#E67E22','#C62828'][textureRank(r.method)-1] }}>{textureRank(r.method)}</span>
-                  <span className="bg-orange-50 text-orange-700 text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0">{r.method}</span>
-                  <span className="text-[var(--navy)]">{r.name}</span>
-                  {r.allergens && <span className="text-[10px] text-gray-400">({r.allergens})</span>}
+              {safeRecipes.sort((a, b) => textureRank(a.method) - textureRank(b.method)).map((r, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm">
+                  <span className="text-[9px] font-extrabold w-5 h-5 rounded-full shrink-0 flex items-center justify-center text-white" style={{ background: ['#16A085', '#16A085', '#F9A825', '#E67E22', '#C62828'][textureRank(r.method) - 1] }}>{textureRank(r.method)}</span>
+                  <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0" style={{ background: '#FFF0E0', color: '#C45A00' }}>{r.method}</span>
+                  <span style={{ color: '#1a2b4a' }}>{r.name}</span>
+                  {r.allergens && <span className="text-[10px]" style={{ color: '#9CA3AF' }}>({r.allergens})</span>}
                 </li>
               ))}
             </ul>
-            <p className="text-[10.5px] text-[var(--brown-soft)] mt-3">💡 {ing.nm}이(가) 들어간 <strong>{recipes.total_count}개</strong> 레시피 중 식감 난이도 순 Top {recipes.top_recipes.length}. 숫자 1(부드러움)→5(단단함) 순으로 도전하세요.</p>
+            <p className="text-[10px] mt-3" style={{ color: '#8a7a6a' }}>💡 {ing.nm}이(가) 들어간 <strong>{recipes.total_count}개</strong> 레시피 중 식감 난이도 순 Top {safeRecipes.length}. 숫자 1(부드러움)→5(단단함) 순으로 도전하세요.</p>
           </>
         ) : (
-          <p className="text-xs text-[var(--brown-soft)]">DB 매칭 없음 — 가입 후 개인화 레시피로 안내 예정</p>
+          <p className="text-xs" style={{ color: '#8a7a6a' }}>DB 매칭 없음 — 가입 후 개인화 레시피로 안내 예정</p>
         )}
       </section>
 
-      <Link href="/care" className="block bg-[var(--navy)] text-white rounded-xl p-4 text-center font-extrabold text-sm">
+      <Link href="/care" className="block rounded-xl p-4 text-center font-extrabold text-sm text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
         ✏️ 우리 아이 식사 기록하러 가기 →
       </Link>
     </main>
