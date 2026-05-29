@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 엔진 설계 — 회귀적 개인화 루프 & 데이터 해자 | 밀프레드</title>
+<meta property="og:title" content="밀프레드 코칭 엔진 — 자녀 데이터가 쌓일수록 정확해지는 개인화 루프">
+<meta property="og:description" content="식단 입력 → 영양·시계열 분석 → 새벽 코칭(편지·질문) → 부모 답변 → 데이터 축적 → 더 정확한 코칭. 학술 근거 기반 회귀 엔진 설계도.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s800:#1F2D3D;--navy:#1a2b4a;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+
+  .hero{padding:56px 24px 40px;text-align:center;background:linear-gradient(160deg,#FFF5EB,#FFE8D0 45%,#FFD0A0);position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08),transparent 50%)}
+  .hero-inner{position:relative;z-index:1;max-width:760px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.12);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;margin-bottom:16px;border:1px solid rgba(255,107,26,0.25)}
+  .hero h1{font-size:29px;font-weight:800;letter-spacing:-0.03em;line-height:1.3;margin-bottom:14px;color:var(--navy)}
+  .hero .summary{background:rgba(255,255,255,0.65);border:1px solid rgba(255,107,26,0.2);border-radius:14px;padding:16px 20px;font-size:14.5px;font-weight:700;color:#C45A00;line-height:1.7;max-width:600px;margin:0 auto}
+
+  main{max-width:880px;margin:0 auto;padding:32px 20px 70px}
+  section{margin-bottom:40px}
+  .sec-tag{display:inline-block;font-size:12px;font-weight:800;color:#C45A00;background:#FFF0E0;border:1px solid #FFD0A0;border-radius:8px;padding:4px 10px;margin-bottom:12px}
+  h2{font-size:21px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:6px}
+  .lead{font-size:14px;color:var(--n600);margin-bottom:18px}
+
+  /* 로드맵 */
+  .phase{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px 20px;margin-bottom:12px;display:flex;gap:16px;box-shadow:0 3px 12px rgba(0,0,0,0.03)}
+  .phase .pn{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#FF8A47,#C45A00);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .phase h3{font-size:15.5px;font-weight:800;color:var(--s800);margin-bottom:5px}
+  .phase ul{margin:0 0 0 16px;font-size:13.5px;color:var(--n600)}
+  .phase li{margin-bottom:3px}
+  .phase .where{display:inline-block;font-size:11px;font-weight:700;color:var(--b700);background:#EAF4FC;border-radius:6px;padding:2px 8px;margin-top:6px}
+
+  /* 회귀 루프 (순환) */
+  .loop{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:stretch;margin:6px 0 4px}
+  .loop .node{background:white;border:1.5px solid var(--p300);border-radius:13px;padding:14px 10px;text-align:center;position:relative}
+  .loop .node .ic{font-size:24px;display:block;margin-bottom:6px}
+  .loop .node .nt{font-size:13px;font-weight:800;color:var(--navy)}
+  .loop .node .nd{font-size:11px;color:var(--n500);margin-top:3px;line-height:1.4}
+  .loop .arr{display:flex;align-items:center;justify-content:center;color:var(--p500);font-size:20px;font-weight:800}
+  .loopback{text-align:center;font-size:12.5px;font-weight:800;color:#C45A00;background:#FFF5EB;border:1px dashed #FFB375;border-radius:10px;padding:8px;margin-top:8px}
+  @media(max-width:680px){.loop{grid-template-columns:1fr}.loop .arr{transform:rotate(90deg);padding:2px 0}}
+
+  /* 데이터 해자 */
+  .moat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .moat .m{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px 16px}
+  .moat .m .d{font-size:12px;font-weight:800;color:#C45A00;margin-bottom:6px}
+  .moat .m p{font-size:12.5px;color:var(--n600);line-height:1.5}
+  .moat .grow{grid-column:1/-1;background:linear-gradient(90deg,#FFF8F2,#FFE8D0);border:1.5px solid #FFD0A0;border-radius:12px;padding:14px 18px;font-size:13.5px;font-weight:700;color:var(--navy);text-align:center}
+  @media(max-width:680px){.moat{grid-template-columns:1fr}}
+
+  /* 파이프라인 */
+  .pipe{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px;overflow-x:auto}
+  .pipe .row{display:flex;align-items:center;gap:10px;min-width:640px}
+  .pipe .col{flex:1}
+  .pipe .src{background:var(--n50);border:1px solid var(--n200);border-radius:10px;padding:8px 10px;font-size:11.5px;font-weight:700;color:var(--n700);margin-bottom:6px}
+  .pipe .src.last{margin-bottom:0}
+  .pipe .stage{background:#FFF0E0;border:1.5px solid #FFB375;border-radius:11px;padding:12px;text-align:center;font-size:12.5px;font-weight:800;color:#C45A00}
+  .pipe .stage .sd{font-size:11px;font-weight:600;color:var(--n600);margin-top:4px}
+  .pipe .arrx{color:var(--p500);font-size:22px;font-weight:800;text-align:center}
+  .pipe .out{background:linear-gradient(135deg,#16A085,#1B5E20);color:#fff;border-radius:11px;padding:12px;text-align:center;font-size:12.5px;font-weight:800}
+
+  /* 원칙 */
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .rule{background:white;border:1.5px solid var(--n200);border-left:4px solid var(--g500);border-radius:10px;padding:13px 15px}
+  .rule.bad{border-left-color:var(--r500)}
+  .rule .rt{font-size:13.5px;font-weight:800;color:var(--navy);margin-bottom:4px}
+  .rule .rd{font-size:12.5px;color:var(--n600);line-height:1.5}
+  .rule .ex{font-size:12px;color:var(--n500);margin-top:6px;font-style:italic}
+  @media(max-width:680px){.rules{grid-template-columns:1fr}}
+
+  .ground{background:#EAF4FC;border:1px solid #B7DBF5;border-radius:12px;padding:14px 18px;font-size:13px;color:var(--b700);margin-top:14px}
+  .ground b{color:#0d3d66}
+  footer{text-align:center;font-size:12px;color:var(--n400);padding:30px 20px}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="hero-inner">
+      <span class="tag">밀프레드 핵심 엔진 설계</span>
+      <h1>코칭 엔진 — 자녀 데이터가 쌓일수록<br>정확해지는 회귀적 개인화 루프</h1>
+      <div class="summary">식단 입력 → 영양·시계열 분석 → 새벽 코칭(편지·질문) → 부모 답변 → 데이터 축적 → 더 정확한 다음 코칭.<br>매일 도는 이 고리가 아이마다의 <b>데이터 해자(moat)</b>를 만든다.</div>
+    </div>
+  </div>
+
+  <main>
+    <!-- 로드맵 -->
+    <section>
+      <span class="sec-tag">개발 계획표</span>
+      <h2>3단계 로드맵</h2>
+      <p class="lead">이론·코칭 방법의 본진은 <b>편식극복키트</b> 폴더. 앱은 그 근거를 구현한다.</p>
+      <div class="phase">
+        <div class="pn">1</div>
+        <div>
+          <h3>엔진 스펙 정립 (근거 수집)</h3>
+          <ul>
+            <li>편식 이론 정독: SOS(Toomey)·Satter DOR·국제가이드·KDRI 2025</li>
+            <li>코칭 원칙·질문 설계·프롬프트 규격을 문서화</li>
+          </ul>
+          <span class="where">저장: 편식극복키트 / 06_운영 / 카톡코칭</span>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="pn">2</div>
+        <div>
+          <h3>엔진 구현</h3>
+          <ul>
+            <li>편지·질문 프롬프트 재설계 — 데이터로 아는 건 묻지 않기, 환각 차단</li>
+            <li>식단 입력에 <b>먹는 장소(집 / 어린이집·유치원)</b> 필드 추가</li>
+            <li>시계열 분석 병행 + <b>새벽 2~5시 크론</b> 생성 → 아침에 도착</li>
+          </ul>
+        </div>
+      </div>
+      <div class="phase">
+        <div class="pn">3</div>
+        <div>
+          <h3>명문화</h3>
+          <ul>
+            <li>코칭 엔진 개념을 용어사전에 등재</li>
+            <li>이 설계 문서를 docs 허브에 게시·갱신</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 회귀 개인화 루프 -->
+    <section>
+      <span class="sec-tag">개인화 루프</span>
+      <h2>매일 도는 회귀 고리</h2>
+      <p class="lead">한 바퀴 돌 때마다 아이에 대한 데이터가 늘고, 코칭은 더 그 아이에게 맞춰진다.</p>
+      <div class="loop">
+        <div class="node"><span class="ic">📝</span><div class="nt">① 식단 입력</div><div class="nd">메뉴·식재료·장소·반응</div></div>
+        <div class="arr">→</div>
+        <div class="node"><span class="ic">📊</span><div class="nt">② 분석</div><div class="nd">영양 신호등 + 시계열(추세)</div></div>
+        <div class="arr">→</div>
+        <div class="node"><span class="ic">💌</span><div class="nt">③ 새벽 코칭</div><div class="nd">편지 + 오늘의 질문<br>(2~5시 생성)</div></div>
+      </div>
+      <div class="loop" style="grid-template-columns:1fr;margin-top:8px">
+        <div class="loopback">⟳ ⑤ 더 정확한 다음 코칭 &nbsp;←&nbsp; ④ 부모 답변(완식·혼합·환경) = 데이터로 못 푸는 정성값 축적</div>
+      </div>
+    </section>
+
+    <!-- 데이터 해자 -->
+    <section>
+      <span class="sec-tag">데이터 해자 (moat)</span>
+      <h2>아이마다 쌓이는, 못 따라오는 데이터</h2>
+      <p class="lead">경쟁자가 카피할 수 없는 건 기능이 아니라 <b>그 아이의 누적 데이터</b>다.</p>
+      <div class="moat">
+        <div class="m"><div class="d">무엇을 먹(고 안 먹)나</div><p>식단 입력 누적 — 식재료별 노출·완식 횟수, 거부 이력, 장소별 패턴</p></div>
+        <div class="m"><div class="d">어떻게 먹나</div><p>부모 교정(이 집 짜파게티엔 당근 빼기)·정성 답변(섞어야 먹음·영상 보면 잘 먹음)</p></div>
+        <div class="m"><div class="d">시간에 따라</div><p>며칠째 안 먹는지·새 식재료 수용 속도·계절별 변화의 시계열</p></div>
+        <div class="grow">데이터가 쌓일수록 → 코칭이 그 아이에게 정확해지고 → 부모가 더 기록하고 → 데이터가 더 쌓인다 (복리)</div>
+      </div>
+    </section>
+
+    <!-- 데이터 파이프라인 -->
+    <section>
+      <span class="sec-tag">데이터 파이프라인</span>
+      <h2>입력에서 코칭까지</h2>
+      <p class="lead">매일 새벽, 아래 소스를 한데 모아 학술 근거로 편지·질문을 생성한다.</p>
+      <div class="pipe">
+        <div class="row">
+          <div class="col">
+            <div class="src">meal_logs — 식단·장소·반응</div>
+            <div class="src">user_menu_overrides — 부모 교정</div>
+            <div class="src">daily_questions — 어제 질문·답변</div>
+            <div class="src last">coach_letters — 지난 편지(연속성)</div>
+          </div>
+          <div class="arrx">→</div>
+          <div class="col"><div class="stage">영양 + 시계열 분석<div class="sd">신호등·식품군·추세·집/기관 구분</div></div></div>
+          <div class="arrx">→</div>
+          <div class="col"><div class="stage">LLM 생성<div class="sd">편식극복키트 학술 근거 프롬프트<br>새벽 2~5시 크론</div></div></div>
+          <div class="arrx">→</div>
+          <div class="col"><div class="out">아침에 도착<br>편지 + 오늘의 질문</div></div>
+        </div>
+      </div>
+      <div class="ground">📚 <b>근거</b>: 모든 조언은 편식극복키트 <b>01_참고자료</b>(SOS·Satter·국제가이드·KDRI)에 기반. 영양 수치는 우리 데이터만 사용 — LLM이 "아몬드 고단백" 같은 미검증 주장 생성 금지.</div>
+    </section>
+
+    <!-- 엔진 원칙 -->
+    <section>
+      <span class="sec-tag">생성 원칙</span>
+      <h2>좋은 코칭 vs 나쁜 코칭</h2>
+      <div class="rules">
+        <div class="rule"><div class="rt">✓ 데이터로 못 푸는 것만 묻는다</div><div class="rd">실제 로그한 음식을 짚고 정성 정보를 묻는다.</div><div class="ex">"명태 드셨던데 다 드셨나요? 다른 음식과 섞어 드렸나요?"</div></div>
+        <div class="rule bad"><div class="rt">✗ 데이터로 아는 걸 묻는다</div><div class="rd">먹었는지 여부는 식단 로그로 이미 안다.</div><div class="ex">"흰살생선 드셨나요?" (로그 보면 됨)</div></div>
+        <div class="rule"><div class="rt">✓ 부모가 바꿀 수 있는 곳에 코칭</div><div class="rd">집 아침·저녁(빈약 지점)과 기관에서의 거부에 포커스.</div></div>
+        <div class="rule bad"><div class="rt">✗ 못 바꾸는 걸 다그친다</div><div class="rd">기관 급식 메뉴는 엄마가 못 바꾼다.</div></div>
+        <div class="rule"><div class="rt">✓ 정량은 전부 집계</div><div class="rd">영양평가는 어린이집·유치원 급식까지 모두 카운트.</div></div>
+        <div class="rule bad"><div class="rt">✗ 없는 과거를 지어낸다</div><div class="rd">지난 권장 이력이 없으면 "지난번 권한 ○○"라 말하지 않는다.</div></div>
+      </div>
+    </section>
+  </main>
+  <footer>밀프레드 · 코칭 엔진 설계 v1 · 근거: 편식극복키트 01_참고자료</footer>
+</body>
+</html>
