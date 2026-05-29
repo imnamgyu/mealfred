@@ -110,6 +110,11 @@ export default function CarePage() {
   const [dailyQ, setDailyQ] = useState<{ question: string; chips: string[]; answer: string } | null>(null);
   // 개인 캐시 — 로그인 시 받아둔 그 엄마의 메뉴→식재료(교정/최근). 입력 즉시 해석(네트워크 0)
   const [personalMap, setPersonalMap] = useState<Record<string, string[]>>({});
+  // 체위(키·몸무게) 시계열 — 언제든 입력. 홈 36종 모달 BMI·퍼센타일에 반영
+  const [sex, setSex] = useState<'M' | 'F' | ''>('');
+  const [growthLatest, setGrowthLatest] = useState<{ measured_on: string; height_cm: number | null; weight_kg: number | null } | null>(null);
+  const [gOpen, setGOpen] = useState(false);
+  const [gH, setGH] = useState(''); const [gW, setGW] = useState(''); const [gSaved, setGSaved] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const supabase = createSupabaseBrowser();
   // 클라 전역 매퍼 — 로드된 풀로 흔한 메뉴를 네트워크 없이 즉시 분해
@@ -135,6 +140,12 @@ export default function CarePage() {
         .select('id').eq('parent_id', user.id).limit(1).maybeSingle();
       if (!child) return;  // 자녀 없음 (onboarding 필요)
       setChildId(child.id);
+      // 성별·체위 — 마이그레이션 전이면 컬럼/테이블이 없을 수 있어 분리 쿼리(실패해도 무영향)
+      supabase.from('children').select('sex').eq('id', child.id).maybeSingle()
+        .then(({ data }) => { if (data?.sex) setSex(data.sex); });
+      supabase.from('growth_logs').select('measured_on,height_cm,weight_kg')
+        .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(1).maybeSingle()
+        .then(({ data }) => { if (data) { setGrowthLatest(data); setGH(data.height_cm != null ? String(data.height_cm) : ''); setGW(data.weight_kg != null ? String(data.weight_kg) : ''); } });
 
       // 개인 캐시 프리로드 — 그 엄마의 메뉴 교정(user_menu_overrides) 전부.
       // 입력 시 이 캐시 → 클라 매퍼 → (둘 다 미스면) 비동기 LLM 순으로 해석해 네트워크를 최대한 안 탄다.
@@ -337,6 +348,21 @@ export default function CarePage() {
     setEntry((e) => ({ ...e, menus: e.menus.filter((x) => x !== menu) }));
   }
 
+  // 체위 저장 — 오늘 날짜로 growth_logs upsert + 성별 갱신 (시계열)
+  async function saveGrowth() {
+    if (!userId || !childId) return;
+    const h = parseFloat(gH) || null; const w = parseFloat(gW) || null;
+    if (!h && !w) return;
+    const today = todayStr();
+    await supabase.from('growth_logs').upsert(
+      { child_id: childId, parent_id: userId, measured_on: today, height_cm: h, weight_kg: w, updated_at: new Date().toISOString() },
+      { onConflict: 'child_id,measured_on' }
+    ).then(({ error }) => { if (error) console.warn('[growth] save:', error.message); });
+    if (sex) supabase.from('children').update({ sex }).eq('id', childId).then(() => {});
+    setGrowthLatest({ measured_on: today, height_cm: h, weight_kg: w });
+    setGSaved(true); setTimeout(() => setGSaved(false), 1500);
+  }
+
   async function saveEntry() {
     const next = { ...logs };
     if (!next[date]) next[date] = {};
@@ -438,6 +464,39 @@ export default function CarePage() {
 
       {/* 입력 영역 */}
       <div className="flex-1 px-5 py-3 overflow-y-auto">
+        {/* 체위 기록 (키·몸무게 시계열 — 언제든) */}
+        {userId && (
+          <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+            <button onClick={() => setGOpen((o) => !o)} className="w-full flex items-center justify-between">
+              <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>📏 키·몸무게 기록</h3>
+              <span className="text-[11px] font-bold" style={{ color: '#8a7a6a' }}>
+                {growthLatest ? `${growthLatest.height_cm ?? '-'}cm · ${growthLatest.weight_kg ?? '-'}kg (${growthLatest.measured_on.slice(5)}) ▾` : '기록 추가 ▾'}
+              </span>
+            </button>
+            {gOpen && (
+              <div className="mt-3">
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  <input value={gH} onChange={(e) => setGH(e.target.value)} inputMode="decimal" placeholder="키 cm"
+                    className="px-3 py-2.5 rounded-lg text-sm outline-none" style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
+                  <input value={gW} onChange={(e) => setGW(e.target.value)} inputMode="decimal" placeholder="몸무게 kg"
+                    className="px-3 py-2.5 rounded-lg text-sm outline-none" style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
+                </div>
+                <div className="text-[11px] mb-1.5" style={{ color: '#8a7a6a' }}>성별 <span style={{ color: '#9CA3AF' }}>(BMI 또래 비교용 · 1회)</span></div>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  {[{ v: 'M', l: '👦 남아' }, { v: 'F', l: '👧 여아' }].map((o) => (
+                    <button key={o.v} onClick={() => setSex(o.v as 'M' | 'F')} className="rounded-lg py-2 text-sm font-bold transition"
+                      style={{ background: sex === o.v ? '#1a2b4a' : '#FAFAF7', color: sex === o.v ? 'white' : '#6B7280', border: `1.5px solid ${sex === o.v ? '#1a2b4a' : '#E5E7EB'}` }}>{o.l}</button>
+                  ))}
+                </div>
+                <button onClick={saveGrowth} className="w-full py-2.5 rounded-lg text-sm font-extrabold text-white" style={{ background: gSaved ? '#16A085' : '#FF6B1A' }}>
+                  {gSaved ? '✓ 저장됐어요' : '오늘 체위 저장'}
+                </button>
+                <p className="text-[10px] mt-1.5" style={{ color: '#9CA3AF' }}>홈 36종 모달의 BMI·또래 퍼센타일에 반영돼요 (WHO 성장도표 기준)</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* 0단계: 먹는 장소 (집/기관) — 정량은 전부 집계, 정성 코칭은 집 끼니·기관 거부에 포커스 */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
           <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>어디서 먹었나요?</h3>

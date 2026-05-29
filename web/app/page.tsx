@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal } from '@/lib/nutrition';
+import { bmiOf, bmiPercentile, bmiBand, type Sex } from '@/lib/growth-reference';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
@@ -59,6 +60,8 @@ export default function Home() {
   const [signals, setSignals] = useState<NutrientSignal[]>([]);
   const [kdri, setKdri] = useState<KdriSignal[]>([]);   // 36종 KDRI 신호등 (실데이터)
   const [showNutri, setShowNutri] = useState(false);    // 36종 자세히 모달
+  const [growth, setGrowth] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string } | null>(null);
+  const [childMeta, setChildMeta] = useState<{ sex: Sex | null; birthY: number | null; birthM: number | null }>({ sex: null, birthY: null, birthM: null });
   const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
   const [ingredientCount, setIngredientCount] = useState(0);
   const [refused, setRefused] = useState<string[]>([]);
@@ -81,9 +84,16 @@ export default function Home() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setLoggedIn(true);
-        const { data: child } = await supabase.from('children').select('id,nickname,age_band').eq('parent_id', user.id).limit(1).maybeSingle();
+        const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month').eq('parent_id', user.id).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
+          setChildMeta({ sex: null, birthY: child.birth_year ?? null, birthM: child.birth_month ?? null });
+          // 성별·체위 — 마이그레이션 전이면 컬럼/테이블이 없을 수 있어 분리 쿼리(실패해도 메인 로드 무영향)
+          supabase.from('children').select('sex').eq('id', child.id).maybeSingle()
+            .then(({ data }) => { if (data?.sex) setChildMeta((m) => ({ ...m, sex: data.sex as Sex })); });
+          supabase.from('growth_logs').select('height_cm,weight_kg,measured_on')
+            .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(1).maybeSingle()
+            .then(({ data }) => { if (data) setGrowth(data); });
           const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus,place').eq('child_id', child.id).gte('log_date', dates[6]);
           const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
           const homeRef: string[] = []; const daycareRef: string[] = [];   // 거부를 장소별로 분리 (코칭엔진 스펙 §3)
@@ -190,6 +200,27 @@ export default function Home() {
   const kR = kdriView.filter((n) => n.status === 'red').length;
   const kRef = kdriView.filter((n) => n.status === 'reference').length;
   const kReds = kdriView.filter((n) => n.status === 'red').map((n) => n.nm);
+
+  // 탄·단·지 + BMI 종합 (36종 모달 상단) — 실데이터: 최신 체위 + 성별 + 월령
+  const macroOf = (nm: string) => kdriView.find((n) => n.nm === nm)?.status ?? 'reference';
+  const ageMonths = childMeta.birthY && childMeta.birthM
+    ? (new Date().getFullYear() - childMeta.birthY) * 12 + (new Date().getMonth() + 1 - childMeta.birthM)
+    : null;
+  const bmiVal = growth?.height_cm && growth?.weight_kg ? bmiOf(growth.height_cm, growth.weight_kg) : null;
+  const bmiPct = bmiVal != null && childMeta.sex && ageMonths != null ? bmiPercentile(bmiVal, childMeta.sex, ageMonths) : null;
+  type MStat = 'green' | 'yellow' | 'red' | 'reference';
+  const bmiCard: null | { ageLabel: string; hw: string; bmi: number; band: string; pct: number | null; carb: MStat; protein: MStat; fat: MStat; tip: string } = isMockup
+    ? { ageLabel: '만 28개월', hw: '88.5cm / 12.4kg', bmi: 15.8, band: '정상', pct: 18, carb: 'green', protein: 'green', fat: 'yellow', tip: 'BMI 정상 범위 — 매일 먹지만 지방 양이 다소 부족해요. 견과류·아보카도·등푸른생선(EPA+DHA)으로 보강하면 좋아요.' }
+    : bmiVal != null && bmiPct != null
+      ? { ageLabel: ageMonths != null ? `만 ${ageMonths}개월` : '', hw: `${growth!.height_cm}cm / ${growth!.weight_kg}kg`, bmi: Math.round(bmiVal * 10) / 10, band: bmiBand(bmiPct), pct: Math.round(bmiPct), carb: macroOf('탄수화물'), protein: macroOf('단백질'), fat: 'reference', tip: `또래 ${Math.round(bmiPct)}%ile · ${bmiBand(bmiPct)} (WHO 성장도표 기준). 탄수화물·단백질은 식단 빈도로 평가했어요.` }
+      : null;
+  const MSTAT: Record<MStat, { label: string; color: string; bar: string; w: number }> = {
+    green: { label: '적정', color: '#1B5E20', bar: '#16A085', w: 85 },
+    yellow: { label: '조금 부족', color: '#F57F17', bar: '#F9A825', w: 55 },
+    red: { label: '부족', color: '#C62828', bar: '#E53935', w: 30 },
+    reference: { label: '기준 참고', color: '#9CA3AF', bar: '#CBD5E1', w: 50 },
+  };
+  const BAND_POS: Record<string, number> = { '저체중': 12, '정상': 50, '과체중': 88, '비만': 96 };
 
   // 최근 N일 식단 진단 한줄 — AI 생성 우선, 없으면 방법론 규칙 폴백
   const ruleOneLiner = isMockup
@@ -436,6 +467,41 @@ export default function Home() {
               <div className="mt-3 text-[10.5px] leading-relaxed rounded-lg px-3 py-2" style={{ background: '#FAFAF7', color: '#6B7280' }}>정확한 섭취량 측정 대신 <strong style={{ color: '#1a2b4a' }}>&ldquo;이번 주 식단표에서 얼마나 자주 만났나&rdquo;</strong> 빈도로 평가해요</div>
             </div>
             <div className="px-5 py-4">
+              {/* 탄·단·지 + BMI 종합 */}
+              {bmiCard ? (
+                <div className="rounded-2xl p-4 mb-4" style={{ background: 'linear-gradient(135deg,#FFF8F2,#FFF1E6)', border: '1.5px solid #FFD8B0' }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <strong className="text-sm" style={{ color: '#1a2b4a' }}>💪 탄·단·지 + BMI 종합</strong>
+                    <span className="text-[11px] font-bold" style={{ color: '#C45A00' }}>{[bmiCard.ageLabel, bmiCard.hw].filter(Boolean).join(' · ')}</span>
+                  </div>
+                  {/* BMI */}
+                  <div className="rounded-xl bg-white p-3 mb-2.5" style={{ border: '1px solid #F0E0D0' }}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>BMI {bmiCard.bmi}</span>
+                      <span className="text-[11px] font-bold" style={{ color: bmiCard.band === '정상' ? '#1B5E20' : '#C45A00' }}>{bmiCard.band}{bmiCard.pct != null ? ` · 또래 ${bmiCard.pct}%ile` : ''}</span>
+                    </div>
+                    <div className="relative h-2 rounded-full" style={{ background: 'linear-gradient(90deg,#FFCDD2 0%,#FFE082 22%,#C8E6C9 40% 70%,#FFE082 88%,#FFCDD2 100%)' }}>
+                      <div className="absolute -top-1 w-2 h-4 rounded-full" style={{ left: `calc(${BAND_POS[bmiCard.band] ?? 50}% - 4px)`, background: '#1a2b4a', border: '1.5px solid white' }} />
+                    </div>
+                    <div className="flex justify-between text-[9.5px] font-bold mt-1.5" style={{ color: '#9CA3AF' }}><span>저체중</span><span>정상</span><span>과체중</span></div>
+                  </div>
+                  {/* 탄·단·지 바 */}
+                  {([['탄수화물', '🍚', bmiCard.carb], ['단백질', '🥩', bmiCard.protein], ['지방', '🥑', bmiCard.fat]] as [string, string, MStat][]).map(([nm, em, st]) => (
+                    <div key={nm} className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[12px] font-semibold flex-shrink-0" style={{ color: '#1a2b4a', width: '64px' }}>{em} {nm}</span>
+                      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#F0F0F0' }}><div style={{ width: `${MSTAT[st].w}%`, height: '100%', background: MSTAT[st].bar }} /></div>
+                      <span className="text-[10.5px] font-bold text-right flex-shrink-0" style={{ color: MSTAT[st].color, width: '54px' }}>{MSTAT[st].label}</span>
+                    </div>
+                  ))}
+                  <div className="mt-2.5 rounded-lg px-3 py-2 text-[10.5px] leading-relaxed font-semibold" style={{ background: '#FFF', color: '#C45A00', border: '1px solid #FFE0C0' }}>💡 {bmiCard.tip}</div>
+                </div>
+              ) : (
+                <a href="/care" className="block rounded-2xl p-4 mb-4 text-center" style={{ background: '#FFF8F2', border: '1.5px dashed #FFD0A0' }}>
+                  <div className="text-sm font-extrabold mb-1" style={{ color: '#C45A00' }}>📏 키·몸무게를 기록해보세요</div>
+                  <div className="text-[11.5px]" style={{ color: '#8a7a6a' }}>BMI·또래 퍼센타일(WHO 성장도표)을 보여드려요 — 식사 기록 화면에서 입력 →</div>
+                </a>
+              )}
+
               {[
                 { key: 'red', label: '🔴 결핍 위험', color: '#C62828', bar: '#E53935' },
                 { key: 'yellow', label: '🟡 조금 부족', color: '#F57F17', bar: '#F9A825' },
