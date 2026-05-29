@@ -112,6 +112,7 @@ export default function CarePage() {
   const [personalMap, setPersonalMap] = useState<Record<string, string[]>>({});
   // 체위(키·몸무게) 시계열 — 언제든 입력. 홈 36종 모달 BMI·퍼센타일에 반영
   const [sex, setSex] = useState<'M' | 'F' | ''>('');
+  const [daycare, setDaycare] = useState(false);   // 등원 — 평일 점심·간식은 기관 끼니(코칭 반영)
   const [growthLatest, setGrowthLatest] = useState<{ measured_on: string; height_cm: number | null; weight_kg: number | null } | null>(null);
   const [gOpen, setGOpen] = useState(false);
   const [gH, setGH] = useState(''); const [gW, setGW] = useState(''); const [gSaved, setGSaved] = useState(false);
@@ -143,6 +144,8 @@ export default function CarePage() {
       // 성별·체위 — 마이그레이션 전이면 컬럼/테이블이 없을 수 있어 분리 쿼리(실패해도 무영향)
       supabase.from('children').select('sex').eq('id', child.id).maybeSingle()
         .then(({ data }) => { if (data?.sex) setSex(data.sex); });
+      supabase.from('children').select('daycare').eq('id', child.id).maybeSingle()
+        .then(({ data }) => { if (data) setDaycare(!!data.daycare); });
       supabase.from('growth_logs').select('measured_on,height_cm,weight_kg')
         .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(1).maybeSingle()
         .then(({ data }) => { if (data) { setGrowthLatest(data); setGH(data.height_cm != null ? String(data.height_cm) : ''); setGW(data.weight_kg != null ? String(data.weight_kg) : ''); } });
@@ -363,6 +366,11 @@ export default function CarePage() {
     setGSaved(true); setTimeout(() => setGSaved(false), 1500);
   }
 
+  async function saveDaycare(v: boolean) {
+    setDaycare(v);
+    if (childId) supabase.from('children').update({ daycare: v }).eq('id', childId).then(({ error }) => { if (error) console.warn('[daycare] save:', error.message); });
+  }
+
   async function saveEntry() {
     const next = { ...logs };
     if (!next[date]) next[date] = {};
@@ -494,6 +502,21 @@ export default function CarePage() {
                 <p className="text-[10px] mt-1.5" style={{ color: '#9CA3AF' }}>홈 36종 모달의 BMI·또래 퍼센타일에 반영돼요 (WHO 성장도표 기준)</p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* 등원 여부 — 평일 점심·간식은 기관 끼니로 코칭이 판단 (코칭엔진 스펙 §3) */}
+        {userId && (
+          <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>🏫 어린이집·유치원 다녀요</h3>
+                <p className="text-[10.5px] mt-0.5" style={{ color: '#8a7a6a' }}>평일 점심·간식은 기관 끼니로 — 코칭은 집 아침·저녁에 집중해요</p>
+              </div>
+              <button onClick={() => saveDaycare(!daycare)} aria-label="등원 여부" className="transition" style={{ width: 46, height: 26, borderRadius: 100, background: daycare ? '#16A085' : '#E5E7EB', position: 'relative', flexShrink: 0, border: 'none' }}>
+                <span style={{ position: 'absolute', top: 3, left: daycare ? 23 : 3, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left .15s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+              </button>
+            </div>
           </div>
         )}
 

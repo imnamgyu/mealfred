@@ -92,6 +92,10 @@ export async function GET(req: Request) {
     (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string }) => { kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band }; });
     const { data: todayQs } = await supabase.from('daily_questions').select('child_id').eq('q_date', today).in('child_id', activeIds);
     const hasQToday = new Set((todayQs || []).map((q: { child_id: string }) => q.child_id));
+    // 등원 여부 — daycare 컬럼 마이그레이션 전이면 에러(컬럼없음) → 전부 false로 안전 처리
+    const daycareMap: Record<string, boolean> = {};
+    const { data: dcRows, error: dcErr } = await supabase.from('children').select('id,daycare').in('id', activeIds);
+    if (!dcErr) (dcRows || []).forEach((r: { id: string; daycare: boolean | null }) => { daycareMap[r.id] = !!r.daycare; });
 
     for (const cid of activeIds) {
       // maxDuration 전 안전 종료 — 남은 자녀는 다음 실행(오래된 순)이 이어받음
@@ -148,7 +152,7 @@ export async function GET(req: Request) {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
             notes, refused: uniqRef, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
-            timeseries: ts, pastLetters,
+            timeseries: ts, attendsDaycare: daycareMap[cid], pastLetters,
           });
           letter = gen.letter; oneliner = gen.oneliner;
         }
@@ -168,7 +172,7 @@ export async function GET(req: Request) {
           const pastQA = (pastQ || []).map((p: { question: string; answer: string | null }) => ({ q: p.question, a: p.answer || '' }));
           const q = await generateQuestion({
             childName: meta.nickname, ageBand: meta.age_band,
-            recentMeals, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], refused: uniqRef, pastQA,
+            recentMeals, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], refused: uniqRef, attendsDaycare: daycareMap[cid], pastQA,
           });
           if (q.question) {
             await supabase.from('daily_questions').upsert(

@@ -104,6 +104,7 @@ export type LetterInput = {
   homeRefused?: string[];          // 집에서 거부 (재노출 대상)
   daycareRefused?: string[];       // 기관에서 거부 (집에서 재노출 대상)
   timeseries?: string[];           // 시계열 사실 (분석이 계산한 문장들)
+  attendsDaycare?: boolean;        // 어린이집·유치원 등원 — 평일 점심·간식은 기관 끼니
   pastLetters?: { date: string; letter: string }[];
 };
 
@@ -125,7 +126,8 @@ function buildLetterUser(b: LetterInput): string {
 최근 거부한 음식(전체): ${refused.length ? refused.join(', ') : '없음'}
 집에서 거부(부모가 재노출 가능): ${home.length ? home.join(', ') : '없음'}
 기관에서 거부(집에서 재노출로 도울 수 있음): ${daycare.length ? daycare.join(', ') : '없음'}
-시계열 사실: ${ts.length ? ts.join(' / ') : '없음'}
+시계열 사실: ${ts.length ? ts.join(' / ') : '없음'}${b.attendsDaycare ? `
+등원: 어린이집·유치원에 다녀 평일 점심·오전/오후 간식은 기관에서 먹습니다(메뉴는 부모가 못 바꿈). 행동 제안은 집 아침·저녁 끼니와, 기관에서 거부한 식재료를 집에서 다시 만나게 하는 것에만 두세요.` : ''}
 부모 메모: ${fenceNotes(b.notes || [])}`;
 
   // 연속성: 날짜 대신 순서 라벨만 제공 (LLM이 날짜로 경과일을 추정하지 못하게 — P4)
@@ -160,6 +162,7 @@ export type QuestionInput = {
   refused?: string[];
   homeRefused?: string[];            // 집에서 거부 (부담 없이 다시 만나기 권유 대상)
   daycareRefused?: string[];         // 기관에서 거부 (집 재노출 대상)
+  attendsDaycare?: boolean;          // 등원 — 평일 점심·간식은 기관
   pastQA?: { q: string; a: string }[];
 };
 
@@ -189,7 +192,7 @@ function buildQuestionUser(b: QuestionInput): string {
 
 ${QUESTION_TOPICS}
 
-[아이] ${name} (${age})
+[아이] ${name} (${age})${b.attendsDaycare ? ' · 어린이집·유치원 등원(평일 점심·간식은 기관)' : ''}
 [최근 로그한 음식 — 이 중 실제 음식 하나를 짚어 질문]
 ${mealLines}
 [집에서 거부(부담 없이 다시 만나기 권유 대상)] ${home.length ? home.join(', ') : '없음'}

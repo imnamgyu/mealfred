@@ -122,6 +122,44 @@ export const NUTRIENT_FOODS: Record<string, string[]> = {
   '비타민E': ['아몬드', '호두', '시금치'],
 };
 
+// ── 식품군 다양성 신호등 (충분/조금부족/부족) ──────────────────────────────
+// 기준: "기록일 중 그 식품군이 며칠 등장했나" → 주간 추정 빈도(weeklyEst). 정량 측정 불가 → 빈도 평가(36종·care.html과 동일 철학).
+// 군별 목표(식약처 영유아 식생활지침 "매끼 곡류·단백질·채소, 매일 우유·과일" + WHO 8군):
+//   매일군(곡물·채소2·과일·유제품): 충분=주5+, 조금부족=주2~4, 부족=주<2
+//   로테이션군: 고기생선 충분=주5+ / 계란 주3+ / 콩류 주2+ — 부족=0회, 그 사이=조금부족
+export type GroupLevel = 'green' | 'yellow' | 'red';
+export type GroupSignal = { group: string; level: GroupLevel; weeklyEst: number };
+const GROUP_TARGET: Record<string, { green: number; type: 'daily' | 'rotation' }> = {
+  '곡물': { green: 5, type: 'daily' }, '비타민A채소': { green: 5, type: 'daily' }, '기타채소': { green: 5, type: 'daily' },
+  '과일': { green: 5, type: 'daily' }, '유제품': { green: 5, type: 'daily' },
+  '고기생선': { green: 5, type: 'rotation' }, '계란': { green: 3, type: 'rotation' }, '콩류': { green: 2, type: 'rotation' },
+};
+function groupOf(ing: string, catOf?: CatOf): string | undefined {
+  return FOOD_GROUP[ing] || (catOf && CATEGORY_GROUP[catOf(ing) || '']);
+}
+export function computeGroupSignals(ingredientsByDay: string[][], catOf?: CatOf): { signals: GroupSignal[]; proteinOk: boolean } {
+  const totalDays = ingredientsByDay.length || 1;
+  const cover: Record<string, number> = {};
+  let proteinDays = 0;
+  ingredientsByDay.forEach((day) => {
+    const set = new Set<string>();
+    day.forEach((ing) => { const g = groupOf(ing, catOf); if (g) set.add(g); });
+    set.forEach((g) => { cover[g] = (cover[g] || 0) + 1; });
+    if (set.has('고기생선') || set.has('계란') || set.has('콩류')) proteinDays++;
+  });
+  const signals = ALL_GROUPS.map((g): GroupSignal => {
+    const d = cover[g] || 0;
+    const weeklyEst = Math.round((d / totalDays) * 7 * 10) / 10;
+    const t = GROUP_TARGET[g];
+    let level: GroupLevel;
+    if (t.type === 'daily') level = weeklyEst >= t.green ? 'green' : weeklyEst >= 2 ? 'yellow' : 'red';
+    else level = d === 0 ? 'red' : weeklyEst >= t.green ? 'green' : 'yellow';
+    return { group: g, level, weeklyEst };
+  });
+  const proteinOk = (proteinDays / totalDays) * 7 >= 5;  // 단백질 총괄: 고기생선·계란·콩 중 매일 ≥1군
+  return { signals, proteinOk };
+}
+
 export type NutrientSignal = { nutrient: string; daysCovered: number; level: 'green' | 'yellow' | 'red' };
 
 /**

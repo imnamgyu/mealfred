@@ -7,7 +7,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal, type GroupSignal } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, type Sex } from '@/lib/growth-reference';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
@@ -63,6 +63,7 @@ export default function Home() {
   const [growth, setGrowth] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string } | null>(null);
   const [childMeta, setChildMeta] = useState<{ sex: Sex | null; birthY: number | null; birthM: number | null }>({ sex: null, birthY: null, birthM: null });
   const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
+  const [groupSig, setGroupSig] = useState<{ signals: GroupSignal[]; proteinOk: boolean }>({ signals: [], proteinOk: false });
   const [ingredientCount, setIngredientCount] = useState(0);
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
@@ -112,6 +113,7 @@ export default function Home() {
           setDays(byDay.length);
           setSignals(sig);
           setKdri(computeKdriSignals(byDay, catOf));   // 36종 KDRI 신호등 (실데이터)
+          setGroupSig(computeGroupSignals(byDay, catOf));   // 식품군 다양성 신호등 (충분/조금부족/부족)
           setGroups(fg);
           setIngredientCount(new Set(allIng).size);
           setEatenSet(new Set(allIng));
@@ -131,6 +133,8 @@ export default function Home() {
             const today = todayStr();   // KST — 크론과 동일 앵커
             const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
             const ts = computeTimeseries(byDate, menuFreq, catOf, today, { assertNoVeg: Object.keys(catMap).length > 0 });
+            const { data: dcRow } = await supabase.from('children').select('daycare').eq('id', child.id).maybeSingle();  // 컬럼 없으면 null→false
+            const attendsDaycare = !!dcRow?.daycare;
             // 식단 지문 — 먹은 식재료·거부·부족영양·메모가 바뀌면 달라짐
             const srcHash = [...allIng].sort().join(',') + '|' + [...new Set(ref)].sort().join(',') + '|' + reds.sort().join(',') + '|' + notes.length;
             const { data: cached } = await supabase.from('coach_letters')
@@ -151,7 +155,7 @@ export default function Home() {
                   childName: child.nickname, ageBand: child.age_band,
                   recentNotes: notes, refused: [...new Set(ref)], reds,
                   homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
-                  covered: fg.covered, missing: fg.missing, timeseries: ts,
+                  covered: fg.covered, missing: fg.missing, timeseries: ts, attendsDaycare,
                   eatenCount: new Set(allIng).size, pastLetters,
                 }),
               }).then((r) => r.json()).catch(() => null);
@@ -221,6 +225,19 @@ export default function Home() {
     reference: { label: '기준 참고', color: '#9CA3AF', bar: '#CBD5E1', w: 50 },
   };
   const BAND_POS: Record<string, number> = { '저체중': 12, '정상': 50, '과체중': 88, '비만': 96 };
+
+  // 식품군 다양성 신호등 — 목업=예시 / 실데이터=computeGroupSignals (충분/조금부족/부족)
+  const GLEVEL: Record<GroupSignal['level'], { bg: string; bd: string; fg: string; lbl: string }> = {
+    green: { bg: '#E8F5E9', bd: '#16A085', fg: '#1B5E20', lbl: '충분' },
+    yellow: { bg: '#FFF4D6', bd: '#F9A825', fg: '#F57F17', lbl: '조금 부족' },
+    red: { bg: '#FFEBEE', bd: '#E53935', fg: '#C62828', lbl: '부족' },
+  };
+  const MOCK_GROUP: Record<string, GroupSignal['level']> = { '곡물': 'green', '비타민A채소': 'yellow', '기타채소': 'green', '과일': 'yellow', '유제품': 'green', '고기생선': 'green', '계란': 'yellow', '콩류': 'red' };
+  const groupLevelOf = (key: string): GroupSignal['level'] => isMockup ? (MOCK_GROUP[key] || 'red') : (groupSig.signals.find((s) => s.group === key)?.level || 'red');
+  const proteinOk = isMockup ? true : groupSig.proteinOk;
+  const gGreen = FOOD_FAMILY.filter((f) => groupLevelOf(f.key) === 'green').length;
+  const gYellow = FOOD_FAMILY.filter((f) => groupLevelOf(f.key) === 'yellow').length;
+  const gRed = FOOD_FAMILY.filter((f) => groupLevelOf(f.key) === 'red').length;
 
   // 최근 N일 식단 진단 한줄 — AI 생성 우선, 없으면 방법론 규칙 폴백
   const ruleOneLiner = isMockup
@@ -360,23 +377,28 @@ export default function Home() {
         )}
 
 
-        {/* 식재료 그룹 8 */}
+        {/* 식품군 다양성 — 충분/조금부족/부족 (빈도 기반, 색+글자 3중) */}
         <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
-          <div className="flex justify-between items-center mb-3">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>먹은 식재료 그룹</strong>
-            <span className="text-xs font-bold" style={{ color: '#C45A00' }}>{D.covered.length} / 8</span>
+          <div className="flex justify-between items-center mb-1">
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>식품군 다양성</strong>
+            <span className="text-[11px] font-extrabold"><span style={{ color: '#1B5E20' }}>🟢{gGreen}</span> <span style={{ color: '#F57F17' }}>🟡{gYellow}</span> <span style={{ color: '#C62828' }}>🔴{gRed}</span></span>
           </div>
+          <div className="text-[10px] mb-3" style={{ color: '#9CA3AF' }}>이번 주 식단표에서 얼마나 자주 만났나 · 식약처 영유아 식생활지침·WHO</div>
           <div className="grid grid-cols-4 gap-2">
             {FOOD_FAMILY.map((f) => {
-              const done = D.covered.includes(f.key);
+              const c = GLEVEL[groupLevelOf(f.key)];
               return (
-                <div key={f.key} className="rounded-xl py-2.5 text-center" style={{ background: done ? '#E8F5E9' : '#FAFAFA', border: `1.5px solid ${done ? '#16A085' : '#EEEEEE'}`, opacity: done ? 1 : 0.45 }}>
-                  <div className="text-xl leading-none mb-1" style={{ filter: done ? 'none' : 'grayscale(1)' }}>{f.em}</div>
-                  <div className="text-[10px] font-extrabold" style={{ color: done ? '#1B5E20' : '#BDBDBD' }}>{FAMILY_LABEL[f.key]}</div>
+                <div key={f.key} className="rounded-xl py-2 text-center" style={{ background: c.bg, border: `1.5px solid ${c.bd}` }}>
+                  <div className="text-xl leading-none mb-0.5">{f.em}</div>
+                  <div className="text-[9.5px] font-extrabold" style={{ color: '#374151' }}>{FAMILY_LABEL[f.key]}</div>
+                  <div className="text-[9px] font-extrabold mt-0.5" style={{ color: c.fg }}>{c.lbl}</div>
                 </div>
               );
             })}
           </div>
+          {proteinOk && (gRed > 0 || gYellow > 0) && (
+            <div className="mt-2.5 rounded-lg px-3 py-1.5 text-[10.5px] font-bold" style={{ background: '#E8F5E9', color: '#1B5E20' }}>💪 단백질은 매일 챙기고 있어요 (고기·생선·계란·콩 합산)</div>
+          )}
         </div>
 
         {/* 식감 인사이트 — 실데이터(죽 비중 40%+) or 목업 */}
