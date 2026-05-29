@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -16,6 +16,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "밀프레드 — 우리 아이 식습관 파트너",
   description: "영유아 식재료 도감 · 식단 평가 · 개인화 추천. 초등 입학 전 반드시 먹어야 할 식재료 147종.",
+};
+
+// 모바일 뷰포트 — 없으면 페이지가 device-width로 안 맞춰져 가로 넘침/좁은 컬럼 깨짐 발생
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

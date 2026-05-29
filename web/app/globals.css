@@ -56,11 +56,13 @@
   src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
 }
 
+html{ -webkit-text-size-adjust: 100%; }
 body{
   background: var(--bg-page);
   color: var(--navy);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;   /* 가로 넘침 안전망 — 어떤 요소도 뷰포트보다 넓어지지 않게 */
 }
 
 /* ━━━ Hero 표준 ━━━ */
