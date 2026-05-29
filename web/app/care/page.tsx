@@ -6,10 +6,11 @@
  * 로그인 후(M4 연동): Supabase meal_logs 테이블 저장.
  */
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import BottomNav from '@/components/BottomNav';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { normalizeIngredient } from '@/lib/lexicon';
+import { createMapper } from '@/lib/menuMapCore';
 
 type Slot = { key: string; label: string; emoji: string; time: string };
 const SLOTS: Slot[] = [
@@ -89,8 +90,12 @@ export default function CarePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [childId, setChildId] = useState<string | null>(null);
   const [dailyQ, setDailyQ] = useState<{ question: string; chips: string[]; answer: string } | null>(null);
+  // 개인 캐시 — 로그인 시 받아둔 그 엄마의 메뉴→식재료(교정/최근). 입력 즉시 해석(네트워크 0)
+  const [personalMap, setPersonalMap] = useState<Record<string, string[]>>({});
   const inputRef = useRef<HTMLInputElement>(null);
   const supabase = createSupabaseBrowser();
+  // 클라 전역 매퍼 — 로드된 풀로 흔한 메뉴를 네트워크 없이 즉시 분해
+  const mapper = useMemo(() => createMapper(pool.map((p) => p.nm)), [pool]);
 
   // 식재료 풀 로드 + localStorage 우선 표시
   useEffect(() => {
@@ -112,6 +117,16 @@ export default function CarePage() {
         .select('id').eq('parent_id', user.id).limit(1).maybeSingle();
       if (!child) return;  // 자녀 없음 (onboarding 필요)
       setChildId(child.id);
+
+      // 개인 캐시 프리로드 — 그 엄마의 메뉴 교정(user_menu_overrides) 전부.
+      // 입력 시 이 캐시 → 클라 매퍼 → (둘 다 미스면) 비동기 LLM 순으로 해석해 네트워크를 최대한 안 탄다.
+      supabase.from('user_menu_overrides').select('menu,ingredients').eq('parent_id', user.id)
+        .then(({ data }) => {
+          if (!data) return;
+          const pm: Record<string, string[]> = {};
+          data.forEach((o: { menu: string; ingredients: string[] | null }) => { if (o.menu && o.ingredients?.length) pm[o.menu] = o.ingredients; });
+          setPersonalMap(pm);
+        });
 
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
@@ -142,6 +157,21 @@ export default function CarePage() {
       }
 
       setLogs(cloud);
+
+      // 최근 30일 '단일 메뉴' 기록 → 메뉴→식재료 캐시. override 아닌 미지 메뉴도
+      // 재입력 시 즉시 뜨고 재-LLM을 막는다. (단일 메뉴 행만 = 깔끔한 귀속)
+      const cut = new Date(); cut.setDate(cut.getDate() - 30);
+      const cutStr = cut.toISOString().slice(0, 10);
+      const recent: Record<string, string[]> = {};
+      (rows || []).forEach((r: MealRow) => {
+        if (!r.log_date || r.log_date < cutStr) return;
+        const ms = r.menus || []; const ings = r.ingredients || [];
+        if (ms.length === 1 && ings.length) {
+          const k = ms[0].replace(/\s/g, '');
+          if (k) recent[k] = [...new Set(ings.map(normalizeIngredient).filter(Boolean))];
+        }
+      });
+      if (Object.keys(recent).length) setPersonalMap((pm) => ({ ...recent, ...pm }));  // 교정(override)이 이김
 
       // 오늘의 질문 — 있으면 read, 없으면 LLM 생성·캐싱 (식사 기록 = 상담 창구)
       const today = todayStr();
@@ -197,37 +227,40 @@ export default function CarePage() {
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
 
-  // 메뉴명 입력 → (사용자 커스텀 우선) → AI 분해 → 식재료 태그 자동 추가
+  // 분해된 식재료를 정규화·중복제거해 태그로 추가 (메뉴 출처 표시)
+  function applyMenuTags(key: string, ingredients: string[]) {
+    const names = [...new Set(ingredients.map(normalizeIngredient).filter(Boolean))];
+    setEntry((e) => {
+      const add = names.filter((nm) => !e.ingredients.some((x) => x.name === nm)).map((nm) => ({ name: nm, ai: true, fromMenu: key } as Tag));
+      return { ...e, ingredients: [...e.ingredients, ...add] };
+    });
+  }
+
+  // 메뉴명 입력 → 식재료 자동 분해.
+  // 0) 개인 캐시(엄마 교정) → 1) 클라 전역 매퍼 → 둘 다 즉시(네트워크 0).
+  // 2) 둘 다 미스인 미지 메뉴만 비동기 LLM. 메뉴 태그는 항상 즉시 뜨고 식재료만 나중에 채움.
   async function addMenu(menu: string) {
     const m = menu.trim();
     if (!m) return;
     const key = m.replace(/\s/g, '');
     setMenuInput('');
-    setEntry((e) => ({ ...e, menus: [...e.menus, m] }));
+    setEntry((e) => ({ ...e, menus: [...e.menus, m] }));   // 메뉴 즉시 표시(선입력)
+
+    // 0) 개인 캐시 (그 엄마가 전에 확정한 그 메뉴)
+    if (personalMap[key]?.length) { applyMenuTags(key, personalMap[key]); return; }
+    // 1) 클라 전역 매퍼 (흔한 메뉴 — 즉시)
+    const local = mapper.mapMenu(m);
+    if (local) { applyMenuTags(key, local.ingredients); return; }
+
+    // 2) 미지 메뉴만 비동기 LLM (그동안 메뉴 태그는 이미 떠 있음)
     setParsing(true);
     try {
-      const EXCLUDE = ['물', '육수', '소금', '간장', '설탕', '식용유', '참기름'];
-      let ingredients: string[] = [];
-
-      // 1) 사용자 커스텀 override 우선
-      if (userId) {
-        const { data: ov } = await supabase.from('user_menu_overrides')
-          .select('ingredients').eq('parent_id', userId).eq('menu', key).maybeSingle();
-        if (ov?.ingredients?.length) ingredients = ov.ingredients;
-      }
-      // 2) 없으면 AI 분해
-      if (!ingredients.length) {
-        const resp = await fetch(MEAL_PARSE_API, {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ menu: m }),
-        });
-        const data = await resp.json();
-        ingredients = (data.ingredients || []).filter((nm: string) => !EXCLUDE.includes(nm));
-      }
-      const newTags: Tag[] = [...new Set(ingredients.map(normalizeIngredient).filter(Boolean))]
-        .filter((nm) => !hasName(nm))
-        .map((nm) => ({ name: nm, ai: true, fromMenu: key }));
-      setEntry((e) => ({ ...e, ingredients: [...e.ingredients, ...newTags.filter((t) => !e.ingredients.some((x) => x.name === t.name))] }));
+      const resp = await fetch(MEAL_PARSE_API, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ menu: m }),
+      });
+      const data = await resp.json();
+      applyMenuTags(key, data.ingredients || []);
     } catch {
       // 분해 실패해도 메뉴명은 남음
     } finally {
@@ -242,6 +275,7 @@ export default function CarePage() {
   // 메뉴 커스텀 저장 (피드백 루프) — 그 사용자의 해당 메뉴 식재료를 기억
   async function saveMenuOverride(menuKey: string, names: string[]) {
     if (!userId || !menuKey) return;
+    setPersonalMap((pm) => ({ ...pm, [menuKey]: names }));   // 개인 캐시 즉시 갱신(같은 세션 재입력 일관성)
     await supabase.from('user_menu_overrides').upsert(
       { parent_id: userId, menu: menuKey, ingredients: names, updated_at: new Date().toISOString() },
       { onConflict: 'parent_id,menu' }
