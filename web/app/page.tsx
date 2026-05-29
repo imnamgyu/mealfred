@@ -222,7 +222,7 @@ export default function Home() {
         {/* 영양 점수 카드 (맨 위) */}
         <div className="rounded-2xl p-5 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFFDF5)', border: `1.5px solid ${grade.color}` }}>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold" style={{ color: '#6B7280' }}>━ 우리 아이 영양 점수 ━</span>
+            <span className="text-[11px] font-bold" style={{ color: '#6B7280' }}>━ {D.name} 영양 점수 ━</span>
             <span className="text-xs font-extrabold px-3 py-1 rounded-full text-white" style={{ background: grade.color }}>{grade.g} {grade.label}</span>
           </div>
           <div className="flex items-end justify-between mb-3">
