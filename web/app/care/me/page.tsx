@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
+import { billingOf } from '@/lib/billing';
+import { kstToday } from '@/lib/date';
 
 type Child = { nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null };
 const AGE_LABEL: Record<string, string> = {
@@ -68,6 +70,24 @@ export default function MePage() {
                 <a href="/onboarding" className="inline-block mt-3 text-xs font-bold" style={{ color: '#FF6B1A' }}>아이 정보 추가/수정 →</a>
               </div>
             ) : (
+              <></>
+            )}
+
+            {/* 구독 상태 — 프로모(초등2 졸업까지 무료) 표기 */}
+            {child?.birth_year ? (() => {
+              const b = billingOf(child.birth_year, kstToday());
+              return (
+                <div className="rounded-2xl p-4 mb-3 border" style={{ background: b.plan === 'promo_free' ? '#FFF8F0' : '#FFFFFF', borderColor: '#FFE8D0' }}>
+                  <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독</div>
+                  <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>{b.label}</div>
+                  {b.plan === 'promo_free' && (
+                    <div className="text-[11px] mt-1" style={{ color: '#9CA3AF' }}>6월 가입 혜택 · 종료 후 아이 1명당 월 {(1900).toLocaleString()}원</div>
+                  )}
+                </div>
+              );
+            })() : null}
+
+            {!child && (
               <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border text-center" style={{ borderColor: '#FFE8D0' }}>
                 <p className="text-sm mb-2" style={{ color: '#8a7a6a' }}>아직 아이 정보가 없어요</p>
                 <a href="/onboarding" className="inline-block px-4 py-2 rounded-lg text-sm font-bold text-white" style={{ background: '#FF6B1A' }}>아이 등록하기</a>

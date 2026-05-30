@@ -12,6 +12,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { normalizeIngredient } from '@/lib/lexicon';
 import { createMapper } from '@/lib/menuMapCore';
 import { kstToday } from '@/lib/date';
+import { computeMealDefaults, pickDefault, type MealDefaults } from '@/lib/mealDefaults';
 
 type Slot = { key: string; label: string; emoji: string; time: string };
 const SLOTS: Slot[] = [
@@ -124,6 +125,20 @@ export default function CarePage() {
   const [gOpen, setGOpen] = useState(false);
   const [gH, setGH] = useState(''); const [gW, setGW] = useState(''); const [gSaved, setGSaved] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mealDefaultsRef = useRef<MealDefaults | null>(null);   // 끼니×주중주말 패턴 prefill (본인 기록서 계산)
+  const [hasPattern, setHasPattern] = useState(false);          // prefill 단서 존재 → "지난 패턴으로 채움" 힌트용
+
+  // emptyEntry + 개인 패턴(장소·시간·식감) 덮어쓰기 → 새 입력 폼 prefill
+  function freshEntry(slot: string, dateStr: string): MealEntry {
+    const base = emptyEntry(slot, dateStr);
+    const d = pickDefault(mealDefaultsRef.current, slot, dateStr);
+    return {
+      ...base,
+      place: (d.place as PlaceVal) || base.place,
+      mealTime: d.mealTime ?? base.mealTime,
+      texture: d.texture ?? base.texture,
+    };
+  }
   const supabase = createSupabaseBrowser();
   // 클라 전역 매퍼 — 로드된 풀로 흔한 메뉴를 네트워크 없이 즉시 분해
   const mapper = useMemo(() => createMapper(pool.map((p) => p.nm)), [pool]);
@@ -196,6 +211,11 @@ export default function CarePage() {
       }
 
       setLogs(cloud);
+
+      // 끼니×주중주말 패턴 prefill 계산 (본인 전체 기록) — 새 입력 폼 장소·시간·식감 미리채움
+      const md = computeMealDefaults((rows || []).map((r: MealRow) => ({ slot: r.slot, log_date: r.log_date, place: r.place, meal_time: r.meal_time, texture: r.texture })));
+      mealDefaultsRef.current = md;
+      setHasPattern(Object.keys(md).length > 0);
 
       // 최근 30일 '단일 메뉴' 기록 → 메뉴→식재료 캐시. override 아닌 미지 메뉴도
       // 재입력 시 즉시 뜨고 재-LLM을 막는다. (단일 메뉴 행만 = 깔끔한 귀속)
@@ -279,10 +299,10 @@ export default function CarePage() {
     return () => clearInterval(id);
   }, [ocrBusy]);
 
-  // 슬롯·날짜 바뀌면 기존 기록 불러오기
+  // 슬롯·날짜 바뀌면 기존 기록 불러오기 (없으면 개인 패턴으로 prefill된 빈 폼)
   useEffect(() => {
     const dayLog = logs[date] || {};
-    setEntry(dayLog[activeSlot] || emptyEntry(activeSlot, date));
+    setEntry(dayLog[activeSlot] || freshEntry(activeSlot, date));
   }, [date, activeSlot, logs]);
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
@@ -633,7 +653,12 @@ export default function CarePage() {
 
         {/* 0단계: 먹는 장소 (집/기관) — 정량은 전부 집계, 정성 코칭은 집 끼니·기관 거부에 포커스 */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>어디서 먹었나요?</h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>어디서 먹었나요?</h3>
+            {hasPattern && !logs[date]?.[activeSlot] && (
+              <span className="text-[10.5px] font-bold" style={{ color: '#16A085' }}>🔁 지난 패턴으로 채움</span>
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-2">
             {PLACE_OPTS.map((o) => {
               const on = entry.place === o.v;
