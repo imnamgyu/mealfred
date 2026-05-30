@@ -19,10 +19,16 @@ export function dayTypeOf(dateStr: string): DayType {
   return dow === 0 || dow === 6 ? 'weekend' : 'weekday';
 }
 
-export type SlotDefault = { place?: string | null; mealTime?: number | null; texture?: string | null };
+export type SlotDefault = {
+  place?: string | null; mealTime?: number | null; texture?: string | null;
+  autonomy?: string | null; environment?: string | null; durationMin?: number | null;
+};
 export type MealDefaults = Record<string, Partial<Record<DayType, SlotDefault>>>; // slot → daytype → 최빈값
 
-type HistRow = { slot: string; log_date: string; place?: string | null; meal_time?: number | null; texture?: string | null };
+type HistRow = {
+  slot: string; log_date: string; place?: string | null; meal_time?: number | null; texture?: string | null;
+  autonomy?: string | null; environment?: string | null; duration_min?: number | null;
+};
 
 // 최빈값(가장 자주 나온 값) — 동률이면 먼저 본 값. null/빈값은 무시.
 function mode<T>(vals: (T | null | undefined)[]): T | null {
@@ -51,6 +57,9 @@ export function computeMealDefaults(rows: HistRow[]): MealDefaults {
       place: mode(rs.map((r) => r.place)),
       mealTime: mode(rs.map((r) => r.meal_time)),
       texture: mode(rs.map((r) => r.texture)),
+      autonomy: mode(rs.map((r) => r.autonomy)),
+      environment: mode(rs.map((r) => r.environment)),
+      durationMin: mode(rs.map((r) => r.duration_min)),
     };
   }
   return out;
@@ -67,5 +76,8 @@ export function pickDefault(defaults: MealDefaults | null | undefined, slot: str
     place: here.place ?? back.place ?? null,
     mealTime: here.mealTime ?? back.mealTime ?? null,
     texture: here.texture ?? back.texture ?? null,
+    autonomy: here.autonomy ?? back.autonomy ?? null,
+    environment: here.environment ?? back.environment ?? null,
+    durationMin: here.durationMin ?? back.durationMin ?? null,
   };
 }

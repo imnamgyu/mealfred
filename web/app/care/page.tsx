@@ -109,6 +109,8 @@ export default function CarePage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [childId, setChildId] = useState<string | null>(null);
   const [dailyQ, setDailyQ] = useState<{ question: string; chips: string[]; answer: string } | null>(null);
+  const [qInput, setQInput] = useState('');         // 오늘의 질문 수동 입력
+  const [answeredNow, setAnsweredNow] = useState(false);   // 이번 세션에 답함 → 슬림 확인만
   // 개인 캐시 — 로그인 시 받아둔 그 엄마의 메뉴→식재료(교정/최근). 입력 즉시 해석(네트워크 0)
   const [personalMap, setPersonalMap] = useState<Record<string, string[]>>({});
   // 체위(키·몸무게) 시계열 — 언제든 입력. 홈 36종 모달 BMI·퍼센타일에 반영
@@ -133,10 +135,13 @@ export default function CarePage() {
     const base = emptyEntry(slot, dateStr);
     const d = pickDefault(mealDefaultsRef.current, slot, dateStr);
     return {
-      ...base,
+      ...base,   // 음식(menus)·식재료(ingredients)는 절대 prefill 안 함 — 매번 달라지므로
       place: (d.place as PlaceVal) || base.place,
       mealTime: d.mealTime ?? base.mealTime,
       texture: d.texture ?? base.texture,
+      autonomy: d.autonomy ?? base.autonomy,
+      environment: d.environment ?? base.environment,
+      durationMin: d.durationMin ?? base.durationMin,
     };
   }
   const supabase = createSupabaseBrowser();
@@ -218,7 +223,7 @@ export default function CarePage() {
       setLogs(cloud);
 
       // 끼니×주중주말 패턴 prefill 계산 (본인 전체 기록) — 새 입력 폼 장소·시간·식감 미리채움
-      const md = computeMealDefaults((rows || []).map((r: MealRow) => ({ slot: r.slot, log_date: r.log_date, place: r.place, meal_time: r.meal_time, texture: r.texture })));
+      const md = computeMealDefaults((rows || []).map((r: MealRow) => ({ slot: r.slot, log_date: r.log_date, place: r.place, meal_time: r.meal_time, texture: r.texture, autonomy: r.autonomy, environment: r.environment, duration_min: r.duration_min })));
       mealDefaultsRef.current = md;
       setHasPattern(Object.keys(md).length > 0);
 
@@ -288,11 +293,15 @@ export default function CarePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 오늘의 질문 답변 저장
+  // 오늘의 질문 답변 저장 (칩 or 수동 입력)
   async function answerDailyQ(ans: string) {
-    setDailyQ((q) => (q ? { ...q, answer: ans } : q));
+    const a = ans.trim();
+    if (!a) return;
+    setDailyQ((q) => (q ? { ...q, answer: a } : q));
+    setAnsweredNow(true);
+    setQInput('');
     if (userId && childId) {
-      await supabase.from('daily_questions').update({ answer: ans, answered_at: new Date().toISOString() })
+      await supabase.from('daily_questions').update({ answer: a, answered_at: new Date().toISOString() })
         .eq('child_id', childId).eq('q_date', todayStr());
     }
   }
@@ -661,7 +670,7 @@ export default function CarePage() {
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>어디서 먹었나요?</h3>
             {hasPattern && !logs[date]?.[activeSlot] && (
-              <span className="text-[10.5px] font-bold" style={{ color: '#16A085' }}>🔁 지난 패턴으로 채움</span>
+              <span className="text-[10.5px] font-bold" style={{ color: '#16A085' }}>🔁 장소·시간만 미리 채움</span>
             )}
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -752,21 +761,37 @@ export default function CarePage() {
           <p className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>✨ 파란 태그 = AI 추정 · 초록 태그 = 직접 추가 · 틀리면 ✕로 빼세요</p>
         </div>
 
-        {/* 오늘의 질문 (AI 상담 — 하루 1개 캐싱) */}
-        {dailyQ?.question && (
+        {/* 오늘의 질문 (AI 상담 — 하루 1개) — 답하면 사라짐 */}
+        {dailyQ?.question && !dailyQ.answer && (
           <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#F3E5F5,#FCE4EC)', border: '1.5px solid #CE93D8' }}>
             <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#6A1B9A' }}>✨ 오늘의 질문 — 코치가 물어봐요</div>
             <div className="text-sm font-extrabold mb-2.5" style={{ color: '#1a2b4a' }}>{dailyQ.question}</div>
-            <div className="flex flex-wrap gap-1.5">
-              {dailyQ.chips.map((c) => (
-                <button key={c} onClick={() => answerDailyQ(c)}
-                  className="text-xs font-bold px-3 py-1.5 rounded-full transition"
-                  style={{ background: dailyQ.answer === c ? '#9C27B0' : 'white', color: dailyQ.answer === c ? 'white' : '#6A1B9A', border: `1.5px solid ${dailyQ.answer === c ? '#9C27B0' : '#CE93D8'}` }}>
-                  {c}
-                </button>
-              ))}
+            {dailyQ.chips.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {dailyQ.chips.map((c) => (
+                  <button key={c} onClick={() => answerDailyQ(c)}
+                    className="text-xs font-bold px-3 py-1.5 rounded-full transition"
+                    style={{ background: 'white', color: '#6A1B9A', border: '1.5px solid #CE93D8' }}>
+                    {c}
+                  </button>
+                ))}
+              </div>
+            )}
+            {/* 수동 입력 — 칩에 없는 답도 직접 */}
+            <div className="flex items-center gap-1.5">
+              <input value={qInput} onChange={(e) => setQInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') answerDailyQ(qInput); }}
+                placeholder="직접 답을 적어도 돼요"
+                className="flex-1 min-w-0 text-[13px] px-3 py-2 rounded-lg outline-none" style={{ background: 'white', border: '1.5px solid #CE93D8', color: '#1a2b4a' }} />
+              <button onClick={() => answerDailyQ(qInput)} disabled={!qInput.trim()}
+                className="text-xs font-extrabold px-3.5 py-2 rounded-lg text-white" style={{ background: qInput.trim() ? '#9C27B0' : '#D6BBDC' }}>보내기</button>
             </div>
-            {dailyQ.answer && <div className="text-[10.5px] mt-2 font-bold" style={{ color: '#6A1B9A' }}>✓ 답변 기록됐어요 — 코칭에 반영됩니다</div>}
+          </div>
+        )}
+        {/* 답한 직후 슬림 확인 — 다음 진입부턴 아예 안 뜸 */}
+        {answeredNow && dailyQ?.answer && (
+          <div className="rounded-2xl px-4 py-2.5 mb-3" style={{ background: '#F3E5F5', border: '1px solid #E1BEE7' }}>
+            <span className="text-[11.5px] font-bold" style={{ color: '#6A1B9A' }}>✓ 오늘 질문에 답해주셨어요 — 코칭에 반영됩니다</span>
           </div>
         )}
 
