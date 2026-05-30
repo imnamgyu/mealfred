@@ -145,7 +145,7 @@ export default function CarePage() {
       setUserId(user.id);
 
       const { data: child } = await supabase.from('children')
-        .select('id').eq('parent_id', user.id).limit(1).maybeSingle();
+        .select('id').eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
       if (!child) return;  // 자녀 없음 (onboarding 필요)
       setChildId(child.id);
       // 성별·체위 — 마이그레이션 전이면 컬럼/테이블이 없을 수 있어 분리 쿼리(실패해도 무영향)

@@ -22,7 +22,7 @@ export default function MePage() {
       setNickname((user.user_metadata?.nickname as string) || '');
       const { data } = await supabase.from('children')
         .select('nickname,age_band,birth_year,birth_month,allergens')
-        .eq('parent_id', user.id).limit(1).maybeSingle();
+        .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
       setChild(data);
       setLoading(false);
     })();

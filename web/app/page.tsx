@@ -86,7 +86,7 @@ export default function Home() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setLoggedIn(true);
-        const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month').eq('parent_id', user.id).limit(1).maybeSingle();
+        const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month').eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
           setChildMeta({ sex: null, birthY: child.birth_year ?? null, birthM: child.birth_month ?? null });

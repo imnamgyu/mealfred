@@ -1,21 +1,18 @@
 /**
- * /onboarding — 가입 직후 자녀 정보 입력 (M4)
+ * /onboarding — 자녀 정보 입력·수정 (M4)
  *
- * 입력:
- *   - 자녀 닉네임 (실명 X)
- *   - 연령 chip (만 3-4세 / 만 5세 / 만 6-7세 / 3세 미만)
- *   - 키·몸무게 (선택, BMI 계산용)
- *   - 알레르겐 (있다면)
+ * 신규: children insert → /care
+ * 수정(내 정보 탭에서 진입): 기존 자녀 로드 → 미리 채움 → update → /care/me
  *
- * 완료 시:
- *   - children 테이블 insert
- *   - /care 으로 redirect
- *   - SENS 가입 환영 알림톡 자동 발송 (백엔드)
+ * 입력: 닉네임 · 출생 년·월 · 성별 · 키·몸무게(선택) · 알레르겐
+ * 체위(키·몸무게)는 children 컬럼 + growth_logs(시계열)에 함께 기록 →
+ * 홈 BMI(growth_logs 최신값 사용)에 즉시 반영된다.
  */
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
+import { kstToday } from '@/lib/date';
 
 const ALLERGENS = ['우유','달걀','메밀','땅콩','대두','밀','새우','게','고등어','조개','복숭아','토마토','호두','잣'];
 
@@ -41,16 +38,48 @@ export default function OnboardingPage() {
   const [nickname, setNickname] = useState('');
   const [birthYear, setBirthYear] = useState<number | ''>('');
   const [birthMonth, setBirthMonth] = useState<number | ''>('');
+  const [sex, setSex] = useState<'M' | 'F' | ''>('');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [allergens, setAllergens] = useState<string[]>([]);
   const [customAllergen, setCustomAllergen] = useState('');  // 수동 추가 입력
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);   // 기존 자녀 id → 수정 모드
+  const [hydrating, setHydrating] = useState(true);
 
   const ageBand = (birthYear && birthMonth) ? deriveAgeBand(Number(birthYear), Number(birthMonth)) : '';
 
   const supabase = createSupabaseBrowser();
+
+  // 기존 자녀가 있으면 수정 모드로 — 모든 필드 미리 채움 (체위는 growth_logs 최신값)
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setHydrating(false); return; }
+      const { data: child } = await supabase.from('children')
+        .select('id,nickname,birth_year,birth_month,sex,height_cm,weight_kg,allergens')
+        .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
+      if (child) {
+        setEditId(child.id);
+        setNickname(child.nickname || '');
+        if (child.birth_year) setBirthYear(child.birth_year);
+        if (child.birth_month) setBirthMonth(child.birth_month);
+        if (child.sex === 'M' || child.sex === 'F') setSex(child.sex);
+        if (child.allergens?.length) setAllergens(child.allergens);
+        if (child.height_cm != null) setHeight(String(child.height_cm));
+        if (child.weight_kg != null) setWeight(String(child.weight_kg));
+        // 체위는 시계열(growth_logs) 최신값이 더 정확 — 있으면 덮어씀
+        const { data: g } = await supabase.from('growth_logs').select('height_cm,weight_kg')
+          .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(1).maybeSingle();
+        if (g) {
+          if (g.height_cm != null) setHeight(String(g.height_cm));
+          if (g.weight_kg != null) setWeight(String(g.weight_kg));
+        }
+      }
+      setHydrating(false);
+    })();
+  }, [supabase]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -60,30 +89,50 @@ export default function OnboardingPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setError('로그인이 필요해요'); setLoading(false); return; }
 
-    const { error: e2 } = await supabase.from('children').insert({
-      parent_id: user.id,
+    const h = height ? parseFloat(height) : null;
+    const w = weight ? parseFloat(weight) : null;
+    const payload = {
       nickname: nickname.trim(),
       age_band: ageBand,
       birth_year: Number(birthYear),
       birth_month: Number(birthMonth),
-      height_cm: height ? parseFloat(height) : null,
-      weight_kg: weight ? parseFloat(weight) : null,
+      sex: sex || null,
+      height_cm: h,
+      weight_kg: w,
       allergens: allergens.length ? allergens : null,
-    });
-    setLoading(false);
-    if (e2) { setError(e2.message); return; }
+    };
 
-    router.push('/care');
+    let childId = editId;
+    if (editId) {
+      const { error: e2 } = await supabase.from('children').update(payload).eq('id', editId);
+      if (e2) { setError(e2.message); setLoading(false); return; }
+    } else {
+      const { data: ins, error: e2 } = await supabase.from('children')
+        .insert({ parent_id: user.id, ...payload }).select('id').single();
+      if (e2) { setError(e2.message); setLoading(false); return; }
+      childId = ins?.id ?? null;
+    }
+
+    // 체위가 있으면 growth_logs(시계열)에도 오늘 날짜로 기록 → 홈 BMI 즉시 반영
+    if (childId && (h || w)) {
+      await supabase.from('growth_logs').upsert(
+        { child_id: childId, parent_id: user.id, measured_on: kstToday(), height_cm: h, weight_kg: w, updated_at: new Date().toISOString() },
+        { onConflict: 'child_id,measured_on' }
+      );
+    }
+
+    setLoading(false);
+    router.push(editId ? '/care/me' : '/care');
   }
 
   return (
     <main style={{ maxWidth:560, margin:'0 auto', padding:'40px 24px' }}>
       <header className="hero" style={{ borderRadius:16, marginBottom:24 }}>
-        <h1 style={{ fontSize:28, fontWeight:800 }}>🌱 우리 아이 알려주세요</h1>
-        <p style={{ marginTop:6 }}>30초만 입력하면 개인화 시작 · 실명 절대 저장 X</p>
+        <h1 style={{ fontSize:28, fontWeight:800 }}>{editId ? '✏️ 아이 정보 수정' : '🌱 우리 아이 알려주세요'}</h1>
+        <p style={{ marginTop:6 }}>{editId ? '바꾼 내용은 바로 코칭·BMI에 반영돼요' : '30초만 입력하면 개인화 시작 · 실명 절대 저장 X'}</p>
       </header>
 
-      <form onSubmit={submit} style={{ background:'white', border:'1px solid #FFE8D0', borderRadius:14, padding:18 }}>
+      <form onSubmit={submit} style={{ background:'white', border:'1px solid #FFE8D0', borderRadius:14, padding:18, opacity: hydrating ? 0.5 : 1 }}>
         <div style={{ marginBottom:18 }}>
           <label style={{ fontSize:13, fontWeight:800, color:'#1a2b4a' }}>👶 자녀 닉네임 (실명 X)</label>
           <input
@@ -113,6 +162,18 @@ export default function OnboardingPage() {
               우리 아이는 <strong>{AGE_BAND_LABEL[ageBand]}</strong>예요 · 이 나이에 맞는 영양 기준으로 분석해드려요
             </p>
           )}
+        </div>
+
+        <div style={{ marginBottom:18 }}>
+          <label style={{ fontSize:13, fontWeight:800, color:'#1a2b4a' }}>👧 성별 <span style={{ color:'#9CA3AF', fontWeight:600 }}>(BMI 또래 퍼센타일용)</span></label>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginTop:8 }}>
+            {([['M','남아'],['F','여아']] as const).map(([v,l])=>(
+              <button key={v} type="button" onClick={()=>setSex(sex===v?'':v)}
+                style={{ padding:12, borderRadius:10, fontSize:14, fontWeight:800, cursor:'pointer', fontFamily:'inherit',
+                  background: sex===v?'#1a2b4a':'#FAFAF7', color: sex===v?'white':'#6B7280',
+                  border:`1.5px solid ${sex===v?'#1a2b4a':'#E5E7EB'}` }}>{l}</button>
+            ))}
+          </div>
         </div>
 
         <div style={{ marginBottom:18, display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
@@ -170,12 +231,12 @@ export default function OnboardingPage() {
           </div>
         </div>
 
-        <button type="submit" disabled={loading} style={{
+        <button type="submit" disabled={loading || hydrating} style={{
           width:'100%', padding:14,
           background:'linear-gradient(135deg,#FF6B1A,#C45A00)', color:'white',
           border:'none', borderRadius:10, fontWeight:800, fontSize:15, cursor:'pointer',
         }}>
-          {loading ? '저장 중...' : '🍽 우리 아이 편식 잡는 식단 받기'}
+          {loading ? '저장 중...' : editId ? '✅ 수정 저장' : '🍽 우리 아이 편식 잡는 식단 받기'}
         </button>
 
         {error && (
