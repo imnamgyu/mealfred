@@ -137,10 +137,16 @@ export default function Home() {
           setGroups(fg);
           setIngredientCount(new Set(allIng).size);
           setEatenSet(new Set(allIng));
-          // 누적(전체 기간) 먹어본 식재료 종 수 — 130종(초등 입학 전) 목표용
-          supabase.from('meal_logs').select('ingredients').eq('child_id', child.id).then(({ data }) => {
-            const s = new Set<string>(); (data || []).forEach((r: { ingredients: string[] | null }) => (r.ingredients || []).forEach((i) => s.add(i)));
-            setCumCount(s.size);
+          // 누적 '잘 먹는(받아들인)' 식재료 종 수 — 130종(초등 입학 전) 목표용.
+          // 1회 맛봄이 아니라 '2회 이상 등장 + 거부로 기록 안 됨' = 수용(반복노출→수용, HabEat/NESR).
+          supabase.from('meal_logs').select('ingredients,refused').eq('child_id', child.id).then(({ data }) => {
+            const freq: Record<string, number> = {}; const refusedSet = new Set<string>();
+            (data || []).forEach((r: { ingredients: string[] | null; refused: string | null }) => {
+              (r.ingredients || []).forEach((i) => { freq[i] = (freq[i] || 0) + 1; });
+              if (r.refused) refusedSet.add(r.refused);
+            });
+            const accepted = Object.keys(freq).filter((i) => freq[i] >= 2 && !refusedSet.has(i));
+            setCumCount(accepted.length);
           });
           // 지난 코치 편지(날짜 포함) — 오랜만에 온 엄마가 예전 편지도 보게. 오늘 편지 없으면 가장 최근 편지를 상단에.
           supabase.from('coach_letters').select('letter_date,letter,oneliner')
@@ -471,16 +477,17 @@ export default function Home() {
           {proteinOk && (gRed > 0 || gYellow > 0) && (
             <div className="mt-2.5 rounded-lg px-3 py-1.5 text-[10.5px] font-bold" style={{ background: '#E8F5E9', color: '#1B5E20' }}>💪 단백질은 매일 챙기고 있어요 (고기·생선·계란·콩 합산)</div>
           )}
-          {/* 누적 먹어본 식재료 — 초등 입학 전 130종(레퍼토리 다양성) */}
+          {/* 누적 '잘 먹는(받아들인)' 식재료 — 초등 입학 전 130종(레퍼토리). 1회 맛봄 X, 2회+·비거부 = 수용 */}
           <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F0F0F0' }}>
-            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>먹어본 식재료 <span style={{ color: '#9CA3AF' }}>(누적)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
+            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>잘 먹는 식재료 <span style={{ color: '#9CA3AF' }}>(누적·2회+ 비거부)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
             <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (cumDisp / 130) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
             <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>
-              {cumDisp < 20 ? <>아직 <strong style={{ color: '#C62828' }}>편식 경계</strong> — 30종 넘기기 도전! (SOS 기준)</>
+              {cumDisp < 20 ? <>아직 <strong style={{ color: '#C62828' }}>편식 경계</strong> — 잘 먹는 30종부터 도전! (SOS 기준)</>
                 : cumDisp < 30 ? <>곧 <strong style={{ color: '#E67E22' }}>편식 경계(30종)</strong> 돌파해요!</>
-                : cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>130종</strong>까지 {130 - cumDisp}종 더!</>
-                : <>🎉 초등 준비 완료 — 130종 달성!</>}
+                : cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>잘 먹는 130종</strong>까지 {130 - cumDisp}종 더!</>
+                : <>🎉 초등 준비 완료 — 잘 먹는 130종 달성!</>}
             </div>
+            <div className="text-[10px] text-center mt-1" style={{ color: '#B0B0B0' }}>한 번 맛본 게 아니라 <strong>2번 이상 거부 없이</strong> 먹은 식재료예요</div>
           </div>
         </div>
 
