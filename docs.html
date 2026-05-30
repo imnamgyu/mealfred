@@ -51,7 +51,12 @@
   .doc-card .badge.demo{background:var(--n500);color:white}
   .doc-card .badge.coming{background:var(--y500);color:white}
   .doc-card .badge.deprecated{background:var(--r500);color:white;opacity:0.7}
+  .doc-card .badge.done{background:var(--g500);color:white}
   .doc-card .badge.new{background:var(--r500);color:white;animation:pulse 1.5s infinite}
+  .doc-card .meta .st{font-weight:800}
+  .doc-card .meta .st.done{color:var(--g700)}
+  .doc-card .meta .st.drop{color:var(--r700)}
+  .doc-card .meta .st.plan{color:var(--y700)}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
   .doc-card .ico{font-size:36px;margin-bottom:12px}
   .doc-card h4{font-size:15px;font-weight:800;color:var(--s800);line-height:1.35;margin-bottom:6px;padding-right:60px}
@@ -117,6 +122,17 @@
       <li><strong>일부 deprecated</strong>: architecture.html v1 (v2-detailed가 정본)</li>
     </ul>
   </div>
+  <div class="decision-card" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:#16A085">
+    <h4 style="color:#1B5E20">✅ 2026-05-30 개발 완료 반영 (앱 라이브)</h4>
+    <ul>
+      <li><strong>코칭 엔진 구현·배포</strong>: 스펙(편식극복키트 01_참고자료 근거) + 공유 프롬프트(데이터로 아는 건 안 묻기·환각 차단·집/기관 구분·시계열) + 새벽 2시 크론 + 식단입력 '먹는 장소'</li>
+      <li><strong>홈 36종 KDRI 영양 신호등</strong>(15→36, 매핑 24 개인화·12 KDRI 기준) + <strong>식품군 다양성 신호등</strong>(충분/조금부족/부족, 빈도 기반)</li>
+      <li><strong>체위 시계열 + BMI 종합</strong>(WHO 성장도표 LMS, 또래 퍼센타일)</li>
+      <li><strong>도감 전체 design-spec v3 통일</strong> + 메뉴 추천 매운 음식 제외</li>
+      <li><strong>박스 완전 리뉴얼</strong>: 개인맞춤 극다품종 소량(분석→주간 처방, 기존 식단 가미, Satter·SOS 부담0)</li>
+      <li><strong>등원 사실 + 어린이집 식단표 OCR 자동채움</strong>(점심·간식 매일 기록 불필요)</li>
+    </ul>
+  </div>
 </section>
 
 <!-- 문서 관계 맵 -->
@@ -165,7 +181,7 @@ mindmap
   </div>
   <div class="doc-grid">
     <a href="/coaching-engine.html" class="doc-card cat-strategy">
-      <span class="badge new">NEW</span>
+      <span class="badge done">✅ 구현완료</span>
       <div class="ico">💌</div>
       <h4>코칭 엔진 설계 — 회귀적 개인화 루프 & 데이터 해자</h4>
       <p class="desc">3단계 로드맵 · <strong>매일 도는 개인화 루프(입력→분석→새벽 코칭→답변→데이터 축적)</strong> · 데이터 해자(moat) · 데이터 파이프라인 · 생성 원칙(데이터로 아는 건 묻지 않기·집/기관 구분·환각 차단)</p>
@@ -215,7 +231,7 @@ mindmap
       <div class="ico">🗂</div>
       <h4>식재료 도감 PRD + 디자인 IA</h4>
       <p class="desc">23 FR · 7 NFR · 5 페이지 · 6 API · DB 스키마 · enrich 파이프라인 · 3 릴리즈 단계 · KPI. <strong>147 → 650 → 10,000종</strong> 확장 로드맵</p>
-      <div class="meta"><span>LIVE 배포 기준</span><span class="arrow">→</span></div>
+      <div class="meta"><span class="st done">✅ 도감 라이브</span><span class="arrow">→</span></div>
     </a>
     <a href="/viral-engine-prd.html" class="doc-card cat-prd">
       <span class="badge new">NEW</span>
@@ -337,8 +353,8 @@ mindmap
       <span class="badge demo">DEMO</span>
       <div class="ico">🏠</div>
       <h4>편식도감 앱 (PWA 데모)</h4>
-      <p class="desc">홈(영양점수·신호등·진단·레시피CTA) · 도감 · 기록(사진AI·해시태그·식감·자율성) · 레시피. <strong>M5-M12 정식 출시 예정의 데모</strong>. 1,461 lines</p>
-      <div class="meta"><span>M5-M12 정식 출시</span><span class="arrow">→</span></div>
+      <p class="desc">홈(영양점수·36종 신호등·식품군·BMI·코칭편지) · 도감 · 기록(사진AI·해시태그·식감·자율성·체위·식단표OCR) · 레시피. <strong>실제 앱(app.mealfred.com)으로 구현됨</strong></p>
+      <div class="meta"><span class="st done">✅ 앱 라이브(app.mealfred.com)</span><span class="arrow">→</span></div>
     </a>
     <a href="/personal-coming.html" class="doc-card cat-app">
       <span class="badge coming">COMING SOON</span>
