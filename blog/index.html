@@ -124,6 +124,14 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 .ig-step { position: absolute; transform: translate(-50%, 50%); width: 36px; height: 36px; border-radius: 50%; background: var(--white); border: 2px solid var(--primary-500); color: var(--primary-500); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; box-shadow: var(--shadow-sm); }
 .ig-step:last-child { background: var(--primary-500); color: var(--white); border-color: var(--primary-500); }
 
+/* dot-grid */
+.ig-dot-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; max-width: 280px; margin: 0 auto; }
+.ig-dot { aspect-ratio: 1; border-radius: 50%; background: var(--secondary-100); }
+.ig-dot.filled { background: var(--primary-500); }
+.ig-dot-legend { display: flex; justify-content: center; gap: var(--sp-4); margin-top: var(--sp-5); font-size: 12px; font-weight: 700; flex-wrap: wrap; }
+.ig-dot-legend .lg-fill { color: var(--primary-500); }
+.ig-dot-legend .lg-empty { color: var(--neutral-500); }
+
 /* two-curves */
 .ig-two-curves { max-width: 420px; margin: 0 auto; }
 .ig-two-curves svg { width: 100%; height: auto; aspect-ratio: 400/160; }
@@ -182,7 +190,20 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
   </section>
 
   <section class="post-grid">
-    <a href="./020.html" class="card-link">
+    <a href="./021.html" class="card-link">
+      <article class="post-card">
+        <div class="meta-row">
+          <span class="chip regular">정주행</span>
+          <span class="cat">기준</span>
+        </div>
+        <h3>30가지 미만이 시그널</h3>
+        <p class="excerpt">30가지 미만 먹으면 Problem Feeder 의심</p>
+        <div class="card-footer">
+          <span class="num">#21</span>
+          <time>2026-05-30</time>
+        </div>
+      </article>
+    </a><a href="./020.html" class="card-link">
       <article class="post-card">
         <div class="meta-row">
           <span class="chip snack">스낵</span>

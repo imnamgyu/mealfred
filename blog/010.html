@@ -125,6 +125,14 @@ body.blog-page { background: var(--primary-50); min-height: 100vh; }
 .ig-step { position: absolute; transform: translate(-50%, 50%); width: 36px; height: 36px; border-radius: 50%; background: var(--white); border: 2px solid var(--primary-500); color: var(--primary-500); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; box-shadow: var(--shadow-sm); }
 .ig-step:last-child { background: var(--primary-500); color: var(--white); border-color: var(--primary-500); }
 
+/* dot-grid */
+.ig-dot-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; max-width: 280px; margin: 0 auto; }
+.ig-dot { aspect-ratio: 1; border-radius: 50%; background: var(--secondary-100); }
+.ig-dot.filled { background: var(--primary-500); }
+.ig-dot-legend { display: flex; justify-content: center; gap: var(--sp-4); margin-top: var(--sp-5); font-size: 12px; font-weight: 700; flex-wrap: wrap; }
+.ig-dot-legend .lg-fill { color: var(--primary-500); }
+.ig-dot-legend .lg-empty { color: var(--neutral-500); }
+
 /* two-curves */
 .ig-two-curves { max-width: 420px; margin: 0 auto; }
 .ig-two-curves svg { width: 100%; height: auto; aspect-ratio: 400/160; }
