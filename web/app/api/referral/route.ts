@@ -25,19 +25,19 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
 
   const db = await createSupabaseServer();
-  let { data: ref } = await db.from('referrals').select('code,created_at').eq('parent_id', user.id).maybeSingle();
+  let { data: ref } = await db.from('app_referrals').select('code,created_at').eq('parent_id', user.id).maybeSingle();
   if (!ref) {
     // 코드 생성(충돌 시 몇 번 재시도)
     for (let i = 0; i < 4 && !ref; i++) {
       const code = genCode();
-      const { data, error } = await db.from('referrals').insert({ parent_id: user.id, code }).select('code,created_at').single();
+      const { data, error } = await db.from('app_referrals').insert({ parent_id: user.id, code }).select('code,created_at').single();
       if (!error && data) ref = data;
       else if (error && !/duplicate|unique/i.test(error.message)) break;
     }
   }
   if (!ref) return NextResponse.json({ error: 'code_failed' }, { status: 500 });
 
-  const { count } = await db.from('referral_visits').select('*', { count: 'exact', head: true }).eq('code', ref.code);
+  const { count } = await db.from('app_referral_visits').select('*', { count: 'exact', head: true }).eq('code', ref.code);
   const visits = count ?? 0;
   const billing = referralBilling(ref.created_at, visits, kstToday());
 

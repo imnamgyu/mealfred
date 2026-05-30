@@ -28,9 +28,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
   try {
     const db = await createSupabaseServer();
     // 존재하는 코드만 기록 (임의 코드 스팸 방지)
-    const { data: ref } = await db.from('referrals').select('parent_id').eq('code', code).maybeSingle();
+    const { data: ref } = await db.from('app_referrals').select('parent_id').eq('code', code).maybeSingle();
     if (ref) {
-      await db.from('referral_visits').upsert({ code, visitor_id: vid }, { onConflict: 'code,visitor_id', ignoreDuplicates: true });
+      await db.from('app_referral_visits').upsert({ code, visitor_id: vid }, { onConflict: 'code,visitor_id', ignoreDuplicates: true });
     }
   } catch { /* 카운트 실패는 리다이렉트를 막지 않는다 */ }
 

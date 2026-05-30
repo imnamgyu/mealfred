@@ -50,6 +50,14 @@ function gradeOf(score: number) {
   if (score >= 40) return { g: 'C', label: '주의', color: '#E67E22' };
   return { g: 'D', label: '경고', color: '#C62828' };
 }
+// 편지 날짜 → 사람이 읽는 라벨 (오늘/어제/M월 D일)
+function fmtLetterDate(d: string): string {
+  if (!d) return '';
+  if (d === kstToday()) return '오늘';
+  if (d === kstDateNDaysAgo(1)) return '어제';
+  const p = d.split('-');
+  return p.length === 3 ? `${Number(p[1])}월 ${Number(p[2])}일` : d;
+}
 
 export default function Home() {
   const supabase = createSupabaseBrowser();
@@ -70,6 +78,9 @@ export default function Home() {
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   const [aiOneliner, setAiOneliner] = useState<string>('');
+  const [letterDate, setLetterDate] = useState<string>('');   // 현재 표시 편지 날짜
+  const [pastLetters, setPastLetters] = useState<{ date: string; letter: string; oneliner: string | null }[]>([]);
+  const [showPast, setShowPast] = useState(false);
   const [textureInsight, setTextureInsight] = useState<{ pureePct: number } | null>(null);
   const [repeatInsight, setRepeatInsight] = useState<{ menu: string; count: number } | null>(null);
   const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string }[]>([]);
@@ -131,6 +142,18 @@ export default function Home() {
             const s = new Set<string>(); (data || []).forEach((r: { ingredients: string[] | null }) => (r.ingredients || []).forEach((i) => s.add(i)));
             setCumCount(s.size);
           });
+          // 지난 코치 편지(날짜 포함) — 오랜만에 온 엄마가 예전 편지도 보게. 오늘 편지 없으면 가장 최근 편지를 상단에.
+          supabase.from('coach_letters').select('letter_date,letter,oneliner')
+            .eq('child_id', child.id).order('letter_date', { ascending: false }).limit(8)
+            .then(({ data }) => {
+              const hist = (data || []) as { letter_date: string; letter: string; oneliner: string | null }[];
+              if (!hist.length) return;
+              const td = todayStr();
+              setPastLetters(hist.filter((h) => h.letter_date !== td).map((h) => ({ date: h.letter_date, letter: h.letter, oneliner: h.oneliner })));
+              setAiLetter((cur) => cur || hist[0].letter);
+              setAiOneliner((cur) => cur || (hist[0].oneliner || ''));
+              setLetterDate((cur) => cur || hist[0].letter_date);
+            });
           setRefused([...new Set(ref)]);
 
           // 식감 인사이트 — 죽·다진 비중
@@ -157,6 +180,7 @@ export default function Home() {
               // 식단 변동 없음 → 캐시 read만
               setAiLetter(cached.letter);
               if (cached.oneliner) setAiOneliner(cached.oneliner);
+              setLetterDate(today);
             } else {
               // 오늘 첫 생성 OR 식단이 바뀜 → 1회 재생성 (과거 편지 맥락 포함)
               const { data: past } = await supabase.from('coach_letters')
@@ -176,6 +200,7 @@ export default function Home() {
               if (r?.letter) {
                 setAiLetter(r.letter);
                 if (r.oneliner) setAiOneliner(r.oneliner);
+                setLetterDate(today);
                 supabase.from('coach_letters').upsert(
                   { child_id: child.id, parent_id: user.id, letter_date: today, letter: r.letter, oneliner: r.oneliner || null, source_hash: srcHash },
                   { onConflict: 'child_id,letter_date' }
@@ -184,6 +209,7 @@ export default function Home() {
                 // 재생성 실패 시 기존 캐시라도 표시
                 setAiLetter(cached.letter);
                 if (cached.oneliner) setAiOneliner(cached.oneliner);
+                setLetterDate(today);
               }
             }
           }
@@ -252,7 +278,6 @@ export default function Home() {
     red: { label: '부족', color: '#C62828', bar: '#E53935', w: 30 },
     reference: { label: '기준 참고', color: '#9CA3AF', bar: '#CBD5E1', w: 50 },
   };
-  const BAND_POS: Record<string, number> = { '저체중': 12, '정상': 50, '과체중': 88, '비만': 96 };
 
   // 식품군 다양성 신호등 — 목업=예시 / 실데이터=computeGroupSignals (충분/조금부족/부족)
   const GLEVEL: Record<GroupSignal['level'], { bg: string; bd: string; fg: string; lbl: string }> = {
@@ -329,7 +354,12 @@ export default function Home() {
         {/* 코치 편지 — 있으면 항상 맨 위 (가장 개인적·핵심 가치) */}
         {(isMockup || aiLetter) && (
           <div className="rounded-2xl p-4 mb-3 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFECB3)', border: '1.5px solid #F9A825' }}>
-            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#F57F17' }}>✉️ 코치 편지가 도착했어요</div>
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="text-[10.5px] font-extrabold" style={{ color: '#F57F17' }}>✉️ 코치 편지{aiLetter ? (letterDate ? ` · ${fmtLetterDate(letterDate)}` : '') : '가 도착했어요'}</div>
+              {!isMockup && pastLetters.length > 0 && (
+                <button onClick={() => setShowPast((v) => !v)} className="text-[10.5px] font-extrabold" style={{ color: '#C45A00' }}>{showPast ? '접기 ▲' : `📬 지난 편지 ${pastLetters.length} ▾`}</button>
+              )}
+            </div>
             {aiLetter ? (
               <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
             ) : (
@@ -337,6 +367,17 @@ export default function Home() {
                 <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
                 <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
               </>
+            )}
+            {/* 지난 편지 — 오랜만에 온 엄마가 흐름을 다시 읽게 */}
+            {showPast && pastLetters.length > 0 && (
+              <div className="mt-3 pt-3 space-y-3" style={{ borderTop: '1px solid #F0D8A0' }}>
+                {pastLetters.map((p) => (
+                  <div key={p.date}>
+                    <div className="text-[10px] font-extrabold mb-0.5" style={{ color: '#C45A00' }}>📅 {fmtLetterDate(p.date)}</div>
+                    <div className="text-[12px] leading-relaxed" style={{ color: '#5a4a3a' }}>{p.letter}</div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -549,10 +590,11 @@ export default function Home() {
                       )}
                     </div>
                     {bmiCard.pct != null && (<>
-                    <div className="relative h-2 rounded-full" style={{ background: 'linear-gradient(90deg,#FFCDD2 0%,#FFE082 22%,#C8E6C9 40% 70%,#FFE082 88%,#FFCDD2 100%)' }}>
-                      <div className="absolute -top-1 w-2 h-4 rounded-full" style={{ left: `calc(${BAND_POS[bmiCard.band] ?? 50}% - 4px)`, background: '#1a2b4a', border: '1.5px solid white' }} />
+                    {/* 게이지 축 = 퍼센타일 0~100 (밴드 컷오프 5/85/95에 색 맞춤), 포인터는 실제 퍼센타일 위치 */}
+                    <div className="relative h-2 rounded-full" style={{ background: 'linear-gradient(90deg,#FFCDD2 0%,#FFCDD2 5%,#C8E6C9 13%,#C8E6C9 82%,#FFE082 88%,#FFB74D 95%,#FFCDD2 100%)' }}>
+                      <div className="absolute -top-1 w-2 h-4 rounded-full" style={{ left: `calc(${Math.min(98, Math.max(2, bmiCard.pct))}% - 4px)`, background: '#1a2b4a', border: '1.5px solid white' }} />
                     </div>
-                    <div className="flex justify-between text-[9.5px] font-bold mt-1.5" style={{ color: '#9CA3AF' }}><span>저체중</span><span>정상</span><span>과체중</span></div>
+                    <div className="flex justify-between text-[9.5px] font-bold mt-1.5" style={{ color: '#9CA3AF' }}><span>저체중</span><span>정상</span><span>과체중·비만</span></div>
                     </>)}
                   </div>
                   {/* 탄·단·지 바 */}
