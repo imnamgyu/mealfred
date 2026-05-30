@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal, type GroupSignal } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
+import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
@@ -69,6 +70,8 @@ export default function Home() {
   const [kdri, setKdri] = useState<KdriSignal[]>([]);   // 36종 KDRI 신호등 (실데이터)
   const [showNutri, setShowNutri] = useState(false);    // 36종 자세히 모달
   const [growth, setGrowth] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string } | null>(null);
+  const [growthList, setGrowthList] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string }[]>([]);   // BMI 급변 감지용 최근 측정
+  const [progress, setProgress] = useState<ProgressResult | null>(null);   // 편식 변화(최근28 vs 직전28)
   const [childMeta, setChildMeta] = useState<{ sex: Sex | null; birthY: number | null; birthM: number | null }>({ sex: null, birthY: null, birthM: null });
   const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
   const [groupSig, setGroupSig] = useState<{ signals: GroupSignal[]; proteinOk: boolean }>({ signals: [], proteinOk: false });
@@ -106,8 +109,8 @@ export default function Home() {
           supabase.from('children').select('sex').eq('id', child.id).maybeSingle()
             .then(({ data }) => { if (data?.sex) setChildMeta((m) => ({ ...m, sex: data.sex as Sex })); });
           supabase.from('growth_logs').select('height_cm,weight_kg,measured_on')
-            .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(1).maybeSingle()
-            .then(({ data }) => { if (data) setGrowth(data); });
+            .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(6)
+            .then(({ data }) => { if (data && data.length) { setGrowth(data[0]); setGrowthList(data); } });
           const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus,place').eq('child_id', child.id).gte('log_date', dates[6]);
           const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
           const homeRef: string[] = []; const daycareRef: string[] = [];   // 거부를 장소별로 분리 (코칭엔진 스펙 §3)
@@ -148,6 +151,10 @@ export default function Home() {
             const accepted = Object.keys(freq).filter((i) => freq[i] >= 2 && !refusedSet.has(i));
             setCumCount(accepted.length);
           });
+          // 편식 변화(효과측정) — 최근 56일 기록으로 최근28 vs 직전28 비교
+          supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
+            .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(55))
+            .then(({ data }) => { setProgress(computeProgress((data || []) as Parameters<typeof computeProgress>[0], kstToday())); });
           // 지난 코치 편지(날짜 포함) — 오랜만에 온 엄마가 예전 편지도 보게. 오늘 편지 없으면 가장 최근 편지를 상단에.
           supabase.from('coach_letters').select('letter_date,letter,oneliner')
             .eq('child_id', child.id).order('letter_date', { ascending: false }).limit(8)
@@ -262,6 +269,14 @@ export default function Home() {
     : null;
   const bmiVal = growth?.height_cm && growth?.weight_kg ? bmiOf(growth.height_cm, growth.weight_kg) : null;
   const bmiPct = bmiVal != null && childMeta.sex && ageMonths != null ? bmiPercentile(bmiVal, childMeta.sex, ageMonths) : null;
+  // BMI 급변 감지 — 측정 시점별 월령으로 퍼센타일 계산 후 최근 2회 비교
+  const bmiTrendData = (!isMockup && childMeta.sex && childMeta.birthY && childMeta.birthM && growthList.length >= 2)
+    ? bmiTrend(growthList.map((g) => {
+        const b = g.height_cm && g.weight_kg ? bmiOf(g.height_cm, g.weight_kg) : null;
+        const am = (Number(g.measured_on.slice(0, 4)) - childMeta.birthY!) * 12 + (Number(g.measured_on.slice(5, 7)) - childMeta.birthM!);
+        return { measured_on: g.measured_on, pct: b != null ? bmiPercentile(b, childMeta.sex as Sex, am) : null };
+      }))
+    : null;
   type MStat = 'green' | 'yellow' | 'red' | 'reference';
   // 실제 체위(키·몸무게)가 있으면 식사 기록이 적어도/성별이 없어도 항상 실제 BMI를 보여준다. 퍼센타일은 성별·월령 있을 때 추가.
   const bmiCard: null | { ageLabel: string; hw: string; bmi: number; band: string; pct: number | null; carb: MStat; protein: MStat; fat: MStat; tip: string } = bmiVal != null
@@ -435,6 +450,34 @@ export default function Home() {
             <span style={{ color: '#F9A825' }}>B 보통</span><span style={{ color: '#16A085' }}>A 좋음</span><span style={{ color: '#1B5E20' }}>S 매우</span>
           </div>
         </div>
+
+        {/* 편식 변화(효과측정) — 이번 달 vs 지난 달, 충분한 기록 있을 때만 */}
+        {!isMockup && progress?.hasComparison && progress.metrics.length > 0 && (
+          <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#C8E6C9', background: 'linear-gradient(135deg,#F1F8F4,white)' }}>
+            <div className="flex items-center justify-between mb-2.5">
+              <strong className="text-sm" style={{ color: '#1a2b4a' }}>📈 편식 변화 <span className="text-[10.5px] font-bold" style={{ color: '#9CA3AF' }}>최근 4주 vs 직전 4주</span></strong>
+              <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-full" style={{ background: progress.improved >= 2 ? '#E8F5E9' : '#FFF4D6', color: progress.improved >= 2 ? '#1B5E20' : '#C45A00' }}>{progress.verdict}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {progress.metrics.map((m) => {
+                const diff = m.recent - m.prior;
+                const arrow = diff === 0 ? '→' : m.improved ? (m.betterUp ? '▲' : '▼') : (m.betterUp ? '▼' : '▲');
+                const col = diff === 0 ? '#9CA3AF' : m.improved ? '#16A085' : '#E67E22';
+                return (
+                  <div key={m.key} className="rounded-xl px-3 py-2" style={{ background: 'white', border: '1px solid #E8E8E8' }}>
+                    <div className="text-[10.5px] font-bold mb-0.5" style={{ color: '#8a7a6a' }}>{m.label}</div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{m.recent}{m.unit}</span>
+                      <span className="text-[11px] font-bold" style={{ color: col }}>{arrow} {Math.abs(diff)}{m.unit}</span>
+                    </div>
+                    <div className="text-[9.5px]" style={{ color: '#B0B0B0' }}>지난달 {m.prior}{m.unit}</div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>설문 없이 기록만으로 추정한 변화예요 (CEBQ 편식·완식·식사속도 지표)</div>
+          </div>
+        )}
 
         {/* 36종 KDRI 필수 영양소 신호등 (영양 점수 바로 아래) — 탭하면 36종 상세 모달 */}
         <button onClick={() => setShowNutri(true)} className="block w-full text-left rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
@@ -612,6 +655,11 @@ export default function Home() {
                     </div>
                     <div className="flex justify-between text-[9.5px] font-bold mt-1.5" style={{ color: '#9CA3AF' }}><span>저체중</span><span>정상</span><span>과체중·비만</span></div>
                     </>)}
+                    {bmiTrendData?.flag && (
+                      <div className="mt-2 rounded-lg px-3 py-2 text-[11px] font-bold leading-relaxed" style={{ background: '#FFF4D6', color: '#C45A00', border: '1px solid #FFD9A0' }}>
+                        📈 {bmiTrendData.note} (또래 {bmiTrendData.from}→{bmiTrendData.to}번째). 갑작스런 변화면 한 번 살펴보시고, 걱정되면 전문가와 상의해보세요.
+                      </div>
+                    )}
                   </div>
                   {/* 탄·단·지 바 */}
                   {([['탄수화물', '🍚', bmiCard.carb], ['단백질', '🥩', bmiCard.protein], ['지방', '🥑', bmiCard.fat]] as [string, string, MStat][]).map(([nm, em, st]) => (
