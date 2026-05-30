@@ -7,7 +7,7 @@
  */
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { createSupabaseServer } from '@/lib/supabase/server';
+import { createSupabaseAdmin } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +26,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
   }
 
   try {
-    const db = await createSupabaseServer();
+    const db = createSupabaseAdmin();
     // 존재하는 코드만 기록 (임의 코드 스팸 방지)
     const { data: ref } = await db.from('app_referrals').select('parent_id').eq('code', code).maybeSingle();
     if (ref) {

@@ -6,7 +6,7 @@
  *
  * 접근: @mealfred.com 관리자만.
  */
-import { createSupabaseServer, createSupabaseServerAnon } from '@/lib/supabase/server';
+import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
 import Link from 'next/link';
 
@@ -45,7 +45,7 @@ export default async function CronReport() {
     return <main style={{ maxWidth: 480, margin: '60px auto', padding: 24, fontFamily: 'Pretendard' }}><p style={{ color: '#6B7280' }}>🔒 관리자 전용. <Link href="/admin" style={{ color: '#FF6B1A' }}>← 콘솔</Link></p></main>;
   }
 
-  const db = await createSupabaseServer();
+  const db = createSupabaseAdmin();
   const { data } = await db.from('cron_runs')
     .select('id,status,started_at,finished_at,processed_count,error_count,meta')
     .eq('job_name', 'coach').order('started_at', { ascending: false }).limit(30);

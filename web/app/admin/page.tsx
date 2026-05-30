@@ -6,7 +6,7 @@
  *
  * 접근: 관리자(uid/email 화이트리스트)만. service_role로 전 계정 PII를 읽으므로 하드 게이트.
  */
-import { createSupabaseServer, createSupabaseServerAnon } from '@/lib/supabase/server';
+import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
 import AdminLogin from '@/components/AdminLogin';
 import Link from 'next/link';
@@ -36,7 +36,7 @@ export default async function AdminHome() {
     );
   }
 
-  const db = await createSupabaseServer();
+  const db = createSupabaseAdmin();
   const { data: children, error: childErr } = await db.from('children')
     .select('id,nickname,age_band,sex,daycare,parent_id')
     .order('id', { ascending: true });

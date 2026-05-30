@@ -8,7 +8,7 @@
  *
  * 접근: 관리자만(service_role 읽기).
  */
-import { createSupabaseServer, createSupabaseServerAnon } from '@/lib/supabase/server';
+import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
 import Link from 'next/link';
 
@@ -72,7 +72,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
     return <main style={{ maxWidth: 480, margin: '60px auto', padding: 24, fontFamily: 'Pretendard' }}><p style={{ color: '#6B7280' }}>🔒 관리자 전용. <Link href="/admin" style={{ color: '#FF6B1A' }}>← 콘솔</Link></p></main>;
   }
 
-  const db = await createSupabaseServer();
+  const db = createSupabaseAdmin();
   const { data: child } = await db.from('children').select('nickname,age_band,sex,daycare').eq('id', childId).maybeSingle();
   const [{ data: meals }, { data: letters }, { data: questions }] = await Promise.all([
     db.from('meal_logs').select('log_date,menus,ingredients,refused,note,texture,place,meal_time,created_at').eq('child_id', childId),

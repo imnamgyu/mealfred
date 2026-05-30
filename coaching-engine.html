@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>코칭 엔진 설계 — 회귀적 개인화 루프 & 데이터 해자 | 밀프레드</title>
-<meta property="og:title" content="밀프레드 코칭 엔진 — 자녀 데이터가 쌓일수록 정확해지는 개인화 루프">
-<meta property="og:description" content="식단 입력 → 영양·시계열 분석 → 새벽 코칭(편지·질문) → 부모 답변 → 데이터 축적 → 더 정확한 코칭. 학술 근거 기반 회귀 엔진 설계도.">
+<title>코칭 엔진 설계 — 데이터 정리·분석 방법론·프롬프트 | 밀프레드</title>
+<meta property="og:title" content="밀프레드 코칭 엔진 — 데이터 정리·분석 알고리즘·편지/질문 프롬프트 설계도">
+<meta property="og:description" content="식단·체위 데이터를 어떻게 정리하고, 어떤 알고리즘으로 분석하며, 어떤 프롬프트로 편지·질문을 생성하는지. 병원 차트형 시계열 검토까지.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -19,15 +19,15 @@
   .hero-inner{position:relative;z-index:1;max-width:760px;margin:0 auto}
   .hero .tag{display:inline-block;background:rgba(255,107,26,0.12);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;margin-bottom:16px;border:1px solid rgba(255,107,26,0.25)}
   .hero h1{font-size:29px;font-weight:800;letter-spacing:-0.03em;line-height:1.3;margin-bottom:14px;color:var(--navy)}
-  .hero .summary{background:rgba(255,255,255,0.65);border:1px solid rgba(255,107,26,0.2);border-radius:14px;padding:16px 20px;font-size:14.5px;font-weight:700;color:#C45A00;line-height:1.7;max-width:600px;margin:0 auto}
+  .hero .summary{background:rgba(255,255,255,0.65);border:1px solid rgba(255,107,26,0.2);border-radius:14px;padding:16px 20px;font-size:14.5px;font-weight:700;color:#C45A00;line-height:1.7;max-width:620px;margin:0 auto}
 
   main{max-width:880px;margin:0 auto;padding:32px 20px 70px}
-  section{margin-bottom:40px}
+  section{margin-bottom:42px}
   .sec-tag{display:inline-block;font-size:12px;font-weight:800;color:#C45A00;background:#FFF0E0;border:1px solid #FFD0A0;border-radius:8px;padding:4px 10px;margin-bottom:12px}
   h2{font-size:21px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:6px}
+  h4{font-size:14.5px;font-weight:800;color:var(--navy);margin:2px 0 6px}
   .lead{font-size:14px;color:var(--n600);margin-bottom:18px}
 
-  /* 로드맵 */
   .phase{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px 20px;margin-bottom:12px;display:flex;gap:16px;box-shadow:0 3px 12px rgba(0,0,0,0.03)}
   .phase .pn{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#FF8A47,#C45A00);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .phase h3{font-size:15.5px;font-weight:800;color:var(--s800);margin-bottom:5px}
@@ -35,7 +35,6 @@
   .phase li{margin-bottom:3px}
   .phase .where{display:inline-block;font-size:11px;font-weight:700;color:var(--b700);background:#EAF4FC;border-radius:6px;padding:2px 8px;margin-top:6px}
 
-  /* 회귀 루프 (순환) */
   .loop{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:stretch;margin:6px 0 4px}
   .loop .node{background:white;border:1.5px solid var(--p300);border-radius:13px;padding:14px 10px;text-align:center;position:relative}
   .loop .node .ic{font-size:24px;display:block;margin-bottom:6px}
@@ -45,15 +44,30 @@
   .loopback{text-align:center;font-size:12.5px;font-weight:800;color:#C45A00;background:#FFF5EB;border:1px dashed #FFB375;border-radius:10px;padding:8px;margin-top:8px}
   @media(max-width:680px){.loop{grid-template-columns:1fr}.loop .arr{transform:rotate(90deg);padding:2px 0}}
 
-  /* 데이터 해자 */
-  .moat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-  .moat .m{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:14px 16px}
-  .moat .m .d{font-size:12px;font-weight:800;color:#C45A00;margin-bottom:6px}
-  .moat .m p{font-size:12.5px;color:var(--n600);line-height:1.5}
-  .moat .grow{grid-column:1/-1;background:linear-gradient(90deg,#FFF8F2,#FFE8D0);border:1.5px solid #FFD0A0;border-radius:12px;padding:14px 18px;font-size:13.5px;font-weight:700;color:var(--navy);text-align:center}
-  @media(max-width:680px){.moat{grid-template-columns:1fr}}
+  /* 스키마 테이블 */
+  table.schema{width:100%;border-collapse:collapse;background:white;border:1.5px solid var(--n200);border-radius:12px;overflow:hidden;font-size:12.5px}
+  table.schema th{background:#FFF0E0;color:#C45A00;font-weight:800;text-align:left;padding:9px 12px;font-size:12px}
+  table.schema td{padding:9px 12px;border-top:1px solid var(--n100);color:var(--n700);vertical-align:top}
+  table.schema td.t{font-weight:800;color:var(--navy);white-space:nowrap}
+  table.schema code{background:var(--n100);border-radius:4px;padding:1px 5px;font-size:11.5px;color:#B86A20}
 
-  /* 파이프라인 */
+  /* 알고리즘 카드 */
+  .algo{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .algo .a{background:white;border:1.5px solid var(--n200);border-radius:12px;padding:15px 17px}
+  .algo .a h4{display:flex;align-items:center;gap:7px}
+  .algo .a .lab{display:inline-block;font-size:10.5px;font-weight:800;color:var(--b700);background:#EAF4FC;border-radius:6px;padding:2px 7px;margin-bottom:8px}
+  .algo .a p{font-size:12.5px;color:var(--n600);line-height:1.6}
+  .algo .a .frm{background:var(--n50);border:1px solid var(--n200);border-radius:8px;padding:8px 10px;font-size:11.5px;color:var(--n700);margin-top:8px;line-height:1.55}
+  .algo .a .frm b{color:var(--navy)}
+  .tl-green{color:var(--g700);font-weight:800}.tl-yellow{color:var(--y700);font-weight:800}.tl-red{color:var(--r700);font-weight:800}
+  @media(max-width:680px){.algo{grid-template-columns:1fr}}
+
+  /* 프롬프트 박스 */
+  .prompt{background:#1F2D3D;border-radius:12px;padding:16px 18px;color:#E8EEF4;font-size:12px;line-height:1.7;overflow-x:auto;margin-bottom:10px}
+  .prompt .ph{font-size:11px;font-weight:800;color:#FFB375;letter-spacing:0.04em;margin-bottom:8px;text-transform:uppercase}
+  .prompt .ln{display:block;white-space:pre-wrap}
+  .prompt .k{color:#7FD1B9}.prompt .c{color:#9DB4C8;font-style:italic}
+
   .pipe{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px;overflow-x:auto}
   .pipe .row{display:flex;align-items:center;gap:10px;min-width:640px}
   .pipe .col{flex:1}
@@ -64,7 +78,15 @@
   .pipe .arrx{color:var(--p500);font-size:22px;font-weight:800;text-align:center}
   .pipe .out{background:linear-gradient(135deg,#16A085,#1B5E20);color:#fff;border-radius:11px;padding:12px;text-align:center;font-size:12.5px;font-weight:800}
 
-  /* 원칙 */
+  /* 차트형 기록 (현재 vs 로드맵) */
+  .chart-status{display:grid;gap:8px}
+  .cs{display:flex;gap:12px;align-items:flex-start;background:white;border:1.5px solid var(--n200);border-radius:11px;padding:12px 15px}
+  .cs .badge{font-size:11px;font-weight:800;border-radius:7px;padding:3px 9px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+  .cs.done .badge{background:#E7F6F0;color:var(--g700);border:1px solid #A5D6C6}
+  .cs.todo .badge{background:#FFF4D6;color:#C45A00;border:1px solid #FFD9A0}
+  .cs .ct{font-size:13.5px;font-weight:800;color:var(--navy)}
+  .cs .cd{font-size:12.5px;color:var(--n600);margin-top:2px;line-height:1.55}
+
   .rules{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .rule{background:white;border:1.5px solid var(--n200);border-left:4px solid var(--g500);border-radius:10px;padding:13px 15px}
   .rule.bad{border-left-color:var(--r500)}
@@ -75,15 +97,16 @@
 
   .ground{background:#EAF4FC;border:1px solid #B7DBF5;border-radius:12px;padding:14px 18px;font-size:13px;color:var(--b700);margin-top:14px}
   .ground b{color:#0d3d66}
+  .note{background:#FFF8F2;border:1px solid #FFD9B8;border-radius:10px;padding:11px 15px;font-size:12.5px;color:#8a5a2a;margin-top:10px}
   footer{text-align:center;font-size:12px;color:var(--n400);padding:30px 20px}
 </style>
 </head>
 <body>
   <div class="hero">
     <div class="hero-inner">
-      <span class="tag">밀프레드 핵심 엔진 설계</span>
-      <h1>코칭 엔진 — 자녀 데이터가 쌓일수록<br>정확해지는 회귀적 개인화 루프</h1>
-      <div class="summary">식단 입력 → 영양·시계열 분석 → 새벽 코칭(편지·질문) → 부모 답변 → 데이터 축적 → 더 정확한 다음 코칭.<br>매일 도는 이 고리가 아이마다의 <b>데이터 해자(moat)</b>를 만든다.</div>
+      <span class="tag">밀프레드 핵심 엔진 설계 v2</span>
+      <h1>코칭 엔진 — 데이터를 어떻게 정리하고,<br>분석하고, 편지·질문으로 바꾸나</h1>
+      <div class="summary">식단·체위 입력 → 영양·시계열·체위 분석 → 새벽 코칭(편지·질문) → 부모 답변 → 데이터 축적 → 더 정확한 다음 코칭.<br>모든 분석은 결정론적 코드로, 글은 학술 근거 프롬프트로. <b>병원 차트처럼 시계열로 검토</b>한다.</div>
     </div>
   </div>
 
@@ -92,109 +115,194 @@
     <section>
       <span class="sec-tag">개발 계획표</span>
       <h2>3단계 로드맵</h2>
-      <p class="lead">이론·코칭 방법의 본진은 <b>편식극복키트</b> 폴더. 앱은 그 근거를 구현한다.</p>
-      <div class="phase">
-        <div class="pn">1</div>
-        <div>
-          <h3>엔진 스펙 정립 (근거 수집) <span style="font-size:11px;color:#16A085;font-weight:800">✅ 완료</span></h3>
-          <ul>
-            <li>편식 이론 정독: SOS(Toomey)·Satter DOR·국제가이드·KDRI 2025</li>
-            <li>코칭 원칙·질문 설계·프롬프트 규격을 문서화</li>
-          </ul>
-          <span class="where">저장: 편식극복키트 / 06_운영 / 카톡코칭</span>
-        </div>
-      </div>
-      <div class="phase">
-        <div class="pn">2</div>
-        <div>
-          <h3>엔진 구현 <span style="font-size:11px;color:#16A085;font-weight:800">✅ 완료</span></h3>
-          <ul>
-            <li>편지·질문 프롬프트 재설계 — 데이터로 아는 건 묻지 않기, 환각 차단</li>
-            <li>식단 입력에 <b>먹는 장소(집 / 어린이집·유치원)</b> 필드 추가</li>
-            <li>시계열 분석 병행 + <b>새벽 2~5시 크론</b> 생성 → 아침에 도착</li>
-          </ul>
-        </div>
-      </div>
-      <div class="phase">
-        <div class="pn">3</div>
-        <div>
-          <h3>명문화</h3>
-          <ul>
-            <li>코칭 엔진 개념을 용어사전에 등재</li>
-            <li>이 설계 문서를 docs 허브에 게시·갱신</li>
-          </ul>
-        </div>
-      </div>
+      <p class="lead">이론·코칭 방법의 본진은 <b>편식극복키트 / 06_운영 / 카톡코칭 / 코칭엔진_스펙_v1.md</b>. 앱은 그 근거를 구현한다.</p>
+      <div class="phase"><div class="pn">1</div><div>
+        <h3>엔진 스펙 정립 (근거 수집) <span style="font-size:11px;color:#16A085;font-weight:800">✅ 완료</span></h3>
+        <ul><li>편식 이론 정독: SOS(Toomey)·Satter DOR·국제가이드 30개·KDRI 2025</li><li>코칭 원칙(P1~P9)·질문 설계·프롬프트 규격 문서화</li></ul>
+        <span class="where">저장: 편식극복키트 / 06_운영 / 카톡코칭</span>
+      </div></div>
+      <div class="phase"><div class="pn">2</div><div>
+        <h3>엔진 구현 <span style="font-size:11px;color:#16A085;font-weight:800">✅ 완료</span></h3>
+        <ul><li>편지·질문 프롬프트 — 데이터로 아는 건 안 묻기, 환각 차단</li><li>먹는 장소(집/기관)·식사시간·체위 입력, 식단표 OCR 자동채움</li><li>영양·시계열·체위 분석 + <b>새벽 2시(KST) 크론</b> 생성 → 아침에 도착</li></ul>
+      </div></div>
+      <div class="phase"><div class="pn">3</div><div>
+        <h3>명문화 <span style="font-size:11px;color:#16A085;font-weight:800">✅ 이 문서</span></h3>
+        <ul><li>데이터 정리·분석 알고리즘·프롬프트 설계를 이 페이지에 공개</li><li>병원 차트형 시계열 검토 구조 명시(현재 + 로드맵)</li></ul>
+      </div></div>
     </section>
 
-    <!-- 회귀 개인화 루프 -->
+    <!-- 회귀 루프 -->
     <section>
       <span class="sec-tag">개인화 루프</span>
       <h2>매일 도는 회귀 고리</h2>
-      <p class="lead">한 바퀴 돌 때마다 아이에 대한 데이터가 늘고, 코칭은 더 그 아이에게 맞춰진다.</p>
+      <p class="lead">한 바퀴 돌 때마다 아이 데이터가 늘고, 코칭은 더 그 아이에게 맞춰진다.</p>
       <div class="loop">
-        <div class="node"><span class="ic">📝</span><div class="nt">① 식단 입력</div><div class="nd">메뉴·식재료·장소·반응</div></div>
+        <div class="node"><span class="ic">📝</span><div class="nt">① 입력</div><div class="nd">메뉴·식재료·장소·시간·체위·반응</div></div>
         <div class="arr">→</div>
-        <div class="node"><span class="ic">📊</span><div class="nt">② 분석</div><div class="nd">영양 신호등 + 시계열(추세)</div></div>
+        <div class="node"><span class="ic">📊</span><div class="nt">② 분석</div><div class="nd">영양 신호등·식품군·시계열·BMI</div></div>
         <div class="arr">→</div>
-        <div class="node"><span class="ic">💌</span><div class="nt">③ 새벽 코칭</div><div class="nd">편지 + 오늘의 질문<br>(2~5시 생성)</div></div>
+        <div class="node"><span class="ic">💌</span><div class="nt">③ 새벽 코칭</div><div class="nd">편지 + 오늘의 질문<br>(KST 2시 생성)</div></div>
       </div>
       <div class="loop" style="grid-template-columns:1fr;margin-top:8px">
         <div class="loopback">⟳ ⑤ 더 정확한 다음 코칭 &nbsp;←&nbsp; ④ 부모 답변(완식·혼합·환경) = 데이터로 못 푸는 정성값 축적</div>
       </div>
     </section>
 
-    <!-- 데이터 해자 -->
+    <!-- 1. 데이터 정리 -->
     <section>
-      <span class="sec-tag">데이터 해자 (moat)</span>
-      <h2>아이마다 쌓이는, 못 따라오는 데이터</h2>
-      <p class="lead">경쟁자가 카피할 수 없는 건 기능이 아니라 <b>그 아이의 누적 데이터</b>다.</p>
-      <div class="moat">
-        <div class="m"><div class="d">무엇을 먹(고 안 먹)나</div><p>식단 입력 누적 — 식재료별 노출·완식 횟수, 거부 이력, 장소별 패턴</p></div>
-        <div class="m"><div class="d">어떻게 먹나</div><p>부모 교정(이 집 짜파게티엔 당근 빼기)·정성 답변(섞어야 먹음·영상 보면 잘 먹음)</p></div>
-        <div class="m"><div class="d">시간에 따라</div><p>며칠째 안 먹는지·새 식재료 수용 속도·계절별 변화의 시계열</p></div>
-        <div class="grow">데이터가 쌓일수록 → 코칭이 그 아이에게 정확해지고 → 부모가 더 기록하고 → 데이터가 더 쌓인다 (복리)</div>
+      <span class="sec-tag">① 데이터를 어떻게 정리하나</span>
+      <h2>입력 → 정규화 → 구조화 저장</h2>
+      <p class="lead">자유 입력 메뉴는 <b>메뉴→식재료 매핑</b>으로 표준 식재료(70여 종 대표어)로 분해하고, 식재료는 다시 <b>식재료→영양소 매핑</b>으로 영양소에 연결한다. 모든 분석은 이 정규화된 식재료 집합 위에서 돈다.</p>
+      <table class="schema">
+        <tr><th>테이블</th><th>핵심 필드</th><th>역할</th></tr>
+        <tr><td class="t">meal_logs</td><td><code>log_date·slot</code> · <code>menus·ingredients</code> · <code>place</code>(집/기관) · <code>meal_time</code> · <code>texture·autonomy·environment·duration_min</code> · <code>refused·ate_well·note</code></td><td>끼니별 식사 기록. 정량(영양)·정성(반응·환경) 모두.</td></tr>
+        <tr><td class="t">growth_logs</td><td><code>measured_on·height_cm·weight_kg</code></td><td>체위 시계열(측정값 누적). BMI·또래 퍼센타일 산출원.</td></tr>
+        <tr><td class="t">user_menu_overrides</td><td><code>menu→ingredients</code></td><td>부모 교정("이 집 짜파게티엔 당근 빼기"). 개인 매핑 캐시.</td></tr>
+        <tr><td class="t">coach_letters</td><td><code>letter_date·letter·oneliner</code> · <code>source_hash</code> · <code>context</code>(jsonb)</td><td>일 단위 편지 + <b>"우리 판단" 스냅샷</b>(분석 입력 근거).</td></tr>
+        <tr><td class="t">daily_questions</td><td><code>q_date·question·chips·answer</code> · <code>context</code>(jsonb)</td><td>일 단위 질문·답변 + 생성 근거 스냅샷.</td></tr>
+        <tr><td class="t">children</td><td><code>age_band·birth_year/month·sex·daycare·allergens</code></td><td>분석 기준선(나이·성별·등원·알레르기).</td></tr>
+      </table>
+      <div class="note">🔒 <b>장소 구분이 핵심</b>: 평일 점심·간식은 어린이집·유치원 끼니라 부모가 못 바꾼다. <b>정량 영양평가는 기관 급식까지 전부 집계</b>하되, <b>정성 코칭은 집 끼니 + 기관에서 거부한 식재료</b>에만 포커스한다(P2·P3).</div>
+    </section>
+
+    <!-- 2. 분석 방법론 -->
+    <section>
+      <span class="sec-tag">② 분석 방법론 (알고리즘)</span>
+      <h2>전부 결정론적 코드 — LLM은 분석에 안 쓴다</h2>
+      <p class="lead">신호등·식품군·시계열·BMI는 모두 <b>코드로 계산</b>한다(LLM 0). 그래야 환각 없이 같은 입력 → 같은 결과가 나오고, 그 숫자만 프롬프트에 넘긴다.</p>
+      <div class="algo">
+        <div class="a">
+          <span class="lab">영양 신호등 · computeSignals</span>
+          <h4>🚦 핵심 영양소 충족도</h4>
+          <p>최근 7일 기록을 일(day)별로 보고, 식재료→영양소 매핑(정확값 ∪ 범주 근사)으로 영양소별 <b>며칠 커버됐나</b>를 센다.</p>
+          <div class="frm">커버 일수 <b>d</b>, 기록 일수 <b>N</b> →<br><span class="tl-green">🟢 충분</span> d≥3 또는 d/N≥0.5 · <span class="tl-yellow">🟡 가끔</span> d=1~2 · <span class="tl-red">🔴 결핍</span> d=0<br>(생선·미역 주2회도 인정하도록 비율 기준 병행)</div>
+        </div>
+        <div class="a">
+          <span class="lab">영양 점수·등급 · gradeOf</span>
+          <h4>🏅 S~D 등급</h4>
+          <p>신호등을 점수화해 한눈에. <b>식재료 종 수가 아니라 영양소 충족률</b>이 기준.</p>
+          <div class="frm">점수 = 평균(🟢100·🟡50·🔴0)<br><b>S</b>≥90 · <b>A</b>≥70 · <b>B</b>≥55 · <b>C</b>≥40 · <b>D</b>&lt;40</div>
+        </div>
+        <div class="a">
+          <span class="lab">36종 KDRI · computeKdriSignals</span>
+          <h4>📋 보건복지부 KDRI 2025</h4>
+          <p>필수 영양소 36종을 같은 커버리지 규칙으로 신호등화. 정확 매핑된 종은 개인화 신호등, 미매핑 종은 <b>참고지표</b>로 구분 표기(환각 방지).</p>
+          <div class="frm">매핑됨 → 🟢/🟡/🔴 · 미매핑 → <b>참고</b>(reference)</div>
+        </div>
+        <div class="a">
+          <span class="lab">식품군 다양성 · computeGroupSignals</span>
+          <h4>🥗 골고루 먹나</h4>
+          <p>8개 식품군을 빈도로 <b>충분/조금부족/부족</b> 3단계. 고기·생선·계란·콩은 단백질로 합산해 "매일 챙김" 판정.</p>
+          <div class="frm">고기/생선 주5+ · 계란 주3+ · 콩 주2+ · 매일군 주5+ 기준</div>
+        </div>
+        <div class="a">
+          <span class="lab">시계열 추세 · computeTimeseries</span>
+          <h4>📈 추세 사실 (결정론적)</h4>
+          <p>최근 기록에서 <b>사실 문장</b>만 뽑는다. 횟수·날짜를 LLM이 지어내지 못하게 코드가 계산해 넘긴다(P4).</p>
+          <div class="frm">예: "채소 기록이 <b>3일째</b> 없음" · "'닭죽'을 <b>5회</b> 반복"</div>
+        </div>
+        <div class="a">
+          <span class="lab">체위·BMI · growth-reference</span>
+          <h4>📏 WHO 성장도표</h4>
+          <p>키·몸무게 → BMI → WHO LMS로 <b>또래 퍼센타일</b>, 질병관리청 컷오프로 밴드. 표현은 "또래 평균 정도(100명 중 N번째)"로 평이하게.</p>
+          <div class="frm">z=((BMI/M)^L−1)/(L·S) → Φ(z)×100<br>밴드: &lt;5 저체중 · &lt;85 정상 · &lt;95 과체중 · ≥95 비만</div>
+        </div>
       </div>
+      <div class="ground">📚 <b>근거 고정</b>: 영양 주장은 위 분석이 계산한 값만 사용. LLM이 "아몬드 고단백" 같은 미검증 영양 주장을 스스로 만들지 못하게 시스템 프롬프트로 차단.</div>
+    </section>
+
+    <!-- 3. 프롬프트 설계 -->
+    <section>
+      <span class="sec-tag">③ 프롬프트 설계</span>
+      <h2>분석 숫자 → 따뜻한 편지·질문</h2>
+      <p class="lead">고정 <b>시스템 프롬프트</b>(방법론 + 가드레일 P1~P9, 모든 사용자 공통 → 캐싱)에, 그 아이의 <b>분석 결과만</b>을 사용자 메시지로 얹어 생성한다. 모델: Claude Haiku.</p>
+
+      <div class="prompt">
+        <div class="ph">시스템 — 방법론 + 가드레일 (요지)</div>
+        <span class="ln">당신은 편식으로 힘든 부모를 돕는 따뜻한 편식 코치. 점수로 다그치지 말고 먼저 안심.</span>
+        <span class="ln c">[방법론] 반복 노출·Satter DOR(역할분담)·SOS 감각사다리·푸드브릿지·식사 구조화·골든타임·정상화</span>
+        <span class="ln"><span class="k">P1</span> 데이터로 아는 건 묻지 않기  <span class="k">P2</span> 부모가 바꿀 수 있는 곳에만(집 끼니·기관 거부 재노출)</span>
+        <span class="ln"><span class="k">P4</span> 없는 과거 지어내지 않기  <span class="k">P5</span> 영양 주장은 우리 분석값만  <span class="k">P6</span> 거부는 정상→안심 먼저</span>
+        <span class="ln"><span class="k">P7</span> 한 번에 행동 1개  <span class="k">P8</span> 점수·등급으로 다그치지 않기  <span class="k">P9</span> 기록 공백은 부드럽게 한 번만 환기</span>
+        <span class="ln c">매운 음식 추천 금지 · 노출 횟수/경과일은 '시계열 사실'에 있을 때만 언급</span>
+      </div>
+
+      <div class="prompt">
+        <div class="ph">편지 — 사용자 메시지 (입력 = 분석 결과)</div>
+        <span class="ln">아이·나이 / 먹어본 식재료 수 / <span class="k">부족 영양소</span>(우리 분석값) / 충족·부족 식품군</span>
+        <span class="ln">집에서 거부 / 기관에서 거부 / <span class="k">시계열 사실</span> / 등원 여부 / 부모 메모(따옴표 격리)</span>
+        <span class="ln">최근 5일 중 기록된 날 수(P9) / 지난 편지(연속성 — 날짜·경과일 계산 금지)</span>
+        <span class="ln c">작성 지침 → letter: 3~4문장 ① 노력 인정+거부는 정상 안심 ② 데이터에서 읽은 사실 1개 ③ 오늘의 행동 1개</span>
+        <span class="ln c">oneliner: 최근 식단 진단 한 줄 (잘하는 점 + 신경 쓸 점 1개 + 방법론 근거)</span>
+      </div>
+
+      <div class="prompt">
+        <div class="ph">오늘의 질문 — 사용자 메시지</div>
+        <span class="ln">최근 로그한 음식 목록(장소·완식·며칠전 태그) / 집·기관 거부 / 지난 질문(겹치지 말 것)</span>
+        <span class="ln c">규칙 → 실제 로그한 음식 하나를 콕 집어, 정성(완식·혼합·반응·환경)만 묻는다. 1탭 답변 chips 3~5개.</span>
+        <span class="ln">예: "명태 드셨던데 다 드셨나요? 다른 음식과 섞어 드렸나요?"</span>
+      </div>
+
+      <div class="note">⚡ <b>비용·일관성 — 지문 캐싱</b>: 식단 지문 해시 <code>정렬(식재료)+거부+부족영양+메모수</code>가 직전과 같으면 LLM을 다시 부르지 않고 그날 편지를 재사용. 식단이 바뀐 날만 1회 재생성한다.</div>
     </section>
 
     <!-- 데이터 파이프라인 -->
     <section>
       <span class="sec-tag">데이터 파이프라인</span>
-      <h2>입력에서 코칭까지</h2>
-      <p class="lead">매일 새벽, 아래 소스를 한데 모아 학술 근거로 편지·질문을 생성한다.</p>
+      <h2>입력에서 코칭까지 (새벽 크론)</h2>
+      <p class="lead">매일 KST 새벽 2시, 활성 자녀를 오래된 순으로 돌며 아래를 수행. 실행 종료 시각 가드(시간 예산)로 안전 종료하고 남은 자녀는 다음 회차가 이어받는다.</p>
       <div class="pipe">
         <div class="row">
           <div class="col">
-            <div class="src">meal_logs — 식단·장소·반응</div>
+            <div class="src">meal_logs — 식단·장소·시간·반응</div>
+            <div class="src">growth_logs — 체위 시계열</div>
             <div class="src">user_menu_overrides — 부모 교정</div>
-            <div class="src">daily_questions — 어제 질문·답변</div>
-            <div class="src last">coach_letters — 지난 편지(연속성)</div>
+            <div class="src last">coach_letters / daily_questions — 연속성</div>
           </div>
           <div class="arrx">→</div>
-          <div class="col"><div class="stage">영양 + 시계열 분석<div class="sd">신호등·식품군·추세·집/기관 구분</div></div></div>
+          <div class="col"><div class="stage">분석 (코드)<div class="sd">신호등·식품군·시계열·BMI·집/기관·기록공백</div></div></div>
           <div class="arrx">→</div>
-          <div class="col"><div class="stage">LLM 생성<div class="sd">편식극복키트 학술 근거 프롬프트<br>새벽 2~5시 크론</div></div></div>
+          <div class="col"><div class="stage">LLM 생성<div class="sd">학술 근거 프롬프트(P1~P9)<br>지문 같으면 재사용</div></div></div>
           <div class="arrx">→</div>
-          <div class="col"><div class="out">아침에 도착<br>편지 + 오늘의 질문</div></div>
+          <div class="col"><div class="out">아침에 도착<br>편지 + 오늘의 질문<br>+ context 스냅샷 저장</div></div>
         </div>
       </div>
-      <div class="ground">📚 <b>근거</b>: 모든 조언은 편식극복키트 <b>01_참고자료</b>(SOS·Satter·국제가이드·KDRI)에 기반. 영양 수치는 우리 데이터만 사용 — LLM이 "아몬드 고단백" 같은 미검증 주장 생성 금지.</div>
     </section>
 
-    <!-- 엔진 원칙 -->
+    <!-- 4. 병원 차트형 시계열 검토 -->
     <section>
-      <span class="sec-tag">생성 원칙</span>
+      <span class="sec-tag">④ 병원 차트형 시계열 검토</span>
+      <h2>기록을 계속 남겨 검토하나 — 현재 + 로드맵</h2>
+      <p class="lead">"갑자기 BMI가 느는지", "주/월/분기/반기/연 단위로 요약을 쌓아 차트처럼 검토하는지"에 대한 <b>정직한 현황</b>이다.</p>
+      <div class="chart-status">
+        <div class="cs done"><span class="badge">✅ 현재</span><div><div class="ct">일(day) 단위 차트 기록</div><div class="cd">매일 편지·질문 + "우리 판단" context 스냅샷(reds·식품군·시계열·집/기관·기록공백)을 날짜별로 저장. 어드민 콘솔에서 계정별 <b>카카오톡 쓰레드</b>로 시계열 검토 가능.</div></div></div>
+        <div class="cs done"><span class="badge">✅ 현재</span><div><div class="ct">단기 추세(최근 7일)</div><div class="cd">computeTimeseries가 "채소 N일째 없음", "메뉴 N회 반복" 같은 추세 사실을 매일 산출해 코칭에 반영.</div></div></div>
+        <div class="cs done"><span class="badge">✅ 현재</span><div><div class="ct">체위 시계열 저장</div><div class="cd">growth_logs에 측정값이 날짜별로 누적되고, 매번 WHO 또래 퍼센타일을 다시 계산.</div></div></div>
+        <div class="cs done"><span class="badge">✅ 현재</span><div><div class="ct">크론 일일 보고서</div><div class="cd">매 실행의 정량 지표(처리·편지·재사용·결핍 아동·기록공백·결핍 Top·이슈)를 cron_runs에 적재 → 어드민에서 일자별 추적.</div></div></div>
+        <div class="cs todo"><span class="badge">⬜ 로드맵</span><div><div class="ct">BMI 급변(velocity) 감지</div><div class="cd">측정값은 쌓이지만 <b>아직 "한 달 새 퍼센타일 급상승/급락" 자동 감지·알림은 미구현</b>. growth_logs 시계열로 추가할 예정.</div></div></div>
+        <div class="cs todo"><span class="badge">⬜ 로드맵</span><div><div class="ct">주/월/분기/반기/연 롤업 요약</div><div class="cd">일 단위 기록은 있으나 <b>기간별 요약을 차트로 누적·고정 저장하는 기능은 미구현</b>. "이번 달 새 식재료 N종·결핍 추세·체위 변화"를 병원 차트형 레코드로 적재하는 게 다음 단계.</div></div></div>
+      </div>
+      <div class="note">➡️ <b>다음 단계 제안</b>: <code>growth_logs</code> 위에 BMI 퍼센타일 변화율 감지(임계 초과 시 코칭/알림), <code>period_summaries</code> 테이블로 주·월·분기·반기·연 요약을 누적해 "그 아이 한 명의 의무기록"처럼 계속 검토 가능하게.</div>
+    </section>
+
+    <!-- 원칙 -->
+    <section>
+      <span class="sec-tag">생성 원칙 (P1~P9)</span>
       <h2>좋은 코칭 vs 나쁜 코칭</h2>
       <div class="rules">
-        <div class="rule"><div class="rt">✓ 데이터로 못 푸는 것만 묻는다</div><div class="rd">실제 로그한 음식을 짚고 정성 정보를 묻는다.</div><div class="ex">"명태 드셨던데 다 드셨나요? 다른 음식과 섞어 드렸나요?"</div></div>
-        <div class="rule bad"><div class="rt">✗ 데이터로 아는 걸 묻는다</div><div class="rd">먹었는지 여부는 식단 로그로 이미 안다.</div><div class="ex">"흰살생선 드셨나요?" (로그 보면 됨)</div></div>
-        <div class="rule"><div class="rt">✓ 부모가 바꿀 수 있는 곳에 코칭</div><div class="rd">집 아침·저녁(빈약 지점)과 기관에서의 거부에 포커스.</div></div>
-        <div class="rule bad"><div class="rt">✗ 못 바꾸는 걸 다그친다</div><div class="rd">기관 급식 메뉴는 엄마가 못 바꾼다.</div></div>
-        <div class="rule"><div class="rt">✓ 정량은 전부 집계</div><div class="rd">영양평가는 어린이집·유치원 급식까지 모두 카운트.</div></div>
-        <div class="rule bad"><div class="rt">✗ 없는 과거를 지어낸다</div><div class="rd">지난 권장 이력이 없으면 "지난번 권한 ○○"라 말하지 않는다.</div></div>
+        <div class="rule"><div class="rt">✓ P1 데이터로 못 푸는 것만 묻는다</div><div class="rd">실제 로그한 음식을 짚고 정성만 묻는다.</div><div class="ex">"명태 드셨던데 다 드셨나요? 섞어 드렸나요?"</div></div>
+        <div class="rule bad"><div class="rt">✗ 데이터로 아는 걸 묻는다</div><div class="rd">먹었는지는 로그로 안다.</div><div class="ex">"흰살생선 드셨나요?"</div></div>
+        <div class="rule"><div class="rt">✓ P2 부모가 바꿀 수 있는 곳에</div><div class="rd">집 아침·저녁 + 기관에서의 거부 재노출.</div></div>
+        <div class="rule bad"><div class="rt">✗ 못 바꾸는 걸 다그친다</div><div class="rd">"어린이집 점심 메뉴를 바꾸세요."</div></div>
+        <div class="rule"><div class="rt">✓ P5 영양 주장은 우리 데이터만</div><div class="rd">분석이 계산한 부족 영양소만 언급.</div></div>
+        <div class="rule bad"><div class="rt">✗ P4 없는 과거를 지어낸다</div><div class="rd">이력 없이 "지난번 권한 ○○는요?"</div></div>
+        <div class="rule"><div class="rt">✓ P6 거부는 정상(반복 노출)</div><div class="rd">먼저 안심 → 부담 없는 한 걸음.</div></div>
+        <div class="rule bad"><div class="rt">✗ P8 점수·등급으로 다그친다</div><div class="rd">"C등급입니다."</div></div>
+        <div class="rule"><div class="rt">✓ P9 기록 공백은 부드럽게 한 번만</div><div class="rd">비어 있을 때만 끝에 한 줄 권유.</div><div class="ex">"기억나는 대로 어제 식단만 채워두시면 더 정확히 봐드릴게요"</div></div>
+        <div class="rule"><div class="rt">✓ P7 한 번에 행동 1개</div><div class="rd">작고 오늘 실행 가능하게.</div></div>
       </div>
     </section>
   </main>
-  <footer>밀프레드 · 코칭 엔진 설계 v1 · 근거: 편식극복키트 01_참고자료</footer>
+  <footer>밀프레드 · 코칭 엔진 설계 v2 · 분석=결정론적 코드, 생성=학술 근거 프롬프트 · 근거: 편식극복키트 01_참고자료 / 06_운영 코칭엔진_스펙</footer>
 </body>
 </html>

@@ -4,7 +4,7 @@
  * 클라(/care/me)가 호출. 방문 카운트/코드 생성은 service_role로(테이블 RLS는 클라 차단).
  */
 import { NextResponse } from 'next/server';
-import { createSupabaseServer, createSupabaseServerAnon } from '@/lib/supabase/server';
+import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { referralBilling } from '@/lib/billing';
 import { kstToday } from '@/lib/date';
 
@@ -24,7 +24,7 @@ export async function GET() {
   const { data: { user } } = await anon.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
 
-  const db = await createSupabaseServer();
+  const db = createSupabaseAdmin();
   let { data: ref } = await db.from('app_referrals').select('code,created_at').eq('parent_id', user.id).maybeSingle();
   if (!ref) {
     // 코드 생성(충돌 시 몇 번 재시도)
