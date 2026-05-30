@@ -40,6 +40,28 @@ function agg(rows: ProgressRow[]): Agg {
   };
 }
 
+// ── 기간 요약(병원 차트) ─────────────────────────────────────────────────────
+export type PeriodMetrics = { variety: number; refusalPct: number; enjoyPct: number | null; avgDur: number | null; entries: number };
+
+/** 'YYYY-MM-DD' → ISO 주차 키 'YYYY-Www'. */
+export function isoWeekKey(ymd: string): string {
+  const [y, m, d] = ymd.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, (m || 1) - 1, d || 1));
+  const day = dt.getUTCDay() || 7;           // 월=1..일=7
+  dt.setUTCDate(dt.getUTCDate() + 4 - day);   // 그 주 목요일
+  const yStart = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  const wk = Math.ceil(((dt.getTime() - yStart.getTime()) / 86400000 + 1) / 7);
+  return `${dt.getUTCFullYear()}-W${String(wk).padStart(2, '0')}`;
+}
+/** 'YYYY-MM-DD' → 'YYYY-MM'. */
+export function monthKey(ymd: string): string { return ymd.slice(0, 7); }
+
+/** 기간 행들의 요약 지표(잘 먹는 다양성·거부율·완식률·식사속도). */
+export function periodMetrics(rows: ProgressRow[]): PeriodMetrics {
+  const a = agg(rows);
+  return { variety: a.variety, refusalPct: a.refusalPct, enjoyPct: a.enjoyPct, avgDur: a.avgDur, entries: a.entries };
+}
+
 export type ProgressMetric = { key: string; label: string; recent: number; prior: number; unit: string; betterUp: boolean; improved: boolean };
 export type ProgressResult = { hasComparison: boolean; metrics: ProgressMetric[]; improved: number; total: number; verdict: string };
 

@@ -18,6 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer } from '@/lib/supabase/server';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
 import { generateLetter, generateQuestion, type Place, type LoggedFood } from '@/lib/coach';
+import { periodMetrics, isoWeekKey, monthKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
@@ -212,6 +213,26 @@ export async function GET(req: Request) {
         issues.push(`${kidMap[cid]?.nickname || cid.slice(0, 8)}: 생성 실패 — ${msg}`.slice(0, 160));
       }
     }
+
+    // 병원 차트형 기간 요약 — 현재 주·달을 최근 35일 기록으로 재계산해 upsert(멱등). 편지 로직과 분리.
+    try {
+      const { data: wide } = await supabase.from('meal_logs')
+        .select('child_id,log_date,ingredients,refused,ate_well,duration_min')
+        .in('child_id', activeIds).gte('log_date', kstDateNDaysAgo(34));
+      const byKid: Record<string, ProgressRow[]> = {};
+      (wide || []).forEach((r: ProgressRow & { child_id: string }) => { (byKid[r.child_id] ||= []).push(r); });
+      const wk = isoWeekKey(today), mo = monthKey(today);
+      const ups: { child_id: string; period_type: string; period_key: string; metrics: object; updated_at: string }[] = [];
+      const nowIso = new Date().toISOString();
+      for (const cid of activeIds) {
+        const rs = byKid[cid] || [];
+        const weekRows = rs.filter((r) => isoWeekKey(r.log_date) === wk);
+        const monthRows = rs.filter((r) => monthKey(r.log_date) === mo);
+        if (weekRows.length) ups.push({ child_id: cid, period_type: 'week', period_key: wk, metrics: periodMetrics(weekRows), updated_at: nowIso });
+        if (monthRows.length) ups.push({ child_id: cid, period_type: 'month', period_key: mo, metrics: periodMetrics(monthRows), updated_at: nowIso });
+      }
+      if (ups.length) await supabase.from('period_summaries').upsert(ups, { onConflict: 'child_id,period_type,period_key' });
+    } catch (e) { console.warn('[cron/coach] period_summaries skip:', e instanceof Error ? e.message : e); }
 
     const topReds = Object.entries(redFreq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n, c]) => `${n}(${c})`);
     await supabase.from('cron_runs').update({

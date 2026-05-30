@@ -79,6 +79,12 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
     db.from('coach_letters').select('letter_date,letter,oneliner,context,source_hash').eq('child_id', childId),
     db.from('daily_questions').select('q_date,question,topic,chips,answer,answered_at,context').eq('child_id', childId),
   ]);
+  type PS = { period_type: string; period_key: string; metrics: { variety?: number; refusalPct?: number; enjoyPct?: number | null; avgDur?: number | null; entries?: number } };
+  // period_summaries 테이블 미생성이면 error만 나고 data=null → 빈 배열(안전)
+  const { data: psData } = await db.from('period_summaries').select('period_type,period_key,metrics,updated_at').eq('child_id', childId).order('period_key', { ascending: false }).limit(18);
+  const periods = (psData || []) as PS[];
+  const months = periods.filter((p) => p.period_type === 'month');
+  const weeks = periods.filter((p) => p.period_type === 'week');
 
   const evs: Ev[] = [
     ...(meals || []).map((m): Ev => ({ date: m.log_date, kind: 'meal', data: m as Meal })),
@@ -100,6 +106,38 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
           <div style={{ fontSize: 11, color: '#9CA3AF' }}>{child?.age_band}{child?.sex === 'M' ? '·남아' : child?.sex === 'F' ? '·여아' : ''}{child?.daycare ? ' · 기관 다님' : ''}</div>
         </div>
       </header>
+
+      {/* 병원 차트형 기간 요약(의무기록) */}
+      {(months.length > 0 || weeks.length > 0) && (
+        <details style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '10px 16px' }}>
+          <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 800, color: '#1a2b4a' }}>📋 기간 요약(의무기록) — 월 {months.length} · 주 {weeks.length}</summary>
+          {[['월', months], ['주', weeks]].map(([lab, arr]) => (arr as PS[]).length > 0 && (
+            <div key={lab as string} style={{ marginTop: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#C45A00', margin: '4px 0' }}>{lab as string} 단위</div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ borderCollapse: 'collapse', fontSize: 11.5, width: '100%', minWidth: 380 }}>
+                  <thead><tr style={{ color: '#9CA3AF', textAlign: 'right' }}>
+                    <th style={{ textAlign: 'left', padding: '3px 6px' }}>기간</th><th style={{ padding: '3px 6px' }}>잘먹는</th><th style={{ padding: '3px 6px' }}>거부%</th><th style={{ padding: '3px 6px' }}>완식%</th><th style={{ padding: '3px 6px' }}>식사분</th><th style={{ padding: '3px 6px' }}>끼니</th>
+                  </tr></thead>
+                  <tbody>
+                    {(arr as PS[]).map((p) => (
+                      <tr key={p.period_key} style={{ borderTop: '1px solid #F0F0F0', textAlign: 'right' }}>
+                        <td style={{ textAlign: 'left', padding: '3px 6px', fontWeight: 700, color: '#1a2b4a' }}>{p.period_key}</td>
+                        <td style={{ padding: '3px 6px', color: '#16A085', fontWeight: 700 }}>{p.metrics.variety ?? '-'}</td>
+                        <td style={{ padding: '3px 6px', color: '#C62828' }}>{p.metrics.refusalPct ?? '-'}</td>
+                        <td style={{ padding: '3px 6px' }}>{p.metrics.enjoyPct ?? '-'}</td>
+                        <td style={{ padding: '3px 6px' }}>{p.metrics.avgDur ?? '-'}</td>
+                        <td style={{ padding: '3px 6px', color: '#9CA3AF' }}>{p.metrics.entries ?? '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+          <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 6 }}>매일 새벽 크론이 현재 주·달을 재계산해 누적. '잘먹는'=2회+ 비거부 고유 식재료.</div>
+        </details>
+      )}
 
       <div style={{ padding: '14px 14px 60px' }}>
         {evs.length === 0 && <p style={{ textAlign: 'center', color: '#5a6b7a', fontSize: 13, marginTop: 40 }}>아직 기록이 없어요.</p>}
