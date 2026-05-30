@@ -31,18 +31,41 @@
       (currentEmail ? '<button id="o" style="margin-top:8px;border:none;color:#9CA3AF;font-size:12px">다른 계정으로 로그인</button>' : '') +
       '</div></body>';
     document.getElementById('g').onclick = function () {
-      sb.auth.signInWithOAuth({ provider: 'google', options: { queryParams: { hd: DOMAIN, prompt: 'select_account' }, redirectTo: location.href } });
+      // redirectTo는 해시·쿼리 없는 깨끗한 URL — 기존 #access_token이 중복되어 파싱 깨지는 것 방지
+      sb.auth.signInWithOAuth({ provider: 'google', options: { queryParams: { hd: DOMAIN, prompt: 'select_account' }, redirectTo: location.origin + location.pathname } });
     };
     var o = document.getElementById('o');
     if (o) o.onclick = function () { sb.auth.signOut().then(function () { location.reload(); }); };
   }
 
+  function cleanHash() {
+    // 로그인 후 URL의 #access_token=... 토큰 흔적 제거
+    if (location.hash || location.search) {
+      try { history.replaceState(null, '', location.origin + location.pathname); } catch (e) {}
+    }
+  }
+  function isDomain(session) {
+    var email = (session && session.user && session.user.email || '').toLowerCase();
+    return email.slice(-(DOMAIN.length + 1)) === '@' + DOMAIN;
+  }
   function boot() {
-    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+    });
+    // 로그인 직후 해시로 세션이 들어오면 onAuthStateChange가 잡는다
+    sb.auth.onAuthStateChange(function (_evt, session) {
+      if (session && isDomain(session)) { cleanHash(); reveal(); }
+    });
     sb.auth.getSession().then(function (res) {
-      var email = (res && res.data && res.data.session && res.data.session.user && res.data.session.user.email || '').toLowerCase();
-      if (email.slice(-(DOMAIN.length + 1)) === '@' + DOMAIN) reveal();
-      else loginWall(sb, email);
+      var session = res && res.data && res.data.session;
+      if (isDomain(session)) { cleanHash(); reveal(); return; }
+      // URL에 토큰이 있으면 detectSessionInUrl 처리/AuthStateChange를 잠깐 기다린다
+      var hasToken = /access_token=/.test(location.hash) || /[?&]code=/.test(location.search);
+      if (hasToken) { setTimeout(function () { sb.auth.getSession().then(function (r2) {
+        if (isDomain(r2 && r2.data && r2.data.session)) { cleanHash(); reveal(); }
+        else loginWall(sb, '');
+      }); }, 600); return; }
+      loginWall(sb, (session && session.user && session.user.email) || '');
     }).catch(function () { loginWall(sb, ''); });
   }
 
