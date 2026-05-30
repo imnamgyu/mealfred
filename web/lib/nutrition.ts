@@ -93,14 +93,21 @@ export const CATEGORY_GROUP: Record<string, string> = {
 
 type CatOf = (ing: string) => string | undefined;
 
-/** 식재료 → 커버 영양소. 정확 매핑(NUTRI_MAP) + 카테고리 프로필(CATEGORY_NUTRI)을 합집합.
- *  합집합 이유: 계란이 NUTRI_MAP에 있어도 계란 카테고리의 비타민E·판토텐산 등을 못 받던 갭 해소.
- *  (worry 영양소 철·D·칼슘은 카테고리가 없는 곳엔 안 붙어 과대평가 안 됨) */
+// 농진청 10.4 정밀맵(gen-nutrient-map.py 생성) — 1일 KDRI 15%↑ 공급 영양소. 빗대기를 대체하는 1차 출처.
+import GEN_RAW from './nutrient-map.generated.json';
+const GEN_NUTRI = GEN_RAW as Record<string, { nong: string; conf: string; n: string[] }>;
+export function generatedNutrientMap(): Record<string, { nong: string; conf: string; n: string[] }> { return GEN_NUTRI; }
+
+/** 식재료 → 커버 영양소.
+ *  ① 농진청 정밀맵 ∪ NUTRI_MAP(둘 다 정확 출처) 우선. ② 둘 다 없으면 카테고리 빗대기(CATEGORY_NUTRI) 폴백.
+ *  → 데이터 있는 식재료는 농진청 근거로 정확, 미수록만 빗대기 안전망. (영양 누락 최소화) */
 export function nutrientsOf(ing: string, catOf?: CatOf): string[] {
+  const gen = GEN_NUTRI[ing]?.n || [];
   const direct = NUTRI_MAP[ing] || [];
+  if (gen.length || direct.length) return [...new Set([...gen, ...direct])];
   const cat = catOf?.(ing);
   const byCat = (cat && CATEGORY_NUTRI[cat]) || [];
-  return direct.length || byCat.length ? [...new Set([...direct, ...byCat])] : [];
+  return byCat.length ? [...new Set(byCat)] : [];
 }
 
 // 핵심 추적 영양소 (신호등 표시 — 영유아 결핍 흔한 순)

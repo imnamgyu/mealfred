@@ -69,7 +69,10 @@ export default async function AdminHome() {
           <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>🧪 코칭 QA 콘솔</h1>
           <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>계정 {rows.length}명 · 아이를 누르면 대화 쓰레드로 검수</p>
         </div>
-        <Link href="/admin/cron" style={{ fontSize: 12, fontWeight: 800, color: '#fff', background: '#1a2b4a', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🌙 크론 보고서</Link>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <Link href="/admin/nutrition" style={{ fontSize: 12, fontWeight: 800, color: '#1a2b4a', background: '#FFF0E0', border: '1px solid #FFD0A0', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🧬 영양 매핑</Link>
+          <Link href="/admin/cron" style={{ fontSize: 12, fontWeight: 800, color: '#fff', background: '#1a2b4a', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🌙 크론</Link>
+        </div>
       </header>
 
       <div style={{ display: 'grid', gap: 10 }}>
