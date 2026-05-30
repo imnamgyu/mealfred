@@ -45,6 +45,10 @@ export async function GET(req: Request) {
   const today = kstToday();
   const since = kstDateNDaysAgo(6);
   let processed = 0, errors = 0, letters = 0, questions = 0, reused = 0, skippedTime = 0;
+  // 일일 정량 지표(어드민 보고서용)
+  let lowData = 0, redChildren = 0, gapChildren = 0, daycareChildren = 0, eatenSum = 0, evalChildren = 0;
+  const redFreq: Record<string, number> = {};
+  const issues: string[] = [];
 
   const { data: runRow } = await supabase.from('cron_runs').insert({ job_name: 'coach', status: 'running' }).select('id').single();
 
@@ -127,12 +131,21 @@ export async function GET(req: Request) {
         });
 
         const byDay = Object.values(byDate).filter((a) => a.length);
-        if (byDay.length < 3) continue;
+        if (byDay.length < 3) { lowData++; continue; }
         const sig = computeSignals(byDay, catOf);
         const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
         const fg = computeFoodGroups(allIng, catOf);
         const uniqRef = [...new Set(ref)];
         const ts = computeTimeseries(byDate, menuFreq, catOf, today, { assertNoVeg: catReliable });
+        // P9 + 보고서: 최근 5일 중 기록된 날(결정론적) — 재사용 분기에서도 쓰도록 위로 끌어올림
+        const RECENT_WINDOW = 5;
+        const recentLoggedDays = Array.from({ length: RECENT_WINDOW }, (_, i) => kstDateNDaysAgo(i + 1))
+          .filter((d) => Object.prototype.hasOwnProperty.call(byDate, d)).length;
+        // 일일 정량 지표 집계
+        evalChildren++; eatenSum += new Set(allIng).size;
+        if (reds.length) { redChildren++; reds.forEach((n) => { redFreq[n] = (redFreq[n] || 0) + 1; }); }
+        if (recentLoggedDays < RECENT_WINDOW) gapChildren++;
+        if (daycareMap[cid]) daycareChildren++;
 
         // 식단 지문 — 클라가 동일 해시면 재생성 없이 read (home page와 동일 공식)
         const srcHash = [...allIng].sort().join(',') + '|' + [...uniqRef].sort().join(',') + '|' + [...reds].sort().join(',') + '|' + notes.length;
@@ -148,10 +161,6 @@ export async function GET(req: Request) {
             .select('letter_date,letter').eq('child_id', cid).neq('letter_date', today)
             .order('letter_date', { ascending: false }).limit(5);
           const pastLetters = (pastL || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter }));
-          // P9: 최근 5일(어제~5일 전, 당일 제외) 중 실제 기록된 날 수 — 결정론적 계산(환각 차단)
-          const RECENT_WINDOW = 5;
-          const recentLoggedDays = Array.from({ length: RECENT_WINDOW }, (_, i) => kstDateNDaysAgo(i + 1))
-            .filter((d) => Object.prototype.hasOwnProperty.call(byDate, d)).length;
           const gen = await generateLetter({
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
@@ -197,15 +206,23 @@ export async function GET(req: Request) {
         }
         processed++;
       } catch (e: unknown) {
-        console.error('[cron/coach] child', cid, e instanceof Error ? e.message : e);
+        const msg = e instanceof Error ? e.message : String(e);
+        console.error('[cron/coach] child', cid, msg);
         errors++;
+        issues.push(`${kidMap[cid]?.nickname || cid.slice(0, 8)}: 생성 실패 — ${msg}`.slice(0, 160));
       }
     }
 
+    const topReds = Object.entries(redFreq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n, c]) => `${n}(${c})`);
     await supabase.from('cron_runs').update({
-      status: skippedTime > 0 ? 'partial' : 'success', finished_at: new Date().toISOString(),
+      status: errors > 0 || skippedTime > 0 ? 'partial' : 'success', finished_at: new Date().toISOString(),
       processed_count: processed, error_count: errors,
-      meta: { letters, questions, reused, active: activeIds.length, skippedTime },
+      meta: {
+        letters, questions, reused, active: activeIds.length, skippedTime, lowData,
+        evalChildren, avgEaten: evalChildren ? Math.round(eatenSum / evalChildren) : 0,
+        redChildren, gapChildren, daycareChildren, topReds,
+        issues: issues.slice(0, 30), durationMs: Date.now() - runStart,
+      },
     }).eq('id', runRow?.id);
 
     return NextResponse.json({ ok: true, processed, errors, letters, questions, reused, skippedTime, active: activeIds.length, duration_ms: Date.now() - runStart });

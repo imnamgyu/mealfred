@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal, type GroupSignal } from '@/lib/nutrition';
-import { bmiOf, bmiPercentile, bmiBand, type Sex } from '@/lib/growth-reference';
+import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
@@ -238,9 +238,9 @@ export default function Home() {
         pct: bmiPct != null ? Math.round(bmiPct) : null,
         carb: macroOf('탄수화물'), protein: macroOf('단백질'), fat: 'reference',
         tip: bmiPct != null
-          ? `또래 ${Math.round(bmiPct)}%ile · ${bmiBand(bmiPct)} (WHO 성장도표 기준). 탄수화물·단백질은 식단 빈도로 평가했어요.`
+          ? `BMI ${bmiBand(bmiPct)} 범위예요. ${bmiPhrase(bmiPct)}(또래 100명 중 ${Math.round(bmiPct)}번째)라 지금처럼 골고루면 충분해요. 탄수화물·단백질은 식단 빈도로 평가했어요.`
           : !childMeta.sex
-            ? '성별을 입력하면 또래 퍼센타일이 나와요 — 식사 기록 화면 체위 카드에서 남아/여아 선택.'
+            ? '성별을 입력하면 또래 비교가 나와요 — 식사 기록 화면 체위 카드에서 남아/여아 선택.'
             : '생년월(나이) 정보가 없어 또래 비교를 못 해요 — 온보딩에서 생년·월을 넣어주세요.',
       }
     : isMockup
@@ -341,6 +341,24 @@ export default function Home() {
           </div>
         )}
 
+        {/* 최근 식단 진단 + 미기록 환기 — 코치 편지 바로 아래(엄마가 매일 읽는 자리) */}
+        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+          <div className="flex items-center justify-between mb-2">
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>📊 최근 {isMockup ? 3 : days}일 식단 진단</strong>
+            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full text-white" style={{ background: grade.color }}>{grade.g}</span>
+          </div>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>{oneLiner}</p>
+          {!isMockup && missDays.length > 0 && (
+            <a href={`/care?date=${missDays[0].d}`} className="mt-2.5 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: '#FFF7ED', border: '1px solid #FFD9B8' }}>
+              <span className="text-base">📝</span>
+              <span className="text-[11.5px] font-semibold leading-snug" style={{ color: '#C45A00' }}>
+                최근 5일 중 <strong>{missDays.map((x) => x.label).join('·')}</strong> 기록이 비어 있어요. 기억나는 대로 채우면 더 정확히 봐드릴게요 →
+              </span>
+            </a>
+          )}
+          <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석</div>
+        </div>
+
         {/* 영양 점수 카드 */}
         <div className="rounded-2xl p-5 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFFDF5)', border: `1.5px solid ${grade.color}` }}>
           <div className="flex items-center justify-between mb-3">
@@ -386,24 +404,6 @@ export default function Home() {
           )}
           <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 36종 자세히 보기 →</div>
         </button>
-
-        {/* 최근 3일 식단 진단 — LLM 한줄 */}
-        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
-          <div className="flex items-center justify-between mb-2">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>📊 최근 {isMockup ? 3 : days}일 식단 진단</strong>
-            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full text-white" style={{ background: grade.color }}>{grade.g}</span>
-          </div>
-          <p className="text-[12.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>{oneLiner}</p>
-          {!isMockup && missDays.length > 0 && (
-            <a href={`/care?date=${missDays[0].d}`} className="mt-2.5 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: '#FFF7ED', border: '1px solid #FFD9B8' }}>
-              <span className="text-base">📝</span>
-              <span className="text-[11.5px] font-semibold leading-snug" style={{ color: '#C45A00' }}>
-                최근 5일 중 <strong>{missDays.map((x) => x.label).join('·')}</strong> 기록이 비어 있어요. 기억나는 대로 채우면 더 정확히 봐드릴게요 →
-              </span>
-            </a>
-          )}
-          <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석</div>
-        </div>
 
         {/* 식품군 다양성 — 충분/조금부족/부족 (빈도 기반, 색+글자 3중) */}
         <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
@@ -537,9 +537,16 @@ export default function Home() {
                   </div>
                   {/* BMI */}
                   <div className="rounded-xl bg-white p-3 mb-2.5" style={{ border: '1px solid #F0E0D0' }}>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-start justify-between mb-2">
                       <span className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>BMI {bmiCard.bmi}</span>
-                      <span className="text-[11px] font-bold" style={{ color: bmiCard.pct == null ? '#9CA3AF' : bmiCard.band === '정상' ? '#1B5E20' : '#C45A00' }}>{bmiCard.pct != null ? `${bmiCard.band} · 또래 ${bmiCard.pct}%ile` : (childMeta.sex ? '나이 정보 필요' : '성별 입력 시 또래 비교')}</span>
+                      {bmiCard.pct != null ? (
+                        <span className="text-right leading-tight">
+                          <span className="text-[11px] font-bold block" style={{ color: bmiCard.band === '정상' ? '#1B5E20' : '#C45A00' }}>{bmiCard.band} · {bmiPhrase(bmiCard.pct)}</span>
+                          <span className="text-[9.5px] font-semibold" style={{ color: '#9CA3AF' }}>또래 100명 중 {bmiCard.pct}번째</span>
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-bold" style={{ color: '#9CA3AF' }}>{childMeta.sex ? '나이 정보 필요' : '성별 입력 시 또래 비교'}</span>
+                      )}
                     </div>
                     {bmiCard.pct != null && (<>
                     <div className="relative h-2 rounded-full" style={{ background: 'linear-gradient(90deg,#FFCDD2 0%,#FFE082 22%,#C8E6C9 40% 70%,#FFE082 88%,#FFCDD2 100%)' }}>
@@ -561,7 +568,7 @@ export default function Home() {
               ) : (
                 <a href="/care" className="block rounded-2xl p-4 mb-4 text-center" style={{ background: '#FFF8F2', border: '1.5px dashed #FFD0A0' }}>
                   <div className="text-sm font-extrabold mb-1" style={{ color: '#C45A00' }}>📏 키·몸무게를 기록해보세요</div>
-                  <div className="text-[11.5px]" style={{ color: '#8a7a6a' }}>BMI·또래 퍼센타일(WHO 성장도표)을 보여드려요 — 식사 기록 화면에서 입력 →</div>
+                  <div className="text-[11.5px]" style={{ color: '#8a7a6a' }}>BMI·또래 비교(WHO 성장도표)를 보여드려요 — 식사 기록 화면에서 입력 →</div>
                 </a>
               )}
 

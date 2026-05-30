@@ -63,9 +63,12 @@ export default async function AdminHome() {
 
   return (
     <main style={{ maxWidth: 720, margin: '0 auto', padding: 24, fontFamily: 'Pretendard, sans-serif' }}>
-      <header style={{ marginBottom: 18 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>🧪 코칭 QA 콘솔</h1>
-        <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>계정 {rows.length}명 · 부모 입력 → 우리 코칭 → 우리 판단을 계정별로 검수</p>
+      <header style={{ marginBottom: 18, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>🧪 코칭 QA 콘솔</h1>
+          <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>계정 {rows.length}명 · 아이를 누르면 대화 쓰레드로 검수</p>
+        </div>
+        <Link href="/admin/cron" style={{ fontSize: 12, fontWeight: 800, color: '#fff', background: '#1a2b4a', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🌙 크론 보고서</Link>
       </header>
 
       <div style={{ display: 'grid', gap: 10 }}>

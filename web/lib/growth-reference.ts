@@ -175,6 +175,16 @@ export function bmiBand(pct: number): BmiBand {
   return '비만';
 }
 
+/** 퍼센타일 → 부모가 읽는 평이한 위치 표현('%ile' 용어 제거). */
+export function bmiPhrase(pct: number): string {
+  if (pct < 5) return '또래보다 가벼운 편';
+  if (pct < 25) return '또래보다 약간 가벼운 편';
+  if (pct < 75) return '또래 평균 정도';
+  if (pct < 85) return '또래보다 약간 묵직한 편';
+  if (pct < 95) return '또래보다 묵직한 편';
+  return '또래보다 많이 묵직한 편';
+}
+
 export function bmiOf(heightCm: number, weightKg: number): number | null {
   if (!(heightCm > 0) || !(weightKg > 0)) return null;
   const h = heightCm / 100;
