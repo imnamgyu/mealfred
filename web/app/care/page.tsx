@@ -113,6 +113,12 @@ export default function CarePage() {
   // 체위(키·몸무게) 시계열 — 언제든 입력. 홈 36종 모달 BMI·퍼센타일에 반영
   const [sex, setSex] = useState<'M' | 'F' | ''>('');
   const [daycare, setDaycare] = useState(false);   // 등원 — 평일 점심·간식은 기관 끼니(코칭 반영)
+  // 식단표 OCR 자동채움
+  const [ocrOpen, setOcrOpen] = useState(false);
+  const [ocrBusy, setOcrBusy] = useState(false);
+  const [ocrItems, setOcrItems] = useState<{ date: string; slot: string; menu: string; ingredients: string[] }[]>([]);
+  const [ocrMonth, setOcrMonth] = useState(() => kstToday().slice(0, 7));
+  const [ocrMsg, setOcrMsg] = useState('');
   const [growthLatest, setGrowthLatest] = useState<{ measured_on: string; height_cm: number | null; weight_kg: number | null } | null>(null);
   const [gOpen, setGOpen] = useState(false);
   const [gH, setGH] = useState(''); const [gW, setGW] = useState(''); const [gSaved, setGSaved] = useState(false);
@@ -371,6 +377,52 @@ export default function CarePage() {
     if (childId) supabase.from('children').update({ daycare: v }).eq('id', childId).then(({ error }) => { if (error) console.warn('[daycare] save:', error.message); });
   }
 
+  // 식단표 사진 → /api/ocr 로 끼니별 메뉴 분해
+  async function handleOcrFile(file: File | null) {
+    if (!file) return;
+    setOcrBusy(true); setOcrMsg(''); setOcrItems([]);
+    try {
+      const fd = new FormData(); fd.append('image', file);
+      const r = await fetch('https://app.mealfred.com/api/ocr', { method: 'POST', body: fd }).then((r) => r.json());
+      if (r?.is_menu === false) setOcrMsg(r.reason || '식단표를 인식하지 못했어요. 더 선명한 사진으로 시도해주세요.');
+      else {
+        const items = (r?.items || []).filter((it: { menu?: string }) => it.menu);
+        setOcrItems(items);
+        if (!items.length) setOcrMsg('메뉴를 찾지 못했어요.');
+      }
+    } catch { setOcrMsg('업로드 실패. 다시 시도해주세요.'); }
+    finally { setOcrBusy(false); }
+  }
+
+  // 인식된 식단표 → 기관 급식(meal_logs, place=daycare, source=daycare_menu)으로 저장. 부모 입력은 덮어쓰지 않음.
+  const OCR_SLOT: Record<string, string> = { '오전간식': 'am_snack', '점심': 'lunch', '오후간식': 'pm_snack' };
+  async function saveDaycareMenu() {
+    if (!userId || !childId || !ocrItems.length) return;
+    const [y, mo] = ocrMonth.split('-');
+    const { data: existing } = await supabase.from('meal_logs').select('log_date,slot,source')
+      .eq('child_id', childId).gte('log_date', `${y}-${mo}-01`).lte('log_date', `${y}-${mo}-31`);
+    const taken = new Set((existing || []).filter((r: { source: string | null }) => r.source !== 'daycare_menu')
+      .map((r: { log_date: string; slot: string }) => `${r.log_date}|${r.slot}`));   // 부모 입력 보호
+    const byKey: Record<string, { log_date: string; slot: string; menus: string[]; ings: Set<string> }> = {};
+    ocrItems.forEach((it) => {
+      const d = parseInt(it.date); if (!d || d < 1 || d > 31) return;
+      const log_date = `${y}-${mo}-${String(d).padStart(2, '0')}`;
+      const slot = OCR_SLOT[it.slot] || 'lunch';
+      const key = `${log_date}|${slot}`;
+      if (taken.has(key)) return;
+      const e = (byKey[key] = byKey[key] || { log_date, slot, menus: [], ings: new Set<string>() });
+      if (it.menu) e.menus.push(it.menu);
+      (it.ingredients || []).forEach((i) => { const n = normalizeIngredient(i); if (n) e.ings.add(n); });
+    });
+    const rows = Object.values(byKey).map((v) => ({
+      child_id: childId, parent_id: userId, log_date: v.log_date, slot: v.slot,
+      menus: v.menus, ingredients: [...v.ings], place: 'daycare', source: 'daycare_menu', updated_at: new Date().toISOString(),
+    }));
+    if (rows.length) await supabase.from('meal_logs').upsert(rows, { onConflict: 'child_id,log_date,slot' });
+    if (!daycare) saveDaycare(true);
+    setOcrMsg(`✓ ${rows.length}끼 기관 급식으로 저장됐어요`); setOcrItems([]);
+  }
+
   async function saveEntry() {
     const next = { ...logs };
     if (!next[date]) next[date] = {};
@@ -516,6 +568,33 @@ export default function CarePage() {
               <button onClick={() => saveDaycare(!daycare)} aria-label="등원 여부" className="transition" style={{ width: 46, height: 26, borderRadius: 100, background: daycare ? '#16A085' : '#E5E7EB', position: 'relative', flexShrink: 0, border: 'none' }}>
                 <span style={{ position: 'absolute', top: 3, left: daycare ? 23 : 3, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left .15s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
               </button>
+            </div>
+            {/* 식단표 OCR 자동채움 — 점심·간식 매일 기록 안 해도 됨 */}
+            <div className="mt-3 pt-3" style={{ borderTop: '1px dashed #FFE8D0' }}>
+              <button onClick={() => setOcrOpen((o) => !o)} className="text-[12px] font-extrabold" style={{ color: '#C45A00' }}>📋 어린이집 식단표 올리기 {ocrOpen ? '▾' : '▸'}</button>
+              {ocrOpen && (
+                <div className="mt-2.5">
+                  <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>월간 식단표 사진을 올리면 점심·간식을 자동으로 채워요 — 매일 기록 안 해도 돼요.</p>
+                  <div className="flex gap-2 items-center mb-2">
+                    <input type="month" value={ocrMonth} onChange={(e) => setOcrMonth(e.target.value)} className="px-2 py-1.5 rounded-lg text-[12px] outline-none" style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
+                    <label className="px-3 py-1.5 rounded-lg text-[12px] font-bold text-white cursor-pointer" style={{ background: ocrBusy ? '#9CA3AF' : '#FF6B1A' }}>
+                      {ocrBusy ? '인식 중…' : '📷 사진 선택'}
+                      <input type="file" accept="image/*" disabled={ocrBusy} onChange={(e) => handleOcrFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
+                    </label>
+                  </div>
+                  {ocrItems.length > 0 && (
+                    <div className="rounded-lg p-2.5 mb-2" style={{ background: '#FAFAF7', border: '1px solid #E5E7EB' }}>
+                      <div className="text-[11px] font-bold mb-1" style={{ color: '#1a2b4a' }}>{ocrMonth} · 인식된 메뉴 {ocrItems.length}개</div>
+                      <div className="text-[10.5px] leading-relaxed" style={{ color: '#6B7280', maxHeight: 120, overflowY: 'auto' }}>
+                        {ocrItems.slice(0, 12).map((it, i) => (<div key={i}>{it.date}일 · {it.slot} · {it.menu}</div>))}
+                        {ocrItems.length > 12 && <div>…외 {ocrItems.length - 12}개</div>}
+                      </div>
+                      <button onClick={saveDaycareMenu} className="w-full mt-2 py-2 rounded-lg text-[12px] font-extrabold text-white" style={{ background: '#16A085' }}>{ocrMonth} 기관 급식으로 저장</button>
+                    </div>
+                  )}
+                  {ocrMsg && <div className="text-[11px] font-bold" style={{ color: ocrMsg.startsWith('✓') ? '#16A085' : '#C62828' }}>{ocrMsg}</div>}
+                </div>
+              )}
             </div>
           </div>
         )}
