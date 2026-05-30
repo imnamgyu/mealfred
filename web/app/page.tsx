@@ -10,6 +10,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal, type GroupSignal } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
+import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
@@ -351,6 +352,18 @@ export default function Home() {
     return out;
   })();
 
+  // 📦 이번 주 박스 배합 — 안 먹어본 빈약군 우선 다품종 소량 (실데이터)
+  const boxItems = (!isMockup && pool.length) ? composeWeeklyBox({
+    pool, eaten: eatenSet,
+    weakCats: (() => {
+      const e: Record<string, number> = {};
+      pool.forEach((p) => { if (eatenSet.has(p.nm)) e[p.cat] = (e[p.cat] || 0) + 1; });
+      return [...new Set(pool.map((p) => p.cat))].sort((a, b) => (e[a] || 0) - (e[b] || 0));
+    })(),
+    daycareRefused: refused,
+    size: 12,
+  }) : [];
+
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
       {/* 헤더 */}
@@ -364,8 +377,24 @@ export default function Home() {
       </header>
 
       <div className="flex-1 px-5 pb-4">
-        {/* 목업 안내 배너 */}
-        {isMockup && (
+        {/* 비로그인 첫 진입 — 랜딩 히어로 + CTA (그 아래는 실제 분석 화면 미리보기) */}
+        {!loading && !loggedIn && (
+          <div className="rounded-2xl p-5 mb-3 text-center" style={{ background: 'linear-gradient(160deg,#FFF5EB,#FFE8D0 60%,#FFD9B8)', border: '1.5px solid #FFD0A0' }}>
+            <div className="text-[11px] font-extrabold mb-1.5" style={{ color: '#C45A00' }}>35개 국제 편식이론 기반</div>
+            <div className="text-[23px] font-extrabold leading-snug mb-2" style={{ color: '#1a2b4a' }}>매일, 우리 아이<br />편식 코치</div>
+            <p className="text-[12.5px] leading-relaxed mb-3" style={{ color: '#5a4a3a' }}>식단만 기록하면 — 영양 신호등·BMI·코치 편지·맞춤 식재료까지 <strong>매일 자동으로</strong>.</p>
+            <div className="flex flex-wrap justify-center gap-1.5 mb-3">
+              {['💌 매일 코칭', '🚦 36종 영양', '📈 편식 변화', '📏 BMI·성장'].map((c) => (
+                <span key={c} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'white', color: '#C45A00', border: '1px solid #FFD0A0' }}>{c}</span>
+              ))}
+            </div>
+            <a href="/signup" className="block rounded-xl py-3.5 text-white font-extrabold text-[15px]" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>🌱 카카오로 1초 시작 · 1개월 무료</a>
+            <div className="text-[11px] mt-2 font-bold" style={{ color: '#C45A00' }}>🎁 친구 5명만 방문해도 우리 아이 평생 무료</div>
+            <div className="text-[10.5px] mt-2.5" style={{ color: '#9CA3AF' }}>↓ 아래는 실제 분석 화면 미리보기예요</div>
+          </div>
+        )}
+        {/* 목업 안내 배너 (로그인 후 기록 3일 미만) */}
+        {isMockup && loggedIn && (
           <div className="rounded-xl px-4 py-3 mb-3 flex items-center gap-3" style={{ background: '#FFF5EB', border: '1.5px solid #FFD0A0' }}>
             <span className="text-xl">👀</span>
             <div className="flex-1">
@@ -586,13 +615,34 @@ export default function Home() {
           })}
           {!isMockup && tryRecommend.length === 0 && <div className="text-center py-4 text-xs" style={{ color: '#9CA3AF' }}>필수·권장 식재료를 모두 먹어봤어요! 🎉</div>}
 
+          {/* 📦 이번 주 박스 배합 미리보기 — 실데이터로 구성 */}
+          {boxItems.length > 0 && (
+            <div className="mt-3 rounded-xl p-3.5" style={{ background: '#FFFBF5', border: '1.5px solid #FFD0A0' }}>
+              <div className="flex items-center justify-between mb-1">
+                <strong className="text-[13px]" style={{ color: '#1a2b4a' }}>📦 이번 주 우리 아이 박스 구성</strong>
+                <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{boxItems.length}종 소량</span>
+              </div>
+              <div className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>빈약한 식품군·안 먹어본 것 위주로 다품종 소량. 강요 없이 식탁에 올려만 두세요(SOS).</div>
+              <div className="flex flex-wrap gap-1.5">
+                {boxItems.map((b) => {
+                  const m = BOX_REASON_META[b.reason];
+                  return (
+                    <span key={b.nm} className="text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: 'white', color: '#1a2b4a', border: '1px solid #F0E0D0' }}>
+                      {b.em} {b.nm} <span style={{ color: m.color }}>· {m.label}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* 골고루 키트 CTA */}
-          <a href="https://www.mealfred.com/box-product.html" target="_blank" rel="noopener" className="block mt-3 rounded-xl p-3.5" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
+          <a href="https://www.mealfred.com/box-product.html" target="_blank" rel="noopener" className="block mt-2 rounded-xl p-3.5" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
             <div className="flex items-center gap-3">
               <span className="text-2xl">📦</span>
               <div className="flex-1">
-                <div className="text-sm font-extrabold text-white">골고루 키트로 집에서 만나보세요</div>
-                <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.9)' }}>안 먹어본 식재료, AI가 골라 주 1회 소량 배송</div>
+                <div className="text-sm font-extrabold text-white">{boxItems.length > 0 ? '이 구성 그대로 집으로 받기' : '골고루 키트로 집에서 만나보세요'}</div>
+                <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.9)' }}>AI가 매주 분석해 구성 · 소량 배송</div>
               </div>
               <span className="text-white">›</span>
             </div>
