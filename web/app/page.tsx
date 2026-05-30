@@ -224,7 +224,9 @@ export default function Home() {
         carb: macroOf('탄수화물'), protein: macroOf('단백질'), fat: 'reference',
         tip: bmiPct != null
           ? `또래 ${Math.round(bmiPct)}%ile · ${bmiBand(bmiPct)} (WHO 성장도표 기준). 탄수화물·단백질은 식단 빈도로 평가했어요.`
-          : '성별을 입력하면 또래 퍼센타일도 나와요 — 식사 기록 화면의 체위 카드에서 남아/여아 선택.',
+          : !childMeta.sex
+            ? '성별을 입력하면 또래 퍼센타일이 나와요 — 식사 기록 화면 체위 카드에서 남아/여아 선택.'
+            : '생년월(나이) 정보가 없어 또래 비교를 못 해요 — 온보딩에서 생년·월을 넣어주세요.',
       }
     : isMockup
       ? { ageLabel: '만 28개월', hw: '88.5cm / 12.4kg', bmi: 15.8, band: '정상', pct: 18, carb: 'green', protein: 'green', fat: 'yellow', tip: 'BMI 정상 범위 — 매일 먹지만 지방 양이 다소 부족해요. 견과류·아보카도·등푸른생선(EPA+DHA)으로 보강하면 좋아요.' }
@@ -511,7 +513,7 @@ export default function Home() {
                   <div className="rounded-xl bg-white p-3 mb-2.5" style={{ border: '1px solid #F0E0D0' }}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>BMI {bmiCard.bmi}</span>
-                      <span className="text-[11px] font-bold" style={{ color: bmiCard.pct == null ? '#9CA3AF' : bmiCard.band === '정상' ? '#1B5E20' : '#C45A00' }}>{bmiCard.pct != null ? `${bmiCard.band} · 또래 ${bmiCard.pct}%ile` : '성별 입력 시 또래 비교'}</span>
+                      <span className="text-[11px] font-bold" style={{ color: bmiCard.pct == null ? '#9CA3AF' : bmiCard.band === '정상' ? '#1B5E20' : '#C45A00' }}>{bmiCard.pct != null ? `${bmiCard.band} · 또래 ${bmiCard.pct}%ile` : (childMeta.sex ? '나이 정보 필요' : '성별 입력 시 또래 비교')}</span>
                     </div>
                     {bmiCard.pct != null && (<>
                     <div className="relative h-2 rounded-full" style={{ background: 'linear-gradient(90deg,#FFCDD2 0%,#FFE082 22%,#C8E6C9 40% 70%,#FFE082 88%,#FFCDD2 100%)' }}>

@@ -376,6 +376,11 @@ export default function CarePage() {
     setDaycare(v);
     if (childId) supabase.from('children').update({ daycare: v }).eq('id', childId).then(({ error }) => { if (error) console.warn('[daycare] save:', error.message); });
   }
+  // 성별은 토글 즉시 저장 (체위 저장 버튼과 분리) — BMI 또래 퍼센타일에 바로 반영
+  async function saveSex(v: 'M' | 'F') {
+    setSex(v);
+    if (childId) supabase.from('children').update({ sex: v }).eq('id', childId).then(({ error }) => { if (error) console.warn('[sex] save:', error.message); });
+  }
 
   // 식단표 사진 → /api/ocr 로 끼니별 메뉴 분해
   async function handleOcrFile(file: File | null) {
@@ -544,7 +549,7 @@ export default function CarePage() {
                 <div className="text-[11px] mb-1.5" style={{ color: '#8a7a6a' }}>성별 <span style={{ color: '#9CA3AF' }}>(BMI 또래 비교용 · 1회)</span></div>
                 <div className="grid grid-cols-2 gap-2 mb-2">
                   {[{ v: 'M', l: '👦 남아' }, { v: 'F', l: '👧 여아' }].map((o) => (
-                    <button key={o.v} onClick={() => setSex(o.v as 'M' | 'F')} className="rounded-lg py-2 text-sm font-bold transition"
+                    <button key={o.v} onClick={() => saveSex(o.v as 'M' | 'F')} className="rounded-lg py-2 text-sm font-bold transition"
                       style={{ background: sex === o.v ? '#1a2b4a' : '#FAFAF7', color: sex === o.v ? 'white' : '#6B7280', border: `1.5px solid ${sex === o.v ? '#1a2b4a' : '#E5E7EB'}` }}>{o.l}</button>
                   ))}
                 </div>
