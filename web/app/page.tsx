@@ -82,7 +82,7 @@ export default function Home() {
   const [pastLetters, setPastLetters] = useState<{ date: string; letter: string; oneliner: string | null }[]>([]);
   const [showPast, setShowPast] = useState(false);
   const [textureInsight, setTextureInsight] = useState<{ pureePct: number } | null>(null);
-  const [repeatInsight, setRepeatInsight] = useState<{ menu: string; count: number } | null>(null);
+  const [repeatInsight, setRepeatInsight] = useState<{ menu: string; count: number; rice?: boolean } | null>(null);
   const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string }[]>([]);
   const [eatenSet, setEatenSet] = useState<Set<string>>(new Set());
 
@@ -161,9 +161,12 @@ export default function Home() {
             const soft = textures.filter((t) => t === 'puree' || t === 'mashed').length;
             setTextureInsight({ pureePct: Math.round((soft / textures.length) * 100) });
           }
-          // 메뉴 반복 인사이트 — 최다 반복 메뉴
-          const top = Object.entries(menuFreq).sort((a, b) => b[1] - a[1])[0];
-          if (top && top[1] >= 3) setRepeatInsight({ menu: top[0], count: top[1] });
+          // 메뉴 반복 인사이트 — 최다 반복 메뉴.
+          // 물·국·김 등은 경고 의미 없어 제외, 흰쌀밥은 '편식'이 아니라 주식이라 너그럽게(잡곡·콩 업그레이드 제안)
+          const SKIP_REPEAT = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉']);
+          const WHITE_RICE = new Set(['밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥']);
+          const top = Object.entries(menuFreq).filter(([k]) => !SKIP_REPEAT.has(k)).sort((a, b) => b[1] - a[1])[0];
+          if (top && top[1] >= 3) setRepeatInsight({ menu: top[0], count: top[1], rice: WHITE_RICE.has(top[0]) });
 
           // 3일 이상 기록 → 코치 편지 캐싱: 식단 지문(hash) 같으면 read, 바뀌면 1회 재생성
           if (byDay.length >= 3) {
@@ -490,8 +493,14 @@ export default function Home() {
           </div>
         )}
 
-        {/* 메뉴 반복 인사이트 — 실데이터(3회+ 반복) or 목업 */}
-        {((!isMockup && repeatInsight) || isMockup) && (
+        {/* 메뉴 반복 인사이트 — 실데이터(3회+ 반복) or 목업. 흰쌀밥은 주식이라 경고 대신 잡곡·콩 업그레이드 제안 */}
+        {!isMockup && repeatInsight?.rice ? (
+          <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #16A085' }}>
+            <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#1B5E20' }}>🍚 밥은 매일 먹는 주식이죠 (잘 하고 계세요)</div>
+            <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>흰쌀에 잡곡·콩을 살짝 섞어볼까요?</div>
+            <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>밥은 줄일 필요 없어요. 흰쌀 한 줌에 <strong>현미·보리·귀리·검은콩·렌틸·완두</strong> 중 하나만 섞어도 식이섬유·단백질이 더해지고 새로운 맛 노출이 됩니다. 처음엔 1/4만 섞어 색·식감에 천천히 적응시켜요.</div>
+          </div>
+        ) : ((!isMockup && repeatInsight) || isMockup) && (
           <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #5B8DEF' }}>
             <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#1565C0' }}>🔁 메뉴 반복 — {isMockup ? '닭죽 5회' : `${repeatInsight?.menu} ${repeatInsight?.count}회`}</div>
             <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>한 주 동안 비슷한 메뉴가 자주 나왔어요</div>

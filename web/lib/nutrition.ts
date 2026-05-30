@@ -261,8 +261,14 @@ export function computeTimeseries(
   } else if (opts?.assertNoVeg) {
     ts.push('최근 기록에 채소가 없음');
   }
-  const top = Object.entries(menuFreq).sort((a, b) => b[1] - a[1])[0];
-  if (top && top[1] >= 3) ts.push(`'${top[0]}'를 ${top[1]}회 반복`);
+  // 물·국 등은 반복 의미 없어 제외. 흰쌀밥은 주식이라 '편식 반복'으로 지적하지 않고 잡곡·콩 섞기 제안으로 전환.
+  const SKIP_REPEAT = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉']);
+  const WHITE_RICE = new Set(['밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥']);
+  const top = Object.entries(menuFreq).filter(([k]) => !SKIP_REPEAT.has(k)).sort((a, b) => b[1] - a[1])[0];
+  if (top && top[1] >= 3) {
+    if (WHITE_RICE.has(top[0])) ts.push('흰쌀밥이 잦음(주식) — 흰쌀에 잡곡·콩 섞기로 다양성 제안 가능');
+    else ts.push(`'${top[0]}'를 ${top[1]}회 반복`);
+  }
   return ts;
 }
 

@@ -48,25 +48,29 @@
     var email = (session && session.user && session.user.email || '').toLowerCase();
     return email.slice(-(DOMAIN.length + 1)) === '@' + DOMAIN;
   }
+  function emailOf(session) { return (session && session.user && session.user.email) || ''; }
+  function decide(sb, session) {
+    if (isDomain(session)) { cleanHash(); reveal(); }
+    else loginWall(sb, emailOf(session));
+  }
   function boot() {
     var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true }
+      auth: { detectSessionInUrl: false, persistSession: true, autoRefreshToken: true }
     });
-    // 로그인 직후 해시로 세션이 들어오면 onAuthStateChange가 잡는다
-    sb.auth.onAuthStateChange(function (_evt, session) {
-      if (session && isDomain(session)) { cleanHash(); reveal(); }
-    });
-    sb.auth.getSession().then(function (res) {
-      var session = res && res.data && res.data.session;
-      if (isDomain(session)) { cleanHash(); reveal(); return; }
-      // URL에 토큰이 있으면 detectSessionInUrl 처리/AuthStateChange를 잠깐 기다린다
-      var hasToken = /access_token=/.test(location.hash) || /[?&]code=/.test(location.search);
-      if (hasToken) { setTimeout(function () { sb.auth.getSession().then(function (r2) {
-        if (isDomain(r2 && r2.data && r2.data.session)) { cleanHash(); reveal(); }
-        else loginWall(sb, '');
-      }); }, 600); return; }
-      loginWall(sb, (session && session.user && session.user.email) || '');
-    }).catch(function () { loginWall(sb, ''); });
+    // 로그인 복귀 시 URL 해시의 토큰을 직접 setSession — detectSessionInUrl에 의존하지 않음(확실)
+    var hash = (location.hash || '').replace(/^#/, '');
+    if (hash.indexOf('access_token=') >= 0) {
+      var p = new URLSearchParams(hash);
+      var at = p.get('access_token'), rt = p.get('refresh_token') || '';
+      sb.auth.setSession({ access_token: at, refresh_token: rt })
+        .then(function (r) { decide(sb, r && r.data && r.data.session); })
+        .catch(function () { loginWall(sb, ''); });
+      return;
+    }
+    // 저장된 세션 확인
+    sb.auth.getSession()
+      .then(function (res) { decide(sb, res && res.data && res.data.session); })
+      .catch(function () { loginWall(sb, ''); });
   }
 
   var s = document.createElement('script');
