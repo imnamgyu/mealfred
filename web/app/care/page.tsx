@@ -119,6 +119,7 @@ export default function CarePage() {
   const [ocrItems, setOcrItems] = useState<{ date: string; slot: string; menu: string; ingredients: string[] }[]>([]);
   const [ocrMonth, setOcrMonth] = useState(() => kstToday().slice(0, 7));
   const [ocrMsg, setOcrMsg] = useState('');
+  const [ocrElapsed, setOcrElapsed] = useState(0);   // 식단표 인식 진행 카운트다운
   const [growthLatest, setGrowthLatest] = useState<{ measured_on: string; height_cm: number | null; weight_kg: number | null } | null>(null);
   const [gOpen, setGOpen] = useState(false);
   const [gH, setGH] = useState(''); const [gW, setGW] = useState(''); const [gSaved, setGSaved] = useState(false);
@@ -270,6 +271,13 @@ export default function CarePage() {
         .eq('child_id', childId).eq('q_date', todayStr());
     }
   }
+
+  // 식단표 인식 중 경과 카운트(부모 대기 UX) — 보통 30~50초
+  useEffect(() => {
+    if (!ocrBusy) { setOcrElapsed(0); return; }
+    const id = setInterval(() => setOcrElapsed((e) => e + 1), 1000);
+    return () => clearInterval(id);
+  }, [ocrBusy]);
 
   // 슬롯·날짜 바뀌면 기존 기록 불러오기
   useEffect(() => {
@@ -595,6 +603,17 @@ export default function CarePage() {
                       <input type="file" accept="image/*" disabled={ocrBusy} onChange={(e) => handleOcrFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
                     </label>
                   </div>
+                  {ocrBusy && (
+                    <div className="mb-2">
+                      <div className="flex justify-between text-[10.5px] font-extrabold mb-1" style={{ color: '#C45A00' }}>
+                        <span>📷 식단표 읽는 중…</span><span>{ocrElapsed}s {ocrElapsed < 50 ? `/ 약 ${Math.max(5, 50 - ocrElapsed)}초` : '거의 다 됐어요'}</span>
+                      </div>
+                      <div className="h-2 rounded-full overflow-hidden" style={{ background: '#FFE8D0' }}>
+                        <div className="h-full rounded-full" style={{ width: `${Math.min(96, (ocrElapsed / 50) * 100)}%`, background: '#FF6B1A', transition: 'width 1s linear' }} />
+                      </div>
+                      <div className="text-[10px] mt-1" style={{ color: '#9CA3AF' }}>한 달치라 30~50초 걸려요 — 창 닫지 말고 잠시만 기다려주세요 🙏</div>
+                    </div>
+                  )}
                   {ocrItems.length > 0 && (
                     <div className="rounded-lg p-2.5 mb-2" style={{ background: '#FAFAF7', border: '1px solid #E5E7EB' }}>
                       <div className="text-[11px] font-bold mb-1" style={{ color: '#1a2b4a' }}>{ocrMonth} · 인식된 메뉴 {ocrItems.length}개</div>
@@ -626,6 +645,15 @@ export default function CarePage() {
                 </button>
               );
             })}
+          </div>
+          {/* 몇 시쯤 먹었나요 — 대략 시간단위 (선택) */}
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <span className="text-[12px] font-bold" style={{ color: '#8a7a6a' }}>🕐 몇 시쯤 먹었나요? <span style={{ color: '#9CA3AF' }}>(선택)</span></span>
+            <select value={entry.mealTime ?? ''} onChange={(e) => setEntry((x) => ({ ...x, mealTime: e.target.value === '' ? null : Number(e.target.value) }))}
+              className="px-3 py-1.5 rounded-lg text-sm outline-none font-semibold" style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB', color: '#1a2b4a' }}>
+              <option value="">--시</option>
+              {Array.from({ length: 18 }, (_, i) => i + 5).map((h) => (<option key={h} value={h}>{h <= 12 ? `오전 ${h}시`.replace('오전 12시', '낮 12시') : `오후 ${h - 12}시`}</option>))}
+            </select>
           </div>
         </div>
 

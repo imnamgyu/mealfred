@@ -157,8 +157,15 @@ export async function GET(req: Request) {
           letter = gen.letter; oneliner = gen.oneliner;
         }
         if (letter) {
+          // QA용 "우리 판단" 스냅샷 — 어드민 쓰레드에서 이 근거로 생성됐음을 보여줌
+          const letterCtx = {
+            reds, covered: fg.covered, missing: fg.missing, timeseries: ts,
+            homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
+            eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
+            source: prev && prev.source_hash === srcHash && prev.letter ? 'cron(재사용)' : 'cron', model: 'haiku-4-5',
+          };
           await supabase.from('coach_letters').upsert(
-            { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash },
+            { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: letterCtx },
             { onConflict: 'child_id,letter_date' }
           );
           letters++;
@@ -175,8 +182,9 @@ export async function GET(req: Request) {
             recentMeals, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], refused: uniqRef, attendsDaycare: daycareMap[cid], pastQA,
           });
           if (q.question) {
+            const qCtx = { recentMeals: recentMeals.slice(0, 12), homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], attendsDaycare: !!daycareMap[cid], topic: q.topic || null, source: 'cron' };
             await supabase.from('daily_questions').upsert(
-              { child_id: cid, parent_id: meta.parent_id, q_date: today, question: q.question, topic: q.topic || null, chips: q.chips || null },
+              { child_id: cid, parent_id: meta.parent_id, q_date: today, question: q.question, topic: q.topic || null, chips: q.chips || null, context: qCtx },
               { onConflict: 'child_id,q_date' }
             );
             questions++;

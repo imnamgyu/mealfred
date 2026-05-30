@@ -65,6 +65,7 @@ export default function Home() {
   const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
   const [groupSig, setGroupSig] = useState<{ signals: GroupSignal[]; proteinOk: boolean }>({ signals: [], proteinOk: false });
   const [ingredientCount, setIngredientCount] = useState(0);
+  const [cumCount, setCumCount] = useState(0);   // 누적(전체) 먹어본 식재료 종 수 → 130종 목표
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   const [aiOneliner, setAiOneliner] = useState<string>('');
@@ -117,6 +118,11 @@ export default function Home() {
           setGroups(fg);
           setIngredientCount(new Set(allIng).size);
           setEatenSet(new Set(allIng));
+          // 누적(전체 기간) 먹어본 식재료 종 수 — 130종(초등 입학 전) 목표용
+          supabase.from('meal_logs').select('ingredients').eq('child_id', child.id).then(({ data }) => {
+            const s = new Set<string>(); (data || []).forEach((r: { ingredients: string[] | null }) => (r.ingredients || []).forEach((i) => s.add(i)));
+            setCumCount(s.size);
+          });
           setRefused([...new Set(ref)]);
 
           // 식감 인사이트 — 죽·다진 비중
@@ -194,6 +200,7 @@ export default function Home() {
 
   const grade = gradeOf(D.score);
   const pointerPct = Math.min(98, Math.max(2, D.score));
+  const cumDisp = isMockup ? 18 : cumCount;   // 누적 먹어본 식재료(130종 목표)
 
   // 36종 KDRI 신호등 표시 데이터 — 목업=care.html 예시(전 36종) / 실데이터=매핑된 것만 개인화·나머지 reference
   const kdriView: KdriSignal[] = isMockup
@@ -337,11 +344,14 @@ export default function Home() {
             <span style={{ color: '#F9A825' }}>B 보통</span><span style={{ color: '#16A085' }}>A 좋음</span><span style={{ color: '#1B5E20' }}>S 매우</span>
           </div>
           <div className="rounded-xl p-3" style={{ background: 'white', border: '1px solid rgba(0,0,0,0.05)' }}>
-            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>이번 주 먹은 식재료</span><strong style={{ color: '#1a2b4a' }}>{D.ingCount} / 30종</strong></div>
-            <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (D.ingCount / 30) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
-            {D.ingCount < 30 && (
-              <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>다음 등급까지 <strong style={{ color: '#C45A00' }}>{Math.max(1, 30 - D.ingCount)}종 더</strong>!</div>
-            )}
+            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>먹어본 식재료 <span style={{ color: '#9CA3AF' }}>(누적)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
+            <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (cumDisp / 130) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
+            <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>
+              {cumDisp < 20 ? <>아직 <strong style={{ color: '#C62828' }}>편식 경계</strong> — 30종 넘기기 도전! (SOS 기준)</>
+                : cumDisp < 30 ? <>곧 <strong style={{ color: '#E67E22' }}>편식 경계(30종)</strong> 돌파해요!</>
+                : cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>130종</strong>까지 {130 - cumDisp}종 더!</>
+                : <>🎉 초등 준비 완료 — 130종 달성!</>}
+            </div>
           </div>
         </div>
 
