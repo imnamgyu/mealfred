@@ -37,9 +37,10 @@ export default async function AdminHome() {
   }
 
   const db = await createSupabaseServer();
-  const { data: children } = await db.from('children')
-    .select('id,nickname,age_band,sex,daycare,parent_id,created_at')
-    .order('created_at', { ascending: true });
+  const { data: children, error: childErr } = await db.from('children')
+    .select('id,nickname,age_band,sex,daycare,parent_id')
+    .order('id', { ascending: true });
+  if (childErr) console.error('[admin] children query:', childErr.message);
 
   // 활동 집계 — 자녀별 식단 수·최근 기록일 (작은 유저베이스 가정, 단순 집계)
   const ids = (children || []).map((c) => c.id);
