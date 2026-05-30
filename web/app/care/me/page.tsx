@@ -17,7 +17,28 @@ export default function MePage() {
   const [nickname, setNickname] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [ref, setRef] = useState<Referral | null>(null);
+  const [refErr, setRefErr] = useState<string>('');   // 초대 카드가 안 뜰 때 원인 표시
+  const [refLoading, setRefLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+
+  async function loadReferral() {
+    setRefLoading(true); setRefErr('');
+    try {
+      const r = await fetch('/api/referral', { cache: 'no-store' });
+      if (r.ok) {
+        const d = await r.json();
+        if (d?.code) { setRef(d); setRefErr(''); }
+        else setRefErr('코드 없음');
+      } else {
+        const body = await r.json().catch(() => ({}));
+        setRefErr(`${r.status} ${body?.error || ''}`.trim());
+      }
+    } catch (e) {
+      setRefErr(e instanceof Error ? e.message : '네트워크 오류');
+    } finally {
+      setRefLoading(false);
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -29,8 +50,7 @@ export default function MePage() {
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
       setChild(data);
       setLoading(false);
-      // 초대 코드·방문수·과금 상태
-      fetch('/api/referral').then((r) => r.ok ? r.json() : null).then((d) => { if (d?.code) setRef(d); }).catch(() => {});
+      loadReferral();   // 초대 코드·방문수·과금 상태
     })();
   }, [supabase]);
 
@@ -113,6 +133,21 @@ export default function MePage() {
                     <button onClick={shareInvite} className="text-[11px] font-bold px-3 py-2 rounded-lg text-white" style={{ background: '#FF6B1A' }}>공유</button>
                   </div>
                 </>)}
+              </div>
+            )}
+
+            {/* 초대 카드가 아직/실패로 안 떴을 때 — 항상 무언가 보이게 + 원인 표시 */}
+            {!ref && (
+              <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF8F0', borderColor: '#FFE8D0' }}>
+                <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독 · 친구 초대</div>
+                {refLoading ? (
+                  <div className="text-sm" style={{ color: '#9CA3AF' }}>초대 링크 불러오는 중…</div>
+                ) : (
+                  <>
+                    <div className="text-[12.5px] mb-2" style={{ color: '#8a7a6a' }}>초대 링크를 불러오지 못했어요{refErr ? ` (${refErr})` : ''}.</div>
+                    <button onClick={loadReferral} className="text-[12px] font-bold px-3 py-2 rounded-lg text-white" style={{ background: '#FF6B1A' }}>다시 시도</button>
+                  </>
+                )}
               </div>
             )}
 
