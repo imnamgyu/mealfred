@@ -23,8 +23,8 @@ function getCorsHeaders(req?: NextRequest) {
   };
 }
 
-// CLOVA 전사 + Claude 분해 — 시간 여유
-export const maxDuration = 60;
+// CLOVA 전사 + Claude 분해 — 월간 식단표는 30~44초 걸려 60초가 빠듯 → 한도 상향(플랜 최대치로 캡됨).
+export const maxDuration = 300;
 
 // 구조화 출력 스키마 — 메뉴별 식재료 분해를 모델이 반드시 채우게 강제
 const MENU_SCHEMA: Record<string, unknown> = {
