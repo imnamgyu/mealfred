@@ -34,20 +34,27 @@ export default function SignupPage() {
   return (
     <main style={{ maxWidth:480, margin:'0 auto', padding:'40px 24px' }}>
       <header className="hero" style={{ borderRadius:16, marginBottom:24 }}>
-        <h1 style={{ fontSize:28, fontWeight:800 }}>📱 밀프레드 시작하기</h1>
-        <p style={{ marginTop:6 }}>카카오 1초 가입 · 우리 아이 편식 개선 코치</p>
+        <h1 style={{ fontSize:27, fontWeight:800 }}>매일, 우리 아이 편식 코치</h1>
+        <p style={{ marginTop:6 }}>35가지 국제 편식 이론 기반 개인화 코칭 · 카카오 1초 가입</p>
       </header>
 
       <div style={{ background:'white', border:'1px solid #FFE8D0', borderRadius:14, padding:22, textAlign:'center', boxShadow:'0 4px 20px rgba(0,0,0,0.06)' }}>
 
         <div style={{ fontSize:48, marginBottom:14 }}>🌱</div>
-        <h2 style={{ fontSize:19, fontWeight:800, color:'#1a2b4a', marginBottom:8, lineHeight:1.4 }}>
-          우리 아이 편식,<br/><span style={{ color:'#FF6B1A' }}>35가지 국제 방법론</span>으로<br/>차근차근 풀어가요
+        <h2 style={{ fontSize:19, fontWeight:800, color:'#1a2b4a', marginBottom:8, lineHeight:1.45 }}>
+          우리 아이 식단을 <span style={{ color:'#FF6B1A' }}>매일 분석</span>하고<br/>개인 맞춤으로 <span style={{ color:'#FF6B1A' }}>코칭</span>해드려요
         </h2>
-        <p style={{ fontSize:13, color:'#5a4a3a', fontWeight:500, lineHeight:1.7, marginBottom:24 }}>
-          SOS 접근법 · 푸드브릿지 · HabEat 등<br/>
-          검증된 방법으로 식재료 하나씩 친해지게 — <strong style={{ color:'#C45A00' }}>평생 무료</strong>
+        <p style={{ fontSize:13, color:'#5a4a3a', fontWeight:500, lineHeight:1.7, marginBottom:18 }}>
+          Satter·SOS·HabEat 등 <strong style={{ color:'#C45A00' }}>35가지 국제 편식 이론</strong>으로 분석 —<br/>
+          부족한 영양·거부 패턴을 읽고 <strong style={{ color:'#C45A00' }}>아침마다 맞춤 편지·질문</strong>으로 케어해요.
         </p>
+
+        {/* 6월 가입 한정 프로모 — 바이럴 후킹 */}
+        <div style={{ background:'linear-gradient(135deg,#FFF3E0,#FFE0B2)', border:'1.5px solid #FF6B1A', borderRadius:12, padding:'13px 15px', marginBottom:20, textAlign:'left' }}>
+          <div style={{ fontSize:11, fontWeight:800, color:'#C45A00', letterSpacing:'0.03em', marginBottom:3 }}>🎁 6월 가입 한정 혜택</div>
+          <div style={{ fontSize:15, fontWeight:800, color:'#1a2b4a', lineHeight:1.45 }}>초등학교 2학년 졸업할 때까지 <span style={{ color:'#FF6B1A' }}>무료</span></div>
+          <div style={{ fontSize:10.5, color:'#8a7a6a', marginTop:4, lineHeight:1.6 }}>지금 가입하면 우리 아이가 초등 2학년이 될 때까지 매일 코칭을 무료로 받아요</div>
+        </div>
 
         <button
           onClick={loginKakao} disabled={loading}
