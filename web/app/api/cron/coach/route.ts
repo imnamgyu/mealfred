@@ -114,12 +114,15 @@ export async function GET(req: Request) {
         const homeRef: string[] = []; const daycareRef: string[] = [];
         const recentMeals: LoggedFood[] = []; const seenFood = new Set<string>();
         const menuFreq: Record<string, number> = {};
+        const homeByDate: Record<string, string[]> = {}; const homeIng: string[] = [];   // 집 끼니만(place!=daycare) — 코칭 톤 보정용
         const todayMs = Date.parse(today);
 
         rs.forEach((r) => {
           (byDate[r.log_date] ||= []);
+          const atHome = r.place !== 'daycare';   // home 또는 미상 = 집(부모 통제)
           (r.ingredients || []).forEach((i) => {
             byDate[r.log_date].push(i); allIng.push(i);
+            if (atHome) { (homeByDate[r.log_date] ||= []).push(i); homeIng.push(i); }
             const daysAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
             if (daysAgo <= 3 && !seenFood.has(i)) {
               seenFood.add(i);
@@ -136,6 +139,11 @@ export async function GET(req: Request) {
         const sig = computeSignals(byDay, catOf);
         const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
         const fg = computeFoodGroups(allIng, catOf);
+        // 집 끼니만 평가 — 칭찬/코칭은 부모가 통제하는 집 기준(기관 급식 덕을 부모 칭찬으로 돌리지 않기)
+        const homeDays = Object.values(homeByDate).filter((a) => a.length);
+        const homeFg = computeFoodGroups(homeIng, catOf);
+        const homeReds = homeDays.length ? computeSignals(homeDays, catOf).filter((s) => s.level === 'red').map((s) => s.nutrient) : [];
+        const attends = !!daycareMap[cid];
         const uniqRef = [...new Set(ref)];
         const ts = computeTimeseries(byDate, menuFreq, catOf, today, { assertNoVeg: catReliable });
         // P9 + 보고서: 최근 5일 중 기록된 날(결정론적) — 재사용 분기에서도 쓰도록 위로 끌어올림
@@ -166,8 +174,9 @@ export async function GET(req: Request) {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
             notes, refused: uniqRef, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
-            timeseries: ts, attendsDaycare: daycareMap[cid], pastLetters,
+            timeseries: ts, attendsDaycare: attends, pastLetters,
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
+            homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
           });
           letter = gen.letter; oneliner = gen.oneliner;
         }
