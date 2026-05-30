@@ -318,7 +318,22 @@ export default function Home() {
           </div>
         )}
 
-        {/* 영양 점수 카드 (맨 위) */}
+        {/* 코치 편지 — 있으면 항상 맨 위 (가장 개인적·핵심 가치) */}
+        {(isMockup || aiLetter) && (
+          <div className="rounded-2xl p-4 mb-3 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFECB3)', border: '1.5px solid #F9A825' }}>
+            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#F57F17' }}>✉️ 코치 편지가 도착했어요</div>
+            {aiLetter ? (
+              <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
+            ) : (
+              <>
+                <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
+                <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* 영양 점수 카드 */}
         <div className="rounded-2xl p-5 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFFDF5)', border: `1.5px solid ${grade.color}` }}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-bold" style={{ color: '#6B7280' }}>━ {D.name} 영양 점수 ━</span>
@@ -342,16 +357,6 @@ export default function Home() {
           <div className="grid grid-cols-5 text-[9px] font-extrabold text-center mb-3">
             <span style={{ color: '#C62828' }}>D 경고</span><span style={{ color: '#E67E22' }}>C 주의</span>
             <span style={{ color: '#F9A825' }}>B 보통</span><span style={{ color: '#16A085' }}>A 좋음</span><span style={{ color: '#1B5E20' }}>S 매우</span>
-          </div>
-          <div className="rounded-xl p-3" style={{ background: 'white', border: '1px solid rgba(0,0,0,0.05)' }}>
-            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>먹어본 식재료 <span style={{ color: '#9CA3AF' }}>(누적)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
-            <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (cumDisp / 130) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
-            <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>
-              {cumDisp < 20 ? <>아직 <strong style={{ color: '#C62828' }}>편식 경계</strong> — 30종 넘기기 도전! (SOS 기준)</>
-                : cumDisp < 30 ? <>곧 <strong style={{ color: '#E67E22' }}>편식 경계(30종)</strong> 돌파해요!</>
-                : cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>130종</strong>까지 {130 - cumDisp}종 더!</>
-                : <>🎉 초등 준비 완료 — 130종 달성!</>}
-            </div>
           </div>
         </div>
 
@@ -384,22 +389,6 @@ export default function Home() {
           <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석</div>
         </div>
 
-        {/* 편지 답장 (안심) — AI 실제 / 목업 */}
-        {(isMockup || aiLetter) && (
-          <div className="rounded-2xl p-4 mb-3 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFECB3)', border: '1.5px solid #F9A825' }}>
-            <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#F57F17' }}>✉️ 코치 편지가 도착했어요</div>
-            {aiLetter ? (
-              <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
-            ) : (
-              <>
-                <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
-                <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
-              </>
-            )}
-          </div>
-        )}
-
-
         {/* 식품군 다양성 — 충분/조금부족/부족 (빈도 기반, 색+글자 3중) */}
         <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
           <div className="flex justify-between items-center mb-1">
@@ -422,6 +411,17 @@ export default function Home() {
           {proteinOk && (gRed > 0 || gYellow > 0) && (
             <div className="mt-2.5 rounded-lg px-3 py-1.5 text-[10.5px] font-bold" style={{ background: '#E8F5E9', color: '#1B5E20' }}>💪 단백질은 매일 챙기고 있어요 (고기·생선·계란·콩 합산)</div>
           )}
+          {/* 누적 먹어본 식재료 — 초등 입학 전 130종(레퍼토리 다양성) */}
+          <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F0F0F0' }}>
+            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>먹어본 식재료 <span style={{ color: '#9CA3AF' }}>(누적)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
+            <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (cumDisp / 130) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
+            <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>
+              {cumDisp < 20 ? <>아직 <strong style={{ color: '#C62828' }}>편식 경계</strong> — 30종 넘기기 도전! (SOS 기준)</>
+                : cumDisp < 30 ? <>곧 <strong style={{ color: '#E67E22' }}>편식 경계(30종)</strong> 돌파해요!</>
+                : cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>130종</strong>까지 {130 - cumDisp}종 더!</>
+                : <>🎉 초등 준비 완료 — 130종 달성!</>}
+            </div>
+          </div>
         </div>
 
         {/* 식감 인사이트 — 실데이터(죽 비중 40%+) or 목업 */}
