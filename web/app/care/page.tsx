@@ -388,14 +388,22 @@ export default function CarePage() {
     setOcrBusy(true); setOcrMsg(''); setOcrItems([]);
     try {
       const fd = new FormData(); fd.append('image', file);
-      const r = await fetch('https://app.mealfred.com/api/ocr', { method: 'POST', body: fd }).then((r) => r.json());
-      if (r?.is_menu === false) setOcrMsg(r.reason || '식단표를 인식하지 못했어요. 더 선명한 사진으로 시도해주세요.');
+      const res = await fetch('https://app.mealfred.com/api/ocr', { method: 'POST', body: fd });
+      if (!res.ok) {
+        setOcrMsg(res.status === 504 || res.status === 503 || res.status === 408
+          ? '처리 시간이 초과됐어요 😢 — 한 달치는 무거워요. 식단표를 한 주씩 잘라서, 또는 더 작고 선명한 사진으로 올려주세요.'
+          : `업로드 실패 (서버 ${res.status}) — 잠시 후 다시 시도해주세요.`);
+        return;
+      }
+      const r = await res.json().catch(() => null);
+      if (!r) { setOcrMsg('응답을 읽지 못했어요 — 처리 시간이 길었을 수 있어요. 한 주씩 잘라 다시 시도해주세요.'); return; }
+      if (r.is_menu === false) setOcrMsg(r.reason || '식단표를 인식하지 못했어요. 더 선명한 사진으로 시도해주세요.');
       else {
-        const items = (r?.items || []).filter((it: { menu?: string }) => it.menu);
+        const items = (r.items || []).filter((it: { menu?: string }) => it.menu);
         setOcrItems(items);
         if (!items.length) setOcrMsg('메뉴를 찾지 못했어요.');
       }
-    } catch { setOcrMsg('업로드 실패. 다시 시도해주세요.'); }
+    } catch { setOcrMsg('업로드 실패 (네트워크) — 연결 확인 후 다시 시도해주세요.'); }
     finally { setOcrBusy(false); }
   }
 
