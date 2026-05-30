@@ -1,17 +1,52 @@
 /**
- * 과금 토대 (M-billing 골격)
+ * 과금 + 바이럴(초대) 엔진
  *
- * 정책(2026-06 성장 프로모):
- *   - 6월 중 가입 → 아이가 "초등학교 2학년 졸업"할 때까지 무료.
- *   - 이후 아이 1명당 월 1,900원.
+ * 정책(2026-06~):
+ *   - 가입 후 1개월 무조건 무료(trial).
+ *   - 내 전용 초대링크로 5명 이상 '방문'(가입 불필요)하면 아이 1명 평생 무료(lifetime).
+ *   - 그 외에는 아이 1명당 월 1,900원.
  *
- * 지금은 결제(PG) 연동 전이라 무료기간 "계산 + 표기"만. 실제 구독/청구는 토스페이먼츠 연동 시 추가.
- * 무료 종료일은 자녀 출생연도로 결정되므로 별도 테이블 없이 순수 계산으로 산출한다.
- * (구독 상태/영수증이 필요해지면 subscriptions 테이블을 그때 도입 — sql/ 참고 주석)
+ * 결제(PG) 연동 전이라 상태 "계산 + 표기"만. 방문 카운트는 referrals/referral_visits(서비스 로우).
  */
 
 export const MONTHLY_PRICE = 1900;            // 아이 1명당 월 구독료(원)
-export const PROMO_DEADLINE = '2026-06-30';   // 이 날까지 가입 시 프로모 적용
+export const FREE_TRIAL_DAYS = 30;            // 가입 후 무조건 무료 일수
+export const REFERRAL_GOAL = 5;               // 이만큼 방문하면 평생 무료
+
+export type ReferralBilling = {
+  plan: 'lifetime_free' | 'trial' | 'paid';
+  freeUntil: string | null;     // trial 종료일 (lifetime은 null)
+  daysLeft: number | null;
+  visits: number;
+  goal: number;
+  label: string;
+};
+
+function addDays(ymd: string, n: number): string {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
+/**
+ * 초대 방문수 + 가입시각 → 과금 상태.
+ * createdAtISO: referrals.created_at(가입≈최초 사용 앵커). todayStr: kstToday().
+ */
+export function referralBilling(createdAtISO: string | null | undefined, visits: number, todayStr: string): ReferralBilling {
+  const goal = REFERRAL_GOAL;
+  const need = Math.max(0, goal - visits);
+  if (visits >= goal) {
+    return { plan: 'lifetime_free', freeUntil: null, daysLeft: null, visits, goal, label: '🎉 평생 무료 — 초대 5명 달성!' };
+  }
+  const start = (createdAtISO || '').slice(0, 10) || todayStr;
+  const fu = addDays(start, FREE_TRIAL_DAYS);
+  const days = Math.round((Date.parse(fu) - Date.parse(todayStr)) / 86400000);
+  if (days >= 0) {
+    return { plan: 'trial', freeUntil: fu, daysLeft: days, visits, goal, label: `무료 체험 ${days}일 남음 · 친구 ${need}명만 더 방문하면 평생 무료` };
+  }
+  return { plan: 'paid', freeUntil: fu, daysLeft: days, visits, goal, label: `무료 체험 종료 · 월 ${MONTHLY_PRICE.toLocaleString()}원 (친구 ${need}명 방문 시 평생 무료)` };
+}
+
+export const PROMO_DEADLINE = '2026-06-30';   // (legacy) 출생연도 기반 프로모 — 아래 함수에서만 사용
 
 /**
  * 초등 2학년 졸업 시점(무료 종료일) 계산.

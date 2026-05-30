@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
-import { billingOf } from '@/lib/billing';
-import { kstToday } from '@/lib/date';
+import type { ReferralBilling } from '@/lib/billing';
 
 type Child = { nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null };
+type Referral = { code: string; visits: number; billing: ReferralBilling };
 const AGE_LABEL: Record<string, string> = {
   younger: '만 3세 미만', '3-4y': '만 3–4세', '5y': '만 5세', '6-7y': '만 6–7세',
 };
@@ -16,6 +16,8 @@ export default function MePage() {
   const [child, setChild] = useState<Child | null>(null);
   const [nickname, setNickname] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [ref, setRef] = useState<Referral | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -27,8 +29,22 @@ export default function MePage() {
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
       setChild(data);
       setLoading(false);
+      // 초대 코드·방문수·과금 상태
+      fetch('/api/referral').then((r) => r.ok ? r.json() : null).then((d) => { if (d?.code) setRef(d); }).catch(() => {});
     })();
   }, [supabase]);
+
+  const inviteUrl = ref ? `https://app.mealfred.com/r/${ref.code}` : '';
+  async function copyInvite() {
+    if (!inviteUrl) return;
+    try { await navigator.clipboard.writeText(inviteUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch {}
+  }
+  async function shareInvite() {
+    if (!inviteUrl) return;
+    const text = '우리 아이 편식, 밀프레드로 매일 코칭받고 있어요! 이 링크로 들어와 보세요 👇';
+    if (navigator.share) { try { await navigator.share({ title: '밀프레드', text, url: inviteUrl }); return; } catch {} }
+    copyInvite();
+  }
 
   async function logout() {
     await supabase.auth.signOut();
@@ -73,19 +89,32 @@ export default function MePage() {
               <></>
             )}
 
-            {/* 구독 상태 — 프로모(초등2 졸업까지 무료) 표기 */}
-            {child?.birth_year ? (() => {
-              const b = billingOf(child.birth_year, kstToday());
-              return (
-                <div className="rounded-2xl p-4 mb-3 border" style={{ background: b.plan === 'promo_free' ? '#FFF8F0' : '#FFFFFF', borderColor: '#FFE8D0' }}>
-                  <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독</div>
-                  <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>{b.label}</div>
-                  {b.plan === 'promo_free' && (
-                    <div className="text-[11px] mt-1" style={{ color: '#9CA3AF' }}>6월 가입 혜택 · 종료 후 아이 1명당 월 {(1900).toLocaleString()}원</div>
-                  )}
-                </div>
-              );
-            })() : null}
+            {/* 구독 + 초대(바이럴) — 1개월 무료 / 5명 방문 시 평생무료 */}
+            {ref && (
+              <div className="rounded-2xl p-4 mb-3 border" style={{ background: ref.billing.plan === 'lifetime_free' ? '#E8F5E9' : '#FFF8F0', borderColor: ref.billing.plan === 'lifetime_free' ? '#A5D6A7' : '#FFE8D0' }}>
+                <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독</div>
+                <div className="text-sm font-extrabold mb-2" style={{ color: ref.billing.plan === 'lifetime_free' ? '#1B5E20' : '#1a2b4a' }}>{ref.billing.label}</div>
+
+                {ref.billing.plan !== 'lifetime_free' && (<>
+                  {/* 초대 진행도 N/5 */}
+                  <div className="flex items-center gap-1.5 mb-2">
+                    {Array.from({ length: ref.billing.goal }).map((_, i) => (
+                      <div key={i} className="flex-1 h-2 rounded-full" style={{ background: i < ref.visits ? '#16A085' : '#F0E0D0' }} />
+                    ))}
+                    <span className="text-[11px] font-extrabold ml-1" style={{ color: '#16A085' }}>{ref.visits}/{ref.billing.goal}</span>
+                  </div>
+                  <div className="text-[11px] mb-2.5" style={{ color: '#8a7a6a' }}>내 링크로 <strong style={{ color: '#C45A00' }}>5명 방문</strong>하면 <strong>아이 1명 평생 무료</strong> (가입 안 해도 카운트)</div>
+
+                  {/* 링크 + 공유 */}
+                  <div className="flex items-center gap-1.5">
+                    <input readOnly value={inviteUrl} onFocus={(e) => e.currentTarget.select()}
+                      className="flex-1 min-w-0 text-[11px] px-2.5 py-2 rounded-lg" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', color: '#6B7280' }} />
+                    <button onClick={copyInvite} className="text-[11px] font-bold px-3 py-2 rounded-lg" style={{ background: copied ? '#16A085' : '#1a2b4a', color: 'white' }}>{copied ? '복사됨' : '복사'}</button>
+                    <button onClick={shareInvite} className="text-[11px] font-bold px-3 py-2 rounded-lg text-white" style={{ background: '#FF6B1A' }}>공유</button>
+                  </div>
+                </>)}
+              </div>
+            )}
 
             {!child && (
               <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border text-center" style={{ borderColor: '#FFE8D0' }}>

@@ -49,11 +49,11 @@ export default function SignupPage() {
           부족한 영양·거부 패턴을 읽고 <strong style={{ color:'#C45A00' }}>아침마다 맞춤 편지·질문</strong>으로 케어해요.
         </p>
 
-        {/* 6월 가입 한정 프로모 — 바이럴 후킹 */}
+        {/* 가입 혜택 — 1개월 무료 + 친구 5명 방문 시 평생무료 (바이럴 후킹) */}
         <div style={{ background:'linear-gradient(135deg,#FFF3E0,#FFE0B2)', border:'1.5px solid #FF6B1A', borderRadius:12, padding:'13px 15px', marginBottom:20, textAlign:'left' }}>
-          <div style={{ fontSize:11, fontWeight:800, color:'#C45A00', letterSpacing:'0.03em', marginBottom:3 }}>🎁 6월 가입 한정 혜택</div>
-          <div style={{ fontSize:15, fontWeight:800, color:'#1a2b4a', lineHeight:1.45 }}>초등학교 2학년 졸업할 때까지 <span style={{ color:'#FF6B1A' }}>무료</span></div>
-          <div style={{ fontSize:10.5, color:'#8a7a6a', marginTop:4, lineHeight:1.6 }}>지금 가입하면 우리 아이가 초등 2학년이 될 때까지 매일 코칭을 무료로 받아요</div>
+          <div style={{ fontSize:11, fontWeight:800, color:'#C45A00', letterSpacing:'0.03em', marginBottom:3 }}>🎁 가입 혜택</div>
+          <div style={{ fontSize:15, fontWeight:800, color:'#1a2b4a', lineHeight:1.45 }}>지금 가입하면 <span style={{ color:'#FF6B1A' }}>1개월 무료</span></div>
+          <div style={{ fontSize:10.5, color:'#8a7a6a', marginTop:4, lineHeight:1.6 }}>내 초대링크로 친구 <strong style={{ color:'#C45A00' }}>5명만 방문</strong>해도(가입 안 해도!) 우리 아이 <strong>평생 무료</strong>로 코칭받아요</div>
         </div>
 
         <button
