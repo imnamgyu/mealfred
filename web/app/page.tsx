@@ -66,6 +66,7 @@ export default function Home() {
   const [groupSig, setGroupSig] = useState<{ signals: GroupSignal[]; proteinOk: boolean }>({ signals: [], proteinOk: false });
   const [ingredientCount, setIngredientCount] = useState(0);
   const [cumCount, setCumCount] = useState(0);   // 누적(전체) 먹어본 식재료 종 수 → 130종 목표
+  const [missDays, setMissDays] = useState<{ d: string; label: string }[]>([]);   // P9: 최근 5일 중 미기록 날(당일 제외)
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   const [aiOneliner, setAiOneliner] = useState<string>('');
@@ -112,6 +113,13 @@ export default function Home() {
           const sig = computeSignals(byDay, catOf);
           const fg = computeFoodGroups(allIng, catOf);
           setDays(byDay.length);
+          // P9: 최근 5일(어제~5일 전, 당일 제외) 중 기록 없는 날 — 결정론적(환각 차단)
+          setMissDays(
+            Array.from({ length: 5 }, (_, i) => i + 1).map((n) => {
+              const d = kstDateNDaysAgo(n);
+              return { d, label: n === 1 ? '어제' : n === 2 ? '그저께' : `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}` };
+            }).filter((x) => !byDate[x.d])
+          );
           setSignals(sig);
           setKdri(computeKdriSignals(byDay, catOf));   // 36종 KDRI 신호등 (실데이터)
           setGroupSig(computeGroupSignals(byDay, catOf));   // 식품군 다양성 신호등 (충분/조금부족/부족)
@@ -386,6 +394,14 @@ export default function Home() {
             <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full text-white" style={{ background: grade.color }}>{grade.g}</span>
           </div>
           <p className="text-[12.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>{oneLiner}</p>
+          {!isMockup && missDays.length > 0 && (
+            <a href={`/care?date=${missDays[0].d}`} className="mt-2.5 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: '#FFF7ED', border: '1px solid #FFD9B8' }}>
+              <span className="text-base">📝</span>
+              <span className="text-[11.5px] font-semibold leading-snug" style={{ color: '#C45A00' }}>
+                최근 5일 중 <strong>{missDays.map((x) => x.label).join('·')}</strong> 기록이 비어 있어요. 기억나는 대로 채우면 더 정확히 봐드릴게요 →
+              </span>
+            </a>
+          )}
           <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석</div>
         </div>
 

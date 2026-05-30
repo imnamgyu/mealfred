@@ -106,6 +106,8 @@ export type LetterInput = {
   timeseries?: string[];           // 시계열 사실 (분석이 계산한 문장들)
   attendsDaycare?: boolean;        // 어린이집·유치원 등원 — 평일 점심·간식은 기관 끼니
   pastLetters?: { date: string; letter: string }[];
+  recentWindowDays?: number;       // P9: 미기록 판단 창(최근 N일, 보통 5)
+  recentLoggedDays?: number;       // P9: 그 창에서 실제 기록된 날 수 (코드가 결정론적으로 계산)
 };
 
 function buildLetterUser(b: LetterInput): string {
@@ -126,7 +128,8 @@ function buildLetterUser(b: LetterInput): string {
 최근 거부한 음식(전체): ${refused.length ? refused.join(', ') : '없음'}
 집에서 거부(부모가 재노출 가능): ${home.length ? home.join(', ') : '없음'}
 기관에서 거부(집에서 재노출로 도울 수 있음): ${daycare.length ? daycare.join(', ') : '없음'}
-시계열 사실: ${ts.length ? ts.join(' / ') : '없음'}${b.attendsDaycare ? `
+시계열 사실: ${ts.length ? ts.join(' / ') : '없음'}${(b.recentWindowDays && b.recentLoggedDays != null && b.recentLoggedDays < b.recentWindowDays) ? `
+기록 현황(P9): 최근 ${b.recentWindowDays}일 중 ${b.recentLoggedDays}일 기록됨(${b.recentWindowDays - b.recentLoggedDays}일 공백). 이 사실로 횟수·날짜를 더 지어내지 말 것.` : ''}${b.attendsDaycare ? `
 등원: 어린이집·유치원에 다녀 평일 점심·오전/오후 간식은 기관에서 먹습니다(메뉴는 부모가 못 바꿈). 행동 제안은 집 아침·저녁 끼니와, 기관에서 거부한 식재료를 집에서 다시 만나게 하는 것에만 두세요.` : ''}
 부모 메모: ${fenceNotes(b.notes || [])}`;
 
@@ -140,6 +143,7 @@ ${ctx}
 
 작성 지침:
 - letter: 3~4문장. ① 노력 인정 + 거부는 정상(반복 노출) 안심 → ② 위 데이터에서 읽은 사실 1개(우리 분석값·시계열만) → ③ 오늘의 행동 1개. 행동은 '집 아침·저녁 끼니' 또는 '기관에서 거부한 식재료를 집에서 부담 없이 다시 만나기'에서만. 어린이집·유치원 급식 메뉴 변경 요청 금지. 점수·등급 금지.
+- P9: '기록 현황'에 공백이 있을 때만, 편지 맨 끝에 부담 없는 한 줄로 한 번만 권유(예: "기억나는 대로 비어 있는 날 식단만 살짝 채워두시면 더 정확히 봐드릴게요"). 공백이 없으면 기록 얘기는 꺼내지 마라. 절대 다그치지 마라.
 - oneliner: 최근 식단 진단 한 줄. 잘하는 점 + 신경 쓸 점 1개 + 방법론 근거 한 조각, 격려 톤.
 
 반드시 JSON만: {"letter": "...", "oneliner": "..."}`;

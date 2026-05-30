@@ -140,6 +140,11 @@ export default function CarePage() {
     };
   }
   const supabase = createSupabaseBrowser();
+  // 홈 '미기록 알림(P9)' 딥링크 — /care?date=YYYY-MM-DD 면 그 날짜로 시작
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get('date');
+    if (q && /^\d{4}-\d{2}-\d{2}$/.test(q) && q <= todayStr()) setDate(q);
+  }, []);
   // 클라 전역 매퍼 — 로드된 풀로 흔한 메뉴를 네트워크 없이 즉시 분해
   const mapper = useMemo(() => createMapper(pool.map((p) => p.nm)), [pool]);
 

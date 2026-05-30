@@ -8,6 +8,7 @@
  */
 import { createSupabaseServer, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
+import AdminLogin from '@/components/AdminLogin';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -22,18 +23,15 @@ export default async function AdminHome() {
 
   if (!isAdmin(user)) {
     return (
-      <main style={{ maxWidth: 520, margin: '60px auto', padding: 24, fontFamily: 'Pretendard, sans-serif' }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1a2b4a' }}>🔒 관리자 전용</h1>
-        <p style={{ marginTop: 8, color: '#6B7280', fontSize: 14 }}>코칭 QA 콘솔은 관리자만 볼 수 있어요.</p>
-        <div style={{ marginTop: 16, padding: 14, background: '#F8F8F5', borderRadius: 10, fontSize: 12, color: '#6B7280', wordBreak: 'break-all' }}>
-          {user ? (<>
-            <div>현재 로그인 uid: <code style={{ color: '#1a2b4a', fontWeight: 700 }}>{user.id}</code></div>
-            <div style={{ marginTop: 4 }}>email: <code>{user.email || '(없음)'}</code></div>
-            <p style={{ marginTop: 10 }}>이 uid를 Vercel 환경변수 <b>ADMIN_UIDS</b>에 추가하면 접근돼요.</p>
-          </>) : (
-            <p>로그인이 필요해요. <Link href="/signup" style={{ color: '#FF6B1A', fontWeight: 700 }}>로그인 →</Link></p>
-          )}
-        </div>
+      <main style={{ maxWidth: 420, margin: '60px auto', padding: 24, fontFamily: 'Pretendard, sans-serif' }}>
+        <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1a2b4a' }}>🔒 코칭 QA 콘솔</h1>
+        <p style={{ marginTop: 8, color: '#6B7280', fontSize: 14 }}><b>@mealfred.com</b> 계정(구글 워크스페이스)으로만 접근할 수 있어요.</p>
+        <AdminLogin />
+        {user && (
+          <div style={{ marginTop: 16, padding: 14, background: '#F8F8F5', borderRadius: 10, fontSize: 12, color: '#9CA3AF', wordBreak: 'break-all' }}>
+            현재: <code>{user.email || '(이메일 없음)'}</code> — 도메인 계정이 아니에요. mealfred.com 계정으로 다시 로그인하세요.
+          </div>
+        )}
       </main>
     );
   }

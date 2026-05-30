@@ -1,15 +1,14 @@
 /**
  * 어드민 접근 제어 — 코칭 QA 콘솔(/admin)은 전 계정 PII를 보므로 관리자만.
  *
- * 카카오 OAuth 사용자는 실제 이메일이 없을 수 있어(kakao_{id}@kakao.local),
- * uid(auth.users.id) 화이트리스트를 1차로 본다. 이메일은 보조.
+ * 규칙: **@mealfred.com 도메인 이메일(구글 워크스페이스)로만** 접근.
+ *   - 부모(카카오) 계정은 합성 이메일(kakao_*@kakao.local)이라 절대 통과 못 함 → 안전.
+ *   - 구글 워크스페이스 gyu@mealfred.com 등으로 로그인해야 함.
  *
- * 설정: Vercel 환경변수 ADMIN_UIDS = "uid1,uid2" (콤마 구분).
- * 본인 uid를 모르면 /admin 접근 시 화면에 표시되니, 그걸 ADMIN_UIDS에 넣으면 된다(self-bootstrap).
+ * break-glass: 도메인 메일이 막히는 비상시를 위해 Vercel 환경변수 ADMIN_UIDS="uid1,uid2"에
+ *   uid를 넣으면 예외 허용(기본 비어 있음). 평상시엔 도메인 규칙만으로 충분.
  */
-export const ADMIN_EMAILS = [
-  'continueing@gmail.com',
-];
+export const ADMIN_DOMAIN = 'mealfred.com';
 
 function envUids(): string[] {
   return (process.env.ADMIN_UIDS || '')
@@ -18,12 +17,8 @@ function envUids(): string[] {
 
 export function isAdmin(user: { id?: string | null; email?: string | null } | null | undefined): boolean {
   if (!user) return false;
-  const uids = envUids();
-  if (user.id && uids.includes(user.id)) return true;
-  if (user.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) return true;
+  const email = (user.email || '').toLowerCase();
+  if (email.endsWith('@' + ADMIN_DOMAIN)) return true;     // 도메인 이메일 = 관리자
+  if (user.id && envUids().includes(user.id)) return true;  // break-glass(기본 off)
   return false;
-}
-
-export function isAdminEmail(email?: string | null): boolean {
-  return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
 }

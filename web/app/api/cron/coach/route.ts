@@ -148,11 +148,16 @@ export async function GET(req: Request) {
             .select('letter_date,letter').eq('child_id', cid).neq('letter_date', today)
             .order('letter_date', { ascending: false }).limit(5);
           const pastLetters = (pastL || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter }));
+          // P9: 최근 5일(어제~5일 전, 당일 제외) 중 실제 기록된 날 수 — 결정론적 계산(환각 차단)
+          const RECENT_WINDOW = 5;
+          const recentLoggedDays = Array.from({ length: RECENT_WINDOW }, (_, i) => kstDateNDaysAgo(i + 1))
+            .filter((d) => Object.prototype.hasOwnProperty.call(byDate, d)).length;
           const gen = await generateLetter({
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
             notes, refused: uniqRef, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
             timeseries: ts, attendsDaycare: daycareMap[cid], pastLetters,
+            recentWindowDays: RECENT_WINDOW, recentLoggedDays,
           });
           letter = gen.letter; oneliner = gen.oneliner;
         }
