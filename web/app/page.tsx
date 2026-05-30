@@ -213,10 +213,21 @@ export default function Home() {
   const bmiVal = growth?.height_cm && growth?.weight_kg ? bmiOf(growth.height_cm, growth.weight_kg) : null;
   const bmiPct = bmiVal != null && childMeta.sex && ageMonths != null ? bmiPercentile(bmiVal, childMeta.sex, ageMonths) : null;
   type MStat = 'green' | 'yellow' | 'red' | 'reference';
-  const bmiCard: null | { ageLabel: string; hw: string; bmi: number; band: string; pct: number | null; carb: MStat; protein: MStat; fat: MStat; tip: string } = isMockup
-    ? { ageLabel: '만 28개월', hw: '88.5cm / 12.4kg', bmi: 15.8, band: '정상', pct: 18, carb: 'green', protein: 'green', fat: 'yellow', tip: 'BMI 정상 범위 — 매일 먹지만 지방 양이 다소 부족해요. 견과류·아보카도·등푸른생선(EPA+DHA)으로 보강하면 좋아요.' }
-    : bmiVal != null && bmiPct != null
-      ? { ageLabel: ageMonths != null ? `만 ${ageMonths}개월` : '', hw: `${growth!.height_cm}cm / ${growth!.weight_kg}kg`, bmi: Math.round(bmiVal * 10) / 10, band: bmiBand(bmiPct), pct: Math.round(bmiPct), carb: macroOf('탄수화물'), protein: macroOf('단백질'), fat: 'reference', tip: `또래 ${Math.round(bmiPct)}%ile · ${bmiBand(bmiPct)} (WHO 성장도표 기준). 탄수화물·단백질은 식단 빈도로 평가했어요.` }
+  // 실제 체위(키·몸무게)가 있으면 식사 기록이 적어도/성별이 없어도 항상 실제 BMI를 보여준다. 퍼센타일은 성별·월령 있을 때 추가.
+  const bmiCard: null | { ageLabel: string; hw: string; bmi: number; band: string; pct: number | null; carb: MStat; protein: MStat; fat: MStat; tip: string } = bmiVal != null
+    ? {
+        ageLabel: ageMonths != null ? `만 ${ageMonths}개월` : '',
+        hw: `${growth!.height_cm}cm / ${growth!.weight_kg}kg`,
+        bmi: Math.round(bmiVal * 10) / 10,
+        band: bmiPct != null ? bmiBand(bmiPct) : '',
+        pct: bmiPct != null ? Math.round(bmiPct) : null,
+        carb: macroOf('탄수화물'), protein: macroOf('단백질'), fat: 'reference',
+        tip: bmiPct != null
+          ? `또래 ${Math.round(bmiPct)}%ile · ${bmiBand(bmiPct)} (WHO 성장도표 기준). 탄수화물·단백질은 식단 빈도로 평가했어요.`
+          : '성별을 입력하면 또래 퍼센타일도 나와요 — 식사 기록 화면의 체위 카드에서 남아/여아 선택.',
+      }
+    : isMockup
+      ? { ageLabel: '만 28개월', hw: '88.5cm / 12.4kg', bmi: 15.8, band: '정상', pct: 18, carb: 'green', protein: 'green', fat: 'yellow', tip: 'BMI 정상 범위 — 매일 먹지만 지방 양이 다소 부족해요. 견과류·아보카도·등푸른생선(EPA+DHA)으로 보강하면 좋아요.' }
       : null;
   const MSTAT: Record<MStat, { label: string; color: string; bar: string; w: number }> = {
     green: { label: '적정', color: '#1B5E20', bar: '#16A085', w: 85 },
@@ -337,7 +348,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-2">
             <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 36종 필수 영양소 신호등</strong>
           </div>
-          <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>기준: <strong style={{ color: '#1a2b4a' }}>보건복지부 KDRI 2025</strong> · 만 1-2세{!isMockup && kRef > 0 ? ` · ${kG + kY + kR}종 평가 · ${kRef}종 준비중` : ''}</div>
+          <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>기준: <strong style={{ color: '#1a2b4a' }}>보건복지부 KDRI 2025</strong> · 만 1-2세{!isMockup && kRef > 0 ? ` · ${kG + kY + kR}종 평가 · ${kRef}종 참고지표` : ''}</div>
           <div className="grid grid-cols-3 gap-2">
             <div className="rounded-xl py-3 text-center" style={{ background: '#E8F5E9', border: '1.5px solid #16A085' }}><div className="text-2xl font-extrabold" style={{ color: '#1B5E20' }}>{kG}</div><div className="text-[11px] font-extrabold" style={{ color: '#1B5E20' }}>잘 챙김</div></div>
             <div className="rounded-xl py-3 text-center" style={{ background: '#FFF4D6', border: '1.5px solid #F9A825' }}><div className="text-2xl font-extrabold" style={{ color: '#F57F17' }}>{kY}</div><div className="text-[11px] font-extrabold" style={{ color: '#F57F17' }}>조금 부족</div></div>
@@ -500,12 +511,14 @@ export default function Home() {
                   <div className="rounded-xl bg-white p-3 mb-2.5" style={{ border: '1px solid #F0E0D0' }}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>BMI {bmiCard.bmi}</span>
-                      <span className="text-[11px] font-bold" style={{ color: bmiCard.band === '정상' ? '#1B5E20' : '#C45A00' }}>{bmiCard.band}{bmiCard.pct != null ? ` · 또래 ${bmiCard.pct}%ile` : ''}</span>
+                      <span className="text-[11px] font-bold" style={{ color: bmiCard.pct == null ? '#9CA3AF' : bmiCard.band === '정상' ? '#1B5E20' : '#C45A00' }}>{bmiCard.pct != null ? `${bmiCard.band} · 또래 ${bmiCard.pct}%ile` : '성별 입력 시 또래 비교'}</span>
                     </div>
+                    {bmiCard.pct != null && (<>
                     <div className="relative h-2 rounded-full" style={{ background: 'linear-gradient(90deg,#FFCDD2 0%,#FFE082 22%,#C8E6C9 40% 70%,#FFE082 88%,#FFCDD2 100%)' }}>
                       <div className="absolute -top-1 w-2 h-4 rounded-full" style={{ left: `calc(${BAND_POS[bmiCard.band] ?? 50}% - 4px)`, background: '#1a2b4a', border: '1.5px solid white' }} />
                     </div>
                     <div className="flex justify-between text-[9.5px] font-bold mt-1.5" style={{ color: '#9CA3AF' }}><span>저체중</span><span>정상</span><span>과체중</span></div>
+                    </>)}
                   </div>
                   {/* 탄·단·지 바 */}
                   {([['탄수화물', '🍚', bmiCard.carb], ['단백질', '🥩', bmiCard.protein], ['지방', '🥑', bmiCard.fat]] as [string, string, MStat][]).map(([nm, em, st]) => (
@@ -548,7 +561,7 @@ export default function Home() {
               })}
               {kRef > 0 && (
                 <div className="mt-2 rounded-lg px-3 py-2.5 text-[10.5px] leading-relaxed" style={{ background: '#FAFAF7', color: '#9CA3AF' }}>
-                  🔧 {kRef}종은 아직 개인 평가 준비 중 — KDRI 기준만 표시해요: {kdriView.filter((n) => n.status === 'reference').map((n) => n.nm).join('·')}
+                  ℹ️ {kdriView.filter((n) => n.status === 'reference').map((n) => n.nm).join('·')}은(는) 식단 빈도로 평가하지 않는 참고지표예요 — 나트륨은 적을수록 좋고, 불소는 물·치아 영양소.
                 </div>
               )}
               <div className="text-[10px] text-center mt-3 pb-2" style={{ color: '#C0C0C0' }}>기준: 보건복지부 한국인 영양소 섭취기준 (KDRI) 2025</div>

@@ -52,31 +52,36 @@ export const NUTRI_MAP: Record<string, string[]> = {
   '참외': ['비타민C', '칼륨'], '멜론': ['비타민C', '칼륨'],
   '보리': ['식이섬유', '마그네슘', '비타민B1'], '국수': ['탄수화물'], '찹쌀': ['탄수화물'], '시리얼': ['철', '식이섬유'],
   '매생이': ['철', '칼슘', '요오드'], '파래': ['철', '요오드', '비타민A'],
-  '참깨': ['칼슘', '마그네슘', '철'], '들깨': ['오메가3', '마그네슘'], '해바라기씨': ['비타민E', '마그네슘'],
+  '참깨': ['칼슘', '마그네슘', '철'], '들깨': ['오메가3', '마그네슘', '비타민E'], '해바라기씨': ['비타민E', '마그네슘'],
+  // 유지류·견과 (비타민E·필수지방산 — 카테고리 미분류라 직접 등재)
+  '올리브유': ['비타민E', '리놀레산'], '참기름': ['비타민E', '리놀레산'], '들기름': ['오메가3', '비타민E', 'α-리놀렌산'],
+  '식용유': ['비타민E', '리놀레산'], '콩기름': ['비타민E', '리놀레산'], '카놀라유': ['비타민E', '리놀레산'], '포도씨유': ['비타민E', '리놀레산'],
+  '아보카도': ['비타민E', '식이섬유', '칼륨'], '잣': ['비타민E', '마그네슘', '망간'], '캐슈넛': ['비타민E', '마그네슘', '구리'],
 };
 
 // ── 빗대기(범주 근사) 영양 ────────────────────────────────────
 // NUTRI_MAP에 없는 식재료는 풀 카테고리(ingredients-light.json의 cat)의 대표 영양 프로필로 근사.
 // 예: 오리고기(고기)·곱창(고기) → 고기 프로필. 정확값은 아니지만 '모름'으로 비우지 않는다.
 export const CATEGORY_NUTRI: Record<string, string[]> = {
-  '고기': ['단백질', '철', '아연', '비타민B12'],
-  '생선': ['단백질', '오메가3', '비타민D'],
-  '갑각_조개': ['단백질', '아연', '비타민B12', '철'],
-  '계란': ['단백질', '비타민B12', '비타민D'],
-  '유제품': ['칼슘', '단백질', '비타민D'],
-  '콩_콩제품': ['단백질', '철', '식이섬유', '칼슘'],
+  '고기': ['단백질', '철', '아연', '비타민B12', '판토텐산', '비오틴', '크롬', '에너지'],
+  '생선': ['단백질', '오메가3', '비타민D', '셀레늄', '구리', '에너지'],
+  '갑각_조개': ['단백질', '아연', '비타민B12', '철', '구리', '셀레늄'],
+  '계란': ['단백질', '비타민B12', '비타민D', '비타민E', '판토텐산', '비오틴', '콜린'],
+  '유제품': ['칼슘', '단백질', '비타민D', '판토텐산', '수분', '에너지'],
+  '콩_콩제품': ['단백질', '철', '식이섬유', '칼슘', '구리', '망간', '몰리브덴', '판토텐산'],
   '발효식품': ['단백질', '식이섬유'],
-  '곡물_탄수': ['식이섬유', '마그네슘'],
-  '잎채소': ['비타민A', '비타민C', '엽산', '비타민K'],
+  '곡물_탄수': ['식이섬유', '마그네슘', '망간', '크롬', '에너지'],
+  '잎채소': ['비타민A', '비타민C', '엽산', '비타민K', '비타민E', '망간'],
   '뿌리채소': ['비타민A', '식이섬유', '칼륨'],
   '열매채소': ['비타민C', '비타민A'],
-  '기타채소': ['비타민C', '식이섬유'],
+  '기타채소': ['비타민C', '식이섬유', '크롬'],
   '해조류': ['요오드', '칼슘', '식이섬유'],
-  '버섯': ['비타민D', '식이섬유'],
-  '과일': ['비타민C', '식이섬유', '칼륨'],
-  '견과_씨앗': ['오메가3', '마그네슘', '단백질'],
-  '가공식품': ['단백질'],
+  '버섯': ['비타민D', '식이섬유', '판토텐산', '셀레늄'],
+  '과일': ['비타민C', '식이섬유', '칼륨', '수분'],
+  '견과_씨앗': ['오메가3', '마그네슘', '단백질', '비타민E', '구리', '망간', '몰리브덴', '비오틴', '리놀레산', 'α-리놀렌산'],
+  '가공식품': ['단백질', '에너지'],
   '향신_허브': [],
+  '유지류': ['비타민E', '리놀레산', '에너지'],
 };
 // 풀 카테고리 → WHO 8식품군 (다양성 빗대기)
 export const CATEGORY_GROUP: Record<string, string> = {
@@ -88,11 +93,14 @@ export const CATEGORY_GROUP: Record<string, string> = {
 
 type CatOf = (ing: string) => string | undefined;
 
-/** 식재료 → 커버 영양소. 정확 매핑 없으면 카테고리로 빗대어 근사. */
+/** 식재료 → 커버 영양소. 정확 매핑(NUTRI_MAP) + 카테고리 프로필(CATEGORY_NUTRI)을 합집합.
+ *  합집합 이유: 계란이 NUTRI_MAP에 있어도 계란 카테고리의 비타민E·판토텐산 등을 못 받던 갭 해소.
+ *  (worry 영양소 철·D·칼슘은 카테고리가 없는 곳엔 안 붙어 과대평가 안 됨) */
 export function nutrientsOf(ing: string, catOf?: CatOf): string[] {
-  if (NUTRI_MAP[ing]) return NUTRI_MAP[ing];
+  const direct = NUTRI_MAP[ing] || [];
   const cat = catOf?.(ing);
-  return (cat && CATEGORY_NUTRI[cat]) || [];
+  const byCat = (cat && CATEGORY_NUTRI[cat]) || [];
+  return direct.length || byCat.length ? [...new Set([...direct, ...byCat])] : [];
 }
 
 // 핵심 추적 영양소 (신호등 표시 — 영유아 결핍 흔한 순)
@@ -267,14 +275,14 @@ export function computeTimeseries(
 export type KdriNutrient = { nm: string; val: string; group: string; mapped?: string; sample: 'green' | 'yellow' | 'red'; samplePct: number };
 export const KDRI_NUTRIENTS: KdriNutrient[] = [
   // 다량영양소 5
-  { nm: '에너지', val: '900 kcal', group: '다량영양소', sample: 'green', samplePct: 92 },
+  { nm: '에너지', val: '900 kcal', group: '다량영양소', mapped: '에너지', sample: 'green', samplePct: 92 },
   { nm: '단백질', val: '20 g', group: '다량영양소', mapped: '단백질', sample: 'green', samplePct: 95 },
   { nm: '탄수화물', val: '130 g', group: '다량영양소', mapped: '탄수화물', sample: 'green', samplePct: 88 },
   { nm: '식이섬유', val: '10 g', group: '다량영양소', mapped: '식이섬유', sample: 'green', samplePct: 85 },
-  { nm: '수분', val: '1,000 mL', group: '다량영양소', sample: 'yellow', samplePct: 72 },
+  { nm: '수분', val: '1,000 mL', group: '다량영양소', mapped: '수분', sample: 'yellow', samplePct: 72 },
   // 필수지방산 3
-  { nm: '리놀레산', val: '6 g', group: '필수지방산', sample: 'green', samplePct: 90 },
-  { nm: 'α-리놀렌산', val: '0.6 g', group: '필수지방산', sample: 'yellow', samplePct: 60 },
+  { nm: '리놀레산', val: '6 g', group: '필수지방산', mapped: '리놀레산', sample: 'green', samplePct: 90 },
+  { nm: 'α-리놀렌산', val: '0.6 g', group: '필수지방산', mapped: 'α-리놀렌산', sample: 'yellow', samplePct: 60 },
   { nm: 'EPA+DHA', val: '150 mg', group: '필수지방산', mapped: '오메가3', sample: 'red', samplePct: 30 },
   // 지용성 비타민 4
   { nm: '비타민A', val: '250 μg RAE', group: '지용성비타민', mapped: '비타민A', sample: 'green', samplePct: 88 },
@@ -289,8 +297,8 @@ export const KDRI_NUTRIENTS: KdriNutrient[] = [
   { nm: '비타민B6', val: '0.6 mg', group: '수용성비타민', mapped: '비타민B6', sample: 'green', samplePct: 82 },
   { nm: '엽산', val: '150 μg DFE', group: '수용성비타민', mapped: '엽산', sample: 'yellow', samplePct: 65 },
   { nm: '비타민B12', val: '0.9 μg', group: '수용성비타민', mapped: '비타민B12', sample: 'green', samplePct: 90 },
-  { nm: '판토텐산', val: '2 mg', group: '수용성비타민', sample: 'green', samplePct: 88 },
-  { nm: '비오틴', val: '9 μg', group: '수용성비타민', sample: 'green', samplePct: 90 },
+  { nm: '판토텐산', val: '2 mg', group: '수용성비타민', mapped: '판토텐산', sample: 'green', samplePct: 88 },
+  { nm: '비오틴', val: '9 μg', group: '수용성비타민', mapped: '비오틴', sample: 'green', samplePct: 90 },
   // 비타민 유사 1 (2025 신규)
   { nm: '콜린', val: '160 mg', group: '비타민유사', mapped: '콜린', sample: 'red', samplePct: 42 },
   // 다량 무기질 5
@@ -302,13 +310,13 @@ export const KDRI_NUTRIENTS: KdriNutrient[] = [
   // 미량 무기질 9
   { nm: '철', val: '6 mg', group: '미량무기질', mapped: '철', sample: 'red', samplePct: 38 },
   { nm: '아연', val: '3 mg', group: '미량무기질', mapped: '아연', sample: 'yellow', samplePct: 70 },
-  { nm: '구리', val: '290 μg', group: '미량무기질', sample: 'green', samplePct: 85 },
+  { nm: '구리', val: '290 μg', group: '미량무기질', mapped: '구리', sample: 'green', samplePct: 85 },
   { nm: '불소', val: '0.6 mg', group: '미량무기질', sample: 'green', samplePct: 88 },
-  { nm: '망간', val: '1.5 mg', group: '미량무기질', sample: 'green', samplePct: 90 },
+  { nm: '망간', val: '1.5 mg', group: '미량무기질', mapped: '망간', sample: 'green', samplePct: 90 },
   { nm: '요오드', val: '70 μg', group: '미량무기질', mapped: '요오드', sample: 'green', samplePct: 92 },
   { nm: '셀레늄', val: '23 μg', group: '미량무기질', mapped: '셀레늄', sample: 'green', samplePct: 85 },
-  { nm: '몰리브덴', val: '10 μg', group: '미량무기질', sample: 'green', samplePct: 88 },
-  { nm: '크롬', val: '9 μg', group: '미량무기질', sample: 'red', samplePct: 45 },
+  { nm: '몰리브덴', val: '10 μg', group: '미량무기질', mapped: '몰리브덴', sample: 'green', samplePct: 88 },
+  { nm: '크롬', val: '9 μg', group: '미량무기질', mapped: '크롬', sample: 'red', samplePct: 45 },
 ];
 
 export type KdriSignal = { nm: string; val: string; group: string; status: 'green' | 'yellow' | 'red' | 'reference'; pct: number };
