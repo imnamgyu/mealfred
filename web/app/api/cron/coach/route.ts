@@ -78,7 +78,7 @@ export async function GET(req: Request) {
     // 1) 최근 7일 모든 기록 → 자녀별 그룹
     const { data: rows, error: rErr } = await supabase.from('meal_logs')
       .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well')
-      .gte('log_date', since);
+      .gte('log_date', since).lte('log_date', kstDateNDaysAgo(1));   // 편지는 '어제까지' 확정 데이터로 평가 — 당일 입력이 편지를 바꾸지 않게
     if (rErr) throw rErr;
 
     const byChild: Record<string, Row[]> = {};
@@ -145,7 +145,7 @@ export async function GET(req: Request) {
           });
           if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
           if (r.note) notes.push(r.note);
-          (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); if (k) menuFreq[k] = (menuFreq[k] || 0) + 1; });
+          if (atHome) (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); if (k) menuFreq[k] = (menuFreq[k] || 0) + 1; });   // 집 메뉴만 — 기관 반복은 부모가 못 바꿈
           if (r.ate_well !== false) (r.menus || []).forEach((mn) => { const t = mn.trim(); if (t) favMenu[t] = (favMenu[t] || 0) + 1; });   // 거부 아닌 끼니 = 좋아하는 음식 후보
         });
 
@@ -161,7 +161,7 @@ export async function GET(req: Request) {
         const homeReds = homeDays.length ? computeSignals(homeDays, catOf).filter((s) => s.level === 'red').map((s) => s.nutrient) : [];
         const attends = !!daycareMap[cid];
         const uniqRef = [...new Set(ref)];
-        const ts = computeTimeseries(byDate, menuFreq, catOf, today, { assertNoVeg: catReliable });
+        const ts = computeTimeseries(byDate, menuFreq, catOf, kstDateNDaysAgo(1), { assertNoVeg: catReliable });   // 어제 앵커(평가 기준일)
         // 거부→수용 전환 감지(최근 28일) — 과거 거부했던 식재료를 이후 비거부로 먹기 시작 = '받아들이는 순간'. 코칭이 칭찬.
         try {
           const { data: trData } = await supabase.from('meal_logs')
@@ -196,7 +196,8 @@ export async function GET(req: Request) {
         // 3) 편지: 직전 편지와 식단 지문이 같으면 LLM 스킵하고 내용 재사용 (비용·시간 절감)
         const prev = lastLetter[cid];
         let letter = '', oneliner = '';
-        const reusedThis = !force && !!prev && prev.source_hash === srcHash && !!prev.letter;
+        // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) hash와 무관하게 재사용. 식단 안 바뀐 경우도 재사용. force만 재생성.
+        const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
           letter = prev!.letter; oneliner = prev!.oneliner || ''; reused++;
         } else {

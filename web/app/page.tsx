@@ -171,7 +171,7 @@ export default function Home() {
             if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
             if (r.note) notes.push(r.note);
             if (r.texture) textures.push(r.texture);
-            (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); menuFreq[k] = (menuFreq[k] || 0) + 1; });
+            if (r.place !== 'daycare') (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); menuFreq[k] = (menuFreq[k] || 0) + 1; });   // 반복 경고는 집(home·미상)만 — 기관 급식 반복은 부모가 못 바꿈
             if ((r.menus || []).length) (r.place === 'daycare' ? dcMenusByMeal : homeMenusByMeal).push(r.menus || []);
           });
           const byDay = Object.values(byDate).filter((a) => a.length);
@@ -253,7 +253,7 @@ export default function Home() {
           }
           // 메뉴 반복 인사이트 — 최다 반복 메뉴.
           // 물·국·김 등은 경고 의미 없어 제외, 흰쌀밥은 '편식'이 아니라 주식이라 너그럽게(잡곡·콩 업그레이드 제안)
-          const SKIP_REPEAT = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉']);
+          const SKIP_REPEAT = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉', '김치', '배추김치', '깍두기', '총각김치', '백김치', '열무김치', '나박김치', '물김치', '갓김치', '파김치', '오이소박이']);   // 밥·김치는 한국 주식 — 반복 너그럽게
           const WHITE_RICE = new Set(['밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥']);
           const top = Object.entries(menuFreq).filter(([k]) => !SKIP_REPEAT.has(k)).sort((a, b) => b[1] - a[1])[0];
           if (top && top[1] >= 3) setRepeatInsight({ menu: top[0], count: top[1], rice: WHITE_RICE.has(top[0]) });
@@ -269,13 +269,13 @@ export default function Home() {
             const srcHash = [...allIng].sort().join(',') + '|' + [...new Set(ref)].sort().join(',') + '|' + reds.sort().join(',') + '|' + notes.length;
             const { data: cached } = await supabase.from('coach_letters')
               .select('letter,oneliner,source_hash').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
-            if (cached?.letter && cached.source_hash === srcHash) {
-              // 식단 변동 없음 → 캐시 read만
+            if (cached?.letter) {
+              // 오늘 편지가 이미 발행됨 → 무조건 read (발행되면 그날 고정, 당일 입력으로 안 바뀜)
               setAiLetter(cached.letter);
               if (cached.oneliner) setAiOneliner(cached.oneliner);
               setLetterDate(today);
             } else {
-              // 오늘 첫 생성 OR 식단이 바뀜 → 1회 재생성 (과거 편지 맥락 포함)
+              // 오늘 편지가 아직 없음 → 1회 생성 (과거 편지 맥락 포함). 이후엔 위 분기로 고정
               const { data: past } = await supabase.from('coach_letters')
                 .select('letter_date,letter').eq('child_id', child.id).neq('letter_date', today)
                 .order('letter_date', { ascending: false }).limit(5);

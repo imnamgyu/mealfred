@@ -301,8 +301,8 @@ export function computeTimeseries(
   } else if (opts?.assertNoVeg) {
     ts.push('최근 기록에 채소가 없음');
   }
-  // 물·국 등은 반복 의미 없어 제외. 흰쌀밥은 주식이라 '편식 반복'으로 지적하지 않고 잡곡·콩 섞기 제안으로 전환.
-  const SKIP_REPEAT = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉']);
+  // 물·국 등은 반복 의미 없어 제외. 밥·김치는 한국 주식이라 반복 너그럽게(김치류 제외). 흰쌀밥은 잡곡·콩 섞기 제안으로 전환.
+  const SKIP_REPEAT = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉', '김치', '배추김치', '깍두기', '총각김치', '백김치', '열무김치', '나박김치', '물김치', '갓김치', '파김치', '오이소박이']);
   const WHITE_RICE = new Set(['밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥']);
   const top = Object.entries(menuFreq).filter(([k]) => !SKIP_REPEAT.has(k)).sort((a, b) => b[1] - a[1])[0];
   if (top && top[1] >= 3) {
@@ -417,7 +417,7 @@ export function processedPenalty(menusByMeal: string[][]): { ratio: number; pena
   return { ratio, penalty: Math.round(ratio * 22), sampleNames: [...names].slice(0, 3) };
 }
 // 반복 패널티 — 흰쌀밥·김치·국 등 주식/기본 제외. 같은 메인 4회+ 감점, 상한 12.
-const REPEAT_SKIP = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉', '밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥', '김치', '배추김치']);
+const REPEAT_SKIP = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉', '밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥', '김치', '배추김치', '깍두기', '총각김치', '백김치', '열무김치', '나박김치', '물김치', '갓김치', '파김치', '오이소박이']);
 export function repeatPenalty(menusByMeal: string[][]): { topMenu: string | null; count: number; penalty: number } {
   const freq: Record<string, number> = {};
   menusByMeal.forEach((meal) => meal.forEach((mn) => { const k = (mn || '').replace(/\s/g, ''); if (k && !REPEAT_SKIP.has(k)) freq[k] = (freq[k] || 0) + 1; }));
