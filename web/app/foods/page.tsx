@@ -83,7 +83,7 @@ export default function FoodsDex() {
   const supabase = createSupabaseBrowser();
   const [pool, setPool] = useState<Ing[]>([]);
   const [stats, setStats] = useState<Record<string, Stat>>({});
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('eaten');   // 기본 '먹어본 것' (우리 아이가 먹은 것부터 보이게)
   const [search, setSearch] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
 
