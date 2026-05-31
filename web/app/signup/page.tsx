@@ -33,14 +33,21 @@ export default function SignupPage() {
 
   return (
     <main style={{ maxWidth:480, margin:'0 auto', padding:'40px 24px' }}>
-      <header className="hero" style={{ borderRadius:16, marginBottom:24 }}>
-        <h1 style={{ fontSize:27, fontWeight:800 }}>매일, 우리 아이 편식 코치</h1>
-        <p style={{ marginTop:6 }}>35가지 국제 편식 이론 기반 개인화 코칭 · 카카오 1초 가입</p>
+      <header style={{ borderRadius:16, marginBottom:20, overflow:'hidden', position:'relative', boxShadow:'0 6px 24px rgba(0,0,0,0.10)' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/arin-1.png" alt="당근을 즐겁게 먹는 아이" style={{ width:'100%', height:260, objectFit:'cover', objectPosition:'center 22%', display:'block' }} />
+        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(20,30,50,0.74) 0%, rgba(20,30,50,0.15) 45%, transparent 70%)' }} />
+        <div style={{ position:'absolute', top:14, left:14 }}>
+          <span style={{ background:'#FF6B1A', color:'white', fontSize:11, fontWeight:800, padding:'5px 11px', borderRadius:999, letterSpacing:'0.02em', boxShadow:'0 2px 8px rgba(255,107,26,0.45)' }}>🎁 6월 한정 런칭 이벤트</span>
+        </div>
+        <div style={{ position:'absolute', bottom:0, left:0, right:0, padding:'0 20px 18px' }}>
+          <h1 style={{ fontSize:25, fontWeight:800, color:'white', lineHeight:1.3, textShadow:'0 2px 12px rgba(0,0,0,0.45)' }}>매일, 우리 아이 편식 코치</h1>
+          <p style={{ marginTop:5, fontSize:12.5, color:'rgba(255,255,255,0.93)', fontWeight:600, textShadow:'0 1px 8px rgba(0,0,0,0.5)' }}>35가지 국제 편식 이론 기반 개인 맞춤 코칭</p>
+        </div>
       </header>
 
       <div style={{ background:'white', border:'1px solid #FFE8D0', borderRadius:14, padding:22, textAlign:'center', boxShadow:'0 4px 20px rgba(0,0,0,0.06)' }}>
 
-        <div style={{ fontSize:48, marginBottom:14 }}>🌱</div>
         <h2 style={{ fontSize:19, fontWeight:800, color:'#1a2b4a', marginBottom:8, lineHeight:1.45 }}>
           우리 아이 식단을 <span style={{ color:'#FF6B1A' }}>매일 분석</span>하고<br/>개인 맞춤으로 <span style={{ color:'#FF6B1A' }}>코칭</span>해드려요
         </h2>
@@ -50,10 +57,10 @@ export default function SignupPage() {
         </p>
 
         {/* 가입 혜택 — 1개월 무료 + 친구 5명 방문 시 평생무료 (바이럴 후킹) */}
-        <div style={{ background:'linear-gradient(135deg,#FFF3E0,#FFE0B2)', border:'1.5px solid #FF6B1A', borderRadius:12, padding:'13px 15px', marginBottom:20, textAlign:'left' }}>
-          <div style={{ fontSize:11, fontWeight:800, color:'#C45A00', letterSpacing:'0.03em', marginBottom:3 }}>🎁 가입 혜택</div>
-          <div style={{ fontSize:15, fontWeight:800, color:'#1a2b4a', lineHeight:1.45 }}>지금 가입하면 <span style={{ color:'#FF6B1A' }}>1개월 무료</span></div>
-          <div style={{ fontSize:10.5, color:'#8a7a6a', marginTop:4, lineHeight:1.6 }}>내 초대링크로 친구 <strong style={{ color:'#C45A00' }}>5명만 방문</strong>해도(가입 안 해도!) 우리 아이 <strong>평생 무료</strong>로 코칭받아요</div>
+        <div style={{ background:'linear-gradient(135deg,#FFF3E0,#FFE0B2)', border:'2px solid #FF6B1A', borderRadius:12, padding:'14px 16px', marginBottom:20, textAlign:'left' }}>
+          <div style={{ fontSize:11, fontWeight:800, color:'#C45A00', letterSpacing:'0.03em', marginBottom:4 }}>🎁 6월 한정 런칭 이벤트</div>
+          <div style={{ fontSize:18, fontWeight:800, color:'#1a2b4a', lineHeight:1.4 }}>6월에 가입하면 <span style={{ color:'#FF6B1A' }}>평생 무료</span></div>
+          <div style={{ fontSize:10.5, color:'#8a7a6a', marginTop:5, lineHeight:1.6 }}>이번 달 가입하신 분은 우리 아이 편식 코칭을 <strong style={{ color:'#C45A00' }}>평생 무료</strong>로 받으세요 (런칭 기념, 6월 한정)</div>
         </div>
 
         <button
