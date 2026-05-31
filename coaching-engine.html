@@ -281,9 +281,9 @@
         <div class="cs done"><span class="badge">✅ 현재</span><div><div class="ct">체위 시계열 저장</div><div class="cd">growth_logs에 측정값이 날짜별로 누적되고, 매번 WHO 또래 퍼센타일을 다시 계산.</div></div></div>
         <div class="cs done"><span class="badge">✅ 현재</span><div><div class="ct">크론 일일 보고서</div><div class="cd">매 실행의 정량 지표(처리·편지·재사용·결핍 아동·기록공백·결핍 Top·이슈)를 cron_runs에 적재 → 어드민에서 일자별 추적.</div></div></div>
         <div class="cs todo"><span class="badge">⬜ 로드맵</span><div><div class="ct">BMI 급변(velocity) 감지</div><div class="cd">측정값은 쌓이지만 <b>아직 "한 달 새 퍼센타일 급상승/급락" 자동 감지·알림은 미구현</b>. growth_logs 시계열로 추가할 예정.</div></div></div>
-        <div class="cs todo"><span class="badge">⬜ 로드맵</span><div><div class="ct">주/월/분기/반기/연 롤업 요약</div><div class="cd">일 단위 기록은 있으나 <b>기간별 요약을 차트로 누적·고정 저장하는 기능은 미구현</b>. "이번 달 새 식재료 N종·결핍 추세·체위 변화"를 병원 차트형 레코드로 적재하는 게 다음 단계.</div></div></div>
+        <div class="cs done"><span class="badge">✅ 현재</span><div><div class="ct">주/월/분기/반기/연 롤업 요약</div><div class="cd">매일 새벽 크론이 <code>period_summaries</code> 테이블에 <b>주·월·분기·반기·연</b> 단위 요약(잘먹는 다양성·거부율·완식률·식사시간·끼니수)을 멱등 재계산해 누적. 어드민 쓰레드에서 기간별 표로 시계열 검토 가능(부모 홈 노출은 다음 단계).</div></div></div>
       </div>
-      <div class="note">➡️ <b>다음 단계 제안</b>: <code>growth_logs</code> 위에 BMI 퍼센타일 변화율 감지(임계 초과 시 코칭/알림), <code>period_summaries</code> 테이블로 주·월·분기·반기·연 요약을 누적해 "그 아이 한 명의 의무기록"처럼 계속 검토 가능하게.</div>
+      <div class="note">➡️ <b>다음 단계 제안</b>: <code>growth_logs</code> 위에 BMI 퍼센타일 변화율 감지(임계 초과 시 코칭/알림), 그리고 위 <code>period_summaries</code> 롤업을 <b>부모 홈에도</b> "이번 달 요약" 카드로 노출.</div>
     </section>
 
     <!-- 원칙 -->

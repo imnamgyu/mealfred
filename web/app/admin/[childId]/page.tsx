@@ -92,10 +92,11 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
   ]);
   type PS = { period_type: string; period_key: string; metrics: { variety?: number; refusalPct?: number; enjoyPct?: number | null; avgDur?: number | null; entries?: number } };
   // period_summaries 테이블 미생성이면 error만 나고 data=null → 빈 배열(안전)
-  const { data: psData } = await db.from('period_summaries').select('period_type,period_key,metrics,updated_at').eq('child_id', childId).order('period_key', { ascending: false }).limit(18);
+  const { data: psData } = await db.from('period_summaries').select('period_type,period_key,metrics,updated_at').eq('child_id', childId).order('period_key', { ascending: false }).limit(200);
   const periods = (psData || []) as PS[];
-  const months = periods.filter((p) => p.period_type === 'month');
-  const weeks = periods.filter((p) => p.period_type === 'week');
+  // 큰 기간 → 작은 기간 순으로 그룹(타입별 필터 후 period_key desc 유지)
+  const psGroups: [string, PS[]][] = ([['연', 'year'], ['반기', 'half'], ['분기', 'quarter'], ['월', 'month'], ['주', 'week']] as const)
+    .map(([lab, t]) => [lab, periods.filter((p) => p.period_type === t)] as [string, PS[]]);
 
   const evs: Ev[] = [
     ...(meals || []).map((m): Ev => ({ date: m.log_date, kind: 'meal', data: m as Meal })),
@@ -118,11 +119,11 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
         </div>
       </header>
 
-      {/* 병원 차트형 기간 요약(의무기록) */}
-      {(months.length > 0 || weeks.length > 0) && (
+      {/* 병원 차트형 기간 요약(의무기록) — 주·월·분기·반기·연 */}
+      {psGroups.some(([, arr]) => arr.length > 0) && (
         <details style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '10px 16px' }}>
-          <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 800, color: '#1a2b4a' }}>📋 기간 요약(의무기록) — 월 {months.length} · 주 {weeks.length}</summary>
-          {[['월', months], ['주', weeks]].map(([lab, arr]) => (arr as PS[]).length > 0 && (
+          <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 800, color: '#1a2b4a' }}>📋 기간 요약(의무기록) — {psGroups.filter(([, arr]) => arr.length > 0).map(([lab, arr]) => `${lab} ${arr.length}`).join(' · ')}</summary>
+          {psGroups.map(([lab, arr]) => arr.length > 0 && (
             <div key={lab as string} style={{ marginTop: 8 }}>
               <div style={{ fontSize: 11, fontWeight: 800, color: '#C45A00', margin: '4px 0' }}>{lab as string} 단위</div>
               <div style={{ overflowX: 'auto' }}>
@@ -146,7 +147,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
               </div>
             </div>
           ))}
-          <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 6 }}>매일 새벽 크론이 현재 주·달을 재계산해 누적. '잘먹는'=2회+ 비거부 고유 식재료.</div>
+          <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 6 }}>매일 새벽 크론이 현재 주·월·분기·반기·연을 재계산해 누적. '잘먹는'=2회+ 비거부 고유 식재료.</div>
         </details>
       )}
 

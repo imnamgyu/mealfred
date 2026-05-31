@@ -55,6 +55,17 @@ export function isoWeekKey(ymd: string): string {
 }
 /** 'YYYY-MM-DD' → 'YYYY-MM'. */
 export function monthKey(ymd: string): string { return ymd.slice(0, 7); }
+/** 'YYYY-MM-DD' → 분기 키 'YYYY-Qn'(Q1=1~3월 … Q4=10~12월). */
+export function quarterKey(ymd: string): string {
+  const q = Math.floor((Number(ymd.slice(5, 7)) - 1) / 3) + 1;
+  return `${ymd.slice(0, 4)}-Q${q}`;
+}
+/** 'YYYY-MM-DD' → 반기 키 'YYYY-Hn'(H1=1~6월, H2=7~12월). */
+export function halfKey(ymd: string): string {
+  return `${ymd.slice(0, 4)}-H${Number(ymd.slice(5, 7)) <= 6 ? 1 : 2}`;
+}
+/** 'YYYY-MM-DD' → 연 키 'YYYY'. */
+export function yearKey(ymd: string): string { return ymd.slice(0, 4); }
 
 /** 기간 행들의 요약 지표(잘 먹는 다양성·거부율·완식률·식사속도). */
 export function periodMetrics(rows: ProgressRow[]): PeriodMetrics {

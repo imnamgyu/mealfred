@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer } from '@/lib/supabase/server';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
 import { generateLetter, generateQuestion, icfqForDate, type Place, type LoggedFood } from '@/lib/coach';
-import { periodMetrics, isoWeekKey, monthKey, type ProgressRow } from '@/lib/progress';
+import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
@@ -237,22 +237,30 @@ export async function GET(req: Request) {
       }
     }
 
-    // 병원 차트형 기간 요약 — 현재 주·달을 최근 35일 기록으로 재계산해 upsert(멱등). 편지 로직과 분리.
+    // 병원 차트형 기간 요약 — 현재 주·월·분기·반기·연을 최근 365일 기록으로 재계산해 upsert(멱등).
+    // 분기/반기/연도 '현재 기간 전체'를 정확히 집계하려면 1년치가 필요(자녀당 끼니 행수는 적어 부담 작음). 편지 로직과 분리.
     try {
       const { data: wide } = await supabase.from('meal_logs')
         .select('child_id,log_date,ingredients,refused,ate_well,duration_min')
-        .in('child_id', activeIds).gte('log_date', kstDateNDaysAgo(34));
+        .in('child_id', activeIds).gte('log_date', kstDateNDaysAgo(365));
       const byKid: Record<string, ProgressRow[]> = {};
       (wide || []).forEach((r: ProgressRow & { child_id: string }) => { (byKid[r.child_id] ||= []).push(r); });
-      const wk = isoWeekKey(today), mo = monthKey(today);
+      // 현재 기간 키 + 그 키에 속하는지 판정 함수 (한 끼니가 여러 기간에 동시 집계됨)
+      const PERIODS: { type: string; key: string; in: (d: string) => boolean }[] = [
+        { type: 'week', key: isoWeekKey(today), in: (d) => isoWeekKey(d) === isoWeekKey(today) },
+        { type: 'month', key: monthKey(today), in: (d) => monthKey(d) === monthKey(today) },
+        { type: 'quarter', key: quarterKey(today), in: (d) => quarterKey(d) === quarterKey(today) },
+        { type: 'half', key: halfKey(today), in: (d) => halfKey(d) === halfKey(today) },
+        { type: 'year', key: yearKey(today), in: (d) => yearKey(d) === yearKey(today) },
+      ];
       const ups: { child_id: string; period_type: string; period_key: string; metrics: object; updated_at: string }[] = [];
       const nowIso = new Date().toISOString();
       for (const cid of activeIds) {
         const rs = byKid[cid] || [];
-        const weekRows = rs.filter((r) => isoWeekKey(r.log_date) === wk);
-        const monthRows = rs.filter((r) => monthKey(r.log_date) === mo);
-        if (weekRows.length) ups.push({ child_id: cid, period_type: 'week', period_key: wk, metrics: periodMetrics(weekRows), updated_at: nowIso });
-        if (monthRows.length) ups.push({ child_id: cid, period_type: 'month', period_key: mo, metrics: periodMetrics(monthRows), updated_at: nowIso });
+        for (const p of PERIODS) {
+          const rows = rs.filter((r) => p.in(r.log_date));
+          if (rows.length) ups.push({ child_id: cid, period_type: p.type, period_key: p.key, metrics: periodMetrics(rows), updated_at: nowIso });
+        }
       }
       if (ups.length) await supabase.from('period_summaries').upsert(ups, { onConflict: 'child_id,period_type,period_key' });
     } catch (e) { console.warn('[cron/coach] period_summaries skip:', e instanceof Error ? e.message : e); }
