@@ -119,6 +119,9 @@ export default function Home() {
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   const [aiOneliner, setAiOneliner] = useState<string>('');
+  const [signupDate, setSignupDate] = useState<string | null>(null);   // M8 90일 챌린지 시작(가입일)
+  const [loggedDays, setLoggedDays] = useState(0);                      // 최근 90일 기록한 고유 날 수
+  const [pointBal, setPointBal] = useState(0);                          // 누적 포인트 잔액
   const [letterDate, setLetterDate] = useState<string>('');   // 현재 표시 편지 날짜
   const [pastLetters, setPastLetters] = useState<{ date: string; letter: string; oneliner: string | null }[]>([]);
   const [showPast, setShowPast] = useState(false);
@@ -139,6 +142,8 @@ export default function Home() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setLoggedIn(true);
+        setSignupDate(user.created_at || null);   // 90일 챌린지 시작일
+        supabase.from('point_balance').select('balance').eq('parent_id', user.id).maybeSingle().then(({ data: pb }) => setPointBal(pb?.balance ?? 0));
         const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month').eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
@@ -200,6 +205,7 @@ export default function Home() {
             const sm: Record<string, number> = {};
             Object.entries(lastSeen).forEach(([nm, d]) => { sm[nm] = Math.round((todayMs - Date.parse(d)) / 86400000); });
             setStaleMap(sm);
+            setLoggedDays(new Set((data || []).map((r: { log_date: string }) => r.log_date)).size);   // 90일 챌린지 기록 일수
           });
           // 편식 변화(효과측정) — 최근 56일 기록으로 최근28 vs 직전28 비교
           supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
@@ -454,6 +460,23 @@ export default function Home() {
           </div>
         )}
 
+        {/* 90일 챌린지 진행 (M8) — 가입일 기준. design-spec: 밝은 배경·네이비 글자·오렌지 강조 */}
+        {!isMockup && signupDate && (() => {
+          const elapsed = Math.max(1, Math.floor((Date.now() - Date.parse(signupDate)) / 86400000) + 1);
+          const day = Math.min(90, elapsed);
+          return (
+            <div className="rounded-2xl p-3.5 mb-3 border" style={{ background: '#FFF8F0', borderColor: '#FFD0A0' }}>
+              <div className="flex justify-between items-center mb-1.5">
+                <div className="text-[12px] font-extrabold" style={{ color: '#C45A00' }}>🏆 90일 챌린지</div>
+                <div className="text-[11px] font-bold" style={{ color: '#1a2b4a' }}>{day}/90일 · 기록 {loggedDays}일 · <strong style={{ color: '#C45A00' }}>{pointBal.toLocaleString()}P</strong></div>
+              </div>
+              <div className="h-2 rounded-full" style={{ background: '#F0E0D0' }}>
+                <div className="h-full rounded-full" style={{ width: `${Math.min(100, (day / 90) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} />
+              </div>
+              <div className="text-[10px] mt-1.5" style={{ color: '#8a7a6a' }}>{elapsed > 90 ? '🎉 90일 완주! 매일 기록 습관이 자리잡았어요' : '매일 기록해 90일 습관 완성 → 포인트로 골고루 키트 받기 🎁'}</div>
+            </div>
+          );
+        })()}
         {/* 코치 편지 — 있으면 항상 맨 위 (가장 개인적·핵심 가치) */}
         {(isMockup || aiLetter) && (
           <div className="rounded-2xl p-4 mb-3 relative overflow-hidden" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFECB3)', border: '1.5px solid #F9A825' }}>
