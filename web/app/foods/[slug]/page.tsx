@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { loadPool, loadRecipes, loadFreqRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars, isSpicyDish } from '@/lib/ingredients';
 import RefusedBadge from '@/components/RefusedBadge';
 import PersonalBridge from '@/components/PersonalBridge';
+import { cookingGuide } from '@/lib/cookingMatrix';
 
 // SOS 식감 난이도 순서 (부드러움 → 단단함) — 거부 식재료 친해지기 정렬
 function textureRank(method: string): number {
@@ -161,6 +162,25 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
       )}
 
       <PersonalBridge ingredient={ing.nm} />
+
+      {(() => {
+        const cg = cookingGuide(ing.cat);
+        return cg.length > 0 ? (
+          <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+            <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>📐 {ing.nm} 어떻게 줄까 <span className="font-normal text-[11px]" style={{ color: '#9CA3AF' }}>· 정부 식단 12,454개 평균</span></h2>
+            <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>한 끼 표준 분량이에요. 아이는 <strong>한 입부터</strong> 줄여서, 양념은 영유아 기준 최소로.</p>
+            <ul className="space-y-1.5">
+              {cg.map((c, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm py-0.5">
+                  <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0" style={{ background: '#FFF0E0', color: '#C45A00' }}>{c.method}</span>
+                  <span style={{ color: '#1a2b4a' }}>{ing.nm} 약 <strong>{Math.round(c.g)}g</strong></span>
+                  <span className="text-[10.5px] ml-auto text-right shrink-0" style={{ color: '#9CA3AF' }}>{c.season}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null;
+      })()}
 
       <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
         <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>🍳 친해지기 레시피</h2>
