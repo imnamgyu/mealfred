@@ -7,7 +7,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, KDRI_NUTRIENTS, KDRI_EXCLUDED, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, CATEGORY_GROUP, KDRI_NUTRIENTS, KDRI_EXCLUDED, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
@@ -414,8 +414,14 @@ export default function Home() {
     });
     // 각 카테고리 내부는 필수→권장 우선
     Object.values(byCat).forEach((arr) => arr.sort((a, b) => (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2)));
-    // 빈약한 식품군(먹은 개수 적은 순) 먼저 — 라운드마다 빈약 그룹이 앞에 옴
-    const cats = Object.keys(byCat).sort((a, b) => (eatenByCat[a] || 0) - (eatenByCat[b] || 0));
+    // 코칭이 짚은 '부족 식품군'(집 기준 redGroups) 카테고리를 최우선 → 콩류 부족이면 콩류 식재료가 맨 앞(코칭 추천과 정합)
+    const deficientCats = new Set<string>();
+    (scoreReason?.redGroups || []).forEach((g) => { Object.entries(CATEGORY_GROUP).forEach(([cat, grp]) => { if (grp === g) deficientCats.add(cat); }); });
+    const cats = Object.keys(byCat).sort((a, b) => {
+      const da = deficientCats.has(a) ? 0 : 1, db = deficientCats.has(b) ? 0 : 1;
+      if (da !== db) return da - db;   // 부족 식품군 카테고리 먼저
+      return (eatenByCat[a] || 0) - (eatenByCat[b] || 0);
+    });
     const out: typeof pool = [];
     for (let round = 0; out.length < 20; round++) {
       let added = false;
