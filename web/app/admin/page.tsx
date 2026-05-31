@@ -38,7 +38,7 @@ export default async function AdminHome() {
 
   const db = createSupabaseAdmin();
   const { data: children, error: childErr } = await db.from('children')
-    .select('id,nickname,age_band,sex,daycare,parent_id')
+    .select('id,nickname,age_band,sex,daycare,parent_id,created_at')
     .order('id', { ascending: true });
   if (childErr) console.error('[admin] children query:', childErr.message);
 
@@ -60,6 +60,19 @@ export default async function AdminHome() {
   const letterCount: Record<string, number> = {};
   (letters || []).forEach((l) => { letterCount[l.child_id] = (letterCount[l.child_id] || 0) + 1; });
 
+  // 대시보드 — 가입자(자녀)·식단표 평가 이용 (오늘/어제/누적, KST 기준)
+  const { data: evalRows } = await db.from('eval_results').select('created_at');
+  const kstDay = (o = 0) => new Date(Date.now() + 9 * 3600e3 - o * 86400e3).toISOString().slice(0, 10);
+  const today = kstDay(0), yest = kstDay(1);
+  const dayKST = (ts: string) => new Date(new Date(ts).getTime() + 9 * 3600e3).toISOString().slice(0, 10);
+  const countBy = (arr: { created_at: string | null }[]) => {
+    let total = 0, t = 0, y = 0;
+    (arr || []).forEach((r) => { if (!r.created_at) return; total++; const d = dayKST(r.created_at); if (d === today) t++; else if (d === yest) y++; });
+    return { total, today: t, yest: y };
+  };
+  const signup = countBy((children || []) as { created_at: string | null }[]);
+  const evalStat = countBy((evalRows || []) as { created_at: string | null }[]);
+
   const rows = (children || []).slice().sort((a, b) => (lastDate[b.id] || '').localeCompare(lastDate[a.id] || ''));
 
   return (
@@ -75,6 +88,20 @@ export default async function AdminHome() {
           <Link href="/admin/cron" style={{ fontSize: 12, fontWeight: 800, color: '#fff', background: '#1a2b4a', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🌙 크론</Link>
         </div>
       </header>
+
+      {/* 대시보드 — 가입자·식단표 평가 이용 (어제 대비 누적·오늘) */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+        {[
+          { label: '가입자 (자녀)', s: signup, c: '#1a2b4a' },
+          { label: '식단표 평가 이용', s: evalStat, c: '#C45A00' },
+        ].map((x) => (
+          <div key={x.label} style={{ padding: 14, background: 'white', border: '1px solid #ECECEC', borderRadius: 12 }}>
+            <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 700 }}>{x.label}</div>
+            <div style={{ fontSize: 26, fontWeight: 800, color: x.c, marginTop: 2 }}>{x.s.total}<span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}> 누적</span></div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 3 }}>오늘 <b style={{ color: '#16A085' }}>+{x.s.today}</b> · 어제 +{x.s.yest}</div>
+          </div>
+        ))}
+      </div>
 
       <div style={{ display: 'grid', gap: 10 }}>
         {rows.map((c) => (
