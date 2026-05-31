@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>영양 신호등 기준 개편 — 근거 보고서</title>
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;margin:0;line-height:1.7;}
+.wrap{max-width:960px;margin:0 auto;padding:40px 24px 90px;}
+h1{font-size:29px;font-weight:800;margin:0 0 6px;}
+.sub{color:#8a7a6a;font-size:14px;margin-bottom:34px;}
+h2{font-size:20px;font-weight:800;margin-top:46px;margin-bottom:8px;border-left:4px solid #FF6B1A;padding-left:12px;}
+p{font-size:14.5px;color:#3a4555;}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:#FFF0E0;color:#C45A00;padding:9px 8px;text-align:left;font-weight:800;border:1px solid #FFE0C0;}
+td{padding:8px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
+.daily{background:#FFF1F0;} .freq{background:#FFF7EE;} .occ{background:#F0FAF6;}
+.badge{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:100px;white-space:nowrap;}
+.b-daily{background:#FFE0DE;color:#C62828;} .b-freq{background:#FFE6CC;color:#C45A00;} .b-occ{background:#D7F0E6;color:#16A085;}
+.cur{color:#9CA3AF;text-decoration:line-through;} .pro{color:#1a2b4a;font-weight:800;}
+.callout{border-radius:14px;padding:16px 18px;margin:16px 0;font-size:14px;}
+.c-issue{background:#FFF5F5;border:1.5px solid #FFCDD2;color:#8a3a3a;}
+.c-rec{background:#F0FAF6;border:1.5px solid #A5D6C6;color:#1B5E20;}
+.c-warn{background:#FFF8E8;border:1.5px solid #FFE0A0;color:#8a6a2a;}
+.opt{border:1.5px solid #FFD8B0;border-radius:14px;padding:16px 18px;margin:12px 0;}
+.opt h4{margin:0 0 8px;font-size:15px;color:#C45A00;}
+.thr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;}
+.thr .card{border-radius:14px;padding:14px;font-size:12.5px;}
+.thr .t1{background:#FFF1F0;border:1.5px solid #FFCDD2;} .thr .t2{background:#FFF7EE;border:1.5px solid #FFE0A0;} .thr .t3{background:#F0FAF6;border:1.5px solid #A5D6C6;}
+.thr b{font-size:14px;}
+.back{display:inline-block;margin-bottom:22px;color:#9CA3AF;text-decoration:none;font-size:13px;font-weight:700;}
+.ref{font-size:12px;color:#6a7585;line-height:1.9;}
+.note{font-size:12.5px;color:#8a7a6a;}
+@media(max-width:680px){.thr{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="/docs.html" class="back">← 문서 맵으로</a>
+<h1>🚦 영양 신호등 기준 개편 — 근거 보고서</h1>
+<div class="sub">2026-06-01 · KDRI 31종(집계 30종)을 체내 저장·식품 분포·결핍 위험으로 분류해 green 문턱을 차등화 · 결정용 보고서</div>
+
+<h2>1. 한 줄 요약</h2>
+<p>현재 신호등은 <b>모든 영양소에 똑같이 "최근 7일 중 3일 노출(d≥3)이면 🟢"</b>을 적용한다. 이 균일 기준 때문에 ① <b>매일 필요한 것</b>(단백질·비타민C·칼슘…)도 격일만 먹으면 🟢 → <b>부족 과대평가(가짜 안심)</b>, ② <b>저장이 크거나 소스가 드문 것</b>(비타민D·B12·오메가3·철…)은 주2회 생선=정상인데도 🔴 → <b>가짜 경보(과소평가)</b>가 난다. 게다가 분모가 '달력 7일'이 아니라 <b>'기록된 날 수'</b>라, 3일만 기록하면 비율이 부풀려져 거의 다 🟢이 되는 누수도 있다.</p>
+<div class="callout c-rec">✅ <b>제안</b>: 영양소를 <b>매일군 / 자주군 / 가끔군</b>으로 나눠 green 문턱을 <b>5일 / 4일 / 2일</b>로 차등 + 비타민D는 빈도 신호 끄고 '보충제 안내'로 분리 + 분모를 달력 7일로 교정 + 기록 3일 미만이면 판정 보류.</p>
+
+<h2>2. 밴드별 green 임계값 (근거)</h2>
+<div class="thr">
+  <div class="card t1"><b>🔴 매일군 (13종)</b><br>저장 풀이 작아 매 끼니 필요<br><br>🟢 green: <b>7일 중 5일+</b> (현재 3일)<br>🟡 yellow: 3~4일<br>🔴 red: 0~2일<br><span class="note">단백질·탄수화물·식이섬유·칼슘·인·칼륨·마그네슘·비타민C·B1·B2·니아신·판토텐산·비오틴</span></div>
+  <div class="card t2"><b>🟠 자주군 (8종)</b><br>거의 매일 이상적, 식품 회전 있음<br><br>🟢 green: <b>7일 중 4일+</b><br>🟡 yellow: 2~3일<br>🔴 red: 0~1일<br><span class="note">비타민A·K·엽산·B6·아연·구리·망간·콜린</span></div>
+  <div class="card t3"><b>🟢 가끔군 (9종)</b><br>저장 크거나(간 저장) 소스 드묾<br><br>🟢 green: <b>7일 중 2일+</b><br>🟡 yellow: 1일<br>🔴 red: 0일 (철·B12는 완전 결손만)<br><span class="note">철·비타민D·E·B12·셀레늄·요오드·오메가3·α-리놀렌산·리놀레산</span></div>
+</div>
+
+<h2>3. 영양소별 표 (30종)</h2>
+<table>
+<tr><th>영양소</th><th>분류</th><th>영양학적 권장</th><th>현재 green</th><th>제안 green</th></tr>
+<tr class="daily"><td>단백질</td><td><span class="badge b-daily">매일군</span></td><td>매일(매끼)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>탄수화물</td><td><span class="badge b-daily">매일군</span></td><td>거의 매일</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>식이섬유</td><td><span class="badge b-daily">매일군</span></td><td>매일(매끼 채소·통곡)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>칼슘</td><td><span class="badge b-daily">매일군</span></td><td>매일(우유·유제품)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>인</td><td><span class="badge b-daily">매일군</span></td><td>매일(자동 충족·단조로움 신호)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>칼륨</td><td><span class="badge b-daily">매일군</span></td><td>매일(채소·과일·유제품)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>마그네슘</td><td><span class="badge b-daily">매일군</span></td><td>주4~5(뼈 완충 — 매일군 하단)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>비타민C</td><td><span class="badge b-daily">매일군</span></td><td>매일(수용성·무저장)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>티아민(B1)</td><td><span class="badge b-daily">매일군</span></td><td>주5~6(저장 최소·2~3주 고갈)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>리보플라빈(B2)</td><td><span class="badge b-daily">매일군</span></td><td>주4~5(유제품·달걀 집중)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>니아신</td><td><span class="badge b-daily">매일군</span></td><td>주4~5(트립토판 전환)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>판토텐산(B5)</td><td><span class="badge b-daily">매일군</span></td><td>자동 충족(결핍 거의 0)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="daily"><td>비오틴(B7)</td><td><span class="badge b-daily">매일군</span></td><td>자동 충족(결핍 희귀)</td><td class="cur">3일+</td><td class="pro">5일+</td></tr>
+<tr class="freq"><td>비타민A</td><td><span class="badge b-freq">자주군</span></td><td>주4~5(간 저장·채소 거부)</td><td class="cur">3일+</td><td class="pro">4일+</td></tr>
+<tr class="freq"><td>비타민K</td><td><span class="badge b-freq">자주군</span></td><td>주4~5(간 회전 빠름·장내 합성)</td><td class="cur">3일+</td><td class="pro">4일+</td></tr>
+<tr class="freq"><td>엽산</td><td><span class="badge b-freq">자주군</span></td><td>주4~5(저장 ~4개월·성장 소모)</td><td class="cur">3일+</td><td class="pro">4일+</td></tr>
+<tr class="freq"><td>비타민B6</td><td><span class="badge b-freq">자주군</span></td><td>주4~5(단백질 비례)</td><td class="cur">3일+</td><td class="pro">4일+</td></tr>
+<tr class="freq"><td>아연</td><td><span class="badge b-freq">자주군</span></td><td>주5~6(무저장·성장직결 — 상단)</td><td class="cur">3일+</td><td class="pro">4일+</td></tr>
+<tr class="freq"><td>구리</td><td><span class="badge b-freq">자주군</span></td><td>주4(하단)</td><td class="cur">3일+</td><td class="pro">4일+</td></tr>
+<tr class="freq"><td>망간</td><td><span class="badge b-freq">자주군</span></td><td>주2~3(거의 자동 — 최완화)</td><td class="cur">3일+</td><td class="pro">4일+</td></tr>
+<tr class="freq"><td>콜린</td><td><span class="badge b-freq">자주군</span></td><td>주4~5(급원 제한·다수 미달 — 완화 금지)</td><td class="cur">3일+</td><td class="pro">4일+</td></tr>
+<tr class="occ"><td>철</td><td><span class="badge b-occ">가끔군</span></td><td>주5~6 지향(코칭) · 0일만 red</td><td class="cur">3일+</td><td class="pro">2일+ (0일만 red)</td></tr>
+<tr class="occ"><td>비타민D</td><td><span class="badge b-occ">가끔군</span></td><td>⚠️ 빈도 red 끄고 <b>보충제(400IU) 안내</b></td><td class="cur">3일+</td><td class="pro">빈도 red 비활성</td></tr>
+<tr class="occ"><td>비타민E</td><td><span class="badge b-occ">가끔군</span></td><td>주4 지향(임상 결핍 드묾)</td><td class="cur">3일+</td><td class="pro">2일+</td></tr>
+<tr class="occ"><td>비타민B12</td><td><span class="badge b-occ">가끔군</span></td><td>주3~4 동물성(간 저장 수년) · 0일만 red</td><td class="cur">3일+</td><td class="pro">2일+ (0일만 red)</td></tr>
+<tr class="occ"><td>셀레늄</td><td><span class="badge b-occ">가끔군</span></td><td>주2~3(선진국 결핍 드묾)</td><td class="cur">3일+</td><td class="pro">2일+</td></tr>
+<tr class="occ"><td>요오드</td><td><span class="badge b-occ">가끔군</span></td><td>주2~3(미역·다시마·유제품)</td><td class="cur">3일+</td><td class="pro">2일+</td></tr>
+<tr class="occ"><td>EPA+DHA(오메가3)</td><td><span class="badge b-occ">가끔군</span></td><td>주2~3(생선 주2회 = FDA/DGA)</td><td class="cur">3일+ <span style="color:#C62828">→거의 항상 red(노이즈)</span></td><td class="pro">2일+ (생선 주2회=green)</td></tr>
+<tr class="occ"><td>α-리놀렌산</td><td><span class="badge b-occ">가끔군</span></td><td>주2~3</td><td class="cur">3일+</td><td class="pro">2일+</td></tr>
+<tr class="occ"><td>리놀레산</td><td><span class="badge b-occ">가끔군</span></td><td>주2~3(사실상 자동 충족)</td><td class="cur">3일+</td><td class="pro">2일+</td></tr>
+</table>
+
+<h2>4. 추가로 발견한 누수 (같이 고칠 것)</h2>
+<div class="callout c-warn">⚠️ <b>분모 버그</b> — 현재 비율 계산 분모가 '달력 7일'이 아니라 <b>실제 기록된 날 수</b>(<code>totalDays = ingredientsByDay.length</code>)다. 3일만 기록하면 1번만 나와도 ratio 0.33이 되어 비율 게이트(≥0.5)에 가까워져 <b>전부 green이 뜨는 누수</b>. → 분모를 <b>달력 7일 고정</b>으로 교정.</div>
+<div class="callout c-warn">⚠️ <b>데이터 가드</b> — 윈도우 내 기록일 &lt;3일이면 전 영양소 <b>'reference(판정 보류)'</b>, 3~5일이면 red 비활성(yellow 클램프). 데이터 적을 때 섣불리 빨강/초록 안 띄움.</div>
+<div class="callout c-warn">⚠️ <b>비타민D 분리</b> — 식품 빈도로 평가하는 게 부적합한 영양소(햇빛 합성·보충제 관리). 빈도 red를 끄고 <b>"하루 400IU 보충제" 안내</b>로 분리(AAP 권고).</div>
+
+<h2>5. 권장안 — 2단 롤아웃 (빨강 총량 중립)</h2>
+<div class="opt">
+  <h4>① 1차 (즉시 권장) — 옵션 B: 매일군만 엄격 + 가끔군 완화 동시</h4>
+  <p style="font-size:13px;margin:0">매일군 13종을 <b>5일+</b>로 올려 '격일=green' 누수를 막고, <b>동시에</b> 가끔군을 2일+로 낮추고 철·B12는 0일만 red로 완화 + 비타민D 분리 + 분모/가드 교정. <b>장점</b>: 새로 뜨는 빨강을 가끔군 완화가 상쇄해 '빨강 폭탄' 충격이 작고 변경 폭이 좁아 안전. <b>단점</b>: 자주군 8종은 아직 3일 기준이라 일부 과대평가 잔존.</p>
+</div>
+<div class="opt">
+  <h4>② 2차 — 옵션 A: 전체 차등 (매일5 / 자주4 / 가끔2)</h4>
+  <p style="font-size:13px;margin:0">1차 안정화 후 자주군까지 4일+ 적용해 31종 전부 근거 기반 차등. <b>장점</b>: 비타민A·아연·엽산·콜린 같은 '편식 핵심 결손'을 제대로 포착. <b>단점</b>: 동시 적용 시 기존 green이 무더기로 내려가 충격 큼 → 반드시 1차 뒤, '빨강 총량 캡(8종 초과면 상위 N개만 강조)'·'빨강마다 식재료 액션 1개'와 함께.</p>
+</div>
+<div class="callout c-rec"><b>결론</b>: 지금은 <b>옵션 B</b>(매일군 5일 엄격 + 가끔군 완화 + 비타민D 분리 + 분모/가드 교정)로 출시하고, 다음 회차에 <b>옵션 A</b> 전면 차등으로 확장 권장.</div>
+
+<h2>6. 주의·한계</h2>
+<p class="note">· 밴드 배치는 <b>(a)체내 저장 풀, (b)식품 분포 폭, (c)결핍 빈도</b> 3축 절충이라 일부 영양소는 축이 충돌함. 인·판토텐산·비오틴은 결핍 위험 ~0이지만 분포가 넓어 매일군에 둠(빨강=결핍 경보가 아니라 '식단 단조로움' 신호로 해석). 망간은 위험 낮지만 통곡·채소 회전군이라 자주군 최완화.<br>
+· 콜린은 '가끔군 후보'였으나 급원 제한·다수 AI 미달 근거로 <b>자주군 상향</b>(완화 금지). → 최종 인원 매일13/자주8/가끔9.<br>
+· 셀레늄 앱 상수 23μg는 KDRI(약 9~10μg)보다 보수적 — 추후 정합 검토.</p>
+
+<h2>7. 참고문헌</h2>
+<div class="ref">
+· KDRI(보건복지부·한국영양학회) 2020/2025 — 만 1~2세 권장/충분섭취량<br>
+· WHO 2023 보완식 가이드라인 — 동물성식품·과일·채소 daily 강권고(NBK596423)<br>
+· WHO 철·아연·비타민A 결핍 지침 / WHO·IZiNCG 영유아 아연<br>
+· 미국 DGA·FDA — 어린이 '생선 주2회' 권고<br>
+· AAP(미국소아과학회) — 비타민D 400IU/일 보충, 비타민K 예방 후 결핍 드묾<br>
+· 대한소아과학회 — 생후 6~24개월 철결핍 빈혈 위험기<br>
+· NIH ODS Fact Sheets — 비타민C·D·셀레늄·판토텐산·비오틴<br>
+· NCBI NBK114329 — B12 간 저장 수년·엽산 ~4개월<br>
+· Cambridge BJN 13~32개월 토들러 식이 변동 코호트(신뢰 추정 필요일수)<br>
+· PMC7352907 — 콜린 first-1000-days 체계 고찰 / BC Children's — 토들러 다수 콜린 미달<br>
+· PMC3985823 — 동일 주간량서 daily 섭취가 오메가3 조직 흡수 ↑<br>
+· IOM/DRI — 탄수화물 RDA 130g / ESPGHAN 소아 식이섬유 / 식약처 영유아 식생활지침<br>
+· 코드: lib/nutrition.ts — computeKdriSignals(L377-392), KDRI_NUTRIENTS(L330-369), computeGroupSignals(L157-181)
+</div>
+</div>
+</body>
+</html>
