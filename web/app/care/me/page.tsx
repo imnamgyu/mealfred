@@ -173,9 +173,6 @@ export default function MePage() {
               {[
                 { ic: '🍽', t: '끼니 기록', p: '+50P', d: '매 끼니 · 하루 5끼까지', on: true },
                 { ic: '👥', t: '친구 가입', p: '+4,900P', d: '내 링크로 가입 = 한 달 구독값! 많이 모으면 계속 무료', on: true },
-                { ic: '💬', t: '도감 식재료 후기', p: '+200P', d: '먹여본 경험 공유', on: false },
-                { ic: '✍️', t: '키트 리뷰', p: '+2,000P', d: '받은 키트 후기', on: false },
-                { ic: '🎲', t: '7일 연속 기록 룰렛', p: '+500~3,000P', d: '일주일 매일 기록하면', on: false },
               ].map((x, i) => (
                 <div key={i} className="flex items-center gap-2.5 py-1.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
                   <span className="text-base shrink-0">{x.ic}</span>
