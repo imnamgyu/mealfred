@@ -13,3 +13,15 @@ export function kstToday(): string {
 export function kstDateNDaysAgo(n: number): string {
   return new Date(Date.now() + 9 * 3600 * 1000 - n * 86400 * 1000).toISOString().slice(0, 10);
 }
+
+/** KST 날짜+시간 표기 (YYYY-MM-DD HH:mm). timeZone 옵션으로 정확 — 수동 +9 계산 안 함(서버 UTC여도 한국시간). */
+export function kstDateTime(ts: string | null | undefined): string {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 16);
+}
+
+/** UTC timestamp → KST 날짜만 (YYYY-MM-DD). timeZone 옵션. */
+export function kstDateOf(ts: string | null | undefined): string {
+  if (!ts) return '';
+  return new Date(ts).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);
+}

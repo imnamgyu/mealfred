@@ -62,9 +62,9 @@ export default async function AdminHome() {
 
   // 대시보드 — 가입자(자녀)·식단표 평가 이용 (오늘/어제/누적, KST 기준)
   const { data: evalRows } = await db.from('eval_results').select('created_at');
-  const kstDay = (o = 0) => new Date(Date.now() + 9 * 3600e3 - o * 86400e3).toISOString().slice(0, 10);
-  const today = kstDay(0), yest = kstDay(1);
-  const dayKST = (ts: string) => new Date(new Date(ts).getTime() + 9 * 3600e3).toISOString().slice(0, 10);
+  const kstDateOnly = (d: Date) => d.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);   // 수동 +9 대신 timeZone으로 정확
+  const today = kstDateOnly(new Date()), yest = kstDateOnly(new Date(Date.now() - 86400e3));
+  const dayKST = (ts: string) => kstDateOnly(new Date(ts));
   const countBy = (arr: { created_at: string | null }[]) => {
     let total = 0, t = 0, y = 0;
     (arr || []).forEach((r) => { if (!r.created_at) return; total++; const d = dayKST(r.created_at); if (d === today) t++; else if (d === yest) y++; });

@@ -26,7 +26,7 @@ const STATUS: Record<string, { bg: string; fg: string; t: string }> = {
   running: { bg: '#E3F2FD', fg: '#1565C0', t: '실행중' },
 };
 
-function fmt(ts: string | null) { return ts ? ts.replace('T', ' ').slice(0, 16) : '—'; }
+function fmt(ts: string | null) { return ts ? new Date(ts).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 16) : '—'; }   // KST(한국시간) — 수동 +9 없이 timeZone으로
 function dur(ms?: number) { return ms == null ? '—' : ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`; }
 
 function Stat({ label, value, tone }: { label: string; value: React.ReactNode; tone?: string }) {
