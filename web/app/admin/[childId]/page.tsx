@@ -46,6 +46,10 @@ function Ctx({ ctx }: { ctx: Record<string, unknown> | null }) {
   const missing = (ctx.missing as string[] | undefined)?.join(', ');
   const homeRef = (ctx.homeRefused as string[] | undefined)?.join(', ');
   const dayRef = (ctx.daycareRefused as string[] | undefined)?.join(', ');
+  // P10 집/기관 분리 — 전체는 기관 급식 포함이라 OK여도 집 끼니만 보면 부족할 수 있음(칭찬·코칭은 집 기준)
+  const homeMissing = (ctx.homeMissing as string[] | undefined)?.join(', ');
+  const homeReds = (ctx.homeReds as string[] | undefined)?.join(', ');
+  const homeDays = ctx.homeDays as number | undefined;
   return (
     <details style={{ margin: '2px 0 12px auto', maxWidth: '78%' }}>
       <summary style={{ cursor: 'pointer', fontSize: 11, color: '#9CA3AF', fontWeight: 700, textAlign: 'right' }}>🔎 우리 판단(근거) 보기</summary>
@@ -54,6 +58,13 @@ function Ctx({ ctx }: { ctx: Record<string, unknown> | null }) {
         {missing && <div>📉 부족: {missing}</div>}
         {homeRef && <div>🏠 집 거부: {homeRef}</div>}
         {dayRef && <div>🏫 기관 거부: {dayRef}</div>}
+        {ctx.attendsDaycare === true && (homeMissing || homeReds || homeDays != null) && (
+          <div style={{ marginTop: 4, paddingTop: 4, borderTop: '1px dotted #E5E7EB' }}>
+            🏠 <b>집 끼니만(P10 칭찬·코칭 기준)</b>{homeDays != null ? ` · ${homeDays}일` : ''}
+            {homeMissing && <div style={{ paddingLeft: 14 }}>📉 집 부족 식품군: <b style={{ color: '#C45A00' }}>{homeMissing}</b></div>}
+            {homeReds && <div style={{ paddingLeft: 14 }}>🔴 집 결핍: <b style={{ color: '#C62828' }}>{homeReds}</b></div>}
+          </div>
+        )}
         {ctx.source != null && <div>⚙ 경로: {String(ctx.source)}{ctx.model ? ` · ${String(ctx.model)}` : ''}</div>}
         <details style={{ marginTop: 6 }}>
           <summary style={{ cursor: 'pointer', fontSize: 10, color: '#B0B0B0' }}>raw json</summary>

@@ -37,6 +37,11 @@ export async function GET(req: Request) {
   if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   }
+  // QA용 좁히기: ?child=<id>로 한 자녀만, ?force=1로 식단지문 캐시를 무시하고 강제 재생성
+  // (인증은 위 CRON_SECRET과 동일 — 로컬/크론에서만 도달. P10 등 편지 로직 검증에 사용)
+  const qp = new URL(req.url).searchParams;
+  const childFilter = qp.get('child');
+  const force = qp.get('force') === '1';
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ ok: false, error: 'ANTHROPIC_API_KEY missing' }, { status: 500 });
   }
@@ -75,6 +80,7 @@ export async function GET(req: Request) {
     let activeIds = Object.entries(byChild)
       .filter(([, rs]) => new Set(rs.map((r) => r.log_date)).size >= 3)
       .map(([id]) => id);
+    if (childFilter) activeIds = activeIds.filter((id) => id === childFilter);
     if (!activeIds.length) {
       await supabase.from('cron_runs').update({ status: 'success', finished_at: new Date().toISOString(), processed_count: 0, error_count: 0 }).eq('id', runRow?.id);
       return NextResponse.json({ ok: true, processed: 0, note: '활성 자녀 없음' });
@@ -162,8 +168,9 @@ export async function GET(req: Request) {
         // 3) 편지: 직전 편지와 식단 지문이 같으면 LLM 스킵하고 내용 재사용 (비용·시간 절감)
         const prev = lastLetter[cid];
         let letter = '', oneliner = '';
-        if (prev && prev.source_hash === srcHash && prev.letter) {
-          letter = prev.letter; oneliner = prev.oneliner || ''; reused++;
+        const reusedThis = !force && !!prev && prev.source_hash === srcHash && !!prev.letter;
+        if (reusedThis) {
+          letter = prev!.letter; oneliner = prev!.oneliner || ''; reused++;
         } else {
           // 연속성용 과거 편지 (날짜 라벨만 — buildLetterUser가 순서로 변환)
           const { data: pastL } = await supabase.from('coach_letters')
@@ -185,8 +192,10 @@ export async function GET(req: Request) {
           const letterCtx = {
             reds, covered: fg.covered, missing: fg.missing, timeseries: ts,
             homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
+            // P10 분리 근거 — 집 끼니만의 부족(칭찬·코칭은 이 기준). 어드민에서 '전체 OK인데 집은 부족'을 검증.
+            homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
             eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
-            source: prev && prev.source_hash === srcHash && prev.letter ? 'cron(재사용)' : 'cron', model: 'haiku-4-5',
+            source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: 'haiku-4-5',
           };
           await supabase.from('coach_letters').upsert(
             { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: letterCtx },
