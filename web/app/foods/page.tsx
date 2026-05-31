@@ -7,7 +7,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { NUTRI_MAP } from '@/lib/nutrition';
+import { NUTRI_MAP, CATEGORY_GROUP } from '@/lib/nutrition';
 import { kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
@@ -17,19 +17,13 @@ type Ing = { nm: string; cat: string; grade: string; em: string };
 // exposure/eat/first/last = 전체 누적. recentFreq/recentRefused = '잘 먹는' 판정용(최근 90일 윈도우).
 type Stat = { exposure: number; eat: number; first: string | null; last: string | null; recentFreq: number; recentRefused: boolean };
 
-const CAT_FILTER: Record<string, string> = {
-  '잎채소': 'leaf', '뿌리채소': 'root', '열매채소': 'fruitveg', '십자화과': 'fruitveg',
-  '콩_콩제품': 'bean', '콩제품': 'bean', '생선': 'fish', '갑각_조개': 'fish', '해조류': 'fish',
-  '버섯': 'mushroom', '과일': 'fruit', '유제품': 'dairy', '곡물_탄수': 'grain', '곡류': 'grain',
-  '고기': 'meat', '계란': 'meat', '견과_씨앗': 'nut', '기타채소': 'etc', '향신_허브': 'etc',
-  '발효식품': 'etc', '가공식품': 'etc',
-};
+// 필터 = 홈 '식품군 다양성' 8개와 동일(CATEGORY_GROUP). 세부 카테고리(박과·뿌리 등) X.
 const FILTERS = [
   { k: 'all', label: '전체' }, { k: 'eaten', label: '✅ 먹어본 것' }, { k: 'noteaten', label: '🆕 안 먹어본 것' },
   { k: 'essential', label: '⭐⭐⭐ 필수' }, { k: 'danger', label: '🚨 오래 안 먹음' },
-  { k: 'leaf', label: '🥬 잎채소' }, { k: 'fruitveg', label: '🎃 박과' }, { k: 'root', label: '🥕 뿌리' },
-  { k: 'bean', label: '🫘 콩' }, { k: 'fish', label: '🐟 생선·해산물' }, { k: 'mushroom', label: '🍄 버섯' },
-  { k: 'fruit', label: '🍓 과일' }, { k: 'dairy', label: '🥛 유제품' }, { k: 'grain', label: '🌾 곡물' }, { k: 'meat', label: '🍗 고기·계란' },
+  { k: '곡물', label: '🌾 곡물' }, { k: '콩류', label: '🫘 콩' }, { k: '유제품', label: '🥛 유제품' },
+  { k: '고기생선', label: '🍗 고기·생선' }, { k: '계란', label: '🥚 계란' },
+  { k: '비타민A채소', label: '🥕 녹황색채소' }, { k: '기타채소', label: '🥬 일반채소' }, { k: '과일', label: '🍓 과일' },
 ];
 const GRADE_META: Record<string, { stars: string; full: string; cls: string }> = {
   '필수': { stars: '⭐⭐⭐', full: '⭐⭐⭐ 필수', cls: 'A' },
@@ -144,7 +138,7 @@ export default function FoodsDex() {
     if (filter === 'noteaten') return getStat(p.nm).eat === 0;
     if (filter === 'essential') return p.grade === '필수';
     if (filter === 'danger') return getStat(p.nm).exposure > 0 && statusOf(getStat(p.nm)) === 'danger';
-    return CAT_FILTER[p.cat] === filter;
+    return CATEGORY_GROUP[p.cat] === filter;
   }).sort((a, b) => {
     // 1) 등급 우선 (필수 → 권장 → 일반), 2) 관심필요 우선, 3) 오래된 순
     const ga = GRADE_SORT[a.grade] ?? 2, gb = GRADE_SORT[b.grade] ?? 2;

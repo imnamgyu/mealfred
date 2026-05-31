@@ -99,7 +99,7 @@ export default function MePage() {
                 {points && <div className="text-[10.5px]" style={{ color: '#9CA3AF' }}>누적 {points.total_earned.toLocaleString()}P</div>}
               </div>
               <div className="text-2xl font-extrabold" style={{ color: '#C45A00' }}>{(points?.balance ?? 0).toLocaleString()} <span className="text-sm">P</span></div>
-              <div className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a' }}>끼니를 기록할 때마다 <strong style={{ color: '#C45A00' }}>+50P</strong> 쌓여요 · 모아서 <strong>골고루 키트</strong> 구매에 쓸 수 있어요 (결제 준비 중)</div>
+              <div className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a' }}>끼니를 기록할 때마다 <strong style={{ color: '#C45A00' }}>+50P</strong> 쌓여요 · 모아서 <strong>골고루 키트</strong> 구매에 쓸 수 있어요 (8월 출시 예정)</div>
               {ledger.length > 0 && (
                 <details className="mt-2.5">
                   <summary className="text-[11px] font-bold cursor-pointer" style={{ color: '#9CA3AF' }}>적립·사용 내역 {ledger.length}건 ▾</summary>

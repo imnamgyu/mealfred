@@ -496,9 +496,17 @@ export default function CarePage() {
   }
 
   async function saveEntry() {
+    // 남긴 음식(refused)이 '들어간 식재료'에 없으면 자동 추가 — 부모가 실수로 빼먹었을 수 있음
+    let e = entry;
+    if (entry.refused?.trim()) {
+      const refItems = [...new Set(entry.refused.split(/[,，·]/).map((s) => normalizeIngredient(s.trim())).filter(Boolean))];
+      const have = new Set(entry.ingredients.map((t) => t.name));
+      const add = refItems.filter((nm) => !have.has(nm)).map((nm) => ({ name: nm, ai: true }));
+      if (add.length) { e = { ...entry, ingredients: [...entry.ingredients, ...add] }; setEntry(e); }
+    }
     const next = { ...logs };
     if (!next[date]) next[date] = {};
-    next[date][activeSlot] = entry;
+    next[date][activeSlot] = e;
     setLogs(next);
     saveLogs(next);              // localStorage (오프라인 캐시)
     setSaved(true);
@@ -507,10 +515,10 @@ export default function CarePage() {
     // 로그인 + 자녀 있으면 Supabase 동기화
     if (userId && childId) {
       await supabase.from('meal_logs')
-        .upsert(entryToRow(entry, childId, userId, date, activeSlot), { onConflict: 'child_id,log_date,slot' })
+        .upsert(entryToRow(e, childId, userId, date, activeSlot), { onConflict: 'child_id,log_date,slot' })
         .then(({ error }) => { if (error) console.warn('[care] save error:', error.message); });
       // 끼니에 내용 있으면 포인트 적립(서버가 멱등·일일5끼 한도 처리 — 같은 끼니 재저장은 적립 0)
-      if (entry.menus?.length || entry.ingredients?.length) {
+      if (e.menus?.length || e.ingredients?.length) {
         fetch('/api/points/earn', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ child_id: childId, date, slot: activeSlot }) })
           .then((r) => r.json()).then((d) => {
             if (d?.ok && d.earned > 0) { setPointToast(`+${d.earned}P 적립! 🎉`); setTimeout(() => setPointToast(''), 2200); }

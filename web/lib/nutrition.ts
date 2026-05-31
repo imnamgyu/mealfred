@@ -87,8 +87,9 @@ export const CATEGORY_NUTRI: Record<string, string[]> = {
 export const CATEGORY_GROUP: Record<string, string> = {
   '곡물_탄수': '곡물', '콩_콩제품': '콩류', '발효식품': '콩류', '유제품': '유제품',
   '고기': '고기생선', '생선': '고기생선', '갑각_조개': '고기생선', '가공식품': '고기생선',
-  '계란': '계란', '잎채소': '비타민A채소', '뿌리채소': '비타민A채소',
+  '계란': '계란', '잎채소': '비타민A채소', '뿌리채소': '비타민A채소', '십자화과': '비타민A채소',
   '열매채소': '기타채소', '기타채소': '기타채소', '해조류': '기타채소', '버섯': '기타채소', '과일': '과일',
+  '곡류': '곡물', '콩제품': '콩류',   // foods 도감 cat 보완(8 식품군 필터 정합)
 };
 
 type CatOf = (ing: string) => string | undefined;
@@ -189,7 +190,10 @@ export function computeGroupWeekly(rows: { log_date: string; ingredients: string
     (byWeek[wk] ||= {});
     groups.forEach((g) => { (byWeek[wk][g] ||= new Set<string>()).add(r.log_date); });
   }
-  const weeks = Object.keys(byWeek).sort().slice(-numWeeks);
+  // 최근 numWeeks 주 키를 연속 생성(데이터 없는 주도 0으로) — 1주만 기록해도 추이선이 끊김 없이 그려짐
+  const todayMs = Date.now();
+  const weeks = [...new Set(Array.from({ length: numWeeks }, (_, i) =>
+    isoWeekKey(new Date(todayMs - (numWeeks - 1 - i) * 7 * 86400000).toISOString().slice(0, 10))))];
   const series = ALL_GROUPS.map((g) => ({ group: g, counts: weeks.map((wk) => byWeek[wk]?.[g]?.size || 0) }));
   return { weeks, series };
 }
