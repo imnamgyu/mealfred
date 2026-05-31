@@ -43,6 +43,7 @@ export default function OnboardingPage() {
   const [weight, setWeight] = useState('');
   const [allergens, setAllergens] = useState<string[]>([]);
   const [customAllergen, setCustomAllergen] = useState('');  // 수동 추가 입력
+  const [chronicConditions, setChronicConditions] = useState('');   // 만성질환·특이사항(코칭·영양 반영)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);   // 기존 자녀 id → 수정 모드
@@ -58,7 +59,7 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setHydrating(false); return; }
       const { data: child } = await supabase.from('children')
-        .select('id,nickname,birth_year,birth_month,sex,height_cm,weight_kg,allergens')
+        .select('id,nickname,birth_year,birth_month,sex,height_cm,weight_kg,allergens,chronic_conditions')
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
       if (child) {
         setEditId(child.id);
@@ -67,6 +68,7 @@ export default function OnboardingPage() {
         if (child.birth_month) setBirthMonth(child.birth_month);
         if (child.sex === 'M' || child.sex === 'F') setSex(child.sex);
         if (child.allergens?.length) setAllergens(child.allergens);
+        if (child.chronic_conditions) setChronicConditions(child.chronic_conditions);
         if (child.height_cm != null) setHeight(String(child.height_cm));
         if (child.weight_kg != null) setWeight(String(child.weight_kg));
         // 체위는 시계열(growth_logs) 최신값이 더 정확 — 있으면 덮어씀
@@ -100,6 +102,7 @@ export default function OnboardingPage() {
       height_cm: h,
       weight_kg: w,
       allergens: allergens.length ? allergens : null,
+      chronic_conditions: chronicConditions.trim() || null,
     };
 
     let childId = editId;
@@ -232,6 +235,14 @@ export default function OnboardingPage() {
               style={{ padding:'10px 16px', background:'#1a2b4a', color:'white', border:'none', borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}
             >추가</button>
           </div>
+        </div>
+
+        <div style={{ marginBottom:20 }}>
+          <label style={{ fontSize:13, fontWeight:800, color:'#1a2b4a' }}>🩺 만성질환·특이사항 (있다면)</label>
+          <div style={{ fontSize:11, color:'#9CA3AF', marginTop:2, marginBottom:6 }}>코칭·영양 분석에 반영돼요. 없으면 비워두세요.</div>
+          <textarea value={chronicConditions} onChange={(e)=>setChronicConditions(e.target.value)} rows={2}
+            placeholder="예: 갑상선 기능저하, 신장질환, 페닐케톤뇨증(PKU), 유당불내증, 당뇨…"
+            style={{ width:'100%', padding:'10px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, fontFamily:'inherit', resize:'none', color:'#1a2b4a', boxSizing:'border-box' }} />
         </div>
 
         <button type="submit" disabled={loading || hydrating} style={{

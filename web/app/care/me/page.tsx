@@ -23,8 +23,6 @@ export default function MePage() {
   const [points, setPoints] = useState<{ balance: number; total_earned: number } | null>(null);
   const [ledger, setLedger] = useState<{ kind: string; amount: number; created_at: string; meta: { date?: string } | null }[]>([]);
   const [sub, setSub] = useState<{ lifetime: boolean; freeUntil: string; daysLeft: number } | null>(null);   // 구독 상태(첫 달 무료·6월 평생무료)
-  const [chronicInput, setChronicInput] = useState('');   // 만성질환·특이사항
-  const [chronicSaved, setChronicSaved] = useState(false);
   const [redeeming, setRedeeming] = useState(false);   // 포인트로 구독 결제 처리 중
 
   async function loadReferral() {
@@ -63,7 +61,6 @@ export default function MePage() {
         .select('nickname,age_band,birth_year,birth_month,allergens,chronic_conditions')
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
       setChild(data);
-      setChronicInput(data?.chronic_conditions || '');
       setLoading(false);
       loadReferral();   // 초대 코드·방문수·과금 상태
       // 포인트 잔액·내역 (M7)
@@ -91,13 +88,6 @@ export default function MePage() {
     setRedeeming(false);
     if (r?.ok) window.location.reload();   // 잔액·만료일 갱신
     else alert(r?.reason === 'insufficient' ? '포인트가 부족해요 — 4,900P가 필요해요. 끼니 기록·친구 초대로 모아보세요!' : '결제에 실패했어요. 잠시 후 다시 시도해주세요.');
-  }
-
-  async function saveChronic() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    await supabase.from('children').update({ chronic_conditions: chronicInput.trim() || null }).eq('parent_id', user.id);
-    setChronicSaved(true); setTimeout(() => setChronicSaved(false), 2000);
   }
 
   async function logout() {
@@ -202,14 +192,14 @@ export default function MePage() {
                     ))}
                   </div>
                 ) : null}
-                {/* 만성질환·특이사항 — 코칭·영양 제한 반영 */}
-                <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F5F0EA' }}>
-                  <div className="text-[11px] font-bold mb-1.5" style={{ color: '#8a7a6a' }}>만성질환·특이사항 <span style={{ color: '#B0B0B0' }}>(코칭·영양에 반영)</span></div>
-                  <textarea value={chronicInput} onChange={(e) => setChronicInput(e.target.value)} placeholder="예: 갑상선 기능저하, 신장질환, 페닐케톤뇨증(PKU), 유당불내증, 당뇨…" rows={2}
-                    className="w-full text-[12px] px-2.5 py-2 rounded-lg resize-none" style={{ background: '#FFFDFB', border: '1px solid #E5E7EB', color: '#5a4a3a' }} />
-                  <button onClick={saveChronic} className="mt-1.5 text-[11px] font-bold px-3 py-1.5 rounded-lg text-white" style={{ background: chronicSaved ? '#16A085' : '#FF6B1A' }}>{chronicSaved ? '저장됨 ✓' : '저장'}</button>
-                </div>
-                <a href="/onboarding" className="inline-block mt-3 text-xs font-bold" style={{ color: '#FF6B1A' }}>아이 정보 추가/수정 →</a>
+                {child.chronic_conditions ? (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {child.chronic_conditions.split(/[,，·]/).map((c) => c.trim()).filter(Boolean).map((c) => (
+                      <span key={c} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FFF3E0', color: '#E65100' }}>🩺 {c}</span>
+                    ))}
+                  </div>
+                ) : null}
+                <a href="/onboarding" className="inline-block mt-3 text-xs font-bold" style={{ color: '#FF6B1A' }}>아이 정보·질환 추가/수정 →</a>
               </div>
             ) : (
               <></>
