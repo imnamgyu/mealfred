@@ -22,6 +22,7 @@ export default function MePage() {
   const [copied, setCopied] = useState(false);
   const [points, setPoints] = useState<{ balance: number; total_earned: number } | null>(null);
   const [ledger, setLedger] = useState<{ kind: string; amount: number; created_at: string; meta: { date?: string } | null }[]>([]);
+  const [sub, setSub] = useState<{ lifetime: boolean; freeUntil: string; daysLeft: number } | null>(null);   // 구독 상태(첫 달 무료·6월 평생무료)
 
   async function loadReferral() {
     setRefLoading(true); setRefErr('');
@@ -47,6 +48,11 @@ export default function MePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
       setNickname((user.user_metadata?.nickname as string) || '');
+      // 구독: 가입 첫 달 무료(가입일+30일). 6월 가입자는 평생 무료 프로모.
+      const lifetime = user.created_at?.slice(0, 7) === '2026-06';
+      const createdMs = user.created_at ? new Date(user.created_at).getTime() : Date.now();
+      const freeUntilMs = createdMs + 30 * 86400e3;
+      setSub({ lifetime, freeUntil: new Date(freeUntilMs).toISOString().slice(0, 10), daysLeft: Math.max(0, Math.ceil((freeUntilMs - Date.now()) / 86400e3)) });
       const { data } = await supabase.from('children')
         .select('nickname,age_band,birth_year,birth_month,allergens')
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
@@ -90,6 +96,26 @@ export default function MePage() {
             <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="text-xs font-bold mb-2" style={{ color: '#8a7a6a' }}>보호자</div>
               <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{nickname || '카카오 회원'}님</div>
+            </div>
+
+            {/* 구독 — 첫 달 무료 만료기간 / 6월 평생무료 / 페이월 진입 */}
+            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+              <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독</div>
+              {sub?.lifetime ? (
+                <div className="text-base font-extrabold" style={{ color: '#16A085' }}>🎉 평생 무료 <span className="text-[11px] font-semibold" style={{ color: '#9CA3AF' }}>· 6월 가입 혜택</span></div>
+              ) : sub && sub.daysLeft > 0 ? (
+                <>
+                  <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>무료 체험 <span style={{ color: '#C45A00' }}>D-{sub.daysLeft}</span></div>
+                  <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{sub.freeUntil}까지 무료 · 이후 월 4,900원</div>
+                  <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold" style={{ background: '#FFF0E0', color: '#C45A00' }}>챌린지·초대로 할인받기 →</a>
+                </>
+              ) : sub ? (
+                <>
+                  <div className="text-base font-extrabold" style={{ color: '#C62828' }}>무료 체험 종료</div>
+                  <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>계속 이용하려면 구독해주세요 · 월 4,900원</div>
+                  <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>구독하기 →</a>
+                </>
+              ) : null}
             </div>
 
             {/* 내 포인트 (M7) — 끼니 기록마다 +50P, 골고루 키트 구매에 사용(준비 중) */}
