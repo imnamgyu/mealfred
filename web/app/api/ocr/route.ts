@@ -195,7 +195,7 @@ export async function POST(req: NextRequest) {
     // 3) Claude(Haiku)로 메뉴→식재료 분해 (텍스트 입력, 저렴)
     const decomp = await anthropic.messages.create({
       model: 'claude-haiku-4-5',
-      max_tokens: 8000,
+      max_tokens: 8192,   // Haiku 출력 한도. 한 달치 식단표는 초과해 잘릴 수 있어 아래 stop_reason로 안내
       output_config: { format: { type: 'json_schema', schema: MENU_SCHEMA } },
       messages: [
         { role: 'user', content: [{ type: 'text', text: `${DECOMPOSE_PROMPT}\n\n[OCR 추출 텍스트]\n${ocrText}` }] },
@@ -205,13 +205,24 @@ export async function POST(req: NextRequest) {
     if (!textBlock || textBlock.type !== 'text') {
       return NextResponse.json({ error: '분해 실패' }, { status: 500, headers: cors });
     }
+    // 출력이 토큰 한도로 잘렸으면 JSON 불완전 → 파싱 말고 '한 주씩' 안내(500 방지). 한 달치 식단표가 주원인.
+    if (decomp.stop_reason === 'max_tokens') {
+      await supabase.from('ocr_logs').insert({ is_menu: false, reject_reason: 'truncated: max_tokens', duration_ms: Date.now() - startMs, model: 'clova-ocr+claude-haiku-4-5', input_tokens: decomp.usage?.input_tokens || 0, output_tokens: decomp.usage?.output_tokens || 0 });
+      return NextResponse.json({ is_menu: false, reason: '식단표가 커서 한 번에 다 읽지 못했어요 — 한 주(또는 2주)씩 잘라서 올려주시면 정확히 읽어드려요.' }, { headers: cors });
+    }
     let parsed: { is_menu?: boolean; reason?: string; text?: string; items?: unknown[] };
     try {
       parsed = JSON.parse(textBlock.text);
     } catch {
       const m = textBlock.text.match(/\{[\s\S]*\}/);
-      if (!m) return NextResponse.json({ error: '응답 파싱 실패' }, { status: 500, headers: cors });
-      parsed = JSON.parse(m[0]);
+      try {
+        if (!m) throw new Error('no json');
+        parsed = JSON.parse(m[0]);
+      } catch {
+        // 잘림 외 깨진 JSON도 500 대신 안내
+        await supabase.from('ocr_logs').insert({ is_menu: false, reject_reason: 'parse_fail', duration_ms: Date.now() - startMs, model: 'clova-ocr+claude-haiku-4-5' });
+        return NextResponse.json({ is_menu: false, reason: '식단표를 읽었지만 정리에 실패했어요 — 한 주씩 잘라서, 또는 더 선명한 사진으로 다시 시도해주세요.' }, { headers: cors });
+      }
     }
 
     const durationMs = Date.now() - startMs;
