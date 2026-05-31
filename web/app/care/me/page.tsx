@@ -5,7 +5,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import type { ReferralBilling } from '@/lib/billing';
 
-type Child = { nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null };
+type Child = { nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null; chronic_conditions: string | null };
 type Referral = { code: string; visits: number; billing: ReferralBilling };
 const AGE_LABEL: Record<string, string> = {
   younger: '만 3세 미만', '3-4y': '만 3–4세', '5y': '만 5세', '6-7y': '만 6–7세',
@@ -23,6 +23,8 @@ export default function MePage() {
   const [points, setPoints] = useState<{ balance: number; total_earned: number } | null>(null);
   const [ledger, setLedger] = useState<{ kind: string; amount: number; created_at: string; meta: { date?: string } | null }[]>([]);
   const [sub, setSub] = useState<{ lifetime: boolean; freeUntil: string; daysLeft: number } | null>(null);   // 구독 상태(첫 달 무료·6월 평생무료)
+  const [chronicInput, setChronicInput] = useState('');   // 만성질환·특이사항
+  const [chronicSaved, setChronicSaved] = useState(false);
 
   async function loadReferral() {
     setRefLoading(true); setRefErr('');
@@ -54,9 +56,10 @@ export default function MePage() {
       const freeUntilMs = createdMs + 30 * 86400e3;
       setSub({ lifetime, freeUntil: new Date(freeUntilMs).toISOString().slice(0, 10), daysLeft: Math.max(0, Math.ceil((freeUntilMs - Date.now()) / 86400e3)) });
       const { data } = await supabase.from('children')
-        .select('nickname,age_band,birth_year,birth_month,allergens')
+        .select('nickname,age_band,birth_year,birth_month,allergens,chronic_conditions')
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
       setChild(data);
+      setChronicInput(data?.chronic_conditions || '');
       setLoading(false);
       loadReferral();   // 초대 코드·방문수·과금 상태
       // 포인트 잔액·내역 (M7)
@@ -75,6 +78,13 @@ export default function MePage() {
     const text = '우리 아이 편식, 밀프레드로 매일 코칭받고 있어요! 이 링크로 들어와 보세요 👇';
     if (navigator.share) { try { await navigator.share({ title: '밀프레드', text, url: inviteUrl }); return; } catch {} }
     copyInvite();
+  }
+
+  async function saveChronic() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from('children').update({ chronic_conditions: chronicInput.trim() || null }).eq('parent_id', user.id);
+    setChronicSaved(true); setTimeout(() => setChronicSaved(false), 2000);
   }
 
   async function logout() {
@@ -141,6 +151,28 @@ export default function MePage() {
               )}
             </div>
 
+            {/* 포인트 모으는 방법 — 바이럴 리워드 허브(v3) */}
+            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+              <div className="text-xs font-bold mb-2.5" style={{ color: '#8a7a6a' }}>🪙 포인트 모으는 방법 <span style={{ color: '#B0B0B0' }}>· 1P=1원, 키트·구독에 사용</span></div>
+              {[
+                { ic: '🍽', t: '끼니 기록', p: '+50P', d: '매 끼니 · 하루 5끼까지', on: true },
+                { ic: '👥', t: '친구 가입', p: '+4,900P', d: '내 링크로 가입 = 한 달 구독값! 많이 모으면 계속 무료', on: true },
+                { ic: '💬', t: '도감 식재료 후기', p: '+200P', d: '먹여본 경험 공유', on: false },
+                { ic: '✍️', t: '키트 리뷰', p: '+2,000P', d: '받은 키트 후기', on: false },
+                { ic: '🎲', t: '7일 연속 기록 룰렛', p: '+500~3,000P', d: '일주일 매일 기록하면', on: false },
+              ].map((x, i) => (
+                <div key={i} className="flex items-center gap-2.5 py-1.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
+                  <span className="text-base shrink-0">{x.ic}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12.5px] font-bold" style={{ color: '#1a2b4a' }}>{x.t} <span style={{ color: '#16A085' }}>{x.p}</span></div>
+                    <div className="text-[10.5px] leading-snug" style={{ color: '#9CA3AF' }}>{x.d}</div>
+                  </div>
+                  <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={x.on ? { background: '#EAF6F0', color: '#16A085' } : { background: '#F4F4F5', color: '#B0B0B0' }}>{x.on ? '가능' : '준비 중'}</span>
+                </div>
+              ))}
+              <div className="text-[10.5px] mt-2.5 pt-2.5" style={{ color: '#8a7a6a', borderTop: '1px solid #F5F0EA' }}>💡 친구 초대 링크는 아래 <strong>구독 카드</strong>에 있어요. 많이 초대할수록 계속 무료!</div>
+            </div>
+
             {child ? (
               <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
                 <div className="text-xs font-bold mb-2" style={{ color: '#8a7a6a' }}>우리 아이</div>
@@ -157,6 +189,13 @@ export default function MePage() {
                     ))}
                   </div>
                 ) : null}
+                {/* 만성질환·특이사항 — 코칭·영양 제한 반영 */}
+                <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F5F0EA' }}>
+                  <div className="text-[11px] font-bold mb-1.5" style={{ color: '#8a7a6a' }}>만성질환·특이사항 <span style={{ color: '#B0B0B0' }}>(코칭·영양에 반영)</span></div>
+                  <textarea value={chronicInput} onChange={(e) => setChronicInput(e.target.value)} placeholder="예: 갑상선 기능저하, 신장질환, 페닐케톤뇨증(PKU), 유당불내증, 당뇨…" rows={2}
+                    className="w-full text-[12px] px-2.5 py-2 rounded-lg resize-none" style={{ background: '#FFFDFB', border: '1px solid #E5E7EB', color: '#5a4a3a' }} />
+                  <button onClick={saveChronic} className="mt-1.5 text-[11px] font-bold px-3 py-1.5 rounded-lg text-white" style={{ background: chronicSaved ? '#16A085' : '#FF6B1A' }}>{chronicSaved ? '저장됨 ✓' : '저장'}</button>
+                </div>
                 <a href="/onboarding" className="inline-block mt-3 text-xs font-bold" style={{ color: '#FF6B1A' }}>아이 정보 추가/수정 →</a>
               </div>
             ) : (
