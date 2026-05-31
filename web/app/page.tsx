@@ -7,7 +7,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal, type GroupSignal } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
@@ -38,6 +38,40 @@ const FAMILY_LABEL: Record<string, string> = {
   곡물: '곡물', 콩류: '콩', 유제품: '유제품', 고기생선: '고기·생선', 계란: '계란',
   비타민A채소: '녹황색채소', 기타채소: '일반채소', 과일: '과일',
 };
+// 식품군 8개 주간 추이 선차트 — 라인 색(서로 잘 구분되게)
+const GROUP_COLOR: Record<string, string> = {
+  곡물: '#F9A825', 콩류: '#8D6E63', 유제품: '#42A5F5', 고기생선: '#EF5350',
+  계란: '#AB47BC', 비타민A채소: '#66BB6A', 기타채소: '#26A69A', 과일: '#EC407A',
+};
+// SVG 선차트 — x=최근 N주, y=주당 그 식품군을 먹은 일수(0~7). 식재료는 종이 많아 8식품군으로 묶음.
+function GroupTrendSVG({ data }: { data: GroupWeekly }) {
+  const W = 440, H = 220, padL = 26, padR = 12, padT = 14, padB = 26;
+  const n = data.weeks.length;
+  const maxY = Math.max(5, ...data.series.flatMap((s) => s.counts), 1);
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const x = (i: number) => (n <= 1 ? padL + plotW / 2 : padL + (i * plotW) / (n - 1));
+  const y = (v: number) => padT + plotH * (1 - v / maxY);
+  const yticks = [0, 1, 3, 5, 7].filter((t) => t <= maxY);
+  const xIdx = [...new Set([0, Math.floor((n - 1) / 2), n - 1])].filter((v) => v >= 0);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto' }}>
+      {yticks.map((t) => (
+        <g key={t}>
+          <line x1={padL} y1={y(t)} x2={W - padR} y2={y(t)} stroke="#EEE" strokeDasharray="3 3" />
+          <text x={padL - 4} y={y(t) + 3} fontSize={9} fill="#9CA3AF" textAnchor="end">{t}</text>
+        </g>
+      ))}
+      {xIdx.map((i) => (
+        <text key={i} x={x(i)} y={H - 8} fontSize={9} fill="#9CA3AF" textAnchor="middle">{i === n - 1 ? '이번주' : `${n - 1 - i}주전`}</text>
+      ))}
+      {data.series.map((s) => (
+        <polyline key={s.group} points={s.counts.map((c, i) => `${x(i)},${y(c)}`).join(' ')}
+          fill="none" stroke={GROUP_COLOR[s.group] || '#9CA3AF'} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" opacity={0.9} />
+      ))}
+      {data.series.map((s) => (s.counts.length ? <circle key={s.group} cx={x(n - 1)} cy={y(s.counts[n - 1])} r={3} fill={GROUP_COLOR[s.group] || '#9CA3AF'} /> : null))}
+    </svg>
+  );
+}
 
 // 신호등 → 영양 점수 (green=100, yellow=50)
 function scoreFromSignals(sig: NutrientSignal[]): number {
@@ -76,6 +110,8 @@ export default function Home() {
   const [childMeta, setChildMeta] = useState<{ sex: Sex | null; birthY: number | null; birthM: number | null }>({ sex: null, birthY: null, birthM: null });
   const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
   const [groupSig, setGroupSig] = useState<{ signals: GroupSignal[]; proteinOk: boolean }>({ signals: [], proteinOk: false });
+  const [groupWeekly, setGroupWeekly] = useState<GroupWeekly | null>(null);   // 식품군 8개 주간 추이(선차트)
+  const [showTrend, setShowTrend] = useState(false);
   const [ingredientCount, setIngredientCount] = useState(0);
   const [cumCount, setCumCount] = useState(0);   // 누적(전체) 먹어본 식재료 종 수 → 130종 목표
   const [missDays, setMissDays] = useState<{ d: string; label: string }[]>([]);   // P9: 최근 5일 중 미기록 날(당일 제외)
@@ -154,6 +190,8 @@ export default function Home() {
             });
             const accepted = Object.keys(freq).filter((i) => freq[i] >= 2 && !refusedSet.has(i));
             setCumCount(accepted.length);
+            // 같은 90일 데이터로 식품군 8개 주간 추이(선차트) 계산
+            setGroupWeekly(computeGroupWeekly((data || []) as { log_date: string; ingredients: string[] | null }[], catOf, 10));
           });
           // 편식 변화(효과측정) — 최근 56일 기록으로 최근28 vs 직전28 비교
           supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
@@ -533,7 +571,12 @@ export default function Home() {
         {/* 식품군 다양성 — 충분/조금부족/부족 (빈도 기반, 색+글자 3중) */}
         <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
           <div className="flex justify-between items-center mb-1">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>식품군 다양성</strong>
+            <div className="flex items-center gap-2">
+              <strong className="text-sm" style={{ color: '#1a2b4a' }}>식품군 다양성</strong>
+              {!isMockup && groupWeekly && groupWeekly.weeks.length >= 2 && (
+                <button onClick={() => setShowTrend(true)} className="text-[10px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>📈 주간 추이</button>
+              )}
+            </div>
             <span className="text-[11px] font-extrabold"><span style={{ color: '#1B5E20' }}>🟢{gGreen}</span> <span style={{ color: '#F57F17' }}>🟡{gYellow}</span> <span style={{ color: '#C62828' }}>🔴{gRed}</span></span>
           </div>
           <div className="text-[10px] mb-3" style={{ color: '#9CA3AF' }}>이번 주 식단표에서 얼마나 자주 만났나 · 식약처 영유아 식생활지침·WHO</div>
@@ -564,6 +607,26 @@ export default function Home() {
             </div>
             <div className="text-[10px] text-center mt-1" style={{ color: '#B0B0B0' }}>최근 3개월 내 <strong>2번 이상 거부 없이</strong> 먹은 식재료예요 (오래전 한두 번은 제외)</div>
           </div>
+          {/* 식품군 8개 주간 추이 모달 — 선차트 */}
+          {showTrend && groupWeekly && (
+            <div onClick={() => setShowTrend(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+              <div onClick={(e) => e.stopPropagation()} style={{ background: 'white', borderRadius: 18, padding: 18, maxWidth: 480, width: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
+                <div className="flex justify-between items-center mb-1">
+                  <strong style={{ fontSize: 15, color: '#1a2b4a' }}>📈 식품군 8개 주간 추이</strong>
+                  <button onClick={() => setShowTrend(false)} style={{ fontSize: 18, color: '#9CA3AF', lineHeight: 1, background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+                </div>
+                <div className="text-[11px] mb-2" style={{ color: '#9CA3AF' }}>최근 {groupWeekly.weeks.length}주 · 주당 그 식품군을 먹은 일수(0~7일). 식재료는 종이 많아 8개 식품군으로 묶었어요.</div>
+                <GroupTrendSVG data={groupWeekly} />
+                <div className="grid grid-cols-4 gap-x-1.5 gap-y-1 mt-2">
+                  {FOOD_FAMILY.map((f) => (
+                    <div key={f.key} className="flex items-center gap-1 text-[10px] font-bold" style={{ color: '#5a4a3a' }}>
+                      <span style={{ width: 12, height: 3, borderRadius: 2, background: GROUP_COLOR[f.key], display: 'inline-block', flexShrink: 0 }} />{f.em}{FAMILY_LABEL[f.key]}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 식감 인사이트 — 실데이터(죽 비중 40%+) or 목업 */}

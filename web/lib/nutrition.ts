@@ -95,6 +95,7 @@ type CatOf = (ing: string) => string | undefined;
 
 // 농진청 10.4 정밀맵(gen-nutrient-map.py 생성) — 1일 KDRI 15%↑ 공급 영양소. 빗대기를 대체하는 1차 출처.
 import GEN_RAW from './nutrient-map.generated.json';
+import { isoWeekKey } from './progress';
 const GEN_NUTRI = GEN_RAW as Record<string, { nong: string; conf: string; n: string[] }>;
 export function generatedNutrientMap(): Record<string, { nong: string; conf: string; n: string[] }> { return GEN_NUTRI; }
 
@@ -173,6 +174,24 @@ export function computeGroupSignals(ingredientsByDay: string[][], catOf?: CatOf)
   });
   const proteinOk = (proteinDays / totalDays) * 7 >= 5;  // 단백질 총괄: 고기생선·계란·콩 중 매일 ≥1군
   return { signals, proteinOk };
+}
+
+export type GroupWeekly = { weeks: string[]; series: { group: string; counts: number[] }[] };
+/** 주(ISO)별 × 8식품군 '커버 일수'(0~7) 시계열 — 홈 식품군 다양성 추이 선차트용.
+ *  식재료별로는 종이 너무 많아, 식품군 8개로 묶어 주 단위 노출 추이를 비교한다. */
+export function computeGroupWeekly(rows: { log_date: string; ingredients: string[] | null }[], catOf?: CatOf, numWeeks = 10): GroupWeekly {
+  const byWeek: Record<string, Record<string, Set<string>>> = {};   // week → group → Set<날짜>
+  for (const r of rows) {
+    if (!r.log_date) continue;
+    const wk = isoWeekKey(r.log_date);
+    const groups = new Set<string>();
+    (r.ingredients || []).forEach((ing) => { const g = groupOf(ing, catOf); if (g) groups.add(g); });
+    (byWeek[wk] ||= {});
+    groups.forEach((g) => { (byWeek[wk][g] ||= new Set<string>()).add(r.log_date); });
+  }
+  const weeks = Object.keys(byWeek).sort().slice(-numWeeks);
+  const series = ALL_GROUPS.map((g) => ({ group: g, counts: weeks.map((wk) => byWeek[wk]?.[g]?.size || 0) }));
+  return { weeks, series };
 }
 
 export type NutrientSignal = { nutrient: string; daysCovered: number; level: 'green' | 'yellow' | 'red' };
