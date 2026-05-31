@@ -390,3 +390,56 @@ export function computeKdriSignals(ingredientsByDay: string[][], catOf?: CatOf):
     return { nm: k.nm, val: k.val, group: k.group, status, pct: Math.min(100, Math.round(ratio * 100)) };
   });
 }
+
+// ── 가공식품/반복 패널티 + 다양성 점수 (영양 점수 개편) ──────────────────
+// 점수 중심을 '결핍 없음(신호등)'에서 '다양성 + 집 끼니 질'로 이동. menus[] 원문 기반:
+// 짜파게티·떡갈비·la갈비는 ingredients[]로 안 풀려 메뉴명 매칭이 핵심. ultra=초가공/즉석, cured=가공육.
+// 좁게 매칭해 김치찌개·미역국 등 안전메뉴 오탐 방지.
+const ULTRA_RE = /짜파게티|짜파구리|짜장범벅|컵라면|봉지면|라면|핫도그|핫바|치킨너겟|너겟|너깃|돈가스|돈까스|까스|피자|군만두|탕수육|양념치킨|프라이드|감자튀김|프렌치프라이|즉석|인스턴트|시리얼|콘푸로스트|핫케이크|와플|도넛|도너츠|과자|스낵|젤리|사탕|초콜릿|초코바/;
+const CURED_RE = /소시지|비엔나|후랑크|프랑크|햄(?!버그스테이크)|베이컨|어묵|오뎅|맛살|게맛살|크래미|떡갈비|la\s*갈비|엘에이\s*갈비|미트볼|함박|함바그|동그랑땡|스팸|런천|훈제/i;
+export function isProcessed(name: string): { hit: boolean; kind: 'ultra' | 'cured' | null } {
+  const n = (name || '').replace(/\s/g, '');
+  if (ULTRA_RE.test(n)) return { hit: true, kind: 'ultra' };
+  if (CURED_RE.test(name || '')) return { hit: true, kind: 'cured' };
+  return { hit: false, kind: null };
+}
+// 끼니별 menus → 가공 비중·감점. ultra 가중 1.0, cured 0.7. 상한 22(가공식품도 단백질 공급 → 과잉처벌 금지).
+export function processedPenalty(menusByMeal: string[][]): { ratio: number; penalty: number; sampleNames: string[] } {
+  const meals = menusByMeal.filter((m) => m.length);
+  if (!meals.length) return { ratio: 0, penalty: 0, sampleNames: [] };
+  let weighted = 0; const names = new Set<string>();
+  for (const meal of meals) {
+    let w = 0;
+    for (const mn of meal) { const p = isProcessed(mn); if (p.hit) { w = Math.max(w, p.kind === 'ultra' ? 1 : 0.7); names.add((mn || '').trim()); } }
+    weighted += w;
+  }
+  const ratio = weighted / meals.length;
+  return { ratio, penalty: Math.round(ratio * 22), sampleNames: [...names].slice(0, 3) };
+}
+// 반복 패널티 — 흰쌀밥·김치·국 등 주식/기본 제외. 같은 메인 4회+ 감점, 상한 12.
+const REPEAT_SKIP = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉', '밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥', '김치', '배추김치']);
+export function repeatPenalty(menusByMeal: string[][]): { topMenu: string | null; count: number; penalty: number } {
+  const freq: Record<string, number> = {};
+  menusByMeal.forEach((meal) => meal.forEach((mn) => { const k = (mn || '').replace(/\s/g, ''); if (k && !REPEAT_SKIP.has(k)) freq[k] = (freq[k] || 0) + 1; }));
+  const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
+  if (!top || top[1] < 4) return { topMenu: top?.[0] ?? null, count: top?.[1] ?? 0, penalty: 0 };
+  return { topMenu: top[0], count: top[1], penalty: Math.min(12, (top[1] - 3) * 4) };
+}
+// 점심 급식엔 과일·유제품을 매일 기대할 수 없음(집에서 보충 = 집 점수에만 반영). 기관 평가에선 제외.
+const DAYCARE_EXCLUDE = new Set(['과일', '유제품']);
+// 새 점수 산식의 단일 진입점. 다양성 base + 식품군 게이트 캡 − 가공 − 반복.
+// applyMealPenalty=false면 가공/반복 미적용(기관 급식: 부모 통제 밖). 끼니 3건 미만이면 변동성 큼 → 미적용(위험가드).
+// daycareMode=true면 과일·유제품을 군 평가에서 제외(점심만 평가하는 기관이 부당하게 깎이지 않게).
+export function computeDiversityScore(args: { ingredientsByDay: string[][]; menusByMeal: string[][]; catOf?: CatOf; applyMealPenalty?: boolean; daycareMode?: boolean }): { score: number; diversityBase: number; gateCap: number; processed: number; repeat: number; redGroups: string[]; processedSample: string[]; repeatMenu: string | null } {
+  const { signals: allSignals } = computeGroupSignals(args.ingredientsByDay, args.catOf);
+  const signals = args.daycareMode ? allSignals.filter((s) => !DAYCARE_EXCLUDE.has(s.group)) : allSignals;
+  const base = signals.length ? Math.round(signals.reduce((a, s) => a + (s.level === 'green' ? 100 : s.level === 'yellow' ? 55 : 0), 0) / signals.length) : 0;
+  const redGroups = signals.filter((s) => s.level === 'red').map((s) => s.group);
+  const gateCap = redGroups.length ? Math.max(66, 90 - (redGroups.length - 1) * 8) : 100;
+  const mealCount = args.menusByMeal.filter((m) => m.length).length;
+  const apply = args.applyMealPenalty !== false && mealCount >= 3;   // 끼니 3건 미만이면 패널티 노이즈 → 미적용
+  const pp = apply ? processedPenalty(args.menusByMeal) : { ratio: 0, penalty: 0, sampleNames: [] as string[] };
+  const rp = apply ? repeatPenalty(args.menusByMeal) : { topMenu: null as string | null, count: 0, penalty: 0 };
+  const score = Math.max(0, Math.min(100, Math.min(base, gateCap) - pp.penalty - rp.penalty));
+  return { score, diversityBase: base, gateCap, processed: pp.penalty, repeat: rp.penalty, redGroups, processedSample: pp.sampleNames, repeatMenu: rp.penalty ? rp.topMenu : null };
+}

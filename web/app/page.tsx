@@ -7,7 +7,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, KDRI_NUTRIENTS, KDRI_EXCLUDED, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, KDRI_NUTRIENTS, KDRI_EXCLUDED, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
@@ -80,11 +80,6 @@ function GroupTrendSVG({ data }: { data: GroupWeekly }) {
 }
 
 // 신호등 → 영양 점수 (green=100, yellow=50)
-function scoreFromSignals(sig: NutrientSignal[]): number {
-  if (!sig.length) return 0;
-  const sum = sig.reduce((a, s) => a + (s.level === 'green' ? 100 : s.level === 'yellow' ? 50 : 0), 0);
-  return Math.round(sum / sig.length);
-}
 function gradeOf(score: number) {
   if (score >= 90) return { g: 'S', label: '매우좋음', color: '#1B5E20' };
   if (score >= 70) return { g: 'A', label: '좋음', color: '#16A085' };
@@ -109,6 +104,7 @@ export default function Home() {
   const [days, setDays] = useState(0);
   const [signals, setSignals] = useState<NutrientSignal[]>([]);
   const [scoreParts, setScoreParts] = useState<{ home: number | null; daycare: number | null; final: number }>({ home: null, daycare: null, final: 0 });   // 집70:기관30 가중 점수
+  const [scoreReason, setScoreReason] = useState<{ redGroups: string[]; processedSample: string[]; repeatMenu: string | null; processed: number; repeat: number } | null>(null);   // 점수 하락 근거(왜 떨어졌나)
   const [kdri, setKdri] = useState<KdriSignal[]>([]);   // 36종 KDRI 신호등 (실데이터)
   const [showNutri, setShowNutri] = useState(false);    // 36종 자세히 모달
   const [growth, setGrowth] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string } | null>(null);
@@ -166,6 +162,7 @@ export default function Home() {
           const homeRef: string[] = []; const daycareRef: string[] = [];   // 거부를 장소별로 분리 (코칭엔진 스펙 §3)
           const textures: string[] = []; const menuFreq: Record<string, number> = {};
           const homeByDate: Record<string, string[]> = {}; const dcByDate: Record<string, string[]> = {};   // 점수 가중(집70:기관30)용 분리
+          const homeMenusByMeal: string[][] = []; const dcMenusByMeal: string[][] = [];   // 가공/반복 패널티용 — 끼니별 menus 원문(장소별)
           (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; note: string | null; texture: string | null; menus: string[] | null; place: string | null }) => {
             if (!byDate[r.log_date]) byDate[r.log_date] = [];
             const dest = r.place === 'daycare' ? dcByDate : homeByDate;   // home 또는 미상 = 집(부모 통제)
@@ -175,18 +172,23 @@ export default function Home() {
             if (r.note) notes.push(r.note);
             if (r.texture) textures.push(r.texture);
             (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); menuFreq[k] = (menuFreq[k] || 0) + 1; });
+            if ((r.menus || []).length) (r.place === 'daycare' ? dcMenusByMeal : homeMenusByMeal).push(r.menus || []);
           });
           const byDay = Object.values(byDate).filter((a) => a.length);
           const sig = computeSignals(byDay, catOf);
-          // 영양 점수 가중(개편 ①) — 부모 통제 '집' 70 : '기관' 30. 기관 급식 덕에 집 빈약이 가려지지 않게.
+          // 영양 점수 개편 — '결핍 없음(신호등)'이 아니라 '다양성 + 집 끼니 질'. 집70:기관30 가중, 가공식품·반복은 집에만(기관 급식은 부모 통제 밖).
           const homeByDay = Object.values(homeByDate).filter((a) => a.length);
           const dcByDay = Object.values(dcByDate).filter((a) => a.length);
-          const homeScore = homeByDay.length ? scoreFromSignals(computeSignals(homeByDay, catOf)) : null;
-          const dcScore = dcByDay.length ? scoreFromSignals(computeSignals(dcByDay, catOf)) : null;
+          const homeDiv = homeByDay.length ? computeDiversityScore({ ingredientsByDay: homeByDay, menusByMeal: homeMenusByMeal, catOf, applyMealPenalty: true }) : null;
+          const dcDiv = dcByDay.length ? computeDiversityScore({ ingredientsByDay: dcByDay, menusByMeal: dcMenusByMeal, catOf, applyMealPenalty: false, daycareMode: true }) : null;
+          const homeScore = homeDiv?.score ?? null;
+          const dcScore = dcDiv?.score ?? null;
           const finalScore = (homeScore != null && dcScore != null)
             ? Math.round(homeScore * 0.7 + dcScore * 0.3)
-            : (homeScore ?? dcScore ?? scoreFromSignals(sig));
+            : (homeScore ?? dcScore ?? computeDiversityScore({ ingredientsByDay: byDay, menusByMeal: [...homeMenusByMeal, ...dcMenusByMeal], catOf, applyMealPenalty: true }).score);
           setScoreParts({ home: homeScore, daycare: dcScore, final: finalScore });
+          // 점수 하락 근거(왜 떨어졌나) — 집 기준 redGroups·가공식품명. 부모 이탈 방지용 노출.
+          setScoreReason(homeDiv ? { redGroups: homeDiv.redGroups, processedSample: homeDiv.processedSample, repeatMenu: homeDiv.repeatMenu, processed: homeDiv.processed, repeat: homeDiv.repeat } : null);
           const fg = computeFoodGroups(allIng, catOf);
           setDays(byDay.length);
           // P9: 최근 5일(어제~5일 전, 당일 제외) 중 기록 없는 날 — 결정론적(환각 차단)
@@ -317,7 +319,7 @@ export default function Home() {
   const greenN = signals.filter((s) => s.level === 'green').length;
   const yellowN = signals.filter((s) => s.level === 'yellow').length;
   const redN = signals.filter((s) => s.level === 'red').length;
-  const realScore = scoreParts.final || scoreFromSignals(signals);   // 집/기관 가중 점수(개편 ①)
+  const realScore = scoreParts.final;   // 개편 ②: 다양성+집끼니질 점수(신호등 회귀 안 함)
 
   const D = isMockup
     ? { name: '지우', score: 60, green: 11, yellow: 3, red: 1, ingCount: 18, covered: ['곡물','고기생선','계란','비타민A채소','기타채소'], reds: ['철','비타민D','오메가3'] }
@@ -559,11 +561,17 @@ export default function Home() {
             {isMockup ? (
               <div className="text-[11px] text-right font-semibold" style={{ color: '#6B7280' }}>지난주 <strong style={{ color: '#1a2b4a' }}>52점 → 60점</strong> (+8)<br /><span style={{ color: '#16A085' }}>이번 주 +8 상승 중</span></div>
             ) : (scoreParts.daycare != null && scoreParts.home != null) ? (
-              <div className="text-[11px] text-right font-semibold" style={{ color: '#6B7280' }}>집 <strong style={{ color: '#C45A00' }}>{scoreParts.home}</strong> · 기관 <strong style={{ color: '#1a2b4a' }}>{scoreParts.daycare}</strong><br /><span style={{ color: '#9CA3AF' }}>집 끼니 70% 비중으로 평가</span></div>
+              <div className="text-[11px] text-right font-semibold" style={{ color: '#6B7280' }}>집 <strong style={{ color: '#C45A00' }}>{scoreParts.home}</strong> · 기관 <strong style={{ color: '#1a2b4a' }}>{scoreParts.daycare}</strong><br /><span style={{ color: '#9CA3AF' }}>집 끼니 70% · 다양성·가공식품 반영</span></div>
             ) : (
               <div className="text-[11px] text-right font-semibold" style={{ color: '#6B7280' }}>최근 {days}일 기록<br /><span style={{ color: '#16A085' }}>매일 기록할수록 정확해져요</span></div>
             )}
           </div>
+          {/* 왜 이 점수? — 식품군 부족·가공식품·반복 근거(점수 급락 납득용) */}
+          {!isMockup && scoreReason && (scoreReason.redGroups.length > 0 || scoreReason.processed > 0 || scoreReason.repeat > 0) && (
+            <div className="text-[11px] mb-2 leading-snug" style={{ color: '#9CA3AF' }}>
+              <span style={{ color: '#C45A00', fontWeight: 700 }}>왜 이 점수?</span>{scoreReason.redGroups.length > 0 ? ` ${scoreReason.redGroups.slice(0, 2).join('·')} 부족` : ''}{scoreReason.processed > 0 ? ` · 가공식품(${scoreReason.processedSample.slice(0, 2).join('·')}) −${scoreReason.processed}` : ''}{scoreReason.repeat > 0 ? ` · ${scoreReason.repeatMenu} 반복 −${scoreReason.repeat}` : ''}
+            </div>
+          )}
           {/* 등급 게이지 */}
           <div className="relative h-2 rounded-full mb-2" style={{ background: 'linear-gradient(90deg,#C62828,#E67E22 25%,#F9A825 50%,#16A085 75%,#1B5E20)' }}>
             <div className="absolute -top-1 w-1.5 h-4 rounded-sm" style={{ left: `${pointerPct}%`, background: '#1a2b4a', border: '2px solid white' }} />
