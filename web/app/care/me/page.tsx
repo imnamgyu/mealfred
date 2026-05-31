@@ -20,6 +20,8 @@ export default function MePage() {
   const [refErr, setRefErr] = useState<string>('');   // 초대 카드가 안 뜰 때 원인 표시
   const [refLoading, setRefLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [points, setPoints] = useState<{ balance: number; total_earned: number } | null>(null);
+  const [ledger, setLedger] = useState<{ kind: string; amount: number; created_at: string; meta: { date?: string } | null }[]>([]);
 
   async function loadReferral() {
     setRefLoading(true); setRefErr('');
@@ -51,6 +53,9 @@ export default function MePage() {
       setChild(data);
       setLoading(false);
       loadReferral();   // 초대 코드·방문수·과금 상태
+      // 포인트 잔액·내역 (M7)
+      supabase.from('point_balance').select('balance,total_earned').eq('parent_id', user.id).maybeSingle().then(({ data: pb }) => setPoints(pb));
+      supabase.from('point_ledger').select('kind,amount,created_at,meta').eq('parent_id', user.id).order('created_at', { ascending: false }).limit(20).then(({ data: pl }) => setLedger((pl as typeof ledger) || []));
     })();
   }, [supabase]);
 
@@ -85,6 +90,29 @@ export default function MePage() {
             <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="text-xs font-bold mb-2" style={{ color: '#8a7a6a' }}>보호자</div>
               <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{nickname || '카카오 회원'}님</div>
+            </div>
+
+            {/* 내 포인트 (M7) — 끼니 기록마다 +50P, 골고루 키트 구매에 사용(준비 중) */}
+            <div className="rounded-2xl p-4 mb-3 border" style={{ background: 'linear-gradient(135deg,#FFF8F0,#FFE8D0)', borderColor: '#FFD0A0' }}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-xs font-bold" style={{ color: '#8a7a6a' }}>내 포인트 <span style={{ color: '#B0B0B0' }}>(1P = 1원)</span></div>
+                {points && <div className="text-[10.5px]" style={{ color: '#9CA3AF' }}>누적 {points.total_earned.toLocaleString()}P</div>}
+              </div>
+              <div className="text-2xl font-extrabold" style={{ color: '#C45A00' }}>{(points?.balance ?? 0).toLocaleString()} <span className="text-sm">P</span></div>
+              <div className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a' }}>끼니를 기록할 때마다 <strong style={{ color: '#C45A00' }}>+50P</strong> 쌓여요 · 모아서 <strong>골고루 키트</strong> 구매에 쓸 수 있어요 (결제 준비 중)</div>
+              {ledger.length > 0 && (
+                <details className="mt-2.5">
+                  <summary className="text-[11px] font-bold cursor-pointer" style={{ color: '#9CA3AF' }}>적립·사용 내역 {ledger.length}건 ▾</summary>
+                  <div className="mt-1.5 space-y-1">
+                    {ledger.map((l, i) => (
+                      <div key={i} className="flex justify-between text-[11px]" style={{ color: '#6B7280' }}>
+                        <span>{l.kind === 'meal_input' ? '끼니 기록' : l.kind === 'redeem_kit' ? '키트 구매' : l.kind}{l.meta?.date ? ` · ${l.meta.date}` : ''}</span>
+                        <span style={{ color: l.amount > 0 ? '#16A085' : '#C62828', fontWeight: 700 }}>{l.amount > 0 ? '+' : ''}{l.amount}P</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
 
             {child ? (

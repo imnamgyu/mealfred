@@ -120,6 +120,7 @@ export default function CarePage() {
   // 식단표 OCR 자동채움
   const [ocrOpen, setOcrOpen] = useState(false);
   const [menuMonths, setMenuMonths] = useState<Set<string>>(new Set());   // 식단표 등록된 달(YYYY-MM)
+  const [pointToast, setPointToast] = useState('');   // 포인트 적립 토스트
   const [ocrBusy, setOcrBusy] = useState(false);
   const [ocrItems, setOcrItems] = useState<{ date: string; slot: string; menu: string; ingredients: string[] }[]>([]);
   const [ocrMonth, setOcrMonth] = useState(() => kstToday().slice(0, 7));
@@ -508,6 +509,13 @@ export default function CarePage() {
       await supabase.from('meal_logs')
         .upsert(entryToRow(entry, childId, userId, date, activeSlot), { onConflict: 'child_id,log_date,slot' })
         .then(({ error }) => { if (error) console.warn('[care] save error:', error.message); });
+      // 끼니에 내용 있으면 포인트 적립(서버가 멱등·일일5끼 한도 처리 — 같은 끼니 재저장은 적립 0)
+      if (entry.menus?.length || entry.ingredients?.length) {
+        fetch('/api/points/earn', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ child_id: childId, date, slot: activeSlot }) })
+          .then((r) => r.json()).then((d) => {
+            if (d?.ok && d.earned > 0) { setPointToast(`+${d.earned}P 적립! 🎉`); setTimeout(() => setPointToast(''), 2200); }
+          }).catch(() => {});
+      }
     }
   }
 
@@ -967,6 +975,9 @@ export default function CarePage() {
         </button>
       </div>
 
+      {pointToast && (
+        <div style={{ position: 'fixed', bottom: 78, left: '50%', transform: 'translateX(-50%)', background: '#1B5E20', color: 'white', padding: '10px 20px', borderRadius: 100, fontSize: 14, fontWeight: 800, zIndex: 60, boxShadow: '0 4px 16px rgba(0,0,0,0.22)' }}>{pointToast}</div>
+      )}
       <BottomNav active="/care" />
     </main>
   );
