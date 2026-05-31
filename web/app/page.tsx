@@ -7,7 +7,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, KDRI_NUTRIENTS, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, KDRI_NUTRIENTS, KDRI_EXCLUDED, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
@@ -425,7 +425,7 @@ export default function Home() {
             <div className="text-[23px] font-extrabold leading-snug mb-2" style={{ color: '#1a2b4a' }}>매일, 우리 아이<br />편식 코치</div>
             <p className="text-[12.5px] leading-relaxed mb-3" style={{ color: '#5a4a3a' }}>식단만 기록하면 — 영양 신호등·BMI·코치 편지·맞춤 식재료까지 <strong>매일 자동으로</strong>.</p>
             <div className="flex flex-wrap justify-center gap-1.5 mb-3">
-              {['💌 매일 코칭', '🚦 36종 영양', '📈 편식 변화', '📏 BMI·성장'].map((c) => (
+              {['💌 매일 코칭', '🚦 31종 영양', '📈 편식 변화', '📏 BMI·성장'].map((c) => (
                 <span key={c} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'white', color: '#C45A00', border: '1px solid #FFD0A0' }}>{c}</span>
               ))}
             </div>
@@ -552,7 +552,7 @@ export default function Home() {
         {/* 36종 KDRI 필수 영양소 신호등 (영양 점수 바로 아래) — 탭하면 36종 상세 모달 */}
         <button onClick={() => setShowNutri(true)} className="block w-full text-left rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
           <div className="flex items-center justify-between mb-2">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 36종 필수 영양소 신호등</strong>
+            <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 31종 필수 영양소 신호등</strong>
           </div>
           <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>기준: <strong style={{ color: '#1a2b4a' }}>보건복지부 KDRI 2025</strong> · 만 1-2세{!isMockup && kRef > 0 ? ` · ${kG + kY + kR}종 평가 · ${kRef}종 참고지표` : ''}</div>
           <div className="grid grid-cols-3 gap-2">
@@ -565,7 +565,7 @@ export default function Home() {
               ⚠ <strong>{kReds.slice(0, 3).join('·')}</strong>이 가장 부족 — 성장 핵심 영양소예요
             </div>
           )}
-          <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 36종 자세히 보기 →</div>
+          <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 31종 자세히 보기 →</div>
         </button>
 
         {/* 식품군 다양성 — 충분/조금부족/부족 (빈도 기반, 색+글자 3중) */}
@@ -600,11 +600,12 @@ export default function Home() {
             <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>잘 먹는 식재료 <span style={{ color: '#9CA3AF' }}>(최근 3개월·2회+)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
             <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (cumDisp / 130) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
             <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>
-              {cumDisp < 20 ? <>아직 <strong style={{ color: '#C62828' }}>편식 경계</strong> — 잘 먹는 30종부터 도전! (SOS 기준)</>
-                : cumDisp < 30 ? <>곧 <strong style={{ color: '#E67E22' }}>편식 경계(30종)</strong> 돌파해요!</>
-                : cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>잘 먹는 130종</strong>까지 {130 - cumDisp}종 더!</>
+              {cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>잘 먹는 130종</strong>까지 {130 - cumDisp}종 더 만나요!</>
                 : <>🎉 초등 준비 완료 — 잘 먹는 130종 달성!</>}
             </div>
+            {cumDisp < 20 && !isMockup && (
+              <div className="text-[10px] text-center mt-1 leading-relaxed" style={{ color: '#C45A00' }}>2주 넘게 기록했는데 <strong>잘 먹는 종류가 20가지 미만</strong>이면 조심스럽게 편식을 살펴볼 때예요. 강요 말고 천천히 새 음식을 늘려가요.</div>
+            )}
             <div className="text-[10px] text-center mt-1" style={{ color: '#B0B0B0' }}>최근 3개월 내 <strong>2번 이상 거부 없이</strong> 먹은 식재료예요 (오래전 한두 번은 제외)</div>
           </div>
           {/* 식품군 8개 주간 추이 모달 — 선차트 */}
@@ -736,7 +737,7 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style={{ background: '#FFEBEE' }}>🚦</div>
                 <div className="flex-1">
-                  <h3 className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>36종 필수 영양소 신호등</h3>
+                  <h3 className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>31종 필수 영양소 신호등</h3>
                   <div className="text-[11px]" style={{ color: '#9CA3AF' }}>KDRI 2025 · 만 1-2세 · {isMockup ? '예시' : '이번 주 기준'}</div>
                 </div>
                 <button onClick={() => setShowNutri(false)} className="text-xl px-1" style={{ color: '#9CA3AF' }}>✕</button>
@@ -818,9 +819,20 @@ export default function Home() {
               })}
               {kRef > 0 && (
                 <div className="mt-2 rounded-lg px-3 py-2.5 text-[10.5px] leading-relaxed" style={{ background: '#FAFAF7', color: '#9CA3AF' }}>
-                  ℹ️ {kdriView.filter((n) => n.status === 'reference').map((n) => n.nm).join('·')}은(는) 식단 빈도로 평가하지 않는 참고지표예요 — 나트륨은 적을수록 좋고, 불소는 물·치아 영양소.
+                  ℹ️ {kdriView.filter((n) => n.status === 'reference').map((n) => n.nm).join('·')}은(는) 아직 식품→영양소 데이터가 없어 KDRI 기준만 참고로 보여드려요.
                 </div>
               )}
+              {/* 36종이 아닌 이유 — 집계 제외 5종 안내 */}
+              <details className="mt-2">
+                <summary className="text-[10.5px] font-bold cursor-pointer" style={{ color: '#9CA3AF' }}>왜 36종이 아니라 31종인가요?</summary>
+                <div className="mt-1.5 rounded-lg px-3 py-2.5" style={{ background: '#FAFAF7' }}>
+                  {KDRI_EXCLUDED.map((e) => (
+                    <div key={e.nm} className="text-[10.5px] leading-relaxed mb-1" style={{ color: '#6B7280' }}>
+                      <strong style={{ color: '#374151' }}>{e.nm}</strong> — {e.reason}
+                    </div>
+                  ))}
+                </div>
+              </details>
               <div className="text-[10px] text-center mt-3 pb-2" style={{ color: '#C0C0C0' }}>기준: 보건복지부 한국인 영양소 섭취기준 (KDRI) 2025</div>
             </div>
           </div>

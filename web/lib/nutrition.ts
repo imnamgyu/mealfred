@@ -305,13 +305,19 @@ export function computeTimeseries(
 //   (미매핑 ~12종은 농진청 성분 → DB/매핑 크론으로 점진 보강 — 백로그)
 // sample/samplePct = 비로그인·기록 3일 미만 목업 표시용(care.html과 동일한 예시 아이).
 export type KdriNutrient = { nm: string; val: string; group: string; mapped?: string; sample: 'green' | 'yellow' | 'red'; samplePct: number };
+// 신호등에서 제외하는 영양소 + 이유 (36종 중 5종 제외 = 31종). 홈 모달 하단 안내로 노출.
+export const KDRI_EXCLUDED: { nm: string; reason: string }[] = [
+  { nm: '나트륨', reason: '한국인 식단 특성상 충분히(오히려 넘치게) 섭취해 결핍 걱정이 없어요' },
+  { nm: '에너지', reason: '총 칼로리보다 영양 다양성이 중요해 따로 집계하지 않아요' },
+  { nm: '수분', reason: '국·물·과일로 자연히 채워져 따로 집계하지 않아요' },
+  { nm: '불소', reason: '음식보다 양치·물로 관리하는 영양소라 집계하지 않아요' },
+  { nm: '크롬', reason: '결핍이 드물고 식품 데이터가 부족해 집계하지 않아요' },
+];
 export const KDRI_NUTRIENTS: KdriNutrient[] = [
-  // 다량영양소 5
-  { nm: '에너지', val: '900 kcal', group: '다량영양소', mapped: '에너지', sample: 'green', samplePct: 92 },
+  // 다량영양소 3 (에너지·수분 제외 → KDRI_EXCLUDED)
   { nm: '단백질', val: '20 g', group: '다량영양소', mapped: '단백질', sample: 'green', samplePct: 95 },
   { nm: '탄수화물', val: '130 g', group: '다량영양소', mapped: '탄수화물', sample: 'green', samplePct: 88 },
   { nm: '식이섬유', val: '10 g', group: '다량영양소', mapped: '식이섬유', sample: 'green', samplePct: 85 },
-  { nm: '수분', val: '1,000 mL', group: '다량영양소', mapped: '수분', sample: 'yellow', samplePct: 72 },
   // 필수지방산 3
   { nm: '리놀레산', val: '6 g', group: '필수지방산', mapped: '리놀레산', sample: 'green', samplePct: 90 },
   { nm: 'α-리놀렌산', val: '0.6 g', group: '필수지방산', mapped: 'α-리놀렌산', sample: 'yellow', samplePct: 60 },
@@ -333,22 +339,19 @@ export const KDRI_NUTRIENTS: KdriNutrient[] = [
   { nm: '비오틴', val: '9 μg', group: '수용성비타민', mapped: '비오틴', sample: 'green', samplePct: 90 },
   // 비타민 유사 1 (2025 신규)
   { nm: '콜린', val: '160 mg', group: '비타민유사', mapped: '콜린', sample: 'red', samplePct: 42 },
-  // 다량 무기질 5
+  // 다량 무기질 4 (나트륨 제외)
   { nm: '칼슘', val: '500 mg', group: '다량무기질', mapped: '칼슘', sample: 'green', samplePct: 85 },
   { nm: '인', val: '450 mg', group: '다량무기질', mapped: '인', sample: 'green', samplePct: 90 },
-  { nm: '나트륨', val: '≤1,000 mg', group: '다량무기질', sample: 'yellow', samplePct: 55 },
   { nm: '칼륨', val: '1,500 mg', group: '다량무기질', mapped: '칼륨', sample: 'yellow', samplePct: 68 },
   { nm: '마그네슘', val: '70 mg', group: '다량무기질', mapped: '마그네슘', sample: 'green', samplePct: 82 },
-  // 미량 무기질 9
+  // 미량 무기질 7 (불소·크롬 제외)
   { nm: '철', val: '6 mg', group: '미량무기질', mapped: '철', sample: 'red', samplePct: 38 },
   { nm: '아연', val: '3 mg', group: '미량무기질', mapped: '아연', sample: 'yellow', samplePct: 70 },
   { nm: '구리', val: '290 μg', group: '미량무기질', mapped: '구리', sample: 'green', samplePct: 85 },
-  { nm: '불소', val: '0.6 mg', group: '미량무기질', sample: 'green', samplePct: 88 },
   { nm: '망간', val: '1.5 mg', group: '미량무기질', mapped: '망간', sample: 'green', samplePct: 90 },
   { nm: '요오드', val: '70 μg', group: '미량무기질', mapped: '요오드', sample: 'green', samplePct: 92 },
   { nm: '셀레늄', val: '23 μg', group: '미량무기질', mapped: '셀레늄', sample: 'green', samplePct: 85 },
   { nm: '몰리브덴', val: '10 μg', group: '미량무기질', mapped: '몰리브덴', sample: 'green', samplePct: 88 },
-  { nm: '크롬', val: '9 μg', group: '미량무기질', mapped: '크롬', sample: 'red', samplePct: 45 },
 ];
 
 export type KdriSignal = { nm: string; val: string; group: string; status: 'green' | 'yellow' | 'red' | 'reference'; pct: number };

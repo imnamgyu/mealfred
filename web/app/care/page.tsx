@@ -634,7 +634,7 @@ export default function CarePage() {
             </div>
             {/* 식단표 OCR 자동채움 — 점심·간식 매일 기록 안 해도 됨 */}
             <div className="mt-3 pt-3" style={{ borderTop: '1px dashed #FFE8D0' }}>
-              <button onClick={() => setOcrOpen((o) => !o)} className="text-[12px] font-extrabold" style={{ color: '#C45A00' }}>📋 어린이집 식단표 올리기 {ocrOpen ? '▾' : '▸'}</button>
+              <button onClick={() => setOcrOpen((o) => !o)} className="text-[12px] font-extrabold" style={{ color: '#C45A00' }}>📋 이번 달 식단표 올리기 {ocrOpen ? '▾' : '▸'}</button>
               {ocrOpen && (
                 <div className="mt-2.5">
                   <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>월간 식단표 사진을 올리면 점심·간식을 자동으로 채워요 — 매일 기록 안 해도 돼요.</p>
@@ -813,7 +813,7 @@ export default function CarePage() {
 
         {/* 자유 메모 (정성 기록) */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>오늘 어땠나요? <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택)</span></h3>
+          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>오늘 궁금한 점 있나요 <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택)</span></h3>
           <textarea value={entry.note} onChange={(e) => setEntry((x) => ({ ...x, note: e.target.value }))}
             rows={3} placeholder="예: 브로콜리는 손도 안 댔지만 당근은 한 입 먹었어요"
             className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
