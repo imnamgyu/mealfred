@@ -119,6 +119,7 @@ export default function CarePage() {
   const [daycare, setDaycare] = useState(false);   // 등원 — 평일 점심·간식은 기관 끼니(코칭 반영)
   // 식단표 OCR 자동채움
   const [ocrOpen, setOcrOpen] = useState(false);
+  const [menuMonths, setMenuMonths] = useState<Set<string>>(new Set());   // 식단표 등록된 달(YYYY-MM)
   const [ocrBusy, setOcrBusy] = useState(false);
   const [ocrItems, setOcrItems] = useState<{ date: string; slot: string; menu: string; ingredients: string[] }[]>([]);
   const [ocrMonth, setOcrMonth] = useState(() => kstToday().slice(0, 7));
@@ -195,14 +196,17 @@ export default function CarePage() {
 
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
-        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place')
+        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place,source')
         .eq('child_id', child.id);
 
       const cloud: Record<string, DayLog> = {};
-      (rows || []).forEach((r: MealRow) => {
+      const mm = new Set<string>();   // 식단표 OCR(daycare_menu) 등록된 'YYYY-MM' — 그 달은 업로더 숨김
+      (rows || []).forEach((r: MealRow & { source?: string | null }) => {
         if (!cloud[r.log_date]) cloud[r.log_date] = {};
         cloud[r.log_date][r.slot] = rowToEntry(r);
+        if (r.source === 'daycare_menu') mm.add(r.log_date.slice(0, 7));
       });
+      setMenuMonths(mm);
 
       // localStorage에만 있는 기록 → Supabase로 1회 동기화 (클라우드 우선)
       const local = loadLogs();
@@ -481,7 +485,11 @@ export default function CarePage() {
       child_id: childId, parent_id: userId, log_date: v.log_date, slot: v.slot,
       menus: v.menus, ingredients: [...v.ings], place: 'daycare', source: 'daycare_menu', updated_at: new Date().toISOString(),
     }));
-    if (rows.length) await supabase.from('meal_logs').upsert(rows, { onConflict: 'child_id,log_date,slot' });
+    if (rows.length) {
+      await supabase.from('meal_logs').upsert(rows, { onConflict: 'child_id,log_date,slot' });
+      setMenuMonths((prev) => new Set([...prev, ocrMonth]));   // 등록 즉시 업로더 숨김
+      setOcrOpen(false);
+    }
     if (!daycare) saveDaycare(true);
     setOcrMsg(`✓ ${rows.length}끼 기관 급식으로 저장됐어요`); setOcrItems([]);
   }
@@ -632,10 +640,14 @@ export default function CarePage() {
                 <span style={{ position: 'absolute', top: 3, left: daycare ? 23 : 3, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left .15s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
               </button>
             </div>
-            {/* 식단표 OCR 자동채움 — 점심·간식 매일 기록 안 해도 됨 */}
+            {/* 식단표 OCR 자동채움 — 점심·간식 매일 기록 안 해도 됨. 이번 달 등록됐으면 업로더 숨김 */}
             <div className="mt-3 pt-3" style={{ borderTop: '1px dashed #FFE8D0' }}>
-              <button onClick={() => setOcrOpen((o) => !o)} className="text-[12px] font-extrabold" style={{ color: '#C45A00' }}>📋 이번 달 식단표 올리기 {ocrOpen ? '▾' : '▸'}</button>
-              {ocrOpen && (
+              {menuMonths.has(new Date().toISOString().slice(0, 7)) ? (
+                <div className="text-[11.5px] font-bold" style={{ color: '#16A085' }}>✓ 이번 달 식단표가 등록돼 있어요 — 점심·간식은 자동으로 채워져요</div>
+              ) : (
+                <button onClick={() => setOcrOpen((o) => !o)} className="text-[12px] font-extrabold" style={{ color: '#C45A00' }}>📋 이번 달 식단표 올리기 {ocrOpen ? '▾' : '▸'}</button>
+              )}
+              {ocrOpen && !menuMonths.has(new Date().toISOString().slice(0, 7)) && (
                 <div className="mt-2.5">
                   <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>월간 식단표 사진을 올리면 점심·간식을 자동으로 채워요 — 매일 기록 안 해도 돼요.</p>
                   <div className="flex gap-2 items-center mb-2">
