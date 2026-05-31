@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { loadPool, loadRecipes, loadFreqRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars, isSpicyDish } from '@/lib/ingredients';
 import RefusedBadge from '@/components/RefusedBadge';
+import PersonalBridge from '@/components/PersonalBridge';
 
 // SOS 식감 난이도 순서 (부드러움 → 단단함) — 거부 식재료 친해지기 정렬
 function textureRank(method: string): number {
@@ -158,6 +159,8 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
           <p className="text-[10px] mt-3" style={{ color: '#8a7a6a' }}>💡 ‘급식 N회’ = 전국 식단표에 오른 빈도, ‘유·초·중’ = 유아·초등·중고 식단 등장 횟수. 자주·여러 연령에서 나올수록 두루 사랑받는 음식이에요.</p>
         </section>
       )}
+
+      <PersonalBridge ingredient={ing.nm} />
 
       <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
         <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>🍳 친해지기 레시피</h2>
