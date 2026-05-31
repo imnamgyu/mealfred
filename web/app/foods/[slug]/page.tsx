@@ -4,7 +4,7 @@
  */
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { loadPool, loadRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars, isSpicyDish } from '@/lib/ingredients';
+import { loadPool, loadRecipes, loadFreqRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars, isSpicyDish } from '@/lib/ingredients';
 import RefusedBadge from '@/components/RefusedBadge';
 
 // SOS 식감 난이도 순서 (부드러움 → 단단함) — 거부 식재료 친해지기 정렬
@@ -65,6 +65,7 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
   const recipes = recipesByIng[ing.nm];
   // 영유아 — 매운 메뉴는 추천에서 제외
   const safeRecipes = recipes ? [...recipes.top_recipes].filter((r) => !isSpicyDish(r.name)) : [];
+  const freqRecipes = (loadFreqRecipes()[ing.nm] || []).filter((r) => !isSpicyDish(r.name));   // 급식 빈도 기반 '또래가 잘 먹는 음식'
   const hasEm = !!ing.em?.trim();
 
   const nutriItems = ing.nutri ? Object.entries(ing.nutri)
@@ -139,6 +140,24 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
       </section>
 
       <RefusedBadge ingredient={ing.nm} />
+
+      {freqRecipes.length > 0 && (
+        <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+          <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>👶 또래가 잘 먹는 음식</h2>
+          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>전국 어린이집·학교 급식에 자주 오른 = 또래 아이들이 실제로 잘 먹는 검증된 메뉴예요. {ing.nm}와(과) 친해지기 좋은 음식부터 골랐어요.</p>
+          <ul className="space-y-1.5">
+            {freqRecipes.map((r, i) => (
+              <li key={i} className="flex items-center gap-2 text-sm py-0.5">
+                <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0" style={{ background: '#EAF6F0', color: '#16A085' }}>급식 {r.freq}회</span>
+                <span style={{ color: '#1a2b4a', fontWeight: 600 }}>{r.name}</span>
+                {r.share >= 0.4 && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: '#FFF0E0', color: '#C45A00' }}>주재료</span>}
+                <span className="text-[10px] ml-auto shrink-0 tabular-nums" style={{ color: '#9CA3AF' }}>유{r.u}·초{r.e}·중{r.h}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-[10px] mt-3" style={{ color: '#8a7a6a' }}>💡 ‘급식 N회’ = 전국 식단표에 오른 빈도, ‘유·초·중’ = 유아·초등·중고 식단 등장 횟수. 자주·여러 연령에서 나올수록 두루 사랑받는 음식이에요.</p>
+        </section>
+      )}
 
       <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
         <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>🍳 친해지기 레시피</h2>

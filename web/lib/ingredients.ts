@@ -58,6 +58,17 @@ export function loadRecipes() {
   return _recipes!;
 }
 
+export type FreqRecipe = { name: string; freq: number; u: number; e: number; h: number; share: number };
+let _freqRecipes: Record<string, FreqRecipe[]> | null = null;
+/** 급식 빈도 기반 '또래가 잘 먹는 음식' — scripts/build-foods-recipes.py 생성.
+ *  식재료가 메인인 레시피를 distinct 식단표 월 수 빈도순으로, 유아/초등/중고 등장과 함께. */
+export function loadFreqRecipes(): Record<string, FreqRecipe[]> {
+  if (_freqRecipes) return _freqRecipes;
+  const fp = path.join(process.cwd(), 'public', 'ingredient-recipes.json');
+  try { _freqRecipes = JSON.parse(fs.readFileSync(fp, 'utf-8')); } catch { _freqRecipes = {}; }
+  return _freqRecipes!;
+}
+
 export function findIngredient(slug: string): Ingredient | null {
   return loadPool().find((p) => p.nm === decodeURIComponent(slug)) ?? null;
 }
