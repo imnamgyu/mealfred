@@ -433,7 +433,7 @@ const DAYCARE_EXCLUDE = new Set(['과일', '유제품']);
 export function computeDiversityScore(args: { ingredientsByDay: string[][]; menusByMeal: string[][]; catOf?: CatOf; applyMealPenalty?: boolean; daycareMode?: boolean }): { score: number; diversityBase: number; gateCap: number; processed: number; repeat: number; redGroups: string[]; processedSample: string[]; repeatMenu: string | null } {
   const { signals: allSignals } = computeGroupSignals(args.ingredientsByDay, args.catOf);
   const signals = args.daycareMode ? allSignals.filter((s) => !DAYCARE_EXCLUDE.has(s.group)) : allSignals;
-  const base = signals.length ? Math.round(signals.reduce((a, s) => a + (s.level === 'green' ? 100 : s.level === 'yellow' ? 55 : 0), 0) / signals.length) : 0;
+  const base = signals.length ? Math.round(signals.reduce((a, s) => a + (s.level === 'green' ? 100 : s.level === 'yellow' ? 65 : 0), 0) / signals.length) : 0;   // yellow 65(완화): 정상 다양식 95+, 편식만 경고
   const redGroups = signals.filter((s) => s.level === 'red').map((s) => s.group);
   const gateCap = redGroups.length ? Math.max(66, 90 - (redGroups.length - 1) * 8) : 100;
   const mealCount = args.menusByMeal.filter((m) => m.length).length;
