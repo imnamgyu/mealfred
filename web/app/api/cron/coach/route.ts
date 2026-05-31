@@ -127,6 +127,7 @@ export async function GET(req: Request) {
         const homeRef: string[] = []; const daycareRef: string[] = [];
         const recentMeals: LoggedFood[] = []; const seenFood = new Set<string>();
         const menuFreq: Record<string, number> = {};
+        const favMenu: Record<string, number> = {};   // 잘 먹은(거부 아닌) 메뉴 빈도 — 푸드체이닝 출발점
         const homeByDate: Record<string, string[]> = {}; const homeIng: string[] = [];   // 집 끼니만(place!=daycare) — 코칭 톤 보정용
         const todayMs = Date.parse(today);
 
@@ -145,10 +146,12 @@ export async function GET(req: Request) {
           if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
           if (r.note) notes.push(r.note);
           (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); if (k) menuFreq[k] = (menuFreq[k] || 0) + 1; });
+          if (r.ate_well !== false) (r.menus || []).forEach((mn) => { const t = mn.trim(); if (t) favMenu[t] = (favMenu[t] || 0) + 1; });   // 거부 아닌 끼니 = 좋아하는 음식 후보
         });
 
         const byDay = Object.values(byDate).filter((a) => a.length);
         if (byDay.length < 3) { lowData++; continue; }
+        const favoriteFoods = Object.entries(favMenu).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([m]) => m);   // 잘 먹는 음식 top8 — 푸드체이닝
         const sig = computeSignals(byDay, catOf);
         const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
         const fg = computeFoodGroups(allIng, catOf);
@@ -187,7 +190,7 @@ export async function GET(req: Request) {
           const gen = await generateLetter({
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
-            notes, refused: uniqRef, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
+            notes, refused: uniqRef, favoriteFoods, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
             timeseries: ts, attendsDaycare: attends, pastLetters,
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
