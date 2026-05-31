@@ -480,7 +480,9 @@ export default function CarePage() {
       if (taken.has(key)) return;
       const e = (byKey[key] = byKey[key] || { log_date, slot, menus: [], ings: new Set<string>() });
       if (it.menu) e.menus.push(it.menu);
-      (it.ingredients || []).forEach((i) => { const n = normalizeIngredient(i); if (n) e.ings.add(n); });
+      // OCR은 메뉴명만 추출 — 식재료는 클라 전역 매퍼로 즉시 채우고(흔한 메뉴), 미매핑은 야간 백필 크론이 LLM으로 보강.
+      const localIngs = (it.ingredients && it.ingredients.length) ? it.ingredients : (mapper.mapMenu(it.menu || '')?.ingredients || []);
+      localIngs.forEach((i) => { const n = normalizeIngredient(i); if (n) e.ings.add(n); });
     });
     const rows = Object.values(byKey).map((v) => ({
       child_id: childId, parent_id: userId, log_date: v.log_date, slot: v.slot,
