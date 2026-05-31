@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>리워드·바이럴 엔진 v3 — 밀프레드</title>
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;margin:0;line-height:1.7;}
+.wrap{max-width:900px;margin:0 auto;padding:40px 24px 90px;}
+h1{font-size:30px;font-weight:800;margin:0 0 6px;}
+.sub{color:#8a7a6a;font-size:14px;margin-bottom:36px;}
+h2{font-size:20px;font-weight:800;margin-top:44px;margin-bottom:6px;border-left:4px solid #FF6B1A;padding-left:12px;}
+p{font-size:14.5px;color:#3a4555;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13.5px;}
+th{background:#FFF0E0;color:#C45A00;padding:11px 12px;text-align:left;font-weight:800;border:1px solid #FFE0C0;}
+td{padding:11px 12px;border:1px solid #F0E8E0;vertical-align:top;color:#3a4555;}
+.badge{display:inline-block;font-size:11px;font-weight:800;padding:2px 9px;border-radius:100px;white-space:nowrap;}
+.on{background:#EAF6F0;color:#16A085;}
+.soon{background:#F4F4F5;color:#999;}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:24px 0;}
+.node{background:#fff;border:2px solid #FFD8B0;border-radius:14px;padding:13px 16px;font-weight:800;font-size:13px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.arrow{color:#FF6B1A;font-size:20px;font-weight:800;}
+.callout{background:#F0FAF6;border:1.5px solid #A5D6C6;border-radius:14px;padding:16px 18px;margin:18px 0;font-size:14px;color:#1B5E20;}
+.price{background:linear-gradient(135deg,#FFF8F0,#FFE8D0);border:1px solid #FFD0A0;border-radius:16px;padding:22px;text-align:center;margin:16px 0;}
+.price .amt{font-size:38px;font-weight:800;color:#C45A00;line-height:1.1;}
+.back{display:inline-block;margin-bottom:22px;color:#9CA3AF;text-decoration:none;font-size:13px;font-weight:700;}
+.note{font-size:12px;color:#9CA3AF;margin-top:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="/docs.html" class="back">← 문서 맵으로</a>
+<h1>🎁 리워드·바이럴 엔진 v3</h1>
+<div class="sub">2026-05-31 · 월 4,900원 유료화 + 다양한 리워드로 <b>슈퍼 인플루언서</b> 환영 · 단일 진실: <code>06_운영/리워드_바이럴_엔진_v3.md</code></div>
+
+<h2>1. 가격 · 구독</h2>
+<div class="price">
+  <div style="font-size:13px;color:#16A085;font-weight:800;">모든 가입자 첫 달 무료</div>
+  <div class="amt">4,900<span style="font-size:18px;color:#9CA3AF;font-weight:700;"> 원/월</span></div>
+  <div style="font-size:12px;color:#8a7a6a;">포인트로 결제 차감 = 계속 모으면 사실상 평생 무료</div>
+</div>
+<table>
+<tr><th>항목</th><th>정책</th></tr>
+<tr><td>정상가</td><td>월 <b>4,900원</b></td></tr>
+<tr><td>첫 달</td><td>모든 가입자 무료 (가입 + 30일 · 마이페이지 D-N 카운트다운)</td></tr>
+<tr><td>6월 프로모</td><td>발급 링크 활성 — 친구 가입 시 포인트 적립</td></tr>
+<tr><td>포인트 사용처</td><td>골고루/집중 키트 + 월 구독 결제 차감 (<b>4,900P = 1개월</b>)</td></tr>
+<tr><td>폐기</td><td>1회성 평생무료/1년무료 → <b>반복 포인트</b>가 지속적 초대 동기를 만든다</td></tr>
+</table>
+
+<h2>2. 핵심 원칙</h2>
+<table>
+<tr><th>원칙</th><th>내용</th></tr>
+<tr><td><b>1P = 1원</b></td><td>직관적 환산</td></tr>
+<tr><td>우리 제품 only</td><td>키트·구독에만 사용 · 현금 환전 ❌ · 외부 상품 ❌</td></tr>
+<tr><td>인플레 한도 없음</td><td>많이 모일수록 우리 매출로 환원 (키트 마진 ~74%)</td></tr>
+<tr><td>슈퍼 인플루언서 환영</td><td>많이 초대 = 계속 무료 = 매월 정기구매·입소문 보장</td></tr>
+</table>
+
+<h2>3. 리워드 6종 — 작동 · 포인트</h2>
+<table>
+<tr><th>리워드</th><th>작동 (언제·검증)</th><th>포인트</th><th>한도</th><th>상태</th></tr>
+<tr><td>🍽 끼니 입력</td><td>care 저장 → <code>earn_meal_point</code> RPC (멱등·중복차단·위조방지)</td><td><b>+50P</b></td><td>5끼/일</td><td><span class="badge on">✅ 구현</span></td></tr>
+<tr><td>👥 친구 가입</td><td>내 초대 링크(<code>/r/CODE</code>)로 친구 <b>가입 완료</b> 시 적립</td><td><b>+4,900P</b><br><span class="note">한 달 구독값</span></td><td>무제한</td><td><span class="badge soon">설계</span></td></tr>
+<tr><td>💬 도감 식재료 후기</td><td>먹여본 경험 후기 작성 (UGC)</td><td>+200P</td><td>3회/일</td><td><span class="badge soon">설계</span></td></tr>
+<tr><td>✍️ 키트 리뷰</td><td>키트 구매 후 리뷰</td><td>+2,000P</td><td>1회/구매</td><td><span class="badge soon">설계</span></td></tr>
+<tr><td>🎲 7일 연속 룰렛</td><td>7일 연속 기록 시 랜덤 (가변비율 강화·Skinner)</td><td>+500~3,000P</td><td>7일마다</td><td><span class="badge soon">설계</span></td></tr>
+<tr><td>🌟 식단표 평가 전파</td><td>내 평가 공유 → 친구가 평가 완료</td><td>+1,000P</td><td>5회/월</td><td><span class="badge soon">설계</span></td></tr>
+</table>
+
+<h2>4. 바이럴 루프 (도식)</h2>
+<div class="flow">
+  <div class="node">가입<br><span style="font-weight:400;font-size:11px;color:#8a7a6a;">첫 달 무료</span></div>
+  <span class="arrow">→</span>
+  <div class="node">끼니 기록<br><span style="font-weight:400;font-size:11px;color:#8a7a6a;">+50P</span></div>
+  <span class="arrow">＋</span>
+  <div class="node">친구 초대<br><span style="font-weight:400;font-size:11px;color:#8a7a6a;">+4,900P/가입</span></div>
+  <span class="arrow">→</span>
+  <div class="node" style="border-color:#16A085;">포인트 누적</div>
+  <span class="arrow">→</span>
+  <div class="node" style="border-color:#16A085;">구독·키트<br>무료</div>
+  <span class="arrow">→</span>
+  <div class="node" style="border-color:#FF6B1A;">입소문·<br>재초대 ⟳</div>
+</div>
+<div class="callout">💚 <b>한 명 초대 ≈ 한 달 무료.</b> 5명 = 5개월치. 슈퍼 인플루언서는 무한 누적 → 매월 정기구매 확정 + brand evangelist. 포인트가 우리 제품에만 쓰여 비용은 키트 원가만.</div>
+
+<h2>5. 슈퍼 인플루언서 모델</h2>
+<p>"방문 5명 → 평생무료"(1회성)를 폐기하고 <b>"가입마다 +4,900P"(반복)</b>로 전환. 명확·지속적이며, 포인트가 우리 제품에만 쓰여 아무리 모여도 매출로 환원된다.</p>
+<table>
+<tr><th>패턴</th><th>90일 누적(예)</th><th>가치</th></tr>
+<tr><td>일반 (기록만)</td><td>~8,000P</td><td>구독 약 1.6개월</td></tr>
+<tr><td>적극 viral (3명 초대)</td><td>~27,000P</td><td>구독 약 5.5개월</td></tr>
+<tr><td>슈퍼 인플루언서 (15명 초대)</td><td><b>~89,000P+</b></td><td>골고루 키트 다수 무료 · 매월 정기구매 확정</td></tr>
+</table>
+
+<h2>6. 구현 순서</h2>
+<table>
+<tr><th>#</th><th>작업</th><th>상태</th></tr>
+<tr><td>1</td><td><b>친구 가입 → +4,900P</b> (referral 가입 감지 → point) ★ 바이럴 최우선</td><td><span class="badge soon">다음</span></td></tr>
+<tr><td>2</td><td>포인트로 구독 결제 차감 (4,900P = 1개월)</td><td><span class="badge soon">백로그</span></td></tr>
+<tr><td>3</td><td>도감 후기·키트 리뷰·룰렛·평가 전파 (UGC/반복)</td><td><span class="badge soon">백로그</span></td></tr>
+<tr><td>4</td><td>anti-fraud 강화 (실가입·자기초대 차단·발행 한도) · viral-engine-prd.html v3 동기화</td><td><span class="badge soon">백로그</span></td></tr>
+</table>
+</div>
+</body>
+</html>
