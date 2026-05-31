@@ -107,10 +107,13 @@ export default function OnboardingPage() {
       const { error: e2 } = await supabase.from('children').update(payload).eq('id', editId);
       if (e2) { setError(e2.message); setLoading(false); return; }
     } else {
+      // 초대 링크로 왔으면 코드 연결(친구 가입 보너스용) — 첫 끼니 기록 시 초대자에게 +4,900P
+      const referredBy = typeof window !== 'undefined' ? localStorage.getItem('mf_ref') : null;
       const { data: ins, error: e2 } = await supabase.from('children')
-        .insert({ parent_id: user.id, ...payload }).select('id').single();
+        .insert({ parent_id: user.id, ...payload, referred_by_code: referredBy || null }).select('id').single();
       if (e2) { setError(e2.message); setLoading(false); return; }
       childId = ins?.id ?? null;
+      if (referredBy) { try { localStorage.removeItem('mf_ref'); } catch {} }
     }
 
     // 체위가 있으면 growth_logs(시계열)에도 오늘 날짜로 기록 → 홈 BMI 즉시 반영

@@ -33,6 +33,8 @@ export async function POST(req: NextRequest) {
       // 테이블/RPC 미생성 등 — 적립 실패가 끼니 기록을 막지 않게 graceful
       return NextResponse.json({ ok: false, error: error.message }, { status: 200 });
     }
+    // 친구 가입 보너스 — 피초대자가 (가입 후) 끼니를 기록하면 초대자에게 +4,900P. 멱등(피초대자당 1회)이라 매 끼니 호출해도 1회만.
+    try { await admin.rpc('award_referral_bonus', { p_referred_parent: user.id }); } catch (e) { console.error('[points/earn] referral', e instanceof Error ? e.message : e); }
     return NextResponse.json({ ok: true, earned: data ?? 0 });   // data = 이번 실제 적립액(0=중복/한도)
   } catch (e) {
     return NextResponse.json({ ok: false, error: e instanceof Error ? e.message : 'error' }, { status: 200 });

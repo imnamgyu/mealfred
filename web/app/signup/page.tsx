@@ -11,13 +11,19 @@
  *   3. callback에서 /onboarding으로 redirect (신규) 또는 /care (재로그인)
  */
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const KAKAO_REST_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_KEY;
 
 export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 초대 링크(/r/CODE → /signup?ref=CODE)로 왔으면 코드 보관 → 가입(onboarding)에서 children에 연결
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get('ref');
+    if (ref) { try { localStorage.setItem('mf_ref', ref); } catch {} }
+  }, []);
 
   // 커스텀 카카오 OAuth — Supabase의 account_email 강제 scope 우회
   function loginKakao() {
