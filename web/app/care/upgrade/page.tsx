@@ -50,7 +50,7 @@ export default function UpgradePage() {
         <Link href="/care/me" className="block text-center text-[12px] mt-4 mb-2" style={{ color: '#9CA3AF' }}>← 내 정보로 돌아가기</Link>
       </div>
 
-      <BottomNav />
+      <BottomNav active="/care/me" />
     </main>
   );
 }
