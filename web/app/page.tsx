@@ -554,7 +554,7 @@ export default function Home() {
           )}
           {/* 누적 '잘 먹는(받아들인)' 식재료 — 초등 입학 전 130종(레퍼토리). 1회 맛봄 X, 2회+·비거부 = 수용 */}
           <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F0F0F0' }}>
-            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>잘 먹는 식재료 <span style={{ color: '#9CA3AF' }}>(최근 6개월·2회+)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
+            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>잘 먹는 식재료 <span style={{ color: '#9CA3AF' }}>(최근 3개월·2회+)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
             <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (cumDisp / 130) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
             <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>
               {cumDisp < 20 ? <>아직 <strong style={{ color: '#C62828' }}>편식 경계</strong> — 잘 먹는 30종부터 도전! (SOS 기준)</>
@@ -562,7 +562,7 @@ export default function Home() {
                 : cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>잘 먹는 130종</strong>까지 {130 - cumDisp}종 더!</>
                 : <>🎉 초등 준비 완료 — 잘 먹는 130종 달성!</>}
             </div>
-            <div className="text-[10px] text-center mt-1" style={{ color: '#B0B0B0' }}>최근 6개월 내 <strong>2번 이상 거부 없이</strong> 먹은 식재료예요 (오래전 한두 번은 제외)</div>
+            <div className="text-[10px] text-center mt-1" style={{ color: '#B0B0B0' }}>최근 3개월 내 <strong>2번 이상 거부 없이</strong> 먹은 식재료예요 (오래전 한두 번은 제외)</div>
           </div>
         </div>
 
