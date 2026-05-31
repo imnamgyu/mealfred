@@ -8,12 +8,14 @@
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { NUTRI_MAP } from '@/lib/nutrition';
+import { kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
 const STORAGE_KEY = 'mealfred_care_logs';
 
 type Ing = { nm: string; cat: string; grade: string; em: string };
-type Stat = { exposure: number; eat: number; first: string | null; last: string | null };
+// exposure/eat/first/last = 전체 누적. recentFreq/recentRefused = '잘 먹는' 판정용(최근 90일 윈도우).
+type Stat = { exposure: number; eat: number; first: string | null; last: string | null; recentFreq: number; recentRefused: boolean };
 
 const CAT_FILTER: Record<string, string> = {
   '잎채소': 'leaf', '뿌리채소': 'root', '열매채소': 'fruitveg', '십자화과': 'fruitveg',
@@ -41,6 +43,11 @@ const GRADE_COLOR: Record<string, { bg: string; fg: string }> = {
   C: { bg: '#F3E5F5', fg: '#6A1B9A' }, D: { bg: '#FAFAF7', fg: '#9CA3AF' },
 };
 const EXPOSURE_TARGET = 30;
+// 홈(app/page.tsx)의 '잘 먹는' 단일 기준과 정합: 최근 90일 내 노출 2회+ & 거부 기록 없음.
+const REPERTOIRE_WINDOW_DAYS = 90;
+const REPERTOIRE_MIN_FREQ = 2;
+// '잘 먹고 있는' = 레퍼토리 멤버(최근 90일·2회+·비거부).
+function isWellEaten(s: Stat): boolean { return s.recentFreq >= REPERTOIRE_MIN_FREQ && !s.recentRefused; }
 
 function monthsSince(s: string | null): number | null {
   if (!s) return null;
@@ -56,14 +63,15 @@ function periodLabel(m: number | null): string {
 }
 function periodBarPct(m: number | null): number { if (m === null) return 6; if (m >= 24) return 100; return Math.min(100, 12 + m * 4); }
 
-// 상태: danger(관심 필요)·warn(주의)·good(잘 진행)
+// 상태: danger(관심 필요)·warn(주의)·good(잘 먹고 있어요). 홈의 '잘 먹는' 기준과 정합.
 function statusOf(s: Stat): 'danger' | 'warn' | 'good' {
+  if (s.exposure === 0) return 'danger';       // 아직 못 만남
+  if (isWellEaten(s)) return 'good';           // 최근 90일·2회+·비거부 = 레퍼토리(잘 먹고 있어요)
+  if (s.eat === 0) return 'danger';            // 노출했는데 한 번도 안 먹음
+  if (s.recentRefused) return 'danger';        // 최근 거부 기록
   const m = monthsSince(s.last);
-  if (s.exposure === 0) return 'danger';      // 아직 못 만남
-  if (s.eat === 0) return 'danger';            // 노출했는데 안 먹음
-  if (m !== null && m >= 2) return 'danger';   // 2개월+ 안 먹음
-  if (m !== null && m >= 1) return 'warn';
-  return 'good';
+  if (m !== null && m >= 3) return 'danger';   // 3개월(=90일)+ 안 먹음 → 레퍼토리 이탈
+  return 'warn';                               // 친해지는 중(최근 1회만 등 아직 미달)
 }
 const STATUS = {
   danger: { label: '관심 필요', color: '#C62828', border: '#FFCDD2', bg: '#FFF5F5', bar: '#E53935' },
@@ -82,29 +90,34 @@ export default function FoodsDex() {
   useEffect(() => {
     fetch('/ingredients-light.json').then((r) => r.json()).then((d) => setPool(d.ingredients)).catch(() => {});
     (async () => {
+      const repCut = kstDateNDaysAgo(REPERTOIRE_WINDOW_DAYS);   // 최근 90일 경계 — '잘 먹는' 판정 윈도우
       const counts: Record<string, Stat> = {};
-      const add = (nm: string, ate: boolean | null, date: string) => {
-        if (!counts[nm]) counts[nm] = { exposure: 0, eat: 0, first: null, last: null };
+      const add = (nm: string, ate: boolean | null, date: string, refusedName?: string | null) => {
+        if (!counts[nm]) counts[nm] = { exposure: 0, eat: 0, first: null, last: null, recentFreq: 0, recentRefused: false };
         const c = counts[nm];
         c.exposure++;
         if (ate !== false) { c.eat++; if (!c.last || date > c.last) c.last = date; if (!c.first || date < c.first) c.first = date; }
+        if (date >= repCut) {                  // 홈 기준과 동일: 노출 빈도(ate 무관) 2회+ & 거부 없음
+          c.recentFreq++;
+          if (refusedName && refusedName === nm) c.recentRefused = true;
+        }
       };
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setLoggedIn(true);
         const { data: child } = await supabase.from('children').select('id').eq('parent_id', user.id).limit(1).maybeSingle();
         if (child) {
-          const { data: rows } = await supabase.from('meal_logs').select('ingredients,ate_well,log_date').eq('child_id', child.id);
-          (rows || []).forEach((r: { ingredients: string[] | null; ate_well: boolean | null; log_date: string }) => {
-            (r.ingredients || []).forEach((nm) => add(nm, r.ate_well, r.log_date));
+          const { data: rows } = await supabase.from('meal_logs').select('ingredients,ate_well,refused,log_date').eq('child_id', child.id);
+          (rows || []).forEach((r: { ingredients: string[] | null; ate_well: boolean | null; refused: string | null; log_date: string }) => {
+            (r.ingredients || []).forEach((nm) => add(nm, r.ate_well, r.log_date, r.refused));
           });
         }
       } else {
         try {
           const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
           Object.entries(logs).forEach(([date, day]) => {
-            Object.values(day as Record<string, { ingredients?: { name: string }[]; ateWell?: boolean | null }>).forEach((e) => {
-              (e.ingredients || []).forEach((t) => add(t.name, e.ateWell ?? null, date));
+            Object.values(day as Record<string, { ingredients?: { name: string }[]; ateWell?: boolean | null; refused?: string | null }>).forEach((e) => {
+              (e.ingredients || []).forEach((t) => add(t.name, e.ateWell ?? null, date, e.refused ?? null));
             });
           });
         } catch {}
@@ -114,14 +127,15 @@ export default function FoodsDex() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getStat = (nm: string): Stat => stats[nm] || { exposure: 0, eat: 0, first: null, last: null };
+  const getStat = (nm: string): Stat => stats[nm] || { exposure: 0, eat: 0, first: null, last: null, recentFreq: 0, recentRefused: false };
   const nutriLabel = (nm: string) => (NUTRI_MAP[nm] || []).slice(0, 2).join('·');
 
   const thisMonth = new Date().toISOString().slice(0, 7);
-  const goodCount = pool.filter((p) => getStat(p.nm).eat > 0 && statusOf(getStat(p.nm)) === 'good').length;
+  // '잘 먹고 있는' = 레퍼토리(최근 90일·2회+·비거부) — 홈과 동일 기준. 게이지·통계 단일 소스.
+  const goodCount = pool.filter((p) => isWellEaten(getStat(p.nm))).length;
+  // '오래 안 먹은' = 노출했으나 레퍼토리 이탈(못 먹음·최근 거부·3개월+ 미식)
   const dangerCount = pool.filter((p) => { const s = getStat(p.nm); return s.exposure > 0 && statusOf(s) === 'danger'; }).length;
   const newCount = pool.filter((p) => getStat(p.nm).first?.startsWith(thisMonth)).length;
-  const eatenCount = pool.filter((p) => getStat(p.nm).eat > 0).length;
 
   const filtered = pool.filter((p) => {
     if (search && !p.nm.includes(search.trim())) return false;
@@ -175,11 +189,11 @@ export default function FoodsDex() {
         {/* 30→130 진척 */}
         <div className="mt-2 rounded-xl px-3 py-2" style={{ background: '#FFF5EB', border: '1px solid #FFD0A0' }}>
           <div className="flex justify-between text-[11px] font-bold mb-1" style={{ color: '#C45A00' }}>
-            <span>먹어본 {eatenCount}가지</span>
-            <span>{eatenCount < 30 ? `30가지까지 ${30 - eatenCount}개 더` : `초등 전 130가지까지`}</span>
+            <span>잘 먹고 있는 {goodCount}가지</span>
+            <span>{goodCount < 30 ? `30가지까지 ${30 - goodCount}개 더` : `초등 전 130가지까지`}</span>
           </div>
           <div className="h-1.5 rounded-full" style={{ background: 'rgba(255,107,26,0.2)' }}>
-            <div className="h-full rounded-full" style={{ width: `${Math.min(100, (eatenCount / 130) * 100)}%`, background: '#FF6B1A' }} />
+            <div className="h-full rounded-full" style={{ width: `${Math.min(100, (goodCount / 130) * 100)}%`, background: '#FF6B1A' }} />
           </div>
         </div>
       </div>
