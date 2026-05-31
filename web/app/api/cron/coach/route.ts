@@ -20,6 +20,7 @@ import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutr
 import { generateLetter, generateQuestion, icfqForDate, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
+import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
@@ -55,10 +56,16 @@ export async function GET(req: Request) {
   let lowData = 0, redChildren = 0, gapChildren = 0, daycareChildren = 0, eatenSum = 0, evalChildren = 0;
   const redFreq: Record<string, number> = {};
   const issues: string[] = [];
+  let backfill: BackfillResult | null = null;
 
   const { data: runRow } = await supabase.from('cron_runs').insert({ job_name: 'coach', status: 'running' }).select('id').single();
 
   try {
+    // 0) 야간 미매핑 보강 — menus 있고 ingredients 빈 행을 먼저 백필(영양계산 전). 실패해도 코칭은 계속.
+    try {
+      backfill = await backfillUnmappedMenus({ windowDays: 60, maxLlmCalls: 8, timeBudgetMs: 6000, sinceFn: kstDateNDaysAgo });
+    } catch (e) { console.warn('[cron/coach] backfill skip:', e instanceof Error ? e.message : e); }
+
     // 식재료 카테고리 맵 (빗대기 영양평가·채소 시계열용) — public 정적 파일에서
     const catMap: Record<string, string> = {};
     try {
@@ -273,6 +280,7 @@ export async function GET(req: Request) {
         letters, questions, reused, active: activeIds.length, skippedTime, lowData,
         evalChildren, avgEaten: evalChildren ? Math.round(eatenSum / evalChildren) : 0,
         redChildren, gapChildren, daycareChildren, topReds,
+        backfill,   // 야간 미매핑 보강 지표(빈 행 백필·사전학습)
         issues: issues.slice(0, 30), durationMs: Date.now() - runStart,
       },
     }).eq('id', runRow?.id);

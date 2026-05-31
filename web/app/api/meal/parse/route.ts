@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { mapMenuLocal, canon, CANON_VOCAB } from '@/lib/menuMap';
+import { lookupLearned, saveLearned, normalizeMenuKey } from '@/lib/learnedMenus';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -42,9 +43,20 @@ export async function POST(req: NextRequest) {
     }
     const m = menu.trim();
 
-    // 0~2차: 결정론적 매핑 (사전 → 룰 → 스캔)
+    // 0차: 전역 학습 사전(이전 LLM 분해 결과) — 미지 메뉴를 LLM 없이 무료 히트
+    const learned = await lookupLearned([m]);
+    const hit = learned[normalizeMenuKey(m)];
+    if (hit) {
+      return NextResponse.json(
+        { ingredients: hit.ingredients, processed: hit.processed, source: 'learned' },
+        { headers }
+      );
+    }
+
+    // 1~3차: 결정론적 매핑 (사전 → 룰 → 스캔)
     const local = mapMenuLocal(m);
     if (local) {
+      await saveLearned(m, local.ingredients, local.processed, local.source);   // 해소 결과 사전화(다음 입력 가속)
       return NextResponse.json(
         { ingredients: local.ingredients, processed: local.processed, source: local.source },
         { headers }
@@ -81,6 +93,7 @@ export async function POST(req: NextRequest) {
     const filtered = [...new Set(
       raw.map(canon).filter((nm): nm is string => !!nm && CANON_VOCAB.has(nm))
     )];
+    if (filtered.length) await saveLearned(m, filtered, !!parsed.processed, 'llm');   // 다음엔 0차 무료 히트
     return NextResponse.json(
       { ingredients: filtered, processed: !!parsed.processed, source: 'llm' },
       { headers }
