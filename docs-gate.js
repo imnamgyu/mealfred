@@ -35,7 +35,7 @@
       sb.auth.signInWithOAuth({ provider: 'google', options: { queryParams: { hd: DOMAIN, prompt: 'select_account' }, redirectTo: location.origin + location.pathname } });
     };
     var o = document.getElementById('o');
-    if (o) o.onclick = function () { sb.auth.signOut().then(function () { location.reload(); }); };
+    if (o) o.onclick = function () { clearLocal(); sb.auth.signOut().then(function () { location.reload(); }).catch(function () { location.reload(); }); };
   }
 
   function cleanHash() {
@@ -62,23 +62,60 @@
       return { email: (o.email || '').toLowerCase(), exp: o.exp || 0 };
     } catch (e) { return null; }
   }
+  // ── 게이트 자체 세션 보관소 ──────────────────────────────────────────────
+  // Supabase 네이티브 persistSession은 createClient에 '유효한' anon 키가 있어야 동작한다.
+  // (키가 placeholder/무효면 setSession이 /auth/v1/user 401로 실패→localStorage 미저장→
+  //  페이지를 옮길 때마다 getSession()이 null→로그인 벽 반복.)
+  // 이 게이트는 어차피 토큰(JWT)을 로컬 디코드로만 검증하므로, 토큰을 직접 보관해
+  // 키 유효성과 무관하게 세션을 유지한다. 만료(보통 1시간) 전에는 다시 묻지 않는다.
+  var STORE = 'mf_docs_sess';
+  function saveLocal(at, rt) { try { localStorage.setItem(STORE, JSON.stringify({ at: at, rt: rt || '' })); } catch (e) {} }
+  function readLocal() { try { return JSON.parse(localStorage.getItem(STORE) || 'null'); } catch (e) { return null; } }
+  function clearLocal() { try { localStorage.removeItem(STORE); } catch (e) {} }
+  function validJwt(info) {
+    var now = Math.floor(Date.now() / 1000);
+    return !!(info && info.email.slice(-(DOMAIN.length + 1)) === '@' + DOMAIN && info.exp > now + 5);
+  }
+
   function boot() {
     var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: { detectSessionInUrl: false, persistSession: true, autoRefreshToken: true }
     });
     var hash = (location.hash || '').replace(/^#/, '');
+    // 1) 로그인 직후 — 해시의 토큰을 보관소에 저장(키 유효성과 무관하게 영속) 후 로컬 검증
     if (hash.indexOf('access_token=') >= 0) {
       var p = new URLSearchParams(hash);
       var at = p.get('access_token'), rt = p.get('refresh_token') || '';
-      try { sb.auth.setSession({ access_token: at, refresh_token: rt }); } catch (e) { /* 영속화는 best-effort */ }
+      saveLocal(at, rt);
+      try { sb.auth.setSession({ access_token: at, refresh_token: rt }); } catch (e) { /* 네이티브도 best-effort */ }
       var info = jwtInfo(at);
-      var now = Math.floor(Date.now() / 1000);
-      if (info && info.email.slice(-(DOMAIN.length + 1)) === '@' + DOMAIN && info.exp > now) { cleanHash(); reveal(); return; }
-      loginWall(sb, info ? info.email : ''); return;
+      if (validJwt(info)) { cleanHash(); reveal(); return; }
+      clearLocal(); loginWall(sb, info ? info.email : ''); return;
     }
-    // 저장된 세션 확인(재방문)
+    // 2) 재방문 — 보관소 토큰을 로컬 검증(서버 호출 0). 만료 전엔 다시 묻지 않는다.
+    var loc = readLocal();
+    if (loc && loc.at) {
+      if (validJwt(jwtInfo(loc.at))) { reveal(); return; }
+      // 만료 — refresh_token이 있으면 갱신 시도(유효한 키가 설정되면 며칠까지 자동 연장). 실패하면 로그인.
+      if (loc.rt) {
+        sb.auth.refreshSession({ refresh_token: loc.rt })
+          .then(function (res) {
+            var s = res && res.data && res.data.session;
+            if (s && s.access_token && validJwt(jwtInfo(s.access_token))) { saveLocal(s.access_token, s.refresh_token || loc.rt); reveal(); }
+            else { clearLocal(); loginWall(sb, ''); }
+          })
+          .catch(function () { clearLocal(); loginWall(sb, ''); });
+        return;
+      }
+      clearLocal(); loginWall(sb, ''); return;
+    }
+    // 3) 보관소가 비었으면 네이티브 세션도 확인(과거 방식·유효 키 환경 호환)
     sb.auth.getSession()
-      .then(function (res) { decide(sb, res && res.data && res.data.session); })
+      .then(function (res) {
+        var s = res && res.data && res.data.session;
+        if (s && s.access_token) saveLocal(s.access_token, s.refresh_token || '');
+        decide(sb, s);
+      })
       .catch(function () { loginWall(sb, ''); });
   }
 
