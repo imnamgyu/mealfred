@@ -117,6 +117,8 @@ export default function FoodsDex() {
         } catch {}
       }
       setStats(counts);
+      // 첫 가입 등 먹어본 음식이 없으면 '먹어본 것' 필터는 빈 화면 → 기본을 '전체'로
+      if (Object.values(counts).filter((c) => c.eat > 0).length === 0) setFilter('all');
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
