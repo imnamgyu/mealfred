@@ -57,9 +57,14 @@ export default function PersonalBridge({ ingredient }: { ingredient: string }) {
             {childName}는 <strong>{ingredient}</strong>을(를) 이미 먹어봤어요! 잘 먹는 <strong>{favFoods.slice(0, 2).join('·')}</strong>에 더 자주 넣어 익숙하게 해주세요. 같은 식재료라도 <strong>다른 음식</strong>에서 만나면 새 노출이 됩니다(맛 학습 일반화).
           </p>
         ) : (
-          <p className="text-[11.5px]" style={{ color: '#3a5a4a', lineHeight: 1.7 }}>
-            {childName}가 잘 먹는 <strong>{favFoods.slice(0, 2).join('·')}</strong>에 <strong>{ingredient}</strong>을(를) 아주 잘게 다져 <strong>소량</strong> 섞어보세요. 익숙한 맛·향 속에서 새 식재료를 자연스럽게 만나요(푸드 브릿지). 위 <strong>또래가 잘 먹는 음식</strong>도 좋은 출발점이에요.
-          </p>
+          <div className="text-[11.5px]" style={{ color: '#3a5a4a', lineHeight: 1.7 }}>
+            <strong style={{ color: '#1B5E20' }}>새 요리는 안 하셔도 돼요.</strong> {childName}가 잘 먹는 <strong>{favFoods.slice(0, 2).join('·')}</strong>에 <strong>{ingredient}</strong>을(를) 더하는 3가지 — 부담 낮은 순서예요(푸드 브릿지):
+            <div className="mt-2 space-y-1.5">
+              <div className="flex gap-2"><span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shrink-0 h-fit" style={{ background: '#E8F5E9', color: '#1B5E20' }}>숨기기</span><span>{favFoods[0]}에 아주 잘게 다져 <strong>소량 섞기</strong> — 익숙한 맛 속에 자연스럽게</span></div>
+              <div className="flex gap-2"><span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shrink-0 h-fit" style={{ background: '#FFF0E0', color: '#C45A00' }}>곁들이기</span><span>좋아하는 음식 <strong>옆에 한 입 분량</strong>만 따로 — 안 먹어도 OK</span></div>
+              <div className="flex gap-2"><span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full shrink-0 h-fit" style={{ background: '#F4F4F5', color: '#6B7280' }}>만나기</span><span>먹기 싫어하면 <strong>만지고 냄새만 맡아도</strong> '한 번의 노출'</span></div>
+            </div>
+          </div>
         )
       ) : (
         <p className="text-[11.5px]" style={{ color: '#3a5a4a', lineHeight: 1.7 }}>

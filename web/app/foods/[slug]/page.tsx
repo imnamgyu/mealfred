@@ -145,7 +145,7 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
       {freqRecipes.length > 0 && (
         <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
           <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>👶 또래가 잘 먹는 음식</h2>
-          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>전국 어린이집·학교 급식에 자주 오른 = 또래 아이들이 실제로 잘 먹는 검증된 메뉴예요. {ing.nm}와(과) 친해지기 좋은 음식부터 골랐어요.</p>
+          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>전국 어린이집·학교 급식에 자주 오른 = 또래 아이들이 실제로 잘 먹는 검증된 메뉴예요. <strong>꼭 새로 만들 필욘 없어요</strong> — 아래 <strong>우리 아이 맞춤</strong>처럼 좋아하는 음식에 {ing.nm} 섞기부터 시작해도 돼요.</p>
           <ul className="space-y-1.5">
             {freqRecipes.map((r, i) => (
               <li key={i} className="flex items-center gap-2 text-sm py-0.5">
