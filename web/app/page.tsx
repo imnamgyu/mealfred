@@ -112,6 +112,7 @@ export default function Home() {
   const [groupSig, setGroupSig] = useState<{ signals: GroupSignal[]; proteinOk: boolean }>({ signals: [], proteinOk: false });
   const [groupWeekly, setGroupWeekly] = useState<GroupWeekly | null>(null);   // 식품군 8개 주간 추이(선차트)
   const [showTrend, setShowTrend] = useState(false);
+  const [staleMap, setStaleMap] = useState<Record<string, number>>({});   // 식재료별 마지막 노출 후 일수(박스 우선순위)
   const [ingredientCount, setIngredientCount] = useState(0);
   const [cumCount, setCumCount] = useState(0);   // 누적(전체) 먹어본 식재료 종 수 → 130종 목표
   const [missDays, setMissDays] = useState<{ d: string; label: string }[]>([]);   // P9: 최근 5일 중 미기록 날(당일 제외)
@@ -192,6 +193,13 @@ export default function Home() {
             setCumCount(accepted.length);
             // 같은 90일 데이터로 식품군 8개 주간 추이(선차트) 계산
             setGroupWeekly(computeGroupWeekly((data || []) as { log_date: string; ingredients: string[] | null }[], catOf, 10));
+            // 식재료별 마지막 노출 후 일수 — 박스에서 '필수인데 오래 안 먹은 것' 우선용
+            const lastSeen: Record<string, string> = {};
+            (data || []).forEach((r: { ingredients: string[] | null; log_date: string }) => { (r.ingredients || []).forEach((i) => { if (!lastSeen[i] || r.log_date > lastSeen[i]) lastSeen[i] = r.log_date; }); });
+            const todayMs = Date.parse(kstToday());
+            const sm: Record<string, number> = {};
+            Object.entries(lastSeen).forEach(([nm, d]) => { sm[nm] = Math.round((todayMs - Date.parse(d)) / 86400000); });
+            setStaleMap(sm);
           });
           // 편식 변화(효과측정) — 최근 56일 기록으로 최근28 vs 직전28 비교
           supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
@@ -402,6 +410,7 @@ export default function Home() {
       return [...new Set(pool.map((p) => p.cat))].sort((a, b) => (e[a] || 0) - (e[b] || 0));
     })(),
     daycareRefused: refused,
+    staleOf: (nm: string) => staleMap[nm] ?? 999,   // 미경험=999(최우선) — 필수인데 오래 안 먹은 것 우선
     size: 12,
   }) : [];
 

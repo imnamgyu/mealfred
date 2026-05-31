@@ -18,6 +18,7 @@ export type BoxInput = {
   reds?: string[];            // 부족 영양소(라벨) — 결핍 보강 우선용
   nutrientsOf?: (nm: string) => string[];   // 식재료→영양소 (결핍 매칭용, 선택)
   daycareRefused?: string[];   // 기관에서 거부 → 집에서 소량 재노출
+  staleOf?: (nm: string) => number;   // 마지막 노출 후 일수(미경험=큰 값). 필수인데 오래 안 먹은 것 우선용
   size?: number;               // 박스 품종 수(기본 12 — 극다품종 소량)
 };
 
@@ -57,7 +58,11 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
   // ③ 빈약 식품군 라운드로빈 — 군별 필수→권장 순으로 골고루
   const byCat: Record<string, PoolItem[]> = {};
   candidates.forEach((p) => { (byCat[p.cat] ||= []).push(p); });
-  Object.values(byCat).forEach((arr) => arr.sort((a, b) => (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2)));
+  // 군별 정렬: 필수 먼저 → 같은 등급이면 '안 먹은 지 오래된(또는 미경험)' 순(사용자: 필수인데 오래된 것 우선)
+  Object.values(byCat).forEach((arr) => arr.sort((a, b) => {
+    const g = (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2);
+    return g !== 0 ? g : (input.staleOf?.(b.nm) ?? 999) - (input.staleOf?.(a.nm) ?? 999);
+  }));
   // 빈약 카테고리 우선, 나머지 뒤
   const cats = Object.keys(byCat).sort((a, b) => {
     const wa = weakCats.indexOf(a), wb = weakCats.indexOf(b);
