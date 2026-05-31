@@ -215,37 +215,24 @@ export default function MePage() {
               <></>
             )}
 
-            {/* 구독 + 초대(바이럴) — 1개월 무료 / 5명 방문 시 평생무료 */}
+            {/* 친구 초대 — 가입+첫 기록 시 +4,900P (옛 '5명 방문 평생무료'는 폐기) */}
             {ref && (
-              <div className="rounded-2xl p-4 mb-3 border" style={{ background: ref.billing.plan === 'lifetime_free' ? '#E8F5E9' : '#FFF8F0', borderColor: ref.billing.plan === 'lifetime_free' ? '#A5D6A7' : '#FFE8D0' }}>
-                <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독</div>
-                <div className="text-sm font-extrabold mb-2" style={{ color: ref.billing.plan === 'lifetime_free' ? '#1B5E20' : '#1a2b4a' }}>{ref.billing.label}</div>
-
-                {ref.billing.plan !== 'lifetime_free' && (<>
-                  {/* 초대 진행도 N/5 */}
-                  <div className="flex items-center gap-1.5 mb-2">
-                    {Array.from({ length: ref.billing.goal }).map((_, i) => (
-                      <div key={i} className="flex-1 h-2 rounded-full" style={{ background: i < ref.visits ? '#16A085' : '#F0E0D0' }} />
-                    ))}
-                    <span className="text-[11px] font-extrabold ml-1" style={{ color: '#16A085' }}>{ref.visits}/{ref.billing.goal}</span>
-                  </div>
-                  <div className="text-[11px] mb-2.5" style={{ color: '#8a7a6a' }}>내 링크로 <strong style={{ color: '#C45A00' }}>5명 방문</strong>하면 <strong>아이 1명 평생 무료</strong> (가입 안 해도 카운트)</div>
-
-                  {/* 링크 + 공유 */}
-                  <div className="flex items-center gap-1.5">
-                    <input readOnly value={inviteUrl} onFocus={(e) => e.currentTarget.select()}
-                      className="flex-1 min-w-0 text-[11px] px-2.5 py-2 rounded-lg" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', color: '#6B7280' }} />
-                    <button onClick={copyInvite} className="text-[11px] font-bold px-3 py-2 rounded-lg" style={{ background: copied ? '#16A085' : '#1a2b4a', color: 'white' }}>{copied ? '복사됨' : '복사'}</button>
-                    <button onClick={shareInvite} className="text-[11px] font-bold px-3 py-2 rounded-lg text-white" style={{ background: '#FF6B1A' }}>공유</button>
-                  </div>
-                </>)}
+              <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF8F0', borderColor: '#FFE8D0' }}>
+                <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>친구 초대 <span style={{ color: '#16A085' }}>· 가입 시 +4,900P</span></div>
+                <div className="text-[11.5px] mb-2.5 leading-relaxed" style={{ color: '#8a7a6a' }}>내 링크로 친구가 <strong>가입하고 첫 끼니를 기록</strong>하면 <strong style={{ color: '#C45A00' }}>+4,900P</strong>(한 달 구독값)가 쌓여요. 많이 초대할수록 계속 무료!</div>
+                <div className="flex items-center gap-1.5">
+                  <input readOnly value={inviteUrl} onFocus={(e) => e.currentTarget.select()}
+                    className="flex-1 min-w-0 text-[11px] px-2.5 py-2 rounded-lg" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', color: '#6B7280' }} />
+                  <button onClick={copyInvite} className="text-[11px] font-bold px-3 py-2 rounded-lg" style={{ background: copied ? '#16A085' : '#1a2b4a', color: 'white' }}>{copied ? '복사됨' : '복사'}</button>
+                  <button onClick={shareInvite} className="text-[11px] font-bold px-3 py-2 rounded-lg text-white" style={{ background: '#FF6B1A' }}>공유</button>
+                </div>
               </div>
             )}
 
             {/* 초대 카드가 아직/실패로 안 떴을 때 — 항상 무언가 보이게 + 원인 표시 */}
             {!ref && (
               <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF8F0', borderColor: '#FFE8D0' }}>
-                <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독 · 친구 초대</div>
+                <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>친구 초대</div>
                 {refLoading ? (
                   <div className="text-sm" style={{ color: '#9CA3AF' }}>초대 링크 불러오는 중…</div>
                 ) : (
