@@ -141,10 +141,11 @@ export default function Home() {
           setGroups(fg);
           setIngredientCount(new Set(allIng).size);
           setEatenSet(new Set(allIng));
-          // '잘 먹는(현재 받아들인)' 식재료 종 수 — 130종 목표.
-          // 1회 맛봄 X. '최근 6개월 내 2회 이상 + 거부 기록 없음' = 현재 레퍼토리(반복노출→수용, HabEat/NESR).
-          // 6개월 윈도우: 오래전 한두 번 맛본 게 '잘 먹는'으로 잡히지 않게(이사님 지적).
-          const repCut = kstDateNDaysAgo(180);
+          // '잘 먹는(현재 받아들인)' 식재료 종 수 — 130종(초등 입학 전 ~만6세 누적 목표).
+          // 1회 맛봄 X. '최근 3개월 내 2회 이상 + 거부 기록 없음' = 현재 레퍼토리(반복노출→수용, HabEat/NESR).
+          // 90일 윈도우: 토들러 음식 로테이션·neophobia 재노출 주기 기준(식품빈도설문 1개월~WHO 24h 절충). 튜닝 가능.
+          const REPERTOIRE_WINDOW_DAYS = 90;
+          const repCut = kstDateNDaysAgo(REPERTOIRE_WINDOW_DAYS);
           supabase.from('meal_logs').select('ingredients,refused,log_date').eq('child_id', child.id).gte('log_date', repCut).then(({ data }) => {
             const freq: Record<string, number> = {}; const refusedSet = new Set<string>();
             (data || []).forEach((r: { ingredients: string[] | null; refused: string | null }) => {

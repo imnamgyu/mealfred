@@ -53,21 +53,30 @@
     if (isDomain(session)) { cleanHash(); reveal(); }
     else loginWall(sb, emailOf(session));
   }
+  // access_token(JWT) payload 디코드 — setSession 성공 여부에 의존하지 않고 이메일·만료 직접 확인(게이트 신뢰도↑)
+  function jwtInfo(at) {
+    try {
+      var part = at.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (part.length % 4) part += '=';
+      var o = JSON.parse(decodeURIComponent(escape(atob(part))));
+      return { email: (o.email || '').toLowerCase(), exp: o.exp || 0 };
+    } catch (e) { return null; }
+  }
   function boot() {
     var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: { detectSessionInUrl: false, persistSession: true, autoRefreshToken: true }
     });
-    // 로그인 복귀 시 URL 해시의 토큰을 직접 setSession — detectSessionInUrl에 의존하지 않음(확실)
     var hash = (location.hash || '').replace(/^#/, '');
     if (hash.indexOf('access_token=') >= 0) {
       var p = new URLSearchParams(hash);
       var at = p.get('access_token'), rt = p.get('refresh_token') || '';
-      sb.auth.setSession({ access_token: at, refresh_token: rt })
-        .then(function (r) { decide(sb, r && r.data && r.data.session); })
-        .catch(function () { loginWall(sb, ''); });
-      return;
+      try { sb.auth.setSession({ access_token: at, refresh_token: rt }); } catch (e) { /* 영속화는 best-effort */ }
+      var info = jwtInfo(at);
+      var now = Math.floor(Date.now() / 1000);
+      if (info && info.email.slice(-(DOMAIN.length + 1)) === '@' + DOMAIN && info.exp > now) { cleanHash(); reveal(); return; }
+      loginWall(sb, info ? info.email : ''); return;
     }
-    // 저장된 세션 확인
+    // 저장된 세션 확인(재방문)
     sb.auth.getSession()
       .then(function (res) { decide(sb, res && res.data && res.data.session); })
       .catch(function () { loginWall(sb, ''); });
