@@ -148,9 +148,9 @@
   <h3>1-2. 핵심 원칙</h3>
   <ul>
     <li><strong>1 포인트 = 1원</strong> 골고루 키트 결제 차감 (현금 환전 X)</li>
-    <li><strong>정액 적립</strong> — 식단 기록 1건 = 고정 포인트(반감기·Stage 없음)</li>
-    <li><strong>적립 단위 = 끼니 입력 1건</strong> · <strong>일일 한도 5끼</strong>(영유아 자연 한도·farming 방지)</li>
-    <li><strong>사용처 = 골고루 키트 단일</strong> — 마이페이지에서 잔액·적립/사용 내역 확인</li>
+    <li><strong>정액 적립</strong> — 식단(끼니) 기록 1건 = <b>+50P</b>(반감기·Stage 없음, 1P=1원)</li>
+    <li><strong>적립 단위 = 끼니 입력 1건</strong> · <strong>일일 한도 5끼</strong>(영유아 자연 한도·farming 방지) → 하루 최대 250P</li>
+    <li><strong>사용처 = 골고루 키트 + 월 구독 결제 차감</strong> — 마이페이지에서 잔액·적립/사용 내역 확인</li>
     <li><strong>인플레 한도 X</strong> — 많이 기록할수록 키트 매출로 환원</li>
   </ul>
 </section>
@@ -197,10 +197,10 @@ flowchart TB
   <span class="stag">━ 3. FUNCTIONAL REQUIREMENTS ━</span>
   <h2>3. 기능 요구사항 (18개)</h2>
 
-  <h3>3-1. 포인트 적립 (정액)</h3>
+  <h3>3-1. 포인트 적립 (정액) <span style="background:#16A085;color:#fff;font-size:11px;padding:2px 8px;border-radius:6px;vertical-align:middle">✅ 구현 완료</span></h3>
   <div class="req-card fr"><span class="id">FR-V01</span><h4>끼니 입력 시 포인트 적립</h4>
-    <div class="desc">사용자가 식사 기록 1건 저장 시 포인트 <b>정액 적립</b>(반감기·stage 없음).</div>
-    <div class="accept"><strong>승인</strong>: 끼니 입력 1건 = +고정 포인트(적립액 미정, 키트가 ~90일 기록으로 충당되게 역산) / 토스트 즉시 표시 / ledger·balance 동시 갱신 (트랜잭션)</div>
+    <div class="desc">90일 스트로크 챌린지 = 하루 최대 5끼 식단 입력. <b>각 끼니(식단) 입력마다 정액 적립</b>(반감기·stage 없음).</div>
+    <div class="accept"><strong>승인</strong>: 끼니 입력 1건 = <b>+50P</b> (1P=1원 · 하루 <b>최대 5끼 = 250P/일</b>) / 토스트 즉시 표시 / ledger·balance 동시 갱신 (트랜잭션) — <code>earn_meal_point</code> RPC 구현 완료(멱등·중복차단·위조방지)</div>
   </div>
   <div class="req-card fr"><span class="id">FR-V02</span><h4>일일 한도 5끼 검증</h4>
     <div class="desc">하루 5건 초과 입력 시 기록은 저장하되 마일리지 X.</div>
