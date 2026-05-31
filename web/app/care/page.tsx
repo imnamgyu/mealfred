@@ -243,9 +243,9 @@ export default function CarePage() {
       });
       if (Object.keys(recent).length) setPersonalMap((pm) => ({ ...recent, ...pm }));  // 교정(override)이 이김
 
-      // ICFQ 레드플래그 — 최근 14일 위험신호(answer=첫 칩) 2개+면 비알람 상담 안내(1회)
+      // ICFQ 레드플래그 — 최근 60일 위험신호(answer=첫 칩) 2개+면 비알람 상담 안내(1회). ICFQ가 10일 주기라 60일에 누적.
       supabase.from('daily_questions').select('chips,answer,topic').eq('child_id', child.id).eq('topic', 'icfq')
-        .gte('q_date', kstDateNDaysAgo(14)).not('answer', 'is', null)
+        .gte('q_date', kstDateNDaysAgo(60)).not('answer', 'is', null)
         .then(({ data }) => {
           const risk = (data || []).filter((r: { chips: string[] | null; answer: string | null }) => r.answer && r.chips?.[0] && r.answer.trim() === r.chips[0]).length;
           if (risk >= 2) setIcfqFlag(true);

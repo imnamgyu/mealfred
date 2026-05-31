@@ -174,11 +174,12 @@ export const ICFQ_ITEMS: { key: string; q: string; chips: string[]; risk: string
   { key: 'texture', q: '덩어리진 음식을 못 삼키거나 통째로 자주 뱉나요?', chips: ['네', '가끔', '아니요'], risk: '네' },
 ];
 const ICFQ_BY_KEY = Object.fromEntries(ICFQ_ITEMS.map((i) => [i.key, i]));
-/** q_date('YYYY-MM-DD') 기반 결정론 — 14일마다 ICFQ 항목 1개 회전(난수 X). 아니면 null(일반 질문). */
+/** q_date('YYYY-MM-DD') 기반 결정론 — 10일마다 ICFQ 항목 1개 회전(난수 X). 아니면 null(일반 질문).
+ *  (레드플래그가 '최근 60일 위험 2개+'로 누적 판단하므로 10일 주기여야 2개가 모일 수 있음) */
 export function icfqForDate(qDate: string): { key: string; q: string; chips: string[]; risk: string } | null {
   const days = Math.floor(Date.parse(qDate) / 86400000);
-  if (!Number.isFinite(days) || days % 14 !== 0) return null;
-  return ICFQ_ITEMS[Math.floor(days / 14) % ICFQ_ITEMS.length];
+  if (!Number.isFinite(days) || days % 10 !== 0) return null;
+  return ICFQ_ITEMS[Math.floor(days / 10) % ICFQ_ITEMS.length];
 }
 /** ICFQ 답이 위험신호인지 (key + answer). */
 export function isIcfqRisk(key: string | undefined | null, answer: string | undefined | null): boolean {
