@@ -45,7 +45,7 @@ const GROUP_COLOR: Record<string, string> = {
 };
 // SVG 선차트 — x=최근 N주, y=주당 그 식품군을 먹은 일수(0~7). 식재료는 종이 많아 8식품군으로 묶음.
 function GroupTrendSVG({ data }: { data: GroupWeekly }) {
-  const W = 440, H = 220, padL = 26, padR = 12, padT = 14, padB = 26;
+  const W = 440, H = 220, padL = 26, padR = 56, padT = 14, padB = 26;   // padR 넓힘 — 끝점 라벨 공간
   const n = data.weeks.length;
   const maxY = Math.max(5, ...data.series.flatMap((s) => s.counts), 1);
   const plotW = W - padL - padR, plotH = H - padT - padB;
@@ -62,13 +62,19 @@ function GroupTrendSVG({ data }: { data: GroupWeekly }) {
         </g>
       ))}
       {xIdx.map((i) => (
-        <text key={i} x={x(i)} y={H - 8} fontSize={9} fill="#9CA3AF" textAnchor="middle">{i === n - 1 ? '이번주' : `${n - 1 - i}주전`}</text>
+        <text key={i} x={x(i)} y={H - 8} fontSize={9} fill="#9CA3AF" textAnchor="middle">{data.unit === 'day' ? (i === n - 1 ? '오늘' : `${n - 1 - i}일전`) : (i === n - 1 ? '이번주' : `${n - 1 - i}주전`)}</text>
       ))}
       {data.series.map((s) => (
         <polyline key={s.group} points={s.counts.map((c, i) => `${x(i)},${y(c)}`).join(' ')}
           fill="none" stroke={GROUP_COLOR[s.group] || '#9CA3AF'} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" opacity={0.9} />
       ))}
       {data.series.map((s) => (s.counts.length ? <circle key={s.group} cx={x(n - 1)} cy={y(s.counts[n - 1])} r={3} fill={GROUP_COLOR[s.group] || '#9CA3AF'} /> : null))}
+      {/* 끝점 라벨 — 색만으로 구분 안 되는 색맹 배려(이모지 + 식품군명) */}
+      {data.series.map((s) => {
+        if (!s.counts.length) return null;
+        const em = FOOD_FAMILY.find((f) => f.key === s.group)?.em || '';
+        return <text key={`lbl-${s.group}`} x={x(n - 1) + 6} y={y(s.counts[n - 1]) + 3} fontSize={8} fontWeight={800} fill={GROUP_COLOR[s.group] || '#9CA3AF'}>{em}{FAMILY_LABEL[s.group] || s.group}</text>;
+      })}
     </svg>
   );
 }
@@ -663,7 +669,7 @@ export default function Home() {
                   <strong style={{ fontSize: 15, color: '#1a2b4a' }}>📈 식품군 8개 주간 추이</strong>
                   <button onClick={() => setShowTrend(false)} style={{ fontSize: 18, color: '#9CA3AF', lineHeight: 1, background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                 </div>
-                <div className="text-[11px] mb-2" style={{ color: '#9CA3AF' }}>최근 {groupWeekly.weeks.length}주 · 주당 그 식품군을 먹은 일수(0~7일). 식재료는 종이 많아 8개 식품군으로 묶었어요.</div>
+                <div className="text-[11px] mb-2" style={{ color: '#9CA3AF' }}>{groupWeekly.unit === 'day' ? `최근 ${groupWeekly.weeks.length}일 · 그날 그 식품군을 먹은 끼니 수` : `최근 ${groupWeekly.weeks.length}주 · 주당 그 식품군을 먹은 일수(0~7일)`}. 식재료는 종이 많아 8개 식품군으로 묶었어요.</div>
                 <GroupTrendSVG data={groupWeekly} />
                 <div className="grid grid-cols-4 gap-x-1.5 gap-y-1 mt-2">
                   {FOOD_FAMILY.map((f) => (

@@ -177,25 +177,35 @@ export function computeGroupSignals(ingredientsByDay: string[][], catOf?: CatOf)
   return { signals, proteinOk };
 }
 
-export type GroupWeekly = { weeks: string[]; series: { group: string; counts: number[] }[] };
-/** 주(ISO)별 × 8식품군 '커버 일수'(0~7) 시계열 — 홈 식품군 다양성 추이 선차트용.
- *  식재료별로는 종이 너무 많아, 식품군 8개로 묶어 주 단위 노출 추이를 비교한다. */
+export type GroupWeekly = { weeks: string[]; series: { group: string; counts: number[] }[]; unit: 'day' | 'week' };
+/** 8식품군 노출 시계열 — 홈 식품군 다양성 추이 선차트용. 식재료는 종이 많아 식품군 8개로 묶음.
+ *  기록 기간이 30일 미만이면 '일 단위'(최근 14일, 그날 먹은 끼니 수), 아니면 '주 단위'(최근 10주, 주당 먹은 일수). */
 export function computeGroupWeekly(rows: { log_date: string; ingredients: string[] | null }[], catOf?: CatOf, numWeeks = 10): GroupWeekly {
-  const byWeek: Record<string, Record<string, Set<string>>> = {};   // week → group → Set<날짜>
-  for (const r of rows) {
-    if (!r.log_date) continue;
-    const wk = isoWeekKey(r.log_date);
-    const groups = new Set<string>();
-    (r.ingredients || []).forEach((ing) => { const g = groupOf(ing, catOf); if (g) groups.add(g); });
-    (byWeek[wk] ||= {});
-    groups.forEach((g) => { (byWeek[wk][g] ||= new Set<string>()).add(r.log_date); });
-  }
-  // 최근 numWeeks 주 키를 연속 생성(데이터 없는 주도 0으로) — 1주만 기록해도 추이선이 끊김 없이 그려짐
+  const groupsOfRow = (r: { ingredients: string[] | null }) => {
+    const gs = new Set<string>();
+    (r.ingredients || []).forEach((ing) => { const g = groupOf(ing, catOf); if (g) gs.add(g); });
+    return gs;
+  };
   const todayMs = Date.now();
+  const dates = rows.map((r) => r.log_date).filter(Boolean).sort();
+  const spanDays = dates.length ? (todayMs - Date.parse(dates[0])) / 86400000 : 0;
+
+  if (spanDays < 30) {
+    // 일 단위 — 최근 14일, 그날 그 식품군을 먹은 끼니 수
+    const numDays = 14;
+    const byDay: Record<string, Record<string, number>> = {};
+    for (const r of rows) { if (!r.log_date) continue; (byDay[r.log_date] ||= {}); groupsOfRow(r).forEach((g) => { byDay[r.log_date][g] = (byDay[r.log_date][g] || 0) + 1; }); }
+    const weeks = Array.from({ length: numDays }, (_, i) => new Date(todayMs - (numDays - 1 - i) * 86400000).toISOString().slice(0, 10));
+    const series = ALL_GROUPS.map((g) => ({ group: g, counts: weeks.map((d) => byDay[d]?.[g] || 0) }));
+    return { weeks, series, unit: 'day' };
+  }
+  // 주 단위 — 최근 numWeeks 주, 주당 그 식품군을 먹은 일수(데이터 없는 주도 0으로 채워 선 끊김 방지)
+  const byWeek: Record<string, Record<string, Set<string>>> = {};
+  for (const r of rows) { if (!r.log_date) continue; const wk = isoWeekKey(r.log_date); (byWeek[wk] ||= {}); groupsOfRow(r).forEach((g) => { (byWeek[wk][g] ||= new Set<string>()).add(r.log_date); }); }
   const weeks = [...new Set(Array.from({ length: numWeeks }, (_, i) =>
     isoWeekKey(new Date(todayMs - (numWeeks - 1 - i) * 7 * 86400000).toISOString().slice(0, 10))))];
   const series = ALL_GROUPS.map((g) => ({ group: g, counts: weeks.map((wk) => byWeek[wk]?.[g]?.size || 0) }));
-  return { weeks, series };
+  return { weeks, series, unit: 'week' };
 }
 
 export type NutrientSignal = { nutrient: string; daysCovered: number; level: 'green' | 'yellow' | 'red' };
