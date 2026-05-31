@@ -107,11 +107,11 @@ gantt
   section 앱 (PWA)
   M5 식사 기록 PWA          :done, 2026-06-23, 14d
   M6 신호등·진단·코칭·BMI    :done, 2026-07-07, 14d
-  M7 마일리지 v0           :active, 2026-07-21, 14d
+  M7 포인트 v0 정액적립      :active, 2026-07-21, 14d
   M8 90일 챌린지+카톡       :2026-08-04, 14d
-  M9 친구 초대+룰렛         :2026-08-18, 7d
+  M9 친구초대·룰렛 폐기      :done, 2026-08-18, 1d
   section 매출
-  M10 키트 결제+정기 배송   :2026-08-25, 21d
+  M10 키트결제+포인트차감    :2026-08-25, 21d
   M11 도감 댓글+모더레이션   :2026-09-15, 7d
   M12 AI 추천+운영 대시보드  :2026-09-22, 14d
   section 확장
@@ -123,21 +123,21 @@ gantt
 <!-- 현황 요약 (2026-05-30 갱신) -->
 <section>
   <div style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border:1.5px solid #16A085;border-radius:14px;padding:18px 20px;margin-bottom:18px">
-    <h3 style="color:#1B5E20;font-size:16px;font-weight:800;margin-bottom:8px">✅ 완료 — M0~M6 (앱 라이브, 2026-05-30)</h3>
-    <p style="font-size:13px;color:#1B5E20;line-height:1.75;font-weight:600;margin:0">M0 데모·데이터 · M1 Next.js+Supabase · M2 도감 개별 URL+SEO(147 SSG·sitemap) · M3 매일 +50종 enrich 크론 · M4 카카오 로그인+알림톡 · M5 식사기록 PWA(6슬롯·자동완성·먹는장소) · <strong>M6 36종 KDRI 신호등 + 식품군 다양성(충분/조금부족/부족) + BMI·체위(WHO 성장도표) + AI 코칭 엔진(새벽 크론·집/기관 구분·환각 차단) + 어린이집 식단표 OCR 자동채움</strong></p>
+    <h3 style="color:#1B5E20;font-size:16px;font-weight:800;margin-bottom:8px">✅ 완료 — M0~M6 + 운영 고도화 (앱 라이브, 2026-05-31)</h3>
+    <p style="font-size:13px;color:#1B5E20;line-height:1.75;font-weight:600;margin:0">M0 데모·데이터 · M1 Next.js+Supabase · M2 도감 개별 URL+SEO(147 SSG·sitemap) · M3 매일 +50종 enrich 크론 · M4 카카오 로그인+알림톡 · M5 식사기록 PWA(6슬롯·자동완성·먹는장소) · <strong>M6 36종 KDRI 신호등 + 식품군 다양성(충분/조금부족/부족) + BMI·체위(WHO 성장도표) + AI 코칭 엔진(새벽 크론·집/기관 구분·환각 차단) + 어린이집 식단표 OCR 자동채움</strong><br><strong style="color:#0E7A6B">[5/31 운영 고도화]</strong> P10 집/기관 칭찬 분리 · 주/월/분기/반기/연 롤업 요약 · 도감 '잘 먹는'(90일·2회+·비거부) 기준 정합 · docs 세션 유지 · 추천 카운팅 강건화 · <strong>메뉴→식재료 전역 학습사전(learned_menus) + 야간 미매핑 보강 크론</strong> · 골고루 키트 v2 기획(개인맞춤 극다품종 소량)</p>
   </div>
   <div style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border:1.5px solid #E89244;border-radius:14px;padding:18px 20px">
     <h3 style="color:#B86A20;font-size:16px;font-weight:800;margin-bottom:8px">🔜 남은 작업 — M7~M13</h3>
     <ul style="margin:0 0 0 18px;font-size:13px;color:#7a5a20;line-height:1.85;font-weight:600">
-      <li><strong>M7 마일리지 v0</strong> — 끼니 입력 마일리지·반감기·일일 한도</li>
-      <li><strong>M8 90일 챌린지 + 카톡 알림</strong></li>
-      <li><strong>M9 친구 초대 + 룰렛</strong></li>
-      <li><strong>M10 키트 결제 + 정기 배송</strong> — 박스 랜딩 완료, 결제·배송 연결 남음</li>
+      <li><strong>M7 포인트 v0</strong> — 끼니 입력 <strong>정액 적립</strong>·일일 한도(반감기·룰렛 폐기)</li>
+      <li><strong>M8 90일 챌린지 + 카톡 알림</strong> — 진행률·완주, 습관 형성 루프</li>
+      <li style="color:#9CA3AF;text-decoration:line-through">M9 친구 초대 + 룰렛 — ⛔ 폐기(게이미피케이션 단순화)</li>
+      <li><strong>M10 골고루 키트 결제(포인트 차감) + 마이페이지 포인트</strong> — 박스 v2 랜딩 완료, 결제·배송·포인트 연결 남음</li>
       <li><strong>M11 도감 댓글 + 모더레이션</strong> — 모더레이션 크론 일부 가동</li>
       <li><strong>M12 AI 추천 레시피 + 운영 대시보드</strong> — 코칭 엔진 완료, 추천·대시보드 확장 남음</li>
       <li><strong>M13 B2B 기부 + 밀프레드 박스 정식 + RCT</strong></li>
     </ul>
-    <p style="font-size:11.5px;color:#9a7a40;margin-top:10px;font-weight:600">+ 백로그: 영양 데이터 오매핑 재매핑(아몬드→"아몬드음료") · 미매핑 12종(KDRI) 농진청 성분 보강 · 박스 배합 알고리즘</p>
+    <p style="font-size:11.5px;color:#9a7a40;margin-top:10px;font-weight:600">+ 백로그: <strong>learned_menus SQL 실행(학습 활성화)</strong> · 영양 오매핑 재매핑(아몬드→"아몬드음료") · 미매핑 12종(KDRI) 농진청 성분 보강 · 박스 배합 알고리즘 · 홈 식품군 8개 주간 선차트 · 부모 홈에 기간요약(이번 달) 노출</p>
   </div>
 </section>
 

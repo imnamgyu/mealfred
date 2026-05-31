@@ -85,9 +85,9 @@
 <body>
 
 <header class="hero">
-  <span class="tag">📋 PRD · 바이럴 엔진 (마일리지·반감기·90일 챌린지)</span>
-  <h1>바이럴 엔진 — PRD</h1>
-  <p>비트코인 반감기 모델 + Lally 2010 습관 형성 + Skinner 가변비율 강화 · 풀스택 개발 명세</p>
+  <span class="tag">📋 PRD · 90일 챌린지 + 포인트 (v2 단순화)</span>
+  <h1>90일 챌린지 · 포인트 — PRD</h1>
+  <p>Lally 2010 습관 형성(66일) 근거 · <strong>「90일 챌린지 → 포인트 적립 → 골고루 키트 구매」 단일 루프</strong> · 마이페이지 포인트 표시</p>
   <div class="meta">
     <span>🎯 18 기능 요구</span>
     <span>📐 6 비기능 요구</span>
@@ -119,29 +119,39 @@
   <span class="stag">━ 1. PRODUCT OVERVIEW ━</span>
   <h2>1. 개요</h2>
 
+  <!-- 2026-05-31 기획 v2 단순화 배너 -->
+  <div style="background:#FFF3E0;border:2px solid #FB8C00;border-radius:12px;padding:16px 18px;margin-bottom:22px">
+    <strong style="color:#E65100;font-size:15px">⚠️ 2026-05-31 기획 v2 — 단일 루프로 단순화</strong>
+    <p style="margin:8px 0 0;font-size:13px;color:#5a4a3a;line-height:1.75">
+    복잡한 게이미피케이션(반감기 Stage·룰렛·친구초대 양방향 적립·댓글/리뷰 보상)을 <b>전면 폐기</b>하고
+    <b>「90일 챌린지 → 포인트 적립 → 골고루 키트 구매」 단일 루프</b>만 남긴다.
+    포인트는 식단 기록으로 <b>정액 적립(반감기 없음)</b>, 골고루 키트 결제에 차감,
+    <b>마이페이지</b>에서 보유 포인트·적립/사용 내역을 본다.
+    아래 <span style="background:#9CA3AF;color:#fff;padding:1px 6px;border-radius:5px;font-size:11px">⛔ DEPRECATED</span> 표시 항목은 개발하지 않는다.</p>
+  </div>
+
   <div class="card dark">
     <h3 style="border:none;color:#FFD89C;margin-top:0">"90일 습관 챌린지 = 평생 식습관"</h3>
-    <p style="font-size:13.5px;margin-top:10px">끼니 입력마다 마일리지 적립 → 반감기로 초반 강한 보상 → 90일 완주 시 골고루 키트 무료 → CAC ₩15k로 LTV ₩820k/연 사용자 획득. 광고 ROI 27x.</p>
+    <p style="font-size:13.5px;margin-top:10px">매일 식단을 기록하며 90일 습관을 완성(Lally 66일) → 기록마다 포인트 정액 적립 → 모인 포인트로 <b>우리 아이 맞춤 골고루 키트</b>를 구매. 기록할수록 키트가 저렴해지는 선순환. 마이페이지에서 포인트·진행률 확인.</p>
   </div>
 
   <h3>1-1. 학술 근거</h3>
   <table>
     <tr><th>이론</th><th>적용</th></tr>
     <tr><td>Lally et al. 2010 (UCL)</td><td>습관 형성 평균 66일 → 90일 챌린지 설계 근거</td></tr>
-    <tr><td>Skinner 가변비율 강화</td><td>룰렛 도파민 루프 (예측 불가 보상)</td></tr>
-    <tr><td>비트코인 반감기 (4단계)</td><td>초반 강한 보상 → 후반 절약 → 매출 보호</td></tr>
-    <tr><td>Cialdini 6 원칙 (상호성·일관성)</td><td>친구 초대 + 90일 약속 행동</td></tr>
-    <tr><td>BJ Fogg Tiny Habits</td><td>끼니 입력 = 작은 행동 단위</td></tr>
+    <tr><td>BJ Fogg Tiny Habits</td><td>끼니 입력 = 작은 행동 단위(매일 반복)</td></tr>
+    <tr><td style="color:#9CA3AF"><s>Skinner 가변비율 강화</s></td><td style="color:#9CA3AF">⛔ 룰렛 도파민 — 폐기</td></tr>
+    <tr><td style="color:#9CA3AF"><s>비트코인 반감기 (4단계)</s></td><td style="color:#9CA3AF">⛔ 반감기 적립 — 폐기(정액 적립으로 대체)</td></tr>
+    <tr><td style="color:#9CA3AF"><s>Cialdini 6 원칙</s></td><td style="color:#9CA3AF">⛔ 친구 초대 양방향 — 폐기</td></tr>
   </table>
 
   <h3>1-2. 핵심 원칙</h3>
   <ul>
-    <li><strong>1 마일리지 = 1원</strong> 키트 결제 차감 가능 (현금 환전 X)</li>
-    <li><strong>인플레 한도 X</strong> — 슈퍼 사용자 환영 (어차피 우리 키트 매출)</li>
-    <li><strong>최소 사용 단위 X</strong> — 1마일리지부터 결제 차감</li>
-    <li><strong>적립 단위 = 끼니 입력 1건</strong> (출석 X)</li>
-    <li><strong>일일 한도 5끼</strong> (영유아 자연 한도, farming 방지)</li>
-    <li><strong>유효 기간 X</strong> (또는 12개월 후 검토)</li>
+    <li><strong>1 포인트 = 1원</strong> 골고루 키트 결제 차감 (현금 환전 X)</li>
+    <li><strong>정액 적립</strong> — 식단 기록 1건 = 고정 포인트(반감기·Stage 없음)</li>
+    <li><strong>적립 단위 = 끼니 입력 1건</strong> · <strong>일일 한도 5끼</strong>(영유아 자연 한도·farming 방지)</li>
+    <li><strong>사용처 = 골고루 키트 단일</strong> — 마이페이지에서 잔액·적립/사용 내역 확인</li>
+    <li><strong>인플레 한도 X</strong> — 많이 기록할수록 키트 매출로 환원</li>
   </ul>
 </section>
 
@@ -187,10 +197,10 @@ flowchart TB
   <span class="stag">━ 3. FUNCTIONAL REQUIREMENTS ━</span>
   <h2>3. 기능 요구사항 (18개)</h2>
 
-  <h3>3-1. 마일리지 적립</h3>
-  <div class="req-card fr"><span class="id">FR-V01</span><h4>끼니 입력 시 마일리지 적립</h4>
-    <div class="desc">사용자가 식사 기록 1건 저장 시 현재 stage에 따라 마일리지 자동 적립.</div>
-    <div class="accept"><strong>승인</strong>: Stage 1 +100·Stage 2 +50·Stage 3 +25·Stage 4 +12 / 토스트 즉시 표시 / ledger·balance 동시 갱신 (트랜잭션)</div>
+  <h3>3-1. 포인트 적립 (정액)</h3>
+  <div class="req-card fr"><span class="id">FR-V01</span><h4>끼니 입력 시 포인트 적립</h4>
+    <div class="desc">사용자가 식사 기록 1건 저장 시 포인트 <b>정액 적립</b>(반감기·stage 없음).</div>
+    <div class="accept"><strong>승인</strong>: 끼니 입력 1건 = +고정 포인트(적립액 미정, 키트가 ~90일 기록으로 충당되게 역산) / 토스트 즉시 표시 / ledger·balance 동시 갱신 (트랜잭션)</div>
   </div>
   <div class="req-card fr"><span class="id">FR-V02</span><h4>일일 한도 5끼 검증</h4>
     <div class="desc">하루 5건 초과 입력 시 기록은 저장하되 마일리지 X.</div>
@@ -205,7 +215,7 @@ flowchart TB
     <div class="accept"><strong>승인</strong>: 6 chip (아침·오전간식·점심·오후간식·저녁·야간) 각 1회만 적립</div>
   </div>
 
-  <h3>3-2. Stage Controller (반감기)</h3>
+  <h3><s style="color:#9CA3AF">3-2. Stage Controller (반감기)</s> <span style="background:#9CA3AF;color:#fff;font-size:11px;padding:2px 8px;border-radius:6px;vertical-align:middle">⛔ DEPRECATED (정액 적립으로 대체)</span></h3>
   <div class="req-card fr"><span class="id">FR-V05</span><h4>가입일 기준 stage 자동 결정</h4>
     <div class="desc">user.created_at 기준 일수로 stage 1-4 자동 결정.</div>
     <div class="accept"><strong>승인</strong>: 1-21일 Stage 1 · 22-45일 Stage 2 · 46-66일 Stage 3 · 67-90일 Stage 4 · 91일+ Stage 4 유지</div>
@@ -225,7 +235,7 @@ flowchart TB
     <div class="accept"><strong>승인</strong>: 매 입력마다 즉시 갱신 · 진행 바 시각화 · 다음 stage 전환일 표시</div>
   </div>
 
-  <h3>3-4. 친구 초대</h3>
+  <h3><s style="color:#9CA3AF">3-4. 친구 초대 (양방향 적립)</s> <span style="background:#9CA3AF;color:#fff;font-size:11px;padding:2px 8px;border-radius:6px;vertical-align:middle">⛔ DEPRECATED</span></h3>
   <div class="req-card fr"><span class="id">FR-V09</span><h4>고유 초대 링크 생성</h4>
     <div class="desc">사용자별 referral code (8자) 생성. /signup?ref=ABCD1234.</div>
     <div class="accept"><strong>승인</strong>: URL 단축 X (gh-pages friendly) · 카톡 공유 시 OG 이미지 자동</div>
@@ -235,13 +245,13 @@ flowchart TB
     <div class="accept"><strong>승인</strong>: 동일 IP·동일 디바이스 fingerprint 차단 / 월 5명 한도</div>
   </div>
 
-  <h3>3-5. 룰렛 (가변비율 강화)</h3>
+  <h3><s style="color:#9CA3AF">3-5. 룰렛 (가변비율 강화)</s> <span style="background:#9CA3AF;color:#fff;font-size:11px;padding:2px 8px;border-radius:6px;vertical-align:middle">⛔ DEPRECATED</span></h3>
   <div class="req-card fr"><span class="id">FR-V11</span><h4>일 1회 무료 룰렛</h4>
     <div class="desc">하루 첫 끼니 입력 후 룰렛 1회 무료. 보상 분포: 10원 30%·50원 40%·100원 20%·500원 8%·5000원 2%.</div>
     <div class="accept"><strong>승인</strong>: 확률 서버 검증 (클라이언트 조작 차단) · 결과 ledger 기록 · 애니메이션 3초</div>
   </div>
 
-  <h3>3-6. 댓글·리뷰 보상</h3>
+  <h3><s style="color:#9CA3AF">3-6. 댓글·리뷰 보상</s> <span style="background:#9CA3AF;color:#fff;font-size:11px;padding:2px 8px;border-radius:6px;vertical-align:middle">⛔ DEPRECATED</span></h3>
   <div class="req-card fr"><span class="id">FR-V12</span><h4>도감 댓글 작성 시 보상</h4>
     <div class="desc">로그인 사용자가 도감 댓글 작성 시 +500. 모더레이션 통과 후 지급.</div>
     <div class="accept"><strong>승인</strong>: 1 식재료당 1회 / 일 최대 5건 / 통과 후 적립 (T+1)</div>
