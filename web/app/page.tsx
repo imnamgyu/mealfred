@@ -757,7 +757,7 @@ export default function Home() {
           )}
 
           {/* 골고루 키트 CTA */}
-          <a href="https://www.mealfred.com/box-product.html" target="_blank" rel="noopener" className="block mt-2 rounded-xl p-3.5" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
+          <a href={`https://www.mealfred.com/box-product.html?app=1${childName ? `&name=${encodeURIComponent(childName)}` : ''}`} target="_blank" rel="noopener" className="block mt-2 rounded-xl p-3.5" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
             <div className="flex items-center gap-3">
               <span className="text-2xl">📦</span>
               <div className="flex-1">

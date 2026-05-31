@@ -268,5 +268,32 @@
 
   </div>
   <footer>밀프레드 · 골고루 키트 — 매주 골고루, 막히면 집중 · 근거: 편식극복키트 01_참고자료(Satter·SOS·국제가이드·KDRI)</footer>
+  <script>
+  // 앱에서 진입 시 개인화 — ?name=아린 으로 아이 이름 동적, ?app=1 이면 가입 유도 버튼 숨김(이미 로그인)
+  (function () {
+    var p = new URLSearchParams(location.search);
+    var name = (p.get('name') || '').trim().slice(0, 12);
+    if (name) {
+      var nm = name + '이';   // 애칭 (아린→아린이, 준→준이)
+      var h1 = document.querySelector('header h1') || document.querySelector('h1');
+      if (h1) h1.innerHTML = nm + '를 분석해,<br><span class="pt">이번 주 만날 식재료</span>만 보내드려요';
+      document.querySelectorAll('h2').forEach(function (h) {
+        if (h.textContent.indexOf('이번 주 키트엔') >= 0) h.textContent = nm + '가 이번 주 만날 키트엔, 이게 왜 왔을까요';
+      });
+      var tb = document.querySelector('.topbar');
+      if (tb) tb.innerHTML = '🍱 <strong>' + nm + '를 위한 골고루 키트</strong> · 매주 골고루, 막히면 집중 — 분석 기반 개인맞춤';
+      document.title = nm + '를 위한 골고루 키트 — 밀프레드';
+    }
+    if (p.get('app') === '1') {
+      document.querySelectorAll('a.btn').forEach(function (b) {
+        var href = b.getAttribute('href') || '';
+        if (href.indexOf('signup') >= 0 || href.indexOf('app.mealfred.com/') >= 0) {
+          var box = b.closest('.cta-row') || b.closest('section.final') || b;
+          if (box) box.style.display = 'none';
+        }
+      });
+    }
+  })();
+  </script>
 </body>
 </html>
