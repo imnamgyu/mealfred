@@ -165,7 +165,7 @@ export async function GET(req: Request) {
         // 거부→수용 전환 감지(최근 28일) — 과거 거부했던 식재료를 이후 비거부로 먹기 시작 = '받아들이는 순간'. 코칭이 칭찬.
         try {
           const { data: trData } = await supabase.from('meal_logs')
-            .select('log_date,ingredients,refused,ate_well').eq('child_id', cid).gte('log_date', kstDateNDaysAgo(27));
+            .select('log_date,ingredients,refused,ate_well').eq('child_id', cid).gte('log_date', kstDateNDaysAgo(27)).lte('log_date', kstDateNDaysAgo(1));
           const refFirst: Record<string, string> = {}; const accLast: Record<string, string> = {};
           (trData || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; ate_well: boolean | null }) => {
             if (r.refused) { const k = r.refused.trim(); if (k && (!refFirst[k] || r.log_date < refFirst[k])) refFirst[k] = r.log_date; }
@@ -271,7 +271,7 @@ export async function GET(req: Request) {
     try {
       const { data: wide } = await supabase.from('meal_logs')
         .select('child_id,log_date,ingredients,refused,ate_well,duration_min')
-        .in('child_id', activeIds).gte('log_date', kstDateNDaysAgo(365));
+        .in('child_id', activeIds).gte('log_date', kstDateNDaysAgo(365)).lte('log_date', kstDateNDaysAgo(1));
       const byKid: Record<string, ProgressRow[]> = {};
       (wide || []).forEach((r: ProgressRow & { child_id: string }) => { (byKid[r.child_id] ||= []).push(r); });
       // 현재 기간 키 + 그 키에 속하는지 판정 함수 (한 끼니가 여러 기간에 동시 집계됨)

@@ -157,7 +157,7 @@ export default function Home() {
           supabase.from('growth_logs').select('height_cm,weight_kg,measured_on')
             .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(6)
             .then(({ data }) => { if (data && data.length) { setGrowth(data[0]); setGrowthList(data); } });
-          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus,place').eq('child_id', child.id).gte('log_date', dates[6]);
+          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus,place').eq('child_id', child.id).gte('log_date', dates[6]).lte('log_date', dates[0]);   // 미래 날짜(미리 입력한 식단표)는 평가 제외 — '오늘까지' 먹은 것만
           const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
           const homeRef: string[] = []; const daycareRef: string[] = [];   // 거부를 장소별로 분리 (코칭엔진 스펙 §3)
           const textures: string[] = []; const menuFreq: Record<string, number> = {};
@@ -209,7 +209,7 @@ export default function Home() {
           // 90일 윈도우: 토들러 음식 로테이션·neophobia 재노출 주기 기준(식품빈도설문 1개월~WHO 24h 절충). 튜닝 가능.
           const REPERTOIRE_WINDOW_DAYS = 90;
           const repCut = kstDateNDaysAgo(REPERTOIRE_WINDOW_DAYS);
-          supabase.from('meal_logs').select('ingredients,refused,log_date').eq('child_id', child.id).gte('log_date', repCut).then(({ data }) => {
+          supabase.from('meal_logs').select('ingredients,refused,log_date').eq('child_id', child.id).gte('log_date', repCut).lte('log_date', dates[0]).then(({ data }) => {
             const freq: Record<string, number> = {}; const refusedSet = new Set<string>();
             (data || []).forEach((r: { ingredients: string[] | null; refused: string | null }) => {
               (r.ingredients || []).forEach((i) => { freq[i] = (freq[i] || 0) + 1; });
@@ -230,7 +230,7 @@ export default function Home() {
           });
           // 편식 변화(효과측정) — 최근 56일 기록으로 최근28 vs 직전28 비교
           supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
-            .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(55))
+            .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(55)).lte('log_date', dates[0])
             .then(({ data }) => { setProgress(computeProgress((data || []) as Parameters<typeof computeProgress>[0], kstToday())); });
           // 지난 코치 편지(날짜 포함) — 오랜만에 온 엄마가 예전 편지도 보게. 오늘 편지 없으면 가장 최근 편지를 상단에.
           supabase.from('coach_letters').select('letter_date,letter,oneliner')
