@@ -41,14 +41,9 @@ export default function SignupPage() {
     <main style={{ maxWidth:480, margin:'0 auto', padding:'40px 24px' }}>
       <header style={{ borderRadius:16, marginBottom:20, overflow:'hidden', position:'relative', boxShadow:'0 6px 24px rgba(0,0,0,0.10)' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/arin-1.png" alt="당근을 즐겁게 먹는 아이" style={{ width:'100%', height:380, objectFit:'cover', objectPosition:'center 30%', display:'block' }} />
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(20,30,50,0.74) 0%, rgba(20,30,50,0.15) 45%, transparent 70%)' }} />
+        <img src="/arin-1.png" alt="당근을 즐겁게 먹는 아이" style={{ width:'100%', height:300, objectFit:'cover', objectPosition:'center 30%', display:'block' }} />
         <div style={{ position:'absolute', top:14, left:14 }}>
           <span style={{ background:'#FF6B1A', color:'white', fontSize:11, fontWeight:800, padding:'5px 11px', borderRadius:999, letterSpacing:'0.02em', boxShadow:'0 2px 8px rgba(255,107,26,0.45)' }}>🎁 6월 한정 런칭 이벤트</span>
-        </div>
-        <div style={{ position:'absolute', bottom:0, left:0, right:0, padding:'0 20px 18px' }}>
-          <h1 style={{ fontSize:25, fontWeight:800, color:'white', lineHeight:1.3, textShadow:'0 2px 12px rgba(0,0,0,0.45)' }}>매일, 우리 아이 편식 코치</h1>
-          <p style={{ marginTop:5, fontSize:12.5, color:'rgba(255,255,255,0.93)', fontWeight:600, textShadow:'0 1px 8px rgba(0,0,0,0.5)' }}>35가지 국제 편식 이론 기반 개인 맞춤 코칭</p>
         </div>
       </header>
 
