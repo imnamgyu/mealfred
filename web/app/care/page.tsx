@@ -841,20 +841,20 @@ export default function CarePage() {
             ))}
           </div>
 
-          {/* 거부 시 남긴 음식 입력 */}
-          {entry.ateWell === false && (
-            <div className="mt-3 p-3 rounded-lg" style={{ background: '#FFF5F5', border: '1.5px solid #FFCDD2' }}>
-              <label className="text-xs font-bold block mb-1.5" style={{ color: '#C62828' }}>
-                어떤 음식을 남겼나요?
+          {/* 거부·보통 시 남긴 음식 입력 — '보통(일부 남김)'도 거부 추적 대상(거부→수용 전환 포착) */}
+          {(entry.ateWell === false || entry.ateWell === null) && (
+            <div className="mt-3 p-3 rounded-lg" style={{ background: entry.ateWell === false ? '#FFF5F5' : '#FAFAF7', border: `1.5px solid ${entry.ateWell === false ? '#FFCDD2' : '#E5E7EB'}` }}>
+              <label className="text-xs font-bold block mb-1.5" style={{ color: entry.ateWell === false ? '#C62828' : '#6B7280' }}>
+                {entry.ateWell === false ? '어떤 음식을 남겼나요?' : '혹시 남기거나 안 먹은 음식이 있나요? (선택)'}
               </label>
               <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>
-                거부한 음식을 기록하면, 그 식재료에 천천히 친해지는 코스를 추천해드려요
+                남긴·거부한 음식을 기록하면, 그 식재료에 천천히 친해지는 코스를 추천하고 <strong>받아들이는 순간</strong>까지 추적해드려요
               </p>
               <input value={entry.refused}
                 onChange={(e) => setEntry((x) => ({ ...x, refused: e.target.value }))}
-                placeholder="예: 브로콜리, 가지 (손도 안 댔어요)"
+                placeholder={entry.ateWell === false ? '예: 브로콜리, 가지 (손도 안 댔어요)' : '예: 시금치 (절반 남김)'}
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                style={{ background: 'white', border: '1.5px solid #FFCDD2', color: '#374151' }} />
+                style={{ background: 'white', border: `1.5px solid ${entry.ateWell === false ? '#FFCDD2' : '#E5E7EB'}`, color: '#374151' }} />
             </div>
           )}
         </div>
