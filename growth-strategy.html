@@ -230,13 +230,13 @@ flowchart LR
   <div class="phase p3">
     <span class="ph-id">PHASE 3 — 바이럴 엔진</span>
     <div class="when">M7-M9 · 5주 · 2026-07-21 ~ 2026-08-24</div>
-    <h3>🎁 마일리지 + 90일 챌린지 + 친구 초대</h3>
+    <h3>🎁 포인트 + 90일 챌린지 + 친구 가입</h3>
     <ul>
       <li><strong>포인트 v0</strong>: 끼니 입력 정액 <strong>+50P</strong> (1P=1원·반감기 없음·일 5끼)</li>
       <li><strong>친구 가입</strong>: 초대자 <strong>+4,900P</strong> (한 달 구독값·가입+첫 기록 조건·반복=슈퍼 인플루언서)</li>
       <li><strong>90일 챌린지</strong>: 매일 기록 → 포인트 누적 → 골고루 키트·구독 무료</li>
       <li><strong>룰렛</strong>: 7일 연속 기록 시 <strong>+500~3,000P</strong> (가변 강화)</li>
-      <li><strong>카톡 알림 4종</strong>: stage 전환·완주·잭팟·미입력 리마인드</li>
+      <li><strong>카톡 알림 4종</strong>: 완주·연속 기록 룰렛·미입력 리마인드·포인트 적립</li>
     </ul>
     <p style="font-size:12px;color:var(--n600);font-style:italic">→ 끝: 자가 증식 바이럴 루프 작동</p>
   </div>
@@ -247,7 +247,7 @@ flowchart LR
     <h3>💰 키트 결제 + 도감 댓글 + AI 개인화</h3>
     <ul>
       <li><strong>키트 결제</strong>: 집중 ₩200k + 골고루 월 ₩108k 정기 구독</li>
-      <li><strong>마일리지 차감</strong>: 1:1, 전액 무료 결제 가능</li>
+      <li><strong>포인트 차감</strong>: 1P=1원 — 골고루 키트·월 구독 결제에 전액 사용 가능</li>
       <li><strong>도감 댓글</strong>: UGC + 모더레이션 cron</li>
       <li><strong>AI 추천 레시피</strong>: 4원칙 매주 새 메뉴</li>
       <li><strong>운영 대시보드</strong>: KPI 9개 실시간</li>
@@ -277,7 +277,7 @@ flowchart LR
   <div class="loop-card">
     <h4>🔁 Loop 1 — SEO 자가 증식 (도감 + UGC)</h4>
     <p style="font-size:13px;color:var(--n700);margin:8px 0">방문자가 도감 댓글 작성 → UGC가 SEO 점수 ↑ → 더 많은 방문 → 더 많은 댓글</p>
-    <p style="font-size:11.5px;color:var(--n500);font-style:italic">강화 요소: 댓글 작성 시 +500 마일리지 (FR-V12) · 매일 +50 enrich로 페이지 증가</p>
+    <p style="font-size:11.5px;color:var(--n500);font-style:italic">강화 요소: 도감 식재료 후기 작성 시 +200P · 매일 +50 enrich로 페이지 증가</p>
   </div>
 
   <div class="loop-card">
@@ -288,7 +288,7 @@ flowchart LR
 
   <div class="loop-card">
     <h4>🔁 Loop 3 — 90일 챌린지 완주 후 입소문</h4>
-    <p style="font-size:13px;color:var(--n700);margin:8px 0">완주자가 골고루 키트 무료로 받음 → 후기 작성 시 +5,000 → 인증샷 공유 → 신규 가입자 유입</p>
+    <p style="font-size:13px;color:var(--n700);margin:8px 0">완주자가 골고루 키트 무료로 받음 → 키트 리뷰 작성 시 +2,000P → 인증샷 공유 → 신규 가입자 유입</p>
     <p style="font-size:11.5px;color:var(--n500);font-style:italic">강화 요소: 키트 받은 순간 "내가 해냈다" 성취감 → 자발적 공유 동기 (Cialdini 일관성 원칙)</p>
   </div>
 
@@ -301,12 +301,12 @@ flowchart LR
     <tr><td><strong>ROI</strong></td><td><strong>~55배</strong></td><td>820k / 15k</td></tr>
   </table>
 
-  <h3>왜 결제 차감 마일리지인가? (현금 환전 X)</h3>
+  <h3>왜 결제 차감 포인트인가? (현금 환전 X)</h3>
   <ul>
-    <li><strong>매출 안전</strong> — 마일리지는 우리 매출만 차감. 슈퍼 사용자도 결국 우리 매출</li>
+    <li><strong>매출 안전</strong> — 포인트는 우리 매출만 차감. 슈퍼 사용자도 결국 우리 매출</li>
     <li><strong>farming 동기 X</strong> — 현금 환전 불가 → 부정 적립 동기 자체가 낮음</li>
     <li><strong>장부 단순</strong> — 발행·차감만 추적 → 외부 정산 X</li>
-    <li><strong>인플레 한도 X</strong> 가능 — "100만 마일리지 = 키트 10박스 무료" = 우리 입장 어차피 키트 10박스 정기 구매</li>
+    <li><strong>인플레 한도 X</strong> 가능 — "100만 포인트 = 키트 10박스 무료" = 우리 입장 어차피 키트 10박스 정기 구매</li>
   </ul>
 
   <p style="font-size:12px;color:var(--n600);font-style:italic">상세: <a href="/viral-engine-prd.html" style="color:var(--p700);font-weight:700">바이럴 엔진 PRD</a> · <a href="/리워드시스템.html" style="color:var(--p700);font-weight:700">리워드 시스템</a></p>
@@ -344,7 +344,7 @@ flowchart LR
   BALANCE[🌈 골고루 키트<br/>월 ₩108,000]
   COMPLETE[90일 완주]
   FREE[키트 1박스 무료]
-  REVIEW[리뷰 +5,000]
+  REVIEW[리뷰 +2,000P]
   SHARE[카톡 공유]
   NEW[신규 가입자]
 
@@ -401,7 +401,7 @@ flowchart LR
     <tr><th>위험</th><th>발생 가능성</th><th>대응</th></tr>
     <tr><td>도감 SEO 색인 지연</td><td>높음 (한국 검색 보수적)</td><td>Naver Search Advisor + 블로그 백링크 + 카톡 공유</td></tr>
     <tr><td>카톡 알림톡 템플릿 심사 거절</td><td>중간</td><td>심사 가이드 사전 학습 · 영업적 표현 X · 2-3회 재신청</td></tr>
-    <tr><td>키트 정기 구독 해지율 ↑</td><td>중간</td><td>해지 사유 수집 · 일시정지 옵션 · 마일리지 적립 가속</td></tr>
+    <tr><td>키트 정기 구독 해지율 ↑</td><td>중간</td><td>해지 사유 수집 · 일시정지 옵션 · 포인트 적립 가속</td></tr>
     <tr><td>친구 초대 farming</td><td>중간</td><td>IP + 디바이스 fingerprint + 결제카드 검증</td></tr>
     <tr><td>SENS 비용 폭증</td><td>낮음</td><td>발송 segment 선별 · MAU 5만 넘으면 인-앱 알림 우선</td></tr>
     <tr><td>키트 재고·배송 이슈</td><td>중간</td><td>CJ 대한통운 + 식품 가공 협력사 사전 계약</td></tr>
