@@ -162,6 +162,24 @@ export async function GET(req: Request) {
         const attends = !!daycareMap[cid];
         const uniqRef = [...new Set(ref)];
         const ts = computeTimeseries(byDate, menuFreq, catOf, today, { assertNoVeg: catReliable });
+        // 거부→수용 전환 감지(최근 28일) — 과거 거부했던 식재료를 이후 비거부로 먹기 시작 = '받아들이는 순간'. 코칭이 칭찬.
+        try {
+          const { data: trData } = await supabase.from('meal_logs')
+            .select('log_date,ingredients,refused,ate_well').eq('child_id', cid).gte('log_date', kstDateNDaysAgo(27));
+          const refFirst: Record<string, string> = {}; const accLast: Record<string, string> = {};
+          (trData || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; ate_well: boolean | null }) => {
+            if (r.refused) { const k = r.refused.trim(); if (k && (!refFirst[k] || r.log_date < refFirst[k])) refFirst[k] = r.log_date; }
+            if (r.ate_well !== false) (r.ingredients || []).forEach((i) => { if (!accLast[i] || r.log_date > accLast[i]) accLast[i] = r.log_date; });
+          });
+          let added = 0;
+          for (const k of Object.keys(refFirst)) {
+            if (added >= 2) break;
+            // 거부한 것(텍스트)이 이후 날짜에 비거부로 먹힌 식재료에 매칭되면 전환
+            if (Object.keys(accLast).some((ing) => (ing === k || ing.includes(k) || k.includes(ing)) && accLast[ing] > refFirst[k])) {
+              ts.push(`전에 거부했던 '${k}'를 최근 다시 받아들이기 시작했어요(거부→수용 전환)`); added++;
+            }
+          }
+        } catch { /* 전환 감지는 보조 — 실패해도 코칭 계속 */ }
         // P9 + 보고서: 최근 5일 중 기록된 날(결정론적) — 재사용 분기에서도 쓰도록 위로 끌어올림
         const RECENT_WINDOW = 5;
         const recentLoggedDays = Array.from({ length: RECENT_WINDOW }, (_, i) => kstDateNDaysAgo(i + 1))
