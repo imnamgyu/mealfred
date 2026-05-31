@@ -1,6 +1,8 @@
 /** /care/upgrade — 페이월. 정상가 4,900원/월·첫 달 무료. 챌린지·초대로 할인.
  *  카드 결제 등록은 아직 비활성(준비 중) — 클릭 진입·가격/혜택 안내까지. */
 'use client';
+import { useState, useEffect } from 'react';
+import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import Link from 'next/link';
 
@@ -13,6 +15,26 @@ const INCLUDED = [
 ];
 
 export default function UpgradePage() {
+  const supabase = createSupabaseBrowser();
+  const [balance, setBalance] = useState(0);
+  const [redeeming, setRedeeming] = useState(false);
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from('point_balance').select('balance').eq('parent_id', user.id).maybeSingle();
+      setBalance(data?.balance ?? 0);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  async function redeem() {
+    if (redeeming) return;
+    setRedeeming(true);
+    const r = await fetch('/api/points/redeem', { method: 'POST' }).then((x) => x.json()).catch(() => null);
+    setRedeeming(false);
+    if (r?.ok) { alert('포인트로 1개월 결제됐어요! 🎉'); window.location.href = '/care/me'; }
+    else alert(r?.reason === 'insufficient' ? '포인트가 부족해요 — 4,900P가 필요해요. 끼니 기록·친구 초대로 모아보세요!' : '결제에 실패했어요. 잠시 후 다시 시도해주세요.');
+  }
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
       <header className="px-5 pt-6 pb-3 border-b" style={{ borderColor: '#FFE8D0' }}>
@@ -43,9 +65,13 @@ export default function UpgradePage() {
           <div className="flex gap-2 text-[12px] py-1" style={{ color: '#3a5a4a' }}><span>🪙</span><div><strong>포인트 적립</strong> — 끼니 기록마다 +50P를 구독·골고루 키트에 사용</div></div>
         </div>
 
-        {/* 결제 — 아직 비활성 */}
+        {/* 포인트로 결제 — 잔액 4,900P 이상이면 바로 1개월 결제 */}
+        {balance >= 4900 && (
+          <button onClick={redeem} disabled={redeeming} className="w-full rounded-xl py-3.5 text-center font-extrabold text-sm text-white mb-2" style={{ background: redeeming ? '#9CA3AF' : '#16A085' }}>{redeeming ? '처리 중…' : `🪙 포인트로 결제 (4,900P 사용 = 1개월) · 보유 ${balance.toLocaleString()}P`}</button>
+        )}
+        {/* 카드 결제 — 아직 비활성 */}
         <button disabled className="w-full rounded-xl py-3.5 text-center font-extrabold text-sm" style={{ background: '#F4F4F5', color: '#B0B0B0', cursor: 'not-allowed' }}>카드 등록 (준비 중)</button>
-        <p className="text-[11px] text-center mt-2 leading-relaxed" style={{ color: '#9CA3AF' }}>결제 수단 등록은 곧 열려요. 지금은 <strong>첫 달 무료</strong>로 모든 기능을 쓰실 수 있어요.</p>
+        <p className="text-[11px] text-center mt-2 leading-relaxed" style={{ color: '#9CA3AF' }}>카드 결제는 곧 열려요. 지금은 <strong>첫 달 무료</strong> + <strong>포인트</strong>(끼니·친구 초대)로 계속 쓰실 수 있어요.</p>
 
         <Link href="/care/me" className="block text-center text-[12px] mt-4 mb-2" style={{ color: '#9CA3AF' }}>← 내 정보로 돌아가기</Link>
       </div>

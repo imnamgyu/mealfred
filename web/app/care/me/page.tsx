@@ -25,6 +25,7 @@ export default function MePage() {
   const [sub, setSub] = useState<{ lifetime: boolean; freeUntil: string; daysLeft: number } | null>(null);   // 구독 상태(첫 달 무료·6월 평생무료)
   const [chronicInput, setChronicInput] = useState('');   // 만성질환·특이사항
   const [chronicSaved, setChronicSaved] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);   // 포인트로 구독 결제 처리 중
 
   async function loadReferral() {
     setRefLoading(true); setRefErr('');
@@ -50,11 +51,14 @@ export default function MePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
       setNickname((user.user_metadata?.nickname as string) || '');
-      // 구독: 가입 첫 달 무료(가입일+30일). 6월 가입자는 평생 무료 프로모.
+      // 구독: 첫 달 무료(가입+30일) + 포인트 결제분(app_subscriptions.paid_until). 실제 만료 = max(둘). 6월가입=평생무료.
       const lifetime = user.created_at?.slice(0, 7) === '2026-06';
       const createdMs = user.created_at ? new Date(user.created_at).getTime() : Date.now();
       const freeUntilMs = createdMs + 30 * 86400e3;
-      setSub({ lifetime, freeUntil: new Date(freeUntilMs).toISOString().slice(0, 10), daysLeft: Math.max(0, Math.ceil((freeUntilMs - Date.now()) / 86400e3)) });
+      const { data: subRow } = await supabase.from('app_subscriptions').select('paid_until').eq('parent_id', user.id).maybeSingle();
+      const paidMs = subRow?.paid_until ? new Date(subRow.paid_until + 'T00:00:00+09:00').getTime() : 0;
+      const effMs = Math.max(freeUntilMs, paidMs);
+      setSub({ lifetime, freeUntil: new Date(effMs).toISOString().slice(0, 10), daysLeft: Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3)) });
       const { data } = await supabase.from('children')
         .select('nickname,age_band,birth_year,birth_month,allergens,chronic_conditions')
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
@@ -78,6 +82,15 @@ export default function MePage() {
     const text = '우리 아이 편식, 밀프레드로 매일 코칭받고 있어요! 이 링크로 들어와 보세요 👇';
     if (navigator.share) { try { await navigator.share({ title: '밀프레드', text, url: inviteUrl }); return; } catch {} }
     copyInvite();
+  }
+
+  async function redeemSub() {
+    if (redeeming) return;   // 더블클릭 차단(서버 멱등 아님 — 의도적 반복 결제 가능)
+    setRedeeming(true);
+    const r = await fetch('/api/points/redeem', { method: 'POST' }).then((x) => x.json()).catch(() => null);
+    setRedeeming(false);
+    if (r?.ok) window.location.reload();   // 잔액·만료일 갱신
+    else alert(r?.reason === 'insufficient' ? '포인트가 부족해요 — 4,900P가 필요해요. 끼니 기록·친구 초대로 모아보세요!' : '결제에 실패했어요. 잠시 후 다시 시도해주세요.');
   }
 
   async function saveChronic() {
@@ -126,6 +139,9 @@ export default function MePage() {
                   <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>구독하기 →</a>
                 </>
               ) : null}
+              {!sub?.lifetime && (points?.balance ?? 0) >= 4900 && (
+                <button onClick={redeemSub} disabled={redeeming} className="block w-full mt-2.5 rounded-xl py-2.5 text-[12px] font-extrabold text-white" style={{ background: redeeming ? '#9CA3AF' : '#16A085' }}>{redeeming ? '처리 중…' : '🪙 포인트로 1개월 연장 (4,900P 사용)'}</button>
+              )}
             </div>
 
             {/* 내 포인트 (M7) — 끼니 기록마다 +50P, 골고루 키트 구매에 사용(준비 중) */}
