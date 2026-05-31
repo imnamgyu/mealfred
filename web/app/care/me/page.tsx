@@ -56,7 +56,8 @@ export default function MePage() {
       const { data: subRow } = await supabase.from('app_subscriptions').select('paid_until').eq('parent_id', user.id).maybeSingle();
       const paidMs = subRow?.paid_until ? new Date(subRow.paid_until + 'T00:00:00+09:00').getTime() : 0;
       const effMs = Math.max(freeUntilMs, paidMs);
-      setSub({ lifetime, freeUntil: new Date(effMs).toISOString().slice(0, 10), daysLeft: Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3)) });
+      const freeUntilKst = new Date(effMs).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);   // KST 만료일(수동 +9 없이)
+      setSub({ lifetime, freeUntil: freeUntilKst, daysLeft: Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3)) });
       const { data } = await supabase.from('children')
         .select('nickname,age_band,birth_year,birth_month,allergens,chronic_conditions')
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
