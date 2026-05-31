@@ -11,7 +11,7 @@ import BottomNav from '@/components/BottomNav';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { normalizeIngredient } from '@/lib/lexicon';
 import { createMapper } from '@/lib/menuMapCore';
-import { kstToday } from '@/lib/date';
+import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { computeMealDefaults, pickDefault, type MealDefaults } from '@/lib/mealDefaults';
 
 type Slot = { key: string; label: string; emoji: string; time: string };
@@ -111,6 +111,7 @@ export default function CarePage() {
   const [dailyQ, setDailyQ] = useState<{ question: string; chips: string[]; answer: string } | null>(null);
   const [qInput, setQInput] = useState('');         // 오늘의 질문 수동 입력
   const [answeredNow, setAnsweredNow] = useState(false);   // 이번 세션에 답함 → 슬림 확인만
+  const [icfqFlag, setIcfqFlag] = useState(false);   // ICFQ 위험신호 2주 2개+ → 비알람 상담 안내
   // 개인 캐시 — 로그인 시 받아둔 그 엄마의 메뉴→식재료(교정/최근). 입력 즉시 해석(네트워크 0)
   const [personalMap, setPersonalMap] = useState<Record<string, string[]>>({});
   // 체위(키·몸무게) 시계열 — 언제든 입력. 홈 36종 모달 BMI·퍼센타일에 반영
@@ -242,6 +243,13 @@ export default function CarePage() {
       });
       if (Object.keys(recent).length) setPersonalMap((pm) => ({ ...recent, ...pm }));  // 교정(override)이 이김
 
+      // ICFQ 레드플래그 — 최근 14일 위험신호(answer=첫 칩) 2개+면 비알람 상담 안내(1회)
+      supabase.from('daily_questions').select('chips,answer,topic').eq('child_id', child.id).eq('topic', 'icfq')
+        .gte('q_date', kstDateNDaysAgo(14)).not('answer', 'is', null)
+        .then(({ data }) => {
+          const risk = (data || []).filter((r: { chips: string[] | null; answer: string | null }) => r.answer && r.chips?.[0] && r.answer.trim() === r.chips[0]).length;
+          if (risk >= 2) setIcfqFlag(true);
+        });
       // 오늘의 질문 — 있으면 read, 없으면 LLM 생성·캐싱 (식사 기록 = 상담 창구)
       const today = todayStr();
       const { data: q } = await supabase.from('daily_questions')
@@ -760,6 +768,14 @@ export default function CarePage() {
           </div>
           <p className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>✨ 파란 태그 = AI 추정 · 초록 태그 = 직접 추가 · 틀리면 ✕로 빼세요</p>
         </div>
+
+        {/* ICFQ 레드플래그 — 비알람·권유 (진단/장애 단어 없음, 2주 2신호+ 1회) */}
+        {icfqFlag && (
+          <div className="rounded-2xl p-4 mb-3" style={{ background: '#FFF8F0', border: '1.5px solid #FFD9A0' }}>
+            <div className="text-[11px] font-extrabold mb-1" style={{ color: '#C45A00' }}>🤝 잠깐, 이런 경우엔</div>
+            <div className="text-[12.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>최근 식사에서 신경 쓰이는 신호가 몇 가지 보였어요. 대부분 시간이 지나며 자연스럽게 나아지지만, 걱정되시면 <strong>소아과·영유아 검진 때 한 번 편하게 상의</strong>해보셔도 좋아요. 지금 잘 살피고 계세요.</div>
+          </div>
+        )}
 
         {/* 오늘의 질문 (AI 상담 — 하루 1개) — 답하면 사라짐 */}
         {dailyQ?.question && !dailyQ.answer && (

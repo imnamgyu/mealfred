@@ -141,9 +141,11 @@ export default function Home() {
           setGroups(fg);
           setIngredientCount(new Set(allIng).size);
           setEatenSet(new Set(allIng));
-          // 누적 '잘 먹는(받아들인)' 식재료 종 수 — 130종(초등 입학 전) 목표용.
-          // 1회 맛봄이 아니라 '2회 이상 등장 + 거부로 기록 안 됨' = 수용(반복노출→수용, HabEat/NESR).
-          supabase.from('meal_logs').select('ingredients,refused').eq('child_id', child.id).then(({ data }) => {
+          // '잘 먹는(현재 받아들인)' 식재료 종 수 — 130종 목표.
+          // 1회 맛봄 X. '최근 6개월 내 2회 이상 + 거부 기록 없음' = 현재 레퍼토리(반복노출→수용, HabEat/NESR).
+          // 6개월 윈도우: 오래전 한두 번 맛본 게 '잘 먹는'으로 잡히지 않게(이사님 지적).
+          const repCut = kstDateNDaysAgo(180);
+          supabase.from('meal_logs').select('ingredients,refused,log_date').eq('child_id', child.id).gte('log_date', repCut).then(({ data }) => {
             const freq: Record<string, number> = {}; const refusedSet = new Set<string>();
             (data || []).forEach((r: { ingredients: string[] | null; refused: string | null }) => {
               (r.ingredients || []).forEach((i) => { freq[i] = (freq[i] || 0) + 1; });
@@ -551,7 +553,7 @@ export default function Home() {
           )}
           {/* 누적 '잘 먹는(받아들인)' 식재료 — 초등 입학 전 130종(레퍼토리). 1회 맛봄 X, 2회+·비거부 = 수용 */}
           <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F0F0F0' }}>
-            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>잘 먹는 식재료 <span style={{ color: '#9CA3AF' }}>(누적·2회+ 비거부)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
+            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>잘 먹는 식재료 <span style={{ color: '#9CA3AF' }}>(최근 6개월·2회+)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
             <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (cumDisp / 130) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
             <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>
               {cumDisp < 20 ? <>아직 <strong style={{ color: '#C62828' }}>편식 경계</strong> — 잘 먹는 30종부터 도전! (SOS 기준)</>
@@ -559,7 +561,7 @@ export default function Home() {
                 : cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>잘 먹는 130종</strong>까지 {130 - cumDisp}종 더!</>
                 : <>🎉 초등 준비 완료 — 잘 먹는 130종 달성!</>}
             </div>
-            <div className="text-[10px] text-center mt-1" style={{ color: '#B0B0B0' }}>한 번 맛본 게 아니라 <strong>2번 이상 거부 없이</strong> 먹은 식재료예요</div>
+            <div className="text-[10px] text-center mt-1" style={{ color: '#B0B0B0' }}>최근 6개월 내 <strong>2번 이상 거부 없이</strong> 먹은 식재료예요 (오래전 한두 번은 제외)</div>
           </div>
         </div>
 

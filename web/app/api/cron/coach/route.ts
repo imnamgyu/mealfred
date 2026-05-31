@@ -17,7 +17,7 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServer } from '@/lib/supabase/server';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 
@@ -201,12 +201,17 @@ export async function GET(req: Request) {
             .select('question,answer').eq('child_id', cid).neq('q_date', today)
             .order('q_date', { ascending: false }).limit(5);
           const pastQA = (pastQ || []).map((p: { question: string; answer: string | null }) => ({ q: p.question, a: p.answer || '' }));
-          const q = await generateQuestion({
+          // 2주 주기 = ICFQ 위험 스크리너(drip), 그 외 = 일반 LLM 질문
+          const icfq = icfqForDate(today);
+          let q: { question: string; topic?: string | null; chips?: string[] | null };
+          let icfqKey: string | null = null;
+          if (icfq) { q = { question: icfq.q, topic: 'icfq', chips: icfq.chips }; icfqKey = icfq.key; }
+          else q = await generateQuestion({
             childName: meta.nickname, ageBand: meta.age_band,
             recentMeals, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], refused: uniqRef, attendsDaycare: daycareMap[cid], pastQA,
           });
           if (q.question) {
-            const qCtx = { recentMeals: recentMeals.slice(0, 12), homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], attendsDaycare: !!daycareMap[cid], topic: q.topic || null, source: 'cron' };
+            const qCtx = { recentMeals: recentMeals.slice(0, 12), homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], attendsDaycare: !!daycareMap[cid], topic: q.topic || null, source: 'cron', icfq: icfqKey };
             await supabase.from('daily_questions').upsert(
               { child_id: cid, parent_id: meta.parent_id, q_date: today, question: q.question, topic: q.topic || null, chips: q.chips || null, context: qCtx },
               { onConflict: 'child_id,q_date' }

@@ -163,6 +163,29 @@ export async function generateLetter(input: LetterInput): Promise<{ letter: stri
   return { letter: (out.letter as string) || '', oneliner: (out.oneliner as string) || '' };
 }
 
+// ── ICFQ 위험 스크리너 (drip) ────────────────────────────────────────────────
+// Feeding Matters ICFQ 취지를 부드럽게 번역. 2주 주기로 '오늘의 질문' 자리에 1개씩 끼워넣어 누적.
+// 위험신호(risk 칩) 2주 내 2개+면 비알람 톤으로 '전문가 상담 고려' 1회 안내(레드플래그). '진단/장애' 단어 금지.
+export const ICFQ_ITEMS: { key: string; q: string; chips: string[]; risk: string }[] = [
+  { key: 'gag', q: '요즘 식사 중에 사레·기침·헛구역질이 자주 있었나요?', chips: ['네, 자주', '가끔', '아니요'], risk: '네, 자주' },
+  { key: 'variety', q: '아이가 먹는 음식 종류가 또래보다 많이 적다고 느끼시나요?', chips: ['네', '보통', '아니요'], risk: '네' },
+  { key: 'growth', q: '요즘 아이 키·몸무게(성장)가 걱정되시나요?', chips: ['네', '조금', '아니요'], risk: '네' },
+  { key: 'stress', q: '식사 시간이 늘 전쟁처럼 너무 힘드신가요?', chips: ['네, 자주', '가끔', '아니요'], risk: '네, 자주' },
+  { key: 'texture', q: '덩어리진 음식을 못 삼키거나 통째로 자주 뱉나요?', chips: ['네', '가끔', '아니요'], risk: '네' },
+];
+const ICFQ_BY_KEY = Object.fromEntries(ICFQ_ITEMS.map((i) => [i.key, i]));
+/** q_date('YYYY-MM-DD') 기반 결정론 — 14일마다 ICFQ 항목 1개 회전(난수 X). 아니면 null(일반 질문). */
+export function icfqForDate(qDate: string): { key: string; q: string; chips: string[]; risk: string } | null {
+  const days = Math.floor(Date.parse(qDate) / 86400000);
+  if (!Number.isFinite(days) || days % 14 !== 0) return null;
+  return ICFQ_ITEMS[Math.floor(days / 14) % ICFQ_ITEMS.length];
+}
+/** ICFQ 답이 위험신호인지 (key + answer). */
+export function isIcfqRisk(key: string | undefined | null, answer: string | undefined | null): boolean {
+  if (!key || !answer) return false;
+  return ICFQ_BY_KEY[key]?.risk === answer.trim();
+}
+
 // ── 오늘의 질문 ────────────────────────────────────────────────────────────
 
 export type LoggedFood = { food: string; place?: Place | null; ateWell?: boolean | null; slot?: string; daysAgo?: number };
