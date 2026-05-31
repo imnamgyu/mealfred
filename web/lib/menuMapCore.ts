@@ -103,6 +103,7 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   // ── /mealfred-food-mapping 실데이터 튜닝 반영 ──
   '피자': { ing: ['빵','치즈','토마토'], processed: true }, '떡갈비': { ing: ['소고기','양파','대파'] },
   '탕평채': { ing: ['소고기','숙주나물','계란','김'] },
+  '햄': { ing: ['햄'], processed: true }, '핫도그': { ing: ['소시지','빵'], processed: true },
 };
 
 const PARTIAL_KEYS = Object.keys(MENU_MAP)
