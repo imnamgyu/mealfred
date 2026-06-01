@@ -22,6 +22,7 @@ import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { selectScenario } from '@/lib/coachScenarios';
+import { chronicGuidanceText } from '@/lib/coachChronic';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
@@ -110,9 +111,9 @@ export async function GET(req: Request) {
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
     // 자녀 메타 + 오늘 이미 생성된 질문(중복 회피)
-    const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band').in('id', activeIds);
-    const kidMap: Record<string, { parent_id: string; nickname: string; age_band: string }> = {};
-    (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string }) => { kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band }; });
+    const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band,chronic_conditions').in('id', activeIds);
+    const kidMap: Record<string, { parent_id: string; nickname: string; age_band: string; chronic: string | null }> = {};
+    (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string; chronic_conditions: string | null }) => { kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band, chronic: k.chronic_conditions }; });
     const { data: todayQs } = await supabase.from('daily_questions').select('child_id').eq('q_date', today).in('child_id', activeIds);
     const hasQToday = new Set((todayQs || []).map((q: { child_id: string }) => q.child_id));
     // 등원 여부 — daycare 컬럼 마이그레이션 전이면 에러(컬럼없음) → 전부 false로 안전 처리
@@ -236,6 +237,7 @@ export async function GET(req: Request) {
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
             scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
+            chronicGuidance: chronicGuidanceText(meta.chronic),   // 만성질환 식이 방향(부모 입력 기반)
           });
           letter = gen.letter; oneliner = gen.oneliner;
         }

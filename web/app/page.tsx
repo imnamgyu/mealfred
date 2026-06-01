@@ -148,7 +148,7 @@ export default function Home() {
         setLoggedIn(true);
         setSignupDate(user.created_at || null);   // 90일 챌린지 시작일
         supabase.from('point_balance').select('balance').eq('parent_id', user.id).maybeSingle().then(({ data: pb }) => setPointBal(pb?.balance ?? 0));
-        const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month').eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
+        const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month,chronic_conditions').eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
           setChildMeta({ sex: null, birthY: child.birth_year ?? null, birthM: child.birth_month ?? null });
@@ -290,7 +290,7 @@ export default function Home() {
                   recentNotes: notes, refused: [...new Set(ref)], reds,
                   homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
                   covered: fg.covered, missing: fg.missing, timeseries: ts, attendsDaycare,
-                  eatenCount: new Set(allIng).size, pastLetters,
+                  eatenCount: new Set(allIng).size, pastLetters, chronicConditions: child.chronic_conditions,
                 }),
               }).then((r) => r.json()).catch(() => null);
               if (r?.letter) {

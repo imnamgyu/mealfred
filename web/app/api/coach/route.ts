@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLetter } from '@/lib/coach';
 import { selectScenario } from '@/lib/coachScenarios';
+import { chronicGuidanceText } from '@/lib/coachChronic';
 
 const ALLOWED = ['https://www.mealfred.com', 'https://mealfred.com', 'https://app.mealfred.com', 'https://mealfred-app.vercel.app'];
 function cors(req: NextRequest) {
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
       timeseries: b.timeseries,
       pastLetters: b.pastLetters,
       scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
+      chronicGuidance: chronicGuidanceText(b.chronicConditions),   // 만성질환 식이 방향(클라가 보내면)
     });
     return NextResponse.json({ letter, oneliner }, { headers });
   } catch (e: unknown) {

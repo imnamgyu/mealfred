@@ -117,6 +117,7 @@ export type LetterInput = {
   recentWindowDays?: number;       // P9: 미기록 판단 창(최근 N일, 보통 5)
   recentLoggedDays?: number;       // P9: 그 창에서 실제 기록된 날 수 (코드가 결정론적으로 계산)
   scenario?: { id: string; label: string; promptHint: string; avoid: string };   // 오늘의 코칭 시나리오(편지 각도) — lib/coachScenarios
+  chronicGuidance?: string;        // 만성질환 식이 코칭 방향(부모 입력 기반·진단 아님) — lib/coachChronic
 };
 
 function buildLetterUser(b: LetterInput): string {
@@ -152,10 +153,13 @@ function buildLetterUser(b: LetterInput): string {
   const scenarioBlock = b.scenario
     ? `\n[오늘의 코칭 각도 — 이 관점으로 편지의 초점을 잡으세요. 단, 위 P1~P10 규칙·아래 작성 지침은 그대로 지킵니다]\n${b.scenario.promptHint}\n이 각도에서 피할 것: ${b.scenario.avoid}\n`
     : '';
+  const chronicBlock = b.chronicGuidance
+    ? `\n[이 아이의 만성질환(부모가 알림) — ⚠️ 진단·치료·처방 금지(코치는 의사가 아님). 아래 식이 '방향'만 자연스럽게 한 군데 녹이고, 강요·체중 언급·과도한 식품 제한은 금지. 증상이 심하면 전문가 상담을 1회 부드럽게 권할 수 있음]\n${b.chronicGuidance}\n`
+    : '';
 
   return `${history}[이번 주 상황 — 아래 사실만 사용. 영양/과거/숫자를 추가로 지어내지 말 것]
 ${ctx}
-${scenarioBlock}
+${scenarioBlock}${chronicBlock}
 작성 지침:
 - letter: 3~4문장. ① 노력 인정 + 거부는 정상(반복 노출) 안심 → ② 위 데이터에서 읽은 사실 1개(우리 분석값·시계열만) → ③ 오늘의 행동 1개. 행동은 '집 아침·저녁 끼니' 또는 '기관에서 거부한 식재료를 집에서 부담 없이 다시 만나기'에서만. 어린이집·유치원 급식 메뉴 변경 요청 금지. 점수·등급 금지.
 - ⚠️ **매일 새로움(중복 금지)**: ③ 행동이 최근 2일 편지와 같은 개선점(예: 또 콩류)이라면 같은 말을 반복하지 말고 — (a) 같은 개선점이라도 **다른 식재료·다른 방법**으로 바꾸거나, (b) 정말 고칠 게 그것 하나뿐이면 오늘은 행동을 빼고 **잘하고 있는 것을 과거와 다른 식재료·다른 측면으로 구체적으로 칭찬만** 하라. ① 칭찬도 과거 편지와 겹치지 않게(같은 'N가지 식재료' 같은 문구 반복 금지).
