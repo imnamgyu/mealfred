@@ -204,7 +204,7 @@ export default function MePage() {
             <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-xs font-bold" style={{ color: '#8a7a6a' }}>우리 아이들{children.length > 0 && <span style={{ color: '#C45A00' }}> · {children.length}명</span>}</div>
-                <a href="/onboarding" className="text-[11px] font-extrabold" style={{ color: '#FF6B1A' }}>+ 자녀 추가</a>
+                <a href="/onboarding?add=1" className="text-[11px] font-extrabold" style={{ color: '#FF6B1A' }}>+ 자녀 추가</a>
               </div>
               {children.length === 0 ? (
                 <div className="text-center py-3">
@@ -226,7 +226,7 @@ export default function MePage() {
                         {c.chronic_conditions?.split(/[,，·]/).map((x) => x.trim()).filter(Boolean).map((x) => <span key={x} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FFF3E0', color: '#E65100' }}>🩺 {x}</span>)}
                       </div>
                     ) : null}
-                    <a href="/onboarding" className="inline-block mt-1.5 text-[11px] font-bold" style={{ color: '#FF6B1A' }}>정보·질환 수정 →</a>
+                    <a href={`/onboarding?edit=${c.id}`} className="inline-block mt-1.5 text-[11px] font-bold" style={{ color: '#FF6B1A' }}>정보·질환 수정 →</a>
                   </div>
                 );
               })}

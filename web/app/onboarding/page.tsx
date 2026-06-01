@@ -53,14 +53,20 @@ export default function OnboardingPage() {
 
   const supabase = createSupabaseBrowser();
 
-  // 기존 자녀가 있으면 수정 모드로 — 모든 필드 미리 채움 (체위는 growth_logs 최신값)
+  // 모드: ?edit=<id> 특정 자녀 수정 · ?add=1 새 자녀(빈 폼·insert) · 무파라미터=첫 자녀(하위호환)
   useEffect(() => {
     (async () => {
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+      const editParam = params.get('edit');
+      const addMode = params.get('add') === '1';
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setHydrating(false); return; }
-      const { data: child } = await supabase.from('children')
+      if (!user || addMode) { setHydrating(false); return; }   // 새 자녀 추가 → 미리채움 안 함(insert)
+      const base = supabase.from('children')
         .select('id,nickname,birth_year,birth_month,sex,height_cm,weight_kg,allergens,chronic_conditions')
-        .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
+        .eq('parent_id', user.id);
+      const { data: child } = editParam
+        ? await base.eq('id', editParam).maybeSingle()
+        : await base.order('id', { ascending: true }).limit(1).maybeSingle();
       if (child) {
         setEditId(child.id);
         setNickname(child.nickname || '');
