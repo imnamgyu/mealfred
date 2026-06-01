@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, CATEGORY_GROUP, NUTRIENT_FOODS, KDRI_NUTRIENTS, KDRI_EXCLUDED, KDRI_AGE_LABEL, kdriAgeBandOf, type AgeBandKey, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
-import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
+import { computeProgress, periodMetrics, bmiTrend, type ProgressResult, type PeriodMetrics, type ProgressRow } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
@@ -111,6 +111,7 @@ export default function Home() {
   const [growth, setGrowth] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string } | null>(null);
   const [growthList, setGrowthList] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string }[]>([]);   // BMI 급변 감지용 최근 측정
   const [progress, setProgress] = useState<ProgressResult | null>(null);   // 편식 변화(최근28 vs 직전28)
+  const [monthSum, setMonthSum] = useState<{ key: string; cur: PeriodMetrics; prev: PeriodMetrics | null } | null>(null);   // 이번 달 요약(크론 월 롤업)
   const [childMeta, setChildMeta] = useState<{ sex: Sex | null; birthY: number | null; birthM: number | null }>({ sex: null, birthY: null, birthM: null });
   const [groups, setGroups] = useState<{ covered: string[]; missing: string[] }>({ covered: [], missing: [] });
   const [groupSig, setGroupSig] = useState<{ signals: GroupSignal[]; proteinOk: boolean }>({ signals: [], proteinOk: false });
@@ -231,6 +232,20 @@ export default function Home() {
             setStaleMap(sm);
             setLoggedDays(new Set((data || []).map((r: { log_date: string }) => r.log_date)).size);   // 90일 챌린지 기록 일수
           });
+          // 이번 달 요약 카드 — meal_logs 직접 집계(미래 제외 lte today, 크론 stale 무관). periodMetrics 재사용.
+          {
+            const curK = kstToday().slice(0, 7);
+            const [yy, mm] = curK.split('-').map(Number);
+            const prevK = mm === 1 ? `${yy - 1}-12` : `${yy}-${String(mm - 1).padStart(2, '0')}`;
+            supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
+              .eq('child_id', child.id).gte('log_date', `${prevK}-01`).lte('log_date', dates[0])
+              .then(({ data }) => {
+                const ms = (data || []) as ProgressRow[];
+                const curRows = ms.filter((r) => r.log_date.slice(0, 7) === curK);
+                const prevRows = ms.filter((r) => r.log_date.slice(0, 7) === prevK);
+                if (curRows.length) setMonthSum({ key: curK, cur: periodMetrics(curRows), prev: prevRows.length ? periodMetrics(prevRows) : null });
+              });
+          }
           // 편식 변화(효과측정) — 최근 56일 기록으로 최근28 vs 직전28 비교
           supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
             .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(55)).lte('log_date', dates[0])
@@ -591,6 +606,42 @@ export default function Home() {
           </div>
         </div>
 
+        {/* 이번 달 요약 — period_summaries(크론 월 롤업), 지난달 비교. 부모가 '한 달 궤적'으로 보게(일희일비 방지) */}
+        {!isMockup && monthSum && (() => {
+          const { cur, prev, key } = monthSum;
+          const mo = Number(key.slice(5, 7));
+          const vDelta = prev ? cur.variety - prev.variety : null;
+          const eDelta = (prev && cur.enjoyPct != null && prev.enjoyPct != null) ? cur.enjoyPct - prev.enjoyPct : null;
+          const msg = !prev ? '이번 달 기록을 시작했어요 — 한 달 쌓이면 변화가 보여요'
+            : (vDelta != null && vDelta > 0) ? `지난달보다 다양성이 ${vDelta}종 늘었어요 · 잘하고 계세요!`
+            : (eDelta != null && eDelta > 0) ? '지난달보다 잘 먹는 비율이 올랐어요 · 좋아지고 있어요!'
+            : '꾸준히 기록하며 한 걸음씩 가고 있어요';
+          return (
+            <div className="rounded-2xl p-4 mb-3 border" style={{ background: 'linear-gradient(135deg,#FFF8F0,#FFF1E6)', borderColor: '#FFD8B0' }}>
+              <div className="flex items-center justify-between mb-2.5">
+                <strong className="text-sm" style={{ color: '#1a2b4a' }}>📅 {mo}월 우리 아이 요약</strong>
+                <span className="text-[10.5px]" style={{ color: '#9CA3AF' }}>이번 달 누적{prev ? ' · 지난달 대비' : ''}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-xl bg-white p-2.5 text-center" style={{ border: '1px solid #FFE8D0' }}>
+                  <div className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>다양성</div>
+                  <div className="text-[15px] font-extrabold" style={{ color: '#1a2b4a' }}>{cur.variety}종</div>
+                  {vDelta != null && vDelta !== 0 && <div className="text-[9.5px] font-bold" style={{ color: vDelta > 0 ? '#16A085' : '#C45A00' }}>{vDelta > 0 ? '▲' : '▼'}{Math.abs(vDelta)}종</div>}
+                </div>
+                <div className="rounded-xl bg-white p-2.5 text-center" style={{ border: '1px solid #FFE8D0' }}>
+                  <div className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>기록</div>
+                  <div className="text-[15px] font-extrabold" style={{ color: '#1a2b4a' }}>{cur.entries}끼니</div>
+                </div>
+                <div className="rounded-xl bg-white p-2.5 text-center" style={{ border: '1px solid #FFE8D0' }}>
+                  <div className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>잘 먹음</div>
+                  <div className="text-[15px] font-extrabold" style={{ color: '#1a2b4a' }}>{cur.enjoyPct != null ? `${cur.enjoyPct}%` : '–'}</div>
+                  {eDelta != null && eDelta !== 0 && <div className="text-[9.5px] font-bold" style={{ color: eDelta > 0 ? '#16A085' : '#C45A00' }}>{eDelta > 0 ? '▲' : '▼'}{Math.abs(eDelta)}%p</div>}
+                </div>
+              </div>
+              <div className="text-[11px] mt-2.5" style={{ color: '#8a7a6a' }}>{msg}</div>
+            </div>
+          );
+        })()}
         {/* 편식 변화(효과측정) — 이번 달 vs 지난 달, 충분한 기록 있을 때만 */}
         {!isMockup && progress?.hasComparison && progress.metrics.length > 0 && (
           <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#C8E6C9', background: 'linear-gradient(135deg,#F1F8F4,white)' }}>
