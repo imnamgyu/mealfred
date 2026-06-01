@@ -78,18 +78,9 @@ export default async function AdminHome() {
 
   return (
     <main style={{ maxWidth: 720, margin: '0 auto', padding: 24, fontFamily: 'Pretendard, sans-serif' }}>
-      <header style={{ marginBottom: 18, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>🧪 코칭 QA 콘솔</h1>
-          <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>계정 {rows.length}명 · 아이를 누르면 대화 쓰레드로 검수</p>
-        </div>
-        <div style={{ display: 'flex', gap: 6 }}>
-          <Link href="/admin/funnel" style={{ fontSize: 12, fontWeight: 800, color: '#C45A00', background: '#FFF4E5', border: '1px solid #FFD0A0', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>📊 펀넬</Link>
-          <Link href="/admin/nong" style={{ fontSize: 12, fontWeight: 800, color: '#1B5E20', background: '#F0F7F0', border: '1px solid #A5D6C6', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🌾 농진청 DB</Link>
-          <Link href="/admin/nutrition" style={{ fontSize: 12, fontWeight: 800, color: '#1a2b4a', background: '#FFF0E0', border: '1px solid #FFD0A0', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🧬 영양 매핑</Link>
-          <Link href="/admin/cron" style={{ fontSize: 12, fontWeight: 800, color: '#fff', background: '#1a2b4a', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🌙 크론</Link>
-          <Link href="/admin/grant" style={{ fontSize: 12, fontWeight: 800, color: '#fff', background: '#16A085', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>🎟 평생무료</Link>
-        </div>
+      <header style={{ marginBottom: 18 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>📊 대시보드</h1>
+        <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>계정 {rows.length}명 · 아이를 누르면 대화 쓰레드로 검수</p>
       </header>
 
       {/* 대시보드 — 가입자·식단표 평가 이용 (어제 대비 누적·오늘) */}
