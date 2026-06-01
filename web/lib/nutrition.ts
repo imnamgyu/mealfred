@@ -214,8 +214,14 @@ export type NutrientSignal = { nutrient: string; daysCovered: number; level: 'gr
  * 기록 묶음(여러 날·끼니)의 식재료 → 영양소 신호등
  * @param ingredientsByDay  날짜별 먹은 식재료 목록 (중복 제거 전)
  */
+// KEY 15종 밴드(KDRI_BAND와 동일 기준 — KEY의 '오메가3'=KDRI의 EPA+DHA)
+const KEY_BAND: Record<string, 'daily' | 'frequent' | 'occasional'> = {
+  '단백질': 'daily', '칼슘': 'daily', '비타민C': 'daily', '식이섬유': 'daily', '칼륨': 'daily', '마그네슘': 'daily',
+  '비타민A': 'frequent', '아연': 'frequent', '엽산': 'frequent', '비타민K': 'frequent',
+  '철': 'occasional', '비타민D': 'occasional', '오메가3': 'occasional', '비타민B12': 'occasional', '요오드': 'occasional',
+};
 export function computeSignals(ingredientsByDay: string[][], catOf?: CatOf): NutrientSignal[] {
-  const totalDays = ingredientsByDay.length || 1;
+  const recordedDays = ingredientsByDay.length;   // 데이터 가드용 실제 기록일 수
   // 영양소별 — 며칠 동안 커버됐는지
   const coverDays: Record<string, number> = {};
   KEY_NUTRIENTS.forEach((n) => { coverDays[n] = 0; });
@@ -230,12 +236,12 @@ export function computeSignals(ingredientsByDay: string[][], catOf?: CatOf): Nut
 
   return KEY_NUTRIENTS.map((n) => {
     const d = coverDays[n];
-    const ratio = d / totalDays;
+    const need = KDRI_BAND_NEED[KEY_BAND[n] || 'frequent'];   // 매일5/자주4/가끔2 (근거 보고서)
     let level: 'green' | 'yellow' | 'red';
-    // 3일 이상 OR 절반 이상 커버 = 충분 (생선·미역 주2회도 인정)
-    if (d >= 3 || ratio >= 0.5) level = 'green';
-    else if (d > 0) level = 'yellow';        // 가끔 (1~2일)
-    else level = 'red';                       // 한 번도 X
+    if (recordedDays < 3) level = 'yellow';                   // 데이터 가드(NutrientSignal엔 reference가 없어 yellow로 보류)
+    else if (d >= need) level = 'green';
+    else if (d > 0) level = 'yellow';
+    else level = (n === '비타민D' || recordedDays < 5) ? 'yellow' : 'red';   // D는 빈도 red 비활성, 기록 5일 미만이면 red 보류
     return { nutrient: n, daysCovered: d, level };
   });
 }
@@ -374,8 +380,18 @@ export type KdriSignal = { nm: string; val: string; group: string; status: 'gree
  * 36종 KDRI 신호등 — 실데이터(식단표에서 얼마나 자주 만났나=빈도)로 평가.
  * mapped 영양소만 개인 신호 계산, 미매핑은 'reference'(KDRI 기준만, 오탐 방지).
  */
+// 영양소 밴드(근거 보고서 nutrient-signal-report.html) — 체내 저장·식품 분포·결핍 위험 3축.
+// 매일군 green 5일+ / 자주군 4일+ / 가끔군 2일+. (없으면 frequent 기본)
+const KDRI_BAND: Record<string, 'daily' | 'frequent' | 'occasional'> = {
+  '단백질': 'daily', '탄수화물': 'daily', '식이섬유': 'daily', '칼슘': 'daily', '인': 'daily', '칼륨': 'daily', '마그네슘': 'daily', '비타민C': 'daily', '티아민(B1)': 'daily', '리보플라빈(B2)': 'daily', '니아신': 'daily', '판토텐산': 'daily', '비오틴': 'daily',
+  '비타민A': 'frequent', '비타민K': 'frequent', '엽산': 'frequent', '비타민B6': 'frequent', '아연': 'frequent', '구리': 'frequent', '망간': 'frequent', '콜린': 'frequent',
+  '철': 'occasional', '비타민D': 'occasional', '비타민E': 'occasional', '비타민B12': 'occasional', '셀레늄': 'occasional', '요오드': 'occasional', 'EPA+DHA': 'occasional', 'α-리놀렌산': 'occasional', '리놀레산': 'occasional', '몰리브덴': 'occasional',
+};
+const KDRI_BAND_NEED = { daily: 5, frequent: 4, occasional: 2 } as const;
+
 export function computeKdriSignals(ingredientsByDay: string[][], catOf?: CatOf): KdriSignal[] {
-  const totalDays = ingredientsByDay.length || 1;
+  const recordedDays = ingredientsByDay.length;   // 실제 기록된 날 수(데이터 가드용)
+  const denom = 7;                                 // 분모는 '달력 7일' 고정 — 며칠만 기록해도 비율이 부풀려지던 누수 교정
   const cover: Record<string, number> = {};
   ingredientsByDay.forEach((day) => {
     const set = new Set<string>();
@@ -384,10 +400,17 @@ export function computeKdriSignals(ingredientsByDay: string[][], catOf?: CatOf):
   });
   return KDRI_NUTRIENTS.map((k): KdriSignal => {
     if (!k.mapped) return { nm: k.nm, val: k.val, group: k.group, status: 'reference', pct: 0 };
+    // 데이터 가드: 기록 3일 미만이면 섣불리 판정하지 않고 보류(reference)
+    if (recordedDays < 3) return { nm: k.nm, val: k.val, group: k.group, status: 'reference', pct: 0 };
     const d = cover[k.mapped] || 0;
-    const ratio = d / totalDays;
-    const status = d >= 3 || ratio >= 0.5 ? 'green' : d > 0 ? 'yellow' : 'red';
-    return { nm: k.nm, val: k.val, group: k.group, status, pct: Math.min(100, Math.round(ratio * 100)) };
+    const need = KDRI_BAND_NEED[KDRI_BAND[k.nm] || 'frequent'];   // 밴드별 green 문턱(5/4/2일)
+    const pct = Math.min(100, Math.round((d / denom) * 100));
+    let status: 'green' | 'yellow' | 'red';
+    if (d >= need) status = 'green';
+    else if (d > 0) status = 'yellow';
+    // d===0(한 번도 안 닿음): 비타민D는 빈도 red 비활성(보충제로 관리하는 영양소), 기록 5일 미만이면 red 보류(yellow 클램프)
+    else status = (k.nm === '비타민D' || recordedDays < 5) ? 'yellow' : 'red';
+    return { nm: k.nm, val: k.val, group: k.group, status, pct };
   });
 }
 
