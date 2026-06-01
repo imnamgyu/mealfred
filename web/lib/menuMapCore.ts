@@ -104,6 +104,15 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   '피자': { ing: ['빵','치즈','토마토'], processed: true }, '떡갈비': { ing: ['소고기','양파','대파'] },
   '탕평채': { ing: ['소고기','숙주나물','계란','김'] },
   '햄': { ing: ['햄'], processed: true }, '핫도그': { ing: ['소시지','빵'], processed: true },
+  // ── 가공식품 베이스 사전 (Phase1) — 사전에 없으면 LLM 직행하던 한정 품목. 결정론 보강·환각 차단 ──
+  '소시지': { ing: ['소시지'], processed: true }, '비엔나': { ing: ['소시지'], processed: true }, '비엔나소시지': { ing: ['소시지'], processed: true },
+  '소시지구이': { ing: ['소시지'], processed: true }, '베이컨': { ing: ['베이컨'], processed: true },
+  '스팸': { ing: ['햄'], processed: true }, '런천미트': { ing: ['햄'], processed: true }, '햄구이': { ing: ['햄'], processed: true },
+  '맛살': { ing: ['맛살'], processed: true }, '게맛살': { ing: ['맛살'], processed: true }, '크래미': { ing: ['맛살'], processed: true }, '맛살볶음': { ing: ['맛살','양파'], processed: true },
+  '너겟': { ing: ['닭고기'], processed: true }, '치킨너겟': { ing: ['닭고기'], processed: true }, '치킨너깃': { ing: ['닭고기'], processed: true },
+  '미트볼': { ing: ['소고기'], processed: true }, '동그랑땡': { ing: ['돼지고기','두부','계란'], processed: true },
+  '핫바': { ing: ['어묵'], processed: true }, '오뎅': { ing: ['어묵'], processed: true }, '오뎅국': { ing: ['어묵','무','대파'], processed: true },
+  '햄버거': { ing: ['빵','소고기','양상추'], processed: true }, '핫케이크': { ing: ['빵','계란','우유'], processed: true },
 };
 
 const PARTIAL_KEYS = Object.keys(MENU_MAP)
@@ -136,12 +145,17 @@ export function createMapper(poolNames: string[]): Mapper {
    ['닭다리', '닭고기'], ['닭', '닭고기'], ['계란', '계란'], ['달걀', '계란']].forEach(([s, r]) => {
     if (vocab.has(r) || r === '계란' || r.endsWith('버섯')) scanMap.set(s, r);
   });
+  // Phase1 — 1글자 표준명 누수 보강: 안전한 1글자(닭=식품 맥락 거의 항상 닭고기)만 스캔 허용 + 무의 2자 표면형.
+  // (1글자 '무'는 '오이무침' 등 오탐 위험이라 제외하고, 바운드된 2자 표면형만 등재)
+  const ONE_CHAR_SCAN = new Set(['닭']);
+  ([['무국', '무'], ['무채', '무'], ['무생채', '무'], ['무조림', '무'], ['무나물', '무'], ['무볶음', '무']] as [string, string][])
+    .forEach(([s, r]) => scanMap.set(s, r));   // 닭* 는 위 '닭' 1글자 스캔이 커버(닭조림·닭살·순살닭 등)
   const SCAN_TOKENS: [string, string][] = [...scanMap.entries()].sort((a, b) => b[0].length - a[0].length);
 
   function scanIngredients(menu: string): string[] {
     const found = new Set<string>();
     for (const [surface, real] of SCAN_TOKENS) {
-      if (surface.length >= 2 && menu.includes(surface)) found.add(real);
+      if ((surface.length >= 2 || ONE_CHAR_SCAN.has(surface)) && menu.includes(surface)) found.add(real);
     }
     if (/밥|죽|미음/.test(menu)) found.add('쌀');   // 곡물 보정
     const arr = [...found];
