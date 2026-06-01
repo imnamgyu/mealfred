@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>카카오톡 푸시 전략 제안서 | 밀프레드</title>
+<meta property="og:title" content="카카오톡 푸시 전략 제안서 — 밀프레드">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--r700:#C62828;--navy:#1a2b4a;--n50:#FAFAFA;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.7}
+  .hero{padding:54px 24px 38px;text-align:center;background:linear-gradient(160deg,#FFF5EB,#FFE8D0 60%,#FFD9B8)}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.12);color:#C45A00;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:800;letter-spacing:.04em;margin-bottom:14px;border:1px solid rgba(255,107,26,.25)}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.03em;color:var(--navy);line-height:1.3;margin-bottom:10px}
+  .hero p{font-size:14.5px;color:#5a4a3a;max-width:660px;margin:0 auto;font-weight:500}
+  main{max-width:900px;margin:0 auto;padding:34px 22px 70px}
+  .back{display:inline-block;margin-bottom:22px;font-size:13px;font-weight:700;color:var(--p700);text-decoration:none}
+  section{margin-bottom:28px;background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:24px 22px}
+  h2{font-size:19px;font-weight:800;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  h2 .n{font-size:12px;font-weight:800;color:#fff;background:var(--p500);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sub{font-size:12.5px;color:var(--n500);font-weight:600;margin-bottom:14px}
+  p.body{font-size:14px;color:var(--n700);margin-bottom:10px}
+  b{color:var(--navy)}
+  .key{background:#FFF6EC;border:1.5px solid #FFD8B0;border-radius:12px;padding:14px 16px;margin:8px 0;font-size:13.5px;color:#5a4a3a}
+  .key b{color:#B86A20}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0}
+  th{background:var(--n50);color:var(--n600);font-weight:800;text-align:left;padding:9px 9px;border-bottom:2px solid var(--n200);font-size:10.5px}
+  td{padding:9px 9px;border-bottom:1px solid #F1F1F0;color:var(--n700);vertical-align:top}
+  td b{color:var(--navy)}
+  .pill{display:inline-block;font-size:10px;font-weight:800;padding:2px 8px;border-radius:100px;white-space:nowrap}
+  .pill.at{background:#FEF3C7;color:#92660A}.pill.ft{background:#E0F2FE;color:#075985}.pill.wp{background:#E8F5E9;color:var(--g700)}
+  ul.clean{list-style:none;margin:6px 0}
+  ul.clean li{font-size:13.5px;color:var(--n700);padding:5px 0 5px 22px;position:relative}
+  ul.clean li::before{content:'→';position:absolute;left:0;color:var(--p500);font-weight:800}
+  .prio{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #F3F3F1}
+  .prio .r{font-size:13px;font-weight:800;color:#fff;background:var(--navy);width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .prio .tx{font-size:13px;color:var(--n700)}.prio .tx b{color:var(--navy)}
+  footer{text-align:center;font-size:11px;color:var(--n400);padding:24px;font-weight:600}
+</style>
+</head>
+<body>
+<header class="hero">
+  <span class="tag">💬 GROWTH · 카카오 푸시</span>
+  <h1>카카오톡 푸시 전략 제안서</h1>
+  <p>밀프레드의 심장은 <b>매일 아침 코칭 편지</b>. 그걸 카톡으로 닿게 해 리텐션을 만들고, 알림톡·친구톡·웹푸시를 용도별로 나눠 쓰는 전략.</p>
+</header>
+<main>
+<a href="/docs.html" class="back">← 문서 허브로</a>
+
+<section>
+  <h2><span class="n">1</span> 현황</h2>
+  <ul class="clean">
+    <li><b>SENS 알림톡 연동됨</b> — <code>lib/sens.ts</code>(서명·발송·로그), <code>/api/auth/welcome-alimtalk</code>. 건당 ₩8</li>
+    <li><b>정의된 템플릿 4종</b>: 가입환영 · 90일 stage 전환 · 완주 축하 · 미입력 리마인드</li>
+    <li><b>점검 필요</b>: 카카오 비즈채널 템플릿 <b>심사 승인</b> 여부 + NCP env(키·PF_ID) 운영 설정 여부 — 안 돼 있으면 발송이 조용히 실패(코드는 graceful)</li>
+  </ul>
+  <div class="key">즉, <b>배관(코드)은 깔려 있고, 템플릿 승인·환경변수만 확인하면 발송 가능</b>. 핵심은 "무엇을 언제 보내느냐"의 전략.</div>
+</section>
+
+<section>
+  <h2><span class="n">2</span> 채널 3종 — 용도 분리</h2>
+  <table>
+    <thead><tr><th>채널</th><th>성격</th><th>비용</th><th>수신동의</th><th>쓸 곳</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill at">알림톡</span></td><td>정보성(거래·안내). 템플릿 심사 필수</td><td>₩8/건</td><td>불필요(정보성)</td><td>가입·결제·쿠폰·완주 등 <b>고가치 이벤트</b></td></tr>
+      <tr><td><span class="pill ft">친구톡</span></td><td>마케팅(홍보·이벤트)</td><td>₩13~/건</td><td><b>채널 추가+수신동의 필요</b></td><td>프로모션·재참여 캠페인</td></tr>
+      <tr><td><span class="pill wp">웹푸시(PWA)</span></td><td>앱 자체 푸시</td><td><b>무료</b></td><td>브라우저 권한 동의</td><td><b>매일 코칭 편지</b>·리마인드(고빈도·무료)</td></tr>
+    </tbody>
+  </table>
+  <div class="key">⭐ 핵심 분리: <b>매일 보내는 코칭 편지·리마인드는 무료 웹푸시(PWA)</b>로, <b>가입·완주·쿠폰 같은 고가치 순간만 알림톡</b>으로. (알림톡을 매일 쓰면 비용·피로 폭증)</div>
+</section>
+
+<section>
+  <h2><span class="n">3</span> 라이프사이클 푸시 맵</h2>
+  <table>
+    <thead><tr><th>단계</th><th>시점</th><th>메시지</th><th>채널</th><th>목적</th></tr></thead>
+    <tbody>
+      <tr><td>온보딩</td><td>가입 직후</td><td>환영 + 첫 끼니 기록 유도</td><td><span class="pill at">알림톡</span></td><td>활성화(첫 기록)</td></tr>
+      <tr><td><b>코어 리텐션</b></td><td><b>매일 아침</b></td><td><b>오늘의 코칭 편지</b>("어제 OO 잘 먹었어요, 오늘은…")</td><td><span class="pill wp">웹푸시</span></td><td><b>매일 복귀 습관</b> ← 핵심</td></tr>
+      <tr><td>재참여</td><td>3일 미입력</td><td>부드러운 리마인드(30초 기록)</td><td><span class="pill wp">웹푸시</span></td><td>이탈 방지</td></tr>
+      <tr><td>챌린지</td><td>stage 전환·완주</td><td>90일 stage 축하 / 완주 보너스</td><td><span class="pill at">알림톡</span></td><td>동기·보상</td></tr>
+      <tr><td>바이럴</td><td>친구 첫 끼니</td><td>"친구 가입+첫기록 → 포인트 적립!"</td><td><span class="pill at">알림톡</span></td><td>추천 루프 강화</td></tr>
+      <tr><td>수익화</td><td>무료 만료 전 / 쿠폰</td><td>구독 안내·집중키트 쿠폰</td><td><span class="pill at">알림톡</span></td><td>전환</td></tr>
+      <tr><td>주간 요약</td><td>주 1회</td><td>"이번 주 우리 아이 영양 점수·새 식재료 N개"</td><td><span class="pill wp">웹푸시</span></td><td>가치 상기</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">4</span> 가드레일 (스팸 방지)</h2>
+  <ul class="clean">
+    <li><b>빈도 상한</b>: 하루 1건(코칭 편지) + 이벤트성은 별도. 알림톡은 주 2~3건 이내</li>
+    <li><b>야간 금지</b>: 21시~익일 8시 발송 금지(정보성 알림톡 야간 규정 준수)</li>
+    <li><b>수신거부</b>: 푸시·친구톡 opt-out 1탭. 거부자 제외 로직</li>
+    <li><b>중복 방지</b>: 같은 메시지 24h 내 재발송 금지(이미 코칭은 immutable 처리)</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">5</span> 비용 &amp; 등록 우선순위</h2>
+  <p class="body"><b>비용 감각</b>: 알림톡 ₩8/건. 가입·완주·쿠폰·구독안내만 알림톡 → 사용자당 월 5~8건 ≈ ₩40~64. 매일 코칭은 웹푸시(무료)라 비용 0. → <b>알림톡은 고가치 순간만, 비용 통제됨.</b></p>
+  <div class="prio"><span class="r">1</span><div class="tx"><b>웹푸시(PWA) 코칭 편지·리마인드</b> — 무료·고임팩트. 먼저 붙이면 매일 복귀 루프 완성</div></div>
+  <div class="prio"><span class="r">2</span><div class="tx"><b>알림톡 템플릿 심사</b> — 가입환영(있음)·완주·쿠폰 순. 4~7일 소요라 빨리 신청</div></div>
+  <div class="prio"><span class="r">3</span><div class="tx"><b>친구 적립·구독안내 알림톡</b> — 바이럴·수익화 루프</div></div>
+  <div class="prio"><span class="r">4</span><div class="tx"><b>친구톡(마케팅)</b> — 채널 추가·수신동의 확보 후 프로모션</div></div>
+</section>
+
+<section>
+  <h2><span class="n">6</span> KPI</h2>
+  <ul class="clean">
+    <li>코칭 편지 푸시 <b>오픈율 · 당일 기록 복귀율</b>(핵심)</li>
+    <li>3일 미입력 리마인드 <b>복귀 전환율</b></li>
+    <li>알림톡 <b>발송 성공률 · CTR · 건당 비용</b></li>
+    <li>완주·쿠폰 알림톡 → <b>구독/구매 전환</b></li>
+  </ul>
+  <div class="key">한 줄: <b>매일 코칭은 무료 웹푸시로 습관을 만들고, 알림톡은 가입·완주·쿠폰·구독 같은 돈 되는 순간에만 — 비용은 낮게, 리텐션은 높게.</b></div>
+</section>
+
+</main>
+<footer>밀프레드 · 카카오톡 푸시 전략 제안서 · <a href="/docs.html" style="color:#9CA3AF">문서 허브</a></footer>
+</body>
+</html>
