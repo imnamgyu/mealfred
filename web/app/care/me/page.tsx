@@ -23,7 +23,7 @@ export default function MePage() {
   const [copied, setCopied] = useState(false);
   const [points, setPoints] = useState<{ balance: number; total_earned: number } | null>(null);
   const [ledger, setLedger] = useState<{ kind: string; amount: number; created_at: string; meta: { date?: string } | null }[]>([]);
-  const [sub, setSub] = useState<{ freeUntil: string; daysLeft: number } | null>(null);   // 구독 상태(첫 달 무료 + 포인트 연장)
+  const [sub, setSub] = useState<{ lifetime: boolean; freeUntil: string; daysLeft: number } | null>(null);   // 구독(첫 달 무료 + 포인트 연장 + 관리자 평생무료)
   const [redeeming, setRedeeming] = useState(false);   // 포인트로 구독 결제 처리 중
 
   async function loadReferral() {
@@ -55,11 +55,11 @@ export default function MePage() {
       // 구독: 첫 달 무료(가입+30일) + 포인트 결제분(app_subscriptions.paid_until). 실제 만료 = max(둘).
       const createdMs = user.created_at ? new Date(user.created_at).getTime() : Date.now();
       const freeUntilMs = createdMs + 30 * 86400e3;
-      const { data: subRow } = await supabase.from('app_subscriptions').select('paid_until').eq('parent_id', user.id).maybeSingle();
+      const { data: subRow } = await supabase.from('app_subscriptions').select('paid_until,lifetime').eq('parent_id', user.id).maybeSingle();
       const paidMs = subRow?.paid_until ? new Date(subRow.paid_until + 'T00:00:00+09:00').getTime() : 0;
       const effMs = Math.max(freeUntilMs, paidMs);
       const freeUntilKst = new Date(effMs).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);   // KST 만료일(수동 +9 없이)
-      setSub({ freeUntil: freeUntilKst, daysLeft: Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3)) });
+      setSub({ lifetime: !!subRow?.lifetime, freeUntil: freeUntilKst, daysLeft: Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3)) });
       const { data } = await supabase.from('children')
         .select('nickname,age_band,birth_year,birth_month,allergens,chronic_conditions')
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
@@ -125,7 +125,9 @@ export default function MePage() {
             {/* 구독 — 첫 달 무료 만료기간 / 포인트로 연장 / 페이월 진입 */}
             <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독</div>
-              {sub && sub.daysLeft > 0 ? (
+              {sub?.lifetime ? (
+                <div className="text-base font-extrabold" style={{ color: '#16A085' }}>🎉 평생 무료 <span className="text-[11px] font-semibold" style={{ color: '#9CA3AF' }}>· 감사 혜택</span></div>
+              ) : sub && sub.daysLeft > 0 ? (
                 <>
                   <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>무료 체험 <span style={{ color: '#C45A00' }}>D-{sub.daysLeft}</span></div>
                   <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{sub.freeUntil}까지 무료 · 이후 월 4,900원</div>
@@ -138,7 +140,7 @@ export default function MePage() {
                   <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>구독하기 →</a>
                 </>
               ) : null}
-              {(points?.balance ?? 0) >= 4900 && (
+              {!sub?.lifetime && (points?.balance ?? 0) >= 4900 && (
                 <button onClick={redeemSub} disabled={redeeming} className="block w-full mt-2.5 rounded-xl py-2.5 text-[12px] font-extrabold text-white" style={{ background: redeeming ? '#9CA3AF' : '#16A085' }}>{redeeming ? '처리 중…' : '🪙 포인트로 1개월 연장 (4,900P 사용)'}</button>
               )}
             </div>
