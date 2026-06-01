@@ -10,9 +10,10 @@ export const dynamic = 'force-static';
 export const dynamicParams = false;
 
 const GRADE_MAP: Record<string, { label: string; desc: string; emoji: string }> = {
-  '필수':   { label: '필수 식재료',   desc: '초등 입학 전에 반드시 친해져야 할 식재료 (v4 S+A 등급)', emoji: '⭐⭐⭐' },
-  '권장':   { label: '권장 식재료',   desc: '먹을 줄 알면 좋은 식재료 (v4 B+C 등급)', emoji: '⭐⭐' },
-  '향신료': { label: '향신료',         desc: '향신·양념 식재료', emoji: '🌿' },
+  '필수':   { label: '필수 식재료',   desc: '학교 급식에 자주 등장하거나 영양가가 높아 초등 입학 전 꼭 친해질 식재료', emoji: '⭐⭐⭐' },
+  '권장':   { label: '권장 식재료',   desc: '먹을 줄 알면 식단이 한결 풍성해지는 식재료', emoji: '⭐⭐' },
+  '기본':   { label: '기본 식재료',   desc: '식단을 채우는 기본 식재료', emoji: '⭐' },
+  '향신료': { label: '향신료',         desc: '향신·양념 식재료 (도전 식재료에서는 제외)', emoji: '🌿' },
 };
 
 export async function generateStaticParams() {

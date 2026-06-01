@@ -20,6 +20,7 @@ export type Ingredient = {
   cat: string;
   grade?: string;
   grade_label?: string;
+  grade_reason?: string;   // 별등급 근거 한 줄(급식 빈도 + 영양가). gen: scripts/regrade
   elem_count?: number;
   infant_count?: number;
   nutri?: IngredientNutri;
@@ -76,7 +77,7 @@ export function findIngredient(slug: string): Ingredient | null {
 // 매운 판정은 client-safe lib/spicy.ts로 분리(ingredients.ts는 fs 사용 → 클라 번들 불가). 기존 import 경로 호환 위해 re-export.
 export { isSpicyDish, isSpicyIngredient } from './spicy';
 
-export function listByGrade(grade: '필수' | '권장' | '향신료'): Ingredient[] {
+export function listByGrade(grade: '필수' | '권장' | '기본' | '향신료'): Ingredient[] {
   return loadPool().filter((p) => p.grade_label === grade);
 }
 

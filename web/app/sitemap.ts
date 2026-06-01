@@ -11,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pool = loadPool();
   const now = new Date();
   const cats = Array.from(new Set(pool.map((p) => p.cat).filter(Boolean)));
-  const grades = ['필수', '권장', '향신료'];
+  const grades = ['필수', '권장', '기본', '향신료'];
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return [
