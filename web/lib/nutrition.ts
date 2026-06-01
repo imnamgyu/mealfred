@@ -360,7 +360,7 @@ export const KDRI_NUTRIENTS: KdriNutrient[] = [
   // 비타민 유사 1 (2025 신규)
   { nm: '콜린', val: '160 mg', group: '비타민유사', mapped: '콜린', sample: 'red', samplePct: 42 },
   // 다량 무기질 4 (나트륨 제외)
-  { nm: '칼슘', val: '500 mg', group: '다량무기질', mapped: '칼슘', sample: 'green', samplePct: 85 },
+  { nm: '칼슘', val: '450 mg', group: '다량무기질', mapped: '칼슘', sample: 'green', samplePct: 85 },
   { nm: '인', val: '450 mg', group: '다량무기질', mapped: '인', sample: 'green', samplePct: 90 },
   { nm: '칼륨', val: '1,500 mg', group: '다량무기질', mapped: '칼륨', sample: 'yellow', samplePct: 68 },
   { nm: '마그네슘', val: '70 mg', group: '다량무기질', mapped: '마그네슘', sample: 'green', samplePct: 82 },
@@ -389,9 +389,58 @@ const KDRI_BAND: Record<string, 'daily' | 'frequent' | 'occasional'> = {
 };
 const KDRI_BAND_NEED = { daily: 5, frequent: 4, occasional: 2 } as const;
 
-export function computeKdriSignals(ingredientsByDay: string[][], catOf?: CatOf): KdriSignal[] {
+// ── KDRI 2025 연령대별 기준값 (만 1-2 / 3-5 / 6-8세) ──────────────────
+// 신호등 색은 '빈도'로 판정하므로 이 값은 모달에 보여주는 '참고 기준치'다(판정 로직엔 직접 안 쓰임).
+// 핵심: 아이 연령에 맞는 기준을 보여주는 것 — 예전엔 만 5세 아이에게도 만 1-2세 값을 보여줬다(연령 불일치 버그).
+// 출처: 보건복지부 「2025 한국인 영양소 섭취기준」 요약표(워크플로 조사 + 적대적 검증).
+//   - 망간 AI는 UL 오인 교정해 2.0/2.5, 칼슘 1-2세는 2025 개정값 450(2020=500).
+//   - 칼슘↔인 3-5세는 스왑 아님: 2025 개정으로 칼슘 550·인 600이 맞음(2020은 600·550).
+export type AgeBandKey = '1-2' | '3-5' | '6-8';
+export const KDRI_AGE_LABEL: Record<AgeBandKey, string> = { '1-2': '만 1-2세', '3-5': '만 3-5세', '6-8': '만 6-8세' };
+// children.age_band → KDRI 연령대. younger(만3미만)→1-2, 3-4y·5y→3-5, 6-7y→6-8.
+export function kdriAgeBandOf(ageBand: string | null | undefined): AgeBandKey {
+  if (ageBand === '6-7y') return '6-8';
+  if (ageBand === '3-4y' || ageBand === '5y') return '3-5';
+  return '1-2';
+}
+export const KDRI_VAL_BY_AGE: Record<string, Record<AgeBandKey, string>> = {
+  '단백질': { '1-2': '20 g', '3-5': '25 g', '6-8': '35 g' },
+  '탄수화물': { '1-2': '130 g', '3-5': '130 g', '6-8': '130 g' },
+  '식이섬유': { '1-2': '10 g', '3-5': '15 g', '6-8': '20 g' },
+  '리놀레산': { '1-2': '6 g', '3-5': '6 g', '6-8': '7 g' },
+  'α-리놀렌산': { '1-2': '0.6 g', '3-5': '0.6 g', '6-8': '0.8 g' },
+  'EPA+DHA': { '1-2': '150 mg', '3-5': '200 mg', '6-8': '200 mg' },
+  '비타민A': { '1-2': '250 μg RAE', '3-5': '300 μg RAE', '6-8': '450 μg RAE' },
+  '비타민D': { '1-2': '5 μg', '3-5': '5 μg', '6-8': '5 μg' },
+  '비타민E': { '1-2': '5 mg', '3-5': '6 mg', '6-8': '7 mg' },
+  '비타민K': { '1-2': '25 μg', '3-5': '30 μg', '6-8': '40 μg' },
+  '비타민C': { '1-2': '40 mg', '3-5': '45 mg', '6-8': '50 mg' },
+  '티아민(B1)': { '1-2': '0.5 mg', '3-5': '0.5 mg', '6-8': '0.7 mg' },
+  '리보플라빈(B2)': { '1-2': '0.5 mg', '3-5': '0.6 mg', '6-8': '0.9 mg' },
+  '니아신': { '1-2': '6 mg NE', '3-5': '6 mg NE', '6-8': '8 mg NE' },
+  '비타민B6': { '1-2': '0.6 mg', '3-5': '0.7 mg', '6-8': '0.9 mg' },
+  '엽산': { '1-2': '150 μg DFE', '3-5': '180 μg DFE', '6-8': '220 μg DFE' },
+  '비타민B12': { '1-2': '0.9 μg', '3-5': '1.1 μg', '6-8': '1.3 μg' },
+  '판토텐산': { '1-2': '2 mg', '3-5': '2.5 mg', '6-8': '3.0 mg' },
+  '비오틴': { '1-2': '9 μg', '3-5': '12 μg', '6-8': '15 μg' },
+  '콜린': { '1-2': '160 mg', '3-5': '190 mg', '6-8': '260 mg' },
+  '칼슘': { '1-2': '450 mg', '3-5': '550 mg', '6-8': '700 mg' },
+  '인': { '1-2': '450 mg', '3-5': '600 mg', '6-8': '600 mg' },
+  '칼륨': { '1-2': '1,500 mg', '3-5': '2,300 mg', '6-8': '2,600 mg' },
+  '마그네슘': { '1-2': '70 mg', '3-5': '110 mg', '6-8': '150 mg' },
+  '철': { '1-2': '6 mg', '3-5': '6 mg', '6-8': '7 mg' },
+  '아연': { '1-2': '3 mg', '3-5': '4 mg', '6-8': '5 mg' },
+  '구리': { '1-2': '290 μg', '3-5': '350 μg', '6-8': '460 μg' },
+  '망간': { '1-2': '1.5 mg', '3-5': '2.0 mg', '6-8': '2.5 mg' },
+  '요오드': { '1-2': '70 μg', '3-5': '90 μg', '6-8': '100 μg' },
+  '셀레늄': { '1-2': '23 μg', '3-5': '25 μg', '6-8': '35 μg' },
+  '몰리브덴': { '1-2': '10 μg', '3-5': '13 μg', '6-8': '20 μg' },
+};
+
+export function computeKdriSignals(ingredientsByDay: string[][], catOf?: CatOf, ageBand: AgeBandKey = '1-2'): KdriSignal[] {
   const recordedDays = ingredientsByDay.length;   // 실제 기록된 날 수(데이터 가드용)
   const denom = 7;                                 // 분모는 '달력 7일' 고정 — 며칠만 기록해도 비율이 부풀려지던 누수 교정
+  const valOf = (nm: string, fallback: string) => KDRI_VAL_BY_AGE[nm]?.[ageBand] ?? fallback;   // 아이 연령대 기준치(없으면 1-2세 fallback)
   const cover: Record<string, number> = {};
   ingredientsByDay.forEach((day) => {
     const set = new Set<string>();
@@ -399,9 +448,10 @@ export function computeKdriSignals(ingredientsByDay: string[][], catOf?: CatOf):
     set.forEach((n) => { cover[n] = (cover[n] || 0) + 1; });
   });
   return KDRI_NUTRIENTS.map((k): KdriSignal => {
-    if (!k.mapped) return { nm: k.nm, val: k.val, group: k.group, status: 'reference', pct: 0 };
+    const v = valOf(k.nm, k.val);
+    if (!k.mapped) return { nm: k.nm, val: v, group: k.group, status: 'reference', pct: 0 };
     // 데이터 가드: 기록 3일 미만이면 섣불리 판정하지 않고 보류(reference)
-    if (recordedDays < 3) return { nm: k.nm, val: k.val, group: k.group, status: 'reference', pct: 0 };
+    if (recordedDays < 3) return { nm: k.nm, val: v, group: k.group, status: 'reference', pct: 0 };
     const d = cover[k.mapped] || 0;
     const need = KDRI_BAND_NEED[KDRI_BAND[k.nm] || 'frequent'];   // 밴드별 green 문턱(5/4/2일)
     const pct = Math.min(100, Math.round((d / denom) * 100));
@@ -410,7 +460,7 @@ export function computeKdriSignals(ingredientsByDay: string[][], catOf?: CatOf):
     else if (d > 0) status = 'yellow';
     // d===0(한 번도 안 닿음): 비타민D는 빈도 red 비활성(보충제로 관리하는 영양소), 기록 5일 미만이면 red 보류(yellow 클램프)
     else status = (k.nm === '비타민D' || recordedDays < 5) ? 'yellow' : 'red';
-    return { nm: k.nm, val: k.val, group: k.group, status, pct };
+    return { nm: k.nm, val: v, group: k.group, status, pct };
   });
 }
 

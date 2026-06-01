@@ -7,7 +7,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, CATEGORY_GROUP, NUTRIENT_FOODS, KDRI_NUTRIENTS, KDRI_EXCLUDED, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, CATEGORY_GROUP, NUTRIENT_FOODS, KDRI_NUTRIENTS, KDRI_EXCLUDED, KDRI_AGE_LABEL, kdriAgeBandOf, type AgeBandKey, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
@@ -105,6 +105,7 @@ export default function Home() {
   const [scoreParts, setScoreParts] = useState<{ home: number | null; daycare: number | null; final: number }>({ home: null, daycare: null, final: 0 });   // 집70:기관30 가중 점수
   const [scoreReason, setScoreReason] = useState<{ redGroups: string[]; processedSample: string[]; repeatMenu: string | null; processed: number; repeat: number } | null>(null);   // 점수 하락 근거(왜 떨어졌나)
   const [kdri, setKdri] = useState<KdriSignal[]>([]);   // 36종 KDRI 신호등 (실데이터)
+  const [kdriBand, setKdriBand] = useState<AgeBandKey>('1-2');   // 아이 연령대 — KDRI 기준값·라벨 선택(만 1-2/3-5/6-8세)
   const [showNutri, setShowNutri] = useState(false);    // 36종 자세히 모달
   const [showAllReds, setShowAllReds] = useState(false);   // 빨강(결핍) 총량 캡 — 많으면 상위 N개만, 나머지는 접기
   const [growth, setGrowth] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string } | null>(null);
@@ -199,7 +200,9 @@ export default function Home() {
             }).filter((x) => !byDate[x.d])
           );
           setSignals(sig);
-          setKdri(computeKdriSignals(byDay, catOf));   // 36종 KDRI 신호등 (실데이터)
+          const kdriBandSel = kdriAgeBandOf(child.age_band);   // 아이 연령대 → KDRI 기준(만 1-2/3-5/6-8세)
+          setKdriBand(kdriBandSel);
+          setKdri(computeKdriSignals(byDay, catOf, kdriBandSel));   // 36종 KDRI 신호등 (실데이터·연령대 기준)
           setGroupSig(computeGroupSignals(byDay, catOf));   // 식품군 다양성 신호등 (충분/조금부족/부족)
           setGroups(fg);
           setIngredientCount(new Set(allIng).size);
@@ -805,7 +808,7 @@ export default function Home() {
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style={{ background: '#FFEBEE' }}>🚦</div>
                 <div className="flex-1">
                   <h3 className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>31종 필수 영양소 신호등</h3>
-                  <div className="text-[11px]" style={{ color: '#9CA3AF' }}>KDRI 2025 · 만 1-2세 · {isMockup ? '예시' : '이번 주 기준'}</div>
+                  <div className="text-[11px]" style={{ color: '#9CA3AF' }}>KDRI 2025 · {KDRI_AGE_LABEL[kdriBand]} · {isMockup ? '예시' : '이번 주 기준'}</div>
                 </div>
                 <button onClick={() => setShowNutri(false)} className="text-xl px-1" style={{ color: '#9CA3AF' }}>✕</button>
               </div>
