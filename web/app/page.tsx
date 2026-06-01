@@ -100,6 +100,8 @@ export default function Home() {
   const supabase = createSupabaseBrowser();
   const [loading, setLoading] = useState(true);
   const [childName, setChildName] = useState('');
+  const [childId, setChildId] = useState<string | null>(null);
+  const [excluded, setExcluded] = useState<string[]>([]);   // 집에 늘 있어 엄마가 추천에서 뺀 재료(children.excluded_ingredients)
   const [loggedIn, setLoggedIn] = useState(false);
   const [days, setDays] = useState(0);
   const [signals, setSignals] = useState<NutrientSignal[]>([]);
@@ -152,7 +154,11 @@ export default function Home() {
         const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month,chronic_conditions').eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
         if (child) {
           setChildName(child.nickname);
+          setChildId(child.id);
           setChildMeta({ sex: null, birthY: child.birth_year ?? null, birthM: child.birth_month ?? null });
+          // 제외 재료 — 컬럼이 아직 없을 수 있어 분리 쿼리(실패해도 메인 로드 무영향)
+          supabase.from('children').select('excluded_ingredients').eq('id', child.id).maybeSingle()
+            .then(({ data }) => { if (Array.isArray(data?.excluded_ingredients)) setExcluded(data!.excluded_ingredients as string[]); });
           // 성별·체위 — 마이그레이션 전이면 컬럼/테이블이 없을 수 있어 분리 쿼리(실패해도 메인 로드 무영향)
           supabase.from('children').select('sex').eq('id', child.id).maybeSingle()
             .then(({ data }) => { if (data?.sex) setChildMeta((m) => ({ ...m, sex: data.sex as Sex })); });
@@ -410,11 +416,23 @@ export default function Home() {
   // 이번 주 시도해볼 식재료 — 빈약한 식품군(적게 먹은 카테고리) 우선 + 20슬랏에 카테고리 골고루(라운드로빈)
   const FREQ_RANK: Record<string, number> = { '자주': 0, '가끔': 1, '드물게': 2, '향신료': 9 };
   const meRank = (p: { must_eat?: boolean; must_eat_tier?: string } | any) => (p.must_eat ? (p.must_eat_tier === 'core' ? 0 : 1) : 2);
+  const excludedSet = new Set(excluded);
+  // 집에 늘 있는 재료를 추천에서 빼면 다음 우선순위가 채워진다(구매 전 한 번 누르면 끝)
+  const excludeIngredient = (nm: string) => {
+    if (excluded.includes(nm)) return;
+    const next = [...excluded, nm]; setExcluded(next);
+    if (childId) supabase.from('children').update({ excluded_ingredients: next }).eq('id', childId).then(() => {}, () => {});
+  };
+  const restoreIngredient = (nm: string) => {
+    const next = excluded.filter((x) => x !== nm); setExcluded(next);
+    if (childId) supabase.from('children').update({ excluded_ingredients: next }).eq('id', childId).then(() => {}, () => {});
+  };
   const tryRecommend = (() => {
     const byCat: Record<string, typeof pool> = {};   // 카테고리별 안 먹은 후보
     const eatenByCat: Record<string, number> = {};   // 카테고리별 먹은 개수
     pool.forEach((p) => {
       if (isSpicyIngredient(p.nm)) return;   // 매운 식재료(고추 등)는 추천 제외
+      if (excludedSet.has(p.nm)) return;     // 집에 늘 있어서 엄마가 뺀 것
       if (eatenSet.has(p.nm)) { eatenByCat[p.cat] = (eatenByCat[p.cat] || 0) + 1; return; }
       (byCat[p.cat] ||= []).push(p);
     });
@@ -442,7 +460,7 @@ export default function Home() {
 
   // 📦 이번 주 박스 배합 — 안 먹어본 빈약군 우선 다품종 소량 (실데이터)
   const boxItems = (!isMockup && pool.length) ? composeWeeklyBox({
-    pool, eaten: eatenSet,
+    pool, eaten: new Set([...eatenSet, ...excluded]),   // 제외 재료는 박스에도 안 넣음
     weakCats: (() => {
       const e: Record<string, number> = {};
       pool.forEach((p) => { if (eatenSet.has(p.nm)) e[p.cat] = (e[p.cat] || 0) + 1; });
@@ -733,7 +751,7 @@ export default function Home() {
             <strong className="text-sm" style={{ color: '#1a2b4a' }}>🍱 이번 주 시도해볼 식재료</strong>
             <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{isMockup ? '예시' : '종합 추천'}</span>
           </div>
-          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>아직 안 먹어본 <strong>💎 영양 보석</strong>과 급식 단골부터 도전해보세요</p>
+          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>아직 안 먹어본 <strong>💎 영양 보석</strong>과 급식 단골부터 도전해보세요. 집에 늘 있는 재료는 <b>🏠 있어요</b>로 빼면 다른 걸 추천해드려요</p>
           {(isMockup
             ? [
                 { em: '🐟', nm: '고등어', grade: '드물게', must_eat: true, must_eat_nutrient: '오메가3' },
@@ -751,11 +769,24 @@ export default function Home() {
                   <div className="text-sm font-extrabold flex items-center gap-1.5" style={{ color: '#1a2b4a' }}>{it.nm}{it.must_eat && <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700">💎 {it.must_eat_nutrient}</span>}</div>
                   <div className="text-[11px]" style={{ color: '#8a7a6a' }}>{stars} 급식 {it.grade || '일반'} · 아직 안 먹어봤어요</div>
                 </div>
-                <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>도전하기 →</span>
+                {!isMockup && childId && (
+                  <span role="button" onClick={(e) => { e.preventDefault(); excludeIngredient(it.nm); }} className="text-[10px] font-bold px-2 py-1.5 rounded-lg flex-shrink-0 cursor-pointer" style={{ background: '#F3F4F6', color: '#9CA3AF', border: '1px solid #E5E7EB' }}>🏠 있어요</span>
+                )}
+                <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg flex-shrink-0" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>도전하기 →</span>
               </a>
             );
           })}
-          {!isMockup && tryRecommend.length === 0 && <div className="text-center py-4 text-xs" style={{ color: '#9CA3AF' }}>필수·권장 식재료를 모두 먹어봤어요! 🎉</div>}
+          {!isMockup && tryRecommend.length === 0 && <div className="text-center py-4 text-xs" style={{ color: '#9CA3AF' }}>추천할 새 식재료를 모두 먹어봤어요! 🎉</div>}
+          {!isMockup && excluded.length > 0 && (
+            <div className="mt-2 pt-2.5" style={{ borderTop: '1px dashed #F0F0F0' }}>
+              <div className="text-[10px] mb-1.5" style={{ color: '#9CA3AF' }}>🏠 집에 있어서 뺀 재료 · 탭하면 되돌려요</div>
+              <div className="flex flex-wrap gap-1.5">
+                {excluded.map((nm) => (
+                  <span key={nm} role="button" onClick={() => restoreIngredient(nm)} className="text-[11px] font-bold px-2 py-1 rounded-full cursor-pointer" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>{nm} ✕</span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* 📦 이번 주 박스 배합 미리보기 — 실데이터로 구성 */}
           {boxItems.length > 0 && (
