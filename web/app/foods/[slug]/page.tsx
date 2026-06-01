@@ -95,10 +95,12 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
           <div className="flex-1">
             <h1 className="text-2xl font-extrabold" style={{ color: '#1a2b4a' }}>{ing.nm}</h1>
             <div className="flex flex-wrap gap-1.5 mt-1.5 text-xs items-center">
-              {ing.grade_label && <span className="px-2 py-0.5 rounded-full font-extrabold" style={{ background: '#FFE0C0', color: '#C45A00' }}>{ing.grade && ing.grade.startsWith('⭐') ? ing.grade + ' ' : ''}{ing.grade_label}</span>}
+              {ing.grade_label && <span className="px-2 py-0.5 rounded-full font-extrabold" style={{ background: '#E8EDF5', color: '#1a2b4a' }}>{ing.grade} {ing.grade_label}</span>}
+              {ing.must_eat && <span className="px-2 py-0.5 rounded-full font-extrabold" style={{ background: '#FFE0C0', color: '#C45A00' }}>💎 영양 보석{ing.must_eat_nutrient ? ` · ${ing.must_eat_nutrient}` : ''}</span>}
               <span style={{ color: '#8a7a6a' }}>{ing.cat.replace('_', '·')}</span>
             </div>
-            {ing.grade_reason && <div className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a' }}>{ing.grade_reason}</div>}
+            {ing.grade_reason && <div className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a' }}>⭐ {ing.grade_reason}</div>}
+            {ing.must_eat_reason && <div className="text-[11px] mt-1 leading-relaxed font-semibold" style={{ color: '#C45A00' }}>💎 {ing.must_eat_reason}</div>}
           </div>
         </div>
         {ing.warning && (

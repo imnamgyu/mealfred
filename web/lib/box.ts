@@ -9,7 +9,7 @@
 
 import { isSpicyIngredient } from './spicy';
 
-export type PoolItem = { nm: string; cat: string; grade: string; em?: string };
+export type PoolItem = { nm: string; cat: string; grade: string; em?: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good' };
 export type BoxReason = '결핍보강' | '필수도전' | '권장도전' | '거부재노출';
 export type BoxItem = { nm: string; em: string; cat: string; reason: BoxReason };
 
@@ -24,7 +24,10 @@ export type BoxInput = {
   size?: number;               // 박스 품종 수(기본 12 — 극다품종 소량)
 };
 
-const GRADE_RANK: Record<string, number> = { 필수: 0, 권장: 1, 향신료: 9 };
+// 우선순위 = 💎 영양 보석(core>good) 먼저 → 그 안에서 급식 빈도(자주>가끔>드물게). '꼭 챙길 영양'을 박스 1순위로.
+const FREQ_RANK: Record<string, number> = { 자주: 0, 가끔: 1, 드물게: 2, 향신료: 9 };
+const meRank = (p: PoolItem) => (p.must_eat ? (p.must_eat_tier === 'core' ? 0 : 1) : 2);
+const rank = (p: PoolItem) => meRank(p) * 10 + (FREQ_RANK[p.grade] ?? 3);
 
 export function composeWeeklyBox(input: BoxInput): BoxItem[] {
   const { pool, eaten, reds = [], nutrientsOf, daycareRefused = [], size = 12 } = input;
@@ -47,7 +50,7 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
     const redSet = new Set(reds);
     candidates
       .filter((p) => nutrientsOf(p.nm).some((n) => redSet.has(n)))
-      .sort((a, b) => (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2))
+      .sort((a, b) => rank(a) - rank(b))
       .forEach((p) => add(p.nm, p.cat, '결핍보강'));
   }
 
@@ -60,9 +63,9 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
   // ③ 빈약 식품군 라운드로빈 — 군별 필수→권장 순으로 골고루
   const byCat: Record<string, PoolItem[]> = {};
   candidates.forEach((p) => { (byCat[p.cat] ||= []).push(p); });
-  // 군별 정렬: 필수 먼저 → 같은 등급이면 '안 먹은 지 오래된(또는 미경험)' 순(사용자: 필수인데 오래된 것 우선)
+  // 군별 정렬: 영양 보석 먼저 → 같은 우선순위면 '안 먹은 지 오래된(또는 미경험)' 순
   Object.values(byCat).forEach((arr) => arr.sort((a, b) => {
-    const g = (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2);
+    const g = rank(a) - rank(b);
     return g !== 0 ? g : (input.staleOf?.(b.nm) ?? 999) - (input.staleOf?.(a.nm) ?? 999);
   }));
   // 빈약 카테고리 우선, 나머지 뒤
@@ -74,7 +77,7 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
     let added = false;
     for (const c of cats) {
       const p = byCat[c][round];
-      if (p && !picked.has(p.nm)) { add(p.nm, p.cat, p.grade === '필수' ? '필수도전' : '권장도전'); added = true; if (out.length >= size) break; }
+      if (p && !picked.has(p.nm)) { add(p.nm, p.cat, p.must_eat ? '필수도전' : '권장도전'); added = true; if (out.length >= size) break; }
     }
     if (!added) break;
   }
@@ -84,6 +87,6 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
 export const BOX_REASON_META: Record<BoxReason, { label: string; color: string }> = {
   결핍보강: { label: '부족 영양 보강', color: '#C62828' },
   거부재노출: { label: '집에서 다시', color: '#C45A00' },
-  필수도전: { label: '필수 도전', color: '#1B5E20' },
-  권장도전: { label: '권장 도전', color: '#1565C0' },
+  필수도전: { label: '💎 영양 보석', color: '#C45A00' },
+  권장도전: { label: '도전 식재료', color: '#1565C0' },
 };

@@ -12,25 +12,26 @@ import { kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
 
-type Ing = { nm: string; cat: string; grade: string; em: string };
+type Ing = { nm: string; cat: string; grade: string; em: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good'; must_eat_nutrient?: string };
 // exposure/eat/first/last = 전체 누적. recentFreq/recentRefused = '잘 먹는' 판정용(최근 90일 윈도우).
 type Stat = { exposure: number; eat: number; first: string | null; last: string | null; recentFreq: number; recentRefused: boolean };
 
 // 필터 = 홈 '식품군 다양성' 8개와 동일(CATEGORY_GROUP). 세부 카테고리(박과·뿌리 등) X.
 const FILTERS = [
   { k: 'all', label: '전체' }, { k: 'eaten', label: '✅ 먹어본 것' }, { k: 'noteaten', label: '🆕 안 먹어본 것' },
-  { k: 'essential', label: '⭐⭐⭐ 필수' }, { k: 'danger', label: '🚨 오래 안 먹음' },
+  { k: 'mustEat', label: '💎 영양 보석' }, { k: 'frequent', label: '⭐⭐⭐ 급식 단골' }, { k: 'danger', label: '🚨 오래 안 먹음' },
   { k: '곡물', label: '🌾 곡물' }, { k: '콩류', label: '🫘 콩' }, { k: '유제품', label: '🥛 유제품' },
   { k: '고기생선', label: '🍗 고기·생선' }, { k: '계란', label: '🥚 계란' },
   { k: '비타민A채소', label: '🥕 녹황색채소' }, { k: '기타채소', label: '🥬 일반채소' }, { k: '과일', label: '🍓 과일' },
 ];
 const GRADE_META: Record<string, { stars: string; full: string; cls: string }> = {
-  '필수': { stars: '⭐⭐⭐', full: '⭐⭐⭐ 필수', cls: 'A' },
-  '권장': { stars: '⭐⭐', full: '⭐⭐ 권장', cls: 'B' },
-  '향신료': { stars: '⭐', full: '⭐ 향신료', cls: 'C' },
+  '자주': { stars: '⭐⭐⭐', full: '⭐⭐⭐ 급식 단골', cls: 'A' },
+  '가끔': { stars: '⭐⭐', full: '⭐⭐ 가끔', cls: 'B' },
+  '드물게': { stars: '⭐', full: '⭐ 드물게', cls: 'C' },
+  '향신료': { stars: '🔸', full: '🔸 향신료', cls: 'D' },
 };
-function gradeMeta(g: string) { return GRADE_META[g] || { stars: '⭐', full: '⭐ 일반', cls: 'D' }; }
-const GRADE_SORT: Record<string, number> = { '필수': 0, '권장': 1, '향신료': 3 };
+function gradeMeta(g: string) { return GRADE_META[g] || { stars: '⭐', full: '⭐ 드물게', cls: 'C' }; }
+const GRADE_SORT: Record<string, number> = { '자주': 0, '가끔': 1, '드물게': 2, '향신료': 9 };
 const GRADE_COLOR: Record<string, { bg: string; fg: string }> = {
   A: { bg: '#E8F5E9', fg: '#1B5E20' }, B: { bg: '#E3F2FD', fg: '#1565C0' },
   C: { bg: '#F3E5F5', fg: '#6A1B9A' }, D: { bg: '#FAFAF7', fg: '#9CA3AF' },
@@ -137,7 +138,8 @@ export default function FoodsDex() {
     if (filter === 'all') return true;
     if (filter === 'eaten') return getStat(p.nm).eat > 0;
     if (filter === 'noteaten') return getStat(p.nm).eat === 0;
-    if (filter === 'essential') return p.grade === '필수';
+    if (filter === 'mustEat') return !!p.must_eat;
+    if (filter === 'frequent') return p.grade === '자주';
     if (filter === 'danger') return getStat(p.nm).exposure > 0 && statusOf(getStat(p.nm)) === 'danger';
     return CATEGORY_GROUP[p.cat] === filter;
   }).sort((a, b) => {
@@ -232,6 +234,7 @@ export default function FoodsDex() {
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{p.nm}</span>
                     <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded" style={{ background: gc.bg, color: gc.fg }}>{g.full}</span>
+                    {p.must_eat && <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">💎 {p.must_eat_nutrient}</span>}
                   </div>
                   <div className="text-[12px]" style={{ color: '#6B7280' }}>{nutri || p.cat.replace('_', '·')}</div>
                 </div>

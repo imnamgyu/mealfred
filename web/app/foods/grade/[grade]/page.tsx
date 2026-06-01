@@ -10,10 +10,10 @@ export const dynamic = 'force-static';
 export const dynamicParams = false;
 
 const GRADE_MAP: Record<string, { label: string; desc: string; emoji: string }> = {
-  '필수':   { label: '필수 식재료',   desc: '학교 급식에 자주 등장하거나 영양가가 높아 초등 입학 전 꼭 친해질 식재료', emoji: '⭐⭐⭐' },
-  '권장':   { label: '권장 식재료',   desc: '먹을 줄 알면 식단이 한결 풍성해지는 식재료', emoji: '⭐⭐' },
-  '기본':   { label: '기본 식재료',   desc: '식단을 채우는 기본 식재료', emoji: '⭐' },
-  '향신료': { label: '향신료',         desc: '향신·양념 식재료 (도전 식재료에서는 제외)', emoji: '🌿' },
+  '자주':   { label: '급식 단골 식재료',     desc: '초등 급식에 가장 자주 나오는 식재료 — 미리 친해두면 학교 급식 적응이 한결 쉬워요', emoji: '⭐⭐⭐' },
+  '가끔':   { label: '급식에 가끔 나오는 식재료', desc: '급식에 종종 등장하는 식재료', emoji: '⭐⭐' },
+  '드물게': { label: '급식에 드문 식재료',     desc: '급식엔 자주 없지만 집에서 챙기면 좋은 식재료', emoji: '⭐' },
+  '향신료': { label: '향신료',               desc: '향신·양념 식재료 (도전 식재료에서는 제외)', emoji: '🌿' },
 };
 
 export async function generateStaticParams() {
@@ -37,7 +37,7 @@ export default async function GradePage({ params }: { params: Promise<{ grade: s
   const decoded = decodeURIComponent(grade);
   const info = GRADE_MAP[decoded];
   if (!info) notFound();
-  const items = listByGrade(decoded as '필수' | '권장' | '향신료');
+  const items = listByGrade(decoded as '자주' | '가끔' | '드물게' | '향신료');
 
   return (
     <main>

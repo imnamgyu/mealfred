@@ -18,9 +18,13 @@ export type Ingredient = {
   nm: string;
   em?: string;
   cat: string;
-  grade?: string;
-  grade_label?: string;
-  grade_reason?: string;   // 별등급 근거 한 줄(급식 빈도 + 영양가). gen: scripts/regrade
+  grade?: string;          // 축①별: ⭐⭐⭐/⭐⭐/⭐ = 급식 등장 빈도, 🔸=향신료. gen: scripts/gen-grade.mjs
+  grade_label?: string;    // 자주/가끔/드물게/향신료 (빈도 티어)
+  grade_reason?: string;   // 빈도 근거 한 줄("초등 급식에 자주 나와요 (820회 등장)")
+  must_eat?: boolean;      // 축②💎 영양 보석: 흔하고 영양 풍부 → 급식에 적어도 꼭 챙길 통째식품. lib/must-eat.json
+  must_eat_tier?: 'core' | 'good';
+  must_eat_nutrient?: string;  // 대표 영양소(배지 칩)
+  must_eat_reason?: string;    // 부모용 한 줄("흔하고 칼슘 풍부 — ...")
   elem_count?: number;
   infant_count?: number;
   nutri?: IngredientNutri;
@@ -77,7 +81,7 @@ export function findIngredient(slug: string): Ingredient | null {
 // 매운 판정은 client-safe lib/spicy.ts로 분리(ingredients.ts는 fs 사용 → 클라 번들 불가). 기존 import 경로 호환 위해 re-export.
 export { isSpicyDish, isSpicyIngredient } from './spicy';
 
-export function listByGrade(grade: '필수' | '권장' | '기본' | '향신료'): Ingredient[] {
+export function listByGrade(grade: '자주' | '가끔' | '드물게' | '향신료'): Ingredient[] {
   return loadPool().filter((p) => p.grade_label === grade);
 }
 

@@ -59,9 +59,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                   )}
                 </div>
                 <div className="text-sm font-extrabold text-[var(--navy)] leading-tight">{ing.nm}</div>
-                {ing.grade_label && (
-                  <div className="inline-block mt-1.5 px-2 py-0.5 text-[9.5px] font-extrabold rounded-full bg-orange-100 text-orange-700">{ing.grade_label}</div>
-                )}
+                <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1">
+                  {ing.grade && ing.grade.startsWith('⭐') && (
+                    <span className="inline-block px-1.5 py-0.5 text-[9.5px] font-extrabold rounded-full" style={{ background: '#E8EDF5', color: '#1a2b4a' }}>{ing.grade}</span>
+                  )}
+                  {ing.must_eat && (
+                    <span className="inline-block px-1.5 py-0.5 text-[9.5px] font-extrabold rounded-full bg-orange-100 text-orange-700">💎 영양</span>
+                  )}
+                </div>
               </Link>
             );
           })}

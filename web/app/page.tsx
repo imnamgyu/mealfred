@@ -132,7 +132,7 @@ export default function Home() {
   const [showPast, setShowPast] = useState(false);
   const [textureInsight, setTextureInsight] = useState<{ pureePct: number } | null>(null);
   const [repeatInsight, setRepeatInsight] = useState<{ menu: string; count: number; rice?: boolean } | null>(null);
-  const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string }[]>([]);
+  const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good'; must_eat_nutrient?: string }[]>([]);
   const [eatenSet, setEatenSet] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -408,7 +408,8 @@ export default function Home() {
   const oneLiner = aiOneliner || ruleOneLiner;
 
   // 이번 주 시도해볼 식재료 — 빈약한 식품군(적게 먹은 카테고리) 우선 + 20슬랏에 카테고리 골고루(라운드로빈)
-  const GRADE_RANK: Record<string, number> = { '필수': 0, '권장': 1, '향신료': 3 };
+  const FREQ_RANK: Record<string, number> = { '자주': 0, '가끔': 1, '드물게': 2, '향신료': 9 };
+  const meRank = (p: { must_eat?: boolean; must_eat_tier?: string } | any) => (p.must_eat ? (p.must_eat_tier === 'core' ? 0 : 1) : 2);
   const tryRecommend = (() => {
     const byCat: Record<string, typeof pool> = {};   // 카테고리별 안 먹은 후보
     const eatenByCat: Record<string, number> = {};   // 카테고리별 먹은 개수
@@ -417,8 +418,8 @@ export default function Home() {
       if (eatenSet.has(p.nm)) { eatenByCat[p.cat] = (eatenByCat[p.cat] || 0) + 1; return; }
       (byCat[p.cat] ||= []).push(p);
     });
-    // 각 카테고리 내부는 필수→권장 우선
-    Object.values(byCat).forEach((arr) => arr.sort((a, b) => (GRADE_RANK[a.grade] ?? 2) - (GRADE_RANK[b.grade] ?? 2)));
+    // 각 카테고리 내부: 💎 영양 보석(must_eat) 먼저 → 그 안에서 급식 빈도 순
+    Object.values(byCat).forEach((arr) => arr.sort((a, b) => (meRank(a) - meRank(b)) || ((FREQ_RANK[a.grade] ?? 3) - (FREQ_RANK[b.grade] ?? 3))));
     // 코칭이 짚은 '부족 식품군'(집 기준 redGroups) 카테고리를 최우선 → 콩류 부족이면 콩류 식재료가 맨 앞(코칭 추천과 정합)
     const deficientCats = new Set<string>();
     (scoreReason?.redGroups || []).forEach((g) => { Object.entries(CATEGORY_GROUP).forEach(([cat, grp]) => { if (grp === g) deficientCats.add(cat); }); });
@@ -732,21 +733,23 @@ export default function Home() {
             <strong className="text-sm" style={{ color: '#1a2b4a' }}>🍱 이번 주 시도해볼 식재료</strong>
             <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{isMockup ? '예시' : '종합 추천'}</span>
           </div>
-          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>아직 안 먹어본 <strong>필수(⭐⭐⭐) 식재료</strong>부터 도전해보세요</p>
+          <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>아직 안 먹어본 <strong>💎 영양 보석</strong>과 급식 단골부터 도전해보세요</p>
           {(isMockup
             ? [
-                { em: '🥬', nm: '시금치', grade: '필수' }, { em: '🥦', nm: '브로콜리', grade: '권장' },
-                { em: '🍆', nm: '가지', grade: '권장' }, { em: '🐟', nm: '고등어', grade: '필수' },
+                { em: '🐟', nm: '고등어', grade: '드물게', must_eat: true, must_eat_nutrient: '오메가3' },
+                { em: '🥬', nm: '시금치', grade: '가끔', must_eat: true, must_eat_nutrient: '철분' },
+                { em: '🫘', nm: '콩(대두)', grade: '드물게', must_eat: true, must_eat_nutrient: '단백질' },
+                { em: '🍆', nm: '가지', grade: '가끔', must_eat: false, must_eat_nutrient: '' },
               ]
-            : tryRecommend.map((p) => ({ em: p.em || '🍽', nm: p.nm, grade: p.grade }))
+            : tryRecommend.map((p) => ({ em: p.em || '🍽', nm: p.nm, grade: p.grade, must_eat: p.must_eat, must_eat_nutrient: p.must_eat_nutrient }))
           ).map((it, i) => {
-            const stars = it.grade === '필수' ? '⭐⭐⭐' : it.grade === '권장' ? '⭐⭐' : '⭐';
+            const stars = it.grade === '자주' ? '⭐⭐⭐' : it.grade === '가끔' ? '⭐⭐' : '⭐';
             return (
               <a key={i} href={`/foods/${encodeURIComponent(it.nm)}`} className="flex items-center gap-3 py-2.5" style={{ borderTop: i ? '1px solid #F4F4F5' : 'none' }}>
                 <span className="text-2xl">{it.em}</span>
                 <div className="flex-1">
-                  <div className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>{it.nm}</div>
-                  <div className="text-[11px]" style={{ color: '#8a7a6a' }}>{stars} {it.grade || '일반'} · 아직 안 먹어봤어요</div>
+                  <div className="text-sm font-extrabold flex items-center gap-1.5" style={{ color: '#1a2b4a' }}>{it.nm}{it.must_eat && <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700">💎 {it.must_eat_nutrient}</span>}</div>
+                  <div className="text-[11px]" style={{ color: '#8a7a6a' }}>{stars} 급식 {it.grade || '일반'} · 아직 안 먹어봤어요</div>
                 </div>
                 <span className="text-[11px] font-bold px-3 py-1.5 rounded-lg" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>도전하기 →</span>
               </a>

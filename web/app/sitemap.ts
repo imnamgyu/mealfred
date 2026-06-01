@@ -11,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pool = loadPool();
   const now = new Date();
   const cats = Array.from(new Set(pool.map((p) => p.cat).filter(Boolean)));
-  const grades = ['필수', '권장', '기본', '향신료'];
+  const grades = ['자주', '가끔', '드물게', '향신료'];
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
   return [
@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${BASE}/foods/${encodeURIComponent(p.nm)}`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
-      priority: p.grade_label === '필수' ? 0.9 : p.grade_label === '권장' ? 0.8 : 0.6,
+      priority: p.must_eat || p.grade_label === '자주' ? 0.9 : p.grade_label === '가끔' ? 0.75 : 0.6,
     })),
     ...grades.map((g) => ({
       url: `${BASE}/foods/grade/${encodeURIComponent(g)}`,
