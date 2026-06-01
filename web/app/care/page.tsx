@@ -492,9 +492,20 @@ export default function CarePage() {
       await supabase.from('meal_logs').upsert(rows, { onConflict: 'child_id,log_date,slot' });
       setMenuMonths((prev) => new Set([...prev, ocrMonth]));   // 등록 즉시 업로더 숨김
       setOcrOpen(false);
+      // 식단표 끼니마다 +50P (서버가 멱등·일일 5끼 한도 처리). 벌크라 한 번에 많이 쌓임.
+      if (userId && childId) {
+        Promise.allSettled(rows.map((r) => fetch('/api/points/earn', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ child_id: childId, date: r.log_date, slot: r.slot }),
+        }))).then((res) => {
+          let earned = 0;
+          res.forEach((x) => { if (x.status === 'fulfilled') earned += 50; });   // 낙관 추정(중복/한도는 서버가 0 처리)
+          if (earned > 0) setPointToast(`식단표 ${rows.length}끼 · 최대 +${earned.toLocaleString()}P 적립! 🎉`);
+        });
+      }
     }
     if (!daycare) saveDaycare(true);
-    setOcrMsg(`✓ ${rows.length}끼 기관 급식으로 저장됐어요`); setOcrItems([]);
+    setOcrMsg(`✓ ${rows.length}끼 저장 · 끼니마다 포인트가 쌓여요`); setOcrItems([]);
   }
 
   async function saveEntry() {
