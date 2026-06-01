@@ -70,7 +70,7 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>🔥 현행 핵심 명세 (정본)</h3>
-    <span class="cnt">6 문서</span>
+    <span class="cnt">7 문서</span>
     <span class="note">라이브 앱이 실제로 구현하는 단일 진실</span>
   </div>
   <div class="doc-grid">
@@ -87,6 +87,13 @@
       <h4>메뉴→식재료 매핑 엔진</h4>
       <p class="desc"><b>4단 파이프라인</b>(learned→rule→scan→LLM). 결정론 보강(1글자 표준명·가공식품 베이스·복합메뉴) + LLM 환각 차단 + 농진청 NUTRI_MAP 정확 등재. <b>라이브 매핑 정본</b></p>
       <div class="meta"><span>ENGINE · 매핑</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/menu-corpus-strategy.html" class="doc-card cat-prd">
+      <span class="badge new">전략</span>
+      <div class="ico">🍱</div>
+      <h4>음식(메뉴) 코퍼스 채우기 전략</h4>
+      <p class="desc">앱 입력은 식재료가 아니라 <b>메뉴(음식)</b>. NEIS 급식 OpenAPI로 메뉴 대량 씨딩 → 매핑 엔진으로 식재료(457 유니버스) 환원 → learned_menus 플라이휠. 크롤링(ToS) 대신 공식 API. 단계적 실행·KPI·리스크</p>
+      <div class="meta"><span>DATA · 메뉴 코퍼스</span><span class="arrow">→</span></div>
     </a>
     <a href="/nutrient-signal-report.html" class="doc-card cat-prd">
       <span class="badge done">✅ 적용됨</span>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>음식(메뉴) 코퍼스 채우기 전략 — 밀프레드</title>
+<meta property="og:title" content="음식(메뉴) 코퍼스 채우기 전략 — 밀프레드">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--r700:#C62828;--navy:#1a2b4a;--n50:#FAFAFA;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .hero{padding:54px 24px 38px;text-align:center;background:linear-gradient(160deg,#FFF5EB,#FFE8D0 60%,#FFD9B8);position:relative}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.12);color:#C45A00;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:800;letter-spacing:.04em;margin-bottom:14px;border:1px solid rgba(255,107,26,.25)}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.03em;color:var(--navy);line-height:1.3;margin-bottom:10px}
+  .hero p{font-size:14.5px;color:#5a4a3a;max-width:640px;margin:0 auto;font-weight:500}
+  main{max-width:880px;margin:0 auto;padding:34px 22px 70px}
+  .back{display:inline-block;margin-bottom:22px;font-size:13px;font-weight:700;color:var(--p700);text-decoration:none}
+  section{margin-bottom:30px;background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:24px 22px}
+  h2{font-size:19px;font-weight:800;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  h2 .n{font-size:12px;font-weight:800;color:#fff;background:var(--p500);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sub{font-size:12.5px;color:var(--n500);font-weight:600;margin-bottom:14px}
+  p.body{font-size:14px;color:var(--n700);margin-bottom:10px}
+  b{color:var(--navy)}
+  .key{background:#FFF6EC;border:1.5px solid #FFD8B0;border-radius:12px;padding:14px 16px;margin:8px 0;font-size:13.5px;color:#5a4a3a}
+  .key b{color:#B86A20}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0}
+  th{background:var(--n50);color:var(--n600);font-weight:800;text-align:left;padding:9px 10px;border-bottom:2px solid var(--n200);font-size:11px}
+  td{padding:9px 10px;border-bottom:1px solid #F1F1F0;color:var(--n700);vertical-align:top}
+  td b{color:var(--navy)}
+  .star{color:#C45A00;font-weight:800}
+  .pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:100px}
+  .pill.ok{background:#E8F5E9;color:var(--g700)}.pill.warn{background:#FFF3E0;color:#C45A00}.pill.no{background:#FDECEA;color:var(--r700)}
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:12px 0}
+  .step{flex:1;min-width:120px;background:#FFFBF5;border:1.5px solid #FFD8B0;border-radius:12px;padding:12px;font-size:12px}
+  .step .t{font-weight:800;color:var(--navy);font-size:12.5px;margin-bottom:4px}
+  .step .d{color:var(--n600)}
+  .arrow{align-self:center;color:var(--p500);font-weight:800;font-size:18px}
+  ul.clean{list-style:none;margin:6px 0}
+  ul.clean li{font-size:13.5px;color:var(--n700);padding:5px 0 5px 22px;position:relative}
+  ul.clean li::before{content:'→';position:absolute;left:0;color:var(--p500);font-weight:800}
+  .phase{border-left:3px solid var(--p500);padding:4px 0 4px 14px;margin:12px 0}
+  .phase .pt{font-weight:800;color:var(--navy);font-size:14px}
+  .phase .pd{font-size:13px;color:var(--n600);margin-top:3px}
+  footer{text-align:center;font-size:11px;color:var(--n400);padding:24px;font-weight:600}
+</style>
+</head>
+<body>
+<header class="hero">
+  <span class="tag">🍱 DATA STRATEGY · 메뉴 코퍼스</span>
+  <h1>음식(메뉴) 코퍼스 채우기 전략</h1>
+  <p>도감은 <b>식재료</b>를 다루지만, 앱이 실제로 받는 입력은 <b>음식(메뉴)</b>입니다. 메뉴를 어디서 얻고 어떻게 식재료로 환원하는지의 전략.</p>
+</header>
+<main>
+<a href="/docs.html" class="back">← 문서 허브로</a>
+
+<section>
+  <h2><span class="n">1</span> 왜 메뉴 코퍼스인가</h2>
+  <p class="body">우리 도감의 식재료 유니버스는 급식 정규화 기준 <b>약 457종</b>(도감 등재 181종)입니다. 하지만 부모가 입력하거나 식단표 OCR로 들어오는 건 <b>"제육볶음·미역국·시금치나물" 같은 메뉴(음식)</b>예요. 그래서 서비스의 심장은 <b>메뉴 → 식재료 매핑</b>입니다.</p>
+  <p class="body">메뉴 코퍼스가 풍부할수록 → ① 매핑 정확도(신메뉴도 분해) ② 영양 신호등·점수 정확도 ③ "이 메뉴 자주 먹네요" 식 코칭·추천이 모두 좋아집니다.</p>
+  <div class="key">⭐ <b>핵심 통찰</b>: 음식은 조합이라 사실상 <b>무한</b>합니다. 목표는 "모든 음식을 수집"이 아니라 <b>실사용 메뉴를 식재료로 잘 환원</b>하는 것. 즉 <b>수집량보다 매핑 품질 + 플라이휠</b>이 본질입니다.</p>
+</section>
+
+<section>
+  <h2><span class="n">2</span> 지금 가진 자산</h2>
+  <ul class="clean">
+    <li><b>레시피 DB ~4,400</b> — 편식키트 <code>B_레시피DB</code>(아동기 3,397 + 유아·영아). 음식 + 식재료 + 영양 + 알레르겐</li>
+    <li><b>learned_menus 플라이휠</b> — 실사용 식단표 OCR로 들어온 신메뉴를 자동 학습(전역 사전). 신메뉴만 LLM, 다음부턴 결정론</li>
+    <li><b>menuMapCore 결정론 사전</b> — 가공식품 베이스·1글자 표준명·복합메뉴 분해</li>
+    <li><b>4단 매핑 파이프라인</b> — learned → rule → scan → LLM(<a href="/mapping-strategy.html" style="color:#B86A20;font-weight:700">매핑 전략 문서</a>)</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">3</span> 메뉴를 어디서 얻나 (소스)</h2>
+  <div class="sub">합법·고품질 우선. 공식 API가 크롤링보다 안전하고 깨끗합니다.</div>
+  <table>
+    <thead><tr><th>소스</th><th>내용</th><th>방식</th><th>안전성</th></tr></thead>
+    <tbody>
+      <tr><td><b class="star">⭐ NEIS 학교급식 OpenAPI</b><br>(교육정보개방포털)</td><td>전국 초중고 급식 메뉴를 학교·날짜별로. 메뉴(음식) 대량</td><td>공식 무료 API</td><td><span class="pill ok">안전</span></td></tr>
+      <tr><td><b>공공데이터포털</b> (data.go.kr)</td><td>표준식단·급식 식단 데이터셋</td><td>공식 API/다운로드</td><td><span class="pill ok">안전</span></td></tr>
+      <tr><td><b>어린이급식관리지원센터</b></td><td>영유아·어린이집 식단표 — 우리 타겟에 가장 정합</td><td>공개 자료</td><td><span class="pill ok">안전</span></td></tr>
+      <tr><td><b>농진청 식단/레시피 DB</b></td><td>정부 표준 식단·레시피</td><td>공개 자료</td><td><span class="pill ok">안전</span></td></tr>
+      <tr><td><b>실사용 식단표 OCR</b></td><td>부모가 올린 식단표 → learned_menus 자생</td><td>자체 수집</td><td><span class="pill ok">자체</span></td></tr>
+      <tr><td>레시피 사이트<br>(만개의레시피 등)</td><td>방대한 음식·조리법</td><td>크롤링</td><td><span class="pill no">ToS 위험</span></td></tr>
+    </tbody>
+  </table>
+  <div class="key">⚠️ <b>ToS(이용약관) 위험</b>: 레시피 사이트는 약관에 "무단 크롤링·자동수집·상업적 재사용 금지"가 보통 명시 → IP 차단·경고·민사 리스크. <b>정부 공개 API(NEIS·공공데이터)만으로 급식 메뉴는 충분</b>하므로 크롤링은 비권장.</p>
+</section>
+
+<section>
+  <h2><span class="n">4</span> 처리 파이프라인</h2>
+  <div class="sub">수집한 메뉴명을 식재료로 환원하고 플라이휠에 적재</div>
+  <div class="flow">
+    <div class="step"><div class="t">① 수집</div><div class="d">NEIS API·공공데이터로 메뉴명 대량 확보</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="t">② 정규화</div><div class="d">표기 변형 정리(공백·괄호·브랜드 제거)</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="t">③ 분해</div><div class="d">menuMapCore 결정론 + learned_menus로 식재료 추출</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="t">④ 보강</div><div class="d">미매핑은 야간 LLM backfill(환각 차단)</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="t">⑤ 적재</div><div class="d">learned_menus에 저장 → 다음부턴 결정론(플라이휠)</div></div>
+  </div>
+  <p class="body">메뉴 등장 <b>빈도도 집계</b> → 도감 식재료의 ⭐별처럼 <b>"급식 단골 메뉴"</b> 랭킹을 만들 수 있고, 신메뉴 우선순위·추천에 쓰입니다.</p>
+</section>
+
+<section>
+  <h2><span class="n">5</span> 단계적 실행</h2>
+  <div class="phase"><div class="pt">Phase 1 — NEIS 급식 메뉴 대량 씨딩</div><div class="pd">NEIS OpenAPI로 전국 급식 메뉴를 당겨와 정규화 → <b>learned_menus 선(先)적재</b>. 신메뉴를 실사용 전에 미리 채워 매핑 커버리지를 끌어올림(M3 enrich보다 실속).</div></div>
+  <div class="phase"><div class="pt">Phase 2 — 메뉴 빈도 랭킹</div><div class="pd">메뉴 등장 빈도 집계 → '급식 단골 메뉴' 산출. 도감 ⭐별(식재료 빈도)과 짝이 되는 <b>메뉴 단위 빈도</b>.</div></div>
+  <div class="phase"><div class="pt">Phase 3 — 메뉴 기반 코칭·추천</div><div class="pd">"이 메뉴 자주 드시네요 → 빠진 식재료군은…", "또래가 잘 먹는 메뉴" 등 <b>메뉴 단위 인사이트</b>로 확장.</div></div>
+</section>
+
+<section>
+  <h2><span class="n">6</span> 측정(KPI) · 리스크</h2>
+  <ul class="clean">
+    <li><b>KPI</b>: 메뉴→식재료 매핑 커버리지(%), 미매핑율, learned_menus 누적 성장, 신메뉴 결정론 전환율</li>
+    <li><b>리스크</b>: ① 크롤링 <b>ToS</b>(→ 공식 API만) ② API 호출 한도(→ 배치·캐시) ③ 메뉴명 노이즈·변형(→ 정규화) ④ LLM 환각(→ '모르면 빈 배열' 가드·농진청 영양 매핑)</li>
+  </ul>
+  <div class="key">한 줄 요약: <b>음식을 다 모으려 하지 말고, NEIS 공식 API로 급식 메뉴를 대량 씨딩 → 우리 매핑 엔진으로 식재료(457 유니버스)로 환원 → learned_menus 플라이휠로 자생</b>시킨다.</div>
+</section>
+
+</main>
+<footer>밀프레드 · 음식(메뉴) 코퍼스 전략 · <a href="/docs.html" style="color:#9CA3AF">문서 허브</a></footer>
+</body>
+</html>
