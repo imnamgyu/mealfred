@@ -44,19 +44,25 @@ const REPERTOIRE_MIN_FREQ = 2;
 // '잘 먹고 있는' = 레퍼토리 멤버(최근 90일·2회+·비거부).
 function isWellEaten(s: Stat): boolean { return s.recentFreq >= REPERTOIRE_MIN_FREQ && !s.recentRefused; }
 
-function monthsSince(s: string | null): number | null {
+// 실제 경과 '일수'(datediff). 예전엔 getMonth() 차이만 봐서 5/31→6/2(이틀)도 '1개월'로 찍히던 버그가 있었다.
+function daysSince(s: string | null): number | null {
   if (!s) return null;
-  const d = new Date(s), now = new Date();
-  return (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+  // s = 'YYYY-MM-DD'(KST 달력일) 또는 ISO 타임스탬프. KST 자정 기준 경과일.
+  const t = Date.parse(s.length <= 10 ? `${s}T00:00:00+09:00` : s);
+  if (Number.isNaN(t)) return null;
+  return Math.floor((Date.now() - t) / 86400000);
 }
-function periodLabel(m: number | null): string {
-  if (m === null) return '아직 못 만남';
-  if (m <= 0) return '최근에 먹었어요';
+function periodLabel(days: number | null): string {
+  if (days === null) return '아직 못 만남';
+  if (days <= 2) return '최근에 먹었어요';
+  if (days < 7) return `${days}일째 안 먹은`;
+  if (days < 30) return `${Math.floor(days / 7)}주째 안 친해진`;
+  const m = Math.floor(days / 30);
   if (m < 12) return `${m}개월째 안 친해진`;
   const y = Math.floor(m / 12), x = m % 12;
   return x === 0 ? `${y}년째 안 친해진` : `${y}년 ${x}개월째 안 친해진`;
 }
-function periodBarPct(m: number | null): number { if (m === null) return 6; if (m >= 24) return 100; return Math.min(100, 12 + m * 4); }
+function periodBarPct(days: number | null): number { if (days === null) return 6; if (days >= 720) return 100; return Math.min(100, 12 + (days / 30) * 4); }
 
 // 상태: danger(관심 필요)·warn(주의)·good(잘 먹고 있어요). 홈의 '잘 먹는' 기준과 정합.
 function statusOf(s: Stat): 'danger' | 'warn' | 'good' {
@@ -64,8 +70,8 @@ function statusOf(s: Stat): 'danger' | 'warn' | 'good' {
   if (isWellEaten(s)) return 'good';           // 최근 90일·2회+·비거부 = 레퍼토리(잘 먹고 있어요)
   if (s.eat === 0) return 'danger';            // 노출했는데 한 번도 안 먹음
   if (s.recentRefused) return 'danger';        // 최근 거부 기록
-  const m = monthsSince(s.last);
-  if (m !== null && m >= 3) return 'danger';   // 3개월(=90일)+ 안 먹음 → 레퍼토리 이탈
+  const d = daysSince(s.last);
+  if (d !== null && d >= 90) return 'danger';   // 90일+ 안 먹음 → 레퍼토리 이탈
   return 'warn';                               // 친해지는 중(최근 1회만 등 아직 미달)
 }
 const STATUS = {
@@ -151,7 +157,7 @@ export default function FoodsDex() {
     const rank = { danger: 0, warn: 1, good: 2 };
     const ra = sa.exposure ? rank[statusOf(sa)] : 0.5, rb = sb.exposure ? rank[statusOf(sb)] : 0.5;
     if (ra !== rb) return ra - rb;
-    return (monthsSince(sb.last) ?? 99) - (monthsSince(sa.last) ?? 99);
+    return (daysSince(sb.last) ?? 1e9) - (daysSince(sa.last) ?? 1e9);
   });
 
   return (
@@ -216,7 +222,7 @@ export default function FoodsDex() {
           const meta = STATUS[st];
           const g = gradeMeta(p.grade);
           const gc = GRADE_COLOR[g.cls];
-          const m = monthsSince(s.last);
+          const days = daysSince(s.last);
           const ePct = Math.min(100, (s.exposure / EXPOSURE_TARGET) * 100);
           const nutri = nutriLabel(p.nm);
           return (
@@ -242,11 +248,11 @@ export default function FoodsDex() {
               </div>
               {/* 기간 + 마지막 */}
               <div className="flex justify-between items-baseline mb-1.5">
-                <span className="text-[13px] font-extrabold" style={{ color: st === 'good' ? '#16A085' : meta.color }}>{periodLabel(m)}</span>
+                <span className="text-[13px] font-extrabold" style={{ color: st === 'good' ? '#16A085' : meta.color }}>{periodLabel(days)}</span>
                 <span className="text-[11px]" style={{ color: '#9CA3AF' }}>{s.last ? `마지막 ${s.last.slice(0, 7)}` : ''}</span>
               </div>
               <div className="h-1.5 rounded-full mb-3" style={{ background: '#F0F0F0' }}>
-                <div className="h-full rounded-full" style={{ width: `${periodBarPct(m)}%`, background: meta.bar }} />
+                <div className="h-full rounded-full" style={{ width: `${periodBarPct(days)}%`, background: meta.bar }} />
               </div>
               {/* 먹은횟수 / 노출 */}
               <div className="flex justify-between items-baseline text-[11px] font-bold mb-1" style={{ borderTop: '1px dashed rgba(0,0,0,0.08)', paddingTop: '8px' }}>
