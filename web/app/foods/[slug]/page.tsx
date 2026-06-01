@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { loadPool, loadRecipes, loadFreqRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars, isSpicyDish } from '@/lib/ingredients';
 import RefusedBadge from '@/components/RefusedBadge';
+import FoodIcon from '@/components/FoodIcon';
 import MasteryBadge from '@/components/MasteryBadge';
 import { cookingGuide } from '@/lib/cookingMatrix';
 
@@ -89,8 +90,8 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
       {/* 헤더 카드 (care.html score-card 스타일) */}
       <header className="rounded-2xl p-5 mb-3" style={{ background: 'linear-gradient(135deg,#FFF8F2,#FFE8D0)', border: '1.5px solid #FFD8B0' }}>
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0" style={{ background: 'white' }}>
-            {hasEm ? ing.em : <span className="text-[11px] font-bold" style={{ color: '#9CA3AF' }}>{ing.cat.replace('_', '·').split('·')[0]}</span>}
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'white' }}>
+            <FoodIcon nm={ing.nm} em={hasEm ? ing.em : ''} cat={ing.cat} px={54} />
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-extrabold" style={{ color: '#1a2b4a' }}>{ing.nm}</h1>

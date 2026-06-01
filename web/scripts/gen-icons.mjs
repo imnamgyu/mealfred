@@ -10,7 +10,7 @@
  *   node scripts/gen-icons.mjs                    # 실제 생성
  * 옵션(env): ICON_MODEL(gpt-image-1|dall-e-3) · ICON_QUALITY(low|medium|high|standard|hd) · ICON_SIZE(1024x1024)
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 
 const MODEL = process.env.ICON_MODEL || 'gpt-image-1';
 const QUALITY = process.env.ICON_QUALITY || 'medium';
@@ -68,4 +68,8 @@ for (const p of todo) {
     fail++; console.log(`  ✗ ${p.nm} — ${String(e).slice(0, 120)}`);
   }
 }
+// 매니페스트 갱신 — 도감(FoodIcon)은 여기 등재된 것만 아이콘 렌더(없으면 이모지, 404 방지)
+const have = readdirSync(OUT).filter((f) => f.endsWith('.png')).map((f) => f.replace(/\.png$/, ''));
+writeFileSync('lib/icons-manifest.json', JSON.stringify({ icons: have }));
 console.log(`\n완료: ${done} 생성 · ${fail} 실패 · 실제 비용 ≈ $${(done * unit).toFixed(2)}`);
+console.log(`매니페스트 갱신: ${have.length}종 → lib/icons-manifest.json (커밋·배포하면 도감에 반영)`);

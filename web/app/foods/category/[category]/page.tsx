@@ -5,6 +5,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { loadPool } from '@/lib/ingredients';
+import FoodIcon from '@/components/FoodIcon';
 
 export const dynamic = 'force-static';
 export const dynamicParams = false;
@@ -51,12 +52,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
                 className="block rounded-2xl border p-4 text-center transition hover:-translate-y-1 hover:shadow-md bg-white"
                 style={{ borderColor: '#FFE8D0' }}
               >
-                <div className="mt-2 mb-1 text-5xl leading-none min-h-[50px] flex items-center justify-center">
-                  {hasEm ? ing.em : (
-                    <span className="text-xs font-bold text-gray-400 bg-gray-50 rounded-full w-14 h-14 flex items-center justify-center px-1">
-                      {decoded.split('·')[0]}
-                    </span>
-                  )}
+                <div className="mt-2 mb-1 min-h-[50px] flex items-center justify-center">
+                  <FoodIcon nm={ing.nm} em={hasEm ? ing.em : ''} cat={ing.cat} px={50} />
                 </div>
                 <div className="text-sm font-extrabold text-[var(--navy)] leading-tight">{ing.nm}</div>
                 <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1">

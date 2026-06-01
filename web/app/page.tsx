@@ -14,6 +14,7 @@ import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
 import { isSpicyIngredient } from '@/lib/spicy';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
+import FoodIcon from '@/components/FoodIcon';
 
 const todayStr = kstToday;   // KST 기준 — 새벽 크론(letter_date)과 동일 앵커
 
@@ -764,7 +765,7 @@ export default function Home() {
             const stars = it.grade === '자주' ? '⭐⭐⭐' : it.grade === '가끔' ? '⭐⭐' : '⭐';
             return (
               <a key={i} href={`/foods/${encodeURIComponent(it.nm)}`} className="flex items-center gap-3 py-2.5" style={{ borderTop: i ? '1px solid #F4F4F5' : 'none' }}>
-                <span className="text-2xl">{it.em}</span>
+                <FoodIcon nm={it.nm} em={it.em} cat="" px={28} />
                 <div className="flex-1">
                   <div className="text-sm font-extrabold flex items-center gap-1.5" style={{ color: '#1a2b4a' }}>{it.nm}{it.must_eat && <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700">💎 {it.must_eat_nutrient}</span>}</div>
                   <div className="text-[11px]" style={{ color: '#8a7a6a' }}>{stars} 급식 {it.grade || '일반'} · 아직 안 먹어봤어요</div>

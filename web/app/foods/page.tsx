@@ -10,6 +10,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { NUTRI_MAP, CATEGORY_GROUP } from '@/lib/nutrition';
 import { kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
+import FoodIcon from '@/components/FoodIcon';
 import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
 
 type Ing = { nm: string; cat: string; grade: string; em: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good'; must_eat_nutrient?: string };
@@ -226,8 +227,8 @@ export default function FoodsDex() {
               </div>
               {/* 헤드 */}
               <div className="flex items-center gap-3 mb-2.5">
-                <div className="relative w-12 h-12 rounded-xl flex items-center justify-center text-3xl" style={{ background: '#F3E5F5' }}>
-                  {p.em || '🍽'}
+                <div className="relative w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: '#F3E5F5' }}>
+                  <FoodIcon nm={p.nm} em={p.em || '🍽'} cat={p.cat} px={42} />
                   {s.eat > 0 && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-extrabold text-white px-1.5 py-0.5 rounded-full" style={{ background: '#1a2b4a' }}>{s.eat}회</span>}
                 </div>
                 <div className="flex-1">
