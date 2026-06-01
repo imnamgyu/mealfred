@@ -155,12 +155,27 @@ td{padding:8px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
     <div class="th"><span class="badge">푸드 체이닝 (Food Chaining)</span><span class="badge">단순노출 효과</span><span class="badge">음식 신공포증</span></div>
   </div>
   <div class="scn">
-    <div class="h"><span class="ic">⏱️</span><span class="ti">거부 재노출 타이밍</span></div>
-    <div class="trig">⚡ 발동: daycareRefused 또는 homeRefused에 식재료가 있으나, 최근 N일 그 식재료가 다시 식탁에 안 올라옴(노출 공백). 거부 후 회피가 굳어질 위험.</div>
-    <div class="move"><b>코칭 무브</b> — 거부했던 식재료를 '며칠 간격(격일~주2~3회)으로 부담 없이' 다시 만나게 하는 타이밍 1개를 준다. 기관에서 거부한 건 집에서 재노출. 곧장 맛보기가 무서우면 보기→만지기→냄새 사다리를 거쳐 맛보기로. 8~10회 일반 안심 근거만(특정 아이 'N번째' 카운트 지어내기 금지).</div>
-    <div class="angle">✉️ '지난번 ○○가 ~를 거부한 뒤로 식탁에 안 올라왔더라고요. 한 번 거부했다고 빼버리면 친해질 기회가 사라져요. 이번 주에 격일로 아주 작은 양을 다시 올려두기만 하세요. 입에 넣기 무서워하면 손으로 만지고 냄새만 맡아도 한 걸음이에요. 매일은 말고 부담 없이요.'</div>
-    <div class="avoid">🚫 금기: 한두 번 거부로 영구 제외. '매일 꼭' 들이밀어 권태 유발. 시각·촉각 단계에만 머물러 맛보기로 안 나아감. 기관 급식에 재노출을 요청(부모 통제 밖).</div>
-    <div class="th"><span class="badge">반복 맛 노출 (HabEat)</span><span class="badge">맛보기 노출 우선 (Taste vs Visual)</span><span class="badge">압박 없는 반복노출 통합</span></div>
+    <div class="h"><span class="ic">⏱️</span><span class="ti">거부 재노출 타이밍</span> <span style="font-size:9px;font-weight:800;color:#fff;background:#16A085;border-radius:100px;padding:2px 7px;">🎯 정밀</span></div>
+    <div class="trig">⚡ 발동: homeRefused/daycareRefused에 식재료가 있고, 아이별 마지막 노출이 2일+ 전(어제 준 건 제외). 거부 후 회피가 굳어질 위험.</div>
+    <div class="move"><b>코칭 무브</b> — 거부했던 식재료를 '격일~주2~3회'로 부담 없이 다시 만나게 하는 타이밍 1개. <b>이제 횟수·경과일을 코드가 계산</b>해 "○○를 N번 만났고 M일 전이라 지금이 적기"라고 데이터로 권한다(LLM이 지어내지 않고 사실만 인용). 무서우면 보기→만지기→냄새 사다리부터.</div>
+    <div class="angle">✉️ '거부했던 시금치를 <b>최근 6번 만났고 마지막이 4일 전</b>이에요 — 새 음식은 보통 8~10번 만나야 받아들이는데, 이 정도 간격이면 지금 다시 권하기 딱 좋은 시점이에요. 좋아하는 볶음밥에 아주 조금 섞어보세요.'</div>
+    <div class="avoid">🚫 금기: 한두 번 거부로 영구 제외. 어제 준 걸 또(권태). 없는 횟수·일수 지어내기. 기관 급식 재노출 요청(부모 통제 밖).</div>
+    <details style="margin-top:8px;font-size:12px;">
+      <summary style="cursor:pointer;font-weight:800;color:#C45A00;">🎯 정밀 재노출 엔진 — 자세한 전략 ▾</summary>
+      <div style="margin-top:8px;color:#3a4555;line-height:1.7;background:#FFF8F0;border:1px solid #FFE0C0;border-radius:10px;padding:12px;">
+        <b>아이별 '마지막 노출 시점 + 노출 횟수'</b>로 "지금 다시 권하기 좋은가"를 판정합니다 (<code>lib/reexposure.ts</code>).
+        <table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:11.5px;">
+          <tr><th style="background:#FFF0E0;color:#C45A00;padding:6px;text-align:left;border:1px solid #FFE0C0;">마지막 노출</th><th style="background:#FFF0E0;color:#C45A00;padding:6px;text-align:left;border:1px solid #FFE0C0;">판정</th></tr>
+          <tr><td style="padding:6px;border:1px solid #F0E8E0;">0~1일 전(어제)</td><td style="padding:6px;border:1px solid #F0E8E0;">🚫 제외 — 매일 누르면 권태로 더 빨리 물림</td></tr>
+          <tr><td style="padding:6px;border:1px solid #F0E8E0;">2~7일 전</td><td style="padding:6px;border:1px solid #F0E8E0;">✅ <b>적기(due)</b> — 격일~주2~3회 주기에 딱</td></tr>
+          <tr><td style="padding:6px;border:1px solid #F0E8E0;">8일+ 전</td><td style="padding:6px;border:1px solid #F0E8E0;">⏰ 잊히기 전에(overdue) — 다시 만나기 좋은 때</td></tr>
+        </table>
+        · <b>노출 8회+</b>면 "거의 친해질 때"를 덧붙여 부모 안심 (반복노출 8~10회 수용 이론).<br>
+        · 후보가 여럿이면 <b>적기 + 많이 만난 것</b>(수용 임박) 우선.<br>
+        · ⚠️ 숫자(횟수·일수)는 <b>코드가 meal_logs로 계산</b>해 '시계열 사실'로 편지에 넘김 → LLM은 인용만 (환각 차단, P4·P5).
+      </div>
+    </details>
+    <div class="th"><span class="badge">반복 맛 노출 (HabEat)</span><span class="badge">맛보기 노출 우선</span><span class="badge">압박 없는 반복노출 통합</span><span class="badge">정밀 재노출</span></div>
   </div>
   <div class="scn">
     <div class="h"><span class="ic">🍽️</span><span class="ti">식사 분위기 / 압박·구조 문제</span></div>

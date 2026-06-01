@@ -23,6 +23,7 @@ import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { selectScenario } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
+import { reexposurePick } from '@/lib/reexposure';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
@@ -185,6 +186,15 @@ export async function GET(req: Request) {
               ts.push(`전에 거부했던 '${k}'를 최근 다시 받아들이기 시작했어요(거부→수용 전환)`); added++;
             }
           }
+          // 정밀 재노출 — 거부 식재료별 (최근 한 달) 노출 횟수 + 마지막 노출 후 일수 → 재노출 적기 사실(숫자는 코드가 계산, LLM은 인용만)
+          const offerCount: Record<string, number> = {}; const offerLast: Record<string, string> = {};
+          (trData || []).forEach((r: { log_date: string; ingredients: string[] | null }) => {
+            (r.ingredients || []).forEach((i) => { offerCount[i] = (offerCount[i] || 0) + 1; if (!offerLast[i] || r.log_date > offerLast[i]) offerLast[i] = r.log_date; });
+          });
+          const offerDaysAgo: Record<string, number> = {};
+          Object.entries(offerLast).forEach(([nm, d]) => { offerDaysAgo[nm] = Math.round((todayMs - Date.parse(d)) / 86400000); });
+          const rx = reexposurePick(uniqRef, offerCount, offerDaysAgo);
+          if (rx && ts.length < 8) ts.push(rx.fact);   // 시계열 사실로 → 편지가 'N번·M일·적기'를 인용
         } catch { /* 전환 감지는 보조 — 실패해도 코칭 계속 */ }
         // P9 + 보고서: 최근 5일 중 기록된 날(결정론적) — 재사용 분기에서도 쓰도록 위로 끌어올림
         const RECENT_WINDOW = 5;
