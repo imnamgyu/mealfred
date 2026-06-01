@@ -10,8 +10,7 @@ import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { computeSignals, computeFoodGroups, NUTRIENT_FOODS, type NutrientSignal } from '@/lib/nutrition';
 import BottomNav from '@/components/BottomNav';
-
-const STORAGE_KEY = 'mealfred_care_logs';
+import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
 const LEVEL_COLOR = { green: '#16A085', yellow: '#F9A825', red: '#E53935' };
 const LEVEL_BG = { green: '#E8F5E9', yellow: '#FFF8E1', red: '#FFEBEE' };
 const LEVEL_LABEL = { green: '충분', yellow: '가끔', red: '부족' };
@@ -63,7 +62,7 @@ export default function ReportPage() {
       } else {
         // localStorage
         try {
-          const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          const logs = loadCareLogs<Record<string, Record<string, { ingredients?: { name: string }[]; refused?: string }>>>(null);
           for (const d of dates) {
             const dayLog = logs[d];
             if (!dayLog) continue;

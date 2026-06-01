@@ -13,6 +13,7 @@ import { normalizeIngredient } from '@/lib/lexicon';
 import { createMapper } from '@/lib/menuMapCore';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { computeMealDefaults, pickDefault, type MealDefaults } from '@/lib/mealDefaults';
+import { loadCareLogs, saveCareLogs, clearCareLogs, purgeLegacyCareCache } from '@/lib/careCache';
 
 type Slot = { key: string; label: string; emoji: string; time: string };
 const SLOTS: Slot[] = [
@@ -45,16 +46,11 @@ function emptyEntry(slot: string, dateStr: string): MealEntry {
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
 
-const STORAGE_KEY = 'mealfred_care_logs';
 const todayStr = kstToday;   // KST 기준 — 크론(letter_date/q_date)과 동일 앵커
 
-function loadLogs(): Record<string, DayLog> {
-  if (typeof window === 'undefined') return {};
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
-}
-function saveLogs(logs: Record<string, DayLog>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
-}
+// 끼니 캐시는 lib/careCache(유저별 격리)로 일원화. 로그인 사용자는 server(meal_logs)가 단일 진실 —
+// localStorage는 비로그인(guest) 미리보기에만 쓴다(계정 간 표시 누수·디스크 영구화 차단).
+const loadGuestLogs = (): Record<string, DayLog> => loadCareLogs<Record<string, DayLog>>(null);
 
 // Supabase row ↔ MealEntry 변환
 type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null; place: string | null };
@@ -162,7 +158,8 @@ export default function CarePage() {
       .then((r) => r.json())
       .then((d) => setPool(d.ingredients))
       .catch(() => {});
-    setLogs(loadLogs());
+    purgeLegacyCareCache();   // 네임스페이스 없던 옛 전역 키 폐기 — 계정 간 누수 차단(1회)
+    setLogs(loadGuestLogs());
   }, []);
 
   // 로그인 감지 → 자녀 조회 → Supabase 기록 로드 + localStorage 동기화
@@ -210,7 +207,7 @@ export default function CarePage() {
       setMenuMonths(mm);
 
       // localStorage에만 있는 기록 → Supabase로 1회 동기화 (클라우드 우선)
-      const local = loadLogs();
+      const local = loadGuestLogs();   // guest(비로그인) 미리보기 기록만 — 로그인 계정은 localStorage에 안 씀
       const toSync: ReturnType<typeof entryToRow>[] = [];
       for (const [d, dayLog] of Object.entries(local)) {
         for (const [slot, e] of Object.entries(dayLog)) {
@@ -225,6 +222,7 @@ export default function CarePage() {
       if (toSync.length) {
         await supabase.from('meal_logs').upsert(toSync, { onConflict: 'child_id,log_date,slot' });
       }
+      clearCareLogs(null);   // guest 미리보기를 이 계정으로 이관 완료 → 비움(다른 계정으로 재이관·누수 방지)
 
       setLogs(cloud);
 
@@ -521,7 +519,7 @@ export default function CarePage() {
     if (!next[date]) next[date] = {};
     next[date][activeSlot] = e;
     setLogs(next);
-    saveLogs(next);              // localStorage (오프라인 캐시)
+    if (!userId) saveCareLogs(next, null);   // 비로그인(guest)만 디스크 캐시 — 로그인은 메모리(setLogs)+server가 진실(아래 upsert)
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
 

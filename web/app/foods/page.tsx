@@ -10,8 +10,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { NUTRI_MAP, CATEGORY_GROUP } from '@/lib/nutrition';
 import { kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
-
-const STORAGE_KEY = 'mealfred_care_logs';
+import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
 
 type Ing = { nm: string; cat: string; grade: string; em: string };
 // exposure/eat/first/last = 전체 누적. recentFreq/recentRefused = '잘 먹는' 판정용(최근 90일 윈도우).
@@ -108,7 +107,7 @@ export default function FoodsDex() {
         }
       } else {
         try {
-          const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          const logs = loadCareLogs<Record<string, Record<string, { ingredients?: { name: string }[]; ateWell?: boolean | null; refused?: string | null }>>>(null);
           Object.entries(logs).forEach(([date, day]) => {
             Object.values(day as Record<string, { ingredients?: { name: string }[]; ateWell?: boolean | null; refused?: string | null }>).forEach((e) => {
               (e.ingredients || []).forEach((t) => add(t.name, e.ateWell ?? null, date, e.refused ?? null));

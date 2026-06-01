@@ -14,7 +14,6 @@ import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
-const STORAGE_KEY = 'mealfred_care_logs';
 const todayStr = kstToday;   // KST 기준 — 새벽 크론(letter_date)과 동일 앵커
 
 // 빈도(pct) → 친근한 라벨 (care.html freqLabel 동일)

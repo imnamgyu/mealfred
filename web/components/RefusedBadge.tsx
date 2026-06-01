@@ -5,8 +5,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-
-const STORAGE_KEY = 'mealfred_care_logs';
+import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
 
 export default function RefusedBadge({ ingredient }: { ingredient: string }) {
   const [refused, setRefused] = useState(false);
@@ -24,7 +23,7 @@ export default function RefusedBadge({ ingredient }: { ingredient: string }) {
         }
       } else {
         try {
-          const logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          const logs = loadCareLogs<Record<string, Record<string, { refused?: string }>>>(null);
           for (const day of Object.values(logs)) {
             for (const entry of Object.values(day as Record<string, { refused?: string }>)) {
               if (entry.refused && matches(entry.refused)) { setRefused(true); return; }
