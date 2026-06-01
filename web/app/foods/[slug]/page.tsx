@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { loadPool, loadRecipes, loadFreqRecipes, findIngredient, KDRI_1_2Y, NUTRI_LABELS, nutriToStars, isSpicyDish } from '@/lib/ingredients';
 import RefusedBadge from '@/components/RefusedBadge';
+import MasteryBadge from '@/components/MasteryBadge';
 import { cookingGuide } from '@/lib/cookingMatrix';
 
 // SOS 식감 난이도 순서 (부드러움 → 단단함) — 거부 식재료 친해지기 정렬
@@ -140,6 +141,7 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
         <p className="text-[11.5px] mt-3 font-semibold" style={{ color: '#5a4a3a' }}>강요는 거부를 강화합니다. 1단계부터 천천히 — 일주일 1-2 단계 진행 권장.</p>
       </section>
 
+      <MasteryBadge ingredient={ing.nm} />
       <RefusedBadge ingredient={ing.nm} />
 
       {freqRecipes.length > 0 && (
