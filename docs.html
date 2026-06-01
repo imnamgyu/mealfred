@@ -4,8 +4,8 @@
 <script src="/docs-gate.js?v=4"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>밀프레드 편식도감 — 프로젝트 문서 허브</title>
-<meta property="og:title" content="밀프레드 편식도감 — 프로젝트 문서 전체 맵 v2">
+<title>밀프레드 편식도감 — 프로젝트 문서 허브 v1</title>
+<meta property="og:title" content="밀프레드 편식도감 — 프로젝트 문서 허브 v1">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -58,175 +58,158 @@
 
 <header class="hero">
   <div class="hero-inner">
-    <span class="tag">📚 PROJECT DOCS HUB · 최신본</span>
-    <h1>밀프레드 편식도감<br>프로젝트 문서 허브</h1>
-    <p>최신·진행 중인 문서만 모았습니다. 지난 버전·구현 완료·참고 자료는 <a href="/docs-archive.html" style="color:#C45A00;font-weight:700">아카이브</a>에 있어요.</p>
+    <span class="tag">📚 PROJECT DOCS HUB · v1</span>
+    <h1>밀프레드 편식도감<br>프로젝트 문서 허브 <span style="color:#C45A00">v1</span></h1>
+    <p>앱이 라이브로 확정된 <b>v1</b> 기준 <b>현행 문서만</b> 모았습니다. 런칭 전 설계도·제안서·구버전·데모는 전부 <a href="/docs-archive.html" style="color:#C45A00;font-weight:700">아카이브</a>로 옮기고 deprecated 표시했어요.</p>
   </div>
 </header>
 
 <main>
 
-<!-- 1. 최신·진행 -->
+<!-- 1. 현행 핵심 명세 (정본) -->
 <section class="cat-section">
   <div class="cat-head">
-    <h3>🔥 최신 · 진행 중</h3>
+    <h3>🔥 현행 핵심 명세 (정본)</h3>
     <span class="cnt">6 문서</span>
-    <span class="note">지금 보고 결정하거나 막 정해진 것</span>
+    <span class="note">라이브 앱이 실제로 구현하는 단일 진실</span>
   </div>
   <div class="doc-grid">
     <a href="/coaching-scenarios.html" class="doc-card cat-strategy">
-      <span class="badge new">NEW</span>
+      <span class="badge spec">정본</span>
       <div class="ico">💌</div>
-      <h4>코칭 엔진 — 온보딩 전략 &amp; 시나리오 라이브러리</h4>
-      <p class="desc">35개 편식 국제이론 근거 · 온보딩 4주 아크(신뢰→관찰→개입→정착) + 상황별 시나리오 13개(트리거·코칭무브·편지각도·금기) + 로테이션 규칙. <b>편지가 매일 똑같아지는 문제를 구조로 해결</b></p>
+      <h4>코칭 엔진 — 시나리오 라이브러리</h4>
+      <p class="desc">35개 편식 이론 근거 · <b>13 시나리오</b>(트리거·코칭무브·편지각도·금기) + 온보딩 4주 아크 + 로테이션. 만성질환 6종·정밀 재노출 포함. <b>라이브 코칭 엔진 단일 진실</b></p>
       <div class="meta"><span>COACHING · 다양성 엔진</span><span class="arrow">→</span></div>
     </a>
-    <a href="/nutrient-signal-report.html" class="doc-card cat-prd">
-      <span class="badge new">결정 필요</span>
-      <div class="ico">🚦</div>
-      <h4>영양 신호등 기준 개편 보고서</h4>
-      <p class="desc">KDRI 31종을 체내 저장·식품 분포·결핍 위험으로 매일군/자주군/가끔군 분류. green 문턱 5/4/2일 차등 + 비타민D 분리 + 분모 버그. 근거·출처·2단 롤아웃 권장안. <b>보고 결정용</b></p>
-      <div class="meta"><span>NUTRITION · 근거 보고서</span><span class="arrow">→</span></div>
-    </a>
     <a href="/mapping-strategy.html" class="doc-card cat-prd">
-      <span class="badge new">전략</span>
+      <span class="badge spec">정본</span>
       <div class="ico">🔧</div>
-      <h4>메뉴→식재료 매핑 엔진 개선 전략</h4>
-      <p class="desc">4단 파이프라인(learned→rule→scan→LLM) 진단. 결정론 53%→75% 보강(1글자 표준명·가공식품 베이스·복합메뉴 분해) + LLM 환각 차단 + 농진청 NUTRI_MAP 정확 등재. KPI·백로그 원칙. <b>튜닝 리포트 기반</b></p>
-      <div class="meta"><span>ENGINE · 개선 전략</span><span class="arrow">→</span></div>
+      <h4>메뉴→식재료 매핑 엔진</h4>
+      <p class="desc"><b>4단 파이프라인</b>(learned→rule→scan→LLM). 결정론 보강(1글자 표준명·가공식품 베이스·복합메뉴) + LLM 환각 차단 + 농진청 NUTRI_MAP 정확 등재. <b>라이브 매핑 정본</b></p>
+      <div class="meta"><span>ENGINE · 매핑</span><span class="arrow">→</span></div>
     </a>
-    <a href="/viral-rewards-v3.html" class="doc-card cat-prd">
-      <span class="badge new">v3 · 최신</span>
-      <div class="ico">🎁</div>
-      <h4>리워드·바이럴 엔진 v3</h4>
-      <p class="desc">월 4,900원 유료화 + 다양한 리워드. 친구 가입 +4,900P(한 달값)·끼니·후기·리뷰·룰렛 6종 작동·포인트 표 + 바이럴 루프 도식 + 슈퍼 인플루언서 모델. <b>도식·테이블화</b></p>
-      <div class="meta"><span>REWARD ENGINE · 단일 진실</span><span class="arrow">→</span></div>
+    <a href="/nutrient-signal-report.html" class="doc-card cat-prd">
+      <span class="badge done">✅ 적용됨</span>
+      <div class="ico">🚦</div>
+      <h4>영양 신호등 기준</h4>
+      <p class="desc">KDRI 31종을 체내저장·식품분포·결핍위험으로 분류 → green 문턱 <b>매일군5/자주군4/가끔군2</b> 차등. 비타민D 분리·분모 교정. <b>라이브 적용 완료</b>의 근거·출처</p>
+      <div class="meta"><span>NUTRITION · 근거</span><span class="arrow">→</span></div>
     </a>
-    <a href="/roadmap.html" class="doc-card cat-strategy">
-      <span class="badge new">현행</span>
-      <div class="ico">📅</div>
-      <h4>개발 로드맵 (M0~M13)</h4>
-      <p class="desc">14 마일스톤 · 26 배포 단위 · 마일스톤별 개발 범위·DoD·의존성·우선순위·병렬 가능 페어·누적 매출 가설</p>
-      <div class="meta"><span>14 MILESTONES</span><span class="arrow">→</span></div>
+    <a href="/design-spec.html" class="doc-card cat-design">
+      <span class="badge spec">DESIGN</span>
+      <div class="ico">🎨</div>
+      <h4>디자인 명세서 (단일 소스)</h4>
+      <p class="desc">컬러 토큰 · 타이포 · 컴포넌트(버튼·카드·모달·chip·게이지·신호등) · 톤앤매너. <b>다크 배경 금지 · 네이비는 글자만 · 오렌지는 CTA만</b>. 새 화면 전 확인</p>
+      <div class="meta"><span>DESIGN SYSTEM v3</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog.html" class="doc-card cat-strategy">
-      <span class="badge done">📓 LIVE</span>
-      <div class="ico">📓</div>
-      <h4>업무일지 — 일·주·월 진행상황 타임라인</h4>
-      <p class="desc">git 히스토리 기반 <strong>시각화 업무일지</strong> · 일/주/월 뷰 토글 · 일자별 배포 막대 · 카테고리 분포. 거버넌스·일관성용 (단일 진실: 09_업무일지 + HARNESS.md)</p>
-      <div class="meta"><span>거버넌스</span><span class="arrow">→</span></div>
+    <a href="/methodology.html" class="doc-card cat-strategy">
+      <span class="badge live">공개</span>
+      <div class="ico">📖</div>
+      <h4>편식 해결 핵심 방법론 10</h4>
+      <p class="desc">SOS·Satter 등 35개 국제 가이드라인을 부모용 <b>10 원칙</b>(강요 금지·역할 분담·다리 놓기·반복 노출)으로 집약. 라이브 코칭이 구현하는 근거의 부모 대상 요약. <b>에버그린</b></p>
+      <div class="meta"><span>학술 근거 · 공개</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/box-product.html" class="doc-card cat-prd">
+      <span class="badge live">제품</span>
+      <div class="ico">📦</div>
+      <h4>골고루 키트 — 제품 페이지</h4>
+      <p class="desc">아이 분석 기반 <b>개인맞춤 극다품종 소량</b>. 주간 처방·기존 식단 가미·Satter/SOS 부담 0. 💎 영양 보석 우선 배합. <b>라이브 박스 정의</b></p>
+      <div class="meta"><span>PRODUCT · 골고루 키트</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
 
-<!-- 2. 명세·아키텍처 -->
+<!-- 2. 계획 · 성장 -->
 <section class="cat-section">
   <div class="cat-head">
-    <h3>📐 명세 · 아키텍처</h3>
-    <span class="cnt">6 문서</span>
-    <span class="note">개발 참고 · 정본</span>
+    <h3>📅 계획 · 성장</h3>
+    <span class="cnt">3 문서</span>
+    <span class="note">로드맵 · 리워드 · 포지셔닝</span>
   </div>
   <div class="doc-grid">
-    <a href="/design-spec.html" class="doc-card cat-design">
-      <span class="badge spec">DESIGN SPEC</span>
-      <div class="ico">🎨</div>
-      <h4>디자인 명세서</h4>
-      <p class="desc">디자인 철학 · 컬러 토큰 · 타이포그래피 · 컴포넌트 라이브러리(버튼·카드·모달·chip·게이지·신호등) · 레이아웃 · 마이크로 인터랙션 · 접근성 · 이모지·톤앤매너</p>
-      <div class="meta"><span>LEAD DESIGNER</span><span class="arrow">→</span></div>
+    <a href="/roadmap.html" class="doc-card cat-strategy">
+      <span class="badge done">현행</span>
+      <div class="ico">📅</div>
+      <h4>개발 로드맵 (M0~M13)</h4>
+      <p class="desc"><b>M0~M6 완료</b>(앱 라이브). M7~M13 남은 작업·백로그·DoD·의존성. 룰렛·친구초대 양방향 등 폐기 메커니즘은 취소선 반영</p>
+      <div class="meta"><span>14 MILESTONES</span><span class="arrow">→</span></div>
     </a>
-    <a href="/dev-spec.html" class="doc-card cat-design">
-      <span class="badge spec">DEV SPEC</span>
-      <div class="ico">💻</div>
-      <h4>개발 명세서</h4>
-      <p class="desc">기술 스택 · 디렉토리 구조 · 코딩 컨벤션 · API 라우트 · 데이터 페칭 · 인증 · 테스트 · CI/CD · 환경변수 · 에러처리 · 성능 · 보안 · 모니터링</p>
-      <div class="meta"><span>LEAD DEVELOPER</span><span class="arrow">→</span></div>
+    <a href="/viral-rewards-v3.html" class="doc-card cat-prd">
+      <span class="badge spec">단일 진실</span>
+      <div class="ico">🎁</div>
+      <h4>리워드·바이럴 엔진 v3</h4>
+      <p class="desc">월 4,900원 · <b>첫 달 무료 + 친구 초대마다 한 달 무료</b> · 끼니당 포인트 · 포인트로 구독 차감 · 친구 가입 +4,900P. <b>평생무료·룰렛·후기/리뷰 보상은 폐기</b>(기록·친구초대만). 리워드 단일 진실</p>
+      <div class="meta"><span>REWARD ENGINE</span><span class="arrow">→</span></div>
     </a>
-    <a href="/architecture-detailed.html" class="doc-card cat-arch">
-      <span class="badge spec">ARCH v2 ★</span>
-      <div class="ico">📐</div>
-      <h4>백엔드 아키텍처 (상세, 정본)</h4>
-      <p class="desc">14 테이블 ER + 컬럼별 스키마 · 37 유즈케이스 · 18 알고리즘 의사코드 · Mermaid 다이어그램. <strong>이게 정본</strong></p>
-      <div class="meta"><span>1,381 LINES</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/engines-deep.html" class="doc-card cat-arch">
-      <span class="badge spec">ENGINE DEEP</span>
-      <div class="ico">🔬</div>
-      <h4>엔진 Deep Dive (5 엔진 · v2)</h4>
-      <p class="desc"><strong>🧹 입력 전처리(LLM)</strong> + 평가·추천·OCR + <strong>🧠 AI 코치(정성 시계열 체이닝)</strong> 5엔진. 자유 텍스트 → MealLog 정규화, raw_note 보존·주간 분석·역질문, prompt injection 방어, 29 알고리즘 풀 명세</p>
-      <div class="meta"><span>29 ALGOS · 5 ENGINES</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/recipe-criteria.html" class="doc-card cat-arch">
-      <span class="badge spec">RECIPE CRITERIA</span>
-      <div class="ico">🍳</div>
-      <h4>레시피 추천 기준 (전체 명세)</h4>
-      <p class="desc">6 데이터 소스 · 11 학술 이론 (WHO MDD·DSR·HEI·FVS·NOVA·Food Chaining·SOS·Satter·HabEat·Cooke·KDRI) · 4 원칙 + 메인 반찬 판단 · 다양성 2-Layer · 제철 + Cuisine + LLM 전처리</p>
-      <div class="meta"><span>11 THEORIES</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/test-scenarios.html" class="doc-card cat-arch">
-      <span class="badge spec">TEST PLAN</span>
-      <div class="ico">🧪</div>
-      <h4>테스트 시나리오 + 유닛 테스트 풀</h4>
-      <p class="desc">132 케이스 (평가 32 + 추천 28 + OCR 18 + AI 코치 16 + 전처리 10 + E2E 8 + 보안 12 + 성능 8). 우선순위·Input·Expected 표 형식</p>
-      <div class="meta"><span>132 CASES</span><span class="arrow">→</span></div>
+    <a href="/product-focus.html" class="doc-card cat-strategy">
+      <span class="badge spec">포지셔닝</span>
+      <div class="ico">🎯</div>
+      <h4>제품 포커스 — 편식 스트레스 부모</h4>
+      <p class="desc">편식 스트레스 부모 페르소나 · <b>골든타임(초등 입학 전)</b> · 소량 반복 노출. 현행 제품 포지셔닝</p>
+      <div class="meta"><span>POSITIONING</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
 
-<!-- 3. 라이브 페이지 -->
+<!-- 3. 라이브 앱 -->
 <section class="cat-section">
   <div class="cat-head">
-    <h3>📱 라이브 페이지</h3>
-    <span class="cnt">4 LIVE + 1 Coming</span>
-    <span class="note">mealfred.com</span>
+    <h3>📱 라이브 앱</h3>
+    <span class="cnt">app.mealfred.com</span>
+    <span class="note">실제 서비스</span>
   </div>
   <div class="doc-grid">
     <a href="https://app.mealfred.com/foods" class="doc-card cat-app">
       <span class="badge live">LIVE</span>
       <div class="ico">🗂</div>
-      <h4>식재료 도감 (147종 · 공개)</h4>
-      <p class="desc">로그인 X · 누구나 자유 열람. 학교 급식·영유아 빈도 기반 등급화. 영양·SOS·레시피·또래가 잘 먹는 음식. <strong>메인 진입로</strong></p>
-      <div class="meta"><span>147 → 650 → 10,000</span><span class="arrow">→</span></div>
+      <h4>식재료 도감 (공개)</h4>
+      <p class="desc">로그인 X · 누구나 열람. <b>2축 등급</b>: ⭐급식 빈도 + 💎영양 보석(꼭 챙길 영양). KDRI 31종 신호등 · 또래 레시피 · SOS · 푸드체이닝. <b>메인 진입로</b></p>
+      <div class="meta"><span>132 → 650 → 10,000</span><span class="arrow">→</span></div>
     </a>
-    <a href="/daycare-eval.html" class="doc-card cat-app">
+    <a href="https://app.mealfred.com" class="doc-card cat-app">
       <span class="badge live">LIVE</span>
-      <div class="ico">📋</div>
-      <h4>우리 아이 식단표 평가</h4>
-      <p class="desc">사진 1장 → <strong>OCR 전사 + Claude 식재료 분해</strong> → 8축 평가 + 끼니별 멘트 + 추천 + 레시피 CTA. 가공/초가공 2단계 · 연령 안전 필터 · 결과 공유 URL. <strong>두번째 Hook</strong></p>
-      <div class="meta"><span>HOOK FUNNEL</span><span class="arrow">→</span></div>
+      <div class="ico">🏠</div>
+      <h4>편식도감 앱 (홈·기록·코칭)</h4>
+      <p class="desc">홈(영양점수·31종 신호등·식품군·BMI·코칭 편지) · 도감 · 기록(사진 AI·식감·자율성·체위·식단표 OCR) · 레시피 · 마이페이지(포인트·친구초대)</p>
+      <div class="meta"><span class="st done">✅ 앱 라이브</span><span class="arrow">→</span></div>
     </a>
     <a href="/blog/" class="doc-card cat-app">
       <span class="badge live">LIVE</span>
       <div class="ico">📚</div>
       <h4>밀프레드 편식 백과 (블로그)</h4>
-      <p class="desc">학술 + 임상 + 실전 사례. 단맛 유전·편식 골든타임·NHS·ARFID·Solid Starts·KDRI 등 후킹 제목 시리즈. <strong>SEO 백링크 + 신뢰</strong></p>
+      <p class="desc">학술 + 임상 + 실전 사례. 단맛 유전·편식 골든타임·NHS·ARFID·Solid Starts·KDRI 등 후킹 시리즈. <b>SEO 백링크 + 신뢰</b></p>
       <div class="meta"><span>블로그</span><span class="arrow">→</span></div>
     </a>
-    <a href="/care.html" class="doc-card cat-app">
-      <span class="badge demo">DEMO</span>
-      <div class="ico">🏠</div>
-      <h4>편식도감 앱 (PWA 데모)</h4>
-      <p class="desc">홈(영양점수·31종 신호등·식품군·BMI·코칭편지) · 도감 · 기록(사진AI·식감·자율성·체위·식단표OCR) · 레시피. <strong>실제 앱(app.mealfred.com)으로 구현됨</strong></p>
-      <div class="meta"><span class="st done">✅ 앱 라이브</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/personal-coming.html" class="doc-card cat-app">
-      <span class="badge coming">COMING SOON</span>
-      <div class="ico">✨</div>
-      <h4>개인화 레시피 (출시 준비 중)</h4>
-      <p class="desc">우리 아이 데이터 기반 매주 새 레시피 + 90일 챌린지 + 골고루 키트 funnel. 출시 1순위 알림 등록 페이지</p>
-      <div class="meta"><span>LEAD CAPTURE</span><span class="arrow">→</span></div>
+  </div>
+</section>
+
+<!-- 4. 거버넌스 -->
+<section class="cat-section">
+  <div class="cat-head">
+    <h3>🧭 거버넌스</h3>
+    <span class="cnt">1 문서</span>
+    <span class="note">진행상황 단일 진실</span>
+  </div>
+  <div class="doc-grid">
+    <a href="/worklog.html" class="doc-card cat-strategy">
+      <span class="badge done">📓 LIVE</span>
+      <div class="ico">📓</div>
+      <h4>업무일지 — 일·주·월 타임라인</h4>
+      <p class="desc">git 히스토리 기반 <b>시각화 업무일지</b> · 일/주/월 뷰 · 일자별 배포 막대 · 카테고리 분포. (단일 진실: 09_업무일지 + HARNESS.md)</p>
+      <div class="meta"><span>거버넌스</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
 
 <!-- 아카이브 -->
 <section class="cat-section">
-  <a href="/docs-archive.html" class="arc-link">🗄️ 아카이브 — 지난 버전·구현 완료·참고 자료 (전략 v2·도감 PRD·룰vsLLM·deprecated·데이터 자산) →</a>
+  <a href="/docs-archive.html" class="arc-link">🗄️ 아카이브 — 런칭 전 설계도·제안서·구버전·데모 (전부 deprecated 표시) →</a>
 </section>
 
 </main>
 
 <footer>
-  <p>밀프레드 편식도감 · 프로젝트 문서 허브 · 최신본만 표시 · 지난 자료는 <a href="/docs-archive.html" style="color:#9CA3AF">아카이브</a></p>
+  <p>밀프레드 편식도감 · 프로젝트 문서 허브 <b>v1</b> · 현행 문서만 표시 · 지난 자료는 <a href="/docs-archive.html" style="color:#9CA3AF">아카이브</a></p>
 </footer>
 
 </body>
