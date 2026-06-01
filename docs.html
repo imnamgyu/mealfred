@@ -8,89 +8,48 @@
 <meta property="og:title" content="밀프레드 편식도감 — 프로젝트 문서 전체 맵 v2">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
   :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
-
-  .hero{padding:64px 24px 44px;text-align:center;background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;position:relative;overflow:hidden}
+  .hero{padding:60px 24px 40px;text-align:center;background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;position:relative;overflow:hidden}
   .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
   .hero-inner{position:relative;z-index:1;max-width:760px;margin:0 auto}
   .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25);backdrop-filter:blur(6px)}
   .hero h1{font-size:34px;font-weight:800;letter-spacing:-0.03em;line-height:1.25;margin-bottom:12px;color:#1a2b4a}
   .hero p{font-size:14.5px;color:#5a4a3a;max-width:600px;margin:0 auto;font-weight:500;line-height:1.75}
-  .hero .changelog{margin-top:18px;background:rgba(255,255,255,0.55);border:1px solid rgba(255,107,26,0.2);border-radius:10px;padding:10px 14px;font-size:11.5px;color:#C45A00;font-weight:700;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.6;backdrop-filter:blur(6px)}
-
   main{max-width:1100px;margin:0 auto;padding:32px 24px 60px}
-
-  section{margin-bottom:48px}
-  .section-tag{display:inline-block;font-size:11px;color:var(--p700);font-weight:800;letter-spacing:0.08em;margin-bottom:6px}
-  h2{font-size:24px;font-weight:800;color:var(--s800);letter-spacing:-0.02em;margin-bottom:14px}
-  p{font-size:14px;color:var(--n700);font-weight:500;line-height:1.7}
-
-  /* 문서 맵 */
-  .map-wrap{background:white;border:1.5px solid var(--n200);border-radius:16px;padding:24px 12px;margin:14px 0;overflow-x:auto;box-shadow:0 4px 16px rgba(0,0,0,0.04)}
-  .mermaid{text-align:center;min-width:700px}
-
-  /* 카테고리별 문서 그리드 */
-  .cat-section{margin-bottom:36px}
+  .cat-section{margin-bottom:38px}
   .cat-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--p500)}
   .cat-head h3{font-size:18px;color:var(--s800);font-weight:800;letter-spacing:-0.01em}
   .cat-head .cnt{font-size:11px;color:var(--n500);font-weight:700;background:var(--n50);padding:3px 9px;border-radius:100px}
   .cat-head .note{font-size:11px;color:var(--n500);font-weight:600;font-style:italic;margin-left:auto}
-
   .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
   .doc-card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px;cursor:pointer;transition:all 0.2s;text-decoration:none;color:inherit;display:flex;flex-direction:column;position:relative;overflow:hidden}
   .doc-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08);border-color:var(--p500)}
   .doc-card .badge{position:absolute;top:14px;right:14px;font-size:9px;font-weight:800;padding:3px 8px;border-radius:100px;letter-spacing:0.04em;white-space:nowrap}
   .doc-card .badge.live{background:var(--g500);color:white}
   .doc-card .badge.spec{background:var(--b500);color:white}
-  .doc-card .badge.proposal{background:var(--p500);color:white}
-  .doc-card .badge.prd{background:var(--v500);color:white}
-  .doc-card .badge.roadmap{background:#16A085;color:white}
   .doc-card .badge.demo{background:var(--n500);color:white}
   .doc-card .badge.coming{background:var(--y500);color:white}
-  .doc-card .badge.deprecated{background:var(--r500);color:white;opacity:0.7}
   .doc-card .badge.done{background:var(--g500);color:white}
   .doc-card .badge.new{background:var(--r500);color:white;animation:pulse 1.5s infinite}
   .doc-card .meta .st{font-weight:800}
   .doc-card .meta .st.done{color:var(--g700)}
-  .doc-card .meta .st.drop{color:var(--r700)}
-  .doc-card .meta .st.plan{color:var(--y700)}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
   .doc-card .ico{font-size:36px;margin-bottom:12px}
   .doc-card h4{font-size:15px;font-weight:800;color:var(--s800);line-height:1.35;margin-bottom:6px;padding-right:60px}
   .doc-card .desc{font-size:12px;color:var(--n600);font-weight:600;line-height:1.6;flex:1}
   .doc-card .meta{font-size:10.5px;color:var(--n400);font-weight:700;margin-top:12px;padding-top:10px;border-top:1px dashed var(--n200);display:flex;justify-content:space-between;align-items:center}
   .doc-card .meta .arrow{color:var(--p500);font-size:16px;font-weight:300}
-  .doc-card.deprecated{opacity:0.65}
-  .doc-card.deprecated:hover{opacity:1}
-
-  /* 카테고리별 색상 */
   .doc-card.cat-strategy{border-top:4px solid var(--p500)}
   .doc-card.cat-prd{border-top:4px solid var(--v500)}
   .doc-card.cat-design{border-top:4px solid var(--b500)}
   .doc-card.cat-arch{border-top:4px solid var(--g500)}
   .doc-card.cat-app{border-top:4px solid var(--s800)}
-  .doc-card.cat-data{border-top:4px solid var(--y500)}
-
-  /* 하단 메타 */
-  .meta-card{background:linear-gradient(135deg,#FFF8F2,#FFE8D1);border:1.5px solid var(--p300);border-radius:14px;padding:20px;margin-top:30px}
-  .meta-card strong{color:var(--s800);font-weight:800}
-  .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px}
-  .meta-item{background:white;padding:12px;border-radius:10px}
-  .meta-item .lbl{font-size:10px;color:var(--p700);font-weight:800;letter-spacing:0.04em}
-  .meta-item .val{font-size:14px;color:var(--s800);font-weight:800;margin-top:3px;line-height:1.4}
-
-  /* 의사결정 변경 알림 */
-  .decision-card{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border:1.5px solid var(--p500);border-radius:14px;padding:18px;margin:20px 0}
-  .decision-card h4{font-size:14px;color:var(--p700);font-weight:800;margin-bottom:8px}
-  .decision-card ul{margin:6px 0 0 18px;font-size:12.5px;color:var(--n700);font-weight:600;line-height:1.75}
-  .decision-card strong{color:var(--s800)}
-
+  .arc-link{display:flex;align-items:center;justify-content:center;gap:8px;background:white;border:1.5px dashed var(--n200);border-radius:14px;padding:18px;text-decoration:none;color:var(--n500);font-weight:700;font-size:13.5px;transition:all 0.2s}
+  .arc-link:hover{border-color:var(--p500);color:var(--p700)}
   footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600}
-
   @media(max-width:600px){.hero h1{font-size:26px}}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
@@ -99,154 +58,28 @@
 
 <header class="hero">
   <div class="hero-inner">
-    <span class="tag">📚 PROJECT DOCS HUB · v2 (2026-05-25 개편)</span>
-    <h1>밀프레드 편식도감<br>프로젝트 문서 전체 맵</h1>
-    <p>전략(제안서·성장·로드맵) · PRD(도감·바이럴 엔진) · 명세(디자인·개발·아키텍처) · 라이브 데모 · 데이터 자산</p>
-    <div class="changelog">
-      <strong>📌 2026-05-25 개편:</strong> 비즈니스 모델 폐기 (Freemium → 무료 앱 + 키트 매출) · 웹 우선 + 카톡 알림톡 · PRD 2종 + 로드맵 + 성장 전략 신규
-    </div>
+    <span class="tag">📚 PROJECT DOCS HUB · 최신본</span>
+    <h1>밀프레드 편식도감<br>프로젝트 문서 허브</h1>
+    <p>최신·진행 중인 문서만 모았습니다. 지난 버전·구현 완료·참고 자료는 <a href="/docs-archive.html" style="color:#C45A00;font-weight:700">아카이브</a>에 있어요.</p>
   </div>
 </header>
 
 <main>
 
-<!-- 변경 의사결정 -->
-<section>
-  <div class="decision-card">
-    <h4>🔄 오늘(2026-05-25) 핵심 의사결정 반영</h4>
-    <ul>
-      <li><strong>비즈니스 모델 전환</strong>: ₩9,900 Freemium 폐기 → 도감·블로그·앱 평생 무료 + 키트(집중 ₩200k·골고루 월 ₩108k) D2C 단일 매출</li>
-      <li><strong>전달 매체</strong>: 초반 웹(도감) 우선 노출 · 앱은 PWA로 후속 · 자체 푸시 X → <strong>카카오톡 알림톡</strong>으로 처리</li>
-      <li><strong>바이럴 엔진</strong>: 끼니 입력 마일리지 (반감기 4단계) · 90일 챌린지 완주 보너스 · 친구 초대 양방향 · 룰렛 · 인플레 한도 X</li>
-      <li><strong>도감 라이브 출시 확정</strong>: 147종 → 매일 +50종 enrich → 650종 → 10,000종</li>
-      <li><strong>신규 문서 4종</strong>: 도감 PRD · 바이럴 엔진 PRD · 개발 로드맵 (M0-M13) · 성장 전략 (출사표·기능 순서·운영)</li>
-      <li><strong>일부 deprecated</strong>: architecture.html v1 (v2-detailed가 정본)</li>
-    </ul>
-  </div>
-  <div class="decision-card" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);border-color:#16A085">
-    <h4 style="color:#1B5E20">✅ 2026-05-30 개발 완료 반영 (앱 라이브)</h4>
-    <ul>
-      <li><strong>코칭 엔진 구현·배포</strong>: 스펙(편식극복키트 01_참고자료 근거) + 공유 프롬프트(데이터로 아는 건 안 묻기·환각 차단·집/기관 구분·시계열) + 새벽 2시 크론 + 식단입력 '먹는 장소'</li>
-      <li><strong>홈 36종 KDRI 영양 신호등</strong>(15→36, 매핑 24 개인화·12 KDRI 기준) + <strong>식품군 다양성 신호등</strong>(충분/조금부족/부족, 빈도 기반)</li>
-      <li><strong>체위 시계열 + BMI 종합</strong>(WHO 성장도표 LMS, 또래 퍼센타일)</li>
-      <li><strong>도감 전체 design-spec v3 통일</strong> + 메뉴 추천 매운 음식 제외</li>
-      <li><strong>박스 완전 리뉴얼</strong>: 개인맞춤 극다품종 소량(분석→주간 처방, 기존 식단 가미, Satter·SOS 부담0)</li>
-      <li><strong>등원 사실 + 어린이집 식단표 OCR 자동채움</strong>(점심·간식 매일 기록 불필요)</li>
-    </ul>
-  </div>
-</section>
-
-<!-- 문서 관계 맵 -->
-<section>
-  <span class="section-tag">━ DOC MAP ━</span>
-  <h2>📍 문서 관계 맵</h2>
-  <p>전략 3종이 비전을 정의하고, PRD 2종이 핵심 기능을 명세하며, 명세 4종이 실행을 다지고, 라이브 5종이 결과물을 보여줍니다.</p>
-  <div class="map-wrap">
-    <div class="mermaid">
-mindmap
-  root((밀프레드<br/>편식도감 v2))
-    📍 전략
-      💡 제안서 v2
-      📈 성장 전략
-      📅 개발 로드맵
-    📋 PRD
-      🗂 도감 PRD
-      🎁 바이럴 엔진 PRD
-    🎨 명세
-      🎨 디자인 명세
-      💻 개발 명세
-      📐 아키텍처 v2
-      🔬 엔진 Deep
-      🍳 레시피 기준
-      🧪 테스트 시나리오
-    📱 라이브
-      🏠 dogam (앱 데모)
-      📋 식단표 평가
-      🗂 식재료 도감 147
-      ✨ 개인화 (Coming)
-      📚 블로그
-    📦 데이터
-      🍱 4,432 레시피
-      🥕 147 식재료
-      📚 KDRI 2025
-    </div>
-  </div>
-</section>
-
-<!-- 카테고리 0: 전략 (NEW) -->
+<!-- 1. 최신·진행 -->
 <section class="cat-section">
   <div class="cat-head">
-    <h3>📍 0. 전략 — 비전·계획·운영</h3>
+    <h3>🔥 최신 · 진행 중</h3>
     <span class="cnt">6 문서</span>
-    <span class="note">시작점: 제품 포커스부터 읽으세요</span>
+    <span class="note">지금 보고 결정하거나 막 정해진 것</span>
   </div>
   <div class="doc-grid">
-    <a href="/coaching-engine.html" class="doc-card cat-strategy">
-      <span class="badge done">✅ 구현완료</span>
+    <a href="/coaching-scenarios.html" class="doc-card cat-strategy">
+      <span class="badge new">NEW</span>
       <div class="ico">💌</div>
-      <h4>코칭 엔진 설계 — 회귀적 개인화 루프 & 데이터 해자</h4>
-      <p class="desc">3단계 로드맵 · <strong>매일 도는 개인화 루프(입력→분석→새벽 코칭→답변→데이터 축적)</strong> · 데이터 해자(moat) · 데이터 파이프라인 · 생성 원칙(데이터로 아는 건 묻지 않기·집/기관 구분·환각 차단)</p>
-      <div class="meta"><span>★ 핵심 엔진</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/product-focus.html" class="doc-card cat-strategy">
-      <span class="badge new">NEW</span>
-      <div class="ico">🎯</div>
-      <h4>제품 포커스 — 편식 스트레스 부모에게 뾰족하게</h4>
-      <p class="desc">페르소나(편식 전쟁 엄마·감정 4·니즈 3) · <strong>골든타임 타임라인(초등 입학 전, 학술 근거)</strong> · 핵심 루프(안심→행동→증거) · 기능 소거(남길/내릴/뺄) · CTA 전환</p>
-      <div class="meta"><span>★ 먼저 읽기</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/proposal.html" class="doc-card cat-strategy">
-      <span class="badge proposal">PROPOSAL v2</span>
-      <div class="ico">💡</div>
-      <h4>프로젝트 제안서 v2 (2026-05-25 갱신)</h4>
-      <p class="desc">한 줄 비전 · 시장 문제 · 페르소나 3 · <strong>5 핵심 솔루션 (열리는 순서)</strong> · 차별점 · <strong>새 비즈니스 모델 4 트랙</strong> · TAM/SAM/SOM · 학술 임팩트 · 로드맵 · KPI</p>
-      <div class="meta"><span>EXECUTIVE</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/growth-strategy.html" class="doc-card cat-strategy">
-      <span class="badge new">NEW</span>
-      <div class="ico">📈</div>
-      <h4>성장 전략 (출사표·기능 순서·바이럴·운영)</h4>
-      <p class="desc">출사표 + Go-To-Market + 5단계 기능 열림 순서 + 바이럴 엔진 3 루프 + 콘텐츠·카톡·키트 funnel·B2B 운영 + 단계별 KPI + 1년 후 그림</p>
-      <div class="meta"><span>STRATEGY</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/roadmap.html" class="doc-card cat-strategy">
-      <span class="badge new">NEW</span>
-      <div class="ico">📅</div>
-      <h4>개발 로드맵 (M0~M13 잘게 쪼갠 배포 단위)</h4>
-      <p class="desc">14 마일스톤 · 26 배포 단위 · ~24주 · 마일스톤별 개발 범위·DoD·의존성·우선순위·병렬 가능 페어·누적 매출 가설</p>
-      <div class="meta"><span>14 MILESTONES</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/worklog.html" class="doc-card cat-strategy">
-      <span class="badge done">📓 LIVE</span>
-      <div class="ico">📓</div>
-      <h4>업무일지 — 일·주·월 진행상황 타임라인</h4>
-      <p class="desc">git 히스토리 기반 <strong>시각화 업무일지</strong> · 일/주/월 뷰 토글 · 일자별 배포 막대 · 카테고리 분포 · 누적 222 배포. 거버넌스·일관성용. (단일 진실: 09_업무일지 + HARNESS.md)</p>
-      <div class="meta"><span>거버넌스</span><span class="arrow">→</span></div>
-    </a>
-  </div>
-</section>
-
-<!-- 카테고리 A: PRD (NEW) -->
-<section class="cat-section">
-  <div class="cat-head">
-    <h3>📋 A. PRD — 핵심 기능 명세</h3>
-    <span class="cnt">2 문서</span>
-    <span class="note">개발 착수 직전 정독 필수</span>
-  </div>
-  <div class="doc-grid">
-    <a href="/dex-prd.html" class="doc-card cat-prd">
-      <span class="badge new">NEW</span>
-      <div class="ico">🗂</div>
-      <h4>식재료 도감 PRD + 디자인 IA</h4>
-      <p class="desc">23 FR · 7 NFR · 5 페이지 · 6 API · DB 스키마 · enrich 파이프라인 · 3 릴리즈 단계 · KPI. <strong>147 → 650 → 10,000종</strong> 확장 로드맵</p>
-      <div class="meta"><span class="st done">✅ 도감 라이브</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/viral-rewards-v3.html" class="doc-card cat-prd">
-      <span class="badge new">v3 · 최신</span>
-      <div class="ico">🎁</div>
-      <h4>리워드·바이럴 엔진 v3</h4>
-      <p class="desc">월 4,900원 유료화 + 다양한 리워드. 친구 가입 +4,900P(한 달값)·끼니·후기·리뷰·룰렛 6종 작동·포인트 표 + 바이럴 루프 도식 + 슈퍼 인플루언서 모델. <b>도식·테이블화</b></p>
-      <div class="meta"><span>REWARD ENGINE · 단일 진실</span><span class="arrow">→</span></div>
+      <h4>코칭 엔진 — 온보딩 전략 &amp; 시나리오 라이브러리</h4>
+      <p class="desc">35개 편식 국제이론 근거 · 온보딩 4주 아크(신뢰→관찰→개입→정착) + 상황별 시나리오 13개(트리거·코칭무브·편지각도·금기) + 로테이션 규칙. <b>편지가 매일 똑같아지는 문제를 구조로 해결</b></p>
+      <div class="meta"><span>COACHING · 다양성 엔진</span><span class="arrow">→</span></div>
     </a>
     <a href="/nutrient-signal-report.html" class="doc-card cat-prd">
       <span class="badge new">결정 필요</span>
@@ -262,27 +95,36 @@ mindmap
       <p class="desc">4단 파이프라인(learned→rule→scan→LLM) 진단. 결정론 53%→75% 보강(1글자 표준명·가공식품 베이스·복합메뉴 분해) + LLM 환각 차단 + 농진청 NUTRI_MAP 정확 등재. KPI·백로그 원칙. <b>튜닝 리포트 기반</b></p>
       <div class="meta"><span>ENGINE · 개선 전략</span><span class="arrow">→</span></div>
     </a>
-    <a href="/viral-engine-prd.html" class="doc-card cat-prd deprecated">
+    <a href="/viral-rewards-v3.html" class="doc-card cat-prd">
+      <span class="badge new">v3 · 최신</span>
       <div class="ico">🎁</div>
-      <h4>바이럴 엔진 PRD (v2)</h4>
-      <p class="desc">⚠️ v2 단일 루프(친구초대·룰렛 폐기) — v3로 대체됨. 18 FR·5 DB·9 API 풀스택 명세는 참고용</p>
-      <div class="meta"><span>DEPRECATED → v3 참조</span><span class="arrow">→</span></div>
+      <h4>리워드·바이럴 엔진 v3</h4>
+      <p class="desc">월 4,900원 유료화 + 다양한 리워드. 친구 가입 +4,900P(한 달값)·끼니·후기·리뷰·룰렛 6종 작동·포인트 표 + 바이럴 루프 도식 + 슈퍼 인플루언서 모델. <b>도식·테이블화</b></p>
+      <div class="meta"><span>REWARD ENGINE · 단일 진실</span><span class="arrow">→</span></div>
     </a>
-    <a href="/rule-vs-llm.html" class="doc-card cat-prd">
-      <span class="badge new">NEW</span>
-      <div class="ico">🧭</div>
-      <h4>룰 vs LLM 결정 매트릭스</h4>
-      <p class="desc">41개 핵심 기능을 3 카테고리(🟢 Pure Rule 22 · 🟡 Rule+LLM Narration 11 · 🟣 LLM-Primary 8)로 분류. 결정 트리·비용 분석·가드레일 5종. "점수는 룰, 멘트는 LLM" 아키텍처 정합</p>
-      <div class="meta"><span>41 FEATURES MAP</span><span class="arrow">→</span></div>
+    <a href="/roadmap.html" class="doc-card cat-strategy">
+      <span class="badge new">현행</span>
+      <div class="ico">📅</div>
+      <h4>개발 로드맵 (M0~M13)</h4>
+      <p class="desc">14 마일스톤 · 26 배포 단위 · 마일스톤별 개발 범위·DoD·의존성·우선순위·병렬 가능 페어·누적 매출 가설</p>
+      <div class="meta"><span>14 MILESTONES</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/worklog.html" class="doc-card cat-strategy">
+      <span class="badge done">📓 LIVE</span>
+      <div class="ico">📓</div>
+      <h4>업무일지 — 일·주·월 진행상황 타임라인</h4>
+      <p class="desc">git 히스토리 기반 <strong>시각화 업무일지</strong> · 일/주/월 뷰 토글 · 일자별 배포 막대 · 카테고리 분포. 거버넌스·일관성용 (단일 진실: 09_업무일지 + HARNESS.md)</p>
+      <div class="meta"><span>거버넌스</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
 
-<!-- 카테고리 B: 디자인 + 개발 -->
+<!-- 2. 명세·아키텍처 -->
 <section class="cat-section">
   <div class="cat-head">
-    <h3>🎨 B. 디자인·개발 명세</h3>
-    <span class="cnt">2 문서</span>
+    <h3>📐 명세 · 아키텍처</h3>
+    <span class="cnt">6 문서</span>
+    <span class="note">개발 참고 · 정본</span>
   </div>
   <div class="doc-grid">
     <a href="/design-spec.html" class="doc-card cat-design">
@@ -299,17 +141,6 @@ mindmap
       <p class="desc">기술 스택 · 디렉토리 구조 · 코딩 컨벤션 · API 라우트 · 데이터 페칭 · 인증 · 테스트 · CI/CD · 환경변수 · 에러처리 · 성능 · 보안 · 모니터링</p>
       <div class="meta"><span>LEAD DEVELOPER</span><span class="arrow">→</span></div>
     </a>
-  </div>
-</section>
-
-<!-- 카테고리 C: 아키텍처 + 엔진 -->
-<section class="cat-section">
-  <div class="cat-head">
-    <h3>🏗 C. 아키텍처·엔진</h3>
-    <span class="cnt">4 문서</span>
-    <span class="note">v1 deprecated · v2 정본 사용</span>
-  </div>
-  <div class="doc-grid">
     <a href="/architecture-detailed.html" class="doc-card cat-arch">
       <span class="badge spec">ARCH v2 ★</span>
       <div class="ico">📐</div>
@@ -321,7 +152,7 @@ mindmap
       <span class="badge spec">ENGINE DEEP</span>
       <div class="ico">🔬</div>
       <h4>엔진 Deep Dive (5 엔진 · v2)</h4>
-      <p class="desc"><strong>🧹 입력 전처리(LLM)</strong> + 평가·추천·OCR + <strong>🧠 AI 코치(정성 시계열 체이닝)</strong> 5엔진. 자유 텍스트 → MealLog 정규화, 부모 raw_note 보존·주간 LLM 분석·다음 입력 시 역질문, prompt injection 방어, 29 알고리즘 풀 명세</p>
+      <p class="desc"><strong>🧹 입력 전처리(LLM)</strong> + 평가·추천·OCR + <strong>🧠 AI 코치(정성 시계열 체이닝)</strong> 5엔진. 자유 텍스트 → MealLog 정규화, raw_note 보존·주간 분석·역질문, prompt injection 방어, 29 알고리즘 풀 명세</p>
       <div class="meta"><span>29 ALGOS · 5 ENGINES</span><span class="arrow">→</span></div>
     </a>
     <a href="/recipe-criteria.html" class="doc-card cat-arch">
@@ -338,118 +169,65 @@ mindmap
       <p class="desc">132 케이스 (평가 32 + 추천 28 + OCR 18 + AI 코치 16 + 전처리 10 + E2E 8 + 보안 12 + 성능 8). 우선순위·Input·Expected 표 형식</p>
       <div class="meta"><span>132 CASES</span><span class="arrow">→</span></div>
     </a>
-    <a href="/architecture.html" class="doc-card cat-arch deprecated">
-      <span class="badge deprecated">DEPRECATED</span>
-      <div class="ico">📊</div>
-      <h4>백엔드 아키텍처 v1 (간략, deprecated)</h4>
-      <p class="desc">v2-detailed가 정본. v1은 초기 간략 버전, 참고용으로만 유지. <strong>새 작업은 v2 사용</strong>.</p>
-      <div class="meta"><span>v2 사용 권장</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
-<!-- 카테고리 D: 라이브 데모 + 페이지 -->
+<!-- 3. 라이브 페이지 -->
 <section class="cat-section">
   <div class="cat-head">
-    <h3>📱 D. 라이브 페이지</h3>
-    <span class="cnt">5 LIVE + 1 Coming</span>
-    <span class="note">www.mealfred.com</span>
+    <h3>📱 라이브 페이지</h3>
+    <span class="cnt">4 LIVE + 1 Coming</span>
+    <span class="note">mealfred.com</span>
   </div>
   <div class="doc-grid">
     <a href="https://app.mealfred.com/foods" class="doc-card cat-app">
       <span class="badge live">LIVE</span>
       <div class="ico">🗂</div>
       <h4>식재료 도감 (147종 · 공개)</h4>
-      <p class="desc">로그인 X · 누구나 자유 열람. 학교 급식·영유아 빈도 기반 등급화 (⭐⭐⭐⭐ 초등 필수 21·⭐⭐⭐ 권장 50·⭐⭐ 핵심 59·조미료 17). 영양·SOS·레시피·댓글. <strong>메인 진입로</strong>. 매일 +50종 enrich 예정</p>
+      <p class="desc">로그인 X · 누구나 자유 열람. 학교 급식·영유아 빈도 기반 등급화. 영양·SOS·레시피·또래가 잘 먹는 음식. <strong>메인 진입로</strong></p>
       <div class="meta"><span>147 → 650 → 10,000</span><span class="arrow">→</span></div>
     </a>
     <a href="/daycare-eval.html" class="doc-card cat-app">
       <span class="badge live">LIVE</span>
       <div class="ico">📋</div>
       <h4>우리 아이 식단표 평가</h4>
-      <p class="desc">사진 1장 → <strong>CLOVA OCR 전사 + Claude 식재료 분해</strong> → 8축 평가 + 끼니별 멘트 → 초등 입학 전 카테고리별 추천 + 레시피 CTA. 가공/초가공 2단계 · 연령 안전 필터 · 결과 공유 URL(3일 만료). <strong>두번째 Hook</strong></p>
+      <p class="desc">사진 1장 → <strong>OCR 전사 + Claude 식재료 분해</strong> → 8축 평가 + 끼니별 멘트 + 추천 + 레시피 CTA. 가공/초가공 2단계 · 연령 안전 필터 · 결과 공유 URL. <strong>두번째 Hook</strong></p>
       <div class="meta"><span>HOOK FUNNEL</span><span class="arrow">→</span></div>
     </a>
     <a href="/blog/" class="doc-card cat-app">
       <span class="badge live">LIVE</span>
       <div class="ico">📚</div>
       <h4>밀프레드 편식 백과 (블로그)</h4>
-      <p class="desc">현재 16편 / 목표 357편 — 학술 + 임상 + 실전 사례. 단맛 유전·편식 골든타임·NHS·ARFID·Solid Starts·KDRI 등 후킹 제목 시리즈. <strong>SEO 백링크 + 신뢰</strong></p>
-      <div class="meta"><span>16/357 ED</span><span class="arrow">→</span></div>
+      <p class="desc">학술 + 임상 + 실전 사례. 단맛 유전·편식 골든타임·NHS·ARFID·Solid Starts·KDRI 등 후킹 제목 시리즈. <strong>SEO 백링크 + 신뢰</strong></p>
+      <div class="meta"><span>블로그</span><span class="arrow">→</span></div>
     </a>
     <a href="/care.html" class="doc-card cat-app">
       <span class="badge demo">DEMO</span>
       <div class="ico">🏠</div>
       <h4>편식도감 앱 (PWA 데모)</h4>
-      <p class="desc">홈(영양점수·36종 신호등·식품군·BMI·코칭편지) · 도감 · 기록(사진AI·해시태그·식감·자율성·체위·식단표OCR) · 레시피. <strong>실제 앱(app.mealfred.com)으로 구현됨</strong></p>
-      <div class="meta"><span class="st done">✅ 앱 라이브(app.mealfred.com)</span><span class="arrow">→</span></div>
+      <p class="desc">홈(영양점수·31종 신호등·식품군·BMI·코칭편지) · 도감 · 기록(사진AI·식감·자율성·체위·식단표OCR) · 레시피. <strong>실제 앱(app.mealfred.com)으로 구현됨</strong></p>
+      <div class="meta"><span class="st done">✅ 앱 라이브</span><span class="arrow">→</span></div>
     </a>
     <a href="/personal-coming.html" class="doc-card cat-app">
       <span class="badge coming">COMING SOON</span>
       <div class="ico">✨</div>
       <h4>개인화 레시피 (출시 준비 중)</h4>
-      <p class="desc">우리 아이 데이터 기반 매주 새 레시피 + 90일 챌린지 + 골고루 키트 무료 funnel. 출시 1순위 알림 등록 페이지 (전화번호 리드 수집)</p>
+      <p class="desc">우리 아이 데이터 기반 매주 새 레시피 + 90일 챌린지 + 골고루 키트 funnel. 출시 1순위 알림 등록 페이지</p>
       <div class="meta"><span>LEAD CAPTURE</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
 
-<!-- 카테고리 E: 데이터 자산 -->
+<!-- 아카이브 -->
 <section class="cat-section">
-  <div class="cat-head">
-    <h3>📦 E. 데이터 자산 (원본 위치)</h3>
-    <span class="cnt">참고</span>
-  </div>
-  <div class="doc-grid">
-    <div class="doc-card cat-data">
-      <span class="badge spec">DATA</span>
-      <div class="ico">🍱</div>
-      <h4>레시피 DB 4,432종</h4>
-      <p class="desc">영아기 50 + 유아기 81 + 유아 월별식단 904 + 아동기 3,397. 농진청 영양 + 알레르겐 + 조리법 메타. 위치: <code style="font-size:10px">01_참고자료/B_레시피DB/</code></p>
-      <div class="meta"><span>4,432 RECIPES</span><span class="arrow">→</span></div>
-    </div>
-    <div class="doc-card cat-data">
-      <span class="badge spec">DATA</span>
-      <div class="ico">🥕</div>
-      <h4>147 식재료 풀 (도감·자동완성)</h4>
-      <p class="desc">4,432 레시피에서 추출 → 정규화 → 16 카테고리 분류 → 자동완성 풀 + 도감 라이브 데이터. <code style="font-size:10px">data_ingredient_pool_graded.json</code></p>
-      <div class="meta"><span>16 CATEGORIES</span><span class="arrow">→</span></div>
-    </div>
-    <div class="doc-card cat-data">
-      <span class="badge spec">DATA</span>
-      <div class="ico">📚</div>
-      <h4>KDRI 2025 (보건복지부)</h4>
-      <p class="desc">1·2·3권 본권 + 국문/영문 요약본 + 3차 정오표. 만 1-2세 36 영양소 RNI/AI 추출 완료. 위치: <code style="font-size:10px">01_참고자료/A_정부지침서/KDRI_2025/</code></p>
-      <div class="meta"><span>41 NUTRIENTS</span><span class="arrow">→</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- 메타 정보 -->
-<section>
-  <div class="meta-card">
-    <strong>📊 프로젝트 현황 요약 (2026-05-25 갱신)</strong>
-    <div class="meta-grid">
-      <div class="meta-item"><div class="lbl">진행 단계</div><div class="val">M0 완료 · M1 시작</div></div>
-      <div class="meta-item"><div class="lbl">총 문서 수</div><div class="val">14 + 자료</div></div>
-      <div class="meta-item"><div class="lbl">라이브 페이지</div><div class="val">5개 (+1 coming)</div></div>
-      <div class="meta-item"><div class="lbl">데이터 자산</div><div class="val">4,432 + 147 + 41</div></div>
-      <div class="meta-item"><div class="lbl">MVP 완성</div><div class="val">M10 (~5개월)</div></div>
-      <div class="meta-item"><div class="lbl">매출 시작</div><div class="val">2026-09 (M10)</div></div>
-      <div class="meta-item"><div class="lbl">월 운영비 (1만 MAU)</div><div class="val">~₩2M</div></div>
-      <div class="meta-item"><div class="lbl">목표 1년 매출</div><div class="val">월 ₩140M (2027-05)</div></div>
-    </div>
-  </div>
+  <a href="/docs-archive.html" class="arc-link">🗄️ 아카이브 — 지난 버전·구현 완료·참고 자료 (전략 v2·도감 PRD·룰vsLLM·deprecated·데이터 자산) →</a>
 </section>
 
 </main>
 
 <footer>
-  <p>밀프레드 편식도감 · 프로젝트 문서 허브 v2 · 2026-05-25</p>
+  <p>밀프레드 편식도감 · 프로젝트 문서 허브 · 최신본만 표시 · 지난 자료는 <a href="/docs-archive.html" style="color:#9CA3AF">아카이브</a></p>
 </footer>
 
-<script>
-  mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#FFF8F2',primaryTextColor:'#1F2D3D',primaryBorderColor:'#E89244',lineColor:'#9CA3AF',fontFamily:'Pretendard Variable, sans-serif',fontSize:'13px'}});
-</script>
 </body>
 </html>

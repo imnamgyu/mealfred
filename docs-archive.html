@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 문서 아카이브</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#F7F7F8;color:var(--n900);line-height:1.6;min-height:100vh}
+  .top{padding:40px 24px 24px;max-width:1100px;margin:0 auto}
+  .back{display:inline-block;margin-bottom:16px;color:var(--n500);text-decoration:none;font-size:13px;font-weight:700}
+  .back:hover{color:var(--p700)}
+  h1{font-size:26px;font-weight:800;color:var(--s800);letter-spacing:-0.02em}
+  .top p{font-size:13.5px;color:var(--n500);font-weight:500;margin-top:6px}
+  main{max-width:1100px;margin:0 auto;padding:8px 24px 60px}
+  .cat-section{margin-bottom:34px}
+  .cat-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--n200)}
+  .cat-head h3{font-size:17px;color:var(--n600);font-weight:800}
+  .cat-head .cnt{font-size:11px;color:var(--n500);font-weight:700;background:var(--n100);padding:3px 9px;border-radius:100px}
+  .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .doc-card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:20px;text-decoration:none;color:inherit;display:flex;flex-direction:column;position:relative;overflow:hidden;opacity:0.92;transition:all 0.2s}
+  .doc-card:hover{opacity:1;transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+  .doc-card .badge{position:absolute;top:14px;right:14px;font-size:9px;font-weight:800;padding:3px 8px;border-radius:100px;letter-spacing:0.04em;white-space:nowrap}
+  .doc-card .badge.done{background:var(--g500);color:white}
+  .doc-card .badge.proposal{background:var(--p500);color:white}
+  .doc-card .badge.deprecated{background:var(--r500);color:white;opacity:0.8}
+  .doc-card .badge.spec{background:var(--b500);color:white}
+  .doc-card .badge.data{background:var(--y500);color:white}
+  .doc-card .ico{font-size:34px;margin-bottom:12px;filter:grayscale(0.2)}
+  .doc-card h4{font-size:15px;font-weight:800;color:var(--s800);line-height:1.35;margin-bottom:6px;padding-right:60px}
+  .doc-card .desc{font-size:12px;color:var(--n600);font-weight:600;line-height:1.6;flex:1}
+  .doc-card .meta{font-size:10.5px;color:var(--n400);font-weight:700;margin-top:12px;padding-top:10px;border-top:1px dashed var(--n200);display:flex;justify-content:space-between;align-items:center}
+  .doc-card .meta .arrow{color:var(--p500);font-size:16px}
+  .doc-card.cat-strategy{border-top:4px solid var(--p500)}
+  .doc-card.cat-prd{border-top:4px solid var(--v500)}
+  .doc-card.cat-arch{border-top:4px solid var(--g500)}
+  .doc-card.cat-data{border-top:4px solid var(--y500)}
+  .changelog{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:18px;margin-bottom:14px}
+  .changelog h4{font-size:13.5px;color:var(--n600);font-weight:800;margin-bottom:8px}
+  .changelog ul{margin:6px 0 0 18px;font-size:12px;color:var(--n600);font-weight:600;line-height:1.7}
+  footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a href="/docs.html" class="back">← 최신 문서 허브로</a>
+  <h1>🗄️ 문서 아카이브</h1>
+  <p>지난 버전·구현 완료·참고 자료. 현재 작업 기준은 <a href="/docs.html" style="color:#C45A00;font-weight:700">최신 허브</a>를 보세요.</p>
+</div>
+
+<main>
+
+<!-- 전략 (구버전) -->
+<section class="cat-section">
+  <div class="cat-head"><h3>📍 전략 (지난 버전)</h3><span class="cnt">4 문서</span></div>
+  <div class="doc-grid">
+    <a href="/coaching-engine.html" class="doc-card cat-strategy">
+      <span class="badge done">✅ 구현완료</span>
+      <div class="ico">💌</div>
+      <h4>코칭 엔진 설계 (초기 · 구현완료)</h4>
+      <p class="desc">3단계 로드맵 · 매일 도는 개인화 루프 · 데이터 해자 · 생성 원칙. <b>현행: 코칭 시나리오 라이브러리로 대체</b></p>
+      <div class="meta"><span>→ 시나리오 라이브러리 참조</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/product-focus.html" class="doc-card cat-strategy">
+      <div class="ico">🎯</div>
+      <h4>제품 포커스 — 편식 부모에게 뾰족하게</h4>
+      <p class="desc">페르소나 · 골든타임 타임라인 · 핵심 루프(안심→행동→증거) · 기능 소거 · CTA 전환</p>
+      <div class="meta"><span>전략 v2</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/proposal.html" class="doc-card cat-strategy">
+      <span class="badge proposal">PROPOSAL v2</span>
+      <div class="ico">💡</div>
+      <h4>프로젝트 제안서 v2</h4>
+      <p class="desc">비전 · 시장 문제 · 페르소나 3 · 5 핵심 솔루션 · 비즈니스 모델 4 트랙 · TAM/SAM/SOM · KPI</p>
+      <div class="meta"><span>EXECUTIVE</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/growth-strategy.html" class="doc-card cat-strategy">
+      <div class="ico">📈</div>
+      <h4>성장 전략 (출사표·기능 순서·운영)</h4>
+      <p class="desc">Go-To-Market + 5단계 기능 열림 순서 + 바이럴 3 루프 + funnel·B2B 운영 + KPI</p>
+      <div class="meta"><span>STRATEGY</span><span class="arrow">→</span></div>
+    </a>
+  </div>
+</section>
+
+<!-- PRD·결정 (지난) -->
+<section class="cat-section">
+  <div class="cat-head"><h3>📋 PRD · 결정 (지난)</h3><span class="cnt">3 문서</span></div>
+  <div class="doc-grid">
+    <a href="/dex-prd.html" class="doc-card cat-prd">
+      <span class="badge done">✅ 라이브</span>
+      <div class="ico">🗂</div>
+      <h4>식재료 도감 PRD + 디자인 IA</h4>
+      <p class="desc">23 FR · 7 NFR · 5 페이지 · 6 API · DB 스키마 · enrich 파이프라인. 도감 라이브로 구현 완료</p>
+      <div class="meta"><span>147 → 650 → 10,000</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/rule-vs-llm.html" class="doc-card cat-prd">
+      <div class="ico">🧭</div>
+      <h4>룰 vs LLM 결정 매트릭스</h4>
+      <p class="desc">41개 기능을 Pure Rule 22 · Rule+LLM 11 · LLM-Primary 8로 분류. "점수는 룰, 멘트는 LLM" 아키텍처 정합</p>
+      <div class="meta"><span>41 FEATURES MAP</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/viral-engine-prd.html" class="doc-card cat-prd">
+      <span class="badge deprecated">DEPRECATED</span>
+      <div class="ico">🎁</div>
+      <h4>바이럴 엔진 PRD (v2)</h4>
+      <p class="desc">⚠️ v2 단일 루프(친구초대·룰렛 폐기) — v3로 대체됨. 18 FR·5 DB·9 API 풀스택 명세는 참고용</p>
+      <div class="meta"><span>→ v3 참조</span><span class="arrow">→</span></div>
+    </a>
+  </div>
+</section>
+
+<!-- 아키텍처 (deprecated) -->
+<section class="cat-section">
+  <div class="cat-head"><h3>🏗 아키텍처 (deprecated)</h3><span class="cnt">1 문서</span></div>
+  <div class="doc-grid">
+    <a href="/architecture.html" class="doc-card cat-arch">
+      <span class="badge deprecated">DEPRECATED</span>
+      <div class="ico">📊</div>
+      <h4>백엔드 아키텍처 v1 (간략)</h4>
+      <p class="desc">v2-detailed가 정본. v1은 초기 간략 버전, 참고용. <strong>새 작업은 v2 사용</strong></p>
+      <div class="meta"><span>v2 사용 권장</span><span class="arrow">→</span></div>
+    </a>
+  </div>
+</section>
+
+<!-- 데이터 자산 -->
+<section class="cat-section">
+  <div class="cat-head"><h3>📦 데이터 자산 (원본 위치)</h3><span class="cnt">참고</span></div>
+  <div class="doc-grid">
+    <div class="doc-card cat-data">
+      <span class="badge data">DATA</span>
+      <div class="ico">🍱</div>
+      <h4>레시피 DB 4,432종</h4>
+      <p class="desc">영아기 50 + 유아기 81 + 유아 월별식단 904 + 아동기 3,397. 농진청 영양 + 알레르겐 + 조리법. <code style="font-size:10px">01_참고자료/B_레시피DB/</code></p>
+      <div class="meta"><span>4,432 RECIPES</span></div>
+    </div>
+    <div class="doc-card cat-data">
+      <span class="badge data">DATA</span>
+      <div class="ico">🥕</div>
+      <h4>147 식재료 풀 (도감·자동완성)</h4>
+      <p class="desc">4,432 레시피에서 추출 → 정규화 → 16 카테고리 → 자동완성 풀 + 도감 데이터. <code style="font-size:10px">data_ingredient_pool_graded.json</code></p>
+      <div class="meta"><span>16 CATEGORIES</span></div>
+    </div>
+    <div class="doc-card cat-data">
+      <span class="badge data">DATA</span>
+      <div class="ico">📚</div>
+      <h4>KDRI 2025 (보건복지부)</h4>
+      <p class="desc">1·2·3권 본권 + 국문/영문 요약본 + 정오표. 연령대별(만 1-2/3-5/6-8세) 영양소 RNI/AI. <code style="font-size:10px">01_참고자료/A_정부지침서/KDRI_2025/</code></p>
+      <div class="meta"><span>31 NUTRIENTS</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 지난 의사결정 -->
+<section class="cat-section">
+  <div class="cat-head"><h3>📜 지난 의사결정 로그</h3><span class="cnt">히스토리</span></div>
+  <div class="changelog">
+    <h4>2026-05-25 — 개편</h4>
+    <ul>
+      <li>비즈니스 모델 전환: Freemium 폐기 → 무료 앱 + 키트 D2C (이후 v3에서 월 4,900원 구독 + 포인트로 재전환)</li>
+      <li>전달 매체: 웹(도감) 우선 + 카카오톡 알림톡</li>
+      <li>도감 라이브 출시 확정: 147 → +50/일 → 10,000종</li>
+    </ul>
+  </div>
+  <div class="changelog">
+    <h4>2026-05-30 — 개발 완료(앱 라이브)</h4>
+    <ul>
+      <li>코칭 엔진 구현·배포 + 새벽 2시 크론 + 식단입력 '먹는 장소'</li>
+      <li>홈 KDRI 영양 신호등 + 식품군 다양성 신호등(빈도 기반)</li>
+      <li>체위 시계열 + BMI(WHO 성장도표) · 등원 + 식단표 OCR 자동채움</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>밀프레드 문서 아카이브 · <a href="/docs.html" style="color:#9CA3AF">최신 허브로 →</a></p>
+</footer>
+
+</body>
+</html>
