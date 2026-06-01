@@ -103,6 +103,8 @@ export default function Home() {
   const [childName, setChildName] = useState('');
   const [childId, setChildId] = useState<string | null>(null);
   const [excluded, setExcluded] = useState<string[]>([]);   // 집에 늘 있어 엄마가 추천에서 뺀 재료(children.excluded_ingredients)
+  const [children, setChildren] = useState<{ id: string; nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; chronic_conditions: string | null }[]>([]);   // 다자녀 switcher
+  const [selectedId, setSelectedId] = useState<string | null>(null);   // 선택된 자녀(localStorage 'mf_child' 유지)
   const [loggedIn, setLoggedIn] = useState(false);
   const [days, setDays] = useState(0);
   const [signals, setSignals] = useState<NutrientSignal[]>([]);
@@ -138,7 +140,28 @@ export default function Home() {
   const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good'; must_eat_nutrient?: string }[]>([]);
   const [eatenSet, setEatenSet] = useState<Set<string>>(new Set());
 
+  // ① 자녀 목록 로드 + 선택 자녀 결정(localStorage 유지·기본 첫째). 선택이 정해지면 ②가 그 아이 데이터를 로드.
   useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setLoading(false); return; }
+      setLoggedIn(true);
+      const { data: kids } = await supabase.from('children')
+        .select('id,nickname,age_band,birth_year,birth_month,chronic_conditions')
+        .eq('parent_id', user.id).order('id', { ascending: true });
+      const list = (kids || []) as typeof children;
+      setChildren(list);
+      if (!list.length) { setLoading(false); return; }   // 아이 없음 → 목업/등록 유도
+      let saved: string | null = null; try { saved = localStorage.getItem('mf_child'); } catch {}
+      setSelectedId(list.find((k) => k.id === saved)?.id || list[0].id);
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ② 선택된 자녀의 전체 데이터 로드 (switcher로 selectedId 바뀌면 재실행)
+  useEffect(() => {
+    if (!selectedId) return;
+    setLoading(true);
     fetch('/ingredients-light.json').then((r) => r.json()).then((d) => setPool(d.ingredients)).catch(() => {});
     (async () => {
       // 풀 cat 로드 → 빗대기 영양평가용 catOf (NUTRI_MAP에 없는 식재료는 범주로 근사)
@@ -152,7 +175,7 @@ export default function Home() {
         setLoggedIn(true);
         setSignupDate(user.created_at || null);   // 90일 챌린지 시작일
         supabase.from('point_balance').select('balance').eq('parent_id', user.id).maybeSingle().then(({ data: pb }) => setPointBal(pb?.balance ?? 0));
-        const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month,chronic_conditions').eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
+        const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month,chronic_conditions').eq('id', selectedId).maybeSingle();
         if (child) {
           setChildName(child.nickname);
           setChildId(child.id);
@@ -322,7 +345,7 @@ export default function Home() {
       setLoading(false);
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedId]);
 
   const isMockup = !loading && (!loggedIn || days < 3);
 
@@ -483,6 +506,23 @@ export default function Home() {
           {!isMockup && days >= 1 && <span className="text-[10px] font-extrabold text-white px-2.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg,#FF6B6B,#FFB375)' }}>🔥 {days}일 연속 기록중</span>}
         </div>
       </header>
+
+      {/* 자녀 switcher — 다자녀일 때만. 탭하면 그 아이 기준으로 전체 전환 */}
+      {loggedIn && children.length >= 2 && (
+        <div className="flex gap-2 px-5 pb-2 overflow-x-auto">
+          {children.map((c) => {
+            const on = c.id === selectedId;
+            return (
+              <button key={c.id} onClick={() => { setSelectedId(c.id); try { localStorage.setItem('mf_child', c.id); } catch {} }}
+                className="flex-shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-bold transition"
+                style={on ? { background: '#FFF1E2', border: '1.5px solid #FFB375', color: '#C45A00' } : { background: '#F4F1EC', border: '1.5px solid transparent', color: '#6B7280' }}>
+                {c.nickname}
+              </button>
+            );
+          })}
+          <a href="/onboarding?add=1" className="flex-shrink-0 flex items-center rounded-full px-3 py-1.5 text-[15px] font-extrabold" style={{ background: '#FFF8F0', border: '1.5px dashed #FFD8B0', color: '#B0782E', textDecoration: 'none' }}>＋</a>
+        </div>
+      )}
 
       <div className="flex-1 px-5 pb-4">
         {/* 비로그인 첫 진입 — 랜딩 히어로 + CTA (그 아래는 실제 분석 화면 미리보기) */}
