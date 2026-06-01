@@ -15,6 +15,7 @@ export default function MePage() {
   const supabase = createSupabaseBrowser();
   const [child, setChild] = useState<Child | null>(null);
   const [nickname, setNickname] = useState<string>('');
+  const [account, setAccount] = useState<{ email: string; isKakao: boolean }>({ email: '', isKakao: true });   // 어느 계정으로 로그인했는지(카카오 부모 vs 구글/관리자)
   const [loading, setLoading] = useState(true);
   const [ref, setRef] = useState<Referral | null>(null);
   const [refErr, setRefErr] = useState<string>('');   // 초대 카드가 안 뜰 때 원인 표시
@@ -49,6 +50,8 @@ export default function MePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
       setNickname((user.user_metadata?.nickname as string) || '');
+      const em = user.email || '';
+      setAccount({ email: em, isKakao: em.endsWith('@kakao.local') });   // 카카오 부모=kakao_*@kakao.local, 그 외(구글 @mealfred.com 등)=관리자/타 계정
       // 구독: 첫 달 무료(가입+30일) + 포인트 결제분(app_subscriptions.paid_until). 실제 만료 = max(둘).
       const createdMs = user.created_at ? new Date(user.created_at).getTime() : Date.now();
       const freeUntilMs = createdMs + 30 * 86400e3;
@@ -106,9 +109,17 @@ export default function MePage() {
           <p className="text-sm" style={{ color: '#9CA3AF' }}>불러오는 중...</p>
         ) : (
           <>
+            {!account.isKakao && (
+              <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF4E5', borderColor: '#FFD0A0' }}>
+                <div className="text-[13px] font-extrabold mb-1" style={{ color: '#C45A00' }}>⚠️ 카카오 부모 계정이 아니에요</div>
+                <div className="text-[11.5px] leading-relaxed mb-2.5" style={{ color: '#8a7a6a' }}>지금은 <strong>{account.email}</strong>(구글/관리자)로 로그인되어 있어요. 우리 아이 식단·코칭 데이터는 <strong>카카오 계정</strong>에 있어요 — 카카오로 다시 로그인하면 보여요.</div>
+                <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/signup'; }} className="rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>카카오로 다시 로그인 →</button>
+              </div>
+            )}
             <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="text-xs font-bold mb-2" style={{ color: '#8a7a6a' }}>보호자</div>
-              <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{nickname || '카카오 회원'}님</div>
+              <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{account.isKakao ? `${nickname || '카카오 회원'}님` : account.email}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : '구글 로그인 · 부모 데이터는 카카오 계정에 있어요'}</div>
             </div>
 
             {/* 구독 — 첫 달 무료 만료기간 / 포인트로 연장 / 페이월 진입 */}

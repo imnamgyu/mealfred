@@ -7,7 +7,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
-import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, CATEGORY_GROUP, KDRI_NUTRIENTS, KDRI_EXCLUDED, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, CATEGORY_GROUP, NUTRIENT_FOODS, KDRI_NUTRIENTS, KDRI_EXCLUDED, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
@@ -106,6 +106,7 @@ export default function Home() {
   const [scoreReason, setScoreReason] = useState<{ redGroups: string[]; processedSample: string[]; repeatMenu: string | null; processed: number; repeat: number } | null>(null);   // 점수 하락 근거(왜 떨어졌나)
   const [kdri, setKdri] = useState<KdriSignal[]>([]);   // 36종 KDRI 신호등 (실데이터)
   const [showNutri, setShowNutri] = useState(false);    // 36종 자세히 모달
+  const [showAllReds, setShowAllReds] = useState(false);   // 빨강(결핍) 총량 캡 — 많으면 상위 N개만, 나머지는 접기
   const [growth, setGrowth] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string } | null>(null);
   const [growthList, setGrowthList] = useState<{ height_cm: number | null; weight_kg: number | null; measured_on: string }[]>([]);   // BMI 급변 감지용 최근 측정
   const [progress, setProgress] = useState<ProgressResult | null>(null);   // 편식 변화(최근28 vs 직전28)
@@ -866,23 +867,46 @@ export default function Home() {
                 { key: 'yellow', label: '🟡 조금 부족', color: '#F57F17', bar: '#F9A825' },
                 { key: 'green', label: '🟢 잘 챙김', color: '#1B5E20', bar: '#16A085' },
               ].map((grp) => {
-                const items = kdriView.filter((n) => n.status === grp.key);
+                let items = kdriView.filter((n) => n.status === grp.key);
                 if (!items.length) return null;
+                // 빨강(결핍)은 심한 것(빈도 낮은 것)부터 + 총량 캡 — 결핍이 많아도 압도하지 않게 상위 N개만, 나머지는 접기
+                const RED_CAP = 6;
+                if (grp.key === 'red') items = [...items].sort((a, b) => a.pct - b.pct);
+                const shown = grp.key === 'red' && !showAllReds ? items.slice(0, RED_CAP) : items;
+                const hidden = items.length - shown.length;
                 return (
                   <div key={grp.key} className="mb-4">
                     <div className="text-xs font-extrabold mb-2" style={{ color: grp.color }}>{grp.label} <span style={{ color: '#9CA3AF' }}>{items.length}</span></div>
                     <div className="space-y-1.5">
-                      {items.map((n) => (
-                        <div key={n.nm} className="flex items-center gap-2">
-                          <span className="text-[12px] font-semibold flex-shrink-0" style={{ color: '#1a2b4a', width: '88px' }}>{n.nm}</span>
-                          <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#F0F0F0' }}><div style={{ width: `${Math.max(4, n.pct)}%`, height: '100%', background: grp.bar }} /></div>
-                          <span className="text-[10.5px] font-bold text-right flex-shrink-0" style={{ color: grp.key === 'red' ? '#C62828' : '#6B7280', width: '60px' }}>{freqLabel(n.pct)}</span>
-                        </div>
-                      ))}
+                      {shown.map((n) => {
+                        // 빨강은 '무엇으로 채우나' 한 줄 — 결핍마다 보충 식재료 1~2개(데이터 있을 때만)
+                        const foods = grp.key === 'red' ? (NUTRIENT_FOODS[n.nm] || []).slice(0, 2) : [];
+                        return (
+                          <div key={n.nm}>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[12px] font-semibold flex-shrink-0" style={{ color: '#1a2b4a', width: '88px' }}>{n.nm}</span>
+                              <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#F0F0F0' }}><div style={{ width: `${Math.max(4, n.pct)}%`, height: '100%', background: grp.bar }} /></div>
+                              <span className="text-[10.5px] font-bold text-right flex-shrink-0" style={{ color: grp.key === 'red' ? '#C62828' : '#6B7280', width: '60px' }}>{freqLabel(n.pct)}</span>
+                            </div>
+                            {foods.length > 0 && (
+                              <div className="text-[10px] mt-0.5" style={{ color: '#C45A00', marginLeft: '96px' }}>🍽 {foods.join('·')}로 채워요</div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
+                    {hidden > 0 && (
+                      <button onClick={() => setShowAllReds(true)} className="mt-2 text-[11px] font-bold" style={{ color: '#C62828' }}>+ 결핍 {hidden}종 더 보기</button>
+                    )}
                   </div>
                 );
               })}
+              {/* 비타민D 특수 안내 — 음식만으론 어렵고 햇빛·보충제 필요(빈도 red 비활성한 보충제성 영양소) */}
+              {kdriView.some((n) => n.nm === '비타민D' && (n.status === 'yellow' || n.status === 'red')) && (
+                <div className="mb-4 rounded-lg px-3 py-2.5 text-[10.5px] leading-relaxed" style={{ background: '#FFF8E8', color: '#8a6d00', border: '1px solid #FFE08A' }}>
+                  ☀️ <strong>비타민D</strong>는 음식만으로 채우기 어려워요. 하루 <strong>10~15분 햇볕</strong>(얼굴·팔)을 쬐고 연어·달걀노른자·표고버섯을 곁들이세요. 부족이 걱정되면 소아과에서 <strong>보충제</strong>를 상담해보세요.
+                </div>
+              )}
               {kRef > 0 && (
                 <div className="mt-2 rounded-lg px-3 py-2.5 text-[10.5px] leading-relaxed" style={{ background: '#FAFAF7', color: '#9CA3AF' }}>
                   ℹ️ {kdriView.filter((n) => n.status === 'reference').map((n) => n.nm).join('·')}은(는) 아직 식품→영양소 데이터가 없어 KDRI 기준만 참고로 보여드려요.

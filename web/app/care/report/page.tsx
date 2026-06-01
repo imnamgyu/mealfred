@@ -11,6 +11,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { computeSignals, computeFoodGroups, NUTRIENT_FOODS, type NutrientSignal } from '@/lib/nutrition';
 import BottomNav from '@/components/BottomNav';
 import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
+import { kstDateNDaysAgo } from '@/lib/date';   // KST 윈도우 — 홈·코치 크론과 동일 앵커
 const LEVEL_COLOR = { green: '#16A085', yellow: '#F9A825', red: '#E53935' };
 const LEVEL_BG = { green: '#E8F5E9', yellow: '#FFF8E1', red: '#FFEBEE' };
 const LEVEL_LABEL = { green: '충분', yellow: '가끔', red: '부족' };
@@ -32,11 +33,8 @@ export default function ReportPage() {
         .then((d) => { const m: Record<string, string> = {}; (d.ingredients || []).forEach((x: { nm: string; cat: string }) => { m[x.nm] = x.cat; }); return m; })
         .catch(() => ({} as Record<string, string>));
       const catOf = (ing: string) => catMap[ing];
-      // 최근 7일 날짜
-      const dates = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(); d.setDate(d.getDate() - i);
-        return d.toISOString().slice(0, 10);
-      });
+      // 최근 7일 날짜 — KST 앵커(홈·코치 크론과 동일). UTC new Date()는 자정 부근 하루 어긋남
+      const dates = Array.from({ length: 7 }, (_, i) => kstDateNDaysAgo(i));   // dates[0]=오늘, dates[6]=6일 전
 
       const byDay: DayIngredients = [];
       const allIng: string[] = [];
@@ -50,7 +48,7 @@ export default function ReportPage() {
         if (child) {
           const { data: rows } = await supabase.from('meal_logs')
             .select('log_date,ingredients,refused')
-            .eq('child_id', child.id).gte('log_date', dates[6]);
+            .eq('child_id', child.id).gte('log_date', dates[6]).lte('log_date', dates[0]);   // 미래(미리 입력한 식단)는 평가 제외 — 홈과 동일
           const byDate: Record<string, string[]> = {};
           (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null }) => {
             if (!byDate[r.log_date]) byDate[r.log_date] = [];
