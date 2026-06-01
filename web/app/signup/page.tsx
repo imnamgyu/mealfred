@@ -43,7 +43,7 @@ export default function SignupPage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/arin-1.png" alt="당근을 즐겁게 먹는 아이" style={{ width:'100%', height:300, objectFit:'cover', objectPosition:'center 30%', display:'block' }} />
         <div style={{ position:'absolute', top:14, left:14 }}>
-          <span style={{ background:'#FF6B1A', color:'white', fontSize:11, fontWeight:800, padding:'5px 11px', borderRadius:999, letterSpacing:'0.02em', boxShadow:'0 2px 8px rgba(255,107,26,0.45)' }}>🎁 6월 한정 런칭 이벤트</span>
+          <span style={{ background:'#FF6B1A', color:'white', fontSize:11, fontWeight:800, padding:'5px 11px', borderRadius:999, letterSpacing:'0.02em', boxShadow:'0 2px 8px rgba(255,107,26,0.45)' }}>🎁 첫 달 무료 런칭 이벤트</span>
         </div>
       </header>
 
@@ -57,11 +57,11 @@ export default function SignupPage() {
           부족한 영양·거부 패턴을 읽고 <strong style={{ color:'#C45A00' }}>아침마다 맞춤 편지·질문</strong>으로 케어해요.
         </p>
 
-        {/* 가입 혜택 — 1개월 무료 + 친구 5명 방문 시 평생무료 (바이럴 후킹) */}
+        {/* 가입 혜택 — 첫 달 무료 + 친구 초대마다 한 달 무료 (바이럴 후킹) */}
         <div style={{ background:'linear-gradient(135deg,#FFF3E0,#FFE0B2)', border:'2px solid #FF6B1A', borderRadius:12, padding:'14px 16px', marginBottom:20, textAlign:'left' }}>
-          <div style={{ fontSize:11, fontWeight:800, color:'#C45A00', letterSpacing:'0.03em', marginBottom:4 }}>🎁 6월 한정 런칭 이벤트</div>
-          <div style={{ fontSize:18, fontWeight:800, color:'#1a2b4a', lineHeight:1.4 }}>6월에 가입하면 <span style={{ color:'#FF6B1A' }}>평생 무료</span></div>
-          <div style={{ fontSize:10.5, color:'#8a7a6a', marginTop:5, lineHeight:1.6 }}>이번 달 가입하신 분은 우리 아이 편식 코칭을 <strong style={{ color:'#C45A00' }}>평생 무료</strong>로 받으세요 (런칭 기념, 6월 한정)</div>
+          <div style={{ fontSize:11, fontWeight:800, color:'#C45A00', letterSpacing:'0.03em', marginBottom:4 }}>🎁 런칭 이벤트</div>
+          <div style={{ fontSize:18, fontWeight:800, color:'#1a2b4a', lineHeight:1.4 }}>첫 달 무료 <span style={{ color:'#FF6B1A' }}>+ 친구 초대마다 한 달 무료</span></div>
+          <div style={{ fontSize:10.5, color:'#8a7a6a', marginTop:5, lineHeight:1.6 }}>가입하면 <strong style={{ color:'#C45A00' }}>첫 달 무료</strong>. 친구가 내 링크로 가입하고 첫 끼니를 기록할 때마다 <strong style={{ color:'#C45A00' }}>한 달치(4,900P)</strong>가 쌓여 계속 무료로 쓸 수 있어요.</div>
         </div>
 
         <button

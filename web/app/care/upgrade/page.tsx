@@ -69,8 +69,8 @@ export default function UpgradePage() {
         {balance >= 4900 && (
           <button onClick={redeem} disabled={redeeming} className="w-full rounded-xl py-3.5 text-center font-extrabold text-sm text-white mb-2" style={{ background: redeeming ? '#9CA3AF' : '#16A085' }}>{redeeming ? '처리 중…' : `🪙 포인트로 결제 (4,900P 사용 = 1개월) · 보유 ${balance.toLocaleString()}P`}</button>
         )}
-        {/* 카드 결제 — 아직 비활성 */}
-        <button disabled className="w-full rounded-xl py-3.5 text-center font-extrabold text-sm" style={{ background: '#F4F4F5', color: '#B0B0B0', cursor: 'not-allowed' }}>카드 등록 (준비 중)</button>
+        {/* 카드 결제 — 아직 비활성. 결제 압박 대신 안심 메시지 */}
+        <div className="w-full rounded-xl py-3 px-3 text-center text-[12.5px] font-bold leading-relaxed" style={{ background: '#EAF6F0', color: '#16A085', border: '1px solid #BFE3D4' }}>🔒 안심하세요 — 무료 기간 중에는 결제를 요구하지 않아요</div>
         <p className="text-[11px] text-center mt-2 leading-relaxed" style={{ color: '#9CA3AF' }}>카드 결제는 곧 열려요. 지금은 <strong>첫 달 무료</strong> + <strong>포인트</strong>(끼니·친구 초대)로 계속 쓰실 수 있어요.</p>
 
         <Link href="/care/me" className="block text-center text-[12px] mt-4 mb-2" style={{ color: '#9CA3AF' }}>← 내 정보로 돌아가기</Link>

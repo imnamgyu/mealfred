@@ -6,7 +6,7 @@ import BottomNav from '@/components/BottomNav';
 import type { ReferralBilling } from '@/lib/billing';
 
 type Child = { nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null; chronic_conditions: string | null };
-type Referral = { code: string; visits: number; billing: ReferralBilling };
+type Referral = { code: string; visits: number; billing: ReferralBilling; signups?: number; earned?: number; pending?: number };
 const AGE_LABEL: Record<string, string> = {
   younger: '만 3세 미만', '3-4y': '만 3–4세', '5y': '만 5세', '6-7y': '만 6–7세',
 };
@@ -22,7 +22,7 @@ export default function MePage() {
   const [copied, setCopied] = useState(false);
   const [points, setPoints] = useState<{ balance: number; total_earned: number } | null>(null);
   const [ledger, setLedger] = useState<{ kind: string; amount: number; created_at: string; meta: { date?: string } | null }[]>([]);
-  const [sub, setSub] = useState<{ lifetime: boolean; freeUntil: string; daysLeft: number } | null>(null);   // 구독 상태(첫 달 무료·6월 평생무료)
+  const [sub, setSub] = useState<{ freeUntil: string; daysLeft: number } | null>(null);   // 구독 상태(첫 달 무료 + 포인트 연장)
   const [redeeming, setRedeeming] = useState(false);   // 포인트로 구독 결제 처리 중
 
   async function loadReferral() {
@@ -49,15 +49,14 @@ export default function MePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
       setNickname((user.user_metadata?.nickname as string) || '');
-      // 구독: 첫 달 무료(가입+30일) + 포인트 결제분(app_subscriptions.paid_until). 실제 만료 = max(둘). 6월가입=평생무료.
-      const lifetime = user.created_at?.slice(0, 7) === '2026-06';
+      // 구독: 첫 달 무료(가입+30일) + 포인트 결제분(app_subscriptions.paid_until). 실제 만료 = max(둘).
       const createdMs = user.created_at ? new Date(user.created_at).getTime() : Date.now();
       const freeUntilMs = createdMs + 30 * 86400e3;
       const { data: subRow } = await supabase.from('app_subscriptions').select('paid_until').eq('parent_id', user.id).maybeSingle();
       const paidMs = subRow?.paid_until ? new Date(subRow.paid_until + 'T00:00:00+09:00').getTime() : 0;
       const effMs = Math.max(freeUntilMs, paidMs);
       const freeUntilKst = new Date(effMs).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);   // KST 만료일(수동 +9 없이)
-      setSub({ lifetime, freeUntil: freeUntilKst, daysLeft: Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3)) });
+      setSub({ freeUntil: freeUntilKst, daysLeft: Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3)) });
       const { data } = await supabase.from('children')
         .select('nickname,age_band,birth_year,birth_month,allergens,chronic_conditions')
         .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
@@ -112,12 +111,10 @@ export default function MePage() {
               <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{nickname || '카카오 회원'}님</div>
             </div>
 
-            {/* 구독 — 첫 달 무료 만료기간 / 6월 평생무료 / 페이월 진입 */}
+            {/* 구독 — 첫 달 무료 만료기간 / 포인트로 연장 / 페이월 진입 */}
             <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독</div>
-              {sub?.lifetime ? (
-                <div className="text-base font-extrabold" style={{ color: '#16A085' }}>🎉 평생 무료 <span className="text-[11px] font-semibold" style={{ color: '#9CA3AF' }}>· 6월 가입 혜택</span></div>
-              ) : sub && sub.daysLeft > 0 ? (
+              {sub && sub.daysLeft > 0 ? (
                 <>
                   <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>무료 체험 <span style={{ color: '#C45A00' }}>D-{sub.daysLeft}</span></div>
                   <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{sub.freeUntil}까지 무료 · 이후 월 4,900원</div>
@@ -130,7 +127,7 @@ export default function MePage() {
                   <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>구독하기 →</a>
                 </>
               ) : null}
-              {!sub?.lifetime && (points?.balance ?? 0) >= 4900 && (
+              {(points?.balance ?? 0) >= 4900 && (
                 <button onClick={redeemSub} disabled={redeeming} className="block w-full mt-2.5 rounded-xl py-2.5 text-[12px] font-extrabold text-white" style={{ background: redeeming ? '#9CA3AF' : '#16A085' }}>{redeeming ? '처리 중…' : '🪙 포인트로 1개월 연장 (4,900P 사용)'}</button>
               )}
             </div>
@@ -163,7 +160,7 @@ export default function MePage() {
               <div className="text-xs font-bold mb-2.5" style={{ color: '#8a7a6a' }}>🪙 포인트 모으는 방법 <span style={{ color: '#B0B0B0' }}>· 1P=1원, 키트·구독에 사용</span></div>
               {[
                 { ic: '🍽', t: '끼니 기록', p: '+50P', d: '매 끼니 · 하루 5끼까지', on: true },
-                { ic: '👥', t: '친구 가입', p: '+4,900P', d: '내 링크로 가입 = 한 달 구독값! 많이 모으면 계속 무료', on: true },
+                { ic: '👥', t: '친구 가입', p: '+4,900P', d: <>친구가 <strong style={{ color: '#D6453D' }}>아이 첫 끼니를 입력</strong>하면 적립 · 많이 모으면 계속 무료</>, on: true },
               ].map((x, i) => (
                 <div key={i} className="flex items-center gap-2.5 py-1.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
                   <span className="text-base shrink-0">{x.ic}</span>
@@ -210,7 +207,14 @@ export default function MePage() {
             {ref && (
               <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF8F0', borderColor: '#FFE8D0' }}>
                 <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>친구 초대 <span style={{ color: '#16A085' }}>· 가입 시 +4,900P</span></div>
-                <div className="text-[11.5px] mb-2.5 leading-relaxed" style={{ color: '#8a7a6a' }}>내 링크로 친구가 <strong>가입하고 첫 끼니를 기록</strong>하면 <strong style={{ color: '#C45A00' }}>+4,900P</strong>(한 달 구독값)가 쌓여요. 많이 초대할수록 계속 무료!</div>
+                <div className="text-[11.5px] mb-2.5 leading-relaxed" style={{ color: '#8a7a6a' }}>내 링크로 친구가 <strong style={{ color: '#D6453D' }}>가입하고 첫 끼니를 기록</strong>하면 <strong style={{ color: '#C45A00' }}>+4,900P</strong>(한 달 구독값)가 쌓여요. 많이 초대할수록 계속 무료!</div>
+                {(ref.signups ?? 0) > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-2.5">
+                    <span className="text-[10.5px] font-bold px-2 py-1 rounded-full" style={{ background: '#EAF6F0', color: '#16A085' }}>가입 {ref.signups}명</span>
+                    <span className="text-[10.5px] font-bold px-2 py-1 rounded-full" style={{ background: '#EAF6F0', color: '#16A085' }}>적립 완료 {ref.earned}명</span>
+                    {(ref.pending ?? 0) > 0 && <span className="text-[10.5px] font-bold px-2 py-1 rounded-full" style={{ background: '#FFF0E0', color: '#C45A00' }}>첫 기록 대기 {ref.pending}명</span>}
+                  </div>
+                )}
                 <div className="flex items-center gap-1.5">
                   <input readOnly value={inviteUrl} onFocus={(e) => e.currentTarget.select()}
                     className="flex-1 min-w-0 text-[11px] px-2.5 py-2 rounded-lg" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', color: '#6B7280' }} />

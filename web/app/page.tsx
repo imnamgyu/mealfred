@@ -487,20 +487,20 @@ export default function Home() {
           </div>
         )}
 
-        {/* 90일 챌린지 진행 (M8) — 가입일 기준. design-spec: 밝은 배경·네이비 글자·오렌지 강조 */}
+        {/* 90일 챌린지 진행 (M8) — '기록한 날 수' 기준(가입 경과일 아님). 연속이 끊겨도 누적 유지 → 하루라도 기록하면 이어감. 상단 streak 배지와 정합. design-spec: 밝은 배경·네이비 글자·오렌지 강조 */}
         {!isMockup && signupDate && (() => {
-          const elapsed = Math.max(1, Math.floor((Date.now() - Date.parse(signupDate)) / 86400000) + 1);
-          const day = Math.min(90, elapsed);
+          const day = Math.min(90, loggedDays);   // 진행 = 기록한 고유 날 수. '🔥 N일 연속 기록중'과 같은 분모(기록)라 모순 없음
+          const done = loggedDays >= 90;
           return (
             <div className="rounded-2xl p-3.5 mb-3 border" style={{ background: '#FFF8F0', borderColor: '#FFD0A0' }}>
               <div className="flex justify-between items-center mb-1.5">
                 <div className="text-[12px] font-extrabold" style={{ color: '#C45A00' }}>🏆 90일 챌린지</div>
-                <div className="text-[11px] font-bold" style={{ color: '#1a2b4a' }}>{day}/90일 · 기록 {loggedDays}일 · <strong style={{ color: '#C45A00' }}>{pointBal.toLocaleString()}P</strong></div>
+                <div className="text-[11px] font-bold" style={{ color: '#1a2b4a' }}>기록 {day}/90일 · <strong style={{ color: '#C45A00' }}>{pointBal.toLocaleString()}P</strong></div>
               </div>
               <div className="h-2 rounded-full" style={{ background: '#F0E0D0' }}>
                 <div className="h-full rounded-full" style={{ width: `${Math.min(100, (day / 90) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} />
               </div>
-              <div className="text-[10px] mt-1.5" style={{ color: '#8a7a6a' }}>{elapsed > 90 ? '🎉 90일 완주! 매일 기록 습관이 자리잡았어요' : '매일 기록해 90일 습관 완성 → 포인트로 골고루 키트 받기 🎁'}</div>
+              <div className="text-[10px] mt-1.5" style={{ color: '#8a7a6a' }}>{done ? '🎉 90일 완주! 매일 기록 습관이 자리잡았어요' : '매일 기록해 90일 습관 완성 → 포인트로 골고루 키트 받기 🎁'}</div>
             </div>
           );
         })()}
