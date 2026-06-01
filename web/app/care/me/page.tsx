@@ -5,7 +5,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import type { ReferralBilling } from '@/lib/billing';
 
-type Child = { nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null; chronic_conditions: string | null };
+type Child = { id: string; nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null; chronic_conditions: string | null; created_at: string | null };
 type Referral = { code: string; visits: number; billing: ReferralBilling; signups?: number; earned?: number; pending?: number };
 const AGE_LABEL: Record<string, string> = {
   younger: '만 3세 미만', '3-4y': '만 3–4세', '5y': '만 5세', '6-7y': '만 6–7세',
@@ -13,7 +13,7 @@ const AGE_LABEL: Record<string, string> = {
 
 export default function MePage() {
   const supabase = createSupabaseBrowser();
-  const [child, setChild] = useState<Child | null>(null);
+  const [children, setChildren] = useState<Child[]>([]);   // 다자녀 전제 — per-child 4,900원 BM 대비
   const [nickname, setNickname] = useState<string>('');
   const [account, setAccount] = useState<{ email: string; isKakao: boolean }>({ email: '', isKakao: true });   // 어느 계정으로 로그인했는지(카카오 부모 vs 구글/관리자)
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ export default function MePage() {
   const [copied, setCopied] = useState(false);
   const [points, setPoints] = useState<{ balance: number; total_earned: number } | null>(null);
   const [ledger, setLedger] = useState<{ kind: string; amount: number; created_at: string; meta: { date?: string } | null }[]>([]);
-  const [sub, setSub] = useState<{ lifetime: boolean; freeUntil: string; daysLeft: number } | null>(null);   // 구독(첫 달 무료 + 포인트 연장 + 관리자 평생무료)
+  const [sub, setSub] = useState<{ lifetime: boolean; paidMs: number } | null>(null);   // 계정 단위: 평생무료 + 포인트 결제분(paid_until). 자녀별 무료체험은 각 아이 created_at 기준으로 계산
   const [redeeming, setRedeeming] = useState(false);   // 포인트로 구독 결제 처리 중
 
   async function loadReferral() {
@@ -52,18 +52,14 @@ export default function MePage() {
       setNickname((user.user_metadata?.nickname as string) || '');
       const em = user.email || '';
       setAccount({ email: em, isKakao: em.endsWith('@kakao.local') });   // 카카오 부모=kakao_*@kakao.local, 그 외(구글 @mealfred.com 등)=관리자/타 계정
-      // 구독: 첫 달 무료(가입+30일) + 포인트 결제분(app_subscriptions.paid_until). 실제 만료 = max(둘).
-      const createdMs = user.created_at ? new Date(user.created_at).getTime() : Date.now();
-      const freeUntilMs = createdMs + 30 * 86400e3;
+      // BM = 자녀 한 명당 월 4,900원. 무료 첫 달은 자녀별(각 아이 등록 +30일). 계정 평생무료·포인트 결제분(app_subscriptions)은 전체 자녀에 적용(결제 붙기 전 과도기).
       const { data: subRow } = await supabase.from('app_subscriptions').select('paid_until,lifetime').eq('parent_id', user.id).maybeSingle();
       const paidMs = subRow?.paid_until ? new Date(subRow.paid_until + 'T00:00:00+09:00').getTime() : 0;
-      const effMs = Math.max(freeUntilMs, paidMs);
-      const freeUntilKst = new Date(effMs).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);   // KST 만료일(수동 +9 없이)
-      setSub({ lifetime: !!subRow?.lifetime, freeUntil: freeUntilKst, daysLeft: Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3)) });
-      const { data } = await supabase.from('children')
-        .select('nickname,age_band,birth_year,birth_month,allergens,chronic_conditions')
-        .eq('parent_id', user.id).order('id', { ascending: true }).limit(1).maybeSingle();
-      setChild(data);
+      setSub({ lifetime: !!subRow?.lifetime, paidMs });
+      const { data: kids } = await supabase.from('children')
+        .select('id,nickname,age_band,birth_year,birth_month,allergens,chronic_conditions,created_at')
+        .eq('parent_id', user.id).order('id', { ascending: true });
+      setChildren((kids as Child[]) || []);
       setLoading(false);
       loadReferral();   // 초대 코드·방문수·과금 상태
       // 포인트 잔액·내역 (M7)
@@ -98,6 +94,16 @@ export default function MePage() {
     window.location.href = '/signup';
   }
 
+  // 자녀별 무료 체험 상태 — 각 아이 등록(created_at)+30일. 계정 평생무료·포인트 결제분은 전체 자녀에 적용(결제 붙기 전 과도기)
+  const childStatus = (c: Child) => {
+    if (sub?.lifetime) return { label: '🎉 평생무료', daysLeft: 9999, freeUntil: '' };
+    const createdMs = c.created_at ? new Date(c.created_at).getTime() : Date.now();
+    const effMs = Math.max(createdMs + 30 * 86400e3, sub?.paidMs ?? 0);
+    const daysLeft = Math.max(0, Math.ceil((effMs - Date.now()) / 86400e3));
+    const freeUntil = new Date(effMs).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);
+    return { label: daysLeft > 0 ? `무료 D-${daysLeft}` : '체험 종료', daysLeft, freeUntil };
+  };
+
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
       <header className="px-5 pt-6 pb-3 border-b" style={{ borderColor: '#FFE8D0' }}>
@@ -122,24 +128,31 @@ export default function MePage() {
               <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : '구글 로그인 · 부모 데이터는 카카오 계정에 있어요'}</div>
             </div>
 
-            {/* 구독 — 첫 달 무료 만료기간 / 포인트로 연장 / 페이월 진입 */}
+            {/* 구독 — 자녀 한 명당 월 4,900원(per-child). 무료 첫 달은 자녀별, 포인트로 연장 */}
             <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-              <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독</div>
+              <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독 <span style={{ color: '#B0B0B0' }}>· 자녀 한 명당 월 4,900원</span></div>
               {sub?.lifetime ? (
-                <div className="text-base font-extrabold" style={{ color: '#16A085' }}>🎉 평생 무료 <span className="text-[11px] font-semibold" style={{ color: '#9CA3AF' }}>· 감사 혜택</span></div>
-              ) : sub && sub.daysLeft > 0 ? (
-                <>
-                  <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>무료 체험 <span style={{ color: '#C45A00' }}>D-{sub.daysLeft}</span></div>
-                  <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{sub.freeUntil}까지 무료 · 이후 월 4,900원</div>
-                  <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold" style={{ background: '#FFF0E0', color: '#C45A00' }}>챌린지·초대로 할인받기 →</a>
-                </>
-              ) : sub ? (
-                <>
-                  <div className="text-base font-extrabold" style={{ color: '#C62828' }}>무료 체험 종료</div>
-                  <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>계속 이용하려면 구독해주세요 · 월 4,900원</div>
-                  <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>구독하기 →</a>
-                </>
-              ) : null}
+                <div className="text-base font-extrabold" style={{ color: '#16A085' }}>🎉 평생 무료 <span className="text-[11px] font-semibold" style={{ color: '#9CA3AF' }}>· 전체 자녀 감사 혜택</span></div>
+              ) : children.length === 0 ? (
+                <div className="text-[12px]" style={{ color: '#9CA3AF' }}>아이를 등록하면 첫 달 무료로 시작해요</div>
+              ) : (() => {
+                const sts = children.map(childStatus);
+                const active = sts.filter((s) => s.daysLeft > 0).length;
+                const soon = sts.reduce((m, s) => (s.daysLeft > 0 && s.daysLeft < m ? s.daysLeft : m), 9999);
+                return active > 0 ? (
+                  <>
+                    <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>자녀 {children.length}명 <span style={{ color: '#C45A00' }}>· {active}명 무료 체험 중</span></div>
+                    <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>가장 빠른 만료 D-{soon} · 이후 자녀당 월 4,900원{children.length > 1 ? ` (총 ${(children.length * 4900).toLocaleString()}원)` : ''}</div>
+                    <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold" style={{ background: '#FFF0E0', color: '#C45A00' }}>챌린지·초대로 할인받기 →</a>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-base font-extrabold" style={{ color: '#C62828' }}>무료 체험 종료</div>
+                    <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>계속 이용하려면 구독 · 자녀당 월 4,900원{children.length > 1 ? ` (자녀 ${children.length}명 총 ${(children.length * 4900).toLocaleString()}원)` : ''}</div>
+                    <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>구독하기 →</a>
+                  </>
+                );
+              })()}
               {!sub?.lifetime && (points?.balance ?? 0) >= 4900 && (
                 <button onClick={redeemSub} disabled={redeeming} className="block w-full mt-2.5 rounded-xl py-2.5 text-[12px] font-extrabold text-white" style={{ background: redeeming ? '#9CA3AF' : '#16A085' }}>{redeeming ? '처리 중…' : '🪙 포인트로 1개월 연장 (4,900P 사용)'}</button>
               )}
@@ -187,34 +200,37 @@ export default function MePage() {
               <div className="text-[10.5px] mt-2.5 pt-2.5" style={{ color: '#8a7a6a', borderTop: '1px solid #F5F0EA' }}>💡 친구 초대 링크는 아래 <strong>구독 카드</strong>에 있어요. 많이 초대할수록 계속 무료!</div>
             </div>
 
-            {child ? (
-              <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-                <div className="text-xs font-bold mb-2" style={{ color: '#8a7a6a' }}>우리 아이</div>
-                <div className="text-base font-extrabold mb-1" style={{ color: '#1a2b4a' }}>
-                  {child.nickname} <span className="text-xs font-semibold" style={{ color: '#C45A00' }}>{AGE_LABEL[child.age_band] || child.age_band}</span>
-                </div>
-                {child.birth_year && (
-                  <div className="text-xs" style={{ color: '#8a7a6a' }}>{child.birth_year}년 {child.birth_month}월생</div>
-                )}
-                {child.allergens?.length ? (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {child.allergens.map((a) => (
-                      <span key={a} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FFEBEE', color: '#C62828' }}>⚠ {a}</span>
-                    ))}
-                  </div>
-                ) : null}
-                {child.chronic_conditions ? (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {child.chronic_conditions.split(/[,，·]/).map((c) => c.trim()).filter(Boolean).map((c) => (
-                      <span key={c} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FFF3E0', color: '#E65100' }}>🩺 {c}</span>
-                    ))}
-                  </div>
-                ) : null}
-                <a href="/onboarding" className="inline-block mt-3 text-xs font-bold" style={{ color: '#FF6B1A' }}>아이 정보·질환 추가/수정 →</a>
+            {/* 우리 아이들 — 다자녀. 자녀당 무료 체험 D-N(등록+30일) 배지 + 자녀 추가 */}
+            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-xs font-bold" style={{ color: '#8a7a6a' }}>우리 아이들{children.length > 0 && <span style={{ color: '#C45A00' }}> · {children.length}명</span>}</div>
+                <a href="/onboarding" className="text-[11px] font-extrabold" style={{ color: '#FF6B1A' }}>+ 자녀 추가</a>
               </div>
-            ) : (
-              <></>
-            )}
+              {children.length === 0 ? (
+                <div className="text-center py-3">
+                  <p className="text-sm mb-2" style={{ color: '#8a7a6a' }}>아직 아이 정보가 없어요</p>
+                  <a href="/onboarding" className="inline-block px-4 py-2 rounded-lg text-sm font-bold text-white" style={{ background: '#FF6B1A' }}>아이 등록하기</a>
+                </div>
+              ) : children.map((c, i) => {
+                const st = childStatus(c);
+                return (
+                  <div key={c.id} className="py-2.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{c.nickname} <span className="text-xs font-semibold" style={{ color: '#C45A00' }}>{AGE_LABEL[c.age_band] || c.age_band}</span></div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0" style={st.daysLeft > 0 ? { background: '#EAF6F0', color: '#16A085' } : { background: '#FDECEA', color: '#C62828' }}>{st.label}</span>
+                    </div>
+                    {c.birth_year && <div className="text-xs mt-0.5" style={{ color: '#8a7a6a' }}>{c.birth_year}년 {c.birth_month}월생</div>}
+                    {(c.allergens?.length || c.chronic_conditions) ? (
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {c.allergens?.map((a) => <span key={a} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FFEBEE', color: '#C62828' }}>⚠ {a}</span>)}
+                        {c.chronic_conditions?.split(/[,，·]/).map((x) => x.trim()).filter(Boolean).map((x) => <span key={x} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FFF3E0', color: '#E65100' }}>🩺 {x}</span>)}
+                      </div>
+                    ) : null}
+                    <a href="/onboarding" className="inline-block mt-1.5 text-[11px] font-bold" style={{ color: '#FF6B1A' }}>정보·질환 수정 →</a>
+                  </div>
+                );
+              })}
+            </div>
 
             {/* 친구 초대 — 가입+첫 기록 시 +4,900P (옛 '5명 방문 평생무료'는 폐기) */}
             {ref && (
@@ -249,13 +265,6 @@ export default function MePage() {
                     <button onClick={loadReferral} className="text-[12px] font-bold px-3 py-2 rounded-lg text-white" style={{ background: '#FF6B1A' }}>다시 시도</button>
                   </>
                 )}
-              </div>
-            )}
-
-            {!child && (
-              <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border text-center" style={{ borderColor: '#FFE8D0' }}>
-                <p className="text-sm mb-2" style={{ color: '#8a7a6a' }}>아직 아이 정보가 없어요</p>
-                <a href="/onboarding" className="inline-block px-4 py-2 rounded-lg text-sm font-bold text-white" style={{ background: '#FF6B1A' }}>아이 등록하기</a>
               </div>
             )}
 

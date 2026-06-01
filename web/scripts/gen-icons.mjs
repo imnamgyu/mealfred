@@ -31,12 +31,14 @@ const CAT_HINT = {
   향신_허브: 'herb / spice', 가공식품: 'processed food', 발효식품: 'fermented food',
 };
 
-const promptFor = (nm, cat) => `App icon of a single ${nm} (Korean ${CAT_HINT[cat] || 'food ingredient'}) for "Mealfred", a toddler nutrition app. Friendly rounded flat-vector illustration with fresh natural colors, soft highlights and a subtle soft shadow. Cute but not babyish, clean, wholesome, parent-friendly. Centered with generous padding, transparent background, smooth gradients, no harsh outlines, no text. 1:1 square, crisp at small sizes.`;
+const promptFor = (nm, cat) => `A single ${nm} (Korean ${CAT_HINT[cat] || 'food ingredient'}) as a friendly app icon for "Mealfred", a toddler nutrition app. Rounded flat-vector illustration with fresh natural colors, soft highlights and a subtle soft drop shadow. Cute but not babyish, clean, wholesome, parent-friendly. CRITICAL: fully transparent background — the food floats freely with absolutely NO card, NO frame, NO rounded square, NO panel and NO background color behind it. Centered with padding, smooth gradients, no harsh outlines, no text. 1:1 square, crisp at small sizes.`;
 
 const pool = JSON.parse(readFileSync('public/ingredients-light.json', 'utf8')).ingredients;
 if (!existsSync(OUT)) mkdirSync(OUT, { recursive: true });
 
-const todo = pool.filter((p) => !existsSync(`${OUT}/${p.nm}.png`));
+const _todo = pool.filter((p) => !existsSync(`${OUT}/${p.nm}.png`));
+const LIMIT = +(process.env.ICON_LIMIT || 0);   // 테스트용: 앞 N개만
+const todo = LIMIT ? _todo.slice(0, LIMIT) : _todo;
 console.log(`도감 ${pool.length}종 · 생성 대상 ${todo.length}종(이미 있는 건 스킵) · 모델 ${MODEL}/${QUALITY}`);
 console.log(`예상 비용: ${todo.length} × $${unit} ≈ $${(todo.length * unit).toFixed(2)}  (≈ ₩${Math.round(todo.length * unit * 1380).toLocaleString()})`);
 
@@ -69,7 +71,8 @@ for (const p of todo) {
   }
 }
 // 매니페스트 갱신 — 도감(FoodIcon)은 여기 등재된 것만 아이콘 렌더(없으면 이모지, 404 방지)
-const have = readdirSync(OUT).filter((f) => f.endsWith('.png')).map((f) => f.replace(/\.png$/, ''));
+const poolNames = new Set(pool.map((p) => p.nm));   // 실험 파일(cartoon_·test_·v3_)은 풀 이름과 안 맞아 자동 제외
+const have = readdirSync(OUT).filter((f) => f.endsWith('.png')).map((f) => f.replace(/\.png$/, '')).filter((n) => poolNames.has(n));
 writeFileSync('lib/icons-manifest.json', JSON.stringify({ icons: have }));
 console.log(`\n완료: ${done} 생성 · ${fail} 실패 · 실제 비용 ≈ $${(done * unit).toFixed(2)}`);
 console.log(`매니페스트 갱신: ${have.length}종 → lib/icons-manifest.json (커밋·배포하면 도감에 반영)`);
