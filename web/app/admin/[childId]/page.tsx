@@ -184,7 +184,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
               </>)}
               {ev.kind === 'letter' && (<>
                 <Bubble side="r" tone="orange">
-                  <div style={{ fontSize: 11, color: '#C45A00', fontWeight: 700, marginBottom: 3 }}>💌 코치 편지</div>
+                  <div style={{ fontSize: 11, color: '#C45A00', fontWeight: 700, marginBottom: 3 }}>💌 코치 편지{(ev.data.context as { scenarioLabel?: string } | null)?.scenarioLabel ? <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 800, color: '#1B5E20', background: '#EAF6F0', borderRadius: 100, padding: '2px 7px' }}>🎯 {(ev.data.context as { scenarioLabel?: string }).scenarioLabel}</span> : null}</div>
                   {ev.data.oneliner ? <div style={{ fontWeight: 800, marginBottom: 4 }}>{ev.data.oneliner}</div> : null}
                   {ev.data.letter}
                 </Bubble>
