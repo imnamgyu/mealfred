@@ -1,8 +1,8 @@
 /**
  * gen-grade.mjs — 도감 2축 등급 (v2).
  *
- * 축①  별 ⭐ = '초등 급식에 자주 나오는 정도'(빈도). 순수 급식 등장횟수(count) 백분위.
- *        ⭐⭐⭐ 자주(상위, f≥0.80) / ⭐⭐ 가끔(f≥0.50) / ⭐ 드물게 / 🔸 향신료(양념=도전식재료 제외).
+ * 축①  별 ⭐ = '초등 급식에 자주 나오는 정도'(빈도). 순수 급식 등장횟수(count) 절대 기준(풀 변화에 안정).
+ *        ⭐⭐⭐ 자주(200회+) / ⭐⭐ 가끔(50회+) / ⭐ 드물게(50 미만; count=0=급식 기록없는 영양추가) / 🔸 향신료(양념=도전식재료 제외).
  *        의미: 자주 나오니 미리 친해두면 학교 급식 적응이 쉽다.  (영양으로 별을 'rescue'하던 v1 로직 폐기)
  * 축②  💪 몸튼튼 영양 배지(must_eat) = 흔하면서 영양 풍부 → '급식에 자주 안 나와도 꼭 챙길' 통째식품.
  *        영양 역할 기반 큐레이션(lib/must-eat.json). nuPct(매핑영양소 개수) 프록시는 가공식품을 부풀려 폐기.
@@ -17,13 +17,10 @@ const enr = JSON.parse(readFileSync(ENR, 'utf8')); const pool = enr.pool;
 const light = JSON.parse(readFileSync(LIGHT, 'utf8'));
 const mustEat = JSON.parse(readFileSync('lib/must-eat.json', 'utf8'));
 const SEASON = new Set(['마늘', '파', '대파', '쪽파', '생강', '고추', '청양고추', '풋고추', '홍고추', '마늘종', '참깨', '들깨', '고춧가루', '고추가루']);
-const gradable = pool.filter((p) => !SEASON.has(p.nm));
-const sortedC = [...gradable.map((p) => p.count || 0)].sort((a, b) => a - b);
-const pct = (v, arr) => { let lo = 0, hi = arr.length; while (lo < hi) { const m = (lo + hi) >> 1; if (arr[m] < v) lo = m + 1; else hi = m; } return lo / Math.max(1, arr.length); };
-// 빈도 → 별
-function star(count) { const f = pct(count || 0, sortedC);
-  if (f >= 0.80) return ['⭐⭐⭐', '자주'];
-  if (f >= 0.50) return ['⭐⭐', '가끔'];
+// 별 = 급식 등장 빈도 (절대 기준 — 풀 구성이 바뀌어도 안정적, grade_reason 문구와 항상 일치)
+function star(count) {
+  if ((count || 0) >= 200) return ['⭐⭐⭐', '자주'];
+  if ((count || 0) >= 50) return ['⭐⭐', '가끔'];
   return ['⭐', '드물게']; }
 const cnt = {}; let meCnt = 0;
 for (const p of pool) {
@@ -40,7 +37,10 @@ for (const p of pool) {
   const [g, lab] = star(p.count);
   p.grade = g; p.grade_label = lab;
   const c = p.count || 0;
-  p.grade_reason = c >= 200 ? `초등 급식에 자주 나와요 (${c}회 등장)` : c >= 50 ? `급식에 가끔 나와요 (${c}회 등장)` : `급식엔 드물게 나와요 (${c}회 등장)`;
+  p.grade_reason = c === 0 ? '급식 기록은 없지만 영양으로 챙기는 식재료'
+    : c >= 200 ? `초등 급식에 자주 나와요 (${c}회 등장)`
+    : c >= 50 ? `급식에 가끔 나와요 (${c}회 등장)`
+    : `급식엔 드물게 나와요 (${c}회 등장)`;
   cnt[lab] = (cnt[lab] || 0) + 1;
 }
 // ingredients-light 동기화(클라: 홈·도감그리드·박스)
