@@ -11,6 +11,7 @@ import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignal
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
+import { isSpicyIngredient } from '@/lib/spicy';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 
@@ -412,6 +413,7 @@ export default function Home() {
     const byCat: Record<string, typeof pool> = {};   // 카테고리별 안 먹은 후보
     const eatenByCat: Record<string, number> = {};   // 카테고리별 먹은 개수
     pool.forEach((p) => {
+      if (isSpicyIngredient(p.nm)) return;   // 매운 식재료(고추 등)는 추천 제외
       if (eatenSet.has(p.nm)) { eatenByCat[p.cat] = (eatenByCat[p.cat] || 0) + 1; return; }
       (byCat[p.cat] ||= []).push(p);
     });

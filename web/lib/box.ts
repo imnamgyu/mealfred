@@ -7,6 +7,8 @@
  *   - 식품군 라운드로빈으로 골고루(한 군에 몰리지 않게). 매운 식재료 제외.
  */
 
+import { isSpicyIngredient } from './spicy';
+
 export type PoolItem = { nm: string; cat: string; grade: string; em?: string };
 export type BoxReason = '결핍보강' | '필수도전' | '권장도전' | '거부재노출';
 export type BoxItem = { nm: string; em: string; cat: string; reason: BoxReason };
@@ -37,8 +39,8 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
     picked.add(nm); out.push({ nm, em: emOf[nm] || '🍽', cat, reason });
   };
 
-  // 향신료/매운 제외한 안 먹어본 후보
-  const candidates = pool.filter((p) => !eaten.has(p.nm) && p.grade !== '향신료');
+  // 향신료/매운 제외한 안 먹어본 후보 (고추·김치 등 매운 식재료는 grade와 무관하게 제외 — box-product '매운 건 안 와요' 약속)
+  const candidates = pool.filter((p) => !eaten.has(p.nm) && p.grade !== '향신료' && !isSpicyIngredient(p.nm));
 
   // ① 결핍 영양소를 채우는 안 먹어본 식재료 (매칭 가능할 때)
   if (reds.length && nutrientsOf) {
@@ -51,7 +53,7 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
 
   // ② 기관에서 거부한 식재료 → 집에서 소량 재노출 (풀에 있고 향신료 아님)
   daycareRefused.forEach((nm) => {
-    const p = pool.find((x) => x.nm === nm && x.grade !== '향신료');
+    const p = pool.find((x) => x.nm === nm && x.grade !== '향신료' && !isSpicyIngredient(x.nm));
     if (p) add(p.nm, p.cat, '거부재노출');
   });
 

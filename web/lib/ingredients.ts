@@ -73,12 +73,8 @@ export function findIngredient(slug: string): Ingredient | null {
   return loadPool().find((p) => p.nm === decodeURIComponent(slug)) ?? null;
 }
 
-/** 영유아 부적합 매운 음식인가 — 레시피/메뉴 추천에서 제외. (백김치·물김치 등 안 매운 류는 허용) */
-export function isSpicyDish(name: string): boolean {
-  const n = name || '';
-  if (/백김치|물김치|나박김치|동치미/.test(n)) return false;
-  return /매운|매콤|얼큰|칼칼|고추장|고춧가루|고추기름|청양|땡초|불닭|마라|짬뽕|떡볶이|낙지볶음|오징어볶음|제육|김치|와사비|겨자|페페론|핫소스|타바스코/.test(n);
-}
+// 매운 판정은 client-safe lib/spicy.ts로 분리(ingredients.ts는 fs 사용 → 클라 번들 불가). 기존 import 경로 호환 위해 re-export.
+export { isSpicyDish, isSpicyIngredient } from './spicy';
 
 export function listByGrade(grade: '필수' | '권장' | '향신료'): Ingredient[] {
   return loadPool().filter((p) => p.grade_label === grade);
