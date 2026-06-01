@@ -538,12 +538,10 @@ export default function CarePage() {
     }
   }
 
-  // 최근 7일 날짜 칩
-  const recentDates = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    return d.toISOString().slice(0, 10);
-  }).reverse();
+  // 최근 7일 날짜 칩 — KST 기준(kstToday/todayStr과 동일 앵커).
+  // new Date().toISOString()은 항상 UTC라, 새벽 0~9시 KST엔 '오늘'이 띠에서 누락돼
+  // 오늘 끼니를 선택조차 못 하던 버그가 있었다 → kstDateNDaysAgo로 통일.
+  const recentDates = Array.from({ length: 7 }, (_, i) => kstDateNDaysAgo(i)).reverse();
 
   // 오늘 기록된 슬롯 수
   const todayLog = logs[date] || {};
@@ -575,7 +573,9 @@ export default function CarePage() {
       <div className="px-5 py-3">
         <div className="grid grid-cols-7 gap-1">
           {recentDates.map((d) => {
-            const dd = new Date(d);
+            // d는 KST 'YYYY-MM-DD' 문자열 — 요일/일자는 브라우저 TZ에 안 흔들리게 문자열에서 직접.
+            const wdIdx = new Date(d + 'T00:00:00Z').getUTCDay();
+            const dayNum = Number(d.slice(8, 10));
             const isToday = d === todayStr();
             const has = (logs[d] && Object.keys(logs[d]).length > 0);
             const active = d === date;
@@ -587,8 +587,8 @@ export default function CarePage() {
                   color: active ? 'white' : '#6B7280',
                   border: `1.5px solid ${active ? '#FF6B1A' : '#E5E7EB'}`,
                 }}>
-                <div className="text-[9px] font-semibold opacity-70">{['일','월','화','수','목','금','토'][dd.getDay()]}</div>
-                <div className="text-sm font-extrabold">{dd.getDate()}</div>
+                <div className="text-[9px] font-semibold opacity-70">{['일','월','화','수','목','금','토'][wdIdx]}</div>
+                <div className="text-sm font-extrabold">{dayNum}</div>
                 {has && !active && <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full" style={{ background: '#16A085' }} />}
                 {isToday && <div className="text-[8px] opacity-70">오늘</div>}
               </button>
