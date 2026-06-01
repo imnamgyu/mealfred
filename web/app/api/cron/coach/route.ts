@@ -17,10 +17,11 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServer } from '@/lib/supabase/server';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
+import { selectScenario } from '@/lib/coachScenarios';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
@@ -95,12 +96,16 @@ export async function GET(req: Request) {
 
     // 최근 2일 내 편지 → 라운드로빈 정렬 + 식단지문 스킵 판단용 (오래 안 받은 자녀 우선)
     const { data: recentLetters } = await supabase.from('coach_letters')
-      .select('child_id,letter_date,source_hash,letter,oneliner')
+      .select('child_id,letter_date,source_hash,letter,oneliner,context')
       .in('child_id', activeIds).gte('letter_date', kstDateNDaysAgo(2))
       .order('letter_date', { ascending: false });
-    const lastLetter: Record<string, { letter_date: string; source_hash: string | null; letter: string; oneliner: string | null }> = {};
-    (recentLetters || []).forEach((l: { child_id: string; letter_date: string; source_hash: string | null; letter: string; oneliner: string | null }) => {
+    type RecentLetter = { child_id: string; letter_date: string; source_hash: string | null; letter: string; oneliner: string | null; context: Record<string, unknown> | null };
+    const lastLetter: Record<string, RecentLetter> = {};
+    const recentScenarios: Record<string, string[]> = {};   // 최근 2일 편지가 쓴 scenarioId — 중복 회피용
+    (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신
+      const sid = (l.context as { scenarioId?: string } | null)?.scenarioId;
+      if (sid) (recentScenarios[l.child_id] ||= []).push(sid);
     });
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
@@ -196,16 +201,33 @@ export async function GET(req: Request) {
         // 3) 편지: 직전 편지와 식단 지문이 같으면 LLM 스킵하고 내용 재사용 (비용·시간 절감)
         const prev = lastLetter[cid];
         let letter = '', oneliner = '';
+        let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) hash와 무관하게 재사용. 식단 안 바뀐 경우도 재사용. force만 재생성.
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
           letter = prev!.letter; oneliner = prev!.oneliner || ''; reused++;
+          scenarioId = (prev!.context as { scenarioId?: string } | null)?.scenarioId ?? null;   // 재사용은 기존 시나리오 보존(중복 이력 유지)
+          scenarioLabel = (prev!.context as { scenarioLabel?: string } | null)?.scenarioLabel ?? null;
         } else {
           // 연속성용 과거 편지 (날짜 라벨만 — buildLetterUser가 순서로 변환)
           const { data: pastL } = await supabase.from('coach_letters')
             .select('letter_date,letter').eq('child_id', cid).neq('letter_date', today)
             .order('letter_date', { ascending: false }).limit(5);
           const pastLetters = (pastL || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter }));
+          // 오늘의 코칭 시나리오 선택(편지 다양성) — 최근 60일 ICFQ 위험 누적 + 신호로 결정론 선택, 최근 2일 중복 회피
+          let icfqRiskCount = 0;
+          try {
+            const { data: icfqRows } = await supabase.from('daily_questions')
+              .select('answer,context').eq('child_id', cid).gte('q_date', kstDateNDaysAgo(60)).not('answer', 'is', null);
+            icfqRiskCount = (icfqRows || []).filter((r: { answer: string | null; context: { icfq?: string } | null }) => isIcfqRisk(r.context?.icfq, r.answer)).length;
+          } catch { /* ICFQ 집계 실패해도 코칭은 계속 */ }
+          const scenario = selectScenario({
+            timeseries: ts, reds, homeReds, missing: fg.missing, homeMissing: homeFg.missing,
+            homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], refused: uniqRef,
+            notes, favoriteFoods, attendsDaycare: attends, ageBand: meta.age_band,
+            recentLoggedDays, recentWindow: RECENT_WINDOW, icfqRiskCount,
+          }, recentScenarios[cid] || []);
+          scenarioId = scenario.id; scenarioLabel = scenario.label;
           const gen = await generateLetter({
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
@@ -213,6 +235,7 @@ export async function GET(req: Request) {
             timeseries: ts, attendsDaycare: attends, pastLetters,
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
+            scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
           });
           letter = gen.letter; oneliner = gen.oneliner;
         }
@@ -225,6 +248,7 @@ export async function GET(req: Request) {
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
             eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
             source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: 'haiku-4-5',
+            scenarioId, scenarioLabel,   // 오늘의 코칭 시나리오(편지 다양성·중복 회피 이력)
           };
           await supabase.from('coach_letters').upsert(
             { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: letterCtx },

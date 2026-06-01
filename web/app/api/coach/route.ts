@@ -13,6 +13,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLetter } from '@/lib/coach';
+import { selectScenario } from '@/lib/coachScenarios';
 
 const ALLOWED = ['https://www.mealfred.com', 'https://mealfred.com', 'https://app.mealfred.com', 'https://mealfred-app.vercel.app'];
 function cors(req: NextRequest) {
@@ -32,6 +33,16 @@ export async function POST(req: NextRequest) {
   const headers = cors(req);
   try {
     const b = await req.json();
+    const notes = b.notes || b.recentNotes;   // recentNotes = 기존 클라 필드명 호환
+    // 온디맨드 편지도 시나리오 각도 적용(다양성). 단발 생성이라 중복 회피 이력은 없음([]).
+    const scenario = selectScenario({
+      timeseries: b.timeseries || [], reds: b.reds || [], homeReds: b.homeReds || [],
+      missing: b.missing || [], homeMissing: b.homeMissing || [],
+      homeRefused: b.homeRefused || [], daycareRefused: b.daycareRefused || [], refused: b.refused || [],
+      notes: notes || [], favoriteFoods: b.favoriteFoods || [],
+      attendsDaycare: !!b.attendsDaycare, ageBand: b.ageBand || '',
+      recentLoggedDays: b.recentLoggedDays ?? 5, recentWindow: 5, icfqRiskCount: b.icfqRiskCount ?? 0,
+    }, []);
     const { letter, oneliner } = await generateLetter({
       childName: b.childName,
       ageBand: b.ageBand,
@@ -39,12 +50,16 @@ export async function POST(req: NextRequest) {
       reds: b.reds,
       covered: b.covered,
       missing: b.missing,
-      notes: b.notes || b.recentNotes,   // recentNotes = 기존 클라 필드명 호환
+      notes,
       refused: b.refused,
       homeRefused: b.homeRefused,
       daycareRefused: b.daycareRefused,
+      favoriteFoods: b.favoriteFoods,
+      homeReds: b.homeReds,
+      homeMissing: b.homeMissing,
       timeseries: b.timeseries,
       pastLetters: b.pastLetters,
+      scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
     });
     return NextResponse.json({ letter, oneliner }, { headers });
   } catch (e: unknown) {
