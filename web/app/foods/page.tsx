@@ -100,7 +100,7 @@ export default function FoodsDex() {
         setLoggedIn(true);
         const { data: child } = await supabase.from('children').select('id').eq('parent_id', user.id).limit(1).maybeSingle();
         if (child) {
-          const { data: rows } = await supabase.from('meal_logs').select('ingredients,ate_well,refused,log_date').eq('child_id', child.id);
+          const { data: rows } = await supabase.from('meal_logs').select('ingredients,ate_well,refused,log_date').eq('child_id', child.id).lte('log_date', kstDateNDaysAgo(0));   // 미래(미리입력 식단표) 제외 — 홈 레퍼토리와 정합
           (rows || []).forEach((r: { ingredients: string[] | null; ate_well: boolean | null; refused: string | null; log_date: string }) => {
             (r.ingredients || []).forEach((nm) => add(nm, r.ate_well, r.log_date, r.refused));
           });

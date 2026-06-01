@@ -10,6 +10,7 @@ import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/se
 import { isAdmin } from '@/lib/admin';
 import AdminLogin from '@/components/AdminLogin';
 import Link from 'next/link';
+import { kstToday } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,7 +46,7 @@ export default async function AdminHome() {
   // 활동 집계 — 자녀별 식단 수·최근 기록일 (작은 유저베이스 가정, 단순 집계)
   const ids = (children || []).map((c) => c.id);
   const { data: meals } = ids.length
-    ? await db.from('meal_logs').select('child_id,log_date').in('child_id', ids)
+    ? await db.from('meal_logs').select('child_id,log_date').in('child_id', ids).lte('log_date', kstToday())   // 미래(미리입력) 제외 — 끼니수·최근기록일 정확
     : { data: [] as { child_id: string; log_date: string }[] };
   const { data: letters } = ids.length
     ? await db.from('coach_letters').select('child_id,letter_date').in('child_id', ids)

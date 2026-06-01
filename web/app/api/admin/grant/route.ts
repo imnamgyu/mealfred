@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   const [{ data: acct }, { data: kids }, { count: meals }, { data: sub }] = await Promise.all([
     db.auth.admin.getUserById(pid),
     db.from('children').select('nickname,age_band,created_at').eq('parent_id', pid).order('created_at'),
-    db.from('meal_logs').select('*', { count: 'exact', head: true }).eq('parent_id', pid),
+    db.from('meal_logs').select('*', { count: 'exact', head: true }).eq('parent_id', pid).lte('log_date', new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10)),   // 미래 제외
     db.from('app_subscriptions').select('lifetime,paid_until,lifetime_note,lifetime_granted_at').eq('parent_id', pid).maybeSingle(),
   ]);
   const u = acct?.user;
