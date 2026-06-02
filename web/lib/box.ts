@@ -8,6 +8,7 @@
  */
 
 import { isSpicyIngredient } from './spicy';
+import { inSeason, isPerishableSeafood } from './season';
 
 export type PoolItem = { nm: string; cat: string; grade: string; em?: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good' };
 export type BoxReason = '결핍보강' | '필수도전' | '권장도전' | '거부재노출';
@@ -23,6 +24,7 @@ export type BoxInput = {
   staleOf?: (nm: string) => number;   // 마지막 노출 후 일수(미경험=큰 값). 필수인데 오래 안 먹은 것 우선용
   size?: number;               // 박스 품종 수(기본 7 — 핵심 5 + 맛보기 2)
   coreSize?: number;           // 핵심 슬롯 수(기본 5): 결핍보강·거부재노출·필수도전. 나머지(size-coreSize)는 맛보기(권장도전)
+  month?: number;              // 현재 월(1~12) — 제철 식재료 가점용(제철=영양↑·신선)
 };
 
 // 우선순위 = 💎 영양 보석(core>good) 먼저 → 그 안에서 급식 빈도(자주>가끔>드물게). '꼭 챙길 영양'을 박스 1순위로.
@@ -31,8 +33,10 @@ const meRank = (p: PoolItem) => (p.must_eat ? (p.must_eat_tier === 'core' ? 0 : 
 const rank = (p: PoolItem) => meRank(p) * 10 + (FREQ_RANK[p.grade] ?? 3);
 
 export function composeWeeklyBox(input: BoxInput): BoxItem[] {
-  const { pool, eaten, reds = [], nutrientsOf, daycareRefused = [], size = 7 } = input;
+  const { pool, eaten, reds = [], nutrientsOf, daycareRefused = [], size = 7, month } = input;
   const coreSize = Math.min(input.coreSize ?? 5, size);   // 핵심 5 + 맛보기 2 = 7
+  // 제철 가점: 같은 우선순위면 제철 식재료를 살짝 먼저(0.5). 영양 보석/결핍 우선순위는 안 뒤집음.
+  const rankS = (p: PoolItem) => rank(p) - (month && inSeason(p.nm, month) ? 0.5 : 0);
   const weakCats = input.weakCats || [];
   const picked = new Set<string>();
   const out: BoxItem[] = [];
@@ -44,8 +48,9 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
     picked.add(nm); out.push({ nm, em: emOf[nm] || '🍽', cat, reason });
   };
 
-  // 향신료/매운 제외한 안 먹어본 후보 (고추·김치 등 매운 식재료는 grade와 무관하게 제외 — box-product '매운 건 안 와요' 약속)
-  const candidates = pool.filter((p) => !eaten.has(p.nm) && p.grade !== '향신료' && !isSpicyIngredient(p.nm));
+  // 향신료/매운/신선해산물 제외한 안 먹어본 후보
+  // (매운 건 약속대로 제외 · 생선·갑각/조개는 배송 산폐 위험으로 박스에서 빼고 건어물·해조류는 유지)
+  const candidates = pool.filter((p) => !eaten.has(p.nm) && p.grade !== '향신료' && !isSpicyIngredient(p.nm) && !isPerishableSeafood(p.nm, p.cat));
 
   // 카테고리 라운드로빈 헬퍼 — 군별 다양성(한 군에 몰리지 않게), 빈약군 우선
   const roundRobin = (items: PoolItem[], reason: (p: PoolItem) => BoxReason, cap: number) => {
@@ -53,7 +58,7 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
     items.forEach((p) => { (byCat[p.cat] ||= []).push(p); });
     // 군별 정렬: 영양 보석 먼저 → 같은 우선순위면 '안 먹은 지 오래된(또는 미경험)' 순
     Object.values(byCat).forEach((arr) => arr.sort((a, b) => {
-      const g = rank(a) - rank(b);
+      const g = rankS(a) - rankS(b);   // 제철 가점 반영
       return g !== 0 ? g : (input.staleOf?.(b.nm) ?? 999) - (input.staleOf?.(a.nm) ?? 999);
     }));
     const cats = Object.keys(byCat).sort((a, b) => {
@@ -76,7 +81,7 @@ export function composeWeeklyBox(input: BoxInput): BoxItem[] {
     const redSet = new Set(reds);
     candidates
       .filter((p) => nutrientsOf(p.nm).some((n) => redSet.has(n)))
-      .sort((a, b) => rank(a) - rank(b))
+      .sort((a, b) => rankS(a) - rankS(b))
       .forEach((p) => add(p.nm, p.cat, '결핍보강', coreSize));
   }
   // ② 기관에서 거부한 식재료 → 집에서 소량 재노출 (풀에 있고 향신료 아님, 집에 있어서 뺀 건 제외)

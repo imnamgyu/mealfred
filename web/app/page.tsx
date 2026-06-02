@@ -11,6 +11,7 @@ import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignal
 import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
+import { inSeason } from '@/lib/season';
 import { isSpicyIngredient } from '@/lib/spicy';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
@@ -501,6 +502,7 @@ export default function Home() {
     daycareRefused: refused,
     staleOf: (nm: string) => staleMap[nm] ?? 999,   // 미경험=999(최우선) — 필수인데 오래 안 먹은 것 우선
     size: 7, coreSize: 5,   // 핵심 5(💎필수·결핍보강·거부재노출) + 맛보기 2(권장도전)
+    month: Number(kstToday().slice(5, 7)),   // 제철 식재료 우선(영양↑·신선) · 신선 해산물은 box.ts가 산폐위험으로 제외
   }) : [];
 
   return (
@@ -844,13 +846,14 @@ export default function Home() {
                 <strong className="text-[13px]" style={{ color: '#1a2b4a' }}>📦 이번 주 우리 아이 박스 구성</strong>
                 <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{boxItems.length}종 · 핵심 {boxItems.filter((b) => b.reason !== '권장도전').length} + 맛보기 {boxItems.filter((b) => b.reason === '권장도전').length}</span>
               </div>
-              <div className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>빈약한 식품군·안 먹어본 것 위주로 소량. 강요 없이 식탁에 올려만 두세요(SOS). <b>집에 있는 건 🏠로 빼면</b> 다음 우선순위가 채워져요.</div>
+              <div className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>빈약한 식품군·안 먹어본 것 위주로 소량. <b style={{ color: '#16A085' }}>🌱 제철 식재료 우선</b>(영양↑·신선)으로, 신선 해산물은 산폐 위험이라 빼고 보내요. 강요 없이 올려만 두세요(SOS). <b>집에 있는 건 🏠로 빼면</b> 채워져요.</div>
               <div className="flex flex-wrap gap-1.5">
                 {boxItems.map((b) => {
                   const m = BOX_REASON_META[b.reason];
+                  const seasonal = inSeason(b.nm, Number(kstToday().slice(5, 7)));
                   return (
-                    <span key={b.nm} className="text-[11px] font-bold pl-2 pr-1 py-1 rounded-lg inline-flex items-center gap-1" style={{ background: 'white', color: '#1a2b4a', border: '1px solid #F0E0D0' }}>
-                      <span>{b.em} {b.nm} <span style={{ color: m.color }}>· {m.label}</span></span>
+                    <span key={b.nm} className="text-[11px] font-bold pl-2 pr-1 py-1 rounded-lg inline-flex items-center gap-1" style={{ background: 'white', color: '#1a2b4a', border: `1px solid ${seasonal ? '#A5D6C6' : '#F0E0D0'}` }}>
+                      <span>{seasonal && <span title="제철" style={{ color: '#16A085' }}>🌱</span>}{b.em} {b.nm} <span style={{ color: m.color }}>· {m.label}</span></span>
                       <span role="button" onClick={() => excludeIngredient(b.nm)} title="집에 있어요(빼기)" className="text-[9px] px-1 py-0.5 rounded cursor-pointer flex-shrink-0" style={{ background: '#F3F4F6', color: '#9CA3AF' }}>🏠</span>
                     </span>
                   );

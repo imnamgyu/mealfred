@@ -17,8 +17,9 @@ export const dynamic = 'force-dynamic';
 type Edge = { a: string; b: string; kind: 'pair' | 'bridge'; strength: number; basis: string; count?: number };
 type Ing = { nm: string; cat: string; grade: string; must_eat?: boolean; must_eat_tier?: string; must_eat_nutrient?: string };
 
-const EDGES = (graph as { edges: Edge[]; meta?: Record<string, number> }).edges;
-const GMETA = (graph as { meta?: Record<string, number> }).meta || {};
+const EDGES = (graph as { edges: Edge[]; meta?: Record<string, number | string> }).edges;
+const GMETA = (graph as { meta?: Record<string, number | string> }).meta || {};
+const GNODES = (graph as { nodes?: string[] }).nodes || [];
 const ING = (ingLight as { ingredients: Ing[] }).ingredients;
 const KIT = kit as { dishes: { key: string; em: string; n: number }[]; cells: Record<string, Record<string, number>>; scores?: Record<string, Record<string, number>>; ingredients: string[]; meta: Record<string, number | string> };
 
@@ -77,6 +78,26 @@ export default async function FoodGraphMatrix({ searchParams }: { searchParams: 
   return (
     <main style={{ padding: '24px 28px', fontFamily: 'Pretendard, sans-serif', maxWidth: '100%' }}>
       <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1a2b4a' }}>🕸 네트워크 매트릭스</h1>
+      {(() => {
+        const fmt = (v: number | string | undefined) => Number(v || 0).toLocaleString('en-US');
+        const stats: [string, string][] = [
+          ['🥕 정제 식재료(도감)', `${ING.length}종`],
+          ['🍲 음식 형태(키트)', `${KIT.dishes.length}형태`],
+          ['🕸 궁합 그래프', `노드 ${GNODES.length} · 페어 ${fmt(GMETA.pairs)} · 사촌 ${fmt(GMETA.bridges)}`],
+          ['📊 키트 채점 셀', `${fmt(KIT.meta?.scored_cells)}칸`],
+          ['📚 수집 메뉴 코퍼스', `레시피 ${fmt(KIT.meta?.corpus_recipes)} + 식약처 ${fmt(KIT.meta?.corpus_mfds)} + 급식 ${fmt(KIT.meta?.corpus_neis_unique)} → learned ${fmt(KIT.meta?.learned_total)}`],
+        ];
+        return (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '12px 0 4px' }}>
+            {stats.map(([k, v]) => (
+              <div key={k} style={{ background: '#FFF6EC', border: '1px solid #FFD8B0', borderRadius: 10, padding: '8px 13px' }}>
+                <div style={{ fontSize: 10.5, color: '#9CA3AF', fontWeight: 700, marginBottom: 2 }}>{k}</div>
+                <div style={{ fontSize: 15, color: '#C45A00', fontWeight: 800 }}>{v}</div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>{tab('pairing', '식재료 ↔ 식재료 (궁합)')}{tab('kit', '음식 × 식재료 (골고루 키트)')}</div>
 
       {view === 'pairing' ? (
