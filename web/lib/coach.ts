@@ -119,6 +119,7 @@ export type LetterInput = {
   scenario?: { id: string; label: string; promptHint: string; avoid: string };   // 오늘의 코칭 시나리오(편지 각도) — lib/coachScenarios
   chronicGuidance?: string;        // 만성질환 식이 코칭 방향(부모 입력 기반·진단 아님) — lib/coachChronic
   bridgeFacts?: string;            // 검증된 푸드 브릿지(잘 먹는 음식→닮은 사촌·어울리는 궁합) — lib/foodGraph 기반, 편지가 궁합을 지어내지 않게
+  profileNudge?: string | null;    // 미입력 프로필(체위·만성질환 등) 1개를 부드럽게 권유 + 기대효과 — cron이 로테이션으로 결정(없으면 언급 금지)
 };
 
 function buildLetterUser(b: LetterInput): string {
@@ -145,7 +146,8 @@ function buildLetterUser(b: LetterInput): string {
 집 끼니만 평가(부모 통제 영역): ${b.homeDays ? `최근 집 식사 ${b.homeDays}일 · 집에서 부족한 식품군: ${(b.homeMissing || []).join(', ') || '없음'} · 집 결핍 영양소: ${(b.homeReds || []).join(', ') || '없음'}` : '집 끼니 기록이 적음'}` : ''}${(b.recentWindowDays && b.recentLoggedDays != null && b.recentLoggedDays < b.recentWindowDays) ? `
 기록 현황(P9): 최근 ${b.recentWindowDays}일 중 ${b.recentLoggedDays}일 기록됨(${b.recentWindowDays - b.recentLoggedDays}일 공백). 이 사실로 횟수·날짜를 더 지어내지 말 것.` : ''}${b.attendsDaycare ? `
 등원: 어린이집·유치원에 다녀 평일 점심·오전/오후 간식은 기관에서 먹습니다(메뉴는 부모가 못 바꿈). 행동 제안은 집 아침·저녁 끼니와, 기관에서 거부한 식재료를 집에서 다시 만나게 하는 것에만 두세요.` : ''}
-부모 메모: ${fenceNotes(b.notes || [])}`;
+${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기대효과 포함): ${b.profileNudge}
+` : ''}부모 메모: ${fenceNotes(b.notes || [])}`;
 
   // 연속성: 날짜 대신 순서 라벨만 제공 (LLM이 날짜로 경과일을 추정하지 못하게 — P4)
   const history = past.length
@@ -169,6 +171,7 @@ ${scenarioBlock}${chronicBlock}
 - ⚠️ 푸드 브릿지(닮은 사촌·궁합) 제안은 위 '검증된 다리'에 적힌 조합을 우선 써라(예: "고구마 잘 먹으니 닮은 단호박을 곁들여보세요"). 거기 없는 사촌·궁합은 함부로 지어내지 마라 — 틀린 궁합('김치에 생선' 같은)은 신뢰를 깬다. '검증된 다리'가 '파악 중'이면 같은 식품군의 친숙한 것으로만 부드럽게.
 - 등원 아동: 칭찬·평가는 '집 끼니만 평가'(부모 통제 영역) 기준으로 하라. 전체 영양이 괜찮아도 그게 기관 급식 덕이면 "어린이집에서 잘 챙겨주고 있어요"라고 솔직히 밝히고, '집에서 부족한 식품군/결핍'에 한 걸음을 둬라. "전반적으로 잘하고 계세요"처럼 기관 덕을 부모 공으로 돌리는 뭉뚱그린 칭찬은 금지.
 - P9: '기록 현황'에 공백이 있을 때만, 편지 맨 끝에 부담 없는 한 줄로 한 번만 권유(예: "기억나는 대로 비어 있는 날 식단만 살짝 채워두시면 더 정확히 봐드릴게요"). 공백이 없으면 기록 얘기는 꺼내지 마라. 절대 다그치지 마라.
+- 미입력 정보 권유: 아래 '미입력 권유'가 있을 때만, 편지 맨 끝에 부담 없는 한 줄로 한 번만 그 내용을 자연스럽게 녹여라(기대효과 1개 포함, 그 문구 톤 유지). 없으면 절대 꺼내지 마라. P9 기록 권유와 동시에 쓰지 말고(둘 중 하나만), 강요·죄책감 유발 금지.
 - oneliner: 최근 식단 진단 한 줄. 잘하는 점 + 신경 쓸 점 1개 + 방법론 근거 한 조각, 격려 톤.
 
 반드시 JSON만: {"letter": "...", "oneliner": "..."}`;

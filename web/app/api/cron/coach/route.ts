@@ -117,15 +117,34 @@ export async function GET(req: Request) {
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
     // 자녀 메타 + 오늘 이미 생성된 질문(중복 회피)
-    const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band,chronic_conditions').in('id', activeIds);
-    const kidMap: Record<string, { parent_id: string; nickname: string; age_band: string; chronic: string | null }> = {};
-    (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string; chronic_conditions: string | null }) => { kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band, chronic: k.chronic_conditions }; });
+    const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band,chronic_conditions,sex').in('id', activeIds);
+    const kidMap: Record<string, { parent_id: string; nickname: string; age_band: string; chronic: string | null; sex: string | null }> = {};
+    (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string; chronic_conditions: string | null; sex: string | null }) => { kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band, chronic: k.chronic_conditions, sex: k.sex }; });
     const { data: todayQs } = await supabase.from('daily_questions').select('child_id').eq('q_date', today).in('child_id', activeIds);
     const hasQToday = new Set((todayQs || []).map((q: { child_id: string }) => q.child_id));
     // 등원 여부 — daycare 컬럼 마이그레이션 전이면 에러(컬럼없음) → 전부 false로 안전 처리
     const daycareMap: Record<string, boolean> = {};
     const { data: dcRows, error: dcErr } = await supabase.from('children').select('id,daycare').in('id', activeIds);
     if (!dcErr) (dcRows || []).forEach((r: { id: string; daycare: boolean | null }) => { daycareMap[r.id] = !!r.daycare; });
+
+    // 미입력 정보 권유용 — 체위(성장) 데이터가 있는 자녀(growth_logs 1행+). 테이블 없으면 안전 처리.
+    const hasGrowth = new Set<string>();
+    const { data: grRows, error: grErr } = await supabase.from('growth_logs').select('child_id').in('child_id', activeIds);
+    if (!grErr) (grRows || []).forEach((r: { child_id: string }) => hasGrowth.add(r.child_id));
+
+    // 미입력 프로필을 '돌아가며 하나씩' 부드럽게 권유(기대효과 1개 포함). 다그치지 않게 ~4일에 1번·로테이션.
+    // 기록 공백(P9) 권유가 떠 있는 날엔 안 띄움(권유 중첩 방지). 체위=명확히 미입력, 만성=선택(없으면 안 넣어도 됨 문구).
+    const profileNudgeFor = (cid: string): string | null => {
+      const k = kidMap[cid]; if (!k) return null;
+      const miss: string[] = [];
+      if (!hasGrowth.has(cid) || !k.sex) miss.push('아직 키·몸무게(와 성별)를 안 알려주셨어요 — 한 번 넣어두시면 또래 대비 성장 곡선과 BMI를 함께 봐드릴 수 있어요');
+      if (!k.chronic || !String(k.chronic).trim()) miss.push('혹시 변비·아토피·장 트러블처럼 신경 쓰이는 게 있다면 알려주시면, 그에 맞는 식이 방향을 코칭에 자연스럽게 반영해드려요(없으면 안 넣으셔도 돼요)');
+      if (miss.length === 0) return null;
+      const dayIndex = Math.floor(Date.parse(today) / 86400000);
+      let h = 0; for (const c of cid) h = (h + c.charCodeAt(0)) % 997;
+      if ((dayIndex + h) % 4 !== 0) return null;   // 약 4일에 한 번만
+      return miss[(dayIndex + h) % miss.length];   // 여러 개면 날짜별로 돌아가며 하나씩
+    };
 
     for (const cid of activeIds) {
       // maxDuration 전 안전 종료 — 남은 자녀는 다음 실행(오래된 순)이 이어받음
@@ -271,6 +290,7 @@ export async function GET(req: Request) {
             scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
             chronicGuidance: chronicGuidanceText(meta.chronic),   // 만성질환 식이 방향(부모 입력 기반)
             bridgeFacts,   // 검증된 푸드 브릿지(그래프) — 편지가 사촌/궁합을 지어내지 않게
+            profileNudge: recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null,   // 미입력 정보 권유(기록 공백 없을 때만·로테이션)
           });
           letter = gen.letter; oneliner = gen.oneliner;
         }
