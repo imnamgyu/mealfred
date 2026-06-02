@@ -21,7 +21,8 @@ export type BoxInput = {
   nutrientsOf?: (nm: string) => string[];   // 식재료→영양소 (결핍 매칭용, 선택)
   daycareRefused?: string[];   // 기관에서 거부 → 집에서 소량 재노출
   staleOf?: (nm: string) => number;   // 마지막 노출 후 일수(미경험=큰 값). 필수인데 오래 안 먹은 것 우선용
-  size?: number;               // 박스 품종 수(기본 12 — 극다품종 소량)
+  size?: number;               // 박스 품종 수(기본 7 — 핵심 5 + 맛보기 2)
+  coreSize?: number;           // 핵심 슬롯 수(기본 5): 결핍보강·거부재노출·필수도전. 나머지(size-coreSize)는 맛보기(권장도전)
 };
 
 // 우선순위 = 💎 영양 보석(core>good) 먼저 → 그 안에서 급식 빈도(자주>가끔>드물게). '꼭 챙길 영양'을 박스 1순위로.
@@ -30,57 +31,65 @@ const meRank = (p: PoolItem) => (p.must_eat ? (p.must_eat_tier === 'core' ? 0 : 
 const rank = (p: PoolItem) => meRank(p) * 10 + (FREQ_RANK[p.grade] ?? 3);
 
 export function composeWeeklyBox(input: BoxInput): BoxItem[] {
-  const { pool, eaten, reds = [], nutrientsOf, daycareRefused = [], size = 12 } = input;
+  const { pool, eaten, reds = [], nutrientsOf, daycareRefused = [], size = 7 } = input;
+  const coreSize = Math.min(input.coreSize ?? 5, size);   // 핵심 5 + 맛보기 2 = 7
   const weakCats = input.weakCats || [];
   const picked = new Set<string>();
   const out: BoxItem[] = [];
   const emOf: Record<string, string> = {};
   pool.forEach((p) => { if (p.em) emOf[p.nm] = p.em; });
 
-  const add = (nm: string, cat: string, reason: BoxReason) => {
-    if (picked.has(nm) || out.length >= size) return;
+  const add = (nm: string, cat: string, reason: BoxReason, cap: number) => {
+    if (picked.has(nm) || out.length >= cap) return;
     picked.add(nm); out.push({ nm, em: emOf[nm] || '🍽', cat, reason });
   };
 
   // 향신료/매운 제외한 안 먹어본 후보 (고추·김치 등 매운 식재료는 grade와 무관하게 제외 — box-product '매운 건 안 와요' 약속)
   const candidates = pool.filter((p) => !eaten.has(p.nm) && p.grade !== '향신료' && !isSpicyIngredient(p.nm));
 
+  // 카테고리 라운드로빈 헬퍼 — 군별 다양성(한 군에 몰리지 않게), 빈약군 우선
+  const roundRobin = (items: PoolItem[], reason: (p: PoolItem) => BoxReason, cap: number) => {
+    const byCat: Record<string, PoolItem[]> = {};
+    items.forEach((p) => { (byCat[p.cat] ||= []).push(p); });
+    // 군별 정렬: 영양 보석 먼저 → 같은 우선순위면 '안 먹은 지 오래된(또는 미경험)' 순
+    Object.values(byCat).forEach((arr) => arr.sort((a, b) => {
+      const g = rank(a) - rank(b);
+      return g !== 0 ? g : (input.staleOf?.(b.nm) ?? 999) - (input.staleOf?.(a.nm) ?? 999);
+    }));
+    const cats = Object.keys(byCat).sort((a, b) => {
+      const wa = weakCats.indexOf(a), wb = weakCats.indexOf(b);
+      return (wa === -1 ? 99 : wa) - (wb === -1 ? 99 : wb);
+    });
+    for (let round = 0; out.length < cap; round++) {
+      let added = false;
+      for (const c of cats) {
+        const p = byCat[c][round];
+        if (p && !picked.has(p.nm)) { add(p.nm, p.cat, reason(p), cap); added = true; if (out.length >= cap) break; }
+      }
+      if (!added) break;
+    }
+  };
+
+  // ── 핵심(core) 슬롯 5: ① 결핍보강 → ② 거부재노출 → ③ 필수도전(must-eat) ──
   // ① 결핍 영양소를 채우는 안 먹어본 식재료 (매칭 가능할 때)
   if (reds.length && nutrientsOf) {
     const redSet = new Set(reds);
     candidates
       .filter((p) => nutrientsOf(p.nm).some((n) => redSet.has(n)))
       .sort((a, b) => rank(a) - rank(b))
-      .forEach((p) => add(p.nm, p.cat, '결핍보강'));
+      .forEach((p) => add(p.nm, p.cat, '결핍보강', coreSize));
   }
-
-  // ② 기관에서 거부한 식재료 → 집에서 소량 재노출 (풀에 있고 향신료 아님)
+  // ② 기관에서 거부한 식재료 → 집에서 소량 재노출 (풀에 있고 향신료 아님, 집에 있어서 뺀 건 제외)
   daycareRefused.forEach((nm) => {
     const p = pool.find((x) => x.nm === nm && x.grade !== '향신료' && !isSpicyIngredient(x.nm));
-    if (p) add(p.nm, p.cat, '거부재노출');
+    if (p && !eaten.has(p.nm)) add(p.nm, p.cat, '거부재노출', coreSize);
   });
+  // ③ 필수도전(💎 must-eat)으로 핵심 채우기
+  roundRobin(candidates.filter((p) => p.must_eat && !picked.has(p.nm)), () => '필수도전', coreSize);
 
-  // ③ 빈약 식품군 라운드로빈 — 군별 필수→권장 순으로 골고루
-  const byCat: Record<string, PoolItem[]> = {};
-  candidates.forEach((p) => { (byCat[p.cat] ||= []).push(p); });
-  // 군별 정렬: 영양 보석 먼저 → 같은 우선순위면 '안 먹은 지 오래된(또는 미경험)' 순
-  Object.values(byCat).forEach((arr) => arr.sort((a, b) => {
-    const g = rank(a) - rank(b);
-    return g !== 0 ? g : (input.staleOf?.(b.nm) ?? 999) - (input.staleOf?.(a.nm) ?? 999);
-  }));
-  // 빈약 카테고리 우선, 나머지 뒤
-  const cats = Object.keys(byCat).sort((a, b) => {
-    const wa = weakCats.indexOf(a), wb = weakCats.indexOf(b);
-    return (wa === -1 ? 99 : wa) - (wb === -1 ? 99 : wb);
-  });
-  for (let round = 0; out.length < size; round++) {
-    let added = false;
-    for (const c of cats) {
-      const p = byCat[c][round];
-      if (p && !picked.has(p.nm)) { add(p.nm, p.cat, p.must_eat ? '필수도전' : '권장도전'); added = true; if (out.length >= size) break; }
-    }
-    if (!added) break;
-  }
+  // ── 맛보기(taster) 슬롯 2: 권장도전. 핵심이 데이터 부족으로 5 미달이면 남은 것으로 size까지 채움 ──
+  roundRobin(candidates.filter((p) => !picked.has(p.nm)), (p) => (p.must_eat ? '필수도전' : '권장도전'), size);
+
   return out;
 }
 
