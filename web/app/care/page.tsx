@@ -850,10 +850,12 @@ export default function CarePage() {
             </div>
           </div>
         )}
-        {/* 답한 직후 슬림 확인 — 다음 진입부턴 아예 안 뜸 */}
-        {answeredNow && dailyQ?.answer && (
-          <div className="rounded-2xl px-4 py-2.5 mb-3" style={{ background: '#F3E5F5', border: '1px solid #E1BEE7' }}>
-            <span className="text-[11.5px] font-bold" style={{ color: '#6A1B9A' }}>✓ 오늘 질문에 답해주셨어요 — 코칭에 반영됩니다</span>
+        {/* 오늘 질문에 답한 날엔 흔적을 남긴다(이번 세션이든 아침에 답했든) — 빈 화면이라 '질문 없었다'고 오해하던 것 해소 */}
+        {dailyQ?.question && dailyQ?.answer && (
+          <div className="rounded-2xl px-4 py-3 mb-3" style={{ background: '#F3E5F5', border: '1px solid #E1BEE7' }}>
+            <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#6A1B9A' }}>✓ 오늘의 질문에 답하셨어요 — 코칭에 반영됩니다</div>
+            <div className="text-[12.5px] font-bold" style={{ color: '#6A1B9A' }}>{dailyQ.question}</div>
+            <div className="text-[12.5px] mt-0.5" style={{ color: '#8E5BA0' }}>→ {answeredNow ? '방금 ' : ''}“{dailyQ.answer}”</div>
           </div>
         )}
 
