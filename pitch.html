@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 Pitch Deck</title>
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a2b4a;line-height:1.5;-webkit-font-smoothing:antialiased;}
+.deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;}
+.slide{min-height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:7vh 8vw;position:relative;border-bottom:1px solid rgba(0,0,0,0.04);}
+.slide .tag{font-size:13px;font-weight:800;letter-spacing:0.14em;color:#C45A00;text-transform:uppercase;margin-bottom:18px;}
+.slide h1{font-size:clamp(34px,6vw,68px);font-weight:800;letter-spacing:-0.02em;line-height:1.12;}
+.slide h2{font-size:clamp(26px,4.2vw,46px);font-weight:800;letter-spacing:-0.015em;line-height:1.18;margin-bottom:18px;}
+.slide p{font-size:clamp(16px,2vw,22px);color:#3a4555;max-width:860px;}
+.slide .big{font-size:clamp(40px,7vw,80px);font-weight:800;color:#C45A00;letter-spacing:-0.02em;line-height:1;}
+.slide .num{position:absolute;bottom:26px;right:34px;font-size:12px;font-weight:800;color:#C9B8A8;}
+.slide ul{list-style:none;margin-top:14px;}
+.slide li{font-size:clamp(16px,2.1vw,23px);color:#2a3545;margin:12px 0;padding-left:30px;position:relative;max-width:820px;}
+.slide li::before{content:'';position:absolute;left:0;top:0.6em;width:11px;height:11px;border-radius:3px;background:#FF6B1A;}
+.slide li b{color:#1a2b4a;}
+.dark{background:#1a2b4a;color:#fff;}
+.dark h1,.dark h2{color:#fff;}.dark p{color:rgba(255,255,255,0.85);}.dark .tag{color:#FFB877;}
+.dark .big{color:#FFB877;}.dark li{color:rgba(255,255,255,0.9);}.dark li b{color:#fff;}
+.alt{background:#FBF7F2;}
+.kgrid{display:flex;gap:30px;flex-wrap:wrap;margin-top:22px;}
+.kgrid .k .v{font-size:clamp(34px,5.5vw,58px);font-weight:800;color:#C45A00;line-height:1;letter-spacing:-0.02em;}
+.dark .kgrid .k .v{color:#FFB877;}
+.kgrid .k .l{font-size:14px;color:#8a7a6a;font-weight:700;margin-top:6px;}
+.dark .kgrid .k .l{color:rgba(255,255,255,0.6);}
+.flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:20px;font-size:clamp(14px,1.7vw,19px);font-weight:800;}
+.flow .s{background:#FFF0E0;color:#C45A00;border:1.5px solid #FFD0A0;border-radius:12px;padding:10px 16px;}
+.flow .a{color:#C9B8A8;font-size:20px;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:10px;}
+.two .h{font-size:16px;font-weight:800;color:#C45A00;margin-bottom:6px;}
+.scrollhint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);font-size:12px;color:#C9B8A8;font-weight:700;animation:bob 1.6s infinite;z-index:10;}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(5px);}}
+@media(max-width:680px){.two{grid-template-columns:1fr;}}
+@media print{.deck{height:auto;overflow:visible;}.slide{min-height:auto;page-break-after:always;border:none;padding:40px 50px;}.scrollhint{display:none;}@page{size:A4 landscape;margin:0;}}
+</style>
+</head>
+<body>
+<a href="/pitch.pdf" download style="position:fixed;top:16px;right:18px;z-index:20;background:#FFB877;color:#1a2b4a;font-weight:800;font-size:12px;padding:8px 15px;border-radius:100px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,0.15);">📄 PDF</a>
+<a href="/ir.html" style="position:fixed;top:16px;left:18px;z-index:20;background:rgba(255,255,255,0.85);color:#1a2b4a;font-weight:700;font-size:12px;padding:8px 14px;border-radius:100px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,0.12);">상세 IR →</a>
+<div class="deck">
+
+  <section class="slide dark">
+    <div class="tag">SEED · 2026</div>
+    <h1>편식 코칭으로 시작해<br><span style="color:#FFB877;">아이 영양을 책임지는</span><br>AI 헬스케어</h1>
+    <p style="margin-top:22px;">밀프레드 — 아이가 뭘 먹어야 하는지, AI가 매일 안다. 교육 요리키트로 검증된 수요 위에 개인화 영양 플랫폼을 쌓습니다.</p>
+    <p style="margin-top:20px;font-size:15px;color:rgba(255,255,255,0.6);">continueing@naver.com · 010-4527-9272 · app.mealfred.com</p>
+    <div class="num">01</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Problem</div>
+    <h2>아이 편식, 매일 전쟁인데<br>제대로 된 해결책이 없다</h2>
+    <ul>
+      <li>영유아의 <b>25~46%</b>가 편식 — 부모는 매일 죄책감·식사전쟁·영양불안</li>
+      <li>해결책은 파편적: 맘카페 검색, 짧은 소아과 상담, 정답 없는 추측</li>
+      <li>"오늘 무엇을, 어떻게 먹여야 하나"에 답하는 <b>개인화 서비스가 없다</b></li>
+    </ul>
+    <div class="num">02</div>
+  </section>
+
+  <section class="slide alt">
+    <div class="tag">Solution</div>
+    <h2>아이 데이터로 분석하고,<br>먹을 것을 처방한다</h2>
+    <ul>
+      <li><b>편식 코칭 앱</b> — 끼니를 기록하면 영양·거부·미경험을 분석해 매일 맞춤 코칭</li>
+      <li><b>골고루 키트</b> — 그 아이가 이번 주 만나야 할 식재료를 극소량·다품종으로 배송</li>
+      <li>강요 없이 반복 노출(8~15회)·푸드브릿지로 <b>편식을 과학적으로 교정</b></li>
+    </ul>
+    <div class="num">03</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Why Now</div>
+    <h2>LLM이 이제야<br>이걸 가능하게 만들었다</h2>
+    <ul>
+      <li>메뉴→식재료 분해, 개인화 코칭, 영양 추론이 <b>처음으로 저비용에 작동</b></li>
+      <li>2년 전엔 이 학습엔진을 돌릴 수 없었다 — 지금이 진입 타이밍</li>
+      <li>우리는 이미 <b>앱을 라이브</b>로 돌리며 한국 아동영양 데이터를 쌓는 중</li>
+    </ul>
+    <div class="num">04</div>
+  </section>
+
+  <section class="slide alt">
+    <div class="tag">Product</div>
+    <h2>매일 쓰는 이유 = 전부 개인화의 산물</h2>
+    <ul>
+      <li>💌 <b>매일 코칭 편지</b> — 그 아이 데이터로 쓴 맞춤 편지(정서적 락인)</li>
+      <li>🚦 <b>영양 신호등</b> — 31종 KDRI 개인화 결핍 진단</li>
+      <li>📖 <b>도감 ↔ 레시피</b> — 잘 먹는 음식 기반 푸드브릿지 추천</li>
+      <li>📦 <b>골고루 키트 연계</b> — 분석이 곧 주간 맞춤 배송으로</li>
+    </ul>
+    <div class="num">05</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Market</div>
+    <h2>좁은 송곳, 거대한 우산</h2>
+    <div class="flow"><span class="s">편식(60만 가구)</span><span class="a">→</span><span class="s">레시피</span><span class="a">+</span><span class="s">건기식</span><span class="a">+</span><span class="s">성장발달</span><span class="a">→</span><span class="s">육아맘 전체</span></div>
+    <div class="kgrid">
+      <div class="k"><div class="v">4,000억</div><div class="l">SAM · 한국 육아맘 영양·건강 (건기식 6조 중 키즈 수천억)</div></div>
+      <div class="k"><div class="v">수십조</div><div class="l">TAM · 글로벌 아동영양 헬스케어</div></div>
+    </div>
+    <div class="num">06</div>
+  </section>
+
+  <section class="slide dark">
+    <div class="tag">Traction</div>
+    <h2>이미 두 자리 두 배 성장 · 흑자</h2>
+    <div class="kgrid">
+      <div class="k"><div class="v">3.2억</div><div class="l">25년 매출 (24년 0.9억 → +250% YoY)</div></div>
+      <div class="k"><div class="v">+139%</div><div class="l">26년 1~5월 YoY (8,456만원·4,228세트)</div></div>
+      <div class="k"><div class="v">839개교</div><div class="l">누적 거래처 · 2,879 주문</div></div>
+      <div class="k"><div class="v">37.4%</div><div class="l">1년 재구매율 (전근 보정 ~50%)</div></div>
+    </div>
+    <p style="margin-top:24px;font-size:17px;">키트 사업이 흑자(24년 순이익 2,100만)로 굴러가며 고객을 '돈 받고' 획득 → 앱 전환 CAC ≈ 0.</p>
+    <div class="num">07</div>
+  </section>
+
+  <section class="slide alt">
+    <div class="tag">Business Model · Unit Economics</div>
+    <h2>구독 + 개인화 키트 + 건기식</h2>
+    <div class="kgrid">
+      <div class="k"><div class="v">30.7만</div><div class="l">blended LTV (구독+박스, 18개월)</div></div>
+      <div class="k"><div class="v">10~61×</div><div class="l">LTV / CAC (키트 wedge로 CAC≈0)</div></div>
+      <div class="k"><div class="v">4,900~</div><div class="l">월 구독/아이 + 골고루 키트 19,900/주 + 건기식</div></div>
+    </div>
+    <p style="margin-top:22px;">결핍 신호 엔진이 '철 부족' 감지 → <b>임상 근거 있는 개인화 건기식</b> 추천 = 고마진 반복.</p>
+    <div class="num">08</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Moat · Why We Win</div>
+    <h2>아무도 풀스택을 못 가졌다</h2>
+    <ul>
+      <li><b>AI 학습엔진(이미 구축)</b> — 도감 204종·궁합 589페어·키트 2,582셀·코칭 13시나리오</li>
+      <li><b>피지컬 AI 락인</b> — 박스만 베껴도 그 아이 데이터 없으면 개인화 불가</li>
+      <li>경쟁자는 <b>SW만(육아앱)·식품만(밀키트/유아식)·성인(눔)</b> — 우리만 아동 풀스택</li>
+    </ul>
+    <p style="margin-top:18px;font-size:17px;color:#C45A00;font-weight:800;">SW + 피지컬 + 생산능력 + 데이터 해자를 다 가진 아동영양 플레이어는 밀프레드뿐.</p>
+    <div class="num">09</div>
+  </section>
+
+  <section class="slide alt">
+    <div class="tag">Growth</div>
+    <h2>고객이 고객을 데려온다</h2>
+    <ul>
+      <li>🎁 친구 가입 = 한 달 구독값 포인트 · 초대마다 무료 연장 = 슈퍼인플루언서 루프</li>
+      <li>🔒 포인트는 <b>우리 제품에만</b>(구독·키트) = 출혈 아닌 락인</li>
+      <li>📣 CEO의 <b>6년 B2C 밀키트 인플루언서 채널</b> + 바이럴 = 광고 대비 CAC 1/6~1/38</li>
+    </ul>
+    <div class="num">10</div>
+  </section>
+
+  <section class="slide">
+    <div class="tag">Team</div>
+    <h2>물리 + 소프트, 둘 다 가진 팀</h2>
+    <div class="two">
+      <div><div class="h">CEO 임재희 (92)</div><p style="font-size:17px;">B2C 밀키트 6년 · 누적 100만 인분 · 21년 연매출 20억. 인플루언서 마케팅·물류 운영.</p></div>
+      <div><div class="h">CTO 임남규 (90)</div><p style="font-size:17px;">SW마에스트로 멘토 · 스마트홈 코파운더 · 커머스 백엔드. AI 학습엔진 직접 구축.</p></div>
+    </div>
+    <ul style="margin-top:18px;">
+      <li><b>100평 Capa</b> 제조·물류 보유(연 20억 규모) — 0에서 시작 아님</li>
+      <li>B2C 밀키트 <b>흑자 현금흐름</b>(24년 순이익 2,100만)</li>
+    </ul>
+    <div class="num">11</div>
+  </section>
+
+  <section class="slide dark">
+    <div class="tag">The Ask</div>
+    <h2>가속 라운드 — 자동화·그로스·건기식</h2>
+    <div class="kgrid">
+      <div class="k"><div class="v">~7억</div><div class="l">조달 (5~10억) · pre 25~35억</div></div>
+      <div class="k"><div class="v">18~24mo</div><div class="l">런웨이 (이미 흑자 = 가속 라운드)</div></div>
+    </div>
+    <ul style="margin-top:20px;">
+      <li><b>사용처</b> — 자동화 공정 40% · 개발 25% · 그로스 25% · 버퍼 10%</li>
+      <li><b>마일스톤</b> — 앱 구독 전환 증명 · 자동화 가동 · 건기식 1종 · 매출 10억</li>
+    </ul>
+    <p style="margin-top:22px;font-size:19px;color:#FFB877;font-weight:800;">편식부터 시작해, 아이 영양을 평생 책임지는 글로벌 헬스케어로.</p>
+    <div class="num">12</div>
+  </section>
+
+</div>
+<div class="scrollhint">스크롤 ↓</div>
+</body>
+</html>
