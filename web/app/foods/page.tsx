@@ -12,6 +12,7 @@ import { kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 import FoodIcon from '@/components/FoodIcon';
 import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
+import { inSeason, seasonMonths, seasonRangeLabel } from '@/lib/season';
 
 type Ing = { nm: string; cat: string; grade: string; em: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good'; must_eat_nutrient?: string };
 // exposure/eat/first/last = 전체 누적. recentFreq/recentRefused = '잘 먹는' 판정용(최근 90일 윈도우).
@@ -20,9 +21,9 @@ type Stat = { exposure: number; eat: number; first: string | null; last: string 
 // 필터 = 홈 '식품군 다양성' 8개와 동일(CATEGORY_GROUP). 세부 카테고리(박과·뿌리 등) X.
 const FILTERS = [
   { k: 'all', label: '전체' }, { k: 'eaten', label: '✅ 먹어본 것' }, { k: 'noteaten', label: '🆕 안 먹어본 것' },
-  { k: 'mustEat', label: '💎 영양 보석' }, { k: 'frequent', label: '⭐⭐⭐ 급식 단골' }, { k: 'danger', label: '🚨 오래 안 먹음' },
+  { k: 'mustEat', label: '💎 영양 보석' }, { k: 'season', label: '🌱 이번 달 제철' }, { k: 'frequent', label: '⭐⭐⭐ 급식 단골' }, { k: 'danger', label: '🚨 오래 안 먹음' },
   { k: '곡물', label: '🌾 곡물' }, { k: '콩류', label: '🫘 콩' }, { k: '유제품', label: '🥛 유제품' },
-  { k: '고기생선', label: '🍗 고기·생선' }, { k: '계란', label: '🥚 계란' },
+  { k: '고기·계란', label: '🍗 고기·계란' }, { k: '생선·해산물', label: '🐟 생선·해산물' },
   { k: '비타민A채소', label: '🥕 녹황색채소' }, { k: '기타채소', label: '🥬 일반채소' }, { k: '과일', label: '🍓 과일' },
 ];
 const GRADE_META: Record<string, { stars: string; full: string; cls: string }> = {
@@ -87,6 +88,8 @@ export default function FoodsDex() {
   const [filter, setFilter] = useState('eaten');   // 기본 '먹어본 것' (우리 아이가 먹은 것부터 보이게)
   const [search, setSearch] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
+  const [visible, setVisible] = useState(24);   // 목록 점진 노출(더보기) — 한 번에 24종
+  useEffect(() => { setVisible(24); }, [filter, search]);   // 필터/검색 바뀌면 처음부터
 
   useEffect(() => {
     fetch('/ingredients-light.json').then((r) => r.json()).then((d) => setPool(d.ingredients)).catch(() => {});
@@ -134,6 +137,7 @@ export default function FoodsDex() {
   const nutriLabel = (nm: string) => (NUTRI_MAP[nm] || []).slice(0, 2).join('·');
 
   const thisMonth = new Date().toISOString().slice(0, 7);
+  const curMonth = new Date().getMonth() + 1;   // 제철 표시·필터용(1~12)
   // '잘 먹고 있는' = 레퍼토리(최근 90일·2회+·비거부) — 홈과 동일 기준. 게이지·통계 단일 소스.
   const goodCount = pool.filter((p) => isWellEaten(getStat(p.nm))).length;
   // '오래 안 먹은' = 노출했으나 레퍼토리 이탈(못 먹음·최근 거부·3개월+ 미식)
@@ -146,6 +150,7 @@ export default function FoodsDex() {
     if (filter === 'eaten') return getStat(p.nm).eat > 0;
     if (filter === 'noteaten') return getStat(p.nm).eat === 0;
     if (filter === 'mustEat') return !!p.must_eat;
+    if (filter === 'season') return inSeason(p.nm, curMonth);
     if (filter === 'frequent') return p.grade === '자주';
     if (filter === 'danger') return getStat(p.nm).exposure > 0 && statusOf(getStat(p.nm)) === 'danger';
     return CATEGORY_GROUP[p.cat] === filter;
@@ -190,14 +195,19 @@ export default function FoodsDex() {
             <div className="text-[11px] font-bold mt-0.5" style={{ color: '#6B7280' }}>이번 달 새 만남</div>
           </div>
         </div>
-        {/* 30→130 진척 */}
+        {/* 진척: 1차 다양성 30가지 → 초등 입학 전 130가지(최종 목표) */}
         <div className="mt-2 rounded-xl px-3 py-2" style={{ background: '#FFF5EB', border: '1px solid #FFD0A0' }}>
           <div className="flex justify-between text-[11px] font-bold mb-1" style={{ color: '#C45A00' }}>
             <span>잘 먹고 있는 {goodCount}가지</span>
-            <span>{goodCount < 30 ? `30가지까지 ${30 - goodCount}개 더` : `초등 전 130가지까지`}</span>
+            <span>{goodCount < 130 ? `초등 전 130가지까지 ${130 - goodCount}개 더` : '🎉 130가지 완성!'}</span>
           </div>
-          <div className="h-1.5 rounded-full" style={{ background: 'rgba(255,107,26,0.2)' }}>
+          <div className="h-1.5 rounded-full relative" style={{ background: 'rgba(255,107,26,0.2)' }}>
             <div className="h-full rounded-full" style={{ width: `${Math.min(100, (goodCount / 130) * 100)}%`, background: '#FF6B1A' }} />
+            {/* 1차 다양성 목표(30) 마커 */}
+            <span className="absolute -top-0.5" style={{ left: `${(30 / 130) * 100}%`, width: 2, height: 10, background: '#C45A00', borderRadius: 1 }} />
+          </div>
+          <div className="text-[10px] mt-1" style={{ color: '#9CA3AF' }}>
+            {goodCount < 30 ? `1차 다양성 목표 30가지까지 ${30 - goodCount}개 · ` : '✅ 다양성 30가지 달성 · '}초등 입학 전 130가지가 최종 목표예요
           </div>
         </div>
       </div>
@@ -216,7 +226,7 @@ export default function FoodsDex() {
 
       {/* 식재료 카드 */}
       <div className="flex-1 px-5 py-2 space-y-3">
-        {filtered.map((p) => {
+        {filtered.slice(0, visible).map((p) => {
           const s = getStat(p.nm);
           const st = statusOf(s);
           const meta = STATUS[st];
@@ -243,7 +253,19 @@ export default function FoodsDex() {
                     <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded" style={{ background: gc.bg, color: gc.fg }}>{g.full}</span>
                     {p.must_eat && <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">💎 {p.must_eat_nutrient}</span>}
                   </div>
-                  <div className="text-[12px]" style={{ color: '#6B7280' }}>{nutri || p.cat.replace('_', '·')}</div>
+                  <div className="text-[12px] flex items-center gap-1.5 flex-wrap" style={{ color: '#6B7280' }}>
+                    <span>{nutri || p.cat.replace('_', '·')}</span>
+                    {(() => {
+                      const sm = seasonMonths(p.nm);
+                      if (!sm) return null;
+                      const now = inSeason(p.nm, curMonth);
+                      return (
+                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded" style={{ background: now ? '#E8F5E9' : '#F3F4F6', color: now ? '#1B7A3D' : '#9CA3AF' }}>
+                          🌱 {now ? '이번 달 제철' : `제철 ${seasonRangeLabel(sm)}`}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </div>
               </div>
               {/* 기간 + 마지막 */}
@@ -265,6 +287,12 @@ export default function FoodsDex() {
             </a>
           );
         })}
+        {filtered.length > visible && (
+          <button onClick={() => setVisible((v) => v + 24)} className="w-full rounded-xl py-3 text-sm font-extrabold mt-1"
+            style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>
+            ＋ {filtered.length - visible}종 더보기 <span style={{ color: '#9CA3AF', fontWeight: 700 }}>({visible}/{filtered.length})</span>
+          </button>
+        )}
         {filtered.length === 0 && <div className="text-center py-10 text-sm" style={{ color: '#9CA3AF' }}>검색 결과가 없어요</div>}
         {!loggedIn && (
           <a href="/signup" className="block rounded-xl px-4 py-3 text-center text-xs font-bold my-3" style={{ background: '#FFF5EB', color: '#C45A00', border: '1px solid #FFD0A0' }}>

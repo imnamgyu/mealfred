@@ -1,26 +1,47 @@
 /**
- * lib/season.ts — 월별 제철 식재료(도감 표준명) + 박스 배송 적합성.
- * foods/season SSG 페이지와 박스 추천(lib/box.ts)이 공유한다.
+ * lib/season.ts — 식재료별 제철(월) 단일 소스 + 박스 배송 적합성.
+ * 데이터: lib/ingredient-season.json (도감 166종, LLM 큐레이션+적대검증, scripts/gen-corpus-stats 와 별개 워크플로).
+ *   months = 한국 국산 노지 출하 성수기(1~12). null = 연중/저장품(말린콩·곡물·견과)·신선제철 개념 약한 것(고기·계란·유제품·가공).
  * 제철 = 영양가 높고·신선·제값. 박스는 제철 우선으로 '제철 영양' 강점을 만든다.
+ * 소비처: 홈 박스 배지(app/page.tsx)·박스 배합(lib/box.ts)·도감(app/foods).
  */
-export const SEASON_MAP: Record<number, string[]> = {
-  1: ['배추', '무', '시금치', '대구', '명태'],
-  2: ['시금치', '달래', '대구', '명태'],
-  3: ['딸기', '달래', '쑥', '냉이', '미나리'],
-  4: ['딸기', '달래', '쑥', '쪽파'],
-  5: ['딸기', '마늘', '참외'],
-  6: ['감자', '마늘', '갈치'],
-  7: ['수박', '복숭아', '옥수수', '오이', '가지'],
-  8: ['수박', '복숭아', '옥수수', '가지', '전복', '오징어'],
-  9: ['배', '포도', '감', '연근', '고등어', '전어'],
-  10: ['배', '감', '사과', '밤', '고구마', '연어'],
-  11: ['배', '사과', '감', '무', '배추', '대구'],
-  12: ['귤', '배추', '무', '시금치', '대구', '명태'],
-};
+import SEASON_DATA from './ingredient-season.json';
+
+const SEASON: Record<string, number[] | null> = (SEASON_DATA as { season: Record<string, number[] | null> }).season;
+
+/** 그 식재료의 제철 월(국산 노지 성수기). 연중/저장품은 null. */
+export function seasonMonths(nm: string): number[] | null {
+  const m = SEASON[nm];
+  return Array.isArray(m) && m.length ? m : null;
+}
 
 /** 그 달 제철인가 (1~12월). */
 export function inSeason(nm: string, month: number): boolean {
-  return (SEASON_MAP[month] || []).includes(nm);
+  const m = SEASON[nm];
+  return Array.isArray(m) && m.includes(month);
+}
+
+/** 그 달 제철인 식재료 이름들 (이달의 제철 페이지용). */
+export function seasonalOf(month: number): string[] {
+  return Object.entries(SEASON).filter(([, m]) => Array.isArray(m) && m.includes(month)).map(([nm]) => nm);
+}
+
+/** 제철 월 배열 → 사람이 읽는 라벨. 12→1 연속(겨울 wrap)은 범위로, 아니면 나열. */
+export function seasonRangeLabel(months: number[] | null | undefined): string {
+  if (!months || !months.length) return '';
+  const s = [...new Set(months)].sort((a, b) => a - b);
+  if (s.length >= 11) return '거의 연중';
+  const isRun = (arr: number[]) => arr.every((v, i) => i === 0 || v === arr[i - 1] + 1);
+  if (isRun(s)) return `${s[0]}~${s[s.length - 1]}월`;
+  // 12→1 wrap: 회전시켜 연속이면 범위로
+  for (let r = 1; r < s.length; r++) {
+    const rot = [...s.slice(r), ...s.slice(0, r).map((v) => v + 12)];
+    if (rot.every((v, i) => i === 0 || v === rot[i - 1] + 1)) {
+      const end = ((rot[rot.length - 1] - 1) % 12) + 1;
+      return `${rot[0]}~${end}월`;
+    }
+  }
+  return s.join('·') + '월';
 }
 
 /** 박스 배송 시 산폐·신선도 위험으로 제외할 '신선 해산물'.

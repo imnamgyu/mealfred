@@ -10,6 +10,7 @@ import FoodIcon from '@/components/FoodIcon';
 import MasteryBadge from '@/components/MasteryBadge';
 import PersonalBridge from '@/components/PersonalBridge';
 import { cookingGuide } from '@/lib/cookingMatrix';
+import { seasonMonths, seasonRangeLabel } from '@/lib/season';
 import { neighborsOf } from '@/lib/foodGraph';
 import { dishesForIngredient } from '@/lib/kitGuide';
 
@@ -101,6 +102,7 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
             <div className="flex flex-wrap gap-1.5 mt-1.5 text-xs items-center">
               {ing.grade_label && <span className="px-2 py-0.5 rounded-full font-extrabold" style={{ background: '#E8EDF5', color: '#1a2b4a' }}>{ing.grade} {ing.grade_label}</span>}
               {ing.must_eat && <span className="px-2 py-0.5 rounded-full font-extrabold" style={{ background: '#FFE0C0', color: '#C45A00' }}>💎 영양 보석{ing.must_eat_nutrient ? ` · ${ing.must_eat_nutrient}` : ''}</span>}
+              {(() => { const sm = seasonMonths(ing.nm); return sm ? <span className="px-2 py-0.5 rounded-full font-extrabold" style={{ background: '#E8F5E9', color: '#1B7A3D' }}>🌱 제철 {seasonRangeLabel(sm)}</span> : null; })()}
               <span style={{ color: '#8a7a6a' }}>{ing.cat.replace('_', '·')}</span>
             </div>
             {ing.grade_reason && <div className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a' }}>⭐ {ing.grade_reason}</div>}

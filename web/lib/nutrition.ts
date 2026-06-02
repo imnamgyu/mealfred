@@ -83,11 +83,12 @@ export const CATEGORY_NUTRI: Record<string, string[]> = {
   '향신_허브': [],
   '유지류': ['비타민E', '리놀레산', '에너지'],
 };
-// 풀 카테고리 → WHO 8식품군 (다양성 빗대기)
+// 풀 카테고리 → 8식품군 (다양성 빗대기). 계란=고기에 합침 · 생선/해산물=별도 군(이사님 지시)
 export const CATEGORY_GROUP: Record<string, string> = {
   '곡물_탄수': '곡물', '콩_콩제품': '콩류', '발효식품': '콩류', '유제품': '유제품',
-  '고기': '고기생선', '생선': '고기생선', '갑각_조개': '고기생선', '가공식품': '고기생선',
-  '계란': '계란', '잎채소': '비타민A채소', '뿌리채소': '비타민A채소', '십자화과': '비타민A채소',
+  '고기': '고기·계란', '계란': '고기·계란', '가공식품': '고기·계란',
+  '생선': '생선·해산물', '갑각_조개': '생선·해산물',
+  '잎채소': '비타민A채소', '뿌리채소': '비타민A채소', '십자화과': '비타민A채소',
   '열매채소': '기타채소', '기타채소': '기타채소', '해조류': '기타채소', '버섯': '기타채소', '과일': '과일',
   '곡류': '곡물', '콩제품': '콩류',   // foods 도감 cat 보완(8 식품군 필터 정합)
 };
@@ -143,13 +144,13 @@ export const NUTRIENT_FOODS: Record<string, string[]> = {
 // 기준: "기록일 중 그 식품군이 며칠 등장했나" → 주간 추정 빈도(weeklyEst). 정량 측정 불가 → 빈도 평가(36종·care.html과 동일 철학).
 // 군별 목표(식약처 영유아 식생활지침 "매끼 곡류·단백질·채소, 매일 우유·과일" + WHO 8군):
 //   매일군(곡물·채소2·과일·유제품): 충분=주5+, 조금부족=주2~4, 부족=주<2
-//   로테이션군: 고기생선 충분=주5+ / 계란 주3+ / 콩류 주2+ — 부족=0회, 그 사이=조금부족
+//   로테이션군: 고기·계란 충분=주5+ / 생선·해산물 주2+(오메가3, 수은 주의로 1~2회) / 콩류 주2+ — 부족=0회, 그 사이=조금부족
 export type GroupLevel = 'green' | 'yellow' | 'red';
 export type GroupSignal = { group: string; level: GroupLevel; weeklyEst: number };
 const GROUP_TARGET: Record<string, { green: number; type: 'daily' | 'rotation' }> = {
   '곡물': { green: 5, type: 'daily' }, '비타민A채소': { green: 5, type: 'daily' }, '기타채소': { green: 5, type: 'daily' },
   '과일': { green: 5, type: 'daily' }, '유제품': { green: 5, type: 'daily' },
-  '고기생선': { green: 5, type: 'rotation' }, '계란': { green: 3, type: 'rotation' }, '콩류': { green: 2, type: 'rotation' },
+  '고기·계란': { green: 5, type: 'rotation' }, '생선·해산물': { green: 2, type: 'rotation' }, '콩류': { green: 2, type: 'rotation' },
 };
 function groupOf(ing: string, catOf?: CatOf): string | undefined {
   return FOOD_GROUP[ing] || (catOf && CATEGORY_GROUP[catOf(ing) || '']);
@@ -162,7 +163,7 @@ export function computeGroupSignals(ingredientsByDay: string[][], catOf?: CatOf)
     const set = new Set<string>();
     day.forEach((ing) => { const g = groupOf(ing, catOf); if (g) set.add(g); });
     set.forEach((g) => { cover[g] = (cover[g] || 0) + 1; });
-    if (set.has('고기생선') || set.has('계란') || set.has('콩류')) proteinDays++;
+    if (set.has('고기·계란') || set.has('생선·해산물') || set.has('콩류')) proteinDays++;
   });
   const signals = ALL_GROUPS.map((g): GroupSignal => {
     const d = cover[g] || 0;
@@ -173,7 +174,7 @@ export function computeGroupSignals(ingredientsByDay: string[][], catOf?: CatOf)
     else level = d === 0 ? 'red' : weeklyEst >= t.green ? 'green' : 'yellow';
     return { group: g, level, weeklyEst };
   });
-  const proteinOk = (proteinDays / totalDays) * 7 >= 5;  // 단백질 총괄: 고기생선·계란·콩 중 매일 ≥1군
+  const proteinOk = (proteinDays / totalDays) * 7 >= 5;  // 단백질 총괄: 고기·계란·생선·콩 중 매일 ≥1군
   return { signals, proteinOk };
 }
 
@@ -251,13 +252,14 @@ const FOOD_GROUP: Record<string, string> = {
   '쌀': '곡물', '현미': '곡물', '귀리': '곡물', '잡곡': '곡물', '빵': '곡물', '감자': '곡물', '고구마': '곡물',
   '두부': '콩류', '콩': '콩류', '된장': '콩류', '콩나물': '콩류', '검은콩': '콩류',
   '우유': '유제품', '치즈': '유제품', '요거트': '유제품', '요구르트': '유제품',
-  '소고기': '고기생선', '돼지고기': '고기생선', '닭고기': '고기생선', '연어': '고기생선', '고등어': '고기생선', '멸치': '고기생선', '갈치': '고기생선', '새우': '고기생선', '오징어': '고기생선',
-  '달걀': '계란', '계란': '계란', '메추리알': '계란',
+  '소고기': '고기·계란', '돼지고기': '고기·계란', '닭고기': '고기·계란',
+  '달걀': '고기·계란', '계란': '고기·계란', '메추리알': '고기·계란',
+  '연어': '생선·해산물', '고등어': '생선·해산물', '멸치': '생선·해산물', '갈치': '생선·해산물', '새우': '생선·해산물', '오징어': '생선·해산물',
   '당근': '비타민A채소', '시금치': '비타민A채소', '고구마2': '비타민A채소', '호박': '비타민A채소', '근대': '비타민A채소',
   '양파': '기타채소', '오이': '기타채소', '양배추': '기타채소', '브로콜리': '기타채소', '토마토': '기타채소', '버섯': '기타채소', '미역': '기타채소', '가지': '기타채소', '파프리카': '기타채소',
   '사과': '과일', '바나나': '과일', '딸기': '과일', '귤': '과일', '블루베리': '과일', '키위': '과일',
 };
-const ALL_GROUPS = ['곡물', '콩류', '유제품', '고기생선', '계란', '비타민A채소', '기타채소', '과일'];
+const ALL_GROUPS = ['곡물', '콩류', '유제품', '고기·계란', '생선·해산물', '비타민A채소', '기타채소', '과일'];
 
 export function computeFoodGroups(allIngredients: string[], catOf?: CatOf): { covered: string[]; missing: string[] } {
   const covered = new Set<string>();

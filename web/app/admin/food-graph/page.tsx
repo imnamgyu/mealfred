@@ -9,6 +9,7 @@
 import Link from 'next/link';
 import graph from '@/lib/food-graph.json';
 import kit from '@/lib/kit-dish-matrix.json';
+import corpusStats from '@/lib/corpus-stats.json';
 import ingLight from '@/public/ingredients-light.json';
 import { neighborsOf } from '@/lib/foodGraph';
 
@@ -22,6 +23,7 @@ const GMETA = (graph as { meta?: Record<string, number | string> }).meta || {};
 const GNODES = (graph as { nodes?: string[] }).nodes || [];
 const ING = (ingLight as { ingredients: Ing[] }).ingredients;
 const KIT = kit as { dishes: { key: string; em: string; n: number }[]; cells: Record<string, Record<string, number>>; scores?: Record<string, Record<string, number>>; ingredients: string[]; meta: Record<string, number | string> };
+const CSTAT = corpusStats as { learned_menus: number; learned_ingredients: number; forms: { key: string; em: string; n: number }[]; unclassified: number; classified: number };
 
 const ekey = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
 const EMAP = new Map<string, Edge>();
@@ -81,11 +83,13 @@ export default async function FoodGraphMatrix({ searchParams }: { searchParams: 
       {(() => {
         const fmt = (v: number | string | undefined) => Number(v || 0).toLocaleString('en-US');
         const stats: [string, string][] = [
+          ['🍱 수집 음식(메뉴)', `${fmt(CSTAT.learned_menus)}개`],
+          ['🥬 수집 식재료', `${CSTAT.learned_ingredients}종`],
           ['🥕 정제 식재료(도감)', `${ING.length}종`],
           ['🍲 음식 형태(키트)', `${KIT.dishes.length}형태`],
           ['🕸 궁합 그래프', `노드 ${GNODES.length} · 페어 ${fmt(GMETA.pairs)} · 사촌 ${fmt(GMETA.bridges)}`],
           ['📊 키트 채점 셀', `${fmt(KIT.meta?.scored_cells)}칸`],
-          ['📚 수집 메뉴 코퍼스', `레시피 ${fmt(KIT.meta?.corpus_recipes)} + 식약처 ${fmt(KIT.meta?.corpus_mfds)} + 급식 ${fmt(KIT.meta?.corpus_neis_unique)} → learned ${fmt(KIT.meta?.learned_total)}`],
+          ['📚 코퍼스 출처', `레시피 ${fmt(KIT.meta?.corpus_recipes)} + 식약처 ${fmt(KIT.meta?.corpus_mfds)} + 급식 ${fmt(KIT.meta?.corpus_neis_unique)}`],
         ];
         return (
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '12px 0 4px' }}>
@@ -98,6 +102,36 @@ export default async function FoodGraphMatrix({ searchParams }: { searchParams: 
           </div>
         );
       })()}
+      <details style={{ margin: '10px 0 2px', border: '1px solid #EEE', borderRadius: 10, background: '#FAFAFA' }}>
+        <summary style={{ cursor: 'pointer', padding: '9px 13px', fontWeight: 800, color: '#1a2b4a', fontSize: 13 }}>
+          📋 음식 형태별 구성 — 수집 음식 {CSTAT.learned_menus.toLocaleString('en-US')}개 중 {CSTAT.classified.toLocaleString('en-US')}개 분류 ({Math.round(CSTAT.classified / CSTAT.learned_menus * 100)}%) · 미분류 {CSTAT.unclassified.toLocaleString('en-US')}
+        </summary>
+        <div style={{ padding: '4px 13px 12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(150px,1fr))', gap: '2px 14px' }}>
+            {CSTAT.forms.map((f, i) => {
+              const max = CSTAT.forms[0].n || 1;
+              return (
+                <div key={f.key} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', borderBottom: '1px solid #F0F0F0', fontSize: 12 }}>
+                  <span style={{ color: '#C7C7C7', width: 16, textAlign: 'right', fontSize: 10 }}>{i + 1}</span>
+                  <span style={{ width: 18 }}>{f.em}</span>
+                  <span style={{ flex: 1, color: '#374151', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.key}</span>
+                  <span style={{ width: 50, height: 6, background: '#EEE', borderRadius: 3, overflow: 'hidden' }}>
+                    <span style={{ display: 'block', height: '100%', width: `${Math.round(f.n / max * 100)}%`, background: '#F5A623' }} />
+                  </span>
+                  <span style={{ width: 42, textAlign: 'right', fontWeight: 800, color: '#C45A00' }}>{f.n.toLocaleString('en-US')}</span>
+                </div>
+              );
+            })}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '3px 0', borderBottom: '1px solid #F0F0F0', fontSize: 12, color: '#9CA3AF' }}>
+              <span style={{ width: 16 }} /><span style={{ width: 18 }}>❔</span>
+              <span style={{ flex: 1 }}>미분류(단품·비표준)</span>
+              <span style={{ width: 50 }} />
+              <span style={{ width: 42, textAlign: 'right', fontWeight: 700 }}>{CSTAT.unclassified.toLocaleString('en-US')}</span>
+            </div>
+          </div>
+          <div style={{ fontSize: 10.5, color: '#9CA3AF', marginTop: 8 }}>※ 분류 기준 = 키트 32 형태 키워드(매트릭스와 동일). 미분류 = 단품·과일·비표준 메뉴명(예: 차수수밥·당근라페).</div>
+        </div>
+      </details>
       <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>{tab('pairing', '식재료 ↔ 식재료 (궁합)')}{tab('kit', '음식 × 식재료 (골고루 키트)')}</div>
 
       {view === 'pairing' ? (

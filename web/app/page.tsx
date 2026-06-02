@@ -33,17 +33,17 @@ function freqLabel(pct: number): string {
 
 const FOOD_FAMILY = [
   { key: '곡물', em: '🌾' }, { key: '콩류', em: '🫘' }, { key: '유제품', em: '🥛' },
-  { key: '고기생선', em: '🍗' }, { key: '계란', em: '🥚' }, { key: '비타민A채소', em: '🥕' },
+  { key: '고기·계란', em: '🍗' }, { key: '생선·해산물', em: '🐟' }, { key: '비타민A채소', em: '🥕' },
   { key: '기타채소', em: '🥬' }, { key: '과일', em: '🍓' },
 ];
 const FAMILY_LABEL: Record<string, string> = {
-  곡물: '곡물', 콩류: '콩', 유제품: '유제품', 고기생선: '고기·생선', 계란: '계란',
+  곡물: '곡물', 콩류: '콩', 유제품: '유제품', '고기·계란': '고기·계란', '생선·해산물': '생선·해산물',
   비타민A채소: '녹황색채소', 기타채소: '일반채소', 과일: '과일',
 };
 // 식품군 8개 주간 추이 선차트 — 라인 색(서로 잘 구분되게)
 const GROUP_COLOR: Record<string, string> = {
-  곡물: '#F9A825', 콩류: '#8D6E63', 유제품: '#42A5F5', 고기생선: '#EF5350',
-  계란: '#AB47BC', 비타민A채소: '#66BB6A', 기타채소: '#26A69A', 과일: '#EC407A',
+  곡물: '#F9A825', 콩류: '#8D6E63', 유제품: '#42A5F5', '고기·계란': '#EF5350',
+  '생선·해산물': '#5C6BC0', 비타민A채소: '#66BB6A', 기타채소: '#26A69A', 과일: '#EC407A',
 };
 // SVG 선차트 — x=최근 N주, y=주당 그 식품군을 먹은 일수(0~7). 식재료는 종이 많아 8식품군으로 묶음.
 function GroupTrendSVG({ data }: { data: GroupWeekly }) {
@@ -365,7 +365,7 @@ export default function Home() {
   const realScore = scoreParts.final;   // 개편 ②: 다양성+집끼니질 점수(신호등 회귀 안 함)
 
   const D = isMockup
-    ? { name: '지우', score: 60, green: 11, yellow: 3, red: 1, ingCount: 18, covered: ['곡물','고기생선','계란','비타민A채소','기타채소'], reds: ['철','비타민D','오메가3'] }
+    ? { name: '지우', score: 60, green: 11, yellow: 3, red: 1, ingCount: 18, covered: ['곡물','고기·계란','생선·해산물','비타민A채소','기타채소'], reds: ['철','비타민D','오메가3'] }
     : { name: childName || '우리 아이', score: realScore, green: greenN, yellow: yellowN, red: redN, ingCount: ingredientCount, covered: groups.covered, reds: signals.filter((s) => s.level === 'red').map((s) => s.nutrient) };
 
   const grade = gradeOf(D.score);
@@ -429,7 +429,7 @@ export default function Home() {
     yellow: { bg: '#FFF4D6', bd: '#F9A825', fg: '#F57F17', lbl: '조금 부족' },
     red: { bg: '#FFEBEE', bd: '#E53935', fg: '#C62828', lbl: '부족' },
   };
-  const MOCK_GROUP: Record<string, GroupSignal['level']> = { '곡물': 'green', '비타민A채소': 'yellow', '기타채소': 'green', '과일': 'yellow', '유제품': 'green', '고기생선': 'green', '계란': 'yellow', '콩류': 'red' };
+  const MOCK_GROUP: Record<string, GroupSignal['level']> = { '곡물': 'green', '비타민A채소': 'yellow', '기타채소': 'green', '과일': 'yellow', '유제품': 'green', '고기·계란': 'green', '생선·해산물': 'yellow', '콩류': 'red' };
   const groupLevelOf = (key: string): GroupSignal['level'] => isMockup ? (MOCK_GROUP[key] || 'red') : (groupSig.signals.find((s) => s.group === key)?.level || 'red');
   const proteinOk = isMockup ? true : groupSig.proteinOk;
   const gGreen = FOOD_FAMILY.filter((f) => groupLevelOf(f.key) === 'green').length;

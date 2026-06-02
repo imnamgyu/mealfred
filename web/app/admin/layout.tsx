@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import { createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
-import AdminLogin from '@/components/AdminLogin';
+import AdminSessionGate from '@/components/AdminSessionGate';
 import AdminSidebar from '@/components/AdminSidebar';
 
 export const dynamic = 'force-dynamic';
@@ -15,18 +15,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const { data: { user } } = await anon.auth.getUser();
 
   if (!isAdmin(user)) {
-    return (
-      <main style={{ maxWidth: 420, margin: '60px auto', padding: 24, fontFamily: 'Pretendard, sans-serif' }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1a2b4a' }}>🔒 밀프레드 관리자</h1>
-        <p style={{ marginTop: 8, color: '#6B7280', fontSize: 14 }}><b>@mealfred.com</b> 계정(구글 워크스페이스)으로만 접근할 수 있어요.</p>
-        <AdminLogin />
-        {user && (
-          <div style={{ marginTop: 16, padding: 14, background: '#F8F8F5', borderRadius: 10, fontSize: 12, color: '#9CA3AF', wordBreak: 'break-all' }}>
-            현재: <code>{user.email || '(이메일 없음)'}</code> — 도메인 계정이 아니에요. mealfred.com 계정으로 다시 로그인하세요.
-          </div>
-        )}
-      </main>
-    );
+    // user 없음 = 토큰 만료 가능성(브라우저 refresh token으로 자동복구 시도) · user 있고 비관리자 = 바로 로그인
+    return <AdminSessionGate userEmail={user?.email} canRetry={!user} />;
   }
 
   return (
