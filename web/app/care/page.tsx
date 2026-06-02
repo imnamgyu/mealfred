@@ -490,15 +490,19 @@ export default function CarePage() {
       await supabase.from('meal_logs').upsert(rows, { onConflict: 'child_id,log_date,slot' });
       setMenuMonths((prev) => new Set([...prev, ocrMonth]));   // 등록 즉시 업로더 숨김
       setOcrOpen(false);
-      // 식단표 끼니마다 +50P (서버가 멱등·일일 5끼 한도 처리). 벌크라 한 번에 많이 쌓임.
+      // 식단표 끼니마다 +50P + 업로드 보너스 +1,000P(자녀·월 1회 멱등). 서버가 중복/한도 처리.
       if (userId && childId) {
-        Promise.allSettled(rows.map((r) => fetch('/api/points/earn', {
+        const bonusP = fetch('/api/points/bonus', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ child_id: childId, kind: 'daycare_menu', month: ocrMonth }),
+        }).then((r) => r.json()).then((d) => Number(d?.earned) || 0).catch(() => 0);
+        const mealsP = Promise.allSettled(rows.map((r) => fetch('/api/points/earn', {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ child_id: childId, date: r.log_date, slot: r.slot }),
-        }))).then((res) => {
-          let earned = 0;
-          res.forEach((x) => { if (x.status === 'fulfilled') earned += 50; });   // 낙관 추정(중복/한도는 서버가 0 처리)
-          if (earned > 0) setPointToast(`식단표 ${rows.length}끼 · 최대 +${earned.toLocaleString()}P 적립! 🎉`);
+        }))).then((res) => { let e = 0; res.forEach((x) => { if (x.status === 'fulfilled') e += 50; }); return e; });   // 낙관 추정(중복/한도는 서버가 0)
+        Promise.all([bonusP, mealsP]).then(([bonus, meals]) => {
+          const total = bonus + meals;
+          if (total > 0) setPointToast(`식단표 등록 · 최대 +${total.toLocaleString()}P 적립! 🎉${bonus > 0 ? ` (업로드 보너스 +${bonus.toLocaleString()}P)` : ''}`);
         });
       }
     }
@@ -553,8 +557,11 @@ export default function CarePage() {
       <header className="px-5 pt-6 pb-3 border-b" style={{ borderColor: '#FFE8D0' }}>
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-extrabold" style={{ color: '#1a2b4a' }}>식사 기록</h1>
-          <div className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: '#FFF5EB', color: '#C45A00' }}>
-            오늘 {filledSlots}/6 끼
+          <div className="flex items-center gap-2">
+            <a href="/care/calendar" className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: '#F0FAF6', color: '#16A085', border: '1px solid #C8E6C9' }}>📅 달력</a>
+            <div className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: '#FFF5EB', color: '#C45A00' }}>
+              오늘 {filledSlots}/6 끼
+            </div>
           </div>
         </div>
         <p className="text-xs mt-1" style={{ color: '#8a7a6a' }}>편식 교정의 핵심은 소량 반복 노출 30번이에요</p>

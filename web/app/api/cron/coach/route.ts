@@ -15,7 +15,8 @@
  * 주의: 한 실행에서 시간 안에 처리 못 한 자녀는 다음 실행이 '오래된 순'으로 이어받는다(누락 로그).
  */
 import { NextResponse } from 'next/server';
-import { createSupabaseServer } from '@/lib/supabase/server';
+import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
+import { sendCoachLetterPreview, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
 import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
@@ -56,6 +57,9 @@ export async function GET(req: Request) {
   const today = kstToday();
   const since = kstDateNDaysAgo(6);
   let processed = 0, errors = 0, letters = 0, questions = 0, reused = 0, skippedTime = 0;
+  let alimtalkSent = 0;
+  const notifiedParents = new Set<string>();   // 부모당 하루 1건 — 다자녀 스팸 방지
+  const sensAdmin = alimtalkReady() ? createSupabaseAdmin() : null;   // 설정 있을 때만 admin 생성
   // 일일 정량 지표(어드민 보고서용)
   let lowData = 0, redChildren = 0, gapChildren = 0, daycareChildren = 0, eatenSum = 0, evalChildren = 0;
   const redFreq: Record<string, number> = {};
@@ -286,6 +290,13 @@ export async function GET(req: Request) {
             { onConflict: 'child_id,letter_date' }
           );
           letters++;
+          // 새로 생성된 편지면 2줄 미리보기 알림톡(부모당 1건). env·전화번호·동의·템플릿 승인 전까진 자동 무동작.
+          if (sensAdmin && !reusedThis && meta.parent_id && !notifiedParents.has(meta.parent_id)) {
+            notifiedParents.add(meta.parent_id);
+            sendCoachLetterPreview({ admin: sensAdmin, parentId: meta.parent_id, childName: meta.nickname || '우리 아이', preview: oneliner || letter.slice(0, 80) })
+              .then((r) => { if (r.ok) alimtalkSent++; })
+              .catch(() => {});
+          }
         }
 
         // 3-2) 오늘의 질문 — 아직 없을 때만 (답변 덮어쓰기 방지)
@@ -362,7 +373,7 @@ export async function GET(req: Request) {
       },
     }).eq('id', runRow?.id);
 
-    return NextResponse.json({ ok: true, processed, errors, letters, questions, reused, skippedTime, active: activeIds.length, duration_ms: Date.now() - runStart });
+    return NextResponse.json({ ok: true, processed, errors, letters, questions, reused, skippedTime, alimtalkSent, alimtalkReady: alimtalkReady(), active: activeIds.length, duration_ms: Date.now() - runStart });
   } catch (e: unknown) {
     await supabase.from('cron_runs').update({
       status: 'failure', finished_at: new Date().toISOString(),

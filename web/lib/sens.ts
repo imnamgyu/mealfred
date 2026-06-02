@@ -27,7 +27,8 @@ export type AlimtalkTemplate =
   | 'signup_welcome'
   | 'stage_change'
   | 'challenge_complete'
-  | 'inactive_reminder';
+  | 'inactive_reminder'
+  | 'coach_letter_preview';
 
 export type AlimtalkVars = Record<string, string | number>;
 
@@ -56,6 +57,12 @@ const TEMPLATES: Record<AlimtalkTemplate, (vars: AlimtalkVars) => string> = {
     `${v.childName ?? '우리 아이'}의 식습관, 잠깐만 기록해도 다음 끼니에 도움돼요.\n` +
     `오늘 한 끼라도 기록하면 +100 마일리지!\n\n` +
     `▶ 빠른 기록 (30초)`,
+
+  // 매일 아침 코칭 편지 2줄 미리보기 — preview = 편지 oneliner(한 줄 진단)
+  coach_letter_preview: (v) =>
+    `${v.childName ?? '우리 아이'} 오늘의 식습관 코칭이 도착했어요 💌\n\n` +
+    `${v.preview ?? ''}\n\n` +
+    `▶ 전체 편지 보기`,
 };
 
 function makeSignature(method: string, url: string, timestamp: string): string {
@@ -146,4 +153,42 @@ export async function sendAlimtalkLogged(opts: {
     }).select();
   }
   return result;
+}
+
+/** SENS 설정이 다 있는지(키 4종). 없으면 발송 시도조차 안 함 — cron이 헛돌지 않게. */
+export function alimtalkReady(): boolean {
+  return !!(NCP_ACCESS_KEY && NCP_SECRET_KEY && NCP_SENS_PROJECT_ID && NCP_KAKAO_PF_ID);
+}
+
+/**
+ * 매일 코칭 편지 2줄 미리보기 알림톡 발송.
+ * 부모 전화번호·동의는 auth.users(카카오 OAuth는 user_metadata.phone/alimtalk_consent)에서.
+ * env(키 4종)·전화번호·동의·템플릿 승인 전까지 자동 무동작(skipped). admin = service_role 클라이언트.
+ */
+export async function sendCoachLetterPreview(opts: {
+  admin: { auth: { admin: { getUserById: (id: string) => Promise<{ data?: { user?: { phone?: string | null; user_metadata?: Record<string, unknown> | null } | null } | null }> } }; from: (t: string) => unknown };
+  parentId: string;
+  childName: string;
+  preview: string;
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string; cost_krw?: number }> {
+  if (!alimtalkReady()) return { ok: false, skipped: true, error: 'env' };
+  let phone: string | undefined;
+  let consent = false;
+  try {
+    const { data } = await opts.admin.auth.admin.getUserById(opts.parentId);
+    const u = data?.user;
+    phone = (u?.phone || (u?.user_metadata as Record<string, unknown> | null)?.phone) as string | undefined;
+    consent = ((u?.user_metadata as Record<string, unknown> | null)?.alimtalk_consent) === true;
+  } catch {
+    return { ok: false, skipped: true, error: 'user_lookup' };
+  }
+  if (!phone || !consent) return { ok: false, skipped: true, error: 'no_phone_or_consent' };
+  return sendAlimtalkLogged({
+    supabase: opts.admin,
+    userId: opts.parentId,
+    phone,
+    template: 'coach_letter_preview',
+    templateCode: 'mealfred_coach_preview_v1',   // ⚠ SENS 콘솔 등록·심사 필요(4~7일)
+    vars: { childName: opts.childName, preview: opts.preview.slice(0, 90) },
+  });
 }
