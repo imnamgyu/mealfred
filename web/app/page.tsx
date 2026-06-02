@@ -139,6 +139,7 @@ export default function Home() {
   const [repeatInsight, setRepeatInsight] = useState<{ menu: string; count: number; rice?: boolean } | null>(null);
   const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good'; must_eat_nutrient?: string }[]>([]);
   const [eatenSet, setEatenSet] = useState<Set<string>>(new Set());
+  const [kitGuide, setKitGuide] = useState<Record<string, { d: string; em: string; s: number }[]>>({});   // 키트 식재료→넣기 좋은 음식(public/kit-guide.json)
 
   // ① 자녀 목록 로드 + 선택 자녀 결정(localStorage 유지·기본 첫째). 선택이 정해지면 ②가 그 아이 데이터를 로드.
   useEffect(() => {
@@ -163,6 +164,7 @@ export default function Home() {
     if (!selectedId) return;
     setLoading(true);
     fetch('/ingredients-light.json').then((r) => r.json()).then((d) => setPool(d.ingredients)).catch(() => {});
+    fetch('/kit-guide.json').then((r) => r.json()).then(setKitGuide).catch(() => {});
     (async () => {
       // 풀 cat 로드 → 빗대기 영양평가용 catOf (NUTRI_MAP에 없는 식재료는 범주로 근사)
       const catMap = await fetch('/ingredients-light.json').then((r) => r.json())
@@ -848,6 +850,14 @@ export default function Home() {
                   );
                 })}
               </div>
+              {(() => {
+                const tips = boxItems.map((b) => { const g = kitGuide[b.nm]; return g && g.length ? { nm: b.nm, em: b.em, ds: g.slice(0, 2).map((x) => x.d) } : null; }).filter(Boolean) as { nm: string; em: string; ds: string[] }[];
+                return tips.length > 0 ? (
+                  <div className="mt-2.5 pt-2.5 text-[10.5px] leading-relaxed" style={{ color: '#6B7280', borderTop: '1px dashed #FFD8B0' }}>
+                    <b style={{ color: '#C45A00' }}>💡 이렇게 넣어요</b> — {tips.map((t) => `${t.em} ${t.nm}→${t.ds.join('·')}`).join('   ·   ')}
+                  </div>
+                ) : null;
+              })()}
             </div>
           )}
 

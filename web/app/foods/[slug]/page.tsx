@@ -11,6 +11,7 @@ import MasteryBadge from '@/components/MasteryBadge';
 import PersonalBridge from '@/components/PersonalBridge';
 import { cookingGuide } from '@/lib/cookingMatrix';
 import { neighborsOf } from '@/lib/foodGraph';
+import { dishesForIngredient } from '@/lib/kitGuide';
 
 // SOS 식감 난이도 순서 (부드러움 → 단단함) — 거부 식재료 친해지기 정렬
 function textureRank(method: string): number {
@@ -149,6 +150,25 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
 
       <MasteryBadge ingredient={ing.nm} />
       <PersonalBridge ingredient={ing.nm} neighbors={neighborsOf(ing.nm)} />
+
+      {(() => {
+        const fits = dishesForIngredient(ing.nm, 2);
+        if (fits.length === 0) return null;
+        return (
+          <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+            <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>🍲 {ing.nm}, 어떤 음식에 넣을까</h2>
+            <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>아이가 잘 먹는 음식에 더하면 자연스러워요 — 우리 레시피 + AI 적합도 기준 (안 맞는 조합은 빼고). <strong>👍 = 아주 잘 어울림</strong></p>
+            <div className="flex flex-wrap gap-1.5">
+              {fits.slice(0, 12).map((f) => (
+                <span key={f.dish} className="text-[12px] font-bold px-2.5 py-1 rounded-lg" style={{ background: f.score >= 3 ? '#E3F4E8' : '#F0F8F2', color: '#1B7A3D', border: '1px solid #C8E6C9' }}>
+                  {f.em} {f.dish}{f.score >= 3 ? ' 👍' : ''}
+                </span>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
+
       <RefusedBadge ingredient={ing.nm} />
 
       {freqRecipes.length > 0 && (
