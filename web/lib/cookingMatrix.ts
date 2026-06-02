@@ -1,8 +1,11 @@
 /**
- * lib/cookingMatrix.ts — 푸드체이닝 프레임워크 v1 (정부 식단 12,454 레시피 분석).
- * 조리방식 × 식재료 카테고리 평균 그램 + 영유아 안전 양념. 도감 '조리 비율 가이드'에 사용.
- * 출처: 푸드체이닝_프레임워크_2026-05-23 (유아 904 + 아동 11,550).
+ * lib/cookingMatrix.ts — 도감 '어떻게 줄까' 1회분 그램 + 영유아 안전 양념.
+ * 1순위: 식재료별 × 조리방식별 실제 중앙값(lib/cooking-amounts.json · scripts/gen-cooking-amounts.py).
+ *        → 당근 7g·상추 무침 37g처럼 식재료마다 다름(예전엔 카테고리 평균이라 잎채소가 다 같았음).
+ * 폴백: 식재료별 표본(3개+)이 없을 때만 카테고리 평균(아래 COOKING_MATRIX).
  */
+import COOKING_AMOUNTS from './cooking-amounts.json';
+const PER_INGREDIENT = COOKING_AMOUNTS as Record<string, Record<string, { g: number; n: number }>>;
 
 // 조리방식 → (매트릭스 카테고리 → 1회분 평균 g). 매운 절임·김치(잎채소 882g)는 영유아 부적합이라 제외.
 export const COOKING_MATRIX: Record<string, Record<string, number>> = {
@@ -36,8 +39,18 @@ export const CAT_TO_MATRIX: Record<string, string> = {
   '해조류': '해조류', '버섯': '버섯',
 };
 
-/** 식재료 카테고리 → 그 식재료가 가장 잘 쓰이는 조리방식 top N (그램 큰 순) + 1회분 g + 양념. */
-export function cookingGuide(cat: string, topN = 4): { method: string; g: number; season: string }[] {
+/** 이 식재료를 어떤 조리방식으로 1회분 몇 g 줄까 — 식재료별 실측 우선, 없으면 카테고리 평균 폴백. */
+export function cookingGuide(ingredient: string, cat: string, topN = 4): { method: string; g: number; season: string }[] {
+  // 1순위: 식재료별 × 조리방식별 실제 중앙값
+  const per = PER_INGREDIENT[ingredient];
+  if (per && Object.keys(per).length) {
+    return Object.entries(per)
+      .map(([method, v]) => ({ method, g: v.g, season: SEASONING_BY_METHOD[method] || '' }))
+      .filter((x) => x.g > 0)
+      .sort((a, b) => b.g - a.g)
+      .slice(0, topN);
+  }
+  // 폴백: 카테고리 평균(식재료별 표본 부족)
   const mc = CAT_TO_MATRIX[cat];
   if (!mc) return [];
   return Object.entries(COOKING_MATRIX)

@@ -190,11 +190,11 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
       )}
 
       {(() => {
-        const cg = cookingGuide(ing.cat);
+        const cg = cookingGuide(ing.nm, ing.cat);
         return cg.length > 0 ? (
           <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-            <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>📐 {ing.nm} 어떻게 줄까 <span className="font-normal text-[11px]" style={{ color: '#9CA3AF' }}>· 정부 식단 12,454개 평균</span></h2>
-            <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>한 끼 표준 분량이에요. 아이는 <strong>한 입부터</strong> 줄여서, 양념은 영유아 기준 최소로.</p>
+            <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>📐 {ing.nm} 어떻게 줄까 <span className="font-normal text-[11px]" style={{ color: '#9CA3AF' }}>· {ing.nm} 들어간 레시피 실측</span></h2>
+            <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}><strong>{ing.nm}이(가) 주재료일 때</strong> 1회분(중앙값)이에요. 아이는 <strong>한 입부터</strong> 줄여서, 다른 음식에 <strong>섞어 줄 땐 더 적게</strong>, 양념은 최소로.</p>
             <ul className="space-y-1.5">
               {cg.map((c, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm py-0.5">
