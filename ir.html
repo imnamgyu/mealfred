@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 IR — 요리키트에서 AI 영양 헬스케어로</title>
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;line-height:1.7;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:920px;margin:0 auto;padding:0 22px;}
+section{padding:64px 0;border-bottom:1px solid #F0E8E0;}
+.label{font-size:11px;font-weight:800;letter-spacing:0.12em;color:#C45A00;text-transform:uppercase;margin-bottom:10px;}
+h1{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-0.02em;line-height:1.2;}
+h2{font-size:clamp(22px,3.4vw,30px);font-weight:800;letter-spacing:-0.01em;margin-bottom:14px;}
+h3{font-size:17px;font-weight:800;margin:18px 0 6px;color:#C45A00;}
+p{font-size:15px;color:#3a4555;}
+.lede{font-size:17px;color:#2a3545;margin:14px 0;}
+.lede strong,p strong{color:#1a2b4a;font-weight:800;}
+/* cover */
+.cover{background:linear-gradient(160deg,#1a2b4a 0%,#243a5e 55%,#C45A00 200%);color:#fff;padding:80px 0 70px;border:none;}
+.cover .wrap{max-width:920px;}
+.cover .badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:0.1em;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);padding:6px 13px;border-radius:100px;margin-bottom:22px;}
+.cover h1{color:#fff;}
+.cover h1 .o{color:#FFB877;}
+.cover .sub{font-size:17px;color:rgba(255,255,255,0.85);margin-top:16px;max-width:680px;line-height:1.7;}
+.cover .meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:28px;}
+.cover .meta div .l{font-size:10.5px;color:rgba(255,255,255,0.55);font-weight:700;letter-spacing:0.04em;}
+.cover .meta div .v{font-size:15px;color:#fff;font-weight:800;}
+/* kpi */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:22px 0;}
+.kpi{background:#fff;border:1.5px solid #FFE0C0;border-radius:14px;padding:18px;}
+.kpi .l{font-size:12px;color:#8a7a6a;font-weight:700;}
+.kpi .v{font-size:30px;font-weight:800;color:#1a2b4a;margin:4px 0;line-height:1;}
+.kpi .v small{font-size:15px;color:#8a7a6a;font-weight:700;}
+.kpi .d{font-size:12px;font-weight:800;color:#1B7A3D;}
+/* flywheel layers */
+.layer{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1.5px solid #E8DFD4;border-left:5px solid #FF6B1A;border-radius:14px;padding:18px 20px;margin:12px 0;position:relative;}
+.layer .n{font-size:26px;font-weight:800;color:#FF6B1A;min-width:34px;line-height:1.1;}
+.layer h3{margin:0 0 4px;color:#1a2b4a;font-size:16.5px;}
+.layer .obj{display:inline-block;font-size:11px;font-weight:800;background:#FFF0E8;color:#C45A00;border-radius:100px;padding:3px 10px;margin-top:8px;}
+.layer p{font-size:13.5px;color:#5a6575;}
+.down{text-align:center;color:#C9B8A8;font-size:22px;font-weight:800;margin:-4px 0;}
+/* table */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:#1a2b4a;color:#fff;padding:10px 9px;text-align:left;font-weight:700;}
+td{padding:9px;border:1px solid #F0E8E0;color:#3a4555;}
+tr:nth-child(even) td{background:#FCF8F3;}
+.up{color:#1B7A3D;font-weight:800;}
+/* bar chart */
+.bars{margin:16px 0;}
+.bar-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;}
+.bar-row .k{width:52px;font-weight:700;color:#5a6575;text-align:right;flex-shrink:0;}
+.bar-row .track{flex:1;background:#F2EAE0;border-radius:6px;height:22px;position:relative;overflow:hidden;}
+.bar-row .fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;font-size:10.5px;font-weight:800;color:#fff;}
+.b25{background:#C9B8A8;} .b26{background:linear-gradient(90deg,#FF8A47,#C45A00);}
+.legend{font-size:11.5px;color:#8a7a6a;margin-top:6px;}
+.legend b{padding:1px 7px;border-radius:4px;color:#fff;}
+/* callout */
+.callout{border-radius:14px;padding:18px 20px;margin:18px 0;}
+.c-thesis{background:linear-gradient(135deg,#FFF4E5,#FFEAD5);border:1.5px solid #FFCB8A;}
+.c-thesis .t{font-size:13px;font-weight:800;color:#C45A00;margin-bottom:6px;}
+.c-thesis p{font-size:16px;color:#1a2b4a;font-weight:700;line-height:1.6;}
+.c-moat{background:#F0FAF6;border:1.5px solid #A5D6C6;}
+.c-warn{background:#FFF8E8;border:1.5px solid #FFE0A0;}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:14px 0;}
+.asset{background:#fff;border:1.5px solid #E8DFD4;border-radius:12px;padding:14px 16px;}
+.asset .v{font-size:22px;font-weight:800;color:#C45A00;}
+.asset .l{font-size:12.5px;color:#5a6575;font-weight:700;}
+.note{font-size:12.5px;color:#9a8a7a;}
+.back{display:inline-block;margin:20px 0 0;color:rgba(255,255,255,0.7);text-decoration:none;font-size:12.5px;font-weight:700;}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="wrap">
+    <a href="/docs.html" class="back">← 문서 맵</a>
+    <div class="badge" style="margin-top:14px;">INVESTOR THESIS · 2026</div>
+    <h1>요리키트에서<br><span class="o">AI 영양 헬스케어</span>로</h1>
+    <div class="sub">교육용 요리키트로 집집마다 진입 → 앱으로 매일 데이터를 모으고 → AI 학습엔진으로 개인화를 독점하고 → 개인화 식품으로 수직통합해 → 아이 영양을 평생 책임지는 헬스케어로 lock-in 한다.</div>
+    <div class="meta">
+      <div><div class="l">현재 트랙션</div><div class="v">26년 1~5월 +139% YoY</div></div>
+      <div><div class="l">데이터 자산</div><div class="v">학습엔진 라이브</div></div>
+      <div><div class="l">Period</div><div class="v">2024–2029(E)</div></div>
+      <div><div class="l">근거</div><div class="v">2,879주문 · 839개교</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">The Reframe</div>
+    <h2>왜 투자자 100명이 거절했나</h2>
+    <p class="lede">판매가 두 배로 늘어도, 요리키트 단독은 VC 눈에 <strong>"좋은 가게, 패스"</strong> 신호를 켭니다. 이건 키트를 더 키운다고 풀리지 않습니다.</p>
+    <table>
+      <tr><th>거절 사유</th><th>근거 (우리 데이터가 증명)</th></tr>
+      <tr><td><b>일회성·저빈도·계절성</b></td><td>학교는 학기당 1회 행사. 6~9월 매출 붕괴(방학·학기말). recurring 없음</td></tr>
+      <tr><td><b>저ARPU·박한 마진</b></td><td>2만원/세트 + 물류·COGS. 소프트웨어가 아니라 커머스로 보임</td></tr>
+      <tr><td><b>데이터 해자 없음</b></td><td>키트는 누구나 복제. 복리로 쌓이는 우위·네트워크 효과 부재</td></tr>
+      <tr><td><b>관계형 B2B = 비확장</b></td><td>울퉁불퉁한 매출, 창업자 의존, "머신"이 아님</td></tr>
+    </table>
+    <p class="note">→ 핵심 통찰: <b>키트는 사업이 아니라 쐐기(wedge)다.</b> 아래 5층이 거절 사유를 한 층씩 정확히 뒤집는다.</p>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">The Logic · 5-Layer Flywheel</div>
+    <h2>키트 → 앱 → AI → 개인화 식품 → 헬스케어</h2>
+    <div class="layer"><div class="n">①</div><div><h3>물리 쐐기 — 교육 요리키트 (현재 매출)</h3><p>839개교·가정에 이미 매출과 신뢰로 진입. "내 아이 먹는 것" 관계의 가장 싸고 빠른 입구 — 고객이 <b>돈 내고</b> 획득된다(CAC 음수).</p><span class="obj">거절 뒤집기 · 고객 획득</span></div></div>
+    <div class="down">↓</div>
+    <div class="layer"><div class="n">②</div><div><h3>SW 확장 — 편식 코칭 앱 (구독·recurring)</h3><p>일회성 구매자를 <b>매일 끼니를 기록하는 DAU</b>로. 구독 4,900원/월·아이. 매일 쓰는 앱이 키트의 계절성을 평탄화한다.</p><span class="obj">거절 뒤집기 · recurring 없음 / 저빈도</span></div></div>
+    <div class="down">↓</div>
+    <div class="layer"><div class="n">③</div><div><h3>AI 학습엔진 — 데이터 플라이휠 (해자)</h3><p>끼니마다 메뉴→식재료→영양→코칭으로 학습. <b>한국 아동영양 독점 데이터셋</b>이 복리로 쌓인다. 더 많은 아이 → 더 정교한 개인화 → 높은 리텐션 → 더 많은 아이. 데이터 네트워크 효과 = 진짜 해자.</p><span class="obj">거절 뒤집기 · 해자 / 방어가능성</span></div></div>
+    <div class="down">↓</div>
+    <div class="layer"><div class="n">④</div><div><h3>피지컬 AI — 개인화 식품 포장 (수직통합·고ARPU)</h3><p>플라이휠이 물리 제품으로 환류 — 아이별 분석→주간 맞춤 골고루 키트. <b>AI가 무엇을 보낼지 결정</b>한다. 소프트웨어 지능 → 물리 충족의 수직통합, 복제 불가(데이터가 게이트).</p><span class="obj">거절 뒤집기 · 박한 커머스 마진</span></div></div>
+    <div class="down">↓</div>
+    <div class="layer"><div class="n">⑤</div><div><h3>영양 lock-in 헬스케어 (엔드게임)</h3><p>편식 → 성장·결핍·만성질환 식이까지. 다년 아동건강 데이터 + 개인화 충족 = lock-in. 키트가 아니라 <b>헬스케어 플랫폼</b>. 헬스케어 멀티플의 영역.</p><span class="obj">거절 뒤집기 · 라이프스타일 사업</span></div></div>
+
+    <div class="callout c-thesis">
+      <div class="t">ONE-LINE THESIS</div>
+      <p>교육 요리키트로 집집마다 저비용 진입 → 앱으로 매일 데이터를 모으고 → AI 학습엔진으로 개인화를 독점하고 → 개인화 식품으로 수직통합해 → 아이 영양을 평생 책임지는 헬스케어로 lock-in 한다.</p>
+    </div>
+    <div class="callout c-warn"><b>Why now</b> — LLM이 있어야 메뉴 분해·개인화 코칭·영양 추론이 <b>저비용으로 실제 작동</b>한다. 2년 전엔 이 플라이휠을 돌릴 수 없었다. 그게 '지금'인 이유다.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">01 · Traction (현재)</div>
+    <h2>이미 두 자리 두 배 성장 중</h2>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="l">26년 1~5월 매출 (4,228세트)</div><div class="v">8,456<small> 만원</small></div><div class="d">전체 YoY +139.3%</div></div>
+      <div class="kpi"><div class="l">순수구매 세트</div><div class="v">3,550<small> 세트</small></div><div class="d">YoY +107.6%</div></div>
+      <div class="kpi"><div class="l">26년 풀이어 추정</div><div class="v">5.6<small> 억원</small></div><div class="d">25년 2.67억 +110%</div></div>
+      <div class="kpi"><div class="l">코호트 보정 retention</div><div class="v">38~40<small> %</small></div><div class="d">학교 32% + 전근 효과</div></div>
+    </div>
+    <h3>월별 판매 YoY (1~5월, 세트)</h3>
+    <div class="bars">
+      <div class="bar-row"><div class="k">1월</div><div class="track"><div class="fill b26" style="width:49%">688</div></div><span class="up">+240%</span></div>
+      <div class="bar-row"><div class="k">2월</div><div class="track"><div class="fill b26" style="width:39%">550</div></div><span class="up">+168%</span></div>
+      <div class="bar-row"><div class="k">3월</div><div class="track"><div class="fill b26" style="width:27%">378</div></div><span class="up">+229%</span></div>
+      <div class="bar-row"><div class="k">4월</div><div class="track"><div class="fill b26" style="width:85%">1,201</div></div><span class="up">+111%</span></div>
+      <div class="bar-row"><div class="k">5월</div><div class="track"><div class="fill b26" style="width:100%">1,411</div></div><span class="up">+87%</span></div>
+    </div>
+    <h3>기관 유형별 26년 (1~5월) — 침투 가속 채널</h3>
+    <table>
+      <tr><th>유형</th><th>26년</th><th>25년</th><th>YoY</th></tr>
+      <tr><td>초등학교</td><td>1,549</td><td>931</td><td class="up">+66%</td></tr>
+      <tr><td>어린이집</td><td>616</td><td>237</td><td class="up">+160%</td></tr>
+      <tr><td>지역아동센터</td><td>533</td><td>94</td><td class="up">+467%</td></tr>
+      <tr><td>중학교</td><td>286</td><td>126</td><td class="up">+127%</td></tr>
+      <tr><td>유치원</td><td>105</td><td>33</td><td class="up">+218%</td></tr>
+    </table>
+    <p class="note">샘플 출고 57→322세트(+465%) = 마케팅 엔진 가동. 직거래 비중 34%로 플랫폼 의존 축소.</p>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">02 · The Moat (이미 구축됨)</div>
+    <h2>해자는 슬라이드가 아니라 실재한다</h2>
+    <p class="lede">투자자가 묻는 "방어가능성"의 답 — 우리는 <strong>한국 아동영양 학습엔진을 이미 만들어 라이브로 돌리고 있다.</strong> 끼니가 쌓일수록 복리로 강해진다.</p>
+    <div class="grid2">
+      <div class="asset"><div class="v">9,988</div><div class="l">학습 메뉴 코퍼스(learned_menus) — 메뉴→식재료 자동분해</div></div>
+      <div class="asset"><div class="v">204종</div><div class="l">식재료 도감 — 영양·제철·등급·💎 영양보석</div></div>
+      <div class="asset"><div class="v">589 + 2,582</div><div class="l">궁합 그래프 페어 · 음식×식재료 키트 매트릭스 셀</div></div>
+      <div class="asset"><div class="v">31종 KDRI</div><div class="l">영양 신호등 + 코칭 엔진 13 시나리오(앱 라이브)</div></div>
+    </div>
+    <div class="callout c-moat"><b>플라이휠</b> — 끼니 기록 → 메뉴 분해 → 영양 신호 → 코칭 → 개인화 키트 배합. 더 많은 아이가 쓸수록 데이터가 정교해지고, 개인화가 좋아지고, 리텐션이 오르고, 더 많은 아이가 온다. 경쟁자가 따라오려면 <b>같은 끼니 데이터를 처음부터 쌓아야</b> 한다.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">03 · Multi-Year Projection</div>
+    <h2>27–29년 성장 시나리오</h2>
+    <p class="note">세트당 평균 ARPU 20,000원 가정 · 코호트·리텐션·빈도 lever 기반.</p>
+    <table>
+      <tr><th>연도</th><th>Base(현실)</th><th>Bull(강세)</th><th>드라이버</th></tr>
+      <tr><td>2026 (E)</td><td>5.6억</td><td>—</td><td>풀이어, +110% YoY</td></tr>
+      <tr><td>2027</td><td><b>10억</b></td><td>—</td><td>학교 재구매 + 어린이집/센터 가속</td></tr>
+      <tr><td>2028</td><td>16~22억</td><td>30~45억</td><td>앱 구독 전환 + 개인화 키트 ARPU↑</td></tr>
+      <tr><td>2029</td><td><b>25~36억</b></td><td><b>50~85억</b></td><td>중·고 확장 + 어린이집 월정기</td></tr>
+      <tr><td>장기 ceiling</td><td colspan="2"><b>300억</b></td><td>어린이집·유치원 월정기(빈도) 모델</td></tr>
+    </table>
+    <p class="note">시장 = 초·중·고 + 어린이집·유치원 약 22,000곳, 현재 침투율 7%. 가장 큰 성장은 빈도(일회성→월정기) + 개인화 식품(고ARPU)에서 나온다.</p>
+  </div>
+</section>
+
+<section style="background:#1a2b4a;color:#fff;border:none;">
+  <div class="wrap">
+    <div class="label" style="color:#FFB877;">04 · Conclusion</div>
+    <h2 style="color:#fff;">Investment Thesis</h2>
+    <p class="lede" style="color:rgba(255,255,255,0.9);">물리 트랙션(키트 +139% YoY)은 <strong style="color:#FFB877;">증명된 쐐기</strong>다. 그 위에 앱(recurring) → AI 학습엔진(해자) → 개인화 식품(고ARPU) → 헬스케어(lock-in)를 쌓는다. 핵심 베팅은 ①→②→③ 전환(구매자→DAU→구독)이고, 학습엔진은 <strong style="color:#FFB877;">이미 라이브</strong>다.</p>
+    <div class="grid2" style="margin-top:22px;">
+      <div class="asset" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.18);"><div class="v" style="color:#FFB877;">왜 우리</div><div class="l" style="color:rgba(255,255,255,0.8);">5년 키트 운영으로 집·학교 채널과 신뢰 + 이미 구축된 학습엔진. 데이터를 처음부터 쌓는 경쟁자 대비 수년 앞섬.</div></div>
+      <div class="asset" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.18);"><div class="v" style="color:#FFB877;">왜 지금</div><div class="l" style="color:rgba(255,255,255,0.8);">LLM이 메뉴 분해·개인화 코칭을 저비용으로 작동시키는 첫 시점. 플라이휠을 돌릴 수 있게 된 순간.</div></div>
+    </div>
+    <p class="note" style="color:rgba(255,255,255,0.5);margin-top:24px;">근거 데이터: 밀프레드 2025 vs 2026 판매분석 · 투자자 프로젝션 2026–2029 · 라이브 앱(app.mealfred.com) 데이터 자산. 본 문서는 내부·투자자 검토용이며 추정치(E)를 포함한다.</p>
+    <a href="/docs.html" class="back" style="color:rgba(255,255,255,0.6);">← 문서 맵으로</a>
+  </div>
+</section>
+
+</body>
+</html>
