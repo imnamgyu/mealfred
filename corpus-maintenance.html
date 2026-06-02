@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코퍼스·도감 유지보수 루프 — /mealfred-food-mapping</title>
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;margin:0;line-height:1.7;}
+.wrap{max-width:980px;margin:0 auto;padding:40px 24px 90px;}
+h1{font-size:29px;font-weight:800;margin:0 0 6px;}
+.sub{color:#8a7a6a;font-size:14px;margin-bottom:34px;}
+h2{font-size:20px;font-weight:800;margin-top:46px;margin-bottom:8px;border-left:4px solid #FF6B1A;padding-left:12px;}
+h3{font-size:16px;font-weight:800;margin-top:24px;color:#C45A00;}
+p{font-size:14.5px;color:#3a4555;}
+code{background:#F4ECE2;padding:1px 6px;border-radius:5px;font-size:12.5px;color:#8a4a2a;}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:#FFF0E0;color:#C45A00;padding:9px 8px;text-align:left;font-weight:800;border:1px solid #FFE0C0;}
+td{padding:8px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
+.callout{border-radius:14px;padding:16px 18px;margin:16px 0;font-size:14px;}
+.c-issue{background:#FFF5F5;border:1.5px solid #FFCDD2;color:#8a3a3a;}
+.c-rec{background:#F0FAF6;border:1.5px solid #A5D6C6;color:#1B5E20;}
+.c-warn{background:#FFF8E8;border:1.5px solid #FFE0A0;color:#8a6a2a;}
+.back{display:inline-block;margin-bottom:22px;color:#9CA3AF;text-decoration:none;font-size:13px;font-weight:700;}
+.note{font-size:12.5px;color:#8a7a6a;}
+.ex{background:#FFFCF7;border:1.5px solid #FFE0C0;border-radius:14px;padding:14px 18px;margin:14px 0;font-size:13.5px;}
+.ex .q{font-weight:800;color:#1a2b4a;}
+.ex .a{color:#1B5E20;font-weight:700;}
+.flow{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#FAF4EC;border-radius:10px;padding:12px 14px;color:#6a5a4a;white-space:pre-wrap;line-height:1.7;margin:10px 0;}
+.part{border:1.5px solid #FFD8B0;border-radius:14px;padding:16px 20px;margin:16px 0;}
+.part h3{margin-top:0;}
+.pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:100px;background:#FFF0E0;color:#C45A00;margin-left:6px;}
+.pill.auto{background:#E8F5E9;color:#2E7D32;} .pill.man{background:#E3F2FD;color:#1565C0;} .pill.no{background:#FFEBEE;color:#C62828;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="/docs.html" class="back">← 문서 맵으로</a>
+<h1>🧰 코퍼스·도감 유지보수 루프</h1>
+<div class="sub">스킬 <code>/mealfred-food-mapping</code> — 부르면 클로드가 전 과정을 수행한다(사람은 스크립트 안 돌림). 메뉴→식재료 매핑·음식/식재료 매트릭스·식재료 도감을 살아있는 데이터로 주기적으로 다듬는 큐레이션 루프.</div>
+
+<h2>1. 한 줄 요약</h2>
+<p>밀프레드의 데이터 자산(<b>매핑 사전 · 궁합/키트 매트릭스 · 식재료 도감</b>)은 한 번 만들고 끝이 아니라 <b>계속 손봐야 정확해진다.</b> 이 스킬은 그 유지보수를 한 단어로 묶은 것 — 부르면 ① 실데이터로 매핑을 튜닝하고 ② 코퍼스가 커졌으면 매트릭스를 다시 만들고 ③ 도감에 빠진 영양 식재료를 발굴·검증해 (승인 후) 채운다.</p>
+
+<h2>2. 자동화 경계 — 누가 뭘 하나</h2>
+<p>가장 헷갈리는 지점. <b>2시 크론과 이 스킬은 다른 층위다.</b></p>
+<table>
+<tr><th>주체</th><th>무엇</th><th>왜 거기인가</th></tr>
+<tr><td><b>2시 크론</b> <span class="pill auto">자동</span></td><td>이미 만든 사전·규칙으로 <b>새 메뉴를 분해</b>(learned_menus 백필) + 코칭 편지</td><td>런타임 데이터만. 매일 도는 게 맞음</td></tr>
+<tr><td><b>이 스킬</b> <span class="pill man">수동(부르면)</span></td><td><b>빌드 산출물</b>(정적 JSON: 사전·매트릭스·도감)을 재생성·개선</td><td>정적 import라 크론이 못 함(커밋+재배포 필요). 매일 안 바뀜</td></tr>
+<tr><td><b>도감 추가</b> <span class="pill no">자동 X</span></td><td>식재료를 도감에 등재하는 것</td><td>안전 검증·사람 승인 필수 — 인삼·함초가 자동 등재되면 안 됨</td></tr>
+</table>
+<div class="callout c-rec">✅ <b>한 문장</b>: 크론은 사전을 <b>'적용'</b>하고, 이 스킬은 사전·매트릭스·도감을 <b>'개선'</b>한다. 도감에 뭘 넣을지는 <b>늘 사람이 결정</b>한다.</div>
+
+<h2>3. Part A — 메뉴→식재료 매핑 사전 튜닝 <span class="pill">매번 기본</span></h2>
+<p>엄마가 친 메뉴를 식재료로 푸는 사전을, <b>실제 입력 + 엄마들이 직접 고친 교정</b>을 정답지 삼아 다듬는다.</p>
+<div class="ex">
+<div class="q">예시 — "소고기무국"</div>
+<div class="flow">현재: 소고기무국 → [소고기]        ← '무'가 1글자라 오탐(무궁화·무침…) 위험으로 스캔에서 막혀 누락
+판단: 무국인데 무가 빠졌다(빈약 의심)
+조치: MENU_MAP에 '소고기무국': { ing:['소고기','무'] } 추가
+결과: 이후 모든 '소고기무국' → [소고기, 무]  (LLM 안 거치고 즉시·정확)</div>
+이렇게 <b>자주 틀리는 걸 전역 사전으로 승격</b>시키면 LLM 호출이 줄고 정확도는 오른다.
+</div>
+<p class="note">손보는 곳: <code>lib/menuMap.ts</code>(MENU_MAP·EXCLUDE) · <code>lib/lexicon.ts</code>(표기변형 소세지→소시지) · 회귀검증은 <code>audit-menu.ts</code>로 코퍼스 100% 유지 확인.</p>
+
+<h2>4. Part B — 코퍼스/매트릭스 재생성 <span class="pill">코퍼스 컸을 때</span></h2>
+<p>learned_menus는 크론이 매일 채운다. <b>충분히 커졌으면</b>(직전 +5% 또는 도감 변경 시) 빌드 산출물을 다시 만든다.</p>
+<table>
+<tr><th>자산</th><th>무엇</th><th>생성</th></tr>
+<tr><td>corpus-stats</td><td>어드민 음식/식재료 카운트·32형태별 표</td><td><code>gen-corpus-stats.mjs</code></td></tr>
+<tr><td>궁합/사촌</td><td>같이 쓰인 레시피(pair) + 맛·식감 닮은 사촌(bridge)</td><td><code>gen-food-graph.py</code></td></tr>
+<tr><td>음식×식재료</td><td>키트 매트릭스 점수(LLM 정성 0~3)</td><td>채점 워크플로(도감/형태 바뀐 경우만)</td></tr>
+</table>
+<p class="note">임계 미달이면 "재생성 불필요(증가 N건)"으로 솔직히 보고하고 스킵한다.</p>
+
+<h2>5. Part C — 도감 갭 점검·확장 <span class="pill">승인 게이트</span></h2>
+<p>도감의 가치는 <b>'많이'가 아니라 '자주 먹는 걸 정확히 덮는 것'</b> + <b>💎 영양 보석</b>(빈도 낮아도 영양 우수). 식약처/NEIS 전재료에서 도감에 안 걸리는 토큰을 스캔해 진짜 새 식재료를 찾는다.</p>
+<div class="ex">
+<div class="q">예시 — 영양 식재료 발굴·검증 (실제 1회차)</div>
+<div class="flow">발굴: 식품군별로 영양 우수 통째 식재료 제안 → 74개
+검증: 후보별 적대 검증(영유아 안전·영양·💎·빈도)
+  → ✅ 퀴노아(💎 식물성 완전단백질)
+  → 🟡 잣·광어·목이버섯·망고…(영양 OK, 빈도 낮음)
+  → ⛔ 인삼(한방)·함초(고나트륨)·꿀(돌 미만 금지)·곤약(저영양)  ← 올바르게 기각
+제시: add/maybe/💎 + 근거·안전노트 표를 사람에게 → 승인받은 것만 등재</div>
+</div>
+<p>승인되면 <b>7개 파이프라인을 새 식재료에 전부 재생성</b>해야 도감·궁합·키트·코칭이 정합한다:</p>
+<p class="note">① 풀 등재 · ② 영양 매핑(농진청 100g) · ③ 💎 영양 보석 · ④ 별등급(급식 빈도) · ⑤ 급여 용량 · ⑥ 제철 · ⑦ 궁합/사촌 + 음식×식재료 매트릭스 → kit-guide 재생성 → 배포.</p>
+<div class="callout c-warn">⚠️ 이 단계는 <b>절대 자동화하지 않는다.</b> 발굴·검증까지는 워크플로가 하되, 도감에 실제로 올리는 건 사람 승인 뒤에만.</div>
+
+<h2>6. 마무리 리포트 형식</h2>
+<div class="flow">📋 유지보수 리포트
+🔧 Part A 매핑: 무매핑 a→b · 룰+스캔 P%→Q% · 코퍼스 100% 유지 · 고친 것 M건
+📊 Part B 매트릭스: learned N(+Δ) · 재생성 {…} 또는 '불필요(증가 적음)'
+🌱 Part C 도감: 갭 스캔 K · 후보 제시 J(add/maybe/💎) 또는 '승인 후 J종 전배선'
+🚨 치명 이슈 Top 3 · ⏸ 보류: 오타·1회성·승인 대기</div>
+<p class="note">숫자는 지어내지 않고 실행 출력에서만. 고친 게 0건이어도 0으로 솔직히 보고(규율이 작동한 결과).</p>
+
+<div class="callout c-rec" style="margin-top:30px;">🧭 <b>한 줄 원리</b> — "실제 엄마들이 친 메뉴 + 엄마들이 고친 교정"이 가장 정확한 정답지다. 그걸 주기적으로 <b>전역 사전·매트릭스·도감</b>으로 승격시키는 게 이 스킬이다. 크론은 적용만, 개선은 여기서.</div>
+</div>
+</body>
+</html>
