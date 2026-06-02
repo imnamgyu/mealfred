@@ -8,7 +8,9 @@ import { loadPool, loadRecipes, loadFreqRecipes, findIngredient, KDRI_1_2Y, NUTR
 import RefusedBadge from '@/components/RefusedBadge';
 import FoodIcon from '@/components/FoodIcon';
 import MasteryBadge from '@/components/MasteryBadge';
+import PersonalBridge from '@/components/PersonalBridge';
 import { cookingGuide } from '@/lib/cookingMatrix';
+import { neighborsOf } from '@/lib/foodGraph';
 
 // SOS 식감 난이도 순서 (부드러움 → 단단함) — 거부 식재료 친해지기 정렬
 function textureRank(method: string): number {
@@ -146,6 +148,7 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
       </section>
 
       <MasteryBadge ingredient={ing.nm} />
+      <PersonalBridge ingredient={ing.nm} neighbors={neighborsOf(ing.nm)} />
       <RefusedBadge ingredient={ing.nm} />
 
       {freqRecipes.length > 0 && (
