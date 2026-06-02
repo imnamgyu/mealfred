@@ -1,4 +1,4 @@
-/** /care/me — 내 정보. 섹션 순서: ① 아이(맨 위) → ② 결제·포인트 묶음 → ③ 계정·로그아웃(하단) */
+/** /care/me — 내 정보. 섹션 순서: 보호자 이름(맨 위) → ① 아이 → ② 결제·포인트 묶음 → 로그아웃(하단) */
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
@@ -128,7 +128,13 @@ export default function MePage() {
               </div>
             )}
 
-            {/* ━━━━━ ① 우리 아이 (맨 위) ━━━━━ */}
+            {/* 보호자 — 맨 위(이름) */}
+            <div className="bg-white rounded-2xl px-4 py-3 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+              <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{account.isKakao ? `${nickname || '카카오 회원'}님` : account.email}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : '구글 로그인 · 부모 데이터는 카카오 계정에 있어요'}</div>
+            </div>
+
+            {/* ━━━━━ ① 우리 아이 (보호자 바로 아래) ━━━━━ */}
             <div className="text-[11px] font-extrabold mb-1.5 px-1" style={{ color: '#C45A00' }}>👶 우리 아이</div>
             <div className="bg-white rounded-2xl p-4 mb-4 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="flex items-center justify-between mb-2">
@@ -266,13 +272,7 @@ export default function MePage() {
               </div>
             )}
 
-            {/* ━━━━━ ③ 계정 (하단) ━━━━━ */}
-            <div className="text-[11px] font-extrabold mb-1.5 mt-4 px-1" style={{ color: '#9CA3AF' }}>⚙️ 계정</div>
-            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#EEE' }}>
-              <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{account.isKakao ? `${nickname || '카카오 회원'}님` : account.email}</div>
-              <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : '구글 로그인 · 부모 데이터는 카카오 계정에 있어요'}</div>
-            </div>
-            <button onClick={logout} className="w-full py-3 rounded-xl text-sm font-bold border" style={{ borderColor: '#E5E7EB', color: '#6B7280' }}>
+            <button onClick={logout} className="w-full mt-4 py-3 rounded-xl text-sm font-bold border" style={{ borderColor: '#E5E7EB', color: '#6B7280' }}>
               로그아웃
             </button>
           </>
