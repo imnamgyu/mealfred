@@ -324,6 +324,7 @@ export default function Home() {
                   homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
                   covered: fg.covered, missing: fg.missing, timeseries: ts, attendsDaycare,
                   eatenCount: new Set(allIng).size, pastLetters, chronicConditions: child.chronic_conditions,
+                  favoriteIngredients: [...new Set(allIng)],   // 그래프 푸드브릿지 앵커(서버가 사촌/궁합 계산)
                 }),
               }).then((r) => r.json()).catch(() => null);
               if (r?.letter) {

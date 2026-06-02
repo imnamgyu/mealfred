@@ -24,6 +24,7 @@ import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { selectScenario } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { reexposurePick } from '@/lib/reexposure';
+import { neighborsOf } from '@/lib/foodGraph';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
@@ -135,6 +136,7 @@ export async function GET(req: Request) {
         const recentMeals: LoggedFood[] = []; const seenFood = new Set<string>();
         const menuFreq: Record<string, number> = {};
         const favMenu: Record<string, number> = {};   // 잘 먹은(거부 아닌) 메뉴 빈도 — 푸드체이닝 출발점
+        const favIngFreq: Record<string, number> = {};   // 잘 먹은(거부 아닌) 식재료 빈도 — 그래프 푸드브릿지 앵커
         const homeByDate: Record<string, string[]> = {}; const homeIng: string[] = [];   // 집 끼니만(place!=daycare) — 코칭 톤 보정용
         const todayMs = Date.parse(today);
 
@@ -143,6 +145,7 @@ export async function GET(req: Request) {
           const atHome = r.place !== 'daycare';   // home 또는 미상 = 집(부모 통제)
           (r.ingredients || []).forEach((i) => {
             byDate[r.log_date].push(i); allIng.push(i);
+            if (r.ate_well !== false) favIngFreq[i] = (favIngFreq[i] || 0) + 1;   // 거부 아닌 식재료 = 그래프 브릿지 앵커
             if (atHome) { (homeByDate[r.log_date] ||= []).push(i); homeIng.push(i); }
             const daysAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
             if (daysAgo <= 3 && !seenFood.has(i)) {
@@ -159,6 +162,21 @@ export async function GET(req: Request) {
         const byDay = Object.values(byDate).filter((a) => a.length);
         if (byDay.length < 3) { lowData++; continue; }
         const favoriteFoods = Object.entries(favMenu).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([m]) => m);   // 잘 먹는 음식 top8 — 푸드체이닝
+        // 검증된 푸드 브릿지: 잘 먹는 식재료 → 그래프상 사촌/궁합(아직 잘 안 먹는 것). 편지가 궁합을 지어내지 않게.
+        const likedIng = Object.entries(favIngFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
+        const likedIngSet = new Set(likedIng);
+        const bridgeFacts = (() => {
+          const lines: string[] = [];
+          for (const liked of likedIng.slice(0, 8)) {
+            const nb = neighborsOf(liked).filter((n) => !likedIngSet.has(n.nm));   // 아직 잘 안 먹는 방향 = 도전 다리
+            const br = nb.filter((n) => n.kind === 'bridge').slice(0, 3).map((n) => n.nm);
+            const pr = nb.filter((n) => n.kind === 'pair').slice(0, 3).map((n) => n.nm);
+            const parts = [...(br.length ? [`사촌 ${br.join('·')}`] : []), ...(pr.length ? [`궁합 ${pr.join('·')}`] : [])];
+            if (parts.length) lines.push(`${liked} → ${parts.join(', ')}`);
+            if (lines.length >= 5) break;
+          }
+          return lines.join(' / ');
+        })();
         const sig = computeSignals(byDay, catOf);
         const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
         const fg = computeFoodGroups(allIng, catOf);
@@ -248,6 +266,7 @@ export async function GET(req: Request) {
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
             scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
             chronicGuidance: chronicGuidanceText(meta.chronic),   // 만성질환 식이 방향(부모 입력 기반)
+            bridgeFacts,   // 검증된 푸드 브릿지(그래프) — 편지가 사촌/궁합을 지어내지 않게
           });
           letter = gen.letter; oneliner = gen.oneliner;
         }

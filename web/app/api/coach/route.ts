@@ -13,6 +13,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { generateLetter } from '@/lib/coach';
+import { neighborsOf } from '@/lib/foodGraph';
 import { selectScenario } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 
@@ -44,6 +45,16 @@ export async function POST(req: NextRequest) {
       attendsDaycare: !!b.attendsDaycare, ageBand: b.ageBand || '',
       recentLoggedDays: b.recentLoggedDays ?? 5, recentWindow: 5, icfqRiskCount: b.icfqRiskCount ?? 0,
     }, []);
+    // 검증된 푸드 브릿지(그래프) — 클라가 보낸 잘 먹는 식재료 → 사촌/궁합. 편지가 궁합을 지어내지 않게.
+    const likedIng: string[] = Array.isArray(b.favoriteIngredients) ? b.favoriteIngredients : [];
+    const likedSet = new Set(likedIng);
+    const bridgeFacts = likedIng.slice(0, 8).map((liked) => {
+      const nb = neighborsOf(liked).filter((n) => !likedSet.has(n.nm));
+      const br = nb.filter((n) => n.kind === 'bridge').slice(0, 3).map((n) => n.nm);
+      const pr = nb.filter((n) => n.kind === 'pair').slice(0, 3).map((n) => n.nm);
+      const parts = [...(br.length ? [`사촌 ${br.join('·')}`] : []), ...(pr.length ? [`궁합 ${pr.join('·')}`] : [])];
+      return parts.length ? `${liked} → ${parts.join(', ')}` : null;
+    }).filter(Boolean).slice(0, 5).join(' / ');
     const { letter, oneliner } = await generateLetter({
       childName: b.childName,
       ageBand: b.ageBand,
@@ -62,6 +73,7 @@ export async function POST(req: NextRequest) {
       pastLetters: b.pastLetters,
       scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
       chronicGuidance: chronicGuidanceText(b.chronicConditions),   // 만성질환 식이 방향(클라가 보내면)
+      bridgeFacts,   // 검증된 푸드 브릿지(그래프)
     });
     return NextResponse.json({ letter, oneliner }, { headers });
   } catch (e: unknown) {
