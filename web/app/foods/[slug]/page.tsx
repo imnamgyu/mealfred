@@ -109,9 +109,6 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
             {ing.must_eat_reason && <div className="text-[11px] mt-1 leading-relaxed font-semibold" style={{ color: '#C45A00' }}>💎 {ing.must_eat_reason}</div>}
           </div>
         </div>
-        {ing.warning && (
-          <div className="mt-3 rounded-lg p-2.5 text-xs font-semibold" style={{ background: '#FFF5F5', border: '1px solid #FFCDD2', color: '#C62828' }}>⚠ {ing.warning}</div>
-        )}
       </header>
 
       <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
