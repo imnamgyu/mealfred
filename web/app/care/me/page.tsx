@@ -119,8 +119,8 @@ export default function MePage() {
           <p className="text-sm" style={{ color: '#9CA3AF' }}>불러오는 중...</p>
         ) : (
           <>
-            {/* 비카카오 계정 경고 — 데이터가 다른 계정에 있을 때(맨 위 고정) */}
-            {!account.isKakao && (
+            {/* 비카카오 계정 경고 — 이 계정에 아이가 없을 때만(구글 가입 부모는 오탐 X). 데이터가 다른 계정에 있을 때 안내 */}
+            {!account.isKakao && children.length === 0 && (
               <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF4E5', borderColor: '#FFD0A0' }}>
                 <div className="text-[13px] font-extrabold mb-1" style={{ color: '#C45A00' }}>⚠️ 카카오 부모 계정이 아니에요</div>
                 <div className="text-[11.5px] leading-relaxed mb-2.5" style={{ color: '#8a7a6a' }}>지금은 <strong>{account.email}</strong>(구글/관리자)로 로그인되어 있어요. 우리 아이 식단·코칭 데이터는 <strong>카카오 계정</strong>에 있어요 — 카카오로 다시 로그인하면 보여요.</div>
@@ -131,7 +131,7 @@ export default function MePage() {
             {/* 보호자 — 맨 위(이름) */}
             <div className="bg-white rounded-2xl px-4 py-3 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{account.isKakao ? `${nickname || '카카오 회원'}님` : account.email}</div>
-              <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : '구글 로그인 · 부모 데이터는 카카오 계정에 있어요'}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : (children.length === 0 ? '구글 로그인 · 부모 데이터는 카카오 계정에 있어요' : '구글 로그인')}</div>
             </div>
 
             {/* ━━━━━ ① 우리 아이 (보호자 바로 아래) ━━━━━ */}
