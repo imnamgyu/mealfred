@@ -113,7 +113,7 @@ export default function OnboardingPage() {
 
     let childId = editId;
     if (editId) {
-      const { error: e2 } = await supabase.from('children').update(payload).eq('id', editId);
+      const { error: e2 } = await supabase.from('children').update(payload).eq('id', editId).eq('parent_id', user.id);   // RLS에 더해 앱단 소유 방어
       if (e2) { setError(e2.message); setLoading(false); return; }
     } else {
       // 초대 링크로 왔으면 코드 연결(친구 가입 보너스용) — 첫 끼니 기록 시 초대자에게 +4,900P

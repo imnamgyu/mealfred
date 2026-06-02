@@ -48,7 +48,7 @@ export default function PersonalBridge({ ingredient, neighbors }: { ingredient: 
       setS({ loggedIn: true, childName: child.nickname || '우리 아이', anchors, alreadyAte });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ingredient]);
+  }, [ingredient, neighbors]);   // neighbors는 SSG prop(페이지당 고정)이지만, 바뀌면 앵커 재계산되게
 
   if (!s) return null;
 
@@ -83,7 +83,6 @@ export default function PersonalBridge({ ingredient, neighbors }: { ingredient: 
   }
 
   const top = anchors[0];
-  const bridgeKo = top.kind === 'bridge' ? '닮았어요' : '잘 어울려요';
   const why = top.kind === 'bridge'
     ? `${childName}가 잘 먹는 ${top.nm}와(과) 맛·식감이 닮은 사촌이에요`
     : `${childName}가 잘 먹는 ${top.nm}와(과) ${top.basis}`;

@@ -1,4 +1,4 @@
-/** /care/me — 내 정보 (자녀 프로필·로그아웃, M5 기본) */
+/** /care/me — 내 정보. 섹션 순서: ① 아이(맨 위) → ② 결제·포인트 묶음 → ③ 계정·로그아웃(하단) */
 'use client';
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
@@ -104,17 +104,22 @@ export default function MePage() {
     return { label: daysLeft > 0 ? `무료 D-${daysLeft}` : '체험 종료', daysLeft, freeUntil };
   };
 
+  const sts = children.map(childStatus);
+  const activeFree = sts.filter((s) => s.daysLeft > 0).length;
+  const soonFree = sts.reduce((m, s) => (s.daysLeft > 0 && s.daysLeft < m ? s.daysLeft : m), 9999);
+
   return (
     <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
       <header className="px-5 pt-6 pb-3 border-b" style={{ borderColor: '#FFE8D0' }}>
         <h1 className="text-xl font-extrabold" style={{ color: '#1a2b4a' }}>내 정보</h1>
       </header>
 
-      <div className="flex-1 px-5 py-4">
+      <div className="flex-1 px-5 py-4 pb-20">
         {loading ? (
           <p className="text-sm" style={{ color: '#9CA3AF' }}>불러오는 중...</p>
         ) : (
           <>
+            {/* 비카카오 계정 경고 — 데이터가 다른 계정에 있을 때(맨 위 고정) */}
             {!account.isKakao && (
               <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF4E5', borderColor: '#FFD0A0' }}>
                 <div className="text-[13px] font-extrabold mb-1" style={{ color: '#C45A00' }}>⚠️ 카카오 부모 계정이 아니에요</div>
@@ -122,86 +127,10 @@ export default function MePage() {
                 <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/signup'; }} className="rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>카카오로 다시 로그인 →</button>
               </div>
             )}
-            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-              <div className="text-xs font-bold mb-2" style={{ color: '#8a7a6a' }}>보호자</div>
-              <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{account.isKakao ? `${nickname || '카카오 회원'}님` : account.email}</div>
-              <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : '구글 로그인 · 부모 데이터는 카카오 계정에 있어요'}</div>
-            </div>
 
-            {/* 구독 — 자녀 한 명당 월 4,900원(per-child). 무료 첫 달은 자녀별, 포인트로 연장 */}
-            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-              <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독 <span style={{ color: '#B0B0B0' }}>· 자녀 한 명당 월 4,900원</span></div>
-              {sub?.lifetime ? (
-                <div className="text-base font-extrabold" style={{ color: '#16A085' }}>🎉 평생 무료 <span className="text-[11px] font-semibold" style={{ color: '#9CA3AF' }}>· 전체 자녀 감사 혜택</span></div>
-              ) : children.length === 0 ? (
-                <div className="text-[12px]" style={{ color: '#9CA3AF' }}>아이를 등록하면 첫 달 무료로 시작해요</div>
-              ) : (() => {
-                const sts = children.map(childStatus);
-                const active = sts.filter((s) => s.daysLeft > 0).length;
-                const soon = sts.reduce((m, s) => (s.daysLeft > 0 && s.daysLeft < m ? s.daysLeft : m), 9999);
-                return active > 0 ? (
-                  <>
-                    <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>자녀 {children.length}명 <span style={{ color: '#C45A00' }}>· {active}명 무료 체험 중</span></div>
-                    <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>가장 빠른 만료 D-{soon} · 이후 자녀당 월 4,900원{children.length > 1 ? ` (총 ${(children.length * 4900).toLocaleString()}원)` : ''}</div>
-                    <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold" style={{ background: '#FFF0E0', color: '#C45A00' }}>챌린지·초대로 할인받기 →</a>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-base font-extrabold" style={{ color: '#C62828' }}>무료 체험 종료</div>
-                    <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>계속 이용하려면 구독 · 자녀당 월 4,900원{children.length > 1 ? ` (자녀 ${children.length}명 총 ${(children.length * 4900).toLocaleString()}원)` : ''}</div>
-                    <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>구독하기 →</a>
-                  </>
-                );
-              })()}
-              {!sub?.lifetime && (points?.balance ?? 0) >= 4900 && (
-                <button onClick={redeemSub} disabled={redeeming} className="block w-full mt-2.5 rounded-xl py-2.5 text-[12px] font-extrabold text-white" style={{ background: redeeming ? '#9CA3AF' : '#16A085' }}>{redeeming ? '처리 중…' : '🪙 포인트로 1개월 연장 (4,900P 사용)'}</button>
-              )}
-            </div>
-
-            {/* 내 포인트 (M7) — 끼니 기록마다 +50P, 골고루 키트 구매에 사용(준비 중) */}
-            <div className="rounded-2xl p-4 mb-3 border" style={{ background: 'linear-gradient(135deg,#FFF8F0,#FFE8D0)', borderColor: '#FFD0A0' }}>
-              <div className="flex items-center justify-between mb-1">
-                <div className="text-xs font-bold" style={{ color: '#8a7a6a' }}>내 포인트 <span style={{ color: '#B0B0B0' }}>(1P = 1원)</span></div>
-                {points && <div className="text-[10.5px]" style={{ color: '#9CA3AF' }}>누적 {points.total_earned.toLocaleString()}P</div>}
-              </div>
-              <div className="text-2xl font-extrabold" style={{ color: '#C45A00' }}>{(points?.balance ?? 0).toLocaleString()} <span className="text-sm">P</span></div>
-              <div className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a' }}>끼니를 기록할 때마다 <strong style={{ color: '#C45A00' }}>+50P</strong> 쌓여요 · 모아서 <strong>앱 구독료</strong>나 <strong>골고루 키트</strong> 결제에 쓸 수 있어요</div>
-              {ledger.length > 0 && (
-                <details className="mt-2.5">
-                  <summary className="text-[11px] font-bold cursor-pointer" style={{ color: '#9CA3AF' }}>적립·사용 내역 {ledger.length}건 ▾</summary>
-                  <div className="mt-1.5 space-y-1">
-                    {ledger.map((l, i) => (
-                      <div key={i} className="flex justify-between text-[11px]" style={{ color: '#6B7280' }}>
-                        <span>{l.kind === 'meal_input' ? '끼니 기록' : l.kind === 'redeem_kit' ? '키트 구매' : l.kind}{l.meta?.date ? ` · ${l.meta.date}` : ''}</span>
-                        <span style={{ color: l.amount > 0 ? '#16A085' : '#C62828', fontWeight: 700 }}>{l.amount > 0 ? '+' : ''}{l.amount}P</span>
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              )}
-            </div>
-
-            {/* 포인트 모으는 방법 — 바이럴 리워드 허브(v3) */}
-            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-              <div className="text-xs font-bold mb-2.5" style={{ color: '#8a7a6a' }}>🪙 포인트 모으는 방법 <span style={{ color: '#B0B0B0' }}>· 1P=1원, 키트·구독에 사용</span></div>
-              {[
-                { ic: '🍽', t: '끼니 기록', p: '+50P', d: '매 끼니 · 하루 5끼까지', on: true },
-                { ic: '👥', t: '친구 가입', p: '+4,900P', d: <>친구가 <strong style={{ color: '#D6453D' }}>아이 첫 끼니를 입력</strong>하면 적립 · 많이 모으면 계속 무료</>, on: true },
-              ].map((x, i) => (
-                <div key={i} className="flex items-center gap-2.5 py-1.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
-                  <span className="text-base shrink-0">{x.ic}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[12.5px] font-bold" style={{ color: '#1a2b4a' }}>{x.t} <span style={{ color: '#16A085' }}>{x.p}</span></div>
-                    <div className="text-[10.5px] leading-snug" style={{ color: '#9CA3AF' }}>{x.d}</div>
-                  </div>
-                  <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={x.on ? { background: '#EAF6F0', color: '#16A085' } : { background: '#F4F4F5', color: '#B0B0B0' }}>{x.on ? '가능' : '준비 중'}</span>
-                </div>
-              ))}
-              <div className="text-[10.5px] mt-2.5 pt-2.5" style={{ color: '#8a7a6a', borderTop: '1px solid #F5F0EA' }}>💡 친구 초대 링크는 아래 <strong>구독 카드</strong>에 있어요. 많이 초대할수록 계속 무료!</div>
-            </div>
-
-            {/* 우리 아이들 — 다자녀. 자녀당 무료 체험 D-N(등록+30일) 배지 + 자녀 추가 */}
-            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+            {/* ━━━━━ ① 우리 아이 (맨 위) ━━━━━ */}
+            <div className="text-[11px] font-extrabold mb-1.5 px-1" style={{ color: '#C45A00' }}>👶 우리 아이</div>
+            <div className="bg-white rounded-2xl p-4 mb-4 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
               <div className="flex items-center justify-between mb-2">
                 <div className="text-xs font-bold" style={{ color: '#8a7a6a' }}>우리 아이들{children.length > 0 && <span style={{ color: '#C45A00' }}> · {children.length}명</span>}</div>
                 <a href="/onboarding?add=1" className="text-[11px] font-extrabold" style={{ color: '#FF6B1A' }}>+ 자녀 추가</a>
@@ -232,7 +161,78 @@ export default function MePage() {
               })}
             </div>
 
-            {/* 친구 초대 — 가입+첫 기록 시 +4,900P (옛 '5명 방문 평생무료'는 폐기) */}
+            {/* ━━━━━ ② 결제 · 포인트 (한 묶음) ━━━━━ */}
+            <div className="text-[11px] font-extrabold mb-1.5 px-1" style={{ color: '#C45A00' }}>💳 결제 · 포인트</div>
+
+            {/* 구독 — 자녀 한 명당 월 4,900원(per-child) */}
+            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+              <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>구독 <span style={{ color: '#B0B0B0' }}>· 자녀 한 명당 월 4,900원</span></div>
+              {sub?.lifetime ? (
+                <div className="text-base font-extrabold" style={{ color: '#16A085' }}>🎉 평생 무료 <span className="text-[11px] font-semibold" style={{ color: '#9CA3AF' }}>· 전체 자녀 감사 혜택</span></div>
+              ) : children.length === 0 ? (
+                <div className="text-[12px]" style={{ color: '#9CA3AF' }}>아이를 등록하면 첫 달 무료로 시작해요</div>
+              ) : activeFree > 0 ? (
+                <>
+                  <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>자녀 {children.length}명 <span style={{ color: '#C45A00' }}>· {activeFree}명 무료 체험 중</span></div>
+                  <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>가장 빠른 만료 D-{soonFree} · 이후 자녀당 월 4,900원{children.length > 1 ? ` (총 ${(children.length * 4900).toLocaleString()}원)` : ''}</div>
+                  <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold" style={{ background: '#FFF0E0', color: '#C45A00' }}>챌린지·초대로 할인받기 →</a>
+                </>
+              ) : (
+                <>
+                  <div className="text-base font-extrabold" style={{ color: '#C62828' }}>무료 체험 종료</div>
+                  <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>계속 이용하려면 구독 · 자녀당 월 4,900원{children.length > 1 ? ` (자녀 ${children.length}명 총 ${(children.length * 4900).toLocaleString()}원)` : ''}</div>
+                  <a href="/care/upgrade" className="inline-block mt-2.5 rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>구독하기 →</a>
+                </>
+              )}
+              {!sub?.lifetime && (points?.balance ?? 0) >= 4900 && (
+                <button onClick={redeemSub} disabled={redeeming} className="block w-full mt-2.5 rounded-xl py-2.5 text-[12px] font-extrabold text-white" style={{ background: redeeming ? '#9CA3AF' : '#16A085' }}>{redeeming ? '처리 중…' : '🪙 포인트로 1개월 연장 (4,900P 사용)'}</button>
+              )}
+            </div>
+
+            {/* 내 포인트 잔액 */}
+            <div className="rounded-2xl p-4 mb-3 border" style={{ background: 'linear-gradient(135deg,#FFF8F0,#FFE8D0)', borderColor: '#FFD0A0' }}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-xs font-bold" style={{ color: '#8a7a6a' }}>내 포인트 <span style={{ color: '#B0B0B0' }}>(1P = 1원)</span></div>
+                {points && <div className="text-[10.5px]" style={{ color: '#9CA3AF' }}>누적 {points.total_earned.toLocaleString()}P</div>}
+              </div>
+              <div className="text-2xl font-extrabold" style={{ color: '#C45A00' }}>{(points?.balance ?? 0).toLocaleString()} <span className="text-sm">P</span></div>
+              <div className="text-[11px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a' }}>끼니를 기록할 때마다 <strong style={{ color: '#C45A00' }}>+50P</strong> 쌓여요 · 모아서 <strong>앱 구독료</strong>나 <strong>골고루 키트</strong> 결제에 쓸 수 있어요</div>
+              {ledger.length > 0 && (
+                <details className="mt-2.5">
+                  <summary className="text-[11px] font-bold cursor-pointer" style={{ color: '#9CA3AF' }}>적립·사용 내역 {ledger.length}건 ▾</summary>
+                  <div className="mt-1.5 space-y-1">
+                    {ledger.map((l, i) => (
+                      <div key={i} className="flex justify-between text-[11px]" style={{ color: '#6B7280' }}>
+                        <span>{l.kind === 'meal_input' ? '끼니 기록' : l.kind === 'daycare_menu_bonus' ? '식단표 보너스' : l.kind === 'redeem_kit' ? '키트 구매' : l.kind}{l.meta?.date ? ` · ${l.meta.date}` : ''}</span>
+                        <span style={{ color: l.amount > 0 ? '#16A085' : '#C62828', fontWeight: 700 }}>{l.amount > 0 ? '+' : ''}{l.amount}P</span>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
+            </div>
+
+            {/* 포인트 모으는 방법 */}
+            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
+              <div className="text-xs font-bold mb-2.5" style={{ color: '#8a7a6a' }}>🪙 포인트 모으는 방법 <span style={{ color: '#B0B0B0' }}>· 1P=1원, 키트·구독에 사용</span></div>
+              {[
+                { ic: '🍽', t: '끼니 기록', p: '+50P', d: '매 끼니 · 하루 5끼까지', on: true },
+                { ic: '📋', t: '식단표 등록', p: '+1,000P', d: '어린이집 식단표 사진 업로드(월 1회)', on: true },
+                { ic: '👥', t: '친구 가입', p: '+4,900P', d: <>친구가 <strong style={{ color: '#D6453D' }}>아이 첫 끼니를 입력</strong>하면 적립 · 많이 모으면 계속 무료</>, on: true },
+              ].map((x, i) => (
+                <div key={i} className="flex items-center gap-2.5 py-1.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
+                  <span className="text-base shrink-0">{x.ic}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12.5px] font-bold" style={{ color: '#1a2b4a' }}>{x.t} <span style={{ color: '#16A085' }}>{x.p}</span></div>
+                    <div className="text-[10.5px] leading-snug" style={{ color: '#9CA3AF' }}>{x.d}</div>
+                  </div>
+                  <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={x.on ? { background: '#EAF6F0', color: '#16A085' } : { background: '#F4F4F5', color: '#B0B0B0' }}>{x.on ? '가능' : '준비 중'}</span>
+                </div>
+              ))}
+              <div className="text-[10.5px] mt-2.5 pt-2.5" style={{ color: '#8a7a6a', borderTop: '1px solid #F5F0EA' }}>💡 친구 초대 링크는 아래 <strong>친구 초대</strong> 카드에 있어요. 많이 초대할수록 계속 무료!</div>
+            </div>
+
+            {/* 친구 초대 — 가입+첫 기록 시 +4,900P */}
             {ref && (
               <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF8F0', borderColor: '#FFE8D0' }}>
                 <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>친구 초대 <span style={{ color: '#16A085' }}>· 가입 시 +4,900P</span></div>
@@ -252,8 +252,6 @@ export default function MePage() {
                 </div>
               </div>
             )}
-
-            {/* 초대 카드가 아직/실패로 안 떴을 때 — 항상 무언가 보이게 + 원인 표시 */}
             {!ref && (
               <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF8F0', borderColor: '#FFE8D0' }}>
                 <div className="text-xs font-bold mb-1" style={{ color: '#8a7a6a' }}>친구 초대</div>
@@ -268,7 +266,13 @@ export default function MePage() {
               </div>
             )}
 
-            <button onClick={logout} className="w-full mt-2 py-3 rounded-xl text-sm font-bold border" style={{ borderColor: '#E5E7EB', color: '#6B7280' }}>
+            {/* ━━━━━ ③ 계정 (하단) ━━━━━ */}
+            <div className="text-[11px] font-extrabold mb-1.5 mt-4 px-1" style={{ color: '#9CA3AF' }}>⚙️ 계정</div>
+            <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#EEE' }}>
+              <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{account.isKakao ? `${nickname || '카카오 회원'}님` : account.email}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : '구글 로그인 · 부모 데이터는 카카오 계정에 있어요'}</div>
+            </div>
+            <button onClick={logout} className="w-full py-3 rounded-xl text-sm font-bold border" style={{ borderColor: '#E5E7EB', color: '#6B7280' }}>
               로그아웃
             </button>
           </>

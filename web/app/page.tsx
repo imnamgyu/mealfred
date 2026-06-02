@@ -162,9 +162,10 @@ export default function Home() {
   // ② 선택된 자녀의 전체 데이터 로드 (switcher로 selectedId 바뀌면 재실행)
   useEffect(() => {
     if (!selectedId) return;
+    let cancelled = false;   // 자녀 빠른 전환 시 옛 selectedId의 늦은 콜백이 새 자녀 상태를 덮어쓰지 않게(race 가드)
     setLoading(true);
-    fetch('/ingredients-light.json').then((r) => r.json()).then((d) => setPool(d.ingredients)).catch(() => {});
-    fetch('/kit-guide.json').then((r) => r.json()).then(setKitGuide).catch(() => {});
+    fetch('/ingredients-light.json').then((r) => r.json()).then((d) => { if (!cancelled) setPool(d.ingredients); }).catch(() => {});
+    fetch('/kit-guide.json').then((r) => r.json()).then((d) => { if (!cancelled) setKitGuide(d); }).catch(() => {});
     (async () => {
       // 풀 cat 로드 → 빗대기 영양평가용 catOf (NUTRI_MAP에 없는 식재료는 범주로 근사)
       const catMap = await fetch('/ingredients-light.json').then((r) => r.json())
@@ -178,30 +179,32 @@ export default function Home() {
         setSignupDate(user.created_at || null);   // 90일 챌린지 시작일
         supabase.from('point_balance').select('balance').eq('parent_id', user.id).maybeSingle().then(({ data: pb }) => setPointBal(pb?.balance ?? 0));
         const { data: child } = await supabase.from('children').select('id,nickname,age_band,birth_year,birth_month,chronic_conditions').eq('id', selectedId).maybeSingle();
+        if (cancelled) return;   // 그 사이 자녀가 바뀌었으면 이하 setState 전부 스킵
         if (child) {
           setChildName(child.nickname);
           setChildId(child.id);
           setChildMeta({ sex: null, birthY: child.birth_year ?? null, birthM: child.birth_month ?? null });
           // 제외 재료 — 컬럼이 아직 없을 수 있어 분리 쿼리(실패해도 메인 로드 무영향)
           supabase.from('children').select('excluded_ingredients').eq('id', child.id).maybeSingle()
-            .then(({ data }) => { if (Array.isArray(data?.excluded_ingredients)) setExcluded(data!.excluded_ingredients as string[]); });
+            .then(({ data }) => { if (!cancelled && Array.isArray(data?.excluded_ingredients)) setExcluded(data!.excluded_ingredients as string[]); });
           // 성별·체위 — 마이그레이션 전이면 컬럼/테이블이 없을 수 있어 분리 쿼리(실패해도 메인 로드 무영향)
           supabase.from('children').select('sex').eq('id', child.id).maybeSingle()
-            .then(({ data }) => { if (data?.sex) setChildMeta((m) => ({ ...m, sex: data.sex as Sex })); });
+            .then(({ data }) => { if (!cancelled && data?.sex) setChildMeta((m) => ({ ...m, sex: data.sex as Sex })); });
           supabase.from('growth_logs').select('height_cm,weight_kg,measured_on')
             .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(6)
-            .then(({ data }) => { if (data && data.length) { setGrowth(data[0]); setGrowthList(data); } });
-          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus,place').eq('child_id', child.id).gte('log_date', dates[6]).lte('log_date', dates[0]);   // 미래 날짜(미리 입력한 식단표)는 평가 제외 — '오늘까지' 먹은 것만
-          const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
+            .then(({ data }) => { if (!cancelled && data && data.length) { setGrowth(data[0]); setGrowthList(data); } });
+          const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus,place,ate_well').eq('child_id', child.id).gte('log_date', dates[6]).lte('log_date', dates[0]);   // 미래 날짜(미리 입력한 식단표)는 평가 제외 — '오늘까지' 먹은 것만
+          if (cancelled) return;
+          const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const favIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
           const homeRef: string[] = []; const daycareRef: string[] = [];   // 거부를 장소별로 분리 (코칭엔진 스펙 §3)
           const textures: string[] = []; const menuFreq: Record<string, number> = {};
           const homeByDate: Record<string, string[]> = {}; const dcByDate: Record<string, string[]> = {};   // 점수 가중(집70:기관30)용 분리
           const homeMenusByMeal: string[][] = []; const dcMenusByMeal: string[][] = [];   // 가공/반복 패널티용 — 끼니별 menus 원문(장소별)
-          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; note: string | null; texture: string | null; menus: string[] | null; place: string | null }) => {
+          (rows || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; note: string | null; texture: string | null; menus: string[] | null; place: string | null; ate_well: boolean | null }) => {
             if (!byDate[r.log_date]) byDate[r.log_date] = [];
             const dest = r.place === 'daycare' ? dcByDate : homeByDate;   // home 또는 미상 = 집(부모 통제)
             if (!dest[r.log_date]) dest[r.log_date] = [];
-            (r.ingredients || []).forEach((i) => { byDate[r.log_date].push(i); allIng.push(i); dest[r.log_date].push(i); });
+            (r.ingredients || []).forEach((i) => { byDate[r.log_date].push(i); allIng.push(i); dest[r.log_date].push(i); if (r.ate_well !== false) favIng.push(i); });   // favIng=거부 아닌 끼니 식재료(코치 브릿지 앵커)
             if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
             if (r.note) notes.push(r.note);
             if (r.texture) textures.push(r.texture);
@@ -305,6 +308,7 @@ export default function Home() {
             const srcHash = [...allIng].sort().join(',') + '|' + [...new Set(ref)].sort().join(',') + '|' + reds.sort().join(',') + '|' + notes.length;
             const { data: cached } = await supabase.from('coach_letters')
               .select('letter,oneliner,source_hash').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
+            if (cancelled) return;   // 그 사이 자녀 전환 → 편지(가장 눈에 띄는 교차오염) 스킵
             if (cached?.letter) {
               // 오늘 편지가 이미 발행됨 → 무조건 read (발행되면 그날 고정, 당일 입력으로 안 바뀜)
               setAiLetter(cached.letter);
@@ -324,7 +328,7 @@ export default function Home() {
                   homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
                   covered: fg.covered, missing: fg.missing, timeseries: ts, attendsDaycare,
                   eatenCount: new Set(allIng).size, pastLetters, chronicConditions: child.chronic_conditions,
-                  favoriteIngredients: [...new Set(allIng)],   // 그래프 푸드브릿지 앵커(서버가 사촌/궁합 계산)
+                  favoriteIngredients: [...new Set(favIng)],   // 거부 아닌(잘 먹는) 식재료만 — 그래프 사촌/궁합 앵커(거부 식재료가 앵커되지 않게)
                 }),
               }).then((r) => r.json()).catch(() => null);
               if (r?.letter) {
@@ -345,8 +349,9 @@ export default function Home() {
           }
         }
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     })();
+    return () => { cancelled = true; };   // 다음 selectedId 효과 전에 이전 로드 취소
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 
