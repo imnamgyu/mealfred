@@ -7,5 +7,9 @@
         { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
       ]
     }
+  ],
+  "redirects": [
+    { "source": "/admin.html", "destination": "https://app.mealfred.com/admin", "permanent": false },
+    { "source": "/admin", "destination": "https://app.mealfred.com/admin", "permanent": false }
   ]
 }
