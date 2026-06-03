@@ -91,8 +91,11 @@ export default function MePage() {
   }
 
   async function logout() {
-    await supabase.auth.signOut();
-    window.location.href = '/signup';
+    // scope:'local' = 서버 revoke 네트워크 호출 없이 이 브라우저 세션만 즉시 제거.
+    // 기본 'global'은 revoke가 행/실패하면 await가 안 끝나(또는 throw) 리다이렉트가 안 돼 '로그아웃 안 됨'으로 보였음.
+    try { await supabase.auth.signOut({ scope: 'local' }); } catch { /* 무시 — 아래 정리·이동은 무조건 */ }
+    try { localStorage.removeItem('mf_child'); } catch {}
+    window.location.href = '/';   // 로그아웃 후엔 홈(예시화면)으로 — /signup은 로그인 팝업을 다시 띄워 부적절
   }
 
   // 자녀별 무료 체험 상태 — 각 아이 등록(created_at)+30일. 계정 평생무료·포인트 결제분은 전체 자녀에 적용(결제 붙기 전 과도기)
@@ -132,7 +135,7 @@ export default function MePage() {
               <div className="rounded-2xl p-4 mb-3 border" style={{ background: '#FFF4E5', borderColor: '#FFD0A0' }}>
                 <div className="text-[13px] font-extrabold mb-1" style={{ color: '#C45A00' }}>⚠️ 카카오 부모 계정이 아니에요</div>
                 <div className="text-[11.5px] leading-relaxed mb-2.5" style={{ color: '#8a7a6a' }}>지금은 <strong>{account.email}</strong>(구글/관리자)로 로그인되어 있어요. 우리 아이 식단·코칭 데이터는 <strong>카카오 계정</strong>에 있어요 — 카카오로 다시 로그인하면 보여요.</div>
-                <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/signup'; }} className="rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>카카오로 다시 로그인 →</button>
+                <button onClick={async () => { try { await supabase.auth.signOut({ scope: 'local' }); } catch {} window.location.href = '/signup'; }} className="rounded-xl px-3.5 py-2 text-[12px] font-extrabold text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>카카오로 다시 로그인 →</button>
               </div>
             )}
 
