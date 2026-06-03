@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>기능 × 편식 페인포인트 매핑 — 후킹·A/B·우선순위</title>
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;line-height:1.65;}
+.wrap{max-width:1000px;margin:0 auto;padding:40px 22px 90px;}
+.back{display:inline-block;margin-bottom:20px;color:#9CA3AF;text-decoration:none;font-size:13px;font-weight:700;}
+h1{font-size:28px;font-weight:800;letter-spacing:-0.01em;margin-bottom:6px;}
+.sub{color:#8a7a6a;font-size:14px;margin-bottom:30px;}
+h2{font-size:20px;font-weight:800;margin-top:42px;margin-bottom:10px;border-left:4px solid #FF6B1A;padding-left:12px;}
+h3{font-size:15.5px;font-weight:800;margin:20px 0 6px;color:#C45A00;}
+p{font-size:14px;color:#3a4555;}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px;}
+th{background:#1a2b4a;color:#fff;padding:9px 8px;text-align:left;font-weight:700;}
+td{padding:8px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
+tr:nth-child(even) td{background:#FCF8F3;}
+.tag{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:100px;}
+.t-rec{background:#FFF0E0;color:#C45A00;} .t-diag{background:#E3F2FD;color:#1565C0;} .t-coach{background:#F3E5F5;color:#6A1B9A;}
+.t-dex{background:#E8F5E9;color:#1B5E20;} .t-grow{background:#FFF8E8;color:#8a6a2a;} .t-kit{background:#FFE0C0;color:#C45A00;} .t-loop{background:#ECEFF1;color:#546E7A;}
+.heat5{color:#C62828;font-weight:800;} .heat4{color:#EF6C00;font-weight:800;} .heat3{color:#F9A825;font-weight:700;}
+.hook{background:#FFF6EC;border:1px solid #FFD8B0;border-radius:8px;padding:7px 10px;font-size:12.5px;color:#1a2b4a;margin:5px 0;}
+.hook b{color:#C45A00;}
+.callout{border-radius:14px;padding:16px 18px;margin:16px 0;font-size:13.5px;}
+.c-rec{background:#F0FAF6;border:1.5px solid #A5D6C6;color:#1B5E20;}
+.c-warn{background:#FFF8E8;border:1.5px solid #FFE0A0;color:#8a6a2a;}
+.note{font-size:12px;color:#9a8a7a;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:720px){.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="/docs.html" class="back">← 문서 맵</a>
+<h1>🎯 기능 × 편식 페인포인트 매핑</h1>
+<div class="sub">목적 — 우리가 만든 기능을 고객(편식 부모) 입장에서 전수 쪼개 페인포인트와 n:m 매핑 → <b>페인이 큰 것부터</b> 우선순위 → 각 페인을 광고 소재로 만들어 A/B → 트랙션 오는 기능을 고도화하고 나머지는 단순화. (시장 규모 무관, 페인 강도 기준)</div>
+
+<h2>1. 우리 기능 전수 (고객이 실제로 만나는 단위)</h2>
+<table>
+<tr><th>#</th><th>기능</th><th>고객이 느끼는 가치(한 줄)</th><th>군</th></tr>
+<tr><td>1</td><td>끼니 간편 기록</td><td>먹은 거 톡 치면 끝 (흔한 건 즉시)</td><td><span class="tag t-rec">기록</span></td></tr>
+<tr><td>2</td><td>식단표 OCR 자동입력</td><td>어린이집 식단표 찍으면 자동 분석</td><td><span class="tag t-rec">기록</span></td></tr>
+<tr><td>3</td><td>'집에 있어요' 제외</td><td>이미 있는 건 키트에서 빼기</td><td><span class="tag t-rec">기록</span></td></tr>
+<tr><td>4</td><td>영양 신호등(31 KDRI)</td><td>우리 아이 뭐가 부족한지 색으로</td><td><span class="tag t-diag">진단</span></td></tr>
+<tr><td>5</td><td>식품군 다양성(8군)</td><td>골고루 먹나 한눈에</td><td><span class="tag t-diag">진단</span></td></tr>
+<tr><td>6</td><td>영양 점수</td><td>오늘 식단 몇 점?</td><td><span class="tag t-diag">진단</span></td></tr>
+<tr><td>7</td><td>결핍 → 보충 식재료 추천</td><td>철 부족? 이거 먹이세요</td><td><span class="tag t-diag">진단</span></td></tr>
+<tr><td>8</td><td>매일 코칭 편지</td><td>내 아이 맞춤 편지가 매일 옴</td><td><span class="tag t-coach">코칭</span></td></tr>
+<tr><td>9</td><td>오늘의 질문</td><td>코치가 매일 하나 물어봄</td><td><span class="tag t-coach">코칭</span></td></tr>
+<tr><td>10</td><td>거부 재노출 주기 코칭</td><td>언제 다시 줄지 알려줌</td><td><span class="tag t-coach">코칭</span></td></tr>
+<tr><td>11</td><td>만성질환 식이 코칭</td><td>변비·빈혈 등 맞춤 방향</td><td><span class="tag t-coach">코칭</span></td></tr>
+<tr><td>12</td><td>장소별(집/기관) 분리</td><td>집에선 안 먹는 걸 구분</td><td><span class="tag t-coach">코칭</span></td></tr>
+<tr><td>13</td><td>식재료 도감 204종</td><td>별등급·💎영양보석·제철</td><td><span class="tag t-dex">도감</span></td></tr>
+<tr><td>14</td><td>또래가 잘 먹는 음식</td><td>또래는 이거 잘 먹어요(급식 빈도)</td><td><span class="tag t-dex">도감</span></td></tr>
+<tr><td>15</td><td>푸드브릿지(섞기·곁들이기)</td><td>좋아하는 음식에 새 식재료 다리</td><td><span class="tag t-dex">도감</span></td></tr>
+<tr><td>16</td><td>조리 용량 가이드</td><td>이 나이엔 몇 g 주면 되나</td><td><span class="tag t-dex">도감</span></td></tr>
+<tr><td>17</td><td>레시피 연계</td><td>이 식재료로 뭐 해먹이지</td><td><span class="tag t-dex">도감</span></td></tr>
+<tr><td>18</td><td>마스터 배지</td><td>여러 형태로 먹으면 '진짜 친해짐'</td><td><span class="tag t-dex">도감</span></td></tr>
+<tr><td>19</td><td>체위·BMI·또래 비교</td><td>우리 아이 키 또래 중 몇 등</td><td><span class="tag t-grow">성장</span></td></tr>
+<tr><td>20</td><td>성장 KDRI 종합</td><td>성장에 필요한 영양 챙김</td><td><span class="tag t-grow">성장</span></td></tr>
+<tr><td>21</td><td>식단 달력 회고</td><td>한 달 뭐 먹었나 돌아보기</td><td><span class="tag t-grow">성장</span></td></tr>
+<tr><td>22</td><td>개인화 골고루 키트</td><td>분석대로 주간 맞춤 식재료 배송</td><td><span class="tag t-kit">키트</span></td></tr>
+<tr><td>23</td><td>극소량 다품종(폐기0)</td><td>한 입씩 여러 가지, 안 버림</td><td><span class="tag t-kit">키트</span></td></tr>
+<tr><td>24</td><td>제철 우선 배합</td><td>제철로 영양·신선까지</td><td><span class="tag t-kit">키트</span></td></tr>
+<tr><td>25</td><td>90일 챌린지</td><td>기록 습관 streak</td><td><span class="tag t-loop">리텐션</span></td></tr>
+<tr><td>26</td><td>포인트 적립·구독차감</td><td>기록할수록 키트·구독 할인</td><td><span class="tag t-loop">리텐션</span></td></tr>
+<tr><td>27</td><td>친구 초대(한 달 구독값)</td><td>초대하면 무료 한 달</td><td><span class="tag t-loop">리텐션</span></td></tr>
+</table>
+
+<h2>2. 페인 × 기능 매핑 — 페인 강도순 (핵심 표)</h2>
+<p class="note">강도 = 빈도(매일?) × 감정(절박?) × 미해결도. 시장 규모 무관. 후킹도 = 광고에서 즉시 "어 이거 내 얘기" 박히는 정도.</p>
+<table>
+<tr><th>순위</th><th>편식 부모 페인포인트</th><th>강도</th><th>이 페인을 때리는 기능</th><th>후킹</th></tr>
+<tr><td>1</td><td><b>매 끼니가 전쟁이다</b> — 매일 감정 소모, 안 먹어 화나고 지침</td><td class="heat5">5.0</td><td>⑧매일 코칭 편지 · ⑮푸드브릿지 · ⑨오늘의 질문 · ⑩거부 재노출 코칭</td><td class="heat5">최상</td></tr>
+<tr><td>2</td><td><b>새 음식을 주면 거부한다</b> — 시도→거부→좌절 반복</td><td class="heat5">5.0</td><td>⑮푸드브릿지 · ⑩거부 재노출 주기 · ⑱마스터 배지 · ⑭또래가 잘 먹는 음식</td><td class="heat5">최상</td></tr>
+<tr><td>3</td><td><b>뭘 먹여야 할지 모르겠다</b> — 영양 불안, 정답 없음</td><td class="heat5">4.8</td><td>④영양 신호등 · ⑦보충 식재료 · ㉒골고루 키트 · ⑭또래 음식</td><td class="heat5">최상</td></tr>
+<tr><td>4</td><td><b>흰밥만/특정 음식만 먹는다</b> — 극단 편식</td><td class="heat4">4.6</td><td>⑮푸드브릿지(밥에 섞기) · ㉒골고루 키트 · ⑰레시피</td><td class="heat5">최상</td></tr>
+<tr><td>5</td><td><b>죄책감 — 내가 잘못 키우나</b> · 우리 애만 이런가</td><td class="heat4">4.5</td><td>⑧코칭 편지(위로·"거부는 정상") · ⑭또래 비교 · ⑲또래 성장비교</td><td class="heat4">상</td></tr>
+<tr><td>6</td><td><b>뭐가 부족한지·영양제 먹여야 하나</b> — 결핍 불안</td><td class="heat4">4.3</td><td>④영양 신호등(31 KDRI) · ⑦보충 식재료 · (건기식=미래)</td><td class="heat5">최상</td></tr>
+<tr><td>7</td><td><b>또래보다 작다·안 큰다</b> — 성장 불안</td><td class="heat4">4.2</td><td>⑲체위·BMI·또래 비교 · ⑳성장 KDRI</td><td class="heat5">최상</td></tr>
+<tr><td>8</td><td><b>어린이집선 잘 먹는데 집선 안 먹는다</b></td><td class="heat3">3.6</td><td>②식단표 OCR · ⑫장소별 분리 · ⑧코칭(집/기관 분리)</td><td class="heat4">상</td></tr>
+<tr><td>9</td><td><b>매번 뭘 해먹일지 고민</b> — 메뉴 결정 피로</td><td class="heat3">3.5</td><td>㉒골고루 키트(처방) · ⑰레시피 · ⑭또래 음식</td><td class="heat3">중</td></tr>
+<tr><td>10</td><td><b>편식이 정상인가·언제 끝나나</b> — 불확실</td><td class="heat3">3.4</td><td>⑧코칭 편지 · ㉕90일 챌린지 · ⑭또래 비교</td><td class="heat3">중</td></tr>
+<tr><td>11</td><td><b>식재료 사면 다 버린다</b> — 소량 다양성 어려움</td><td class="heat3">3.2</td><td>㉓극소량 다품종 키트(폐기0)</td><td class="heat3">중</td></tr>
+<tr><td>12</td><td><b>정보가 파편적이다</b> — 맘카페·짧은 소아과</td><td class="heat3">3.0</td><td>⑬도감 · ⑧코칭 · 전체 = 단일 창구</td><td class="heat3">중</td></tr>
+</table>
+
+<h2>3. 광고 소재 A/B 후보 (페인을 카피로)</h2>
+<p class="note">상위 페인마다 2개 앵글 → A/B. 클릭·가입 트랙션 오는 앵글 = 그 기능을 후킹 헤드로 고도화.</p>
+
+<h3>페인 3 · 영양 불안 "뭘 먹여야 할지 모름" → ④영양 신호등 + ②OCR</h3>
+<div class="hook">A) <b>"우리 아이, 뭐가 부족할까?"</b> 식단 사진 한 장이면 철·비타민D 결핍이 신호등으로 보여요.</div>
+<div class="hook">B) <b>"어린이집 식단표 찍어보세요."</b> 우리 아이가 지금 뭘 못 챙기는지 3초 진단.</div>
+
+<h3>페인 1·5 · 식사전쟁·죄책감 → ⑧매일 코칭 편지</h3>
+<div class="hook">A) <b>"편식은 엄마 잘못이 아니에요."</b> 우리 아이 맞춤 코칭 편지가 매일 도착합니다.</div>
+<div class="hook">B) <b>"오늘도 흰밥만 먹었나요?"</b> 강요 없이 편식 고치는 법, 매일 한 줄씩.</div>
+
+<h3>페인 2·4 · 거부·흰밥만 → ⑮푸드브릿지</h3>
+<div class="hook">A) <b>"좋아하는 밥에 살짝 섞으면, 새 식재료도 먹어요."</b> 데이터로 찾은 우리 아이 다리.</div>
+<div class="hook">B) <b>"거부는 정상이에요. 보통 8번째 노출에 먹습니다."</b> 언제 다시 줄지 코치가 알려줘요.</div>
+
+<h3>페인 7 · 성장 불안 → ⑲또래 비교</h3>
+<div class="hook">A) <b>"우리 아이 키, 또래 100명 중 몇 등?"</b> 체위 percentile + 부족 영양까지.</div>
+<div class="hook">B) <b>"잘 안 큰다 싶을 때."</b> 성장에 진짜 필요한 영양을 우리 아이 기준으로.</div>
+
+<h3>페인 6 · 결핍·영양제 고민 → ④신호등 + (건기식)</h3>
+<div class="hook">A) <b>"영양제 먹여야 하나 고민이라면."</b> 먼저 뭐가 부족한지부터 정확히 보세요.</div>
+
+<h2>4. 결론 — 고도화 vs 단순화</h2>
+<div class="grid2">
+  <div>
+    <h3 style="color:#1B7A3D;">🚀 고도화 우선 (페인 큰 + 후킹 강)</h3>
+    <table>
+      <tr><th>기능</th><th>이유</th></tr>
+      <tr><td>④ 영양 신호등 + ② OCR</td><td>페인3·6 직격 · "사진 한 장 진단" = 즉시 후킹·데모</td></tr>
+      <tr><td>⑮ 푸드브릿지</td><td>페인2·4 = 편식의 핵심. 진짜 해결책</td></tr>
+      <tr><td>⑧ 매일 코칭 편지</td><td>페인1·5 정서 락인. 단 데이터 선행 필요</td></tr>
+      <tr><td>⑲ 또래 성장 비교</td><td>페인7 강함 · "몇 등?" 후킹 강력</td></tr>
+      <tr><td>㉒ 골고루 키트</td><td>페인3·9·11 + 매출/락인(box-led wedge)</td></tr>
+    </table>
+  </div>
+  <div>
+    <h3 style="color:#9a8a7a;">🪶 단순화·후순위 (페인 작거나 중복)</h3>
+    <table>
+      <tr><th>기능</th><th>이유</th></tr>
+      <tr><td>⑥ 영양 점수</td><td>④신호등과 중복 — 신호등에 흡수</td></tr>
+      <tr><td>⑱ 마스터 배지 · ㉑달력 회고</td><td>가치는 있으나 후킹 약함(리텐션용)</td></tr>
+      <tr><td>⑪ 만성질환 · ⑫미입력 권유</td><td>소수·롱테일 — 깊이는 두되 전면 X</td></tr>
+      <tr><td>㉕ 90일 챌린지</td><td>후킹 아님 = 획득 아닌 리텐션 도구</td></tr>
+      <tr><td>⑯ 조리 용량 · ⑰레시피</td><td>보조 가치 — 신호등/브릿지 뒤에</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="callout c-rec" style="margin-top:24px;">✅ <b>실행</b> — 상위 5개 후킹 기능을 각 2앵글 광고로 A/B(메타·인스타) → 가입 전환 1·2위 앵글의 기능을 첫 화면·온보딩 전면에 올리고 고도화, 하위는 메뉴 깊숙이로 단순화. 트랙션 = 다음 라운드 "앱 수요 증거"(YC 오피스아워 과제와 동일).</div>
+<div class="callout c-warn">⚠️ 강도·후킹 점수는 1차 가설(내부 판단). A/B 클릭·전환이 진짜 정답지 — 숫자가 순위를 다시 쓴다. 페인 강도는 육아맘 인터뷰 5명으로 빠르게 보정 권장.</div>
+<p class="note" style="margin-top:18px;">작성 2026-06-03 · 기능 27 × 페인 12 매핑 · 우선순위=페인 강도. 광고 A/B → 트랙션 기반 고도화/단순화 루프.</p>
+</div>
+</body>
+</html>
