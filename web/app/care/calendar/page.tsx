@@ -57,7 +57,7 @@ export default function MealCalendar() {
   const totalMeals = Object.values(byDate).reduce((a, rs) => a + rs.length, 0);
 
   return (
-    <main className="max-w-md mx-auto min-h-screen flex flex-col pb-20" style={{ background: '#FFFDFB' }}>
+    <main className="max-w-md mx-auto min-h-screen flex flex-col" style={{ background: '#FFFDFB' }}>
       <header className="px-5 pt-6 pb-3 border-b" style={{ borderColor: '#FFE8D0' }}>
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-extrabold" style={{ color: '#1a2b4a' }}>📅 식단 달력</h1>
@@ -92,20 +92,40 @@ export default function MealCalendar() {
           const isFuture = ds > todayKst;
           const hasHome = rows.some((r) => r.place !== 'daycare');
           return (
-            <Link key={ds} href={`/care?date=${ds}`} className="rounded-lg p-1 min-h-[58px] flex flex-col"
+            <Link key={ds} href={`/care?date=${ds}`} className="rounded-lg p-1.5 min-h-[74px] flex flex-col"
               style={{ background: isToday ? '#FFF5EB' : rows.length ? '#FFFFFF' : '#FAFAF7', border: `1px solid ${isToday ? '#FFB870' : rows.length ? '#FFE8D0' : '#F0F0F0'}`, opacity: isFuture ? 0.45 : 1 }}>
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-extrabold" style={{ color: isToday ? '#C45A00' : '#374151' }}>{d}</span>
+                <span className="text-[12px] font-extrabold" style={{ color: isToday ? '#C45A00' : '#374151' }}>{d}</span>
                 {rows.length > 0 && <span className="text-[8px] font-bold px-1 rounded-full" style={{ background: hasHome ? '#EAF6F0' : '#EEF2FB', color: hasHome ? '#16A085' : '#5B8DEF' }}>{rows.length}</span>}
               </div>
               <div className="flex-1 overflow-hidden mt-0.5">
-                {menus.slice(0, 3).map((mn, k) => <div key={k} className="text-[8.5px] leading-tight truncate" style={{ color: '#6B7280' }}>{mn}</div>)}
-                {menus.length > 3 && <div className="text-[8px]" style={{ color: '#B0B0B0' }}>+{menus.length - 3}</div>}
+                {menus.slice(0, 3).map((mn, k) => <div key={k} className="text-[9.5px] leading-tight truncate" style={{ color: '#6B7280' }}>{mn}</div>)}
+                {menus.length > 3 && <div className="text-[8.5px]" style={{ color: '#B0B0B0' }}>+{menus.length - 3}</div>}
               </div>
             </Link>
           );
         })}
       </div>
+
+      {/* 이번 달 먹은 메뉴 — 날짜별 풀 메뉴(달력 셀이 좁아 안 보이던 것 해소) */}
+      {!loading && loggedDays > 0 && (
+        <div className="px-4 mt-5">
+          <div className="text-[12px] font-extrabold mb-2" style={{ color: '#8a7a6a' }}>📋 날짜별 먹은 메뉴</div>
+          {Object.entries(byDate).sort((a, b) => b[0].localeCompare(a[0])).map(([ds, rows]) => {
+            const menus = [...new Set(rows.flatMap((r) => r.menus || []))];
+            if (!menus.length) return null;
+            const [, mm, dd] = ds.split('-');
+            return (
+              <Link key={ds} href={`/care?date=${ds}`} className="flex gap-3 py-2.5" style={{ borderBottom: '1px solid #F5EFE7' }}>
+                <div className="text-[12.5px] font-extrabold flex-shrink-0 w-10" style={{ color: '#C45A00' }}>{Number(mm)}/{Number(dd)}</div>
+                <div className="flex-1 flex flex-wrap gap-1">
+                  {menus.map((mn, k) => <span key={k} className="text-[11.5px] px-2 py-0.5 rounded-full" style={{ background: '#FFF5EB', color: '#5a4a3a' }}>{mn}</span>)}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
 
       {!loading && loggedDays === 0 && (
         <div className="text-center mt-8 px-8">
@@ -115,6 +135,7 @@ export default function MealCalendar() {
       )}
       {loading && <div className="text-center mt-8 text-xs" style={{ color: '#9CA3AF' }}>불러오는 중…</div>}
 
+      <div className="flex-1" />
       <BottomNav active="/care" />
     </main>
   );

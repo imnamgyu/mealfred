@@ -389,7 +389,9 @@ export default function CarePage() {
   }
 
   function addIngredient(raw: string) {
-    const nm = normalizeIngredient(raw);   // 소세지→소시지, 멥쌀→쌀 등 대표어로 정규화 후 저장
+    const t = (raw || '').trim();
+    if (/\s/.test(t) || t.length > 14) return;   // 식재료는 단어 1개 — 공백 있거나 과하게 길면 문장(다른 입력창 오입력) → 거부
+    const nm = normalizeIngredient(t);   // 소세지→소시지, 멥쌀→쌀 등 대표어로 정규화 후 저장
     if (!nm || hasName(nm)) return;
     const onlyMenu = entry.menus.length === 1 ? entry.menus[0].replace(/\s/g, '') : null;
     const newTag: Tag = { name: nm, ai: false, fromMenu: onlyMenu || undefined };
@@ -512,10 +514,19 @@ export default function CarePage() {
   }
 
   async function saveEntry() {
-    // 남긴 음식(refused)이 '들어간 식재료'에 없으면 자동 추가 — 부모가 실수로 빼먹었을 수 있음
+    // 세션 흔들림 방어 — userId가 잠깐 비어도(로그인인데 상태 미반영) DB 대신 guest로 새지 않게 저장 직전 재확인
+    let uid = userId;
+    if (!uid) { const { data: { user } } = await supabase.auth.getUser(); uid = user?.id || null; if (uid) setUserId(uid); }
+
+    // 남긴 음식(refused)이 '들어간 식재료'에 없으면 자동 추가 — 부모가 실수로 빼먹었을 수 있음.
+    // 단 문장(공백 포함·과길이)은 식재료가 아니므로 추가하지 않는다(다른 입력창 오입력 방지).
     let e = entry;
     if (entry.refused?.trim()) {
-      const refItems = [...new Set(entry.refused.split(/[,，·]/).map((s) => normalizeIngredient(s.trim())).filter(Boolean))];
+      const refItems = [...new Set(
+        entry.refused.split(/[,，·]/).map((s) => s.trim())
+          .filter((s) => s && !/\s/.test(s) && s.length <= 8)   // 단어 1개·짧음 = 식재료. 문장은 제외
+          .map((s) => normalizeIngredient(s)).filter(Boolean),
+      )];
       const have = new Set(entry.ingredients.map((t) => t.name));
       const add = refItems.filter((nm) => !have.has(nm)).map((nm) => ({ name: nm, ai: true }));
       if (add.length) { e = { ...entry, ingredients: [...entry.ingredients, ...add] }; setEntry(e); }
@@ -524,13 +535,13 @@ export default function CarePage() {
     if (!next[date]) next[date] = {};
     next[date][activeSlot] = e;
     setLogs(next);
-    if (!userId) saveCareLogs(next, null);   // 비로그인(guest)만 디스크 캐시 — 로그인은 메모리(setLogs)+server가 진실(아래 upsert)
+    if (!uid) saveCareLogs(next, null);   // 비로그인(guest)만 디스크 캐시 — 로그인은 메모리(setLogs)+server가 진실(아래 upsert)
 
     // 로그인 + 자녀 있으면 Supabase 동기화 — 저장 중 진행바 노출(서버 왕복 동안)
-    if (userId && childId) {
+    if (uid && childId) {
       setSaving(true);
       const { error } = await supabase.from('meal_logs')
-        .upsert(entryToRow(e, childId, userId, date, activeSlot), { onConflict: 'child_id,log_date,slot' });
+        .upsert(entryToRow(e, childId, uid, date, activeSlot), { onConflict: 'child_id,log_date,slot' });
       if (error) console.warn('[care] save error:', error.message);
       setSaving(false);
       setSaved(true);
