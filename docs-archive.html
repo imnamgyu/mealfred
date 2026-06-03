@@ -57,21 +57,28 @@
 
 <!-- 전략·제안 (지난) -->
 <section class="cat-section">
-  <div class="cat-head"><h3>📍 전략 · 제안 (지난)</h3><span class="cnt">3 문서</span></div>
+  <div class="cat-head"><h3>📍 전략 · 제안 (지난)</h3><span class="cnt">4 문서</span></div>
   <div class="doc-grid">
     <a href="/proposal.html" class="doc-card cat-strategy">
       <span class="badge deprecated">DEPRECATED</span>
       <div class="ico">💡</div>
       <h4>프로젝트 제안서 v2</h4>
-      <p class="desc">비전·시장·페르소나·5 솔루션·BM 4트랙. <b>'평생 무료' 전제 → 현행 roadmap·viral-rewards-v3가 대체</b></p>
+      <p class="desc">비전·시장·페르소나·5 솔루션·BM 4트랙. <b>'평생 무료' 전제 → 현행 roadmap·marketing-strategy가 대체</b></p>
       <div class="meta"><span>→ roadmap</span><span class="arrow">→</span></div>
     </a>
     <a href="/growth-strategy.html" class="doc-card cat-strategy">
       <span class="badge deprecated">DEPRECATED</span>
       <div class="ico">📈</div>
       <h4>성장 전략 (출사표·운영)</h4>
-      <p class="desc">GTM·기능 열림 순서·funnel·B2B. <b>바이럴 룰렛·친구초대 양방향은 폐기 → viral-rewards-v3 단일 진실</b></p>
-      <div class="meta"><span>→ viral-rewards-v3</span><span class="arrow">→</span></div>
+      <p class="desc">GTM·기능 열림 순서·funnel·B2B. <b>바이럴 룰렛·친구초대 양방향은 폐기 → marketing-strategy 정본이 흡수</b></p>
+      <div class="meta"><span>→ marketing-strategy</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/viral-rewards-v3.html" class="doc-card cat-strategy">
+      <span class="badge deprecated">DEPRECATED</span>
+      <div class="ico">🎁</div>
+      <h4>리워드·바이럴 엔진 v3</h4>
+      <p class="desc">월 4,900·첫 달 무료·끼니 +50P·친구 가입 +4,900P. <b>리워드 모델은 marketing-strategy(정본)로 통합</b></p>
+      <div class="meta"><span>→ marketing-strategy</span><span class="arrow">→</span></div>
     </a>
     <a href="/box-proposal.html" class="doc-card cat-strategy">
       <span class="badge deprecated">DEPRECATED</span>
@@ -102,7 +109,7 @@
   <div class="cat-head"><h3>📋 PRD · 명세 (지난)</h3><span class="cnt">3 문서</span></div>
   <div class="doc-grid">
     <a href="/dex-prd.html" class="doc-card cat-prd"><span class="badge done">✅ 라이브로 구현</span><div class="ico">🗂</div><h4>식재료 도감 PRD + IA</h4><p class="desc">23 FR·5 페이지·6 API. 도감 라이브로 구현 완료</p><div class="meta"><span>도감 LIVE</span><span class="arrow">→</span></div></a>
-    <a href="/viral-engine-prd.html" class="doc-card cat-prd"><span class="badge deprecated">DEPRECATED</span><div class="ico">🎁</div><h4>바이럴 엔진 PRD (v2)</h4><p class="desc">친구초대·룰렛 폐기 → viral-rewards-v3 단일 진실</p><div class="meta"><span>→ v3</span><span class="arrow">→</span></div></a>
+    <a href="/viral-engine-prd.html" class="doc-card cat-prd"><span class="badge deprecated">DEPRECATED</span><div class="ico">🎁</div><h4>바이럴 엔진 PRD (v2)</h4><p class="desc">친구초대·룰렛 폐기 → marketing-strategy 정본</p><div class="meta"><span>→ marketing-strategy</span><span class="arrow">→</span></div></a>
     <a href="/test-scenarios.html" class="doc-card cat-prd"><span class="badge deprecated">참고</span><div class="ico">🧪</div><h4>테스트 시나리오 132 케이스</h4><p class="desc">런칭 전 QA 풀(평가·추천·OCR·코치·보안·성능). 참고용</p><div class="meta"><span>132 CASES</span><span class="arrow">→</span></div></a>
   </div>
 </section>
@@ -136,9 +143,9 @@
     <div class="doc-card cat-data">
       <span class="badge data">DATA</span>
       <div class="ico">🥕</div>
-      <h4>132 식재료 풀 (도감·자동완성)</h4>
-      <p class="desc">레시피에서 추출 → 정규화 → 노이즈 정리(147→132) → 18 카테고리 → <b>2축 등급</b>(⭐급식 빈도 + 💎영양 보석). <code style="font-size:10px">data_ingredient_pool_enriched.json · must-eat.json</code></p>
-      <div class="meta"><span>18 CATEGORIES</span></div>
+      <h4>204 식재료 도감 (도감·자동완성)</h4>
+      <p class="desc">레시피·NEIS 급식에서 추출 → 정규화 → 발굴·검증 확장(132→181→204) → <b>2축 등급</b>(⭐급식 빈도 + 💎영양 보석) · 제철 · 궁합 네트워크. <code style="font-size:10px">ingredients-light.json · must-eat.json · food-graph.json</code></p>
+      <div class="meta"><span>204 종 · 8 식품군</span></div>
     </div>
     <div class="doc-card cat-data">
       <span class="badge data">DATA</span>
@@ -147,6 +154,13 @@
       <p class="desc">1·2·3권 본권 + 국문/영문 요약본 + 정오표. 연령대별(만 1-2/3-5/6-8세) 영양소 RNI/AI. <code style="font-size:10px">01_참고자료/A_정부지침서/KDRI_2025/</code></p>
       <div class="meta"><span>31 NUTRIENTS</span></div>
     </div>
+    <a href="/cost-sheet.html" class="doc-card cat-data">
+      <span class="badge deprecated">DEPRECATED</span>
+      <div class="ico">📑</div>
+      <h4>편식개선키트 원가율표 V2 (v1 자료)</h4>
+      <p class="desc">교육 키트 9코스×5주 식재료 단위 원가·마진 시트(xlsx 링크). <b>v1 이전 자료</b> — 과거 원가 감사용 참고.</p>
+      <div class="meta"><span>원가 · 참고</span><span class="arrow">→</span></div>
+    </a>
   </div>
 </section>
 
@@ -177,6 +191,14 @@
       <li>코칭: 13 시나리오 로테이션 · 만성질환 6종 · 정밀 재노출 · 계정 격리 버그 수정</li>
       <li>영양: KDRI 연령대 분기(만1-2/3-5/6-8) · 신호등 차등 엄격화 · 농진청 영양맵 재생성(164종)</li>
       <li>문서: 런칭 전 설계도·제안서·데모 25종 deprecated → 아카이브, docs.html은 현행만 표시</li>
+    </ul>
+  </div>
+  <div class="changelog">
+    <h4>2026-06-03 — 도감 204 · 간식 엔진 · 문서 정본화</h4>
+    <ul>
+      <li>도감 +38종(166→204): 발굴·검증 워크플로 + 농진청 영양·제철·등급 · 궁합 네트워크(589 페어)</li>
+      <li>코칭: 🍪 간식 평가 엔진 추가 — 초가공 모니터링·BMI 칼로리 방향·식사 간섭성·좋은 간식 추천(코칭편지에 통합)</li>
+      <li>문서 정본화: 투자=ir.html에 피치덱 통합 · 마케팅=marketing-strategy 단일 진실(성장전략·바이럴 PRD·리워드 v3 흡수) · 엔진=coaching-scenarios에 간식 엔진 명세 추가</li>
     </ul>
   </div>
 </section>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 도감 커뮤니티 — 리서치 & 설계 (정본)</title>
+<meta property="og:title" content="밀프레드 도감 커뮤니티 — 리서치 & 설계">
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;line-height:1.75;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:920px;margin:0 auto;padding:0 22px;}
+section{padding:52px 0;border-bottom:1px solid #F0E8E0;}
+.label{font-size:11px;font-weight:800;letter-spacing:0.12em;color:#C45A00;text-transform:uppercase;margin-bottom:10px;}
+h1{font-size:clamp(27px,5vw,42px);font-weight:800;letter-spacing:-0.02em;line-height:1.2;}
+h2{font-size:clamp(20px,3.4vw,28px);font-weight:800;letter-spacing:-0.01em;margin-bottom:12px;}
+h3{font-size:16px;font-weight:800;margin:18px 0 6px;color:#C45A00;}
+p{font-size:15px;color:#3a4555;}
+.lede{font-size:16.5px;color:#2a3545;margin:12px 0;}
+.lede strong,p strong{color:#1a2b4a;font-weight:800;}
+.cover{background:linear-gradient(160deg,#1a2b4a 0%,#243a5e 55%,#16A085 230%);color:#fff;padding:68px 0 56px;border:none;}
+.cover .badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:0.1em;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);padding:6px 13px;border-radius:100px;margin-bottom:20px;}
+.cover h1{color:#fff;}.cover h1 .o{color:#7FE3C7;}
+.cover .sub{font-size:16.5px;color:rgba(255,255,255,0.85);margin-top:14px;max-width:720px;line-height:1.7;}
+.back{display:inline-block;margin-bottom:14px;color:rgba(255,255,255,0.7);text-decoration:none;font-size:12.5px;font-weight:700;}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:14px 0;}
+.asset{background:#fff;border:1.5px solid #E8DFD4;border-radius:12px;padding:15px 17px;}
+.asset .v{font-size:19px;font-weight:800;color:#C45A00;}
+.asset .l{font-size:12.5px;color:#5a6575;font-weight:700;}
+.callout{border-radius:14px;padding:16px 19px;margin:16px 0;}
+.c-key{background:linear-gradient(135deg,#FFF4E5,#FFEAD5);border:1.5px solid #FFCB8A;}
+.c-key .t{font-size:13px;font-weight:800;color:#C45A00;margin-bottom:6px;}
+.c-warn{background:#FFF3F3;border:1.5px solid #F5B5B5;}
+.c-warn .t{font-size:13px;font-weight:800;color:#C62828;margin-bottom:6px;}
+.c-moat{background:#F0FAF6;border:1.5px solid #A5D6C6;}
+.c-moat .t{font-size:13px;font-weight:800;color:#1B7A3D;margin-bottom:6px;}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:#1a2b4a;color:#fff;padding:9px;text-align:left;font-weight:700;}
+td{padding:8px 9px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
+tr:nth-child(even) td{background:#FCF8F3;}
+.up{color:#1B7A3D;font-weight:800;}.dead{color:#9a8a7a;text-decoration:line-through;}
+ul.clean{list-style:none;margin:10px 0;}
+ul.clean li{font-size:14px;color:#3a4555;margin:8px 0;padding-left:20px;position:relative;}
+ul.clean li::before{content:'';position:absolute;left:0;top:0.62em;width:8px;height:8px;border-radius:2px;background:#16A085;}
+.loop{display:flex;gap:13px;align-items:flex-start;background:#fff;border:1.5px solid #E8DFD4;border-left:5px solid #16A085;border-radius:12px;padding:14px 16px;margin:11px 0;}
+.loop .n{font-size:22px;font-weight:800;color:#16A085;min-width:30px;}
+.loop h4{margin:0 0 3px;font-size:15px;color:#1a2b4a;}
+.loop p{font-size:13px;color:#5a6575;}
+.note{font-size:12.5px;color:#9a8a7a;}
+.phase{border-left:3px solid #FFB877;padding:4px 0 4px 14px;margin:12px 0;}
+.phase b{color:#C45A00;}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="wrap">
+    <a href="/docs.html" class="back">← 문서 허브</a>
+    <div class="badge">커뮤니티 리서치 & 설계 · 2026-06-03</div>
+    <h1>도감 식재료별 <span class="o">엄마 노하우 커뮤니티</span></h1>
+    <div class="sub">엄마들이 식재료마다 편식 극복 노하우·레시피를 공유하는 커뮤니티. 8개 에이전트가 쿡패드·만개의레시피·오늘의집·Solid Starts·무신사 등 성공 사례를 조사하고, 보상 경제성까지 적대 검증했습니다. <b style="color:#7FE3C7;">핵심: 포인트는 3등 동기 — '자랑'과 '반응'이 진짜 엔진.</b></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">TL;DR · 한 줄 결론</div>
+    <h2>'올리면 +500P'가 아니라, '내 노하우로 N명이 성공했다'가 엔진</h2>
+    <div class="callout c-key">
+      <div class="t">5가지 핵심 통찰 (성공 사례 공통)</div>
+      <ul class="clean" style="margin:4px 0 0;">
+        <li><b>'해봤어요' 리포트 루프가 핵심</b> — 쿡패드 츠쿠레포처럼, 따라 한 엄마가 결과(우리 애도 먹었어요+사진)를 원작자에게 되돌려준다. 한 번에 ①작성자 인정 ②열람자 신뢰 ③커뮤니티 검증. 편식은 '먹었다/안 먹었다'가 명확해 가장 강력.</li>
+        <li><b>포인트는 3등 동기</b>(오늘의집 데이터: 자아표출 50.6% &gt; 소통 47.1% &gt; 혜택 31%) — +500P는 마중물일 뿐, 진짜 엔진은 '우리 애가 드디어 먹었어요' 자랑 + 좋아요·감사 반응.</li>
+        <li><b>완성/실증 사진이 텍스트보다 강하다</b> — '아이가 먹는 사진/빈 그릇'이 다른 엄마에게 '진짜 통했다'는 증거.</li>
+        <li><b>등록 마찰 0이 규모를 만든다</b> — 엄마는 말하듯 쓰고 <b>매핑엔진이 식재료를 자동 태깅</b>(만개 AI 영상추출의 밀프레드판) → 올바른 도감 페이지로 자동 분류.</li>
+        <li><b>비공개→공개 2단</b>(NYT 노트) — 기존 care 일지 '나만 보기' 메모를 공개 노하우로 승격 → 빈 도감 콜드스타트 해소.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">Benchmark · 벤치마크 Top 5</div>
+    <h2>가장 적합한 산업 사례 + '베낄 것'</h2>
+    <p class="note">적합도 기준: ① 식재료/도감 단위 IA와 맞는가 ② '우리 애가 먹었다' 명확한 성공 정의를 살리는가 ③ 보유 자산(매핑엔진·포인트·meal_logs·궁합그래프)과 맞물리는가.</p>
+    <table>
+      <tr><th style="width:20%">서비스</th><th style="width:36%">무엇 / 왜 성공</th><th>밀프레드가 베낄 것</th></tr>
+      <tr><td><b>① Cookpad 츠쿠레포</b><br><span class="note">일본·세계 최대, 트래픽 82% 검색</span></td><td>'따라 만든 사람이 결과 사진+한 줄을 원작자에게 보내는' 양방향 리포트 = 별점이 아닌 '선물'. 츠쿠레포 1000 = 명예의 전당 → 외부 바이럴.</td><td><b>'저도 해봤어요' 리포트</b>를 원작 엄마에게 되돌리는 양방향 루프. +1P 좋아요보다 큰 보상감.</td></tr>
+      <tr><td><b>② 오늘의집</b><br><span class="note">한국 UGC→커머스 교과서, MAU 568만</span></td><td>콘텐츠 동기를 데이터로 규명(자랑·반응이 1·2위). 사진 속 '태그→상품', '스크랩=장바구니'로 콘텐츠→커머스 끊김 없음.</td><td>노하우 글=집들이, 식재료 상세=집. <b>글 속 식재료 태그→골고루 키트 구매</b>까지 직결. 첫 글 마중물로 부트스트랩.</td></tr>
+      <tr><td><b>③ Solid Starts</b><br><span class="note">글로벌 이유식 First Foods DB</span></td><td>전문가 검증 + '실제 아기가 먹는 영상'. 식재료 단위로 원자화 → '오늘 당근 줘도 될까?' 검색 의도와 정확히 일치.</td><td>도감과 IA가 거의 동일. <b>또래 엄마 UGC 사진</b>으로 전문가 영상 대체 + 궁합그래프를 flavor pairing 자리에.</td></tr>
+      <tr><td><b>④ 편식 부모 FB그룹</b><br><span class="note">Mealtime Hostage 등</span></td><td>편식은 죄책감 주제 — 톤 한 줄이 엄마를 떠나게 한다.</td><td><b>'판단·강압·몰래숨기기·비교·판매 금지'</b>를 작성 폼 가이드와 규칙에 못박기.</td></tr>
+      <tr><td><b>⑤ 무신사 후기 + 올리브영 2단 리뷰</b><br><span class="note">한국 적립형 UGC 표준</span></td><td><b>구매 확정 후에만</b> 적립 · 포토/일반 차등 · 신고 블라인드 · 부정 회수. '올리면 무조건'을 안 쓴다.</td><td>meal_logs 교차=무신사 '구매 확정'. <b>포맷별 차등 보상</b> + 신고 블라인드 + 고액 사후검수.</td></tr>
+    </table>
+    <div class="callout c-warn"><div class="t">반면교사</div><b>Yummly</b>(2024 종료) — 커뮤니티가 추천엔진 부속이라 '왜 올리나'가 약했다. 개인화는 거들 뿐 <b>'영유아 편식'이라는 좁고 감정적인 정체성이 본체</b>여야 한다. <b>맘카페 공구</b> — 판매가 커뮤니티를 잠식 → '엄마끼리 판매·뒷광고 금지' 선 긋기.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Feature · 기능 설계</div>
+    <h2>식재료 상세페이지에 '엄마들의 노하우' 섹션</h2>
+    <p class="lede">기존 <code>/foods/[식재료]</code> 5단(또래👶·맞춤🧩·조리📐·레시피🍳·SOS) <strong>아래에 6번째 섹션</strong>을 신설. 식재료 페이지가 곧 커뮤니티의 둥지·코호트 경계·SEO 랜딩 3역을 동시에.</p>
+    <ul class="clean">
+      <li><b>🏆 집계 배지</b> — 'N명의 엄마가 이 방법으로 OO를 먹였어요'(meal_logs 교차 검증 성공 카운트). 빈 도감엔 운영자 질문 씨앗.</li>
+      <li><b>노하우 카드 피드</b> — {닉네임+따뜻함 배지 / 성향·연령 태그 / 한 줄 노하우 / 사진(선택) / 좋아요·저장·'해봤어요' 카운트}. 기본 정렬 '도움된 순', 탭으로 최신/또래(내 아이 월령±)/성공률.</li>
+      <li><b>'해봤어요' 버튼</b> — 1탭 진입로(글쓰기보다 낮은 문턱). 결과 사진+한 줄을 원작 엄마에게 리포트(츠쿠레포 핵심).</li>
+      <li><b>좋아요·저장</b> — 좋아요=호혜 신호, 저장=‘우리 애한테 해볼 목록’(키트 장바구니 역할).</li>
+      <li><b>궁합 힌트 자동 노출</b> — 궁합그래프의 사촌·잘 맞는 음식을 '엄마들이 자주 섞은 음식'으로(작성 마중물).</li>
+      <li><b>하단 키트 동선</b> — '이 식재료가 든 골고루 키트로 받기'(콘텐츠→커머스).</li>
+    </ul>
+
+    <h3>저마찰 작성 폼 — 1분 작성 (우리가 만들 UI)</h3>
+    <p>핵심: <strong>엄마는 말하듯 쓰고, 매핑엔진이 구조화한다.</strong> 빈 표를 칸칸이 채우지 않게.</p>
+    <table>
+      <tr><th>Step</th><th>필드</th><th>UI</th></tr>
+      <tr><td>0 진입</td><td>식재료 자동 연결</td><td>도감에서 진입 시 해당 식재료 프리필(빈 페이지 불안 제거)</td></tr>
+      <tr><td>1 (필수·유일)</td><td>한 줄 노하우</td><td>식재료별 맞춤 플레이스홀더("이 시금치, 어떻게 하니 잘 먹었나요?"). 입력하면 <b>매핑엔진이 식재료를 칩으로 추출</b> → '맞아요/빼기' 1탭(전부 안 묻고 저신뢰만 확인)</td></tr>
+      <tr><td>2 (선택·권장)</td><td>사진</td><td>'아이가 먹는/빈 그릇' 1장. 본인 촬영 동의 체크. 첨부 시 보너스 포인트</td></tr>
+      <tr><td>3 (선택·타이핑 0)</td><td>빠른 태그</td><td>연령대(care 월령 자동)·아이 성향(예민/새것거부…)·방법유형(숨기기/곁들이기/모양바꾸기/도전=푸드체이닝 정합)·난이도·소요시간 — 모두 칩 토글</td></tr>
+      <tr><td>4 (접힘·9%만)</td><td>시도 카드/단계</td><td>'+ 더 쓰기'로 단계 추가. 분량 정량 강제 금지('한 입','한 큰술' 허용)</td></tr>
+    </table>
+    <p class="note">보조 진입로: 음성 입력→받아쓰기→매핑 / 반찬 사진 OCR(기존 care OCR 재사용)로 초안 자동 생성. 공통: 초안 자동저장·공개/비공개 토글(공개 전환 시 보상 트리거)·작성 주체(자녀) 명확 표기.</p>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">Growth · 후킹·성장 루프</div>
+    <h2>커뮤니티가 사람을 끌어오는 5개 루프</h2>
+    <div class="loop"><div class="n">1</div><div><h4>UGC → 도감 롱테일 SEO → 신규 유입 (자가증식)</h4><p>'당근 안 먹는 아이' 검색 → <code>/foods/당근</code> 노하우 20개로 랜딩. 매핑엔진 자동 태깅이 본문→도감 내부링크를 공짜로 생성. 쿡패드 82%·만개 대부분이 오가닉 검색 = 광고비 0 유입.</p></div></div>
+    <div class="loop"><div class="n">2</div><div><h4>'해봤어요' 양방향 리포트 (작성 동기 엔진)</h4><p>다른 엄마가 내 노하우로 '우리 애도 먹었어요(사진)' → 원작자에게 'N명 엄마·M명 아이 성공' 알림(+1P보다 강한 도파민) → 두 번째 글. 90% 관망자를 9% 기여자로 끌어올리는 1탭 사다리.</p></div></div>
+    <div class="loop"><div class="n">3</div><div><h4>공유 카드 → 외부 바이럴 → 신규 가입</h4><p>'우리 아이 OO 편식 극복기' 자랑 카드를 OG 이미지로(기존 OG 자산 재사용) → 카톡·인스타 자발 공유. '편식 졸업' 마일스톤 = 가장 자랑하고 싶은 순간.</p></div></div>
+    <div class="loop"><div class="n">4</div><div><h4>식재료별 명예·랭킹 (독식 없는 게임화)</h4><p>전체 1위는 소수 독식하지만 <b>204종 × 각 1위 = 수백 명의 'OO 마스터 엄마'</b>(Strava 세그먼트 쪼개기). '당근 박사'·'따뜻함 N도'(당근 매너온도식 비경쟁 배지). 다운보트·전체경쟁 없음(육아맘 위축 방지).</p></div></div>
+    <div class="loop"><div class="n">5</div><div><h4>콘텐츠 → 커머스 + 코치 PICK (삼각 순환)</h4><p>글 식재료 태그→골고루 키트 직결, 저장=장바구니. <b>'코치 PICK' 배지</b>(영양 신호등·궁합그래프 검증) + 코칭 편지에 '다른 엄마는 이렇게 했어요' 주입 → 도감↔코칭↔커뮤니티 삼각 순환.</p></div></div>
+    <p class="note">보조: care 일지→공개 노하우 승격(콜드스타트), 월간 제철 식재료 챌린지(도감 빈칸을 계획적으로 채움).</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Reward · 보상 & 어뷰징 (적대 검증 반영)</div>
+    <h2>'+500/글 균일·+1P 좋아요 무제한'은 위험 → 이렇게 보강</h2>
+    <div class="callout c-warn"><div class="t">⚠️ 적대 검증 결론 (이사님 안 보강 권장)</div><b>부채 위험의 80%는 좋아요(+1P)에 있다</b> — 글은 1개=1분이지만 좋아요는 1초에 1원, 자동화 시 시간당 3,600원. 글당 +500P 균일도 "당근을 볶음밥에 넣었어요"(내용 0·식재료 2개)가 게이트를 통과해 양산된다. → <b>포맷별 차등 + 좋아요 3중 캡</b>으로 보강. 단 포인트가 현금환전 불가·우리 제품 전용이라 최악도 '키트 마진 잠식'에 그침.</div>
+    <h3>포인트 구조 (포맷 차등 — 균일 +500 폐기)</h3>
+    <table>
+      <tr><th>행동</th><th>포인트</th><th>조건</th></tr>
+      <tr><td>텍스트 노하우(식재료 1+ 추출)</td><td class="up">+200P</td><td>15자+·중복 아님</td></tr>
+      <tr><td>사진 포함 노하우</td><td class="up">+500P</td><td>본인 촬영 사진 1+</td></tr>
+      <tr><td>거부→수용 과정 + 사진</td><td class="up">+1,000P</td><td>선지급 후 어뷰징 시 회수</td></tr>
+      <tr><td>'해봤어요' 인증(사진+한 줄)</td><td class="up">+100P</td><td>1탭 진입 보상</td></tr>
+      <tr><td>후속 글(2주 경과·재시도)</td><td class="up">+300P</td><td>동일 식재료 재시도</td></tr>
+      <tr><td><b>받은 좋아요</b></td><td class="up">+1P/개</td><td><b>글당 상위 50개·신뢰계정 발신만</b></td></tr>
+      <tr><td>첫 글 온보딩</td><td class="up">+500P</td><td>1회·콜드스타트 마중물</td></tr>
+    </table>
+    <p class="note">실패·재시도 글도 동등 보상(실패담이 더 값진 데이터·도감 정직성). 지급은 즉시·투명('시원하게'), 고액 +1,000P만 사후 검수·회수.</p>
+    <h3>게이트 · 한도 · farming 차단</h3>
+    <div class="grid2">
+      <div class="asset"><div class="v">글</div><div class="l">일 3건 · <b>식재료당 1인 1글</b> · 식재료 0개 추출 보류 · 직전 7일 유사도&lt;0.6 · <b>meal_logs 미기록자 50% 감액</b></div></div>
+      <div class="asset"><div class="v">좋아요</div><div class="l">셀프 무효 · 상호(품앗이) 무효 · 글당 상위 50개만 · 수령 일 50P 캡 · 발신자 가입 7일+ &amp; meal_logs 7끼니+</div></div>
+      <div class="asset"><div class="v">다계정</div><div class="l">포인트 계정 간 이전 불가(1차 방어) + referral farming 방어 로직 재사용(디바이스·IP군 상호보상 0)</div></div>
+      <div class="asset"><div class="v">글로벌 천장</div><div class="l">월 발행 = <b>매출 × 15%</b>, 80% 도달 시 보상률 자동 감쇠 + 알림 · 포인트 유효기간 12개월</div></div>
+    </div>
+    <div class="callout c-moat"><div class="t">단위경제 (활성 1,000명·중립)</div>월 발행 ≈ 78만P. 현금환전 불가라 소진 시 키트·구독 <b>매출과 상계</b> → 소진율 30%·키트 마진 40% 가정 시 <b>실질 비용 ≈ 월 14만원</b>(CAC 1인 수천~수만원 대비 압도적). 구독 1개월(4,900P)에 글 약 14건 필요.</div>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">Safety & Legal · 모더레이션·법무</div>
+    <h2>영유아 식이 = 알레르기·질식·영양 위험</h2>
+    <ul class="clean">
+      <li><b>위험 키워드 가드</b> — '꿀'(돌 전)·생우유·통견과·통포도 등 질식/알레르기 조리법 탐지 → 자동 경고·보류(코칭 안전 가드 재사용). <b>'해봤어요' 경로에도 동일 가드 복제</b>(위험한 시도 인증 차단).</li>
+      <li><b>영양/안전 자동 배지</b> — KDRI 신호등·매핑엔진으로 'OO에 도움/주의' 자동 표시(카더라 격하 방지).</li>
+      <li><b>품질 모더레이션</b> — 식재료 0개·중복·15자 미만 자동 비노출 · 신고 누적 자동 블라인드(올리브영식) · 톤 규칙 강제(비난·비교·강압·숨기기·판매 금지).</li>
+      <li><b>저작권·라이선스</b> — 본인 촬영 사진만(퍼옴 방지) · UGC 비독점 라이선스(저작권은 작성자) · 작성자/운영자 삭제권 · 지급 포인트는 어뷰징 외 회수 안 함.</li>
+    </ul>
+    <div class="callout c-warn"><div class="t">⚠️ 한국 법무 3종 (출시 차단 리스크 — 약관 반영 필수)</div>
+      <b>① 아동 개인정보</b>(개인정보보호법): 아이 사진·월령·건강·체위 결합 → 민감정보 별도 동의·공개 범위 고지, <b>아이 얼굴 디폴트 비공개/모자이크 권장</b>(기존 OG 얼굴가림 패턴 재사용). · <b>② 적립금(전자상거래법)</b>: 유효기간·소멸 고지·잔여 처리 약관 명시(공정위 적립금 가이드). · <b>③ 뒷광고(표시광고 심사지침)</b>: '포인트 받고 작성된 후기' 표시 + 키트 구매 동선과 보상 글 경계 명확, '코치 PICK'이 광고로 오인되지 않게.
+      <br><span class="note">→ 이미 만든 <a href="https://app.mealfred.com/terms" style="color:#C45A00;font-weight:700;">/terms</a>·<a href="https://app.mealfred.com/privacy" style="color:#C45A00;font-weight:700;">/privacy</a>에 UGC 라이선스·민감정보 조항 반영됨. 적립금 유효기간·뒷광고 표시는 출시 전 추가 확정.</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Rollout · 단계적 출시 + 측정</div>
+    <h2>유령 마을을 피하는 순서</h2>
+    <div class="phase"><b>Phase 0 — 콜드스타트 사전 채움 (오픈 전 필수)</b><p>90-9-1 법칙상 빈 도감=유령 마을. 인기 식재료 20~30종에 각 2~3개 시드: ① 블로그 357편 재활용 ② 또래 레시피·매핑된 식단 데이터 ③ 베타 엄마 글. 나머지엔 '질문 씨앗'. <b>식재료당 글 3개 미만이면 그 도감엔 커뮤니티 섹션 미노출</b>(빈 섹션이 더 나쁨).</p></div>
+    <div class="phase"><b>Phase 1 — MVP (좁은 활성 섬)</b><p>인기 식재료 한정. 한 줄 폼(매핑 자동칩)·사진(선택)·좋아요·저장·차등 지급(200/500P)·자동 품질 게이트·위험 키워드 가드·신고. care 일지→공개 승격. 목표=작성률·좋아요율 검증.</p></div>
+    <div class="phase"><b>Phase 2 — 양방향 루프 + 검증 + 게임화</b><p>'해봤어요'(+100P·원작자 알림)·meal_logs 검증 배지·식재료별 명예 배지/마스터·집계 랭킹·후속 글(+300P).</p></div>
+    <div class="phase"><b>Phase 3 — 커머스·바이럴·코칭 통합</b><p>식재료 태그→키트 동선·저장=장바구니·공유 카드(OG)·코치 PICK·코칭 편지 노하우 주입·월간 제철 챌린지·음성/OCR 보조.</p></div>
+    <div class="phase"><b>Phase 4 — 확장·자산화</b><p>전 204종·'편식 극복 기록집'(미니 포토북)·그룹 챌린지·SEO 풀가동·세대 순환(졸업 엄마 노하우 남기기).</p></div>
+    <div class="callout c-key"><div class="t">북극성·가드레일 지표 (go/kill 판단)</div>작성 전환율(도감 방문→글) · 글당 평균 좋아요·'해봤어요'율 · 식재료 커버리지(204종 중 글 1+ %) · 노하우→키트/구독 전환 · <b>포인트 발행/소진비</b>. <b>Phase1 kill 조건</b>: 시드 제외 자연 작성률·재방문이 임계 미만이면 확장 중단(어드민 펀넬 코호트에 커뮤니티 퍼널 추가).</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Adversarial · 적대 검수가 잡은 치명적 3</div>
+    <h2>출시 전 반드시 막을 것</h2>
+    <div class="grid2">
+      <div class="asset"><div class="v">① 매핑 칩 실패 폴백</div><div class="l">"우리 앤 그거 안 먹어서…"처럼 식재료명 없는 글=칩 0개→보류 위험. 핵심 동선 단일장애점. → 진입 시 프리필로 최소 1개 보장 + '직접 식재료 고르기' 폴백 + 실패 시 비동기 야간 백필(선입력 후 보정 원칙).</div></div>
+      <div class="asset"><div class="v">② '해봤어요' 정서 역효과</div><div class="l">'실패' 리포트가 원작자에게 가면 도파민 루프가 죄책감 루프로 뒤집힘(편식=비교 금기). → 실패는 '아직요'로 리프레임, 원작자엔 <b>성공·재시도만 긍정 집계</b>(실패는 데이터로만).</div></div>
+      <div class="asset"><div class="v">③ 한국 법무 3종</div><div class="l">아동 개인정보·적립금 약관·뒷광고 = 출시 차단 리스크. → 위 §법무. 아이 얼굴 디폴트 비공개.</div></div>
+    </div>
+    <p class="note">그 외(중·하): 사람 모더레이션 큐·고액 선지급 후 회수 / 글 시간부패·푸드체이닝 철학 정렬(숨기기가 영구 1위 되지 않게) / 개인화 알림 트리거(거부 식재료 새 노하우·기록 직후 인라인 카드) / 측정 지표·노출 게이트.</p>
+    <a href="/docs.html" class="back" style="color:#9a8a7a;">← 문서 허브로</a>
+  </div>
+</section>
+
+</body>
+</html>

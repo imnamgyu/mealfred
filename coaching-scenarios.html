@@ -219,6 +219,17 @@ td{padding:8px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
 <p>시나리오가 '오늘의 각도'를 정한다면, 이건 그 위에 얹는 <b>부드러운 PS 한 줄</b>이다(각도를 뺏지 않음). 아직 안 넣은 프로필을 <b>돌아가며 하나씩</b>, 입력 시 기대효과와 함께 권유한다. <span class="note">2026-06-02 추가.</span></p>
 <div class="callout c-rec"><b>대상</b> — ① <b>체위</b>(키·몸무게·성별 미입력 → 또래 성장곡선·BMI를 봐드림) ② <b>만성질환</b>(미입력 → 변비·아토피·장트러블 등 맞춤 식이 방향 반영). <b>빈도</b> — 다그치지 않게 자녀별 <b>약 4일에 1번</b>, 여러 개면 날짜별 로테이션(<code>(dayIndex+childHash)%4===0</code> 발동 · 미입력 목록을 날짜로 회전해 하나씩). <b>중첩 방지</b> — 기록 공백(P9) 권유가 뜨는 날엔 안 띄움(권유는 한 편지에 하나만). <b>배선</b> — <code>cron/coach</code>가 <code>profileNudge</code> 1개를 결정 → <code>coach.ts</code>가 편지 <b>맨 끝 한 줄</b>로만 자연스럽게 녹임(없으면 언급 금지·강요/죄책감 금지). 식사방식 등 새 항목은 별도 필드 신설 시 같은 틀에 추가.</div>
 
+<h2>3-2. 간식 평가 엔진 (Snack Evaluation) — 끼니와 분리한 별도 엔진</h2>
+<p>식사 영양 신호등·다양성 점수가 '끼니'를 보는 동안, 간식은 <b>별도 엔진(<code>lib/snack.ts</code>)</b>이 따로 본다. 간식 슬롯(오전간식·오후간식)만 떼어 4축으로 평가하고, 결과를 <b>코칭편지에 한 부분으로 합쳐</b> 말한다(별도 화면 없음). <span class="note">2026-06-03 추가.</span></p>
+<div class="flow"><div class="b">🍪 초가공 모니터링</div><span class="ar">+</span><div class="b">🍎 좋은 간식 추천(음식과 별개)</div><span class="ar">+</span><div class="b">⚖️ 칼로리 관점(BMI stance)</div><span class="ar">+</span><div class="b">⏱️ 식사 간섭성</div></div>
+<div class="callout c-rec"><b>4축 로직</b> —
+<b>① 초가공 모니터링</b>: 간식 항목을 <code>classifySnackItem</code>으로 분류(가당음료→초가공/가공육→좋은 통식품→중립 우선순위, <code>nutrition.isProcessed</code> 재사용). 과자·사탕·초콜릿·아이스크림·가당음료 빈도를 끼니와 무관하게 집계 — 부모가 가장 놓치기 쉬운 곳.
+<b>② 좋은 간식 추천</b>: '음식(끼니) 식재료 추천'과 <b>별개 개념</b>으로 통식품 간식(과일·플레인 유제품·삶은 계란·고구마 등)을 제안. 부족 영양소(Eval의 reds)로 편향(칼슘↓→치즈·요거트, 식이섬유↓→사과·고구마 등).
+<b>③ 칼로리 관점(BMI stance)</b>: 또래 대비 체격 밴드(<code>growth-reference.bmiBand</code>: 저체중/정상/과체중/비만)로 방향을 정한다 — 저체중=<b>encourage</b>(영양 밀도 높은 간식으로 든든하게), 정상=<b>maintain</b>(통식품 위주 유지), 과체중·비만=<b>reduce</b>(초가공·가당음료를 좋은 간식으로 교체·포만감). 영양 다양성만 보지 않고 칼로리 관점에서 더/덜을 본다.
+<b>④ 식사 간섭성</b>: 같은 날 간식 직후(≤2.5시간) 시작한 끼니를 <b>덜 먹었으면</b>(ate_well=false) 간섭으로 표시(<code>meal_time</code>(시) 없으면 슬롯 기본 시각). Satter 식사 구조화 — 식간 군것질·단 음료가 다음 끼니 식욕을 밀어낸다.</div>
+<div class="callout c-rec"><b>배선</b> — <code>cron/coach</code>가 자녀별로 <code>bmiBandFor(meta)</code>(children 키·몸무게·성별·생년월 스냅샷)로 밴드를 구하고 <code>evaluateSnacks({rows, band, reds})</code> → <code>snackEvalToPrompt()</code>가 편지용 한 블록 문자열(<code>snackEval</code>)을 만든다 → <code>coach.ts</code> <code>buildLetterUser</code>가 가드 블록과 함께 프롬프트에 주입(없거나 신호 없으면 생략). 어드민 검증용으로 <code>coach_letters.context.snack</code>에 요약을 남긴다. 온디맨드 <code>/api/coach</code>는 클라가 <code>snackEval</code>을 보내면 통과(주 경로는 새벽 크론).</div>
+<div class="callout c-warn">⚠️ <b>가드레일</b> — (1) <b>체중·살·다이어트·BMI 단어를 부모 문구에 노출 금지</b>(유아 체중은 민감). stance는 '방향'일 뿐, 과체중도 "과자·단 음료를 좋은 간식으로 바꾸기", 저체중도 "영양 든든한 간식으로"처럼만. (2) 다그치지 말 것 — 신호가 있을 때만(<code>concern</code>) 편지에 싣고, 간식이 양호하면 침묵. (3) <b>질식 안전</b>: 작고 단단한 추천 간식은 조리 표시를 함께 둔다 — 방울토마토(반으로 잘라)·당근(익혀·강판)·견과(잘게). 편지가 통째 표현으로 바꾸지 않도록 프롬프트에서 보존 지시. (4) 좋은 간식 추천은 음식(끼니) 추천과 섞지 않는다. (5) 진단·처방 금지(코치는 의사가 아님).</div>
+
 <h2>4. 35개 이론 근거</h2>
 <p class="note">워크플로가 6개 클러스터에서 수집한 <b>32개</b> 이론. 각 시나리오의 코칭 무브는 아래 이론들에 근거합니다.</p>
   <table><tr><th style="width:22%">이론</th><th style="width:42%">핵심 원리</th><th>근거</th></tr>
