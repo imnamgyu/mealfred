@@ -103,6 +103,13 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   // ── /mealfred-food-mapping 실데이터 튜닝 반영 ──
   '피자': { ing: ['빵','치즈','토마토'], processed: true }, '떡갈비': { ing: ['소고기','양파','대파'] },
   '탕평채': { ing: ['소고기','숙주나물','계란','김'] },
+  // ── 2026-06-03 실데이터 튜닝(pull-menus 무매핑 · 캐논 검증 워크플로) ──
+  '시래기국': { ing: ['무시래기'] }, '시레깃국': { ing: ['무시래기'] },   // 도감 표준명='무시래기'(시래기 단독은 비캐논)
+  '미숫가루': { ing: ['잡곡','콩'] }, '미싯가루': { ing: ['잡곡','콩'] },   // ing≥2 → 부분일치('우리농미숫가루') 잡힘
+  '핑거마들렌': { ing: ['밀','계란'], processed: true }, '마들렌': { ing: ['밀','계란'], processed: true },   // 구움과자(밀·계란)
+  '삼색초무침': { ing: ['당근','오이','양배추'] },   // 삼색=당근(주황)·오이(초록)·양배추(흰)
+  // 과자·가당음료·건어물: 캐논 식재료 없음 → '가공'으로만 인식(엄마 교정도 []·환각 방지)
+  '상투과자': { ing: [], processed: true }, '매실주스': { ing: [], processed: true }, '쥐포채무침': { ing: [], processed: true },
   '햄': { ing: ['햄'], processed: true }, '핫도그': { ing: ['소시지','빵'], processed: true },
   // ── 가공식품 베이스 사전 (Phase1) — 사전에 없으면 LLM 직행하던 한정 품목. 결정론 보강·환각 차단 ──
   '소시지': { ing: ['소시지'], processed: true }, '비엔나': { ing: ['소시지'], processed: true }, '비엔나소시지': { ing: ['소시지'], processed: true },
