@@ -172,6 +172,9 @@ export default function FoodsDex() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-sm.png" alt="" width={26} height={26} style={{ borderRadius: 7 }} />
           <h1 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>도감</h1>
+          {pool.length > 0 && (
+            <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#FFF0E0', color: '#C45A00' }}>식재료 {pool.length}종</span>
+          )}
         </div>
       </header>
 
