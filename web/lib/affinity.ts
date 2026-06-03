@@ -27,19 +27,24 @@ async function llmNeighbors(food: string): Promise<{ nm: string; kind: 'pair' | 
     `- bridge(사촌): 맛·식감이 닮아 "${food}"를 잘 먹으면 받아들이기 쉬운 식재료 1~2개.\n` +
     `반드시 아래 도감 어휘에서만 고르고, "${food}" 자신은 제외. 억지로 안 어울리는 건 넣지 마라.\n` +
     `[도감 어휘] ${VOCAB.join(', ')}\n\n` +
-    `JSON만: {"neighbors":[{"nm":"…","kind":"pair","basis":"한 줄 근거"}]}`;
+    `JSON만(basis는 12자 이내로 짧게): {"neighbors":[{"nm":"…","kind":"pair","basis":"짧은 근거"}]}`;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 400, messages: [{ role: 'user', content: prompt }] }),
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 800, messages: [{ role: 'user', content: prompt }] }),
     });
     if (!res.ok) return [];
     const data = await res.json();
     const text: string = data?.content?.[0]?.text || '';
-    const m = text.match(/\{[\s\S]*\}/);
-    const obj = m ? JSON.parse(m[0]) : {};
-    return Array.isArray(obj.neighbors) ? obj.neighbors : [];
+    try {
+      const m = text.match(/\{[\s\S]*\}/);
+      const obj = m ? JSON.parse(m[0]) : {};
+      if (Array.isArray(obj.neighbors) && obj.neighbors.length) return obj.neighbors;
+    } catch { /* 잘린 JSON → 아래에서 객체 단위 복구 */ }
+    // 응답이 truncate돼 전체 JSON.parse 실패 시: 완성된 {nm,kind,basis} 객체만 회수
+    const objs = text.match(/\{[^{}]*"nm"[^{}]*\}/g) || [];
+    return objs.map((o) => { try { return JSON.parse(o); } catch { return null; } }).filter(Boolean);
   } catch { return []; }
 }
 
