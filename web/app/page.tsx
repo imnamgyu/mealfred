@@ -295,8 +295,15 @@ export default function Home() {
           // 물·국·김 등은 경고 의미 없어 제외, 흰쌀밥은 '편식'이 아니라 주식이라 너그럽게(잡곡·콩 업그레이드 제안)
           const SKIP_REPEAT = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉', '김치', '배추김치', '깍두기', '총각김치', '백김치', '열무김치', '나박김치', '물김치', '갓김치', '파김치', '오이소박이']);   // 밥·김치는 한국 주식 — 반복 너그럽게
           const WHITE_RICE = new Set(['밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥']);
-          const top = Object.entries(menuFreq).filter(([k]) => !SKIP_REPEAT.has(k)).sort((a, b) => b[1] - a[1])[0];
-          if (top && top[1] >= 3) setRepeatInsight({ menu: top[0], count: top[1], rice: WHITE_RICE.has(top[0]) });
+          // 이미 잡곡·콩을 섞고 있으면 흰쌀 잔소리 멈춤(매일 같은 말 방지) — 그 땐 다른 반복 메뉴를 보여준다
+          const alreadyMixes = allIng.some((i) => /현미|보리|귀리|흑미|잡곡|수수|기장|^조$|검은콩|렌틸|완두|대두|강낭콩|병아리콩|팥|퀴노아|아마란스|메밀/.test(i))
+            || Object.keys(menuFreq).some((m) => /현미|보리|귀리|흑미|잡곡|콩밥|수수밥|기장밥/.test(m));
+          const ranked = Object.entries(menuFreq).filter(([k]) => !SKIP_REPEAT.has(k)).sort((a, b) => b[1] - a[1]);
+          const riceTop = ranked.find(([k]) => WHITE_RICE.has(k));
+          const nonRiceTop = ranked.find(([k]) => !WHITE_RICE.has(k));
+          if (riceTop && riceTop[1] >= 3 && !alreadyMixes) setRepeatInsight({ menu: riceTop[0], count: riceTop[1], rice: true });   // 흰쌀만 먹음 → 잡곡 권유
+          else if (nonRiceTop && nonRiceTop[1] >= 3) setRepeatInsight({ menu: nonRiceTop[0], count: nonRiceTop[1], rice: false });   // 다른 메뉴 반복(소시지 등)
+          else setRepeatInsight(null);   // 이미 잘 섞고 있고 다른 반복도 없으면 잔소리 안 함
 
           // 3일 이상 기록 → 코치 편지 캐싱: 식단 지문(hash) 같으면 read, 바뀌면 1회 재생성
           if (byDay.length >= 3) {
@@ -782,13 +789,17 @@ export default function Home() {
         )}
 
         {/* 메뉴 반복 인사이트 — 실데이터(3회+ 반복) or 목업. 흰쌀밥은 주식이라 경고 대신 잡곡·콩 업그레이드 제안 */}
-        {!isMockup && repeatInsight?.rice ? (
+        {!isMockup && repeatInsight?.rice ? (() => {
+          const grains = ['현미', '보리', '귀리', '검은콩', '렌틸콩', '완두', '흑미', '퀴노아'];
+          const g = grains[Number(kstToday().slice(8, 10)) % grains.length];   // 날마다 다른 곡물 — 같은 말 반복 방지
+          return (
           <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #16A085' }}>
-            <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#1B5E20' }}>🍚 밥은 매일 먹는 주식이죠 (잘 하고 계세요)</div>
-            <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>흰쌀에 잡곡·콩을 살짝 섞어볼까요?</div>
-            <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>밥은 줄일 필요 없어요. 흰쌀 한 줌에 <strong>현미·보리·귀리·검은콩·렌틸·완두</strong> 중 하나만 섞어도 식이섬유·단백질이 더해지고 새로운 맛 노출이 됩니다. 처음엔 1/4만 섞어 색·식감에 천천히 적응시켜요.</div>
+            <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#1B5E20' }}>🍚 밥, 잘 챙기고 계세요</div>
+            <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>오늘은 흰쌀에 <strong>{g}</strong>를 한 줌 섞어볼까요?</div>
+            <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>밥은 줄일 필요 없어요. 흰쌀 한 줌에 <strong>{g}</strong> 하나만 섞어도 식이섬유·단백질이 더해지고 새로운 맛 노출이 돼요. 처음엔 1/4만 섞어 색·식감에 천천히 적응시켜요.</div>
           </div>
-        ) : ((!isMockup && repeatInsight) || isMockup) && (
+          );
+        })() : ((!isMockup && repeatInsight) || isMockup) && (
           <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #5B8DEF' }}>
             <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#1565C0' }}>🔁 메뉴 반복 — {isMockup ? '닭죽 5회' : `${repeatInsight?.menu} ${repeatInsight?.count}회`}</div>
             <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>한 주 동안 비슷한 메뉴가 자주 나왔어요</div>
