@@ -56,7 +56,7 @@
   src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
 }
 
-html{ -webkit-text-size-adjust: 100%; }
+html{ -webkit-text-size-adjust: 100%; overflow-x: hidden; }   /* body만으론 iOS Safari 첫 로드 줌이 안 잡혀 html에도 — 가로 넘침 차단 */
 body{
   background: var(--bg-page);
   color: var(--navy);

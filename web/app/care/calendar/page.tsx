@@ -19,6 +19,7 @@ export default function MealCalendar() {
   const [month, setMonth] = useState(() => kstToday().slice(0, 7));   // 'YYYY-MM'
   const [byDate, setByDate] = useState<Record<string, Row[]>>({});
   const [loading, setLoading] = useState(true);
+  const [showFuture, setShowFuture] = useState(false);   // 미래 식단표(미리입력분) 접기 — 어제·최근 기록을 가리지 않게
 
   useEffect(() => {
     (async () => {
@@ -113,19 +114,39 @@ export default function MealCalendar() {
       {!loading && loggedDays > 0 && (
         <div className="px-4 mt-5">
           <div className="text-[12px] font-extrabold mb-2" style={{ color: '#8a7a6a' }}>📋 날짜별 먹은 메뉴</div>
-          {Object.entries(byDate).sort((a, b) => b[0].localeCompare(a[0])).map(([ds, rows]) => {
-            const menus = [...new Set(rows.flatMap((r) => r.menus || []))];
-            if (!menus.length) return null;
-            const [, mm, dd] = ds.split('-');
+          {(() => {
+            const entries = Object.entries(byDate).sort((a, b) => b[0].localeCompare(a[0]));
+            const renderRow = ([ds, rows]: [string, Row[]]) => {
+              const menus = [...new Set(rows.flatMap((r) => r.menus || []))];
+              if (!menus.length) return null;
+              const [, mm, dd] = ds.split('-');
+              const future = ds > todayKst;
+              return (
+                <Link key={ds} href={`/care?date=${ds}`} className="flex gap-3 py-2.5" style={{ borderBottom: '1px solid #F5EFE7', opacity: future ? 0.8 : 1 }}>
+                  <div className="text-[12.5px] font-extrabold flex-shrink-0 w-10" style={{ color: future ? '#9CA3AF' : '#C45A00' }}>{Number(mm)}/{Number(dd)}</div>
+                  <div className="flex-1 flex flex-wrap gap-1">
+                    {menus.map((mn, k) => <span key={k} className="text-[11.5px] px-2 py-0.5 rounded-full" style={{ background: '#FFF5EB', color: '#5a4a3a' }}>{mn}</span>)}
+                  </div>
+                </Link>
+              );
+            };
+            const past = entries.filter(([ds]) => ds <= todayKst);     // 오늘·과거 = 실제 회고(최신 먼저)
+            const future = entries.filter(([ds]) => ds > todayKst);    // 미래 = 미리 입력한 식단표 → 접어둠
             return (
-              <Link key={ds} href={`/care?date=${ds}`} className="flex gap-3 py-2.5" style={{ borderBottom: '1px solid #F5EFE7' }}>
-                <div className="text-[12.5px] font-extrabold flex-shrink-0 w-10" style={{ color: '#C45A00' }}>{Number(mm)}/{Number(dd)}</div>
-                <div className="flex-1 flex flex-wrap gap-1">
-                  {menus.map((mn, k) => <span key={k} className="text-[11.5px] px-2 py-0.5 rounded-full" style={{ background: '#FFF5EB', color: '#5a4a3a' }}>{mn}</span>)}
-                </div>
-              </Link>
+              <>
+                {past.map(renderRow)}
+                {future.length > 0 && (
+                  <div className="mt-2">
+                    <button onClick={() => setShowFuture((v) => !v)} className="w-full flex items-center justify-center gap-1.5 py-2.5 text-[12px] font-extrabold rounded-xl" style={{ background: '#FAFAF7', color: '#8a7a6a', border: '1px solid #EFE7DC' }}>
+                      📅 앞으로의 식단표 {future.length}일분 {showFuture ? '접기 ▲' : '펼치기 ▾'}
+                    </button>
+                    {showFuture && <div className="mt-1">{future.map(renderRow)}</div>}
+                  </div>
+                )}
+                {past.length === 0 && future.length === 0 && null}
+              </>
             );
-          })}
+          })()}
         </div>
       )}
 

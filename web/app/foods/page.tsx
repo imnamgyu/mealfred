@@ -250,8 +250,8 @@ export default function FoodsDex() {
                   <FoodIcon nm={p.nm} em={p.em || '🍽'} cat={p.cat} px={42} />
                   {s.eat > 0 && <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[9px] font-extrabold text-white px-1.5 py-0.5 rounded-full" style={{ background: '#1a2b4a' }}>{s.eat}회</span>}
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-1.5 mb-0.5">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
                     <span className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{p.nm}</span>
                     <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded" style={{ background: gc.bg, color: gc.fg }}>{g.full}</span>
                     {p.must_eat && <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-orange-100 text-orange-700">💎 {p.must_eat_nutrient}</span>}
