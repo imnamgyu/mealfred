@@ -13,7 +13,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 
 type Neighbor = { nm: string; kind: 'pair' | 'bridge'; strength: number; basis: string; count?: number };
 type Anchor = Neighbor & { freq: number };
-type State = { loggedIn: boolean; childName: string; anchors: Anchor[]; alreadyAte: boolean };
+type State = { loggedIn: boolean; childName: string; anchors: Anchor[]; alreadyAte: boolean; neighbors: Neighbor[] };
 
 export default function PersonalBridge({ ingredient, neighbors }: { ingredient: string; neighbors: Neighbor[] }) {
   const [s, setS] = useState<State | null>(null);
@@ -21,13 +21,19 @@ export default function PersonalBridge({ ingredient, neighbors }: { ingredient: 
 
   useEffect(() => {
     (async () => {
+      // Phase B 폴백 — 빌드타임 정적 이웃이 비면 LLM 폴백(/api/affinity)으로 채운다(궁합은 비개인화라 로그인 무관)
+      let eff: Neighbor[] = neighbors;
+      if (eff.length === 0) {
+        eff = await fetch(`/api/affinity?food=${encodeURIComponent(ingredient)}`)
+          .then((r) => r.json()).then((d) => (d.neighbors || []) as Neighbor[]).catch(() => []);
+      }
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setS({ loggedIn: false, childName: '', anchors: [], alreadyAte: false }); return; }
+      if (!user) { setS({ loggedIn: false, childName: '', anchors: [], alreadyAte: false, neighbors: eff }); return; }
       const sel = localStorage.getItem('mf_child');
       let q = supabase.from('children').select('id,nickname').eq('parent_id', user.id);
       if (sel) q = q.eq('id', sel);
       const { data: child } = await q.limit(1).maybeSingle();
-      if (!child) { setS({ loggedIn: false, childName: '', anchors: [], alreadyAte: false }); return; }
+      if (!child) { setS({ loggedIn: false, childName: '', anchors: [], alreadyAte: false, neighbors: eff }); return; }
       const { data: rows } = await supabase.from('meal_logs').select('ingredients,ate_well').eq('child_id', child.id).limit(500);
       // 아이가 잘 먹는(거부 아닌) 식재료 빈도
       const likedFreq: Record<string, number> = {};
@@ -38,14 +44,14 @@ export default function PersonalBridge({ ingredient, neighbors }: { ingredient: 
         if (r.ate_well === false) continue;
         ings.forEach((i) => { const t = (i || '').trim(); if (t) likedFreq[t] = (likedFreq[t] || 0) + 1; });
       }
-      // 이 식재료와 그래프로 연결된 이웃 중, 아이가 실제로 잘 먹는 것만 = 앵커
-      const anchors: Anchor[] = neighbors
+      // 이 식재료와 그래프로 연결된 이웃 중, 아이가 실제로 잘 먹는 것만 = 앵커 (정적+폴백 합친 eff 사용)
+      const anchors: Anchor[] = eff
         .filter((n) => n.nm !== ingredient && (likedFreq[n.nm] || 0) > 0)
         .map((n) => ({ ...n, freq: likedFreq[n.nm] }))
         // 아이가 많이 먹는 앵커 먼저 → 같은 빈도면 닮음(bridge) 먼저 → strength
         .sort((a, b) => (b.freq - a.freq) || (a.kind === b.kind ? b.strength - a.strength : (a.kind === 'bridge' ? -1 : 1)))
         .slice(0, 3);
-      setS({ loggedIn: true, childName: child.nickname || '우리 아이', anchors, alreadyAte });
+      setS({ loggedIn: true, childName: child.nickname || '우리 아이', anchors, alreadyAte, neighbors: eff });
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ingredient, neighbors]);   // neighbors는 SSG prop(페이지당 고정)이지만, 바뀌면 앵커 재계산되게
@@ -67,7 +73,7 @@ export default function PersonalBridge({ ingredient, neighbors }: { ingredient: 
 
   // 연결된 앵커가 없으면 — 일반 궁합(이웃)만 살짝 안내(절대 엉뚱하게 잇지 않음)
   if (anchors.length === 0) {
-    const generic = neighbors.slice(0, 3).map((n) => n.nm);
+    const generic = s.neighbors.slice(0, 3).map((n) => n.nm);
     return (
       <section className="rounded-2xl p-4 mb-3" style={{ background: '#F0FAF6', border: '1.5px solid #A5D6C6' }}>
         <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1B5E20' }}>🧩 {childName} 맞춤 푸드 브릿지</h2>

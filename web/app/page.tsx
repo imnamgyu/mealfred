@@ -613,7 +613,7 @@ export default function Home() {
         {/* 최근 식단 진단 + 미기록 환기 — 코치 편지 바로 아래(엄마가 매일 읽는 자리) */}
         <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
           <div className="flex items-center justify-between mb-2">
-            <strong className="text-sm" style={{ color: '#1a2b4a' }}>📊 최근 {isMockup ? 3 : days}일 식단 진단</strong>
+            <a href="/care/calendar" className="text-sm font-bold flex items-center gap-1.5" style={{ color: '#1a2b4a' }}>📊 최근 {isMockup ? 3 : days}일 식단 진단 <span className="text-[10.5px] font-extrabold px-1.5 py-0.5 rounded" style={{ background: '#FFF0E0', color: '#C45A00' }}>📅 달력 →</span></a>
             <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full text-white" style={{ background: grade.color }}>{grade.g}</span>
           </div>
           <p className="text-[12.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>{oneLiner}</p>
