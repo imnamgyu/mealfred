@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
+import LoginCta from '@/components/LoginCta';
 import type { ReferralBilling } from '@/lib/billing';
 
 type Child = { id: string; nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null; chronic_conditions: string | null; created_at: string | null };
@@ -117,6 +118,13 @@ export default function MePage() {
       <div className="flex-1 px-5 py-4 pb-20">
         {loading ? (
           <p className="text-sm" style={{ color: '#9CA3AF' }}>불러오는 중...</p>
+        ) : !account.email ? (
+          <div className="text-center mt-12 px-6">
+            <div className="text-4xl mb-3">👤</div>
+            <p className="text-[14px] font-extrabold mb-1" style={{ color: '#1a2b4a' }}>로그인이 필요해요</p>
+            <p className="text-[12px] leading-relaxed mb-5" style={{ color: '#8a7a6a' }}>카카오로 시작하면 우리 아이 정보·포인트·구독을<br />여기서 관리할 수 있어요.</p>
+            <div className="flex justify-center"><LoginCta /></div>
+          </div>
         ) : (
           <>
             {/* 비카카오 계정 경고 — 이 계정에 아이가 없을 때만(구글 가입 부모는 오탐 X). 데이터가 다른 계정에 있을 때 안내 */}

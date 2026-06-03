@@ -8,6 +8,7 @@
 'use client';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import BottomNav from '@/components/BottomNav';
+import LoginCta from '@/components/LoginCta';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { normalizeIngredient } from '@/lib/lexicon';
 import { createMapper } from '@/lib/menuMapCore';
@@ -581,6 +582,7 @@ export default function CarePage() {
             <div className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: '#FFF5EB', color: '#C45A00' }}>
               오늘 {filledSlots}/6 끼
             </div>
+            {!userId && <LoginCta />}
           </div>
         </div>
         <p className="text-xs mt-1" style={{ color: '#8a7a6a' }}>편식 교정의 핵심은 소량 반복 노출 30번이에요</p>

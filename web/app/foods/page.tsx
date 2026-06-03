@@ -10,6 +10,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { NUTRI_MAP, CATEGORY_GROUP } from '@/lib/nutrition';
 import { kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
+import LoginCta from '@/components/LoginCta';
 import FoodIcon from '@/components/FoodIcon';
 import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
 import { inSeason, seasonMonths, seasonRangeLabel } from '@/lib/season';
@@ -176,6 +177,7 @@ export default function FoodsDex() {
             <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#FFF0E0', color: '#C45A00' }}>식재료 {pool.length}종</span>
           )}
         </div>
+        {!loggedIn && <LoginCta />}
       </header>
 
       {/* 3 통계 셀 */}
