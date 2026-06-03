@@ -208,7 +208,11 @@ export function isIcfqRisk(key: string | undefined | null, answer: string | unde
 
 // ── 오늘의 질문 ────────────────────────────────────────────────────────────
 
-export type LoggedFood = { food: string; place?: Place | null; ateWell?: boolean | null; slot?: string; daysAgo?: number };
+export type LoggedFood = { food: string; menu?: string; place?: Place | null; ateWell?: boolean | null; slot?: string; daysAgo?: number };
+
+// 끼니 라벨 — 부모가 아는 말로(질문에 "어제 점심 카레…")
+export const SLOT_LABEL: Record<string, string> = { breakfast: '아침', lunch: '점심', dinner: '저녁', am_snack: '오전 간식', pm_snack: '오후 간식', snack: '간식' };
+const agoLabel = (d?: number) => typeof d === 'number' ? (d === 0 ? '오늘' : d === 1 ? '어제' : `${d}일 전`) : '';
 
 export type QuestionInput = {
   childName?: string;
@@ -235,11 +239,13 @@ function buildQuestionUser(b: QuestionInput): string {
 
   const mealLines = meals.length
     ? meals.map((m) => {
+        const when = agoLabel(m.daysAgo);
+        const slot = m.slot ? (SLOT_LABEL[m.slot] || '') : '';
         const where = m.place ? PLACE_LABEL[m.place] : '';
-        const ate = m.ateWell === true ? '잘먹음' : m.ateWell === false ? '거부' : '';
-        const ago = typeof m.daysAgo === 'number' ? (m.daysAgo === 0 ? '오늘' : `${m.daysAgo}일전`) : '';
-        const tags = [where, ate, ago].filter(Boolean).join('·');
-        return `- ${m.food}${tags ? ` (${tags})` : ''}`;
+        const ate = m.ateWell === true ? '잘먹음' : m.ateWell === false ? '거부' : '반응미기록';
+        const dish = m.menu ? `"${m.menu}"의 ` : '';   // 부모가 아는 음식명(카레) — 있으면 질문에 꼭 넣게
+        const ctx = [when, slot, where].filter(Boolean).join(' ');
+        return `- ${ctx ? ctx + ' ' : ''}${dish}${m.food} (${ate})`;
       }).join('\n')
     : (ings.length ? ings.join(', ') : '기록 적음');
 
@@ -256,15 +262,15 @@ ${mealLines}
 ${pastQA.length ? `[지난 질문·답변 — 겹치지 말 것]\n${pastQA.map((p) => `Q:${p.q} → A:${p.a || '무응답'}`).join('\n')}` : ''}
 
 규칙:
-- 실제 로그한 음식 하나를 구체적으로 짚는다. 예: "명태 드셨던데 다 드셨나요? 다른 음식과 섞어 드렸나요?"
-- 우선순위: ① 최근(어제 등) 새로 시도한 식재료, ② 지난번 거부했던 식재료 중 **아직 반응이 기록 안 된 것**(목록에 '잘먹음/거부' 태그가 없는 음식)을 먼저 짚어 다음날 어땠는지 확인한다. 새 음식·거부 음식의 수용은 반복노출의 핵심이라 꼭 후속한다.
-- 이미 '잘먹음' 또는 '거부'가 표시된(=엄마가 반응을 남긴) 음식은 다시 묻지 않는다(중복).
-- 짚을 음식은 집 끼니(부모가 차린 것) 또는 거부한 식재료(집에서 재노출 가능)에서 고른다. 기관에서 잘 먹은 끼니는 부모가 통제하지 못하므로 혼합·환경을 묻지 않는다.
+- **질문은 부모가 아는 형태로 짚어라: {언제}(어제/오늘/N일 전) + {끼니}(점심 등) + {음식명}(카레 등) + {재료명}(감자 등).** 예: "어제 점심 카레에 든 감자, 안 남기고 잘 먹었나요?" — 식재료명만 대면 부모가 못 알아본다(아이가 '감자'를 먹은 게 아니라 '카레'를 먹었다고 기억). **음식명("…"의)이 있으면 반드시 질문에 넣어라.** 음식명이 없으면 끼니+재료명만.
+- 우선순위: ① 최근(어제 등) 새로 시도한 식재료, ② 거부했던 식재료 중 **아직 반응이 기록 안 된 것**('반응미기록' 태그)을 먼저 짚어 다음날 어땠는지 확인. 새 음식·거부 음식 수용은 반복노출의 핵심이라 꼭 후속.
+- 이미 '잘먹음'/'거부'가 표시된(=엄마가 반응 남긴) 음식은 다시 묻지 않는다(중복).
+- 짚을 음식은 집 끼니(부모가 차린 것) 또는 거부 식재료(집 재노출 가능)에서. 기관에서 잘 먹은 끼니는 부모가 통제 못 하므로 혼합·환경을 묻지 않는다.
 - 먹었는지 여부(데이터로 아는 것)는 묻지 않는다. 정성(완식·혼합·반응·환경)만.
 - 짧고 따뜻하게(존댓말). 죄책감 유발 금지. 없는 과거를 지어내지 말 것.
-- chips: 1탭 답변 보기 3~5개.
+- chips: 1탭 답변 보기 4~5개. **반드시 "잘 모르겠어요"를 마지막에 포함**(부모가 특정 재료의 반응을 모를 수 있음). 예: ["남김없이 잘 먹었어요","조금 남겼어요","거부했어요","잘 모르겠어요"].
 
-JSON만: {"question": "...", "topic": "혼합", "chips": ["보기1","보기2","보기3"]}`;
+JSON만: {"question": "...", "topic": "반응", "chips": ["보기1","보기2","보기3","잘 모르겠어요"]}`;
 }
 
 export async function generateQuestion(input: QuestionInput): Promise<{ question: string; topic: string; chips: string[] }> {

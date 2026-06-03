@@ -173,7 +173,7 @@ export async function GET(req: Request) {
             const daysAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
             if (daysAgo <= 3 && !seenFood.has(i)) {
               seenFood.add(i);
-              recentMeals.push({ food: i, place: (r.place as Place) || null, ateWell: r.ate_well, slot: r.slot || undefined, daysAgo });
+              recentMeals.push({ food: i, menu: (r.menus || []).join('·') || undefined, place: (r.place as Place) || null, ateWell: r.ate_well, slot: r.slot || undefined, daysAgo });
             }
           });
           if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }

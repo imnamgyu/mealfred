@@ -102,6 +102,7 @@ export default function CarePage() {
   const [query, setQuery] = useState('');
   const [logs, setLogs] = useState<Record<string, DayLog>>({});
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);   // 서버 저장 중 — 진행바 표시
   const [userId, setUserId] = useState<string | null>(null);
   const [childId, setChildId] = useState<string | null>(null);
   const [dailyQ, setDailyQ] = useState<{ question: string; chips: string[]; answer: string } | null>(null);
@@ -262,7 +263,7 @@ export default function CarePage() {
       } else {
         // 최근 식재료·거부·지난 Q&A 수집 + 실제 로그 음식(장소·완식·경과일)·기관 거부 (코칭엔진 스펙 §3·§5.2)
         const recentIng: string[] = []; const recentRef: string[] = [];
-        const recentMeals: { food: string; place: PlaceVal; ateWell: boolean | null; slot: string; daysAgo: number }[] = [];
+        const recentMeals: { food: string; menu?: string; place: PlaceVal; ateWell: boolean | null; slot: string; daysAgo: number }[] = [];
         const homeRef: string[] = []; const daycareRef: string[] = [];
         const todayMs = new Date(todayStr()).getTime();
         // 날짜 내림차순 — first-win dedup이 '식재료별 최신 끼니'를 남기도록
@@ -271,7 +272,7 @@ export default function CarePage() {
           Object.entries(day).forEach(([slot, e]) => {
             e.ingredients.forEach((t) => {
               recentIng.push(t.name);
-              if (daysAgo <= 3) recentMeals.push({ food: t.name, place: e.place, ateWell: e.ateWell, slot, daysAgo });
+              if (daysAgo <= 3) recentMeals.push({ food: t.name, menu: (e.menus || []).join('·') || undefined, place: e.place, ateWell: e.ateWell, slot, daysAgo });
             });
             if (e.refused) { recentRef.push(e.refused); if (e.place === 'home') homeRef.push(e.refused); else if (e.place === 'daycare') daycareRef.push(e.refused); }
           });
@@ -524,14 +525,16 @@ export default function CarePage() {
     next[date][activeSlot] = e;
     setLogs(next);
     if (!userId) saveCareLogs(next, null);   // 비로그인(guest)만 디스크 캐시 — 로그인은 메모리(setLogs)+server가 진실(아래 upsert)
-    setSaved(true);
-    setTimeout(() => setSaved(false), 1500);
 
-    // 로그인 + 자녀 있으면 Supabase 동기화
+    // 로그인 + 자녀 있으면 Supabase 동기화 — 저장 중 진행바 노출(서버 왕복 동안)
     if (userId && childId) {
-      await supabase.from('meal_logs')
-        .upsert(entryToRow(e, childId, userId, date, activeSlot), { onConflict: 'child_id,log_date,slot' })
-        .then(({ error }) => { if (error) console.warn('[care] save error:', error.message); });
+      setSaving(true);
+      const { error } = await supabase.from('meal_logs')
+        .upsert(entryToRow(e, childId, userId, date, activeSlot), { onConflict: 'child_id,log_date,slot' });
+      if (error) console.warn('[care] save error:', error.message);
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 1800);
       // 끼니에 내용 있으면 포인트 적립(서버가 멱등·일일5끼 한도 처리 — 같은 끼니 재저장은 적립 0)
       if (e.menus?.length || e.ingredients?.length) {
         fetch('/api/points/earn', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ child_id: childId, date, slot: activeSlot }) })
@@ -539,6 +542,9 @@ export default function CarePage() {
             if (d?.ok && d.earned > 0) { setPointToast(`+${d.earned}P 적립! 🎉`); setTimeout(() => setPointToast(''), 2200); }
           }).catch(() => {});
       }
+    } else {
+      setSaved(true);   // 비로그인 = 즉시
+      setTimeout(() => setSaved(false), 1500);
     }
   }
 
@@ -992,10 +998,12 @@ export default function CarePage() {
 
       {/* 저장 버튼 */}
       <div className="px-5 py-3 border-t bg-white" style={{ borderColor: '#FFE8D0' }}>
-        <button onClick={saveEntry}
-          className="w-full py-3.5 rounded-xl font-extrabold text-white text-sm transition"
-          style={{ background: saved ? '#16A085' : '#FF6B1A' }}>
-          {saved ? '✓ 저장됐어요' : `${SLOTS.find((s) => s.key === activeSlot)?.label} 기록 저장`}
+        <style>{`@keyframes careprog{0%{left:-40%}100%{left:100%}}`}</style>
+        <button onClick={saveEntry} disabled={saving}
+          className="w-full py-3.5 rounded-xl font-extrabold text-white text-sm transition relative overflow-hidden"
+          style={{ background: saving ? '#C45A00' : saved ? '#16A085' : '#FF6B1A' }}>
+          {saving && <span style={{ position: 'absolute', top: 0, bottom: 0, width: '40%', background: 'rgba(255,255,255,0.28)', animation: 'careprog 0.9s linear infinite' }} />}
+          <span className="relative">{saving ? '저장 중…' : saved ? '✓ 저장됐어요' : `${SLOTS.find((s) => s.key === activeSlot)?.label} 기록 저장`}</span>
         </button>
         <button onClick={() => { window.location.href = '/foods'; }}
           className="w-full mt-2 py-2 text-xs font-semibold" style={{ color: '#8a7a6a' }}>
