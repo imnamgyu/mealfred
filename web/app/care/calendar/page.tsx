@@ -36,9 +36,11 @@ export default function MealCalendar() {
   useEffect(() => {
     if (!childId) return;
     setLoading(true);
-    const [y, m] = month.split('-');
+    const [y, m] = month.split('-').map(Number);
+    const nd = new Date(Date.UTC(y, m, 1));   // 다음 달 1일 — '…-31' 하드코딩은 6·4·9·11월·2월에 무효날짜라 쿼리 에러(0건) 났음
+    const nextStart = `${nd.getUTCFullYear()}-${String(nd.getUTCMonth() + 1).padStart(2, '0')}-01`;
     supabase.from('meal_logs').select('log_date,slot,menus,place')
-      .eq('child_id', childId).gte('log_date', `${y}-${m}-01`).lte('log_date', `${y}-${m}-31`)
+      .eq('child_id', childId).gte('log_date', `${month}-01`).lt('log_date', nextStart)
       .then(({ data }) => {
         const g: Record<string, Row[]> = {};
         (data as Row[] | null || []).forEach((r) => { (g[r.log_date] ||= []).push(r); });

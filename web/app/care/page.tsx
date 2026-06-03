@@ -467,9 +467,11 @@ export default function CarePage() {
   const OCR_SLOT: Record<string, string> = { '오전간식': 'am_snack', '점심': 'lunch', '오후간식': 'pm_snack' };
   async function saveDaycareMenu() {
     if (!userId || !childId || !ocrItems.length) return;
-    const [y, mo] = ocrMonth.split('-');
+    const [y, mo] = ocrMonth.split('-').map(Number);
+    const nd2 = new Date(Date.UTC(y, mo, 1));   // 다음 달 1일 — '…-31' 하드코딩은 30일·2월에 무효날짜라 쿼리 에러
+    const nextStart2 = `${nd2.getUTCFullYear()}-${String(nd2.getUTCMonth() + 1).padStart(2, '0')}-01`;
     const { data: existing } = await supabase.from('meal_logs').select('log_date,slot,source')
-      .eq('child_id', childId).gte('log_date', `${y}-${mo}-01`).lte('log_date', `${y}-${mo}-31`);
+      .eq('child_id', childId).gte('log_date', `${ocrMonth}-01`).lt('log_date', nextStart2);
     const taken = new Set((existing || []).filter((r: { source: string | null }) => r.source !== 'daycare_menu')
       .map((r: { log_date: string; slot: string }) => `${r.log_date}|${r.slot}`));   // 부모 입력 보호
     const byKey: Record<string, { log_date: string; slot: string; menus: string[]; ings: Set<string> }> = {};
