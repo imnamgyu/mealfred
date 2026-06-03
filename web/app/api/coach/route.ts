@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
       scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
       chronicGuidance: chronicGuidanceText(b.chronicConditions),   // 만성질환 식이 방향(클라가 보내면)
       bridgeFacts,   // 검증된 푸드 브릿지(그래프)
+      snackEval: typeof b.snackEval === 'string' ? b.snackEval : null,   // 간식 평가(클라가 보내면) — 주 경로는 새벽 크론
     });
     return NextResponse.json({ letter, oneliner }, { headers });
   } catch (e: unknown) {

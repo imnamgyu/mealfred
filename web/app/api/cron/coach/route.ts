@@ -26,6 +26,8 @@ import { selectScenario } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { reexposurePick } from '@/lib/reexposure';
 import { neighborsOf } from '@/lib/foodGraph';
+import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
+import { bmiOf, bmiPercentile, bmiBand, type Sex, type BmiBand } from '@/lib/growth-reference';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
@@ -36,6 +38,7 @@ type Row = {
   child_id: string; parent_id: string | null; log_date: string; slot: string | null;
   ingredients: string[] | null; refused: string | null; note: string | null;
   texture: string | null; menus: string[] | null; place: string | null; ate_well: boolean | null;
+  meal_time: number | null;
 };
 
 export async function GET(req: Request) {
@@ -85,7 +88,7 @@ export async function GET(req: Request) {
 
     // 1) 최근 7일 모든 기록 → 자녀별 그룹
     const { data: rows, error: rErr } = await supabase.from('meal_logs')
-      .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well')
+      .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well,meal_time')
       .gte('log_date', since).lte('log_date', kstDateNDaysAgo(1));   // 편지는 '어제까지' 확정 데이터로 평가 — 당일 입력이 편지를 바꾸지 않게
     if (rErr) throw rErr;
 
@@ -117,9 +120,10 @@ export async function GET(req: Request) {
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
     // 자녀 메타 + 오늘 이미 생성된 질문(중복 회피)
-    const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band,chronic_conditions,sex').in('id', activeIds);
-    const kidMap: Record<string, { parent_id: string; nickname: string; age_band: string; chronic: string | null; sex: string | null }> = {};
-    (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string; chronic_conditions: string | null; sex: string | null }) => { kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band, chronic: k.chronic_conditions, sex: k.sex }; });
+    const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band,chronic_conditions,sex,birth_year,birth_month,height_cm,weight_kg').in('id', activeIds);
+    type KidMeta = { parent_id: string; nickname: string; age_band: string; chronic: string | null; sex: string | null; birth_year: number | null; birth_month: number | null; height_cm: number | null; weight_kg: number | null };
+    const kidMap: Record<string, KidMeta> = {};
+    (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string; chronic_conditions: string | null; sex: string | null; birth_year: number | null; birth_month: number | null; height_cm: number | null; weight_kg: number | null }) => { kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band, chronic: k.chronic_conditions, sex: k.sex, birth_year: k.birth_year, birth_month: k.birth_month, height_cm: k.height_cm, weight_kg: k.weight_kg }; });
     const { data: todayQs } = await supabase.from('daily_questions').select('child_id').eq('q_date', today).in('child_id', activeIds);
     const hasQToday = new Set((todayQs || []).map((q: { child_id: string }) => q.child_id));
     // 등원 여부 — daycare 컬럼 마이그레이션 전이면 에러(컬럼없음) → 전부 false로 안전 처리
@@ -129,8 +133,9 @@ export async function GET(req: Request) {
 
     // 미입력 정보 권유용 — 체위(성장) 데이터가 있는 자녀(growth_logs 1행+). 테이블 없으면 안전 처리.
     const hasGrowth = new Set<string>();
-    const { data: grRows, error: grErr } = await supabase.from('growth_logs').select('child_id').in('child_id', activeIds);
-    if (!grErr) (grRows || []).forEach((r: { child_id: string }) => hasGrowth.add(r.child_id));
+    const latestGrowth: Record<string, { height_cm: number | null; weight_kg: number | null }> = {};   // BMI는 최신 체위로(care에서 갱신 가능)
+    const { data: grRows, error: grErr } = await supabase.from('growth_logs').select('child_id,measured_on,height_cm,weight_kg').in('child_id', activeIds).order('measured_on', { ascending: false });
+    if (!grErr) (grRows || []).forEach((r: { child_id: string; measured_on: string; height_cm: number | null; weight_kg: number | null }) => { hasGrowth.add(r.child_id); if (!latestGrowth[r.child_id]) latestGrowth[r.child_id] = { height_cm: r.height_cm, weight_kg: r.weight_kg }; });   // 정렬상 첫 = 최신
 
     // 미입력 프로필을 '돌아가며 하나씩' 부드럽게 권유(기대효과 1개 포함). 다그치지 않게 ~4일에 1번·로테이션.
     // 기록 공백(P9) 권유가 떠 있는 날엔 안 띄움(권유 중첩 방지). 체위=명확히 미입력, 만성=선택(없으면 안 넣어도 됨 문구).
@@ -144,6 +149,22 @@ export async function GET(req: Request) {
       let h = 0; for (const c of cid) h = (h + c.charCodeAt(0)) % 997;
       if ((dayIndex + h) % 4 !== 0) return null;   // 약 4일에 한 번만
       return miss[(dayIndex + h) % miss.length];   // 여러 개면 날짜별로 돌아가며 하나씩
+    };
+
+    // 또래 대비 체격 밴드(BMI) — 간식 칼로리 방향(stance)용. 최신 growth_logs 체위 우선, 없으면 children 스냅샷.
+    // WHO 표는 0~60개월 — 만 5세 초과는 60개월로 근사(홈 BMI 카드와 동일 한계). 값 없으면 null(=maintain).
+    const bmiBandFor = (m: KidMeta, cid: string): BmiBand | null => {
+      if (m.sex !== 'M' && m.sex !== 'F') return null;
+      const g = latestGrowth[cid];
+      const height = g?.height_cm ?? m.height_cm;   // 최신 측정 우선(care 갱신 반영), 없으면 onboarding 스냅샷
+      const weight = g?.weight_kg ?? m.weight_kg;
+      if (!(height && weight && m.birth_year && m.birth_month)) return null;
+      const bmi = bmiOf(height, weight);
+      if (bmi == null) return null;
+      const [ty, tm] = today.split('-').map(Number);
+      const ageMonths = (ty - m.birth_year) * 12 + (tm - m.birth_month);
+      const pct = bmiPercentile(bmi, m.sex as Sex, ageMonths);
+      return pct == null ? null : bmiBand(pct);
     };
 
     for (const cid of activeIds) {
@@ -208,6 +229,10 @@ export async function GET(req: Request) {
         const homeFg = computeFoodGroups(homeIng, catOf);
         const homeReds = homeDays.length ? computeSignals(homeDays, catOf).filter((s) => s.level === 'red').map((s) => s.nutrient) : [];
         const attends = !!daycareMap[cid];
+        // 간식 평가(별도 간식 엔진) — 끼니와 분리해 초가공 모니터링·식사 간섭성·BMI 칼로리 방향·좋은 간식 추천. 편지에 부드럽게 합쳐짐(체중 단어 금지).
+        const snackBand = bmiBandFor(meta, cid);
+        const snackEval = evaluateSnacks({ rows: byChild[cid], band: snackBand, reds });
+        const snackEvalText = snackEvalToPrompt(snackEval);
         const uniqRef = [...new Set(ref)];
         const ts = computeTimeseries(byDate, menuFreq, catOf, kstDateNDaysAgo(1), { assertNoVeg: catReliable });   // 어제 앵커(평가 기준일)
         // 거부→수용 전환 감지(최근 28일) — 과거 거부했던 식재료를 이후 비거부로 먹기 시작 = '받아들이는 순간'. 코칭이 칭찬.
@@ -290,6 +315,7 @@ export async function GET(req: Request) {
             scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
             chronicGuidance: chronicGuidanceText(meta.chronic),   // 만성질환 식이 방향(부모 입력 기반)
             bridgeFacts,   // 검증된 푸드 브릿지(그래프) — 편지가 사촌/궁합을 지어내지 않게
+            snackEval: snackEvalText,   // 간식 평가(별도 간식 엔진) — 초가공·식사 간섭성·BMI 칼로리 방향·좋은 간식
             profileNudge: recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null,   // 미입력 정보 권유(기록 공백 없을 때만·로테이션)
           });
           letter = gen.letter; oneliner = gen.oneliner;
@@ -304,6 +330,7 @@ export async function GET(req: Request) {
             eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
             source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: 'haiku-4-5',
             scenarioId, scenarioLabel,   // 오늘의 코칭 시나리오(편지 다양성·중복 회피 이력)
+            snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
           };
           await supabase.from('coach_letters').upsert(
             { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: letterCtx },

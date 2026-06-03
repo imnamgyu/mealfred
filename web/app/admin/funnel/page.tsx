@@ -42,6 +42,13 @@ export default async function FunnelPage() {
   const childHasMeal = new Set((meals || []).map((m) => m.child_id));
   const parentHasMeal = new Set((children || []).filter((c) => childHasMeal.has(c.id)).map((c) => c.parent_id));
 
+  // 익명 방문자(app_visitors) — 펀넬 맨 윗단(방문 → 가입). 테이블 없으면(마이그레이션 전) 빈 배열로 안전 처리.
+  const { data: vData, error: vErr } = await db.from('app_visitors').select('visitor_id,first_seen');
+  const visitors: { first_seen: string }[] = vErr ? [] : (vData || []);
+  const visitByDay: Record<string, number> = {};
+  visitors.forEach((v) => { const d = kstDate(v.first_seen); visitByDay[d] = (visitByDay[d] || 0) + 1; });
+  const totVisits = visitors.length;
+
   // 가입일(KST) 코호트
   type Cell = { signup: number; child: number; meal: number };
   const coh: Record<string, Cell> = {};
@@ -53,7 +60,7 @@ export default async function FunnelPage() {
     if (parentHasChild.has(u.id)) { c.child++; tot.child++; }
     if (parentHasMeal.has(u.id)) { c.meal++; tot.meal++; }
   });
-  const dates = Object.keys(coh).sort().reverse().slice(0, 30);
+  const dates = [...new Set([...Object.keys(coh), ...Object.keys(visitByDay)])].sort().reverse().slice(0, 30);
 
   const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
   const Stage = ({ n, base, color }: { n: number; base: number; color: string }) => (
@@ -74,9 +81,10 @@ export default async function FunnelPage() {
       </header>
 
       {/* KPI */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
         {[
-          { label: '가입', n: tot.signup, sub: '누적', c: '#1a2b4a' },
+          { label: '방문 (고유)', n: totVisits, sub: '익명 접속자', c: '#6B7280' },
+          { label: '가입', n: tot.signup, sub: totVisits ? `방문 대비 ${pct(tot.signup, totVisits)}%` : '누적', c: '#1a2b4a' },
           { label: '자녀 등록', n: tot.child, sub: `가입 대비 ${pct(tot.child, tot.signup)}%`, c: '#C45A00' },
           { label: '첫 끼니 (활성)', n: tot.meal, sub: `가입 대비 ${pct(tot.meal, tot.signup)}%`, c: '#16A085' },
         ].map((x) => (
@@ -93,7 +101,8 @@ export default async function FunnelPage() {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ background: '#FAFAF8', color: '#6B7280', fontSize: 11, fontWeight: 800 }}>
-              <th style={{ padding: '9px 10px', textAlign: 'left' }}>가입일</th>
+              <th style={{ padding: '9px 10px', textAlign: 'left' }}>날짜</th>
+              <th style={{ padding: '9px 10px', textAlign: 'right' }}>방문</th>
               <th style={{ padding: '9px 10px', textAlign: 'right' }}>가입</th>
               <th style={{ padding: '9px 10px', textAlign: 'right' }}>→ 자녀 등록</th>
               <th style={{ padding: '9px 10px', textAlign: 'right' }}>→ 첫 끼니</th>
@@ -102,30 +111,33 @@ export default async function FunnelPage() {
           <tbody>
             <tr style={{ background: '#FFF8F0', borderBottom: '2px solid #FFE0C0', fontSize: 13 }}>
               <td style={{ padding: '9px 10px', fontWeight: 800, color: '#C45A00' }}>합계</td>
+              <td style={{ padding: '9px 10px', textAlign: 'right', fontWeight: 800, color: '#6B7280' }}>{totVisits}</td>
               <td style={{ padding: '9px 10px', textAlign: 'right', fontWeight: 800, color: '#1a2b4a' }}>{tot.signup}</td>
               <Stage n={tot.child} base={tot.signup} color="#C45A00" />
               <Stage n={tot.meal} base={tot.signup} color="#16A085" />
             </tr>
             {dates.map((d) => {
-              const c = coh[d];
+              const c = coh[d] || { signup: 0, child: 0, meal: 0 };
+              const v = visitByDay[d] || 0;
               return (
                 <tr key={d} style={{ borderBottom: '1px solid #F3F3F1' }}>
                   <td style={{ padding: '9px 10px', color: '#374151', fontWeight: 600 }}>{label(d)}</td>
+                  <td style={{ padding: '9px 10px', textAlign: 'right', fontWeight: 700, color: '#6B7280' }}>{v}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'right', fontWeight: 800, color: '#1a2b4a' }}>{c.signup}</td>
                   <Stage n={c.child} base={c.signup} color="#C45A00" />
                   <Stage n={c.meal} base={c.signup} color="#16A085" />
                 </tr>
               );
             })}
-            {dates.length === 0 && <tr><td colSpan={4} style={{ padding: 20, textAlign: 'center', color: '#9CA3AF' }}>아직 가입 데이터가 없어요.</td></tr>}
+            {dates.length === 0 && <tr><td colSpan={5} style={{ padding: 20, textAlign: 'center', color: '#9CA3AF' }}>아직 데이터가 없어요.</td></tr>}
           </tbody>
         </table>
       </div>
 
       <p style={{ marginTop: 14, fontSize: 11.5, color: '#9CA3AF', lineHeight: 1.7 }}>
-        · 코호트 = <b>가입한 날</b> 기준. 6/1 가입자가 6/3에 자녀를 등록해도 6/1 행에 잡힙니다.<br />
-        · <b>홈페이지 진입 · 사인업 페이지</b> 도달(익명 트래픽)은 <b>Phase 2</b>에서 앞단에 붙습니다(`mf_vid` 쿠키 + `/api/funnel`).<br />
-        · 최근 30일 · 첫 끼니 = 활성(가입만 하고 안 쓴 사람과 실제 쓰는 사람 구분).
+        · <b>방문(고유)</b> = <code>mf_vid</code> 쿠키 익명 접속자 · <b>첫 방문일</b> 기준. 전체 방문→가입 전환율은 상단 KPI.<br />
+        · <b>가입·자녀·첫끼니</b>는 <b>가입한 날</b> 코호트(6/1 가입자가 6/3 자녀 등록해도 6/1 행). 같은 행의 방문↔가입은 날짜만 같을 뿐 직접 전환은 아님.<br />
+        · 최근 30일 · 방문 추적은 <code>app_visitors</code> 테이블 필요(SQL 1회 실행). 첫 끼니 = 활성(가입만 하고 안 쓴 사람과 구분).
       </p>
     </main>
   );

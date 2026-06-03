@@ -2,7 +2,7 @@
  * GET /r/[code] — 초대링크 방문 처리.
  *
  * 방문자 쿠키(mf_vid)로 사람을 식별해 (code, visitor_id) 1행만 기록(중복 방문 무시).
- * 가입은 안 해도 카운트 → 5명 방문 시 초대자 평생 무료(referralBilling).
+ * 가입은 안 해도 방문 카운트(표시용). 보상은 친구가 가입+첫 끼니 기록 시 초대자 +4,900P(award_referral_bonus). ※ 옛 '5명 방문=평생무료'는 폐기.
  * 기록 후 가입 페이지로 보냄.
  */
 import { NextResponse } from 'next/server';

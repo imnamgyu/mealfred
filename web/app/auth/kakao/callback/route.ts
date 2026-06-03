@@ -9,7 +9,7 @@
  *   2. access_token → 카카오 사용자 정보 (id, 닉네임)
  *   3. 합성 이메일(kakao_{id}@kakao.local)로 Supabase 유저 생성/조회 (admin)
  *   4. magiclink 생성 → verifyOtp로 세션 cookie 설정
- *   5. 신규 → /onboarding · 기존 → /care
+ *   5. 신규 → /onboarding · 기존 → /care/me(마이페이지 기본 진입)
  */
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -112,7 +112,7 @@ export async function GET(req: Request) {
       .limit(1)
       .maybeSingle();
 
-    return NextResponse.redirect(new URL(child ? '/care' : '/onboarding', req.url));
+    return NextResponse.redirect(new URL(child ? '/care/me' : '/onboarding', req.url));   // 기존 회원 → 마이페이지 기본
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'unknown';
     console.error('[kakao] callback error:', msg);

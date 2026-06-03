@@ -16,6 +16,8 @@ import { isSpicyIngredient } from '@/lib/spicy';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 import FoodIcon from '@/components/FoodIcon';
+import AuthModal from '@/components/AuthModal';
+import { kakaoErrorText } from '@/lib/kakaoAuth';
 
 const todayStr = kstToday;   // KST 기준 — 새벽 크론(letter_date)과 동일 앵커
 
@@ -107,6 +109,8 @@ export default function Home() {
   const [children, setChildren] = useState<{ id: string; nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; chronic_conditions: string | null }[]>([]);   // 다자녀 switcher
   const [selectedId, setSelectedId] = useState<string | null>(null);   // 선택된 자녀(localStorage 'mf_child' 유지)
   const [loggedIn, setLoggedIn] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);    // 가입/로그인 팝업(카카오) — /signup 페이지 대체
+  const [authErr, setAuthErr] = useState<string | null>(null);
   const [days, setDays] = useState(0);
   const [signals, setSignals] = useState<NutrientSignal[]>([]);
   const [scoreParts, setScoreParts] = useState<{ home: number | null; daycare: number | null; final: number }>({ home: null, daycare: null, final: 0 });   // 집70:기관30 가중 점수
@@ -158,6 +162,19 @@ export default function Home() {
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // /signup 폐지 → 홈 가입/로그인 팝업. ?auth=1 자동 오픈 · ?ref 초대코드 보관 · ?autherr 콜백 에러 안내
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      const ref = q.get('ref'); if (ref) localStorage.setItem('mf_ref', ref);
+      const err = q.get('autherr'); if (err) setAuthErr(kakaoErrorText(err));
+      if (q.get('auth') === '1' || err) setAuthOpen(true);
+    } catch { /* SSR/차단 환경 무시 */ }
+  }, []);
+
+  // 익명 방문 기록(펀넬 Phase2 · 방문→가입 전환). 진입 1회 fire-and-forget.
+  useEffect(() => { fetch('/api/funnel', { method: 'POST' }).catch(() => {}); }, []);
 
   // ② 선택된 자녀의 전체 데이터 로드 (switcher로 selectedId 바뀌면 재실행)
   useEffect(() => {
@@ -508,6 +525,9 @@ export default function Home() {
           <h2 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>밀프레드 편식 관리</h2>
           {!isMockup && days >= 1 && <span className="text-[10px] font-extrabold text-white px-2.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg,#FF6B6B,#FFB375)' }}>🔥 {days}일 연속 기록중</span>}
         </div>
+        {!loading && !loggedIn && (
+          <button onClick={() => { setAuthErr(null); setAuthOpen(true); }} className="flex-shrink-0 text-[12px] font-extrabold px-3.5 py-1.5 rounded-full" style={{ background: '#FEE500', color: '#1a2b4a' }}>로그인 / 가입</button>
+        )}
       </header>
 
       {/* 자녀 switcher — 다자녀일 때만. 탭하면 그 아이 기준으로 전체 전환 */}
@@ -528,20 +548,21 @@ export default function Home() {
       )}
 
       <div className="flex-1 px-5 pb-4">
-        {/* 비로그인 첫 진입 — 랜딩 히어로 + CTA (그 아래는 실제 분석 화면 미리보기) */}
+        {/* 비로그인 첫 진입 — 가입 강요 없이 바로 예시 화면. '아래가 미리보기'임을 알리고 현행 기능을 칩으로 */}
         {!loading && !loggedIn && (
-          <div className="rounded-2xl p-5 mb-3 text-center" style={{ background: 'linear-gradient(160deg,#FFF5EB,#FFE8D0 60%,#FFD9B8)', border: '1.5px solid #FFD0A0' }}>
-            <div className="text-[11px] font-extrabold mb-1.5" style={{ color: '#C45A00' }}>35개 국제 편식이론 기반</div>
-            <div className="text-[23px] font-extrabold leading-snug mb-2" style={{ color: '#1a2b4a' }}>매일, 우리 아이<br />편식 코치</div>
-            <p className="text-[12.5px] leading-relaxed mb-3" style={{ color: '#5a4a3a' }}>식단만 기록하면 — 영양 신호등·BMI·코치 편지·맞춤 식재료까지 <strong>매일 자동으로</strong>.</p>
-            <div className="flex flex-wrap justify-center gap-1.5 mb-3">
-              {['💌 매일 코칭', '🚦 31종 영양', '📈 편식 변화', '📏 BMI·성장'].map((c) => (
+          <div className="rounded-2xl p-4 mb-3" style={{ background: 'linear-gradient(160deg,#FFF5EB,#FFE8D0 60%,#FFD9B8)', border: '1.5px solid #FFD0A0' }}>
+            <div className="flex items-start gap-2 mb-1">
+              <span className="text-xl leading-none mt-0.5">👀</span>
+              <div className="flex-1">
+                <div className="text-[13.5px] font-extrabold" style={{ color: '#C45A00' }}>아래는 예시 화면이에요 · 가입 없이 둘러보세요</div>
+                <div className="text-[11.5px] mt-0.5 leading-relaxed" style={{ color: '#8a7a6a' }}>식단만 기록하면 — <strong style={{ color: '#5a4a3a' }}>우리 아이</strong> 데이터로 매일 자동으로 채워져요.</div>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-2.5">
+              {['💌 매일 코치 편지', '🚦 31종 영양 신호등', '🍪 간식 평가', '📏 BMI·성장', '📈 편식 변화', '📦 골고루 키트', '🗂 식재료 도감'].map((c) => (
                 <span key={c} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'white', color: '#C45A00', border: '1px solid #FFD0A0' }}>{c}</span>
               ))}
             </div>
-            <a href="/signup" className="block rounded-xl py-3.5 text-white font-extrabold text-[15px]" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>🌱 카카오로 1초 시작 · 1개월 무료</a>
-            <div className="text-[11px] mt-2 font-bold" style={{ color: '#C45A00' }}>🎁 친구 5명만 방문해도 우리 아이 평생 무료</div>
-            <div className="text-[10.5px] mt-2.5" style={{ color: '#9CA3AF' }}>↓ 아래는 실제 분석 화면 미리보기예요</div>
           </div>
         )}
         {/* 목업 안내 배너 (로그인 후 기록 3일 미만) */}
@@ -585,8 +606,8 @@ export default function Home() {
               <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
             ) : (
               <>
-                <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치 거부로 속상하셨겠어요.<br />22번 노출 중 8번 — 정상 단계예요&rdquo;</div>
-                <div className="text-[11.5px] italic" style={{ color: '#5a4a3a' }}>매일 기록하면 코치가 어제 메모에 답장을 드려요</div>
+                <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치를 거부해도 괜찮아요 — 새 채소는 여러 번 만나며 친해져요.<br />좋아하는 볶음밥에 잘게 넣어 오늘 한 번 더 만나볼까요?&rdquo;</div>
+                <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}><span className="italic">간식엔 과자가 잦았어요 — 치즈·삶은 계란 같은 든든한 간식으로 바꿔보면 좋아요.</span><br />매일 기록하면 코치가 이렇게 답장을 드려요.</div>
               </>
             )}
             {/* 지난 편지 — 오랜만에 온 엄마가 흐름을 다시 읽게 */}
@@ -866,13 +887,18 @@ export default function Home() {
           </a>
         </div>
 
-        {/* 목업 모드 — 하단 CTA */}
-        {isMockup && (
-          <a href={loggedIn ? '/care' : '/signup'} className="block rounded-2xl p-5 text-center text-white shadow-md" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
-            <div className="text-base font-extrabold mb-1">{loggedIn ? '🍽 지금 첫 끼 기록하기' : '🌱 카카오로 1초 시작하기'}</div>
+        {/* 목업 모드 — 하단 CTA. 비로그인은 가입/로그인 팝업(페이지 이동 없음) */}
+        {isMockup && (loggedIn ? (
+          <a href="/care" className="block rounded-2xl p-5 text-center text-white shadow-md" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
+            <div className="text-base font-extrabold mb-1">🍽 지금 첫 끼 기록하기</div>
             <div className="text-xs opacity-90">3일만 기록하면 이 화면이 우리 아이 진짜 데이터로 채워져요</div>
           </a>
-        )}
+        ) : (
+          <button onClick={() => { setAuthErr(null); setAuthOpen(true); }} className="w-full block rounded-2xl p-5 text-center text-white shadow-md" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
+            <div className="text-base font-extrabold mb-1">🌱 카카오로 1초 시작하기</div>
+            <div className="text-xs opacity-90">가입하면 이 화면이 우리 아이 진짜 데이터로 채워져요 · 첫 달 무료</div>
+          </button>
+        ))}
       </div>
 
       {/* 36종 자세히 모달 — 결핍/조금부족/잘챙김 그룹만 (보충 식재료는 홈 하단에서 추천하므로 제외) */}
@@ -1007,6 +1033,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {authOpen && <AuthModal open onClose={() => setAuthOpen(false)} initialError={authErr} />}
 
       <BottomNav active="/" />
     </main>

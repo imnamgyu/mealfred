@@ -134,7 +134,7 @@ export default function OnboardingPage() {
     }
 
     setLoading(false);
-    router.push(editId ? '/care/me' : '/care');
+    router.push('/care/me');   // 가입·자녀 등록 후 마이페이지를 기본 진입으로
   }
 
   return (
