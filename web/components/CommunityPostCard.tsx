@@ -56,6 +56,11 @@ export default function CommunityPostCard({ post, showIng = true }: { post: Card
 
       <p className="text-[14px] leading-relaxed mb-2.5" style={{ color: '#2a3545' }}>{post.body}</p>
 
+      {post.photo_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={post.photo_url} alt="" loading="lazy" className="w-full rounded-xl object-cover mb-2.5" style={{ maxHeight: 260 }} />
+      )}
+
       {showIng && post.ingredients?.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2.5">
           {post.ingredients.map((i) => (

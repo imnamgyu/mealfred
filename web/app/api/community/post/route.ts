@@ -43,8 +43,14 @@ export async function POST(req: NextRequest) {
     const author_nick = (meta?.name || meta?.nickname || meta?.full_name || null) as string | null;
     const traits = Array.isArray(b.traits) ? (b.traits as string[]).filter((x) => typeof x === 'string').slice(0, 4) : [];
 
+    // 사진: 같은 버킷('community')의 본인 폴더 URL만 허용(위조 방지)
+    let photo_url: string | null = null;
+    if (typeof b.photo_url === 'string' && b.photo_url.includes('/community/') && b.photo_url.includes(`/${user.id}/`)) {
+      photo_url = b.photo_url.slice(0, 500);
+    }
+
     const { data: post, error } = await supabase.from('community_posts').insert({
-      parent_id: user.id, child_id, author_nick, ingredients, body, age_band, traits,
+      parent_id: user.id, child_id, author_nick, ingredients, body, age_band, traits, photo_url,
       method_type: typeof b.method_type === 'string' ? b.method_type : null,
       difficulty: typeof b.difficulty === 'string' ? b.difficulty : null,
       time_min: Number.isFinite(b.time_min) ? Math.max(0, Math.round(b.time_min)) : null,

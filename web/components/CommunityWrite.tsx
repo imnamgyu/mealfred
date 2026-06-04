@@ -22,10 +22,18 @@ export default function CommunityWrite({ ingredient, onClose, onPosted }: { ingr
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [done, setDone] = useState<{ firstBonus: number } | null>(null);
+  const [uid, setUid] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   useEffect(() => {
-    createSupabaseBrowser().auth.getUser().then(({ data }) => setAuthed(!!data.user));
+    createSupabaseBrowser().auth.getUser().then(({ data }) => { setAuthed(!!data.user); setUid(data.user?.id ?? null); });
   }, []);
+
+  function pickPhoto(f: File | null) {
+    setPhoto(f);
+    setPreview((prev) => { if (prev) URL.revokeObjectURL(prev); return f ? URL.createObjectURL(f) : null; });
+  }
 
   const warns = dangerWarnings(body);
   const toggle = (arr: string[], v: string, set: (x: string[]) => void) =>
@@ -37,11 +45,25 @@ export default function CommunityWrite({ ingredient, onClose, onPosted }: { ingr
     setBusy(true); setErr('');
     let child_id: string | null = null;
     try { child_id = localStorage.getItem('mf_child'); } catch { /* noop */ }
+
+    // 사진 업로드(본인 폴더) → 공개 URL
+    let photo_url: string | null = null;
+    if (photo && uid) {
+      try {
+        const ext = (photo.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+        const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        const sb = createSupabaseBrowser();
+        const { error: upErr } = await sb.storage.from('community').upload(path, photo, { upsert: false, contentType: photo.type || 'image/jpeg' });
+        if (upErr) { setErr('사진 업로드에 실패했어요. 사진 없이 올리거나 다시 시도해 주세요.'); setBusy(false); return; }
+        photo_url = sb.storage.from('community').getPublicUrl(path).data.publicUrl;
+      } catch { setErr('사진 업로드 중 오류가 났어요'); setBusy(false); return; }
+    }
+
     try {
       const res = await fetch('/api/community/post', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          body: body.trim(), ingredient, ingredients: ings, child_id,
+          body: body.trim(), ingredient, ingredients: ings, child_id, photo_url,
           method_type: method, traits, difficulty, time_min: timeMin ? Number(timeMin) : undefined,
         }),
       });
@@ -120,6 +142,23 @@ export default function CommunityWrite({ ingredient, onClose, onPosted }: { ingr
           placeholder={ingredient ? `이 ${ingredient}, 어떻게 하니 잘 먹었나요?` : '우리 아이가 이렇게 하니 잘 먹었어요…'}
           className="w-full px-3 py-2.5 rounded-xl text-sm outline-none mb-1" style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
         <div className="text-[10.5px] mb-3 text-right" style={{ color: body.trim().length < MIN_BODY ? '#E53935' : '#9CA3AF' }}>{body.trim().length}자</div>
+
+        {/* 사진(선택) — 아이 먹는/빈 그릇이 가장 강한 증거 */}
+        <div className="mb-3">
+          {preview ? (
+            <div className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={preview} alt="" className="w-full rounded-xl object-cover" style={{ maxHeight: 220 }} />
+              <button onClick={() => pickPhoto(null)} className="absolute top-2 right-2 text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(0,0,0,0.55)', color: 'white' }}>✕ 빼기</button>
+            </div>
+          ) : (
+            <label className="flex items-center justify-center gap-2 py-3 rounded-xl cursor-pointer text-sm font-bold" style={{ background: '#FAFAF7', border: '1.5px dashed #E5E7EB', color: '#6B7280' }}>
+              📷 아이가 먹는 / 빈 그릇 사진 (선택)
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => pickPhoto(e.target.files?.[0] || null)} />
+            </label>
+          )}
+          {preview && <p className="text-[10.5px] mt-1.5" style={{ color: '#9CA3AF' }}>⚠️ 아이 얼굴이 나오지 않게 음식 위주로, 본인이 촬영한 사진만 올려주세요.</p>}
+        </div>
 
         {/* 위험 키워드 안내 */}
         {warns.map((w, i) => (

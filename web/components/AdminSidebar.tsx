@@ -8,6 +8,7 @@ const NAV = [
   { href: '/admin/nutrition', icon: '🥕', label: '식재료' },
   { href: '/admin/nong', icon: '🌾', label: '농진청 DB' },
   { href: '/admin/food-graph', icon: '🕸', label: '궁합 매트릭스' },
+  { href: '/admin/community', icon: '🏡', label: '커뮤니티' },
   { href: '/admin/funnel', icon: '📈', label: '펀넬' },
   { href: '/admin/cron', icon: '🌙', label: '크론' },
   { href: '/admin/grant', icon: '🎟', label: '평생무료' },
