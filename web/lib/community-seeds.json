@@ -1,0 +1,17 @@
+{
+  "_comment": "콜드스타트 시드 — 코치 PICK 큐레이션 노하우. 인기 식재료에 항상 표시(피드·도감 §6 휑함 방지). 실제 UGC가 쌓이면 자연스럽게 밀려남. ingredient=도감 표준명. 안전(질식·꿀) 반영.",
+  "seeds": [
+    { "id": "seed-당근", "ingredient": "당근", "body": "당근을 강판에 곱게 갈아 계란말이 속에 넣으면 단맛이 올라와 색도 안 보이고 잘 먹어요. 볶음밥에 섞어도 좋아요.", "method_type": "숨기기", "traits": ["새것 거부"], "time_min": 10, "difficulty": "쉬움" },
+    { "id": "seed-시금치", "ingredient": "시금치", "body": "시금치를 데쳐 잘게 다지고 참기름 한 방울에 밥과 비벼 김에 싸주니 '김밥'이라며 좋아하며 먹었어요.", "method_type": "곁들이기", "traits": ["식감 까다로움"], "time_min": 10, "difficulty": "쉬움" },
+    { "id": "seed-브로콜리", "ingredient": "브로콜리", "body": "브로콜리를 작은 '나무'라고 부르며 연한 치즈 살짝 올려 구워주니 호기심에 한 입 먹었어요. 송이는 잘게 잘라 주세요.", "method_type": "모양 바꾸기", "traits": ["새것 거부"], "time_min": 12, "difficulty": "보통" },
+    { "id": "seed-두부", "ingredient": "두부", "body": "두부 물기를 빼고 노릇하게 부쳐 간장 아주 조금만 찍어주니 '두부과자'라며 손으로 집어먹어요.", "method_type": "맛 바꾸기", "traits": ["소식"], "time_min": 10, "difficulty": "쉬움" },
+    { "id": "seed-가지", "ingredient": "가지", "body": "가지를 껍질 벗기고 푹 익혀 으깬 뒤 토마토소스 파스타에 섞으니 물컹한 식감 거부 없이 잘 넘어갔어요.", "method_type": "숨기기", "traits": ["식감 까다로움"], "time_min": 15, "difficulty": "보통" },
+    { "id": "seed-계란", "ingredient": "계란", "body": "계란찜에 좋아하는 치즈를 조금 넣어 약불에 부드럽게 쪄주니 그릇을 다 비웠어요.", "method_type": "곁들이기", "traits": ["예민한 입맛"], "time_min": 10, "difficulty": "쉬움" },
+    { "id": "seed-단호박", "ingredient": "단호박", "body": "단호박을 쪄서 으깨고 우유를 조금 넣어 수프로 만들어주니 달다고 좋아해요. 돌 전이면 분유·모유로 풀어주세요.", "method_type": "모양 바꾸기", "traits": ["새것 거부"], "time_min": 15, "difficulty": "보통" },
+    { "id": "seed-멸치", "ingredient": "멸치", "body": "잔멸치를 기름 없이 볶아 가루로 만들어 주먹밥에 살짝 섞으니 짠맛 없이 자연스럽게 먹었어요.", "method_type": "숨기기", "traits": ["편식 심함"], "time_min": 10, "difficulty": "쉬움" },
+    { "id": "seed-새우", "ingredient": "새우", "body": "새우를 잘게 다져 부추 조금과 전처럼 부쳐주니 '새우전'이라며 손으로 집어먹어요.", "method_type": "모양 바꾸기", "traits": ["새것 거부"], "time_min": 15, "difficulty": "보통" },
+    { "id": "seed-미역", "ingredient": "미역", "body": "미역국에 좋아하는 소고기를 같이 넣어 끓이니 국물 떠먹다가 미역도 자연스럽게 같이 먹었어요.", "method_type": "곁들이기", "traits": ["느린 적응"], "time_min": 20, "difficulty": "쉬움" },
+    { "id": "seed-고구마", "ingredient": "고구마", "body": "고구마를 쪄서 으깨 동그랗게 빚어 '경단'이라며 주니 간식처럼 좋아하며 먹어요.", "method_type": "모양 바꾸기", "traits": ["소식"], "time_min": 15, "difficulty": "쉬움" },
+    { "id": "seed-토마토", "ingredient": "토마토", "body": "방울토마토는 꼭 반으로(어릴수록 4등분) 잘라 질식을 막고, 살짝 익혀 단맛을 올린 뒤 플레인 요거트에 곁들이니 잘 먹어요.", "method_type": "도전(그대로)", "traits": ["예민한 입맛"], "time_min": 8, "difficulty": "쉬움" }
+  ]
+}

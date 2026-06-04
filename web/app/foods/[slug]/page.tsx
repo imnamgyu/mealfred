@@ -9,6 +9,7 @@ import RefusedBadge from '@/components/RefusedBadge';
 import FoodIcon from '@/components/FoodIcon';
 import MasteryBadge from '@/components/MasteryBadge';
 import PersonalBridge from '@/components/PersonalBridge';
+import CommunityThread from '@/components/CommunityThread';
 import { cookingGroups } from '@/lib/cookingMatrix';
 import { seasonMonths, seasonRangeLabel } from '@/lib/season';
 import { neighborsOf } from '@/lib/foodGraph';
@@ -247,6 +248,9 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
           <p className="text-xs" style={{ color: '#8a7a6a' }}>DB 매칭 없음 — 가입 후 개인화 레시피로 안내 예정</p>
         )}
       </section>
+
+      {/* §6 — 엄마들의 노하우(커뮤니티) */}
+      <CommunityThread ingredient={ing.nm} />
 
       <Link href="/care" className="block rounded-xl p-4 text-center font-extrabold text-sm text-white" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
         ✏️ 우리 아이 식사 기록하러 가기 →
