@@ -104,14 +104,14 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: true, processed: 0, note: '활성 자녀 없음' });
     }
 
-    // 최근 2일 내 편지 → 라운드로빈 정렬 + 식단지문 스킵 판단용 (오래 안 받은 자녀 우선)
+    // 최근 3일 내 편지 → 라운드로빈 정렬 + 식단지문 스킵 + 시나리오 중복 회피 (편지 다양성 위해 2→3일로 확대)
     const { data: recentLetters } = await supabase.from('coach_letters')
       .select('child_id,letter_date,source_hash,letter,oneliner,context')
-      .in('child_id', activeIds).gte('letter_date', kstDateNDaysAgo(2))
+      .in('child_id', activeIds).gte('letter_date', kstDateNDaysAgo(3))
       .order('letter_date', { ascending: false });
     type RecentLetter = { child_id: string; letter_date: string; source_hash: string | null; letter: string; oneliner: string | null; context: Record<string, unknown> | null };
     const lastLetter: Record<string, RecentLetter> = {};
-    const recentScenarios: Record<string, string[]> = {};   // 최근 2일 편지가 쓴 scenarioId — 중복 회피용
+    const recentScenarios: Record<string, string[]> = {};   // 최근 3일 편지가 쓴 scenarioId — 중복 회피용
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신
       const sid = (l.context as { scenarioId?: string } | null)?.scenarioId;
