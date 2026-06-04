@@ -7,6 +7,16 @@
 import COOKING_AMOUNTS from './cooking-amounts.json';
 const PER_INGREDIENT = COOKING_AMOUNTS as Record<string, Record<string, { g: number; n: number }>>;
 
+// 비한식(양식/중식/일식) 전용 식재료의 조리 가이드 — 한식 양념을 붙이면 괴식이 되는 것만(치즈·버터·우유·요구르트·크림·빵·호밀빵·시리얼·파스타·아보카도). cuisine-tagging 워크플로 산출.
+import CUISINE_GUIDE from './cuisine-guide.json';
+type CuisineEntry = { cuisine: string; guide: { method: string; g: number; tip: string }[] };
+const CUISINE = CUISINE_GUIDE as unknown as Record<string, CuisineEntry>;
+
+/** 양식/중식/일식 전용 식재료면 그 cuisine, 아니면 null(=한식·공용). 도감 상세 배지용. */
+export function cuisineOf(ingredient: string): string | null {
+  return CUISINE[ingredient]?.cuisine ?? null;
+}
+
 // 조리방식 → (매트릭스 카테고리 → 1회분 평균 g). 매운 절임·김치(잎채소 882g)는 영유아 부적합이라 제외.
 export const COOKING_MATRIX: Record<string, Record<string, number>> = {
   '무침·나물': { 뿌리: 24.7, 잎채소: 46.4, 박과: 40.5, 콩가공: 41.2, 육류: 40.5, 해산물: 20.8, 해조류: 11.2, 곡물: 64.9, 버섯: 32.5 },
@@ -40,10 +50,14 @@ export const CAT_TO_MATRIX: Record<string, string> = {
 };
 
 /** 이 식재료를 어떤 조리방식으로 1회분 몇 g 줄까 — 식재료별 실측 우선, 없으면 카테고리 평균 폴백. */
-export function cookingGuide(ingredient: string, cat: string, topN = 4): { method: string; g: number; season: string }[] {
-  // ⚠️ 유제품·과일·가공식품·향신·유지·견과는 '한식 조리 매트릭스'(국·탕에 된장·간장 등) 대상이 아님 —
-  // 생식·곁들임·양식이라 한식 양념을 붙이면 괴식이 된다(치즈 국·탕+된장 등). 실측(PER_INGREDIENT)에 잡혀도 제외.
-  // (양식/중식/일식 조리 가이드는 별도 — 추후 cuisine 태깅으로 보강 예정)
+export function cookingGuide(ingredient: string, cat: string, topN = 4): { method: string; g: number; season: string; tip?: string }[] {
+  // 0순위: 비한식 전용 가이드(양식/중식/일식) — 치즈·버터·우유·파스타 등. 한식 양념 괴식 방지, 있으면 무조건 우선.
+  const cz = CUISINE[ingredient];
+  if (cz && Array.isArray(cz.guide) && cz.guide.length) {
+    return cz.guide.slice(0, topN).map((x) => ({ method: x.method, g: x.g, season: '', tip: x.tip }));
+  }
+  // ⚠️ 유제품·과일·가공식품·향신·유지·견과 중 '비한식 가이드도 없는' 것은 '한식 조리 매트릭스'(국·탕에 된장·간장 등) 대상이 아님 —
+  // 생식·곁들임이라 한식 양념을 붙이면 괴식이 된다(치즈 국·탕+된장 등). 실측(PER_INGREDIENT)에 잡혀도 제외.
   const NO_KOREAN_COOK = new Set(['유제품', '과일', '가공식품', '향신_허브', '유지류', '견과_씨앗']);
   if (NO_KOREAN_COOK.has(cat)) return [];
 

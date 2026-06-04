@@ -9,7 +9,7 @@ import RefusedBadge from '@/components/RefusedBadge';
 import FoodIcon from '@/components/FoodIcon';
 import MasteryBadge from '@/components/MasteryBadge';
 import PersonalBridge from '@/components/PersonalBridge';
-import { cookingGuide } from '@/lib/cookingMatrix';
+import { cookingGuide, cuisineOf } from '@/lib/cookingMatrix';
 import { seasonMonths, seasonRangeLabel } from '@/lib/season';
 import { neighborsOf } from '@/lib/foodGraph';
 import { dishesForIngredient } from '@/lib/kitGuide';
@@ -190,16 +190,33 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
 
       {(() => {
         const cg = cookingGuide(ing.nm, ing.cat);
+        const cz = cuisineOf(ing.nm); // 양식/중식/일식 전용이면 cuisine, 아니면 null(한식·공용)
         return cg.length > 0 ? (
           <section className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-            <h2 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>📐 {ing.nm} 어떻게 줄까 <span className="font-normal text-[11px]" style={{ color: '#9CA3AF' }}>· {ing.nm} 들어간 레시피 실측</span></h2>
-            <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}><strong>{ing.nm}이(가) 주재료일 때</strong> 1회분(중앙값)이에요. 아이는 <strong>한 입부터</strong> 줄여서, 다른 음식에 <strong>섞어 줄 땐 더 적게</strong>, 양념은 최소로.</p>
-            <ul className="space-y-1.5">
+            <h2 className="text-sm font-extrabold mb-1 flex flex-wrap items-center gap-1.5" style={{ color: '#1a2b4a' }}>
+              <span>📐 {ing.nm} 어떻게 줄까</span>
+              {cz ? (
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#EAF2FF', color: '#2B5CB8' }}>🍴 {cz}</span>
+              ) : (
+                <span className="font-normal text-[11px]" style={{ color: '#9CA3AF' }}>· {ing.nm} 들어간 레시피 실측</span>
+              )}
+            </h2>
+            <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>
+              {cz ? (
+                <><strong>{ing.nm}은(는) {cz} 방식</strong>으로 주면 자연스러워요. <strong>한 입부터</strong>, 양념은 최소로 — 아래는 영유아 안전 기준이에요.</>
+              ) : (
+                <><strong>{ing.nm}이(가) 주재료일 때</strong> 1회분(중앙값)이에요. 아이는 <strong>한 입부터</strong> 줄여서, 다른 음식에 <strong>섞어 줄 땐 더 적게</strong>, 양념은 최소로.</>
+              )}
+            </p>
+            <ul className="space-y-2">
               {cg.map((c, i) => (
-                <li key={i} className="flex items-center gap-2 text-sm py-0.5">
-                  <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0" style={{ background: '#FFF0E0', color: '#C45A00' }}>{c.method}</span>
-                  <span style={{ color: '#1a2b4a' }}>{ing.nm} 약 <strong>{Math.round(c.g)}g</strong></span>
-                  <span className="text-[10.5px] ml-auto text-right shrink-0" style={{ color: '#9CA3AF' }}>{c.season}</span>
+                <li key={i} className="py-0.5">
+                  <div className="flex items-center gap-2 text-sm flex-wrap">
+                    <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full shrink-0" style={{ background: '#FFF0E0', color: '#C45A00' }}>{c.method}</span>
+                    <span style={{ color: '#1a2b4a' }}>{ing.nm} 약 <strong>{Math.round(c.g)}g</strong></span>
+                    {c.season && <span className="text-[10.5px] ml-auto text-right shrink-0" style={{ color: '#9CA3AF' }}>{c.season}</span>}
+                  </div>
+                  {c.tip && <p className="text-[11px] mt-0.5 ml-1 leading-snug" style={{ color: '#8a7a6a' }}>{c.tip}</p>}
                 </li>
               ))}
             </ul>
