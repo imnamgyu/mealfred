@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import type { CommunityPost } from '@/lib/community';
 
-type CardPost = Partial<CommunityPost> & { id: string; body: string; ingredients: string[]; seed?: boolean; method_type?: string | null };
+type CardPost = Partial<CommunityPost> & { id: string; body: string; ingredients: string[]; seed?: boolean; is_official?: boolean; method_type?: string | null };
 
 export default function CommunityPostCard({ post, showIng = true }: { post: CardPost; showIng?: boolean }) {
   const [like, setLike] = useState(!!post.liked_by_me);
@@ -17,7 +17,8 @@ export default function CommunityPostCard({ post, showIng = true }: { post: Card
   const [hidden, setHidden] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const author = post.author_nick || (post.child_age_label ? `${post.child_age_label} 아이 엄마` : '익명의 엄마');
+  const isCoach = !!(post.seed || post.is_official);
+  const author = isCoach ? '밀프레드 코치' : (post.author_nick || (post.child_age_label ? `${post.child_age_label} 아이 엄마` : '익명의 엄마'));
 
   async function react(kind: 'like' | 'tried') {
     if (post.seed || busy) return;
@@ -49,9 +50,9 @@ export default function CommunityPostCard({ post, showIng = true }: { post: Card
     <div className="rounded-2xl p-4 mb-2.5 shadow-sm" style={{ background: 'white', border: '1px solid #F0E8E0' }}>
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         <span className="text-[12px] font-extrabold" style={{ color: '#1a2b4a' }}>{author}</span>
-        {post.seed && <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#F0FAF6', color: '#1B7A3D' }}>🩺 코치 PICK</span>}
+        {isCoach && <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#F0FAF6', color: '#1B7A3D' }}>🩺 코치 PICK</span>}
         {post.method_type && <span className="text-[9.5px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#EAF2FF', color: '#2B5CB8' }}>{post.method_type}</span>}
-        {!post.seed && <button onClick={report} className="ml-auto text-[11px]" style={{ color: '#C9C0B6' }}>{reported ? '신고됨' : '⋯'}</button>}
+        {!isCoach && <button onClick={report} className="ml-auto text-[11px]" style={{ color: '#C9C0B6' }}>{reported ? '신고됨' : '⋯'}</button>}
       </div>
 
       <p className="text-[14px] leading-relaxed mb-2.5" style={{ color: '#2a3545' }}>{post.body}</p>

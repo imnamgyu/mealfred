@@ -34,6 +34,7 @@ export async function GET(req: Request) {
     const { data, error } = await admin.from('community_posts')
       .select('id,parent_id,ingredients,like_count,tried_count,created_at')
       .eq('status', 'public')
+      .not('parent_id', 'is', null)   // 공식(코치) 글 제외 — 사람 글만 보상
       .gte('created_at', weekStart + 'T00:00:00+09:00')
       .lt('created_at', today + 'T00:00:00+09:00');
     if (error) return NextResponse.json({ ok: false, stage: 'weekly', error: error.message });
@@ -61,6 +62,7 @@ export async function GET(req: Request) {
     const { data, error } = await admin.from('community_posts')
       .select('id,parent_id,ingredients,like_count,tried_count,created_at')
       .eq('status', 'public')
+      .not('parent_id', 'is', null)   // 공식(코치) 글 제외
       .gte('created_at', lastMonthStart + 'T00:00:00+09:00')
       .lt('created_at', thisMonthStart + 'T00:00:00+09:00');
     if (error) return NextResponse.json({ ok: false, stage: 'monthly', error: error.message });

@@ -1,0 +1,4 @@
+{
+  "_comment": "밀프레드 코치 큐레이션 노하우 풀 — community-content-gen 워크플로 산출 + 적대 안전검수. /api/cron/community-drip가 매일 몇 개씩 공식 글로 게시(official_key=id로 멱등). 가짜 엄마 아님(코치 PICK 명시).",
+  "pool": []
+}

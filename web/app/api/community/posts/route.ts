@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
 
     let q = supabase.from('community_posts')
-      .select('id,parent_id,child_id,author_nick,ingredients,body,photo_url,age_band,traits,method_type,difficulty,time_min,status,like_count,tried_count,created_at');
+      .select('id,parent_id,child_id,author_nick,ingredients,body,photo_url,age_band,traits,method_type,difficulty,time_min,status,like_count,tried_count,created_at,is_official');
     if (mine) {
       if (!user) return NextResponse.json({ ok: true, posts: [] });
       q = q.eq('parent_id', user.id);
