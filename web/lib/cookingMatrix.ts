@@ -41,6 +41,12 @@ export const CAT_TO_MATRIX: Record<string, string> = {
 
 /** 이 식재료를 어떤 조리방식으로 1회분 몇 g 줄까 — 식재료별 실측 우선, 없으면 카테고리 평균 폴백. */
 export function cookingGuide(ingredient: string, cat: string, topN = 4): { method: string; g: number; season: string }[] {
+  // ⚠️ 유제품·과일·가공식품·향신·유지·견과는 '한식 조리 매트릭스'(국·탕에 된장·간장 등) 대상이 아님 —
+  // 생식·곁들임·양식이라 한식 양념을 붙이면 괴식이 된다(치즈 국·탕+된장 등). 실측(PER_INGREDIENT)에 잡혀도 제외.
+  // (양식/중식/일식 조리 가이드는 별도 — 추후 cuisine 태깅으로 보강 예정)
+  const NO_KOREAN_COOK = new Set(['유제품', '과일', '가공식품', '향신_허브', '유지류', '견과_씨앗']);
+  if (NO_KOREAN_COOK.has(cat)) return [];
+
   // 1순위: 식재료별 × 조리방식별 실제 중앙값
   const per = PER_INGREDIENT[ingredient];
   if (per && Object.keys(per).length) {
