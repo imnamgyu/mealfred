@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -305,6 +305,10 @@ export async function GET(req: Request) {
             recentLoggedDays, recentWindow: RECENT_WINDOW, icfqRiskCount,
           }, recentScenarios[cid] || []);
           scenarioId = scenario.id; scenarioLabel = scenario.label;
+          // 결정론적 코칭 무브 로테이션 — 날짜(일 단위 증가) + 자녀 해시 → 매일 다른 무브 강제(무브 반복 차단)
+          const daySeed = Math.floor(Date.parse(today) / 86400000);
+          let cidHash = 0; for (let k = 0; k < cid.length; k++) cidHash = (cidHash * 31 + cid.charCodeAt(k)) >>> 0;
+          const rotateMove = MOVE_MENU[(daySeed + cidHash) % MOVE_MENU.length];
           const gen = await generateLetter({
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
@@ -317,6 +321,7 @@ export async function GET(req: Request) {
             bridgeFacts,   // 검증된 푸드 브릿지(그래프) — 편지가 사촌/궁합을 지어내지 않게
             snackEval: snackEvalText,   // 간식 평가(별도 간식 엔진) — 초가공·식사 간섭성·BMI 칼로리 방향·좋은 간식
             profileNudge: recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null,   // 미입력 정보 권유(기록 공백 없을 때만·로테이션)
+            rotateMove,   // 결정론적 코칭 무브(날짜+자녀 시드) — 매일 다른 행동 방식 강제
           });
           letter = gen.letter; oneliner = gen.oneliner;
         }
