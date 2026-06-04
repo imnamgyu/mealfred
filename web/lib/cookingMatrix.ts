@@ -7,14 +7,21 @@
 import COOKING_AMOUNTS from './cooking-amounts.json';
 const PER_INGREDIENT = COOKING_AMOUNTS as Record<string, Record<string, { g: number; n: number }>>;
 
-// 비한식(양식/중식/일식) 전용 식재료의 조리 가이드 — 한식 양념을 붙이면 괴식이 되는 것만(치즈·버터·우유·요구르트·크림·빵·호밀빵·시리얼·파스타·아보카도). cuisine-tagging 워크플로 산출.
+// 비한식(중/일/양) 조리 가이드 — 식재료별 평면 배열 [{cuisine, method, g, tip}]. multi-cuisine-guide 워크플로 산출 + 카테고리 정리.
+// 한식 양념을 붙이면 괴식이 되는 유제품 등(치즈·버터…)부터, 다재다능 식재료(두부·가지·생선·감자…)의 양식/중식/일식 옵션까지.
 import CUISINE_GUIDE from './cuisine-guide.json';
-type CuisineEntry = { cuisine: string; guide: { method: string; g: number; tip: string }[] };
-const CUISINE = CUISINE_GUIDE as unknown as Record<string, CuisineEntry>;
+type CuisineItem = { cuisine: string; method: string; g: number; tip: string };
+const CUISINE_EXTRAS = CUISINE_GUIDE as unknown as Record<string, CuisineItem[]>;
 
-/** 양식/중식/일식 전용 식재료면 그 cuisine, 아니면 null(=한식·공용). 도감 상세 배지용. */
-export function cuisineOf(ingredient: string): string | null {
-  return CUISINE[ingredient]?.cuisine ?? null;
+export type CookMethod = { method: string; g: number; season?: string; tip?: string };
+export type CookGroup = { cuisine: string; items: CookMethod[] };
+
+/** 비한식 cuisine 가이드가 있는 식재료면 그 cuisine 목록(중복 제거·표시 순), 없으면 []. */
+export function cuisinesOf(ingredient: string): string[] {
+  const ex = CUISINE_EXTRAS[ingredient];
+  if (!ex || !ex.length) return [];
+  const set = new Set(ex.map((i) => i.cuisine));
+  return ['양식', '중식', '일식'].filter((c) => set.has(c));
 }
 
 // 조리방식 → (매트릭스 카테고리 → 1회분 평균 g). 매운 절임·김치(잎채소 882g)는 영유아 부적합이라 제외.
@@ -49,18 +56,10 @@ export const CAT_TO_MATRIX: Record<string, string> = {
   '해조류': '해조류', '버섯': '버섯',
 };
 
-/** 이 식재료를 어떤 조리방식으로 1회분 몇 g 줄까 — 식재료별 실측 우선, 없으면 카테고리 평균 폴백. */
-export function cookingGuide(ingredient: string, cat: string, topN = 4): { method: string; g: number; season: string; tip?: string }[] {
-  // 0순위: 비한식 전용 가이드(양식/중식/일식) — 치즈·버터·우유·파스타 등. 한식 양념 괴식 방지, 있으면 무조건 우선.
-  const cz = CUISINE[ingredient];
-  if (cz && Array.isArray(cz.guide) && cz.guide.length) {
-    return cz.guide.slice(0, topN).map((x) => ({ method: x.method, g: x.g, season: '', tip: x.tip }));
-  }
-  // ⚠️ 유제품·과일·가공식품·향신·유지·견과 중 '비한식 가이드도 없는' 것은 '한식 조리 매트릭스'(국·탕에 된장·간장 등) 대상이 아님 —
-  // 생식·곁들임이라 한식 양념을 붙이면 괴식이 된다(치즈 국·탕+된장 등). 실측(PER_INGREDIENT)에 잡혀도 제외.
+/** 한식 조리 가이드 — 식재료별 실측 우선, 없으면 카테고리 평균 폴백. 유제품·과일·가공·향신·유지·견과는 한식 매트릭스 대상 아님(국·탕에 된장 붙이면 괴식) → []. */
+function hansikGuide(ingredient: string, cat: string, topN = 4): CookMethod[] {
   const NO_KOREAN_COOK = new Set(['유제품', '과일', '가공식품', '향신_허브', '유지류', '견과_씨앗']);
   if (NO_KOREAN_COOK.has(cat)) return [];
-
   // 1순위: 식재료별 × 조리방식별 실제 중앙값
   const per = PER_INGREDIENT[ingredient];
   if (per && Object.keys(per).length) {
@@ -78,4 +77,25 @@ export function cookingGuide(ingredient: string, cat: string, topN = 4): { metho
     .filter((x) => x.g > 0)
     .sort((a, b) => b.g - a.g)
     .slice(0, topN);
+}
+
+/** 도감 '어떻게 줄까' — 한식(실측·양념 inline) + 비한식(중/일/양·tip) cuisine별 그룹. 표시 순: 한식→양식→중식→일식. */
+export function cookingGroups(ingredient: string, cat: string): CookGroup[] {
+  const groups: CookGroup[] = [];
+  const han = hansikGuide(ingredient, cat);
+  if (han.length) groups.push({ cuisine: '한식', items: han });
+
+  const byCz: Record<string, CookMethod[]> = {};
+  for (const it of (CUISINE_EXTRAS[ingredient] || [])) {
+    (byCz[it.cuisine] ||= []).push({ method: it.method, g: it.g, tip: it.tip });
+  }
+  for (const cz of ['양식', '중식', '일식']) {
+    if (byCz[cz]?.length) groups.push({ cuisine: cz, items: byCz[cz] });
+  }
+  return groups;
+}
+
+/** 하위호환: 한식 가이드만 반환(기존 시그니처). */
+export function cookingGuide(ingredient: string, cat: string, topN = 4): CookMethod[] {
+  return hansikGuide(ingredient, cat, topN);
 }
