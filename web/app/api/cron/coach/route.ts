@@ -325,17 +325,25 @@ export async function GET(req: Request) {
             rotateMove,   // 결정론적 코칭 무브(날짜+자녀 시드) — 매일 다른 행동 방식 강제
           };
           let gen = await generateLetter(letterInput);
-          // ⭐ 비중복 가드(belt-and-suspenders) — 생성 편지가 최근 편지와 너무 비슷하면(문자 3-gram 자카드 ≥0.45) 무브를 바꿔 1회 재생성, 덜 비슷한 쪽 채택
-          const simMax = (txt: string) => pastLetters.length ? Math.max(...pastLetters.map((p) => letterSimilarity(txt, p.letter))) : 0;
-          const sim1 = simMax(gen.letter);
-          if (sim1 >= 0.45) {
-            const worst = pastLetters.reduce((a, p) => letterSimilarity(gen.letter, p.letter) > letterSimilarity(gen.letter, a.letter) ? p : a, pastLetters[0]);
-            const gen2 = await generateLetter({
+          // ⭐ 비중복 가드 — 두 축으로 본다:
+          //   (1) 편지 전체 유사도 ≥0.45(본문 반복)  (2) 도입부(첫 25자) 유사도 ≥0.40(같은 일화/문장으로 시작)
+          //   전체 유사도만 보면 '같은 도입 + 다른 본문'을 못 잡는다(실측: 오늘 vs 이틀 전 전체 0.19인데 도입 0.59).
+          const fc = (s: string) => (s || '').replace(/\s+/g, '').slice(0, 25);
+          const wholeMax = (t: string) => pastLetters.length ? Math.max(...pastLetters.map((p) => letterSimilarity(t, p.letter))) : 0;
+          const openMax = (t: string) => pastLetters.length ? Math.max(...pastLetters.map((p) => letterSimilarity(fc(t), fc(p.letter)))) : 0;
+          const badness = (t: string) => Math.max(wholeMax(t) / 0.45, openMax(t) / 0.40);   // ≥1 = 임계 초과
+          const closest = (t: string) => pastLetters.reduce((a, p) =>
+            letterSimilarity(fc(t), fc(p.letter)) > letterSimilarity(fc(t), fc(a.letter)) ? p : a, pastLetters[0]);
+          // 임계 초과면 무브 바꿔 최대 2회 재생성, 가장 덜 겹치는 편지 채택
+          let bestBad = badness(gen.letter);
+          for (let attempt = 0; attempt < 2 && bestBad >= 1; attempt++) {
+            const g = await generateLetter({
               ...letterInput,
-              rotateMove: MOVE_MENU[(daySeed + cidHash + 1) % MOVE_MENU.length],   // 무브 한 칸 밀어 강제 차별화
-              regenAvoid: worst.letter,
+              rotateMove: MOVE_MENU[(daySeed + cidHash + attempt + 1) % MOVE_MENU.length],
+              regenAvoid: closest(gen.letter).letter,
             });
-            if (simMax(gen2.letter) < sim1) { gen = gen2; coachRegen = true; }
+            const bad = badness(g.letter);
+            if (bad < bestBad) { gen = g; bestBad = bad; coachRegen = true; }
           }
           letter = gen.letter; oneliner = gen.oneliner;
         }
