@@ -122,6 +122,7 @@ export type LetterInput = {
   profileNudge?: string | null;    // 미입력 프로필(체위·만성질환 등) 1개를 부드럽게 권유 + 기대효과 — cron이 로테이션으로 결정(없으면 언급 금지)
   snackEval?: string | null;        // 간식 평가(별도 간식 엔진) — 초가공 모니터링·식사 간섭성·BMI 칼로리 방향·좋은 간식 추천. lib/snack
   rotateMove?: string | null;       // 오늘의 코칭 무브(결정론적 로테이션) — cron이 날짜+자녀 시드로 회전. 매일 다른 '행동 방식'을 강제해 무브 반복(매일 곁들이기)을 구조적으로 차단
+  regenAvoid?: string | null;       // 비중복 가드 — 직전 생성이 이 과거 편지와 너무 비슷해서 다시 쓰는 경우, 이것과 완전히 다르게(cron이 유사도 검사 후 주입)
 };
 
 // 코칭 무브 메뉴 — cron이 날짜+자녀 시드로 회전 선택(매일 다른 방식). 같은 결핍이어도 행동 방식이 달라진다.
@@ -134,6 +135,21 @@ export const MOVE_MENU = [
   '부모가 맛있게 먹는 모습을 곁에서 자연스럽게 보여주기',
   '맛보기 전 향·촉감만 먼저 부담 없이 경험하게 하기',
 ];
+
+// 편지 비중복 가드 — 두 편지의 문자 3-그램 자카드 유사도(0~1). cron이 생성 후 최근 편지와 비교해 임계 이상이면 1회 재생성.
+export function letterSimilarity(a: string, b: string): number {
+  const tri = (s: string) => {
+    const t = (s || '').replace(/\s+/g, '');
+    const g = new Set<string>();
+    for (let i = 0; i + 3 <= t.length; i++) g.add(t.slice(i, i + 3));
+    return g;
+  };
+  const A = tri(a), B = tri(b);
+  if (!A.size || !B.size) return 0;
+  let inter = 0;
+  for (const g of A) if (B.has(g)) inter++;
+  return inter / (A.size + B.size - inter);
+}
 
 function buildLetterUser(b: LetterInput): string {
   const name = (b.childName || '아이').toString().slice(0, 20);
@@ -187,9 +203,13 @@ ${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기
     ? `\n[오늘의 코칭 무브 — 행동(ⓒ)을 제안할 땐 이 방식 계열로 구성하라. 최근 편지와 다른 무브를 강제하는 결정론적 로테이션이다(매일 같은 '곁들이기'만 반복되는 것을 막기 위함). 단, 위 '오늘의 코칭 각도'가 '행동 빼고 칭찬만'이면 무브는 생략. 이 방식이 오늘 타깃 식재료에 영 안 맞으면 최근 편지와 겹치지 않는 다른 방식으로]: ${b.rotateMove}\n`
     : '';
 
+  const regenBlock = b.regenAvoid
+    ? `\n[⚠️⚠️ 재작성 — 직전에 생성한 편지가 아래 과거 편지와 너무 비슷했다. 도입 문장·문장 구조·짚는 식재료·코칭 무브·표현이 겹치지 않게 처음부터 완전히 다르게 다시 써라]\n${b.regenAvoid.slice(0, 600)}\n`
+    : '';
+
   return `${history}[이번 주 상황 — 아래 사실만 사용. 영양/과거/숫자를 추가로 지어내지 말 것]
 ${ctx}
-${scenarioBlock}${chronicBlock}${snackBlock}${moveBlock}
+${scenarioBlock}${chronicBlock}${snackBlock}${moveBlock}${regenBlock}
 작성 지침:
 - letter: 3~4문장(간식 평가를 녹일 땐 최대 5문장). 담을 요소: ⓐ 따뜻한 인정/공감 · ⓑ 위 데이터에서 읽은 사실 1개(우리 분석값·시계열만) · ⓒ 오늘의 행동 1개. **순서는 매일 달라도 좋다 — 도입을 고정하지 마라.** 특히 '거부는 정상' 안심 문구로 매번 시작하지 말고, 새로 거부한 게 있을 때만 자연스럽게 한 번 녹여라(없으면 다른 방식으로 열어라). 행동은 '집 아침·저녁 끼니' 또는 '기관에서 거부한 식재료를 집에서 부담 없이 다시 만나기'에서만. 어린이집·유치원 급식 메뉴 변경 요청 금지. 점수·등급 금지.
 - ⚠️ **매일 새로움(중복 금지)**: ⓒ 행동이 최근 편지들과 같은 개선점(예: 또 콩류)이라면 같은 말을 반복하지 말고 — (a) 같은 개선점이라도 **다른 식재료·다른 방법**으로 바꾸거나, (b) 정말 고칠 게 그것 하나뿐이면 오늘은 행동을 빼고 **잘하고 있는 것을 과거와 다른 식재료·다른 측면으로 구체적으로 칭찬만** 하라. ⓐ 칭찬도 과거 편지와 겹치지 않게(같은 'N가지 식재료' 같은 문구 반복 금지).

@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -279,6 +279,7 @@ export async function GET(req: Request) {
         const prev = lastLetter[cid];
         let letter = '', oneliner = '';
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
+        let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) hash와 무관하게 재사용. 식단 안 바뀐 경우도 재사용. force만 재생성.
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
@@ -309,7 +310,7 @@ export async function GET(req: Request) {
           const daySeed = Math.floor(Date.parse(today) / 86400000);
           let cidHash = 0; for (let k = 0; k < cid.length; k++) cidHash = (cidHash * 31 + cid.charCodeAt(k)) >>> 0;
           const rotateMove = MOVE_MENU[(daySeed + cidHash) % MOVE_MENU.length];
-          const gen = await generateLetter({
+          const letterInput = {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
             notes, refused: uniqRef, favoriteFoods, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
@@ -322,7 +323,20 @@ export async function GET(req: Request) {
             snackEval: snackEvalText,   // 간식 평가(별도 간식 엔진) — 초가공·식사 간섭성·BMI 칼로리 방향·좋은 간식
             profileNudge: recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null,   // 미입력 정보 권유(기록 공백 없을 때만·로테이션)
             rotateMove,   // 결정론적 코칭 무브(날짜+자녀 시드) — 매일 다른 행동 방식 강제
-          });
+          };
+          let gen = await generateLetter(letterInput);
+          // ⭐ 비중복 가드(belt-and-suspenders) — 생성 편지가 최근 편지와 너무 비슷하면(문자 3-gram 자카드 ≥0.45) 무브를 바꿔 1회 재생성, 덜 비슷한 쪽 채택
+          const simMax = (txt: string) => pastLetters.length ? Math.max(...pastLetters.map((p) => letterSimilarity(txt, p.letter))) : 0;
+          const sim1 = simMax(gen.letter);
+          if (sim1 >= 0.45) {
+            const worst = pastLetters.reduce((a, p) => letterSimilarity(gen.letter, p.letter) > letterSimilarity(gen.letter, a.letter) ? p : a, pastLetters[0]);
+            const gen2 = await generateLetter({
+              ...letterInput,
+              rotateMove: MOVE_MENU[(daySeed + cidHash + 1) % MOVE_MENU.length],   // 무브 한 칸 밀어 강제 차별화
+              regenAvoid: worst.letter,
+            });
+            if (simMax(gen2.letter) < sim1) { gen = gen2; coachRegen = true; }
+          }
           letter = gen.letter; oneliner = gen.oneliner;
         }
         if (letter) {
@@ -335,6 +349,7 @@ export async function GET(req: Request) {
             eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
             source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: 'haiku-4-5',
             scenarioId, scenarioLabel,   // 오늘의 코칭 시나리오(편지 다양성·중복 회피 이력)
+            coachRegen,   // 비중복 가드로 재생성됐는지(최근 편지와 유사도 ≥0.45)
             snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
           };
           await supabase.from('coach_letters').upsert(
