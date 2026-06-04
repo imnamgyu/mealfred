@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 카톡 커뮤니티 — 다이어트→편식 피벗 & 운영 보고서</title>
+<meta property="og:title" content="밀프레드 카톡 커뮤니티 — 다이어트→편식 피벗 & 운영 보고서">
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;line-height:1.75;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:920px;margin:0 auto;padding:0 22px;}
+section{padding:52px 0;border-bottom:1px solid #F0E8E0;}
+.label{font-size:11px;font-weight:800;letter-spacing:0.12em;color:#C45A00;text-transform:uppercase;margin-bottom:10px;}
+h1{font-size:clamp(27px,5vw,42px);font-weight:800;letter-spacing:-0.02em;line-height:1.2;}
+h2{font-size:clamp(20px,3.4vw,28px);font-weight:800;letter-spacing:-0.01em;margin-bottom:12px;}
+h3{font-size:16px;font-weight:800;margin:18px 0 6px;color:#C45A00;}
+p{font-size:15px;color:#3a4555;}
+.lede{font-size:16.5px;color:#2a3545;margin:12px 0;}
+.lede strong,p strong{color:#1a2b4a;font-weight:800;}
+.cover{background:linear-gradient(160deg,#1a2b4a 0%,#243a5e 55%,#E89244 230%);color:#fff;padding:68px 0 56px;border:none;}
+.cover .badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:0.1em;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);padding:6px 13px;border-radius:100px;margin-bottom:20px;}
+.cover h1{color:#fff;}.cover h1 .o{color:#FFB877;}
+.cover .sub{font-size:16.5px;color:rgba(255,255,255,0.85);margin-top:14px;max-width:720px;line-height:1.7;}
+.back{display:inline-block;margin-bottom:14px;color:rgba(255,255,255,0.7);text-decoration:none;font-size:12.5px;font-weight:700;}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:14px 0;}
+.asset{background:#fff;border:1.5px solid #E8DFD4;border-radius:12px;padding:15px 17px;}
+.asset .v{font-size:19px;font-weight:800;color:#C45A00;}
+.asset .l{font-size:12.5px;color:#5a6575;font-weight:700;}
+.callout{border-radius:14px;padding:16px 19px;margin:16px 0;}
+.c-key{background:linear-gradient(135deg,#FFF4E5,#FFEAD5);border:1.5px solid #FFCB8A;}
+.c-key .t{font-size:13px;font-weight:800;color:#C45A00;margin-bottom:6px;}
+.c-warn{background:#FFF3F3;border:1.5px solid #F5B5B5;}
+.c-warn .t{font-size:13px;font-weight:800;color:#C62828;margin-bottom:6px;}
+.c-moat{background:#F0FAF6;border:1.5px solid #A5D6C6;}
+.c-moat .t{font-size:13px;font-weight:800;color:#1B7A3D;margin-bottom:6px;}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:#1a2b4a;color:#fff;padding:9px;text-align:left;font-weight:700;}
+td{padding:8px 9px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
+tr:nth-child(even) td{background:#FCF8F3;}
+.up{color:#1B7A3D;font-weight:800;}.dead{color:#9a8a7a;text-decoration:line-through;}
+ul.clean{list-style:none;margin:10px 0;}
+ul.clean li{font-size:14px;color:#3a4555;margin:8px 0;padding-left:20px;position:relative;}
+ul.clean li::before{content:'';position:absolute;left:0;top:0.62em;width:8px;height:8px;border-radius:2px;background:#E89244;}
+.note{font-size:12.5px;color:#9a8a7a;}
+.phase{border-left:3px solid #FFB877;padding:4px 0 4px 14px;margin:12px 0;}
+.phase b{color:#C45A00;}
+/* 카톡 메시지 박스 */
+.msg{background:#fff;border:1.5px solid #E8DFD4;border-left:5px solid #E89244;border-radius:12px;padding:16px 18px;margin:12px 0;white-space:pre-wrap;font-size:13.5px;line-height:1.72;color:#2a3545;}
+.msg-h{font-size:12px;font-weight:800;color:#C45A00;letter-spacing:0.04em;margin:18px 0 4px;}
+.copy-hint{font-size:11.5px;color:#9a8a7a;font-weight:700;margin-bottom:4px;}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="wrap">
+    <a href="/docs.html" class="back">← 문서 허브</a>
+    <div class="badge">커뮤니티 운영 · 2026-06-04</div>
+    <h1>카톡 커뮤니티 <span class="o">다이어트→편식 피벗</span><br>복귀·운영 보고서</h1>
+    <div class="sub">500명 넘던 다이어트 오픈채팅방(현 멤버 다이어터·부모 반반)을 <b>'자녀 편식 해결방'으로 정직하게 전환</b>하고, 하루 한 번 콘텐츠(도감 연재 + 편식 글)로 다시 살리는 실행 패키지. 복귀 공지글·상단 고정 공지·운영 방안·데일리 멘트 템플릿. <b style="color:#FFB877;">엔진 = 식재료 도감 204종(약 7개월 일일 연재).</b></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">TL;DR · 한 줄 결론</div>
+    <h2>'주제가 바뀝니다'를 첫 줄에 정직하게 — 다이어터에겐 다리, 안 맞으면 죄책감 없는 출구</h2>
+    <div class="callout c-key">
+      <div class="t">핵심 전략 5</div>
+      <ul class="clean" style="margin:4px 0 0;">
+        <li><b>피벗을 숨기지 않는다</b> — "이 방 주제가 다이어트 → 아이 편식으로 바뀝니다"를 카톡 '더보기' 접힘 위(첫 2~4줄)에 선언. 슬쩍 바꾸는 운영자에게 떠나지, 미리 말하는 운영자에겐 남는다.</li>
+        <li><b>다이어터 다리 = '잘 먹는 법은 어른·아이가 같다'</b> — 제철·영양·궁합 지식은 식탁 챙기는 어른에게도 그대로 쓸모. (부모가 절반이라는 사실은 '보너스'로 괄호 처리 — 비부모를 잔류 소수로 만들지 않게.)</li>
+        <li><b>죄책감 없는 출구</b> — "결이 안 맞으면 조용히 나가셔도 됩니다. 미안할 일 아니에요." 남는 사람이 진성 코어가 된다.</li>
+        <li><b>연재 엔진 = 도감 204종</b> — 하루 한 종이면 약 7개월 무중단. 도감이 매일의 척추, 블로그·제철·궁합은 요일별로 얹는다.</li>
+        <li><b>앱은 주 1회·'궁금한 분만'</b> — 광고가 아니라 그날 콘텐츠의 연장 한 줄. 강매·전 멤버 호출 금지.</li>
+      </ul>
+    </div>
+    <div class="callout c-warn">
+      <div class="t">가장 큰 리스크 = 톤이 아니라 '사실 과장'</div>
+      적대 검수 결과, 피벗 윤리는 세 초안 모두 통과. 진짜 위험은 피벗을 정당화하려고 <b>신뢰도를 부풀리는 것</b>이었다 — "공공기관과 파트너십" / "식판을 직접 봤다" 같은 표현은 반반 청중에게 '결국 영업이었네'로 역전된다. <b>해결</b>: 검증 가능한 데이터 작업("식단표·급식 데이터를 들여다봤다")으로 톤 하향, 식판 묘사는 "데이터에서 거듭 만난 장면"으로.
+    </div>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">Diagnosis · 상황 진단</div>
+    <h2>채널 불일치 — 다이어터에게 편식(아이)을 그냥 던지면 또 빠진다</h2>
+    <div class="grid2">
+      <div class="asset"><div class="v">500+ → 79</div><div class="l">방 규모 (숫자는 공지에 절대 언급 X)</div></div>
+      <div class="asset"><div class="v">반반</div><div class="l">다이어터 : 30~40대 부모</div></div>
+      <div class="asset"><div class="v">하루 1회</div><div class="l">콘텐츠 공유 + 대화</div></div>
+      <div class="asset"><div class="v">풀 피벗</div><div class="l">다이어트 → 자녀 편식 해결방</div></div>
+    </div>
+    <p class="lede">기존 멤버는 <strong>다이어터</strong>, 우리 콘텐츠는 <strong>편식(아이)</strong> — 청중·제품 채널 불일치(YC가 짚은 키트 B2G vs 앱 B2C와 같은 구조). 정직한 전환 + 보편 식지식 다리 + 무죄책 출구로, '작지만 진성인 방'을 만든다. 79명을 다 붙잡는 게 아니라, 남을 사람이 남게.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Asset · 연재 가능한 기능</div>
+    <h2>도감이 핵심 엔진 — 매일의 척추</h2>
+    <table>
+      <tr><th style="width:24%">기둥</th><th>내용</th><th style="width:24%">빈도</th></tr>
+      <tr><td><b>🥕 도감 일일연재</b><br><span class="note">핵심 엔진</span></td><td>하루 한 종 — 제철·영양(농진청)·또래가 잘 먹는 음식·1회분 그램·궁합 5줄 + 고정 질문 1줄.</td><td><b class="up">매일</b> (204종 ≈ 7개월)</td></tr>
+      <tr><td>📖 정주행 본편</td><td>편식 블로그 시리즈를 Phase 순서대로, 지난 편 링크 붙여 책처럼 쌓기.</td><td>주 2회 (화·금)</td></tr>
+      <tr><td>⚡ 스낵 토막글</td><td>1분 한입 상식("캐나다 BC주는 12~30번 보여줘야 정상"). 캡처 바이럴.</td><td>주 1회 (수)</td></tr>
+      <tr><td>🍃 제철·궁합</td><td>이번 주 제철 + "이 식재료엔 이 사촌". 주말 장보기 직전.</td><td>주 1회 (토)</td></tr>
+      <tr><td>💬 대화·Q&amp;A</td><td>일요일 '한 주 질문 모음' 운영자 직접 답 + 평일 댓글 1줄 상시.</td><td>주 1회(일)+상시</td></tr>
+    </table>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">Copy ① · 복귀 공지글</div>
+    <h2>바로 붙여넣기 (첫 4줄에 피벗 선언 — 더보기 위)</h2>
+    <p class="copy-hint">↓ 아래 박스 그대로 복사</p>
+    <div class="msg">솔직히 먼저 말씀드릴게요.
+
+이 방, 오늘부터 주제가 바뀝니다.
+다이어트가 아니라 '아이 편식'으로요.
+
+슬쩍 넘어갈 수도 있었지만,
+그건 남아 주신 분들께 도리가 아니라고 생각했어요.
+
+저희는 밀프레드라는 편식 전문 브랜드예요.
+전국 학교·유치원·어린이집 3,000여 곳, 10만 아이들의
+식단표와 급식 데이터를 수년간 들여다보며
+'아이가 잘 먹는 법'을 연구해 왔습니다.
+
+그 데이터에서 거듭 만난 장면이 있어요.
+· 브로콜리만 골라 한쪽에 밀어둔 식판
+· 국에서 건더기만 건져낸 그릇
+· "한 입만"을 백 번 들어도 입 꾹 다무는 아이
+· 그 옆에서 한숨 쉬는 부모님
+
+그래서 확신했어요.
+이건 아이 고집도, 부모 탓도 아니라 방법의 문제라는 걸요.
+저희가 매일 책임지고 나눌 수 있는 이야기도 바로 이것이었습니다.
+
+— 앞으로 매일, 이렇게 —
+
+하루 한 번, 부담 없이.
+· 🥕 식재료 도감 한 종 (제철·영양·또래가 잘 먹는 음식·궁합)
+· 📖 편식 이야기 한 편 (근거·출처 있는 1~2분 글)
+그리고 댓글로 우리 집 식탁 고민, 편하게요.
+(도감만 204종, 하루 한 종씩 7개월을 이어갑니다.)
+
+— 다이어트로 오신 분들께 —
+
+함께해 주신 시간, 진심으로 감사합니다.
+하나만 말씀드리고 싶어요.
+제철에 뭐가 좋은지, 어떤 식재료에 무슨 영양이 있는지,
+무엇과 곁들이면 좋은지 — 이 지식은
+식탁을 챙기는 어른에게도 그대로 쓸모가 있어요.
+(마침 이 방엔 아이 키우는 분도 많으시고요.)
+
+물론 결이 안 맞으실 수도 있어요.
+조용히 나가셔도 정말 괜찮습니다.
+미안해하실 일 전혀 아니에요 — 다이어트방으로 오셨는데
+방향이 바뀐 거니까요. 함께해 주신 것만으로 충분히 감사합니다.
+
+— 오늘, 딱 한 줄만 —
+
+댓글에 "우리 집에서 제일 안 먹는 음식 하나"만 적어 주실래요?
+그 한 줄이, 내일 나눌 첫 이야기가 됩니다.
+
+(아이 끼니를 기록하면 부족한 영양과 다음 시도 음식을
+짚어주는 앱도 열어뒀어요. 궁금한 분만 → https://app.mealfred.com/ )
+
+밀프레드 드림.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Copy ② · 상단 고정 공지</div>
+    <h2>방 들어오면 맥락 바로 잡게 (공지 고정)</h2>
+    <div class="msg">📌 [공지] 이 방은 이제 '아이 편식' 이야기를 나눕니다
+
+처음 다이어트로 모여주신 분들, 그동안 감사합니다. 남아주신 한 분 한 분 덕분에 이어갑니다.
+
+밀프레드는 전국 학교·유치원·어린이집의 식단표와 급식 데이터를 들여다보며 아이 편식을 연구해 온 편식 전문 브랜드예요. 그 이야기를 이 방에서 매일 나눕니다.
+
+잘 먹는 법은 어른도 아이도 같아요. 식재료·영양·제철 지식은 다이어트에도 그대로 쓸모 있고, 이 방엔 부모님도 많으십니다.
+
+📖 하루 한 번 약속
+· 편식 글 한 편 (근거·출처, 1~2분)
+· 식재료 도감 한 종 (제철·영양·또래가 잘 먹는 음식)
+· 댓글로 우리 집 식탁 고민, 편하게
+
+🙏 규칙
+1. 서로 존중, 외부 광고·홍보는 삼가요
+2. '우리 집은 이래요' 환영 / 단정·훈수는 가볍게
+3. 결이 안 맞으면 죄송함 없이 나가셔도 됩니다. 정말 괜찮아요
+
+📱 아이 끼니 기록 → 부족 영양·다음 시도 음식 추천 앱. 궁금한 분만 → https://app.mealfred.com/
+
+밀프레드 드림</div>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">Ops · 운영 방안</div>
+    <h2>주간 캘린더 · 데일리 리듬 · 앱 규칙 · 재활성화</h2>
+
+    <h3>주간 캘린더 (도감 = 매일 척추)</h3>
+    <table>
+      <tr><th style="width:14%">요일</th><th>발행</th></tr>
+      <tr><td><b>월</b></td><td>도감 1종 + 이번 주 안내(정주행 예고)</td></tr>
+      <tr><td><b>화</b></td><td>도감 1종 + 정주행 본편 1편</td></tr>
+      <tr><td><b>수</b></td><td>도감 1종 + 스낵 1편(1분 토막)</td></tr>
+      <tr><td><b>목</b></td><td>도감 1종 + 지난 정주행 복습 / 댓글 사례 인용</td></tr>
+      <tr><td><b>금</b></td><td>도감 1종 + 정주행 본편 1편</td></tr>
+      <tr><td><b>토</b></td><td>도감 1종 + 이번 주 제철·궁합 1종(장보기 직전)</td></tr>
+      <tr><td><b>일</b></td><td>도감 1종 + 운영자 Q&amp;A('한 주 질문 모음')</td></tr>
+    </table>
+
+    <div class="callout c-key">
+      <div class="t">데일리 리듬</div>
+      아침 8~9시(출근·등원) '오늘의 도감 한 종'을 메인 1회 — 더보기 접힘 고려해 첫 2~3줄에 <b>식재료명·제철·또래가 잘 먹는 음식 1개</b>. 둘째 콘텐츠(정주행/스낵/제철/Q&amp;A)는 점심 직후나 저녁 8~9시(아이 재운 뒤). <b>하루 최대 2~3개, 알림 피로 방지.</b> 운영자는 발행 1~2시간 내 들어온 댓글에 직접 한두 줄 답 → '사람이 있는 방' 신호.
+    </div>
+
+    <div class="callout c-moat">
+      <div class="t">앱 노출 규칙 — 주 1회 상한</div>
+      광고가 아니라 그날 콘텐츠의 연장 한 줄. 예) 정주행 '좋아지는 중인지 제자리인지' 다룬 날 → "직접 세기 번거로우면 앱이 28일 단위로 짚어줘요. 궁금한 분만 → app.mealfred.com". <b>강매·전 멤버 호출 금지, 항상 '궁금한 분만'.</b> 다이어터에겐 "어른 식단 기록에도 써요" 한 줄로 포용.
+    </div>
+
+    <h3>죽은 방 되살리기 4수</h3>
+    <ul class="clean">
+      <li><b>첫 2주 = 매일 같은 시각 도감 빠짐없이</b> — 죽은 방 1순위 문제는 '무신호'. 리듬부터 복구.</li>
+      <li><b>발행 직후 운영자가 첫 댓글</b> 직접 달기 — 댓글창이 비어 보이지 않게.</li>
+      <li><b>타이핑 0 참여</b> — 도감마다 이모지 투표(잘 먹어요/가끔/거부). 클릭 1번이 '활성 멤버'로 되살린다.</li>
+      <li><b>사례 보상 루프</b> — 들어온 댓글을 다음 콘텐츠에 인용("지난주 OO님 댁 당근 거부 사례"). 참여가 무대가 되면 침묵 멤버도 말한다.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Copy ③ · 데일리 멘트 템플릿</div>
+    <h2>매일 복붙용 — 핵심 한 줄 + 링크 + 오늘의 질문</h2>
+
+    <div class="msg-h">① 도감 데일리 (하루 한 종)</div>
+    <div class="msg">🥕 [오늘의 식재료 도감] 당근
+
+주황빛 베타카로틴(비타민A)이 아이 눈·피부·면역을 지켜줘요. 단맛이 있어 거의 모든 요리에 슬쩍 숨길 수 있는 급식 단골 채소예요.
+· 1회분: 약 7g (생각보다 적죠?)
+· 또래가 잘 먹는 음식: 채소죽, 꼬마김밥, 돼지갈비찜
+· 궁합: 익히면 단맛↑ — 볶음밥·계란말이에 잘 숨어요
+
+💬 우리 집 당근은 '생으로 OK파'인가요, '익혀야만파'인가요?</div>
+
+    <div class="msg-h">② 편식 블로그 공유 (정주행/스낵)</div>
+    <div class="msg">📖 [편식 블로그·정주행] 기다리면 좋아진다, 정말 그럴까요
+
+"크면서 좋아질 거예요" — 대부분은 정말 그래요. 다만 편식의 약 40%는 2년을 넘겨 이어진대요(Mascola 외, 2010). SOS는 '2년'을 겁주는 선이 아니라 한 번 점검할 분기점으로 봅니다.
+전문(1~2분): mealfred.com/blog/025.html
+
+💬 우리 아이 편식, 시작된 지 얼마나 됐을까요?</div>
+
+    <div class="msg-h">③ 제철 / 궁합 (변주)</div>
+    <div class="msg">🍃 [궁합 한 입] 당근 × 계란
+
+당근의 비타민A는 기름과 만나야 흡수가 잘 돼요. 계란말이에 잘게 넣으면 색도 예쁘고 흡수도 올라가요. 통째 거부하는 아이도 '계란 속 주황 점'은 의외로 통과시키곤 합니다.
+
+💬 우리 집은 당근을 어디에 '몰래' 숨기시나요?</div>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">Caution · 사실 표현 주의</div>
+    <h2>발행 전 확인 3가지</h2>
+    <ul class="clean">
+      <li><b>"3,000여 곳·10만 아이"</b> — 밀프레드 출사표에 쓰는 표현이라 유지하되 <b>'파트너십'이 아니라 '식단표·급식 데이터를 들여다봤다'</b>(검증 가능한 NEIS 작업)로 톤 하향. 실제 수위는 최종 판단 필요.</li>
+      <li><b>식판 4줄 묘사</b> — "직접 봤다"(과장)가 아니라 <b>"데이터에서 거듭 만난 장면"</b>으로 프레이밍.</li>
+      <li><b>25편 링크(blog/025.html)는 미발행</b> — 템플릿 ②를 첫 공유글로 쓰려면 25편을 먼저 배포해야 라이브. 당장 쓰려면 이미 라이브된 편으로 교체.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Appendix · 산출 근거</div>
+    <h2>3각도 초안 심사 + 적대 리스크 검수 (7에이전트)</h2>
+    <p class="note">복귀글을 솔직·따뜻 / 가치 선명 / 현장 스토리 3각도로 독립 생성 → 6기준 채점 → 합성.</p>
+    <table>
+      <tr><th style="width:26%">초안 각도</th><th style="width:12%">총점</th><th>강점 / 약점</th></tr>
+      <tr><td><b>A. 솔직·따뜻</b></td><td><b class="up">9.0</b></td><td>정직성 만점·무죄책 출구 명확. 약점=부모 후킹이 본문 뒤로.</td></tr>
+      <tr><td><b>B. 가치 선명</b></td><td>8.5</td><td>부모 후킹 최강·카톡 스캔 우수. 약점=피벗 고백이 더보기 아래로 묻힘.</td></tr>
+      <tr><td><b>C. 현장 스토리</b></td><td>7.5</td><td>감정 후킹·따뜻함 최강. 약점=과장 리스크(3,000곳 직접 목격), 가장 김.</td></tr>
+    </table>
+    <p class="lede"><strong>합성 결정</strong>: A의 정직한 피벗 선언(첫 줄) + B의 가치 메뉴 + C의 식판 묘사(과장 제거) → 최종 복귀글. 리스크 검수가 잡은 <b>2건 high(사실 과장)</b>는 데이터 기반 표현으로 정리, <b>med(비부모 소외)</b>는 '부모 절반'을 괄호로 후순위화, <b>출구 시퀀싱</b>은 설득 전에 출구 먼저로 교정.</p>
+  </div>
+</section>
+
+<footer style="text-align:center;font-size:11px;color:#9a8a7a;padding:30px;font-weight:600;">
+  밀프레드 카톡 커뮤니티 · 다이어트→편식 피벗 & 운영 보고서 · 2026-06-04 · <a href="/docs.html" style="color:#C45A00;">문서 허브</a>
+</footer>
+
+</body>
+</html>
