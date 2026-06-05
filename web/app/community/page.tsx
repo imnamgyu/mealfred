@@ -5,12 +5,12 @@
  */
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import LoginCta from '@/components/LoginCta';
 import CommunityWrite from '@/components/CommunityWrite';
 import CommunityPostCard from '@/components/CommunityPostCard';
+import BlogFeedCard from '@/components/BlogFeedCard';
 import { allSeeds, seasonalChallenge } from '@/lib/community';
 import type { BlogCard } from '@/lib/blog';
 
@@ -46,7 +46,17 @@ export default function CommunityPage() {
 
   // 피드 = 실제 글 먼저 + 코치 PICK 시드(콜드스타트 채움). 같은 식재료 시드가 실제 글로 이미 덮였으면 굳이 숨기진 않음(시드는 보조).
   const seedCards: Post[] = seeds.map((s) => ({ id: s.id, body: s.body, ingredients: [s.ingredient], method_type: s.method_type, traits: s.traits, seed: true, like_count: 0, tried_count: 0 }));
-  const feed: Post[] = sort === 'new' ? [...posts, ...seedCards] : [...posts, ...seedCards];
+  const feed: Post[] = [...posts, ...seedCards];
+
+  // 밀프레드 글을 엄마 노하우 사이사이에 같은 카드로 끼워 넣음(상단 분리 X). 3개마다 1개.
+  type FeedItem = { kind: 'post'; post: Post } | { kind: 'blog'; blog: BlogCard & { reason?: string | null } };
+  const interleaved: FeedItem[] = [];
+  let bi = 0;
+  feed.forEach((p, i) => {
+    interleaved.push({ kind: 'post', post: p });
+    if ((i + 1) % 3 === 0 && bi < blogs.length) interleaved.push({ kind: 'blog', blog: blogs[bi++] });
+  });
+  while (bi < blogs.length) interleaved.push({ kind: 'blog', blog: blogs[bi++] });
 
   return (
     <main className="max-w-md mx-auto w-full min-h-screen flex flex-col overflow-x-hidden" style={{ background: '#FFFDFB' }}>
@@ -57,30 +67,6 @@ export default function CommunityPage() {
         </div>
         {!loggedIn && <LoginCta />}
       </header>
-
-      {/* 밀프레드 발행 글(블로그) — 팁 최상단. 현재 최신순, Phase 2에서 개인 맞춤 추천순. */}
-      {blogs.length > 0 && (
-        <section className="pb-3">
-          <div className="px-5 pb-2 flex items-center gap-2">
-            <div className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>📰 밀프레드의 글</div>
-            <span className="text-[11px]" style={{ color: '#9CA3AF' }}>매일 한 편, 근거 있는 편식 이야기</span>
-          </div>
-          <div className="flex gap-3 overflow-x-auto px-5 pb-1" style={{ scrollbarWidth: 'none' }}>
-            {blogs.map((b) => (
-              <Link key={b.slug} href={`/blog/${b.slug}`} className="flex-shrink-0 rounded-2xl p-3.5" style={{ width: 220, background: 'white', border: '1px solid #F0E6DC', boxShadow: '0 2px 9px rgba(0,0,0,0.03)', textDecoration: 'none' }}>
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: b.track === '스낵' ? '#FFF1E2' : '#EEF2FF', color: b.track === '스낵' ? '#C45A00' : '#3949AB' }}>{b.track || '글'}</span>
-                  {b.phase_name && <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{b.phase_name}</span>}
-                </div>
-                {b.reason && <div className="text-[10.5px] font-extrabold mb-1 flex items-center gap-1" style={{ color: '#16A085' }}>🎯 {b.reason}</div>}
-                <div className="text-[14px] font-extrabold leading-snug" style={{ color: '#1a2b4a' }}>{b.title}</div>
-                {b.excerpt && <p className="text-[11.5px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{b.excerpt}</p>}
-                {b.published_at && <div className="text-[10px] mt-2" style={{ color: '#C9B8A8' }}>{b.published_at}</div>}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* 글쓰기 CTA */}
       <div className="px-5 pb-3">
@@ -126,7 +112,9 @@ export default function CommunityPage() {
                 <p className="text-[12px] mt-0.5" style={{ color: '#8a7a6a' }}>아래는 코치가 정리한 노하우예요. 첫 글을 남기면 이 식재료의 <b>1호 마스터</b>가 돼요!</p>
               </div>
             )}
-            {feed.map((p) => <CommunityPostCard key={p.id} post={p} />)}
+            {interleaved.map((it) => it.kind === 'post'
+              ? <CommunityPostCard key={it.post.id} post={it.post} />
+              : <BlogFeedCard key={`blog-${it.blog.slug}`} blog={it.blog} />)}
           </>
         )}
       </div>

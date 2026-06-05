@@ -235,6 +235,8 @@ export default function MePage() {
               {[
                 { ic: '🍽', t: '끼니 기록', p: '+50P', d: '매 끼니 · 하루 5끼까지', on: true },
                 { ic: '📋', t: '식단표 등록', p: '+1,000P', d: '어린이집 식단표 사진 업로드(월 1회)', on: true },
+                { ic: '✏️', t: '첫 노하우 남기기', p: '+500P', d: <>팁 탭·도감에 우리 아이 노하우를 처음 남기면(1회) · 다른 엄마가 <strong>해봤어요</strong>로 응답해요</>, on: true },
+                { ic: '🍳', t: '첫 레시피 올리기', p: '+500P', d: '도감 식재료에 버튼 조립 레시피를 처음 올리면(1회) · 이케아식으로 자동 시각화', on: true },
                 { ic: '👥', t: '친구 가입', p: '+4,900P', d: <>친구가 <strong style={{ color: '#D6453D' }}>아이 첫 끼니를 입력</strong>하면 적립 · 많이 모으면 계속 무료</>, on: true },
               ].map((x, i) => (
                 <div key={i} className="flex items-center gap-2.5 py-1.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
