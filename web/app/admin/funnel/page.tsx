@@ -47,8 +47,15 @@ export default async function FunnelPage() {
     visitByDay[r.day] = r.visits;
     tot.signup += r.signups; tot.child += r.children; tot.meal += r.meals; totVisits += r.visits;
   });
-  // rows는 RPC에서 day desc 정렬 → 상위 30일만 표시.
-  const dates = rows.map((r) => r.day).slice(0, 30);
+  // 최근 30일을 빠짐없이(KST). 방문·가입이 0인 날도 행을 만들어 0으로 표시.
+  // 정오(UTC) 앵커 + UTC 일자 빼기 = 런타임 TZ와 무관하게 KST 달력일 그대로.
+  const todayKst = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Seoul' }); // YYYY-MM-DD
+  const base = new Date(todayKst + 'T12:00:00Z');
+  const dates = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(base);
+    d.setUTCDate(base.getUTCDate() - i);
+    return d.toISOString().slice(0, 10);
+  });
 
   const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
   const Stage = ({ n, base, color }: { n: number; base: number; color: string }) => (
