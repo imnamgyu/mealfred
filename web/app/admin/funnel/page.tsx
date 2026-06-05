@@ -14,8 +14,11 @@ import RefreshButton from './RefreshButton';
 
 export const dynamic = 'force-dynamic';
 
-const wd = ['일', '월', '화', '수', '목', '금', '토'];
-const label = (d: string) => { const t = new Date(d + 'T00:00:00+09:00'); return `${d.slice(5)} (${wd[t.getDay()]})`; };
+// 요일은 KST 기준으로(런타임이 UTC면 getDay()가 KST 자정을 전날로 봐서 하루 밀린다 → 정오 앵커 + timeZone).
+const label = (d: string) => {
+  const w = new Date(d + 'T12:00:00+09:00').toLocaleDateString('ko-KR', { weekday: 'short', timeZone: 'Asia/Seoul' });
+  return `${d.slice(5)} (${w})`;
+};
 
 export default async function FunnelPage() {
   const anon = await createSupabaseServerAnon();
