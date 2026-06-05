@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 리텐션·휴면 엔진 — 설계 보고서(검토용)</title>
+<meta property="og:title" content="코칭 리텐션·휴면 엔진 설계 보고서">
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;line-height:1.75;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:920px;margin:0 auto;padding:0 22px;}
+section{padding:46px 0;border-bottom:1px solid #F0E8E0;}
+.label{font-size:11px;font-weight:800;letter-spacing:0.12em;color:#C45A00;text-transform:uppercase;margin-bottom:10px;}
+h1{font-size:clamp(25px,5vw,39px);font-weight:800;letter-spacing:-0.02em;line-height:1.2;}
+h2{font-size:clamp(19px,3.4vw,27px);font-weight:800;letter-spacing:-0.01em;margin-bottom:12px;}
+h3{font-size:15px;font-weight:800;margin:18px 0 6px;color:#C45A00;}
+p{font-size:15px;color:#3a4555;}
+.lede{font-size:16px;color:#2a3545;margin:12px 0;}
+.lede strong,p strong{color:#1a2b4a;font-weight:800;}
+.cover{background:linear-gradient(160deg,#1a2b4a 0%,#243a5e 55%,#16A085 230%);color:#fff;padding:62px 0 50px;border:none;}
+.cover .badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:0.1em;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);padding:6px 13px;border-radius:100px;margin-bottom:18px;}
+.cover h1{color:#fff;}.cover h1 .o{color:#7FE3C7;}
+.cover .sub{font-size:16px;color:rgba(255,255,255,0.85);margin-top:14px;max-width:720px;line-height:1.7;}
+.back{display:inline-block;margin-bottom:14px;color:rgba(255,255,255,0.7);text-decoration:none;font-size:12.5px;font-weight:700;}
+.callout{border-radius:14px;padding:16px 19px;margin:16px 0;}
+.c-key{background:linear-gradient(135deg,#FFF4E5,#FFEAD5);border:1.5px solid #FFCB8A;}
+.c-key .t{font-size:13px;font-weight:800;color:#C45A00;margin-bottom:6px;}
+.c-dec{background:#EAF2FF;border:1.5px solid #9DBDF0;}
+.c-dec .t{font-size:13px;font-weight:800;color:#2B5CB8;margin-bottom:6px;}
+.c-warn{background:#FFF8E8;border:1.5px solid #FFE0A0;}
+.c-warn .t{font-size:13px;font-weight:800;color:#8a5a00;margin-bottom:6px;}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:#1a2b4a;color:#fff;padding:9px;text-align:left;font-weight:700;}
+td{padding:8px 9px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
+tr:nth-child(even) td{background:#FCF8F3;}
+code{background:#F4EFE8;border-radius:5px;padding:1px 6px;font-size:12.5px;color:#9a5a00;}
+ul.clean{list-style:none;margin:10px 0;}
+ul.clean li{font-size:14px;color:#3a4555;margin:8px 0;padding-left:20px;position:relative;}
+ul.clean li::before{content:'';position:absolute;left:0;top:0.62em;width:8px;height:8px;border-radius:2px;background:#16A085;}
+.done{color:#1B7A3D;font-weight:800;}.todo{color:#C45A00;font-weight:800;}
+.msg{background:#fff;border:1.5px solid #E8DFD4;border-left:4px solid #16A085;border-radius:10px;padding:12px 15px;margin:9px 0;font-size:13.5px;color:#2a3545;}
+.msg b{color:#1a2b4a;}
+.note{font-size:12.5px;color:#9a8a7a;}
+.dq{display:flex;gap:11px;align-items:flex-start;background:#fff;border:1.5px solid #C7D8F5;border-radius:11px;padding:13px 15px;margin:10px 0;}
+.dq .n{font-size:14px;font-weight:800;color:#2B5CB8;background:#EAF2FF;border-radius:8px;min-width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dq h4{font-size:14.5px;margin:0 0 2px;color:#1a2b4a;}
+.dq p{font-size:13px;color:#5a6575;}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="wrap">
+    <a href="/docs.html" class="back">← 문서 허브</a>
+    <div class="badge">설계 보고서 · 검토용 · 2026-06-05</div>
+    <h1>코칭 리텐션·<span class="o">휴면 엔진</span> — 설계 보고서</h1>
+    <div class="sub">"부모가 안 들어오기 시작하면 코칭 메시지가 똑같아지거나 아예 안 간다"는 문제의 해법. <b style="color:#7FE3C7;">편지를 최근 3일만 보여 매일 들어오게 하고(배포됨)</b>, 안 들어오면 휴면 단계별로 다른 편지 + 회유 알림톡 3번으로 다시 부릅니다. <b>아래 §8 결정 포인트만 체크해 주시면 바로 빌드합니다.</b></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">현황 · 무엇이 됐고 무엇이 남았나</div>
+    <h2>키스톤은 배포됨, '휴면 부르기'가 남음</h2>
+    <table>
+      <tr><th style="width:42%">항목</th><th>상태</th></tr>
+      <tr><td><b>편지 최근 3일만 표시</b>(웹툰 쿠키식 FOMO)</td><td><span class="done">✅ 배포</span> — 홈 스레드 3일 제한 + "최근 3일만 볼 수 있어요" 푸터. <b>안 보면 사라짐 = 매일 접속 유도</b></td></tr>
+      <tr><td>도입부 반복 가드(편지 다양성)</td><td><span class="done">✅ 배포·검증</span></td></tr>
+      <tr><td>편식 팁 36개(데이터 없을 때용)</td><td><span class="done">✅ 생성·저장</span></td></tr>
+      <tr><td><b>cron 휴면 모드 + 회유 알림톡 D1·D3·D7</b></td><td><span class="todo">⏳ 이 보고서 = 그 계획</span></td></tr>
+    </table>
+    <div class="callout c-warn"><div class="t">지금 동작(고쳐야 할 것)</div>① 끼니 기록이 최근 7일 중 3일 미만이면 크론이 그 자녀를 <b>아예 스킵</b>(편지 0). ② 3일 이상이지만 어제 미입력이면 <b>어제 편지를 재사용</b>(같은 메시지). → 둘 다 리텐션 구멍.</div>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">설계 ① · 휴면 단계 사다리</div>
+    <h2>마지막 기록일 기준으로 편지를 바꾼다</h2>
+    <p class="lede">신호 = <strong>마지막 끼니 기록일</strong>(이 앱의 핵심 행동). "안 들어옴" ≈ "안 기록함". 편지는 <strong>휴면 7일까지 계속 생성</strong>(스킵 안 함), 7일 넘으면 중단.</p>
+    <table>
+      <tr><th>마지막 기록</th><th>모드</th><th>편지 내용</th><th>회유 알림톡</th></tr>
+      <tr><td><b>0~1일</b> (활성)</td><td>정상</td><td>평소 개인화 편지</td><td>없음(매일 오는 사람)</td></tr>
+      <tr><td><b>2~7일</b> (휴면)</td><td>복귀</td><td><b>과거 데이터 긁어</b> 따뜻한 컴백 — "아린이가 [과거 진전]했었죠. 한 끼만 다시 남기면 이어가요". 최근 데이터 빈약하면 <b>편식 팁</b>을 함께</td><td>D1·D3·D7에만</td></tr>
+      <tr><td><b>7일+ / 데이터 빈약</b></td><td>팁</td><td><b>짧은 편식 팁</b>(36개 라이브러리, 날짜+자녀 시드 로테이션 — 데이터 없어도 따뜻하게)</td><td>D7 1회로 마무리</td></tr>
+    </table>
+    <div class="callout c-key"><div class="t">비중복</div>복귀 편지·팁도 방금 만든 <b>코칭 비중복 엔진</b>(도입부 가드·무브 로테이션) 재사용 — 휴면이어도 매번 다른 말.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">설계 ② · 회유 알림톡 D1·D3·D7</div>
+    <h2>안 들어온 다음날부터 딱 3번, 매일 오는 사람은 0</h2>
+    <p>안 들어온 다음날 = D1. 그 이후 <b>D1·D3·D7</b>에만 발송(스팸·죄책감 방지). 발송 시각 = 아침 8~9시(아이 식사 전후). 멱등(자녀당 단계별 1회).</p>
+    <h3>D1 — 손실 회피("그저께 편지 곧 사라져요")</h3>
+    <div class="msg">[밀프레드] 아린이 코치 편지가 쌓여 있어요 🍪<br><b>그저께 편지는 곧 사라져요</b> — 코치 편지는 최근 3일만 볼 수 있거든요. 오늘의 한 걸음 보기 →</div>
+    <h3>D3 — 부드러운 컴백 + 새 소식</h3>
+    <div class="msg">[밀프레드] 아린이 잘 지내나요? 🌿<br><b>한 끼만 남겨도</b> 코치가 다시 봐드려요. 그동안 다른 엄마들 노하우도 새로 올라왔어요 →</div>
+    <h3>D7 — 마지막, 따뜻하게(죄책감 없이)</h3>
+    <div class="msg">[밀프레드] 아린이의 식경험, 다시 시작해볼까요? ✉️<br>부담 없는 <b>오늘의 한 걸음</b>을 준비해뒀어요. 천천히 와도 괜찮아요 →</div>
+    <div class="callout c-warn"><div class="t">톤 철칙(절대)</div>"아이가 굶고 있어요"·"왜 안 하세요" 같은 <b>죄책감·압박 금지</b>(편식은 죄책감 주제 → 더 빨리 떠남). 매일 푸시 금지(D1·D3·D7만). 스트릭 끊겨도 비난 없이 부드럽게.</div>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">구현 계획</div>
+    <h2>건드리는 곳 · 핵심 로직</h2>
+    <ul class="clean">
+      <li><b>휴면 일수 계산</b> — 자녀별 마지막 <code>meal_logs.log_date</code>로 <code>daysSinceLastLog</code>. 과거 ~21일에서 기록 일수(history)도 — 진짜 사용자(≥3일) 판별.</li>
+      <li><b>크론 eligibility 변경</b>(<code>/api/cron/coach</code>) — 현행 'last 7일 ≥3일'에서 → <b>history ≥3일 & 휴면 ≤7일</b>이면 생성(스킵 정책 변경).</li>
+      <li><b>모드 분기</b> — <code>coach.ts</code> <code>generateLetter</code>에 <code>dormancyDays</code> 주입 → 2일+는 복귀 톤·과거 데이터 요약, 데이터 빈약하면 <code>coach-tips.json</code> 팁 1개.</li>
+      <li><b>회유 알림톡</b> — 휴면이 정확히 1·3·7일인 자녀에게 발송. 멱등(자녀+단계 키), 기존 알림톡 plumbing(<code>sens.ts</code>) 재사용. 매일 오는 사람(0일)은 제외.</li>
+      <li><b>빈도 제어</b> — D1·D3·D7만(편지 생성과 별개). 7일 후 중단.</li>
+    </ul>
+    <div class="callout c-warn"><div class="t">의존성</div>알림톡 <b>실제 발송</b> = NCP SENS 환경변수 + <b>회유 템플릿 3종 심사</b>(D1/D3/D7). 로직은 지금 만들어두면 켜는 순간 작동. <b>편지 3일 윈도우·휴면 편지 생성은 알림톡 없이도 작동.</b></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">⭐ 결정 필요 · 이사님 체크</div>
+    <h2>이것만 정해주시면 바로 빌드합니다</h2>
+    <div class="dq"><div class="n">1</div><div><h4>휴면 신호 = '끼니 기록' 기준으로 OK?</h4><p>마지막 끼니 기록일로 휴면 판정(앱은 열었지만 기록 안 한 경우는 미감지). 대안: 앱 오픈 추적(<code>last_seen</code>) 추가 — 더 정확하지만 작업 늘어남. <b>권장: 끼니 기록 기준</b>(핵심 행동·이미 추적).</p></div></div>
+    <div class="dq"><div class="n">2</div><div><h4>회유 알림톡 카피 3종 — 위 초안대로 OK?</h4><p>D1(손실 회피)·D3(컴백+노하우)·D7(마지막·따뜻). 문구 수정/톤 다르게 원하면 알려주세요.</p></div></div>
+    <div class="dq"><div class="n">3</div><div><h4>타이밍 = D1·D3·D7 / 아침 발송 OK?</h4><p>편지 생성은 새벽 2시, 회유 알림톡은 아침 8~9시. D1/D3/D7 외 추가/축소 원하면.</p></div></div>
+    <div class="dq"><div class="n">4</div><div><h4>7일 후 = 완전 중단? 아니면 주 1회 팁 계속?</h4><p>권장: 7일까지 편지·D7 알림톡 후 중단(알림 피로 방지). 원하면 그 이후 '주 1회 편식 팁'으로 약하게 유지 가능.</p></div></div>
+    <div class="dq"><div class="n">5</div><div><h4>편지 '휴면 7일까지 생성' = 비용/스팸 우려 없나?</h4><p>현재 사용자 소수라 비용 무시 가능. 푸시는 D1/D3/D7만이라 스팸 아님. (대규모 되면 휴면 생성 빈도 조정 옵션.)</p></div></div>
+    <a href="/docs.html" class="back" style="color:#9a8a7a;">← 문서 허브로</a>
+  </div>
+</section>
+
+</body>
+</html>
