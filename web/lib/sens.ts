@@ -28,7 +28,8 @@ export type AlimtalkTemplate =
   | 'stage_change'
   | 'challenge_complete'
   | 'inactive_reminder'
-  | 'coach_letter_preview';
+  | 'coach_letter_preview'
+  | 'coach_reengage';
 
 export type AlimtalkVars = Record<string, string | number>;
 
@@ -63,6 +64,11 @@ const TEMPLATES: Record<AlimtalkTemplate, (vars: AlimtalkVars) => string> = {
     `${v.childName ?? '우리 아이'} 오늘의 식습관 코칭이 도착했어요 💌\n\n` +
     `${v.preview ?? ''}\n\n` +
     `▶ 전체 편지 보기`,
+
+  // 휴면 회유 — body = 단계별(D1/D3/D7) 문구. 매일 들어오는 사람에겐 안 감.
+  coach_reengage: (v) =>
+    `${v.body ?? ''}\n\n` +
+    `▶ ${v.childName ?? '우리 아이'} 오늘의 한 걸음 보기`,
 };
 
 function makeSignature(method: string, url: string, timestamp: string): string {
@@ -190,5 +196,44 @@ export async function sendCoachLetterPreview(opts: {
     template: 'coach_letter_preview',
     templateCode: 'mealfred_coach_preview_v1',   // ⚠ SENS 콘솔 등록·심사 필요(4~7일)
     vars: { childName: opts.childName, preview: opts.preview.slice(0, 90) },
+  });
+}
+
+// 휴면 회유 단계별 문구(D1/D3/D7). 톤 철칙: 죄책감·압박 금지·따뜻하게.
+export const REENGAGE_COPY: Record<1 | 2 | 3, (childName: string) => string> = {
+  1: (c) => `${c} 코치 편지가 쌓여 있어요 🍪 그저께 편지는 곧 사라져요 — 코치 편지는 최근 3일만 볼 수 있거든요.`,
+  2: (c) => `${c} 잘 지내나요? 🌿 한 끼만 남겨도 코치가 다시 봐드려요. 그동안 다른 엄마들 노하우도 새로 올라왔어요.`,
+  3: (c) => `${c}의 식경험, 다시 시작해볼까요? ✉️ 부담 없는 오늘의 한 걸음을 준비해뒀어요. 천천히 와도 괜찮아요.`,
+};
+
+/**
+ * 휴면 회유 알림톡 — 안 들어온 단계(stage 1=D1, 2=D3, 3=D7)별 다른 문구. 매일 들어오는 사람에겐 호출 안 함(cron이 거름).
+ * env·전화·동의·템플릿 승인 전까지 무동작(skipped).
+ */
+export async function sendReengage(opts: {
+  admin: { auth: { admin: { getUserById: (id: string) => Promise<{ data?: { user?: { phone?: string | null; user_metadata?: Record<string, unknown> | null } | null } | null }> } }; from: (t: string) => unknown };
+  parentId: string;
+  childName: string;
+  stage: 1 | 2 | 3;
+}): Promise<{ ok: boolean; skipped?: boolean; error?: string; cost_krw?: number }> {
+  if (!alimtalkReady()) return { ok: false, skipped: true, error: 'env' };
+  let phone: string | undefined;
+  let consent = false;
+  try {
+    const { data } = await opts.admin.auth.admin.getUserById(opts.parentId);
+    const u = data?.user;
+    phone = (u?.phone || (u?.user_metadata as Record<string, unknown> | null)?.phone) as string | undefined;
+    consent = ((u?.user_metadata as Record<string, unknown> | null)?.alimtalk_consent) === true;
+  } catch {
+    return { ok: false, skipped: true, error: 'user_lookup' };
+  }
+  if (!phone || !consent) return { ok: false, skipped: true, error: 'no_phone_or_consent' };
+  return sendAlimtalkLogged({
+    supabase: opts.admin,
+    userId: opts.parentId,
+    phone,
+    template: 'coach_reengage',
+    templateCode: 'mealfred_coach_reengage_v1',   // ⚠ SENS 콘솔 등록·심사 필요
+    vars: { childName: opts.childName, body: REENGAGE_COPY[opts.stage](opts.childName || '우리 아이') },
   });
 }

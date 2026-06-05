@@ -16,9 +16,9 @@
  */
 import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
-import { sendCoachLetterPreview, alimtalkReady } from '@/lib/sens';
+import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, pickTip, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -98,6 +98,25 @@ export async function GET(req: Request) {
     let activeIds = Object.entries(byChild)
       .filter(([, rs]) => new Set(rs.map((r) => r.log_date)).size >= 3)
       .map(([id]) => id);
+
+    // ── 휴면 엔진 — 마지막 끼니 기록일로 휴면 일수 계산(끼니 기록 기준). 활성 + 휴면(2~7일·이력 ≥3일)도 포함해 7일까지 복귀 편지 생성.
+    const { data: histRows } = await supabase.from('meal_logs')
+      .select('child_id,log_date').gte('log_date', kstDateNDaysAgo(30)).lte('log_date', kstDateNDaysAgo(1));
+    const lastLogByChild: Record<string, string> = {};
+    const histDays: Record<string, Set<string>> = {};
+    (histRows || []).forEach((r: { child_id: string; log_date: string }) => {
+      if (!lastLogByChild[r.child_id] || r.log_date > lastLogByChild[r.child_id]) lastLogByChild[r.child_id] = r.log_date;
+      (histDays[r.child_id] ||= new Set()).add(r.log_date);
+    });
+    const dormancyOf = (cid: string): number => {
+      const last = lastLogByChild[cid]; if (!last) return 99;
+      return Math.round((Date.parse(today) - Date.parse(last)) / 86400000);
+    };
+    // 휴면 자녀(이력 ≥3일·휴면 2~7일)를 추가 — 현재 스킵되던 부모도 7일까지 복귀 편지(회유)
+    const lapsedIds = Object.keys(histDays).filter((cid) =>
+      !activeIds.includes(cid) && (histDays[cid]?.size || 0) >= 3 && dormancyOf(cid) >= 2 && dormancyOf(cid) <= 7);
+    activeIds = [...activeIds, ...lapsedIds];
+
     if (childFilter) activeIds = activeIds.filter((id) => id === childFilter);
     if (!activeIds.length) {
       await supabase.from('cron_runs').update({ status: 'success', finished_at: new Date().toISOString(), processed_count: 0, error_count: 0 }).eq('id', runRow?.id);
@@ -173,7 +192,44 @@ export async function GET(req: Request) {
       const meta = kidMap[cid];
       if (!meta) continue;
       try {
-        const rs = [...byChild[cid]].sort((a, b) => b.log_date.localeCompare(a.log_date) || (b.slot || '').localeCompare(a.slot || ''));  // 최신순 — dedup이 최신 끼니를 남김
+        const dormancy = dormancyOf(cid);
+        // ── 휴면 복귀 경로 (dormancy 2~7) — 정상 편지(byDay≥3)와 별개. 과거 데이터 + 팁으로 따뜻한 컴백 + 회유 알림톡 D1/D3/D7.
+        if (dormancy >= 2) {
+          const { data: recent } = await supabase.from('meal_logs')
+            .select('menus,refused,ate_well').eq('child_id', cid).gte('log_date', kstDateNDaysAgo(14)).lte('log_date', kstDateNDaysAgo(1));
+          const fav: Record<string, number> = {}; const refs: string[] = [];
+          (recent || []).forEach((r: { menus: string[] | null; refused: string | null; ate_well: boolean | null }) => {
+            if (r.refused) refs.push(r.refused);
+            if (r.ate_well !== false) (r.menus || []).forEach((m) => { const t = m.trim(); if (t) fav[t] = (fav[t] || 0) + 1; });
+          });
+          const favoriteFoods = Object.entries(fav).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([m]) => m);
+          const { data: pastL } = await supabase.from('coach_letters').select('letter_date,letter').eq('child_id', cid).neq('letter_date', today).order('letter_date', { ascending: false }).limit(5);
+          const pastLetters = (pastL || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter }));
+          const daySeed = Math.floor(Date.parse(today) / 86400000);
+          let cidHash = 0; for (let k = 0; k < cid.length; k++) cidHash = (cidHash * 31 + cid.charCodeAt(k)) >>> 0;
+          const gen = await generateLetter({
+            childName: meta.nickname, ageBand: meta.age_band,
+            eatenCount: 0, reds: [], covered: [], missing: [],
+            refused: [...new Set(refs)], favoriteFoods, pastLetters,
+            chronicGuidance: chronicGuidanceText(meta.chronic),
+            dormancyDays: dormancy, dormancyTip: pickTip(daySeed + cidHash),
+          });
+          if (gen.letter) {
+            await supabase.from('coach_letters').upsert(
+              { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter: gen.letter, oneliner: gen.oneliner || null, source_hash: `reengage|${dormancy}`, context: { reengage: true, dormancyDays: dormancy, source: 'cron(reengage)' } },
+              { onConflict: 'child_id,letter_date' });
+            letters++; processed++;
+            // 회유 알림톡 — dormancy 2/4/7 = D1/D3/D7. 매일 들어오는 사람(d≤1)은 분기에 안 옴.
+            const stage = dormancy === 2 ? 1 : dormancy === 4 ? 2 : dormancy === 7 ? 3 : 0;
+            if (stage && sensAdmin && meta.parent_id && !notifiedParents.has(meta.parent_id)) {
+              notifiedParents.add(meta.parent_id);
+              sendReengage({ admin: sensAdmin, parentId: meta.parent_id, childName: meta.nickname || '우리 아이', stage: stage as 1 | 2 | 3 })
+                .then((r) => { if (r.ok) alimtalkSent++; }).catch((e) => console.error('[cron/coach] reengage', e instanceof Error ? e.message : e));
+            }
+          }
+          continue;   // 정상 경로 스킵
+        }
+        const rs = [...(byChild[cid] || [])].sort((a, b) => b.log_date.localeCompare(a.log_date) || (b.slot || '').localeCompare(a.slot || ''));  // 최신순 — dedup이 최신 끼니를 남김
         const byDate: Record<string, string[]> = {};
         const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
         const homeRef: string[] = []; const daycareRef: string[] = [];
