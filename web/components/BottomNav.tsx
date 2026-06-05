@@ -1,9 +1,9 @@
-/** care 앱 하단 탭 네비게이션 (홈·기록·도감·마을·내 정보) */
+/** care 앱 하단 탭 네비게이션 (홈·기록·도감·팁·내 정보) */
 const TABS = [
   { href: '/', emoji: '🏠', label: '홈' },
   { href: '/care', emoji: '✏️', label: '기록' },
   { href: '/foods', emoji: '🗂', label: '도감' },
-  { href: '/community', emoji: '🏡', label: '마을' },
+  { href: '/community', emoji: '📰', label: '팁' },
   { href: '/care/me', emoji: '👤', label: '내 정보' },
 ];
 
