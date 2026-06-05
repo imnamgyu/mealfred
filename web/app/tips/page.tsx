@@ -1,7 +1,6 @@
 /**
- * /community — 팁 탭. 위=밀프레드가 발행하는 글(블로그), 아래=엄마들 노하우 커뮤니티.
- * 콜드스타트: 제철 챌린지 + 코치 PICK 시드로 UGC가 적어도 꽉 차게.
- * (블로그 정렬은 Phase 2에서 개인 맞춤 추천엔진으로 교체 예정 — 현재는 최신 발행순.)
+ * /tips — 팁 탭(옛 /community, next.config 리다이렉트 유지). 밀프레드 발행 글을 엄마 노하우 피드 사이에 끼워 한 피드로.
+ * 콜드스타트: 제철 챌린지 + 코치 PICK 시드로 UGC가 적어도 꽉 차게. 블로그 순서=개인 맞춤(/api/blog/feed).
  */
 'use client';
 import { useState, useEffect, useCallback } from 'react';
@@ -120,7 +119,7 @@ export default function CommunityPage() {
       </div>
 
       {write.open && <CommunityWrite ingredient={write.ing} onClose={() => setWrite({ open: false })} onPosted={load} />}
-      <BottomNav active="/community" />
+      <BottomNav active="/tips" />
     </main>
   );
 }

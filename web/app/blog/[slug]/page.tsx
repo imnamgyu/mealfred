@@ -1,7 +1,7 @@
 /**
  * /blog/[slug] — 앱 안에서 블로그(팁) 글 전문 읽기.
  * body_html은 발행 스크립트가 .md를 렌더해 blog_posts에 저장한 것 → 그대로 렌더.
- * 공개글은 RLS(public)로 비로그인도 열람. 하단탭은 '팁'(/community) 유지.
+ * 공개글은 RLS(public)로 비로그인도 열람. 하단탭은 '팁'(/tips) 유지.
  */
 import { createSupabaseServerAnon } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
@@ -38,7 +38,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   return (
     <main className="max-w-md mx-auto w-full min-h-screen flex flex-col overflow-x-hidden" style={{ background: '#FFFDFB' }}>
       <header className="flex items-center justify-between px-5 pt-5 pb-3 sticky top-0 z-10" style={{ background: 'rgba(255,253,251,0.94)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #F4ECE2' }}>
-        <Link href="/community" style={{ fontSize: 14, fontWeight: 700, color: '#9a8a7a', textDecoration: 'none' }}>← 팁</Link>
+        <Link href="/tips" style={{ fontSize: 14, fontWeight: 700, color: '#9a8a7a', textDecoration: 'none' }}>← 팁</Link>
         <span style={{ fontSize: 11, fontWeight: 700, color: '#C45A00' }}>📰 밀프레드</span>
       </header>
 
@@ -55,7 +55,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       </article>
 
       <BlogReadBeacon slug={slug} />
-      <BottomNav active="/community" />
+      <BottomNav active="/tips" />
 
       <style>{`
         .blog-body h2 { font-size: 19px; font-weight: 800; color: #C45A00; margin: 26px 0 10px; line-height: 1.4; }

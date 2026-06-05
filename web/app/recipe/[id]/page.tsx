@@ -42,7 +42,7 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
   return (
     <main className="max-w-md mx-auto w-full min-h-screen flex flex-col overflow-x-hidden" style={{ background: '#FFFDFB' }}>
       <header className="flex items-center justify-between px-5 pt-5 pb-3 sticky top-0 z-10" style={{ background: 'rgba(255,253,251,0.94)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #F4ECE2' }}>
-        <Link href={backIng ? `/foods/${encodeURIComponent(backIng)}` : '/community'} style={{ fontSize: 14, fontWeight: 700, color: '#9a8a7a', textDecoration: 'none' }}>← {backIng || '뒤로'}</Link>
+        <Link href={backIng ? `/foods/${encodeURIComponent(backIng)}` : '/tips'} style={{ fontSize: 14, fontWeight: 700, color: '#9a8a7a', textDecoration: 'none' }}>← {backIng || '뒤로'}</Link>
         <span style={{ fontSize: 11, fontWeight: 700, color: '#C45A00' }}>🍳 엄마 레시피</span>
       </header>
 
@@ -61,7 +61,7 @@ export default async function RecipePage({ params }: { params: Promise<{ id: str
         )}
       </div>
 
-      <BottomNav active="/community" />
+      <BottomNav active="/tips" />
     </main>
   );
 }

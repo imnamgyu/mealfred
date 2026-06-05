@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   // /public 정적 자산에 캐시 헤더 부여 — Next는 해시 자산(_next/static)만 자동 캐시하고
   // /public의 JSON·아이콘은 헤더가 없어 매 방문마다 새로 받는다(도감·홈 체감 지연 원인).
   // CDN/브라우저가 캐시하고 stale-while-revalidate로 배포 후 자동 갱신.
+  // 페이지 URL 변경: /community → /tips ('마을' → '팁'). 옛 링크·공유·북마크 안 깨지게.
+  async redirects() {
+    return [{ source: "/community", destination: "/tips", permanent: true }];
+  },
   async headers() {
     return [
       { source: "/ingredients-light.json", headers: [{ key: "Cache-Control", value: DATA_CACHE }] },
