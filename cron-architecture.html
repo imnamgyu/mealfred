@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>크론 아키텍처 — 분석 & 통합 보고서</title>
+<meta property="og:title" content="밀프레드 크론 아키텍처 보고서">
+<script src="/docs-gate.js?v=4"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#FFFDFB;color:#1a2b4a;line-height:1.75;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:920px;margin:0 auto;padding:0 22px;}
+section{padding:46px 0;border-bottom:1px solid #F0E8E0;}
+.label{font-size:11px;font-weight:800;letter-spacing:0.12em;color:#C45A00;text-transform:uppercase;margin-bottom:10px;}
+h1{font-size:clamp(25px,5vw,39px);font-weight:800;letter-spacing:-0.02em;line-height:1.2;}
+h2{font-size:clamp(19px,3.4vw,27px);font-weight:800;letter-spacing:-0.01em;margin-bottom:12px;}
+h3{font-size:15px;font-weight:800;margin:16px 0 6px;color:#C45A00;}
+p{font-size:15px;color:#3a4555;}
+.lede{font-size:16px;color:#2a3545;margin:12px 0;}
+.lede strong,p strong{color:#1a2b4a;font-weight:800;}
+.cover{background:linear-gradient(160deg,#1a2b4a 0%,#243a5e 55%,#16A085 230%);color:#fff;padding:60px 0 48px;border:none;}
+.cover .badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:0.1em;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.25);padding:6px 13px;border-radius:100px;margin-bottom:18px;}
+.cover h1{color:#fff;}.cover h1 .o{color:#7FE3C7;}
+.cover .sub{font-size:16px;color:rgba(255,255,255,0.85);margin-top:14px;max-width:720px;line-height:1.7;}
+.back{display:inline-block;margin-bottom:14px;color:rgba(255,255,255,0.7);text-decoration:none;font-size:12.5px;font-weight:700;}
+.callout{border-radius:14px;padding:16px 19px;margin:16px 0;}
+.c-key{background:linear-gradient(135deg,#FFF4E5,#FFEAD5);border:1.5px solid #FFCB8A;}
+.c-key .t{font-size:13px;font-weight:800;color:#C45A00;margin-bottom:6px;}
+.c-warn{background:#FFF3F3;border:1.5px solid #F5B5B5;}
+.c-warn .t{font-size:13px;font-weight:800;color:#C62828;margin-bottom:6px;}
+.c-moat{background:#F0FAF6;border:1.5px solid #A5D6C6;}
+.c-moat .t{font-size:13px;font-weight:800;color:#1B7A3D;margin-bottom:6px;}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;}
+th{background:#1a2b4a;color:#fff;padding:9px;text-align:left;font-weight:700;}
+td{padding:8px 9px;border:1px solid #F0E8E0;color:#3a4555;vertical-align:top;}
+tr:nth-child(even) td{background:#FCF8F3;}
+code{background:#F4EFE8;border-radius:5px;padding:1px 6px;font-size:12.5px;color:#9a5a00;}
+ul.clean{list-style:none;margin:10px 0;}
+ul.clean li{font-size:14px;color:#3a4555;margin:8px 0;padding-left:20px;position:relative;}
+ul.clean li::before{content:'';position:absolute;left:0;top:0.62em;width:8px;height:8px;border-radius:2px;background:#16A085;}
+.dead{color:#C62828;text-decoration:line-through;}.up{color:#1B7A3D;font-weight:800;}
+.note{font-size:12.5px;color:#9a8a7a;}
+.batch{background:#fff;border:1.5px solid #E8DFD4;border-left:5px solid #16A085;border-radius:12px;padding:14px 16px;margin:11px 0;}
+.batch h4{margin:0 0 4px;font-size:15px;color:#1a2b4a;}
+.batch p{font-size:13px;color:#5a6575;}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="wrap">
+    <a href="/docs.html" class="back">← 문서 허브</a>
+    <div class="badge">분석 & 통합 · 2026-06-05</div>
+    <h1>크론 아키텍처 — <span class="o">6개 → 2개 통합</span></h1>
+    <div class="sub">"크론 몇 종류 도나? 상호배타는 나누고, 의존성 있는 건 묶자"는 점검. 분석 결과 <b style="color:#7FE3C7;">하비 플랜 2-크론 한도를 6개가 초과</b>(대부분 안 돌 위험) + 유령 크론 + 의존성 타이밍 문제를 발견 → 코칭/커뮤니티 2배치로 통합.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Before · 통합 전</div>
+    <h2>크론 6개(+유령) · 발견된 문제 4</h2>
+    <table>
+      <tr><th>크론</th><th>KST</th><th>LLM</th><th>의존성</th><th>문제</th></tr>
+      <tr><td>community-rewards</td><td>01:00</td><td>없음</td><td>독립(반응)</td><td>정상(월/1일만 발동)</td></tr>
+      <tr><td>community-drip</td><td>01:30</td><td>없음</td><td>독립(콘텐츠 풀)</td><td>정상</td></tr>
+      <tr><td>coach</td><td>02:00</td><td>haiku</td><td>내부 backfill→편지(그룹됨)</td><td>정상</td></tr>
+      <tr><td>tip-ranking</td><td>02:30</td><td>없음</td><td><b>coach 산출 의존</b></td><td>⚠️ 30분 간격 타이밍 의존</td></tr>
+      <tr><td>moderate-comments</td><td>03:00</td><td>—</td><td>—</td><td>❌ <b>라우트 없음=유령 404</b></td></tr>
+      <tr><td>enrich</td><td>04:00</td><td>(haiku)</td><td>enrich_queue</td><td>⚠️ 큐 비어 <b>no-op</b></td></tr>
+    </table>
+    <div class="callout c-warn"><div class="t">🚨 가장 심각 — 하비 2-크론 한도 초과</div><code>remap</code> 라우트 주석에 직접 <b>"Hobby 크론 수 절약"</b>이라 적혀 있다(=하비 플랜). 하비는 <b>크론 2개·하루 1회</b> 제한 → 6개 등록 시 대부분이 조용히 안 돌았을 가능성. (코칭만 실측 확인됨.)</div>
+    <ul class="clean">
+      <li><b>상호배타 vs 의존</b> — 크론들은 대부분 독립(코칭 ↔ 커뮤니티). 유일한 의존 = <code>tip-ranking → coach</code>(coach_letters.context를 읽음). 그런데 별도 크론 30분 뒤라, 스케일되면 coach가 안 끝난 채 tip-ranking이 어제 데이터로 계산.</li>
+      <li><b>coach 내부</b>는 이미 의존 그룹화됨 — <code>backfillUnmappedMenus</code>(메뉴→식재료 매핑) → 영양 분석 → 편지. 한 함수 안.</li>
+    </ul>
+  </div>
+</section>
+
+<section style="background:#FBF7F2;">
+  <div class="wrap">
+    <div class="label">After · 통합 후</div>
+    <h2>2배치 — 상호배타 분리, 의존 묶기</h2>
+    <p class="lede">vercel.json 크론 <strong>2개</strong>(하비 한도 충족). 각 배치가 의존 작업을 <strong>self-fetch 체이닝</strong>으로 순서 보장. 라우트 파일은 보존(수동 트리거·백필).</p>
+    <div class="batch"><h4>① 커뮤니티 배치 — KST 01:00 <code>community-rewards</code></h4><p>보상(주간 톱10/월간, 월·1일만 발동) 실행 → 끝에 <b>drip</b>(매일 코치 PICK 공식 글 게시) 체이닝. 둘 다 커뮤니티·서로 독립이라 한 배치.</p></div>
+    <div class="batch"><h4>② 코칭 배치 — KST 02:00 <code>coach</code></h4><p>(backfill →) 편지·질문·휴면 복귀·회유 알림톡 → 끝에 <b>tip-ranking</b>(coach_letters 갱신 직후) 체이닝. <b>의존성·타이밍 문제 제거.</b></p></div>
+    <div class="callout c-key"><div class="t">제거</div><span class="dead">enrich</span>(no-op·큐 비어있음) · <span class="dead">moderate-comments</span>(유령 라우트) · <span class="dead">tip-ranking/drip 스케줄</span>(배치에 체이닝). → 라우트는 남겨 수동 호출 가능(드립 백필 <code>?n=20</code> 등).</div>
+    <p class="note">체이닝 = 같은 배포 URL로 <code>fetch(new URL('/api/cron/...', req.url))</code> + <code>authorization</code> 포워드(둘 다 동일 CRON_SECRET 가드). 실패해도 본 배치는 정상 반환(try/catch).</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="label">Cost · 운영 비용</div>
+    <h2>지금 ≈ 0원, 스케일해도 저가</h2>
+    <table>
+      <tr><th>항목</th><th>단가</th><th>현재(활성 ~1명)</th><th>활성 1,000명 가정</th></tr>
+      <tr><td>코칭 편지·질문 LLM</td><td><code>claude-haiku-4-5</code>(초저가)</td><td>월 수백 원</td><td>~월 40만 원</td></tr>
+      <tr><td>tip-ranking·drip·rewards</td><td><b>LLM 0</b>(결정론·DB만)</td><td>0</td><td>0(쿼리비 무시)</td></tr>
+      <tr><td>알림톡(편지·회유)</td><td>₩8/건</td><td><b>₩0(도먼트)</b></td><td>~월 24만(전원 수신 가정)</td></tr>
+      <tr><td>Vercel</td><td>하비=무료</td><td>0</td><td>Pro 전환 시 $20</td></tr>
+    </table>
+    <div class="callout c-moat"><div class="t">요약</div>크론 운영비를 끌어올리는 건 사실상 <b>코칭 편지 LLM(하이쿠)</b> 하나뿐. 커뮤니티 크론(드립·보상·랭킹)은 LLM을 안 써서 공짜에 가깝다. 알림톡은 켤 때만 비용 발생(₩8/건). <b>현재 사용자 규모에선 월 1,000원 미만.</b></div>
+    <a href="/docs.html" class="back" style="color:#9a8a7a;">← 문서 허브로</a>
+  </div>
+</section>
+
+</body>
+</html>
