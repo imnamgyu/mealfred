@@ -10,10 +10,10 @@
 import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
 import Link from 'next/link';
+import RefreshButton from './RefreshButton';
 
 export const dynamic = 'force-dynamic';
 
-const kstDate = (ts: string) => new Date(ts).toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);
 const wd = ['일', '월', '화', '수', '목', '금', '토'];
 const label = (d: string) => { const t = new Date(d + 'T00:00:00+09:00'); return `${d.slice(5)} (${wd[t.getDay()]})`; };
 
@@ -28,39 +28,24 @@ export default async function FunnelPage() {
   }
 
   const db = createSupabaseAdmin();
-  // 가입(auth.users) — 작은 유저베이스 가정(perPage 1000, 추후 페이지네이션)
-  const { data: usersData } = await db.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  const users = (usersData?.users || []).filter((u) => u.created_at);
-  // 자녀 등록(children) + 첫 끼니(meal_logs)
-  const { data: children } = await db.from('children').select('id,parent_id,created_at');
-  const childIds = (children || []).map((c) => c.id);
-  const { data: meals } = childIds.length
-    ? await db.from('meal_logs').select('child_id').in('child_id', childIds)
-    : { data: [] as { child_id: string }[] };
+  // 집계는 DB 안에서(funnel_cohort RPC). 1만 명에서도 meal_logs 풀스캔·listUsers 1000 한계 없이
+  // 일자별 GROUP BY 결과만 받는다. RPC 없으면(마이그레이션 전) 안내 배너로 안전 degrade.
+  type Row = { day: string; signups: number; children: number; meals: number; visits: number };
+  const { data: rowsData, error: rpcErr } = await db.rpc('funnel_cohort');
+  const rows: Row[] = (rowsData as Row[] | null) || [];
 
-  const parentHasChild = new Set((children || []).map((c) => c.parent_id));
-  const childHasMeal = new Set((meals || []).map((m) => m.child_id));
-  const parentHasMeal = new Set((children || []).filter((c) => childHasMeal.has(c.id)).map((c) => c.parent_id));
-
-  // 익명 방문자(app_visitors) — 펀넬 맨 윗단(방문 → 가입). 테이블 없으면(마이그레이션 전) 빈 배열로 안전 처리.
-  const { data: vData, error: vErr } = await db.from('app_visitors').select('visitor_id,first_seen');
-  const visitors: { first_seen: string }[] = vErr ? [] : (vData || []);
-  const visitByDay: Record<string, number> = {};
-  visitors.forEach((v) => { const d = kstDate(v.first_seen); visitByDay[d] = (visitByDay[d] || 0) + 1; });
-  const totVisits = visitors.length;
-
-  // 가입일(KST) 코호트
   type Cell = { signup: number; child: number; meal: number };
   const coh: Record<string, Cell> = {};
+  const visitByDay: Record<string, number> = {};
   const tot: Cell = { signup: 0, child: 0, meal: 0 };
-  users.forEach((u) => {
-    const d = kstDate(u.created_at!);
-    const c = (coh[d] ||= { signup: 0, child: 0, meal: 0 });
-    c.signup++; tot.signup++;
-    if (parentHasChild.has(u.id)) { c.child++; tot.child++; }
-    if (parentHasMeal.has(u.id)) { c.meal++; tot.meal++; }
+  let totVisits = 0;
+  rows.forEach((r) => {
+    coh[r.day] = { signup: r.signups, child: r.children, meal: r.meals };
+    visitByDay[r.day] = r.visits;
+    tot.signup += r.signups; tot.child += r.children; tot.meal += r.meals; totVisits += r.visits;
   });
-  const dates = [...new Set([...Object.keys(coh), ...Object.keys(visitByDay)])].sort().reverse().slice(0, 30);
+  // rows는 RPC에서 day desc 정렬 → 상위 30일만 표시.
+  const dates = rows.map((r) => r.day).slice(0, 30);
 
   const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
   const Stage = ({ n, base, color }: { n: number; base: number; color: string }) => (
@@ -77,8 +62,17 @@ export default async function FunnelPage() {
           <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>📊 마케팅 펀넬 · 가입일 코호트</h1>
           <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>가입한 날 기준으로, 자녀 등록·첫 끼니까지 얼마나 내려갔나 (KST)</p>
         </div>
-        <Link href="/admin" style={{ fontSize: 12, fontWeight: 800, color: '#1a2b4a', background: '#F1F1F0', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>← 콘솔</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <RefreshButton renderedAt={new Date().toLocaleTimeString('ko-KR', { hour12: false, timeZone: 'Asia/Seoul' })} />
+          <Link href="/admin" style={{ fontSize: 12, fontWeight: 800, color: '#1a2b4a', background: '#F1F1F0', borderRadius: 8, padding: '8px 12px', textDecoration: 'none', whiteSpace: 'nowrap' }}>← 콘솔</Link>
+        </div>
       </header>
+
+      {rpcErr && (
+        <div style={{ marginBottom: 14, padding: '12px 14px', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 10, fontSize: 12.5, color: '#9A3412', lineHeight: 1.6 }}>
+          ⚠️ 집계 함수가 아직 없어요. <code>sql/2026-06-05_funnel_cohort.sql</code>을 Supabase SQL Editor에서 1회 실행하면 숫자가 채워집니다.
+        </div>
+      )}
 
       {/* KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
