@@ -29,19 +29,19 @@ export default function CommunityPage() {
   const seasonal = seasonalChallenge(month);
   const seeds = allSeeds();
 
-  const load = useCallback(() => {
+  // 처음엔 공개(CDN 캐시) 피드를 즉시 그려 빠른 첫 화면 → 로그인 확인되면 개인화(?me=1)로 교체.
+  const load = useCallback((me: boolean = loggedIn) => {
     setLoading(true);
-    fetch(`/api/community/posts?sort=${sort}&limit=30`)
+    const m = me ? '&me=1' : '';
+    fetch(`/api/community/posts?sort=${sort}&limit=30${m}`)
       .then((r) => r.json()).then((j) => { setPosts(j.posts || []); setLoading(false); })
       .catch(() => setLoading(false));
-  }, [sort]);
+    fetch(`/api/blog/feed?limit=12${m}`)
+      .then((r) => r.json()).then((j) => setBlogs(j.posts || [])).catch(() => {});
+  }, [sort, loggedIn]);
 
   useEffect(() => { createSupabaseBrowser().auth.getUser().then(({ data }) => setLoggedIn(!!data.user)); }, []);
-  useEffect(() => { load(); }, [load]);
-  // 밀프레드 발행 글(블로그) — 개인 맞춤 추천 순서(로그인 시). 비로그인은 최신순 폴백.
-  useEffect(() => {
-    fetch('/api/blog/feed?limit=12').then((r) => r.json()).then((j) => setBlogs(j.posts || [])).catch(() => {});
-  }, []);
+  useEffect(() => { load(); }, [load]);   // 마운트=공개(캐시) · loggedIn 확정 시 자동 재실행=개인화
 
   // 피드 = 실제 글 먼저 + 코치 PICK 시드(콜드스타트 채움). 같은 식재료 시드가 실제 글로 이미 덮였으면 굳이 숨기진 않음(시드는 보조).
   const seedCards: Post[] = seeds.map((s) => ({ id: s.id, body: s.body, ingredients: [s.ingredient], method_type: s.method_type, traits: s.traits, seed: true, like_count: 0, tried_count: 0 }));
