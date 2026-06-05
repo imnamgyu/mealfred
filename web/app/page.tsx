@@ -624,10 +624,10 @@ export default function Home() {
                 ))}
               </div>
             )}
-            {/* 리텐션 FOMO — 편지는 최근 3일만(웹툰 쿠키처럼 사라짐). 매일 들어오게 하는 핵심 */}
+            {/* 리텐션 멘트 — 편지 매일 발행 + 최근 3일만 보관. 푸시 대신 인앱 멘트로 매일 들어오게 */}
             {!isMockup && aiLetter && (
-              <div className="text-[10px] leading-relaxed mt-2.5 pt-2" style={{ color: '#B0894A', borderTop: '1px dashed #F0D8A0' }}>
-                🍪 코치 편지는 <b>최근 3일</b>만 볼 수 있어요{hasExpiredLetters ? ' · 그 이전 편지는 사라졌어요' : ''} — 매일 들어오면 놓치지 않아요
+              <div className="rounded-xl px-3 py-2 mt-3 text-[11px] leading-relaxed" style={{ background: '#FFF3DD', color: '#9A6A1A' }}>
+                🍪 코치 편지는 <b>매일 새로 도착</b>하고 <b>최근 3일치만</b> 볼 수 있어요{hasExpiredLetters ? ' · 그 이전 편지는 이미 사라졌어요' : ''}. 놓치지 않게 <b>매일 한 번씩</b> 들러 오늘의 한 걸음을 확인해 주세요 🌿
               </div>
             )}
           </div>
