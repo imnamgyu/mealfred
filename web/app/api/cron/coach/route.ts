@@ -504,7 +504,16 @@ export async function GET(req: Request) {
       },
     }).eq('id', runRow?.id);
 
-    return NextResponse.json({ ok: true, processed, errors, letters, questions, reused, skippedTime, alimtalkSent, alimtalkReady: alimtalkReady(), active: activeIds.length, duration_ms: Date.now() - runStart });
+    // 의존 배치 묶기(하비 크론 2개 한도) — 코칭 편지(coach_letters.context)가 갱신된 직후 팁 랭킹을 같은 배치에서 재계산.
+    // tip-ranking이 coach 산출물에 의존하므로 별도 크론(30분 뒤)이 아니라 여기서 체이닝 → 타이밍 의존 제거.
+    let tipRank: unknown = null;
+    try {
+      const auth = req.headers.get('authorization');
+      const tr = await fetch(new URL('/api/cron/tip-ranking', req.url), { headers: auth ? { authorization: auth } : {} });
+      tipRank = await tr.json().catch(() => null);
+    } catch (e) { console.error('[cron/coach] tip-ranking chain', e instanceof Error ? e.message : e); }
+
+    return NextResponse.json({ ok: true, processed, errors, letters, questions, reused, skippedTime, alimtalkSent, alimtalkReady: alimtalkReady(), active: activeIds.length, tipRank, duration_ms: Date.now() - runStart });
   } catch (e: unknown) {
     await supabase.from('cron_runs').update({
       status: 'failure', finished_at: new Date().toISOString(),

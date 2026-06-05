@@ -78,5 +78,13 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, ...out });
+  // 묶기(하비 크론 2개 한도) — 보상은 월/1일만 발동하지만 이 크론은 매일 돌므로, 같은 커뮤니티 배치에서 드립(매일 공식 글 게시)도 실행.
+  let drip: unknown = null;
+  try {
+    const auth = req.headers.get('authorization');
+    const dr = await fetch(new URL('/api/cron/community-drip', req.url), { headers: auth ? { authorization: auth } : {} });
+    drip = await dr.json().catch(() => null);
+  } catch (e) { console.error('[cron/community-rewards] drip chain', e instanceof Error ? e.message : e); }
+
+  return NextResponse.json({ ok: true, ...out, drip });
 }
