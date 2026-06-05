@@ -18,6 +18,10 @@
       "schedule": "0 17 * * *"
     },
     {
+      "path": "/api/cron/tip-ranking",
+      "schedule": "30 17 * * *"
+    },
+    {
       "path": "/api/cron/community-rewards",
       "schedule": "0 16 * * *"
     },

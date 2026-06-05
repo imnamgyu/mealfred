@@ -21,7 +21,7 @@ const MONTH = ['', '1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월
 export default function CommunityPage() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [blogs, setBlogs] = useState<BlogCard[]>([]);
+  const [blogs, setBlogs] = useState<(BlogCard & { reason?: string | null })[]>([]);
   const [sort, setSort] = useState<'new' | 'hot'>('new');
   const [loading, setLoading] = useState(true);
   const [write, setWrite] = useState<{ open: boolean; ing?: string }>({ open: false });
@@ -39,9 +39,9 @@ export default function CommunityPage() {
 
   useEffect(() => { createSupabaseBrowser().auth.getUser().then(({ data }) => setLoggedIn(!!data.user)); }, []);
   useEffect(() => { load(); }, [load]);
-  // 밀프레드 발행 글(블로그). Phase 2에서 /api/blog/feed(개인 맞춤) 으로 교체.
+  // 밀프레드 발행 글(블로그) — 개인 맞춤 추천 순서(로그인 시). 비로그인은 최신순 폴백.
   useEffect(() => {
-    fetch('/api/blog/posts?limit=12').then((r) => r.json()).then((j) => setBlogs(j.posts || [])).catch(() => {});
+    fetch('/api/blog/feed?limit=12').then((r) => r.json()).then((j) => setBlogs(j.posts || [])).catch(() => {});
   }, []);
 
   // 피드 = 실제 글 먼저 + 코치 PICK 시드(콜드스타트 채움). 같은 식재료 시드가 실제 글로 이미 덮였으면 굳이 숨기진 않음(시드는 보조).
@@ -72,6 +72,7 @@ export default function CommunityPage() {
                   <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: b.track === '스낵' ? '#FFF1E2' : '#EEF2FF', color: b.track === '스낵' ? '#C45A00' : '#3949AB' }}>{b.track || '글'}</span>
                   {b.phase_name && <span className="text-[10px] font-bold" style={{ color: '#9CA3AF' }}>{b.phase_name}</span>}
                 </div>
+                {b.reason && <div className="text-[10.5px] font-extrabold mb-1 flex items-center gap-1" style={{ color: '#16A085' }}>🎯 {b.reason}</div>}
                 <div className="text-[14px] font-extrabold leading-snug" style={{ color: '#1a2b4a' }}>{b.title}</div>
                 {b.excerpt && <p className="text-[11.5px] mt-1.5 leading-relaxed" style={{ color: '#8a7a6a', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{b.excerpt}</p>}
                 {b.published_at && <div className="text-[10px] mt-2" style={{ color: '#C9B8A8' }}>{b.published_at}</div>}

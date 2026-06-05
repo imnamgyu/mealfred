@@ -7,6 +7,7 @@ import { createSupabaseServerAnon } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import BottomNav from '@/components/BottomNav';
+import BlogReadBeacon from '@/components/BlogReadBeacon';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -53,6 +54,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         {post.after_html && <div className="blog-after" dangerouslySetInnerHTML={{ __html: post.after_html }} />}
       </article>
 
+      <BlogReadBeacon slug={slug} />
       <BottomNav active="/community" />
 
       <style>{`
