@@ -10,6 +10,7 @@ import FoodIcon from '@/components/FoodIcon';
 import MasteryBadge from '@/components/MasteryBadge';
 import PersonalBridge from '@/components/PersonalBridge';
 import CommunityThread from '@/components/CommunityThread';
+import RecipeThread from '@/components/RecipeThread';
 import { cookingGroups } from '@/lib/cookingMatrix';
 import { seasonMonths, seasonRangeLabel } from '@/lib/season';
 import { neighborsOf } from '@/lib/foodGraph';
@@ -248,6 +249,9 @@ export default async function IngredientDetail({ params }: { params: Promise<{ s
           <p className="text-xs" style={{ color: '#8a7a6a' }}>DB 매칭 없음 — 가입 후 개인화 레시피로 안내 예정</p>
         )}
       </section>
+
+      {/* 엄마 레시피(버튼 조립 → 이케아식 인포그래픽) */}
+      <RecipeThread ingredient={ing.nm} />
 
       {/* §6 — 엄마들의 노하우(커뮤니티) */}
       <CommunityThread ingredient={ing.nm} />
