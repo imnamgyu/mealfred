@@ -139,6 +139,7 @@ export default function Home() {
   const [pointBal, setPointBal] = useState(0);                          // 누적 포인트 잔액
   const [letterDate, setLetterDate] = useState<string>('');   // 현재 표시 편지 날짜
   const [pastLetters, setPastLetters] = useState<{ date: string; letter: string; oneliner: string | null }[]>([]);
+  const [hasExpiredLetters, setHasExpiredLetters] = useState(false);   // 3일 지난 편지 존재 → '사라짐' FOMO 안내
   const [showPast, setShowPast] = useState(false);
   const [textureInsight, setTextureInsight] = useState<{ pureePct: number } | null>(null);
   const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good'; must_eat_nutrient?: string }[]>([]);
@@ -295,7 +296,9 @@ export default function Home() {
               const hist = (data || []) as { letter_date: string; letter: string; oneliner: string | null }[];
               if (!hist.length) return;
               const td = todayStr();
-              setPastLetters(hist.filter((h) => h.letter_date !== td).map((h) => ({ date: h.letter_date, letter: h.letter, oneliner: h.oneliner })));
+              const win = kstDateNDaysAgo(2);   // 최근 3일(오늘·어제·그저께)만 — 그 이전 편지는 사라짐(매일 들어오게 하는 FOMO)
+              setPastLetters(hist.filter((h) => h.letter_date !== td && h.letter_date >= win).map((h) => ({ date: h.letter_date, letter: h.letter, oneliner: h.oneliner })));
+              setHasExpiredLetters(hist.some((h) => h.letter_date < win));
               setAiLetter((cur) => cur || hist[0].letter);
               setAiOneliner((cur) => cur || (hist[0].oneliner || ''));
               setLetterDate((cur) => cur || hist[0].letter_date);
@@ -619,6 +622,12 @@ export default function Home() {
                     <div className="text-[12px] leading-relaxed" style={{ color: '#5a4a3a' }}>{p.letter}</div>
                   </div>
                 ))}
+              </div>
+            )}
+            {/* 리텐션 FOMO — 편지는 최근 3일만(웹툰 쿠키처럼 사라짐). 매일 들어오게 하는 핵심 */}
+            {!isMockup && aiLetter && (
+              <div className="text-[10px] leading-relaxed mt-2.5 pt-2" style={{ color: '#B0894A', borderTop: '1px dashed #F0D8A0' }}>
+                🍪 코치 편지는 <b>최근 3일</b>만 볼 수 있어요{hasExpiredLetters ? ' · 그 이전 편지는 사라졌어요' : ''} — 매일 들어오면 놓치지 않아요
               </div>
             )}
           </div>
