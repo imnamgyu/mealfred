@@ -319,7 +319,7 @@ export default function CarePage() {
     }
   }
 
-  // 식단표 인식 중 경과 카운트(부모 대기 UX) — 보통 30~50초
+  // 식단표 인식 중 경과 카운트(부모 대기 UX) — CLOVA+Sonnet 비전이라 한 달치 보통 1~2분
   useEffect(() => {
     if (!ocrBusy) { setOcrElapsed(0); return; }
     const id = setInterval(() => setOcrElapsed((e) => e + 1), 1000);
@@ -705,6 +705,7 @@ export default function CarePage() {
               {ocrOpen && !menuMonths.has(new Date().toISOString().slice(0, 7)) && (
                 <div className="mt-2.5">
                   <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>월간 식단표 사진을 올리면 점심·간식을 자동으로 채워요 — 매일 기록 안 해도 돼요.</p>
+                  <p className="text-[10px] mb-2" style={{ color: '#C45A00' }}>📐 글자가 바로 보이게 <b>똑바로(가로로 눕히지 말고)</b> 찍어 올려주세요 — 회전된 사진은 날짜가 어긋날 수 있어요.</p>
                   <div className="flex gap-2 items-center mb-2">
                     <input type="month" value={ocrMonth} onChange={(e) => setOcrMonth(e.target.value)} className="px-2 py-1.5 rounded-lg text-[12px] outline-none" style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
                     <label className="px-3 py-1.5 rounded-lg text-[12px] font-bold text-white cursor-pointer" style={{ background: ocrBusy ? '#9CA3AF' : '#FF6B1A' }}>
@@ -715,12 +716,12 @@ export default function CarePage() {
                   {ocrBusy && (
                     <div className="mb-2">
                       <div className="flex justify-between text-[10.5px] font-extrabold mb-1" style={{ color: '#C45A00' }}>
-                        <span>📷 식단표 읽는 중…</span><span>{ocrElapsed}s {ocrElapsed < 50 ? `/ 약 ${Math.max(5, 50 - ocrElapsed)}초` : '거의 다 됐어요'}</span>
+                        <span>📷 식단표 읽는 중…</span><span>{ocrElapsed}s {ocrElapsed < 120 ? `/ 약 ${Math.max(5, 120 - ocrElapsed)}초` : '거의 다 됐어요'}</span>
                       </div>
                       <div className="h-2 rounded-full overflow-hidden" style={{ background: '#FFE8D0' }}>
-                        <div className="h-full rounded-full" style={{ width: `${Math.min(96, (ocrElapsed / 50) * 100)}%`, background: '#FF6B1A', transition: 'width 1s linear' }} />
+                        <div className="h-full rounded-full" style={{ width: `${Math.min(96, (ocrElapsed / 120) * 100)}%`, background: '#FF6B1A', transition: 'width 1s linear' }} />
                       </div>
-                      <div className="text-[10px] mt-1" style={{ color: '#9CA3AF' }}>한 달치라 30~50초 걸려요 — 창 닫지 말고 잠시만 기다려주세요 🙏</div>
+                      <div className="text-[10px] mt-1" style={{ color: '#9CA3AF' }}>한 달치라 1~2분 걸려요 — 창 닫지 말고 잠시만 기다려주세요 🙏</div>
                     </div>
                   )}
                   {ocrItems.length > 0 && (
