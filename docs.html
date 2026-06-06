@@ -60,7 +60,7 @@
   <div class="hero-inner">
     <span class="tag">📚 PROJECT DOCS HUB · v1</span>
     <h1>밀프레드 편식도감<br>프로젝트 문서 허브 <span style="color:#C45A00">v1</span></h1>
-    <p>앱이 라이브로 확정된 <b>v1</b> 기준 <b>현행 문서만</b> — 클러스터별 <b>정본 1개</b>로 정리했습니다(투자·마케팅·엔진·제품). 지난 설계도·제안서·구버전·데모는 <a href="/docs-archive.html" style="color:#C45A00;font-weight:700">아카이브</a>로 옮기고 deprecated 표시했어요. <span style="color:#9a8a7a">최근 정리: 2026-06-03.</span></p>
+    <p>앱이 라이브로 확정된 <b>v1</b> 기준 <b>현행 문서만</b> — 클러스터별 <b>정본 1개</b>로 정리했습니다(투자·마케팅·엔진·제품). 지난 설계도·제안서·구버전·데모는 <a href="/docs-archive.html" style="color:#C45A00;font-weight:700">아카이브</a>로 옮기고 deprecated 표시했어요. <span style="color:#9a8a7a">최근 정리: 2026-06-06.</span></p>
   </div>
 </header>
 
@@ -155,8 +155,8 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>⚙️ 엔진 · 데이터 명세 (정본)</h3>
-    <span class="cnt">5 문서</span>
-    <span class="note">라이브 앱이 실제로 구현하는 단일 진실</span>
+    <span class="cnt">정본 7 · 감사/진단 2</span>
+    <span class="note">라이브 앱이 구현하는 단일 진실 + 코칭 엔진 감사 보고서</span>
   </div>
   <div class="doc-grid">
     <a href="/cron-architecture.html" class="doc-card cat-strategy">
@@ -170,7 +170,7 @@
       <span class="badge new">검토요청</span>
       <div class="ico">🍪</div>
       <h4>코칭 리텐션·휴면 엔진 — 설계 보고서</h4>
-      <p class="desc">안 들어오면 코칭이 똑같아지거나 안 가는 문제 해법. <b>편지 최근 3일만(웹툰 쿠키 FOMO·배포됨)</b> + 휴면 단계 사다리(0~1/2~7/7일+) + <b>회유 알림톡 D1·D3·D7</b>(카피 초안 포함) + 편식 팁 36개. <b>§8 결정 5개만 체크하면 빌드.</b></p>
+      <p class="desc">안 들어오면 코칭이 똑같아지거나 안 가는 문제 해법. <b>편지 최근 3일만(웹툰 쿠키 FOMO·배포됨)</b> + 휴면 단계 사다리(0~1/2~7/7일+) + 회유 알림톡 D1·D3·D7(카피 초안 포함) + 편식 팁 36개. <b style="color:#C62828">⚠️ 알림톡=전화번호 미수집(카카오 nickname scope)으로 보류 → 인앱 멘트로 일원화. 코드는 도먼트 보존.</b></p>
       <div class="meta"><span>COACHING · 리텐션(검토)</span><span class="arrow">→</span></div>
     </a>
     <a href="/coaching-scenarios.html" class="doc-card cat-strategy">
@@ -179,6 +179,20 @@
       <h4>코칭 엔진 — 시나리오 + 간식 엔진</h4>
       <p class="desc">35개 편식 이론 근거 · <b>13 시나리오</b>(트리거·코칭무브·편지각도·금기) + 온보딩 4주 아크 + 로테이션 + 만성질환·재노출 + <b>🍪 간식 평가 엔진</b>(초가공 모니터링·BMI 칼로리 방향·식사 간섭성·좋은 간식). <b>라이브 코칭 단일 진실</b></p>
       <div class="meta"><span>COACHING · 편지·간식</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-recursive-loop.html" class="doc-card cat-strategy">
+      <span class="badge new">감사</span>
+      <div class="ico">🔁</div>
+      <h4>코칭편지 재귀개선 루프 (랄프 위검)</h4>
+      <p class="desc">아린 39통(3일×13시나리오)을 매 라운드 <b>실제 Haiku 엔진</b>으로 재생성 → 위원회 4심 채점 → 결함 정조준 개선. <b>종합 5.0→8.1</b>, "매일 같은 편지"(32/39 동일 도입) <b>→ 0/39 박멸</b>. 엔진 before/after 플로우차트 + 프로덕션 이식 우선순위.</p>
+      <div class="meta"><span>COACHING · 재귀개선 감사</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-letter-diversity-audit.html" class="doc-card cat-strategy">
+      <span class="badge new">진단</span>
+      <div class="ico">🔬</div>
+      <h4>코칭편지 다채로움 진단 — 왜 매일 같은 편지인가</h4>
+      <p class="desc">실데이터 39통으로 입증: 부모메모·전환사실이 시나리오 무관하게 매 편지 도입을 점령(32/39), 문자 3-gram 가드가 패러프레이즈를 통과(같은 날 유사도 0.06인데 체감 동일). <b>사실/주제 dedup 부재</b>가 근본 원인.</p>
+      <div class="meta"><span>COACHING · 반복 진단</span><span class="arrow">→</span></div>
     </a>
     <a href="/mapping-strategy.html" class="doc-card cat-prd">
       <span class="badge spec">정본</span>
@@ -311,7 +325,7 @@
 </main>
 
 <footer>
-  <p>밀프레드 편식도감 · 프로젝트 문서 허브 <b>v1</b> · 클러스터별 정본만 표시 · 지난 자료는 <a href="/docs-archive.html" style="color:#9CA3AF">아카이브</a> · 최근 정리 2026-06-03</p>
+  <p>밀프레드 편식도감 · 프로젝트 문서 허브 <b>v1</b> · 클러스터별 정본만 표시 · 지난 자료는 <a href="/docs-archive.html" style="color:#9CA3AF">아카이브</a> · 최근 정리 2026-06-06</p>
 </footer>
 
 </body>

@@ -1,0 +1,414 @@
+<!doctype html><html lang="ko"><head><script src="/docs-gate.js?v=4"></script><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭편지 다채로움 감사 — 아린 39통(3일×13시나리오)</title>
+<style>
+:root{--ink:#1f2328;--mut:#6b7280;--line:#e5e7eb;--bg:#f7f8fa;--card:#fff;--accent:#c2410c;--good:#15803d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard',sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 18px 80px}
+h1{font-size:25px;margin:0 0 6px}.lead{color:var(--mut);margin:0 0 20px}
+.meta{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13.5px;color:#374151}
+.meta b{color:var(--ink)}
+.smoke{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 18px;margin-bottom:24px}
+.smoke h3{margin:0 0 10px;font-size:16px;color:var(--accent)}
+.smoke table{width:100%;border-collapse:collapse;font-size:14px}
+.smoke td{padding:6px 8px;border-bottom:1px solid #fde6cf}.smoke td:last-child{color:var(--mut)}
+.smoke .big{font-weight:700;color:var(--accent);font-size:16px;white-space:nowrap}
+.day{margin:30px 0}
+h2{font-size:19px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 12px}
+h2 .sub{font-size:14px;font-weight:400;color:var(--mut)}
+.ctx{background:#f0f3f8;border:1px solid #dbe3ee;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px}
+.ctx .row{margin-top:7px}.lbl{display:inline-block;min-width:104px;color:var(--mut);font-weight:600}
+.chip{display:inline-block;background:#fff;border:1px solid #cbd5e1;border-radius:20px;padding:2px 9px;margin:2px 3px;font-size:12px}
+.chip.y{background:#fef9c3;border-color:#fde047}.chip.g{background:#dcfce7;border-color:#86efac}.chip.r{background:#fee2e2;border-color:#fca5a5}
+.chip.n{background:#ede9fe;border-color:#c4b5fd}.chip.m{background:#e0f2fe;border-color:#7dd3fc}
+.muted{color:var(--mut);font-size:12px}
+.stat{background:#fff7ed;border:1px dashed #fdba74;border-radius:8px;padding:7px 10px;margin-top:10px;font-size:12.5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+.card.real{border:2px solid var(--accent);box-shadow:0 1px 8px rgba(194,65,12,.08)}
+.ch{font-size:13.5px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.cn{display:inline-flex;width:21px;height:21px;align-items:center;justify-content:center;background:var(--ink);color:#fff;border-radius:50%;font-size:11px}
+.pri{color:var(--mut);font-weight:500;font-size:11px}
+.badge{background:var(--accent);color:#fff;border-radius:6px;padding:1px 7px;font-size:11px}
+.hyp{background:#f1f5f9;color:#94a3b8;border-radius:6px;padding:1px 7px;font-size:11px}
+.bad{margin-left:auto;font-size:11px;color:#94a3b8;font-weight:500}.bad.hi{color:var(--accent)}
+.letter{font-size:14px;line-height:1.72;color:#222;white-space:pre-wrap}
+mark.k{background:#fde68a;padding:0 1px;border-radius:3px}
+mark.o{background:#fecaca;padding:1px 2px;border-radius:3px}
+.dx{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-top:34px}
+.dx h2{border-bottom-color:var(--accent)}
+.dx h3{font-size:15.5px;margin:18px 0 6px}
+.dx .red{color:var(--accent)}
+.dx p{margin:6px 0}.dx ul{margin:6px 0 6px 2px;padding-left:18px}.dx li{margin:4px 0}
+.legend{font-size:12px;color:var(--mut);margin:4px 0 0}
+.legend mark.k{font-size:11px}.legend mark.o{font-size:11px}
+</style></head><body><div class="wrap">
+<h1>코칭편지 다채로움 감사 — 아린 39통</h1>
+<p class="lead">3일(6/4·6/5·6/6) × 13시나리오 = 39통 · 실제 아이 데이터 · 실제 엔진 프롬프트 + Haiku + 풀 파이프라인</p>
+<div class="meta">
+<b>대상</b> 아린(만 5세·여·어린이집) · child <code>43942d34…</code> &nbsp;|&nbsp; <b>방식</b> 각 날짜의 <b>실제 stored context</b>(그날 어제까지 데이터)로 신호 고정, 시나리오만 13개 강제. 이후 <b>원래 로직 전부 적용</b>: 무브 로테이션 <code>MOVE_MENU[(날짜+자녀시드)%7]</code> → <code>buildLetterUser</code>(실제 과거편지 dedup 블록 포함) → <code>generateLetter</code>(claude-haiku-4-5) → 비중복 가드 <code>badness=max(전체/0.45, 도입25자/0.40)</code> 재생성 루프.
+<br><b>★ 표시</b> = 그 날 엔진이 실제로 선택했던 시나리오. <span class="legend"><mark class="o">붉은 음영</mark>=부모메모 누수 도입 · <mark class="k">노란 음영</mark>=전환사실(카레) 누수</span>
+</div>
+
+<div class="smoke">
+<h3>🔥 한눈에 — 왜 "매일 같은 편지"로 느껴지나</h3>
+<table>
+<tr><td class="big">32 / 39</td><td>도입이 "<b>배가 불편한데도 먹고 싶다…</b>" (부모 메모가 시나리오·날짜 무관하게 도입 점령)</td></tr>
+<tr><td class="big">21 / 39</td><td>"<b>카레 재수용</b>" 언급 (시계열 전환 사실 누수)</td></tr>
+<tr><td class="big">전체 0.06<br>도입 0.14</td><td>같은 날 <b>13통 내부 평균 유사도</b> — 가드 임계(전체 0.45 / 도입 0.40)의 <b>1/3~1/7</b>. 사람은 "다 똑같다"는데 코드는 "완전히 다름(0.06)"으로 판정</td></tr>
+<tr><td class="big">0 건</td><td>39통 풀 파이프라인에서 <b>비중복 가드 재생성 발동 = 0</b> (최고 badness 0.882 &lt; 임계 1.0). 가드가 한 번도 안 걸림</td></tr>
+</table>
+</div>
+
+
+  <section class="day">
+    <h2>2026-06-04 <span class="sub">· 실제 선택 시나리오 = <b>진전 축하</b></span></h2>
+    <div class="ctx">
+      <div><b>이 날 엔진이 본 데이터</b> (모두 2026-06-04 이전 = 어제까지)</div>
+      <div class="row"><span class="lbl">시계열 사실</span> <span class="chip">흰쌀밥이 잦음(주식) — 흰쌀에 잡곡·콩 섞기로 다양성 제안 가능</span><span class="chip">전에 거부했던 '어제 저녁에 배아파서 조금만먹었어요 카레'를 최근 다시 받아들이기 시작했어요(거부→수용 전환)</span><span class="chip">거부했던 '한두입씩먹음'를 최근 1번 만났고 마지막이 4일 전이에요 — 격일~주2~3회 재노출 주기상 지금 다시 권하기 좋은 시점</span></div>
+      <div class="row"><span class="lbl">집 부족 식품군</span> <span class="chip y">콩류</span><span class="chip y">생선·해산물</span> &nbsp; <span class="lbl">잘 먹는 음식</span> <span class="chip g">밥</span><span class="chip g">바나나</span><span class="chip g">배추김치</span><span class="chip g">수박</span><span class="chip g">미역국</span><span class="chip g">우유</span></div>
+      <div class="row"><span class="lbl">집 거부(원문)</span> <span class="chip r">어제 저녁에 배아파서 조금만먹었어요 카레</span><span class="chip r">배탈나서 조금먹음</span><span class="chip r">피자 아주 조금 먹음</span><span class="chip r">한두입씩먹음</span></div>
+      <div class="row"><span class="lbl">부모 메모</span> <span class="chip n">식욕자체가 적어요</span><span class="chip n">배아픈데 먹고싶다해서 줬어요 괜찮나요?</span></div>
+      <div class="row"><span class="lbl">무브 로테이션</span> <span class="chip m">부모가 맛있게 먹는 모습을 곁에서 자연스럽게 보여주기</span> <span class="muted">(MOVE_MENU[(날짜+자녀시드)%7] — 같은 날 13통 공통)</span></div>
+      <div class="row stat">같은 날 13통 <b>내부 평균 유사도</b>: 전체 <b>0.060</b> · 도입25자 <b>0.149</b> &nbsp;→ 가드 임계(전체 0.45 / 도입 0.40)에 한참 못 미쳐 <b>한 쌍도 안 걸림</b></div>
+    </div>
+    <div class="grid">
+    <div class="card real">
+      <div class="ch"><span class="cn">1</span> 진전 축하 <span class="pri">P100</span>
+        <span class="badge">★ 이 날 실제 선택됨</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.174</span>
+      </div>
+      <div class="letter">어제 저녁 <mark class="k">카레</mark>를 조금씩 먹으면서 아린이가 이전과 다른 선택을 하고 있네요. 배가 불편했던 그 경험이 있었지만, 부모님이 강요하지 않고 자연스럽게 식탁에 올려주니 아린이 스스로 다시 마주볼 준비가 된 거예요. 이런 순간이 바로 아이의 미각이 자라나는 때입니다. 앞으로도 집 아침·저녁 밥상에서 부모님이 편하게 식사하시는 그 모습 자체가 아린이에게는 가장 좋은 배움이 될 거예요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">2</span> 신경성 회피 관찰 <span class="pri">P92</span>
+        <span class="hyp">가상</span>
+        <span class="bad hi" title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.694</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편한 날씨에도 아린이가 먹고 싶다고 표현하는 것은 식사에 대한 좋은 신호인데, 최근 몇 끼 동안 사레가 난다거나 먹는 양이 조금씩 줄어드는 것들이 겹쳐 보여요</mark>. 대부분은 시간이 지나면서 자연히 좋아지지만, 이런 신호가 계속되면 소아과나 섭식 전문가와 한 번 편하게 이야기 나눠보는 것도 도움이 될 수 있습니다. 지금부터는 아린이가 좋아하는 미역국에 작은 새우나 흰살 생선을 잘게 풀어 한두 숟가락 섞어 함께 차려주세요. 부모님이 먼저 '우와, 이렇게 하니까 맛있네' 하며 즐기는 모습만 보여주면 됩니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">3</span> 기록 공백 <span class="pri">P84</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.129</span>
+      </div>
+      <div class="letter">아린이가 <mark class="k">카레</mark>를 다시 받아들이기 시작했다니 정말 반가운 소식입니다. 처음엔 배가 불편해서 조금만 먹었지만, 그 경험 자체가 음식과 만나는 또 다른 기회가 되어준 거네요. 앞으로 집 저녁밥상에 <mark class="k">카레</mark>가 올라올 때, 아린이는 부모님이 '정말 맛있네' 하며 먹는 모습을 자연스럽게 보게 될 거예요. 그것만으로도 아린이의 호기심은 천천히 자라날 겁니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">4</span> 식사 분위기 <span class="pri">P72</span>
+        <span class="hyp">가상</span>
+        <span class="bad hi" title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.608</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편했는데도 먹고 싶은 마음을 표현한 모습, 정말 솔직한 신호네요</mark>. 식욕 자체가 작다고 느끼시는데, 혹시 집 식사 시간에 TV나 영상이 켜져 있거나 식사 직전에 우유·간식이 남아있지는 않은지 한번 살펴보세요 — 밥상 앞에서 부모님의 진정한 집중과 맛있게 먹는 모습만으로도 아린이의 식욕은 자연스럽게 따라옵니다. 이번 주 아침·저녁, 아린이에게 한 말씀도 건네지 않으면서 부모님이 밥과 반찬을 정말 맛있게 드세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">5</span> 보상·협상 역효과 <span class="pri">P70</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.375</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편했던 상황에서도 먹고 싶은 마음을 표현했다니, 아이의 신호를 잘 읽어내시고 응해주셨네요</mark>. 한 가지 궁금한데, 혹시 최근에 '이거 다 먹으면 ~줄게' 같은 약속을 하신 적은 없으신가요? 사실 이런 거래는 처음엔 먹이는 데 도움이 되지만, 시간이 지나면서 그 음식 자체를 덜 좋아하게 만들 수 있거든요. 이번 주부턴 디저트를 '~을 먹은 보상'이 아니라, 밥·반찬과 함께 끼니의 일부로 자연스럽게 함께 차려내 보세요. 아린이가 밥상 전체를 편하게 받아들이는 데 더 도움이 될 거예요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">6</span> 자율성 다툼 <span class="pri">P66</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.305</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편해도 먹고 싶은 마음을 표현할 수 있다는 것 자체가 대단합니다</mark>. 그리고 어제 저녁의 <mark class="k">카레</mark>처럼, 예전엔 거부하던 음식을 조금씩 다시 받아들이기 시작한 것도 정말 좋은 신호네요. 만 5세 아이들은 종종 '내가 고른다'는 느낌을 소중히 여기는데, 이번 주부터는 집 밥상에 옆에 두 가지를 놓고 "먼저 뭐 먹어볼래?" 하며 아린이 스스로 고르게 해보세요. 강요 없이 자기가 선택한 것이라는 생각만으로도 아이의 마음이 달라질 수 있습니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">7</span> 식감 거부 <span class="pri">P60</span>
+        <span class="hyp">가상</span>
+        <span class="bad hi" title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.608</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 어제 배가 불편한데도 먹고 싶다고 한 <mark class="k">카레</mark>를 조금 먹으셨다니, 정말 용감한 시도네요</mark>. 요즘 아린이는 어떤 음식이든 입에 넣은 후 뱉거나 헛구역질을 하는 순간이 있는 것 같은데, 이건 음식 자체를 싫어하는 게 아니라 그 느낌(질감)이 아직 낯설어서일 수 있습니다. 이번 주에는 아린이가 잘 먹는 감자빵처럼 부드럽고 바삭한 질감으로 만든 음식을 식탁에 올려보세요—혹은 좋아하는 밥에 <mark class="k">카레</mark>를 아주 조금 섞어 첫 경험을 다시 시작해도 좋습니다. 아린이가 거부 반응을 보이면 무리 없이 바로 치워주세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">8</span> 새 식재료 거부 <span class="pri">P58</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.285</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 상황 속에서도 음식에 관심을 보이고, <mark class="k">카레</mark>처럼 처음에 거부했던 것을 다시 조금씩 받아들이기 시작한 모습이 참 좋습니다</mark>. 이렇게 한 번 거부한 음식이 나중에 수용으로 바뀌는 것은 매우 자연스러운 과정이에요. 이번 주에는 아린이가 잘 먹는 밥이나 미역국 곁에 '한두입씩먹음'을 아주 작은 양으로 놓고, 어른들이 먼저 맛있게 드시는 모습을 자연스럽게 보여주세요. 며칠 간격으로 반복되면, 아이가 호기심을 가질 시간이 생깁니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">9</span> 거부 재노출 <span class="pri">P54</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.223</span>
+      </div>
+      <div class="letter">아린이가 <mark class="k">카레</mark>를 다시 받아들이기 시작했다는 소식이 정말 반갑습니다. 처음 거부했던 음식도 며칠 뒤 다시 만나면 낯섦이 풀리고 호기심이 피어난다는 것을 아린이가 보여주고 있네요. 지난주 '한두입씩먹음'이라고 기록하신 음식도 있는데, 마지막이 4일 전이었다면 지금이 바로 그 음식을 다시 식탁에 올리기 좋은 타이밍입니다. 이번 주부터는 아린이가 잘 먹는 밥이나 햄과 나란히 그 음식을 아주 작은 양으로 놓아두되, 아린이가 요구하지 않으면 먼저 권하지 마시고—다만 부모님이 먼저 맛있게 드시며 '자연스럽게 옆에 있다'는 것만 느끼게 해주세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">10</span> 집-기관 격차 <span class="pri">P50</span>
+        <span class="hyp">가상</span>
+        <span class="bad hi" title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.882</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 어제 배가 불편했는데도 먹고 싶다며 스스로 신호를 주는 모습, 아이의 몸과 욕구를 존중하신 부모님의 따뜻한 대응이 정말 좋습니다</mark>. 아린이의 영양은 전체적으로 잘 채워지고 있는데, 이는 어린이집 급식이 여러 식품군을 꼼꼼히 챙겨주기 때문입니다. 다만 집 아침·저녁에서는 생선·해산물이 자주 오르지 않았는데, 아린이가 좋아하는 미역국처럼 국물 음식에 작은 새우나 생선까스 한두 점을 아주 살짝 올려두고, 부모님이 그것을 먼저 집어서 드시는 자연스러운 모습만 보여주세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">11</span> 영양 공백 <span class="pri">P48</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.375</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편할 때도 먹고 싶다며 아린이가 신호를 보내는 모습이 참 긍정적이네요</mark>. 집 아침·저녁 밥상을 살펴보니 생선이나 미역국 같은 바다음식은 잘 챙겨지고 있지만, 콩이 들어간 국·밥·반찬이 가끔 빠져있는 것 같습니다. 이번 주부터는 아린이가 좋아하는 밥에 검은콩이나 렌틸을 조금 섞거나, 아니면 콩나물무침·된장국처럼 콩 요리를 부모님 밥상에 올려두고 먼저 맛있게 먹는 모습을 자연스럽게 보여주세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">12</span> 반복 메뉴 <span class="pri">P46</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.375</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편했을 때도 먹고 싶은 마음을 표현한 모습, 그걸 받아주신 부모님의 따뜻함이 참 좋습니다</mark>. 요즘 아린이의 식사를 보니 감자빵처럼 바삭한 식감의 음식들을 잘 먹고 있는데, 이번 주에는 그 매력을 유지하면서 한 가지만 더해보세요 — 감자빵 옆에 옥수수나 팝콘처럼 '아삭한' 새로운 곡물 간식을 아주 작은 조각으로 놓아두고, 부모님이 먼저 그걸 즐기는 모습을 자연스럽게 보여주기만 하면 좋습니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">13</span> 정체기 <span class="pri">P30</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.238</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 와중에도 <mark class="k">카레</mark>를 다시 시도했다는 것, 정말 용감한 순간이었네요</mark>. 이는 아린이가 예전에 거부했던 음식을 천천히 다시 받아들이고 있다는 뜻이며, 이런 변화는 며칠 사이가 아니라 몇 주에 걸쳐 일어나는 것이 자연스럽습니다. 지금 이 시기에 아린이는 밥, 미역국, 우유처럼 이미 편한 음식들이 있기에 전체 식사의 기초가 든든합니다. 앞으로도 지금처럼 아침·저녁 밥상을 함께하면서, 부모님이 편하게 식사하시는 모습 자체가 아린이에게는 가장 좋은 길잡이가 될 거예요.</div>
+    </div></div>
+  </section>
+  <section class="day">
+    <h2>2026-06-05 <span class="sub">· 실제 선택 시나리오 = <b>정체기</b></span></h2>
+    <div class="ctx">
+      <div><b>이 날 엔진이 본 데이터</b> (모두 2026-06-05 이전 = 어제까지)</div>
+      <div class="row"><span class="lbl">시계열 사실</span> <span class="chip">흰쌀밥이 잦음(주식) — 흰쌀에 잡곡·콩 섞기로 다양성 제안 가능</span><span class="chip">전에 거부했던 '어제 저녁에 배아파서 조금만먹었어요 카레'를 최근 다시 받아들이기 시작했어요(거부→수용 전환)</span><span class="chip">거부했던 '한두입씩먹음'를 최근 1번 만났고 마지막이 5일 전이에요 — 격일~주2~3회 재노출 주기상 지금 다시 권하기 좋은 시점</span></div>
+      <div class="row"><span class="lbl">집 부족 식품군</span> <span class="chip y">콩류</span> &nbsp; <span class="lbl">잘 먹는 음식</span> <span class="chip g">밥</span><span class="chip g">바나나</span><span class="chip g">미역국</span><span class="chip g">우유</span><span class="chip g">깍두기</span><span class="chip g">가자미</span></div>
+      <div class="row"><span class="lbl">집 거부(원문)</span> <span class="chip r">몇조각주워먹음</span><span class="chip r">어제 저녁에 배아파서 조금만먹었어요 카레</span><span class="chip r">배탈나서 조금먹음</span><span class="chip r">피자 아주 조금 먹음</span><span class="chip r">한두입씩먹음</span></div>
+      <div class="row"><span class="lbl">부모 메모</span> <span class="chip n">식욕자체가 적어요</span><span class="chip n">배아픈데 먹고싶다해서 줬어요 괜찮나요?</span></div>
+      <div class="row"><span class="lbl">무브 로테이션</span> <span class="chip m">맛보기 전 향·촉감만 먼저 부담 없이 경험하게 하기</span> <span class="muted">(MOVE_MENU[(날짜+자녀시드)%7] — 같은 날 13통 공통)</span></div>
+      <div class="row stat">같은 날 13통 <b>내부 평균 유사도</b>: 전체 <b>0.059</b> · 도입25자 <b>0.141</b> &nbsp;→ 가드 임계(전체 0.45 / 도입 0.40)에 한참 못 미쳐 <b>한 쌍도 안 걸림</b></div>
+    </div>
+    <div class="grid">
+    <div class="card ">
+      <div class="ch"><span class="cn">1</span> 진전 축하 <span class="pri">P100</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.168</span>
+      </div>
+      <div class="letter"><mark class="k">카레</mark>를 다시 받아들이기 시작한 아린이의 모습이 정말 반가워요. 몸이 불편했던 날에도 자신이 원하는 음식을 시도해본 그 용기 있는 순간들이 모여, 지난번 거부했던 음식이 이제 입 안에서 낯설지 않은 친구가 되어가고 있는 거니까요. 혹시 다음에 <mark class="k">카레</mark>가 밥상에 올라올 때, 아린이가 먼저 냄새를 맡아보거나 손가락으로 한 스푼을 집어 만져본 후 천천히 입에 가져가도록 아무런 말 없이 지켜봐주세요—이렇게 자신의 속도로 한 걸음씩 다가가는 것만으로도 이미 충분합니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">2</span> 신경성 회피 관찰 <span class="pri">P92</span>
+        <span class="hyp">가상</span>
+        <span class="bad hi" title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.694</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편할 때도 아린이가 먹고 싶다고 표현하는 것, 그리고 부모님이 그 마음을 들어주신 것이 참 좋네요</mark>. 다만 최근 며칠간 배 상태가 자주 영향을 주고 있는 것 같은데, 대부분의 경우 시간이 지나면서 자연스럽게 나아집니다. 다만 이런 신호가 계속 이어진다면 소아과 선생님이나 섭식 전문가와 한 번 편하게 이야기 나눠보는 것도 좋은 방법입니다. 이건 부모님 때문이 아니라, 아이의 몸 상태를 함께 살피자는 거거든요. 그 사이 집 저녁 밥상에 아린이가 잘 먹는 미역국처럼 국물 음식이 있을 때, <mark class="k">카레</mark> 한두 입을 국물에 살짝 담가 향만 맡게 해보세요—강요 없이 손가락으로 건져 냄새 맡는 것만으로도 친해지는 길이 열립니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">3</span> 기록 공백 <span class="pri">P84</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.34</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편할 때도 자기가 먹고 싶은 음식을 말씀해 주실 수 있도록 두신 모습이 아린이의 신호를 잘 들으시는 부모님이라는 걸 보여줍니다</mark>. 한 가지 눈에 띄는 건, 아린이가 <mark class="k">카레</mark>처럼 처음엔 손도 대지 않던 음식을 요즘 조금씩 받아들이기 시작했다는 점인데요 — 이건 거부가 실패가 아니라 아이가 자신의 페이스로 익숙해지고 있다는 가장 분명한 신호입니다. 이번 주부터는 아린이가 좋아하는 밥이나 미역국 옆에, 아린이가 한두 입 먹었던 그 음식을 아주 작은 조각만 살짝 놓고, 부모님이 먼저 냄새를 맡거나 손으로 만져보는 모습을 자연스럽게 보여주세요 — 아이가 직접 맛보기 전에 부모님의 편안한 태도만 봐도 호기심이 생기곤 합니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">4</span> 식사 분위기 <span class="pri">P72</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.375</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편해도 자기가 먹고 싶은 음식을 가리키는 모습, 그 신호를 부모님이 놓치지 않으신 거 참 좋습니다</mark>. 다만 요즘 식욕 자체가 작아 보인다는 점이 눈에 띄는데, 혹시 끼니 사이에 우유나 간식이 자주 들어가지는 않나요? 아린이가 밥상 앞에서 진짜 배고픔을 느낄 수 있도록, 이번 주부터는 저녁 밥 시간 30분 전부터는 간식을 멈춰보세요. 그러면 아린이가 밥상에 앉았을 때 음식에 더 관심을 가질 가능성이 높아집니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">5</span> 보상·협상 역효과 <span class="pri">P70</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.305</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편한 상태에서도 아린이가 원하는 음식을 함께해주신 부모님의 섬세한 대응이 아이의 신뢰를 키우고 있습니다</mark>. 한 가지 살펴볼 점은, 앞으로 '이것을 먹으면 저것을 줄게' 같은 거래 없이 밥상을 차려도 충분하다는 거예요 — 오늘부터는 디저트나 간식을 특정 음식을 먹은 보상이 아닌, 끼니 자체의 일부로 자연스럽게 함께 내놓기만 하세요. 이렇게 하면 아린이가 여러 음식을 자신의 속도로 받아들이는 길이 더 열립니다. 이번 주엔 아린이가 좋아하는 밥이나 미역국과 함께, 거부했던 음식 중 하나를 아주 작은 조각으로 준비한 뒤 — 먼저 냄새를 맡아보거나 손으로 만져보는 것만으로도 충분하니 — 부모님이 그 음식을 맛있게 드시는 모습을 보여주세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">6</span> 자율성 다툼 <span class="pri">P66</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.305</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 와중에도 먹고 싶은 마음을 표현했을 때, 부모님이 그 신호를 존중해주신 거네요</mark>. 그런데 요즘 아린이의 거부가 '이 음식이 싫어서'라기보다 '내가 먹을지 말지 정하고 싶어'라는 마음일 수도 있어요 — 만 5세 아이들이 자기 선택을 확인하려는 건 아주 자연스러운 발달 과정입니다. 이번 주에는 <mark class="k">카레</mark>나 한두입 음식을 다시 식탁에 놓을 때, "엄마는 이걸 먹을 거고, 넌 냄새만 맡아볼래? 아니면 손으로 만져볼래?" 하면서 아린이가 고를 수 있는 작은 선택을 주면 어떨까요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">7</span> 식감 거부 <span class="pri">P60</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.174</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편할 때도 음식에 손이 가는 아린이의 신호를 잘 읽으셨네요</mark>. 한 가지 궁금한데, 최근에 거부했던 음식들을 다시 만날 때 아린이가 뱉으려 하거나 목이 불편해 보이는 순간이 있었나요? 혹시 그렇다면 그건 음식 자체를 싫어하는 게 아니라, 그 음식의 질감(부드러움, 딱딱함, 물컹함)이 아직 낯선 것일 수 있습니다. 그럴 땐 아린이가 잘 먹는 밥처럼 한 가지 음식을 조금 다르게 준비해 보세요 — 예를 들어 아린이가 좋아하는 고기를 아주 작게 다져 국에 넣거나, 바삭하게 구워서 말이에요. 그 음식 자체가 아니라 '다른 느낌'으로 처음 만나게 하는 것만으로도 다음 번엔 훨씬 수월해질 거예요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">8</span> 새 식재료 거부 <span class="pri">P58</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.248</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편한 와중에도 아린이의 신호에 귀 기울여주신 모습이 참 따뜻합니다</mark>. 배 상태와 음식 거부는 별개인데, 부모님이 그걸 자연스럽게 구분해주셨네요. 지난번 <mark class="k">카레</mark>처럼 처음엔 어려웠던 것이 며칠 뒤 다시 나타났을 때 아이가 조금씩 다가가는 경우가 많습니다. 이번엔 한두입씩 먹었던 음식인데, 며칠 간격을 두고 밥 한쪽에 아주 작은 조각을 놓고, 부모님이 그걸 손가락으로 집어 냄새를 먼저 맡아보시거나 손으로 만져보시는 모습을 자연스럽게 보여주세요. 아이가 향을 맡거나 손으로 만져보는 것만 해도 그것이 한 번의 만남입니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">9</span> 거부 재노출 <span class="pri">P54</span>
+        <span class="hyp">가상</span>
+        <span class="bad hi" title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.786</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편했는데도 먹고 싶다고 한 그 마음, 부모님이 편하게 받아주신 것이 참 좋습니다</mark>. 한 가지 눈에 띄는 것은 <mark class="k">카레</mark>인데요 — 예전엔 거부했던 것을 최근 다시 받아들이고 있다는 신호입니다. 이처럼 한 번 거부한 음식을 버리지 않고 며칠 간격으로 천천히 다시 만나면, 아이는 자신의 페이스대로 친해집니다. 앞으로 <mark class="k">카레</mark>는 격일 정도로, 아린이가 좋아하는 밥이나 미역국과 함께할 때 아주 작은 한 숟갈만 식탁에 놓고, 부모님이 맛있는 표정으로 드시는 모습만 자연스럽게 보여주세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">10</span> 집-기관 격차 <span class="pri">P50</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.305</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 와중에도 먹고 싶은 마음을 표현한 것, 그리고 그 순간을 부모님이 함께해 주신 모습이 참 따뜻하네요</mark>. 영양 분석을 보니 아린이는 어린이집 급식 덕분에 전체적으로 잘 채워지고 있는데, 집 아침·저녁 끼니에서는 한 가지 눈에 띄는 부분이 있습니다 — 콩을 담은 음식이 거의 오르지 않았다는 점입니다. 아린이가 잘 먹는 밥이나 국에 검은콩, 강낭콩, 렌틸 같은 콩을 아주 조금 섞어 올려두고, 부모님이 그 밥을 드실 때 '아, 이것도 좋네' 하는 표정과 목소리만 자연스럽게 보여주세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">11</span> 영양 공백 <span class="pri">P48</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.347</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 와중에도 <mark class="k">카레</mark>를 다시 받아들이기 시작했다니, 그 작은 변화 하나가 정말 소중합니다</mark>. 지난달 거부했던 음식을 시간을 두고 몇 번 더 만나면서 아이가 저마다의 속도로 친해지는 과정이 일어나고 있거든요. 다만 집 아침·저녁 끼니에서 콩이 자주 올라오지 않았는데, 아린이가 이미 잘 먹는 밥에 두부나 병아리콩을 아주 잘게 섞어 함께 차려주거나, 아린이가 좋아하는 미역국처럼 '콩나물국' 같은 음식을 한두 번 밥상에 올려보세요. 부모님이 먼저 맛있게 드시는 모습만 자연스럽게 보여주면 충분합니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">12</span> 반복 메뉴 <span class="pri">P46</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.305</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편할 때도 아린이가 음식을 원할 만큼 신뢰 관계가 잘 이루어져 있네요</mark>. 다만 부모님 말씀처럼 전체적으로 식욕 자체가 작은 편이라면, 아린이가 이미 잘 먹는 밥과 깍두기의 '아삭함'을 그대로 살리면서 한 가지만 천천히 더해보면 어떨까요. 예를 들어 다음 주 저녁에 깍두기와 함께 단호박을 깍둑썬 크기로 데쳐 식탁 한쪽에 놓고, 부모님이 먼저 그 바삭한 식감을 즐기는 모습만 자연스럽게 보여주세요. 아린이가 호기심을 느낄 때까지 억지 없이 기다리면 됩니다.</div>
+    </div>
+    <div class="card real">
+      <div class="ch"><span class="cn">13</span> 정체기 <span class="pri">P30</span>
+        <span class="badge">★ 이 날 실제 선택됨</span>
+        <span class="bad hi" title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.694</span>
+      </div>
+      <div class="letter"><mark class="o">배가 불편한 와중에도 아린이가 먹고 싶다고 표현하는 모습, 그리고 그 신호를 존중해주시는 부모님의 대응이 정말 자연스럽습니다</mark>. 흥미로운 점은 아린이가 지난달 <mark class="k">카레</mark>를 거부했던 것에서 이제 조금씩 받아들이기 시작했다는 거예요 — 이건 음식이 처음 '싫음'에서 시간과 만남을 거쳐 '괜찮음'으로 변하는 과정이 실제로 일어나고 있다는 신호입니다. 편식 여정은 직선이 아니라 물결 같아서, 며칠 정체되어 보여도 그 안에서 아이의 입맛은 조용히 변하고 있습니다. 앞으로도 현재 속도 그대로 진행하면 충분합니다.</div>
+    </div></div>
+  </section>
+  <section class="day">
+    <h2>2026-06-06 <span class="sub">· 실제 선택 시나리오 = <b>새 식재료 거부</b></span></h2>
+    <div class="ctx">
+      <div><b>이 날 엔진이 본 데이터</b> (모두 2026-06-06 이전 = 어제까지)</div>
+      <div class="row"><span class="lbl">시계열 사실</span> <span class="chip">흰쌀밥이 잦음(주식) — 흰쌀에 잡곡·콩 섞기로 다양성 제안 가능</span><span class="chip">전에 거부했던 '어제 저녁에 배아파서 조금만먹었어요 카레'를 최근 다시 받아들이기 시작했어요(거부→수용 전환)</span><span class="chip">거부했던 '몇조각주워먹음'를 최근 1번 만났고 마지막이 2일 전이에요 — 격일~주2~3회 재노출 주기상 지금 다시 권하기 좋은 시점</span></div>
+      <div class="row"><span class="lbl">집 부족 식품군</span> <span class="chip y">콩류</span><span class="chip y">생선·해산물</span> &nbsp; <span class="lbl">잘 먹는 음식</span> <span class="chip g">밥</span><span class="chip g">바나나</span><span class="chip g">우유</span><span class="chip g">배추김치</span><span class="chip g">깍두기</span><span class="chip g">감자볶음</span></div>
+      <div class="row"><span class="lbl">집 거부(원문)</span> <span class="chip r">몇조각주워먹음</span><span class="chip r">어제 저녁에 배아파서 조금만먹었어요 카레</span><span class="chip r">배탈나서 조금먹음</span><span class="chip r">피자 아주 조금 먹음</span><span class="chip r">한두입씩먹음</span></div>
+      <div class="row"><span class="lbl">부모 메모</span> <span class="chip n">식욕자체가 적어요</span><span class="chip n">배아픈데 먹고싶다해서 줬어요 괜찮나요?</span><span class="chip n">아침은 항상 3-4숟갈만 먹음</span></div>
+      <div class="row"><span class="lbl">무브 로테이션</span> <span class="chip m">좋아하는 음식에 도전 식재료를 잘게 섞어 주기</span> <span class="muted">(MOVE_MENU[(날짜+자녀시드)%7] — 같은 날 13통 공통)</span></div>
+      <div class="row stat">같은 날 13통 <b>내부 평균 유사도</b>: 전체 <b>0.054</b> · 도입25자 <b>0.145</b> &nbsp;→ 가드 임계(전체 0.45 / 도입 0.40)에 한참 못 미쳐 <b>한 쌍도 안 걸림</b></div>
+    </div>
+    <div class="grid">
+    <div class="card ">
+      <div class="ch"><span class="cn">1</span> 진전 축하 <span class="pri">P100</span>
+        <span class="hyp">가상</span>
+        <span class="bad hi" title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.694</span>
+      </div>
+      <div class="letter"><mark class="k">카레</mark>를 다시 받아들이기 시작한 모습이 정말 반갑습니다. 처음엔 거부했던 음식이 시간이 지나며 자연스럽게 아린이의 입맛에 자리 잡는 순간이 바로 편식이 풀리는 과정이거든요. 부모님이 특별히 강요하지 않으셨는데도 여러 번 만나다 보니 아린이가 스스로 준비되어 받아들인 거네요. 이런 변화를 함께 지켜주신 부모님의 차분함이 가장 큰 힘이 되었던 것 같습니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">2</span> 신경성 회피 관찰 <span class="pri">P92</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.526</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편했을 때도 스스로 먹고 싶다고 표현한 것, 그리고 <mark class="k">카레</mark>처럼 처음엔 거부했던 음식을 다시 받아들이기 시작한 것들을 보면 아이가 천천히 자신의 페이스를 찾아가고 있어요</mark>. 다만 최근 몇 번 관찰되는 작은 신호들—식사 중 사레가 나거나 헛구역질, 먹는 종류가 조금씩 줄어드는 등—이 이어진다면, 편식 코칭만으로는 부족할 수 있으니 소아과나 섭식 전문가와 한 번 편하게 이야기 나눠보는 것도 좋습니다. 이건 부모님의 대응이 부족해서가 아니라, 아이 몸과 마음이 보내는 작은 신호를 전문가와 함께 읽어보자는 차원이거든요. 그 과정에서 집 저녁 밥상에 이번엔 아린이가 좋아하는 밥이나 감자볶음 같은 것에 몇 개의 작은 콩—검은콩이나 완두콩—을 아주 조금 섞어 주면서, 부모님이 먼저 '맛있네' 하며 드시는 모습만 자연스럽게 보여주세요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">3</span> 기록 공백 <span class="pri">P84</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.238</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 와중에도 음식에 대한 관심을 잃지 않는 모습이 정말 좋습니다</mark>. 그 와중에도 <mark class="k">카레</mark>를 다시 만나며 자연스럽게 친해지고 있다는 건, 아이 입장에선 '거부했던 것을 기꺼이 다시 시도하는 용기'를 보여주고 있다는 뜻이에요. 요즘 아린이가 자주 선택하는 밥, 배추김치, 깍두기 같은 음식들 곁에 우동이나 주먹밥처럼 '밥 기반의 국수나 덮밥' 형태로 조용히 생선·해산물을 한두 번씩 담아 식탁에 올려두면, 아이가 자기 페이스대로 그 맛을 기억하고 가까워질 거예요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">4</span> 식사 분위기 <span class="pri">P72</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.375</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한데도 자기가 먹고 싶은 음식을 먹으려 한다는 건, 그 음식에 대한 호기심이 생겼다는 뜻이에요</mark>. 아침마다 3~4숟갈만 먹는다고 하셨는데, 이건 아린이의 자연스러운 식욕신호를 존중하는 부모님의 대응이 있기에 가능한 거예요. 이번 주부터는 아린이가 잘 먹는 밥에 검은콩이나 팥을 한두 스푼 섞어서 밥상에 올려보세요. 새로운 것을 강요하지 않고, 부모님이 그냥 자연스럽게 드시면 아린이가 천천히 따라가요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">5</span> 보상·협상 역효과 <span class="pri">P70</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.375</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 상황에서도 먹고 싶다며 스스로 신호를 보낼 수 있다는 것, 그것이 부모님과의 따뜻한 상호작용으로 이어진다는 점이 정말 좋습니다</mark>. 한 가지 살펴볼 부분은 '이거 먹으면 저걸 줄게' 같은 거래식 제안인데, 처음엔 먹이는 데 효과가 있어 보여도 시간이 지나면서 그 음식을 먹는 이유가 '보상 때문'으로 자리 잡아 오히려 그 음식 자체를 덜 좋아하게 될 수 있습니다. 대신 디저트나 좋아하는 음식은 채소를 먹었는지와 상관없이 매 끼니의 자연스러운 일부로 함께 밥상에 올려두세요. 그러면 아린이는 '이걸 먹어야 저걸 얻는다'는 연결고리 없이, 모든 음식을 그냥 음식으로 만날 수 있습니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">6</span> 자율성 다툼 <span class="pri">P66</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.234</span>
+      </div>
+      <div class="letter">아린이가 식욕이 적다는 점을 잘 알고 계시네요. 아이가 배가 불편해도 먹고 싶다고 하는 것, 그리고 거부하던 <mark class="k">카레</mark>를 다시 받아들이기 시작한 것은 모두 아린이가 자신의 속도로 음식을 탐색하고 있다는 신호입니다. 한 가지, 아린이가 요즘 밥과 함께 자주 만나는 깍두기나 배추김치처럼, 좋아하는 음식 옆에 아주 작은 한두 조각의 생선이나 해산물을 조용히 놓아두되, 아린이에게 "이것 먼저 해볼까, 아니면 저것부터?" 하고 살짝 고를 기회를 주면 어떨까요? 아이가 자기가 정한다는 느낌만으로도 새로운 것에 다가가는 마음이 달라질 수 있습니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">7</span> 식감 거부 <span class="pri">P60</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.305</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편할 때도 먹고 싶은 마음을 표현했다니, 그 음식에 대한 호기심이 자라고 있다는 신호네요</mark>. 한편 최근 기록을 보니 아린이가 음식을 물고 있다가 뱉거나 헛구역질하는 장면들이 보여요 — 이건 '그 음식이 싫다'기보다 '그 느낌(질감)이 어색하다'일 수 있습니다. 예를 들어 바삭한 식감이 필요한 음식이라면, 다음엔 부드럽고 으깬 형태로 한 번 만나보게 하고, 아린이가 뱉고 싶으면 그냥 빼주세요. 아린이가 잘 먹는 감자볶음처럼 부드럽지만 고소한 음식 옆에, 도전하는 음식을 아주 잘게 섞어 함께 차려주는 것도 방법입니다.</div>
+    </div>
+    <div class="card real">
+      <div class="ch"><span class="cn">8</span> 새 식재료 거부 <span class="pri">P58</span>
+        <span class="badge">★ 이 날 실제 선택됨</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.449</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 와중에도 <mark class="k">카레</mark>를 먹고 싶다고 한 마음, 그리고 최근 그 <mark class="k">카레</mark>를 다시 받아들이기 시작한 것—이건 아이가 자신의 속도로 새로운 맛과 친해지고 있다는 아주 좋은 신호입니다</mark>. 거부했던 음식이 며칠 뒤 식탁에 다시 나타나면, 아이는 그것을 '또 낯선 음식'이 아니라 '전에 본 그것'으로 인식하게 되거든요. 이번 주부터는 아린이가 정말 좋아하는 밥에 <mark class="k">카레</mark> 국물이나 <mark class="k">카레</mark>맛 나물을 아주 조금 섞어 함께 차려보세요—아이가 먹을지 말지는 전혀 중요하지 않으며, 옆에서 부모님이 <mark class="k">카레</mark>를 맛있게 먹는 모습 자체가 가장 큰 도움입니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">9</span> 거부 재노출 <span class="pri">P54</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.305</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 상황에서도 먹고 싶은 음식을 찾으며 자신의 욕구를 표현하는 모습이 참 좋습니다</mark>. 한편 지난 2일 전에 만났던 음식이 있는데, 편식 극복 과정에서는 한 번 거부가 끝이 아니라 격일 정도의 간격을 두고 다시 만나는 게 중요합니다. 집 저녁밥상 한쪽에 아주 작은 양을 조용히 놓고, 부모님이 먼저 한두 숟갈 드시는 모습을 자연스럽게 보여주세요. 그것만으로도 아린이는 천천히 그 음식과 친해질 시간을 얻게 됩니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">10</span> 집-기관 격차 <span class="pri">P50</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.375</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편해도 '먹고 싶다'고 표현하고, 어제 <mark class="k">카레</mark>처럼 예전에 거부했던 음식들을 조금씩 다시 시도하는 모습이 참 좋습니다</mark>. 한편 우리 분석을 보니 어린이집 급식 덕분에 영양 전반은 잘 채워지고 있는데, 집에서 저녁끼니를 보면 생선이나 해산물을 최근 자주 만나지 못했더라고요. 이번 주에는 아린이가 좋아하는 밥이나 미역국 같은 국 한 그릇에 작은 생선까나 새우를 아주 잘게 섞어 함께 차려보세요. 아린이가 주목하지 않아도 괜찮습니다—부모님이 그 음식을 자연스럽게 드시는 게 아이에겐 가장 무난한 초대장이 됩니다.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">11</span> 영양 공백 <span class="pri">P48</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.375</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편한 와중에도 먹고 싶다며 손을 내밀었을 때, 그 신호를 그냥 흘리지 않으신 부모님의 믿음이 정말 따뜻하네요</mark>. 우리 분석을 보니 아린이의 식사는 전반적으로 잘 구성되어 있는데, 집 끼니에서 콩이나 생선 같은 식재료를 자주 만나지 못한 점이 눈에 띕니다. 이번주부터는 아린이가 좋아하는 밥이나 감자볶음에 검은콩·흰콩 같은 것을 아주 잘게 섞어 한두 스푼씩 담아보세요. 아이는 이미 익숙한 맛 사이에서 새로운 것을 천천히 알아가게 될 거예요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">12</span> 반복 메뉴 <span class="pri">P46</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.238</span>
+      </div>
+      <div class="letter"><mark class="o">아린이가 배가 불편할 때도 음식에 관심을 두는 모습이 정말 사려 깊은 신호네요</mark>. 그런데 부모님 말씀을 보니 집에서의 아침·저녁 식사가 익숙한 것들로 주로 돌아가고 있다는 점이 눈에 띕니다. 아린이가 좋아하는 밥과 감자볶음 같은 바삭한 반찬들을 '기본'으로 유지하되, 이번 주부터는 그 감자볶음에 다진 소시지나 작은 새우 한두 개를 조용히 섞어 차려보세요. 아린이가 이미 잘 먹는 '바삭함'과 '짭짤한 맛'은 그대로인데, 한 가지 단백질만 더하는 식이면 낯섦 없이 한 발 나아갈 수 있어요.</div>
+    </div>
+    <div class="card ">
+      <div class="ch"><span class="cn">13</span> 정체기 <span class="pri">P30</span>
+        <span class="hyp">가상</span>
+        <span class="bad " title="실제 과거편지 대비 비중복 가드 점수(임계 1.0)">badness 0.14</span>
+      </div>
+      <div class="letter">아린이가 밥, 바나나, 우유, 여러 김치와 반찬을 꾸준히 받아들이고 있는데, 이것들이 모두 다른 맛·질감·온도를 가진 음식들이라는 점이 정말 좋습니다. 최근 6일간의 집 끼니를 보니 고기·계란·곡물·채소·유제품·생선·과일 등 거의 모든 식품군을 만나고 있어서, 아린이의 입은 이미 꽤 넓은 세상을 경험하고 있는 중이에요. 다만 아침에 3~4숟갈만 먹는다는 점이 눈에 띄는데, 아침 밥에 작은 검은콩이나 수수 한두 줌을 살짝 섞어 드시면 어떨까요—같은 밥이지만 알갱이가 생기면서 아린이가 새로운 식감을 자연스럽게 만나게 됩니다.</div>
+    </div></div>
+  </section>
+
+<div class="dx">
+<h2>코칭엔진 문제점 종합 (기존 3 + 이번 실증 4)</h2>
+<p>방어 장치는 두 층뿐 — ① 시나리오 ID 회전(3일 홀드아웃, <b>정상 작동</b>) ② 문자 유사도 가드(표면만). 그 사이의 <b>'사실/주제(fact) 층' dedup이 통째로 비어</b> 있어, 지배적 사실 하나가 매 편지를 점령한다.</p>
+
+<h3 class="red">🔴 A (기존) 사실 누수 — 시나리오가 달라도 같은 사실로 편지를 연다</h3>
+<p>거부→수용 전환 사실은 시나리오와 무관하게 <code>buildLetterUser</code>의 '시계열 사실' 블록에 <b>무조건</b> 들어간다(C3, 확신 0.97). "이미 축하했다"는 per-fact 기억도 없다(C1). → 39통 중 21통이 카레를 언급.</p>
+
+<h3 class="red">🔴 B (기존) 간식·푸드브릿지 추천은 회전 장치가 없다</h3>
+<p><code>goodSnackSuggestions</code>·<code>neighborsOf</code>는 날짜·시드 안 받는 순수 결정론 함수. 체격·결핍·잘먹는음식이 안 바뀌면 매일 같은 "과일·요거트·치즈" / "밥→잡곡"이 나온다.</p>
+
+<h3 class="red">🔴 C (기존) 비중복 가드가 의미가 아니라 글자만 본다</h3>
+<p><code>letterSimilarity</code>는 문자 3-gram 자카드. 같은 주제를 다른 어휘로 쓰면 점수가 낮게 나와 통과한다. <b>이번 실증: 같은 날 13통이 0.06로 측정</b> → 가드 무력. 코드가 LLM에게 "패러프레이즈하라"고 시켜 가드를 스스로 무력화.</p>
+
+<h3 class="red">🔴 D (신규·최대) 부모 메모도 똑같이 샌다 — 누수원이 시계열만이 아니다</h3>
+<p>"배아픈데 먹고싶다해서 줬어요"라는 부모 메모가 시나리오·날짜와 무관하게 <b>32/39 도입을 점령</b>했다. <code>ctx</code>의 모든 고정 사실(메모·시계열)이 무조건 프롬프트에 들어가고, LLM은 가장 감정적인 한 줄을 매번 도입 훅으로 고른다. <b>A를 메모까지 확장한 더 큰 문제.</b></p>
+
+<h3 class="red">🔴 E (신규·결정적 증거) 가드 지표와 사람 체감이 완전히 분리됨</h3>
+<p>사람은 "32/39가 똑같이 시작"이라 보는데 3-gram은 0.06(=완전히 다름)으로 본다. 풀 파이프라인 39통에서 <b>regen 0건</b>이 이를 증명. 즉 현 가드는 이 문제를 <b>구조적으로 탐지할 수 없다</b>(임계를 낮춰도 패러프레이즈는 못 잡음).</p>
+
+<h3 class="red">🔴 F (신규·데이터 품질) '카레 전환'은 일부 데이터 아티팩트</h3>
+<p>전환 감지가 잡은 거부값이 식재료명이 아니라 부모가 입력한 문장 <code>"어제 저녁에 배아파서 조금만먹었어요 카레"</code>다. 거부 입력이 식재료로 정규화되지 않아, 매일 축하하는 '카레 전환'이 실제 식재료 전환이 아니라 메모 문장의 오탐일 수 있다.</p>
+
+<h3 class="red">🔴 G (신규·설계) 13시나리오 '설계'도 다채로움 4.5/10</h3>
+<p>독립 생성 채점: 8·9·10·11·12가 "좋아하는 음식에 잘게 섞기" 단일 처방으로 붕괴, 마감 "부모가 먼저 맛있게"가 다수에 박힘(이번 실데이터에서도 10/39). 트리거는 13개지만 체감 무브는 4~5개.</p>
+
+<h3>✅ 잘 도는 것(고치지 말 것)</h3>
+<p>시나리오 ID 회전(3일 홀드아웃)·무브 로테이션(날짜별 다른 무브)은 정상. 문제는 '있는 장치'가 아니라 <b>'없는 장치'(사실·메모 dedup, 의미 유사도)</b>다.</p>
+
+<h3>→ 처방 방향(요약)</h3>
+<ul>
+<li><b>프롬프트 조립 직전에 '사실 층 dedup'</b>: 최근 N일 편지에 이미 쓴 시계열 사실·메모는 ctx에서 빼거나 다른 사실로 회전(특히 '전환 축하'는 쿨다운).</li>
+<li><b>의미 유사도 가드</b>: 도입 임베딩/주제 태그 비교를 가드에 추가(문자 3-gram만으론 영원히 못 잡음).</li>
+<li><b>거부 입력 정규화</b>: 자유텍스트 거부를 식재료로 매핑(전환 오탐 차단).</li>
+<li><b>간식·브릿지 날짜 시드 회전</b> + 시나리오 마감/브릿지 식재료 분산(붕괴 해소).</li>
+</ul>
+</div>
+</div></body></html>
