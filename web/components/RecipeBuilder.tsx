@@ -120,7 +120,7 @@ export default function RecipeBuilder({ ingredient, onClose, onPosted }: { ingre
           <h3 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>✏️ {ingredient ? `${ingredient} ` : ''}레시피 올리기</h3>
           <button onClick={onClose} className="text-xl" style={{ color: '#9CA3AF' }}>✕</button>
         </div>
-        <div className="rounded-xl px-3 py-2 mb-3 text-[11.5px] font-bold text-center" style={{ background: 'linear-gradient(135deg,#FFF3E0,#FFE0B2)', color: '#8a5a00', border: '1px solid #FFB877' }}>🎁 첫 레시피 <b style={{ color: '#C45A00' }}>+500P</b> · 올리면 이케아 설명서처럼 자동 시각화</div>
+        <div className="rounded-xl px-3 py-2 mb-3 text-[11.5px] font-bold text-center" style={{ background: 'linear-gradient(135deg,#FFF3E0,#FFE0B2)', color: '#8a5a00', border: '1px solid #FFB877' }}>🎁 첫 레시피 <b style={{ color: '#C45A00' }}>+500P</b> · 올리면 그림 설명서처럼 자동 정리</div>
 
         {/* ① 음식 이름 */}
         <div className="text-[12.5px] font-extrabold mb-1" style={{ color: '#1a2b4a' }}>① 음식 이름 <span className="text-[10px] font-bold" style={{ color: '#E53935' }}>필수</span></div>

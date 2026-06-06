@@ -20,6 +20,7 @@ export default function MealCalendar() {
   const [byDate, setByDate] = useState<Record<string, Row[]>>({});
   const [loading, setLoading] = useState(true);
   const [showFuture, setShowFuture] = useState(false);   // 미래 식단표(미리입력분) 접기 — 어제·최근 기록을 가리지 않게
+  const [diag, setDiag] = useState<{ oneliner: string; letter_date: string } | null>(null);   // 최근 식단 진단(코치 편지 oneliner) — 홈에서 달력으로 이동
 
   useEffect(() => {
     (async () => {
@@ -29,7 +30,13 @@ export default function MealCalendar() {
       let q = supabase.from('children').select('id,nickname').eq('parent_id', user.id);
       if (sel) q = q.eq('id', sel);
       const { data: child } = await q.order('id', { ascending: true }).limit(1).maybeSingle();
-      if (child) { setChildId(child.id); setChildName(child.nickname || '우리 아이'); }
+      if (child) {
+        setChildId(child.id); setChildName(child.nickname || '우리 아이');
+        // 최근 식단 진단 — 코치 편지의 oneliner(엔진 진단 한 줄). 홈에서 이 자리(달력)로 이동.
+        supabase.from('coach_letters').select('oneliner,letter_date').eq('child_id', child.id)
+          .not('oneliner', 'is', null).order('letter_date', { ascending: false }).limit(1).maybeSingle()
+          .then(({ data }) => { if (data?.oneliner) setDiag({ oneliner: data.oneliner, letter_date: data.letter_date }); });
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -147,6 +154,18 @@ export default function MealCalendar() {
               </>
             );
           })()}
+        </div>
+      )}
+
+      {/* 최근 식단 진단 — 코치 편지 한 줄 진단(홈에서 달력으로 이동). 이 달 회고와 같은 자리에서 본다 */}
+      {diag && (
+        <div className="mx-5 mb-3 rounded-2xl p-4 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className="text-sm font-bold" style={{ color: '#1a2b4a' }}>📊 최근 식단 진단</span>
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: '#FFF0E0', color: '#C45A00' }}>{diag.letter_date.slice(5)}</span>
+          </div>
+          <p className="text-[12.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>{diag.oneliner}</p>
+          <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석 · 매일 새 진단</div>
         </div>
       )}
 

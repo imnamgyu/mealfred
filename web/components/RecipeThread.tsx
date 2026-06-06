@@ -32,7 +32,7 @@ export default function RecipeThread({ ingredient }: { ingredient: string }) {
           </div>
         )}
       </div>
-      <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>버튼만 눌러 만들면 이케아 설명서처럼 자동으로 그려져요. 따라 하고 ‘해봤어요’로 응답해 주세요.</p>
+      <p className="text-[11px] mb-3" style={{ color: '#8a7a6a' }}>버튼만 눌러 만들면 그림 설명서처럼 자동으로 그려져요. 따라 하고 ‘해봤어요’로 응답해 주세요.</p>
 
       {recipes.length === 0 ? (
         <div className="rounded-xl p-3.5 mb-2 text-center" style={{ background: '#FFF5EB', border: '1px solid #FFD0A0' }}>

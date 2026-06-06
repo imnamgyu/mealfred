@@ -156,13 +156,19 @@ export default function FoodsDex() {
     if (filter === 'danger') return getStat(p.nm).exposure > 0 && statusOf(getStat(p.nm)) === 'danger';
     return CATEGORY_GROUP[p.cat] === filter;
   }).sort((a, b) => {
-    // 1) 등급 우선 (필수 → 권장 → 일반), 2) 관심필요 우선, 3) 오래된 순
+    // 추천엔진순 — '다음에 뭘 먹여볼까' 우선순위(홈 '시도해볼 식재료'와 동일 철학). 매 방문 시 최신 기록으로 재계산.
+    // 1) 💎 영양 보석(core>good) 2) 아직 잘 안 먹는 것 우선 3) 오래 안 먹은(danger) 4) 급식 빈도(자주>가끔) 5) 마지막 노출 오래된 순
+    const sa = getStat(a.nm), sb = getStat(b.nm);
+    const gemA = a.must_eat ? (a.must_eat_tier === 'core' ? 0 : 1) : 2;
+    const gemB = b.must_eat ? (b.must_eat_tier === 'core' ? 0 : 1) : 2;
+    if (gemA !== gemB) return gemA - gemB;
+    const triedA = isWellEaten(sa) ? 1 : 0, triedB = isWellEaten(sb) ? 1 : 0;
+    if (triedA !== triedB) return triedA - triedB;
+    const dangerA = (sa.exposure && statusOf(sa) === 'danger') ? 0 : 1;
+    const dangerB = (sb.exposure && statusOf(sb) === 'danger') ? 0 : 1;
+    if (dangerA !== dangerB) return dangerA - dangerB;
     const ga = GRADE_SORT[a.grade] ?? 2, gb = GRADE_SORT[b.grade] ?? 2;
     if (ga !== gb) return ga - gb;
-    const sa = getStat(a.nm), sb = getStat(b.nm);
-    const rank = { danger: 0, warn: 1, good: 2 };
-    const ra = sa.exposure ? rank[statusOf(sa)] : 0.5, rb = sb.exposure ? rank[statusOf(sb)] : 0.5;
-    if (ra !== rb) return ra - rb;
     return (daysSince(sb.last) ?? 1e9) - (daysSince(sa.last) ?? 1e9);
   });
 

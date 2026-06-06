@@ -61,7 +61,7 @@ export default function CommunityPage() {
     <main className="max-w-md mx-auto w-full min-h-screen flex flex-col overflow-x-hidden" style={{ background: '#FFFDFB' }}>
       <header className="flex items-center justify-between px-5 pt-6 pb-3">
         <div className="flex items-center gap-2">
-          <h1 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>📰 팁</h1>
+          <h1 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>💡 팁</h1>
           <span className="text-[11px] font-bold" style={{ color: '#9CA3AF' }}>매일 새 글 · 엄마들 노하우</span>
         </div>
         {!loggedIn && <LoginCta />}

@@ -659,6 +659,15 @@ export default function CarePage() {
                 {growthLatest ? `${growthLatest.height_cm ?? '-'}cm · ${growthLatest.weight_kg ?? '-'}kg (${growthLatest.measured_on.slice(5)}) ▾` : '기록 추가 ▾'}
               </span>
             </button>
+            {/* 2주 nudge — 마지막 체위 기록이 14일 넘었거나 없으면 부드럽게 업데이트 권유(성장은 2주 단위로 의미 있는 변화) */}
+            {!gOpen && (!growthLatest || growthLatest.measured_on < kstDateNDaysAgo(14)) && (
+              <button onClick={() => setGOpen(true)} className="mt-2.5 w-full flex items-center gap-2 rounded-xl px-3 py-2 text-left" style={{ background: '#FFF7ED', border: '1px solid #FFD9B8' }}>
+                <span className="text-base">📏</span>
+                <span className="text-[11px] font-semibold leading-snug" style={{ color: '#C45A00' }}>
+                  {growthLatest ? <>마지막 기록이 <strong>2주</strong> 넘었어요. 키·몸무게는 2주마다 업데이트하면 성장 추이를 더 정확히 볼 수 있어요 →</> : <>아직 키·몸무게 기록이 없어요. 한 번 넣어두면 <strong>BMI·또래 성장 추이</strong>를 봐드릴게요 →</>}
+                </span>
+              </button>
+            )}
             {gOpen && (
               <div className="mt-3">
                 <div className="grid grid-cols-2 gap-2 mb-2">

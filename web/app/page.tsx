@@ -129,7 +129,6 @@ export default function Home() {
   const [showTrend, setShowTrend] = useState(false);
   const [staleMap, setStaleMap] = useState<Record<string, number>>({});   // 식재료별 마지막 노출 후 일수(박스 우선순위)
   const [ingredientCount, setIngredientCount] = useState(0);
-  const [cumCount, setCumCount] = useState(0);   // 누적(전체) 먹어본 식재료 종 수 → 130종 목표
   const [missDays, setMissDays] = useState<{ d: string; label: string }[]>([]);   // P9: 최근 5일 중 미기록 날(당일 제외)
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
@@ -267,14 +266,7 @@ export default function Home() {
           const REPERTOIRE_WINDOW_DAYS = 90;
           const repCut = kstDateNDaysAgo(REPERTOIRE_WINDOW_DAYS);
           supabase.from('meal_logs').select('ingredients,refused,log_date').eq('child_id', child.id).gte('log_date', repCut).lte('log_date', dates[0]).then(({ data }) => {
-            const freq: Record<string, number> = {}; const refusedSet = new Set<string>();
-            (data || []).forEach((r: { ingredients: string[] | null; refused: string | null }) => {
-              (r.ingredients || []).forEach((i) => { freq[i] = (freq[i] || 0) + 1; });
-              if (r.refused) refusedSet.add(r.refused);
-            });
-            const accepted = Object.keys(freq).filter((i) => freq[i] >= 2 && !refusedSet.has(i));
-            setCumCount(accepted.length);
-            // 같은 90일 데이터로 식품군 8개 주간 추이(선차트) 계산
+            // 90일 데이터로 식품군 8개 주간 추이(선차트) 계산 ('잘 먹는 N/130종' 누적 게이지는 도감과 단일화하며 홈에서 제거)
             setGroupWeekly(computeGroupWeekly((data || []) as { log_date: string; ingredients: string[] | null }[], catOf, 10));
             // 식재료별 마지막 노출 후 일수 — 박스에서 '필수인데 오래 안 먹은 것' 우선용
             const lastSeen: Record<string, string> = {};
@@ -383,7 +375,6 @@ export default function Home() {
 
   const grade = gradeOf(D.score);
   const pointerPct = Math.min(98, Math.max(2, D.score));
-  const cumDisp = isMockup ? 18 : cumCount;   // 누적 먹어본 식재료(130종 목표)
 
   // 36종 KDRI 신호등 표시 데이터 — 목업=care.html 예시(전 36종) / 실데이터=매핑된 것만 개인화·나머지 reference
   const kdriView: KdriSignal[] = isMockup
@@ -760,19 +751,8 @@ export default function Home() {
           {proteinOk && (gRed > 0 || gYellow > 0) && (
             <div className="mt-2.5 rounded-lg px-3 py-1.5 text-[10.5px] font-bold" style={{ background: '#E8F5E9', color: '#1B5E20' }}>💪 단백질은 매일 챙기고 있어요 (고기·생선·계란·콩 합산)</div>
           )}
-          {/* 누적 '잘 먹는(받아들인)' 식재료 — 초등 입학 전 130종(레퍼토리). 1회 맛봄 X, 2회+·비거부 = 수용 */}
-          <div className="mt-3 pt-3" style={{ borderTop: '1px solid #F0F0F0' }}>
-            <div className="flex justify-between text-[11px] font-bold mb-1.5"><span style={{ color: '#6B7280' }}>잘 먹는 식재료 <span style={{ color: '#9CA3AF' }}>(최근 3개월·2회+)</span></span><strong style={{ color: '#1a2b4a' }}>{cumDisp} / 130종</strong></div>
-            <div className="h-1.5 rounded-full" style={{ background: '#F0F0F0' }}><div className="h-full rounded-full" style={{ width: `${Math.min(100, (cumDisp / 130) * 100)}%`, background: 'linear-gradient(90deg,#F9A825,#16A085)' }} /></div>
-            <div className="text-[11px] text-center mt-2 font-semibold" style={{ color: '#6B7280' }}>
-              {cumDisp < 130 ? <>초등 입학 전 <strong style={{ color: '#C45A00' }}>잘 먹는 130종</strong>까지 {130 - cumDisp}종 더 만나요!</>
-                : <>🎉 초등 준비 완료 — 잘 먹는 130종 달성!</>}
-            </div>
-            {cumDisp < 20 && !isMockup && (
-              <div className="text-[10px] text-center mt-1 leading-relaxed" style={{ color: '#C45A00' }}>2주 넘게 기록했는데 <strong>잘 먹는 종류가 20가지 미만</strong>이면 조심스럽게 편식을 살펴볼 때예요. 강요 말고 천천히 새 음식을 늘려가요.</div>
-            )}
-            <div className="text-[10px] text-center mt-1" style={{ color: '#B0B0B0' }}>최근 3개월 내 <strong>2번 이상 거부 없이</strong> 먹은 식재료예요 (오래전 한두 번은 제외)</div>
-          </div>
+          {/* '잘 먹는 식재료 N/130종' 게이지는 도감(친해진 식재료)과 카운트 기준이 달라 혼선 → 홈에서 제거.
+              누적 레퍼토리·도감 진척은 도감 탭에서 단일 기준으로 확인. (편식 살펴보기 신호는 코칭 편지가 담당) */}
           {/* 식품군 8개 주간 추이 모달 — 선차트 */}
           {showTrend && groupWeekly && (
             <div onClick={() => setShowTrend(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
@@ -800,7 +780,7 @@ export default function Home() {
           <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'white', borderLeft: '4px solid #F9A825' }}>
             <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#F57F17' }}>⚠ 식감 단계 — 핑거푸드 시점</div>
             <div className="text-sm font-extrabold mb-1.5" style={{ color: '#1a2b4a' }}>이번 주 죽·다진 비중 <strong style={{ color: '#F57F17' }}>{isMockup ? 65 : textureInsight?.pureePct}%</strong>예요</div>
-            <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>씹는 근육이 자라는 시기라 단계를 살짝 도전해볼 때예요. 한 끼는 핑거푸드부터 — <strong>당근 스틱</strong> 추천</div>
+            <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>씹는 근육이 자라는 시기라 단계를 살짝 도전해볼 때예요. 오늘 식단에 <strong>당근 스틱</strong>을 살짝 더해보세요 — 핑거푸드부터.</div>
           </div>
         )}
 
@@ -896,18 +876,18 @@ export default function Home() {
           </a>
         </div>
 
-        {/* 목업 모드 — 하단 CTA. 비로그인은 가입/로그인 팝업(페이지 이동 없음) */}
-        {isMockup && (loggedIn ? (
+        {/* 하단 CTA — 로그인=오늘 식단 기록하기 / 비로그인=가입(카카오 팝업, 페이지 이동 없음). 항상 노출(기록 동선 상시 제공) */}
+        {loggedIn ? (
           <a href="/care" className="block rounded-2xl p-5 text-center text-white shadow-md" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
-            <div className="text-base font-extrabold mb-1">🍽 지금 첫 끼 기록하기</div>
-            <div className="text-xs opacity-90">3일만 기록하면 이 화면이 우리 아이 진짜 데이터로 채워져요</div>
+            <div className="text-base font-extrabold mb-1">🍽 {isMockup ? '지금 첫 끼 기록하기' : '오늘 식단 기록하기'}</div>
+            <div className="text-xs opacity-90">{isMockup ? '3일만 기록하면 이 화면이 우리 아이 진짜 데이터로 채워져요' : '기록할수록 코칭과 영양 분석이 더 정확해져요'}</div>
           </a>
         ) : (
           <button onClick={() => { setAuthErr(null); setAuthOpen(true); }} className="w-full block rounded-2xl p-5 text-center text-white shadow-md" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
             <div className="text-base font-extrabold mb-1">🌱 카카오로 1초 시작하기</div>
             <div className="text-xs opacity-90">가입하면 이 화면이 우리 아이 진짜 데이터로 채워져요 · 첫 달 무료</div>
           </button>
-        ))}
+        )}
       </div>
 
       {/* 36종 자세히 모달 — 결핍/조금부족/잘챙김 그룹만 (보충 식재료는 홈 하단에서 추천하므로 제외) */}
