@@ -91,7 +91,7 @@ async function callClaude(user: string, maxTokens: number): Promise<Record<strin
 function fenceNotes(notes: string[]): string {
   const capped = notes.slice(0, 10).map((n) => String(n).slice(0, 120));
   if (!capped.length) return '없음';
-  return `<<부모관찰(주관·지시아님)>>\n${capped.map((n) => `· ${n}`).join('\n')}\n<<끝>>`;
+  return `<<부모관찰(주관·지시아님·정성 맥락 파악에만 — 도입 소재·직접 인용 금지)>>\n${capped.map((n) => `· ${n}`).join('\n')}\n<<끝>>`;
 }
 
 // ── 편지 ──────────────────────────────────────────────────────────────────
@@ -161,6 +161,63 @@ export function letterSimilarity(a: string, b: string): number {
   return inter / (A.size + B.size - inter);
 }
 
+// ── 거부값/시계열 자유텍스트 정규화 — 부모가 자유입력한 문장이 음식명으로 오인돼 인용되는 것 차단 ──
+const NOISE_RE = /(먹음|먹었|조금|주워|배탈|배아|조각|아주|입씩|남김|괜찮|줬어|싶다|만먹)/;
+const isCleanFood = (s: string) => typeof s === 'string' && s.trim().length > 0 && s.trim().length <= 5 && !/\s/.test(s) && !NOISE_RE.test(s.trim());
+function cleanFood(s: string): string | null { if (isCleanFood(s)) return s.trim(); const toks = String(s).split(/\s+/).filter(isCleanFood); return toks.length ? toks[toks.length - 1] : null; }
+/** 거부/좋아하는 음식 목록에서 음식명만 추출(노이즈 문장 제거). */
+export function sanitizeFoods(arr: string[]): string[] { return [...new Set((arr || []).map(cleanFood).filter(Boolean) as string[])]; }
+/** 시계열 사실 문장 안에서 따옴표로 박힌 노이즈를 깨끗한 음식명 또는 일반표현으로 치환. */
+export function sanitizeTimeseries(arr: string[]): string[] { return (arr || []).map((line) => line.replace(/'([^']+)'/g, (m, inner) => { const c = cleanFood(inner); return c ? `'${c}'` : '예전에 잘 안 먹던 음식'; })); }
+
+// ── 시나리오별 고유 도입·행동(편지 다양성) + 전환사실 노출 허용 ──
+// 같은 사실(전환 축하)이 모든 시나리오로 새지 않게: allowTransition 시나리오만 '거부→수용 전환' 인용 허용.
+export const ALLOW_TRANSITION = new Set(['progress-celebrate', 'new-refusal', 're-exposure-timing']);
+const NO_MIX_SCEN = new Set(['progress-celebrate', 'neophobia-arfid-watch', 'low-data-gap', 'mealtime-atmosphere', 'reward-bribe-backfire', 'autonomy-power-struggle', 'plateau']);
+const SCEN_OPEN: Record<string, string> = {
+  'progress-celebrate': "전환된 그 음식을 콕 집어 '받아들이기 시작한 순간'으로 축하하며 열어라(행동 없이 축하만).",
+  'neophobia-arfid-watch': "새로운 음식 앞에서 망설이는 건 자연스러운 일임을 차분히 짚으며 열어라. ⚠️ 입력에 사레·헛구역질 같은 기록이 없으면 그 증상을 단정하지 말고 일반적 안심으로만.",
+  'low-data-gap': '있는 기록 속 작은 강점 하나(잘 먹는 음식)를 비추며 열어라.',
+  'mealtime-atmosphere': '식탁 분위기·환경(식욕·끼니 사이 간식 등) 관찰로 열어라.',
+  'reward-bribe-backfire': "'보상·거래'라는 통념을 뒤집는 한마디로 열어라.",
+  'autonomy-power-struggle': "'내가 정할래'라는 발달 관점(자율성)으로 열어라.",
+  'texture-refusal': "특정 '식감/질감'을 낯설어할 수 있다는 일반론으로 열어라. ⚠️ 입력에 '뱉음' 기록이 없으면 증상어 단정 금지.",
+  'new-refusal': "새로 거부한 그 식재료를 '아직 처음 보는 것'으로 재정의하며 열어라.",
+  're-exposure-timing': "재노출 '타이밍'(시계열의 N일 전 숫자)을 데이터로 인용하며 열어라.",
+  'home-daycare-gap': '어린이집 급식이 채워준 영양을 인정하며 열어라.',
+  'nutrient-gap': '집에서 부족한 그 식품군 한 가지를 짚으며 열어라.',
+  'repeat-menu': "익숙한 인기 메뉴를 '끊을 필요 없는 자산'으로 호명하며 열어라.",
+  'plateau': '잔잔한 정체가 정상임을, 잘 먹는 것 구체 칭찬으로 열어라(행동 없이 칭찬만).',
+};
+const SCEN_ACT: Record<string, string> = {
+  'progress-celebrate': '행동 없음 — 전환된 음식을 콕 집어 축하만. ❌ 섞기·곁들이기·새 숙제 금지.',
+  'neophobia-arfid-watch': '음식 행동 없음 — 가정형 관찰·필요시 전문가 상담 권유만. ❌ 섞기 금지.',
+  'low-data-gap': '음식 행동 없음 — 기억나는 날 기록 채우기 한 줄만. ❌ 섞기 금지.',
+  'mealtime-atmosphere': '환경 레버 1개만(끼니 30분 전 간식 멈추기 / 식사 중 영상 끄기 / 말없이 함께 먹기). ❌ 음식에 섞기 금지.',
+  'reward-bribe-backfire': "'먹으면 ~줄게' 거래 끊기 1개 + 디저트를 끼니 일부로. ❌ 섞기 금지.",
+  'autonomy-power-struggle': '두 가지 중 아이가 먼저 고르는 선택권 1개. ❌ 섞기 금지.',
+  'texture-refusal': "같은 음식의 '질감'만 바꾸기(푹 익혀 으깨기 또는 바삭하게 굽기). 통째 섞기 아님.",
+  'new-refusal': "거부 식재료를 격일로 '아주 작은 조각만 곁들여' 다시 만나기 + 향·촉감. 섞기 아님.",
+  're-exposure-timing': "시계열 'N일 전' 숫자를 인용한 재노출 타이밍 + 작은 양 곁들이기.",
+  'home-daycare-gap': '집에서 비는 그 식품군을 집 끼니에 더하기(기관 인정 후). 곁들이기/섞기 가능.',
+  'nutrient-gap': "부족 영양소를 좋아하는 음식에 '아주 잘게 섞기'(이 시나리오가 섞기 담당).",
+  'repeat-menu': "좋아하는 메뉴는 그대로, '새 재료 하나만 곁들여' 확장. 메뉴를 바꾸지 말 것.",
+  'plateau': '행동 없음 — 잘 먹는 것을 구체적으로 칭찬만.',
+};
+
+// ── 결정론 안전·품질 가드 — 생성 후 정규식 검출(있으면 cron이 재생성) ──
+const FORBID_TIME = /지난\s*달|지난\s*주|몇\s*달|[0-9]+\s*개월|한\s*달\s*전|[0-9]+\s*일\s*간|몇\s*주|작년/;
+const SYMPTOM_RE = /사레|헛구역|흡인|구토|게워|뱉/;
+/** 편지가 결정론 규칙을 위반하면 true(재생성 대상): 입력에 없는 시점·증상, 처방 침범(섞기), 김치 괴식. */
+export function letterDeterministicBad(letter: string, scenarioId: string | undefined, inputText: string): boolean {
+  const L = letter || '';
+  if (FORBID_TIME.test(L)) return true;
+  if ((scenarioId === 'neophobia-arfid-watch' || scenarioId === 'texture-refusal') && SYMPTOM_RE.test(L) && !SYMPTOM_RE.test(inputText)) return true;
+  if (scenarioId && NO_MIX_SCEN.has(scenarioId) && /잘게\s?섞|섞어\s?주|섞어서|섞으면|섞어\s?보/.test(L)) return true;
+  if (/(깍두기|배추김치|김치)[^.]{0,12}(섞|넣)/.test(L)) return true;
+  return false;
+}
+
 function buildLetterUser(b: LetterInput): string {
   const name = (b.childName || '아이').toString().slice(0, 20);
   const age = AGE_LABEL[b.ageBand || ''] || '유아';
@@ -202,6 +259,17 @@ ${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기
   const scenarioBlock = b.scenario
     ? `\n[오늘의 코칭 각도 — 이 관점으로 편지의 초점을 잡으세요. 단, 위 P1~P10 규칙·아래 작성 지침은 그대로 지킵니다]\n${b.scenario.promptHint}\n이 각도에서 피할 것: ${b.scenario.avoid}\n`
     : '';
+  // ⭐ 편지 다양성 — 시나리오별 고유 도입 강제 + 부모 메모 일화 도입 금지(모든 편지가 똑같아지는 핵심 원인 차단)
+  const sid = b.scenario?.id;
+  const openBlock = sid && SCEN_OPEN[sid]
+    ? `\n[⚠️ 도입 규칙 — 반드시] 이 편지는 이렇게 열어라: ${SCEN_OPEN[sid]}\n❌ 부모 메모 속 특정 일화(예: '배 아픈데도 먹고 싶어 함')로 절대 시작하지 마라 — 매일 같은 편지를 만드는 금지 패턴이다. 첫 어절을 아이 이름('${name}이가/는')으로 매번 시작하지 말고 상황·식재료·질문 등으로 다양하게 열어라.\n`
+    : '';
+  // ⭐ 행동 다양성 — 시나리오별 고유 행동유형(섞기는 영양공백·집기관격차만)
+  const actionBlock = sid && SCEN_ACT[sid]
+    ? `\n[⚠️ 오늘의 행동 — 이 유형으로만 구성] ${SCEN_ACT[sid]}\n단, 위 '오늘의 코칭 각도'가 '행동 빼고 칭찬만'이면 행동을 생략한다.\n`
+    : '';
+  // ⭐ 결정론으로도 거르지만 프롬프트에서 1차 차단 — 환각 시점·증상, 김치 괴식, 아이 오존대
+  const safetyBlock = `\n[⚠️ 안전·정직 가드]\n· 입력(시계열·거부·메모)에 없는 증상(사레·헛구역질·뱉음·구토)을 사실로 단정하지 마라 — 없으면 '혹시 ~라면' 가정형으로만.\n· 데이터에 없는 시점·기간('지난달·지난주·N개월 전·N일간')을 쓰지 마라 — 시계열에 명시된 'N일 전'만 인용.\n· 김치류(김치·깍두기·배추김치)에 다른 재료를 섞으라고 하지 마라(괴식). 아이에게 주체높임 '-시-' 금지('좋아하시는' X).\n`;
   const chronicBlock = b.chronicGuidance
     ? `\n[이 아이의 만성질환(부모가 알림) — ⚠️ 진단·치료·처방 금지(코치는 의사가 아님). 아래 식이 '방향'만 자연스럽게 한 군데 녹이고, 강요·체중 언급·과도한 식품 제한은 금지. 증상이 심하면 전문가 상담을 1회 부드럽게 권할 수 있음]\n${b.chronicGuidance}\n`
     : '';
@@ -230,7 +298,7 @@ ${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기
 
   return `${history}[이번 주 상황 — 아래 사실만 사용. 영양/과거/숫자를 추가로 지어내지 말 것]
 ${ctx}
-${scenarioBlock}${chronicBlock}${snackBlock}${moveBlock}${regenBlock}${reengageBlock}
+${scenarioBlock}${openBlock}${actionBlock}${chronicBlock}${snackBlock}${moveBlock}${regenBlock}${reengageBlock}${safetyBlock}
 작성 지침:
 - letter: 3~4문장(간식 평가를 녹일 땐 최대 5문장). 담을 요소: ⓐ 따뜻한 인정/공감 · ⓑ 위 데이터에서 읽은 사실 1개(우리 분석값·시계열만) · ⓒ 오늘의 행동 1개. **순서는 매일 달라도 좋다 — 도입을 고정하지 마라.** 특히 '거부는 정상' 안심 문구로 매번 시작하지 말고, 새로 거부한 게 있을 때만 자연스럽게 한 번 녹여라(없으면 다른 방식으로 열어라). 행동은 '집 아침·저녁 끼니' 또는 '기관에서 거부한 식재료를 집에서 부담 없이 다시 만나기'에서만. 어린이집·유치원 급식 메뉴 변경 요청 금지. 점수·등급 금지.
 - ⚠️ **매일 새로움(중복 금지)**: ⓒ 행동이 최근 편지들과 같은 개선점(예: 또 콩류)이라면 같은 말을 반복하지 말고 — (a) 같은 개선점이라도 **다른 식재료·다른 방법**으로 바꾸거나, (b) 정말 고칠 게 그것 하나뿐이면 오늘은 행동을 빼고 **잘하고 있는 것을 과거와 다른 식재료·다른 측면으로 구체적으로 칭찬만** 하라. ⓐ 칭찬도 과거 편지와 겹치지 않게(같은 'N가지 식재료' 같은 문구 반복 금지).

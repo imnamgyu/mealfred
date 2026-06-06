@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, pickTip, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, pickTip, sanitizeFoods, sanitizeTimeseries, ALLOW_TRANSITION, letterDeterministicBad, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -366,11 +366,13 @@ export async function GET(req: Request) {
           const daySeed = Math.floor(Date.parse(today) / 86400000);
           let cidHash = 0; for (let k = 0; k < cid.length; k++) cidHash = (cidHash * 31 + cid.charCodeAt(k)) >>> 0;
           const rotateMove = MOVE_MENU[(daySeed + cidHash) % MOVE_MENU.length];
+          // ⭐ 사실 누수 차단 — '거부→수용 전환' 사실은 허용 시나리오(진전축하·새식재료·재노출)만 인용 + 거부값/시계열 자유텍스트 정규화(음식명 오인 차단)
+          const tsForLetter = sanitizeTimeseries(ALLOW_TRANSITION.has(scenario.id) ? ts : ts.filter((t) => !/거부→수용 전환|받아들이기 시작/.test(t)));
           const letterInput = {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
-            notes, refused: uniqRef, favoriteFoods, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)],
-            timeseries: ts, attendsDaycare: attends, pastLetters,
+            notes, refused: sanitizeFoods(uniqRef), favoriteFoods, homeRefused: sanitizeFoods([...new Set(homeRef)]), daycareRefused: sanitizeFoods([...new Set(daycareRef)]),
+            timeseries: tsForLetter, attendsDaycare: attends, pastLetters,
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
             scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
@@ -381,6 +383,12 @@ export async function GET(req: Request) {
             rotateMove,   // 결정론적 코칭 무브(날짜+자녀 시드) — 매일 다른 행동 방식 강제
           };
           let gen = await generateLetter(letterInput);
+          // ⭐ 결정론 안전·품질 가드 — 환각 시점/증상·처방 침범(섞기)·김치 괴식이면 재생성(최대 2회)
+          const detInput = [...tsForLetter, ...notes, ...uniqRef].join(' ');
+          for (let dk = 0; dk < 2 && letterDeterministicBad(gen.letter, scenario.id, detInput); dk++) {
+            gen = await generateLetter(letterInput);
+            coachRegen = true;
+          }
           // ⭐ 비중복 가드 — 두 축으로 본다:
           //   (1) 편지 전체 유사도 ≥0.45(본문 반복)  (2) 도입부(첫 25자) 유사도 ≥0.40(같은 일화/문장으로 시작)
           //   전체 유사도만 보면 '같은 도입 + 다른 본문'을 못 잡는다(실측: 오늘 vs 이틀 전 전체 0.19인데 도입 0.59).

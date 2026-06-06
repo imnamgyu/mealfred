@@ -12,7 +12,7 @@
  * 스펙: 편식극복키트/06_운영/카톡코칭/코칭엔진_스펙_v1.md
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLetter } from '@/lib/coach';
+import { generateLetter, sanitizeFoods, sanitizeTimeseries, ALLOW_TRANSITION } from '@/lib/coach';
 import { neighborsOf } from '@/lib/foodGraph';
 import { selectScenario } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
@@ -55,6 +55,8 @@ export async function POST(req: NextRequest) {
       const parts = [...(br.length ? [`사촌 ${br.join('·')}`] : []), ...(pr.length ? [`궁합 ${pr.join('·')}`] : [])];
       return parts.length ? `${liked} → ${parts.join(', ')}` : null;
     }).filter(Boolean).slice(0, 5).join(' / ');
+    // ⭐ 사실 누수 차단 — 전환사실은 허용 시나리오만 + 거부값/시계열 정규화(크론과 동일)
+    const tsForLetter = sanitizeTimeseries(ALLOW_TRANSITION.has(scenario.id) ? (b.timeseries || []) : (b.timeseries || []).filter((t: string) => !/거부→수용 전환|받아들이기 시작/.test(t)));
     const { letter, oneliner } = await generateLetter({
       childName: b.childName,
       ageBand: b.ageBand,
@@ -63,13 +65,13 @@ export async function POST(req: NextRequest) {
       covered: b.covered,
       missing: b.missing,
       notes,
-      refused: b.refused,
-      homeRefused: b.homeRefused,
-      daycareRefused: b.daycareRefused,
+      refused: sanitizeFoods(b.refused || []),
+      homeRefused: sanitizeFoods(b.homeRefused || []),
+      daycareRefused: sanitizeFoods(b.daycareRefused || []),
       favoriteFoods: b.favoriteFoods,
       homeReds: b.homeReds,
       homeMissing: b.homeMissing,
-      timeseries: b.timeseries,
+      timeseries: tsForLetter,
       pastLetters: b.pastLetters,
       scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
       chronicGuidance: chronicGuidanceText(b.chronicConditions),   // 만성질환 식이 방향(클라가 보내면)
