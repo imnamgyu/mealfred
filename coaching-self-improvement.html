@@ -1,0 +1,177 @@
+<!doctype html><html lang="ko"><head><script src="/docs-gate.js?v=4"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 엔진 상시 재귀개선 시스템 — 설계 &amp; 해야 할 일</title>
+<style>
+:root{--ink:#1f2328;--mut:#6b7280;--line:#e5e7eb;--bg:#f7f8fa;--card:#fff;--accent:#c2410c;--good:#15803d;--blue:#1d4ed8;--pass:#16a34a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.68 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard',sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 20px 90px}
+h1{font-size:25px;margin:0 0 6px}.lead{color:var(--mut);margin:0 0 20px;font-size:14.5px}
+.tldr{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 18px;margin-bottom:22px}
+.tldr h3{margin:0 0 8px;font-size:15px;color:var(--accent)}
+.tldr ul{margin:6px 0 0;padding-left:18px}.tldr li{margin:4px 0;font-size:13.5px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px}
+h2{font-size:18px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 12px}
+h2 .n{color:var(--accent)}
+p{margin:8px 0}.muted{color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#f1f5f9;font-weight:700}
+td.c,th.c{text-align:center}
+.star{color:var(--accent);font-weight:800}
+.layer{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+.layer.l1{background:#eff6ff;border-color:#bfdbfe}.layer.l2{background:#f0fdf4;border-color:#bbf7d0}.layer.l3{background:#faf5ff;border-color:#e9d5ff}
+.layer b{font-size:14px}.layer .tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;color:#fff;margin-left:6px}
+.l1 .tag{background:var(--blue)}.l2 .tag{background:var(--pass)}.l3 .tag{background:#9333ea}
+.flow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.5;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px;overflow-x:auto;white-space:pre}
+.flow .g{color:#4ade80}.flow .o{color:#fb923c}.flow .b{color:#60a5fa}.flow .m{color:#94a3b8}
+.todo{margin:0;padding:0;list-style:none}
+.todo li{border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin:8px 0;display:flex;gap:10px;align-items:flex-start}
+.todo .ck{font-size:16px;flex-shrink:0;margin-top:1px}
+.todo .body{flex:1}
+.todo .t{font-weight:700;font-size:14px}
+.todo .meta{font-size:11.5px;color:var(--mut);margin-top:3px}
+.todo .meta b{color:var(--ink)}
+.todo.p1 li{border-left:4px solid var(--accent)}
+.todo.p2 li{border-left:4px solid var(--blue)}
+.todo.p3 li{border-left:4px solid #9333ea}
+.phase{font-size:13px;font-weight:800;color:var(--accent);margin:14px 0 4px}
+.phase.b{color:var(--blue)}.phase.p{color:#9333ea}
+.pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:5px}
+.pill.now{background:var(--accent);color:#fff}.pill.next{background:var(--blue);color:#fff}.pill.later{background:#94a3b8;color:#fff}
+code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
+.note{font-size:12px;color:var(--mut);margin-top:6px}
+</style></head><body><div class="wrap">
+
+<h1>코칭 엔진 상시 재귀개선 시스템</h1>
+<p class="lead">설계 &amp; 해야 할 일 · 작성 2026-06-06 · 출발점: v0→v6 재귀개선 루프(<a href="/coaching-recursive-loop.html" style="color:#c2410c">감사 보고서</a>)를 <b>1회성 실험 → 상시 운영 시스템</b>으로</p>
+
+<div class="tldr">
+<h3>🎯 한눈에</h3>
+<ul>
+<li><b>문제:</b> v0→v6은 <b>오프라인 LLM 위원회가 내 루브릭으로 채점</b>한 1회성 루프. 강력하지만 <b>Goodhart 함정</b> — 위원회를 만족시키게 최적화되면 정작 부모는 이탈할 수 있다. 그리고 "6/5 편지 겹친다"가 <b>사람 제보였다</b>(자동 알람이었어야).</li>
+<li><b>해법:</b> 3층 루프 — ①오프라인 위원회(빠른 게이트, 보유) ②<b>프로덕션 행동신호(빠진 조각)</b> ③사람 표본검수. 위원회가 빠른 내부 루프, 부모 행동이 느린 외부 루프(루브릭이 옳은지 검증).</li>
+<li><b>북극성 부재:</b> 현재 퍼널은 있으나 운영 북극성 KPI가 없음 → <b>활성가정당 '거부→수용 전환' 건수(결과)</b> + <b>주간 활성 기록 가정 WALH(선행)</b> + <b>letter→behavior 전환율(엔진 전용)</b> 제안.</li>
+<li><b>첫 삽:</b> ①🔁피드백 버튼 ②자동 반복점수 cron ③주간 진단 cron — 합쳐 <b>~2일</b>이 상시 재귀개선의 최소 뼈대.</li>
+</ul>
+</div>
+
+<div class="box">
+<h2><span class="n">1.</span> 왜 — 1회성 실험으로는 부족하다</h2>
+<p>이번 루프는 종합 <b>5.0→8.1</b>로 "매일 같은 편지(32/39 동일 도입)"를 0/39로 박멸했다. 그런데 두 가지 한계:</p>
+<table>
+<tr><th>한계</th><th>설명</th><th>결과</th></tr>
+<tr><td><b>평가가 프록시다</b></td><td>LLM 위원회가 <i>내 루브릭</i>으로 채점. 루브릭이 부모 선호와 어긋나면, 엔진은 루브릭만 잘 맞추게 됨(Goodhart 법칙).</td><td>"위원회는 좋다는데 부모는 이탈" 가능</td></tr>
+<tr><td><b>탐지가 수동이다</b></td><td>"편지가 겹친다"는 이사님이 눈으로 잡아 제보. 시스템이 스스로 못 봤다.</td><td>문제 인지가 사람 의존 → 느리고 놓침</td></tr>
+</table>
+<p>→ <b>상시 시스템의 목표 = (a) 문제를 스스로 탐지하고 (b) 부모의 실제 반응으로 개선이 진짜인지 검증한다.</b></p>
+</div>
+
+<div class="box">
+<h2><span class="n">2.</span> 3층 아키텍처</h2>
+<div class="layer l1"><b>1층 · 오프라인 LLM 위원회</b><span class="tag">보유 ✅</span><br>
+<span class="muted">우리가 만든 v0→vN 루프. 빠르고 쌈. <b>모든 프롬프트/엔진 변경의 "단위테스트 게이트"</b> — 도입다양성·시나리오충실·안전·따뜻함 루브릭 통과해야 ship.</span></div>
+<div class="layer l2"><b>2층 · 프로덕션 행동신호</b><span class="tag">빠진 조각 ⛔</span><br>
+<span class="muted">위원회가 "좋다" 한 편지를 <b>부모가 실제로 읽고·행동하고·머무나?</b> 이 신호가 없으면 1층은 공중에 뜬다. <b>이 시스템의 심장.</b> (§3 데이터)</span></div>
+<div class="layer l3"><b>3층 · 사람 표본검수</b><span class="tag">월 N건</span><br>
+<span class="muted">이사님/아동영양 전문가가 월 소표본 검수. LLM·지표 둘 다 놓치는 톤·문화적합·안전 엣지케이스를 잡는 최종 안전망.</span></div>
+<p class="note">핵심: <b>1층(빠른 내부 루프)과 2층(느린 외부 루프)이 붙어야</b> Goodhart에 안 빠진다. 2층이 1층 루브릭이 옳은지 끊임없이 검증한다.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">3.</span> 수집할 데이터 — 내가 "문제"를 스스로 인지하려면</h2>
+<p>엔진의 일 = 편지가 ①읽히고 ②행동되고 ③수용으로 이어지나. 그 신호를 <b>자녀 × 편지 단위</b>로 적재한다.</p>
+<table>
+<tr><th class="c">#</th><th>신호</th><th>무엇을 잰다</th><th class="c">공수</th><th>가치</th></tr>
+<tr><td class="c star">⭐1</td><td><b>편지 1-탭 피드백</b></td><td>👍도움됐어요 / 👎별로 / 🔁또 비슷해요 (코칭 카드에 버튼)</td><td class="c">1일</td><td><b>최강·직접 보상신호.</b> 🔁 하나면 "매일 같은 편지"가 자동 탐지(6/5 제보 불필요)</td></tr>
+<tr><td class="c star">⭐2</td><td><b>letter→behavior 전환</b></td><td>편지가 권한 식재료(검은콩 등)가 다음 2~3일 기록에 등장했나</td><td class="c">1~2일</td><td><b>엔진이 일을 했나의 결정적 outcome.</b> 편지 제안 식재료 태깅 → 이후 meal_logs 매칭(결정론)</td></tr>
+<tr><td class="c">3</td><td>편지 열람·체류</td><td><code>letter_viewed(child, date, dwell_ms)</code></td><td class="c">0.5일</td><td>GA에 커스텀 이벤트 추가 — 읽었나 vs 바운스</td></tr>
+<tr><td class="c star">⭐4</td><td><b>자동 반복점수</b></td><td>야간 cron이 자녀별 최근 5편 3-gram + 도입 유사도 계산, 상승 시 알람</td><td class="c">0.5일</td><td>우리가 짠 <code>letterSimilarity</code> 재사용. <b>"같은 편지" 상시 자동탐지</b></td></tr>
+<tr><td class="c">5</td><td>다음날 기록률</td><td>편지 받은 다음날 끼니 기록했나</td><td class="c">0.3일</td><td>리텐션 × 편지 연결</td></tr>
+<tr><td class="c">6</td><td><b>거부→수용 전환</b></td><td>예전 거부 식재료가 수용됨 (엔진이 이미 감지 중)</td><td class="c c">0일</td><td>그 감지를 <b>축하용이 아니라 outcome 지표로</b> 재활용</td></tr>
+<tr><td class="c">7</td><td>편지후 휴면</td><td>편지 N편 받고 이탈했나</td><td class="c">0일(보유)</td><td>이탈 = 엔진 실패 신호(반복편지 → 이탈 가설 검증)</td></tr>
+</table>
+<p class="note">이 7개가 적재되면 → 주간 cron이 임계 위반(예: behavior전환 &lt;15%, 반복점수 2주 연속↑, 시나리오별 이탈↑)을 감지 → 나를 호출 → 실데이터로 루프 → A/B 검증. 이게 "스스로 인지하고 개선"의 실체.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">4.</span> 북극성 KPI — 지금은 없다, 제안</h2>
+<p><code>/admin/funnel</code>(방문→가입→자녀→첫끼니)은 <b>획득 퍼널</b>이지 북극성이 아니다. IR엔 LTV가 있으나 운영 북극성은 부재.</p>
+<table>
+<tr><th>층위</th><th>지표</th><th>이유</th></tr>
+<tr><td><b>북극성(결과)</b></td><td><b>활성가정당 월 '거부→수용 전환' 건수</b></td><td>제품의 존재이유(편식이 실제 풀리나)를 직접 측정</td></tr>
+<tr><td><b>선행(입력)</b></td><td><b>주간 활성 기록 가정 (WALH)</b></td><td>데이터 플라이휠·코칭 품질·리텐션·키트구매 전부의 입력. 가장 깨끗한 주간 신호</td></tr>
+<tr><td><b>엔진 전용</b></td><td><b>letter→behavior 전환율</b></td><td>코칭 엔진이 제 일을 했나의 단일 지표</td></tr>
+</table>
+<p><b>리텐션은 회사의 "프레임"</b> — D7/D30 기록 리텐션. 코칭 편지가 리텐션의 핵심 레버라서(반복편지→이탈) 6/5 픽스가 중요했다. <b>증명법:</b> "좋은 편지 코호트 vs 반복편지 코호트"의 D30 리텐션 비교 → 엔진이 리텐션을 끌어올린다는 인과를 직접 보여줌.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">5.</span> 재귀 루프 흐름</h2>
+<div class="flow"><span class="g">[프로덕션]</span>  자녀×편지 단위 신호 적재 (열람·체류·👍👎🔁·letter→behavior·전환·휴면)
+     │  주간 집계
+     ▼
+<span class="o">[진단 cron]</span>  지표 스캔 → 임계 위반/패턴 감지
+     │   ("도입 반복 의심" · "behavior전환 하락" · "시나리오 X 이탈↑")
+     │ 문제 감지 시
+     ▼
+<span class="b">[오프라인 루프 v0→vN]</span>  실데이터로 재현 → 위원회 채점 → 엔진 수정안
+     │  위원회 게이트 통과
+     ▼
+<span class="g">[A/B 섀도우 테스트]</span>  수정안을 N% 가정에 ship → letter→behavior · D7 리텐션 vs 대조군
+     │  지표 개선 확인
+     ▼
+<span class="o">[승격 / 롤백]</span>  이긴 것만 전체 적용, 아니면 되돌림
+     │
+     ▼  (주간/월간 반복)
+<span class="m">[메타재귀]</span>  위원회 ≠ 부모면 → 루브릭(평가자) 자체를 고침</div>
+<p class="note">우리가 가진 것: 오프라인 루프 · letterSimilarity · 위원회 워크플로. 추가할 것: <b>프로덕션 신호 적재 · 진단 cron · A/B 하니스 · 메타재귀.</b></p>
+</div>
+
+<div class="box">
+<h2><span class="n">6.</span> ✅ 해야 할 일 (빌드 백로그)</h2>
+
+<div class="phase">PHASE 1 — 최소 뼈대 <span class="pill now">지금</span> · 합 ~2일</div>
+<ul class="todo p1">
+<li><span class="ck">☐</span><div class="body"><div class="t">🔁 편지 1-탭 피드백 버튼</div>
+<div class="meta"><b>공수</b> 1일 · <b>산출</b> 코칭 카드에 👍/👎/🔁 + <code>letter_feedback</code> 테이블 · <b>왜</b> 직접 보상신호 + "또 같은 편지" 자동탐지(6/5 제보 불필요)</div></div></li>
+<li><span class="ck">☐</span><div class="body"><div class="t">자동 반복점수 야간 cron</div>
+<div class="meta"><b>공수</b> 0.5일 · <b>산출</b> 자녀별 최근 5편 3-gram+도입 유사도 적재 · 상승 시 <code>cron_runs.meta</code> 알람 · <b>재사용</b> 우리가 짠 <code>letterSimilarity</code></div></div></li>
+<li><span class="ck">☐</span><div class="body"><div class="t">주간 진단 cron (얇게)</div>
+<div class="meta"><b>공수</b> 0.5일 · <b>산출</b> 피드백·반복점수·이탈 읽어 임계위반 시 어드민 알람 + (선택) 나를 호출 · <b>의존</b> 위 2개</div></div></li>
+</ul>
+
+<div class="phase b">PHASE 2 — outcome + A/B <span class="pill next">다음</span> · 합 ~3~4일</div>
+<ul class="todo p2">
+<li><span class="ck">☐</span><div class="body"><div class="t">letter→behavior 전환율</div>
+<div class="meta"><b>공수</b> 1~2일 · <b>산출</b> 편지 제안 식재료 태깅 → 다음 2~3일 meal_logs 매칭 → 전환율 · <b>왜</b> 진짜 outcome 지표(엔진이 일했나)</div></div></li>
+<li><span class="ck">☐</span><div class="body"><div class="t">편지 열람·체류 이벤트 + 다음날 기록률</div>
+<div class="meta"><b>공수</b> 0.8일 · <b>산출</b> GA 커스텀 이벤트 <code>letter_viewed</code> + 리텐션 연결</div></div></li>
+<li><span class="ck">☐</span><div class="body"><div class="t">A/B 섀도우 하니스</div>
+<div class="meta"><b>공수</b> 1.5일 · <b>산출</b> 엔진 변형을 N% 가정에 ship + 코호트별 behavior전환·D7 비교 + 승격/롤백 · <b>왜</b> 위원회≠부모 갭을 닫는 검증층</div></div></li>
+</ul>
+
+<div class="phase p">PHASE 3 — 자율 루프 + 메타 <span class="pill later">나중</span></div>
+<ul class="todo p3">
+<li><span class="ck">☐</span><div class="body"><div class="t">진단 cron → 오프라인 루프 자동 호출</div>
+<div class="meta"><b>산출</b> 임계위반 자동 감지 시 실데이터로 v0→vN 루프 자동 트리거 → 수정안 PR 초안 + 위원회 점수 첨부</div></div></li>
+<li><span class="ck">☐</span><div class="body"><div class="t">메타재귀 — 루브릭 자체 개선</div>
+<div class="meta"><b>산출</b> 위원회가 좋다 했는데 부모가 이탈한 사례를 모아 → 루브릭 가중치/차원을 보정(평가자를 개선)</div></div></li>
+<li><span class="ck">☐</span><div class="body"><div class="t">북극성 대시보드</div>
+<div class="meta"><b>산출</b> <code>/admin</code>에 전환건수·WALH·letter→behavior 추이 + 코호트 리텐션 비교</div></div></li>
+</ul>
+<p class="note">⚠️ Phase 1만으로도 "상시 자동탐지 + 직접 피드백"이 작동한다. Phase 2가 "진짜 개선인지 검증", Phase 3가 "사람 없이 도는 루프". 순서대로 가되 Phase 1은 지금 바로 가치.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">7.</span> 부록 — 비용 레버 타이밍 (관련 운영)</h2>
+<p>현 LLM 비용 = 자녀당 <b>월 ~₩510</b>(Haiku 4.5, ₩1,550 기준). 간식·영양·푸드브릿지 엔진은 결정론(LLM 0), 편지+질문만 과금. <b>지금 규모(~4명)에선 비용 최적화는 조기최적화 — 손대지 말 것.</b></p>
+<table>
+<tr><th>레버</th><th>효과</th><th class="c">공수</th><th>작동 트리거</th></tr>
+<tr><td>캐시 임계 통과(시스템 4,096↑)</td><td>입력 −45%</td><td class="c">30분</td><td>월청구 &gt;₩30만(~600명). 단 "캐싱 믿는데 안 됨"은 잠복버그 → coach.ts 만질 때 같이</td></tr>
+<tr><td><b>Batch API</b></td><td>전체 −50%</td><td class="c">1~2일</td><td>월청구 &gt;₩100만(~2,000명)</td></tr>
+</table>
+<p class="note">손익분기 ≈ 활성 ~500명. 그 아래선 절약액 &lt; 개발비. 상세는 채팅 로그/IR 비용시트 참조.</p>
+</div>
+
+<p class="muted" style="text-align:center;font-size:12px;margin-top:24px">밀프레드 · 코칭 엔진 상시 재귀개선 설계 · 2026-06-06</p>
+</div></body></html>
