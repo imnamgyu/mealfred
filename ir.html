@@ -159,6 +159,44 @@ tr:nth-child(even) td{background:#FCF8F3;}
   </div>
 </section>
 
+<section style="background:#fff;">
+  <div class="wrap">
+    <div class="label">Tech &amp; Science · 진짜 해자</div>
+    <h2>모델이 아니라 <span style="color:#C45A00;">불변의 과학</span> 위에 쌓는 데이터 해자</h2>
+    <p class="lede">AI 모델은 매달 바뀌고 LLM 래퍼는 누구나 복제한다. <strong>그래서 우리는 모델에 베팅하지 않는다.</strong> 우리가 인코딩하는 건 바뀌지 않는 인간 생물학이고, 그 위에 복제 불가능한 한국 아동 식단 데이터가 복리로 쌓인다.</p>
+
+    <div class="callout c-moat" style="margin-bottom:18px;">
+      <b>① 불변의 과학 — 세상이 아무리 빨라져도 안 바뀌는 것</b><br>
+      <span style="font-size:13.5px;color:#2a3a4a;">아이가 새 음식을 받아들이는 데 <b>8~15회 반복 노출</b>이 필요하다 · 만 2~6세가 식습관 <b>골든타임</b> · KDRI·WHO 영양 요구량 · 유전적 단맛 선호 · SOS 감각단계·Satter 책임분담. 수십 년 peer-reviewed로 정립된 진실이다. <b>GPT가 100배 빨라져도 이 사실은 바뀌지 않는다.</b> 모델은 commodity(우리 코드에선 config 한 줄로 교체) — 해자는 <b>이 불변의 과학을 엔진에 내장</b>한 것, 그리고 그 위에 쌓이는 데이터다.</span>
+    </div>
+
+    <h3 style="font-size:15px;color:#1a2b4a;margin:0 0 8px;">② 컴파운딩 데이터 엔진 — 끼니 한 줄이 곧 라벨이 된다</h3>
+    <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
+      <div class="asset"><h3 style="margin-top:0;font-size:13.5px;">🔧 매핑 엔진 (4단)</h3><p style="font-size:12px;color:#5a6575;">자유텍스트 급식 메뉴 → 정규화 식재료. <b>learned 사전→룰→결정론 스캔→LLM 폴백</b>, 환각 차단, 농진청 영양 등재. 라벨링을 자동화한다.</p></div>
+      <div class="asset"><h3 style="margin-top:0;font-size:13.5px;">📈 learned_menus 플라이휠</h3><p style="font-size:12px;color:#5a6575;">끼니가 쌓일수록 메뉴→식재료 사전이 커져 <b>LLM 호출이 0으로 수렴</b>. 한 번 학습한 메뉴는 영원히 무료·정확.</p></div>
+      <div class="asset"><h3 style="margin-top:0;font-size:13.5px;">🕸 푸드 그래프 (궁합 네트워크)</h3><p style="font-size:12px;color:#5a6575;">정부·급식 <b>4,727 레시피</b> 동시출현 → 궁합·사촌 네트워크(589 페어). 푸드브릿지가 지어내기가 아니라 <b>증거 기반</b>.</p></div>
+      <div class="asset"><h3 style="margin-top:0;font-size:13.5px;">🚦 영양 신호등 (KDRI 31종)</h3><p style="font-size:12px;color:#5a6575;">매핑 식재료 → 농진청 성분 → <b>결핍 탐지</b>(빈도·체내저장·결핍위험 3축). 건기식 개인화 퍼널의 엔진.</p></div>
+      <div class="asset"><h3 style="margin-top:0;font-size:13.5px;">💌 코칭 엔진 (13 시나리오)</h3><p style="font-size:12px;color:#5a6575;">35개 편식 이론 + 사실/메모 dedup + 결정론 안전가드. <b>엔진이 스스로 출력을 평가·재귀개선</b>(최근 코칭 품질 5.0→8.1).</p></div>
+      <div class="asset"><h3 style="margin-top:0;font-size:13.5px;">⚙️ 결정론 우위</h3><p style="font-size:12px;color:#5a6575;">간식·궁합·도감·영양 평가가 <b>전부 결정론(LLM 0)</b>. 정확도·비용이 commodity 모델이 아니라 <b>우리 데이터 자산</b>에서 나온다.</p></div>
+    </div>
+
+    <div class="callout c-thesis" style="margin-top:16px;">
+      <div class="t">데이터 네트워크 효과</div>
+      <p>끼니 기록 → 매핑(라벨) → 코퍼스·그래프 성장 → 개인화 정교화 → 리텐션 → 더 많은 끼니. <b>경쟁자는 UI를 베껴도 라벨된 한국 아동 식단 코퍼스 + 거부→수용 전환 outcome 데이터는 못 베낀다</b> — 그건 시간×사용자수로만 쌓인다. 게다가 엔진이 스스로 나아진다(재귀개선). <b>데이터가 쌓일수록·엔진이 학습할수록 격차가 벌어진다.</b></p>
+    </div>
+
+    <h3 style="font-size:15px;color:#1a2b4a;margin:20px 0 8px;">③ 빈 시장 — 편식 식교육은 카테고리 주인이 없다</h3>
+    <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
+      <div class="asset"><h3 style="margin-top:0;font-size:13px;">밀키트·이유식</h3><p style="font-size:12px;color:#5a6575;">음식만 배송. 행동·영양 <b>처방 없음</b>.</p></div>
+      <div class="asset"><h3 style="margin-top:0;font-size:13px;">영양제</h3><p style="font-size:12px;color:#5a6575;">결핍을 <b>추측</b>. 아이 끼니 데이터 없음.</p></div>
+      <div class="asset"><h3 style="margin-top:0;font-size:13px;">육아앱·커뮤니티</h3><p style="font-size:12px;color:#5a6575;">정보만. 개인화 <b>충족 없음</b>.</p></div>
+    </div>
+    <div class="callout c-thesis" style="margin-top:14px;">
+      <p>누구도 <b>"아이 끼니 데이터 → 개인화 편식 처방 → 물리 충족"</b>을 한 몸으로 하지 않는다. + 저출생 역설(머릿수↓·1인 지출↑)이 ARPU를 밀어올린다. <b>비어 있고, 커지고, 우리가 데이터로 선점 중인 카테고리.</b></p>
+    </div>
+  </div>
+</section>
+
 <section style="background:#FBF7F2;">
   <div class="wrap">
     <div class="label">Product · 골고루 키트 + 편식 해결</div>
