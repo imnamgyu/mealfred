@@ -624,28 +624,10 @@ export default function Home() {
           </div>
         )}
 
-        {/* 최근 식단 진단 + 미기록 환기 — 코치 편지 바로 아래(엄마가 매일 읽는 자리) */}
-        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
-          <div className="flex items-center justify-between mb-2">
-            <a href="/care/calendar" className="text-sm font-bold flex items-center gap-1.5" style={{ color: '#1a2b4a' }}>📊 최근 {isMockup ? 3 : days}일 식단 진단 <span className="text-[10.5px] font-extrabold px-1.5 py-0.5 rounded" style={{ background: '#FFF0E0', color: '#C45A00' }}>📅 달력 →</span></a>
-            <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full text-white" style={{ background: grade.color }}>{grade.g}</span>
-          </div>
-          <p className="text-[12.5px] leading-relaxed" style={{ color: '#5a4a3a' }}>{oneLiner}</p>
-          {!isMockup && missDays.length > 0 && (
-            <a href={`/care?date=${missDays[0].d}`} className="mt-2.5 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: '#FFF7ED', border: '1px solid #FFD9B8' }}>
-              <span className="text-base">📝</span>
-              <span className="text-[11.5px] font-semibold leading-snug" style={{ color: '#C45A00' }}>
-                최근 5일 중 <strong>{missDays.map((x) => x.label).join('·')}</strong> 기록이 비어 있어요. 기억나는 대로 채우면 더 정확히 봐드릴게요 →
-              </span>
-            </a>
-          )}
-          <div className="text-[10px] mt-2" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석</div>
-        </div>
-
-        {/* 영양 점수 카드 */}
+        {/* 영양 점수 카드 — 최근 식단 진단·달력·미기록 환기 통합(섹션 단순화) */}
         <div className="rounded-2xl p-5 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#FFF8E1,#FFFDF5)', border: `1.5px solid ${grade.color}` }}>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold" style={{ color: '#6B7280' }}>━ {D.name} 영양 점수 ━</span>
+            <a href="/care/calendar" className="text-[11px] font-bold flex items-center gap-1.5" style={{ color: '#6B7280' }}>━ {D.name} 영양 점수 ━ <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded" style={{ background: '#FFF0E0', color: '#C45A00' }}>📅 달력 →</span></a>
             <span className="text-xs font-extrabold px-3 py-1 rounded-full text-white" style={{ background: grade.color }}>{grade.g} {grade.label}</span>
           </div>
           <div className="flex items-end justify-between mb-3">
@@ -661,7 +643,8 @@ export default function Home() {
               <div className="text-[11px] text-right font-semibold" style={{ color: '#6B7280' }}>최근 {days}일 기록<br /><span style={{ color: '#16A085' }}>매일 기록할수록 정확해져요</span></div>
             )}
           </div>
-          {/* 왜 이 점수? — 식품군 부족·가공식품·반복 근거(점수 급락 납득용) */}
+          {/* 최근 식단 진단 한 줄(흡수) + 왜 이 점수? 근거 */}
+          <p className="text-[12.5px] leading-relaxed mb-2" style={{ color: '#5a4a3a' }}>{oneLiner}</p>
           {!isMockup && scoreReason && (scoreReason.redGroups.length > 0 || scoreReason.processed > 0 || scoreReason.repeat > 0) && (
             <div className="text-[11px] mb-2 leading-snug" style={{ color: '#9CA3AF' }}>
               <span style={{ color: '#C45A00', fontWeight: 700 }}>왜 이 점수?</span>{scoreReason.redGroups.length > 0 ? ` ${scoreReason.redGroups.slice(0, 2).join('·')} 부족` : ''}{scoreReason.processed > 0 ? ` · 가공식품(${scoreReason.processedSample.slice(0, 2).join('·')}) −${scoreReason.processed}` : ''}{scoreReason.repeat > 0 ? ` · ${scoreReason.repeatMenu} 반복 −${scoreReason.repeat}` : ''}
@@ -671,10 +654,17 @@ export default function Home() {
           <div className="relative h-2 rounded-full mb-2" style={{ background: 'linear-gradient(90deg,#C62828,#E67E22 25%,#F9A825 50%,#16A085 75%,#1B5E20)' }}>
             <div className="absolute -top-1 w-1.5 h-4 rounded-sm" style={{ left: `${pointerPct}%`, background: '#1a2b4a', border: '2px solid white' }} />
           </div>
-          <div className="grid grid-cols-5 text-[9px] font-extrabold text-center mb-3">
+          <div className="grid grid-cols-5 text-[9px] font-extrabold text-center mb-2">
             <span style={{ color: '#C62828' }}>D 경고</span><span style={{ color: '#E67E22' }}>C 주의</span>
             <span style={{ color: '#F9A825' }}>B 보통</span><span style={{ color: '#16A085' }}>A 좋음</span><span style={{ color: '#1B5E20' }}>S 매우</span>
           </div>
+          {!isMockup && missDays.length > 0 && (
+            <a href={`/care?date=${missDays[0].d}`} className="flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: '#FFF7ED', border: '1px solid #FFD9B8' }}>
+              <span className="text-base">📝</span>
+              <span className="text-[11.5px] font-semibold leading-snug" style={{ color: '#C45A00' }}>최근 5일 중 <strong>{missDays.map((x) => x.label).join('·')}</strong> 기록이 비어 있어요. 기억나는 대로 채우면 더 정확히 봐드릴게요 →</span>
+            </a>
+          )}
+          <div className="text-[10px] mt-2 text-center" style={{ color: '#9CA3AF' }}>학계 기준(WHO·KDRI·SOS·HabEat)으로 자동 분석</div>
         </div>
 
         {/* 편식 변화(효과측정) — 이번 달 vs 지난 달, 충분한 기록 있을 때만 */}
@@ -705,8 +695,9 @@ export default function Home() {
           </div>
         )}
 
-        {/* 36종 KDRI 필수 영양소 신호등 (영양 점수 바로 아래) — 탭하면 36종 상세 모달 */}
-        <button onClick={() => setShowNutri(true)} className="block w-full text-left rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+        {/* 영양소 신호등 + 식품군 다양성 (통합 섹션 · 탭하면 31종 상세 모달) */}
+        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+          <button onClick={() => setShowNutri(true)} className="block w-full text-left">
           <div className="flex items-center justify-between mb-2">
             <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 31종 필수 영양소 신호등</strong>
           </div>
@@ -722,10 +713,9 @@ export default function Home() {
             </div>
           )}
           <div className="mt-3 rounded-xl py-3 text-center text-sm font-extrabold text-white" style={{ background: '#1a2b4a' }}>📋 31종 자세히 보기 →</div>
-        </button>
-
-        {/* 식품군 다양성 — 충분/조금부족/부족 (빈도 기반, 색+글자 3중) */}
-        <div className="rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0', background: 'white' }}>
+          </button>
+          {/* 식품군 다양성 — 영양소 신호등에 흡수합병 */}
+          <div className="mt-4 pt-4" style={{ borderTop: '1px solid #F0F0F0' }}>
           <div className="flex justify-between items-center mb-1">
             <div className="flex items-center gap-2">
               <strong className="text-sm" style={{ color: '#1a2b4a' }}>식품군 다양성</strong>
@@ -751,8 +741,7 @@ export default function Home() {
           {proteinOk && (gRed > 0 || gYellow > 0) && (
             <div className="mt-2.5 rounded-lg px-3 py-1.5 text-[10.5px] font-bold" style={{ background: '#E8F5E9', color: '#1B5E20' }}>💪 단백질은 매일 챙기고 있어요 (고기·생선·계란·콩 합산)</div>
           )}
-          {/* '잘 먹는 식재료 N/130종' 게이지는 도감(친해진 식재료)과 카운트 기준이 달라 혼선 → 홈에서 제거.
-              누적 레퍼토리·도감 진척은 도감 탭에서 단일 기준으로 확인. (편식 살펴보기 신호는 코칭 편지가 담당) */}
+          </div>{/* 식품군 다양성 내부 div 닫기 (게이지는 도감 단일기준으로 이전·제거됨) */}
           {/* 식품군 8개 주간 추이 모달 — 선차트 */}
           {showTrend && groupWeekly && (
             <div onClick={() => setShowTrend(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
