@@ -298,8 +298,10 @@ export async function GET(req: Request) {
           const refFirst: Record<string, string> = {}; const accLast: Record<string, string> = {};
           const transitioned = new Set<string>();
           (trData || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; ate_well: boolean | null }) => {
-            const k = cleanRefusal(r.refused || '');   // ⭐ 메모/'조금 먹음'은 거부 아님 → 드롭(거짓 전환 차단). 음식 토큰 추출 안 함.
-            if (k && (!refFirst[k] || r.log_date < refFirst[k])) refFirst[k] = r.log_date;
+            String(r.refused || '').split(/[,，·]/).forEach((tok) => {   // 칩 콤마결합 분리 + ⭐ 메모/'조금 먹음'은 거부 아님 → 드롭(거짓 전환 차단). 음식 토큰 추출 안 함.
+              const k = cleanRefusal(tok);
+              if (k && (!refFirst[k] || r.log_date < refFirst[k])) refFirst[k] = r.log_date;
+            });
             if (r.ate_well !== false) (r.ingredients || []).forEach((i) => { if (!accLast[i] || r.log_date > accLast[i]) accLast[i] = r.log_date; });
           });
           const recentAccCut = kstDateNDaysAgo(7);   // 스테일 가드: 수용이 최근 7일 내일 때만 '전환'으로(5일 지난 카레가 매일 안 뜨게)

@@ -29,10 +29,11 @@ const SLOTS: Slot[] = [
 type Ingredient = { nm: string; cat: string; grade: string };
 type Tag = { name: string; ai?: boolean; fromMenu?: string };  // ai=true: AI 추정 / fromMenu: 출처 메뉴
 // 먹는 장소 — 정량 영양평가는 전부 집계하되, 정성 코칭은 부모가 바꿀 수 있는 곳(집)에 포커스 (코칭엔진 스펙 §3)
-type PlaceVal = 'home' | 'daycare' | '';
+type PlaceVal = 'home' | 'daycare' | 'dining' | '';
 const PLACE_OPTS: { v: PlaceVal; label: string; emoji: string }[] = [
   { v: 'home', label: '집', emoji: '🏠' },
   { v: 'daycare', label: '어린이집·유치원', emoji: '🏫' },
+  { v: 'dining', label: '외식', emoji: '🍴' },
 ];
 // 슬롯·요일 기반 스마트 기본값 (부모가 토글로 덮어쓸 수 있음): 아침·저녁·야간=집, 점심·간식=평일 기관/주말 집
 function defaultPlace(slot: string, dateStr: string): PlaceVal {
@@ -758,12 +759,12 @@ export default function CarePage() {
               <span className="text-[10.5px] font-bold" style={{ color: '#16A085' }}>🔁 장소·시간만 미리 채움</span>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {PLACE_OPTS.map((o) => {
               const on = entry.place === o.v;
               return (
                 <button key={o.v} onClick={() => setEntry((x) => ({ ...x, place: o.v }))}
-                  className="rounded-lg py-2.5 text-sm font-bold transition"
+                  className="rounded-lg py-2.5 text-[13px] font-bold transition leading-tight"
                   style={{ background: on ? '#1a2b4a' : '#FAFAF7', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? '#1a2b4a' : '#E5E7EB'}` }}>
                   {o.emoji} {o.label}
                 </button>
@@ -855,7 +856,7 @@ export default function CarePage() {
         )}
 
         {/* 오늘의 질문 (AI 상담 — 하루 1개) — 답하면 사라짐 */}
-        {dailyQ?.question && !dailyQ.answer && (
+        {date === todayStr() && dailyQ?.question && !dailyQ.answer && (
           <div className="rounded-2xl p-4 mb-3 shadow-sm" style={{ background: 'linear-gradient(135deg,#F3E5F5,#FCE4EC)', border: '1.5px solid #CE93D8' }}>
             <div className="text-[10.5px] font-extrabold mb-1.5" style={{ color: '#6A1B9A' }}>✨ 오늘의 질문 — 코치가 물어봐요</div>
             <div className="text-sm font-extrabold mb-2.5" style={{ color: '#1a2b4a' }}>{dailyQ.question}</div>
@@ -882,7 +883,7 @@ export default function CarePage() {
           </div>
         )}
         {/* 오늘 질문에 답한 날엔 흔적을 남긴다(이번 세션이든 아침에 답했든) — 빈 화면이라 '질문 없었다'고 오해하던 것 해소 */}
-        {dailyQ?.question && dailyQ?.answer && (
+        {date === todayStr() && dailyQ?.question && dailyQ?.answer && (
           <div className="rounded-2xl px-4 py-3 mb-3" style={{ background: '#F3E5F5', border: '1px solid #E1BEE7' }}>
             <div className="text-[10.5px] font-extrabold mb-1" style={{ color: '#6A1B9A' }}>✓ 오늘의 질문에 답하셨어요 — 코칭에 반영됩니다</div>
             <div className="text-[12.5px] font-bold" style={{ color: '#6A1B9A' }}>{dailyQ.question}</div>
@@ -892,9 +893,9 @@ export default function CarePage() {
 
         {/* 자유 메모 (정성 기록) */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>오늘 궁금한 점 있나요 <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택)</span></h3>
+          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>{date === todayStr() ? '오늘 궁금한 점 있나요' : '그날 메모'} <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택)</span></h3>
           <textarea value={entry.note} onChange={(e) => setEntry((x) => ({ ...x, note: e.target.value }))}
-            rows={3} placeholder="예: 브로콜리는 손도 안 댔지만 당근은 한 입 먹었어요"
+            rows={3} placeholder="예: 그날 배가 아팠어요 / 새로운 메뉴를 시도했어요 (거부 음식은 위에서 탭하세요)"
             className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
             style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB', color: '#374151' }} />
         </div>
@@ -924,16 +925,27 @@ export default function CarePage() {
           {(entry.ateWell === false || entry.ateWell === null) && (
             <div className="mt-3 p-3 rounded-lg" style={{ background: entry.ateWell === false ? '#FFF5F5' : '#FAFAF7', border: `1.5px solid ${entry.ateWell === false ? '#FFCDD2' : '#E5E7EB'}` }}>
               <label className="text-xs font-bold block mb-1.5" style={{ color: entry.ateWell === false ? '#C62828' : '#6B7280' }}>
-                {entry.ateWell === false ? '어떤 음식을 남겼나요?' : '혹시 남기거나 안 먹은 음식이 있나요? (선택)'}
+                {entry.ateWell === false ? '어떤 음식을 남겼나요? (탭)' : '혹시 남기거나 안 먹은 음식이 있나요? (탭 · 선택)'}
               </label>
               <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>
-                남긴·거부한 음식을 기록하면, 그 식재료에 천천히 친해지는 코스를 추천하고 <strong>받아들이는 순간</strong>까지 추적해드려요
+                남긴·거부한 음식을 <strong>탭</strong>하세요 — 그 식재료에 천천히 친해지는 코스를 추천하고 <strong>받아들이는 순간</strong>까지 추적해드려요
               </p>
-              <input value={entry.refused}
-                onChange={(e) => setEntry((x) => ({ ...x, refused: e.target.value }))}
-                placeholder={entry.ateWell === false ? '예: 브로콜리, 가지 (손도 안 댔어요)' : '예: 시금치 (절반 남김)'}
-                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                style={{ background: 'white', border: `1.5px solid ${entry.ateWell === false ? '#FFCDD2' : '#E5E7EB'}`, color: '#374151' }} />
+              {/* ⭐ 자유 텍스트 폐지 → 이 끼니에 적은 음식 중에서 '탭'으로만 선택(메모가 거부 음식으로 오인되는 근본원인 차단). 메모는 위 '오늘 궁금한 점' 칸으로. */}
+              {(() => {
+                const foods = [...new Set([...entry.menus, ...entry.ingredients.map((t) => t.name)])].filter(Boolean);
+                const sel = new Set(entry.refused.split(/[,，·]/).map((s) => s.trim()).filter(Boolean));
+                const toggle = (f: string) => { const n = new Set(sel); if (n.has(f)) n.delete(f); else n.add(f); setEntry((x) => ({ ...x, refused: [...n].join(', ') })); };
+                return foods.length ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {foods.map((f) => { const on = sel.has(f); return (
+                      <button key={f} onClick={() => toggle(f)} className="text-xs font-bold px-3 py-1.5 rounded-full transition"
+                        style={{ background: on ? '#E53935' : 'white', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? '#E53935' : '#E5E7EB'}` }}>
+                        {on ? '✕ ' : ''}{f}
+                      </button>
+                    ); })}
+                  </div>
+                ) : <p className="text-[11px]" style={{ color: '#9CA3AF' }}>먼저 위에 먹은 음식·식재료를 입력하면, 여기서 거부한 것을 고를 수 있어요</p>;
+              })()}
             </div>
           )}
         </div>

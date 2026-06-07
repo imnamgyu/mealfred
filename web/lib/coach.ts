@@ -173,8 +173,8 @@ export function sanitizeFoods(arr: string[]): string[] { return [...new Set((arr
  * 거짓 '거부→수용 전환'을 만드는 것을 차단. NOISE(조금/먹음/배탈 등)가 있으면 통째 드롭, 깔끔한 단일 음식명만 진짜 거부로 인정.
  */
 export function cleanRefusal(s: string): string | null { const t = String(s || '').trim(); if (!t || NOISE_RE.test(t)) return null; return isCleanFood(t) ? t : null; }
-/** 거부 목록을 엄격 정제(메모형 전부 제거) → 진짜 거부 음식명만. */
-export function sanitizeRefusals(arr: string[]): string[] { return [...new Set((arr || []).map(cleanRefusal).filter(Boolean) as string[])]; }
+/** 거부 목록을 엄격 정제(메모형 전부 제거) → 진짜 거부 음식명만. 칩이 콤마결합 저장('브로콜리, 가지')하므로 분리 후 각각 정제. */
+export function sanitizeRefusals(arr: string[]): string[] { return [...new Set((arr || []).flatMap((s) => String(s).split(/[,，·]/)).map(cleanRefusal).filter(Boolean) as string[])]; }
 /** 시계열 사실 문장 안에서 따옴표로 박힌 노이즈를 깨끗한 음식명 또는 일반표현으로 치환. */
 export function sanitizeTimeseries(arr: string[]): string[] { return (arr || []).map((line) => line.replace(/'([^']+)'/g, (m, inner) => { const c = cleanFood(inner); return c ? `'${c}'` : '예전에 잘 안 먹던 음식'; })); }
 
