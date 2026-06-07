@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, pickTip, sanitizeTimeseries, sanitizeRefusals, cleanRefusal, ALLOW_TRANSITION, letterDeterministicBad, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, pickTip, pickQuestionTopic, sanitizeTimeseries, sanitizeRefusals, cleanRefusal, ALLOW_TRANSITION, letterDeterministicBad, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -458,7 +458,8 @@ export async function GET(req: Request) {
           if (icfq) { q = { question: icfq.q, topic: 'icfq', chips: icfq.chips }; icfqKey = icfq.key; }
           else q = await generateQuestion({
             childName: meta.nickname, ageBand: meta.age_band,
-            recentMeals, homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], refused: uniqRef, attendsDaycare: daycareMap[cid], pastQA,
+            recentMeals, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef), refused: sanitizeRefusals(uniqRef), attendsDaycare: daycareMap[cid], pastQA,
+            topicHint: pickQuestionTopic(today, [...cid].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0)).hint,   // ⭐ 결정론 주제 로테이션(완식 반복 방지)
           });
           if (q.question) {
             const qCtx = { recentMeals: recentMeals.slice(0, 12), homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], attendsDaycare: !!daycareMap[cid], topic: q.topic || null, source: 'cron', icfq: icfqKey };
