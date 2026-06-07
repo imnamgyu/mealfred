@@ -120,6 +120,9 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   '미트볼': { ing: ['소고기'], processed: true }, '동그랑땡': { ing: ['돼지고기','두부','계란'], processed: true },
   '핫바': { ing: ['어묵'], processed: true }, '오뎅': { ing: ['어묵'], processed: true }, '오뎅국': { ing: ['어묵','무','대파'], processed: true },
   '햄버거': { ing: ['빵','소고기','양상추'], processed: true }, '핫케이크': { ing: ['빵','계란','우유'], processed: true },
+  // 유지보수 루프(pull-menus 실데이터) — 떡류·빵·주스·디저트
+  '절편': { ing: ['쌀'] }, '가래떡': { ing: ['쌀'] }, '모닝빵': { ing: ['밀'] }, '감귤주스': { ing: ['귤'] },
+  '아이스크림': { ing: ['우유'], processed: true },
 };
 
 const PARTIAL_KEYS = Object.keys(MENU_MAP)
