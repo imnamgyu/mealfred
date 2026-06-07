@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, pickTip, sanitizeFoods, sanitizeTimeseries, ALLOW_TRANSITION, letterDeterministicBad, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, pickTip, sanitizeTimeseries, sanitizeRefusals, cleanRefusal, ALLOW_TRANSITION, letterDeterministicBad, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -296,16 +296,19 @@ export async function GET(req: Request) {
           const { data: trData } = await supabase.from('meal_logs')
             .select('log_date,ingredients,refused,ate_well').eq('child_id', cid).gte('log_date', kstDateNDaysAgo(27)).lte('log_date', kstDateNDaysAgo(1));
           const refFirst: Record<string, string> = {}; const accLast: Record<string, string> = {};
+          const transitioned = new Set<string>();
           (trData || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; ate_well: boolean | null }) => {
-            if (r.refused) { const k = r.refused.trim(); if (k && (!refFirst[k] || r.log_date < refFirst[k])) refFirst[k] = r.log_date; }
+            const k = cleanRefusal(r.refused || '');   // ⭐ 메모/'조금 먹음'은 거부 아님 → 드롭(거짓 전환 차단). 음식 토큰 추출 안 함.
+            if (k && (!refFirst[k] || r.log_date < refFirst[k])) refFirst[k] = r.log_date;
             if (r.ate_well !== false) (r.ingredients || []).forEach((i) => { if (!accLast[i] || r.log_date > accLast[i]) accLast[i] = r.log_date; });
           });
+          const recentAccCut = kstDateNDaysAgo(7);   // 스테일 가드: 수용이 최근 7일 내일 때만 '전환'으로(5일 지난 카레가 매일 안 뜨게)
           let added = 0;
           for (const k of Object.keys(refFirst)) {
             if (added >= 2) break;
-            // 거부한 것(텍스트)이 이후 날짜에 비거부로 먹힌 식재료에 매칭되면 전환
-            if (Object.keys(accLast).some((ing) => (ing === k || ing.includes(k) || k.includes(ing)) && accLast[ing] > refFirst[k])) {
-              ts.push(`전에 거부했던 '${k}'를 최근 다시 받아들이기 시작했어요(거부→수용 전환)`); added++;
+            // ⭐ 정규화된 식재료 '정확일치'만(부분문자열 X) + 거부보다 '명백히 이후 날' 수용 + 그 수용이 최근 7일 내
+            if (accLast[k] && accLast[k] > refFirst[k] && accLast[k] >= recentAccCut) {
+              ts.push(`전에 거부했던 '${k}'를 최근 다시 받아들이기 시작했어요(거부→수용 전환)`); added++; transitioned.add(k);
             }
           }
           // 정밀 재노출 — 거부 식재료별 (최근 한 달) 노출 횟수 + 마지막 노출 후 일수 → 재노출 적기 사실(숫자는 코드가 계산, LLM은 인용만)
@@ -315,7 +318,9 @@ export async function GET(req: Request) {
           });
           const offerDaysAgo: Record<string, number> = {};
           Object.entries(offerLast).forEach(([nm, d]) => { offerDaysAgo[nm] = Math.round((todayMs - Date.parse(d)) / 86400000); });
-          const rx = reexposurePick(uniqRef, offerCount, offerDaysAgo);
+          // 재노출도 정제된 진짜 거부만 + 이미 '전환 축하'된 식재료는 제외(축하 vs 재노출 모순 차단)
+          const rxRefs = sanitizeRefusals(uniqRef).filter((f) => !transitioned.has(f));
+          const rx = reexposurePick(rxRefs, offerCount, offerDaysAgo);
           if (rx && ts.length < 8) ts.push(rx.fact);   // 시계열 사실로 → 편지가 'N번·M일·적기'를 인용
         } catch { /* 전환 감지는 보조 — 실패해도 코칭 계속 */ }
         // P9 + 보고서: 최근 5일 중 기록된 날(결정론적) — 재사용 분기에서도 쓰도록 위로 끌어올림
@@ -357,7 +362,7 @@ export async function GET(req: Request) {
           } catch { /* ICFQ 집계 실패해도 코칭은 계속 */ }
           const scenario = selectScenario({
             timeseries: ts, reds, homeReds, missing: fg.missing, homeMissing: homeFg.missing,
-            homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], refused: uniqRef,
+            homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef), refused: sanitizeRefusals(uniqRef),
             notes, favoriteFoods, attendsDaycare: attends, ageBand: meta.age_band,
             recentLoggedDays, recentWindow: RECENT_WINDOW, icfqRiskCount,
           }, recentScenarios[cid] || []);
@@ -371,7 +376,7 @@ export async function GET(req: Request) {
           const letterInput = {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
-            notes, refused: sanitizeFoods(uniqRef), favoriteFoods, homeRefused: sanitizeFoods([...new Set(homeRef)]), daycareRefused: sanitizeFoods([...new Set(daycareRef)]),
+            notes, refused: sanitizeRefusals(uniqRef), favoriteFoods, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),
             timeseries: tsForLetter, attendsDaycare: attends, pastLetters,
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,

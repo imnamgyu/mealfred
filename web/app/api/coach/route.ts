@@ -12,7 +12,7 @@
  * 스펙: 편식극복키트/06_운영/카톡코칭/코칭엔진_스펙_v1.md
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLetter, sanitizeFoods, sanitizeTimeseries, ALLOW_TRANSITION } from '@/lib/coach';
+import { generateLetter, sanitizeRefusals, sanitizeTimeseries, ALLOW_TRANSITION } from '@/lib/coach';
 import { neighborsOf } from '@/lib/foodGraph';
 import { selectScenario } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     const scenario = selectScenario({
       timeseries: b.timeseries || [], reds: b.reds || [], homeReds: b.homeReds || [],
       missing: b.missing || [], homeMissing: b.homeMissing || [],
-      homeRefused: b.homeRefused || [], daycareRefused: b.daycareRefused || [], refused: b.refused || [],
+      homeRefused: sanitizeRefusals(b.homeRefused || []), daycareRefused: sanitizeRefusals(b.daycareRefused || []), refused: sanitizeRefusals(b.refused || []),
       notes: notes || [], favoriteFoods: b.favoriteFoods || [],
       attendsDaycare: !!b.attendsDaycare, ageBand: b.ageBand || '',
       recentLoggedDays: b.recentLoggedDays ?? 5, recentWindow: 5, icfqRiskCount: b.icfqRiskCount ?? 0,
@@ -65,9 +65,9 @@ export async function POST(req: NextRequest) {
       covered: b.covered,
       missing: b.missing,
       notes,
-      refused: sanitizeFoods(b.refused || []),
-      homeRefused: sanitizeFoods(b.homeRefused || []),
-      daycareRefused: sanitizeFoods(b.daycareRefused || []),
+      refused: sanitizeRefusals(b.refused || []),
+      homeRefused: sanitizeRefusals(b.homeRefused || []),
+      daycareRefused: sanitizeRefusals(b.daycareRefused || []),
       favoriteFoods: b.favoriteFoods,
       homeReds: b.homeReds,
       homeMissing: b.homeMissing,
