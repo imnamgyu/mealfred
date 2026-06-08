@@ -135,7 +135,8 @@ export async function GET(req: Request) {
     const recentScenarios: Record<string, string[]> = {};   // 최근 3일 편지가 쓴 scenarioId — 프레임 중복 회피
     const recentPlans: Record<string, CoachPlan[]> = {};     // ⭐ 최근 3일 편지의 구조화 계획(프레임·타깃·무브) — 상태 원장: 의미 중복 회피
     (recentLetters || []).forEach((l: RecentLetter) => {
-      if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신
+      if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
+      if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
       const ctx = l.context as { scenarioId?: string; plan?: CoachPlan } | null;
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
       if (ctx?.plan?.signature) (recentPlans[l.child_id] ||= []).push(ctx.plan);
@@ -358,9 +359,9 @@ export async function GET(req: Request) {
           scenarioLabel = pctx?.scenarioLabel ?? null;
           planCtx = pctx?.plan ?? null;
         } else {
-          // 연속성용 과거 편지 (날짜 라벨만 — buildLetterUser가 순서로 변환)
+          // 연속성용 과거 편지 (날짜 라벨만 — buildLetterUser가 순서로 변환). '오늘 이전'만(QA date 시뮬서 미래 편지 누수 차단).
           const { data: pastL } = await supabase.from('coach_letters')
-            .select('letter_date,letter').eq('child_id', cid).neq('letter_date', today)
+            .select('letter_date,letter').eq('child_id', cid).lt('letter_date', today)
             .order('letter_date', { ascending: false }).limit(5);
           const pastLetters = (pastL || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter }));
           // 최근 60일 ICFQ 위험 누적(시나리오 선택 신호)
