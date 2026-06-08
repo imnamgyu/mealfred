@@ -13,7 +13,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { composeLetter, planFor, sanitizeRefusals, SNACK_CHANNEL, type LetterInput, type CoachPlan } from '@/lib/coach';
-import { neighborsOf } from '@/lib/foodGraph';
+import { buildRecoFacts } from '@/lib/coachRecos';
 import { type CoachSignals } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 
@@ -36,16 +36,8 @@ export async function POST(req: NextRequest) {
   try {
     const b = await req.json();
     const notes = b.notes || b.recentNotes;   // recentNotes = 기존 클라 필드명 호환
-    // 검증된 푸드 브릿지(그래프) — 클라가 보낸 잘 먹는 식재료 → 사촌/궁합. 편지가 궁합을 지어내지 않게.
+    // 추천 근거화 — 클라가 보낸 잘 먹는 식재료. recoFacts는 planFor 후(타깃 확정) 생성. 온디맨드는 freqMap 없이 kit-matrix 폴백.
     const likedIng: string[] = Array.isArray(b.favoriteIngredients) ? b.favoriteIngredients : [];
-    const likedSet = new Set(likedIng);
-    const bridgeFacts = likedIng.slice(0, 8).map((liked) => {
-      const nb = neighborsOf(liked).filter((n) => !likedSet.has(n.nm));
-      const br = nb.filter((n) => n.kind === 'bridge').slice(0, 3).map((n) => n.nm);
-      const pr = nb.filter((n) => n.kind === 'pair').slice(0, 3).map((n) => n.nm);
-      const parts = [...(br.length ? [`사촌 ${br.join('·')}`] : []), ...(pr.length ? [`궁합 ${pr.join('·')}`] : [])];
-      return parts.length ? `${liked} → ${parts.join(', ')}` : null;
-    }).filter(Boolean).slice(0, 5).join(' / ');
     // ⭐ 크론과 동일 엔진(DRY) — planFor(계획: 프레임·타깃·무브·시그니처 회피) → composeLetter(작문 + 안전·유사도 재생성).
     //    중복 회피 이력(recentScenarioIds·recentPlans)은 홈이 coach_letters.context에서 읽어 보낸다(없으면 [] = 1회 폴백).
     const signals: CoachSignals = {
@@ -61,6 +53,7 @@ export async function POST(req: NextRequest) {
     const recentPlans: CoachPlan[] = Array.isArray(b.recentPlans) ? b.recentPlans : [];
     const recentScenarioIds: string[] = Array.isArray(b.recentScenarioIds) ? b.recentScenarioIds : [];
     const precomputed = planFor({ signals, recentScenarioIds, recentPlans, daySeed, cidHash });
+    const bridgeFacts = buildRecoFacts({ likedIngredients: likedIng, target: precomputed.plan.target }).text;   // 타깃 인기 음식 + 사촌·궁합(테이블)
     const base: LetterInput = {
       childName: b.childName, ageBand: b.ageBand, eatenCount: b.eatenCount,
       reds: b.reds, covered: b.covered, missing: b.missing, notes,

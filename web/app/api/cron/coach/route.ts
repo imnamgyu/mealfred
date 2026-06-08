@@ -25,7 +25,7 @@ import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { type CoachSignals } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { reexposurePick } from '@/lib/reexposure';
-import { neighborsOf } from '@/lib/foodGraph';
+import { buildRecoFacts, type FreqMap } from '@/lib/coachRecos';
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
 import { bmiOf, bmiPercentile, bmiBand, type Sex, type BmiBand } from '@/lib/growth-reference';
 
@@ -85,6 +85,9 @@ export async function GET(req: Request) {
       const ij = await fetch(new URL('/ingredients-light.json', req.url)).then((r) => r.json());
       (ij.ingredients || []).forEach((x: { nm: string; cat: string }) => { catMap[x.nm] = x.cat; });
     } catch { /* 카테고리 없어도 NUTRI_MAP 직접 매핑은 동작 */ }
+    // 또래 급식 빈도 레시피(식재료 → 가장 많이 쓰이는 실존 음식) — 추천 근거화용. 실패해도 kit-matrix 폴백.
+    let freqMap: FreqMap = {};
+    try { freqMap = await fetch(new URL('/ingredient-recipes.json', req.url)).then((r) => r.json()); } catch { /* kit-matrix 폴백 */ }
     const catOf = (ing: string) => catMap[ing];
     const catReliable = Object.keys(catMap).length > 0;  // 비면 '채소 없음' 단정 금지(P4)
 
@@ -269,21 +272,8 @@ export async function GET(req: Request) {
         const byDay = Object.values(byDate).filter((a) => a.length);
         if (byDay.length < 3) { lowData++; continue; }
         const favoriteFoods = Object.entries(favMenu).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([m]) => m);   // 잘 먹는 음식 top8 — 푸드체이닝
-        // 검증된 푸드 브릿지: 잘 먹는 식재료 → 그래프상 사촌/궁합(아직 잘 안 먹는 것). 편지가 궁합을 지어내지 않게.
+        // 잘 먹는 식재료(빈도순) — 추천 엔진(사촌·인기 음식·궁합) 앵커. recoFacts는 planFor 후(타깃 확정) 생성.
         const likedIng = Object.entries(favIngFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
-        const likedIngSet = new Set(likedIng);
-        const bridgeFacts = (() => {
-          const lines: string[] = [];
-          for (const liked of likedIng.slice(0, 8)) {
-            const nb = neighborsOf(liked).filter((n) => !likedIngSet.has(n.nm));   // 아직 잘 안 먹는 방향 = 도전 다리
-            const br = nb.filter((n) => n.kind === 'bridge').slice(0, 3).map((n) => n.nm);
-            const pr = nb.filter((n) => n.kind === 'pair').slice(0, 3).map((n) => n.nm);
-            const parts = [...(br.length ? [`사촌 ${br.join('·')}`] : []), ...(pr.length ? [`궁합 ${pr.join('·')}`] : [])];
-            if (parts.length) lines.push(`${liked} → ${parts.join(', ')}`);
-            if (lines.length >= 5) break;
-          }
-          return lines.join(' / ');
-        })();
         const sig = computeSignals(byDay, catOf);
         const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
         const fg = computeFoodGroups(allIng, catOf);
@@ -393,6 +383,8 @@ export async function GET(req: Request) {
           const snackChannelTarget = !!(planCtx?.target && SNACK_CHANNEL.has(planCtx.target));
           const snackText = (!snackShownRecently && !snackChannelTarget) ? snackEvalToPrompt(snackEval, daySeed) : null;
           snackShownCtx = !!snackText;
+          // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
+          const bridgeFacts = buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, freqMap }).text;
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
           const base = {
             childName: meta.nickname, ageBand: meta.age_band,
