@@ -229,6 +229,8 @@ export const MOVE_KEYS = ['mix', 'beside', 'recook', 'pair', 'cook-together', 'm
 const moveTextOf = (key: string | null): string | null => { const i = key ? MOVE_KEYS.indexOf(key) : -1; return i >= 0 ? MOVE_MENU[i] : null; };
 // 칭찬·관찰만 하고 음식 행동을 얹지 않는 시나리오(타깃·무브 없음)
 const PRAISE_ONLY_SCEN = new Set(['progress-celebrate', 'plateau', 'neophobia-arfid-watch', 'low-data-gap']);
+// ⭐ 간식 채널 식품군(이사님) — 끼니(밥·반찬)에 곁들이거나 섞지 않고 '간식'으로 따로 제안. 밥과 과일은 따로.
+const SNACK_CHANNEL = new Set(['과일']);
 
 export function planSignature(frame: string, target: string | null, moveKey: string | null): string {
   return `${frame}|${target || '-'}|${moveKey || '-'}`;
@@ -260,6 +262,11 @@ export function buildCoachPlan(args: { frame: string; targetPool: string[]; rece
     const pool = fresh.length ? fresh : targetPool;
     target = pool[seed % pool.length];
   }
+  // ⭐ 간식 채널(과일 등): 끼니 푸드체이닝 무브 대신 '간식으로 따로' 고정(밥과 분리). 시그니처 frame|target|snack.
+  if (target && SNACK_CHANNEL.has(target)) {
+    const sig = planSignature(frame, target, 'snack');
+    return { frame, target, moveKey: 'snack', move: '간식으로 따로 내기(끼니·밥과 분리)', signature: sig, escalate: recentSigs.has(sig) };
+  }
   // 무브: seed 순서로 돌며 (frame,target) 시그니처가 최근과 안 겹치는 첫 무브
   const ordered = moveKeys.length ? moveKeys.map((_, i) => moveKeys[(seed + i) % moveKeys.length]) : [];
   let moveKey: string | null = ordered.length ? ordered[0] : null;
@@ -280,9 +287,18 @@ export function buildCoachPlan(args: { frame: string; targetPool: string[]; rece
 export function planFor(p: { signals: CoachSignals; recentScenarioIds: string[]; recentPlans: CoachPlan[]; daySeed: number; cidHash: number; }): { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean } {
   let scenario = selectScenario(p.signals, p.recentScenarioIds);
   let bp = buildCoachPlan({ frame: scenario.id, targetPool: targetPoolForScenario(scenario.id, p.signals), recentPlans: p.recentPlans, daySeed: p.daySeed, cidHash: p.cidHash });
-  if (bp.escalate) {   // 프레임 포화 → 정체기(칭찬만)로 에스컬레이트
-    const fb = SCENARIOS.find((s) => s.id === 'plateau');
-    if (fb) { scenario = fb; bp = buildCoachPlan({ frame: 'plateau', targetPool: [], recentPlans: p.recentPlans, daySeed: p.daySeed, cidHash: p.cidHash }); }
+  const prevTarget = p.recentPlans[0]?.target ?? null;
+  // ⭐ 채근 방지(이사님) — 어제와 같은 타깃을 또 짚게 되거나(대체 결핍 없음) 시그니처 포화면,
+  //   이 gap 시나리오를 빼고 '환기' 각도로 전환한다(이틀 연속 같은 걸 권하지 않기 → 엄마가 다음에 결심할 여유).
+  if (bp.escalate || (bp.target && bp.target === prevTarget)) {
+    const refresh = selectScenario(p.signals, [...p.recentScenarioIds, scenario.id]);   // 이 gap 시나리오 제외하고 다른 각도
+    let rbp = buildCoachPlan({ frame: refresh.id, targetPool: targetPoolForScenario(refresh.id, p.signals), recentPlans: p.recentPlans, daySeed: p.daySeed, cidHash: p.cidHash });
+    if ((rbp.target && rbp.target === prevTarget) || rbp.escalate) {   // 다른 gap도 같은 결핍만 짚음 → 정체기(칭찬·환기)로
+      const pl = SCENARIOS.find((s) => s.id === 'plateau');
+      if (pl) { scenario = pl; rbp = buildCoachPlan({ frame: 'plateau', targetPool: [], recentPlans: p.recentPlans, daySeed: p.daySeed, cidHash: p.cidHash }); }
+      else scenario = refresh;
+    } else scenario = refresh;
+    bp = rbp;
   }
   const varyOpener = p.recentPlans[0]?.frame === bp.frame;   // 직전 편지와 프레임 동일 → 정형 도입 회피
   return { scenario, plan: { frame: bp.frame, target: bp.target, moveKey: bp.moveKey, move: bp.move, signature: bp.signature }, varyOpener };
@@ -296,6 +312,11 @@ const SALTY_RE = /콩가루|콩|두부|된장|생선|멸치|새우|해산물|김
 const MIXV_RE = /섞|으깨|뿌|넣|곁들/;
 /** 한 문장 안에 단 과일 + 짭짤 재료 + 섞는 동사가 동시 등장 = 괴식 조합(예: 바나나에 콩가루 뿌리기). */
 function fruitSaltyMix(L: string): boolean { return (L || '').split(/[.!?。\n]/).some((s) => FRUIT_RE.test(s) && SALTY_RE.test(s) && MIXV_RE.test(s)); }
+// ⭐ 과일↔끼니 페어링 차단(이사님: 과일은 간식으로 따로, 밥과 분리) — 한 문장에 과일 + 끼니음식 + 곁들/옆에/섞 동사
+const FRUITWORD_RE = /과일|딸기|귤|사과|바나나|포도|키위|블루베리|오렌지|수박|복숭아|망고|참외|자두/;   // 배(배추/배)·감(느낌) 등 동음 모호어 제외
+const MEALFOOD_RE = /밥|쌀밥|반찬|찌개|볶음|구이|계란말이|주먹밥|국수|파스타|끼니|식사/;
+const MEALPAIR_RE = /곁들|옆에|섞|으깨|뿌려|뿌리|넣|한\s?접시|같은\s?접시|함께\s?(내|차려|올려|두)/;
+function fruitMealPairing(L: string): boolean { return (L || '').split(/[.!?。\n]/).some((s) => FRUITWORD_RE.test(s) && MEALFOOD_RE.test(s) && MEALPAIR_RE.test(s)); }
 /** 편지가 결정론 규칙을 위반하면 true(재생성 대상): 입력에 없는 시점·증상, 처방 침범(섞기), 김치 괴식. */
 export function letterDeterministicBad(letter: string, scenarioId: string | undefined, inputText: string): boolean {
   const L = letter || '';
@@ -307,6 +328,7 @@ export function letterDeterministicBad(letter: string, scenarioId: string | unde
   if (/[0-9]+\s*가지\s*(식재료|음식)/.test(L)) return true;                      // 'N가지 식재료' 가짓수 칭찬 차단
   if (/(미역|다시마|김|톳|파래|매생이)[^.]{0,18}(생선|해산물|어패)/.test(L) || /(생선|해산물)[^.]{0,18}(미역|다시마|김|톳|파래|매생이)/.test(L)) return true; // 해조류↔생선·해산물 혼동 차단
   if (fruitSaltyMix(L)) return true;                                                                          // 단 과일 + 짭짤 재료 괴식
+  if (fruitMealPairing(L)) return true;                                                                       // 과일을 끼니(밥·반찬)에 곁들/섞기 — 과일은 간식으로 따로(이사님)
   if (L.split(/[.!?。\n]/).some((s) => /짭짤|짠맛/.test(s) && /발달|입맛|좋은 신호/.test(s))) return true;          // 짠맛을 입맛 발달로 칭찬(저염)
   if (L.split(/[.!?。\n]/).some((s) => /깍두기|배추김치|김치/.test(s) && /잘 ?먹|좋|받아들|신호/.test(s))) return true; // 김치류 칭찬(반복 식품·짠맛)
   return false;
@@ -361,8 +383,11 @@ ${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기
       : `\n[⚠️ 도입 규칙 — 반드시] 이 편지는 이렇게 열어라: ${SCEN_OPEN[sid]}\n❌ 부모 메모 속 특정 일화(예: '배 아픈데도 먹고 싶어 함')로 절대 시작하지 마라 — 매일 같은 편지를 만드는 금지 패턴이다. 첫 어절을 아이 이름('${name}이가/는')으로 매번 시작하지 말고 상황·식재료·질문 등으로 다양하게 열어라.\n`)
     : '';
   // ⭐ 오늘의 타깃 — 코드가 확정(계획=코드·작문=LLM 분리). LLM이 매일 1순위 결핍(예: 과일)만 고르는 것을 차단.
+  //   간식 채널(과일 등)은 끼니에 곁들이지 말고 '간식으로 따로' 제안(이사님: 밥과 과일은 따로).
   const planTargetBlock = b.planTarget
-    ? `\n[⚠️ 오늘의 타깃 — 코드가 확정함, 당신은 고르지 마라] 오늘 편지가 다룰 부족 항목은 오직 '${b.planTarget}' 하나다. 다른 부족 식품군·영양소는 오늘 건드리지 말고 이 하나에만 행동(ⓒ)을 두어라. (타깃은 매일 코드가 돌아가며 바꾼다 — 당신의 역할은 '무엇을 다룰지' 고르는 게 아니라 '주어진 타깃을 따뜻하게 풀어 쓰는 것'이다.)\n`
+    ? (SNACK_CHANNEL.has(b.planTarget)
+      ? `\n[⚠️ 오늘의 타깃 — 코드가 확정함] 오늘은 '${b.planTarget}'를 챙기는 날이다. 단, **${b.planTarget}는 끼니(밥·반찬)에 곁들이거나 섞지 말고 '간식'으로 따로 제안하라** — 밥과 ${b.planTarget}은 따로다. 예: "오후 간식으로 딸기 반쪽이나 귤 한두 조각을 따로 내주세요." ❌ "밥/반찬 옆에 ${b.planTarget}를 두기"처럼 끼니에 붙이는 푸드체이닝 표현 금지. 영유아 질식 주의로 작게 잘라.\n`
+      : `\n[⚠️ 오늘의 타깃 — 코드가 확정함, 당신은 고르지 마라] 오늘 편지가 다룰 부족 항목은 오직 '${b.planTarget}' 하나다. 다른 부족 식품군·영양소는 오늘 건드리지 말고 이 하나에만 행동(ⓒ)을 두어라. (타깃은 매일 코드가 돌아가며 바꾼다 — 당신의 역할은 '무엇을 다룰지' 고르는 게 아니라 '주어진 타깃을 따뜻하게 풀어 쓰는 것'이다.)\n`)
     : '';
   // ⭐ 행동 다양성 — 시나리오별 고유 행동유형(섞기는 영양공백·집기관격차만)
   const actionBlock = sid && SCEN_ACT[sid]
