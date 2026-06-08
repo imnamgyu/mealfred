@@ -14,6 +14,8 @@
  *   P7 한 번에 행동 1개 / P8 점수·등급으로 다그치지 않기
  */
 
+import { selectScenario, SCENARIOS, type CoachScenario, type CoachSignals } from './coachScenarios';
+
 export const AGE_LABEL: Record<string, string> = {
   younger: '만 3세 미만', '3-4y': '만 3-4세', '5y': '만 5세', '6-7y': '만 6-7세',
 };
@@ -122,6 +124,8 @@ export type LetterInput = {
   profileNudge?: string | null;    // 미입력 프로필(체위·만성질환 등) 1개를 부드럽게 권유 + 기대효과 — cron이 로테이션으로 결정(없으면 언급 금지)
   snackEval?: string | null;        // 간식 평가(별도 간식 엔진) — 초가공 모니터링·식사 간섭성·BMI 칼로리 방향·좋은 간식 추천. lib/snack
   rotateMove?: string | null;       // 오늘의 코칭 무브(결정론적 로테이션) — cron이 날짜+자녀 시드로 회전. 매일 다른 '행동 방식'을 강제해 무브 반복(매일 곁들이기)을 구조적으로 차단
+  planTarget?: string | null;        // ⭐ 코드가 확정한 오늘의 단일 타깃(부족 식품군/거부 음식). LLM은 고르지 않고 주어진 것만 다룸(계획=코드·작문=LLM 분리)
+  varyOpener?: boolean;              // ⭐ 직전 편지가 같은 프레임의 정형 도입을 썼음 → 오늘은 그 정형 도입을 피하고 다르게 열어라(집-기관 도입 보일러플레이트 차단)
   regenAvoid?: string | null;       // 비중복 가드 — 직전 생성이 이 과거 편지와 너무 비슷해서 다시 쓰는 경우, 이것과 완전히 다르게(cron이 유사도 검사 후 주입)
   dormancyDays?: number;            // 마지막 끼니 기록 후 경과일 — 2+면 복귀 유도 모드(과거 데이터·팁, 죄책감 금지)
   dormancyTip?: string | null;      // 휴면 시 자연스럽게 녹일 편식 팁 1개(데이터 빈약할 때)
@@ -213,6 +217,77 @@ const SCEN_ACT: Record<string, string> = {
   'plateau': "행동 없음 — 거부 없이 받아들이는 태도·꾸준함만 칭찬. 특정 식품군이 '충족됐다'고 단정하거나 '충분'이라 하지 마라. 짠맛·김치류를 긍정 예시로 들지 마라.",
 };
 
+// ── ⭐ 구조화 계획(plan) — 코드가 '오늘의 (프레임·타깃·무브)'를 결정론적으로 정하고 LLM은 작문만 한다 ──
+//   목적: '글자는 다른데 전략이 똑같은' 의미 반복을 *계획 단계*에서 차단(어휘 유사도 가드는 보조).
+//   - 타깃(부족 식품군/거부 음식)을 MOVE_MENU와 '대칭'으로 결정론 회전(최근 N일에 안 쓴 것 우선)
+//   - 시그니처(frame|target|moveKey)가 최근 N일 plan과 겹치면 무브/타깃을 돌려 새 시그니처를 확보
+//   - 끝내 새 시그니처를 못 만들면 escalate=true → 호출자가 정체기(칭찬만) 프레임으로 전환(같은 처방 반복 대신 쉬어가기)
+export type CoachPlan = { frame: string; target: string | null; moveKey: string | null; move: string | null; signature: string };
+
+// MOVE_MENU[i] ↔ MOVE_KEYS[i] — 행동 방식의 안정 키(plan 시그니처·상태 원장에 사용)
+export const MOVE_KEYS = ['mix', 'beside', 'recook', 'pair', 'cook-together', 'model', 'sensory'];
+const moveTextOf = (key: string | null): string | null => { const i = key ? MOVE_KEYS.indexOf(key) : -1; return i >= 0 ? MOVE_MENU[i] : null; };
+// 칭찬·관찰만 하고 음식 행동을 얹지 않는 시나리오(타깃·무브 없음)
+const PRAISE_ONLY_SCEN = new Set(['progress-celebrate', 'plateau', 'neophobia-arfid-watch', 'low-data-gap']);
+
+export function planSignature(frame: string, target: string | null, moveKey: string | null): string {
+  return `${frame}|${target || '-'}|${moveKey || '-'}`;
+}
+
+/** 시나리오별 타깃 후보 풀(결정론 회전 대상). 식품군 시나리오=부족 식품군, 거부 시나리오=거부 음식, 그 외=없음. */
+export function targetPoolForScenario(id: string, s: CoachSignals): string[] {
+  if (id === 'nutrient-gap' || id === 'home-daycare-gap') return [...new Set([...(s.homeMissing || []), ...(s.missing || [])])];
+  if (id === 'new-refusal' || id === 're-exposure-timing') return [...new Set([...(s.homeRefused || []), ...(s.daycareRefused || [])])];
+  return [];
+}
+
+/** 오늘의 계획을 결정론적으로 산출(LLM 없음). recentPlans = 최근 N일 plan(최신 우선). */
+export function buildCoachPlan(args: { frame: string; targetPool: string[]; recentPlans: CoachPlan[]; daySeed: number; cidHash: number; }): CoachPlan & { escalate: boolean } {
+  const { frame, targetPool, recentPlans, daySeed, cidHash } = args;
+  const seed = ((daySeed + cidHash) % 1_000_000 + 1_000_000) % 1_000_000;
+  if (PRAISE_ONLY_SCEN.has(frame)) {
+    return { frame, target: null, moveKey: null, move: null, signature: planSignature(frame, null, null), escalate: false };
+  }
+  const recentSigs = new Set(recentPlans.map((p) => p.signature));
+  const recentTargets = recentPlans.map((p) => p.target).filter(Boolean) as string[];
+  let moveKeys = MOVE_KEYS.slice();
+  if (NO_MIX_SCEN.has(frame)) moveKeys = moveKeys.filter((k) => k !== 'mix');   // 섞기 금지 시나리오는 'mix' 제외
+
+  // 타깃: 최근에 안 쓴 것 우선, 그 안에서 seed로 회전(같은 결핍이 며칠째여도 다른 식품군부터 짚게)
+  let target: string | null = null;
+  if (targetPool.length) {
+    const fresh = targetPool.filter((t) => !recentTargets.includes(t));
+    const pool = fresh.length ? fresh : targetPool;
+    target = pool[seed % pool.length];
+  }
+  // 무브: seed 순서로 돌며 (frame,target) 시그니처가 최근과 안 겹치는 첫 무브
+  const ordered = moveKeys.length ? moveKeys.map((_, i) => moveKeys[(seed + i) % moveKeys.length]) : [];
+  let moveKey: string | null = ordered.length ? ordered[0] : null;
+  const freshMove = ordered.find((k) => !recentSigs.has(planSignature(frame, target, k)));
+  if (freshMove) moveKey = freshMove;
+  else if (targetPool.length > 1) {   // 이 타깃엔 새 무브가 없음 → 다른 타깃으로 새 조합 시도
+    for (const t of targetPool) {
+      const fm = ordered.find((k) => !recentSigs.has(planSignature(frame, t, k)));
+      if (fm) { target = t; moveKey = fm; break; }
+    }
+  }
+  const signature = planSignature(frame, target, moveKey);
+  const escalate = recentSigs.has(signature) && targetPool.length > 0;   // 새 조합 실패 = 프레임 포화
+  return { frame, target, moveKey, move: moveTextOf(moveKey), signature, escalate };
+}
+
+/** 시나리오 선택 + 계획 산출(둘 다 결정론·LLM 없음). srcHash에 signature를 넣거나 생성 전 분기에 쓰려고 분리. */
+export function planFor(p: { signals: CoachSignals; recentScenarioIds: string[]; recentPlans: CoachPlan[]; daySeed: number; cidHash: number; }): { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean } {
+  let scenario = selectScenario(p.signals, p.recentScenarioIds);
+  let bp = buildCoachPlan({ frame: scenario.id, targetPool: targetPoolForScenario(scenario.id, p.signals), recentPlans: p.recentPlans, daySeed: p.daySeed, cidHash: p.cidHash });
+  if (bp.escalate) {   // 프레임 포화 → 정체기(칭찬만)로 에스컬레이트
+    const fb = SCENARIOS.find((s) => s.id === 'plateau');
+    if (fb) { scenario = fb; bp = buildCoachPlan({ frame: 'plateau', targetPool: [], recentPlans: p.recentPlans, daySeed: p.daySeed, cidHash: p.cidHash }); }
+  }
+  const varyOpener = p.recentPlans[0]?.frame === bp.frame;   // 직전 편지와 프레임 동일 → 정형 도입 회피
+  return { scenario, plan: { frame: bp.frame, target: bp.target, moveKey: bp.moveKey, move: bp.move, signature: bp.signature }, varyOpener };
+}
+
 // ── 결정론 안전·품질 가드 — 생성 후 정규식 검출(있으면 cron이 재생성) ──
 const FORBID_TIME = /지난\s*달|지난\s*주|몇\s*달|[0-9]+\s*개월|한\s*달\s*전|[0-9]+\s*일\s*간|몇\s*주|작년/;
 const SYMPTOM_RE = /사레|헛구역|흡인|구토|게워|뱉/;
@@ -281,7 +356,13 @@ ${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기
   // ⭐ 편지 다양성 — 시나리오별 고유 도입 강제 + 부모 메모 일화 도입 금지(모든 편지가 똑같아지는 핵심 원인 차단)
   const sid = b.scenario?.id;
   const openBlock = sid && SCEN_OPEN[sid]
-    ? `\n[⚠️ 도입 규칙 — 반드시] 이 편지는 이렇게 열어라: ${SCEN_OPEN[sid]}\n❌ 부모 메모 속 특정 일화(예: '배 아픈데도 먹고 싶어 함')로 절대 시작하지 마라 — 매일 같은 편지를 만드는 금지 패턴이다. 첫 어절을 아이 이름('${name}이가/는')으로 매번 시작하지 말고 상황·식재료·질문 등으로 다양하게 열어라.\n`
+    ? (b.varyOpener
+      ? `\n[⚠️ 도입 규칙 — 반드시] 최근 편지가 이미 '${b.scenario?.label || '이 각도'}'의 정형 도입(예: "어린이집이 채워준 영양을 인정하며…")으로 열었다. 오늘은 그 정형 도입을 절대 반복하지 마라 — 구체적 음식·행동·작은 변화·질문으로 다르게 열어라. 기관 인정이 꼭 필요하면 도입이 아니라 편지 중간에 한 구절로만 짧게 녹여라. 첫 어절을 '어린이집'이나 아이 이름('${name}이가/는')으로 시작하지 마라.\n`
+      : `\n[⚠️ 도입 규칙 — 반드시] 이 편지는 이렇게 열어라: ${SCEN_OPEN[sid]}\n❌ 부모 메모 속 특정 일화(예: '배 아픈데도 먹고 싶어 함')로 절대 시작하지 마라 — 매일 같은 편지를 만드는 금지 패턴이다. 첫 어절을 아이 이름('${name}이가/는')으로 매번 시작하지 말고 상황·식재료·질문 등으로 다양하게 열어라.\n`)
+    : '';
+  // ⭐ 오늘의 타깃 — 코드가 확정(계획=코드·작문=LLM 분리). LLM이 매일 1순위 결핍(예: 과일)만 고르는 것을 차단.
+  const planTargetBlock = b.planTarget
+    ? `\n[⚠️ 오늘의 타깃 — 코드가 확정함, 당신은 고르지 마라] 오늘 편지가 다룰 부족 항목은 오직 '${b.planTarget}' 하나다. 다른 부족 식품군·영양소는 오늘 건드리지 말고 이 하나에만 행동(ⓒ)을 두어라. (타깃은 매일 코드가 돌아가며 바꾼다 — 당신의 역할은 '무엇을 다룰지' 고르는 게 아니라 '주어진 타깃을 따뜻하게 풀어 쓰는 것'이다.)\n`
     : '';
   // ⭐ 행동 다양성 — 시나리오별 고유 행동유형(섞기는 영양공백·집기관격차만)
   const actionBlock = sid && SCEN_ACT[sid]
@@ -317,7 +398,7 @@ ${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기
 
   return `${history}[이번 주 상황 — 아래 사실만 사용. 영양/과거/숫자를 추가로 지어내지 말 것]
 ${ctx}
-${scenarioBlock}${openBlock}${actionBlock}${chronicBlock}${snackBlock}${moveBlock}${regenBlock}${reengageBlock}${safetyBlock}
+${scenarioBlock}${planTargetBlock}${openBlock}${actionBlock}${chronicBlock}${snackBlock}${moveBlock}${regenBlock}${reengageBlock}${safetyBlock}
 작성 지침:
 - letter: 3~4문장(간식 평가를 녹일 땐 최대 5문장). 담을 요소: ⓐ 따뜻한 인정/공감 · ⓑ 위 데이터에서 읽은 사실 1개(우리 분석값·시계열만) · ⓒ 오늘의 행동 1개. **순서는 매일 달라도 좋다 — 도입을 고정하지 마라.** 특히 '거부는 정상' 안심 문구로 매번 시작하지 말고, 새로 거부한 게 있을 때만 자연스럽게 한 번 녹여라(없으면 다른 방식으로 열어라). 행동은 '집 아침·저녁 끼니' 또는 '기관에서 거부한 식재료를 집에서 부담 없이 다시 만나기'에서만. 어린이집·유치원 급식 메뉴 변경 요청 금지. 점수·등급 금지.
 - ⚠️ **매일 새로움(중복 금지)**: ⓒ 행동이 최근 편지들과 같은 개선점(예: 또 콩류)이라면 같은 말을 반복하지 말고 — (a) 같은 개선점이라도 **다른 식재료·다른 방법**으로 바꾸거나, (b) 정말 고칠 게 그것 하나뿐이면 오늘은 행동을 빼고 **잘하고 있는 것을 과거와 다른 식재료·다른 측면으로 구체적으로 칭찬만** 하라. ⓐ 칭찬도 과거 편지와 겹치지 않게(같은 'N가지 식재료' 같은 문구 반복 금지).
@@ -359,6 +440,56 @@ export async function generateLetter(input: LetterInput): Promise<{ letter: stri
   // 보내기 전 퇴고 — 결정론 어법 교정 후 LLM 퇴고 1회(편지 본문만, oneliner는 짧아 생략).
   const letter = raw ? await proofreadLetter(polishKo(raw)) : raw;
   return { letter, oneliner: (out.oneliner as string) || '' };
+}
+
+/**
+ * ⭐ 통합 편지 작성기 — 새벽 크론과 온디맨드(api/coach)가 같은 가드로 편지를 만든다(DRY·경로 동등).
+ *   precomputed(planFor 산출: 프레임·타깃·무브·varyOpener)를 받아:
+ *     전환사실 누수 차단(최종 시나리오 기준) → 생성 → 결정론 안전가드 재생성 → 어휘 유사도 재생성.
+ *   계획(무엇을 다룰지)은 이미 코드가 정했고, 여기선 작문 + 사후 품질 가드만 돈다.
+ *   의미 중복(같은 프레임·타깃·무브)은 planFor의 시그니처 회피가 이미 차단 → 여기 유사도 가드는 '표현 반복'만.
+ */
+export async function composeLetter(p: {
+  base: LetterInput;                 // LLM 입력(timeseries=원본 ts·pastLetters 포함). scenario/rotateMove/planTarget/varyOpener는 여기서 주입
+  precomputed: { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean };
+  detInput: string;                  // 결정론 안전가드 입력 텍스트(시계열+메모+거부)
+  daySeed: number; cidHash: number;
+}): Promise<{ letter: string; oneliner: string; plan: CoachPlan; scenarioId: string; scenarioLabel: string; coachRegen: boolean }> {
+  const { scenario, plan, varyOpener } = p.precomputed;
+  const pastLetters = p.base.pastLetters || [];
+  // 전환사실 누수 차단 — 허용 시나리오만 '거부→수용 전환' 인용 + 자유텍스트 정규화(최종 시나리오 기준)
+  const rawTs = p.base.timeseries || [];
+  const tsFiltered = sanitizeTimeseries(ALLOW_TRANSITION.has(scenario.id) ? rawTs : rawTs.filter((t) => !/거부→수용 전환|받아들이기 시작/.test(t)));
+  const letterInput: LetterInput = {
+    ...p.base,
+    timeseries: tsFiltered,
+    scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
+    rotateMove: plan.move,
+    planTarget: plan.target,
+    varyOpener,
+  };
+  let gen = await generateLetter(letterInput);
+  let coachRegen = false;
+  // 결정론 안전·품질 가드 — 환각 시점/증상·처방 침범(섞기)·괴식이면 재생성(최대 2회)
+  for (let dk = 0; dk < 2 && letterDeterministicBad(gen.letter, scenario.id, p.detInput); dk++) { gen = await generateLetter(letterInput); coachRegen = true; }
+  // 어휘 유사도 가드(보조) — 의미 중복은 plan 시그니처가 이미 차단, 여기선 표현/도입 반복만 잡는다
+  if (pastLetters.length) {
+    const fc = (s: string) => (s || '').replace(/\s+/g, '').slice(0, 25);
+    const wholeMax = (t: string) => Math.max(...pastLetters.map((q) => letterSimilarity(t, q.letter)));
+    const openMax = (t: string) => Math.max(...pastLetters.map((q) => letterSimilarity(fc(t), fc(q.letter))));
+    const badness = (t: string) => Math.max(wholeMax(t) / 0.45, openMax(t) / 0.40);   // ≥1 = 임계 초과
+    const closest = (t: string) => pastLetters.reduce((a, q) => letterSimilarity(fc(t), fc(q.letter)) > letterSimilarity(fc(t), fc(a.letter)) ? q : a, pastLetters[0]);
+    let moveKeys = MOVE_KEYS.slice(); if (NO_MIX_SCEN.has(scenario.id)) moveKeys = moveKeys.filter((k) => k !== 'mix');
+    const seed = ((p.daySeed + p.cidHash) % 1_000_000 + 1_000_000) % 1_000_000;
+    let bestBad = badness(gen.letter);
+    for (let attempt = 0; attempt < 2 && bestBad >= 1; attempt++) {
+      const altKey = moveKeys.length ? moveKeys[(seed + attempt + 1) % moveKeys.length] : null;
+      const g = await generateLetter({ ...letterInput, rotateMove: moveTextOf(altKey) || letterInput.rotateMove, regenAvoid: closest(gen.letter).letter });
+      const bad = badness(g.letter);
+      if (bad < bestBad) { gen = g; bestBad = bad; coachRegen = true; }
+    }
+  }
+  return { letter: gen.letter, oneliner: gen.oneliner, plan, scenarioId: scenario.id, scenarioLabel: scenario.label, coachRegen };
 }
 
 // ── ICFQ 위험 스크리너 (drip) ────────────────────────────────────────────────

@@ -18,11 +18,11 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, MOVE_MENU, letterSimilarity, pickTip, pickQuestionTopic, sanitizeTimeseries, sanitizeRefusals, cleanRefusal, ALLOW_TRANSITION, letterDeterministicBad, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, type CoachPlan, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
-import { selectScenario } from '@/lib/coachScenarios';
+import { type CoachSignals } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { reexposurePick } from '@/lib/reexposure';
 import { neighborsOf } from '@/lib/foodGraph';
@@ -57,8 +57,10 @@ export async function GET(req: Request) {
 
   const supabase = await createSupabaseServer();
   const runStart = Date.now();
-  const today = kstToday();
-  const since = kstDateNDaysAgo(6);
+  // QA: ?date=YYYY-MM-DD로 과거 날짜를 '오늘'처럼 시뮬(편지 며칠치 재작성). force·child와 동일 인증대(CRON_SECRET). 정상 운영은 kstToday.
+  const today = qp.get('date') || kstToday();
+  const dAgo = (n: number) => new Date(Date.parse(today) - n * 86400000).toISOString().slice(0, 10);   // today 기준 n일 전(정상 모드=kstDateNDaysAgo와 동일 결과)
+  const since = dAgo(6);
   let processed = 0, errors = 0, letters = 0, questions = 0, reused = 0, skippedTime = 0;
   let alimtalkSent = 0;
   const notifiedParents = new Set<string>();   // 부모당 하루 1건 — 다자녀 스팸 방지
@@ -89,7 +91,7 @@ export async function GET(req: Request) {
     // 1) 최근 7일 모든 기록 → 자녀별 그룹
     const { data: rows, error: rErr } = await supabase.from('meal_logs')
       .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well,meal_time')
-      .gte('log_date', since).lte('log_date', kstDateNDaysAgo(1));   // 편지는 '어제까지' 확정 데이터로 평가 — 당일 입력이 편지를 바꾸지 않게
+      .gte('log_date', since).lte('log_date', dAgo(1));   // 편지는 '어제까지' 확정 데이터로 평가 — 당일 입력이 편지를 바꾸지 않게
     if (rErr) throw rErr;
 
     const byChild: Record<string, Row[]> = {};
@@ -101,7 +103,7 @@ export async function GET(req: Request) {
 
     // ── 휴면 엔진 — 마지막 끼니 기록일로 휴면 일수 계산(끼니 기록 기준). 활성 + 휴면(2~7일·이력 ≥3일)도 포함해 7일까지 복귀 편지 생성.
     const { data: histRows } = await supabase.from('meal_logs')
-      .select('child_id,log_date').gte('log_date', kstDateNDaysAgo(30)).lte('log_date', kstDateNDaysAgo(1));
+      .select('child_id,log_date').gte('log_date', dAgo(30)).lte('log_date', dAgo(1));
     const lastLogByChild: Record<string, string> = {};
     const histDays: Record<string, Set<string>> = {};
     (histRows || []).forEach((r: { child_id: string; log_date: string }) => {
@@ -126,15 +128,17 @@ export async function GET(req: Request) {
     // 최근 3일 내 편지 → 라운드로빈 정렬 + 식단지문 스킵 + 시나리오 중복 회피 (편지 다양성 위해 2→3일로 확대)
     const { data: recentLetters } = await supabase.from('coach_letters')
       .select('child_id,letter_date,source_hash,letter,oneliner,context')
-      .in('child_id', activeIds).gte('letter_date', kstDateNDaysAgo(3))
+      .in('child_id', activeIds).gte('letter_date', dAgo(3))
       .order('letter_date', { ascending: false });
     type RecentLetter = { child_id: string; letter_date: string; source_hash: string | null; letter: string; oneliner: string | null; context: Record<string, unknown> | null };
     const lastLetter: Record<string, RecentLetter> = {};
-    const recentScenarios: Record<string, string[]> = {};   // 최근 3일 편지가 쓴 scenarioId — 중복 회피용
+    const recentScenarios: Record<string, string[]> = {};   // 최근 3일 편지가 쓴 scenarioId — 프레임 중복 회피
+    const recentPlans: Record<string, CoachPlan[]> = {};     // ⭐ 최근 3일 편지의 구조화 계획(프레임·타깃·무브) — 상태 원장: 의미 중복 회피
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신
-      const sid = (l.context as { scenarioId?: string } | null)?.scenarioId;
-      if (sid) (recentScenarios[l.child_id] ||= []).push(sid);
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan } | null;
+      if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
+      if (ctx?.plan?.signature) (recentPlans[l.child_id] ||= []).push(ctx.plan);
     });
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
@@ -196,7 +200,7 @@ export async function GET(req: Request) {
         // ── 휴면 복귀 경로 (dormancy 2~7) — 정상 편지(byDay≥3)와 별개. 과거 데이터 + 팁으로 따뜻한 컴백 + 회유 알림톡 D1/D3/D7.
         if (dormancy >= 2) {
           const { data: recent } = await supabase.from('meal_logs')
-            .select('menus,refused,ate_well').eq('child_id', cid).gte('log_date', kstDateNDaysAgo(14)).lte('log_date', kstDateNDaysAgo(1));
+            .select('menus,refused,ate_well').eq('child_id', cid).gte('log_date', dAgo(14)).lte('log_date', dAgo(1));
           const fav: Record<string, number> = {}; const refs: string[] = [];
           (recent || []).forEach((r: { menus: string[] | null; refused: string | null; ate_well: boolean | null }) => {
             if (r.refused) refs.push(r.refused);
@@ -290,11 +294,11 @@ export async function GET(req: Request) {
         const snackEval = evaluateSnacks({ rows: byChild[cid], band: snackBand, reds });
         const snackEvalText = snackEvalToPrompt(snackEval);
         const uniqRef = [...new Set(ref)];
-        const ts = computeTimeseries(byDate, menuFreq, catOf, kstDateNDaysAgo(1), { assertNoVeg: catReliable });   // 어제 앵커(평가 기준일)
+        const ts = computeTimeseries(byDate, menuFreq, catOf, dAgo(1), { assertNoVeg: catReliable });   // 어제 앵커(평가 기준일)
         // 거부→수용 전환 감지(최근 28일) — 과거 거부했던 식재료를 이후 비거부로 먹기 시작 = '받아들이는 순간'. 코칭이 칭찬.
         try {
           const { data: trData } = await supabase.from('meal_logs')
-            .select('log_date,ingredients,refused,ate_well').eq('child_id', cid).gte('log_date', kstDateNDaysAgo(27)).lte('log_date', kstDateNDaysAgo(1));
+            .select('log_date,ingredients,refused,ate_well').eq('child_id', cid).gte('log_date', dAgo(27)).lte('log_date', dAgo(1));
           const refFirst: Record<string, string> = {}; const accLast: Record<string, string> = {};
           const transitioned = new Set<string>();
           (trData || []).forEach((r: { log_date: string; ingredients: string[] | null; refused: string | null; ate_well: boolean | null }) => {
@@ -304,7 +308,7 @@ export async function GET(req: Request) {
             });
             if (r.ate_well !== false) (r.ingredients || []).forEach((i) => { if (!accLast[i] || r.log_date > accLast[i]) accLast[i] = r.log_date; });
           });
-          const recentAccCut = kstDateNDaysAgo(7);   // 스테일 가드: 수용이 최근 7일 내일 때만 '전환'으로(5일 지난 카레가 매일 안 뜨게)
+          const recentAccCut = dAgo(7);   // 스테일 가드: 수용이 최근 7일 내일 때만 '전환'으로(5일 지난 카레가 매일 안 뜨게)
           let added = 0;
           for (const k of Object.keys(refFirst)) {
             if (added >= 2) break;
@@ -327,7 +331,7 @@ export async function GET(req: Request) {
         } catch { /* 전환 감지는 보조 — 실패해도 코칭 계속 */ }
         // P9 + 보고서: 최근 5일 중 기록된 날(결정론적) — 재사용 분기에서도 쓰도록 위로 끌어올림
         const RECENT_WINDOW = 5;
-        const recentLoggedDays = Array.from({ length: RECENT_WINDOW }, (_, i) => kstDateNDaysAgo(i + 1))
+        const recentLoggedDays = Array.from({ length: RECENT_WINDOW }, (_, i) => dAgo(i + 1))
           .filter((d) => Object.prototype.hasOwnProperty.call(byDate, d)).length;
         // 일일 정량 지표 집계
         evalChildren++; eatenSum += new Set(allIng).size;
@@ -336,87 +340,62 @@ export async function GET(req: Request) {
         if (daycareMap[cid]) daycareChildren++;
 
         // 식단 지문 — 클라가 동일 해시면 재생성 없이 read (home page와 동일 공식)
-        const srcHash = [...allIng].sort().join(',') + '|' + [...uniqRef].sort().join(',') + '|' + [...reds].sort().join(',') + '|' + notes.length;
+        // ⭐ srcHash에 today 포함 — 날짜가 바뀌면 식단이 같아도 새 계획으로 재생성(어제 편지로 동결되지 않음·매일 새 편지)
+        const srcHash = [...allIng].sort().join(',') + '|' + [...uniqRef].sort().join(',') + '|' + [...reds].sort().join(',') + '|' + notes.length + '|' + today;
 
         // 3) 편지: 직전 편지와 식단 지문이 같으면 LLM 스킵하고 내용 재사용 (비용·시간 절감)
         const prev = lastLetter[cid];
         let letter = '', oneliner = '';
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
+        let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
-        // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) hash와 무관하게 재사용. 식단 안 바뀐 경우도 재사용. force만 재생성.
+        // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) 재사용. srcHash에 today가 들어가 날짜가 바뀌면 새 계획으로 재생성(식단 동일해도 동결되지 않음). force만 강제 재생성.
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
           letter = prev!.letter; oneliner = prev!.oneliner || ''; reused++;
-          scenarioId = (prev!.context as { scenarioId?: string } | null)?.scenarioId ?? null;   // 재사용은 기존 시나리오 보존(중복 이력 유지)
-          scenarioLabel = (prev!.context as { scenarioLabel?: string } | null)?.scenarioLabel ?? null;
+          const pctx = prev!.context as { scenarioId?: string; scenarioLabel?: string; plan?: CoachPlan } | null;
+          scenarioId = pctx?.scenarioId ?? null;          // 재사용은 기존 시나리오·계획 보존(중복 이력 유지)
+          scenarioLabel = pctx?.scenarioLabel ?? null;
+          planCtx = pctx?.plan ?? null;
         } else {
           // 연속성용 과거 편지 (날짜 라벨만 — buildLetterUser가 순서로 변환)
           const { data: pastL } = await supabase.from('coach_letters')
             .select('letter_date,letter').eq('child_id', cid).neq('letter_date', today)
             .order('letter_date', { ascending: false }).limit(5);
           const pastLetters = (pastL || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter }));
-          // 오늘의 코칭 시나리오 선택(편지 다양성) — 최근 60일 ICFQ 위험 누적 + 신호로 결정론 선택, 최근 2일 중복 회피
+          // 최근 60일 ICFQ 위험 누적(시나리오 선택 신호)
           let icfqRiskCount = 0;
           try {
             const { data: icfqRows } = await supabase.from('daily_questions')
-              .select('answer,context').eq('child_id', cid).gte('q_date', kstDateNDaysAgo(60)).not('answer', 'is', null);
+              .select('answer,context').eq('child_id', cid).gte('q_date', dAgo(60)).not('answer', 'is', null);
             icfqRiskCount = (icfqRows || []).filter((r: { answer: string | null; context: { icfq?: string } | null }) => isIcfqRisk(r.context?.icfq, r.answer)).length;
           } catch { /* ICFQ 집계 실패해도 코칭은 계속 */ }
-          const scenario = selectScenario({
+          // ⭐ 계획 산출(결정론) — 프레임 선택 + 타깃·무브 회전 + 시그니처 중복 회피(상태 원장 기반). 생성 전에 결정.
+          const signals: CoachSignals = {
             timeseries: ts, reds, homeReds, missing: fg.missing, homeMissing: homeFg.missing,
             homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef), refused: sanitizeRefusals(uniqRef),
             notes, favoriteFoods, attendsDaycare: attends, ageBand: meta.age_band,
             recentLoggedDays, recentWindow: RECENT_WINDOW, icfqRiskCount,
-          }, recentScenarios[cid] || []);
-          scenarioId = scenario.id; scenarioLabel = scenario.label;
-          // 결정론적 코칭 무브 로테이션 — 날짜(일 단위 증가) + 자녀 해시 → 매일 다른 무브 강제(무브 반복 차단)
+          };
           const daySeed = Math.floor(Date.parse(today) / 86400000);
           let cidHash = 0; for (let k = 0; k < cid.length; k++) cidHash = (cidHash * 31 + cid.charCodeAt(k)) >>> 0;
-          const rotateMove = MOVE_MENU[(daySeed + cidHash) % MOVE_MENU.length];
-          // ⭐ 사실 누수 차단 — '거부→수용 전환' 사실은 허용 시나리오(진전축하·새식재료·재노출)만 인용 + 거부값/시계열 자유텍스트 정규화(음식명 오인 차단)
-          const tsForLetter = sanitizeTimeseries(ALLOW_TRANSITION.has(scenario.id) ? ts : ts.filter((t) => !/거부→수용 전환|받아들이기 시작/.test(t)));
-          const letterInput = {
+          const precomputed = planFor({ signals, recentScenarioIds: recentScenarios[cid] || [], recentPlans: recentPlans[cid] || [], daySeed, cidHash });
+          scenarioId = precomputed.scenario.id; scenarioLabel = precomputed.scenario.label; planCtx = precomputed.plan;
+          // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
+          const base = {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
             notes, refused: sanitizeRefusals(uniqRef), favoriteFoods, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),
-            timeseries: tsForLetter, attendsDaycare: attends, pastLetters,
+            timeseries: ts, attendsDaycare: attends, pastLetters,   // timeseries=원본 ts(composeLetter가 최종 시나리오 기준 필터)
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
-            scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
-            chronicGuidance: chronicGuidanceText(meta.chronic),   // 만성질환 식이 방향(부모 입력 기반)
-            bridgeFacts,   // 검증된 푸드 브릿지(그래프) — 편지가 사촌/궁합을 지어내지 않게
-            snackEval: snackEvalText,   // 간식 평가(별도 간식 엔진) — 초가공·식사 간섭성·BMI 칼로리 방향·좋은 간식
-            profileNudge: recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null,   // 미입력 정보 권유(기록 공백 없을 때만·로테이션)
-            rotateMove,   // 결정론적 코칭 무브(날짜+자녀 시드) — 매일 다른 행동 방식 강제
+            chronicGuidance: chronicGuidanceText(meta.chronic),
+            bridgeFacts, snackEval: snackEvalText,
+            profileNudge: recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null,
           };
-          let gen = await generateLetter(letterInput);
-          // ⭐ 결정론 안전·품질 가드 — 환각 시점/증상·처방 침범(섞기)·김치 괴식이면 재생성(최대 2회)
-          const detInput = [...tsForLetter, ...notes, ...uniqRef].join(' ');
-          for (let dk = 0; dk < 2 && letterDeterministicBad(gen.letter, scenario.id, detInput); dk++) {
-            gen = await generateLetter(letterInput);
-            coachRegen = true;
-          }
-          // ⭐ 비중복 가드 — 두 축으로 본다:
-          //   (1) 편지 전체 유사도 ≥0.45(본문 반복)  (2) 도입부(첫 25자) 유사도 ≥0.40(같은 일화/문장으로 시작)
-          //   전체 유사도만 보면 '같은 도입 + 다른 본문'을 못 잡는다(실측: 오늘 vs 이틀 전 전체 0.19인데 도입 0.59).
-          const fc = (s: string) => (s || '').replace(/\s+/g, '').slice(0, 25);
-          const wholeMax = (t: string) => pastLetters.length ? Math.max(...pastLetters.map((p) => letterSimilarity(t, p.letter))) : 0;
-          const openMax = (t: string) => pastLetters.length ? Math.max(...pastLetters.map((p) => letterSimilarity(fc(t), fc(p.letter)))) : 0;
-          const badness = (t: string) => Math.max(wholeMax(t) / 0.45, openMax(t) / 0.40);   // ≥1 = 임계 초과
-          const closest = (t: string) => pastLetters.reduce((a, p) =>
-            letterSimilarity(fc(t), fc(p.letter)) > letterSimilarity(fc(t), fc(a.letter)) ? p : a, pastLetters[0]);
-          // 임계 초과면 무브 바꿔 최대 2회 재생성, 가장 덜 겹치는 편지 채택
-          let bestBad = badness(gen.letter);
-          for (let attempt = 0; attempt < 2 && bestBad >= 1; attempt++) {
-            const g = await generateLetter({
-              ...letterInput,
-              rotateMove: MOVE_MENU[(daySeed + cidHash + attempt + 1) % MOVE_MENU.length],
-              regenAvoid: closest(gen.letter).letter,
-            });
-            const bad = badness(g.letter);
-            if (bad < bestBad) { gen = g; bestBad = bad; coachRegen = true; }
-          }
-          letter = gen.letter; oneliner = gen.oneliner;
+          const detInput = [...ts, ...notes, ...uniqRef].join(' ');
+          const out = await composeLetter({ base, precomputed, detInput, daySeed, cidHash });
+          letter = out.letter; oneliner = out.oneliner; coachRegen = out.coachRegen;
         }
         if (letter) {
           // QA용 "우리 판단" 스냅샷 — 어드민 쓰레드에서 이 근거로 생성됐음을 보여줌
@@ -428,6 +407,7 @@ export async function GET(req: Request) {
             eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
             source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: 'haiku-4-5',
             scenarioId, scenarioLabel,   // 오늘의 코칭 시나리오(편지 다양성·중복 회피 이력)
+            plan: planCtx,   // ⭐ 구조화 계획(프레임·타깃·무브·시그니처) — 다음날 의미 중복 회피 이력(상태 원장)
             coachRegen,   // 비중복 가드로 재생성됐는지(최근 편지와 유사도 ≥0.45)
             snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
           };
@@ -484,7 +464,7 @@ export async function GET(req: Request) {
     try {
       const { data: wide } = await supabase.from('meal_logs')
         .select('child_id,log_date,ingredients,refused,ate_well,duration_min')
-        .in('child_id', activeIds).gte('log_date', kstDateNDaysAgo(365)).lte('log_date', kstDateNDaysAgo(1));
+        .in('child_id', activeIds).gte('log_date', dAgo(365)).lte('log_date', dAgo(1));
       const byKid: Record<string, ProgressRow[]> = {};
       (wide || []).forEach((r: ProgressRow & { child_id: string }) => { (byKid[r.child_id] ||= []).push(r); });
       // 현재 기간 키 + 그 키에 속하는지 판정 함수 (한 끼니가 여러 기간에 동시 집계됨)

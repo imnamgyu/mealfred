@@ -310,8 +310,8 @@ export default function Home() {
             const ts = computeTimeseries(byDate, menuFreq, catOf, today, { assertNoVeg: Object.keys(catMap).length > 0 });
             const { data: dcRow } = await supabase.from('children').select('daycare').eq('id', child.id).maybeSingle();  // 컬럼 없으면 null→false
             const attendsDaycare = !!dcRow?.daycare;
-            // 식단 지문 — 먹은 식재료·거부·부족영양·메모가 바뀌면 달라짐
-            const srcHash = [...allIng].sort().join(',') + '|' + [...new Set(ref)].sort().join(',') + '|' + reds.sort().join(',') + '|' + notes.length;
+            // 식단 지문 — 먹은 식재료·거부·부족영양·메모 + 날짜(날짜 바뀌면 새 계획으로 재생성)
+            const srcHash = [...allIng].sort().join(',') + '|' + [...new Set(ref)].sort().join(',') + '|' + reds.sort().join(',') + '|' + notes.length + '|' + today;
             const { data: cached } = await supabase.from('coach_letters')
               .select('letter,oneliner,source_hash').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
             if (cancelled) return;   // 그 사이 자녀 전환 → 편지(가장 눈에 띄는 교차오염) 스킵
@@ -323,9 +323,13 @@ export default function Home() {
             } else {
               // 오늘 편지가 아직 없음 → 1회 생성 (과거 편지 맥락 포함). 이후엔 위 분기로 고정
               const { data: past } = await supabase.from('coach_letters')
-                .select('letter_date,letter').eq('child_id', child.id).neq('letter_date', today)
+                .select('letter_date,letter,context').eq('child_id', child.id).neq('letter_date', today)
                 .order('letter_date', { ascending: false }).limit(5);
-              const pastLetters = (past || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter }));
+              const pastRows = (past || []) as { letter_date: string; letter: string; context: { scenarioId?: string; plan?: unknown } | null }[];
+              const pastLetters = pastRows.map((p) => ({ date: p.letter_date, letter: p.letter }));
+              // ⭐ 상태 원장 전달 — 크론과 동일하게 최근 시나리오·계획(프레임·타깃·무브)을 보내 의미 중복을 회피
+              const recentScenarioIds = pastRows.slice(0, 3).map((p) => p.context?.scenarioId).filter(Boolean);
+              const recentPlans = pastRows.slice(0, 3).map((p) => p.context?.plan).filter(Boolean);
               const r = await fetch('https://app.mealfred.com/api/coach', {
                 method: 'POST', headers: { 'content-type': 'application/json' },
                 body: JSON.stringify({
@@ -335,6 +339,7 @@ export default function Home() {
                   covered: fg.covered, missing: fg.missing, timeseries: ts, attendsDaycare,
                   eatenCount: new Set(allIng).size, pastLetters, chronicConditions: child.chronic_conditions,
                   favoriteIngredients: [...new Set(favIng)],   // 거부 아닌(잘 먹는) 식재료만 — 그래프 사촌/궁합 앵커(거부 식재료가 앵커되지 않게)
+                  recentScenarioIds, recentPlans, seedKey: child.id, today,   // ⭐ 중복 회피 이력 + 시드(크론과 동일 계획 엔진)
                 }),
               }).then((r) => r.json()).catch(() => null);
               if (r?.letter) {
@@ -342,7 +347,8 @@ export default function Home() {
                 if (r.oneliner) setAiOneliner(r.oneliner);
                 setLetterDate(today);
                 supabase.from('coach_letters').upsert(
-                  { child_id: child.id, parent_id: user.id, letter_date: today, letter: r.letter, oneliner: r.oneliner || null, source_hash: srcHash },
+                  // ⭐ context 저장 — 다음날 크론·온디맨드의 중복 회피 이력에 들어가도록(미저장 시 원장 오염)
+                  { child_id: child.id, parent_id: user.id, letter_date: today, letter: r.letter, oneliner: r.oneliner || null, source_hash: srcHash, context: { scenarioId: r.scenarioId || null, scenarioLabel: r.scenarioLabel || null, plan: r.plan || null, source: 'ondemand' } },
                   { onConflict: 'child_id,letter_date' }
                 ).then(() => {});
               } else if (cached?.letter) {

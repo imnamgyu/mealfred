@@ -12,9 +12,9 @@
  * 스펙: 편식극복키트/06_운영/카톡코칭/코칭엔진_스펙_v1.md
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { generateLetter, sanitizeRefusals, sanitizeTimeseries, ALLOW_TRANSITION } from '@/lib/coach';
+import { composeLetter, planFor, sanitizeRefusals, type LetterInput, type CoachPlan } from '@/lib/coach';
 import { neighborsOf } from '@/lib/foodGraph';
-import { selectScenario } from '@/lib/coachScenarios';
+import { type CoachSignals } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 
 const ALLOWED = ['https://www.mealfred.com', 'https://mealfred.com', 'https://app.mealfred.com', 'https://mealfred-app.vercel.app'];
@@ -36,15 +36,6 @@ export async function POST(req: NextRequest) {
   try {
     const b = await req.json();
     const notes = b.notes || b.recentNotes;   // recentNotes = 기존 클라 필드명 호환
-    // 온디맨드 편지도 시나리오 각도 적용(다양성). 단발 생성이라 중복 회피 이력은 없음([]).
-    const scenario = selectScenario({
-      timeseries: b.timeseries || [], reds: b.reds || [], homeReds: b.homeReds || [],
-      missing: b.missing || [], homeMissing: b.homeMissing || [],
-      homeRefused: sanitizeRefusals(b.homeRefused || []), daycareRefused: sanitizeRefusals(b.daycareRefused || []), refused: sanitizeRefusals(b.refused || []),
-      notes: notes || [], favoriteFoods: b.favoriteFoods || [],
-      attendsDaycare: !!b.attendsDaycare, ageBand: b.ageBand || '',
-      recentLoggedDays: b.recentLoggedDays ?? 5, recentWindow: 5, icfqRiskCount: b.icfqRiskCount ?? 0,
-    }, []);
     // 검증된 푸드 브릿지(그래프) — 클라가 보낸 잘 먹는 식재료 → 사촌/궁합. 편지가 궁합을 지어내지 않게.
     const likedIng: string[] = Array.isArray(b.favoriteIngredients) ? b.favoriteIngredients : [];
     const likedSet = new Set(likedIng);
@@ -55,30 +46,34 @@ export async function POST(req: NextRequest) {
       const parts = [...(br.length ? [`사촌 ${br.join('·')}`] : []), ...(pr.length ? [`궁합 ${pr.join('·')}`] : [])];
       return parts.length ? `${liked} → ${parts.join(', ')}` : null;
     }).filter(Boolean).slice(0, 5).join(' / ');
-    // ⭐ 사실 누수 차단 — 전환사실은 허용 시나리오만 + 거부값/시계열 정규화(크론과 동일)
-    const tsForLetter = sanitizeTimeseries(ALLOW_TRANSITION.has(scenario.id) ? (b.timeseries || []) : (b.timeseries || []).filter((t: string) => !/거부→수용 전환|받아들이기 시작/.test(t)));
-    const { letter, oneliner } = await generateLetter({
-      childName: b.childName,
-      ageBand: b.ageBand,
-      eatenCount: b.eatenCount,
-      reds: b.reds,
-      covered: b.covered,
-      missing: b.missing,
-      notes,
-      refused: sanitizeRefusals(b.refused || []),
-      homeRefused: sanitizeRefusals(b.homeRefused || []),
-      daycareRefused: sanitizeRefusals(b.daycareRefused || []),
-      favoriteFoods: b.favoriteFoods,
-      homeReds: b.homeReds,
-      homeMissing: b.homeMissing,
-      timeseries: tsForLetter,
-      pastLetters: b.pastLetters,
-      scenario: { id: scenario.id, label: scenario.label, promptHint: scenario.promptHint, avoid: scenario.avoid },
-      chronicGuidance: chronicGuidanceText(b.chronicConditions),   // 만성질환 식이 방향(클라가 보내면)
-      bridgeFacts,   // 검증된 푸드 브릿지(그래프)
-      snackEval: typeof b.snackEval === 'string' ? b.snackEval : null,   // 간식 평가(클라가 보내면) — 주 경로는 새벽 크론
-    });
-    return NextResponse.json({ letter, oneliner }, { headers });
+    // ⭐ 크론과 동일 엔진(DRY) — planFor(계획: 프레임·타깃·무브·시그니처 회피) → composeLetter(작문 + 안전·유사도 재생성).
+    //    중복 회피 이력(recentScenarioIds·recentPlans)은 홈이 coach_letters.context에서 읽어 보낸다(없으면 [] = 1회 폴백).
+    const signals: CoachSignals = {
+      timeseries: b.timeseries || [], reds: b.reds || [], homeReds: b.homeReds || [],
+      missing: b.missing || [], homeMissing: b.homeMissing || [],
+      homeRefused: sanitizeRefusals(b.homeRefused || []), daycareRefused: sanitizeRefusals(b.daycareRefused || []), refused: sanitizeRefusals(b.refused || []),
+      notes: notes || [], favoriteFoods: b.favoriteFoods || [],
+      attendsDaycare: !!b.attendsDaycare, ageBand: b.ageBand || '',
+      recentLoggedDays: b.recentLoggedDays ?? 5, recentWindow: 5, icfqRiskCount: b.icfqRiskCount ?? 0,
+    };
+    const daySeed = b.today ? Math.floor(Date.parse(b.today) / 86400000) : Math.floor(Date.now() / 86400000);
+    let cidHash = 0; const seedKey = String(b.seedKey || b.childName || ''); for (let k = 0; k < seedKey.length; k++) cidHash = (cidHash * 31 + seedKey.charCodeAt(k)) >>> 0;
+    const recentPlans: CoachPlan[] = Array.isArray(b.recentPlans) ? b.recentPlans : [];
+    const recentScenarioIds: string[] = Array.isArray(b.recentScenarioIds) ? b.recentScenarioIds : [];
+    const precomputed = planFor({ signals, recentScenarioIds, recentPlans, daySeed, cidHash });
+    const base: LetterInput = {
+      childName: b.childName, ageBand: b.ageBand, eatenCount: b.eatenCount,
+      reds: b.reds, covered: b.covered, missing: b.missing, notes,
+      refused: sanitizeRefusals(b.refused || []), homeRefused: sanitizeRefusals(b.homeRefused || []), daycareRefused: sanitizeRefusals(b.daycareRefused || []),
+      favoriteFoods: b.favoriteFoods, homeReds: b.homeReds, homeMissing: b.homeMissing,
+      timeseries: b.timeseries || [], attendsDaycare: !!b.attendsDaycare, pastLetters: b.pastLetters,
+      recentWindowDays: 5, recentLoggedDays: b.recentLoggedDays,
+      chronicGuidance: chronicGuidanceText(b.chronicConditions),
+      bridgeFacts, snackEval: typeof b.snackEval === 'string' ? b.snackEval : null,
+    };
+    const detInput = [...(b.timeseries || []), ...(notes || []), ...sanitizeRefusals(b.refused || [])].join(' ');
+    const out = await composeLetter({ base, precomputed, detInput, daySeed, cidHash });
+    return NextResponse.json({ letter: out.letter, oneliner: out.oneliner, scenarioId: out.scenarioId, scenarioLabel: out.scenarioLabel, plan: out.plan }, { headers });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'unknown';
     console.error('[coach] error:', msg);
