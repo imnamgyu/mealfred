@@ -12,7 +12,7 @@
  * 스펙: 편식극복키트/06_운영/카톡코칭/코칭엔진_스펙_v1.md
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { composeLetter, planFor, sanitizeRefusals, type LetterInput, type CoachPlan } from '@/lib/coach';
+import { composeLetter, planFor, sanitizeRefusals, SNACK_CHANNEL, type LetterInput, type CoachPlan } from '@/lib/coach';
 import { neighborsOf } from '@/lib/foodGraph';
 import { type CoachSignals } from '@/lib/coachScenarios';
 import { chronicGuidanceText } from '@/lib/coachChronic';
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       timeseries: b.timeseries || [], attendsDaycare: !!b.attendsDaycare, pastLetters: b.pastLetters,
       recentWindowDays: 5, recentLoggedDays: b.recentLoggedDays,
       chronicGuidance: chronicGuidanceText(b.chronicConditions),
-      bridgeFacts, snackEval: typeof b.snackEval === 'string' ? b.snackEval : null,
+      bridgeFacts, snackEval: (typeof b.snackEval === 'string' && !(precomputed.plan.target && SNACK_CHANNEL.has(precomputed.plan.target))) ? b.snackEval : null,   // 과일이 오늘 타깃이면 간식 멘트 중복 제거
     };
     const detInput = [...(b.timeseries || []), ...(notes || []), ...sanitizeRefusals(b.refused || [])].join(' ');
     const out = await composeLetter({ base, precomputed, detInput, daySeed, cidHash });

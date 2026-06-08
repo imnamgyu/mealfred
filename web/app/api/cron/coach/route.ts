@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, type CoachPlan, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, SNACK_CHANNEL, type CoachPlan, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -134,12 +134,14 @@ export async function GET(req: Request) {
     const lastLetter: Record<string, RecentLetter> = {};
     const recentScenarios: Record<string, string[]> = {};   // 최근 3일 편지가 쓴 scenarioId — 프레임 중복 회피
     const recentPlans: Record<string, CoachPlan[]> = {};     // ⭐ 최근 3일 편지의 구조화 계획(프레임·타깃·무브) — 상태 원장: 의미 중복 회피
+    const recentSnackDates: Record<string, string[]> = {};   // ⭐ 간식 멘트를 노출한 최근 날짜 — 쿨다운(매일 '과자 대신…' 반복 방지)
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
       if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
-      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan } | null;
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean } | null;
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
       if (ctx?.plan?.signature) (recentPlans[l.child_id] ||= []).push(ctx.plan);
+      if (ctx?.snackShown) (recentSnackDates[l.child_id] ||= []).push(l.letter_date);
     });
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
@@ -292,8 +294,7 @@ export async function GET(req: Request) {
         const attends = !!daycareMap[cid];
         // 간식 평가(별도 간식 엔진) — 끼니와 분리해 초가공 모니터링·식사 간섭성·BMI 칼로리 방향·좋은 간식 추천. 편지에 부드럽게 합쳐짐(체중 단어 금지).
         const snackBand = bmiBandFor(meta, cid);
-        const snackEval = evaluateSnacks({ rows: byChild[cid], band: snackBand, reds });
-        const snackEvalText = snackEvalToPrompt(snackEval);
+        const snackEval = evaluateSnacks({ rows: byChild[cid], band: snackBand, reds });   // 텍스트화는 계획 확정 후(쿨다운·과일타깃 중복제거·예시 로테이션 게이팅)
         const uniqRef = [...new Set(ref)];
         const ts = computeTimeseries(byDate, menuFreq, catOf, dAgo(1), { assertNoVeg: catReliable });   // 어제 앵커(평가 기준일)
         // 거부→수용 전환 감지(최근 28일) — 과거 거부했던 식재료를 이후 비거부로 먹기 시작 = '받아들이는 순간'. 코칭이 칭찬.
@@ -349,15 +350,17 @@ export async function GET(req: Request) {
         let letter = '', oneliner = '';
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
+        let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) 재사용. srcHash에 today가 들어가 날짜가 바뀌면 새 계획으로 재생성(식단 동일해도 동결되지 않음). force만 강제 재생성.
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
           letter = prev!.letter; oneliner = prev!.oneliner || ''; reused++;
-          const pctx = prev!.context as { scenarioId?: string; scenarioLabel?: string; plan?: CoachPlan } | null;
+          const pctx = prev!.context as { scenarioId?: string; scenarioLabel?: string; plan?: CoachPlan; snackShown?: boolean } | null;
           scenarioId = pctx?.scenarioId ?? null;          // 재사용은 기존 시나리오·계획 보존(중복 이력 유지)
           scenarioLabel = pctx?.scenarioLabel ?? null;
           planCtx = pctx?.plan ?? null;
+          snackShownCtx = pctx?.snackShown ?? false;
         } else {
           // 연속성용 과거 편지 (날짜 라벨만 — buildLetterUser가 순서로 변환). '오늘 이전'만(QA date 시뮬서 미래 편지 누수 차단).
           const { data: pastL } = await supabase.from('coach_letters')
@@ -382,6 +385,14 @@ export async function GET(req: Request) {
           let cidHash = 0; for (let k = 0; k < cid.length; k++) cidHash = (cidHash * 31 + cid.charCodeAt(k)) >>> 0;
           const precomputed = planFor({ signals, recentScenarioIds: recentScenarios[cid] || [], recentPlans: recentPlans[cid] || [], daySeed, cidHash });
           scenarioId = precomputed.scenario.id; scenarioLabel = precomputed.scenario.label; planCtx = precomputed.plan;
+          // ⭐ 간식 멘트 다듬기(이사님) — 매일 '과자 대신 과일·요거트…' 반복 방지:
+          //   ① 쿨다운: 최근 2일 안에 이미 실었으면 오늘은 생략(며칠에 한 번만) ② 과일이 오늘 타깃이면 본문이 이미 좋은 간식을 다루므로 중복 생략
+          //   ③ 실을 땐 daySeed로 예시 로테이션. 신호(초가공 등)는 사라지지 않고 며칠 간격으로 다시 환기됨.
+          const SNACK_COOLDOWN = 2;
+          const snackShownRecently = (recentSnackDates[cid] || []).some((d) => d >= dAgo(SNACK_COOLDOWN));
+          const snackChannelTarget = !!(planCtx?.target && SNACK_CHANNEL.has(planCtx.target));
+          const snackText = (!snackShownRecently && !snackChannelTarget) ? snackEvalToPrompt(snackEval, daySeed) : null;
+          snackShownCtx = !!snackText;
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
           const base = {
             childName: meta.nickname, ageBand: meta.age_band,
@@ -391,7 +402,7 @@ export async function GET(req: Request) {
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
             chronicGuidance: chronicGuidanceText(meta.chronic),
-            bridgeFacts, snackEval: snackEvalText,
+            bridgeFacts, snackEval: snackText,
             profileNudge: recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null,
           };
           const detInput = [...ts, ...notes, ...uniqRef].join(' ');
@@ -411,6 +422,7 @@ export async function GET(req: Request) {
             plan: planCtx,   // ⭐ 구조화 계획(프레임·타깃·무브·시그니처) — 다음날 의미 중복 회피 이력(상태 원장)
             coachRegen,   // 비중복 가드로 재생성됐는지(최근 편지와 유사도 ≥0.45)
             snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
+            snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
           };
           await supabase.from('coach_letters').upsert(
             { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: letterCtx },

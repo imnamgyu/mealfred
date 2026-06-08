@@ -102,11 +102,13 @@ const STANCE_SNACKS: Record<SnackStance, string[]> = {
   reduce: ['방울토마토(반으로 잘라)', '오이(스틱·껍질 제거)', '사과(갈거나 얇게)', '플레인 요거트', '삶은 계란', '당근(익혀·강판)', '찐 단호박'],
 };
 
-/** stance + 부족 영양소 → 좋은 간식 추천 4종(음식 끼니 추천과 별개·중복 제거). */
-export function goodSnackSuggestions(stance: SnackStance, reds: string[] = []): string[] {
+/** stance + 부족 영양소 → 좋은 간식 추천 4종(음식 끼니 추천과 별개·중복 제거). rotate=stance 풀 시작점(매일 다른 예시). */
+export function goodSnackSuggestions(stance: SnackStance, reds: string[] = [], rotate = 0): string[] {
   const out: string[] = [];
   for (const r of reds) (SNACKABLE_FOR_RED[r] || []).forEach((f) => out.push(f));   // 결핍 보완 우선
-  STANCE_SNACKS[stance].forEach((f) => out.push(f));
+  const pool = STANCE_SNACKS[stance];
+  const start = ((rotate % pool.length) + pool.length) % pool.length;
+  for (let i = 0; i < pool.length; i++) out.push(pool[(start + i) % pool.length]);   // ⭐ 시작점 회전 — 같은 멘트가 매번 같은 예시로 안 보이게
   const seen = new Set<string>();
   return out.filter((f) => { const k = f.replace(/\(.*?\)/g, ''); if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 4);
 }
@@ -130,6 +132,7 @@ export type SnackEval = {
   topInterferedMeal: string | null;   // 가장 자주 밀린 끼니 라벨
   stance: SnackStance;
   band: BmiBand | null;
+  reds: string[];                // 부족 영양소(좋은 간식 예시 재계산·로테이션용)
   goodSuggestions: string[];     // BMI·결핍 맞춤 좋은 간식
   concern: boolean;              // 편지에 실을 만한 신호가 있나
   summary: string;               // 한 줄 요약(어드민/디버그)
@@ -159,7 +162,7 @@ export function evaluateSnacks(args: {
     if (stance === 'encourage') {
       return {
         snackEntries: 0, snackDays: 0, ultraCount: 0, sugaryCount: 0, goodCount: 0, ultraExamples: [],
-        interference: [], topInterferedMeal: null, stance, band, goodSuggestions, concern: true,
+        interference: [], topInterferedMeal: null, stance, band, reds, goodSuggestions, concern: true,
         summary: '간식 기록 없음 · 든든한 간식 보태기 제안(저체중 방향)',
       };
     }
@@ -214,7 +217,7 @@ export function evaluateSnacks(args: {
   return {
     snackEntries: snackRows.length, snackDays, ultraCount, sugaryCount, goodCount,
     ultraExamples: [...ultraExamples].slice(0, 3),
-    interference, topInterferedMeal, stance, band, goodSuggestions, concern,
+    interference, topInterferedMeal, stance, band, reds, goodSuggestions, concern,
     summary: sumParts.join(' · '),
   };
 }
@@ -223,9 +226,10 @@ export function evaluateSnacks(args: {
  * SnackEval → 코칭편지 프롬프트용 한 블록 문자열(없거나 신호 없으면 null).
  * LLM이 이 사실을 부드럽게 녹이도록 — 체중·살·다이어트 단어 금지, 다그치지 않게.
  */
-export function snackEvalToPrompt(ev: SnackEval | null): string | null {
+export function snackEvalToPrompt(ev: SnackEval | null, rotate = 0): string | null {
   if (!ev || !ev.concern) return null;
   const parts: string[] = [];
+  const sug = goodSnackSuggestions(ev.stance, ev.reds, rotate).join('·');   // ⭐ rotate로 매번 다른 예시(같은 멘트 반복 완화)
   const ex = ev.ultraExamples.length ? `(예: ${ev.ultraExamples.join('·')})` : '';
   if (ev.ultraCount + ev.sugaryCount > 0) {
     const segs: string[] = [];
@@ -239,9 +243,9 @@ export function snackEvalToPrompt(ev: SnackEval | null): string | null {
     parts.push(`${ev.topInterferedMeal} 전 간식 뒤 ${ev.topInterferedMeal}을(를) 덜 먹은 날이 ${ev.interference.length}번 있었어요(간식이 식사 식욕을 밀어냈을 수 있어요 — 끼니 1~2시간 전은 비워두면 좋아요).`);
   }
   // 방향(체중 단어 없이)
-  if (ev.stance === 'encourage') parts.push(`간식을 줄 거면 '영양이 든든한 통식품'으로 채우면 좋아요(예: ${ev.goodSuggestions.join('·')}).`);
-  else if (ev.stance === 'reduce') parts.push(`과자·단 음료 대신 '좋은 간식'으로 바꿔주면 좋아요(예: ${ev.goodSuggestions.join('·')}).`);
-  else if (ev.ultraCount + ev.sugaryCount > 0) parts.push(`바꿔줄 좋은 간식(끼니와 별개): ${ev.goodSuggestions.join('·')}.`);
+  if (ev.stance === 'encourage') parts.push(`간식을 줄 거면 '영양이 든든한 통식품'으로 채우면 좋아요(예: ${sug}).`);
+  else if (ev.stance === 'reduce') parts.push(`과자·단 음료 대신 '좋은 간식'으로 바꿔주면 좋아요(예: ${sug}).`);
+  else if (ev.ultraCount + ev.sugaryCount > 0) parts.push(`바꿔줄 좋은 간식(끼니와 별개): ${sug}.`);
 
   if (!parts.length) return null;
   return `간식 평가(별도 간식 엔진): ${parts.join(' ')}`;

@@ -230,7 +230,7 @@ const moveTextOf = (key: string | null): string | null => { const i = key ? MOVE
 // 칭찬·관찰만 하고 음식 행동을 얹지 않는 시나리오(타깃·무브 없음)
 const PRAISE_ONLY_SCEN = new Set(['progress-celebrate', 'plateau', 'neophobia-arfid-watch', 'low-data-gap']);
 // ⭐ 간식 채널 식품군(이사님) — 끼니(밥·반찬)에 곁들이거나 섞지 않고 '간식'으로 따로 제안. 밥과 과일은 따로.
-const SNACK_CHANNEL = new Set(['과일']);
+export const SNACK_CHANNEL = new Set(['과일']);
 
 export function planSignature(frame: string, target: string | null, moveKey: string | null): string {
   return `${frame}|${target || '-'}|${moveKey || '-'}`;
