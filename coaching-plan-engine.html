@@ -1,0 +1,197 @@
+<!doctype html><html lang="ko"><head><script src="/docs-gate.js?v=4"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 plan 엔진 — 편지 반복 근본수정(배포) + 추천 네트워크 아키텍처</title>
+<meta property="og:title" content="코칭 plan 엔진 — 편지 반복 근본수정 + 추천 네트워크 아키텍처">
+<style>
+:root{--ink:#1f2328;--mut:#6b7280;--line:#e5e7eb;--bg:#f7f8fa;--card:#fff;--accent:#c2410c;--good:#15803d;--blue:#1d4ed8;--pass:#16a34a;--bad:#dc2626}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.68 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard',sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 20px 90px}
+h1{font-size:25px;margin:0 0 6px}.lead{color:var(--mut);margin:0 0 20px;font-size:14.5px}
+.lead a,.box a{color:var(--accent)}
+.tldr{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 18px;margin-bottom:22px}
+.tldr h3{margin:0 0 8px;font-size:15px;color:var(--accent)}
+.tldr ul{margin:6px 0 0;padding-left:18px}.tldr li{margin:5px 0;font-size:13.5px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px}
+h2{font-size:18px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 12px}
+h2 .n{color:var(--accent)}
+h3.sub{font-size:14.5px;margin:16px 0 6px;color:var(--ink)}
+p{margin:8px 0}.muted{color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:12.7px;margin:10px 0}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#f1f5f9;font-weight:700}
+td.c,th.c{text-align:center}
+.star{color:var(--accent);font-weight:800}
+.ok{color:var(--good);font-weight:700}.no{color:var(--bad);font-weight:700}.part{color:#b45309;font-weight:700}
+.flow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.55;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px;overflow-x:auto;white-space:pre;margin:10px 0}
+.flow .g{color:#4ade80}.flow .o{color:#fb923c}.flow .b{color:#60a5fa}.flow .m{color:#94a3b8}.flow .r{color:#f87171}
+.layer{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+.layer.l1{background:#eff6ff;border-color:#bfdbfe}.layer.l2{background:#f0fdf4;border-color:#bbf7d0}.layer.l3{background:#faf5ff;border-color:#e9d5ff}
+.layer b{font-size:14px}.layer .tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;color:#fff;margin-left:6px}
+.l1 .tag{background:var(--blue)}.l2 .tag{background:var(--pass)}.l3 .tag{background:#9333ea}
+code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
+.note{font-size:12px;color:var(--mut);margin-top:6px}
+.phase{font-size:13px;font-weight:800;color:var(--accent);margin:14px 0 4px}.phase.b{color:var(--blue)}
+.pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:5px}
+.pill.now{background:var(--accent);color:#fff}.pill.next{background:var(--blue);color:#fff}.pill.ship{background:var(--good);color:#fff}
+.commit{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0;padding:1px 6px;border-radius:5px;font-weight:700}
+.deploys{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.deploys .d{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.deploys .d b{color:var(--good)}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.ba .col{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:12.7px}
+.ba .col.before{background:#fef2f2;border-color:#fecaca}.ba .col.after{background:#f0fdf4;border-color:#bbf7d0}
+.ba .col h4{margin:0 0 6px;font-size:13px}.ba .col.before h4{color:var(--bad)}.ba .col.after h4{color:var(--good)}
+.ba ul{margin:4px 0 0;padding-left:16px}.ba li{margin:3px 0}
+@media(max-width:720px){.ba{grid-template-columns:1fr}}
+</style></head><body><div class="wrap">
+
+<h1>코칭 plan 엔진 — 편지 반복 근본수정 + 추천 네트워크 아키텍처</h1>
+<p class="lead">구현·배포 보고서 · 2026-06-08 · 출발점: <a href="/coaching-letter-diversity-audit.html">반복 진단</a>·<a href="/coaching-recursive-loop.html">재귀개선 감사</a>가 가리킨 근본원인을 <b>실제 프로덕션 수정</b>으로. <a href="/coaching-scenarios.html">시나리오 엔진</a>의 후속.</p>
+
+<div class="tldr">
+<h3>🎯 한눈에</h3>
+<ul>
+<li><b>질문(이사님):</b> "코칭엔진이 하네스/스캐폴드 구성이냐?" → 9에이전트 적대검증으로 답: <b>스캐폴드는 있으나 진짜 하네스(계획→의미적 검증→수정의 닫힌 루프)는 아니었다.</b></li>
+<li><b>근본원인:</b> 검증이 <b>어휘적(문자 3-gram)</b>이라 "같은 음식+같은 무브"라는 의미 중복을 못 봄 · 타깃은 LLM 재량(무브만 결정론) · 상태 원장 부재 · <b><code>source_hash</code>에 날짜 미포함</b>(식단 반복 시 어제 편지로 동결).</li>
+<li><b>해법:</b> 계획(plan)을 코드가 확정하고 LLM은 작문만 — <b><code>CoachPlan{frame,target,move,signature}</code></b> + 결정론 타깃 회전 + 시그니처 중복회피 + 공유 작성기 <code>composeLetter</code>. <b>plan 엔진 = 닫힌 하네스.</b></li>
+<li><b>이사님 피드백 반영:</b> ① 이틀 연속 같은 결핍 채근 금지 → 환기(정체기) ② <b>과일은 간식 채널</b>(밥과 분리) ③ 과일↔끼니 페어링 가드 ④ 간식 멘트 4/5일 반복 → <b>쿨다운+예시 로테이션</b>.</li>
+<li><b>결과(아린 6/4~6/8 재생성):</b> 타깃 콩류→정체기→생선→과일(간식)→콩류 · <b>이틀 연속 채근 0건</b> · 과일↔끼니 위반 0 · 간식 멘트 4/5→1/5.</li>
+<li><b>다음:</b> 추천을 LLM 환각이 아니라 <b>네트워크 테이블 3개</b>(사촌·조리법·또래음식)에서 뽑아 근거화하는 아키텍처 — §5(결정 2건 대기).</li>
+</ul>
+</div>
+
+<div class="box">
+<h2><span class="n">1.</span> 진단 — 스캐폴드는 있으나 하네스는 아니었다</h2>
+<p>편지 생성은 이미 다단 파이프라인이다: <code>신호추출 → 시나리오 라우터(13종) → 프롬프트 조립 → 생성(haiku) → 안전가드 재생성 → 어휘 유사도 재생성 → 퇴고</code>. 느슨한 의미의 <b>스캐폴드는 맞다.</b> 그러나 다양성을 보장하는 관절이 약했다 — 9개 에이전트가 6개 가설을 코드에 대해 <b>반증 시도</b>한 결과:</p>
+<table>
+<tr><th>근본원인</th><th>내용</th><th class="c">판정</th></tr>
+<tr><td><b>시나리오 수렴</b></td><td>만성 집공백 등원아는 home-daycare-gap/nutrient-gap만 점화 → 각도가 '집 공백'으로 수렴</td><td class="c ok">지지 0.82</td></tr>
+<tr><td><b>타깃 비대칭</b></td><td>코칭 무브는 결정론 회전인데 <b>타깃(과일·콩류)은 LLM 재량</b> → 부족 1순위 고정이면 매일 같은 타깃</td><td class="c ok">지지 0.92</td></tr>
+<tr><td><b>유사도 가드가 어휘적</b></td><td>문자 3-gram 자카드 + 도입 첫 25자. "집…" vs "어린이집…"은 통과하나 사람 눈엔 같은 처방. <b>의미 중복 미측정</b></td><td class="c ok">지지 0.90</td></tr>
+<tr><td><b>상태 원장 부재</b></td><td>'최근 다룬 (타깃·무브·프레임)'을 구조화 저장·환류하는 게 없음. 비중복은 과거 편지 본문을 LLM에 호소</td><td class="c ok">지지 0.90</td></tr>
+<tr><td><b>재생성 비탈출</b></td><td>임계 초과해도 같은 계획 재호출(무브 텍스트만 변경) → 근접 중복 발행 가능</td><td class="c ok">지지 0.95</td></tr>
+<tr><td><b>집-기관 프레임</b></td><td>"어린이집은 충분히"는 home-daycare-gap 도입에서만. '충분'은 OCR 실측이지 추정 아님(부분 정정)</td><td class="c part">부분 0.84</td></tr>
+</table>
+<p><b>가장 근본:</b> <code>source_hash = 정렬식재료+거부+reds+notes</code>에 <b>날짜·무브·시나리오가 빠짐</b>. 편식 식단은 며칠씩 비슷한 게 정상이라 해시가 자주 일치 → <span class="no">어제 편지를 글자 그대로 재사용하며 모든 다양성 장치를 실행조차 안 함.</span></p>
+<p class="note">DB 확증: 6/8 nutrient-gap · 6/7 home-daycare-gap · 6/6 nutrient-gap — 시나리오 ID는 달랐는데 출력이 전부 '과일/어린이집 충분'으로 수렴.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">2.</span> 해법 — 계획=코드, 작문=LLM (하네스화)</h2>
+<p>핵심 전환: <b>'무엇을 다룰지(계획)'를 LLM 손에서 빼내 코드가 결정론적으로 확정</b>하고, LLM은 그 계획을 따뜻하게 풀어 쓰기만 한다. 계획은 <b>구조화된 객체</b>로 저장돼 다음날 자기 자신을 검증한다.</p>
+<div class="ba">
+<div class="col before"><h4>BEFORE · 프롬프트 적층 스캐폴드</h4>
+<ul>
+<li>타깃 = LLM이 부족 목록에서 자유 선택</li>
+<li>검증 = 정규식 + 문자 3-gram (표면)</li>
+<li>상태 = 과거 편지 <b>텍스트</b>를 다시 먹여 "겹치지 마라" 호소</li>
+<li>재생성 = 같은 입력 재호출, 덜 나쁜 것 채택</li>
+<li>source_hash 동결 = 다양성 장치 우회</li>
+</ul></div>
+<div class="col after"><h4>AFTER · plan 엔진 (닫힌 루프)</h4>
+<ul>
+<li>타깃 = 코드가 <b>최근 안 쓴 결핍부터 결정론 회전</b></li>
+<li>검증 = <b>시그니처 <code>frame|target|move</code></b> 중복회피(생성 전)</li>
+<li>상태 = <code>context.plan</code> 구조화 원장(다음날 읽음)</li>
+<li>재생성 = 포화 시 <b>정체기로 에스컬레이트</b></li>
+<li>source_hash에 today 포함 → 매일 새 계획</li>
+</ul></div>
+</div>
+<div class="flow"><span class="m"># lib/coach.ts — 결정론 계획 + 공유 작성기</span>
+planFor(signals, <span class="b">recentScenarioIds</span>, <span class="b">recentPlans</span>, daySeed, cidHash)
+  ├ selectScenario()            <span class="m">프레임 선택 + 최근 3일 dedup</span>
+  ├ <span class="g">buildCoachPlan()</span>             <span class="m">타깃 회전 · 무브 회전 · 시그니처 중복회피</span>
+  │    └ 포화 → <span class="o">escalate → plateau</span>  <span class="m">(같은 처방 반복 대신 쉬어가기)</span>
+  └ varyOpener                  <span class="m">프레임 반복 시 "어린이집은 충분히" 도입 억제</span>
+        │
+        ▼
+<span class="g">composeLetter()</span>  <span class="m">크론·온디맨드 공유</span>
+  → 생성(haiku) → 안전가드 재생성 → 어휘 유사도 재생성 → 반환
+        │
+        ▼
+coach_letters.context.plan  <span class="m">← 상태 원장(다음날 planFor가 읽음)</span></div>
+<p><b>주요 구성:</b> <code>CoachPlan{frame,target,move,signature}</code> · <code>buildCoachPlan</code>(타깃 결정론 회전 + 시그니처 중복회피 + escalate) · <code>planFor</code> · <code>composeLetter</code>(공유 가드) · <code>planTargetBlock</code>(타깃 코드 확정) · <code>varyOpener</code> · <code>srcHash</code>에 today · <code>?date=</code> QA 오버라이드.</p>
+<div class="deploys"><span class="d"><b>e0d676a</b> plan 엔진</span><span class="d"><b>e2d2f93</b> 원장은 과거 편지만</span></div>
+</div>
+
+<div class="box">
+<h2><span class="n">3.</span> 이사님 피드백 반영</h2>
+<table>
+<tr><th>피드백</th><th>구현</th><th class="c">커밋</th></tr>
+<tr><td><b>이틀 연속 같은 결핍 채근 금지</b><br><span class="muted">"다른 시나리오로 환기 — 엄마가 다음에 결심할 여유"</span></td><td>어제와 같은 타깃을 또 짚게 되면(대체 결핍 없음) gap 시나리오를 빼고 <b>환기 각도(정체기)로 전환</b>. 단일 결핍이면 gap/plateau 교대.</td><td class="c"><span class="commit">62d1b93</span></td></tr>
+<tr><td><b>밥과 과일은 따로</b> · 과일 추천은 간식으로</td><td><code>SNACK_CHANNEL={과일}</code> — 무브를 <code>snack</code>으로 고정, 끼니에 곁들이지 말고 <b>"간식으로 따로"</b> 프레이밍.</td><td class="c"><span class="commit">62d1b93</span></td></tr>
+<tr><td><b>과일↔끼니 페어링 차단</b></td><td>결정론 가드 <code>fruitMealPairing</code> — 한 문장에 과일+끼니음식+곁들/옆에/섞 동사면 재생성(backstop).</td><td class="c"><span class="commit">62d1b93</span></td></tr>
+<tr><td><b>간식 멘트가 5일 중 4일 반복</b><br><span class="muted">"과자 대신 과일·요거트·계란"</span></td><td>① 쿨다운(<code>context.snackShown</code> 원장, 최근 2일 노출 시 생략) ② 과일이 그날 타깃이면 중복 제거 ③ <code>daySeed</code> 예시 로테이션. 신호는 며칠 간격으로 재환기.</td><td class="c"><span class="commit">8a6ada5</span></td></tr>
+</table>
+<p class="note">원인은 모두 동일했다 — 메인 코칭이든 간식이든 <b>윈도우를 매일 재계산하면서 이력(원장)이 없어</b> 같은 결론으로 수렴. 해법도 같다: 구조화 원장 + 결정론 회전 + 의미 중복회피.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">4.</span> 검증 — 아린 6/4~6/8 재생성</h2>
+<p><code>?date=</code> QA 오버라이드로 5일을 정방향 재생성(원장이 앞으로 쌓이도록). 정상 운영 모드는 byte-identical(무회귀).</p>
+<table>
+<tr><th class="c">날짜</th><th>프레임</th><th class="c">타깃</th><th class="c">무브</th><th>비고</th></tr>
+<tr><td class="c">6/4</td><td>home-daycare-gap</td><td class="c">콩류</td><td class="c">cook-together</td><td>간식 멘트 노출(예시 회전: 고구마·방울토마토)</td></tr>
+<tr><td class="c">6/5</td><td><b>plateau</b></td><td class="c">—</td><td class="c">—</td><td>콩류 채근 대신 태도 칭찬(환기) · 간식 쿨다운</td></tr>
+<tr><td class="c">6/6</td><td>home-daycare-gap</td><td class="c">생선·해산물</td><td class="c">sensory</td><td>감각 사다리(향·만지기)</td></tr>
+<tr><td class="c">6/7</td><td>home-daycare-gap</td><td class="c">과일</td><td class="c">snack</td><td>"오후 간식에 딸기·귤 따로"(밥 옆 아님)</td></tr>
+<tr><td class="c">6/8</td><td>nutrient-gap</td><td class="c">콩류</td><td class="c">beside</td><td>된장국에 두부</td></tr>
+</table>
+<p><span class="ok">이틀 연속 같은 타깃 0건</span> · <span class="ok">과일↔끼니 페어링 위반 0건</span> · <span class="ok">5/5 고유 시그니처</span> · <span class="ok">간식 멘트 4/5 → 1/5</span>.</p>
+<p class="muted"><b>Before(제보 이미지):</b> 과일/과일/콩류 전부 "어린이집 충분 + 좋아하는 음식 옆에 놓아두기" → <b>After:</b> 4개 다른 타깃·각도, 채근 0. (검증: tsc 0 · next build 0 · 실함수 7일 시뮬 인접 3일 시그니처 충돌 0)</p>
+</div>
+
+<div class="box">
+<h2><span class="n">5.</span> 다음 — 추천을 네트워크 테이블로 근거화 <span class="pill next">설계·결정대기</span></h2>
+<p>현재 편지가 <b>타깃 식재료를 어떤 음식·궁합으로 줄지</b>는 LLM이 지어낸다("콩밥·된장국"). 코드베이스엔 이미 검증된 네트워크 테이블이 있으니, 추천을 환각이 아니라 테이블에서 뽑아 사실로 주입하자(plan 엔진과 같은 철학).</p>
+<h3 class="sub">데이터 ↔ 동작 매핑 (검증됨)</h3>
+<table>
+<tr><th>동작</th><th>정본 테이블</th><th>접근자</th><th class="c">상태</th></tr>
+<tr><td>② 잘 먹는 <b>식재료</b>→사촌</td><td>food-graph <code>bridge</code>(242)</td><td><code>neighborsOf().bridge</code></td><td class="c ok">이미 됨</td></tr>
+<tr><td>②′ 궁합(같이 넣을 것)</td><td>food-graph <code>pair</code>(589)</td><td><code>neighborsOf().pair</code></td><td class="c ok">이미 됨</td></tr>
+<tr><td>③ <b>조리법</b></td><td>kit-dish-matrix(식재료×조리법 0~3)</td><td><code>dishesForIngredient()</code></td><td class="c no">미사용+금지</td></tr>
+<tr><td>③′ 조리법+안전 그램</td><td>cooking-amounts·cuisine-guide</td><td><code>cookingGroups()</code></td><td class="c no">미사용</td></tr>
+<tr><td>① 식재료→<b>또래 음식</b></td><td>ingredient-recipes(식재료→또래 메뉴)</td><td><code>loadFreqRecipes()</code></td><td class="c no">미사용</td></tr>
+<tr><td>① <b>음식→비슷한 음식</b></td><td>(직접 자산 없음)</td><td>derive 필요</td><td class="c part">자산 부재</td></tr>
+</table>
+<p class="note">세 테이블 모두 <b>식재료(노드/키) 단위</b> — "음식→비슷한 음식"을 직접 줄 자산은 없다(dish 노드 0개). 우회: 잘 먹는 식재료 기반 또래 음식/사촌(데이터 충분) 또는 빌더로 dish 유사도 생성(거침).</p>
+<h3 class="sub">제안 — <code>lib/coachRecos.ts</code> 신설</h3>
+<div class="flow">cron/coach 수집:  likedIngredients · favoriteMenus · planTarget
+        │  <span class="m">NEW</span> <span class="g">buildRecoFacts()</span>
+  ② 사촌    : <span class="b">neighborsOf(liked).bridge</span>          <span class="m">[food-graph] 이미 있음·정식화</span>
+  ②′궁합    : <span class="b">neighborsOf(liked|target).pair</span>
+  ③ 조리법  : <span class="b">dishesForIngredient(target)</span> 상위2     <span class="m">[kit-matrix] 신규</span>
+            + cookingGroups(target) 안전 그램·질식 팁  <span class="m">[cooking]</span>
+  ① 또래음식: <span class="b">loadFreqRecipes(target|cousin)</span> 연령대·비매운 <span class="m">[ingredient-recipes] 신규</span>
+        ▼  RecoFacts(구조화) → letterInput
+<span class="o">[검증된 추천 — 반드시 이 목록에서만, 밖은 지어내지 마라]</span>
+  · 사촌 고구마→단호박 / 궁합 두부+미역
+  · 타깃 두부 조리법: 된장국·두부조림(부드럽게) · 또래 인기: 순두부찌개</div>
+<div class="ba">
+<div class="col after"><h4>Phase 1 <span class="pill now">데이터 충분·즉시</span></h4>
+<ul><li>②(이미)+③(조리법)+①의 <b>식재료→또래 음식</b></li><li>타깃에도 사촌/궁합/조리법 근거 → 환각 제거</li><li>신규 모듈 + 타깃 근거 + 프롬프트 완화(2커밋 규모)</li></ul></div>
+<div class="col before" style="background:#eff6ff;border-color:#bfdbfe"><h4 style="color:var(--blue)">Phase 2 <span class="pill next">빌더 필요</span></h4>
+<ul><li>진짜 "음식→비슷한 음식"</li><li>kit-matrix dish별 식재료 프로필 코사인 → dish 유사도 자산 생성</li><li>dish 32개 굵은 조리법군이라 메뉴 단위 아님(거침)</li></ul></div>
+</div>
+<h3 class="sub">이사님 결정 필요 2건</h3>
+<table>
+<tr><th>결정</th><th>옵션</th></tr>
+<tr><td><b>조리법 정책</b></td><td>지금은 의도적 "조리법 설명 금지(부모가 검색)". → "<b>조리법 군 1개는 근거 기반 언급 허용</b>, 상세 레시피는 계속 금지"로 완화할지(③의 전제).</td></tr>
+<tr><td><b>① 음식→비슷한 음식</b></td><td>(a) 잘 먹는 식재료 기반 또래음식/사촌으로 우회(데이터 충분·정밀) vs (b) Phase 2 빌더로 거친 dish 유사도까지.</td></tr>
+</table>
+</div>
+
+<div class="box">
+<h2><span class="n">6.</span> 배포 요약</h2>
+<div class="deploys">
+<span class="d"><b>e0d676a</b> plan 엔진(하네스화)</span>
+<span class="d"><b>62d1b93</b> 채근 방지 + 과일 간식 채널 + 페어링 가드</span>
+<span class="d"><b>e2d2f93</b> 원장은 과거 편지만</span>
+<span class="d"><b>8a6ada5</b> 간식 멘트 쿨다운+로테이션</span>
+</div>
+<p class="muted">main → Vercel <code>mealfred-app</code>. 스키마 변경 없음(기존 <code>context</code> jsonb에 <code>plan</code>·<code>snackShown</code> 키 추가). 오늘 밤 정기 크론부터 전 자녀 적용. 잔여: 며칠 모니터 · 간식 cadence(쿨다운=2) 체감 후 조정 · §5 추천 네트워크(결정 후 Phase 1) · CRON_SECRET 미설정.</p>
+</div>
+
+<footer style="text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line)">밀프레드 코칭 엔진 · plan 엔진 구현·배포 보고서 · 2026-06-08</footer>
+
+</div></body></html>
