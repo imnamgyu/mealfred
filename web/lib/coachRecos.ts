@@ -27,8 +27,18 @@ const GROUP_INGREDIENTS: Record<string, string[]> = {
   '기타채소': ['브로콜리', '양배추', '애호박', '버섯', '토마토'],
 };
 
-/** 식재료가 '가장 많이 쓰이는 실존 음식' 최대 2개. freqMap(또래 급식 빈도) 우선 → kit-matrix(실측 count>0) 폴백. 매운 음식 제외. */
+// ⭐ 주식 곡물(이사님) — 밀·쌀은 '날것'으로 다른 식재료와 섞어/곁들여 먹지 않는다. 반드시 '먹는 형태'로만 추천: 밀→빵·면·떡, 쌀→밥·떡.
+const STAPLE_FORMS: Record<string, string[]> = {
+  '밀': ['빵', '면', '떡'], '밀가루': ['빵', '면', '떡'],
+  '쌀': ['밥', '떡'], '멥쌀': ['밥', '떡'], '백미': ['밥', '떡'], '찹쌀': ['찰밥', '떡'],
+  '보리': ['보리밥'], '현미': ['현미밥'], '잡곡': ['잡곡밥'], '귀리': ['오트밀', '귀리죽'], '기장': ['잡곡밥'], '수수': ['잡곡밥'],
+};
+/** 주식 곡물이면 '먹는 형태'(밥·빵·면·떡)로 표시. 아니면 원래 이름. (궁합/사촌 목록에서 날 곡물명 노출 방지) */
+const stapleDisplay = (nm: string): string => (STAPLE_FORMS[nm] ? STAPLE_FORMS[nm][0] : nm);
+
+/** 식재료가 '가장 많이 쓰이는 실존 음식' 최대 2개. 주식 곡물=먹는 형태 / freqMap(또래 급식 빈도) 우선 → kit-matrix(실측 count>0) 폴백. 매운 음식 제외. */
 export function popularDishesFor(ing: string, freqMap?: FreqMap): string[] {
+  if (STAPLE_FORMS[ing]) return STAPLE_FORMS[ing].slice(0, 2);   // 밀·쌀은 날것 아님 → 빵·면·떡·밥으로만
   const out: string[] = [];
   const fm = freqMap?.[ing];
   if (fm) for (const r of fm) { if (out.length >= 2) break; if (r.freq >= 4 && !isSpicyDish(r.name) && !out.includes(r.name)) out.push(r.name); }
@@ -53,7 +63,7 @@ export function buildRecoFacts(args: { likedIngredients: string[]; target?: stri
     for (const ing of GROUP_INGREDIENTS[args.target]) {
       const dishes = popularDishesFor(ing, args.freqMap);
       if (!dishes.length) continue;
-      const pairWithLiked = neighborsOf(ing).filter((n) => n.kind === 'pair' && likedSet.has(n.nm)).slice(0, 2).map((n) => n.nm);
+      const pairWithLiked = [...new Set(neighborsOf(ing).filter((n) => n.kind === 'pair' && likedSet.has(n.nm)).slice(0, 3).map((n) => stapleDisplay(n.nm)))].slice(0, 2);   // 주식은 먹는 형태(밥·빵)로
       lines.push(`[오늘 타깃 ${args.target}] ${ing} (또래 인기 음식: ${dishes.join('·')}${pairWithLiked.length ? ` · 잘 먹는 ${pairWithLiked.join('·')} 곁들이면 좋아요` : ''})`);
       break;   // 타깃은 대표 식재료 1개만
     }
@@ -64,16 +74,17 @@ export function buildRecoFacts(args: { likedIngredients: string[]; target?: stri
     if (lines.length >= 4) break;
     const nb = neighborsOf(ing);
     const cs = nb.filter((n) => n.kind === 'bridge' && !likedSet.has(n.nm) && !cousins.includes(n.nm)).slice(0, 1);
-    const pr = nb.filter((n) => n.kind === 'pair' && !likedSet.has(n.nm)).slice(0, 2).map((n) => n.nm);
+    const pr = [...new Set(nb.filter((n) => n.kind === 'pair' && !likedSet.has(n.nm)).slice(0, 3).map((n) => stapleDisplay(n.nm)))].slice(0, 2);   // 주식은 먹는 형태(밥·빵)로
     if (!cs.length && !pr.length) continue;
     const parts: string[] = [];
     for (const c of cs) {
       cousins.push(c.nm);
+      if (STAPLE_FORMS[c.nm]) { parts.push(`사촌 ${stapleDisplay(c.nm)}`); continue; }   // 주식 곡물 사촌 = 먹는 형태(빵·떡·밥)로만
       const dishes = popularDishesFor(c.nm, args.freqMap);
       parts.push(dishes.length ? `사촌 ${c.nm}(또래 인기: ${dishes.join('·')})` : `사촌 ${c.nm}`);
     }
     if (pr.length) parts.push(`궁합 ${pr.join('·')}`);
-    lines.push(`${ing} → ${parts.join(' / ')}`);
+    lines.push(`${stapleDisplay(ing)} → ${parts.join(' / ')}`);   // 앵커도 주식이면 먹는 형태(멥쌀→밥)로
   }
 
   return { target: args.target ?? null, cousins, lines, text: lines.join('\n') };
