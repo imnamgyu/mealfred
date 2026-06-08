@@ -606,8 +606,8 @@ export default function Home() {
               <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
             ) : (
               <>
-                <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;시금치를 거부해도 괜찮아요 — 새 채소는 여러 번 만나며 친해져요.<br />좋아하는 볶음밥에 잘게 넣어 오늘 한 번 더 만나볼까요?&rdquo;</div>
-                <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}><span className="italic">간식엔 과자가 잦았어요 — 치즈·삶은 계란 같은 든든한 간식으로 바꿔보면 좋아요.</span><br />매일 기록하면 코치가 이렇게 답장을 드려요.</div>
+                <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;집 끼니에 콩류가 잘 안 올라오네요. 지우가 잘 먹는 밥에 두부를 아주 잘게 으깨 섞어보세요.<br />또래 아이들은 두부를 순두부찌개나 유부된장국으로도 자주 먹어요 — 익숙한 것 옆에 조금씩이면 충분해요.&rdquo;</div>
+                <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}><span className="italic">과일은 끼니에 섞지 말고 오후 간식으로 따로 챙겨주면 좋아요.</span><br />매일 식단만 기록하면, 코치가 이렇게 우리 아이 데이터에 맞춰 답장을 드려요.</div>
               </>
             )}
             {/* 지난 편지 — 오랜만에 온 엄마가 흐름을 다시 읽게 */}
