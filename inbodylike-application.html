@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>InBodyLIKE 지원서 (작성본) — 밀프레드</title>
+<meta property="og:title" content="InBodyLIKE 지원서 (작성본) — 밀프레드">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--r500:#E53935;--r700:#C62828;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .hero{padding:52px 24px 36px;text-align:center;background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
+  .hero-inner{position:relative;z-index:1;max-width:780px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25)}
+  .hero h1{font-size:29px;font-weight:800;letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px;color:#1a2b4a}
+  .hero p{font-size:14px;color:#5a4a3a;max-width:640px;margin:0 auto;font-weight:500;line-height:1.75}
+  main{max-width:880px;margin:0 auto;padding:32px 22px 70px}
+  .back{display:inline-block;font-size:12.5px;font-weight:700;color:#C45A00;text-decoration:none}
+
+  .prog{background:#EFF6FF;border:1px solid #BBD9F5;border-radius:13px;padding:16px 18px;margin:18px 0 26px;font-size:13px;color:var(--b700);font-weight:600;line-height:1.7}
+  .prog b{color:#0d47a1}
+  .prog .pl{font-size:11px;font-weight:800;color:#0d47a1;letter-spacing:0.05em;display:block;margin-bottom:7px}
+
+  .field{background:#fff;border:1.5px solid var(--n200);border-radius:14px;padding:18px 20px;margin-bottom:14px;border-left:5px solid var(--p500)}
+  .field .fl{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  .field .fl h3{font-size:15.5px;font-weight:800;color:var(--s800)}
+  .field .fl .req{font-size:10px;font-weight:800;color:#fff;background:var(--r500);padding:2px 7px;border-radius:100px}
+  .field .fl .cc{font-size:10.5px;font-weight:800;color:var(--g700);background:#F2FBF8;border:1px solid #BFE6DC;padding:2px 9px;border-radius:100px;margin-left:auto}
+  .field .body{font-size:13.5px;color:var(--n700);font-weight:500;line-height:1.8;white-space:pre-wrap}
+  .field .body b{color:var(--s800);font-weight:800}
+  .field.rec{border-left-color:var(--b500)}
+  .field .recmark{font-size:10px;font-weight:800;color:#fff;background:var(--b500);padding:2px 8px;border-radius:100px}
+
+  .pending{background:#FFFBF0;border:1.5px solid #F7E3B0;border-radius:14px;padding:18px 20px;margin:26px 0 14px}
+  .pending h3{font-size:15px;font-weight:800;color:#9a6512;margin-bottom:12px}
+  .pending ol{margin:0;padding-left:20px}
+  .pending li{font-size:13px;color:#7a5510;font-weight:600;line-height:1.65;margin-bottom:9px}
+  .pending li b{color:#5a3f0a}
+  .pending code{background:#fff;border:1px solid #F0DCA8;border-radius:5px;padding:1px 6px;font-size:12px;color:#9a6512}
+
+  .integrity{background:#F2FBF8;border:1px solid #BFE6DC;border-radius:12px;padding:14px 16px;margin-top:8px;font-size:12.5px;color:#1d6b5a;font-weight:600;line-height:1.7}
+  .integrity b{color:var(--g700)}
+
+  footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;margin-top:24px}
+  footer a{color:#9CA3AF}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">📝 지원서 작성본 · 2026-06-09</span>
+    <h1>InBodyLIKE 지원서 (작성본)</h1>
+    <p>인바디 측정 자산 ↔ 밀프레드 처방·제조의 <b>측정-처방-충족-재측정 루프</b>를 협업 축으로. 3개 각도 초안→심사 합본(4에이전트). 흑자 미언급·T1 라이브 엔진·T6 비전 정직 분리·자수 준수 자체검증 완료.</p>
+  </div>
+</header>
+
+<main>
+  <a href="/docs.html" class="back">← 문서 허브</a>
+
+  <div class="prog">
+    <span class="pl">프로그램 — InBodyLIKE</span>
+    인바디(차기철 회장) + 블루포인트파트너스(이용관 대표)의 초기 헬스케어 액셀러레이터. 모집 분야 = 헬스 인텔리전스·데이터 기반 관리·글로벌 확장. <b>심사 철학: "기술·시장보다 창업가와 팀 역량이 최고의 상수"(이용관). 성공 요건 = 기술력 + 겸손·간절함·끊임없이 솔루션을 찾는 태도.</b> → 우리 풀스택 팀과 인바디 측정 시너지를 정조준.
+  </div>
+
+  <div class="field rec">
+    <div class="fl"><span class="recmark">추천</span><h3>지원 분야</h3></div>
+    <div class="body">헬스 인텔리전스 · 데이터 기반 영유아 영양·성장 관리 — 편식 진단을 송곳으로, 측정·진단·처방·충족이 닫히는 개인화 헬스케어 솔루션</div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><span class="req">필수</span><h3>해결하고자 하는 문제</h3><span class="cc">178자 / 200자 ✅</span></div>
+    <div class="body">영유아 4명 중 1명이 편식을 겪지만, 부모는 아이가 뭘 얼마나 못 먹는지조차 객관적으로 모릅니다. 끼니 기록은 흩어져 있고 코칭은 일반론에 그칩니다. 식습관이 굳기 전 골든타임(만 6세 무렵)은 짧은데, 결핍을 그 아이만의 처방으로 바꾸는 데이터 기반 관리도, 실제로 나아졌는지 보여줄 객관적 결과 데이터도 없습니다.</div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><span class="req">필수</span><h3>해결 방법</h3></div>
+    <div class="body">밀프레드는 '끼니 한 줄 기록'을 데이터로 바꿔 그 아이만의 식이를 처방하고, 분석부터 충족까지 한 팀이 직접 만듭니다.
+
+<b>(1) 대표 엔진(라이브) — 메뉴→식재료 매핑 + 급식 코퍼스 플라이휠:</b> NEIS 전국 급식 데이터(약 1만 메뉴)로 학습해 음식명을 식재료·31종 영양으로 환원합니다. 학교 급식이라는 동일 도메인에서 지금 실제로 작동하는, '진짜 우리 것'인 대표 기술입니다.
+
+<b>(2) 결정론 코칭 플랜 엔진</b> — '계획은 코드, 작문만 LLM'. 매일 그 아이에게 맞는 한 가지 행동을 처방합니다. 환각 0·저비용으로, 단순 LLM 래퍼와 갈라지는 지점입니다.
+
+<b>(3) 검증된 제조·물류</b> — B2C 신선 밀키트 6년, 누적 100만 인분, 5중보냉 48h 콜드체인, 100평 시설(연 20억 capa). 분석한 처방을 실제 식재료로 충족시킬 실행 근육입니다.
+
+<b>[비전·검증 목표]</b> 분석(SW)과 충족(키트 HW)을 한 몸으로 잇는 개인화 키트 배송의 닫힌 루프 — 지금 이미 돌리고 있다고 말하지 않습니다. 이번 라운드의 검증 대상입니다. 가장 솔직한 약점은 개인의 섭취·성장 '결과 데이터'가 아직 없다는 것이며, 바로 이 한 칸을 인바디가 메워줍니다.</div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><span class="req">필수</span><h3>시장 현황</h3></div>
+    <div class="body">송곳 → 우산 → 글로벌의 단계 확장입니다.
+
+· 진입(SOM): 편식 고민 가구 약 60만 — 가장 절박한 페인으로 좁게 들어갑니다.
+· 확장(SAM): 0~6세 약 230만 명·영유아 약 200만 가구의 레시피·성장발달·건기식까지 영양 헬스케어 전반.
+· 글로벌(TAM): 편식·아동영양은 전 세계 공통 페인. 인바디 다국가 네트워크가 그대로 해외 교두보가 됩니다.
+
+순풍: 저출생 역설 — 머릿수는 줄어도 1인당 지출은 늘어 프리미엄 개인화에 지갑이 열리는 시장입니다.
+
+유통 해자: 이미 전국 초등학교의 약 14%가 구매하는 학교(B2G) 채널을 갖고 있고, 이는 영유아 가구로 가는 0-CAC 앱 유통 경로입니다. 25년 유료고객 6.4만 명, 재구매율 37.4%로 채널 자체가 살아 작동합니다(채널 크기 지표).</div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><span class="req">필수</span><h3>팀 구성</h3><span class="cc">#1 기준 정조준</span></div>
+    <div class="body">이 팀의 핵심은 SW와 물리(제조)를 한 팀이 동시에 쥔 풀스택 조합 + 피벗으로 증명된 '솔루션 집착' 태도입니다.
+
+· <b>CEO 임재희</b> — B2C 신선 밀키트 6년, 누적 100만 인분 제조·물류를 직접 운영. 콜드체인·극다품종 소량 충족이라는 '아무나 못 하는 HW'를 손에 쥔 사람입니다.
+· <b>CTO 임남규</b> — SW마에스트로 멘토(24~25), 스마트홈 스타트업 코파운더 10년, 커머스 백엔드. 매핑·코칭 엔진을 직접 설계·운영하는 '엔진 빌더'입니다.
+
+분석(엔진)과 충족(제조)을 한 팀 안에 모두 보유합니다 — 외주 없이 측정-처방-충족 루프를 직접 닫을 수 있는 흔치 않은 조합입니다. 무엇보다 B2C 밀키트에서 학교 요리활동(B2G)으로, 다시 영유아 헬스케어로 피벗하며 전국 초등 14% 침투·재구매율 37.4%까지 만든 팀입니다. 잘 되던 사업을 버리고 아이의 편식을 '실제로 고치는' 더 근본적인 문제로 방향을 바꿀 줄 아는 것 — 끊임없이 더 나은 솔루션을 찾는 겸손함과 간절함이 우리 팀의 진짜 상수입니다.</div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><span class="req">필수</span><h3>협업 제안 내용</h3></div>
+    <div class="body">인바디 핵심 자산을 정면으로 활용해, 지금 우리에게 비어 있는 한 칸을 함께 메우자는 제안입니다.
+
+솔직히 우리의 가장 큰 약점은 개인의 객관적 섭취·성장 '결과 데이터'가 없다는 것입니다. 우리 엔진은 '무엇을 먹였나'까지는 정확히 읽지만 '그래서 몸이 어떻게 변했나'는 보지 못합니다. 바로 이 지점을 인바디 체성분·성장 측정이 채웁니다.
+
+<b>[측정-처방-충족-재측정 루프]</b>
+· 측정(InBody): 체성분·성장 데이터로 아이의 객관적 출발점과 변화를 잽니다 — 우리 약점인 '결과·반응 데이터 부재'를 정확히 보완.
+· 진단·처방(밀프레드 엔진): 끼니 기록을 식재료·31종 영양으로 환원하고, 그 아이만의 식이를 매일 처방.
+· 충족(개인화 키트): 처방한 식재료를 우리 콜드체인으로 극소량·개인화 배송해 실제 섭취까지 닫음.
+· 재측정(InBody): 다시 재서 처방이 '실제로 나아지게 했는가'를 검증 — 희망사항이 아니라 데이터로 증명되는 닫힌 헬스케어 루프.
+
+나아가 인바디 다국가 네트워크는 '편식은 전 세계 공통'인 영유아 영양의 글로벌 교두보가 되고, 블루포인트의 딥테크 투자·스케일 멘토링은 이 엔진을 헬스케어 그레이드로 끌어올려 자본·운영 양면에서 함께 키웁니다.</div>
+  </div>
+
+  <div class="field">
+    <div class="fl"><span class="req">필수</span><h3>협업 목적/목표</h3></div>
+    <div class="body">세 가지를 검증하고자 합니다.
+
+<b>(1) 사회적 비용 절감</b> — 편식의 골든타임 안에 객관적 데이터로 개입해, 영유아 영양 불균형과 그로 인한 장기 의료·발달 비용을 실제로 줄일 수 있는지. 측정 가능한 아동 건강 개선을 인바디와 함께 증명합니다.
+
+<b>(2) 개인화 식재료 배송 구독 검증</b> — 이번 라운드의 핵심 목표인 '편식 분석 → 개인화 식재료 배송 구독'의 전환·리텐션을, 인바디 측정 데이터를 결과 지표로 삼아 객관적으로 검증합니다.
+
+<b>(3) 글로벌 교두보</b> — 인바디 다국가 네트워크를 발판으로, 측정-처방-충족-재측정 루프를 해외 영유아 영양 시장으로 확장하는 첫 거점을 만듭니다.
+
+이 셋을 '제조도 엔진도 다 가진 한 팀'이 동시에 밀어붙일 수 있다는 점, 그리고 루프가 한 번이라도 객관적 데이터로 돌면 우리는 '먹였다'를 넘어 '나아졌다'를 증명하는 회사가 된다는 점 — 그것이 우리가 InBodyLIKE에서 가장 빨리 답을 낼 팀인 이유입니다.</div>
+  </div>
+
+  <div class="pending">
+    <h3>⚠️ 제출 전 채워야 할 항목 (사실 정보)</h3>
+    <ol>
+      <li><b>지원 경로</b> (다중선택) — inbodylike.com 폼의 실제 드롭다운 옵션 확인 필요.</li>
+      <li><b>투자이력</b> — 마감된 투자 있으면 기입, 없으면 <code>없음 (2026년 3월 Seed 라운드 진행 예정)</code>.</li>
+      <li><b>정부과제 수행내역</b> (최근 5년, ≤500자) — 수행 이력 유무 확인.</li>
+      <li><b>투자유치 희망여부</b> — 라운드 진행 중 → <b>체크(희망) 권장</b>.</li>
+    </ol>
+  </div>
+
+  <div class="integrity">
+    <b>무결성 자체점검:</b> ① 흑자·순이익·매출액 미언급(채널 크기·침투율만) ② T6 닫힌 루프는 '비전·검증 목표'로 격리, "이미 작동" 표현 0건 ③ 대표 엔진 = T1(라이브) 명확화 ④ 약점(개인 결과 데이터 부재) 정직 노출 후 인바디 자산으로 보완 ⑤ 문제 178자(200자 한도 준수).
+  </div>
+
+  <a href="/docs.html" class="back" style="margin-top:18px">← 문서 허브</a>
+</main>
+
+<footer>
+  <p>밀프레드 · InBodyLIKE 지원서 작성본 · 2026-06-09 · <a href="/pitch-logic.html">피치 논리</a> · <a href="/docs.html">문서 허브</a></p>
+</footer>
+
+</body>
+</html>
