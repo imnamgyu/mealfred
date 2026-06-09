@@ -23,7 +23,7 @@ import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { type CoachSignals } from '@/lib/coachScenarios';
-import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, DEFAULT_LEDGER, type WeeklyAnchor } from '@/lib/coachWeekly';
+import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, DEFAULT_LEDGER, type WeeklyAnchor, type WeeklyArc } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, type FreqMap } from '@/lib/coachRecos';
@@ -341,7 +341,7 @@ export async function GET(req: Request) {
         let letter = '', oneliner = '';
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
-        let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견 — 어드민 검증
+        let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 — 어드민 검증
         let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) 재사용. srcHash에 today가 들어가 날짜가 바뀌면 새 계획으로 재생성(식단 동일해도 동결되지 않음). force만 강제 재생성.
@@ -412,6 +412,7 @@ export async function GET(req: Request) {
                 child_id: cid, week_key: wk, status: synth.source === 'weekly_llm' ? 'active' : 'cold_synth', source: synth.source,
                 mission: synth.mission, mission_target: synth.mission_target, target_pool: synth.target_pool, secondary_axis: synth.secondary_axis,
                 budget: synth.budget, ledger: DEFAULT_LEDGER, impression: synth.impression, arc_week: 1,
+                behavior_goal: synth.behaviorGoal, teaching_arc: synth.teachingArc, check_method: synth.checkMethod,   // §14 주간 커리큘럼
                 basis_attends_daycare: attends, model: synth.source === 'weekly_llm' ? 'sonnet-4-6' : 'cold', updated_at: new Date().toISOString(),
               };
               await supabase.from('weekly_plans').upsert(row, { onConflict: 'child_id,week_key' });
@@ -428,14 +429,18 @@ export async function GET(req: Request) {
             if (!anchor && dow !== 0) anchor = await synthAndStoreAnchor(weekKey);          // 평일 닻 없으면 lazy 생성 → 레이어 즉시 활성
             if (anchor && anchor.mission_target) {
               const tgt = anchor.mission_target;
+              const lever = anchor.budget?.lever || 'food';
               const weekRows = (byChild[cid] || []).filter((r) => isoWeekKey(r.log_date) === weekKey);
               const servedDays = weekRows.filter((r) => (r.ingredients || []).some((ing) => ing === tgt || catOf(ing) === tgt));   // 실제 차림(그룹=catOf·음식=정확일치)
               const targetExposeWtd = servedDays.length;
               const firstServeDow = servedDays.length ? Math.min(...servedDays.map((r) => kstDow(r.log_date))) : null;
-              const wk = planFromWeekly({ anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, daySeed, cidHash, dow });
+              // 행동변화 관측(아크 단계 결정) — food=실제 차림, 구조 레버=그 좋은 행동이 이번 주 1회+ (거짓 칭찬 방지)
+              const progress = lever === 'food' ? firstServeDow != null
+                : weekRows.some((r) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : false);
+              const wk = planFromWeekly({ anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, daySeed, cidHash, dow });
               if (wk) {
                 precomputed = { scenario: wk.scenario, plan: wk.plan, varyOpener: wk.varyOpener };
-                weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied };
+                weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc };
                 const newLedger = { ...(anchor.ledger || DEFAULT_LEDGER), ...wk.ledgerPatch, exposeCount: { ...((anchor.ledger || DEFAULT_LEDGER).exposeCount || {}), [tgt]: targetExposeWtd }, firstServeDow };
                 await supabase.from('weekly_plans').update({ ledger: newLedger, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekKey);
               }
@@ -467,6 +472,7 @@ export async function GET(req: Request) {
             chronicGuidance: chronicGuidanceText(meta.chronic),
             bridgeFacts, snackEval: snackText,
             profileNudge: profileN, structuredTip: sTip,
+            weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };
           const detInput = [...ts, ...notes, ...uniqRef].join(' ');
           const out = await composeLetter({ base, precomputed, detInput, daySeed, cidHash });
