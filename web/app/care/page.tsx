@@ -9,6 +9,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import BottomNav from '@/components/BottomNav';
 import LoginCta from '@/components/LoginCta';
+import InstitutionSelect from '@/components/InstitutionSelect';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { normalizeIngredient } from '@/lib/lexicon';
 import { createMapper } from '@/lib/menuMapCore';
@@ -705,6 +706,8 @@ export default function CarePage() {
                 <span style={{ position: 'absolute', top: 3, left: daycare ? 23 : 3, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left .15s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
               </button>
             </div>
+            {/* ⭐ 기관(어린이집·유치원) 정확 등록 — 검색→선택, children.institution_id 저장 */}
+            {childId && <InstitutionSelect childId={childId} />}
             {/* 식단표 OCR 자동채움 — 점심·간식 매일 기록 안 해도 됨. 이번 달 등록됐으면 업로더 숨김 */}
             <div className="mt-3 pt-3" style={{ borderTop: '1px dashed #FFE8D0' }}>
               {menuMonths.has(new Date().toISOString().slice(0, 7)) ? (
