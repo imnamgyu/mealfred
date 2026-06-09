@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 편식 — 엔진 다이어그램 (피치용)</title>
+<meta property="og:title" content="밀프레드 편식 — 엔진 다이어그램 (피치용)">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--r500:#E53935;--r700:#C62828;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .hero{padding:50px 24px 34px;text-align:center;background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%);pointer-events:none}
+  .hero-inner{position:relative;z-index:1;max-width:760px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:16px;border:1px solid rgba(255,107,26,0.25)}
+  .hero h1{font-size:28px;font-weight:800;letter-spacing:-0.03em;line-height:1.3;margin-bottom:10px;color:#1a2b4a}
+  .hero p{font-size:14px;color:#5a4a3a;max-width:600px;margin:0 auto;font-weight:500}
+  main{max-width:760px;margin:0 auto;padding:32px 22px 70px}
+  .back{display:inline-block;font-size:12.5px;font-weight:700;color:#C45A00;text-decoration:none}
+
+  .diag{background:#fff;border:1.5px solid var(--n200);border-radius:18px;padding:24px 22px 26px;margin:22px 0;box-shadow:0 4px 20px rgba(0,0,0,0.04)}
+  .diag .dlbl{font-size:11px;font-weight:800;color:#fff;background:var(--s800);display:inline-block;padding:4px 12px;border-radius:100px;letter-spacing:0.04em;margin-bottom:6px}
+  .diag h2{font-size:19px;font-weight:800;color:var(--s800);letter-spacing:-0.02em;margin-bottom:4px}
+  .diag .sub{font-size:12.5px;color:var(--n500);font-weight:600;margin-bottom:18px}
+  .diag .pick{font-size:12px;font-weight:800;color:var(--g700);background:#F2FBF8;border:1px solid #BFE6DC;border-radius:8px;padding:7px 12px;display:inline-block;margin-bottom:18px}
+
+  /* 플라이휠 */
+  .fly{position:relative;width:100%;max-width:420px;margin:6px auto 2px;aspect-ratio:1/1}
+  .fly svg{position:absolute;inset:0;width:100%;height:100%}
+  .fnode{position:absolute;transform:translate(-50%,-50%);width:128px;background:#fff;border:1.5px solid var(--n200);border-radius:12px;padding:9px 10px;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,0.06)}
+  .fnode .ft{font-size:12px;font-weight:800;color:var(--s800);line-height:1.3}
+  .fnode .fd{font-size:10px;font-weight:600;color:var(--n500);margin-top:2px;line-height:1.3}
+  .fnode.n1{border-top:3px solid var(--b500)} .fnode.n2{border-top:3px solid var(--g500)}
+  .fnode.n3{border-top:3px solid var(--p500)} .fnode.n4{border-top:3px solid var(--v500,#9C27B0)}
+  .fcenter{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:128px;height:128px;border-radius:50%;background:linear-gradient(160deg,#FFF1E2,#FFE0C2);border:2px solid var(--p300);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  .fcenter .ct{font-size:13px;font-weight:800;color:#9a4f00;line-height:1.3}
+  .fcenter .cd{font-size:10.5px;font-weight:700;color:#C45A00;margin-top:3px}
+  .pipe{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--n200)}
+  .pipe .pl{font-size:11px;font-weight:800;color:var(--g700);margin-right:4px}
+  .pipe .ps{background:#F2FBF8;border:1px solid #BFE6DC;color:var(--g700);font-size:11px;font-weight:700;padding:5px 9px;border-radius:7px}
+  .pipe .pa{color:var(--p500);font-weight:300}
+  .cap{font-size:12px;color:var(--n600);font-weight:600;text-align:center;margin-top:14px;background:var(--n50);border-radius:9px;padding:9px 12px;line-height:1.6}
+  .cap b{color:var(--s800)}
+
+  /* 2-트랙 */
+  .lane{display:flex;align-items:center;gap:10px;border-radius:12px;padding:13px 14px;margin-bottom:9px}
+  .lane.code{background:#F2FBF8;border:1.5px solid #BFE6DC}
+  .lane.llm{background:var(--n50);border:1.5px solid var(--n200)}
+  .lane .lh{flex:0 0 92px;font-size:12px;font-weight:800;line-height:1.3}
+  .lane.code .lh{color:var(--g700)} .lane.llm .lh{color:var(--n500)}
+  .lane .lh small{display:block;font-size:9.5px;font-weight:700;opacity:0.8;margin-top:2px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+  .chip{background:#fff;border:1px solid #BFE6DC;border-radius:8px;padding:6px 9px;font-size:11px;font-weight:700;color:var(--g700)}
+  .chip .ca{color:var(--p500)}
+  .chip.thin{border-color:var(--n200);color:var(--n600);background:#fff}
+  .arrowdown{text-align:center;color:var(--p500);font-size:17px;line-height:1;margin:1px 0}
+  .outbox{text-align:center;background:#FFF8F2;border:1.5px solid var(--p300);border-radius:10px;padding:11px;font-weight:800;color:#C45A00;font-size:13.5px}
+  .ratio{display:flex;gap:10px;margin-top:14px}
+  .ratio div{flex:1;border-radius:9px;padding:9px 11px;font-size:11.5px;font-weight:700;line-height:1.5}
+  .ratio .big{background:#F2FBF8;border:1px solid #BFE6DC;color:var(--g700)}
+  .ratio .small{background:var(--n50);border:1px solid var(--n200);color:var(--n600)}
+
+  .why{font-size:12.5px;color:var(--n600);font-weight:600;line-height:1.7;margin-top:16px;background:#EFF6FF;border:1px solid #BBD9F5;border-radius:10px;padding:12px 14px}
+  .why b{color:#0d47a1}
+  footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;margin-top:20px}
+  footer a{color:#9CA3AF}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">📊 ENGINE DIAGRAMS · 피치용</span>
+    <h1>엔진 다이어그램 (1) 매핑 플라이휠 · (2) 코칭 2-트랙</h1>
+    <p>해결 방법 (1)(2)를 한눈에. 슬라이드에 그대로 스크린샷해 쓰세요. 다이어그램 선택 기준도 함께.</p>
+  </div>
+</header>
+
+<main>
+  <a href="/docs.html" class="back">← 문서 허브</a>
+
+  <!-- 선택 기준 -->
+  <div class="why" style="margin-top:18px">
+    <b>왜 이 형태인가</b> — (1)은 "쓸수록 정확해진다(복리)"가 메시지라 <b>순환(플라이휠)</b>이 맞고, 선형 화살표는 복리감을 못 줍니다. (2)는 "계획=코드(많음), 작문만 LLM(한 겹)"의 <b>비대칭</b>이 메시지라 <b>2-트랙 스윔레인</b>이 맞고, 일반 플로우차트는 이 대비를 못 살립니다.
+  </div>
+
+  <!-- DIAGRAM 1 -->
+  <div class="diag">
+    <span class="dlbl">DIAGRAM 1</span>
+    <h2>대표 엔진 — 메뉴→식재료 매핑 + 급식 코퍼스 플라이휠</h2>
+    <div class="sub">라이브 · 학교 급식과 같은 도메인에서 지금 작동</div>
+    <div class="pick">✓ 형태: 플라이휠(순환 루프) + 결정론 4단 파이프라인</div>
+
+    <div class="fly">
+      <svg viewBox="0 0 400 400" aria-hidden="true">
+        <defs>
+          <marker id="ah" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#E89244"/>
+          </marker>
+        </defs>
+        <g fill="none" stroke="#FFB375" stroke-width="3" marker-end="url(#ah)">
+          <path d="M228,68 A135,135 0 0 1 332,172"/>
+          <path d="M332,228 A135,135 0 0 1 228,332"/>
+          <path d="M172,332 A135,135 0 0 1 68,228"/>
+          <path d="M68,172 A135,135 0 0 1 172,68"/>
+        </g>
+      </svg>
+      <div class="fcenter">
+        <div class="ct">급식 코퍼스<br>플라이휠 ↻</div>
+        <div class="cd">쓸수록 정확</div>
+      </div>
+      <div class="fnode n1" style="left:50%;top:13%"><div class="ft">① 메뉴 한 줄 입력</div><div class="fd">부모 · 예: 안동찜닭</div></div>
+      <div class="fnode n2" style="left:86%;top:50%"><div class="ft">② 결정론 4단 매핑</div><div class="fd">환각 0</div></div>
+      <div class="fnode n3" style="left:50%;top:87%"><div class="ft">③ 식재료·31종<br>영양 환원</div><div class="fd">진단·처방 입력</div></div>
+      <div class="fnode n4" style="left:14%;top:50%"><div class="ft">④ learned_menus<br>축적 (약 1만)</div><div class="fd">신메뉴만 학습</div></div>
+    </div>
+
+    <div class="pipe">
+      <span class="pl">②의 내부 4단:</span>
+      <span class="ps">정규화</span><span class="pa">→</span>
+      <span class="ps">사전·렉시콘 매칭</span><span class="pa">→</span>
+      <span class="ps">복합메뉴 분해</span><span class="pa">→</span>
+      <span class="ps">learned 폴백·학습</span>
+    </div>
+
+    <div class="cap">연료는 <b>공개 NEIS 급식 API</b> — 학교 채널과 같은 도메인에서 자가 부트스트랩. 신메뉴만 학습하니 <b>코퍼스↑ → 다음 분해가 더 빠르고 정확</b>해지는 복리 구조.</div>
+  </div>
+
+  <!-- DIAGRAM 2 -->
+  <div class="diag">
+    <span class="dlbl">DIAGRAM 2</span>
+    <h2>결정론 코칭 플랜 엔진 — "계획은 코드, 작문만 LLM"</h2>
+    <div class="sub">단순 LLM 래퍼와 갈라지는 본체</div>
+    <div class="pick">✓ 형태: 2-트랙 스윔레인 (결정론 코드 vs LLM)</div>
+
+    <div class="lane code">
+      <div class="lh">결정론 코드<small>계획 · LLM 0회</small></div>
+      <div class="chips">
+        <span class="chip">끼니·체위·결핍 신호 분석</span><span class="chip"><span class="ca">→</span> target 영양소 회전</span><span class="chip"><span class="ca">→</span> signature dedup</span><span class="chip"><span class="ca">→</span> 35가지 하네스·시나리오</span><span class="chip"><span class="ca">→</span> escalate/plateau 전환</span>
+      </div>
+    </div>
+    <div class="arrowdown">▼ 확정된 '무엇을·어떻게'만 넘김</div>
+    <div class="lane llm">
+      <div class="lh">LLM<small>작문 · 단 1회</small></div>
+      <div class="chips"><span class="chip thin">편지 문장 생성 (소형 모델)</span></div>
+    </div>
+    <div class="arrowdown">▼</div>
+    <div class="outbox">💌 오늘의 코치 편지</div>
+
+    <div class="ratio">
+      <div class="big">지능의 대부분 = <b>무료 결정론 코드</b><br>환각 0 · 일관 · 개인화</div>
+      <div class="small">LLM = <b>마지막 한 겹</b><br>아이 1명당 월 ≈ 1,000원(추정)</div>
+    </div>
+    <div class="cap">매 판단마다 LLM을 부르는 단순 래퍼였다면 <b>수십 배의 토큰 비용</b>이 들었을 구조. 두 레인의 <b>비대칭</b>이 곧 차별점입니다.</div>
+  </div>
+
+  <a href="/docs.html" class="back" style="margin-top:6px">← 문서 허브</a>
+</main>
+
+<footer>
+  <p>밀프레드 편식 · 엔진 다이어그램(피치용) · 2026-06-09 · <a href="/seed-thesis-logic.html">엔진 논리</a> · <a href="/docs.html">문서 허브</a></p>
+</footer>
+
+</body>
+</html>
