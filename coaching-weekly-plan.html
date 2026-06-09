@@ -141,6 +141,16 @@ create policy weekly_plans_read on public.weekly_plans for select
 <tr><td><code>basis_hash</code></td><td>지난주 입력이 같으면 일요일 LLM 스킵·carry(비용 절감). plan 엔진의 <code>srcHash</code> 패턴 동일.</td></tr>
 </table>
 <p class="note"><b>스키마 변경 최소:</b> 신규 테이블 1개 + <code>coach_letters.context</code>(기존 jsonb)에 <code>weekKey·slotDow·fromSlot·slotOverride·pushApplied</code> 키 추가(DDL 불필요). 새 RPC 불필요 — 크론이 직접 upsert.</p>
+<h3 class="sub">미션 개수 · 수명 · '완료'의 의미 <span class="pill plan">설계 결정</span></h3>
+<p><b>핵심 전제 — 단위는 '주당 음식 수'가 아니라 '음식당 주 수'다.</b> 새 음식 1개 수용엔 <b>8~10회 노출</b>(까다로운 아이 15~20회)이 <b>격일~주 2~3회</b> 간격으로 필요 → 음식당 보통 <b>3~5주</b>. 한 주 슬롯은 2~3회만 적립하므로 <span class="no">한 주로는 한 음식의 노출 예산을 절대 못 채운다.</span></p>
+<table>
+<tr><th>질문</th><th>결정</th></tr>
+<tr><td><b>미션 몇 개?</b></td><td><b>부모 체감 1개 = 엔진 내부 1 + 0.5.</b> 주력 식품 1개(주 2~3회 노출) + 보조 1개 — <b>보조는 식품이 아니라 다른 축</b>(환경·자율성). <span class="no">식품 타깃 2개 동시 = 금지</span>("한 번에 하나" 위반·반복 노출 흩어짐 → 옛 '휙휙' 회귀). 상한 1.5 · 하한 1.</td></tr>
+<tr><td><b>미션 수명</b></td><td>미션 ≠ 한 주에 끝내는 과제. <b>"이번 주에 이 음식에 2~3회 적립"</b> → 같은 미션을 <b>2~3주+ 지속</b>(다주 아크). '주'는 미션 수명이 아니라 <b>재진단 주기</b>.</td></tr>
+<tr><td><b>'완료' 정의</b></td><td>이벤트가 아니라 <b>누적 상태</b>. 1~2회 먹음 ≠ 완료(변동성 범위 안·내리면 수용 붕괴). 판정 = <b>distinct dish 2+</b>(<a href="/coaching-plan-engine.html">마스터리 배지</a> 기준) 또는 연속 2~3회 거부 없는 수용. <b>판정은 일요일 회고 권한, 평일은 미션 못 끔.</b></td></tr>
+<tr><td><b>주중 조기 수용</b></td><td>미션 종료 ❌ → <b>유지(공고화) 모드로 격하</b>: 그날 축하(행동 0) → 남은 슬롯 <b>push 끄고</b>(채근 예산 선소진) 변주·칭찬으로 노출만 유지. <span class="no">새 하드 미션 끼워넣기 = 안티패턴</span>(축하 직후 새 숙제는 강화 파괴). 부모에겐 "정복/끝" 금지 → "친해지기 시작".</td></tr>
+</table>
+<p class="note"><b>채근(주 1회) ≠ 노출(주 2~3회).</b> 두 축을 혼동해 '주 1회만 노출'로 줄이면 노출 예산 부족으로 오히려 너무 느려진다. 노출(슬롯 배치)은 2~3회, 적극적 들이밀기(push 무브 mix/beside)만 1회.</p>
 </div>
 
 <div class="box">
@@ -252,7 +262,7 @@ create policy weekly_plans_read on public.weekly_plans for select
 <tr><td class="c">②</td><td>휴면 → 복귀(주중)</td><td>휴면 경로(<code>reengageBlock</code>)가 닻보다 우선. 복귀일 <code>shockResetAt</code> 기록 → 남은 슬롯 준수 강제 안 함. push 선잠금(복귀 직후 채근=이탈 위험).</td></tr>
 <tr><td class="c">③</td><td>저데이터 주(기록 듬성)</td><td>슬롯 trigger가 통과 못 함 → planFor 자율. 주간은 <code>degraded</code>, 미션=행동 금지·"기록 채우기 한 줄". LLM이 미션 만들어도 화이트리스트 교집합 비어 target 전부 null 강등 → plateau 수렴.</td></tr>
 <tr><td class="c">④</td><td>주중 데이터 쇼크(새 거부 폭증·전환)</td><td>쇼크 게이트(신규 거부 ≥3 OR 전환 발화 OR icfqRisk 점프) → 닻 슬롯 폐기·그날 신호로 자율. progress-celebrate(100)/neophobia(92)가 어차피 닻을 이김.</td></tr>
-<tr><td class="c">⑤</td><td>주계획 진부화(부모 미션 무시)</td><td><code>missionTouch</code> 비율 추적. 2주 연속 &lt;20% → 다음 미션은 <b>같은 타깃 반복 금지·각도 전환</b>(섞기 실패→함께 요리). 3주 동일 미션 금지.</td></tr>
+<tr><td class="c">⑤</td><td>주계획 진부화(부모 미션 무시)</td><td>⭐ <b>진부화 타이머(부모 무시)와 진척 타이머(수용 누적 중)를 분리.</b> <code>missionTouch</code> 있고 수용 오르는 중 = <b>3주 캡 해제·같은 미션 지속</b>(8~10회 도달 직전 끊기 방지). <b>부모가 2주째 손도 안 댄</b> 미션만 같은 타깃 반복 금지·각도 전환(섞기 실패→함께 요리).</td></tr>
 <tr><td class="c">⑥</td><td>다자녀</td><td><code>weekly_plans</code>는 child_id PK라 자녀별 독립 닻. 알림은 현행 <code>notifiedParents</code>로 부모당 1건. 미션은 자녀 탭별 표시.</td></tr>
 <tr><td class="c">⑦</td><td>일요일 종합 LLM 실패/비용</td><td>try/catch → 지난주 닻 있으면 <b>carry</b>(<code>stale_carried</code>, 안정감&gt;최신성). 없으면 cold_synth. <code>basis_hash</code> 동일 시 LLM 스킵. <b>일간은 절대 영향 없음.</b></td></tr>
 <tr><td class="c">⑧</td><td>기관 변경·등원토글</td><td><code>basis_attends_daycare ≠ 현재</code>면 집-기관 관련 슬롯(home-daycare-gap·nutrient-gap) 무효화·해당 슬롯만 자율. 등원 ON 직후 첫 주는 re-exposure 슬롯 보류(신호 미성숙).</td></tr>
