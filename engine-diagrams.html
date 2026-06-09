@@ -168,7 +168,7 @@
       <div class="smrow"><span class="sn">1</span><div class="sb"><div class="st">정규화</div><div class="sd">산지·괄호·주석 제거, 표면형 통일</div><span class="ex">"닭볶음탕(국내산)"<span class="ea">→</span>"닭볶음탕"</span></div></div>
       <div class="smrow"><span class="sn">2</span><div class="sb"><div class="st">사전·렉시콘 매칭</div><div class="sd">도감 표준명 + 가공식품 베이스 사전(소시지·게맛살·너겟…) substring 스캔</div><span class="ex">"비엔나소시지"<span class="ea">→</span>돼지고기</span></div></div>
       <div class="smrow"><span class="sn">3</span><div class="sb"><div class="st">복합메뉴 분해</div><div class="sd">한 메뉴 속 여러 식재료 분리 · 1글자 표준명 누수 방지</div><span class="ex">"닭볶음탕"<span class="ea">→</span>닭·감자·당근·양파</span> <span class="ex">"다시마무채국"<span class="ea">→</span>다시마·무</span></div></div>
-      <div class="smrow"><span class="sn llm">4</span><div class="sb"><div class="st">learned 폴백·학습</div><div class="sd">위 3단서 미해결인 '신메뉴만' LLM 분해 → 저장. 모르면 빈 배열(환각 차단)</div><span class="ex">"곱창전골"<span class="ea">→</span>곱창·두부·대파 (1회 학습 후 결정론)</span></div></div>
+      <div class="smrow"><span class="sn llm">4</span><div class="sb"><div class="st">learned 폴백·학습</div><div class="sd">위 3단서 미해결인 '신메뉴만' LLM 분해 → 저장. 모르면 빈 배열(환각 차단)</div><span class="ex">"숙주나물오리볶음"<span class="ea">→</span>오리고기·숙주·양파 (1회 학습 후 결정론)</span></div></div>
     </div>
 
     <div class="submods">
@@ -197,7 +197,7 @@
     <span class="dlbl">DIAGRAM 2</span>
     <h2>결정론 코칭 플랜 엔진 — 아키텍처</h2>
     <div class="sub">"계획은 코드, 작문만 LLM" · 지능의 대부분이 결정론 모듈에 있다</div>
-    <div class="pick">✓ 형태: 입력 신호 → 결정론 모듈群 → CoachPlan → 얇은 LLM 작문</div>
+    <div class="pick">✓ 형태: 입력 신호 → 결정론 모듈들 → CoachPlan → 얇은 LLM 작문</div>
 
     <div class="seclbl">① 입력 신호 — 매일 수집 (아이별 상태)</div>
     <div class="sigrow">
