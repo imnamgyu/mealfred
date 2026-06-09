@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 편식 — InBodyLIKE 피치 덱</title>
+<meta property="og:title" content="밀프레드 편식 — InBodyLIKE 피치 덱">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--r500:#E53935;--r700:#C62828;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827;--nav:#1a2b4a;--s800:#1F2D3D;--or:#C45A00}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;color:var(--n900);-webkit-font-smoothing:antialiased;height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
+  .slide{min-height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:6vh 7vw;position:relative;background:linear-gradient(165deg,#FFFDFB 0%,#FFF6EC 55%,#FFEEDC 100%);overflow:hidden}
+  .slide::before{content:'';position:absolute;top:-30%;right:-20%;width:70%;height:90%;background:radial-gradient(circle,rgba(255,150,70,0.06),transparent 60%);pointer-events:none}
+  .wrap{max-width:1080px;margin:0 auto;width:100%;position:relative;z-index:1}
+  .chip{display:inline-block;background:rgba(232,146,68,0.13);color:var(--or);font-size:13px;font-weight:800;letter-spacing:0.08em;padding:6px 16px;border-radius:100px;border:1px solid rgba(232,146,68,0.3);margin-bottom:20px}
+  .stitle{font-size:clamp(26px,3.6vw,44px);font-weight:800;letter-spacing:-0.03em;line-height:1.25;color:var(--nav)}
+  .ssub{font-size:clamp(14px,1.5vw,18px);font-weight:600;color:var(--p700);margin-top:14px;line-height:1.5}
+  ul.bul{list-style:none;margin:26px 0 0;padding:0;display:flex;flex-direction:column;gap:13px}
+  ul.bul li{font-size:clamp(14px,1.55vw,19px);font-weight:500;color:var(--n700);line-height:1.55;padding-left:26px;position:relative}
+  ul.bul li::before{content:'';position:absolute;left:0;top:0.55em;width:9px;height:9px;border-radius:3px;background:var(--p500)}
+  ul.bul li b{color:var(--nav);font-weight:800}
+  ul.bul li .hl{color:var(--or);font-weight:800}
+
+  /* cover */
+  .slide.cover{background:linear-gradient(160deg,#FFF3E4 0%,#FFE2C4 45%,#FFD3A6 100%);justify-content:center;text-align:center}
+  .cover .logo{font-size:14px;font-weight:800;letter-spacing:0.18em;color:var(--or);margin-bottom:26px}
+  .cover h1{font-size:clamp(32px,5.2vw,62px);font-weight:800;letter-spacing:-0.04em;line-height:1.15;color:var(--nav)}
+  .cover .csub{font-size:clamp(15px,1.8vw,21px);font-weight:700;color:var(--p700);margin-top:18px}
+  .cover .clines{list-style:none;margin:34px auto 0;max-width:760px;display:flex;flex-direction:column;gap:12px}
+  .cover .clines li{font-size:clamp(14px,1.6vw,19px);font-weight:600;color:var(--n700);line-height:1.5}
+  .cover .clines li b{color:var(--or);font-weight:800}
+
+  /* engine media */
+  .media{display:flex;gap:22px;align-items:center;justify-content:center;flex-wrap:wrap;margin:12px 0 4px}
+  .media .di{max-height:40vh;max-width:46%;border-radius:14px;border:1.5px solid var(--n200);box-shadow:0 10px 34px rgba(0,0,0,0.12);background:#fff}
+  .media .li{max-height:37vh;border-radius:12px;border:1.5px solid var(--n200);box-shadow:0 8px 26px rgba(0,0,0,0.12)}
+  .media .lives{display:flex;gap:14px;align-items:center}
+  .mediacap{text-align:center;font-size:12px;font-weight:700;color:var(--n500);margin-top:4px}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
+  @media(max-width:820px){.twocol{grid-template-columns:1fr}.media .di{max-width:92%}}
+
+  /* nav + progress */
+  .pbar{position:fixed;top:0;left:0;height:4px;background:var(--p500);z-index:50;transition:width 0.25s;box-shadow:0 0 8px rgba(232,146,68,0.5)}
+  .counter{position:fixed;bottom:18px;right:22px;z-index:50;font-size:13px;font-weight:800;color:var(--nav);background:rgba(255,255,255,0.8);padding:6px 13px;border-radius:100px;border:1px solid var(--n200);backdrop-filter:blur(6px)}
+  .hint{position:fixed;bottom:18px;left:22px;z-index:50;font-size:11px;font-weight:600;color:var(--n400)}
+  .ntoggle{position:fixed;top:14px;right:22px;z-index:50;font-size:11.5px;font-weight:800;color:var(--or);background:rgba(255,255,255,0.85);border:1px solid var(--p300);padding:5px 11px;border-radius:8px;cursor:pointer}
+  .note{margin-top:22px;font-size:13px;font-weight:600;color:var(--n600);background:rgba(255,255,255,0.6);border-left:3px solid var(--p500);border-radius:8px;padding:11px 15px;line-height:1.6;display:none}
+  body.notes .note{display:block}
+  .note b{color:var(--or)}
+
+  @media print{
+    body{height:auto;overflow:visible;scroll-snap-type:none}
+    .slide{min-height:auto;page-break-after:always;padding:40px}
+    .pbar,.counter,.hint,.ntoggle{display:none}
+    .media .di{max-height:none;max-width:55%}.media .li{max-height:340px}
+  }
+</style>
+</head>
+<body>
+<div class="pbar" id="pbar"></div>
+<div class="ntoggle" onclick="document.body.classList.toggle('notes')">🎤 멘트 (N)</div>
+<div class="counter" id="counter">1 / 14</div>
+<div class="hint">↓ / Space · ↑ 로 이동</div>
+
+<!-- 1 COVER -->
+<section class="slide cover">
+  <div class="wrap">
+    <div class="logo">MEALFRED · InBodyLIKE</div>
+    <h1>밀프레드 편식<br>편식, 데이터로 다루다</h1>
+    <div class="csub">영유아 편식을 개인화로 다루는 AI 헬스케어 · 대표 임남규</div>
+    <ul class="clines">
+      <li><b>엄마도 포기한 편식 아이</b>가, 3주 만에 당근을 스스로 집어먹었습니다</li>
+      <li>인바디가 몸을 숫자로 바꿨다면 — 우리는 <b>아이의 한 끼를 숫자로</b> 바꿉니다</li>
+      <li>측정 → 진단·처방 → 충족 → 재측정, 아동 영양의 닫힌 헬스케어 루프를 향해</li>
+      <li>분석(AI 엔진)은 우리가 직접 · 충족(개인화 키트)은 업계1위 협력사 '밀프레드' — 한 몸</li>
+    </ul>
+    <div class="note"><b>멘트:</b> 이 한 장면을 본 순간 저는 이 일을 평생 하기로 했습니다. 인바디가 몸을 숫자로 바꿨듯, 저희는 아이의 끼니를 숫자로 바꾸는 회사 '밀프레드 편식'입니다.</div>
+  </div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">PROBLEM</span>
+    <div class="stitle">4명 중 1명이 편식, 그런데 부모는 측정조차 못 한다</div>
+    <div class="ssub">흔한데 방치되는 통증 · 짧은 골든타임 · 사라진 결과 데이터</div>
+    <ul class="bul">
+      <li><b>영유아 4명 중 1명</b>이 편식 — 드문 일이 아니라 방치되는 통증</li>
+      <li>부모는 아이가 <span class="hl">'무엇을·얼마나' 못 먹는지조차 객관적으로 모른다</span> (끼니기록 흩어짐)</li>
+      <li>식습관이 굳기 전 골든타임은 <b>만 6세까지</b> — 창이 짧다</li>
+      <li>코칭은 일반론, <b>'실제로 나아졌는지' 보여줄 객관적 결과 데이터가 없다</b></li>
+    </ul>
+    <div class="note"><b>멘트:</b> 편식은 흔하지만, 진짜 문제는 측정이 안 된다는 겁니다. 부모도 우리 애가 얼마나 못 먹는지 객관적으로 모릅니다. 측정되지 않으니까요.</div>
+  </div>
+</section>
+
+<!-- 3 GAP -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">GAP</span>
+    <div class="stitle">'개인화해서 편식을 다뤄주는' 서비스는 비어 있다</div>
+    <div class="ssub">기존 대안은 통증의 일부만 건드린다</div>
+    <ul class="bul">
+      <li><b>맘카페</b> = 파편화된 정보, 우리 아이 기준이 아님</li>
+      <li><b>사설 편식치료</b> = 비싸고 접근성 낮음</li>
+      <li><b>간편식 구매</b> = 음식만 줄 뿐, 편식을 '관리'하지 않음</li>
+      <li>→ 진단·코칭·충족을 한 몸으로 <span class="hl">'개인화해서 다뤄주는' 서비스는 시장에 없다</span></li>
+    </ul>
+    <div class="note"><b>멘트:</b> 비교축은 객관 측정·개인화 처방·물리 충족·결과 재측정 네 가지입니다. 기존 대안은 다 한 칸씩만 건드립니다. 네 칸을 한 흐름으로 잇는 곳은 비어 있습니다.</div>
+  </div>
+</section>
+
+<!-- 4 AHA -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">AHA MOMENT</span>
+    <div class="stitle">엄마도 포기한 조카가, 3주 만에 당근을 스스로 집었다</div>
+    <div class="ssub">가설이 아니라 직접 본 작은 증거에서 시작했다</div>
+    <ul class="bul">
+      <li>대표의 유치원생 조카 — <b>엄마도 포기한 '편식이 매우 심한 아이'</b></li>
+      <li>편식 교정 방법론을 직접 적용 → <span class="hl">3주 만에 당근을 스스로 집어먹었다</span></li>
+      <li>느낌이 아니라 <b>'방법론'</b>이라 통했다 — 그래서 <b>코드로 옮길 수 있었다</b></li>
+      <li>이 한 장면이 '밀프레드 편식'의 출발점</li>
+    </ul>
+    <div class="note"><b>멘트:</b> 이게 출발점입니다. 책상머리 가설이 아니라, 제 눈으로 본 작은 증거였습니다. 방법론이 통한다는 확신이 들자마자 이걸 엔진으로 만들기 시작했습니다.</div>
+  </div>
+</section>
+
+<!-- 5 SOLUTION -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">SOLUTION</span>
+    <div class="stitle">앎(앱)만으론 안 끝난다 — 진단·코칭·충족 3축</div>
+    <div class="ssub">다음 3장에서 라이브로 도는 엔진을 직접 보여드립니다</div>
+    <ul class="bul">
+      <li><b>진단</b> = 메뉴→식재료·31종 영양 매핑 엔진 <span class="hl">(라이브)</span></li>
+      <li><b>코칭</b> = 결정론 코칭 플랜 엔진, 계획은 코드·작문만 LLM <span class="hl">(환각 0)</span></li>
+      <li><b>충족</b> = 폐기 없는 개인화 소량 배송 (협력사 '밀프레드' 콜드체인)</li>
+      <li>편식은 '아는 것'으로 안 끝난다 — <b>다품종 소량 식재료를 실제로 만나야 한다</b></li>
+    </ul>
+    <div class="note"><b>멘트:</b> 솔루션은 진단·코칭·충족 3축입니다. 앞 두 축은 제가 직접 짠 라이브 엔진이고, 마지막 충족은 협력사 자산입니다. 지금부터 도식과 실제 앱을 나란히 보여드리겠습니다.</div>
+  </div>
+</section>
+
+<!-- 6 ENGINE 1 -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">ENGINE ①</span>
+    <div class="stitle" style="font-size:clamp(22px,3vw,36px)">매핑 플라이휠 — 메뉴를 식재료·영양으로 (라이브)</div>
+    <div class="ssub">급식과 같은 도메인 · 환각 0 · 좌=설계 도식 / 우=실앱</div>
+    <div class="media">
+      <img class="di" src="/diagrams/diagram-1.png" alt="매핑 플라이휠 도식">
+      <div class="lives">
+        <img class="li" src="/diagrams/live-d1-mapping.jpg" alt="메뉴→식재료 매핑">
+        <img class="li" src="/diagrams/live-d1-nutrition.jpg" alt="31종 영양 신호등">
+      </div>
+    </div>
+    <ul class="bul" style="margin-top:10px;gap:7px">
+      <li>메뉴 이름 한 줄 → 식재료 → <b>31종 KDRI 영양 신호등</b>으로 자동 환원</li>
+      <li>NEIS 전국 급식 <b>약 1만 메뉴</b> 코퍼스 플라이휠 — 학교 급식과 같은 도메인, <span class="hl">환각 0</span></li>
+    </ul>
+    <div class="note"><b>멘트:</b> 왼쪽이 설계 도식, 오른쪽이 실제 앱입니다. 메뉴 한 줄을 식재료와 31종 영양 신호등으로 풉니다. 학교 급식과 같은 도메인이라 환각이 0입니다. 말이 아니라 지금 돌고 있습니다.</div>
+  </div>
+</section>
+
+<!-- 7 ENGINE 2 -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">ENGINE ②</span>
+    <div class="stitle" style="font-size:clamp(22px,3vw,36px)">결정론 코칭 플랜 — 35가지 방법론을 코드로 (라이브)</div>
+    <div class="ssub">단순 LLM 래퍼가 아니다 · 좌=아키텍처 도식 / 우=실앱</div>
+    <div class="media">
+      <img class="di" src="/diagrams/diagram-2.png" alt="결정론 코칭 엔진 아키텍처">
+      <div class="lives">
+        <img class="li" src="/diagrams/live-d2-letter.jpg" alt="코치 편지">
+        <img class="li" src="/diagrams/live-d2-score.jpg" alt="영양 점수">
+      </div>
+    </div>
+    <ul class="bul" style="margin-top:10px;gap:7px">
+      <li>복지부 지침 + <b>35가지 국제 편식 방법론을 하나의 하네스로 코드화</b> · '계획은 코드, 작문만 LLM'</li>
+      <li>입력신호→8모듈→35가지 5×7→CoachPlan→편지 · 아이 1명당 <span class="hl">월 LLM 운영비 ≈ 1,000원</span></li>
+    </ul>
+    <div class="note"><b>멘트:</b> 이게 기술 해자입니다. 35가지 방법론을 코드 하네스로 박아두고, LLM은 작문만 합니다. 그래서 환각이 0이고 아이 한 명당 월 1,000원으로 굴립니다. 오른쪽이 그 엔진이 매일 발행하는 코치 편지와 영양 점수입니다.</div>
+  </div>
+</section>
+
+<!-- 8 ENGINE 3 -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">ENGINE ③</span>
+    <div class="stitle" style="font-size:clamp(22px,3vw,36px)">깊이 — 편식 도감 204종 · 궁합·사촌 다리놓기</div>
+    <div class="ssub">얕은 래퍼가 아니라 식재료 지식 네트워크 · 도식 + 실앱</div>
+    <div class="media">
+      <img class="di" src="/diagrams/diagram-3.png" alt="궁합·사촌 거미줄 네트워크">
+      <div class="lives">
+        <img class="li" src="/diagrams/live-d3-dex.jpg" alt="편식 도감 204종">
+        <img class="li" src="/diagrams/live-d3-affinity.jpg" alt="궁합·사촌 다리놓기">
+      </div>
+    </div>
+    <ul class="bul" style="margin-top:10px;gap:7px">
+      <li><b>편식 도감 204종</b>(식재료별 영양·제철·급식 빈도) + <b>궁합·사촌 거미줄</b>로 '다음 한 입'에 다리를 놓는다</li>
+      <li>도식(설계) ↔ 실앱으로 검증된 깊이 — 코칭 플랜과 박스 구성의 근거</li>
+    </ul>
+    <div class="note"><b>멘트:</b> 엔진이 얕은 래퍼가 아니라는 증거입니다. 식재료 204종 도감과, 잘 먹는 것에서 다음 한 입으로 다리를 놓는 궁합 네트워크까지 있습니다. 이 지식이 코칭과 박스 구성의 근거가 됩니다.</div>
+  </div>
+</section>
+
+<!-- 9 FULFILLMENT -->
+<section class="slide">
+  <div class="wrap">
+    <div class="twocol">
+      <div>
+        <span class="chip">FULFILLMENT</span>
+        <div class="stitle" style="font-size:clamp(22px,3vw,38px)">충족 — 폐기 없는 개인화 소량 배송, 가정에선 불가능</div>
+        <div class="ssub">검증된 제조·물류 협력사 '밀프레드' · 엔진과 한 몸</div>
+        <ul class="bul" style="gap:11px">
+          <li>편식은 다품종 소량 식재료를 '실제로 만나야' 풀린다 — <b>부모가 직접 사면 다 폐기된다</b></li>
+          <li>폐기 없는 개인화 소량 배송은 <span class="hl">가정에서 불가능</span> → 전문 물류가 꼭 필요</li>
+          <li>협력사 '밀프레드'(대표 동생): <b>누적 100만 인분 · 5중보냉 48h 콜드체인 · 100평</b></li>
+          <li>엔진은 우리가 직접, 충족은 협력사 — <b>한 몸으로 움직이는 진입장벽</b></li>
+        </ul>
+      </div>
+      <div style="text-align:center">
+        <img class="li" style="max-height:64vh" src="/diagrams/live-d3-kit.jpg" alt="개인화 박스 구성">
+        <div class="mediacap">엔진이 매주 분석해 구성하는 개인화 키트(7종·소량)</div>
+      </div>
+    </div>
+    <div class="note"><b>멘트:</b> 편식은 앎으로 안 끝납니다. 새 식재료를 입으로 만나야 합니다. 그런데 다품종 소량을 부모가 사면 다 버려집니다. 폐기 없는 개인화 배송은 가정에서 불가능하고, 그걸 이미 누적 100만 인분으로 굴리는 협력사가 우리와 한 몸입니다.</div>
+  </div>
+</section>
+
+<!-- 10 DISTRIBUTION -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">DISTRIBUTION</span>
+    <div class="stitle">유통 해자 — 0-CAC 교육기관 영업망</div>
+    <div class="ssub">요리교육 아동을 부모 앱으로, 광고비 없이</div>
+    <ul class="bul">
+      <li>'밀프레드' 브랜드 = <b>낮은 가격 + 높은 신뢰도</b>로 전국 교육기관에 영업</li>
+      <li>전국 <b>초등 약 14%</b> 채널 — 요리교육 경험 아동이 <span class="hl">매해 2배 이상</span> 증가</li>
+      <li>그 아동을 부모 앱 설치로 연결 → 사실상 <b>0-CAC 획득 깔때기</b></li>
+      <li>채널 크기·끈적임 지표: 25년 유료고객 <b>6.4만</b> · 재구매 <b>37.4%</b></li>
+    </ul>
+    <div class="note"><b>멘트:</b> 고객을 사오지 않습니다. 이미 신뢰받는 협력사 교육기관 채널로 전환합니다. 전국 초등 14%가 이미 우리 채널이고, 유료고객 6.4만에 재구매가 37.4%입니다. 매출이 아니라 채널이 살아 돈다는 크기 지표입니다.</div>
+  </div>
+</section>
+
+<!-- 11 MARKET -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">MARKET</span>
+    <div class="stitle">60만 가구에서 글로벌까지, 저출생 역설이 순풍</div>
+    <div class="ssub">SOM → SAM → TAM · 인바디 네트워크가 교두보</div>
+    <ul class="bul">
+      <li><b>진입(SOM)</b>: 편식 약 60만 가구 — 지금 가장 절박한 곳부터</li>
+      <li><b>확장(SAM)</b>: 0~6세 230만 · 영유아 200만 가구</li>
+      <li><b>글로벌(TAM)</b>: 편식은 전세계 공통 페인 — <span class="hl">인바디 다국가 네트워크가 해외 교두보</span></li>
+      <li>순풍: <b>저출생 역설</b> — 머릿수↓, 그러나 아이 1인당 지출↑</li>
+    </ul>
+    <div class="note"><b>멘트:</b> 편식이라는 송곳으로 60만 가구에 들어가, 영유아 200만으로 넓히고, 글로벌로 갑니다. 편식은 전세계 공통이라 인바디 글로벌 네트워크가 그대로 교두보가 됩니다. 저출생은 머릿수는 줄지만 1인당 지출이 느는 순풍입니다.</div>
+  </div>
+</section>
+
+<!-- 12 TEAM -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">TEAM</span>
+    <div class="stitle">실패까지 정면으로 겪은 창업가가 엔진을 직접 짠다</div>
+    <div class="ssub">분석은 우리가, 충족은 협력사 — 풀스택 한 몸</div>
+    <ul class="bul">
+      <li><b>대표 임남규</b>: IoT 스마트홈 '아이오·스위처' 코파운더(<b>시리즈A 7.5억·TIPS</b>), 그 HW 사업 <span class="hl">실패까지 정면으로 겪음</span></li>
+      <li>SW마에스트로 멘토(24~25) · 집꾸미기 2년 라이브 백엔드 — <b>매핑·코칭 엔진 직접 설계·운영</b></li>
+      <li>협력사 '밀프레드'(동생): 신선 밀키트 6년 · 100만 인분 · 콜드체인 · 100평</li>
+      <li>엔진은 우리가 직접, 충족은 협력사 — <b>분석↔충족을 한 몸으로 가진 풀스택</b></li>
+    </ul>
+    <div class="note"><b>멘트:</b> 기술·시장보다 팀이 최고의 상수라고 하셨죠. 저는 하드웨어 사업을 끝까지, 실패까지 겪었습니다. 그 경험으로 지금 매핑과 코칭 엔진을 직접 짭니다. 분석은 제가, 충족은 협력사가 — 한 몸으로 움직입니다.</div>
+  </div>
+</section>
+
+<!-- 13 RESOLVE -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">RESOLVE</span>
+    <div class="stitle">향후 3년, 동결·칩거하며 세계가 놀랄 서비스를</div>
+    <div class="ssub">겸손 · 간절함 · 끊임없이 솔루션을 찾는 태도로 증명한다</div>
+    <ul class="bul">
+      <li>이전 법인을 정직하게 운영하다 <b>연대보증 약 4천만원 · 개인회생을 정면돌파</b></li>
+      <li><span class="hl">2029년 6월까지(향후 3년) 월 200만원 미만 급여 동결</span></li>
+      <li>칩거하며 <b>'세계가 놀랄 서비스'</b>를 만든다는 다짐</li>
+      <li>기술력 + 겸손 + 간절함 — <b>도망치지 않고 끝까지 책임지는 태도</b>로 증명한다</li>
+    </ul>
+    <div class="note"><b>멘트:</b> 저는 실패를 정직하게 책임진 사람입니다. 연대보증과 개인회생을 도망치지 않고 정면돌파했습니다. 앞으로 3년, 월 200만원도 안 되는 급여로 동결하고 칩거하며 세계가 놀랄 서비스를 만들겠습니다. 이번엔 측정 가능한 결과로 증명하겠습니다.</div>
+  </div>
+</section>
+
+<!-- 14 ASK -->
+<section class="slide">
+  <div class="wrap">
+    <span class="chip">협업 비전 &amp; THE ASK</span>
+    <div class="stitle">우리 약점을 인바디 측정이 메운다</div>
+    <div class="ssub">측정 → 처방 → 충족 → 재측정, 함께 닫는 닫힌 헬스케어 루프</div>
+    <ul class="bul">
+      <li><b>측정(InBody 체성분·성장)</b> → 진단/처방(밀프레드 편식 엔진) → 충족(개인화 키트·콜드체인) → <b>재측정(InBody)</b></li>
+      <li>솔직한 약점 = 개인 섭취·성장 '결과 데이터' 부재 → <span class="hl">인바디 측정이 정확히 메운다</span> (지금 돈다고 말하지 않음 · 이번 라운드 검증 목표)</li>
+      <li>인바디 글로벌 = 해외 교두보 · 블루포인트 = 딥테크 투자·스케일</li>
+      <li>Ask: ①측정 가능한 아동 건강 개선(사회적 비용↓) ②개인화 배송 구독 검증 ③글로벌 교두보</li>
+    </ul>
+    <div class="note"><b>멘트:</b> 닫힌 루프에서 우리에게 비어 있던 단 하나가 결과 데이터입니다. 인바디 측정이 정확히 그 칸을 채웁니다. 퍼즐이 맞습니다. 이미 돈다고 말하지 않습니다. 이번 라운드에 함께 검증해, 측정 가능한 결과로 아이 영양을 평생 책임지는 루프를 닫고 싶습니다.</div>
+  </div>
+</section>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const counter=document.getElementById('counter');
+  const pbar=document.getElementById('pbar');
+  let idx=0;
+  function setNav(i){idx=i;counter.textContent=(i+1)+' / '+slides.length;pbar.style.width=((i+1)/slides.length*100)+'%';}
+  function go(i){i=Math.max(0,Math.min(slides.length-1,i));slides[i].scrollIntoView({behavior:'smooth'});}
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){setNav(slides.indexOf(e.target));}});},{threshold:0.55});
+  slides.forEach(s=>io.observe(s));
+  addEventListener('keydown',e=>{
+    if(['ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(idx+1);}
+    else if(['ArrowRight'].includes(e.key)){e.preventDefault();go(idx+1);}
+    else if(['ArrowUp','PageUp','ArrowLeft'].includes(e.key)){e.preventDefault();go(idx-1);}
+    else if(e.key==='n'||e.key==='N'){document.body.classList.toggle('notes');}
+    else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(slides.length-1);}
+  });
+  setNav(0);
+</script>
+</body>
+</html>
