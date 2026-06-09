@@ -81,6 +81,49 @@
   .slide-flow .row .sd{font-size:12.5px;font-weight:500;color:var(--n600);line-height:1.6}
   @media(max-width:560px){.slide-flow .row{flex-wrap:wrap}.slide-flow .row .st{width:auto;flex:0 0 auto}}
 
+  /* 엔진 아키텍처 */
+  .arch{margin:6px 0 2px}
+  .arch-io{text-align:center;background:#fff;border:1.5px solid var(--n200);border-radius:11px;padding:12px 16px;font-weight:700;font-size:13.5px;color:var(--s800)}
+  .arch-io .ioL{font-size:10px;font-weight:800;letter-spacing:0.06em;color:var(--n400);display:block;margin-bottom:3px}
+  .arch-io.out{background:#FFF8F2;border-color:var(--p300)}
+  .arch-io.out b{color:#C45A00}
+  .arch-arrow{text-align:center;color:var(--p500);font-size:19px;line-height:1;padding:6px 0}
+  .arch-cap{font-size:12px;color:var(--n500);font-weight:600;text-align:center;margin-bottom:14px;font-style:italic}
+  .layer{position:relative;background:#fff;border-radius:13px;padding:14px 17px 14px 17px;border:1.5px solid var(--n200);border-left:6px solid var(--b500)}
+  .layer .stepn{position:absolute;top:-9px;left:14px;font-size:9.5px;font-weight:800;color:#fff;background:var(--s800);padding:3px 9px;border-radius:100px;letter-spacing:0.06em}
+  .layer .ltag{display:inline-block;font-size:10px;font-weight:800;color:#fff;background:var(--b500);padding:3px 10px;border-radius:100px;margin:4px 0 7px;letter-spacing:0.03em}
+  .layer h4{font-size:15px;font-weight:800;color:var(--s800);margin-bottom:4px}
+  .layer p{font-size:12.5px;color:var(--n600);font-weight:500;line-height:1.65}
+  .layer .why{margin-top:8px;font-size:12px;font-weight:800;color:var(--g700);background:#F2FBF8;border-radius:7px;padding:6px 11px;display:inline-block}
+  .layer.core{border-left-color:var(--g500);box-shadow:0 4px 16px rgba(22,160,133,0.1)}
+  .layer.core .ltag{background:var(--g500)}
+  .layer.thin{border-left-color:var(--n400)}
+  .layer.thin .ltag{background:var(--n400)}
+  .layer.thin .why{color:var(--n600);background:var(--n50)}
+  .layer.hw{border-left-color:var(--p500);background:linear-gradient(180deg,#FFFBF7,#FFF4E9)}
+  .layer.hw .ltag{background:var(--p500)}
+  .layer.hw .why{color:#9a6512;background:#FFF6E6}
+  .swhw{display:flex;align-items:center;gap:10px;margin:14px 2px 12px;color:var(--p700);font-weight:800;font-size:12.5px}
+  .swhw::before,.swhw::after{content:'';flex:1;height:0;border-top:2px dashed var(--p300)}
+  .swhw span{background:#FFF1E2;border:1px solid var(--p300);border-radius:100px;padding:5px 13px;white-space:nowrap}
+  .loopback{display:flex;align-items:center;gap:9px;justify-content:center;background:#F2FBF8;border:1.5px dashed var(--g500);border-radius:11px;padding:11px 15px;margin-top:11px;font-size:12.5px;font-weight:700;color:var(--g700)}
+  .analogy{background:#FFF8F2;border:1px dashed var(--p300);border-radius:12px;padding:16px 18px;margin:20px 0 4px}
+  .analogy .albl{font-size:11px;font-weight:800;color:#C45A00;margin-bottom:8px;letter-spacing:0.04em}
+  .analogy p{font-size:13.5px;color:var(--n700);font-weight:500;line-height:1.8}
+  .analogy b{color:var(--s800)}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .vs .col{border-radius:12px;padding:15px 16px;border:1.5px solid}
+  .vs .col.bad{background:#FFF4F3;border-color:#FAD4D0}
+  .vs .col.good{background:#F2FBF8;border-color:#BFE6DC}
+  .vs .col h5{font-size:13px;font-weight:800;margin-bottom:10px}
+  .vs .col.bad h5{color:var(--r700)}
+  .vs .col.good h5{color:var(--g700)}
+  .vs .col .mini{background:#fff;border-radius:8px;padding:7px 10px;font-size:11.5px;font-weight:700;margin-bottom:6px;color:var(--n700);text-align:center;border:1px solid rgba(0,0,0,0.05)}
+  .vs .col .mc{text-align:center;color:var(--n400);font-size:13px;line-height:0.8;margin-bottom:6px}
+  .vs .col .vsnote{font-size:11.5px;font-weight:700;margin-top:8px;line-height:1.55}
+  .vs .col.bad .vsnote{color:var(--r700)}
+  .vs .col.good .vsnote{color:var(--g700)}
+  @media(max-width:560px){.vs{grid-template-columns:1fr}}
   footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;margin-top:20px}
   footer a{color:#9CA3AF}
   .back{display:inline-block;margin:0 auto 0;font-size:12.5px;font-weight:700;color:#C45A00;text-decoration:none}
@@ -143,6 +186,92 @@
     <div class="pillar">
       <h3><span class="pn">3</span>개인화 데이터 루프 — <span class="hi">쓸수록 정밀</span></h3>
       <p>코칭은 그 아이의 <b>누적 끼니 31종 영양 분석</b>에서 나옵니다. 어제·지난주 편지와 대조해 중복을 피하고 결핍을 회전시킵니다. LLM 프롬프트엔 이 <b>per-child 상태</b>가 없습니다. 데이터가 쌓일수록 우리만 정밀해집니다.</p>
+    </div>
+  </section>
+
+  <!-- 엔진 아키텍처 (비전공자용 수직 플랫폼) -->
+  <section class="blk">
+    <div class="blk-head"><span class="n">⚙</span><h2>엔진 레이어 — 한눈에</h2><span class="sub">비전공자용 · 위→아래로 쌓이는 플랫폼</span></div>
+    <p class="arch-cap">피치가 진행될수록 한 겹씩 <b>아래로</b> 쌓여, 마지막엔 <b>하드웨어</b>까지 닿습니다. 경쟁사는 위쪽 SW에서 멈추지만, 우리 플랫폼은 끝까지 내려갑니다.</p>
+
+    <div class="arch">
+      <div class="arch-io"><span class="ioL">입력</span>👨‍👩‍👧 부모가 매일 <b>끼니 한 줄</b> 기록 (사진·메뉴명)</div>
+      <div class="arch-arrow">▼</div>
+
+      <div class="layer">
+        <span class="stepn">STEP 1</span>
+        <span class="ltag">데이터 창고</span>
+        <h4>우리만의 데이터 — LLM이 모르는 지식</h4>
+        <p>전국 급식 <b>1만 메뉴 사전</b> · 음식↔식재료 <b>궁합 그래프</b> · <b>영양 31종</b> 사전</p>
+        <span class="why">💡 ChatGPT엔 없는, 우리만 쌓은 자산</span>
+      </div>
+      <div class="arch-arrow">▼</div>
+
+      <div class="layer core">
+        <span class="stepn">STEP 2</span>
+        <span class="ltag">결정론 엔진 · 두뇌</span>
+        <h4>'무엇을·어떻게'는 전부 코드가 결정</h4>
+        <p>무슨 영양소를 채울지 · 어떤 행동을 권할지 · 겹치지 않게 · 언제 강도를 올릴지 — <b>코드가 계산</b></p>
+        <span class="why">💡 AI 호출 0회 → 비용 0 · 환각 0</span>
+      </div>
+      <div class="arch-arrow">▼</div>
+
+      <div class="layer thin">
+        <span class="stepn">STEP 3</span>
+        <span class="ltag">LLM · 글 다듬기</span>
+        <h4>결정된 내용을 따뜻한 편지 문장으로</h4>
+        <p>이미 정해진 내용을 <b>예쁘게 옮기는 마지막 한 겹</b>일 뿐</p>
+        <span class="why">전체에서 가장 얇은 겹 — 여기만 'AI'</span>
+      </div>
+      <div class="arch-arrow">▼</div>
+
+      <div class="arch-io out"><span class="ioL">출력 (SW)</span>💌 오늘의 <b>코치 편지</b> + 그 아이만의 <b>키트 처방</b></div>
+
+      <!-- SW→HW 분기 -->
+      <div class="swhw"><span>⛔ 순수 SW 회사는 여기서 멈춤 — 우리는 계속 내려감 ▼</span></div>
+
+      <div class="layer hw">
+        <span class="stepn">STEP 4</span>
+        <span class="ltag">하드웨어 · 제조</span>
+        <h4>처방대로 극소량·극다품종 제조</h4>
+        <p>시중에서 못 사는 <b>7종을 극소량씩, 폐기 없이</b> 그 아이 맞춤으로</p>
+        <span class="why">🏭 100평 제조시설 · 100만 인분 운영근육</span>
+      </div>
+      <div class="arch-arrow">▼</div>
+
+      <div class="layer hw">
+        <span class="stepn">STEP 5</span>
+        <span class="ltag">하드웨어 · 물류</span>
+        <h4>콜드체인으로 문 앞까지</h4>
+        <p>5중보냉 <b>48시간 냉기 지속</b> · 집 14끼니에 맞춰 배송</p>
+        <span class="why">🚚 신선도 유지한 채 개인화 배송 실현</span>
+      </div>
+      <div class="arch-arrow">▼</div>
+
+      <div class="loopback">↺ 키트에 대한 <b>아이 반응</b> → 다시 <b>STEP 1 데이터 창고</b>로 — 쓸수록 정밀</div>
+    </div>
+
+    <div class="analogy">
+      <div class="albl">🍳 쉽게 말하면 — 레스토랑 주방</div>
+      <p>① 우리만의 <b>식자재 창고</b>(데이터) → ② 그 아이만을 위해 메뉴를 짜는 <b>셰프</b>(결정론 엔진) → ③ 예쁘게 담는 <b>플레이팅</b>(LLM) → ④ 그 재료를 실제로 <b>길러 배송하는 농장·물류</b>(하드웨어).<br><b>'단순 LLM 래퍼'는 창고도 셰프도 농장도 없이 플레이팅만</b> 하는 것 — 누가 와도 똑같은 즉석요리가 나옵니다.</p>
+    </div>
+
+    <div class="vs">
+      <div class="col bad">
+        <h5>❌ 단순 LLM 래퍼</h5>
+        <div class="mini">질문</div><div class="mc">▼</div>
+        <div class="mini">ChatGPT</div><div class="mc">▼</div>
+        <div class="mini">답변</div>
+        <div class="vsnote">손님마다 같은 답 · 매번 과금 · 가끔 환각 · 식재료는 못 줌</div>
+      </div>
+      <div class="col good">
+        <h5>✅ 밀프레드 플랫폼</h5>
+        <div class="mini">데이터 창고</div><div class="mc">▼</div>
+        <div class="mini">결정론 두뇌</div><div class="mc">▼</div>
+        <div class="mini">작문 한 겹</div><div class="mc">▼</div>
+        <div class="mini" style="background:#FFF4E9;border-color:var(--p300)">하드웨어 제조·배송</div>
+        <div class="vsnote">아이마다 다른 처방 · 두뇌는 무료 코드 · 환각 0 · 식재료까지 도착</div>
+      </div>
     </div>
   </section>
 
