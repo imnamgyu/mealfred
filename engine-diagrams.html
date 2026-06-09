@@ -110,6 +110,16 @@
 
   .why{font-size:12.5px;color:var(--n600);font-weight:600;line-height:1.7;margin-top:16px;background:#EFF6FF;border:1px solid #BBD9F5;border-radius:10px;padding:12px 14px}
   .why b{color:#0d47a1}
+  .liveshot{margin-top:18px;padding-top:15px;border-top:1px dashed var(--n200)}
+  .liveshot .lsh{font-size:12px;font-weight:800;color:var(--b700);margin-bottom:11px}
+  .liveimgs{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
+  .liveimg{flex:0 1 230px;max-width:250px}
+  .liveimg img{width:100%;border-radius:13px;border:1.5px solid var(--n200);box-shadow:0 5px 16px rgba(0,0,0,0.09);display:block}
+  .liveimg .cap2{font-size:10.5px;font-weight:700;color:var(--n500);text-align:center;margin-top:7px;line-height:1.45}
+  .dlrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px;align-items:center}
+  .dl{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--p300);color:#C45A00;font-size:11.5px;font-weight:800;padding:7px 13px;border-radius:8px;text-decoration:none}
+  .dl:hover{background:var(--p50)}
+  .dl .di{font-size:13px}
   footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;margin-top:20px}
   footer a{color:#9CA3AF}
 </style>
@@ -190,6 +200,15 @@
     </div>
 
     <div class="cap">연료는 <b>공개 NEIS 급식 API</b> — 학교 채널과 같은 도메인에서 자가 부트스트랩. 신메뉴만 학습하니 <b>코퍼스↑ → 다음 분해가 더 빠르고 정확</b>해지는 복리 구조.</div>
+
+    <div class="liveshot">
+      <div class="lsh">📱 실제 앱 화면 — 라이브 증거</div>
+      <div class="liveimgs">
+        <div class="liveimg"><img src="/diagrams/live-d1-mapping.jpg" loading="lazy" alt="메뉴→식재료 매핑 라이브"><div class="cap2">① 메뉴 입력 → AI가 식재료로 풀이 (파란=AI 추정)</div></div>
+        <div class="liveimg"><img src="/diagrams/live-d1-nutrition.jpg" loading="lazy" alt="31종 영양 신호등 라이브"><div class="cap2">③ 31종 KDRI 신호등 · 식품군 다양성</div></div>
+      </div>
+    </div>
+    <div class="dlrow"><a class="dl" href="/diagrams/diagram-1.png" download><span class="di">⬇</span> 다이어그램 PNG (PPT용)</a></div>
   </div>
 
   <!-- DIAGRAM 2 -->
@@ -252,6 +271,15 @@
       <div class="small">LLM = <b>마지막 한 겹</b><br>아이 1명당 월 ≈ 1,000원(추정)</div>
     </div>
     <div class="cap">매 판단마다 LLM을 부르는 단순 래퍼였다면 <b>수십 배의 토큰 비용 + 환각</b>. 모든 '결정'은 코드가, LLM은 마지막 '작문'만 — 이 분리가 저비용·일관성·안전을 동시에 만듭니다.</div>
+
+    <div class="liveshot">
+      <div class="lsh">📱 실제 앱 화면 — 라이브 증거</div>
+      <div class="liveimgs">
+        <div class="liveimg"><img src="/diagrams/live-d2-letter.jpg" loading="lazy" alt="코치 편지 라이브"><div class="cap2">출력 · 매일 도착하는 코치 편지 (LLM 작문 1회)</div></div>
+        <div class="liveimg"><img src="/diagrams/live-d2-score.jpg" loading="lazy" alt="영양 점수 라이브"><div class="cap2">신호 분석 · 영양 점수(집·기관 분리, WHO·KDRI·SOS·HabEat)</div></div>
+      </div>
+    </div>
+    <div class="dlrow"><a class="dl" href="/diagrams/diagram-2.png" download><span class="di">⬇</span> 다이어그램 PNG (PPT용)</a></div>
   </div>
 
   <!-- DIAGRAM 3 -->
@@ -303,6 +331,15 @@
     </div>
 
     <div class="cap">레시피 <b>4,727건 동시출현</b>으로 음식↔식재료 '궁합'(실선)을, 맛·식감 닮은 '사촌'(점선=푸드체이닝)으로 다리를 엮은 지식 그래프. <b>잘 먹는 식재료에서 사촌으로 다리를 놓아</b> 거부 없이 새 음식·식재료를 추천하고, 개인화 키트를 구성합니다.</div>
+
+    <div class="liveshot">
+      <div class="lsh">📱 실제 앱 화면 — 라이브 증거</div>
+      <div class="liveimgs">
+        <div class="liveimg"><img src="/diagrams/live-d3-affinity.jpg" loading="lazy" alt="궁합·사촌 네트워크 라이브"><div class="cap2">사촌 다리놓기 + '어떤 음식에 넣을까'(궁합) + 급식 빈도</div></div>
+        <div class="liveimg"><img src="/diagrams/live-d3-kit.jpg" loading="lazy" alt="개인화 키트 구성 라이브"><div class="cap2">네트워크 → 이번 주 개인화 키트 구성(7종·소량)</div></div>
+      </div>
+    </div>
+    <div class="dlrow"><a class="dl" href="/diagrams/diagram-3.png" download><span class="di">⬇</span> 다이어그램 PNG (PPT용)</a></div>
   </div>
 
   <a href="/docs.html" class="back" style="margin-top:6px">← 문서 허브</a>
