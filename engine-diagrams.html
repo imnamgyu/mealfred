@@ -42,8 +42,53 @@
   .pipe .pl{font-size:11px;font-weight:800;color:var(--g700);margin-right:4px}
   .pipe .ps{background:#F2FBF8;border:1px solid #BFE6DC;color:var(--g700);font-size:11px;font-weight:700;padding:5px 9px;border-radius:7px}
   .pipe .pa{color:var(--p500);font-weight:300}
+  .submods{margin-top:16px;padding-top:15px;border-top:1px dashed var(--n200)}
+  .submods .smh{font-size:12px;font-weight:800;color:var(--g700);margin-bottom:10px}
+  .smrow{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--n100)}
+  .smrow:last-child{border-bottom:none}
+  .smrow .sn{flex:0 0 22px;width:22px;height:22px;border-radius:6px;background:var(--g500);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .smrow .sn.llm{background:var(--n400)}
+  .smrow .sb{flex:1}
+  .smrow .st{font-size:12.5px;font-weight:800;color:var(--s800)}
+  .smrow .sd{font-size:11.5px;font-weight:500;color:var(--n600);line-height:1.55;margin-top:2px}
+  .smrow .ex{font-size:11px;font-weight:700;color:var(--g700);background:#F2FBF8;border:1px solid #BFE6DC;border-radius:6px;padding:3px 9px;display:inline-block;margin-top:5px}
+  .smrow .ex .ea{color:var(--p500);margin:0 3px}
+  .ndesc{font-size:11.5px;font-weight:600;color:var(--n600);line-height:1.7;margin:6px 0}
+  .ndesc b{color:var(--s800)}
+  .nutchips{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+  .nchip{background:#F2FBF8;border:1px solid #BFE6DC;border-radius:7px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--g700)}
   .cap{font-size:12px;color:var(--n600);font-weight:600;text-align:center;margin-top:14px;background:var(--n50);border-radius:9px;padding:9px 12px;line-height:1.6}
   .cap b{color:var(--s800)}
+
+  /* 네트워크(거미줄) */
+  .net{position:relative;width:100%;max-width:440px;margin:8px auto 4px;aspect-ratio:420/360}
+  .net svg{position:absolute;inset:0;width:100%;height:100%}
+  .nnode{position:absolute;transform:translate(-50%,-50%);font-size:10.5px;font-weight:800;padding:4px 8px;border-radius:100px;white-space:nowrap;border:1.5px solid;box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+  .nnode.dish{background:#FFF1E2;border-color:var(--p300);color:#9a4f00}
+  .nnode.ing{background:#F2FBF8;border-color:#BFE6DC;color:var(--g700)}
+  .nnode.cous{background:#F7F0FB;border-color:#E0C4EE;color:#6A1B9A}
+  .netlegend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:8px;font-size:11px;font-weight:700}
+  .netlegend span{display:inline-flex;align-items:center;gap:5px;color:var(--n600)}
+  .netlegend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .netlegend i.d{background:var(--p500)} .netlegend i.g{background:var(--g500)} .netlegend i.c{background:#9C27B0}
+  .netlegend i.b{width:16px;height:0;border-radius:0;border-top:2px dashed #9C27B0}
+
+  /* 결정론 엔진 아키텍처 */
+  .seclbl{font-size:11.5px;font-weight:800;color:var(--s800);background:var(--n100);border-radius:8px;padding:6px 11px;display:inline-block;margin:16px 0 9px}
+  .sigrow{display:flex;flex-wrap:wrap;gap:7px}
+  .sigchip{background:#fff;border:1.5px solid var(--b500);color:var(--b700);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700}
+  .modgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+  .mod{background:#F2FBF8;border:1.5px solid #BFE6DC;border-radius:11px;padding:11px 12px}
+  .mod .mt{font-size:12px;font-weight:800;color:var(--g700)}
+  .mod .md{font-size:10.5px;font-weight:600;color:var(--n600);line-height:1.5;margin-top:4px}
+  .mod .mc{font-size:9.5px;font-weight:700;color:var(--g500);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:5px;display:block;word-break:break-all}
+  .harness{width:100%;border-collapse:collapse;margin-top:2px;table-layout:fixed}
+  .harness td{border:1px solid #D8EFE8;background:#F7FCFB;color:var(--g700);font-weight:700;font-size:9px;padding:6px 2px;text-align:center;line-height:1.25;vertical-align:middle}
+  .harness td .hn{display:block;font-size:7.5px;color:var(--n400);font-weight:800;margin-bottom:1px}
+  .schema{background:#F4F6F8;border:1.5px solid var(--n200);border-radius:11px;padding:13px 15px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--n700);line-height:1.75;margin-top:2px}
+  .schema .k{color:#C45A00;font-weight:800}
+  .schema .cm{color:var(--n400)}
+  @media(min-width:560px){.modgrid{grid-template-columns:repeat(3,1fr)}}
 
   /* 2-트랙 */
   .lane{display:flex;align-items:center;gap:10px;border-radius:12px;padding:13px 14px;margin-bottom:9px}
@@ -74,8 +119,8 @@
 <header class="hero">
   <div class="hero-inner">
     <span class="tag">📊 ENGINE DIAGRAMS · 피치용</span>
-    <h1>엔진 다이어그램 (1) 매핑 플라이휠 · (2) 코칭 2-트랙</h1>
-    <p>해결 방법 (1)(2)를 한눈에. 슬라이드에 그대로 스크린샷해 쓰세요. 다이어그램 선택 기준도 함께.</p>
+    <h1>엔진 다이어그램 — (1) 매핑 플라이휠 · (2) 코칭 엔진 아키텍처 · (3) 궁합 네트워크</h1>
+    <p>해결 방법의 기술 자산을 한눈에. 슬라이드에 그대로 스크린샷해 쓰세요. 다이어그램 선택 기준도 함께.</p>
   </div>
 </header>
 
@@ -84,7 +129,7 @@
 
   <!-- 선택 기준 -->
   <div class="why" style="margin-top:18px">
-    <b>왜 이 형태인가</b> — (1)은 "쓸수록 정확해진다(복리)"가 메시지라 <b>순환(플라이휠)</b>이 맞고, 선형 화살표는 복리감을 못 줍니다. (2)는 "계획=코드(많음), 작문만 LLM(한 겹)"의 <b>비대칭</b>이 메시지라 <b>2-트랙 스윔레인</b>이 맞고, 일반 플로우차트는 이 대비를 못 살립니다.
+    <b>왜 이 형태인가</b> — (1)은 "쓸수록 정확해진다(복리)"가 메시지라 <b>순환(플라이휠)</b>이 맞습니다(선형은 복리감을 못 줌). (2)는 8개 결정론 모듈과 35가지 하네스를 펼친 <b>레이어드 아키텍처</b>로 기술 깊이를 드러냅니다. (3) 음식↔식재료 관계망은 <b>네트워크 그래프(거미줄)</b>가 가장 직관적입니다.
   </div>
 
   <!-- DIAGRAM 1 -->
@@ -112,18 +157,36 @@
         <div class="ct">급식 코퍼스<br>플라이휠 ↻</div>
         <div class="cd">쓸수록 정확</div>
       </div>
-      <div class="fnode n1" style="left:50%;top:13%"><div class="ft">① 메뉴 한 줄 입력</div><div class="fd">부모 · 예: 안동찜닭</div></div>
-      <div class="fnode n2" style="left:86%;top:50%"><div class="ft">② 결정론 4단 매핑</div><div class="fd">환각 0</div></div>
-      <div class="fnode n3" style="left:50%;top:87%"><div class="ft">③ 식재료·31종<br>영양 환원</div><div class="fd">진단·처방 입력</div></div>
-      <div class="fnode n4" style="left:14%;top:50%"><div class="ft">④ learned_menus<br>축적 (약 1만)</div><div class="fd">신메뉴만 학습</div></div>
+      <div class="fnode n1" style="left:50%;top:13%"><div class="ft">① 메뉴 한 줄 입력</div><div class="fd">부모 · 예: 닭볶음탕</div></div>
+      <div class="fnode n2" style="left:86%;top:50%"><div class="ft">② 결정론 4단 매핑</div><div class="fd">닭볶음탕→닭·감자·당근·양파</div></div>
+      <div class="fnode n3" style="left:50%;top:87%"><div class="ft">③ 식재료별<br>31종 영양 환원</div><div class="fd">각 식재료 영양 합산</div></div>
+      <div class="fnode n4" style="left:14%;top:50%"><div class="ft">④ learned_menus<br>코퍼스</div><div class="fd">공공DB + 유저입력 학습중</div></div>
     </div>
 
-    <div class="pipe">
-      <span class="pl">②의 내부 4단:</span>
-      <span class="ps">정규화</span><span class="pa">→</span>
-      <span class="ps">사전·렉시콘 매칭</span><span class="pa">→</span>
-      <span class="ps">복합메뉴 분해</span><span class="pa">→</span>
-      <span class="ps">learned 폴백·학습</span>
+    <div class="submods">
+      <div class="smh">② 결정론 4단 매핑 (환각 0)</div>
+      <div class="smrow"><span class="sn">1</span><div class="sb"><div class="st">정규화</div><div class="sd">산지·괄호·주석 제거, 표면형 통일</div><span class="ex">"닭볶음탕(국내산)"<span class="ea">→</span>"닭볶음탕"</span></div></div>
+      <div class="smrow"><span class="sn">2</span><div class="sb"><div class="st">사전·렉시콘 매칭</div><div class="sd">도감 표준명 + 가공식품 베이스 사전(소시지·게맛살·너겟…) substring 스캔</div><span class="ex">"비엔나소시지"<span class="ea">→</span>돼지고기</span></div></div>
+      <div class="smrow"><span class="sn">3</span><div class="sb"><div class="st">복합메뉴 분해</div><div class="sd">한 메뉴 속 여러 식재료 분리 · 1글자 표준명 누수 방지</div><span class="ex">"닭볶음탕"<span class="ea">→</span>닭·감자·당근·양파</span> <span class="ex">"다시마무채국"<span class="ea">→</span>다시마·무</span></div></div>
+      <div class="smrow"><span class="sn llm">4</span><div class="sb"><div class="st">learned 폴백·학습</div><div class="sd">위 3단서 미해결인 '신메뉴만' LLM 분해 → 저장. 모르면 빈 배열(환각 차단)</div><span class="ex">"곱창전골"<span class="ea">→</span>곱창·두부·대파 (1회 학습 후 결정론)</span></div></div>
+    </div>
+
+    <div class="submods">
+      <div class="smh">③ 식재료별 31종 영양 분석</div>
+      <div class="ndesc">분해된 식재료마다 농진청·식약처 식품DB 기준으로 31종 영양소를 계산해 그날 끼니로 합산합니다.</div>
+      <div class="nutchips">
+        <span class="nchip">닭 → 단백질·나이아신(B3)</span>
+        <span class="nchip">감자 → 탄수화물·비타민C·칼륨</span>
+        <span class="nchip">당근 → 비타민A·식이섬유</span>
+        <span class="nchip">양파 → 식이섬유·퀘르세틴</span>
+      </div>
+      <div class="ndesc">→ 합산해 31종 영양 프로필 완성 → KDRI 대비 <b>부족 영양소 진단</b> → 코칭·키트 처방으로 연결.</div>
+    </div>
+
+    <div class="submods">
+      <div class="smh">④ learned_menus 코퍼스 &amp; 학습</div>
+      <div class="ndesc">코퍼스의 뿌리는 공공 데이터입니다 — <b>보건복지부 영양기준(KDRI)</b> · <b>급식지원센터·학교 급식 데이터(NEIS 전국 급식)</b> · <b>식약처 식품DB</b>.</div>
+      <div class="ndesc">여기에 부모들이 매일 입력하는 실제 끼니가 더해져, 사전에 없던 신메뉴가 learned_menus로 계속 <b>학습·강화되는 중</b>입니다 (현재 약 1만 메뉴).</div>
     </div>
 
     <div class="cap">연료는 <b>공개 NEIS 급식 API</b> — 학교 채널과 같은 도메인에서 자가 부트스트랩. 신메뉴만 학습하니 <b>코퍼스↑ → 다음 분해가 더 빠르고 정확</b>해지는 복리 구조.</div>
@@ -132,29 +195,114 @@
   <!-- DIAGRAM 2 -->
   <div class="diag">
     <span class="dlbl">DIAGRAM 2</span>
-    <h2>결정론 코칭 플랜 엔진 — "계획은 코드, 작문만 LLM"</h2>
-    <div class="sub">단순 LLM 래퍼와 갈라지는 본체</div>
-    <div class="pick">✓ 형태: 2-트랙 스윔레인 (결정론 코드 vs LLM)</div>
+    <h2>결정론 코칭 플랜 엔진 — 아키텍처</h2>
+    <div class="sub">"계획은 코드, 작문만 LLM" · 지능의 대부분이 결정론 모듈에 있다</div>
+    <div class="pick">✓ 형태: 입력 신호 → 결정론 모듈群 → CoachPlan → 얇은 LLM 작문</div>
 
-    <div class="lane code">
-      <div class="lh">결정론 코드<small>계획 · LLM 0회</small></div>
-      <div class="chips">
-        <span class="chip">끼니·체위·결핍 신호 분석</span><span class="chip"><span class="ca">→</span> target 영양소 회전</span><span class="chip"><span class="ca">→</span> signature dedup</span><span class="chip"><span class="ca">→</span> 35가지 하네스·시나리오</span><span class="chip"><span class="ca">→</span> escalate/plateau 전환</span>
-      </div>
+    <div class="seclbl">① 입력 신호 — 매일 수집 (아이별 상태)</div>
+    <div class="sigrow">
+      <span class="sigchip">끼니 기록</span><span class="sigchip">키·몸무게·BMI</span><span class="sigchip">만성질환</span><span class="sigchip">거부·미경험 음식</span><span class="sigchip">간식 섭취</span><span class="sigchip">최근 편지 이력</span>
     </div>
-    <div class="arrowdown">▼ 확정된 '무엇을·어떻게'만 넘김</div>
+    <div class="arrowdown">▼</div>
+
+    <div class="seclbl">② 결정론 엔진 모듈 — LLM 호출 0회</div>
+    <div class="modgrid">
+      <div class="mod"><div class="mt">영양 분석</div><div class="md">KDRI 31종 신호등 · 빈도 밴드별 차등 임계 → 결핍 진단</div><span class="mc">computeKdriSignals()</span></div>
+      <div class="mod"><div class="mt">타깃 엔진</div><div class="md">결핍 식품군 우선 + 날짜·자녀 시드로 결정론 회전(매일 다른 타깃)</div><span class="mc">buildCoachPlan.target</span></div>
+      <div class="mod"><div class="mt">시나리오 라우터</div><div class="md">13 시나리오 trigger×우선순위, 최근 2일 중복 회피</div><span class="mc">selectScenario()</span></div>
+      <div class="mod"><div class="mt">무브 회전</div><div class="md">코칭 '행동' 7종 결정론 회전(부모 모델링·향/촉감 먼저·잘게 섞기·간식 분리…)</div><span class="mc">MOVE_MENU</span></div>
+      <div class="mod"><div class="mt">강화 / 정체 전환</div><div class="md">같은 타깃 반복 시 환기 각도 교대(gap↔plateau) — 채근 방지</div><span class="mc">escalate→plateau</span></div>
+      <div class="mod"><div class="mt">추천 네트워크</div><div class="md">잘 먹는 식재료 → 사촌 → 인기 음식(food-graph·kit-matrix)</div><span class="mc">coachRecos</span></div>
+      <div class="mod"><div class="mt">만성질환 · 간식</div><div class="md">6질환 식이 방향 + 간식 4축 평가(초가공·BMI 칼로리·식사 간섭)</div><span class="mc">coachChronic · snack</span></div>
+      <div class="mod"><div class="mt">비중복 가드</div><div class="md">본문·도입부 유사도(3-gram) 검사 → 겹치면 무브 바꿔 재생성</div><span class="mc">letterSimilarity</span></div>
+    </div>
+    <div class="arrowdown">▼</div>
+
+    <div class="seclbl">③ 35가지 국제 편식 방법론 하네스 → 13 시나리오 · 7 무브로 코드화</div>
+    <table class="harness">
+      <tr><td><span class="hn">01</span>Satter 책임분담</td><td><span class="hn">02</span>푸드체이닝</td><td><span class="hn">03</span>SOS 섭식</td><td><span class="hn">04</span>HabEat</td><td><span class="hn">05</span>ICFQ</td></tr>
+      <tr><td><span class="hn">06</span>ESPGHAN</td><td><span class="hn">07</span>AAP 지침</td><td><span class="hn">08</span>복지부 지침</td><td><span class="hn">09</span>KDRI</td><td><span class="hn">10</span>WHO 영양</td></tr>
+      <tr><td><span class="hn">11</span>NICE</td><td><span class="hn">12</span>단순노출</td><td><span class="hn">13</span>반복 미각노출</td><td><span class="hn">14</span>Tiny Tastes</td><td><span class="hn">15</span>반응적 섭식</td></tr>
+      <tr><td><span class="hn">16</span>BLW 이유식</td><td><span class="hn">17</span>향-향 학습</td><td><span class="hn">18</span>향-영양 학습</td><td><span class="hn">19</span>사회적 모델링</td><td><span class="hn">20</span>감각놀이</td></tr>
+      <tr><td><span class="hn">21</span>음식 다리놓기</td><td><span class="hn">22</span>체계적 둔감화</td><td><span class="hn">23</span>Premack 원리</td><td><span class="hn">24</span>비압박 노출</td><td><span class="hn">25</span>가족 식사</td></tr>
+      <tr><td><span class="hn">26</span>다양성 노출</td><td><span class="hn">27</span>질감 단계화</td><td><span class="hn">28</span>보상 분리</td><td><span class="hn">29</span>Toomey 분류</td><td><span class="hn">30</span>신공포증 관리</td></tr>
+      <tr><td><span class="hn">31</span>선택 구조화</td><td><span class="hn">32</span>양 모델링</td><td><span class="hn">33</span>포만 신호</td><td><span class="hn">34</span>또래 모델링</td><td><span class="hn">35</span>환경 조성</td></tr>
+    </table>
+    <div class="ndesc" style="text-align:center">흩어진 35가지 이론·지침을 매일의 '시나리오 선택 + 행동(무브) 회전' 규칙으로 결정론화 — 같은 결핍도 매일 다른 검증된 방법으로 공략.</div>
+    <div class="arrowdown">▼</div>
+
+    <div class="seclbl">④ 출력 — CoachPlan (확정된 계획)</div>
+    <div class="schema">CoachPlan {<br>
+      &nbsp;&nbsp;<span class="k">frame</span>&nbsp;&nbsp;&nbsp;: 오늘의 관점(시나리오),<br>
+      &nbsp;&nbsp;<span class="k">target</span>&nbsp;&nbsp;: 공략할 영양소·식품군,<br>
+      &nbsp;&nbsp;<span class="k">move</span>&nbsp;&nbsp;&nbsp;&nbsp;: 코칭 행동(7무브 중 회전),<br>
+      &nbsp;&nbsp;<span class="k">signature</span>: 중복 방지 지문 <span class="cm">// 지난 편지와 안 겹치게</span><br>
+    }</div>
+    <div class="arrowdown">▼ 확정된 계획만 넘김</div>
+
     <div class="lane llm">
-      <div class="lh">LLM<small>작문 · 단 1회</small></div>
-      <div class="chips"><span class="chip thin">편지 문장 생성 (소형 모델)</span></div>
+      <div class="lh">LLM 레이어<small>작문 · 1회</small></div>
+      <div class="chips"><span class="chip thin">편지 문장 생성 (소형 모델)</span><span class="chip thin">한국어 퇴고 1회</span></div>
     </div>
     <div class="arrowdown">▼</div>
     <div class="outbox">💌 오늘의 코치 편지</div>
 
     <div class="ratio">
-      <div class="big">지능의 대부분 = <b>무료 결정론 코드</b><br>환각 0 · 일관 · 개인화</div>
+      <div class="big">지능의 대부분 = <b>무료 결정론 코드</b><br>위 8모듈 · 환각 0 · 일관 · 개인화</div>
       <div class="small">LLM = <b>마지막 한 겹</b><br>아이 1명당 월 ≈ 1,000원(추정)</div>
     </div>
-    <div class="cap">매 판단마다 LLM을 부르는 단순 래퍼였다면 <b>수십 배의 토큰 비용</b>이 들었을 구조. 두 레인의 <b>비대칭</b>이 곧 차별점입니다.</div>
+    <div class="cap">매 판단마다 LLM을 부르는 단순 래퍼였다면 <b>수십 배의 토큰 비용 + 환각</b>. 모든 '결정'은 코드가, LLM은 마지막 '작문'만 — 이 분리가 저비용·일관성·안전을 동시에 만듭니다.</div>
+  </div>
+
+  <!-- DIAGRAM 3 -->
+  <div class="diag">
+    <span class="dlbl">DIAGRAM 3</span>
+    <h2>궁합·사촌 추천 네트워크 — 음식↔식재료 거미줄</h2>
+    <div class="sub">추천 엔진의 지식 그래프 (food-graph · kit-matrix)</div>
+    <div class="pick">✓ 형태: 네트워크 그래프(거미줄) — 관계망은 노드-엣지가 가장 직관적</div>
+
+    <div class="net">
+      <svg viewBox="0 0 420 360" aria-hidden="true">
+        <g stroke="#E89244" stroke-width="1.6" stroke-opacity="0.4">
+          <line x1="85" y1="65" x2="205" y2="120"/>
+          <line x1="85" y1="65" x2="55" y2="160"/>
+          <line x1="85" y1="65" x2="170" y2="35"/>
+          <line x1="320" y1="60" x2="205" y2="120"/>
+          <line x1="320" y1="60" x2="215" y2="185"/>
+          <line x1="80" y1="300" x2="150" y2="235"/>
+          <line x1="80" y1="300" x2="255" y2="255"/>
+          <line x1="80" y1="300" x2="215" y2="185"/>
+          <line x1="330" y1="295" x2="330" y2="170"/>
+          <line x1="330" y1="295" x2="205" y2="120"/>
+        </g>
+        <g stroke="#9C27B0" stroke-width="1.6" stroke-dasharray="4,3" stroke-opacity="0.65">
+          <line x1="150" y1="235" x2="60" y2="315"/>
+          <line x1="255" y1="255" x2="350" y2="320"/>
+        </g>
+      </svg>
+      <div class="nnode dish" style="left:20.2%;top:18.1%">김치찌개</div>
+      <div class="nnode dish" style="left:76.2%;top:16.7%">된장국</div>
+      <div class="nnode dish" style="left:19.0%;top:83.3%">잡채</div>
+      <div class="nnode dish" style="left:78.6%;top:81.9%">미역국</div>
+      <div class="nnode ing" style="left:48.8%;top:33.3%">두부</div>
+      <div class="nnode ing" style="left:13.1%;top:44.4%">돼지고기</div>
+      <div class="nnode ing" style="left:40.5%;top:9.7%">김치</div>
+      <div class="nnode ing" style="left:35.7%;top:65.3%">시금치</div>
+      <div class="nnode ing" style="left:60.7%;top:70.8%">당근</div>
+      <div class="nnode ing" style="left:51.2%;top:51.4%">버섯</div>
+      <div class="nnode ing" style="left:78.6%;top:47.2%">미역</div>
+      <div class="nnode cous" style="left:14.3%;top:87.5%">근대</div>
+      <div class="nnode cous" style="left:83.3%;top:88.9%">단호박</div>
+    </div>
+
+    <div class="netlegend">
+      <span><i class="d"></i> 음식(메뉴)</span>
+      <span><i class="g"></i> 식재료</span>
+      <span><i class="c"></i> 사촌 식재료</span>
+      <span><i class="b"></i> 푸드체이닝 다리</span>
+    </div>
+
+    <div class="cap">레시피 <b>4,727건 동시출현</b>으로 음식↔식재료 '궁합'(실선)을, 맛·식감 닮은 '사촌'(점선=푸드체이닝)으로 다리를 엮은 지식 그래프. <b>잘 먹는 식재료에서 사촌으로 다리를 놓아</b> 거부 없이 새 음식·식재료를 추천하고, 개인화 키트를 구성합니다.</div>
   </div>
 
   <a href="/docs.html" class="back" style="margin-top:6px">← 문서 허브</a>
