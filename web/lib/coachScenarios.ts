@@ -25,6 +25,9 @@ export type CoachSignals = {
   recentLoggedDays: number;
   recentWindow: number;
   icfqRiskCount: number; // 최근 60일 ICFQ 위험 응답 수
+  // 구조화 입력 분포(최근 윈도우) — 식사환경/자율성/식감. 부모가 매번 찍는 칩을 코칭 신호로(없으면 undefined=미반영).
+  envBadPct?: number | null;   // (영상+돌아다님+놀이) 비율 0~1 — 식사 분위기 트리거
+  envCount?: number;           // 환경이 기록된 끼니 수
 };
 
 export type CoachScenario = {
@@ -66,9 +69,10 @@ export const SCENARIOS: CoachScenario[] = [
   {
     id: 'mealtime-atmosphere', label: '식사 분위기', priority: 72,
     theoryBasis: ['압박의 역효과', '자율성 지지(SDT)', '무압력 식사'],
-    promptHint: `부모 메모에 식사 압박·전쟁·영상·그레이징 신호가 있다. 분위기를 바꾸는 단일 레버 1개만 제안: 압박이면 '오늘 하루 먹어봐 한마디도 안 하기', 영상이면 끄기, 그레이징이면 끼니 30분 전 간식 멈추기, 또는 부모가 먼저 맛있게 먹는 모습 보이기 중 하나.`,
+    promptHint: `부모 메모 또는 식사환경 기록에 압박·전쟁·영상·돌아다니며·그레이징 신호가 있다. 분위기를 바꾸는 단일 레버 1개만 제안: 압박이면 '오늘 하루 먹어봐 한마디도 안 하기', 영상·돌아다니며면 '한 끼라도 화면 끄고 식탁에 앉아', 그레이징이면 끼니 30분 전 간식 멈추기, 또는 부모가 먼저 맛있게 먹는 모습 보이기 중 하나.`,
     avoid: `여러 개선을 한꺼번에 요구, 먹었을 때 과한 보상.`,
-    trigger: (s) => notesHit(s.notes, '전쟁', '실랑이', '강요', '억지', '영상', '유튜브', '안 먹', '다 먹'),
+    // 자유텍스트 메모 OR 구조화 환경 입력(영상·돌아다니며·놀이 비율 높음)으로 발동 — 부모가 매번 찍는 칩을 실제로 본다.
+    trigger: (s) => notesHit(s.notes, '전쟁', '실랑이', '강요', '억지', '영상', '유튜브', '안 먹', '다 먹') || (s.envBadPct != null && s.envBadPct > 0.4 && (s.envCount || 0) >= 4),
   },
   {
     id: 'reward-bribe-backfire', label: '보상·협상 역효과', priority: 70,

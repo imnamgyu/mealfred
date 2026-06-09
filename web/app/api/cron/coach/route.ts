@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, SNACK_CHANNEL, type CoachPlan, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, SNACK_CHANNEL, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -38,7 +38,7 @@ type Row = {
   child_id: string; parent_id: string | null; log_date: string; slot: string | null;
   ingredients: string[] | null; refused: string | null; note: string | null;
   texture: string | null; menus: string[] | null; place: string | null; ate_well: boolean | null;
-  meal_time: number | null;
+  meal_time: number | null; autonomy: string | null; environment: string | null; duration_min: number | null;
 };
 
 export async function GET(req: Request) {
@@ -93,8 +93,8 @@ export async function GET(req: Request) {
 
     // 1) 최근 7일 모든 기록 → 자녀별 그룹
     const { data: rows, error: rErr } = await supabase.from('meal_logs')
-      .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well,meal_time')
-      .gte('log_date', since).lte('log_date', dAgo(1));   // 편지는 '어제까지' 확정 데이터로 평가 — 당일 입력이 편지를 바꾸지 않게
+      .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well,meal_time,autonomy,environment,duration_min')
+      .gte('log_date', since).lte('log_date', dAgo(1));   // 편지는 '어제까지' 확정 데이터로 평가 — 당일 입력이 편지를 바꾸지 않게 · autonomy·environment는 이전에 select 안 해 0% 반영이던 버그 수정(구조화 입력 코칭 반영)
     if (rErr) throw rErr;
 
     const byChild: Record<string, Row[]> = {};
@@ -365,11 +365,27 @@ export async function GET(req: Request) {
             icfqRiskCount = (icfqRows || []).filter((r: { answer: string | null; context: { icfq?: string } | null }) => isIcfqRisk(r.context?.icfq, r.answer)).length;
           } catch { /* ICFQ 집계 실패해도 코칭은 계속 */ }
           // ⭐ 계획 산출(결정론) — 프레임 선택 + 타깃·무브 회전 + 시그니처 중복 회피(상태 원장 기반). 생성 전에 결정.
+          // ⭐ 구조화 입력 분포(식감·자율성·환경·식사시간) — 부모가 매 끼니 찍는 칩을 코칭 신호·개선 팁으로(이전엔 autonomy·environment를 select조차 안 해 0% 반영이던 버그 수정).
+          const texC: Record<string, number> = {}; let selfN = 0, autoN = 0, envBad = 0, envN = 0, mtOver = 0, mtN = 0;
+          rs.forEach((r) => {
+            if (r.texture) texC[r.texture] = (texC[r.texture] || 0) + 1;
+            if (r.autonomy) { autoN++; if (r.autonomy === 'self') selfN++; }
+            if (r.environment) { envN++; if (r.environment !== 'table') envBad++; }   // table 외(영상·돌아다님·놀이)=주의
+            if (typeof r.meal_time === 'number') { mtN++; if (r.meal_time >= 30) mtOver++; }
+          });
+          const texMode = Object.entries(texC).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+          const structuredSig: StructuredSig = {
+            texMode, texLow: texMode === 'puree' || texMode === 'mashed', texCount: Object.values(texC).reduce((a, b) => a + b, 0),
+            selfPct: autoN ? selfN / autoN : null, autoCount: autoN,
+            envBadPct: envN ? envBad / envN : null, envCount: envN,
+            mtOver30Pct: mtN ? mtOver / mtN : null, mtCount: mtN,
+          };
           const signals: CoachSignals = {
             timeseries: ts, reds, homeReds, missing: fg.missing, homeMissing: homeFg.missing,
             homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef), refused: sanitizeRefusals(uniqRef),
             notes, favoriteFoods, attendsDaycare: attends, ageBand: meta.age_band,
             recentLoggedDays, recentWindow: RECENT_WINDOW, icfqRiskCount,
+            envBadPct: structuredSig.envBadPct, envCount: structuredSig.envCount,   // 식사 분위기 시나리오가 구조화 환경 입력으로도 발동
           };
           const daySeed = Math.floor(Date.parse(today) / 86400000);
           let cidHash = 0; for (let k = 0; k < cid.length; k++) cidHash = (cidHash * 31 + cid.charCodeAt(k)) >>> 0;
@@ -386,6 +402,10 @@ export async function GET(req: Request) {
           // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
           const bridgeFacts = buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, freqMap }).text;
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
+          // 끝줄 권유는 하루 하나만 — profileNudge 우선, 없으면 구조화 개선 팁을 ~주1회만 노출(매일=잔소리 금지·Q5).
+          const profileN = recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null;
+          const sTip = (!profileN && recentLoggedDays >= RECENT_WINDOW && ((daySeed + cidHash) % 7) === 0)
+            ? structuredTip(structuredSig, meta.age_band, daySeed + cidHash) : null;
           const base = {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
@@ -395,7 +415,7 @@ export async function GET(req: Request) {
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
             chronicGuidance: chronicGuidanceText(meta.chronic),
             bridgeFacts, snackEval: snackText,
-            profileNudge: recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null,
+            profileNudge: profileN, structuredTip: sTip,
           };
           const detInput = [...ts, ...notes, ...uniqRef].join(' ');
           const out = await composeLetter({ base, precomputed, detInput, daySeed, cidHash });

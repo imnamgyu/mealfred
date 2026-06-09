@@ -122,6 +122,7 @@ export type LetterInput = {
   chronicGuidance?: string;        // 만성질환 식이 코칭 방향(부모 입력 기반·진단 아님) — lib/coachChronic
   bridgeFacts?: string;            // 검증된 푸드 브릿지(잘 먹는 음식→닮은 사촌·어울리는 궁합) — lib/foodGraph 기반, 편지가 궁합을 지어내지 않게
   profileNudge?: string | null;    // 미입력 프로필(체위·만성질환 등) 1개를 부드럽게 권유 + 기대효과 — cron이 로테이션으로 결정(없으면 언급 금지)
+  structuredTip?: string | null;    // ⭐ 구조화 입력(식감·자율성·환경·식사시간) 기반 개선 팁 1개 — cron이 분포 집계+~주1회 로테이션으로 결정(profileNudge와 상호배타, 없으면 언급 금지)
   snackEval?: string | null;        // 간식 평가(별도 간식 엔진) — 초가공 모니터링·식사 간섭성·BMI 칼로리 방향·좋은 간식 추천. lib/snack
   rotateMove?: string | null;       // 오늘의 코칭 무브(결정론적 로테이션) — cron이 날짜+자녀 시드로 회전. 매일 다른 '행동 방식'을 강제해 무브 반복(매일 곁들이기)을 구조적으로 차단
   planTarget?: string | null;        // ⭐ 코드가 확정한 오늘의 단일 타깃(부족 식품군/거부 음식). LLM은 고르지 않고 주어진 것만 다룸(계획=코드·작문=LLM 분리)
@@ -148,6 +149,31 @@ const TIPS = (COACH_TIPS as { pool: { id: string; body: string }[] }).pool || []
 export function pickTip(seed: number): string {
   if (!TIPS.length) return '';
   return TIPS[((Math.floor(seed) % TIPS.length) + TIPS.length) % TIPS.length].body;
+}
+
+// ── ⭐ 구조화 입력(식감·자율성·환경·식사시간) → 개선 팁 ──────────────────────────
+// 부모가 매 끼니 찍는 칩의 '최근 분포'를 코칭 개선 팁 1개로 승격. cron이 ~주1회 로테이션으로만 호출(매일=잔소리 금지·Q5).
+// (이전엔 autonomy·environment를 크론이 select조차 안 해 0% 반영이던 버그를 잡는 선행 작업.)
+export type StructuredSig = {
+  texMode: string | null; texLow: boolean; texCount: number;   // 식감: 최빈 단계 / puree·mashed에 머묾 / 기록 수
+  selfPct: number | null; autoCount: number;                    // 자율성: 스스로(self) 비율 / 기록 수
+  envBadPct: number | null; envCount: number;                   // 환경: (영상+돌아다님+놀이) 비율 / 기록 수
+  mtOver30Pct: number | null; mtCount: number;                  // 식사시간: 30분+ 비율 / 기록 수
+};
+const TEX_UP_AGES = new Set(['3-4y', '5y', '6-7y']);   // 식감 한 단계 올리기 가능 연령(죽·다진에 머물 이유 없음)
+/** 임계를 넘은 구조화 축 중 seed로 1개를 골라 부드러운 개선 팁 문장 반환(없으면 null). 임계는 coaching-weekly-plan §7과 동일. */
+export function structuredTip(s: StructuredSig, ageBand: string | undefined, seed: number): string | null {
+  const tips: string[] = [];
+  if (s.texLow && s.texCount >= 3 && TEX_UP_AGES.has(ageBand || ''))
+    tips.push('요즘 식감이 대부분 죽·다진 형태였어요. 이번 주 한 끼만 한 단계 위(핑거푸드·일반식)로 부드럽게 올려보면 씹는 힘이 자라요(거부하면 바로 빼주세요).');
+  if (s.selfPct != null && s.selfPct < 0.3 && s.autoCount >= 4)
+    tips.push("대부분 떠먹여 주고 계시네요. 하루 한 끼만 스스로 떠먹게 두면 — 좀 흘려도 괜찮아요 — '내가 먹는다'는 자율감이 식욕을 키워요.");
+  if (s.envBadPct != null && s.envBadPct > 0.4 && s.envCount >= 4)
+    tips.push('식사 중 영상·돌아다니며가 잦았어요. 한 끼라도 화면을 끄고 식탁에 앉아 먹으면 새로운 맛을 훨씬 잘 받아들여요.');
+  if (s.mtOver30Pct != null && s.mtOver30Pct > 0.5 && s.mtCount >= 4)
+    tips.push('끼니가 30분 넘게 길어지는 편이에요. 20분쯤에 부담 없이 정리하면 식사가 즐거운 일로 남아요(남겨도 괜찮아요).');
+  if (!tips.length) return null;
+  return tips[((Math.floor(seed) % tips.length) + tips.length) % tips.length];
 }
 
 // 편지 비중복 가드 — 두 편지의 문자 3-그램 자카드 유사도(0~1). cron이 생성 후 최근 편지와 비교해 임계 이상이면 1회 재생성.
@@ -361,7 +387,8 @@ ${b.bridgeFacts || '파악 중'}
 집 끼니만 평가(부모 통제 영역): ${b.homeDays ? `최근 집 식사 ${b.homeDays}일 · 집에서 부족한 식품군: ${(b.homeMissing || []).join(', ') || '없음'} · 집 결핍 영양소: ${(b.homeReds || []).join(', ') || '없음'}` : '집 끼니 기록이 적음'}` : ''}${(b.recentWindowDays && b.recentLoggedDays != null && b.recentLoggedDays < b.recentWindowDays) ? `
 기록 현황(P9): 최근 ${b.recentWindowDays}일 중 ${b.recentLoggedDays}일 기록됨(${b.recentWindowDays - b.recentLoggedDays}일 공백). 이 사실로 횟수·날짜를 더 지어내지 말 것.` : ''}${b.attendsDaycare ? `
 등원: 어린이집·유치원에 다녀 평일 점심·오전/오후 간식은 기관에서 먹습니다(메뉴는 부모가 못 바꿈). 행동 제안은 집 아침·저녁 끼니와, 기관에서 거부한 식재료를 집에서 다시 만나게 하는 것에만 두세요.` : ''}
-${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기대효과 포함): ${b.profileNudge}
+${b.structuredTip ? `개선 팁(있으면 편지 맨 끝 한 줄로만, 부드럽게 — 식감·자율성·환경·식사시간 중 하나, 강요 금지): ${b.structuredTip}
+` : ''}${b.profileNudge ? `미입력 권유(있으면 편지 맨 끝 한 줄로만, 기대효과 포함): ${b.profileNudge}
 ` : ''}부모 메모: ${fenceNotes(b.notes || [])}`;
 
   // 연속성: 날짜 대신 순서 라벨만 제공 (LLM이 날짜로 경과일을 추정하지 못하게 — P4)
@@ -435,6 +462,7 @@ ${scenarioBlock}${planTargetBlock}${openBlock}${actionBlock}${chronicBlock}${sna
 - 등원 아동: 칭찬·평가는 '집 끼니만 평가'(부모 통제 영역) 기준으로 하라. 전체 영양이 괜찮아도 그게 기관 급식 덕이면 "어린이집에서 잘 챙겨주고 있어요"라고 솔직히 밝히고, '집에서 부족한 식품군/결핍'에 한 걸음을 둬라. "전반적으로 잘하고 계세요"처럼 기관 덕을 부모 공으로 돌리는 뭉뚱그린 칭찬은 금지.
 - P9: '기록 현황'에 공백이 있을 때만, 편지 맨 끝에 부담 없는 한 줄로 한 번만 권유(예: "기억나는 대로 비어 있는 날 식단만 살짝 채워두시면 더 정확히 봐드릴게요"). 공백이 없으면 기록 얘기는 꺼내지 마라. 절대 다그치지 마라.
 - 미입력 정보 권유: 아래 '미입력 권유'가 있을 때만, 편지 맨 끝에 부담 없는 한 줄로 한 번만 그 내용을 자연스럽게 녹여라(기대효과 1개 포함, 그 문구 톤 유지). 없으면 절대 꺼내지 마라. P9 기록 권유와 동시에 쓰지 말고(둘 중 하나만), 강요·죄책감 유발 금지.
+- 개선 팁: 위 '개선 팁'이 있을 때만, 편지 맨 끝 한 줄로 그 취지를 부드럽게 녹여라(식감·자율성·환경·식사시간 중 하나, 그 문장 톤 유지). 없으면 꺼내지 마라. P9·미입력 권유와 동시에 쓰지 말고(끝줄 권유는 하루 하나만), 강요·죄책감 금지.
 - 간식: 위 '간식 평가'가 제공되면 편지에 자연스럽게 한 부분으로 녹여라(별도 단락·체중/살/다이어트 단어 금지). 끼니 영양 결핍과 간식 둘 다 신경 쓸 게 있으면 오늘은 더 시급한 하나에 집중하되, 초가공 간식이 잦거나 식사를 방해하면 그걸 우선으로. 좋은 간식 추천은 '음식(끼니) 추천'과 섞지 말고 간식으로만 제안하라.
 - oneliner: 최근 식단 진단 한 줄. 잘하는 점 + 신경 쓸 점 1개 + 방법론 근거 한 조각, 격려 톤.
 
