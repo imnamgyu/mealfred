@@ -42,6 +42,46 @@
   .mediacap{text-align:center;font-size:12px;font-weight:700;color:var(--n500);margin-top:4px}
   .twocol{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
   @media(max-width:820px){.twocol{grid-template-columns:1fr}.media .di{max-width:92%}}
+  /* 엔진: 다이어그램 주인공 + 라이브 썸네일 */
+  .ehero{display:flex;gap:32px;align-items:center;justify-content:center;margin:16px 0 8px}
+  .ehero .ed{border-radius:16px;border:1.5px solid var(--n200);box-shadow:0 14px 40px rgba(0,0,0,0.14);background:#fff;max-height:58vh}
+  .ehero .ed.tall{max-height:60vh}
+  .ethumbs{display:flex;flex-direction:column;gap:12px;flex:0 0 auto}
+  .ethumbs .et{font-size:11.5px;font-weight:800;color:var(--b700);text-align:center;margin-bottom:1px}
+  .ethumbs img{max-height:25vh;border-radius:10px;border:1.5px solid var(--n200);box-shadow:0 6px 18px rgba(0,0,0,0.1);display:block}
+  @media(max-width:860px){.ehero{flex-direction:column}.ehero .ed{max-height:46vh}.ethumbs{flex-direction:row}}
+
+  /* 시각화 (Series A 덱 이식) */
+  .gt{display:flex;gap:10px;margin:24px 0 6px;align-items:stretch}
+  .gt .seg{flex:1;border-radius:14px;padding:18px 14px;text-align:center;font-size:clamp(15px,1.7vw,20px);font-weight:800;color:#fff;display:flex;flex-direction:column;justify-content:center}
+  .gt .seg span{display:block;font-size:clamp(11px,1.2vw,13px);font-weight:700;margin-top:7px;opacity:0.96}
+  .gt .seg.a{background:#cdb89f}
+  .gt .seg.b{flex:1.6;background:linear-gradient(135deg,#16A085,#13c08f);box-shadow:0 10px 28px rgba(22,160,133,.32)}
+  .gt .seg.c{background:#9aa3ad}
+  .bars{display:flex;flex-direction:column;gap:13px}
+  .barrow{display:flex;align-items:center;gap:13px}
+  .barrow .bl{flex:0 0 84px;font-size:15px;font-weight:800;color:var(--nav)}
+  .barrow .bt{flex:1;height:30px;background:var(--n100);border-radius:8px;overflow:hidden}
+  .barrow .bf{height:100%;background:linear-gradient(90deg,var(--p500),var(--p300));border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:#fff;font-size:13px;font-weight:800;min-width:52px}
+  .tiers{display:flex;align-items:center;gap:10px;margin:22px 0 14px;flex-wrap:wrap;justify-content:center}
+  .tier{border-radius:14px;padding:15px 18px;text-align:center;color:#fff;font-weight:800}
+  .tier .tn{font-size:11.5px;font-weight:700;opacity:.92;display:block;margin-top:5px}
+  .tier.t1{background:#E89244;font-size:15px}
+  .tier.t2{background:#3498DB;font-size:16px}
+  .tier.t3{background:var(--nav);font-size:17px}
+  .tier-arrow{color:var(--p500);font-size:22px;font-weight:300}
+  .growth{display:flex;align-items:flex-end;gap:26px;justify-content:center;margin:14px 0 8px}
+  .gcol{text-align:center}
+  .gcol .gbar{width:62px;background:linear-gradient(180deg,var(--p300),var(--p500));border-radius:8px 8px 0 0;margin:0 auto 8px;display:flex;align-items:flex-start;justify-content:center;color:#fff;font-weight:800;font-size:15px;padding-top:7px}
+  .gcol .gy{font-size:12px;font-weight:700;color:var(--n500)}
+  .loop{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;margin:24px 0 14px}
+  .loop .ls{border-radius:12px;padding:14px 14px;text-align:center;font-weight:800;font-size:14px;color:#fff;min-width:118px}
+  .loop .ls.measure{background:#3498DB}
+  .loop .ls.engine{background:#16A085}
+  .loop .ls.fulfil{background:#E89244}
+  .loop .ls small{display:block;font-size:10px;font-weight:700;opacity:.93;margin-top:3px}
+  .loop .la{color:var(--p500);font-size:18px}
+  .loop .lback{flex-basis:100%;text-align:center;font-size:12.5px;font-weight:800;color:var(--g700);margin-top:8px}
 
   /* nav + progress */
   .pbar{position:fixed;top:0;left:0;height:4px;background:var(--p500);z-index:50;transition:width 0.25s;box-shadow:0 0 8px rgba(232,146,68,0.5)}
@@ -88,10 +128,14 @@
     <span class="chip">PROBLEM</span>
     <div class="stitle">4명 중 1명이 편식, 그런데 부모는 측정조차 못 한다</div>
     <div class="ssub">흔한데 방치되는 통증 · 짧은 골든타임 · 사라진 결과 데이터</div>
-    <ul class="bul">
+    <div class="gt">
+      <div class="seg a">0–2세<span>준비기</span></div>
+      <div class="seg b">만 2–6세<span>🟢 열린 창 · 골든타임</span></div>
+      <div class="seg c">6세 이후<span>🔒 닫힘 · 되돌리기 어려움</span></div>
+    </div>
+    <ul class="bul" style="gap:11px;margin-top:18px">
       <li><b>영유아 4명 중 1명</b>이 편식 — 드문 일이 아니라 방치되는 통증</li>
       <li>부모는 아이가 <span class="hl">'무엇을·얼마나' 못 먹는지조차 객관적으로 모른다</span> (끼니기록 흩어짐)</li>
-      <li>식습관이 굳기 전 골든타임은 <b>만 6세까지</b> — 창이 짧다</li>
       <li>코칭은 일반론, <b>'실제로 나아졌는지' 보여줄 객관적 결과 데이터가 없다</b></li>
     </ul>
     <div class="note"><b>멘트:</b> 편식은 흔하지만, 진짜 문제는 측정이 안 된다는 겁니다. 부모도 우리 애가 얼마나 못 먹는지 객관적으로 모릅니다. 측정되지 않으니까요.</div>
@@ -151,17 +195,17 @@
   <div class="wrap">
     <span class="chip">ENGINE ①</span>
     <div class="stitle" style="font-size:clamp(22px,3vw,36px)">매핑 플라이휠 — 메뉴를 식재료·영양으로 (라이브)</div>
-    <div class="ssub">급식과 같은 도메인 · 환각 0 · 좌=설계 도식 / 우=실앱</div>
-    <div class="media">
-      <img class="di" src="/diagrams/diagram-1.png" alt="매핑 플라이휠 도식">
-      <div class="lives">
-        <img class="li" src="/diagrams/live-d1-mapping.jpg" alt="메뉴→식재료 매핑">
-        <img class="li" src="/diagrams/live-d1-nutrition.jpg" alt="31종 영양 신호등">
+    <div class="ssub">급식과 같은 도메인 · 환각 0 · 가운데=우리 설계 엔진 / 우측=실제 앱</div>
+    <div class="ehero">
+      <img class="ed" src="/diagrams/deck-d1-flywheel.png" alt="매핑 플라이휠 도식">
+      <div class="ethumbs">
+        <div class="et">📱 실제 앱</div>
+        <img src="/diagrams/live-d1-mapping.jpg" alt="메뉴→식재료 매핑">
+        <img src="/diagrams/live-d1-nutrition.jpg" alt="31종 영양 신호등">
       </div>
     </div>
-    <ul class="bul" style="margin-top:10px;gap:7px">
-      <li>메뉴 이름 한 줄 → 식재료 → <b>31종 KDRI 영양 신호등</b>으로 자동 환원</li>
-      <li>NEIS 전국 급식 <b>약 1만 메뉴</b> 코퍼스 플라이휠 — 학교 급식과 같은 도메인, <span class="hl">환각 0</span></li>
+    <ul class="bul" style="margin-top:4px;gap:6px">
+      <li>메뉴 이름 한 줄 → 식재료 → <b>31종 KDRI 영양 신호등</b> 자동 환원 · NEIS <b>약 1만 메뉴</b> 코퍼스 플라이휠 · <span class="hl">환각 0</span></li>
     </ul>
     <div class="note"><b>멘트:</b> 왼쪽이 설계 도식, 오른쪽이 실제 앱입니다. 메뉴 한 줄을 식재료와 31종 영양 신호등으로 풉니다. 학교 급식과 같은 도메인이라 환각이 0입니다. 말이 아니라 지금 돌고 있습니다.</div>
   </div>
@@ -172,17 +216,17 @@
   <div class="wrap">
     <span class="chip">ENGINE ②</span>
     <div class="stitle" style="font-size:clamp(22px,3vw,36px)">결정론 코칭 플랜 — 35가지 방법론을 코드로 (라이브)</div>
-    <div class="ssub">단순 LLM 래퍼가 아니다 · 좌=아키텍처 도식 / 우=실앱</div>
-    <div class="media">
-      <img class="di" src="/diagrams/diagram-2.png" alt="결정론 코칭 엔진 아키텍처">
-      <div class="lives">
-        <img class="li" src="/diagrams/live-d2-letter.jpg" alt="코치 편지">
-        <img class="li" src="/diagrams/live-d2-score.jpg" alt="영양 점수">
+    <div class="ssub">단순 LLM 래퍼가 아니다 · 가운데=우리 설계 아키텍처 / 우측=실제 앱</div>
+    <div class="ehero">
+      <img class="ed tall" src="/diagrams/diagram-2.png" alt="결정론 코칭 엔진 아키텍처">
+      <div class="ethumbs">
+        <div class="et">📱 실제 앱</div>
+        <img src="/diagrams/live-d2-letter.jpg" alt="코치 편지">
+        <img src="/diagrams/live-d2-score.jpg" alt="영양 점수">
       </div>
     </div>
-    <ul class="bul" style="margin-top:10px;gap:7px">
-      <li>복지부 지침 + <b>35가지 국제 편식 방법론을 하나의 하네스로 코드화</b> · '계획은 코드, 작문만 LLM'</li>
-      <li>입력신호→8모듈→35가지 5×7→CoachPlan→편지 · 아이 1명당 <span class="hl">월 LLM 운영비 ≈ 1,000원</span></li>
+    <ul class="bul" style="margin-top:4px;gap:6px">
+      <li>복지부 지침 + <b>35가지 국제 편식 방법론을 하나의 하네스로 코드화</b> · '계획은 코드, 작문만 LLM' · 아이 1명당 <span class="hl">월 ≈ 1,000원</span></li>
     </ul>
     <div class="note"><b>멘트:</b> 이게 기술 해자입니다. 35가지 방법론을 코드 하네스로 박아두고, LLM은 작문만 합니다. 그래서 환각이 0이고 아이 한 명당 월 1,000원으로 굴립니다. 오른쪽이 그 엔진이 매일 발행하는 코치 편지와 영양 점수입니다.</div>
   </div>
@@ -193,17 +237,17 @@
   <div class="wrap">
     <span class="chip">ENGINE ③</span>
     <div class="stitle" style="font-size:clamp(22px,3vw,36px)">깊이 — 편식 도감 204종 · 궁합·사촌 다리놓기</div>
-    <div class="ssub">얕은 래퍼가 아니라 식재료 지식 네트워크 · 도식 + 실앱</div>
-    <div class="media">
-      <img class="di" src="/diagrams/diagram-3.png" alt="궁합·사촌 거미줄 네트워크">
-      <div class="lives">
-        <img class="li" src="/diagrams/live-d3-dex.jpg" alt="편식 도감 204종">
-        <img class="li" src="/diagrams/live-d3-affinity.jpg" alt="궁합·사촌 다리놓기">
+    <div class="ssub">얕은 래퍼가 아니라 식재료 지식 네트워크 · 가운데=우리 설계 / 우측=실제 앱</div>
+    <div class="ehero">
+      <img class="ed" src="/diagrams/deck-d3-network.png" alt="궁합·사촌 거미줄 네트워크">
+      <div class="ethumbs">
+        <div class="et">📱 실제 앱</div>
+        <img src="/diagrams/live-d3-dex.jpg" alt="편식 도감 204종">
+        <img src="/diagrams/live-d3-affinity.jpg" alt="궁합·사촌 다리놓기">
       </div>
     </div>
-    <ul class="bul" style="margin-top:10px;gap:7px">
-      <li><b>편식 도감 204종</b>(식재료별 영양·제철·급식 빈도) + <b>궁합·사촌 거미줄</b>로 '다음 한 입'에 다리를 놓는다</li>
-      <li>도식(설계) ↔ 실앱으로 검증된 깊이 — 코칭 플랜과 박스 구성의 근거</li>
+    <ul class="bul" style="margin-top:4px;gap:6px">
+      <li><b>편식 도감 204종</b> + <b>궁합·사촌 거미줄</b>로 '다음 한 입'에 다리를 놓는다 — 코칭 플랜·박스 구성의 근거</li>
     </ul>
     <div class="note"><b>멘트:</b> 엔진이 얕은 래퍼가 아니라는 증거입니다. 식재료 204종 도감과, 잘 먹는 것에서 다음 한 입으로 다리를 놓는 궁합 네트워크까지 있습니다. 이 지식이 코칭과 박스 구성의 근거가 됩니다.</div>
   </div>
@@ -236,15 +280,28 @@
 <!-- 10 DISTRIBUTION -->
 <section class="slide">
   <div class="wrap">
-    <span class="chip">DISTRIBUTION</span>
-    <div class="stitle">유통 해자 — 0-CAC 교육기관 영업망</div>
-    <div class="ssub">요리교육 아동을 부모 앱으로, 광고비 없이</div>
-    <ul class="bul">
-      <li>'밀프레드' 브랜드 = <b>낮은 가격 + 높은 신뢰도</b>로 전국 교육기관에 영업</li>
-      <li>전국 <b>초등 약 14%</b> 채널 — 요리교육 경험 아동이 <span class="hl">매해 2배 이상</span> 증가</li>
-      <li>그 아동을 부모 앱 설치로 연결 → 사실상 <b>0-CAC 획득 깔때기</b></li>
-      <li>채널 크기·끈적임 지표: 25년 유료고객 <b>6.4만</b> · 재구매 <b>37.4%</b></li>
-    </ul>
+    <div class="twocol">
+      <div>
+        <span class="chip">DISTRIBUTION</span>
+        <div class="stitle" style="font-size:clamp(22px,3vw,38px)">유통 해자 — 0-CAC 교육기관 영업망</div>
+        <div class="ssub">요리교육 아동을 부모 앱으로, 광고비 없이</div>
+        <ul class="bul" style="gap:11px">
+          <li>'밀프레드' 브랜드 = <b>낮은 가격 + 높은 신뢰도</b>로 전국 교육기관에 영업</li>
+          <li>요리교육 경험 아동이 <span class="hl">매해 2배 이상</span> 증가 → 부모 앱 설치로 연결 = <b>0-CAC 깔때기</b></li>
+          <li>채널 크기·끈적임 지표: 25년 유료고객 <b>6.4만</b> · 재구매 <b>37.4%</b></li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:13.5px;font-weight:800;color:var(--nav);margin-bottom:16px">기관별 침투율 <span style="font-weight:600;color:var(--n500)">(누적 거래 기준)</span></div>
+        <div class="bars">
+          <div class="barrow"><span class="bl">초등학교</span><div class="bt"><div class="bf" style="width:96%">14.83%</div></div></div>
+          <div class="barrow"><span class="bl">중학교</span><div class="bt"><div class="bf" style="width:28%">3.72%</div></div></div>
+          <div class="barrow"><span class="bl">유치원</span><div class="bt"><div class="bf" style="width:11%">1.11%</div></div></div>
+          <div class="barrow"><span class="bl">어린이집</span><div class="bt"><div class="bf" style="width:7%">0.54%</div></div></div>
+        </div>
+        <div class="mediacap" style="text-align:left;margin-top:14px;line-height:1.5">한 채널(초등)은 증명됐고, 더 큰 채널(유치원·어린이집)은 <b style="color:var(--or)">이제 시작</b> — 시장의 97%가 남아 있다</div>
+      </div>
+    </div>
     <div class="note"><b>멘트:</b> 고객을 사오지 않습니다. 이미 신뢰받는 협력사 교육기관 채널로 전환합니다. 전국 초등 14%가 이미 우리 채널이고, 유료고객 6.4만에 재구매가 37.4%입니다. 매출이 아니라 채널이 살아 돈다는 크기 지표입니다.</div>
   </div>
 </section>
@@ -254,12 +311,22 @@
   <div class="wrap">
     <span class="chip">MARKET</span>
     <div class="stitle">60만 가구에서 글로벌까지, 저출생 역설이 순풍</div>
-    <div class="ssub">SOM → SAM → TAM · 인바디 네트워크가 교두보</div>
-    <ul class="bul">
-      <li><b>진입(SOM)</b>: 편식 약 60만 가구 — 지금 가장 절박한 곳부터</li>
-      <li><b>확장(SAM)</b>: 0~6세 230만 · 영유아 200만 가구</li>
-      <li><b>글로벌(TAM)</b>: 편식은 전세계 공통 페인 — <span class="hl">인바디 다국가 네트워크가 해외 교두보</span></li>
-      <li>순풍: <b>저출생 역설</b> — 머릿수↓, 그러나 아이 1인당 지출↑</li>
+    <div class="ssub">좁은 송곳(편식)으로 들어가 거대한 우산(아동 영양·건강)으로</div>
+    <div class="tiers">
+      <div class="tier t1">편식 60만 가구<span class="tn">진입 SOM · 좁은 송곳</span></div>
+      <span class="tier-arrow">→</span>
+      <div class="tier t2">영유아 200만 가구<span class="tn">확장 SAM · 레시피·건기식·성장</span></div>
+      <span class="tier-arrow">→</span>
+      <div class="tier t3">글로벌<span class="tn">TAM · 인바디 네트워크 교두보</span></div>
+    </div>
+    <div style="font-size:13px;font-weight:800;color:var(--nav);margin:4px 0 0;text-align:center">교육 키트로 만난 아동 — 매해 2배 이상</div>
+    <div class="growth">
+      <div class="gcol"><div class="gbar" style="height:48px">2만</div><div class="gy">2024</div></div>
+      <div class="gcol"><div class="gbar" style="height:96px">6만</div><div class="gy">2025</div></div>
+      <div class="gcol"><div class="gbar" style="height:160px">15만</div><div class="gy">2026 (E)</div></div>
+    </div>
+    <ul class="bul" style="gap:7px;margin-top:6px">
+      <li>순풍: <b>저출생 역설</b> — 머릿수↓, 그러나 아이 1인당 지출↑ → 프리미엄 개인화에 지갑이 열린다</li>
     </ul>
     <div class="note"><b>멘트:</b> 편식이라는 송곳으로 60만 가구에 들어가, 영유아 200만으로 넓히고, 글로벌로 갑니다. 편식은 전세계 공통이라 인바디 글로벌 네트워크가 그대로 교두보가 됩니다. 저출생은 머릿수는 줄지만 1인당 지출이 느는 순풍입니다.</div>
   </div>
@@ -303,11 +370,19 @@
     <span class="chip">협업 비전 &amp; THE ASK</span>
     <div class="stitle">우리 약점을 인바디 측정이 메운다</div>
     <div class="ssub">측정 → 처방 → 충족 → 재측정, 함께 닫는 닫힌 헬스케어 루프</div>
-    <ul class="bul">
-      <li><b>측정(InBody 체성분·성장)</b> → 진단/처방(밀프레드 편식 엔진) → 충족(개인화 키트·콜드체인) → <b>재측정(InBody)</b></li>
-      <li>솔직한 약점 = 개인 섭취·성장 '결과 데이터' 부재 → <span class="hl">인바디 측정이 정확히 메운다</span> (지금 돈다고 말하지 않음 · 이번 라운드 검증 목표)</li>
-      <li>인바디 글로벌 = 해외 교두보 · 블루포인트 = 딥테크 투자·스케일</li>
-      <li>Ask: ①측정 가능한 아동 건강 개선(사회적 비용↓) ②개인화 배송 구독 검증 ③글로벌 교두보</li>
+    <div class="loop">
+      <div class="ls measure">측정<small>InBody 체성분·성장</small></div>
+      <span class="la">→</span>
+      <div class="ls engine">진단·처방<small>밀프레드 편식 엔진</small></div>
+      <span class="la">→</span>
+      <div class="ls fulfil">충족<small>개인화 키트·콜드체인</small></div>
+      <span class="la">→</span>
+      <div class="ls measure">재측정<small>InBody</small></div>
+      <div class="lback">↺ 결과 데이터가 다시 엔진으로 — <b>우리 약점(결과 데이터)을 인바디 측정이 정확히 메운다</b></div>
+    </div>
+    <ul class="bul" style="gap:9px">
+      <li>지금 돈다고 말하지 않음 · <b>이번 라운드 검증 목표</b> · 인바디 글로벌=교두보 · 블루포인트=딥테크 투자</li>
+      <li><b>Ask</b>: ①측정 가능한 아동 건강 개선(사회적 비용↓) ②개인화 배송 구독 검증 ③글로벌 교두보</li>
     </ul>
     <div class="note"><b>멘트:</b> 닫힌 루프에서 우리에게 비어 있던 단 하나가 결과 데이터입니다. 인바디 측정이 정확히 그 칸을 채웁니다. 퍼즐이 맞습니다. 이미 돈다고 말하지 않습니다. 이번 라운드에 함께 검증해, 측정 가능한 결과로 아이 영양을 평생 책임지는 루프를 닫고 싶습니다.</div>
   </div>
