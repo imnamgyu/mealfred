@@ -1,0 +1,290 @@
+<!doctype html><html lang="ko"><head><script src="/docs-gate.js?v=4"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 주간 계획 엔진 — 2층 케이던스 설계 (주간 닻 + 일간 실행)</title>
+<meta property="og:title" content="코칭 주간 계획 엔진 — 주간 닻 + 일간 결정론 실행 설계">
+<style>
+:root{--ink:#1f2328;--mut:#6b7280;--line:#e5e7eb;--bg:#f7f8fa;--card:#fff;--accent:#c2410c;--good:#15803d;--blue:#1d4ed8;--pass:#16a34a;--bad:#dc2626;--purple:#9333ea}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.68 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard',sans-serif}
+.wrap{max-width:1040px;margin:0 auto;padding:30px 20px 90px}
+h1{font-size:25px;margin:0 0 6px}.lead{color:var(--mut);margin:0 0 20px;font-size:14.5px}
+.lead a,.box a{color:var(--accent)}
+.tldr{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 18px;margin-bottom:22px}
+.tldr h3{margin:0 0 8px;font-size:15px;color:var(--accent)}
+.tldr ul{margin:6px 0 0;padding-left:18px}.tldr li{margin:5px 0;font-size:13.5px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px}
+h2{font-size:18px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin:0 0 12px}
+h2 .n{color:var(--accent)}
+h3.sub{font-size:14.5px;margin:16px 0 6px;color:var(--ink)}
+p{margin:8px 0}.muted{color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:12.7px;margin:10px 0}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#f1f5f9;font-weight:700}
+td.c,th.c{text-align:center}
+.ok{color:var(--good);font-weight:700}.no{color:var(--bad);font-weight:700}.part{color:#b45309;font-weight:700}
+.flow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;line-height:1.55;background:#0f172a;color:#e2e8f0;border-radius:10px;padding:16px;overflow-x:auto;white-space:pre;margin:10px 0}
+.flow .g{color:#4ade80}.flow .o{color:#fb923c}.flow .b{color:#60a5fa}.flow .m{color:#94a3b8}.flow .r{color:#f87171}.flow .p{color:#c084fc}
+.layer{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+.layer.l1{background:#eff6ff;border-color:#bfdbfe}.layer.l2{background:#f0fdf4;border-color:#bbf7d0}.layer.l3{background:#faf5ff;border-color:#e9d5ff}
+.layer b{font-size:14px}.layer .tag{font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;color:#fff;margin-left:6px}
+.l1 .tag{background:var(--blue)}.l2 .tag{background:var(--pass)}.l3 .tag{background:var(--purple)}
+code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
+.note{font-size:12px;color:var(--mut);margin-top:6px}
+.pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:20px;margin-left:5px}
+.pill.now{background:var(--accent);color:#fff}.pill.next{background:var(--blue);color:#fff}.pill.ship{background:var(--good);color:#fff}.pill.plan{background:var(--purple);color:#fff}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0}
+.ba .col{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:12.7px}
+.ba .col.before{background:#fef2f2;border-color:#fecaca}.ba .col.after{background:#f0fdf4;border-color:#bbf7d0}
+.ba .col h4{margin:0 0 6px;font-size:13px}.ba .col.before h4{color:var(--bad)}.ba .col.after h4{color:var(--good)}
+.ba ul{margin:4px 0 0;padding-left:16px}.ba li{margin:3px 0}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:12px 0}
+.week .d{border:1px solid var(--line);border-radius:9px;padding:8px 6px;font-size:11px;text-align:center;background:#fff}
+.week .d .dn{font-weight:800;font-size:11.5px;margin-bottom:3px}
+.week .d.sun{background:#faf5ff;border-color:#e9d5ff}.week .d.sun .dn{color:var(--purple)}
+.week .d.nag{background:#fff7ed;border-color:#fed7aa}.week .d.nag .dn{color:var(--accent)}
+.week .d .sc{font-size:9.5px;color:var(--mut);line-height:1.3;margin-top:2px}
+.week .d .tg{font-size:10px;font-weight:700;color:var(--ink)}
+.q{background:#f8fafc;border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:9px 12px;margin:8px 0;font-size:12.7px}
+.q b{color:var(--blue)}
+.tag2{font-size:10px;font-weight:800;padding:1px 6px;border-radius:5px}
+.tag2.miss{background:#dbeafe;color:#1e40af}.tag2.intr{background:#fde2e2;color:#b91c1c}.tag2.rest{background:#ede9fe;color:#6d28d9}
+@media(max-width:720px){.ba{grid-template-columns:1fr}.week{grid-template-columns:repeat(4,1fr)}}
+</style></head><body><div class="wrap">
+
+<h1>코칭 주간 계획 엔진 — 2층 케이던스 설계</h1>
+<p class="lead">설계 문서 · 2026-06-09 · <b>주간 닻(일요일 LLM 종합) + 일간 결정론 실행</b>. 후속 설계: <a href="/coaching-plan-engine.html">plan 엔진(배포)</a>·<a href="/coaching-scenarios.html">시나리오 엔진</a>의 위에 '한 주'라는 시간축을 얹는다. <b>이 문서는 설계만 — 코드 변경 없음.</b></p>
+
+<div class="tldr">
+<h3>🎯 한눈에</h3>
+<ul>
+<li><b>문제:</b> 코칭 크론이 <b>매일 새벽 최근 7일을 새로 보고</b> 시나리오·타깃을 즉석 산출 → 며칠 만에 콩류→생선→과일로 <b>'휙휙' 바뀐다.</b> 편식 개선은 같은 음식 <b>주 2~3회 반복 노출</b>이 핵심인데, 매일 다른 숙제는 그 과학과 어긋난다. 주간 닻이 없다.</li>
+<li><b>해법(2층 케이던스):</b> <span style="color:var(--purple);font-weight:700">일요일 새벽 2시</span> = LLM이 지난 한 주를 종합해 <b>다음 주 미션 1개 + 요일별 슬롯</b>을 짠다(<code>weekly_plans</code> 1행). <span style="color:var(--blue);font-weight:700">월~토 새벽 2시</span> = 코드가 그날 슬롯을 결정론 실행하고 그날 데이터로 <b>작은 교정만</b>. → LLM 종합 판단은 '주간'에(적소), 일일은 결정론. 비용 1/7.</li>
+<li><b>⭐ 채근 정책 변경(이사님):</b> 옛 '같은 타깃 이틀 연속 금지'(=채근 0회) → <b>주 1회는 같은 걸 좀 더 민다.</b> 주간 미션 타깃을 슬롯에 2~3회 의도 배치(반복 노출) + '직접 밀기(push)'는 <code>ledger.pushUsed</code>로 <b>정확히 주 1회 하드 캡</b>. ARFID 의심·휴면 복귀 주는 push 선잠금(0회).</li>
+<li><b>일관성:</b> 월~토는 시나리오를 다시 안 고른다(슬롯이 닻). 교정은 화이트리스트 override만 — 안전 인터럽트(전환 축하·적신호)·타깃 소멸·무브 회전. 닻 전체 재작성은 <b>오직 다음 일요일.</b></li>
+<li><b>안전 제1원칙:</b> 일간 결정론 경로는 <b>주간 닻 유무와 무관하게 항상 단독으로 편지를 낼 수 있어야 한다.</b> 닻 없음/LLM 실패 → 현행 <code>planFor</code> 폴백(무편지 0). 닻은 '있으면 좋은 안정 장치'.</li>
+<li><b>설계 범위:</b> 4개 에이전트 병렬 설계 + 적대 엣지케이스 10종 검증. <b>결정 필요 5건</b>(§9) — 주 경계·일요일 부하·미션 부모 노출·채근 톤 적대검수·구조화 입력 신뢰도.</li>
+</ul>
+</div>
+
+<div class="box">
+<h2><span class="n">1.</span> 왜 주간 계획인가 — '매일 재계산'의 한계</h2>
+<p>현재 <code>cron/coach</code>는 매일 새벽 2시(KST) <code>planFor()</code>가 <b>최근 7일 윈도우를 처음부터 새로 보고</b> 그날의 시나리오·타깃·무브를 즉석에서 뽑는다. <a href="/coaching-plan-engine.html">plan 엔진</a>이 '하루 안에서의 중복'은 막았지만(시그니처 dedup·채근 방지), <b>'한 주에 걸친 일관성'을 잡는 시간축이 없다.</b></p>
+<div class="ba">
+<div class="col before"><h4>현재 — 매일 독립 재계산</h4>
+<ul>
+<li>월: 콩류 · 화: 생선 · 수: 과일 · 목: 콩류… <b>타깃이 휙휙</b></li>
+<li>같은 타깃 이틀 연속 = 무조건 금지(채근 0) → 반복 노출 불가</li>
+<li>부모 입장: 매일 다른 숙제 → <b>서사·안정감 없음</b>, 뭘 꾸준히 해야 할지 모호</li>
+<li>재노출 과학(주 2~3회 같은 음식)과 <b>정면 충돌</b></li>
+</ul></div>
+<div class="col after"><h4>제안 — 주간 닻 + 일간 실행</h4>
+<ul>
+<li>이번 주 미션 = <b>"콩류와 친해지기"</b> 하나. 월·수·금에 콩류, 다른 날은 변주</li>
+<li>같은 타깃이 여러 날 = <b>설계된 반복 노출</b>(휙휙 아님)</li>
+<li>부모 입장: <b>"이번 주는 이것"</b> — 한 주 내내 같은 방향, 매일 표현만 다름</li>
+<li>주 1회 '좀 더 밀기'(채근)를 허용 = 이사님 정책</li>
+</ul></div>
+</div>
+<p class="note"><b>핵심 통찰:</b> '매일 분석'은 반응성은 좋지만 안정성이 없고, '주간 고정'은 안정적이지만 그날 긴급 신호(전환·적신호)를 놓친다. 둘을 <b>층으로 분리</b>한다 — 주간이 방향을 잡고, 일간이 그 안에서 반응한다.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">2.</span> 2층 케이던스 아키텍처</h2>
+<p>크론은 <b>지금처럼 하나</b>(<code>/api/cron/coach</code>, <code>0 17 * * *</code> = KST 02시). Vercel Hobby 2-크론 한도를 지키기 위해 <b>새 크론을 추가하지 않고</b> 라우트 안에서 KST 요일로 분기한다.</p>
+<div class="layer l3"><b>일요일(dow=0)</b><span class="tag">주간 종합 + 회고</span><br>
+<span class="muted" style="font-size:12.5px">① 자녀 루프 진입 전 <code>runWeeklyPlanning()</code> — LLM 1콜로 지난 7일 분석 → <code>weekly_plans</code> upsert(미션 + 월~토 슬롯). ② 일요일 편지 = <b>'지난 주 회고 + 다음 주 미션'</b> 프레임(<code>weekly-review</code> 시나리오, target/move 없음·PRAISE_ONLY 계열).</span></div>
+<div class="layer l1"><b>월~토(dow=1~6)</b><span class="tag">슬롯 결정론 실행 + 작은 교정</span><br>
+<span class="muted" style="font-size:12.5px"><code>weekly_plans</code>에서 그날 슬롯을 읽어 <code>composeLetter</code>에 주입. 시나리오·타깃은 <b>슬롯이 결정</b>(selectScenario 호출 안 함). 그날 데이터로 화이트리스트 override만(§5·§6).</span></div>
+<div class="flow"><span class="m"># /api/cron/coach — 요일 분기 (단일 크론, 새 크론 0)</span>
+const dow = <span class="g">kstDow(today)</span>   <span class="m"># 0=일 … 6=토</span>
+
+if (dow === 0) {                       <span class="p"># 일요일 = 주간 종합</span>
+   for child of active:
+      <span class="p">runWeeklyPlanning(child)</span>  → weekly_plans upsert  <span class="m"># LLM 1콜/자녀</span>
+      편지 = composeLetter({ scenario:<span class="p">'weekly-review'</span>, recap, mission })
+} else {                               <span class="b"># 월~토 = 슬롯 실행</span>
+   for child of active:
+      wp   = loadWeeklyPlan(child, weekKey)      <span class="m"># 없으면 lazy 폴백</span>
+      slot = wp.slots[dow]                       <span class="m"># {scenarioId,target,moveKey,push}</span>
+      plan = <span class="b">applySlotWithCorrection</span>(slot, todaySignals)  <span class="m"># 작은 교정</span>
+      편지 = composeLetter({ ...plan })          <span class="m"># 작문·안전·유사도 가드 그대로</span>
+}</div>
+<p><b>호환성:</b> <code>composeLetter</code>·안전가드·유사도가드는 <b>손대지 않는다.</b> <code>precomputed</code>(plan)만 '일일 즉석 산출'→'슬롯 기반'으로 바뀐다. <code>planFor</code>는 폐기하지 않고 <b>닻 부재 시 폴백</b>으로 남긴다(점진 배포·무회귀).</p>
+</div>
+
+<div class="box">
+<h2><span class="n">3.</span> <code>weekly_plans</code> — 주간 닻 (데이터모델)</h2>
+<p>자녀 × ISO주 1행. 일요일 종합이 쓰고(service_role) 월~토가 읽는다. <a href="/coaching-plan-engine.html">plan 엔진</a>의 <code>context.plan</code> 원장을 '하루'에서 '한 주'로 끌어올린 것.</p>
+<div class="flow"><span class="m">-- sql/2026-06-09_weekly_plans.sql</span>
+create table public.weekly_plans (
+  child_id   uuid not null references children(id) on delete cascade,
+  week_key   text not null,           <span class="m">-- isoWeekKey(일요일) — lib/progress.ts 재사용</span>
+  status     text default 'active',   <span class="m">-- active|degraded|stale_carried|cold_synth</span>
+  source     text not null,           <span class="m">-- weekly_llm|carried|cold_synth|none</span>
+  <span class="g">mission</span>        text,            <span class="m">-- 이번 주 미션 1줄 (부모용·편지마다 일관 주입)</span>
+  <span class="g">mission_target</span> text,            <span class="m">-- 미션의 핵심 타깃 (슬롯에 2~3회 배치)</span>
+  <span class="g">slots</span>          jsonb not null,  <span class="m">-- {"1":{scenarioId,target,moveKey,push}, … "6":{…}}</span>
+  <span class="o">ledger</span>         jsonb,           <span class="m">-- {pushUsed,pushDay,shockResetAt,missionTouch[]} ⭐채근 카운트</span>
+  basis          jsonb,           <span class="m">-- 종합 근거 스냅샷(지난주 metrics·reds·favoriteFoods)</span>
+  basis_hash     text,            <span class="m">-- 7일 입력 지문(동일하면 LLM 스킵·carry)</span>
+  basis_attends_daycare boolean,  <span class="m">-- 등원 변경 감지(§8 ⑧)</span>
+  generated_at   timestamptz default now(),
+  primary key (child_id, week_key)
+);
+alter table public.weekly_plans enable row level security;
+create policy weekly_plans_read on public.weekly_plans for select
+  using (child_id in (select id from children where parent_id = auth.uid()));</div>
+<table>
+<tr><th>저장물</th><th>역할</th></tr>
+<tr><td><code>mission</code> / <code>mission_target</code></td><td>이번 주 단일 방향. 모든 평일 편지 하단에 일관 주입 → 서사 연속. 일요일 회고 편지에 재사용.</td></tr>
+<tr><td><code>slots</code> (월~토 6칸)</td><td>요일별 <b>{시나리오·타깃·무브·push}</b> 확정. <b>이게 곧 일일</b> — 월~토는 슬롯만 읽는다.</td></tr>
+<tr><td><code>ledger.pushUsed</code></td><td>⭐ <b>채근 1회/주의 단일 진실.</b> DB 컬럼 하나로 하드 캡(코드가 절대 2회 못 넘김).</td></tr>
+<tr><td><code>basis_hash</code></td><td>지난주 입력이 같으면 일요일 LLM 스킵·carry(비용 절감). plan 엔진의 <code>srcHash</code> 패턴 동일.</td></tr>
+</table>
+<p class="note"><b>스키마 변경 최소:</b> 신규 테이블 1개 + <code>coach_letters.context</code>(기존 jsonb)에 <code>weekKey·slotDow·fromSlot·slotOverride·pushApplied</code> 키 추가(DDL 불필요). 새 RPC 불필요 — 크론이 직접 upsert.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">4.</span> 주간 ↔ 일간 관계 · 일관성 유지</h2>
+<p>핵심 질문: <b>'일일이 주계획을 어떻게 닻으로 삼고, 어떻게 못 벗어나게 하나.'</b> 3겹 가드로 잠근다.</p>
+<table>
+<tr><th class="c">가드</th><th>규칙</th><th>효과</th></tr>
+<tr><td class="c"><b>① 슬롯 우선</b></td><td>월~토는 <code>selectScenario</code>를 <b>호출하지 않는다</b>(LLM도 안 봄). 시나리오·타깃은 슬롯이 결정.</td><td>'휙휙' 원천 차단. 주간 분배가 곧 일일.</td></tr>
+<tr><td class="c"><b>② 화이트리스트<br>override만</b></td><td>그날 교정은 <b>딱 3종만</b> 허용: ⓐ 안전 인터럽트(전환→축하·적신호→관찰) ⓑ 타깃 소멸(슬롯 타깃이 그날 결핍 아니면 같은 미션군 내 다음 후보로만) ⓒ 무브 회전(시그니처 겹치면 표현만). <b>그 외 임의 변경 금지.</b></td><td>닻에서 못 벗어남. 미션군 밖 이동 불가.</td></tr>
+<tr><td class="c"><b>③ drift 감지</b></td><td>실행 후 <code>plan.frame</code>이 슬롯과 다르면(안전 인터럽트 제외) <code>context.driftFromPlan=true</code> 기록.</td><td>어드민에서 닻 이탈 모니터.</td></tr>
+</table>
+<h3 class="sub">충돌 시 우선순위</h3>
+<div class="flow"><span class="r">dormancy(휴면 복귀)</span> > <span class="o">shock(데이터 쇼크)</span> > <span class="o">ARFID 게이트</span> > <span class="b">닻 슬롯 준수</span> > <span class="m">planFor 자율(폴백)</span></div>
+<p><b>닻 슬롯 채택 조건(AND):</b> ⓐ slot.scenarioId가 13개 중 하나 ⓑ 그 시나리오 <code>trigger(오늘 신호)</code> 통과 ⓒ slot.target이 오늘 실신호에 존재 ⓓ shock/dormancy/등원변경 아님. <b>하나라도 실패 → 그 슬롯만 폐기, planFor 자율.</b> 이 <code>trigger</code> 게이트가 LLM이 '없는 결핍을 미션으로 박는' 환각의 최종 방어선이다.</p>
+<p class="note"><b>닻 전체 재작성은 오직 다음 일요일.</b> 월~토는 슬롯을 그날만 덮을 수 있을 뿐, <code>weekly_plans</code> 자체는 주 내내 불변(안정감). 예외 1: 주중 결핍 구조가 근본 변동(red 영양소 2개+ 신규 추가 && 슬롯들이 하나도 안 다룸)이면 <b>남은 평일 슬롯만</b> 갱신(과거 슬롯·ledger 보존).</p>
+</div>
+
+<div class="box">
+<h2><span class="n">5.</span> ⭐ 채근 정책 변경 — 주 0회 → 주 1회</h2>
+<p>이사님 지시: <b>"채근도 이제는 아예 안 하기보다 주당 1회 정도는 하는 걸로 하자."</b> 이 한 줄이 옛 plan 엔진의 핵심 가드를 뒤집는다.</p>
+<div class="ba">
+<div class="col before"><h4>옛 규칙 (plan 엔진)</h4>
+<ul>
+<li><code>planFor</code>: 어제와 같은 타깃이면 <b>무조건</b> 다른 각도(정체기)로 전환</li>
+<li>= 같은 걸 이틀 연속 미는 채근 <b>0회</b></li>
+<li>부작용: <b>반복 노출이 구조적으로 불가능</b>(같은 음식 주 2~3회를 못 함)</li>
+</ul></div>
+<div class="col after"><h4>새 규칙 (주간 닻)</h4>
+<ul>
+<li>주간 미션 타깃을 슬롯에 <b>2~3회 의도 배치</b> = 반복 노출 = 정상</li>
+<li>'직접 밀기(push)'는 <code>ledger.pushUsed</code>로 <b>정확히 주 1회</b></li>
+<li>나머지 날은 같은 타깃이라도 <b>부드러운 변주</b>(조리법·궁합·환경·칭찬)</li>
+</ul></div>
+</div>
+<h3 class="sub">'채근(push)'의 정의 — 코드 판정</h3>
+<p>채근 = <b>같은 타깃을 적극적으로 들이미는 행동</b>. 구체적으로 <code>moveKey ∈ {mix, beside}</code>('좋아하는 음식에 섞기'·'옆에 곁들이기')로 같은 타깃을 한 번 더 제안하는 것. 나머지 무브(recook·pair·cook-together·model·sensory)와 환경/자율성/칭찬은 <b>변주이지 채근이 아니다.</b></p>
+<h3 class="sub">주 1회 강제 — 결정론 카운트</h3>
+<table>
+<tr><th>장치</th><th>규칙</th></tr>
+<tr><td><b>상한(주 1회)</b></td><td>일요일 분배가 슬롯 중 <b>정확히 1개에만 <code>push:true</code></b> 마킹(미션 핵심 타깃·주 중반 화/수). 실행일에 <code>pushUsed=false</code>면 적용 + <code>pushUsed=true·pushDay=today</code> 기록. 이미 true면 <b>강등</b>(moveKey를 push계열→비push계열로, 타깃은 유지=반복 노출 지속·들이밀기만 제거). LLM이 욕심내 2개 박아도 코드가 1회로 클램프.</td></tr>
+<tr><td><b>하한(0 허용)</b></td><td>push 슬롯이 안전 인터럽트에 먹히면 같은 주 다음 평일로 1회 재부착(쿨다운 1일). 주말까지 못 밀면 <b>그 주 0회</b> — '최대 1회'이지 '의무 1회'가 아니다.</td></tr>
+<tr><td><b>0회 강제잠금</b></td><td><b>ARFID 의심</b>(icfqRiskCount≥2·증상 메모·먹는 종류 감소) 또는 <b>휴면 복귀 주</b>는 종합 시점에 <code>pushUsed=true</code> 선잠금 → 그 주 채근 0회. 압박이 이탈·역효과인 아이를 보호.</td></tr>
+</table>
+<p class="note"><b>왜 DB 컬럼 하나로 충분한가:</b> 채근 카운트가 <code>weekly_plans.ledger.pushUsed</code> 한 곳에만 있어(단일 진실), 일일 재실행(force/QA)에도 멱등이고 별도 카운터가 필요 없다. '주 1회'가 데이터 구조에 박혀 자연히 강제된다.</p>
+<p class="note"><b>시그니처 dedup은 유지.</b> 같은 타깃이 여러 날 와도 <code>(frame·move·도입)</code>이 최근 3일과 겹치면 무브·도입을 회전 → 복붙 편지 방지. dedup의 차단 대상이 '의미(같은 처방)'에서 '표현(같은 문장틀)'으로 좁아진다(타깃 반복은 주간 미션이 책임지므로 허용).</p>
+</div>
+
+<div class="box">
+<h2><span class="n">6.</span> 그날그날 데이터 상황대응 — 작은 교정 vs 변경 시점</h2>
+<p>일간의 역할은 <b>주계획을 안 뒤집고 그 위에 그날 반응을 얹는 것</b>. '작은 교정'과 '변경 시점'을 경계표로 가른다.</p>
+<table>
+<tr><th>그날 델타</th><th>처리</th><th class="c">슬롯 변경?</th><th>시나리오</th><th class="c">채근 카운트</th></tr>
+<tr><td>없음</td><td>슬롯 그대로</td><td class="c no">X</td><td><code>slot.scenarioId</code></td><td class="c">slot.push 따름</td></tr>
+<tr><td><b>전환 감지</b>(거부→수용)</td><td><b>작은 교정</b> · 그날만 덮기</td><td class="c ok">보존</td><td>progress-celebrate</td><td class="c">영향 없음(행동 없음)</td></tr>
+<tr><td><b>새 거부</b>(슬롯 타깃 아님)</td><td><b>작은 교정</b> · 한 줄 안심</td><td class="c ok">유지</td><td>slot 유지</td><td class="c">영향 없음</td></tr>
+<tr><td><b>icfq-risk 누적 ≥2</b></td><td><b>변경 시점</b> · 안전 override</td><td class="c part">그날만 무시</td><td>neophobia-arfid-watch</td><td class="c no">push 강등</td></tr>
+<tr><td><b>휴면 2~7일</b></td><td>휴면 경로 우선</td><td class="c part">소비 정지</td><td>reengage</td><td class="c no">push 보류</td></tr>
+</table>
+<p><b>원칙:</b> 안전·즉시성이 필요한 신호(전환 축하·적신호)는 미루면 안 되므로 그날 슬롯을 덮는다 — 단 이건 weekly와 '충돌'이 아니라 <b>'안전 인터럽트'</b>로 기록되고, 다음 날은 다시 슬롯대로 복귀한다(주계획 보존). 일반적인 새 거부·메모는 <b>편지 하단 한 줄</b>로만 반영(시나리오 전환 안 함) → 닻이 헐거워지지 않는다.</p>
+<p class="note"><b>'변경 시점'은 일일이 절대 주계획 슬롯을 다시 쓰지 않는다는 뜻.</b> 그날만 무시할 뿐. 슬롯 재작성은 다음 일요일 종합의 권한.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">7.</span> 35 시나리오 — 분배 · 선택 시점 · 변경 시점</h2>
+<p>현 <a href="/coaching-scenarios.html">13 시나리오</a>(설계상 35 이론) 위에 '주간 아크'를 얹는다. 시나리오를 3티어로 나눠 분배 규칙을 다르게 준다.</p>
+<table>
+<tr><th class="c">티어</th><th>시나리오</th><th>주간 배치</th></tr>
+<tr><td class="c"><span class="tag2 miss">MISSION</span></td><td>nutrient-gap · home-daycare-gap · new-refusal · re-exposure-timing · repeat-menu · texture-refusal · autonomy-power-struggle · mealtime-atmosphere · reward-bribe-backfire</td><td>한 주를 끌 수 있는 <b>행동 테마</b>. 일요일에 최우선 2개 = 주테마·보조테마로 고정.</td></tr>
+<tr><td class="c"><span class="tag2 intr">INTERRUPT</span></td><td>progress-celebrate(100) · neophobia-arfid-watch(92) · low-data-gap(84)</td><td>주중 어디든 끼어드는 <b>우선 신호</b>. 슬롯을 그날만 덮음(전환·적신호·기록공백).</td></tr>
+<tr><td class="c"><span class="tag2 rest">REST</span></td><td>plateau(30)</td><td>일요일 회고 + 주중 데이터 빈약 시 폴백(칭찬·쉬어가기).</td></tr>
+</table>
+<h3 class="sub">한 주 슬롯 예시 — 미션 = "콩류와 친해지기"</h3>
+<div class="week">
+<div class="d sun"><div class="dn">일</div><div class="sc">주간 회고<br>+미션 예고</div></div>
+<div class="d"><div class="dn">월</div><div class="tg">콩류</div><div class="sc">cook-together</div></div>
+<div class="d"><div class="dn">화</div><div class="tg">생선</div><div class="sc">보조테마</div></div>
+<div class="d"><div class="dn">수</div><div class="tg">콩류</div><div class="sc">sensory(변주)</div></div>
+<div class="d"><div class="dn">목</div><div class="tg">—</div><div class="sc">재노출/전환<br>후보</div></div>
+<div class="d nag"><div class="dn">금</div><div class="tg">콩류</div><div class="sc">⭐ push<br>(주 1회 채근)</div></div>
+<div class="d"><div class="dn">토</div><div class="tg">환경</div><div class="sc">식사분위기<br>무압력</div></div>
+</div>
+<p class="muted" style="font-size:12.5px">콩류가 월·수·금 3회(반복 노출) — 단 월=함께 요리, 수=감각 사다리, <b>금=주 1회 직접 밀기</b>. 같은 타깃, 매일 다른 무브 → 권태 없이 노출 누적. 화·토는 다른 축으로 환기.</p>
+<h3 class="sub">선택 시점 vs 변경 시점</h3>
+<table>
+<tr><th>시점</th><th>무엇</th><th>주체</th></tr>
+<tr><td class="c"><b>선택</b></td><td>일요일 종합 — 7일 분석 → 주테마 + 요일별 13시나리오 분배 확정</td><td class="part">LLM 1회(적소)</td></tr>
+<tr><td class="c"><b>미세선택</b></td><td>슬롯 타깃이 '풀'로만 지정된 경우, 그날 데이터로 구체 타깃·무브 확정(시나리오는 고정)</td><td class="ok">코드</td></tr>
+<tr><td class="c"><b>변경</b></td><td>매일 <code>trigger</code> 게이트로 '오늘 적합성'만 재확인 — 못 따르면 그날만 자율, <b>닻 자체는 안 바꿈</b></td><td class="ok">코드</td></tr>
+<tr><td class="c"><b>재작성</b></td><td>주테마 신호 완전 소멸·진부화(부모 2주 미션 무시) → 다음 일요일 각도 전환</td><td class="part">LLM(다음 주)</td></tr>
+</table>
+<h3 class="sub">구조화 입력 → 주간 미션으로 승격</h3>
+<p>식감·자율성·식사환경·식사시간 4개 구조화 입력을 '오늘 한 줄'이 아니라 <b>'이번 주 미션'</b>으로 끌어올린다(지난 7일 분포 집계 = notes 키워드보다 강한 데이터 기반).</p>
+<table>
+<tr><th>입력</th><th>임계(지난주)</th><th>주간 미션</th></tr>
+<tr><td>식감(texture)</td><td>최빈이 puree/mashed에 머묾 & 연령상 위 단계 가능 & 기록 ≥3끼</td><td>"이번 주 = 한 끼만 한 단계 위 질감(으깬→손가락)"</td></tr>
+<tr><td>자율성(autonomy)</td><td>스스로 self 비율 &lt;30% & 기록 ≥4끼</td><td>"이번 주 = 스스로 떠먹게 둘 끼니 하나"</td></tr>
+<tr><td>식사환경(environment)</td><td>(영상+돌아다님+놀이) 비율 &gt;40% & 기록 ≥4끼</td><td>"이번 주 = 한 끼는 영상 끄고 식탁에서"</td></tr>
+<tr><td>식사시간(meal_time)</td><td>30분+ 비율 높음</td><td>자율성/환경 테마의 <b>보조 근거</b>(단독 테마는 과함)</td></tr>
+</table>
+<p class="note"><span class="no">⚠ 선행 수정 필요:</span> 현재 cron이 구조화 입력 중 <b>autonomy·environment를 select조차 안 함</b> → 코칭에 0% 반영 중. 이 주간 설계의 전제는 cron select에 두 컬럼 추가다.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">8.</span> 적대 엣지케이스 10종 + 결정론 안전망</h2>
+<p>2층을 깨려고 시도한 10개 케이스. <b>안전 제1원칙</b> = 일간 결정론은 닻 유무와 무관하게 항상 단독으로 편지를 낼 수 있어야 한다(닻은 '있으면 좋은' 안정 장치). 모든 완화책은 <code>weekly_plans</code> 1개 테이블 + planFor 폴백에 수렴한다.</p>
+<table>
+<tr><th class="c">#</th><th>케이스</th><th>결정론 안전망</th></tr>
+<tr><td class="c">①</td><td>신규 자녀(일요일에 7일 이력 없음)</td><td>LLM 미호출. <code>cold_synth</code> — 결정론 <b>온보딩 4주 아크</b> 슬롯(관찰·신뢰, 거부 단정 금지). mission=null. <b>비용 0.</b></td></tr>
+<tr><td class="c">②</td><td>휴면 → 복귀(주중)</td><td>휴면 경로(<code>reengageBlock</code>)가 닻보다 우선. 복귀일 <code>shockResetAt</code> 기록 → 남은 슬롯 준수 강제 안 함. push 선잠금(복귀 직후 채근=이탈 위험).</td></tr>
+<tr><td class="c">③</td><td>저데이터 주(기록 듬성)</td><td>슬롯 trigger가 통과 못 함 → planFor 자율. 주간은 <code>degraded</code>, 미션=행동 금지·"기록 채우기 한 줄". LLM이 미션 만들어도 화이트리스트 교집합 비어 target 전부 null 강등 → plateau 수렴.</td></tr>
+<tr><td class="c">④</td><td>주중 데이터 쇼크(새 거부 폭증·전환)</td><td>쇼크 게이트(신규 거부 ≥3 OR 전환 발화 OR icfqRisk 점프) → 닻 슬롯 폐기·그날 신호로 자율. progress-celebrate(100)/neophobia(92)가 어차피 닻을 이김.</td></tr>
+<tr><td class="c">⑤</td><td>주계획 진부화(부모 미션 무시)</td><td><code>missionTouch</code> 비율 추적. 2주 연속 &lt;20% → 다음 미션은 <b>같은 타깃 반복 금지·각도 전환</b>(섞기 실패→함께 요리). 3주 동일 미션 금지.</td></tr>
+<tr><td class="c">⑥</td><td>다자녀</td><td><code>weekly_plans</code>는 child_id PK라 자녀별 독립 닻. 알림은 현행 <code>notifiedParents</code>로 부모당 1건. 미션은 자녀 탭별 표시.</td></tr>
+<tr><td class="c">⑦</td><td>일요일 종합 LLM 실패/비용</td><td>try/catch → 지난주 닻 있으면 <b>carry</b>(<code>stale_carried</code>, 안정감&gt;최신성). 없으면 cold_synth. <code>basis_hash</code> 동일 시 LLM 스킵. <b>일간은 절대 영향 없음.</b></td></tr>
+<tr><td class="c">⑧</td><td>기관 변경·등원토글</td><td><code>basis_attends_daycare ≠ 현재</code>면 집-기관 관련 슬롯(home-daycare-gap·nutrient-gap) 무효화·해당 슬롯만 자율. 등원 ON 직후 첫 주는 re-exposure 슬롯 보류(신호 미성숙).</td></tr>
+<tr><td class="c">⑨</td><td>주 경계(부모가 주중 가입)</td><td>그 주 닻 없음 = planFor 폴백(정상·무편지 0). 첫 일요일에 7일 이력으로 정식 점화(이력&lt;3이면 cold_synth). "가입 주는 닻 없이 일간, 첫 일요일에 닻 점화."</td></tr>
+<tr><td class="c">⑩</td><td>채근 1회가 역효과인 아이(ARFID)</td><td>icfqRiskCount≥2 등 ARFID 신호 → 종합 시점에 <code>pushUsed=true</code> 선잠금(채근 0회). neophobia는 PRAISE_ONLY라 target=null = 밀 게 없음. <b>2층이 채근을 못 켠다.</b></td></tr>
+</table>
+<p class="note"><b>결정론 안전망 요약:</b> ① 닻 부재·LLM 실패 → planFor 폴백(무편지 0) ② LLM 환각 target → 화이트리스트 교집합 강등 ③ 환각 scenarioId → 13개 검증 실패 시 드롭 ④ ARFID·휴면 → push 선잠금 ⑤ 쇼크 → 닻 무시·자율 ⑥ 신규/저데이터 → cold_synth·degraded(LLM 미호출) ⑦ push 상한 → 코드 클램프 1회.</p>
+</div>
+
+<div class="box">
+<h2><span class="n">9.</span> 결정 필요 — 이사님 확인</h2>
+<div class="q"><b>Q1. 주 경계.</b> <code>isoWeekKey</code>는 월요일 시작(일요일=전주 끝). '일요일 종합 → 당일부터 다음 주(월~토) 적용'이 자연스러우려면 <b>week_key를 다음 주 키로 +1 보정</b>해야 함(아니면 월요일 첫 편지가 지난주 닻을 읽음). → <b>권장: 일요일 종합은 다음 주 키로 저장.</b></div>
+<div class="q"><b>Q2. 일요일 부하.</b> 자녀당 종합 LLM +1콜이 일요일에 몰림(현재 활성 ~4명은 무해, 키트 캠페인 유입 후 재검토). 못 끝낸 자녀는 월요일 lazy 폴백(품질 동일, 분배일만 다름). → <b>권장: 허용, 스케일 시 self-fetch 배치 체이닝.</b></div>
+<div class="q"><b>Q3. 미션을 부모에게 노출?</b> "이번 주 미션" 카드를 명시하면 진부화(무시)가 가시화되지만 <b>미션 못 지킨 죄책감</b> 위험(압박 역효과=mealtime-atmosphere가 경계). → <b>권장: 편지 안에 녹이기(현행 톤), 별도 카드는 보류.</b></div>
+<div class="q"><b>Q4. 채근 톤.</b> '주 1회 같은 타깃 한 번 더 밀기'가 무압력 원칙(Satter 식사 분담)과 충돌 안 하게 promptHint 문구를 짜야 함. → <b>권장: 적대검수 워크플로 1회</b>(채근이 잔소리로 읽히면 역효과).</div>
+<div class="q"><b>Q5. 구조화 입력 신뢰도.</b> autonomy/environment는 부모 입력 빈도가 낮을 수 있음(care 칩 optional). 임계 미달 시 환경 테마를 안 띄우는 보수 정책 vs '입력 권유' 유도(profileNudge처럼)? → <b>권장: 보수(데이터 부족 단정 금지·P4) + 가벼운 입력 권유.</b></div>
+</div>
+
+<div class="box">
+<h2><span class="n">10.</span> 구현 범위 — 이 문서 이후</h2>
+<p>이 문서는 <b>설계만</b>이다(코드 변경 0). 구현 시 작업 단위:</p>
+<table>
+<tr><th class="c">단계</th><th>작업</th><th class="c">선행</th></tr>
+<tr><td class="c">선행</td><td>cron select에 <code>autonomy,environment</code> 추가(구조화 입력 0% 반영 버그)</td><td class="c">독립</td></tr>
+<tr><td class="c">1</td><td><code>sql/2026-06-09_weekly_plans.sql</code> 실행(이사님 승인) + <code>lib/coachWeekly.ts</code>(runWeeklyPlanning·kstDow·applySlotWithCorrection·cold_synth)</td><td class="c">선행</td></tr>
+<tr><td class="c">2</td><td><code>cron/coach</code> 요일 분기 + 닻 로드 + shockDetect + ledger. <code>weekly-review</code> 시나리오 1개 추가</td><td class="c">1</td></tr>
+<tr><td class="c">3</td><td><code>planFor</code>에 옵셔널 <code>weekly?·pushAllowed?</code> 인자(하위호환·점진 배포). 채근 캡 배선</td><td class="c">2</td></tr>
+<tr><td class="c">4</td><td>QA: <code>?date=일요일</code>로 주간계획 재산출 → 아린 한 주 시뮬 검증(채근 ≤1·휙휙 0). 적대 톤 검수</td><td class="c">3</td></tr>
+</table>
+<p class="muted"><b>호환성:</b> <code>composeLetter</code>·안전가드·유사도가드 무변경. <code>planFor</code> 폴백 보존(닻 없으면 현행 100% 동작). Vercel 크론 한도 유지(추가 0). 잔여 의존: <a href="/cron-architecture.html">크론 아키텍처</a>(2-크론 한도)·CRON_SECRET 미설정.</p>
+</div>
+
+<footer style="text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line)">밀프레드 코칭 엔진 · 주간 계획 2층 케이던스 설계 문서 · 2026-06-09 · 4-에이전트 병렬 설계 + 적대 엣지케이스 검증</footer>
+
+</div></body></html>
