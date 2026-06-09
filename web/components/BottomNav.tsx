@@ -3,7 +3,7 @@ const TABS = [
   { href: '/', emoji: '💌', label: '코칭' },
   { href: '/care', emoji: '✏️', label: '기록' },
   { href: '/foods', emoji: '🗂', label: '도감' },
-  { href: '/tips', emoji: '📰', label: '팁' },
+  { href: '/tips', emoji: '💡', label: '팁' },
   { href: '/care/me', emoji: '👤', label: '내 정보' },
 ];
 

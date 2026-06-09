@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
+import InstitutionSelect, { type Inst } from '@/components/InstitutionSelect';
 import { kstToday } from '@/lib/date';
 
 const ALLERGENS = ['우유','달걀','메밀','땅콩','대두','밀','새우','게','고등어','조개','복숭아','토마토','호두','잣'];
@@ -44,6 +45,7 @@ export default function OnboardingPage() {
   const [allergens, setAllergens] = useState<string[]>([]);
   const [customAllergen, setCustomAllergen] = useState('');  // 수동 추가 입력
   const [chronicConditions, setChronicConditions] = useState('');   // 만성질환·특이사항(코칭·영양 반영)
+  const [institution, setInstitution] = useState<Inst | null>(null);   // 자녀가 다니는 어린이집·유치원(디렉터리 선택)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);   // 기존 자녀 id → 수정 모드
@@ -62,7 +64,7 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || addMode) { setHydrating(false); return; }   // 새 자녀 추가 → 미리채움 안 함(insert)
       const base = supabase.from('children')
-        .select('id,nickname,birth_year,birth_month,sex,height_cm,weight_kg,allergens,chronic_conditions')
+        .select('id,nickname,birth_year,birth_month,sex,height_cm,weight_kg,allergens,chronic_conditions,institution_id')
         .eq('parent_id', user.id);
       const { data: child } = editParam
         ? await base.eq('id', editParam).maybeSingle()
@@ -75,6 +77,11 @@ export default function OnboardingPage() {
         if (child.sex === 'M' || child.sex === 'F') setSex(child.sex);
         if (child.allergens?.length) setAllergens(child.allergens);
         if (child.chronic_conditions) setChronicConditions(child.chronic_conditions);
+        const instId = (child as { institution_id?: string }).institution_id;
+        if (instId) {
+          const { data: inst } = await supabase.from('institutions').select('id,name,type,inst_type,sido,sigungu,dong').eq('id', instId).maybeSingle();
+          if (inst) setInstitution(inst as Inst);
+        }
         if (child.height_cm != null) setHeight(String(child.height_cm));
         if (child.weight_kg != null) setWeight(String(child.weight_kg));
         // 체위는 시계열(growth_logs) 최신값이 더 정확 — 있으면 덮어씀
@@ -109,6 +116,8 @@ export default function OnboardingPage() {
       weight_kg: w,
       allergens: allergens.length ? allergens : null,
       chronic_conditions: chronicConditions.trim() || null,
+      institution_id: institution?.id ?? null,            // 자녀가 다니는 기관(디렉터리 선택, 불변 FK)
+      ...(institution ? { daycare: true } : {}),           // 기관 선택 시 등원도 ON(없으면 daycare 미변경)
     };
 
     let childId = editId;
@@ -249,6 +258,12 @@ export default function OnboardingPage() {
           <textarea value={chronicConditions} onChange={(e)=>setChronicConditions(e.target.value)} rows={2}
             placeholder="예: 갑상선 기능저하, 신장질환, 페닐케톤뇨증(PKU), 유당불내증, 당뇨…"
             style={{ width:'100%', padding:'10px 12px', border:'1px solid #E5E7EB', borderRadius:8, fontSize:13, fontFamily:'inherit', resize:'none', color:'#1a2b4a', boxSizing:'border-box' }} />
+        </div>
+
+        <div style={{ marginBottom:20 }}>
+          <label style={{ fontSize:13, fontWeight:800, color:'#1a2b4a' }}>🏫 어린이집·유치원 (선택)</label>
+          <div style={{ fontSize:11, color:'#9CA3AF', marginTop:2 }}>검색해서 선택하면 집·기관 끼니를 나눠 코칭해드려요.</div>
+          <InstitutionSelect value={institution} onChange={setInstitution} />
         </div>
 
         <button type="submit" disabled={loading || hydrating} style={{

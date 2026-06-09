@@ -8,24 +8,29 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 
-type Inst = { id: string; name: string; type: string; inst_type: string | null; sido: string | null; sigungu: string | null; dong: string | null };
+export type Inst = { id: string; name: string; type: string; inst_type: string | null; sido: string | null; sigungu: string | null; dong: string | null };
 
 const TYPE_LABEL: Record<string, string> = { daycare: '어린이집', kindergarten: '유치원', school: '학교' };
 const norm = (s: string) => (s || '').replace(/\s+/g, '');
 const subline = (i: Inst) => [i.inst_type || TYPE_LABEL[i.type], [i.sido, i.sigungu, i.dong].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
 
-export default function InstitutionSelect({ childId, onChange }: { childId: string; onChange?: (inst: Inst | null) => void }) {
+// childId 있으면 즉시 children.institution_id 저장(care 기존 가입자). 없으면 선택만 보고(온보딩 — 자녀 insert 시 부모가 저장).
+// value: 외부에서 로드한 현재 기관(온보딩 수정 모드 — 부모가 institution_id로 미리 로드해 표시).
+export default function InstitutionSelect({ childId, value, onChange }: { childId?: string; value?: Inst | null; onChange?: (inst: Inst | null) => void }) {
   const supabase = createSupabaseBrowser();
-  const [current, setCurrent] = useState<Inst | null>(null);
+  const [current, setCurrent] = useState<Inst | null>(value ?? null);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [results, setResults] = useState<Inst[]>([]);
   const [loading, setLoading] = useState(false);
   const tRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 현재 등록된 기관 로드
+  // 외부 value(온보딩 수정 모드에서 비동기 로드된 현재 기관) 반영
+  useEffect(() => { if (value) setCurrent(value); }, [value]);
+
+  // 현재 등록된 기관 로드 (childId 모드 — care). value 주입 시엔 스킵.
   useEffect(() => {
-    if (!childId) return;
+    if (!childId || value) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase.from('children').select('institution_id').eq('id', childId).maybeSingle();
@@ -58,13 +63,15 @@ export default function InstitutionSelect({ childId, onChange }: { childId: stri
 
   const pick = useCallback(async (inst: Inst) => {
     setCurrent(inst); setOpen(false); setQ(''); setResults([]); onChange?.(inst);
-    const { error } = await supabase.from('children').update({ institution_id: inst.id, daycare: true }).eq('id', childId);
-    if (error) console.warn('[institution] save:', error.message);
+    if (childId) {   // 온보딩(자녀 생성 전)이면 DB 저장 안 함 — 부모가 insert 시 저장
+      const { error } = await supabase.from('children').update({ institution_id: inst.id, daycare: true }).eq('id', childId);
+      if (error) console.warn('[institution] save:', error.message);
+    }
   }, [childId, onChange, supabase]);
 
   const clearInst = useCallback(async () => {
     setCurrent(null); onChange?.(null);
-    await supabase.from('children').update({ institution_id: null }).eq('id', childId);
+    if (childId) await supabase.from('children').update({ institution_id: null }).eq('id', childId);
   }, [childId, onChange, supabase]);
 
   return (
