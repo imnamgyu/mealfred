@@ -160,10 +160,13 @@ export default function MePage() {
               ) : children.map((c, i) => {
                 const st = childStatus(c);
                 return (
-                  <div key={c.id} className="py-2.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
+                  <a key={c.id} href={`/onboarding?edit=${c.id}`} className="block py-2.5 active:opacity-60 transition" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none', textDecoration: 'none', color: 'inherit' }}>
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{c.nickname} <span className="text-xs font-semibold" style={{ color: '#C45A00' }}>{AGE_LABEL[c.age_band] || c.age_band}</span></div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0" style={st.daysLeft > 0 ? { background: '#EAF6F0', color: '#16A085' } : { background: '#FDECEA', color: '#C62828' }}>{st.label}</span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={st.daysLeft > 0 ? { background: '#EAF6F0', color: '#16A085' } : { background: '#FDECEA', color: '#C62828' }}>{st.label}</span>
+                        <span style={{ color: '#FFB375', fontSize: 19, lineHeight: 1, fontWeight: 300 }}>›</span>
+                      </div>
                     </div>
                     {c.birth_year && <div className="text-xs mt-0.5" style={{ color: '#8a7a6a' }}>{c.birth_year}년 {c.birth_month}월생</div>}
                     {(c.allergens?.length || c.chronic_conditions) ? (
@@ -172,8 +175,8 @@ export default function MePage() {
                         {c.chronic_conditions?.split(/[,，·]/).map((x) => x.trim()).filter(Boolean).map((x) => <span key={x} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: '#FFF3E0', color: '#E65100' }}>🩺 {x}</span>)}
                       </div>
                     ) : null}
-                    <a href={`/onboarding?edit=${c.id}`} className="inline-block mt-1.5 text-[11px] font-bold" style={{ color: '#FF6B1A' }}>정보·질환 수정 →</a>
-                  </div>
+                    <span className="inline-block mt-1.5 text-[11px] font-bold" style={{ color: '#FF6B1A' }}>아이 정보·질환 입력·수정 →</span>
+                  </a>
                 );
               })}
             </div>

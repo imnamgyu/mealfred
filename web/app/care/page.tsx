@@ -117,6 +117,7 @@ export default function CarePage() {
   // 체위(키·몸무게) 시계열 — 언제든 입력. 홈 36종 모달 BMI·퍼센타일에 반영
   const [sex, setSex] = useState<'M' | 'F' | ''>('');
   const [daycare, setDaycare] = useState(false);   // 등원 — 평일 점심·간식은 기관 끼니(코칭 반영)
+  const [instType, setInstType] = useState<string | null>(null);   // 등록된 기관 유형(daycare/kindergarten) — place 칩 라벨용
   // 식단표 OCR 자동채움
   const [ocrOpen, setOcrOpen] = useState(false);
   const [menuMonths, setMenuMonths] = useState<Set<string>>(new Set());   // 식단표 등록된 달(YYYY-MM)
@@ -697,17 +698,12 @@ export default function CarePage() {
         {/* 등원 여부 — 평일 점심·간식은 기관 끼니로 코칭이 판단 (코칭엔진 스펙 §3) */}
         {userId && (
           <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>🏫 어린이집·유치원 다녀요</h3>
-                <p className="text-[10.5px] mt-0.5" style={{ color: '#8a7a6a' }}>평일 점심·간식은 기관 끼니로 — 코칭은 집 아침·저녁에 집중해요</p>
-              </div>
-              <button onClick={() => saveDaycare(!daycare)} aria-label="등원 여부" className="transition" style={{ width: 46, height: 26, borderRadius: 100, background: daycare ? '#16A085' : '#E5E7EB', position: 'relative', flexShrink: 0, border: 'none' }}>
-                <span style={{ position: 'absolute', top: 3, left: daycare ? 23 : 3, width: 20, height: 20, borderRadius: '50%', background: 'white', transition: 'left .15s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
-              </button>
+            <div>
+              <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>🏫 어린이집·유치원</h3>
+              <p className="text-[10.5px] mt-0.5" style={{ color: '#8a7a6a' }}>다니는 기관을 등록하면 평일 점심·간식을 기관 끼니로 봐드려요 (집 아침·저녁에 코칭 집중)</p>
             </div>
-            {/* ⭐ 기관(어린이집·유치원) 정확 등록 — 검색→선택, children.institution_id 저장 */}
-            {childId && <InstitutionSelect childId={childId} />}
+            {/* ⭐ 기관 등록 — 등록=등원(daycare ON). 별도 '다녀요' 토글 없이 등록으로 일원화 */}
+            {childId && <InstitutionSelect childId={childId} onChange={(inst) => setInstType(inst?.type ?? null)} />}
             {/* 식단표 OCR 자동채움 — 점심·간식 매일 기록 안 해도 됨. 이번 달 등록됐으면 업로더 숨김 */}
             <div className="mt-3 pt-3" style={{ borderTop: '1px dashed #FFE8D0' }}>
               {menuMonths.has(new Date().toISOString().slice(0, 7)) ? (
@@ -769,7 +765,7 @@ export default function CarePage() {
                 <button key={o.v} onClick={() => setEntry((x) => ({ ...x, place: o.v }))}
                   className="rounded-lg py-2.5 text-[13px] font-bold transition leading-tight"
                   style={{ background: on ? '#1a2b4a' : '#FAFAF7', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? '#1a2b4a' : '#E5E7EB'}` }}>
-                  {o.emoji} {o.label}
+                  {o.emoji} {o.v === 'daycare' ? (instType === 'kindergarten' ? '유치원' : instType === 'daycare' ? '어린이집' : '기관') : o.label}
                 </button>
               );
             })}

@@ -37,7 +37,7 @@ export default function InstitutionSelect({ childId, value, onChange }: { childI
       const iid = (data as { institution_id?: string } | null)?.institution_id;
       if (!iid || cancelled) return;
       const { data: inst } = await supabase.from('institutions').select('id,name,type,inst_type,sido,sigungu,dong').eq('id', iid).maybeSingle();
-      if (inst && !cancelled) setCurrent(inst as Inst);
+      if (inst && !cancelled) { setCurrent(inst as Inst); onChange?.(inst as Inst); }   // 로드 시에도 보고(부모가 기관 유형 사용)
     })();
     return () => { cancelled = true; };
   }, [childId]);   // eslint-disable-line react-hooks/exhaustive-deps
