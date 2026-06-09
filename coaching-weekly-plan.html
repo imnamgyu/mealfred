@@ -50,8 +50,8 @@ code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
 @media(max-width:720px){.ba{grid-template-columns:1fr}.week{grid-template-columns:repeat(4,1fr)}}
 </style></head><body><div class="wrap">
 
-<h1>코칭 주간 계획 엔진 — 2층 케이던스 설계</h1>
-<p class="lead">설계 문서 · 2026-06-09 · <b>주간 닻(일요일 LLM 종합) + 일간 결정론 실행</b>. 후속 설계: <a href="/coaching-plan-engine.html">plan 엔진(배포)</a>·<a href="/coaching-scenarios.html">시나리오 엔진</a>의 위에 '한 주'라는 시간축을 얹는다. <b>이 문서는 설계만 — 코드 변경 없음.</b></p>
+<h1>코칭 케이던스 엔진 — 일·주·월 3층 설계</h1>
+<p class="lead">설계 문서 · 2026-06-09 · <b>일간 실행(전술) + 주간 초점(작전) + 월간 점검(전략)</b>. 후속 설계: <a href="/coaching-plan-engine.html">plan 엔진(배포)</a>·<a href="/coaching-scenarios.html">시나리오 엔진</a>의 위에 '한 주'·'한 달'이라는 시간축을 얹는다. <b>이 문서는 설계만 — 코드 변경 없음.</b></p>
 
 <div class="tldr">
 <h3>🎯 한눈에</h3>
@@ -60,7 +60,8 @@ code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
 <li><b>해법(역할 분담):</b> <span style="color:var(--purple);font-weight:700">일요일 새벽 2시</span> = LLM이 지난 28일을 종합해 <b>무엇을(WHAT) — 초점 타깃·타깃 풀·예산(노출 2~3·채근 1·간격)</b>만 잠근다(<code>weekly_plans</code> 1행, <span class="no">요일 슬롯 아님</span>). <span style="color:var(--blue);font-weight:700">월~토 새벽 2시</span> = 코드가 닻 안에서 <b>어떻게·언제(HOW·WHEN)</b>를 <b>그날 데이터로 매일 결정</b>(오늘 phase·무브·예산 소비). → 안정은 주간(타깃 고정), 반응은 일간(매일 phase). 비용 1/7.</li>
 <li><b>⭐ 채근 정책 변경(이사님):</b> 옛 '같은 타깃 이틀 연속 금지'(=채근 0회) → <b>주 1회는 같은 걸 좀 더 민다.</b> 예산으로 노출 2~3회(반복 노출) + '직접 밀기(push)'는 <code>ledger.pushUsed</code>로 <b>정확히 주 1회 하드 캡</b>. ARFID 의심·휴면 복귀 주는 push 선잠금(0회).</li>
 <li><b>토요일 문제 해소(§4):</b> 데이터 창을 <b>이중</b>으로 — <code>week-to-date</code>(이번 주 월~어제)로 오늘을 정하고 <code>trailing-28</code>로 다주 노출을 보존. <b>토요일엔 월~금 5일이 그대로 반영</b>된다. 타깃은 주간 고정이라 매일 재계산해도 '휙휙' 재발 안 함(HOW만 데이터 반응).</li>
-<li><b>안전 제1원칙:</b> 일간 결정론 경로는 <b>주간 닻 유무와 무관하게 항상 단독으로 편지를 낼 수 있어야 한다.</b> 닻 없음/LLM 실패 → 현행 <code>planFor</code> 폴백(무편지 0). 닻은 '있으면 좋은 안정 장치'.</li>
+<li><b>월간 점검(§11):</b> 주간 위에 <b>월간</b>(전략) 한 층 — 단 진짜 월간 '결정'은 <b>둘뿐</b>(식품군 포트폴리오 순서 · stuck 아크 강제 전환). <b>'한 군에 영원히 갇힘'</b>(주간이 끊기 방지로 <code>arc_week++</code>만 하다 다른 군 방치)을 막는다. 지금은 <b>별도 층이 아니라 '주간의 월 첫 주 분기'</b>(trailing-84·새 크론 0)로 충분. 부모 월간 리포트는 보류(죄책감 위험).</li>
+<li><b>안전 제1원칙:</b> 일간 결정론 경로는 <b>상위 닻 유무와 무관하게 항상 단독으로 편지를 낼 수 있어야 한다.</b> 닻 없음/LLM 실패 → 현행 <code>planFor</code> 폴백(무편지 0). 상위 층은 '있으면 좋은 안정 장치'.</li>
 <li><b>설계 범위:</b> 4개 에이전트 병렬 설계 + 적대 엣지케이스 10종 검증. <b>결정 필요 5건</b>(§9) — 주 경계·일요일 부하·미션 부모 노출·채근 톤 적대검수·구조화 입력 신뢰도.</li>
 </ul>
 </div>
@@ -91,7 +92,7 @@ code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
 <h2><span class="n">2.</span> 2층 케이던스 아키텍처</h2>
 <p>크론은 <b>지금처럼 하나</b>(<code>/api/cron/coach</code>, <code>0 17 * * *</code> = KST 02시). Vercel Hobby 2-크론 한도를 지키기 위해 <b>새 크론을 추가하지 않고</b> 라우트 안에서 KST 요일로 분기한다.</p>
 <div class="layer l3"><b>일요일(dow=0)</b><span class="tag">주간 종합 + 회고</span><br>
-<span class="muted" style="font-size:12.5px">① 자녀 루프 진입 전 <code>runWeeklyPlanning()</code> — LLM 1콜로 <b>지난 28일</b> 분석 → <code>weekly_plans</code> upsert(<b>닻 = 타깃·타깃 풀·보조 축·예산·아크 주차</b>). <span class="no">요일별 슬롯은 안 짠다.</span> ② 일요일 편지 = <b>'지난 주 회고 + 다음 주 미션'</b> 프레임(<code>weekly-review</code> 시나리오, target/move 없음·PRAISE_ONLY 계열).</span></div>
+<span class="muted" style="font-size:12.5px">① 자녀 루프 진입 전 <code>runWeeklyPlanning()</code> — LLM 1콜로 <b>지난 28일</b> 분석 → <code>weekly_plans</code> upsert(<b>닻 = 타깃·타깃 풀·보조 축·예산·아크 주차</b>). <span class="no">요일별 슬롯은 안 짠다.</span> ② 일요일 편지 = <b>'지난 주 회고 + 다음 주 미션'</b> 프레임(<code>weekly-review</code> 시나리오, target/move 없음·PRAISE_ONLY 계열). ③ <b>월 첫 일요일</b>은 여기에 포트폴리오 감사(<code>trailing-84</code>) 한 분기 더 — 월간 점검(§11).</span></div>
 <div class="layer l1"><b>월~토(dow=1~6)</b><span class="tag">닻 안에서 일간 phase 결정</span><br>
 <span class="muted" style="font-size:12.5px"><code>weekly_plans</code>에서 <b>닻(타깃·예산)</b>을 읽고, <b>이번 주 누적(week-to-date)</b> 데이터로 오늘 <b>phase</b>(노출/공고화/축하/휴식/안전)·무브·예산 소비를 <b>매일 결정</b>. 타깃은 주간 고정, HOW·WHEN만 일간이 그날 데이터로(§4).</span></div>
 <div class="flow"><span class="m"># /api/cron/coach — 요일 분기 (단일 크론, 새 크론 0)</span>
@@ -326,6 +327,57 @@ create policy weekly_plans_read on public.weekly_plans for select
 <p class="muted"><b>호환성:</b> <code>composeLetter</code>·안전가드·유사도가드 무변경. <code>planFor</code> 폴백 보존(닻 없으면 현행 100% 동작). Vercel 크론 한도 유지(추가 0). 잔여 의존: <a href="/cron-architecture.html">크론 아키텍처</a>(2-크론 한도)·CRON_SECRET 미설정.</p>
 </div>
 
-<footer style="text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line)">밀프레드 코칭 엔진 · 주간 계획 2층 케이던스 설계 문서 · 2026-06-09 · 4-에이전트 병렬 설계 + 적대 엣지케이스 검증</footer>
+<div class="box">
+<h2><span class="n">11.</span> 월간 점검 — 3층으로 확장 (포트폴리오·전략) <span class="pill plan">설계 결정</span></h2>
+<p>주간이 일간을 제약하듯, 그 위에 <b>월간</b>이 있다. 단 후보를 엄격히 거르면(테스트: <b>월간에만 보임 AND 주간이 소유 안 함</b>) 진짜 월간 '결정'은 <b>딱 두 가지</b>다. 나머지(성장 곡선·repertoire·KDRI 추세)는 월간이 <b>보는 계기판</b>이지 결정이 아니다.</p>
+<table>
+<tr><th class="c">층</th><th>비유</th><th>결정</th><th>데이터창</th><th class="c">주기</th></tr>
+<tr><td class="c"><b>일간</b></td><td>전술</td><td>HOW·WHEN — 오늘 phase·무브·예산 소비</td><td>week-to-date + trailing-28</td><td class="c">매일</td></tr>
+<tr><td class="c"><b>주간</b></td><td>작전</td><td>WHAT·얼마나 — 초점 타깃·예산·졸업 판정</td><td>trailing-28</td><td class="c">일 1회</td></tr>
+<tr><td class="c"><b>월간</b></td><td>전략</td><td>어느 군 순서로·<b>언제 포기</b> — 포트폴리오·stuck 전환</td><td>trailing-84(2~3 아크)</td><td class="c">월 1회</td></tr>
+</table>
+<p class="note">판별 한 줄: <b>같은 음식 며칠째냐 = 일간 / 어느 음식 몇 주째냐 = 주간 / 어느 군 차례냐·지난 달 대비 늘었냐 = 월간.</b> 위층이 아래층을 제약(잠금), 아래층이 위층에 신호(누적)를 올린다.</p>
+
+<h3 class="sub">월간이 소유하는 것 — 딱 2개(결정) + 계기판</h3>
+<table>
+<tr><th>결정</th><th>왜 월간만 가능</th></tr>
+<tr><td><b>① 식품군 포트폴리오·시퀀스</b></td><td>주간은 '이번 주 타깃 1개'만 봄. '8군 중 어느 군을 어떤 순서로, 치우침 없이'는 음식당 3~5주 아크라 주 단위로 못 봄. 지금 <code>targetPoolForScenario</code>는 결핍 전체를 매주 평평히 회전 → 군 사이를 산만하게 튐.</td></tr>
+<tr><td><b>② 전략 효과·회귀(stuck) 감지</b></td><td>졸업은 3~5주 걸림 → 주간은 표본 1개. '최근 4주 4개 타깃 돌렸는데 졸업 0 = 이 아이에게 표준 무브가 안 먹힘'은 월 창에서만 보임. 전환율(시도÷졸업)은 어디서도 집계 안 됨.</td></tr>
+<tr><td class="muted">계기판(결정 아님)</td><td class="muted">성장 곡선(키·몸무게/BMI 추세)·repertoire 곡선·KDRI red→green 추세 = 월간이 <b>보는</b> 신호이자 부모 성장곡선. ①②의 입력일 뿐 독립 결정 아님.</td></tr>
+</table>
+
+<h3 class="sub">제약 계층 — 월간이 주간을 잠근다 (일간 직접 X)</h3>
+<div class="flow"><span class="p">월간</span>: 포트폴리오 풀 · abandon 플래그 · 성장 모드   <span class="m"># 잠금만, 편지 안 씀</span>
+   ▼ (반드시 주간 경유 — 2칸 건너뛰기 금지)
+<span class="b">주간</span>: 좁혀진 풀 ∩ 결핍에서 이번 주 타깃 선택
+   ▼
+<span class="g">일간</span>: 그 타깃에 오늘 phase·무브</div>
+<p>월간이 잠그는 3가지: ① <b>포트폴리오 풀</b>(소외 군 우선 화이트리스트 → 주간 타깃 후보 좁힘) ② <b>abandon 플래그</b>(stuck 아크 강제 종결 → 주간이 <code>arc_week++</code> 무한 연장을 멈추고 전환 — 주간 혼자선 못 끊는 결정을 월간이 풀어줌) ③ <b>성장 모드</b>(저체중 추세면 energy-dense 우선·과한 채소 채근 자제 / 과체중이면 반대 — 처방 아니라 예산 톤 경계). 우선순위: <code>dormancy &gt; shock &gt; ARFID &gt; 월간 abandon/floor &gt; 주간 닻 &gt; 일간 자율</code>.</p>
+
+<div class="layer l3"><b>월간이 막는 단 하나의, 그러나 결정적인 실패</b><span class="tag">없으면 새는 것</span><br>
+<span class="muted" style="font-size:12.5px"><b>「한 번에 하나」 + 아크 무한 연장 → 한 식품군에 영원히 갇힘.</b> 예: 콩류 미션 5주째, distinct dish 1개(두부만)·노출 14회·수용 0인데, 주간은 '8~10회 도달 전 끊기 방지'로 <code>arc_week++</code>만 하고 생선·비타민A 채소가 red로 방치돼도 못 본다. 일간=이번 주만, 주간=이번 아크만 → <b>둘 다 구조적으로 못 봄.</b> 월간 포트폴리오 감사 1개에서만 잡힌다.</span></div>
+
+<h3 class="sub">과설계 판정 — '별도 층'이 아니라 '주간의 월 첫 주 분기'</h3>
+<div class="ba">
+<div class="col after"><h4>지금(MVP) — 거의 공짜·부모 노출 0</h4>
+<ul>
+<li>새 크론·새 LLM·새 화면 <b>0</b>. 일요일 <code>runWeeklyPlanning</code>에 <code>if(월 첫 주) runPortfolioAudit()</code> 한 분기. 그날만 <b>trailing-84</b>를 본다(주간 trailing-28과 유일한 차이).</li>
+<li>① 8군 미션 이력 + <code>computeGroupWeekly</code> red 교차 → 소외 군 1개 → 다음 아크 풀 '소외 군 우선' 플래그</li>
+<li>② stuck(<code>arc_week≥5 &amp;&amp; distinct≤1 &amp;&amp; expose≥12</code>) → <code>abandon=true</code></li>
+<li>저장 = <code>weekly_plans.monthly_audit</code> jsonb 1컬럼(별도 테이블 X). 결정론(LLM 0).</li>
+</ul></div>
+<div class="col before" style="background:#eff6ff;border-color:#bfdbfe"><h4 style="color:var(--blue)">나중(스케일 후) — 보류</h4>
+<ul>
+<li>부모 대면 월간 <b>wins-only 리포트</b> + 성장 곡선(자기 추세만)</li>
+<li>월간 LLM 종합·전략 플래그가 주간 예산을 실제 제약</li>
+<li>만성질환 호전 자동 재평가·제철 자동 풀 회전·별도 <code>monthly_plans</code> 테이블</li>
+<li>트리거 = <b>주간 층이 먼저 서고</b> + 키트 유입으로 trailing-84 표본이 의미를 가질 때</li>
+</ul></div>
+</div>
+<p class="note"><b>왜 지금 풀스펙은 과설계:</b> 주간조차 미구현(설계만)·활성 ~4명이라 월 단위 표본이 통계적으로 무의미·Hobby 2-크론 한도 만석. 그래서 <b>'관점'은 지금 심되(감사 분기), '층'은 주간 다음에</b>.</p>
+<p class="note"><b>부모 월간 리포트 = 보류(현 단계).</b> 필요성은 있으나(InBodyLIKE 재측정 가시화·리텐션) <b>죄책감 위험이 미션 카드보다 크다</b>(성장은 부모 통제 밖이라 불안↑). 만들 때 원칙 = <span class="ok">'거울이 아니라 앨범'</span> — 그 달 새로 친해진 음식·distinct dish 늘어난 것만, 성장은 또래/백분위 0·<b>자기 추세 우상향만</b>, 저체중/과체중 라벨·0졸업·stuck은 <b>내부 전략 신호로만</b>(부모 노출 절대 금지). 편지에 녹이기 우선.</p>
+</div>
+
+<footer style="text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line)">밀프레드 코칭 엔진 · 일·주·월 3층 케이던스 설계 문서 · 2026-06-09 · 다중 에이전트 적대 검증(역할 분담·월간 점검)</footer>
 
 </div></body></html>
