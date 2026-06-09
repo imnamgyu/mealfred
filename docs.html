@@ -176,8 +176,8 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>⚙️ 엔진 · 데이터 명세 (정본)</h3>
-    <span class="cnt">정본 4 · 구현 1 · 감사 2 · 설계 1</span>
-    <span class="note">라이브 앱이 구현하는 단일 진실 + 코칭 plan 엔진 구현·감사·재귀개선 설계</span>
+    <span class="cnt">코칭 정본 2 · 로드맵 2 · 데이터 4</span>
+    <span class="note">코칭 엔진 = 라이브 <b>정본 2</b>(시나리오·plan 엔진) + <b>로드맵 2</b>(케이던스·자가개선). 과거 감사·진단(재귀루프·다채로움 진단)은 아카이브로 이동.</span>
   </div>
   <div class="doc-grid">
     <a href="/engine-diagrams.html" class="doc-card cat-strategy">
@@ -188,46 +188,32 @@
       <div class="meta"><span>ENGINE · 시각화</span><span class="arrow">→</span></div>
     </a>
     <a href="/coaching-scenarios.html" class="doc-card cat-strategy">
-      <span class="badge spec">정본</span>
+      <span class="badge done">✅ 정본·라이브</span>
       <div class="ico">💌</div>
-      <h4>코칭 엔진 — 시나리오 + 간식 엔진</h4>
-      <p class="desc">35개 편식 이론 근거 · <b>13 시나리오</b>(트리거·코칭무브·편지각도·금기) + 온보딩 4주 아크 + 로테이션 + 만성질환·재노출 + <b>🍪 간식 평가 엔진</b>(초가공 모니터링·BMI 칼로리 방향·식사 간섭성·좋은 간식). <b>라이브 코칭 단일 진실 · 리텐션 §0-3</b></p>
-      <div class="meta"><span>COACHING · 편지·간식</span><span class="arrow">→</span></div>
+      <h4>코칭 엔진 정본 ① — 시나리오 + 간식 (무엇을·언제)</h4>
+      <p class="desc">35개 편식 이론 근거 · <b>13 시나리오</b>(트리거·코칭무브·편지각도·금기) + 온보딩 4주 아크 + 로테이션 + 만성질환·재노출 + <b>🍪 간식 평가 엔진</b> + 리텐션. <b>라이브 단일 진실.</b> 짝 정본 → <a href="/coaching-plan-engine.html">plan 엔진</a>.</p>
+      <div class="meta"><span>COACHING 정본 · 시나리오·간식</span><span class="arrow">→</span></div>
     </a>
     <a href="/coaching-plan-engine.html" class="doc-card cat-strategy">
-      <span class="badge new">구현·배포</span>
+      <span class="badge done">✅ 정본·라이브</span>
       <div class="ico">🔧</div>
-      <h4>코칭 plan 엔진 — 반복 근본수정(배포) + 추천 아키텍처</h4>
-      <p class="desc">진단이 가리킨 근본원인을 <b>실제 프로덕션 수정</b>으로. 계획을 코드가 확정하고 LLM은 작문만 — <b>CoachPlan{frame·target·move·signature}</b> + 결정론 타깃 회전 + 시그니처 중복회피 + 공유 작성기. <b>채근 방지·과일 간식 채널·간식 멘트 쿨다운</b> + 아린 검증(채근 0 · 간식 4/5→1/5). §5 <b>추천 네트워크 아키텍처</b>(food-graph·kit-matrix·또래레시피).</p>
-      <div class="meta"><span>COACHING · plan 엔진 구현·배포</span><span class="arrow">→</span></div>
+      <h4>코칭 엔진 정본 ② — plan 엔진 (어떻게 정하고 만드나)</h4>
+      <p class="desc">계획을 코드가 확정·LLM은 작문(Haiku)만 — <b>CoachPlan{frame·target·move·signature}</b> + 결정론 타깃 회전 + 시그니처 중복회피 + 공유 작성기. 채근 방지·과일 간식 채널·쿨다운 + <b>추천 근거화</b>(food-graph·kit-matrix·또래레시피). 배포·검증 완료. 짝 정본 → <a href="/coaching-scenarios.html">시나리오</a>.</p>
+      <div class="meta"><span>COACHING 정본 · plan 엔진</span><span class="arrow">→</span></div>
     </a>
     <a href="/coaching-weekly-plan.html" class="doc-card cat-strategy">
-      <span class="badge spec">설계</span>
+      <span class="badge coming">🗺️ 로드맵</span>
       <div class="ico">🗓️</div>
-      <h4>코칭 케이던스 엔진 — 일·주·월 3층 설계</h4>
-      <p class="desc"><b>매일 재계산 = 휙휙 바뀜</b>을 잡는 시간축 + <b>역할 분담</b>. <span style="color:#1d4ed8;font-weight:700">일간(전술)</span>=오늘 어떻게 + <span style="color:#9333ea;font-weight:700">주간(작전)</span>=이번 주 무엇을·예산 + <span style="color:#15803d;font-weight:700">월간(전략)</span>=어느 군 순서·stuck 전환. <b>토요일 문제</b>=이중 데이터 창(week-to-date+trailing-28). <b>⭐ 채근 주 0→1회</b>(<code>ledger.pushUsed</code> 하드 캡)·미션 1+0.5·완료=공고화·다주 아크 + <b>월간 점검</b>(월 첫 주 분기) + <b>롤업 차트 메모리</b>(병원차트/L1·L2·L3, <code>period_summaries</code> write-only dead-end 진단) + <b>이사님 결정</b>(미션 비노출·행동 지연 시차 인지·주 경계=일요일). <b>설계 문서(코드 변경 없음).</b></p>
-      <div class="meta"><span>COACHING · 일·주·월 케이던스 설계</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/coaching-recursive-loop.html" class="doc-card cat-strategy">
-      <span class="badge new">감사</span>
-      <div class="ico">🔁</div>
-      <h4>코칭편지 재귀개선 루프 (랄프 위검)</h4>
-      <p class="desc">아린 39통(3일×13시나리오)을 매 라운드 <b>실제 Haiku 엔진</b>으로 재생성 → 위원회 4심 채점 → 결함 정조준 개선. <b>종합 5.0→8.1</b>, "매일 같은 편지"(32/39 동일 도입) <b>→ 0/39 박멸</b>. 엔진 before/after 플로우차트 + 프로덕션 이식 우선순위.</p>
-      <div class="meta"><span>COACHING · 재귀개선 감사</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/coaching-letter-diversity-audit.html" class="doc-card cat-strategy">
-      <span class="badge new">진단</span>
-      <div class="ico">🔬</div>
-      <h4>코칭편지 다채로움 진단 — 왜 매일 같은 편지인가</h4>
-      <p class="desc">실데이터 39통으로 입증: 부모메모·전환사실이 시나리오 무관하게 매 편지 도입을 점령(32/39), 문자 3-gram 가드가 패러프레이즈를 통과(같은 날 유사도 0.06인데 체감 동일). <b>사실/주제 dedup 부재</b>가 근본 원인.</p>
-      <div class="meta"><span>COACHING · 반복 진단</span><span class="arrow">→</span></div>
+      <h4>코칭 엔진 로드맵 — 일·주·월 케이던스 (미구현)</h4>
+      <p class="desc"><b>앞으로 지을 엔진 설계 정본.</b> 일간(전술)·주간(작전)·월간(전략) 3층 + 역할 분담(WHAT 주간/HOW·WHEN 일간) + 토요일 문제(이중 데이터 창) + <b>채근 주 0→1회</b> + 다주 아크 + 월간 포트폴리오 + <b>롤업 차트</b>(병원차트/L1·L2·L3, <code>period_summaries</code> dead-end 진단) + 이사님 결정(미션 비노출·행동 지연·주 경계=일요일·<b>주간 종합=Opus·35이론·의사 소견</b>).</p>
+      <div class="meta"><span>COACHING 로드맵 · 케이던스</span><span class="arrow">→</span></div>
     </a>
     <a href="/coaching-self-improvement.html" class="doc-card cat-strategy">
-      <span class="badge new">설계·할일</span>
+      <span class="badge coming">🗺️ 로드맵</span>
       <div class="ico">♻️</div>
-      <h4>코칭 엔진 상시 재귀개선 시스템 — 설계 &amp; 해야 할 일</h4>
-      <p class="desc">v0→v6 1회성 루프를 <b>상시 운영 시스템</b>으로. <b>3층 루프</b>(오프라인 위원회 + 프로덕션 행동신호 + 사람 검수)로 Goodhart 함정 회피. 수집 데이터 7종(🔁피드백·letter→behavior·자동 반복점수) + <b>북극성 KPI 제안</b>(전환건수·WALH) + Phase별 빌드 백로그(첫 삽 ~2일).</p>
-      <div class="meta"><span>COACHING · 자가개선 설계</span><span class="arrow">→</span></div>
+      <h4>코칭 엔진 로드맵 — 상시 재귀개선 시스템 (미구현)</h4>
+      <p class="desc"><b>품질 자가개선 트랙.</b> v0→v6 1회성 루프를 상시 운영으로 — <b>3층 루프</b>(오프라인 위원회 + 프로덕션 행동신호 + 사람 검수)로 Goodhart 회피. 수집 데이터 7종 + 북극성 KPI(전환건수·WALH) + Phase별 빌드 백로그.</p>
+      <div class="meta"><span>COACHING 로드맵 · 자가개선</span><span class="arrow">→</span></div>
     </a>
     <a href="/nutrient-signal-report.html" class="doc-card cat-prd">
       <span class="badge done">✅ 적용됨</span>

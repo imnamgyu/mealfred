@@ -51,7 +51,7 @@ code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
 </style></head><body><div class="wrap">
 
 <h1>코칭 케이던스 엔진 — 일·주·월 3층 설계</h1>
-<p class="lead">설계 문서 · 2026-06-09 · <b>일간 실행(전술) + 주간 초점(작전) + 월간 점검(전략)</b>. 후속 설계: <a href="/coaching-plan-engine.html">plan 엔진(배포)</a>·<a href="/coaching-scenarios.html">시나리오 엔진</a>의 위에 '한 주'·'한 달'이라는 시간축을 얹는다. <b>이 문서는 설계만 — 코드 변경 없음.</b></p>
+<p class="lead"><b>코칭 엔진 로드맵 (미구현 설계 정본)</b> · 2026-06-09 · <b>일간 실행(전술) + 주간 초점(작전) + 월간 점검(전략)</b>. 라이브 정본 <a href="/coaching-plan-engine.html">plan 엔진</a>·<a href="/coaching-scenarios.html">시나리오 엔진</a> 위에 '한 주'·'한 달' 시간축을 얹는다. <b>이 문서는 앞으로 지을 설계 — 현재 코드엔 없음.</b></p>
 
 <div class="tldr">
 <h3>🎯 한눈에</h3>
@@ -472,6 +472,29 @@ create policy weekly_plans_read on public.weekly_plans for select
 <p class="note"><b>과설계 경계:</b> 신규 테이블·크론·부모 UI <b>0</b>. <code>ledger</code> jsonb 키 3개(adviceGivenAt·firstServeDow·progressWeek) + <code>decidePhase</code> firstServe 분기 ~10줄 + <code>letterDeterministicBad</code> 정규식 3종. 활성 ~4명에선 '관점만 심고' 복잡한 조달 예측은 보류.</p>
 </div>
 
-<footer style="text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line)">밀프레드 코칭 엔진 · 일·주·월 3층 케이던스 + 롤업 차트 + 행동지연·일요일 주경계·미션 비노출 · 2026-06-09 · 다중 에이전트 적대 검증(코드 grep 기반)</footer>
+<div class="box">
+<h2><span class="n">14.</span> 주간 종합의 깊이 — 비싼 모델·종합 신호·35이론·의사 소견 <span class="pill now">이사님 결정</span></h2>
+<p>이사님: "주간 계획은 <b>비싼 모델로 종합적으로</b> 봐서 가이드를 잡으면 좋겠다. 식단 말고도 <b>35개 국제 편식 이론</b> 기반으로 검토하나? 차트 남길 때 <b>LLM으로 의사처럼 종합 소견</b>을 남기나?" → 네 보강은 하나의 원칙으로 묶인다: <b>주간 = 비싼 모델이 모든 신호를 35이론 렌즈로 읽어 의사식 소견 + 방향을 남기는 회진(回診).</b> 일간은 그 소견을 들고 그날 한 걸음을 싸게 실행. <span class="no">현재는 편지가 Haiku 단일·주간 종합 미구현</span>이라 전부 미구현 설계.</p>
+<h3 class="sub">① 모델 티어 — 비싼 판단은 드물게, 싼 실행은 자주</h3>
+<table>
+<tr><th>층</th><th>모델</th><th class="c">빈도</th><th>역할</th></tr>
+<tr><td>일간</td><td>결정론 + <b>Haiku</b>(작문만)</td><td class="c">매일</td><td>닻 안에서 그날 한 걸음·톤</td></tr>
+<tr><td><b>주간 종합</b></td><td class="star"><b>Opus급(비싼)</b></td><td class="c">자녀당 주 1회</td><td>종합 회진·방향·소견</td></tr>
+<tr><td>월간 감사</td><td>Opus급 또는 결정론</td><td class="c">월 1회</td><td>포트폴리오·전략(§11)</td></tr>
+</table>
+<p class="note">자녀당 주 1회뿐이라 비싼 모델 비용 OK(활성 ~4명이면 Opus 주 4콜=무해). 가장 레버리지 큰 결정(이번 주 방향)에 가장 똑똑한 모델을 쓴다. 이게 "LLM 종합 판단은 주간에 적소, 일간은 결정론" 원칙의 모델 티어 구현.</p>
+<h3 class="sub">② 종합 신호 — "어떤 음식 먹었냐"는 입력 하나일 뿐</h3>
+<p>주간 종합이 보는 것: <b>식단</b>(무엇/거부/전환) + <b>구조화 입력</b>(식감·자율성·식사환경·식사시간) + <b>만성질환 경과</b>(변비·철결핍 등) + <b>성장</b>(키·몸무게/BMI 추세) + <b>ICFQ 위험·재노출 적기</b> + <b>35이론 렌즈</b>(아래). 식단만 보던 게 아니라 <b>아이 상태 전체를 읽는다.</b></p>
+<h3 class="sub">③ 35이론 렌즈 — 방법론 진단이 주간의 핵심 산출</h3>
+<p>35이론(<a href="/coaching-scenarios.html">정본: 시나리오 엔진</a>에 13시나리오로 구현)은 지금 <b>일간 시나리오 선택</b>에만 쓰인다. 보강: <b>주간 종합이 "이 아이의 지금 패턴에 어느 이론/방법론이 맞나"를 비싼 모델로 진단</b>해 이번 주 미션·접근을 잡는다. 예 — 신공포 단계면 SOS 감각 사다리, 자율성 다툼이면 Satter 식사 분담, 정체면 푸드체이닝. <b>식단 숫자가 아니라 방법론 진단</b>이 주간의 산출.</p>
+<h3 class="sub">④ 의사식 종합 소견 — 차트에 narrative impression</h3>
+<p>병원 차트가 <i>랩 수치 + 의사 impression</i>을 둘 다 남기듯(§12 철칙), <b>주간 종합이 LLM으로 '경과 소견'을 차트에 적는다</b> — 숫자가 아니라 판단.</p>
+<div class="layer l2"><b>예시 소견(weekly_summary.impression)</b><br>
+<span class="muted" style="font-size:12.5px">"지난주 콩류 노출 3→5회로 늘었으나 형태는 두부 한 가지에 머묾(distinct=1). 화·목 자율성 다툼 메모 2건 — 신공포보다 통제 욕구 신호. 성장 곡선 정상 추세. <b>이번 주는 식감보다 식사 분위기·선택권 우선(Satter), 콩류는 형태만 바꿔 가볍게 유지.</b>"</span></div>
+<p class="note">이 소견을 <b>일간 Haiku</b>(편지 톤·방향 일관)와 <b>다음 주 종합</b>(longitudinal·전주 소견 대비)이 읽는다. 숫자=raw 드릴다운, 소견=판단 — 둘 다 보존(§12). <span class="no">미션 비노출(§13)</span>: 소견은 엔진 내부용, 부모에겐 편지로만.</p>
+<p class="note"><b>구현 위치:</b> 주간 종합층(미구현)을 지을 때 함께. <code>runWeeklyPlanning</code>이 Opus로 종합 신호+35이론을 읽어 <code>weekly_plans.impression</code>(소견)·mission·budget을 산출. 일간/월간은 read. 신규 비용 = 자녀당 주 1 Opus 콜.</p>
+</div>
+
+<footer style="text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line)">밀프레드 코칭 엔진 <b>로드맵</b>(미구현 설계 정본) · 일·주·월 3층 + 롤업 차트 + 이사님 결정(행동지연·일요일·미션 비노출·주간 종합 깊이) · 2026-06-09 · 다중 에이전트 적대 검증(코드 grep 기반)</footer>
 
 </div></body></html>
