@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 피치덱 논리 구조 (정직판) — 시드</title>
+<meta property="og:title" content="밀프레드 피치덱 논리 구조 (정직판) — 시드">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--r500:#E53935;--r700:#C62828;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .hero{padding:54px 24px 38px;text-align:center;background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
+  .hero-inner{position:relative;z-index:1;max-width:800px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25)}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px;color:#1a2b4a}
+  .hero p{font-size:14.5px;color:#5a4a3a;max-width:660px;margin:0 auto;font-weight:500;line-height:1.75}
+  main{max-width:900px;margin:0 auto;padding:34px 22px 70px}
+
+  .spine{background:#fff;border:1.5px solid var(--p300);border-left:5px solid var(--p500);border-radius:14px;padding:22px 24px;margin-bottom:24px;box-shadow:0 4px 18px rgba(232,146,68,0.08)}
+  .spine .lbl{font-size:11px;font-weight:800;color:#C45A00;letter-spacing:0.06em;margin-bottom:10px}
+  .spine p{font-size:15.5px;font-weight:600;color:var(--s800);line-height:1.8}
+  .spine b{color:#C45A00}
+
+  .honesty{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+  .hcol{border-radius:13px;padding:15px 16px;border:1.5px solid}
+  .hcol h4{font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .hcol ul{list-style:none;padding:0;margin:0}
+  .hcol li{font-size:12px;font-weight:600;line-height:1.5;padding:6px 0;border-bottom:1px dashed rgba(0,0,0,0.06)}
+  .hcol li:last-child{border-bottom:none}
+  .hcol.proven{background:#F2FBF8;border-color:#BFE6DC}
+  .hcol.proven h4{color:var(--g700)} .hcol.proven li{color:#1d6b5a}
+  .hcol.bet{background:#FFF8F2;border-color:var(--p300)}
+  .hcol.bet h4{color:#C45A00} .hcol.bet li{color:#9a6512}
+  .hcol.nope{background:#FFF4F3;border-color:#FAD4D0}
+  .hcol.nope h4{color:var(--r700)} .hcol.nope li{color:#a33}
+  .hcol.nope li{text-decoration:line-through;text-decoration-color:rgba(197,40,40,.4)}
+  .moatline{background:var(--s800);color:#fff;border-radius:12px;padding:14px 18px;font-size:13.5px;font-weight:600;line-height:1.7;margin-bottom:34px}
+  .moatline b{color:var(--p300)}
+  @media(max-width:640px){.honesty{grid-template-columns:1fr}}
+
+  .blk-head{display:flex;align-items:baseline;gap:11px;margin:30px 0 16px;padding-bottom:9px;border-bottom:2px solid var(--p500)}
+  .blk-head h2{font-size:19px;color:var(--s800);font-weight:800;letter-spacing:-0.02em}
+  .blk-head .sub{font-size:11.5px;color:var(--n500);font-weight:600;margin-left:auto;font-style:italic}
+
+  .slide{position:relative;background:#fff;border:1.5px solid var(--n200);border-radius:14px;padding:18px 20px 18px 20px;margin-bottom:13px;border-left:5px solid var(--b500)}
+  .slide .num{position:absolute;top:-10px;left:16px;font-size:10px;font-weight:800;color:#fff;background:var(--s800);padding:3px 10px;border-radius:100px;letter-spacing:0.05em}
+  .slide h3{font-size:16px;font-weight:800;color:var(--s800);margin:5px 0 7px}
+  .slide .msg{font-size:13.5px;color:var(--n700);font-weight:600;line-height:1.7}
+  .slide .ev{margin-top:9px;font-size:12.5px;color:var(--n600);font-weight:500;line-height:1.65;background:var(--n50);border-radius:8px;padding:9px 12px}
+  .slide .ev b{color:var(--s800)}
+  .slide .caution{margin-top:9px;font-size:12px;color:#9a6512;font-weight:700;background:#FFFBF0;border:1px solid #F7E3B0;border-radius:8px;padding:8px 12px}
+  .slide.hero-slide{border-left-color:var(--p500);background:linear-gradient(180deg,#FFFDFA,#FFF8F1)}
+  .slide.hero-slide .num{background:var(--p500)}
+  .slide.moat-slide{border-left-color:var(--g500)}
+  .slide.moat-slide .num{background:var(--g500)}
+  .slide .pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:100px;margin-left:7px;vertical-align:middle}
+  .pill.live{background:var(--g500);color:#fff}
+  .pill.bet{background:var(--p500);color:#fff}
+
+  .loopviz{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:10px;font-size:12px;font-weight:700}
+  .loopviz .s{background:var(--p50);border:1px solid var(--p100);color:var(--s800);padding:6px 11px;border-radius:100px}
+  .loopviz .s.meas{background:var(--b500);color:#fff;border-color:var(--b500)}
+  .loopviz .a{color:var(--p500);font-size:14px}
+
+  .note{background:#EFF6FF;border:1px solid #BBD9F5;border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--b700);font-weight:600;margin-top:10px;line-height:1.6}
+  .note b{color:#0d47a1}
+
+  footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;margin-top:24px}
+  footer a{color:#9CA3AF}
+  .back{display:inline-block;font-size:12.5px;font-weight:700;color:#C45A00;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">🎤 PITCH 논리 구조 · 정직판 · 2026-06-09</span>
+    <h1>피치덱 논리 구조 (정직판) — 시드</h1>
+    <p>적대 검증 패널(8에이전트)이 밝힌 핵심을 반영했습니다: <b>현 B2G 학교사업은 AI 엔진을 학습시키지 않는다</b>(엔진 연료는 공개 NEIS·B2C앱). 그래서 <b>"증명된 것"과 "이번 라운드의 베팅"을 정직하게 가르고</b>, 라이브 엔진(급식 매핑)을 히어로로, 개인화 닫힌 루프는 솔직한 비전으로 둡니다. 과장을 걷어낼수록 시드에서 더 강해집니다.</p>
+  </div>
+</header>
+
+<main>
+  <a href="/docs.html" class="back">← 문서 허브</a>
+
+  <!-- SPINE -->
+  <div class="spine" style="margin-top:18px">
+    <div class="lbl">논리의 척추 — 한 줄</div>
+    <p>편식은 '앎'으로 안 고쳐진다 → <b>매일 그 아이 맞춤 행동을 처방</b>하고(엔진) → <b>그 식재료가 정확히 그 양으로 도착</b>하고(제조 HW) → <b>그 결과를 측정해 되먹여야</b>(측정 루프) 정밀해진다.</p>
+  </div>
+
+  <!-- HONESTY BOX -->
+  <div class="blk-head"><h2>⚖️ 증명된 것 vs 이번 라운드 베팅</h2><span class="sub">적대검증이 강제한 정직 분할</span></div>
+  <div class="honesty">
+    <div class="hcol proven">
+      <h4>✅ 이미 작동 (증명됨)</h4>
+      <ul>
+        <li>급식 매핑 엔진 — 라이브(약 1만 메뉴)</li>
+        <li>결정론 코칭 — 저비용·환각 0</li>
+        <li>제조·콜드체인 — 누적 100만 인분</li>
+        <li>학교 0-CAC 채널 — 초등 14%</li>
+      </ul>
+    </div>
+    <div class="hcol bet">
+      <h4>🎯 이번 라운드 베팅</h4>
+      <ul>
+        <li>개인화 키트 구독 루프</li>
+        <li>루프가 만드는 데이터 플라이휠</li>
+        <li>객관적 결과 측정(체성분·성장)</li>
+        <li>→ 검증이 곧 마일스톤</li>
+      </ul>
+    </div>
+    <div class="hcol nope">
+      <h4>⛔ 쓰면 안 되는 과장</h4>
+      <ul>
+        <li>"AI가 이미 대체 불가"</li>
+        <li>"학교사업이 AI를 학습시킨다"</li>
+        <li>"물류 자체가 독점 해자다"</li>
+        <li>"흑자·순이익" (시드 미언급)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="moatline">정직한 해자 = <b>엔진 + 제조 + 채널을 동시에 가진 유일한 자리</b>. 그리고 구독 루프를 닫는 순간 생기는 <b>데이터 플라이휠</b>. 물류는 자본 장벽이지 독점 기술이 아니다 — 진짜 방어선은 '셋의 결합'과 '닫힌 뒤의 데이터'다.</div>
+
+  <!-- DECK FLOW -->
+  <div class="blk-head"><h2>🎞️ 슬라이드별 논리 흐름</h2><span class="sub">메시지 · 근거 · 과장 주의</span></div>
+
+  <div class="slide">
+    <span class="num">01 · PROBLEM</span>
+    <h3>편식은 드물지 않고, 고칠 창이 닫혀간다</h3>
+    <p class="msg">영유아 4명 중 1명. 식습관이 굳기 전 <b>만 2~6세 골든타임</b>이 마지막 창.</p>
+    <div class="ev"><b>근거:</b> 편식 유병률 25~46%(연구), 0~6세 230만·영유아 가구 200만(통계청 기반 추정)</div>
+    <div class="caution">⚠️ 수치는 '추정' 명시 — 출처 단정 금지</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">02 · WHY WRONG</span>
+    <h3>불안한 부모는 틀린 방법으로 더 망친다</h3>
+    <p class="msg">건기식 과다 · "딱 한 입만" 강요 + 억지 칭찬 · 파편적 정보 — 셋 다 거부를 강화.</p>
+    <div class="ev"><b>근거:</b> 강요는 거부를 학습시킨다 — Satter 책임분담(DOR) 이론</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">03 · INSIGHT</span>
+    <h3>'앎(SW)'만으론 안 고쳐진다</h3>
+    <p class="msg">조언이 "당근을 극소량 노출하라" 해도, <b>그 식재료가 손에 없으면 아무 일도 안 일어난다.</b> 처방 + 식재료(행동)가 한 몸이어야 한다 — 이게 전체 논리의 분기점.</p>
+  </div>
+
+  <div class="slide hero-slide">
+    <span class="num">04 · THE ENGINE</span>
+    <h3>단순 LLM 래퍼가 아니다 <span class="pill live">LIVE</span></h3>
+    <p class="msg">히어로는 <b>지금 작동 중인 엔진</b>: ① 전국 급식 데이터로 학습한 <b>메뉴→식재료 매핑 엔진</b>(음식명→식재료·31종 영양 환원) ② <b>'계획은 코드, 작문만 LLM'</b>인 결정론 코칭 엔진.</p>
+    <div class="ev"><b>근거:</b> learned_menus 약 1만(자가 부트스트랩) · 매 결정마다 AI 호출 0회 → 저비용·환각 0. 단순 래퍼와 갈라지는 지점.</div>
+    <div class="caution">⚠️ 여기서 '개인화 닫힌 루프(아래 06)'를 "이미 작동"이라 말하지 말 것 — 라이브한 건 매핑·코칭까지</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">05 · WHY HW</span>
+    <h3>처방을 결과로 바꾸려면 식재료가 와야 한다</h3>
+    <p class="msg"><b>극다품종·극소량 식재료는 시중에서 못 산다</b>(한 봉지 사서 한 조각 쓰고 폐기). 순수 SW는 충족을 못 하고, 순수 식품회사는 엔진이 없다. 둘을 동시에 가진 자리가 비어 있다.</p>
+  </div>
+
+  <div class="slide moat-slide">
+    <span class="num">06 · THE MOAT (정직판)</span>
+    <h3>증명된 반쪽 + 닫는 반쪽 <span class="pill bet">검증 목표</span></h3>
+    <p class="msg"><b>증명됨:</b> 엔진 라이브 + 제조·콜드체인 보유. <b>베팅:</b> 이 둘을 잇는 개인화 구독 루프를 닫는 것 = 이번 라운드 검증.</p>
+    <div class="ev"><b>정직한 해자:</b> "이미 대체 불가"가 아니라 <b>엔진·제조·채널을 동시에 가진 유일한 자리</b>. 루프가 닫히면 데이터 플라이휠이 생긴다.</div>
+    <div class="caution">⚠️ 물류=해자 ✗ (컬리·오아시스도 가진 일반 역량). 해자는 '결합'과 '닫힌 뒤의 데이터'</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">07 · THE MEASURED LOOP</span>
+    <h3>루프가 '진짜로' 닫히는 법 — 결과 측정</h3>
+    <p class="msg">현재 반응 데이터는 부모의 주관적 기록뿐. <b>객관적 결과(체성분·성장)를 측정해 되먹이면</b> 비로소 루프가 닫히고 플라이휠이 돈다.</p>
+    <div class="loopviz">
+      <span class="s">처방(엔진)</span><span class="a">→</span>
+      <span class="s">제조·배송</span><span class="a">→</span>
+      <span class="s meas">결과 측정</span><span class="a">→</span>
+      <span class="s">재처방</span><span class="a">↺</span>
+    </div>
+    <div class="note">🤝 <b>파트너십 포인트:</b> 이 '결과 측정' 칸은 인바디 같은 <b>체성분·성장 측정 자산</b>이 정확히 들어오는 자리 — 우리 약점(객관 데이터 부재)을 정면으로 메우는 진짜 시너지. (InBodyLIKE 지원 시 협업 축)</div>
+  </div>
+
+  <div class="slide hero-slide">
+    <span class="num">08 · WHY US</span>
+    <h3>팀 + 현 사업의 '정직한' 역할</h3>
+    <p class="msg"><b>현 B2G 학교사업의 진짜 기여 = ① 제조·콜드체인 HW 능력 증명 ② 학교 0-CAC 채널.</b> (AI를 학습시키는 게 아님 — 엔진 연료는 공개 NEIS + B2C 앱)</p>
+    <div class="ev"><b>팀:</b> CEO — 신선 밀키트 6년·누적 100만 인분 제조·물류. CTO — SW마에스트로 멘토·스마트홈 코파운더 10년, 매핑·코칭 엔진 직접 개발. <b>제조 × 엔진 풀스택 조합</b>, 피벗으로 증명된 '솔루션 집착' 태도.</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">09 · AHA MOMENT</span>
+    <h3>편식 심한 아이 3명, 3주 만에 생당근을 스스로</h3>
+    <p class="msg">Day1 새 음식 거부 → Day21 제 손으로 집어 먹음.</p>
+    <div class="caution">⚠️ n=3 초기 사례임을 솔직히 — 부풀리지 않는 게 시드에서 더 신뢰를 준다</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">10 · MARKET</span>
+    <h3>좁은 송곳으로 들어가 거대한 우산으로</h3>
+    <p class="msg">진입 = 편식 고민 60만 가구(좁고 뾰족) → 확장 = 영유아 200만 가구(레시피·건기식·성장발달) → 글로벌 아동영양 헬스케어.</p>
+    <div class="ev"><b>순풍:</b> 저출생 역설 — 머릿수↓ 1인 지출↑, 프리미엄 개인화에 지갑이 열린다. <b>채널:</b> 초등 14% 학교 접점이 부모 앱 설치(0-CAC)로 연결</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">11 · THE ASK</span>
+    <h3>마일스톤형 조달</h3>
+    <p class="msg">자금 용처: 개인화 키트 자동화(원가율↓) · 엔진 R&D · 그로스 · 운영 버퍼. 마일스톤: <b>① 구독 전환 검증 ② 측정 루프 연결 ③ 원가율↓ → 다음 라운드</b>.</p>
+    <div class="caution">⚠️ 흑자·순이익 미언급. '검증'이 목표지 '이미 됨'이 아님</div>
+  </div>
+
+  <div class="slide moat-slide">
+    <span class="num">12 · THESIS</span>
+    <h3>편식 치료에서 시작해, 아이 영양을 평생 책임지는 회사로</h3>
+    <p class="msg">과학은 정립됐고(35개국 이론), 제조 능력은 증명됐다(100만 인분) — <b>우리가 그 둘을 잇고, 결과를 측정해 되먹인다.</b> 루프가 닫힐수록 대체 불가능해진다.</p>
+  </div>
+
+  <div class="note" style="margin-top:24px">📎 엔진 내부 구조(수직 플랫폼 레이어·래퍼 vs 우리 대비)는 <a href="/seed-thesis-logic.html" style="color:#0d47a1;font-weight:800">시드 논리 정본 — 엔진 × HW 해자</a>에서 더 자세히.</div>
+
+  <a href="/docs.html" class="back" style="margin-top:18px">← 문서 허브</a>
+</main>
+
+<footer>
+  <p>밀프레드 · 피치덱 논리 구조(정직판) · 2026-06-09 · 적대검증 8에이전트 반영 · <a href="/docs.html">문서 허브</a></p>
+</footer>
+
+</body>
+</html>
