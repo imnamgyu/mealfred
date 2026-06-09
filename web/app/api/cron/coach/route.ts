@@ -23,6 +23,7 @@ import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { type CoachSignals } from '@/lib/coachScenarios';
+import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, DEFAULT_LEDGER, type WeeklyAnchor } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, type FreqMap } from '@/lib/coachRecos';
@@ -340,6 +341,7 @@ export async function GET(req: Request) {
         let letter = '', oneliner = '';
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
+        let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견 — 어드민 검증
         let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) 재사용. srcHash에 today가 들어가 날짜가 바뀌면 새 계획으로 재생성(식단 동일해도 동결되지 않음). force만 강제 재생성.
@@ -389,7 +391,56 @@ export async function GET(req: Request) {
           };
           const daySeed = Math.floor(Date.parse(today) / 86400000);
           let cidHash = 0; for (let k = 0; k < cid.length; k++) cidHash = (cidHash * 31 + cid.charCodeAt(k)) >>> 0;
-          const precomputed = planFor({ signals, recentScenarioIds: recentScenarios[cid] || [], recentPlans: recentPlans[cid] || [], daySeed, cidHash });
+          let precomputed = planFor({ signals, recentScenarioIds: recentScenarios[cid] || [], recentPlans: recentPlans[cid] || [], daySeed, cidHash });
+          // ⭐ 주간 닻(작전층 §2·§13·§14) — 있으면 타깃 잠금·채근 캡(주1회)·행동지연. 없거나 실패하면 위 planFor 폴백(안전 제1원칙).
+          //    전부 try/catch로 degrade — weekly_plans 미실행/에러여도 daily 엔진은 항상 동작.
+          try {
+            const buildStructuredSummary = () => {
+              const p = (v: number | null) => v == null ? '기록없음' : `${Math.round(v * 100)}%`;
+              return `식감 최빈 ${structuredSig.texMode || '기록없음'}, 스스로 떠먹기 ${p(structuredSig.selfPct)}, 화면·이동 식사 ${p(structuredSig.envBadPct)}, 30분+ 끼니 ${p(structuredSig.mtOver30Pct)}`;
+            };
+            const synthAndStoreAnchor = async (wk: string): Promise<WeeklyAnchor | null> => {
+              const synth = await runWeeklyPlanning({
+                childName: meta.nickname, ageBand: meta.age_band,
+                reds, missing: fg.missing, homeMissing: homeFg.missing,
+                refused: sanitizeRefusals(uniqRef), favoriteFoods,
+                transitions: ts.filter((t) => /거부→수용 전환|받아들이기 시작/.test(t)),
+                structuredSummary: buildStructuredSummary(), chronicGuidance: chronicGuidanceText(meta.chronic),
+                icfqRiskCount,
+              });
+              const row = {
+                child_id: cid, week_key: wk, status: synth.source === 'weekly_llm' ? 'active' : 'cold_synth', source: synth.source,
+                mission: synth.mission, mission_target: synth.mission_target, target_pool: synth.target_pool, secondary_axis: synth.secondary_axis,
+                budget: synth.budget, ledger: DEFAULT_LEDGER, impression: synth.impression, arc_week: 1,
+                basis_attends_daycare: attends, model: synth.source === 'weekly_llm' ? 'sonnet-4-6' : 'cold', updated_at: new Date().toISOString(),
+              };
+              await supabase.from('weekly_plans').upsert(row, { onConflict: 'child_id,week_key' });
+              return row as unknown as WeeklyAnchor;
+            };
+            const loadAnchor = async (wk: string): Promise<WeeklyAnchor | null> => {
+              const { data } = await supabase.from('weekly_plans').select('*').eq('child_id', cid).eq('week_key', wk).maybeSingle();
+              return (data as WeeklyAnchor) || null;
+            };
+            const dow = kstDow(today);
+            const weekKey = isoWeekKey(today);
+            if (dow === 0) await synthAndStoreAnchor(isoWeekKey(addDaysStr(today, 1)));   // 일요일: 다가올 주 닻 종합(오늘 편지는 아래 reading 경로)
+            let anchor = await loadAnchor(weekKey);
+            if (!anchor && dow !== 0) anchor = await synthAndStoreAnchor(weekKey);          // 평일 닻 없으면 lazy 생성 → 레이어 즉시 활성
+            if (anchor && anchor.mission_target) {
+              const tgt = anchor.mission_target;
+              const weekRows = (byChild[cid] || []).filter((r) => isoWeekKey(r.log_date) === weekKey);
+              const servedDays = weekRows.filter((r) => (r.ingredients || []).some((ing) => ing === tgt || catOf(ing) === tgt));   // 실제 차림(그룹=catOf·음식=정확일치)
+              const targetExposeWtd = servedDays.length;
+              const firstServeDow = servedDays.length ? Math.min(...servedDays.map((r) => kstDow(r.log_date))) : null;
+              const wk = planFromWeekly({ anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, daySeed, cidHash, dow });
+              if (wk) {
+                precomputed = { scenario: wk.scenario, plan: wk.plan, varyOpener: wk.varyOpener };
+                weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied };
+                const newLedger = { ...(anchor.ledger || DEFAULT_LEDGER), ...wk.ledgerPatch, exposeCount: { ...((anchor.ledger || DEFAULT_LEDGER).exposeCount || {}), [tgt]: targetExposeWtd }, firstServeDow };
+                await supabase.from('weekly_plans').update({ ledger: newLedger, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekKey);
+              }
+            }
+          } catch (e) { console.warn('[cron/coach] weekly anchor skip:', e instanceof Error ? e.message : e); }
           scenarioId = precomputed.scenario.id; scenarioLabel = precomputed.scenario.label; planCtx = precomputed.plan;
           // ⭐ 간식 멘트 다듬기(이사님) — 매일 '과자 대신 과일·요거트…' 반복 방지:
           //   ① 쿨다운: 최근 2일 안에 이미 실었으면 오늘은 생략(며칠에 한 번만) ② 과일이 오늘 타깃이면 본문이 이미 좋은 간식을 다루므로 중복 생략
@@ -435,6 +486,7 @@ export async function GET(req: Request) {
             coachRegen,   // 비중복 가드로 재생성됐는지(최근 편지와 유사도 ≥0.45)
             snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
             snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
+            weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
           };
           await supabase.from('coach_letters').upsert(
             { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: letterCtx },
