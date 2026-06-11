@@ -517,7 +517,10 @@ export async function GET(req: Request) {
           const SNACK_COOLDOWN = 2;
           const snackShownRecently = (recentSnackDates[cid] || []).some((d) => d >= dAgo(SNACK_COOLDOWN));
           const snackChannelTarget = !!(planCtx?.target && SNACK_CHANNEL.has(planCtx.target));
-          const snackText = (!snackShownRecently && !snackChannelTarget) ? snackEvalToPrompt(snackEval, daySeed) : null;
+          // ⭐ 구조(환경·자율성·식감) 편지엔 간식 음식 스왑을 얹지 않음 — '한 번에 하나' 위반으로 요구 3개 편지가 되던 것 차단(2026-06-11 검증자 적발).
+          //   간식 신호는 사라지지 않고 food 주간/다음 기회에 환기(쿨다운과 동일 원리).
+          const structuralFrame = ['mealtime-atmosphere', 'autonomy-power-struggle', 'texture-refusal'].includes(scenarioId || '');
+          const snackText = (!snackShownRecently && !snackChannelTarget && !structuralFrame) ? snackEvalToPrompt(snackEval, daySeed) : null;
           snackShownCtx = !!snackText;
           // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
           const bridgeFacts = buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, freqMap }).text;
@@ -549,6 +552,7 @@ export async function GET(req: Request) {
             repeatAlert = true;
             issues.push(`반복경보 ${meta.nickname}: 직전 유사도 ${simToPrev ?? 0} · 직전2일 동일 시그니처 ${sigRun}건(${planCtx?.signature || '-'})`);
           }
+          if (verifyCtx && verifyCtx.ok === false) issues.push(`검증위반 발행 ${meta.nickname}: ${verifyCtx.violations.slice(0, 2).join(' / ')}`.slice(0, 160));   // fail-open이되 어드민 보고서에 즉시 노출
         }
         if (letter) {
           // QA용 "우리 판단" 스냅샷 — 어드민 쓰레드에서 이 근거로 생성됐음을 보여줌
