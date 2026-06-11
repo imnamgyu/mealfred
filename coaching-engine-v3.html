@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 엔진 v3 — 주간 목표 포트폴리오 · 흐름형 커리큘럼 · 조립식 편지 (구현 중)</title>
+<meta property="og:title" content="코칭 엔진 v3 — 포트폴리오·커리큘럼·조립식 (정본)">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p:#E89244;--p7:#B86A20;--mut:#8a7a6a;--line:#eee2d4;--bg:#FFFDFB}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:var(--bg);color:#2a2118;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:48px 22px 80px}
+h1{font-size:25px;letter-spacing:-0.02em;margin-bottom:10px}
+h2{font-size:20px;margin:40px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--p)}
+h3{font-size:16px;margin:22px 0 8px;color:var(--p7)}
+p{margin:8px 0;font-size:14.5px}
+li{font-size:14.5px;margin:5px 0 5px 18px}
+.lead{color:#5a4a3a;font-size:14px}
+.ok{background:#F2FAF4;border:1.5px solid #9CCFA8;border-radius:10px;padding:12px 14px;font-size:13.5px;margin:12px 0}
+.warn{background:#FFF5F5;border:1.5px solid #E53935;border-radius:10px;padding:12px 14px;font-size:13.5px;margin:12px 0}
+.note{background:#FFF8F2;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;margin:12px 0}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:12.5px}
+th,td{border:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{background:#FFF3E6;font-size:12px}
+code{background:#F6EFE7;border-radius:5px;padding:1px 5px;font-size:12px}
+.tag{display:inline-block;font-size:11px;font-weight:800;border-radius:100px;padding:2px 9px;margin-right:6px;background:#FBEED2;color:#9A6B00}
+footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line);margin-top:48px}
+</style>
+</head><body><div class="wrap">
+
+<h1>코칭 엔진 v3 — 주간 목표 포트폴리오 · 흐름형 커리큘럼 · 조립식 편지</h1>
+<p class="lead"><span class="tag">🔨 정본 v3 · 이사님 승인(2026-06-12) · 구현 중</span> 2026-06-09~12 나흘의 사고(3일 복붙→뷔페 일반화→점심 모순→크론 사망·2등급 폴백→주제 수렴)와 적대감사 3종(로직 22건·프롬프트 모순 8쌍·복리 0.5/3)의 종합 결론. 본 문서가 <a href="/coaching-weekly-plan.html">주간 케이던스</a>·<a href="/coaching-parent-curriculum.html">수업 트랙</a>을 <b>흡수·승계</b>한다. 시나리오 13(<a href="/coaching-scenarios.html">정본 ①</a>)·식재료 네트워크(food-graph·bridgeFacts)는 v3에서도 그대로 정본.</p>
+
+<div class="ok"><b>이사님 설계 원문 요지(2026-06-12)</b> — ① 같은 사실("태블릿 봤다")의 반복 되풀이 편지 절대 금지(시급한 안전 문제 예외) ② ADHD처럼 휙휙 바뀌는 코칭도 금지 ③ 주간 거시 흐름 아래 "어제 A 알려줬고 데이터상 잘했으면 오늘은 자연스럽게 B" — 물 흐르듯 단계적 전개 ④ 시계열 분석 → 이번 주 내부 목표 <b>2~3개</b> 수립, 개선 없으면 스탑·피벗, 진전 있으면 딥하게 체득까지 ⑤ 커리큘럼 12개를 심리스하게 — 체득 기준을 <b>정량화</b>하고 DB에 상태 저장, 달성하면 그만 가르치고 무너지면 재감지 ⑥ 식단 입력으로 판정이 부족하면 <b>오늘의 질문(보라 박스)을 주간 목표에 정렬</b>해 측정 보충 = <b>피드백 루프</b> ⑦ 온보딩 1~4주(신뢰→관찰→개입→정착) 큰틀 유지 ⑧ 일간 진료차트와 대조해 주간 전개 전략을 매일 재조정.</div>
+
+<h2>1. 구조 — 3층 + 2금지 + 1원칙</h2>
+<table>
+<tr><th>층</th><th>주기</th><th>역할</th></tr>
+<tr><td><b>거시 — 온보딩 아크</b></td><td>1~4주+</td><td>신뢰→관찰→개입→정착. 이 틀 위에서 커리큘럼 유닛이 배치됨</td></tr>
+<tr><td><b>작전 — 주간 목표 포트폴리오</b></td><td>일요일(+콜드스타트)</td><td>시계열 분석 → <b>목표 2~3개</b>(커리큘럼 유닛에서 선발) + 우선순위. 기존 단일 lever의 일반화</td></tr>
+<tr><td><b>전술 — 일간 전개</b></td><td>매일 크론</td><td>어제 진료차트 ↔ 활성 목표 대조 → 오늘의 한 걸음 선택(전진/피벗/딥다이브/졸업) → 조립식 편지</td></tr>
+</table>
+<ul>
+<li>❌ <b>사실 재서술 금지</b>: 관찰 사실(화면 식사 등)은 흐름에서 <b>1회만</b> 서술(보통 목표 도입일). 이후 등장은 코드가 차단(블록 설계상 불가). 예외=안전 인터럽트(ARFID 적신호·질식)만.</li>
+<li>❌ <b>중구난방 금지</b>: 일일 주제 전환은 포트폴리오(2~3개) 안에서만, 전환 사유는 코드 규칙(정체 감지)뿐.</li>
+<li>✅ <b>단계 전개</b>: 모든 편지는 '어제까지의 위치 → 오늘의 다음 걸음' — 같은 위치 재방문 금지, 위치는 DB(진도)로 추적.</li>
+</ul>
+
+<h2>2. 커리큘럼 12유닛 통합안 + 정량 체득 기준</h2>
+<p class="lead">21강(코어8+선택8+스팟4+조건부1) → <b>코어 8 + 통합 선택 4 = 12유닛</b>(이사님 "12개"). 스팟 4(질식·성장기록·적신호·정상화)는 수업이 아닌 단기 안내로 별도 유지. 측정: ◎=식단 기록만으로 / Q=질문 보충 필요.</p>
+<table>
+<tr><th>#</th><th>유닛</th><th>체득 판정 신호(정량)</th><th>진행 임계(단 통과)</th><th>졸업(체득)</th><th>재발 감지</th></tr>
+<tr><td>1</td><td>압박 내려놓기(역할 나누기)</td><td>Q5 긍/부정 태그 비율 ◎ · 압박/거래 메모 키워드 ◎ · ICFQ stress Q</td><td>부정 태그 ≤20% × 2주</td><td>+유지 주 1주(코칭 없이 유지)</td><td>부정 태그 2주 연속 >40%</td></tr>
+<tr><td>2</td><td>공복 리듬(간식 시간표)</td><td>간식 slot 시각 간격 ◎ · meal_time 간섭 신호 ◎</td><td>끼니 전 2h 간식 0회가 주 5일+ × 2주</td><td>+유지 1주</td><td>간섭 신호 주 3회+</td></tr>
+<tr><td>3</td><td>식탁 무대(화면·자리)</td><td><code>envTablePct</code> ◎</td><td>≥40% × 1주 → ≥60% × 2주</td><td>≥60% 유지 주 1주</td><td>2주 연속 &lt;40%</td></tr>
+<tr><td>4</td><td>노출 적금(무압력 반복)</td><td><code>exposeCount</code> ◎ · 거부율 추이 ◎</td><td>타깃 노출 주 2~3회 × 3주(8~15회 적립)</td><td>타깃 자발 섭취 2회+</td><td>노출 0회 × 2주(6개월 재발 근거)</td></tr>
+<tr><td>5</td><td>배부름 존중</td><td>meal_time 30분 초과율 ◎ · 완식 강요 메모 ◎ · Q</td><td>초과율 ≤30% × 2주</td><td>+유지 1주</td><td>초과율 >50% × 2주</td></tr>
+<tr><td>6</td><td>부모가 메뉴판(모델링·가족식사)</td><td>저녁 가족끼니 기록 빈도 ◎ · Q(같이 먹었나)</td><td>주 5회 가족끼니 × 2주</td><td>+유지 1주</td><td>주 2회 미만 × 2주</td></tr>
+<tr><td>7</td><td>달콤한 협상 끊기</td><td>보상/거래 메모 키워드 ◎ · 간식 패턴 ◎ · Q</td><td>거래 메모 0건 × 2주</td><td>+유지 1주</td><td>거래 메모 재출현 주 2회+</td></tr>
+<tr><td>8</td><td>식탁의 말</td><td>Q5 태그 ◎ · Q(어떤 말 했나)</td><td>객체중심 응답 ≥70% × 2주(질문 표본 4+)</td><td>+유지 1주</td><td>압박 언어 메모 재출현</td></tr>
+<tr><td>9</td><td><b>감각·질감 트랙</b>(감각 사다리+질감 계단+웜업)</td><td>texture 칩 ◎ · 거부 음식 노출 기록 ◎ · Q(단계 도달)</td><td>사다리 1단/주 전진 × 단계별</td><td>목표 질감/단계 2주 유지</td><td>단계 후퇴 2주</td></tr>
+<tr><td>10</td><td><b>확장 트랙</b>(음식 다리+찍어먹기)</td><td>신규 식재료 등장 ◎ · 사슬 음식 수용 ◎</td><td>사슬 1칸/1~2주</td><td>목표 음식 자발 2회</td><td>신규 0종 × 3주</td></tr>
+<tr><td>11</td><td><b>자율성·참여 트랙</b>(고르기+요리사)</td><td><code>selfPct</code> ◎ · Q(역할 줬나)</td><td>selfPct ≥50% × 2주</td><td>+유지 1주</td><td>&lt;30% × 2주</td></tr>
+<tr><td>12</td><td><b>연계·리듬 트랙</b>(기관 연계+재노출 타이밍)</td><td>기관거부→집 재노출 매칭률 ◎(코드 계산)</td><td>매칭 주 2회 × 2주</td><td>+유지 1주</td><td>매칭 0 × 3주</td></tr>
+</table>
+<p class="note">임계 수치는 초기값(보수적) — 리플레이 지표로 보정한다. <b>북극성 페르소나와의 관계</b>: 이 12유닛의 체득 상태 벡터 + 식품 다양성(도감/사촌 확장) + 영양 신호등 = '이상적 식습관 아이' 지표의 3축. 페르소나 문서는 본 정본의 부록으로 흡수 예정(이사님 발제 2026-06-12).</p>
+
+<h2>3. 피드백 루프 — 기록·질문·진도</h2>
+<ul>
+<li><b>DB</b>: <code>curriculum_progress</code>(child_id·unit_id·<b>status</b>[active/progressing/mastered/relapsed/pivoted]·step(사다리 단)·evidence(신호 카운터 JSONB)·started_at·mastered_at·last_signal_at) + <code>weekly_plans.goals</code>(JSONB 배열 2~3개: unit_id·priority·stop_reason). 매 크론이 기록→신호 추출→evidence 갱신→status 전이.</li>
+<li><b>오늘의 질문 정렬(보라 박스)</b>: 질문 선택 1순위 = <b>활성 유닛의 측정 공백</b> — 식단 입력만으로 판정 신호가 부족할 때(칩 미기록·Q표시 유닛) 그 유닛의 관측 질문을 던진다(예: 유닛8 활성+태그 표본 부족 → "오늘 식탁에서 어떤 말을 건넸나요?"). 기존 QUESTION_MOVES 로테이션은 2순위로 강등. 답변은 evidence에 적립 — <b>기록→판정→부족하면 질문으로 보충→진도 갱신→내일 코칭 선택</b> 루프 완성.</li>
+<li><b>전개 규칙(코드)</b>: 진전(임계 충족) → 같은 유닛 다음 단(딥다이브) / 정체(신호 변화 0 × 5~7일) → 포트폴리오 내 다른 목표로 피벗(stop_reason 기록) / 전 목표 정체 → plateau 쉬어가기+주간 재진단 / 졸업 → 유지 레지스트리로 이동, 코칭 중단 / 재발 감지 → 재활성(과거 진도에서 재개, 처음부터 아님).</li>
+</ul>
+
+<h2>4. 조립식 편지 — 표면의 유한화</h2>
+<ul>
+<li><b>블록 스키마</b>: <code>unit × 단계(도입|방법|관찰반응|장애물|전진|칭찬|피벗|졸업) × 변형 3~5</code> — 사전 작성+적대 검수(멀티에이전트 — 커뮤니티 98·팁 36 파이프라인 재사용). 슬롯: {아이 이름, 사실 카드 인용 1개, 다음 걸음}.</li>
+<li><b>조립 규칙</b>: 진도 상태가 블록을 결정론으로 선택. <b>같은 블록 3일 내 재사용 금지·관찰 사실 인용은 유닛당 1회 — 코드로 보장(확률 아님)</b>. polishKo + (선택) LLM 윤문(내용 불변 계약).</li>
+<li><b>자유 작문 잔존 표면</b>(기존 가드 스택 그대로 적용): 주 1회 일요일 회고/intro(Sonnet)·휴면 복귀·월간 — 신선도 담당, 빈도가 낮아 검증 가능.</li>
+<li><b>효과</b>: 편지당 LLM 콜 14→0~2(크론 사망 원인 소멸), 모델 교체 무풍, "몇 가지 예외 처리하면 되나"가 셀 수 있는 질문이 됨(블록 전수 테스트).</li>
+</ul>
+
+<h2>5. 1.5주 전환 공사와의 합병 (2026-06-12 확정)</h2>
+<table>
+<tr><th>기존 계획</th><th>판정</th></tr>
+<tr><td>① 결정론 유닛테스트</td><td>✅ 완료(51케이스+prebuild 배포 게이트 `01256be`) — v3 전제. 자유작문 가드 케이스는 잔존 표면 전용으로 강등</td></tr>
+<tr><td>② 리플레이+fixture</td><td>승격 — 조립식에서 리플레이=전체 검증. 지표 교체: 유사도 p95·검증위반율 → <b>블록 반복률·사실 재서술 0건·전개규칙 위반·피벗 정확성</b></td></tr>
+<tr><td>③a 프롬프트 다이어트 170→80</td><td><b>드랍</b> — 일간 거대 프롬프트 자체가 폐기됨(intro 전용 소형 프롬프트 신설로 대체, ~2일 절약)</td></tr>
+<tr><td>③b 가드 레지스트리</td><td>재편 — 런타임 4중 검열 → <b>블록 제작 시 검수 체크리스트</b>(1회 적용·테스트 보장)</td></tr>
+<tr><td>③c 잔여 수술</td><td>심각 8 완료 / 드랍(조립식이 소멸): M1 도입충돌·M8 reinforce 진동·S7 콜폭주 / v3로 흡수: S3 인터럽트-아크·M3 채근캡(포트폴리오 로직)·M9 닻 장애 경보</td></tr>
+</table>
+
+<h2>6. 구현 순서 (~1.5주)</h2>
+<ol>
+<li><b>D1</b>: SQL(<code>curriculum_progress</code>·<code>weekly_plans.goals</code>) + 진도 상태기계(<code>lib/curriculum.ts</code> — 판정·전이·피벗·졸업·재발, 전부 순수 함수+테스트)</li>
+<li><b>D2~3</b>: 블록 라이브러리 제작(멀티에이전트+적대검수 → <code>lib/letter-blocks.json</code>, 12유닛×8단계×3~5변형 ≈ 400±) + 조립기(<code>composeAssembled</code>) + 비반복 보장 테스트</li>
+<li><b>D4</b>: 주간 종합 개편(단일 lever → 목표 2~3 포트폴리오·Sonnet 프롬프트 갱신) + 일간 전개 선택기 + 질문 정렬</li>
+<li><b>D5</b>: 리플레이 지표 교체 + 합성 30가정×14일 리플레이로 임계 보정 + 아린 실데이터 병행 검증 → 컷오버(일간 편지 조립식 전환, 자유작문은 intro·휴면만)</li>
+<li>이후: 재발 감지 모니터링·어드민 진도 보드·스팟 4 안내 배선</li>
+</ol>
+
+<div class="warn"><b>전환 기간 방어선</b>: 컷오버 전까지 현행 가드 스택(테스트 게이트·폴백 봉쇄·데드라인 강등·검증자)이 일간 편지를 지킨다. 신규 엣지케이스는 즉시 fixture+테스트로 박제(복리 원칙 — 배포 전 <code>npm test</code> 통과 필수).</div>
+
+<footer>밀프레드 코칭 엔진 v3 정본 · 2026-06-12 이사님 설계 승인 · 주간 케이던스(정본③)·수업 트랙(로드맵) 흡수 승계 · 시나리오 13·식재료 네트워크 유지</footer>
+</div></body></html>
