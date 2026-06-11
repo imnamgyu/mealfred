@@ -465,10 +465,10 @@ export async function GET(req: Request) {
                 else {
                   const r = [...weekRows].filter(goodRow).sort((a, b) => b.log_date.localeCompare(a.log_date))[0];
                   if (r) {
-                    const slot = SLOT_LABEL[r.slot || ''] || '한 끼';
-                    progressNote = lever === 'environment' ? `${ago(r.log_date)} ${slot}를 화면 없이 식탁에 앉아서 먹음`
-                      : lever === 'autonomy' ? `${ago(r.log_date)} ${slot}를 아이가 스스로 떠먹음`
-                      : `${ago(r.log_date)} ${slot}에 한 단계 위 질감을 시도함`;
+                    const slot = SLOT_LABEL[r.slot || ''] ? `${SLOT_LABEL[r.slot || '']} ` : '';   // '아침 끼니를' 형태 — 조사 충돌 회피
+                    progressNote = lever === 'environment' ? `${ago(r.log_date)} ${slot}끼니를 화면 없이 식탁에 앉아서 먹음`
+                      : lever === 'autonomy' ? `${ago(r.log_date)} ${slot}끼니를 아이가 스스로 떠먹음`
+                      : `${ago(r.log_date)} ${slot}끼니에서 한 단계 위 질감을 시도함`;
                   }
                 }
               }
