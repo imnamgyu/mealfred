@@ -292,6 +292,19 @@ export async function GET(req: Request) {
         const snackEval = evaluateSnacks({ rows: byChild[cid], band: snackBand, reds });   // 텍스트화는 계획 확정 후(쿨다운·과일타깃 중복제거·예시 로테이션 게이팅)
         const uniqRef = [...new Set(ref)];
         const ts = computeTimeseries(byDate, menuFreq, catOf, dAgo(1), { assertNoVeg: catReliable });   // 어제 앵커(평가 기준일)
+        // ⭐ 점심 커버리지 사실(결정론·2026-06-11) — 주말 하루 메모('점심 안 먹고')를 LLM이 '점심을 거르는 리듬'으로
+        //   과일반화하는 것 차단: 점심이 실제 기록돼 있으면(대부분 기관 급식) 그 사실을 시계열 1순위로 주입하고,
+        //   그래도 '점심 거르/건너뛰' 단정이 나오면 detForbid 정규식으로 재생성(프롬프트 호소만으론 못 막음 — 실증됨).
+        const lunchRows = rs.filter((r) => r.slot === 'lunch');
+        const lunchDays = new Set(lunchRows.map((r) => r.log_date)).size;
+        let lunchForbid: RegExp | null = null;
+        if (lunchDays >= 3) {
+          const dcMost = lunchRows.filter((r) => r.place === 'daycare').length >= Math.ceil(lunchRows.length / 2);
+          ts.unshift(dcMost
+            ? `평일 점심은 어린이집·유치원 급식으로 챙겨 먹고 있음(최근 7일 중 ${lunchDays}일 점심 기록)`
+            : `점심도 대부분 기록돼 있음(최근 7일 중 ${lunchDays}일 점심 기록)`);
+          lunchForbid = /점심[^.。\n]{0,12}(거르|건너|안\s?먹|굶)/;
+        }
         // 거부→수용 전환 감지(최근 28일) — 과거 거부했던 식재료를 이후 비거부로 먹기 시작 = '받아들이는 순간'. 코칭이 칭찬.
         try {
           const { data: trData } = await supabase.from('meal_logs')
@@ -511,7 +524,7 @@ export async function GET(req: Request) {
             weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };
           const detInput = [...ts, ...notes, ...uniqRef].join(' ');
-          const out = await composeLetter({ base, precomputed, detInput, daySeed, cidHash });
+          const out = await composeLetter({ base, precomputed, detInput, detForbid: lunchForbid, daySeed, cidHash });
           letter = out.letter; oneliner = out.oneliner; coachRegen = out.coachRegen;
           // ⭐ 자동 반복 경보 — 발행 시점에 직전 편지들과 유사도·시그니처 연속을 자가 측정해 기록(cron_runs.issues + context)
           if (pastLetters.length && letter) simToPrev = Math.round(Math.max(...pastLetters.map((q) => letterSimilarity(letter, q.letter))) * 1000) / 1000;
