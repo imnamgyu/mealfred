@@ -36,17 +36,25 @@ export function compileFacts(p: { rows: FactRow[]; today: string }): { cards: st
   const forbidParts: string[] = [];
   const winDays = new Set(rows.map((r) => r.log_date)).size;
 
-  // 1) 끼니 슬롯 커버리지(시계열) — '점심을 거른다'류 데이터 모순 단정의 일반화 차단
+  // 1) 끼니 슬롯 커버리지 — ⭐ 추세 인지형(이사님 지적: 카운트 임계만 보면 '방금 끊김' 전환 구간을 가림).
+  //    마지막 점심 기록의 나이(lastLunchAge)로 분기: 최근까지 있음 / 있다가 최근 끊김 / 거의 없음.
+  //    '점심을 거른다' 단정은 어느 분기에서든 최근 2일 메모가 지지할 때만 허용 — 기록 부재≠결식(누락일 수 있음. 모르면 단정 말고 묻는다).
   const slotDays = (s: string) => new Set(rows.filter((r) => r.slot === s).map((r) => r.log_date));
   const bDays = slotDays('breakfast'); const lDays = slotDays('lunch'); const dDays = slotDays('dinner');
   const lunchRows = rows.filter((r) => r.slot === 'lunch');
   const lunchDc = lunchRows.filter((r) => r.place === 'daycare').length;
-  if (lDays.size >= 3) {
+  const lastLunchAge = lDays.size ? Math.min(...[...lDays].map((d) => age(d))) : 99;
+  const recentLunchMemo = rows.some((r) => r.note && age(r.log_date) <= 2 && /점심[^.。\n]{0,12}(안\s?먹|거르|건너)/.test(r.note));
+  if (lDays.size >= 3 && lastLunchAge <= 2) {
     cards.push(lunchDc >= Math.ceil(lunchRows.length / 2)
-      ? `점심: 최근 ${winDays}일 중 ${lDays.size}일 기록 — 평일은 어린이집·유치원 급식으로 먹음(결식 아님)`
-      : `점심: 최근 ${winDays}일 중 ${lDays.size}일 기록(결식 아님)`);
-    forbidParts.push('점심[^.。\\n]{0,12}(거르|건너|안\\s?먹|굶)');
-  } else if (lDays.size > 0) cards.push(`점심: 최근 ${winDays}일 중 ${lDays.size}일만 기록`);
+      ? `점심: 최근 ${winDays}일 중 ${lDays.size}일 기록(어제까지 이어짐) — 평일은 어린이집·유치원 급식으로 먹음(결식 아님)`
+      : `점심: 최근 ${winDays}일 중 ${lDays.size}일 기록(어제까지 이어짐 — 결식 아님)`);
+  } else if (lDays.size >= 1 && lastLunchAge >= 3) {
+    cards.push(`점심: 창 내 ${lDays.size}일 기록 — 단, 마지막 점심 기록이 ${lastLunchAge}일 전(추세: 최근 비어 있음. 기록 누락일 수 있으니 '거른다' 단정 금지 — 비어 있는 기록을 부드럽게 확인 권유 가능)`);
+  } else if (lDays.size > 0) {
+    cards.push(`점심: 최근 ${winDays}일 중 ${lDays.size}일만 기록(최근 포함)`);
+  }
+  if (!recentLunchMemo) forbidParts.push('점심[^.。\\n]{0,12}(거르|건너|안\\s?먹|굶)');   // 단정 허용 조건 = 최근 메모의 직접 지지뿐
   if (bDays.size) {
     const bMenus = [...new Set(rows.filter((r) => r.slot === 'breakfast').flatMap((r) => r.menus || []))].slice(0, 4);
     cards.push(`아침: ${bDays.size}일 기록${bMenus.length ? ` — 최근 메뉴: ${bMenus.join('·')}` : ''}`);
