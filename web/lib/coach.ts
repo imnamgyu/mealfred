@@ -234,9 +234,9 @@ const SCEN_ACT: Record<string, string> = {
   'progress-celebrate': '행동 없음 — 전환된 음식을 콕 집어 축하만. ❌ 섞기·곁들이기·새 숙제 금지.',
   'neophobia-arfid-watch': '음식 행동 없음 — 가정형 관찰·필요시 전문가 상담 권유만. ❌ 섞기 금지.',
   'low-data-gap': '음식 행동 없음 — 기억나는 날 기록 채우기 한 줄만. ❌ 섞기 금지.',
-  'mealtime-atmosphere': "환경 레버 1개만 — 아래 [오늘의 코칭 무브]가 있으면 반드시 그 방식으로(없으면 '끼니 30분 전 간식 멈추기/식사 중 영상 끄기/말없이 함께 먹기' 중 1개). ❌ 음식에 섞기 금지.",
+  'mealtime-atmosphere': "환경 레버 1개만 — 아래 [오늘의 코칭 무브]가 있으면 반드시 그 방식으로(없으면 '끼니 30분 전 간식 멈추기/식사 중 영상 끄기/말없이 함께 먹기' 중 1개). ❌ 음식에 섞기 금지. ❌ 이번엔 환경에만 집중('한 번에 하나') — 새 식재료·식품군을 챙기라는 음식 제안(섞기·곁들이기·메뉴 추천)을 아예 넣지 마라.",
   'reward-bribe-backfire': "'먹으면 ~줄게' 거래 끊기 1개 + 디저트를 끼니 일부로. ❌ 섞기 금지.",
-  'autonomy-power-struggle': '아이에게 선택권·주도권을 주는 행동 1개만 — 아래 [오늘의 코칭 무브]가 있으면 그 방식으로. ❌ 섞기 금지.',
+  'autonomy-power-struggle': "아이에게 선택권·주도권을 주는 행동 1개만 — 아래 [오늘의 코칭 무브]가 있으면 그 방식으로. ❌ 섞기 금지. ❌ 새 식재료·식품군 제안을 얹지 마라('한 번에 하나').",
   'texture-refusal': "같은 음식의 '질감'만 바꾸기 — 아래 [오늘의 코칭 무브]가 있으면 그 방식으로(없으면 푹 익혀 으깨기 또는 바삭하게 굽기). 통째 섞기 아님.",
   'new-refusal': "거부 식재료를 격일로 '아주 작은 조각만 곁들여' 다시 만나기 + 향·촉감. 섞기 아님.",
   're-exposure-timing': "시계열 'N일 전' 숫자를 인용한 재노출 타이밍 + 작은 양 곁들이기.",
@@ -386,7 +386,7 @@ export function letterDeterministicBad(letter: string, scenarioId: string | unde
   const L = letter || '';
   if (FORBID_TIME.test(L)) return true;
   if ((scenarioId === 'neophobia-arfid-watch' || scenarioId === 'texture-refusal') && SYMPTOM_RE.test(L) && !SYMPTOM_RE.test(inputText)) return true;
-  if (scenarioId && NO_MIX_SCEN.has(scenarioId) && /잘게\s?섞|섞어\s?주|섞어서|섞으면|섞어\s?보/.test(L)) return true;
+  if (scenarioId && NO_MIX_SCEN.has(scenarioId) && /잘게\s?섞|섞어\s?주|섞어서|섞으면|섞어\s?보|으깨[^.]{0,6}섞|섞어\s?(함께|같이|차려|내|드|두)/.test(L)) return true;   // '으깨어 섞어'·'섞어 함께 차려' 우회 차단(2026-06-11)
   if (/(깍두기|배추김치|김치)[^.]{0,12}(섞|넣)/.test(L)) return true;
   if (/까스|돈까스|너겟|너깃|핫도그|튀김|소시지|어묵/.test(L)) return true;   // 튀김·초가공 형태 권유 차단
   if (/[0-9]+\s*가지\s*(식재료|음식)/.test(L)) return true;                      // 'N가지 식재료' 가짓수 칭찬 차단
