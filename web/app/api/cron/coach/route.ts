@@ -363,6 +363,8 @@ export async function GET(req: Request) {
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
         let simToPrev: number | null = null;   // ⭐ 발행 직전 자가 측정 — 직전 편지들과 최대 유사도(어드민 반복 모니터·2026-06-11)
         let repeatAlert = false;               // ⭐ 자동 반복 경보 — 직전 2일 동일 시그니처 or 유사도 0.6+ (탐지 자동화 — '사람 제보' 의존 탈피)
+        let verifyCtx: { ok: boolean; violations: string[]; regen: boolean } | null = null;   // ⭐ 의미 검증자 결과(어드민 검증)
+        let modelUsed = 'haiku-4-5';           // intro(주 첫 진단)는 Sonnet 승격 — composeLetter가 결정
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) 재사용. srcHash에 today가 들어가 날짜가 바뀌면 새 계획으로 재생성(식단 동일해도 동결되지 않음). force만 강제 재생성.
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
@@ -526,6 +528,7 @@ export async function GET(req: Request) {
           const detInput = [...ts, ...notes, ...uniqRef].join(' ');
           const out = await composeLetter({ base, precomputed, detInput, detForbid: lunchForbid, daySeed, cidHash });
           letter = out.letter; oneliner = out.oneliner; coachRegen = out.coachRegen;
+          verifyCtx = out.verify; modelUsed = out.modelUsed;
           // ⭐ 자동 반복 경보 — 발행 시점에 직전 편지들과 유사도·시그니처 연속을 자가 측정해 기록(cron_runs.issues + context)
           if (pastLetters.length && letter) simToPrev = Math.round(Math.max(...pastLetters.map((q) => letterSimilarity(letter, q.letter))) * 1000) / 1000;
           const sigRun = planCtx?.signature ? (recentPlans[cid] || []).slice(0, 2).filter((p2) => p2.signature === planCtx?.signature).length : 0;
@@ -542,7 +545,8 @@ export async function GET(req: Request) {
             // P10 분리 근거 — 집 끼니만의 부족(칭찬·코칭은 이 기준). 어드민에서 '전체 OK인데 집은 부족'을 검증.
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
             eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
-            source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: 'haiku-4-5',
+            source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: modelUsed,
+            verify: verifyCtx,   // ⭐ 의미 검증자(발행 전 1콜) 결과 — 위반·재작성 여부(어드민 검증)
             scenarioId, scenarioLabel,   // 오늘의 코칭 시나리오(편지 다양성·중복 회피 이력)
             plan: planCtx,   // ⭐ 구조화 계획(프레임·타깃·무브·시그니처) — 다음날 의미 중복 회피 이력(상태 원장)
             coachRegen,   // 비중복 가드로 재생성됐는지(최근 편지와 유사도 ≥0.45)

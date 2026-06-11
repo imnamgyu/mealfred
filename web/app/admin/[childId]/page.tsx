@@ -186,7 +186,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                 <Bubble side="r" tone="orange">
                   <div style={{ fontSize: 11, color: '#C45A00', fontWeight: 700, marginBottom: 3 }}>💌 코치 편지
                     {(() => {   // ⭐ 반복 모니터 칩(2026-06-11) — 시그니처·아크 단계·직전 유사도·반복경보를 한눈에(복붙 편지 자가 탐지)
-                      const c = ev.data.context as { scenarioLabel?: string; plan?: { signature?: string } | null; weekly?: { arc?: { stage?: string } | null } | null; simToPrev?: number | null; repeatAlert?: boolean; coachRegen?: boolean } | null;
+                      const c = ev.data.context as { scenarioLabel?: string; plan?: { signature?: string } | null; weekly?: { arc?: { stage?: string } | null } | null; simToPrev?: number | null; repeatAlert?: boolean; coachRegen?: boolean; model?: string; verify?: { ok?: boolean; regen?: boolean } | null } | null;
                       if (!c) return null;
                       const chip = (txt: string, fg: string, bg: string) => <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 800, color: fg, background: bg, borderRadius: 100, padding: '2px 7px' }}>{txt}</span>;
                       return <>
@@ -195,6 +195,8 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                         {c.weekly?.arc?.stage ? chip(`아크 ${c.weekly.arc.stage}`, '#7C2D92', '#F6EAFB') : null}
                         {typeof c.simToPrev === 'number' ? chip(`유사도 ${c.simToPrev}`, c.simToPrev >= 0.45 ? '#B91C1C' : '#5B6B53', c.simToPrev >= 0.45 ? '#FDEBEB' : '#EFF4EA') : null}
                         {c.repeatAlert ? chip('🚨 반복경보', '#B91C1C', '#FDEBEB') : null}
+                        {c.verify ? (c.verify.ok === false ? chip('⚠️ 검증위반 발행', '#B91C1C', '#FDEBEB') : c.verify.regen ? chip('✅ 검증→재작성', '#1B5E20', '#EAF6F0') : chip('✅ 검증통과', '#5B6B53', '#EFF4EA')) : null}
+                        {c.model?.includes('sonnet') ? chip('🧠 Sonnet', '#1565C0', '#E8F1FB') : null}
                         {c.coachRegen ? chip('재생성됨', '#92400E', '#FDF3E0') : null}
                       </>;
                     })()}
