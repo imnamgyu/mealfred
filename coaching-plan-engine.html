@@ -52,6 +52,22 @@ code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
 ⚠️ <b>2026-06-10 이후 변경 — 위에 주간 작전층이 얹힘</b>: <a href="/coaching-weekly-plan.html">주간 케이던스(정본 ③)</a>가 타깃을 한 주 잠그고, 본 문서의 <b>'이틀 연속 같은 타깃 금지'는 '채근(push) 주 1회 캡'으로 공식 역전</b>됐다(food 주는 <code>planFromWeekly</code>가 본 엔진의 <code>buildCoachPlan</code> 회전을 그대로 태움). 또한 <b>06-11 복붙 사고 핫픽스</b>로 구조 프레임(환경·자율성·식감)은 전용 무브 메뉴 <b><code>SCEN_MOVES</code></b>를 <code>buildCoachPlan</code>이 회전한다(시그니처 dedup 복원·포화 시 plateau). 본문 §1의 "어휘 가드는 의미 중복 미측정" 진단(지지 0.90)은 06-11 사고로 실증됨 — 상세는 주간 정본 부록.
 </div>
 
+<div style="margin:12px 0 20px;padding:14px 16px;border:2px solid #1B5E20;border-radius:12px;background:#F2FAF4">
+<b style="color:#1B5E20">📌 현행 편지 파이프라인 정본 — 2026-06-11 최종. 본 절이 본문·타 문서와 상충하면 본 절이 우선한다(같은 날 수차례 개정된 혼선의 단일 진실).</b>
+<ol style="margin:8px 0 4px;padding-left:18px;font-size:13.5px">
+<li><b>주간 닻(작전)</b> — 일요일 Sonnet 종합이 레버(food/환경/자율성/식감)·타깃·behavior_goal 잠금. <code>healAnchor</code>가 구버전 닻 보충, upsert 에러 시 컬럼 빼고 재시도.</li>
+<li><b>계획 = 코드</b> — frame(레버 잠금 or 시나리오 선택) + 무브 회전(<code>MOVE_MENU</code> 음식 7종 / <code>SCEN_MOVES</code> 환경5·자율성4·식감4) + 시그니처 dedup(직전 3일) + 포화 시 plateau + <b>아크 단계</b>(intro→how→obstacle→observe→reinforce·주 첫 편지만 진단 허용·reinforce 연속 금지).</li>
+<li><b>사실 컴파일('1번')</b> — <code>lib/coachFacts.compileFacts</code>가 기존 컬럼(log_date 등·스키마 변경 0)만으로 <b>시계열 라벨 사실 카드</b>(끼니 커버리지·환경 통계+어제 사실·자주 오르는 음식 횟수·거부 단발/간헐/반복·메모 날짜 분류)와 <b>동적 금지(detForbid)</b>를 계산. 편지의 사실 주장은 카드 안에서만·라벨대로(단발을 패턴처럼 금지). 메모 2일 컷은 철회 — 자르지 않고 분류.</li>
+<li><b>작문 = LLM</b> — 일간 Haiku, <b>intro만 Sonnet 4.6</b>. 행동(ⓒ)은 계획된 무브 1개. 구조(환경·자율성) 편지엔 간식 스왑·새 식재료 제안 미주입('한 번에 하나').</li>
+<li><b>퇴고</b> — <code>polishKo</code>(결정론 어법) + <code>proofreadLetter</code>(LLM). ⚠️ <b>스타일 전용</b>: "내용·정보·길이·문장 수 불변, 새 정보 추가·삭제 금지" 계약 — <b>다양성·패러프레이징 담당이 아니다.</b> 다양성은 2단계(계획 회전·아크)가 구조로 만든다.</li>
+<li><b>결정론 가드(detBad)</b> — 정적 블랙리스트 13종(<code>letterDeterministicBad</code>: 시점 환각 / 입력에 없는 증상 단정 / NO_MIX 프레임 섞기·'으깨N섞'·'섞어 함께' / 김치에 섞기 / 까스·너겟·튀김·소시지·어묵 권유 / 'N가지' 가짓수 칭찬 / 해조류↔생선 혼동 / 단 과일+짠 재료 괴식 / 과일↔끼니 페어링 / 밀가루 날것 / 쌀 날것 / 짠맛=입맛 발달 칭찬 / 김치류 칭찬) + <b>동적 detForbid</b>(그날 데이터로 계산: 점심 기록 3일+면 '점심 거르/건너/안먹/굶' 금지 · 단발 이벤트 단어[뷔페·외식·여행·파티·잔치·캠핑·행사]가 최근 2일 메모에 없으면 언급 금지) → 위반 시 재생성 ≤2회.</li>
+<li><b>어휘 유사도 가드</b> — 직전 5통 대비 전체≥0.45/도입25자≥0.40이면 무브 회전 재생성 ≤2회(구조 프레임은 SCEN_MOVES 안에서 회전).</li>
+<li><b>의미 검증자</b> — Haiku 1콜: 사실 근거(시계열 라벨 위반 포함)·행동 1개·금지 표현(체중/점수/미션/진단·처방)·진단 재서술 검사 → 위반 시 fixNotes 주입 1회 재작성. fail-open(발행 차단 안 함) + 위반 발행 시 cron issues 경보. 허용 채널 명시(간식 평가·미입력 권유=오탐 방지).</li>
+<li><b>발행 + 자가 측정</b> — <code>context</code>에 plan 시그니처·아크·simToPrev·repeatAlert·verify·model 기록 → 어드민 칩 + cron_runs.issues 경보. 발행 후에도 3일 연속 시그니처/유사도 0.6+면 반복경보.</li>
+</ol>
+<p style="margin:4px 0 0;font-size:12.5px;color:#5a4a3a">변경 이력(06-11 하루): 사고 진단 → SCEN_MOVES·아크 5단계·healAnchor·반복경보(<code>52811ba</code>) → 점심 사실+detForbid(<code>c8a3834</code>) → 검증자+intro Sonnet(<code>186f015</code>) → 메모 2일 컷(<code>f981933</code>, 이후 철회) → 간식 분리·허용 채널(<code>13c8306</code>) → <b>사실 컴파일러로 통합·2일 컷 철회(최종)</b>.</p>
+</div>
+
 <div class="tldr">
 <h3>🎯 한눈에</h3>
 <ul>

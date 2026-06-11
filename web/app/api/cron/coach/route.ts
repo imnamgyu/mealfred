@@ -25,6 +25,7 @@ import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { type CoachSignals } from '@/lib/coachScenarios';
 import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, type WeeklyAnchor, type WeeklyArc } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
+import { compileFacts } from '@/lib/coachFacts';
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, type FreqMap } from '@/lib/coachRecos';
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
@@ -247,7 +248,6 @@ export async function GET(req: Request) {
         const rs = [...(byChild[cid] || [])].sort((a, b) => b.log_date.localeCompare(a.log_date) || (b.slot || '').localeCompare(a.slot || ''));  // 최신순 — dedup이 최신 끼니를 남김
         const byDate: Record<string, string[]> = {};
         const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
-        const datedNotes: { d: string; t: string }[] = [];   // ⭐ 날짜 있는 메모 — 옛 메모의 '패턴' 일반화 차단용(2026-06-11 2차)
         const homeRef: string[] = []; const daycareRef: string[] = [];
         const recentMeals: LoggedFood[] = []; const seenFood = new Set<string>();
         const menuFreq: Record<string, number> = {};
@@ -270,7 +270,7 @@ export async function GET(req: Request) {
             }
           });
           if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
-          if (r.note) { notes.push(r.note); datedNotes.push({ d: r.log_date, t: r.note }); }
+          if (r.note) notes.push(r.note);
           if (atHome) (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); if (k) menuFreq[k] = (menuFreq[k] || 0) + 1; });   // 집 메뉴만 — 기관 반복은 부모가 못 바꿈
           if (r.ate_well !== false) (r.menus || []).forEach((mn) => { const t = mn.trim(); if (t) favMenu[t] = (favMenu[t] || 0) + 1; });   // 거부 아닌 끼니 = 좋아하는 음식 후보
         });
@@ -296,28 +296,11 @@ export async function GET(req: Request) {
         // ⭐ 점심 커버리지 사실(결정론·2026-06-11) — 주말 하루 메모('점심 안 먹고')를 LLM이 '점심을 거르는 리듬'으로
         //   과일반화하는 것 차단: 점심이 실제 기록돼 있으면(대부분 기관 급식) 그 사실을 시계열 1순위로 주입하고,
         //   그래도 '점심 거르/건너뛰' 단정이 나오면 detForbid 정규식으로 재생성(프롬프트 호소만으론 못 막음 — 실증됨).
-        const lunchRows = rs.filter((r) => r.slot === 'lunch');
-        const lunchDays = new Set(lunchRows.map((r) => r.log_date)).size;
-        const forbidParts: string[] = [];
-        if (lunchDays >= 3) {
-          const dcMost = lunchRows.filter((r) => r.place === 'daycare').length >= Math.ceil(lunchRows.length / 2);
-          ts.unshift(dcMost
-            ? `평일 점심은 어린이집·유치원 급식으로 챙겨 먹고 있음(최근 7일 중 ${lunchDays}일 점심 기록)`
-            : `점심도 대부분 기록돼 있음(최근 7일 중 ${lunchDays}일 점심 기록)`);
-          forbidParts.push('점심[^.。\\n]{0,12}(거르|건너|안\\s?먹|굶)');
-        }
-        // ⭐ 메모 날짜 라벨 + 2일 컷(2026-06-11 2차) — 옛 단발 메모(6/6 '뷔페')가 날짜 없이 7일 봉투에 섞여
-        //   '반복 패턴'으로 일반화되던 것을 데이터 차원에서 차단(프롬프트 호소 3번째 실패 후 결정론 전환).
-        //   편지 프롬프트에는 최근 2일 메모만(라벨 포함) 주고, 단발 이벤트 단어는 최근 메모에 없으면
-        //   오늘 편지에서 언급 자체를 금지(과거 편지 메아리 채널 차단 — detForbid 재생성).
-        const noteAge = (d: string) => Math.round((todayMs - Date.parse(d)) / 86400000);
-        const recentNotes = datedNotes.filter((n) => noteAge(n.d) <= 2)
-          .map((n) => `[${noteAge(n.d) <= 1 ? '어제' : '2일 전'}] ${n.t}`);
-        const EVENT_RE = /뷔페|외식|여행|파티|잔치|캠핑|행사/g;
-        const recentEvt = new Set(recentNotes.join(' ').match(EVENT_RE) || []);
-        const staleEvt = [...new Set(datedNotes.filter((n) => noteAge(n.d) > 2).map((n) => n.t).join(' ').match(EVENT_RE) || [])].filter((w) => !recentEvt.has(w));
-        if (staleEvt.length) forbidParts.push(staleEvt.join('|'));
-        const detForbidRe = forbidParts.length ? new RegExp(forbidParts.join('|')) : null;
+        // ⭐ 진단 사실 컴파일러('1번' — 2026-06-11 이사님 승인): 모든 사실에 시계열 추세 라벨(단발/간헐/반복)을
+        //   붙인 '사실 카드' + 메모 날짜 분류 + 데이터 기반 금지 표현(detForbid)을 코드가 계산.
+        //   '메모 2일 컷'은 철회(자르지 않고 분류) — 스키마 변경 0(log_date 등 기존 컬럼만).
+        const fc = compileFacts({ rows: rs, today });
+        const detForbidRe = fc.forbidParts.length ? new RegExp(fc.forbidParts.join('|')) : null;
         // 거부→수용 전환 감지(최근 28일) — 과거 거부했던 식재료를 이후 비거부로 먹기 시작 = '받아들이는 순간'. 코칭이 칭찬.
         try {
           const { data: trData } = await supabase.from('meal_logs')
@@ -532,7 +515,7 @@ export async function GET(req: Request) {
           const base = {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
-            notes: recentNotes, refused: sanitizeRefusals(uniqRef), favoriteFoods, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),   // ⭐ 편지엔 최근 2일 메모만(날짜 라벨) — 트리거(signals.notes)는 기존 창 유지
+            notes: fc.noteCards, factCards: fc.cards, refused: sanitizeRefusals(uniqRef), favoriteFoods, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),   // ⭐ 메모=날짜·시계열 라벨 분류본, 사실 주장=사실 카드 안에서만('1번') — 트리거(signals.notes)는 기존 창 유지
             timeseries: ts, attendsDaycare: attends, pastLetters,   // timeseries=원본 ts(composeLetter가 최종 시나리오 기준 필터)
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
@@ -541,7 +524,7 @@ export async function GET(req: Request) {
             profileNudge: profileN, structuredTip: sTip,
             weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };
-          const detInput = [...ts, ...recentNotes, ...uniqRef].join(' ');   // 증상 근거도 최근 2일 메모만 — 옛 메모로 오늘 증상 단정 차단
+          const detInput = [...ts, ...fc.noteCards, ...uniqRef].join(' ');   // 증상 근거 = 라벨 포함 메모 카드(시계열 분류본)
           const out = await composeLetter({ base, precomputed, detInput, detForbid: detForbidRe, daySeed, cidHash });
           letter = out.letter; oneliner = out.oneliner; coachRegen = out.coachRegen;
           verifyCtx = out.verify; modelUsed = out.modelUsed;
