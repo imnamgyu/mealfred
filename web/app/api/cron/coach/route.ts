@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, letterSimilarity, SLOT_LABEL, SNACK_CHANNEL, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, letterSimilarity, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -119,6 +119,15 @@ export async function GET(req: Request) {
       const last = lastLogByChild[cid]; if (!last) return 99;
       return Math.round((Date.parse(today) - Date.parse(last)) / 86400000);
     };
+    // ⭐ 주말 미기록 ≠ 휴면(적대감사 S4) — 갭이 토·일로만 구성되면 회유하지 않는다(평일 기록 가정이 일·월마다 오발송되던 버그).
+    const gapHasWeekday = (cid: string): boolean => {
+      const last = lastLogByChild[cid]; if (!last) return true;
+      for (let t = Date.parse(last) + 86400000; t < Date.parse(today); t += 86400000) {
+        const dw = kstDow(new Date(t).toISOString().slice(0, 10));
+        if (dw !== 0 && dw !== 6) return true;
+      }
+      return false;
+    };
     // 휴면 자녀(이력 ≥3일·휴면 2~7일)를 추가 — 현재 스킵되던 부모도 7일까지 복귀 편지(회유)
     const lapsedIds = Object.keys(histDays).filter((cid) =>
       !activeIds.includes(cid) && (histDays[cid]?.size || 0) >= 3 && dormancyOf(cid) >= 2 && dormancyOf(cid) <= 7);
@@ -209,8 +218,8 @@ export async function GET(req: Request) {
       if (!meta) continue;
       try {
         const dormancy = dormancyOf(cid);
-        // ── 휴면 복귀 경로 (dormancy 2~7) — 정상 편지(byDay≥3)와 별개. 과거 데이터 + 팁으로 따뜻한 컴백 + 회유 알림톡 D1/D3/D7.
-        if (dormancy >= 2) {
+        // ── 휴면 복귀 경로 (dormancy 2~7, 단 주말로만 이뤄진 갭은 제외 — S4) — 정상 편지(byDay≥3)와 별개.
+        if (dormancy >= 2 && gapHasWeekday(cid)) {
           const { data: recent } = await supabase.from('meal_logs')
             .select('menus,refused,ate_well').eq('child_id', cid).gte('log_date', dAgo(14)).lte('log_date', dAgo(1));
           const fav: Record<string, number> = {}; const refs: string[] = [];
@@ -365,11 +374,18 @@ export async function GET(req: Request) {
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
           letter = prev!.letter; oneliner = prev!.oneliner || ''; reused++;
-          const pctx = prev!.context as { scenarioId?: string; scenarioLabel?: string; plan?: CoachPlan; snackShown?: boolean } | null;
+          // ⭐ S6(적대감사): 재사용 시 context 전체 보존 — weekly를 null로 덮으면 다음 날 firstOfWeek 오판 → 같은 주 intro 중복(진단 재서술 사고 재발 경로)
+          const pctx = prev!.context as { scenarioId?: string; scenarioLabel?: string; plan?: CoachPlan; snackShown?: boolean; weekly?: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null } | null; verify?: { ok: boolean; violations: string[]; regen: boolean } | null; simToPrev?: number | null; repeatAlert?: boolean; model?: string; coachRegen?: boolean } | null;
           scenarioId = pctx?.scenarioId ?? null;          // 재사용은 기존 시나리오·계획 보존(중복 이력 유지)
           scenarioLabel = pctx?.scenarioLabel ?? null;
           planCtx = pctx?.plan ?? null;
           snackShownCtx = pctx?.snackShown ?? false;
+          weekCtx = pctx?.weekly ?? null;
+          verifyCtx = pctx?.verify ?? null;
+          simToPrev = pctx?.simToPrev ?? null;
+          repeatAlert = pctx?.repeatAlert ?? false;
+          modelUsed = pctx?.model ?? modelUsed;
+          coachRegen = pctx?.coachRegen ?? false;
         } else {
           // 연속성용 과거 편지 (날짜 라벨만 — buildLetterUser가 순서로 변환). '오늘 이전'만(QA date 시뮬서 미래 편지 누수 차단).
           const { data: pastL } = await supabase.from('coach_letters')
@@ -450,7 +466,7 @@ export async function GET(req: Request) {
             };
             const dow = kstDow(today);
             const weekKey = isoWeekKey(today);
-            if (dow === 0) await synthAndStoreAnchor(isoWeekKey(addDaysStr(today, 1)));   // 일요일: 다가올 주 닻 종합(오늘 편지는 아래 reading 경로)
+            if (dow === 0 && !qp.get('date')) await synthAndStoreAnchor(isoWeekKey(addDaysStr(today, 1)));   // 일요일: 다가올 주 닻 종합. ⭐ QA date 시뮬에선 금지(S5 — 과거 일요일 재실행이 라이브 주 닻·ledger를 DEFAULT로 파괴하던 버그)
             let anchor = await loadAnchor(weekKey);
             if (!anchor && dow !== 0) anchor = await synthAndStoreAnchor(weekKey);          // 평일 닻 없으면 lazy 생성 → 레이어 즉시 활성
             if (anchor && !anchor.behavior_goal) {
@@ -502,7 +518,7 @@ export async function GET(req: Request) {
           const snackChannelTarget = !!(planCtx?.target && SNACK_CHANNEL.has(planCtx.target));
           // ⭐ 구조(환경·자율성·식감) 편지엔 간식 음식 스왑을 얹지 않음 — '한 번에 하나' 위반으로 요구 3개 편지가 되던 것 차단(2026-06-11 검증자 적발).
           //   간식 신호는 사라지지 않고 food 주간/다음 기회에 환기(쿨다운과 동일 원리).
-          const structuralFrame = ['mealtime-atmosphere', 'autonomy-power-struggle', 'texture-refusal'].includes(scenarioId || '');
+          const structuralFrame = STRUCTURAL_FRAMES.includes(scenarioId || '');   // 명단 단일 소스(coach.SCEN_MOVES 파생 — 수동 동기화 금지)
           const snackText = (!snackShownRecently && !snackChannelTarget && !structuralFrame) ? snackEvalToPrompt(snackEval, daySeed) : null;
           snackShownCtx = !!snackText;
           // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
@@ -525,7 +541,7 @@ export async function GET(req: Request) {
             weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };
           const detInput = [...ts, ...fc.noteCards, ...uniqRef].join(' ');   // 증상 근거 = 라벨 포함 메모 카드(시계열 분류본)
-          const out = await composeLetter({ base, precomputed, detInput, detForbid: detForbidRe, daySeed, cidHash });
+          const out = await composeLetter({ base, precomputed, detInput, detForbid: detForbidRe, deadlineMs: runStart + TIME_BUDGET_MS - 4000, daySeed, cidHash });   // S7: 데드라인 강등 — SIGKILL 좀비(6/12 사고) 방지
           letter = out.letter; oneliner = out.oneliner; coachRegen = out.coachRegen;
           verifyCtx = out.verify; modelUsed = out.modelUsed;
           // ⭐ 자동 반복 경보 — 발행 시점에 직전 편지들과 유사도·시그니처 연속을 자가 측정해 기록(cron_runs.issues + context)

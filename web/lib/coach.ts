@@ -274,6 +274,11 @@ export const SCEN_MOVES: Record<string, { key: string; move: string }[]> = {
   ],
 };
 
+// ⭐ 명단 단일 소스(적대감사 회귀위험 #2) — 구조 프레임 목록은 SCEN_MOVES 키에서 파생. route·검증자·테스트가 전부 이걸 공유한다(6곳 수동 동기화 금지).
+export const STRUCTURAL_FRAMES = Object.keys(SCEN_MOVES);
+// 음식 행동 금지 프레임(검증자·간식 게이팅 공유) — 질감 프레임은 음식 '형태' 변경이 본질이라 제외.
+export const NO_FOOD_ACTION_FRAMES = new Set(STRUCTURAL_FRAMES.filter((f) => f !== 'texture-refusal'));
+
 // ── ⭐ 구조화 계획(plan) — 코드가 '오늘의 (프레임·타깃·무브)'를 결정론적으로 정하고 LLM은 작문만 한다 ──
 //   목적: '글자는 다른데 전략이 똑같은' 의미 반복을 *계획 단계*에서 차단(어휘 유사도 가드는 보조).
 //   - 타깃(부족 식품군/거부 음식)을 MOVE_MENU와 '대칭'으로 결정론 회전(최근 N일에 안 쓴 것 우선)
@@ -619,6 +624,7 @@ export async function composeLetter(p: {
   precomputed: { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean };
   detInput: string;                  // 결정론 안전가드 입력 텍스트(시계열+메모+거부)
   detForbid?: RegExp | null;         // ⭐ 호출자가 데이터로 계산한 금지 표현(예: 점심이 기록돼 있는데 '점심을 거른다' 단정) — 걸리면 재생성(2026-06-11)
+  deadlineMs?: number;               // ⭐ 우아한 강등(S7) — 이 시각을 넘기면 추가 재생성·검증을 생략하고 현재 본문 발행(크론 SIGKILL 좀비 → 무편지 → 2등급 폴백 연쇄 방지)
   daySeed: number; cidHash: number;
 }): Promise<{ letter: string; oneliner: string; plan: CoachPlan; scenarioId: string; scenarioLabel: string; coachRegen: boolean; verify: { ok: boolean; violations: string[]; regen: boolean } | null; modelUsed: string }> {
   const { scenario, plan, varyOpener } = p.precomputed;
@@ -638,42 +644,49 @@ export async function composeLetter(p: {
   const model = p.base.weeklyArc?.stage === 'intro' ? (process.env.COACH_INTRO_MODEL || 'claude-sonnet-4-6') : undefined;
   let gen = await generateLetter(letterInput, model);
   let coachRegen = false;
-  // 결정론 안전·품질 가드 — 환각 시점/증상·처방 침범(섞기)·괴식·데이터 모순 단정(detForbid)이면 재생성(최대 2회)
+  // ⭐ 가드 대칭 원칙(적대감사 S1) — 어떤 경로의 재생성 산출물도 '모든' 가드를 재통과해야 채택된다.
   const detBad = (L: string) => letterDeterministicBad(L, scenario.id, p.detInput) || !!(p.detForbid && p.detForbid.test(L));
-  for (let dk = 0; dk < 2 && detBad(gen.letter); dk++) { gen = await generateLetter(letterInput, model); coachRegen = true; }
+  const timeLeft = () => !p.deadlineMs || Date.now() < p.deadlineMs;   // S7: 데드라인 넘기면 추가 콜 생략(발행 > 완벽)
+  for (let dk = 0; dk < 2 && detBad(gen.letter) && timeLeft(); dk++) { gen = await generateLetter(letterInput, model); coachRegen = true; }
   // 어휘 유사도 가드(보조) — 의미 중복은 plan 시그니처가 이미 차단, 여기선 표현/도입 반복만 잡는다
+  let simBadness: (t: string) => number = () => 0;   // pastLetters 없으면 항상 통과 — 검증자 fix 채택 조건에도 재사용(S1 대칭)
   if (pastLetters.length) {
     const fc = (s: string) => (s || '').replace(/\s+/g, '').slice(0, 25);
     const wholeMax = (t: string) => Math.max(...pastLetters.map((q) => letterSimilarity(t, q.letter)));
     const openMax = (t: string) => Math.max(...pastLetters.map((q) => letterSimilarity(fc(t), fc(q.letter))));
-    const badness = (t: string) => Math.max(wholeMax(t) / 0.45, openMax(t) / 0.40);   // ≥1 = 임계 초과
+    simBadness = (t: string) => Math.max(wholeMax(t) / 0.45, openMax(t) / 0.40);   // ≥1 = 임계 초과
     const closest = (t: string) => pastLetters.reduce((a, q) => letterSimilarity(fc(t), fc(q.letter)) > letterSimilarity(fc(t), fc(a.letter)) ? q : a, pastLetters[0]);
     let moveKeys = MOVE_KEYS.slice(); if (NO_MIX_SCEN.has(scenario.id)) moveKeys = moveKeys.filter((k) => k !== 'mix');
     const scenMenu = SCEN_MOVES[scenario.id];   // 구조 프레임이면 전용 메뉴 안에서 회전(환경 시나리오에 음식 무브 주입 금지 — 2026-06-11)
     const seed = ((p.daySeed + p.cidHash) % 1_000_000 + 1_000_000) % 1_000_000;
-    let bestBad = badness(gen.letter);
-    for (let attempt = 0; attempt < 2 && bestBad >= 1; attempt++) {
+    let bestBad = simBadness(gen.letter);
+    for (let attempt = 0; attempt < 2 && bestBad >= 1 && timeLeft(); attempt++) {
       const altMove = scenMenu
         ? scenMenu[(seed + attempt + 1) % scenMenu.length].move
         : moveTextOf(moveKeys.length ? moveKeys[(seed + attempt + 1) % moveKeys.length] : null);
       const g = await generateLetter({ ...letterInput, rotateMove: altMove || letterInput.rotateMove, regenAvoid: closest(gen.letter).letter }, model);
-      const bad = badness(g.letter);
-      if (bad < bestBad) { gen = g; bestBad = bad; coachRegen = true; }
+      const bad = simBadness(g.letter);
+      // ⭐ S1: det 가드 재통과 + S2: 채택 시 최종 무브를 letterInput에 반영(검증자가 실제 무브 기준으로 판정)
+      if (bad < bestBad && !detBad(g.letter)) {
+        gen = g; bestBad = bad; coachRegen = true;
+        if (altMove) letterInput.rotateMove = altMove;
+      }
     }
   }
   // ⭐ 의미 검증자(발행 전 1콜) — 사실 왜곡·행동 누수·금지 표현·진단 재서술을 의미 수준에서 검사,
-  //   위반 시 위반 목록을 주입해 1회 재작성(개선됐고 결정론 가드도 통과할 때만 채택). 장애 시 발행 차단 안 함.
+  //   위반 시 위반 목록을 주입해 1회 재작성(개선됐고 det·유사도 가드를 전부 재통과할 때만 채택 — S1 대칭). 장애 시 발행 차단 안 함.
   let verify: { ok: boolean; violations: string[]; regen: boolean } | null = null;
   try {
-    const facts = verifyFacts(letterInput, plan);
-    const noFoodAction = scenario.id === 'mealtime-atmosphere' || scenario.id === 'autonomy-power-struggle';
+    if (!timeLeft()) throw new Error('deadline');   // S7: 시간 소진 시 검증 생략(발행 우선) — catch가 흡수
+    const facts = verifyFacts(letterInput, { ...plan, move: letterInput.rotateMove ?? plan.move });   // S2: 유사도 재생성으로 바뀐 '실제 무브' 기준
+    const noFoodAction = NO_FOOD_ACTION_FRAMES.has(scenario.id);   // 명단 단일 소스
     const noRediagnose = !!p.base.weeklyArc && p.base.weeklyArc.stage !== 'intro';
     const v = await verifyLetter({ letter: gen.letter, facts, noFoodAction, noRediagnose });
     verify = { ok: v.ok, violations: v.violations, regen: false };
     if (!v.ok && (v.violations.length || v.hint)) {
       const g = await generateLetter({ ...letterInput, fixNotes: [...v.violations, ...(v.hint ? [v.hint] : [])] }, model);
       const v2 = await verifyLetter({ letter: g.letter, facts, noFoodAction, noRediagnose });
-      if ((v2.ok || v2.violations.length < v.violations.length) && !detBad(g.letter)) {
+      if ((v2.ok || v2.violations.length < v.violations.length) && !detBad(g.letter) && simBadness(g.letter) < 1) {
         gen = g; coachRegen = true; verify = { ok: v2.ok, violations: v2.violations, regen: true };
       }
     }
