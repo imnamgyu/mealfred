@@ -18,12 +18,12 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, SNACK_CHANNEL, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, letterSimilarity, SLOT_LABEL, SNACK_CHANNEL, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { type CoachSignals } from '@/lib/coachScenarios';
-import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, DEFAULT_LEDGER, type WeeklyAnchor, type WeeklyArc } from '@/lib/coachWeekly';
+import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, type WeeklyAnchor, type WeeklyArc } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, type FreqMap } from '@/lib/coachRecos';
@@ -139,10 +139,14 @@ export async function GET(req: Request) {
     const recentScenarios: Record<string, string[]> = {};   // 최근 3일 편지가 쓴 scenarioId — 프레임 중복 회피
     const recentPlans: Record<string, CoachPlan[]> = {};     // ⭐ 최근 3일 편지의 구조화 계획(프레임·타깃·무브) — 상태 원장: 의미 중복 회피
     const recentSnackDates: Record<string, string[]> = {};   // ⭐ 간식 멘트를 노출한 최근 날짜 — 쿨다운(매일 '과자 대신…' 반복 방지)
+    const recentWeekKeys: Record<string, string[]> = {};     // ⭐ 최근 편지가 쓴 주간 닻 week_key — '이번 주 첫 편지(intro)' 판정
+    const prevArcStage: Record<string, string | null> = {};  // ⭐ 직전 편지의 아크 단계 — reinforce 이틀 연속 방지
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
       if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
-      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean } | null;
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null } | null;
+      if (!(l.child_id in prevArcStage)) prevArcStage[l.child_id] = ctx?.weekly?.arc?.stage ?? null;   // 정렬상 첫 과거 편지 = 직전
+      if (ctx?.weekly?.weekKey) (recentWeekKeys[l.child_id] ||= []).push(ctx.weekly.weekKey);
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
       if (ctx?.plan?.signature) (recentPlans[l.child_id] ||= []).push(ctx.plan);
       if (ctx?.snackShown) (recentSnackDates[l.child_id] ||= []).push(l.letter_date);
@@ -344,6 +348,8 @@ export async function GET(req: Request) {
         let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 — 어드민 검증
         let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
+        let simToPrev: number | null = null;   // ⭐ 발행 직전 자가 측정 — 직전 편지들과 최대 유사도(어드민 반복 모니터·2026-06-11)
+        let repeatAlert = false;               // ⭐ 자동 반복 경보 — 직전 2일 동일 시그니처 or 유사도 0.6+ (탐지 자동화 — '사람 제보' 의존 탈피)
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) 재사용. srcHash에 today가 들어가 날짜가 바뀌면 새 계획으로 재생성(식단 동일해도 동결되지 않음). force만 강제 재생성.
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
@@ -415,7 +421,16 @@ export async function GET(req: Request) {
                 behavior_goal: synth.behaviorGoal, teaching_arc: synth.teachingArc, check_method: synth.checkMethod,   // §14 주간 커리큘럼
                 basis_attends_daycare: attends, model: synth.source === 'weekly_llm' ? 'sonnet-4-6' : 'cold', updated_at: new Date().toISOString(),
               };
-              await supabase.from('weekly_plans').upsert(row, { onConflict: 'child_id,week_key' });
+              // ⭐ upsert 결과 검사(2026-06-11 사고) — 커리큘럼 컬럼 미적용(weekly_coaching.sql 전)이면 행 전체가 조용히 거부돼
+              //   닻이 영영 저장 안 됨 → 매일 Sonnet 재종합·ledger 사망. 실패 시 신규 컬럼만 빼고라도 저장(닻 영속 보장).
+              const { error: upErr } = await supabase.from('weekly_plans').upsert(row, { onConflict: 'child_id,week_key' });
+              if (upErr) {
+                console.warn('[cron/coach] weekly anchor upsert:', upErr.message);
+                const legacy = { ...row } as Record<string, unknown>;
+                delete legacy.behavior_goal; delete legacy.teaching_arc; delete legacy.check_method;
+                const { error: e2 } = await supabase.from('weekly_plans').upsert(legacy, { onConflict: 'child_id,week_key' });
+                if (e2) console.warn('[cron/coach] weekly anchor legacy upsert:', e2.message);
+              }
               return row as unknown as WeeklyAnchor;
             };
             const loadAnchor = async (wk: string): Promise<WeeklyAnchor | null> => {
@@ -427,6 +442,11 @@ export async function GET(req: Request) {
             if (dow === 0) await synthAndStoreAnchor(isoWeekKey(addDaysStr(today, 1)));   // 일요일: 다가올 주 닻 종합(오늘 편지는 아래 reading 경로)
             let anchor = await loadAnchor(weekKey);
             if (!anchor && dow !== 0) anchor = await synthAndStoreAnchor(weekKey);          // 평일 닻 없으면 lazy 생성 → 레이어 즉시 활성
+            if (anchor && !anchor.behavior_goal) {
+              // ⭐ 구버전/컬럼 미적용 닻 치유 — behavior_goal 폴백을 메모리에 채워 arc(변주축)가 죽지 않게 + best-effort 영속화(컬럼 없으면 이 update만 조용히 실패)
+              anchor = healAnchor(anchor);
+              await supabase.from('weekly_plans').update({ behavior_goal: anchor.behavior_goal, teaching_arc: anchor.teaching_arc, check_method: anchor.check_method }).eq('child_id', cid).eq('week_key', weekKey);
+            }
             if (anchor && anchor.mission_target) {
               const tgt = anchor.mission_target;
               const lever = anchor.budget?.lever || 'food';
@@ -435,9 +455,25 @@ export async function GET(req: Request) {
               const targetExposeWtd = servedDays.length;
               const firstServeDow = servedDays.length ? Math.min(...servedDays.map((r) => kstDow(r.log_date))) : null;
               // 행동변화 관측(아크 단계 결정) — food=실제 차림, 구조 레버=그 좋은 행동이 이번 주 1회+ (거짓 칭찬 방지)
-              const progress = lever === 'food' ? firstServeDow != null
-                : weekRows.some((r) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : false);
-              const wk = planFromWeekly({ anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, daySeed, cidHash, dow });
+              const goodRow = (r: Row) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : false;
+              const progress = lever === 'food' ? firstServeDow != null : weekRows.some(goodRow);
+              // ⭐ 관측된 실행의 구체 사실 한 줄 — reinforce/observe 편지가 '실제 일어난 일'을 콕 집어 칭찬하게(거짓 칭찬 차단·2026-06-11)
+              let progressNote: string | null = null;
+              if (progress) {
+                const ago = (d: string) => { const n = Math.round((Date.parse(today) - Date.parse(d)) / 86400000); return n <= 1 ? '어제' : `${n}일 전`; };
+                if (lever === 'food') progressNote = `이번 주 '${tgt}'를 식탁에 올린 기록 있음(${targetExposeWtd}회)`;
+                else {
+                  const r = [...weekRows].filter(goodRow).sort((a, b) => b.log_date.localeCompare(a.log_date))[0];
+                  if (r) {
+                    const slot = SLOT_LABEL[r.slot || ''] || '한 끼';
+                    progressNote = lever === 'environment' ? `${ago(r.log_date)} ${slot}를 화면 없이 식탁에 앉아서 먹음`
+                      : lever === 'autonomy' ? `${ago(r.log_date)} ${slot}를 아이가 스스로 떠먹음`
+                      : `${ago(r.log_date)} ${slot}에 한 단계 위 질감을 시도함`;
+                  }
+                }
+              }
+              const firstOfWeek = !(recentWeekKeys[cid] || []).includes(weekKey);   // 이번 주 닻의 첫 편지 → intro(진단+왜는 주 1회만)
+              const wk = planFromWeekly({ anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, progressNote, firstOfWeek, lastArcStage: prevArcStage[cid] ?? null, daySeed, cidHash, dow });
               if (wk) {
                 precomputed = { scenario: wk.scenario, plan: wk.plan, varyOpener: wk.varyOpener };
                 weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc };
@@ -477,6 +513,13 @@ export async function GET(req: Request) {
           const detInput = [...ts, ...notes, ...uniqRef].join(' ');
           const out = await composeLetter({ base, precomputed, detInput, daySeed, cidHash });
           letter = out.letter; oneliner = out.oneliner; coachRegen = out.coachRegen;
+          // ⭐ 자동 반복 경보 — 발행 시점에 직전 편지들과 유사도·시그니처 연속을 자가 측정해 기록(cron_runs.issues + context)
+          if (pastLetters.length && letter) simToPrev = Math.round(Math.max(...pastLetters.map((q) => letterSimilarity(letter, q.letter))) * 1000) / 1000;
+          const sigRun = planCtx?.signature ? (recentPlans[cid] || []).slice(0, 2).filter((p2) => p2.signature === planCtx?.signature).length : 0;
+          if ((simToPrev ?? 0) >= 0.6 || sigRun >= 2) {
+            repeatAlert = true;
+            issues.push(`반복경보 ${meta.nickname}: 직전 유사도 ${simToPrev ?? 0} · 직전2일 동일 시그니처 ${sigRun}건(${planCtx?.signature || '-'})`);
+          }
         }
         if (letter) {
           // QA용 "우리 판단" 스냅샷 — 어드민 쓰레드에서 이 근거로 생성됐음을 보여줌
@@ -490,6 +533,7 @@ export async function GET(req: Request) {
             scenarioId, scenarioLabel,   // 오늘의 코칭 시나리오(편지 다양성·중복 회피 이력)
             plan: planCtx,   // ⭐ 구조화 계획(프레임·타깃·무브·시그니처) — 다음날 의미 중복 회피 이력(상태 원장)
             coachRegen,   // 비중복 가드로 재생성됐는지(최근 편지와 유사도 ≥0.45)
+            simToPrev, repeatAlert,   // ⭐ 반복 자가 측정·경보(어드민 반복 모니터 — 2026-06-11)
             snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
             snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증

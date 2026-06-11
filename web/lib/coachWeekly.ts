@@ -33,7 +33,10 @@ export type WeeklyLever = 'food' | 'environment' | 'autonomy' | 'texture';
 export type WeeklyBudget = { expose: number; push: number; cadenceMinGap: number; pushWindow: number[]; lever?: WeeklyLever };
 export type WeeklyLedger = { pushUsed: boolean; exposeCount: Record<string, number>; lastExposeDow: number | null; arcWeek: number; reanchorUsed: boolean; adviceGivenAt: string | null; firstServeDow: number | null; progressWeek: number };
 export type TeachingArc = { stages: string[]; implIntention?: string | null };   // 가르치는 단계 + 언제·어디서(Gollwitzer)
-export type WeeklyArc = { stage: 'why' | 'reinforce'; behaviorGoal: string; implIntention?: string | null };   // 일간 편지에 주입하는 그날 단계(진척으로 결정)
+// 일간 편지에 주입하는 그날 단계 — 요일·진척으로 결정. 잠긴 한 주 안에서 '매일 다른 각도'를 만드는 변주축(2026-06-11 복붙 사고 핫픽스).
+//   intro(주 첫 편지·진단+왜) → how/obstacle/observe(요일 회전·진단 재서술 금지) / reinforce(실행 관측 시·연속 금지).
+export type WeeklyArcStage = 'intro' | 'how' | 'obstacle' | 'observe' | 'reinforce';
+export type WeeklyArc = { stage: WeeklyArcStage; behaviorGoal: string; implIntention?: string | null; progressNote?: string | null };
 export type WeeklyAnchor = {
   child_id: string; week_key: string; status: string; source: string;
   mission: string | null; mission_target: string | null; target_pool: string[] | null; secondary_axis: string | null;
@@ -95,6 +98,22 @@ function defaultBehaviorGoal(lever: WeeklyLever, target: string | null): string 
 function defaultCheck(lever: WeeklyLever): Record<string, unknown> {
   const sig = lever === 'environment' ? 'envTablePct' : lever === 'autonomy' ? 'selfPct' : lever === 'texture' ? 'texUp' : 'exposeCount';
   return { method: 'observe', signal: sig, targetDir: 'up' };   // 자동 관측(부모에게 안 물음·죄책감 0)
+}
+
+/**
+ * ⭐ 닻 치유 — 커리큘럼 컬럼(weekly_coaching.sql) 미적용/구버전 닻이면 behavior_goal 등을 결정론 폴백으로 메모리에서 채운다.
+ *   2026-06-11 사고: 컬럼 없는 W24 닻이 arc=null을 만들어 '왜→강화' 변주축이 통째로 죽고 3일 복붙 편지 발행.
+ *   (호출자가 치유본을 DB에 best-effort 영속화 — 컬럼 없으면 그 update만 조용히 실패해도 메모리 arc는 산다.)
+ */
+export function healAnchor(a: WeeklyAnchor): WeeklyAnchor {
+  if (a.behavior_goal) return a;
+  const lever = (a.budget?.lever || 'food') as WeeklyLever;
+  return {
+    ...a,
+    behavior_goal: defaultBehaviorGoal(lever, a.mission_target),
+    teaching_arc: a.teaching_arc || { stages: ['why', 'reinforce'], implIntention: null },
+    check_method: a.check_method || defaultCheck(lever),
+  };
 }
 
 /** 결핍/거부 후보(타깃 화이트리스트 — 환각 차단). 집부족 > 전체부족 > 거부 순. */
@@ -167,7 +186,10 @@ const moveTextOf = (key: string): string | null => { const i = MOVE_KEYS.indexOf
 export function planFromWeekly(p: {
   anchor: WeeklyAnchor; signals: CoachSignals; recentPlans: CoachPlan[];
   targetExposeWtd: number;   // 이번 주 누적 노출(실제 차림) 횟수 — 행동지연 게이트
-  progress: boolean;         // ⭐ 이번 주 행동변화가 관측됐나(food=차림 있음, 구조=좋은 행동 1회+) → 아크 단계(why→reinforce)
+  progress: boolean;         // ⭐ 이번 주 행동변화가 관측됐나(food=차림 있음, 구조=좋은 행동 1회+) → reinforce 후보
+  progressNote?: string | null;   // 관측된 실행의 구체 사실 한 줄(크론이 계산) — reinforce/observe 편지가 인용
+  firstOfWeek: boolean;      // 이번 주 닻으로 만드는 첫 편지인가 → intro(진단+왜는 주 1회만 — 2026-06-11 복붙 사고 핫픽스)
+  lastArcStage?: string | null;   // 직전 편지의 아크 단계 — reinforce 이틀 연속 방지
   daySeed: number; cidHash: number; dow: number;
 }): { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean; ledgerPatch: Partial<WeeklyLedger>; pushApplied: boolean; weeklyArc: WeeklyArc | null } | null {
   const { anchor, signals, recentPlans, daySeed, cidHash, dow } = p;
@@ -181,18 +203,27 @@ export function planFromWeekly(p: {
     return { scenario: interrupt, plan: bp, varyOpener: recentPlans[0]?.frame === interrupt.id, ledgerPatch: {}, pushApplied: false, weeklyArc: null };
   }
 
-  // ⭐ 그날 아크 단계 — 날짜가 아니라 '진척'으로(안 했으면 며칠이고 why 유지). reinforce는 관측된 사실 있을 때만(거짓 칭찬 금지).
+  // ⭐ 그날 아크 단계 — 주 첫 편지=intro(진단+왜는 그날 한 번만), 이후는 요일 회전(how→obstacle→observe, 진단 재서술 금지).
+  //    실행이 관측되면 reinforce(거짓 칭찬 금지) — 단 이틀 연속 reinforce는 금지(사이엔 회전 단계로 환기).
+  const ROT: WeeklyArcStage[] = ['how', 'obstacle', 'observe'];
+  const stage: WeeklyArcStage = p.firstOfWeek ? 'intro'
+    : (p.progress && p.lastArcStage !== 'reinforce') ? 'reinforce'
+    : ROT[((dow + 6) % 7) % ROT.length];
   const weeklyArc: WeeklyArc | null = anchor.behavior_goal
-    ? { stage: p.progress ? 'reinforce' : 'why', behaviorGoal: anchor.behavior_goal, implIntention: anchor.teaching_arc?.implIntention ?? null }
+    ? { stage, behaviorGoal: anchor.behavior_goal, implIntention: anchor.teaching_arc?.implIntention ?? null, progressNote: p.progressNote ?? null }
     : null;
 
   // 1.5) ⭐ 주력 레버가 비-food면 그 주는 환경/자율성/식감 코칭이 중심(어머니에게 다양한 코칭). 음식 타깃은 배경(이번 주 행동 아님).
   const lever = anchor.budget?.lever || 'food';
   if (lever !== 'food' && LEVER_SCENARIO[lever]) {
     const frame = LEVER_SCENARIO[lever];   // mealtime-atmosphere | autonomy-power-struggle | texture-refusal
-    // 음식 무브 없이(target/move=null) 시나리오의 환경·자율성·식감 행동(SCEN_ACT)이 편지를 끈다. '한 번에 하나'.
-    const plan: CoachPlan = { frame, target: null, moveKey: null, move: null, signature: planSignature(frame, null, null) };
-    return { scenario: sc(frame), plan, varyOpener: recentPlans[0]?.frame === frame, ledgerPatch: {}, pushApplied: false, weeklyArc };
+    // ⭐ 전용 무브 메뉴(SCEN_MOVES)를 buildCoachPlan으로 회전 — 프레임은 한 주 잠겨도 행동 방식·시그니처는 매일 달라진다
+    //   (2026-06-11 사고: 이전엔 target/move=null 고정 시그니처라 dedup이 볼 게 없어 3일 복붙 편지 발행).
+    //   메뉴 전부가 최근과 겹치면(escalate) 같은 처방 반복 대신 정체기(칭찬·쉬어가기)로 — scenarios §3 약속의 weekly 이행.
+    const bp = buildCoachPlan({ frame, targetPool: [], recentPlans, daySeed, cidHash });
+    const fp = bp.escalate ? buildCoachPlan({ frame: 'plateau', targetPool: [], recentPlans, daySeed, cidHash }) : bp;
+    const plan: CoachPlan = { frame: fp.frame, target: fp.target, moveKey: fp.moveKey, move: fp.move, signature: fp.signature };
+    return { scenario: sc(plan.frame), plan, varyOpener: recentPlans[0]?.frame === plan.frame, ledgerPatch: {}, pushApplied: false, weeklyArc };
   }
 
   // 2) (food 레버) 타깃 잠금 — 닻의 mission_target(여전히 결핍이면) → pool 내 다음 → 없으면 정체기(쉬어가기)

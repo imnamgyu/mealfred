@@ -51,7 +51,14 @@ code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:12.5px}
 </style></head><body><div class="wrap">
 
 <h1>코칭 케이던스 엔진 — 일·주·월 3층 설계</h1>
-<p class="lead"><b>코칭 엔진 로드맵 (미구현 설계 정본)</b> · 2026-06-09 · <b>일간 실행(전술) + 주간 초점(작전) + 월간 점검(전략)</b>. 라이브 정본 <a href="/coaching-plan-engine.html">plan 엔진</a>·<a href="/coaching-scenarios.html">시나리오 엔진</a> 위에 '한 주'·'한 달' 시간축을 얹는다. <b>이 문서는 앞으로 지을 설계 — 현재 코드엔 없음.</b></p>
+<p class="lead"><b>코칭 엔진 정본 ③ — 일·주·월 케이던스 (✅ 2026-06-10 구현·배포)</b> · 설계 2026-06-09 → 배포 06-10(<code>99e2c50</code>·<code>6bfc65a</code>·<code>84fbad9</code>) → <b>06-11 변주 핫픽스</b>(아래 부록) · <b>일간 실행(전술) + 주간 초점(작전) + 월간 점검(전략)</b>. 라이브 정본 <a href="/coaching-plan-engine.html">plan 엔진</a>·<a href="/coaching-scenarios.html">시나리오 엔진</a> 위에 '한 주'·'한 달' 시간축을 얹는다. 본문 §1~§14는 설계 당시 원문(일부 '미구현' 표기는 설계 시점 기준)이며, 현행 코드와의 차이는 <b>아래 부록(06-11)</b>이 정본이다.</p>
+
+<div style="margin:14px 0 18px;padding:14px 16px;border:2px solid #E53935;border-radius:12px;background:#FFF5F5">
+<b style="color:#C62828">⚠️ 부록 (2026-06-11) — '3일 복붙 편지' 사고와 핫픽스 (현행 코드 기준 정본)</b>
+<p style="margin:8px 0 4px"><b>사고:</b> 비-food 주력 레버(environment) 주간에 6/9·6/10·6/11 편지가 같은 진단+같은 처방의 패러프레이즈로 3일 연속 발행. 원인 3겹: ① <code>planFromWeekly</code> 비-food 분기가 frame 고정 + target/move=null로 시그니처가 매일 동일(<code>mealtime-atmosphere|-|-</code>) → §5가 약속한 "frame·move·도입 회전" dedup이 볼 게 없었음 ② 커리큘럼 컬럼(weekly_coaching.sql) 미실행으로 닻의 behavior_goal이 없어 arc(변주축)=null — 6/10 부모가 실제로 화면 끄고 식탁 식사를 실행(progress=true 계산까지 됨)했는데 reinforce(칭찬) 대신 같은 잔소리 발송 ③ 어휘 유사도 가드는 의미 중복을 못 봄(실측 0.27~0.36 &lt; 임계 0.45 — plan 엔진 문서가 0.90 확신으로 예언한 한계). 발견은 사람(이사님) — 자가 탐지 부재.</p>
+<p style="margin:4px 0"><b>핫픽스(06-11 배포):</b> ① <b>구조 무브 메뉴 <code>SCEN_MOVES</code></b> — 환경 5종(간식 컷오프·영상 끄기·모델링·20분 정리·식기 놓기 신호)·자율성 4종·식감 4종을 <code>buildCoachPlan</code>이 결정론 회전(최근 시그니처 회피·전부 겹치면 plateau로 쉬어가기) → 프레임은 잠겨도 시그니처가 매일 달라짐 ② <b>가르치는 아크 5단계</b> — intro(주 첫 편지·진단+왜는 주 1회만)→how(장면)→obstacle(막힐 때)→observe(어제 사실)→reinforce(관측된 실행 칭찬·이틀 연속 금지) — <b>주간 진단 재서술 금지(한 구절 리마인드만)</b>가 intro 이후 모든 단계에 걸림 ③ <b>닻 치유 <code>healAnchor</code></b> — 구버전/컬럼 미적용 닻의 behavior_goal을 결정론 폴백으로 메모리 보충 ④ <b>upsert 에러 검사</b> — 닻 저장 실패 시 신규 컬럼 빼고 재시도(이전엔 조용히 실패 → 닻 미저장·매일 Sonnet 재종합·ledger 사망 위험. "SQL 미실행 시 planFor 폴백=안전"은 오판이었음) ⑤ <b>자동 반복 경보</b> — 발행 시점에 직전 편지 유사도·시그니처 연속을 자가 측정(<code>context.simToPrev</code>·<code>repeatAlert</code>·cron issues + 어드민 칩) ⑥ 유사도 가드 재생성도 구조 프레임에선 SCEN_MOVES 안에서 회전(음식 무브 주입 금지) ⑦ 하루치 메모(예: 주말 뷔페 1회)를 '반복 리듬'으로 일반화 금지 가드.</p>
+<p style="margin:4px 0 0"><b>교훈(프로세스):</b> 새 편지 경로는 배포 전 동일 데이터 다일(7일) 시뮬 의무 — 1일 스냅샷 QA는 '처음 깨어나는 경로'의 반복을 못 잡는다. supabase 쓰기 결과의 error 무시 금지.</p>
+</div>
 
 <div class="tldr">
 <h3>🎯 한눈에</h3>
@@ -318,7 +325,7 @@ create policy weekly_plans_read on public.weekly_plans for select
 
 <div class="box">
 <h2><span class="n">10.</span> 구현 범위 — 이 문서 이후</h2>
-<p>이 문서는 <b>설계만</b>이다(코드 변경 0). 구현 시 작업 단위:</p>
+<p>이 문서는 설계 시점엔 <b>설계만</b>이었다(코드 변경 0). <b>아래 작업 단위는 2026-06-10 전부 구현·배포됨</b>(43f8e75·99e2c50·6bfc65a·84fbad9) — 현행과의 차이는 상단 부록(06-11) 참조. 구현 시 작업 단위:</p>
 <table>
 <tr><th class="c">단계</th><th>작업</th><th class="c">선행</th></tr>
 <tr><td class="c">선행</td><td>cron select에 <code>autonomy,environment</code> 추가(구조화 입력 0% 반영 버그) + <b>데이터 창 이중화</b>: 현행 <code>trailing-7</code> 옆에 <code>week-to-date</code>(weekStart 필터·추가 쿼리 0) 신설</td><td class="c">독립</td></tr>
@@ -497,6 +504,6 @@ create policy weekly_plans_read on public.weekly_plans for select
 <p class="note"><b>구현 위치:</b> 주간 종합층(미구현)을 지을 때 함께. <code>runWeeklyPlanning</code>이 <b>Sonnet 4.6</b>으로 종합 신호+35이론을 읽어 <code>weekly_plans.impression</code>(소견)·mission·budget을 산출. 일간/월간은 read. 신규 비용 = 자녀당 주 1 Sonnet 콜(~₩215/월).</p>
 </div>
 
-<footer style="text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line)">밀프레드 코칭 엔진 <b>로드맵</b>(미구현 설계 정본) · 일·주·월 3층 + 롤업 차트 + 이사님 결정(행동지연·일요일·미션 비노출·주간 종합 깊이) · 2026-06-09 · 다중 에이전트 적대 검증(코드 grep 기반)</footer>
+<footer style="text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line)">밀프레드 코칭 엔진 <b>정본 ③</b>(2026-06-10 구현·배포 + 06-11 변주 핫픽스) · 일·주·월 3층 + 롤업 차트 + 이사님 결정(행동지연·일요일·미션 비노출·주간 종합 깊이) · 2026-06-09 · 다중 에이전트 적대 검증(코드 grep 기반)</footer>
 
 </div></body></html>
