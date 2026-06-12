@@ -58,20 +58,20 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <li><b>상태칩</b>: ⬜ 대기 · 🔨 진행 중 · ✅ 완료(커밋) · ⏸ 외부 대기(SQL 실행 등) · ❌ 드랍(사유 기입).</li>
 </ul></div>
 
-<div class="toc" id="progress"><b>📊 진척 대시보드</b> <span style="color:#8a7a6a;font-size:12px">(원자 완료 시 갱신 — 마지막 갱신: 2026-06-12)</span>
+<div class="toc" id="progress"><b>📊 진척 대시보드</b> <span style="color:#8a7a6a;font-size:12px">(원자 완료 시 갱신 — 마지막 갱신: 2026-06-12 D1 완료)</span>
 <table>
 <tr><th>EPIC</th><th>원자</th><th>완료</th><th>상태</th></tr>
-<tr><td>A 데이터·SQL</td><td>8</td><td>0</td><td>🔨 A-01 SQL 작성 완료 → ⏸ 이사님 실행 대기</td></tr>
-<tr><td>B 판정 상태기계</td><td>26</td><td>0</td><td>⬜ (SQL 무관 — 병렬 착수 가능)</td></tr>
+<tr><td>A 데이터·SQL</td><td>8</td><td>8</td><td>✅ 완료 — SQL 실행·프로브 검증(`122abbe`·`0aeb526`)</td></tr>
+<tr><td>B 판정 상태기계</td><td>26</td><td>26</td><td>✅ 완료 `0aeb526` — 테스트 78 신규(전체 129)·리플레이가 실버그 2건 적발(이중 진화·goals 미플립)</td></tr>
 <tr><td>C 블록 라이브러리</td><td>20</td><td>0</td><td>⬜</td></tr>
 <tr><td>D 조립기</td><td>12</td><td>0</td><td>⬜</td></tr>
-<tr><td>E 주간 포트폴리오</td><td>10</td><td>0</td><td>⬜</td></tr>
+<tr><td>E 주간 포트폴리오</td><td>10</td><td>1</td><td>🔨 E-01 완료(`0aeb526`) — 나머지 D4</td></tr>
 <tr><td>F 일간 전개</td><td>10</td><td>0</td><td>⬜</td></tr>
 <tr><td>G 질문 정렬</td><td>10</td><td>0</td><td>⬜</td></tr>
 <tr><td>H 컷오버</td><td>12</td><td>0</td><td>⬜</td></tr>
 <tr><td>I 리플레이·지표</td><td>8</td><td>0</td><td>⬜</td></tr>
 <tr><td>J 운영</td><td>6</td><td>0</td><td>⬜</td></tr>
-<tr><td><b>합계</b></td><td><b>122+부록9=131</b></td><td><b>0</b></td><td><b>D1 진행 중</b></td></tr>
+<tr><td><b>합계</b></td><td><b>131</b></td><td><b>35</b></td><td><b>✅ D1 완료 → 다음: D2~3(블록·조립기)</b></td></tr>
 </table></div>
 <div class="toc"><b>목차</b>
 <ul>
@@ -91,7 +91,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <h2>EPIC A — 데이터 모델·SQL <span class="tag d1">D1</span></h2>
 <p class="lead">원칙: 전부 additive(기존 컬럼·테이블 무변경), 멱등 DDL(<code>if not exists</code>), RLS는 부모 비노출(§13 원칙 유지 — 진도·목표는 내부용, 부모는 편지로만 체감).</p>
 
-<div class="atom" id="A-01"><h4><span class="st wip">⏸</span>A-01 · <code>curriculum_progress</code> 테이블 DDL <span class="sz">SQL · 0.5h</span></h4>
+<div class="atom" id="A-01"><h4><span class="st done">✅</span>A-01 · <code>curriculum_progress</code> 테이블 DDL <span class="sz">SQL · 0.5h</span></h4>
 <div class="row"><span class="k">목적</span>자녀×유닛별 진도 상태의 단일 진실. "지금 상태가 어느 정도인지 DB로 저장"(이사님 요구).</div>
 <div class="row"><span class="k">명세</span><code>sql/2026-06-12_curriculum.sql</code>에 작성:</div>
 <ul>
@@ -107,13 +107,13 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">의존</span>없음(첫 원자).</div>
 </div>
 
-<div class="atom" id="A-02"><h4><span class="st">⬜</span>A-02 · 인덱스·갱신 트리거 <span class="sz">SQL · 0.2h</span></h4>
+<div class="atom" id="A-02"><h4><span class="st done">✅</span>A-02 · 인덱스·갱신 트리거 <span class="sz">SQL · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span><code>create index if not exists idx_cp_status on curriculum_progress(child_id, status);</code>(활성·재발 조회용). <code>updated_at</code>은 앱이 명시 갱신(트리거 미사용 — 기존 테이블들과 일관, supabase 트리거 관리 부담 회피).</div>
 <div class="row"><span class="k">테스트</span>A-02-1 EXPLAIN으로 status 조회가 인덱스 사용(선택 — 수동).</div>
 <div class="row"><span class="k">DoD</span>A-01과 같은 SQL 파일에 포함.</div>
 </div>
 
-<div class="atom" id="A-03"><h4><span class="st">⬜</span>A-03 · RLS 정책 — 부모 비노출 <span class="sz">SQL · 0.3h</span></h4>
+<div class="atom" id="A-03"><h4><span class="st done">✅</span>A-03 · RLS 정책 — 부모 비노출 <span class="sz">SQL · 0.3h</span></h4>
 <div class="row"><span class="k">목적</span>§13 원칙: '수업·진도·목표' 단어와 데이터는 부모에게 절대 노출 금지 — 부모는 자연스러운 편지만 본다.</div>
 <div class="row"><span class="k">명세</span><code>alter table curriculum_progress enable row level security;</code> — <b>select 정책을 만들지 않는다</b>(weekly_plans와 동일 패턴: 정책 없음=anon/auth 접근 0행, 서버(서비스/세션 서버클라이언트)만 접근). insert/update 정책도 미생성 — 크론은 서버 권한.</div>
 <div class="row"><span class="k">유즈케이스</span>악의/호기심 사용자가 REST로 <code>curriculum_progress</code> 조회 → 0행.</div>
@@ -122,7 +122,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">의존</span>A-01.</div>
 </div>
 
-<div class="atom" id="A-04"><h4><span class="st">⬜</span>A-04 · <code>weekly_plans.goals</code> 컬럼 추가 <span class="sz">SQL · 0.2h</span></h4>
+<div class="atom" id="A-04"><h4><span class="st done">✅</span>A-04 · <code>weekly_plans.goals</code> 컬럼 추가 <span class="sz">SQL · 0.2h</span></h4>
 <div class="row"><span class="k">목적</span>주간 닻이 단일 lever → <b>목표 2~3개 포트폴리오</b>를 갖는다.</div>
 <div class="row"><span class="k">명세</span><code>alter table weekly_plans add column if not exists goals jsonb;</code> — 스키마(E-01): <code>[{"unit_id":"table-stage","priority":1,"source":"weekly_llm","status":"focus"},{"unit_id":"hunger-rhythm","priority":2,"status":"standby"},{...3순위 optional}]</code>. status ∈ focus(오늘의 주력)·standby(피벗 대기)·stopped(이번 주 중단, stop_reason은 curriculum_progress에).</div>
 <div class="row"><span class="k">테스트</span>A-04-1 컬럼 프로브 · A-04-2 goals 없는 구닻 read 시 null 허용(하위 호환 — E-09 heal이 보충).</div>
@@ -130,7 +130,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">의존</span>A-01과 동일 SQL 파일.</div>
 </div>
 
-<div class="atom" id="A-05"><h4><span class="st">⬜</span>A-05 · 레거시 호환 전략 — lever ↔ goals 병행기 <span class="sz">설계 · 0.3h</span></h4>
+<div class="atom" id="A-05"><h4><span class="st done">✅</span>A-05 · 레거시 호환 전략 — lever ↔ goals 병행기 <span class="sz">설계 · 0.3h</span></h4>
 <div class="row"><span class="k">요구</span>컷오버(H-11) 전까지 구코드(lever 단일)와 신코드(goals)가 같은 테이블을 읽어도 안 깨질 것.</div>
 <div class="row"><span class="k">명세</span>신코드 작성 규칙: goals 생성 시 <code>budget.lever</code>도 1순위 goal의 레버 축으로 <b>계속 채운다</b>(구코드 호환). 읽기 규칙: goals 없으면 lever 1개를 goals 1개로 승격하는 변환 함수 <code>goalsOf(anchor): Goal[]</code>(coachWeekly에, 순수 함수).</div>
 <div class="row"><span class="k">테스트</span>A-05-1 goals null+lever=environment → goalsOf가 [table-stage focus] 반환 · A-05-2 goals 존재 시 그대로 반환 · A-05-3 양쪽 다 없으면 [](관찰 주).</div>
@@ -138,13 +138,13 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">의존</span>A-04, B-02(unit↔lever 매핑).</div>
 </div>
 
-<div class="atom" id="A-06"><h4><span class="st">⬜</span>A-06 · 블록 저장소 결정 — 정적 JSON 채택 <span class="sz">설계 · 0.2h</span></h4>
+<div class="atom" id="A-06"><h4><span class="st done">✅</span>A-06 · 블록 저장소 결정 — 정적 JSON 채택 <span class="sz">설계 · 0.2h</span></h4>
 <div class="row"><span class="k">결정</span>블록은 DB가 아니라 <b>리포 내 정적 <code>lib/letter-blocks.json</code></b>. 근거: ①블록=코드와 같은 수명(검수·테스트·버전이 git으로) ②prebuild 테스트(C-19 린터)가 블록을 빌드 시점에 전수 검증 가능 ③운영 중 무단 변경 차단. DB화는 비개발자 편집 needs 생기면 후속(J-03에 기록).</div>
 <div class="row"><span class="k">테스트</span>(C-19에서) 스키마 전수 검증이 prebuild에 물림.</div>
 <div class="row"><span class="k">DoD</span>본 문서 결정 기록 + v3 정본 §4와 일치.</div>
 </div>
 
-<div class="atom" id="A-07"><h4><span class="st">⬜</span>A-07 · 질문-증거 저장 설계 — <code>daily_questions.context</code> 확장 <span class="sz">설계 · 0.3h</span></h4>
+<div class="atom" id="A-07"><h4><span class="st done">✅</span>A-07 · 질문-증거 저장 설계 — <code>daily_questions.context</code> 확장 <span class="sz">설계 · 0.3h</span></h4>
 <div class="row"><span class="k">목적</span>보라 박스 질문의 답이 유닛 evidence로 적립되려면 "이 질문이 어느 유닛의 어느 신호를 측정했는지"가 저장돼야 함.</div>
 <div class="row"><span class="k">명세</span>신규 테이블 없이 기존 <code>daily_questions.context</code>(jsonb)에 추가: <code>{"unitProbe":{"unit_id":"table-talk","signal":"objectTalk","step":2}}</code>. 답변 파서(G-04)가 q_date·answer·unitProbe를 읽어 evidence 적립. ICFQ(<code>context.icfq</code>)와 키 분리로 공존(G-05).</div>
 <div class="row"><span class="k">유즈케이스</span>유닛8(식탁의 말) 활성인데 태그 표본 부족 → 질문 "오늘 식탁에서 어떤 말을 건넸어요?" 발행(context.unitProbe 기록) → 칩 답변 → 다음 크론이 objectTalk 카운터 +1.</div>
@@ -152,7 +152,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span>스키마 변경 0으로 확정(컬럼 추가 불필요 — 이사님 "컬럼까지 해야 할 정도인가" 원칙 부합).</div>
 </div>
 
-<div class="atom" id="A-08"><h4><span class="st">⬜</span>A-08 · 마이그레이션 실행·롤백 절차 <span class="sz">문서 · 0.2h</span></h4>
+<div class="atom" id="A-08"><h4><span class="st done">✅</span>A-08 · 마이그레이션 실행·롤백 절차 <span class="sz">문서 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>SQL 파일 헤더에 명시: 실행=Supabase SQL Editor 1회(이사님)·pbcopy 명령 제공. 롤백: 컬럼/테이블 drop 문 주석으로 동봉(단 운영 데이터 생기면 drop 금지 — status를 not_started로 일괄 update하는 소프트 리셋 쿼리 제공). 실행 후 본 세션이 REST 프로브로 검증(A-01 DoD)하고 일지에 기록.</div>
 <div class="row"><span class="k">테스트</span>해당 없음(절차).</div>
 <div class="row"><span class="k">DoD</span>일지에 "실행 확인" 라인.</div>
@@ -161,7 +161,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <h2>EPIC B — 유닛 레지스트리·판정 상태기계 <span class="tag d1">D1</span></h2>
 <p class="lead">전부 <b>순수 함수</b>(<code>lib/curriculumUnits.ts</code>=정적 정의, <code>lib/curriculum.ts</code>=판정·전이 로직). LLM 0콜. 입력은 크론이 이미 가진 것만: <code>meal_logs</code> 행(trailing 7~28일)·<code>daily_questions</code> 답·기존 구조화 칩(environment·autonomy·texture·meal_time)·메모. 모든 임계는 B-03 상수 테이블에 모아 리플레이(I-03)로 보정 가능하게.</p>
 
-<div class="atom" id="B-01"><h4><span class="st">⬜</span>B-01 · 타입 정의 <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="B-01"><h4><span class="st done">✅</span>B-01 · 타입 정의 <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span><code>lib/curriculum.ts</code> 상단:</div>
 <ul>
 <li><code>type UnitId = 'pressure-off' | 'hunger-rhythm' | ... (12종 리터럴 유니온)</code></li>
@@ -174,7 +174,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span>tsc 0 · 정합 테스트 그린.</div>
 </div>
 
-<div class="atom" id="B-02"><h4><span class="st">⬜</span>B-02 · 유닛 레지스트리 골격 — <code>lib/curriculumUnits.ts</code> <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="B-02"><h4><span class="st done">✅</span>B-02 · 유닛 레지스트리 골격 — <code>lib/curriculumUnits.ts</code> <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">목적</span>12유닛의 선언적 정의(설계 정본 §2 표를 코드로 옮김). <b>가드 레지스트리 재편의 실체</b> — 유닛별 금지·검수 기준이 여기 모인다.</div>
 <div class="row"><span class="k">명세</span><code>export const UNITS: Record&lt;UnitId, UnitDef&gt;</code>. 각 유닛: 사다리 단 정의(step 0..maxStep, 단별 부모 행동 한 줄), 발동 신호(trigger: 주간 종합이 이 유닛을 후보로 올리는 조건 — 예 table-stage는 envBadPct≥0.4·envCount≥4), lever 매핑(A-05 호환), 관측 질문 풀(G-02 참조 키). <b>온보딩 게이트 필드</b> <code>minWeek</code>(E-05): 신뢰(1주차)=코칭 강도 제한 유닛 표시.</div>
 <div class="row"><span class="k">유즈케이스</span>주간 종합이 <code>candidateUnits(signals, progressRows)</code>로 후보를 얻고, 일간이 <code>UNITS[unit].advance</code>로 판정한다.</div>
@@ -183,14 +183,14 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">의존</span>B-01.</div>
 </div>
 
-<div class="atom" id="B-03"><h4><span class="st">⬜</span>B-03 · 임계 상수 테이블 <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="B-03"><h4><span class="st done">✅</span>B-03 · 임계 상수 테이블 <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">목적</span>모든 매직 넘버를 한 곳에 — 리플레이 보정(I-03)·향후 A/B의 단일 진실.</div>
 <div class="row"><span class="k">명세</span><code>export const TH = { stallDays: 6, maintenanceWeeks: 1, streakWeeksToMaster: 2, relapseWindowDays: 14, envTableStep1: 0.4, envTableStep2: 0.6, exposurePerWeek: [2,3], exposureTotal: [8,15], mealOver30Cap: 0.3, selfPctTarget: 0.5, familyMealsPerWeek: 5, negTagCap: 0.2, ... }</code> — 설계 정본 §2 표의 수치 전부. 각 키에 출처 주석(USDA NESR·Satter·WIC·자체).</div>
 <div class="row"><span class="k">테스트</span>B-03-1 TH 키가 B-04~15에서 참조하는 키 집합과 일치(미사용/누락 키 0 — 데드 상수 방지).</div>
 <div class="row"><span class="k">DoD</span>그린 + 주석 출처 전수.</div>
 </div>
 
-<div class="atom" id="B-04"><h4><span class="st">⬜</span>B-04~B-15 · 유닛별 신호 추출기 12종 <span class="sz">코드 · 각 0.5~1h</span></h4>
+<div class="atom" id="B-04"><h4><span class="st done">✅</span>B-04~B-15 · 유닛별 신호 추출기 12종 <span class="sz">코드 · 각 0.5~1h</span></h4>
 <div class="row"><span class="k">공통 명세</span>각 유닛에 <code>extract_&lt;unit&gt;(rows: FactRow[], answers: ProbeAnswer[], today: string): Evidence</code> — 입력은 <b>기존 컬럼만</b>(meal_logs: log_date·slot·menus·refused·note·environment·autonomy·texture·meal_time·place·ate_well + 질문 답). 출력 evidence는 <b>날짜 단위 집계</b>(M6 교훈: 행 단위 부풀림 금지 — 하루 2슬롯=1일). 전부 결정론·시계열 라벨(coachFacts <code>recurrenceLabel</code> 재사용).</div>
 <table>
 <tr><th>원자</th><th>유닛</th><th>evidence 키(예)</th><th>핵심 계산 명세</th><th>엣지(테스트 필수)</th></tr>
@@ -212,47 +212,47 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">의존</span>B-01·B-03·coachFacts(FactRow 타입 재사용).</div>
 </div>
 
-<div class="atom" id="B-16"><h4><span class="st">⬜</span>B-16 · evidence 일일 병합기 <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="B-16"><h4><span class="st done">✅</span>B-16 · evidence 일일 병합기 <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span><code>mergeEvidence(prev: Evidence, today: Evidence, todayStr): Evidence</code> — 카운터는 재계산 대체(스냅샷 방식: 7일 창 지표는 매일 새로 계산해 덮어씀 — 누적 오염 방지), 일수 배열(hitDays)은 union 후 28일 컷, <code>last_signal_at</code> 갱신 조건 = 유닛의 1차 신호가 오늘 관측됨.</div>
 <div class="row"><span class="k">유즈케이스</span>크론이 추출(B-04~15)→병합→A-01 upsert.</div>
 <div class="row"><span class="k">테스트</span>B-16-1 스냅샷 덮어쓰기 · B-16-2 hitDays 28일 컷 · B-16-3 신호 없으면 last_signal_at 불변.</div>
 <div class="row"><span class="k">DoD</span>그린.</div>
 </div>
 
-<div class="atom" id="B-17"><h4><span class="st">⬜</span>B-17 · 사다리 단(step) 정의·전이 <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="B-17"><h4><span class="st done">✅</span>B-17 · 사다리 단(step) 정의·전이 <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>UnitDef.steps: <code>[{step:1, behavior:'하루 한 끼 화면 끄기', passWhen:(e)=&gt;e.envTablePct7d&gt;=TH.envTableStep1, holdWeeks:1}, {step:2, behavior:'주 5끼+', passWhen: ≥TH.envTableStep2, holdWeeks:2}, ...]</code>. 전이 함수 <code>nextStep(def, row): number</code> — passWhen이 holdWeeks 연속 충족(주 단위 streak은 evidence.streakWeeks)일 때만 +1. <b>한 번에 한 단만</b>(점프 금지 — 물 흐르듯 원칙).</div>
 <div class="row"><span class="k">테스트</span>B-17-1 충족 1주차(holdWeeks=2)는 미전이 · B-17-2 2주 연속 충족 시 +1 · B-17-3 max 단에서 불변.</div>
 <div class="row"><span class="k">DoD</span>그린.</div>
 </div>
 
-<div class="atom" id="B-18"><h4><span class="st">⬜</span>B-18 · 진전 판정 <code>isProgressing</code> <span class="sz">코드 · 0.3h</span></h4>
+<div class="atom" id="B-18"><h4><span class="st done">✅</span>B-18 · 진전 판정 <code>isProgressing</code> <span class="sz">코드 · 0.3h</span></h4>
 <div class="row"><span class="k">명세</span><code>isProgressing(def, row, today): boolean</code> = 최근 <code>TH.stallDays</code>일 내 1차 신호 관측(last_signal_at 기준) 또는 step 전진 발생. 일간 선택기(F-02)의 '딥다이브 계속' 조건.</div>
 <div class="row"><span class="k">테스트</span>B-18-1/2 경계(5일/7일).</div>
 </div>
 
-<div class="atom" id="B-19"><h4><span class="st">⬜</span>B-19 · 정체 판정 <code>isStalled</code> <span class="sz">코드 · 0.3h</span></h4>
+<div class="atom" id="B-19"><h4><span class="st done">✅</span>B-19 · 정체 판정 <code>isStalled</code> <span class="sz">코드 · 0.3h</span></h4>
 <div class="row"><span class="k">명세</span><code>last_signal_at</code>이 <code>TH.stallDays</code>(기본 6일) 이상 과거 <b>그리고</b> 그 기간 코칭이 실제 나갔음(편지 블록 원장에서 해당 유닛 블록 ≥3회 — D-03 원장 참조: "가르쳤는데 안 됨"과 "안 가르쳤음"을 구분). 후자는 정체 아님(코칭 재개 대상).</div>
 <div class="row"><span class="k">유즈케이스</span>"개선이 전혀 안 되는 목표는 스탑"(이사님) — F-02가 이 판정으로 피벗.</div>
 <div class="row"><span class="k">테스트</span>B-19-1 신호無+코칭有=정체 · B-19-2 신호無+코칭無=비정체 · B-19-3 경계일.</div>
 </div>
 
-<div class="atom" id="B-20"><h4><span class="st">⬜</span>B-20 · 졸업 판정 <code>isMastered</code> — 유지 주 테스트 <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="B-20"><h4><span class="st done">✅</span>B-20 · 졸업 판정 <code>isMastered</code> — 유지 주 테스트 <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>조건 AND 3: ①최종 단 passWhen 충족 streak ≥ <code>TH.streakWeeksToMaster</code>(2주) ②<b>유지 주</b>: 직전 <code>TH.maintenanceWeeks</code>(1주)간 이 유닛 블록이 편지에 0회(코칭 없이 유지 — D-03 원장으로 확인) ③그 유지 주에도 신호 유지. 충족 시 status=mastered·mastered_at 기록.</div>
 <div class="row"><span class="k">유즈케이스</span>"달성되면 더 이상 안 가르치고"(이사님). maintenance 상태가 유지 주를 표현: 최종 단 도달 → maintenance(코칭 중단·관찰만) → 1주 후 판정 → mastered or 재코칭.</div>
 <div class="row"><span class="k">테스트</span>B-20-1 유지 주에 블록 나가면 판정 리셋 · B-20-2 유지 주 신호 붕괴→active 복귀 · B-20-3 정상 졸업.</div>
 </div>
 
-<div class="atom" id="B-21"><h4><span class="st">⬜</span>B-21 · 재발 감지 <code>isRelapsed</code> <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="B-21"><h4><span class="st done">✅</span>B-21 · 재발 감지 <code>isRelapsed</code> <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>mastered 유닛 한정: UnitDef.relapse 조건(설계 §2 표 — 예 table-stage: 2주 연속 envTablePct&lt;0.4) 충족 시 status=relapsed·relapse_count+1. <b>재개 규칙</b>: 처음(step 0)이 아니라 <code>max(1, 최종단-1)</code>부터 — "무너지면 다시 감지해서 코칭"하되 기억을 존중. 재발 유닛은 주간 포트폴리오 선발에서 우선순위 가산(E-03).</div>
 <div class="row"><span class="k">테스트</span>B-21-1 임계 미만 1주는 비재발 · B-21-2 2주 연속 재발+카운트 · B-21-3 재개 step 계산.</div>
 </div>
 
-<div class="atom" id="B-22"><h4><span class="st">⬜</span>B-22 · 피벗 선택기 <code>pickPivot</code> <span class="sz">코드 · 0.3h</span></h4>
+<div class="atom" id="B-22"><h4><span class="st done">✅</span>B-22 · 피벗 선택기 <code>pickPivot</code> <span class="sz">코드 · 0.3h</span></h4>
 <div class="row"><span class="k">명세</span><code>pickPivot(goals, progressMap): UnitId | null</code> — focus가 정체(B-19)일 때 standby 중 priority 순으로 <b>판정 보류 아닌</b>(신호 측정 가능한) 유닛 선택. 전부 불가면 null(F-08 plateau). 피벗 시 구 focus는 stop_reason='stalled'·status='pivoted'(주간 재진단 때 부활 후보).</div>
 <div class="row"><span class="k">테스트</span>B-22-1 standby 1개 정상 피벗 · B-22-2 전부 보류→null · B-22-3 stop_reason 기록.</div>
 </div>
 
-<div class="atom" id="B-23"><h4><span class="st">⬜</span>B-23 · 상태기계 통합 <code>advanceProgress</code> <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="B-23"><h4><span class="st done">✅</span>B-23 · 상태기계 통합 <code>advanceProgress</code> <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">목적</span>크론이 부르는 단일 진입점 — 하루치 판정 전체를 결정론으로.</div>
 <div class="row"><span class="k">명세</span><code>advanceProgress(p: { goals; progressMap; rows; answers; blockLedger; today }): { updates: ProgressRow[]; decision: DailyDecision }</code>. 내부 순서: 추출(B-04~15, goals 유닛만)→병합(B-16)→재발 스캔(B-21, mastered 전체)→focus 판정(전진 B-17/진전 B-18/정체 B-19→피벗 B-22/졸업 후보 B-20)→<code>DailyDecision = { unit, step, mode: 'advance'|'deepen'|'pivot'|'maintain'|'celebrate'|'observe', pivotTo? }</code>. <b>상태 전이 매트릭스를 JSDoc 표로 명문화</b>(7상태×이벤트 — 불법 전이는 throw가 아니라 무시+경고 카운트).</div>
 <div class="row"><span class="k">유즈케이스</span>①어제 A 실행 관측 → mode=advance(다음 단 B) ②이틀 정체 → mode=pivot ③유지 주 → mode=maintain(편지에서 이 유닛 침묵) ④재발 → goals에 재투입 제안 플래그.</div>
@@ -261,17 +261,17 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">의존</span>B-16~22.</div>
 </div>
 
-<div class="atom" id="B-24"><h4><span class="st">⬜</span>B-24 · 안전 인터럽트 연동(S3 수술) <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="B-24"><h4><span class="st done">✅</span>B-24 · 안전 인터럽트 연동(S3 수술) <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>인터럽트(progress-celebrate·neophobia-arfid-watch·low-data-gap)는 <b>진도를 멈추지 않는다</b> — 그날 편지만 인터럽트가 가져가고 advanceProgress는 정상 수행(판정·evidence 적립 계속). 인터럽트 연속 발화 캡: 같은 인터럽트 id가 직전 2일 발화면 3일째 억제(축하·적신호 제외 조건은 기존 selectScenario 예외 유지하되 <b>발화 횟수 원장</b>을 context에 기록해 사실상 연속 3일 차단 — S3의 '7일 연속 축하' 봉쇄).</div>
 <div class="row"><span class="k">테스트</span>B-24-1 인터럽트 날에도 evidence 적립 · B-24-2 3일째 억제 · B-24-3 적신호는 억제 예외(안전 우선).</div>
 </div>
 
-<div class="atom" id="B-25"><h4><span class="st">⬜</span>B-25 · 단위 테스트 묶음 — <code>tests/curriculum.test.ts</code> <span class="sz">테스트 · 1h</span></h4>
+<div class="atom" id="B-25"><h4><span class="st done">✅</span>B-25 · 단위 테스트 묶음 — <code>tests/curriculum.test.ts</code> <span class="sz">테스트 · 1h</span></h4>
 <div class="row"><span class="k">명세</span>B-04~24의 케이스 전부(≈60)를 한 파일로. 헬퍼: <code>mkRow()</code>(coach-facts.test.ts 패턴 재사용)·<code>mkProgress()</code>. 명명 규칙 <code>describe('B-17 사다리')</code> — 원자 ID 추적.</div>
 <div class="row"><span class="k">DoD</span>prebuild 게이트 포함 그린.</div>
 </div>
 
-<div class="atom" id="B-26"><h4><span class="st">⬜</span>B-26 · 진도 리플레이 불변식 <span class="sz">테스트 · 0.5h</span></h4>
+<div class="atom" id="B-26"><h4><span class="st done">✅</span>B-26 · 진도 리플레이 불변식 <span class="sz">테스트 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span><code>tests/replay.test.ts</code> 확장: 합성 14일 시나리오 3종(순항 졸업/정체 피벗/재발 재개)을 advanceProgress로 통주(通走)하며 불변식 검증 — ①status 역행 금지(mastered→active는 relapse 경유만) ②step 점프 금지 ③같은 날 이중 전진 금지 ④피벗 후 standby가 focus로.</div>
 <div class="row"><span class="k">DoD</span>3시나리오×4불변식 그린.</div>
 </div>
@@ -428,7 +428,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <h2>EPIC E — 주간 목표 포트폴리오 <span class="tag d4">D4</span></h2>
 <p class="lead"><code>lib/coachWeekly.ts</code> 개편. 단일 lever → goals 2~3. Sonnet은 '선발'만 하고 검증·정규화는 코드(화이트리스트 강제 — 기존 mission_target 패턴 동일).</p>
 
-<div class="atom" id="E-01"><h4><span class="st">⬜</span>E-01 · Goal 타입·goals 스키마 <span class="sz">코드 · 0.3h</span></h4>
+<div class="atom" id="E-01"><h4><span class="st done">✅</span>E-01 · Goal 타입·goals 스키마 <span class="sz">코드 · 0.3h</span></h4>
 <div class="row"><span class="k">명세</span><code>type Goal = { unit_id: UnitId; priority: 1|2|3; status: 'focus'|'standby'|'stopped'; reason?: string }</code>. WeeklyAnchor에 <code>goals: Goal[] | null</code> 추가. 불변식: focus 정확히 1개·priority 중복 0(코드 검증 함수 <code>normalizeGoals</code> — Sonnet 산출 정규화).</div>
 <div class="row"><span class="k">테스트</span>E-01-1 focus 2개 입력→1개로 정규화 · E-01-2 미지 unit_id 제거 · E-01-3 0개→관찰 주(null).</div>
 </div>
