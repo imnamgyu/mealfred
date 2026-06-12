@@ -133,7 +133,7 @@ const RULES = [
   [/진단|처방|치료(?!사)|증상|결핍|영양제|장애(?!물)/, '의학 단어'],
   [/점수|등급|미션|과제|챌린지|숙제|목표|수업|진도|커리큘럼/, '내부 개념 노출'],
   [/맵|매운|고추|불닭|까스|너겟|핫도그|튀김|소시지|어묵|과자|사탕|초콜릿|젤리|탄산/, '매운·튀김·초가공'],
-  [/항상|매일|맨날|날마다|계속|늘\s/, '빈도 단정어'],
+  [/항상|매일|맨날|날마다|계속|(^|\s)늘\s/, '빈도 단정어'],
   [/한\s?입만|다\s?먹어야|안\s?먹으면/, '압박 문구 인용'],
   [/해야\s?(해요|합니다|돼요)|먹여야|반드시|혼내|다그치|왜\s?안/, '지시·압박 어조'],
   [/줄게|보상으로/, '거래·보상 대사'],
@@ -281,10 +281,21 @@ function repairPrompt(u, okBlocks, bad, need, extraGuide) {
 }
 
 // ── 본체 ──────────────────────────────────────────────────────────────────────
-const report = { produced: 0, rejected1: 0, repaired: 0, rejected2: 0, diversified: 0, killed: 0, refilled: 0, fallbackGaps: [] };
+// args: { existing?: blocks[](이전 실행 수확분 — 해당 유닛 제작 스킵), mode?: 'all'|'produce'|'finish' }
+//   세션 리밋 사고 대비 체크포인트: produce=제작+수리만 하고 반환 / finish=existing 전체에 다양화·적대검수·보충만.
+// ⚠️ args가 JSON '문자열'로 들어오는 호출 함정 방어(2026-06-12 실측 — skipUnits 무시돼 기제작 유닛 재제작 낭비)
+let ARGS = args || {};
+if (typeof ARGS === 'string') { try { ARGS = JSON.parse(ARGS); } catch { ARGS = {}; } }
+const EXISTING = Array.isArray(ARGS.existing) ? ARGS.existing : [];
+const MODE = ARGS.mode === 'produce' || ARGS.mode === 'finish' ? ARGS.mode : 'all';
+const covered = new Set([...EXISTING.map((b) => b.unit), ...(Array.isArray(ARGS.skipUnits) ? ARGS.skipUnits : [])]);
+const report = { produced: 0, rejected1: 0, repaired: 0, rejected2: 0, diversified: 0, killed: 0, refilled: 0, fallbackGaps: [], existingIn: EXISTING.length, mode: MODE };
+
+const TODO = MODE === 'finish' ? [] : UNITS_DATA.filter((u) => !covered.has(u.id));
+log(`모드 ${MODE} — 기존 ${EXISTING.length}블록(${[...covered].join(',') || '없음'}) · 제작 대상 ${TODO.length}유닛`);
 
 const perUnit = await pipeline(
-  UNITS_DATA,
+  TODO,
   // 1) 제작
   (u) => agent(basePrompt(u), { label: `make:${u.id}`, phase: 'Produce', schema: BLOCKS_SCHEMA })
     .then((raw) => ({ u, blocks: normalize(u, raw) })),
@@ -320,8 +331,27 @@ const perUnit = await pipeline(
   },
 );
 
-let pool = perUnit.filter(Boolean).flatMap((r) => r.ok || []);
-log(`제작+수리 완료 — 풀 ${pool.length}블록(제작 ${report.produced}·1차 리젝 ${report.rejected1}·2차 리젝 ${report.rejected2})`);
+// 기존 수확분 재린트(멱등 방어) 후 신규와 병합
+const existingOk = [];
+for (const u of UNITS_DATA) {
+  const mine = EXISTING.filter((b) => b.unit === u.id);
+  if (mine.length) existingOk.push(...splitLint(u, mine).ok);
+}
+let pool = [...existingOk, ...perUnit.filter(Boolean).flatMap((r) => r.ok || [])];
+log(`제작+수리 완료 — 풀 ${pool.length}블록(기존 ${existingOk.length}+제작 ${report.produced}·1차 리젝 ${report.rejected1}·2차 리젝 ${report.rejected2})`);
+if (MODE === 'produce') {
+  pool = renumber(pool);
+  for (const u of UNITS_DATA) {
+    const stages = u.id === 'common' ? COMMON_STAGES : UNIT_STAGES;
+    for (const s of stages) {
+      const n = pool.filter((b) => b.unit === u.id && b.stage === s).length;
+      const min = u.id === 'common' ? (s === 'opener-weekday' ? MIN_OPENER : MIN_COMMON) : MIN_UNIT;
+      if (n < min) report.fallbackGaps.push(`${u.id}.${s}=${n}`);
+    }
+  }
+  log(`produce 체크포인트 반환 — ${pool.length}블록${report.fallbackGaps.length ? ` · 갭 ${report.fallbackGaps.length}` : ''}`);
+  return { blocks: pool, report };
+}
 
 // 임시 id 부여(적대검수 참조용)
 function renumber(blocks) {

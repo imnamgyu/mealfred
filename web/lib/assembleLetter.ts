@@ -153,21 +153,35 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
       const posSeed = seed + k * 17 + attempt * 101;
       // try = 우선순위(고정). alt 위치만 날짜로 교대(how↔obstacle) — 대체 스테이지가 1순위를 가로채지 않게.
       const stages = pos.alt ? pos.try.map((_, i) => pos.try[(posSeed + i) % pos.try.length]) : pos.try;
+      // D-05 — 문장 예산: 남은 필수 위치마다 최소 1문장을 남겨 두고 총 5문장 안에 들어오는 변형을 선호
+      const sofarSent = picked.reduce((n, x) => n + sentencesOf(x.text).length, 0);
+      const remainReq = seq.slice(k + 1).filter((s) => !s.optional).length;
       let got: { b: LetterBlock; text: string } | null = null;
       for (const stage of stages) {
         const cands = candidatesFor({ blocks: p.blocks, from: pos.from, unit: p.decision.unit, stage, step, ledger, usedNow, ctx, avoid, tones: p.tones });
         if (!cands.length) continue;
-        // D-05 — 어미 3연속 회피를 선택 시점에 통합: 시드 순서로 돌며 '연속 run을 만들지 않는' 첫 변형
+        // 어미 3연속 회피 + 문장 예산을 선택 시점에 통합: ①run無+예산内 ②예산内 ③run無 ④아무거나
         const ordered = cands.map((_, i) => cands[(posSeed + i) % cands.length]);
         const sofar = picked.map((x) => x.text).join(' ');
-        let fallbackPick: { b: LetterBlock; text: string } | null = null;
+        let best: { b: LetterBlock; text: string } | null = null;
+        let fitOnly: { b: LetterBlock; text: string } | null = null;
+        let noRunOnly: { b: LetterBlock; text: string } | null = null;
+        let anyPick: { b: LetterBlock; text: string } | null = null;
         for (const b of ordered) {
           const text = renderBlock(b, ctx);
           if (!text) continue;
-          if (!fallbackPick) fallbackPick = { b, text };
-          if (!hasEndingRun(sofar ? `${sofar} ${text}` : text)) { got = { b, text }; break; }
+          if (!anyPick) anyPick = { b, text };
+          const noRun = !hasEndingRun(sofar ? `${sofar} ${text}` : text);
+          const fits = sofarSent + sentencesOf(text).length + remainReq <= 5;
+          if (noRun && fits) { best = { b, text }; break; }
+          if (fits && !fitOnly) fitOnly = { b, text };
+          if (noRun && !noRunOnly) noRunOnly = { b, text };
         }
-        if (!got && fallbackPick) { got = fallbackPick; warnings.push(`어미 3연속 해소 실패(${fallbackPick.b.id})`); }
+        // 옵션 위치는 예산에 안 들어오면 통째 생략(필수 위치만 예산 초과를 감수 — 그때만 경고)
+        got = best || fitOnly || (pos.optional ? null : noRunOnly || anyPick);
+        if (got && !pos.optional && !best && !fitOnly) {
+          warnings.push(noRunOnly ? `문장 예산 초과 변형(${got.b.id})` : `어미 3연속 해소 실패(${got.b.id})`);
+        }
         if (got) break;
       }
       if (!got) {
