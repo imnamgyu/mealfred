@@ -399,3 +399,274 @@ describe('B-23 advanceProgress', () => {
     expect(updates.find((u) => u.unit_id === 'no-bargain')!.status).toBe('relapsed');
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════
+// EPIC E — 주간 목표 포트폴리오 (E-03~E-09)
+// ════════════════════════════════════════════════════════════════════════════
+import { candidateUnits, goalsCapForWeek, applyFocusFatigue, leverForUnit, healAnchor as healAnchorW, type WeeklyAnchor } from '../lib/coachWeekly';
+import { decideDailyV3, isUrgent, introNeededV3, yesterdayDelta, pushGateV3, pushAvoidTags, measurementGap, selectQuestionV3, parseProbeAnswers } from '../lib/coachDaily';
+import { icfqForDate } from '../lib/coach';
+import type { CandidateSignals, Goal } from '../lib/curriculumUnits';
+
+const SIG0: CandidateSignals = {
+  envBadPct: null, envCount: 0, selfPct: null, autoCount: 0, texLow: false, texCount: 0,
+  mtOver30Pct: null, mtCount: 0, missingCount: 0, refusedCount: 0, dcRefusedCount: 0,
+  pressureMemoDays: 0, bargainMemoDays: 0, snackHeavyDays: 0, preMealMemoDays: 0,
+  newFoodCount: 1, attendsDaycare: false, eatenCount: 30,
+};
+
+describe('E-03 candidateUnits 후보 산출', () => {
+  it('E-03-0 환경 신호 → table-stage 1순위(레지스트리 trigger)', () => {
+    const c = candidateUnits({ sig: { ...SIG0, envBadPct: 0.9, envCount: 6 }, progress: {}, week: 9 });
+    expect(c[0].unit_id).toBe('table-stage');
+  });
+  it('E-03-1 재발 유닛 +3 가산(최우선)', () => {
+    const c = candidateUnits({
+      sig: { ...SIG0, envBadPct: 0.9, envCount: 6 },
+      progress: { 'no-bargain': mkProg('no-bargain', { status: 'relapsed' }) }, week: 9,
+    });
+    expect(c[0].unit_id).toBe('no-bargain');
+  });
+  it('E-03-2 mastered·maintenance 제외', () => {
+    const c = candidateUnits({
+      sig: { ...SIG0, envBadPct: 0.9, envCount: 6 },
+      progress: { 'table-stage': mkProg('table-stage', { status: 'mastered' }) }, week: 9,
+    });
+    expect(c.some((x) => x.unit_id === 'table-stage')).toBe(false);
+  });
+  it('E-03-3 신호 0 → 기초 순서 첫 미이수 폴백("처방 없는 주엔 수업")', () => {
+    const c = candidateUnits({ sig: SIG0, progress: {}, week: 9 });
+    expect(c.length).toBe(1);
+    expect(c[0].unit_id).toBe('pressure-off');
+    const c2 = candidateUnits({ sig: SIG0, progress: { 'pressure-off': mkProg('pressure-off', { status: 'mastered' }) }, week: 9 });
+    expect(c2[0].unit_id).toBe('hunger-rhythm');
+  });
+  it('E-05-2 온보딩 게이트: 1주차엔 minWeek 2+ 유닛 제외', () => {
+    const c = candidateUnits({ sig: { ...SIG0, missingCount: 2, refusedCount: 1 }, progress: {}, week: 1 });
+    expect(c.some((x) => x.unit_id === 'exposure-savings')).toBe(false);   // minWeek 2
+    const c3 = candidateUnits({ sig: { ...SIG0, missingCount: 2 }, progress: {}, week: 3 });
+    expect(c3.some((x) => x.unit_id === 'exposure-savings')).toBe(true);
+  });
+});
+
+describe('E-05·E-06 — 주차 캡·주제 피로', () => {
+  const G = (focus: UnitId, standby: UnitId): Goal[] => [
+    { unit_id: focus, priority: 1, status: 'focus' }, { unit_id: standby, priority: 2, status: 'standby' },
+  ];
+  it('E-05-1 goalsCapForWeek: 1주=1 · 2주=2 · 3주+=3', () => {
+    expect(goalsCapForWeek(1)).toBe(1);
+    expect(goalsCapForWeek(2)).toBe(2);
+    expect(goalsCapForWeek(5)).toBe(3);
+  });
+  it('E-06-1 같은 focus 2주 연속 전진 0 → 3주째 강등·차순위 승격', () => {
+    const out = applyFocusFatigue(G('table-stage', 'hunger-rhythm'), [
+      { unit_id: 'table-stage', stepAdvanced: false }, { unit_id: 'table-stage', stepAdvanced: false },
+    ]);
+    expect(out.find((g) => g.status === 'focus')!.unit_id).toBe('hunger-rhythm');
+    expect(out.find((g) => g.unit_id === 'table-stage')!.status).toBe('standby');
+  });
+  it('E-06-2 전진 있었으면 3주째 유지 허용(딥다이브)', () => {
+    const out = applyFocusFatigue(G('table-stage', 'hunger-rhythm'), [
+      { unit_id: 'table-stage', stepAdvanced: true }, { unit_id: 'table-stage', stepAdvanced: false },
+    ]);
+    expect(out.find((g) => g.status === 'focus')!.unit_id).toBe('table-stage');
+  });
+});
+
+describe('E-09·A-05 — 닻 치유·레버 병행', () => {
+  const anchor = (over: Partial<WeeklyAnchor>): WeeklyAnchor => ({
+    child_id: 'c1', week_key: 'w', status: 'active', source: 's', mission: null, mission_target: '콩류',
+    target_pool: null, secondary_axis: null,
+    budget: { expose: 2, push: 0, cadenceMinGap: 1, pushWindow: [], lever: 'environment' },
+    ledger: null, impression: null, arc_week: 1, basis_hash: null, basis_attends_daycare: null,
+    behavior_goal: '하루 한 끼 화면 끄기', teaching_arc: null, check_method: null, ...over,
+  });
+  it('E-09-1 구닻(goals 없음) → lever에서 goals 승격', () => {
+    const healed = healAnchorW(anchor({}));
+    expect(healed.goals?.[0]).toMatchObject({ unit_id: 'table-stage', status: 'focus' });
+  });
+  it('E-09-2 goals 있으면 그대로', () => {
+    const healed = healAnchorW(anchor({ goals: [{ unit_id: 'hunger-rhythm', priority: 1, status: 'focus' }] }));
+    expect(healed.goals?.[0].unit_id).toBe('hunger-rhythm');
+  });
+  it('A-05 leverForUnit: mixed→environment·food 유닛→food', () => {
+    expect(leverForUnit('pressure-off')).toBe('environment');
+    expect(leverForUnit('exposure-savings')).toBe('food');
+    expect(leverForUnit('autonomy-part')).toBe('autonomy');
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// EPIC F — 일간 전개 선택기 (F-01~F-08)
+// ════════════════════════════════════════════════════════════════════════════
+describe('F decideDailyV3 결정표', () => {
+  const goalsTS: Goal[] = [
+    { unit_id: 'table-stage', priority: 1, status: 'focus' },
+    { unit_id: 'hunger-rhythm', priority: 2, status: 'standby' },
+  ];
+  const vbase = { childId: 'c1', goals: goalsTS, answers: [] as ProbeAnswer[], coachedDays: {} as Partial<Record<UnitId, number>>, coachedYesterday: [] as UnitId[], pivotsThisWeek: 0, today: TODAY };
+  it('F-07-1 무기록 주(byDay<3) → 진도 동결+lowData(전이·적립 0)', () => {
+    const r = decideDailyV3({ ...vbase, progress: { 'table-stage': mkProg('table-stage') }, rows: baseDays(2) });
+    expect(r.lowData).toBe(true);
+    expect(r.updates).toEqual([]);
+    expect(r.decision?.mode).toBe('observe');
+  });
+  it('F-02-2 재발 신규 감지 → 그 유닛 재개가 오늘의 결정(최우선)', () => {
+    const prog = {
+      'table-stage': mkProg('table-stage', { last_signal_at: D(1) }),
+      'no-bargain': mkProg('no-bargain', { status: 'mastered', step: 2, evidence: { relapseStreakDays: TH.relapseWindowDays - 1 } }),
+    };
+    const rows = [...baseDays(4), row({ note: '먹으면 줄게 했어요' }), row({ log_date: D(2), note: '먹으면 사줄게' })];
+    const r = decideDailyV3({ ...vbase, progress: prog, rows });
+    expect(r.decision?.unit).toBe('no-bargain');
+    expect(r.decision?.mode).toBe('advance');
+    expect(r.decision?.step).toBe(1);   // 재개 단 = max(1, 최종단-1)
+  });
+  it('F-08-1 정체+피벗 캡 소진 → plateau(maintain)+재진단 플래그', () => {
+    const prog = { 'table-stage': mkProg('table-stage', { last_signal_at: D(10) }) };
+    const r = decideDailyV3({ ...vbase, progress: prog, rows: baseDays(5), coachedDays: { 'table-stage': 4 }, pivotsThisWeek: 1 });
+    expect(r.decision?.mode).toBe('maintain');
+    expect(r.plateau).toBe(true);
+    expect(r.replanFlag).toBe(true);
+  });
+  it('F-02-6 판정 보류(정체 아님)는 observe 유지(질문 정렬이 메움)', () => {
+    const prog = { 'table-stage': mkProg('table-stage', { last_signal_at: D(10) }) };
+    const r = decideDailyV3({ ...vbase, progress: prog, rows: baseDays(5), coachedDays: {} });   // 코칭 0일 = "안 가르쳤음"
+    expect(r.decision?.mode).toBe('observe');
+    expect(r.plateau).toBe(false);
+  });
+  it('F-01-2 같은 (unit,mode) 3연속 경고', () => {
+    const prog = { 'table-stage': mkProg('table-stage', { last_signal_at: D(1) }) };
+    const prev = [{ unit: 'table-stage', mode: 'deepen' }, { unit: 'table-stage', mode: 'deepen' }];
+    const r = decideDailyV3({ ...vbase, progress: prog, rows: baseDays(5), prevDecisions: prev });
+    expect(r.decision?.mode).toBe('deepen');
+    expect(r.warnings.some((w) => w.includes('3연속'))).toBe(true);
+  });
+});
+
+describe('F-01 yesterdayDelta · F-03 push 게이트 · F-04 시급 · F-06 intro', () => {
+  it('F-01-1 evidence 숫자 델타·step 변화', () => {
+    const prev = mkProg('table-stage', { step: 1, evidence: { envTablePct7d: 0.3 } });
+    const now = mkProg('table-stage', { step: 2, evidence: { envTablePct7d: 0.5 }, last_signal_at: D(1) });
+    const d = yesterdayDelta(prev, now, TODAY);
+    expect(d.stepChanged).toBe(true);
+    expect(d.signalYesterday).toBe(true);
+    expect(d.moved[0]).toMatchObject({ key: 'envTablePct7d', dir: '↑' });
+  });
+  it('F-03-2 push 게이트: 적기에만 true + avoidTags 변환', () => {
+    const budget = { expose: 2, push: 1, cadenceMinGap: 1, pushWindow: [2, 3, 4] };
+    const ledger = { pushUsed: false, exposeCount: {}, lastExposeDow: null, arcWeek: 1, reanchorUsed: false, adviceGivenAt: null, firstServeDow: null, progressWeek: 1 };
+    expect(pushGateV3({ budget, ledger, dow: 3, targetExposeWtd: 1 })).toBe(true);
+    expect(pushGateV3({ budget, ledger: { ...ledger, pushUsed: true }, dow: 3, targetExposeWtd: 1 })).toBe(false);
+    expect(pushGateV3({ budget, ledger, dow: 5, targetExposeWtd: 1 })).toBe(false);   // 윈도우 밖
+    expect(pushGateV3({ budget, ledger, dow: 3, targetExposeWtd: 0 })).toBe(false);   // 행동지연(첫 차림 전)
+    expect(pushAvoidTags(false)).toEqual(['push']);
+    expect(pushAvoidTags(true)).toEqual([]);
+  });
+  it('F-04-1 시급 예외 3종(확정 목록)', () => {
+    expect(isUrgent({ icfqRiskCount: 2, rows: [], today: TODAY })).toBe(true);
+    expect(isUrgent({ icfqRiskCount: 0, rows: [row({ note: '먹다가 사레 들려서 놀랐어요' })], today: TODAY })).toBe(true);
+    const allRefused = [1, 2, 3].flatMap((d) => [row({ log_date: D(d), slot: 'dinner', ate_well: false }), row({ log_date: D(d), slot: 'breakfast', ate_well: false })]);
+    expect(isUrgent({ icfqRiskCount: 0, rows: allRefused, today: TODAY })).toBe(true);
+  });
+  it('F-04-2 비시급은 false(우회 불가)', () => {
+    expect(isUrgent({ icfqRiskCount: 1, rows: baseDays(5), today: TODAY })).toBe(false);
+    const partial = [row({ log_date: D(1), ate_well: false }), row({ log_date: D(2), ate_well: true }), row({ log_date: D(3), ate_well: false })];
+    expect(isUrgent({ icfqRiskCount: 0, rows: partial, today: TODAY })).toBe(false);
+  });
+  it('F-06-1/2 intro 판정: 신규 활성만 intro·이월은 생략', () => {
+    expect(introNeededV3(true, 'table-stage', [])).toBe(true);
+    expect(introNeededV3(true, 'table-stage', [{ unit_id: 'table-stage', priority: 1, status: 'focus' }])).toBe(false);
+    expect(introNeededV3(true, 'table-stage', [{ unit_id: 'table-stage', priority: 2, status: 'stopped' }])).toBe(true);   // 전주 중단 후 재선발=재도입
+    expect(introNeededV3(false, 'table-stage', [])).toBe(false);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// EPIC G — 질문 정렬·피드백 루프 (G-01~G-10)
+// ════════════════════════════════════════════════════════════════════════════
+describe('G-01·G-06 측정 공백·쿨다운·캡', () => {
+  const TS = UNITS['table-stage'];
+  it('G-01-1 표본 부족(null 신호) → 1차 probe 반환', () => {
+    const p = measurementGap(TS, { envTablePct7d: null }, [], TODAY);
+    expect(p?.id).toBe('ts-env');
+  });
+  it('G-01-3 데이터로 아는 신호는 안 묻는다(P1) — 충분하면 데이터 probe 스킵', () => {
+    const p = measurementGap(TS, { envTablePct7d: 0.5 }, [], TODAY);
+    expect(p?.id).not.toBe('ts-env');   // 데이터 probe는 절대 아님(보조 관찰 probe만 허용)
+  });
+  it('G-06-1 같은 probe 3일 쿨다운 → 다음 probe로', () => {
+    const p = measurementGap(TS, { envTablePct7d: null }, [{ q_date: D(2), probeId: 'ts-env', unit_id: 'table-stage' }], TODAY);
+    expect(p?.id).toBe('ts-ritual');
+  });
+  it('G-06-2 유닛당 주 2회 캡 → null(로테이션 폴백)', () => {
+    const recent = [
+      { q_date: D(2), probeId: 'ts-env', unit_id: 'table-stage' },
+      { q_date: D(5), probeId: 'ts-ritual', unit_id: 'table-stage' },
+    ];
+    expect(measurementGap(TS, { envTablePct7d: null }, recent, TODAY)).toBeNull();
+  });
+});
+
+describe('G-03·G-05 질문 선택기 체인', () => {
+  const icfqDay = Array.from({ length: 14 }, (_, i) => D(-i)).find((d) => icfqForDate(d))!;   // 10일 주기 — 14일 창에 반드시 존재
+  const noIcfqDay = Array.from({ length: 14 }, (_, i) => D(-i)).find((d) => !icfqForDate(d))!;
+  it('G-03-2 ICFQ 주기일엔 ICFQ 우선(안전 스크리너) — probe는 이월', () => {
+    const pick = selectQuestionV3({ today: icfqDay, focusDef: UNITS['table-stage'], focusEvidence: { envTablePct7d: null }, step: 1, recentProbes: [] });
+    expect(pick.kind).toBe('icfq');
+  });
+  it('G-03-1 공백 있으면 probe → context.unitProbe(A-07·G-08 스키마)', () => {
+    const pick = selectQuestionV3({ today: noIcfqDay, focusDef: UNITS['table-stage'], focusEvidence: { envTablePct7d: null }, step: 2, recentProbes: [] });
+    expect(pick.kind).toBe('probe');
+    if (pick.kind === 'probe') {
+      expect(pick.topic).toBe('unit-probe');
+      const round = JSON.parse(JSON.stringify(pick.ctx));   // A-07-1 왕복 직렬화
+      expect(round.unitProbe).toMatchObject({ unit_id: 'table-stage', signal: 'envTablePct7d', step: 2, probeId: 'ts-env' });
+    }
+  });
+  it('G-03-3 focus 없음/공백 없음 → rotation 폴백', () => {
+    expect(selectQuestionV3({ today: noIcfqDay, focusDef: null, focusEvidence: null, step: 1, recentProbes: [] }).kind).toBe('rotation');
+  });
+});
+
+describe('G-04 답변→evidence 파서', () => {
+  const ctxOf = (probeId: string, signal = 'envTablePct7d') => ({ unitProbe: { unit_id: 'table-stage', signal, step: 1, probeId } });
+  it('G-04-1 칩 정확 일치 → ProbeAnswer', () => {
+    const out = parseProbeAnswers([{ q_date: D(1), answer: '식탁에서 화면 없이', context: ctxOf('ts-env') }]);
+    expect(out).toEqual([{ q_date: D(1), unit_id: 'table-stage', signal: 'envTablePct7d', value: '식탁에서 화면 없이' }]);
+  });
+  it("G-04-2 '잘 모르겠어요'·자유텍스트 미적립(무지 존중·보수적)", () => {
+    expect(parseProbeAnswers([
+      { q_date: D(1), answer: '잘 모르겠어요', context: ctxOf('ts-env') },
+      { q_date: D(1), answer: '식탁 근처에서 대충요', context: ctxOf('ts-env') },
+    ])).toEqual([]);
+  });
+  it('G-04-3 unitProbe 없는 답(ICFQ·일반질문) 무시', () => {
+    expect(parseProbeAnswers([{ q_date: D(1), answer: '네', context: { icfq: 'x' } }])).toEqual([]);
+  });
+  it('B-04 회귀 — pressure-off 부정태그는 칩 원문으로 계산(매핑 키 비교 잠복버그 박제)', () => {
+    const answers = [ans('pressure-off', '먹이느라 실랑이했어요'), ans('pressure-off', '편안했어요', 2), ans('pressure-off', '속상해서 한마디 했어요', 3), ans('pressure-off', '편안했어요', 4)];
+    const e = ev('pressure-off', baseDays(4), answers);
+    expect(e.negTagPct7d).toBe(0.5);
+    const old = ev('pressure-off', baseDays(4), [ans('pressure-off', '압박'), ans('pressure-off', '압박', 2)]);
+    expect(old.negTagPct7d).toBe(0);   // 매핑 키('압박')는 칩이 아니므로 0 — 구버전 비교식이었다면 1이 됐을 입력
+  });
+});
+
+describe('G-10 피드백 루프 4일 통주(표본 부족→질문→답→판정)', () => {
+  it('env 칩 1개뿐 → 질문 발행 → 답 2건 적립 → envTablePct 판정 가능 + 공백 해소', () => {
+    const rows = [...baseDays(4), row({ log_date: D(1), environment: 'table' })];   // env 표본 1(부족)
+    const e0 = ev('table-stage', rows);
+    expect(e0.envTablePct7d).toBeNull();                                            // D+0: 보류
+    const gap = measurementGap(UNITS['table-stage'], e0, [], TODAY);
+    expect(gap?.id).toBe('ts-env');                                                  // D+0: 질문 발행
+    const answers = [
+      ...parseProbeAnswers([{ q_date: D(2), answer: '식탁에서 화면 없이', context: { unitProbe: { unit_id: 'table-stage', signal: 'envTablePct7d', step: 1, probeId: 'ts-env' } } }]),
+      ...parseProbeAnswers([{ q_date: D(3), answer: '돌아다니며 먹었어요', context: { unitProbe: { unit_id: 'table-stage', signal: 'envTablePct7d', step: 1, probeId: 'ts-env' } } }]),
+    ];
+    const e1 = ev('table-stage', rows, answers);
+    expect(e1.envTablePct7d).toBeCloseTo(2 / 3);                                     // D+2: 표본 3(행1+답2) → 판정 가능
+    const gapAfter = measurementGap(UNITS['table-stage'], e1, [{ q_date: D(2), probeId: 'ts-env', unit_id: 'table-stage' }], TODAY);
+    expect(gapAfter?.id).not.toBe('ts-env');                                         // 공백 해소 — 같은 질문 반복 없음
+  });
+});

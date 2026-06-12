@@ -28,11 +28,23 @@ export type ProgressRow = {
 export type Goal = { unit_id: UnitId; priority: 1 | 2 | 3; status: 'focus' | 'standby' | 'stopped'; reason?: string };
 export type StepDef = { step: number; behavior: string; passWhen: (e: Evidence) => boolean | null; holdWeeks: number };
 export type ProbeDef = { id: string; signal: string; q: string; chips: string[]; map: Record<string, { key: string; delta: number }> };
+/** E-03 후보 산출용 주간 신호(크론이 StructuredSig·사실 통계에서 채움 — 전부 7일 창). */
+export type CandidateSignals = {
+  envBadPct: number | null; envCount: number;        // 화면·이동 식사 비율
+  selfPct: number | null; autoCount: number;          // 자기주도 비율
+  texLow: boolean; texCount: number;                  // 퓨레·다짐 머묾
+  mtOver30Pct: number | null; mtCount: number;        // 30분+ 비율
+  missingCount: number; refusedCount: number; dcRefusedCount: number;   // 식품 결핍·거부(전체/기관)
+  pressureMemoDays: number; bargainMemoDays: number; snackHeavyDays: number; preMealMemoDays: number;
+  newFoodCount: number; attendsDaycare: boolean; eatenCount: number;
+};
 export type UnitDef = {
   id: UnitId; label: string; lever: 'food' | 'environment' | 'autonomy' | 'texture' | 'mixed'; minWeek: number;
   steps: StepDef[]; probes: ProbeDef[];
   extract: (rows: CRow[], answers: ProbeAnswer[], today: string, opt?: { foodTarget?: string | null }) => Evidence;
   relapseWhen: (e: Evidence) => boolean | null;
+  /** B-02 trigger — 주간 종합이 이 유닛을 후보로 올리는 발동 신호 강도(0=비발동, 최대 ~3). E-03이 사용. */
+  trigger: (s: CandidateSignals) => number;
 };
 
 // ── 임계 상수 (B-03) — 전부 여기, 리플레이(I-03)로 보정 ──────────────────────────
@@ -64,6 +76,9 @@ const yest = (today: string) => new Date(Date.parse(today) - 86400000).toISOStri
 const memoDays = (rows: CRow[], re: RegExp) => dates(rows.filter((r) => r.note && re.test(r.note)));
 const probe7 = (answers: ProbeAnswer[], unit: string, today: string) =>
   answers.filter((a) => a.unit_id === unit && age(today, a.q_date) >= 0 && age(today, a.q_date) <= 7);
+/** 특정 답변 값들이 기록된 '날짜' 목록(G-04 답변→evidence 블렌딩용 — 날짜 단위, 행 부풀림 금지) */
+const probeDays = (answers: ProbeAnswer[], unit: string, today: string, values: string[]) =>
+  [...new Set(probe7(answers, unit, today).filter((a) => values.includes(a.value)).map((a) => a.q_date))];
 /** 어제 데이터 기준 1차 신호: 1=관측·0=반대 관측·null=무데이터(보류) */
 const sig = (cond: boolean | null): 1 | 0 | null => (cond === null ? null : cond ? 1 : 0);
 
@@ -80,14 +95,16 @@ export const UNITS: Record<UnitId, UnitDef> = {
     id: 'pressure-off', label: '압박 내려놓기', lever: 'mixed', minWeek: 1,
     extract: (rows, answers, today) => {
       const w = last7(rows, today);
-      if (dates(w).length < TH.minLoggedDays) return { signalToday: null };
-      const pressureMemoDays = memoDays(w, PRESSURE_RE).length;
       const tags = probe7(answers, 'pressure-off', today);
-      const neg = tags.filter((a) => a.value === '압박').length;
+      if (dates(w).length < TH.minLoggedDays && tags.length < 2) return { signalToday: null };
+      const pressureMemoDays = memoDays(w, PRESSURE_RE).length;
+      // ⚠️ 칩 '원문' 비교(다른 추출기와 동일 규약) — 매핑 키('압박') 비교는 파서가 원문을 저장하므로 영원히 0이 되는 잠복 버그였다(G-04에서 적발).
+      const NEG_CHIPS = ['먹이느라 실랑이했어요', '속상해서 한마디 했어요'];
+      const neg = tags.filter((a) => NEG_CHIPS.includes(a.value)).length;
       const negTagPct7d = tags.length >= 2 ? neg / tags.length : null;
       const yd = w.filter((r) => r.log_date === yest(today));
       return {
-        pressureMemoDays, negTagPct7d,
+        pressureMemoDays, negTagPct7d, talkSamplesPo: tags.length,
         signalToday: sig(yd.length ? !yd.some((r) => r.note && PRESSURE_RE.test(r.note)) : null),
       };
     },
@@ -95,47 +112,69 @@ export const UNITS: Record<UnitId, UnitDef> = {
       { step: 1, behavior: '"한 입만"·재촉 멘트 멈추기 — 남겨도 담담히', passWhen: (e) => (typeof e.pressureMemoDays === 'number' ? e.pressureMemoDays === 0 : null), holdWeeks: 1 },
       { step: 2, behavior: '식탁 분위기를 압박 없이 유지(환호·박수도 담담하게)', passWhen: (e) => (e.negTagPct7d == null ? null : (e.negTagPct7d as number) <= TH.negTagCap), holdWeeks: 2 },
     ],
-    probes: [{ id: 'po-tone', signal: 'negTagPct7d', q: '오늘 식탁 분위기는 어땠어요?', chips: ['편안했어요', '보통이었어요', '먹이느라 실랑이했어요', '잘 모르겠어요'], map: { '먹이느라 실랑이했어요': { key: '압박', delta: 1 }, '편안했어요': { key: '편안', delta: 1 } } }],
+    probes: [
+      { id: 'po-tone', signal: 'negTagPct7d', q: '오늘 식탁 분위기는 어땠어요?', chips: ['편안했어요', '보통이었어요', '먹이느라 실랑이했어요', '잘 모르겠어요'], map: { '먹이느라 실랑이했어요': { key: '압박', delta: 1 }, '편안했어요': { key: '편안', delta: 1 } } },
+      { id: 'po-react', signal: 'negTagPct7d', q: '아이가 음식을 남기거나 거부할 때 어떠셨어요?', chips: ['담담하게 치웠어요', '속상해서 한마디 했어요', '잘 모르겠어요'], map: { '속상해서 한마디 했어요': { key: '압박', delta: 1 }, '담담하게 치웠어요': { key: '편안', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.pressureMemoDays === 'number' ? (e.pressureMemoDays as number) >= 2 : null),
+    trigger: (s) => (s.pressureMemoDays >= 2 ? 2 + Math.min(1, s.pressureMemoDays / 4) : 0),
   },
 
   'hunger-rhythm': {
     id: 'hunger-rhythm', label: '공복 리듬', lever: 'environment', minWeek: 1,
-    extract: (rows, _a, today) => {
+    extract: (rows, answers, today) => {
       const w = last7(rows, today);
-      if (dates(w).length < TH.minLoggedDays) return { signalToday: null };
+      const ansPreDays = probeDays(answers, 'hunger-rhythm', today, ['직전에 조금 줬어요']);
+      const ansGrazeDays = probeDays(answers, 'hunger-rhythm', today, ['수시로 조금씩 먹었어요']);
+      if (dates(w).length < TH.minLoggedDays && !ansPreDays.length && !ansGrazeDays.length) return { signalToday: null };
       const byDate: Record<string, number> = {};
       w.forEach((r) => { if ((r.slot || '').includes('snack')) byDate[r.log_date] = (byDate[r.log_date] || 0) + 1; });
-      const snackHeavyDays = Object.values(byDate).filter((n) => n >= 3).length;   // 하루 3회+ 간식 = 그레이징 의심
-      const preMealMemoDays = memoDays(w, PREMEAL_SNACK_RE).length;
+      const heavyRowDays = Object.entries(byDate).filter(([, n]) => n >= 3).map(([d]) => d);
+      const snackHeavyDays = new Set([...heavyRowDays, ...ansGrazeDays]).size;   // 하루 3회+ 간식 ∪ '수시로' 답변(G-04 블렌딩)
+      const preMealMemoDays = new Set([...memoDays(w, PREMEAL_SNACK_RE), ...ansPreDays]).size;
       const y = yest(today);
       const ySnacks = byDate[y] || 0;
       const yLogged = w.some((r) => r.log_date === y);
-      return { snackHeavyDays, preMealMemoDays, signalToday: sig(yLogged ? ySnacks < 3 && !w.some((r) => r.log_date === y && r.note && PREMEAL_SNACK_RE.test(r.note)) : null) };
+      const yPre = w.some((r) => r.log_date === y && r.note && PREMEAL_SNACK_RE.test(r.note)) || ansPreDays.includes(y);
+      return { snackHeavyDays, preMealMemoDays, signalToday: sig(yLogged ? ySnacks < 3 && !yPre : null) };
     },
     steps: [
       { step: 1, behavior: '끼니 30분 전 간식·우유 멈추기', passWhen: (e) => (typeof e.preMealMemoDays === 'number' ? e.preMealMemoDays === 0 : null), holdWeeks: 1 },
       { step: 2, behavior: '식사·간식 간격 2~3시간 리듬 고정', passWhen: (e) => (typeof e.snackHeavyDays === 'number' ? (e.snackHeavyDays as number) <= TH.snackHeavyCap : null), holdWeeks: 2 },
     ],
-    probes: [{ id: 'hr-gap', signal: 'preMealMemoDays', q: '저녁 전에 간식·우유를 먹였나요?', chips: ['끼니 직전엔 안 줬어요', '직전에 조금 줬어요', '잘 모르겠어요'], map: { '직전에 조금 줬어요': { key: 'preMeal', delta: 1 } } }],
+    probes: [
+      { id: 'hr-gap', signal: 'preMealMemoDays', q: '저녁 전에 간식·우유를 먹였나요?', chips: ['끼니 직전엔 안 줬어요', '직전에 조금 줬어요', '잘 모르겠어요'], map: { '직전에 조금 줬어요': { key: 'preMeal', delta: 1 } } },
+      { id: 'hr-graze', signal: 'snackHeavyDays', q: '오늘 간식은 어떤 흐름이었어요?', chips: ['정해진 때에만 줬어요', '수시로 조금씩 먹었어요', '잘 모르겠어요'], map: { '수시로 조금씩 먹었어요': { key: 'graze', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.snackHeavyDays === 'number' ? (e.snackHeavyDays as number) >= 3 : null),
+    trigger: (s) => Math.max(s.snackHeavyDays >= 2 ? 2 : 0, s.preMealMemoDays >= 2 ? 2 : 0),
   },
 
   'table-stage': {
     id: 'table-stage', label: '식탁 무대', lever: 'environment', minWeek: 1,
-    extract: (rows, _a, today) => {
+    extract: (rows, answers, today) => {
       const w = last7(rows, today);
       const env = w.filter((r) => r.environment);
-      const envTablePct7d = env.length >= TH.minEnvSamples ? env.filter((r) => r.environment === 'table').length / env.length : null;
-      const yEnv = w.filter((r) => r.log_date === yest(today) && r.environment);
-      return { envTablePct7d, envSamples: env.length, signalToday: sig(yEnv.length ? yEnv.some((r) => r.environment === 'table') : null) };
+      // G-04 블렌딩: 칩 기록이 모자라면 질문 답이 표본을 보충(표본 부족→질문→적립→판정 루프)
+      const ans = probe7(answers, 'table-stage', today).filter((a) => ['식탁에서 화면 없이', '식탁이지만 영상 봤어요', '돌아다니며 먹었어요'].includes(a.value));
+      const tableN = env.filter((r) => r.environment === 'table').length + ans.filter((a) => a.value === '식탁에서 화면 없이').length;
+      const totalN = env.length + ans.length;
+      const envTablePct7d = totalN >= TH.minEnvSamples ? tableN / totalN : null;
+      const y = yest(today);
+      const yEnv = w.filter((r) => r.log_date === y && r.environment);
+      const yAnsTable = answers.some((a) => a.unit_id === 'table-stage' && a.q_date === y && a.value === '식탁에서 화면 없이');
+      return { envTablePct7d, envSamples: totalN, signalToday: sig(yEnv.length || yAnsTable ? yEnv.some((r) => r.environment === 'table') || yAnsTable : null) };
     },
     steps: [
       { step: 1, behavior: '하루 한 끼 화면 끄고 식탁에서', passWhen: (e) => (e.envTablePct7d == null ? null : (e.envTablePct7d as number) >= TH.envTableStep1), holdWeeks: 1 },
       { step: 2, behavior: '주 5끼+ 같은 자리·같은 시간', passWhen: (e) => (e.envTablePct7d == null ? null : (e.envTablePct7d as number) >= TH.envTableStep2), holdWeeks: 2 },
     ],
-    probes: [{ id: 'ts-env', signal: 'envTablePct7d', q: '오늘 끼니는 어디서 먹었어요?', chips: ['식탁에서 화면 없이', '식탁이지만 영상 봤어요', '돌아다니며 먹었어요', '잘 모르겠어요'], map: { '식탁에서 화면 없이': { key: 'table', delta: 1 } } }],
+    probes: [
+      { id: 'ts-env', signal: 'envTablePct7d', q: '오늘 끼니는 어디서 먹었어요?', chips: ['식탁에서 화면 없이', '식탁이지만 영상 봤어요', '돌아다니며 먹었어요', '잘 모르겠어요'], map: { '식탁에서 화면 없이': { key: 'table', delta: 1 } } },
+      { id: 'ts-ritual', signal: 'ritualYes', q: '식사 시작 전 작은 신호(수저 놓기 등)를 해봤어요?', chips: ['아이와 같이 했어요', '오늘은 못 했어요', '잘 모르겠어요'], map: { '아이와 같이 했어요': { key: 'ritual', delta: 1 } } },
+    ],
     relapseWhen: (e) => (e.envTablePct7d == null ? null : (e.envTablePct7d as number) < TH.envTableStep1),
+    trigger: (s) => (s.envBadPct != null && s.envBadPct >= 0.4 && s.envCount >= 4 ? 2 + s.envBadPct : 0),
   },
 
   'exposure-savings': {
@@ -159,17 +198,23 @@ export const UNITS: Record<UnitId, UnitDef> = {
       { step: 1, behavior: '타깃을 콩알 양으로 말없이 식탁에(격일)', passWhen: (e) => (typeof e.targetExposeDays7d === 'number' ? (e.targetExposeDays7d as number) >= TH.exposeWeekly : null), holdWeeks: 1 },
       { step: 2, behavior: '노출 적립 이어가기(누적 8회+) + 티스푼 맛보기 초대', passWhen: (e) => (Array.isArray(e.hitDays) ? (e.hitDays as string[]).length >= TH.exposeTotalForStep2 : null), holdWeeks: 1 },
     ],
-    probes: [{ id: 'es-react', signal: 'selfEatCount', q: '식탁에 올린 도전 음식, 아이 반응은요?', chips: ['스스로 먹어봤어요', '만지거나 냄새만', '거부했어요', '잘 모르겠어요'], map: { '스스로 먹어봤어요': { key: 'selfEat', delta: 1 } } }],
+    probes: [
+      { id: 'es-react', signal: 'selfEatCount', q: '식탁에 올린 도전 음식, 아이 반응은요?', chips: ['스스로 먹어봤어요', '만지거나 냄새만', '거부했어요', '잘 모르겠어요'], map: { '스스로 먹어봤어요': { key: 'selfEat', delta: 1 } } },
+      { id: 'es-touch', signal: 'touchCount', q: '도전 음식을 아이가 만지거나 냄새 맡아봤어요?', chips: ['만지거나 냄새 맡았어요', '쳐다보기만 했어요', '잘 모르겠어요'], map: { '만지거나 냄새 맡았어요': { key: 'touch', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.targetExposeDays7d === 'number' ? e.targetExposeDays7d === 0 : null),
+    trigger: (s) => (s.missingCount > 0 || s.refusedCount > 0 ? 1.5 + Math.min(1, (s.missingCount + s.refusedCount) / 4) : 0),
   },
 
   'fullness-respect': {
     id: 'fullness-respect', label: '배부름 존중', lever: 'mixed', minWeek: 2,
-    extract: (rows, _a, today) => {
+    extract: (rows, answers, today) => {
       const w = last7(rows, today);
       const mt = w.filter((r) => typeof r.meal_time === 'number');
       const over30Pct = mt.length >= TH.minMtSamples ? mt.filter((r) => (r.meal_time as number) >= 30).length / mt.length : null;
-      const forceMemoDays = dates(w).length >= TH.minLoggedDays ? memoDays(w, FORCE_FINISH_RE).length : null;
+      const ansForceDays = probeDays(answers, 'fullness-respect', today, ['몇 입 더 권했어요']);
+      const enough = dates(w).length >= TH.minLoggedDays || ansForceDays.length > 0 || probe7(answers, 'fullness-respect', today).length >= 2;
+      const forceMemoDays = enough ? new Set([...memoDays(w, FORCE_FINISH_RE), ...ansForceDays]).size : null;
       const yMt = w.filter((r) => r.log_date === yest(today) && typeof r.meal_time === 'number');
       return { over30Pct, forceMemoDays, signalToday: sig(yMt.length ? yMt.every((r) => (r.meal_time as number) < 30) : null) };
     },
@@ -177,8 +222,12 @@ export const UNITS: Record<UnitId, UnitDef> = {
       { step: 1, behavior: '"배불러" 인정하고 종료 — 완식 강요 멈추기', passWhen: (e) => (typeof e.forceMemoDays === 'number' ? e.forceMemoDays === 0 : null), holdWeeks: 1 },
       { step: 2, behavior: '30분쯤엔 부담 없이 정리(적게 담고 더 달라면 추가)', passWhen: (e) => (e.over30Pct == null ? null : (e.over30Pct as number) <= TH.mealOver30Cap), holdWeeks: 2 },
     ],
-    probes: [{ id: 'fr-end', signal: 'forceMemoDays', q: '아이가 그만 먹겠다고 할 때 어떻게 했어요?', chips: ['그대로 마무리했어요', '몇 입 더 권했어요', '잘 모르겠어요'], map: { '몇 입 더 권했어요': { key: 'force', delta: 1 } } }],
+    probes: [
+      { id: 'fr-end', signal: 'forceMemoDays', q: '아이가 그만 먹겠다고 할 때 어떻게 했어요?', chips: ['그대로 마무리했어요', '몇 입 더 권했어요', '잘 모르겠어요'], map: { '몇 입 더 권했어요': { key: 'force', delta: 1 } } },
+      { id: 'fr-amount', signal: 'smallServe', q: '오늘 양 조절은 어땠어요?', chips: ['적게 담고 더 달라면 줬어요', '한 번에 많이 담았어요', '잘 모르겠어요'], map: { '적게 담고 더 달라면 줬어요': { key: 'smallServe', delta: 1 } } },
+    ],
     relapseWhen: (e) => (e.over30Pct == null ? null : (e.over30Pct as number) > 0.5),
+    trigger: (s) => (s.mtOver30Pct != null && s.mtOver30Pct > 0.5 && s.mtCount >= 4 ? 2 : 0),
   },
 
   'parent-model': {
@@ -187,7 +236,7 @@ export const UNITS: Record<UnitId, UnitDef> = {
       const w = last7(rows, today);
       if (dates(w).length < TH.minLoggedDays) return { signalToday: null };
       const familyDinnerDays = dates(w.filter((r) => r.slot === 'dinner' && r.place !== 'daycare')).length;
-      const modelYes = probe7(answers, 'parent-model', today).filter((a) => a.value === '같이 먹었어요').length;
+      const modelYes = probe7(answers, 'parent-model', today).filter((a) => ['같이 먹었어요', '곁에서 같이 먹었어요'].includes(a.value)).length;
       const y = yest(today);
       return { familyDinnerDays, modelYes, signalToday: sig(w.some((r) => r.log_date === y) ? w.some((r) => r.log_date === y && r.slot === 'dinner' && r.place !== 'daycare') : null) };
     },
@@ -195,8 +244,12 @@ export const UNITS: Record<UnitId, UnitDef> = {
       { step: 1, behavior: '같은 음식을 곁에서 말없이 맛있게(하루 1회)', passWhen: (e) => (typeof e.familyDinnerDays === 'number' ? (e.familyDinnerDays as number) >= TH.familyDinnerStep1 : null), holdWeeks: 1 },
       { step: 2, behavior: '가족 저녁 주 5회(배달·간단식도 OK)', passWhen: (e) => (typeof e.familyDinnerDays === 'number' ? (e.familyDinnerDays as number) >= TH.familyDinnerStep2 : null), holdWeeks: 2 },
     ],
-    probes: [{ id: 'pm-with', signal: 'modelYes', q: '저녁, 아이와 같은 음식을 같이 드셨어요?', chips: ['같이 먹었어요', '아이만 먹였어요', '잘 모르겠어요'], map: { '같이 먹었어요': { key: 'with', delta: 1 } } }],
+    probes: [
+      { id: 'pm-with', signal: 'modelYes', q: '저녁, 아이와 같은 음식을 같이 드셨어요?', chips: ['같이 먹었어요', '아이만 먹였어요', '잘 모르겠어요'], map: { '같이 먹었어요': { key: 'with', delta: 1 } } },
+      { id: 'pm-seen', signal: 'modelYes', q: '오늘 아이가 부모님 식사 모습을 봤을까요?', chips: ['곁에서 같이 먹었어요', '아이 먼저 먹였어요', '잘 모르겠어요'], map: { '곁에서 같이 먹었어요': { key: 'with', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.familyDinnerDays === 'number' ? (e.familyDinnerDays as number) < 2 : null),
+    trigger: () => 0,   // 식단 데이터만으론 비발동 — Sonnet 재량·기초 폴백 경로로만 선발
   },
 
   'no-bargain': {
@@ -204,17 +257,22 @@ export const UNITS: Record<UnitId, UnitDef> = {
     extract: (rows, answers, today) => {
       const w = last7(rows, today);
       if (dates(w).length < TH.minLoggedDays) return { signalToday: null };
-      const bargainMemoDays = memoDays(w, BARGAIN_RE).length;
-      const neutralYes = probe7(answers, 'no-bargain', today).filter((a) => a.value === '거래 없이 차렸어요').length;
+      const ansBargainDays = probeDays(answers, 'no-bargain', today, ['먹으면 주기로 했어요', '먹은 다음에 상처럼 줬어요']);
+      const bargainMemoDays = new Set([...memoDays(w, BARGAIN_RE), ...ansBargainDays]).size;
+      const neutralYes = probe7(answers, 'no-bargain', today).filter((a) => ['거래 없이 차렸어요', '끼니랑 같이 소량 냈어요'].includes(a.value)).length;
       const y = yest(today);
-      return { bargainMemoDays, neutralYes, signalToday: sig(w.some((r) => r.log_date === y) ? !w.some((r) => r.log_date === y && r.note && BARGAIN_RE.test(r.note)) : null) };
+      return { bargainMemoDays, neutralYes, signalToday: sig(w.some((r) => r.log_date === y) ? !(w.some((r) => r.log_date === y && r.note && BARGAIN_RE.test(r.note)) || ansBargainDays.includes(y)) : null) };
     },
     steps: [
       { step: 1, behavior: '"먹으면 ~줄게" 거래 멈추기', passWhen: (e) => (typeof e.bargainMemoDays === 'number' ? e.bargainMemoDays === 0 : null), holdWeeks: 1 },
       { step: 2, behavior: '디저트 지위 중립화(소량을 끼니와 함께·악마화 금지)', passWhen: (e) => (typeof e.bargainMemoDays === 'number' && typeof e.neutralYes === 'number' ? e.bargainMemoDays === 0 && (e.neutralYes as number) >= 1 : null), holdWeeks: 2 },
     ],
-    probes: [{ id: 'nb-deal', signal: 'neutralYes', q: '오늘 디저트·간식은 어떻게 줬어요?', chips: ['거래 없이 차렸어요', '먹으면 주기로 했어요', '잘 모르겠어요'], map: { '거래 없이 차렸어요': { key: 'neutral', delta: 1 }, '먹으면 주기로 했어요': { key: 'bargain', delta: 1 } } }],
+    probes: [
+      { id: 'nb-deal', signal: 'neutralYes', q: '오늘 디저트·간식은 어떻게 줬어요?', chips: ['거래 없이 차렸어요', '먹으면 주기로 했어요', '잘 모르겠어요'], map: { '거래 없이 차렸어요': { key: 'neutral', delta: 1 }, '먹으면 주기로 했어요': { key: 'bargain', delta: 1 } } },
+      { id: 'nb-dessert', signal: 'neutralYes', q: '디저트는 오늘 어떤 자리였어요?', chips: ['끼니랑 같이 소량 냈어요', '먹은 다음에 상처럼 줬어요', '잘 모르겠어요'], map: { '끼니랑 같이 소량 냈어요': { key: 'neutral', delta: 1 }, '먹은 다음에 상처럼 줬어요': { key: 'bargain', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.bargainMemoDays === 'number' ? (e.bargainMemoDays as number) >= 2 : null),
+    trigger: (s) => (s.bargainMemoDays >= 1 ? 1.5 + Math.min(1, s.bargainMemoDays / 3) : 0),
   },
 
   'table-talk': {
@@ -223,36 +281,49 @@ export const UNITS: Record<UnitId, UnitDef> = {
       const w = last7(rows, today);
       const banWordDays = dates(w).length >= TH.minLoggedDays ? memoDays(w, BANWORD_RE).length : null;
       const talks = probe7(answers, 'table-talk', today);
-      const objectTalkPct = talks.length >= TH.minTalkSamples ? talks.filter((a) => a.value === '맛이 어떤지 물었어요').length / talks.length : null;
-      return { banWordDays, objectTalkPct, talkSamples: talks.length, signalToday: sig(talks.length ? talks[0].value === '맛이 어떤지 물었어요' : null) };
+      const OBJECT_CHIPS = ['맛이 어떤지 물었어요', '음식 맛·색 이야기였어요'];
+      const objectTalkPct = talks.length >= TH.minTalkSamples ? talks.filter((a) => OBJECT_CHIPS.includes(a.value)).length / talks.length : null;
+      return { banWordDays, objectTalkPct, talkSamples: talks.length, signalToday: sig(talks.length ? OBJECT_CHIPS.includes(talks[0].value) : null) };
     },
     steps: [
       { step: 1, behavior: '금지어 3종 끊기("한 입만"·"다 먹어야지"·"안 먹으면…")', passWhen: (e) => (typeof e.banWordDays === 'number' ? e.banWordDays === 0 : null), holdWeeks: 1 },
       { step: 2, behavior: '객체 중심 질문("당근이 어땠어?")으로 바꾸기', passWhen: (e) => (e.objectTalkPct == null ? null : (e.objectTalkPct as number) >= 0.7), holdWeeks: 2 },
     ],
-    probes: [{ id: 'tt-talk', signal: 'objectTalkPct', q: '오늘 식탁에서 어떤 말을 가장 많이 건넸어요?', chips: ['맛이 어떤지 물었어요', '먹으라고 챙겼어요', '별말 안 했어요', '잘 모르겠어요'], map: { '맛이 어떤지 물었어요': { key: 'object', delta: 1 }, '먹으라고 챙겼어요': { key: 'press', delta: 1 } } }],
+    probes: [
+      { id: 'tt-talk', signal: 'objectTalkPct', q: '오늘 식탁에서 어떤 말을 가장 많이 건넸어요?', chips: ['맛이 어떤지 물었어요', '먹으라고 챙겼어요', '별말 안 했어요', '잘 모르겠어요'], map: { '맛이 어떤지 물었어요': { key: 'object', delta: 1 }, '먹으라고 챙겼어요': { key: 'press', delta: 1 } } },
+      { id: 'tt-topic', signal: 'objectTalkPct', q: '오늘 식탁 대화는 주로 어떤 쪽이었어요?', chips: ['음식 맛·색 이야기였어요', '얼마나 먹는지 이야기였어요', '별 대화 없었어요', '잘 모르겠어요'], map: { '음식 맛·색 이야기였어요': { key: 'object', delta: 1 }, '얼마나 먹는지 이야기였어요': { key: 'press', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.banWordDays === 'number' ? (e.banWordDays as number) >= 2 : null),
+    trigger: (s) => (s.pressureMemoDays >= 1 ? 1 : 0),
   },
 
   'sensory-texture': {
     id: 'sensory-texture', label: '감각·질감 트랙', lever: 'texture', minWeek: 3,
-    extract: (rows, _a, today) => {
+    extract: (rows, answers, today) => {
       const w = last7(rows, today);
-      const tex = w.filter((r) => r.texture && TEX_ORDER.includes(r.texture));
-      if (tex.length < TH.minTexSamples) return { signalToday: null };
+      const texList = w.filter((r) => r.texture && TEX_ORDER.includes(r.texture)).map((r) => r.texture as string);
+      // G-04 블렌딩: '잘 먹었어요'(새 질감 성공) 답변 = finger 표본 1개로 적립(보수적 — 한 단계 위 일반화 금지)
+      probe7(answers, 'sensory-texture', today).filter((a) => a.value === '잘 먹었어요').forEach(() => texList.push('finger'));
+      if (texList.length < TH.minTexSamples) return { signalToday: null };
       const cnt: Record<string, number> = {};
-      tex.forEach((r) => { cnt[r.texture as string] = (cnt[r.texture as string] || 0) + 1; });
+      texList.forEach((t) => { cnt[t] = (cnt[t] || 0) + 1; });
       const mode = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0][0];
       const texModeIdx = TEX_ORDER.indexOf(mode);
-      const yTex = w.filter((r) => r.log_date === yest(today) && r.texture);
-      return { texModeIdx, signalToday: sig(yTex.length ? yTex.some((r) => TEX_ORDER.indexOf(r.texture as string) >= 2) : null) };
+      const y = yest(today);
+      const yTex = w.filter((r) => r.log_date === y && r.texture);
+      const yAnsUp = answers.some((a) => a.unit_id === 'sensory-texture' && a.q_date === y && a.value === '잘 먹었어요');
+      return { texModeIdx, signalToday: sig(yTex.length || yAnsUp ? yTex.some((r) => TEX_ORDER.indexOf(r.texture as string) >= 2) || yAnsUp : null) };
     },
     steps: [
       { step: 1, behavior: '한 끼만 한 단계 위 질감(핑거푸드) — 거부 시 즉시 후퇴', passWhen: (e) => (typeof e.texModeIdx === 'number' ? (e.texModeIdx as number) >= 2 : null), holdWeeks: 1 },
       { step: 2, behavior: '일반식 비중 올리기', passWhen: (e) => (typeof e.texModeIdx === 'number' ? (e.texModeIdx as number) >= 3 : null), holdWeeks: 2 },
     ],
-    probes: [{ id: 'st-step', signal: 'texModeIdx', q: '오늘 새 질감(덩어리·핑거푸드)을 시도해봤어요?', chips: ['잘 먹었어요', '만지긴 했어요', '거부해서 되돌렸어요', '잘 모르겠어요'], map: { '잘 먹었어요': { key: 'texUp', delta: 1 } } }],
+    probes: [
+      { id: 'st-step', signal: 'texModeIdx', q: '오늘 새 질감(덩어리·핑거푸드)을 시도해봤어요?', chips: ['잘 먹었어요', '만지긴 했어요', '거부해서 되돌렸어요', '잘 모르겠어요'], map: { '잘 먹었어요': { key: 'texUp', delta: 1 } } },
+      { id: 'st-touch', signal: 'touchCount', q: '새 질감을 먹기 전에 손으로 만져보게 해봤어요?', chips: ['만져봤어요', '아직요', '잘 모르겠어요'], map: { '만져봤어요': { key: 'touch', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.texModeIdx === 'number' ? (e.texModeIdx as number) <= 1 : null),
+    trigger: (s) => (s.texLow && s.texCount >= 3 ? 2 : 0),
   },
 
   'food-bridge': {
@@ -273,8 +344,12 @@ export const UNITS: Record<UnitId, UnitDef> = {
       { step: 1, behavior: '잘 먹는 음식의 사촌 1종을 식탁에(한 축만 변형)', passWhen: (e) => (typeof e.newFoodCount7d === 'number' ? (e.newFoodCount7d as number) >= TH.newFoodWeekly : null), holdWeeks: 1 },
       { step: 2, behavior: '사슬 다음 칸으로(찍어먹기 짝짓기 활용)', passWhen: (e) => (typeof e.newFoodCount7d === 'number' ? (e.newFoodCount7d as number) >= TH.newFoodWeekly : null), holdWeeks: 2 },
     ],
-    probes: [{ id: 'fb-new', signal: 'newFoodCount7d', q: '이번 주 새로운 음식을 식탁에 올려봤어요?', chips: ['새 음식을 시도했어요', '익숙한 것만 차렸어요', '잘 모르겠어요'], map: { '새 음식을 시도했어요': { key: 'newFood', delta: 1 } } }],
+    probes: [
+      { id: 'fb-new', signal: 'newFoodCount7d', q: '이번 주 새로운 음식을 식탁에 올려봤어요?', chips: ['새 음식을 시도했어요', '익숙한 것만 차렸어요', '잘 모르겠어요'], map: { '새 음식을 시도했어요': { key: 'newFood', delta: 1 } } },
+      { id: 'fb-dip', signal: 'dipCount', q: '좋아하는 소스에 찍어 먹기를 해봤어요?', chips: ['해봤어요', '아직요', '잘 모르겠어요'], map: { '해봤어요': { key: 'dip', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.newFoodCount7d === 'number' ? e.newFoodCount7d === 0 : null),
+    trigger: (s) => (s.newFoodCount === 0 && s.eatenCount > 0 ? 1.2 : 0),
   },
 
   'autonomy-part': {
@@ -282,17 +357,28 @@ export const UNITS: Record<UnitId, UnitDef> = {
     extract: (rows, answers, today) => {
       const w = last7(rows, today);
       const auto = w.filter((r) => r.autonomy);
-      const selfPct7d = auto.length >= TH.minAutoSamples ? auto.filter((r) => r.autonomy === 'self').length / auto.length : null;
+      // G-04 블렌딩: 자율성 칩이 모자라면 'ap-self' 답이 표본 보충
+      const ansSelf = probe7(answers, 'autonomy-part', today).filter((a) => a.value === '스스로 먹었어요').length;
+      const ansFed = probe7(answers, 'autonomy-part', today).filter((a) => a.value === '대부분 떠먹여 줬어요').length;
+      const selfN = auto.filter((r) => r.autonomy === 'self').length + ansSelf;
+      const totalN = auto.length + ansSelf + ansFed;
+      const selfPct7d = totalN >= TH.minAutoSamples ? selfN / totalN : null;
       const roleYes = probe7(answers, 'autonomy-part', today).filter((a) => a.value === '역할을 줬어요').length;
-      const yAuto = w.filter((r) => r.log_date === yest(today) && r.autonomy);
-      return { selfPct7d, roleYes, signalToday: sig(yAuto.length ? yAuto.some((r) => r.autonomy === 'self') : null) };
+      const y = yest(today);
+      const yAuto = w.filter((r) => r.log_date === y && r.autonomy);
+      const yAnsSelf = answers.some((a) => a.unit_id === 'autonomy-part' && a.q_date === y && a.value === '스스로 먹었어요');
+      return { selfPct7d, roleYes, signalToday: sig(yAuto.length || yAnsSelf ? yAuto.some((r) => r.autonomy === 'self') || yAnsSelf : null) };
     },
     steps: [
       { step: 1, behavior: '두 가지 중 아이가 고르게 + 하루 한 끼 스스로 떠먹기', passWhen: (e) => (e.selfPct7d == null ? null : (e.selfPct7d as number) >= TH.selfPctStep1), holdWeeks: 1 },
       { step: 2, behavior: '셀프 서빙·상차림 역할 주기', passWhen: (e) => (e.selfPct7d == null ? null : (e.selfPct7d as number) >= TH.selfPctStep2), holdWeeks: 2 },
     ],
-    probes: [{ id: 'ap-role', signal: 'roleYes', q: '오늘 식사 준비에서 아이에게 작은 역할을 줬어요?', chips: ['역할을 줬어요', '오늘은 못 줬어요', '잘 모르겠어요'], map: { '역할을 줬어요': { key: 'role', delta: 1 } } }],
+    probes: [
+      { id: 'ap-role', signal: 'roleYes', q: '오늘 식사 준비에서 아이에게 작은 역할을 줬어요?', chips: ['역할을 줬어요', '오늘은 못 줬어요', '잘 모르겠어요'], map: { '역할을 줬어요': { key: 'role', delta: 1 } } },
+      { id: 'ap-self', signal: 'selfPct7d', q: '오늘 한 끼라도 아이가 스스로 떠먹었어요?', chips: ['스스로 먹었어요', '대부분 떠먹여 줬어요', '잘 모르겠어요'], map: { '스스로 먹었어요': { key: 'self', delta: 1 } } },
+    ],
     relapseWhen: (e) => (e.selfPct7d == null ? null : (e.selfPct7d as number) < TH.selfPctStep1),
+    trigger: (s) => (s.selfPct != null && s.selfPct < 0.3 && s.autoCount >= 4 ? 2 + (0.3 - s.selfPct) : 0),
   },
 
   'link-rhythm': {
@@ -319,8 +405,12 @@ export const UNITS: Record<UnitId, UnitDef> = {
       { step: 1, behavior: '기관에서 거부한 식재료를 집에서 저압력으로 다시(주 1회+)', passWhen: (e) => (typeof e.dcRefuseHomeRetry7d === 'number' ? (e.dcRefuseHomeRetry7d as number) >= 1 : null), holdWeeks: 1 },
       { step: 2, behavior: '격일 리듬으로 재노출 이어가기(주 2회)', passWhen: (e) => (typeof e.dcRefuseHomeRetry7d === 'number' ? (e.dcRefuseHomeRetry7d as number) >= 2 : null), holdWeeks: 2 },
     ],
-    probes: [{ id: 'lr-retry', signal: 'dcRefuseHomeRetry7d', q: '어린이집에서 안 먹은 음식, 집에서 다시 올려봤어요?', chips: ['다시 올려봤어요', '아직요', '잘 모르겠어요'], map: { '다시 올려봤어요': { key: 'retry', delta: 1 } } }],
+    probes: [
+      { id: 'lr-retry', signal: 'dcRefuseHomeRetry7d', q: '어린이집에서 안 먹은 음식, 집에서 다시 올려봤어요?', chips: ['다시 올려봤어요', '아직요', '잘 모르겠어요'], map: { '다시 올려봤어요': { key: 'retry', delta: 1 } } },
+      { id: 'lr-menu', signal: 'menuCheck', q: '이번 주 어린이집 식단표를 본 적 있어요?', chips: ['봤어요', '아직요', '잘 모르겠어요'], map: { '봤어요': { key: 'menuCheck', delta: 1 } } },
+    ],
     relapseWhen: (e) => (typeof e.dcRefuseHomeRetry7d === 'number' ? e.dcRefuseHomeRetry7d === 0 : null),
+    trigger: (s) => (s.attendsDaycare && s.dcRefusedCount > 0 ? 1.5 : 0),
   },
 };
 

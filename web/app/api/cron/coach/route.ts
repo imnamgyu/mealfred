@@ -440,12 +440,24 @@ export async function GET(req: Request) {
                 transitions: ts.filter((t) => /거부→수용 전환|받아들이기 시작/.test(t)),
                 structuredSummary: buildStructuredSummary(), chronicGuidance: chronicGuidanceText(meta.chronic),
                 icfqRiskCount,
+                // ⭐ E-07 — v3 목표 포트폴리오 후보 신호(E-03). 메모 통계·진도·주차·focus 이력은 H-02(v3 메인 루프)에서 정밀화 — 보수적 0/null.
+                candSignals: {
+                  envBadPct: structuredSig.envBadPct, envCount: structuredSig.envCount,
+                  selfPct: structuredSig.selfPct, autoCount: structuredSig.autoCount,
+                  texLow: structuredSig.texLow, texCount: structuredSig.texCount,
+                  mtOver30Pct: structuredSig.mtOver30Pct, mtCount: structuredSig.mtCount,
+                  missingCount: new Set([...fg.missing, ...homeFg.missing]).size,
+                  refusedCount: sanitizeRefusals(uniqRef).length, dcRefusedCount: sanitizeRefusals(daycareRef).length,
+                  pressureMemoDays: 0, bargainMemoDays: 0, snackHeavyDays: 0, preMealMemoDays: 0,
+                  newFoodCount: 0, attendsDaycare: attends, eatenCount: new Set(allIng).size,
+                },
               });
               const row = {
                 child_id: cid, week_key: wk, status: synth.source === 'weekly_llm' ? 'active' : 'cold_synth', source: synth.source,
                 mission: synth.mission, mission_target: synth.mission_target, target_pool: synth.target_pool, secondary_axis: synth.secondary_axis,
                 budget: synth.budget, ledger: DEFAULT_LEDGER, impression: synth.impression, arc_week: 1,
                 behavior_goal: synth.behaviorGoal, teaching_arc: synth.teachingArc, check_method: synth.checkMethod,   // §14 주간 커리큘럼
+                goals: synth.goals?.length ? synth.goals : null,   // ⭐ A-04/E-07 — 포트폴리오(lever는 budget에 병행 기록=A-05)
                 basis_attends_daycare: attends, model: synth.source === 'weekly_llm' ? 'sonnet-4-6' : 'cold', updated_at: new Date().toISOString(),
               };
               // ⭐ upsert 결과 검사(2026-06-11 사고) — 커리큘럼 컬럼 미적용(weekly_coaching.sql 전)이면 행 전체가 조용히 거부돼
@@ -454,7 +466,7 @@ export async function GET(req: Request) {
               if (upErr) {
                 console.warn('[cron/coach] weekly anchor upsert:', upErr.message);
                 const legacy = { ...row } as Record<string, unknown>;
-                delete legacy.behavior_goal; delete legacy.teaching_arc; delete legacy.check_method;
+                delete legacy.behavior_goal; delete legacy.teaching_arc; delete legacy.check_method; delete legacy.goals;   // E-07 양분기(goals 포함/제외)
                 const { error: e2 } = await supabase.from('weekly_plans').upsert(legacy, { onConflict: 'child_id,week_key' });
                 if (e2) console.warn('[cron/coach] weekly anchor legacy upsert:', e2.message);
               }
@@ -469,10 +481,11 @@ export async function GET(req: Request) {
             if (dow === 0 && !qp.get('date')) await synthAndStoreAnchor(isoWeekKey(addDaysStr(today, 1)));   // 일요일: 다가올 주 닻 종합. ⭐ QA date 시뮬에선 금지(S5 — 과거 일요일 재실행이 라이브 주 닻·ledger를 DEFAULT로 파괴하던 버그)
             let anchor = await loadAnchor(weekKey);
             if (!anchor && dow !== 0) anchor = await synthAndStoreAnchor(weekKey);          // 평일 닻 없으면 lazy 생성 → 레이어 즉시 활성
-            if (anchor && !anchor.behavior_goal) {
-              // ⭐ 구버전/컬럼 미적용 닻 치유 — behavior_goal 폴백을 메모리에 채워 arc(변주축)가 죽지 않게 + best-effort 영속화(컬럼 없으면 이 update만 조용히 실패)
+            if (anchor) {
+              // ⭐ 구버전/컬럼 미적용 닻 치유(E-09: goals는 항상 정규화 — goalsOf가 lever에서 승격) + behavior_goal 결손 시만 best-effort 영속화
+              const needPersist = !anchor.behavior_goal;
               anchor = healAnchor(anchor);
-              await supabase.from('weekly_plans').update({ behavior_goal: anchor.behavior_goal, teaching_arc: anchor.teaching_arc, check_method: anchor.check_method }).eq('child_id', cid).eq('week_key', weekKey);
+              if (needPersist) await supabase.from('weekly_plans').update({ behavior_goal: anchor.behavior_goal, teaching_arc: anchor.teaching_arc, check_method: anchor.check_method }).eq('child_id', cid).eq('week_key', weekKey);
             }
             if (anchor && anchor.mission_target) {
               const tgt = anchor.mission_target;
