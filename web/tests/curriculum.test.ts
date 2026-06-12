@@ -653,6 +653,63 @@ describe('G-04 답변→evidence 파서', () => {
   });
 });
 
+describe('F-10·E-10 — 주간 통주', () => {
+  const addD = (base: string, n: number) => new Date(Date.parse(base) + n * 86400000).toISOString().slice(0, 10);
+  it('F-10 10일 통주: deepen 흐름 → 정체 → 주 1회 pivot → 새 focus 전개(이중 pivot 0)', () => {
+    const BASE = '2026-06-15';
+    // 타임라인: BASE-1 이전엔 env=table 신호, 이후 기록은 있되 env 없음(신호 끊김 → 정체 누적)
+    const mkRows = (today: string): CRow[] => Array.from({ length: 10 }, (_, i) => {
+      const d = addD(today, -(i + 1));
+      return row({ log_date: d, environment: Date.parse(d) <= Date.parse(BASE) ? 'table' : null });
+    });
+    let goals: Goal[] = [
+      { unit_id: 'table-stage', priority: 1, status: 'focus' },
+      { unit_id: 'hunger-rhythm', priority: 2, status: 'standby' },
+    ];
+    let state: Partial<Record<UnitId, ProgressRow>> = { 'table-stage': mkProg('table-stage', { last_signal_at: BASE }) };
+    const coached: Partial<Record<UnitId, number>> = {};
+    const modes: string[] = [];
+    let pivots = 0;
+    for (let t = 1; t <= 10; t++) {
+      const today = addD(BASE, t);
+      const r = decideDailyV3({
+        childId: 'c1', goals, progress: state, rows: mkRows(today), answers: [],
+        coachedDays: coached, coachedYesterday: [], pivotsThisWeek: t <= 7 ? pivots : 0, today,
+      });
+      expect(r.lowData).toBe(false);
+      for (const u of r.updates) state = { ...state, [u.unit_id]: u };
+      goals = r.goalsAfter;
+      if (r.decision) {
+        modes.push(`${r.decision.unit}:${r.decision.mode}`);
+        if (r.decision.mode === 'pivot') pivots++;
+        coached[r.decision.unit] = Math.min(6, (coached[r.decision.unit] || 0) + 1);
+      }
+    }
+    expect(modes[0]).toBe('table-stage:deepen');                               // 신호 살아있을 땐 딥다이브
+    expect(modes.filter((m) => m.endsWith(':pivot')).length).toBe(1);          // 정체 → 피벗은 딱 1회(휙휙 금지)
+    const pivotIdx = modes.findIndex((m) => m.endsWith(':pivot'));
+    expect(modes[pivotIdx]).toBe('hunger-rhythm:pivot');                       // 피벗 대상 = standby 승격
+    expect(modes.slice(pivotIdx + 1).every((m) => m.startsWith('hunger-rhythm:'))).toBe(true);   // 다음 날부터 새 focus 전개(goalsAfter 영속)
+    expect(goals.find((g) => g.status === 'focus')!.unit_id).toBe('hunger-rhythm');
+    expect(goals.find((g) => g.unit_id === 'table-stage')!.status).toBe('stopped');
+  });
+  it('E-10 4주 리플레이: 2주 정체 → 3주째 강등 → 4주째 재도전 허용(직전 2주 연속이 아니므로 — E-06 스펙)', () => {
+    const sig = { ...SIG0, envBadPct: 0.8, envCount: 6, snackHeavyDays: 3 };    // table-stage(2.8) > hunger-rhythm(2)
+    const history: Array<{ unit_id: UnitId | null; stepAdvanced: boolean }> = [];
+    const focusByWeek: UnitId[] = [];
+    for (let w = 1; w <= 4; w++) {
+      const cands = candidateUnits({ sig, progress: {}, week: 9 });
+      let goals = normalizeGoals(cands.map((c, i) => ({ unit_id: c.unit_id, priority: (i + 1) as 1 | 2 | 3, status: i === 0 ? 'focus' : 'standby' })));
+      goals = applyFocusFatigue(goals, history);
+      const focus = goals.find((g) => g.status === 'focus')!.unit_id;
+      focusByWeek.push(focus);
+      history.unshift({ unit_id: focus, stepAdvanced: false });                 // 매주 전진 0(최악 시나리오)
+    }
+    // 강등은 '3주 연속 선발'에만 — 한 주 쉰 뒤 재도전은 허용(다주 아크와의 균형점). 진동 주기=3주(2집중+1환기).
+    expect(focusByWeek).toEqual(['table-stage', 'table-stage', 'hunger-rhythm', 'table-stage']);
+  });
+});
+
 describe('G-10 피드백 루프 4일 통주(표본 부족→질문→답→판정)', () => {
   it('env 칩 1개뿐 → 질문 발행 → 답 2건 적립 → envTablePct 판정 가능 + 공백 해소', () => {
     const rows = [...baseDays(4), row({ log_date: D(1), environment: 'table' })];   // env 표본 1(부족)
