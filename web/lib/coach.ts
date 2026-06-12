@@ -543,15 +543,15 @@ ${factsBlock}${scenarioBlock}${planTargetBlock}${openBlock}${actionBlock}${arcBl
 // 생성된 편지를 보내기 전 한 번 더 다듬는다: ① polishKo(결정론) ② proofreadLetter(LLM 퇴고).
 // '국을 마시다'·'을 물론' 같은 어법 오류와, 가드를 빠져나간 미세한 표현·번역투를 잡는다.
 const SYSTEM_PROOF = `당신은 부모에게 가는 따뜻한 편식 코칭 편지를 다듬는 한국어 교정 편집자입니다. 아래 편지에서 부자연스러운 표현·오타·비문·번역투·존대오류·영양 사실 오류·초가공/튀김 권유·없는 단어만 자연스럽게 고치세요. 내용·정보·길이·문장 수·따뜻한 톤은 그대로, 새 정보 추가·정보 삭제 금지. 규칙: ①국·탕·찌개·죽은 '마시다' 아니라 '먹다'(국물은 마셔도 됨) ②미역·김·다시마는 해조류이지 생선·해산물이 아니다 — 생선·해산물 자리에 미역/김/다시마를 쓰지 마라(실제 생선·새우 등으로) ③'생선까스·돈까스·너겟·튀김·소시지·어묵'은 빼고 실제 생선·집밥 형태로 ④없는 단어(예 '생선까로')는 올바른 말로 ⑤아이에게 '-시-' 존대 금지 ⑥'N가지 식재료' 가짓수 칭찬 빼기 ⑦줄표(—)는 마침표로 끊기 ⑧생선 권유엔 '가시를 발라내고'. 고칠 게 없으면 원문 그대로. JSON만: {"letter":"..."}`;
-/** 결정론 어법 교정 — 국/탕/찌개 '마시다'→'먹다', 깨진 조사 '을 물론'→'은 물론'. */
-function polishKo(L: string): string {
+/** 결정론 어법 교정 — 국/탕/찌개 '마시다'→'먹다', 깨진 조사 '을 물론'→'은 물론'. (D-07: 조립기도 공용) */
+export function polishKo(L: string): string {
   return (L || '')
     .replace(/(국|탕|찌개)(을|를|도)\s*(잘\s+|즐겨\s+)?마시(고|니까|니|면서|며|는|지)/g, '$1$2 $3먹$4')
     .replace(/(국|탕|찌개)(을|를|도)\s*마셔/g, '$1$2 먹어')
     .replace(/([가-힣])을\s+물론/g, '$1은 물론');
 }
-/** LLM 퇴고 — 어색·오타·번역투·영양오류·초가공 권유만 교정(정보·길이 유지). 실패 시 원문 그대로. */
-async function proofreadLetter(letter: string): Promise<string> {
+/** LLM 퇴고 — 어색·오타·번역투·영양오류·초가공 권유만 교정(정보·길이 유지). 실패 시 원문 그대로. (D-08: 조립기 윤문 옵션 공용) */
+export async function proofreadLetter(letter: string): Promise<string> {
   if (!letter || !letter.trim()) return letter;
   try {
     const out = await callClaude(letter, 700, SYSTEM_PROOF);

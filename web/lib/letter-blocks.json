@@ -1,0 +1,11 @@
+{
+  "version": 0,
+  "note": "C-01 스파이크 시드(5블록) — C-05~C-17 멀티에이전트 제작 풀로 교체 예정. 스키마=lib/letterBlocks.ts LetterBlock.",
+  "blocks": [
+    { "id": "table-stage.intro.1", "unit": "table-stage", "stage": "intro", "variant": 1, "text": "이번 주는 식탁 앞 풍경을 살짝 정돈해 보려 해요. 기록을 보니 {fact}.", "slots": ["fact"], "tone": "warm", "requires": ["fact"] },
+    { "id": "table-stage.observe.1", "unit": "table-stage", "stage": "observe", "variant": 1, "text": "{fact}. 그 장면이 아이에게는 꽤 큰 신호였을 거예요.", "slots": ["fact"], "tone": "praise", "requires": ["fact"] },
+    { "id": "table-stage.advance.1", "unit": "table-stage", "stage": "advance", "variant": 1, "text": "어제 한 걸음이 보였어요. 오늘은 {next}{을를} 이어가 볼까요?", "slots": ["next"], "tone": "warm", "requires": ["next"] },
+    { "id": "common.opener-weekday.1", "unit": "common", "stage": "opener-weekday", "variant": 1, "text": "오늘도 식탁 앞에서 작은 하루를 시작하시네요.", "slots": [], "tone": "warm" },
+    { "id": "common.plateau.1", "unit": "common", "stage": "plateau", "variant": 1, "text": "요즘처럼 잔잔한 구간도 잘 가고 있다는 신호예요. 꾸준함이 가장 큰 힘이 됩니다.", "slots": [], "tone": "praise" }
+  ]
+}
