@@ -193,3 +193,45 @@ describe('리플레이: 사실 카드 14일 — 점심 추세·이벤트 단어 
     expect(re.test('뷔페에서 여러 음식을')).toBe(true);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════
+// I-05 — v3 통주 리플레이: 합성 30가정 × 14일 = 매 배포의 리허설(prebuild 게이트)
+// ════════════════════════════════════════════════════════════════════════════
+import { runV3Family, type ReplayFamily } from '../lib/replayRunner';
+import { replayMetrics, cutoverGate, type ReplayDay } from '../lib/replayMetrics';
+import SYN from './fixtures/synthetic-families.json';
+
+describe('I-05 v3 30가정 통주(I-06 컷오버 게이트)', () => {
+  const families = (SYN as { families: ReplayFamily[] }).families;
+  const all: ReplayDay[] = [];
+  const perFam: Array<{ id: string; days: ReplayDay[] }> = [];
+  for (const f of families) {
+    const days = runV3Family(f, { days: 14 });
+    perFam.push({ id: f.id, days });
+    all.push(...days);
+  }
+
+  it('규모 sanity: 30가정 · 발행 300통+(저기록 가정의 생략일 허용)', () => {
+    expect(families.length).toBe(30);
+    expect(all.length).toBeGreaterThan(300);
+  });
+  it('I-06 게이트: 가정별 지표 전부 통과(블록 중복 0·재서술 0·intro 재등장 0·피벗 캡·폴백<3%)', () => {
+    const fails = perFam.flatMap(({ id, days }) => cutoverGate(replayMetrics(days)).map((f) => `${id}: ${f}`));
+    expect(fails).toEqual([]);
+  });
+  it('전개 분포 sanity: advance·deepen이 흐름의 중심 + 피벗·plateau 경로 실존(flat 가정)', () => {
+    const m = replayMetrics(all);
+    expect((m.modeDist.advance || 0) + (m.modeDist.deepen || 0)).toBeGreaterThan(all.length * 0.3);
+    expect((m.modeDist.pivot || 0)).toBeGreaterThanOrEqual(1);
+    expect(m.llmCallsPerLetter).toBe(0);   // ⑦ 조립식 = LLM 0콜(윤문 OFF 기본)
+  });
+  it('규격: 전 편지 길이 ≤380·빈 편지 0', () => {
+    expect(all.filter((d) => !d.letter || d.letter.length > 380).map((d) => `${d.date}`)).toEqual([]);
+  });
+  it('주제 피로: focus 연속 ≤3주(E-06 캡 + 재도전 허용 진동과 정합)', () => {
+    for (const { id, days } of perFam) {
+      const m = replayMetrics(days);
+      expect(m.focusStreakMaxWeeks, id).toBeLessThanOrEqual(3);
+    }
+  });
+});

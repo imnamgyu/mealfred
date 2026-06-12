@@ -28,6 +28,8 @@ export type AssembleInput = {
   daySeed: number; cidHash?: number;
   food?: string | null;             // {food} — bridgeFacts 화이트리스트 값만(호출자 책임)
   introNeeded?: boolean;            // 주 첫 편지·유닛 신규 활성(F-06이 정교화) → intro 시퀀스
+  suppressIntro?: boolean;          // 7일 내 같은 유닛 intro 기왕력 — pivot 시퀀스의 재도입 억제(리플레이 적발)
+  lowData?: boolean;                // F-07 무기록 주 — 워밍+기록 권유 시퀀스(진도 동결과 짝)
   urgent?: boolean;                 // F-04 시급 예외 — 진단 재인용 허용(원장 우회)
   avoidTags?: string[];             // forbids 매칭(F-03 push 캡 등)
   tones?: BlockTone[];              // E-05 온보딩 1주차 tone=warm 제한 등
@@ -43,12 +45,21 @@ export type AssembleOutput = {
 };
 
 const seedOf = (daySeed: number, cidHash: number) => (((daySeed + cidHash) % 1_000_000) + 1_000_000) % 1_000_000;
-export const factKeyOf = (unit: string, cardKey: string) => `${unit}:${cardKey}`;
+/**
+ * D-04 원장 키 — 카드 키 '전역'(유닛 무관). 리플레이(I-05)가 적발한 구멍: 유닛 스코프 키는 피벗으로
+ * 유닛이 바뀌면 같은 사실을 다른 유닛이 재서술할 수 있었다. 부모가 같은 통계를 두 번 듣지 않는 게 본질.
+ * 원장 수명 = 주간(호출자가 주 경계에서 비움 — 주가 바뀌면 카드 통계 자체가 새 사실).
+ */
+export const factKeyOf = (_unit: string, cardKey: string) => cardKey;
 
 // ── D-01 — mode별 블록 시퀀스(결정론 규격) ─────────────────────────────────────
 // try = 우선순위 목록(앞이 1순위 — 대체는 후보 0일 때만). alt=true면 동급 교대(날짜 회전 — how↔obstacle).
 type SeqPos = { from: 'unit' | 'common'; try: BlockStage[]; optional?: boolean; alt?: boolean };
-function buildSeq(mode: DailyDecision['mode'], introNeeded: boolean, hasFact: boolean): SeqPos[] {
+function buildSeq(mode: DailyDecision['mode'], introNeeded: boolean, hasFact: boolean, lowData?: boolean, suppressIntro?: boolean): SeqPos[] {
+  if (lowData)   // F-07 — 무기록 주: 워밍 + 따뜻한 기록 권유(행동 요청 0·진도 동결과 짝)
+    return [{ from: 'common', try: ['opener-weekday'] }, { from: 'common', try: ['lowdata'] }];
+  if (mode === 'pivot' && suppressIntro)   // 7일 내 intro 기왕 유닛으로의 재피벗 — 재도입 대신 원리 환기
+    return [{ from: 'common', try: ['pivot-bridge'] }, { from: 'unit', try: ['why'] }, { from: 'unit', try: ['how'], optional: true }];
   if (introNeeded && (mode === 'advance' || mode === 'deepen' || mode === 'observe'))
     return [{ from: 'unit', try: ['intro'] }, { from: 'unit', try: ['why'] }, { from: 'unit', try: ['how'], optional: true }];
   switch (mode) {
@@ -138,14 +149,14 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   const mode = p.decision.mode;
   const step = Math.max(1, p.decision.step || 1);
   const maxIdx = Math.min(step, p.unitDef.steps.length) - 1;
-  const next = mode === 'maintain' || mode === 'celebrate' ? null : (p.unitDef.steps[maxIdx]?.behavior ?? null);
+  const next = mode === 'maintain' || mode === 'celebrate' || p.lowData ? null : (p.unitDef.steps[maxIdx]?.behavior ?? null);
   const fact = pickFact({ mode, introNeeded, cards: p.factCards || [], cited, unit: p.decision.unit, urgent: !!p.urgent });
   const ctx: RenderCtx = { name: p.name || '아이', fact: fact ? (fact.prose ?? fact.text) : null, next, food: p.food ?? null };
   const ledger = new Set(p.blockLedger || []);
 
   /** 한 번의 조립 시도(attempt가 변형 회전을 비틀어 D-09 재선택을 구현) */
   const attemptAssemble = (attempt: number): { letter: string; used: LetterBlock[] } | null => {
-    const seq = buildSeq(mode, introNeeded, !!fact);
+    const seq = buildSeq(mode, introNeeded, !!fact, p.lowData, p.suppressIntro);
     const usedNow = new Set<string>();
     const picked: Array<{ b: LetterBlock; text: string; optional: boolean }> = [];
     for (let k = 0; k < seq.length; k++) {
@@ -267,7 +278,10 @@ export function collectBlockLedger(ctxs: Array<Record<string, unknown> | null | 
   return out;
 }
 
-/** D-04 — 유닛 재활성(피벗 복귀·재발 재개) 시 그 유닛의 진단 인용 원장만 리셋(새 활성 기간 = 재인용 1회 허용) */
+/**
+ * D-04 — 원장 리셋. 전역 카드 키 전환 후 일반해는 '주 경계에서 통째 리셋'(크론 H-02·러너 I-05).
+ * 유닛 단위 리셋은 구키(`유닛:카드`) 시절 호환용으로 유지 — 구 컨텍스트에 남은 유닛 프리픽스 엔트리만 거른다.
+ */
 export function resetFactsCitedFor(cited: string[], unit: string): string[] {
   return (cited || []).filter((k) => !k.startsWith(`${unit}:`));
 }

@@ -1,7 +1,7 @@
 {
  "version": 1,
  "generated": "2026-06-13",
- "count": 431,
+ "count": 434,
  "note": "C-05~C-17 멀티에이전트 제작(4런) + C-18 적대검수 6렌즈(26건 삭제) — 게이트=tests/blocks.test.ts(C-19)",
  "blocks": [
   {
@@ -4649,6 +4649,33 @@
    "slots": [],
    "tone": "warm",
    "id": "table-talk.why.4"
+  },
+  {
+   "unit": "common",
+   "stage": "lowdata",
+   "variant": 4,
+   "text": "며칠 식탁 소식이 뜸했네요. 오늘 저녁 한 끼만 가볍게 남겨 주셔도 충분한 출발이에요.",
+   "slots": [],
+   "tone": "empathy",
+   "id": "common.lowdata.4"
+  },
+  {
+   "unit": "common",
+   "stage": "lowdata",
+   "variant": 5,
+   "text": "한동안 적힌 끼니가 없어 코치가 살짝 궁금했어요. 떠오르는 한 끼부터 천천히요.",
+   "slots": [],
+   "tone": "empathy",
+   "id": "common.lowdata.5"
+  },
+  {
+   "unit": "common",
+   "stage": "lowdata",
+   "variant": 6,
+   "text": "기억이 흐릿하면 메뉴 하나만 적어도 좋아요. 그 한 줄이 다음 편지의 길잡이가 돼요.",
+   "slots": [],
+   "tone": "empathy",
+   "id": "common.lowdata.6"
   }
  ]
 }

@@ -283,7 +283,8 @@ describe('D-09 조립 결과 최종 스캔', () => {
 
 // ── D-10 — context 스냅샷 단일화 ──────────────────────────────────────────────
 describe('D-10 context 스냅샷 v3', () => {
-  it('D-10-1 grep: factsCited 직접 리터럴은 assembleLetter.ts에만(쓰기 경로 단일화)', () => {
+  it('D-10-1 grep: ctx v3 봉투 직접 조립 금지 — assembled: 마커는 buildLetterCtx에만(쓰기 경로 단일화)', () => {
+    // factsCited:는 assembleLetter '입력' 전달에도 정당하게 등장(러너·크론) — 봉투 조립의 고유 마커는 assembled:
     const walk = (dir: string): string[] => {
       if (!fs.existsSync(dir)) return [];
       return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
@@ -293,7 +294,7 @@ describe('D-10 context 스냅샷 v3', () => {
       });
     };
     const files = [...walk(path.join(process.cwd(), 'lib')), ...walk(path.join(process.cwd(), 'app'))];
-    const offenders = files.filter((f) => !f.endsWith(`lib${path.sep}assembleLetter.ts`) && /factsCited\s*:/.test(fs.readFileSync(f, 'utf8')));
+    const offenders = files.filter((f) => !f.endsWith(`lib${path.sep}assembleLetter.ts`) && /assembled\s*:/.test(fs.readFileSync(f, 'utf8')));
     expect(offenders).toEqual([]);
   });
   it('D-10-2 base 병합 + 결정 스냅샷', () => {

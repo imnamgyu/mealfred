@@ -31,9 +31,24 @@ export function isUrgent(p: { icfqRiskCount: number; rows: CRow[]; today: string
 }
 
 // ── F-06 — 주 첫 편지 판정 v3: 이월 유닛이면 intro 생략(매주 월요일 재도입 방지) ──
-export function introNeededV3(firstOfWeek: boolean, focusUnit: UnitId | null, prevWeekGoals: Goal[] | null | undefined): boolean {
+// recentIntroUnits = 최근 7일 편지가 intro 블록을 쓴 유닛(컨텍스트 blocks에서 수집) —
+// 피벗 복귀 주가 prevWeekGoals상 'stopped'라 이월로 안 잡히는 구멍을 리플레이(I-05)가 적발해 추가.
+export function introNeededV3(firstOfWeek: boolean, focusUnit: UnitId | null, prevWeekGoals: Goal[] | null | undefined, recentIntroUnits?: Iterable<string>): boolean {
   if (!firstOfWeek || !focusUnit) return false;
+  if (recentIntroUnits && new Set(recentIntroUnits).has(focusUnit)) return false;
   return !(prevWeekGoals || []).some((g) => g.unit_id === focusUnit && g.status !== 'stopped');
+}
+/** 최근 편지 컨텍스트들에서 intro 블록을 쓴 유닛 수집(F-06 가드 입력 — 크론 H-02·러너 공용) */
+export function recentIntroUnitsOf(ctxs: Array<Record<string, unknown> | null | undefined>): Set<string> {
+  const out = new Set<string>();
+  for (const c of ctxs || []) {
+    const arr = c && Array.isArray((c as { blocks?: unknown }).blocks) ? ((c as { blocks: string[] }).blocks) : [];
+    for (const id of arr) {
+      const m = typeof id === 'string' ? id.match(/^(.+)\.intro\.\d+$/) : null;
+      if (m && m[1] !== 'common') out.add(m[1]);
+    }
+  }
+  return out;
 }
 
 // ── F-01 — 어제 델타(일일 진료차트 대조) ───────────────────────────────────────
@@ -103,6 +118,44 @@ export function decideDailyV3(p: DailyV3Input): DailyV3Result {
     warnings.push(`같은 전개 3연속: ${decision.unit}/${decision.mode}`);
   }
   return { decision, updates: r.updates, goalsAfter: r.goalsAfter, lowData: false, plateau, replanFlag, warnings };
+}
+
+// ── E-03 신호 빌더 — 주간 후보 산출용 CandidateSignals를 rows에서 계산(크론 H-02·리플레이 I-05 공용) ──
+const SIG_PRESSURE_RE = /한\s?입만|다\s?먹어|먹어야|억지로|혼냈|먹이려/;
+const SIG_BARGAIN_RE = /먹으면\s|줄게|사줄게|상으로|보상으로/;
+const SIG_PREMEAL_RE = /(저녁|밥|끼니)\s?(직전|전)에?\s?(간식|우유|주스)/;
+export function buildCandSignals(rows: CRow[], today: string, attendsDaycare: boolean): import('./curriculumUnits').CandidateSignals {
+  const w7 = rows.filter((r) => { const a = age(today, r.log_date); return a >= 1 && a <= 7; });
+  const env = w7.filter((r) => r.environment);
+  const auto = w7.filter((r) => r.autonomy);
+  const tex = w7.filter((r) => r.texture);
+  const mt = w7.filter((r) => typeof r.meal_time === 'number');
+  const memoDays = (re: RegExp) => new Set(w7.filter((r) => r.note && re.test(r.note)).map((r) => r.log_date)).size;
+  const snackBy: Record<string, number> = {};
+  w7.forEach((r) => { if ((r.slot || '').includes('snack')) snackBy[r.log_date] = (snackBy[r.log_date] || 0) + 1; });
+  // 신규 식재료(28일 창 — food-bridge 트리거)
+  const prior = rows.filter((r) => { const a = age(today, r.log_date); return a > 7 && a <= 28; });
+  const seen = new Set(prior.flatMap((r) => r.menus || []));
+  const newFoods = new Set(w7.flatMap((r) => r.menus || []).filter((m) => m && !seen.has(m)));
+  const refusedAll = new Set<string>();
+  const refusedDc = new Set<string>();
+  rows.forEach((r) => String(r.refused || '').split(/[,，·]/).forEach((t) => {
+    const k = t.trim();
+    if (!k) return;
+    refusedAll.add(k);
+    if (r.place === 'daycare') refusedDc.add(k);
+  }));
+  return {
+    envBadPct: env.length ? env.filter((r) => r.environment !== 'table').length / env.length : null, envCount: env.length,
+    selfPct: auto.length ? auto.filter((r) => r.autonomy === 'self').length / auto.length : null, autoCount: auto.length,
+    texLow: tex.length >= 3 && tex.filter((r) => r.texture === 'puree' || r.texture === 'mashed').length / tex.length > 0.5, texCount: tex.length,
+    mtOver30Pct: mt.length ? mt.filter((r) => (r.meal_time as number) >= 30).length / mt.length : null, mtCount: mt.length,
+    missingCount: 0,   // 영양 파이프라인 산출(크론이 fg.missing으로 덮음 — 리플레이는 0)
+    refusedCount: refusedAll.size, dcRefusedCount: refusedDc.size,
+    pressureMemoDays: memoDays(SIG_PRESSURE_RE), bargainMemoDays: memoDays(SIG_BARGAIN_RE),
+    snackHeavyDays: Object.values(snackBy).filter((n) => n >= 3).length, preMealMemoDays: memoDays(SIG_PREMEAL_RE),
+    newFoodCount: newFoods.size, attendsDaycare, eatenCount: new Set(rows.flatMap((r) => r.menus || [])).size,
+  };
 }
 
 // ── G-01·G-06 — 측정 공백 감지(+쿨다운 3일·유닛당 주 2회 캡) ────────────────────
