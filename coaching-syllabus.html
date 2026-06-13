@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 식습관 커리큘럼 — 우리 아이 식탁 수업계획서</title>
+<meta property="og:title" content="밀프레드 식습관 커리큘럼 — 12가지 식탁 수업">
+<meta property="og:description" content="매일 새벽 도착하는 코치 편지 한 통이 가르치는 것들 — 압박 내려놓기부터 스스로 먹는 식탁까지, 아이 식습관의 1년 커리큘럼.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p:#E89244;--p7:#B86A20;--deep:#8a4f12;--ink:#2a2118;--mut:#8a7a6a;--line:#f0e4d4;--bg:#FFFDFB;--cream:#FFF6EB;--green:#3e7a52;--green-bg:#EAF6F0}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:var(--bg);color:var(--ink);line-height:1.72;-webkit-font-smoothing:antialiased;word-break:keep-all}
+.wrap{max-width:540px;margin:0 auto;padding:0 20px 90px}
+
+/* ── 히어로 ── */
+.hero{padding:64px 0 44px;text-align:center}
+.hero .logo{font-size:13px;font-weight:800;color:var(--p7);letter-spacing:.14em}
+.hero h1{font-size:30px;line-height:1.32;letter-spacing:-0.02em;margin:14px 0 0;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--p7)}
+.hero .sub{margin-top:16px;font-size:15px;color:#6a5a48}
+.hero .letterbox{margin:30px auto 0;max-width:420px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:18px 18px 16px;text-align:left;box-shadow:0 6px 24px rgba(184,106,32,.07)}
+.hero .letterbox .from{font-size:11px;font-weight:800;color:var(--p7)}
+.hero .letterbox p{font-size:13.5px;margin-top:6px;color:#4a3f33}
+.scrolldown{margin-top:30px;font-size:12px;color:var(--mut)}
+
+/* ── 공통 섹션 ── */
+section{padding:38px 0 8px}
+.kicker{font-size:12px;font-weight:800;color:var(--p7);letter-spacing:.12em}
+h2{font-size:22px;line-height:1.35;letter-spacing:-0.02em;margin-top:8px;font-weight:800}
+.desc{margin-top:10px;font-size:14.5px;color:#5d4f3f}
+.divider{height:1px;background:var(--line);margin:44px 0 0}
+
+/* ── 작동 방식 4컷 ── */
+.steps4{margin-top:22px;display:flex;flex-direction:column;gap:12px}
+.s4{display:flex;gap:14px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:16px}
+.s4 .n{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:var(--cream);color:var(--p7);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center}
+.s4 b{font-size:15px}
+.s4 p{font-size:13.5px;color:#6a5a48;margin-top:3px}
+
+/* ── 4주 온보딩 타임라인 ── */
+.tl{margin-top:24px;position:relative;padding-left:26px}
+.tl::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:3px;border-radius:3px;background:linear-gradient(var(--p),#f3c896)}
+.tl .wk{position:relative;padding:0 0 26px}
+.tl .wk::before{content:'';position:absolute;left:-24px;top:7px;width:13px;height:13px;border-radius:50%;background:#fff;border:3.5px solid var(--p)}
+.tl .wk .tag{font-size:11px;font-weight:800;color:var(--p7);letter-spacing:.06em}
+.tl .wk b{display:block;font-size:16px;margin-top:2px}
+.tl .wk p{font-size:13.5px;color:#6a5a48;margin-top:4px}
+
+/* ── 학기(챕터) 밴드 ── */
+.chapter{margin-top:46px;border-radius:20px;padding:26px 22px 22px;color:#fff;position:relative;overflow:hidden}
+.chapter.c1{background:linear-gradient(135deg,#E89244,#d97a23)}
+.chapter.c2{background:linear-gradient(135deg,#c97f35,#a85e17)}
+.chapter.c3{background:linear-gradient(135deg,#8a5a26,#6e4314)}
+.chapter .cnum{font-size:12px;font-weight:800;opacity:.85;letter-spacing:.14em}
+.chapter h3{font-size:21px;font-weight:800;margin-top:6px;letter-spacing:-0.01em}
+.chapter p{font-size:13.5px;margin-top:8px;opacity:.94}
+.chapter .when{display:inline-block;margin-top:12px;font-size:11.5px;font-weight:800;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:100px;padding:3px 12px}
+
+/* ── 유닛 카드 ── */
+.unit{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:22px 20px;margin-top:16px;box-shadow:0 4px 18px rgba(184,106,32,.05)}
+.unit .head{display:flex;gap:14px;align-items:center}
+.unit .ico{flex-shrink:0;width:52px;height:52px;border-radius:16px;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:27px}
+.unit .head .no{font-size:11px;font-weight:800;color:var(--mut);letter-spacing:.08em}
+.unit .head h4{font-size:18.5px;font-weight:800;letter-spacing:-0.01em}
+.unit .oneline{margin-top:13px;font-size:14px;color:#574a3b;background:var(--cream);border-radius:12px;padding:11px 13px}
+.unit .why{margin-top:14px;font-size:13.5px;color:#6a5a48}
+.unit .why b{color:var(--p7)}
+.unit h5{margin-top:18px;font-size:12px;font-weight:800;color:var(--p7);letter-spacing:.08em}
+.ladder{margin-top:10px;position:relative;padding-left:24px}
+.ladder::before{content:'';position:absolute;left:7px;top:10px;bottom:14px;width:2.5px;background:#f3ddc0;border-radius:2px}
+.ladder .rung{position:relative;padding:0 0 14px}
+.ladder .rung::before{content:'';position:absolute;left:-22px;top:6px;width:11px;height:11px;border-radius:50%;background:var(--p)}
+.ladder .rung.last::before{background:var(--green)}
+.ladder .rung b{font-size:14px}
+.ladder .rung p{font-size:13px;color:#6a5a48;margin-top:2px}
+.grad{margin-top:6px;display:flex;gap:10px;align-items:flex-start;background:var(--green-bg);border:1.5px solid #bfe0ca;border-radius:13px;padding:12px 14px}
+.grad .cap{font-size:19px;line-height:1}
+.grad b{font-size:13.5px;color:var(--green)}
+.grad p{font-size:12.8px;color:#3f6650;margin-top:2px}
+.basis{margin-top:10px;font-size:11px;color:#a8987f}
+
+/* ── 약속 카드 ── */
+.promises{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+.pm{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px}
+.pm .e{font-size:21px;line-height:1.25}
+.pm b{font-size:14.5px}
+.pm p{font-size:13px;color:#6a5a48;margin-top:2px}
+
+/* ── 졸업 후 ── */
+.cycle{margin-top:20px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px}
+.cycle .row{display:flex;gap:12px;align-items:flex-start;padding:10px 0}
+.cycle .row+.row{border-top:1px dashed var(--line)}
+.cycle .e{font-size:22px}
+.cycle b{font-size:14.5px}
+.cycle p{font-size:13px;color:#6a5a48;margin-top:2px}
+
+/* ── 안전 스팟 ── */
+.spot{margin-top:16px;background:#FFF5F2;border:1.5px solid #F3C7B8;border-radius:16px;padding:18px}
+.spot b{font-size:14.5px;color:#a3492c}
+.spot ul{margin-top:8px}
+.spot li{font-size:13px;color:#7a5343;margin:5px 0 0 18px}
+
+/* ── 마무리 ── */
+.outro{margin-top:54px;text-align:center;background:linear-gradient(160deg,var(--cream),#fff);border:1.5px solid var(--line);border-radius:22px;padding:36px 22px}
+.outro h2{font-size:21px}
+.outro p{margin-top:10px;font-size:14px;color:#6a5a48}
+footer{text-align:center;color:var(--mut);font-size:11px;padding:34px 0 0;line-height:1.8}
+@media (min-width:700px){.hero h1{font-size:34px}}
+</style>
+</head><body><div class="wrap">
+
+<!-- ═══ 히어로 ═══ -->
+<div class="hero">
+  <div class="logo">MEALFRED · 식습관 커리큘럼</div>
+  <h1>아이의 식탁에도<br><em>커리큘럼</em>이 있습니다</h1>
+  <p class="sub">"오늘은 왜 이 이야기를 해줄까?"<br>밀프레드의 매일 편지는 즉흥이 아니라, 아이 데이터 위에 설계된 <b>12가지 식탁 수업</b>의 한 장면이에요.</p>
+  <div class="letterbox">
+    <div class="from">💌 새벽에 도착한 오늘의 편지</div>
+    <p>"어제 저녁을 화면 없이 식탁에 앉아 먹었어요. 그 장면이 아이에게는 꽤 큰 신호였을 거예요. 오늘은 같은 자리에서 한 끼만 더 이어가 볼까요?"</p>
+  </div>
+  <div class="scrolldown">아래로 내려보세요 ↓ 아이가 무엇을, 어떤 순서로 배우는지 한눈에</div>
+</div>
+
+<!-- ═══ 작동 방식 ═══ -->
+<section>
+  <div class="kicker">HOW IT WORKS</div>
+  <h2>숙제가 아니라, 하루 한 걸음</h2>
+  <p class="desc">부모님이 하실 일은 끼니를 가볍게 남기는 것뿐. 나머지는 코치가 매일 새벽에 준비합니다.</p>
+  <div class="steps4">
+    <div class="s4"><div class="n">1</div><div><b>기록</b><p>오늘 먹은 것·남긴 것·식탁 분위기를 칩 몇 번으로 톡톡. 식단표 사진 한 장도 좋아요.</p></div></div>
+    <div class="s4"><div class="n">2</div><div><b>진단</b><p>코치가 일주일의 흐름을 읽고 "지금 이 아이에게 가장 도움 될 수업"을 2~3개 고릅니다.</p></div></div>
+    <div class="s4"><div class="n">3</div><div><b>하루 한 걸음</b><p>매일 편지엔 행동이 딱 하나. 어제 잘됐으면 자연스럽게 다음 걸음, 막히면 쉬어가거나 방향을 바꿔요.</p></div></div>
+    <div class="s4"><div class="n">4</div><div><b>몸에 붙으면 졸업</b><p>습관이 자리 잡으면 그 수업은 그만 가르칩니다. 그리고 조용히 지켜보다, 무너지면 다시 함께 잡아요.</p></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ 첫 4주 ═══ -->
+<section>
+  <div class="kicker">FIRST 4 WEEKS</div>
+  <h2>처음 4주는 이렇게 흘러가요</h2>
+  <p class="desc">시작부터 숙제 폭탄을 드리지 않아요. 아이와 코치가 서로를 알아가는 시간이 먼저입니다.</p>
+  <div class="tl">
+    <div class="wk"><span class="tag">1주차 · 신뢰</span><b>괜찮아요, 부터 시작해요</b><p>편식은 만 1~5세 네 명 중 한 명이 겪는 흔한 과정이에요. 첫 주엔 다그치는 것 없이, 식탁의 긴장을 푸는 가장 부드러운 이야기 하나만 함께해요.</p></div>
+    <div class="wk"><span class="tag">2주차 · 관찰</span><b>우리 아이의 패턴이 보이기 시작해요</b><p>기록이 쌓이면 코치가 식사 환경·간식 리듬·거부 패턴을 읽어요. 부족한 정보는 저녁 질문 하나로 살짝 여쭤봅니다.</p></div>
+    <div class="wk"><span class="tag">3주차 · 개입</span><b>맞춤 수업이 본격적으로 열려요</b><p>이 아이에게 지금 필요한 수업 2~3개가 정해지고, 매일 편지가 그 수업을 하루 한 걸음씩 풀어갑니다.</p></div>
+    <div class="wk"><span class="tag">4주차+ · 정착</span><b>흐름이 생겨요</b><p>주말마다 한 주를 돌아보고 다음 주 방향을 다시 잡아요. 진전이 있으면 더 깊게, 멈췄으면 다른 수업으로 — 물 흐르듯.</p></div>
+  </div>
+</section>
+
+<!-- ═══ 1학기 ═══ -->
+<div class="chapter c1">
+  <div class="cnum">CHAPTER 1 · 기초 3과목</div>
+  <h3>식탁의 기초 — 먹이기 전에, 식탁부터</h3>
+  <p>음식을 바꾸기 전에 식탁의 공기를 바꿉니다. 거의 모든 편식 개선이 여기서 출발해요.</p>
+  <span class="when">⏱ 첫 주부터 시작 가능</span>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🕊️</div><div><div class="no">LESSON 01</div><h4>압박 내려놓기</h4></div></div>
+  <div class="oneline">"한 입만"을 멈추는 순간, 아이는 음식 대신 음식을 볼 수 있게 됩니다.</div>
+  <p class="why"><b>왜 배우나요?</b> 어른은 무엇을·언제 차릴지 정하고, 먹을지·얼마나는 아이의 몫 — 이 역할이 나뉘면 식탁의 긴장이 풀려요. 재촉도, 과한 환호도 아이에겐 똑같은 부담이거든요.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 재촉 멘트 쉬기</b><p>"한 입만"을 잠시 내려놓고, 남긴 접시는 담담하게 치워요.</p></div>
+    <div class="rung last"><b>2단 — 담담한 식탁 유지</b><p>잘 먹은 날도 환호 대신 잔잔한 끄덕임으로. 어떤 날이든 같은 온도로.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>재촉 없는 식탁이 2주, 그리고 코치가 말하지 않아도 1주 더 유지되면 — 몸에 붙은 거예요.</p></div></div>
+  <div class="basis">근거 · Satter 식사 역할분담(sDOR) — 국제 소아 영양 표준 권고</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">⏰</div><div><div class="no">LESSON 02</div><h4>공복 리듬</h4></div></div>
+  <div class="oneline">밥을 안 먹는 게 아니라, 배가 고플 틈이 없었던 것일 수 있어요.</div>
+  <p class="why"><b>왜 배우나요?</b> 끼니 사이가 간식으로 촘촘하면 식탁에 앉아도 배가 안 고파요. 식사와 간식 사이를 두세 시간 비워주면, 배고픔이라는 가장 자연스러운 식욕이 제시간에 깨어납니다.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 끼니 직전 간식 멈추기</b><p>밥 차리기 전 간식·우유만 잠시 멈춰요. 식간에는 물로.</p></div>
+    <div class="rung last"><b>2단 — 하루 리듬 고정</b><p>식사와 간식이 정해진 때에 오가는 리듬을 만들어요.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>끼니 전 군것질 없는 날이 일주일에 닷새 이상, 2주 이어지면 졸업이에요.</p></div></div>
+  <div class="basis">근거 · WIC(미국 영유아 영양 프로그램) 식간 간격 권고 · 식약처 어린이 식생활 지침</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🍽️</div><div><div class="no">LESSON 03</div><h4>식탁 무대</h4></div></div>
+  <div class="oneline">같은 자리, 같은 시작 신호 — 예측 가능한 식탁에서 아이는 새로운 음식을 시도할 용기를 얻어요.</div>
+  <p class="why"><b>왜 배우나요?</b> 화면을 보며, 돌아다니며 먹는 식사는 새로운 맛을 배울 틈을 주지 않아요. 식탁이 익숙한 무대가 되면, 주변을 살피는 데 쓰던 에너지가 음식을 들여다보는 호기심으로 옮겨 갑니다.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 하루 한 끼, 화면 끄고 식탁에서</b><p>딱 한 끼부터. 수저 놓기 같은 작은 시작 의식이 도와줘요.</p></div>
+    <div class="rung last"><b>2단 — 주 5끼 이상 같은 자리·같은 시간</b><p>식사가 '예고된 일'이 되면 긴장이 내려가요.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>열 끼 중 여섯 끼 이상이 식탁에서 — 2주 유지 후, 코칭 없이도 1주 더 이어지면 졸업.</p></div></div>
+  <div class="basis">근거 · 식약처 어린이 급식 지침(화면·자리) · 식사 구조화 국제 권고</div>
+</div>
+
+<!-- ═══ 2학기 ═══ -->
+<div class="chapter c2">
+  <div class="cnum">CHAPTER 2 · 핵심 4과목</div>
+  <h3>맛과 친해지기 — 거부도 적립이 되는 수업</h3>
+  <p>이제 음식 이야기를 시작합니다. 억지로 먹이는 법은 끝까지 등장하지 않아요.</p>
+  <span class="when">⏱ 2주차부터 차례로 열려요</span>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🏦</div><div><div class="no">LESSON 04</div><h4>노출 적금</h4></div></div>
+  <div class="oneline">새 음식은 여러 번 만나야 친구가 돼요. 보고, 만지고, 냄새 맡는 것도 전부 한 번의 적립입니다.</div>
+  <p class="why"><b>왜 배우나요?</b> 아이가 새 음식을 받아들이기까지 보통 8~15번의 만남이 필요해요. 거부한 날조차 '얼굴을 익힌 날'로 쌓입니다 — 실패가 없는 적금이에요. 중간에 정체기가 와도 정상이라는 것까지 미리 알려드려요.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 작게, 말없이, 격일로</b><p>도전 음식을 새끼손톱만큼만 식탁 한쪽에. 권하지 않아요.</p></div>
+    <div class="rung last"><b>2단 — 티스푼 맛보기 초대</b><p>적립이 쌓이면 "혀에 대 볼래?" 하고 가볍게 초대. 답은 아이 몫.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>만남이 8번 이상 쌓이고, 아이가 스스로 두 번 먹어보면 — 그 음식과는 친구가 된 거예요.</p></div></div>
+  <div class="basis">근거 · 반복 노출 연구(USDA 영양근거센터·Wardle 2003) — 편식 개입의 가장 단단한 근거</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🫶</div><div><div class="no">LESSON 05</div><h4>배부름 존중</h4></div></div>
+  <div class="oneline">"배불러"를 믿어주면, 아이는 제 몸의 신호를 믿는 어른으로 자랍니다.</div>
+  <p class="why"><b>왜 배우나요?</b> 완식을 시키는 것보다 중요한 게 배부름 감각이에요. 적게 담고 더 달라면 주는 방식이면, 남기는 일도 혼나는 일도 사라져요. 길어진 식사는 부담 없이 정리하는 게 다음 끼니를 살립니다.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — "배불러" 인정하고 마무리</b><p>완식 강요를 멈춰요. 남겨도 그 끼니는 충분히 제 역할을 했어요.</p></div>
+    <div class="rung last"><b>2단 — 적게 담고, 가볍게 끝내기</b><p>30분쯤이면 부담 없이 정리. 더 먹고 싶으면 언제든 더.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>30분을 넘기는 끼니가 열에 셋 이하로 2주 — 식사가 짧고 즐거워졌다는 신호예요.</p></div></div>
+  <div class="basis">근거 · 홍콩 가정보건서비스(FHS) 권장 배식법 · 30분 식사 규칙</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">👨‍👩‍👧</div><div><div class="no">LESSON 06</div><h4>부모가 메뉴판</h4></div></div>
+  <div class="oneline">백 마디 권유보다, 곁에서 맛있게 먹는 한 입이 큽니다.</div>
+  <p class="why"><b>왜 배우나요?</b> 아이의 새 음식 수용을 가장 강하게 예측하는 한 가지는 '부모가 같은 음식을 먹는 모습'이에요. 가족 식사는 형식이 아니라 관계 — 배달 음식이어도, 단출해도, 함께 앉으면 충분해요.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 같은 음식을 곁에서, 말없이</b><p>하루 한 번, 권하지 않고 그냥 맛있게 드세요. 아이는 곁눈으로 다 보고 있어요.</p></div>
+    <div class="rung last"><b>2단 — 가족 저녁을 더 자주</b><p>일주일에 다섯 번을 향해 천천히. 형식보다 빈도예요.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>가족이 함께한 저녁이 주 5회, 2주 이어지면 — 식탁이 가장 좋은 교실이 된 거예요.</p></div></div>
+  <div class="basis">근거 · 모델링 연구(HabEat 프로젝트) · Satter 가족식사 권고</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🍬</div><div><div class="no">LESSON 07</div><h4>달콤한 협상 끊기</h4></div></div>
+  <div class="oneline">"먹으면 줄게"는 채소를 벌처럼, 디저트를 상처럼 만들어요.</div>
+  <p class="why"><b>왜 배우나요?</b> 보상으로 먹게 하면 그 음식이 더 싫어지고, 금지한 간식은 더 간절해져요(둘 다 연구로 확인된 역효과). 디저트의 지위를 '중립'으로 — 소량을 끼니의 일부로 담담하게 내는 게 답이에요.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 조건 걸기 멈추기</b><p>거래 멘트를 쉬어요. 식탁은 흥정 자리가 아니라 그냥 식사 자리.</p></div>
+    <div class="rung last"><b>2단 — 디저트 중립화</b><p>달콤한 것을 악마로 만들지 않아요. 소량을 끼니와 함께, 담담하게.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>거래 없는 식탁이 2주 — 디저트 앞에서도 줄다리기가 사라지면 졸업.</p></div></div>
+  <div class="basis">근거 · 보상·제한의 역효과 연구(Birch 외) — 음식 보상 금지 국제 권고</div>
+</div>
+
+<!-- ═══ 3학기 ═══ -->
+<div class="chapter c3">
+  <div class="cnum">CHAPTER 3 · 심화 5과목</div>
+  <h3>스스로 크는 식탁 — 아이가 주인공이 되는 수업</h3>
+  <p>기초가 잡히면, 이제 아이의 속도로 세계를 넓힙니다. 감각·자율성·새로운 음식까지.</p>
+  <span class="when">⏱ 3주차부터 아이 신호에 맞춰 열려요</span>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">💬</div><div><div class="no">LESSON 08</div><h4>식탁의 말</h4></div></div>
+  <div class="oneline">"얼마나 먹었니" 대신 "당근이 아삭했어?" — 말의 방향만 바꿔도 식탁이 바뀝니다.</div>
+  <p class="why"><b>왜 배우나요?</b> 먹는 양을 화제로 삼으면 식탁이 시험장이 돼요. 음식 자체(맛·색·소리)로 대화를 돌리면 아이는 평가받지 않고 궁금해할 수 있어요.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 금지어 끊기</b><p>"한 입만"·"다 먹어야지"·"안 먹으면…" 세 마디를 쉬어요.</p></div>
+    <div class="rung last"><b>2단 — 음식에게 말 걸기</b><p>"이건 무슨 소리가 나?" "어떤 색이 제일 맛있어 보여?" — 호기심의 말로.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>식탁 대화의 열에 일곱이 음식 이야기면 — 말 습관이 바뀐 거예요.</p></div></div>
+  <div class="basis">근거 · 식탁 언어 연구 — 압박 언어와 섭취 거부의 상관(국제 가이드라인 공통 권고)</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🖐️</div><div><div class="no">LESSON 09</div><h4>감각·질감 계단</h4></div></div>
+  <div class="oneline">못 먹는 게 아니라 아직 낯선 거예요. 만지고, 냄새 맡고, 그다음이 한 입.</div>
+  <p class="why"><b>왜 배우나요?</b> 죽·다진 음식에 오래 머물면 씹는 힘과 새 질감 수용이 늦어져요. 같이 있기→보기→만지기→냄새→입에 대기 — 한 번에 반 계단씩, 거부하면 즉시 한 계단 내려와요(후퇴는 실패가 아니에요).</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 한 끼만 한 단계 위 질감</b><p>핑거푸드 한 조각부터. 거부하면 바로 되돌려요.</p></div>
+    <div class="rung last"><b>2단 — 일반식 비중 올리기</b><p>아이 속도로, 식사 전 몸놀이가 감각을 깨워줘요.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>목표 질감이 2주 동안 식탁의 기본이 되면 졸업이에요.</p></div></div>
+  <div class="basis">근거 · SOS 섭식 접근(감각 위계) · 유럽 소아소화기영양학회(ESPGHAN) 질감 권고</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🌉</div><div><div class="no">LESSON 10</div><h4>음식 다리 놓기</h4></div></div>
+  <div class="oneline">잘 먹는 음식에서 출발해, 닮은 음식으로 한 칸씩 — 세계가 넓어지는 지도예요.</div>
+  <p class="why"><b>왜 배우나요?</b> 새 음식은 익숙한 것 옆에 있을 때 덜 낯설어요. 좋아하는 음식과 색·온도·질감·맛 중 <b>한 가지만 다른</b> '사촌 음식'으로 잇고, 좋아하는 소스에 찍어 먹기로 맛의 다리를 놓아요. 밀프레드는 또래 수만 명의 식단 데이터로 검증된 사촌 지도를 갖고 있어요.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 사촌 음식 한 가지</b><p>잘 먹는 음식의 닮은꼴 하나를 식탁에. 한 번에 한 가지만 바꿔요.</p></div>
+    <div class="rung last"><b>2단 — 사슬 다음 칸으로</b><p>찍어먹기 짝꿍을 활용해 또 한 칸. 일주일에 한두 칸이면 충분해요.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>다리를 건너간 새 음식을 아이가 스스로 두 번 먹으면 — 그 길은 완성이에요.</p></div></div>
+  <div class="basis">근거 · 푸드 체이닝(Fraker 외, 2006) — 미국 임상 현장의 단계적 확장 기법</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🥄</div><div><div class="no">LESSON 11</div><h4>스스로 식탁</h4></div></div>
+  <div class="oneline">"내가 고른 거야"라는 기분은 가장 강력한 식욕입니다.</div>
+  <p class="why"><b>왜 배우나요?</b> 떠먹여 주기만 하면 식사가 '받는 일'이 돼요. 둘 중 고르기, 스스로 떠먹기, 수저 놓기 같은 작은 역할이 아이를 식탁의 구경꾼에서 주인공으로 바꿉니다. 흘리는 건 손이 배우는 중이라는 신호예요.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 고르기 + 스스로 한 술</b><p>"이거 줄까, 저거 줄까?" 작은 선택권과 하루 한 끼 셀프 숟가락.</p></div>
+    <div class="rung last"><b>2단 — 작은 역할 주기</b><p>제 접시에 덜기, 수저 놓기, 채소 씻기 — 식탁의 한 자리를 맡겨요.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>스스로 먹는 끼니가 절반을 넘어 2주 — 식탁의 주도권이 넘어간 거예요.</p></div></div>
+  <div class="basis">근거 · 자기결정성 이론(SDT) 기반 식사 자율성 연구</div>
+</div>
+
+<div class="unit">
+  <div class="head"><div class="ico">🤝</div><div><div class="no">LESSON 12</div><h4>어린이집과 한 팀</h4></div></div>
+  <div class="oneline">기관에서 거부한 음식, 집에서는 압박 없이 다시 만날 수 있어요.</div>
+  <p class="why"><b>왜 배우나요?</b> 어린이집에서의 거절은 실패가 아니라 첫인사예요. 같은 음식도 자리가 바뀌면 새로 보입니다. 집은 아무것도 요구하지 않는 무대라서, 다시 살펴볼 용기를 내기 가장 좋은 곳이에요. 매일 들이밀면 물리니, 격일 리듬으로.</p>
+  <h5>이렇게 올라가요</h5>
+  <div class="ladder">
+    <div class="rung"><b>1단 — 주 1회, 저압력 재등장</b><p>기관에서 안 먹은 식재료를 집 식탁 가운데 접시에 조금만.</p></div>
+    <div class="rung last"><b>2단 — 격일 리듬으로</b><p>띄엄띄엄 만나야 호기심이 살아 있어요. 주 2회면 충분해요.</p></div>
+  </div>
+  <div class="grad"><div class="cap">🎓</div><div><b>졸업 기준</b><p>기관 거부 음식의 집 재도전이 주 2회씩 2주 — 두 식탁이 한 팀이 됐어요.</p></div></div>
+  <div class="basis">근거 · 재노출 간격 연구(권태 효과) · 기관-가정 연계 식교육 권고</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══ 약속 ═══ -->
+<section>
+  <div class="kicker">OUR PRINCIPLES</div>
+  <h2>모든 수업이 지키는 약속</h2>
+  <div class="promises">
+    <div class="pm"><div class="e">1️⃣</div><div><b>한 번에 하나만</b><p>편지 하나에 행동 하나. 두 가지를 동시에 바꾸라고 하지 않아요.</p></div></div>
+    <div class="pm"><div class="e">🐢</div><div><b>아이의 속도를 믿어요</b><p>어른은 방향을, 아이는 속도를. 빨리 가는 게 아니라 끝까지 가는 게 목표예요.</p></div></div>
+    <div class="pm"><div class="e">🏦</div><div><b>거부도 적립이에요</b><p>고개를 저은 날도 음식과 얼굴을 익힌 날. 실패라는 칸이 없어요.</p></div></div>
+    <div class="pm"><div class="e">🎓</div><div><b>몸에 붙으면 그만 가르쳐요</b><p>잔소리가 되기 전에 멈춥니다. 같은 말을 반복하는 코치는 코치가 아니니까요.</p></div></div>
+    <div class="pm"><div class="e">🔄</div><div><b>무너지면 다시, 처음부터는 아니게</b><p>졸업한 습관도 조용히 지켜봐요. 흔들리면 기억하는 자리에서 다시 시작합니다.</p></div></div>
+    <div class="pm"><div class="e">🔍</div><div><b>지어내지 않아요</b><p>편지의 모든 칭찬과 조언은 부모님이 남긴 기록 위에서만 만들어집니다.</p></div></div>
+  </div>
+</section>
+
+<!-- ═══ 졸업 후 ═══ -->
+<section>
+  <div class="kicker">AFTER GRADUATION</div>
+  <h2>졸업하면 끝? — 아니요, 지켜봐요</h2>
+  <p class="desc">습관은 한 번 잡았다고 영원하지 않아요. 밀프레드는 졸업한 수업도 데이터로 계속 살핍니다.</p>
+  <div class="cycle">
+    <div class="row"><div class="e">🎓</div><div><b>졸업</b><p>기준을 채우고, 코칭 없이도 1주 유지되면 그 수업은 조용히 물러나요.</p></div></div>
+    <div class="row"><div class="e">👀</div><div><b>관찰</b><p>편지에선 사라져도 기록 속 신호는 계속 봅니다.</p></div></div>
+    <div class="row"><div class="e">📉</div><div><b>흔들림 감지</b><p>2주 연속 신호가 무너지면 코치가 먼저 알아차려요.</p></div></div>
+    <div class="row"><div class="e">🔄</div><div><b>다시, 그러나 가볍게</b><p>처음부터가 아니라 기억하는 단계에서 재시작 — 회복은 늘 첫 배움보다 빨라요.</p></div></div>
+  </div>
+</section>
+
+<!-- ═══ 안전 ═══ -->
+<section>
+  <div class="kicker">ALWAYS-ON SAFETY</div>
+  <h2>커리큘럼보다 먼저 보는 것들</h2>
+  <p class="desc">아래 신호는 수업 순서와 무관하게, 보이는 즉시 가장 앞으로 옵니다.</p>
+  <div class="spot">
+    <b>🚨 코치가 항상 먼저 살피는 4가지</b>
+    <ul>
+      <li><b>질식 안전</b> — 방울토마토·포도는 잘라서, 견과·떡은 연령 기준대로(식약처 2025 지침 반영)</li>
+      <li><b>심한 거부 신호</b> — 며칠째 거의 안 먹는 흐름이 보이면 전문가 상담을 부드럽게 안내해요</li>
+      <li><b>성장 체크</b> — 키·몸무게를 남겨주시면 또래 곡선과 함께 봐드려요</li>
+      <li><b>괜찮은 편식</b> — 발달 과정의 정상 편식은 "괜찮다"고 분명히 말해드려요(불안 장사를 하지 않아요)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══ 아웃트로 ═══ -->
+<div class="outro">
+  <div class="kicker">MEALFRED</div>
+  <h2>오늘 저녁 한 끼만<br>가볍게 남겨보세요</h2>
+  <p>내일 새벽, 우리 아이의 첫 수업이<br>편지 한 통으로 도착합니다. 💌</p>
+</div>
+
+<footer>
+  밀프레드 식습관 커리큘럼 · 12개 수업 × 단계별 사다리 × 졸업 기준<br>
+  설계 근거 — 35개 국제 편식 가이드라인·임상 접근(Satter sDOR · SOS · 반복 노출 연구 · 푸드 체이닝 · HabEat · SDT · 식약처 어린이 식생활 지침)<br>
+  ⓒ MEALFRED · 본 커리큘럼은 의료 행위가 아닌 식습관 교육이며, 의학적 우려는 소아과 전문의와 상담하세요
+</footer>
+</div></body></html>
