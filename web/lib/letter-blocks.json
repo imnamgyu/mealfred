@@ -1,7 +1,7 @@
 {
  "version": 1,
  "generated": "2026-06-13",
- "count": 434,
+ "count": 441,
  "note": "C-05~C-17 멀티에이전트 제작(4런) + C-18 적대검수 6렌즈(26건 삭제) — 게이트=tests/blocks.test.ts(C-19)",
  "blocks": [
   {
@@ -4676,6 +4676,73 @@
    "slots": [],
    "tone": "empathy",
    "id": "common.lowdata.6"
+  },
+  {
+   "unit": "common",
+   "stage": "plateau",
+   "variant": 6,
+   "text": "조용한 날들이 쌓여 {name}만의 식사 리듬이 되어 가요. 그 흐름을 믿고 천천히 함께 걸어요.",
+   "slots": [
+    "name"
+   ],
+   "tone": "warm",
+   "id": "common.plateau.6"
+  },
+  {
+   "unit": "common",
+   "stage": "plateau",
+   "variant": 7,
+   "text": "어떤 날은 그저 곁에 앉아 같이 먹는 것만으로 충분해요. 오늘은 그 평범함을 가만히 누려 보세요.",
+   "slots": [],
+   "tone": "warm",
+   "id": "common.plateau.7"
+  },
+  {
+   "unit": "common",
+   "stage": "plateau",
+   "variant": 8,
+   "text": "큰 변화를 재촉하지 않는 날도 분명한 한 걸음이에요. 멈춘 듯 보여도 마음은 자라고 있거든요.",
+   "slots": [],
+   "tone": "empathy",
+   "id": "common.plateau.8"
+  },
+  {
+   "unit": "common",
+   "stage": "plateau",
+   "variant": 9,
+   "text": "식탁에서 보내는 시간이 차곡차곡 익숙함이 되고 있어요. 그 익숙함이 다음 도전의 디딤돌이 돼요.",
+   "slots": [],
+   "tone": "praise",
+   "id": "common.plateau.9"
+  },
+  {
+   "unit": "common",
+   "stage": "plateau",
+   "variant": 10,
+   "text": "오늘은 무얼 더 하려 애쓰지 않아도 좋아요. 편안한 식탁 그 자체가 가장 좋은 밑거름이 되니까요.",
+   "slots": [],
+   "tone": "warm",
+   "id": "common.plateau.10"
+  },
+  {
+   "unit": "common",
+   "stage": "plateau",
+   "variant": 11,
+   "text": "기록을 남겨 주신 손길 덕분에 {name}의 하루가 또렷이 보여요. 그 꾸준함이 코치에게도 큰 힘이 돼요.",
+   "slots": [
+    "name"
+   ],
+   "tone": "praise",
+   "id": "common.plateau.11"
+  },
+  {
+   "unit": "common",
+   "stage": "plateau",
+   "variant": 12,
+   "text": "잘 가고 있다는 말을 꼭 전하고 싶었어요. 지금처럼 담담히 이어 가면 그것으로 충분해요.",
+   "slots": [],
+   "tone": "empathy",
+   "id": "common.plateau.12"
   }
  ]
 }

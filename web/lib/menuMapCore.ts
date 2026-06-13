@@ -168,15 +168,24 @@ export function createMapper(poolNames: string[]): Mapper {
     .forEach(([s, r]) => scanMap.set(s, r));   // 닭* 는 위 '닭' 1글자 스캔이 커버(닭조림·닭살·순살닭 등)
   const SCAN_TOKENS: [string, string][] = [...scanMap.entries()].sort((a, b) => b[0].length - a[0].length);
 
+  // 메뉴명에서 '숨은 주식·튀김옷'을 보정 — 모든 소스(dict/rule/scan)에 적용(mapMenu). 곡물군 신호 누락 방지.
+  function boostFromName(menu: string): string[] {
+    const out: string[] = [];
+    if (/밥|죽|미음/.test(menu)) out.push('쌀');   // 곡물 보정
+    // 떡류 = 쌀 가공형태(떡갈비/떡볶이 등은 룰에서 먼저 반환되어 무관 + 바른 모르페임만 매칭)
+    if (/설기|송편|증편|약식|시루떡|가래떡|꿀떡|찰떡|쑥떡|무지개떡|바람떡|개피떡|수리취떡|경단/.test(menu)) out.push('쌀');
+    if (/빵|머핀|베이글|크루?아상|크로?와상|러스크|포카치아|스콘|깜빠뉴/.test(menu)) out.push('빵');
+    // 튀김옷·빵가루 = 밀(곡물). 까스·튀김·탕수·너겟·고로케·치킨(후라이드) 등 (밀가루는 EXCLUDE라 레시피서 누락되던 곡물 보정)
+    if (/까스|가스|커틀렛|커틀릿|튀김|후라이드|프라이드|탕수|너겟|너깃|고로케|크로켓|덴푸라|텐푸라|치킨/.test(menu)) out.push('밀');
+    return out;
+  }
+
   function scanIngredients(menu: string): string[] {
     const found = new Set<string>();
     for (const [surface, real] of SCAN_TOKENS) {
       if ((surface.length >= 2 || ONE_CHAR_SCAN.has(surface)) && menu.includes(surface)) found.add(real);
     }
-    if (/밥|죽|미음/.test(menu)) found.add('쌀');   // 곡물 보정
-    // 떡류·빵류 보정 (스캔 단계 전용 — 떡갈비/떡볶이 등은 룰에서 먼저 반환되어 영향 없음). 떡=쌀, 빵류=빵.
-    if (/설기|송편|증편|약식|시루떡|가래떡|꿀떡|찰떡|쑥떡|무지개떡|바람떡|개피떡|수리취떡|경단/.test(menu)) found.add('쌀');
-    if (/빵|머핀|베이글|크루?아상|크로?와상|러스크|포카치아|스콘|깜빠뉴/.test(menu)) found.add('빵');
+    for (const b of boostFromName(menu)) found.add(b);
     const arr = [...found];
     return arr.filter((short) => {
       const longSurface = SCAN_TOKENS.find(([s, r]) => r !== short && s.includes(short) && menu.includes(s));
@@ -185,14 +194,31 @@ export function createMapper(poolNames: string[]): Mapper {
     });
   }
 
+  // 템플릿(불고기·떡갈비 등)이 기본값 소고기를 강제하지만 메뉴가 다른 육류를 명시하면 교정.
+  // 소고기를 '추가'하지 않고 '치환'만 — 스캔 오탐(갈비→소고기 등)을 끌어들이지 않음.
+  function meatFix(menu: string, ings: string[]): string[] {
+    if (!ings.includes('소고기')) return ings;
+    if (/소고기|쇠고기|한우|우육/.test(menu)) return ings;   // 소고기 명시 → 유지
+    let alt: string | null = null;
+    if (/돈육|돼지|제육|삼겹|목살|돈\b/.test(menu)) alt = '돼지고기';
+    else if (/오리/.test(menu)) alt = '오리고기';
+    else if (/닭|치킨/.test(menu)) alt = '닭고기';
+    if (!alt) return ings;
+    const out: string[] = [];
+    for (const x of ings) { const v = x === '소고기' ? alt : x; if (!out.includes(v)) out.push(v); }
+    return out;
+  }
+
   function mapMenu(menu: string, opts?: { skipDict?: boolean }): MapResult | null {
     const m = menu.trim().replace(/\s/g, '');
-    if (!opts?.skipDict && DICT[m]) return { ingredients: dedupCanon(DICT[m]), processed: false, source: 'dict' };
-    if (MENU_MAP[m]) return { ingredients: dedupCanon(MENU_MAP[m].ing), processed: !!MENU_MAP[m].processed, source: 'rule' };
+    const boost = boostFromName(m);   // 모든 소스에 적용 — dict/rule도 숨은 곡물(밥·떡·빵·튀김옷) 보정
+    const wb = (ings: string[]) => meatFix(m, dedupCanon([...ings, ...boost]));
+    if (!opts?.skipDict && DICT[m]) return { ingredients: wb(DICT[m]), processed: false, source: 'dict' };
+    if (MENU_MAP[m]) return { ingredients: wb(MENU_MAP[m].ing), processed: !!MENU_MAP[m].processed, source: 'rule' };
     for (const key of PARTIAL_KEYS) {
-      if (m.includes(key)) return { ingredients: dedupCanon(MENU_MAP[key].ing), processed: !!MENU_MAP[key].processed, source: 'rule' };
+      if (m.includes(key)) return { ingredients: wb(MENU_MAP[key].ing), processed: !!MENU_MAP[key].processed, source: 'rule' };
     }
-    const scanned = dedupCanon(scanIngredients(m));
+    const scanned = meatFix(m, dedupCanon(scanIngredients(m)));   // scanIngredients가 이미 boost 포함
     if (scanned.length) return { ingredients: scanned, processed: false, source: 'scan' };
     return null;
   }

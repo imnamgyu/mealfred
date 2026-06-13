@@ -507,8 +507,9 @@ export async function GET(req: Request) {
                 ((progRows || []) as CurriculumRow[]).forEach((r) => { progress[r.unit_id] = r; });
                 // ② 최근 편지 컨텍스트 7통(과거만) — 블록 원장(3통)·코칭 일수(6통)·intro 기왕(7통)·사실 원장(이번 주)
                 const { data: pastCtxRows } = await supabase.from('coach_letters')
-                  .select('letter_date,context').eq('child_id', cid).lt('letter_date', today)
-                  .order('letter_date', { ascending: false }).limit(7);
+                  .select('letter_date,context,oneliner').eq('child_id', cid).lt('letter_date', today)
+                  .order('letter_date', { ascending: false }).limit(10);
+                const recentOnelines = ((pastCtxRows || []) as Array<{ oneliner?: string | null }>).map((r) => r.oneliner).filter((o): o is string => typeof o === 'string' && !!o);
                 const pastCtxs = ((pastCtxRows || []) as Array<{ letter_date: string; context: Record<string, unknown> | null }>).filter((r) => r.context);
                 const ctxList = pastCtxs.map((r) => r.context as Record<string, unknown>);
                 const decisionsPast = ctxList.map((c) => (c as { decision?: { unit?: string; mode?: string } | null }).decision ?? null);
@@ -548,7 +549,8 @@ export async function GET(req: Request) {
                   const prevCited = Array.isArray((latestThisWeek?.context as { factsCited?: unknown } | null)?.factsCited)
                     ? ((latestThisWeek!.context as { factsCited: string[] }).factsCited) : [];
                   // ⑧ 조립(LLM 0콜) — 사실 카드·원장·시드 전부 결정론
-                  const factRes = compileFactCards({ rows: rs as unknown as CRow[], today });
+                  const recentMirrors = ctxList.slice(0, 10).map((c) => (c as { mirror?: unknown }).mirror).filter((m): m is string => typeof m === 'string' && !!m);
+                  const factRes = compileFactCards({ rows: rs as unknown as CRow[], today, recentMirrors });
                   const firstOfWeek = !latestThisWeek;
                   const recentIntros = recentIntroUnitsOf(ctxList);
                   const introNeeded = introNeededV3(firstOfWeek, dr.decision.unit, null, recentIntros);
@@ -556,11 +558,11 @@ export async function GET(req: Request) {
                   const urgent = isUrgent({ icfqRiskCount, rows: rs as unknown as CRow[], today });
                   const ao = assembleLetter({
                     decision: dr.decision, unitDef: UNITS[dr.decision.unit], factCards: factRes.cards,
-                    blocks: BLOCKS, blockLedger: collectBlockLedger(ctxList.slice(0, 3)), factsCited: prevCited,
+                    blocks: BLOCKS, blockLedger: collectBlockLedger(ctxList.slice(0, 8)), factsCited: prevCited,
                     recentCombos: ctxList.map((c) => (Array.isArray((c as { blocks?: unknown }).blocks) ? ((c as { blocks: string[] }).blocks).join('+') : '')).filter(Boolean),
                     name: meta.nickname || '아이', daySeed, cidHash, food: anchor.mission_target,
                     introNeeded, suppressIntro: dr.decision.mode === 'pivot' && recentIntros.has(dr.decision.unit),
-                    lowData: dr.lowData, urgent, detForbid: detRe, mirror: factRes.mirror,
+                    lowData: dr.lowData, urgent, detForbid: detRe, mirror: factRes.mirror, recentOnelines,
                   });
                   let v3Letter = ao.letter; let v3One = ao.oneliner; let v3LlmCalls = 0; let recapUsed = false;
                   // ⑨ H-03·E-08 — 일요일 회고(자유작문 잔존면·소형 프롬프트·기존 가드 스택 그대로). 실패·예산 부족 → 조립 편지.
@@ -597,6 +599,7 @@ export async function GET(req: Request) {
                     source: force ? 'cron(v3·force)' : 'cron(v3)',
                     out: recapUsed ? null : ao,   // 회고일은 블록·사실 소비 없음(원장 그대로 승계)
                     decision: dr.decision, goalsSnapshot: dr.goalsAfter.length ? dr.goalsAfter : goals, prevFactsCited: prevCited,
+                    mirror: factRes.mirror,
                   });
                   // ⑩ G-03 — 오늘의 질문 정렬: ICFQ 주기일 > unitProbe(측정 공백) > 기존 로테이션
                   const focusRowQ = dr.updates.find((u) => u.unit_id === dr.decision!.unit) || progress[dr.decision.unit] || null;

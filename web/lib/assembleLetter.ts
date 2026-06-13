@@ -36,6 +36,7 @@ export type AssembleInput = {
   tones?: BlockTone[];              // E-05 온보딩 1주차 tone=warm 제한 등
   detForbid?: RegExp | null;        // 동적 금지(coachFacts forbidParts — D-09 최종 스캔에 합류)
   mirror?: string | null;           // ⭐ 식단 거울(coachFacts.buildMealMirror) — lever 무관 매 편지 앞 1~2문장(어제 끼니+영양신호등)
+  recentOnelines?: string[];        // 최근 oneliner(byte-동일 dedup — D-06)
 };
 export type AssembleOutput = {
   letter: string; oneliner: string;
@@ -146,10 +147,32 @@ const ONELINER: Array<{ withNext: (n: string) => string; noNext: string }> = [
   { withNext: (n) => `이번 걸음은 '${n}'예요`, noNext: '잘 가고 있어요. 서두르지 않아도 돼요' },
   { withNext: (n) => `${n}, 오늘 한 번이면 돼요`, noNext: '오늘은 쉬어가며 식탁 분위기만 봐주세요' },
 ];
-function buildOneliner(next: string | null, seed: number): string {
-  const t = ONELINER[seed % ONELINER.length];
-  const s = next ? t.withNext(next) : t.noNext;
-  return s.length <= 60 ? s : t.noNext;   // 길이 캡 60자(D-06-2) — 넘치면 next 없는 변형으로
+// next 없는(maintain 등) 날의 oneliner 풀 — 12변형 + 최근 이력 dedup(랄프위검: 6/05=6/11·6/06=6/12 byte-동일 적발)
+const ONELINER_NONEXT = [
+  '오늘은 잔잔히 지켜보는 것만으로도 좋아요',
+  '꾸준함이 차곡차곡 쌓이는 중이에요',
+  '지금의 흐름을 그대로 이어가면 좋아요',
+  '아이의 속도를 믿고 가는 구간이에요',
+  '잘 가고 있어요. 서두르지 않아도 돼요',
+  '오늘은 쉬어가며 식탁 분위기만 봐주세요',
+  '오늘은 마음 편히 한 끼만 함께해도 충분해요',
+  '천천히 가도 괜찮은 하루예요',
+  '오늘은 곁에 가만히 있어 주기만 해도 돼요',
+  '작은 기록 하나가 큰 그림이 되고 있어요',
+  '서두르지 않는 오늘이 단단한 밑돌이 돼요',
+  '오늘도 식탁을 살펴 주셔서 고마워요',
+];
+function buildOneliner(next: string | null, seed: number, recent?: string[]): string {
+  const rec = recent || [];
+  if (next) {
+    const s = ONELINER[seed % ONELINER.length].withNext(next);
+    if (s.length <= 60 && !rec.includes(s)) return s;   // 길이 캡 60자(D-06-2) + 최근 미사용
+  }
+  for (let i = 0; i < ONELINER_NONEXT.length; i++) {   // 최근에 안 쓴 noNext 변형
+    const c = ONELINER_NONEXT[(seed + i) % ONELINER_NONEXT.length];
+    if (!rec.includes(c)) return c;
+  }
+  return ONELINER_NONEXT[seed % ONELINER_NONEXT.length];
 }
 
 // ── D-11 — 최후 안전 문구(풀이 비어도 발행 보장) ────────────────────────────────
@@ -162,9 +185,10 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   const warnings: string[] = [];
   const cited = new Set(p.factsCited || []);
   const avoid = new Set(p.avoidTags || []);
-  // ⭐ 식단 거울 — 본문(코칭) 위에 항상 얹는 데이터 반사. urgent(안전)·lowData(기록 권유)는 톤 충돌이라 생략.
+  // ⭐ 식단 거울 — 본문(코칭) 위에 항상 얹는 데이터 반사. urgent(안전)만 톤 충돌로 생략.
+  //    lowData(기록 적은 주)여도 어제 끼니가 있으면 비춘다(랄프위검: 어제 식단 풍부한데 cold-start 채근으로 빠지던 5/27·28 적발).
   //    본문 문장/길이 예산을 거울만큼 줄여 총 5문장·규격을 유지(거울+본문).
-  const mirror = ((!p.urgent && !p.lowData && (p.mirror || '').trim()) || null) as string | null;
+  const mirror = ((!p.urgent && (p.mirror || '').trim()) || null) as string | null;
   const mirrorSents = mirror ? sentencesOf(mirror).length : 0;
   const bodySentCap = Math.max(3, 5 - mirrorSents);
   const bodyMax = LETTER_MAX - (mirror ? mirror.length + 1 : 0);
@@ -280,7 +304,7 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   const full = mirror ? `${mirror} ${result.letter}` : result.letter;   // ⭐ 식단 거울 + 코칭 본문
   return {
     letter: polishKo(full),   // D-07 — 결정론 어법 교정(슬롯 치환 후 안전망)
-    oneliner: buildOneliner(next, seed),
+    oneliner: buildOneliner(next, seed, p.recentOnelines),
     usedBlocks: result.used.map((b) => b.id),
     factUsed: factConsumed && fact ? fact.key : null,
     factUsedKind: factConsumed && fact ? fact.kind : null,
@@ -330,14 +354,16 @@ export function buildLetterCtx(p: {
   goalsSnapshot?: Goal[] | null;
   prevFactsCited?: string[] | null;             // 직전 편지의 누적 원장(주간 수명 — 호출자가 주 경계 리셋)
   preserve?: Record<string, unknown> | null;    // H-07 reuse — 기존 v3 필드를 그대로 보존(원장 연속성 S6 일반해)
+  mirror?: string | null;                       // 식단 거울 문장(다음날 쿨다운 dedup 입력으로 컨텍스트에 보존)
 }): Record<string, unknown> {
   if (p.preserve && (p.preserve as { assembled?: unknown }).assembled) {
-    const pv = p.preserve as { assembled?: boolean; blocks?: unknown; factsCited?: unknown; fallback?: unknown; decision?: unknown; goalsSnapshot?: unknown };
+    const pv = p.preserve as { assembled?: boolean; blocks?: unknown; factsCited?: unknown; fallback?: unknown; decision?: unknown; goalsSnapshot?: unknown; mirror?: unknown };
     return {
       ...(p.base || {}), source: p.source,
       assembled: !!pv.assembled, blocks: Array.isArray(pv.blocks) ? pv.blocks : [],
       factsCited: Array.isArray(pv.factsCited) ? pv.factsCited : [],
       fallback: !!pv.fallback, decision: pv.decision ?? null, goalsSnapshot: pv.goalsSnapshot ?? null,
+      mirror: typeof pv.mirror === 'string' ? pv.mirror : (p.mirror ?? null),
     };
   }
   const prev = (p.prevFactsCited || []).filter((k) => typeof k === 'string');
@@ -353,5 +379,6 @@ export function buildLetterCtx(p: {
     fallback: p.out?.fallback || false,
     decision: p.decision ? { unit: p.decision.unit, step: p.decision.step, mode: p.decision.mode, pivotTo: p.decision.pivotTo } : null,
     goalsSnapshot: p.goalsSnapshot ?? null,
+    mirror: p.mirror ?? null,
   };
 }

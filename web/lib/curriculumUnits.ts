@@ -195,8 +195,8 @@ export const UNITS: Record<UnitId, UnitDef> = {
       };
     },
     steps: [
-      { step: 1, behavior: '타깃을 콩알 양으로 말없이 식탁에(격일)', passWhen: (e) => (typeof e.targetExposeDays7d === 'number' ? (e.targetExposeDays7d as number) >= TH.exposeWeekly : null), holdWeeks: 1 },
-      { step: 2, behavior: '노출 적립 이어가기(누적 8회+) + 티스푼 맛보기 초대', passWhen: (e) => (Array.isArray(e.hitDays) ? (e.hitDays as string[]).length >= TH.exposeTotalForStep2 : null), holdWeeks: 1 },
+      { step: 1, behavior: '새로운 음식을 아주 조금씩 말없이 식탁에 올려 보기(격일)', passWhen: (e) => (typeof e.targetExposeDays7d === 'number' ? (e.targetExposeDays7d as number) >= TH.exposeWeekly : null), holdWeeks: 1 },
+      { step: 2, behavior: '익숙해진 음식을 티스푼 맛보기로 가볍게 초대하기', passWhen: (e) => (Array.isArray(e.hitDays) ? (e.hitDays as string[]).length >= TH.exposeTotalForStep2 : null), holdWeeks: 1 },
     ],
     probes: [
       { id: 'es-react', signal: 'selfEatCount', q: '식탁에 올린 도전 음식, 아이 반응은요?', chips: ['스스로 먹어봤어요', '만지거나 냄새만', '거부했어요', '잘 모르겠어요'], map: { '스스로 먹어봤어요': { key: 'selfEat', delta: 1 } } },

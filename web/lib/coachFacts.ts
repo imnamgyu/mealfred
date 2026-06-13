@@ -51,30 +51,83 @@ function josa(word: string, withB: string, withoutB: string): string {
   if (Number.isNaN(c) || c < 0xac00 || c > 0xd7a3) return withoutB;
   return (c - 0xac00) % 28 ? withB : withoutB;
 }
-export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: number }): string | null {
+const SICK_RE = /배\s?아[픈프파팠]|배가\s?아|배탈|토하|토했|체했|아파|아팠|입맛 ?없|소화\s?안|메스꺼|울렁/;   // 컨디션 저하 — note·refused 양쪽 검사, 칭찬 차단·공감 톤
+const DAILY_GROUPS = new Set(['곡물', '비타민A채소', '기타채소', '과일', '유제품']);  // 매일 채워야 할 군
+const PERSIST_PRIORITY = new Set(['비타민A채소', '과일']);  // 만성 결핍이 잦은 군 — 결핍 선택 시 가중(이사님: 카테고리 다양성 정직)
+/** 메뉴 표기 정규화 — la갈비→LA갈비, '&양념장'·괄호주석 등 NEIS 원천 기호를 손편지용으로 정리(랄프위검 적발). */
+function sanitizeMenu(m: string): string {
+  return m.split('&')[0].split('(')[0].trim().replace(/\bla(?=\s?갈비)/gi, 'LA');
+}
+const fmtMenus = (menus: (string | null | undefined)[] | null | undefined): string =>
+  [...new Set((menus || []).map((m) => sanitizeMenu(String(m || ''))).filter(Boolean))].slice(0, 3).join('·');
+/** 최근 거울에 안 쓴 템플릿을 고른다(상태추적 쿨다운 — 만성 결핍이 같은 군을 반복 지목해도 문장은 안 겹치게). */
+function pickFresh(arr: string[], seed: number, recent: string[]): string {
+  for (let i = 0; i < arr.length; i++) {
+    const c = arr[(((seed + i) % arr.length) + arr.length) % arr.length];
+    if (!recent.some((r) => r && r.includes(c))) return c;
+  }
+  return arr[(((seed) % arr.length) + arr.length) % arr.length];
+}
+// ⭐ 식단 거울 v3(랄프위검 R2 반영) — 가정식(부모 기록) 우선 반영 + 급식 보조, 컨디션 존중, 영양은 argmin(가장 시급한 결핍)+만성 가중.
+export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: number; recent?: string[] }): string | null {
   const { rows, today } = p;
   const todayMs = Date.parse(today);
   const age = (d: string) => Math.round((todayMs - Date.parse(d)) / 86400000);
   const seed = p.daySeed || 0;
+  const recent = p.recent || [];   // 최근 거울 문장들(쿨다운 — 영양라인 verbatim 복붙 차단)
 
-  // (1) 어제 먹은 끼니 — 점심>저녁>아침 우선, 실제 메뉴 2~3개(간식보다 끼니 우선)
-  const SLOT_PRI: Record<string, number> = { lunch: 4, dinner: 3, breakfast: 2, pm_snack: 1, am_snack: 1, snack: 1 };
-  const yRows = rows.filter((r) => age(r.log_date) === 1 && (r.menus || []).some((m) => m && m.trim()))
+  // (1) 어제 끼니 — 부모가 직접 기록한 가정식을 1차 소재로(‘봐주는 편지’), 급식은 중립 보조. 컨디션 저하는 존중.
+  const SLOT_PRI: Record<string, number> = { dinner: 4, breakfast: 3, lunch: 2, pm_snack: 1, am_snack: 1, snack: 1 };
+  const yAll = rows.filter((r) => age(r.log_date) === 1);
+  // 컨디션 메모는 어제·오늘(다음날 아침 기록) + note·refused 양쪽에서 감지 — 6/02 '2배아픈데'·거부칸 '배아파서 카레'를 놓치던 구멍 보완.
+  const sick = rows.some((r) => age(r.log_date) <= 1 && ((r.note && SICK_RE.test(r.note)) || (r.refused && SICK_RE.test(r.refused))));
+  // ⭐ 급식 '점심'만 dc로(랄프위검 R3 적발: place=daycare 첫 행이 오전간식이라 간식을 점심으로 둔갑시키던 버그). 간식 슬롯은 끼니로 승격 금지.
+  const isLunchDc = (r: FactRow) => r.slot === 'lunch' && (r.place === 'daycare' || (r.menus || []).length >= 4);
+  const withMenu = yAll.filter((r) => (r.menus || []).some((m) => m && m.trim()));
+  const dc = withMenu.find(isLunchDc);
+  const slotKo = (r: FactRow) => SLOT_KO[r.slot || ''] || '끼니';
+  const homeMeals = withMenu.filter((r) => r.place !== 'daycare' && !isLunchDc(r))
     .sort((a, b) => (SLOT_PRI[b.slot || ''] || 0) - (SLOT_PRI[a.slot || ''] || 0));
   let part1: string | null = null;
-  if (yRows[0]) {
-    const yb = yRows[0];
-    const menus = [...new Set((yb.menus || []).map((m) => m.trim()).filter(Boolean))].slice(0, 3);
-    if (menus.length) {
-      const last = menus[menus.length - 1];
-      const slot = SLOT_KO[yb.slot || ''] || '끼니';
-      part1 = menus.length >= 2
-        ? `어제 ${slot}엔 ${menus.join('·')}${josa(last, '을', '를')} 골고루 먹었어요`
-        : `어제 ${slot}엔 ${menus[0]}${josa(menus[0], '을', '를')} 먹었어요`;
+  if (dc && homeMeals[0]) {   // 급식 점심(중립) + 가정식(부모 기록) 둘 다 — 도입 3변형 회전(복붙 차단)
+    const df = fmtMenus(dc.menus); const hb = homeMeals[0]; const hf = fmtMenus(hb.menus); const hs = slotKo(hb);
+    if (df && hf) {
+      const t = [
+        `어제 점심은 어린이집에서 ${df}, ${hs}엔 집에서 ${hf}${josa(hf, '을', '를')} 먹었어요`,
+        `어제는 어린이집 점심으로 ${df}, 집에서는 ${hs}에 ${hf}${josa(hf, '을', '를')} 먹었네요`,
+        `어제 어린이집에선 ${df}${josa(df, '이', '가')} 나왔고, 집에서는 ${hf}${josa(hf, '을', '를')} 먹었어요`,
+      ];
+      part1 = t[seed % t.length];
+    } else if (df) part1 = `어제 어린이집 점심엔 ${df}${josa(df, '이', '가')} 나왔어요`;
+  } else if (dc) {   // 급식 점심만 — 차림 서술(섭취 단정·세탁 금지)
+    const list = fmtMenus(dc.menus);
+    const t = [
+      `어제 어린이집 점심엔 ${list}${josa(list, '이', '가')} 나왔어요`,
+      `어제 점심은 어린이집에서 ${list}${josa(list, '이', '가')} 나온 한 상이었어요`,
+      `어제 어린이집 식단엔 ${list}${josa(list, '이', '가')} 있었어요`,
+    ];
+    part1 = list ? t[seed % t.length] : null;
+  } else if (homeMeals.length) {   // 급식 점심 없음 — 가정식 최대 2끼를 시간순으로(영양 있는 끼니 누락 방지: 5/31 가자미 등)
+    const CHRONO: Record<string, number> = { breakfast: 0, am_snack: 1, lunch: 2, pm_snack: 3, dinner: 4, snack: 5 };
+    const top = homeMeals.slice(0, 2).sort((a, b) => (CHRONO[a.slot || ''] ?? 9) - (CHRONO[b.slot || ''] ?? 9));
+    const f0 = top[0] && fmtMenus(top[0].menus); const f1 = top[1] && fmtMenus(top[1].menus);
+    if (top.length >= 2 && f0 && f1) {
+      part1 = `어제 ${slotKo(top[0])}엔 ${f0}, ${slotKo(top[1])}엔 ${f1}${josa(f1, '을', '를')} 먹었어요`;
+    } else {
+      const hb = homeMeals[0]; const list = fmtMenus(hb.menus);
+      if (list) part1 = hb.ate_well === false
+        ? `어제 ${slotKo(hb)}엔 ${list}${josa(list, '이', '가')} 올라왔어요`
+        : `어제 ${slotKo(hb)}엔 ${list}${josa(list, '을', '를')} 먹었어요`;
     }
   }
 
-  // (2) 영양신호등 — 최근 7일 식품군 커버리지(green 강점 1·red 결핍 1; 식재료 기록 기반)
+  if (sick) {   // 컨디션 안 좋은 날 — 공감 + 그날 끼니 1줄(통째 생략 금지·랄프위검 6/03 적발), 영양 잔소리는 생략(part2 skip)
+    return part1
+      ? `어제는 속이 편치 않았던 날이었나 봐요. ${part1}. 무리하지 않아도 괜찮아요.`
+      : '어제는 속이 편치 않았던 날이었나 봐요. 그런 날은 무리하지 않아도 괜찮아요.';
+  }
+
+  // (2) 영양신호등 — 최근 7일 식품군 커버리지. argmin(가장 시급한 결핍 1개) + 만성군 가중 + green 한 토막은 채소 묶음 금지.
   const byDay: Record<string, string[]> = {};
   rows.filter((r) => { const a = age(r.log_date); return a >= 1 && a <= 7; })
     .forEach((r) => { (byDay[r.log_date] ||= []).push(...((r.ingredients || []) as string[])); });
@@ -82,24 +135,59 @@ export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: n
   let part2: string | null = null;
   if (days.length >= 2) {
     const { signals } = computeGroupSignals(days);
-    const reds = signals.filter((s) => s.level === 'red').map((s) => GROUP_KO[s.group] || s.group);
-    const greens = signals.filter((s) => s.level === 'green').map((s) => GROUP_KO[s.group] || s.group);
-    const pick = (arr: string[], k: number) => (arr.length ? arr[(seed + k) % arr.length] : null);
-    const gap = pick(reds, 0);
-    const good = pick(greens, 0);
-    if (gap && good) part2 = `요즘 ${good}${josa(good, '은', '는')} 잘 챙겨지는데 ${gap}${josa(gap, '이', '가')} 좀 부족해요`;
-    else if (gap) part2 = `요즘 식단에 ${gap}${josa(gap, '이', '가')} 좀 부족해요`;
-    else if (greens.length >= 2) {   // 결핍 없음 — 잘 챙겨진 식품군을 날짜로 회전해 구체적으로(반복 회피)
-      const g2 = pick(greens, 1);
-      part2 = `요즘 ${g2 && g2 !== good ? `${good}·${g2}까지` : good} 두루 잘 챙겨지고 있어요`;
-    } else if (good) part2 = `요즘 ${good}${josa(good, '은', '는')} 잘 챙겨지고 있어요`;
+    const ko = (g: string) => GROUP_KO[g] || g;
+    // 결핍 우선순위(낮을수록 시급): red 먼저 → 만성군(-5) → daily군 → weeklyEst(낮을수록 시급). argmin 단일 선택.
+    const rank = (s: { level: string; group: string; weeklyEst: number }) =>
+      (s.level === 'red' ? 0 : 100) + (PERSIST_PRIORITY.has(s.group) ? -5 : 0) + (DAILY_GROUPS.has(s.group) ? 0 : 10) + s.weeklyEst;
+    const gaps = signals.filter((s) => s.level !== 'green').sort((a, b) => rank(a) - rank(b));
+    // green 칭찬 후보: 비타민A채소는 절대 'green 채소'로 묶지 않음(만성 결핍 은폐 차단). '채소' 단일 라벨은 기타채소 green일 때만.
+    const greens = signals.filter((s) => s.level === 'green' && s.group !== '비타민A채소').map((s) => ko(s.group));
+    const good = greens.length ? greens[seed % greens.length] : null;
+    if (gaps.length) {
+      // 결핍 군 회전 — 가장 시급한 상위 3개 결핍을 날짜로 번갈아 지목(과일·노랑채소·유제품이 골고루 노출 = 카테고리 다양성↑·한 군 반복↓).
+      const g = gaps[seed % Math.min(3, gaps.length)];
+      const gap = ko(g.group);
+      if (g.group === '과일') {   // ⭐ 과일=간식채널 — 끼니 곁들임 금지(P9). 간식으로 따로 권유.
+        const fruitT = [
+          '요즘 과일이 좀 적은 편이라 간식 시간에 따로 챙겨 주면 좋아요',
+          '과일은 간식으로 한 번 더 내주면 균형이 한결 좋아져요',
+          '요즘 과일이 아쉬워요. 끼니 사이 간식으로 채워 보세요',
+          '과일은 오후 간식으로 따로 내주기 좋은 때예요',
+          '요즘 과일이 조금 모자란 듯해요. 간식으로 가볍게 챙겨 보세요',
+        ];
+        part2 = pickFresh(fruitT, seed, recent);
+      } else {
+        const redT = [   // 결핍 군은 날짜로 회전하므로 'argmin 단정(가장/제일)' 표현 금지 — 회전된 군에 superlative 쓰면 거짓(랄프위검 5/30 적발)
+          `요즘 ${gap}${josa(gap, '이', '가')} 며칠째 비어 있어요`,
+          good ? `요즘 ${good}${josa(good, '은', '는')} 꾸준한데 ${gap}${josa(gap, '이', '가')} 부족해요` : `요즘 식단에 ${gap}${josa(gap, '이', '가')} 부족해요`,
+          `요즘 ${gap} 쪽이 비는 편이에요`,
+          `${gap}${josa(gap, '을', '를')} 한 끼 더 만나면 좋겠어요`,
+          good ? `요즘 ${good} 곁에 ${gap}${josa(gap, '을', '를')} 더해 보면 균형이 살아나요` : `요즘 ${gap}${josa(gap, '이', '가')} 비어 있어요`,
+          `${gap}${josa(gap, '이', '가')} 요즘 식탁에서 아쉬운 자리예요`,
+          `요즘 ${gap}${josa(gap, '을', '를')} 채울 차례 같아요`,
+        ];
+        const yelT = [
+          good ? `요즘 ${good}${josa(good, '은', '는')} 잘 챙겨지는데 ${gap}${josa(gap, '은', '는')} 조금 더 채우면 좋아요` : `${gap}${josa(gap, '을', '를')} 조금만 더 챙기면 좋아요`,
+          `${gap}${josa(gap, '을', '를')} 한 번 더 곁들이면 균형이 더 좋아져요`,
+          `요즘 ${gap}${josa(gap, '이', '가')} 조금 적은 편이에요`,
+          `${gap}${josa(gap, '을', '를')} 한 끼만 더 만나도 좋겠어요`,
+          good ? `요즘 ${good}${josa(good, '은', '는')} 넉넉한데 ${gap}${josa(gap, '은', '는')} 살짝 아쉬워요` : `요즘 ${gap}${josa(gap, '이', '가')} 살짝 부족한 듯해요`,
+          `${gap} 쪽을 조금만 더 신경 쓰면 한결 고를 거예요`,
+          `요즘 ${gap}${josa(gap, '이', '가')} 한 끗 모자란 정도예요`,
+        ];
+        const arr = g.level === 'red' ? redT : yelT;
+        part2 = pickFresh(arr, seed, recent);
+      }
+    } else {
+      part2 = '요즘 식품군이 두루 잘 채워지고 있어요';   // 진짜 전부 green일 때만(정직)
+    }
   }
 
   const parts = [part1, part2].filter(Boolean) as string[];
   return parts.length ? parts.join('. ') + '.' : null;
 }
 
-export function compileFactCards(p: { rows: FactRow[]; today: string }): { cards: FactCard[]; noteCards: string[]; forbidParts: string[]; mirror: string | null } {
+export function compileFactCards(p: { rows: FactRow[]; today: string; recentMirrors?: string[] }): { cards: FactCard[]; noteCards: string[]; forbidParts: string[]; mirror: string | null } {
   const { rows, today } = p;
   const todayMs = Date.parse(today);
   const age = (d: string) => Math.round((todayMs - Date.parse(d)) / 86400000);
@@ -123,7 +211,7 @@ export function compileFactCards(p: { rows: FactRow[]; today: string }): { cards
       ? `점심: 기록된 ${winDays}일 중 ${lDays.size}일 점심 기록(어제까지 이어짐) — 평일은 어린이집·유치원 급식으로 먹음(결식 아님)`
       : `점심: 기록된 ${winDays}일 중 ${lDays.size}일 점심 기록(어제까지 이어짐 — 결식 아님)`,
       'diagnosis',
-      lunchDc >= Math.ceil(lunchRows.length / 2) ? '평일 점심은 기관 급식으로 꾸준히 챙겨지고 있어요' : '점심 기록이 어제까지 꾸준히 이어지고 있어요');
+      lunchDc >= Math.ceil(lunchRows.length / 2) ? '평일 점심은 어린이집 급식으로 나오고 있어요' : '점심 기록이 어제까지 꾸준히 이어지고 있어요');
   } else if (lDays.size >= 1 && lastLunchAge >= 3) {
     card('lunch', `점심: 창 내 ${lDays.size}일 기록 — 단, 마지막 점심 기록이 ${lastLunchAge}일 전(추세: 최근 비어 있음. 기록 누락일 수 있으니 '거른다' 단정 금지 — 비어 있는 기록을 부드럽게 확인 권유 가능)`,
       'diagnosis', '점심 기록이 며칠째 비어 있어요(바쁜 날 누락이었을 수도 있고요)');
@@ -151,11 +239,14 @@ export function compileFactCards(p: { rows: FactRow[]; today: string }): { cards
   const yRows = rows.filter((r) => age(r.log_date) === 1 && r.environment && SLOT_KO[r.slot || '']);
   if (yRows.length) {
     const yBest = yRows.find((r) => r.environment === 'table') || yRows[0];
+    const eseed = Math.floor(todayMs / 86400000); const eslot = SLOT_KO[yBest.slot || ''];
+    const tableV = [`어제 ${eslot}을 화면 없이 식탁에 앉아 먹었어요`, `어제 ${eslot}은 화면 없이 식탁에서 보냈네요`, `어제 ${eslot}은 식탁에 앉아 차분히 먹었어요`];
+    const screenV = [`어제 ${eslot}은 화면을 보며 먹었어요`, `어제 ${eslot}은 영상과 함께한 시간이었어요`, `어제 ${eslot}엔 화면이 곁에 있었네요`];
     const yProse = yBest.environment === 'table'
-      ? `어제 ${SLOT_KO[yBest.slot || '']}을 화면 없이 식탁에 앉아 먹었어요`
+      ? tableV[eseed % tableV.length]
       : yBest.environment === 'screen'
-        ? `어제 ${SLOT_KO[yBest.slot || '']}은 화면을 보며 먹었어요`
-        : `어제 ${SLOT_KO[yBest.slot || '']}은 ${ENV_KO[yBest.environment || ''] || '자리를 옮겨 가며'} 먹었어요`;
+        ? screenV[eseed % screenV.length]
+        : `어제 ${eslot}은 ${ENV_KO[yBest.environment || ''] || '자리를 옮겨 가며'} 먹었어요`;
     card('env-y', `어제 끼니 환경: ${yRows.map((r) => `${SLOT_KO[r.slot || '']}(${ENV_KO[r.environment || ''] || r.environment})`).join(' · ')}`, 'daily', yProse);
   }
 
@@ -198,7 +289,7 @@ export function compileFactCards(p: { rows: FactRow[]; today: string }): { cards
   const staleEvt = [...new Set(noteRows.map((r) => r.note).join(' ').match(EVENT_RE) || [])].filter((w) => !recentEvt.has(w));
   if (staleEvt.length) forbidParts.push(staleEvt.join('|'));
 
-  const mirror = buildMealMirror({ rows, today, daySeed: Math.floor(todayMs / 86400000) });
+  const mirror = buildMealMirror({ rows, today, daySeed: Math.floor(todayMs / 86400000), recent: p.recentMirrors });
   return { cards: cards.slice(0, 14), noteCards, forbidParts, mirror };
 }
 
