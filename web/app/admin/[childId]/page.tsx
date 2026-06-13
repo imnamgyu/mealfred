@@ -11,6 +11,7 @@
 import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
 import { kstToday } from '@/lib/date';
+import { letterSimilarity } from '@/lib/coach';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -110,6 +111,20 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
     const v3 = (c.v3 || {}) as Record<string, unknown>;
     return { date: l.letter_date, unit: d.unit as string, mode: d.mode as string, lowData: !!v3.lowData, plateau: !!v3.plateau, mirror: c.mirror as string | undefined, fc: Array.isArray(c.factsCited) ? (c.factsCited as string[]) : [] };
   }).filter((x) => x.unit || x.mirror).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14);
+  // ⭐ 자가진단(Task2·coaching-self-improvement 1층 가시화) — 엔진이 스스로 편지 품질을 점검(반복/거울누락/oneliner중복).
+  const recentL = (letters || []).filter((l) => l.letter).sort((a, b) => b.letter_date.localeCompare(a.letter_date)).slice(0, 7);
+  let maxSim = 0; let simPair = '';
+  for (let i = 0; i < recentL.length; i++) for (let j = i + 1; j < recentL.length; j++) {
+    const s = letterSimilarity(recentL[i].letter, recentL[j].letter);
+    if (s > maxSim) { maxSim = s; simPair = `${recentL[i].letter_date}↔${recentL[j].letter_date}`; }
+  }
+  const onel = recentL.map((l) => l.oneliner).filter(Boolean) as string[];
+  const onelDup = onel.length - new Set(onel).size;
+  const mirrorRate = recentL.length ? recentL.filter((l) => (l.context as Record<string, unknown> | null)?.mirror).length / recentL.length : 1;
+  const alerts: string[] = [];
+  if (maxSim >= 0.45) alerts.push(`⚠️ 편지 유사도 ${(maxSim * 100).toFixed(0)}% (${simPair}) — 복붙 의심`);
+  if (onelDup > 0) alerts.push(`⚠️ oneliner 중복 ${onelDup}건`);
+  if (recentL.length >= 3 && mirrorRate < 0.8) alerts.push(`⚠️ 식단 거울 누락 ${Math.round((1 - mirrorRate) * 100)}% (음식 평가 빠진 편지)`);
   // 큰 기간 → 작은 기간 순으로 그룹(타입별 필터 후 period_key desc 유지)
   const psGroups: [string, PS[]][] = ([['연', 'year'], ['반기', 'half'], ['분기', 'quarter'], ['월', 'month'], ['주', 'week']] as const)
     .map(([lab, t]) => [lab, periods.filter((p) => p.period_type === t)] as [string, PS[]]);
@@ -134,6 +149,16 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
           <div style={{ fontSize: 11, color: '#9CA3AF' }}>{child?.age_band}{child?.sex === 'M' ? '·남아' : child?.sex === 'F' ? '·여아' : ''}{child?.daycare ? ' · 기관 다님' : ''}</div>
         </div>
       </header>
+
+      {/* ⭐ 자가진단(Task2) — 엔진이 스스로 편지 품질 점검(반복·거울누락·oneliner중복) */}
+      {recentL.length > 0 && (
+        <div style={{ background: alerts.length ? '#FEF2F2' : '#F0FDF4', borderBottom: '1px solid #E5E7EB', padding: '8px 16px', fontSize: 12 }}>
+          <span style={{ fontWeight: 800, color: alerts.length ? '#B91C1C' : '#15803D' }}>🔍 자가진단(최근 {recentL.length}통)</span>{' '}
+          {alerts.length
+            ? <span style={{ color: '#B91C1C' }}>{alerts.join(' · ')}</span>
+            : <span style={{ color: '#15803D' }}>이상 없음 — 유사도 {(maxSim * 100).toFixed(0)}% · 식단거울 {Math.round(mirrorRate * 100)}% · oneliner 중복 0</span>}
+        </div>
+      )}
 
       {/* ⭐ 주간 계획(작전층) — 이번 주 무엇을·왜 코칭하는지 */}
       {wkPlans.length > 0 && (
