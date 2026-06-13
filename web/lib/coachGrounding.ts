@@ -98,16 +98,33 @@ export function buildOnboardingDecision(p: { rows: FactRow[]; loggedDaysTotal: n
 }
 
 // ── C-12 — qualityScan: 발행 전 품질축 결정론 스캔(4축) ────────────────────────────
+// 단문 나열 보강(C 소유) — EPIC D는 무변경. D의 mealEnumeration은 '시점어+섭취동사' 문장 2개+ 또는
+//   쉼표 명사 3개+를 잡지만, '어제 X 먹고 Y 먹었어요'처럼 한 문장에 섭취동사가 2회+ 들어간 영수증식
+//   나열은 못 잡는다(쉼표 없음·문장 1개). C-12 명세가 이 케이스를 위반으로 요구하므로 여기서 보강한다.
+const C12_AGO = /어제|그제|그저께|오늘|아침|점심|저녁|[0-9]+일\s*전/;
+const C12_ATE = /먹(었|었어요|었네요|음|고)|드셨|비웠|남겼/g;
+function inSentenceEnumeration(L: string): boolean {
+  for (const s of (L || '').split(/[.!?。\n]/)) {
+    if (!C12_AGO.test(s)) continue;
+    C12_ATE.lastIndex = 0;
+    const ateHits = (s.match(C12_ATE) || []).length;   // 한 문장에 섭취동사 2회+ = 'X 먹고 Y 먹었어요' 나열
+    if (ateHits >= 2) return true;
+  }
+  return false;
+}
 /**
  * 은유 과용·데이터 나열·모호 기간어·재료 밖 음식명을 결정론으로 검사해 위반 사유(한국어) 배열을 반환(빈=통과).
  *  EPIC D(coachQuality.letterQualityScan)를 재사용 — materialFoods를 allowedFoods 화이트리스트로 넘긴다.
+ *  + 단문 나열(한 문장 섭취동사 2회+)은 C가 보강 검사(D 무변경).
  *  ⚠️ 오탐 방지: 따뜻한 일반론·은유 1개·수치 동반 기간어·재료 안 음식명·일반명사(밥·국·반찬)는 통과한다.
  *  materialFoods가 비어도 은유·나열·모호기간 3축은 검사(재료밖만 안전 skip).
  */
 export function qualityScan(p: { letter: string; materialFoods: string[] }): string[] {
   const allowedFoods = (p.materialFoods || []).filter(Boolean);
   // allowedFoods가 비면 letterQualityScan이 재료밖 검사를 안전 skip(전부 위반=과탐 방지) — 그래도 빈 배열을 넘겨 검사 비활성.
-  return letterQualityScan(p.letter || '', allowedFoods.length ? { allowedFoods } : undefined).reasons;
+  const reasons = letterQualityScan(p.letter || '', allowedFoods.length ? { allowedFoods } : undefined).reasons;
+  if (!reasons.some((r) => r.includes('나열')) && inSentenceEnumeration(p.letter || '')) reasons.push('데이터 나열');
+  return reasons;
 }
 
 // ── 공용 — 재료에서 음식명 화이트리스트 추출(allowedFoodsFromBridge 보조) ────────────────
