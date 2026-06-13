@@ -293,8 +293,18 @@ export function buildLetterCtx(p: {
   out: AssembleOutput | null;                   // null = 비조립 경로(컷오버 전 레거시)
   decision?: DailyDecision | null;
   goalsSnapshot?: Goal[] | null;
-  prevFactsCited?: string[] | null;             // 직전 편지의 누적 원장(unit:key)
+  prevFactsCited?: string[] | null;             // 직전 편지의 누적 원장(주간 수명 — 호출자가 주 경계 리셋)
+  preserve?: Record<string, unknown> | null;    // H-07 reuse — 기존 v3 필드를 그대로 보존(원장 연속성 S6 일반해)
 }): Record<string, unknown> {
+  if (p.preserve && (p.preserve as { assembled?: unknown }).assembled) {
+    const pv = p.preserve as { assembled?: boolean; blocks?: unknown; factsCited?: unknown; fallback?: unknown; decision?: unknown; goalsSnapshot?: unknown };
+    return {
+      ...(p.base || {}), source: p.source,
+      assembled: !!pv.assembled, blocks: Array.isArray(pv.blocks) ? pv.blocks : [],
+      factsCited: Array.isArray(pv.factsCited) ? pv.factsCited : [],
+      fallback: !!pv.fallback, decision: pv.decision ?? null, goalsSnapshot: pv.goalsSnapshot ?? null,
+    };
+  }
   const prev = (p.prevFactsCited || []).filter((k) => typeof k === 'string');
   const cited = p.out?.factUsed && p.out.factUsedKind === 'diagnosis' && p.decision
     ? [...new Set([...prev, factKeyOf(p.decision.unit, p.out.factUsed)])]

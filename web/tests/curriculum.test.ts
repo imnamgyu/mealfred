@@ -404,7 +404,8 @@ describe('B-23 advanceProgress', () => {
 // EPIC E — 주간 목표 포트폴리오 (E-03~E-09)
 // ════════════════════════════════════════════════════════════════════════════
 import { candidateUnits, goalsCapForWeek, applyFocusFatigue, leverForUnit, healAnchor as healAnchorW, type WeeklyAnchor } from '../lib/coachWeekly';
-import { decideDailyV3, isUrgent, introNeededV3, yesterdayDelta, pushGateV3, pushAvoidTags, measurementGap, selectQuestionV3, parseProbeAnswers } from '../lib/coachDaily';
+import { decideDailyV3, isUrgent, introNeededV3, yesterdayDelta, pushGateV3, pushAvoidTags, measurementGap, selectQuestionV3, parseProbeAnswers, v3Enabled } from '../lib/coachDaily';
+import { buildLetterCtx } from '../lib/assembleLetter';
 import { icfqForDate } from '../lib/coach';
 import type { CandidateSignals, Goal } from '../lib/curriculumUnits';
 
@@ -707,6 +708,29 @@ describe('F-10·E-10 — 주간 통주', () => {
     }
     // 강등은 '3주 연속 선발'에만 — 한 주 쉰 뒤 재도전은 허용(다주 아크와의 균형점). 진동 주기=3주(2집중+1환기).
     expect(focusByWeek).toEqual(['table-stage', 'table-stage', 'hunger-rhythm', 'table-stage']);
+  });
+});
+
+describe('H-01·H-07·H-12 — 컷오버 플래그·reuse 원장 보존', () => {
+  it('H-01-1 플래그 판정: 기본 OFF·전체 ON·카나리아 목록(공백 내성)', () => {
+    expect(v3Enabled({}, 'c1')).toBe(false);
+    expect(v3Enabled({ COACH_V3: '1' }, 'c1')).toBe(true);
+    expect(v3Enabled({ COACH_V3_CHILDREN: 'a, c1 ,b' }, 'c1')).toBe(true);
+    expect(v3Enabled({ COACH_V3_CHILDREN: 'a,b' }, 'c1')).toBe(false);
+  });
+  it('H-07-1 reuse 보존: v3 원장(blocks·factsCited·decision)이 재사용 후에도 그대로(다음 날 dedup 연속성)', () => {
+    const preserve = { assembled: true, blocks: ['table-stage.how.2'], factsCited: ['env-week'], fallback: false, decision: { unit: 'table-stage', step: 1, mode: 'deepen', pivotTo: null }, goalsSnapshot: [{ unit_id: 'table-stage', priority: 1, status: 'focus' }] };
+    const ctx = buildLetterCtx({ base: { reds: ['철분'] }, source: 'cron(v3·재사용)', out: null, preserve });
+    expect(ctx.blocks).toEqual(['table-stage.how.2']);
+    expect(ctx.factsCited).toEqual(['env-week']);
+    expect(ctx.assembled).toBe(true);
+    expect((ctx.decision as { mode: string }).mode).toBe('deepen');
+    expect(ctx.reds).toEqual(['철분']);   // 레거시 base 필드도 병합 유지
+  });
+  it('H-07-2 레거시 ctx(assembled 아님)는 보존 경로를 타지 않는다', () => {
+    const ctx = buildLetterCtx({ base: {}, source: 's', out: null, preserve: { scenarioId: 'plateau' } });
+    expect(ctx.assembled).toBe(false);
+    expect(ctx.blocks).toEqual([]);
   });
 });
 

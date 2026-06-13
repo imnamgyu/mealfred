@@ -15,6 +15,13 @@ import { type WeeklyBudget, type WeeklyLedger, DEFAULT_BUDGET, DEFAULT_LEDGER } 
 
 const age = (today: string, d: string) => Math.round((Date.parse(today) - Date.parse(d)) / 86400000);
 
+// ── H-01 — 컷오버 플래그(순수 판정 — 테스트 가능) ───────────────────────────────
+// COACH_V3=1 → 전체 ON · COACH_V3_CHILDREN=id1,id2 → 카나리아(아린 먼저). 미설정 = 기존 경로(즉시 롤백=env 끄기).
+export function v3Enabled(env: { COACH_V3?: string; COACH_V3_CHILDREN?: string }, childId: string): boolean {
+  if (env.COACH_V3 === '1') return true;
+  return (env.COACH_V3_CHILDREN || '').split(',').map((s) => s.trim()).filter(Boolean).includes(childId);
+}
+
 // ── F-04 — 시급 예외(이사님 확정 3종 한정 — 확장은 별도 승인) ────────────────────
 // 시급 = D-04 사실 재서술 원장을 우회해 같은 사실을 다시 말할 수 있는 유일한 경우 + 전문가 안내 블록.
 export const URGENT_RULES = ['icfq-risk', 'choke-memo', 'full-refusal-3d'] as const;

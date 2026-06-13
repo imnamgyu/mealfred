@@ -18,14 +18,20 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, letterSimilarity, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { type CoachSignals } from '@/lib/coachScenarios';
-import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, type WeeklyAnchor, type WeeklyArc } from '@/lib/coachWeekly';
+import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, SYSTEM_RECAP, buildRecapUser, type WeeklyAnchor, type WeeklyArc } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
-import { compileFacts } from '@/lib/coachFacts';
+import { compileFacts, compileFactCards } from '@/lib/coachFacts';
+// ⭐ v3 조립식(H-01·H-02) — 진도 상태기계 + 조립기. 컷오버 플래그 뒤에서만 발동, 실패=레거시 폴백.
+import { UNITS, type UnitId, type CRow, type ProgressRow as CurriculumRow } from '@/lib/curriculumUnits';
+import { type DailyDecision } from '@/lib/curriculum';
+import { decideDailyV3, isUrgent, introNeededV3, recentIntroUnitsOf, buildCandSignals, parseProbeAnswers, selectQuestionV3, v3Enabled, type RecentProbe } from '@/lib/coachDaily';
+import { assembleLetter, buildLetterCtx, collectBlockLedger } from '@/lib/assembleLetter';
+import { loadBlocks } from '@/lib/letterBlocks';
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, type FreqMap } from '@/lib/coachRecos';
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
@@ -35,6 +41,9 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
 
 const TIME_BUDGET_MS = 50_000; // maxDuration(60s) 전 안전 종료 — SIGKILL 회피해 cron_runs 정상 마감
+// H-02 시간 산수: v3 평일 = LLM 0콜(조립)·DB 4쿼리/자녀 ≈ 1.5s → 30자녀/실행 여유(S7 콜폭주 소멸).
+//   일요일 = Sonnet 2콜(차주 닻 종합 + 회고)/자녀 — 회고는 잔여 예산 12s+일 때만(부족 시 조립 편지로).
+const BLOCKS = loadBlocks();   // 블록 풀(빌드 시점 정적 — prebuild 린터 통과본)
 
 type Row = {
   child_id: string; parent_id: string | null; log_date: string; slot: string | null;
@@ -370,12 +379,16 @@ export async function GET(req: Request) {
         let repeatAlert = false;               // ⭐ 자동 반복 경보 — 직전 2일 동일 시그니처 or 유사도 0.6+ (탐지 자동화 — '사람 제보' 의존 탈피)
         let verifyCtx: { ok: boolean; violations: string[]; regen: boolean } | null = null;   // ⭐ 의미 검증자 결과(어드민 검증)
         let modelUsed = 'haiku-4-5';           // intro(주 첫 진단)는 Sonnet 승격 — composeLetter가 결정
+        let v3Ctx: Record<string, unknown> | null = null;   // ⭐ v3 조립 경로 산출(H-02 — 있으면 레거시 생성 스킵)
+        let reusedCtx: Record<string, unknown> | null = null;   // H-07 — 재사용 시 v3 원장(blocks·factsCited·decision) 보존용
+        let v3Question: { question: string; topic: string; chips: string[]; unitProbe: Record<string, unknown> } | null = null;   // G-03 unitProbe 질문
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) 재사용. srcHash에 today가 들어가 날짜가 바뀌면 새 계획으로 재생성(식단 동일해도 동결되지 않음). force만 강제 재생성.
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
           letter = prev!.letter; oneliner = prev!.oneliner || ''; reused++;
           // ⭐ S6(적대감사): 재사용 시 context 전체 보존 — weekly를 null로 덮으면 다음 날 firstOfWeek 오판 → 같은 주 intro 중복(진단 재서술 사고 재발 경로)
           const pctx = prev!.context as { scenarioId?: string; scenarioLabel?: string; plan?: CoachPlan; snackShown?: boolean; weekly?: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null } | null; verify?: { ok: boolean; violations: string[]; regen: boolean } | null; simToPrev?: number | null; repeatAlert?: boolean; model?: string; coachRegen?: boolean } | null;
+          reusedCtx = (prev!.context as Record<string, unknown> | null) ?? null;   // H-07 — v3 필드(blocks·factsCited·decision) 보존 소스
           scenarioId = pctx?.scenarioId ?? null;          // 재사용은 기존 시나리오·계획 보존(중복 이력 유지)
           scenarioLabel = pctx?.scenarioLabel ?? null;
           planCtx = pctx?.plan ?? null;
@@ -440,16 +453,12 @@ export async function GET(req: Request) {
                 transitions: ts.filter((t) => /거부→수용 전환|받아들이기 시작/.test(t)),
                 structuredSummary: buildStructuredSummary(), chronicGuidance: chronicGuidanceText(meta.chronic),
                 icfqRiskCount,
-                // ⭐ E-07 — v3 목표 포트폴리오 후보 신호(E-03). 메모 통계·진도·주차·focus 이력은 H-02(v3 메인 루프)에서 정밀화 — 보수적 0/null.
+                // ⭐ E-07 — v3 목표 포트폴리오 후보 신호(E-03). 메모·간식·구조화는 buildCandSignals(rows 계산),
+                //   영양 결핍 카운트만 영양 파이프라인 산출로 덮어씀(rows만으론 모름). 진도·주차·focus 이력은 컷오버 후 정밀화.
                 candSignals: {
-                  envBadPct: structuredSig.envBadPct, envCount: structuredSig.envCount,
-                  selfPct: structuredSig.selfPct, autoCount: structuredSig.autoCount,
-                  texLow: structuredSig.texLow, texCount: structuredSig.texCount,
-                  mtOver30Pct: structuredSig.mtOver30Pct, mtCount: structuredSig.mtCount,
+                  ...buildCandSignals(rs as CRow[], today, attends),
                   missingCount: new Set([...fg.missing, ...homeFg.missing]).size,
                   refusedCount: sanitizeRefusals(uniqRef).length, dcRefusedCount: sanitizeRefusals(daycareRef).length,
-                  pressureMemoDays: 0, bargainMemoDays: 0, snackHeavyDays: 0, preMealMemoDays: 0,
-                  newFoodCount: 0, attendsDaycare: attends, eatenCount: new Set(allIng).size,
                 },
               });
               const row = {
@@ -465,6 +474,7 @@ export async function GET(req: Request) {
               const { error: upErr } = await supabase.from('weekly_plans').upsert(row, { onConflict: 'child_id,week_key' });
               if (upErr) {
                 console.warn('[cron/coach] weekly anchor upsert:', upErr.message);
+                issues.push(`닻 저장 장애 ${meta.nickname}: ${upErr.message.slice(0, 80)} — 매일 재종합 모드(비용 누수) 의심`);   // H-06(M9) — 조용한 장애 가시화
                 const legacy = { ...row } as Record<string, unknown>;
                 delete legacy.behavior_goal; delete legacy.teaching_arc; delete legacy.check_method; delete legacy.goals;   // E-07 양분기(goals 포함/제외)
                 const { error: e2 } = await supabase.from('weekly_plans').upsert(legacy, { onConflict: 'child_id,week_key' });
@@ -487,7 +497,116 @@ export async function GET(req: Request) {
               anchor = healAnchor(anchor);
               if (needPersist) await supabase.from('weekly_plans').update({ behavior_goal: anchor.behavior_goal, teaching_arc: anchor.teaching_arc, check_method: anchor.check_method }).eq('child_id', cid).eq('week_key', weekKey);
             }
-            if (anchor && anchor.mission_target) {
+            // ⭐⭐ H-01·H-02 — v3 조립식 경로(컷오버 플래그·아린 카나리아). 어떤 실패도 throw 없이 → 레거시 폴백(발행은 항상).
+            //    하루 스텝 = 진도 로드 → decideDailyV3 → 진도/goals 영속 → assembleLetter(LLM 0) → buildLetterCtx — 리플레이 러너(I-05)와 동일 순서.
+            if (anchor && v3Enabled(process.env as { COACH_V3?: string; COACH_V3_CHILDREN?: string }, cid)) {
+              try {
+                // ① 진도 로드(자녀당 1쿼리)
+                const { data: progRows } = await supabase.from('curriculum_progress').select('*').eq('child_id', cid);
+                const progress: Partial<Record<UnitId, CurriculumRow>> = {};
+                ((progRows || []) as CurriculumRow[]).forEach((r) => { progress[r.unit_id] = r; });
+                // ② 최근 편지 컨텍스트 7통(과거만) — 블록 원장(3통)·코칭 일수(6통)·intro 기왕(7통)·사실 원장(이번 주)
+                const { data: pastCtxRows } = await supabase.from('coach_letters')
+                  .select('letter_date,context').eq('child_id', cid).lt('letter_date', today)
+                  .order('letter_date', { ascending: false }).limit(7);
+                const pastCtxs = ((pastCtxRows || []) as Array<{ letter_date: string; context: Record<string, unknown> | null }>).filter((r) => r.context);
+                const ctxList = pastCtxs.map((r) => r.context as Record<string, unknown>);
+                const decisionsPast = ctxList.map((c) => (c as { decision?: { unit?: string; mode?: string } | null }).decision ?? null);
+                // ③ 질문 발행 이력·답변(G-04 적립·G-06 쿨다운) — 최근 8일
+                const { data: qRows } = await supabase.from('daily_questions')
+                  .select('q_date,answer,context').eq('child_id', cid).gte('q_date', dAgo(8)).lt('q_date', today);
+                const qList = (qRows || []) as Array<{ q_date: string; answer: string | null; context: Record<string, unknown> | null }>;
+                const answers = parseProbeAnswers(qList);
+                const recentProbes: RecentProbe[] = qList
+                  .map((q) => ({ q, up: (q.context as { unitProbe?: { unit_id?: string; probeId?: string } } | null)?.unitProbe }))
+                  .filter((x) => x.up?.unit_id && x.up?.probeId)
+                  .map((x) => ({ q_date: x.q.q_date, probeId: String(x.up!.probeId), unit_id: String(x.up!.unit_id) }));
+                // ④ 오늘의 전개 결정 — coachedDays=최근 6통의 결정 유닛 일수(D-03 원장 근사), 피벗 캡=이번 주 결정 중 pivot 수
+                const coachedDays: Partial<Record<UnitId, number>> = {};
+                decisionsPast.slice(0, 6).forEach((d) => { if (d?.unit) coachedDays[d.unit as UnitId] = (coachedDays[d.unit as UnitId] || 0) + 1; });
+                const pivotsThisWeek = pastCtxs.filter((r) => isoWeekKey(r.letter_date) === weekKey && (r.context as { decision?: { mode?: string } | null })?.decision?.mode === 'pivot').length;
+                const goals = anchor.goals || [];
+                const dr = decideDailyV3({
+                  childId: cid, goals, progress, rows: rs as unknown as CRow[], answers, coachedDays,
+                  coachedYesterday: decisionsPast[0]?.unit ? [decisionsPast[0].unit as UnitId] : [], pivotsThisWeek,
+                  foodTarget: anchor.mission_target, today,
+                  prevDecisions: decisionsPast.slice(0, 2) as Array<{ unit: string; mode: string } | null>,
+                });
+                if (dr.decision) {
+                  // ⑤ 진도 upsert — 결과 error 검사(supabase upsert는 throw하지 않는다 · 2026-06-11 교훈)
+                  if (dr.updates.length) {
+                    const upRows = dr.updates.map((u) => ({ ...u, updated_at: new Date().toISOString() }));
+                    const { error: pe } = await supabase.from('curriculum_progress').upsert(upRows, { onConflict: 'child_id,unit_id' });
+                    if (pe) issues.push(`진도 저장 실패 ${meta.nickname}: ${pe.message.slice(0, 60)}`);
+                  }
+                  // ⑥ 피벗 영속(B-26 리플레이 교훈) — goalsAfter를 닻에 안 쓰면 다음 날 정적 goals가 피벗을 되돌린다
+                  if (JSON.stringify(dr.goalsAfter) !== JSON.stringify(goals)) {
+                    await supabase.from('weekly_plans').update({ goals: dr.goalsAfter, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekKey);
+                  }
+                  // ⑦ 사실 원장(D-04 — 주간 수명): 이번 주 직전 편지의 factsCited 승계, 주가 바뀌면 자연 리셋
+                  const latestThisWeek = pastCtxs.find((r) => isoWeekKey(r.letter_date) === weekKey);
+                  const prevCited = Array.isArray((latestThisWeek?.context as { factsCited?: unknown } | null)?.factsCited)
+                    ? ((latestThisWeek!.context as { factsCited: string[] }).factsCited) : [];
+                  // ⑧ 조립(LLM 0콜) — 사실 카드·원장·시드 전부 결정론
+                  const factRes = compileFactCards({ rows: rs as unknown as CRow[], today });
+                  const firstOfWeek = !latestThisWeek;
+                  const recentIntros = recentIntroUnitsOf(ctxList);
+                  const introNeeded = introNeededV3(firstOfWeek, dr.decision.unit, null, recentIntros);
+                  const detRe = factRes.forbidParts.length ? new RegExp(factRes.forbidParts.join('|')) : null;
+                  const urgent = isUrgent({ icfqRiskCount, rows: rs as unknown as CRow[], today });
+                  const ao = assembleLetter({
+                    decision: dr.decision, unitDef: UNITS[dr.decision.unit], factCards: factRes.cards,
+                    blocks: BLOCKS, blockLedger: collectBlockLedger(ctxList.slice(0, 3)), factsCited: prevCited,
+                    name: meta.nickname || '아이', daySeed, cidHash, food: anchor.mission_target,
+                    introNeeded, suppressIntro: dr.decision.mode === 'pivot' && recentIntros.has(dr.decision.unit),
+                    lowData: dr.lowData, urgent, detForbid: detRe,
+                  });
+                  let v3Letter = ao.letter; let v3One = ao.oneliner; let v3LlmCalls = 0; let recapUsed = false;
+                  // ⑨ H-03·E-08 — 일요일 회고(자유작문 잔존면·소형 프롬프트·기존 가드 스택 그대로). 실패·예산 부족 → 조립 편지.
+                  if (dow === 0 && Date.now() - runStart < TIME_BUDGET_MS - 12_000) {
+                    try {
+                      const focusRow = dr.updates.find((u) => u.unit_id === dr.decision!.unit);
+                      const weekSummary: string[] = [];
+                      if (focusRow) weekSummary.push(`이번 주 살펴본 결: ${UNITS[dr.decision.unit].label} — ${focusRow.step}단(${focusRow.status})`);
+                      dr.updates.filter((u) => u.status === 'mastered').forEach((u) => weekSummary.push(`${UNITS[u.unit_id].label}: 코칭 없이도 유지돼 몸에 붙음`));
+                      dr.updates.filter((u) => u.status === 'relapsed').forEach((u) => weekSummary.push(`${UNITS[u.unit_id].label}: 흐름이 잠시 무너져 다시 살펴보기로 함`));
+                      if (dr.decision.mode === 'advance') weekSummary.push('이번 주 부모의 실행이 기록으로 관측돼 한 걸음 나아감');
+                      const nextGoals = (dr.goalsAfter.length ? dr.goalsAfter : goals).filter((g) => g.status !== 'stopped').map((g) => ({ label: UNITS[g.unit_id].label }));
+                      const recap = await callClaude(buildRecapUser({ childName: meta.nickname, ageBand: meta.age_band, weekSummary, impression: anchor.impression, nextGoals }), 700, SYSTEM_RECAP);
+                      const cand = polishKo(String(recap.letter || '').trim());
+                      v3LlmCalls += 1;
+                      if (cand && !letterDeterministicBad(cand, undefined, weekSummary.join(' ')) && !(detRe && detRe.test(cand))) {
+                        const v = await verifyLetter({ letter: cand, facts: weekSummary.join(' / '), noFoodAction: false, noRediagnose: false });
+                        v3LlmCalls += 1;
+                        if (v.ok) { v3Letter = cand; v3One = String(recap.oneliner || '').slice(0, 60) || v3One; recapUsed = true; }
+                      }
+                    } catch { /* 회고 실패 → 조립 편지 그대로(발행 보장) */ }
+                  }
+                  if (ao.warnings.length) issues.push(`v3 경고 ${meta.nickname}: ${ao.warnings.slice(0, 2).join(' | ')}`.slice(0, 140));
+                  if (ao.fallback) issues.push(`v3 폴백 발행 ${meta.nickname} — C-20 블록 증식 검토`);
+                  letter = v3Letter; oneliner = v3One;
+                  modelUsed = recapUsed ? 'sonnet-recap' : 'assembled';
+                  v3Ctx = buildLetterCtx({
+                    base: {
+                      reds, covered: fg.covered, missing: fg.missing, homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
+                      eatenCount: new Set(allIng).size, attendsDaycare: attends, notesCount: notes.length, model: modelUsed,
+                      weekly: { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: false, arc: null },
+                      v3: { lowData: dr.lowData, plateau: dr.plateau, replan: dr.replanFlag, urgent, recap: recapUsed, llmCalls: v3LlmCalls, warnings: ao.warnings.slice(0, 3) },
+                    },
+                    source: force ? 'cron(v3·force)' : 'cron(v3)',
+                    out: recapUsed ? null : ao,   // 회고일은 블록·사실 소비 없음(원장 그대로 승계)
+                    decision: dr.decision, goalsSnapshot: dr.goalsAfter.length ? dr.goalsAfter : goals, prevFactsCited: prevCited,
+                  });
+                  // ⑩ G-03 — 오늘의 질문 정렬: ICFQ 주기일 > unitProbe(측정 공백) > 기존 로테이션
+                  const focusRowQ = dr.updates.find((u) => u.unit_id === dr.decision!.unit) || progress[dr.decision.unit] || null;
+                  const qp3 = selectQuestionV3({ today, focusDef: UNITS[dr.decision.unit], focusEvidence: focusRowQ?.evidence ?? null, step: dr.decision.step, recentProbes });
+                  if (qp3.kind === 'probe') v3Question = { question: qp3.probe.q, topic: 'unit-probe', chips: qp3.probe.chips, unitProbe: qp3.ctx.unitProbe as unknown as Record<string, unknown> };
+                }
+              } catch (e) {
+                issues.push(`v3 경로 실패→레거시 폴백 ${meta.nickname}: ${e instanceof Error ? e.message.slice(0, 80) : String(e)}`);
+              }
+            }
+            if (!v3Ctx && anchor && anchor.mission_target) {
               const tgt = anchor.mission_target;
               const lever = anchor.budget?.lever || 'food';
               const weekRows = (byChild[cid] || []).filter((r) => isoWeekKey(r.log_date) === weekKey);
@@ -522,6 +641,7 @@ export async function GET(req: Request) {
               }
             }
           } catch (e) { console.warn('[cron/coach] weekly anchor skip:', e instanceof Error ? e.message : e); }
+          if (!v3Ctx) {   // ⭐ H-01 — v3가 편지를 만들었으면 레거시 생성(LLM) 전체 스킵
           scenarioId = precomputed.scenario.id; scenarioLabel = precomputed.scenario.label; planCtx = precomputed.plan;
           // ⭐ 간식 멘트 다듬기(이사님) — 매일 '과자 대신 과일·요거트…' 반복 방지:
           //   ① 쿨다운: 최근 2일 안에 이미 실었으면 오늘은 생략(며칠에 한 번만) ② 과일이 오늘 타깃이면 본문이 이미 좋은 간식을 다루므로 중복 생략
@@ -565,6 +685,7 @@ export async function GET(req: Request) {
             issues.push(`반복경보 ${meta.nickname}: 직전 유사도 ${simToPrev ?? 0} · 직전2일 동일 시그니처 ${sigRun}건(${planCtx?.signature || '-'})`);
           }
           if (verifyCtx && verifyCtx.ok === false) issues.push(`검증위반 발행 ${meta.nickname}: ${verifyCtx.violations.slice(0, 2).join(' / ')}`.slice(0, 160));   // fail-open이되 어드민 보고서에 즉시 노출
+          }   // if (!v3Ctx) — 레거시 생성 경로 끝
         }
         if (letter) {
           // QA용 "우리 판단" 스냅샷 — 어드민 쓰레드에서 이 근거로 생성됐음을 보여줌
@@ -584,8 +705,13 @@ export async function GET(req: Request) {
             snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
           };
+          // ⭐ H-02·H-07 — 컨텍스트 단일화: v3 생성=buildLetterCtx 산출 그대로 / v3 편지 재사용=원장(blocks·factsCited·decision) 보존 / 레거시=기존 리터럴
+          const finalCtx = v3Ctx
+            ?? (reusedCtx && (reusedCtx as { assembled?: boolean }).assembled
+              ? buildLetterCtx({ base: letterCtx, source: 'cron(v3·재사용)', out: null, preserve: reusedCtx })
+              : letterCtx);
           await supabase.from('coach_letters').upsert(
-            { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: letterCtx },
+            { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: finalCtx },
             { onConflict: 'child_id,letter_date' }
           );
           letters++;
@@ -609,13 +735,14 @@ export async function GET(req: Request) {
           let q: { question: string; topic?: string | null; chips?: string[] | null };
           let icfqKey: string | null = null;
           if (icfq) { q = { question: icfq.q, topic: 'icfq', chips: icfq.chips }; icfqKey = icfq.key; }
+          else if (v3Question) q = { question: v3Question.question, topic: v3Question.topic, chips: v3Question.chips };   // ⭐ G-03 ② — 활성 유닛 측정 공백 질문(ICFQ 다음 순위)
           else q = await generateQuestion({
             childName: meta.nickname, ageBand: meta.age_band,
             recentMeals, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef), refused: sanitizeRefusals(uniqRef), attendsDaycare: daycareMap[cid], pastQA,
             topicHint: pickQuestionTopic(today, [...cid].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0)).hint,   // ⭐ 결정론 주제 로테이션(완식 반복 방지)
           });
           if (q.question) {
-            const qCtx = { recentMeals: recentMeals.slice(0, 12), homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], attendsDaycare: !!daycareMap[cid], topic: q.topic || null, source: 'cron', icfq: icfqKey };
+            const qCtx = { recentMeals: recentMeals.slice(0, 12), homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], attendsDaycare: !!daycareMap[cid], topic: q.topic || null, source: 'cron', icfq: icfqKey, ...(v3Question && !icfq ? { unitProbe: v3Question.unitProbe } : {}) };   // ⭐ A-07·G-08 — 답변→evidence 적립 키
             await supabase.from('daily_questions').upsert(
               { child_id: cid, parent_id: meta.parent_id, q_date: today, question: q.question, topic: q.topic || null, chips: q.chips || null, context: qCtx },
               { onConflict: 'child_id,q_date' }
