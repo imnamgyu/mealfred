@@ -13,6 +13,7 @@ export type ReplayDay = {
   decision: DailyDecision | null;
   usedBlocks: string[];
   letter: string;
+  oneliner?: string;            // 홈 한줄 진단(백필 upsert용 — 지표 미사용)
   factUsed: string | null;
   factUsedKind: 'diagnosis' | 'daily' | null;
   fallback: boolean;

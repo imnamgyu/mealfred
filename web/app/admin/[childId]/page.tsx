@@ -10,6 +10,7 @@
  */
 import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
+import { kstToday } from '@/lib/date';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -85,10 +86,13 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
 
   const db = createSupabaseAdmin();
   const { data: child } = await db.from('children').select('nickname,age_band,sex,daycare').eq('id', childId).maybeSingle();
+  // ⭐ 미래 노출 차단(이사님 2026-06-13) — 식단표 OCR이 미래 날짜 끼니를 미리 넣어도(차단 전 데이터 포함)
+  //   스레드는 '오늘까지'만 보여준다. 편지·질문도 동일(QA date 시뮬 잔재 방어).
+  const todayKst = kstToday();
   const [{ data: meals }, { data: letters }, { data: questions }] = await Promise.all([
-    db.from('meal_logs').select('log_date,menus,ingredients,refused,note,texture,place,meal_time,created_at').eq('child_id', childId),
-    db.from('coach_letters').select('letter_date,letter,oneliner,context,source_hash').eq('child_id', childId),
-    db.from('daily_questions').select('q_date,question,topic,chips,answer,answered_at,context').eq('child_id', childId),
+    db.from('meal_logs').select('log_date,menus,ingredients,refused,note,texture,place,meal_time,created_at').eq('child_id', childId).lte('log_date', todayKst),
+    db.from('coach_letters').select('letter_date,letter,oneliner,context,source_hash').eq('child_id', childId).lte('letter_date', todayKst),
+    db.from('daily_questions').select('q_date,question,topic,chips,answer,answered_at,context').eq('child_id', childId).lte('q_date', todayKst),
   ]);
   type PS = { period_type: string; period_key: string; metrics: { variety?: number; refusalPct?: number; enjoyPct?: number | null; avgDur?: number | null; entries?: number } };
   // period_summaries 테이블 미생성이면 error만 나고 data=null → 빈 배열(안전)

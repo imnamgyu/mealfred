@@ -491,10 +491,20 @@ export default function CarePage() {
       const localIngs = (it.ingredients && it.ingredients.length) ? it.ingredients : (mapper.mapMenu(it.menu || '')?.ingredients || []);
       localIngs.forEach((i) => { const n = normalizeIngredient(i); if (n) e.ings.add(n); });
     });
-    const rows = Object.values(byKey).map((v) => ({
+    // ⭐ 미래 날짜 차단(이사님 2026-06-13) — 식단표는 한 달치지만 '오늘까지'만 기록으로 입력한다.
+    //   미래 끼니를 미리 넣으면 어드민 스레드·통계에 안 먹은 미래가 섞인다(아린 6/15~30 36행 실증).
+    const todayKst = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+    const all = Object.values(byKey);
+    const skippedFuture = all.filter((v) => v.log_date > todayKst).length;
+    const rows = all.filter((v) => v.log_date <= todayKst).map((v) => ({
       child_id: childId, parent_id: userId, log_date: v.log_date, slot: v.slot,
       menus: v.menus, ingredients: [...v.ings], place: 'daycare', source: 'daycare_menu', updated_at: new Date().toISOString(),
     }));
+    if (skippedFuture && !rows.length) {
+      setPointToast(`식단표 인식 완료 — 아직 오지 않은 날짜(${skippedFuture}끼)는 기록하지 않아요. 지난 날짜가 있는 달만 적립돼요.`);
+      setOcrOpen(false);
+      return;
+    }
     if (rows.length) {
       await supabase.from('meal_logs').upsert(rows, { onConflict: 'child_id,log_date,slot' });
       setMenuMonths((prev) => new Set([...prev, ocrMonth]));   // 등록 즉시 업로더 숨김

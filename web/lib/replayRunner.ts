@@ -35,13 +35,25 @@ export type ReplayOptions = {
   days?: number;                 // base 직전 며칠을 발행할지(기본 14)
   blocks?: LetterBlock[];        // 기본 = 실 풀
   week?: number;                 // 가입 주차(온보딩 게이트 — 기본 9=정상)
+  firstLogDate?: string;         // 첫 기록일 — 주차를 날짜별로 계산(E-05 게이트 충실 — 백필용)
+  foodTarget?: string | null;    // 닻 mission_target 주입(백필 — 크론 패리티)
+};
+export type ReplayFullResult = {
+  days: ReplayDay[];
+  ctxs: Array<Record<string, unknown>>;            // 발행 편지와 1:1 정렬된 letterCtx(백필 upsert용)
+  progress: Partial<Record<UnitId, ProgressRow>>;  // 최종 진도(curriculum_progress 영속용)
+  goals: Goal[];                                   // 최종 포트폴리오(닻 goals 영속용)
 };
 
 export function runV3Family(fam: ReplayFamily, opt: ReplayOptions = {}): ReplayDay[] {
+  return runV3FamilyFull(fam, opt).days;
+}
+
+export function runV3FamilyFull(fam: ReplayFamily, opt: ReplayOptions = {}): ReplayFullResult {
   const days = opt.days ?? 14;
   const blocks = opt.blocks ?? loadBlocks();
   const name = fam.name || '아이';
-  const foodTarget = fam.refused?.[0] || null;
+  const foodTarget = opt.foodTarget ?? fam.refused?.[0] ?? null;
   let cidHash = 0; for (let k = 0; k < fam.id.length; k++) cidHash = (cidHash * 31 + fam.id.charCodeAt(k)) >>> 0;
 
   let progress: Partial<Record<UnitId, ProgressRow>> = {};
@@ -70,7 +82,10 @@ export function runV3Family(fam: ReplayFamily, opt: ReplayOptions = {}): ReplayD
         prevWeekGoals = goals;
       }
       const sig = buildCandSignals(rows28, today, !!fam.attendsDaycare);
-      const cands = candidateUnits({ sig, progress, week: opt.week ?? 9 });
+      const weekN = opt.week ?? (opt.firstLogDate
+        ? Math.max(1, Math.floor((Date.parse(today) - Date.parse(opt.firstLogDate)) / 86400000 / 7) + 1)
+        : 9);
+      const cands = candidateUnits({ sig, progress, week: weekN });
       let g = normalizeGoals(cands.map((c, i) => ({ unit_id: c.unit_id, priority: (i + 1) as 1 | 2 | 3, status: i === 0 ? 'focus' : 'standby' })));
       if (focusHistory.length) g = applyFocusFatigue(g, focusHistory);
       goals = g;
@@ -114,10 +129,10 @@ export function runV3Family(fam: ReplayFamily, opt: ReplayOptions = {}): ReplayD
     ctxs.push(ctx);
     decisionsLog.push({ date: today, unit: r.decision.unit });
     out.push({
-      date: today, decision: r.decision, usedBlocks: ao.usedBlocks, letter: ao.letter,
+      date: today, decision: r.decision, usedBlocks: ao.usedBlocks, letter: ao.letter, oneliner: ao.oneliner,
       factUsed: ao.factUsed, factUsedKind: ao.factUsedKind, fallback: ao.fallback,
       focusUnit: goals.find((g) => g.status === 'focus')?.unit_id ?? null, weekKey, llmCalls: 0,
     });
   }
-  return out;
+  return { days: out, ctxs, progress, goals };
 }
