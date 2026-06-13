@@ -185,15 +185,23 @@ export function advanceProgress(p: {
   let pivotTo: UnitId | null = null;
   let goalsAfter: Goal[] = p.goals;
   const fr2 = out.get(focus.unit_id)!;
+  const coachedF = p.coachedDays[focus.unit_id] || 0;
+  // ⭐ '절뚝거림'(limping) — 가끔 약한 신호가 들어와 isStalled(완전 무신호 stallDays+)엔 안 걸리지만,
+  //    사다리 진전이 0(passStreakDays=0·step++ 없음)인 채 충분히 코칭(coachedDaysForStall+)한 상태.
+  //    이 구멍 때문에 아린 focus=table-stage가 envTablePct 0.14(임계 미달)로 18일 deepen 고착 → 음식 standby로 피벗 불발.
+  //    이사님 원칙: '환경이 안 먹히면 목표를 바꿔(standby로) 진행한다'. 피벗 캡(주1회)이 휙휙 전환을 막는다.
+  const passStreak = Number((fr2.evidence as Evidence)?.passStreakDays) || 0;
+  const limping = !fres.ev.stepAdvanced && passStreak === 0 && coachedF >= TH.coachedDaysForStall;
+  const stalled = isStalled(fr2, p.today, coachedF);
   if (fres.ev.graduated) mode = 'celebrate';
   else if (fr2.status === 'maintenance') mode = 'maintain';
   else if (fres.ev.stepAdvanced) mode = 'advance';
-  else if (isProgressing(fr2, p.today)) mode = 'deepen';
-  else if (isStalled(fr2, p.today, p.coachedDays[focus.unit_id] || 0)) {
+  else if (isProgressing(fr2, p.today) && !limping) mode = 'deepen';
+  else if (stalled || limping) {
     pivotTo = p.pivotsThisWeek < TH.maxPivotsPerWeek ? pickPivot(p.goals, p.progress) : null;
     if (pivotTo) {
       mode = 'pivot';
-      out.set(focus.unit_id, { ...fr2, status: 'pivoted', stop_reason: 'stalled' });
+      out.set(focus.unit_id, { ...fr2, status: 'pivoted', stop_reason: stalled ? 'stalled' : 'limping' });
       let prow = get(pivotTo);
       if (prow.status === 'not_started' || prow.status === 'pivoted' || prow.status === 'relapsed') {
         prow = { ...prow, status: 'active', step: Math.max(1, prow.step || 1), started_at: prow.started_at ?? p.today, stop_reason: null };
@@ -202,9 +210,9 @@ export function advanceProgress(p: {
       // ⭐ 피벗은 goals의 focus도 플립해야 영속된다(정적 goals가 다음 날 피벗을 되돌리는 버그 — B-26 리플레이 적발).
       //   호출자(크론 H-02/E-07)는 goalsAfter를 닻에 저장할 의무.
       goalsAfter = p.goals.map((g) =>
-        g.unit_id === focus.unit_id ? { ...g, status: 'stopped' as const, reason: 'stalled' }
+        g.unit_id === focus.unit_id ? { ...g, status: 'stopped' as const, reason: stalled ? 'stalled' : 'limping' }
         : g.unit_id === pivotTo ? { ...g, status: 'focus' as const } : g);
-    } else mode = 'observe';   // 피벗 캡 소진/대상 없음 → plateau류(F-08)
+    } else mode = isProgressing(fr2, p.today) ? 'deepen' : 'observe';   // 피벗 캡 소진/대상 없음 → 신호 있으면 계속, 없으면 plateau류(F-08)
   } else mode = 'observe';     // 판정 보류(표본 부족 등) — 질문 정렬(G)이 메움
 
   const dUnit = mode === 'pivot' && pivotTo ? pivotTo : focus.unit_id;

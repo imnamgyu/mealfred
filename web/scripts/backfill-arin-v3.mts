@@ -18,7 +18,7 @@ const sb = createClient(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPA
 
 const { data: kid } = await sb.from('children').select('parent_id,nickname,daycare').eq('id', CID).single();
 const { data: rows } = await sb.from('meal_logs')
-  .select('log_date,slot,menus,refused,note,environment,place,ate_well,autonomy,texture,meal_time')
+  .select('log_date,slot,menus,ingredients,refused,note,environment,place,ate_well,autonomy,texture,meal_time')
   .eq('child_id', CID).lte('log_date', TODAY).order('log_date');
 const { data: anchor } = await sb.from('weekly_plans').select('week_key,mission_target,goals').eq('child_id', CID).order('week_key', { ascending: false }).limit(1).maybeSingle();
 

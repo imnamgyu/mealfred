@@ -122,7 +122,7 @@ export function runV3FamilyFull(fam: ReplayFamily, opt: ReplayOptions = {}): Rep
       recentCombos: ctxs.slice(-7).map((c) => (Array.isArray(c.blocks) ? (c.blocks as string[]).join('+') : '')).filter(Boolean),
       name, daySeed: Math.floor(Date.parse(today) / 86400000), cidHash,
       food: foodTarget, introNeeded, suppressIntro, lowData: r.lowData,
-      urgent: isUrgent({ icfqRiskCount: 0, rows: rows28, today }), detForbid: det,
+      urgent: isUrgent({ icfqRiskCount: 0, rows: rows28, today }), detForbid: det, mirror: facts.mirror,
     });
     const ctx = buildLetterCtx({ source: 'replay', out: ao, decision: r.decision, goalsSnapshot: goals, prevFactsCited: cited });
     cited = ctx.factsCited as string[];

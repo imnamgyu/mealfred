@@ -35,6 +35,7 @@ export type AssembleInput = {
   avoidTags?: string[];             // forbids 매칭(F-03 push 캡 등)
   tones?: BlockTone[];              // E-05 온보딩 1주차 tone=warm 제한 등
   detForbid?: RegExp | null;        // 동적 금지(coachFacts forbidParts — D-09 최종 스캔에 합류)
+  mirror?: string | null;           // ⭐ 식단 거울(coachFacts.buildMealMirror) — lever 무관 매 편지 앞 1~2문장(어제 끼니+영양신호등)
 };
 export type AssembleOutput = {
   letter: string; oneliner: string;
@@ -161,6 +162,12 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   const warnings: string[] = [];
   const cited = new Set(p.factsCited || []);
   const avoid = new Set(p.avoidTags || []);
+  // ⭐ 식단 거울 — 본문(코칭) 위에 항상 얹는 데이터 반사. urgent(안전)·lowData(기록 권유)는 톤 충돌이라 생략.
+  //    본문 문장/길이 예산을 거울만큼 줄여 총 5문장·규격을 유지(거울+본문).
+  const mirror = ((!p.urgent && !p.lowData && (p.mirror || '').trim()) || null) as string | null;
+  const mirrorSents = mirror ? sentencesOf(mirror).length : 0;
+  const bodySentCap = Math.max(3, 5 - mirrorSents);
+  const bodyMax = LETTER_MAX - (mirror ? mirror.length + 1 : 0);
   const introNeeded = !!p.introNeeded;
   const mode = p.decision.mode;
   const step = Math.max(1, p.decision.step || 1);
@@ -199,7 +206,7 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
           if (!text) continue;
           if (!anyPick) anyPick = { b, text };
           const noRun = !hasEndingRun(sofar ? `${sofar} ${text}` : text);
-          const fits = sofarSent + sentencesOf(text).length + remainReq <= 5;
+          const fits = sofarSent + sentencesOf(text).length + remainReq <= bodySentCap;
           if (noRun && fits) { best = { b, text }; break; }
           if (fits && !fitOnly) fitOnly = { b, text };
           if (noRun && !noRunOnly) noRunOnly = { b, text };
@@ -223,11 +230,11 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
     const joinOf = (list: typeof picked) => list.map((x) => x.text).join(' ');
     let list = picked;
     const drop = () => { const i = list.map((x) => x.optional).lastIndexOf(true); if (i >= 0) list = list.filter((_, j) => j !== i); };
-    if (joinOf(list).length > LETTER_MAX || sentencesOf(joinOf(list)).length > 5) drop();
+    if (joinOf(list).length > bodyMax || sentencesOf(joinOf(list)).length > bodySentCap) drop();
     const letter = joinOf(list);
-    if (letter.length > LETTER_MAX) warnings.push(`길이 초과 ${letter.length}자`);
+    if (letter.length > bodyMax) warnings.push(`길이 초과 ${letter.length}자`);
     const sc = sentencesOf(letter).length;
-    if (sc < 3 || sc > 5) warnings.push(`문장 수 ${sc}(3~5 밖)`);
+    if (sc < 3 || sc > bodySentCap) warnings.push(`문장 수 ${sc}(3~${bodySentCap} 밖)`);
     return { letter, used: list.map((x) => x.b) };
   };
 
@@ -259,7 +266,8 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
     };
     const o = pickAny('opener-weekday'); const pl = pickAny('plateau');
     const parts = [o, pl].map((b) => (b ? renderBlock(b, ctx) : null)).filter(Boolean) as string[];
-    const letter = polishKo(parts.length >= 2 ? parts.join(' ') : SAFE_LETTER);
+    const body = parts.length >= 2 ? parts.join(' ') : SAFE_LETTER;
+    const letter = polishKo(mirror ? `${mirror} ${body}` : body);   // ⭐ 폴백도 식단 거울 유지
     return {
       letter, oneliner: SAFE_ONELINER,
       usedBlocks: parts.length >= 2 ? [o!.id, pl!.id] : [],
@@ -269,8 +277,9 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   }
 
   const factConsumed = result.used.some((b) => (b.slots || []).includes('fact'));
+  const full = mirror ? `${mirror} ${result.letter}` : result.letter;   // ⭐ 식단 거울 + 코칭 본문
   return {
-    letter: polishKo(result.letter),   // D-07 — 결정론 어법 교정(슬롯 치환 후 안전망)
+    letter: polishKo(full),   // D-07 — 결정론 어법 교정(슬롯 치환 후 안전망)
     oneliner: buildOneliner(next, seed),
     usedBlocks: result.used.map((b) => b.id),
     factUsed: factConsumed && fact ? fact.key : null,

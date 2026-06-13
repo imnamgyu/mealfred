@@ -560,7 +560,7 @@ export async function GET(req: Request) {
                     recentCombos: ctxList.map((c) => (Array.isArray((c as { blocks?: unknown }).blocks) ? ((c as { blocks: string[] }).blocks).join('+') : '')).filter(Boolean),
                     name: meta.nickname || '아이', daySeed, cidHash, food: anchor.mission_target,
                     introNeeded, suppressIntro: dr.decision.mode === 'pivot' && recentIntros.has(dr.decision.unit),
-                    lowData: dr.lowData, urgent, detForbid: detRe,
+                    lowData: dr.lowData, urgent, detForbid: detRe, mirror: factRes.mirror,
                   });
                   let v3Letter = ao.letter; let v3One = ao.oneliner; let v3LlmCalls = 0; let recapUsed = false;
                   // ⑨ H-03·E-08 — 일요일 회고(자유작문 잔존면·소형 프롬프트·기존 가드 스택 그대로). 실패·예산 부족 → 조립 편지.
