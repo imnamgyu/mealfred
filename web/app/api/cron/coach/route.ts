@@ -774,6 +774,7 @@ export async function GET(req: Request) {
         // ⭐⭐ E-05·E-06·E-08 — Letter B(하이브리드 처치군). A 발행 코드 전에 생성하되, A는 B와 무관하게 항상 저장(B=null이어도).
         //    잔여 예산 게이트(B는 A보다 보수적 deadline) — 부족하면 skipped. 실패=failed. 둘 다 A 발행은 막지 않음.
         if (isCompare && !reusedThis && letter && !altLetter) {
+         try {   // ⭐ B 생성 전체를 자체 try로 — buildLetterB는 null만 반환하지만 호출부(bMeals 구성·결과 처리)의 throw가 outer catch로 새어 A 발행까지 막던 버그 차단(A는 항상 발행, B 실패는 reason 기록).
           const bBudgetLeft = TIME_BUDGET_MS - (Date.now() - runStart);
           if (bBudgetLeft > 12_000) {
             const bDaySeed = Math.floor(Date.parse(today) / 86400000);
@@ -827,6 +828,12 @@ export async function GET(req: Request) {
           } else {
             compareSkipped++;
             altLetter = { skipped: true, reason: `잔여 예산 부족(${Math.round(bBudgetLeft / 1000)}s)` };   // E-08-7
+          }
+         } catch (e) {   // ⭐ B throw 방어 — A 발행 보장 + 원인 기록(altLetter.reason·issues)
+            compareFailed++;
+            const msg = e instanceof Error ? (e.stack || e.message) : String(e);
+            altLetter = { failed: true, reason: msg.slice(0, 300) };
+            issues.push(`B 생성 throw ${meta.nickname}: ${(e instanceof Error ? e.message : String(e)).slice(0, 140)}`);
           }
         }
         if (letter) {
