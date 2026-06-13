@@ -20,6 +20,8 @@ const EXCLUDE = new Set([
   '물', '참기름', '들기름', '식용유', '콩기름', '올리브유', '카놀라유', '포도씨유', '소금', '간장', '국간장', '진간장', '설탕', '올리고당',
   '전분', '깨', '통깨', '깨소금', '밀가루', '버터', '식초', '맛술', '후추', '고추가루', '고춧가루', '고추기름', '들깨가루', '채소', '분유', '생강',
   '멸치육수', '바지락육수', '조개육수', '닭육수', '소고기육수', '다시마육수', '육수', '청주', '미림', '물엿',
+  // 2026-06-13 캐논누수 감사 — 젓갈·케찹·절임은 양념/가공 조미료(식재료 아님). 레시피 ingredients에 섞여 누수되던 토큰.
+  '멸치젓', '새우젓', '액젓', '까나리액젓', '멸치액젓', '토마토케찹', '케찹', '케첩', '케챂', '단무지',
 ]);
 
 function cleanName(raw: string): string {
@@ -123,6 +125,10 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   // 유지보수 루프(pull-menus 실데이터) — 떡류·빵·주스·디저트
   '절편': { ing: ['쌀'] }, '가래떡': { ing: ['쌀'] }, '모닝빵': { ing: ['밀'] }, '감귤주스': { ing: ['귤'] },
   '아이스크림': { ing: ['우유'], processed: true },
+  // 2026-06-13 무매핑 1순위 — 단품 떡·빵 (떡=쌀 가공형태 / 빵=도감 표준명, 둘 다 정확일치만·1자 아님)
+  '떡': { ing: ['쌀'] }, '빵': { ing: ['빵'] },
+  // 1자 과일·견과(스캔 표면형 불가) — 정확일치 룰로만(부분일치 키 아님 → 배추·양배추 오탐 없음)
+  '배': { ing: ['배'] }, '밤': { ing: ['밤'] }, '찐밤': { ing: ['밤'] }, '군밤': { ing: ['밤'] },
 };
 
 const PARTIAL_KEYS = Object.keys(MENU_MAP)
@@ -168,6 +174,9 @@ export function createMapper(poolNames: string[]): Mapper {
       if ((surface.length >= 2 || ONE_CHAR_SCAN.has(surface)) && menu.includes(surface)) found.add(real);
     }
     if (/밥|죽|미음/.test(menu)) found.add('쌀');   // 곡물 보정
+    // 떡류·빵류 보정 (스캔 단계 전용 — 떡갈비/떡볶이 등은 룰에서 먼저 반환되어 영향 없음). 떡=쌀, 빵류=빵.
+    if (/설기|송편|증편|약식|시루떡|가래떡|꿀떡|찰떡|쑥떡|무지개떡|바람떡|개피떡|수리취떡|경단/.test(menu)) found.add('쌀');
+    if (/빵|머핀|베이글|크루?아상|크로?와상|러스크|포카치아|스콘|깜빠뉴/.test(menu)) found.add('빵');
     const arr = [...found];
     return arr.filter((short) => {
       const longSurface = SCAN_TOKENS.find(([s, r]) => r !== short && s.includes(short) && menu.includes(s));
