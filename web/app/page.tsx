@@ -133,6 +133,7 @@ export default function Home() {
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   const [aiOneliner, setAiOneliner] = useState<string>('');
+  const [letterFb, setLetterFb] = useState<string | null>(null);   // ⭐ 편지 1탭 피드백(자가발전 Phase1) — 👍/👎/🔁
   const [signupDate, setSignupDate] = useState<string | null>(null);   // M8 90일 챌린지 시작(가입일)
   const [loggedDays, setLoggedDays] = useState(0);                      // 최근 90일 기록한 고유 날 수
   const [pointBal, setPointBal] = useState(0);                          // 누적 포인트 잔액
@@ -587,7 +588,28 @@ export default function Home() {
               )}
             </div>
             {aiLetter ? (
-              <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
+              <>
+                <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
+                {/* ⭐ 1탭 피드백(자가발전 Phase1) — RLS로 클라가 직접 upsert(parent_id=auth.uid()) */}
+                {!isMockup && letterDate && (
+                  <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
+                    <span className="text-[10.5px] font-semibold" style={{ color: '#9A6A1A' }}>이 편지 어땠어요?</span>
+                    {([['up', '👍 도움됐어요'], ['down', '👎 별로'], ['repeat', '🔁 또 비슷해요']] as const).map(([r, lbl]) => (
+                      <button key={r} onClick={async () => {
+                        const { data: { user } } = await supabase.auth.getUser();
+                        if (!user || !childId) return;
+                        setLetterFb(r);
+                        await supabase.from('letter_feedback').upsert({ child_id: childId, parent_id: user.id, letter_date: letterDate, rating: r }, { onConflict: 'child_id,letter_date' });
+                      }}
+                        className="text-[10.5px] font-bold px-2 py-1 rounded-full"
+                        style={{ background: letterFb === r ? '#F9A825' : '#FFF3DD', color: letterFb === r ? 'white' : '#9A6A1A', border: '1px solid #F0D8A0' }}>
+                        {lbl}
+                      </button>
+                    ))}
+                    {letterFb && <span className="text-[10.5px] font-semibold" style={{ color: '#16A085' }}>고마워요! 더 나은 편지로 보답할게요</span>}
+                  </div>
+                )}
+              </>
             ) : (
               <>
                 <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;집 끼니에 콩류가 잘 안 올라오네요. 지우가 잘 먹는 밥에 두부를 아주 잘게 으깨 섞어보세요.<br />또래 아이들은 두부를 순두부찌개나 유부된장국으로도 자주 먹어요 — 익숙한 것 옆에 조금씩이면 충분해요.&rdquo;</div>

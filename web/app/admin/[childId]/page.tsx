@@ -104,6 +104,10 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
   const { data: progRaw } = await db.from('curriculum_progress').select('unit_id,status,step,evidence,last_signal_at,relapse_count,stop_reason,updated_at').eq('child_id', childId);
   const wkPlans = (wkPlansRaw || []) as Array<Record<string, unknown>>;
   const progRows = (progRaw || []) as Array<Record<string, unknown>>;
+  // 부모 1탭 피드백 집계(테이블 없으면 null→0)
+  const { data: fbRaw } = await db.from('letter_feedback').select('rating').eq('child_id', childId);
+  const fb = { up: 0, down: 0, repeat: 0 };
+  ((fbRaw || []) as Array<{ rating: 'up' | 'down' | 'repeat' }>).forEach((f) => { if (f.rating in fb) fb[f.rating]++; });
   // 일간 판단 타임라인 — 편지 context.decision/v3에서(최근 14일, 최신 위)
   const dailyJudg = (letters || []).map((l) => {
     const c = (l.context || {}) as Record<string, unknown>;
@@ -125,6 +129,8 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
   if (maxSim >= 0.45) alerts.push(`⚠️ 편지 유사도 ${(maxSim * 100).toFixed(0)}% (${simPair}) — 복붙 의심`);
   if (onelDup > 0) alerts.push(`⚠️ oneliner 중복 ${onelDup}건`);
   if (recentL.length >= 3 && mirrorRate < 0.8) alerts.push(`⚠️ 식단 거울 누락 ${Math.round((1 - mirrorRate) * 100)}% (음식 평가 빠진 편지)`);
+  if (fb.repeat > 0) alerts.push(`🔁 '또 비슷해요' 피드백 ${fb.repeat}건`);
+  if (fb.down > 0) alerts.push(`👎 '별로' 피드백 ${fb.down}건`);
   // 큰 기간 → 작은 기간 순으로 그룹(타입별 필터 후 period_key desc 유지)
   const psGroups: [string, PS[]][] = ([['연', 'year'], ['반기', 'half'], ['분기', 'quarter'], ['월', 'month'], ['주', 'week']] as const)
     .map(([lab, t]) => [lab, periods.filter((p) => p.period_type === t)] as [string, PS[]]);
@@ -157,6 +163,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
           {alerts.length
             ? <span style={{ color: '#B91C1C' }}>{alerts.join(' · ')}</span>
             : <span style={{ color: '#15803D' }}>이상 없음 — 유사도 {(maxSim * 100).toFixed(0)}% · 식단거울 {Math.round(mirrorRate * 100)}% · oneliner 중복 0</span>}
+          <span style={{ color: '#6B7280', marginLeft: 8 }}>· 부모 피드백 👍{fb.up} 👎{fb.down} 🔁{fb.repeat}</span>
         </div>
       )}
 

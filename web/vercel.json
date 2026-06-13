@@ -12,6 +12,10 @@
     {
       "path": "/api/cron/coach",
       "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/cron/coach-selfcheck",
+      "schedule": "30 18 * * *"
     }
   ]
 }
