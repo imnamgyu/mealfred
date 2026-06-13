@@ -10,6 +10,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { letterSimilarity } from '@/lib/coach';
+import { compareEnabled } from '@/lib/coachDaily';
+import { buildCompareSummary, type Vote } from '@/lib/compareVote';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -43,6 +45,15 @@ export async function GET(req: Request) {
       });
     } catch { /* 테이블 미생성 — 피드백 집계 생략 */ }
 
+    // ⭐ EPIC G-11 — A/B 변형별 비교 투표(compare_votes). 테이블 없으면 graceful(빈 집계).
+    const cvByChild: Record<string, Vote[]> = {};
+    try {
+      const { data: cvs } = await sb.from('compare_votes').select('child_id,variant,rating').gte('letter_date', dAgo(30));
+      ((cvs || []) as Array<{ child_id: string; variant: 'A' | 'B'; rating: 'up' | 'down' | 'repeat' }>).forEach((c) => {
+        if (c.variant === 'A' || c.variant === 'B') (cvByChild[c.child_id] ||= []).push({ variant: c.variant, rating: c.rating });
+      });
+    } catch { /* 테이블 미생성 — A/B 비교 생략 */ }
+
     // 이름(알람 가독성)
     const ids = Object.keys(byChild);
     const nameMap: Record<string, string> = {};
@@ -69,6 +80,9 @@ export async function GET(req: Request) {
       if (recent.length >= 3 && mirrorRate < 0.8) flags.push(`식단거울누락 ${Math.round((1 - mirrorRate) * 100)}%`);
       if (fb.repeat > 0) flags.push(`🔁또비슷 ${fb.repeat}`);
       if (fb.down > 0) flags.push(`👎별로 ${fb.down}`);
+      // ⭐ EPIC G-11 — compare 코호트 자녀만 'B가 A를 이기는지' 요약 1줄(투표 0이면 노이즈 0).
+      const cvs = cvByChild[cid] || [];
+      if (cvs.length && compareEnabled(process.env as { COACH_COMPARE?: string; COACH_COMPARE_CHILDREN?: string; COACH_V3_CHILDREN?: string }, cid)) flags.push(`A/B: ${buildCompareSummary(cvs)}`);
       if (flags.length) alerts.push(`${nameMap[cid] || cid.slice(0, 8)}: ${flags.join(' · ')}`);
     }
 

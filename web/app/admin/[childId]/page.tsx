@@ -13,6 +13,8 @@ import { isAdmin } from '@/lib/admin';
 import { kstToday } from '@/lib/date';
 import { letterSimilarity } from '@/lib/coach';
 import { UNITS, type UnitId } from '@/lib/curriculumUnits';
+import { judgeWinner, buildCompareSummary } from '@/lib/compareVote';
+import VoteButtons from '@/app/admin/compare/VoteButtons';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -105,10 +107,18 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
   const { data: progRaw } = await db.from('curriculum_progress').select('unit_id,status,step,evidence,last_signal_at,relapse_count,stop_reason,updated_at').eq('child_id', childId);
   const wkPlans = (wkPlansRaw || []) as Array<Record<string, unknown>>;
   const progRows = (progRaw || []) as Array<Record<string, unknown>>;
-  // 부모 1탭 피드백 집계(테이블 없으면 null→0)
+  // 부모 1탭 피드백 집계(테이블 없으면 null→0). A=기존 v2(letter_feedback)·B=새 설계(compare_votes, EPIC F/G).
   const { data: fbRaw } = await db.from('letter_feedback').select('rating').eq('child_id', childId);
-  const fb = { up: 0, down: 0, repeat: 0 };
+  const fb = { up: 0, down: 0, repeat: 0 };   // = A(기존 단일 카드 = 변형 없음)
   ((fbRaw || []) as Array<{ rating: 'up' | 'down' | 'repeat' }>).forEach((f) => { if (f.rating in fb) fb[f.rating]++; });
+  // ⭐ EPIC F/G — A/B 변형별 비교 평가(compare_votes). 미생성이면 null→빈(안전 degrade).
+  //   날짜별 A·B 평가 맵(VoteButtons 초기 하이라이트) + 변형별 누적 집계 + judgeWinner 승자.
+  const { data: cvRaw } = await db.from('compare_votes').select('letter_date,rating,variant').eq('child_id', childId);
+  const cvRows = (cvRaw || []) as Array<{ letter_date: string; rating: 'up' | 'down' | 'repeat'; variant: 'A' | 'B' }>;
+  const votesByDate: Record<string, { A?: 'up' | 'down' | 'repeat'; B?: 'up' | 'down' | 'repeat' }> = {};
+  cvRows.forEach((c) => { if (c.variant === 'A' || c.variant === 'B') (votesByDate[c.letter_date] ||= {})[c.variant] = c.rating; });
+  const compareVerdict = judgeWinner(cvRows.map((c) => ({ variant: c.variant, rating: c.rating })));
+  const hasBVotes = compareVerdict.n > 0;   // 비교 표가 있는 자녀(아린)만 A/B 비교 줄 노출
   // 일간 판단 타임라인 — 편지 context.decision/v3에서(최근 14일, 최신 위)
   const dailyJudg = (letters || []).map((l) => {
     const c = (l.context || {}) as Record<string, unknown>;
@@ -165,6 +175,15 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
             ? <span style={{ color: '#B91C1C' }}>{alerts.join(' · ')}</span>
             : <span style={{ color: '#15803D' }}>이상 없음 — 유사도 {(maxSim * 100).toFixed(0)}% · 식단거울 {Math.round(mirrorRate * 100)}% · oneliner 중복 0</span>}
           <span style={{ color: '#6B7280', marginLeft: 8 }}>· 부모 피드백 👍{fb.up} 👎{fb.down} 🔁{fb.repeat}</span>
+        </div>
+      )}
+
+      {/* ⭐ EPIC G — A/B 변형별 비교 승자(judgeWinner 단일 소스). 비교 표가 있는 자녀만. <Link>로 집계 페이지. */}
+      {hasBVotes && (
+        <div style={{ background: '#F0F9FF', borderBottom: '1px solid #E5E7EB', padding: '8px 16px', fontSize: 12 }}>
+          <span style={{ fontWeight: 800, color: '#1a2b4a' }}>🆚 A/B 비교</span>{' '}
+          <span style={{ color: '#374151' }}>{buildCompareSummary(cvRows.map((c) => ({ variant: c.variant, rating: c.rating })))}</span>
+          <Link href="/admin/compare" style={{ color: '#1565C0', fontWeight: 700, marginLeft: 8 }}>전체 집계 →</Link>
         </div>
       )}
 
@@ -309,9 +328,15 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                 <Ctx ctx={ev.data.context} />
                 {ev.data.answer && <Bubble side="l" tone="yellow"><div style={{ fontSize: 11, color: '#92400E', fontWeight: 700, marginBottom: 2 }}>👩 답변</div>{ev.data.answer}</Bubble>}
               </>)}
-              {ev.kind === 'letter' && (<>
+              {ev.kind === 'letter' && (() => {
+                // ⭐ EPIC G — context.altLetter(B·새 설계)가 있으면 A·B 두 버블 나란히 + 변형 라벨 + 비교 투표.
+                const alt = (ev.data.context as { altLetter?: { letter?: string; oneliner?: string | null; materials?: { food?: string | null; targetGroup?: string | null }; verify?: { ok?: boolean } | null; model?: string; decision?: { unit?: string; step?: number; mode?: string } | null; failed?: boolean; skipped?: boolean; reason?: string } } | null)?.altLetter;
+                const hasB = !!(alt && alt.letter);
+                const dv = votesByDate[ev.data.letter_date];
+                const chipS = (txt: string, fg: string, bg: string) => <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 800, color: fg, background: bg, borderRadius: 100, padding: '2px 7px' }}>{txt}</span>;
+                return (<>
                 <Bubble side="r" tone="orange">
-                  <div style={{ fontSize: 11, color: '#C45A00', fontWeight: 700, marginBottom: 3 }}>💌 코치 편지
+                  <div style={{ fontSize: 11, color: '#C45A00', fontWeight: 700, marginBottom: 3 }}>💌 코치 편지{hasB ? chipS('A · v2 대조군', '#92400E', '#FDF3E0') : null}
                     {(() => {   // ⭐ 반복 모니터 칩(2026-06-11) + v3 조립 칩(H-08: 유닛·step·mode·폴백) — 복붙·전개를 한눈에
                       const c = ev.data.context as { scenarioLabel?: string; plan?: { signature?: string } | null; weekly?: { arc?: { stage?: string } | null } | null; simToPrev?: number | null; repeatAlert?: boolean; coachRegen?: boolean; model?: string; verify?: { ok?: boolean; regen?: boolean } | null; assembled?: boolean; fallback?: boolean; decision?: { unit?: string; step?: number; mode?: string } | null; blocks?: string[]; v3?: { recap?: boolean; urgent?: boolean; plateau?: boolean } | null } | null;
                       if (!c) return null;
@@ -336,8 +361,29 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                   {ev.data.oneliner ? <div style={{ fontWeight: 800, marginBottom: 4 }}>{ev.data.oneliner}</div> : null}
                   {ev.data.letter}
                 </Bubble>
+                {/* ⭐ EPIC G — B(새 설계) 버블 + 변형 칩(재료·검증·모델). 없으면 단일 렌더(회귀 0). */}
+                {hasB && (
+                  <Bubble side="r" tone="gray">
+                    <div style={{ fontSize: 11, color: '#1565C0', fontWeight: 700, marginBottom: 3 }}>🧪 코치 편지{chipS('B · 새 설계', '#1565C0', '#E8F1FB')}
+                      {alt!.decision?.unit ? chipS(`${alt!.decision.unit}·${alt!.decision.step}단·${alt!.decision.mode}`, '#7C2D92', '#F6EAFB') : null}
+                      {alt!.materials?.food ? chipS(`🥗 ${alt!.materials.food}`, '#1B5E20', '#EAF6F0') : null}
+                      {alt!.materials?.targetGroup ? chipS(alt!.materials.targetGroup, '#5B6B53', '#EFF4EA') : null}
+                      {alt!.verify ? (alt!.verify.ok === false ? chipS('⚠️ 검증위반', '#B91C1C', '#FDEBEB') : chipS('✅ 검증통과', '#5B6B53', '#EFF4EA')) : null}
+                      {alt!.model?.includes('sonnet') ? chipS('🧠 Sonnet', '#1565C0', '#E8F1FB') : null}
+                    </div>
+                    {alt!.oneliner ? <div style={{ fontWeight: 800, marginBottom: 4 }}>{alt!.oneliner}</div> : null}
+                    {alt!.letter}
+                  </Bubble>
+                )}
+                {/* B 발행 실패/스킵 표시(데이터 투명) */}
+                {alt && !hasB && (alt.failed || alt.skipped) && (
+                  <div style={{ textAlign: 'right', fontSize: 10.5, color: '#B91C1C', margin: '0 0 6px' }}>B 미발행 — {alt.reason || (alt.failed ? '생성 실패' : '예산 부족')}</div>
+                )}
+                {/* ⭐ EPIC G-08 — 이사님 A/B 변형별 비교 투표(있을 때만) */}
+                {hasB && <div style={{ display: 'flex', justifyContent: 'flex-end' }}><VoteButtons childId={childId} letterDate={ev.data.letter_date} initial={dv} /></div>}
                 <Ctx ctx={ev.data.context} />
-              </>)}
+              </>);
+              })()}
             </div>
           );
         })}

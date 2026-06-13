@@ -17,6 +17,8 @@ import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import BottomNav from '@/components/BottomNav';
 import FoodIcon from '@/components/FoodIcon';
 import AuthModal from '@/components/AuthModal';
+import CompareLetterCard, { type LetterVariant, type LetterRating } from '@/components/CompareLetterCard';
+import { pickAltLetter, type AltLetter } from '@/lib/altLetter';
 import { kakaoErrorText } from '@/lib/kakaoAuth';
 
 const todayStr = kstToday;   // KST 기준 — 새벽 크론(letter_date)과 동일 앵커
@@ -133,7 +135,8 @@ export default function Home() {
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   const [aiOneliner, setAiOneliner] = useState<string>('');
-  const [letterFb, setLetterFb] = useState<string | null>(null);   // ⭐ 편지 1탭 피드백(자가발전 Phase1) — 👍/👎/🔁
+  const [letterFb, setLetterFb] = useState<{ A: LetterRating | null; B: LetterRating | null }>({ A: null, B: null });   // ⭐ 편지 1탭 피드백 — A=기존(letter_feedback)·B=새 설계(compare_votes). 👍/👎/🔁
+  const [altB, setAltB] = useState<AltLetter | null>(null);   // ⭐ EPIC F — Letter B(context.altLetter). compare 자녀만 비-null → 둘째 카드. 다른 자녀=null=단일 카드 무영향.
   const [signupDate, setSignupDate] = useState<string | null>(null);   // M8 90일 챌린지 시작(가입일)
   const [loggedDays, setLoggedDays] = useState(0);                      // 최근 90일 기록한 고유 날 수
   const [pointBal, setPointBal] = useState(0);                          // 누적 포인트 잔액
@@ -182,6 +185,8 @@ export default function Home() {
     if (!selectedId) return;
     let cancelled = false;   // 자녀 빠른 전환 시 옛 selectedId의 늦은 콜백이 새 자녀 상태를 덮어쓰지 않게(race 가드)
     setLoading(true);
+    setAltB(null);   // ⭐ EPIC F — 자녀 전환 시 Letter B 리셋(이전 자녀 B가 비-compare 자녀로 잔류해 둘째 카드 뜨는 교차오염 차단)
+    setLetterFb({ A: null, B: null });   // 피드백 선택도 자녀별로 리셋(아래 초기 로드가 다시 채움)
     fetch('/ingredients-light.json').then((r) => r.json()).then((d) => { if (!cancelled) setPool(d.ingredients); }).catch(() => {});
     fetch('/kit-guide.json').then((r) => r.json()).then((d) => { if (!cancelled) setKitGuide(d); }).catch(() => {});
     (async () => {
@@ -283,10 +288,11 @@ export default function Home() {
             .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(55)).lte('log_date', dates[0])
             .then(({ data }) => { setProgress(computeProgress((data || []) as Parameters<typeof computeProgress>[0], kstToday())); });
           // 지난 코치 편지(날짜 포함) — 오랜만에 온 엄마가 예전 편지도 보게. 오늘 편지 없으면 가장 최근 편지를 상단에.
-          supabase.from('coach_letters').select('letter_date,letter,oneliner')
+          supabase.from('coach_letters').select('letter_date,letter,oneliner,context')
             .eq('child_id', child.id).order('letter_date', { ascending: false }).limit(8)
             .then(({ data }) => {
-              const hist = (data || []) as { letter_date: string; letter: string; oneliner: string | null }[];
+              if (cancelled) return;   // 전환 중 늦은 콜백 → 편지·altB 교차오염 스킵
+              const hist = (data || []) as { letter_date: string; letter: string; oneliner: string | null; context: Record<string, unknown> | null }[];
               if (!hist.length) return;
               const td = todayStr();
               const win = kstDateNDaysAgo(2);   // 최근 3일(오늘·어제·그저께)만 — 그 이전 편지는 사라짐(매일 들어오게 하는 FOMO)
@@ -295,6 +301,8 @@ export default function Home() {
               setAiLetter((cur) => cur || hist[0].letter);
               setAiOneliner((cur) => cur || (hist[0].oneliner || ''));
               setLetterDate((cur) => cur || hist[0].letter_date);
+              // ⭐ EPIC F — 표시 중인 가장 최근 편지의 Letter B. 아래 '오늘 편지 캐싱' 블록이 있으면 그쪽이 today 기준으로 덮어씀.
+              setAltB((cur) => cur || pickAltLetter(hist[0].context));
             });
           setRefused([...new Set(ref)]);
 
@@ -311,13 +319,14 @@ export default function Home() {
             // 식단 지문 — 먹은 식재료·거부·부족영양·메모 + 날짜(날짜 바뀌면 새 계획으로 재생성)
             const srcHash = [...allIng].sort().join(',') + '|' + [...new Set(ref)].sort().join(',') + '|' + reds.sort().join(',') + '|' + notes.length + '|' + today;
             const { data: cached } = await supabase.from('coach_letters')
-              .select('letter,oneliner,source_hash').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
+              .select('letter,oneliner,source_hash,context').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
             if (cancelled) return;   // 그 사이 자녀 전환 → 편지(가장 눈에 띄는 교차오염) 스킵
             if (cached?.letter) {
               // 오늘 편지가 이미 발행됨 → 무조건 read (발행되면 그날 고정, 당일 입력으로 안 바뀜)
               setAiLetter(cached.letter);
               if (cached.oneliner) setAiOneliner(cached.oneliner);
               setLetterDate(today);
+              setAltB(pickAltLetter((cached as { context?: Record<string, unknown> | null }).context));   // ⭐ EPIC F — 오늘 편지의 Letter B(compare 자녀만 비-null)
             } else {
               // ⭐ 오늘 편지 미발행(크론 실패 등) — 2026-06-12 사고 봉쇄(적대감사 S8):
               //   옛 폴백(api/coach 직생성)은 주간 닻·사실 카드·검증자·무브 구속이 전부 없는 2등급 경로라
@@ -326,20 +335,22 @@ export default function Home() {
               //   '어제 편지'를 그대로 보여준다(나쁜 편지보다 늦은 편지가 낫다 — 이사님 원칙).
               await fetch(`https://app.mealfred.com/api/cron/coach?child=${child.id}`).catch(() => null);
               const { data: gen } = await supabase.from('coach_letters')
-                .select('letter,oneliner').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
+                .select('letter,oneliner,context').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
               if (cancelled) return;
               if (gen?.letter) {
                 setAiLetter(gen.letter);
                 if (gen.oneliner) setAiOneliner(gen.oneliner);
                 setLetterDate(today);
+                setAltB(pickAltLetter((gen as { context?: Record<string, unknown> | null }).context));   // ⭐ EPIC F — 크론 폴백 후 today 편지의 Letter B
               } else {
                 const { data: prevL } = await supabase.from('coach_letters')
-                  .select('letter,oneliner,letter_date').eq('child_id', child.id).lt('letter_date', today)
+                  .select('letter,oneliner,letter_date,context').eq('child_id', child.id).lt('letter_date', today)
                   .order('letter_date', { ascending: false }).limit(1).maybeSingle();
                 if (!cancelled && prevL?.letter) {
                   setAiLetter(prevL.letter);
                   if (prevL.oneliner) setAiOneliner(prevL.oneliner);
                   setLetterDate(prevL.letter_date);
+                  setAltB(pickAltLetter((prevL as { context?: Record<string, unknown> | null }).context));   // ⭐ EPIC F — 어제 편지 폴백 시 그 편지의 Letter B
                 }
               }
             }
@@ -351,6 +362,46 @@ export default function Home() {
     return () => { cancelled = true; };   // 다음 selectedId 효과 전에 이전 로드 취소
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
+
+  // ③ EPIC F — 표시 편지가 정해지면 기존 피드백 선택 복원(A=letter_feedback·B=compare_votes). 둘 다 RLS로 본인 자녀만.
+  useEffect(() => {
+    if (!childId || !letterDate) return;
+    let cancelled = false;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || cancelled) return;
+      const [{ data: a }, { data: b }] = await Promise.all([
+        supabase.from('letter_feedback').select('rating').eq('child_id', childId).eq('letter_date', letterDate).maybeSingle(),
+        // compare_votes 테이블 미생성이면 error만 나고 data=null → B 선택 없음(안전 degrade)
+        supabase.from('compare_votes').select('rating').eq('child_id', childId).eq('letter_date', letterDate).eq('variant', 'B').maybeSingle(),
+      ]);
+      if (cancelled) return;
+      setLetterFb({
+        A: (a?.rating as LetterRating | undefined) ?? null,
+        B: (b?.rating as LetterRating | undefined) ?? null,
+      });
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [childId, letterDate]);
+
+  // ⭐ EPIC F — variant별 1탭 피드백 upsert. A=letter_feedback(기존 경로 보존)·B=compare_votes(A/B 실험·additive).
+  async function onFeedback(variant: LetterVariant, rating: LetterRating) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !childId || !letterDate) return;   // 기존 가드 보존(미로그인·자녀/날짜 없음 → no-op)
+    setLetterFb((prev) => ({ ...prev, [variant]: rating }));   // 낙관적 하이라이트(기존 패턴)
+    if (variant === 'A') {
+      await supabase.from('letter_feedback').upsert(
+        { child_id: childId, parent_id: user.id, letter_date: letterDate, rating },
+        { onConflict: 'child_id,letter_date' },
+      );
+    } else {
+      await supabase.from('compare_votes').upsert(
+        { child_id: childId, parent_id: user.id, letter_date: letterDate, variant: 'B', rating },
+        { onConflict: 'child_id,letter_date,variant' },
+      );
+    }
+  }
 
   const isMockup = !loading && (!loggedIn || days < 3);
 
@@ -588,6 +639,17 @@ export default function Home() {
               )}
             </div>
             {aiLetter ? (
+              !isMockup && altB ? (
+                // ⭐ EPIC F — A/B 비교: 기존(Letter A) + 새 설계(Letter B) 두 카드 + variant별 피드백. compare 자녀만.
+                <CompareLetterCard
+                  letterA={aiLetter}
+                  altB={altB}
+                  dateLabel={letterDate ? fmtLetterDate(letterDate) : ''}
+                  isMockup={isMockup}
+                  feedback={letterFb}
+                  onFeedback={onFeedback}
+                />
+              ) : (
               <>
                 <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
                 {/* ⭐ 1탭 피드백(자가발전 Phase1) — RLS로 클라가 직접 upsert(parent_id=auth.uid()) */}
@@ -595,21 +657,17 @@ export default function Home() {
                   <div className="flex items-center gap-1.5 mt-2.5 flex-wrap">
                     <span className="text-[10.5px] font-semibold" style={{ color: '#9A6A1A' }}>이 편지 어땠어요?</span>
                     {([['up', '👍 도움됐어요'], ['down', '👎 별로'], ['repeat', '🔁 또 비슷해요']] as const).map(([r, lbl]) => (
-                      <button key={r} onClick={async () => {
-                        const { data: { user } } = await supabase.auth.getUser();
-                        if (!user || !childId) return;
-                        setLetterFb(r);
-                        await supabase.from('letter_feedback').upsert({ child_id: childId, parent_id: user.id, letter_date: letterDate, rating: r }, { onConflict: 'child_id,letter_date' });
-                      }}
+                      <button key={r} onClick={() => onFeedback('A', r)}
                         className="text-[10.5px] font-bold px-2 py-1 rounded-full"
-                        style={{ background: letterFb === r ? '#F9A825' : '#FFF3DD', color: letterFb === r ? 'white' : '#9A6A1A', border: '1px solid #F0D8A0' }}>
+                        style={{ background: letterFb.A === r ? '#F9A825' : '#FFF3DD', color: letterFb.A === r ? 'white' : '#9A6A1A', border: '1px solid #F0D8A0' }}>
                         {lbl}
                       </button>
                     ))}
-                    {letterFb && <span className="text-[10.5px] font-semibold" style={{ color: '#16A085' }}>고마워요! 더 나은 편지로 보답할게요</span>}
+                    {letterFb.A && <span className="text-[10.5px] font-semibold" style={{ color: '#16A085' }}>고마워요! 더 나은 편지로 보답할게요</span>}
                   </div>
                 )}
               </>
+              )
             ) : (
               <>
                 <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;집 끼니에 콩류가 잘 안 올라오네요. 지우가 잘 먹는 밥에 두부를 아주 잘게 으깨 섞어보세요.<br />또래 아이들은 두부를 순두부찌개나 유부된장국으로도 자주 먹어요 — 익숙한 것 옆에 조금씩이면 충분해요.&rdquo;</div>
