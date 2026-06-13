@@ -9,6 +9,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { runV3FamilyFull } from '../lib/replayRunner';
 import { replayMetrics, cutoverGate } from '../lib/replayMetrics';
+import { computeGroupSignals } from '../lib/nutrition';
+import { weeklyExposureTarget } from '../lib/coachRecos';
 import type { CRow } from '../lib/curriculumUnits';
 
 const CID = '43942d34-b339-4bbd-978a-ec3f6a877031';
@@ -24,11 +26,19 @@ const { data: anchor } = await sb.from('weekly_plans').select('week_key,mission_
 
 const first = rows![0].log_date;
 const days = Math.round((Date.parse(TODAY) - Date.parse(first)) / 86400000);   // 첫날 다음 날 ~ 오늘
-console.log(`아린: 기록 ${rows!.length}행(${first}~) · 편지 ${days}통(${new Date(Date.parse(TODAY) - (days - 1) * 86400000).toISOString().slice(0, 10)}~${TODAY}) · 타깃=${anchor?.mission_target}`);
+
+// ⭐ Task#11 — 주간 노출 타깃을 '실제 결핍 도전 음식'으로(콩류=green이라 거울과 모순). 최근 14일 식품군 신호 → 끼니 채널 결핍군 도전음식.
+const wlRows = (rows || []).filter((m) => { const a = (Date.parse(TODAY) - Date.parse(m.log_date)) / 86400000; return a >= 1 && a <= 14; });
+const byDayIng: Record<string, string[]> = {};
+wlRows.forEach((m) => { (byDayIng[m.log_date] ||= []).push(...((m.ingredients as string[]) || [])); });
+const { signals } = computeGroupSignals(Object.values(byDayIng).filter((d) => d.length));
+const likedIng = [...new Set((rows || []).filter((m) => m.ate_well !== false).flatMap((m) => (m.ingredients as string[]) || []))];
+const realTarget = weeklyExposureTarget(signals, likedIng, Math.floor(Date.parse(TODAY) / 86400000)) || anchor?.mission_target || null;
+console.log(`아린: 기록 ${rows!.length}행(${first}~) · 편지 ${days}통 · 닻타깃=${anchor?.mission_target} → 실결핍 노출타깃=${realTarget}`);
 
 const r = runV3FamilyFull(
   { id: CID, name: kid!.nickname, attendsDaycare: !!kid!.daycare, base: TODAY, rows: rows as unknown as CRow[] },
-  { days, firstLogDate: first, foodTarget: anchor?.mission_target ?? null },
+  { days, firstLogDate: first, foodTarget: realTarget },
 );
 
 for (let i = 0; i < r.days.length; i++) {

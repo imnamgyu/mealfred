@@ -17,7 +17,7 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
-import { computeSignals, computeFoodGroups, computeTimeseries } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals } from '@/lib/nutrition';
 import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
@@ -33,7 +33,7 @@ import { decideDailyV3, isUrgent, introNeededV3, recentIntroUnitsOf, buildCandSi
 import { assembleLetter, buildLetterCtx, collectBlockLedger } from '@/lib/assembleLetter';
 import { loadBlocks } from '@/lib/letterBlocks';
 import { reexposurePick } from '@/lib/reexposure';
-import { buildRecoFacts, type FreqMap } from '@/lib/coachRecos';
+import { buildRecoFacts, weeklyExposureTarget, type FreqMap } from '@/lib/coachRecos';
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
 import { bmiOf, bmiPercentile, bmiBand, type Sex, type BmiBand } from '@/lib/growth-reference';
 
@@ -527,10 +527,12 @@ export async function GET(req: Request) {
                 decisionsPast.slice(0, 6).forEach((d) => { if (d?.unit) coachedDays[d.unit as UnitId] = (coachedDays[d.unit as UnitId] || 0) + 1; });
                 const pivotsThisWeek = pastCtxs.filter((r) => isoWeekKey(r.letter_date) === weekKey && (r.context as { decision?: { mode?: string } | null })?.decision?.mode === 'pivot').length;
                 const goals = anchor.goals || [];
+                // ⭐ Task#11 — 노출 타깃을 '실제 결핍 도전 음식'으로 정렬(닻 mission_target이 green이면 거울과 모순). 끼니 채널 결핍군 도전음식.
+                const realTarget = weeklyExposureTarget(computeGroupSignals(byDay, catOf).signals, likedIng, Math.floor(todayMs / 86400000)) || anchor.mission_target;
                 const dr = decideDailyV3({
                   childId: cid, goals, progress, rows: rs as unknown as CRow[], answers, coachedDays,
                   coachedYesterday: decisionsPast[0]?.unit ? [decisionsPast[0].unit as UnitId] : [], pivotsThisWeek,
-                  foodTarget: anchor.mission_target, today,
+                  foodTarget: realTarget, today,
                   prevDecisions: decisionsPast.slice(0, 2) as Array<{ unit: string; mode: string } | null>,
                 });
                 if (dr.decision) {
@@ -560,7 +562,7 @@ export async function GET(req: Request) {
                     decision: dr.decision, unitDef: UNITS[dr.decision.unit], factCards: factRes.cards,
                     blocks: BLOCKS, blockLedger: collectBlockLedger(ctxList.slice(0, 8)), factsCited: prevCited,
                     recentCombos: ctxList.map((c) => (Array.isArray((c as { blocks?: unknown }).blocks) ? ((c as { blocks: string[] }).blocks).join('+') : '')).filter(Boolean),
-                    name: meta.nickname || '아이', daySeed, cidHash, food: anchor.mission_target,
+                    name: meta.nickname || '아이', daySeed, cidHash, food: realTarget,
                     introNeeded, suppressIntro: dr.decision.mode === 'pivot' && recentIntros.has(dr.decision.unit),
                     lowData: dr.lowData, urgent, detForbid: detRe, mirror: factRes.mirror, recentOnelines,
                   });

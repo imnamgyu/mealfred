@@ -80,6 +80,26 @@ export function pickFoodReco(args: { target: string; likedIngredients: string[];
   return { group: args.target, food: stapleDisplay(reps[0]), via: 'plain' };
 }
 
+/**
+ * ⭐ 주간 노출 타깃(이사님 Task#11): 본문(exposure)이 노출할 '실제 결핍 도전 음식'을 영양 신호에서 산출.
+ *   기존 mission_target(콩류)이 실제로 green이면 거울(채소·과일 결핍)과 모순 → 끼니 채널 결핍군의 도전 음식으로 정렬.
+ *   끼니 채널만(과일·유제품=간식 제외), 채소 우선, '아직 안 먹는 것(도전)' 우선. 주간 1개 고정(푸드체이닝 일관성).
+ */
+const MEAL_GROUPS = ['비타민A채소', '기타채소', '콩류', '생선·해산물', '곡물', '고기·계란'];
+export function weeklyExposureTarget(signals: { group: string; level: string; weeklyEst: number }[], liked: string[], seed = 0): string | null {
+  const cand = (signals || []).filter((s) => MEAL_GROUPS.includes(s.group) && s.level !== 'green');
+  if (!cand.length) return null;
+  const vegBonus = (g: string) => (g === '비타민A채소' || g === '기타채소' ? -5 : 0);   // 편식 핵심 = 채소 우선
+  cand.sort((a, b) => ((a.level === 'red' ? 0 : 10) + vegBonus(a.group) + a.weeklyEst) - ((b.level === 'red' ? 0 : 10) + vegBonus(b.group) + b.weeklyEst));
+  const reps = GROUP_INGREDIENTS[cand[0].group] || [];
+  if (!reps.length) return null;
+  const likedSet = new Set(liked || []);
+  const challenge = reps.filter((r) => !likedSet.has(r));   // 도전 = 아직 잘 안 먹는 것
+  const pool = challenge.length ? challenge : reps;
+  const pick = pool[(((seed % pool.length) + pool.length) % pool.length)];
+  return stapleDisplay(pick);
+}
+
 export type RecoFacts = { target: string | null; cousins: string[]; lines: string[]; text: string };
 
 /**
