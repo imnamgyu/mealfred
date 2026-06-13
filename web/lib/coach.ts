@@ -426,7 +426,8 @@ export function letterDeterministicBad(letter: string, scenarioId: string | unde
   return false;
 }
 
-function buildLetterUser(b: LetterInput): string {
+// ⚠️ export는 EPIC C 회귀 테스트(C-01-1 byte 동일)가 호출하기 위함 — 본문·시그니처는 무변경(Letter A 대조군 보존).
+export function buildLetterUser(b: LetterInput): string {
   const name = (b.childName || '아이').toString().slice(0, 20);
   const age = AGE_LABEL[b.ageBand || ''] || '유아';
   const reds = (b.reds || []).slice(0, 8);
@@ -888,16 +889,15 @@ export async function composeLetterB(p: {
   const verifyText = (L: string) => combineForVerify(L, { mirror: base.mirror ?? null, recommendations: base.materials ? [base.materials] : (base.bridgeFacts ? [base.bridgeFacts] : null) });
   const qScan = (L: string) => qualityScan({ letter: verifyText(L), materialFoods });
 
-  // ⓐ 생성. genFn은 buildLetterUserB 입력을 받는 generateLetterB 형태가 기본(아래 generateLetterB).
+  // ⓐ 생성. genInjected가 있으면 그 생성기, 없으면 callClaude(buildLetterUserB) 실경로(generateLetterB 내부).
   let gen = await generateLetterB(letterInput, model, genInjected);
   let coachRegen = false;
 
-  // ⓑ det ‖ quality 위반 시 재생성(최대 2회·timeLeft). 온보딩은 quality 검사 생략(데이터 빈약).
-  for (let dk = 0; dk < 2 && timeLeft(); dk++) {
-    const bad = detBad(gen.letter) || (!onboarding && qScan(gen.letter).length > 0);
-    if (!bad) break;
+  // ⓑ det 위반 시 재생성(최대 2회·timeLeft). 품질 단독 위반은 ⓔ 전용 패스가 다룬다
+  //   (qualityBad는 '과용'만 위반이라 정상 1회 통과 — 무한 재생성 방지). 재생성본도 발행 우선으로 채택(폴백 없음).
+  for (let dk = 0; dk < 2 && detBad(gen.letter) && timeLeft(); dk++) {
     const q = onboarding ? [] : qScan(gen.letter);
-    gen = await generateLetterB({ ...letterInput, fixNotes: [...(q.length ? q : []), ...(detBad(gen.letter) ? ['데이터에 없는 사실·괴식·금지 표현 제거'] : [])] }, model, genInjected);
+    gen = await generateLetterB({ ...letterInput, fixNotes: [...q, '데이터에 없는 사실·괴식·금지 표현 제거'] }, model, genInjected);
     coachRegen = true;
   }
 
@@ -940,18 +940,18 @@ export async function composeLetterB(p: {
     }
   } catch { /* 검증 실패는 발행을 막지 않음 */ }
 
-  // ⓔ 품질 재생성 루프(C-13) — merged·비온보딩·timeLeft일 때만. fixNotes=위반사유, 가드 대칭 채택.
+  // ⓔ 품질 재생성 루프(C-13) — merged·비온보딩·timeLeft일 때만. fixNotes=위반사유, 가드 대칭 채택(최대 2회·rule 3).
   let quality: { violations: string[]; regen: boolean } | null = null;
   if (!onboarding) {
-    const q0 = qScan(gen.letter);
-    quality = { violations: q0, regen: false };
-    if (q0.length && timeLeft()) {
-      const g = await generateLetterB({ ...letterInput, fixNotes: q0 }, model, genInjected);
+    let cur = qScan(gen.letter);
+    quality = { violations: cur, regen: false };
+    for (let qk = 0; qk < 2 && cur.length && timeLeft(); qk++) {
+      const g = await generateLetterB({ ...letterInput, fixNotes: cur }, model, genInjected);
       const q1 = qScan(g.letter);
-      // 채택 조건(S1 대칭): 위반 줄어듦 + det 통과 + 유사도 통과.
-      if (q1.length < q0.length && !detBad(g.letter) && simBadness(g.letter) < 1) {
-        gen = g; coachRegen = true; quality = { violations: q1, regen: true };
-      }
+      // 채택 조건(S1 대칭): 위반 줄어듦 + det 통과 + 유사도 통과. 미충족이면 원본 유지(루프 종료).
+      if (q1.length < cur.length && !detBad(g.letter) && simBadness(g.letter) < 1) {
+        gen = g; coachRegen = true; cur = q1; quality = { violations: q1, regen: true };
+      } else break;
     }
   }
 

@@ -2,7 +2,7 @@
  * 결정론 가드·위생 함수 회귀 테스트 — 괴식·환각·세탁 사고 전부 박제.
  */
 import { describe, it, expect } from 'vitest';
-import { letterDeterministicBad, letterSimilarity, sanitizeRefusals, cleanRefusal, pickQuestionTopic } from '../lib/coach';
+import { letterDeterministicBad, letterSimilarity, sanitizeRefusals, cleanRefusal, pickQuestionTopic, buildLetterUser, verifyFactsB, buildLetterUserB, type LetterInput } from '../lib/coach';
 import { healAnchor, kstDow } from '../lib/coachWeekly';
 
 describe('letterDeterministicBad — 섞기 가드(으깨어 섞기 우회 사고 박제)', () => {
@@ -77,6 +77,28 @@ describe('healAnchor — 컬럼 미적용 닻 치유(weekly_coaching.sql 사고 
     });
     expect(healed.behavior_goal).toBeTruthy();
     expect(healed.behavior_goal).toContain('화면');
+  });
+});
+
+describe('EPIC C — Letter A(대조군) 무변경 + Letter B 분리 회귀', () => {
+  // C-01-1 — grounding 필드를 채워도 buildLetterUser(A) 출력이 무변경(필드를 읽지 않음).
+  const baseA: LetterInput = { childName: '아린', ageBand: '5y', reds: ['철분'], missing: ['콩류'], favoriteFoods: ['볶음밥'], bridgeFacts: '[오늘 타깃] 콩류→두부볶음밥', timeseries: ['3일 전 콩 거부'] };
+  it('C-01-1 grounding 필드 주입해도 buildLetterUser 출력 byte 동일', () => {
+    const plain = buildLetterUser(baseA);
+    const withGrounding = buildLetterUser({ ...baseA, groundingMode: 'merged', materials: 'M', mirror: 'X', teachingGuide: 'G', onboardingMode: true });
+    expect(withGrounding).toBe(plain);   // A는 grounding 필드를 절대 읽지 않는다(대조군 보존)
+  });
+  it('C-02-3 레거시 buildLetterUser → materials 미주입·bridgeFacts 유지', () => {
+    const o = buildLetterUser({ bridgeFacts: 'BF', materials: 'MMM' });
+    expect(o).not.toContain('오늘의 재료 — 코드가 매일 검증'); expect(o).toContain('BF');
+  });
+  it('C-11-3 레거시는 verifyFactsB 미사용 — B 전용 합본만 materials/mirror 포함', () => {
+    const f = verifyFactsB({ groundingMode: 'merged', materials: 'M', mirror: 'X' } as LetterInput);
+    expect(f).toContain('M'); expect(f).toContain('X');
+  });
+  it('Letter B 빌더는 Letter A 빌더와 별개 함수(merged 마커 분리)', () => {
+    expect(buildLetterUserB({ groundingMode: 'merged', materials: 'ZZ' })).toContain('오늘의 재료');
+    expect(buildLetterUser({ materials: 'ZZ' })).not.toContain('오늘의 재료 — 코드가 매일 검증');
   });
 });
 
