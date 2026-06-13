@@ -73,8 +73,8 @@ function buildSeq(mode: DailyDecision['mode'], introNeeded: boolean, hasFact: bo
         return [{ from: 'unit', try: ['praise'] }, { from: 'unit', try: ['how', 'obstacle'], alt: true }, { from: 'unit', try: ['why'], optional: true }];
       case 'pivot':     // 전환은 한 번만 서술 — 연결문 → 새 유닛 도입
         return [{ from: 'common', try: ['pivot-bridge'] }, { from: 'unit', try: ['intro'] }, { from: 'unit', try: ['why'], optional: true }];
-      case 'maintain':  // 유지 주 — 그 유닛 침묵(공용만)
-        return [{ from: 'common', try: ['opener-weekday'] }, { from: 'common', try: ['plateau'] }];
+      case 'maintain':  // ⭐ 유지 주 — 할말(코칭)이 없어 짧아지면 '커리큘럼 진행'(이사님): 유닛 수업(why/how) 한 스푼 + 위안은 선택.
+        return [{ from: 'unit', try: ['why', 'how'], alt: true }, { from: 'common', try: ['plateau'], optional: true }];
       case 'celebrate': // 졸업 — 공용 graduate + 유닛 praise
         return [{ from: 'common', try: ['graduate'] }, { from: 'unit', try: ['praise'] }];
       case 'observe':   // 판정 보류·무신호일 — 사실 있으면 반영, 없으면 워밍 도입 + 원리 한 스푼(수업)

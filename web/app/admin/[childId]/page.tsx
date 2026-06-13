@@ -12,6 +12,7 @@ import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/se
 import { isAdmin } from '@/lib/admin';
 import { kstToday } from '@/lib/date';
 import { letterSimilarity } from '@/lib/coach';
+import { UNITS, type UnitId } from '@/lib/curriculumUnits';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -181,6 +182,18 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                 <div style={{ fontWeight: 800, color: '#C45A00' }}>{String(w.week_key)} · {String(w.status)} {w.arc_week ? `· ${w.arc_week}주차` : ''}</div>
                 <div>🎚️ 주력 레버: <b>{String(budget.lever ?? '-')}</b>{w.secondary_axis ? ` · 2차축 ${String(w.secondary_axis)}` : ''}</div>
                 <div>🎯 목표 포트폴리오: {goals.length ? goals.map((g) => `${g.unit_id}(${g.status}${g.priority ? `·${g.priority}` : ''})`).join(' · ') : '-'}</div>
+                {(() => {
+                  const focus = goals.find((g) => g.status === 'focus');
+                  const fu = focus?.unit_id as UnitId | undefined;
+                  const def = fu && UNITS[fu] ? UNITS[fu] : null;
+                  if (!def) return null;
+                  const prog = progRows.find((r) => r.unit_id === fu);
+                  const step = Math.max(1, Number(prog?.step) || 1);
+                  const lesson = def.steps[Math.min(step, def.steps.length) - 1]?.behavior;
+                  const arc = (w.teaching_arc || {}) as { stages?: string[] };
+                  const chk = (w.check_method || {}) as { signal?: string };
+                  return <div style={{ color: '#0369A1' }}>📚 이번 주 수업: <b>{def.label}</b> {step}단 — {lesson || '-'}{arc.stages?.length ? ` · 아크 ${arc.stages.join('→')}` : ''}{chk.signal ? ` · 확인 ${chk.signal}` : ''}</div>;
+                })()}
                 <div>🥗 음식 타깃: <b>{String(w.mission_target ?? '-')}</b>{pool.length ? ` · 풀: ${pool.join(', ')}` : ''}</div>
                 <div>👪 부모 행동: {String(w.behavior_goal ?? '-')}</div>
                 <div>⏱️ 채근 예산: push {String(budget.push ?? '-')}/주 · 노출 {String(budget.expose ?? '-')} · 사용 {ledger.pushUsed ? '✅' : '⬜'}</div>
