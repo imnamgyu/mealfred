@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 엔진 기술 아키텍처 — 전 모듈 코드 단위 시각화</title>
+<meta property="og:title" content="밀프레드 코칭 엔진 — 기술 아키텍처 해부도">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b400:#5DADE2;--b500:#3498DB;--b700:#1565C0;--g400:#48C9B0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased;min-height:100vh}
+  code,.mono{font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:0.86em;background:#F1EDFB;color:#5b3a8c;padding:1px 6px;border-radius:5px;font-weight:600}
+  /* hero */
+  .hero{padding:54px 24px 40px;text-align:center;background:linear-gradient(155deg,#2C3E50 0%,#34495E 45%,#3a2b52 100%);color:#fff;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,rgba(232,146,68,0.22) 0,transparent 45%),radial-gradient(circle at 78% 18%,rgba(155,89,182,0.28) 0,transparent 48%);pointer-events:none}
+  .hero-in{position:relative;z-index:1;max-width:860px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.12);color:#FFD9B0;padding:7px 18px;border-radius:100px;font-size:11.5px;font-weight:700;letter-spacing:0.06em;margin-bottom:18px;border:1px solid rgba(255,255,255,0.22)}
+  .hero h1{font-size:33px;font-weight:800;letter-spacing:-0.03em;line-height:1.25;margin-bottom:14px}
+  .hero h1 b{color:#FFB375}
+  .hero p{font-size:14.5px;color:#cfd8e3;max-width:680px;margin:0 auto;font-weight:500;line-height:1.78}
+  .hero .crumbs{margin-top:16px;font-size:11.5px;color:#9fb0c2}
+  .hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+  /* nav */
+  nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;-ms-overflow-style:none;scrollbar-width:none}
+  nav.toc::-webkit-scrollbar{display:none}
+  nav.toc a{display:inline-block;font-size:11.5px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 11px;border-radius:100px;margin-right:3px;transition:all .15s}
+  nav.toc a:hover{background:var(--p50);color:var(--p700)}
+  main{max-width:1080px;margin:0 auto;padding:8px 20px 70px}
+  section{margin:40px 0;scroll-margin-top:56px}
+  .sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px;padding-bottom:9px;border-bottom:2.5px solid var(--p500);flex-wrap:wrap}
+  .sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .sec-h h2{font-size:21px;font-weight:800;color:var(--s800);letter-spacing:-0.02em}
+  .sec-h .tech{font-size:10.5px;font-weight:700;color:var(--v700);background:#F3E8FB;padding:3px 10px;border-radius:100px;margin-left:auto;border:1px solid #e3d0f5}
+  .lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 18px;line-height:1.74}
+  .lead b{color:var(--s800)}
+  .card{background:#fff;border:1px solid var(--n200);border-radius:15px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  /* exec dashboard */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:6px 0 20px}
+  .kpi{background:#fff;border:1px solid var(--n200);border-top:4px solid var(--p500);border-radius:13px;padding:16px 15px;text-align:center}
+  .kpi .v{font-size:27px;font-weight:800;color:var(--s800);letter-spacing:-0.03em;line-height:1.1}
+  .kpi .v small{font-size:14px;color:var(--n500);font-weight:700}
+  .kpi .l{font-size:11px;color:var(--n600);font-weight:700;margin-top:5px}
+  .kpi .s{font-size:10px;color:var(--n400);font-weight:600;margin-top:2px}
+  .kpi.b{border-top-color:var(--b500)}.kpi.g{border-top-color:var(--g500)}.kpi.v{border-top-color:var(--v500)}.kpi.r{border-top-color:var(--r500)}.kpi.y{border-top-color:var(--y500)}
+  .readme{background:linear-gradient(135deg,#FFF8F2,#F3E8FB);border:1px dashed var(--p300);border-radius:13px;padding:16px 18px;font-size:12.5px;color:var(--n700);line-height:1.7}
+  .readme b{color:var(--p700)}
+  /* generic */
+  .note{font-size:11.5px;color:var(--n500);font-weight:600;margin-top:10px;line-height:1.6}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+  .legend span{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  /* layered architecture */
+  .layers{display:flex;flex-direction:column;gap:9px}
+  .layer{border-radius:13px;padding:13px 16px;border:1px solid;position:relative}
+  .layer .lh{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .layer .lh .ln{font-size:13px;font-weight:800}
+  .layer .lh .lt{font-size:10.5px;font-weight:700;color:var(--n500);background:#fff;padding:2px 8px;border-radius:100px;border:1px solid var(--n200)}
+  .layer .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .mchip{background:#fff;border:1px solid var(--n200);border-radius:9px;padding:7px 10px;font-size:11.5px;font-weight:700;color:var(--s800);line-height:1.3}
+  .mchip .f{display:block;font-size:9.5px;color:var(--n400);font-weight:600;margin-top:1px}
+  .mchip .b2,.mchip .b3{font-size:8.5px;font-weight:800;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
+  .b2{background:#E3F2FD;color:var(--b700)}.b3{background:#F3E8FB;color:var(--v700)}.bc{background:#E8F5E9;color:var(--g700)}
+  .L-entry{background:#FFF4E8;border-color:#FFD9B0}.L-orch{background:#FFEEF0;border-color:#F8C7CD}.L-week{background:#FFF8E1;border-color:#F5E3A0}.L-day{background:#E8F4FD;border-color:#Bfdff5}.L-v3{background:#F3E8FB;border-color:#E0C8F0}.L-fact{background:#E9F7F2;border-color:#Bfe8da}.L-data{background:#EEF2F7;border-color:#D2DCE8}.L-verify{background:#FDECEC;border-color:#F5C9C9}.L-support{background:#F4F4F5;border-color:#E0E2E6}
+  /* two-path */
+  .paths{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .path{border-radius:14px;padding:16px;border:1.5px solid}
+  .path.v2{background:#FFF6F7;border-color:#F3B6bd}.path.v3{background:#F6EEFC;border-color:#D8BBEE}
+  .path h4{font-size:14px;font-weight:800;margin-bottom:3px}
+  .path.v2 h4{color:var(--r700)}.path.v3 h4{color:var(--v700)}
+  .path .sub{font-size:11px;font-weight:700;color:var(--n500);margin-bottom:12px}
+  .pstep{display:flex;gap:9px;align-items:flex-start;margin-bottom:7px;font-size:12px;line-height:1.45}
+  .pstep .pn{flex:none;width:19px;height:19px;border-radius:6px;font-size:10px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .path.v2 .pn{background:var(--r500)}.path.v3 .pn{background:var(--v500)}
+  .pstep b{color:var(--s800)}
+  .pstep .k{font-size:9.5px;font-weight:800;padding:0 5px;border-radius:4px;margin-left:3px}
+  .k-llm{background:#FDE2E4;color:var(--r700)}.k-det{background:#E8F4FD;color:var(--b700)}.k-db{background:#EEF2F7;color:var(--n600)}.k-guard{background:#FFF3CD;color:var(--y700)}
+  /* swimlane sequence */
+  .swim{overflow-x:auto}
+  .swim table{border-collapse:collapse;width:100%;min-width:640px;font-size:11.5px}
+  .swim th{background:var(--s700);color:#fff;font-weight:700;font-size:10.5px;padding:7px 6px;position:sticky;left:0}
+  .swim td{border-bottom:1px solid var(--n100);padding:7px 9px;vertical-align:top;line-height:1.45}
+  .swim td.n{font-weight:800;color:var(--n400);text-align:center;width:30px}
+  .swim td.lane{font-weight:700;font-size:10px;white-space:nowrap;width:120px}
+  .swim tr.br-v2{background:#FFF6F7}.swim tr.br-v3{background:#F8F2FD}
+  .lane-pill{display:inline-block;padding:2px 7px;border-radius:6px;font-size:9.5px;font-weight:800}
+  .phase-row td{background:var(--n50);font-weight:800;color:var(--s800);font-size:11px;border-top:2px solid var(--p300)}
+  .kind{font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;white-space:nowrap}
+  .ki-db{background:#EEF2F7;color:var(--n600)}.ki-det{background:#E8F4FD;color:var(--b700)}.ki-llm{background:#FDE2E4;color:var(--r700)}.ki-guard{background:#FFF3CD;color:var(--y700)}.ki-pub{background:#E8F5E9;color:var(--g700)}.ki-br{background:#F3E8FB;color:var(--v700)}
+  /* state diagram (svg wrapper) */
+  .svg-wrap{overflow-x:auto;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:8px}
+  .svg-wrap svg{display:block;margin:0 auto}
+  .st-node{font:700 12px 'Pretendard Variable',sans-serif}
+  .st-sub{font:600 9.5px 'Pretendard Variable',sans-serif}
+  .st-edge{font:600 9px 'Pretendard Variable',sans-serif;fill:var(--n500)}
+  /* scratch blocks */
+  .scratch{background:#F8F6FB;border:1px solid #E5DCF2;border-radius:14px;padding:18px 16px}
+  .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .sb{position:relative;border-radius:7px;padding:8px 13px;font-size:12px;font-weight:700;color:#fff;margin:0 0 3px 0;line-height:1.4;box-shadow:0 1px 2px rgba(0,0,0,0.12)}
+  .sb small{font-weight:600;opacity:.9;font-size:10.5px}
+  .sb-hat{background:#E8A33D;border-radius:13px 13px 7px 7px;padding-top:11px}
+  .sb-ctrl{background:#E8902B}
+  .sb-act{background:#4C97D6}
+  .sb-bool{background:#5Cb85c;display:inline-block;padding:3px 10px;border-radius:100px;font-size:10.5px;margin:0 2px}
+  .sb-custom{background:#9C27B0}
+  .sb-data{background:#D6564C}
+  .sb-end{background:#7E8aa0}
+  .embrace{border-left:11px solid #E8902B;border-radius:0 0 0 9px;margin-left:6px;padding-left:9px;padding-top:5px;padding-bottom:3px;margin-bottom:5px;margin-top:-1px}
+  .embrace.v3e{border-left-color:#9C27B0}
+  .scaption{font-size:11px;font-weight:800;color:var(--v700);margin-bottom:10px}
+  /* DFD */
+  .dfd{display:flex;flex-direction:column;gap:0;align-items:center}
+  .dfd-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center}
+  .dfd-store{background:#EEF2F7;border:1px solid var(--n300);border-left:4px solid var(--s700);border-radius:8px;padding:9px 13px;font-size:11.5px;font-weight:800;color:var(--s800)}
+  .dfd-store small{display:block;font-weight:600;font-size:9.5px;color:var(--n500)}
+  .dfd-proc{background:#fff;border:2px solid var(--p500);border-radius:50px;padding:10px 16px;font-size:11.5px;font-weight:800;color:var(--p700);text-align:center}
+  .dfd-proc small{display:block;font-weight:600;font-size:9px;color:var(--n500)}
+  .dfd-down{color:var(--n400);font-size:18px;margin:5px 0}
+  /* ERD */
+  .erd{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+  .ent{border:1px solid var(--n200);border-radius:11px;overflow:hidden;background:#fff}
+  .ent.hub{border:2px solid var(--p500);box-shadow:0 0 0 3px #FFE8D1}
+  .ent .et{background:var(--s700);color:#fff;font-size:12px;font-weight:800;padding:7px 11px;display:flex;justify-content:space-between;align-items:center}
+  .ent.hub .et{background:var(--p700)}
+  .ent .et .pk{font-size:9px;font-weight:700;background:rgba(255,255,255,0.18);padding:1px 6px;border-radius:4px}
+  .ent .ed{font-size:10.5px;color:var(--n600);padding:6px 11px;border-bottom:1px dashed var(--n200);font-weight:600;line-height:1.5}
+  .ent ul{list-style:none;padding:7px 11px}
+  .ent li{font-size:10.5px;padding:2px 0;color:var(--n700);line-height:1.4}
+  .ent li b{color:var(--s800);font-family:'SF Mono',monospace;font-size:10px}
+  .ent li .ty{color:var(--v700);font-weight:700;font-size:9px}
+  .rel-list{margin-top:14px;background:var(--n50);border-radius:11px;padding:13px 16px}
+  .rel-list div{font-size:11.5px;color:var(--n700);padding:3px 0;font-weight:600}
+  .rel-list b{color:var(--p700);font-family:monospace}
+  /* curriculum */
+  .curr{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+  .unit{border:1px solid var(--n200);border-radius:11px;padding:11px 12px;background:#fff;position:relative;border-top:3px solid var(--n300)}
+  .unit.lev-food{border-top-color:var(--g500)}.unit.lev-environment{border-top-color:var(--b500)}.unit.lev-autonomy{border-top-color:var(--v500)}.unit.lev-texture{border-top-color:var(--p500)}.unit.lev-mixed{border-top-color:var(--s700)}
+  .unit .un{font-size:12.5px;font-weight:800;color:var(--s800)}
+  .unit .uid{font-size:8.5px;color:var(--n400);font-weight:600;font-family:monospace}
+  .unit .ul{font-size:9px;font-weight:800;padding:1px 6px;border-radius:100px;display:inline-block;margin-top:5px}
+  .ul-food{background:#E8F5E9;color:var(--g700)}.ul-environment{background:#E3F2FD;color:var(--b700)}.ul-autonomy{background:#F3E8FB;color:var(--v700)}.ul-texture{background:#FFF4E8;color:var(--p700)}.ul-mixed{background:#ECEFF1;color:var(--s700)}
+  .unit .steps{font-size:10px;color:var(--n600);margin-top:7px;line-height:1.5;font-weight:600}
+  .unit .grad{font-size:9.5px;color:var(--g700);font-weight:700;margin-top:5px;border-top:1px dashed var(--n200);padding-top:4px}
+  /* pipeline */
+  .pipe{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:6px}
+  .pstage{flex:1;min-width:130px;background:#fff;border:1px solid var(--n200);border-radius:11px;padding:12px;position:relative;margin-right:22px}
+  .pstage:last-child{margin-right:0}
+  .pstage::after{content:'▸';position:absolute;right:-17px;top:50%;transform:translateY(-50%);color:var(--p500);font-size:18px;font-weight:800}
+  .pstage:last-child::after{display:none}
+  .pstage .pt{font-size:12px;font-weight:800;color:var(--s800);margin-bottom:6px}
+  .pstage .pd{font-size:10.5px;color:var(--n600);font-weight:600;line-height:1.5}
+  .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin-top:14px}
+  .filt{background:#F6EEFC;border:1px solid #E0C8F0;border-radius:9px;padding:9px 12px;font-size:11px;color:var(--n700);line-height:1.5}
+  .filt b{color:var(--v700)}
+  /* dependency */
+  .depcol{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .depnode{border:1px solid var(--n200);border-radius:10px;padding:11px 13px;background:#fff}
+  .depnode .dn{font-size:12px;font-weight:800;color:var(--s800);margin-bottom:5px}
+  .depnode .da{font-size:10.5px;color:var(--n600);line-height:1.5;font-weight:600}
+  .depnode .da code{font-size:9.5px}
+  /* guards */
+  .gcat{margin-bottom:16px}
+  .gcat h4{font-size:13px;font-weight:800;color:var(--s800);margin-bottom:9px;display:flex;align-items:center;gap:7px}
+  .gcat h4 .ct{font-size:10px;font-weight:700;color:#fff;padding:2px 8px;border-radius:100px}
+  .guards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:9px}
+  .guard{border:1px solid var(--n200);border-left:3px solid var(--r500);border-radius:9px;padding:10px 12px;background:#fff}
+  .guard .gn{font-size:12px;font-weight:800;color:var(--s800);line-height:1.3}
+  .guard .gb{font-size:10.5px;color:var(--n600);margin-top:4px;line-height:1.5;font-weight:600}
+  .guard .gi{font-size:9.5px;font-weight:800;color:var(--r700);background:#FDECEC;padding:2px 7px;border-radius:100px;display:inline-block;margin-top:6px}
+  .guard.det{border-left-color:var(--b500)}.guard.sem{border-left-color:var(--v500)}.guard.struct{border-left-color:var(--g500)}.guard.ops{border-left-color:var(--s700)}.guard.safe{border-left-color:var(--r500)}
+  /* incident timeline */
+  .timeline{position:relative;padding-left:22px;margin-top:6px}
+  .timeline::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--n200)}
+  .tl{position:relative;margin-bottom:13px}
+  .tl::before{content:'';position:absolute;left:-19px;top:4px;width:11px;height:11px;border-radius:50%;background:var(--r500);border:2px solid #fff;box-shadow:0 0 0 1px var(--r500)}
+  .tl .td{font-size:11px;font-weight:800;color:var(--r700)}
+  .tl .tt{font-size:12px;font-weight:700;color:var(--s800);margin:1px 0 2px}
+  .tl .tx{font-size:11px;color:var(--n600);line-height:1.5;font-weight:600}
+  .tl .tx b{color:var(--g700)}
+  /* metrics bars */
+  .bars{margin-top:6px}
+  .bar{display:flex;align-items:center;gap:9px;margin-bottom:5px;font-size:11px}
+  .bar .bl{width:200px;flex:none;font-weight:700;color:var(--n700);text-align:right;font-size:10.5px}
+  .bar .bt{flex:1;background:var(--n100);border-radius:5px;height:17px;position:relative;overflow:hidden}
+  .bar .bf{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--p300),var(--p500));display:flex;align-items:center;justify-content:flex-end;padding-right:6px;color:#fff;font-size:9.5px;font-weight:800;min-width:24px}
+  .bar .bf.b{background:linear-gradient(90deg,var(--b400),var(--b500))}.bar .bf.v{background:linear-gradient(90deg,#c98be0,var(--v500))}.bar .bf.g{background:linear-gradient(90deg,var(--g400),var(--g500))}
+  /* model map */
+  .models{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:11px;margin-top:8px}
+  .model{border:1px solid var(--n200);border-radius:12px;padding:14px;background:#fff;border-top:4px solid}
+  .model.haiku{border-top-color:var(--b500)}.model.sonnet{border-top-color:var(--v500)}.model.none{border-top-color:var(--g500)}
+  .model .mh{font-size:13px;font-weight:800;color:var(--s800)}
+  .model .mc{font-size:21px;font-weight:800;margin:3px 0}
+  .model.haiku .mc{color:var(--b700)}.model.sonnet .mc{color:var(--v700)}.model.none .mc{color:var(--g700)}
+  .model .mw{font-size:10.5px;color:var(--n600);line-height:1.55;font-weight:600}
+  /* scope */
+  .scope{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .scopebox{border-radius:12px;padding:15px 17px;font-size:12px;line-height:1.6}
+  .scopebox.live{background:#E9F7F2;border:1px solid #b6e3d2}.scopebox.canary{background:#F6EEFC;border:1px solid #ddc4ef}
+  .scopebox h4{font-size:13.5px;font-weight:800;margin-bottom:8px}
+  .scopebox.live h4{color:var(--g700)}.scopebox.canary h4{color:var(--v700)}
+  .scopebox ul{padding-left:17px;color:var(--n700);font-weight:600}
+  .scopebox li{margin-bottom:4px}
+  footer{text-align:center;font-size:11px;color:var(--n400);padding:34px 20px;border-top:1px solid var(--n100);font-weight:600;line-height:1.7}
+  @media(max-width:760px){
+    .hero h1{font-size:25px}.sgrid,.paths,.scope{grid-template-columns:1fr}
+    .sec-h h2{font-size:18px}.sec-h .tech{margin-left:0;flex-basis:100%}
+    .bar .bl{width:120px}
+  }
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <span class="tag">⚙️ ENGINE TECHNICAL ARCHITECTURE · 코드 단위 정독본</span>
+    <h1>코칭 엔진 <b>기술 아키텍처 해부도</b><br>전 모듈을 코드 단위로 시각화</h1>
+    <p>매일 새벽, 엔진이 한 아이의 식사 기록을 읽고 부모에게 코칭 편지 한 통을 짓기까지 — <b>37개 모듈·7,035줄</b>의 실제 코드를 정독해 소프트웨어 공학 시각화 기법 <b>15종</b>으로 펼쳤습니다. 함수명 대신 한글 모듈명으로, 이 문서 하나로 엔진의 기술 구성을 알 수 있게.</p>
+    <div class="crumbs">📚 <a href="/docs.html">문서 허브</a> › ⚙️ 엔진·데이터 명세 › <b style="color:#fff">기술 아키텍처 해부도</b> &nbsp;·&nbsp; 작성 2026-06-13 · 코드 기준 라이브</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#kpi">① 한눈 요약</a>
+  <a href="#context">② 시스템 맥락</a>
+  <a href="#layers">③ 계층 지도</a>
+  <a href="#paths">④ 두 갈래(v2·v3)</a>
+  <a href="#seq">⑤ 시퀀스</a>
+  <a href="#fsm">⑥ 상태기계</a>
+  <a href="#scratch">⑦ 스크래치 블록</a>
+  <a href="#dfd">⑧ 데이터 흐름</a>
+  <a href="#erd">⑨ 데이터 모델</a>
+  <a href="#curr">⑩ 12 수업</a>
+  <a href="#pipe">⑪ 편지 조립</a>
+  <a href="#dep">⑫ 의존 그래프</a>
+  <a href="#guards">⑬ 방어 가드</a>
+  <a href="#metrics">⑭ 지표·모델</a>
+  <a href="#scope">⑮ 범위·한계</a>
+</nav>
+
+<main>
+
+<!-- ① KPI -->
+<section id="kpi">
+  <div class="sec-h"><span class="no">1</span><h2>한눈 요약 — 엔진 계기판</h2><span class="tech">Executive Dashboard</span></div>
+  <p class="lead">엔진은 두 시대가 한 몸에 산다. <b>v2(라이브·전 자녀)</b> = 코드가 계획을 확정하고 LLM(Haiku)이 작문만. <b>v3(아린 1명 카나리아)</b> = 상태기계가 결정하고 <b>LLM 0콜</b>로 블록을 조립. 둘 다 "계획·진단은 코드가, 글만 모델이" 원칙 위에 서 있습니다.</p>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="v">7,035<small>줄</small></div><div class="l">엔진 TypeScript</div><div class="s">lib 6,004 + API·크론 1,031</div></div>
+    <div class="kpi b"><div class="v">37<small>개</small></div><div class="l">모듈</div><div class="s">lib 33 + API 라우트 4</div></div>
+    <div class="kpi g"><div class="v">220<small>개</small></div><div class="l">테스트</div><div class="s">7개 파일 · prebuild 게이트</div></div>
+    <div class="kpi v"><div class="v">12<small>개</small></div><div class="l">수업 유닛(v3)</div><div class="s">코어 8 + 확장 4</div></div>
+    <div class="kpi v"><div class="v">441<small>개</small></div><div class="l">편지 블록(v3)</div><div class="s">13유닛 × 14스테이지</div></div>
+    <div class="kpi r"><div class="v">38<small>종</small></div><div class="l">품질·안전 가드</div><div class="s">실제 사고와 1:1 매핑</div></div>
+    <div class="kpi y"><div class="v">2<small>개</small></div><div class="l">크론</div><div class="s">KST 02시 코칭 · 03:30 자가진단</div></div>
+    <div class="kpi"><div class="v">3~7<small> vs </small>0</div><div class="l">편지당 LLM 콜</div><div class="s">v2(Haiku) vs v3(0콜)</div></div>
+  </div>
+  <div class="readme">
+    📖 <b>이 문서 읽는 법</b> — ②③④로 "엔진이 어떤 부품으로 짜여 있나(구조)"를 보고, ⑤⑥⑦로 "하루에 어떻게 작동하나(행위)"를, ⑧⑨로 "데이터가 어디서 흘러 어디 쌓이나"를, ⑩⑪로 "v3가 무엇을 가르치고 어떻게 글을 짓나"를, ⑬으로 "어떤 실수를 막도록 설계됐나"를, ⑭⑮로 "규모·비용·현재 상태"를 봅니다. 다이어그램마다 우상단에 사용한 <b>소프트웨어 공학 기법명</b>을 적었습니다.
+  </div>
+</section>
+
+<!-- ② System Context (C4 L1) -->
+<section id="context">
+  <div class="sec-h"><span class="no">2</span><h2>시스템 맥락 — 엔진은 누구와 대화하나</h2><span class="tech">C4 Lv.1 · System Context</span></div>
+  <p class="lead">엔진은 스스로 깨지 않습니다. <b>Vercel Cron</b>이 매일 새벽 깨우면, <b>Supabase</b>에서 식사 기록을 읽고, 필요할 때만 <b>Claude</b>에게 글을 맡긴 뒤, 결과를 다시 Supabase에 넣어 둡니다. <b>부모</b>는 아침에 이미 만들어진 편지를 읽기만 합니다.</p>
+  <div class="svg-wrap">
+  <svg viewBox="0 0 860 360" width="860" height="360" role="img" aria-label="시스템 컨텍스트 다이어그램">
+    <defs>
+      <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#6B7280"/></marker>
+    </defs>
+    <!-- center engine -->
+    <rect x="320" y="135" width="220" height="92" rx="18" fill="#2C3E50"/>
+    <text x="430" y="170" text-anchor="middle" fill="#fff" class="st-node" font-size="15">🧠 코칭 엔진</text>
+    <text x="430" y="190" text-anchor="middle" fill="#FFB375" class="st-sub" font-size="10">37 모듈 · 결정론 계획 + 작문</text>
+    <text x="430" y="208" text-anchor="middle" fill="#cfd8e3" class="st-sub" font-size="9.5">v2 라이브 · v3 카나리아</text>
+    <!-- actors -->
+    <g>
+      <rect x="40" y="40" width="180" height="64" rx="12" fill="#FFF4E8" stroke="#E8A33D" stroke-width="1.5"/>
+      <text x="130" y="66" text-anchor="middle" class="st-node" fill="#B86A20">⏰ Vercel Cron</text>
+      <text x="130" y="84" text-anchor="middle" class="st-sub" fill="#8a6a3a">매일 KST 02시·03:30 트리거</text>
+    </g>
+    <g>
+      <rect x="640" y="40" width="180" height="64" rx="12" fill="#FDECEC" stroke="#E53935" stroke-width="1.5"/>
+      <text x="730" y="66" text-anchor="middle" class="st-node" fill="#C62828">🤖 Claude</text>
+      <text x="730" y="84" text-anchor="middle" class="st-sub" fill="#a3494a">Haiku 작문·Sonnet 종합</text>
+    </g>
+    <g>
+      <rect x="640" y="258" width="180" height="64" rx="12" fill="#EEF2F7" stroke="#2C3E50" stroke-width="1.5"/>
+      <text x="730" y="284" text-anchor="middle" class="st-node" fill="#2C3E50">🗄 Supabase</text>
+      <text x="730" y="302" text-anchor="middle" class="st-sub" fill="#4B5563">끼니·편지·진도·닻 저장</text>
+    </g>
+    <g>
+      <rect x="40" y="258" width="180" height="64" rx="12" fill="#E9F7F2" stroke="#16A085" stroke-width="1.5"/>
+      <text x="130" y="284" text-anchor="middle" class="st-node" fill="#1B5E20">👨‍👩‍👧 부모</text>
+      <text x="130" y="302" text-anchor="middle" class="st-sub" fill="#2e6b4f">끼니 입력 · 편지·질문 읽기</text>
+    </g>
+    <!-- arrows -->
+    <line x1="200" y1="92" x2="330" y2="150" stroke="#6B7280" stroke-width="1.6" marker-end="url(#ah)"/>
+    <text x="248" y="112" class="st-edge">① 깨운다(GET)</text>
+    <line x1="540" y1="160" x2="648" y2="80" stroke="#6B7280" stroke-width="1.6" marker-end="url(#ah)"/>
+    <text x="556" y="116" class="st-edge">③ 글 요청(필요시)</text>
+    <line x1="648" y1="92" x2="545" y2="150" stroke="#9CA3AF" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+    <text x="606" y="138" class="st-edge">편지/검증</text>
+    <line x1="540" y1="205" x2="648" y2="270" stroke="#6B7280" stroke-width="1.6" marker-end="url(#ah)"/>
+    <text x="556" y="250" class="st-edge">④ 편지·진도 저장</text>
+    <line x1="648" y1="285" x2="545" y2="200" stroke="#9CA3AF" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+    <text x="600" y="232" class="st-edge">② 기록 읽기</text>
+    <line x1="220" y1="282" x2="318" y2="210" stroke="#9CA3AF" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+    <text x="232" y="250" class="st-edge">끼니 입력→DB</text>
+    <line x1="318" y1="200" x2="220" y2="278" stroke="#6B7280" stroke-width="1.6" marker-end="url(#ah)"/>
+    <text x="150" y="232" class="st-edge">⑤ 아침에 편지 읽기</text>
+  </svg>
+  </div>
+  <p class="note">★ 핵심 설계 = <b>비동기 사전 생성</b>. 부모가 앱을 여는 순간 LLM을 호출하지 않습니다 — 새벽에 미리 만들어 둔 편지를 <code>read</code>만 합니다(온디맨드 API는 폴백). 그래서 아침 화면은 즉시 뜨고, LLM 비용·지연은 새벽 배치에 격리됩니다.</p>
+</section>
+
+<!-- ③ Layered architecture -->
+<section id="layers">
+  <div class="sec-h"><span class="no">3</span><h2>계층 지도 — 9개 층, 37개 부품</h2><span class="tech">Layered Architecture · 모듈 추상화</span></div>
+  <p class="lead">위에서 아래로: <b>깨어남(진입점)</b> → <b>지휘(오케스트레이션)</b> → <b>전략(주간)·전술(일간)</b> → <b>v3 조립</b> → <b>사실·추천</b> → <b>데이터·영양 토대</b> → <b>검증 하네스</b> → <b>지원</b>. 칩 하나가 모듈 하나입니다(파일명 병기).</p>
+  <div class="legend">
+    <span style="background:#E3F2FD;color:#1565C0"><span class="dot" style="background:#3498DB"></span>v2 전용</span>
+    <span style="background:#F3E8FB;color:#6A1B9A"><span class="dot" style="background:#9C27B0"></span>v3 전용</span>
+    <span style="background:#E8F5E9;color:#1B5E20"><span class="dot" style="background:#16A085"></span>공용</span>
+  </div>
+  <div class="layers">
+    <div class="layer L-entry">
+      <div class="lh"><span class="ln">⏰ 진입점 · 스케줄링</span><span class="lt">언제 깨어나 누구를 처리할지</span></div>
+      <div class="chips">
+        <span class="mchip">새벽 코칭 크론<span class="bc">공용</span><span class="f">cron/coach · 826줄 · 메인 루프</span></span>
+        <span class="mchip">야간 자가진단 크론<span class="bc">공용</span><span class="f">cron/coach-selfcheck · 반복 자동탐지</span></span>
+        <span class="mchip">온디맨드 편지 API<span class="b2">v2</span><span class="f">api/coach · 클라 폴백</span></span>
+        <span class="mchip">오늘의 질문 API<span class="bc">공용</span><span class="f">api/coach/question</span></span>
+        <span class="mchip">크론 스케줄 선언<span class="bc">공용</span><span class="f">vercel.json</span></span>
+      </div>
+    </div>
+    <div class="layer L-orch">
+      <div class="lh"><span class="ln">🧭 오케스트레이션 · 작문</span><span class="lt">계획을 확정하고 글을 짓는 본부</span></div>
+      <div class="chips">
+        <span class="mchip">코칭 본부<span class="bc">공용</span><span class="f">coach.ts · 818줄 · planFor·composeLetter·가드·검증·퇴고</span></span>
+      </div>
+    </div>
+    <div class="layer L-week">
+      <div class="lh"><span class="ln">🗓 주간 작전 (전략층)</span><span class="lt">한 주의 방향을 의사처럼 종합</span></div>
+      <div class="chips">
+        <span class="mchip">주간 작전 사령부<span class="bc">공용</span><span class="f">coachWeekly · 376줄 · 닻·레버·아크·채근캡(Sonnet)</span></span>
+      </div>
+    </div>
+    <div class="layer L-day">
+      <div class="lh"><span class="ln">🎯 일간 전술</span><span class="lt">오늘 무엇을·어떤 각도로</span></div>
+      <div class="chips">
+        <span class="mchip">일간 전개 결정기<span class="b3">v3</span><span class="f">coachDaily · 상태기계 decideDailyV3</span></span>
+        <span class="mchip">상황 카탈로그<span class="b2">v2</span><span class="f">coachScenarios · 13 시나리오</span></span>
+        <span class="mchip">만성질환 식이 가이드<span class="bc">공용</span><span class="f">coachChronic</span></span>
+      </div>
+    </div>
+    <div class="layer L-v3">
+      <div class="lh"><span class="ln">🧱 v3 조립 (LLM 0콜)</span><span class="lt">블록을 결정론으로 조립</span></div>
+      <div class="chips">
+        <span class="mchip">편지 조립기<span class="b3">v3</span><span class="f">assembleLetter · 401줄 · 집합 차감</span></span>
+        <span class="mchip">편지 블록 라이브러리<span class="b3">v3</span><span class="f">letterBlocks + JSON · 441 블록</span></span>
+        <span class="mchip">12 수업 유닛 정의<span class="b3">v3</span><span class="f">curriculumUnits · 417줄</span></span>
+        <span class="mchip">진도 상태기계<span class="b3">v3</span><span class="f">curriculum · advanceProgress</span></span>
+        <span class="mchip">식단 예시 조립기<span class="bc">공용</span><span class="f">composePlan</span></span>
+      </div>
+    </div>
+    <div class="layer L-fact">
+      <div class="lh"><span class="ln">📋 사실 · 추천</span><span class="lt">코드가 사실을 박제, LLM은 인용만</span></div>
+      <div class="chips">
+        <span class="mchip">사실 원장 컴파일러<span class="bc">공용</span><span class="f">coachFacts · 300줄 · 추세 라벨·금지어·식단 거울</span></span>
+        <span class="mchip">추천 근거 빌더<span class="bc">공용</span><span class="f">coachRecos · 사촌·인기음식·노출 타깃</span></span>
+        <span class="mchip">기간 지표·주차 키<span class="bc">공용</span><span class="f">progress · 롤업</span></span>
+        <span class="mchip">재노출 적기 계산기<span class="bc">공용</span><span class="f">reexposure</span></span>
+      </div>
+    </div>
+    <div class="layer L-data">
+      <div class="lh"><span class="ln">🍱 데이터 그래프 · 영양 (토대)</span><span class="lt">엔진이 딛고 선 자체 데이터 자산</span></div>
+      <div class="chips">
+        <span class="mchip">영양 신호 계산기<span class="bc">공용</span><span class="f">nutrition · 561줄 · 신호등·식품군·시계열</span></span>
+        <span class="mchip">음식 궁합·사촌 그래프<span class="bc">공용</span><span class="f">foodGraph · 198노드 549엣지</span></span>
+        <span class="mchip">궁합 폴백<span class="bc">공용</span><span class="f">affinity · 정적→캐시→LLM</span></span>
+        <span class="mchip">키트 음식×식재료 매트릭스<span class="bc">공용</span><span class="f">kitGuide · 32×183</span></span>
+        <span class="mchip">조리법 가이드<span class="bc">공용</span><span class="f">cookingMatrix · 한식·cuisine</span></span>
+        <span class="mchip">제철 달력<span class="bc">공용</span><span class="f">season</span></span>
+        <span class="mchip">성장 기준<span class="bc">공용</span><span class="f">growth-reference · BMI·WHO</span></span>
+        <span class="mchip">상류 데이터 공급<span class="bc">공용</span><span class="f">menuMap·learnedMenus·remapMenus·lexicon·spicy</span></span>
+      </div>
+    </div>
+    <div class="layer L-verify">
+      <div class="lh"><span class="ln">🔬 검증 하네스</span><span class="lt">라이브 전에 가짜 가정으로 14일을 돌려본다</span></div>
+      <div class="chips">
+        <span class="mchip">리플레이 하네스<span class="b3">v3</span><span class="f">replayRunner · 가상 30가정×14일</span></span>
+        <span class="mchip">리플레이 지표·게이트<span class="b3">v3</span><span class="f">replayMetrics · prebuild 컷오버 게이트</span></span>
+        <span class="mchip">품질 자가진단 스냅샷<span class="bc">공용</span><span class="f">evalSnapshot</span></span>
+        <span class="mchip">테스트 스위트<span class="bc">공용</span><span class="f">tests/ · 220개 · 7파일</span></span>
+      </div>
+    </div>
+    <div class="layer L-support">
+      <div class="lh"><span class="ln">🔧 지원 · 유틸</span><span class="lt">시각·발신 등 횡단 관심사</span></div>
+      <div class="chips">
+        <span class="mchip">알림톡 발신(도먼트)<span class="bc">공용</span><span class="f">sens · NCP SENS</span></span>
+        <span class="mchip">KST 날짜 유틸<span class="bc">공용</span><span class="f">date</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ④ Two paths -->
+<section id="paths">
+  <div class="sec-h"><span class="no">4</span><h2>두 갈래 — v2(라이브)와 v3(카나리아)</h2><span class="tech">Container Diagram · 파이프라인 대조</span></div>
+  <p class="lead">같은 입력(끼니 기록 + 주간 닻)을 받아 두 파이프라인이 갈립니다. <b>v2는 글을 LLM이 쓰되 계획을 코드가 못박고 사후에 3중 가드</b>로 검열하고, <b>v3는 아예 LLM을 안 부르고 미리 검수된 블록을 집합 차감으로 조립</b>합니다. v3 어느 단계든 실패하면 throw 없이 v2로 폴백 — <b>발행은 언제나 보장</b>됩니다.</p>
+  <div class="paths">
+    <div class="path v2">
+      <h4>🅰 v2 · 결정론 계획 + LLM 작문</h4>
+      <div class="sub">라이브 · 전 자녀 · 편지당 Haiku 3~7콜</div>
+      <div class="pstep"><span class="pn">1</span><div><b>planFor</b> — 시나리오 프레임 선택 + 타깃·무브 결정론 회전 + 시그니처 중복 회피<span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">2</span><div><b>planFromWeekly</b> — 주간 닻으로 타깃 잠금·채근 주1회 캡·행동지연·아크 단계<span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">3</span><div><b>composeLetter</b> — 계획·사실·추천 주입 → 작문<span class="k k-llm">Haiku</span> <span style="font-size:10px;color:#888">(주 첫 진단=intro만 Sonnet)</span></div></div>
+      <div class="pstep"><span class="pn">4</span><div><b>가드 ①</b> 결정론 금지어(<code>letterDeterministicBad</code>) → 위반 시 재생성<span class="k k-guard">가드</span></div></div>
+      <div class="pstep"><span class="pn">5</span><div><b>가드 ②</b> 의미 검증자(<code>verifyLetter</code>) 별도 LLM 1콜로 데이터 대조<span class="k k-llm">Haiku</span></div></div>
+      <div class="pstep"><span class="pn">6</span><div><b>가드 ③</b> 어휘 유사도(전체 0.45·도입 0.40) → 무브 밀어 재생성<span class="k k-guard">가드</span></div></div>
+      <div class="pstep"><span class="pn">7</span><div><b>polishKo + 퇴고</b> — 결정론 어법 교정 + LLM 퇴고 1회 → 발행<span class="k k-llm">Haiku</span></div></div>
+    </div>
+    <div class="path v3">
+      <h4>🅱 v3 · 상태기계 + 블록 조립</h4>
+      <div class="sub">아린 1명 카나리아 · 평일 LLM 0콜</div>
+      <div class="pstep"><span class="pn">1</span><div><b>진도 로드</b> — <code>curriculum_progress</code> 12 유닛 상태·사다리·신호 카운터<span class="k k-db">DB</span></div></div>
+      <div class="pstep"><span class="pn">2</span><div><b>decideDailyV3</b> — 오늘의 유닛·모드(전진/심화/피벗/유지/졸업/관측) 결정<span class="k k-det">상태기계</span></div></div>
+      <div class="pstep"><span class="pn">3</span><div><b>진도·goals 영속</b> — 진화 결과를 DB에 upsert(피벗은 닻에도)<span class="k k-db">DB</span></div></div>
+      <div class="pstep"><span class="pn">4</span><div><b>compileFactCards</b> — 추세 라벨 사실 카드 + 식단 거울 + 금지어<span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">5</span><div><b>assembleLetter</b> — 441 블록에서 모드별 시퀀스를 집합 차감으로 조립<span class="k k-det">0콜</span></div></div>
+      <div class="pstep"><span class="pn">6</span><div><b>최종 결정론 스캔</b> — 금지어·동일 조합·어미 3연속 → 변형 재선택<span class="k k-guard">가드</span></div></div>
+      <div class="pstep"><span class="pn">7</span><div><b>D-11 안전 폴백</b> — 후보 0이면 공용 블록/상수 문구(LLM 도망 금지) → 발행</div></div>
+    </div>
+  </div>
+  <p class="note">★ <b>왜 둘인가</b> — v2는 "글맛은 LLM이 낫다"를 취하되 LLM의 환각·반복·괴식을 사후 가드로 잡습니다. 그러나 정규식·재생성은 항상 한 발 늦습니다(같은 사고가 변형으로 재발). v3는 "반복이 <i>구조적으로 불가능</i>하게" — 블록 원장·사실 인용 원장·동일 조합 차단을 집합 연산으로 못박아, 확률이 아니라 <b>증명</b>으로 다양성을 보장합니다. 그래서 v3가 검증(리플레이 게이트)을 통과하면 평일 비용은 0이 됩니다.</p>
+</section>
+
+<!-- ⑤ Sequence -->
+<section id="seq">
+  <div class="sec-h"><span class="no">5</span><h2>시퀀스 — 하루치 편지가 만들어지는 56단계</h2><span class="tech">Sequence / Swimlane Diagram</span></div>
+  <p class="lead">새벽 코칭 크론이 한 번 깨어나 한 자녀의 편지·질문을 짓기까지. 레인(누가)·종류(무엇을)·갈래(공통/v2/v3)로 색을 입혔습니다. 7개 국면으로 묶었습니다.</p>
+  <div class="legend">
+    <span class="lane-pill ki-db">DB 읽기/쓰기</span>
+    <span class="lane-pill ki-det">결정론 계산</span>
+    <span class="lane-pill ki-llm">LLM 콜</span>
+    <span class="lane-pill ki-guard">가드</span>
+    <span class="lane-pill ki-br">분기</span>
+    <span class="lane-pill ki-pub">발행</span>
+    <span style="font-size:11px;font-weight:700;color:#888">· 행 배경: <span style="background:#FFF6F7;padding:1px 6px;border-radius:4px">v2</span> <span style="background:#F8F2FD;padding:1px 6px;border-radius:4px">v3</span></span>
+  </div>
+  <div class="card swim">
+  <table>
+    <thead><tr><th>#</th><th>레인</th><th>행동</th><th>종류</th></tr></thead>
+    <tbody>
+      <tr class="phase-row"><td colspan="4">국면 Ⅰ · 깨어남 · 인증 (1–6)</td></tr>
+      <tr><td class="n">1</td><td class="lane">⏰ Vercel Cron</td><td>매일 KST 02시 트리거 <code>GET /api/cron/coach</code> — 부모가 아침에 열기 전 미리 생성</td><td><span class="kind ki-pub">발행</span></td></tr>
+      <tr><td class="n">2</td><td class="lane">크론 라우트</td><td>인증(CRON_SECRET) · QA 오버라이드 <code>?child ?force ?date</code> 허용</td><td><span class="kind ki-guard">가드</span></td></tr>
+      <tr><td class="n">3</td><td class="lane">크론 라우트</td><td>API 키 확인 · <b>today 확정</b> — 편지는 '어제까지' 확정 데이터로만 평가</td><td><span class="kind ki-guard">가드</span></td></tr>
+      <tr><td class="n">4</td><td class="lane">🗄 DB</td><td><code>cron_runs</code> INSERT(running) — 실행 로그 시작</td><td><span class="kind ki-db">DB쓰기</span></td></tr>
+      <tr><td class="n">5</td><td class="lane">상류 공급</td><td>야간 미매핑 보강 — <code>menus</code>만 있고 식재료 빈 행 백필(영양계산 전)</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">6</td><td class="lane">크론 라우트</td><td>카테고리맵·또래 인기음식맵 정적 로드(비면 '채소 없음' 단정 금지)</td><td><span class="kind ki-db">읽기</span></td></tr>
+      <tr class="phase-row"><td colspan="4">국면 Ⅱ · 자녀 선별 · 라운드로빈 (7–14)</td></tr>
+      <tr><td class="n">7</td><td class="lane">🗄 DB</td><td>최근 7일 <code>meal_logs</code> SELECT(어제까지) → 자녀별 그룹</td><td><span class="kind ki-db">읽기</span></td></tr>
+      <tr><td class="n">8</td><td class="lane">크론 라우트</td><td>활성 자녀 = 최근 7일 중 <b>기록일 ≥3일</b>인 자녀</td><td><span class="kind ki-br">분기</span></td></tr>
+      <tr><td class="n">9–10</td><td class="lane">🗄 DB</td><td>최근 30일 기록으로 <b>휴면 일수</b> 계산 → 휴면(2~7일·이력≥3) 자녀 합류</td><td><span class="kind ki-db">읽기</span></td></tr>
+      <tr><td class="n">11–13</td><td class="lane">크론 라우트</td><td>최근 3일 편지로 <b>중복회피 원장</b> 구축(과거 편지만) → '오래된 순' 정렬(라운드로빈)</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">14</td><td class="lane">🗄 DB</td><td>자녀 메타·오늘 질문·등원·체위 일괄 SELECT(없으면 안전 degrade)</td><td><span class="kind ki-db">읽기</span></td></tr>
+      <tr class="phase-row"><td colspan="4">국면 Ⅲ · [자녀 루프] 수집 · 사실 컴파일 (15–26)</td></tr>
+      <tr><td class="n">15</td><td class="lane">크론 라우트</td><td>경과 &gt; 50초(시간예산)면 중단 → 남은 자녀는 다음 실행이 이어받음(SIGKILL 회피)</td><td><span class="kind ki-guard">가드</span></td></tr>
+      <tr><td class="n">16–19</td><td class="lane">상태기계</td><td><b>휴면 복귀 분기</b> — 평일 포함 갭이면 죄책감 없는 복귀 편지 후 <code>continue</code>(주말만 갭은 제외)</td><td><span class="kind ki-br">분기</span></td></tr>
+      <tr><td class="n">20</td><td class="lane">크론 라우트</td><td>끼니 집계 — 식재료/거부/메모/장소, <b>집·기관 분해</b>(부모 통제 기준 칭찬)</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">21</td><td class="lane">영양 계산기</td><td><code>computeSignals/FoodGroups/Timeseries</code> → 적신호·결핍군·시계열(집 끼니 별도)</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">22</td><td class="lane">간식 엔진</td><td>BMI 밴드 → <code>evaluateSnacks</code> 4축(초가공·간섭·칼로리방향·좋은간식)</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">23</td><td class="lane">사실 원장</td><td><code>compileFacts</code> — 추세 라벨(단발/간헐/반복)·금지어(detForbid) 박제</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">24–25</td><td class="lane">재노출 계산기</td><td>최근 28일로 '거부→수용 전환' 감지 + 재노출 적기 사실(숫자는 코드, LLM은 인용만)</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">26</td><td class="lane">크론 라우트</td><td><b>식단 지문(srcHash)</b> 계산 — 식재료·거부·적신호·메모수+<b>today</b></td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr class="phase-row"><td colspan="4">국면 Ⅳ · 재사용 판정 · 주간 닻 (27–32)</td></tr>
+      <tr><td class="n">27</td><td class="lane">크론 라우트</td><td><b>재사용?</b> 직전 편지 지문 동일 또는 오늘 편지 있음 → LLM 스킵·내용·context 보존</td><td><span class="kind ki-br">분기</span></td></tr>
+      <tr><td class="n">28–29</td><td class="lane">🗄 DB</td><td>(생성) 과거 편지 5통·ICFQ 위험 누적·구조화 입력 분포(식감·자율성·환경·시간)</td><td><span class="kind ki-db">읽기</span></td></tr>
+      <tr><td class="n">30</td><td class="lane">계획 수립기</td><td><code>planFor</code> — 결정론 CoachPlan(프레임·타깃·무브·시그니처)을 <b>작문 전에</b> 확정</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">31</td><td class="lane">주간 사령부</td><td>주간 닻 로드/종합 — 일요일=차주 닻 <b>Sonnet</b> 종합(QA date 시뮬엔 금지)</td><td><span class="kind ki-llm">Sonnet</span></td></tr>
+      <tr><td class="n">32</td><td class="lane">🗄 DB</td><td><code>weekly_plans</code> upsert(닻) — <b>error 검사</b>, 신규 컬럼 거부 시 레거시로라도 영속</td><td><span class="kind ki-db">DB쓰기</span></td></tr>
+      <tr class="phase-row"><td colspan="4">국면 Ⅴ-ⓐ · v3 경로 (33–41) — 아린 카나리아</td></tr>
+      <tr class="br-v3"><td class="n">33</td><td class="lane">상태기계 v3</td><td><b>v3 게이트</b> — 닻 있고 <code>v3Enabled</code>(COACH_V3_CHILDREN에 cid 포함)면 진입</td><td><span class="kind ki-br">분기</span></td></tr>
+      <tr class="br-v3"><td class="n">34–35</td><td class="lane">🗄 DB · 추천</td><td>진도·편지 컨텍스트 10통·질문 답변 로드 + 노출 타깃을 '실제 결핍 도전음식'으로 정렬</td><td><span class="kind ki-db">읽기</span></td></tr>
+      <tr class="br-v3"><td class="n">36</td><td class="lane">상태기계 v3</td><td><code>decideDailyV3</code> — 오늘의 유닛·모드·진도 업데이트·goals 산출(LLM 0콜)</td><td><span class="kind ki-det">상태기계</span></td></tr>
+      <tr class="br-v3"><td class="n">37</td><td class="lane">🗄 DB</td><td><code>curriculum_progress</code> upsert + 피벗 시 <code>weekly_plans.goals</code> 영속</td><td><span class="kind ki-db">DB쓰기</span></td></tr>
+      <tr class="br-v3"><td class="n">38–39</td><td class="lane">조립기 v3</td><td><code>compileFactCards</code> → <code>assembleLetter</code> 블록 조립(블록·사실·조합 원장으로 byte-동일 차단)</td><td><span class="kind ki-det">0콜</span></td></tr>
+      <tr class="br-v3"><td class="n">40–41</td><td class="lane">조립기 v3</td><td>(일요일만 회고 Sonnet 1콜·가드 통과 시) → <code>buildLetterCtx</code>로 상태 스냅샷 구성</td><td><span class="kind ki-llm">Sonnet</span></td></tr>
+      <tr class="phase-row"><td colspan="4">국면 Ⅴ-ⓑ · v2 경로 (42–47) — 전 자녀 라이브</td></tr>
+      <tr class="br-v2"><td class="n">42</td><td class="lane">주간 사령부</td><td><code>planFromWeekly</code> — 타깃 잠금·채근 캡·행동지연·아크 단계(관측된 실행만 칭찬)</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr class="br-v2"><td class="n">43–44</td><td class="lane">간식·추천</td><td>간식 멘트 게이팅(쿨다운·과일타깃·구조 프레임 제외) + <code>buildRecoFacts</code> 화이트리스트</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr class="br-v2"><td class="n">45</td><td class="lane">코칭 본부</td><td><code>composeLetter</code> — 계획 주입 → <b>Haiku 작문</b>(intro는 Sonnet) · 데드라인 강등</td><td><span class="kind ki-llm">Haiku</span></td></tr>
+      <tr class="br-v2"><td class="n">46</td><td class="lane">가드</td><td>가드 3종 — 금지어 재생성 · 의미 검증자 · 어휘 유사도 재생성</td><td><span class="kind ki-guard">가드</span></td></tr>
+      <tr class="br-v2"><td class="n">47</td><td class="lane">가드</td><td>자동 반복 경보 — 직전 편지 최대 유사도·동일 시그니처 2연속 → issues 기록</td><td><span class="kind ki-guard">가드</span></td></tr>
+      <tr class="phase-row"><td colspan="4">국면 Ⅵ · 발행 · 질문 (48–52)</td></tr>
+      <tr><td class="n">48</td><td class="lane">크론 라우트</td><td>발행 컨텍스트 단일화 — v3 ?? v3재사용보존 ?? v2(어드민 검증용 근거 스냅샷)</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">49</td><td class="lane">🗄 DB</td><td><code>coach_letters</code> UPSERT(child_id, letter_date=오늘)</td><td><span class="kind ki-db">DB쓰기</span></td></tr>
+      <tr><td class="n">50</td><td class="lane">알림톡</td><td>신규 편지면 2줄 미리보기(부모당 1건) — 현재 도먼트</td><td><span class="kind ki-pub">발행</span></td></tr>
+      <tr><td class="n">51</td><td class="lane">코칭 본부</td><td>오늘의 질문 — ICFQ 주기 &gt; v3 unitProbe &gt; <code>generateQuestion</code>(완식 수렴 방지)</td><td><span class="kind ki-llm">Haiku</span></td></tr>
+      <tr><td class="n">52</td><td class="lane">🗄 DB</td><td><code>daily_questions</code> UPSERT(child_id, q_date=오늘) <b>[자녀 루프 끝]</b></td><td><span class="kind ki-db">DB쓰기</span></td></tr>
+      <tr class="phase-row"><td colspan="4">국면 Ⅶ · 롤업 · 마감 (53–56)</td></tr>
+      <tr><td class="n">53–54</td><td class="lane">영양·DB</td><td>기간 요약 롤업 — 주·월 지표 재계산 → <code>period_summaries</code> 멱등 UPSERT</td><td><span class="kind ki-det">계산</span></td></tr>
+      <tr><td class="n">55</td><td class="lane">🗄 DB</td><td><code>cron_runs</code> 마감 — 처리·오류·issues(반복경보·검증위반·v3폴백·닻 장애) ≤30건</td><td><span class="kind ki-db">DB쓰기</span></td></tr>
+      <tr><td class="n">56</td><td class="lane">크론 라우트</td><td>tip-ranking 크론 self-fetch 체이닝 → JSON 응답(Hobby 플랜 2크론 한도 우회)</td><td><span class="kind ki-pub">발행</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ⑥ State machines -->
+<section id="fsm">
+  <div class="sec-h"><span class="no">6</span><h2>상태기계 3종 — 엔진의 의사결정 뇌</h2><span class="tech">UML Statechart · 유한상태기계</span></div>
+  <p class="lead">v3는 "오늘 무엇을 가르칠지"를 확률이 아니라 <b>상태 전이</b>로 결정합니다. 세 개의 맞물린 상태기계가 있습니다 — ⓐ 오늘의 전개, ⓑ 유닛 한 개의 생애주기, ⓒ 한 주의 가르치는 결.</p>
+
+  <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin:18px 0 8px">ⓐ 일간 전개 결정기 <span style="font-weight:600;color:#888;font-size:11.5px">— <code>decideDailyV3</code> + <code>advanceProgress</code></span></h4>
+  <div class="svg-wrap">
+  <svg viewBox="0 0 880 330" width="880" height="330" role="img" aria-label="일간 전개 결정 상태기계">
+    <defs><marker id="a2" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#9CA3AF"/></marker></defs>
+    <!-- entry -->
+    <rect x="20" y="135" width="120" height="52" rx="11" fill="#2C3E50"/><text x="80" y="160" text-anchor="middle" fill="#fff" class="st-node">진입</text><text x="80" y="176" text-anchor="middle" fill="#cfd8e3" class="st-sub">진도·goals 로드</text>
+    <!-- lowdata -->
+    <rect x="190" y="20" width="130" height="50" rx="11" fill="#ECEFF1" stroke="#9CA3AF"/><text x="255" y="42" text-anchor="middle" class="st-node" fill="#4B5563">관측(observe)</text><text x="255" y="58" text-anchor="middle" class="st-sub">저데이터·진도 동결</text>
+    <!-- advanceProgress hub -->
+    <rect x="190" y="135" width="150" height="52" rx="11" fill="#FFF4E8" stroke="#E8A33D" stroke-width="1.6"/><text x="265" y="158" text-anchor="middle" class="st-node" fill="#B86A20">진도 진화</text><text x="265" y="174" text-anchor="middle" class="st-sub">재발 스캔·focus 진화</text>
+    <!-- modes -->
+    <rect x="420" y="14" width="120" height="44" rx="10" fill="#E8F5E9" stroke="#16A085"/><text x="480" y="34" text-anchor="middle" class="st-node" fill="#1B5E20">졸업 celebrate</text><text x="480" y="49" text-anchor="middle" class="st-sub">유지 주 통과</text>
+    <rect x="420" y="70" width="120" height="44" rx="10" fill="#E3F2FD" stroke="#3498DB"/><text x="480" y="90" text-anchor="middle" class="st-node" fill="#1565C0">전진 advance</text><text x="480" y="105" text-anchor="middle" class="st-sub">사다리 +1</text>
+    <rect x="420" y="126" width="120" height="44" rx="10" fill="#E3F2FD" stroke="#3498DB"/><text x="480" y="146" text-anchor="middle" class="st-node" fill="#1565C0">심화 deepen</text><text x="480" y="161" text-anchor="middle" class="st-sub">신호 있음·진전 중</text>
+    <rect x="420" y="182" width="120" height="44" rx="10" fill="#FFF8E1" stroke="#F9A825"/><text x="480" y="202" text-anchor="middle" class="st-node" fill="#F57F17">유지 maintain</text><text x="480" y="217" text-anchor="middle" class="st-sub">정체·위안</text>
+    <rect x="420" y="238" width="120" height="44" rx="10" fill="#FDECEC" stroke="#E53935"/><text x="480" y="258" text-anchor="middle" class="st-node" fill="#C62828">피벗 pivot</text><text x="480" y="273" text-anchor="middle" class="st-sub">목표 교체(주1회)</text>
+    <rect x="420" y="294" width="120" height="34" rx="10" fill="#ECEFF1" stroke="#9CA3AF"/><text x="480" y="315" text-anchor="middle" class="st-node" fill="#4B5563">관측 observe</text>
+    <!-- terminal note -->
+    <rect x="640" y="120" width="210" height="92" rx="12" fill="#F6EEFC" stroke="#9C27B0" stroke-width="1.4"/>
+    <text x="745" y="145" text-anchor="middle" class="st-node" fill="#6A1B9A">→ 편지 조립기로</text>
+    <text x="745" y="165" text-anchor="middle" class="st-sub" fill="#7a4a96">{unit, step, mode, pivotTo}</text>
+    <text x="745" y="183" text-anchor="middle" class="st-sub" fill="#7a4a96">+ 진도 updates + goalsAfter</text>
+    <text x="745" y="201" text-anchor="middle" class="st-sub" fill="#7a4a96">mode → 블록 시퀀스 결정</text>
+    <!-- edges -->
+    <line x1="140" y1="150" x2="186" y2="120" stroke="#9CA3AF" marker-end="url(#a2)"/>
+    <text x="118" y="110" class="st-edge">기록&lt;3일</text>
+    <line x1="140" y1="165" x2="186" y2="162" stroke="#9CA3AF" marker-end="url(#a2)"/>
+    <text x="120" y="200" class="st-edge">기록 ≥3일</text>
+    <line x1="340" y1="150" x2="416" y2="40" stroke="#9CA3AF" marker-end="url(#a2)"/>
+    <line x1="340" y1="155" x2="416" y2="92" stroke="#9CA3AF" marker-end="url(#a2)"/>
+    <line x1="340" y1="161" x2="416" y2="148" stroke="#9CA3AF" marker-end="url(#a2)"/>
+    <line x1="340" y1="167" x2="416" y2="204" stroke="#9CA3AF" marker-end="url(#a2)"/>
+    <line x1="340" y1="173" x2="416" y2="260" stroke="#9CA3AF" marker-end="url(#a2)"/>
+    <line x1="540" y1="204" x2="540" y2="294" stroke="#E53935" stroke-dasharray="3 3" marker-end="url(#a2)"/>
+    <text x="544" y="270" class="st-edge" fill="#C62828">피벗 캡 소진</text>
+    <line x1="540" y1="92" x2="640" y2="150" stroke="#9CA3AF" marker-end="url(#a2)"/>
+    <line x1="540" y1="260" x2="640" y2="180" stroke="#9CA3AF" marker-end="url(#a2)"/>
+  </svg>
+  </div>
+  <p class="note">전이 조건(코드 그대로): <b>전진</b>=합격 연속이 holdWeeks 충족(step+1) · <b>심화</b>=최근 신호 있고 진전 중 · <b>피벗</b>=정체(무신호 6일+ & 충분히 코칭) 또는 <b>절뚝거림</b>(약신호로 정체 판정엔 안 걸리나 사다리 0진전)이고 주당 피벗 캡(1회) 미소진 · <b>유지</b>=최종단 후 유지 주, 또는 정체+피벗 불가 → 강등 · <b>maintain 3연속</b>이면 deepen으로 강제 재개(위안만 반복 차단). 우선순위 1순위는 <b>재발 신규</b>(mastered→relapsed) 유닛 재개.</p>
+
+  <div class="sgrid" style="margin-top:18px">
+    <div>
+      <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin-bottom:8px">ⓑ 유닛 생애주기 <span style="font-weight:600;color:#888;font-size:11px">— <code>UnitStatus</code> · evolveRow</span></h4>
+      <div class="svg-wrap">
+      <svg viewBox="0 0 420 330" width="420" height="330" role="img" aria-label="유닛 상태 생애주기">
+        <defs><marker id="a3" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#9CA3AF"/></marker></defs>
+        <rect x="140" y="8" width="140" height="38" rx="9" fill="#ECEFF1" stroke="#9CA3AF"/><text x="210" y="32" text-anchor="middle" class="st-node" fill="#4B5563">not_started</text>
+        <rect x="140" y="66" width="140" height="38" rx="9" fill="#E3F2FD" stroke="#3498DB"/><text x="210" y="90" text-anchor="middle" class="st-node" fill="#1565C0">active</text>
+        <rect x="140" y="124" width="140" height="38" rx="9" fill="#E3F2FD" stroke="#3498DB"/><text x="210" y="148" text-anchor="middle" class="st-node" fill="#1565C0">progressing</text>
+        <rect x="140" y="182" width="140" height="38" rx="9" fill="#FFF8E1" stroke="#F9A825"/><text x="210" y="206" text-anchor="middle" class="st-node" fill="#F57F17">maintenance</text>
+        <rect x="140" y="240" width="140" height="38" rx="9" fill="#E8F5E9" stroke="#16A085"/><text x="210" y="264" text-anchor="middle" class="st-node" fill="#1B5E20">mastered ✓</text>
+        <rect x="14" y="182" width="96" height="38" rx="9" fill="#FDECEC" stroke="#E53935"/><text x="62" y="206" text-anchor="middle" class="st-node" fill="#C62828">pivoted</text>
+        <rect x="310" y="290" width="96" height="34" rx="9" fill="#FDE2E4" stroke="#E53935"/><text x="358" y="312" text-anchor="middle" class="st-node" fill="#C62828">relapsed</text>
+        <line x1="210" y1="46" x2="210" y2="64" stroke="#9CA3AF" marker-end="url(#a3)"/><text x="216" y="60" class="st-edge">활성화</text>
+        <line x1="210" y1="104" x2="210" y2="122" stroke="#9CA3AF" marker-end="url(#a3)"/><text x="216" y="118" class="st-edge">신호</text>
+        <line x1="210" y1="162" x2="210" y2="180" stroke="#9CA3AF" marker-end="url(#a3)"/><text x="216" y="176" class="st-edge">최종단 충족</text>
+        <line x1="210" y1="220" x2="210" y2="238" stroke="#16A085" marker-end="url(#a3)"/><text x="216" y="234" class="st-edge" fill="#1B5E20">유지 주 통과</text>
+        <line x1="140" y1="150" x2="108" y2="188" stroke="#E53935" marker-end="url(#a3)"/><text x="60" y="160" class="st-edge" fill="#C62828">정체·절뚝</text>
+        <path d="M280,255 Q400,250 380,290" fill="none" stroke="#E53935" stroke-dasharray="3 3" marker-end="url(#a3)"/><text x="330" y="248" class="st-edge" fill="#C62828">재발(2주)</text>
+        <path d="M180,142 Q120,120 152,104" fill="none" stroke="#9CA3AF" marker-end="url(#a3)"/>
+        <path d="M276,200 Q330,160 282,150" fill="none" stroke="#F57F17" stroke-dasharray="3 3" marker-end="url(#a3)"/><text x="300" y="172" class="st-edge" fill="#F57F17">붕괴→재코칭</text>
+      </svg>
+      </div>
+    </div>
+    <div>
+      <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin-bottom:8px">ⓒ 가르치는 아크 5단계 <span style="font-weight:600;color:#888;font-size:11px">— <code>WeeklyArcStage</code></span></h4>
+      <div class="svg-wrap">
+      <svg viewBox="0 0 420 330" width="420" height="330" role="img" aria-label="주간 가르치는 아크">
+        <defs><marker id="a4" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto"><path d="M0,0 L6.5,3 L0,6 Z" fill="#9CA3AF"/></marker></defs>
+        <rect x="130" y="10" width="160" height="42" rx="10" fill="#F6EEFC" stroke="#9C27B0" stroke-width="1.6"/><text x="210" y="30" text-anchor="middle" class="st-node" fill="#6A1B9A">intro 도입·진단</text><text x="210" y="45" text-anchor="middle" class="st-sub">주 1회·Sonnet 승격</text>
+        <rect x="40" y="100" width="110" height="38" rx="9" fill="#E3F2FD" stroke="#3498DB"/><text x="95" y="124" text-anchor="middle" class="st-node" fill="#1565C0">how 방법</text>
+        <rect x="155" y="100" width="110" height="38" rx="9" fill="#E3F2FD" stroke="#3498DB"/><text x="210" y="124" text-anchor="middle" class="st-node" fill="#1565C0">obstacle 걸림돌</text>
+        <rect x="270" y="100" width="110" height="38" rx="9" fill="#E3F2FD" stroke="#3498DB"/><text x="325" y="124" text-anchor="middle" class="st-node" fill="#1565C0">observe 관찰</text>
+        <rect x="120" y="210" width="180" height="48" rx="11" fill="#E8F5E9" stroke="#16A085" stroke-width="1.6"/><text x="210" y="232" text-anchor="middle" class="st-node" fill="#1B5E20">reinforce 강화</text><text x="210" y="248" text-anchor="middle" class="st-sub">관측된 실행만 콕 집어 칭찬</text>
+        <text x="210" y="290" text-anchor="middle" class="st-sub" fill="#888">요일 회전 ROT — 진단 재서술 금지 · reinforce 이틀 연속 금지</text>
+        <line x1="180" y1="52" x2="110" y2="98" stroke="#9CA3AF" marker-end="url(#a4)"/>
+        <line x1="210" y1="52" x2="210" y2="98" stroke="#9CA3AF" marker-end="url(#a4)"/>
+        <line x1="240" y1="52" x2="310" y2="98" stroke="#9CA3AF" marker-end="url(#a4)"/>
+        <line x1="95" y1="138" x2="170" y2="208" stroke="#16A085" marker-end="url(#a4)"/>
+        <line x1="210" y1="138" x2="210" y2="208" stroke="#16A085" marker-end="url(#a4)"/>
+        <line x1="325" y1="138" x2="250" y2="208" stroke="#16A085" marker-end="url(#a4)"/>
+        <text x="120" y="180" class="st-edge" fill="#1B5E20">행동 관측 시</text>
+        <path d="M300,234 Q380,190 350,138" fill="none" stroke="#9CA3AF" stroke-dasharray="3 3" marker-end="url(#a4)"/><text x="350" y="180" class="st-edge">연속 금지→환기</text>
+      </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑦ Scratch blocks -->
+<section id="scratch">
+  <div class="sec-h"><span class="no">7</span><h2>스크래치 블록 — 코드를 모르는 분도 읽는 엔진 로직</h2><span class="tech">Block-based(Scratch) Pseudocode</span></div>
+  <p class="lead">교육용 블록 언어(Scratch)처럼, 엔진의 두 핵심 로직을 색깔 블록으로 풀었습니다. <span style="color:#E8902B;font-weight:700">주황=제어(만약~)</span>, <span style="color:#4C97D6;font-weight:700">파랑=동작</span>, <span style="color:#5Cb85c;font-weight:700">초록=판정</span>, <span style="color:#9C27B0;font-weight:700">보라=나만의 블록(모듈)</span>, <span style="color:#E8A33D;font-weight:700">노랑=시작(언제)</span>, <span style="color:#D6564C;font-weight:700">빨강=저장</span>.</p>
+  <div class="scratch">
+  <div class="sgrid">
+    <div>
+      <div class="scaption">🅰 새벽 크론의 하루 (스크립트)</div>
+      <div class="sb sb-hat">🌅 매일 새벽 KST 02시가 되면</div>
+      <div class="embrace">
+        <div class="sb sb-act">최근 7일 끼니를 <b>모은다</b></div>
+        <div class="sb sb-ctrl">기록일이 3일 이상인 아이들에 대해 <small>(오래된 순으로)</small> 반복</div>
+        <div class="embrace">
+          <div class="sb sb-ctrl">만약 <span class="sb-bool">50초 예산 초과</span> 라면</div>
+          <div class="embrace"><div class="sb sb-end">⏸ 멈추고 남은 아이는 다음 새벽에</div></div>
+          <div class="sb sb-act">영양 신호·간식·사실 카드를 <b>계산한다</b></div>
+          <div class="sb sb-custom">📋 사실 원장을 컴파일한다 <small>(추세 라벨·금지어)</small></div>
+          <div class="sb sb-ctrl">만약 <span class="sb-bool">식단 지문이 어제와 같다</span> 라면</div>
+          <div class="embrace"><div class="sb sb-act">어제 편지를 그대로 <b>재사용</b>(LLM 안 부름)</div></div>
+          <div class="sb sb-ctrl">아니고 만약 <span class="sb-bool">v3 카나리아 아이</span> 라면</div>
+          <div class="embrace v3e">
+            <div class="sb sb-custom">🎯 오늘의 전개를 <b>결정한다</b> (상태기계)</div>
+            <div class="sb sb-custom">🧱 블록으로 편지를 <b>조립한다</b> (LLM 0콜)</div>
+          </div>
+          <div class="sb sb-ctrl">아니라면 (v2)</div>
+          <div class="embrace">
+            <div class="sb sb-custom">🧭 계획을 <b>확정한다</b> (코드)</div>
+            <div class="sb sb-act">Haiku로 편지를 <b>쓴다</b> → 가드 3종 통과까지 다시 쓴다</div>
+          </div>
+          <div class="sb sb-data">💾 편지·질문을 저장한다 (오늘 날짜)</div>
+        </div>
+        <div class="sb sb-act">기간 요약을 굴리고 실행 로그를 <b>마감한다</b></div>
+      </div>
+    </div>
+    <div>
+      <div class="scaption">🅱 "오늘 무엇을 가르칠까" 결정 블록 <small>(decideDailyV3)</small></div>
+      <div class="sb sb-custom" style="border-radius:13px 13px 7px 7px">🎯 오늘의 전개를 결정한다 <small>(진도·답변 받기)</small></div>
+      <div class="embrace v3e">
+        <div class="sb sb-ctrl">만약 <span class="sb-bool">기록 3일 미만</span> 라면</div>
+        <div class="embrace"><div class="sb sb-end">🧊 진도 동결 · "관측"으로 쉬어간다</div></div>
+        <div class="sb sb-act">재발한 유닛·focus 유닛을 <b>진화시킨다</b></div>
+        <div class="sb sb-ctrl">만약 <span class="sb-bool">졸업했다</span> → 🎉 <b>축하</b></div>
+        <div class="sb sb-ctrl">아니고 <span class="sb-bool">사다리 한 칸 올랐다</span> → 👣 <b>전진</b></div>
+        <div class="sb sb-ctrl">아니고 <span class="sb-bool">신호 있고 진전 중</span> → 🔎 <b>심화</b></div>
+        <div class="sb sb-ctrl">아니고 <span class="sb-bool">정체·절뚝 & 피벗 가능</span> → 🔀 <b>목표 피벗</b></div>
+        <div class="sb sb-ctrl">아니라면 → 🌙 <b>유지/관측</b></div>
+        <div class="sb sb-data">📤 {유닛·단계·모드}를 돌려준다</div>
+      </div>
+      <p class="note" style="margin-top:12px">★ "만약~아니고~" 사다리가 곧 <b>F-02 결정표</b>입니다. 가장 급한 것(재발)부터 가장 한가한 것(관측)까지 우선순위가 고정돼 있어, 같은 데이터면 누가 돌려도 같은 결정이 나옵니다(결정론).</p>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ⑧ DFD -->
+<section id="dfd">
+  <div class="sec-h"><span class="no">8</span><h2>데이터 흐름도 — 한 끼니가 편지가 되기까지</h2><span class="tech">Data Flow Diagram (DFD)</span></div>
+  <p class="lead">모든 것의 원천은 부모가 찍은 <b>끼니 기록</b> 하나. 그것이 여러 처리기를 거쳐 <b>편지·질문·진도·요약</b> 네 개의 저장소로 흩어집니다. 사각=데이터 저장소, 둥근=처리기.</p>
+  <div class="card">
+  <div class="dfd">
+    <div class="dfd-row"><div class="dfd-store">🍽 meal_logs<small>끼니 기록(원천)</small></div></div>
+    <div class="dfd-down">▼ &nbsp; 상류 매핑(메뉴→식재료 정규화)</div>
+    <div class="dfd-row">
+      <div class="dfd-proc">영양 신호 계산기<small>신호등·식품군·시계열</small></div>
+      <div class="dfd-proc">사실 원장 컴파일러<small>추세 라벨·금지어·거울</small></div>
+      <div class="dfd-proc">진도 상태기계<small>12 유닛 전이</small></div>
+      <div class="dfd-proc">간식·추천·재노출<small>4축·사촌·적기</small></div>
+    </div>
+    <div class="dfd-down">▼ &nbsp; 계획 확정(planFor / decideDailyV3) + 주간 닻</div>
+    <div class="dfd-row">
+      <div class="dfd-proc" style="border-color:var(--r500);color:var(--r700)">v2 작문기<small>Haiku + 가드 3종</small></div>
+      <div class="dfd-proc" style="border-color:var(--v500);color:var(--v700)">v3 조립기<small>441 블록 · 0콜</small></div>
+    </div>
+    <div class="dfd-down">▼ &nbsp; 발행(upsert)</div>
+    <div class="dfd-row">
+      <div class="dfd-store">💌 coach_letters<small>편지(+상태 스냅샷)</small></div>
+      <div class="dfd-store">❓ daily_questions<small>오늘의 질문</small></div>
+      <div class="dfd-store">📈 curriculum_progress<small>12 유닛 진도</small></div>
+      <div class="dfd-store">📊 period_summaries<small>주·월 롤업</small></div>
+    </div>
+    <div class="dfd-down">▲ &nbsp; 환류(피드백 루프)</div>
+    <div class="dfd-row">
+      <div class="dfd-store">👍 letter_feedback<small>부모 1탭 평가</small></div>
+      <span style="font-size:11.5px;color:#888;font-weight:600;max-width:340px">질문 답변 → 진도 신호 · 편지 평가 → 자가진단 · 진도/닻 → 다음 날 결정. <b>출력이 다음 입력이 되는 닫힌 루프.</b></span>
+    </div>
+  </div>
+  </div>
+  <p class="note">★ <b>방향성</b> — 진단·사실은 항상 <i>왼쪽(데이터)→오른쪽(편지)</i>으로만 흐릅니다. 편지(LLM 산출)가 사실을 거꾸로 만들지 못하게, 모든 숫자·라벨은 처리기(코드)가 확정하고 작문기는 <b>인용만</b> 합니다. 이 단방향성이 환각 차단의 뼈대입니다.</p>
+</section>
+
+<!-- ⑨ ERD -->
+<section id="erd">
+  <div class="sec-h"><span class="no">9</span><h2>데이터 모델 — 12개 테이블, children 허브</h2><span class="tech">Entity-Relationship Diagram</span></div>
+  <p class="lead"><code>children</code>가 허브이고 모든 코칭 테이블이 <code>child_id</code>로 매답니다. 부모는 <code>coach_letters·daily_questions</code>만 읽고, 엔진 내부 상태(<code>weekly_plans·curriculum_progress</code>)는 <b>RLS로 비노출</b>(서버만 접근)입니다.</p>
+  <div class="erd">
+    <div class="ent hub">
+      <div class="et">👶 children<span class="pk">PK id</span></div>
+      <div class="ed">자녀 마스터 · 모든 child_id의 허브이자 코칭 입력 프로필</div>
+      <ul><li><b>nickname·age_band·sex</b> <span class="ty">별명·연령대·성별</span></li><li><b>chronic_conditions</b> <span class="ty">만성질환→식이 가이드</span></li><li><b>height/weight·daycare</b> <span class="ty">체위·등원</span></li><li><b>excluded_ingredients</b> <span class="ty">집에있어요 제외</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">🍽 meal_logs<span class="pk">child+date+slot</span></div>
+      <div class="ed">끼니 기록(상류 입력) · 엔진 모든 사실·진도·영양의 원천</div>
+      <ul><li><b>ingredients</b> <span class="ty">정규화 식재료(핵심)</span></li><li><b>refused·ate_well</b> <span class="ty">거부·잘먹음</span></li><li><b>texture·autonomy·environment</b> <span class="ty">v3 유닛 신호</span></li><li><b>place·meal_time</b> <span class="ty">집/기관·끼니시각</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">💌 coach_letters<span class="pk">child+date</span></div>
+      <div class="ed">편지 원장(최종 산출물) · context에 엔진 내부 상태 통째 박힘</div>
+      <ul><li><b>letter·oneliner</b> <span class="ty">본문·한줄</span></li><li><b>source_hash</b> <span class="ty">식단 지문(재사용 키)</span></li><li><b>context</b> <span class="ty">jsonb: plan·decision·blocks·weekly·verify</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">📅 weekly_plans<span class="pk">child+week</span></div>
+      <div class="ed">주간 닻(작전층) · 일요일 Sonnet 종합 · <b>부모 비노출</b></div>
+      <ul><li><b>mission_target·target_pool</b> <span class="ty">초점 타깃(주 불변)</span></li><li><b>budget·ledger</b> <span class="ty">채근 캡·소비 추적</span></li><li><b>goals</b> <span class="ty">v3 목표 포트폴리오 2~3</span></li><li><b>teaching_arc·impression</b> <span class="ty">아크·의사 소견</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">📈 curriculum_progress<span class="pk">child+unit</span></div>
+      <div class="ed">12 수업 진도 영속(v3) · <b>부모 비노출</b> · 자녀당 ≤12행</div>
+      <ul><li><b>unit_id</b> <span class="ty">12종 CHECK</span></li><li><b>status·step</b> <span class="ty">상태기계·사다리 단</span></li><li><b>evidence</b> <span class="ty">신호 카운터(jsonb)</span></li><li><b>last_signal_at·relapse_count</b> <span class="ty">정체·재발</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">❓ daily_questions<span class="pk">child+date</span></div>
+      <div class="ed">오늘의 질문 · 답변이 다음 날 진도 신호로 환류</div>
+      <ul><li><b>topic</b> <span class="ty">icfq·unit-probe·로테이션</span></li><li><b>chips·answer</b> <span class="ty">객관식·부모 답</span></li><li><b>context</b> <span class="ty">unitProbe 적립 키</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">📊 period_summaries<span class="pk">child+type+key</span></div>
+      <div class="ed">병원 차트형 기간 요약(주·월) · 어드민 시계열</div>
+      <ul><li><b>metrics</b> <span class="ty">variety·refusalPct·reds·bmiPct…</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">👍 letter_feedback<span class="pk">child+date uniq</span></div>
+      <div class="ed">편지 1탭 피드백(자가발전) · 반복 자동탐지 입력</div>
+      <ul><li><b>rating</b> <span class="ty">up · down · repeat</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">📏 growth_logs<span class="pk">child+date uniq</span></div>
+      <div class="ed">체위 시계열 · BMI-for-age 백분위 입력</div>
+      <ul><li><b>height_cm·weight_kg</b> <span class="ty">성장·간식 칼로리 방향</span></li></ul>
+    </div>
+    <div class="ent">
+      <div class="et">🩺 cron_runs<span class="pk">PK id</span></div>
+      <div class="ed">크론 실행 로그 · 카나리아 모니터(어드민)의 근거</div>
+      <ul><li><b>status·meta</b> <span class="ty">issues·alerts·reused·skipped</span></li></ul>
+    </div>
+  </div>
+  <div class="rel-list">
+    <div>🔗 <b>children 1:N</b> meal_logs · coach_letters · daily_questions · weekly_plans · curriculum_progress · growth_logs · period_summaries · letter_feedback</div>
+    <div>🔗 <b>weekly_plans → curriculum_progress</b> (논리적) — 주간 goals[].unit_id 포트폴리오가 진도 유닛을 가리킴(jsonb 참조)</div>
+    <div>🔗 <b>weekly_plans 1:N coach_letters</b> (논리적 닻) — 주간 plan 1행을 그 주 일간 편지들이 read해 phase 결정·<code>context.weekly</code>로 기록</div>
+    <div>🔗 <b>coach_letters 1:1 letter_feedback</b> (논리적) — 같은 child_id+date로 그날 편지를 평가</div>
+  </div>
+</section>
+
+<!-- ⑩ Curriculum -->
+<section id="curr">
+  <div class="sec-h"><span class="no">10</span><h2>12 수업 커리큘럼 — v3가 실제로 가르치는 것</h2><span class="tech">Domain Model · Capability Map</span></div>
+  <p class="lead">유닛 하나가 "편식 해결의 한 과목"입니다. 각 유닛은 <b>레버</b>(어떤 지렛대)·<b>최소 주차</b>·<b>2단 사다리</b>(과제)·<b>졸업 기준</b>·<b>관측 질문</b>을 코드로 선언합니다(선언이 곧 명세). 색=레버.</p>
+  <div class="legend">
+    <span class="ul-food">🍎 food 음식</span><span class="ul-environment">🪑 environment 환경</span><span class="ul-autonomy">🙌 autonomy 자율성</span><span class="ul-texture">👅 texture 질감</span><span class="ul-mixed">🔀 mixed 복합</span>
+  </div>
+  <div class="curr">
+    <div class="unit lev-mixed"><div class="un">압박 내려놓기</div><div class="uid">pressure-off · W1</div><span class="ul ul-mixed">mixed</span><div class="steps">① "한 입만"·재촉 멈추기<br>② 압박 없는 식탁 분위기</div><div class="grad">🎓 압박 메모 0일·부정 태그 ≤20%</div></div>
+    <div class="unit lev-environment"><div class="un">공복 리듬</div><div class="uid">hunger-rhythm · W1</div><span class="ul ul-environment">environment</span><div class="steps">① 끼니 30분 전 간식 멈추기<br>② 식사·간식 2~3시간 간격</div><div class="grad">🎓 끼니 전 간식 0·간식 과다일 ≤2</div></div>
+    <div class="unit lev-environment"><div class="un">식탁 무대</div><div class="uid">table-stage · W1</div><span class="ul ul-environment">environment</span><div class="steps">① 하루 한 끼 화면 끄고 식탁<br>② 주 5끼+ 같은 자리·시간</div><div class="grad">🎓 식탁 식사 비율 ≥60%</div></div>
+    <div class="unit lev-food"><div class="un">새 음식 조금씩 노출</div><div class="uid">exposure-savings · W2</div><span class="ul ul-food">food</span><div class="steps">① 도전 음식 말없이 식탁에(격일)<br>② 티스푼 맛보기 초대</div><div class="grad">🎓 누적 노출 8회+ (적금)</div></div>
+    <div class="unit lev-mixed"><div class="un">배부름 존중</div><div class="uid">fullness-respect · W2</div><span class="ul ul-mixed">mixed</span><div class="steps">① 완식 강요 멈추기<br>② 30분쯤 부담 없이 정리</div><div class="grad">🎓 강요 0·30분 초과율 ≤30%</div></div>
+    <div class="unit lev-mixed"><div class="un">부모가 메뉴판</div><div class="uid">parent-model · W2</div><span class="ul ul-mixed">mixed</span><div class="steps">① 같은 음식 곁에서 맛있게<br>② 가족 저녁 주 5회</div><div class="grad">🎓 가족 저녁 5일+/주</div></div>
+    <div class="unit lev-mixed"><div class="un">달콤한 협상 끊기</div><div class="uid">no-bargain · W2</div><span class="ul ul-mixed">mixed</span><div class="steps">① "먹으면 ~줄게" 멈추기<br>② 디저트 지위 중립화</div><div class="grad">🎓 거래 메모 0일</div></div>
+    <div class="unit lev-mixed"><div class="un">식탁의 말</div><div class="uid">table-talk · W3</div><span class="ul ul-mixed">mixed</span><div class="steps">① 금지어 3종 끊기<br>② 객체 중심 질문으로</div><div class="grad">🎓 객체 대화 비율 ≥70%</div></div>
+    <div class="unit lev-texture"><div class="un">감각·질감 트랙</div><div class="uid">sensory-texture · W3</div><span class="ul ul-texture">texture</span><div class="steps">① 한 끼 한 단계 위 질감<br>② 일반식 비중 올리기</div><div class="grad">🎓 핑거푸드·일반식 안착</div></div>
+    <div class="unit lev-food"><div class="un">확장 트랙(음식 다리)</div><div class="uid">food-bridge · W3</div><span class="ul ul-food">food</span><div class="steps">① 잘 먹는 음식의 사촌 1종<br>② 사슬 다음 칸(찍어먹기)</div><div class="grad">🎓 주당 신규 1종+ 안착</div></div>
+    <div class="unit lev-autonomy"><div class="un">자율성·참여 트랙</div><div class="uid">autonomy-part · W3</div><span class="ul ul-autonomy">autonomy</span><div class="steps">① 둘 중 고르기·스스로 떠먹기<br>② 셀프 서빙·상차림 역할</div><div class="grad">🎓 자기주도 비율 ≥50%</div></div>
+    <div class="unit lev-food"><div class="un">연계·리듬 트랙</div><div class="uid">link-rhythm · W3</div><span class="ul ul-food">food</span><div class="steps">① 기관 거부 식재료 집에서 재노출<br>② 격일 리듬으로 이어가기</div><div class="grad">🎓 기관→집 재노출 주 2회+</div></div>
+  </div>
+  <p class="note">★ <b>코어 8 → 확장 4</b> — <code>pressure-off → hunger-rhythm → table-stage → exposure-savings → fullness-respect → parent-model → no-bargain → table-talk</code>가 기초 순서(W1~W3 가능), 나머지 4종(감각·다리·자율성·연계)은 신호 발동 시 선택됩니다. 주간 사령부가 신호 강도(<code>trigger</code> 점수)로 후보를 올리고, 포트폴리오 2~3개로 묶어 한 주의 <code>goals</code>를 정합니다. 이 12 유닛은 <b>학부모용 실라버스</b>(<a href="/coaching-syllabus.html" style="color:var(--p700)">coaching-syllabus.html</a>)와 1:1로 정합 — 엔진이 실제로 가르치는 것만 적었습니다.</p>
+</section>
+
+<!-- ⑪ Letter assembly pipeline -->
+<section id="pipe">
+  <div class="sec-h"><span class="no">11</span><h2>편지 조립 파이프라인 (v3) — "반복이 구조적으로 불가능"</h2><span class="tech">Pipeline · Set-Difference Filters</span></div>
+  <p class="lead">v3는 글을 <i>쓰지</i> 않고 <i>조립</i>합니다. <b>441개 검수된 블록</b>(13유닛 × 14스테이지 × 톤 warm·empathy·praise)에서, 오늘의 모드가 정한 시퀀스에 맞는 후보를 <b>집합 차감</b>으로 골라 잇습니다. 같은 편지가 나올 수 없도록 매 단계가 원장을 차감합니다.</p>
+  <div class="card">
+  <div class="pipe">
+    <div class="pstage"><div class="pt">① 모드 → 시퀀스</div><div class="pd">advance면 [공감→전진→왜], deepen이면 [공감→방법/걸림돌 교대→왜]… mode별 블록 스테이지 순서 결정</div></div>
+    <div class="pstage"><div class="pt">② 사실 카드 1장</div><div class="pd">레버에 맞는 카드(환경/음식) 선호. 진단 카드는 주 1회만 인용(이미 인용=차감)</div></div>
+    <div class="pstage"><div class="pt">③ 후보 집합 차감</div><div class="pd">유닛·스테이지·단계·톤·requires 필터 → 8일 블록 원장·오늘 사용분 차감 → fresh 우선</div></div>
+    <div class="pstage"><div class="pt">④ 문장 예산·어미</div><div class="pd">총 3~5문장·380자·같은 어미 3연속 회피를 만족하는 변형 선택</div></div>
+    <div class="pstage"><div class="pt">⑤ 최종 스캔</div><div class="pd">금지어·동일 조합(7일)·식단 거울 합성 → 위반 시 변형 재선택(최대 3회)</div></div>
+    <div class="pstage"><div class="pt">⑥ 발행 / 폴백</div><div class="pd">통과본 발행. 후보 0이면 공용 블록→상수(LLM 도망 금지)</div></div>
+  </div>
+  </div>
+  <div class="filters">
+    <div class="filt"><b>블록 원장(3·8일)</b> — 같은 블록 id 3일 내 재사용 0(8일 신선도 우선). 풀 소진 시 3일만 피해 완화.</div>
+    <div class="filt"><b>사실 인용 원장(주간)</b> — 같은 진단 통계는 활성 기간 1회만. 키가 '전역'이라 피벗해도 다른 유닛이 재서술 못 함.</div>
+    <div class="filt"><b>동일 조합 차단(7일)</b> — 블록 조합(join)이 최근 7일과 byte-동일이면 변형 재선택(복붙 차단).</div>
+    <div class="filt"><b>intro 7일 재진입 0</b> — 같은 유닛 도입(진단+왜)은 7일 내 재등장 금지(피벗 재도입 포함).</div>
+    <div class="filt"><b>oneliner 12변형 + dedup</b> — 한 줄 요약도 최근 이력과 안 겹치게 회전.</div>
+    <div class="filt"><b>D-11 안전 폴백</b> — 풀이 비어도 공용 블록/상수로 발행 보장. <b>절대 LLM 자유생성으로 도망가지 않음.</b></div>
+  </div>
+  <p class="note">★ 이 모든 게 <b>리플레이 게이트</b>로 사전 검증됩니다 — 가상 30가정×14일을 돌려 블록 3일 중복·동일 조합 재현·진단 재서술·intro 재등장·피벗 캡 위반이 <b>전부 0</b>, 폴백률 &lt;3%여야만 라이브 컷오버를 허용합니다(통합버그 5종을 사전 적발).</p>
+</section>
+
+<!-- ⑫ Dependency graph -->
+<section id="dep">
+  <div class="sec-h"><span class="no">12</span><h2>의존 그래프 — 누가 누구를 부르나</h2><span class="tech">Dependency Graph · Call Hierarchy</span></div>
+  <p class="lead">새벽 코칭 크론이 모든 것의 <b>지휘자</b>입니다. 아래로 갈수록 순수해집니다 — 잎(leaf) 모듈(영양·그래프·날짜)은 DB·LLM·시계를 모르는 순수 함수라 테스트·리플레이가 쉽습니다.</p>
+  <div class="depcol">
+    <div class="depnode" style="border-left:3px solid var(--p500)"><div class="dn">⏰ 새벽 코칭 크론 <span style="font-size:9px;color:#888">(지휘자)</span></div><div class="da">→ <code>coachWeekly · coachDaily · assembleLetter · curriculum · coach · coachFacts · coachRecos · nutrition · snack · progress · reexposure · growth-reference · remapMenus · sens</code> + DB 9개 테이블</div></div>
+    <div class="depnode" style="border-left:3px solid var(--r500)"><div class="dn">🧭 코칭 본부 (coach.ts)</div><div class="da">→ <code>coachScenarios · coachFacts · coachRecos · coachChronic · snack · coach-tips</code> · Claude SDK. v2 작문·가드의 중심.</div></div>
+    <div class="depnode" style="border-left:3px solid var(--v500)"><div class="dn">🧱 편지 조립기 (assembleLetter)</div><div class="da">→ <code>letterBlocks · curriculum · curriculumUnits · coachFacts · coach(polishKo·금지어)</code>. v3 산출의 중심.</div></div>
+    <div class="depnode" style="border-left:3px solid var(--b500)"><div class="dn">🎯 일간 결정기 (coachDaily)</div><div class="da">→ <code>curriculumUnits · curriculum · coachWeekly · coach(icfq)</code>. 순수 함수.</div></div>
+    <div class="depnode" style="border-left:3px solid var(--y500)"><div class="dn">🗓 주간 사령부 (coachWeekly)</div><div class="da">→ <code>curriculumUnits · curriculum · coachScenarios</code> · Claude(Sonnet). 닻·레버·아크.</div></div>
+    <div class="depnode" style="border-left:3px solid var(--g500)"><div class="dn">🍃 잎 모듈 (순수·무의존)</div><div class="da"><code>nutrition · foodGraph · cookingMatrix · season · growth-reference · progress · reexposure · date · curriculumUnits</code> — DB·LLM·시계 0. 리플레이·테스트의 토대.</div></div>
+    <div class="depnode" style="border-left:3px solid var(--s700)"><div class="dn">🔬 검증 하네스 (replayRunner)</div><div class="da">→ <code>coachDaily · assembleLetter · curriculum · curriculumUnits</code>만 호출(실 LLM·DB 0) → <code>replayMetrics</code> 게이트.</div></div>
+  </div>
+  <p class="note">★ <b>의존 방향이 단방향</b>(상위→하위)이고 잎이 순수해서, v3 전체 파이프라인(<code>decideDailyV3 → assembleLetter</code>)을 실제 DB·LLM 없이 인메모리로 14일 돌려볼 수 있습니다. "라이브에 내보내기 전에 미래를 시뮬레이션한다"가 가능한 이유.</p>
+</section>
+
+<!-- ⑬ Guards -->
+<section id="guards">
+  <div class="sec-h"><span class="no">13</span><h2>방어 가드 38종 — 실패에서 자란 면역계</h2><span class="tech">Defense-in-Depth · Incident → Guard 매핑</span></div>
+  <p class="lead">가드 하나하나가 실제 사고의 흉터입니다. <b>5겹 방어</b>로 묶었습니다 — 결정론(정규식) → 의미(LLM 검증자) → 구조(집합 차감) → 운영(시간·영속) → 안전(아동 보호). 프롬프트로 호소해선 못 막은 것을 코드 가드 + 리플레이로 잡았습니다.</p>
+
+  <div class="gcat">
+    <h4>🔵 결정론 가드 <span class="ct" style="background:var(--b500)">정규식·재생성</span></h4>
+    <div class="guards">
+      <div class="guard det"><div class="gn">거부값 통째 드롭</div><div class="gb">부모 메모('배아파서 조금만먹음 카레')를 음식명으로 오인 추출해 거짓 '거부→수용 전환' 날조하는 것 차단. NOISE_RE 매치 시 통째 null.</div><span class="gi">사고: 카레 유령</span></div>
+      <div class="guard det"><div class="gn">결정론 안전·괴식 가드</div><div class="gb">환각 시점·없는 증상·섞기 금지 시나리오의 섞기·김치 괴식·튀김 권유·'N가지' 칭찬·해조류↔생선 혼동을 정규식 묶음으로 잡아 최대 2회 재생성.</div><span class="gi">사고: 치즈·김치 괴식</span></div>
+      <div class="guard det"><div class="gn">점심 결식 단정 금지</div><div class="gb">점심이 급식으로 기록돼 있는데 '점심을 거른다' 단정하는 것 차단. 점심 커버리지 사실 1순위 주입 + 단정형 정규식 동적 금지.</div><span class="gi">사고: 뷔페 과일반화</span></div>
+      <div class="guard det"><div class="gn">단발 이벤트 메아리 차단</div><div class="gb">최근 2일 메모에 없는 stale 이벤트 단어('뷔페/외식')를 forbidParts에 넣어 동적 금지(detForbid).</div><span class="gi">사고: 뷔페 과일반화</span></div>
+      <div class="guard det"><div class="gn">편지 유사도 재생성</div><div class="gb">최근 편지와 너무 비슷하거나(전체 0.45) 도입 첫 25자 동일(0.40)이면 무브 밀어 재생성. '같은 도입+다른 본문' 복붙 차단.</div><span class="gi">사고: 3일 복붙</span></div>
+      <div class="guard det"><div class="gn">계획 시그니처 dedup</div><div class="gb">'글자는 다른데 전략이 똑같은'(프레임·타깃·무브) 의미 반복을 계획 단계에서 차감 회전. 못 만들면 정체기로 전환.</div><span class="gi">사고: 3일 복붙</span></div>
+      <div class="guard det"><div class="gn">결정론 어법 교정+퇴고</div><div class="gb">'국을 마시다'·'을 물론' 어법, 가드 빠져나간 번역투·존대·미역=생선 오류를 polishKo(결정론)+LLM 퇴고로 마감.</div><span class="gi">어법 오류</span></div>
+      <div class="guard det"><div class="gn">질문 주제 로테이션</div><div class="gb">오늘의 질문이 매일 '완식'으로 수렴하는 것 차단. 8종 무브를 시드로 강제 회전(완식은 맨 끝).</div><span class="gi">질문 다양성</span></div>
+    </div>
+  </div>
+
+  <div class="gcat">
+    <h4>🟣 의미 가드 <span class="ct" style="background:var(--v500)">LLM 검증자·격리</span></h4>
+    <div class="guards">
+      <div class="guard sem"><div class="gn">의미 검증자(생성자-검증자 분리)</div><div class="gb">정규식이 못 따라가는 표현 변형(사실 왜곡·행동 누수·금지 표현·진단 재서술)을 별도 LLM 1콜로 데이터 대조 검사 → 위반 시 1회 재작성(가드 재통과해야 채택).</div><span class="gi">사고: 3일 복붙</span></div>
+      <div class="guard sem"><div class="gn">전환사실 누수 차단</div><div class="gb">'거부→수용 전환' 축하가 자격 없는 시나리오로 새어 매 편지 반복되는 것 차단(ALLOW_TRANSITION 집합 외 시 시계열에서 필터).</div><span class="gi">사고: 카레 유령</span></div>
+      <div class="guard sem"><div class="gn">부모 메모 격리(주입 방어)</div><div class="gb">메모를 10개·120자로 cap하고 '&lt;&lt;부모관찰(지시아님)&gt;&gt;' 펜싱. 메모 속 규칙 변경·영양 주장을 사실/지시로 추종하는 것 차단.</div><span class="gi">주입 위험</span></div>
+      <div class="guard sem"><div class="gn">구조 시나리오 음식 행동 차단</div><div class="gb">환경·자율성 코칭에 식재료 섞기/메뉴 제안이 얹혀 요구가 2~3개 되는 것 차단(NO_FOOD_ACTION_FRAMES — '한 번에 하나').</div><span class="gi">사고: 요구 3개</span></div>
+      <div class="guard sem"><div class="gn">추천 화이트리스트</div><div class="gb">목록 밖 음식·잘못된 궁합('김치+생선')·없는 사촌을 지어내는 것 차단. buildRecoFacts가 검증된 인기음식·그래프 사촌만 컴파일.</div><span class="gi">사고: 괴식 조합</span></div>
+      <div class="guard sem"><div class="gn">거짓 칭찬 차단</div><div class="gb">아크 reinforce에서 실제 안 일어난 부모 실행을 지어내 칭찬하는 것 차단. 관측된 실행(progressNote)이 있을 때만 강화.</div><span class="gi">사고: 3일 복붙</span></div>
+      <div class="guard sem"><div class="gn">식단 거울 '잘 먹는' 판정</div><div class="gb">기관 급식을 '집에서 잘 먹는다'고 칭찬 세탁(P10), 한 번 먹은 걸 단정하는 것 차단. 집·2일+·거부없음 조건.</div><span class="gi">P10 칭찬 분리</span></div>
+    </div>
+  </div>
+
+  <div class="gcat">
+    <h4>🟢 구조 가드 (v3) <span class="ct" style="background:var(--g500)">집합 차감·게이트</span></h4>
+    <div class="guards">
+      <div class="guard struct"><div class="gn">블록 3일 재사용 0</div><div class="gb">같은 블록 id가 3일(8일 신선도) 내 재등장 차단. 풀 소진 시 3일만 피해 완화(게이트는 항상 0 유지).</div><span class="gi">사고: 3일 복붙</span></div>
+      <div class="guard struct"><div class="gn">동일 조합 재현 차단</div><div class="gb">3일 원장 밖에서 블록 '조합'이 7일 내 byte-동일이면 변형 재선택.</div><span class="gi">아린 6/1↔6/5</span></div>
+      <div class="guard struct"><div class="gn">진단 1회 인용 원장</div><div class="gb">같은 진단 통계를 활성 기간 1회만. 키가 '전역'이라 피벗으로 유닛 바뀌어도 재서술 못 함.</div><span class="gi">원장 전역키</span></div>
+      <div class="guard struct"><div class="gn">intro 7일 재진입 0</div><div class="gb">같은 유닛 도입(진단+왜)이 7일 내 재등장 차단(피벗 재도입 포함).</div><span class="gi">사고: 3일 복붙</span></div>
+      <div class="guard struct"><div class="gn">후보 0 안전 폴백</div><div class="gb">조립 후보 0일 때 LLM 자유생성으로 도망 금지 — 공용 블록→상수 문구로 발행 보장.</div><span class="gi">사고: 폴백·크론 사망</span></div>
+      <div class="guard struct"><div class="gn">prebuild 컷오버 게이트</div><div class="gb">리플레이 30가정×14일 산출에서 구조 지표(블록3일·조합7일·진단재서술·intro재등장·피벗캡·폴백률) 임계 위반을 라이브 전 차단.</div><span class="gi">통합버그 5종</span></div>
+    </div>
+  </div>
+
+  <div class="gcat">
+    <h4>⚫ 운영 가드 <span class="ct" style="background:var(--s700)">시간·영속·일관성</span></h4>
+    <div class="guards">
+      <div class="guard ops"><div class="gn">우아한 강등(SIGKILL 좀비 방지)</div><div class="gb">재생성·검증이 60초를 넘기면 현재 본문 발행(발행&gt;완벽). 크론 50초 예산 가드가 남은 자녀 이월.</div><span class="gi">사고: 크론 사망</span></div>
+      <div class="guard ops"><div class="gn">닻 영속 검사</div><div class="gb">커리큘럼 컬럼 미적용으로 weekly_plans 행이 조용히 거부돼 매일 Sonnet 재종합·ledger 사망하는 것 차단. upsert error 검사+레거시 재시도.</div><span class="gi">크론 사망·원장 전역키</span></div>
+      <div class="guard ops"><div class="gn">QA date 시뮬 라이브 보호</div><div class="gb">과거 날짜 재실행(?date)이 라이브 주 닻·ledger를 파괴하거나 차주 닻 오종합하는 것 차단(일요일 종합 금지).</div><span class="gi">원장 전역키</span></div>
+      <div class="guard ops"><div class="gn">재사용 시 context 전체 보존</div><div class="gb">편지 재사용 시 weekly를 null로 덮어 다음 날 firstOfWeek 오판→같은 주 intro 중복하는 것 차단.</div><span class="gi">사고: 3일 복붙</span></div>
+      <div class="guard ops"><div class="gn">오늘 데이터 동결 차단</div><div class="gb">당일 입력이 발행 편지를 바꾸거나, 식단 같다고 어제로 동결되는 것 차단. 어제까지 평가 + srcHash에 today.</div><span class="gi">편지 동결</span></div>
+      <div class="guard ops"><div class="gn">야간 자가진단</div><div class="gb">'편지 겹친다'를 사람이 매번 제보하던 한계 탈피 — 최근 10일 편지의 유사도(0.45)·거울 누락(80%)·1탭 피드백을 매일 LLM 0콜로 자동 탐지.</div><span class="gi">6/5 제보</span></div>
+      <div class="guard ops"><div class="gn">주말 갭 ≠ 휴면</div><div class="gb">평일 기록만 가정한 휴면 회유가 주말 공백에 일·월마다 오발송되는 것 차단(gapHasWeekday).</div><span class="gi">주말 오발송</span></div>
+    </div>
+  </div>
+
+  <div class="gcat">
+    <h4>🔴 안전 가드 <span class="ct" style="background:var(--r500)">아동 보호</span></h4>
+    <div class="guards">
+      <div class="guard safe"><div class="gn">간식 질식 안전 표시 보존</div><div class="gb">작고 단단한 간식(방울토마토·포도·생당근·견과)을 통째로 권하는 질식 위험 차단. '(반으로 잘라)·(익혀)·(잘게)' 조리 표시 보존.</div><span class="gi">질식 적대검수</span></div>
+      <div class="guard safe"><div class="gn">간식 체중 단어 금지</div><div class="gb">유아 체중 민감 — '체중·살·다이어트·BMI' 노출 차단. stance를 방향(encourage/maintain/reduce)으로만.</div><span class="gi">간식 적대검수</span></div>
+      <div class="guard safe"><div class="gn">과일↔끼니 분리</div><div class="gb">과일을 밥·반찬에 곁들이는 부자연 차단 — 과일은 간식 채널로 따로(fruitMealPairing 정규식).</div><span class="gi">과일 페어링</span></div>
+      <div class="guard safe"><div class="gn">휴면 복귀 죄책감 차단</div><div class="gb">복귀 편지가 '왜 안 하세요·아이 굶어요' 류 압박 주는 것 차단. 과거 잘한 점+'한 끼만 다시' 초대.</div><span class="gi">리텐션 설계</span></div>
+      <div class="guard safe"><div class="gn">시급 예외 3종만 진단 재인용 허용</div><div class="gb">ICFQ 적신호·질식 메모·3일+ 전량거부일 때만 원장 우회 + 전문가 안내. 그 외 진단 재서술 금지.</div><span class="gi">ARFID 안전</span></div>
+      <div class="guard safe"><div class="gn">집 끼니 기준 평가</div><div class="gb">기관 급식 덕을 부모 칭찬으로 돌리지 않게, 적신호·칭찬을 집(place≠daycare) 기준으로 별도 계산.</div><span class="gi">P10 칭찬 분리</span></div>
+    </div>
+  </div>
+
+  <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin:20px 0 4px">⏱ 사고 연대기 — 가드가 자란 자리</h4>
+  <p class="note" style="margin-bottom:12px">엔진의 강건함은 설계가 아니라 <b>사고 → 진단 → 가드 → 리플레이 박제</b>의 반복에서 왔습니다.</p>
+  <div class="timeline">
+    <div class="tl"><div class="td">카레 유령</div><div class="tt">부모 거부 메모를 음식으로 오인 → 거짓 '전환' 날조</div><div class="tx">자유텍스트를 엔진 신호로 쓸 때 토큰 추출이 거짓 세탁. <b>해법: cleanRefusal 통째 드롭 + 전환사실 시나리오 게이팅.</b></div></div>
+    <div class="tl"><div class="td">뷔페·점심 거름</div><div class="tt">주말 하루 메모를 '리듬·패턴'으로 LLM이 과일반화</div><div class="tx">프롬프트 호소로는 못 막음(실증). <b>해법: 사실 카드에 추세 라벨(단발/간헐/반복) + 점심 커버리지 1순위 + detForbid 동적 금지.</b></div></div>
+    <div class="tl"><div class="td">3일 복붙 편지</div><div class="tt">도입·일화·마감이 3일 내내 겹침(사람 제보)</div><div class="tx">전체 유사도만 봐서 '같은 도입+다른 본문' 못 잡음. <b>해법: 도입부 전용 유사도(0.40) + 시그니처 dedup + 의미 검증자 + v3 블록/조합 원장 + 야간 자가진단(제보 탈피).</b></div></div>
+    <div class="tl"><div class="td">크론 사망(SIGKILL)</div><div class="tt">재생성 콜이 60초 초과 → 좀비 → 무편지·폴백 연쇄</div><div class="tx"><b>해법: composeLetter 데드라인 강등 + 크론 50초 예산 가드(남은 자녀 이월) + cron_runs 정상 마감.</b></div></div>
+    <div class="tl"><div class="td">원장 전역키 / 닻 미저장</div><div class="tt">유닛 스코프 키라 피벗하면 같은 사실 재서술 · 컬럼 미적용으로 닻 조용히 거부→매일 재종합</div><div class="tx">리플레이가 적발. <b>해법: 사실 인용 키 '전역'화 + 주간 리셋 + upsert error 검사·레거시 재시도 + QA date 일요일 종합 금지.</b></div></div>
+  </div>
+</section>
+
+<!-- ⑭ Metrics -->
+<section id="metrics">
+  <div class="sec-h"><span class="no">14</span><h2>지표 · 모델 사용 지도</h2><span class="tech">Software Metrics · Cost Map</span></div>
+  <p class="lead">모듈별 규모와 LLM 모델 사용처. v3가 검증을 통과해 컷오버되면 <b>평일 일간 비용이 0</b>이 됩니다.</p>
+  <h4 style="font-size:13px;font-weight:800;color:var(--s800);margin:8px 0">모듈 규모(LOC) — 상위</h4>
+  <div class="bars">
+    <div class="bar"><span class="bl">새벽 코칭 크론</span><div class="bt"><div class="bf" style="width:100%">826</div></div></div>
+    <div class="bar"><span class="bl">코칭 본부 coach.ts</span><div class="bt"><div class="bf" style="width:99%">818</div></div></div>
+    <div class="bar"><span class="bl">영양 신호 계산기</span><div class="bt"><div class="bf b" style="width:68%">561</div></div></div>
+    <div class="bar"><span class="bl">상류 데이터 공급(5파일)</span><div class="bt"><div class="bf b" style="width:63%">524</div></div></div>
+    <div class="bar"><span class="bl">12 수업 유닛 정의</span><div class="bt"><div class="bf v" style="width:50%">417</div></div></div>
+    <div class="bar"><span class="bl">편지 조립기(v3)</span><div class="bt"><div class="bf v" style="width:49%">401</div></div></div>
+    <div class="bar"><span class="bl">주간 작전 사령부</span><div class="bt"><div class="bf" style="width:46%">376</div></div></div>
+    <div class="bar"><span class="bl">사실 원장 컴파일러</span><div class="bt"><div class="bf" style="width:36%">300</div></div></div>
+    <div class="bar"><span class="bl">간식 평가 엔진</span><div class="bt"><div class="bf" style="width:30%">252</div></div></div>
+    <div class="bar"><span class="bl">일간 전개 결정기(v3)</span><div class="bt"><div class="bf v" style="width:28%">232</div></div></div>
+    <div class="bar"><span class="bl">진도 상태기계(v3)</span><div class="bt"><div class="bf v" style="width:27%">221</div></div></div>
+    <div class="bar"><span class="bl">테스트 스위트(7파일)</span><div class="bt"><div class="bf g" style="width:100%">1,763 / 220개</div></div></div>
+  </div>
+  <h4 style="font-size:13px;font-weight:800;color:var(--s800);margin:18px 0 4px">LLM 모델 사용 지도 — "비싼 머리는 두 곳만"</h4>
+  <div class="models">
+    <div class="model haiku">
+      <div class="mh">⚡ Claude Haiku 4.5</div>
+      <div class="mc">기본 작문</div>
+      <div class="mw">v2 편지 작문 · LLM 퇴고 · 의미 검증자 · 오늘의 질문 · 궁합 LLM 폴백 · v3 일요일 회고. <b>편지당 3~7콜(v2).</b></div>
+    </div>
+    <div class="model sonnet">
+      <div class="mh">🧠 Claude Sonnet 4.6</div>
+      <div class="mc">승격 2곳</div>
+      <div class="mw">① <b>주 첫 진단(intro)</b> 편지 — 자녀당 주 1회(월 ~₩100). ② <b>주간 종합</b> — 일요일 의사식 회진으로 차주 닻·goals 산출(자녀당 ~₩630/월).</div>
+    </div>
+    <div class="model none">
+      <div class="mh">🟢 LLM 없음</div>
+      <div class="mc">v3 평일 0콜</div>
+      <div class="mw">상태기계 · 블록 조립 · 영양/사실/진도/간식/추천 계산 · 리플레이 하네스 · 야간 자가진단 — 전부 <b>결정론 순수 함수</b>. v3 일간 비용 소멸.</div>
+    </div>
+  </div>
+  <div class="kpi-grid" style="margin-top:16px">
+    <div class="kpi b"><div class="v">198<small>·549</small></div><div class="l">궁합 그래프</div><div class="s">노드·엣지(궁합 362·사촌 187)</div></div>
+    <div class="kpi g"><div class="v">51<small>종</small></div><div class="l">영양 보석 큐레이션</div><div class="s">must-eat.json</div></div>
+    <div class="kpi"><div class="v">32×183</div><div class="l">키트 음식×식재료</div><div class="s">정성 채점 매트릭스</div></div>
+    <div class="kpi v"><div class="v">13<small>개</small></div><div class="l">v2 시나리오</div><div class="s">트리거·무브·금기</div></div>
+  </div>
+</section>
+
+<!-- ⑮ Scope -->
+<section id="scope">
+  <div class="sec-h"><span class="no">15</span><h2>범위 · 한계 · 현재 상태</h2><span class="tech">Honest Status · 정직 진단</span></div>
+  <p class="lead">이 문서는 <b>2026-06-13 코드 기준</b> 실재하는 것만 그렸습니다. 추측·로드맵은 배제했고, v2/v3의 라이브 상태를 있는 그대로 적습니다.</p>
+  <div class="scope">
+    <div class="scopebox live">
+      <h4>✅ 지금 라이브 (전 자녀)</h4>
+      <ul>
+        <li>v2 경로(planFor → composeLetter + 가드 3종)가 모든 활성 자녀의 매일 편지·질문을 생성</li>
+        <li>주간 작전층(Sonnet 닻·레버·아크·채근 캡)·사실 원장·간식 4축·추천 화이트리스트·휴면 회유 전부 가동</li>
+        <li>야간 자가진단 크론으로 반복·중복·거울 누락 자동 모니터(어드민 issues·alerts)</li>
+        <li>220개 테스트 + prebuild 게이트가 CI에서 통과 시에만 배포</li>
+      </ul>
+    </div>
+    <div class="scopebox canary">
+      <h4>🔬 카나리아 / 대기 (v3)</h4>
+      <ul>
+        <li>v3 조립 경로는 <b>아린 1명</b>(<code>COACH_V3_CHILDREN</code> 플래그)에만 가동 — 3일 모니터(어드민 칩·issues) 중</li>
+        <li>모니터 통과 시 주중 <code>COACH_V3=1</code> 전면 컷오버 예정(절차=WBS 적색박스)</li>
+        <li>일부 신규 SQL 컬럼(weekly_coaching·goals)은 미적용 시 레거시 폴백으로 degrade — 닻 영속 검사가 가시화</li>
+        <li>v3 윤문(LLM 퇴고)은 기본 OFF — 순수 조립 품질을 먼저 측정</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">★ <b>관련 정본 문서</b> — 무엇을·언제(<a href="/coaching-scenarios.html" style="color:var(--p700)">시나리오·간식</a>) · 어떻게 정하고 만드나(<a href="/coaching-plan-engine.html" style="color:var(--p700)">plan 엔진</a>) · 일·주·월 케이던스(<a href="/coaching-weekly-plan.html" style="color:var(--p700)">주간 케이던스</a>) · v3 설계(<a href="/coaching-engine-v3.html" style="color:var(--p700)">엔진 v3</a>) · 작업 WBS(<a href="/coaching-v3-build-plan.html" style="color:var(--p700)">빌드 플랜</a>) · 학부모용(<a href="/coaching-syllabus.html" style="color:var(--p700)">실라버스</a>) · 피치용(<a href="/engine-diagrams.html" style="color:var(--p700)">엔진 다이어그램</a>). <b>이 문서는 그 모두를 코드 단위로 합친 기술 해부도</b>입니다.</p>
+</section>
+
+</main>
+
+<footer>
+  밀프레드 코칭 엔진 · <b>기술 아키텍처 해부도</b> · 37 모듈 7,035줄 코드 정독 · 소프트웨어 공학 시각화 15기법<br>
+  작성 2026-06-13 · 코드 기준 라이브(v2) + 카나리아(v3) · <a href="/docs.html" style="color:var(--n500)">← 문서 허브</a>
+</footer>
+
+</body>
+</html>
