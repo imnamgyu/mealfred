@@ -68,11 +68,20 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <tr><td>E 주간 포트폴리오</td><td>10</td><td>10</td><td>✅ 완료 `763aa94`(E-01은 `0aeb526`) — goals 산출·온보딩 게이트·피로 캡·크론 E-07 배선(부분 — 메모 신호·진도·주차는 H-02)</td></tr>
 <tr><td>F 일간 전개</td><td>10</td><td>10</td><td>✅ 완료 `763aa94`·`fecd24b` — decideDailyV3 결정표·시급 3종·10일 통주(F-09 플래그 분기는 H-01과 함께 검증)</td></tr>
 <tr><td>G 질문 정렬</td><td>10</td><td>10</td><td>✅ 완료 `763aa94` — 측정공백·쿨다운/캡·파서·답변 블렌딩 6유닛·피드백 루프 4일 통주. ⭐B-04 잠복버그(매핑 키 비교) 수정</td></tr>
-<tr><td>H 컷오버</td><td>12</td><td>0</td><td>⬜ 다음(D5)</td></tr>
-<tr><td>I 리플레이·지표</td><td>8</td><td>0</td><td>⬜ 다음(D5)</td></tr>
-<tr><td>J 운영</td><td>6</td><td>0</td><td>⬜</td></tr>
-<tr><td><b>합계</b></td><td><b>131</b></td><td><b>105</b></td><td><b>✅ D1~D4 완료(테스트 221·빌드 그린) → 다음: D5(H 크론 통합·I 리플레이 지표·컷오버)</b></td></tr>
+<tr><td>H 컷오버</td><td>12</td><td>11</td><td>✅ 코드 완료 `87b9747`(플래그·v3 메인 루프·회고·reuse 보존·어드민 칩/진도 보드) — <b>H-11만 ⏸ 운영 절차 대기(아래 컷오버 절차)</b></td></tr>
+<tr><td>I 리플레이·지표</td><td>8</td><td>8</td><td>✅ 완료 `7ed2689`·`7730da2` — 30가정 통주 prebuild 게이트(suite 0.7s=I-08 충족)·아린 14통 4사고 재현 0·TH 보정 불요 판정. 리플레이+정독이 통합 버그 5종 적발(원장 스코프·intro 재등장·lowdata 고갈·동일 조합·사실-유닛 결)</td></tr>
+<tr><td>J 운영</td><td>6</td><td>0</td><td>⬜ 컷오버 후(D5+) — 단 J-01/J-02/J-05의 원료(v3 ctx.llmCalls·경고 issues·폴백 플래그)는 H-02가 이미 기록</td></tr>
+<tr><td><b>합계</b></td><td><b>131</b></td><td><b>124</b></td><td><b>✅ D1~D5 코드 완료(테스트 229·빌드 그린) → 남은 것: H-11 카나리아 컷오버(운영) + J(컷오버 후)</b></td></tr>
 </table></div>
+
+<div class="warn"><b>🚀 H-11 — 컷오버 절차(준비 완료 · 운영 대기 2026-06-13)</b>
+<ol style="font-size:13px">
+<li><b>게이트 확인(완료)</b>: I-06 수치 게이트 전부 통과 — 30가정×14일 + 아린 실데이터 14통(4사고 재현 0·블록/조합 중복 0·재서술 0·폴백 0·LLM 0콜). 매 배포 prebuild가 같은 리허설을 재실행.</li>
+<li><b>아린 카나리아</b>: Vercel env <code>COACH_V3_CHILDREN=43942d34-b339-4bbd-978a-ec3f6a877031</code> 설정 → 다음 새벽 크론부터 아린만 조립식. QA는 <code>/api/cron/coach?child=&lt;id&gt;&amp;force=1</code> 즉시 실행 + 어드민 스레드 🧱조립식 칩·<code>/admin/curriculum</code> 진도 보드 확인.</li>
+<li><b>3일 모니터</b>: 어드민 칩(폴백·시급·경고)·cron_runs.issues(v3 경고/폴백/진도 저장 실패)·편지 육안. 이상 시 env 제거=즉시 레거시 복귀(데이터 additive·무손상).</li>
+<li><b>전체 ON</b>: <code>COACH_V3=1</code> — <b>주중(월~목) 아침 크론 전</b>(이사님 확정·주말 회피). 48h 모니터 후 안정 선언.</li>
+<li>각 단계 일지 기록. 컷오버 후 J 에픽(모니터 집계·문서 동기화 J-03: plan-engine 현행 절 v3 갱신·구 api/coach 410 검토).</li>
+</ol></div>
 
 <div class="ok"><b>🔧 구현 비고(2026-06-13 — 명세 대비 확정 사항, 문서≒코드 정합)</b>
 <ul>
@@ -601,101 +610,101 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 </div>
 <h2>EPIC H — 크론 통합·컷오버 <span class="tag d5">D5</span></h2>
 
-<div class="atom" id="H-01"><h4><span class="st">⬜</span>H-01 · 컷오버 플래그 <span class="sz">코드 · 0.2h</span></h4>
+<div class="atom" id="H-01"><h4><span class="st done">✅</span>H-01 · 컷오버 플래그 <span class="sz">코드 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span><code>COACH_V3=1</code> env(Vercel) — 일간 편지 경로 분기(F-09). 미설정=기존 경로(즉시 롤백=env 끄기). 자녀 단위 카나리아: <code>COACH_V3_CHILDREN=id1,id2</code>(아린 먼저).</div>
 <div class="row"><span class="k">테스트</span>H-01-1 플래그 OFF 기존 경로 byte-호환(리플레이 비교).</div>
 </div>
 
-<div class="atom" id="H-02"><h4><span class="st">⬜</span>H-02 · 크론 배선 — v3 메인 루프 <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="H-02"><h4><span class="st done">✅</span>H-02 · 크론 배선 — v3 메인 루프 <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">명세</span>자녀 루프 내 v3 분기: ①진도 로드(curriculum_progress 일괄 select — 자녀당 1쿼리) ②advanceProgress(B-23) ③assembleLetter(D) ④진도 upsert+letterCtx upsert(buildLetterCtx 단일 함수 D-10) ⑤질문(G-03). LLM 콜: 평일 0~1(윤문 ON 시), 일요일 +1(Sonnet 종합)+1(회고 E-08) — TIME_BUDGET 산수 재계산 주석(자녀당 ~1.5s 평일 → <b>30자녀/실행 여유</b> — S7 해소 수치 명시).</div>
 <div class="row"><span class="k">테스트</span>H-02-1 모의 supabase로 루프 1자녀 왕복(읽기 fixture 주입 — I-05 러너 재사용).</div>
 </div>
 
-<div class="atom" id="H-03"><h4><span class="st">⬜</span>H-03 · intro/회고 소형 프롬프트 분리 <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="H-03"><h4><span class="st done">✅</span>H-03 · intro/회고 소형 프롬프트 분리 <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>자유작문 잔존면 전용 <code>buildIntroUser()</code>(신규·300자급): 사실 카드 5장+behavior_goal+금지 6줄만. 기존 buildLetterUser는 컷오버 후 휴면 경로 전용으로 강등(삭제는 안정화 후 — J-03). 검증자·det 가드는 잔존면에 유지.</div>
 <div class="row"><span class="k">테스트</span>H-03-1 프롬프트 스냅샷(지시 수 ≤25 — 희석 곡선 안전권).</div>
 </div>
 
-<div class="atom" id="H-04"><h4><span class="st">⬜</span>H-04 · 휴면·복귀 경로 유지 <span class="sz">코드 · 0.2h</span></h4>
+<div class="atom" id="H-04"><h4><span class="st done">✅</span>H-04 · 휴면·복귀 경로 유지 <span class="sz">코드 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>reengage 경로 무변경(주말 갭 가드 S4 적용분 유지) — 진도 동결(F-07) 연동만 추가.</div>
 <div class="row"><span class="k">테스트</span>기존 케이스 회귀 그린.</div>
 </div>
 
-<div class="atom" id="H-05"><h4><span class="st">⬜</span>H-05 · 시간 예산 v3 <span class="sz">코드 · 0.2h</span></h4>
+<div class="atom" id="H-05"><h4><span class="st done">✅</span>H-05 · 시간 예산 v3 <span class="sz">코드 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>deadlineMs 유지(잔존면용). v3 경로는 LLM 의존 낮아 per-child 가드만(50s 체크 위치 루프 상단 유지 + 일요일 Sonnet 콜 전 체크 추가).</div>
 <div class="row"><span class="k">테스트</span>H-05-1 일요일 예산 초과 시 종합 스킵→차주 lazy(기존 안전망).</div>
 </div>
 
-<div class="atom" id="H-06"><h4><span class="st">⬜</span>H-06 · 닻 장애 경보(M9) <span class="sz">코드 · 0.2h</span></h4>
+<div class="atom" id="H-06"><h4><span class="st done">✅</span>H-06 · 닻 장애 경보(M9) <span class="sz">코드 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>loadAnchor 연속 실패/upsert legacy 폴백 발동 시 issues.push("닻 저장 장애 — 매일 재종합 모드") — 조용한 비용 누수 가시화.</div>
 <div class="row"><span class="k">테스트</span>H-06-1 폴백 시 이슈 기록.</div>
 </div>
 
-<div class="atom" id="H-07"><h4><span class="st">⬜</span>H-07 · reuse 경로 v3 <span class="sz">코드 · 0.2h</span></h4>
+<div class="atom" id="H-07"><h4><span class="st done">✅</span>H-07 · reuse 경로 v3 <span class="sz">코드 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>reuse 보존 목록에 blocks·factsCited·decision 추가(S6 일반해 — buildLetterCtx가 prev에서 복원).</div>
 <div class="row"><span class="k">테스트</span>H-07-1 reuse 후 원장 연속성(다음 날 dedup 정상).</div>
 </div>
 
-<div class="atom" id="H-08"><h4><span class="st">⬜</span>H-08 · 어드민 칩 확장 <span class="sz">코드 · 0.3h</span></h4>
+<div class="atom" id="H-08"><h4><span class="st done">✅</span>H-08 · 어드민 칩 확장 <span class="sz">코드 · 0.3h</span></h4>
 <div class="row"><span class="k">명세</span>편지 헤더 칩에 추가: <code>유닛·step·mode</code>(decision) + fallback 플래그. 기존 칩(sig·sim·verify) 유지(잔존면용).</div>
 <div class="row"><span class="k">테스트</span>수동 QA(어드민 페이지 — 스냅샷 선택).</div>
 </div>
 
-<div class="atom" id="H-09"><h4><span class="st">⬜</span>H-09 · 어드민 진도 보드 <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="H-09"><h4><span class="st done">✅</span>H-09 · 어드민 진도 보드 <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">명세</span><code>/admin/curriculum</code>: 자녀×12유닛 매트릭스(status 색·step·last_signal)·재발 하이라이트·주간 goals 표시. read-only(서버 컴포넌트·기존 어드민 게이트). "달성 시 안 가르치고 무너지면 재감지"가 한눈에 보이는 화면.</div>
 <div class="row"><span class="k">테스트</span>수동 QA + RLS(서버만).</div>
 </div>
 
-<div class="atom" id="H-10"><h4><span class="st">⬜</span>H-10 · 온디맨드 패리티 확인 <span class="sz">검증 · 0.2h</span></h4>
+<div class="atom" id="H-10"><h4><span class="st done">✅</span>H-10 · 온디맨드 패리티 확인 <span class="sz">검증 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>폴백=크론 호출(기배포)이 v3 플래그를 그대로 타는지 확인만(추가 코드 0). api/coach 구 라우트는 컷오버 후 410 처리 검토(J-03).</div>
 <div class="row"><span class="k">테스트</span>H-10-1 플래그 ON 상태 폴백 경로 호출이 v3 편지 생성.</div>
 </div>
 
-<div class="atom" id="H-11"><h4><span class="st">⬜</span>H-11 · 컷오버 절차·롤백 <span class="sz">절차 · 0.3h</span></h4>
+<div class="atom" id="H-11"><h4><span class="st wip">⏸</span>H-11 · 컷오버 절차·롤백 <span class="sz">절차 · 0.3h</span></h4>
 <div class="row"><span class="k">명세</span>순서: ①I-06 게이트 통과 확인 ②아린 카나리아 3일(COACH_V3_CHILDREN) ③전체 ON ④48h 모니터(J-01 지표) ⑤이상 시 env OFF 즉시 롤백(데이터는 additive라 무손상). 각 단계 일지 기록.</div>
 <div class="row"><span class="k">DoD</span>절차 문서화+카나리아 결과 기록.</div>
 </div>
 
-<div class="atom" id="H-12"><h4><span class="st">⬜</span>H-12 · EPIC H 통합 테스트 <span class="sz">테스트 · 0.5h</span></h4>
+<div class="atom" id="H-12"><h4><span class="st done">✅</span>H-12 · EPIC H 통합 테스트 <span class="sz">테스트 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>플래그 분기·reuse·경보 케이스(≈8) + tsc/build/test 게이트.</div>
 </div>
 
 <h2>EPIC I — 리플레이·지표·검증 <span class="tag d5">D5</span></h2>
 
-<div class="atom" id="I-01"><h4><span class="st">⬜</span>I-01 · v3 지표 정의 <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="I-01"><h4><span class="st done">✅</span>I-01 · v3 지표 정의 <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>리플레이 리포트 지표(설계 §5 교체분): ①블록 3일 중복률(목표 0%) ②진단 사실 재서술 건수(목표 0) ③같은 주제 도입 연속일 p95(목표 ≤2) ④피벗 정확성(정체→피벗 결정 일치율 100% — 결정론이므로) ⑤전개 규칙 위반 0 ⑥mode 분포(advance·deepen 비중 — 흐름 건강도) ⑦LLM 콜/통 ⑧주제 피로(같은 unit focus 연속 주). 산출 함수 <code>replayMetrics(letters[]): Report</code>.</div>
 <div class="row"><span class="k">테스트</span>I-01-1 지표 함수 단위 케이스.</div>
 </div>
 
-<div class="atom" id="I-02"><h4><span class="st">⬜</span>I-02 · 합성 가정 생성기 <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="I-02"><h4><span class="st done">✅</span>I-02 · 합성 가정 생성기 <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">명세</span><code>scripts/gen-synthetic.mjs</code>: 페르소나 파라미터(등원 여부·주말 기록 습관·env 나쁨·거부 잦음·정체형/순응형/재발형…)로 30가정×14~28일 meal_logs 합성(fixture JSON). 결정론 시드. 과거 사고 11건은 전용 fixture(아린 실데이터 캡처 — capture-fixture.mjs)로 별도.</div>
 <div class="row"><span class="k">테스트</span>I-02-1 생성 재현성 · I-02-2 페르소나 신호 분포 sanity.</div>
 </div>
 
-<div class="atom" id="I-03"><h4><span class="st">⬜</span>I-03 · 임계 보정 리플레이 <span class="sz">검증 · 0.5h</span></h4>
+<div class="atom" id="I-03"><h4><span class="st done">✅</span>I-03 · 임계 보정 리플레이 <span class="sz">검증 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>30가정 통주 → 지표 리포트 → TH 상수 조정(예: stallDays 6이 순응형에서 과민하면 7) → 재실행. 보정 결과는 B-03 주석에 근거 기록(숫자가 '느낌'이 아니라 리플레이 산출).</div>
 <div class="row"><span class="k">DoD</span>보정 전후 리포트 2장 일지 첨부.</div>
 </div>
 
-<div class="atom" id="I-04"><h4><span class="st">⬜</span>I-04 · 실데이터 병행 검증 <span class="sz">검증 · 0.5h</span></h4>
+<div class="atom" id="I-04"><h4><span class="st done">✅</span>I-04 · 실데이터 병행 검증 <span class="sz">검증 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>아린 6/1~6/12 fixture로 v3 통주 — 산출 편지 14통 전문을 사람 정독(전수 마커 스캐너 + 눈) + "사고들이 v3에서 재현 불가" 확인(뷔페·점심·복붙·주제수렴 각각 해당 fixture 날짜에서 검증).</div>
 <div class="row"><span class="k">DoD</span>4사고 재현 0 리포트.</div>
 </div>
 
-<div class="atom" id="I-05"><h4><span class="st">⬜</span>I-05 · 리플레이 러너 확장 <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="I-05"><h4><span class="st done">✅</span>I-05 · 리플레이 러너 확장 <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">명세</span>tests/replay.test.ts에 v3 통주 모드(fixture→일별 advanceProgress+assembleLetter→지표 단언). LLM 0콜이므로 CI(prebuild)에 풀 포함 가능 — <b>매 배포가 30가정×14일 리허설을 통과해야 함</b>(복리의 완성).</div>
 <div class="row"><span class="k">테스트</span>자체가 테스트.</div>
 </div>
 
-<div class="atom" id="I-06"><h4><span class="st">⬜</span>I-06 · 컷오버 게이트 기준 <span class="sz">기준 · 0.2h</span></h4>
+<div class="atom" id="I-06"><h4><span class="st done">✅</span>I-06 · 컷오버 게이트 기준 <span class="sz">기준 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>수치 게이트: 블록 중복 0 · 재서술 0 · 전개 위반 0 · 도입 주제 연속 p95≤2 · fallback률&lt;3% · 아린 정독 통과. 미달 시 컷오버 보류(원자 단위 수정 후 재실행).</div>
 </div>
 
-<div class="atom" id="I-07"><h4><span class="st">⬜</span>I-07 · 사고 박제 절차 통합 <span class="sz">프로세스 · 0.2h</span></h4>
+<div class="atom" id="I-07"><h4><span class="st done">✅</span>I-07 · 사고 박제 절차 통합 <span class="sz">프로세스 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>신규 사고 발생 시: capture-fixture→fixture 추가→재현 테스트(red)→수정(green)→지표 리포트 첨부. C-20(블록 증식)과 한 문서로(J-04).</div>
 </div>
 
-<div class="atom" id="I-08"><h4><span class="st">⬜</span>I-08 · CI 시간 예산 <span class="sz">검증 · 0.2h</span></h4>
+<div class="atom" id="I-08"><h4><span class="st done">✅</span>I-08 · CI 시간 예산 <span class="sz">검증 · 0.2h</span></h4>
 <div class="row"><span class="k">명세</span>prebuild 총 시간 측정 — 목표 &lt;60s(Vercel 빌드 영향 한정). 초과 시 리플레이 가정 수 빌드용 축소 세트(10가정)+풀 세트는 <code>npm run test:full</code> 분리.</div>
 </div>
 

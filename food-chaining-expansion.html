@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>푸드체이닝 2축 확장 전략 — 사촌×익숙 조리법 · 잘 먹는 음식×새 조리법 (발제 검토 보고서)</title>
+<meta property="og:title" content="푸드체이닝 2축 확장 — 발제 검토 보고서">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p:#E89244;--p7:#B86A20;--mut:#8a7a6a;--line:#eee2d4;--bg:#FFFDFB}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:var(--bg);color:#2a2118;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:48px 22px 80px}
+h1{font-size:24px;letter-spacing:-0.02em;margin-bottom:10px}
+h2{font-size:19px;margin:38px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--p)}
+h3{font-size:15.5px;margin:20px 0 8px;color:var(--p7)}
+p{margin:8px 0;font-size:14.5px}
+li{font-size:14px;margin:5px 0 5px 18px}
+.lead{color:#5a4a3a;font-size:14px}
+.ok{background:#F2FAF4;border:1.5px solid #9CCFA8;border-radius:10px;padding:12px 14px;font-size:13.5px;margin:12px 0}
+.warn{background:#FFF5F5;border:1.5px solid #E53935;border-radius:10px;padding:12px 14px;font-size:13.5px;margin:12px 0}
+.note{background:#FFF8F2;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;margin:12px 0}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:12.5px}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#FFF3E6;font-size:12px}
+code{background:#F6EFE7;border-radius:5px;padding:1px 5px;font-size:12px}
+.src{font-size:11px;color:var(--mut)}
+footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line);margin-top:48px}
+</style>
+</head><body><div class="wrap">
+
+<h1>푸드체이닝 2축 확장 전략 — 발제 검토 보고서</h1>
+<p class="lead">2026-06-13 · 이사님 발제 → 이론 체크(원전·식약처) + 우리 데이터 자산 매핑 + 적용 설계. 상태: <b>검토 완료 — 구현 승인 대기</b></p>
+
+<h2>0. 발제 요지 (이사님 · 2026-06-13)</h2>
+<div class="ok">아이의 편식 교정 전개를 이렇게 운영하자: ① 먼저 <b>잘 먹는 식재료·음식·조리기법을 판단</b>하고 ② <b>새 식재료</b>는 「익숙한 식재료의 사촌 + 익숙한 조리기법」으로 추천, ③ <b>새 조리기법</b>은 「잘 먹는 음식에서 새 조리기법」으로 추천 — 두 축을 번갈아 확장한다. 우리에게 식재료·음식 네트워크가 있으니 ④ <b>도감 상세페이지</b>의 조리법 추천도 이 기반으로, ⑤ <b>코칭 편지</b>에도 이 전략을 녹인다.</div>
+
+<h2>1. 이론 체크 — 푸드체이닝 원전과 국내 공식 지침</h2>
+<h3>1-1. 원전이 말하는 것</h3>
+<ul>
+<li><b>정의</b>: 푸드체이닝 = 수용 음식과 타깃 음식 간 <b>유사 특징을 강조</b>해 레퍼토리를 확장하는 개별화·비위협적·가정기반 프로그램. <span class="src">Fishbein·Fraker 외, Nutrition in Clinical Practice 2006 [원전 논문]</span></li>
+<li><b>변형 축</b>: 원전 계열은 <b>맛·온도·질감</b> 3축 중심(후속 임상 자료는 색·형태·브랜드까지 확장). 사슬 설계는 ①좋아하는 음식 목록 ②패턴 분석 — 질감·맛·<b>조리법(굽기/그릴/튀김/볶음)</b>·곁들임 ③타깃 선정 ④사슬 구성. <span class="src">Fraker 외 2007(대중서 원전) · Boston Children's Hospital 핸드아웃 2018 [병원 지침]</span></li>
+<li><b>"한 번에 한 축"</b>: "색·질감·맛·모양 중 한 번에 1개 속성만 변경 — 둘 이상 바꾸면 novelty 과부하". 원전 본문 직접 인용은 미확보, 임상 보급 자료(병원·SLP)에서 정식화. <span class="src">Akron Children's 2017 외 [병원/2차]</span></li>
+<li><b>맛 우선(flavor mapping)</b>: 수용 음식의 '맛 패밀리' 분석이 설계의 출발점·친숙한 맛에 새 음식을 얹는 flavor masking이 핵심 도구 — 2차 자료에서 일관 지지(원전 직접 인용 미확보로 표기). <span class="src">[2차]</span></li>
+<li><b>근거 수준(정직)</b>: 원전의 효과 근거는 <b>차트리뷰(사례군)</b>. ARFID 치료 전반에 RCT 부재 — "검증된 임상 체계이나 고수준 근거는 아직"이 정확한 표현. AI 푸드체이닝 RCT가 2026 현재 진행 중. <span class="src">PMC9100178 · NCT07006961 [논문/임상시험등록]</span></li>
+</ul>
+<h3>1-2. 국내 공식 지침 — '푸드체이닝' 직접 언급은 없다</h3>
+<ul>
+<li>식약처·중앙급식관리지원센터 공식 지침에서 '푸드체이닝' 용어는 <b>미발견</b>(사설·육아 매체 수준에서만 등장).</li>
+<li>가장 가까운 국내 공식 개념 = <b>'푸드브릿지(Food Bridge) 4단계'</b>: 식약처 공식 포털(dietary4u.mfds.go.kr)·전국 어린이급식관리지원센터·보건소 특화사업으로 운영 — ①친해지기(채소 도장찍기 등 비식이 접촉) ②간접 노출(키우기) ③소극적 노출(체험) ④적극적 노출(요리실습·본연의 맛). <span class="src">[공공지침]</span></li>
+<li>⚠️ <b>개념 구분</b>: 식약처 푸드브릿지는 단일 식재료에 대한 <b>감각 단계 노출 사다리</b>(SOS 계열)이고, 푸드체이닝은 <b>음식→음식 유사성 사슬</b>이다. 우리 서비스는 이미 둘 다 갖고 있다 — 노출 사다리=v3 <code>exposure-savings</code>·<code>sensory-texture</code> 유닛, 사슬=food-graph 사촌(<code>PersonalBridge</code>). 발제는 후자(사슬)를 조리기법 축으로 확장하는 것.</li>
+<li><b>조리법 변형의 근거(조건부)</b>: 같은 음식·같은 조리 반복 → 권태(food jag) → 레퍼토리 축소를 형태 변형으로 예방(Toomey 2002·BCH "거부 시 조리법 기록 후 다음엔 다른 조리법으로 실험"). 단, 조리법 효과는 <b>아이마다 다르다</b> — "조리법이 아니라 조리시간(아삭함)이 결정"(Poelman) 연구도 있어, '조리법 바꾸면 먹는다'가 아니라 <b>"한 형태의 거부 ≠ 식재료의 거부 — 형태를 바꿔 재노출할 근거"</b>로 쓰는 게 정확. <span class="src">Zeinstra 2011 · Poelman&Delahunty [논문]</span></li>
+<li><b>안전 경계(2025 식약처 개정)</b>: 만 2세 이하 떡류 원칙 미제공·젤리/사탕 전 영유아 미제공·방울토마토/포도류 세로 절단+껍질 제거·견과/콩류 2세까지 제외 — 조리기법 추천의 하드 가드레일. <span class="src">[공공지침]</span></li>
+</ul>
+
+<h2>2. 판정 — 발제는 원전 원칙의 '데이터 조작화'다</h2>
+<div class="ok"><b>정합 판정: 이론과 잘 맞는다.</b> 이사님의 2축은 원전의 "한 번에 한 속성만 변경"을 우리 데이터로 계산 가능한 형태로 접은 것이다:
+<ul>
+<li><b>새 식재료 = 사촌 × 익숙 조리법</b> → 식재료 축만 변형(조리법·맛 베이스 고정) = 원전의 유사성 사슬. 사촌(같은 식품군·색·질감)이 맛·질감 유사성의 프록시, 익숙 조리법이 '맛 패밀리 고정'의 프록시.</li>
+<li><b>새 조리법 = 잘 먹는 음식 × 새 조리법</b> → 조리법 축만 변형(식재료 고정) = food jag 예방 + 선호 형태 발견 실험. "감자볶음은 먹는데 감자전은?"</li>
+<li>두 축을 <b>동시에 바꾸지 않는다</b>는 운영 규칙이 자동으로 따라온다 — novelty 과부하 차단이 추천 구조 자체에 내장.</li>
+</ul>
+단서 2개: ① 조리법 추천은 '실험' 프레임으로(보장 어조 금지 — 효과는 조건부) ② 근거 수준은 사례군이므로 마케팅 문구에서 '검증된 임상 프로그램' 단정 금지("국제 임상 현장에서 쓰이는 접근" 수준).</div>
+
+<h2>3. 우리 데이터 자산 매핑 — 이미 8할이 있다</h2>
+<table>
+<tr><th>필요한 것</th><th>가진 것</th><th>비고</th></tr>
+<tr><td>① 잘 먹는 식재료/음식 판단</td><td>크론이 매일 계산 — <code>favIngFreq</code>(거부 아닌 식재료 빈도)·<code>favMenu</code>(잘 먹은 메뉴 top8)</td><td>이미 푸드체이닝 출발점으로 쓰는 중</td></tr>
+<tr><td>② 식재료 사촌</td><td><code>food-graph.json</code> bridge 175(수기 큐레이션 사촌) + pair 362(레시피 4,727 동시출현 궁합)</td><td>PersonalBridge·편지 bridgeFacts에 기배선</td></tr>
+<tr><td>③ 식재료 × 조리기법</td><td><code>cookingMatrix</code>(hansikGuide=급식 실측 + cookingGroups=한식·양식·중식·일식 그룹) · <code>ingredient-recipes</code>(연령별 레시피·top pick)</td><td>도감 상세 '어떻게 조리?'에 기배선</td></tr>
+<tr><td>④ 메뉴 → 조리기법 추출</td><td><b>없음(신규·소형)</b> — 메뉴명 접미 결정론 파싱: 구이·볶음·찜·전·조림·국/탕·무침·튀김(제외)…</td><td>learned_menus 9,988로 즉시 검증 가능</td></tr>
+<tr><td>⑤ 인기 음식 폴백</td><td><code>ingredient-recipes</code> freq + <code>kit-dish-matrix</code></td><td>편지 '인기 음식 이름만' 정책(16차 확정)의 소스</td></tr>
+<tr><td>⑥ 안전 가드</td><td>질식 prep 표기·매운 제외·괴식 차단(letterDeterministicBad·블록 린터)</td><td>2025 식약처 절단·연령 규정과 정합 — 연령 가드만 보강</td></tr>
+</table>
+<p class="note"><b>신규로 만들 것은 ④ 하나 + 2축 후보 함수뿐</b>이다. 아이별 '익숙 조리기법 집합'은 <code>favMenu</code>의 메뉴명을 ④로 분해하면 바로 나온다(예: 감자<b>볶음</b>·계란<b>말이</b>·생선<b>구이</b> 잘 먹음 → 익숙 기법={볶음·말이·구이}).</p>
+
+<h2>4. 추천 알고리즘 — 2축 확장 매트릭스(전부 결정론·LLM 0)</h2>
+<h3>아이 상태 벡터</h3>
+<ul>
+<li><code>F</code> = 잘 먹는 식재료 집합(favIngFreq 상위) · <code>M</code> = 잘 먹는 메뉴 · <code>C</code> = 익숙 조리기법 집합(M을 ④로 분해)</li>
+</ul>
+<h3>축 1 — 새 식재료(식재료만 변형)</h3>
+<ul>
+<li>후보 = <code>bridge(F) ∖ F</code>(잘 먹는 식재료의 사촌 중 미경험/거부) — 사촌별로 <code>cookingGroups[후보] ∩ C</code>가 비어 있지 않은 것만 채택.</li>
+<li>출력 예: "오이를 잘 먹으니, 닮은 <b>애호박</b>을 익숙한 <b>전</b>으로" / 조리 교집합이 없으면 인기 음식 이름 폴백("또래는 애호박된장국으로 자주 먹어요").</li>
+</ul>
+<h3>축 2 — 새 조리기법(조리법만 변형)</h3>
+<ul>
+<li>후보 = 식재료 <code>f ∈ F</code>에 대해 <code>cookingGroups[f] ∖ C</code> — 그 식재료의 검증된 조리법 중 이 아이가 아직 안 만난 것.</li>
+<li>출력 예: "감자볶음을 잘 먹으니, 같은 감자를 <b>찜</b>으로도" — '실험' 어조 고정("거부하면 원래 형태로 바로 돌아와요").</li>
+</ul>
+<h3>공통 규칙</h3>
+<ul>
+<li><b>한 번에 한 축</b> — 두 축 추천을 같은 카드/편지에 섞지 않는다(v3 '한 번에 하나' 원칙과 동일).</li>
+<li><b>안전 필터</b> — 연령별 질식 형태(2025 지침: 절단·미제공 목록)·매운·튀김 제외는 기존 가드 재사용 + 연령 컷 추가.</li>
+<li><b>편지 경계(기존 결정 유지)</b> — 편지에는 조리법 '상세'(양념·불세기) 금지·검증된 <b>인기 음식 이름</b> 중심(16차 확정). 2축은 편지에서 "익숙한 구이로", "같은 감자를 찜으로" 수준의 <b>방향어</b>까지만. 조리법 상세는 <b>도감 상세페이지</b> 담당(이미 노출 중).</li>
+</ul>
+
+<h2>5. 적용 지점 3 (발제 ④⑤의 구체화)</h2>
+<table>
+<tr><th>지점</th><th>현재</th><th>2축 적용 후</th></tr>
+<tr><td><b>도감 상세</b>(식재료 탭)</td><td>PersonalBridge(사촌·궁합) + cookingGuide(일반 조리법)</td><td>'<b>이 아이 기준</b>' 카드 신설: 이 식재료가 사촌 후보면 "익숙한 ○○(기법)으로 첫 만남" / 이미 잘 먹으면 "다음 실험: △△(새 기법)" — 같은 페이지가 아이마다 다른 다음 걸음을 제시</td></tr>
+<tr><td><b>코칭 편지</b>(bridgeFacts·{food})</td><td>사촌+인기 음식 이름(괴식 0 실적)</td><td>bridgeFacts 생성 시 <code>C</code>(익숙 기법) 필터로 정밀화 — v3 <code>food-bridge</code> 유닛의 {food} 공급원이 "사촌×익숙 기법" 교집합이 됨. 체이닝 4축 중 '한 축만 변형'이 데이터로 보장</td></tr>
+<tr><td><b>박스·레시피</b></td><td>💎우선 배합·코치PICK</td><td>박스 reason에 축 표기("오이의 사촌·익숙한 전") · 레시피 빌더 정렬에 C 가중</td></tr>
+</table>
+
+<h2>6. 구현 로드맵 (제안 — v3 컷오버와 독립·전부 additive)</h2>
+<table>
+<tr><th>단계</th><th>내용</th><th>규모</th></tr>
+<tr><td><b>A. 코어</b></td><td>④ 조리기법 추출기(<code>methodOf(menu)</code> 결정론·learned_menus로 검증) + 2축 후보 함수(<code>expandCandidates(F,M)</code>) + 테스트 — lib 1파일</td><td>0.5일</td></tr>
+<tr><td><b>B. 도감</b></td><td>도감 상세 '이 아이 기준 다음 걸음' 카드(로그인 시) — PersonalBridge 확장</td><td>0.5일</td></tr>
+<tr><td><b>C. 편지</b></td><td>bridgeFacts에 C 필터 + food-bridge 유닛 {food} 공급 정밀화 — <b>v3 카나리아 안정 후</b>(컷오버 변수 줄이기)</td><td>0.5일</td></tr>
+<tr><td><b>D. 체득 추적(후속)</b></td><td>축별 수용 이력을 exposure-savings evidence에 적립 → "기법 먼저 vs 식재료 먼저" 아이별 반응을 리플레이로 학습(임계 보정과 동일 루프)</td><td>로드맵</td></tr>
+</table>
+
+<h2>7. 리스크·금지선</h2>
+<ul>
+<li><b>근거 어조</b>: "검증된 임상 프로그램" 단정 금지 — 사례군 수준 + 국제 임상 현장 사용으로 표현. 식약처 인용은 '푸드브릿지(노출 사다리)'와 혼동하지 않게 정확히.</li>
+<li><b>조리법 만능 금지</b>: 효과 조건부(Poelman) — "바꾸면 먹어요"가 아니라 "한 형태 거부가 그 식재료의 끝이 아니에요" 프레임.</li>
+<li><b>괴식·질식</b>: 후보는 전부 검증 테이블(cookingGroups·인기 음식) 안에서만 — 목록 밖 조합 생성 금지(기존 화이트리스트 원칙). 연령 컷(2세 이하 목록) 추가.</li>
+<li><b>요구 과부하</b>: 2축이 매일 번갈아 나오면 그것도 채근 — v3 주간 포트폴리오(food 유닛이 goals에 있는 주에만 행동 등장)와 노출 주기(격일·권태 방지)를 그대로 따른다.</li>
+</ul>
+
+<div class="warn"><b>이사님 결정 필요</b> — ① 로드맵 A·B(도감 우선) 착수 승인 ② 편지 적용(C)은 v3 카나리아 안정 후로 좋은지 ③ 도감 카드 명칭(예: "오늘의 다음 걸음" / "우리 아이 맞춤 첫 만남") 취향.</div>
+
+<footer>밀프레드 — 푸드체이닝 2축 확장 발제 검토 보고서 · 2026-06-13 · 근거: 원전(NCP 2006)·BCH 2018·식약처 dietary4u(푸드브릿지)·Zeinstra/Poelman · 자산: food-graph(175·362)·cookingMatrix·learned_menus 9,988</footer>
+</div></body></html>
