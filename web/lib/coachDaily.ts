@@ -122,6 +122,16 @@ export function decideDailyV3(p: DailyV3Input): DailyV3Result {
     }
   }
 
+  // ⭐ maintain 연속 캡(이사님 Task3) — 같은 유닛 maintain 3연속 금지(정체 위안만 반복). 3번째는 deepen으로 재개(행동 권유 복귀).
+  if (decision && decision.mode === 'maintain') {
+    const last2 = (p.prevDecisions || []).slice(0, 2);
+    if (last2.length === 2 && last2.every((d) => d && d.unit === decision!.unit && d.mode === 'maintain')) {
+      decision = { ...decision, mode: 'deepen' };
+      plateau = false;
+      warnings.push(`maintain 3연속 차단 → deepen 재개: ${decision.unit}`);
+    }
+  }
+
   // F-01 — 같은 (unit,mode) 3일 연속 경고(advance 3연속=사다리 과속 신호 — holdWeeks 검증 환기)
   if (decision && (p.prevDecisions || []).slice(0, 2).filter((d) => d && d.unit === decision!.unit && d.mode === decision!.mode).length >= 2) {
     warnings.push(`같은 전개 3연속: ${decision.unit}/${decision.mode}`);

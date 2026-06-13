@@ -84,9 +84,10 @@ function buildSeq(mode: DailyDecision['mode'], introNeeded: boolean, hasFact: bo
           : [{ from: 'common', try: ['opener-weekday'] }, { from: 'unit', try: ['why'] }];
     }
   })();
-  // ⭐ 거울이 도입 역할을 하므로 opener-weekday(인사) 제거 — 거울 뒤 '안녕하세요' 뜬금없음 버그(이사님). ≥1 블록 보존.
+  // ⭐ 거울 있으면 본문 군더더기 제거(이사님 '구구절절 길다·행동 권유') — opener-weekday(인사·뜬금없음 버그)와
+  //   praise(공감 단독 블록)를 빼서 본문을 how(행동) 중심으로. 거울이 온기를, 본문이 행동을 담당. maintain의 plateau(위안 1)는 유지. ≥1 블록 보존.
   if (hasMirror) {
-    const filtered = seq.filter((pos) => !(pos.try.length === 1 && pos.try[0] === 'opener-weekday'));
+    const filtered = seq.filter((pos) => !(pos.try.length === 1 && (pos.try[0] === 'opener-weekday' || pos.try[0] === 'praise')));
     if (filtered.length) return filtered;
   }
   return seq;

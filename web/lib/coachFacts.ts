@@ -166,8 +166,12 @@ export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: n
       } else {
         part2 = snack ? `${gap}${josa(gap, '을', '를')} 간식으로 한 번 더 챙겨 주면 좋아요` : `요즘 ${gap}${josa(gap, '이', '가')} 좀 아쉬워요`;
       }
-    } else {
-      part2 = '요즘 식품군이 두루 잘 채워지고 있어요';   // 진짜 전부 green일 때만(정직)
+    } else {   // 전부 green(결핍 0) — 데이터 근거 축하(celebrate 톤·이사님 Task3)
+      part2 = pickFresh([
+        '이번 주는 식품군이 골고루 잘 채워졌어요. 지금처럼만 가면 충분해요',
+        '요즘 식단 균형이 참 좋아요. 이 흐름을 믿고 가요',
+        '최근 식탁이 두루 잘 채워지고 있어요. 잘 챙기고 계세요',
+      ], seed, recent);
     }
   }
 
