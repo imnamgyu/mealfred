@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, composeLetterB, planFor, structuredTip, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -29,7 +29,9 @@ import { compileFacts, compileFactCards } from '@/lib/coachFacts';
 // ⭐ v3 조립식(H-01·H-02) — 진도 상태기계 + 조립기. 컷오버 플래그 뒤에서만 발동, 실패=레거시 폴백.
 import { UNITS, type UnitId, type CRow, type ProgressRow as CurriculumRow } from '@/lib/curriculumUnits';
 import { type DailyDecision } from '@/lib/curriculum';
-import { decideDailyV3, isUrgent, introNeededV3, recentIntroUnitsOf, buildCandSignals, parseProbeAnswers, selectQuestionV3, v3Enabled, type RecentProbe } from '@/lib/coachDaily';
+import { decideDailyV3, isUrgent, introNeededV3, recentIntroUnitsOf, buildCandSignals, parseProbeAnswers, selectQuestionV3, v3Enabled, compareEnabled, type RecentProbe } from '@/lib/coachDaily';
+import { buildLetterB } from '@/lib/coachCompare';
+import { normalizeFreqMap, type MealRow } from '@/lib/coachMaterials';
 import { assembleLetter, buildLetterCtx, collectBlockLedger } from '@/lib/assembleLetter';
 import { loadBlocks } from '@/lib/letterBlocks';
 import { reexposurePick } from '@/lib/reexposure';
@@ -78,6 +80,7 @@ export async function GET(req: Request) {
   const sensAdmin = alimtalkReady() ? createSupabaseAdmin() : null;   // 설정 있을 때만 admin 생성
   // 일일 정량 지표(어드민 보고서용)
   let lowData = 0, redChildren = 0, gapChildren = 0, daycareChildren = 0, eatenSum = 0, evalChildren = 0;
+  let compareLlmCalls = 0, compareOk = 0, compareFailed = 0, compareSkipped = 0;   // ⭐ E-08·E-11 — Letter B 비용·실패율 모니터
   const redFreq: Record<string, number> = {};
   const issues: string[] = [];
   let backfill: BackfillResult | null = null;
@@ -98,7 +101,10 @@ export async function GET(req: Request) {
     } catch { /* 카테고리 없어도 NUTRI_MAP 직접 매핑은 동작 */ }
     // 또래 급식 빈도 레시피(식재료 → 가장 많이 쓰이는 실존 음식) — 추천 근거화용. 실패해도 kit-matrix 폴백.
     let freqMap: FreqMap = {};
-    try { freqMap = await fetch(new URL('/ingredient-recipes.json', req.url)).then((r) => r.json()); } catch { /* kit-matrix 폴백 */ }
+    let freqMapRaw: unknown = null;
+    try { freqMapRaw = await fetch(new URL('/ingredient-recipes.json', req.url)).then((r) => r.json()); freqMap = freqMapRaw as FreqMap; } catch { /* kit-matrix 폴백 */ }
+    // ⭐ E-03 — Letter B 재료 엔진(selectDailyMaterials)이 소비할 정규화 빈도맵(죽은코드 부활). 형식 불량이면 {}(graceful).
+    const freqMapB: FreqMap = normalizeFreqMap(freqMapRaw);
     const catOf = (ing: string) => catMap[ing];
     const catReliable = Object.keys(catMap).length > 0;  // 비면 '채소 없음' 단정 금지(P4)
 
@@ -160,15 +166,22 @@ export async function GET(req: Request) {
     const recentSnackDates: Record<string, string[]> = {};   // ⭐ 간식 멘트를 노출한 최근 날짜 — 쿨다운(매일 '과자 대신…' 반복 방지)
     const recentWeekKeys: Record<string, string[]> = {};     // ⭐ 최근 편지가 쓴 주간 닻 week_key — '이번 주 첫 편지(intro)' 판정
     const prevArcStage: Record<string, string | null> = {};  // ⭐ 직전 편지의 아크 단계 — reinforce 이틀 연속 방지
+    // ⭐ E-05 — compare(Letter B) 자체 이력: 최근 B 추천 식재료(3일 무재사용 회전 입력)·B 본문(B 연속성, A와 분리)
+    const recentBMaterials: Record<string, string[]> = {};
+    const pastBLetters: Record<string, { date: string; letter: string }[]> = {};
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
       if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
-      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null } | null;
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; altLetter?: { letter?: string; materials?: { food?: string | null } } } | null;
       if (!(l.child_id in prevArcStage)) prevArcStage[l.child_id] = ctx?.weekly?.arc?.stage ?? null;   // 정렬상 첫 과거 편지 = 직전
       if (ctx?.weekly?.weekKey) (recentWeekKeys[l.child_id] ||= []).push(ctx.weekly.weekKey);
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
       if (ctx?.plan?.signature) (recentPlans[l.child_id] ||= []).push(ctx.plan);
       if (ctx?.snackShown) (recentSnackDates[l.child_id] ||= []).push(l.letter_date);
+      const food = ctx?.altLetter?.materials?.food;   // E-05 — 과거 B가 추천한 식재료(회전 입력)
+      if (typeof food === 'string' && food) (recentBMaterials[l.child_id] ||= []).push(food);
+      const bLetter = ctx?.altLetter?.letter;          // E-05 — 과거 B 본문(B 유사도·연속성)
+      if (typeof bLetter === 'string' && bLetter) (pastBLetters[l.child_id] ||= []).push({ date: l.letter_date, letter: bLetter });
     });
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
@@ -382,6 +395,14 @@ export async function GET(req: Request) {
         let v3Ctx: Record<string, unknown> | null = null;   // ⭐ v3 조립 경로 산출(H-02 — 있으면 레거시 생성 스킵)
         let reusedCtx: Record<string, unknown> | null = null;   // H-07 — 재사용 시 v3 원장(blocks·factsCited·decision) 보존용
         let v3Question: { question: string; topic: string; chips: string[]; unitProbe: Record<string, unknown> } | null = null;   // G-03 unitProbe 질문
+        // ⭐⭐ E — compare(A/B 2통): A=레거시 v2(메인 letter 보존), B=하이브리드(context.altLetter). 아린은 v3 순수조립 미진입.
+        const isCompare = compareEnabled(process.env as { COACH_COMPARE?: string; COACH_COMPARE_CHILDREN?: string; COACH_V3_CHILDREN?: string }, cid);
+        let altLetter: Record<string, unknown> | null = null;   // ⭐ Letter B 페이로드(ok/failed/skipped) — finalCtx에 합본 저장(스키마 변경 0)
+        // E-07 — compare 두뇌 산출(decideDailyV3 결과 + 닻 + 진척) — Letter A 발행 후 buildLetterB로 넘긴다(진도는 이 블록서 영속).
+        let compareBrain: {
+          dr: import('@/lib/coachDaily').DailyV3Result; anchor: WeeklyAnchor | null; firstOfWeek: boolean; progress: boolean;
+          recentCtxs: Array<Record<string, unknown>>; dow: number; mirror: string | null; factCards: string[] | null;
+        } | null = null;
         // 발행되면 고정: 오늘 편지가 이미 있으면(prev.letter_date===today) 재사용. srcHash에 today가 들어가 날짜가 바뀌면 새 계획으로 재생성(식단 동일해도 동결되지 않음). force만 강제 재생성.
         const reusedThis = !force && !!prev && !!prev.letter && (prev.source_hash === srcHash || prev.letter_date === today);
         if (reusedThis) {
@@ -399,6 +420,8 @@ export async function GET(req: Request) {
           repeatAlert = pctx?.repeatAlert ?? false;
           modelUsed = pctx?.model ?? modelUsed;
           coachRegen = pctx?.coachRegen ?? false;
+          // E-06/E-11-6 — 재사용 시 기존 Letter B(altLetter)도 그대로 보존(B 캐시 정책 — 같은 날 재실행은 재생성 안 함)
+          altLetter = (prev!.context as { altLetter?: Record<string, unknown> } | null)?.altLetter ?? null;
         } else {
           // 연속성용 과거 편지 (날짜 라벨만 — buildLetterUser가 순서로 변환). '오늘 이전'만(QA date 시뮬서 미래 편지 누수 차단).
           const { data: pastL } = await supabase.from('coach_letters')
@@ -499,7 +522,7 @@ export async function GET(req: Request) {
             }
             // ⭐⭐ H-01·H-02 — v3 조립식 경로(컷오버 플래그·아린 카나리아). 어떤 실패도 throw 없이 → 레거시 폴백(발행은 항상).
             //    하루 스텝 = 진도 로드 → decideDailyV3 → 진도/goals 영속 → assembleLetter(LLM 0) → buildLetterCtx — 리플레이 러너(I-05)와 동일 순서.
-            if (anchor && v3Enabled(process.env as { COACH_V3?: string; COACH_V3_CHILDREN?: string }, cid)) {
+            if (anchor && !isCompare && v3Enabled(process.env as { COACH_V3?: string; COACH_V3_CHILDREN?: string }, cid)) {
               try {
                 // ① 진도 로드(자녀당 1쿼리)
                 const { data: progRows } = await supabase.from('curriculum_progress').select('*').eq('child_id', cid);
@@ -612,6 +635,61 @@ export async function GET(req: Request) {
                 issues.push(`v3 경로 실패→레거시 폴백 ${meta.nickname}: ${e instanceof Error ? e.message.slice(0, 80) : String(e)}`);
               }
             }
+            // ⭐⭐ E-07 — compare 두뇌: decideDailyV3로 진도/goals 영속(B 진도 굴림). 단 assembleLetter는 안 함(B는 LLM 작문).
+            //    실패해도 throw 없이 compareBrain=null → buildLetterB가 영양신호 기반 폴백(발행 보장).
+            if (anchor && isCompare && !reusedThis) {
+              try {
+                const { data: progRows } = await supabase.from('curriculum_progress').select('*').eq('child_id', cid);
+                const cProgress: Partial<Record<UnitId, CurriculumRow>> = {};
+                ((progRows || []) as CurriculumRow[]).forEach((r) => { cProgress[r.unit_id] = r; });
+                const { data: pastCtxRows } = await supabase.from('coach_letters')
+                  .select('letter_date,context,oneliner').eq('child_id', cid).lt('letter_date', today)
+                  .order('letter_date', { ascending: false }).limit(10);
+                const pastCtxs = ((pastCtxRows || []) as Array<{ letter_date: string; context: Record<string, unknown> | null }>).filter((r) => r.context);
+                const ctxList = pastCtxs.map((r) => r.context as Record<string, unknown>);
+                const decisionsPast = ctxList.map((c) => (c as { decision?: { unit?: string; mode?: string } | null }).decision ?? null);
+                const { data: qRows } = await supabase.from('daily_questions')
+                  .select('q_date,answer,context').eq('child_id', cid).gte('q_date', dAgo(8)).lt('q_date', today);
+                const qList = (qRows || []) as Array<{ q_date: string; answer: string | null; context: Record<string, unknown> | null }>;
+                const answers = parseProbeAnswers(qList);
+                const coachedDays: Partial<Record<UnitId, number>> = {};
+                decisionsPast.slice(0, 6).forEach((d) => { if (d?.unit) coachedDays[d.unit as UnitId] = (coachedDays[d.unit as UnitId] || 0) + 1; });
+                const pivotsThisWeek = pastCtxs.filter((r) => isoWeekKey(r.letter_date) === weekKey && (r.context as { decision?: { mode?: string } | null })?.decision?.mode === 'pivot').length;
+                const cGoals = anchor.goals || [];
+                const cRealTarget = weeklyExposureTarget(computeGroupSignals(byDay, catOf).signals, likedIng, Math.floor(todayMs / 86400000)) || anchor.mission_target;
+                const dr = decideDailyV3({
+                  childId: cid, goals: cGoals, progress: cProgress, rows: rs as unknown as CRow[], answers, coachedDays,
+                  coachedYesterday: decisionsPast[0]?.unit ? [decisionsPast[0].unit as UnitId] : [], pivotsThisWeek,
+                  foodTarget: cRealTarget, today,
+                  prevDecisions: decisionsPast.slice(0, 2) as Array<{ unit: string; mode: string } | null>,
+                });
+                // 진도 영속(E-07) — 편지 작문(assembleLetter)은 하지 않는다. error 검사(supabase upsert는 throw 안 함).
+                if (dr.updates.length) {
+                  const upRows = dr.updates.map((u) => ({ ...u, updated_at: new Date().toISOString() }));
+                  const { error: pe } = await supabase.from('curriculum_progress').upsert(upRows, { onConflict: 'child_id,unit_id' });
+                  if (pe) issues.push(`진도 저장 실패(compare) ${meta.nickname}: ${pe.message.slice(0, 60)}`);
+                }
+                if (JSON.stringify(dr.goalsAfter) !== JSON.stringify(cGoals)) {
+                  await supabase.from('weekly_plans').update({ goals: dr.goalsAfter, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekKey);
+                }
+                // 진척 관측(arcStage 입력) — food=실제 차림 1회+, 구조 레버=그 좋은 행동 1회+(거짓 칭찬 차단·v3 비조립 경로와 동일 원리).
+                const lever = anchor.budget?.lever || 'food';
+                const weekRows = (byChild[cid] || []).filter((r) => isoWeekKey(r.log_date) === weekKey);
+                const cTgt = dr.decision ? cRealTarget : anchor.mission_target;
+                const goodRow = (r: Row) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : (r.ingredients || []).some((ing) => ing === cTgt || catOf(ing) === cTgt);
+                const cProgressObs = weekRows.some(goodRow);
+                const latestThisWeek = pastCtxs.find((r) => isoWeekKey(r.letter_date) === weekKey);
+                const recentMirrors = ctxList.slice(0, 10).map((c) => (c as { altLetter?: { mirror?: unknown } }).altLetter?.mirror).filter((m): m is string => typeof m === 'string' && !!m);
+                const factRes = compileFactCards({ rows: rs as unknown as CRow[], today, recentMirrors, name: meta.nickname });
+                compareBrain = {
+                  dr, anchor, firstOfWeek: !latestThisWeek, progress: cProgressObs,
+                  recentCtxs: ctxList, dow, mirror: factRes.mirror,
+                  factCards: factRes.cards.map((c) => c.text),
+                };
+              } catch (e) {
+                issues.push(`compare 두뇌 실패→B 폴백 ${meta.nickname}: ${e instanceof Error ? e.message.slice(0, 80) : String(e)}`);
+              }
+            }
             if (!v3Ctx && anchor && anchor.mission_target) {
               const tgt = anchor.mission_target;
               const lever = anchor.budget?.lever || 'food';
@@ -693,6 +771,64 @@ export async function GET(req: Request) {
           if (verifyCtx && verifyCtx.ok === false) issues.push(`검증위반 발행 ${meta.nickname}: ${verifyCtx.violations.slice(0, 2).join(' / ')}`.slice(0, 160));   // fail-open이되 어드민 보고서에 즉시 노출
           }   // if (!v3Ctx) — 레거시 생성 경로 끝
         }
+        // ⭐⭐ E-05·E-06·E-08 — Letter B(하이브리드 처치군). A 발행 코드 전에 생성하되, A는 B와 무관하게 항상 저장(B=null이어도).
+        //    잔여 예산 게이트(B는 A보다 보수적 deadline) — 부족하면 skipped. 실패=failed. 둘 다 A 발행은 막지 않음.
+        if (isCompare && !reusedThis && letter && !altLetter) {
+          const bBudgetLeft = TIME_BUDGET_MS - (Date.now() - runStart);
+          if (bBudgetLeft > 12_000) {
+            const bDaySeed = Math.floor(Date.parse(today) / 86400000);
+            let bCidHash = 0; for (let k = 0; k < cid.length; k++) bCidHash = (bCidHash * 31 + cid.charCodeAt(k)) >>> 0;
+            // meals — liked 판정(집 2일+) 입력. rs(자녀 행)의 식재료를 MealRow로(거부=칩/ate_well, place·slot 보존).
+            const bMeals: MealRow[] = [];
+            rs.forEach((r) => {
+              const refusedSet = new Set(sanitizeRefusals([r.refused || '']));
+              const da = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
+              (r.ingredients || []).forEach((food) => bMeals.push({ food, place: r.place, ateWell: r.ate_well, refused: refusedSet.has(food), daysAgo: da, slot: r.slot }));
+            });
+            const built = await buildLetterB({
+              childName: meta.nickname, ageBand: meta.age_band,
+              rows: rs as unknown as CRow[], meals: bMeals, today,
+              freqMap: freqMapB,                                  // E-03 — 정규화 빈도맵(죽은코드 부활)
+              favoriteFoods, reds, missing: fg.missing,
+              groupSignals: computeGroupSignals(byDay, catOf).signals,
+              recordedDays: byDay.length,
+              onboardingMeta: { hasHeight: hasGrowth.has(cid) || !!meta.height_cm, hasWeight: hasGrowth.has(cid) || !!meta.weight_kg, hasConditions: !!(meta.chronic && String(meta.chronic).trim()) },
+              recentBMaterials: recentBMaterials[cid] || [],      // E-05 — 3일 무재사용 회전 입력
+              pastBLetters: (pastBLetters[cid] || []).slice(0, 5),
+              factCards: compareBrain?.factCards ?? null,
+              mirror: compareBrain?.mirror ?? null,
+              timeseries: ts, attendsDaycare: attends, chronicGuidance: chronicGuidanceText(meta.chronic),
+              dailyResult: compareBrain?.dr ?? { decision: null, updates: [], goalsAfter: [], lowData: byDay.length < 3, plateau: false, replanFlag: false, warnings: [] },
+              anchor: compareBrain?.anchor ?? null,
+              firstOfWeek: compareBrain?.firstOfWeek ?? true,
+              lastArcStage: prevArcStage[cid] ?? null,
+              progress: compareBrain?.progress ?? false,
+              recentCtxs: compareBrain?.recentCtxs ?? [],
+              dow: compareBrain?.dow ?? kstDow(today),
+              daySeed: bDaySeed, cidHash: bCidHash,
+              deadlineMs: runStart + TIME_BUDGET_MS - 2000,        // E-08 — A(−4000)보다 보수적(A 먼저 안전 마감)
+              composeLetterB,
+            });
+            if (built) {
+              const sim = built.design.simToPrevB;
+              if (built.verify && built.verify.ok === false) issues.push(`B검증위반 ${meta.nickname}: ${built.verify.violations.slice(0, 2).join(' / ')}`.slice(0, 160));
+              if (built.design.repeatAlertB) issues.push(`B반복경보 ${meta.nickname}: 직전 B 유사도 ${sim}`);
+              compareLlmCalls += built.llmCalls; compareOk++;
+              altLetter = {
+                letter: built.letter, oneliner: built.oneliner, design: 'hybrid-merged',
+                designMeta: built.design, mirror: built.mirror,
+                materials: built.design.materials, decision: built.design.decision,
+                verify: built.verify, quality: built.design.quality, model: built.modelUsed, llmCalls: built.llmCalls,
+              };
+            } else {
+              compareFailed++;
+              altLetter = { failed: true, reason: 'buildLetterB null(작문·검증 실패 or 데드라인)' };
+            }
+          } else {
+            compareSkipped++;
+            altLetter = { skipped: true, reason: `잔여 예산 부족(${Math.round(bBudgetLeft / 1000)}s)` };   // E-08-7
+          }
+        }
         if (letter) {
           // QA용 "우리 판단" 스냅샷 — 어드민 쓰레드에서 이 근거로 생성됐음을 보여줌
           const letterCtx = {
@@ -712,10 +848,12 @@ export async function GET(req: Request) {
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
           };
           // ⭐ H-02·H-07 — 컨텍스트 단일화: v3 생성=buildLetterCtx 산출 그대로 / v3 편지 재사용=원장(blocks·factsCited·decision) 보존 / 레거시=기존 리터럴
-          const finalCtx = v3Ctx
+          const finalCtxBase = v3Ctx
             ?? (reusedCtx && (reusedCtx as { assembled?: boolean }).assembled
               ? buildLetterCtx({ base: letterCtx, source: 'cron(v3·재사용)', out: null, preserve: reusedCtx })
               : letterCtx);
+          // ⭐ E-06 — compare 자녀만 context.altLetter 합본(메인 letter/oneliner/source_hash=A 불변·스키마 변경 0). 타 자녀는 키 없음.
+          const finalCtx = (isCompare && altLetter) ? { ...finalCtxBase, altLetter } : finalCtxBase;
           await supabase.from('coach_letters').upsert(
             { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter, oneliner: oneliner || null, source_hash: srcHash, context: finalCtx },
             { onConflict: 'child_id,letter_date' }
@@ -801,6 +939,7 @@ export async function GET(req: Request) {
         letters, questions, reused, active: activeIds.length, skippedTime, lowData,
         evalChildren, avgEaten: evalChildren ? Math.round(eatenSum / evalChildren) : 0,
         redChildren, gapChildren, daycareChildren, topReds,
+        compareLlmCalls, compareOk, compareFailed, compareSkipped,   // ⭐ E-08·E-11 — Letter B 비용·실패율 모니터(3일 관찰→승격 판단)
         backfill,   // 야간 미매핑 보강 지표(빈 행 백필·사전학습)
         issues: issues.slice(0, 30), durationMs: Date.now() - runStart,
       },

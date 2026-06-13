@@ -1,0 +1,49 @@
+{
+  "_doc": "EPIC E-10 — 아린 compare 2일 연속 리플레이 fixture. meal_logs(14일)·weekly_plans(닻)·curriculum_progress·기존 coach_letters(altLetter 포함). 불변식: A 무변경·B≠A·재료 3일내 비반복·진도 영속·괴식 0·예산 폴백.",
+  "childId": "arin-test-id",
+  "ageBand": "5y",
+  "weekKey": "2026-W24",
+  "anchor": {
+    "child_id": "arin-test-id",
+    "week_key": "2026-W24",
+    "status": "active",
+    "source": "weekly_llm",
+    "mission": null,
+    "mission_target": "비타민A채소",
+    "target_pool": ["비타민A채소"],
+    "secondary_axis": null,
+    "budget": { "expose": 2, "push": 0, "cadenceMinGap": 1, "pushWindow": [2, 3, 4], "lever": "food" },
+    "ledger": null,
+    "impression": "채소를 낯설어하지만 집에서 밥·달걀은 잘 먹어요. 노란 채소를 천천히 늘려가는 흐름.",
+    "arc_week": 1,
+    "basis_hash": null,
+    "basis_attends_daycare": true,
+    "behavior_goal": null,
+    "teaching_arc": null,
+    "check_method": null,
+    "goals": [
+      { "unit_id": "exposure-savings", "priority": 1, "status": "focus" },
+      { "unit_id": "pressure-off", "priority": 2, "status": "standby" }
+    ]
+  },
+  "groupSignals": [
+    { "group": "곡물", "level": "green", "weeklyEst": 7 },
+    { "group": "콩류", "level": "green", "weeklyEst": 3 },
+    { "group": "유제품", "level": "green", "weeklyEst": 5 },
+    { "group": "고기·계란", "level": "green", "weeklyEst": 6 },
+    { "group": "생선·해산물", "level": "yellow", "weeklyEst": 1 },
+    { "group": "비타민A채소", "level": "red", "weeklyEst": 1 },
+    { "group": "기타채소", "level": "yellow", "weeklyEst": 3 },
+    { "group": "과일", "level": "green", "weeklyEst": 5 }
+  ],
+  "meals": [
+    { "food": "밥", "place": "home", "ateWell": true, "daysAgo": 1 },
+    { "food": "밥", "place": "home", "ateWell": true, "daysAgo": 2 },
+    { "food": "달걀", "place": "home", "ateWell": true, "daysAgo": 1 },
+    { "food": "달걀", "place": "home", "ateWell": true, "daysAgo": 3 },
+    { "food": "미역", "place": "home", "ateWell": true, "daysAgo": 2 },
+    { "food": "미역", "place": "home", "ateWell": true, "daysAgo": 4 }
+  ],
+  "favoriteFoods": ["볶음밥", "미역국", "김밥", "계란찜"],
+  "comment": "미역국 좋아함 + 비타민A채소(당근) 결핍 → '미역국+당근'은 괴식(score 1<2)이라 B materials 조합에 미출현(E-10-5)."
+}

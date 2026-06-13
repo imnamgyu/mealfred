@@ -17,9 +17,26 @@ const age = (today: string, d: string) => Math.round((Date.parse(today) - Date.p
 
 // ── H-01 — 컷오버 플래그(순수 판정 — 테스트 가능) ───────────────────────────────
 // COACH_V3=1 → 전체 ON · COACH_V3_CHILDREN=id1,id2 → 카나리아(아린 먼저). 미설정 = 기존 경로(즉시 롤백=env 끄기).
+/** CSV 코호트 파싱 — split/trim/filter 관용구 단일 소스(v3Enabled·compareEnabled 공유). */
+function parseCohort(csv: string | undefined): string[] {
+  return (csv || '').split(',').map((s) => s.trim()).filter(Boolean);
+}
 export function v3Enabled(env: { COACH_V3?: string; COACH_V3_CHILDREN?: string }, childId: string): boolean {
   if (env.COACH_V3 === '1') return true;
-  return (env.COACH_V3_CHILDREN || '').split(',').map((s) => s.trim()).filter(Boolean).includes(childId);
+  return parseCohort(env.COACH_V3_CHILDREN).includes(childId);
+}
+
+// ── E-01 — compare(A/B 2통 발행) 판정. 별도 env로 롤백 토글 1회. ──────────────────
+// COACH_COMPARE=1 → 전체 ON(승격용) · COACH_COMPARE_CHILDREN(있으면) 또는 폴백 COACH_V3_CHILDREN 코호트.
+//   ⚠️ COACH_COMPARE_CHILDREN이 '설정'되면(빈문자 제외) V3 폴백을 무시 — compare 명단이 단일 진실(E-01-8).
+export function compareEnabled(
+  env: { COACH_COMPARE?: string; COACH_COMPARE_CHILDREN?: string; COACH_V3_CHILDREN?: string },
+  childId: string,
+): boolean {
+  if (env.COACH_COMPARE === '1') return true;
+  const csv = (env.COACH_COMPARE_CHILDREN && env.COACH_COMPARE_CHILDREN.trim())
+    ? env.COACH_COMPARE_CHILDREN : env.COACH_V3_CHILDREN;
+  return parseCohort(csv).includes(childId);
 }
 
 // ── F-04 — 시급 예외(이사님 확정 3종 한정 — 확장은 별도 승인) ────────────────────
