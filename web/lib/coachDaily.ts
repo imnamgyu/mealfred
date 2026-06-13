@@ -40,9 +40,11 @@ export function isUrgent(p: { icfqRiskCount: number; rows: CRow[]; today: string
 // ── F-06 — 주 첫 편지 판정 v3: 이월 유닛이면 intro 생략(매주 월요일 재도입 방지) ──
 // recentIntroUnits = 최근 7일 편지가 intro 블록을 쓴 유닛(컨텍스트 blocks에서 수집) —
 // 피벗 복귀 주가 prevWeekGoals상 'stopped'라 이월로 안 잡히는 구멍을 리플레이(I-05)가 적발해 추가.
-export function introNeededV3(firstOfWeek: boolean, focusUnit: UnitId | null, prevWeekGoals: Goal[] | null | undefined, recentIntroUnits?: Iterable<string>): boolean {
-  if (!firstOfWeek || !focusUnit) return false;
-  if (recentIntroUnits && new Set(recentIntroUnits).has(focusUnit)) return false;
+export function introNeededV3(_firstOfWeek: boolean, focusUnit: UnitId | null, prevWeekGoals: Goal[] | null | undefined, recentIntroUnits?: Iterable<string>): boolean {
+  if (!focusUnit) return false;
+  if (recentIntroUnits && new Set(recentIntroUnits).has(focusUnit)) return false;   // 최근 도입한 유닛은 재도입 금지(매일 반복 방지)
+  // ⭐ 온보딩 버그 수정(이사님 06-13): 가입 첫날=데이터<3일 → lowData가 firstOfWeek를 소진해 intro('왜 이 코칭')가 영영 안 떴다.
+  //   firstOfWeek 무관, '아직 도입한 적 없는 신규 focus 유닛'이면 첫 코칭일에 도입한다(이월 유닛은 제외). recentIntroUnits가 재발동을 막음.
   return !(prevWeekGoals || []).some((g) => g.unit_id === focusUnit && g.status !== 'stopped');
 }
 /** 최근 편지 컨텍스트들에서 intro 블록을 쓴 유닛 수집(F-06 가드 입력 — 크론 H-02·러너 공용) */
