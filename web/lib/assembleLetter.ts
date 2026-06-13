@@ -58,30 +58,38 @@ export const factKeyOf = (_unit: string, cardKey: string) => cardKey;
 // ── D-01 — mode별 블록 시퀀스(결정론 규격) ─────────────────────────────────────
 // try = 우선순위 목록(앞이 1순위 — 대체는 후보 0일 때만). alt=true면 동급 교대(날짜 회전 — how↔obstacle).
 type SeqPos = { from: 'unit' | 'common'; try: BlockStage[]; optional?: boolean; alt?: boolean };
-function buildSeq(mode: DailyDecision['mode'], introNeeded: boolean, hasFact: boolean, lowData?: boolean, suppressIntro?: boolean): SeqPos[] {
-  if (lowData)   // F-07 — 무기록 주: 워밍 + 따뜻한 기록 권유(행동 요청 0·진도 동결과 짝)
-    return [{ from: 'common', try: ['opener-weekday'] }, { from: 'common', try: ['lowdata'] }];
-  if (mode === 'pivot' && suppressIntro)   // 7일 내 intro 기왕 유닛으로의 재피벗 — 재도입 대신 원리 환기
-    return [{ from: 'common', try: ['pivot-bridge'] }, { from: 'unit', try: ['why'] }, { from: 'unit', try: ['how'], optional: true }];
-  if (introNeeded && (mode === 'advance' || mode === 'deepen' || mode === 'observe'))
-    return [{ from: 'unit', try: ['intro'] }, { from: 'unit', try: ['why'] }, { from: 'unit', try: ['how'], optional: true }];
-  switch (mode) {
-    case 'advance':   // 어제 사실 인용 → 다음 단 (사실이 없으면 praise로 대체해 흐름 유지)
-      return [{ from: 'unit', try: hasFact ? ['observe', 'praise'] : ['praise'] }, { from: 'unit', try: ['advance'] }, { from: 'unit', try: ['why'], optional: true }];
-    case 'deepen':    // 진전 중 — 현 단 심화(how/obstacle은 날짜로 교대)
-      return [{ from: 'unit', try: ['praise'] }, { from: 'unit', try: ['how', 'obstacle'], alt: true }, { from: 'unit', try: ['why'], optional: true }];
-    case 'pivot':     // 전환은 한 번만 서술 — 연결문 → 새 유닛 도입
-      return [{ from: 'common', try: ['pivot-bridge'] }, { from: 'unit', try: ['intro'] }, { from: 'unit', try: ['why'], optional: true }];
-    case 'maintain':  // 유지 주 — 그 유닛 침묵(공용만)
-      return [{ from: 'common', try: ['opener-weekday'] }, { from: 'common', try: ['plateau'] }];
-    case 'celebrate': // 졸업 — 공용 graduate + 유닛 praise
-      return [{ from: 'common', try: ['graduate'] }, { from: 'unit', try: ['praise'] }];
-    case 'observe':   // 판정 보류·무신호일 — 사실 있으면 반영, 없으면 워밍 도입 + 원리 한 스푼(수업)
-    default:
-      return hasFact
-        ? [{ from: 'unit', try: ['observe'] }, { from: 'unit', try: ['why'] }]
-        : [{ from: 'common', try: ['opener-weekday'] }, { from: 'unit', try: ['why'] }];
+function buildSeq(mode: DailyDecision['mode'], introNeeded: boolean, hasFact: boolean, lowData?: boolean, suppressIntro?: boolean, hasMirror?: boolean): SeqPos[] {
+  const seq: SeqPos[] = (() => {
+    if (lowData)   // F-07 — 무기록 주: 워밍 + 따뜻한 기록 권유(행동 요청 0·진도 동결과 짝)
+      return [{ from: 'common', try: ['opener-weekday'] }, { from: 'common', try: ['lowdata'] }];
+    if (mode === 'pivot' && suppressIntro)   // 7일 내 intro 기왕 유닛으로의 재피벗 — 재도입 대신 원리 환기
+      return [{ from: 'common', try: ['pivot-bridge'] }, { from: 'unit', try: ['why'] }, { from: 'unit', try: ['how'], optional: true }];
+    if (introNeeded && (mode === 'advance' || mode === 'deepen' || mode === 'observe'))
+      return [{ from: 'unit', try: ['intro'] }, { from: 'unit', try: ['why'] }, { from: 'unit', try: ['how'], optional: true }];
+    switch (mode) {
+      case 'advance':   // 어제 사실 인용 → 다음 단 (사실이 없으면 praise로 대체해 흐름 유지)
+        return [{ from: 'unit', try: hasFact ? ['observe', 'praise'] : ['praise'] }, { from: 'unit', try: ['advance'] }, { from: 'unit', try: ['why'], optional: true }];
+      case 'deepen':    // 진전 중 — 현 단 심화(how/obstacle은 날짜로 교대)
+        return [{ from: 'unit', try: ['praise'] }, { from: 'unit', try: ['how', 'obstacle'], alt: true }, { from: 'unit', try: ['why'], optional: true }];
+      case 'pivot':     // 전환은 한 번만 서술 — 연결문 → 새 유닛 도입
+        return [{ from: 'common', try: ['pivot-bridge'] }, { from: 'unit', try: ['intro'] }, { from: 'unit', try: ['why'], optional: true }];
+      case 'maintain':  // 유지 주 — 그 유닛 침묵(공용만)
+        return [{ from: 'common', try: ['opener-weekday'] }, { from: 'common', try: ['plateau'] }];
+      case 'celebrate': // 졸업 — 공용 graduate + 유닛 praise
+        return [{ from: 'common', try: ['graduate'] }, { from: 'unit', try: ['praise'] }];
+      case 'observe':   // 판정 보류·무신호일 — 사실 있으면 반영, 없으면 워밍 도입 + 원리 한 스푼(수업)
+      default:
+        return hasFact
+          ? [{ from: 'unit', try: ['observe'] }, { from: 'unit', try: ['why'] }]
+          : [{ from: 'common', try: ['opener-weekday'] }, { from: 'unit', try: ['why'] }];
+    }
+  })();
+  // ⭐ 거울이 도입 역할을 하므로 opener-weekday(인사) 제거 — 거울 뒤 '안녕하세요' 뜬금없음 버그(이사님). ≥1 블록 보존.
+  if (hasMirror) {
+    const filtered = seq.filter((pos) => !(pos.try.length === 1 && pos.try[0] === 'opener-weekday'));
+    if (filtered.length) return filtered;
   }
+  return seq;
 }
 
 // ── D-04 — 사실 카드 선택(편지당 1장) ─────────────────────────────────────────
@@ -190,7 +198,7 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   //    본문 문장/길이 예산을 거울만큼 줄여 총 5문장·규격을 유지(거울+본문).
   const mirror = ((!p.urgent && (p.mirror || '').trim()) || null) as string | null;
   const mirrorSents = mirror ? sentencesOf(mirror).length : 0;
-  const bodySentCap = Math.max(3, 5 - mirrorSents);
+  const bodySentCap = mirror ? Math.max(2, 4 - mirrorSents) : 5;   // ⭐ 거울 있으면 본문은 짧게(공감 1 + 행동 1) — 이사님 '구구절절 길다'
   const bodyMax = LETTER_MAX - (mirror ? mirror.length + 1 : 0);
   const introNeeded = !!p.introNeeded;
   const mode = p.decision.mode;
@@ -203,7 +211,7 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
 
   /** 한 번의 조립 시도(attempt가 변형 회전을 비틀어 D-09 재선택을 구현) */
   const attemptAssemble = (attempt: number): { letter: string; used: LetterBlock[] } | null => {
-    const seq = buildSeq(mode, introNeeded, !!fact, p.lowData, p.suppressIntro);
+    const seq = buildSeq(mode, introNeeded, !!fact, p.lowData, p.suppressIntro, !!mirror);
     const usedNow = new Set<string>();
     const picked: Array<{ b: LetterBlock; text: string; optional: boolean }> = [];
     for (let k = 0; k < seq.length; k++) {

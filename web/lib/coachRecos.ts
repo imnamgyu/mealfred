@@ -46,6 +46,40 @@ export function popularDishesFor(ing: string, freqMap?: FreqMap): string[] {
   return out;
 }
 
+/**
+ * ⭐ 거울용 구체 추천(2026-06-13, 이사님: 그룹명 말고 구체 음식 — 잘먹는것·사촌·푸드체이닝 전략).
+ * 전략 우선순위: ① liked(아이가 이미 잘 먹는 그 그룹 식재료를 한 번 더) → ② pair(잘 먹는 것에 곁들이기)
+ *   → ③ chain(잘 먹는 것의 사촌이 결핍군에 있으면 푸드체이닝) → ④ dish(또래 인기 음식으로 도전) → ⑤ plain.
+ * 전부 테이블 근거(괴식 0). likedIngredients=시계열 잘 먹는 식재료(호출자가 meal_logs에서).
+ */
+export type FoodReco = { group: string; food: string; via: 'liked' | 'pair' | 'chain' | 'dish' | 'plain'; pairLiked?: string; dish?: string };
+export function pickFoodReco(args: { target: string; likedIngredients: string[]; freqMap?: FreqMap; seed?: number }): FoodReco | null {
+  const reps0 = GROUP_INGREDIENTS[args.target];
+  if (!reps0 || !reps0.length) return null;
+  const off = (((args.seed || 0) % reps0.length) + reps0.length) % reps0.length;   // 날짜로 대표 식재료 회전(치즈→요거트→우유 등 음식 다양화)
+  const reps = [...reps0.slice(off), ...reps0.slice(0, off)];
+  const liked = new Set((args.likedIngredients || []).filter(Boolean));
+  // ① 잘 먹는 것 — 아이가 이미 잘 먹는 그 그룹 식재료를 한 번 더(가장 쉬운 골고루)
+  const likedRep = reps.find((r) => liked.has(r));
+  if (likedRep) return { group: args.target, food: stapleDisplay(likedRep), via: 'liked' };
+  // ② 궁합 — 대표 식재료를 아이가 잘 먹는 것에 곁들이기
+  for (const rep of reps) {
+    const pl = neighborsOf(rep).find((n) => n.kind === 'pair' && liked.has(n.nm));
+    if (pl) return { group: args.target, food: rep, via: 'pair', pairLiked: stapleDisplay(pl.nm) };
+  }
+  // ③ 푸드체이닝 — 아이가 잘 먹는 것의 사촌(bridge)이 결핍군 대표에 있으면 그걸로
+  for (const lk of liked) {
+    const cousin = neighborsOf(lk).find((n) => n.kind === 'bridge' && reps.includes(n.nm));
+    if (cousin) return { group: args.target, food: cousin.nm, via: 'chain', pairLiked: stapleDisplay(lk) };
+  }
+  // ④ 또래 인기 음식으로 도전
+  for (const rep of reps) {
+    const d = popularDishesFor(rep, args.freqMap);
+    if (d.length) return { group: args.target, food: rep, via: 'dish', dish: d[0] };
+  }
+  return { group: args.target, food: stapleDisplay(reps[0]), via: 'plain' };
+}
+
 export type RecoFacts = { target: string | null; cousins: string[]; lines: string[]; text: string };
 
 /**

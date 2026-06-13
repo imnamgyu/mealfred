@@ -98,6 +98,18 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
   // period_summaries 테이블 미생성이면 error만 나고 data=null → 빈 배열(안전)
   const { data: psData } = await db.from('period_summaries').select('period_type,period_key,metrics,updated_at').eq('child_id', childId).order('period_key', { ascending: false }).limit(200);
   const periods = (psData || []) as PS[];
+  // ⭐ 엔진 가시화(이사님 2026-06-13): 주간 계획(작전층) + 일간 진도·판단 차트(전술층) — 테이블 없으면 null→빈 패널 생략(안전).
+  const { data: wkPlansRaw } = await db.from('weekly_plans').select('week_key,status,mission_target,target_pool,secondary_axis,goals,behavior_goal,teaching_arc,check_method,budget,ledger,impression,arc_week').eq('child_id', childId).order('week_key', { ascending: false }).limit(6);
+  const { data: progRaw } = await db.from('curriculum_progress').select('unit_id,status,step,evidence,last_signal_at,relapse_count,stop_reason,updated_at').eq('child_id', childId);
+  const wkPlans = (wkPlansRaw || []) as Array<Record<string, unknown>>;
+  const progRows = (progRaw || []) as Array<Record<string, unknown>>;
+  // 일간 판단 타임라인 — 편지 context.decision/v3에서(최근 14일, 최신 위)
+  const dailyJudg = (letters || []).map((l) => {
+    const c = (l.context || {}) as Record<string, unknown>;
+    const d = (c.decision || {}) as Record<string, unknown>;
+    const v3 = (c.v3 || {}) as Record<string, unknown>;
+    return { date: l.letter_date, unit: d.unit as string, mode: d.mode as string, lowData: !!v3.lowData, plateau: !!v3.plateau, mirror: c.mirror as string | undefined, fc: Array.isArray(c.factsCited) ? (c.factsCited as string[]) : [] };
+  }).filter((x) => x.unit || x.mirror).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14);
   // 큰 기간 → 작은 기간 순으로 그룹(타입별 필터 후 period_key desc 유지)
   const psGroups: [string, PS[]][] = ([['연', 'year'], ['반기', 'half'], ['분기', 'quarter'], ['월', 'month'], ['주', 'week']] as const)
     .map(([lab, t]) => [lab, periods.filter((p) => p.period_type === t)] as [string, PS[]]);
@@ -122,6 +134,72 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
           <div style={{ fontSize: 11, color: '#9CA3AF' }}>{child?.age_band}{child?.sex === 'M' ? '·남아' : child?.sex === 'F' ? '·여아' : ''}{child?.daycare ? ' · 기관 다님' : ''}</div>
         </div>
       </header>
+
+      {/* ⭐ 주간 계획(작전층) — 이번 주 무엇을·왜 코칭하는지 */}
+      {wkPlans.length > 0 && (
+        <details open style={{ background: '#FFFBEB', borderBottom: '1px solid #E5E7EB', padding: '10px 16px' }}>
+          <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 800, color: '#1a2b4a' }}>🎯 주간 계획(작전층) — {wkPlans.length}주</summary>
+          {wkPlans.map((w) => {
+            const budget = (w.budget || {}) as Record<string, unknown>;
+            const ledger = (w.ledger || {}) as Record<string, unknown>;
+            const goals = Array.isArray(w.goals) ? (w.goals as Array<Record<string, unknown>>) : [];
+            const pool = Array.isArray(w.target_pool) ? (w.target_pool as string[]) : [];
+            return (
+              <div key={String(w.week_key)} style={{ marginTop: 8, fontSize: 12, color: '#374151', borderTop: '1px dashed #E5E7EB', paddingTop: 6 }}>
+                <div style={{ fontWeight: 800, color: '#C45A00' }}>{String(w.week_key)} · {String(w.status)} {w.arc_week ? `· ${w.arc_week}주차` : ''}</div>
+                <div>🎚️ 주력 레버: <b>{String(budget.lever ?? '-')}</b>{w.secondary_axis ? ` · 2차축 ${String(w.secondary_axis)}` : ''}</div>
+                <div>🎯 목표 포트폴리오: {goals.length ? goals.map((g) => `${g.unit_id}(${g.status}${g.priority ? `·${g.priority}` : ''})`).join(' · ') : '-'}</div>
+                <div>🥗 음식 타깃: <b>{String(w.mission_target ?? '-')}</b>{pool.length ? ` · 풀: ${pool.join(', ')}` : ''}</div>
+                <div>👪 부모 행동: {String(w.behavior_goal ?? '-')}</div>
+                <div>⏱️ 채근 예산: push {String(budget.push ?? '-')}/주 · 노출 {String(budget.expose ?? '-')} · 사용 {ledger.pushUsed ? '✅' : '⬜'}</div>
+                {w.impression ? <div style={{ color: '#6B7280' }}>🩺 코치 소견(내부): {String(w.impression)}</div> : null}
+              </div>
+            );
+          })}
+        </details>
+      )}
+
+      {/* ⭐ 일간 진도·판단 차트(전술층) — 유닛 사다리 + 매일 무슨 결정을 내렸나 */}
+      {(progRows.length > 0 || dailyJudg.length > 0) && (
+        <details style={{ background: '#F0F9FF', borderBottom: '1px solid #E5E7EB', padding: '10px 16px' }}>
+          <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 800, color: '#1a2b4a' }}>📈 진도·일간 판단 차트(전술층) — 유닛 {progRows.length} · 결정 {dailyJudg.length}</summary>
+          {progRows.length > 0 && (
+            <div style={{ overflowX: 'auto', marginTop: 8 }}>
+              <table style={{ borderCollapse: 'collapse', fontSize: 11.5, width: '100%', minWidth: 420 }}>
+                <thead><tr style={{ color: '#9CA3AF', textAlign: 'left' }}>
+                  <th style={{ padding: '3px 6px' }}>유닛</th><th style={{ padding: '3px 6px' }}>상태</th><th style={{ padding: '3px 6px' }}>단</th><th style={{ padding: '3px 6px' }}>마지막신호</th><th style={{ padding: '3px 6px' }}>passStreak</th><th style={{ padding: '3px 6px' }}>중단사유</th>
+                </tr></thead>
+                <tbody>
+                  {progRows.map((r) => {
+                    const ev = (r.evidence || {}) as Record<string, unknown>;
+                    return (
+                      <tr key={String(r.unit_id)} style={{ borderTop: '1px solid #E5E7EB' }}>
+                        <td style={{ padding: '3px 6px', fontWeight: 700 }}>{String(r.unit_id)}</td>
+                        <td style={{ padding: '3px 6px' }}>{String(r.status)}</td>
+                        <td style={{ padding: '3px 6px' }}>{String(r.step)}</td>
+                        <td style={{ padding: '3px 6px' }}>{String(r.last_signal_at ?? '-')}</td>
+                        <td style={{ padding: '3px 6px' }}>{String(ev.passStreakDays ?? '-')}</td>
+                        <td style={{ padding: '3px 6px', color: '#C45A00' }}>{String(r.stop_reason ?? '')}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {dailyJudg.length > 0 && (
+            <div style={{ marginTop: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#0369A1', margin: '4px 0' }}>최근 일간 전개(최신순) — 무슨 결정을 어떻게</div>
+              {dailyJudg.map((d) => (
+                <div key={d.date} style={{ fontSize: 11.5, color: '#374151', padding: '2px 0', borderTop: '1px dashed #E5E7EB' }}>
+                  <b>{d.date}</b> · {d.unit || '-'}/{d.mode || '-'}{d.lowData ? ' ·lowData' : ''}{d.plateau ? ' ·정체' : ''}{d.fc.length ? ` · 인용 ${d.fc.join(',')}` : ''}
+                  {d.mirror ? <div style={{ color: '#6B7280' }}>↳ 거울: {d.mirror}</div> : null}
+                </div>
+              ))}
+            </div>
+          )}
+        </details>
+      )}
 
       {/* 병원 차트형 기간 요약(의무기록) — 주·월·분기·반기·연 */}
       {psGroups.some(([, arr]) => arr.length > 0) && (
