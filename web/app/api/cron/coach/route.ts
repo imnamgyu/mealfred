@@ -552,7 +552,7 @@ export async function GET(req: Request) {
                     ? ((latestThisWeek!.context as { factsCited: string[] }).factsCited) : [];
                   // ⑧ 조립(LLM 0콜) — 사실 카드·원장·시드 전부 결정론
                   const recentMirrors = ctxList.slice(0, 10).map((c) => (c as { mirror?: unknown }).mirror).filter((m): m is string => typeof m === 'string' && !!m);
-                  const factRes = compileFactCards({ rows: rs as unknown as CRow[], today, recentMirrors });
+                  const factRes = compileFactCards({ rows: rs as unknown as CRow[], today, recentMirrors, name: meta.nickname });
                   const firstOfWeek = !latestThisWeek;
                   const recentIntros = recentIntroUnitsOf(ctxList);
                   const introNeeded = introNeededV3(firstOfWeek, dr.decision.unit, null, recentIntros);
@@ -560,7 +560,7 @@ export async function GET(req: Request) {
                   const urgent = isUrgent({ icfqRiskCount, rows: rs as unknown as CRow[], today });
                   const ao = assembleLetter({
                     decision: dr.decision, unitDef: UNITS[dr.decision.unit], factCards: factRes.cards,
-                    blocks: BLOCKS, blockLedger: collectBlockLedger(ctxList.slice(0, 8)), factsCited: prevCited,
+                    blocks: BLOCKS, blockLedger: collectBlockLedger(ctxList.slice(0, 8)), blockLedgerRecent: collectBlockLedger(ctxList.slice(0, 3)), factsCited: prevCited,
                     recentCombos: ctxList.map((c) => (Array.isArray((c as { blocks?: unknown }).blocks) ? ((c as { blocks: string[] }).blocks).join('+') : '')).filter(Boolean),
                     name: meta.nickname || '아이', daySeed, cidHash, food: realTarget,
                     introNeeded, suppressIntro: dr.decision.mode === 'pivot' && recentIntros.has(dr.decision.unit),

@@ -579,7 +579,8 @@ describe('F-01 yesterdayDelta · F-03 push 게이트 · F-04 시급 · F-06 intr
     expect(introNeededV3(true, 'table-stage', [])).toBe(true);
     expect(introNeededV3(true, 'table-stage', [{ unit_id: 'table-stage', priority: 1, status: 'focus' }])).toBe(false);
     expect(introNeededV3(true, 'table-stage', [{ unit_id: 'table-stage', priority: 2, status: 'stopped' }])).toBe(true);   // 전주 중단 후 재선발=재도입
-    expect(introNeededV3(false, 'table-stage', [])).toBe(false);
+    expect(introNeededV3(false, 'table-stage', [])).toBe(true);   // 온보딩 수정(이사님 06-13): 신규 활성은 주중이어도 첫 코칭일에 도입
+    expect(introNeededV3(false, 'table-stage', [], ['table-stage'])).toBe(false);   // 단, 최근 도입했으면 재도입 금지(recentIntros)
   });
 });
 

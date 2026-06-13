@@ -111,7 +111,7 @@ export function runV3FamilyFull(fam: ReplayFamily, opt: ReplayOptions = {}): Rep
     if (!r.decision) { decisionsLog.push(null); continue; }   // goal 없음(관찰 주 폴백 외) — 편지 생략일
 
     const recentMirrors = ctxs.slice(-10).map((c) => (c as { mirror?: unknown }).mirror).filter((m): m is string => typeof m === 'string' && !!m);
-    const facts = compileFactCards({ rows: rows28.filter((x) => (Date.parse(today) - Date.parse(x.log_date)) / 86400000 <= 7), today, recentMirrors });
+    const facts = compileFactCards({ rows: rows28.filter((x) => (Date.parse(today) - Date.parse(x.log_date)) / 86400000 <= 7), today, recentMirrors, name });
     const firstOfWeek = !out.some((d) => d.weekKey === weekKey);
     const recentIntros = recentIntroUnitsOf(ctxs.slice(-7));
     const introNeeded = introNeededV3(firstOfWeek, r.decision.unit, prevWeekGoals, recentIntros);
@@ -119,7 +119,7 @@ export function runV3FamilyFull(fam: ReplayFamily, opt: ReplayOptions = {}): Rep
     const det = facts.forbidParts.length ? new RegExp(facts.forbidParts.join('|')) : null;
     const ao = assembleLetter({
       decision: r.decision, unitDef: UNITS[r.decision.unit], factCards: facts.cards,
-      blocks, blockLedger: collectBlockLedger(ctxs.slice(-8)), factsCited: cited,
+      blocks, blockLedger: collectBlockLedger(ctxs.slice(-8)), blockLedgerRecent: collectBlockLedger(ctxs.slice(-3)), factsCited: cited,
       recentCombos: ctxs.slice(-7).map((c) => (Array.isArray(c.blocks) ? (c.blocks as string[]).join('+') : '')).filter(Boolean),
       name, daySeed: Math.floor(Date.parse(today) / 86400000), cidHash,
       food: foodTarget, introNeeded, suppressIntro, lowData: r.lowData,

@@ -645,7 +645,7 @@
    "unit": "common",
    "stage": "pivot-bridge",
    "variant": 4,
-   "text": "같은 곳을 오래 바라봤다면 이제 다른 풍경을 만날 차례예요.",
+   "text": "이만큼 익혔으니 이제 다음 음식으로 넘어가 볼 차례예요.",
    "slots": [],
    "tone": "warm",
    "id": "common.pivot-bridge.4"
@@ -712,7 +712,7 @@
    "unit": "exposure-savings",
    "stage": "advance",
    "variant": 1,
-   "text": "어제의 걸음이 통장에 잘 쌓였어요. 이제 {next}{으로} 한 걸음 옮겨 볼 차례예요.",
+   "text": "어제 한 걸음을 잘 떼었어요. 이제 {next}{으로} 조금 더 나아가 볼 차례예요.",
    "slots": [
     "next"
    ],
@@ -755,7 +755,7 @@
    "unit": "exposure-savings",
    "stage": "advance",
    "variant": 4,
-   "text": "통장이 제법 도톰해졌으니 다음 장을 넘겨 볼까요. {next}{이가} 오늘의 새 걸음이에요.",
+   "text": "지난 며칠 꾸준히 쌓였으니 한 단계 나아가 볼까요. {next}{이가} 오늘의 새 걸음이에요.",
    "slots": [
     "next"
    ],
@@ -792,7 +792,7 @@
    "unit": "exposure-savings",
    "stage": "how",
    "variant": 3,
-   "text": "상을 차릴 때 {name}에게 {food} 접시를 식탁으로 옮기는 일을 맡겨 보세요. 손끝으로 느낀 무게도 어엿한 저금이 되거든요.",
+   "text": "상을 차릴 때 {name}에게 {food} 접시를 식탁으로 옮기는 일을 맡겨 보세요. 손끝으로 만져 본 경험도 음식과 친해지는 좋은 첫걸음이 되거든요.",
    "slots": [
     "name",
     "food"
@@ -826,7 +826,7 @@
    "unit": "exposure-savings",
    "stage": "intro",
    "variant": 1,
-   "text": "이번 주는 {name}{과와} 새로운 맛 사이에 작은 적금을 들어 보려고 해요. 마침 기록에 반가운 단서도 있었어요. {fact}.",
+   "text": "이번 주는 {name}{과와} 새로운 맛을 조금씩 익혀 보려고 해요. 마침 기록에 반가운 단서도 있었어요. {fact}.",
    "slots": [
     "name",
     "fact"
@@ -855,7 +855,7 @@
    "unit": "exposure-savings",
    "stage": "intro",
    "variant": 3,
-   "text": "새로운 음식과 친해지는 일은 적금과 닮았어요. 이번 주는 조급함을 내려놓고 작은 만남을 차곡차곡 모아 보면 어떨까요.",
+   "text": "새로운 음식과 친해지려면 여러 번 마주치는 시간이 필요해요. 이번 주는 조급함을 내려놓고 작게 자주 만나게 해 보면 어떨까요.",
    "slots": [],
    "tone": "warm",
    "id": "exposure-savings.intro.3"
@@ -887,7 +887,7 @@
    "unit": "exposure-savings",
    "stage": "observe",
    "variant": 2,
-   "text": "{fact}. 그 순간이 그대로 적금으로 들어왔어요. 서두르지 않은 속도가 참 좋네요.",
+   "text": "{fact}. 그 한 번이 분명한 진전이에요. 서두르지 않은 속도가 참 좋네요.",
    "slots": [
     "fact"
    ],
@@ -901,7 +901,7 @@
    "unit": "exposure-savings",
    "stage": "observe",
    "variant": 3,
-   "text": "쌓여 가는 기록을 넘기다 어제에 눈이 머물렀어요. {fact}. 실패 없이 적립만 있는 통장이지요.",
+   "text": "기록을 넘기다 어제가 눈에 들어왔어요. {fact}. 작은 시도 하나하나가 그대로 남아요.",
    "slots": [
     "fact"
    ],
@@ -957,7 +957,7 @@
    "unit": "exposure-savings",
    "stage": "obstacle",
    "variant": 4,
-   "text": "정성껏 올린 음식에 손도 닿지 않은 날엔 마음이 허전하지요. 그런 날엔 눈으로 본 것만으로 저금이 됐다고 속으로 되뇌어 보세요.",
+   "text": "정성껏 올린 음식에 손도 닿지 않은 날엔 마음이 허전하지요. 그런 날엔 눈으로 본 것만으로도 한 걸음 나아갔다고 속으로 되뇌어 보세요.",
    "slots": [],
    "tone": "empathy",
    "id": "exposure-savings.obstacle.4"
@@ -966,7 +966,7 @@
    "unit": "exposure-savings",
    "stage": "pivot",
    "variant": 1,
-   "text": "이 적금은 당분간 접어 두려고 해요. 통장은 어디 가지 않으니 마음 편한 식탁을 누리면 돼요.",
+   "text": "이 도전은 당분간 잠시 멈추려고 해요. 지금까지 쌓인 건 사라지지 않으니 마음 편한 식탁을 누리면 돼요.",
    "slots": [],
    "tone": "warm",
    "id": "exposure-savings.pivot.1"
@@ -975,7 +975,7 @@
    "unit": "exposure-savings",
    "stage": "pivot",
    "variant": 2,
-   "text": "쉼표도 적금의 일부예요. 며칠은 익숙하고 좋아하는 메뉴로 식탁을 채우면서 여유를 다시 모아 보기로 해요.",
+   "text": "쉬어 가는 것도 과정의 일부예요. 며칠은 익숙하고 좋아하는 메뉴로 식탁을 채우면서 여유를 되찾아 보기로 해요.",
    "slots": [],
    "tone": "warm",
    "id": "exposure-savings.pivot.2"
@@ -1020,7 +1020,7 @@
    "unit": "exposure-savings",
    "stage": "praise",
    "variant": 3,
-   "text": "강요 대신 초대를 건네는 태도, 이 적금의 가장 깊은 비결이에요. 그 결은 아이에게도 고요히 스며들어요.",
+   "text": "강요 대신 권하는 태도가 가장 중요한 비결이에요. 그 편안함은 아이에게도 자연스럽게 전해져요.",
    "slots": [],
    "tone": "praise",
    "minStep": 2,
@@ -1039,7 +1039,7 @@
    "unit": "exposure-savings",
    "stage": "praise",
    "variant": 5,
-   "text": "꾸준함은 티가 잘 나지 않지만 통장은 빠짐없이 기억하고 있어요. 묵묵히 식탁을 지켜 온 시간이 가장 큰 밑천이지요.",
+   "text": "꾸준함은 티가 잘 나지 않지만 아이는 그 시간을 분명히 기억해요. 묵묵히 식탁을 지켜 온 날들이 가장 큰 힘이에요.",
    "slots": [],
    "tone": "praise",
    "id": "exposure-savings.praise.5"
@@ -1048,7 +1048,7 @@
    "unit": "exposure-savings",
    "stage": "why",
    "variant": 1,
-   "text": "아이의 입은 눈과 코가 먼저 안심한 다음에야 열리는 문이에요. 보고, 만지고, 냄새 맡는 순서 그대로 맛까지 가는 계단이 놓이지요.",
+   "text": "아이는 눈과 코로 먼저 안심한 다음에야 입을 열어요. 보고, 만지고, 냄새 맡고 난 뒤에야 맛볼 준비가 되거든요.",
    "slots": [],
    "tone": "warm",
    "id": "exposure-savings.why.1"
@@ -1057,7 +1057,7 @@
    "unit": "exposure-savings",
    "stage": "why",
    "variant": 2,
-   "text": "낯선 음식은 마주친 기억이 모일수록 경계가 옅어져요. 혀끝에 닿았다 곧장 돌아 나와도 그 만남은 고스란히 저금이 되지요.",
+   "text": "낯선 음식은 여러 번 마주칠수록 경계가 옅어져요. 혀끝에 닿았다 곧장 뱉어도 그 한 번은 분명한 진전이에요.",
    "slots": [],
    "tone": "warm",
    "id": "exposure-savings.why.2"
@@ -1066,7 +1066,7 @@
    "unit": "exposure-savings",
    "stage": "why",
    "variant": 3,
-   "text": "거부도 적립이라는 게 이 적금의 다정한 규칙이에요. 고개를 돌린 날에도 {name}의 마음속에는 그 음식의 얼굴이 한층 익숙해지거든요.",
+   "text": "거부한 날도 헛되지 않아요. 고개를 돌린 날에도 {name}의 눈에는 그 음식이 한 번 더 담겨 조금씩 익숙해지거든요.",
    "slots": [
     "name"
    ],
@@ -1077,7 +1077,7 @@
    "unit": "exposure-savings",
    "stage": "why",
    "variant": 4,
-   "text": "억지로 연 문은 금방 다시 닫히지만, 스스로 연 문은 오래 열려 있어요. 그래서 강요 없는 짧은 만남이 가장 빠른 길이 돼요.",
+   "text": "억지로 먹인 음식은 금방 다시 거부하지만, 스스로 입에 댄 음식은 오래가요. 그래서 강요하지 않고 짧게 자주 권하는 게 가장 빠른 길이에요.",
    "slots": [],
    "tone": "warm",
    "id": "exposure-savings.why.4"
@@ -3925,7 +3925,7 @@
    "unit": "sensory-texture",
    "stage": "why",
    "variant": 1,
-   "text": "아이에게 낯선 질감은 맛보다 먼저 닿는 큰 관문이에요. 보고 만지고 냄새 맡는 사이, 입은 천천히 마음의 준비를 마친답니다.",
+   "text": "아이에게 낯선 질감은 맛보다 먼저 부담이 되곤 해요. 보고 만지고 냄새 맡는 사이, 입도 천천히 준비를 마쳐요.",
    "slots": [],
    "tone": "warm",
    "id": "sensory-texture.why.1"
@@ -4028,7 +4028,7 @@
    "unit": "table-stage",
    "stage": "how",
    "variant": 2,
-   "text": "끝내는 순간은 가볍게 매듭짓는 게 비결이에요. 즐거움이 아직 남아 있을 때 막을 내리면, 식탁은 또 오고 싶은 곳으로 기억돼요.",
+   "text": "식사는 가볍게 마무리하는 게 좋아요. 아이가 즐거울 때 끝내면, 식탁이 또 오고 싶은 자리로 기억돼요.",
    "slots": [],
    "tone": "warm",
    "id": "table-stage.how.2"
@@ -4692,7 +4692,7 @@
    "unit": "common",
    "stage": "plateau",
    "variant": 7,
-   "text": "어떤 날은 그저 곁에 앉아 같이 먹는 것만으로 충분해요. 오늘은 그 평범함을 가만히 누려 보세요.",
+   "text": "어떤 날은 그저 곁에 앉아 같이 먹는 것만으로 좋아요. 오늘은 그 평범함을 가만히 누려 보세요.",
    "slots": [],
    "tone": "warm",
    "id": "common.plateau.7"
@@ -4739,7 +4739,7 @@
    "unit": "common",
    "stage": "plateau",
    "variant": 12,
-   "text": "잘 가고 있다는 말을 꼭 전하고 싶었어요. 지금처럼 담담히 이어 가면 그것으로 충분해요.",
+   "text": "잘 가고 있다는 말을 꼭 전하고 싶었어요. 지금처럼 담담히 이어 가면 돼요.",
    "slots": [],
    "tone": "empathy",
    "id": "common.plateau.12"

@@ -56,28 +56,20 @@ export type FoodReco = { group: string; food: string; via: 'liked' | 'pair' | 'c
 export function pickFoodReco(args: { target: string; likedIngredients: string[]; freqMap?: FreqMap; seed?: number }): FoodReco | null {
   const reps0 = GROUP_INGREDIENTS[args.target];
   if (!reps0 || !reps0.length) return null;
-  const off = (((args.seed || 0) % reps0.length) + reps0.length) % reps0.length;   // 날짜로 대표 식재료 회전(치즈→요거트→우유 등 음식 다양화)
-  const reps = [...reps0.slice(off), ...reps0.slice(0, off)];
+  // ⭐ 식재료 다양화(이사님 06-13 '유제품 계속 우유'·'당근 반복') — '잘 먹는 것' 고착 대신 대표 식재료를 날짜로 회전하고,
+  //   그 식재료의 관계(잘먹음/궁합/푸드체이닝/도전)로 프레이밍. → 우유→요거트→치즈, 당근→단호박→시금치.
+  const off = (((args.seed || 0) % reps0.length) + reps0.length) % reps0.length;
+  const rep = reps0[off];   // 오늘의 추천 식재료(회전)
   const liked = new Set((args.likedIngredients || []).filter(Boolean));
-  // ① 잘 먹는 것 — 아이가 이미 잘 먹는 그 그룹 식재료를 한 번 더(가장 쉬운 골고루)
-  const likedRep = reps.find((r) => liked.has(r));
-  if (likedRep) return { group: args.target, food: stapleDisplay(likedRep), via: 'liked' };
-  // ② 궁합 — 대표 식재료를 아이가 잘 먹는 것에 곁들이기
-  for (const rep of reps) {
-    const pl = neighborsOf(rep).find((n) => n.kind === 'pair' && liked.has(n.nm));
-    if (pl) return { group: args.target, food: rep, via: 'pair', pairLiked: stapleDisplay(pl.nm) };
+  if (liked.has(rep)) return { group: args.target, food: stapleDisplay(rep), via: 'liked' };
+  const pl = neighborsOf(rep).find((n) => n.kind === 'pair' && liked.has(n.nm));   // 궁합 — 잘 먹는 것에 곁들이기
+  if (pl) return { group: args.target, food: rep, via: 'pair', pairLiked: stapleDisplay(pl.nm) };
+  for (const lk of liked) {   // 푸드체이닝 — 잘 먹는 것의 사촌이 이 rep이면
+    if (neighborsOf(lk).some((n) => n.kind === 'bridge' && n.nm === rep)) return { group: args.target, food: rep, via: 'chain', pairLiked: stapleDisplay(lk) };
   }
-  // ③ 푸드체이닝 — 아이가 잘 먹는 것의 사촌(bridge)이 결핍군 대표에 있으면 그걸로
-  for (const lk of liked) {
-    const cousin = neighborsOf(lk).find((n) => n.kind === 'bridge' && reps.includes(n.nm));
-    if (cousin) return { group: args.target, food: cousin.nm, via: 'chain', pairLiked: stapleDisplay(lk) };
-  }
-  // ④ 또래 인기 음식으로 도전
-  for (const rep of reps) {
-    const d = popularDishesFor(rep, args.freqMap);
-    if (d.length) return { group: args.target, food: rep, via: 'dish', dish: d[0] };
-  }
-  return { group: args.target, food: stapleDisplay(reps[0]), via: 'plain' };
+  const d = popularDishesFor(rep, args.freqMap);   // 또래 인기 음식으로 도전
+  if (d.length) return { group: args.target, food: rep, via: 'dish', dish: d[0] };
+  return { group: args.target, food: stapleDisplay(rep), via: 'plain' };
 }
 
 /**

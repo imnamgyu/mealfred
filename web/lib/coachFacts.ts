@@ -70,57 +70,47 @@ function pickFresh(arr: string[], seed: number, recent: string[]): string {
   return arr[(((seed) % arr.length) + arr.length) % arr.length];
 }
 // ⭐ 식단 거울 v3(랄프위검 R2 반영) — 가정식(부모 기록) 우선 반영 + 급식 보조, 컨디션 존중, 영양은 argmin(가장 시급한 결핍)+만성 가중.
-export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: number; recent?: string[] }): string | null {
+export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: number; recent?: string[]; name?: string }): string | null {
   const { rows, today } = p;
+  const nm = p.name || '아이';
   const todayMs = Date.parse(today);
   const age = (d: string) => Math.round((todayMs - Date.parse(d)) / 86400000);
   const seed = p.daySeed || 0;
   const recent = p.recent || [];   // 최근 거울 문장들(쿨다운 — 영양라인 verbatim 복붙 차단)
-  // ⭐ 시계열 '잘 먹는 식재료'(이사님) — ate_well≠false 식재료 빈도 상위. 구체 음식 추천(잘먹는것/사촌/푸드체이닝)의 입력.
-  const likedFreq: Record<string, number> = {};
-  rows.filter((r) => r.ate_well !== false).forEach((r) => (r.ingredients || []).forEach((i) => { if (i) likedFreq[i] = (likedFreq[i] || 0) + 1; }));
-  const liked = Object.entries(likedFreq).sort((a, b) => b[1] - a[1]).map(([k]) => k).slice(0, 8);
+  // ⭐ '잘 먹는 식재료' 판단(이사님 06-13): ① 기관 급식(place=daycare)은 차려진 거라 '잘 먹는' 근거 아님(P10) — 집에서 먹은 것만.
+  //   ② 한 번 먹은 걸 '잘 먹는'이라 하면 안 됨 → 집에서 최소 2일+ 거부 없이 먹은 것. 데이터 적으면 liked=비어 도전 음식으로(오판 방지).
+  const LIKED_MIN_DAYS = 2;
+  const refusedSet = new Set<string>();
+  rows.forEach((r) => String(r.refused || '').split(/[,，·]/).forEach((t) => { const k = cleanRefusal(t); if (k) refusedSet.add(k); }));
+  const likedDays: Record<string, Set<string>> = {};
+  rows.filter((r) => r.ate_well !== false && r.place !== 'daycare').forEach((r) => (r.ingredients || []).forEach((i) => { if (i) (likedDays[i] ||= new Set()).add(r.log_date); }));
+  const liked = Object.entries(likedDays)
+    .filter(([k, days]) => days.size >= LIKED_MIN_DAYS && !refusedSet.has(k))   // 집에서 2일+ 거부 없이 = '잘 먹는'(급식 제외·정당화)
+    .sort((a, b) => b[1].size - a[1].size).map(([k]) => k).slice(0, 8);
+  // ⭐ '잘 먹는 음식(요리)'(이사님 06-13: 짜파게티에 당근 채썰어 넣기) — 집에서 거부 없이 반복한 '짠 끼니' 요리. 결핍 식재료를 여기 섞어 권유.
+  //   과일·간식·우유류는 섞기 대상 아님(바나나에 시금치=괴식) → 끼니 슬롯 + 과일/간식 메뉴 제외.
+  const MEAL_SLOTS = new Set(['breakfast', 'lunch', 'dinner']);
+  const NOT_DISH = /바나나|사과|딸기|참외|귤|수박|포도|오렌지|블루베리|키위|망고|요구르트|요거트|요플레|우유|치즈|두유|과자|빵|꽈베기|마들렌|시리얼|젤리|아이스크림|주스|미숫가루|전병|떡|핫도그|크림/;
+  const likedDishDays: Record<string, Set<string>> = {};
+  rows.filter((r) => r.ate_well !== false && r.place !== 'daycare' && MEAL_SLOTS.has(r.slot || '')).forEach((r) => (r.menus || []).forEach((m) => {
+    const t = sanitizeMenu(String(m || '')); if (t && !NOT_DISH.test(t)) (likedDishDays[t] ||= new Set()).add(r.log_date);
+  }));
+  const likedDishes = Object.entries(likedDishDays)
+    .filter(([, days]) => days.size >= LIKED_MIN_DAYS)
+    .sort((a, b) => b[1].size - a[1].size).map(([k]) => k).slice(0, 6);
 
-  // (1) 어제 끼니 — 부모가 직접 기록한 가정식을 1차 소재로(‘봐주는 편지’), 급식은 중립 보조. 컨디션 저하는 존중.
-  const SLOT_PRI: Record<string, number> = { dinner: 4, breakfast: 3, lunch: 2, pm_snack: 1, am_snack: 1, snack: 1 };
-  const yAll = rows.filter((r) => age(r.log_date) === 1);
-  // 컨디션 메모는 어제·오늘(다음날 아침 기록) + note·refused 양쪽에서 감지 — 6/02 '2배아픈데'·거부칸 '배아파서 카레'를 놓치던 구멍 보완.
+  // (1) 컨디션 — 안 좋은 날은 공감만(이사님: '먹은 것 나열'은 엄마한테 도움 안 됨 → 어제 끼니 복기 자체를 제거).
+  //   note·refused 양쪽에서 감지(6/02 '2배아픈데'·거부칸 '배아파서 카레'를 놓치던 구멍 보완).
   const sick = rows.some((r) => age(r.log_date) <= 1 && ((r.note && SICK_RE.test(r.note)) || (r.refused && SICK_RE.test(r.refused))));
-  // ⭐ 급식 '점심'만 dc로(랄프위검 R3 적발: place=daycare 첫 행이 오전간식이라 간식을 점심으로 둔갑시키던 버그). 간식 슬롯은 끼니로 승격 금지.
-  const isLunchDc = (r: FactRow) => r.slot === 'lunch' && (r.place === 'daycare' || (r.menus || []).length >= 4);
-  const withMenu = yAll.filter((r) => (r.menus || []).some((m) => m && m.trim()));
-  const dc = withMenu.find(isLunchDc);
-  const slotKo = (r: FactRow) => SLOT_KO[r.slot || ''] || '끼니';
-  const homeMeals = withMenu.filter((r) => r.place !== 'daycare' && !isLunchDc(r))
-    .sort((a, b) => (SLOT_PRI[b.slot || ''] || 0) - (SLOT_PRI[a.slot || ''] || 0));
-  // 어제 끼니 — 짧게 '한 끼만'(이사님: 나열 길다). 급식·집밥을 날짜로 번갈아 비춤.
-  const dcList = dc ? fmtMenus(dc.menus) : '';
-  const hb = homeMeals[0]; const hList = hb ? fmtMenus(hb.menus) : '';
-  let part1: string | null = null;
-  if (dcList && hList) {
-    part1 = (seed % 2 === 0)
-      ? `어제 점심은 어린이집에서 ${dcList}${josa(dcList, '이', '가')} 나왔어요`
-      : `어제 ${slotKo(hb)}엔 집에서 ${hList}${josa(hList, '을', '를')} 먹었어요`;
-  } else if (dcList) {
-    part1 = `어제 점심은 어린이집에서 ${dcList}${josa(dcList, '이', '가')} 나왔어요`;
-  } else if (hList) {
-    part1 = hb.ate_well === false
-      ? `어제 ${slotKo(hb)}엔 ${hList}${josa(hList, '이', '가')} 올라왔어요`
-      : `어제 ${slotKo(hb)}엔 ${hList}${josa(hList, '을', '를')} 먹었어요`;
-  }
+  if (sick) return '어제는 속이 편치 않았던 날이었나 봐요. 그런 날은 무리하지 않아도 괜찮아요.';
 
-  if (sick) {   // 컨디션 안 좋은 날 — 공감 + 그날 끼니 1줄(통째 생략 금지·랄프위검 6/03 적발), 영양 잔소리는 생략(part2 skip)
-    return part1
-      ? `어제는 속이 편치 않았던 날이었나 봐요. ${part1}. 무리하지 않아도 괜찮아요.`
-      : '어제는 속이 편치 않았던 날이었나 봐요. 그런 날은 무리하지 않아도 괜찮아요.';
-  }
-
-  // (2) 영양신호등 — 최근 7일 식품군 커버리지. argmin(가장 시급한 결핍 1개) + 만성군 가중 + green 한 토막은 채소 묶음 금지.
+  // (2) 영양신호등 — 최근 7일 식품군 커버리지. 해석(강점 대비 결핍 1문장) + 잘 먹는 음식에 섞는 구체 행동 1문장. '먹은 것 나열' 없음.
   const byDay: Record<string, string[]> = {};
   rows.filter((r) => { const a = age(r.log_date); return a >= 1 && a <= 7; })
     .forEach((r) => { (byDay[r.log_date] ||= []).push(...((r.ingredients || []) as string[])); });
   const days = Object.values(byDay).filter((d) => d.length);
-  let part2: string | null = null;
+  let analysis: string | null = null;   // 영양 해석 1문장(강점 대비 결핍)
+  let action: string | null = null;     // 구체 행동 1문장(잘 먹는 음식에 섞기)
   if (days.length >= 2) {
     const { signals } = computeGroupSignals(days);
     const ko = (g: string) => GROUP_KO[g] || g;
@@ -129,7 +119,7 @@ export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: n
       (s.level === 'red' ? 0 : 100) + (PERSIST_PRIORITY.has(s.group) ? -5 : 0) + (DAILY_GROUPS.has(s.group) ? 0 : 10) + s.weeklyEst;
     const gaps = signals.filter((s) => s.level !== 'green').sort((a, b) => rank(a) - rank(b));
     if (gaps.length) {
-      // ⭐ 결핍 '주 1회' 회전(이사님: 같은 잔소리 반복 금지) — 추천 음식·군이 최근 거울에 안 나온 결핍 우선(음식명 기준으로 판정 = 당근 매일 반복 차단). 다 나왔으면 날짜 회전.
+      // ⭐ 결핍 '주 1회' 회전(이사님: 같은 잔소리 반복 금지) — 추천 음식·군이 최근 거울에 안 나온 결핍 우선(음식명 기준 판정 = 당근 매일 반복 차단). 다 나왔으면 날짜 회전.
       let g = gaps[seed % Math.min(3, gaps.length)];
       let reco = pickFoodReco({ target: g.group, likedIngredients: liked, seed });
       for (const c of gaps.slice(0, 4)) {
@@ -139,35 +129,53 @@ export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: n
       }
       const gap = ko(g.group);
       const snack = g.group === '과일' || g.group === '유제품';   // 간식 채널(끼니 곁들임 금지·P9)
+      // 해석 — 잘 채운 군(강점) 대비 결핍(이사님: "어제 식물성 단백 많았는데 채소는 비어요" 식). 곡물=밥이라 강점에서 제외(뻔함). 도입 정형성 방지로 문구 회전.
+      const greens = signals.filter((s) => s.level === 'green' && s.group !== '곡물');
+      const strong = greens.length ? greens[(((seed % greens.length) + greens.length) % greens.length)] : null;
+      const ks = strong ? ko(strong.group) : '';
+      analysis = pickFresh(strong ? [
+        `최근 ${ks}${josa(ks, '은', '는')} 잘 챙겼는데 ${gap}${josa(gap, '이', '가')} 좀 아쉬워요`,
+        `${gap}${josa(gap, '이', '가')} 요즘 좀 비어요 — ${ks}${josa(ks, '은', '는')} 잘 채우고 있고요`,
+        `${ks}${josa(ks, '은', '는')} 넉넉한데 ${gap}${josa(gap, '이', '가')} 아쉬운 한 주예요`,
+        `요즘 ${gap}${josa(gap, '이', '가')} 부족해요. ${ks}${josa(ks, '은', '는')} 잘 챙기고 있어요`,
+      ] : [
+        `요즘 ${gap}${josa(gap, '이', '가')} 좀 아쉬워요`,
+        `요즘 식탁에 ${gap}${josa(gap, '이', '가')} 조금 부족해요`,
+        `${gap}${josa(gap, '이', '가')} 며칠째 비어 있어요`,
+      ], seed, recent);
       // ⭐ 구체 음식 추천(이사님: 그룹명 말고 요거트/당근 등) — 시계열 잘먹는것 → 궁합 → 푸드체이닝 → 도전(괴식0 테이블 근거).
       if (g.group === '과일') {   // 과일=간식채널 — 구체 과일명(잘먹는것 우선)으로, 항상 '간식으로'(끼니 곁들임 금지)
         const fruits = ['바나나', '사과', '딸기', '참외', '귤', '블루베리', '수박'];
         const fr = fruits.find((x) => liked.includes(x)) || fruits[seed % fruits.length];
-        part2 = pickFresh([
+        action = pickFresh([
           `${fr} 같은 과일을 간식으로 한 번 더 챙겨 주면 좋아요`,
-          `오후 간식에 ${fr}${josa(fr, '을', '를')} 더해 과일을 채워 보세요`,
-          `요즘 과일이 아쉬운데 ${fr}${josa(fr, '을', '를')} 간식으로 내주면 어떨까요`,
-          `${fr}${josa(fr, '을', '를')} 간식으로 곁들이면 과일이 한결 채워져요`,
+          `오후 간식에 ${fr}${josa(fr, '을', '를')} 더해 보세요`,
+          `${fr}${josa(fr, '을', '를')} 간식으로 내주면 어떨까요`,
         ], seed, recent);
       } else if (snack && reco) {   // 유제품 — 간식 채널(끼니 곁들임 금지), via 무관 간식 권유 + 음식·문구 회전
         const f = reco.food;
-        part2 = pickFresh([
-          `${gap}${josa(gap, '은', '는')} 아린이가 잘 먹는 ${f}로 간식 때 한 번 더 챙겨 주면 좋아요`,
+        action = pickFresh([
+          `${nm}${josa(nm, '이', '가')} 잘 먹는 ${f}로 간식 때 한 번 더 챙겨 주면 좋아요`,
           `${f} 같은 ${gap}${josa(gap, '을', '를')} 간식으로 가볍게 더해 보세요`,
-          `오후 간식에 ${f}${josa(f, '을', '를')} 더하면 ${gap}${josa(gap, '이', '가')} 채워져요`,
+          `오후 간식에 ${f}${josa(f, '을', '를')} 더해 보세요`,
         ], seed, recent);
-      } else if (reco) {   // 끼니 채널(채소·단백·곡물) — 잘먹는것/궁합/푸드체이닝/도전
+      } else if (reco) {   // 끼니 채널 — ⭐'잘 먹는 음식'에 결핍 식재료 섞기(이사님: 짜파게티에 당근 채썰어) 우선 + 사촌/궁합. 은유·나열 금지.
         const f = reco.food;
-        if (reco.via === 'liked') part2 = `오늘은 잘 먹는 ${f}${josa(f, '을', '를')} 한 번 더 올려 ${gap}${josa(gap, '을', '를')} 채워 보세요`;
-        else if (reco.via === 'pair') part2 = `오늘은 아린이가 잘 먹는 ${reco.pairLiked}에 ${f}${josa(f, '을', '를')} 살짝 곁들여 보면 어떨까요`;
-        else if (reco.via === 'chain') part2 = `${reco.pairLiked}${josa(reco.pairLiked || '', '을', '를')} 잘 먹으니, 사촌 격인 ${f}도 콩알만큼 권해 보면 좋아요`;
-        else if (reco.via === 'dish') part2 = `${reco.dish} 같은 음식으로 ${f}${josa(f, '을', '를')} 작게 시도해 보면 좋아요`;
-        else part2 = `${f}${josa(f, '을', '를')} 아주 조금씩 식탁에 올려 보면 어떨까요`;
-      } else {
-        part2 = snack ? `${gap}${josa(gap, '을', '를')} 간식으로 한 번 더 챙겨 주면 좋아요` : `요즘 ${gap}${josa(gap, '이', '가')} 좀 아쉬워요`;
+        const dish = likedDishes.length ? likedDishes[(((seed % likedDishes.length) + likedDishes.length) % likedDishes.length)] : null;
+        const opts: string[] = [];
+        if (dish) opts.push(   // 가장 실용적 — 잘 먹는 요리에 결핍 식재료를 잘게 섞기(거부감↓)
+          `${nm}${josa(nm, '이', '가')} 잘 먹는 ${dish}에 ${f}${josa(f, '을', '를')} 잘게 썰어 넣어 보면 어떨까요`,
+          `${dish}${josa(dish, '을', '를')} 좋아하니, 거기에 ${f}${josa(f, '을', '를')} 조금 다져 섞어 보세요`,
+          `익숙한 ${dish} 속에 ${f}${josa(f, '을', '를')} 살짝 넣으면 거부감이 적어요`,
+        );
+        if (reco.via === 'pair' && reco.pairLiked) opts.push(`잘 먹는 ${reco.pairLiked} 옆에 ${f}${josa(f, '을', '를')} 한 조각 곁들여 보세요`);
+        if (reco.via === 'chain' && reco.pairLiked) opts.push(`잘 먹는 ${reco.pairLiked}${josa(reco.pairLiked, '과', '와')} 결이 닮은 ${f}${josa(f, '을', '를')} 아주 조금 권해 보세요`);
+        if (reco.dish) opts.push(`${reco.dish}처럼 익숙한 형태로 ${f}${josa(f, '을', '를')} 작게 시작해 보세요`);
+        opts.push(`${f}${josa(f, '을', '를')} 잘게 썰어 익숙한 음식에 조금씩 섞어 보세요`);
+        action = pickFresh(opts, seed, recent);
       }
-    } else {   // 전부 green(결핍 0) — 데이터 근거 축하(celebrate 톤·이사님 Task3)
-      part2 = pickFresh([
+    } else {   // 전부 green(결핍 0) — 데이터 근거 축하(celebrate 톤·이사님 Task3). 행동 없음.
+      analysis = pickFresh([
         '이번 주는 식품군이 골고루 잘 채워졌어요. 지금처럼만 가면 충분해요',
         '요즘 식단 균형이 참 좋아요. 이 흐름을 믿고 가요',
         '최근 식탁이 두루 잘 채워지고 있어요. 잘 챙기고 계세요',
@@ -175,11 +183,11 @@ export function buildMealMirror(p: { rows: FactRow[]; today: string; daySeed?: n
     }
   }
 
-  const parts = [part1, part2].filter(Boolean) as string[];
+  const parts = [analysis, action].filter(Boolean) as string[];
   return parts.length ? parts.join('. ') + '.' : null;
 }
 
-export function compileFactCards(p: { rows: FactRow[]; today: string; recentMirrors?: string[] }): { cards: FactCard[]; noteCards: string[]; forbidParts: string[]; mirror: string | null } {
+export function compileFactCards(p: { rows: FactRow[]; today: string; recentMirrors?: string[]; name?: string }): { cards: FactCard[]; noteCards: string[]; forbidParts: string[]; mirror: string | null } {
   const { rows, today } = p;
   const todayMs = Date.parse(today);
   const age = (d: string) => Math.round((todayMs - Date.parse(d)) / 86400000);
@@ -203,7 +211,7 @@ export function compileFactCards(p: { rows: FactRow[]; today: string; recentMirr
       ? `점심: 기록된 ${winDays}일 중 ${lDays.size}일 점심 기록(어제까지 이어짐) — 평일은 어린이집·유치원 급식으로 먹음(결식 아님)`
       : `점심: 기록된 ${winDays}일 중 ${lDays.size}일 점심 기록(어제까지 이어짐 — 결식 아님)`,
       'diagnosis',
-      lunchDc >= Math.ceil(lunchRows.length / 2) ? '평일 점심은 어린이집 급식으로 나오고 있어요' : '점심 기록이 어제까지 꾸준히 이어지고 있어요');
+      lunchDc >= Math.ceil(lunchRows.length / 2) ? '점심은 어린이집에서 챙겨지니, 집에서는 아침·저녁에 집중하면 돼요' : '점심 기록이 어제까지 꾸준히 이어지고 있어요');   // ⭐ '급식 나온다' 사실 나열(이사님)→ 집밥 어디 집중할지 행동 가이드로
   } else if (lDays.size >= 1 && lastLunchAge >= 3) {
     card('lunch', `점심: 창 내 ${lDays.size}일 기록 — 단, 마지막 점심 기록이 ${lastLunchAge}일 전(추세: 최근 비어 있음. 기록 누락일 수 있으니 '거른다' 단정 금지 — 비어 있는 기록을 부드럽게 확인 권유 가능)`,
       'diagnosis', '점심 기록이 며칠째 비어 있어요(바쁜 날 누락이었을 수도 있고요)');
@@ -252,8 +260,8 @@ export function compileFactCards(p: { rows: FactRow[]; today: string; recentMirr
   const dcTop = topOf(rows.filter((r) => r.place === 'daycare'), 3);
   if (homeTop.length) card('top-home', `집에서 자주 오르는 음식: ${homeTop.map(([m, c]) => `${m} ${c}회`).join(' · ')}`,
     'diagnosis', `집 식탁에는 ${homeTop.slice(0, 2).map(([m]) => m).join('·')} 같은 음식이 자주 올라요`);
-  if (dcTop.length) card('top-dc', `기관 급식에서 자주 먹는 음식(집 칭찬 근거 아님): ${dcTop.map(([m, c]) => `${m} ${c}회`).join(' · ')}`,
-    'diagnosis', `어린이집 급식에서는 ${dcTop[0][0]} 같은 음식을 잘 먹고 있어요`);
+  if (dcTop.length) card('top-dc', `기관 급식에 자주 나오는 음식(집 칭찬 근거 아님·P10): ${dcTop.map(([m, c]) => `${m} ${c}회`).join(' · ')}`,
+    'diagnosis', `어린이집 급식에는 ${dcTop[0][0]} 같은 음식이 자주 나와요`);   // ⭐ 급식은 '차려진' 것 — '잘 먹는다' 판단 금지(이사님), 나온다는 사실만
 
   // 4) 거부 — ⭐ 횟수=거부한 '날' 수(M6: 행 단위 카운트는 하루 2슬롯 거부를 '간헐 2회'로 부풀려 시계열 라벨을 거짓으로 만듦)
   const refMap: Record<string, { days: Set<string>; last: string }> = {};
@@ -281,7 +289,7 @@ export function compileFactCards(p: { rows: FactRow[]; today: string; recentMirr
   const staleEvt = [...new Set(noteRows.map((r) => r.note).join(' ').match(EVENT_RE) || [])].filter((w) => !recentEvt.has(w));
   if (staleEvt.length) forbidParts.push(staleEvt.join('|'));
 
-  const mirror = buildMealMirror({ rows, today, daySeed: Math.floor(todayMs / 86400000), recent: p.recentMirrors });
+  const mirror = buildMealMirror({ rows, today, daySeed: Math.floor(todayMs / 86400000), recent: p.recentMirrors, name: p.name });
   return { cards: cards.slice(0, 14), noteCards, forbidParts, mirror };
 }
 

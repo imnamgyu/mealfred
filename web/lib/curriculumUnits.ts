@@ -178,7 +178,7 @@ export const UNITS: Record<UnitId, UnitDef> = {
   },
 
   'exposure-savings': {
-    id: 'exposure-savings', label: '노출 적금', lever: 'food', minWeek: 2,
+    id: 'exposure-savings', label: '새 음식 조금씩 노출', lever: 'food', minWeek: 2,
     extract: (rows, _a, today, opt) => {
       const t = opt?.foodTarget;
       if (!t) return { signalToday: null };

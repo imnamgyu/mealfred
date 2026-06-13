@@ -22,7 +22,8 @@ export type AssembleInput = {
   unitDef: UnitDef;                 // decision.unit의 레지스트리 정의({next}=현 단 behavior 소스)
   factCards: FactCard[];            // coachFacts 카드(객체 — kind: diagnosis|daily)
   blocks: LetterBlock[];            // 블록 풀(loadBlocks())
-  blockLedger: string[];            // 최근 3일 사용 블록 id(D-03 — collectBlockLedger)
+  blockLedger: string[];            // 최근 8일 사용 블록 id(D-03 — collectBlockLedger·신선도 우선)
+  blockLedgerRecent?: string[];     // 최근 3일 사용 블록 id — 8일 풀 소진 시 완화 기준(generic 폴백 누수 차단·blockRepeat3d는 지킴)
   recentCombos?: string[];          // 최근 7일 편지의 블록 조합(join '+') — 동일 편지 재현 차단(아린 정독 I-04 적발)
   factsCited: string[];             // 진단 카드 인용 원장(D-04 — 전역 카드 키·주간 수명)
   name: string;                     // 아이 이름({name})
@@ -84,10 +85,10 @@ function buildSeq(mode: DailyDecision['mode'], introNeeded: boolean, hasFact: bo
           : [{ from: 'common', try: ['opener-weekday'] }, { from: 'unit', try: ['why'] }];
     }
   })();
-  // ⭐ 거울 있으면 본문 군더더기 제거(이사님 '구구절절 길다·행동 권유') — opener-weekday(인사·뜬금없음 버그)와
-  //   praise(공감 단독 블록)를 빼서 본문을 how(행동) 중심으로. 거울이 온기를, 본문이 행동을 담당. maintain의 plateau(위안 1)는 유지. ≥1 블록 보존.
+  // ⭐ 거울 있으면 opener-weekday만 제거(거울이 앞에 와서 "안녕하세요" 중복 인사 버그 유발). praise(공감 1블록)는 유지 —
+  //   빼면 deepen·advance 본문이 단일 블록으로 줄어 연속 같은-모드일에 신선도 소진→전건 폴백(I-06 적발). 거울=분석+행동, 본문=공감+수업.
   if (hasMirror) {
-    const filtered = seq.filter((pos) => !(pos.try.length === 1 && (pos.try[0] === 'opener-weekday' || pos.try[0] === 'praise')));
+    const filtered = seq.filter((pos) => !(pos.try.length === 1 && pos.try[0] === 'opener-weekday'));
     if (filtered.length) return filtered;
   }
   return seq;
@@ -122,18 +123,23 @@ function pickFact(p: { mode: DailyDecision['mode']; introNeeded: boolean; cards:
 // ── D-02 — 블록 선택 결정론 ───────────────────────────────────────────────────
 function candidatesFor(p: {
   blocks: LetterBlock[]; from: 'unit' | 'common'; unit: string; stage: BlockStage; step: number;
-  ledger: Set<string>; usedNow: Set<string>; ctx: RenderCtx; avoid: Set<string>; tones?: BlockTone[];
+  ledger: Set<string>; ledgerRecent?: Set<string>; usedNow: Set<string>; ctx: RenderCtx; avoid: Set<string>; tones?: BlockTone[];
 }): LetterBlock[] {
   const unitKey = p.from === 'common' ? 'common' : p.unit;
-  return p.blocks
+  const base = p.blocks
     .filter((b) => b.unit === unitKey && b.stage === p.stage)
     .filter((b) => (b.minStep || 0) <= p.step)
     .filter((b) => !(b.forbids || []).some((f) => p.avoid.has(f)))
     .filter((b) => !p.tones || p.tones.includes(b.tone))
     .filter((b) => (b.requires || []).every((r) => p.ctx[r] != null && String(p.ctx[r]).trim() !== ''))
-    .filter((b) => !p.ledger.has(b.id) && !p.usedNow.has(b.id))
+    .filter((b) => !p.usedNow.has(b.id))
     .filter((b) => renderBlock(b, p.ctx) !== null)
     .sort((a, b2) => a.variant - b2.variant || a.id.localeCompare(b2.id));
+  const fresh = base.filter((b) => !p.ledger.has(b.id));
+  // ⭐ 같은 유닛이 오래 deepen에 머물러 8일 원장이 스테이지 풀을 비우면, 전건 generic 폴백 대신 '최근 3일만' 피해 옛 블록 재사용.
+  //   3일 원장은 지키므로 blockRepeat3d 게이트 위반 0(I-06 폴백 누수 차단). ledgerRecent 없으면 기존(엄격)대로.
+  if (fresh.length) return fresh;
+  return p.ledgerRecent ? base.filter((b) => !p.ledgerRecent!.has(b.id)) : [];
 }
 
 // ── D-05 — 연결·규격 도구 ─────────────────────────────────────────────────────
@@ -199,7 +205,7 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   //    본문 문장/길이 예산을 거울만큼 줄여 총 5문장·규격을 유지(거울+본문).
   const mirror = ((!p.urgent && (p.mirror || '').trim()) || null) as string | null;
   const mirrorSents = mirror ? sentencesOf(mirror).length : 0;
-  const bodySentCap = mirror ? Math.max(2, 4 - mirrorSents) : 5;   // ⭐ 거울 있으면 본문은 짧게(공감 1 + 행동 1) — 이사님 '구구절절 길다'
+  const bodySentCap = mirror ? 3 : 5;   // ⭐ 거울(분석+행동 2문장) 있으면 본문은 짧게(2~3문장) — 총 ~5문장. 2 이하로 조이면 sc<3 바닥과 모순→전건 폴백(I-06 적발)
   const bodyMax = LETTER_MAX - (mirror ? mirror.length + 1 : 0);
   const introNeeded = !!p.introNeeded;
   const mode = p.decision.mode;
@@ -209,6 +215,7 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   const fact = pickFact({ mode, introNeeded, cards: p.factCards || [], cited, unit: p.decision.unit, lever: p.unitDef.lever, urgent: !!p.urgent });
   const ctx: RenderCtx = { name: p.name || '아이', fact: fact ? (fact.prose ?? fact.text) : null, next, food: p.food ?? null };
   const ledger = new Set(p.blockLedger || []);
+  const ledgerRecent = p.blockLedgerRecent ? new Set(p.blockLedgerRecent) : undefined;   // 3일 원장(원장 소진 시 완화 기준)
 
   /** 한 번의 조립 시도(attempt가 변형 회전을 비틀어 D-09 재선택을 구현) */
   const attemptAssemble = (attempt: number): { letter: string; used: LetterBlock[] } | null => {
@@ -225,7 +232,7 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
       const remainReq = seq.slice(k + 1).filter((s) => !s.optional).length;
       let got: { b: LetterBlock; text: string } | null = null;
       for (const stage of stages) {
-        const cands = candidatesFor({ blocks: p.blocks, from: pos.from, unit: p.decision.unit, stage, step, ledger, usedNow, ctx, avoid, tones: p.tones });
+        const cands = candidatesFor({ blocks: p.blocks, from: pos.from, unit: p.decision.unit, stage, step, ledger, ledgerRecent, usedNow, ctx, avoid, tones: p.tones });
         if (!cands.length) continue;
         // 어미 3연속 회피 + 문장 예산을 선택 시점에 통합: ①run無+예산内 ②예산内 ③run無 ④아무거나
         const ordered = cands.map((_, i) => cands[(posSeed + i) % cands.length]);
@@ -267,7 +274,8 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
     const letter = joinOf(list);
     if (letter.length > bodyMax) warnings.push(`길이 초과 ${letter.length}자`);
     const sc = sentencesOf(letter).length;
-    if (sc < 3 || sc > bodySentCap) warnings.push(`문장 수 ${sc}(3~${bodySentCap} 밖)`);
+    const sentFloor = mirror ? 2 : 3;   // 거울이 분석+행동을 이미 실으므로 본문 바닥은 2(공감+코칭)까지 허용
+    if (sc < sentFloor || sc > bodySentCap) warnings.push(`문장 수 ${sc}(${sentFloor}~${bodySentCap} 밖)`);
     return { letter, used: list.map((x) => x.b) };
   };
 

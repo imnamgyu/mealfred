@@ -98,9 +98,10 @@ describe('D-01 편지 구조 규격', () => {
     expect(st[0]).toBe('common.pivot-bridge');
     expect(st[1]).toBe('table-stage.intro');
   });
-  it('D-01-1 maintain: 유닛 침묵(공용만)', () => {
+  it('D-01-1 maintain: 유닛 수업(why/how)+위안 — 할말 없어 짧으면 커리큘럼 진행(이사님 06-13)', () => {
     const st = stagesOf(assembleLetter(baseIn({ decision: D('maintain') })).usedBlocks);
-    expect(st).toEqual(['common.opener-weekday', 'common.plateau']);
+    expect(['table-stage.why', 'table-stage.how']).toContain(st[0]);
+    if (st[1]) expect(st[1]).toBe('common.plateau');
   });
   it('D-01-1 celebrate: graduate → praise', () => {
     const st = stagesOf(assembleLetter(baseIn({ decision: D('celebrate') })).usedBlocks);
@@ -235,7 +236,7 @@ describe('D-07 polishKo · D-08 윤문 옵션', () => {
       ? { ...b, text: '따뜻한 국을 마시고 하루를 여는 집도 있지요. 오늘도 식탁 곁에서 시작해요(워밍1).' } : b));
     let hit = false;
     for (let s = 0; s < 4 && !hit; s++) {
-      const out = assembleLetter(baseIn({ blocks: pool, decision: D('maintain'), daySeed: s }));
+      const out = assembleLetter(baseIn({ blocks: pool, lowData: true, daySeed: s }));   // lowData=opener-weekday+lowdata(maintain은 유닛 수업으로 바뀜)
       if (out.usedBlocks.includes('common.opener-weekday.1')) {
         expect(out.letter).toContain('국을 먹고');
         hit = true;
