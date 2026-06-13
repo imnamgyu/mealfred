@@ -961,7 +961,7 @@ export async function GET(req: Request) {
       tipRank = await tr.json().catch(() => null);
     } catch (e) { console.error('[cron/coach] tip-ranking chain', e instanceof Error ? e.message : e); }
 
-    return NextResponse.json({ ok: true, processed, errors, letters, questions, reused, skippedTime, alimtalkSent, alimtalkReady: alimtalkReady(), active: activeIds.length, tipRank, duration_ms: Date.now() - runStart });
+    return NextResponse.json({ ok: true, processed, errors, letters, questions, reused, skippedTime, alimtalkSent, alimtalkReady: alimtalkReady(), active: activeIds.length, issues: issues.slice(0, 8), tipRank, duration_ms: Date.now() - runStart });
   } catch (e: unknown) {
     await supabase.from('cron_runs').update({
       status: 'failure', finished_at: new Date().toISOString(),
