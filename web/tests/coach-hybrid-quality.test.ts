@@ -108,12 +108,17 @@ describe('HB-06 combineForVerify 합본 검증 (H-06)', () => {
 //   offMaterialFood의 DISH_SUFFIX([가-힣]{1,6}전)에 '도전'(challenge)·'발전'(progress)으로 걸려
 //   재료 밖 음식명 거짓 양성을 낸다. 라이브 스캐너(EPIC D) 한계 — Letter B 하네스(lib/replayB)는
 //   품질 스캔 입력에서 자유 서술(rationale prose)을 빼고 '구조화된 음식 표면'(조합·기간·타깃)만 검사해
-//   이 과탐을 우회한다(serializeMaterials rationale='' 분리). 아래는 현 동작을 회귀로 박제 — 미래에
-//   스캐너가 동음 명사를 면제하도록 고치면 이 테스트가 의도적으로 빨개진다(개선 신호).
-describe('HB-FINDING offMaterialFood 전-접미 동음 과탐(라이브 스캐너 한계 박제)', () => {
-  it('현 동작: 도전·발전이 음식명으로 과탐됨(하네스가 입력 분리로 우회)', () => {
-    expect(offMaterialFood('단호박도 도전해볼 만해요', ['단호박'])).toContain('도전');
-    expect(offMaterialFood('아이가 발전했어요', [])).toContain('발전');
+//   이 과탐을 우회한다(serializeMaterials rationale='' 분리). ⭐수정 완료(NON_FOOD_WORDS denylist):
+//   도전·발전·전국 등 한자어 동음어를 면제하도록 EPIC D를 고침 — 아래는 수정 후 동작 회귀.
+describe('HB-FINDING offMaterialFood 전/국-접미 동음 과탐 수정(NON_FOOD_WORDS 면제)', () => {
+  it('수정됨: 도전·발전·전국이 음식명으로 과탐되지 않음', () => {
+    expect(offMaterialFood('단호박도 도전해볼 만해요', ['단호박'])).not.toContain('도전');
+    expect(offMaterialFood('아이가 발전했어요', [])).not.toContain('발전');
+    expect(offMaterialFood('전국적으로 많이 먹어요', [])).not.toContain('전국');
+    expect(offMaterialFood('완전 잘 먹었어요', [])).not.toContain('완전');
+  });
+  it('진짜 음식명(미수록 조합)은 여전히 검출 — 면제가 음식까지 풀어주지 않음', () => {
+    expect(offMaterialFood('갈치조림을 해보세요', ['고등어무조림'])).toContain('갈치조림');
   });
   it('우회 검증: rationale 자유 서술을 뺀 구조화 음식 표면은 과탐 0', () => {
     // 실 하네스가 쓰는 입력 형태(조합·기간·타깃만, 서술 prose 제외) → 깨끗

@@ -125,6 +125,12 @@ export function vagueTimeWord(L: string): boolean {
 const DISH_SUFFIX = /([가-힣]{0,4}(?:칼국수|잔치국수|국수|라면|냉면|비빔면|짜장면|쫄면|소면|당면|우동|짬뽕)|[가-힣]{1,6}(?:찌개|탕|볶음|구이|조림|찜|밥|죽|전|무침|나물|샐러드|스프|수프|파스타|빵|떡|두부|국))/g;
 /** 일반 명사 단독은 면제(구체 음식명만 검사 — '밥/국/죽'은 환각 음식명이 아니라 일상어). '두부'는 식재료라 단독 면제(마파두부 등 복합어는 검사). */
 const ALLOW_GENERIC = new Set(['밥', '국', '죽', '탕', '빵', '떡', '전', '두부', '반찬', '간식', '식사', '끼니']);
+// ⚠️ 한자어 동음 오탐 차단(HB-FINDING·엣지 복리) — '전(부침)·국(국물)' 접미사가 비음식 추상어를 false-positive로 잡던 버그.
+//   예: '도전·발전·완전·안전·직전·예전' / '전국·완전·결국·중국·한국'. 코칭 산문(근거 문구 "도전해볼 만해요" 등)에 흔해 불필요한 재생성을 유발했다.
+const NON_FOOD_WORDS = new Set([
+  '도전', '발전', '작전', '실전', '회전', '역전', '사전', '이전', '오전', '운전', '안전', '정전', '직전', '예전', '충전', '완전', '호전', '진전', '관전', '대전',
+  '전국', '한국', '미국', '영국', '중국', '천국', '결국', '약국', '본국', '모국', '외국', '각국', '전국적',
+]);
 /**
  * 편지에서 조리 음식명 후보를 뽑아, allowed(코드가 LLM에 준 인기음식·궁합·사촌·favoriteFoods·STAPLE 표시)
  *   화이트리스트 밖인 것을 위반 목록으로 반환. 빈 배열 = 통과.
@@ -144,6 +150,7 @@ export function offMaterialFood(L: string, allowed: string[]): string[] {
   while ((m = DISH_SUFFIX.exec(text)) !== null) {
     const dish = m[1];
     if (ALLOW_GENERIC.has(dish)) continue;                       // 일반명사 단독 면제
+    if (NON_FOOD_WORDS.has(dish)) continue;                      // 한자어 동음 추상어 면제(도전·전국 등 — HB-FINDING)
     if (seen.has(dish)) continue; seen.add(dish);
     const ok = allow.some((a) => a === dish || a.includes(dish));
     if (!ok) out.push(dish);
