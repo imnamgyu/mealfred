@@ -17,7 +17,8 @@ import { isSpicyDish } from './spicy';
 export type FreqMap = Record<string, { name: string; freq: number }[]>;
 
 // 부족 식품군 → 대표 식재료(도감 표준명). 과일은 간식 채널(lib/coach SNACK_CHANNEL)이라 제외.
-const GROUP_INGREDIENTS: Record<string, string[]> = {
+// ⚠️ 정렬·내용 무변경(Letter A pickFoodReco seed%length 회전 보존) — coachMaterials가 빈도 순 사본(RANKED)을 별도로 만든다.
+export const GROUP_INGREDIENTS: Record<string, string[]> = {
   '곡물': ['현미', '귀리', '잡곡', '고구마', '감자'],
   '콩류': ['두부', '검은콩', '콩', '콩나물'],
   '유제품': ['치즈', '요거트', '우유'],
@@ -28,13 +29,13 @@ const GROUP_INGREDIENTS: Record<string, string[]> = {
 };
 
 // ⭐ 주식 곡물(이사님) — 밀·쌀은 '날것'으로 다른 식재료와 섞어/곁들여 먹지 않는다. 반드시 '먹는 형태'로만 추천: 밀→빵·면·떡, 쌀→밥·떡.
-const STAPLE_FORMS: Record<string, string[]> = {
+export const STAPLE_FORMS: Record<string, string[]> = {
   '밀': ['빵', '면', '떡'], '밀가루': ['빵', '면', '떡'],
   '쌀': ['밥', '떡'], '멥쌀': ['밥', '떡'], '백미': ['밥', '떡'], '찹쌀': ['찰밥', '떡'],
   '보리': ['보리밥'], '현미': ['현미밥'], '잡곡': ['잡곡밥'], '귀리': ['오트밀', '귀리죽'], '기장': ['잡곡밥'], '수수': ['잡곡밥'],
 };
 /** 주식 곡물이면 '먹는 형태'(밥·빵·면·떡)로 표시. 아니면 원래 이름. (궁합/사촌 목록에서 날 곡물명 노출 방지) */
-const stapleDisplay = (nm: string): string => (STAPLE_FORMS[nm] ? STAPLE_FORMS[nm][0] : nm);
+export const stapleDisplay = (nm: string): string => (STAPLE_FORMS[nm] ? STAPLE_FORMS[nm][0] : nm);
 
 /** 식재료가 '가장 많이 쓰이는 실존 음식' 최대 2개. 주식 곡물=먹는 형태 / freqMap(또래 급식 빈도) 우선 → kit-matrix(실측 count>0) 폴백. 매운 음식 제외. */
 export function popularDishesFor(ing: string, freqMap?: FreqMap): string[] {

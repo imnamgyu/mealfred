@@ -187,7 +187,7 @@ export const NUTRIENT_FOODS: Record<string, string[]> = {
 //   로테이션군: 고기·계란 충분=주5+ / 생선·해산물 주2+(오메가3, 수은 주의로 1~2회) / 콩류 주2+ — 부족=0회, 그 사이=조금부족
 export type GroupLevel = 'green' | 'yellow' | 'red';
 export type GroupSignal = { group: string; level: GroupLevel; weeklyEst: number };
-const GROUP_TARGET: Record<string, { green: number; type: 'daily' | 'rotation' }> = {
+export const GROUP_TARGET: Record<string, { green: number; type: 'daily' | 'rotation' }> = {
   '곡물': { green: 5, type: 'daily' }, '비타민A채소': { green: 5, type: 'daily' }, '기타채소': { green: 5, type: 'daily' },
   '과일': { green: 5, type: 'daily' }, '유제품': { green: 5, type: 'daily' },
   '고기·계란': { green: 5, type: 'rotation' }, '생선·해산물': { green: 2, type: 'rotation' }, '콩류': { green: 2, type: 'rotation' },
