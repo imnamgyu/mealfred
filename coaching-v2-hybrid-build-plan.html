@@ -85,13 +85,13 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <li><b>완료 절차(4종)</b>: ①명세대로 구현 ②해당 테스트 ID 그린(+<code>npm test</code> 전체 그린 — prebuild 게이트) ③커밋 메시지 맨 앞에 원자 ID ④본 문서 상태칩 갱신(⬜→✅ + 커밋 해시 · 진척 대시보드 동시).</li>
 <li><b>명세와 다르게 만들 때</b>: 코드 먼저 금지 — 본 문서 원자 명세를 먼저 수정·커밋(사유 1줄)한 뒤 구현(문서≠코드 드리프트 방지).</li>
 <li><b>엣지 발견 시</b>: J-10 복리 규칙 — fixture+테스트(red→green)+수정+일지 1줄. 새 원자는 해당 EPIC 말미에 ID 추가.</li>
-<li><b>상태칩</b>: ⬜ 대기 · 🔨 진행 중 · ✅ 완료(커밋) · ⏸ 외부 대기(SQL 실행 등) · ❌ 드랍(사유 기입). <b>현재 전 원자 ⬜(설계 완료·미착수).</b></li>
+<li><b>상태칩</b>: ⬜ 대기 · 🔨 진행 중 · ✅ 완료(커밋) · ⏸ 외부 대기(SQL 실행 등) · ❌ 드랍(사유 기입). <b>현재 EPIC A 완료(A-01~A-12 ✅ `598bd55`)·B~J ⬜.</b></li>
 </ul></div>
 
-<div class="toc" id="progress"><b>📊 진척 대시보드</b> <span style="color:#7a6a8a;font-size:12px">(원자 완료 시 갱신 — 작성 2026-06-13 · 미착수)</span>
+<div class="toc" id="progress"><b>📊 진척 대시보드</b> <span style="color:#7a6a8a;font-size:12px">(원자 완료 시 갱신 — 작성 2026-06-13 · EPIC A 완료 598bd55)</span>
 <table>
 <tr><th>EPIC</th><th>원자</th><th>완료</th><th>테스트</th><th>마일스톤</th><th>상태</th></tr>
-<tr><td>A 재료 엔진</td><td>12</td><td>0</td><td>136</td><td><span class="tag d1">D1</span></td><td>⬜ 대기</td></tr>
+<tr><td>A 재료 엔진</td><td>12</td><td>12</td><td>136</td><td><span class="tag d1">D1</span></td><td>✅ 완료 <code>598bd55</code> · 테스트 94 그린(전체 314)·tsc 클린·Letter A 무변경</td></tr>
 <tr><td>B v3 두뇌 가이드 합성</td><td>11</td><td>0</td><td>84</td><td><span class="tag d2">D2</span></td><td>⬜ 대기</td></tr>
 <tr><td>C merged 작문 모드</td><td>14</td><td>0</td><td>94</td><td><span class="tag d2">D2</span></td><td>⬜ 대기</td></tr>
 <tr><td>D 품질·무검증 채널 검증 (coach.ts 발행전 가드)</td><td>11</td><td>0</td><td>101</td><td><span class="tag d2">D2</span></td><td>⬜ 대기</td></tr>
@@ -101,7 +101,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <tr><td>H 검증 하네스·회귀·적대 테스트 (Letter B 품질 게이트)</td><td>15</td><td>0</td><td>114</td><td><span class="tag d4">D4</span></td><td>⬜ 대기</td></tr>
 <tr><td>I 데이터 정합성·근거 보강 (급식빈도 상위%·GROUP_INGREDIENTS 정비·괴식 조합 점검·근거 문구)</td><td>7</td><td>0</td><td>71</td><td><span class="tag d4">D4</span></td><td>⬜ 대기</td></tr>
 <tr><td>J 컷오버·운영·롤백·모니터·문서 (A/B 2통 하이브리드)</td><td>10</td><td>0</td><td>71</td><td><span class="tag d5">D5</span></td><td>⬜ 대기</td></tr>
-<tr><td><b>합계</b></td><td><b>111</b></td><td><b>0</b></td><td><b>893</b></td><td>D1~D5</td><td><b>⬜ 설계 완료 · 구현 대기</b></td></tr>
+<tr><td><b>합계</b></td><td><b>111</b></td><td><b>12</b></td><td><b>893</b></td><td>D1~D5</td><td><b>🔨 구현 착수 — EPIC A 완료(12/111·`598bd55`) · B~J 대기</b></td></tr>
 </table></div>
 
 <div class="toc"><b>목차</b><ul>
@@ -121,7 +121,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <h2 id="epic-A">EPIC A — 재료 엔진 — selectDailyMaterials (coachRecos 재설계) <span class="tag d1">D1</span></h2>
 <p class="lead">v3의 '두뇌'(결정론 재료 선택)를 Letter B용으로 신설한다. 잘먹는 판정(D)·GROUP_INGREDIENTS 빈도 정비(I)·4기준 가중 랭킹+freqMap 실배선(C)·3일 무재사용 회전(B)·괴식 조합검증(A)·결핍 기간 수치화(F)를 전부 순수 함수로 묶어 selectDailyMaterials(args)로 노출. 문장은 LLM이 쓰되 '무엇을 추천할지'는 코드가 못 박는다.</p>
 <div class="files">📁 <span class="nf">신규</span> <code>web/lib/coachMaterials.ts</code> <code>web/lib/comboMatrix.ts</code> <code>web/tests/coach-materials.test.ts</code> <code>web/tests/coach-recos.test.ts</code> <code>web/tests/combo-matrix.test.ts</code> <code>web/tests/fixtures/materials.ts</code> · <span class="mf">수정</span> <code>web/lib/coachRecos.ts</code></div>
-<div class="atom" id="A-01"><h4><span class="st todo">⬜</span>A-01 · GROUP_INGREDIENTS 빈도 정비(I) — 실측 급식빈도 반영·단호박 강등<span class="kd">코드</span> <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="A-01"><h4><span class="st done">✅</span>A-01 · GROUP_INGREDIENTS 빈도 정비(I) — 실측 급식빈도 반영·단호박 강등<span class="kd">코드</span> <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 I: 빈도 가중(C)을 도입하면 급식 0회 식재료(단호박)가 항상 탈락해 대표 식재료가 죽는다. coachRecos.ts의 GROUP_INGREDIENTS 비타민A채소 ['단호박','당근','시금치','근대']를 실측 빈도 순(당근184·시금치13·근대11·단호박0)으로 재배열하고, 빈도 메타를 코드에 명시해 랭킹 엔진이 참조하게 한다.</div>
 <div class="row"><span class="k">요구</span>각 식품군 대표 식재료에 실측 급식빈도(learned_menus 1000개 기준)를 부착하고, GROUP_INGREDIENTS는 빈도 내림차순으로 정렬한다. 단호박은 목록 끝(또는 강등)으로. 기존 popularDishesFor/buildRecoFacts(Letter A 경로)는 무영향이어야 한다(상수 정렬만 변경).</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachRecos.ts</code> GROUP_INGREDIENTS의 '비타민A채소' 배열을 ['당근','시금치','근대','단호박']로 재정렬(당근184&gt;시금치13&gt;근대11&gt;단호박0)</li><li>'기타채소'는 토마토42&gt;브로콜리25&gt;양배추20 순 정렬, 단 기존 ['브로콜리','양배추','애호박','버섯','토마토'] 유지가 Letter A 회전에 영향 — Letter A는 대조군이므로 GROUP_INGREDIENTS는 상수 정렬 변경이 pickFoodReco(seed%length 회전) 결과를 바꾼다. 따라서 신규 상수 GROUP_INGREDIENTS_RANKED를 <code>coachMaterials.ts</code>에 별도로 두고 빈도 메타({nm,gioFreq,gioPct}) 부착, 기존 GROUP_INGREDIENTS는 무변경(Letter A 보존)</li><li><code>coachMaterials.ts</code>에 const GIO_FREQ: Record&lt;string,{freq:number;pct:number}&gt; 신설 — 당근{184,2}·토마토{42,12}·브로콜리{25,18}·양배추{20,24}·시금치{13,33}·근대{11,39}·단호박{0,100}·치즈{18,27}·요거트{0,100} (인계서 실측표)</li><li>GROUP_INGREDIENTS_RANKED는 GROUP_INGREDIENTS 키별로 GIO_FREQ.freq 내림차순 정렬한 사본(빈도 미상 식재료는 freq=0 취급해 끝으로)</li><li>순수 함수 ingredientGioFreq(nm:string):{freq:number;pct:number} export — 미상이면 {freq:0,pct:100}</li></ul>
@@ -142,7 +142,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>GROUP_INGREDIENTS_RANKED·GIO_FREQ·ingredientGioFreq export됨</li><li>Letter A 경로(GROUP_INGREDIENTS 원본) 무변경 회귀 테스트 통과</li><li>npm test 그린(prebuild 게이트)</li><li>순수 함수(fs/HTTP 불사용)</li></ul>
 <div class="row dep"><span class="k">의존</span>없음</div>
 </div>
-<div class="atom" id="A-02"><h4><span class="st todo">⬜</span>A-02 · liked 판정(D) — 집≠급식·2일+·거부없음 deriveLikedIngredients<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="A-02"><h4><span class="st done">✅</span>A-02 · liked 판정(D) — 집≠급식·2일+·거부없음 deriveLikedIngredients<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 D·P10: 현재 likedIng은 favIngFreq(place 무관) 단순 빈도라 '급식에 차려진 것'을 선호로 오인한다. liked = place!=daycare(집) AND 집에서 2일 이상 등장 AND 거부 이력 없음. 거부된 것은 refused로 후순위.</div>
 <div class="row"><span class="k">요구</span>recentMeals 배열(food·place·ateWell·refused·daysAgo)을 입력받아 liked(선호)·refused(거부) 식재료를 분리하는 순수 함수. 급식/간식(차려진 것)은 선호 신호에서 제외. 집 2일 미만이면 liked 제외.</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> deriveLikedIngredients(meals: {food:string; place:string|null; ateWell:boolean|null; refused?:boolean; daysAgo:number}[]): {liked:string[]; refused:string[]}</li><li>liked 조건: place가 'daycare'가 아닌(집 또는 null=집통제) 끼니에서 ateWell!==false 로 등장한 서로 다른 날(daysAgo 기준 distinct) 수 ≥ 2</li><li><code>route.ts</code> 290줄 패턴 차용 — place==='daycare'면 집 아님. 'snack'(간식)도 '차려진 것'이라 liked 가산 제외(인계서 D: 급식/간식은 차려진 것=선호 신호 아님)</li><li>refused: refused===true 또는 ateWell===false 로 등장한 식재료 집합. liked와 refused 동시 해당 시 refused 우선(liked에서 제거)</li><li>day distinct 계산은 daysAgo 값으로 그룹핑(같은 daysAgo=같은 날). 동일 식재료가 같은 날 2끼면 1일로 카운트</li><li>빈 입력·전부 daycare면 liked=[] 반환(온보딩 케이스는 <code>A-09</code>에서 별도 처리)</li></ul>
@@ -166,7 +166,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>deriveLikedIngredients export·순수 함수</li><li><code>route.ts</code> place/ateWell/refused 데이터 모양과 일치(필드명 검증)</li><li>fixture로 엣지 박제(급식만·거부충돌·같은날2끼)</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span>없음</div>
 </div>
-<div class="atom" id="A-03"><h4><span class="st todo">⬜</span>A-03 · 괴식 조합 검증(A) — comboMatrix.scoreCombo (kit-dish-matrix + pair)<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="A-03"><h4><span class="st done">✅</span>A-03 · 괴식 조합 검증(A) — comboMatrix.scoreCombo (kit-dish-matrix + pair)<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 A 최우선: '잘먹는음식+결핍식재료' 조합을 kit-dish-matrix.json(음식×식재료 0~3)+food-graph pair로 점수화. 임계 미만 금지. 실증 괴식='미역국+당근'(matrix 미역국·당근=1). OK='볶음밥/카레/덮밥+당근'(=3). LLM이 조합 짓게 두지 않는다.</div>
 <div class="row"><span class="k">요구</span>음식(dish)과 식재료(ingredient) 쌍의 정합성을 0~3 점수로 반환하는 순수 함수. matrix scores[dish][ing] 우선, 없으면 cells(동시출현) 또는 pair 그래프 폴백. 임계(기본 2) 미만이면 부적합 판정.</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>comboMatrix.ts</code> scoreCombo(dish:string, ing:string): {score:number; source:'matrix'|'cells'|'pair'|'none'} — <code>kitGuide.ts</code>와 동일 데이터(<code>kit-dish-matrix.json</code>) 직접 로드 또는 kitGuide 확장</li><li>scores[dish]?.[ing]가 있으면 그 값(0~3)·source='matrix'. 미역국·당근=1 검증</li><li>matrix에 dish 행 자체가 없으면 food-graph pair strength로 폴백: neighborsOf(ing) 중 kind==='pair' &amp;&amp; nm===dish 의 strength(0~3)·source='pair'</li><li>어느 데이터에도 없으면 {score:0, source:'none'}</li><li>isComboOk(dish,ing,threshold=2):boolean = scoreCombo().score &gt;= threshold</li><li>matrix 점수 분포는 1/2/3만 존재(0 없음·실측 확인) → threshold=2면 score=1(미역국+당근)은 탈락, score=2,3 통과</li></ul>
@@ -192,7 +192,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>scoreCombo·isComboOk export·순수 함수</li><li>미역국+당근=1 차단 회귀 테스트 박제(인계서 6/8 괴식 교훈)</li><li><code>kit-dish-matrix.json</code> 실측 점수와 일치</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span>없음</div>
 </div>
-<div class="atom" id="A-04"><h4><span class="st todo">⬜</span>A-04 · 4기준 가중 랭킹(C) — rankIngredients (시급도·빈도%·궁합·사촌)<span class="kd">코드</span> <span class="sz">코드 · 1.5h</span></h4>
+<div class="atom" id="A-04"><h4><span class="st done">✅</span>A-04 · 4기준 가중 랭킹(C) — rankIngredients (시급도·빈도%·궁합·사촌)<span class="kd">코드</span> <span class="sz">코드 · 1.5h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 C(이사님 핵심): 현 pickFoodReco는 seed%length 블라인드 회전으로 4기준 0반영. ①영양 시급도 ②급식빈도 상위% ③잘먹는음식 궁합(pair) ④잘먹는채소 사촌(bridge) 가중 랭킹으로 결핍 식품군 대표 식재료를 정렬한다.</div>
 <div class="row"><span class="k">요구</span>targetGroup + signals + liked + freqMap 입력 → GROUP_INGREDIENTS_RANKED[targetGroup] 식재료를 4기준 가중합으로 정렬한 배열 반환(각 항목에 점수·기여도 분해 포함).</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> rankIngredients(args:{targetGroup:string; groupLevel:'green'|'yellow'|'red'; liked:string[]; freqMap?:FreqMap}): {ing:string; score:number; parts:{urgency:number; freq:number; pair:number; bridge:number}}[]</li><li>①urgency: groupLevel red=3·yellow=1·green=0 (그룹 단위 동일 가산이지만 식품군 결핍 시급도 반영)</li><li>②freq: ingredientGioFreq(ing).pct를 상위%→점수 변환(pct&lt;=5→3, &lt;=20→2, &lt;=40→1, else 0). 당근(2%)=3·근대(39%)=1·단호박(100%)=0</li><li>③pair: neighborsOf(ing) 중 kind==='pair' &amp;&amp; liked 포함 개수(최대 2로 클램프)</li><li>④bridge: liked 식재료의 사촌(bridge)이 ing이면 +2(푸드체이닝 강신호)</li><li>weighted score = urgency*1 + freq*2 + pair*1.5 + bridge*1.5 (가중치는 상수 W로 추출·테스트 가능)</li><li>동점 시 ingredientGioFreq.freq 내림차순 → 식재료명 사전순(결정론)</li><li>단호박(freq 0)은 liked 사촌/궁합 없으면 최하위로 가라앉음(인계서 I 의도)</li></ul>
@@ -219,7 +219,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>rankIngredients export·순수 함수·결정론</li><li>4기준 모두 parts에 분해되어 검증 가능</li><li>가중치 상수 W export(튜닝·테스트 가능)</li><li>seed 블라인드 회전(pickFoodReco) 미사용 회귀 박제</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span><code>A-01</code> · <code>A-02</code> · <code>A-03</code></div>
 </div>
-<div class="atom" id="A-05"><h4><span class="st todo">⬜</span>A-05 · 3일 무재사용 회전(B) — rotateRecommendation (재료 결정론)<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="A-05"><h4><span class="st done">✅</span>A-05 · 3일 무재사용 회전(B) — rotateRecommendation (재료 결정론)<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 B: 추천 식재료를 코드가 매일 회전(당근→치즈→시금치…). 3일 내 재사용 금지로 6통 '당근→미역국' 수렴 방지. 문장은 LLM 자유, 재료만 결정론.</div>
 <div class="row"><span class="k">요구</span>rankIngredients 결과(랭킹)와 최근 N일 추천 이력(recentRecos)을 입력받아, 3일 내 추천한 식재료를 제외하고 최상위를 선택. 전부 최근 추천이면 가장 오래된 것 우선(또는 랭킹 1위 폴백).</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> rotateRecommendation(args:{ranked:{ing:string;score:number}[]; recentRecos:string[]; cooldownDays?:number}): string|null</li><li>recentRecos = 최근 cooldownDays(기본 3)일에 추천한 식재료 배열(coach_letters.context.altLetter.materials.recommendedIng를 route가 수집)</li><li>후보 = ranked.filter(r =&gt; !recentRecos.includes(r.ing)) 중 score 최댓값(랭킹 순서 보존)</li><li>후보가 비면(랭킹 전부 쿨다운) → ranked[0].ing 폴백(연속 결핍 대응·null 아님)</li><li>결정론: 동일 입력 동일 출력. 회전은 '날짜 시드'가 아니라 '이력 배제'로 달성(인계서 B '3일내 재사용 금지')</li><li>ranked 빈 배열 → null</li></ul>
@@ -241,7 +241,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>rotateRecommendation export·순수 함수·결정론</li><li>2일 연속 다른 재료 수렴방지 회귀 박제</li><li>전부 쿨다운 시 폴백(null 금지)</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span><code>A-04</code></div>
 </div>
-<div class="atom" id="A-06"><h4><span class="st todo">⬜</span>A-06 · 결핍 기간 수치화(F) — deficiencyWindow (모호어 금지)<span class="kd">코드</span> <span class="sz">코드 · 0.75h</span></h4>
+<div class="atom" id="A-06"><h4><span class="st done">✅</span>A-06 · 결핍 기간 수치화(F) — deficiencyWindow (모호어 금지)<span class="kd">코드</span> <span class="sz">코드 · 0.75h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 F: '요즘/최근/이번주' 모호어 금지. '최근 7일 중 비타민A 채소가 3일'처럼 수치(주간 등장일)와 임계를 코드로 정의해 LLM 재료에 제공. LLM이 모호어 쓰지 않도록 수치 사실을 못 박는다.</div>
 <div class="row"><span class="k">요구</span>computeGroupSignals/computeSignals 결과를 입력받아 가장 시급한 결핍의 {nutrient, daysOf7, threshold, windowDays:7} 사실 객체를 반환. weeklyEst를 7일 등장일로 환산하고 임계(green 기준)를 명시.</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> deficiencyWindow(signals: GroupSignal[], windowDays=7): {group:string; daysOf7:number; threshold:number; level:string} | null</li><li>GroupSignal = {group,level,weeklyEst} (<code>nutrition.ts</code> 실재 타입). weeklyEst는 이미 7일 환산값(<code>nutrition.ts</code> 210줄 *7 계산) → daysOf7 = Math.round(weeklyEst)</li><li>가장 시급한 결핍 = level red 우선 → weeklyEst 낮은 순(MEAL_GROUPS 우선·과일/유제품 간식채널 제외 가능, weeklyExposureTarget 정렬 차용)</li><li>threshold = GROUP_TARGET[group].green (곡물·채소 5, 콩류 2 등 <code>nutrition.ts</code> 상수) — 'N일 중 M일 필요' 사실 제공</li><li>전부 green이면 null(결핍 없음 — LLM에 결핍 수치 주지 않음)</li><li>순수 함수 — signals 외 의존 없음</li></ul>
@@ -262,7 +262,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>deficiencyWindow export·순수 함수</li><li>threshold가 <code>nutrition.ts</code> GROUP_TARGET과 일치(import 또는 재정의 일관)</li><li>green 전부면 null(환각 방지) 박제</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span>없음</div>
 </div>
-<div class="atom" id="A-07"><h4><span class="st todo">⬜</span>A-07 · 검증 조합 후보 생성(A+D) — buildValidatedCombos<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="A-07"><h4><span class="st done">✅</span>A-07 · 검증 조합 후보 생성(A+D) — buildValidatedCombos<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 A: '잘먹는음식+결핍식재료' 조합 중 isComboOk 통과한 것만 LLM 후보로. liked(D)와 추천 식재료(rotate)를 묶어 검증된 조합 배열을 만든다. LLM이 조합 짓지 못하게 못 박는 핵심.</div>
 <div class="row"><span class="k">요구</span>추천 식재료(recommendedIng)와 liked 음식·식재료를 조합해 isComboOk(threshold) 통과한 {liked, deficient, score, source} 배열을 점수 내림차순으로 반환. 미통과(미역국+당근류)는 제외.</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> buildValidatedCombos(args:{recommendedIng:string; likedDishes:string[]; likedIngredients:string[]; threshold?:number}): {liked:string; deficient:string; score:number; source:string}[]</li><li>likedDishes(favoriteFoods top·<code>route.ts</code> favMenu) × recommendedIng → scoreCombo(dish, ing) → isComboOk면 채택</li><li>추천 식재료가 staple(STAPLE_FORMS)이면 stapleDisplay로 형태 변환 후 조합(밥·빵·면)</li><li>결과는 score 내림차순·중복(liked,deficient) 제거. 최대 N개(기본 4)</li><li>빈 결과 가능(검증 통과 조합 0) → [] 반환(LLM에 빈 후보=조합 강요 안 함, B-G에서 폴백 처리)</li><li>미역국이 likedDishes에 있고 recommendedIng=당근 → 제외(score 1&lt;2)</li></ul>
@@ -285,7 +285,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>buildValidatedCombos export·순수 함수</li><li>미역국+당근 제외 회귀 박제(괴식 0)</li><li>모든 결과 score&gt;=threshold 보장</li><li>빈 후보 허용(조합 강요 금지)</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span><code>A-03</code> · <code>A-02</code></div>
 </div>
-<div class="atom" id="A-08"><h4><span class="st todo">⬜</span>A-08 · 근거문구 생성(C) — buildReasonPhrases<span class="kd">코드</span> <span class="sz">코드 · 0.75h</span></h4>
+<div class="atom" id="A-08"><h4><span class="st done">✅</span>A-08 · 근거문구 생성(C) — buildReasonPhrases<span class="kd">코드</span> <span class="sz">코드 · 0.75h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 C: 근거문구를 LLM 재료로 제공('당근=급식 상위2%·베타카로틴이 눈·면역'). 랭킹 4기준을 사람이 읽는 사실 문구로 변환해 LLM이 인용하게 한다. 문장은 LLM이 쓰지만 사실은 코드가 못 박는다.</div>
 <div class="row"><span class="k">요구</span>추천 식재료·rankIngredients parts·deficiencyWindow를 입력받아 근거 사실 문구 배열(예: '당근은 급식 상위 2%', '비타민A 채소가 최근 7일 중 2일')을 반환. 영양 역할 키워드는 식재료별 사실 테이블에서.</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> buildReasonPhrases(args:{ing:string; parts:{urgency:number;freq:number;pair:number;bridge:number}; window:{group:string;daysOf7:number;threshold:number}|null; pairLiked?:string; cousinOf?:string}): string[]</li><li>freq 문구: ingredientGioFreq(ing) → '${ing}은 급식에 자주 나와요(상위 ${pct}%)' (pct&lt;=20일 때만)</li><li>결핍 문구: window 있으면 '${group}가 최근 7일 중 ${daysOf7}일(권장 ${threshold}일)'</li><li>궁합 문구: pairLiked 있으면 '잘 먹는 ${pairLiked}에 곁들이면 자연스러워요'</li><li>사촌 문구: cousinOf 있으면 '${cousinOf}을 잘 먹으니 닮은 ${ing}도 도전해볼 만해요'</li><li>영양역할: 식재료별 NUTRI_ROLE 테이블(당근→'베타카로틴이 눈·면역', 치즈→'칼슘·단백질', 시금치→'철·엽산') — 도감 <code>nutrition.ts</code> nutrientsOf로 보강 가능하나 짧은 라벨은 상수 테이블</li><li>결과는 모호 기간어 없는 수치 문구만(F 연계). LLM은 이 문구를 '재료'로 받아 자기 문장으로 풀어씀</li></ul>
@@ -308,7 +308,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>buildReasonPhrases export·순수 함수</li><li>NUTRI_ROLE 라벨 테이블(핵심 식재료 커버)</li><li>모호 기간어 미포함·수치 문구만</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span><code>A-01</code> · <code>A-04</code> · <code>A-06</code></div>
 </div>
-<div class="atom" id="A-09"><h4><span class="st todo">⬜</span>A-09 · 온보딩 가드(E) — 기록&lt;3일 분기 materialsForLowData<span class="kd">코드</span> <span class="sz">코드 · 0.5h</span></h4>
+<div class="atom" id="A-09"><h4><span class="st done">✅</span>A-09 · 온보딩 가드(E) — 기록&lt;3일 분기 materialsForLowData<span class="kd">코드</span> <span class="sz">코드 · 0.5h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 E: 기록&lt;3일이면 결핍 분석(환각 위험)을 끄고, 빠뜨린 입력 항목 안내 + 배경 없는 즉효 편식 팁을 재료로 제공. '가입 다음날 채소 비어요'=환각 차단.</div>
 <div class="row"><span class="k">요구</span>recordedDays(기록일 수) 입력. &lt;3일이면 분석 재료 대신 {mode:'onboarding', missingInputs, tip} 반환. ≥3일이면 정상 분석 모드 신호(null 또는 mode:'analyze').</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> materialsForLowData(args:{recordedDays:number; hasHeight:boolean; hasWeight:boolean; hasConditions:boolean; mealCount:number; tipSeed:number}): {mode:'onboarding'; missingInputs:string[]; tip:string} | {mode:'analyze'}</li><li>recordedDays&lt;3 → mode:'onboarding'. computeSignals도 recordedDays&lt;3이면 level yellow 보류(<code>nutrition.ts</code> 282줄)와 일관</li><li>missingInputs: hasHeight false→'키', hasWeight false→'몸무게', hasConditions undefined→'알레르기·만성질환', mealCount&lt;3→'끼니 기록' (안내 항목)</li><li>tip: <code>coach-tips.json</code> 또는 상수 풀에서 tipSeed로 결정론 선택(배경 없는 즉효 편식 팁 — 데이터 무관)</li><li>recordedDays&gt;=3 → {mode:'analyze'} (selectDailyMaterials가 정상 분석 진행)</li><li>순수 함수</li></ul>
@@ -328,7 +328,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>materialsForLowData export·순수 함수</li><li>온보딩 모드에 결핍 분석 미포함(환각 차단) 박제</li><li>3일 임계가 <code>nutrition.ts</code>와 일관</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span>없음</div>
 </div>
-<div class="atom" id="A-10"><h4><span class="st todo">⬜</span>A-10 · 오케스트레이터 — selectDailyMaterials(args) 통합<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
+<div class="atom" id="A-10"><h4><span class="st done">✅</span>A-10 · 오케스트레이터 — selectDailyMaterials(args) 통합<span class="kd">코드</span> <span class="sz">코드 · 1h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 핵심 산출물. A-02~A-09를 조립해 selectDailyMaterials(args)→{targetGroup, recommendedIng, validatedCombos, reasonPhrases, deficiencyWindow, liked, refused, mode}를 반환하는 결정론 재료 엔진. Letter B 작문가가 받을 사실·재료 묶음 단일 진실.</div>
 <div class="row"><span class="k">요구</span>signals·meals·recentRecos·freqMap·온보딩 메타를 입력받아 하나의 재료 객체를 반환. 온보딩 분기 → 결핍 산출 → 랭킹 → 회전 → 조합검증 → 근거문구를 순서대로 호출. 전부 결정론·순수.</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> selectDailyMaterials(args:{signals:GroupSignal[]; meals:MealRow[]; favoriteFoods:string[]; recentRecos:string[]; freqMap?:FreqMap; recordedDays:number; onboardingMeta:{...}; tipSeed:number}): DailyMaterials</li><li>DailyMaterials = {mode:'onboarding'|'analyze'; targetGroup:string|null; recommendedIng:string|null; validatedCombos:{liked,deficient,score,source}[]; reasonPhrases:string[]; deficiencyWindow:{group,daysOf7,threshold}|null; liked:string[]; refused:string[]; missingInputs?:string[]; tip?:string}</li><li>흐름: ①materialsForLowData → onboarding이면 즉시 반환 ②deficiencyWindow(signals)→targetGroup ③deriveLikedIngredients(meals)→liked/refused ④rankIngredients(targetGroup,liked,freqMap) ⑤rotateRecommendation(ranked,recentRecos)→recommendedIng ⑥buildValidatedCombos(recommendedIng,favoriteFoods,liked) ⑦buildReasonPhrases</li><li>targetGroup null(전부 green)이면 recommendedIng=null·combos=[]·reasonPhrases는 유지 칭찬용 빈/긍정 사실(결핍 강요 안 함)</li><li>결정론: 동일 입력 동일 출력. seed 없음(회전은 recentRecos 이력으로). 순수(fs/HTTP 불사용, freqMap은 주입)</li><li>이 함수는 Letter B 전용 — Letter A(planFor/composeLetter)는 호출하지 않음(대조군 보존)</li></ul>
@@ -351,7 +351,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>selectDailyMaterials export·DailyMaterials 타입 export·결정론·순수</li><li><code>A-02</code>~<code>A-09</code> 전부 조립·각 분기 통합 테스트</li><li>Letter A 경로 미참조(대조군 보존) 박제</li><li>npm test 그린(prebuild 게이트)</li></ul>
 <div class="row dep"><span class="k">의존</span><code>A-02</code> · <code>A-04</code> · <code>A-05</code> · <code>A-06</code> · <code>A-07</code> · <code>A-08</code> · <code>A-09</code></div>
 </div>
-<div class="atom" id="A-11"><h4><span class="st todo">⬜</span>A-11 · freqMap 실배선 — loadFreqMap·route 전달 헬퍼(C 죽은 코드 부활)<span class="kd">코드</span> <span class="sz">코드 · 0.75h</span></h4>
+<div class="atom" id="A-11"><h4><span class="st done">✅</span>A-11 · freqMap 실배선 — loadFreqMap·route 전달 헬퍼(C 죽은 코드 부활)<span class="kd">코드</span> <span class="sz">코드 · 0.75h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 C: freqMap(ingredient-recipes 급식빈도)이 route.ts에서 로드만 되고 본경로 미전달=죽은 코드. selectDailyMaterials까지 freqMap이 도달하는 로딩·전달 헬퍼를 만들고 형태를 고정한다(통합은 H 에픽이 배선, 여기서는 순수 어댑터·검증).</div>
 <div class="row"><span class="k">요구</span>ingredient-recipes 데이터를 FreqMap 형태(coachRecos.ts FreqMap=Record&lt;string,{name,freq}[]&gt;)로 정규화하는 순수 어댑터와, 비어있을 때 kit-matrix 폴백이 동작함을 보장하는 검증.</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>coachMaterials.ts</code> normalizeFreqMap(raw: unknown): FreqMap — <code>route.ts</code>가 로드한 ingredient-recipes JSON을 FreqMap으로 안전 변환(키=식재료, 값=[{name,freq}] freq 내림차순)</li><li><code>route.ts</code> 현재 freqMap 로드 위치(미배선) 확인 후, selectDailyMaterials args.freqMap로 넘기는 어댑터 시그니처 고정(실제 cron 배선은 H 에픽 의존)</li><li>freqMap 미주입/빈 객체여도 popularDishesFor가 kit-matrix(dishesForIngredient)로 폴백함을 회귀 테스트로 고정(<code>coachRecos.ts</code> 45줄 폴백 경로)</li><li>raw가 null/형식불량이면 {} 반환(graceful)</li><li>freq&lt;4 항목은 popularDishesFor에서 이미 제외(<code>coachRecos.ts</code> 44줄 r.freq&gt;=4) — normalize는 원본 보존, 필터는 소비측</li></ul>
@@ -370,7 +370,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <div class="row"><span class="k">DoD</span></div><ul><li>normalizeFreqMap export·순수·graceful</li><li>freqMap 빈객체 시 kit-matrix 폴백 회귀 박제(죽은코드 방지)</li><li>실제 cron 배선은 H 에픽 의존으로 명시(depends_on에 외부 표기)</li><li>npm test 그린</li></ul>
 <div class="row dep"><span class="k">의존</span><code>A-04</code> · <code>외부: H 에픽 cron freqMap 로딩 배선</code></div>
 </div>
-<div class="atom" id="A-12"><h4><span class="st todo">⬜</span>A-12 · 재료 fixture + 회귀 박제 (아린 6통 괴식·수렴 사례)<span class="kd">테스트</span> <span class="sz">테스트 · 1h</span></h4>
+<div class="atom" id="A-12"><h4><span class="st done">✅</span>A-12 · 재료 fixture + 회귀 박제 (아린 6통 괴식·수렴 사례)<span class="kd">테스트</span> <span class="sz">테스트 · 1h</span></h4>
 <div class="row"><span class="k">목적</span>인계서 실증(6통 '당근→미역국' 괴식·'당근 반복' 수렴)을 fixture로 박제. selectDailyMaterials가 그 입력에서 괴식 0·재료 회전을 만들어냄을 회귀로 고정(red→green→복리).</div>
 <div class="row"><span class="k">요구</span>아린 실데이터 모양의 fixture(6일치 끼니·signals·연속 추천 이력)를 만들고, 6일 시뮬레이션에서 (1)괴식 조합 0 (2)추천 식재료 3일내 무재사용 (3)전부 green 아니면 결핍 수치 제공을 검증.</div>
 <div class="row"><span class="k">명세</span></div><ul><li><code>tests/fixtures/materials.ts</code> — 아린 모양: 비타민A채소 red·liked=['밥','달걀','미역국']·favoriteFoods=['볶음밥','미역국','김밥'] 등 6일치</li><li><code>tests/coach-materials.test.ts</code>에 6일 루프 시뮬: 각 날 recentRecos를 직전 3일 추천으로 갱신하며 selectDailyMaterials 호출</li><li>검증①: 6일 validatedCombos 전 항목 score&gt;=2 (미역국+당근 같은 괴식 0)</li><li>검증②: 6일 recommendedIng 시퀀스에서 연속 3일 중 동일 식재료 재사용 0 (수렴 방지)</li><li>검증③: red 입력일은 deficiencyWindow 비-null·daysOf7 수치 존재</li><li>검증④: 온보딩(1~2일) fixture는 mode:'onboarding'</li><li>엣지 발견 시 fixture 추가 + red→green 사이클(불변 원칙③ 복리)</li></ul>
