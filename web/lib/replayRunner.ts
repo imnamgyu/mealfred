@@ -104,6 +104,7 @@ export function runV3Family(fam: ReplayFamily, opt: ReplayOptions = {}): ReplayD
     const ao = assembleLetter({
       decision: r.decision, unitDef: UNITS[r.decision.unit], factCards: facts.cards,
       blocks, blockLedger: collectBlockLedger(ctxs.slice(-3)), factsCited: cited,
+      recentCombos: ctxs.slice(-7).map((c) => (Array.isArray(c.blocks) ? (c.blocks as string[]).join('+') : '')).filter(Boolean),
       name, daySeed: Math.floor(Date.parse(today) / 86400000), cidHash,
       food: foodTarget, introNeeded, suppressIntro, lowData: r.lowData,
       urgent: isUrgent({ icfqRiskCount: 0, rows: rows28, today }), detForbid: det,

@@ -557,6 +557,7 @@ export async function GET(req: Request) {
                   const ao = assembleLetter({
                     decision: dr.decision, unitDef: UNITS[dr.decision.unit], factCards: factRes.cards,
                     blocks: BLOCKS, blockLedger: collectBlockLedger(ctxList.slice(0, 3)), factsCited: prevCited,
+                    recentCombos: ctxList.map((c) => (Array.isArray((c as { blocks?: unknown }).blocks) ? ((c as { blocks: string[] }).blocks).join('+') : '')).filter(Boolean),
                     name: meta.nickname || '아이', daySeed, cidHash, food: anchor.mission_target,
                     introNeeded, suppressIntro: dr.decision.mode === 'pivot' && recentIntros.has(dr.decision.unit),
                     lowData: dr.lowData, urgent, detForbid: detRe,

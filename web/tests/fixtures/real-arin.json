@@ -1,0 +1,1617 @@
+{
+ "id": "arin",
+ "name": "아린",
+ "attendsDaycare": true,
+ "base": "2026-06-13",
+ "captured": {
+  "from": "2026-05-16",
+  "to": "2026-06-13"
+ },
+ "rows": [
+  {
+   "log_date": "2026-05-26",
+   "slot": "lunch",
+   "menus": [
+    "두부구이",
+    "백미밥",
+    "배추김치",
+    "시레깃국"
+   ],
+   "ingredients": [
+    "두부",
+    "계란",
+    "쌀",
+    "김치",
+    "시래기",
+    "소고기"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-26",
+   "slot": "dinner",
+   "menus": [
+    "소고기볶음",
+    "부추달걀찜",
+    "팥밥"
+   ],
+   "ingredients": [
+    "소고기",
+    "계란",
+    "부추",
+    "쌀",
+    "팥"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": null,
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-26",
+   "slot": "breakfast",
+   "menus": [
+    "크림닭고기",
+    "새송이버섯나물",
+    "어묵"
+   ],
+   "ingredients": [
+    "닭고기",
+    "생크림",
+    "큰느타리버섯(새송이버섯)",
+    "생선",
+    "전분"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": null,
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-27",
+   "slot": "dinner",
+   "menus": [
+    "미역국",
+    "쌀밥"
+   ],
+   "ingredients": [
+    "미역",
+    "소고기",
+    "마늘",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": null,
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-27",
+   "slot": "breakfast",
+   "menus": [
+    "떡갈비",
+    "삼치구이",
+    "밥"
+   ],
+   "ingredients": [
+    "소고기",
+    "돼지고기",
+    "계란",
+    "우유",
+    "밥",
+    "파",
+    "마늘",
+    "삼치",
+    "소금",
+    "설탕",
+    "간장",
+    "참기름",
+    "깨",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": null,
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-27",
+   "slot": "lunch",
+   "menus": [
+    "우엉조림",
+    "깍두기",
+    "짜장덮밥"
+   ],
+   "ingredients": [
+    "우엉",
+    "무",
+    "쌀",
+    "돼지고기",
+    "감자",
+    "양파",
+    "전분",
+    "짜장"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "table",
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-28",
+   "slot": "lunch",
+   "menus": [
+    "된장국"
+   ],
+   "ingredients": [
+    "쇠고기",
+    "무",
+    "호박",
+    "감자",
+    "양파",
+    "미역",
+    "두부",
+    "멸치",
+    "다시마",
+    "된장",
+    "대파",
+    "쌀",
+    "당근",
+    "완두콩",
+    "브로콜리",
+    "버터",
+    "물",
+    "소고기",
+    "계란",
+    "옥수수",
+    "소시지",
+    "김"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "table",
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-28",
+   "slot": "breakfast",
+   "menus": [
+    "짜파게티",
+    "소시지볶음"
+   ],
+   "ingredients": [
+    "계란",
+    "멥쌀 가공(면류)",
+    "짜장소스",
+    "굴 소스",
+    "소시지",
+    "양파",
+    "피망"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": null,
+   "ate_well": true,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-28",
+   "slot": "dinner",
+   "menus": [
+    "감자볶음",
+    "계란말이"
+   ],
+   "ingredients": [
+    "감자",
+    "양파",
+    "계란",
+    "당근",
+    "대파",
+    "토마토케찹"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "table",
+   "place": null,
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-29",
+   "slot": "breakfast",
+   "menus": [
+    "감자빵"
+   ],
+   "ingredients": [
+    "감자",
+    "밀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": null,
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "finger",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-29",
+   "slot": "dinner",
+   "menus": [
+    "햄",
+    "밥"
+   ],
+   "ingredients": [
+    "돼지고기",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-29",
+   "slot": "lunch",
+   "menus": [
+    "기장밥",
+    "닭곰탕",
+    "동태살조림",
+    "콩나물무침",
+    "배추김치",
+    "수박"
+   ],
+   "ingredients": [
+    "쌀",
+    "닭고기",
+    "생강",
+    "명태",
+    "콩나물",
+    "김치",
+    "수박",
+    "계란"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "table",
+   "place": "daycare",
+   "ate_well": true,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-30",
+   "slot": "lunch",
+   "menus": [
+    "가자미",
+    "밥"
+   ],
+   "ingredients": [
+    "가자미",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "table",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 13
+  },
+  {
+   "log_date": "2026-05-30",
+   "slot": "breakfast",
+   "menus": [
+    "바나나"
+   ],
+   "ingredients": [
+    "바나나"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": true,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-05-30",
+   "slot": "dinner",
+   "menus": [
+    "미역국",
+    "밥"
+   ],
+   "ingredients": [
+    "미역",
+    "소고기",
+    "마늘",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": true,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-05-31",
+   "slot": "dinner",
+   "menus": [
+    "미역국",
+    "피자",
+    "밥"
+   ],
+   "ingredients": [
+    "미역",
+    "소고기",
+    "마늘",
+    "빵",
+    "치즈",
+    "토마토",
+    "쌀",
+    "피자아주조금먹음"
+   ],
+   "refused": "피자 아주 조금 먹음",
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-05-31",
+   "slot": "breakfast",
+   "menus": [
+    "바나나",
+    "삶은계란"
+   ],
+   "ingredients": [
+    "바나나",
+    "계란"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 9
+  },
+  {
+   "log_date": "2026-05-31",
+   "slot": "lunch",
+   "menus": [
+    "la갈비",
+    "밥"
+   ],
+   "ingredients": [
+    "소고기",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": true,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 12
+  },
+  {
+   "log_date": "2026-05-31",
+   "slot": "pm_snack",
+   "menus": [
+    "수박"
+   ],
+   "ingredients": [
+    "수박"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "roaming",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "helped",
+   "texture": "finger",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-05-31",
+   "slot": "am_snack",
+   "menus": [
+    "포도",
+    "오렌지"
+   ],
+   "ingredients": [
+    "포도",
+    "오렌지",
+    "한두입씩먹음"
+   ],
+   "refused": "한두입씩먹음",
+   "note": "식욕자체가 적어요",
+   "environment": null,
+   "place": "home",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-01",
+   "slot": "pm_snack",
+   "menus": [
+    "핫도그"
+   ],
+   "ingredients": [
+    "소시지",
+    "빵"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-01",
+   "slot": "am_snack",
+   "menus": [
+    "우유"
+   ],
+   "ingredients": [
+    "우유"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-01",
+   "slot": "lunch",
+   "menus": [
+    "팥밥",
+    "건새우미역국",
+    "돈육굴소스볶음",
+    "파프리카초무침",
+    "배추김치",
+    "바나나"
+   ],
+   "ingredients": [
+    "쌀",
+    "미역",
+    "새우",
+    "마늘",
+    "돼지고기",
+    "파프리카",
+    "김치",
+    "바나나"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-01",
+   "slot": "breakfast",
+   "menus": [
+    "상투과자",
+    "우유"
+   ],
+   "ingredients": [
+    "우유"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-02",
+   "slot": "lunch",
+   "menus": [
+    "차수수밥",
+    "시금치국",
+    "들기름두부구이&양념장",
+    "쥐포채무침",
+    "양상추겉절이",
+    "깍두기"
+   ],
+   "ingredients": [
+    "수수",
+    "쌀",
+    "시금치",
+    "두부",
+    "양상추",
+    "무"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-02",
+   "slot": "pm_snack",
+   "menus": [
+    "멸치주먹밥"
+   ],
+   "ingredients": [
+    "쌀",
+    "당근",
+    "멸치",
+    "피망"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-02",
+   "slot": "am_snack",
+   "menus": [
+    "멸치"
+   ],
+   "ingredients": [
+    "멸치"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-02",
+   "slot": "dinner",
+   "menus": [
+    "카레",
+    "밥"
+   ],
+   "ingredients": [
+    "감자",
+    "당근",
+    "양파",
+    "쌀"
+   ],
+   "refused": "어제 저녁에 배아파서 조금만먹었어요 카레",
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-02",
+   "slot": "night",
+   "menus": [
+    "짜파게티"
+   ],
+   "ingredients": [
+    "국수",
+    "짜장"
+   ],
+   "refused": null,
+   "note": "배아픈데 먹고싶다해서 줬어요 괜찮나요?",
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-02",
+   "slot": "breakfast",
+   "menus": [
+    "죽"
+   ],
+   "ingredients": [
+    "쌀",
+    "배탈나서조금먹음"
+   ],
+   "refused": "배탈나서 조금먹음",
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "puree",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-03",
+   "slot": "dinner",
+   "menus": [
+    "La갈비"
+   ],
+   "ingredients": [
+    "소고기"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-04",
+   "slot": "dinner",
+   "menus": [
+    "햄",
+    "감자볶음",
+    "밥"
+   ],
+   "ingredients": [
+    "햄",
+    "감자",
+    "양파",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-04",
+   "slot": "breakfast",
+   "menus": [
+    "김",
+    "밥"
+   ],
+   "ingredients": [
+    "김",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-04",
+   "slot": "night",
+   "menus": [],
+   "ingredients": [
+    "몇조각주워먹음"
+   ],
+   "refused": "몇조각주워먹음",
+   "note": null,
+   "environment": "roaming",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "finger",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-04",
+   "slot": "lunch",
+   "menus": [
+    "차조밥",
+    "어묵국",
+    "허니닭살간장조림",
+    "애호박나물",
+    "깍두기"
+   ],
+   "ingredients": [
+    "쌀",
+    "어묵",
+    "무",
+    "대파",
+    "닭고기",
+    "호박",
+    "파",
+    "마늘",
+    "참깨"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-04",
+   "slot": "pm_snack",
+   "menus": [
+    "가래떡"
+   ],
+   "ingredients": [
+    "떡"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-04",
+   "slot": "am_snack",
+   "menus": [
+    "치즈"
+   ],
+   "ingredients": [
+    "치즈"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-05",
+   "slot": "am_snack",
+   "menus": [
+    "당근"
+   ],
+   "ingredients": [
+    "당근"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-05",
+   "slot": "pm_snack",
+   "menus": [
+    "토마토스파게티"
+   ],
+   "ingredients": [
+    "파스타",
+    "양파",
+    "양송이버섯",
+    "돼지고기",
+    "피망",
+    "파슬리"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-05",
+   "slot": "dinner",
+   "menus": [
+    "짜파게티"
+   ],
+   "ingredients": [
+    "국수",
+    "짜장"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": true,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-05",
+   "slot": "breakfast",
+   "menus": [
+    "감자볶음",
+    "밥"
+   ],
+   "ingredients": [
+    "감자",
+    "양파",
+    "쌀"
+   ],
+   "refused": null,
+   "note": "아침은 항상 3-4숟갈만 먹음",
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-05",
+   "slot": "lunch",
+   "menus": [
+    "홍국쌀밥",
+    "유부장국",
+    "바싹소불고기",
+    "미나리나물",
+    "배추김치",
+    "오렌지주스"
+   ],
+   "ingredients": [
+    "쌀",
+    "두부",
+    "된장",
+    "파",
+    "마늘",
+    "소고기",
+    "양파",
+    "대파",
+    "미나리",
+    "김치",
+    "오렌지"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-06",
+   "slot": "dinner",
+   "menus": [
+    "새우튀김",
+    "돼지고기",
+    "소고기",
+    "밥",
+    "아이스크림"
+   ],
+   "ingredients": [
+    "새우",
+    "계란",
+    "밀가루",
+    "돼지고기",
+    "소고기",
+    "쌀",
+    "크림"
+   ],
+   "refused": null,
+   "note": "점심안먹고 저녁 뷔페먹엇어요",
+   "environment": "table",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-06",
+   "slot": "breakfast",
+   "menus": [
+    "치킨너겟",
+    "밥"
+   ],
+   "ingredients": [
+    "닭고기",
+    "쌀"
+   ],
+   "refused": null,
+   "note": "뭐부터 먹여야할까요?",
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-07",
+   "slot": "pm_snack",
+   "menus": [
+    "크림빵"
+   ],
+   "ingredients": [
+    "빵",
+    "크림"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "roaming",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "finger",
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-07",
+   "slot": "breakfast",
+   "menus": [
+    "씨리얼",
+    "우유"
+   ],
+   "ingredients": [
+    "우유",
+    "옥수수",
+    "밀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-07",
+   "slot": "lunch",
+   "menus": [
+    "La갈비",
+    "밥"
+   ],
+   "ingredients": [
+    "소고기",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 13
+  },
+  {
+   "log_date": "2026-06-07",
+   "slot": "dinner",
+   "menus": [
+    "미역국",
+    "밥"
+   ],
+   "ingredients": [
+    "미역",
+    "소고기",
+    "마늘",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-08",
+   "slot": "dinner",
+   "menus": [
+    "미역국",
+    "밥"
+   ],
+   "ingredients": [
+    "미역",
+    "소고기",
+    "마늘",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-08",
+   "slot": "pm_snack",
+   "menus": [
+    "짜장떡볶이"
+   ],
+   "ingredients": [
+    "양파",
+    "어묵",
+    "파",
+    "마늘"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-08",
+   "slot": "lunch",
+   "menus": [
+    "강황쌀밥",
+    "부추된장국",
+    "훈제오리채소볶음",
+    "참나물사과생채",
+    "배추김치"
+   ],
+   "ingredients": [
+    "쌀",
+    "부추",
+    "파",
+    "멸치",
+    "된장",
+    "다시마",
+    "마늘",
+    "오리고기",
+    "참나물",
+    "사과",
+    "김치"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-08",
+   "slot": "breakfast",
+   "menus": [
+    "바나나"
+   ],
+   "ingredients": [
+    "바나나"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "finger",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-08",
+   "slot": "am_snack",
+   "menus": [
+    "우리농미숫가루"
+   ],
+   "ingredients": [
+    "잡곡",
+    "콩"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-09",
+   "slot": "lunch",
+   "menus": [
+    "찰현미밥",
+    "달걀실파국",
+    "돈육깻잎볶음",
+    "상추쌈",
+    "당근스틱&쌈장",
+    "배추김치",
+    "참외"
+   ],
+   "ingredients": [
+    "현미",
+    "쌀",
+    "계란",
+    "돼지고기",
+    "상추",
+    "당근",
+    "김치",
+    "참외"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-09",
+   "slot": "breakfast",
+   "menus": [
+    "감자빵"
+   ],
+   "ingredients": [
+    "감자",
+    "밀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "finger",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-09",
+   "slot": "dinner",
+   "menus": [
+    "짜파게티"
+   ],
+   "ingredients": [
+    "국수",
+    "짜장"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-09",
+   "slot": "am_snack",
+   "menus": [
+    "오이"
+   ],
+   "ingredients": [
+    "오이"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-09",
+   "slot": "pm_snack",
+   "menus": [
+    "모닝빵",
+    "두유"
+   ],
+   "ingredients": [
+    "두유"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-10",
+   "slot": "dinner",
+   "menus": [
+    "베이컨",
+    "밥"
+   ],
+   "ingredients": [
+    "베이컨",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-10",
+   "slot": "lunch",
+   "menus": [
+    "소고기채콩나물밥&양념장",
+    "청경채맑은국",
+    "새우오징어볶음",
+    "배추김치",
+    "떠먹는요거트"
+   ],
+   "ingredients": [
+    "소고기",
+    "콩나물",
+    "쌀",
+    "청경채",
+    "파",
+    "멸치",
+    "마늘",
+    "오징어",
+    "새우",
+    "김치",
+    "요거트"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-10",
+   "slot": "am_snack",
+   "menus": [
+    "우리밀전병"
+   ],
+   "ingredients": [
+    "밀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-10",
+   "slot": "breakfast",
+   "menus": [
+    "옥수수모닝빵",
+    "요구르트"
+   ],
+   "ingredients": [
+    "옥수수",
+    "밀가루",
+    "요거트"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "table",
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-10",
+   "slot": "pm_snack",
+   "menus": [
+    "바나나",
+    "꽈베기"
+   ],
+   "ingredients": [
+    "바나나",
+    "밀가루",
+    "설탕",
+    "식용유"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-11",
+   "slot": "pm_snack",
+   "menus": [
+    "옥수수시리얼",
+    "우유"
+   ],
+   "ingredients": [
+    "옥수수",
+    "시리얼",
+    "우유"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-11",
+   "slot": "lunch",
+   "menus": [
+    "기장밥",
+    "대패삼겹된장찌개",
+    "순살삼치조림",
+    "피망감자채볶음",
+    "양배추비트무침",
+    "깍두기"
+   ],
+   "ingredients": [
+    "쌀",
+    "된장",
+    "두부",
+    "양파",
+    "대파",
+    "호박",
+    "삼치",
+    "무",
+    "감자",
+    "피망",
+    "양배추",
+    "비트"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-11",
+   "slot": "am_snack",
+   "menus": [
+    "요구르트"
+   ],
+   "ingredients": [
+    "요거트"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-11",
+   "slot": "dinner",
+   "menus": [
+    "조기",
+    "밥"
+   ],
+   "ingredients": [
+    "조기",
+    "쌀"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 19
+  },
+  {
+   "log_date": "2026-06-11",
+   "slot": "breakfast",
+   "menus": [
+    "김",
+    "밥",
+    "요플레"
+   ],
+   "ingredients": [
+    "김",
+    "쌀",
+    "요거트",
+    "밥"
+   ],
+   "refused": "밥",
+   "note": null,
+   "environment": "screen",
+   "place": "home",
+   "ate_well": null,
+   "autonomy": "self",
+   "texture": "table",
+   "meal_time": 8
+  },
+  {
+   "log_date": "2026-06-12",
+   "slot": "pm_snack",
+   "menus": [
+    "간장비빔국수"
+   ],
+   "ingredients": [
+    "국수",
+    "마늘",
+    "참깨",
+    "양파",
+    "오이",
+    "소고기",
+    "당근"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-12",
+   "slot": "lunch",
+   "menus": [
+    "귀리밥",
+    "백짬뽕국",
+    "소고기잡채",
+    "근대나물무침",
+    "배추김치"
+   ],
+   "ingredients": [
+    "귀리",
+    "쌀",
+    "오징어",
+    "바지락",
+    "시금치",
+    "양배추",
+    "양파",
+    "멸치",
+    "다시마",
+    "마늘",
+    "당면",
+    "당근",
+    "소고기",
+    "근대",
+    "참깨",
+    "김치"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  },
+  {
+   "log_date": "2026-06-12",
+   "slot": "am_snack",
+   "menus": [
+    "씨없는포도"
+   ],
+   "ingredients": [
+    "포도"
+   ],
+   "refused": null,
+   "note": null,
+   "environment": null,
+   "place": "daycare",
+   "ate_well": null,
+   "autonomy": null,
+   "texture": null,
+   "meal_time": null
+  }
+ ]
+}

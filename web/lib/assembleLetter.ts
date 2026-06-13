@@ -23,7 +23,8 @@ export type AssembleInput = {
   factCards: FactCard[];            // coachFacts 카드(객체 — kind: diagnosis|daily)
   blocks: LetterBlock[];            // 블록 풀(loadBlocks())
   blockLedger: string[];            // 최근 3일 사용 블록 id(D-03 — collectBlockLedger)
-  factsCited: string[];             // 진단 카드 인용 원장(D-04 — `${unit}:${cardKey}`)
+  recentCombos?: string[];          // 최근 7일 편지의 블록 조합(join '+') — 동일 편지 재현 차단(아린 정독 I-04 적발)
+  factsCited: string[];             // 진단 카드 인용 원장(D-04 — 전역 카드 키·주간 수명)
   name: string;                     // 아이 이름({name})
   daySeed: number; cidHash?: number;
   food?: string | null;             // {food} — bridgeFacts 화이트리스트 값만(호출자 책임)
@@ -82,10 +83,25 @@ function buildSeq(mode: DailyDecision['mode'], introNeeded: boolean, hasFact: bo
 }
 
 // ── D-04 — 사실 카드 선택(편지당 1장) ─────────────────────────────────────────
-function pickFact(p: { mode: DailyDecision['mode']; introNeeded: boolean; cards: FactCard[]; cited: Set<string>; unit: string; urgent: boolean }): FactCard | null {
-  const { cards, cited, unit } = p;
+// 유닛 레버별 선호 카드: 사실과 처방의 '결'을 맞춘다(아린 6/7 정독 적발 — 환경 사실을 노출 적금 블록이
+// "적금으로 들어왔어요"로 받는 비약). 선호가 없으면 기존 순서(daily 우선) 폴백.
+const LEVER_FACT_PREF: Record<string, RegExp> = {
+  environment: /^env-/,                      // 식탁 무대·공복 리듬 — 환경 카드
+  food: /^(refuse:|top-home|lunch|breakfast)/,   // 노출·다리·연계 — 음식 카드
+  autonomy: /^env-y/,                        // 자율성은 전용 카드가 없어 어제 끼니 사실로
+  texture: /^env-y/,
+  mixed: /./,
+};
+function preferCards(cards: FactCard[], lever: string): FactCard[] {
+  const re = LEVER_FACT_PREF[lever] || /./;
+  return [...cards.filter((c) => re.test(c.key)), ...cards.filter((c) => !re.test(c.key))];
+}
+function pickFact(p: { mode: DailyDecision['mode']; introNeeded: boolean; cards: FactCard[]; cited: Set<string>; unit: string; lever: string; urgent: boolean }): FactCard | null {
+  const cards = preferCards(p.cards, p.lever);
+  const { cited, unit } = p;
   const diagFresh = cards.find((c) => c.kind === 'diagnosis' && !cited.has(factKeyOf(unit, c.key)));
-  const daily = cards.find((c) => c.kind === 'daily');
+  // food 유닛에 환경 daily 카드는 결이 어긋난다(노출 '적금' 블록이 화면 사실을 받는 비약) — 그날은 사실 없이 진행
+  const daily = cards.find((c) => c.kind === 'daily' && !(p.lever === 'food' && /^env-/.test(c.key)));
   if (p.introNeeded || p.mode === 'pivot') return diagFresh || daily || null;   // 도입일 — 진단은 여기서 소진(원장 마킹)
   if (daily) return daily;                                                      // 이후는 '어제 단일 사실'만
   if (p.urgent) return cards.find((c) => c.kind === 'diagnosis') || null;       // F-04 시급 예외만 재인용 허용
@@ -150,7 +166,7 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
   const step = Math.max(1, p.decision.step || 1);
   const maxIdx = Math.min(step, p.unitDef.steps.length) - 1;
   const next = mode === 'maintain' || mode === 'celebrate' || p.lowData ? null : (p.unitDef.steps[maxIdx]?.behavior ?? null);
-  const fact = pickFact({ mode, introNeeded, cards: p.factCards || [], cited, unit: p.decision.unit, urgent: !!p.urgent });
+  const fact = pickFact({ mode, introNeeded, cards: p.factCards || [], cited, unit: p.decision.unit, lever: p.unitDef.lever, urgent: !!p.urgent });
   const ctx: RenderCtx = { name: p.name || '아이', fact: fact ? (fact.prose ?? fact.text) : null, next, food: p.food ?? null };
   const ledger = new Set(p.blockLedger || []);
 
@@ -215,15 +231,25 @@ export function assembleLetter(p: AssembleInput): AssembleOutput {
     return { letter, used: list.map((x) => x.b) };
   };
 
-  // D-09 — 최종 결정론 스캔(정규식만): 위반 시 변형 재선택 1회 → 그래도면 폴백(발생=린터 구멍 신호)
+  // D-09 — 최종 결정론 스캔(정규식만) + 동일 조합 재현 차단: 위반 시 변형 재선택 → 그래도면 폴백/수용
+  const combos = new Set(p.recentCombos || []);
   let result: { letter: string; used: LetterBlock[] } | null = null;
-  for (let attempt = 0; attempt < 2; attempt++) {
+  let comboFallback: { letter: string; used: LetterBlock[] } | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
     const r = attemptAssemble(attempt);
     if (!r) break;   // 후보 0은 재시도 무의미(같은 집합) → 폴백
     const bad = letterDeterministicBad(r.letter, undefined, r.letter) || (p.detForbid ? p.detForbid.test(r.letter) : false);
-    if (!bad) { result = r; break; }
-    warnings.push(`D-09 위반 재선택(attempt ${attempt}): ${r.used.map((b) => b.id).join(',')}`);
+    if (bad) { warnings.push(`D-09 위반 재선택(attempt ${attempt}): ${r.used.map((b) => b.id).join(',')}`); continue; }
+    // 같은 블록 '조합'이 최근 7일 편지와 완전 일치 = 부모 눈에 복붙(3일 원장 밖 재조합 — 아린 6/1↔6/5 실증)
+    if (combos.has(r.used.map((b) => b.id).join('+'))) {
+      if (!comboFallback) comboFallback = r;
+      warnings.push(`동일 조합 재현 회피(attempt ${attempt})`);
+      continue;
+    }
+    result = r;
+    break;
   }
+  if (!result && comboFallback) result = comboFallback;   // 조합 회피 실패면 안전한 쪽(검수 통과본) 수용 + 경고 잔류
 
   if (!result) {
     // D-11 — 안전 폴백: 공용 opener+plateau(원장 무시·결정론). 그래도 없으면 상수 문구. LLM 폴백 절대 금지.

@@ -24,6 +24,7 @@ export type ReplayDay = {
 export type ReplayReport = {
   letters: number;
   blockRepeat3d: number;        // ① 같은 블록 id가 직전 3통 안에 재등장한 건수 — 목표 0(D-03 보장 검증)
+  comboRepeat7d: number;        // ①' 같은 블록 '조합'이 직전 7통 안에 재현 — 목표 0(부모 눈 복붙 — 아린 6/1↔6/5 실증)
   diagnosisReuse: number;       // ② 같은 (유닛:진단카드)가 2회+ 인용 — 목표 0(D-04 재서술 봉쇄 검증)
   openerRunMax: number;         // ③ 연속 편지 첫 15자 동일 run 최대 — 목표 ≤1(주제 수렴 사고 지표)
   introReentry7d: number;       // ③' 같은 유닛 intro 블록이 7일 내 재등장 — 목표 0(F-06 검증)
@@ -40,6 +41,7 @@ const head15 = (t: string) => (t || '').replace(/\s+/g, ' ').trim().slice(0, 15)
 export function replayMetrics(days: ReplayDay[]): ReplayReport {
   const seq = [...days].sort((a, b) => a.date.localeCompare(b.date));
   let blockRepeat3d = 0;
+  let comboRepeat7d = 0;
   let diagnosisReuse = 0;
   let introReentry7d = 0;
   let pivotCapViolations = 0;
@@ -60,6 +62,12 @@ export function replayMetrics(days: ReplayDay[]): ReplayReport {
     // ① 3일(직전 3통) 창 블록 재사용
     const window = new Set(seq.slice(Math.max(0, i - 3), i).flatMap((x) => x.usedBlocks));
     blockRepeat3d += d.usedBlocks.filter((id) => window.has(id)).length;
+
+    // ①' 동일 조합(=동일 편지) 재현 — 7통 창
+    if (d.usedBlocks.length) {
+      const combo = d.usedBlocks.join('+');
+      if (seq.slice(Math.max(0, i - 7), i).some((x) => x.usedBlocks.join('+') === combo)) comboRepeat7d++;
+    }
 
     // ② 진단 카드 재인용 — 원장 수명과 동일한 '주간' 스코프(주가 바뀌면 카드 통계가 새 사실이라 재언급 허용이 설계)
     if (d.factUsedKind === 'diagnosis' && d.factUsed) {
@@ -109,7 +117,7 @@ export function replayMetrics(days: ReplayDay[]): ReplayReport {
 
   return {
     letters: seq.length,
-    blockRepeat3d, diagnosisReuse, openerRunMax, introReentry7d, pivotCapViolations,
+    blockRepeat3d, comboRepeat7d, diagnosisReuse, openerRunMax, introReentry7d, pivotCapViolations,
     modeDist, llmCallsPerLetter: seq.length ? Math.round((llm / seq.length) * 100) / 100 : 0,
     focusStreakMaxWeeks, fallbackCount,
     fallbackRate: seq.length ? Math.round((fallbackCount / seq.length) * 1000) / 1000 : 0,
@@ -120,6 +128,7 @@ export function replayMetrics(days: ReplayDay[]): ReplayReport {
 export function cutoverGate(r: ReplayReport): string[] {
   const fails: string[] = [];
   if (r.blockRepeat3d > 0) fails.push(`블록 3일 중복 ${r.blockRepeat3d}(목표 0)`);
+  if (r.comboRepeat7d > 0) fails.push(`동일 조합 재현 ${r.comboRepeat7d}(목표 0)`);
   if (r.diagnosisReuse > 0) fails.push(`진단 재서술 ${r.diagnosisReuse}(목표 0)`);
   if (r.openerRunMax > 2) fails.push(`도입 동일 연속 ${r.openerRunMax}(목표 ≤2)`);
   if (r.introReentry7d > 0) fails.push(`intro 7일 내 재등장 ${r.introReentry7d}(목표 0)`);
