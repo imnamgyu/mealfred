@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>식단 데이터 파이프라인 · ERD · 시스템 아키텍처</title>
+<meta property="og:title" content="식단 데이터 파이프라인 · ERD · 시스템 아키텍처">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#EAF4FC;--b500:#3498DB;--b700:#1565C0;--g50:#E8F6F1;--g500:#16A085;--g700:#1B5E20;--v50:#F6EAFA;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FDECEA;--r500:#E53935;--r700:#C62828;--y50:#FEF6E0;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+  .hero{padding:54px 24px 36px;text-align:center;background:linear-gradient(160deg,#EAF2FB 0%,#DCE9F8 45%,#D2E4F6 100%);color:#1a2b4a;position:relative;overflow:hidden}
+  .hero-inner{position:relative;z-index:1;max-width:820px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(52,152,219,0.12);color:#1565C0;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:16px;border:1px solid rgba(52,152,219,0.3)}
+  .hero h1{font-size:31px;font-weight:800;letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px;color:#15264a}
+  .hero p{font-size:14.5px;color:#3a4a63;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+  .hero .crumb{margin-top:15px;font-size:12px;color:#5a6a83;font-weight:600}
+  .hero .crumb a{color:#1565C0;text-decoration:none;font-weight:700}
+  .legendbar{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .legendbar span{font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.6);border-radius:100px;padding:4px 12px;color:#3a4a63}
+  .lgb{width:11px;height:11px;border-radius:3px;display:inline-block}
+  main{max-width:1080px;margin:0 auto;padding:30px 20px 70px}
+  section.blk{margin-bottom:48px}
+  .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .sec-head .num{font-size:12px;font-weight:800;color:#fff;background:var(--b500);width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sec-head h2{font-size:21px;color:var(--s800);font-weight:800;letter-spacing:-0.02em}
+  .sec-sub{font-size:13.5px;color:var(--n500);font-weight:600;margin:0 0 18px 36px;line-height:1.6}
+  .card{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.03)}
+  .badge-live{display:inline-block;font-size:10px;font-weight:800;background:var(--g500);color:#fff;border-radius:6px;padding:2px 7px;letter-spacing:0.03em}
+  .badge-prop{display:inline-block;font-size:10px;font-weight:800;background:var(--v500);color:#fff;border-radius:6px;padding:2px 7px;letter-spacing:0.03em}
+  /* sources legal 3-tier */
+  .legal-tier{border-radius:13px;padding:15px 17px;margin-bottom:12px;border:1.5px solid}
+  .legal-tier.ok{border-color:var(--g500);background:var(--g50)}
+  .legal-tier.cond{border-color:var(--y500);background:var(--y50)}
+  .legal-tier.no{border-color:var(--r500);background:var(--r50)}
+  .legal-tier .lh{font-size:14px;font-weight:800;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+  .legal-tier.ok .lh{color:var(--g700)} .legal-tier.cond .lh{color:var(--y700)} .legal-tier.no .lh{color:var(--r700)}
+  .srow{display:flex;gap:10px;padding:7px 0;border-top:1px dashed rgba(0,0,0,0.08);font-size:12.5px;line-height:1.55;align-items:flex-start}
+  .srow:first-of-type{border-top:none}
+  .srow .sk{font-weight:800;color:var(--s800);min-width:150px;flex-shrink:0}
+  .srow .sv{color:var(--n600);font-weight:600}
+  .srow .sv b{color:var(--n900)}
+  .srow .sv code{background:rgba(0,0,0,0.05);border-radius:4px;padding:1px 5px;font-size:11px}
+  /* pipeline */
+  .pipe{display:flex;flex-direction:column;gap:0;max-width:760px;margin:0 auto}
+  .pstep{border:1.6px solid var(--n200);border-radius:13px;padding:13px 16px;background:#fff;position:relative}
+  .pstep .ph{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+  .pstep .pn{font-size:11px;font-weight:800;color:#fff;background:var(--s700);border-radius:6px;padding:2px 8px}
+  .pstep .ptt{font-size:14.5px;font-weight:800;color:var(--s800)}
+  .pstep .pd{font-size:12.3px;color:var(--n600);font-weight:600;line-height:1.6}
+  .pstep .pd code{background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 4px;font-size:11px;color:var(--n700)}
+  .pstep.llm{border-color:var(--v300,#D9A6E8);background:var(--v50)}
+  .pstep.llm .pn{background:var(--v500)}
+  .pstep.det{border-color:var(--n200)}
+  .pstep.prop{border-style:dashed;border-color:var(--v500);background:#FCF6FE}
+  .tagllm{font-size:10px;font-weight:800;color:#fff;background:var(--v500);border-radius:100px;padding:2px 8px}
+  .tagdet{font-size:10px;font-weight:800;color:var(--n600);background:var(--n100);border:1px solid var(--n200);border-radius:100px;padding:2px 8px}
+  .tagnew{font-size:10px;font-weight:800;color:#fff;background:var(--p500);border-radius:100px;padding:2px 8px}
+  .pchev{align-self:center;color:var(--n300);font-size:15px;padding:5px 0}
+  /* erd */
+  .erd-wrap{overflow-x:auto;border:1.5px solid var(--n200);border-radius:14px;background:#fff;padding:6px}
+  svg.erd{display:block;min-width:920px;width:100%;height:auto}
+  .erd-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;font-weight:700;color:var(--n600)}
+  .erd-legend span{display:inline-flex;align-items:center;gap:6px}
+  /* entity field cards */
+  .ent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:16px}
+  .ent{border:1.5px solid var(--n200);border-radius:12px;overflow:hidden;background:#fff}
+  .ent .eh{font-size:13px;font-weight:800;padding:9px 13px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:6px}
+  .ent.op .eh{background:var(--b500)} .ent.know .eh{background:var(--g500)} .ent.edge .eh{background:var(--p500)}
+  .ent .eh .kind{font-size:9px;font-weight:700;background:rgba(255,255,255,0.25);border-radius:5px;padding:1px 6px}
+  .ent ul{list-style:none;padding:8px 13px 11px}
+  .ent li{font-size:11.5px;font-weight:600;color:var(--n600);padding:2.5px 0;display:flex;gap:6px;line-height:1.45}
+  .ent li b{color:var(--s800);font-weight:800}
+  .ent li .pk{font-size:9px;font-weight:800;color:var(--p700);background:var(--p50);border-radius:4px;padding:0 4px;align-self:center}
+  .ent li .fk{font-size:9px;font-weight:800;color:var(--b700);background:var(--b50);border-radius:4px;padding:0 4px;align-self:center}
+  /* llm touchpoints */
+  .tp{display:grid;grid-template-columns:30px 1fr;gap:12px;border:1.5px solid var(--v500);border-left:5px solid var(--v500);border-radius:12px;padding:14px 16px;background:var(--v50);margin-bottom:11px}
+  .tp .ti{font-size:18px}
+  .tp h4{font-size:14px;font-weight:800;color:var(--v700);margin-bottom:3px}
+  .tp .tw{font-size:12.3px;color:var(--n700);font-weight:600;line-height:1.6;margin-bottom:5px}
+  .tp .tg{font-size:12px;color:var(--g700);font-weight:700;background:var(--g50);border-radius:8px;padding:6px 10px;line-height:1.55}
+  .tp .tg b{color:var(--g700)}
+  /* letter path */
+  .lp-list{counter-reset:lp;display:flex;flex-direction:column;gap:7px}
+  .lpi{display:grid;grid-template-columns:30px 1fr;gap:11px;align-items:start;border:1.4px solid var(--n200);border-radius:11px;padding:10px 13px;background:#fff}
+  .lpi .ln{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+  .lpi.det .ln{background:var(--n500)} .lpi.llm .ln{background:var(--v500)}
+  .lpi .lt{font-size:12.6px;font-weight:600;color:var(--n700);line-height:1.55}
+  .lpi .lt b{color:var(--s800)} .lpi .lt code{background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 4px;font-size:10.5px}
+  .lpi .lk{font-size:9.5px;font-weight:800;border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+  .lpi.det .lk{background:var(--n100);color:var(--n600)} .lpi.llm .lk{background:var(--v500);color:#fff}
+  /* arch layers */
+  .layer{display:grid;grid-template-columns:60px 1fr;gap:0;border:1.5px solid var(--n200);border-radius:12px;overflow:hidden;margin-bottom:9px}
+  .layer .ll{display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;background:var(--s700)}
+  .layer .lr{padding:12px 15px}
+  .layer .lr h4{font-size:13.5px;font-weight:800;color:var(--s800);margin-bottom:3px}
+  .layer .lr p{font-size:12px;color:var(--n600);font-weight:600;line-height:1.55}
+  .layer .lr p code{background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 4px;font-size:10.5px}
+  .layer.l1 .ll{background:#1565C0}.layer.l2 .ll{background:#2980B9}.layer.l3 .ll{background:#16A085}.layer.l4 .ll{background:#11806b}
+  .layer.l5 .ll{background:#C62828}.layer.l6 .ll{background:#B86A20}.layer.l7 .ll{background:#6A1B9A}.layer.l8 .ll{background:#2C3E50}
+  .keybox{border:2px solid var(--b500);background:var(--b50);border-radius:14px;padding:17px 19px}
+  .keybox .kt{font-size:13px;font-weight:800;color:var(--b700);letter-spacing:0.02em;margin-bottom:6px}
+  .keybox p{font-size:13.5px;font-weight:700;color:var(--s800);line-height:1.7}
+  .keybox p b{color:var(--b700)}
+  footer{text-align:center;font-size:11.5px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;line-height:1.7}
+  footer a{color:var(--n500);font-weight:700}
+  @media(max-width:600px){.hero h1{font-size:23px}.sec-head h2{font-size:18px}.srow .sk{min-width:108px}}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">🔄 DATA PIPELINE · ERD · SYSTEM ARCHITECTURE</span>
+    <h1>식단 데이터 파이프라인 · ERD<br>시스템 아키텍처</h1>
+    <p>원천(공공 식단·학부모 식단표) → 수집 → <b>메뉴→식재료 분해(+웹 그라운딩 추정)</b> → DB → <b>식재료·음식·궁합 네트워크</b> → 코칭 편지까지. 어디서 무엇이 가공·전처리되고 <b>LLM이 어디 3곳에만 개입</b>하는지, 데이터가 어떤 테이블·관계(ERD)로 들어가고 편지가 그걸 어떻게 끌어다 쓰는지 — 실제 코드 단위로 그린 단일 진실.</p>
+    <div class="legendbar">
+      <span><i class="lgb" style="background:#16A085"></i> 현행 (라이브 코드)</span>
+      <span><i class="lgb" style="background:#9C27B0"></i> LLM 개입 지점</span>
+      <span><i class="lgb" style="background:#9C27B0;border:1.5px dashed #6A1B9A;background:#FCF6FE"></i> 제안 (신규 설계)</span>
+    </div>
+    <div class="crumb"><a href="/docs.html">← 문서 허브</a> · 엔진·데이터 명세 · 2026-06-14 · 연관 <a href="/food-network-data-architecture.html">데이터 강화 아키텍처</a></div>
+  </div>
+</header>
+
+<main>
+
+<!-- 1. 원천 데이터 소스 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">1</span><h2>원천 데이터 — 어디서 긁어오나 (합법 3층)</h2></div>
+  <p class="sec-sub">유치원/어린이집 식단은 <b>국가 단일 포털이 없다</b>. NEIS는 학교만, 시설 메타는 정보공개포털, 메뉴는 분산. 그래서 합법성으로 3층으로 나눈다.</p>
+
+  <div class="legal-tier ok">
+    <div class="lh">★ 완전 합법 — 긁어도 됨 (정부 OpenAPI)</div>
+    <div class="srow"><span class="sk">NEIS 급식 API</span><span class="sv"><code>open.neis.go.kr/hub</code> keyless · 전국 초·중·고 일자별 메뉴·영양·알레르기. 라이선스 '제한없음'=CC0급. <b>⚠️ 유치원·어린이집 미포함(학교만)</b> — 이미 초등 식판 수집·사용 중.</span></div>
+    <div class="srow"><span class="sk">식약처 영유아 식단 API</span><span class="sv"><code>data.go.kr 15118061(유아)·15118065(어린이)</code> · 식단구분·식단이름·조리법·<b>재료</b>·영양소·사진. <b>★유치원 식단축을 'API로' 채우는 가장 유력 후보.</b> 활용신청 후 인증키.</span></div>
+    <div class="srow"><span class="sk">어린이집정보공개·유치원알리미</span><span class="sv">시설 메타(31,819개 이미 적재)·급식 '운영현황'만. <b>식단표 메뉴는 없음</b> — 기관 디렉터리 보강 전용.</span></div>
+    <div class="srow"><span class="sk">농진청 성분·레시피</span><span class="sv">국가표준식품성분(<code>nong_foods</code> 3,272 적재)·전통향토음식 3,248·조리식품 레시피. 노드 영양·궁합 backbone.</span></div>
+  </div>
+
+  <div class="legal-tier cond">
+    <div class="lh">△ 조건부 — 공공누리 확인 / 제휴 (대량수집 주의)</div>
+    <div class="srow"><span class="sk">어린이급식센터 CCFSM</span><span class="sv"><code>dietary4u.mfds.go.kr</code> · 연령군별(만1~2·만3~5·유치원) <b>표준 월간식단·표준레시피·영양표</b>. 형태=HWP/ZIP/XLSX(API 아님). <b>NEIS가 못 채우는 영유아 메뉴 코퍼스 1순위.</b> 대량수집은 공공누리 유형 확인·기관 협조.</span></div>
+    <div class="srow"><span class="sk">분산 식단표</span><span class="sv">교육청 급식자료실·육아종합지원센터·서울 든든급식·각 원 홈페이지 = HWP/PDF/이미지. 라이선스 제각각 → <b>이 분산 현실이 '학부모 앱 OCR' 우회 전략의 근거.</b></span></div>
+    <div class="srow"><span class="sk">대한영양사협회·식품안전나라</span><span class="sv">표준레시피·저감 레시피(권위 높음). 공개 PDF/일부 OpenAPI는 인용 가능, <b>통째 DB화는 제휴 필요.</b></span></div>
+  </div>
+
+  <div class="legal-tier no">
+    <div class="lh">❌ 크롤링 금지 — opt-in / 제휴만</div>
+    <div class="srow"><span class="sk">영양사 커뮤니티</span><span class="sv">네이버 카페(어린이집 영양사)·영양광장·kdclub 실식단 UGC = 로그인 폐쇄형 + 저작권 + 개인정보.</span></div>
+    <div class="srow"><span class="sk">알림장 앱·민간 레시피</span><span class="sv">키즈노트·아이엠스쿨 식단표(기관-학부모 폐쇄형)·만개의레시피 UGC. <b>정보통신망법(대법 2021도1533)·저작권·DB제작자권·개인정보보호법 다중 위반 위험.</b> 절대 자동수집 불가.</span></div>
+    <div class="srow"><span class="sk">→ 결론</span><span class="sv">밀프레드는 이미 <b>①NEIS keyless ②학부모 식단표 OCR</b> 두 합법축 보유. 유치원 확장 1순위 = <b>식약처 영유아 식단 API + CCFSM</b>. 카페·알림장 크롤링은 비추천.</span></div>
+  </div>
+</section>
+
+<!-- 2. 파이프라인 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">2</span><h2>데이터 파이프라인 — 원천에서 네트워크까지</h2></div>
+  <p class="sec-sub">메뉴 문자열 → 표준 식재료로 분해되는 흐름. <b>0~2차는 전부 결정론(환각 0)</b>, LLM은 미지 메뉴·OCR에만. <span class="badge-prop">제안</span> = 사용자 요청한 <b>웹 식재료 추정</b> + 검수 게이트.</p>
+  <div class="card">
+    <div class="pipe">
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S1</span><span class="ptt">수집</span><span class="tagdet">결정론 (OCR만 LLM)</span></div>
+        <div class="pd">NEIS keyless 전수(<code>pull-neis-full.py</code>)·식약처 표준식단 API·<b>학부모 식단표 이미지</b>. 이미지는 CLOVA OCR(표 셀 인식) → <code>ocr_logs</code> 로깅.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep llm">
+        <div class="ph"><span class="pn">S1b</span><span class="ptt">식단표 OCR 구조화</span><span class="tagllm">LLM · Sonnet 4-6 Vision</span></div>
+        <div class="pd">표 구조·날짜 배치가 제각각이라 Vision이 <b>메뉴명·날짜 매핑</b>만 구조화. <code>is_menu</code> 판정(비식단 거절)·전수 로깅. 추출 메뉴는 S2~S4로 다시 결정론 검증.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S2</span><span class="ptt">정규화 (렉시콘)</span><span class="tagdet">결정론</span></div>
+        <div class="pd">표기 변형 통일 — 쎠세지→소시지·달걀→계란·백미→쌀. <code>lib/lexicon.ts</code>(77개)·도감 표준명 일관. 캐논누수 9,992메뉴 감사 튜닝.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S3</span><span class="ptt">메뉴→식재료 분해 (4단 폴백)</span><span class="tagdet">0~2차 결정론</span></div>
+        <div class="pd">우선순위 <b>care override › learned › dict › rule › scan › llm</b>. (0)<code>learned_menus</code> 학습사전 → (1)<code>menu-dict.json</code> 정확일치+룰 → (2)<code>scanIngredients</code> substring 최장일치(양념·물·기름 EXCLUDE). 여기서 대부분 무료 히트, 환각 0.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep llm">
+        <div class="ph"><span class="pn">S3-LLM</span><span class="ptt">미지 메뉴 LLM 추정</span><span class="tagllm">LLM · Haiku 4.5</span></div>
+        <div class="pd">0~2차 전부 <code>[]</code>인 처음 보는 메뉴만 호출. <b>3단 환각 차단</b>: 프롬프트 명시금지('확실치 않으면 []'·환각 금지) → <code>canon</code> 정규화 → <code>CANON_VOCAB</code> 어휘검증(도감 밖 식재료 자동 제외). 빈 결과는 저장 거부.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep prop">
+        <div class="ph"><span class="pn">S3-web</span><span class="ptt">미지 메뉴 웹 그라운딩 추정</span><span class="tagnew">제안 · 사용자 요청</span><span class="tagllm">LLM + 웹서치</span></div>
+        <div class="pd"><b>"메뉴명을 구글링해 안에 든 식재료를 추정"</b> — LLM 지식만 쓰는 S3-LLM을 보강. 미지 메뉴를 웹서치 → 실제 레시피 페이지에서 식재료 후보 추출 → <code>CANON_VOCAB</code> 필터 → <b>검수 게이트(아래 S3.5)로.</b> 지식 환각보다 실제 레시피에 그라운딩돼 정확↑.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep prop">
+        <div class="ph"><span class="pn">S3.5</span><span class="ptt">엑셀 검수 게이트</span><span class="tagnew">제안</span><span class="tagdet">사람(Claude) 판정</span></div>
+        <div class="pd">웹/LLM 추정 결과를 <b>증거(출처 URL·동시출현·안전플래그) 펼친 엑셀</b>로 → 내가 터미널에서 승인/거부/수정 → 통과분만 사전에 박음. 질식·알레르겐은 코드가 자동 차단(안전 바닥). <a href="/food-network-data-architecture.html" style="color:var(--v700);font-weight:700">상세 →</a></div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S4</span><span class="ptt">통합 보정</span><span class="tagdet">결정론</span></div>
+        <div class="pd"><code>boostFromName</code>(메뉴명에 숨은 곡물 강제: 밥/죽→쌀·튀김→밀 튀김옷)·<code>meatFix</code>(불고기+닭 명시→닭고기)·<code>dedupCanon</code>.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S5</span><span class="ptt">코퍼스 씨딩 + 야간 백필</span><span class="tagdet">대부분 결정론</span></div>
+        <div class="pd">빌드: NEIS/레시피→<code>learned_menus</code> 초기화. 런타임: <b>2시 크론</b>이 <code>ingredients</code> 빈 행을 learned→rule→scan→LLM(예산가드 <b>max 8콜·6초</b>) 순으로 채움. 부모 교정 행은 보존.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S6</span><span class="ptt">동시출현 네트워크 + 키트 매트릭스</span><span class="tagdet">통계 (일부 LLM 채점)</span></div>
+        <div class="pd"><b>pair</b>=레시피 동시출현 <code>lift=c·N/(na·nb)</code>(떡+달걀 0.72=weak 차단)·<b>tray</b>=식판 공동출현(upgrade-only)·<b>bridge</b>=사촌 수기 → <code>food-graph.json</code>. 음식×식재료 = <code>kit-dish-matrix.json</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. ERD -->
+<section class="blk">
+  <div class="sec-head"><span class="num">3</span><h2>ERD — 식재료 · 음식 · 음식↔식재료 · 식재료↔식재료</h2></div>
+  <p class="sec-sub"><b>식재료(INGREDIENT)</b>를 중심 허브로, 음식이 식재료를 <b>담고(contains)</b>, 식재료끼리 <b>궁합/사촌(pair·bridge)</b>으로 잇고, 아이가 끼니에서 <b>먹는다(eats)</b>. 운영 테이블(파랑·SQL)과 지식 네트워크(초록/주황·빌드 JSON)가 만난다.</p>
+  <div class="erd-wrap">
+    <svg class="erd" viewBox="0 0 920 600" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard,sans-serif">
+      <defs>
+        <marker id="one" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M6,1 L6,11" stroke="#64748b" stroke-width="1.6"/></marker>
+        <marker id="many" markerWidth="14" markerHeight="14" refX="11" refY="7" orient="auto"><path d="M2,7 L12,2 M2,7 L12,12 M2,7 L12,7" stroke="#64748b" stroke-width="1.4" fill="none"/></marker>
+      </defs>
+      <!-- relationship lines -->
+      <g stroke="#94a3b8" stroke-width="1.8" fill="none">
+        <line x1="120" y1="92" x2="120" y2="150" marker-start="url(#one)" marker-end="url(#many)"/>            <!-- inst->children -->
+        <line x1="195" y1="195" x2="300" y2="195" marker-start="url(#one)" marker-end="url(#many)"/>           <!-- children->meal_logs -->
+        <line x1="120" y1="240" x2="120" y2="430" marker-start="url(#one)" marker-end="url(#many)"/>           <!-- children->coach_letters -->
+        <line x1="395" y1="345" x2="395" y2="250" marker-start="url(#many)" stroke-dasharray="4 4"/>          <!-- ocr->meal_logs (produces) -->
+        <line x1="490" y1="195" x2="610" y2="270" marker-start="url(#many)" marker-end="url(#many)"/>          <!-- meal_logs->ingredient (eats) -->
+        <line x1="700" y1="150" x2="700" y2="250" marker-start="url(#many)" marker-end="url(#many)"/>          <!-- menu->ingredient contains -->
+        <line x1="790" y1="320" x2="855" y2="320" marker-end="url(#many)"/>                                    <!-- ingredient self pair via food_graph -->
+        <line x1="855" y1="380" x2="700" y2="380" marker-end="url(#many)"/>
+        <line x1="700" y1="395" x2="700" y2="470" marker-start="url(#many)" marker-end="url(#many)"/>          <!-- ingredient->kit_matrix -->
+        <line x1="490" y1="470" x2="240" y2="470" stroke-dasharray="4 4" marker-end="url(#one)"/>              <!-- coach_letters reads ingredient/graph -->
+      </g>
+      <!-- relationship labels -->
+      <g font-size="10" font-weight="700" fill="#475569">
+        <text x="128" y="125">1:N</text>
+        <text x="232" y="187">1:N</text>
+        <text x="128" y="340">1:N</text>
+        <text x="400" y="305" fill="#9C27B0">produces</text>
+        <text x="525" y="220" fill="#16A085">eats N:M</text>
+        <text x="710" y="208" fill="#16A085">contains N:M</text>
+        <text x="792" y="312" fill="#B86A20">pair·bridge·tray (N:M self)</text>
+        <text x="712" y="438" fill="#B86A20">archetype×식재료 N:M</text>
+        <text x="300" y="462" fill="#6A1B9A">reads</text>
+      </g>
+      <!-- entity boxes -->
+      <!-- op: blue -->
+      <g>
+        <rect x="40" y="42" width="160" height="50" rx="9" fill="#EAF4FC" stroke="#3498DB" stroke-width="2"/>
+        <text x="120" y="64" text-anchor="middle" font-size="13" font-weight="800" fill="#1565C0">INSTITUTIONS</text>
+        <text x="120" y="81" text-anchor="middle" font-size="10" fill="#4B5563">기관 31,819 · PK id</text>
+      </g>
+      <g>
+        <rect x="40" y="150" width="160" height="90" rx="9" fill="#EAF4FC" stroke="#3498DB" stroke-width="2"/>
+        <text x="120" y="172" text-anchor="middle" font-size="13" font-weight="800" fill="#1565C0">CHILDREN</text>
+        <text x="120" y="191" text-anchor="middle" font-size="10" fill="#4B5563">PK id</text>
+        <text x="120" y="207" text-anchor="middle" font-size="10" fill="#4B5563">FK institution_id</text>
+        <text x="120" y="223" text-anchor="middle" font-size="10" fill="#4B5563">age·만성질환·알레르기</text>
+      </g>
+      <g>
+        <rect x="300" y="150" width="190" height="100" rx="9" fill="#EAF4FC" stroke="#3498DB" stroke-width="2"/>
+        <text x="395" y="172" text-anchor="middle" font-size="13" font-weight="800" fill="#1565C0">MEAL_LOGS</text>
+        <text x="395" y="190" text-anchor="middle" font-size="10" fill="#4B5563">FK child_id · log_date·slot</text>
+        <text x="395" y="206" text-anchor="middle" font-size="10" fill="#4B5563">menus[] · ingredients[]</text>
+        <text x="395" y="222" text-anchor="middle" font-size="10" fill="#4B5563">refused·place·ate_well</text>
+        <text x="395" y="238" text-anchor="middle" font-size="10" fill="#4B5563">source(home/daycare_menu)</text>
+      </g>
+      <g>
+        <rect x="320" y="345" width="150" height="70" rx="9" fill="#EAF4FC" stroke="#3498DB" stroke-width="2"/>
+        <text x="395" y="367" text-anchor="middle" font-size="12.5" font-weight="800" fill="#1565C0">OCR_LOGS</text>
+        <text x="395" y="385" text-anchor="middle" font-size="10" fill="#4B5563">image·ocr_text·is_menu</text>
+        <text x="395" y="401" text-anchor="middle" font-size="10" fill="#4B5563">→ meal_logs 생성</text>
+      </g>
+      <g>
+        <rect x="40" y="430" width="200" height="78" rx="9" fill="#EAF4FC" stroke="#3498DB" stroke-width="2"/>
+        <text x="140" y="452" text-anchor="middle" font-size="12.5" font-weight="800" fill="#1565C0">COACH_LETTERS</text>
+        <text x="140" y="470" text-anchor="middle" font-size="10" fill="#4B5563">FK child_id · letter_date</text>
+        <text x="140" y="486" text-anchor="middle" font-size="10" fill="#4B5563">letter·oneliner·context</text>
+        <text x="140" y="502" text-anchor="middle" font-size="10" fill="#4B5563">source_hash·model</text>
+      </g>
+      <!-- knowledge: green/orange -->
+      <g>
+        <rect x="610" y="100" width="180" height="50" rx="9" fill="#E8F6F1" stroke="#16A085" stroke-width="2"/>
+        <text x="700" y="122" text-anchor="middle" font-size="12.5" font-weight="800" fill="#11806b">MENU (음식)</text>
+        <text x="700" y="139" text-anchor="middle" font-size="9.5" fill="#4B5563">learned_menus·menu-dict · PK menu_key</text>
+      </g>
+      <g>
+        <rect x="610" y="250" width="180" height="145" rx="9" fill="#E8F6F1" stroke="#16A085" stroke-width="2.4"/>
+        <text x="700" y="274" text-anchor="middle" font-size="13.5" font-weight="800" fill="#11806b">INGREDIENT (식재료)</text>
+        <text x="700" y="292" text-anchor="middle" font-size="9.5" fill="#4B5563">도감 · PK nm (표준명)</text>
+        <line x1="625" y1="300" x2="775" y2="300" stroke="#A7D9CC" stroke-width="1"/>
+        <text x="700" y="316" text-anchor="middle" font-size="10" fill="#4B5563">grade·category·💎</text>
+        <text x="700" y="332" text-anchor="middle" font-size="10" fill="#4B5563">nutrient·season·cuisine</text>
+        <text x="700" y="348" text-anchor="middle" font-size="10" fill="#4B5563">freqMap(또래 인기음식)</text>
+        <text x="700" y="366" text-anchor="middle" font-size="9.5" fill="#9C27B0">제안: 식감·색·알레르겐·</text>
+        <text x="700" y="380" text-anchor="middle" font-size="9.5" fill="#9C27B0">질식·연령 메타</text>
+      </g>
+      <g>
+        <rect x="610" y="470" width="180" height="62" rx="9" fill="#FFF1E2" stroke="#E89244" stroke-width="2"/>
+        <text x="700" y="492" text-anchor="middle" font-size="12" font-weight="800" fill="#B86A20">KIT_DISH_MATRIX</text>
+        <text x="700" y="509" text-anchor="middle" font-size="9.5" fill="#4B5563">음식 archetype × 식재료</text>
+        <text x="700" y="524" text-anchor="middle" font-size="9.5" fill="#4B5563">cells{archetype:{식재료:count}}</text>
+      </g>
+      <g>
+        <rect x="830" y="270" width="80" height="100" rx="9" fill="#FFF1E2" stroke="#E89244" stroke-width="2"/>
+        <text x="870" y="300" text-anchor="middle" font-size="11.5" font-weight="800" fill="#B86A20">FOOD_</text>
+        <text x="870" y="315" text-anchor="middle" font-size="11.5" font-weight="800" fill="#B86A20">GRAPH</text>
+        <text x="870" y="334" text-anchor="middle" font-size="9" fill="#4B5563">edges</text>
+        <text x="870" y="347" text-anchor="middle" font-size="9" fill="#4B5563">a·b·kind</text>
+        <text x="870" y="360" text-anchor="middle" font-size="9" fill="#4B5563">lift·grade</text>
+      </g>
+    </svg>
+  </div>
+  <div class="erd-legend">
+    <span><i class="lgb" style="background:#3498DB"></i> 운영 데이터 (런타임 SQL)</span>
+    <span><i class="lgb" style="background:#16A085"></i> 지식 — 음식·식재료 (빌드 JSON)</span>
+    <span><i class="lgb" style="background:#E89244"></i> 네트워크 — 궁합·매트릭스</span>
+    <span>↠ 점선 = 생성/읽기 · ⪪ 까마귀발 = N(다)</span>
+  </div>
+
+  <div class="ent-grid">
+    <div class="ent know"><div class="eh">MENU (음식) <span class="kind">learned_menus · SQL</span></div><ul>
+      <li><span class="pk">PK</span><b>menu_key</b> 정규화 메뉴명</li>
+      <li><b>ingredients[]</b> 표준 식재료 배열</li>
+      <li><b>processed</b> · <b>source</b>(learned/dict/rule/scan/llm)</li>
+      <li>≈9,992개 · 분해 결과 영구 캐시 · learn_menu RPC 멱등</li>
+    </ul></div>
+    <div class="ent know"><div class="eh">INGREDIENT (식재료) <span class="kind">도감 · build</span></div><ul>
+      <li><span class="pk">PK</span><b>nm</b> 표준명(192/도감 204)</li>
+      <li><b>grade·category·💎</b> · nutrient · season · cuisine</li>
+      <li><b>freqMap</b> 또래 인기음식(ingredient-recipes.json)</li>
+      <li><span style="color:var(--v700)">제안</span> 식감·색·알레르겐·질식·연령 메타</li>
+    </ul></div>
+    <div class="ent edge"><div class="eh">FOOD_GRAPH (식재료↔식재료) <span class="kind">build JSON</span></div><ul>
+      <li><b>edges[]</b> = {a, b}</li>
+      <li><b>kind</b> pair(궁합)·bridge(사촌)·tray(식판)</li>
+      <li><b>lift·grade·strength·basis</b></li>
+      <li>self-relationship N:M · 추천 네트워크</li>
+    </ul></div>
+    <div class="ent edge"><div class="eh">KIT_DISH_MATRIX (음식↔식재료) <span class="kind">build JSON</span></div><ul>
+      <li><b>dishes[]</b> {key, em, n}</li>
+      <li><b>cells</b> {archetype:{식재료:count}}</li>
+      <li>음식 형태별 메인 식재료 빈도 행렬</li>
+      <li>'당근→가장 많이 쓰는 음식 2개' 근거</li>
+    </ul></div>
+    <div class="ent op"><div class="eh">MEAL_LOGS (끼니 로그) <span class="kind">SQL</span></div><ul>
+      <li><span class="fk">FK</span><b>child_id</b> · log_date · slot</li>
+      <li><b>menus[]</b>(원문) → <b>ingredients[]</b>(분해)</li>
+      <li><b>refused·place</b>(home/daycare)·ate_well·texture</li>
+      <li><b>source</b> home / daycare_menu(OCR)</li>
+    </ul></div>
+    <div class="ent op"><div class="eh">OCR_LOGS / CHILDREN / INSTITUTIONS <span class="kind">SQL</span></div><ul>
+      <li><b>ocr_logs</b> image·ocr_text·is_menu·model → meal_logs</li>
+      <li><b>children</b> PK id · FK institution_id · age·질환·알레르기</li>
+      <li><b>institutions</b> 31,819 · type · name_norm</li>
+      <li><b>affinity_cache</b> 정적 그래프 부족분 LLM 폴백</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- 4. LLM 개입 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">4</span><h2>LLM은 딱 3곳에만 — 각자 환각 가드</h2></div>
+  <p class="sec-sub">파이프라인 전체에서 LLM 개입은 <b>(A)미지 메뉴 분해 · (B)식단표 OCR · (C)편지 작문/검증</b>뿐. 나머지는 전부 결정론. 각 지점마다 환각·괴식 차단 가드가 붙는다.</p>
+  <div class="tp"><div class="ti">🧩</div><div>
+    <h4>A. 미지 메뉴 → 식재료 추정 <span class="badge-live">Haiku 4.5</span></h4>
+    <div class="tw">0~2차(learned·dict·scan)가 모두 실패한 처음 보는 메뉴만. 결정론 규칙으로 분해 불가한 신조어·복합 가공식품을 자연어 이해로 추정. <span style="color:var(--v700);font-weight:700">제안: 여기에 웹서치 그라운딩(S3-web)을 더해 실제 레시피로 추정.</span></div>
+    <div class="tg">🛡️ <b>3단 차단</b>: 프롬프트 명시금지('확실치 않으면 []'·환각 금지) → canon 정규화 → <b>CANON_VOCAB 어휘검증</b>(도감 밖 식재료 자동 제외) → 빈 배열 저장 거부. <span style="color:var(--v700)">+ 제안 S3.5 엑셀 검수 게이트.</span></div>
+  </div></div>
+  <div class="tp"><div class="ti">📷</div><div>
+    <h4>B. 식단표 OCR 구조화 <span class="badge-live">Sonnet 4-6 Vision</span></h4>
+    <div class="tw">학부모가 찍은 식단표는 표 구조·날짜 배치가 제각각 → CLOVA OCR 텍스트만으론 매핑 불가. Vision이 메뉴명·날짜 구조화 추출만 담당.</div>
+    <div class="tg">🛡️ CLOVA가 1차 텍스트 확보 후 LLM은 구조화만 · is_menu 판정(비식단 거절) · 추출 메뉴는 <b>S2~S4 결정론 분해로 다시 검증</b> · ocr_logs 전수 로깅.</div>
+  </div></div>
+  <div class="tp"><div class="ti">✉️</div><div>
+    <h4>C. 편지 작문 + 검증 <span class="badge-live">Haiku / intro만 Sonnet</span></h4>
+    <div class="tw">'재료=코드 결정론·문장=LLM 자유'. 타깃·식재료·조합·근거·무브는 코드가 100% 못박고, LLM은 도입·톤·장면·질문만 작문 → '같은 잔소리' 회피. + proofreadLetter(윤문)·verifyLetter(의미 검증).</div>
+    <div class="tg">🛡️ <b>4중 게이트</b>: ① letterDeterministicBad(정규식: 괴식·증상·시점) ② letterSimilarity(자카드: 도입≥0.40·전체≥0.45) ③ verifyLetter(LLM 의미: 사실·행동1개·진단재서술) ④ qualityScan(은유·나열·재료밖 음식). serializeMaterials가 화이트리스트 밖 '지어내기 입구' 차단.</div>
+  </div></div>
+</section>
+
+<!-- 5. 편지 소비 경로 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">5</span><h2>편지가 DB를 끌어다 쓰는 경로 (1건 생성)</h2></div>
+  <p class="sec-sub">2시 크론이 자녀별로 — <b>읽고(결정론) → 신호 파생 → 재료 결정론 조립 → LLM 작문 → 4중 검증 → 발행</b>. '재료=결정론, 문장=LLM'이 코드로 구현된 전 과정.</p>
+  <div class="lp-list">
+    <div class="lpi det"><div class="ln">1</div><div class="lt"><b>데이터 리드</b> <span class="lk">결정론</span> — <code>meal_logs</code> 최근 7일(어제까지) + <code>freqMap·food-graph·ingredients-light</code> fetch + <code>coach_letters</code> 3일(중복 회피용).</div></div>
+    <div class="lpi det"><div class="ln">2</div><div class="lt"><b>신호 파생</b> <span class="lk">결정론</span> — likedIngredients(집 2일+ 거부없음)·refusedSet·homeByDate(집/기관 분리)·nutritionSignals(영양 부족 가중).</div></div>
+    <div class="lpi det"><div class="ln">3</div><div class="lt"><b>계획 결정론</b> <span class="lk">결정론</span> — planFor→selectScenario→buildCoachPlan{frame·target·moveKey·signature}. 타깃·무브를 코드가 못박음(어제 'mix'면 오늘 'beside').</div></div>
+    <div class="lpi det"><div class="ln">4</div><div class="lt"><b>재료 결정론</b> <span class="lk">결정론</span> — rankIngredients(시급도·급식빈도·궁합·사촌 <b>4기준</b>)→rotate(3일 무재사용)→<b>validatedCombos</b>(scoreCombo≥1, 미역국+당근 괴식 차단)→buildReasonPhrases.</div></div>
+    <div class="lpi det"><div class="ln">5</div><div class="lt"><b>사실·거울·직렬화</b> <span class="lk">결정론</span> — compileFactCards(단발/간헐/반복)·buildMealMirror(7일 신호등). <code>serializeMaterials</code>가 [타깃·조합·근거]를 <b>LLM 대입 불가 텍스트</b>로 + materialFoods 화이트리스트 확정.</div></div>
+    <div class="lpi llm"><div class="ln">6</div><div class="lt"><b>작문</b> <span class="lk">LLM 자유</span> — generateLetter(Haiku, intro만 Sonnet)가 [재료]+[거울]+[부모메모] 위에 <b>도입·톤·장면·질문만</b> 자유 작문(목록 밖 음식 금지·3~4문장·행동 1개) → polish/proofread.</div></div>
+    <div class="lpi llm"><div class="ln">7</div><div class="lt"><b>4중 검증</b> <span class="lk">3차만 LLM</span> — 정규식(괴식·증상)→자카드(반복)→<b>verifyLetter</b>(LLM 의미: 사실·행동1개)→qualityScan. 위반 시 무브 바꿔 재생성 1~2회.</div></div>
+    <div class="lpi det"><div class="ln">8</div><div class="lt"><b>발행</b> <span class="lk">결정론</span> — 통과(또는 미개선 위반은 '발행&gt;완벽' 우아한 강등) → <code>coach_letters</code> upsert. 다음 아침 부모 앱 노출.</div></div>
+  </div>
+</section>
+
+<!-- 6. 시스템 아키텍처 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">6</span><h2>시스템 아키텍처 — 8층</h2></div>
+  <p class="sec-sub">원천부터 앱까지 8개 층. 핵심 분담 = <b>2시 크론은 런타임 백필(적용) · /mealfred-food-mapping 스킬은 빌드 산출물 개선</b>. <code>learned_menus</code>는 양쪽 공용 단일 진실.</p>
+  <div class="layer l1"><div class="ll">L1</div><div class="lr"><h4>원천 Sources</h4><p>NEIS 급식 API(학교만) · 식약처 영유아 식단 API(15118061/65) · CCFSM 표준식단 · 학부모 식단표 이미지. <b>합법 3층</b>: 완전합법→조건부→금지(알림장·카페).</p></div></div>
+  <div class="layer l2"><div class="ll">L2</div><div class="lr"><h4>수집 Ingestion</h4><p><code>pull-neis-*.py</code>(keyless 전수)·<code>import-nong-foods.py</code>·<code>ocr/route.ts</code>(CLOVA+Sonnet Vision)·<code>seed-institutions.py</code>. OCR만 LLM, 나머지 결정론.</p></div></div>
+  <div class="layer l3"><div class="ll">L3</div><div class="lr"><h4>가공 Normalize·Decompose</h4><p>lexicon(표준명)·createMapper(4단 폴백 dict→rule→scan→LLM)·boostFromName/meatFix·2시 크론 백필. 0~2차 결정론(환각 0)·3차만 Haiku(3단 차단).</p></div></div>
+  <div class="layer l4"><div class="ll">L4</div><div class="lr"><h4>저장 Store (이중)</h4><p>런타임 SQL: learned_menus·meal_logs·ocr_logs·affinity_cache·coach_letters·institutions·nong_foods. 빌드 JSON: menu-dict·food-graph·kit-dish-matrix·ingredient-recipes·corpus-stats·lexicon.</p></div></div>
+  <div class="layer l5"><div class="ll">L5</div><div class="lr"><h4>검수 게이트 Curation·Safety</h4><p>CANON_VOCAB 어휘검증·빈배열 저장거부·food-graph lift 게이트·kit-matrix cells·도감 영유아 안전스크린(질식·보툴리누스). <span style="color:var(--v700);font-weight:700">제안: 엑셀 검수 게이트(사람 판정)</span>.</p></div></div>
+  <div class="layer l6"><div class="ll">L6</div><div class="lr"><h4>추천 네트워크 Recommendation</h4><p>coachRecos(strongPairsOf·verifiedCousinsOf)·coachMaterials(4기준 랭킹·3일 회전·validatedCombos)·food-graph·kit-matrix·affinity_cache 폴백. '잘 먹는 음식에 결핍 섞기'를 검증된 동시출현으로.</p></div></div>
+  <div class="layer l7"><div class="ll">L7</div><div class="lr"><h4>편지 Coaching Letter</h4><p>재료=결정론(plan·materials·facts·mirror·serialize) · 문장=LLM(generate·proofread). 4중 게이트(정규식→자카드→LLM 의미→품질). S7 우아한 강등(발행&gt;완벽).</p></div></div>
+  <div class="layer l8"><div class="ll">L8</div><div class="lr"><h4>앱·운영 App·Ops</h4><p>care(식단 입력·OCR·달력)·홈 코칭 스레드(3일 FOMO)·도감·마을·/admin(funnel·compare·모더레이션)·Vercel 크론(coach 2시 외 통합 배치)·예산 가드·CRON_SECRET.</p></div></div>
+</section>
+
+<div class="keybox">
+  <div class="kt">🎯 한 줄 요약</div>
+  <p>원천(합법축 = <b>NEIS + 식약처 영유아 API + 학부모 OCR</b>) → 메뉴를 <b>0~2차 결정론으로 분해(환각 0)</b>, 미지 메뉴만 <b>웹 그라운딩+LLM 추정 → 엑셀 검수 게이트</b> → <code>learned_menus</code>(음식↔식재료)·<code>food-graph</code>(식재료↔식재료)·<code>kit-matrix</code>(음식×식재료)에 저장 → 편지는 이 네트워크를 <b>읽어 재료를 결정론으로 조립하고 문장만 LLM이 자유 작문</b>, 4중 게이트로 괴식·반복·환각을 막고 발행. <b>LLM은 미지분해·OCR·작문 3곳에만.</b></p>
+</div>
+
+</main>
+
+<footer>
+  <p>식단 데이터 파이프라인 · ERD · 시스템 아키텍처 · 엔진·데이터 명세 · 2026-06-14<br>
+  연관: <a href="/food-network-data-architecture.html">음식 추천 네트워크 데이터 강화 아키텍처</a> · <a href="/coaching-engine-architecture.html">코칭 엔진 해부도</a> · <a href="/nutrient-signal-report.html">영양 신호등</a> · <a href="/docs.html">문서 허브</a></p>
+</footer>
+
+</body>
+</html>
