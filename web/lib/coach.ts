@@ -597,6 +597,39 @@ export async function generateLetter(input: LetterInput, model?: string): Promis
   return { letter, oneliner: (out.oneliner as string) || '' };
 }
 
+/**
+ * ⭐ 온보딩 편지(기록<3일) — 맞춤 코칭(≥3일) 전 신규 가입자용. 이사님 스펙(2026-06-14):
+ *   ① 기록 입력 자체를 칭찬(코칭의 출발) ② 있는 하루치의 가벼운 영양 평가(단정·결핍강조 금지)
+ *   ③ 온보딩 안내(며칠 더 쌓이면 맞춤 코칭 시작) ④ 오늘의 팁. 없는 데이터로 분석 단정·괴식추천 금지.
+ *   (이전엔 cron line 'byDay<3 → continue'로 새 유저 3일간 무발행이던 갭을 메움.)
+ */
+export async function generateOnboardingLetter(p: {
+  childName?: string; ageBand?: string; loggedDays: number;
+  foods: string[]; covered: string[]; lean: string[]; tip: string;
+  pastLetters?: { date: string; letter: string }[];
+}): Promise<{ letter: string; oneliner: string }> {
+  const name = p.childName || '아이';
+  const past = (p.pastLetters || []).slice(0, 3).map((q) => q.letter).join('\n---\n');
+  const user = `[온보딩 — 기록 ${p.loggedDays}일째. 맞춤 코칭은 3일+부터. 데이터가 적으니 단정 말고 가볍게]
+아이: ${name}${p.ageBand ? `(${p.ageBand})` : ''}
+지금까지 기록된 음식·식재료: ${p.foods.join(', ') || '아직 거의 없음'}
+있는 기록 기준 잘 챙긴 식품군: ${p.covered.join('·') || '-'}
+아직 적게 보이는 식품군: ${p.lean.join('·') || '-'}
+오늘의 팁: ${p.tip}
+${past ? `\n[최근 보낸 편지 — 표현 겹치지 마라]\n${past}\n` : ''}
+작성 지침(3~4문장·따뜻한 부모 대 부모):
+- ⓐ 무엇보다 '기록을 시작/이어가신 것' 자체를 구체적으로 칭찬 — 이게 ${name} 코칭의 출발점임을 짚어라.
+- ⓑ 있는 하루치 기록의 '가벼운 영양 평가' 한 문장 — 기록된 음식으로 잘 챙긴 점 하나 + 아직 적게 보이는 식품군 하나를 부드럽게('아직 잘 안 보이네요' 정도, 결핍 단정·괴식 추천 금지).
+- ⓒ 온보딩 안내: 며칠만 더 기록이 쌓이면 ${name} 맞춤 코칭(식단 거울·음식 추천)이 시작된다고 기대를 줘라.
+- ⓓ 오늘의 팁을 자연스럽게 한 조각.
+- ❌ 없는 데이터로 분석·결핍을 단정하지 마라. 기록 적음을 탓하지 마라. 매운 음식·튀김·괴식 추천 금지.
+반드시 JSON만: {"letter": "...", "oneliner": "한 줄(격려 톤)"}`;
+  const out = await callClaude(user, 600, SYSTEM_COACH, COACH_MODEL_HAIKU);
+  const raw = (out.letter as string) || '';
+  const letter = raw ? polishKo(raw) : raw;
+  return { letter, oneliner: (out.oneliner as string) || '' };
+}
+
 // ── ⭐ 의미 검증자(발행 전 1콜) — 생성자-검증자 분리(2026-06-11) ─────────────────
 // 정규식(블랙리스트)이 영원히 못 따라가는 표현 변형을 의미 수준에서 검사한다: 사실 왜곡(하루 메모의 패턴 일반화·
 // 데이터 모순 단정)·행동 누수(계획 밖 둘째 행동·구조 주간 음식 제안)·금지 표현·진단 재서술.

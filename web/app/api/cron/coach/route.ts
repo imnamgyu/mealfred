@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals } from '@/lib/nutrition';
-import { generateLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, composeLetterB, planFor, structuredTip, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, composeLetterB, planFor, structuredTip, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -118,7 +118,7 @@ export async function GET(req: Request) {
     const byChild: Record<string, Row[]> = {};
     (rows || []).forEach((r: Row) => { (byChild[r.child_id] ||= []).push(r); });
 
-    const minDays = Math.max(1, parseInt(qp.get('minDays') || '3', 10) || 3);   // ⭐ 온보딩 게이트(직전 7일 중 N일 기록). 기본 3, QA/백필용 override(?minDays=1)로 초기 온보딩 날짜도 생성.
+    const minDays = Math.max(1, parseInt(qp.get('minDays') || '1', 10) || 1);   // ⭐ 활성 게이트(직전 7일 중 N일 기록). 기본 1 — 신규 가입자도 처리해 온보딩 편지 발행(<3일은 loop서 온보딩 분기). 과거 기본 3은 새 유저 3일 무발행 갭이라 1로 내림.
     let activeIds = Object.entries(byChild)
       .filter(([, rs]) => new Set(rs.map((r) => r.log_date)).size >= minDays)
       .map(([id]) => id);
@@ -309,7 +309,27 @@ export async function GET(req: Request) {
         });
 
         const byDay = Object.values(byDate).filter((a) => a.length);
-        if (byDay.length < 3) { lowData++; continue; }
+        // ⭐ 온보딩 편지(기록<3일) — 맞춤 코칭 전 신규 가입자에게 입력 칭찬+가벼운 영양평가+안내+팁(이전엔 여기서 continue로 무발행=3일 침묵 갭).
+        if (byDay.length < 3) {
+          try {
+            const obFg = computeFoodGroups(allIng, catOf);
+            const obSeed = Math.floor(Date.parse(today) / 86400000);
+            let obHash = 0; for (let k = 0; k < cid.length; k++) obHash = (obHash * 31 + cid.charCodeAt(k)) >>> 0;
+            const { data: obPast } = await supabase.from('coach_letters').select('letter_date,letter').eq('child_id', cid).neq('letter_date', today).order('letter_date', { ascending: false }).limit(3);
+            const ob = await generateOnboardingLetter({
+              childName: meta.nickname, ageBand: meta.age_band, loggedDays: byDay.length,
+              foods: [...new Set(allIng)].slice(0, 14), covered: obFg.covered, lean: obFg.missing, tip: pickTip(obSeed + obHash),
+              pastLetters: (obPast || []).map((p: { letter_date: string; letter: string }) => ({ date: p.letter_date, letter: p.letter })),
+            });
+            if (ob.letter) {
+              await supabase.from('coach_letters').upsert(
+                { child_id: cid, parent_id: meta.parent_id, letter_date: today, letter: ob.letter, oneliner: ob.oneliner || null, source_hash: `onboarding|${byDay.length}`, context: { onboarding: true, loggedDays: byDay.length, covered: obFg.covered, lean: obFg.missing, source: 'cron(onboarding)' } },
+                { onConflict: 'child_id,letter_date' });
+              letters++; processed++;
+            }
+          } catch (e) { console.warn('[cron/coach] onboarding skip:', e instanceof Error ? e.message : e); }
+          lowData++; continue;
+        }
         const favoriteFoods = Object.entries(favMenu).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([m]) => m);   // 잘 먹는 음식 top8 — 푸드체이닝
         // 잘 먹는 식재료(빈도순) — 추천 엔진(사촌·인기 음식·궁합) 앵커. recoFacts는 planFor 후(타깃 확정) 생성.
         const likedIng = Object.entries(favIngFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
