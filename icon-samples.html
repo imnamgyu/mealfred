@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 식재료 아이콘 — 스타일 A·B·C 비교 (멸치)</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,sans-serif;background:#FAFAF7;color:#1F2D3D;padding:40px 20px}
+  h1{text-align:center;font-size:24px;margin-bottom:8px}
+  .sub{text-align:center;font-size:13px;color:#6B7280;margin-bottom:40px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;max-width:900px;margin:0 auto}
+  .card{background:white;border-radius:20px;padding:30px;text-align:center;border:1.5px solid #E5E7EB;box-shadow:0 4px 20px rgba(0,0,0,0.04)}
+  .card h2{font-size:14px;font-weight:800;color:#1F2D3D;margin-bottom:4px}
+  .card .desc{font-size:11px;color:#9CA3AF;margin-bottom:20px}
+  .icon-wrap{width:128px;height:128px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+  .card .name{font-size:16px;font-weight:800;color:#1F2D3D}
+  .card .cat{font-size:11px;color:#9CA3AF;font-weight:600}
+
+  /* ===== A. 플랫 미니멀 ===== */
+  .flat-circle{width:120px;height:120px;border-radius:50%;background:#FFF5EB;display:flex;align-items:center;justify-content:center}
+  .flat-fish{position:relative;width:60px;height:24px}
+  .flat-fish .body{width:50px;height:20px;background:#8B9DAF;border-radius:12px 8px 8px 12px;position:absolute;left:0;top:2px}
+  .flat-fish .tail{width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;border-left:14px solid #8B9DAF;position:absolute;right:0;top:2px}
+  .flat-fish .eye{width:4px;height:4px;background:#1F2D3D;border-radius:50%;position:absolute;left:8px;top:8px}
+  .flat-fish .line1{width:1px;height:14px;background:#6B7B8D;position:absolute;left:18px;top:5px;transform:rotate(10deg)}
+  .flat-fish .line2{width:1px;height:14px;background:#6B7B8D;position:absolute;left:24px;top:5px;transform:rotate(10deg)}
+  .flat-fish .line3{width:1px;height:12px;background:#6B7B8D;position:absolute;left:30px;top:6px;transform:rotate(10deg)}
+
+  /* ===== B. 수채화 ===== */
+  .watercolor-wrap{width:120px;height:120px;display:flex;align-items:center;justify-content:center;position:relative}
+  .watercolor-wrap::before{content:'';position:absolute;width:110px;height:110px;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(255,227,200,0.6),rgba(255,200,160,0.3),transparent 70%)}
+  .wc-fish{position:relative;z-index:1}
+  .wc-fish svg{filter:url(#watercolor)}
+
+  /* ===== C. 3D 클레이 ===== */
+  .clay-wrap{width:120px;height:120px;display:flex;align-items:center;justify-content:center}
+  .clay-fish{position:relative}
+  .clay-fish svg{filter:drop-shadow(0 4px 6px rgba(0,0,0,0.1))}
+
+  /* 추가 식재료 예시 */
+  .more{max-width:900px;margin:40px auto 0;text-align:center}
+  .more h2{font-size:18px;font-weight:800;margin-bottom:20px}
+  .more-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+  .mini-card{background:white;border-radius:14px;padding:16px 8px;text-align:center;border:1px solid #FFE8D0}
+  .mini-card .icon{width:64px;height:64px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center}
+  .mini-card .nm{font-size:12px;font-weight:800}
+  .mini-card .ct{font-size:9px;color:#9CA3AF}
+</style>
+</head>
+<body>
+
+<h1>식재료 아이콘 스타일 비교</h1>
+<p class="sub">멸치 기준 A·B·C 안 — 확정 후 147종 일괄 제작</p>
+
+<div class="grid">
+  <!-- A. 플랫 미니멀 -->
+  <div class="card">
+    <h2>A. 플랫 미니멀</h2>
+    <p class="desc">단색 실루엣 · 원형 배경 · 깔끔</p>
+    <div class="icon-wrap">
+      <div class="flat-circle">
+        <svg width="70" height="32" viewBox="0 0 70 32">
+          <ellipse cx="28" cy="16" rx="24" ry="10" fill="#8B9DAF"/>
+          <polygon points="52,6 70,16 52,26" fill="#8B9DAF"/>
+          <circle cx="14" cy="13" r="2.5" fill="#1F2D3D"/>
+          <circle cx="14" cy="13" r="1" fill="white"/>
+          <line x1="32" y1="8" x2="33" y2="24" stroke="#6B7B8D" stroke-width="0.8" opacity="0.5"/>
+          <line x1="37" y1="8" x2="38" y2="24" stroke="#6B7B8D" stroke-width="0.8" opacity="0.5"/>
+          <line x1="42" y1="9" x2="43" y2="23" stroke="#6B7B8D" stroke-width="0.8" opacity="0.5"/>
+          <path d="M10,6 Q6,2 8,8" fill="none" stroke="#8B9DAF" stroke-width="1.5"/>
+        </svg>
+      </div>
+    </div>
+    <div class="name">멸치</div>
+    <div class="cat">생선 · 필수</div>
+  </div>
+
+  <!-- B. 수채화 일러스트 -->
+  <div class="card">
+    <h2>B. 수채화 일러스트</h2>
+    <p class="desc">손그림 느낌 · 따뜻한 톤 · 브랜드 정합</p>
+    <div class="icon-wrap">
+      <svg width="0" height="0"><defs>
+        <filter id="watercolor">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs></svg>
+      <div class="watercolor-wrap">
+        <div class="wc-fish">
+          <svg width="80" height="40" viewBox="0 0 80 40">
+            <defs>
+              <linearGradient id="wcBody" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#B8C8D8"/>
+                <stop offset="40%" stop-color="#94A7B8"/>
+                <stop offset="100%" stop-color="#7B8FA0"/>
+              </linearGradient>
+              <linearGradient id="wcBelly" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="transparent"/>
+                <stop offset="60%" stop-color="rgba(255,248,240,0.4)"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="32" cy="20" rx="26" ry="12" fill="url(#wcBody)" opacity="0.85"/>
+            <ellipse cx="32" cy="22" rx="20" ry="8" fill="url(#wcBelly)"/>
+            <polygon points="58,10 78,20 58,30" fill="#94A7B8" opacity="0.7"/>
+            <circle cx="16" cy="17" r="3" fill="#2C3E50" opacity="0.7"/>
+            <circle cx="15.5" cy="16.5" r="1.2" fill="white" opacity="0.8"/>
+            <path d="M12,8 Q7,3 10,10" fill="none" stroke="#94A7B8" stroke-width="1.5" opacity="0.6" stroke-linecap="round"/>
+            <path d="M14,8 Q11,4 13,10" fill="none" stroke="#94A7B8" stroke-width="1" opacity="0.4" stroke-linecap="round"/>
+            <line x1="36" y1="12" x2="37" y2="28" stroke="#7B8FA0" stroke-width="0.6" opacity="0.3"/>
+            <line x1="42" y1="12" x2="43" y2="28" stroke="#7B8FA0" stroke-width="0.6" opacity="0.3"/>
+            <line x1="48" y1="13" x2="49" y2="27" stroke="#7B8FA0" stroke-width="0.6" opacity="0.3"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="name">멸치</div>
+    <div class="cat">생선 · 필수</div>
+  </div>
+
+  <!-- C. 3D 클레이 -->
+  <div class="card">
+    <h2>C. 3D 클레이</h2>
+    <p class="desc">말랑 입체감 · 귀여움 · 아이 시선</p>
+    <div class="icon-wrap">
+      <div class="clay-wrap">
+        <svg width="90" height="50" viewBox="0 0 90 50">
+          <defs>
+            <radialGradient id="clayBody" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#C5D5E5"/>
+              <stop offset="50%" stop-color="#9BB0C4"/>
+              <stop offset="100%" stop-color="#7A94AA"/>
+            </radialGradient>
+            <radialGradient id="clayHighlight" cx="30%" cy="25%" r="40%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.5)"/>
+              <stop offset="100%" stop-color="transparent"/>
+            </radialGradient>
+            <radialGradient id="clayTail" cx="30%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#B0C4D4"/>
+              <stop offset="100%" stop-color="#8AA0B4"/>
+            </radialGradient>
+            <filter id="clayShadow">
+              <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="rgba(0,0,0,0.12)"/>
+            </filter>
+          </defs>
+          <g filter="url(#clayShadow)">
+            <ellipse cx="35" cy="25" rx="28" ry="14" fill="url(#clayBody)"/>
+            <ellipse cx="35" cy="25" rx="28" ry="14" fill="url(#clayHighlight)"/>
+            <ellipse cx="35" cy="28" rx="20" ry="8" fill="rgba(255,255,255,0.15)"/>
+            <polygon points="63,13 85,25 63,37" fill="url(#clayTail)" rx="4"/>
+            <ellipse cx="85" cy="25" rx="4" ry="12" fill="url(#clayTail)"/>
+            <circle cx="18" cy="21" r="4.5" fill="white"/>
+            <circle cx="18" cy="21" r="3" fill="#2C3E50"/>
+            <circle cx="17" cy="20" r="1.5" fill="white"/>
+            <ellipse cx="28" cy="30" rx="6" ry="2" fill="rgba(255,180,180,0.25)"/>
+            <path d="M12,12 Q5,5 10,14" fill="none" stroke="#8AA0B4" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M15,11 Q10,6 13,14" fill="none" stroke="#8AA0B4" stroke-width="2" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="name">멸치</div>
+    <div class="cat">생선 · 필수</div>
+  </div>
+</div>
+
+<!-- 스타일 B로 추가 5종 미리보기 -->
+<div class="more">
+  <h2>스타일 B (수채화) — 추가 식재료 미리보기</h2>
+  <div class="more-grid">
+    <div class="mini-card">
+      <div class="icon">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <defs><filter id="wc2"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3"/><feDisplacementMap in="SourceGraphic" scale="2"/></filter></defs>
+          <g filter="url(#wc2)">
+            <path d="M28,8 C20,8 10,16 8,28 C6,40 16,50 28,48 C40,46 48,36 48,28 C48,16 36,8 28,8" fill="#E88234" opacity="0.75"/>
+            <path d="M28,10 C22,10 14,16 12,26 C11,32 14,38 20,40" fill="none" stroke="#D06A1A" stroke-width="1" opacity="0.4"/>
+            <ellipse cx="24" cy="30" rx="6" ry="8" fill="rgba(255,200,100,0.3)"/>
+            <path d="M26,6 L28,2 L30,6" fill="#2D8B46" opacity="0.7"/>
+          </g>
+        </svg>
+      </div>
+      <div class="nm">당근</div>
+      <div class="ct">뿌리채소</div>
+    </div>
+    <div class="mini-card">
+      <div class="icon">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <g>
+            <ellipse cx="28" cy="32" rx="16" ry="18" fill="#3A7D44" opacity="0.7"/>
+            <ellipse cx="28" cy="32" rx="12" ry="14" fill="#4A9A54" opacity="0.5"/>
+            <ellipse cx="24" cy="28" rx="6" ry="10" fill="rgba(255,255,255,0.1)"/>
+            <path d="M28,14 L28,8" stroke="#5A3A1A" stroke-width="2" stroke-linecap="round"/>
+            <path d="M26,16 Q22,10 28,8 Q34,10 30,16" fill="#2D8B46" opacity="0.6"/>
+          </g>
+        </svg>
+      </div>
+      <div class="nm">시금치</div>
+      <div class="ct">잎채소</div>
+    </div>
+    <div class="mini-card">
+      <div class="icon">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <ellipse cx="28" cy="30" rx="18" ry="16" fill="#F5E6D0" opacity="0.9"/>
+          <ellipse cx="28" cy="30" rx="18" ry="16" fill="none" stroke="#D4C4A8" stroke-width="1"/>
+          <ellipse cx="28" cy="30" rx="14" ry="12" fill="rgba(255,255,255,0.2)"/>
+          <circle cx="24" cy="28" r="3" fill="rgba(255,255,255,0.4)"/>
+        </svg>
+      </div>
+      <div class="nm">달걀</div>
+      <div class="ct">계란</div>
+    </div>
+    <div class="mini-card">
+      <div class="icon">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <rect x="12" y="18" width="32" height="24" rx="4" fill="#F0E4D0" opacity="0.85"/>
+          <rect x="14" y="20" width="28" height="20" rx="3" fill="#E8D8C0" opacity="0.6"/>
+          <line x1="20" y1="22" x2="20" y2="36" stroke="#D4C0A0" stroke-width="0.8" opacity="0.5"/>
+          <line x1="28" y1="22" x2="28" y2="36" stroke="#D4C0A0" stroke-width="0.8" opacity="0.5"/>
+          <line x1="36" y1="22" x2="36" y2="36" stroke="#D4C0A0" stroke-width="0.8" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="nm">두부</div>
+      <div class="ct">콩제품</div>
+    </div>
+    <div class="mini-card">
+      <div class="icon">
+        <svg width="56" height="56" viewBox="0 0 56 56">
+          <path d="M28,10 C16,10 8,20 8,32 C8,44 18,48 28,48 C38,48 48,44 48,32 C48,20 40,10 28,10" fill="#E84040" opacity="0.7"/>
+          <path d="M28,10 C24,10 18,16 16,24 C14,30 16,38 22,42" fill="none" stroke="#C02020" stroke-width="1" opacity="0.3"/>
+          <ellipse cx="22" cy="26" rx="5" ry="8" fill="rgba(255,255,255,0.15)"/>
+          <path d="M24,8 L28,4 L32,8" fill="#2D8B46" opacity="0.7"/>
+          <path d="M26,8 Q28,6 30,8" fill="#3A9B54" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="nm">사과</div>
+      <div class="ct">과일</div>
+    </div>
+  </div>
+</div>
+
+<p style="text-align:center;font-size:11px;color:#9CA3AF;margin-top:30px">밀프레드 식재료 아이콘 스타일 시안 · 2026-05-28 · 스타일 확정 후 147종 일괄 제작</p>
+
+</body>
+</html>

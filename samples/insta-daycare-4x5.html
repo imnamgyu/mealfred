@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{width:1080px;height:1350px;font-family:'Pretendard Variable',Pretendard,sans-serif;overflow:hidden}
+  .ig{width:1080px;height:1350px;display:flex;flex-direction:column;background:linear-gradient(155deg,#FFF5EB 0%,#FFE8D0 45%,#FFD0A0 100%);position:relative;padding:64px 60px 48px}
+  .ig::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 15%,rgba(255,120,50,0.08),transparent 45%)}
+
+  .header{position:relative;z-index:1}
+  .tag{display:inline-block;background:rgba(255,107,26,0.13);color:#C45A00;padding:12px 24px;border-radius:100px;font-size:30px;font-weight:800;margin-bottom:26px;border:1.5px solid rgba(255,107,26,0.28)}
+  h1{font-size:74px;font-weight:800;color:#1a2b4a;line-height:1.18;letter-spacing:-0.03em;margin-bottom:24px}
+  h1 .accent{color:#FF6B1A}
+  .lead{font-size:34px;color:#5a4a3a;font-weight:600;line-height:1.5;margin-bottom:28px}
+  .sources{display:flex;gap:11px;flex-wrap:wrap}
+  .src-pill{background:rgba(255,255,255,0.75);color:#1a2b4a;padding:11px 20px;border-radius:100px;font-size:24px;font-weight:700;border:1px solid rgba(0,0,0,0.05)}
+
+  .card{position:relative;z-index:1;margin-top:34px;background:rgba(255,255,255,0.95);border-radius:28px;padding:36px 40px 32px;box-shadow:0 16px 48px rgba(196,90,0,0.12);flex:1}
+  .rt{font-size:40px;font-weight:800;color:#1a2b4a;margin-bottom:2px}
+  .rsub{font-size:23px;color:#8a7a6a;font-weight:600;margin-bottom:22px}
+  .axis{margin-bottom:15px}
+  .axhead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px}
+  .nm{font-size:31px;font-weight:700;color:#374151}
+  .gr{font-size:36px;font-weight:800;font-family:ui-monospace,Menlo,monospace;letter-spacing:-0.02em}
+  .bar{height:24px;background:#F0F0F0;border-radius:12px;overflow:hidden}
+  .fill{height:100%;border-radius:12px}
+  .A .fill{background:linear-gradient(90deg,#16A085,#66BB6A)} .A .gr{color:#16A085}
+  .C .fill{background:linear-gradient(90deg,#E67E22,#FFB74D)} .C .gr{color:#E67E22}
+  .D .fill{background:linear-gradient(90deg,#C62828,#EF5350)} .D .gr{color:#C62828}
+
+  .brand{position:relative;z-index:1;margin-top:26px;display:flex;align-items:center;justify-content:space-between}
+  .brand .b{font-size:30px;font-weight:800;color:#C45A00}
+  .brand .u{font-size:25px;font-weight:700;color:#8a7a6a}
+</style>
+</head>
+<body>
+<div class="ig">
+  <div class="header">
+    <span class="tag">⏰ 편식 교정 골든타임 · 영유아기</span>
+    <h1>우리 아이 편식,<br><span class="accent">사진 1장으로 진단</span></h1>
+    <div class="lead">어린이집 식단표 한 장이면<br>8가지 학술 기준으로 자동 분석 · 30초 · 무료</div>
+    <div class="sources">
+      <span class="src-pill">🏛 보건복지부 KDRI 2025</span>
+      <span class="src-pill">🌍 WHO 식품군</span>
+      <span class="src-pill">🎓 HabEat</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="rt">8축 편식·영양 분석</div>
+    <div class="rsub">항목별 자동 등급</div>
+    <div class="axis A"><div class="axhead"><span class="nm">1. 식품군 다양성</span><span class="gr">A</span></div><div class="bar"><div class="fill" style="width:90%"></div></div></div>
+    <div class="axis A"><div class="axhead"><span class="nm">2. 식감 단계</span><span class="gr">A</span></div><div class="bar"><div class="fill" style="width:92%"></div></div></div>
+    <div class="axis A"><div class="axhead"><span class="nm">3. 36가지 영양소</span><span class="gr">B+</span></div><div class="bar"><div class="fill" style="width:88%"></div></div></div>
+    <div class="axis A"><div class="axhead"><span class="nm">4. 메뉴 반복도</span><span class="gr">A+</span></div><div class="bar"><div class="fill" style="width:95%"></div></div></div>
+    <div class="axis A"><div class="axhead"><span class="nm">5. 알레르겐 표시</span><span class="gr">A+</span></div><div class="bar"><div class="fill" style="width:100%"></div></div></div>
+    <div class="axis C"><div class="axhead"><span class="nm">6. 가공식품</span><span class="gr">C+</span></div><div class="bar"><div class="fill" style="width:72%"></div></div></div>
+    <div class="axis A"><div class="axhead"><span class="nm">7. 제철 식재료</span><span class="gr">A</span></div><div class="bar"><div class="fill" style="width:90%"></div></div></div>
+    <div class="axis D"><div class="axhead"><span class="nm">8. 조리 스타일</span><span class="gr">D</span></div><div class="bar"><div class="fill" style="width:60%"></div></div></div>
+  </div>
+
+  <div class="brand">
+    <span class="b">밀프레드 편식도감</span>
+    <span class="u">mealfred.com</span>
+  </div>
+</div>
+</body>
+</html>

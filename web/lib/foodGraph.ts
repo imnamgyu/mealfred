@@ -11,8 +11,9 @@ import graph from './food-graph.json';
 export type EdgeKind = 'pair' | 'bridge';
 export type PairGrade = 'strong' | 'medium' | 'weak';
 // lift/grade/verified는 lift 재설계(gen-food-graph.py)가 영속하는 신규 필드 — 현 JSON엔 없을 수 있어 전부 optional(하위호환).
-type RawEdge = { a: string; b: string; kind: EdgeKind; strength: number; basis: string; count?: number; lift?: number; grade?: PairGrade; verified?: boolean };
-export type Neighbor = { nm: string; kind: EdgeKind; strength: number; basis: string; count?: number; lift?: number; grade?: PairGrade; verified?: boolean };
+// tray/src = NEIS 식판 단위 공통출현(같은 끼니에 함께 차려짐) 축. tray=식판 등급, src='tray'면 레시피엔 없고 식판 근거로만 추가된 edge.
+type RawEdge = { a: string; b: string; kind: EdgeKind; strength: number; basis: string; count?: number; lift?: number; grade?: PairGrade; verified?: boolean; tray?: PairGrade; src?: string };
+export type Neighbor = { nm: string; kind: EdgeKind; strength: number; basis: string; count?: number; lift?: number; grade?: PairGrade; verified?: boolean; tray?: PairGrade; src?: string };
 
 // ⭐ 약신호 곁들임 차단 임계(떡+달걀 괴식 사고) — pair는 이 강도 이상만 추천에 사용. comboMatrix dish×식재료 임계(2)와 통일.
 export const PAIR_MIN_STRENGTH = 2;
@@ -24,8 +25,8 @@ function build(): Map<string, Neighbor[]> {
   const m = new Map<string, Neighbor[]>();
   const push = (k: string, n: Neighbor) => { const arr = m.get(k); if (arr) arr.push(n); else m.set(k, [n]); };
   for (const e of EDGES) {
-    push(e.a, { nm: e.b, kind: e.kind, strength: e.strength, basis: e.basis, count: e.count, lift: e.lift, grade: e.grade, verified: e.verified });
-    push(e.b, { nm: e.a, kind: e.kind, strength: e.strength, basis: e.basis, count: e.count, lift: e.lift, grade: e.grade, verified: e.verified });
+    push(e.a, { nm: e.b, kind: e.kind, strength: e.strength, basis: e.basis, count: e.count, lift: e.lift, grade: e.grade, verified: e.verified, tray: e.tray, src: e.src });
+    push(e.b, { nm: e.a, kind: e.kind, strength: e.strength, basis: e.basis, count: e.count, lift: e.lift, grade: e.grade, verified: e.verified, tray: e.tray, src: e.src });
   }
   return m;
 }

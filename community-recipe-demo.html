@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밀프레드 — 레시피 빌더 + 이케아식 인포그래픽 (프로토타입)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif}
+  body{background:#EDE7E0;color:#1a2b4a;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:22px 12px 60px}
+  .note{max-width:430px;width:100%;font-size:12px;color:#7a6a5a;margin-bottom:14px;text-align:center;line-height:1.6}
+  .note b{color:#C45A00}
+  .phone{width:100%;max-width:430px;background:#FFFDFB;border-radius:30px;box-shadow:0 18px 50px rgba(0,0,0,0.22);overflow:hidden;position:relative;height:780px}
+  .view{display:none;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .view.on{display:block}
+  .appbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px;position:sticky;top:0;background:rgba(255,253,251,0.94);backdrop-filter:blur(8px);z-index:20;border-bottom:1px solid #F4ECE2}
+  .appbar .t{font-size:15.5px;font-weight:800}
+  .appbar .ic{font-size:18px;color:#9a8a7a;cursor:pointer;font-weight:700}
+  .pad{padding:12px 18px 100px}
+  /* thread */
+  .strip{background:linear-gradient(135deg,#FFF4E5,#FFE0B2);border:1.5px solid #FFCB8A;border-radius:14px;padding:12px 15px;margin-bottom:12px;font-size:14px;font-weight:800;color:#1a2b4a}
+  .strip b{color:#C45A00}
+  .rsort{display:flex;gap:6px;margin-bottom:12px}
+  .rsort span{font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:100px;background:#F4F4F5;color:#6B7280;cursor:pointer}
+  .rsort span.on{background:#1a2b4a;color:#fff}
+  .rcard{display:flex;gap:12px;background:#fff;border:1.5px solid #F0E6DC;border-radius:15px;padding:12px;margin-bottom:11px;cursor:pointer;box-shadow:0 2px 9px rgba(0,0,0,0.03);transition:.12s}
+  .rcard:active{transform:scale(0.99)}
+  .rthumb{width:72px;height:72px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:32px;background:linear-gradient(135deg,#FFE8CC,#FFD1A8)}
+  .rcard .ri{flex:1;min-width:0}
+  .rcard .rb{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:3px}
+  .rcard .nm{font-size:14.5px;font-weight:800;line-height:1.3}
+  .rcard .meta{font-size:11px;color:#8a7a6a;margin-top:3px}
+  .rcard .who{font-size:11px;color:#C45A00;font-weight:700;margin-top:4px}
+  .bd{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:100px}
+  .bd.best{background:linear-gradient(135deg,#FFD54F,#FF8F00);color:#3a2400}
+  .bd.pick{background:#EDE7F6;color:#5E35B1}
+  .bd.new{background:#E3F2FD;color:#1565C0}
+  .fab{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:88%;max-width:380px;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-size:15px;font-weight:800;padding:15px;border-radius:16px;text-align:center;box-shadow:0 8px 22px rgba(255,107,26,0.4);cursor:pointer;z-index:30}
+  /* ===== 인포그래픽 (이케아식) ===== */
+  .ig-head{padding:0}
+  .ig-hero{height:170px;background:linear-gradient(135deg,#FFE8CC,#FFC89A);display:flex;align-items:center;justify-content:center;font-size:60px;position:relative}
+  .ig-hero .tag{position:absolute;top:12px;left:14px;display:flex;gap:5px}
+  .ig-title{padding:14px 18px 4px}
+  .ig-title h1{font-size:21px;font-weight:800}
+  .ig-title .by{font-size:12px;color:#C45A00;font-weight:700;margin-top:3px}
+  .ig-title .desc{font-size:13px;color:#5a6575;margin-top:8px;line-height:1.6;background:#FBF7F2;border-left:3px solid #FFB877;padding:8px 11px;border-radius:0 8px 8px 0}
+  .ig-sec{font-size:12px;font-weight:800;color:#C45A00;letter-spacing:.04em;margin:18px 18px 6px}
+  /* 재료 띠 */
+  .mat{display:flex;gap:9px;overflow-x:auto;padding:2px 18px 4px;scrollbar-width:none}
+  .mat::-webkit-scrollbar{display:none}
+  .mat .m{flex-shrink:0;width:62px;text-align:center}
+  .mat .m .ic{width:54px;height:54px;border-radius:14px;background:#FFF5EB;border:1.5px solid #FFE0C0;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto}
+  .mat .m .nm{font-size:10.5px;font-weight:800;margin-top:4px}
+  .mat .m .amt{font-size:9.5px;color:#9a8a7a;font-weight:700}
+  /* 조리 단계 = 매뉴얼 프레임 */
+  .steps{padding:4px 18px 10px}
+  .frame{display:flex;align-items:center;gap:12px;border:2px solid #1a2b4a;border-radius:16px;padding:13px 14px;margin-bottom:0;background:#fff;position:relative}
+  .frame .no{position:absolute;top:-11px;left:14px;width:24px;height:24px;border-radius:50%;background:#1a2b4a;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .frame .ing{font-size:38px;flex-shrink:0;width:48px;text-align:center}
+  .frame .arrow{font-size:20px;color:#C9B8A8}
+  .frame .verb{flex:1}
+  .frame .verb .vi{font-size:22px}
+  .frame .verb .vt{font-size:15px;font-weight:800;color:#1a2b4a}
+  .frame .verb .memo{font-size:11px;color:#7a6a5a;margin-top:2px;font-style:italic}
+  .frame .time{flex-shrink:0;font-size:11px;font-weight:800;color:#C45A00;background:#FFF1E2;border-radius:100px;padding:4px 9px}
+  .connector{width:2px;height:14px;background:#D8C8B8;margin:0 auto;}
+  .done-frame{border-color:#16A085;background:#F0FAF6}
+  .done-frame .no{background:#16A085}
+  .ig-acts{display:flex;gap:8px;padding:8px 18px 18px}
+  .ig-acts .a{flex:1;text-align:center;font-size:13px;font-weight:800;padding:11px 0;border-radius:12px;background:#FAF7F3;color:#6B7280;border:1.5px solid #F0E6DC;cursor:pointer}
+  .ig-acts .a.p{background:#FF6B1A;color:#fff;border-color:#FF6B1A}
+  /* ===== 빌더 ===== */
+  .bld .lab{font-size:12.5px;font-weight:800;margin:16px 0 6px;display:flex;gap:5px;align-items:center}
+  .bld .lab .opt{font-size:10px;color:#9CA3AF;font-weight:700}
+  .reward{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border:1.5px solid #FFB877;border-radius:11px;padding:9px 12px;font-size:11.5px;font-weight:700;color:#8a5a00;text-align:center;margin-bottom:4px}
+  .reward b{color:#C45A00}
+  input.txt{width:100%;border:1.5px solid #E5E7EB;border-radius:11px;padding:11px 12px;font-size:14.5px;outline:none;font-weight:600}
+  input.txt:focus{border-color:#FFB375}
+  .photobtn{width:100%;border:1.5px dashed #FFD0A0;border-radius:11px;padding:13px;text-align:center;font-size:13px;font-weight:700;color:#C45A00;background:#FFFBF5;cursor:pointer}
+  .palette{display:flex;gap:6px;flex-wrap:wrap}
+  .pchip{font-size:13px;font-weight:700;padding:7px 11px;border-radius:100px;background:#F4F4F5;color:#5a6575;cursor:pointer;border:1.5px solid transparent;display:inline-flex;gap:4px;align-items:center}
+  .pchip.on{background:#FFF1E2;color:#C45A00;border-color:#FFB375}
+  .pchip.vsel{background:#1a2b4a;color:#fff}
+  /* 단계 조립기 */
+  .builder{background:#FBF7F2;border:1.5px solid #F0E6DC;border-radius:14px;padding:12px;margin-top:6px}
+  .slot{display:flex;gap:7px;margin-bottom:9px}
+  .slot .s{flex:1;border:1.5px dashed #D8C8B8;border-radius:10px;padding:9px 6px;text-align:center;font-size:12px;font-weight:700;color:#9a8a7a;cursor:pointer;background:#fff}
+  .slot .s.filled{border-style:solid;border-color:#FFB375;color:#C45A00;background:#FFF8F0}
+  .addstep{width:100%;background:#1a2b4a;color:#fff;font-size:13px;font-weight:800;border:none;border-radius:10px;padding:11px;cursor:pointer;margin-top:2px}
+  .addstep:disabled{background:#C9C2BA}
+  .picker{margin-top:9px;padding-top:9px;border-top:1px dashed #E0D5C8}
+  .picker .pt{font-size:10.5px;font-weight:800;color:#8a7a6a;margin:6px 0 4px}
+  .steplist{margin-top:10px}
+  .sli{display:flex;align-items:center;gap:9px;background:#fff;border:1.5px solid #F0E6DC;border-radius:11px;padding:9px 11px;margin-bottom:7px;font-size:13px;font-weight:700}
+  .sli .n{width:20px;height:20px;border-radius:50%;background:#1a2b4a;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sli .x{margin-left:auto;color:#C9B0A0;cursor:pointer;font-weight:800}
+  .preview-note{font-size:11px;color:#16A085;font-weight:700;text-align:center;margin:10px 0 4px}
+  .submit{width:100%;background:#FF6B1A;color:#fff;font-size:15px;font-weight:800;padding:15px;border:none;border-radius:14px;cursor:pointer;margin-top:8px}
+  .submit:disabled{background:#F0C8A8}
+  .toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2b4a;color:#fff;font-size:13px;font-weight:700;padding:13px 18px;border-radius:14px;opacity:0;transition:.3s;z-index:80;text-align:center;max-width:86%;line-height:1.5;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="note"><b>레시피 빌더 프로토타입</b> — ① 도감 쓰레드에서 레시피 카드 탭 → <b>이케아식 인포그래픽</b> 보기 · ② 하단 '레시피 올리기'로 <b>버튼 조립식 빌더</b>(식재료+조리방식+시간) 써보세요 → 올리면 인포그래픽 자동 생성. DB 없는 목업.</div>
+
+<div class="phone">
+
+  <!-- ===== VIEW A: 도감 레시피 쓰레드 ===== -->
+  <div class="view on" id="vThread">
+    <div class="appbar"><span class="ic">←</span><span class="t">🥕 당근 · 엄마 레시피</span><span class="ic">♡</span></div>
+    <div class="pad">
+      <div class="strip">🍳 <b>당근</b>으로 만든 엄마 레시피 <b>36</b>개 · 24명이 성공</div>
+      <div class="rsort"><span class="on">도움된 순</span><span>최신</span><span>또래(만3세)</span><span>5분 이하</span></div>
+
+      <div class="rcard" onclick="showRecipe('a')">
+        <div class="rthumb">🍳</div>
+        <div class="ri">
+          <div class="rb"><span class="bd best">👑 베스트글</span></div>
+          <div class="nm">당근 숨김 계란말이</div>
+          <div class="meta">단계 4 · 5분 · 쉬움 · 만3세·새것거부</div>
+          <div class="who">🐰 콩이맘 · ♥41 · 🙋 12명 해봤어요</div>
+        </div>
+      </div>
+
+      <div class="rcard" onclick="showRecipe('b')">
+        <div class="rthumb">🎃</div>
+        <div class="ri">
+          <div class="rb"><span class="bd pick">🩺 코치 PICK</span></div>
+          <div class="nm">당근 단호박 으깸</div>
+          <div class="meta">단계 3 · 15분 · 보통 · 만2세·식감민감</div>
+          <div class="who">🌻 햇살이엄마 · ♥33 · 🙋 7명</div>
+        </div>
+      </div>
+
+      <div class="rcard" onclick="showRecipe('c')">
+        <div class="rthumb">🥢</div>
+        <div class="ri">
+          <div class="rb"><span class="bd new">NEW</span></div>
+          <div class="nm">당근 스틱 케첩</div>
+          <div class="meta">단계 2 · 5분 · 쉬움 · 만4세</div>
+          <div class="who">🐣 두유맘 · ♥8 · 🙋 2명</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:12px;color:#9CA3AF;font-weight:700;padding:6px">— 레시피 36개 모두 보기 —</div>
+    </div>
+    <div class="fab" onclick="openBuilder()">✏️ 당근 레시피 올리기</div>
+    <div class="toast" id="toastA"></div>
+  </div>
+
+  <!-- ===== VIEW B: 레시피 상세 (인포그래픽) ===== -->
+  <div class="view" id="vRecipe">
+    <div class="appbar"><span class="ic" onclick="go('vThread')">←</span><span class="t">레시피</span><span class="ic">⤴</span></div>
+    <div id="igBody"></div>
+    <div class="ig-acts">
+      <div class="a" onclick="likeIg(this)">♡ 좋아요</div>
+      <div class="a">🔖 저장</div>
+      <div class="a p" onclick="toast('toastB','🙋 해봤어요! 원작 엄마에게 전달됐어요 💛')">🙋 해봤어요</div>
+    </div>
+    <div class="toast" id="toastB"></div>
+  </div>
+
+  <!-- ===== VIEW C: 빌더 ===== -->
+  <div class="view" id="vBuilder">
+    <div class="appbar"><span class="ic" onclick="go('vThread')">✕</span><span class="t">당근 레시피 올리기</span><span style="width:18px"></span></div>
+    <div class="pad bld">
+      <div class="reward">🎁 첫 레시피 <b>+500P</b> · 이주의 베스트글 뽑히면 <b>+5,000P</b> <span style="color:#b0a090">(가안)</span></div>
+
+      <div class="lab">① 음식 이름 <span class="opt">필수</span></div>
+      <input class="txt" id="dish" placeholder="예: 당근 숨김 계란말이" oninput="checkReady()">
+
+      <div class="lab">② 완성 사진 <span class="opt">선택·권장</span></div>
+      <div class="photobtn" onclick="this.style.background='#FFF5EB';this.style.borderStyle='solid';this.innerHTML='✅ 사진 추가됨 (데모)'">📷 완성 사진 추가</div>
+
+      <div class="lab">③ 한 줄 팁 <span class="opt">선택</span></div>
+      <input class="txt" id="tip" placeholder="예: 색이 예뻐서 관심부터 생겨요 💛">
+
+      <div class="lab">④ 조리 순서 <span class="opt">버튼만 눌러 조립</span></div>
+      <div class="builder">
+        <div class="slot">
+          <div class="s" id="slotIng" onclick="openPick('ing')">＋ 식재료</div>
+          <div class="s" id="slotVerb" onclick="openPick('verb')">＋ 조리방식</div>
+          <div class="s" id="slotTime" onclick="openPick('time')">＋ 시간</div>
+        </div>
+        <div class="picker" id="picker" style="display:none">
+          <div class="pt" id="pickTitle">식재료 고르기</div>
+          <div class="palette" id="palette"></div>
+        </div>
+        <button class="addstep" id="addBtn" onclick="addStep()" disabled>이 단계 추가 ＋</button>
+        <div class="steplist" id="stepList"></div>
+      </div>
+
+      <div class="preview-note">✨ 올리면 <b>이케아 설명서처럼</b> 자동으로 시각화해드려요</div>
+      <button class="submit" id="subBtn" onclick="submitRecipe()" disabled>레시피 올리고 인포그래픽 보기 →</button>
+    </div>
+    <div class="toast" id="toastC"></div>
+  </div>
+
+</div>
+
+<script>
+  // ── 사전 ──
+  var INGS = {당근:'🥕',계란:'🥚',단호박:'🎃',고구마:'🍠',시금치:'🥬',양파:'🧅',감자:'🥔',두부:'🧈',치즈:'🧀',밥:'🍚',김:'🍙',버섯:'🍄',브로콜리:'🥦',우유:'🥛',대파:'🌿',팬:'🍳'};
+  var VERBS = {씻기:'💧','껍질 벗기기':'🔪','채 썰기':'✂️',다지기:'🔪',으깨기:'🥄',섞기:'🥢',볶기:'🍳',굽기:'🔥',부치기:'🍳',찌기:'♨️',데치기:'🫧',끓이기:'🍲',조리기:'🥘',버무리기:'🥗',담기:'🍽️'};
+  var TIMES = ['1분','3분','5분','10분','15분','없음'];
+
+  // ── 미리 만든 레시피(상세용) ──
+  var R = {
+    a:{dish:'당근 숨김 계란말이',by:'🐰 콩이맘',hero:'🍳',tip:'얇게 채 썰어 계란말이 속에 숨겼더니 색이 예뻐서 관심부터 생겨요 💛',badge:'<span class="bd best">👑 베스트글</span><span class="bd" style="background:#E3F2FD;color:#1565C0">✓ 직접 먹여본 엄마</span>',
+      mats:[['당근','🥕','30g'],['계란','🥚','2개'],['대파','🌿','약간']],
+      steps:[['🥕','채 썰기','✂️','아주 얇게','3분'],['🥚','풀기','🥢','소금 톡','1분'],['🍳','부치기','🍳','약불에 천천히','3분'],['🍽️','담기','🍽️','한 입 크기로','']]},
+    b:{dish:'당근 단호박 으깸',by:'🌻 햇살이엄마',hero:'🎃',tip:'둘 다 단맛이라 거부가 없어요. 비타민A도 같이 올라가요 👍',badge:'<span class="bd pick">🩺 코치 PICK</span>',
+      mats:[['당근','🥕','40g'],['단호박','🎃','60g']],
+      steps:[['🥕','찌기','♨️','푹 익히기','12분'],['🎃','으깨기','🥄','같이 으깨기','2분'],['🍽️','담기','🍽️','','']]},
+    c:{dish:'당근 스틱 케첩',by:'🐣 두유맘',hero:'🥢',tip:'손으로 집어 먹는 재미가 있나 봐요.',badge:'<span class="bd new">NEW</span>',
+      mats:[['당근','🥕','1개']],
+      steps:[['🥕','데치기','🫧','스틱으로 썰어','4분'],['🍽️','담기','🍽️','케첩 살짝','']]}
+  };
+
+  function go(id){ document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on')}); document.getElementById(id).classList.add('on'); document.getElementById(id).scrollTop=0; }
+
+  function renderIg(r){
+    var mats = r.mats.map(function(m){ return '<div class="m"><div class="ic">'+m[1]+'</div><div class="nm">'+m[0]+'</div><div class="amt">'+m[2]+'</div></div>'; }).join('');
+    var steps = r.steps.map(function(s,i){
+      var last = i===r.steps.length-1;
+      var time = s[4] ? '<div class="time">⏱ '+s[4]+'</div>' : '';
+      var memo = s[3] ? '<div class="memo">'+s[3]+'</div>' : '';
+      var conn = i>0 ? '<div class="connector"></div>' : '';
+      return conn+'<div class="frame'+(last?' done-frame':'')+'"><div class="no">'+(i+1)+'</div><div class="ing">'+s[0]+'</div><div class="arrow">→</div><div class="verb"><span class="vi">'+s[2]+'</span> <span class="vt">'+s[1]+'</span>'+memo+'</div>'+time+'</div>';
+    }).join('');
+    return '<div class="ig-head"><div class="ig-hero">'+r.hero+'<div class="tag">'+r.badge+'</div></div>'
+      +'<div class="ig-title"><h1>'+r.dish+'</h1><div class="by">'+r.by+'</div>'+(r.tip?'<div class="desc">'+r.tip+'</div>':'')+'</div>'
+      +'<div class="ig-sec">🧺 재료</div><div class="mat">'+mats+'</div>'
+      +'<div class="ig-sec">👩‍🍳 만드는 순서</div><div class="steps">'+steps+'</div></div>';
+  }
+  function showRecipe(k){ document.getElementById('igBody').innerHTML = renderIg(R[k]); go('vRecipe'); }
+  function likeIg(el){ el.style.background='#FFEBEE'; el.style.color='#E53935'; el.style.borderColor='#FFC9CE'; el.textContent='♥ 좋아요'; }
+
+  // ── 빌더 ──
+  var cur={ing:null,verb:null,time:null}, steps=[];
+  function openBuilder(){ cur={ing:null,verb:null,time:null}; steps=[]; document.getElementById('dish').value=''; document.getElementById('tip').value=''; renderSlots(); renderStepList(); document.getElementById('picker').style.display='none'; checkReady(); go('vBuilder'); }
+  function openPick(type){
+    var box=document.getElementById('picker'), pal=document.getElementById('palette'), title=document.getElementById('pickTitle');
+    box.style.display='block';
+    if(type==='ing'){ title.textContent='식재료 (명사)'; pal.innerHTML=Object.keys(INGS).map(function(k){return chip(k,INGS[k],'ing',k);}).join(''); }
+    if(type==='verb'){ title.textContent='조리방식 (동사)'; pal.innerHTML=Object.keys(VERBS).map(function(k){return chip(k,VERBS[k],'verb',k);}).join(''); }
+    if(type==='time'){ title.textContent='시간 (선택)'; pal.innerHTML=TIMES.map(function(t){return chip(t,'⏱','time',t);}).join(''); }
+  }
+  function chip(label,ic,type,val){ var on=cur[type]===val?' on':''; return '<span class="pchip'+on+'" onclick="pick(\''+type+'\',\''+val+'\')">'+ic+' '+label+'</span>'; }
+  function pick(type,val){ cur[type]=(cur[type]===val?null:val); renderSlots(); // refresh palette highlight
+    var t=document.getElementById('pickTitle').textContent.indexOf('식재료')>=0?'ing':document.getElementById('pickTitle').textContent.indexOf('조리')>=0?'verb':'time'; openPick(t); }
+  function renderSlots(){
+    var si=document.getElementById('slotIng'), sv=document.getElementById('slotVerb'), st=document.getElementById('slotTime');
+    si.innerHTML=cur.ing?INGS[cur.ing]+' '+cur.ing:'＋ 식재료'; si.className='s'+(cur.ing?' filled':'');
+    sv.innerHTML=cur.verb?VERBS[cur.verb]+' '+cur.verb:'＋ 조리방식'; sv.className='s'+(cur.verb?' filled':'');
+    st.innerHTML=cur.time&&cur.time!=='없음'?'⏱ '+cur.time:'＋ 시간'; st.className='s'+(cur.time?' filled':'');
+    document.getElementById('addBtn').disabled = !(cur.ing && cur.verb);
+  }
+  function addStep(){ if(!(cur.ing&&cur.verb))return; steps.push({ing:cur.ing,verb:cur.verb,time:(cur.time&&cur.time!=='없음')?cur.time:''}); cur={ing:null,verb:null,time:null}; renderSlots(); renderStepList(); document.getElementById('picker').style.display='none'; checkReady(); }
+  function renderStepList(){
+    var el=document.getElementById('stepList');
+    el.innerHTML=steps.map(function(s,i){ return '<div class="sli"><span class="n">'+(i+1)+'</span>'+INGS[s.ing]+' '+s.ing+' <span style="color:#C45A00">'+VERBS[s.verb]+' '+s.verb+'</span>'+(s.time?' · '+s.time:'')+'<span class="x" onclick="rmStep('+i+')">✕</span></div>'; }).join('');
+  }
+  function rmStep(i){ steps.splice(i,1); renderStepList(); checkReady(); }
+  function checkReady(){ document.getElementById('subBtn').disabled = !(document.getElementById('dish').value.trim() && steps.length>=1); }
+  function submitRecipe(){
+    var r={dish:document.getElementById('dish').value.trim()||'내 당근 레시피', by:'🍀 나(미리보기)', hero:'🥕', tip:document.getElementById('tip').value.trim(),
+      badge:'<span class="bd new">방금 올림</span>',
+      mats:[].concat.apply([], (function(){ var seen={},m=[]; steps.forEach(function(s){ if(!seen[s.ing]){seen[s.ing]=1; m.push([s.ing,INGS[s.ing],'적당량']);} }); return [m]; })()),
+      steps:steps.map(function(s){ return [INGS[s.ing], s.verb, VERBS[s.verb], '', s.time]; })};
+    document.getElementById('igBody').innerHTML=renderIg(r);
+    go('vRecipe');
+    setTimeout(function(){ toast('toastB','🎉 올라갔어요! +500P · 이케아식 인포그래픽 자동 생성 완료'); },300);
+  }
+  var tt;
+  function toast(id,msg){ var el=document.getElementById(id); el.innerHTML=msg; el.classList.add('show'); clearTimeout(tt); tt=setTimeout(function(){el.classList.remove('show')},3400); }
+</script>
+</body>
+</html>

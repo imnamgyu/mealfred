@@ -249,12 +249,12 @@ describe('I-05 food-graph 경계 — pair/bridge·dish 미포함', () => {
     expect(dishIngredientFit('볶음밥', '당근').ok).toBe(true);
     expect(dishIngredientFit('카레', '당근').ok).toBe(true);
   });
-  it('I-05-4 graph 엣지 카운트 드리프트 감지(pair 362·bridge 175·합 537 — lift 재생성)', () => {
+  it('I-05-4 graph 엣지 카운트 드리프트 감지(pair 468·bridge 175·합 643 — lift + NEIS 식판 공통출현 병합)', () => {
     const pair = graph.edges.filter((e) => e.kind === 'pair').length;
     const bridge = graph.edges.filter((e) => e.kind === 'bridge').length;
-    expect(pair).toBe(362);
+    expect(pair).toBe(468);    // 362(레시피) + 106(식판 strong 신규)
     expect(bridge).toBe(175);
-    expect(graph.edges.length).toBe(537);
+    expect(graph.edges.length).toBe(643);
   });
   it('I-05-5 노드 수(192 — lift 재생성·현 도감 기준)', () => {
     expect(graph.nodes.length).toBe(192);

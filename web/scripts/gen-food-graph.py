@@ -194,6 +194,37 @@ for a, b in BRIDGE_SEED:
         # verified=True — 전부 수기 고신뢰 사촌(동일 식품군 근접·괴식 없음). 푸드체이닝 chain 추천에 사용.
         bridge_edges.append({'a': key[0], 'b': key[1], 'kind': 'bridge', 'strength': 3, 'verified': True, 'basis': '맛·식감이 닮은 사촌'})
 
+# ── tray: NEIS 식판 단위 공통출현(같은 끼니에 함께 차려짐) — upgrade-only 병합 ──
+#   레시피 동시출현(한 음식 안)과 다른 축. 신뢰를 '올리기만' 한다: 메뉴명에 안 적히는 숨은 채소(잡채 속 당근)
+#   누락이 '안 어울림'을 뜻하진 않으므로 강등 금지. strong 식판쌍 = 기존 edge 승급 + 없으면 새 pair edge.
+#   생성: scripts/pull-neis-tray.py → scripts/gen-neis-tray-cooccur.py (없으면 base 그래프 그대로).
+import os as _os
+TRAY_PATH = '/tmp/neis-tray-pairs.json'
+tray_meta = {}; n_tray_up = n_tray_new = 0
+if _os.path.exists(TRAY_PATH):
+    _td = json.load(open(TRAY_PATH))
+    tray_meta = _td.get('meta', {})
+    GRANK = {'weak': 0, 'medium': 1, 'strong': 2}
+    idx = {tuple(sorted((e['a'], e['b']))): e for e in pair_edges}
+    for key, v in _td.get('pairs', {}).items():
+        a, b = key.split('|')
+        if a not in 도감set or b not in 도감set or a == b:
+            continue
+        tg = v['grade']; sk = tuple(sorted((a, b))); e = idx.get(sk)
+        if e is not None:
+            e['tray'] = tg
+            if GRANK[tg] > GRANK.get(e.get('grade', 'weak'), 0):   # upgrade-only(강등 금지)
+                e['grade'] = tg
+                if tg == 'strong' and e.get('strength', 0) < 2: e['strength'] = 2
+                n_tray_up += 1
+        elif tg == 'strong':   # 레시피엔 없지만 실제 같은 끼니에 자주 차려진 쌍 → 새 pair edge(식판 근거)
+            ne = {'a': sk[0], 'b': sk[1], 'kind': 'pair', 'strength': 3, 'lift': v['lift'],
+                  'grade': 'strong', 'count': v['c'], 'tray': 'strong', 'src': 'tray', 'basis': f"같은 끼니 식단 {v['c']}회"}
+            pair_edges.append(ne); idx[sk] = ne; n_tray_new += 1
+    print(f'tray 병합: 승급 {n_tray_up} · 신규 {n_tray_new} (식판 {tray_meta.get("trays","?")})')
+else:
+    print('tray 파일 없음 — base 그래프(레시피 동시출현만)')
+
 # bridge가 pair와 겹치면 둘 다 둔다(관계 종류가 다름) — UI에서 우선순위로 처리
 edges = bridge_edges + pair_edges
 nodes = sorted({e['a'] for e in edges} | {e['b'] for e in edges})
@@ -204,7 +235,8 @@ for e in pair_edges:
 graph = {'nodes': nodes, 'edges': edges,
          'meta': {'pairs': len(pair_edges), 'bridges': len(bridge_edges),
                   'recipes_used': n_used, 'total_recipes': n_used, 'min_co': MIN_CO, 'topk': TOPK,
-                  'grade_strong': _gc['strong'], 'grade_medium': _gc['medium'], 'grade_weak': _gc['weak'], 'lift_strong': LIFT_STRONG, 'lift_med': LIFT_MED}}
+                  'grade_strong': _gc['strong'], 'grade_medium': _gc['medium'], 'grade_weak': _gc['weak'], 'lift_strong': LIFT_STRONG, 'lift_med': LIFT_MED,
+                  'tray_trays': tray_meta.get('trays', 0), 'tray_pairs': tray_meta.get('pairs', 0), 'tray_up': n_tray_up, 'tray_new': n_tray_new}}
 json.dump(graph, open(f'{WEB}/lib/food-graph.json', 'w'), ensure_ascii=False, separators=(',', ':'))
 print(f'pair grades: strong {_gc["strong"]} · medium {_gc["medium"]} · weak {_gc["weak"]}')
 
