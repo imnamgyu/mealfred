@@ -36,7 +36,7 @@ import { normalizeFreqMap, type MealRow } from '@/lib/coachMaterials';
 import { assembleLetter, buildLetterCtx, collectBlockLedger } from '@/lib/assembleLetter';
 import { loadBlocks } from '@/lib/letterBlocks';
 import { reexposurePick } from '@/lib/reexposure';
-import { buildRecoFacts, weeklyExposureTarget, type FreqMap } from '@/lib/coachRecos';
+import { buildRecoFacts, weeklyExposureTarget, buildIngredientPool, type FreqMap } from '@/lib/coachRecos';
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
 import { bmiOf, bmiPercentile, bmiBand, type Sex, type BmiBand } from '@/lib/growth-reference';
 
@@ -171,10 +171,12 @@ export async function GET(req: Request) {
     // ⭐ E-05 — compare(Letter B) 자체 이력: 최근 B 추천 식재료(3일 무재사용 회전 입력)·B 본문(B 연속성, A와 분리)
     const recentBMaterials: Record<string, string[]> = {};
     const pastBLetters: Record<string, { date: string; letter: string }[]> = {};
+    const recentRecoIng: Record<string, string[]> = {};   // ⭐ 최근 편지가 추천한 '식재료'(A 경로) — 주간 풀 일일 회전(같은 식재료 연속 추천 방지)
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
       if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
-      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; altLetter?: { letter?: string; materials?: { food?: string | null } } } | null;
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; altLetter?: { letter?: string; materials?: { food?: string | null } } } | null;
+      if (typeof ctx?.recoIng === 'string' && ctx.recoIng) (recentRecoIng[l.child_id] ||= []).push(ctx.recoIng);
       if (!(l.child_id in prevArcStage)) prevArcStage[l.child_id] = ctx?.weekly?.arc?.stage ?? null;   // 정렬상 첫 과거 편지 = 직전
       if (ctx?.weekly?.weekKey) (recentWeekKeys[l.child_id] ||= []).push(ctx.weekly.weekKey);
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
@@ -407,6 +409,7 @@ export async function GET(req: Request) {
         let letter = '', oneliner = '';
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
         let brainPick: BrainAction | null = null;   // ⭐ 두뇌 선택+검수 결과(?brain=1) — context 저장·어드민 노출
+        let recoIng: string | null = null; let recoPoolArr: string[] = []; let recoMode: string | null = null;   // ⭐ 오늘 추천 식재료(회전)+주간 풀 — context 저장(블록 밖 참조)
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
         let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 — 어드민 검증
         let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
@@ -781,8 +784,13 @@ export async function GET(req: Request) {
           const snackText = (!snackShownRecently && !snackChannelTarget && !structuralFrame) ? snackEvalToPrompt(snackEval, daySeed) : null;
           snackShownCtx = !!snackText;
           // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
+          // ⭐ 주간 추천 식재료 풀(영양거울 기반 5개) + 일일 회전 — 같은 식재료 연속 추천 방지(6/2·6/3 콩 반복 사고).
+          //   풀은 결정론(buildIngredientPool): 많이 무너지면 보급, 균형이면 도전+사촌. 일일은 최근 추천 안 한 것부터 회전.
+          { const _rp = buildIngredientPool({ signals: computeGroupSignals(byDay, catOf).signals, likedIngredients: likedIng, freqMap, max: 5 });
+            recoPoolArr = _rp.pool; recoMode = _rp.mode;
+            recoIng = recoPoolArr.find((p) => !(recentRecoIng[cid] || []).slice(0, 5).includes(p)) || recoPoolArr[0] || null; }
           // ⭐ 두뇌 검수: useFood=false면(오늘 진짜 문제가 환경이라 음식 억지 금지) 음식 추천 본문 제외(B의 'off-target 음식 박기' 차단). 기본=결정론 추천.
-          const bridgeFacts = (brainPick && brainPick.useFood === false) ? '' : buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, freqMap }).text;
+          const bridgeFacts = (brainPick && brainPick.useFood === false) ? '' : buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, targetIngredient: recoIng, freqMap }).text;
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
           // 끝줄 권유는 하루 하나만 — profileNudge 우선, 없으면 구조화 개선 팁을 ~주1회만 노출(매일=잔소리 금지·Q5).
           const profileN = recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null;
@@ -897,6 +905,7 @@ export async function GET(req: Request) {
             snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
             brain: brainPick,   // ⭐ 두뇌 선택+검수(?brain=1) — 시나리오·useFood·근거(어드민 노출)
+            recoIng, recoPool: recoPoolArr, recoMode,   // ⭐ 오늘 추천 식재료(회전) + 주간 풀 5개 + 모드(보급/도전) — 일일 회전 이력·어드민
           };
           // ⭐ H-02·H-07 — 컨텍스트 단일화: v3 생성=buildLetterCtx 산출 그대로 / v3 편지 재사용=원장(blocks·factsCited·decision) 보존 / 레거시=기존 리터럴
           const finalCtxBase = v3Ctx
