@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals } from '@/lib/nutrition';
-import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, composeLetterB, planFor, structuredTip, metaInputNudge, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, composeLetterB, planFor, structuredTip, metaInputNudge, letterSimilarity, callClaude, resetUsage, getUsage, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -38,6 +38,7 @@ import { loadBlocks } from '@/lib/letterBlocks';
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, weeklyExposureTarget, buildIngredientPool, type FreqMap } from '@/lib/coachRecos';
 import { getIngredientsLight, getRecipeFreq } from '@/lib/graphSource';   // ⭐ JSON 직접 fetch 격리(handoff §4)
+import { aggregateUsage } from '@/lib/llmCost';   // ⭐ LLM 사용량 계측(유지비용 실측)
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
 import { bmiOf, bmiPercentile, bmiBand, type Sex, type BmiBand } from '@/lib/growth-reference';
 
@@ -243,6 +244,7 @@ export async function GET(req: Request) {
       if (Date.now() - runStart > TIME_BUDGET_MS) { skippedTime = activeIds.length - (processed + errors); break; }
       const meta = kidMap[cid];
       if (!meta) continue;
+      resetUsage();   // ⭐ 이 자녀의 LLM 사용량 계측 시작(편지·질문·주간 콜 전부 포함, finally에서 합산)
       try {
         const dormancy = dormancyOf(cid);
         // ── 휴면 복귀 경로 (dormancy 2~7, 단 주말로만 이뤄진 갭은 제외 — S4) — 정상 편지(byDay≥3)와 별개.
@@ -974,6 +976,21 @@ export async function GET(req: Request) {
         console.error('[cron/coach] child', cid, msg);
         errors++;
         issues.push(`${kidMap[cid]?.nickname || cid.slice(0, 8)}: 생성 실패 — ${msg}`.slice(0, 160));
+      } finally {
+        // ⭐ 유지비용 실측 — 이 자녀의 모든 LLM 콜(편지·질문·주간) 사용량을 합산해 llm_usage 1행 upsert.
+        //    continue·정상·throw 모든 경로에서 실행(finally). 테이블 없거나 실패해도 코칭 무영향(try-catch).
+        try {
+          const _recs = getUsage();
+          if (_recs.length) {
+            const a = aggregateUsage(_recs);
+            await supabase.from('llm_usage').upsert({
+              child_id: cid, parent_id: meta.parent_id, usage_date: today, calls: a.calls,
+              haiku_in: a.fam.haiku.input, haiku_cache_read: a.fam.haiku.cacheRead, haiku_cache_write: a.fam.haiku.cacheWrite, haiku_out: a.fam.haiku.output,
+              sonnet_in: a.fam.sonnet.input, sonnet_cache_read: a.fam.sonnet.cacheRead, sonnet_cache_write: a.fam.sonnet.cacheWrite, sonnet_out: a.fam.sonnet.output,
+              cost_usd: Number(a.costUsd.toFixed(6)), detail: a.fam,
+            }, { onConflict: 'child_id,usage_date' });
+          }
+        } catch { /* llm_usage 테이블 미존재/실패 — 코칭 무영향(SQL 실행 전 안전 degrade) */ }
       }
     }
 
