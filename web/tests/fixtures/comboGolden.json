@@ -48,6 +48,24 @@
    "source": "none",
    "expect": "block",
    "note": "무관 조합 — matrix·pair 둘 다 없음 → 0=금지"
+  },
+  {
+   "dish": "양배추",
+   "ingredient": "당근",
+   "score": 0,
+   "source": "none",
+   "expect": "block",
+   "via": "pair",
+   "note": "lift<1(우연 이하) → grade weak → none·차단(흔한 식재료 우연 동시출현 정직화)"
+  },
+  {
+   "dish": "두부",
+   "ingredient": "당근",
+   "score": 0,
+   "source": "none",
+   "expect": "block",
+   "via": "pair",
+   "note": "lift<1(우연 이하) → grade weak → none·차단(흔한 식재료 우연 동시출현 정직화)"
   }
  ],
  "ok": [
@@ -90,24 +108,6 @@
    "source": "matrix",
    "expect": "ok",
    "note": "scoreCombo='matrix' 3"
-  },
-  {
-   "dish": "양배추",
-   "ingredient": "당근",
-   "score": 3,
-   "source": "pair",
-   "expect": "ok",
-   "via": "pair",
-   "note": "kit-dish-matrix에 '양배추' dish 키 없음 → food-graph pair(strength 3) 폴백으로 통과"
-  },
-  {
-   "dish": "두부",
-   "ingredient": "당근",
-   "score": 3,
-   "source": "pair",
-   "expect": "ok",
-   "via": "pair",
-   "note": "matrix 키 없음 → pair strength 3 폴백 ok"
   },
   {
    "dish": "시금치",

@@ -87,10 +87,24 @@ for nd, lst in deg_keep.items():
 def pair_strength(c):
     return 3 if c >= 15 else (2 if c >= 7 else 1)
 
+# ⭐ lift(우연 대비 동시출현) — base-rate(흔한 식재료) 보정. lift = c*N / (na*nb). 1.0=우연·>1=실제 연관.
+#   raw count strength만으론 흔한 식재료(달걀·밥)가 우연 동시출현으로 '강함' 둔갑(밥+달걀 count51인데 lift0.75=우연 이하).
+#   grade='strong'(추천 사용)=strength≥2 AND lift≥1.2 · 'weak'(차단)=strength1 또는 lift<1.0. 떡+달걀 lift 0.72 → weak.
+N = n_used or 1
+LIFT_STRONG, LIFT_MED = 1.2, 1.0
+def pair_lift(a, b, c):
+    na, nb = node_recipes[a], node_recipes[b]
+    return round(c * N / (na * nb), 2) if na and nb else 0.0
+def pair_grade(s, lift):
+    if s >= 2 and lift >= LIFT_STRONG: return 'strong'
+    if s >= 2 and lift >= LIFT_MED: return 'medium'
+    return 'weak'
+
 pair_edges = []
 for a, b in sorted(keep_pairs):
     c = co[(a, b)] if (a, b) in co else co[(b, a)]
-    pair_edges.append({'a': a, 'b': b, 'kind': 'pair', 'strength': pair_strength(c), 'count': c, 'basis': f'같이 쓰는 레시피 {c}개'})
+    s = pair_strength(c); lift = pair_lift(a, b, c)
+    pair_edges.append({'a': a, 'b': b, 'kind': 'pair', 'strength': s, 'lift': lift, 'grade': pair_grade(s, lift), 'count': c, 'basis': f'같이 쓰는 레시피 {c}개'})
 
 # ── bridge: 고신뢰 사촌 시드(맛·식감·색 닮음). 양끝 모두 도감에 있어야 채택 ──
 BRIDGE_SEED = [
@@ -177,16 +191,22 @@ for a, b in BRIDGE_SEED:
         if key in seen_b:
             continue
         seen_b.add(key)
-        bridge_edges.append({'a': key[0], 'b': key[1], 'kind': 'bridge', 'strength': 3, 'basis': '맛·식감이 닮은 사촌'})
+        # verified=True — 전부 수기 고신뢰 사촌(동일 식품군 근접·괴식 없음). 푸드체이닝 chain 추천에 사용.
+        bridge_edges.append({'a': key[0], 'b': key[1], 'kind': 'bridge', 'strength': 3, 'verified': True, 'basis': '맛·식감이 닮은 사촌'})
 
 # bridge가 pair와 겹치면 둘 다 둔다(관계 종류가 다름) — UI에서 우선순위로 처리
 edges = bridge_edges + pair_edges
 nodes = sorted({e['a'] for e in edges} | {e['b'] for e in edges})
 
+_gc = {'strong': 0, 'medium': 0, 'weak': 0}
+for e in pair_edges:
+    _gc[e['grade']] += 1
 graph = {'nodes': nodes, 'edges': edges,
          'meta': {'pairs': len(pair_edges), 'bridges': len(bridge_edges),
-                  'recipes_used': n_used, 'min_co': MIN_CO, 'topk': TOPK}}
+                  'recipes_used': n_used, 'total_recipes': n_used, 'min_co': MIN_CO, 'topk': TOPK,
+                  'grade_strong': _gc['strong'], 'grade_medium': _gc['medium'], 'grade_weak': _gc['weak'], 'lift_strong': LIFT_STRONG, 'lift_med': LIFT_MED}}
 json.dump(graph, open(f'{WEB}/lib/food-graph.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+print(f'pair grades: strong {_gc["strong"]} · medium {_gc["medium"]} · weak {_gc["weak"]}')
 
 # ── 리포트 ──
 missing_bridge = [(a, b) for a, b in BRIDGE_SEED if a not in 도감set or b not in 도감set]

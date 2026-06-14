@@ -74,11 +74,13 @@ describe('HB-02 comboFit 괴식 차단 (H-02)', () => {
       expect(r.ok).toBe(c.expect === 'ok');
     }
   });
-  it('HB-02-5 matrix 미수록 dish는 pair 폴백(양배추·두부+당근=pair 통과)', () => {
-    const r = comboFit('양배추', '당근');
-    expect(K.scores?.['양배추']).toBeUndefined();   // matrix 키 없음 확인
+  it('HB-02-5 matrix 미수록 dish는 강한 pair 폴백(시금치+당근 lift 1.58=strong 통과·당근+두부 lift 0.58=weak 차단)', () => {
+    const r = comboFit('시금치', '당근');
+    expect(K.scores?.['시금치']).toBeUndefined();   // matrix 키 없음 확인
     expect(r.ok).toBe(true);
     expect(r.via).toBe('pair');
+    // ⭐ lift 재설계: 흔한 식재료 우연 동시출현(두부+당근 lift 0.58)은 strong 아니라 차단
+    expect(comboFit('두부', '당근').ok).toBe(false);
   });
   it('HB-02-6 pair도 없는 무관 조합은 차단(미역국+초콜릿)', () => {
     const r = comboFit('미역국', '초콜릿');

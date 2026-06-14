@@ -210,7 +210,8 @@ describe('I-04 comboGuard — 괴식 차단(kit-dish-matrix + food-graph)', () =
     expect(r).toEqual([{ dish: '볶음밥', ing: '당근' }, { dish: '카레', ing: '당근' }]);
   });
   it('I-04-8 ingredientPairFit 테이블 근거만', () => {
-    expect(ingredientPairFit('당근', '두부').ok).toBe(true);
+    expect(ingredientPairFit('당근', '시금치').ok).toBe(true);   // 강한 궁합(lift 1.58·strong) — 약신호(당근+두부 lift 0.58)는 차단
+    expect(ingredientPairFit('당근', '두부').ok).toBe(false);    // lift 0.58 우연 이하 → strong 아님 → 차단
     expect(ingredientPairFit('당근', '존재안함').ok).toBe(false);
   });
   it('I-04-9 ingredientPairFit 무방향(대칭)', () => {
@@ -248,15 +249,15 @@ describe('I-05 food-graph 경계 — pair/bridge·dish 미포함', () => {
     expect(dishIngredientFit('볶음밥', '당근').ok).toBe(true);
     expect(dishIngredientFit('카레', '당근').ok).toBe(true);
   });
-  it('I-05-4 graph 엣지 카운트 드리프트 감지(pair 362·bridge 187·합 549)', () => {
+  it('I-05-4 graph 엣지 카운트 드리프트 감지(pair 362·bridge 175·합 537 — lift 재생성)', () => {
     const pair = graph.edges.filter((e) => e.kind === 'pair').length;
     const bridge = graph.edges.filter((e) => e.kind === 'bridge').length;
     expect(pair).toBe(362);
-    expect(bridge).toBe(187);
-    expect(graph.edges.length).toBe(549);
+    expect(bridge).toBe(175);
+    expect(graph.edges.length).toBe(537);
   });
-  it('I-05-5 노드 수 고정(198)', () => {
-    expect(graph.nodes.length).toBe(198);
+  it('I-05-5 노드 수(192 — lift 재생성·현 도감 기준)', () => {
+    expect(graph.nodes.length).toBe(192);
   });
   it('I-05-6 미역 pair에 당근 없음(미역국 괴식과 정합)', () => {
     const pairs = neighborsOf('미역').filter((n) => n.kind === 'pair').map((n) => n.nm);
