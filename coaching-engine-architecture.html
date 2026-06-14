@@ -239,6 +239,7 @@
   <a href="#guards">⑬ 방어 가드</a>
   <a href="#metrics">⑭ 지표·모델</a>
   <a href="#scope">⑮ 범위·한계</a>
+  <a href="#reco2axis">⑯ 추천 2축 네트워크</a>
 </nav>
 
 <main>
@@ -978,11 +979,125 @@
   <p class="note">★ <b>관련 정본 문서</b> — 무엇을·언제(<a href="/coaching-scenarios.html" style="color:var(--p700)">시나리오·간식</a>) · 어떻게 정하고 만드나(<a href="/coaching-plan-engine.html" style="color:var(--p700)">plan 엔진</a>) · 일·주·월 케이던스(<a href="/coaching-weekly-plan.html" style="color:var(--p700)">주간 케이던스</a>) · v3 설계(<a href="/coaching-engine-v3.html" style="color:var(--p700)">엔진 v3</a>) · 작업 WBS(<a href="/coaching-v3-build-plan.html" style="color:var(--p700)">빌드 플랜</a>) · 학부모용(<a href="/coaching-syllabus.html" style="color:var(--p700)">실라버스</a>) · 피치용(<a href="/engine-diagrams.html" style="color:var(--p700)">엔진 다이어그램</a>). <b>이 문서는 그 모두를 코드 단위로 합친 기술 해부도</b>입니다.</p>
 </section>
 
+<!-- ⑯ 음식 추천 2축 네트워크 -->
+<section id="reco2axis">
+  <div class="sec-h"><span class="no">16</span><h2>음식 추천 2축 네트워크 — "실제 식단으로 판단한다"</h2><span class="tech">Bipartite Evidence Graph · 동시출현 추론</span></div>
+  <p class="lead">추천의 질문은 하나입니다: <b>"이 음식·식재료가 정말 같이 먹는 조합인가?"</b> 엔진은 이걸 의견이 아니라 <b>실제 식단 데이터의 공통출현</b>으로 판정합니다. 단일 카운트는 흔한 식재료(밥·달걀)를 우연히 '강함'으로 둔갑시키므로, 우리는 서로 다른 두 데이터에서 <b>각자 lift(우연 보정)로 등급화</b>하고, <b>둘 다 받쳐줄 때만</b> 추천에 씁니다. 그래서 <b>떡+달걀</b>처럼 LLM은 "괜찮다" 했지만 두 축 모두 약신호인 조합이 자동으로 차단됩니다.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="v">468<small>쌍</small></div><div class="l">pair 궁합 엣지</div><div class="s">레시피 362 + 식판 106</div></div>
+    <div class="kpi b"><div class="v">175<small>쌍</small></div><div class="l">bridge 사촌 엣지</div><div class="s">수기 고신뢰 verified</div></div>
+    <div class="kpi g"><div class="v">192<small>개</small></div><div class="l">노드(식재료)</div><div class="s">도감과 1:1</div></div>
+    <div class="kpi v"><div class="v">1,612<small>식판</small></div><div class="l">NEIS 전국초등</div><div class="s">keyless · 같은 끼니 단위</div></div>
+    <div class="kpi y"><div class="v">37<small> / </small>106</div><div class="l">식판 승급 / 신규</div><div class="s">upgrade-only 병합</div></div>
+    <div class="kpi r"><div class="v">0.72</div><div class="l">떡+달걀 lift</div><div class="s">우연 이하 → 차단</div></div>
+  </div>
+
+  <div class="readme">
+    📖 <b>한 줄 요지</b> — 추천 후보는 ① 같은 <b>레시피 한 그릇 안</b>에 함께 들어가는가(B_레시피DB ~4,700), ② 같은 <b>식판(한 끼)</b>에 함께 차려지는가(NEIS 1,612식판), 두 증거축으로 검증합니다. 어느 축이든 <b>lift로 우연을 빼고 등급(strong/medium/weak)</b>을 매긴 뒤, 추천 경로는 <b>strong만</b> 통과시킵니다. 미수록 조합은 '통과'가 아니라 <b>금지</b>(보수적 기본값)입니다.
+  </div>
+
+  <!-- 두 증거축 대조 -->
+  <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin:20px 0 8px">두 증거축 — 무엇이 다른가</h4>
+  <div class="paths">
+    <div class="path v2">
+      <h4>축 ① 레시피 동시출현 <span style="font-size:11px;font-weight:700;color:#888">(한 음식 안)</span></h4>
+      <div class="sub">B_레시피DB ~4,700 · <code>gen-food-graph.py</code></div>
+      <div class="pstep"><span class="pn">1</span><div><b>메인 식재료 추출</b> — 양념 블로클리스트 제외 + 양 8g↑·15%↑ 게이트로 그릇의 '주연'만<span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">2</span><div><b>동시출현 카운트</b> <code>c</code> — 같은 레시피에 함께 쓰인 횟수(MIN_CO≥4, 노드별 top-14)<span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">3</span><div><b>lift</b> = <code>c·N / (na·nb)</code> — base-rate 보정(1.0=우연, &gt;1=실제 연관)<span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">4</span><div><b>등급</b> — strong(s≥2 & lift≥1.2) · medium(≥1.0) · weak(나머지)<span class="k k-guard">등급</span></div></div>
+      <div class="pstep"><span class="pn">5</span><div>잡는 신호 = <b>요리 안에서 같이 조리되는</b> 궁합(된장+두부, 미역+소고기)</div></div>
+    </div>
+    <div class="path v3">
+      <h4>축 ② NEIS 식판 공통출현 <span style="font-size:11px;font-weight:700;color:#888">(같은 끼니)</span></h4>
+      <div class="sub">전국초등 1,612식판 · <code>gen-neis-tray-cooccur.py</code></div>
+      <div class="pstep"><span class="pn">1</span><div><b>식판=한 끼</b>(날짜+학교) 메뉴 리스트 → 도감 식재료로 분해(향신료 제외·최장일치, 환각 0)<span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">2</span><div><b>식판별 식재료 집합</b> → 같은 식판에 오른 쌍 카운트 <code>c</code><span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">3</span><div><b>lift</b> = <code>c·N / (na·nb)</code> — 식판 총수 N으로 우연 보정<span class="k k-det">코드</span></div></div>
+      <div class="pstep"><span class="pn">4</span><div><b>등급</b> — strong(lift≥1.2 & <b>c≥15</b>) · medium(≥1.0 & c≥8) · weak. 저빈도 우연 폭주 차단(고등어\|살구 c6 lift14 제거)<span class="k k-guard">등급</span></div></div>
+      <div class="pstep"><span class="pn">5</span><div>잡는 신호 = <b>같은 끼니에 차려지는</b> 조합(메뉴명에 안 적힌 잡채 속 당근까지)</div></div>
+    </div>
+  </div>
+  <p class="note">★ 두 축은 <b>다른 것</b>을 본다 — 레시피축은 '한 그릇 안에 섞이는가', 식판축은 '같은 상에 같이 오르는가'. 둘 다 lift로 우연을 빼지만, 식판축은 메뉴명에 안 적히는 <b>숨은 채소</b>(잡채·볶음 속 당근)와 '같이 차려짐'이라는 부모 직관을 보강합니다.</p>
+
+  <!-- bridge(세번째 관계) -->
+  <p class="lead" style="margin-top:18px"><b>세 번째 관계, bridge(사촌).</b> 대체 사촌(명태↔대구, 고구마↔단호박)은 같은 레시피·식판에 거의 함께 안 나오므로 동시출현으로는 안 잡힙니다. 그래서 <b>맛·식감·색이 닮은 고신뢰 수기 시드 175쌍</b>(전부 <code>verified:true</code>·동일 식품군 근접)으로 따로 둡니다. 푸드체이닝 'chain' 추천(잘 먹는 것 → 닮은 새 음식)은 <code>verifiedCousinsOf</code>로 이것만 씁니다.</p>
+
+  <!-- upgrade-only 병합 -->
+  <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin:20px 0 8px">병합 규칙 — upgrade-only(신뢰는 올리기만)</h4>
+  <p class="lead" style="margin:0 0 12px">식판축을 레시피축 그래프에 <b>합칠 때 강등은 금지</b>합니다. 메뉴명에 안 적힌 채소 누락이 '안 어울림'을 뜻하진 않기 때문 — 빠진 근거는 약점 증거가 아닙니다. 그래서 식판 strong 쌍은 ① 기존 엣지면 등급을 <b>승급만</b>(37쌍), ② 그래프에 없으면 <b>새 pair 엣지로 추가</b>(106쌍, <code>src:'tray'</code>·basis="같은 끼니 식단 N회").</p>
+  <div class="card swim">
+  <table>
+    <thead><tr><th>식판 등급</th><th>그래프에 이미 있나</th><th>행동</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>strong</td><td>있음 · 더 낮은 등급</td><td><code>GRANK[tray] &gt; GRANK[기존]</code> → <code>grade=tray</code> (strength&lt;2면 2로)</td><td><span class="kind ki-pub">승급 37</span></td></tr>
+      <tr><td>strong</td><td>있음 · 같거나 높은 등급</td><td><code>e.tray</code>만 기록(메타) · 등급 유지</td><td><span class="kind ki-det">보존</span></td></tr>
+      <tr><td>strong</td><td>없음</td><td>새 pair 엣지 추가(<code>strength 3·src:'tray'</code>)</td><td><span class="kind ki-br">신규 106</span></td></tr>
+      <tr><td>medium / weak</td><td>무관</td><td>병합하지 않음(strong만 승격·신규)</td><td><span class="kind ki-guard">차단</span></td></tr>
+      <tr><td>—</td><td>—</td><td><b>강등 경로 자체가 없음</b>(누락=약점 증거 아님)</td><td><span class="kind ki-guard">금지</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- 추천 게이트 (소비 측) -->
+  <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin:22px 0 8px">추천 게이트 — 조합이 통과하는 경로 <span style="font-weight:600;color:#888;font-size:11px">— <code>comboMatrix.scoreCombo</code></span></h4>
+  <p class="lead" style="margin:0 0 12px">최종적으로 '잘 먹는 음식 + 결핍 식재료' 조합을 띄울 때, 4단 폴백을 <b>위에서부터</b> 따집니다. 핵심은 <b>borderline LLM 점수(2)는 실제 레시피 동시출현(cells)이 ≥8일 때만 인정</b>한다는 게이트 — 떡+달걀(score 2·cells 4)을 여기서 한 번 더 거릅니다.</p>
+  <div class="card swim">
+  <table>
+    <thead><tr><th>순위</th><th>source</th><th>판정 규칙</th><th>예시</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td><span class="kind ki-llm">matrix</span></td><td>LLM 정성채점 0~3. <b>단 score 2 & cells &lt; 8 → 1로 강등(차단)</b>, score 3·실증된 2는 그대로</td><td>볶음밥+당근=3 통과 · 미역국+당근=1 차단 · <b>떡+달걀=2·cells4→1 차단</b></td></tr>
+      <tr><td class="n">2</td><td><span class="kind ki-det">pair</span></td><td><code>strongPairsOf</code> — grade='strong'만(약신호 s=1 일괄 차단). 강도를 0~3 클램프</td><td>된장+두부 등 강한 궁합</td></tr>
+      <tr><td class="n">3</td><td><span class="kind ki-br">cells</span></td><td>레시피 동시출현 count&gt;0이지만 임계 미만 = <b>약신호 → score 1(보수적 금지)</b></td><td>드물게만 같이 쓰인 조합</td></tr>
+      <tr><td class="n">4</td><td><span class="kind ki-guard">none</span></td><td>어디에도 없음 → <b>score 0</b>. 미수록은 '통과'가 아니라 '금지'</td><td>근거 없는 임의 조합</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="note">통과 임계는 기본 <b>2</b>(<code>isComboOk</code>) — score 1(미역국+당근·떡+달걀)은 막고 2·3만 통과. 약신호 차단 임계 <code>PAIR_MIN_STRENGTH=2</code>는 그래프(<code>strongPairsOf</code>)와 매트릭스(<code>CELLS_MIN=8</code>) 양쪽에서 통일됩니다 — 모든 소비자(<code>coachRecos·coachMaterials·comboMatrix·comboGuard</code>)가 같은 헬퍼로 일원화.</p>
+
+  <!-- 떡+달걀 추적 -->
+  <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin:22px 0 8px">사례 추적 — 왜 '떡+달걀'이 차단되나(두 축 모두 약신호)</h4>
+  <div class="card" style="background:linear-gradient(135deg,#FDECEC,#FFF8F2)">
+  <div class="dfd">
+    <div class="dfd-row">
+      <div class="dfd-store">축 ① 레시피<small>cells 4 · lift 0.72</small></div>
+      <div class="dfd-store">축 ② 식판<small>strong 미달(c·lift 부족)</small></div>
+      <div class="dfd-store">LLM 정성채점<small>score 2(borderline)</small></div>
+    </div>
+    <div class="dfd-down">▼ scoreCombo</div>
+    <div class="dfd-row">
+      <div class="dfd-proc">cells 4 &lt; CELLS_MIN 8<small>borderline 2 → 1 강등</small></div>
+      <div class="dfd-proc">lift 0.72 &lt; 1.0<small>우연 이하 → strong 아님</small></div>
+    </div>
+    <div class="dfd-down">▼ isComboOk(임계 2)</div>
+    <div class="dfd-row">
+      <div class="dfd-store" style="border-left-color:var(--r500);background:#FDE2E4;color:var(--r700)">최종 score 1 &lt; 2 → <b>추천에서 제외</b><small>두 증거축 어느 쪽도 받쳐주지 않음</small></div>
+    </div>
+  </div>
+  </div>
+  <p class="note">★ 핵심 — LLM 한 사람의 "괜찮을 것 같다"는 판단(score 2)이 아니라 <b>실제로 같이 먹는 데이터</b>가 최종 결정권을 갖습니다. 떡+달걀은 레시피에서도(lift 0.72) 식판에서도(strong 미달) 약신호라, 두 축의 교차 검증으로 자동 탈락합니다.</p>
+
+  <!-- 작문 가드 -->
+  <div class="gcat" style="margin-top:22px">
+    <h4>✍️ 작문 단계 곁들임 가드 <span class="ct" style="background:var(--y500)">Write-time Guard</span></h4>
+    <div class="guards">
+      <div class="guard safe">
+        <div class="gn">검증 안 된 조합은 본문에서 섞지 않는다</div>
+        <div class="gb"><code>serializeMaterials</code>의 곁들임 규칙 줄 — 검증된(strong·게이트 통과) 조합이 없으면 작문 단계에서 식재료를 <b>임의로 섞지 못하게</b> 막습니다. 그래프가 통과시킨 조합만 글에 등장.</div>
+        <div class="gi">2축 검증 ↔ 작문 일관성</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note">★ <b>설계 한 줄</b> — 추천은 "이 음식 좋아요"라는 의견이 아니라, <b>두 데이터(레시피·식판)에서 우연을 뺀 뒤에도 함께 등장하는가</b>라는 증거 질문입니다. 등급화·upgrade-only 병합·교차 게이트·작문 가드가 한 줄로 꿰여, 부모가 보는 문장 속 곁들임은 모두 <b>실제 식단으로 검증된 것</b>만 남습니다.</p>
+</section>
+
 </main>
 
 <footer>
   밀프레드 코칭 엔진 · <b>기술 아키텍처 해부도</b> · 37 모듈 7,035줄 코드 정독 · 소프트웨어 공학 시각화 15기법<br>
-  작성 2026-06-13 · 코드 기준 라이브(v2) + 카나리아(v3) · <a href="/docs.html" style="color:var(--n500)">← 문서 허브</a>
+  작성 2026-06-13 · ⑯ 추천 2축 네트워크 보강 2026-06-14 · 코드 기준 라이브(v2) + 카나리아(v3) · <a href="/docs.html" style="color:var(--n500)">← 문서 허브</a>
 </footer>
 
 </body>
