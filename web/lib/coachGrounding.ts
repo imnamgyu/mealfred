@@ -65,6 +65,12 @@ export function serializeMaterials(m: MaterialsInput): string {
     .slice(0, COMBO_MAX);
   if (combos.length) {
     lines.push(`검증된 조합(점수순): ${combos.map((c) => `${c.dish}+${c.ingredient}(${c.score})`).join('·')}`);
+    // ⭐ 곁들임 규칙 — '섞기/곁들이기'는 실제 식단 근거가 있는 조합에만(이사님: 음식 추천은 식단으로 판단).
+    //   '잘 먹는 음식'이라도 검증 목록에 없으면 섞지 마라(미역국+당근·떡+달걀 같은 작문 자유연상 차단).
+    lines.push(`곁들임 규칙: '${m.targetIngredient}'를 음식에 섞거나 곁들이려면 위 '검증된 조합'에 있는 음식에만 — 목록에 없는 음식(잘 먹는 음식이라도)엔 섞지 마라.`);
+  } else {
+    // 검증된 조합이 없으면 특정 음식에 섞으라고 쓰지 말 것(LLM이 잘 먹는 음식에 타깃을 임의로 섞는 누수 차단).
+    lines.push(`곁들임 규칙: '${m.targetIngredient}'의 검증된 곁들임 조합이 없다 — 특정 음식(잘 먹는 음식 포함)에 섞거나 곁들이라고 쓰지 마라. 작은 양으로 그 자체를, 또는 또래 인기 음식 이름으로 권하라.`);
   }
   if (m.rationale) lines.push(`근거: ${m.rationale}`);
   if (m.periodFact) lines.push(`기간: ${m.periodFact}`);
