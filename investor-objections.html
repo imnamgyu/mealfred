@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>투자자 예상 공격 질문 & 대응 — 밀프레드 편식 사업소개서</title>
+<meta property="og:title" content="투자자 예상 공격 질문 & 대응 — 밀프레드 편식">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--g500:#16A085;--g700:#1B7A3D;--g50:#F2FBF5;--r500:#E53935;--r700:#C62828;--r50:#FDF3F2;--b500:#3498DB;--b50:#F0F7FC;--y50:#FFFBEB;--y700:#B7791F;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#F7F7F8;color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .hero{background:linear-gradient(160deg,#1a2b4a 0%,#16243f 100%);color:#fff;padding:46px 24px 34px}
+  .hero-in{max-width:1040px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,184,119,0.16);color:#FFB877;font-size:11.5px;font-weight:800;letter-spacing:0.1em;padding:6px 14px;border-radius:100px;margin-bottom:14px}
+  .hero h1{font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-0.02em;line-height:1.25}
+  .hero h1 b{color:#FFB877}
+  .hero .sub{font-size:14.5px;color:rgba(255,255,255,0.8);margin-top:10px;max-width:760px;font-weight:500}
+  .hero .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .hero .meta span{font-size:11.5px;font-weight:700;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.16);padding:5px 11px;border-radius:100px;color:rgba(255,255,255,0.9)}
+  main{max-width:1040px;margin:0 auto;padding:26px 24px 70px}
+  .spine{background:#fff;border:1.5px solid var(--n200);border-left:5px solid var(--p500);border-radius:14px;padding:18px 20px;margin-bottom:20px}
+  .spine h3{font-size:13px;font-weight:800;color:var(--p700);margin-bottom:10px;letter-spacing:0.02em}
+  .spine ol{margin:0;padding-left:20px}
+  .spine li{font-size:13.5px;color:var(--n700);font-weight:600;margin:5px 0}
+  .spine li b{color:var(--s800)}
+  .howto{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--n500);font-weight:600;margin-bottom:24px;align-items:center}
+  .howto .lg{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--n200);border-radius:100px;padding:4px 10px}
+  .secttl{font-size:18px;font-weight:800;color:var(--s800);margin:30px 0 14px;display:flex;align-items:center;gap:9px}
+  .secttl .bar{width:5px;height:20px;border-radius:3px;background:var(--p500);display:inline-block}
+  /* killer lines */
+  .killers{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px}
+  .kcard{display:flex;gap:13px;background:#fff;border:1.5px solid var(--n200);border-top:3px solid var(--g500);border-radius:13px;padding:15px 16px}
+  .knum{font-size:20px;font-weight:800;color:var(--g500);min-width:26px;line-height:1.1}
+  .katk{font-size:12px;font-weight:800;color:var(--n500);margin-bottom:5px}
+  .kline{font-size:13.5px;font-weight:600;color:var(--n900);line-height:1.55}
+  /* nav */
+  .navwrap{position:sticky;top:0;background:rgba(247,247,248,0.94);backdrop-filter:blur(8px);z-index:20;padding:12px 0;margin:8px 0 4px;border-bottom:1px solid var(--n200)}
+  .nav{display:flex;gap:7px;flex-wrap:wrap}
+  .navchip{font-size:11.5px;font-weight:700;text-decoration:none;color:var(--n600);background:#fff;border:1px solid var(--n200);border-radius:100px;padding:5px 11px;transition:all .15s;white-space:nowrap}
+  .navchip:hover{border-color:var(--p500);color:var(--p700)}
+  .navchip b{color:var(--p700)}
+  /* category */
+  .catsec{margin-top:30px;scroll-margin-top:64px}
+  .cathead{display:flex;align-items:baseline;gap:10px;border-bottom:2px solid var(--s800);padding-bottom:8px;margin-bottom:14px}
+  .cathead h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-0.01em}
+  .cathead .cnt{font-size:11px;font-weight:700;color:var(--n500);background:var(--n100);padding:3px 9px;border-radius:100px;margin-left:auto}
+  /* q card */
+  .qcard{background:#fff;border:1.5px solid var(--n200);border-left:5px solid var(--r500);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+  .qtop{display:flex;gap:14px;margin-bottom:10px;font-size:11px;font-weight:800;letter-spacing:0.06em}
+  .qtop .lik{color:var(--n400)}
+  .q{font-size:15px;font-weight:800;color:var(--s800);line-height:1.5;margin-bottom:12px}
+  .qlab{display:inline-block;font-size:10px;font-weight:800;color:#fff;background:var(--r500);border-radius:5px;padding:2px 7px;margin-right:8px;vertical-align:middle;letter-spacing:0.04em}
+  .punch{background:var(--g50);border:1.5px solid #A9DCBC;border-radius:11px;padding:12px 14px;margin-bottom:12px;font-size:14px;font-weight:700;color:#155F33;line-height:1.55}
+  .plab{display:block;font-size:10px;font-weight:800;color:var(--g700);letter-spacing:0.06em;margin-bottom:4px}
+  .full{font-size:13.5px;color:var(--n700);font-weight:500;line-height:1.72;margin-bottom:14px}
+  .subs{display:grid;grid-template-columns:1fr;gap:9px}
+  @media(min-width:760px){.subs{grid-template-columns:1fr 1fr 1fr}}
+  .sub{border-radius:10px;padding:11px 13px;font-size:12.5px;font-weight:600;line-height:1.58}
+  .sub .slab{display:block;font-size:10.5px;font-weight:800;margin-bottom:4px;letter-spacing:0.02em}
+  .sub.weak{background:var(--r50);border:1px solid #F3C9C6}.sub.weak{color:#7A2520}.sub.weak .slab{color:var(--r700)}
+  .sub.ev{background:var(--b50);border:1px solid #C6E0F3;color:#1A4A6B}.sub.ev .slab{color:#1565C0}
+  .sub.gap{background:var(--y50);border:1px solid #F3E3B0;color:#6B5310}.sub.gap .slab{color:var(--y700)}
+  /* checklist */
+  .clwrap{background:#fff;border:1.5px solid var(--n200);border-top:4px solid var(--p500);border-radius:14px;padding:20px 22px;margin-top:14px}
+  .clgroup{margin-bottom:18px}.clgroup:last-child{margin-bottom:0}
+  .clgroup h3{font-size:13.5px;font-weight:800;color:var(--p700);margin-bottom:9px}
+  .clgroup ul{list-style:none}
+  .clgroup li{display:flex;gap:9px;font-size:13px;font-weight:600;color:var(--n700);margin:7px 0;line-height:1.5}
+  .clgroup .box{flex-shrink:0;width:15px;height:15px;border:2px solid var(--n400);border-radius:4px;margin-top:2px}
+  footer{text-align:center;font-size:11.5px;color:var(--n400);padding:28px;font-weight:600}
+  footer a{color:var(--p700);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <span class="tag">🎯 INVESTOR Q&amp;A · OBJECTION HANDLING</span>
+    <h1>투자자 예상 <b>공격 질문 &amp; 대응</b><br>밀프레드 편식 사업소개서 실사 대비</h1>
+    <p class="sub">8개 투자자 렌즈(AI·컨슈머·헬스케어·시드·그로스·법무·전략·재무)가 13슬라이드 사업소개서를 적대적으로 공격해 뽑은 25개 질문과, 정직 thesis를 따르는 대응. 과대포장 대신 ‘실측 vs 베팅’을 가른다.</p>
+    <div class="meta"><span>10 카테고리</span><span>25 질문</span><span>치명도×확률 정렬</span><span>기준: 사업소개서 13s</span><span>2026-06-14</span></div>
+  </div>
+</header>
+<main>
+  <div class="spine">
+    <h3>🧭 모든 답변이 따르는 정직 thesis 척추</h3>
+    <ol>
+      <li><b>모델은 commodity·교체 가능.</b> LLM은 ‘작문’만, 결정은 결정론 엔진이 한다(= wrapper 아님). 파인튜닝은 나중 비용·프라이버시용이고 그게 가능하단 게 데이터 해자의 증거.</li>
+      <li><b>해자 = 라벨된 한국 아동 식단 코퍼스 + 35이론 결정론 엔진 + 분석∩충족 닫힌 루프 + 요리키트 유통망.</b> 모두 모델 안에 없고 사용량과 함께 큰다.</li>
+      <li><b>정직 = 실측(엔진 라이브) vs 베팅(앱 전환·구독·아웃컴)을 절대 섞지 않는다.</b> 모르는 건 먼저 말하고, 왜 그게 합리적 베팅인지로 전환한다.</li>
+    </ol>
+  </div>
+  <div class="howto">
+    <span class="lg">치명 ●●●●● = 못 막으면 딜 사망</span>
+    <span class="lg">확률 ●●●●○ = 실제로 나올 확률</span>
+    <span class="lg">🟢 한 줄 답 = 즉답</span>
+    <span class="lg">⚠️ 약한 답 = 절대 금지</span>
+  </div>
+
+  <div class="secttl"><span class="bar"></span>⚡ 즉답용 Killer Lines (외우세요)</div>
+  <div class="killers">
+  <div class="kcard">
+    <div class="knum">01</div>
+    <div class="kbody"><div class="katk">"그냥 LLM wrapper 아니냐"</div><div class="kline">룰 트리는 복제됩니다 — 인정합니다. 해자는 코드가 아니라 코드가 먹는 라벨된 한국 아동 코퍼스와 처방→키트→반응 닫힌 루프이고, 그건 LLM 안에 없습니다. 모델 commoditization은 우리에겐 비용 하방 압력일 뿐 해자 잠식이 아닙니다.</div></div>
+  </div>
+  <div class="kcard">
+    <div class="knum">02</div>
+    <div class="kbody"><div class="katk">"키트 트랙션은 협력사 것"</div><div class="kline">맞습니다, 11번은 협력사 채널 규모 지표이고 AI사 매출이 아니라 슬라이드에 '매출 아님'이라 명시했습니다. AI사가 증명한 건 라이브 엔진뿐이고, MRR·구독 전환은 사실상 0 — 그걸 증명하는 게 이번 라운드입니다.</div></div>
+  </div>
+  <div class="kcard">
+    <div class="knum">03</div>
+    <div class="kbody"><div class="katk">"효능이 조카 n=1뿐"</div><div class="kline">효능 데이터는 0입니다. 조카는 효능 증거가 아니라 가설의 출처입니다. 실측은 효능이 아니라 엔진(환각0·괴식0)이고, 시드 자금으로 가장 먼저 사는 게 30~50가정 전후 아웃컴 데이터입니다.</div></div>
+  </div>
+  <div class="kcard">
+    <div class="knum">04</div>
+    <div class="kbody"><div class="katk">"1인 의존·개인회생"</div><div class="kline">버스팩터 1, 인정합니다 — 엔진은 815+테스트·문서로 외화돼 인계 가능하고 라운드 자금의 핵심이 2번째 엔지니어 채용입니다. 회생은 개인 채무, 회사는 별도 법인 — 변호사 의견서·베스팅으로 구조적으로 묶겠습니다.</div></div>
+  </div>
+  <div class="kcard">
+    <div class="knum">05</div>
+    <div class="kbody"><div class="katk">"두 법인 이해상충·관계자거래"</div><div class="kline">형제 신뢰뿐 구속력 있는 독점 계약이 없는 게 가장 큰 구조 리스크입니다 — 인정합니다. 독점 공급계약·arm's length OEM 단가·관계자거래 사전동의를 클로징 CP로 박겠습니다.</div></div>
+  </div>
+  <div class="kcard">
+    <div class="knum">06</div>
+    <div class="kbody"><div class="katk">"카카오/네이버가 하면"</div><div class="kline">그들은 임상 책임+식재료 콜드체인이라는 비-플랫폼 물리 영역을 직접 안 합니다. 정말 원하면 만드는 게 아니라 인수하고, 그때 대상은 코퍼스·엔진·채널을 가진 우리지 카톡 봇이 아닙니다.</div></div>
+  </div>
+  <div class="kcard">
+    <div class="knum">07</div>
+    <div class="kbody"><div class="katk">"앱 실제 트랙션 0"</div><div class="kline">MRR·DAU·구독 전환은 사실상 0, 숨기지 않습니다. 실측은 '엔진이 돈다', 베팅은 '사람이 계속 쓴다' — 이 둘을 섞지 않는 게 제 정직선이고, 후자를 증명하는 게 이 라운드입니다.</div></div>
+  </div>
+  <div class="kcard">
+    <div class="knum">08</div>
+    <div class="kbody"><div class="katk">"'결핍 진단'은 과장 아니냐"</div><div class="kline">맞습니다, '진단'을 빼겠습니다 — 실체는 그램이 아니라 노출 빈도 기반 '식단 다양성 신호'입니다. 사진 한 장으로 그램을 추정하면 그게 진짜 환각이라, 측정 가능한 것만 보수적으로 신호화한 설계입니다.</div></div>
+  </div></div>
+
+  <div class="navwrap"><div class="nav"><a href="#cat0" class="navchip">📊 트랙션 귀속 <b>2</b></a><a href="#cat1" class="navchip">⚖️ 두 법인 구조 <b>3</b></a><a href="#cat2" class="navchip">👤 팀·창업자 리스크 <b>2</b></a><a href="#cat3" class="navchip">🧪 효능·아웃컴 <b>3</b></a><a href="#cat4" class="navchip">🏥 의료·규제 <b>3</b></a><a href="#cat5" class="navchip">🧠 wrapper·모델 해자 <b>3</b></a><a href="#cat6" class="navchip">💸 유닛이코노믹스 <b>3</b></a><a href="#cat7" class="navchip">📐 시장 <b>1</b></a><a href="#cat8" class="navchip">🛡️ 경쟁·플랫폼 <b>3</b></a><a href="#cat9" class="navchip">🏦 재무·자금 <b>2</b></a></div></div>
+  
+  <section class="catsec" id="cat0">
+    <div class="cathead"><h2>📊 트랙션 귀속 — 키트 지표는 협력사 것, AI사 트랙션은 0</h2><span class="cnt">2문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>슬라이드 11의 130% YoY·재구매 50%·누적 10만+·100만 인분은 전부 별개 법인 푸드히스토리(동생 임재희 대표)의 B2G 키트 채널 지표다. 투자받는 밀프레드 편식(AI사)이 자기 힘으로 만든 매출·구독·DAU·전환은 정확히 얼마인가, 0원인가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>AI사 매출은 사실상 0이다. 11번은 '검증된 0-CAC 유통 채널이 존재한다'는 증거이지 우리 트랙션이 아니며, 슬라이드에 '채널 규모 지표·매출 아님'이라 명시했다.</div>
+      <p class="full">정직하게 AI 법인의 인식 매출은 사실상 0이고 임상 베타 단계다. 슬라이드 11 지표는 전부 협력사 푸드히스토리의 것이라 '채널 규모 지표·매출 아님'으로 라벨했고, 협력사 매출을 우리 KPI에 합산하지 않는다. AI사가 자체 증명한 것은 두 가지뿐이다 — (1) 결정론 코칭 엔진이 라이브로 매일 개인화 편지를 발송한다(실측), (2) 그 채널이 0-CAC로 학부모에게 닿는 물리적 토대가 실재한다는 것. 이번 라운드의 단일 증명 지표가 바로 '키트 채널→앱 설치→유료 구독' 전환이다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>같은 밀프레드 브랜드고 한 식구니까 10만 아이가 사실상 우리 트랙션이고 다 우리 앱으로 넘어온다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>슬라이드 11 하단 '채널 규모 지표·매출 아님' 캡션, 두 법인 분리 구조도, AI사 단독 P&amp;L(매출 0~베타분), 코칭 엔진 라이브 발행 로그(아린 베타 가정), pitch-logic '증명 vs 베팅' 표에서 앱 구독은 베팅 칸</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>키트 채널→앱 설치→유료 구독 풀퍼널 전환을 코호트로 실측한 데이터 0건. 협력사 채널이 앱 구독으로 전환된다는 건 증명된 깔때기가 아니라 가설.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●○○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>키트의 재구매 50%는 '같은 가정이 다시 구매'인가, '같은 기관이 매년 행사 재발주'인가? B2G 기관 재발주율을 B2C 부모 리텐션처럼 보이게 하면 깔때기 하단이 통째로 가짜다.</p>
+      <div class="punch"><span class="plab">한 줄 답</span>재구매 50%는 B2G 기관 재발주에 가깝지 B2C 구독 유지율이 아니다. 채널 지속성의 근거로만 쓰고, 부모 결제 증거로는 쓰지 않는다.</div>
+      <p class="full">정확한 지적이다. 협력사 재구매 50%는 주로 기관(학교·유치원·어린이집)의 연간 요리행사 재발주에 가깝고, B2C 개별 부모의 구독 유지율이 아니다. 그래서 '채널 규모 지표'로만 라벨했고, '채널이 매년 안정적으로 부모 접점을 재공급한다'는 채널 지속성 근거로만 쓴다. 우리 앱의 부모 리텐션·구독 유지율은 별개로 0부터 증명해야 하는 숫자다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>재구매면 다 재구매고 50%면 좋은 숫자다 — B2G 재발주와 B2C 리텐션을 같은 칸에 둠.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>재구매 50%의 분모/분자 정의(기관 단위 vs 가정 단위), B2G 재발주율과 B2C 구독 유지율을 별도 칸으로 분리한 표, 앱 부모 리텐션은 '미측정' 표기</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>재구매 50%가 기관 재발주율이면 B2C 깔때기 하단 증거가 0. 두 지표가 한 슬라이드에 섞여 부모 결제 의지를 과대 시사할 위험.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat1">
+    <div class="cathead"><h2>⚖️ 두 법인 구조 — 이해상충·관계자거래·채널/브랜드/자산 귀속</h2><span class="cnt">3문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>해자라는 0-CAC 유통망·제조·콜드체인이 전부 별개 법인 푸드히스토리(동생) 자산이다. 동생이 마음 바꾸거나 자체 앱을 붙이거나 다른 AI 파트너를 받으면 채널이 하루아침에 사라진다. 이 의존을 계약으로 묶었는가, 형제 간 구두 합의인가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>지금은 형제 신뢰 기반의 사실상 합의이고 구속력 있는 독점 계약이 없다 — 이게 이 딜의 가장 큰 구조 리스크임을 먼저 인정한다.</div>
+      <p class="full">이 의존이 형제 신뢰에만 묶여 있고 문서화된 독점·우선공급 계약이 없다는 게 정직한 공백이다. AI사가 단독 소유한 건 엔진·코퍼스·앱이고, 유통·제조·콜드체인은 협력사 자산이다. 그래서 해자 서사를 수정한다 — 유통·제조는 '우리 자산'이 아니라 '계약으로 확보할 협력 인프라'로 표기한다. 클로징 조건으로 (1) 앱 사용자 대상 키트 독점 공급·채널 접근권을 기간·해지조항 포함해 명문화하고, (2) 가능하면 두 법인 간 SAFE/지분 교차 또는 합병 옵션을 넣겠다. 푸드히스토리는 앱·엔진이 없어 단독으로 이 시장에 못 들어온다는 게 협상의 지렛대다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>동생 회사라 신뢰 문제 없고 사실상 한 팀이니 계약은 형식일 뿐이다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>두 법인 간 채널 사용·데이터 공급·OEM 제조 독점 계약서 초안(기간·해지·가격), 두 법인 지분구조, SHA에 독점계약 클로징 조건 삽입안, 채널 의존을 줄이는 직접 획득(CPI~1,500원) 실험 설계</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>현재 구속력 있는 독점 계약 부재. 동생 이탈·자체 앱 출시 시나리오에 대한 법적 방어 0. 0-CAC 채널이 끊기면 CAC가 시장가(1.5만~3만원대)로 튐.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>AI 법인은 분석·코칭, 동생 법인은 제조·물류로 나눠 19,900원 키트의 매출·원가가 두 법인 사이에서 정해진다. 형제가 이전가격(transfer pricing)을 정하면 외부 투자금으로 동생 회사 마진을 채워주는 관계자거래가 된다. 또 자금 40%를 쓰는 소분 자동화 설비는 누구 소유로 남는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>현재 거래단가가 arm's length로 고정돼 있지 않고, 자동화 자산이 협력사에 남으면 투자 자본이 별개 법인 가치로 새어 나간다 — 둘 다 클로징 전 구조로 풀어야 할 모순이다.</div>
+      <p class="full">형제 두 법인 구조의 가장 날카로운 약점이고 인정한다. 완화는 세 가지다 — (1) OEM 단가를 제3 OEM 2곳 이상 비교견적 대비 arm's length로 문서화, (2) 일정 금액 이상 관계자거래는 이사회·주주 사전동의 사항으로 정관·SHA에 박고 분기 보고, (3) 자동화 자산의 귀속은 AI 법인 직접 보유 자산/지분으로 잡거나 지주 구조로 묶거나, 안 되면 자금 사용처에서 자동화 비중을 줄여 개발·그로스(우리 P&amp;L에 직접 남는 항목)로 재배분한다. 현 덱이 두 법인을 '별개'로 갈라놓고도 자금 40%를 제조 자동화에 쓰겠다는 건 내부 모순이라 이걸 명문화로 해소하겠다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>원가로만 받기로 했으니 마진 장난은 없고, 자동화하면 원가율 내려가 결국 우리 LTV가 오르니 우리 투자가 맞다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>제3 OEM 비교견적 2건+, 품목별 OEM 단가표, SHA 관계자거래 사전동의·보고 조항 초안, 자동화 자산 귀속안(지주/합병 옵션 또는 개발·그로스 재배분 대안 예산표)</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>두 법인 간 거래단가가 arm's length로 문서화·고정 안 됨. 자동화 40%가 어느 법인 자산으로 계상되는지 미정의 — 투자 자본의 별개 법인 누수 방지 장치 부재.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>핵심 GTM 자산인 '밀프레드' 브랜드·1위 키트·mealfred.com 도메인이 전부 동생 법인 쪽이다. 상표권은 누구 명의이고, 동생이 마음 바꾸면 투자한 법인이 브랜드와 채널을 동시에 잃는 것 아닌가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>브랜드·도메인 명의가 동생 법인 쪽일 가능성을 인정한다. 다만 우리가 파는 해자는 '밀프레드'라는 이름이 아니라 다른 브랜드로도 이전 가능한 엔진·코퍼스·루프다.</div>
+      <p class="full">브랜드 자산이 동생 법인에 귀속돼 있다는 점 인정하고, 상표·도메인·앱스토어 계정 명의를 서류로 확인해 제출하겠다. 투자자에게 파는 해자는 브랜드 이름이 아니라 AI 법인 안의 자산 — 라벨된 한국 아동 식단 코퍼스, 35이론 결정론 엔진, 분석∩충족 닫힌 루프 — 이고 이건 이름 없이도 이전 가능하다. 그럼에도 의존을 줄이려 클로징 조건으로 (1) AI 법인이 상표를 자기 명의로 출원/이전받거나 최소 영구 라이선스 확보, (2) 도메인·개발자 계정을 AI 법인 명의로 정리하겠다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>한 가족이 쓰는 브랜드라 문제될 일 없고 그냥 같이 쓰는 거다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>'밀프레드'·'mealfred' 상표 출원/등록 원부(명의 확인), 도메인 등록자 정보, 앱스토어·플레이 개발자 계정 명의, 브랜드 라이선스/이전 계약 초안</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>핵심 GTM 브랜드·도메인 명의가 AI 법인이 아닐 가능성, 상표 라이선스/이전 미체결.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat2">
+    <div class="cathead"><h2>👤 팀·창업자 리스크 — 1인 의존·개인회생·거버넌스 부재</h2><span class="cnt">2문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>임남규 대표가 단독 CEO/CTO이고 외주 없이 엔진을 손수 짰다. 내일 사고로 못 나오면 NEIS 코퍼스·35이론 하네스·결정론 엔진을 이어받을 사람이 회사에 한 명이라도 있는가? 가장 큰 단일 실패점이 대표 본인 아닌가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>지금은 버스팩터 1이다 — 인정한다. 완화는 엔진이 머릿속 암묵지가 아니라 코드·문서·800+ 테스트로 외화돼 있다는 점과, 이번 라운드 자금의 핵심이 엔지니어 채용이라는 점이다.</div>
+      <p class="full">단독 기술창업자의 구조적 리스크를 숨기지 않는다. 완화 근거 두 가지 — (1) 엔진은 testable 모듈(computeKdriSignals·buildCoachPlan·selectScenario 등)로 분리돼 815+ 테스트·리플레이 골든 하네스로 회귀 검증되고, 아키텍처 해부도·WBS 문서가 있어 신규 엔지니어가 코드만 보고 인계 가능하다, (2) 코퍼스는 사람이 아니라 자동 파이프라인이 키운다. 본질적 완화는 채용이고, 라운드 자금의 핵심 용처가 코칭/데이터 엔지니어 1~2명이다. 핵심맨 보험과 IP 회사 귀속도 클로징 조건으로 받아들인다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>제가 다 만들었으니 제가 안 죽으면 되고 문서도 잘 돼 있다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>엔진 아키텍처 해부도(37모듈)·WBS(111원자), 테스트 스위트 통과 로그(815+ 그린), 리플레이 골든 하네스, 채용 JD와 라운드 use-of-funds 인건비 비중, 핵심맨 보험·IP 양도계약 의사</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>현재 버스팩터 1 — 엔진을 인계받을 2번째 엔지니어 부재, 핵심맨 보험·IP 양도·승계 계획 미체결.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>개인회생 절차 진행 중이라 향후 수년 변제 의무와 신규 채무·자산 처분에 법원 제약이 있다. 투자금이 들어가면 지분·회사 자산이 회생채권자나 관리인 손에 닿을 위험은 없는가? 회생 중인 대표가 향후 5~7년 회사에 전부 쏟을 수 있는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>개인회생은 임남규 '개인' 채무이고 밀프레드 편식은 별도 '법인'이라 원칙적으로 분리된다 — 단 내 말이 아니라 변호사 의견서·인가결정문으로 보여주겠다.</div>
+      <p class="full">이건 변호사 의견서로 답할 사안이라 서류로 보여주겠다. 핵심은 분리 — 법인 투자금·자산은 개인 회생재단과 원칙적으로 분리된다. 다만 진짜 리스크 둘을 인정한다: (1) 내가 보유한 법인 지분은 개인 재산이라 회생 변제재원 산정·관리인 동의 이슈가 생길 수 있고, (2) 변제 완료 전 신용·대표 적격성 제약이 있다. 클로징 전 회생 변호사 의견서·인가결정문·관리인/법원 비저촉 확인을 제출하겠다. 동기 측면에선 베스팅·경업금지·관계자거래 통제로 회사에 구조적으로 묶이는 걸 투자 조건으로 먼저 제안한다 — 창업자 4년 베스팅+1년 클리프, 경업금지, 관계자거래 사전동의.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>회생은 개인 일이라 회사랑 완전 별개고, 제가 갈 데 없어서 무조건 끝까지 한다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>개인회생 인가결정문·변제계획표(변제율·잔여기간), 회생 변호사의 '법인 투자·대표 지분 영향' 의견서, 관리인/법원 비저촉 확인서, 창업자 reverse vesting·경업금지·관계자거래 통제 조항 초안</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>대표 개인 보유 법인지분이 회생 변제재원 산정·관리인 동의 대상이 될 수 있는지 법률 확인 미완료. 베스팅·경업금지·거버넌스 장치 전무한 단독 100% 구조.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat3">
+    <div class="cathead"><h2>🧪 효능·아웃컴 — n=1 조카, RCT·임상 검증 0</h2><span class="cnt">3문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>슬라이드 3 아하 모먼트(코칭 10회·3주에 생당근)가 창업자 조카 1명, n=1, 가족, 게다가 방법론 적용자와 효과 판정자가 동일인이다. '편식, 데이터로 다루다'를 표방하면서 효능을 객관적으로 측정한 게 단 하나라도 있는가? 효과 없으면 리텐션은?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>없다. 효능 데이터는 0이고 조카는 효능 증거가 아니라 '가설의 출처'로만 쓴다. 실측은 효능이 아니라 엔진이고, 아웃컴 증명이 이 라운드 자금의 1순위 용처다.</div>
+      <p class="full">효능에 대한 객관 데이터는 0이고 RCT도 대조군도 없다 — 헬스케어를 효과 증명 없이 쓰면 과장이라 먼저 인정한다. 두 단계로만 주장한다: (1) 엔진이 안전하고 일관되게 개인화 처방을 생성한다 = 실측·증명됨(리플레이 30가정×14일, 환각 0, 괴식 0, 220+ 테스트), (2) 그 처방이 실제 편식을 개선한다 = 미증명 베팅이고 n=1 일화가 전부다. 35이론(Satter·SOS·푸드체이닝)은 학계에서 검증된 방법론이지만 그건 '방법론의 근거'를 빌려온 것이지 우리 제품 효과가 아니다. 리텐션이 효과에 달렸다는 지적은 맞고, 증명 전까지는 습관(매일 편지)에 의존하는 약한 가설이다. 시드 후 가장 먼저 사는 게 30~50가정 단일군 전후 비교(수용 식재료 종수·거부율) 아웃컴 데이터다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>조카가 3주 만에 당근을 먹었고 35개 이론이 다 임상 검증돼서 우리 엔진도 당연히 효과가 증명된 거다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>엔진 라이브 실측(리플레이 30가정×14일·환각0·괴식0·220+테스트), '증명 vs 베팅' 분할표(효능은 베팅 칸), n=1 조카는 '동기·가설'로만 표기, 시드 후 코호트 전후 측정 프로토콜(수용 식재료 종수·체중 percentile)</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>통제군 있는 효능 데이터 전무. pre/post 프로토콜도 문서 수준이고 IRB·대조군·표본수 미설계. 효과↔리텐션 인과 미증명.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>35개 국제 이론을 13시나리오·7무브로 압축하면서 어떤 이론을 채택·폐기하고 어느 신호에서 어느 무브를 쏠지는 결국 의학 자격 없는 대표 본인 판단이다. 소아영양·섭식 전문가 임상 감수를 받은 부분은 어디까지인가? 이게 IP가 아니라 정교한 마케팅 아닌가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>개별 이론 출처는 1차 문헌 기반이지만, 이론→시나리오→무브 매핑 로직의 외부 임상 감수는 아직 0명이다 — 정직한 공백이다.</div>
+      <p class="full">감수 범위를 정직하게 가른다. (1) 개별 이론 출처는 1차 문헌 — KDRI(복지부·한국영양학회 2020/2025), AAP 비타민D 400IU, WHO 철·아연·비타민A, Goday 2019 PFD 합의문, ICFQ를 직접 인용해 nutrient-signal-report에 참고문헌이 박혀 있다. (2) 이론을 시나리오·무브로 매핑하는 결합 로직은 현재 대표가 코드화한 것이고 외부 소아영양·섭식 전문가의 서면 임상 감수는 받지 않았다. 다만 설계는 안전 우선 — 강제 급식 금지가 코드 가드, 위험 신호는 처치하지 않고 전문가 의뢰, 2025 식약처 절단·연령 규정이 하드 가드레일로 박혀 있다. 핵심은 '검증된 임상 프로그램'으로 안 팔고 '국제 임상 현장 접근의 결정론화'로 의도적으로 낮춰 쓴다는 점이다. 라운드 자금의 R&amp;D 1순위가 소아영양사·섭식 OT 임상 자문단 구성 및 룰셋 서면 감수다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>35개 국제 논문을 다 반영했으니 이미 임상적으로 검증된 거고 조카로 직접 검증했다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>methodology·nutrient-signal-report의 1차 문헌 인용(KDRI·AAP·WHO·Goday 2019·ICFQ), 안전 가드 38종↔실제 사고 1:1 매핑표, 2025 식약처 규정 코드 가드레일 라인, '검증된 임상 프로그램' 단정 금지 자체 마케팅 가이드, RCT 부재 명시 정직 근거표</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>이론→시나리오→무브 매핑 전체의 외부 전문가 서면 감수 0명, 자문단 미구성. 13시나리오·7무브 큐레이션은 사실상 1인 판단.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>슬라이드 4·IR이 '31종 영양소 결핍 진단'을 핵심으로 내세우는데, 실제 신호등은 섭취량(그램)이 아니라 '최근 7일 중 며칠 등장했나'라는 노출 빈도일 뿐이고 문서에 '빨강=결핍 경보 아니라 식단 단조로움 신호'라 직접 적혀 있다. 빈도 카운터를 '결핍 진단'이라 부르는 건 부모 오도 아닌가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>맞다, 대외 카피에서 '진단'을 빼야 한다. 실체는 '식단 다양성·노출 빈도 신호'이고, 그램 정량 추정을 의도적으로 안 하는 게 환각을 피하는 설계다.</div>
+      <p class="full">지적이 정확하고 '결핍 진단'을 '식단 다양성 신호'로 리포지셔닝하겠다. 실체는 KDRI 기반으로 영양소를 매일군/자주군/가끔군으로 나눠 노출 빈도 문턱을 차등화한 보수적 휴리스틱이다. 의도적으로 그램 정량 추정을 안 하는데, 부모가 사진 한 장으로 정확한 섭취량을 못 주는데 그램을 추정하면 그게 진짜 환각이기 때문이다. 그래서 측정 가능한 '며칠 노출됐나'만 신호로 쓰고, 3일 미만이면 판정 보류, 비타민D는 빈도 신호 끄고 보충제 안내로 분리해 과신을 막았다. 분모 버그는 우리가 스스로 잡아 달력 7일 고정으로 교정했고, 오히려 내부 검증이 돈다는 증거다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>사진으로 영양소를 정밀 분석하고 AI가 섭취 영양소를 정확히 계산한다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>nutrient-signal-report: '빨강=식단 단조로움 신호로 해석'·매일13/자주8/가끔9 빈도 차등표·분모 버그 달력 7일 교정 패치·데이터 3일 미만 판정 보류 가드</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>그램 단위 섭취량·실측 결핍(혈액/임상 지표) 검증 전무. 신호와 실제 영양 상태의 상관관계 검증 데이터 없음. 셀레늄 상수 KDRI 불일치 등 정합 미완.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat4">
+    <div class="cathead"><h2>🏥 의료·규제 — 진단/처방 표현·아동 민감정보·의료 책임</h2><span class="cnt">3문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>표지·IR·앱에 '진단', '처방', 'ICD-10 R63.3', 'PFD_SUSPECT', 'DSM-5 ARFID'가 박혀 있다. 식약처 의료기기 인증 없는 일반 앱이 '진단'·ICD/DSM 코드를 쓰는 건 의료법 제27조 무면허 의료행위·제56조 의료광고·표시광고법 위반 소지가 명백하다. 변호사 검토를 받고 쓴 건가, 마케팅 카피인가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>외부 정본에 '진단/처방'을 쓴 건 우리 실수이고 라운드 전 카피와 화면을 전면 교체하겠다. 실제 제품은 'screen-and-refer'지 'diagnose'가 아니다.</div>
+      <p class="full">정직하게 '진단/처방'은 법적 자문을 거치지 않은 제품 카피이고 시정하겠다. 실제 산출물은 의료기기가 아닌 '식습관 기록·식교육 코칭' 일반 소비자 앱이다. 설계는 이미 안전한 방향 — coaching-scenarios에 '진단하지 않고 전문가 연결만, 장애·진단 단어 금지'가 코드 가드로 들어가 있고, 위험 분기(PFD_SUSPECT)는 우리가 판정하는 게 아니라 ICFQ 6문항·체중 P10/3개월 하향 같은 공개 스크리닝으로 '소아과 평가 권유'하는 의뢰 트리거로만 작동한다. 라운드까지 할 일: (1) 대외 카피 진단→'식습관 점검/스크리닝' 전량 치환, (2) 앱 내 ICD-10/DSM 문구를 '의료 의뢰용 참고'로 강등하고 면책 고지 추가, (3) 헬스케어 광고 전문 변호사 검토를 클로징 전 마일스톤으로 박는다. 비용은 수백만 원대라 라운드를 막을 리스크가 아니다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>'코칭'이라고 같이 썼고 실제로는 진단이 아니라서 문제없다, 다들 이렇게 쓴다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>coaching-scenarios의 '진단 금지·전문가 연결만' 가드 코드, app-demo의 ICFQ 6문항 스크리닝·P10/3개월 의뢰 트리거, privacy/terms의 의료자문 검토 배너, 교체 후 카피 시안</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>의료광고 전문 변호사 서면 검토·식약처 SaMD 해당 여부 사전질의 미완료. ICD-10/DSM 문구가 실제 소비자 화면에 노출 중이라 카피만이 아니라 화면 수정 필요.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>만 2~6세 아동의 건강 민감정보(개인정보보호법 제23조)와 만 14세 미만 아동 정보(법정대리인 동의 의무)를 다루는데 로그인은 카카오 닉네임 scope만 받아 전화번호도 없다. 부모 본인·법정대리인 검증을 어떻게 하고 민감정보·아동정보 분리 동의는 어디서 받는가? 위험 분기를 보고 병원을 안 가거나 정상 picky인데 패닉에 빠지면 의료 책임은 누가 지는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>현재 법정대리인 검증은 자기선언 수준이고 의료배상책임보험·외부 의료자문 계약도 없다 — 정직한 공백이다. 다만 항상 '전문가 평가 권유'로만 분기하고 강제 급식 금지가 코드 가드다.</div>
+      <p class="full">실측과 공백이 둘 다 있다. 실측: 민감정보를 다룬다는 걸 인지해 terms·privacy에 별도 동의 항목과 변호사 검토 배너를 운영 중이고, 민감정보를 코칭 산출에만 쓰고 광고·제3자 제공에 안 쓰는 걸 RLS로 강제한다(미인증 publishable 키로 전 테이블 0행 실측). 공백: 현재 '입력 부모가 법정대리인'이라는 자기선언에 의존하고 본인·연령 확인 수단이 약하다 — 결제(키트 구매) 시점에 본인인증·전화번호가 자연 수집되는 동선에 법정대리인 확인을 게이트로 붙이는 게 합리적이다. 의료 책임 측면에선 판정을 내리지 않고 항상 의뢰 방향으로만 분기하며(위험은 보수적 의뢰, 정상은 CPS 25~35% 안심+안전망), 강제 급식 금지로 공포 악화 무브를 원천 차단한다. 라운드 후 ICD/DSM 코드 제거, 면책 고지 상시화, 의료배상책임보험 가입, 소아과·섭식 전문가 자문 계약을 진행한다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>부모가 직접 가입하니 당연히 동의한 거고, 우리는 진단이 아니라 정보 제공이라 책임 없다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>privacy의 민감정보/자녀정보 별도 동의 조항, RLS 감사 결과(미인증 키 전 테이블 0행), 강제 급식 금지·전문가 의뢰 전용 가드, CPS 25~35% 안심 카피, 결제 동선 법정대리인 게이트 설계안</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>법정대리인·연령 검증이 자기선언 수준. 분리 동의 요건 충족 여부 전문가 검증 미완, 동의 철회·파기 플로우 증빙 부족. 의료배상책임보험·외부 의료자문 계약 전부 없음. 오분류율 데이터 없음.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●○○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>부모가 입력한 끼니·건강정보가 코퍼스를 키우는 구조(플라이휠)인데, 데이터 소유권·2차이용 권리가 약관에 어떻게 정의돼 있나? 나중에 파인튜닝하거나 코퍼스를 푸드히스토리·제3자에 넘길 때 동의 철회하면 그 아이 데이터를 분리·삭제할 수 있는가? NEIS 식단 크롤링·가공·판매는 이용약관·공공데이터법·DB권상 적법한가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>개인 식별 자녀 데이터는 목적 한정·철회·파기 대상으로 RLS 격리하고, 해자가 되는 코퍼스는 탈식별·집계된 지식이라 개별 아동과 분리된다 — 한 가정이 철회해도 집계 코퍼스는 유지된다.</div>
+      <p class="full">두 층으로 나눈다. (1) 개인 식별 자녀 데이터(질환·체위·끼니 로그)는 개인정보로 목적 한정·철회·파기 대상이고 RLS로 격리해 광고·무단 제3자 제공에 쓰지 않는다. (2) 해자 코퍼스는 '메뉴→식재료 라벨'처럼 탈식별·집계된 지식이라 개별 아동과 분리되며, 그래서 프라이버시 친화적이다. NEIS는 개인정보 아닌 메뉴 텍스트이고 공개 급식정보를 활용했다 — 우리가 유치원 이메일 크롤링은 정보통신망법 제50조의2 위반이라 거절한 것과 일관되게 선을 긋는다. 정직한 공백: 약관에 2차이용·집계 가공 범위, 특수관계자 데이터 제공 가부, 파인튜닝 데이터 거버넌스가 아직 명문화 안 됐고, 키리스 API 사용의 약관 적합성·DB권 침해 여부도 서면 법률검토가 필요하다. 핵심은 해자의 무게중심이 NEIS 원본이 아니라 그 위에 얹은 우리 라벨·learned_menus라는 점이다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>가입하면 다 동의한 거라 데이터는 우리 거고 마음대로 학습시켜도 되며, 공공데이터니 아무 문제 없다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>terms의 데이터 이용·2차이용 범위 조항, RLS 격리·탈식별 파이프라인, learned_menus가 개인식별정보 없이 메뉴→식재료 집계로 구성됨을 보이는 스키마, 유치원 이메일 크롤링 거절 기록(법 준수 일관성)</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>집계 코퍼스 2차이용·특수관계자 제공 동의 범위가 약관에 미정의. 파인튜닝 데이터 거버넌스·철회 시 모델 영향 처리 정책 미수립. 키리스 API 약관 적합성·DB권 침해 서면 검토 미완.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat5">
+    <div class="cathead"><h2>🧠 wrapper·모델 해자 — 결정론 엔진 복제 가능성·진짜 IP</h2><span class="cnt">3문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>슬라이드 6의 '결정은 결정론 엔진이 한다'는 결국 buildCoachPlan.target·selectScenario·MOVE_MENU 회전 같은 if/else 룰 트리 아닌가? GPT-5에 35편 논문 PDF랑 식약처 푸드브릿지를 넣고 '결정론 플랜 JSON 뱉어라' 시키면 주말이면 복제된다. 7,035줄 룰엔진의 어디가 방어 가능한 IP인가? 그냥 LLM wrapper 아닌가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>룰 트리 자체는 IP가 아니고 복제 가능하다 — 솔직히 인정한다. 방어력은 코드가 아니라 코드가 먹는 라벨된 데이터와 처방→반응 닫힌 루프에 있다.</div>
+      <p class="full">룰 트리 그 자체는 복제 가능하다. 방어력은 코드가 아니라 코드가 먹는 데이터에 있다 — 13시나리오·7무브는 '한국 아동이 NEIS 급식에서 실제로 뭘 먹고 거부했는지'(learned_menus 약 1만 메뉴, food-graph 198노드 549엣지)에 박혀 돌 때만 의미 있는 처방을 낸다. 경쟁자가 룰을 베껴도 '두부 잘 먹는 이 아이→사촌→급식에 실제 나오는 검증 메뉴'를 못 뽑는다, 그 그래프가 없으니까. 그래서 룰은 6개월이면 따라잡혀도 한국 아동 식단 코퍼스와 per-child 반응 데이터는 사용량과 함께만 커진다. 다만 이건 베팅이고, 라이브 사용자가 임상 베타라 코퍼스 절대량 우위는 아직 작다는 점은 인정한다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>35개 국제 이론을 코드로 구현한 건 아무나 못 하고 임상 전문성이 진입장벽이다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>결정론 코어(buildCoachPlan·selectScenario·decideDailyV3) 코드와 그것이 참조하는 food-graph.json(198노드 549엣지)·learned_menus(~1만)를 나란히 펼쳐 '룰은 공개돼도 데이터 없으면 안 돈다' 실연, coachRecos가 실제 급식 출현 메뉴만 뱉는 로그</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>코퍼스 우위 '복제 18개월' 주장이 미정량. learned_menus 다수가 공공 NEIS 유래라 경쟁자도 같은 keyless API로 수집 가능 — 진짜 독점분(유저 입력 learned·per-child 반응)이 전체의 몇 %인지 숫자 없음.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>'LLM은 작문만, 월 900원'이라며 commoditization을 강점으로 파는데, 그 논리대로면 진짜 가치는 엔진+데이터에만 있고 LLM이 필요 없다는 뜻이다. AI를 떼면 룰엔진+한국 급식 DB+밀키트 — 그냥 소프트웨어 회사 아닌가? 그리고 데이터 1만 메뉴·549엣지 규모로 파인튜닝할 게 뭐가 있나? OpenAI가 200만 토큰 컨텍스트를 주면 당신 사전을 통째로 넣은 wrapper가 더 싸게 대체하지 않나?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>정확히 봤고 그게 의도한 포지션이다 — LLM이 마법이라고 안 판다. 해자는 모델이 아니라 데이터·엔진·닫힌 루프·유통에 있고, 모델 commoditization은 우리에겐 비용 하방 압력일 뿐 해자 잠식이 아니다.</div>
+      <p class="full">핵심 자산은 라벨된 한국 아동 식단 코퍼스+임상 지침 결정론 엔진+분석∩충족 닫힌 루프이고 이건 LLM 안에 없다. 'AI'라 부르는 이유는 (1) 매핑 엔진이 자유 텍스트 메뉴 한 줄을 31종 영양 신호로 환원하는 NLP 파이프라인이 핵심이고, (2) per-child 누적 상태에 매일 다른 처방을 내는 게 정적 룰엔진이 아니라 데이터로 학습되는 시스템이라서다. 'AI 떼면 룰엔진+DB+밀키트'라는 지적은 맞고, 우리 해자도 정확히 거기 — 모델이 아니라 데이터와 루프 — 에 있다. 파인튜닝은 현 규모에서 불필요하고 안 한다, 슬라이드의 파인튜닝은 나중에 비용·아동 민감정보 프라이버시 때문에 자체 소형모델로 내릴 옵션일 뿐이다. 프론티어랩이 우리 사전을 프롬프트에 다 넣어도 '결핍 식재료가 정확히 그 양으로 폐기 없이 문 앞에 도착'(극소량·극다품종 콜드체인)을 못 한다 — 앎은 결과가 아니다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>우리는 자체 파인튜닝 모델을 쓰는 진짜 AI 회사고 범용 모델보다 한국 편식에서 더 정확하다(사실 아님, 함정).</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>월 900~1,000원 운영비가 'LLM 의존 최소화' 설계 산물임을 보이는 비용 분해, LLM 0콜로 도는 v3 카나리아(아린) 실측, 충족 루프(키트)가 SW만으로 복제 불가임을 보이는 협력사 제조·콜드체인 자산, 매핑 4단 파이프라인 무매핑률 하락 추이</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>'데이터로 학습되는 시스템'이라지만 현재 학습은 룰·사전 갱신(사람+크론)이 대부분이고 통계적 모델 학습 아님. 플라이휠 학습 속도가 사용자 수에 비례한다는 건 사용자가 없어 미실증. 프론티어랩이 NEIS를 직접 수집·학습하면 코퍼스 우위 상당 부분 잠식 가능.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>food-graph가 'NEIS 4,727건 분석 지식 그래프'라는데 NEIS는 keyless 공공 API라 누구나 긁고, pair 362개도 공개 레시피 크롤링이면 복제 가능하고, bridge 175개는 '수기 큐레이션'이다. 그래프 절반은 공공, 절반은 손으로 찍은 175개인데 이게 '프롬프트로 못 만드는 축적 자산'이라는 건 과장 아닌가? 진짜 독점 데이터는 어디 있나?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>공공 유래분(NEIS pair)은 해자가 아니라 엔진이 환각 안 하게 하는 그라운딩이다. 진짜 독점 자산은 그래프가 아니라 learned_menus 유저 입력분과 per-child 반응 데이터인데, 후자는 지금 거의 비어 있다 — 이게 정직한 현 상태다.</div>
+      <p class="full">정직하게 분해한다. NEIS pair는 경쟁자도 만들 수 있어 해자가 아니라 그라운딩이다. 진짜 독점 자산은 (1) learned_menus 유저 입력분 — 부모가 올린 끼니에서 추출돼 공공 DB엔 없는 메뉴, (2) per-child 반응 데이터 — '이 아이가 이 처방에 어떻게 반응했나'의 누적 원장이다. 후자는 NEIS에 없고 크롤링으로 못 얻고 오직 우리 루프(처방→키트→반응→환류)를 돌려야만 생긴다. bridge 175개 수기 큐레이션은 솔직히 작고 복제 가능한 부트스트랩 그라운딩이지 해자가 아니다. 해자는 사용량과 함께 커지는 per-child 반응 코퍼스 한 군데에 있고, 그건 지금 거의 비어 있다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>우리 그래프는 1만 메뉴를 분석한 독점 자산이라 아무도 못 만든다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>learned_menus 중 공공 NEIS 유래 vs 유저 입력 유래 비율, per-child 반응 원장(coachFacts) 스키마, 무엇이 공공이고 무엇이 우리만 가진 것인지 색깔로 구분한 데이터 출처표, learned_menus 캐논화 워크플로(복제 난이도)</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>per-child 반응 데이터가 진짜 해자라지만 라이브 사용자·키트 반응 루프가 임상 베타라 그 코퍼스가 사실상 비어 있음. '미래에 생길 해자'를 현재 자산처럼 말하는 위험.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat6">
+    <div class="cathead"><h2>💸 유닛이코노믹스 — CAC/LTV·구독 전환·키트 마진</h2><span class="cnt">3문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>'0-CAC'라면서 CPI ~1,500원을 본인이 말했다 — 그건 0-CAC가 아니라 싼 CAC다. 그리고 LTV/CAC 10~61배·blended LTV 30.7만 표가 통째로 '미검증 단일 지표'인 구독 전환율 위에 서 있다. 전환율이 0에 수렴하면 30.7만은 0이다. 키트 동봉 앱설치 GTM은 설치 1~3%가 상식인데, 그 LTV는 실측인가 베팅인가? 근거 데이터가 단 한 줄이라도 있는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>전부 베팅이다 — 그래서 슬라이드에 직접 '미검증·이번 라운드가 증명할 단일 지표'라고 라벨했다. '0-CAC'는 카피 과장이라 빼겠다.</div>
+      <p class="full">LTV/CAC 표는 '전환율이 X면 이렇게 된다'는 조건부 모델이고 X가 미검증인 한 베팅이다. 실측인 척 섞지 않는다. 30.7만은 구독 4,900원·키트 attach·생애 18개월 가정의 산술 결과지 코호트 관측치가 아니다. '0-CAC'는 정확히는 '광고 입찰 없는 유기 유입, 채널 단가 CPI~1,500원 추정'이고 이 1,500원조차 '행사→설치' 전환을 역산한 게 아니라 행사 비용÷도달 부모 수다. 합리적 베팅의 근거는 분모가 0-CAC로 이미 돈 받고 획득된 모집단이라 한 자릿수 % 전환만으로도 LTV/CAC가 양수가 되도록 설계됐다는 점이다 — 다만 증정 박스 실비(QR카드+원물)를 CAC로 정직하게 잡으면 손익 임계는 전환율 2~3%다. 이걸 뒷받침하는 자체 실측은 단 한 줄도 없고, 이 라운드 자금이 정확히 이 숫자 하나를 만든다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>CAC가 0이니 전환율 낮아도 무조건 흑자라 표는 보수적이고, 18개월만 잡았으니 30.7만은 충분히 보수적인 실제 수치다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>무료증정 박스 1건당 실비(QR카드+원물+패킹)=실질 CAC 산정표, 손익분기 전환율 역산(1%/2%/3% 시나리오), '미검증' 라벨이 박힌 슬라이드 원본, 전환율 민감도표, 제품동봉 앱설치 GTM 벤치마크, 학급 1~2곳 동봉 파일럿 설계</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>키트 동봉→설치→유료 구독 풀퍼널 전환율 실측 0건. CAC≈0 전제가 '증정 실비를 CAC로 안 잡는' 회계 위에서만 성립. 전환율·churn·attach 셋 다 관측치 0.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>19,900원 주 14끼니 마진 50%라는데 '극다품종 극소량·폐기0' 박스면 아이마다 다르게 소분하는 피킹·패킹 인건비가 객단가를 잡아먹는다. 그 50%는 식재 원가만 뺀 건가, 소분 노동·콜드체인 박스·라스트마일까지 다 빼고 50%인가? 그 박스를 실제로 몇 개나 보내봤는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>그 50%는 협력사 기존 밀키트 생산원가에서 추정한 숫자이고, 개인화 극소량 소분 박스를 규모로 보내본 실측 마진은 아직 없다 — 베팅이다.</div>
+      <p class="full">핵심 리스크를 정확히 짚었다. 극다품종 소분은 SKU당 피킹 횟수가 폭증해 수작업으로는 마진이 안 난다 — 자동화 전 수작업 마진은 50% 아래로 봐야 정직하다. 그래서 이번 라운드 자금 40%를 소분 자동화 공정에 못박았고, 자동화가 마진을 50%대로 끌어올린다는 게 가설이다. 다만 협력사는 누적 100만 인분 콜드체인을 실제로 돌려온 곳이라 원물 소싱·냉장물류 단가는 검증돼 있고, 미검증은 '개인화 소분 단계'에 한정된다. 그 단계 실측 박스는 소수 베타뿐이라 N이 작다고 먼저 말한다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>협력사가 1위 키트사라 물류가 다 돼 있어 마진 50%는 당연히 나온다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>박스 1건 BOM(식재 원가·콜드박스·아이스팩·라스트마일 분해표), 개인화 박스 패킹 분/건 시간측정, 자동화 전후 원가율 추정 모델, 실제 발송 베타 박스 건수와 실측 공헌이익</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>개인화 소분 박스의 규모 단위(수백~수천 건) 실측 마진 0. 자동화 설비가 약속한 원가율로 내려가는지 미검증, CAPEX 회수 시나리오도 가설.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>구독 4,900원 마진 95%라면서 같은 슬라이드에 LLM 작문이 아이당 월 900원이라 적었다. 매출의 18%가 변동 LLM 원가면 '95% SW 마진'이 아니다. 또 4,900원 구독의 진짜 결제 동기는 편지가 아니라 키트인데 키트는 19,900원 별도 결제다 — 구독을 따로 파는 게 맞나, 키트에 끼워팔아야 사는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>900원은 COGS이고 SW 총마진은 95%가 아니라 약 80%가 정직한 숫자다 — 그 표기는 수정하겠다. 구독 단독은 약하고, 핵심 역할은 매출이 아니라 '매일 끼니를 기록하게 해 데이터·락인을 쌓는 것'이다.</div>
+      <p class="full">마진: 900원 LLM 원가는 실측이고 4,900원 대비 18%니 SW 총마진은 약 80%가 정직하다. 다만 LLM은 commodity라 모델 교체·캐싱·소형화로 그 900원은 시간이 갈수록 내려가는 비용이지 올라가는 비용이 아니다. 결제 동기: 4,900원 구독 단독은 약하고, 솔직히 구독의 핵심은 매출보다 '데이터·습관 레이어'다. 진짜 LTV는 구독(8.4만)이 아니라 구독+키트(44~85만)에서 나오고 표도 그렇게 적었다. 정직한 포지션은 '구독은 데이터·습관 레이어, 키트가 현금'이며 끼워파는 구조가 더 현실적이라는 데 동의한다. 구독 단독 결제 의향은 미검증이다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>편지가 매일 오니 4,900원은 충분히 싸서 다들 구독하고 마진도 95%다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>구독 손익 분해(4,900원−900원 LLM−결제수수료=실질 공헌이익), LLM 단가 하락 곡선, 편지 열람률/리텐션 코호트(베타), 구독 단독 vs 키트 번들 결제 의향 데이터</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>구독 단독 결제 의향·해지율 실측 0. '95% 마진' 표기는 LLM 변동비 누락 과대표기 — 정직 숫자는 약 80%. 편지 열람률이 리텐션을 만든다는 증거 미확보.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat7">
+    <div class="cathead"><h2>📐 시장 — SOM 크기·코호트 회전·리텐션 구조</h2><span class="cnt">1문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>눔조차 못 푼 게 코칭 리텐션인데, '편식 교정'은 성공하면 끝나는(낫는 순간 이탈) 더 어려운 구조다. SOM 편식 60만 가구도 2~6세 골든타임이라 한 아이 유지 창이 2~3년뿐이고 매년 6세 졸업으로 새 가구를 계속 사야 하는 회전 시장이다. 진짜 SOM은 60만보다 훨씬 작은 것 아닌가? 코칭 앱이 일회성 키트보다 정말 더 잘 남나? 구독 전환·유지 숫자 있는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>리텐션이 가장 큰 미증명 베팅이고 현재 구독 전환·유지는 사실상 0이다 — 인정한다. 편식 단독으로는 작고 회전이 높은 '플로우 시장'이며, '낫고 나면 떠난다' 문제의 답은 5층 확장(레시피·건기식)이다.</div>
+      <p class="full">편식은 코호트가 매년 졸업하는 한시적 페인이고 18개월 생애는 그걸 반영한 보수 가정이다. 60만을 '평생 풀'로 보면 안 되고 매년 2세 신규 코호트(연 약 40만 출생 기반)가 들어오는 플로우 시장으로 봐야 한다 — 편식만으로는 작다는 지적을 회피하지 않는다. 진짜 수익화는 6세 편식 졸업 후에도 영양·건기식으로 관계를 끌고 가는 데 있고(SAM 200만 가구), 그게 안 되면 매년 새 코호트를 CAC 들여 사는 분유회사 구조가 된다. 눔은 본인 다이어트라 동기 변동이 큰데 우리는 '내 아이가 먹는 것'이라 부모 동기가 끈질긴 점이 구조적 우위지만, 이것도 미검증 가설이다. 매일 코치 편지(최근 3일만 보관해 접속 유도)와 끼니 기록 습관으로 DAU를 만드는 게 핵심이고, 실제 유지 여부는 이 라운드 자금으로 증명할 가설이다 — 숫자를 지어내지 않겠다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>편식은 한 번 들어오면 형제·둘째까지 계속 쓰고 우리 코칭이 좋아서 다들 남으니 리텐션 걱정 없다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>연령 코호트 모델(2세 진입→6세 졸업 회전·연 신규 진입 가구 추정), 편식 심도별 유지 기간 분포, 편식→레시피→건기식 5층 확장 설계, 현재 베타 편지 발송 빈도·재방문 패턴(작더라도 실측)</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>구독 전환율·30/90일 리텐션 실측 사실상 0. 6세 졸업 후 영양/건기식 전환 0건. 18개월 LTV조차 베타 N이 작아 보수 가정. '부모 동기가 끈질기다'·'확장 훅이 이탈을 막는다'는 둘 다 미검증 가설.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat8">
+    <div class="cathead"><h2>🛡️ 경쟁·플랫폼 — 왜 아직 아무도, 카카오/네이버, 컬리·그로잉맘</h2><span class="cnt">3문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●●</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>10만 가입자를 가진 그로잉맘이 내일 '편식 코칭' 탭 하나 붙이고 NEIS는 keyless 공공API라 똑같이 긁으면 너희 매핑 사전은 6개월이면 따라잡힌다. 도감 204·궁합 589·키트 매트릭스 2,582·정부 레시피 4,727 — 솔직히 작다. 자본 있는 팀 엔지니어 3명·6개월이면 재현 가능한 규모인데 어떻게 '복리 해자'인가? 진짜 못 베끼는 게 정확히 뭔가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>정적 자산의 절대 규모는 해자가 아니라 6~12개월 선행일 뿐이다 — 인정한다. 진짜 복리는 사용자가 매일 입력하는 learned_menus 증분과 식재료를 실제 배송해본 회사만 얻는 거부→수용 outcome 데이터, 두 동적 축에서 나온다.</div>
+      <p class="full">베낄 수 있는 것과 없는 것을 가른다. NEIS 코퍼스도 35이론(논문)도 공개 자산이고, 도감 204·레시피 4,727은 자본 있는 팀이 재현 가능하다 — '복제 불가'라 부르면 과장이고 6~12개월 선행이라 정직하게 말한다. 진짜 복리는 둘이다: (1) learned_menus는 우리 사용자가 매일 입력하는 실제 끼니로 자가증식해 정지 상태가 없다 — 그로잉맘이 NEIS는 한 번에 긁어도 '아린이가 어제 거부했다 오늘 먹은 음식' outcome은 사용자 수×시간으로만 쌓인다, (2) 분석∩충족 루프가 만드는 거부→수용 outcome은 식재료를 실제 배송해본 회사만 얻는다 — 순수 SW 복제팀은 처방은 베껴도 '그 처방이 통했는지'를 못 측정한다. 다만 정직하게, 이 복리가 의미 있는 격차가 되려면 사용자가 임계점을 넘어야 하고 현재 베타 규모에선 복리가 막 작동을 시작한 정도지 격차를 벌린 단계가 아니다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>우리 데이터는 절대 못 베끼고 35개 이론 통합은 우리만 했다(이론은 논문에 공개, 코퍼스는 공공API라 '절대'가 거짓말).</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>learned_menus 누적·유저 입력 기인 비율, NEIS 재현 인력·기간(우리 빌드 로그), 거부→수용 전환 outcome 레코드 수(베타 규모라 작다는 것까지), 정적 자산은 '재현 비용'·진짜 복리는 learned 증분+outcome이라는 분리 설명</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>거부→수용 outcome 데이터가 현재 베타 n=한 자릿수 가정 수준이라 아직 '해자'라기엔 양이 없음. '시간×유저로 쌓인다'는 베팅이지 실측 아님. 임계 사용자 수 도달 시점 근거 없음.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>'왜 아직 아무도 안 했나'가 제일 무섭다. 편식은 25년 된 페인이고 그로잉맘·푸드히스토리도 수년째 있었는데 왜 아무도 제품으로 안 만들었나 — 시장이 없는 것 아닌가? 그리고 Why Now를 'LLM 저비용'이라 했는데 그 LLM을 본인이 commodity라 적었으니, Why Now가 곧 '누구나 지금 할 수 있다'는 진입장벽 하락 자백 아닌가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>세 진입장벽(임상 IP·한국 식단 코퍼스·극소량 개인화 제조)을 한 회사가 동시에 가진 적이 없었기 때문이지 시장이 없어서가 아니다. LLM은 '가능 조건'이지 '차별점'이 아니다 — commodity라는 게 오히려 '모델 밖 자산에 베팅한다'는 우리 논리를 강화한다.</div>
+      <p class="full">세 장벽이 동시에 필요했다: (1) 35개 흩어진 이론을 13시나리오로 결정론화하는 임상 IP — 식품회사도 앱 개발사도 안 한다, (2) NEIS 라벨링 코퍼스 — 노가다고 ROI가 안 보여 아무도 안 쌓았다, (3) 극소량·극다품종 개인화 제조 — 순수 SW는 못 만들고 순수 식품사는 엔진이 없다. 그로잉맘은 (1)(3) 없고, 컬리는 (1)(2) 없고, 동생 회사는 (1)(2) 없다. Why Now는 '진입장벽이 사라졌다'가 아니라 '경제성이 비로소 성립했다'다 — 메뉴를 영양으로 분해하고 아이마다 매일 다른 처방을 보내는 단가가 LLM 전엔 아이당 월 수천~수만 원이라 사업이 안 됐고 지금 900원이 됐다. LLM이 평준화될수록 모델 밖 자산(코퍼스·엔진·루프)이 유일한 차별점이 되니 commodity가 우리 논리를 강화한다. 솔직히 말하면 셋을 동시에 가진 사람이 마침 한 가족 안에(엔진=형, 제조=동생) 있었던 게 우리 비대칭이다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>우리가 처음이고 우리가 똑똑해서이며, 우리 프롬프트가 특별해서 LLM을 우리만 잘 쓴다(commodity라 자기 슬라이드에 써놓고 모델/프롬프트를 차별점이라 우기면 즉시 모순).</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>경쟁 매트릭스(밀키트/컬리·쿠팡/그로잉맘/눔 × 5역량 — 누구도 5개를 다 못 채움), 35이론→13시나리오 코드화 산출물(IP 실재), LLM 이전 메뉴 분해 단가 비교, 아이당 월 900원 실측, 모델 교체해도 엔진 결론 불변 테스트</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>'아무도 안 한 진짜 이유가 ROI 부재(시장이 얇아서)'일 가능성을 완전히 배제 못 함 — 편식 가구 WTP를 구독으로 증명한 데이터 0. LLM 평준화로 우리 선행이 12개월인지 24개월인지 후발 추격 속도 미실측.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●○○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>카카오·네이버는 메신저·검색으로 모든 학부모를 갖고 있다. 0-CAC 채널 자랑은 카카오가 '엄마들의 AI 식단 코치'를 카톡 안에 띄우는 순간 무의미해진다. 또 5층 종착지 '개인화 건기식'은 컬리·쿠팡이 키즈 건기식을 이미 깔고 자본이 비교 안 된다 — 결국 배송·전환은 그들 플랫폼에서 일어나고 너희는 트래픽만 만드는 것 아닌가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>카카오·네이버가 트래픽에서 우리를 압도하는 건 사실이고 부정 안 한다. 다만 그들은 임상 책임+식재료 제조라는 비-플랫폼 물리 영역을 직접 안 하고, 정말 원하면 만드는 게 아니라 인수한다 — 그때 대상은 우리지 카톡 봇이 아니다.</div>
+      <p class="full">카카오·네이버는 수평 플랫폼이라 '영유아 편식'처럼 좁고 깊고 임상 책임이 따르는 버티컬을 직접 운영하지 않는다 — 잘못된 영양 처방 책임, 35이론 코드화, 식재료 콜드체인은 그들 사업 모델과 안 맞고 저출생으로 그들 기준 TAM도 작다. 건기식 물류 자체도 우리 해자가 아니다 — 컬리·오아시스도 가진 일반 역량이고 슬라이드에서 '물류=해자'라 안 쓴다. 우리가 가진 건 윗단이다: 컬리는 '키즈 유산균 잘 팔리니 노출'하는 커머스 추천이고, 우리는 '이 아이 31종 영양 분석에서 철이 며칠째 결핍이라 임상 근거로 보충 제안'하는 진단의 결과물이다 — 그 진단 신호(끼니 데이터)는 컬리에 없다. 건기식은 5층 중 가장 먼 베팅이지 이번 라운드 근거가 아니다. 방어선은 배포가 아니라 '들어오기 싫은 물리+임상의 결합'이다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>카카오는 우리한테 관심 없고 너무 작아서 안 들어오며, 우리가 건기식 6조 시장을 결핍 엔진으로 압도한다(안일+가장 먼 베팅을 실측처럼 말함).</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>카카오·네이버가 직접 운영 안 하고 버티컬을 인수해온 전례, 임상 처방 책임·식품 제조라는 비-플랫폼 영역임을 보이는 운영 구조, 결핍 신호→추천 로직의 KDRI 임상 근거 매핑, 건기식이 5층 마지막 베팅임을 명시한 슬라이드, 우리가 인수 대상이 될 때의 자산 목록(코퍼스·엔진·채널)</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>카카오가 '식단 사진→영양 분석'만 가벼운 무료 기능으로 출시해 앱 다운로드 깔때기 입구를 막을 가능성은 실재 — 구체적 대응이 슬라이드에 없음. 결핍 진단→건기식 전환을 실제로 돌려본 적 0.</div>
+      </div>
+    </article>
+  </section>
+  <section class="catsec" id="cat9">
+    <div class="cathead"><h2>🏦 재무·자금 — AI사 P&amp;L·매출 귀속·런웨이·다음 라운드 게이트</h2><span class="cnt">2문</span></div>
+    
+    <article class="qcard" style="border-left-color:#E53935">
+      <div class="qtop">
+        <span class="sev" style="color:#E53935">치명 ●●●●●</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>The Ask ~7억, 런웨이 18~24개월인데 매출 0인 회사가 18~24개월 뒤 '매출 10억 돌파'를 마일스톤으로 걸었다. 그 10억은 누구 매출이고, 협력사가 키트를 만들면 10억 상당이 다시 동생 회사로 빠지는 구조 아닌가? 다음 라운드를 띄울 최소 증거(MRR·유지율)는 구체적으로 얼마이고 못 만들면 어떻게 되는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>10억 중 순수 AI사 귀속은 구독(마진 95%·전액 우리)과 건기식 두 줄뿐이다 — 키트는 협력사가 제조하므로 매출 총액이 아니라 우리 마진/번들 몫만 인식해야 맞다. 마일스톤의 핵심은 키트 GMV가 아니라 구독 전환 증명이다.</div>
+      <p class="full">정직하게 분해하면 10억 목표 중 AI 법인에 남는 건 구독과 건기식이고, 키트는 협력사가 제조·물류하니 매출 총액이 아니라 우리 마진/수수료 또는 번들의 우리 몫만 인식해야 맞다. 그래서 자금 사용처도 그로스 25%가 구독 전환에 꽂힌다. 동생 회사로의 매출 이전 우려는 정당해 두 법인 간 제휴/마진 분배 계약을 명문화해 키트 판매 시 AI 법인 귀속분을 고정하는 게 클로징 전 과제다. 다음 라운드 최소선은 유료 구독 수천 가구×4,900원으로 월 수천만 원 MRR과 churn을 페이백 안쪽으로 묶는 3개월 유지율이고, 증명할 건 'MRR 규모'가 아니라 '전환율·유지율 곡선'이다. 못 만들면 키트 채널은 살아있어 회사가 죽진 않지만 SW LTV 가설이 깨진 거라 밸류를 낮춰 재논의하거나 키트-부착 번들로 피벗한다 — 다운사이드를 먼저 말하는 게 맞다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>두 회사가 사실상 한 팀이라 매출은 자연스럽게 우리 쪽으로 정리되고, 베타 반응이 좋아 과금만 켜면 전환은 따라온다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>10억 목표 라인 분해(구독 GMV/키트 우리귀속 마진/건기식), 두 법인 간 제휴·마진분배·정산(이전가격) 계약 드래프트, 전환 마일스톤 목표치(가구수·MRR·3개월 유지율)와 분기 게이트, 다운사이드 시 피벗/밸류 재협상 시나리오</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>두 법인 간 매출/마진 귀속 계약이 문서로 미확정. 10억 중 AI 법인 순귀속 비율 미산정. 유료 전환·유지율 곡선이 한 번도 관측 안 돼 마일스톤이 추정치.</div>
+      </div>
+    </article>
+    <article class="qcard" style="border-left-color:#E0922B">
+      <div class="qtop">
+        <span class="sev" style="color:#E0922B">치명 ●●●●○</span>
+        <span class="lik">확률 ●●●●○</span>
+      </div>
+      <p class="q"><span class="qlab">공격</span>슬라이드 7·8이 '아이 1명당 월 900원'을 반복하는데 그건 LLM 작문 원가일 뿐, 매출 라인이 없다. 900원은 비용이지 수익이 아니다 — 이 회사가 한 아이로 버는 돈은 얼마이고 그 매출은 언제 발생하는가?</p>
+      <div class="punch"><span class="plab">한 줄 답</span>900원은 명백히 COGS이지 매출이 아니다 — 매출처럼 포장하지 않는다. 매출은 별도 레이어(구독 4,900원·키트 19,900원·건기식)이고 현재 0이다, 과금은 전환 증명 후 켠다.</div>
+      <p class="full">900원은 COGS다. 매출은 별도 레이어 — 앱 구독 4,900원/월(SW 마진 약 80%, 변동 LLM비 차감 후), 그 위에 개인화 키트 19,900원/주, 결핍 신호가 부르는 건기식이다. 900원이 의미하는 단 하나는, 매 판단마다 LLM을 부르지 않는 결정론 엔진 덕에 변동 COGS가 구독가의 약 18%로 묶여 구독이 켜지는 순간 단위경제가 1일차부터 흑자라는 점이다. 매출 시점은 정직하게 아직 0이고 과금 스위치는 전환 증명(이번 라운드 마일스톤) 이후다 — 지금 켜서 허수 MRR을 만드는 것보다 전환을 먼저 증명하는 게 맞다.</p>
+      <div class="subs">
+        <div class="sub weak"><span class="slab">⚠️ 피해야 할 약한 답</span>월 900원이면 거의 공짜로 돌아가니 마진이 95% 넘고 사실상 순이익이다.</div>
+        <div class="sub ev"><span class="slab">🔢 보여줄 증거</span>구독가 4,900원 대비 변동원가(LLM 작문 ~900원+인프라) 분해표, 결정론 엔진이 LLM 호출을 끼니당 1회로 제한한다는 코드 근거(buildCoachPlan·MOVE_MENU), 과금 활성화 로드맵·시점</div>
+        <div class="sub gap"><span class="slab">🚧 정직한 공백</span>4,900원 가격의 실제 결제 의사·구독 유지율(churn)·생애 18개월 가정이 전부 베팅. 한 명도 아직 4,900원을 실제로 내지 않음.</div>
+      </div>
+    </article>
+  </section>
+
+  <div class="secttl"><span class="bar"></span>✅ 프리클로징 CP 체크리스트 — 공격을 미리 무력화</div>
+  <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-bottom:12px">위 공백·약점은 대부분 ‘클로징 조건(CP)’과 ‘라운드 자금 용처’로 선제 해소 가능. 미팅 전에 이 목록을 진행해두면 절반은 질문 자체가 사라진다.</p>
+  <div class="clwrap">
+  <div class="clgroup">
+    <h3>법무·구조 (Closing Conditions)</h3>
+    <ul><li><span class="box"></span>앱 사용자 대상 키트 독점 공급·채널 접근 계약 (기간·해지·가격 명문화)</li><li><span class="box"></span>제3 OEM 2곳+ 비교견적 → OEM 단가 arm’s length 문서화</li><li><span class="box"></span>SHA: 일정액 이상 관계자거래 이사회·주주 사전동의 + 분기 보고</li><li><span class="box"></span>자동화 설비 자산 귀속 정리 (AI 법인 보유 / 지주·합병 옵션 / 안 되면 예산 재배분)</li><li><span class="box"></span>‘밀프레드’·mealfred.com 상표·도메인·앱스토어 계정 AI 법인 명의 이전 또는 영구 라이선스</li><li><span class="box"></span>개인회생 인가결정문·변제계획표·회생 변호사 의견서·관리인 비저촉 확인</li><li><span class="box"></span>창업자 reverse vesting 4년+1년 클리프 · 경업금지 · 핵심맨 보험 · IP 회사 양도</li></ul>
+  </div>
+  <div class="clgroup">
+    <h3>카피·제품 시정 (라운드 전)</h3>
+    <ul><li><span class="box"></span>대외 정본·앱: ‘진단/처방’ → ‘식습관 점검·스크리닝’ 전량 치환</li><li><span class="box"></span>ICD-10·DSM·PFD 문구 → ‘의료 의뢰용 참고’로 강등 + 면책 고지</li><li><span class="box"></span>‘결핍 진단’ → ‘식단 다양성·노출 빈도 신호’로 리포지셔닝</li><li><span class="box"></span>‘0-CAC’ → ‘저비용 유기 유입(증정 실비는 CAC로 계상)’</li><li><span class="box"></span>‘95% SW 마진’ → ‘약 80%(LLM 변동비 차감)’로 정정</li><li><span class="box"></span>의료광고 전문 변호사 검토 · 식약처 SaMD 해당 여부 사전질의</li><li><span class="box"></span>결제 동선에 법정대리인·연령 검증 게이트 + 의료배상책임보험</li></ul>
+  </div>
+  <div class="clgroup">
+    <h3>데이터·증명 (이번 라운드 자금으로 만들 것)</h3>
+    <ul><li><span class="box"></span>30–50가정 단일군 전후 아웃컴 (수용 식재료 종수·거부율) 코호트</li><li><span class="box"></span>키트 동봉 → 설치 → 유료 구독 전환 파일럿 (학급 1–2곳)</li><li><span class="box"></span>손익분기 전환율 역산 (1% / 2% / 3% 시나리오)</li><li><span class="box"></span>개인화 소분 박스 실측 마진·패킹 시간/건 (자동화 전후)</li><li><span class="box"></span>소아영양사·섭식 OT 임상 자문단 구성 + 룰셋 서면 감수</li><li><span class="box"></span>2번째 코칭/데이터 엔지니어 채용 (버스팩터 해소)</li></ul>
+  </div></div>
+</main>
+<footer>
+  밀프레드 편식 · 투자자 대응 보고서(내부) · 정본 사업소개서 = <a href="/pitch.html">pitch.html</a> · 문서 허브 = <a href="/docs.html">docs.html</a> · 2026-06-14
+</footer>
+</body>
+</html>

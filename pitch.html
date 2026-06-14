@@ -3,526 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>밀프레드 Pitch Deck — Series A</title>
+<title>밀프레드 편식 — 사업소개서 (AI 영유아 편식 헬스케어)</title>
+<meta property="og:title" content="밀프레드 편식 — 사업소개서 · 편식, 데이터로 다루다">
+<meta property="og:description" content="진단 → 코칭 → 충족, 하나의 루프로. 매핑·코칭·궁합 3대 엔진과 푸드체이닝 도감.">
 <script src="/docs-gate.js?v=4"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;color:#1a2b4a;line-height:1.5;-webkit-font-smoothing:antialiased;}
-.deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;}
-.slide{min-height:100vh;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center;padding:6vh 7vw;position:relative;border-bottom:1px solid rgba(0,0,0,0.04);}
-.slide .tag{font-size:12.5px;font-weight:800;letter-spacing:0.14em;color:#C45A00;text-transform:uppercase;margin-bottom:14px;}
-.slide h1{font-size:clamp(30px,5.4vw,60px);font-weight:800;letter-spacing:-0.02em;line-height:1.12;}
-.slide h2{font-size:clamp(23px,3.7vw,40px);font-weight:800;letter-spacing:-0.015em;line-height:1.2;margin-bottom:14px;}
-.slide h3{font-size:clamp(15px,1.7vw,18px);font-weight:800;color:#C45A00;margin:14px 0 6px;}
-.slide p{font-size:clamp(14.5px,1.7vw,19px);color:#3a4555;max-width:880px;}
-.slide .lead{font-size:clamp(16px,2vw,22px);color:#2a3545;margin:10px 0 4px;max-width:900px;}
-.slide .big{font-size:clamp(34px,6vw,68px);font-weight:800;color:#C45A00;letter-spacing:-0.02em;line-height:1;}
-.slide .num{position:absolute;bottom:24px;right:32px;font-size:12px;font-weight:800;color:#C9B8A8;}
-.slide ul{list-style:none;margin-top:10px;}
-.slide li{font-size:clamp(14.5px,1.85vw,20px);color:#2a3545;margin:9px 0;padding-left:26px;position:relative;max-width:880px;}
-.slide li::before{content:'';position:absolute;left:0;top:0.55em;width:10px;height:10px;border-radius:3px;background:#FF6B1A;}
-.slide li b{color:#1a2b4a;font-weight:800;}
-.muted{color:#8a7a6a;font-size:clamp(11px,1.2vw,13px);}
-.foot{font-size:clamp(11.5px,1.3vw,14px);color:#9a8a7a;margin-top:14px;font-style:italic;max-width:900px;}
-/* dark / alt */
-.dark{background:#16243f;color:#fff;}
-.dark h1,.dark h2,.dark h3{color:#fff;}.dark h3{color:#FFB877;}.dark p,.dark .lead{color:rgba(255,255,255,0.86);}.dark .tag{color:#FFB877;}
-.dark .big{color:#FFB877;}.dark li{color:rgba(255,255,255,0.9);}.dark li b{color:#fff;}.dark .muted,.dark .foot{color:rgba(255,255,255,0.5);}
-.alt{background:#FBF7F2;}
-.navy{background:#1a2b4a;color:#fff;}
-.navy h1,.navy h2,.navy h3{color:#fff;}.navy p,.navy .lead{color:rgba(255,255,255,0.86);}.navy .tag{color:#FFB877;}.navy li{color:rgba(255,255,255,0.9);}.navy li b{color:#fff;}.navy .big{color:#FFB877;}.navy .foot{color:rgba(255,255,255,0.5);}.navy h3{color:#FFB877;}
-/* stat strip */
-.kgrid{display:flex;gap:26px;flex-wrap:wrap;margin-top:20px;}
-.kgrid .k .v{font-size:clamp(28px,4.6vw,50px);font-weight:800;color:#C45A00;line-height:1;letter-spacing:-0.02em;}
-.dark .kgrid .k .v,.navy .kgrid .k .v{color:#FFB877;}
-.kgrid .k .l{font-size:13px;color:#8a7a6a;font-weight:700;margin-top:6px;max-width:210px;}
-.dark .kgrid .k .l,.navy .kgrid .k .l{color:rgba(255,255,255,0.6);}
-/* chips */
-.chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;}
-.chip{font-size:13px;font-weight:800;background:#FFF0E0;color:#C45A00;border:1.5px solid #FFD0A0;border-radius:100px;padding:7px 14px;}
-.dark .chip,.navy .chip{background:rgba(255,255,255,0.1);color:#FFD9B8;border-color:rgba(255,255,255,0.25);}
-.chip.g{background:#E7F6EC;color:#1B7A3D;border-color:#A9DCBC;}
-.chip.gray{background:#F1EEEA;color:#8a7a6a;border-color:#DAD2C8;}
-/* flywheel */
-.fly{margin-top:14px;}
-.flyrow{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1.5px solid #E8DFD4;border-left:5px solid #FF6B1A;border-radius:13px;padding:13px 17px;margin:8px 0;}
-.flyrow .n{font-size:23px;font-weight:800;color:#FF6B1A;min-width:30px;line-height:1.1;}
-.flyrow .t b{font-size:16px;color:#1a2b4a;}
-.flyrow .t span{font-size:13px;color:#6a7585;display:block;margin-top:2px;}
-.flyrow .rebut{margin-left:auto;font-size:11.5px;font-weight:800;color:#1B7A3D;background:#E7F6EC;border-radius:100px;padding:4px 11px;align-self:center;white-space:nowrap;}
-/* funnel */
-.funnel{display:flex;gap:0;align-items:stretch;margin:16px 0;flex-wrap:wrap;}
-.fstep{flex:1;min-width:150px;background:#fff;border:1.5px solid #E8DFD4;border-radius:12px;padding:14px;margin-right:26px;position:relative;}
-.fstep:last-child{margin-right:0;}
-.fstep::after{content:'→';position:absolute;right:-21px;top:50%;transform:translateY(-50%);color:#C9B8A8;font-size:22px;font-weight:800;}
-.fstep:last-child::after{content:'';}
-.fstep .s{font-size:11px;font-weight:800;color:#C45A00;letter-spacing:0.06em;}
-.fstep .m{font-size:17px;font-weight:800;color:#1a2b4a;margin:5px 0 3px;}
-.fstep .d{font-size:12px;color:#6a7585;}
-.fstep.free{border-color:#1B7A3D;border-width:2px;background:#F2FBF5;}
-.fstep.free .s{color:#1B7A3D;}
-/* engine zones */
-.zones{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin:16px 0;}
-@media(max-width:760px){.zones{grid-template-columns:1fr;}}
-.zone{border-radius:13px;padding:15px 17px;}
-.zone.det{background:#F2FBF5;border:2px solid #1B7A3D;}
-.zone.llm{background:#FFF6EC;border:2px solid #E0922B;}
-.zone .zt{font-size:14px;font-weight:800;margin-bottom:8px;}
-.zone.det .zt{color:#1B7A3D;}.zone.llm .zt{color:#C45A00;}
-.zone .zi{font-size:13px;color:#3a4555;margin:5px 0;padding-left:18px;position:relative;}
-.zone .zi::before{content:'•';position:absolute;left:4px;color:#C9B8A8;}
-/* asset tiles */
-.assets{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:10px;margin:16px 0;}
-.atile{background:#fff;border:1.5px solid #E8DFD4;border-radius:12px;padding:13px;text-align:center;}
-.atile .v{font-size:clamp(20px,3vw,28px);font-weight:800;color:#1a2b4a;line-height:1;}
-.atile .l{font-size:11.5px;color:#8a7a6a;font-weight:700;margin-top:5px;}
-.dark .atile,.navy .atile{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.16);}
-.dark .atile .v,.navy .atile .v{color:#FFD9B8;}.dark .atile .l,.navy .atile .l{color:rgba(255,255,255,0.6);}
-/* matrix */
-.mtx{width:100%;border-collapse:collapse;margin:14px 0;font-size:clamp(11px,1.4vw,14px);}
-.mtx th{background:#1a2b4a;color:#fff;padding:8px 6px;font-weight:700;text-align:center;}
-.mtx th:first-child{text-align:left;}
-.mtx td{padding:8px 6px;border:1px solid #EFE7DC;text-align:center;color:#3a4555;}
-.mtx td:first-child{text-align:left;font-weight:700;color:#1a2b4a;}
-.mtx .me{background:#FFF4E8;}
-.mtx .yes{color:#1B7A3D;font-weight:800;}.mtx .no{color:#cdb8a8;}
-/* bars */
-.bars{margin:14px 0;max-width:760px;}
-.brow{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:13px;}
-.brow .k{width:96px;font-weight:700;color:#5a6575;text-align:right;flex-shrink:0;}
-.dark .brow .k,.navy .brow .k{color:rgba(255,255,255,0.7);}
-.brow .track{flex:1;background:#F2EAE0;border-radius:6px;height:21px;overflow:hidden;}
-.dark .brow .track,.navy .brow .track{background:rgba(255,255,255,0.12);}
-.brow .fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(90deg,#FF8A47,#C45A00);white-space:nowrap;}
-.brow .fill.green{background:linear-gradient(90deg,#34B36B,#1B7A3D);}
-/* two col */
-.two{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px;}
-@media(max-width:680px){.two{grid-template-columns:1fr;}.funnel{flex-direction:column;}.fstep{margin-right:0;margin-bottom:24px;}.fstep::after{content:'↓';right:50%;top:auto;bottom:-22px;transform:translateX(50%);}.ladder{height:auto;flex-direction:column;}.lstep .lbar{height:auto!important;padding:8px;}}
-.two .col{background:#fff;border:1.5px solid #E8DFD4;border-radius:13px;padding:15px 17px;}
-.two .col.ok{border-color:#1B7A3D;background:#F4FBF6;}
-.two .col.bet{border-color:#E0922B;background:#FFF8EE;}
-.two .col .h{font-size:15px;font-weight:800;margin-bottom:8px;}
-.two .col.ok .h{color:#1B7A3D;}.two .col.bet .h{color:#C45A00;}
-.two .col .i{font-size:13.5px;color:#3a4555;margin:6px 0;padding-left:18px;position:relative;}
-.two .col .i::before{content:'';position:absolute;left:0;top:0.5em;width:8px;height:8px;border-radius:2px;}
-.two .col.ok .i::before{background:#1B7A3D;}.two .col.bet .i::before{background:#E0922B;}
-/* label pills */
-.actual{font-size:10.5px;font-weight:800;color:#1B7A3D;background:#E7F6EC;border-radius:5px;padding:1px 7px;margin-left:6px;}
-.model{font-size:10.5px;font-weight:800;color:#8a7a6a;background:#F1EEEA;border-radius:5px;padding:1px 7px;margin-left:6px;}
-/* ladder */
-.ladder{display:flex;gap:12px;align-items:flex-end;margin:16px 0;height:190px;}
-.lstep{flex:1;display:flex;flex-direction:column;justify-content:flex-end;text-align:center;}
-.lstep .lbar{background:linear-gradient(180deg,#FFB877,#C45A00);border-radius:8px 8px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;color:#fff;font-weight:800;font-size:15px;}
-.lstep.first .lbar{background:linear-gradient(180deg,#34B36B,#1B7A3D);}
-.lstep .ll{font-size:11.5px;color:#6a7585;margin-top:7px;font-weight:700;}
-/* rings market */
-.rings{display:flex;gap:18px;flex-wrap:wrap;margin:16px 0;}
-.ring{flex:1;min-width:180px;border-radius:14px;padding:16px;text-align:center;}
-.ring.som{background:#FFF0E0;border:2px solid #FF8A47;}
-.ring.sam{background:#FBF3E8;border:1.5px solid #E0C9A8;}
-.ring.tam{background:#F4F0EA;border:1.5px solid #D8CDBE;}
-.ring .rl{font-size:12px;font-weight:800;color:#8a7a6a;}
-.ring .rv{font-size:clamp(22px,3.2vw,32px);font-weight:800;color:#1a2b4a;margin:4px 0;}
-.ring .rd{font-size:11.5px;color:#6a7585;}
-/* donut use of funds */
-.uf{display:flex;gap:22px;flex-wrap:wrap;align-items:center;margin-top:14px;}
-.donut{width:150px;height:150px;border-radius:50%;flex-shrink:0;background:conic-gradient(#C45A00 0 40%,#FF8A47 40% 65%,#F0A35A 65% 90%,rgba(255,255,255,0.25) 90% 100%);}
-.uflegend .uli{font-size:13.5px;margin:5px 0;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.9);}
-.uflegend .dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
-/* roadmap */
-.road{display:flex;gap:0;margin:18px 0 4px;flex-wrap:wrap;}
-.rstep{flex:1;min-width:140px;padding:0 14px;position:relative;}
-.rstep::before{content:'';position:absolute;left:0;top:6px;width:100%;height:3px;background:rgba(255,255,255,0.18);z-index:0;}
-.rstep .dot2{width:14px;height:14px;border-radius:50%;background:#FFB877;position:relative;z-index:1;}
-.rstep .rt{font-size:13.5px;font-weight:800;color:#fff;margin-top:10px;}
-.rstep .rd2{font-size:12px;color:rgba(255,255,255,0.6);margin-top:3px;}
-.scrollhint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);font-size:12px;color:#C9B8A8;font-weight:700;animation:bob 1.6s infinite;z-index:10;}
-@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(5px);}}
-@media print{.deck{height:auto;overflow:visible;}.slide{min-height:auto;page-break-after:always;border:none;padding:38px 46px;}.scrollhint,.topbtn{display:none;}@page{size:A4 landscape;margin:0;}}
-.topbtn{position:fixed;top:14px;z-index:20;font-weight:800;font-size:12px;padding:8px 14px;border-radius:100px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,0.14);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color:#1a2b4a;background:#10192b;-webkit-font-smoothing:antialiased}
+.deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;background:linear-gradient(180deg,#16243f 0%,#1a2b4a 100%)}
+.deck::-webkit-scrollbar{width:0}
+.slide{min-height:100vh;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;padding:clamp(14px,3.2vh,42px) clamp(14px,3vw,48px);position:relative}
+.slide .frame{width:100%;max-width:1180px;aspect-ratio:16/9;border-radius:clamp(8px,1vw,16px);overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,0.45),0 2px 0 rgba(255,255,255,0.04);background:#fff}
+.slide img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
+.num{position:absolute;bottom:clamp(10px,2vh,22px);right:clamp(14px,3vw,40px);font-size:12px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:0.04em}
+/* top bar */
+.bar{position:fixed;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:30;pointer-events:none}
+.bar a,.bar .pill{pointer-events:auto;text-decoration:none;font-weight:800;font-size:12.5px;padding:8px 14px;border-radius:100px;display:inline-flex;align-items:center;gap:6px;transition:all .15s;backdrop-filter:blur(8px)}
+.bar .home{background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.18)}
+.bar .home:hover{background:rgba(255,255,255,0.22)}
+.bar .pdf{background:#FFB877;color:#1a2b4a}
+.bar .pdf:hover{background:#ffc999}
+/* progress */
+.prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#FF8A47,#FFB877);width:0;z-index:31;transition:width .2s}
+.counter{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:30;background:rgba(0,0,0,0.32);color:rgba(255,255,255,0.85);font-size:12px;font-weight:800;padding:6px 14px;border-radius:100px;backdrop-filter:blur(8px);letter-spacing:0.03em}
+.counter b{color:#FFD9B8}
+/* nav arrows */
+.nav{position:fixed;right:18px;bottom:54px;z-index:30;display:flex;flex-direction:column;gap:8px}
+.nav button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.12);color:#fff;font-size:16px;font-weight:700;cursor:pointer;backdrop-filter:blur(8px);transition:all .15s;display:flex;align-items:center;justify-content:center}
+.nav button:hover{background:rgba(255,255,255,0.25)}
+.nav button:disabled{opacity:0.3;cursor:default}
+@media(max-width:680px){.nav{display:none}.bar a,.bar .pill{font-size:11.5px;padding:7px 11px}}
+@media print{.bar,.prog,.counter,.nav{display:none}.deck{height:auto;overflow:visible}.slide{min-height:auto;page-break-after:always;padding:0}.slide .frame{box-shadow:none;border-radius:0;max-width:100%}@page{size:A4 landscape;margin:0}}
 </style>
 </head>
 <body>
-<a href="/pitch.pdf" download class="topbtn" style="right:16px;background:#FFB877;color:#1a2b4a;">📄 PDF</a>
-<a href="/ir.html" class="topbtn" style="left:16px;background:rgba(255,255,255,0.9);color:#1a2b4a;">상세 IR →</a>
-<div class="deck">
 
-<!-- 01 COVER -->
-<section class="slide dark">
-  <div class="tag">SERIES A · 2026 · 가속 라운드</div>
-  <h1>끼니 한 줄로 시작하는<br><span style="color:#FFB877;">한국 아동영양 AI 헬스케어</span></h1>
-  <p class="lead" style="margin-top:18px;">아이 끼니를 한 줄 기록하면 AI가 매일 <b style="color:#fff;">무엇을·어떻게</b> 먹일지 처방한다. 분석(앱)과 충족(개인화 키트)이 한 몸인 유일한 풀스택.</p>
-  <div class="chips"><span class="chip">✅ 이미 흑자</span><span class="chip">⚙️ 학습엔진 라이브</span><span class="chip">🚀 가속 라운드(생존 아님)</span></div>
-  <div class="kgrid">
-    <div class="k"><div class="v">3.2억</div><div class="l">25년 매출 · +250% YoY · 흑자</div></div>
-    <div class="k"><div class="v">839개교</div><div class="l">누적 거래 기관 · 2,879주문 · 2.6만+ 세트</div></div>
-    <div class="k"><div class="v">9,988</div><div class="l">학습 메뉴 코퍼스 · 엔진 라이브</div></div>
-  </div>
-  <p style="margin-top:20px;font-size:14px;color:rgba(255,255,255,0.6);">조달 ~7억(가속 라운드) · app.mealfred.com · 임재희 010-4527-9272</p>
-  <div class="num">01</div>
-</section>
-
-<!-- 02 PROBLEM -->
-<section class="slide">
-  <div class="tag">Problem</div>
-  <h2>"우리 애는 흰밥만 먹어요"<br>매일, 감정적이고, 카테고리 주인이 없다</h2>
-  <p class="lead">3~5세 극심한 편식 — 매 끼니가 전쟁인 워킹맘. 죄책감·식사전쟁·영양불안이 <b>끼니마다 반복</b>되는 데일리 페인.</p>
-  <ul>
-    <li>영유아 <b>25~46%(4명 중 1명)</b>가 같은 처지 — 한 사람의 고통이 곧 거대한 인구</li>
-    <li>현재 해결책은 전부 파편적·추측 기반: 맘카페 검색 · 소아과 5분 상담 · 정답 없는 추측</li>
-    <li><b>'오늘 무엇을 어떻게 먹일까'</b>에 답하는 개인화 서비스가 부재 — 흔한데 카테고리 주인이 없는 빈 시장</li>
-  </ul>
-  <p class="foot">매일·감정적·보편적 페인 = 매일 쓰는 앱(리텐션)과 높은 지불의향의 정서적 토대.</p>
-  <div class="num">02</div>
-</section>
-
-<!-- 03 WHY NOBODY -->
-<section class="slide alt">
-  <div class="tag">Why It's Open</div>
-  <h2>왜 아무도 못 풀었나 — 풀려면 SW+데이터+물리를 동시에 가져야 했다</h2>
-  <div class="funnel" style="margin-top:8px;">
-    <div class="fstep"><div class="s">밀키트·이유식</div><div class="m">음식만 배송</div><div class="d">행동·영양 처방 없음</div></div>
-    <div class="fstep"><div class="s">영양제</div><div class="m">결핍을 추측</div><div class="d">아이 끼니 데이터 없음</div></div>
-    <div class="fstep"><div class="s">육아앱·커뮤니티</div><div class="m">정보만</div><div class="d">물리 충족 없음</div></div>
-    <div class="fstep free"><div class="s">밀프레드</div><div class="m">데이터→처방→충족</div><div class="d">한 몸으로 = 빈 칸</div></div>
-  </div>
-  <ul>
-    <li>누구도 <b>'아이 끼니 데이터 → 개인화 편식 처방 → 물리 충족'</b>을 한 몸으로 안 한다</li>
-    <li>왜? = 소프트(엔진)+데이터(코퍼스)+물리(생산·물류)를 <b>동시에</b> 가진 팀이 없었다</li>
-    <li>거시 순풍 — <b>저출생 역설</b>: 머릿수↓이지만 1인당 지출 폭증(텐포켓·골드키즈) → ARPU·LTV↑</li>
-  </ul>
-  <p class="foot">진입 장벽(SW+데이터+물리 동시 필요)이 곧 우리 기회 — 그 장벽을 넘은 유일한 팀.</p>
-  <div class="num">03</div>
-</section>
-
-<!-- 04 SOLUTION -->
-<section class="slide">
-  <div class="tag">Solution</div>
-  <h2>분석(앱)과 충족(개인화 키트)이 한 몸 — 끼니 한 줄이 곧 무료 라벨</h2>
-  <div class="funnel" style="margin-top:8px;">
-    <div class="fstep free"><div class="s">입력</div><div class="m">끼니 한 줄</div><div class="d">메뉴→식재료 자동 분해(라벨)</div></div>
-    <div class="fstep"><div class="s">분석</div><div class="m">영양 신호등</div><div class="d">KDRI 31종 결핍·거부·성장</div></div>
-    <div class="fstep"><div class="s">처방(SW)</div><div class="m">코칭 편지</div><div class="d">13 시나리오 · 정서 락인</div></div>
-    <div class="fstep"><div class="s">충족(물리)</div><div class="m">골고루 키트</div><div class="d">그 주 만날 식재료 극소량 배송</div></div>
-  </div>
-  <ul>
-    <li>골고루 키트 = '식재료 배송'이 아니라 <b>그 아이 데이터로 매주 무엇을 담을지 AI가 결정</b>하는 제품</li>
-    <li>박스만 베껴도 그 아이 데이터 없으면 개인화 불가 — 강요 없이 <b>과학으로</b> 편식 교정(반복노출 8~15회)</li>
-  </ul>
-  <p class="foot">SW 마진 95% + 검증된 물리 매출이 한 데이터 루프에 묶여, 한 고객에서 반복 매출 3종(구독·키트·건기식). 커머스가 아니라 컴파운딩 플랫폼.</p>
-  <div class="num">04</div>
-</section>
-
-<!-- 05 REFRAME -->
-<section class="slide navy">
-  <div class="tag">The Reframe — 덱의 척추</div>
-  <h2>키트는 사업이 아니라 쐐기(wedge)다 — 왜 100명이 거절했나</h2>
-  <p class="lead">판매가 두 배 늘어도 요리키트 단독은 VC 눈에 '좋은 가게, 패스' 신호. 그래서 우리가 먼저 말한다.</p>
-  <div class="chips" style="margin:14px 0;">
-    <span class="chip">시장 작다 28%</span><span class="chip">recurring 없다 24%</span><span class="chip">해자 부족 18%</span><span class="chip">B2G 비확장 12%</span><span class="chip">저마진 10%</span>
-  </div>
-  <div class="fly">
-    <div class="flyrow"><div class="n">1</div><div class="t"><b>물리 쐐기 — 키트(현매출·흑자)</b><span>데이터·관계·습관을 선점하는 가장 싼 입구</span></div></div>
-    <div class="flyrow"><div class="n">2</div><div class="t"><b>앱 구독 (recurring)</b><span>0-CAC 무료증정으로 키트 고객을 구독자로</span></div><div class="rebut">↳ 'recurring 없다' 반박</div></div>
-    <div class="flyrow"><div class="n">3</div><div class="t"><b>AI 학습엔진 (데이터 해자·라이브)</b><span>끼니가 쌓일수록 격차가 벌어짐</span></div><div class="rebut">↳ '해자 부족' 반박</div></div>
-    <div class="flyrow"><div class="n">4</div><div class="t"><b>개인화 식품 (고ARPU·피지컬 락인)</b><span>SW 해자가 물리 마진으로 환류</span></div><div class="rebut">↳ '저마진' 반박</div></div>
-    <div class="flyrow"><div class="n">5</div><div class="t"><b>건기식·헬스케어 (엔드게임 lock-in)</b><span>편식 송곳 → 육아맘 우산 → 글로벌</span></div><div class="rebut">↳ '시장 작다' 반박</div></div>
-  </div>
-  <p class="foot">이 라운드는 ①→② 전환(키트 고객 → 구독)을 증명하는 라운드. 이후 모든 슬라이드를 '플라이휠 어느 층의 증명'으로 읽으세요.</p>
-  <div class="num">05</div>
-</section>
-
-<!-- 06 WHY NOW -->
-<section class="slide">
-  <div class="tag">Why Now</div>
-  <h2>LLM이 끼니 한 줄을 '무료 라벨'로 바꾼 첫 시점 — 모델이 아니라 과학에 베팅</h2>
-  <ul>
-    <li><b>기술 변곡</b>: 자유텍스트 급식 메뉴 분해·개인화 코칭·영양 추론이 LLM으로 처음으로 저비용 작동</li>
-    <li><b>비용 변곡</b>: 비결정성을 전처리에만 격리하고 결과를 learned 사전으로 흡수 → LLM 호출 0으로 수렴. 자녀당 코칭 AI 비용 <b>≈ 일 ₩17</b></li>
-    <li><b>핵심</b>: 모델은 commodity(코드 한 줄로 교체) — 해자는 반복노출 8~15회·만2~6세 골든타임·KDRI/WHO 같은 <b>'GPT가 100배 빨라져도 안 바뀌는' 불변 과학</b> + 그 위 한국 아동 식단 데이터</li>
-    <li><b>공급 변곡</b>: 정부 공개데이터(NEIS 급식·레시피 DB) 개방으로 콜드스타트 코퍼스를 선제 구축</li>
-  </ul>
-  <p class="foot">2년 전이면 LLM 비용·정확도로 불가능, 2년 후면 데이터 선점자가 격차를 벌린 뒤. 모델 리스크에 베팅하지 않는다.</p>
-  <div class="num">06</div>
-</section>
-
-<!-- 07 TECH 1 -->
-<section class="slide alt">
-  <div class="tag">기술 해자 ① / ④ · 매핑 엔진</div>
-  <h2>4단 하이브리드 매핑 — 결정론으로 메우고 LLM은 마지막 수단</h2>
-  <div class="funnel" style="margin-top:8px;">
-    <div class="fstep free"><div class="s">0차 · 무료</div><div class="m">learned 사전</div><div class="d">한 번 배운 메뉴 영구 무료</div></div>
-    <div class="fstep free"><div class="s">1차 · 무료</div><div class="m">rule</div><div class="d">가공식품 베이스 사전</div></div>
-    <div class="fstep free"><div class="s">2차 · 무료</div><div class="m">결정론 스캔</div><div class="d">표준 어휘 화이트리스트</div></div>
-    <div class="fstep" style="border-color:#E0922B;background:#FFF6EC;"><div class="s" style="color:#C45A00;">3차 · 유료</div><div class="m">LLM 폴백</div><div class="d">마지막 수단 · 환각 차단</div></div>
-  </div>
-  <div class="bars">
-    <div class="brow"><div class="k">결정론 해소율</div><div class="track"><div class="fill green" style="width:90%;">53% → 75% → 90%</div></div></div>
-    <div class="brow"><div class="k">LLM 호출율</div><div class="track"><div class="fill" style="width:20%;">47% → &lt;20%</div></div></div>
-  </div>
-  <ul>
-    <li><b>환각 3중 방어</b>: '모르면 빈 배열' + 표준 어휘 통과분만 채택 + 저신뢰 1회성은 사전 저장 보류(오염 차단). 실제 '상투과자→소고기' 환각 잡은 incident 보유</li>
-    <li><b>플라이휠</b>: 1~3차에서 푼 결과를 사전에 저장 → 다음부터 0차 무료. 끼니가 쌓일수록 한계비용↓ (코퍼스 9,988)</li>
-  </ul>
-  <p class="foot">'래퍼는 매 호출이 비용이지만, 우리는 라벨할수록 무료가 된다' — 비용 디펜스이자 네트워크 효과의 엔진.</p>
-  <div class="num">07</div>
-</section>
-
-<!-- 08 TECH 2 -->
-<section class="slide">
-  <div class="tag">기술 해자 ② / ④ · 컴파운딩 데이터 엔진</div>
-  <h2>끼니가 쌓일수록 LLM 비용은 0으로, 격차는 기하급수로</h2>
-  <p class="lead">끼니 기록 → 매핑(라벨) → 코퍼스·그래프 성장 → 개인화 정교화 → 리텐션 → 더 많은 끼니 (자기강화 루프)</p>
-  <div class="assets">
-    <div class="atile"><div class="v">9,988</div><div class="l">learned 메뉴</div></div>
-    <div class="atile"><div class="v">589</div><div class="l">궁합 페어(푸드그래프)</div></div>
-    <div class="atile"><div class="v">2,582</div><div class="l">키트 매트릭스 셀</div></div>
-    <div class="atile"><div class="v">4,727</div><div class="l">정부 레시피 DB</div></div>
-    <div class="atile"><div class="v">204</div><div class="l">식재료 도감</div></div>
-    <div class="atile"><div class="v">31</div><div class="l">KDRI 영양 신호등</div></div>
-  </div>
-  <ul>
-    <li><b>푸드 그래프</b>: 정부·급식 4,727 레시피 동시출현 분석 → 궁합·사촌 589 페어 — 푸드브릿지가 지어내기가 아니라 <b>증거 기반</b></li>
-    <li><b>영양 신호등</b>: 그램 미계량 한계를 '끼니별 30%+ RNI 기여 시 등장' 빈도로 우회 + 철·비타민C 동시섭취 흡수 ×3 계수 — 건기식 개인화 퍼널 엔진</li>
-    <li>경쟁자는 UI는 베껴도 <b>라벨된 한국 아동 식단 코퍼스 + 거부→수용 outcome</b>은 시간×사용자수로만 쌓인다</li>
-  </ul>
-  <p class="foot">정직 라벨: 콜드스타트 자산은 공개데이터로 선제 구축(now) / 진짜 사용량 컴파운딩(outcome)은 앞으로 시작.</p>
-  <div class="num">08</div>
-</section>
-
-<!-- 09 TECH 3 -->
-<section class="slide alt">
-  <div class="tag">기술 해자 ③ / ④ · 결정론 + LLM 격리</div>
-  <h2>영양·궁합·도감·간식은 LLM 0 — 감사 가능하고 비용이 예측 가능한 AI 헬스케어</h2>
-  <div class="zones">
-    <div class="zone det">
-      <div class="zt">🟢 결정론 존 (LLM 0 · 재현·감사 가능)</div>
-      <div class="zi">간식 평가 엔진</div><div class="zi">궁합·푸드브릿지</div><div class="zi">식재료 도감</div><div class="zi">영양 신호등(빈도·체내저장·결핍위험 3축)</div>
-    </div>
-    <div class="zone llm">
-      <div class="zt">🟠 LLM 격리 존 (전처리만)</div>
-      <div class="zi">끼니 파싱(Haiku→Sonnet 폴백)</div><div class="zi">zod 100% 검증 · injection 방어</div><div class="zi">코칭 편지·질문 생성</div>
-    </div>
-  </div>
-  <div class="bars">
-    <div class="brow"><div class="k">자녀당 LLM 원가</div><div class="track"><div class="fill" style="width:10%;">월 ₩510 (구독가의 ~10%)</div></div></div>
-  </div>
-  <p class="foot">비결정성을 입력 전처리에만 격리 = 평가의 재현성·감사 가능성 보장(규제/신뢰 리스크↓). 손익분기 활성 ~500명, 캐시·Batch 레버는 ~600명부터(조기최적화 회피). 마진 95% 주장이 숫자로 받쳐진다.</p>
-  <div class="num">09</div>
-</section>
-
-<!-- 10 TECH 4 -->
-<section class="slide">
-  <div class="tag">기술 해자 ④ / ④ · 코칭 엔진</div>
-  <h2>35개 편식과학을 13시나리오로 통합 — 그리고 스스로 나아진다</h2>
-  <ul>
-    <li><b>13 시나리오</b> = 데이터 트리거 × 근거 이론 × 코칭 무브 × 금기. SOS·Satter DOR·Food Chaining·HabEat·ICFQ·단순노출 등 <b>35개 국제 편식 이론을 한 엔진으로</b> 통합 — 논문엔 흩어져 있어도 제품으로 묶은 곳은 우리뿐</li>
-    <li><b>비중복 2층 결정론 가드</b>: ①날짜+자녀 시드로 7개 무브 중 매일 1개 강제 회전 ②letterSimilarity(3-gram 자카드) 전체≥0.45·도입≥0.40이면 최대 2회 재생성</li>
-    <li><b>재귀 자기개선</b>: 39통 생성 → LLM 위원회 4심 채점 → 최상위 결함 정조준 수정 → 재생성</li>
-  </ul>
-  <div class="bars">
-    <div class="brow"><div class="k">코칭 품질</div><div class="track"><div class="fill green" style="width:81%;">v0 5.0 → v6 8.1</div></div></div>
-    <div class="brow"><div class="k">동일 도입 중복</div><div class="track"><div class="fill green" style="width:6%;">32/39 → 0/39 박멸</div></div></div>
-  </div>
-  <p class="foot">엔진이 스스로 나아진다 = 라운드가 갈수록 격차가 벌어지는 구조. 정직 한계: 위원회 채점은 프록시(Goodhart) — 다음 단계로 프로덕션 행동신호(letter→behavior) 3층 루프를 로드맵에 명시. CTO가 직접 라이브로 돌린 게 실행 리스크↓.</p>
-  <div class="num">10</div>
-</section>
-
-<!-- 11 DATASET + LOCKIN -->
-<section class="slide navy">
-  <div class="tag">데이터셋 자산 + 피지컬 락인</div>
-  <h2>영어권 도구로는 못 만드는 '한국 아이가 실제 먹는 것'</h2>
-  <p class="lead">데이터 해자 → 물리 제품의 해자(피지컬 AI lock-in). SW 해자가 물리 마진으로 환류하고, 물리 제품이 다시 데이터를 만든다.</p>
-  <div class="funnel" style="margin-top:6px;">
-    <div class="fstep" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);"><div class="s" style="color:#FFD9B8;">데이터</div><div class="m" style="color:#fff;">끼니 이력</div><div class="d" style="color:rgba(255,255,255,0.6);">거부·영양·전환</div></div>
-    <div class="fstep" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);"><div class="s" style="color:#FFD9B8;">엔진</div><div class="m" style="color:#fff;">매핑·그래프</div><div class="d" style="color:rgba(255,255,255,0.6);">이번 주 배합 결정</div></div>
-    <div class="fstep free"><div class="s">물리</div><div class="m">개인화 키트</div><div class="d">아이가 먹음</div></div>
-    <div class="fstep" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);"><div class="s" style="color:#FFD9B8;">환류</div><div class="m" style="color:#fff;">새 데이터</div><div class="d" style="color:rgba(255,255,255,0.6);">루프 반복</div></div>
-  </div>
-  <p class="foot">경쟁자가 박스만 베껴도 끼니·거부·영양 이력 없으면 개인화 불가. 앱만/박스만 파는 경쟁자 둘 다 못 들어오는 결합 해자. (콜드스타트=공개데이터로 선제 구축 / 진짜 컴파운딩=사용량으로 시작)</p>
-  <div class="num">11</div>
-</section>
-
-<!-- 12 COMPETITION -->
-<section class="slide">
-  <div class="tag">Competition</div>
-  <h2>7개 역량을 모두 가진 풀스택은 밀프레드뿐</h2>
-  <table class="mtx">
-    <tr><th>역량</th><th>밀키트<br>(컬리·쿠팡)</th><th>유아식배송<br>(엘빈즈)</th><th>육아앱<br>(그로잉맘)</th><th>성인식이앱<br>(눔)</th><th class="me">밀프레드</th></tr>
-    <tr><td>아이별 개인화 데이터</td><td class="no">✕</td><td class="no">✕</td><td class="no">△</td><td class="no">✕</td><td class="me yes">✓</td></tr>
-    <tr><td>이론기반 편식 코칭</td><td class="no">✕</td><td class="no">✕</td><td class="no">△</td><td class="no">✕</td><td class="me yes">✓</td></tr>
-    <tr><td>AI 학습엔진·데이터 해자</td><td class="no">✕</td><td class="no">✕</td><td class="no">✕</td><td class="no">△</td><td class="me yes">✓</td></tr>
-    <tr><td>개인화 식품 배송(피지컬)</td><td class="no">△</td><td class="no">△</td><td class="no">✕</td><td class="no">✕</td><td class="me yes">✓</td></tr>
-    <tr><td>매일 쓰는 앱</td><td class="no">✕</td><td class="no">✕</td><td class="yes">✓</td><td class="yes">✓</td><td class="me yes">✓</td></tr>
-    <tr><td>생산능력·물류</td><td class="yes">✓</td><td class="no">△</td><td class="no">✕</td><td class="no">✕</td><td class="me yes">✓</td></tr>
-    <tr><td>헬스케어 확장</td><td class="no">✕</td><td class="no">✕</td><td class="no">△</td><td class="no">△</td><td class="me yes">✓</td></tr>
-  </table>
-  <p class="foot">자본 많은 컬리도 엔진이 없고, 앱 경쟁자도 공장이 없다. 한 축은 베껴도 7축 동시는 시간이 든다 — 복제 비용 = 한 축이 아니라 전 축.</p>
-  <div class="num">12</div>
-</section>
-
-<!-- 13 TRACTION -->
-<section class="slide alt">
-  <div class="tag">Traction · 전 지표 키트(물리) 실측</div>
-  <h2>증명된 것은 물리 — 이미 흑자, 이미 두 배 성장 <span class="actual">ACTUAL</span></h2>
-  <div class="kgrid" style="margin:10px 0 4px;">
-    <div class="k"><div class="v">+250%</div><div class="l">25년 매출 YoY (0.9억→3.2억)</div></div>
-    <div class="k"><div class="v">37.4%</div><div class="l">재구매율(보정 ~50%) · 일회성 아님</div></div>
-    <div class="k"><div class="v">2,100만</div><div class="l">24년 순이익 · 흑자</div></div>
-    <div class="k"><div class="v">18회</div><div class="l">최상위 기관 재주문(다정초)</div></div>
-  </div>
-  <h3>고빈도·저연령 채널 폭발 (26년 1~5월 YoY)</h3>
-  <div class="bars">
-    <div class="brow"><div class="k">지역아동센터</div><div class="track"><div class="fill green" style="width:100%;">+467%</div></div></div>
-    <div class="brow"><div class="k">유치원</div><div class="track"><div class="fill green" style="width:55%;">+218%</div></div></div>
-    <div class="brow"><div class="k">어린이집</div><div class="track"><div class="fill green" style="width:42%;">+160%</div></div></div>
-    <div class="brow"><div class="k">중학교</div><div class="track"><div class="fill green" style="width:34%;">+127%</div></div></div>
-    <div class="brow"><div class="k">초등학교</div><div class="track"><div class="fill" style="width:22%;">+66%</div></div></div>
-  </div>
-  <p class="foot">26년 1~5월 누적 8,456만원·4,228세트·전체 +139% YoY · 샘플 출고 57→322세트(+465%) · 직거래 34%로 플랫폼 의존 축소. '학기 1회 → 월정기'로 빈도가 전환되는 중. 이 캐시플로가 앱 베팅의 런웨이를 자체 조달한다.</p>
-  <div class="num">13</div>
-</section>
-
-<!-- 14 GTM / CAC ENGINE (founder strategy) -->
-<section class="slide navy">
-  <div class="tag">GTM · CAC 엔진 — 이번 라운드의 척추</div>
-  <h2>교육 키트 고객군이 곧 0-CAC 앱 유통망 — 무료증정 앱설치</h2>
-  <p class="lead">경쟁자가 광고로 사야 할 학부모를, 우리는 <b style="color:#fff;">매출을 내며</b> 만난다. 행사 1건 = 교사 1 × <b style="color:#fff;">학급 학부모 ~25명</b>(= 앱 타깃).</p>
-  <div class="funnel" style="margin-top:6px;">
-    <div class="fstep" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);"><div class="s" style="color:#FFD9B8;">접점(검증됨)</div><div class="m" style="color:#fff;">839개교·2,111기관</div><div class="d" style="color:rgba(255,255,255,0.6);">신뢰로 이미 진입</div></div>
-    <div class="fstep free"><div class="s">무료증정(메커니즘)</div><div class="m">키트 속 앱 기프트</div><div class="d">QR/카드 → CAC ≈ 0 설치</div></div>
-    <div class="fstep" style="background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);"><div class="s" style="color:#FFD9B8;">전환(베팅)</div><div class="m" style="color:#fff;">구독 + 개인화 키트</div><div class="d" style="color:rgba(255,255,255,0.6);">코칭 락인 → recurring</div></div>
-  </div>
-  <ul>
-    <li>누적 <b>~2만+ 학부모 접점</b>, 매년 <b>2.5× 성장</b> = 깔때기가 스스로 커진다</li>
-    <li>그로스 보강: 친구가입 <b>+4,900P</b>(=한 달 구독값) 슈퍼인플루언서 루프(포인트는 우리 제품에만·현금 출혈 X) + CEO 6년 인플루언서 채널 → 광고 대비 CAC <b>1/6~1/38</b></li>
-    <li><b>권위·시장확장 로드맵</b>: 학교가 쓰는 편식 데이터 = 카테고리 권위 → 육아맘 우산(레시피·건기식·성장) → 글로벌 이식</li>
-  </ul>
-  <p class="foot">정직 라벨: <b style="color:#FFD9B8;">무료증정 → 설치 → 구독 전환율 = 이번 라운드가 증명할 단일 지표(미검증)</b>. 자금이 정확히 이 숫자를 만드는 데 쓰인다.</p>
-  <div class="num">14</div>
-</section>
-
-<!-- 15 HONEST -->
-<section class="slide">
-  <div class="tag">정직 진단 — 무엇이 실측이고 무엇이 베팅인가</div>
-  <h2>우리는 우리가 모르는 걸 먼저 말한다</h2>
-  <div class="two">
-    <div class="col ok">
-      <div class="h">✅ 실측 (진짜 데이터)</div>
-      <div class="i">키트 매출 3.2억 · 흑자 · +139% YoY</div>
-      <div class="i">재구매율 37.4% · 최상위 18회</div>
-      <div class="i">학습엔진 라이브 · 코퍼스 9,988</div>
-      <div class="i">제조·물류 capa(연 20억) · 100만 인분 이력</div>
-    </div>
-    <div class="col bet">
-      <div class="h">⚠️ 아직 베팅 (증명 대상)</div>
-      <div class="i">앱 트랙션 ~0 — 클로즈 베타, MRR·DAU·구독 전환 미실현</div>
-      <div class="i">무료증정 → 설치 → 구독 <b>전환율</b> 미검증</div>
-      <div class="i">유닛이코노믹스(LTV 30.7만·LTV/CAC) = 모델·가정</div>
-      <div class="i">건기식·고ARPU BM 미출시(18~24mo 마일스톤)</div>
-    </div>
-  </div>
-  <p class="foot">시리즈A에서 가장 위험한 건 실사에서 깨지는 과장. 우리가 먼저 실측/모델/공백을 라벨링하면 '이 팀은 자기 숫자를 안다'는 신뢰가 생기고, 베팅이 측정 가능한 단일 가설(구매자→구독 전환)로 좁혀진다. <b>정직이 곧 멀티플의 근거.</b></p>
-  <div class="num">15</div>
-</section>
-
-<!-- 16 UNIT ECONOMICS -->
-<section class="slide alt">
-  <div class="tag">Unit Economics — 실측 1줄 + 모델</div>
-  <h2>한 아이 데이터 위 BM 3종 — 반복·고마진</h2>
-  <div class="ladder">
-    <div class="lstep first"><div class="lbar" style="height:30%;">8.4만</div><div class="ll">구독만<br><span class="actual">실현가능선</span></div></div>
-    <div class="lstep"><div class="lbar" style="height:62%;">44만</div><div class="ll">+격주박스<br><span class="model">Model</span></div></div>
-    <div class="lstep"><div class="lbar" style="height:100%;">85만</div><div class="ll">+주간박스<br><span class="model">Model</span></div></div>
-    <div class="lstep"><div class="lbar" style="height:44%;background:linear-gradient(180deg,#7E8AA8,#4A5670);">30.7만</div><div class="ll">blended<br><span class="model">Model</span></div></div>
-  </div>
-  <ul>
-    <li><b>BM 3종</b>: ①구독 4,900원/월·자녀(마진 95%·공헌이익 4,655원) ②골고루 키트 19,900원/주(마진 50%·자동화 후↑) ③결핍 신호가 부르는 개인화 건기식(고마진·미출시)</li>
-    <li><b>LTV/CAC</b>: blended 10~61× <span class="model">가정</span>, 구독만으로도 2.8~17×. 비용 디펜스 — 자녀당 LLM 원가 구독가의 ~10%</li>
-  </ul>
-  <p class="foot">실측은 단 하나(재구매 37.4%·흑자) — 나머지 LTV/CAC는 전부 '가정' 라벨. 구독만으로도 보수 케이스가 성립하고, 결정론 비용 구조가 마진 95%를 숫자로 받친다.</p>
-  <div class="num">16</div>
-</section>
-
-<!-- 17 MARKET -->
-<section class="slide">
-  <div class="tag">Market — 좁은 송곳 → 거대한 우산</div>
-  <h2>편식(60만)으로 진입해 육아맘 영양 우산으로, 글로벌까지</h2>
-  <div class="rings">
-    <div class="ring som"><div class="rl">SOM · 진입</div><div class="rv">연 18억</div><div class="rd">영유아 200만 × 편식 30% × 침투 5% (구독만)</div></div>
-    <div class="ring sam"><div class="rl">SAM · 확장</div><div class="rv">4,000억</div><div class="rd">영유아 200만 × 연 ARPU ~20만 (건기식 키즈 수천억)</div></div>
-    <div class="ring tam"><div class="rl">TAM · 글로벌</div><div class="rv">수십조</div><div class="rd">아동영양 헬스케어 · 코퍼스만 교체해 이식</div></div>
-  </div>
-  <ul>
-    <li>송곳→우산: 편식(60만)으로 데이터·관계·습관 선점 → 레시피·건기식·성장발달로 육아맘 전체로</li>
-    <li><b>저출생 역설 = 순풍</b>: 머릿수↓·1인당 지출↑(텐포켓·골드키즈) → ARPU·LTV를 구조적으로 밀어올림</li>
-  </ul>
-  <p class="foot">※ 전부 통계청 인구·업계 자료 기반 자체 추정치(E) · 정밀 소싱 가능. 진입은 작아 보여도(18억) 그건 구독 단일 BM·5% 침투의 보수치.</p>
-  <div class="num">17</div>
-</section>
-
-<!-- 18 TEAM -->
-<section class="slide alt">
-  <div class="tag">Team & Assets</div>
-  <h2>물리(생산·물류·B2C) + 소프트(AI 엔진)를 한 팀이 동시에</h2>
-  <div class="two">
-    <div class="col"><div class="h" style="color:#C45A00;">CEO 임재희 (92)</div>
-      <div class="i" style="padding-left:0;">B2C 밀키트 6년 · 누적 <b>100만 인분</b></div>
-      <div class="i" style="padding-left:0;">21년 연매출 20억 · 육아맘 인플루언서 마케팅</div>
-      <div class="i" style="padding-left:0;">생산·물류·B2C 운영</div>
-    </div>
-    <div class="col"><div class="h" style="color:#C45A00;">CTO 임남규 (90)</div>
-      <div class="i" style="padding-left:0;">SW마에스트로 멘토 24-25</div>
-      <div class="i" style="padding-left:0;">스마트홈 스타트업 코파운더 · 커머스 백엔드</div>
-      <div class="i" style="padding-left:0;"><b>AI 학습엔진 직접 구축·라이브 운영</b></div>
-    </div>
-  </div>
-  <div class="chips" style="margin-top:14px;">
-    <span class="chip g">100평 제조·물류(연 20억 규모)</span><span class="chip g">B2C 밀키트 연 5억 흑자</span><span class="chip g">24년 순이익 2,100만</span><span class="chip g">학습엔진 라이브</span>
-  </div>
-  <p class="foot">'왜 이 빈 시장을 아무도 못 채웠나(SW+물리 동시 필요)'의 답이 곧 이 팀 구성. 컬리는 엔진이 없고 AI 스타트업은 공장이 없다 — 0에서 시작이 아니다.</p>
-  <div class="num">18</div>
-</section>
-
-<!-- 19 THE ASK -->
-<section class="slide navy">
-  <div class="tag">The Ask — 가속 라운드</div>
-  <h2>~7억 — 한 스위치(구독 전환)를 켜는 자본</h2>
-  <div class="uf">
-    <div class="donut"></div>
-    <div class="uflegend">
-      <div class="uli"><span class="dot" style="background:#C45A00;"></span> <b style="color:#fff;">자동화 공정 40%</b> — 극다품종 박스 피킹/패킹 자동화 · 원가율↓</div>
-      <div class="uli"><span class="dot" style="background:#FF8A47;"></span> 앱·학습엔진·건기식 개발 25%</div>
-      <div class="uli"><span class="dot" style="background:#F0A35A;"></span> 앱 전환 그로스 25% — box-led 구독 전환 코호트</div>
-      <div class="uli"><span class="dot" style="background:rgba(255,255,255,0.4);"></span> 운영 버퍼 10%</div>
-    </div>
-  </div>
-  <div class="road">
-    <div class="rstep"><div class="dot2"></div><div class="rt">① 구독 전환 증명</div><div class="rd2">무료증정→DAU→구독 (단일 가설)</div></div>
-    <div class="rstep"><div class="dot2"></div><div class="rt">② 자동화 가동</div><div class="rd2">박스 원가율↓ · 피지컬 마진</div></div>
-    <div class="rstep"><div class="dot2"></div><div class="rt">③ 건기식 1종 출시</div><div class="rd2">고마진 엔드게임 개시</div></div>
-    <div class="rstep"><div class="dot2"></div><div class="rt">④ 매출 10억 돌파</div><div class="rd2">다음 라운드 밸류 잠금해제</div></div>
-  </div>
-  <p class="foot">pre-money 25~35억 · 런웨이 18~24개월 · <b style="color:#FFD9B8;">이미 흑자라 '생존'이 아니라 '가속'(협상력↑)</b>. 프로젝션 Base 26E 6억·27 10억·28 16~22억·29 25~36억(Bull 50~85억). ※추정(E)·정밀 소싱 가능.</p>
-  <div class="num">19</div>
-</section>
-
-<!-- 20 CLOSE -->
-<section class="slide dark">
-  <div class="tag">Investment Thesis</div>
-  <h2>증명된 쐐기 위에 데이터 헬스케어를 쌓는다 — 레일은 이미 깔렸다</h2>
-  <ul>
-    <li><b>물리 트랙션</b>(키트 +139% YoY·흑자·재구매 37.4%) = 증명된 쐐기. 하방이 막힌 1→N 베팅</li>
-    <li><b>왜 우리</b>: 6년 키트 운영의 집·학교 채널 + 물리∩소프트 한 팀 + 이미 라이브된 학습엔진 = 데이터를 0부터 쌓는 경쟁자 대비 수년 앞섬</li>
-    <li><b>왜 지금</b>: LLM이 끼니 분해·개인화 코칭을 저비용으로 작동시키는 첫 시점 + 저출생 tailwind. 핵심 베팅은 <b>키트 고객 → 무료증정 → 구독 전환</b></li>
-  </ul>
-  <p class="lead" style="margin-top:18px;border-left:4px solid #FFB877;padding-left:16px;">돈 태우는 시드가 아니라, <b style="color:#fff;">흑자 위에 데이터 해자를 얹은 가속 라운드</b> — 편식부터 시작해 아이 영양을 평생 책임지는 글로벌 헬스케어로.</p>
-  <p style="margin-top:22px;font-size:14px;color:rgba(255,255,255,0.6);">밀프레드 · app.mealfred.com · 임재희 010-4527-9272 · continueing@naver.com</p>
-  <div class="num">20</div>
-</section>
-
+<div class="prog" id="prog"></div>
+<div class="bar">
+  <a href="/docs.html" class="home">← 문서 허브</a>
+  <a href="/pitch.pdf" download class="pdf">📄 PDF 내려받기</a>
 </div>
-<div class="scrollhint">스크롤 ↓</div>
+
+<div class="deck" id="deck">
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-01.jpg" alt="표지 — 밀프레드 편식 · AI 영유아 편식 헬스케어 · 편식, 데이터로 다루다 · 진단→코칭→충족"></div><div class="num">01 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-02.jpg" loading="lazy" alt="문제 — 4명 중 1명이 편식, 마땅한 해결책조차 없습니다 · 골든타임 만 2~6세 · 맘카페·사설치료·간편식의 한계"></div><div class="num">02 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-03.jpg" loading="lazy" alt="아하 모먼트 — 엄마도 포기한 아이, 코칭 10회·3주 만에 생당근을 스스로 집어 먹다"></div><div class="num">03 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-04.jpg" loading="lazy" alt="솔루션 — 진단·코칭·충족, 하나의 루프로 (측정→결핍 진단 / 결핍→개인화 처방 / 처방→충족)"></div><div class="num">04 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-05.jpg" loading="lazy" alt="엔진 01 매핑 — 메뉴 한 줄을 영양으로 환원 · 4단 매핑·learned 코퍼스 플라이휠·31종 영양 신호등"></div><div class="num">05 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-06.jpg" loading="lazy" alt="엔진 02 코칭 엔진 — 35가지 국제 편식 이론을 하나의 코칭 엔진으로 · 8개 엔진 모듈 · 매 판단마다 LLM을 부르지 않음"></div><div class="num">06 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-07.jpg" loading="lazy" alt="엔진 02 방법론 하네스 — 35가지 방법론 5×7 · CoachPlan(frame·target·move·signature) · 얇은 LLM 작문 월 약 900원"></div><div class="num">07 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-08.jpg" loading="lazy" alt="엔진 02 코치 편지 — 엔진의 결론은 매일 한 통의 편지로 · 매일 새로 도착·최근 3일 보관·강요 없는 어조"></div><div class="num">08 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-09.jpg" loading="lazy" alt="엔진 03 궁합·사촌 — 잘 먹는 데서 사촌으로 다리를 놓다 · NEIS 4,727건 식단 지식 그래프·푸드체이닝·아이 맞춤 추천"></div><div class="num">09 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-10.jpg" loading="lazy" alt="충족 — 폐기 없이 딱 필요한 만큼만 · 골고루 키트 개인화 박스 19,900원·일주일 14끼니·콜드체인 배송"></div><div class="num">10 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-11.jpg" loading="lazy" alt="유통 — 업계 1위 교육용 요리키트 영업망으로 학부모에게 바로 · 누적 10만+ 요리수업 아이·YoY 130%·재구매 50%"></div><div class="num">11 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-12.jpg" loading="lazy" alt="시장 — 송곳에서 우산으로 · 편식 60만(SOM)→영유아 200만(SAM)→글로벌 편식 시장(TAM)"></div><div class="num">12 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-13.jpg" loading="lazy" alt="팀 — 실패까지 겪은 창업가가 엔진을 직접 짠다 · 임남규 CEO/CTO(밀프레드 편식 AI) ↔ 푸드히스토리 협력사(대표 임재희)"></div><div class="num">13 / 13</div></section>
+</div>
+
+<div class="counter" id="counter"><b>01</b> / 13</div>
+<div class="nav">
+  <button id="prev" aria-label="이전 슬라이드">↑</button>
+  <button id="next" aria-label="다음 슬라이드">↓</button>
+</div>
+
+<script>
+(function(){
+  var deck=document.getElementById('deck');
+  var slides=[].slice.call(deck.querySelectorAll('.slide'));
+  var N=slides.length;
+  var counter=document.getElementById('counter');
+  var prog=document.getElementById('prog');
+  var prev=document.getElementById('prev'), next=document.getElementById('next');
+  var cur=0;
+  function current(){
+    var mid=deck.scrollTop+deck.clientHeight/2, i=0;
+    for(var k=0;k<N;k++){ if(slides[k].offsetTop<=mid) i=k; }
+    return i;
+  }
+  function render(){
+    cur=current();
+    counter.innerHTML='<b>'+String(cur+1).padStart(2,'0')+'</b> / '+N;
+    prog.style.width=((cur)/(N-1)*100)+'%';
+    prev.disabled=(cur===0); next.disabled=(cur===N-1);
+  }
+  function go(i){ i=Math.max(0,Math.min(N-1,i)); slides[i].scrollIntoView({behavior:'smooth'}); }
+  deck.addEventListener('scroll',function(){ window.requestAnimationFrame(render); },{passive:true});
+  prev.addEventListener('click',function(){ go(current()-1); });
+  next.addEventListener('click',function(){ go(current()+1); });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'||e.key==='PageDown'||(e.key===' '&&!e.shiftKey)||e.key==='j'){ e.preventDefault(); go(current()+1); }
+    else if(e.key==='ArrowUp'||e.key==='PageUp'||(e.key===' '&&e.shiftKey)||e.key==='k'){ e.preventDefault(); go(current()-1); }
+    else if(e.key==='Home'){ e.preventDefault(); go(0); }
+    else if(e.key==='End'){ e.preventDefault(); go(N-1); }
+  });
+  render();
+})();
+</script>
 </body>
 </html>
