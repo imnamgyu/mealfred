@@ -82,10 +82,28 @@ export async function backfillUnmappedMenus(opts: {
     (r.menus?.length ?? 0) > 0 && (r.ingredients?.length ?? 0) === 0);
   if (!candidates.length) { empty.durationMs = Date.now() - start; return empty; }
 
-  // 후보 행들의 메뉴 정규화키 → 대표 원문
+  // 후보 행들의 메뉴 정규화키 → 대표 원문 + 메뉴별 최근 log_date(신규 우선 정렬용)
   const keyToMenu: Record<string, string> = {};
-  for (const r of candidates) for (const mn of r.menus || []) { const k = normalizeMenuKey(mn); if (k && !keyToMenu[k]) keyToMenu[k] = mn; }
-  const allKeys = Object.keys(keyToMenu);
+  const keyNewest: Record<string, string> = {};
+  for (const r of candidates) for (const mn of r.menus || []) {
+    const k = normalizeMenuKey(mn); if (!k) continue;
+    if (!keyToMenu[k]) keyToMenu[k] = mn;
+    if (!keyNewest[k] || r.log_date > keyNewest[k]) keyNewest[k] = r.log_date;
+  }
+  // ⭐ 신규(최근) 메뉴 우선 — LLM 예산을 갓 들어온 미지 메뉴에 먼저 배정(오래된 분해불가 메뉴가 예산 갉아먹어 신규를 기아시키는 것 방지)
+  const allKeys = Object.keys(keyToMenu).sort((a, b) => (keyNewest[b] || '').localeCompare(keyNewest[a] || ''));
+
+  // ⭐ negative-cache: 최근 COOLDOWN_DAYS 내 LLM이 빈 결과(분해불가) 낸 메뉴는 재시도 보류.
+  //   saveLearned가 빈 배열을 저장 거부해(환각방지) 분해불가 메뉴가 매일 재-LLM되던 낭비·기아를 차단.
+  //   쿨다운(기본 14일)으로만 재시도 → 도감/사전 개선 후 자연 재해소. 테이블 없으면 graceful(현행 동작).
+  const COOLDOWN_DAYS = 14;
+  const skipSet = new Set<string>();
+  const todayKst = (opts.sinceFn ? opts.sinceFn(0) : new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10));
+  try {
+    const cutoff = opts.sinceFn ? opts.sinceFn(COOLDOWN_DAYS) : new Date(Date.now() + 9 * 3600e3 - COOLDOWN_DAYS * 86400e3).toISOString().slice(0, 10);
+    const { data: sk } = await db.from('menu_resolve_skip').select('menu').in('menu', allKeys).gte('last_tried', cutoff);
+    for (const s of (sk || []) as { menu: string }[]) skipSet.add(s.menu);
+  } catch { /* 테이블 미존재 등 — 무시(현행 동작 유지) */ }
 
   // 1) learned 일괄 조회 → local → LLM(예산 내)
   const learned = await lookupLearned(allKeys);
@@ -100,11 +118,17 @@ export async function backfillUnmappedMenus(opts: {
       if (!dryRun) await saveLearned(keyToMenu[k], local.ingredients, local.processed, local.source);
       continue;
     }
+    // negative-cache 쿨다운 — 최근 분해 실패 메뉴는 LLM 건너뛰어 예산을 신규로 보냄.
+    if (skipSet.has(k)) { skippedLLM++; continue; }
     // LLM — dry/예산/시간 가드. dry는 LLM 호출 안 함(비용 0 시뮬).
     if (dryRun || !anthropicKey || llmCalls >= maxLlm || Date.now() - start > timeBudget) { skippedLLM++; continue; }
     const gen = await llmDecompose(keyToMenu[k], k);
     llmCalls++;
     if (gen && gen.ings.length) { resolved[k] = gen; await saveLearned(keyToMenu[k], gen.ings, gen.processed, 'llm'); }
+    else {
+      // ⭐ 빈 결과(분해불가) = negative-cache 기록 → 매일 재-LLM 방지(쿨다운 후에만 재시도). 테이블 없으면 무시.
+      try { await db.from('menu_resolve_skip').upsert({ menu: k, last_tried: todayKst }, { onConflict: 'menu' }); } catch { /* graceful */ }
+    }
   }
 
   // 2) 행별 백필 — 해소된 식재료 ∪ 기존(빈이라 사실상 신규). 덮어쓰기 아님.
