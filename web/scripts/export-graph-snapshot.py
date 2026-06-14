@@ -55,7 +55,8 @@ cells = {}; scores = {}
 for s in stats:
     ing = id2n.get(s['ingredient_id'])
     if not ing: continue
-    cells.setdefault(s['dish'], {})[ing] = s['count']
+    if s['count'] and s['count'] > 0:               # count=0(score-only 보충행)은 cells에 안 씀 — 원본 kit-matrix cells와 byte-동등 유지
+        cells.setdefault(s['dish'], {})[ing] = s['count']
     if s.get('score') is not None: scores.setdefault(s['dish'], {})[ing] = s['score']
 try:
     kit = json.load(open(f'{WEB}/lib/kit-dish-matrix.json'))
