@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>추천 데이터 SQL 전환 — 코칭엔진 핸드오프</title>
+<meta property="og:title" content="추천 데이터 SQL 전환 — 코칭엔진 핸드오프">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#EAF4FC;--b500:#3498DB;--b700:#1565C0;--g50:#E8F6F1;--g500:#16A085;--g700:#1B5E20;--v50:#F6EAFA;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FDECEA;--r500:#E53935;--r700:#C62828;--y50:#FEF6E0;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+  .hero{padding:54px 24px 36px;text-align:center;background:linear-gradient(160deg,#F0EAFB 0%,#E5DCF6 45%,#DCD2F2 100%);color:#2a1a4a;position:relative;overflow:hidden}
+  .hero-inner{position:relative;z-index:1;max-width:840px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(156,39,176,0.12);color:#6A1B9A;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:16px;border:1px solid rgba(156,39,176,0.3)}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px;color:#3a1a5a}
+  .hero p{font-size:14.5px;color:#4a3a63;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+  .hero .crumb{margin-top:15px;font-size:12px;color:#6a5a83;font-weight:600}
+  .hero .crumb a{color:#6A1B9A;text-decoration:none;font-weight:700}
+  .tmp{display:inline-block;margin-top:12px;font-size:11.5px;font-weight:800;background:var(--y500);color:#fff;border-radius:100px;padding:4px 14px;letter-spacing:0.03em}
+  main{max-width:1000px;margin:0 auto;padding:28px 20px 70px}
+  section.blk{margin-bottom:42px}
+  .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .sec-head .num{font-size:12px;font-weight:800;color:#fff;background:var(--v500);width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sec-head h2{font-size:20px;color:var(--s800);font-weight:800;letter-spacing:-0.02em}
+  .sec-sub{font-size:13.5px;color:var(--n500);font-weight:600;margin:0 0 16px 36px;line-height:1.6}
+  .card{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.03)}
+  .keybox{border:2px solid var(--v500);background:var(--v50);border-radius:14px;padding:17px 19px}
+  .keybox .kt{font-size:13px;font-weight:800;color:var(--v700);letter-spacing:0.02em;margin-bottom:6px}
+  .keybox p{font-size:14px;font-weight:700;color:var(--s800);line-height:1.7}
+  .keybox p b{color:var(--v700)}
+  code{background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 5px;font-size:12px;color:var(--n700);font-family:'SFMono-Regular',Consolas,monospace}
+  /* tables grid */
+  .tbls{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+  .tbl{border:1.5px solid var(--n200);border-radius:12px;overflow:hidden;background:#fff}
+  .tbl .th{font-size:13.5px;font-weight:800;padding:9px 13px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:6px}
+  .tbl.exist .th{background:var(--g500)} .tbl.new .th{background:var(--v500)} .tbl.hub .th{background:var(--p500)}
+  .tbl .th .st{font-size:9px;font-weight:700;background:rgba(255,255,255,0.25);border-radius:5px;padding:1px 6px}
+  .tbl .bd{padding:9px 13px;font-size:12px;color:var(--n600);font-weight:600;line-height:1.6}
+  .tbl .bd b{color:var(--s800)}
+  .tbl .bd .fk{font-size:10px;color:var(--b700);background:var(--b50);border-radius:4px;padding:1px 5px;font-weight:800}
+  /* cache layers */
+  .layer{display:grid;grid-template-columns:54px 1fr;gap:0;border:1.5px solid var(--n200);border-radius:12px;overflow:hidden;margin-bottom:9px}
+  .layer .ll{display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;text-align:center;line-height:1.2}
+  .layer .lr{padding:12px 15px}
+  .layer .lr h4{font-size:13.5px;font-weight:800;color:var(--s800);margin-bottom:3px}
+  .layer .lr p{font-size:12.3px;color:var(--n600);font-weight:600;line-height:1.58}
+  .layer.l1 .ll{background:#11806b}.layer.l2 .ll{background:#3498DB}.layer.l3 .ll{background:#9C27B0}
+  .arrow-d{text-align:center;color:var(--n300);font-size:14px;margin:-3px 0 4px}
+  /* code block */
+  pre{background:#1F2D3D;color:#e8eef4;border-radius:12px;padding:16px 18px;overflow-x:auto;font-size:12px;line-height:1.7;font-family:'SFMono-Regular',Consolas,monospace}
+  pre .c{color:#8aa0b5}.pre .k{color:#FFB375}
+  /* file paths */
+  .rows{border:1.5px solid var(--n200);border-radius:12px;overflow:hidden}
+  .rrow{display:flex;gap:10px;padding:9px 14px;border-top:1px dashed var(--n200);font-size:12.3px;line-height:1.5;align-items:flex-start}
+  .rrow:first-child{border-top:none;background:var(--n50);font-weight:800;color:var(--s800)}
+  .rrow .a{min-width:230px;flex-shrink:0;font-family:'SFMono-Regular',Consolas,monospace;font-size:11.5px;color:var(--v700);font-weight:700}
+  .rrow .b{color:var(--n600);font-weight:600}
+  /* split list */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.split{grid-template-columns:1fr}}
+  .mini{border:1.5px solid var(--n200);border-radius:13px;padding:15px 17px;background:#fff}
+  .mini h4{font-size:14px;font-weight:800;color:var(--s800);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .mini.mine{border-color:var(--p500);background:var(--p50)} .mini.mine h4{color:var(--p700)}
+  .mini.yours{border-color:var(--v500);background:var(--v50)} .mini.yours h4{color:var(--v700)}
+  .mini ul{list-style:none;padding:0;margin:0}
+  .mini li{font-size:12.3px;color:var(--n700);font-weight:600;line-height:1.6;padding:3px 0 3px 14px;position:relative}
+  .mini li::before{content:'·';position:absolute;left:3px;color:var(--n400);font-weight:800}
+  .donts li{font-size:13px;color:var(--n700);font-weight:600;line-height:1.65;padding:6px 0 6px 26px;position:relative;border-top:1px dashed var(--n200)}
+  .donts li:first-child{border-top:none}
+  .donts li::before{content:'❌';position:absolute;left:0;font-size:13px}
+  .donts li b{color:var(--r700)}
+  .steps{counter-reset:st;padding:0;list-style:none}
+  .steps li{position:relative;padding:11px 0 11px 40px;border-top:1px dashed var(--n200);font-size:13.2px;font-weight:600;color:var(--n700);line-height:1.6}
+  .steps li:first-child{border-top:none}
+  .steps li::before{counter-increment:st;content:counter(st);position:absolute;left:0;top:9px;width:24px;height:24px;border-radius:7px;background:var(--v500);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .steps li b{color:var(--s800)} .steps li .who{font-size:10.5px;font-weight:800;border-radius:5px;padding:1px 7px;margin-left:6px}
+  .steps li .who.me{background:var(--p100);color:var(--p700)} .steps li .who.you{background:var(--b50);color:var(--b700)} .steps li .who.coach{background:var(--v50);color:var(--v700)}
+  footer{text-align:center;font-size:11.5px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;line-height:1.7}
+  footer a{color:var(--n500);font-weight:700}
+  @media(max-width:600px){.hero h1{font-size:23px}.sec-head h2{font-size:18px}.rrow .a{min-width:150px}}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">🔀 HANDOFF · 코칭엔진 ↔ 데이터 세션</span>
+    <h1>추천 데이터 SQL 전환<br>코칭엔진 핸드오프</h1>
+    <p>추천 네트워크(사촌·궁합·음식×식재료)가 정적 JSON → SQL로 전환된다. <b>추천 로직은 그대로</b> 두고, "데이터를 어디서 읽는가"만 <b><code>graphSource</code> 한 겹</b>으로 추상화해 무중단 대비한다. 캐시 3층 + 7테이블 모델 + 불변 계약 + 분담을 양 세션이 참조한다.</p>
+    <div class="tmp">⚠️ 임시 참조용 — 전환 완료 후 정본 통합</div>
+    <div class="crumb"><a href="/docs.html">← 문서 허브</a> · 엔진·데이터 명세 · 2026-06-14 · 연관 <a href="/data-pipeline-erd.html">파이프라인·ERD</a></div>
+  </div>
+</header>
+
+<main>
+
+<div class="keybox" style="margin-bottom:34px">
+  <div class="kt">🎯 한 줄 요지</div>
+  <p>코칭엔진은 <b><code>graphSource.ts</code> 한 모듈</b>로 JSON import을 격리한다 → 소비 함수(<code>strongPairsOf</code>·<code>scoreCombo</code>·<code>rankIngredients</code>)는 <b>byte 무변경</b>. 데이터 세션이 그 뒤를 JSON→SQL로 바꿔도 엔진은 그대로 돌고, 추천이 <b>매일 누적된 사촌 그래프로 실시간 복리</b>된다.</p>
+</div>
+
+<!-- 1 배경 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">1</span><h2>왜 — 빌드 lag 제거 + 복리</h2></div>
+  <p class="sec-sub">지금 추천 네트워크는 빌드 JSON이라 "빌드 돌려야만" 갱신된다. SQL로 옮겨 <b>부모 입력이 매일 동시출현으로 누적</b>되게(복리) + 비도감 식재료(아귀 등)도 사촌 다리가 되게 한다.</p>
+  <div class="card">
+    <p style="font-size:13.5px;font-weight:600;color:var(--n700);line-height:1.75"><b style="color:var(--s800)">추천 '알고리즘'은 안 바뀐다 — '데이터 출처'만 바뀐다.</b> 식재료↔식재료 사촌/궁합(<code>ingredient_edges</code>)·음식×식재료(<code>dish_ingredient_stats</code>)가 SQL에서 매일 누적되면, 푸드체이닝(잘 먹는 것 → 닮은 새 식재료)이 빌드 없이 저절로 촘촘해진다. 예: <b>감자·돈까스 좋아하는 아이 → 단호박(감자 사촌·비타민A) 크로켓 + 생선까스(튀김 전이·생선 갭)</b> 도출이 매일 정밀해짐.</p>
+  </div>
+</section>
+
+<!-- 2 7테이블 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">2</span><h2>7테이블 모델 (데이터 세션이 DDL·이관·스냅샷 담당)</h2></div>
+  <p class="sec-sub"><b><code>ingredients</code>가 허브(원천 registry)</b> — 나머지가 전부 이걸 참조. 영양은 <code>ingredients.nong_code → nong_foods</code> JOIN(중복 X).</p>
+  <div class="tbls">
+    <div class="tbl exist"><div class="th">meal_logs <span class="st">기존 SQL</span></div><div class="bd">부모 끼니·<b>ate_well·refused</b>·menus[]·ingredients[]. 매일↑ · 아이별 선호 강도 원천</div></div>
+    <div class="tbl exist"><div class="th">learned_menus <span class="st">기존 SQL</span></div><div class="bd"><b>menu</b> PK → ingredients[]·hits. 분해 사전·복리</div></div>
+    <div class="tbl exist"><div class="th">nong_foods <span class="st">기존 SQL</span></div><div class="bd">식재료 영양 19종·3,366. 영양 원천</div></div>
+    <div class="tbl hub"><div class="th">ingredients <span class="st">신규·허브</span></div><div class="bd"><b>nm</b> PK · <span class="fk">FK</span> nong_code→nong_foods · freq. <b>분해에서 나온 식재료 유니버스</b>(아귀 등 비도감 포함)</div></div>
+    <div class="tbl new"><div class="th">dogam <span class="st">신규</span></div><div class="bd"><b>nm</b> PK <span class="fk">FK</span>→ingredients · grade·💎·safety·season·cuisine·age_meta·status. <b>편식 치료 타깃 큐레이션</b></div></div>
+    <div class="tbl new"><div class="th">ingredient_edges <span class="st">신규 ← food-graph.json</span></div><div class="bd">a·b <span class="fk">FK</span>→ingredients · kind(pair/bridge/tray)·lift·grade·strength·count·src. <b>사촌/궁합</b></div></div>
+    <div class="tbl new"><div class="th">dish_ingredient_stats <span class="st">신규 ← kit-dish-matrix.json</span></div><div class="bd">dish·ingredient <span class="fk">FK</span>→ingredients · count·score. 음식×식재료</div></div>
+  </div>
+  <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-top:12px;line-height:1.6">관계: <b>ingredients = 허브</b>. dogam·ingredient_edges·dish_ingredient_stats·learned_menus 전부 ingredients 참조. <b>추천 노드 자격 = ingredients(전체)</b> · <b>치료 타깃 = dogam(부분집합)</b> — 푸드체이닝은 ingredients 위에서.</p>
+</section>
+
+<!-- 3 캐시 3층 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">3</span><h2>⭐ 캐시 아키텍처 — 3층</h2></div>
+  <p class="sec-sub">엔진엔 <b>동기 경로</b>(클라/SSG: 도감 페이지 PersonalBridge)와 <b>비동기 경로</b>(크론 편지)가 둘 다 있다. 순수 라이브 SQL은 동기 경로를 깨므로 3층으로 간다.</p>
+  <div class="card">
+    <div class="layer l1"><div class="ll">L1<br>SQL</div><div class="lr"><h4>원천 (매일 누적)</h4><p><code>ingredient_edges</code>·<code>dish_ingredient_stats</code>·<code>ingredients</code>·<code>dogam</code>. 부모 입력 → 동시출현 누적 = 복리.</p></div></div>
+    <div class="arrow-d">▼ 야간 export</div>
+    <div class="layer l2"><div class="ll">L2<br>스냅샷</div><div class="lr"><h4>야간 스냅샷 JSON (현 JSON과 '동일 shape')</h4><p>SQL → <code>public/food-graph.json</code>·<code>kit-dish-matrix.json</code> export. 파일이 'gen 스크립트 산출'에서 'SQL export'로 바뀔 뿐 <b>경로·shape 동일</b> → 클라/SSG/동기 import는 무변경.</p></div></div>
+    <div class="arrow-d">▼ 런타임 로드</div>
+    <div class="layer l3"><div class="ll">L3<br>인메모리</div><div class="lr"><h4>서버 인메모리 캐시 + 폴백</h4><p>크론/API는 모듈 로드 시 1회 적재(현 <code>foodGraph</code> ADJ Map 패턴 그대로) + 선택적 SQL 직접 read(라이브). + <code>affinity_cache</code>(이미 SQL) = 스냅샷에 없는 조합 런타임 폴백.</p></div></div>
+  </div>
+</section>
+
+<!-- 4 graphSource 계약 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">4</span><h2>graphSource 계약 (코칭엔진 세션의 핵심 작업)</h2></div>
+  <p class="sec-sub">JSON import을 직접 하지 말고 <b>데이터 액세스 모듈 한 겹 뒤로 숨겨라.</b> 그러면 SQL 전환 시 이 모듈 내부만 바뀌고 엔진 전체 무변경(1파일 격리).</p>
+  <pre><span class="c">// 신규 lib/graphSource.ts — 반환 shape = 현 JSON shape (이게 두 세션의 접점 계약)</span>
+export function getEdges(): RawEdge[]        <span class="c">// food-graph.json 동일 shape (스냅샷 or SQL)</span>
+export function getDishMatrix(): KitMatrix   <span class="c">// kit-dish-matrix.json 동일 shape</span>
+export function getIngredient(nm): { nong, nutri, grade, ... }
+
+<span class="c">// 그러면 소비 모듈은 'import json' → 'graphSource.getX()' 한 줄만 교체:</span>
+<span class="c">//   foodGraph.ts / comboMatrix.ts / kitGuide.ts / nutrition.ts</span>
+<span class="c">// 소비 함수(strongPairsOf·scoreCombo·rankIngredients)는 byte 무변경. 추천 로직 안 건드림.</span>
+<span class="c">// graphSource 내부(스냅샷 JSON ↔ SQL ↔ 캐시 TTL)는 데이터 세션과 함께 확정.</span></pre>
+  <div class="card" style="margin-top:14px">
+    <h4 style="font-size:14px;font-weight:800;color:var(--s800);margin-bottom:8px">너가 '지금' 준비할 것 (SQL 생기기 전 선제)</h4>
+    <ul class="mini" style="border:none;padding:0;background:none">
+      <li><b>(a)</b> 아래 5개 JSON import을 <code>graphSource.ts</code> 한 모듈로 모아 추상화(지금은 그 안에서 기존 JSON 그대로 import) → 전환 시 1파일만 바뀜.</li>
+      <li><b>(b)</b> <code>selectDailyMaterials</code>가 <code>meal_logs</code>의 <b>아이별 선호 강도</b>(ate_well 빈도·거부)를 랭킹에 직접 쓰도록 입력 계약 정리 — 전환 후 <b>ingredient_edges(전역) × meal_logs(개인선호) × nong_foods(갭)</b> 결합이 핵심.</li>
+      <li><b>(c)</b> freqMap(<code>ingredient-recipes.json</code>)도 graphSource 경유로 통일(크론 fetch도 여기로).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 5 현재 읽기 경로 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">5</span><h2>현재 읽기 경로 (실측 — 정확히 이걸 graphSource로 격리)</h2></div>
+  <div class="rows">
+    <div class="rrow"><span class="a">파일:라인</span><span class="b">읽는 것 / 방식</span></div>
+    <div class="rrow"><span class="a">lib/foodGraph.ts:9</span><span class="b"><code>import './food-graph.json'</code> — edges(a,b,kind,lift,grade,strength,count,src,verified,tray) · 동기</span></div>
+    <div class="rrow"><span class="a">lib/comboMatrix.ts:13</span><span class="b"><code>import './kit-dish-matrix.json'</code> — dishes,cells,scores · 동기</span></div>
+    <div class="rrow"><span class="a">lib/kitGuide.ts:7</span><span class="b"><code>import './kit-dish-matrix.json'</code> · 동기</span></div>
+    <div class="rrow"><span class="a">lib/nutrition.ts:139</span><span class="b"><code>import './nutrient-map.generated.json'</code> · 동기</span></div>
+    <div class="rrow"><span class="a">lib/affinity.ts:8</span><span class="b"><code>import '@/public/ingredients-light.json'</code> · 동기</span></div>
+    <div class="rrow"><span class="a">cron/coach/route.ts:100</span><span class="b"><code>fetch('/ingredients-light.json')</code> · 런타임</span></div>
+    <div class="rrow"><span class="a">cron/coach/route.ts:106</span><span class="b"><code>fetch('/ingredient-recipes.json')</code> (freqMap) · 런타임</span></div>
+  </div>
+  <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-top:10px;line-height:1.6">소비 함수 계약(★시그니처·반환 shape 불변): <code>neighborsOf</code>·<code>strongPairsOf</code>·<code>verifiedCousinsOf</code>·<code>scoreCombo</code>·<code>isComboOk</code>·<code>dishesForIngredient</code>·<code>popularDishesFor</code>·<code>pickFoodReco</code>·<code>buildRecoFacts</code>·<code>selectDailyMaterials</code>.</p>
+</section>
+
+<!-- 6 분담 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">6</span><h2>분담 — 접점은 graphSource 반환 shape</h2></div>
+  <div class="split">
+    <div class="mini mine"><h4>🟠 데이터/SQL 세션 (나)</h4><ul>
+      <li>DDL 4종(<code>ingredients</code>·<code>dogam</code>·<code>ingredient_edges</code>·<code>dish_ingredient_stats</code>)</li>
+      <li>기존 JSON → SQL 이관 스크립트</li>
+      <li>야간 <b>스냅샷 export job</b>(SQL → 동일 shape JSON)</li>
+      <li>분해 검증을 <code>CANON_VOCAB</code>(도감) → <code>nong_foods</code>(유니버스)로 확장</li>
+      <li>크론 신규 식재료 <b>자동 INSERT into ingredients</b></li>
+    </ul></div>
+    <div class="mini yours"><h4>🟣 코칭엔진 세션 (너)</h4><ul>
+      <li><code>graphSource.ts</code> 추상화 신설</li>
+      <li>foodGraph/comboMatrix/kitGuide/nutrition의 <b>import → graphSource</b> 교체</li>
+      <li><code>selectDailyMaterials</code>의 meal_logs <b>개인선호 결합</b></li>
+      <li>소비측 테스트 green 유지(835)</li>
+    </ul></div>
+  </div>
+  <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-top:12px;line-height:1.6">접점 = <b><code>graphSource.ts</code>의 반환 shape(= 현 JSON shape)</b>. 이걸 계약으로 고정하고 각자 양쪽을 맞춘다.</p>
+</section>
+
+<!-- 7 불변 / 하지마라 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">7</span><h2>불변 계약 · 하지 말 것</h2></div>
+  <div class="card" style="margin-bottom:14px">
+    <h4 style="font-size:14px;font-weight:800;color:var(--g700);margin-bottom:8px">✅ 절대 불변</h4>
+    <p style="font-size:12.8px;color:var(--n700);font-weight:600;line-height:1.7">소비 함수 시그니처·반환 shape · <code>RawEdge</code> 필드명(a,b,kind,strength,lift,grade,count,src,verified,tray) · <code>PAIR_MIN_STRENGTH=2</code> · <code>CELLS_MIN=8</code> · lift 임계(strong 1.2/med 1.0)·grade 의미 · 괴식/환각 가드(strongPairsOf만 추천·validatedCombos≥1·미역국+당근 차단·떡+달걀 weak) · 835 테스트 green · '재료=결정론·문장=LLM 자유'.</p>
+  </div>
+  <div class="card">
+    <ul class="donts" style="list-style:none;padding:0">
+      <li><b>추천 알고리즘/임계/가드를 'SQL 전환 김에' 바꾸지 마라</b> — 데이터 출처만 바꾼다. 로직 변경은 별건.</li>
+      <li><b>JSON import을 여기저기서 직접 하지 마라</b> — 반드시 graphSource 경유(전환 시 누락 방지).</li>
+      <li><b>dogam과 ingredients를 혼동 마라</b> — 노드 자격=ingredients(전체), 치료 타깃=dogam(부분집합). 푸드체이닝은 ingredients 위.</li>
+      <li><b>스냅샷 shape을 현 JSON과 다르게 만들지 마라</b> — 테스트·동기경로 다 깨짐. 필드 추가는 OK, 기존 필드명/구조 변경 금지.</li>
+      <li><b>영양을 dogam에 중복 저장 마라</b> — ingredients.nong_code → nong_foods JOIN.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 8 작업 순서 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">8</span><h2>작업 순서</h2></div>
+  <div class="card">
+    <ol class="steps">
+      <li><b>graphSource.ts 추상화</b>(현 JSON 그대로 감싸기) <span class="who coach">코칭세션</span> — 즉시 가능, SQL 무관</li>
+      <li><b>DDL 4종 작성 → 이사님이 Supabase에서 실행</b> <span class="who me">데이터세션</span><span class="who you">이사님 실행</span></li>
+      <li><b>JSON → SQL 이관 스크립트</b>(ingredients 먼저 → dogam FK → edges/stats) <span class="who me">데이터세션</span></li>
+      <li><b>야간 스냅샷 export job</b>(SQL → 동일 shape JSON) + graphSource를 스냅샷/SQL로 스위치 <span class="who me">데이터세션</span><span class="who coach">코칭세션</span></li>
+      <li><b>분해 검증 nong_foods로 확장</b> + 크론 자동 INSERT into ingredients <span class="who me">데이터세션</span></li>
+      <li><b>selectDailyMaterials 개인선호 결합</b> + 835 테스트 green 확인 → 컷오버 <span class="who coach">코칭세션</span></li>
+    </ol>
+  </div>
+</section>
+
+<div class="keybox">
+  <div class="kt">📌 컷오버 안전</div>
+  <p>스냅샷이 <b>현 JSON과 동일 shape</b>이면 — 컷오버는 "JSON 생성 주체가 gen 스크립트 → SQL export로 바뀌는 것"뿐이라 <b>엔진·테스트 무영향</b>. 동기 경로는 스냅샷, 비동기(크론)는 SQL 직접, 누락은 affinity_cache 폴백. 단계별로 롤백 가능(스냅샷을 옛 gen 산출로 되돌리면 즉시 원복).</p>
+</div>
+
+</main>
+
+<footer>
+  <p>추천 데이터 SQL 전환 · 코칭엔진 핸드오프 (임시 참조용) · 2026-06-14<br>
+  연관: <a href="/data-pipeline-erd.html">파이프라인·ERD</a> · <a href="/food-network-data-architecture.html">데이터 강화 아키텍처</a> · <a href="/coaching-engine-architecture.html">코칭 엔진 해부도</a> · <a href="/docs.html">문서 허브</a></p>
+</footer>
+
+</body>
+</html>

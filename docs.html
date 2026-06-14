@@ -177,7 +177,7 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>⚙️ 엔진 · 데이터 명세 (정본)</h3>
-    <span class="cnt">정본 5</span>
+    <span class="cnt">정본 5 · 핸드오프 1</span>
     <span class="note">① <b>기술 아키텍처 해부도</b> = 코칭 엔진 기술 구성 단일 진실(코드 단위·시각화) ② <b>v2 하이브리드 빌드 플랜</b> = 코칭 빌드·작업 단일 진실(A~J 구현 완료) ③ <b>영양 신호등</b> = 데이터 기준 ④ <b>음식 추천 네트워크 데이터 강화 아키텍처</b>(2026-06-14) = 추천 그래프를 2~6세용으로 풍성하게 만들 데이터 소스·판정 관문 설계 ⑤ <b>식단 데이터 파이프라인·ERD·시스템 아키텍처</b>(2026-06-14 신규) = 원천→수집→분해→DB→편지 전 흐름·LLM 개입·ERD. 지난 코칭 정본·v3·로드맵·발제·코퍼스 문서는 <a href="/docs-archive.html">아카이브</a>로 이관했습니다.</span>
   </div>
   <div class="doc-grid">
@@ -215,6 +215,13 @@
       <h4>식단 데이터 파이프라인 · ERD · 시스템 아키텍처</h4>
       <p class="desc"><b>원천에서 편지까지 데이터가 어떻게 흐르는가 — 실제 코드 단위.</b> ① <b>원천 합법 3층</b>(NEIS 학교만·식약처 영유아 식단 API·CCFSM 표준식단 vs ❌알림장·카페 크롤링) ② <b>파이프라인 S1~S6</b>(수집→정규화→메뉴 4단 분해→<b>웹 식재료 추정</b>→코퍼스→네트워크)·LLM 개입 3곳(미지분해 Haiku·OCR Sonnet Vision·작문)·환각 가드 ③ <b>ERD</b>(음식·식재료·음식↔식재료·식재료↔식재료 + meal_logs/ocr/coach_letters 관계) ④ <b>편지 8단 소비 경로</b>(재료=결정론·문장=LLM·4중 게이트) ⑤ <b>시스템 8층</b>. <span style="color:#C45A00">"긁어서 어떻게 DB에 넣고 편지가 끌어다 쓰나"의 단일 진실.</span></p>
       <div class="meta"><span>ENGINE · 파이프라인·ERD 정본</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-db-migration-handoff.html" class="doc-card cat-strategy">
+      <span class="badge coming">🔀 임시 · 핸드오프</span>
+      <div class="ico">🔀</div>
+      <h4>추천 데이터 SQL 전환 — 코칭엔진 핸드오프</h4>
+      <p class="desc"><b>추천 네트워크(사촌·궁합·음식×식재료)를 정적 JSON → SQL로 전환하는 양 세션 핸드오프.</b> 추천 로직은 그대로 두고 <b><code>graphSource</code> 한 겹</b>으로 JSON import 격리 → 소비 함수 byte 무변경. <b>7테이블 모델</b>(ingredients 허브·dogam·ingredient_edges·dish_ingredient_stats) + <b>캐시 3층</b>(SQL 원천→야간 스냅샷→인메모리+affinity_cache 폴백) + 현재 읽기 경로(file:line) + 불변 계약 + 분담 + 작업 순서. <span style="color:#C45A00">데이터 세션 ↔ 코칭엔진 세션 접점 = graphSource 반환 shape. 임시 참조용(전환 완료 후 정본 통합).</span></p>
+      <div class="meta"><span>HANDOFF · 임시 참조</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
@@ -336,6 +343,7 @@
     '/nutrient-signal-report.html':{c:'2026-06-01',m:'2026-06-01'},
     '/food-network-data-architecture.html':{c:'2026-06-14',m:'2026-06-14'},
     '/data-pipeline-erd.html':{c:'2026-06-14',m:'2026-06-14'},
+    '/coaching-db-migration-handoff.html':{c:'2026-06-14',m:'2026-06-14'},
     '/box-product.html':{c:'2026-05-19',m:'2026-06-04'},
     '/design-spec.html':{c:'2026-05-24',m:'2026-05-31'},
     '/methodology.html':{c:'2026-06-01',m:'2026-06-01'},
