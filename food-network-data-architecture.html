@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>음식 추천 네트워크 — 데이터 강화 아키텍처</title>
+<meta property="og:title" content="음식 추천 네트워크 — 데이터 강화 아키텍처">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b50:#EAF4FC;--b500:#3498DB;--b700:#1565C0;--g50:#E8F6F1;--g500:#16A085;--g700:#1B5E20;--v50:#F6EAFA;--v500:#9C27B0;--v700:#6A1B9A;--r50:#FDECEA;--r500:#E53935;--r700:#C62828;--y50:#FEF6E0;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .hero{padding:56px 24px 38px;text-align:center;background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
+  .hero-inner{position:relative;z-index:1;max-width:780px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25)}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;line-height:1.28;margin-bottom:12px;color:#1a2b4a}
+  .hero p{font-size:14.5px;color:#5a4a3a;max-width:660px;margin:0 auto;font-weight:500;line-height:1.75}
+  .hero .crumb{margin-top:16px;font-size:12px;color:#8a6a4a;font-weight:600}
+  .hero .crumb a{color:#C45A00;text-decoration:none;font-weight:700}
+  main{max-width:1060px;margin:0 auto;padding:30px 22px 70px}
+  section.blk{margin-bottom:46px}
+  .sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+  .sec-head .num{font-size:12px;font-weight:800;color:#fff;background:var(--p500);width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center}
+  .sec-head h2{font-size:21px;color:var(--s800);font-weight:800;letter-spacing:-0.02em}
+  .sec-sub{font-size:13.5px;color:var(--n500);font-weight:600;margin:0 0 18px 36px;line-height:1.6}
+  .card{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,0.03)}
+  .lead{font-size:15px;font-weight:600;color:var(--n700);line-height:1.75;margin-bottom:6px}
+  .lead b{color:var(--s800)}
+  .hl{background:linear-gradient(transparent 60%,#FFE0A8 60%);font-weight:800;color:var(--s800)}
+  /* pipeline */
+  .pipe{display:flex;flex-direction:column;align-items:stretch;gap:0;max-width:660px;margin:6px auto 0}
+  .pstep{position:relative;border-radius:14px;padding:16px 18px;border:2px solid;background:#fff}
+  .pstep .pl{font-size:10.5px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:5px;opacity:.85}
+  .pstep .pt{font-size:15.5px;font-weight:800;color:var(--s800);line-height:1.4}
+  .pstep .pd{font-size:12.5px;font-weight:600;color:var(--n600);margin-top:5px;line-height:1.6}
+  .pstep.src{border-color:var(--b500);background:var(--b50)} .pstep.src .pl{color:var(--b700)}
+  .pstep.cand{border-color:var(--p500);background:var(--p50)} .pstep.cand .pl{color:var(--p700)}
+  .pstep.judge{border-color:var(--v500);background:var(--v50)} .pstep.judge .pl{color:var(--v700)}
+  .pstep.db{border-color:var(--g500);background:var(--g50)} .pstep.db .pl{color:var(--g700)}
+  .pstep.letter{border-color:var(--s700);background:#EEF2F6} .pstep.letter .pl{color:var(--s700)}
+  .parrow{align-self:center;color:var(--n400);font-size:13px;font-weight:800;padding:7px 0;display:flex;flex-direction:column;align-items:center;line-height:1.3}
+  .parrow .lbl{font-size:11px;color:var(--p700);font-weight:700;background:var(--p50);border:1px solid var(--p100);border-radius:100px;padding:2px 10px;margin-bottom:3px}
+  .parrow .chev{font-size:16px;color:var(--n300)}
+  .floor{margin:8px auto 0;max-width:660px;border:2px dashed var(--r500);background:var(--r50);border-radius:12px;padding:11px 15px;font-size:12.5px;font-weight:700;color:var(--r700);line-height:1.6}
+  .floor b{color:var(--r700)}
+  .pin{display:inline-block;font-size:11px;font-weight:800;border-radius:100px;padding:2px 9px;margin-left:6px;vertical-align:middle}
+  .pin.you{background:var(--v500);color:#fff}
+  .pin.code{background:var(--n600);color:#fff}
+  .pin.trust{background:var(--g500);color:#fff}
+  /* 2-col explain */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.cols{grid-template-columns:1fr}}
+  .mini{border:1.5px solid var(--n200);border-radius:13px;padding:16px 17px;background:#fff}
+  .mini h4{font-size:14px;font-weight:800;color:var(--s800);margin-bottom:7px;display:flex;align-items:center;gap:7px}
+  .mini p{font-size:12.5px;color:var(--n600);font-weight:600;line-height:1.66}
+  .mini.bad{border-color:var(--r500);background:var(--r50)} .mini.bad h4{color:var(--r700)}
+  .mini.good{border-color:var(--g500);background:var(--g50)} .mini.good h4{color:var(--g700)}
+  /* weakness cards */
+  .wk-grid{display:grid;grid-template-columns:1fr;gap:12px}
+  .wk{display:grid;grid-template-columns:34px 1fr;gap:13px;border:1.5px solid var(--n200);border-left:5px solid var(--r500);border-radius:12px;padding:15px 17px;background:#fff;align-items:start}
+  .wk .wn{font-size:20px}
+  .wk h4{font-size:14.5px;font-weight:800;color:var(--s800);margin-bottom:4px}
+  .wk p{font-size:12.8px;color:var(--n600);font-weight:600;line-height:1.62}
+  .wk .fix{display:block;margin-top:7px;font-size:12.5px;font-weight:700;color:var(--g700);background:var(--g50);border-radius:8px;padding:6px 10px}
+  /* tiers */
+  .tier{border-radius:15px;padding:18px 20px;margin-bottom:14px;border:1.5px solid}
+  .tier.t0{border-color:var(--g500);background:linear-gradient(180deg,#fff,#F3FBF8)}
+  .tier.t1{border-color:var(--b500);background:linear-gradient(180deg,#fff,#F1F8FD)}
+  .tier.t2{border-color:var(--v500);background:linear-gradient(180deg,#fff,#FAF3FC)}
+  .tier .th{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .tier .tb{font-size:11px;font-weight:800;color:#fff;border-radius:7px;padding:3px 10px;letter-spacing:0.03em}
+  .tier.t0 .tb{background:var(--g500)} .tier.t1 .tb{background:var(--b500)} .tier.t2 .tb{background:var(--v500)}
+  .tier .th h3{font-size:16px;font-weight:800;color:var(--s800)}
+  .tier .th .cost{margin-left:auto;font-size:11.5px;font-weight:800;color:var(--n500)}
+  .tier .ts{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:11px;line-height:1.6}
+  .row{display:flex;gap:10px;padding:8px 0;border-top:1px dashed var(--n200);align-items:flex-start;font-size:12.6px;line-height:1.55}
+  .row:first-of-type{border-top:none}
+  .row .rk{font-weight:800;color:var(--s800);min-width:128px;flex-shrink:0}
+  .row .rv{color:var(--n600);font-weight:600}
+  .row .rv b{color:var(--n900)}
+  .star{color:var(--p500);font-weight:800}
+  /* excel mock */
+  .xl-wrap{overflow-x:auto;border:1.5px solid var(--n200);border-radius:12px}
+  table.xl{border-collapse:collapse;width:100%;min-width:720px;font-size:12px}
+  table.xl th{background:var(--s800);color:#fff;font-weight:700;padding:9px 10px;text-align:left;font-size:11px;letter-spacing:0.02em;white-space:nowrap}
+  table.xl td{padding:9px 10px;border-top:1px solid var(--n200);color:var(--n700);font-weight:600;vertical-align:top}
+  table.xl tr:nth-child(even) td{background:var(--n50)}
+  table.xl .ok{color:var(--g700);font-weight:800}
+  table.xl .no{color:var(--r700);font-weight:800}
+  table.xl .warn{color:var(--y700);font-weight:800}
+  table.xl .flag{color:var(--r700);font-weight:800;font-size:11px}
+  table.xl .dash{color:var(--n400)}
+  .xl-note{font-size:12px;color:var(--n500);font-weight:600;margin-top:10px;line-height:1.6}
+  .xl-note b{color:var(--v700)}
+  /* meta chips */
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:11px}
+  .mc{border:1.5px solid var(--n200);border-radius:12px;padding:13px 15px;background:#fff}
+  .mc .mh{font-size:13px;font-weight:800;color:var(--s800);margin-bottom:4px}
+  .mc .mp{font-size:11.8px;color:var(--n600);font-weight:600;line-height:1.55}
+  .mc .src{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;color:var(--b700);background:var(--b50);border-radius:6px;padding:2px 7px}
+  /* roadmap */
+  .rm{position:relative;padding-left:26px}
+  .rm::before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--n200)}
+  .rmi{position:relative;margin-bottom:16px}
+  .rmi::before{content:'';position:absolute;left:-22px;top:4px;width:13px;height:13px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px}
+  .rmi.now::before{background:var(--g500);box-shadow:0 0 0 2px var(--g500)}
+  .rmi.soon::before{background:var(--b500);box-shadow:0 0 0 2px var(--b500)}
+  .rmi.mid::before{background:var(--v500);box-shadow:0 0 0 2px var(--v500)}
+  .rmi .rh{font-size:14.5px;font-weight:800;color:var(--s800);margin-bottom:4px}
+  .rmi .rt{font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px;color:#fff;margin-left:8px;vertical-align:middle}
+  .rmi.now .rt{background:var(--g500)} .rmi.soon .rt{background:var(--b500)} .rmi.mid .rt{background:var(--v500)}
+  .rmi .rl{font-size:12.6px;color:var(--n600);font-weight:600;line-height:1.66}
+  .rmi .rl b{color:var(--s800)}
+  .rmi .why{font-size:12px;color:var(--p700);font-weight:700;margin-top:5px;background:var(--p50);border-radius:7px;padding:5px 10px;display:inline-block}
+  /* graph svg */
+  .gsvg{display:block;max-width:520px;margin:0 auto}
+  .legend{display:flex;gap:18px;justify-content:center;margin-top:8px;font-size:12px;font-weight:700;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--n600)}
+  .legend .lp{width:22px;height:0;border-top:3px solid var(--p500)}
+  .legend .lb{width:22px;height:0;border-top:3px dashed var(--v500)}
+  .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .stat{flex:1;min-width:120px;border:1.5px solid var(--n200);border-radius:12px;padding:12px;text-align:center;background:#fff}
+  .stat .sv{font-size:24px;font-weight:800;color:var(--p700);line-height:1.1}
+  .stat .sl{font-size:11px;font-weight:700;color:var(--n500);margin-top:3px}
+  .keybox{border:2px solid var(--p500);background:var(--p50);border-radius:14px;padding:18px 20px;margin-top:8px}
+  .keybox .kt{font-size:13px;font-weight:800;color:var(--p700);letter-spacing:0.03em;margin-bottom:6px}
+  .keybox p{font-size:14px;font-weight:700;color:var(--s800);line-height:1.7}
+  .keybox p b{color:var(--p700)}
+  footer{text-align:center;font-size:11.5px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;line-height:1.7}
+  footer a{color:var(--n500);font-weight:700}
+  @media(max-width:600px){.hero h1{font-size:24px}.sec-head h2{font-size:18px}.row .rk{min-width:96px}}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">🕸️ ENGINE · DATA ARCHITECTURE</span>
+    <h1>음식 추천 네트워크<br>데이터 강화 아키텍처 <span style="color:#C45A00">(2~6세)</span></h1>
+    <p>추천 네트워크를 어떤 데이터로, 어떤 관문을 거쳐 풍성하게 만들 것인가 — <b>"수치는 후보를 만들고, 사람(Claude)이 증거를 보고 판정하고, 편지는 믿고 쓴다"</b>는 단일 판단 지점 원칙과, 그 위에 부어 넣을 데이터 3티어·국가 레시피 축·2~6세 안전 메타데이터를 한 장에 시각화한 설계 정본.</p>
+    <div class="crumb"><a href="/docs.html">← 문서 허브</a> · 엔진 · 데이터 명세 클러스터 · 2026-06-14</div>
+  </div>
+</header>
+
+<main>
+
+<!-- 0. 네트워크 한눈에 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">0</span><h2>네트워크 한눈에</h2></div>
+  <p class="sec-sub">추천 네트워크 = <b>식재료 노드</b>를 <b>두 종류의 엣지</b>로 잇는 무방향 그래프. 추천은 이 그래프 위를 걷는다 — <b>잘 먹는 것 → 곁들임(pair) → 사촌(bridge)</b>.</p>
+  <div class="card">
+    <svg class="gsvg" viewBox="0 0 520 270" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard,sans-serif">
+      <!-- edges: pair = solid orange, bridge = dashed purple -->
+      <g stroke-linecap="round">
+        <line x1="120" y1="135" x2="250" y2="70"  stroke="#E89244" stroke-width="3.2"/>
+        <line x1="250" y1="70"  x2="390" y2="95"  stroke="#E89244" stroke-width="3.2"/>
+        <line x1="120" y1="135" x2="250" y2="205" stroke="#E89244" stroke-width="3.2"/>
+        <line x1="250" y1="205" x2="390" y2="180" stroke="#E89244" stroke-width="2.2"/>
+        <line x1="250" y1="70"  x2="250" y2="205" stroke="#9C27B0" stroke-width="2.6" stroke-dasharray="2 6"/>
+        <line x1="390" y1="95"  x2="390" y2="180" stroke="#9C27B0" stroke-width="2.6" stroke-dasharray="2 6"/>
+      </g>
+      <!-- nodes -->
+      <g font-size="13" font-weight="800" text-anchor="middle">
+        <g><circle cx="120" cy="135" r="33" fill="#FFF1E2" stroke="#E89244" stroke-width="2.5"/><text x="120" y="140" fill="#B86A20">밥</text></g>
+        <g><circle cx="250" cy="70" r="33" fill="#FFF1E2" stroke="#E89244" stroke-width="2.5"/><text x="250" y="75" fill="#B86A20">소고기</text></g>
+        <g><circle cx="250" cy="205" r="33" fill="#F3FBF8" stroke="#16A085" stroke-width="2.5"/><text x="250" y="210" fill="#1B5E20">두부</text></g>
+        <g><circle cx="390" cy="95" r="33" fill="#F3FBF8" stroke="#16A085" stroke-width="2.5"/><text x="390" y="100" fill="#1B5E20">시금치</text></g>
+        <g><circle cx="390" cy="180" r="33" fill="#F6EAFA" stroke="#9C27B0" stroke-width="2.5"/><text x="390" y="185" fill="#6A1B9A">근대</text></g>
+      </g>
+      <!-- edge labels -->
+      <g font-size="10.5" font-weight="700" text-anchor="middle">
+        <text x="320" y="74" fill="#B86A20">곁들임(pair)</text>
+        <text x="408" y="142" fill="#6A1B9A">사촌(bridge)</text>
+      </g>
+    </svg>
+    <div class="legend">
+      <span><i class="lp"></i> pair · 곁들임/궁합 — <b style="color:#B86A20">같은 끼니·레시피에 함께</b></span>
+      <span><i class="lb"></i> bridge · 사촌/닮음 — <b style="color:#6A1B9A">맛·식감·영양이 닮은 대체재</b></span>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="sv">192</div><div class="sl">식재료 노드</div></div>
+      <div class="stat"><div class="sv">468</div><div class="sl">pair 엣지(궁합)</div></div>
+      <div class="stat"><div class="sv">175</div><div class="sl">bridge 엣지(사촌·수기)</div></div>
+      <div class="stat"><div class="sv">lift</div><div class="sl">c·N/(na·nb) 채점</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 1. 핵심 원칙: 판단은 한 곳 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">1</span><h2>핵심 원칙 — 판단은 한 곳, 편지는 믿는다</h2></div>
+  <p class="sec-sub">데이터를 그래프에 넣을지 <b>판정</b>하는 곳은 <b>빌드타임 단 한 곳</b>. 수치만으로 자르지 않고, <b>증거를 펼친 엑셀을 사람(Claude)이 보고 결정</b>한다. 편지 쓸 때는 이미 검증된 추천이라 <b>그대로 믿고 쓴다</b>.</p>
+
+  <div class="card">
+    <div class="pipe">
+      <div class="pstep src">
+        <div class="pl">① 데이터 원천</div>
+        <div class="pt">보유(Tier0) · 국가 공공데이터(Tier1) · 유사도 모델(Tier2)</div>
+        <div class="pd">앱 1차 로그 · 국가 레시피 · 식약처 영유아 식단 API · 영양/감각 유사도</div>
+      </div>
+      <div class="parrow"><span class="lbl">수치로 후보 생성</span><span class="chev">▼</span></div>
+      <div class="pstep cand">
+        <div class="pl">② 후보 엣지 — 엑셀 1장</div>
+        <div class="pt">증거를 다 펼친다 <span class="pin code">자동</span></div>
+        <div class="pd">lift · cells · 동시출현 N · <b>실제 식판/레시피 예시 2~3</b> · 안전플래그 · 자동초안 등급</div>
+      </div>
+      <div class="floor">⛔ <b>안전 바닥(하드 차단)</b> — 사람 판정 전에 코드가 먼저 자동 차단: <b>질식위험 · 8대 알레르겐 · 음성 lift(우연 이하) · 꿀(만1세)</b>. 이건 판단 대상이 아니라 무조건 막는다.</div>
+      <div class="parrow"><span class="lbl">🧑‍💻 터미널에서 검수</span><span class="chev">▼</span></div>
+      <div class="pstep judge">
+        <div class="pl">③ Grounded 판정 — 유일한 판단 지점</div>
+        <div class="pt">내가(Claude) 증거 보고 결정 <span class="pin you">사람</span></div>
+        <div class="pd">"2~6세에게 <b>맛있고 · 자연스럽고 · 안전한가</b>" → <b class="ok">승인</b> / <b class="no">거부</b> / <b class="warn">수정</b> + 사유. 수치는 내 <b>눈</b>이지 나를 <b>대체</b>하지 않는다.</div>
+      </div>
+      <div class="parrow"><span class="lbl">승인분만 박는다</span><span class="chev">▼</span></div>
+      <div class="pstep db">
+        <div class="pl">④ food-graph.json / DB</div>
+        <div class="pt">verdict가 박힌 깨끗한 그래프</div>
+        <div class="pd">엣지마다 <code>grade · reason · verified</code> 영속. 증분 체크포인트 = <b>신규 후보만</b> 재검수.</div>
+      </div>
+      <div class="parrow"><span class="lbl">결정론 코드 필터(판단 아님)</span><span class="chev">▼</span></div>
+      <div class="pstep letter">
+        <div class="pl">⑤ 편지 — TRUST</div>
+        <div class="pt">재료를 믿고 작문만 한다 <span class="pin trust">신뢰</span></div>
+        <div class="pd">선택 시점에 <b>이 아이 연령·알레르기로 결정론 필터</b>(코드)만 거침. LLM이 조합을 <b>다시 판단하지 않는다</b> — 재료=결정론, 문장=LLM 자유.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cols" style="margin-top:14px">
+    <div class="mini bad">
+      <h4>✗ 옛 구조 — 수치가 LLM을 덮어씀</h4>
+      <p>LLM이 <b>맨손(일반상식)</b>으로 떡+달걀에 2점 → 그걸 <code>cells&lt;8</code> 수치 게이트가 사후에 차단. 수치가 LLM을 <b>이기는</b> 구조라, 좋은 조합도 수치에 잘려나갈 위험.</p>
+    </div>
+    <div class="mini good">
+      <h4>✓ 새 구조 — 수치가 LLM을 무장시킴</h4>
+      <p>같은 떡+달걀을 <b>"실제 식판 4회·lift 0.72=우연 이하"</b> 증거와 함께 보여주면 판정자가 <b>스스로 거부</b>. 수치는 게이트가 아니라 <b>증거</b>. 떡+달걀의 교훈은 "LLM 빼라"가 아니라 "데이터로 무장시켜라".</p>
+    </div>
+  </div>
+
+  <div class="keybox">
+    <div class="kt">⚖️ 왜 편지 때 다시 판단하지 않나</div>
+    <p>추천이 편지에 도착했을 땐 <b>이미 검증된 것</b>이어야 정상이다. 거기서 또 판단하면 같은 일을 두 번 하는 낭비이고, <b>"재료=결정론, 문장=LLM 자유"</b> 철칙을 스스로 깨는 것. 런타임에 남는 건 <b>판단이 아니라 결정론 필터</b>(이 아이 ageBand·알레르기 제외)뿐 — 그래서 편지는 가져온 추천을 <b>믿고 쓴다</b>.</p>
+  </div>
+</section>
+
+<!-- 2. 왜 강화가 필요한가 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">2</span><h2>왜 강화가 필요한가 — 3가지 구조적 약점</h2></div>
+  <p class="sec-sub">지금 네트워크는 좋지만, <b>2~6세</b>에 치명적인 빈틈 3개가 있다. 데이터 강화는 이 3개를 정확히 겨냥한다.</p>
+  <div class="wk-grid">
+    <div class="wk">
+      <div class="wn">①</div>
+      <div>
+        <h4>연령 미스매치 — '또래'가 초등이다</h4>
+        <p>pair의 '또래 빈도'가 <b>초등 NEIS(6~12세)</b> 식판. 레시피DB는 영아/유아/아동으로 이미 나뉘어 있는데 빌드 때 <b>6개를 합쳐 연령 신호를 버린다</b>. (검증: NEIS는 유치원 급식을 제공하지 않음 — 보유 유치원 7,036은 명부지 식단 아님)</p>
+        <span class="fix">→ 처방: 레시피DB 연령 가중 + 식약처 영유아 식단 API(15118061/15118065)로 freqMap·식판 lift 교체</span>
+      </div>
+    </div>
+    <div class="wk">
+      <div class="wn">②</div>
+      <div>
+        <h4>bridge(사촌)가 수기다 — 안 늘어난다</h4>
+        <p>푸드체이닝의 핵심인 사촌 175쌍이 전부 <b>손 큐레이션</b>(<code>basis:"맛·식감이 닮은 사촌"</code> 단일 텍스트). 신규 식재료마다 사람이 또 손으로 추가해야 하고, 롱테일 고립 노드 ~40개가 어디에도 안 연결됨.</p>
+        <span class="fix">→ 처방: 보유 영양 프로파일(코사인) + 감각 7축 라벨 + 향미 유사도로 사촌 후보 자동 생성, 사람은 검수만</span>
+      </div>
+    </div>
+    <div class="wk">
+      <div class="wn">③</div>
+      <div>
+        <h4>1차 신호 미활용 — 우리 아이들 데이터를 안 본다</h4>
+        <p>앱이 매일 쌓는 <b>아이별 수용/거부·노출 횟수·집vs급식</b>을 네트워크가 안 본다. 모집단 동시출현만 보고 "우리 아이들이 실제로 받아들였나"는 무시. 거부를 <b>boolean 한 칸</b>으로만 봐서 식감거부·맛거부를 못 가른다.</p>
+        <span class="fix">→ 처방: 거부 원인 4분류 + (자녀×식재료) 노출 카운터 + 집/급식 비대칭 — 전부 보유 데이터, 수집비 0</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 데이터 3티어 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">3</span><h2>무엇을 부어 넣나 — 데이터 3티어</h2></div>
+  <p class="sec-sub">수집비용 순서로 — <b>이미 보유(0원) → 국가 공공데이터(무료 API) → 유사도 모델</b>. 모든 후보는 §1의 grounded 판정 관문을 통과해야 그래프에 들어간다.</p>
+
+  <div class="tier t0">
+    <div class="th"><span class="tb">TIER 0</span><h3>이미 보유 — 수집비용 0</h3><span class="cost">즉시</span></div>
+    <div class="ts">가장 저평가된 금광. 앱 1차 로그 + 편식극복키트 폴더의 국가 자료들.</div>
+    <div class="row"><span class="rk">앱 meal_logs</span><span class="rv">아이별 <b>수용/거부·거부원인(맛/식감/환경/양)·노출 횟수·집vs급식</b> → co-acceptance 엣지·lift 보정. <b class="star">경쟁사가 못 베끼는 해자.</b></span></div>
+    <div class="row"><span class="rk">레시피DB(연령분리)</span><span class="rv">영아/유아/아동 분리돼 있는데 풀링 중 → <b>유아기(2~5세) 가중</b>으로 즉시 2~6세 pair화. 코드 한 곳.</span></div>
+    <div class="row"><span class="rk">농진청 성분 DB10.4</span><span class="rv">식재료 영양 프로파일 → <b>영양 유사도 bridge</b>의 재료(이미 nutrient-map 226종 보유).</span></div>
+    <div class="row"><span class="rk">KDRI 2025</span><span class="rv"><b>연령별 1회량·결핍 판정 기준</b>(1~2세 900 / 3~5세 1,400kcal·나트륨/당 상한).</span></div>
+    <div class="row"><span class="rk">삼킴사고·알러지 자료</span><span class="rv">만1-2 vs 3-5 <b>질식위험·조리형태</b> + 8대 알레르겐 → 2~6세 노드 안전 메타.</span></div>
+    <div class="row"><span class="rk">SOS·푸드브릿지·Satter</span><span class="rv">사촌 차원 정의(식감/색/맛) + <b>반복노출 모델</b>(채소 8~15회).</span></div>
+  </div>
+
+  <div class="tier t1">
+    <div class="th"><span class="tb">TIER 1</span><h3>국가 공공데이터 — 무료 / OpenAPI</h3><span class="cost">단기 1~2주</span></div>
+    <div class="ts">"어디서 긁어오나" — 인증키만 받으면 바로 자동화. <b>국가 레시피 = '어울리는 조합'의 정본 backbone.</b></div>
+    <div class="row"><span class="rk">⭐ 식약처 영유아 식단 API</span><span class="rv"><code>data.go.kr 15118061·15118065</code> — 만1~5세 표준식단, 끼니 단위(재료·조리법·영양). <b>초등 freqMap을 영유아로 교체</b>하는 1순위.</span></div>
+    <div class="row"><span class="rk">⭐ 조리기능사 공개문제</span><span class="rv">큐넷 — 한식 33 + 양식·중식·일식 ≈100과제. <b>국가자격 표준 + 정확한 지급재료 분량(g)</b> = 최고 권위 궁합.</span></div>
+    <div class="row"><span class="rk">⭐ 농진청 전통향토음식</span><span class="rv"><code>koreanfood.rda.go.kr</code> — <b>3,248개</b> 표준 전통음식·식재료(파일 다운로드).</span></div>
+    <div class="row"><span class="rk">식약처 COOKRCP / 농정원</span><span class="rv">조리식품 레시피 DB·레시피 재료정보 <b>OpenAPI</b>(재료 개별 분리=co-occurrence에 최적·영양/나트륨 동시).</span></div>
+    <div class="row"><span class="rk">KNHANES 영유아</span><span class="rv">1~2/3~5세 <b>다소비 순위·결핍</b>(3~5세 칼슘부족 64%·칼륨부족 75~80%·나트륨 과잉) → 결핍 타깃 가중.</span></div>
+    <div class="row"><span class="rk">어린이급식센터·기호도</span><span class="rv"><code>dietary4u.mfds.go.kr</code> 표준레시피(무염·잘게) + 영유아 채소 기호도(기피=가지·버섯·시금치).</span></div>
+  </div>
+
+  <div class="tier t2">
+    <div class="th"><span class="tb">TIER 2</span><h3>속성 / 유사도 모델 — bridge 자동화</h3><span class="cost">중기 3~6주</span></div>
+    <div class="ts">사촌(bridge)을 <b>수기 → 데이터</b>로. 세 신호를 합산해 후보를 만들고 사람은 검수만.</div>
+    <div class="row"><span class="rk">① 영양 코사인</span><span class="rv">보유 nutrient-map 226종 벡터화 → 영양 동급 대체재(시금치↔근대). <b>외부 매핑 불필요·한식 OOV 없음 = 최저비용 1순위.</b></span></div>
+    <div class="row"><span class="rk">② 감각 7축 라벨</span><span class="rv">도감 204종에 맛·<b>식감(IDDSI L3~7)</b>·색·온도·형태·향·소리 1회 배치 → 코사인으로 사촌 후보. 푸드체이닝 정의와 정확히 일치.</span></div>
+    <div class="row"><span class="rk">③ 향미 유사도</span><span class="rv">FlavorDB2 향미 화합물 + 임베딩. <b class="star">⚠️ 가드: 한식은 향미 화합물을 회피(음성 페어링)</b> → 향 유사도는 <b>bridge(대체재)에만, pair(같은 끼니)엔 절대 금지.</b> pair는 식판 동시출현 유지.</span></div>
+  </div>
+</section>
+
+<!-- 4. 검수 엑셀 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">4</span><h2>판정 엑셀 — 한눈에 결정하게</h2></div>
+  <p class="sec-sub">"수치만으로 자르지 말라"가 여기서 실현된다. 한 줄에 <b>증거를 다 펼쳐</b> 내가 한눈에 판정. 안전플래그는 코드가 빨갛게 미리 띄운다.</p>
+  <div class="card">
+    <div class="xl-wrap">
+      <table class="xl">
+        <thead><tr>
+          <th>a</th><th>b / 음식</th><th>종류</th><th>출처</th><th>lift</th><th>cells</th><th>동시N</th><th>실제 식판/레시피 예시</th><th>안전플래그</th><th>초안</th><th>내 판정</th><th>사유</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td>소고기</td><td>시금치</td><td>pair</td><td>조리기능사·식약처</td><td class="ok">1.8</td><td>21</td><td>47</td>
+            <td>시금치무침＋불고기(식판 3건)…</td><td class="dash">–</td><td>strong</td><td class="ok">✅ 승인</td><td>또래 식판 빈출</td>
+          </tr>
+          <tr>
+            <td>떡</td><td>달걀</td><td>pair</td><td>영양 코사인</td><td class="no">0.72</td><td>4</td><td>4</td>
+            <td>같은 끼니 거의 없음</td><td class="flag">음성 lift</td><td>weak</td><td class="no">❌ 거부</td><td>우연 이하</td>
+          </tr>
+          <tr>
+            <td>견과</td><td>요거트</td><td>bridge</td><td>flavor 유사도</td><td class="dash">–</td><td class="dash">–</td><td class="dash">–</td>
+            <td class="dash">–</td><td class="flag">질식(만3미만)·알레르겐</td><td class="dash">–</td><td class="warn">⚠️ 조건부</td><td>만3+·잘게만</td>
+          </tr>
+          <tr>
+            <td>두부</td><td>근대</td><td>bridge</td><td>영양∩감각</td><td class="dash">–</td><td class="dash">–</td><td>—</td>
+            <td>닮음: 부드러운 식감·결핍 철분</td><td class="dash">–</td><td>medium</td><td class="ok">✅ 승인</td><td>식감 사촌·결핍 동급</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="xl-note">⛔ <b style="color:var(--r700)">안전플래그(질식·8대 알레르겐·음성 lift·꿀)는 코드가 자동 계산</b>해 띄운다 → 놓칠 일 없음. <b>나머지("2~6세에 진짜 맛있고 자연스러운가")는 내가 증거 보고 판정.</b> 이게 "LLM이 한번 더 보고 판단" — 단 <b>편지 때가 아니라 DB 넣기 전, 엑셀에서.</b> 증분 체크포인트로 <b>신규 후보만</b> 검수한다.</p>
+  </div>
+</section>
+
+<!-- 5. 2~6세 메타데이터 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">5</span><h2>2~6세 전용 노드 메타데이터</h2></div>
+  <p class="sec-sub">추천이 괴식뿐 아니라 <b>질식·발달 부적합</b>까지 막으려면, 각 노드에 연령 안전·발달 층을 얹는다. 대부분 공공·무료 → <b>식재료 30~50종 표 정규화</b>가 주 작업.</p>
+  <div class="meta-grid">
+    <div class="mc"><div class="mh">🫐 질식 위험 + 안전 형태</div><div class="mp">연령별 권장 조리형태. 포도·방울토마토=세로 4등분, 핫도그=세로 가른 뒤 잘게, 견과={분말3세·잘게5세·통째6세}, 생당근=익히거나 채썰기.</div><span class="src">AAP 1.3cm · 식약처 삼킴사고</span></div>
+    <div class="mc"><div class="mh">🥄 식감 단계(IDDSI)</div><div class="mp">퓨레 L4 → 으깸 L5 → 한입 L6 → 일반식 L7. 식감거부 시 <b>한 단계만 무르게</b> 회전, 2단계 점프는 차단.</div><span class="src">IDDSI · SOS 6단계</span></div>
+    <div class="mc"><div class="mh">⚠️ 8대 알레르겐 + 도입</div><div class="mp">우유·계란·땅콩·견과·밀·콩·생선·갑각류. 조기 소량 도입·반응 관찰. 프로필 알레르기 시 해당 노드 추천 제외/대체.</div><span class="src">AAP 2023/2025 · 온보딩</span></div>
+    <div class="mc"><div class="mh">📏 KDRI 1회량·상한</div><div class="mp">1~2세 vs 3~5세 분리 1회 분량·식품군 권장 횟수·나트륨/당 상한·꿀 금지(만1세 보툴리누스). 결핍 판정·균형의 정답값.</div><span class="src">KDRIs 2025</span></div>
+    <div class="mc"><div class="mh">🔁 노출 횟수 카운터</div><div class="mp">(자녀×식재료) 시도 횟수. 채소 8~15회 미만=진행중→같은 식재료 다른 형태로 재제시, 충족+완식=다음 사촌 승급. <b>포기 대신 반복을 설계.</b></div><span class="src">보유 meal_logs(수집 0)</span></div>
+    <div class="mc"><div class="mh">😬 신포비아 가중곡선</div><div class="mp">2~6세가 food neophobia <b>정점</b>(2세 거부 본격·평균 5세 완화). 2세=가까운 사촌만·5~6세=먼 도약 허용. bridge 거리·도전 강도 조절.</div><span class="src">발달 문헌</span></div>
+  </div>
+</section>
+
+<!-- 6. 로드맵 -->
+<section class="blk">
+  <div class="sec-head"><span class="num">6</span><h2>우선순위 로드맵</h2></div>
+  <p class="sec-sub">가장 큰 레버는 신규 수집이 아니라 <b>이미 가진 것</b> — ①연령 분리 레시피를 합치지 말 것, ②앱 1차 신호를 네트워크에 먹일 것. 나머지는 그 위에 풍성함을 더한다.</p>
+  <div class="rm">
+    <div class="rmi now">
+      <div class="rh">즉시 <span class="rt">보유 데이터 · 1~2일 · 수집 0</span></div>
+      <div class="rl"><b>①</b> 거부 boolean → 원인 4분류(맛/식감/환경/양)로 dormant 식감거부 트리거 활성화 · <b>②</b> (자녀×식재료) 노출 카운터로 8~15회 반복노출 · <b>③</b> 집/급식 비대칭(급식만 거부=약신호) · <b>④</b> 보유 영양 코사인으로 영양 사촌 자동후보 · <b>⑤</b> 레시피DB 연령 가중.</div>
+      <div class="why">왜: 이미 쌓인 1차 신호를 버리고 있어, 같은 거부를 4갈래로 못 갈라 헛발질하고 1회 권하고 회전시켜 반복노출 효과를 못 살린다.</div>
+    </div>
+    <div class="rmi soon">
+      <div class="rh">단기 <span class="rt">국가 공공데이터 · 1~2주</span></div>
+      <div class="rl"><b>①</b> 식약처 영유아 식단 API(15118061/15118065)로 freqMap·식판 lift를 초등→영유아 교체 · <b>②</b> 국가 표준 레시피 코퍼스 통합(농정원·COOKRCP API → 농진청 3,248 → 조리기능사 정량)을 <b>출처 권위 가중</b>으로 병합 · <b>③</b> KDRI/KNHANES 상수 전사로 연령 결핍 기준.</div>
+      <div class="why">왜: 현 또래 빈도가 사실상 초등 입맛 → 영유아 끼니·국가 표준 궁합으로 갈아끼워야 2~6세 현실에 그라운딩된다.</div>
+    </div>
+    <div class="rmi mid">
+      <div class="rh">중기 <span class="rt">속성/유사도 모델 · 3~6주</span></div>
+      <div class="rl"><b>①</b> 도감 204종 감각 7축 라벨 → 감각 코사인으로 bridge 자동화(영양∩감각) · <b>②</b> 2~6세 메타 5종(질식·식감·알레르겐·KDRI·신포비아) 표 정규화 후 노드 부착·선택 게이트 · <b>③</b> FlavorDB 향미 보강(Ahn 가드: pair엔 향 유사도 금지).</div>
+      <div class="why">왜: 175개 수기 bridge를 데이터로 계산해 손 큐레이션 병목을 없애고, 왜 사촌인지 근거로 설명하며, 안전 형태·도전 강도를 강제한다.</div>
+    </div>
+  </div>
+</section>
+
+<div class="keybox" style="max-width:1060px">
+  <div class="kt">🎯 한 줄 요약</div>
+  <p>판단은 <b>빌드타임 한 곳</b>(엑셀 → 내 터미널 검수 → DB). <b>수치는 후보를 만들고 안전 바닥을 깔고, 사람이 증거를 보고 판정</b>한다. 편지는 검증된 추천을 <b>믿고 쓰고</b>, 런타임에 남는 건 연령·알레르기 <b>결정론 필터</b>(판단 아님)뿐. 떡+달걀의 교훈은 "LLM 빼라"가 아니라 <b>"데이터로 무장시켜라"</b>였다.</p>
+</div>
+
+</main>
+
+<footer>
+  <p>음식 추천 네트워크 · 데이터 강화 아키텍처 · 엔진 데이터 명세 정본 · 2026-06-14<br>
+  연관: <a href="/coaching-engine-architecture.html">코칭 엔진 기술 아키텍처 해부도</a> · <a href="/nutrient-signal-report.html">영양 신호등</a> · <a href="/food-chaining-expansion.html">푸드체이닝 확장</a> · <a href="/docs.html">문서 허브</a></p>
+</footer>
+
+</body>
+</html>
