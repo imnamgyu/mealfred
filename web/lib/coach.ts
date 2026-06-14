@@ -200,6 +200,21 @@ export function structuredTip(s: StructuredSig, ageBand: string | undefined, see
   return tips[((Math.floor(seed) % tips.length) + tips.length) % tips.length];
 }
 
+// ── ⭐ #4b 메타 입력 권유(초기 1~3주) ──────────────────────────────────────────
+// 식감·자율성·환경·식사시간을 *아직 한 번도 안 찍은* 부모에게 '왜 찍으면 좋은지' 1줄로 초대.
+// 평가가 아니라 초대다(데이터 0 → 평가 금지 = #4a/#4b). 데이터가 쌓이면 structuredTip(개선 코칭)으로 자연 이양.
+// 같은 한 줄 채널(profileNudge/structuredTip)로만 노출 — 매일 잔소리 금지(Q5).
+export function metaInputNudge(s: StructuredSig, loggedDaysTotal: number, seed: number): string | null {
+  if (loggedDaysTotal < 3 || loggedDaysTotal >= 21) return null;   // 초기 1~3주만(이후엔 데이터 기반 코칭으로)
+  const invites: string[] = [];
+  if (s.texCount === 0) invites.push("끼니마다 '식감'(죽·다진·핑거푸드…)을 같이 찍어 주시면, 아이 씹는 힘에 딱 맞는 단계를 짚어 드릴 수 있어요.");
+  if (s.autoCount === 0) invites.push("'스스로 먹었는지/떠먹였는지'도 찍어 주시면, 자율감을 키우는 코칭을 더 정확히 드릴 수 있어요.");
+  if (s.envCount === 0) invites.push("식사 중 '환경'(영상·돌아다님·식탁)을 한 번씩 찍어 주시면, 새 음식을 잘 받아들이는 식사 분위기를 함께 만들어 갈 수 있어요.");
+  if (s.mtCount === 0) invites.push("'식사 시간'(걸린 시간)도 찍어 주시면, 끼니가 즐겁게 끝나는 길이를 같이 찾아 드려요.");
+  if (!invites.length) return null;
+  return invites[((Math.floor(seed) % invites.length) + invites.length) % invites.length];
+}
+
 // 편지 비중복 가드 — 두 편지의 문자 3-그램 자카드 유사도(0~1). cron이 생성 후 최근 편지와 비교해 임계 이상이면 1회 재생성.
 export function letterSimilarity(a: string, b: string): number {
   const tri = (s: string) => {

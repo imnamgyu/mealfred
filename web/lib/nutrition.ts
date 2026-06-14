@@ -136,9 +136,9 @@ export const CATEGORY_GROUP: Record<string, string> = {
 type CatOf = (ing: string) => string | undefined;
 
 // 농진청 10.4 정밀맵(gen-nutrient-map.py 생성) — 1일 KDRI 15%↑ 공급 영양소. 빗대기를 대체하는 1차 출처.
-import GEN_RAW from './nutrient-map.generated.json';
+import { getNutrientMap } from './graphSource';   // ⭐ JSON 직접 import 격리(handoff §4)
 import { isoWeekKey } from './progress';
-const GEN_NUTRI = GEN_RAW as Record<string, { nong: string; conf: string; n: string[] }>;
+const GEN_NUTRI = getNutrientMap() as Record<string, { nong: string; conf: string; n: string[] }>;
 export function generatedNutrientMap(): Record<string, { nong: string; conf: string; n: string[] }> { return GEN_NUTRI; }
 
 /** 식재료 → 커버 영양소.

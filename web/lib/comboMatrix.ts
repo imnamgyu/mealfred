@@ -10,14 +10,14 @@
  * 실증: scores['미역국']['당근']=1(괴식·차단), scores['볶음밥']['당근']=3·국=2(통과).
  * 전부 순수 함수 — fs/HTTP 불사용(정적 JSON import). LLM이 조합을 지어내게 두지 않는다.
  */
-import kit from './kit-dish-matrix.json';
+import { getDishMatrix } from './graphSource';   // ⭐ JSON 직접 import 격리(handoff §4)
 import { strongPairsOf } from './foodGraph';
 
 type KitData = {
   scores?: Record<string, Record<string, number>>;   // 음식→식재료 정성채점 0~3
   cells: Record<string, Record<string, number>>;       // 음식→식재료 레시피 동시출현 count
 };
-const K = kit as KitData;
+const K = getDishMatrix() as KitData;
 
 export type ComboSource = 'matrix' | 'cells' | 'pair' | 'none';
 export type ComboScore = { score: number; source: ComboSource };

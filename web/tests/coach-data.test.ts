@@ -362,9 +362,12 @@ describe('I-07 데이터 정합 통합 계약', () => {
     const r = validCombos(['미역국', '볶음밥', '카레', '비빔밥'], ['당근']);
     expect(r.some((c) => c.dish === '미역국')).toBe(false);
   });
-  it('I-07-5 freqMap 소스 경로 고정(route.ts ingredient-recipes.json)', () => {
+  it('I-07-5 freqMap 소스 경로 고정(graphSource 격리 — route는 getRecipeFreq, graphSource가 ingredient-recipes.json 소유)', () => {
+    // JSON 직접 read는 graphSource로 격리됨(handoff §4). 크론은 graphSource 경유로만 freqMap을 읽는다.
     const src = fs.readFileSync(path.join(WEB, 'app', 'api', 'cron', 'coach', 'route.ts'), 'utf8');
-    expect(src).toContain('/ingredient-recipes.json');
+    expect(src).toContain('getRecipeFreq');
+    const gs = fs.readFileSync(path.join(WEB, 'lib', 'graphSource.ts'), 'utf8');
+    expect(gs).toContain('ingredient-recipes.json');
   });
   it('I-07-6 ingredient-freq vs ingredient-recipes 방향 일관(당근>근대)', () => {
     // 두 소스 모두 있는 식재료: ingredient-freq 상위% 작은 식재료가 더 흔하다(당근<근대 topPct)

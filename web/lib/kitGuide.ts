@@ -4,14 +4,14 @@
  *   scores[음식][식재료] = LLM 적합도 0~3(3=아주 자연스러움). cells = 레시피 동시출현(증거).
  * SSG(server)에서 import — 도감 상세 빌드타임에 식재료별 추천 음식 추출(클라 번들 X).
  */
-import kit from './kit-dish-matrix.json';
+import { getDishMatrix } from './graphSource';   // ⭐ JSON 직접 import 격리(handoff §4)
 
 type KitData = {
   dishes: { key: string; em: string; n: number }[];
   scores?: Record<string, Record<string, number>>;
   cells: Record<string, Record<string, number>>;
 };
-const K = kit as KitData;
+const K = getDishMatrix() as KitData;
 const EM: Record<string, string> = Object.fromEntries(K.dishes.map((d) => [d.key, d.em]));
 
 export type DishFit = { dish: string; em: string; score: number; count: number };

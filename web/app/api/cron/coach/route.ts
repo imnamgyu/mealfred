@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals } from '@/lib/nutrition';
-import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, composeLetterB, planFor, structuredTip, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, composeLetterB, planFor, structuredTip, metaInputNudge, letterSimilarity, callClaude, letterDeterministicBad, verifyLetter, polishKo, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -37,6 +37,7 @@ import { assembleLetter, buildLetterCtx, collectBlockLedger } from '@/lib/assemb
 import { loadBlocks } from '@/lib/letterBlocks';
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, weeklyExposureTarget, buildIngredientPool, type FreqMap } from '@/lib/coachRecos';
+import { getIngredientsLight, getRecipeFreq } from '@/lib/graphSource';   // ⭐ JSON 직접 fetch 격리(handoff §4)
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
 import { bmiOf, bmiPercentile, bmiBand, type Sex, type BmiBand } from '@/lib/growth-reference';
 
@@ -96,14 +97,14 @@ export async function GET(req: Request) {
 
     // 식재료 카테고리 맵 (빗대기 영양평가·채소 시계열용) — public 정적 파일에서
     const catMap: Record<string, string> = {};
-    try {
-      const ij = await fetch(new URL('/ingredients-light.json', req.url)).then((r) => r.json());
-      (ij.ingredients || []).forEach((x: { nm: string; cat: string }) => { catMap[x.nm] = x.cat; });
+    try {   // ⭐ graphSource 경유(handoff §4·c) — 런타임 fetch 제거(정적 /public, 내용 동일·네트워크 의존 제거)
+      const ij = getIngredientsLight() as { ingredients?: { nm: string; cat: string }[] };
+      (ij.ingredients || []).forEach((x) => { catMap[x.nm] = x.cat; });
     } catch { /* 카테고리 없어도 NUTRI_MAP 직접 매핑은 동작 */ }
     // 또래 급식 빈도 레시피(식재료 → 가장 많이 쓰이는 실존 음식) — 추천 근거화용. 실패해도 kit-matrix 폴백.
     let freqMap: FreqMap = {};
     let freqMapRaw: unknown = null;
-    try { freqMapRaw = await fetch(new URL('/ingredient-recipes.json', req.url)).then((r) => r.json()); freqMap = freqMapRaw as FreqMap; } catch { /* kit-matrix 폴백 */ }
+    try { freqMapRaw = getRecipeFreq(); freqMap = freqMapRaw as FreqMap; } catch { /* kit-matrix 폴백 */ }
     // ⭐ E-03 — Letter B 재료 엔진(selectDailyMaterials)이 소비할 정규화 빈도맵(죽은코드 부활). 형식 불량이면 {}(graceful).
     const freqMapB: FreqMap = normalizeFreqMap(freqMapRaw);
     const catOf = (ing: string) => catMap[ing];
@@ -477,8 +478,16 @@ export async function GET(req: Request) {
             envBadPct: envN ? envBad / envN : null, envCount: envN,
             mtOver30Pct: mtN ? mtOver / mtN : null, mtCount: mtN,
           };
+          // ⭐ #4a 1주일차 결핍 끄기(이사님) — 기록<7일이면 '부족' 단정 금지(아직 안 먹은 게 아니라 안 기록됐을 뿐).
+          //   결핍 신호(reds/missing/homeMissing/homeReds)를 비워 시나리오·작문이 '부족'을 못 짚게 → 잘 먹은 것·행동만 코칭.
+          const loggedDaysTotal = histDays[cid]?.size ?? byDay.length;
+          const defMature = loggedDaysTotal >= 7;
+          const gReds = defMature ? reds : [];
+          const gMissing = defMature ? fg.missing : [];
+          const gHomeMissing = defMature ? homeFg.missing : [];
+          const gHomeReds = defMature ? homeReds : [];
           const signals: CoachSignals = {
-            timeseries: ts, reds, homeReds, missing: fg.missing, homeMissing: homeFg.missing,
+            timeseries: ts, reds: gReds, homeReds: gHomeReds, missing: gMissing, homeMissing: gHomeMissing,
             homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef), refused: sanitizeRefusals(uniqRef),
             notes, favoriteFoods, attendsDaycare: attends, ageBand: meta.age_band,
             recentLoggedDays, recentWindow: RECENT_WINDOW, icfqRiskCount,
@@ -798,16 +807,19 @@ export async function GET(req: Request) {
           const profileN = recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null;
           const sTip = (!profileN && recentLoggedDays >= RECENT_WINDOW && ((daySeed + cidHash) % 7) === 0)
             ? structuredTip(structuredSig, meta.age_band, daySeed + cidHash) : null;
+          // ⭐ #4b 초기 1~3주, 메타(식감·자율성·환경·식사시간)를 한 번도 안 찍은 부모에게 '왜 찍으면 좋은지' 초대(평가 아님).
+          //   기성 nudge는 recentLoggedDays>=RECENT_WINDOW를 요구해 초기엔 0개라, 이 자리가 초기 사용자의 유일한 권유 채널.
+          const metaInv = (!profileN && !sTip) ? metaInputNudge(structuredSig, loggedDaysTotal, daySeed + cidHash) : null;
           const base = {
             childName: meta.nickname, ageBand: meta.age_band,
-            eatenCount: new Set(allIng).size, reds, covered: fg.covered, missing: fg.missing,
+            eatenCount: new Set(allIng).size, reds: gReds, covered: fg.covered, missing: gMissing,   // ⭐ #4a 1주일차(기록<7일) 결핍 끄기 — covered(잘 먹음)는 유지, 부족 단정만 차단
             notes: fc.noteCards, factCards: fc.cards, refused: sanitizeRefusals(uniqRef), favoriteFoods, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),   // ⭐ 메모=날짜·시계열 라벨 분류본, 사실 주장=사실 카드 안에서만('1번') — 트리거(signals.notes)는 기존 창 유지
             timeseries: ts, attendsDaycare: attends, pastLetters,   // timeseries=원본 ts(composeLetter가 최종 시나리오 기준 필터)
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
-            homeMissing: homeFg.missing, homeReds, homeDays: homeDays.length,
+            homeMissing: gHomeMissing, homeReds: gHomeReds, homeDays: homeDays.length,
             chronicGuidance: chronicGuidanceText(meta.chronic),
             bridgeFacts, snackEval: snackText,
-            profileNudge: profileN, structuredTip: sTip,
+            profileNudge: profileN, structuredTip: sTip ?? metaInv,   // ⭐ #4b 초기엔 메타 입력 초대가 이 한 줄 채널을 대신 채움
             weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };
           const detInput = [...ts, ...fc.noteCards, ...uniqRef].join(' ');   // 증상 근거 = 라벨 포함 메모 카드(시계열 분류본)

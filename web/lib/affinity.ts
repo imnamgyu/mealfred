@@ -5,9 +5,9 @@
  */
 import { createClient } from '@supabase/supabase-js';
 import { neighborsOf, type Neighbor } from './foodGraph';
-import light from '@/public/ingredients-light.json';
+import { getIngredientsLight } from './graphSource';   // ⭐ JSON 직접 import 격리(handoff §4)
 
-const VOCAB: string[] = (light as { ingredients: { nm: string }[] }).ingredients.map((i) => i.nm);
+const VOCAB: string[] = (getIngredientsLight() as { ingredients: { nm: string }[] }).ingredients.map((i) => i.nm);
 const VOCAB_SET = new Set(VOCAB);
 const STATIC_ENOUGH = 3;   // 정적 이웃이 이 이상이면 폴백 불필요
 
