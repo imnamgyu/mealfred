@@ -118,8 +118,9 @@ export async function GET(req: Request) {
     const byChild: Record<string, Row[]> = {};
     (rows || []).forEach((r: Row) => { (byChild[r.child_id] ||= []).push(r); });
 
+    const minDays = Math.max(1, parseInt(qp.get('minDays') || '3', 10) || 3);   // ⭐ 온보딩 게이트(직전 7일 중 N일 기록). 기본 3, QA/백필용 override(?minDays=1)로 초기 온보딩 날짜도 생성.
     let activeIds = Object.entries(byChild)
-      .filter(([, rs]) => new Set(rs.map((r) => r.log_date)).size >= 3)
+      .filter(([, rs]) => new Set(rs.map((r) => r.log_date)).size >= minDays)
       .map(([id]) => id);
 
     // ── 휴면 엔진 — 마지막 끼니 기록일로 휴면 일수 계산(끼니 기록 기준). 활성 + 휴면(2~7일·이력 ≥3일)도 포함해 7일까지 복귀 편지 생성.
