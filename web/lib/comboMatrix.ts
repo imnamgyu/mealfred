@@ -17,7 +17,7 @@ type KitData = {
   scores?: Record<string, Record<string, number>>;   // 음식→식재료 정성채점 0~3
   cells: Record<string, Record<string, number>>;       // 음식→식재료 레시피 동시출현 count
 };
-const K = getDishMatrix() as KitData;
+const K = (): KitData => getDishMatrix() as KitData;   // ⭐ 호출 시점에 읽어 SQL warm 반영(모듈 로드 캡처 X)
 
 export type ComboSource = 'matrix' | 'cells' | 'pair' | 'none';
 export type ComboScore = { score: number; source: ComboSource };
@@ -29,15 +29,16 @@ const CELLS_MIN = 8;
 
 /** 음식×식재료 조합의 정합도(0~3). matrix(정성채점·cells 실증 게이트) → pair(강한 궁합) → cells(약신호) → none. */
 export function scoreCombo(dish: string, ing: string): ComboScore {
-  const m = K.scores?.[dish]?.[ing];
+  const k = K();
+  const m = k.scores?.[dish]?.[ing];
   if (typeof m === 'number') {
-    const cells = K.cells?.[dish]?.[ing] || 0;
+    const cells = k.cells?.[dish]?.[ing] || 0;
     if (m === 2 && cells < CELLS_MIN) return { score: 1, source: 'matrix' };   // borderline + 실동시출현 약함 → 강등(차단)
     return { score: m, source: 'matrix' };                                      // score 3(확신)·실증된 2는 그대로
   }
   const pair = strongPairsOf(ing).find((n) => n.nm === dish);   // 강한 궁합만(약신호 s=1 차단)
   if (pair) return { score: Math.max(0, Math.min(3, pair.strength)), source: 'pair' };
-  const c = K.cells?.[dish]?.[ing];
+  const c = k.cells?.[dish]?.[ing];
   if (typeof c === 'number' && c > 0) return { score: 1, source: 'cells' };  // 약신호 = 임계 미만(보수적 금지)
   return { score: 0, source: 'none' };                                       // 미수록 = 금지
 }

@@ -6,7 +6,7 @@
  * SSG(server)에서만 import — 빌드타임에 식재료별 이웃을 뽑아 클라(PersonalBridge)로 prop 전달.
  * (51KB 그래프를 클라 번들에 싣지 않으려는 의도)
  */
-import { getEdges } from './graphSource';   // ⭐ JSON 직접 import 격리(handoff §4) — 데이터 출처는 graphSource 한 곳
+import { getEdges, registerGraphInvalidator } from './graphSource';   // ⭐ 데이터 출처는 graphSource 한 곳(handoff §4·#2)
 
 export type EdgeKind = 'pair' | 'bridge';
 export type PairGrade = 'strong' | 'medium' | 'weak';
@@ -18,10 +18,11 @@ export type Neighbor = { nm: string; kind: EdgeKind; strength: number; basis: st
 // ⭐ 약신호 곁들임 차단 임계(떡+달걀 괴식 사고) — pair는 이 강도 이상만 추천에 사용. comboMatrix dish×식재료 임계(2)와 통일.
 export const PAIR_MIN_STRENGTH = 2;
 
-const EDGES = getEdges() as RawEdge[];
 let ADJ: Map<string, Neighbor[]> | null = null;
+registerGraphInvalidator(() => { ADJ = null; });   // ⭐ SQL warm 시 인접맵 무효화 → 다음 호출이 SQL 엣지로 재구성
 
 function build(): Map<string, Neighbor[]> {
+  const EDGES = getEdges() as RawEdge[];   // ⭐ 빌드 시점에 읽어 warm 반영(모듈 로드 캡처 X). warm 전엔 JSON 스냅샷.
   const m = new Map<string, Neighbor[]>();
   const push = (k: string, n: Neighbor) => { const arr = m.get(k); if (arr) arr.push(n); else m.set(k, [n]); };
   for (const e of EDGES) {

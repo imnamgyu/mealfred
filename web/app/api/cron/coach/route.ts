@@ -37,7 +37,7 @@ import { assembleLetter, buildLetterCtx, collectBlockLedger } from '@/lib/assemb
 import { loadBlocks } from '@/lib/letterBlocks';
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, weeklyExposureTarget, buildIngredientPool, type FreqMap } from '@/lib/coachRecos';
-import { getIngredientsLight, getRecipeFreq } from '@/lib/graphSource';   // ⭐ JSON 직접 fetch 격리(handoff §4)
+import { getIngredientsLight, getRecipeFreq, warmGraphFromSql } from '@/lib/graphSource';   // ⭐ JSON 격리(handoff §4) + SQL warm(#2)
 import { aggregateUsage } from '@/lib/llmCost';   // ⭐ LLM 사용량 계측(유지비용 실측)
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
 import { bmiOf, bmiPercentile, bmiBand, type Sex, type BmiBand } from '@/lib/growth-reference';
@@ -238,6 +238,16 @@ export async function GET(req: Request) {
       const pct = bmiPercentile(bmi, m.sex as Sex, ageMonths);
       return pct == null ? null : bmiBand(pct);
     };
+
+    // ⭐ graphSource SQL warm(handoff #2) — 옵트인(COACH_GRAPH_SQL=1). 자녀 루프 전 1회: ingredient_edges⋈ingredients(id→name)로
+    //   추천 캐시를 SQL로 교체(실시간 복리). OFF=JSON 스냅샷(데이터 세션 야간 export=동일 shape). 빈약/실패 시 자동 JSON 유지.
+    if (process.env.COACH_GRAPH_SQL === '1') {
+      try {
+        const w = await warmGraphFromSql(supabase);
+        if (w.ok) console.log(`[cron/coach] graph warmed from SQL: ${w.edges} edges, ${w.cells} dishes`);
+        else issues.push(`graph warm skip(JSON 유지): ${w.reason}`.slice(0, 120));
+      } catch (e) { console.warn('[cron/coach] graph warm error', e instanceof Error ? e.message : e); }
+    }
 
     for (const cid of activeIds) {
       // maxDuration 전 안전 종료 — 남은 자녀는 다음 실행(오래된 순)이 이어받음

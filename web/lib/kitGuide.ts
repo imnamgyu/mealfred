@@ -4,20 +4,21 @@
  *   scores[음식][식재료] = LLM 적합도 0~3(3=아주 자연스러움). cells = 레시피 동시출현(증거).
  * SSG(server)에서 import — 도감 상세 빌드타임에 식재료별 추천 음식 추출(클라 번들 X).
  */
-import { getDishMatrix } from './graphSource';   // ⭐ JSON 직접 import 격리(handoff §4)
+import { getDishMatrix, registerGraphInvalidator } from './graphSource';   // ⭐ 데이터 출처는 graphSource 한 곳(handoff §4·#2)
 
 type KitData = {
   dishes: { key: string; em: string; n: number }[];
   scores?: Record<string, Record<string, number>>;
   cells: Record<string, Record<string, number>>;
 };
-const K = getDishMatrix() as KitData;
-const EM: Record<string, string> = Object.fromEntries(K.dishes.map((d) => [d.key, d.em]));
 
 export type DishFit = { dish: string; em: string; score: number; count: number };
 let IDX: Map<string, DishFit[]> | null = null;
+registerGraphInvalidator(() => { IDX = null; });   // ⭐ SQL warm 시 인덱스 무효화 → 다음 호출이 SQL 매트릭스로 재구성
 
 function build(): Map<string, DishFit[]> {
+  const K = getDishMatrix() as KitData;   // ⭐ 빌드 시점에 읽어 warm 반영(모듈 로드 캡처 X). warm 전엔 JSON 스냅샷.
+  const EM: Record<string, string> = Object.fromEntries((K.dishes || []).map((d) => [d.key, d.em]));
   const m = new Map<string, DishFit[]>();
   const scores = K.scores || {};
   for (const [dish, ings] of Object.entries(scores)) {
