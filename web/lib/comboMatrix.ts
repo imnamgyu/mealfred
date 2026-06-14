@@ -22,10 +22,19 @@ const K = kit as KitData;
 export type ComboSource = 'matrix' | 'cells' | 'pair' | 'none';
 export type ComboScore = { score: number; source: ComboSource };
 
-/** 음식×식재료 조합의 정합도(0~3). matrix(정성채점) → pair(궁합 strength) → cells(동시출현·약신호) → none. */
+// ⭐ borderline LLM 점수(2) 실증 게이트 — 정성채점 2는 실제 레시피 동시출현(cells)이 받쳐줄 때만 인정.
+//   떡+달걀(score 2·cells 4)처럼 LLM은 '괜찮다' 했지만 실데이터상 거의 안 쓰이는 조합 차단(이사님: 실제 식단 공통출현으로 판단).
+//   score 3(LLM 확신)은 그대로 신뢰·score 1은 어차피 차단. 국+당근(2·cells49)·볶음밥+당근(3)은 유지.
+const CELLS_MIN = 8;
+
+/** 음식×식재료 조합의 정합도(0~3). matrix(정성채점·cells 실증 게이트) → pair(강한 궁합) → cells(약신호) → none. */
 export function scoreCombo(dish: string, ing: string): ComboScore {
   const m = K.scores?.[dish]?.[ing];
-  if (typeof m === 'number') return { score: m, source: 'matrix' };       // 1순위: 정성채점(미역국+당근=1)
+  if (typeof m === 'number') {
+    const cells = K.cells?.[dish]?.[ing] || 0;
+    if (m === 2 && cells < CELLS_MIN) return { score: 1, source: 'matrix' };   // borderline + 실동시출현 약함 → 강등(차단)
+    return { score: m, source: 'matrix' };                                      // score 3(확신)·실증된 2는 그대로
+  }
   const pair = strongPairsOf(ing).find((n) => n.nm === dish);   // 강한 궁합만(약신호 s=1 차단)
   if (pair) return { score: Math.max(0, Math.min(3, pair.strength)), source: 'pair' };
   const c = K.cells?.[dish]?.[ing];
