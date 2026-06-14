@@ -338,7 +338,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                 <Bubble side="r" tone="orange">
                   <div style={{ fontSize: 11, color: '#C45A00', fontWeight: 700, marginBottom: 3 }}>💌 코치 편지{hasB ? chipS('A · v2 대조군', '#92400E', '#FDF3E0') : null}
                     {(() => {   // ⭐ 반복 모니터 칩(2026-06-11) + v3 조립 칩(H-08: 유닛·step·mode·폴백) — 복붙·전개를 한눈에
-                      const c = ev.data.context as { scenarioLabel?: string; plan?: { signature?: string } | null; weekly?: { arc?: { stage?: string } | null } | null; simToPrev?: number | null; repeatAlert?: boolean; coachRegen?: boolean; model?: string; verify?: { ok?: boolean; regen?: boolean } | null; assembled?: boolean; fallback?: boolean; decision?: { unit?: string; step?: number; mode?: string } | null; blocks?: string[]; v3?: { recap?: boolean; urgent?: boolean; plateau?: boolean } | null } | null;
+                      const c = ev.data.context as { scenarioLabel?: string; plan?: { signature?: string } | null; weekly?: { arc?: { stage?: string } | null } | null; simToPrev?: number | null; repeatAlert?: boolean; coachRegen?: boolean; model?: string; verify?: { ok?: boolean; regen?: boolean } | null; assembled?: boolean; fallback?: boolean; decision?: { unit?: string; step?: number; mode?: string } | null; blocks?: string[]; v3?: { recap?: boolean; urgent?: boolean; plateau?: boolean } | null; brain?: { scenarioId?: string; useFood?: boolean; why?: string } | null } | null;
                       if (!c) return null;
                       const chip = (txt: string, fg: string, bg: string) => <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 800, color: fg, background: bg, borderRadius: 100, padding: '2px 7px' }}>{txt}</span>;
                       return <>
@@ -354,10 +354,12 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                         {c.repeatAlert ? chip('🚨 반복경보', '#B91C1C', '#FDEBEB') : null}
                         {c.verify ? (c.verify.ok === false ? chip('⚠️ 검증위반 발행', '#B91C1C', '#FDEBEB') : c.verify.regen ? chip('✅ 검증→재작성', '#1B5E20', '#EAF6F0') : chip('✅ 검증통과', '#5B6B53', '#EFF4EA')) : null}
                         {c.model?.includes('sonnet') ? chip('🧠 Sonnet', '#1565C0', '#E8F1FB') : null}
+                        {c.brain ? chip(`🧠 두뇌선택${c.brain.useFood === false ? '·음식뺌' : c.brain.useFood ? '·음식✓' : ''}`, '#7C2D92', '#F6EAFB') : null}
                         {c.coachRegen ? chip('재생성됨', '#92400E', '#FDF3E0') : null}
                       </>;
                     })()}
                   </div>
+                  {(() => { const c = ev.data.context as { brain?: { why?: string } | null } | null; return c?.brain?.why ? <div style={{ fontSize: 10.5, color: '#7C2D92', background: '#FaF5FC', borderRadius: 6, padding: '4px 8px', margin: '0 0 5px' }}>🧭 두뇌 판단: {c.brain.why}</div> : null; })()}
                   {ev.data.oneliner ? <div style={{ fontWeight: 800, marginBottom: 4 }}>{ev.data.oneliner}</div> : null}
                   {ev.data.letter}
                 </Bubble>

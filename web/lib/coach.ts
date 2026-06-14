@@ -374,7 +374,16 @@ export function buildCoachPlan(args: { frame: string; targetPool: string[]; rece
 }
 
 /** 시나리오 선택 + 계획 산출(둘 다 결정론·LLM 없음). srcHash에 signature를 넣거나 생성 전 분기에 쓰려고 분리. */
-export function planFor(p: { signals: CoachSignals; recentScenarioIds: string[]; recentPlans: CoachPlan[]; daySeed: number; cidHash: number; }): { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean } {
+export function planFor(p: { signals: CoachSignals; recentScenarioIds: string[]; recentPlans: CoachPlan[]; daySeed: number; cidHash: number; forceScenarioId?: string | null; }): { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean } {
+  // ⭐ 두뇌 선택(coachBrain): forceScenarioId가 오면 결정론 selectScenario 대신 그 시나리오로 잠그고 계획만 결정론 산출.
+  //   (이사님 설계: v2 모든 것 그대로, '시나리오 선택'만 LLM 두뇌로. 없으면 기존 결정론 경로 그대로 — 안전.)
+  if (p.forceScenarioId) {
+    const forced = SCENARIOS.find((s) => s.id === p.forceScenarioId);
+    if (forced) {
+      const bp = buildCoachPlan({ frame: forced.id, targetPool: targetPoolForScenario(forced.id, p.signals), recentPlans: p.recentPlans, daySeed: p.daySeed, cidHash: p.cidHash });
+      return { scenario: forced, plan: { frame: bp.frame, target: bp.target, moveKey: bp.moveKey, move: bp.move, signature: bp.signature }, varyOpener: p.recentPlans[0]?.frame === bp.frame };
+    }
+  }
   let scenario = selectScenario(p.signals, p.recentScenarioIds);
   let bp = buildCoachPlan({ frame: scenario.id, targetPool: targetPoolForScenario(scenario.id, p.signals), recentPlans: p.recentPlans, daySeed: p.daySeed, cidHash: p.cidHash });
   const prevTarget = p.recentPlans[0]?.target ?? null;

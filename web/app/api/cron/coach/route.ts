@@ -30,6 +30,7 @@ import { compileFacts, compileFactCards } from '@/lib/coachFacts';
 import { UNITS, type UnitId, type CRow, type ProgressRow as CurriculumRow } from '@/lib/curriculumUnits';
 import { type DailyDecision } from '@/lib/curriculum';
 import { decideDailyV3, isUrgent, introNeededV3, recentIntroUnitsOf, buildCandSignals, parseProbeAnswers, selectQuestionV3, v3Enabled, compareEnabled, type RecentProbe } from '@/lib/coachDaily';
+import { buildBrainContext, pickActionByBrain, nutritionMirrorFromInput, type BrainAction } from '@/lib/coachBrain';   // ⭐ 두뇌 선택+검수(시나리오는 LLM, 음식추천은 검수)
 import { buildLetterB } from '@/lib/coachCompare';
 import { normalizeFreqMap, type MealRow } from '@/lib/coachMaterials';
 import { assembleLetter, buildLetterCtx, collectBlockLedger } from '@/lib/assembleLetter';
@@ -384,6 +385,7 @@ export async function GET(req: Request) {
         const prev = lastLetter[cid];
         let letter = '', oneliner = '';
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
+        let brainPick: BrainAction | null = null;   // ⭐ 두뇌 선택+검수 결과(?brain=1) — context 저장·어드민 노출
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
         let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 — 어드민 검증
         let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
@@ -726,6 +728,25 @@ export async function GET(req: Request) {
             }
           } catch (e) { console.warn('[cron/coach] weekly anchor skip:', e instanceof Error ? e.message : e); }
           if (!v3Ctx) {   // ⭐ H-01 — v3가 편지를 만들었으면 레거시 생성(LLM) 전체 스킵
+          // ⭐ 두뇌 선택+검수(coachBrain·?brain=1일 때만 — 라이브 무영향). 시나리오=LLM 두뇌, 음식추천=검수(useFood)로 on/off. 실패=결정론 폴백.
+          if (qp.get('brain') === '1') {
+            try {
+              const { data: wk3 } = await supabase.from('weekly_plans').select('week_key,mission_target,behavior_goal,impression').eq('child_id', cid).order('week_key', { ascending: false }).limit(3);
+              const recoCand = buildRecoFacts({ likedIngredients: likedIng, target: precomputed.plan?.target ?? null, freqMap }).text;
+              const brainCtx = buildBrainContext({
+                childName: meta.nickname, signals,
+                nutritionMirror: nutritionMirrorFromInput({ homeMissing: homeFg.missing, missing: fg.missing, covered: fg.covered }),
+                recoCandidates: recoCand ? [recoCand] : [],
+                weeklyEchoes: (wk3 || []).map((w: { week_key: string; mission_target: string | null; behavior_goal: string | null; impression: string | null }) => ({ weekKey: w.week_key, target: w.mission_target, behaviorGoal: w.behavior_goal, impression: w.impression })),
+                pastLetters,
+                recentScenarioIds: recentScenarios[cid] || [],
+              });
+              brainPick = await pickActionByBrain(brainCtx, recoCand ? [recoCand] : []);
+              if (brainPick.scenarioId) {
+                precomputed = planFor({ signals, recentScenarioIds: recentScenarios[cid] || [], recentPlans: recentPlans[cid] || [], daySeed, cidHash, forceScenarioId: brainPick.scenarioId });
+              }
+            } catch (e) { console.warn('[cron/coach] brain skip:', e instanceof Error ? e.message : e); brainPick = null; }
+          }
           scenarioId = precomputed.scenario.id; scenarioLabel = precomputed.scenario.label; planCtx = precomputed.plan;
           // ⭐ 간식 멘트 다듬기(이사님) — 매일 '과자 대신 과일·요거트…' 반복 방지:
           //   ① 쿨다운: 최근 2일 안에 이미 실었으면 오늘은 생략(며칠에 한 번만) ② 과일이 오늘 타깃이면 본문이 이미 좋은 간식을 다루므로 중복 생략
@@ -739,7 +760,8 @@ export async function GET(req: Request) {
           const snackText = (!snackShownRecently && !snackChannelTarget && !structuralFrame) ? snackEvalToPrompt(snackEval, daySeed) : null;
           snackShownCtx = !!snackText;
           // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
-          const bridgeFacts = buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, freqMap }).text;
+          // ⭐ 두뇌 검수: useFood=false면(오늘 진짜 문제가 환경이라 음식 억지 금지) 음식 추천 본문 제외(B의 'off-target 음식 박기' 차단). 기본=결정론 추천.
+          const bridgeFacts = (brainPick && brainPick.useFood === false) ? '' : buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, freqMap }).text;
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
           // 끝줄 권유는 하루 하나만 — profileNudge 우선, 없으면 구조화 개선 팁을 ~주1회만 노출(매일=잔소리 금지·Q5).
           const profileN = recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null;
@@ -853,6 +875,7 @@ export async function GET(req: Request) {
             snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
             snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
+            brain: brainPick,   // ⭐ 두뇌 선택+검수(?brain=1) — 시나리오·useFood·근거(어드민 노출)
           };
           // ⭐ H-02·H-07 — 컨텍스트 단일화: v3 생성=buildLetterCtx 산출 그대로 / v3 편지 재사용=원장(blocks·factsCited·decision) 보존 / 레거시=기존 리터럴
           const finalCtxBase = v3Ctx
