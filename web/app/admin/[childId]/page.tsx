@@ -31,9 +31,9 @@ type Ev =
 const PLACE = (p: string | null) => p === 'home' ? '🏠 집' : p === 'daycare' ? '🏫 기관' : '';
 const HR = (h: number | null) => h == null ? '' : h <= 12 ? `${h}시` : `오후 ${h - 12}시`;
 
-function Bubble({ side, tone, children }: { side: 'l' | 'r'; tone?: 'gray' | 'yellow' | 'orange'; children: React.ReactNode }) {
-  const bg = tone === 'orange' ? '#FFF1E6' : tone === 'gray' ? '#F3F4F6' : '#FEF3C7';
-  const bd = tone === 'orange' ? '#FFD9B8' : tone === 'gray' ? '#E5E7EB' : '#FDE68A';
+function Bubble({ side, tone, children }: { side: 'l' | 'r'; tone?: 'gray' | 'yellow' | 'orange' | 'green' | 'blue'; children: React.ReactNode }) {
+  const bg = tone === 'orange' ? '#FFF1E6' : tone === 'gray' ? '#F3F4F6' : tone === 'green' ? '#EAF6F0' : tone === 'blue' ? '#E8F1FB' : '#FEF3C7';
+  const bd = tone === 'orange' ? '#FFD9B8' : tone === 'gray' ? '#E5E7EB' : tone === 'green' ? '#BFE3D0' : tone === 'blue' ? '#BBD6F5' : '#FDE68A';
   return (
     <div style={{ display: 'flex', justifyContent: side === 'r' ? 'flex-end' : 'flex-start', marginBottom: 8 }}>
       <div style={{ maxWidth: '78%', background: bg, border: `1px solid ${bd}`, borderRadius: 14, padding: '10px 13px', fontSize: 13.5, lineHeight: 1.55, color: '#1a2b4a', whiteSpace: 'pre-wrap' }}>
@@ -375,6 +375,29 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                     {alt!.letter}
                   </Bubble>
                 )}
+                {/* ⭐ 두뇌 모델 비교(②Sonnet vs ③Haiku) — context.brainCompare 있을 때만(비파괴·실험 표시) */}
+                {(() => {
+                  type BV = { letter?: string; oneliner?: string; lever?: string; scenarioLabel?: string; why?: string };
+                  const bc = (ev.data.context as { brainCompare?: { sonnet?: BV; haiku?: BV } } | null)?.brainCompare;
+                  if (!bc) return null;
+                  const c2 = (txt: string, fg: string, bg: string) => <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 800, color: fg, background: bg, borderRadius: 100, padding: '2px 7px' }}>{txt}</span>;
+                  const bub = (v: BV | undefined, tone: 'blue' | 'green', badge: string, bf: string, bb: string) => v && v.letter ? (
+                    <Bubble side="r" tone={tone}>
+                      <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 3, color: bf }}>🧠 {badge}{c2(badge.includes('Sonnet') ? '두뇌 Sonnet' : '두뇌 Haiku', bf, bb)}
+                        {v.lever ? c2(v.lever, '#1B5E20', '#EAF6F0') : null}
+                        {v.scenarioLabel ? c2(v.scenarioLabel, '#5B6B53', '#EFF4EA') : null}
+                      </div>
+                      {v.oneliner ? <div style={{ fontWeight: 800, marginBottom: 4 }}>{v.oneliner}</div> : null}
+                      {v.letter}
+                      {v.why ? <div style={{ marginTop: 6, fontSize: 10.5, color: '#7a6a5a', borderTop: '1px dashed #ddd', paddingTop: 4 }}>🧭 두뇌 판단: {v.why}</div> : null}
+                    </Bubble>
+                  ) : null;
+                  return (<>
+                    <div style={{ textAlign: 'right', fontSize: 10.5, color: '#888', margin: '10px 0 2px', fontWeight: 700 }}>── 두뇌 모델 비교 · 새 엔진(두뇌→손) 5일 시퀀스(날짜 무관) ──</div>
+                    {bub(bc.sonnet, 'blue', '② 두뇌=Sonnet + 손=Haiku', '#1565C0', '#E8F1FB')}
+                    {bub(bc.haiku, 'green', '③ 두뇌=Haiku + 손=Haiku', '#1B5E20', '#EAF6F0')}
+                  </>);
+                })()}
                 {/* B 발행 실패/스킵 표시(데이터 투명) */}
                 {alt && !hasB && (alt.failed || alt.skipped) && (
                   <div style={{ textAlign: 'right', fontSize: 10.5, color: '#B91C1C', margin: '0 0 6px' }}>B 미발행 — {alt.reason || (alt.failed ? '생성 실패' : '예산 부족')}</div>
