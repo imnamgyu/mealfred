@@ -102,15 +102,15 @@ export async function pickActionByBrain(ctx: string, candidates: string[] = [], 
   const r = await callClaude(ctx, 600, SYSTEM_BRAIN, model);
   const s = (v: unknown) => (typeof v === 'string' ? v : '');
   const id = s(r.scenarioId);
-  const candSet = new Set(candidates.filter(Boolean));
-  const approved = Array.isArray(r.approvedRecs) ? (r.approvedRecs as unknown[]).map(s).filter((x) => candSet.has(x)) : [];   // 후보 부분집합만(환각 차단)
-  const useFood = r.useFood === true && approved.length > 0;
+  // ⭐ useFood는 두뇌 boolean을 직접 신뢰(이전 버그: approvedRecs를 텍스트 블록 후보의 부분집합으로 강제 매칭 →
+  //   LLM이 긴 블록을 그대로 못 echo해서 항상 빈 배열 → useFood 강제 false. food-graph 추천(bridgeFacts)이 영영 꺼지던 원인).
+  const useFood = r.useFood === true;
   return {
     scenarioId: SCEN_IDS.has(id) ? id : '',   // 목록 밖이면 빈 값 → 호출측이 v2 폴백
     planTarget: r.planTarget == null ? null : s(r.planTarget) || null,
     moveKey: r.moveKey == null ? null : s(r.moveKey) || null,
     useFood,
-    approvedRecs: approved,
+    approvedRecs: useFood ? candidates.filter(Boolean) : [],   // useFood면 후보(=food-graph 추천) 사용. bridgeFacts는 cron이 useFood로 on/off
     why: s(r.why),
   };
 }
