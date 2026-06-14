@@ -31,8 +31,12 @@ for f in FILES:
     except Exception as e:
         print('skip', f, e)
 
-도감 = [x['nm'] for x in json.load(open(f'{WEB}/public/ingredients-light.json'))['ingredients']]
+_dogam_rows = json.load(open(f'{WEB}/public/ingredients-light.json'))['ingredients']
+도감 = [x['nm'] for x in _dogam_rows]
 도감set = set(도감)
+# 과일 = 간식 채널(끼니에 곁들이지 않고 '간식으로 따로'·coach SNACK_CHANNEL). 식판 동시출현(같은 끼니에 디저트로 같이 나옴)을
+#   '곁들임 궁합'으로 오인하면 소고기+포도·닭고기+바나나 같은 교차채널 노이즈가 추천에 샌다 → 식판 병합에서 과일 쌍 배제.
+FRUIT_SET = {x['nm'] for x in _dogam_rows if x.get('cat') == '과일'}
 
 # build-foods-recipes.py와 동일한 양념 블로클리스트 + 표준명 매핑
 SEASONING = set('마늘 파 대파 쪽파 실파 소금 간장 진간장 설탕 흑설탕 물엿 조청 고춧가루 참깨 깨소금 참기름 들기름 콩기름 식용유 카놀라유 포도씨유 올리브유 후추 후춧가루 식초 맛술 미림 청주 정종 생강 고추장 된장 쌈장 춘장 올리고당 꿀 전분 녹말 감자전분 밀가루 부침가루 튀김가루 빵가루 케첩 마요네즈 굴소스 액젓 멸치액젓 까나리액젓 새우젓 고추 청양고추 홍고추 풋고추 깨 들깨 미원 다시다 식소다 베이킹파우더 이스트 물 육수 버터 마가린 양파'.split())
@@ -206,9 +210,13 @@ if _os.path.exists(TRAY_PATH):
     tray_meta = _td.get('meta', {})
     GRANK = {'weak': 0, 'medium': 1, 'strong': 2}
     idx = {tuple(sorted((e['a'], e['b']))): e for e in pair_edges}
+    n_tray_fruit = 0
     for key, v in _td.get('pairs', {}).items():
         a, b = key.split('|')
         if a not in 도감set or b not in 도감set or a == b:
+            continue
+        if a in FRUIT_SET or b in FRUIT_SET:   # 교차채널 노이즈 차단(과일=간식채널, 같은 끼니 디저트 동시출현은 곁들임 궁합 아님)
+            n_tray_fruit += 1
             continue
         tg = v['grade']; sk = tuple(sorted((a, b))); e = idx.get(sk)
         if e is not None:
@@ -221,7 +229,7 @@ if _os.path.exists(TRAY_PATH):
             ne = {'a': sk[0], 'b': sk[1], 'kind': 'pair', 'strength': 3, 'lift': v['lift'],
                   'grade': 'strong', 'count': v['c'], 'tray': 'strong', 'src': 'tray', 'basis': f"같은 끼니 식단 {v['c']}회"}
             pair_edges.append(ne); idx[sk] = ne; n_tray_new += 1
-    print(f'tray 병합: 승급 {n_tray_up} · 신규 {n_tray_new} (식판 {tray_meta.get("trays","?")})')
+    print(f'tray 병합: 승급 {n_tray_up} · 신규 {n_tray_new} · 과일 교차채널 차단 {n_tray_fruit} (식판 {tray_meta.get("trays","?")})')
 else:
     print('tray 파일 없음 — base 그래프(레시피 동시출현만)')
 

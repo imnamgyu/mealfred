@@ -985,11 +985,11 @@
   <p class="lead">추천의 질문은 하나입니다: <b>"이 음식·식재료가 정말 같이 먹는 조합인가?"</b> 엔진은 이걸 의견이 아니라 <b>실제 식단 데이터의 공통출현</b>으로 판정합니다. 단일 카운트는 흔한 식재료(밥·달걀)를 우연히 '강함'으로 둔갑시키므로, 우리는 서로 다른 두 데이터에서 <b>각자 lift(우연 보정)로 등급화</b>하고, <b>둘 다 받쳐줄 때만</b> 추천에 씁니다. 그래서 <b>떡+달걀</b>처럼 LLM은 "괜찮다" 했지만 두 축 모두 약신호인 조합이 자동으로 차단됩니다.</p>
 
   <div class="kpi-grid">
-    <div class="kpi"><div class="v">468<small>쌍</small></div><div class="l">pair 궁합 엣지</div><div class="s">레시피 362 + 식판 106</div></div>
+    <div class="kpi"><div class="v">451<small>쌍</small></div><div class="l">pair 궁합 엣지</div><div class="s">레시피 362 + 식판 89</div></div>
     <div class="kpi b"><div class="v">175<small>쌍</small></div><div class="l">bridge 사촌 엣지</div><div class="s">수기 고신뢰 verified</div></div>
     <div class="kpi g"><div class="v">192<small>개</small></div><div class="l">노드(식재료)</div><div class="s">도감과 1:1</div></div>
     <div class="kpi v"><div class="v">1,612<small>식판</small></div><div class="l">NEIS 전국초등</div><div class="s">keyless · 같은 끼니 단위</div></div>
-    <div class="kpi y"><div class="v">37<small> / </small>106</div><div class="l">식판 승급 / 신규</div><div class="s">upgrade-only 병합</div></div>
+    <div class="kpi y"><div class="v">35<small> / </small>89</div><div class="l">식판 승급 / 신규</div><div class="s">upgrade-only · 과일 교차채널 116 차단</div></div>
     <div class="kpi r"><div class="v">0.72</div><div class="l">떡+달걀 lift</div><div class="s">우연 이하 → 차단</div></div>
   </div>
 
@@ -1031,9 +1031,10 @@
   <table>
     <thead><tr><th>식판 등급</th><th>그래프에 이미 있나</th><th>행동</th><th>결과</th></tr></thead>
     <tbody>
-      <tr><td>strong</td><td>있음 · 더 낮은 등급</td><td><code>GRANK[tray] &gt; GRANK[기존]</code> → <code>grade=tray</code> (strength&lt;2면 2로)</td><td><span class="kind ki-pub">승급 37</span></td></tr>
+      <tr><td>strong</td><td>있음 · 더 낮은 등급</td><td><code>GRANK[tray] &gt; GRANK[기존]</code> → <code>grade=tray</code> (strength&lt;2면 2로)</td><td><span class="kind ki-pub">승급 35</span></td></tr>
       <tr><td>strong</td><td>있음 · 같거나 높은 등급</td><td><code>e.tray</code>만 기록(메타) · 등급 유지</td><td><span class="kind ki-det">보존</span></td></tr>
-      <tr><td>strong</td><td>없음</td><td>새 pair 엣지 추가(<code>strength 3·src:'tray'</code>)</td><td><span class="kind ki-br">신규 106</span></td></tr>
+      <tr><td>strong</td><td>없음</td><td>새 pair 엣지 추가(<code>strength 3·src:'tray'</code>)</td><td><span class="kind ki-br">신규 89</span></td></tr>
+      <tr><td>strong · <b>과일</b> 한쪽</td><td>무관</td><td>교차채널 차단 — 과일은 간식채널(끼니 곁들임 아님)이라 같은 끼니 디저트 동시출현을 궁합으로 안 봄</td><td><span class="kind ki-guard">차단 116</span></td></tr>
       <tr><td>medium / weak</td><td>무관</td><td>병합하지 않음(strong만 승격·신규)</td><td><span class="kind ki-guard">차단</span></td></tr>
       <tr><td>—</td><td>—</td><td><b>강등 경로 자체가 없음</b>(누락=약점 증거 아님)</td><td><span class="kind ki-guard">금지</span></td></tr>
     </tbody>
