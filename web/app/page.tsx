@@ -713,8 +713,7 @@ export default function Home() {
               <div className="text-[11px] text-right font-semibold" style={{ color: '#6B7280' }}>최근 {days}일 기록<br /><span style={{ color: '#16A085' }}>매일 기록할수록 정확해져요</span></div>
             )}
           </div>
-          {/* 최근 식단 진단 한 줄(흡수) + 왜 이 점수? 근거 */}
-          <p className="text-[12.5px] leading-relaxed mb-2" style={{ color: '#5a4a3a' }}>{oneLiner}</p>
+          {/* ⭐ 식단 진단 한 줄(oneliner)은 제거 — 코칭 편지와 중복(이사님 2026-06-14). 영양 점수·근거·코칭 편지만 남김. */}
           {!isMockup && scoreReason && (scoreReason.redGroups.length > 0 || scoreReason.processed > 0 || scoreReason.repeat > 0) && (
             <div className="text-[11px] mb-2 leading-snug" style={{ color: '#9CA3AF' }}>
               <span style={{ color: '#C45A00', fontWeight: 700 }}>왜 이 점수?</span>{scoreReason.redGroups.length > 0 ? ` ${scoreReason.redGroups.slice(0, 2).join('·')} 부족` : ''}{scoreReason.processed > 0 ? ` · 가공식품(${scoreReason.processedSample.slice(0, 2).join('·')}) −${scoreReason.processed}` : ''}{scoreReason.repeat > 0 ? ` · ${scoreReason.repeatMenu} 반복 −${scoreReason.repeat}` : ''}

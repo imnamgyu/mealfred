@@ -784,6 +784,8 @@ export async function GET(req: Request) {
           const snackText = (!snackShownRecently && !snackChannelTarget && !structuralFrame) ? snackEvalToPrompt(snackEval, daySeed) : null;
           snackShownCtx = !!snackText;
           // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
+          // ⭐ 두뇌 useFood ↔ 시나리오 정합: 구조 프레임(환경·자율성·식감)은 본문이 음식 제안을 안 하므로 useFood=false로 맞춤(칩·bridgeFacts 일관).
+          if (brainPick && STRUCTURAL_FRAMES.includes(scenarioId || '')) brainPick.useFood = false;
           // ⭐ 주간 추천 식재료 풀(영양거울 기반 5개) + 일일 회전 — 같은 식재료 연속 추천 방지(6/2·6/3 콩 반복 사고).
           //   풀은 결정론(buildIngredientPool): 많이 무너지면 보급, 균형이면 도전+사촌. 일일은 최근 추천 안 한 것부터 회전.
           { const _rp = buildIngredientPool({ signals: computeGroupSignals(byDay, catOf).signals, likedIngredients: likedIng, freqMap, max: 5 });
