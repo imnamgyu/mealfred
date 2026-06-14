@@ -1,22 +1,131 @@
 {
-  "_doc": "WBS EPIC H · H-01 — 괴식/OK 조합 골든 셋. 모든 점수는 lib/comboMatrix.scoreCombo(dish, ingredient)의 실측값(추측 0). source=matrix(kit-dish-matrix scores)·pair(food-graph pair strength)·none(미수록=보수적 금지). 임계=2: score>=2 통과·score<2 차단. 데이터 드리프트 시 H-02 회귀가 빨개진다.",
-  "block": [
-    { "dish": "미역국", "ingredient": "당근", "score": 1, "source": "matrix", "expect": "block", "note": "scoreCombo('미역국','당근')={score:1,source:matrix} — 한국 미역국엔 당근 안 넣음(6/8 괴식 실증·박제)" },
-    { "dish": "된장국", "ingredient": "당근", "score": 0, "source": "none", "expect": "block", "note": "scoreCombo='none'(matrix·pair 미수록) — 보수적 금지" },
-    { "dish": "콩나물국", "ingredient": "당근", "score": 0, "source": "none", "expect": "block", "note": "scoreCombo='none' — 미수록 조합은 통과가 아니라 금지" },
-    { "dish": "치즈", "ingredient": "당근", "score": 1, "source": "pair", "expect": "block", "note": "pair strength 1 < 임계2 — 약신호도 차단" },
-    { "dish": "고구마", "ingredient": "당근", "score": 1, "source": "pair", "expect": "block", "note": "pair strength 1 < 임계2 — 차단" },
-    { "dish": "미역국", "ingredient": "초콜릿", "score": 0, "source": "none", "expect": "block", "note": "무관 조합 — matrix·pair 둘 다 없음 → 0=금지" }
-  ],
-  "ok": [
-    { "dish": "볶음밥", "ingredient": "당근", "score": 3, "source": "matrix", "expect": "ok", "note": "scoreCombo='matrix' 3 — 볶음밥에 당근 자연스러움" },
-    { "dish": "카레", "ingredient": "당근", "score": 3, "source": "matrix", "expect": "ok", "note": "scoreCombo='matrix' 3" },
-    { "dish": "비빔밥", "ingredient": "당근", "score": 3, "source": "matrix", "expect": "ok", "note": "scoreCombo='matrix' 3" },
-    { "dish": "덮밥", "ingredient": "당근", "score": 3, "source": "matrix", "expect": "ok", "note": "scoreCombo='matrix' 3" },
-    { "dish": "김밥", "ingredient": "당근", "score": 3, "source": "matrix", "expect": "ok", "note": "scoreCombo='matrix' 3" },
-    { "dish": "양배추", "ingredient": "당근", "score": 3, "source": "pair", "expect": "ok", "via": "pair", "note": "kit-dish-matrix에 '양배추' dish 키 없음 → food-graph pair(strength 3) 폴백으로 통과" },
-    { "dish": "두부", "ingredient": "당근", "score": 3, "source": "pair", "expect": "ok", "via": "pair", "note": "matrix 키 없음 → pair strength 3 폴백 ok" },
-    { "dish": "시금치", "ingredient": "당근", "score": 2, "source": "pair", "expect": "ok", "via": "pair", "note": "matrix 키 없음 → pair strength 2(=임계) 폴백 ok(경계값)" }
-  ],
-  "pairFallback": { "dish": "짜파게티", "ingredient": "당근", "score": 0, "source": "none", "via": "none", "expect": "block", "note": "짜파게티는 kit-dish-matrix dish 키 없음(확인됨)이고 food-graph에도 노드 없음(neighborsOf 빈) → pair 폴백도 실패 → 보수적 금지. (pair 엣지가 있었다면 ok였을 폴백 경로의 정직한 음성 케이스)" }
+ "_doc": "WBS EPIC H · H-01 — 괴식/OK 조합 골든 셋. 모든 점수는 lib/comboMatrix.scoreCombo(dish, ingredient)의 실측값(추측 0). source=matrix(kit-dish-matrix scores)·pair(food-graph pair strength)·none(미수록=보수적 금지). 임계=2: score>=2 통과·score<2 차단. 데이터 드리프트 시 H-02 회귀가 빨개진다.",
+ "block": [
+  {
+   "dish": "미역국",
+   "ingredient": "당근",
+   "score": 1,
+   "source": "matrix",
+   "expect": "block",
+   "note": "scoreCombo('미역국','당근')={score:1,source:matrix} — 한국 미역국엔 당근 안 넣음(6/8 괴식 실증·박제)"
+  },
+  {
+   "dish": "된장국",
+   "ingredient": "당근",
+   "score": 0,
+   "source": "none",
+   "expect": "block",
+   "note": "scoreCombo='none'(matrix·pair 미수록) — 보수적 금지"
+  },
+  {
+   "dish": "콩나물국",
+   "ingredient": "당근",
+   "score": 0,
+   "source": "none",
+   "expect": "block",
+   "note": "scoreCombo='none' — 미수록 조합은 통과가 아니라 금지"
+  },
+  {
+   "dish": "치즈",
+   "ingredient": "당근",
+   "score": 0,
+   "source": "none",
+   "expect": "block",
+   "note": "약신호 s=1 pair는 strongPairsOf(strength≥2)에서 제외 → none·여전히 차단"
+  },
+  {
+   "dish": "고구마",
+   "ingredient": "당근",
+   "score": 0,
+   "source": "none",
+   "expect": "block",
+   "note": "약신호 s=1 pair는 strongPairsOf(strength≥2)에서 제외 → none·여전히 차단"
+  },
+  {
+   "dish": "미역국",
+   "ingredient": "초콜릿",
+   "score": 0,
+   "source": "none",
+   "expect": "block",
+   "note": "무관 조합 — matrix·pair 둘 다 없음 → 0=금지"
+  }
+ ],
+ "ok": [
+  {
+   "dish": "볶음밥",
+   "ingredient": "당근",
+   "score": 3,
+   "source": "matrix",
+   "expect": "ok",
+   "note": "scoreCombo='matrix' 3 — 볶음밥에 당근 자연스러움"
+  },
+  {
+   "dish": "카레",
+   "ingredient": "당근",
+   "score": 3,
+   "source": "matrix",
+   "expect": "ok",
+   "note": "scoreCombo='matrix' 3"
+  },
+  {
+   "dish": "비빔밥",
+   "ingredient": "당근",
+   "score": 3,
+   "source": "matrix",
+   "expect": "ok",
+   "note": "scoreCombo='matrix' 3"
+  },
+  {
+   "dish": "덮밥",
+   "ingredient": "당근",
+   "score": 3,
+   "source": "matrix",
+   "expect": "ok",
+   "note": "scoreCombo='matrix' 3"
+  },
+  {
+   "dish": "김밥",
+   "ingredient": "당근",
+   "score": 3,
+   "source": "matrix",
+   "expect": "ok",
+   "note": "scoreCombo='matrix' 3"
+  },
+  {
+   "dish": "양배추",
+   "ingredient": "당근",
+   "score": 3,
+   "source": "pair",
+   "expect": "ok",
+   "via": "pair",
+   "note": "kit-dish-matrix에 '양배추' dish 키 없음 → food-graph pair(strength 3) 폴백으로 통과"
+  },
+  {
+   "dish": "두부",
+   "ingredient": "당근",
+   "score": 3,
+   "source": "pair",
+   "expect": "ok",
+   "via": "pair",
+   "note": "matrix 키 없음 → pair strength 3 폴백 ok"
+  },
+  {
+   "dish": "시금치",
+   "ingredient": "당근",
+   "score": 2,
+   "source": "pair",
+   "expect": "ok",
+   "via": "pair",
+   "note": "matrix 키 없음 → pair strength 2(=임계) 폴백 ok(경계값)"
+  }
+ ],
+ "pairFallback": {
+  "dish": "짜파게티",
+  "ingredient": "당근",
+  "score": 0,
+  "source": "none",
+  "via": "none",
+  "expect": "block",
+  "note": "짜파게티는 kit-dish-matrix dish 키 없음(확인됨)이고 food-graph에도 노드 없음(neighborsOf 빈) → pair 폴백도 실패 → 보수적 금지. (pair 엣지가 있었다면 ok였을 폴백 경로의 정직한 음성 케이스)"
+ }
 }

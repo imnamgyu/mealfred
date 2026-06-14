@@ -13,7 +13,7 @@
  * 전부 순수 함수 — fs/HTTP·LLM 불사용(정적 JSON import). kit-dish-matrix·food-graph는 read만(무변경).
  */
 import { dishesForIngredient } from './kitGuide';
-import { neighborsOf } from './foodGraph';
+import { strongPairsOf } from './foodGraph';
 
 export const COMBO_THRESHOLD = 2;
 
@@ -35,12 +35,12 @@ export function dishIngredientFit(dish: string, ing: string): DishFit {
 export type PairFit = { ok: boolean; basis?: string };
 
 /**
- * 식재료×식재료 궁합 — food-graph pair(레시피 동시출현 근거)에만 의존. 지어낸 궁합 금지.
- * 무방향(food-graph) → a,b 순서 무관. dish를 넣으면 food-graph 노드가 아니라 ok=false(경계 강제).
+ * 식재료×식재료 궁합 — food-graph 강한 pair(strongPairsOf·strength≥2 또는 grade=strong)에만 의존.
+ * 약신호 s=1(떡+달걀 lift 0.72 등)은 차단(지어낸·우연 궁합 금지). 무방향 → a,b 순서 무관. dish는 노드 아니라 ok=false(경계 강제).
  */
 export function ingredientPairFit(a: string, b: string): PairFit {
   if (!a || !b || !a.trim() || !b.trim()) return { ok: false };
-  const edge = neighborsOf(a).find((n) => n.kind === 'pair' && n.nm === b);
+  const edge = strongPairsOf(a).find((n) => n.nm === b);
   return edge ? { ok: true, basis: edge.basis } : { ok: false };
 }
 

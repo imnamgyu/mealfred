@@ -10,7 +10,7 @@
  *
  *  순수 함수 — fs/HTTP 불사용. freqMap(ingredient-recipes)은 호출자가 주입(없으면 kit-matrix 폴백).
  */
-import { neighborsOf } from './foodGraph';
+import { strongPairsOf, verifiedCousinsOf } from './foodGraph';
 import { dishesForIngredient } from './kitGuide';
 import { isSpicyDish } from './spicy';
 
@@ -63,10 +63,10 @@ export function pickFoodReco(args: { target: string; likedIngredients: string[];
   const rep = reps0[off];   // 오늘의 추천 식재료(회전)
   const liked = new Set((args.likedIngredients || []).filter(Boolean));
   if (liked.has(rep)) return { group: args.target, food: stapleDisplay(rep), via: 'liked' };
-  const pl = neighborsOf(rep).find((n) => n.kind === 'pair' && liked.has(n.nm));   // 궁합 — 잘 먹는 것에 곁들이기
+  const pl = strongPairsOf(rep).find((n) => liked.has(n.nm));   // 궁합 — 잘 먹는 것에 곁들이기(강한 pair만·약신호 곁들임 차단)
   if (pl) return { group: args.target, food: rep, via: 'pair', pairLiked: stapleDisplay(pl.nm) };
-  for (const lk of liked) {   // 푸드체이닝 — 잘 먹는 것의 사촌이 이 rep이면
-    if (neighborsOf(lk).some((n) => n.kind === 'bridge' && n.nm === rep)) return { group: args.target, food: rep, via: 'chain', pairLiked: stapleDisplay(lk) };
+  for (const lk of liked) {   // 푸드체이닝 — 잘 먹는 것의 검증된 사촌이 이 rep이면
+    if (verifiedCousinsOf(lk).some((n) => n.nm === rep)) return { group: args.target, food: rep, via: 'chain', pairLiked: stapleDisplay(lk) };
   }
   const d = popularDishesFor(rep, args.freqMap);   // 또래 인기 음식으로 도전
   if (d.length) return { group: args.target, food: rep, via: 'dish', dish: d[0] };
@@ -110,7 +110,7 @@ export function buildRecoFacts(args: { likedIngredients: string[]; target?: stri
     for (const ing of GROUP_INGREDIENTS[args.target]) {
       const dishes = popularDishesFor(ing, args.freqMap);
       if (!dishes.length) continue;
-      const pairWithLiked = [...new Set(neighborsOf(ing).filter((n) => n.kind === 'pair' && likedSet.has(n.nm)).slice(0, 3).map((n) => stapleDisplay(n.nm)))].slice(0, 2);   // 주식은 먹는 형태(밥·빵)로
+      const pairWithLiked = [...new Set(strongPairsOf(ing).filter((n) => likedSet.has(n.nm)).slice(0, 3).map((n) => stapleDisplay(n.nm)))].slice(0, 2);   // 강한 궁합만(약신호 곁들임 차단)·주식은 먹는 형태
       lines.push(`[오늘 타깃 ${args.target}] ${ing} (또래 인기 음식: ${dishes.join('·')}${pairWithLiked.length ? ` · 잘 먹는 ${pairWithLiked.join('·')} 곁들이면 좋아요` : ''})`);
       break;   // 타깃은 대표 식재료 1개만
     }
@@ -119,9 +119,8 @@ export function buildRecoFacts(args: { likedIngredients: string[]; target?: stri
   // (b) 잘 먹는 식재료 → 사촌(+그 사촌의 인기 음식)·궁합
   for (const ing of liked) {
     if (lines.length >= 4) break;
-    const nb = neighborsOf(ing);
-    const cs = nb.filter((n) => n.kind === 'bridge' && !likedSet.has(n.nm) && !cousins.includes(n.nm)).slice(0, 1);
-    const pr = [...new Set(nb.filter((n) => n.kind === 'pair' && !likedSet.has(n.nm)).slice(0, 3).map((n) => stapleDisplay(n.nm)))].slice(0, 2);   // 주식은 먹는 형태(밥·빵)로
+    const cs = verifiedCousinsOf(ing).filter((n) => !likedSet.has(n.nm) && !cousins.includes(n.nm)).slice(0, 1);   // 검증된 사촌만
+    const pr = [...new Set(strongPairsOf(ing).filter((n) => !likedSet.has(n.nm)).slice(0, 3).map((n) => stapleDisplay(n.nm)))].slice(0, 2);   // 강한 궁합만·주식은 먹는 형태
     if (!cs.length && !pr.length) continue;
     const parts: string[] = [];
     for (const c of cs) {

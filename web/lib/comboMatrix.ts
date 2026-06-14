@@ -11,7 +11,7 @@
  * 전부 순수 함수 — fs/HTTP 불사용(정적 JSON import). LLM이 조합을 지어내게 두지 않는다.
  */
 import kit from './kit-dish-matrix.json';
-import { neighborsOf } from './foodGraph';
+import { strongPairsOf } from './foodGraph';
 
 type KitData = {
   scores?: Record<string, Record<string, number>>;   // 음식→식재료 정성채점 0~3
@@ -26,8 +26,8 @@ export type ComboScore = { score: number; source: ComboSource };
 export function scoreCombo(dish: string, ing: string): ComboScore {
   const m = K.scores?.[dish]?.[ing];
   if (typeof m === 'number') return { score: m, source: 'matrix' };       // 1순위: 정성채점(미역국+당근=1)
-  const pair = neighborsOf(ing).find((n) => n.kind === 'pair' && n.nm === dish);
-  if (pair) return { score: Math.max(0, Math.min(3, pair.strength)), source: 'pair' };   // 2순위: 궁합 strength(1~3)
+  const pair = strongPairsOf(ing).find((n) => n.nm === dish);   // 강한 궁합만(약신호 s=1 차단)
+  if (pair) return { score: Math.max(0, Math.min(3, pair.strength)), source: 'pair' };
   const c = K.cells?.[dish]?.[ing];
   if (typeof c === 'number' && c > 0) return { score: 1, source: 'cells' };  // 약신호 = 임계 미만(보수적 금지)
   return { score: 0, source: 'none' };                                       // 미수록 = 금지

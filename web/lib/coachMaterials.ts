@@ -12,7 +12,7 @@
  *       A-07 조합 검증 후보 · A-08 근거문구 · A-09 온보딩 가드 · A-10 오케스트레이터 · A-11 freqMap 어댑터.
  */
 import { GROUP_INGREDIENTS, STAPLE_FORMS, stapleDisplay, type FreqMap } from './coachRecos';
-import { neighborsOf } from './foodGraph';
+import { strongPairsOf, verifiedCousinsOf } from './foodGraph';
 import { scoreCombo } from './comboMatrix';
 import { GROUP_TARGET, type GroupSignal, type GroupLevel } from './nutrition';
 import COACH_TIPS from './coach-tips.json';
@@ -70,9 +70,8 @@ export function rankIngredients(args: { targetGroup: string; groupLevel: GroupLe
   const likedSet = new Set((args.liked || []).filter(Boolean));
   const urgency = args.groupLevel === 'red' ? 3 : args.groupLevel === 'yellow' ? 1 : 0;
   const rows: RankedIng[] = list.map((ing) => {
-    const nb = neighborsOf(ing);
-    const pair = Math.min(2, nb.filter((n) => n.kind === 'pair' && likedSet.has(n.nm)).length);
-    const bridge = [...likedSet].some((lk) => neighborsOf(lk).some((n) => n.kind === 'bridge' && n.nm === ing)) ? 2 : 0;
+    const pair = Math.min(2, strongPairsOf(ing).filter((n) => likedSet.has(n.nm)).length);   // 강한 궁합만(약신호 가점 차단)
+    const bridge = [...likedSet].some((lk) => verifiedCousinsOf(lk).some((n) => n.nm === ing)) ? 2 : 0;   // 검증된 사촌만
     const freq = pctToScore(ingredientGioFreq(ing).pct);
     const parts = { urgency, freq, pair, bridge };
     const score = parts.urgency * RANK_W.urgency + parts.freq * RANK_W.freq + parts.pair * RANK_W.pair + parts.bridge * RANK_W.bridge;
@@ -235,9 +234,8 @@ export function selectDailyMaterials(args: {
   let pairLiked: string | null = null;
   let cousinOf: string | null = null;
   if (recommendedIng) {
-    const nb = neighborsOf(recommendedIng);
-    pairLiked = nb.find((n) => n.kind === 'pair' && liked.includes(n.nm))?.nm ?? null;
-    cousinOf = liked.find((lk) => neighborsOf(lk).some((n) => n.kind === 'bridge' && n.nm === recommendedIng)) ?? null;
+    pairLiked = strongPairsOf(recommendedIng).find((n) => liked.includes(n.nm))?.nm ?? null;   // 강한 궁합만
+    cousinOf = liked.find((lk) => verifiedCousinsOf(lk).some((n) => n.nm === recommendedIng)) ?? null;   // 검증된 사촌만
   }
   const validatedCombos = recommendedIng
     ? buildValidatedCombos({ recommendedIng, likedDishes: args.favoriteFoods, likedIngredients: liked })
