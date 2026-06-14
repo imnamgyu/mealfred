@@ -51,6 +51,35 @@
   .arc-link:hover{border-color:var(--p500);color:var(--p700)}
   footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600}
   @media(max-width:600px){.hero h1{font-size:26px}}
+  /* 문서 카드 — 생성·수정일 + 상세 보기 */
+  .doc-dates{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:10.5px;font-weight:700;color:var(--n400);margin-top:12px}
+  .doc-card .meta{margin-top:8px}
+  .doc-dates .dd{display:inline-flex;align-items:center;gap:4px}
+  .doc-dates .dd .lab{font-weight:800;color:var(--n400);background:var(--n50);border-radius:5px;padding:1px 5px}
+  .doc-dates .dd.mod .lab{color:var(--p700);background:var(--p50)}
+  .doc-dates .dd.mod{color:var(--p700)}
+  .doc-dates .live{display:inline-flex;align-items:center;gap:4px;font-weight:800;color:var(--g700)}
+  .doc-card .meta .info-btn{margin-left:auto;background:var(--n50);border:1px solid var(--n200);color:var(--n500);font-size:11px;font-weight:800;border-radius:100px;padding:3px 10px;cursor:pointer;font-family:inherit;line-height:1.4;transition:all .15s}
+  .doc-card .meta .info-btn:hover{background:var(--p50);border-color:var(--p300);color:var(--p700)}
+  .doc-card .meta .arrow{margin-left:8px}
+  /* 상세 모달 */
+  .dm-overlay{position:fixed;inset:0;background:rgba(26,20,12,0.48);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000}
+  .dm-overlay.open{display:flex}
+  .dm-card{background:#fff;border-radius:18px;border-top:5px solid var(--p500);max-width:440px;width:100%;padding:28px 24px 22px;position:relative;box-shadow:0 24px 70px rgba(0,0,0,0.28);max-height:90vh;overflow-y:auto;animation:dmpop .18s ease}
+  @keyframes dmpop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  .dm-close{position:absolute;top:13px;right:15px;background:none;border:none;font-size:19px;color:var(--n400);cursor:pointer;font-weight:700;line-height:1;font-family:inherit}
+  .dm-close:hover{color:var(--n700)}
+  .dm-ico{font-size:40px;line-height:1;margin-bottom:10px}
+  .dm-badge{display:inline-block;font-size:10px;font-weight:800;background:var(--p100);color:var(--p700);padding:3px 10px;border-radius:100px;letter-spacing:0.03em;margin-bottom:9px}
+  .dm-title{font-size:18px;font-weight:800;color:var(--s800);line-height:1.36;margin-bottom:11px;padding-right:18px}
+  .dm-desc{font-size:13px;color:var(--n600);font-weight:600;line-height:1.66;margin-bottom:18px}
+  .dm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+  .dm-cell{background:var(--n50);border:1px solid var(--n200);border-radius:11px;padding:10px 12px}
+  .dm-cell .ml{display:block;font-size:9.5px;font-weight:800;color:var(--n400);letter-spacing:0.04em;margin-bottom:3px}
+  .dm-cell .mv{font-size:13.5px;font-weight:800;color:var(--s800)}
+  .dm-cell.mod{background:var(--p50);border-color:var(--p100)}.dm-cell.mod .mv{color:var(--p700)}
+  .dm-open{display:block;text-align:center;background:var(--p500);color:#fff;font-weight:800;font-size:14px;padding:13px;border-radius:12px;text-decoration:none;transition:background .15s}
+  .dm-open:hover{background:var(--p700)}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
 </head>
@@ -60,7 +89,7 @@
   <div class="hero-inner">
     <span class="tag">📚 PROJECT DOCS HUB · v1</span>
     <h1>밀프레드 편식도감<br>프로젝트 문서 허브 <span style="color:#C45A00">v1</span></h1>
-    <p>앱이 라이브로 확정된 <b>v1</b> 기준 <b>현행 문서만</b> — 클러스터별 <b>정본 1개</b>로 정리했습니다(투자·마케팅·엔진·제품). 지난 설계도·제안서·구버전·데모는 <a href="/docs-archive.html" style="color:#C45A00;font-weight:700">아카이브</a>로 옮기고 deprecated 표시했어요. <span style="color:#9a8a7a">최근 정리: 2026-06-11.</span></p>
+    <p>앱이 라이브로 확정된 <b>v1</b> 기준 <b>현행 문서만</b> — 클러스터별 <b>정본 1개</b>로 정리했습니다(투자·마케팅·엔진·제품). 지난 설계도·제안서·구버전·데모는 <a href="/docs-archive.html" style="color:#C45A00;font-weight:700">아카이브</a>로 옮기고 deprecated 표시했어요. <span style="color:#9a8a7a">각 문서 카드의 <b>ⓘ</b>를 누르면 생성·수정일과 상세를 볼 수 있어요. 최근 정리: 2026-06-14.</span></p>
   </div>
 </header>
 
@@ -70,51 +99,16 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📈 투자</h3>
-    <span class="cnt">6 정본</span>
-    <span class="note">발표덱 + 피치 논리 + 시드 엔진 + InBodyLIKE 지원서 + IR + Series A 덱</span>
+    <span class="cnt">1 정본</span>
+    <span class="note">외부 투자자 발표용 단일 정본 — 시리즈 A 피치 덱</span>
   </div>
   <div class="doc-grid">
-    <a href="/inbodylike-deck.html" class="doc-card cat-strategy">
-      <span class="badge new">발표덱</span>
-      <div class="ico">🖥</div>
-      <h4>InBodyLIKE 발표 슬라이드덱 (14장)</h4>
-      <p class="desc">지원서를 발표용으로. 문제→공백→아하(엄마도 포기한 아이)→<b>엔진 3장(도식+실앱 캡처 쌍)</b>→충족→유통→시장→팀→<b>각오</b>→인바디 측정 루프 Ask. 키보드/스크롤 풀스크린 · N키 발표멘트 · 인쇄(PDF). 3각도 설계→심사 합본.</p>
-      <div class="meta"><span>발표덱 · 14 slides</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/inbodylike-application.html" class="doc-card cat-strategy">
-      <span class="badge new">지원서</span>
-      <div class="ico">📝</div>
-      <h4>InBodyLIKE 지원서 (작성본)</h4>
-      <p class="desc">인바디+블루포인트 헬스케어 액셀러레이터 지원서. <b>측정-처방-충족-재측정 루프</b>를 협업 축으로(인바디 체성분·성장 측정이 우리 약점=결과 데이터 부재를 보완). 7개 필드 완성본 + 제출 전 채울 4항목. 3각도 초안→심사 합본·자수/정직 자체검증.</p>
-      <div class="meta"><span>지원서 · InBodyLIKE</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/pitch-logic.html" class="doc-card cat-strategy">
-      <span class="badge new">PITCH 논리</span>
-      <div class="ico">🎤</div>
-      <h4>피치덱 논리 구조 (정직판) — 시드</h4>
-      <p class="desc">적대검증 8에이전트가 강제한 정직 분할: <b>증명된 것 vs 이번 라운드 베팅</b>. 현 B2G는 AI를 학습시키지 않음(연료=공개 NEIS·B2C앱) → 라이브 엔진(급식 매핑)을 히어로로, 개인화 닫힌 루프는 비전으로. <b>슬라이드 12장 논리 흐름</b>(메시지·근거·과장 주의) + 측정 루프(체성분·성장=인바디 시너지). 흑자 미언급.</p>
-      <div class="meta"><span>SEED · 피치 논리 정본</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/seed-thesis-logic.html" class="doc-card cat-strategy">
-      <span class="badge new">SEED 엔진</span>
-      <div class="ico">🧭</div>
-      <h4>시드 논리 정본 — 엔진(래퍼 아님) × HW 풀스택 해자</h4>
-      <p class="desc">시드 피치의 <b>논리 척추</b>만. ⓐ 엔진이 단순 LLM 래퍼가 아닌 <b>실물 3기둥</b>(독자 코퍼스·결정론 저비용 엔진·데이터 루프) ⓑ <b>HW가 밑받침돼야 하는 사업구조</b> 논리 사슬(처방↔충족 닫힌 루프) ⓒ 현황 B2G를 <b>토대로만 최소 흡수</b>(수익성 서사 미사용). 슬라이드 흐름 7장 포함.</p>
-      <div class="meta"><span>SEED · 논리 정본</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/ir.html" class="doc-card cat-strategy">
-      <span class="badge new">IR · Series A</span>
-      <div class="ico">📈</div>
-      <h4>투자자 IR — 요리키트→AI 영양 헬스케어 (정본)</h4>
-      <p class="desc">투자자 100명 거절 사유를 한 층씩 뒤집는 <b>5단 플라이휠</b>. <b>⭐ CAC 엔진</b> = 교육 키트 고객군 → 무료증정 앱설치(0-CAC) · 송곳·우산 GTM·시장·LTV·팀·펀딩(가속 라운드). <b>상단 '한 눈에 보기' = Series A 피치 20슬라이드 압축</b>. <span style="color:#C45A00">발표용 스크롤 덱은 <a href="/pitch.html" style="color:#C45A00;text-decoration:underline">/pitch.html</a></span></p>
-      <div class="meta"><span>INVESTOR · Series A 가속 라운드</span><span class="arrow">→</span></div>
-    </a>
     <a href="/pitch.html" class="doc-card cat-strategy">
-      <span class="badge new">DECK</span>
+      <span class="badge new">DECK · 정본</span>
       <div class="ico">🎤</div>
-      <h4>Series A 피치 덱 — 20슬라이드 (정본)</h4>
-      <p class="desc">시드 느낌을 걷어낸 <b>Series A 수준 20장</b> — 흑자 물리사업 + 라이브 데이터/AI 해자(테키 4장: 4단 매핑·컴파운딩 엔진·결정론 격리·코칭 자기개선) + <b>무료증정 0-CAC GTM</b> + 정직 진단(실측 vs 베팅). 스크롤 프레젠테이션 · A4 인쇄.</p>
-      <div class="meta"><span>PITCH · 20 slides</span><span class="arrow">→</span></div>
+      <h4>밀프레드 투자 피치 덱 — Series A (외부 발표용 정본)</h4>
+      <p class="desc">외부 투자자 발표용 <b>단일 정본 20슬라이드</b>. 흑자 물리사업(키트 +139% YoY·재구매 37.4%) + 라이브 데이터/AI 해자(4단 매핑·컴파운딩 엔진·결정론 격리·코칭 자기개선) + <b>무료증정 0-CAC GTM</b>(기관 침투율·교육 도달 2만→15만) + 정직 진단(실측 vs 베팅) + The Ask(~7억 가속 라운드). 스크롤 프레젠테이션 · A4 인쇄(PDF). <span style="color:#9a8a7a">지난 6종(IR·피치 논리·시드 엔진·액셀러레이터 지원서 등)은 이 덱으로 통합·아카이브 이관.</span></p>
+      <div class="meta"><span>PITCH · Series A · 20 slides</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
@@ -176,8 +170,8 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>⚙️ 엔진 · 데이터 명세 (정본)</h3>
-    <span class="cnt">정본 3</span>
-    <span class="note">엔진 정본을 <b>3개로 압축</b>(2026-06-13). ① <b>기술 아키텍처 해부도</b> = 엔진 기술 구성 단일 진실(코드 단위·시각화) ② <b>v2 하이브리드 빌드 플랜</b> = 현재 빌드·작업 단일 진실(A~J 구현 완료) ③ <b>영양 신호등</b> = 데이터 기준. 지난 코칭 정본(시나리오·plan·케이던스)·v3(엔진·WBS)·로드맵·발제·실라버스·코퍼스 문서는 하이브리드 통합으로 <a href="/docs-archive.html">아카이브</a>로 이관했습니다.</span>
+    <span class="cnt">정본 4</span>
+    <span class="note">① <b>기술 아키텍처 해부도</b> = 코칭 엔진 기술 구성 단일 진실(코드 단위·시각화) ② <b>v2 하이브리드 빌드 플랜</b> = 코칭 빌드·작업 단일 진실(A~J 구현 완료) ③ <b>영양 신호등</b> = 데이터 기준 ④ <b>음식 추천 네트워크 데이터 강화 아키텍처</b>(2026-06-14 신규) = 추천 그래프를 2~6세용으로 풍성하게 만들 데이터 소스·판정 관문 설계. 지난 코칭 정본·v3·로드맵·발제·코퍼스 문서는 <a href="/docs-archive.html">아카이브</a>로 이관했습니다.</span>
   </div>
   <div class="doc-grid">
     <a href="/coaching-engine-architecture.html" class="doc-card cat-strategy">
@@ -200,6 +194,13 @@
       <h4>영양 신호등 기준</h4>
       <p class="desc">KDRI 31종을 체내저장·식품분포·결핍위험으로 분류 → green 문턱 <b>매일군5/자주군4/가끔군2</b> 차등. 비타민D 분리·분모 교정. <b>라이브 적용 완료</b>의 근거·출처 — 엔진이 딛고 선 영양 데이터 기준.</p>
       <div class="meta"><span>NUTRITION · 데이터 기준</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/food-network-data-architecture.html" class="doc-card cat-strategy">
+      <span class="badge new">🕸️ 신규 · 설계 정본</span>
+      <div class="ico">🕸️</div>
+      <h4>음식 추천 네트워크 — 데이터 강화 아키텍처 (2~6세)</h4>
+      <p class="desc"><b>추천 그래프를 어떤 데이터로·어떤 관문을 거쳐 풍성하게 만들 것인가.</b> 핵심 원칙 = <b>수치는 후보를 만들고(+안전 바닥), 사람(Claude)이 증거 엑셀을 보고 판정하고, 편지는 믿고 쓴다</b> — 판단은 빌드타임 1곳, 런타임은 연령·알레르기 결정론 필터뿐. 위에 부어 넣을 <b>데이터 3티어</b>(보유 1차 신호·국가 공공데이터·유사도 모델) + <b>국가 레시피 backbone</b>(조리기능사·농진청 3,248·식약처 영유아 식단 API) + <b>bridge 수기→데이터 자동화</b>(영양∩감각∩향미) + <b>2~6세 안전 메타</b>(질식·IDDSI 식감·8대 알레르겐·KDRI·신포비아). 3약점 진단·검수 엑셀 포맷·즉시/단기/중기 로드맵. <span style="color:#C45A00">떡+달걀 교훈 = "LLM 빼라"가 아니라 "데이터로 무장시켜라".</span></p>
+      <div class="meta"><span>ENGINE · 추천 네트워크 설계 정본</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
@@ -283,8 +284,95 @@
 </main>
 
 <footer>
-  <p>밀프레드 편식도감 · 프로젝트 문서 허브 <b>v1</b> · 클러스터별 정본만 표시 · 지난 자료는 <a href="/docs-archive.html" style="color:#9CA3AF">아카이브</a> · 최근 정리 2026-06-11</p>
+  <p>밀프레드 편식도감 · 프로젝트 문서 허브 <b>v1</b> · 클러스터별 정본만 표시 · 지난 자료는 <a href="/docs-archive.html" style="color:#9CA3AF">아카이브</a> · 최근 정리 2026-06-14</p>
 </footer>
+
+<!-- 문서 상세 모달 -->
+<div class="dm-overlay" id="dmOverlay" role="dialog" aria-modal="true" aria-labelledby="dmTitle">
+  <div class="dm-card">
+    <button class="dm-close" id="dmClose" aria-label="닫기" type="button">✕</button>
+    <div class="dm-ico" id="dmIco"></div>
+    <span class="dm-badge" id="dmBadge"></span>
+    <div class="dm-title" id="dmTitle"></div>
+    <div class="dm-desc" id="dmDesc"></div>
+    <div class="dm-grid">
+      <div class="dm-cell"><span class="ml">생성일</span><span class="mv" id="dmCreated"></span></div>
+      <div class="dm-cell mod"><span class="ml">수정일</span><span class="mv" id="dmModified"></span></div>
+      <div class="dm-cell"><span class="ml">분류</span><span class="mv" id="dmCat"></span></div>
+      <div class="dm-cell"><span class="ml">상태</span><span class="mv" id="dmStatus"></span></div>
+    </div>
+    <a class="dm-open" id="dmOpen" href="#">문서 열기 →</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
+  var DOC_DATES = {
+    '/pitch.html':{c:'2026-06-03',m:'2026-06-14'},
+    '/marketing-strategy.html':{c:'2026-06-03',m:'2026-06-03'},
+    '/community-build-report.html':{c:'2026-06-04',m:'2026-06-04'},
+    '/community-kakao-pivot.html':{c:'2026-06-04',m:'2026-06-04'},
+    '/parent-acquisition.html':{c:'2026-06-03',m:'2026-06-03'},
+    '/ad-matrix.html':{c:'2026-06-03',m:'2026-06-03'},
+    '/painpoint-features.html':{c:'2026-06-03',m:'2026-06-03'},
+    '/coaching-engine-architecture.html':{c:'2026-06-13',m:'2026-06-13'},
+    '/coaching-v2-hybrid-build-plan.html':{c:'2026-06-13',m:'2026-06-13'},
+    '/nutrient-signal-report.html':{c:'2026-06-01',m:'2026-06-01'},
+    '/food-network-data-architecture.html':{c:'2026-06-14',m:'2026-06-14'},
+    '/box-product.html':{c:'2026-05-19',m:'2026-06-04'},
+    '/design-spec.html':{c:'2026-05-24',m:'2026-05-31'},
+    '/methodology.html':{c:'2026-06-01',m:'2026-06-01'},
+    '/worklog.html':{c:'2026-05-30',m:'2026-06-01'}
+  };
+  var overlay=document.getElementById('dmOverlay');
+  function $(id){return document.getElementById(id);}
+  function openModal(card,href,rec,isLive){
+    var ico=card.querySelector('.ico'), badge=card.querySelector('.badge'), h4=card.querySelector('h4'), desc=card.querySelector('.desc');
+    var cat=card.closest('.cat-section'); cat=cat?cat.querySelector('.cat-head h3'):null;
+    $('dmIco').textContent=ico?ico.textContent:'📄';
+    var bt=badge?badge.textContent.trim():'';
+    $('dmBadge').textContent=bt||'문서'; $('dmBadge').style.display=bt?'':'none';
+    $('dmTitle').textContent=h4?h4.textContent:'';
+    $('dmDesc').innerHTML=desc?desc.innerHTML:'';
+    $('dmCat').textContent=cat?cat.textContent:'—';
+    $('dmStatus').textContent=bt||'문서';
+    if(rec){ $('dmCreated').textContent=rec.c; $('dmModified').textContent=(rec.c===rec.m?rec.m+' (생성일과 동일)':rec.m); }
+    else if(isLive){ $('dmCreated').textContent='라이브 서비스'; $('dmModified').textContent='상시 최신'; }
+    else { $('dmCreated').textContent='—'; $('dmModified').textContent='—'; }
+    $('dmOpen').setAttribute('href',href||'#');
+    $('dmOpen').setAttribute('target', isLive&&/^https?:/.test(href)?'_blank':'_self');
+    overlay.classList.add('open');
+  }
+  function closeModal(){ overlay.classList.remove('open'); }
+  $('dmClose').addEventListener('click',closeModal);
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) closeModal(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeModal(); });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.doc-card'),function(card){
+    var href=card.getAttribute('href')||'';
+    var rec=DOC_DATES[href];
+    var isLive=(/^https?:/.test(href))||href==='/blog/';
+    // 날짜 줄
+    var dd=document.createElement('div'); dd.className='doc-dates';
+    if(rec){
+      var same=rec.c===rec.m;
+      dd.innerHTML='<span class="dd"><span class="lab">생성</span> '+rec.c+'</span>'+
+        (same?'':'<span class="dd mod"><span class="lab">수정</span> '+rec.m+'</span>');
+    } else if(isLive){
+      dd.innerHTML='<span class="live">🟢 라이브 서비스 · 상시 최신</span>';
+    } else { dd.innerHTML='<span class="dd"><span class="lab">날짜 미상</span></span>'; }
+    var meta=card.querySelector('.meta');
+    if(meta){ card.insertBefore(dd,meta);
+      var arrow=meta.querySelector('.arrow');
+      var btn=document.createElement('button'); btn.type='button'; btn.className='info-btn';
+      btn.setAttribute('aria-label','문서 상세 정보'); btn.textContent='ⓘ 상세';
+      btn.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); openModal(card,href,rec,isLive); });
+      if(arrow) meta.insertBefore(btn,arrow); else meta.appendChild(btn);
+    } else { card.appendChild(dd); }
+  });
+})();
+</script>
 
 </body>
 </html>
