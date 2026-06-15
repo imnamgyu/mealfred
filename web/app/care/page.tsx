@@ -14,6 +14,7 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { normalizeIngredient } from '@/lib/lexicon';
 import { createMapper } from '@/lib/menuMapCore';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
+import { loadIngredientsLight } from '@/lib/staticData';
 import { computeMealDefaults, pickDefault, type MealDefaults } from '@/lib/mealDefaults';
 import { loadCareLogs, saveCareLogs, clearCareLogs, purgeLegacyCareCache } from '@/lib/careCache';
 
@@ -159,10 +160,7 @@ export default function CarePage() {
 
   // 식재료 풀 로드 + localStorage 우선 표시
   useEffect(() => {
-    fetch('/ingredients-light.json')
-      .then((r) => r.json())
-      .then((d) => setPool(d.ingredients))
-      .catch(() => {});
+    loadIngredientsLight().then((ings) => setPool(ings));   // P0-5: 모듈캐시 로더(탭 생존 중 1회 fetch)
     purgeLegacyCareCache();   // 네임스페이스 없던 옛 전역 키 폐기 — 계정 간 누수 차단(1회)
     setLogs(loadGuestLogs());
   }, []);
@@ -200,7 +198,7 @@ export default function CarePage() {
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
         .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place,source')
-        .eq('child_id', child.id);
+        .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(365));   // P0-3: 과거 1년 상한(다년 누적 풀스캔 차단·미래 식단표는 lte 없어 유지)
 
       const cloud: Record<string, DayLog> = {};
       const mm = new Set<string>();   // 식단표 OCR(daycare_menu) 등록된 'YYYY-MM' — 그 달은 업로더 숨김

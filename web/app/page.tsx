@@ -14,6 +14,7 @@ import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
 import { inSeason } from '@/lib/season';
 import { isSpicyIngredient } from '@/lib/spicy';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
+import { loadIngredientsLight, loadCatMap } from '@/lib/staticData';
 import BottomNav from '@/components/BottomNav';
 import FoodIcon from '@/components/FoodIcon';
 import AuthModal from '@/components/AuthModal';
@@ -187,13 +188,12 @@ export default function Home() {
     setLoading(true);
     setAltB(null);   // ⭐ EPIC F — 자녀 전환 시 Letter B 리셋(이전 자녀 B가 비-compare 자녀로 잔류해 둘째 카드 뜨는 교차오염 차단)
     setLetterFb({ A: null, B: null });   // 피드백 선택도 자녀별로 리셋(아래 초기 로드가 다시 채움)
-    fetch('/ingredients-light.json').then((r) => r.json()).then((d) => { if (!cancelled) setPool(d.ingredients); }).catch(() => {});
+    loadIngredientsLight().then((ings) => { if (!cancelled) setPool(ings); });   // P0-5: 모듈캐시 로더(탭 생존 중 1회 fetch)
     fetch('/kit-guide.json').then((r) => r.json()).then((d) => { if (!cancelled) setKitGuide(d); }).catch(() => {});
     (async () => {
       // 풀 cat 로드 → 빗대기 영양평가용 catOf (NUTRI_MAP에 없는 식재료는 범주로 근사)
-      const catMap = await fetch('/ingredients-light.json').then((r) => r.json())
-        .then((d) => { const m: Record<string, string> = {}; (d.ingredients || []).forEach((x: { nm: string; cat: string }) => { m[x.nm] = x.cat; }); return m; })
-        .catch(() => ({} as Record<string, string>));
+      // P0-1: ingredients-light 중복 fetch 제거 — 위 setPool과 동일 캐시 promise 재사용 + catMap 1회 메모이즈.
+      const catMap = await loadCatMap();
       const catOf = (ing: string) => catMap[ing];
       const dates = Array.from({ length: 7 }, (_, i) => kstDateNDaysAgo(i));   // KST 기준 최근 7일
       const { data: { user } } = await supabase.auth.getUser();
@@ -216,6 +216,21 @@ export default function Home() {
           supabase.from('growth_logs').select('height_cm,weight_kg,measured_on')
             .eq('child_id', child.id).order('measured_on', { ascending: false }).limit(6)
             .then(({ data }) => { if (!cancelled && data && data.length) { setGrowth(data[0]); setGrowthList(data); } });
+          // P0-2: 90·56일 윈도를 7일 await 전에 발사 → 세 쿼리 동시 실행(병렬). 핸들러는 fire-and-forget 유지(7일이 먼저 렌더, 차트/추이는 뒤따름).
+          const repCut = kstDateNDaysAgo(90);   // '잘 먹는' 레퍼토리·식품군 추이 윈도(토들러 재노출 주기)
+          supabase.from('meal_logs').select('ingredients,refused,log_date').eq('child_id', child.id).gte('log_date', repCut).lte('log_date', dates[0]).then(({ data }) => {
+            setGroupWeekly(computeGroupWeekly((data || []) as { log_date: string; ingredients: string[] | null }[], catOf, 10));
+            const lastSeen: Record<string, string> = {};
+            (data || []).forEach((r: { ingredients: string[] | null; log_date: string }) => { (r.ingredients || []).forEach((i) => { if (!lastSeen[i] || r.log_date > lastSeen[i]) lastSeen[i] = r.log_date; }); });
+            const todayMs = Date.parse(kstToday());
+            const sm: Record<string, number> = {};
+            Object.entries(lastSeen).forEach(([nm, d]) => { sm[nm] = Math.round((todayMs - Date.parse(d)) / 86400000); });
+            setStaleMap(sm);
+            setLoggedDays(new Set((data || []).map((r: { log_date: string }) => r.log_date)).size);   // 90일 챌린지 기록 일수
+          });
+          supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
+            .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(55)).lte('log_date', dates[0])
+            .then(({ data }) => { setProgress(computeProgress((data || []) as Parameters<typeof computeProgress>[0], kstToday())); });   // 편식 변화: 최근28 vs 직전28
           const { data: rows } = await supabase.from('meal_logs').select('log_date,ingredients,refused,note,texture,menus,place,ate_well').eq('child_id', child.id).gte('log_date', dates[6]).lte('log_date', dates[0]);   // 미래 날짜(미리 입력한 식단표)는 평가 제외 — '오늘까지' 먹은 것만
           if (cancelled) return;
           const byDate: Record<string, string[]> = {}; const allIng: string[] = []; const favIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
@@ -266,27 +281,7 @@ export default function Home() {
           setGroups(fg);
           setIngredientCount(new Set(allIng).size);
           setEatenSet(new Set(allIng));
-          // '잘 먹는(현재 받아들인)' 식재료 종 수 — 130종(초등 입학 전 ~만6세 누적 목표).
-          // 1회 맛봄 X. '최근 3개월 내 2회 이상 + 거부 기록 없음' = 현재 레퍼토리(반복노출→수용, HabEat/NESR).
-          // 90일 윈도우: 토들러 음식 로테이션·neophobia 재노출 주기 기준(식품빈도설문 1개월~WHO 24h 절충). 튜닝 가능.
-          const REPERTOIRE_WINDOW_DAYS = 90;
-          const repCut = kstDateNDaysAgo(REPERTOIRE_WINDOW_DAYS);
-          supabase.from('meal_logs').select('ingredients,refused,log_date').eq('child_id', child.id).gte('log_date', repCut).lte('log_date', dates[0]).then(({ data }) => {
-            // 90일 데이터로 식품군 8개 주간 추이(선차트) 계산 ('잘 먹는 N/130종' 누적 게이지는 도감과 단일화하며 홈에서 제거)
-            setGroupWeekly(computeGroupWeekly((data || []) as { log_date: string; ingredients: string[] | null }[], catOf, 10));
-            // 식재료별 마지막 노출 후 일수 — 박스에서 '필수인데 오래 안 먹은 것' 우선용
-            const lastSeen: Record<string, string> = {};
-            (data || []).forEach((r: { ingredients: string[] | null; log_date: string }) => { (r.ingredients || []).forEach((i) => { if (!lastSeen[i] || r.log_date > lastSeen[i]) lastSeen[i] = r.log_date; }); });
-            const todayMs = Date.parse(kstToday());
-            const sm: Record<string, number> = {};
-            Object.entries(lastSeen).forEach(([nm, d]) => { sm[nm] = Math.round((todayMs - Date.parse(d)) / 86400000); });
-            setStaleMap(sm);
-            setLoggedDays(new Set((data || []).map((r: { log_date: string }) => r.log_date)).size);   // 90일 챌린지 기록 일수
-          });
-          // 편식 변화(효과측정) — 최근 56일 기록으로 최근28 vs 직전28 비교
-          supabase.from('meal_logs').select('log_date,ingredients,refused,ate_well,duration_min')
-            .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(55)).lte('log_date', dates[0])
-            .then(({ data }) => { setProgress(computeProgress((data || []) as Parameters<typeof computeProgress>[0], kstToday())); });
+          // (90일 레퍼토리·식품군 추이 + 56일 편식변화 쿼리 = 위 P0-2 블록에서 이미 병렬 발사됨)
           // 지난 코치 편지(날짜 포함) — 오랜만에 온 엄마가 예전 편지도 보게. 오늘 편지 없으면 가장 최근 편지를 상단에.
           supabase.from('coach_letters').select('letter_date,letter,oneliner,context')
             .eq('child_id', child.id).order('letter_date', { ascending: false }).limit(8)

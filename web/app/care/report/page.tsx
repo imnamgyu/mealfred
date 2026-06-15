@@ -12,6 +12,7 @@ import { computeSignals, computeFoodGroups, NUTRIENT_FOODS, type NutrientSignal 
 import BottomNav from '@/components/BottomNav';
 import { loadCareLogs } from '@/lib/careCache';   // 비로그인 fallback은 guest 네임스페이스(계정 격리)
 import { kstDateNDaysAgo } from '@/lib/date';   // KST 윈도우 — 홈·코치 크론과 동일 앵커
+import { loadCatMap } from '@/lib/staticData';
 const LEVEL_COLOR = { green: '#16A085', yellow: '#F9A825', red: '#E53935' };
 const LEVEL_BG = { green: '#E8F5E9', yellow: '#FFF8E1', red: '#FFEBEE' };
 const LEVEL_LABEL = { green: '충분', yellow: '가끔', red: '부족' };
@@ -29,9 +30,7 @@ export default function ReportPage() {
   useEffect(() => {
     (async () => {
       // 풀 cat → 빗대기 영양평가 catOf (NUTRI_MAP에 없는 식재료는 범주로 근사)
-      const catMap = await fetch('/ingredients-light.json').then((r) => r.json())
-        .then((d) => { const m: Record<string, string> = {}; (d.ingredients || []).forEach((x: { nm: string; cat: string }) => { m[x.nm] = x.cat; }); return m; })
-        .catch(() => ({} as Record<string, string>));
+      const catMap = await loadCatMap();   // P0-5: 모듈캐시 로더(홈·care와 공용·탭 생존 중 1회)
       const catOf = (ing: string) => catMap[ing];
       // 최근 7일 날짜 — KST 앵커(홈·코치 크론과 동일). UTC new Date()는 자정 부근 하루 어긋남
       const dates = Array.from({ length: 7 }, (_, i) => kstDateNDaysAgo(i));   // dates[0]=오늘, dates[6]=6일 전
