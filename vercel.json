@@ -10,6 +10,8 @@
   ],
   "redirects": [
     { "source": "/admin.html", "destination": "https://app.mealfred.com/admin", "permanent": false },
-    { "source": "/admin", "destination": "https://app.mealfred.com/admin", "permanent": false }
+    { "source": "/admin", "destination": "https://app.mealfred.com/admin", "permanent": false },
+    { "source": "/foodbridge.html", "destination": "https://app.mealfred.com/", "permanent": false },
+    { "source": "/foodbridge", "destination": "https://app.mealfred.com/", "permanent": false }
   ]
 }
