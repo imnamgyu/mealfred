@@ -112,7 +112,12 @@ export async function callClaude(user: string, maxTokens: number, system: string
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
   const raw = fenced ? fenced[1] : (text.match(/\{[\s\S]*\}/)?.[0] || '');
   if (!raw) throw new Error('coach: JSON 파싱 실패');
-  return JSON.parse(raw);
+  try { return JSON.parse(raw); }
+  catch {
+    // ⭐ 견고화(이사님 2026-06-15) — LLM이 문자열 값 안에 '리터럴 줄바꿈/제어문자'를 넣어 깨진 JSON을 내는 경우가 간헐 있음
+    //   (작문 편지에 흔함 · 이때 발행이 통째 실패해 편지 0건 됨). 제어문자를 공백으로 접고 재시도(편지 프로즈라 줄바꿈은 비의미).
+    return JSON.parse([...raw].map((c) => (c.charCodeAt(0) < 32 ? ' ' : c)).join(''));
+  }
 }
 
 // 부모 메모를 프롬프트 주입에서 격리 — 길이 cap + 구분 블록
