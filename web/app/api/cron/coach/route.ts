@@ -855,7 +855,9 @@ export async function GET(req: Request) {
             recoPoolArr = _rp.pool; recoMode = _rp.mode;
             // ⭐ B(이사님 2026-06-15) — 추천 식재료를 '오늘 타깃 식품군' 또는 (환경 등 비-food 레버 주) '집 부족 식품군'에 맞춰 회전.
             //   → 영양거울(집 부족군)과 음식 추천이 항상 일치(환경 편지여도 콩류 부족이면 두부·비타민A채소면 당근). 타깃=비타민A채소인데 달걀 추천하던 불일치 차단.
-            const _alignGroups = planCtx?.target ? [planCtx.target] : (gHomeMissing.length ? gHomeMissing : gMissing);
+            // ⭐ 영양거울=집+기관 종합(이사님 2026-06-15): 추천은 '전체(집+기관) 부족 식품군' 우선(있으면 그걸 집에서 채움),
+            //   전체는 충분한데 집만 드문 군이면(gMissing 빔→gHomeMissing) 그 군을 '집 다양성' 부드러운 제안용으로.
+            const _alignGroups = planCtx?.target ? [planCtx.target] : (gMissing.length ? gMissing : gHomeMissing);
             const _inTgt = recoPoolArr.filter((p) => { const g = groupOfIngredient(p); return g != null && _alignGroups.includes(g); });
             const _basis = _inTgt.length ? _inTgt : recoPoolArr;
             recoIng = _basis.find((p) => !(recentRecoIng[cid] || []).slice(0, 5).includes(p)) || _basis[0] || null; }
