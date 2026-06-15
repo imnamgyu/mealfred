@@ -1,5 +1,13 @@
 import type { Metadata } from 'next';
 import { composePlan, ageLabel, type PlanRecipe } from '@/lib/composePlan';
+import { unstable_cache } from 'next/cache';
+
+// P1-3: composePlan(ingredients·ingredient_recipes DB 조회)을 입력(ings,age)별로 캐시 — 같은 조합 재요청 시 DB·연산 0.
+const cachedPlan = unstable_cache(
+  (ings: string[], age: string) => composePlan(ings, age),
+  ['plan-compose'],
+  { revalidate: 3600 },
+);
 
 export const metadata: Metadata = {
   title: '우리 아이 맞춤 3일 식단 — 밀프레드',
@@ -40,7 +48,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
   const age = (typeof sp.age === 'string' ? sp.age : '') || '3-4y';
   const ings = ingsRaw.split(',').map((s) => decodeURIComponent(s).trim()).filter(Boolean);
 
-  const plan = await composePlan(ings, age);
+  const plan = await cachedPlan(ings, age);
   const DAYCARE = 'https://www.mealfred.com/daycare-eval.html';
 
   return (

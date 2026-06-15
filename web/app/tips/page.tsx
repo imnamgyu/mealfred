@@ -16,6 +16,7 @@ import type { BlogCard } from '@/lib/blog';
 type Post = { id: string; body: string; ingredients: string[]; method_type?: string | null; traits?: string[]; seed?: boolean; like_count?: number; tried_count?: number; author_nick?: string | null; child_age_label?: string | null; liked_by_me?: boolean; tried_by_me?: boolean };
 
 const MONTH = ['', '1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'];
+const ALL_SEEDS = allSeeds();   // P1-4: 정적 시드 — 모듈 스코프 1회 계산(렌더마다 재계산 방지)
 
 export default function CommunityPage() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -27,7 +28,7 @@ export default function CommunityPage() {
 
   const month = new Date().getMonth() + 1;
   const seasonal = seasonalChallenge(month);
-  const seeds = allSeeds();
+  const seeds = ALL_SEEDS;
 
   // 처음엔 공개(CDN 캐시) 피드를 즉시 그려 빠른 첫 화면 → 로그인 확인되면 개인화(?me=1)로 교체.
   const load = useCallback((me: boolean = loggedIn) => {

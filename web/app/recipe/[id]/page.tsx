@@ -10,26 +10,32 @@ import RecipeInfographic from '@/components/RecipeInfographic';
 import RecipeReactions from '@/components/RecipeReactions';
 import { RECIPE_LIST_COLS, type RecipeStep } from '@/lib/recipe';
 import type { Metadata } from 'next';
+import { cache } from 'react';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';   // getUser(쿠키)로 어차피 동적 — ISR 무효라 유지. 대신 쿼리 dedup·병렬로 최적화.
+
+// P1-1: generateMetadata + page가 같은 community_recipes 행을 쓰므로 cache()로 쿼리 1회 dedup(컬럼 상위집합 select).
+const getRecipe = cache(async (id: string) => {
+  const anon = await createSupabaseServerAnon();
+  const { data } = await anon.from('community_recipes').select(`${RECIPE_LIST_COLS},parent_id`).eq('id', id).eq('status', 'public').maybeSingle();
+  return data;
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const anon = await createSupabaseServerAnon();
-  const { data } = await anon.from('community_recipes').select('dish,tip').eq('id', id).eq('status', 'public').maybeSingle();
+  const data = await getRecipe(id);
   return data ? { title: `${data.dish} — 밀프레드 레시피`, description: data.tip || undefined } : { title: '밀프레드 레시피' };
 }
 
 export default async function RecipePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const anon = await createSupabaseServerAnon();
-  const { data: r } = await anon.from('community_recipes').select(`${RECIPE_LIST_COLS},parent_id`).eq('id', id).eq('status', 'public').maybeSingle();
+  const server = await createSupabaseServer();
+  // P1-1: 레시피 조회(cache로 metadata와 1회 dedup)와 getUser를 병렬(직렬 await 제거).
+  const [r, { data: { user } }] = await Promise.all([getRecipe(id), server.auth.getUser()]);
   if (!r) notFound();
 
   // 내 반응
   let likedByMe = false, triedByMe = false;
-  const server = await createSupabaseServer();
-  const { data: { user } } = await server.auth.getUser();
   if (user) {
     const { data: reacts } = await server.from('recipe_reactions').select('kind').eq('recipe_id', id).eq('user_id', user.id);
     likedByMe = (reacts || []).some((x) => x.kind === 'like');

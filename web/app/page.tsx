@@ -328,7 +328,10 @@ export default function Home() {
               //   '밥 거부' 같은 황당 편지를 만들었다. 폴백도 크론과 '같은 엔진'을 타게 한다:
               //   크론 라우트를 이 자녀만으로 호출(멱등·풀스택) → DB에서 다시 읽기. 그래도 없으면
               //   '어제 편지'를 그대로 보여준다(나쁜 편지보다 늦은 편지가 낫다 — 이사님 원칙).
-              await fetch(`https://app.mealfred.com/api/cron/coach?child=${child.id}`).catch(() => null);
+              // P2-2: 크론(LLM 10~30s)이 홈 편지 로딩을 막지 않게 5s 타임아웃 — 초과 시 즉시 아래 DB/어제 편지 폴백. 크론은 서버에서 계속 생성(다음 방문 반영).
+              const ctrl = new AbortController();
+              const to = setTimeout(() => ctrl.abort(), 5000);
+              await fetch(`https://app.mealfred.com/api/cron/coach?child=${child.id}`, { signal: ctrl.signal }).catch(() => null).finally(() => clearTimeout(to));
               const { data: gen } = await supabase.from('coach_letters')
                 .select('letter,oneliner,context').eq('child_id', child.id).eq('letter_date', today).maybeSingle();
               if (cancelled) return;

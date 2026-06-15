@@ -73,13 +73,19 @@
   </section>
 
   <section class="blk">
-    <div class="sec-head"><span class="num">3</span><h2>P1 / P2 — <span class="pend">후속(검토 후)</span></h2></div>
+    <div class="sec-head"><span class="num">3</span><h2>P1 / P2 — <span class="done">구현·배포 완료</span></h2></div>
     <div class="card">
-      <ul class="tight">
-        <li><b>P1</b> · <code>/recipe/[id]</code>·<code>/blog/[slug]</code> ISR(force-dynamic→revalidate) + recipe 중복쿼리 <code>cache()</code> 1회 · <code>/plan</code> <code>unstable_cache</code> · tips 상수 호이스팅</li>
-        <li><b>P2</b> · admin 화면별 <code>revalidate=300</code>(실시간 필요분 제외) · 홈 코치편지 fetch <b>5s 타임아웃</b>(30s 멈춤 방지)</li>
-        <li><b>주의(P1)</b> = Next ISR API는 이 버전이 표준과 다를 수 있어 <code>node_modules/next/dist/docs</code> 확인 후 적용(AGENTS.md). 로그인·자녀별 데이터가 본문에 박히는 페이지는 ISR 금지(캐시 누수).</li>
-      </ul>
+      <p style="font-size:12.5px;color:var(--n600);font-weight:700;margin-bottom:8px">⚠️ Next 16 핵심: <code>cookies()</code>를 읽는 페이지는 무조건 동적 → <code>revalidate</code> 무효. 그래서 ISR은 <b>쿠키 안 읽는 공개 페이지만</b> 적용.</p>
+      <table>
+        <tr><th>항목</th><th>적용</th></tr>
+        <tr><td><b>blog/[slug]</b></td><td><span class="done">SSG+ISR ●</span> 쿠키無 admin 클라(공개글 필터)+<code>generateStaticParams</code>+<code>revalidate=1d</code>. 빌드 확인 <code>● 1d 1y</code></td></tr>
+        <tr><td><b>recipe/[id]</b></td><td>getUser(쿠키)라 ISR 무효 → <b>중복쿼리 <code>cache()</code> dedup + getUser 병렬</b>(force-dynamic 유지)</td></tr>
+        <tr><td><b>plan</b></td><td><code>composePlan</code>(DB) <b><code>unstable_cache</code></b> 입력별 1h 캐시</td></tr>
+        <tr><td><b>tips</b></td><td><code>allSeeds()</code> 모듈 호이스팅(렌더마다 재계산 제거)</td></tr>
+        <tr><td><b>홈(P2-2)</b></td><td>코치편지 크론 fetch <b>5s AbortController 타임아웃</b> → 초과 시 어제 편지 즉시(30s 멈춤 제거)</td></tr>
+        <tr><td>admin(P2-1)</td><td><span class="skip">보류</span> 전부 auth 동적+모더레이션 실시간 필요 → ISR 무효·부적합</td></tr>
+      </table>
+      <p style="font-size:12px;color:var(--n500);font-weight:600;margin-top:8px">tsc 0에러 · next build 통과 · 코칭 세션 파일 무변경.</p>
     </div>
   </section>
 

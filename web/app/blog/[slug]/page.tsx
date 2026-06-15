@@ -3,17 +3,25 @@
  * body_html은 발행 스크립트가 .md를 렌더해 blog_posts에 저장한 것 → 그대로 렌더.
  * 공개글은 RLS(public)로 비로그인도 열람. 하단탭은 '팁'(/tips) 유지.
  */
-import { createSupabaseServerAnon } from '@/lib/supabase/server';
+import { createSupabaseAdmin } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import BottomNav from '@/components/BottomNav';
 import BlogReadBeacon from '@/components/BlogReadBeacon';
 import type { Metadata } from 'next';
+import { cache } from 'react';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 86400;   // P1-2 ISR: 블로그는 배포 후 불변. 쿠키無 클라(admin·status='public' 필터)라 정적 생성 + 하루 1회 재생성.
 
-async function getPost(slug: string) {
-  const supabase = await createSupabaseServerAnon();
+export async function generateStaticParams() {   // 빌드 시 공개글 슬러그 사전 생성(SSG) — 신규글은 on-demand ISR
+  try {
+    const { data } = await createSupabaseAdmin().from('blog_posts').select('slug').eq('status', 'public');
+    return (data || []).map((p: { slug: string }) => ({ slug: p.slug }));
+  } catch { return []; }   // env/DB 실패 시 전부 on-demand ISR로 degrade(빌드 안 죽음)
+}
+
+const getPost = cache(async (slug: string) => {   // cache(): generateMetadata+page 같은 렌더에서 쿼리 1회로 dedup
+  const supabase = createSupabaseAdmin();   // 쿠키 안 읽음 → 정적 생성 가능(공개글만 status 필터)
   const { data } = await supabase
     .from('blog_posts')
     .select('slug,series_no,track,phase,phase_name,title,headline,excerpt,body_html,after_html,published_at,status')
@@ -21,7 +29,7 @@ async function getPost(slug: string) {
     .eq('status', 'public')
     .maybeSingle();
   return data;
-}
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
