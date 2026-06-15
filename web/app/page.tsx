@@ -18,11 +18,13 @@ import { loadIngredientsLight, loadCatMap } from '@/lib/staticData';
 import BottomNav from '@/components/BottomNav';
 import FoodIcon from '@/components/FoodIcon';
 import AuthModal from '@/components/AuthModal';
-import CompareLetterCard, { type LetterVariant, type LetterRating } from '@/components/CompareLetterCard';
-import { pickAltLetter, type AltLetter } from '@/lib/altLetter';
 import { kakaoErrorText } from '@/lib/kakaoAuth';
 
 const todayStr = kstToday;   // KST 기준 — 새벽 크론(letter_date)과 동일 앵커
+
+// 편지 1탭 피드백 타입 — A=letter_feedback(단일 카드 피드백). B는 compare 실험 정리로 미사용(테이블 보존).
+type LetterVariant = 'A' | 'B';
+type LetterRating = 'up' | 'down' | 'repeat';
 
 // 빈도(pct) → 친근한 라벨 (care.html freqLabel 동일)
 function freqLabel(pct: number): string {
@@ -136,8 +138,7 @@ export default function Home() {
   const [refused, setRefused] = useState<string[]>([]);
   const [aiLetter, setAiLetter] = useState<string>('');
   const [aiOneliner, setAiOneliner] = useState<string>('');
-  const [letterFb, setLetterFb] = useState<{ A: LetterRating | null; B: LetterRating | null }>({ A: null, B: null });   // ⭐ 편지 1탭 피드백 — A=기존(letter_feedback)·B=새 설계(compare_votes). 👍/👎/🔁
-  const [altB, setAltB] = useState<AltLetter | null>(null);   // ⭐ EPIC F — Letter B(context.altLetter). compare 자녀만 비-null → 둘째 카드. 다른 자녀=null=단일 카드 무영향.
+  const [letterFb, setLetterFb] = useState<{ A: LetterRating | null; B: LetterRating | null }>({ A: null, B: null });   // ⭐ 편지 1탭 피드백 — A=기존(letter_feedback). 👍/👎/🔁
   const [signupDate, setSignupDate] = useState<string | null>(null);   // M8 90일 챌린지 시작(가입일)
   const [loggedDays, setLoggedDays] = useState(0);                      // 최근 90일 기록한 고유 날 수
   const [pointBal, setPointBal] = useState(0);                          // 누적 포인트 잔액
@@ -186,7 +187,6 @@ export default function Home() {
     if (!selectedId) return;
     let cancelled = false;   // 자녀 빠른 전환 시 옛 selectedId의 늦은 콜백이 새 자녀 상태를 덮어쓰지 않게(race 가드)
     setLoading(true);
-    setAltB(null);   // ⭐ EPIC F — 자녀 전환 시 Letter B 리셋(이전 자녀 B가 비-compare 자녀로 잔류해 둘째 카드 뜨는 교차오염 차단)
     setLetterFb({ A: null, B: null });   // 피드백 선택도 자녀별로 리셋(아래 초기 로드가 다시 채움)
     loadIngredientsLight().then((ings) => { if (!cancelled) setPool(ings); });   // P0-5: 모듈캐시 로더(탭 생존 중 1회 fetch)
     fetch('/kit-guide.json').then((r) => r.json()).then((d) => { if (!cancelled) setKitGuide(d); }).catch(() => {});
@@ -286,7 +286,7 @@ export default function Home() {
           supabase.from('coach_letters').select('letter_date,letter,oneliner,context')
             .eq('child_id', child.id).order('letter_date', { ascending: false }).limit(8)
             .then(({ data }) => {
-              if (cancelled) return;   // 전환 중 늦은 콜백 → 편지·altB 교차오염 스킵
+              if (cancelled) return;   // 전환 중 늦은 콜백 → 편지 교차오염 스킵
               const hist = (data || []) as { letter_date: string; letter: string; oneliner: string | null; context: Record<string, unknown> | null }[];
               if (!hist.length) return;
               const td = todayStr();
@@ -296,8 +296,6 @@ export default function Home() {
               setAiLetter((cur) => cur || hist[0].letter);
               setAiOneliner((cur) => cur || (hist[0].oneliner || ''));
               setLetterDate((cur) => cur || hist[0].letter_date);
-              // ⭐ EPIC F — 표시 중인 가장 최근 편지의 Letter B. 아래 '오늘 편지 캐싱' 블록이 있으면 그쪽이 today 기준으로 덮어씀.
-              setAltB((cur) => cur || pickAltLetter(hist[0].context));
             });
           setRefused([...new Set(ref)]);
 
@@ -321,7 +319,6 @@ export default function Home() {
               setAiLetter(cached.letter);
               if (cached.oneliner) setAiOneliner(cached.oneliner);
               setLetterDate(today);
-              setAltB(pickAltLetter((cached as { context?: Record<string, unknown> | null }).context));   // ⭐ EPIC F — 오늘 편지의 Letter B(compare 자녀만 비-null)
             } else {
               // ⭐ 오늘 편지 미발행(크론 실패 등) — 2026-06-12 사고 봉쇄(적대감사 S8):
               //   옛 폴백(api/coach 직생성)은 주간 닻·사실 카드·검증자·무브 구속이 전부 없는 2등급 경로라
@@ -339,7 +336,6 @@ export default function Home() {
                 setAiLetter(gen.letter);
                 if (gen.oneliner) setAiOneliner(gen.oneliner);
                 setLetterDate(today);
-                setAltB(pickAltLetter((gen as { context?: Record<string, unknown> | null }).context));   // ⭐ EPIC F — 크론 폴백 후 today 편지의 Letter B
               } else {
                 const { data: prevL } = await supabase.from('coach_letters')
                   .select('letter,oneliner,letter_date,context').eq('child_id', child.id).lt('letter_date', today)
@@ -348,7 +344,6 @@ export default function Home() {
                   setAiLetter(prevL.letter);
                   if (prevL.oneliner) setAiOneliner(prevL.oneliner);
                   setLetterDate(prevL.letter_date);
-                  setAltB(pickAltLetter((prevL as { context?: Record<string, unknown> | null }).context));   // ⭐ EPIC F — 어제 편지 폴백 시 그 편지의 Letter B
                 }
               }
             }
@@ -637,17 +632,6 @@ export default function Home() {
               )}
             </div>
             {aiLetter ? (
-              !isMockup && altB ? (
-                // ⭐ EPIC F — A/B 비교: 기존(Letter A) + 새 설계(Letter B) 두 카드 + variant별 피드백. compare 자녀만.
-                <CompareLetterCard
-                  letterA={aiLetter}
-                  altB={altB}
-                  dateLabel={letterDate ? fmtLetterDate(letterDate) : ''}
-                  isMockup={isMockup}
-                  feedback={letterFb}
-                  onFeedback={onFeedback}
-                />
-              ) : (
               <>
                 <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>{aiLetter}</div>
                 {/* ⭐ 1탭 피드백(자가발전 Phase1) — RLS로 클라가 직접 upsert(parent_id=auth.uid()) */}
@@ -665,7 +649,6 @@ export default function Home() {
                   </div>
                 )}
               </>
-              )
             ) : (
               <>
                 <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;집 끼니에 콩류가 잘 안 올라오네요. 지우가 잘 먹는 밥에 두부를 아주 잘게 으깨 섞어보세요.<br />또래 아이들은 두부를 순두부찌개나 유부된장국으로도 자주 먹어요 — 익숙한 것 옆에 조금씩이면 충분해요.&rdquo;</div>

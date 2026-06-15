@@ -7,11 +7,12 @@ import { strongPairsOf, verifiedCousinsOf, neighborsOf, PAIR_MIN_STRENGTH } from
 import { pickFoodReco } from '../lib/coachRecos';
 
 describe('strongPairsOf — 약신호 pair 차단', () => {
-  it('PS-1 달걀의 강한 궁합만(s≥2): 멥쌀떡(s1) 제외·당근/두부(s3) 포함', () => {
+  it('PS-1 달걀의 강한 궁합만(grade=strong): 멥쌀떡(s1·weak) 제외·두부/시금치(strong) 포함', () => {
     const strong = strongPairsOf('달걀').map((n) => n.nm);
     expect(strong).not.toContain('멥쌀떡');   // s1 — 6/14 떡+달걀 괴식 원천
-    expect(strong).toContain('당근');          // s3
-    expect(strong).toContain('두부');          // s3
+    expect(strong).not.toContain('당근');      // lift 0.92(흔한 동시출현·약신호) → grade=weak로 재분류, 강한 궁합 아님
+    expect(strong).toContain('두부');          // lift 1.32 = strong
+    expect(strong).toContain('시금치');        // lift 1.23 = strong
   });
   it('PS-2 strongPairsOf는 전부 strength≥임계(grade 없으면)', () => {
     for (const nm of ['달걀', '당근', '두부', '소고기', '시금치']) {

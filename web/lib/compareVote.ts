@@ -10,7 +10,7 @@
  *   - 미세차는 tie로 묶어 단정을 피한다(임계 = max(1, 총표본*0.1)).
  *   - 표본이 임계(MIN_N) 미만이면 'insufficient'(콜드스타트 안전).
  *
- * 어드민 위젯(/admin/compare·[childId] 스레드)·selfcheck 크론이 이 단일 소스를 공유한다.
+ * selfcheck 크론이 이 단일 소스로 잔존 compare_votes 표를 요약한다(A/B 실험 정리 후에도 테이블·요약 보존).
  */
 
 export type Variant = 'A' | 'B';

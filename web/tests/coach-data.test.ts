@@ -249,15 +249,15 @@ describe('I-05 food-graph 경계 — pair/bridge·dish 미포함', () => {
     expect(dishIngredientFit('볶음밥', '당근').ok).toBe(true);
     expect(dishIngredientFit('카레', '당근').ok).toBe(true);
   });
-  it('I-05-4 graph 엣지 카운트 드리프트 감지(pair 451·bridge 175·합 626 — lift + 식판 병합 + 과일 교차채널 차단)', () => {
+  it('I-05-4 graph 엣지 카운트 드리프트 감지(pair 940·bridge 175·합 1115 — 레시피 + dietary4u 영유아표준식단 + 식판 병합, 과일 교차채널·미역+당근 괴식 차단)', () => {
     const pair = graph.edges.filter((e) => e.kind === 'pair').length;
     const bridge = graph.edges.filter((e) => e.kind === 'bridge').length;
-    expect(pair).toBe(451);    // 362(레시피) + 89(식판 strong 신규·과일 교차채널 제외 후)
+    expect(pair).toBe(940);    // 레시피 동시출현 + dietary4u(learned_menus source=dietary4u 3,484메뉴) + 식판 strong 신규, 과일·괴식 제외
     expect(bridge).toBe(175);
-    expect(graph.edges.length).toBe(626);
+    expect(graph.edges.length).toBe(1115);
   });
-  it('I-05-5 노드 수(192 — lift 재생성·현 도감 기준)', () => {
-    expect(graph.nodes.length).toBe(192);
+  it('I-05-5 노드 수(201 — dietary4u 합산·현 도감 기준)', () => {
+    expect(graph.nodes.length).toBe(201);
   });
   it('I-05-6 미역 pair에 당근 없음(미역국 괴식과 정합)', () => {
     const pairs = neighborsOf('미역').filter((n) => n.kind === 'pair').map((n) => n.nm);

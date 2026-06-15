@@ -10,7 +10,7 @@
 출력 → web/lib/food-graph.json  { nodes:[...], edges:[{a,b,kind,strength,basis,count?}] }
 재생성: python3 scripts/gen-food-graph.py
 """
-import json, re
+import json, re, os
 from collections import defaultdict
 from itertools import combinations
 
@@ -75,6 +75,32 @@ for r in recipes:
         node_recipes[nm] += 1
     for a, b in combinations(sorted(mains), 2):
         co[(a, b)] += 1
+
+# ── dietary4u: 영유아 표준식단 메뉴(같은 요리에 함께 든 식재료) → 레시피 동시출현 축에 합산 ──
+#   데이터 세션 핸드오프(2026-06-15): learned_menus(source=dietary4u) → scripts/export-dietary4u-menus.mjs → /tmp.
+#   '같은 요리 안 동시출현'이라 레시피와 같은 축. co/node_recipes/n_used에 합산(lift 분모도 함께 커져 base-rate 정직).
+#   양념 블로클리스트 + 과일=간식채널 제외(레시피 norm + 식판 병합과 동일 정책 — 사과+부추 같은 교차채널 차단).
+D4U_PATH = '/tmp/dietary4u-menus.json'
+n_d4u = 0
+if os.path.exists(D4U_PATH):
+    _d4u = json.load(open(D4U_PATH))
+    for ings in _d4u.get('menus', []):
+        mains = set()
+        for raw in ings:
+            nm = norm(raw)
+            if not nm or nm in SEASONING or nm in FRUIT_SET:   # 양념·과일(간식채널) 제외
+                continue
+            mains.add(nm)
+        if len(mains) < 2:
+            continue
+        n_d4u += 1; n_used += 1
+        for nm in mains:
+            node_recipes[nm] += 1
+        for a, b in combinations(sorted(mains), 2):
+            co[(a, b)] += 1
+    print(f'dietary4u 합산: 메뉴 {n_d4u}건(과일·양념 제외 2재료+) → 레시피 동시출현 축')
+else:
+    print('dietary4u 파일 없음 — 영유아 표준식단 미합산(export-dietary4u-menus.mjs 먼저 실행)')
 
 MIN_CO = 4
 pair_raw = [(a, b, c) for (a, b), c in co.items() if c >= MIN_CO]
@@ -233,9 +259,18 @@ if _os.path.exists(TRAY_PATH):
 else:
     print('tray 파일 없음 — base 그래프(레시피 동시출현만)')
 
+# ⭐ 괴식 블로클리스트 — 같은 요리/끼니에 우연 동시출현해도 '곁들임 추천'으론 부적합한 쌍(이사님 적발).
+#   미역국+당근: dietary4u 일부 메뉴가 미역+당근을 같이 담아 weak 엣지가 생기나, 코칭 추천으론 괴식이라 제거(I-05-6 정합).
+BAD_PAIRS = {tuple(sorted(('미역', '당근')))}
+def _ok(e):
+    return tuple(sorted((e['a'], e['b']))) not in BAD_PAIRS
+n_bad = sum(1 for e in (bridge_edges + pair_edges) if not _ok(e))
+pair_edges = [e for e in pair_edges if _ok(e)]
+bridge_edges = [e for e in bridge_edges if _ok(e)]
 # bridge가 pair와 겹치면 둘 다 둔다(관계 종류가 다름) — UI에서 우선순위로 처리
 edges = bridge_edges + pair_edges
 nodes = sorted({e['a'] for e in edges} | {e['b'] for e in edges})
+print(f'괴식 블로클리스트 제거: {n_bad}쌍 ({sorted(BAD_PAIRS)})')
 
 _gc = {'strong': 0, 'medium': 0, 'weak': 0}
 for e in pair_edges:
@@ -250,7 +285,7 @@ print(f'pair grades: strong {_gc["strong"]} · medium {_gc["medium"]} · weak {_
 
 # ── 리포트 ──
 missing_bridge = [(a, b) for a, b in BRIDGE_SEED if a not in 도감set or b not in 도감set]
-print(f'레시피 {len(recipes)} 중 사용(메인 2+) {n_used}')
+print(f'레시피 {len(recipes)}편 + dietary4u {n_d4u}메뉴 → 동시출현 사용(메인 2+) {n_used}')
 print(f'pair {len(pair_edges)} · bridge {len(bridge_edges)} · 노드 {len(nodes)}/{len(도감)}')
 if missing_bridge:
     print('⚠ 도감에 없는 bridge 양끝(스킵됨):', missing_bridge)

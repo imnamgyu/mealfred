@@ -50,22 +50,13 @@
    "note": "무관 조합 — matrix·pair 둘 다 없음 → 0=금지"
   },
   {
-   "dish": "양배추",
-   "ingredient": "당근",
-   "score": 0,
-   "source": "none",
-   "expect": "block",
-   "via": "pair",
-   "note": "lift<1(우연 이하) → grade weak → none·차단(흔한 식재료 우연 동시출현 정직화)"
-  },
-  {
    "dish": "두부",
    "ingredient": "당근",
    "score": 0,
    "source": "none",
    "expect": "block",
    "via": "pair",
-   "note": "lift<1(우연 이하) → grade weak → none·차단(흔한 식재료 우연 동시출현 정직화)"
+   "note": "lift 0.58(우연 이하) → grade weak → none·차단(흔한 식재료 우연 동시출현 정직화)"
   }
  ],
  "ok": [
@@ -112,11 +103,20 @@
   {
    "dish": "시금치",
    "ingredient": "당근",
-   "score": 2,
+   "score": 3,
    "source": "pair",
    "expect": "ok",
    "via": "pair",
-   "note": "matrix 키 없음 → pair strength 2(=임계) 폴백 ok(경계값)"
+   "note": "matrix 키 없음 → pair strength 3(lift 1.3=strong) 폴백 ok"
+  },
+  {
+   "dish": "양배추",
+   "ingredient": "당근",
+   "score": 3,
+   "source": "pair",
+   "expect": "ok",
+   "via": "pair",
+   "note": "matrix 키 없음 → pair strength 3(lift 1.55=strong·count 131) 폴백 ok — 흔하고 자연스러운 조합(이전엔 sparse 그래프로 false-block이던 것 정정)"
   }
  ],
  "pairFallback": {

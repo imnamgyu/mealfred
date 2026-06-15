@@ -10,8 +10,6 @@ const NAV = [
   { href: '/admin/food-graph', icon: '🕸', label: '궁합 매트릭스' },
   { href: '/admin/community', icon: '🏡', label: '커뮤니티' },
   { href: '/admin/funnel', icon: '📈', label: '펀넬' },
-  { href: '/admin/curriculum', icon: '📚', label: '진도 보드' },
-  { href: '/admin/compare', icon: '⚖️', label: 'A/B 비교' },
   { href: '/admin/cron', icon: '🌙', label: '크론' },
   { href: '/admin/llm-usage', icon: '💸', label: '유지비용' },
   { href: '/admin/grant', icon: '🎟', label: '평생무료' },
