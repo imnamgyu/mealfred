@@ -36,7 +36,7 @@ import { normalizeFreqMap, type MealRow } from '@/lib/coachMaterials';
 import { assembleLetter, buildLetterCtx, collectBlockLedger } from '@/lib/assembleLetter';
 import { loadBlocks } from '@/lib/letterBlocks';
 import { reexposurePick } from '@/lib/reexposure';
-import { buildRecoFacts, weeklyExposureTarget, buildIngredientPool, type FreqMap } from '@/lib/coachRecos';
+import { buildRecoFacts, weeklyExposureTarget, buildIngredientPool, groupOfIngredient, STAPLE_FORMS, type FreqMap } from '@/lib/coachRecos';
 import { getIngredientsLight, getRecipeFreq, warmGraphFromSql } from '@/lib/graphSource';   // ⭐ JSON 격리(handoff §4) + SQL warm(#2)
 import { aggregateUsage } from '@/lib/llmCost';   // ⭐ LLM 사용량 계측(유지비용 실측)
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
@@ -348,7 +348,9 @@ export async function GET(req: Request) {
           } catch (e) { console.warn('[cron/coach] onboarding skip:', e instanceof Error ? e.message : e); }
           lowData++; continue;
         }
-        const favoriteFoods = Object.entries(favMenu).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([m]) => m);   // 잘 먹는 음식 top8 — 푸드체이닝
+        const favEntries = Object.entries(favMenu).sort((a, b) => b[1] - a[1]).slice(0, 8);   // ⭐ atHome 적용 후 = 집 끼니만(기관 급식 제외)
+        const favoriteFoods = favEntries.map(([m]) => m);   // 잘 먹는 음식 top8(집) — 푸드체이닝
+        const favoriteFreq = favEntries.map(([m, c]) => `${m}(${c}회)`);   // ⭐ D(이사님 2026-06-15) — LLM에 '집 끼니 빈도' 정량 전달(밥16회 vs 1회를 동급으로 칭찬하던 것 차단)
         // 잘 먹는 식재료(빈도순) — 추천 엔진(사촌·인기 음식·궁합) 앵커. recoFacts는 planFor 후(타깃 확정) 생성.
         const likedIng = Object.entries(favIngFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
         const sig = computeSignals(byDay, catOf);
@@ -363,6 +365,15 @@ export async function GET(req: Request) {
         const snackBand = bmiBandFor(meta, cid);
         const snackEval = evaluateSnacks({ rows: byChild[cid], band: snackBand, reds });   // 텍스트화는 계획 확정 후(쿨다운·과일타깃 중복제거·예시 로테이션 게이팅)
         const uniqRef = [...new Set(ref)];
+        // ⭐ C(이사님 2026-06-15) — 재노출 타깃은 '결핍 식품군에 속한 거부'만. 주식(밥/면/빵/떡) 일회성 거부·비결핍군(고기 등)·미매핑(치킨 등)은
+        //   타깃 아님(밥·치킨이 음식 타깃이 되던 버그). 거부 '보고'(편지에 기관 거부 언급)는 sanitizeRefusals 그대로 유지·타깃 선정만 정제.
+        const _STAPLE_WORD = /^(밥|쌀|현미|찹쌀|멥쌀|보리|잡곡|수수|기장|귀리|국수|면|빵|떡|당면|파스타|밀)$/;
+        const _deficientGroups = new Set([...homeFg.missing, ...fg.missing]);
+        const refExposable = sanitizeRefusals(uniqRef).filter((r) => {
+          if (_STAPLE_WORD.test(r) || STAPLE_FORMS[r]) return false;   // 주식 제외
+          const g = catOf(r);                                          // 식재료→식품군
+          return !!g && _deficientGroups.has(g);                       // 결핍군 소속 거부만 재노출 타깃
+        });
         const ts = computeTimeseries(byDate, menuFreq, catOf, dAgo(1), { assertNoVeg: catReliable });   // 어제 앵커(평가 기준일)
         // ⭐ 점심 커버리지 사실(결정론·2026-06-11) — 주말 하루 메모('점심 안 먹고')를 LLM이 '점심을 거르는 리듬'으로
         //   과일반화하는 것 차단: 점심이 실제 기록돼 있으면(대부분 기관 급식) 그 사실을 시계열 1순위로 주입하고,
@@ -541,7 +552,7 @@ export async function GET(req: Request) {
               const synth = await runWeeklyPlanning({
                 childName: meta.nickname, ageBand: meta.age_band,
                 reds, missing: fg.missing, homeMissing: homeFg.missing,
-                refused: sanitizeRefusals(uniqRef), favoriteFoods,
+                refused: refExposable, favoriteFoods,   // ⭐ C — 정제된 재노출 타깃(밥·치킨 제외)
                 transitions: ts.filter((t) => /거부→수용 전환|받아들이기 시작/.test(t)),
                 structuredSummary: buildStructuredSummary(), chronicGuidance: chronicGuidanceText(meta.chronic),
                 icfqRiskCount, stalledTarget,   // ⭐ 6-A — 정체 타깃은 후보 맨 뒤로 + '축 전환' 지시
@@ -841,7 +852,11 @@ export async function GET(req: Request) {
           //   풀은 결정론(buildIngredientPool): 많이 무너지면 보급, 균형이면 도전+사촌. 일일은 최근 추천 안 한 것부터 회전.
           { const _rp = buildIngredientPool({ signals: computeGroupSignals(byDay, catOf).signals, likedIngredients: likedIng, freqMap, max: 5 });
             recoPoolArr = _rp.pool; recoMode = _rp.mode;
-            recoIng = recoPoolArr.find((p) => !(recentRecoIng[cid] || []).slice(0, 5).includes(p)) || recoPoolArr[0] || null; }
+            // ⭐ B(이사님 2026-06-15) — 추천 식재료는 '오늘 타깃 식품군' 안에서 회전(타깃=비타민A채소인데 달걀 추천 차단·본문 일치).
+            //   타깃군 풀이 있으면 그 안에서, 없으면(타깃=거부음식 등 비식품군) 전체 풀 폴백.
+            const _inTgt = planCtx?.target ? recoPoolArr.filter((p) => groupOfIngredient(p) === planCtx!.target) : [];
+            const _basis = _inTgt.length ? _inTgt : recoPoolArr;
+            recoIng = _basis.find((p) => !(recentRecoIng[cid] || []).slice(0, 5).includes(p)) || _basis[0] || null; }
           // ⭐ 두뇌 검수: useFood=false면(오늘 진짜 문제가 환경이라 음식 억지 금지) 음식 추천 본문 제외(B의 'off-target 음식 박기' 차단). 기본=결정론 추천.
           const bridgeFacts = (brainPick && brainPick.useFood === false) ? '' : buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, targetIngredient: recoIng, freqMap }).text;
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
@@ -855,7 +870,7 @@ export async function GET(req: Request) {
           const base = {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds: gReds, covered: fg.covered, missing: gMissing,   // ⭐ #4a 1주일차(기록<7일) 결핍 끄기 — covered(잘 먹음)는 유지, 부족 단정만 차단
-            notes: fc.noteCards, factCards: fc.cards, refused: sanitizeRefusals(uniqRef), favoriteFoods, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),   // ⭐ 메모=날짜·시계열 라벨 분류본, 사실 주장=사실 카드 안에서만('1번') — 트리거(signals.notes)는 기존 창 유지
+            notes: fc.noteCards, factCards: fc.cards, refused: sanitizeRefusals(uniqRef), favoriteFoods, favoriteFreq, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),   // ⭐ 메모=날짜·시계열 라벨 분류본, 사실 주장=사실 카드 안에서만('1번') · favoriteFreq=집 끼니 빈도(D)
             timeseries: ts, attendsDaycare: attends, pastLetters,   // timeseries=원본 ts(composeLetter가 최종 시나리오 기준 필터)
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: gHomeMissing, homeReds: gHomeReds, homeDays: homeDays.length,
