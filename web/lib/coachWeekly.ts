@@ -33,7 +33,10 @@ export function addDaysStr(today: string, n: number): string {
 //  → 일간 편지 프레임을 이게 끈다. 주마다 달라져 어머니가 음식뿐 아니라 환경·자율성·식감까지 다양한 코칭을 받는다.
 export type WeeklyLever = 'food' | 'environment' | 'autonomy' | 'texture';
 export type WeeklyBudget = { expose: number; push: number; cadenceMinGap: number; pushWindow: number[]; lever?: WeeklyLever };
-export type WeeklyLedger = { pushUsed: boolean; exposeCount: Record<string, number>; lastExposeDow: number | null; arcWeek: number; reanchorUsed: boolean; adviceGivenAt: string | null; firstServeDow: number | null; progressWeek: number };
+export type WeeklyLedger = { pushUsed: boolean; exposeCount: Record<string, number>; lastExposeDow: number | null; arcWeek: number; reanchorUsed: boolean; adviceGivenAt: string | null; firstServeDow: number | null; progressWeek: number;
+  targetAccepts?: number;   // ⭐ 6-C(이사님 2026-06-15) 이번 주 잠긴 타깃을 '집에서 거부 없이 잘 먹은' 횟수 = 진짜 진척(단순 '차림'과 구분). 크론 일일 writeback이 채움.
+  stallWeeks?: number;      // ⭐ 6-A 잠긴 타깃이 '진전 0'으로 흐른 연속 주차(일요일 synth가 직전 닻들의 targetAccepts로 산출·이월). 어드민 가시화용.
+};
 export type TeachingArc = { stages: string[]; implIntention?: string | null };   // 가르치는 단계 + 언제·어디서(Gollwitzer)
 // 일간 편지에 주입하는 그날 단계 — 요일·진척으로 결정. 잠긴 한 주 안에서 '매일 다른 각도'를 만드는 변주축(2026-06-11 복붙 사고 핫픽스).
 //   intro(주 첫 편지·진단+왜) → how/obstacle/observe(요일 회전·진단 재서술 금지) / reinforce(실행 관측 시·연속 금지).
@@ -145,6 +148,7 @@ export type WeeklyInput = {
   structuredSummary?: string;        // 구조화 분포 요약(식감·자율성·환경·식사시간)
   chronicGuidance?: string;
   lastMission?: string | null; lastImpression?: string | null; lastTarget?: string | null; icfqRiskCount?: number;
+  stalledTarget?: string | null;   // ⭐ 6-A(이사님 2026-06-15) 3주 진전0으로 감지된 타깃 — 후보 맨 뒤로 밀고 '축 전환' 지시(크론이 직전 닻들로 산출).
   // ⭐ v3(E-02~E-06) — 없으면 goals=[](레거시 호환: goalsOf가 lever에서 승격)
   candSignals?: CandidateSignals | null;                        // 후보 산출 신호(크론이 StructuredSig·통계에서)
   progress?: Partial<Record<UnitId, ProgressRow>> | null;       // 진도(재발 우선·mastered 제외)
@@ -155,7 +159,7 @@ export type WeeklySynthesis = { mission: string | null; mission_target: string |
 
 // lever → 부모 행동목표 결정론 폴백(Sonnet 미산출/cold 시). Fogg '가장 작은 버전'.
 function defaultBehaviorGoal(lever: WeeklyLever, target: string | null): string {
-  if (lever === 'environment') return '하루 한 끼는 화면 끄고 식탁에 앉혀, 끼니 30분 전 간식은 멈추기';
+  if (lever === 'environment') return '하루 한 끼는 화면을 끄고 식탁에 앉아서 먹기';   // ⭐ 3-C(이사님 2026-06-15) '한 번에 하나' — 옛 값은 화면+간식타이밍 2행동(간식 타이밍은 별도 주차로)
   if (lever === 'autonomy') return '하루 한 끼는 아이가 스스로 떠먹게 두기(좀 흘려도 괜찮아요)';
   if (lever === 'texture') return '한 끼만 한 단계 위 질감(핑거푸드·일반식)으로 부드럽게 올려보기';
   return `${target || '거부했던 식재료'}를 격일로 아주 작은 한 조각씩 좋아하는 음식 옆에 다시 올려두기`;   // food = 노출 행동 자체(한 번에 하나)
@@ -183,9 +187,14 @@ export function healAnchor(a: WeeklyAnchor): WeeklyAnchor {
   };
 }
 
-/** 결핍/거부 후보(타깃 화이트리스트 — 환각 차단). 집부족 > 전체부족 > 거부 순. */
+/** 결핍/거부 후보(타깃 화이트리스트 — 환각 차단). 집부족 > 전체부족 > 거부 순.
+ *  ⭐ 6-A — 3주 진전0 타깃(stalledTarget)은 다른 후보가 있으면 맨 뒤로(전환 유도). 유일 후보면 그대로 둠(대안 없음). */
 function candidateTargets(i: WeeklyInput): string[] {
-  return [...new Set([...(i.homeMissing || []), ...(i.missing || []), ...(i.refused || [])])].filter(Boolean);
+  const all = [...new Set([...(i.homeMissing || []), ...(i.missing || []), ...(i.refused || [])])].filter(Boolean);
+  if (i.stalledTarget && all.length > 1 && all.includes(i.stalledTarget)) {
+    return [...all.filter((t) => t !== i.stalledTarget), i.stalledTarget];
+  }
+  return all;
 }
 
 /** v3 — 유닛 후보(코드 산출)와 goals 정규화: Sonnet 산출을 후보 화이트리스트로 강제(E-02-2)·주차 캡(E-05)·피로 캡(E-06). */
@@ -208,7 +217,7 @@ function buildWeeklyUser(i: WeeklyInput, cands: string[], ucands: UnitCandidate[
 잘 먹는 음식: ${i.favoriteFoods.slice(0, 8).join(', ') || '파악 중'}
 거부→수용 전환: ${i.transitions.join(' / ') || '없음'}
 구조화 입력(식감·자율성·환경·식사시간): ${i.structuredSummary || '기록 적음'}
-${i.chronicGuidance ? `만성질환 방향: ${i.chronicGuidance}\n` : ''}${i.lastTarget ? `지난주 초점: ${i.lastTarget}${i.lastImpression ? ` — 소견: ${i.lastImpression}` : ''}\n` : ''}${(i.icfqRiskCount || 0) >= 2 ? '⚠️ 최근 식사 적신호 누적(ARFID 가능) — push=0, 무압력 우선.\n' : ''}
+${i.chronicGuidance ? `만성질환 방향: ${i.chronicGuidance}\n` : ''}${i.lastTarget ? `지난주 초점: ${i.lastTarget}${i.lastImpression ? ` — 소견: ${i.lastImpression}` : ''}\n` : ''}${i.stalledTarget ? `⚠️ '${i.stalledTarget}'는 최근 3주 진전 0(집에서 받아들임 없음) — 이번 주는 이 타깃 채근을 멈추고 다른 결핍이나 환경/자율성/식감 레버로 전환하라(같은 음식 3주째 들이밀기 금지).\n` : ''}${(i.icfqRiskCount || 0) >= 2 ? '⚠️ 최근 식사 적신호 누적(ARFID 가능) — push=0, 무압력 우선.\n' : ''}
 [mission_target 후보(이 안에서만 고르기)] ${cands.join(', ') || '(없음 — mission_target은 null로)'}
 ${ucands.length ? `[커리큘럼 후보(goals는 이 안에서만 순위 결정 — 신호 점수는 코드 계산)] ${ucands.map((c) => `${c.unit_id}(${c.label}·신호 ${c.score})`).join(' · ')}\n` : ''}
 위 데이터를 의사처럼 종합해 다음 한 주의 초점 타깃 1개·예산·소견${ucands.length ? '·goals 순위' : ''}를 JSON으로.`;

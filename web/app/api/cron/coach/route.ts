@@ -23,13 +23,13 @@ import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { type CoachSignals } from '@/lib/coachScenarios';
-import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, SYSTEM_RECAP, buildRecapUser, type WeeklyAnchor, type WeeklyArc } from '@/lib/coachWeekly';
+import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, SYSTEM_RECAP, buildRecapUser, type WeeklyAnchor, type WeeklyArc, type WeeklyLedger, type WeeklyBudget } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { compileFacts, compileFactCards } from '@/lib/coachFacts';
 // ⭐ v3 조립식(H-01·H-02) — 진도 상태기계 + 조립기. 컷오버 플래그 뒤에서만 발동, 실패=레거시 폴백.
 import { UNITS, type UnitId, type CRow, type ProgressRow as CurriculumRow } from '@/lib/curriculumUnits';
 import { type DailyDecision } from '@/lib/curriculum';
-import { decideDailyV3, isUrgent, introNeededV3, recentIntroUnitsOf, buildCandSignals, parseProbeAnswers, selectQuestionV3, v3Enabled, compareEnabled, type RecentProbe } from '@/lib/coachDaily';
+import { decideDailyV3, isUrgent, introNeededV3, recentIntroUnitsOf, buildCandSignals, parseProbeAnswers, selectQuestionV3, v3Enabled, compareEnabled, brainEnabled, type RecentProbe } from '@/lib/coachDaily';
 import { buildBrainContext, pickActionByBrain, nutritionMirrorFromInput, type BrainAction } from '@/lib/coachBrain';   // ⭐ 두뇌 선택+검수(시나리오는 LLM, 음식추천은 검수)
 import { buildLetterB } from '@/lib/coachCompare';
 import { normalizeFreqMap, type MealRow } from '@/lib/coachMaterials';
@@ -49,6 +49,9 @@ const TIME_BUDGET_MS = 50_000; // maxDuration(60s) 전 안전 종료 — SIGKILL
 // H-02 시간 산수: v3 평일 = LLM 0콜(조립)·DB 4쿼리/자녀 ≈ 1.5s → 30자녀/실행 여유(S7 콜폭주 소멸).
 //   일요일 = Sonnet 2콜(차주 닻 종합 + 회고)/자녀 — 회고는 잔여 예산 12s+일 때만(부족 시 조립 편지로).
 const BLOCKS = loadBlocks();   // 블록 풀(빌드 시점 정적 — prebuild 린터 통과본)
+// ⭐ 6-A(이사님 2026-06-15) — 진척 신호 인프라: 잠긴 타깃이 3주 연속 '집에서 받아들임 0'이면 이번 주 축 전환.
+const STALL_PIVOT_WEEKS = 3;   // 연속 진전0 임계(3주째 닻 종합에서 전환)
+const STALL_LOOKBACK = 4;      // 직전 닻 조회 수(스톨 streak 산출용)
 
 type Row = {
   child_id: string; parent_id: string | null; log_date: string; slot: string | null;
@@ -309,7 +312,7 @@ export async function GET(req: Request) {
           const atHome = r.place !== 'daycare';   // home 또는 미상 = 집(부모 통제)
           (r.ingredients || []).forEach((i) => {
             byDate[r.log_date].push(i); allIng.push(i);
-            if (r.ate_well !== false) favIngFreq[i] = (favIngFreq[i] || 0) + 1;   // 거부 아닌 식재료 = 그래프 브릿지 앵커
+            if (r.ate_well !== false && atHome) favIngFreq[i] = (favIngFreq[i] || 0) + 1;   // ⭐ 1-B(이사님 2026-06-15) 집 끼니만 — 기관 급식에서 잘 먹은 식재료를 부모의 '잘 먹는 것'(사촌 시드)으로 착각 금지. menuFreq와 일관(거부 아닌 식재료 = 그래프 브릿지 앵커)
             if (atHome) { (homeByDate[r.log_date] ||= []).push(i); homeIng.push(i); }
             const daysAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
             if (daysAgo <= 3 && !seenFood.has(i)) {
@@ -320,7 +323,7 @@ export async function GET(req: Request) {
           if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
           if (r.note) notes.push(r.note);
           if (atHome) (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); if (k) menuFreq[k] = (menuFreq[k] || 0) + 1; });   // 집 메뉴만 — 기관 반복은 부모가 못 바꿈
-          if (r.ate_well !== false) (r.menus || []).forEach((mn) => { const t = mn.trim(); if (t) favMenu[t] = (favMenu[t] || 0) + 1; });   // 거부 아닌 끼니 = 좋아하는 음식 후보
+          if (r.ate_well !== false && atHome) (r.menus || []).forEach((mn) => { const t = mn.trim(); if (t) favMenu[t] = (favMenu[t] || 0) + 1; });   // ⭐ 5-A(이사님 2026-06-15) 집 끼니만 — 기관 급식에서 잘 먹은 메뉴를 부모 칭찬 근거(favoriteFoods)로 돌리지 않기(거부 아닌 끼니 = 좋아하는 음식 후보)
         });
 
         const byDay = Object.values(byDate).filter((a) => a.length);
@@ -480,7 +483,7 @@ export async function GET(req: Request) {
           rs.forEach((r) => {
             if (r.texture) texC[r.texture] = (texC[r.texture] || 0) + 1;
             if (r.autonomy) { autoN++; if (r.autonomy === 'self') selfN++; }
-            if (r.environment) { envN++; if (r.environment !== 'table') envBad++; }   // table 외(영상·돌아다님·놀이)=주의
+            if (r.environment && r.place !== 'daycare') { envN++; if (r.environment !== 'table') envBad++; }   // ⭐ 5-B(이사님 2026-06-15) 집 끼니만 — 식사환경은 부모가 통제하는 집 기준(기관 분위기는 부모가 못 바꿈). table 외(영상·돌아다님·놀이)=주의
             if (typeof r.meal_time === 'number') { mtN++; if (r.meal_time >= 30) mtOver++; }
           });
           const texMode = Object.entries(texC).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
@@ -516,13 +519,32 @@ export async function GET(req: Request) {
               return `식감 최빈 ${structuredSig.texMode || '기록없음'}, 스스로 떠먹기 ${p(structuredSig.selfPct)}, 화면·이동 식사 ${p(structuredSig.envBadPct)}, 30분+ 끼니 ${p(structuredSig.mtOver30Pct)}`;
             };
             const synthAndStoreAnchor = async (wk: string): Promise<WeeklyAnchor | null> => {
+              // ⭐ 6-A(이사님 2026-06-15) — '3주 진전0' 자동탐지: 직전 닻들의 ledger.targetAccepts를 읽어 같은 타깃이
+              //   연속으로 '집에서 받아들임 0'(food 레버 주)이었는지 센다. 3주면 stalledTarget → 종합이 다른 축으로 전환.
+              let recentTgt: string | null = null; let priorStall = 0;
+              try {
+                const { data: rAnchors } = await supabase.from('weekly_plans')
+                  .select('week_key,mission_target,budget,ledger').eq('child_id', cid)
+                  .lt('week_key', wk).order('week_key', { ascending: false }).limit(STALL_LOOKBACK);
+                const ra = (rAnchors || []) as Array<{ mission_target: string | null; budget: WeeklyBudget | null; ledger: WeeklyLedger | null }>;
+                recentTgt = ra[0]?.mission_target || null;
+                if (recentTgt) for (const a of ra) {
+                  if (a.mission_target !== recentTgt) break;             // 타깃 바뀜 → streak 끊김
+                  if ((a.budget?.lever || 'food') !== 'food') break;     // 비-food 주(타깃=배경, 채근 안 함) → 미집계
+                  const acc = a.ledger?.targetAccepts;
+                  if (typeof acc !== 'number') break;                    // 구버전 데이터(미기록) → 단정 금지(3주 누적 후 자연 가동)
+                  if (acc > 0) break;                                    // 받아들인 주 있음 → streak 끊김(6-C: 진짜 진척 중인 아이 보호)
+                  priorStall++;
+                }
+              } catch { /* 스톨 감지 실패해도 종합은 계속(안전 제1원칙) */ }
+              const stalledTarget = (recentTgt && priorStall >= STALL_PIVOT_WEEKS) ? recentTgt : null;
               const synth = await runWeeklyPlanning({
                 childName: meta.nickname, ageBand: meta.age_band,
                 reds, missing: fg.missing, homeMissing: homeFg.missing,
                 refused: sanitizeRefusals(uniqRef), favoriteFoods,
                 transitions: ts.filter((t) => /거부→수용 전환|받아들이기 시작/.test(t)),
                 structuredSummary: buildStructuredSummary(), chronicGuidance: chronicGuidanceText(meta.chronic),
-                icfqRiskCount,
+                icfqRiskCount, stalledTarget,   // ⭐ 6-A — 정체 타깃은 후보 맨 뒤로 + '축 전환' 지시
                 // ⭐ E-07 — v3 목표 포트폴리오 후보 신호(E-03). 메모·간식·구조화는 buildCandSignals(rows 계산),
                 //   영양 결핍 카운트만 영양 파이프라인 산출로 덮어씀(rows만으론 모름). 진도·주차·focus 이력은 컷오버 후 정밀화.
                 candSignals: {
@@ -531,10 +553,12 @@ export async function GET(req: Request) {
                   refusedCount: sanitizeRefusals(uniqRef).length, dcRefusedCount: sanitizeRefusals(daycareRef).length,
                 },
               });
+              // ⭐ 6-A — stallWeeks 이월: 종합이 같은 타깃을 계속 잡았고(전환 안 함·food 레버) 정체였으면 streak 유지, 아니면 0(새 타깃·전환·비-food).
+              const carriedStall = (synth.mission_target && synth.mission_target === recentTgt && synth.budget?.lever === 'food' && !stalledTarget) ? priorStall : 0;
               const row = {
                 child_id: cid, week_key: wk, status: synth.source === 'weekly_llm' ? 'active' : 'cold_synth', source: synth.source,
                 mission: synth.mission, mission_target: synth.mission_target, target_pool: synth.target_pool, secondary_axis: synth.secondary_axis,
-                budget: synth.budget, ledger: DEFAULT_LEDGER, impression: synth.impression, arc_week: 1,
+                budget: synth.budget, ledger: { ...DEFAULT_LEDGER, stallWeeks: carriedStall }, impression: synth.impression, arc_week: 1,
                 behavior_goal: synth.behaviorGoal, teaching_arc: synth.teachingArc, check_method: synth.checkMethod,   // §14 주간 커리큘럼
                 goals: synth.goals?.length ? synth.goals : null,   // ⭐ A-04/E-07 — 포트폴리오(lever는 budget에 병행 기록=A-05)
                 basis_attends_daycare: attends, model: synth.source === 'weekly_llm' ? 'sonnet-4-6' : 'cold', updated_at: new Date().toISOString(),
@@ -744,6 +768,11 @@ export async function GET(req: Request) {
               const servedDays = weekRows.filter((r) => (r.ingredients || []).some((ing) => ing === tgt || catOf(ing) === tgt));   // 실제 차림(그룹=catOf·음식=정확일치)
               const targetExposeWtd = servedDays.length;
               const firstServeDow = servedDays.length ? Math.min(...servedDays.map((r) => kstDow(r.log_date))) : null;
+              // ⭐ 6-C(이사님 2026-06-15) — '진짜 진척' 신호: 집에서 거부 없이 잘 먹은 타깃 횟수(단순 '차림'과 구분).
+              //   stall 감지(6-A·일요일 synth)가 이 값으로 'N주 진전0'을 판정 → 진짜 받아들이는 중인 아이는 전환하지 않음.
+              const targetAccepts = weekRows.filter((r) => r.place !== 'daycare' && r.ate_well !== false
+                && (r.ingredients || []).some((ing) => ing === tgt || catOf(ing) === tgt)
+                && !(r.refused && (r.refused === tgt || catOf(r.refused) === tgt))).length;
               // 행동변화 관측(아크 단계 결정) — food=실제 차림, 구조 레버=그 좋은 행동이 이번 주 1회+ (거짓 칭찬 방지)
               const goodRow = (r: Row) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : false;
               const progress = lever === 'food' ? firstServeDow != null : weekRows.some(goodRow);
@@ -767,14 +796,15 @@ export async function GET(req: Request) {
               if (wk) {
                 precomputed = { scenario: wk.scenario, plan: wk.plan, varyOpener: wk.varyOpener };
                 weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc };
-                const newLedger = { ...(anchor.ledger || DEFAULT_LEDGER), ...wk.ledgerPatch, exposeCount: { ...((anchor.ledger || DEFAULT_LEDGER).exposeCount || {}), [tgt]: targetExposeWtd }, firstServeDow };
+                const newLedger = { ...(anchor.ledger || DEFAULT_LEDGER), ...wk.ledgerPatch, exposeCount: { ...((anchor.ledger || DEFAULT_LEDGER).exposeCount || {}), [tgt]: targetExposeWtd }, firstServeDow, targetAccepts };   // ⭐ 6-C targetAccepts 적재 → 다음 일요일 synth가 스톨 판정
                 await supabase.from('weekly_plans').update({ ledger: newLedger, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekKey);
               }
             }
           } catch (e) { console.warn('[cron/coach] weekly anchor skip:', e instanceof Error ? e.message : e); }
           if (!v3Ctx) {   // ⭐ H-01 — v3가 편지를 만들었으면 레거시 생성(LLM) 전체 스킵
           // ⭐ 두뇌 선택+검수(coachBrain·?brain=1일 때만 — 라이브 무영향). 시나리오=LLM 두뇌, 음식추천=검수(useFood)로 on/off. 실패=결정론 폴백.
-          if (qp.get('brain') === '1') {
+          // ⭐ 7-A(이사님 2026-06-15) — QA(?brain=1) 또는 카나리아(COACH_BRAIN_CHILDREN) 두뇌 ON. env 없으면 false=라이브 무영향.
+          if (qp.get('brain') === '1' || brainEnabled(process.env as { COACH_BRAIN?: string; COACH_BRAIN_CHILDREN?: string }, cid)) {
             try {
               const { data: wk3 } = await supabase.from('weekly_plans').select('week_key,mission_target,behavior_goal,impression').eq('child_id', cid).order('week_key', { ascending: false }).limit(3);
               const recoCand = buildRecoFacts({ likedIngredients: likedIng, target: precomputed.plan?.target ?? null, freqMap }).text;

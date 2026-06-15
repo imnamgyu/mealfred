@@ -131,10 +131,13 @@ export function buildIngredientPool(args: { signals: { group: string; level: str
   const max = args.max ?? 5;
   const likedSet = new Set((args.likedIngredients || []).filter(Boolean));
   const meal = (args.signals || []).filter((s) => MEAL_GROUPS.includes(s.group));
-  const red = meal.filter((s) => s.level === 'red');
-  const nonGreen = meal.filter((s) => s.level !== 'green');
   const vegBonus = (g: string) => (g === '비타민A채소' || g === '기타채소' ? -5 : 0);
-  nonGreen.sort((a, b) => ((a.level === 'red' ? 0 : 10) + vegBonus(a.group) + a.weeklyEst) - ((b.level === 'red' ? 0 : 10) + vegBonus(b.group) + b.weeklyEst));
+  // ⭐ 1-A(이사님 2026-06-15) — 결핍 '상위 3군'만 추천(영양 거울 6군 전부에 흩뿌리면 매일 다른 군이라 초점이 흐려짐).
+  //   심각도순(red 먼저·채소 가점·주간추정 적은 순) 정렬 후 top3. red도 이 3군 안에서만 세 mode 결정.
+  const nonGreen = meal.filter((s) => s.level !== 'green')
+    .sort((a, b) => ((a.level === 'red' ? 0 : 10) + vegBonus(a.group) + a.weeklyEst) - ((b.level === 'red' ? 0 : 10) + vegBonus(b.group) + b.weeklyEst))
+    .slice(0, 3);
+  const red = nonGreen.filter((s) => s.level === 'red');
   const pool: string[] = [];
   const add = (x?: string | null) => { if (x && !pool.includes(x) && pool.length < max) pool.push(x); };
   const cousinsOfLiked = () => { const out: string[] = []; for (const lk of (args.likedIngredients || []).slice(0, 8)) for (const c of verifiedCousinsOf(lk)) if (!likedSet.has(c.nm) && groupOfIngredient(c.nm) && MEAL_GROUPS.includes(groupOfIngredient(c.nm)!)) out.push(c.nm); return out; };

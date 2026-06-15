@@ -39,6 +39,14 @@ export function compareEnabled(
   return parseCohort(csv).includes(childId);
 }
 
+// ── 7-A(이사님 2026-06-15) — 일간 두뇌(Sonnet 전술) A/B 카나리아 판정. v3Enabled와 동형. ──────────
+// COACH_BRAIN=1 → 전체 ON · COACH_BRAIN_CHILDREN=id,.. → 카나리아. 미설정 = 두뇌 OFF(기존 결정론 시나리오).
+//   라이브 영향 0(env 없으면 항상 false) — 켜는 건 ops 결정(env). QA용 ?brain=1은 라우트에서 OR로 별도 유지.
+export function brainEnabled(env: { COACH_BRAIN?: string; COACH_BRAIN_CHILDREN?: string }, childId: string): boolean {
+  if (env.COACH_BRAIN === '1') return true;
+  return parseCohort(env.COACH_BRAIN_CHILDREN).includes(childId);
+}
+
 // ── F-04 — 시급 예외(이사님 확정 3종 한정 — 확장은 별도 승인) ────────────────────
 // 시급 = D-04 사실 재서술 원장을 우회해 같은 사실을 다시 말할 수 있는 유일한 경우 + 전문가 안내 블록.
 export const URGENT_RULES = ['icfq-risk', 'choke-memo', 'full-refusal-3d'] as const;
@@ -162,7 +170,7 @@ const SIG_BARGAIN_RE = /먹으면\s|줄게|사줄게|상으로|보상으로/;
 const SIG_PREMEAL_RE = /(저녁|밥|끼니)\s?(직전|전)에?\s?(간식|우유|주스)/;
 export function buildCandSignals(rows: CRow[], today: string, attendsDaycare: boolean): import('./curriculumUnits').CandidateSignals {
   const w7 = rows.filter((r) => { const a = age(today, r.log_date); return a >= 1 && a <= 7; });
-  const env = w7.filter((r) => r.environment);
+  const env = w7.filter((r) => r.environment && r.place !== 'daycare');   // ⭐ 5-B(이사님 2026-06-15) 집 끼니만 — 식사환경은 부모 통제 가능한 집 기준(주간 종합 structuredSummary와 일관)
   const auto = w7.filter((r) => r.autonomy);
   const tex = w7.filter((r) => r.texture);
   const mt = w7.filter((r) => typeof r.meal_time === 'number');
