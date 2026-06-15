@@ -79,45 +79,53 @@ export async function callClaude(user: string, maxTokens: number, system: string
     const role = /sonnet/.test(model) ? '🧠 뇌(주간 Sonnet)' : '✍️ 손(일간 Haiku)';
     process.stderr.write(`\n\n━━━━━━━━━━ ${role} · model=${model} ━━━━━━━━━━\n[SYSTEM]\n${system}\n\n[USER]\n${user}\n━━━━━━━━━━ END ${role} ━━━━━━━━━━\n`);
   }
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': key,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
+  // ⭐ 견고화(이사님 2026-06-15) — 깨진 JSON(이스케이프 안 한 따옴표·리터럴 줄바꿈 등)은 랜덤이라, 파싱 실패 시 LLM 호출을 재시도하면 보통 정상화.
+  //   이전엔 단발 파싱 실패가 편지를 통째로 발행 실패(0건)시켰음(06-14·06-15 간헐 사고). 최대 3회 시도(제어문자 보정 → 호출 재시도).
+  let lastErr: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: maxTokens,
+        // 시스템 블록은 전 사용자 공통 → ephemeral 캐싱으로 야간 일괄 생성 비용 절감
+        system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
+        messages: [{ role: 'user', content: user }],
+      }),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      lastErr = new Error(`anthropic ${res.status}: ${body.slice(0, 300)}`);
+      if (res.status === 429 || res.status >= 500) continue;   // 일시 오류(레이트리밋·서버)만 재시도
+      throw lastErr;
+    }
+    const data = await res.json();
+    const u = (data?.usage || {}) as Record<string, number>;   // ⭐ 사용량 적재(유지비용 실측) — 캐시 read/write 분리 보존
+    _usageLog.push({
       model,
-      max_tokens: maxTokens,
-      // 시스템 블록은 전 사용자 공통 → ephemeral 캐싱으로 야간 일괄 생성 비용 절감
-      system: [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }],
-      messages: [{ role: 'user', content: user }],
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`anthropic ${res.status}: ${body.slice(0, 300)}`);
+      input: Number(u.input_tokens) || 0,
+      output: Number(u.output_tokens) || 0,
+      cacheRead: Number(u.cache_read_input_tokens) || 0,
+      cacheWrite: Number(u.cache_creation_input_tokens) || 0,
+    });
+    const text = (data?.content?.[0]?.text as string) || '';
+    // 코드펜스 우선 → 일반 JSON 블록. (LLM이 ```json ``` 으로 감싸는 경우 대비)
+    const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+    const raw = fenced ? fenced[1] : (text.match(/\{[\s\S]*\}/)?.[0] || '');
+    if (raw) {
+      try { return JSON.parse(raw); } catch { /* 1차 실패 → 제어문자 보정 후 재시도 */ }
+      try { return JSON.parse([...raw].map((c) => (c.charCodeAt(0) < 32 ? ' ' : c)).join('')); } catch (e) { lastErr = e; }
+    } else {
+      lastErr = new Error('coach: JSON 파싱 실패(빈 응답)');
+    }
+    // 여기 도달 = 파싱 실패 → 다음 시도로 LLM 재호출(랜덤 깨짐 회복)
   }
-  const data = await res.json();
-  const u = (data?.usage || {}) as Record<string, number>;   // ⭐ 사용량 적재(유지비용 실측) — 캐시 read/write 분리 보존
-  _usageLog.push({
-    model,
-    input: Number(u.input_tokens) || 0,
-    output: Number(u.output_tokens) || 0,
-    cacheRead: Number(u.cache_read_input_tokens) || 0,
-    cacheWrite: Number(u.cache_creation_input_tokens) || 0,
-  });
-  const text = (data?.content?.[0]?.text as string) || '';
-  // 코드펜스 우선 → 일반 JSON 블록. (LLM이 ```json ``` 으로 감싸는 경우 대비)
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const raw = fenced ? fenced[1] : (text.match(/\{[\s\S]*\}/)?.[0] || '');
-  if (!raw) throw new Error('coach: JSON 파싱 실패');
-  try { return JSON.parse(raw); }
-  catch {
-    // ⭐ 견고화(이사님 2026-06-15) — LLM이 문자열 값 안에 '리터럴 줄바꿈/제어문자'를 넣어 깨진 JSON을 내는 경우가 간헐 있음
-    //   (작문 편지에 흔함 · 이때 발행이 통째 실패해 편지 0건 됨). 제어문자를 공백으로 접고 재시도(편지 프로즈라 줄바꿈은 비의미).
-    return JSON.parse([...raw].map((c) => (c.charCodeAt(0) < 32 ? ' ' : c)).join(''));
-  }
+  throw lastErr instanceof Error ? lastErr : new Error('coach: JSON 파싱 실패');
 }
 
 // 부모 메모를 프롬프트 주입에서 격리 — 길이 cap + 구분 블록
