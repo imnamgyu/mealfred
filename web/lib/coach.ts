@@ -79,7 +79,7 @@ export async function callClaude(user: string, maxTokens: number, system: string
   // ⭐ 견고화(이사님 2026-06-15) — 깨진 JSON(이스케이프 안 한 따옴표·리터럴 줄바꿈 등)은 랜덤이라, 파싱 실패 시 LLM 호출을 재시도하면 보통 정상화.
   //   이전엔 단발 파싱 실패가 편지를 통째로 발행 실패(0건)시켰음(06-14·06-15 간헐 사고). 최대 3회 시도(제어문자 보정 → 호출 재시도).
   let lastErr: unknown;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  for (let attempt = 0; attempt < 5; attempt++) {   // ⭐ 두뇌 전 자녀 라이브(이사님 2026-06-16) — 발행 실패 더 줄이려 3→5회 재시도
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -737,7 +737,7 @@ export async function composeLetter(p: {
     varyOpener,
   };
   // ⭐ intro(주 첫 진단 편지)만 Sonnet 승격 — 사실 위험이 가장 큰 날(진단 작성일)에만 비싼 모델(주 1회·자녀당 월 ~₩100).
-  const model = p.base.weeklyArc?.stage === 'intro' ? (process.env.COACH_INTRO_MODEL || 'claude-sonnet-4-6') : undefined;
+  const model = p.base.weeklyArc?.stage === 'intro' ? 'claude-sonnet-4-6' : undefined;   // intro(주 첫 진단)만 Sonnet. 하드코딩(이사님 2026-06-16: env 제거)
   let gen = await generateLetter(letterInput, model);
   let coachRegen = false;
   // ⭐ 가드 대칭 원칙(적대감사 S1) — 어떤 경로의 재생성 산출물도 '모든' 가드를 재통과해야 채택된다.

@@ -16,7 +16,7 @@ import { SCENARIOS, type CoachScenario, type CoachSignals } from './coachScenari
 import { UNITS, UNIT_IDS, TH, type UnitId, type Goal, type ProgressRow, type CandidateSignals } from './curriculumUnits';
 import { normalizeGoals, goalsOf } from './curriculum';
 
-const WEEKLY_MODEL = process.env.COACH_WEEKLY_MODEL || 'claude-sonnet-4-6';
+const WEEKLY_MODEL = 'claude-sonnet-4-6';   // 주간 종합 = Sonnet(자녀당 주 1회). 하드코딩(이사님 2026-06-16: env 제거)
 
 // ── 날짜 헬퍼(KST 'YYYY-MM-DD') ───────────────────────────────────────────────
 /** 요일 0=일 … 6=토. 1970-01-01=목(4) 기준. */

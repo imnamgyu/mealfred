@@ -13,7 +13,7 @@
 import { callClaude, type LetterInput } from './coach';
 import { SCENARIOS, type CoachScenario, type CoachSignals } from './coachScenarios';
 
-export const BRAIN_MODEL = process.env.COACH_BRAIN_MODEL || 'claude-sonnet-4-6';   // 종합 판단 = 강한 모델(일 1회)
+export const BRAIN_MODEL = 'claude-sonnet-4-6';   // 일간 전술 두뇌 = 강한 모델(일 1회·전 자녀 라이브). 하드코딩(이사님 2026-06-16: env 제거)
 
 /** 최근 3주 주간 계획 요약(두뇌가 흐름·일관성 판단에 참고). */
 export type WeeklyEcho = { weekKey: string; target: string | null; behaviorGoal: string | null; impression: string | null };

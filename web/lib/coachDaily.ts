@@ -8,37 +8,7 @@ import { UNITS, type UnitId, type CRow, type ProbeAnswer } from './curriculumUni
 
 const age = (today: string, d: string) => Math.round((Date.parse(today) - Date.parse(d)) / 86400000);
 
-// ── 컷오버 플래그(순수 판정 — 테스트 가능) ───────────────────────────────────────
-// COACH_V3=1 → 전체 ON · COACH_V3_CHILDREN=id1,id2 → 카나리아. 미설정 = 기존 경로(즉시 롤백=env 끄기).
-/** CSV 코호트 파싱 — split/trim/filter 관용구 단일 소스(v3Enabled·compareEnabled·brainEnabled 공유). */
-function parseCohort(csv: string | undefined): string[] {
-  return (csv || '').split(',').map((s) => s.trim()).filter(Boolean);
-}
-export function v3Enabled(env: { COACH_V3?: string; COACH_V3_CHILDREN?: string }, childId: string): boolean {
-  if (env.COACH_V3 === '1') return true;
-  return parseCohort(env.COACH_V3_CHILDREN).includes(childId);
-}
-
-// ── compare(A/B 2통 발행) 판정. 별도 env로 롤백 토글 1회. ─────────────────────────
-// COACH_COMPARE=1 → 전체 ON(승격용) · COACH_COMPARE_CHILDREN(있으면) 또는 폴백 COACH_V3_CHILDREN 코호트.
-//   ⚠️ COACH_COMPARE_CHILDREN이 '설정'되면(빈문자 제외) V3 폴백을 무시 — compare 명단이 단일 진실(E-01-8).
-export function compareEnabled(
-  env: { COACH_COMPARE?: string; COACH_COMPARE_CHILDREN?: string; COACH_V3_CHILDREN?: string },
-  childId: string,
-): boolean {
-  if (env.COACH_COMPARE === '1') return true;
-  const csv = (env.COACH_COMPARE_CHILDREN && env.COACH_COMPARE_CHILDREN.trim())
-    ? env.COACH_COMPARE_CHILDREN : env.COACH_V3_CHILDREN;
-  return parseCohort(csv).includes(childId);
-}
-
-// ── 7-A(이사님 2026-06-15) — 일간 두뇌(Sonnet 전술) A/B 카나리아 판정. v3Enabled와 동형. ──────────
-// COACH_BRAIN=1 → 전체 ON · COACH_BRAIN_CHILDREN=id,.. → 카나리아. 미설정 = 두뇌 OFF(기존 결정론 시나리오).
-//   라이브 영향 0(env 없으면 항상 false) — 켜는 건 ops 결정(env). QA용 ?brain=1은 라우트에서 OR로 별도 유지.
-export function brainEnabled(env: { COACH_BRAIN?: string; COACH_BRAIN_CHILDREN?: string }, childId: string): boolean {
-  if (env.COACH_BRAIN === '1') return true;
-  return parseCohort(env.COACH_BRAIN_CHILDREN).includes(childId);
-}
+// (코칭 카나리아·A/B·두뇌 코호트 플래그 전면 제거 — 이사님 2026-06-16: 다 라이브 하드코딩. v3·compare·brainEnabled 판정 함수·parseCohort 삭제.)
 
 // ── E-03 신호 빌더 — 주간 후보 산출용 CandidateSignals를 rows에서 계산(크론 H-02가 runWeeklyPlanning에 주입) ──
 const SIG_PRESSURE_RE = /한\s?입만|다\s?먹어|먹어야|억지로|혼냈|먹이려/;

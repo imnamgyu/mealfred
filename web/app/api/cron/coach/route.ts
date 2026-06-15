@@ -27,7 +27,7 @@ import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFA
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { compileFacts } from '@/lib/coachFacts';
 import { type CRow } from '@/lib/curriculumUnits';
-import { buildCandSignals, brainEnabled } from '@/lib/coachDaily';
+import { buildCandSignals } from '@/lib/coachDaily';
 import { buildBrainContext, pickActionByBrain, nutritionMirrorFromInput, type BrainAction } from '@/lib/coachBrain';   // ⭐ 두뇌 선택+검수(시나리오는 LLM, 음식추천은 검수)
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, buildIngredientPool, groupOfIngredient, STAPLE_FORMS, type FreqMap } from '@/lib/coachRecos';
@@ -610,9 +610,9 @@ export async function GET(req: Request) {
               }
             }
           } catch (e) { console.warn('[cron/coach] weekly anchor skip:', e instanceof Error ? e.message : e); }
-          // ⭐ 두뇌 선택+검수(coachBrain·?brain=1일 때만 — 라이브 무영향). 시나리오=LLM 두뇌, 음식추천=검수(useFood)로 on/off. 실패=결정론 폴백.
-          // ⭐ 7-A(이사님 2026-06-15) — QA(?brain=1) 또는 카나리아(COACH_BRAIN_CHILDREN) 두뇌 ON. env 없으면 false=라이브 무영향.
-          if (qp.get('brain') === '1' || brainEnabled(process.env as { COACH_BRAIN?: string; COACH_BRAIN_CHILDREN?: string }, cid)) {
+          // ⭐ 일간 전술 두뇌 — 전 자녀 라이브(이사님 2026-06-16: 카나리아·플래그·A/B 전부 제거, 다 라이브). Sonnet이 오늘 편지의
+          //   시나리오·useFood(=영양거울 평가: 오늘 음식 다룰지)를 주간계획·최근편지·다양성 존중하며 판단. 실패=결정론 폴백(발행 보장).
+          {
             try {
               const { data: wk3 } = await supabase.from('weekly_plans').select('week_key,mission_target,behavior_goal,impression').eq('child_id', cid).order('week_key', { ascending: false }).limit(3);
               const recoCand = buildRecoFacts({ likedIngredients: likedIng, target: precomputed.plan?.target ?? null, freqMap }).text;
