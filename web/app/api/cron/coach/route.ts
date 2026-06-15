@@ -852,9 +852,10 @@ export async function GET(req: Request) {
           //   풀은 결정론(buildIngredientPool): 많이 무너지면 보급, 균형이면 도전+사촌. 일일은 최근 추천 안 한 것부터 회전.
           { const _rp = buildIngredientPool({ signals: computeGroupSignals(byDay, catOf).signals, likedIngredients: likedIng, freqMap, max: 5 });
             recoPoolArr = _rp.pool; recoMode = _rp.mode;
-            // ⭐ B(이사님 2026-06-15) — 추천 식재료는 '오늘 타깃 식품군' 안에서 회전(타깃=비타민A채소인데 달걀 추천 차단·본문 일치).
-            //   타깃군 풀이 있으면 그 안에서, 없으면(타깃=거부음식 등 비식품군) 전체 풀 폴백.
-            const _inTgt = planCtx?.target ? recoPoolArr.filter((p) => groupOfIngredient(p) === planCtx!.target) : [];
+            // ⭐ B(이사님 2026-06-15) — 추천 식재료를 '오늘 타깃 식품군' 또는 (환경 등 비-food 레버 주) '집 부족 식품군'에 맞춰 회전.
+            //   → 영양거울(집 부족군)과 음식 추천이 항상 일치(환경 편지여도 콩류 부족이면 두부·비타민A채소면 당근). 타깃=비타민A채소인데 달걀 추천하던 불일치 차단.
+            const _alignGroups = planCtx?.target ? [planCtx.target] : (gHomeMissing.length ? gHomeMissing : gMissing);
+            const _inTgt = recoPoolArr.filter((p) => { const g = groupOfIngredient(p); return g != null && _alignGroups.includes(g); });
             const _basis = _inTgt.length ? _inTgt : recoPoolArr;
             recoIng = _basis.find((p) => !(recentRecoIng[cid] || []).slice(0, 5).includes(p)) || _basis[0] || null; }
           // ⭐ 두뇌 검수: useFood=false면(오늘 진짜 문제가 환경이라 음식 억지 금지) 음식 추천 본문 제외(B의 'off-target 음식 박기' 차단). 기본=결정론 추천.
