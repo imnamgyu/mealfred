@@ -216,6 +216,13 @@
       <p class="desc"><b>원천에서 편지까지 데이터가 어떻게 흐르는가 — 실제 코드 단위.</b> ① <b>원천 합법 3층</b>(NEIS 학교만·식약처 영유아 식단 API·CCFSM 표준식단 vs ❌알림장·카페 크롤링) ② <b>파이프라인 S1~S6</b>(수집→정규화→메뉴 4단 분해→<b>웹 식재료 추정</b>→코퍼스→네트워크)·LLM 개입 3곳(미지분해 Haiku·OCR Sonnet Vision·작문)·환각 가드 ③ <b>ERD</b>(음식·식재료·음식↔식재료·식재료↔식재료 + meal_logs/ocr/coach_letters 관계) ④ <b>편지 8단 소비 경로</b>(재료=결정론·문장=LLM·4중 게이트) ⑤ <b>시스템 8층</b>. <span style="color:#C45A00">"긁어서 어떻게 DB에 넣고 편지가 끌어다 쓰나"의 단일 진실.</span></p>
       <div class="meta"><span>ENGINE · 파이프라인·ERD 정본</span><span class="arrow">→</span></div>
     </a>
+    <a href="/menu-ingest-pipeline.html" class="doc-card cat-strategy">
+      <span class="badge new">🔁 재호출 작업 · 런북</span>
+      <div class="ico">🔁</div>
+      <h4>영유아 식단 적재 → 도감 재정의 파이프라인 (menu-ingest)</h4>
+      <p class="desc"><b>식단 파일을 더 모을 때마다 다시 돌리는 재호출 작업.</b> 폴더에 식단 파일(<code>.xlsx/.csv</code> 최선·HWP/사진은 변환·OCR)을 모아 링크 주면서 "이 파이프라인 돌려줘" → <b>3단계</b>: ① <b>파싱·정제·집계</b>(헤더 자동감지로 컬럼 어긋남 노이즈 해결·bare-xlsx 분기·양념제외) ② <b>승격후보 안전스크린</b>(멀티에이전트: 원물/가공 분류 + 영유아 2~6세 안전 질식·약성·나트륨 + 적대검증) ③ <b>SQL 반영</b>(롤백 스냅샷·PATCH per row·하향검토 자동안함). <b>2축 등급</b>=영유아 등장률 ⊕ 초등 elem_count. 스크립트 <code>web/scripts/menu-ingest/</code> 영속. <span style="color:#C45A00">현재 6센터 383k·도감 157 재등급+승격12 반영(2026-06-15). 깨끗한 식단 API는 없어 이 직접적재가 최선.</span></p>
+      <div class="meta"><span>PIPELINE · 재호출 런북</span><span class="arrow">→</span></div>
+    </a>
     <a href="/coaching-db-migration-handoff.html" class="doc-card cat-strategy">
       <span class="badge coming">🔀 임시 · 핸드오프</span>
       <div class="ico">🔀</div>
@@ -343,6 +350,7 @@
     '/nutrient-signal-report.html':{c:'2026-06-01',m:'2026-06-01'},
     '/food-network-data-architecture.html':{c:'2026-06-14',m:'2026-06-14'},
     '/data-pipeline-erd.html':{c:'2026-06-14',m:'2026-06-14'},
+    '/menu-ingest-pipeline.html':{c:'2026-06-15',m:'2026-06-15'},
     '/coaching-db-migration-handoff.html':{c:'2026-06-14',m:'2026-06-14'},
     '/box-product.html':{c:'2026-05-19',m:'2026-06-04'},
     '/design-spec.html':{c:'2026-05-24',m:'2026-05-31'},

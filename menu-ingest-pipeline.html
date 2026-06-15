@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>영유아 식단 적재 → 도감 재정의 파이프라인 (런북)</title>
+<meta property="og:title" content="영유아 식단 적재 → 도감 재정의 파이프라인">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g50:#E8F6F1;--g500:#16A085;--g700:#1B5E20;--r50:#FDECEA;--r500:#E53935;--r700:#C62828;--y50:#FEF6E0;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+  .hero{padding:52px 24px 34px;text-align:center;background:linear-gradient(160deg,#FFF1E2 0%,#FFE3C9 50%,#FFD9B8 100%);color:#5a3410;position:relative}
+  .hero-inner{max-width:820px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(184,106,32,0.12);color:#B86A20;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.05em;margin-bottom:16px;border:1px solid rgba(184,106,32,.3)}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:12px;color:#5a3410}
+  .hero p{font-size:14.5px;color:#7a5530;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+  .hero .crumb{margin-top:15px;font-size:12px;color:#8a6540;font-weight:600}
+  .hero .crumb a{color:#B86A20;text-decoration:none;font-weight:700}
+  main{max-width:960px;margin:0 auto;padding:30px 20px 70px}
+  section.blk{margin-bottom:42px}
+  .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .sec-head .num{font-size:12px;font-weight:800;color:#fff;background:var(--p500);width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sec-head h2{font-size:20px;color:var(--s800);font-weight:800;letter-spacing:-.02em}
+  .sec-sub{font-size:13.5px;color:var(--n500);font-weight:600;margin:0 0 16px 36px;line-height:1.6}
+  .card{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+  .callbox{background:#FFF6EC;border:1.5px solid var(--p100);border-left:5px solid var(--p500);border-radius:12px;padding:15px 18px;font-size:13.5px;font-weight:600;color:#7a5530;line-height:1.7}
+  .callbox b{color:#B86A20}
+  .callbox code{background:#fff;border:1px solid var(--p100);border-radius:5px;padding:1px 6px;font-size:12px;color:var(--p700)}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+  th,td{border:1px solid var(--n200);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:var(--n50);font-weight:800;color:var(--s800);font-size:12px}
+  td b{color:var(--n900)} .ok{color:var(--g700);font-weight:800} .no{color:var(--r700);font-weight:800} .mid{color:var(--y700);font-weight:800}
+  .pipe{display:flex;flex-direction:column;gap:0;max-width:780px}
+  .pstep{border:1.6px solid var(--n200);border-radius:13px;padding:14px 17px;background:#fff;position:relative}
+  .pstep .ph{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+  .pstep .pn{font-size:11px;font-weight:800;color:#fff;background:var(--s700);border-radius:6px;padding:2px 8px}
+  .pstep .ptt{font-size:14.5px;font-weight:800;color:var(--s800)}
+  .pstep .pd{font-size:12.6px;color:var(--n600);font-weight:600;line-height:1.62}
+  .pstep.llm{border-color:#D9A6E8;background:#FCF6FE}.pstep.llm .pn{background:#9C27B0}
+  .pstep code,.pd code{background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 5px;font-size:11.5px;color:var(--n700)}
+  .tagllm{font-size:10px;font-weight:800;color:#fff;background:#9C27B0;border-radius:100px;padding:2px 8px}
+  .tagdet{font-size:10px;font-weight:800;color:var(--n600);background:var(--n100);border:1px solid var(--n200);border-radius:100px;padding:2px 8px}
+  .pchev{align-self:center;color:var(--n300);font-size:15px;padding:4px 0}
+  ul.tight{margin:8px 0 0 18px;font-size:13px;color:var(--n700);font-weight:600;line-height:1.75}
+  ul.tight code{background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 5px;font-size:11.5px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr}}
+  .gotcha{border:1.5px solid var(--r50);background:var(--r50);border-radius:11px;padding:12px 15px;font-size:12.6px;color:var(--n700);font-weight:600;line-height:1.65}
+  .gotcha b{color:var(--r700)}
+  .stat{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .stat .s{background:#fff;border:1.5px solid var(--n200);border-radius:11px;padding:10px 15px;text-align:center;min-width:110px}
+  .stat .s .v{font-size:20px;font-weight:800;color:var(--p700)}
+  .stat .s .l{font-size:11px;font-weight:700;color:var(--n500);margin-top:2px}
+  .foot{text-align:center;font-size:12px;color:var(--n500);font-weight:600;padding:20px}
+  .foot a{color:var(--b700);text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+  <span class="tag">🔁 재호출 작업 · 런북</span>
+  <h1>영유아 식단 적재 → 도감 재정의 파이프라인</h1>
+  <p>전국 어린이급식관리지원센터 등에서 모은 <b>영유아 식단 파일</b>을 받아 식재료로 분해·정제하고,
+  <b>영유아 실측 등장 빈도</b>로 <b>도감 등급을 2축(영유아 × 초등)으로 재정의</b>하는 작업.
+  데이터를 더 모을 때마다 이 작업을 다시 돌려 도감을 갱신한다.</p>
+  <div class="crumb"><a href="/docs.html">← 문서 허브</a> · 작업코드 <b>menu-ingest</b> · 스크립트 <code>web/scripts/menu-ingest/</code></div>
+</div></div>
+
+<main>
+
+  <section class="blk">
+    <div class="callbox">
+      📌 <b>호출법</b> — 식단 파일을 한 폴더에 모은 뒤, 이 문서 링크를 주면서 <b>"이 파이프라인 돌려줘"</b>라고 하면 된다.
+      그러면 ① 파싱·정제·집계 → ② 승격후보 안전스크린 → ③ SQL 반영(롤백 스냅샷 포함)을 순서대로 실행한다.
+      파일은 <code>.xlsx / .csv</code>가 가장 깨끗하고, 여러 센터·여러 달 섞여 있어도 된다.
+    </div>
+  </section>
+
+  <section class="blk">
+    <div class="sec-head"><span class="num">1</span><h2>입력 — 어떤 파일을 주면 되나</h2></div>
+    <p class="sec-sub">폴더 하나에 모아서 경로만 알려주면 폴더째 읽는다. 형식별 처리 난이도:</p>
+    <div class="card">
+      <table>
+        <tr><th>형식</th><th>처리</th><th>권장</th></tr>
+        <tr><td><b>.xlsx</b> (발주량산출서·식단표) / <b>.csv</b></td><td>헤더 자동감지 파싱(음식명·식재료명 컬럼)</td><td class="ok">⭐ 최고</td></tr>
+        <tr><td><b>.zip</b> (xlsx 묶음)</td><td>내부 xlsx 전부 파싱</td><td class="ok">⭐</td></tr>
+        <tr><td>.hwp (한글)</td><td>직접 불가 → <b>엑셀로 변환 후</b> 투입</td><td class="mid">△</td></tr>
+        <tr><td>PDF(이미지) · 식단표 <b>사진</b></td><td>OCR(Sonnet Vision) 별도 → csv화 후 투입</td><td class="no">▽</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-top:10px">※ 깨끗한 구조화 전국 식단 공개 API는 없음(식약처 어린이/유아 식단 API 15118065·15118061 = <b>삭제됨</b>, NEIS는 요리명만, info.childcare·구청은 HWP). 그래서 받은 파일을 직접 적재하는 이 경로가 현실적 최선.</p>
+    </div>
+  </section>
+
+  <section class="blk">
+    <div class="sec-head"><span class="num">2</span><h2>파이프라인 3단계</h2></div>
+    <p class="sec-sub">결정론(파싱·집계·SQL) + LLM(승격후보 안전스크린)만 멀티에이전트. 도감 이름은 큐레이션돼 노이즈와 무관.</p>
+    <div class="pipe">
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S1</span><span class="ptt">파싱 · 정제 · 빈도집계 · 2축 재정의안</span><span class="tagdet">결정론</span></div>
+        <div class="pd"><code>python parse_and_aggregate.py --in ~/Desktop/menus --out /tmp/menu_out</code><br>
+          헤더 자동감지로 <b>음식명·식재료명 컬럼 정렬</b>(컬럼 어긋남 노이즈 해결) · bare-xlsx/zip 분기 · 식재료 표준화·양념 제외 ·
+          <b>노이즈 컷</b>(숫자/날짜/알레르기기호①②/브랜드) · 파일단위 등장률 집계 · SQL <code>ingredients.elem_count</code>(초등축)와 조인.<br>
+          산출 → <code>dogam_redefine.csv</code>(사람 1회 검토) · <code>promo_candidates.json</code>(승격후보)</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep llm">
+        <div class="ph"><span class="pn">S2</span><span class="ptt">승격후보 안전스크린 — 멀티에이전트</span><span class="tagllm">LLM · 적대검증</span></div>
+        <div class="pd">Workflow <code>dogam-promotion-safety-screen</code> 에 <code>promo_candidates.json</code> 투입.
+          후보별: <b>분류</b>(원물/가공/음료/양념/국물) + <b>영유아 2~6세 안전</b>(질식·한방약성·나트륨·알레르기) + <b>승격판정 적대 재검증</b>.<br>
+          산출 → <code>screen_result.json</code> (<code>result.promoted</code> = 승격확정). 가공·음료·양념·국물·안전결격은 빈출해도 기각.</div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S3</span><span class="ptt">SQL 반영 — 롤백 스냅샷 자동 저장</span><span class="tagdet">결정론</span></div>
+        <div class="pd"><code>python apply_dogam_redefine.py --redefine dogam_redefine.csv --promoted screen_result.json</code> (<code>--dry</code> 미리보기)<br>
+          ① <code>ingredients_snapshot_&lt;날짜&gt;.json</code> 저장(롤백) ② 도감 2축 재등급(meta + 상향·신규 grade 갱신) ③ 승격확정 tier=dogam 추가.
+          <b>하향검토는 자동변경 안 함</b>(meta 플래그만 — 사람 검토).</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="blk">
+    <div class="sec-head"><span class="num">3</span><h2>2축 등급 기준</h2></div>
+    <div class="card grid2">
+      <div>
+        <b style="color:var(--p700)">영유아축</b> (본 수집)<br>
+        <ul class="tight">
+          <li>등장률 = 그 식재료가 등장한 <b>파일 비율</b></li>
+          <li>매일군 ≥70% · 자주 ≥35% · 가끔 ≥10% · 드묾</li>
+        </ul>
+      </div>
+      <div>
+        <b style="color:var(--b700)">초등축</b> (SQL elem_count · NEIS)<br>
+        <ul class="tight">
+          <li>초등매일 ≥300 · 자주 ≥100 · 가끔 ≥10 · 드묾</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <ul class="tight" style="margin-left:16px">
+        <li><b>결합등급</b> = 둘 중 높은 쪽 → 코칭 노출 우선순위</li>
+        <li><b>연령플래그</b> = 공통 / <b>영유아특이</b>(초등엔 적은데 영유아 매일: 계란·브로콜리·기장·두유) / 초등특이</li>
+        <li><b>등재 자격</b> = 단일 원물 식재료 + 영유아 안전 통과. <b>빈출도는 후보선정 기준일 뿐, 등재 기준 아님</b>(가공·음료·양념·국물·안전결격은 빈출해도 탈락)</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="blk">
+    <div class="sec-head"><span class="num">4</span><h2>함정 · 교훈 (하드코딩된 주의)</h2></div>
+    <div class="grid2">
+      <div class="gotcha"><b>컬럼 어긋남</b> — 센터마다 XLSX 레이아웃 달라 식재료칸에 숫자/날짜/음식명이 샌다. <code>detect_cols</code>가 헤더('음식명'/'식재료명')로 컬럼을 자동 정렬해 해결.</div>
+      <div class="gotcha"><b>bare-xlsx vs zip</b> — 발주량산출서는 bare xlsx인데 PK매직이라 zip로 오인. <code>xl/workbook.xml</code> 유무로 분기.</div>
+      <div class="gotcha"><b>PostgREST 벌크 upsert 금지</b> — 부분 키 merge-duplicates는 NOT NULL 위반(23502). 기존행 수정은 반드시 <b>PATCH per row</b>.</div>
+      <div class="gotcha"><b>롤백 / 한글필터</b> — apply가 스냅샷 저장(복원은 그 grade로 PATCH). URL 필터에 한글·이모지 들어가면 <code>quote</code> 필요.</div>
+    </div>
+  </section>
+
+  <section class="blk">
+    <div class="sec-head"><span class="num">5</span><h2>현재 상태 · 남은 일</h2></div>
+    <div class="card">
+      <div class="stat">
+        <div class="s"><div class="v">6</div><div class="l">수집 센터</div></div>
+        <div class="s"><div class="v">383,607</div><div class="l">식재료 행</div></div>
+        <div class="s"><div class="v">6,121</div><div class="l">고유 메뉴</div></div>
+        <div class="s"><div class="v">157</div><div class="l">도감 재등급</div></div>
+        <div class="s"><div class="v">+12</div><div class="l">신규 승격</div></div>
+      </div>
+      <ul class="tight" style="margin-top:14px">
+        <li>2026-06-15 dietary4u 6센터(강서·중랑·울산동구·동작·강동·노원) 적재 → 도감 2축 재정의 SQL 반영(<code>ingredients</code> 393→395)</li>
+        <li>승격 12: 새송이·애느타리버섯 · 치커리·유채·개비름·돌나물·비타민채·고려엉겅퀴(잎채소) · 꽃양배추·미니파프리카·무말랭이 · 감귤</li>
+        <li class="no">미완 ① 푸드체이닝 적재(<code>learned_menus</code>·<code>ingredient_edges</code>) — 노이즈 정제 후</li>
+        <li class="no">미완 ② 하향검토 10(미나리·콩·대구·달래·고추·순무·갈치·쑥·더덕·조개) — 사람 검토</li>
+      </ul>
+      <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-top:10px">산출 구글시트: 센터별 수집현황 · 도감 재정의안(2축) — 메모리 <code>2026-06-15-dogam-redefine-dietary4u</code> 참조.</p>
+    </div>
+  </section>
+
+</main>
+<div class="foot"><a href="/docs.html">← 문서 허브로</a> · 영유아 식단 적재 → 도감 재정의 파이프라인 (menu-ingest)</div>
+</body>
+</html>
