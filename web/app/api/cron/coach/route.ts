@@ -849,8 +849,9 @@ export async function GET(req: Request) {
           // ⭐ 두뇌 useFood ↔ 시나리오 정합: 구조 프레임(환경·자율성·식감)은 본문이 음식 제안을 안 하므로 useFood=false로 맞춤(칩·bridgeFacts 일관).
           if (brainPick && STRUCTURAL_FRAMES.includes(scenarioId || '')) brainPick.useFood = false;
           // ⭐ 주간 추천 식재료 풀(영양거울 기반 5개) + 일일 회전 — 같은 식재료 연속 추천 방지(6/2·6/3 콩 반복 사고).
-          //   풀은 결정론(buildIngredientPool): 많이 무너지면 보급, 균형이면 도전+사촌. 일일은 최근 추천 안 한 것부터 회전.
-          { const _rp = buildIngredientPool({ signals: computeGroupSignals(byDay, catOf).signals, likedIngredients: likedIng, freqMap, max: 5 });
+          //   ⭐ E(이사님 2026-06-15) — 풀을 '집 끼니' 신호로 산출(byDay→homeDays). 기관이 콩류·채소를 채우면 전체는 green이라
+          //   풀에서 빠지고 추천이 곡물·계란 등으로 엉뚱하게 새던 것 수정 → 영양거울(집 부족군)과 음식 추천이 일치(집 부족=콩류면 두부).
+          { const _rp = buildIngredientPool({ signals: computeGroupSignals(homeDays.length ? homeDays : byDay, catOf).signals, likedIngredients: likedIng, freqMap, max: 5 });
             recoPoolArr = _rp.pool; recoMode = _rp.mode;
             // ⭐ B(이사님 2026-06-15) — 추천 식재료를 '오늘 타깃 식품군' 또는 (환경 등 비-food 레버 주) '집 부족 식품군'에 맞춰 회전.
             //   → 영양거울(집 부족군)과 음식 추천이 항상 일치(환경 편지여도 콩류 부족이면 두부·비타민A채소면 당근). 타깃=비타민A채소인데 달걀 추천하던 불일치 차단.
