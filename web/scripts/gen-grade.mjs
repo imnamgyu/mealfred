@@ -16,6 +16,7 @@ const ENR = '../data_ingredient_pool_enriched.json', LIGHT = 'public/ingredients
 const enr = JSON.parse(readFileSync(ENR, 'utf8')); const pool = enr.pool;
 const light = JSON.parse(readFileSync(LIGHT, 'utf8'));
 const mustEat = JSON.parse(readFileSync('lib/must-eat.json', 'utf8'));
+const youa = JSON.parse(readFileSync('lib/youa-freq.json', 'utf8'));   // 영유아 표준식단 등장률%(dietary4u) — 2축 ②(영유아 축)
 const SEASON = new Set(['마늘', '파', '대파', '쪽파', '생강', '고추', '청양고추', '풋고추', '홍고추', '마늘종', '참깨', '들깨', '고춧가루', '고추가루']);
 // 별 = 급식 등장 빈도 (절대 기준 — 풀 구성이 바뀌어도 안정적, grade_reason 문구와 항상 일치)
 function star(count) {
@@ -34,10 +35,18 @@ for (const p of pool) {
     p.grade = '🔸'; p.grade_label = '향신료'; p.grade_reason = '양념·향신료 (도전 식재료 제외)';
     cnt['향신료'] = (cnt['향신료'] || 0) + 1; continue;
   }
-  const [g, lab] = star(p.count);
-  p.grade = g; p.grade_label = lab;
+  // 축① 2축 결합 = 초등 급식 빈도(count) ⊕ 영유아 표준식단 등장률(youa%), 높은 쪽 채택. 매일→자주 캡(UI는 자주/가끔/드물게만).
   const c = p.count || 0;
-  p.grade_reason = c === 0 ? '급식 기록은 없지만 영양으로 챙기는 식재료'
+  const yp = youa[p.nm];
+  const T = { '드물게': 0, '가끔': 1, '자주': 2 };
+  const elemLab = c >= 200 ? '자주' : c >= 50 ? '가끔' : '드물게';
+  const youaLab = (yp == null) ? null : yp >= 35 ? '자주' : yp >= 10 ? '가끔' : '드물게';
+  const youaDrove = (youaLab != null) && T[youaLab] > T[elemLab];
+  const lab = youaDrove ? youaLab : elemLab;
+  const g = lab === '자주' ? '⭐⭐⭐' : lab === '가끔' ? '⭐⭐' : '⭐';
+  p.grade = g; p.grade_label = lab;
+  p.grade_reason = youaDrove ? `영유아 표준식단 ${Math.round(yp)}% + 초등 급식 종합 빈도`
+    : c === 0 ? '급식 기록은 없지만 영양으로 챙기는 식재료'
     : c >= 200 ? `초등 급식에 자주 나와요 (${c}회 등장)`
     : c >= 50 ? `급식에 가끔 나와요 (${c}회 등장)`
     : `급식엔 드물게 나와요 (${c}회 등장)`;
