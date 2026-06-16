@@ -85,7 +85,7 @@ footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;bo
 </div></header>
 
 <nav class="toc">
-<a href="#naming">네이밍 규칙</a><a href="#map">컴포넌트 지도</a><a href="#store">아이 현황 스토어</a><a href="#contract">⭐데이터 계약</a><a href="#io">모듈 입출력</a><a href="#loop">닫힌 루프</a><a href="#status">현재 상태·빌드순서</a>
+<a href="#naming">네이밍 규칙</a><a href="#map">컴포넌트 지도</a><a href="#store">아이 현황 스토어</a><a href="#contract">⭐데이터 계약</a><a href="#io">모듈 입출력</a><a href="#loop">닫힌 루프</a><a href="#batch">1만명 배치</a><a href="#status">현재 상태·빌드순서</a><a href="#schema">부록·스키마</a>
 </nav>
 
 <main>
@@ -138,7 +138,8 @@ footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;bo
 <text x="380" y="295" text-anchor="middle" font-size="9.5" fill="#9CA3AF">아이 현황 스토어 ← 원천·네트워크·모듈 출력 집계(야간)</text>
 </svg>
 </div></div>
-<div class="callout">읽는 법 — <b>코칭 엔진</b>이 모듈들을 호출하고, 그 결과와 원천을 <b>아이 현황 스토어</b>가 매일 한 스냅샷으로 모은다. <b>푸드체이닝 모듈은 추천 네트워크를 내부에서 호출</b>(보라 점선)해 '다음 걸음'을 만들고, 코칭 엔진은 네트워크를 직접 만지지 않는다.</div>
+<div class="callout">읽는 법 — <b>코칭 엔진</b>이 모듈들을 호출하고, 그 결과와 원천을 <b>아이 현황 스토어</b>가 매일 한 스냅샷으로 모은다. <b>푸드체이닝 모듈은 추천 네트워크를 내부에서 호출</b>(보라 점선)해 '다음 걸음 <b>후보</b>'를 만들고, 코칭 엔진은 네트워크를 직접 만지지 않는다.</div>
+<div class="note" style="margin-top:10px">⚙️ <b>처리 순서(코칭 엔진 내부)</b>: ① <b>컨텍스트 조립</b>(결정론 모듈들이 CoachContext 채움) → ② <b>🧠 뇌(Sonnet)=판단</b>(후보 중 오늘의 시나리오·축 택1 → <code>decision</code>) → ③ <b>✍️ 손(Haiku)=작문</b>. 뇌는 '입력 모듈'이 아니라 <b>컨텍스트를 읽고 결정을 더하는 마지막 전처리 단계</b>.</div>
 </section>
 
 <section id="store"><div class="sec-h"><span class="no">2</span><h2>아이 현황 스토어 — 매일 무엇을 모으나</h2><span class="tech">child_daily_state</span></div>
@@ -151,32 +152,38 @@ footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;bo
 </div>
 <div class="sarrow">＋ 모듈 파생 ▼</div>
 <div class="snapbox"><div class="sh">🗄️ child_daily_state (자녀 × 날짜)</div>
-<div style="font-size:11.5px;color:var(--n700);margin-top:7px;line-height:1.6">선호 계량(잘먹음/잘못먹음·축별) · 영양 거울(식품군 신호) · 노출 카운트 · <b>푸드체이닝 다음 걸음</b>(모듈이 추천 네트워크로 산출) · 성숙도/콜드스타트 플래그. <b>매일 야간 materialize</b> → 코칭 엔진은 이 한 행만 읽는다.</div></div>
+<div style="font-size:11.5px;color:var(--n700);margin-top:7px;line-height:1.6">선호 계량(잘먹음/잘못먹음·축별) · 영양 거울(식품군 신호) · 노출 카운트 · <b>푸드체이닝 후보집합+추천</b>(모듈이 추천 네트워크로 산출) · 성숙도/콜드스타트/위험신호 플래그. <b>매일 야간 materialize</b>(배치 1단계) → 코칭 엔진은 이 한 행만 읽는다.</div></div>
 </div>
 <div class="note"><b>왜 매일 스냅샷인가</b> — 세 원천을 편지 쓸 때마다 즉석 조인하면 느리고 일관성이 깨진다. 하루 1회 모아두면 편지·도감·어드민이 같은 '오늘의 아이 현황'을 본다. meal_logs는 append-only 원장, 스토어는 최신 롤업 + 추세.</div>
 </section>
 
 <section id="contract"><div class="sec-h"><span class="no">3</span><h2>⭐ 데이터 계약 — 코칭 엔진에 무엇을 어떻게 주나</h2><span class="tech">CoachContext</span></div>
 <p class="lead">코칭 엔진은 <b>이 한 객체</b>만 받습니다(아이 현황 스토어에서 조립). "어떤 데이터를 어떻게"의 답 — 모듈들이 채운 결정론 재료 + 푸드체이닝 다음 걸음.</p>
-<div class="contract"><pre><span class="c">// 자녀 × 하루 1객체 — 아이 현황 스토어가 조립해 코칭 엔진에 전달</span>
+<div class="contract"><pre><span class="c">// 자녀 × 하루 1객체 — 아이 현황 스토어가 조립 · asOf = 전일까지 확정 스냅샷</span>
 CoachContext = {
-  <span class="k">child</span>:       { age, allergens, maturity },           <span class="c">// 기본</span>
+  <span class="k">meta</span>:        { schemaVersion, asOf },                <span class="c">// 계약 버전 · 신선도(어제까지)</span>
+  <span class="k">child</span>:       { age, allergens, maturity },
   <span class="k">week</span>:        { goal, targetGroup, arcStage, lever },  <span class="c">// ← 주간 계획표</span>
-  <span class="k">today</span>:       { meals, nutritionMirror(집+기관) },    <span class="c">// ← 일간 기록</span>
+  <span class="k">today</span>:       { meals, nutritionMirror(집+기관) },    <span class="c">// ← 일간 기록(전일까지)</span>
   <span class="k">preference</span>:  { liked[], disliked[], exploring[], byForm },  <span class="m">// ← 선호 계량화 모듈</span>
-  <span class="k">foodChaining</span>:{ nextStep:{ axis, anchor, target,        <span class="m">// ← 푸드체이닝 모듈</span>
-                          method, exposure, sosLevel },     <span class="m">//    (추천 네트워크 내부 활용)</span>
-                 alts[] },
+  <span class="k">foodChaining</span>:{ <span class="k">candidates</span>:[ {axis,anchor,target,method,  <span class="m">// ← 푸드체이닝 모듈(네트워크 내부 활용)</span>
+                            exposure,sosLevel} ],          <span class="m">//   ★뇌가 고를 화이트리스트(목록 밖 금지)</span>
+                 recommended },                            <span class="m">//   결정론 디폴트(안 바꾸면 이것)</span>
+  <span class="k">decision</span>:    { scenario, chainingPick },             <span class="m">// ★뇌(Sonnet) 출력 — 후보 안에서만 택1</span>
   <span class="k">history</span>:     { recentLetters[], usedTargets[], feedback },  <span class="c">// ← 편지</span>
-  <span class="k">flags</span>:       { coldStart, dataMaturity }              <span class="c">// 콜드스타트 게이트</span>
-}</pre></div>
+  <span class="k">flags</span>:       { coldStart, dataMaturity, riskScreen }  <span class="c">// 콜드스타트 + 위험신호 게이트</span>
+}
+<span class="c">// 파이프라인: ① 컨텍스트 조립(결정론 모듈) → ② 뇌=decision(후보 택1) → ③ 손=작문</span></pre></div>
 <div class="tbl"><table><tr><th>필드</th><th>채우는 곳</th><th>코칭 엔진이 쓰는 법</th></tr>
 <tr><td><code>week</code></td><td>주간 계획표</td><td>이번 주 타깃·아크 단계에 편지 정렬(주간 일관성)</td></tr>
 <tr><td><code>today</code></td><td>일간 기록</td><td>오늘 끼니 칭찬·영양 거울(집/기관 종합)</td></tr>
 <tr><td><code>preference</code></td><td><b>선호 계량화 모듈</b></td><td>'잘 먹는' 단정은 여기 liked만 · disliked는 회피·형태 전환</td></tr>
-<tr><td><code>foodChaining.nextStep</code></td><td><b>푸드체이닝 모듈</b></td><td>오늘의 한 걸음(편지 산입 + 도감 카드). 추천 네트워크는 모듈 내부에서만</td></tr>
+<tr><td><code>foodChaining.candidates[]</code></td><td><b>푸드체이닝 모듈</b></td><td>뇌가 맥락으로 <b>골라 쓸 후보집합(화이트리스트)</b> — 목록 밖 생성 금지(괴식0)</td></tr>
+<tr><td><code>foodChaining.recommended</code></td><td><b>푸드체이닝 모듈</b></td><td>결정론 디폴트 한 걸음 — 뇌가 안 바꾸면 이게 쓰임</td></tr>
+<tr><td><code>decision</code></td><td><b>두뇌(Sonnet)</b> 출력</td><td>오늘 시나리오 + 후보 중 택1(<code>chainingPick</code>). <b>후보 안에서만</b></td></tr>
 <tr><td><code>history</code></td><td>편지</td><td>최근 문구·타깃 반복 회피 · 피드백 반영</td></tr>
-<tr><td><code>flags.coldStart</code></td><td>선호 계량화 모듈</td><td>true면 단정 금지·온보딩 톤(Day1 문제 해결)</td></tr>
+<tr><td><code>flags</code></td><td>선호 계량화 모듈</td><td><code>coldStart</code>=단정금지·온보딩(Day1) · <code>riskScreen</code>=위험신호 시 소아과 상담 게이트</td></tr>
+<tr><td><code>meta</code></td><td>아이 현황 스토어</td><td><code>asOf</code>=전일까지 확정(당일 입력은 다음날 반영) · <code>schemaVersion</code>=계약 버전</td></tr>
 </table></div>
 <div class="callout"><b>철칙</b> — 모듈들이 <code>preference</code>·<code>foodChaining</code>을 <b>결정론으로</b> 채워 계약에 담고, 코칭 엔진(손-LLM)은 그 재료로 <b>문장만</b> 쓴다. 코칭 엔진은 추천 네트워크도, 원천 테이블도 직접 판단하지 않는다.</div>
 </section>
@@ -184,10 +191,10 @@ CoachContext = {
 <section id="io"><div class="sec-h"><span class="no">4</span><h2>모듈 입출력 계약</h2><span class="tech">I/O</span></div>
 <div class="tbl"><table><tr><th>모듈</th><th>입력</th><th>출력</th><th>상태</th></tr>
 <tr><td><b>선호 계량화</b></td><td>meal_logs(집만)·수용 수준</td><td><code>preference</code>(축별 liked/disliked/exploring·확신도)</td><td><span class="tag2 t-plan">계획</span></td></tr>
-<tr><td><b>푸드체이닝</b></td><td>preference·영양거울·<b>추천 네트워크</b>·노출 카운트</td><td><code>foodChaining.nextStep</code>(2축·노출·SOS)</td><td><span class="tag2 t-plan">계획</span></td></tr>
+<tr><td><b>푸드체이닝</b></td><td>preference·영양거울·<b>추천 네트워크</b>·노출 카운트</td><td><code>foodChaining.candidates[]</code> + <code>recommended</code>(2축·노출·SOS)</td><td><span class="tag2 t-plan">계획</span></td></tr>
 <tr><td><b>영양 거울</b></td><td>meal_logs(집+기관)·KDRI</td><td>식품군 신호(green/yellow/red)</td><td><span class="tag2 t-live">라이브</span></td></tr>
 <tr><td><b>간식</b></td><td>meal_logs·BMI</td><td>간식 평가·추천</td><td><span class="tag2 t-live">라이브</span></td></tr>
-<tr><td><b>두뇌</b></td><td>주간계획·시나리오</td><td>오늘의 각도·타깃 선택</td><td><span class="tag2 t-live">라이브</span></td></tr>
+<tr><td><b>두뇌</b> <span style="font-size:9px;color:var(--n400)">판단 단계</span></td><td><b>조립된 CoachContext</b>(후보 포함)</td><td><code>decision</code>(시나리오 + 후보 중 택1) → 손으로</td><td><span class="tag2 t-live">라이브</span></td></tr>
 <tr><td><b>추천 네트워크</b>(데이터)</td><td>레시피 공출현·수기 사촌</td><td>사촌(bridge)·궁합(pair)</td><td><span class="tag2 t-live">라이브</span></td></tr>
 <tr><td><b>아이 현황 스토어</b>(데이터)</td><td>3원천 + 모듈 출력</td><td><code>CoachContext</code> 스냅샷</td><td><span class="tag2 t-part">부분</span></td></tr>
 </table></div>
@@ -200,28 +207,94 @@ CoachContext = {
 <div class="larrow">▼</div>
 <div class="ln s2"><div class="lh">② 선호 계량화 모듈</div><div class="lb">집만·노이즈 제거·축별 계량 → 잘먹음/잘못먹음/탐색(확신도).</div></div>
 <div class="larrow">▼</div>
-<div class="ln s3"><div class="lh">③ 푸드체이닝 모듈 (← 추천 네트워크)</div><div class="lb">확신 선호를 앵커로 사촌·곁들임·새 조리법 후보 → 오늘의 한 걸음.</div></div>
+<div class="ln s3"><div class="lh">③ 푸드체이닝 모듈 (← 추천 네트워크)</div><div class="lb">확신 선호를 앵커로 사촌·곁들임·새 조리법 <b>후보집합 + 결정론 디폴트</b> 산출.</div></div>
 <div class="larrow">▼</div>
-<div class="ln s4"><div class="lh">④ 코칭 엔진 → 편지·도감</div><div class="lb">CoachContext로 편지 산입 + 도감 맞춤 카드. 콜드스타트면 온보딩.</div></div>
+<div class="ln s4"><div class="lh">④ 코칭 엔진 = 뇌(후보 택1) → 손(작문) → 편지·도감</div><div class="lb">뇌가 후보 중 오늘 한 걸음을 고르고(decision), 손이 작문. 콜드스타트면 온보딩.</div></div>
 <div class="larrow">▼</div>
 <div class="ln s5"><div class="lh">⑤ 부모 실행 → 새 끼니 → ①로</div><div class="lb">결과가 다시 기록되어 계량이 갱신 — 노출 진척·추세 학습.</div></div>
 </div>
 <div class="callout"><b>아이 현황 스토어가 루프의 허브</b> — ②③의 출력이 매일 스토어에 적재되고 ④가 읽는다. 스토어가 비면(=선호 계량 안 됨) ③④가 허상 위에 선다. 그래서 <b>① 기록 + ② 계량이 1순위</b>.</div>
 </section>
 
-<section id="status"><div class="sec-h"><span class="no">6</span><h2>현재 상태 · 빌드 순서</h2><span class="tech">로드맵</span></div>
+<section id="batch"><div class="sec-h"><span class="no">6</span><h2>1만 명 배치 = 이 구조 그대로 2단계</h2><span class="tech">scale</span></div>
+<p class="lead">결정론 상태를 야간에 미리 계산해 스냅샷으로 두면, 편지 워커는 그걸 읽고 LLM만 돌린다 — <b>느린 LLM과 빠른 결정론을 분리</b>. child_daily_state·CoachContext가 그대로 배치의 정답 형태다.</p>
+<div class="loop">
+<div class="ln s2"><div class="lh">1단계 · 상태 머티리얼라이즈 <span style="font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px;background:#E9F7F2;color:var(--g700);margin-left:6px">결정론 · 병렬 · LLM 0</span></div><div class="lb">전 자녀 meal_logs(전일까지) → 선호 계량·영양거울·푸드체이닝 후보 산출 → <code>child_daily_state</code> upsert. 순수 함수라 <b>대량 병렬·재실행 안전</b>. 가장 무거운 결정론 계산을 LLM과 떼어 한 번에.</div></div>
+<div class="larrow">▼ 스냅샷 적재 후</div>
+<div class="ln s4"><div class="lh">2단계 · 편지 워커풀 <span style="font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px;background:#FFE8D1;color:var(--p700);margin-left:6px">LLM(뇌+손)</span></div><div class="lb">워커가 <code>CoachContext</code> 1행씩 읽어 뇌(후보 택1) → 손(작문). 상태가 이미 계산돼 있어 <b>LLM 호출에만 집중</b> · 실패 시 그 자녀만 재시도(상태 재계산 불필요).</div></div>
+</div>
+<div class="callout"><b>신선도 모델</b> — 스냅샷은 <b>전일까지 확정 상태</b>(<code>asOf</code>). 당일 입력은 다음 배치에 반영 — 현행 "당일 입력이 오늘 편지를 안 바꾼다"와 정확히 일치(미래·자기참조 차단). 덕분에 골든 <code>CoachContext</code> → 골든 편지 <b>회귀 테스트</b>가 가능하다.</div>
+</section>
+
+<section id="status"><div class="sec-h"><span class="no">7</span><h2>현재 상태 · 빌드 순서</h2><span class="tech">로드맵</span></div>
 <div class="rm">
 <div class="rmi done"><div class="rh">이미 있음 <span class="tag2 t-live">라이브</span></div><div class="rl">코칭 엔진 · 영양거울·간식·두뇌 모듈 · 추천 네트워크(food-graph) · 원천 테이블(meal_logs·weekly_plans·coach_letters)</div></div>
 <div class="rmi now"><div class="rh">1순위 — 선호 계량화 모듈 + 수용 수준 포착 <span class="tag2 t-plan">신규</span></div><div class="rl">집만 계량·확신도·콜드스타트 게이트 + 기록 화면 원탭 5단계. <b>이게 비면 전부 허상</b>. 상세 = <a href="/preference-quantification-engine.html" style="color:var(--b700);font-weight:700">선호 계량화 모듈 문서</a></div></div>
-<div class="rmi next"><div class="rh">2순위 — 푸드체이닝 모듈 + 아이 현황 스토어 <span class="tag2 t-plan">신규</span></div><div class="rl">2축 후보(추천 네트워크 활용) + child_daily_state 통합 + CoachContext 배선. 상세 = <a href="/food-chaining-personalization-engine.html" style="color:var(--b700);font-weight:700">푸드체이닝 모듈 문서</a> · 샘플 = <a href="/arin-foodchaining-live-sample.html" style="color:var(--b700);font-weight:700">아린 라이브</a></div></div>
+<div class="rmi next"><div class="rh">2순위 — 푸드체이닝 모듈 + 아이 현황 스토어 <span class="tag2 t-plan">신규</span></div><div class="rl">2축 후보(추천 네트워크 활용) + child_daily_state 통합 + CoachContext 배선. 상세 = <a href="/food-chaining-personalization-engine.html" style="color:var(--b700);font-weight:700">푸드체이닝 모듈 문서</a></div></div>
 </div>
-<div class="callout" style="margin-top:14px"><b>이사님 확인</b> — ① 네이밍(엔진/모듈/데이터레이어) 이대로 ② 아이 현황 스토어 = 매일 스냅샷 방식 OK ③ CoachContext 계약 필드 추가/뺄 것 ④ 빌드 순서(선호 계량+포착 → 푸드체이닝+스토어) 동의하면 1순위부터 착수.</div>
+<div class="callout" style="margin-top:14px"><b>리뷰 반영 完(2026-06-16)</b> — ① 푸드체이닝 = <b>후보집합 + 결정론 디폴트</b>(뇌가 후보 안에서 택1) ② 뇌 = <b>조립→판단→작문</b>의 판단 단계(<code>decision</code>) ③ 스토어 = <b>배치 1단계 머티리얼라이즈</b> ④ <b>신선도(전일까지)+schemaVersion</b> ⑤ <code>flags.riskScreen</code> 위험신호 게이트. <b>남은 확인</b>: 빌드 순서(선호 계량+포착 → 푸드체이닝+스토어) 동의하면 1순위 착수.</div>
+</section>
+
+<section id="schema"><div class="sec-h"><span class="no">8</span><h2>부록 — 타입 · 스키마 초안</h2><span class="tech">구현 준비</span></div>
+<p class="lead">구현 시작점. 세부는 각 모듈 문서(<a href="/preference-quantification-engine.html" style="color:var(--b700);font-weight:700">선호 계량화</a>·<a href="/food-chaining-personalization-engine.html" style="color:var(--b700);font-weight:700">푸드체이닝</a>) 참조.</p>
+<h3 class="sub">CoachContext (TypeScript)</h3>
+<div class="contract"><pre><span class="k">type</span> Axis = <span class="m">'chain'|'pair'|'method'|'temperature'</span>;
+<span class="k">type</span> SosLevel = 0|1|2|3|4;            <span class="c">// 거부·만짐·한입·조금·완식</span>
+<span class="k">type</span> PrefState = <span class="m">'liked'|'disliked'|'exploring'|'unknown'</span>;
+
+<span class="k">interface</span> ChainCandidate {
+  axis: Axis; anchor: string; target: string;
+  method?: string; exposure: number; sosLevel: SosLevel; reason: string;
+}
+<span class="k">interface</span> CoachContext {
+  meta:    { schemaVersion: number; asOf: string };        <span class="c">// asOf=YYYY-MM-DD(전일까지)</span>
+  child:   { id: string; ageBand: string; allergens: string[]; maturity: number };
+  week:    { goal: string; targetGroup: string; arcStage: number; lever: string };
+  today:   { meals: MealLog[]; nutritionMirror: Record&lt;string,'green'|'yellow'|'red'&gt; };
+  preference: {
+    liked: PrefItem[]; disliked: PrefItem[]; exploring: PrefItem[];
+    byForm: Record&lt;string, PrefState&gt;;                     <span class="c">// "감자×조림" → state</span>
+  };
+  foodChaining: { candidates: ChainCandidate[]; recommended: ChainCandidate | null };
+  decision?: { scenario: string; chainingPick: string | null };  <span class="c">// 뇌가 채움</span>
+  history: { recentLetters: string[]; usedTargets: string[]; feedback?: 'up'|'down'|'retry' };
+  flags:   { coldStart: boolean; dataMaturity: number; riskScreen: boolean };
+}</pre></div>
+<h3 class="sub">child_daily_state · child_food_pref (SQL 초안)</h3>
+<div class="contract"><pre><span class="c">-- 배치 1단계가 자녀×날짜로 upsert · 코칭 엔진(2단계)이 read</span>
+<span class="k">create table</span> child_daily_state (
+  child_id   uuid <span class="k">not null</span>,
+  as_of      date <span class="k">not null</span>,            <span class="c">-- 전일까지 확정</span>
+  schema_ver int  <span class="k">not null default</span> 1,
+  preference jsonb <span class="k">not null</span>,           <span class="c">-- liked/disliked/exploring/byForm</span>
+  nutrition  jsonb <span class="k">not null</span>,           <span class="c">-- 식품군 신호</span>
+  food_chain jsonb <span class="k">not null</span>,           <span class="c">-- {candidates[], recommended}</span>
+  flags      jsonb <span class="k">not null</span>,           <span class="c">-- coldStart/dataMaturity/riskScreen</span>
+  exposure   jsonb,                       <span class="c">-- 식재료→노출수준·횟수</span>
+  updated_at timestamptz <span class="k">default</span> now(),
+  <span class="k">primary key</span> (child_id, as_of)
+);
+<span class="c">-- 선호 롤업 원장(다축) — 1단계가 meal_logs(집만)에서 집계</span>
+<span class="k">create table</span> child_food_pref (
+  child_id uuid <span class="k">not null</span>,
+  axis     text <span class="k">not null</span>,             <span class="c">-- 'ingredient'|'dish'|'form'</span>
+  key      text <span class="k">not null</span>,             <span class="c">-- '당근' | '당근볶음' | '당근×볶음'</span>
+  served int, accepted int, rejected int, known int,
+  pref_score real, confidence real,
+  state text,                            <span class="c">-- liked/disliked/exploring/unknown</span>
+  trend text,                            <span class="c">-- rising/flat/falling(food jag)</span>
+  first_seen date, last_seen date, exposure int,
+  inst_seen int,                         <span class="c">-- 기관 노출(영양용·선호 제외)</span>
+  updated_at timestamptz <span class="k">default</span> now(),
+  <span class="k">primary key</span> (child_id, axis, key)
+);</pre></div>
+<div class="note">초안 — 구현 시 확정. <code>meal_logs</code>에 <b>수용 수준(0~4)·구조화 거부 사유</b> 컬럼 추가가 선행(선호 계량화 모듈 문서 §9 포착). ⭐<b>도감 식재료별 경험 횟수</b> = <code>child_food_pref</code>(axis='ingredient')의 <code>exposure</code>(+<code>last_seen</code>·수용수준) — <b>별도 테이블 없이 식재료축 행</b>으로 관리하고 <code>meal_logs</code>가 이벤트 원장. 폼별(감자×볶음) 경험도 axis='form' 행에 같이 쌓인다.</div>
 </section>
 
 </main>
 <footer>
 <div><span class="stamp">아키텍처 정의 · 검토용</span><span class="stamp">개발 전</span><span class="stamp">2026-06-16</span></div>
 밀프레드 — 코칭 아키텍처 지도 (엔진·모듈 정의 · 아이 현황 스토어 · 데이터 계약)<br>
-연계: <a href="/food-chaining-personalization-engine.html" style="color:var(--b700)">푸드체이닝 모듈</a> · <a href="/preference-quantification-engine.html" style="color:var(--b700)">선호 계량화 모듈</a> · <a href="/food-network-data-architecture.html" style="color:var(--b700)">추천 네트워크</a> · <a href="/arin-foodchaining-live-sample.html" style="color:var(--b700)">아린 샘플</a>
+연계: <a href="/food-chaining-personalization-engine.html" style="color:var(--b700)">푸드체이닝 모듈</a> · <a href="/preference-quantification-engine.html" style="color:var(--b700)">선호 계량화 모듈</a> · <a href="/food-network-data-architecture.html" style="color:var(--b700)">추천 네트워크</a>
 </footer>
 </body></html>

@@ -358,7 +358,7 @@
     <p style="font-size:12px;color:var(--n600);font-weight:500;margin-bottom:2px">오늘의 추천 식재료(회전)를 아이의 상태에 따라 <b>5가지 관계 프레임</b> 중 하나로 — 전부 테이블 근거(괴식 0).</p>
     <div class="strat">
       <div class="scard"><div class="sh">① 잘 먹는 것 한 번 더 <span class="via">liked</span></div><div class="sb">추천 식재료를 이미 잘 먹으면 → 강화/유지.</div></div>
-      <div class="scard"><div class="sh">② 곁들이기 <span class="via">pair</span></div><div class="sb"><b>잘 먹는 것에 곁들이기</b>(강한 궁합만·약신호 차단).</div><div class="ex">예: "미역국에 당근 채 썰어"</div></div>
+      <div class="scard"><div class="sh">② 곁들이기 <span class="via">pair</span></div><div class="sb"><b>잘 먹는 것에 곁들이기</b>(강한 궁합만·약신호 차단).</div><div class="ex">예: "감자볶음에 당근 조금"(감자+당근 공출현 152)</div></div>
       <div class="scard"><div class="sh">③ 푸드체이닝 <span class="via">chain</span></div><div class="sb">잘 먹는 것의 <b>검증된 사촌</b>이 결핍군에 있으면 다리.</div><div class="ex">예: 단호박 잘 먹음 → 사촌 당근</div></div>
       <div class="scard"><div class="sh">④ 도전 <span class="via">dish</span></div><div class="sb">또래가 실제로 자주 먹는 <b>인기 음식 이름</b>으로 도전.</div></div>
       <div class="scard"><div class="sh">⑤ 그대로 <span class="via">plain</span></div><div class="sb">관계가 없으면 먹는 형태로만(밥·빵·떡).</div></div>
@@ -407,7 +407,19 @@
   </div>
 
   <div class="card" style="margin-top:12px">
-    <h3 class="sub">🌡️ ③ 신규 신호 4종 — 리서치가 짚은 빈칸 메우기</h3>
+    <h3 class="sub">🍲 ③ 메뉴 단위 추천 — 조리법 대신 '실존 메뉴 이름'</h3>
+    <p style="font-size:12px;color:var(--n600);font-weight:500;margin-bottom:6px"><b>우리는 조리법을 지어내지 않는다</b>(지어내면 괴식). 대신 <b>또래(기관)가 실제로 자주 먹는 실존 메뉴 이름</b>만 권하고, 엄마가 검색·조리한다. 메뉴엔 다른 식재료도 들어 있어 <b>한 메뉴를 먹으면 그 안의 식재료를 자연스럽게 경험</b> → 폭이 넓어진다.</p>
+    <div class="feat">
+      <div class="fc new"><div class="fch">가 · 잘 먹는 식재료가 든 메뉴 <span class="tagn">발굴</span></div><div class="fcb">잘 먹는 식재료가 들어간 <b>기관 빈출(또래 검증)이지만 아이는 아직 안 먹어본</b> 메뉴를 권한다. 익숙한 재료가 있어 진입장벽↓, 새 재료는 덤으로 노출.</div><div class="ev">예: 감자 잘 먹음 → "감자수프"(우유·양파 자연 노출)</div></div>
+      <div class="fc new"><div class="fch">나 · 사촌의 대표 메뉴 <span class="tagn">신규</span></div><div class="fcb">잘 먹는 것의 <b>사촌 식재료</b>의 <b>출현도 높은 대표 메뉴</b>를 이름으로.</div><div class="ev">예: 감자 → 사촌 고구마 → "고구마맛탕"</div></div>
+      <div class="fc"><div class="fch">다 · 타깃 식재료의 인기 음식 <span class="tago">라이브</span></div><div class="fcb">현행 <code>popularDishesFor</code> — 결핍 식재료의 또래 인기 메뉴 1~2개(이미 편지에 들어감).</div><div class="ev">freq(ingredient-recipes) → kit-matrix 폴백</div></div>
+    </div>
+    <div class="callout" style="margin-top:10px"><b>괴식이 원천 차단되는 이유</b> — 후보가 <b>실제 레시피/식단에 존재하는 메뉴</b>뿐이라, 공출현이 없는 조합은 메뉴로 존재하지 않아 애초에 안 뜬다. 예: <b>"미역국+당근"은 우리 데이터에 공출현 0</b> → 페어·메뉴 후보 어디에도 없음(엔진이 절대 추천 못 함). <code>learned_menus</code>를 <b>웹 식재료 추정</b>으로 분해해 만든 공출현(lift)·<code>kit-dish-matrix</code> cells가 게이트. 우리가 줄 건 <b>검증된 '음식 이름'</b>, 조리 상세는 엄마가 검색(도감 보조).</div>
+    <div class="note" style="margin-top:8px"><b>데이터</b>: 또래 빈도(ingredient-recipes·kit-matrix) + <b>기관 식단</b>(NEIS·식약처 영유아 식단 API) + 아이 eaten set(미경험 필터). <b>상태</b>: '다'는 라이브 / '가·나'(기관 빈출×미경험 발굴, 사촌 대표 메뉴)는 신규.</div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 class="sub">🌡️ ④ 신규 신호 4종 — 리서치가 짚은 빈칸 메우기</h3>
     <div class="feat">
       <div class="fc new"><div class="fch">온도 축 추천 <span class="tagn">4축 완성</span></div><div class="fcb">유일하게 비어 있던 temperature. <b>찬↔실온↔데움</b> 단일 차원 변형(예: 찬 우유 거부→데운 우유). 4축 벡터 전면 구축보다 저비용.</div><div class="ev">근거: Jenny Friedman 4축(검증)</div></div>
       <div class="fc new"><div class="fch">노출 횟수 안심 멘트 <span class="tagn">리텐션</span></div><div class="fcb">"이 식재료는 지금 <b>3/8회</b>예요. 8~10회는 보통 필요해요(최대 30회도 정상)." 포기 대신 반복을 설계.</div><div class="ev">근거: NESR·AAP·캐나다 Food Guide</div></div>
@@ -417,7 +429,7 @@
   </div>
 
   <div class="card" style="margin-top:12px">
-    <h3 class="sub">🛡️ ④ 안전 게이트 — 후보가 통과해야 할 하드 바닥</h3>
+    <h3 class="sub">🛡️ ⑤ 안전 게이트 — 후보가 통과해야 할 하드 바닥</h3>
     <ul class="clean">
       <li><b>연령별 질식 형태</b>(2025 식약처): 2세 이하 떡류 미제공·방울토마토/포도 세로 4등분+껍질·견과 {분말3세·잘게5세·통째6세}·생당근 익히거나 채썰기.</li>
       <li><b>8대 알레르겐</b> 프로필 매칭 → 해당 노드 추천 제외/대체. <b>꿀 만1세 금지</b>(보툴리누스).</li>
