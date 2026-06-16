@@ -5,7 +5,7 @@
  * callClaude가 응답의 usage(input/output/cache_read/cache_creation)를 적재 → 이 모듈이 원가로 환산.
  */
 
-export type Family = 'haiku' | 'sonnet' | 'opus' | 'other';
+export type Family = 'haiku' | 'sonnet' | 'opus' | 'deepseek-pro' | 'deepseek-flash' | 'other';
 
 /** 한 LLM 콜의 토큰 사용량(Anthropic usage 필드 매핑). */
 export type UsageRec = { model: string; input: number; output: number; cacheRead: number; cacheWrite: number };
@@ -17,11 +17,16 @@ export const PRICE: Record<Family, { in: number; out: number; cacheRead: number;
   haiku: { in: 1.0e-6, out: 5.0e-6, cacheRead: 0.10e-6, cacheWrite: 1.25e-6 },
   sonnet: { in: 3.0e-6, out: 15.0e-6, cacheRead: 0.30e-6, cacheWrite: 3.75e-6 },
   opus: { in: 15.0e-6, out: 75.0e-6, cacheRead: 1.50e-6, cacheWrite: 18.75e-6 },
+  // DeepSeek via DeepInfra(비중국): V4-Pro $1.30/$2.60(캐시 $0.10) · V4-Flash $0.10/$0.20(캐시 $0.02) per MTok
+  'deepseek-pro': { in: 1.30e-6, out: 2.60e-6, cacheRead: 0.10e-6, cacheWrite: 1.30e-6 },
+  'deepseek-flash': { in: 0.10e-6, out: 0.20e-6, cacheRead: 0.02e-6, cacheWrite: 0.10e-6 },
   other: { in: 1.0e-6, out: 5.0e-6, cacheRead: 0.10e-6, cacheWrite: 1.25e-6 },
 };
 
 export function familyOf(model: string): Family {
   const m = (model || '').toLowerCase();
+  if (m.includes('v4-pro') || (m.includes('deepseek') && m.includes('pro'))) return 'deepseek-pro';
+  if (m.includes('v4-flash') || m.includes('deepseek')) return 'deepseek-flash';
   if (m.includes('haiku')) return 'haiku';
   if (m.includes('sonnet')) return 'sonnet';
   if (m.includes('opus')) return 'opus';
@@ -43,7 +48,7 @@ export function aggregateUsage(recs: UsageRec[]): {
   costUsd: number;
   fam: Record<Family, FamTokens>;
 } {
-  const fam: Record<Family, FamTokens> = { haiku: zeroFam(), sonnet: zeroFam(), opus: zeroFam(), other: zeroFam() };
+  const fam: Record<Family, FamTokens> = { haiku: zeroFam(), sonnet: zeroFam(), opus: zeroFam(), 'deepseek-pro': zeroFam(), 'deepseek-flash': zeroFam(), other: zeroFam() };
   let costUsd = 0;
   for (const r of recs) {
     const f = familyOf(r.model);
