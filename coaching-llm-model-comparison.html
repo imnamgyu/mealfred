@@ -207,7 +207,38 @@
     </div>
   </section>
 
-  <p class="ftnote" style="text-align:center;margin-top:30px">실측: <code>scripts/bench-deepseek.mjs</code> · 입력 = 아린 06-11~15 손 프롬프트(저장 결정+실제 <code>buildLetterUser</code> 재구성, DB 읽기전용) · 생성 2026-06-16</p>
+  <section id="fullsim">
+    <div class="sec-h"><span class="no">6</span><h2>풀 파이프라인 7일 시뮬 — 확정 조합</h2><span class="tech">주간·뇌=V4-Pro · 손=V4-Flash</span></div>
+    <p class="lead">단일 콜이 아니라 <b>실제 엔진 전 과정</b>(<code>runWeeklyPlanning</code> → <code>buildBrainContext</code>/<code>pickActionByBrain</code> → <code>generateLetter</code>+윤문)을 DeepSeek로 라우팅해 아린 <b>06-10~16(7일)</b>을 통째로 재생성. <b>주간계획·일간 뇌 = V4-Pro(추론) · 손(편지)+윤문 = V4-Flash</b>. DB 읽기전용.</p>
+
+    <div class="verdict good" style="background:#FFF8E1;border:1px solid #f0dd9c"><b>📅 이번 주 주간계획 (V4-Pro)</b><br>타깃 <b>콩류</b> · 레버 <b>환경</b> · 행동목표 "하루 한 끼는 TV를 끄고 식탁에서 아이와 함께 앉아 식사하기"<br><span style="color:var(--n600);font-size:12px">소견: 지난주 콩류 노출을 시도했으나 화면·이동 식사 91%로 식사 집중 자체가 무너져 효과가 제한적이었다. 환경 구조가 핵심 병목이므로 이번 주는 식탁 정착을 최우선, 콩류는 배경 노출로만 유지한다.</span></div>
+
+    <div class="mblock" style="margin-top:14px">
+      <div class="mhd"><span class="nm">7일 — 뇌(V4-Pro) 결정 → 손(V4-Flash) 편지</span><span class="mt">편지 7/7 정상 · 폭주 0</span></div>
+      <div class="drow"><div class="dchip">06-10<b>plateau</b></div><div class="dtext"><span style="font-size:10.5px;color:var(--v700);font-weight:700">🧠 정체기·useFood=false</span><br>아린이가 새 음식을 거부하지 않고 받아들이는 태도가 자리 잡아 가고 있어요. 편식 여정은 늘 조금씩 나아지는 구간과 잔잔히 쉬어가는 구간이 반복되는 법인데, 요즘처럼 뚜렷한 거부 없이 지나는 시간은 아이가 이미 만난 음식들을 자신의 방식으로 소화하고 있다는 신호랍니다. 찐 단호박을 밥에 살짝 섞어 준 것, 생선을 밥에 다져 넣어 시도한 것 모두 '이것도 괜찮은 음식'이라는 경험을 더해 주고 있어요. 어린이집에서도 잘 챙겨 주고 있어서 전체 영양은 든든하니, 집에서는 천천히 다양한 채소와 만나는 경험을 부담 없이 이어 가면 됩니다.</div></div>
+      <div class="drow"><div class="dchip">06-11<b>환경</b></div><div class="dtext"><span style="font-size:10.5px;color:var(--v700);font-weight:700">🧠 식사분위기·useFood=false</span><br>아침 식탁에 앉아 화면 없이 식사를 시작했다는 점이 눈에 띄었어요. 짧은 시간이지만 그 장면이 분위기를 바꾸는 출발점이 될 수 있어요. 오늘 저녁도 한 끼만이라도 화면을 끄고 식탁에 함께 앉아 보세요. 아이가 숟가락을 놀리거나 적게 먹어도 괜찮아요. 그 시간 자체가 식사 리듬을 만드는 데 도움이 됩니다. 어린이집 덕분에 전체 영양은 잘 채워지고 있어서, 집에서는 이렇게 편안한 환경에 조금씩 익숙해지면 좋겠어요.</div></div>
+      <div class="drow"><div class="dchip">06-12<b>환경</b></div><div class="dtext"><span style="font-size:10.5px;color:var(--v700);font-weight:700">🧠 식사분위기(다른 각도)·useFood=false</span><br>아침에 한두 번 아이가 간식을 조를도 괜찮아요. 조르는 그 순간이 아이도 배고픔을 느끼는 신호니까요. 이번 주는 하루 한 끼만이라도 화면을 끄고 식탁에 앉는 습관을 시도 중이시죠. 간식을 조를 때는 '밥 먹고 줄게' 한마디만 부드럽게 하고, 부모님께서 먼저 식탁에 앉아 밥을 맛있게 드세요. 아이가 보는 앞에서 자연스럽게 한 입 드시면, 그 모습이 아이에게 가장 강력한 신호가 됩니다. 어린이집 덕에 전체 영양은 잘 채워지고 있어요. 집 끼니에 주황색 채소가 드물어, 앞으로 가끔 찐 고구마를 감자볶음 옆에 놓아보면 다양성에 좋습니다.</div></div>
+      <div class="drow"><div class="dchip">06-13<b>집기관</b></div><div class="dtext"><span style="font-size:10.5px;color:var(--v700);font-weight:700">🧠 집-기관격차·useFood=false</span><br>어린이집에서 배추김치, 깍두기, 기장밥처럼 여러 음식을 꾸준히 챙겨줘서 아이의 전체 영양은 잘 채워지고 있어요. 덕분에 집에서는 콩류가 좀 드물지만, 아이의 식탁이 이미 편안해지고 있어서 부담 없이 천천히 더해가면 좋아요. 오늘 저녁, 식탁에 앉은 지 20분쯤 지나면 '많이 먹었네, 여기까지 할까' 한마디와 함께 가볍게 상을 정리해 주세요. 남은 음식이 있어도 괜찮습니다. 짧고 편안한 끝맺음이 다음 끼니를 기다리는 즐거움으로 이어져요.</div></div>
+      <div class="drow"><div class="dchip">06-14<b>콩류</b></div><div class="dtext"><span style="font-size:10.5px;color:var(--v700);font-weight:700">🧠 집-기관격차·target=콩류·useFood=true</span><br>어린이집 급식 덕분에 어린이의 전체 영양은 잘 채워지고 있어요. 다만 집에서 차리는 아침·저녁 끼니를 보니 콩류가 뜸하더라고요. 어린이가 이미 좋아하는 밥에 검은콩이나 렌틸을 아주 잘게 다져 한두 숟갈 섞어보는 건 어떨까요? 또래 아이들은 이렇게 시작해 나중에 순두부찌개 같은 따뜻한 음식으로도 잘 만나곤 합니다. 잘게 섞인 콩이 밥 맛을 크게 바꾸지 않아서, 부담 없이 첫발을 뗄 수 있을 거예요.</div></div>
+      <div class="drow"><div class="dchip">06-15<b>환경</b></div><div class="dtext"><span style="font-size:10.5px;color:var(--v700);font-weight:700">🧠 식사분위기·콩류 예고·useFood=true</span><br>요즘 아침마다 식탁에 앉는 시간이 짧고, 아이가 자리에서 일어나려는 모습이 자주 보이네요. 그럴 때일수록 부모님이 먼저 편안하게 한 술 뜨는 모습을 보여주시는 게 큰 힘이 됩니다. 오늘 저녁, 밥상에 앉기 전에 TV와 태블릿을 잠시 끄고, 아린이와 함께 조용히 식사를 시작해 보세요. 아이가 밥그릇을 내려놓고 20분쯤 지나면 '많이 먹었네, 여기까지 할까' 하고 부드럽게 마무리해 주시면, 다음 끼니가 기다려지는 작은 즐거움이 생깁니다. 어린이집에서 다양한 음식을 잘 챙겨주고 있으니 집에서는 부담을 내려놓고, 가끔 두부나 콩이 들어간 따뜻한 국 같은 것을 곁들여 보세요.</div></div>
+      <div class="drow"><div class="dchip">06-16<b>plateau</b></div><div class="dtext"><span style="font-size:10.5px;color:var(--v700);font-weight:700">🧠 정체기·useFood=false</span><br>아린이는 요즘 밥을 만나는 빈도가 줄었다가 다시 자연스럽게 받아들이는 중이에요. 또래 아이들도 이렇게 호기심과 거부를 오가며 입맛을 넓혀 간답니다. 지금 이렇게 잘 따라와 주는 모습, 참 기특해요. 얼마 전에는 치킨도 한 번 거부했지만, 이 역시 낯선 음식을 만나는 자연스러운 과정일 뿐이에요. 집 밥상이 조용하고 편안하게 이어지고 있어서, 아린이가 음식을 새로 받아들이는 마음도 차분해지고 있는 것 같아요. 오늘도 그 흐름 그대로, 부모님 마음 편히 지켜봐 주세요.</div></div>
+    </div>
+    <p class="note">🧠 뇌(V4-Pro)가 7일을 <b>plateau→환경→환경(다른 각도)→집기관→집기관(콩류)→환경(콩류 예고)→plateau</b>로 — 같은 환경 병목이어도 <b>매일 각도·무브를 바꿈</b>(반복 회피◎). 손(V4-Flash) 편지 <b>7/7 전부 정상</b>(손이 비추론이라 폭주·truncation 0). ※ 06-12 "조를도"는 V4-Flash 사소한 오타 1건(윤문도 Flash라 못 잡음).</p>
+
+    <h3 style="font-size:15.5px;font-weight:800;color:var(--s800);margin:18px 0 8px">💰 실측 비용 (이 조합·자녀당)</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>역할</th><th>모델</th><th>월₩ (자녀당)</th><th>비중</th></tr></thead>
+      <tbody>
+        <tr class="best"><td class="mname">일간 뇌 <small>매일</small></td><td class="num">V4-Pro(추론)</td><td class="num" style="color:var(--r700)">≈ ₩613</td><td class="num">86%</td></tr>
+        <tr><td class="mname">주간 계획 <small>주1회</small></td><td class="num">V4-Pro(추론)</td><td class="num">≈ ₩48</td><td class="num">7%</td></tr>
+        <tr><td class="mname">손+윤문 <small>매일</small></td><td class="num">V4-Flash</td><td class="num" style="color:var(--g700)">≈ ₩45</td><td class="num">6%</td></tr>
+        <tr style="border-top:2px solid var(--n300)"><td class="mname" style="font-weight:800">합계</td><td></td><td class="num" style="font-weight:800;font-size:14px">≈ ₩711</td><td></td></tr>
+      </tbody>
+    </table></div>
+    <p class="ftnote">· 7일 실측 $0.12765 = ₩166 → 월 ₩711 · 환율 ₩1,300/$ · OpenRouter 라우팅. · 콜 24개(V4-Pro 10[주간1+뇌7+재시도2] / V4-Flash 14[손7+윤문7]).<br>· ⚠️ <b>§3 추정(₩210)보다 높음</b> — V4-Pro <b>뇌의 추론</b>이 콜당 ~$0.012로 추정($0.0027)의 4배. 짧은 결정 JSON을 내지만 그 전에 추론을 길게 함 → <b>뇌가 전체의 86%.</b><br>· 그래도 <b>현재 Claude 뇌풀가동(≈₩1,970)의 ~1/2.8.</b> 손은 V4-Flash라 truncation 없음 = 안정.</p>
+  </section>
+
+  <p class="ftnote" style="text-align:center;margin-top:30px">실측: <code>scripts/bench-deepseek.mjs</code> · <code>_arin-fullsim</code>(실제 엔진 7일) · DB 읽기전용 · 생성 2026-06-16</p>
 
 </main>
 </body>
