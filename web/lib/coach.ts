@@ -79,27 +79,31 @@ export async function callClaude(user: string, maxTokens: number, system: string
   // ⭐ 견고화(이사님 2026-06-15) — 깨진 JSON(이스케이프 안 한 따옴표·리터럴 줄바꿈 등)은 랜덤이라, 파싱 실패 시 LLM 호출을 재시도하면 보통 정상화.
   //   이전엔 단발 파싱 실패가 편지를 통째로 발행 실패(0건)시켰음(06-14·06-15 간헐 사고). 최대 3회 시도(제어문자 보정 → 호출 재시도).
   let lastErr: unknown;
+  let dsDead = false;   // ⭐ DeepSeek 실패 시 이 콜의 남은 시도는 Claude로 자동 폴백(서킷브레이커·이사님 2026-06-16)
   for (let attempt = 0; attempt < 5; attempt++) {   // ⭐ 두뇌 전 자녀 라이브(이사님 2026-06-16) — 발행 실패 더 줄이려 3→5회 재시도
-    // ⭐ DeepSeek 백엔드(이사님 2026-06-16, env COACH_LLM=deepseek) — 뇌(sonnet/opus)→v4-pro·손(그 외)→v4-flash.
-    //   OpenRouter에서 비중국 공급자(DeepInfra 기본) 핀 → 아동 데이터 중국 라우팅 차단. 기본 OFF=Claude 라이브 유지(dark 배포).
-    if (process.env.COACH_LLM === 'deepseek' && process.env.OPENROUTER_API_KEY) {
-      const dsModel = /sonnet|opus/.test(model) ? 'deepseek/deepseek-v4-pro' : 'deepseek/deepseek-v4-flash';
-      const provider = process.env.COACH_LLM_PROVIDER || 'DeepInfra';   // 비중국 핀(allow_fallbacks=false로 중국 폴백 차단)
-      const r2 = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` },
-        body: JSON.stringify({ model: dsModel, max_tokens: Math.max(maxTokens, 2500), temperature: 0.7, response_format: { type: 'json_object' }, provider: { only: [provider], allow_fallbacks: false }, usage: { include: true }, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
-      });
-      if (!r2.ok) { const b2 = await r2.text().catch(() => ''); lastErr = new Error(`deepseek ${r2.status}: ${b2.slice(0, 300)}`); if (r2.status === 429 || r2.status >= 500) continue; throw lastErr; }
-      const d2 = await r2.json();
-      const u2 = (d2?.usage || {}) as Record<string, number>;
-      _usageLog.push({ model: dsModel, input: Number(u2.prompt_tokens) || 0, output: Number(u2.completion_tokens) || 0, cacheRead: 0, cacheWrite: 0 });
-      const t2 = (d2?.choices?.[0]?.message?.content as string) || '';
-      const f2 = t2.match(/```(?:json)?\s*([\s\S]*?)```/);
-      const raw2 = f2 ? f2[1] : (t2.match(/\{[\s\S]*\}/)?.[0] || '');
-      if (raw2) { try { return JSON.parse(raw2); } catch { /* */ } try { return JSON.parse([...raw2].map((c) => (c.charCodeAt(0) < 32 ? ' ' : c)).join('')); } catch (e) { lastErr = e; } }
-      else lastErr = new Error('coach(deepseek): 빈 응답');
-      continue;
+    // ⭐ DeepSeek 기본 백엔드(이사님 2026-06-16) — OPENROUTER_API_KEY 있으면 DeepSeek 우선: 뇌(sonnet/opus)→v4-pro·손→v4-flash,
+    //   비중국 공급자(DeepInfra 기본) 핀(allow_fallbacks=false=중국 폴백 차단). 실패(레이트리밋·빈응답·에러)→dsDead로 즉시
+    //   Claude 폴백(발행 보장·플래그 불필요). 키 없으면 통째 Claude. COACH_LLM=off로 강제 비활성 가능(안전밸브).
+    if (!dsDead && process.env.OPENROUTER_API_KEY && process.env.COACH_LLM !== 'off') {
+      try {
+        const dsModel = /sonnet|opus/.test(model) ? 'deepseek/deepseek-v4-pro' : 'deepseek/deepseek-v4-flash';
+        const provider = process.env.COACH_LLM_PROVIDER || 'DeepInfra';
+        const r2 = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` },
+          body: JSON.stringify({ model: dsModel, max_tokens: Math.max(maxTokens, 2500), temperature: 0.7, response_format: { type: 'json_object' }, provider: { only: [provider], allow_fallbacks: false }, usage: { include: true }, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
+        });
+        if (r2.ok) {
+          const d2 = await r2.json();
+          const u2 = (d2?.usage || {}) as Record<string, number>;
+          _usageLog.push({ model: dsModel, input: Number(u2.prompt_tokens) || 0, output: Number(u2.completion_tokens) || 0, cacheRead: 0, cacheWrite: 0 });
+          const t2 = (d2?.choices?.[0]?.message?.content as string) || '';
+          const f2 = t2.match(/```(?:json)?\s*([\s\S]*?)```/);
+          const raw2 = f2 ? f2[1] : (t2.match(/\{[\s\S]*\}/)?.[0] || '');
+          if (raw2) { try { return JSON.parse(raw2); } catch { /* */ } try { return JSON.parse([...raw2].map((c) => (c.charCodeAt(0) < 32 ? ' ' : c)).join('')); } catch { /* */ } }
+        } else { lastErr = new Error(`deepseek ${r2.status}: ${(await r2.text().catch(() => '')).slice(0, 200)}`); }
+      } catch (e) { lastErr = e; }
+      dsDead = true;   // DeepSeek 실패/미파싱 → 이번 시도부터 Claude 폴백
     }
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
