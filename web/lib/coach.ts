@@ -81,17 +81,22 @@ export async function callClaude(user: string, maxTokens: number, system: string
   let lastErr: unknown;
   let dsDead = false;   // ⭐ DeepSeek 실패 시 이 콜의 남은 시도는 Claude로 자동 폴백(서킷브레이커·이사님 2026-06-16)
   for (let attempt = 0; attempt < 5; attempt++) {   // ⭐ 두뇌 전 자녀 라이브(이사님 2026-06-16) — 발행 실패 더 줄이려 3→5회 재시도
-    // ⭐ DeepSeek 기본 백엔드(이사님 2026-06-16) — OPENROUTER_API_KEY 있으면 DeepSeek 우선: 뇌(sonnet/opus)→v4-pro·손→v4-flash,
-    //   비중국 공급자(DeepInfra 기본) 핀(allow_fallbacks=false=중국 폴백 차단). 실패(레이트리밋·빈응답·에러)→dsDead로 즉시
+    // ⭐ DeepSeek 기본 백엔드(이사님 2026-06-16) — DEEPINFRA_API_KEY 있으면 DeepInfra 직접(비중국·수수료0), 없고
+    //   OPENROUTER_API_KEY면 OpenRouter+DeepInfra핀. 뇌(sonnet/opus)→v4-pro·손→v4-flash. 실패(레이트리밋·빈응답·에러)→dsDead로 즉시
     //   Claude 폴백(발행 보장·플래그 불필요). 키 없으면 통째 Claude. COACH_LLM=off로 강제 비활성 가능(안전밸브).
-    if (!dsDead && process.env.OPENROUTER_API_KEY && process.env.COACH_LLM !== 'off') {
+    const dsKey = process.env.DEEPINFRA_API_KEY || process.env.OPENROUTER_API_KEY;   // DeepInfra 직접 우선, 없으면 OpenRouter
+    if (!dsDead && dsKey && process.env.COACH_LLM !== 'off') {
       try {
-        const dsModel = /sonnet|opus/.test(model) ? 'deepseek/deepseek-v4-pro' : 'deepseek/deepseek-v4-flash';
-        const provider = process.env.COACH_LLM_PROVIDER || 'DeepInfra';
-        const r2 = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        const direct = !!process.env.DEEPINFRA_API_KEY;   // 직접 = DeepInfra(비중국·수수료0). 아니면 OpenRouter+DeepInfra핀.
+        const isPro = /sonnet|opus/.test(model);
+        const dsModel = direct ? (isPro ? 'deepseek-ai/DeepSeek-V4-Pro' : 'deepseek-ai/DeepSeek-V4-Flash')
+                               : (isPro ? 'deepseek/deepseek-v4-pro' : 'deepseek/deepseek-v4-flash');
+        const dsBody: Record<string, unknown> = { model: dsModel, max_tokens: Math.max(maxTokens, 2500), temperature: 0.7, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] };
+        if (!direct) { dsBody.provider = { only: [process.env.COACH_LLM_PROVIDER || 'DeepInfra'], allow_fallbacks: false }; dsBody.usage = { include: true }; }   // OpenRouter 전용: 비중국 핀
+        const r2 = await fetch(direct ? 'https://api.deepinfra.com/v1/openai/chat/completions' : 'https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
-          headers: { 'content-type': 'application/json', authorization: `Bearer ${process.env.OPENROUTER_API_KEY}` },
-          body: JSON.stringify({ model: dsModel, max_tokens: Math.max(maxTokens, 2500), temperature: 0.7, response_format: { type: 'json_object' }, provider: { only: [provider], allow_fallbacks: false }, usage: { include: true }, messages: [{ role: 'system', content: system }, { role: 'user', content: user }] }),
+          headers: { 'content-type': 'application/json', authorization: `Bearer ${dsKey}` },
+          body: JSON.stringify(dsBody),
         });
         if (r2.ok) {
           const d2 = await r2.json();
