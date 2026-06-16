@@ -52,7 +52,7 @@ export default function AuthModal({ open, onClose, initialError }: { open: boole
             style={{ width: 17, height: 17, marginTop: 1, accentColor: '#FF6B1A', flexShrink: 0 }} />
           <span>
             <b>[필수]</b> 만 14세 이상이며, <a href="/terms" target="_blank" rel="noopener" style={{ color: '#C45A00', fontWeight: 700, textDecoration: 'underline' }}>이용약관</a>과{' '}
-            <a href="/privacy" target="_blank" rel="noopener" style={{ color: '#C45A00', fontWeight: 700, textDecoration: 'underline' }}>개인정보처리방침</a>(자녀의 건강·식이 정보 처리 포함)에 동의합니다.
+            <a href="/privacy" target="_blank" rel="noopener" style={{ color: '#C45A00', fontWeight: 700, textDecoration: 'underline' }}>개인정보처리방침</a>(자녀의 건강·식이 정보 처리 및 <b>AI 코칭을 위한 국외(미국) 이전</b> 포함)에 동의합니다.
           </span>
         </label>
 

@@ -61,12 +61,18 @@ export default function PrivacyPage() {
           <tbody>
             <tr><td style={td}>Supabase</td><td style={td}>데이터베이스·인증·저장 호스팅</td></tr>
             <tr><td style={td}>Vercel</td><td style={td}>애플리케이션 배포·운영</td></tr>
-            <tr><td style={td}>Anthropic</td><td style={td}>코칭 편지·질문 등 텍스트 생성(식단 분석값 전달)</td></tr>
+            <tr><td style={td}>Anthropic·DeepInfra(DeepSeek)</td><td style={td}>코칭 편지·질문 등 텍스트 생성 AI 처리(식단 분석값 전달·미국 이전)</td></tr>
             <tr><td style={td}>네이버클라우드(SENS)</td><td style={td}>알림톡 발송(선택 시)</td></tr>
             <tr><td style={td}>전자결제대행(PG)사</td><td style={td}>유료 결제·환불 처리(유료 서비스 도입 시)</td></tr>
           </tbody>
         </table>
-        <div style={note}>일부 수탁자는 국외에 서버를 둘 수 있습니다(국외 이전). 회사는 코칭 생성 시 이름·연락처 등 직접 식별정보를 전달하지 않고 분석에 필요한 식단 데이터만 전달합니다.</div>
+        <div style={note}>
+          <b>국외 이전 안내(개인정보 보호법 제28조의8)</b> — 코칭 AI 처리를 위해 개인정보를 국외로 이전합니다.<br />
+          · 이전받는 자 / 국가: Anthropic(미국)·DeepInfra(미국, DeepSeek 추론 제공) / 미국<br />
+          · 이전 항목: 자녀 연령대·식단(메뉴·식재료·거부 반응·메모)·건강 분석값 — <b>이름·연락처 등 직접 식별정보는 전달하지 않음</b><br />
+          · 이전 목적: AI 편식 코칭 편지·질문 생성 / 이전 일시·방법: 코칭 생성 시 HTTPS 암호화 전송<br />
+          · 보유·이용 기간: 추론 처리 목적 달성 즉시 파기(제공자 약관에 따라 보관·모델 학습에 사용하지 않음) / 거부 방법: 동의 철회 또는 고객센터 요청(거부 시 코칭 기능 제한)
+        </div>
       </Section>
 
       <Section n="6." t="개인정보의 제3자 제공">
