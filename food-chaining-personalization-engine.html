@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>푸드체이닝 개인화 엔진 — 아이의 선호에서 식재료 경험의 폭을 넓히는 추천 설계 (기획 계획서)</title>
+<meta property="og:title" content="푸드체이닝 개인화 엔진 — 기획 계획서">
+<meta property="og:description" content="아이를 이해해 '심리스하게 먹는 식재료·음식의 폭'을 넓히는 추천 엔진. 푸드체이닝 이론·실증 + 현행 추천 원리 + 신규 엔진 설계 + 코칭편지/도감 연결.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b400:#5DADE2;--b500:#3498DB;--b700:#1565C0;--g400:#48C9B0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased;min-height:100vh}
+  code,.mono{font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:0.85em;background:#F1EDFB;color:#5b3a8c;padding:1px 6px;border-radius:5px;font-weight:600}
+  .hero{padding:54px 24px 40px;text-align:center;background:linear-gradient(155deg,#2C3E50 0%,#34495E 45%,#3a2b52 100%);color:#fff;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,rgba(232,146,68,0.22) 0,transparent 45%),radial-gradient(circle at 78% 18%,rgba(155,89,182,0.28) 0,transparent 48%);pointer-events:none}
+  .hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,255,255,0.12);color:#FFD9B0;padding:7px 18px;border-radius:100px;font-size:11.5px;font-weight:700;letter-spacing:0.06em;margin-bottom:18px;border:1px solid rgba(255,255,255,0.22)}
+  .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;line-height:1.26;margin-bottom:14px}
+  .hero h1 b{color:#FFB375}
+  .hero p{font-size:14.5px;color:#cfd8e3;max-width:720px;margin:0 auto;font-weight:500;line-height:1.78}
+  .hero .crumbs{margin-top:16px;font-size:11.5px;color:#9fb0c2}
+  .hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+  nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;-ms-overflow-style:none;scrollbar-width:none}
+  nav.toc::-webkit-scrollbar{display:none}
+  nav.toc a{display:inline-block;font-size:11.5px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 11px;border-radius:100px;margin-right:3px;transition:all .15s}
+  nav.toc a:hover{background:var(--p50);color:var(--p700)}
+  main{max-width:1080px;margin:0 auto;padding:8px 20px 70px}
+  section{margin:42px 0;scroll-margin-top:56px}
+  .sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px;padding-bottom:9px;border-bottom:2.5px solid var(--p500);flex-wrap:wrap}
+  .sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .sec-h h2{font-size:21px;font-weight:800;color:var(--s800);letter-spacing:-0.02em}
+  .sec-h .tech{font-size:10.5px;font-weight:700;color:var(--v700);background:#F3E8FB;padding:3px 10px;border-radius:100px;margin-left:auto;border:1px solid #e3d0f5}
+  .lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 18px;line-height:1.74}
+  .lead b{color:var(--s800)}
+  .card{background:#fff;border:1px solid var(--n200);border-radius:15px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  .card + .card{margin-top:12px}
+  h3.sub{font-size:14.5px;font-weight:800;color:var(--s800);margin:18px 0 8px;letter-spacing:-0.01em}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:6px 0 8px}
+  .kpi{background:#fff;border:1px solid var(--n200);border-top:4px solid var(--p500);border-radius:13px;padding:16px 15px;text-align:center}
+  .kpi .v{font-size:24px;font-weight:800;color:var(--s800);letter-spacing:-0.03em;line-height:1.15}
+  .kpi .v small{font-size:13px;color:var(--n500);font-weight:700}
+  .kpi .l{font-size:11px;color:var(--n600);font-weight:700;margin-top:5px}
+  .kpi .s{font-size:10px;color:var(--n400);font-weight:600;margin-top:2px}
+  .kpi.b{border-top-color:var(--b500)}.kpi.g{border-top-color:var(--g500)}.kpi.v{border-top-color:var(--v500)}.kpi.r{border-top-color:var(--r500)}.kpi.y{border-top-color:var(--y500)}
+  .goalbox{background:linear-gradient(135deg,#2C3E50,#3a2b52);color:#fff;border-radius:16px;padding:22px 24px;margin:6px 0 4px}
+  .goalbox .gt{font-size:11px;font-weight:800;letter-spacing:0.08em;color:#FFD9B0;margin-bottom:8px}
+  .goalbox .gm{font-size:17px;font-weight:800;line-height:1.5;letter-spacing:-0.02em}
+  .goalbox .gm b{color:#FFB375}
+  .goalbox .gs{font-size:12.5px;color:#cdd6e0;margin-top:10px;line-height:1.7}
+  .readme{background:linear-gradient(135deg,#FFF8F2,#F3E8FB);border:1px dashed var(--p300);border-radius:13px;padding:16px 18px;font-size:12.5px;color:var(--n700);line-height:1.7}
+  .readme b{color:var(--p700)}
+  .callout{background:linear-gradient(135deg,#F6EEFC,#FFF8F2);border:1px solid #ddc4ef;border-radius:12px;padding:14px 17px;font-size:12.5px;color:var(--n700);line-height:1.72;margin-top:14px}
+  .callout b{color:var(--v700)}
+  .ok{background:#F2FAF4;border:1.5px solid #9CCFA8;border-radius:11px;padding:13px 15px;font-size:12.5px;margin:12px 0;line-height:1.7}
+  .ok b{color:var(--g700)}
+  .warn{background:#FFF5F5;border:1.5px solid #f0a9a9;border-radius:11px;padding:13px 15px;font-size:12.5px;margin:12px 0;line-height:1.7}
+  .warn b{color:var(--r700)}
+  .note{background:#FFF8F2;border:1px solid var(--p100);border-radius:11px;padding:12px 15px;font-size:12px;color:var(--n600);line-height:1.66;margin:12px 0}
+  .note b{color:var(--p700)}
+  .src{font-size:10.5px;color:var(--n400);font-weight:600}
+  /* genealogy */
+  .legend{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0 4px}
+  .legend span{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--n200)}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  /* axis chips */
+  .axes{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:6px}
+  .axis{border-radius:13px;padding:13px 15px;border:1.5px solid;background:#fff}
+  .axis .an{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:7px}
+  .axis .ad{font-size:11.5px;color:var(--n600);font-weight:500;margin-top:6px;line-height:1.55}
+  .axis .ar{font-size:10px;font-weight:800;padding:2px 8px;border-radius:100px;margin-left:auto}
+  .axis.tex{border-color:#ddc4ef;background:#F9F3FE}.axis.tex .ar{background:#F3E8FB;color:var(--v700)}
+  .axis.fla{border-color:#f5cbbb;background:#FFF6F1}.axis.fla .ar{background:#FFE8D1;color:var(--p700)}
+  .axis.tmp{border-color:#bcdcf3;background:#F0F7FD}.axis.tmp .ar{background:#E3F2FD;color:var(--b700)}
+  .axis.app{border-color:#f0dd9c;background:#FFFBEE}.axis.app .ar{background:#FFF3CD;color:var(--y700)}
+  /* ladder (SOS) */
+  .ladder{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+  .rung{display:flex;align-items:center;gap:12px;border-radius:11px;padding:10px 14px;border:1px solid var(--n200);background:#fff}
+  .rung .rn{flex:none;width:24px;height:24px;border-radius:7px;font-size:12px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center}
+  .rung .rt{font-size:13px;font-weight:800;color:var(--s800)}
+  .rung .rt small{font-size:11px;font-weight:600;color:var(--n500);margin-left:6px}
+  .rung .rd{font-size:11px;color:var(--n600);font-weight:500;margin-left:auto;text-align:right}
+  /* pipeline */
+  .pipe{display:flex;flex-direction:column;gap:9px}
+  .p4{border-radius:14px;padding:14px 17px;border:1.5px solid;display:flex;gap:14px;align-items:flex-start}
+  .p4 .pn{flex:none;width:30px;height:30px;border-radius:9px;font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .p4 .pbody{flex:1}
+  .p4 .pt{font-size:14px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .p4 .ptag{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px}
+  .p4 .pd{font-size:12px;color:var(--n700);font-weight:500;margin-top:6px;line-height:1.62}
+  .p4 .pd b{color:var(--s800)}
+  .p4.det{background:#EEF6FD;border-color:#bcdcf3}.p4.det .pn{background:var(--b500)}.p4.det .ptag{background:#E3F2FD;color:var(--b700)}
+  .p4.brain{background:#F6EEFC;border-color:#ddc4ef}.p4.brain .pn{background:var(--v500)}.p4.brain .ptag{background:#F3E8FB;color:var(--v700)}
+  .p4.hand{background:#FFF4F0;border-color:#f5cbbb}.p4.hand .pn{background:var(--p500)}.p4.hand .ptag{background:#FFE8D1;color:var(--p700)}
+  .p4.out{background:#E9F7F2;border-color:#b6e3d2}.p4.out .pn{background:var(--g500)}.p4.out .ptag{background:#E8F5E9;color:var(--g700)}
+  .parrow{text-align:center;color:var(--n300);font-size:17px;font-weight:800;margin:-2px 0}
+  /* strategy cards */
+  .strat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:8px}
+  .scard{border:1px solid var(--n200);border-left:3px solid var(--g500);border-radius:11px;padding:12px 14px;background:#fff}
+  .scard .sh{font-size:12.5px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .scard .sh .via{font-family:'SF Mono',monospace;font-size:10px;font-weight:700;background:#E9F7F2;color:var(--g700);padding:1px 6px;border-radius:5px}
+  .scard .sb{font-size:11.5px;color:var(--n600);margin-top:6px;line-height:1.6;font-weight:500}
+  .scard .sb b{color:var(--s800)}
+  .scard .ex{font-size:11px;color:var(--g700);background:#F2FAF4;border-radius:7px;padding:6px 9px;margin-top:7px;font-weight:600}
+  /* 2-axis matrix */
+  .matrix{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+  @media(max-width:680px){.matrix{grid-template-columns:1fr}}
+  .ax{border-radius:14px;padding:16px 18px;border:1.5px solid}
+  .ax.a1{background:#F9F3FE;border-color:#ddc4ef}
+  .ax.a2{background:#FFF6F1;border-color:#f5cbbb}
+  .ax .axh{font-size:14px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:8px}
+  .ax .axh .b{font-size:10px;font-weight:800;padding:2px 8px;border-radius:100px}
+  .ax.a1 .axh .b{background:#F3E8FB;color:var(--v700)}
+  .ax.a2 .axh .b{background:#FFE8D1;color:var(--p700)}
+  .ax .form{font-family:'SF Mono',monospace;font-size:11px;font-weight:700;background:#fff;border:1px solid var(--n200);border-radius:8px;padding:8px 10px;margin:9px 0;color:var(--s800);line-height:1.5}
+  .ax .axd{font-size:12px;color:var(--n700);font-weight:500;line-height:1.62}
+  .ax .axe{font-size:11.5px;font-weight:700;background:#fff;border:1px dashed var(--n300);border-radius:8px;padding:8px 10px;margin-top:8px;color:var(--s800)}
+  /* feature cards (new signals) */
+  .feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:10px;margin-top:8px}
+  .fc{border:1px solid var(--n200);border-radius:12px;padding:13px 15px;background:#fff;border-top:3px solid var(--b500)}
+  .fc.new{border-top-color:var(--v500)}
+  .fc .fch{font-size:12.5px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:7px}
+  .fc .fcb{font-size:11.5px;color:var(--n600);margin-top:6px;line-height:1.6;font-weight:500}
+  .fc .fcb b{color:var(--s800)}
+  .fc .tagn{font-size:9px;font-weight:800;padding:1px 7px;border-radius:100px;background:#F3E8FB;color:var(--v700);margin-left:auto}
+  .fc .tago{font-size:9px;font-weight:800;padding:1px 7px;border-radius:100px;background:#E3F2FD;color:var(--b700);margin-left:auto}
+  .fc .ev{font-size:10px;color:var(--n400);font-weight:600;margin-top:7px;border-top:1px dotted var(--n200);padding-top:6px}
+  /* delivery flow */
+  .flow{display:flex;flex-direction:column;gap:0}
+  .fnode{border-radius:13px;padding:14px 17px;border:1.5px solid}
+  .fnode .fh{font-size:13px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--s800)}
+  .fnode .ftag{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px}
+  .fnode .fb{font-size:12px;color:var(--n700);font-weight:500;margin-top:7px;line-height:1.64}
+  .fnode .fb b{color:var(--s800)}
+  .fnode.det{background:#EEF6FD;border-color:#bcdcf3}.fnode.det .ftag{background:#E3F2FD;color:var(--b700)}
+  .fnode.hand{background:#FFF4F0;border-color:#f5cbbb}.fnode.hand .ftag{background:#FFE8D1;color:var(--p700)}
+  .fnode.dogam{background:#F9F3FE;border-color:#ddc4ef}.fnode.dogam .ftag{background:#F3E8FB;color:var(--v700)}
+  .fnode.out{background:#E9F7F2;border-color:#b6e3d2}.fnode.out .ftag{background:#E8F5E9;color:var(--g700)}
+  .farrow{text-align:center;color:var(--n300);font-size:18px;font-weight:800;margin:4px 0}
+  .letterbox{background:#fff;border:1px solid #b6e3d2;border-radius:10px;padding:12px 15px;margin-top:8px;font-size:12.5px;line-height:1.78;color:var(--n800)}
+  .letterbox .lq{color:var(--g700);font-weight:800;font-size:10px;letter-spacing:0.04em;display:block;margin-bottom:5px}
+  /* tables */
+  .tbl{overflow-x:auto;margin-top:10px}
+  table{border-collapse:collapse;width:100%;font-size:11.5px}
+  table.wide{min-width:760px}
+  th,td{border:1px solid var(--n200);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#FFF3E6;font-size:11px;font-weight:800;color:var(--s800)}
+  td b{color:var(--s800)}
+  td.ok{background:#F2FAF4;color:var(--g700);font-weight:700;border:1px solid var(--n200)}
+  td.no{background:#FFF5F5;color:var(--r700);font-weight:700;border:1px solid var(--n200)}
+  td.mid{background:#FFFBEE;color:var(--y700);font-weight:700;border:1px solid var(--n200)}
+  .reslink{color:var(--b700);text-decoration:none;font-weight:700;word-break:break-all}
+  .reslink:hover{text-decoration:underline}
+  /* roadmap */
+  .rm{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .rmi{border-radius:13px;padding:14px 17px;border-left:4px solid}
+  .rmi.now{background:#F2FAF4;border-color:var(--g500)}
+  .rmi.soon{background:#FFFBEE;border-color:var(--y500)}
+  .rmi.mid{background:#EEF6FD;border-color:var(--b500)}
+  .rmi.later{background:#F4F4F5;border-color:var(--n400)}
+  .rmi .rh{font-size:13px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .rmi .rt{font-size:10px;font-weight:700;color:var(--n500);background:#fff;padding:2px 9px;border-radius:100px;border:1px solid var(--n200)}
+  .rmi .rl{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:7px;line-height:1.66}
+  .rmi .rl b{color:var(--s800)}
+  ul.clean{margin:8px 0 0;padding-left:0;list-style:none}
+  ul.clean li{font-size:12px;color:var(--n700);font-weight:500;line-height:1.6;margin:6px 0;padding-left:18px;position:relative}
+  ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--p500);font-weight:800}
+  ul.clean li b{color:var(--s800)}
+  footer{text-align:center;color:var(--n400);font-size:11px;padding:28px 20px 0;border-top:1px solid var(--n200);margin-top:40px;line-height:1.7}
+  .stamp{display:inline-block;background:#FFF8F2;border:1px solid var(--p100);border-radius:100px;padding:4px 12px;font-size:10.5px;font-weight:700;color:var(--p700);margin:0 3px 6px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <span class="tag">🌉 ENGINE · 기획 계획서 (PLANNING)</span>
+    <h1>푸드체이닝 개인화 엔진<br><b>아이의 선호</b>에서 <b>식재료 경험의 폭</b>을 넓히는 추천 설계</h1>
+    <p>아이가 이미 잘 먹는 음식에서 출발해, 한 번에 한 발씩 닮은 식재료·새 조리법으로 다리를 놓는다. 이 다리를 <b>데이터로 계산</b>해 ⓐ 코칭 편지에 녹이고 ⓑ 도감에서 '내 아이 맞춤 활용법'으로 펼친다. 푸드체이닝 이론·실증 근거 위에 세운 설계도 — <b>개발 전 기획 문서</b>다.</p>
+    <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · ENGINE · 추천 네트워크 클러스터 · 2026-06-16 · 상태: 설계 검토용</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#goal">목표·철학</a>
+  <a href="#theory">이론 지도</a>
+  <a href="#evidence">실증 현황</a>
+  <a href="#current">현행 추천 원리</a>
+  <a href="#engine">⭐신규 엔진</a>
+  <a href="#delivery">출력 2방식</a>
+  <a href="#assets">데이터 자산</a>
+  <a href="#roadmap">로드맵</a>
+  <a href="#risk">리스크·금지선</a>
+  <a href="#appendix">실용문서 부록</a>
+</nav>
+
+<main>
+
+<!-- 0. 목표 -->
+<section id="goal">
+  <div class="sec-h"><span class="no">0</span><h2>목표와 철학</h2><span class="tech">WHY</span></div>
+  <p class="lead">이 엔진의 존재 이유는 하나다 — <b>아이를 이해해서, 아이가 '심리스하게' 먹을 줄 아는 식재료·음식의 폭을 넓히는 것.</b> 결핍을 채근하거나 안 먹는 걸 들이미는 게 아니라, <b>지금 잘 먹는 것에서 자연스럽게 한 발</b> 옮기게 한다.</p>
+
+  <div class="goalbox">
+    <div class="gt">NORTH STAR</div>
+    <div class="gm">"우리 아이가 <b>거부감 없이 먹는 음식의 가짓수</b>가, 시간이 지날수록 <b>한 발씩 늘어난다.</b>"</div>
+    <div class="gs">측정 가능한 형태로 = (자녀별) 거부 없이 먹는 식재료 집합의 크기 ↑ · 새 식재료를 '받아들이기까지의 노출 횟수' ↓ · SOS 노출 위계 단계의 전진. 양(量)이 아니라 <b>범위(다양성)</b>가 목표 — 임상 합의(SOS)와 같은 방향.</div>
+  </div>
+
+  <div class="kpi-grid" style="margin-top:14px">
+    <div class="kpi"><div class="v">4</div><div class="l">이론 계보</div><div class="s">체이닝·노출·위계·관계</div></div>
+    <div class="kpi b"><div class="v">~8<small>할</small></div><div class="l">데이터 자산 보유</div><div class="s">food-graph·cookingMatrix·로그</div></div>
+    <div class="kpi g"><div class="v">2<small>축</small></div><div class="l">확장 알고리즘</div><div class="s">식재료축 · 조리법축</div></div>
+    <div class="kpi v"><div class="v">2<small>방식</small></div><div class="l">출력 전달</div><div class="s">편지 산입 · 도감 맞춤</div></div>
+    <div class="kpi r"><div class="v">0</div><div class="l">진단/처방</div><div class="s">식습관 점검 포지션</div></div>
+  </div>
+
+  <div class="readme">
+    📌 <b>이 문서의 위치</b> — 본 계획서는 ① <a href="/food-chaining-expansion.html" style="color:var(--p700);font-weight:700">푸드체이닝 2축 확장 발제</a>(이사님 2026-06-13)와 ② <a href="/food-network-data-architecture.html" style="color:var(--p700);font-weight:700">음식 추천 네트워크 데이터 아키텍처</a>를 <b>하나의 '개인화 엔진'으로 승격</b>시키고, 거기에 <b>푸드체이닝 최신 이론·실증 리서치</b>(2026-06-16, 18 에이전트 웹조사+검증)와 <b>현행 코드</b>(<code>lib/coachRecos.ts</code>·<code>lib/cookingMatrix.ts</code>)의 한계 진단을 붙인 것이다. <b>개발은 아직 — 설계 합의용 문서.</b>
+  </div>
+</section>
+
+<!-- 1. 이론 지도 -->
+<section id="theory">
+  <div class="sec-h"><span class="no">1</span><h2>이론 지도 — '다리(bridge)'는 어디서 왔나</h2><span class="tech">RESEARCH</span></div>
+  <p class="lead">'잘 먹는 음식에서 닮은 새 음식으로 다리를 놓는다'는 <b>같은 메커니즘</b>이 임상·학회·상업·정부에 걸쳐 독립적으로 나타난다. 우리 엔진은 그 메커니즘의 <b>데이터 조작화</b>다.</p>
+
+  <div class="card">
+    <h3 class="sub">🌳 계보 — 같은 다리, 다른 채택 경로</h3>
+    <svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard,sans-serif" style="width:100%;height:auto">
+      <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9CA3AF"/></marker></defs>
+      <!-- root -->
+      <rect x="250" y="14" width="220" height="50" rx="12" fill="#FFF1E2" stroke="#E89244" stroke-width="2.5"/>
+      <text x="360" y="35" text-anchor="middle" font-size="13.5" font-weight="800" fill="#B86A20">Food Chaining (Fraker)</text>
+      <text x="360" y="52" text-anchor="middle" font-size="10.5" font-weight="600" fill="#8a6a3a">임상서 · NCP 2006 · 단행본 2007</text>
+      <!-- lines -->
+      <g stroke="#9CA3AF" stroke-width="1.6" fill="none">
+        <path d="M300,64 C220,90 150,100 110,128" marker-end="url(#arr)"/>
+        <path d="M345,64 C320,95 300,100 290,128" marker-end="url(#arr)"/>
+        <path d="M400,64 C440,95 460,100 470,128" marker-end="url(#arr)"/>
+      </g>
+      <!-- branches -->
+      <rect x="30" y="130" width="170" height="56" rx="11" fill="#EEF6FD" stroke="#3498DB" stroke-width="2"/>
+      <text x="115" y="151" text-anchor="middle" font-size="12" font-weight="800" fill="#1565C0">AAP "food bridges"</text>
+      <text x="115" y="168" text-anchor="middle" font-size="10" font-weight="600" fill="#5a7a9a">학회 공식 용어</text>
+      <text x="115" y="180" text-anchor="middle" font-size="10" font-weight="600" fill="#5a7a9a">HealthyChildren 2018</text>
+      <rect x="215" y="130" width="160" height="56" rx="11" fill="#F2FAF4" stroke="#16A085" stroke-width="2"/>
+      <text x="295" y="151" text-anchor="middle" font-size="12" font-weight="800" fill="#1B5E20">Kids Eat in Color</text>
+      <text x="295" y="168" text-anchor="middle" font-size="10" font-weight="600" fill="#3a7a5a">"Bridging" (상업)</text>
+      <text x="295" y="180" text-anchor="middle" font-size="10" font-weight="600" fill="#3a7a5a">BetterBites 프로그램</text>
+      <rect x="390" y="130" width="180" height="56" rx="11" fill="#F9F3FE" stroke="#9C27B0" stroke-width="2"/>
+      <text x="480" y="151" text-anchor="middle" font-size="12" font-weight="800" fill="#6A1B9A">한국 푸드브릿지</text>
+      <text x="480" y="168" text-anchor="middle" font-size="10" font-weight="600" fill="#7a4a9a">정부 · 4단계 노출 교육</text>
+      <text x="480" y="180" text-anchor="middle" font-size="10" font-weight="600" fill="#7a4a9a">dietary4u · EBS 2010</text>
+      <!-- mealfred -->
+      <rect x="585" y="130" width="120" height="56" rx="11" fill="#2C3E50" stroke="#1F2D3D" stroke-width="2"/>
+      <text x="645" y="151" text-anchor="middle" font-size="12" font-weight="800" fill="#FFB375">밀프레드</text>
+      <text x="645" y="168" text-anchor="middle" font-size="9.5" font-weight="600" fill="#cdd6e0">food-graph</text>
+      <text x="645" y="180" text-anchor="middle" font-size="9.5" font-weight="600" fill="#cdd6e0">사촌·궁합 엔진</text>
+      <path d="M570,158 L583,158" stroke="#9CA3AF" stroke-width="1.6" marker-end="url(#arr)"/>
+      <!-- caption -->
+      <text x="360" y="216" text-anchor="middle" font-size="11" font-weight="700" fill="#6B7280">같은 다리 메커니즘 · 독립 채택 4경로 → 밀프레드가 데이터로 계산</text>
+      <text x="360" y="234" text-anchor="middle" font-size="10" fill="#9CA3AF">⚠️ 한국 푸드브릿지(집단 단계노출 교육)와 Fraker 체이닝(개별 유사음식 연쇄)은 별개 갈래 — 혼용 인용 금지</text>
+    </svg>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 class="sub">📐 푸드체이닝 4축 — "한 번에 한 축만 바꾼다"</h3>
+    <p style="font-size:12px;color:var(--n600);font-weight:500;margin-bottom:4px">수용 음식 → 목표 음식 사이에서 <b>한 번에 한 속성만</b> 변경한다(둘 이상 바꾸면 novelty 과부하). Fraker 우선순위 = <b>질감 1순위</b>.</p>
+    <div class="axes">
+      <div class="axis tex"><div class="an">🧈 질감 <span class="ar">1순위</span></div><div class="ad">부드러움→약간 결→쫀쫀. 같은 식재료의 식감 단계(IDDSI L4 퓨레→L7 일반식)를 한 칸씩.</div></div>
+      <div class="axis fla"><div class="an">👅 맛 <span class="ar">2순위</span></div><div class="ad">단맛→약간 단→살짝 쓴. 선호 맛으로 새 음식을 가리는 <b>flavor masking</b>이 핵심 도구.</div></div>
+      <div class="axis tmp"><div class="an">🌡️ 온도 <span class="ar">GAP</span></div><div class="ad">차가움→실온→데움. 찬 우유 거부 → 데운 우유. <b>현재 우리 엔진에 비어 있는 축</b>(§4 신규 신호).</div></div>
+      <div class="axis app"><div class="an">🎨 외형 <span class="ar">색·모양</span></div><div class="ad">색·모양·브랜드. 원전 3축(맛·온도·질감)의 후속 임상 확장 — '원전이 4축'은 부정확, 색은 확장축.</div></div>
+    </div>
+    <p class="src" style="margin-top:8px">출처: Fishbein·Cox·Fraker 외, <i>Nutrition in Clinical Practice</i> 21(2):182-184 (2006, PMID 16556929) · 단행본 <i>Food Chaining</i> (2007, ISBN 9781600940163) · 임상 4축 = Jenny Friedman / Northern Speech Services(core diet·flavor mapping/masking·transitional flavors).</p>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 class="sub">🪜 노출 위계 (SOS) — "안 먹어도 만지면 전진이다"</h3>
+    <p style="font-size:12px;color:var(--n600);font-weight:500;margin-bottom:6px">Toomey의 SOS Approach. 거부 음식을 <b>견딤→먹음</b> 6단계(아래 32세부)로 천천히. 우리 엔진의 '진척'을 <b>이진(먹었다/안먹었다)이 아니라 단계</b>로 인정하는 근거.</p>
+    <div class="ladder">
+      <div class="rung"><span class="rn" style="background:#C62828">1</span><span class="rt">Tolerating <small>견디기</small></span><span class="rd">같은 식탁/접시에 있어도 괜찮음</span></div>
+      <div class="rung"><span class="rn" style="background:#E07A2A">2</span><span class="rt">Interacting <small>상호작용</small></span><span class="rd">옮기기·놀이·도구로 만짐</span></div>
+      <div class="rung"><span class="rn" style="background:#E8A33C">3</span><span class="rt">Smelling <small>냄새</small></span><span class="rd">가까이 두고 냄새 맡음</span></div>
+      <div class="rung"><span class="rn" style="background:#7CB342">4</span><span class="rt">Touching <small>만지기</small></span><span class="rd">입술·혀에 닿음</span></div>
+      <div class="rung"><span class="rn" style="background:#26A69A">5</span><span class="rt">Tasting <small>맛보기</small></span><span class="rd">살짝 깨물기·뱉어도 OK</span></div>
+      <div class="rung"><span class="rn" style="background:#16A085">6</span><span class="rt">Eating <small>먹기</small></span><span class="rd">씹어 삼킴 → 레퍼토리 편입</span></div>
+    </div>
+    <p class="src" style="margin-top:8px">출처: Toomey & Ross, <i>ASHA Perspectives on Swallowing</i> 20(3) (2011) · Schoen et al., <i>Children</i> 12(3):373 (2025, feasibility). ⚠️SOS 32단계 표는 © Toomey — 직접 복제 금지, 한국어 개념 풀이로만 재구성.</p>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 class="sub">🔁 반복 노출 & 🤝 관계(책임 분담)</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" class="rf-grid">
+      <div>
+        <p style="font-size:12.5px;font-weight:800;color:var(--s800);margin-bottom:4px">반복 노출 — "한 번 거부가 끝이 아니다"</p>
+        <p style="font-size:11.5px;color:var(--n600);font-weight:500;line-height:1.6">새 음식은 친숙해지면 받아들여진다. <b>하루 1식품 8~10일 노출 시 수용도↑</b>(USDA NESR 2019, Moderate 근거). AAP '10회 이상', 캐나다 '최대 30회'. ⭐핵심: <b>수용도는 같은 식품군 내로만 전이</b>되고 다른 군으로는 안 넘어간다 — <u>바로 이게 '닮은 음식 사이' 다리만 작동하는 이유</u>. Tiny Tastes RCT(UCL 200가정): 14일 한 입+스티커 → 선호 61%↑·섭취 3배.</p>
+      </div>
+      <div>
+        <p style="font-size:12.5px;font-weight:800;color:var(--s800);margin-bottom:4px">책임 분담 (Satter DOR) — "강요는 역효과"</p>
+        <p style="font-size:11.5px;color:var(--n600);font-weight:500;line-height:1.6">부모는 <b>무엇을·언제·어디서</b>, 아이는 <b>얼마나·먹을지</b> 결정. 미국 연방(Head Start §1302.44)이 의무화한 표준. 강요먹이기는 섭취량↓·자기조절 손상(Galloway 2006 랜드마크). → 우리 코칭 톤가드(채근 금지·'부모가 먼저')의 학술 근거.</p>
+      </div>
+    </div>
+    <p class="src" style="margin-top:8px">출처: USDA NESR(NBK582166) · Cooke/UCL Tiny Tastes(2013) · Satter, <i>JADA</i> 1986;86(3) · Galloway et al., <i>Appetite</i> 2006(PMID 16626838). neophobia 발달곡선: 약 20개월 발현 → 4세 전후~6세 정점 → 감소(Nutrients 2024).</p>
+  </div>
+</section>
+
+<!-- 2. 실증 현황 -->
+<section id="evidence">
+  <div class="sec-h"><span class="no">2</span><h2>실증 현황 — 정직하게: 무엇이 탄탄하고 무엇이 논쟁인가</h2><span class="tech">VERIFIED</span></div>
+  <p class="lead">엔진을 '검증된 임상 프로그램'이라 과장하면 신뢰를 잃는다. <b>근거 강도를 정직하게</b> 구분하고, 마케팅·투자 문서의 톤도 여기에 맞춘다.</p>
+
+  <div class="warn">
+    🚫 <b>인용 금지 — 날조로 판명된 수치</b>: 업계에 떠도는 "푸드체이닝 후 평균 <s>5개→20.5개</s>"는 <b>적대 검증 결과 refuted(출처 없음)</b>. 실제 출처(Fishbein et al. 2006)는 <b>n=10·3개월·수용 음식 1~8개 → 8~129개 <u>범위</u></b>의 <b>후향적 차트 리뷰(RCT 아님)</b>다. 모든 사내·투자·B2B 자료에서 "5→20.5" 삭제하고 정확 표현으로 교체할 것.
+  </div>
+
+  <div class="tbl">
+    <table class="wide">
+      <thead><tr><th style="width:22%">주제</th><th style="width:12%">근거 강도</th><th>핵심 사실 (검증 반영)</th></tr></thead>
+      <tbody>
+        <tr><td><b>반복 노출 효과</b></td><td class="ok">강</td><td>8~10일 노출 시 수용도↑(USDA NESR, Moderate). <b>같은 식품군 내만 전이</b> = 다리 설계의 직접 근거. Tiny Tastes RCT 선호 61%↑·섭취 3배.</td></tr>
+        <tr><td><b>강요먹이기 역효과</b></td><td class="ok">강</td><td>압박 시 섭취↓·자기조절 손상, 성인기까지 악영향(Galloway 2006 랜드마크). 채근 금지 로직의 학술 뒷받침.</td></tr>
+        <tr><td><b>반응형 수유 (Satter DOR)</b></td><td class="ok">강·표준</td><td>정부·학회 best practice·연방 의무 채택. sDOR.2-6y 측정도구 타당화(2020). ⚠️'FDA 승인'식 강한 인증은 아님 → 'best practice 인정'으로 표기.</td></tr>
+        <tr><td><b>neophobia 발달곡선</b></td><td class="ok">강</td><td>20개월 발현→4~6세 정점→감소. '4세 전후 정점=정상' 안심 멘트의 근거.</td></tr>
+        <tr><td><b>Food Chaining 효능</b></td><td class="mid">중·논쟁</td><td>임상 현장 광범위 사용·이론적 근거 탄탄. 단 <b>단독 효능 RCT 부재</b>. 2024 검토(Breda et al.)는 행동개입을 최강 근거로 보고 체이닝은 '정의'만. → "검증된 임상 프로그램" 단정 금지, "국제 임상 현장에서 쓰이는 접근".</td></tr>
+        <tr><td><b>SOS Approach 효능</b></td><td class="no">약·논쟁</td><td>효능 RCT 부재. 2025 연구는 <b>feasibility/pilot</b>(n=12)이지 효능 입증 아님. 비교 RCT(Peterson 2016)에서 수정형 SOS는 ABA 대비 표적섭취 증가 실패(단 n=6). → '효능'이 아니라 '충실도·측정도구 검증'으로 표기.</td></tr>
+        <tr><td><b>조리법 변형의 효과</b></td><td class="mid">조건부</td><td>같은 음식 반복→권태(food jag) 예방엔 유효하나, "조리법 바꾸면 먹는다"는 아이마다 다름(Poelman: 조리법보다 식감/아삭함이 결정). → <b>"한 형태 거부 ≠ 식재료의 끝, 형태 바꿔 재노출"</b> 프레임으로만.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">⚖️ <b>규제·포지션 가드</b>: 밀프레드는 <b>진단/처방이 아니라 '식습관 점검·노출/브릿지 코칭'</b>이다. PFD(Goday 2019)·ARFID(AAP) 임상 정의와 명확히 분리하고, 위험신호(예: 먹는 음식 20종 미만·2년 이상 지속·전체 식감군 거부) 감지 시 '소아과 상담 권유' 게이트로 빠진다.</div>
+</section>
+
+<!-- 3. 현행 추천 원리 -->
+<section id="current">
+  <div class="sec-h"><span class="no">3</span><h2>현행 추천 원리 — 지금은 어떻게 추천되나</h2><span class="tech"><code>coachRecos.ts</code></span></div>
+  <p class="lead">신규 엔진을 얹기 전에 <b>지금 무엇이 돌고 있는지</b>부터. 핵심 철칙 = <b>"무엇을 추천할지는 코드가 결정론으로 정하고, 문장만 LLM이 쓴다."</b> (괴식·환각 0 실적의 토대)</p>
+
+  <div class="card">
+    <h3 class="sub">🔁 파이프라인 — 재료=결정론, 문장=LLM</h3>
+    <div class="pipe">
+      <div class="p4 det"><div class="pn">1</div><div class="pbody"><div class="pt">아이 신호 집계 <span class="ptag">결정론·크론</span></div><div class="pd"><b>잘 먹는 식재료</b>(<code>favIngFreq</code> — 집·거부없음·<b>기관급식 제외 P10</b>) + <b>영양 거울</b>(식품군별 결핍 신호 green/yellow/red). meal_logs에서 매일 계산.</div></div></div>
+      <div class="parrow">▼</div>
+      <div class="p4 det"><div class="pn">2</div><div class="pbody"><div class="pt">추천 후보 산출 <span class="ptag">결정론·순수함수</span></div><div class="pd"><code>buildIngredientPool</code>(주간 5개 식재료 풀·supply/challenge/mixed 모드) → 일일 회전(최근 5일 제외)으로 <b>오늘의 추천 식재료</b>. <code>buildRecoFacts</code>가 그 식재료의 <b>또래 인기 음식 이름</b> + 잘 먹는 것과의 <b>궁합/사촌</b>을 테이블에서 뽑아 사실 블록 생성.</div></div></div>
+      <div class="parrow">▼</div>
+      <div class="p4 brain"><div class="pn">3</div><div class="pbody"><div class="pt">두뇌 각도 선택 <span class="ptag">LLM·Sonnet</span></div><div class="pd">13 시나리오 안에서 오늘의 각도/타깃/무브를 고른다. <b>추천 '내용'을 다시 만들지 않는다</b> — 검수만.</div></div></div>
+      <div class="parrow">▼</div>
+      <div class="p4 hand"><div class="pn">4</div><div class="pbody"><div class="pt">편지 작문 <span class="ptag">LLM·손</span></div><div class="pd">사실 블록(검증된 추천 목록)을 받아 <b>문장만</b> 쓴다. <b>목록 밖 음식·조합 생성 금지</b>. 조리 상세(양념·불세기) 금지(부모가 검색).</div></div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 class="sub">🎯 거울 추천의 5전략 — <code>pickFoodReco</code></h3>
+    <p style="font-size:12px;color:var(--n600);font-weight:500;margin-bottom:2px">오늘의 추천 식재료(회전)를 아이의 상태에 따라 <b>5가지 관계 프레임</b> 중 하나로 — 전부 테이블 근거(괴식 0).</p>
+    <div class="strat">
+      <div class="scard"><div class="sh">① 잘 먹는 것 한 번 더 <span class="via">liked</span></div><div class="sb">추천 식재료를 이미 잘 먹으면 → 강화/유지.</div></div>
+      <div class="scard"><div class="sh">② 곁들이기 <span class="via">pair</span></div><div class="sb"><b>잘 먹는 것에 곁들이기</b>(강한 궁합만·약신호 차단).</div><div class="ex">예: "미역국에 당근 채 썰어"</div></div>
+      <div class="scard"><div class="sh">③ 푸드체이닝 <span class="via">chain</span></div><div class="sb">잘 먹는 것의 <b>검증된 사촌</b>이 결핍군에 있으면 다리.</div><div class="ex">예: 단호박 잘 먹음 → 사촌 당근</div></div>
+      <div class="scard"><div class="sh">④ 도전 <span class="via">dish</span></div><div class="sb">또래가 실제로 자주 먹는 <b>인기 음식 이름</b>으로 도전.</div></div>
+      <div class="scard"><div class="sh">⑤ 그대로 <span class="via">plain</span></div><div class="sb">관계가 없으면 먹는 형태로만(밥·빵·떡).</div></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>한계 진단(왜 '엔진'으로 승격이 필요한가)</b> — 지금은 <b>식재료 축(사촌·궁합)</b>만 본다. (1) <b>조리법 축</b>이 추천에 없다(도감의 <code>cookingMatrix</code>는 일반 조리 안내일 뿐 '이 아이가 익숙한 기법'을 모름). (2) <b>온도 축</b> 부재. (3) <b>'몇 번째 노출인가' 카운팅</b> 부재 → 8~10회 반복 효과를 못 살린다. (4) 진척이 <b>이진(먹음/안먹음)</b>이라 SOS 단계 전진(만짐·냄새)을 인정 못 한다. (5) 사촌이 <b>수기 175쌍</b>이라 안 늘어난다. → 신규 엔진은 이 다섯을 메운다.
+  </div>
+</section>
+
+<!-- 4. 신규 엔진 -->
+<section id="engine">
+  <div class="sec-h"><span class="no">4</span><h2>⭐ 신규 엔진 설계 — 푸드체이닝 개인화 엔진</h2><span class="tech">전부 결정론·LLM 0</span></div>
+  <p class="lead">아이의 상태를 <b>벡터</b>로 읽고, <b>한 번에 한 축</b>만 바꾼 '다음 걸음 후보'를 랭킹한다. 출력은 §5의 두 방식으로 흐른다. 핵심 = 발제의 2축 + 리서치가 짚은 빈 신호 4종.</p>
+
+  <div class="card">
+    <h3 class="sub">🧬 ① 아이 상태 벡터 — "아이를 이해한다"</h3>
+    <div class="feat">
+      <div class="fc"><div class="fch">F · 잘 먹는 식재료 <span class="tago">보유</span></div><div class="fcb"><code>favIngFreq</code> 상위(집·거부없음·기관급식 보정). 다리의 <b>출발점</b>.</div></div>
+      <div class="fc"><div class="fch">M · 잘 먹는 메뉴 <span class="tago">보유</span></div><div class="fcb"><code>favMenu</code> top8. 실제로 완식한 음식.</div></div>
+      <div class="fc new"><div class="fch">C · 익숙 조리기법 <span class="tagn">신규·소형</span></div><div class="fcb">M의 메뉴명을 <code>methodOf()</code>로 분해 → {볶음·구이·전…}. <b>이 아이가 편한 조리 형태.</b></div><div class="ev">근거: learned_menus 9,988로 즉시 검증</div></div>
+      <div class="fc new"><div class="fch">X · 노출 카운터 <span class="tagn">신규</span></div><div class="fcb">(자녀×식재료) 시도 횟수. <b>8~10회 전=진행중</b>, 충족+완식=다음 사촌 승급.</div><div class="ev">근거: NESR 8~10일·meal_logs 보유(수집 0)</div></div>
+      <div class="fc new"><div class="fch">S · SOS 노출 단계 <span class="tagn">신규</span></div><div class="fcb">식재료별 현재 단계(견딤~먹음). <b>안 먹어도 만지면 전진</b>으로 비이진 진척.</div><div class="ev">근거: SOS 6단계 · 거부원인 4분류 결합</div></div>
+      <div class="fc new"><div class="fch">A · 연령·neophobia <span class="tagn">신규</span></div><div class="fcb">2세=가까운 사촌만, 5~6세=먼 도약 허용. 도전 강도·다리 거리 조절.</div><div class="ev">근거: neophobia 곡선 · KDRI 연령 안전</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 class="sub">🌉 ② 2축 확장 — "한 번에 한 발만"</h3>
+    <div class="matrix">
+      <div class="ax a1">
+        <div class="axh">축 1 · 새 식재료 <span class="b">식재료만 변형</span></div>
+        <div class="form">후보 = bridge(F) ∖ F  →  cookingGroups[후보] ∩ C ≠ ∅</div>
+        <div class="axd">잘 먹는 것의 <b>사촌</b> 중 미경험 식재료를, 그 아이가 <b>이미 익숙한 조리법</b>으로 첫 만남. 조리법·맛 베이스는 고정 → 식재료 축만 한 칸.</div>
+        <div class="axe">"오이를 잘 먹으니, 닮은 <b>애호박</b>을 익숙한 <b>전</b>으로"</div>
+      </div>
+      <div class="ax a2">
+        <div class="axh">축 2 · 새 조리법 <span class="b">조리법만 변형</span></div>
+        <div class="form">후보 = cookingGroups[f∈F] ∖ C</div>
+        <div class="axd">이미 잘 먹는 <b>식재료</b>를, 아직 안 만난 <b>검증된 조리법</b>으로. 식재료 고정 → 조리 축만 한 칸. food jag 예방 + 선호 형태 발견.</div>
+        <div class="axe">"감자볶음을 잘 먹으니, 같은 감자를 <b>찜</b>으로도 (거부하면 바로 원래대로)"</div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:10px">⚖️ <b>한 번에 한 축</b> — 두 축을 같은 카드/편지에 섞지 않는다(novelty 과부하 차단이 구조에 내장). 두 축을 <b>번갈아</b> 확장. ⭐4축 벡터 DB(T154 명세) 없이도 <b>bridge/pair + cookingGroups 교집합</b>으로 즉시 구현 가능 — 신규 제작은 <code>methodOf(menu)</code> 추출기 하나뿐.</div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 class="sub">🌡️ ③ 신규 신호 4종 — 리서치가 짚은 빈칸 메우기</h3>
+    <div class="feat">
+      <div class="fc new"><div class="fch">온도 축 추천 <span class="tagn">4축 완성</span></div><div class="fcb">유일하게 비어 있던 temperature. <b>찬↔실온↔데움</b> 단일 차원 변형(예: 찬 우유 거부→데운 우유). 4축 벡터 전면 구축보다 저비용.</div><div class="ev">근거: Jenny Friedman 4축(검증)</div></div>
+      <div class="fc new"><div class="fch">노출 횟수 안심 멘트 <span class="tagn">리텐션</span></div><div class="fcb">"이 식재료는 지금 <b>3/8회</b>예요. 8~10회는 보통 필요해요(최대 30회도 정상)." 포기 대신 반복을 설계.</div><div class="ev">근거: NESR·AAP·캐나다 Food Guide</div></div>
+      <div class="fc new"><div class="fch">비이진 진척(SOS) <span class="tagn">동기</span></div><div class="fcb">"오늘 당근을 <b>만졌어요</b>(만지기 단계) — 먹기까지 한 발 더 왔어요." 안 먹어도 칭찬할 거리.</div><div class="ev">근거: SOS 6단계 위계</div></div>
+      <div class="fc new"><div class="fch">연령 기대 + 적신호 <span class="tagn">안전</span></div><div class="fcb">"4세 전후 거부 정점은 정상이에요"(안심) + 위험신호 시 '소아과 상담' 게이트(진단 아님).</div><div class="ev">근거: neophobia 곡선·PFD/ARFID 정의</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <h3 class="sub">🛡️ ④ 안전 게이트 — 후보가 통과해야 할 하드 바닥</h3>
+    <ul class="clean">
+      <li><b>연령별 질식 형태</b>(2025 식약처): 2세 이하 떡류 미제공·방울토마토/포도 세로 4등분+껍질·견과 {분말3세·잘게5세·통째6세}·생당근 익히거나 채썰기.</li>
+      <li><b>8대 알레르겐</b> 프로필 매칭 → 해당 노드 추천 제외/대체. <b>꿀 만1세 금지</b>(보툴리누스).</li>
+      <li><b>괴식 차단</b>: 후보는 전부 검증 테이블(<code>cookingGroups</code>·인기 음식·사촌/궁합) 안에서만 — 목록 밖 조합 생성 금지. 음성 lift(우연 이하) 자동 차단.</li>
+      <li><b>요구 과부하 방지</b>: 2축이 매일 번갈아 나오면 그것도 채근 → 주간 포트폴리오(food 유닛 주에만)·노출 주기(격일) 준수. <b>firstServe 전 압박 금지</b>(Galloway).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 5. 출력 2방식 -->
+<section id="delivery">
+  <div class="sec-h"><span class="no">5</span><h2>출력 전달 — 같은 엔진, 두 갈래</h2><span class="tech">DELIVERY</span></div>
+  <p class="lead">엔진이 뽑은 '오늘의 다음 걸음 후보'는 두 곳으로 흐른다. 둘은 배타적이지 않다 — <b>편지가 방향을 주고, 도감이 상세를 펼친다.</b></p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" class="del-grid">
+    <!-- A -->
+    <div class="card">
+      <h3 class="sub">ⓐ 코칭 편지 산입</h3>
+      <div class="flow">
+        <div class="fnode det"><div class="fh">엔진 후보 <span class="ftag">결정론</span></div><div class="fb">오늘의 한 후보(축·식재료·근거·노출진척) → <code>bridgeFacts</code>를 C(익숙기법) 필터로 정밀화.</div></div>
+        <div class="farrow">▼</div>
+        <div class="fnode hand"><div class="fh">손 작문 <span class="ftag">LLM</span></div><div class="fb"><b>방향어까지만</b> — "익숙한 전으로", "같은 감자를 찜으로". 조리 상세는 안 줌(도감이 담당).</div></div>
+        <div class="farrow">▼</div>
+        <div class="fnode out"><div class="fh">편지 도착 <span class="ftag">부모</span></div>
+          <div class="letterbox"><span class="lq">예시 편지 한 줄</span>오이를 참 잘 먹어요. 닮은 <b>애호박</b>을, 오이처럼 <b>전</b>으로 한 번 부쳐보면 어떨까요? 새 채소는 보통 여러 번 만나야 친해져요 — 오늘은 <b>3번째 만남</b>이에요. 🙂</div>
+        </div>
+      </div>
+    </div>
+    <!-- B -->
+    <div class="card">
+      <h3 class="sub">ⓑ 편지 → 도감 맞춤 레시피</h3>
+      <div class="flow">
+        <div class="fnode hand"><div class="fh">편지에서 식재료 탭 <span class="ftag">진입</span></div><div class="fb">편지 속 '애호박'을 누르면 → 도감 상세로(아이 컨텍스트 전달).</div></div>
+        <div class="farrow">▼</div>
+        <div class="fnode dogam"><div class="fh">도감: '이 아이 맞춤 다음 걸음' 카드 <span class="ftag">신규</span></div><div class="fb"><code>cookingGroups[애호박]</code>을 <b>C(익숙기법) 우선 정렬</b> → "오이로 익숙한 <b>전</b>부터" 맨 위. 노출 진척·SOS 단계·안전 형태(잘게/익혀) 표시.</div></div>
+        <div class="farrow">▼</div>
+        <div class="fnode out"><div class="fh">맞춤 레시피 참고 <span class="ftag">부모</span></div><div class="fb">일반 조리법이 아니라 <b>내 아이가 받아들일 확률 높은 순서</b>로 본 활용법. (조리 상세·1회분 g·양념은 도감에서만)</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="callout"><b>경계(기존 결정 유지)</b> — 편지는 <b>방향어</b>까지(괴식·환각 0 정책), <b>조리 상세는 도감</b>. 이렇게 나누면 편지는 가볍고 따뜻하게, 도감은 깊고 정확하게 — 역할이 안 겹친다. 두 출력 모두 <b>같은 엔진의 같은 후보</b>를 쓰므로 메시지가 일관된다.</div>
+</section>
+
+<!-- 6. 데이터 자산 -->
+<section id="assets">
+  <div class="sec-h"><span class="no">6</span><h2>데이터 자산 — 이미 가진 것 vs 만들 것</h2><span class="tech">8할 보유</span></div>
+  <p class="lead">신규 수집은 거의 없다. 엔진의 8할은 <b>이미 있는 데이터</b>를 연결만 하면 된다.</p>
+  <div class="tbl">
+    <table class="wide">
+      <thead><tr><th style="width:24%">필요한 것</th><th style="width:14%">상태</th><th>가진 것 / 만들 것</th></tr></thead>
+      <tbody>
+        <tr><td>잘 먹는 식재료/메뉴 판단 (F·M)</td><td class="ok">보유</td><td>크론 <code>favIngFreq</code>·<code>favMenu</code> (기관급식 제외 P10 보정)</td></tr>
+        <tr><td>식재료 사촌 / 궁합 (bridge·pair)</td><td class="ok">보유</td><td><code>food-graph.json</code> bridge 175(수기) + pair 362(레시피 4,727 동시출현) · <code>strongPairsOf</code>/<code>verifiedCousinsOf</code></td></tr>
+        <tr><td>식재료 × 조리기법</td><td class="ok">보유</td><td><code>cookingMatrix</code>(한식 실측 + 양/중/일 cuisine 그룹) — 도감 노출 중</td></tr>
+        <tr><td>익숙 조리기법 집합 (C)</td><td class="no">신규·소형</td><td><b><code>methodOf(menu)</code> 추출기</b> — 메뉴명 접미 결정론 파싱(구이·볶음·찜·전·조림·국/탕·무침, 튀김 제외). learned_menus 9,988로 검증</td></tr>
+        <tr><td>노출 카운터 (X)</td><td class="mid">보유→집계</td><td>(자녀×식재료) 시도 횟수 — meal_logs에 이미 있는 신호를 카운팅만</td></tr>
+        <tr><td>SOS 단계 (S) / 거부 원인</td><td class="mid">보유→분류</td><td>거부 boolean → 원인 4분류(맛/식감/환경/양) + 노출 행동 라벨</td></tr>
+        <tr><td>사촌 자동 확장 (수기→데이터)</td><td class="mid">로드맵</td><td>영양 코사인(nutrient-map 226) + 감각 7축 라벨 → 후보 자동, 사람은 검수만 (data-arch Tier2)</td></tr>
+        <tr><td>온도 축</td><td class="no">신규</td><td>식재료별 '찬/실온/데움' 변형 가능 플래그(소형 표 정규화)</td></tr>
+        <tr><td>안전 가드</td><td class="ok">보유</td><td>질식 prep·매운 제외·괴식 차단·8대 알레르겐 — 연령 컷만 보강</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">⭐ <b>핵심</b>: 진짜 신규는 <code>methodOf(menu)</code> 추출기 + 2축 후보 함수 + 온도 플래그 표 정도. 나머지는 <b>이미 쌓인 1차 신호를 버리지 말고 연결</b>하는 일이다(data-arch §6 '즉시' 로드맵과 동일).</div>
+</section>
+
+<!-- 7. 로드맵 -->
+<section id="roadmap">
+  <div class="sec-h"><span class="no">7</span><h2>구현 로드맵 — 전부 additive, 단계별 검증</h2><span class="tech">PHASED</span></div>
+  <p class="lead">기존 코칭 v2/도감을 깨지 않고 얹는다. 작은 코어부터, 라이브 영향 없는 순서로.</p>
+  <div class="rm">
+    <div class="rmi now"><div class="rh">A. 코어 <span class="rt">~0.5일 · lib 1파일</span></div><div class="rl"><code>methodOf(menu)</code> 추출기(결정론·learned_menus 검증) + 2축 후보 함수 <code>expandCandidates(F,M,C)</code> + 테스트. <b>순수 함수 — 라이브 무영향.</b></div></div>
+    <div class="rmi now"><div class="rh">B. 도감 카드 (ⓑ) <span class="rt">~0.5일</span></div><div class="rl">도감 상세에 <b>'이 아이 맞춤 다음 걸음'</b> 카드(로그인 시) — <code>cookingGroups</code>를 C 우선 정렬 + 노출 진척 표시. PersonalBridge 확장.</div></div>
+    <div class="rmi soon"><div class="rh">C. 노출 카운터 + 비이진 진척 <span class="rt">~1일</span></div><div class="rl">(자녀×식재료) 노출 카운팅 + 거부 4분류 + SOS 단계 라벨 → 안심 멘트("3/8회")·"만졌어요=전진" 동기 신호.</div></div>
+    <div class="rmi soon"><div class="rh">D. 편지 산입 (ⓐ) <span class="rt">~0.5일</span></div><div class="rl"><code>bridgeFacts</code>에 C 필터 + 노출 진척 멘트. <b>v2/v3 카나리아 안정 후</b>(변수 줄이기). 아린 카나리아 → 모니터 → 전자녀.</div></div>
+    <div class="rmi mid"><div class="rh">E. 온도 축 + 사촌 자동확장 <span class="rt">중기</span></div><div class="rl">온도 변형 플래그 표 + 영양 코사인/감각 7축으로 bridge 후보 자동화(사람은 검수만, data-arch Tier2).</div></div>
+    <div class="rmi later"><div class="rh">F. 축별 학습 루프 <span class="rt">로드맵</span></div><div class="rl">"기법 먼저 vs 식재료 먼저"·"몇 회 노출에 수용" 아이별 반응을 evidence에 적립 → 임계 자동 보정(리플레이 하네스 동일 패턴).</div></div>
+  </div>
+</section>
+
+<!-- 8. 리스크 -->
+<section id="risk">
+  <div class="sec-h"><span class="no">8</span><h2>리스크·금지선</h2><span class="tech">GUARDRAIL</span></div>
+  <ul class="clean">
+    <li><b>근거 어조</b> — "검증된 임상 프로그램" 단정 금지(효능 RCT 부재). "국제 임상 현장에서 쓰이는 접근" 수준. <b>"5→20.5개" 수치 영구 금지</b>(날조).</li>
+    <li><b>조리법 만능 금지</b> — "바꾸면 먹어요"(X) → "한 형태 거부가 그 식재료의 끝이 아니에요"(O). 효과는 조건부(Poelman).</li>
+    <li><b>진단/처방 분리</b> — ARFID/PFD 임상 정의와 명확히 분리. 위험신호 시 소아과 상담 게이트. ICFQ/7문항은 '진단 아닌 점검 신호'로만.</li>
+    <li><b>괴식·질식</b> — 후보는 전부 검증 테이블 안에서만. 연령 컷(2세 이하 목록) 필수.</li>
+    <li><b>요구 과부하</b> — 2축 매일 번갈이도 채근. 주간 포트폴리오·노출 주기(격일·권태 방지) 준수.</li>
+    <li><b>저작권</b> — Satter sDOR는 <b>무수정 한국어 재배포 가능</b>(수정 금지). SOS 32단계 표는 © Toomey <b>복제 금지</b> → 한국어 개념 풀이로만 재구성.</li>
+    <li><b>푸드브릿지 ≠ 푸드체이닝</b> — 한국 푸드브릿지(집단 단계노출 교육)와 Fraker 체이닝(개별 유사음식 연쇄)은 별개. 인용 시 혼용 금지.</li>
+  </ul>
+  <div class="warn" style="margin-top:14px"><b>이사님 결정 필요</b> — ① 로드맵 A·B(도감 우선) 착수 승인? ② 편지 산입(D)은 v2/v3 카나리아 안정 후로 좋은지? ③ 도감 카드 명칭 취향("우리 아이 다음 걸음" / "맞춤 첫 만남" / "오늘의 한 발")? ④ 노출 카운터 안심 멘트(8~10회) 도입 우선순위?</div>
+</section>
+
+<!-- 9. 부록 -->
+<section id="appendix">
+  <div class="sec-h"><span class="no">9</span><h2>부록 — 푸드체이닝 실용 적용문서 모음</h2><span class="tech">검증 URL</span></div>
+  <p class="lead">실제 적용 가능한 워크시트·핸드아웃·근거 논문. 웹 정독·적대 검증을 거친 것 위주(미검증은 표시).</p>
+  <div class="tbl">
+    <table class="wide">
+      <thead><tr><th style="width:20%">문서/툴</th><th style="width:11%">유형</th><th style="width:24%">무엇을 주는가</th><th style="width:24%">밀프레드 적용</th><th>URL</th></tr></thead>
+      <tbody>
+        <tr><td><b>Food Chaining for ARFID</b> (BCH 4p 워크시트)</td><td>워크시트</td><td>좋아하는 음식 10개·질감/맛 선택·나만의 체인 4칸·미각 1~10 점수·10~20회 노출</td><td>'나만의 푸드체인 만들기' 기능 직접 청사진. 미각 점수를 로깅 필드로</td><td><a class="reslink" href="https://youngwomenshealth.org/wp-content/uploads/2018/09/Food-Chaining-for-ARFID.pdf">youngwomenshealth.org</a></td></tr>
+        <tr><td><b>How To Use Food Chaining</b> (Your Kids Table 3p)</td><td>부모 핸드아웃</td><td>부모용 3단계 실행법 + 실제 체인 예시</td><td>코칭편지 '잘 먹는 것에 결핍 섞기' 카피 골격</td><td><a class="reslink" href="https://yourkidstable.com/wp-content/uploads/2022/08/Food-Chaining.pdf">yourkidstable.com</a></td></tr>
+        <tr><td><b>Satter DOR (sDOR) 2025</b></td><td>임상 가이드</td><td>연령별 부모/아이 역할 분담 · '반복적 중립 노출'. <b>무료 복제·수정 금지</b></td><td>코칭 톤가드 표준 근거. <b>무수정</b> 한국어 핸드아웃 재배포 가능</td><td><a class="reslink" href="https://www.ellynsatterinstitute.org/wp-content/uploads/2025/06/Satter-Division-of-Responsibility-in-Feeding-2025-1.pdf">ellynsatterinstitute.org</a></td></tr>
+        <tr><td><b>Food Chaining</b> (NHS Somerset 2p)</td><td>임상 가이드</td><td>감자튀김→매시드 8단계 체인 + 시각 차트 + '강제 아님·1개씩·10~20회'</td><td>'제시 방법만 살짝 바꾸기' 마이크로 스텝을 '오늘의 작은 행동' 카드로</td><td><a class="reslink" href="https://patientwebinars.co.uk/wp-content/uploads/2020/03/CYPTS-TGS-Food-Chaining.pdf">patientwebinars.co.uk</a></td></tr>
+        <tr><td><b>SOS 부모용 소개</b> (32단계)</td><td>임상 가이드</td><td>6단계×32세부 위계·'범위가 양을 견인'·또래 모델링. <b>© 표 복제 금지</b></td><td>진척을 6단계 위계로 매핑(비이진). 표 복제 말고 개념 재구성</td><td><a class="reslink" href="https://sosapproachtofeeding.com/wp-content/uploads/2019/06/SOS-APPROACH-explanation-for-parents-w-logo.pdf">sosapproachtofeeding.com</a></td></tr>
+        <tr><td><b>Tiny Tastes</b> (RCT 근거)</td><td>연구</td><td>14일 한 입+스티커 RCT(선호 61%↑·섭취 3배). 실물 팩은 유료</td><td>'오늘의 한 입' 챌린지 + 14일 트래커 + 비음식 보상</td><td><a class="reslink" href="https://www.ucl.ac.uk/news/2013/sep/new-research-offers-hope-parents-picky-eaters">ucl.ac.uk</a></td></tr>
+        <tr><td><b>10 Tips for Picky Eaters</b> (AAP)</td><td>부모 핸드아웃</td><td>'food bridges' 공식 용어 · '10회 이상 맛보기' · 압박 금지</td><td>추천엔진 학술 백킹. 'food bridges=미국 학회 공식 용어' 정통성</td><td><a class="reslink" href="https://www.healthychildren.org/English/ages-stages/toddler/nutrition/Pages/Picky-Eaters.aspx">healthychildren.org</a></td></tr>
+        <tr><td><b>Repeated Exposure SR</b> (USDA NESR)</td><td>연구</td><td>8~10일 노출 수용도↑(Moderate)·<b>같은 식품군 내만 전이</b></td><td>사촌/푸드그래프 엣지 설계 정당화 · 노출 임계(8~10+) 근거</td><td><a class="reslink" href="https://www.ncbi.nlm.nih.gov/books/NBK582166/">ncbi.nlm.nih.gov/NBK582166</a></td></tr>
+        <tr><td><b>Finish your soup</b> (강요 역효과)</td><td>연구</td><td>압박 시 섭취↓·자기조절 손상(Galloway, <i>Appetite</i> 2006)</td><td>'채근 금지·firstServe 전 압박 금지'의 학술 뒷받침</td><td><a class="reslink" href="https://pubmed.ncbi.nlm.nih.gov/16626838/">pubmed · 16626838</a></td></tr>
+        <tr><td><b>ASD 식품선택성 개입 검토</b> (Breda 2024)</td><td>연구</td><td>행동개입=강·food chaining 정의만·SysD 근거 부재</td><td>투자/효능 문서에서 '체이닝 단독 RCT 제한적' 정직 인용</td><td><a class="reslink" href="https://doi.org/10.1017/S0954422424000052">doi.org/10.1017/S0954422424000052</a></td></tr>
+        <tr><td><b>SOS Feasibility Study</b> (Schoen 2025)</td><td>연구</td><td>충실도 도구·32단계 코딩·VAS/PSI(RCT 아님·feasibility)</td><td>'효능'이 아니라 '충실도·측정도구 검증'으로 정확 표기. 진척 측정 설계 참고</td><td><a class="reslink" href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11940901/">pmc · PMC11940901</a></td></tr>
+        <tr><td><b>친해지자 채소야</b> (푸드브릿지 4단계)</td><td>연구(KCI)</td><td>14종 채소×4단계(놀이I·II/요리I·II) 활동·효과(저연령·편식군 유의)</td><td>키트 '식재료 1종→4단계 활동' 콘텐츠 골격</td><td><a class="reslink" href="https://www.kjcn.or.kr/upload/pdf/kjcn-25-6-451.pdf">kjcn.or.kr</a></td></tr>
+        <tr><td><b>USDA Two-Bite Club</b></td><td>부모 핸드아웃</td><td>'두 입씩' 그림책 + 인증서 + MyPlate 색칠(무료)</td><td>'한 입 챌린지' 인증서·스티커 형식 차용</td><td><a class="reslink" href="https://www.fns.usda.gov/tn/two-bite-club">fns.usda.gov</a></td></tr>
+        <tr><td><b>Feeding Matters ICFQ</b> (6문항)</td><td>스크리너(©)</td><td>0-36개월 6문항 정상 편식 vs PFD 구분</td><td>온보딩 '점검 신호'(진단 아님). 한국어 번역 라이선스 협의 가치</td><td><a class="reslink" href="https://questionnaire.feedingmatters.org/">feedingmatters.org</a></td></tr>
+        <tr><td><b>Solid Starts</b></td><td>웹/DB</td><td>400+ 음식 자르는 법·질식/알러지/연령 안전 DB</td><td>도감 영유아 안전 스크린(질식 prep·꿀/반숙 금지) 벤치마크</td><td><a class="reslink" href="https://solidstarts.com">solidstarts.com</a></td></tr>
+        <tr><td><b>BetterBites</b> (Kids Eat in Color)</td><td>웹(유료)</td><td>Bridging 기반 프로그램·감각 특성별 음식 목록</td><td>콘텐츠 구조·도감 필터(질감/색/맛) UX 벤치마크</td><td><a class="reslink" href="https://kidseatincolor.com/picky-eating-course/">kidseatincolor.com</a></td></tr>
+        <tr><td><b>어린이급식관리지원센터 포털</b></td><td>정부</td><td>교육자료·카드뉴스·식단/운영 지침서</td><td>도감/코칭 가이드의 '식약처 공식 근거' 출처표기</td><td><a class="reslink" href="https://dietary4u.mfds.go.kr/">dietary4u.mfds.go.kr</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">⚠️ 미확보/미검증: 2006 NCP 원전(Wiley)·2011 ASHA 논문은 페이월로 <b>서지정보만 검증</b>(본문 미확보). WIC Food Chaining PDF는 서버 403으로 <b>unverifiable</b>(사용 전 원문 재확인). 'Picky Eaters vs Problem Feeders 7문항'은 사내 아카이브(공개 URL 미검증).</div>
+</section>
+
+<footer>
+  <div>
+    <span class="stamp">기획 계획서 · 설계 검토용</span>
+    <span class="stamp">개발 전 — 합의 후 착수</span>
+    <span class="stamp">2026-06-16</span>
+  </div>
+  밀프레드 — 푸드체이닝 개인화 엔진 기획 계획서<br>
+  근거: 푸드체이닝 리서치(18 에이전트 웹조사+적대검증, 2026-06-16) · 현행 코드 <code>lib/coachRecos.ts</code>·<code>lib/cookingMatrix.ts</code> · 선행 설계 <a href="/food-chaining-expansion.html" style="color:var(--p700)">2축 확장 발제</a>·<a href="/food-network-data-architecture.html" style="color:var(--p700)">데이터 아키텍처</a><br>
+  이론: Fraker Food Chaining(NCP 2006) · Toomey SOS(ASHA 2011) · Satter DOR(JADA 1986) · USDA NESR 반복노출 · AAP food bridges · 한국 푸드브릿지
+</footer>
+
+</main>
+</body>
+</html>
