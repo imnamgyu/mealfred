@@ -177,7 +177,7 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>⚙️ 엔진 · 데이터 명세 (정본)</h3>
-    <span class="cnt">정본 5 · 핸드오프 1</span>
+    <span class="cnt">정본 6 · 핸드오프 1</span>
     <span class="note">① <b>기술 아키텍처 해부도</b> = 코칭 엔진 기술 구성 단일 진실(코드 단위·시각화) ② <b>v2 하이브리드 빌드 플랜</b> = 코칭 빌드·작업 단일 진실(A~J 구현 완료) ③ <b>영양 신호등</b> = 데이터 기준 ④ <b>음식 추천 네트워크 데이터 강화 아키텍처</b>(2026-06-14) = 추천 그래프를 2~6세용으로 풍성하게 만들 데이터 소스·판정 관문 설계 ⑤ <b>식단 데이터 파이프라인·ERD·시스템 아키텍처</b>(2026-06-14 신규) = 원천→수집→분해→DB→편지 전 흐름·LLM 개입·ERD. 지난 코칭 정본·v3·로드맵·발제·코퍼스 문서는 <a href="/docs-archive.html">아카이브</a>로 이관했습니다.</span>
   </div>
   <div class="doc-grid">
@@ -187,6 +187,13 @@
       <h4>코칭 엔진 기술 아키텍처 해부도 — 전 모듈 코드 단위 시각화</h4>
       <p class="desc"><b>이 문서 하나로 엔진의 기술 구성을 다 안다.</b> 실제 코드를 정독해 <b>소프트웨어 공학 시각화 15기법</b>으로: C4 시스템 맥락·<b>9층 계층 지도</b>·두 파이프라인·<b>56단계 시퀀스</b>·<b>상태기계 3종</b>·<b>스크래치 블록</b>(코드 몰라도 읽는 로직)·데이터 흐름도·ERD 12테이블·12 수업 맵·편지 조립 파이프라인·의존 그래프·<b>방어 가드 38종+사고 연대기</b>(카레유령·3일복붙·SIGKILL)·지표·모델 지도. 함수명 대신 한글 모듈명. <span style="color:#C45A00">엔진 구조의 단일 진실.</span></p>
       <div class="meta"><span>ENGINE · 기술 정본</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-prompt-architecture.html" class="doc-card cat-strategy">
+      <span class="badge new">📝 신규 · 프롬프트 정본</span>
+      <div class="ico">📝</div>
+      <h4>코칭 프롬프트 아키텍처 — 실제 프롬프트 라인바이라인</h4>
+      <p class="desc"><b>편지 한 통이 어떻게 만들어지나 — 실제 프롬프트로.</b> 계획·판단은 코드와 두뇌(Sonnet)가, <b>글만 손(Haiku)이</b>. <b>4단 파이프라인</b>(결정론 후보 → 주간 두뇌 닻 → 일간 두뇌 각도 → 손 작문) + <b>실제 프롬프트 2종을 한 줄도 빼지 않고</b> 펼쳐 블록별 해설: 🧠 <b>일간 두뇌 프롬프트</b>(13 후보 시나리오 안에서만 선택·useFood·추천 검수·<code>why</code> 추론) · ✍️ <b>손 프롬프트</b>(사실 카드·오늘의 각도/타깃/무브·괴식·저염 가드·작성 지침). <b>2026-06-15 아린 워크드 예시</b>(콩류 결핍 → "오늘은 음식 날" → 편지)·데이터 출처 표. <span style="color:#C45A00">"점수가 아니라 사람의 글" 약속이 코드로 어떻게 지켜지나.</span></p>
+      <div class="meta"><span>ENGINE · 프롬프트 정본</span><span class="arrow">→</span></div>
     </a>
     <a href="/coaching-v2-hybrid-build-plan.html" class="doc-card cat-strategy">
       <span class="badge new">🧩 WBS · A~J 완료</span>
@@ -222,13 +229,6 @@
       <h4>영유아 식단 적재 → 도감 재정의 파이프라인 (menu-ingest)</h4>
       <p class="desc"><b>식단 파일을 더 모을 때마다 다시 돌리는 재호출 작업.</b> 폴더에 식단 파일(<code>.xlsx/.csv</code> 최선·HWP/사진은 변환·OCR)을 모아 링크 주면서 "이 파이프라인 돌려줘" → <b>3단계</b>: ① <b>파싱·정제·집계</b>(헤더 자동감지로 컬럼 어긋남 노이즈 해결·bare-xlsx 분기·양념제외) ② <b>승격후보 안전스크린</b>(멀티에이전트: 원물/가공 분류 + 영유아 2~6세 안전 질식·약성·나트륨 + 적대검증) ③ <b>SQL 반영</b>(롤백 스냅샷·PATCH per row·하향검토 자동안함). <b>2축 등급</b>=영유아 등장률 ⊕ 초등 elem_count. 스크립트 <code>web/scripts/menu-ingest/</code> 영속. <span style="color:#C45A00">현재 6센터 383k·도감 157 재등급+승격12 반영(2026-06-15). 깨끗한 식단 API는 없어 이 직접적재가 최선.</span></p>
       <div class="meta"><span>PIPELINE · 재호출 런북</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/cache-design.html" class="doc-card cat-strategy">
-      <span class="badge new">⚡ 성능 · 캐시</span>
-      <div class="ico">⚡</div>
-      <h4>앱 캐시 설계 — 페이지별 데이터 페칭·렌더링 최적화</h4>
-      <p class="desc"><b>app.mealfred.com 6영역 멀티에이전트 감사 → 느린 근본원인 + 캐시 처방.</b> Top3 = ①홈 자녀전환 워터폴(ingredients-light 2회 fetch·meal_logs 3윈도 직렬) ②care 무제한 meal_logs ③코치 크론 직렬루프. <b>P0 구현·배포 완료</b>: 중복 fetch 제거+<code>lib/staticData.ts</code> 모듈캐시 · meal_logs 3윈도 병렬 · care 365일 상한 · catMap 메모이즈. 자가검증으로 <b>오탐 정정</b>(next.config 캐시 이미有·health 정상·NUTRI_MAP 정상). P1/P2(ISR·타임아웃) 후속. <span style="color:#C45A00">코칭 세션 파일 무충돌 확인 후 진행.</span></p>
-      <div class="meta"><span>PERF · 캐시 설계</span><span class="arrow">→</span></div>
     </a>
     <a href="/coaching-db-migration-handoff.html" class="doc-card cat-strategy">
       <span class="badge coming">🔀 임시 · 핸드오프</span>
@@ -353,12 +353,12 @@
     '/ad-matrix.html':{c:'2026-06-03',m:'2026-06-03'},
     '/painpoint-features.html':{c:'2026-06-03',m:'2026-06-03'},
     '/coaching-engine-architecture.html':{c:'2026-06-13',m:'2026-06-13'},
+    '/coaching-prompt-architecture.html':{c:'2026-06-16',m:'2026-06-16'},
     '/coaching-v2-hybrid-build-plan.html':{c:'2026-06-13',m:'2026-06-13'},
     '/nutrient-signal-report.html':{c:'2026-06-01',m:'2026-06-01'},
     '/food-network-data-architecture.html':{c:'2026-06-14',m:'2026-06-14'},
     '/data-pipeline-erd.html':{c:'2026-06-14',m:'2026-06-14'},
     '/menu-ingest-pipeline.html':{c:'2026-06-15',m:'2026-06-15'},
-    '/cache-design.html':{c:'2026-06-15',m:'2026-06-15'},
     '/coaching-db-migration-handoff.html':{c:'2026-06-14',m:'2026-06-14'},
     '/box-product.html':{c:'2026-05-19',m:'2026-06-04'},
     '/design-spec.html':{c:'2026-05-24',m:'2026-05-31'},
