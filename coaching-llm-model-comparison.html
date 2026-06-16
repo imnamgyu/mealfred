@@ -4,8 +4,8 @@
 <script src="/docs-gate.js?v=4"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>코칭 편지 LLM 모델 비교 — DeepSeek vs Claude (아린 실측)</title>
-<meta property="og:title" content="밀프레드 코칭 편지 — DeepSeek vs Claude 모델 실측 비교">
+<title>코칭 편지 LLM 모델 비교 — DeepSeek vs Claude (아린 5일 실측)</title>
+<meta property="og:title" content="밀프레드 코칭 편지 — DeepSeek vs Claude 5일치 모델 실측">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -14,17 +14,17 @@
   html{scroll-behavior:smooth}
   body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased;min-height:100vh}
   code,.mono{font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:0.86em;background:#F1EDFB;color:#5b3a8c;padding:1px 6px;border-radius:5px;font-weight:600}
-  .hero{padding:54px 24px 40px;text-align:center;background:linear-gradient(155deg,#2C3E50 0%,#34495E 45%,#3a2b52 100%);color:#fff;position:relative;overflow:hidden}
+  .hero{padding:54px 24px 38px;text-align:center;background:linear-gradient(155deg,#2C3E50 0%,#34495E 45%,#3a2b52 100%);color:#fff;position:relative;overflow:hidden}
   .hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,rgba(232,146,68,0.22) 0,transparent 45%),radial-gradient(circle at 78% 18%,rgba(155,89,182,0.28) 0,transparent 48%);pointer-events:none}
-  .hero-in{position:relative;z-index:1;max-width:860px;margin:0 auto}
+  .hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto}
   .hero .tag{display:inline-block;background:rgba(255,255,255,0.12);color:#FFD9B0;padding:7px 18px;border-radius:100px;font-size:11.5px;font-weight:700;letter-spacing:0.06em;margin-bottom:18px;border:1px solid rgba(255,255,255,0.22)}
-  .hero h1{font-size:31px;font-weight:800;letter-spacing:-0.03em;line-height:1.26;margin-bottom:14px}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;line-height:1.26;margin-bottom:14px}
   .hero h1 b{color:#FFB375}
-  .hero p{font-size:14px;color:#cfd8e3;max-width:700px;margin:0 auto;font-weight:500;line-height:1.78}
+  .hero p{font-size:14px;color:#cfd8e3;max-width:720px;margin:0 auto;font-weight:500;line-height:1.78}
   .hero .crumbs{margin-top:16px;font-size:11.5px;color:#9fb0c2}
   .hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
-  main{max-width:1080px;margin:0 auto;padding:8px 20px 70px}
-  section{margin:38px 0;scroll-margin-top:20px}
+  main{max-width:1120px;margin:0 auto;padding:8px 18px 70px}
+  section{margin:36px 0;scroll-margin-top:20px}
   .sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px;padding-bottom:9px;border-bottom:2.5px solid var(--p500);flex-wrap:wrap}
   .sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
   .sec-h h2{font-size:20px;font-weight:800;color:var(--s800);letter-spacing:-0.02em}
@@ -32,9 +32,9 @@
   .lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 16px;line-height:1.74}
   .lead b{color:var(--s800)}
   .card{background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:6px 0 20px}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin:6px 0 20px}
   .kpi{background:#fff;border:1px solid var(--n200);border-top:4px solid var(--p500);border-radius:13px;padding:16px 15px;text-align:center}
-  .kpi .v{font-size:25px;font-weight:800;color:var(--s800);letter-spacing:-0.03em;line-height:1.1}
+  .kpi .v{font-size:24px;font-weight:800;color:var(--s800);letter-spacing:-0.03em;line-height:1.1}
   .kpi .v small{font-size:13px;color:var(--n500);font-weight:700}
   .kpi .l{font-size:11px;color:var(--n600);font-weight:700;margin-top:5px}
   .kpi .s{font-size:10px;color:var(--n400);font-weight:600;margin-top:2px}
@@ -43,34 +43,34 @@
   .readme b{color:var(--p700)}
   .note{font-size:11.5px;color:var(--n500);font-weight:600;margin-top:12px;line-height:1.65}
   .note b{color:var(--n700)}
-  /* table */
+  .ftnote{font-size:11px;color:var(--n400);font-weight:600;margin-top:8px;line-height:1.6}
   .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--n200);border-radius:13px;margin-top:6px}
   table{border-collapse:collapse;width:100%;font-size:12.5px;background:#fff;min-width:560px}
   th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--n100);vertical-align:top}
-  thead th{background:var(--s700);color:#fff;font-weight:700;font-size:11.5px;white-space:nowrap;position:sticky;top:0}
+  thead th{background:var(--s700);color:#fff;font-weight:700;font-size:11.5px;white-space:nowrap}
   tbody tr:last-child td{border-bottom:none}
   tbody tr:nth-child(even){background:var(--n50)}
   td.num{font-family:'SF Mono',monospace;font-weight:700;white-space:nowrap}
   .mname{font-weight:800;color:var(--s800);white-space:nowrap}
   .mname small{display:block;font-size:10px;color:var(--n400);font-weight:600;margin-top:1px}
   .pill{display:inline-block;font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px;white-space:nowrap}
-  .pill.live{background:#FFE8D1;color:var(--p700)}.pill.ds{background:#E3F2FD;color:var(--b700)}
+  .pill.live{background:#FFE8D1;color:var(--p700)}.pill.ds{background:#E3F2FD;color:var(--b700)}.pill.win{background:#E9F7F2;color:var(--g700)}.pill.warn{background:#FFF3CD;color:#8a6d00}.pill.bad{background:#FDECEA;color:var(--r700)}
   .grade{font-weight:800;letter-spacing:-0.5px}
   .g5{color:#16A085}.g4{color:#3498DB}.g3{color:#B86A20}
   .best{background:#E9F7F2 !important}
-  /* letter cards */
-  .letters{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:13px;margin-top:8px}
-  .lcard{border:1px solid var(--n200);border-radius:13px;background:#fff;overflow:hidden;display:flex;flex-direction:column}
-  .lcard.win{border:2px solid var(--g400);box-shadow:0 2px 12px rgba(22,160,133,0.12)}
-  .lcard.cur{border:2px solid var(--p300)}
-  .lhd{display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid var(--n100);flex-wrap:wrap}
-  .lhd .nm{font-size:14px;font-weight:800;color:var(--s800)}
-  .lhd .mt{font-size:10px;font-weight:700;color:var(--n400);margin-left:auto;font-family:'SF Mono',monospace;white-space:nowrap}
-  .lbody{padding:13px 15px;font-size:13px;line-height:1.74;color:var(--n800);flex:1}
-  .lone{padding:10px 15px 13px;font-size:11.5px;color:var(--n500);font-weight:600;line-height:1.6;border-top:1px dashed var(--n200);background:var(--n50)}
-  .lone b{color:var(--p700)}
-  .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 15px 13px}
-  .chip{font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;background:var(--n100);color:var(--n600)}
+  /* 5일 모델 블록 */
+  .mblock{border:1px solid var(--n200);border-radius:14px;background:#fff;margin-bottom:14px;overflow:hidden}
+  .mblock.win{border:2px solid var(--g400);box-shadow:0 2px 12px rgba(22,160,133,0.10)}
+  .mblock.cur{border:2px solid var(--p300)}
+  .mhd{display:flex;align-items:center;gap:9px;padding:12px 16px;background:var(--n50);border-bottom:1px solid var(--n200);flex-wrap:wrap}
+  .mhd .nm{font-size:15px;font-weight:800;color:var(--s800)}
+  .mhd .mt{font-size:10.5px;font-weight:700;color:var(--n500);margin-left:auto;font-family:'SF Mono',monospace;white-space:nowrap}
+  .drow{display:flex;gap:12px;padding:11px 16px;border-bottom:1px dashed var(--n100)}
+  .drow:last-child{border-bottom:none}
+  .dchip{flex:none;width:62px;font-size:10.5px;font-weight:800;color:var(--n400);font-family:'SF Mono',monospace;padding-top:2px}
+  .dchip b{display:block;font-size:9px;font-weight:700;color:var(--p500);margin-top:3px;white-space:nowrap}
+  .dtext{font-size:12.5px;line-height:1.72;color:var(--n800);flex:1}
+  .dfail{color:var(--r700);font-weight:700;background:#FDECEA;border:1px solid #f5c4bd;border-radius:8px;padding:8px 11px;font-size:12px}
   .verdict{margin-top:7px;padding:11px 14px;border-radius:11px;font-size:12.5px;line-height:1.66}
   .verdict.good{background:#E9F7F2;border:1px solid #Bfe8da}.verdict.warn{background:#FFF7E3;border:1px solid #f0dd9c}.verdict.bad{background:#FDECEA;border:1px solid #f5c4bd}
   .verdict b{color:var(--s800)}
@@ -78,138 +78,136 @@
   ul.cl li{position:relative;padding-left:20px;margin-bottom:7px;font-size:12.5px;line-height:1.62;color:var(--n700)}
   ul.cl li::before{content:'▸';position:absolute;left:3px;color:var(--p500);font-weight:800}
   ul.cl li b{color:var(--s800)}
-  .ftnote{font-size:11px;color:var(--n400);font-weight:600;margin-top:8px;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="hero"><div class="hero-in">
-  <span class="tag">🧪 모델 실측 · 2026-06-16</span>
-  <h1>코칭 편지 LLM 모델 비교<br><b>DeepSeek vs Claude</b> — 아린 실측</h1>
-  <p>코칭엔진 LLM을 DeepSeek로 바꿀 수 있나? <b>2026-06-15 아린에게 실제로 들어간 손(편지) 프롬프트</b>(풀 <code>SYSTEM_COACH</code> + 진짜 <code>[USER]</code> 블록)를 그대로 4개 모델에 쏴서 <b>같은 입력 → 다른 편지</b>를 나란히 비교했습니다. 현재 라이브 편지는 <b>Claude Haiku</b>가 씁니다.</p>
+  <span class="tag">🧪 모델 실측 · 5일치 · 2026-06-16</span>
+  <h1>코칭 편지 LLM 모델 비교<br><b>DeepSeek vs Claude</b> — 아린 5일 실측</h1>
+  <p>코칭엔진 LLM을 DeepSeek로 바꿀 수 있나? 아린의 <b>최근 5일(06-11~15)</b> 손(편지) 프롬프트를 <b>실제 저장된 결정</b>(scenario·planTarget·brain 추천·주간 arc)으로 재구성해, 같은 입력을 <b>4개 모델 × 5일 = 20편</b> 생성·비교했습니다. 현재 라이브 편지는 <b>Claude Haiku</b>가 씁니다.</p>
   <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 관련: <a href="/coaching-prompt-architecture.html">프롬프트 아키텍처</a></div>
 </div></div>
 
 <main>
 
   <div class="readme">
-    <b>무엇을 했나</b> — 모델만 바꾸고 나머지는 100% 동일하게 고정. 같은 시스템 프롬프트(P1~P10·괴식·저염 가드)와 같은 그날 데이터(아린 5세·등원·집 비타민A채소/콩류 결핍·오늘 타깃=비타민A채소·과거 5통·간식 평가)를 <b>DeepSeek V3.2 / V4-Flash / V4-Pro</b>와 <b>현재 운영 모델 Claude Haiku 4.5</b>에 각각 1회씩 통과시켜 편지를 받았습니다.<br>
-    <b>왜</b> — 일반 벤치(지능지수·tok/s)는 "한국어 코칭 편지 품질"을 말해주지 않음. 우리 진짜 과제로 직접 봐야 결정 가능.
+    <b>방법</b> — 모델만 바꾸고 나머지 100% 고정. 아린의 06-11~15 각 날짜 프롬프트를 <code>coach_letters.context</code>에 저장된 <b>그날 실제 결정</b>(시나리오·타깃·두뇌 추천·주간 arc·plan move) + <code>meal_logs</code> 재집계(favoriteFreq·factCards)로 <b>실제 <code>buildLetterUser</code></b>를 호출해 복원(DB 읽기전용). 시나리오 분포: <b>06-11~13 = 환경(식사분위기)</b>, <b>06-14 = 영양공백(콩류)</b>, <b>06-15 = 집-기관격차(콩류)</b>. 각 프롬프트를 DeepSeek <b>V3.2·V4-Flash·V4-Pro</b> + 현재 <b>Claude Haiku 4.5</b>에 통과.
   </div>
 
   <div class="kpi-grid">
-    <div class="kpi g"><div class="v">4 / 4</div><div class="l">규칙 통과</div><div class="s">괴식·환각·급식변경 요청 0건</div></div>
-    <div class="kpi v"><div class="v">V4-Pro</div><div class="l">품질 1위</div><div class="s">가장 자연스럽고 비반복</div></div>
-    <div class="kpi b"><div class="v">₩57<small>/월</small></div><div class="l">최저가 = V4-Flash</div><div class="s">Haiku의 1/11 (일1통·공식단가)</div></div>
-    <div class="kpi"><div class="v">₩179<small>/월</small></div><div class="l">V4-Pro 실비</div><div class="s">Haiku ₩621의 1/3.5</div></div>
+    <div class="kpi g"><div class="v">19 / 20</div><div class="l">유효 편지</div><div class="s">V4-Pro 06-13 1편 실패(아래)</div></div>
+    <div class="kpi b"><div class="v">V4-Flash</div><div class="l">일간 편지 추천</div><div class="s">실패0·규율◎·최저가</div></div>
+    <div class="kpi"><div class="v">₩46<small>/편</small></div><div class="l">V4-Flash 5일 평균</div><div class="s">Haiku ₩614의 1/13</div></div>
+    <div class="kpi r"><div class="v">1 실패</div><div class="l">V4-Pro(추론)</div><div class="s">토큰 폭주→빈 편지·비쌈·느림</div></div>
   </div>
 
   <section id="summary">
-    <div class="sec-h"><span class="no">1</span><h2>요약 — 지표 + 품질 등급</h2><span class="tech">공식 단가·일1통 환산</span></div>
-    <p class="lead">지연·토큰은 OpenRouter 1회 실측, 비용은 <b>공식 단가</b>(측정 토큰 기준)로 재계산. 품질 등급은 P1~P10 규칙 준수 + 한국어 자연스러움 + 과거 편지 비반복 기준의 정성 평가.</p>
+    <div class="sec-h"><span class="no">1</span><h2>5일 종합 — 모델별</h2><span class="tech">20편 실측</span></div>
+    <p class="lead">콜당 비용은 OpenRouter 5일 실측 평균(V4-Pro는 <b>추론모드</b>라 폭주). "규율" = 환경-only 날(useFood=false)에 음식 제안을 안 끼워넣는지.</p>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>모델</th><th>지연</th><th>출력토큰</th><th>콜당$<br>(공식)</th><th>월₩<br>(일1통)</th><th>vs Haiku</th><th>품질</th></tr></thead>
+      <thead><tr><th>모델</th><th>평균 콜당₩</th><th>5일 실패</th><th>규율(env날)</th><th>속도</th><th>종합</th></tr></thead>
       <tbody>
-        <tr class="best"><td class="mname">DeepSeek V4-Pro <span class="pill ds">DeepSeek</span><small>1.6T MoE · 추론</small></td><td class="num">2.9s</td><td class="num">277</td><td class="num">$0.0046</td><td class="num">₩179</td><td class="num">3.5× 저렴</td><td><span class="grade g5">★★★★★</span></td></tr>
-        <tr><td class="mname">DeepSeek V4-Flash <span class="pill ds">DeepSeek</span><small>284B MoE</small></td><td class="num">0.3s</td><td class="num">238</td><td class="num">$0.0015</td><td class="num">₩57</td><td class="num">11× 저렴</td><td><span class="grade g4">★★★★</span></td></tr>
-        <tr><td class="mname">DeepSeek V3.2 <span class="pill ds">DeepSeek</span><small>이전 세대 · "Pro" 없음</small></td><td class="num">4.5s</td><td class="num">217</td><td class="num">$0.0029</td><td class="num">₩112</td><td class="num">5.5× 저렴</td><td><span class="grade g3">★★★</span></td></tr>
-        <tr><td class="mname">Claude Haiku 4.5 <span class="pill live">현재 라이브</span><small>운영 중인 '손'</small></td><td class="num">1.2s</td><td class="num">400</td><td class="num">$0.0159</td><td class="num">₩621</td><td class="num">기준</td><td><span class="grade g4">★★★★</span></td></tr>
+        <tr class="best"><td class="mname">V4-Flash <span class="pill ds">DeepSeek</span><small>284B · 비추론급</small></td><td class="num">₩46 <small style="color:#9AA0A6">(16~66)</small></td><td class="num" style="color:var(--g700)">0</td><td class="num">◎</td><td class="num">0.3~3s</td><td><span class="grade g5">★★★★★</span></td></tr>
+        <tr><td class="mname">Claude Haiku <span class="pill live">현재</span><small>운영 중인 '손'</small></td><td class="num">₩614</td><td class="num" style="color:var(--g700)">0</td><td class="num">◎</td><td class="num">1~1.6s</td><td><span class="grade g4">★★★★</span></td></tr>
+        <tr><td class="mname">V3.2 <span class="pill ds">DeepSeek</span><small>이전 세대</small></td><td class="num">₩108</td><td class="num" style="color:var(--g700)">0</td><td class="num" style="color:#8a6d00">△ 음식 주입</td><td class="num">1.5~4s</td><td><span class="grade g3">★★★☆</span></td></tr>
+        <tr><td class="mname">V4-Pro <span class="pill ds">DeepSeek</span><small>1.6T · 추론</small></td><td class="num" style="color:var(--r700)">₩902 <small style="color:#9AA0A6">(361~1373)</small></td><td class="num" style="color:var(--r700)">1</td><td class="num">◎</td><td class="num" style="color:var(--r700)">추론 폭주</td><td><span class="grade g3">★★★</span></td></tr>
       </tbody>
     </table></div>
-    <p class="note"><b>품질 1위 V4-Pro가 비용은 Haiku의 1/3.5.</b> 즉 더 좋게(비반복) 쓰면서 더 쌈. 일간 편지 최저가는 V4-Flash(₩57·0.3초)지만 비반복은 약함(아래 §3).<br><b style="color:var(--r700)">※ 이 표는 '손(편지)' 콜 1회만</b> — 일간 뇌·주간 계획·윤문·검증·질문을 합친 <b>풀스택은 §3 하단</b>(현재 Claude 뇌 풀가동 ≈ ₩1,970 vs DeepSeek ≈ ₩220/자녀·월).</p>
+    <p class="note"><b>결론(5일):</b> 손(편지)엔 <b>V4-Flash가 최적</b> — 5일 내내 실패0·규율◎·Haiku급 품질에 비용 1/13. <b>V4-Pro 추론은 손엔 부적합</b>(아래 §3): 비싸고 느리고 토큰 폭주로 1편 발행 실패. V4-Pro의 강한 추론은 <b>일간 뇌(결정)</b>에 쓰고, 손은 비추론(Flash)으로.</p>
   </section>
 
   <section id="letters">
-    <div class="sec-h"><span class="no">2</span><h2>편지 결과물 — 같은 입력, 네 모델</h2><span class="tech">아린 · 타깃=비타민A채소</span></div>
-    <p class="lead">전부 동일한 정답 동선(집 비타민A채소 부족 인정 → 익힌 당근을 좋아하는 밥에 잘게 섞기 → 또래 인기 '꼬마김밥' 제시)으로 수렴했지만, <b>표현의 자연스러움과 과거 편지와의 차별성</b>이 갈렸습니다.</p>
-    <div class="letters">
+    <div class="sec-h"><span class="no">2</span><h2>편지 5일치 — 모델별</h2><span class="tech">같은 입력 · 06-11~15</span></div>
+    <p class="lead">각 모델이 <b>5일을 어떻게 다르게(혹은 반복) 쓰는지</b>를 본다. 06-11~13은 환경(식사분위기), 06-14~15는 콩류. 4모델 모두 콩류일에 두부·콩밥·순두부찌개 정확, <b>괴식·환각 0</b>.</p>
 
-      <div class="lcard win">
-        <div class="lhd"><span class="nm">V4-Pro</span><span class="pill g5 grade" style="background:#E9F7F2;padding:2px 8px;border-radius:100px">★★★★★ 1위</span><span class="mt">2.9s · ₩179/월</span></div>
-        <div class="lbody">집에서 주황색 채소는 만날 기회가 참 드물었지요. 그래서 오늘 저녁은 아린이가 좋아하는 밥을 활용해 보시면 좋겠어요. 밥을 지을 때 아주 잘게 다진 익힌 당근을 한두 숟가락만 섞어서 함께 안쳐주시는 거예요. 눈에 보일 듯 말 듯한 양이면 부담 없이 받아들여요. 그렇게 당근에 익숙해지면, 또래 아이들은 나중에 꼬마김밥 같은 음식 속에서 자연스럽게 만나기도 한답니다. 간식으로는 과자 대신 방울토마토(반으로 잘라)를 하나 손에 쥐여주면, 비타민도 풍부하고 밥맛도 지키는 좋은 출발이 될 거예요.</div>
-        <div class="chips"><span class="chip">비반복 ◎</span><span class="chip">간식 녹임 ◎</span><span class="chip">가장 따뜻함</span></div>
-        <div class="lone">한줄: <b>흰쌀밥 좋아하는 아린이에게 잘게 다진 당근을 살짝 섞어보세요. 작은 노출이 쌓이면 새로운 식재료는 낯설지 않은 음식이 됩니다.</b></div>
-      </div>
-
-      <div class="lcard">
-        <div class="lhd"><span class="nm">V4-Flash</span><span class="grade g4" style="font-size:11px">★★★★</span><span class="mt">0.3s · ₩57/월</span></div>
-        <div class="lbody">집 끼니를 살펴보면 비타민A가 풍부한 주황색·초록색 채소가 좀 드물었어요. 어린이집에서 잘 챙겨주고 있지만 집에서도 가끔 만나면 다양성에 좋습니다. 아린이가 좋아하는 밥을 지을 때, 익힌 당근을 아주 잘게 다져 한두 숟갈 섞어보세요. 또래 아이들은 이렇게 시작해 나중에 꼬마김밥이나 깻잎지 같은 음식으로도 즐겨 만나곤 합니다. 한편 간식에 과자 대신 방울토마토(반으로 잘라)나 고구마를 두면 식사 집중에도 도움이 돼요.</div>
-        <div class="chips"><span class="chip">정확 ◎</span><span class="chip">간식 ◎</span><span class="chip" style="background:#FFF3CD;color:#8a6d00">과거 템플릿 답습 △</span></div>
-        <div class="lone">한줄: <b>익힌 당근을 밥에 잘게 섞어 비타민A채소를 부드럽게 노출해보세요. 작은 시작이 큰 변화를 만듭니다.</b></div>
-      </div>
-
-      <div class="lcard">
-        <div class="lhd"><span class="nm">V3.2</span><span class="grade g3" style="font-size:11px">★★★</span><span class="mt">4.5s · ₩112/월</span></div>
-        <div class="lbody">집 끼니에 비타민A 채소가 좀 드물어요. 어린이집에서 잘 챙겨주고 있으니 전체 영양은 괜찮지만, 집에서도 가끔 만나면 좋겠어요. 아린이가 좋아하는 밥을 준비할 때, 익힌 당근을 아주 잘게 다져 한 숟가락 섞어 보세요. 또래 아이들은 꼬마김밥으로도 자주 즐깁니다. 저녁 식사 시작 전 화면을 끄고 함께 앉는 작은 습관, 오늘도 한 번 해보시면 좋겠어요.</div>
-        <div class="chips"><span class="chip">정확 ◎</span><span class="chip">간결</span><span class="chip" style="background:#FFF3CD;color:#8a6d00">간식 누락 △</span></div>
-        <div class="lone">한줄: <b>전체 영양은 든든하니 마음 편히, 집 끼니에 비타민A 채소를 좋아하는 밥에 살짝 섞어 익숙하게 시작해 보세요.</b></div>
-      </div>
-
-      <div class="lcard cur">
-        <div class="lhd"><span class="nm">Claude Haiku</span><span class="pill live">현재 라이브</span><span class="grade g4" style="font-size:11px">★★★★</span><span class="mt">1.2s · ₩621/월</span></div>
-        <div class="lbody">집 끼니에서 주황색·초록색 채소를 거의 만날 기회가 없더라고요. 다행히 아린이가 이미 밥, 떡, 조기처럼 여러 음식을 자연스럽게 받아들이고 있으니, 익힌 당근도 그런 친숙한 음식들 속에서 천천히 익숙해질 수 있어요. 오늘 저녁, 아린이가 좋아하는 밥을 담을 때 익힌 당근을 아주 잘게 다져 한두 숟갈 섞어보세요. 또래 아이들은 이렇게 밥 속에서 당근의 자연스러운 단맛을 처음 느끼다가, 나중에 꼬마김밥처럼 더 다양한 형태로 만나곤 합니다.</div>
-        <div class="chips"><span class="chip">잘 먹는 음식 인용 ◎</span><span class="chip" style="background:#FFF3CD;color:#8a6d00">템플릿 + 간식 누락 △</span></div>
-        <div class="lone">한줄: <b>어린이집 덕에 전체 영양은 잘 채워지고 있어요. 집 끼니엔 비타민A 채소가 좀 드물어서, 밥처럼 익숙한 음식 속에 조금씩 섞어주면 다양한 맛을 경험하는 데 좋답니다.</b></div>
-      </div>
-
+    <div class="mblock win">
+      <div class="mhd"><span class="nm">DeepSeek V4-Flash</span><span class="pill win">★★★★★ 추천</span><span class="mt">실패0 · 평균 ₩46 · 0.3~3s</span></div>
+      <div class="drow"><div class="dchip">06-11<b>환경</b></div><div class="dtext">어제 아침에는 화면 없이 식탁에 앉아서 아린이와 함께 식사하셨군요. 그 짧은 시간만으로도 아이가 식사에 집중할 기회를 얻을 수 있어 정말 좋은 걸음이에요. 오늘 저녁에도 한 끼만 식탁에 앉아서 차분히 마무리해 보세요. 어린이집 덕분에 전체 영양은 잘 채워지고 있으니, 집에서는 이렇게 편안한 식사 분위기를 이어가는 것만으로도 충분하답니다.</div></div>
+      <div class="drow"><div class="dchip">06-12<b>환경</b></div><div class="dtext">아침 식사가 늘 조금씩이라 마음이 쓰이시죠. 식탁에 앉아도 화면이 켜져 있으면 아이가 음식보다 화면에 집중하게 돼요. 오늘 아침, 부모님께서 먼저 숟가락을 들어 밥을 맛있게 드시는 모습을 아린이 앞에서 보여주세요. 말은 걸지 말고, 그저 드시는 모습만 보여주셔도 아린이가 자연스럽게 따라서 숟가락을 들기 시작한답니다.</div></div>
+      <div class="drow"><div class="dchip">06-13<b>환경</b></div><div class="dtext">아침 식탁에 앉아 화면 없이 시작하는 모습을 보니, 그 작은 변화가 아린이에게 '지금은 먹는 시간'이라는 신호를 전달하고 있구나 느껴져요. 어린이집 덕분에 전체 영양은 잘 채워지고 있어서 집에서는 천천히 환경을 다져가면 돼요. 오늘 저녁도 20분쯤 지나면 '많이 먹었네, 여기까지 할까' 하며 부담 없이 상을 정리해 주세요. 남겨도 전혀 괜찮아요. 그 짧고 즐거운 끝맺음이 다음 끼니를 기다리는 마음을 키워준답니다.</div></div>
+      <div class="drow"><div class="dchip">06-14<b>콩류</b></div><div class="dtext">집 끼니를 살펴보니 콩류를 만날 기회가 드물더라고요. 어린이집 덕분에 전체 영양은 잘 채워지고 있지만, 집에서도 가끔 만나면 다양성에 좋아요. 아린이가 좋아하는 미역국에 두부를 아주 잘게 부숴 넣어보세요. 처음엔 한두 숟갈만 섞어서 익숙한 국물 맛 속에서 자연스럽게 경험하게 해주시면 됩니다. 또래 아이들은 이렇게 시작해 나중에 순두부찌개처럼 따뜻한 국으로도 잘 받아들인답니다.</div></div>
+      <div class="drow"><div class="dchip">06-15<b>콩류</b></div><div class="dtext">어린이집 덕분에 아린이의 하루 영양은 전체적으로 잘 채워지고 있어요. 그런데 집에서 오르는 밥상에 콩 종류가 거의 없더라고요. 집에서도 가끔 두부나 검은콩을 만나면 식탁의 다양성이 훨씬 넓어져요. 내일 저녁, 아린이가 좋아하는 밥과 미역국을 차릴 때 옆에 익힌 두부를 아주 작은 네모로 잘라 하나만 살짝 얹어 보세요. 또래 아이들은 이렇게 시작해 순두부찌개 같은 따뜻한 국으로도 자주 만나곤 합니다.</div></div>
     </div>
-    <p class="note">※ 위는 모델의 <b>생성 직후 원문</b>(운영의 윤문·검증 패스 전). 현재 라이브 편지는 이 Haiku 출력을 한 번 더 다듬어 발행됩니다.</p>
+
+    <div class="mblock cur">
+      <div class="mhd"><span class="nm">Claude Haiku 4.5</span><span class="pill live">현재 라이브</span><span class="mt">실패0 · 평균 ₩614 · 1~1.6s</span></div>
+      <div class="drow"><div class="dchip">06-11<b>환경</b></div><div class="dtext">어제 아침, 화면을 끄고 식탁에 앉아 차분하게 끼니를 시작하신 모습이 정말 좋았어요. 그런 고요한 시간이 쌓이면 아린이가 배고픔 신호를 더 잘 느끼고, 한 입 한 입이 더 의미 있게 다가온답니다. 이번 주는 그 한 끼의 리듬을 유지하시면서, 남은 끼니들도 천천히 같은 방식으로 옮겨가시면 좋아요—서두를 필요는 없습니다. 어린이집 덕분에 전체 영양은 잘 채워지고 있고, 집에서는 지금처럼 편하고 즐거운 식탁만 만들어주면 충분합니다.</div></div>
+      <div class="drow"><div class="dchip">06-12<b>환경</b></div><div class="dtext">식탁에 앉아 있어도 화면이 켜져 있으면 아린이의 뇌가 음식 신호를 제대로 받지 못해요. 어제 아침과 저녁 모두 화면을 보며 먹었는데, 이런 날들이 쌓이면 '밥 먹는 시간'이 뭔지 아이가 헷갈리기 쉽습니다. 오늘 저녁 한 끼만, 식탁에 앉은 뒤 화면을 꺼두고 아린이 옆에서 부모님도 같은 밥을 천천히, 말 없이 맛있게 드셔보세요. 아이는 그 모습을 보며 '아, 지금은 먹는 시간이구나' 하고 자연스럽게 배우게 됩니다.</div></div>
+      <div class="drow"><div class="dchip">06-13<b>환경</b></div><div class="dtext">어제 저녁, 화면을 끄고 식탁에 앉아 아린이와 함께 밥을 먹으셨군요. 그 모습이 정말 중요한 변화예요. 식탁이 고요하고 함께할 때 아이의 뇌가 '지금은 먹는 시간'이라는 신호를 받게 되고, 자연스럽게 한 입 한 입에 집중하게 됩니다. 오늘 저녁도 같은 방식으로, 아린이 손이 밥그릇에서 한 20분쯤 지나면 '많이 먹었네, 여기까지 할까' 하면서 식탁을 편하게 정리해 주세요. 남은 음식이 있어도 괜찮습니다. 짧고 즐거운 끝맺음이 다음 끼니를 기다리는 즐거움으로 이어진답니다.</div></div>
+      <div class="drow"><div class="dchip">06-14<b>콩류</b></div><div class="dtext">집 끼니를 보니 콩 요리를 거의 만나지 못하고 있네요. 다행히 아린이가 밥과 미역국처럼 여러 음식을 자연스럽게 받아들이고 있으니, 콩도 그런 친숙한 밥상 속에서 천천히 익숙해질 수 있어요. 내일 저녁, 아린이가 좋아하는 밥을 담을 때 부드러운 두부를 아주 잘게 다져 한두 숟갈 섞어보세요. 또래 아이들은 이렇게 밥 속에서 두부의 순한 맛을 처음 느끼다가, 나중에 순두부찌개처럼 따뜻한 국으로도 만나곤 합니다.</div></div>
+      <div class="drow"><div class="dchip">06-15<b>콩류</b></div><div class="dtext">어린이집에서 배추김치, 두유, 모닝빵처럼 여러 식재료를 꾸준히 챙겨주고 있어서 아린이의 전체 영양은 잘 채워지고 있어요. 다만 집 아침·저녁을 보니 콩 요리가 거의 없더라고요. 어린이집이 잘 챙겨주는 덕분에 서두르지 않아도 되지만, 집에서도 가끔 콩을 만나면 아린이의 식경험이 더 풍부해질 거예요. 오늘 저녁, 아린이가 좋아하는 밥을 담을 때 부드러운 두부 한두 조각을 밥 옆에 살짝 곁들여 보세요. 또래 아이들은 이렇게 친숙한 밥 곁에서 두부를 자연스럽게 만나다가, 나중에 순두부찌개처럼 따뜻한 국으로도 즐기곤 합니다.</div></div>
+    </div>
+
+    <div class="mblock">
+      <div class="mhd"><span class="nm">DeepSeek V3.2</span><span class="grade g3" style="font-size:12px">★★★☆</span><span class="pill warn">환경날 음식 주입 △</span><span class="mt">실패0 · 평균 ₩108 · 1.5~4s</span></div>
+      <div class="drow"><div class="dchip">06-11<b>환경</b></div><div class="dtext">어제 아침, 화면 없이 식탁에 앉아 식사를 시작하신 모습이 보기 좋습니다. 그 한 걸음이 아이에게는 식사에 집중할 수 있는 중요한 시간을 선물하는 일이에요. 오늘도 저녁 한 끼만, 화면을 끄고 함께 앉아 식탁 분위기를 즐겨보세요. 전체 영양은 어린이집 덕에 잘 채워지고 있어요. <span style="color:#B86A20">집 끼니에 비타민A채소가 조금 드물다면, 아이가 좋아하는 감자볶음에 당근을 잘게 다져 함께 볶아보는 것도 한 가지 방법이 될 수 있습니다.</span> <span style="font-size:10px;color:#B86A20;font-weight:700">← 환경-only 날인데 음식 제안 추가(규율 누수)</span></div></div>
+      <div class="drow"><div class="dchip">06-12<b>환경</b></div><div class="dtext">아침에 식탁에 앉아 식사를 시작하려 할 때, 아이가 간식을 조르거나 칭얼대는 날이 있을 수 있죠. 그럴 때는 '우리 조금만 기다려 볼까?' 하고 차분히 말해주세요. 오늘 저녁, 아린이가 좋아하는 밥을 담아 드실 때, 부모님께서도 옆에서 같은 밥을 맛있게 드시는 모습을 보여주기만 하면 충분합니다. 말을 걸거나 권하지 않아도, 아이가 보는 앞에서 자연스럽게 한 입 드시는 그 모습이 가장 따뜻한 신호가 됩니다. 어린이집 덕에 전체 영양은 잘 채워지고 있어요. <span style="color:#B86A20">집 끼니엔 비타민A채소가 좀 드물어, 찐 단호박을 조금씩 만나는 것도 좋겠네요.</span></div></div>
+      <div class="drow"><div class="dchip">06-13<b>환경</b></div><div class="dtext">저녁 식사를 화면 없이 식탁에서 시작하신 모습을 들었어요. 그런 작은 변화가 식사 시간의 분위기를 정말 바꿔주죠. 오늘 저녁에도 식탁에 앉은 지 20분쯤 되면 '많이 먹었네, 이제 마무리하자' 한마디와 함께 부담 없이 식사를 정리해 주세요. 남아도 전혀 괜찮습니다. 짧고 즐거운 끝이 다음 끼니에 대한 기대를 만들어요. 어린이집 덕에 전체 영양은 잘 채워지고 있으니, 집 끼니에서는 다양한 식재료를 만나는 경험을 가볍게 넓혀가시면 좋겠어요. 아린이가 좋아하는 밥과 함께, 또래들이 자주 즐기는 콩밥도 한번 생각해 보세요.</div></div>
+      <div class="drow"><div class="dchip">06-14<b>콩류</b></div><div class="dtext">집 끼니를 보니 콩류를 만날 기회가 적네요. 아린이가 즐겨 먹는 밥에 잘게 다진 두부나 검은콩을 조금만 섞어 볶음밥을 해보세요. 또래들은 두부된장찌개도 자주 만나요. 어린이집 덕에 전체 영양은 잘 채워지고 있어요. 오늘 저녁, 식탁에 앉기 전 화면을 끄는 순간부터 함께 밥그릇을 내려놓는 모습을 상상해보세요, 그 자리만으로도 충분한 시간이 될 거예요.</div></div>
+      <div class="drow"><div class="dchip">06-15<b>콩류</b></div><div class="dtext">어린이집에서 콩류를 꾸준히 챙겨주셔서 전체 영양은 잘 채워지고 있어요. 다만 집 끼니엔 콩이 좀 드물어 가끔 집에서도 만나면 다양성에 좋겠어요. 아린이가 좋아하는 밥을 담을 때, 두부를 잘게 다져 한두 숟갈 섞어보세요. 또래 아이들은 이렇게 시작해 나중에 두부볶음밥이나 순두부찌개처럼 더 다양한 형태로도 만나곤 합니다.</div></div>
+    </div>
+
+    <div class="mblock">
+      <div class="mhd"><span class="nm">DeepSeek V4-Pro</span><span class="grade g3" style="font-size:12px">★★★</span><span class="pill bad">추론 폭주 · 1편 실패</span><span class="mt">실패1 · 평균 ₩902 · 느림</span></div>
+      <div class="drow"><div class="dchip">06-11<b>환경</b></div><div class="dtext">어제 아침, 화면 없이 식탁에 앉아 밥을 먹는 아린이의 모습을 상상하니 참 조용하고 따뜻한 장면이 그려집니다. 이렇게 한 끼라도 영상 없이 마주 앉아 식사한 것은 작은 습관의 큰 첫걸음이에요. 영양 면에서는 어린이집 덕에 전체적으로 잘 채워지고 있고, 집에서는 콩류나 비타민A 채소를 만날 기회가 아직 적은 편이지만, 지금은 그보다 이 편안한 식탁 분위기를 굳히는 것이 훨씬 중요합니다. 오늘도 하루 중 한 끼, 같은 분위기로 아이와 눈을 맞추며 함께 먹어보세요. 식사 시간이 조금만 더 즐거워지면, 찐 단호박이나 삶은 콩처럼 새로운 음식도 훨씬 수월하게 다가갈 수 있답니다. <span style="font-size:10px;color:#16A085;font-weight:700">← 가장 따뜻·env 우선 명시</span></div></div>
+      <div class="drow"><div class="dchip">06-12<b>환경</b></div><div class="dtext">아린이가 식탁에 앉으면, 부모님이 곁에서 조용히 같은 밥과 반찬을 맛있게 먹는 모습만으로도 '먹는 시간'이라는 신호가 훨씬 또렷해져요. 어린이집 덕에 전체 영양은 잘 채워지고 있으니, 집에서는 부담을 살짝 내려놓고 오늘 저녁 한 끼만 아린이 앞에서 자연스럽게 한 숟갈 드셔보세요. 아이가 바로 따라 먹지 않아도 괜찮아요—부모님이 편안하게 식사하는 그 분위기 자체가 가장 좋은 밥상 환경이 된답니다. 혹시 식사 전에 간식을 조르면 '조금 이따 같이 먹자' 하고 물 한 모금 먼저 건네주는 것도 작은 도움이 될 거예요.</div></div>
+      <div class="drow"><div class="dchip">06-13<b>환경</b></div><div class="dfail">⚠️ 빈 편지 — 발행 실패. 추론 토큰이 max_tokens(4,000)를 다 소진하고 편지 JSON 전에 잘림. (추론모델을 손에 쓸 때의 실제 리스크)</div></div>
+      <div class="drow"><div class="dchip">06-14<b>콩류</b></div><div class="dtext">집에서 먹는 저녁 식단을 들여다보면 콩이나 두부를 만나는 날이 거의 없더라고요. 어린이집 덕분에 전체 영양 균형은 잘 잡히고 있어서, 콩은 집에서 조금씩 채우면 더 풍성해질 거예요. 오늘 저녁, 아린이가 좋아하는 밥에 검은콩이나 완두콩을 몇 알 섞어 콩밥으로 내보세요. 부모님이 먼저 맛있게 떠 드시는 모습을 보면 콩이라는 새로운 식구도 부담 없이 받아들일 수 있답니다.</div></div>
+      <div class="drow"><div class="dchip">06-15<b>콩류</b></div><div class="dtext">어린이집에서 점심과 간식으로 다양한 음식을 접하며 아린이의 전체 영양이 든든하게 채워지고 있어요. 다만 집 저녁 식탁에는 콩류가 자주 오르지 않아, 오늘 작은 한 걸음을 내디뎌 보면 좋겠어요. 아린이가 좋아하는 밥과 미역국 곁에, 순두부찌개를 한 국자 덜어 작은 그릇에 올려주세요. 또래 아이들은 이렇게 낯선 음식을 좋아하는 음식 옆에서 만나다 보면, 어느새 부드러운 두부볶음밥이나 된장국도 스스럼없이 받아들이곤 합니다. 오늘 저녁, 밥상을 차리기 전에 TV 리모컨을 TV 위에 올려두고 식탁에 앉아 보세요. 눈앞의 빛이 사라지면 아린이가 음식의 작은 냄새와 맛을 더 잘 느끼고, 새로운 음식을 받아들일 준비가 된답니다. <span style="font-size:10px;color:#16A085;font-weight:700">← 콩류+주간 환경 arc 동시 직조(최고 완성도)</span></div></div>
+    </div>
   </section>
 
   <section id="cost">
-    <div class="sec-h"><span class="no">3</span><h2>비용 재계산 — OpenRouter 실측의 함정</h2><span class="tech">공식 단가 환산</span></div>
-    <p class="lead">OpenRouter 실측에서 V4-Pro가 비싸게 찍힌 건(₩572) <b>OpenRouter가 공식이 아닌 더 비싼 공급자(DeepInfra ~$1.30/$2.60)로 라우팅</b>했기 때문. 공식 DeepSeek 단가로 다시 계산하면 V4-Pro는 <b>₩179</b>입니다.</p>
+    <div class="sec-h"><span class="no">3</span><h2>비용 — 5일 평균 + 추론의 함정</h2><span class="tech">콜당·풀스택</span></div>
+    <p class="lead">손(편지) 1콜의 5일 평균. <b>V4-Pro는 추론모드</b>라 출력 토큰이 1,180~6,166까지 폭주(편지는 200자인데 나머지는 숨은 추론) → 비용·지연 급등. 손엔 비추론 모델이 맞습니다.</p>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>모델</th><th>입력 / 출력 tok</th><th>입력 $/1M</th><th>출력 $/1M</th><th>콜당$ (공식)</th><th>월₩ (일1통)</th><th>OpenRouter 실측</th></tr></thead>
+      <thead><tr><th>모델</th><th>5일 평균 콜당$</th><th>월₩ (일1통)</th><th>비고</th></tr></thead>
       <tbody>
-        <tr><td class="mname">V4-Flash</td><td class="num">9,977 / 238</td><td class="num">$0.14</td><td class="num">$0.28</td><td class="num">$0.00146</td><td class="num">₩57</td><td class="num">$0.00146 (일치)</td></tr>
-        <tr><td class="mname">V3.2</td><td class="num">9,977 / 217</td><td class="num">$0.28</td><td class="num">$0.42</td><td class="num">$0.00288</td><td class="num">₩112</td><td class="num">$0.00278</td></tr>
-        <tr class="best"><td class="mname">V4-Pro</td><td class="num">9,977 / 277</td><td class="num">$0.435</td><td class="num">$0.87</td><td class="num">$0.00458</td><td class="num">₩179</td><td class="num">$0.01466 ⚠️</td></tr>
-        <tr><td class="mname">Claude Haiku <span class="pill live">현재</span></td><td class="num">13,918 / 400</td><td class="num">$1.00</td><td class="num">$5.00</td><td class="num">$0.01592</td><td class="num">₩621</td><td class="num">$0.01592</td></tr>
+        <tr class="best"><td class="mname">V4-Flash</td><td class="num">$0.00118</td><td class="num">₩46</td><td>비추론 · 일관 · 손 최적</td></tr>
+        <tr><td class="mname">V3.2</td><td class="num">$0.00276</td><td class="num">₩108</td><td>저렴하나 규율 △</td></tr>
+        <tr><td class="mname">V4-Pro <span class="pill bad">추론</span></td><td class="num" style="color:var(--r700)">$0.02313</td><td class="num" style="color:var(--r700)">₩902</td><td>추론 폭주 → 손엔 부적합(뇌엔 적합)</td></tr>
+        <tr><td class="mname">Claude Haiku <span class="pill live">현재</span></td><td class="num">$0.01574</td><td class="num">₩614</td><td>기준 · 안정</td></tr>
       </tbody>
     </table></div>
-    <p class="ftnote">· 환율 ₩1,300/$ · 월 = 콜당 × 30(자녀당 일 1통 가정) · <b>콜드 캐시</b> 기준(캐시 0). 운영은 <code>SYSTEM</code>(~1,500토큰)이 캐시돼 입력비가 더 내려감.<br>· 입력 토큰이 ~10k인 이유 = 프롬프트에 과거 5통 + 전 가드가 들어감. Haiku 입력이 더 큰(13,918) 건 토크나이저 차이.<br>· ⚠️ <b>OpenRouter ≠ 공식 가격</b> — DeepSeek 모델을 어느 공급자로 라우팅하느냐로 단가가 달라짐. 실제 호스트(공식·DeepInfra·FriendliAI 등)를 핀하면 그 단가로 고정.</p>
 
-    <div class="verdict bad" style="margin-top:20px"><b>⚠️ 위 표는 '손(편지)' 콜 1회만입니다.</b> 실제 코칭은 한 자녀당 매일 <b>일간 뇌 + 손 + 윤문 + 검증 + 질문</b>이 돌고 <b>주간 계획</b>이 주1회 더해집니다. "<b>뇌 풀가동</b>"이면 일간 뇌(강모델)가 매일 붙어 비용이 크게 올라갑니다 — 일간 뇌는 실은 손보다 비싼 콜입니다(현재 Sonnet). 아래가 전체 합산입니다.</div>
-
-    <h3 style="font-size:15.5px;font-weight:800;color:var(--s800);margin:18px 0 8px">풀스택 — 전체 콜 합산 (자녀당, 뇌 풀가동)</h3>
+    <div class="verdict bad" style="margin-top:18px"><b>⚠️ 위 표는 '손(편지)' 콜 1회만.</b> 실제 코칭은 매일 <b>일간 뇌 + 손 + 윤문 + 검증 + 질문</b>이 돌고 <b>주간 계획</b>이 주1회 더해집니다. 일간 뇌(현재 Sonnet)가 실은 손보다 비싼 콜이라, "뇌 풀가동"이면 비용이 크게 올라갑니다.</div>
+    <h3 style="font-size:15.5px;font-weight:800;color:var(--s800);margin:16px 0 8px">풀스택 — 전체 콜 합산 (자녀당, 뇌 풀가동)</h3>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>콜</th><th>빈도</th><th>현재 Claude<br>(모델·일$)</th><th>DeepSeek<br>(손=Flash·뇌=Pro·일$)</th></tr></thead>
+      <thead><tr><th>콜</th><th>빈도</th><th>현재 Claude (일$)</th><th>DeepSeek (손=Flash·뇌=Pro·일$)</th></tr></thead>
       <tbody>
-        <tr><td class="mname">손 (편지)</td><td class="num">매일</td><td class="num">Haiku $0.0159</td><td class="num">V4-Flash $0.0015</td></tr>
-        <tr class="best"><td class="mname">일간 뇌 <small>측정</small></td><td class="num">매일</td><td class="num">Sonnet $0.0212</td><td class="num">V4-Pro $0.0027</td></tr>
-        <tr><td class="mname">주간 계획 <small>추정</small></td><td class="num">주1회 ÷7</td><td class="num">Sonnet $0.0036</td><td class="num">V4-Pro $0.0004</td></tr>
-        <tr><td class="mname">윤문 <small>추정</small></td><td class="num">매일</td><td class="num">Haiku $0.0025</td><td class="num">V4-Flash $0.0002</td></tr>
-        <tr><td class="mname">검증 <small>추정</small></td><td class="num">매일</td><td class="num">Haiku $0.0027</td><td class="num">V4-Flash $0.0003</td></tr>
-        <tr><td class="mname">질문 <small>추정</small></td><td class="num">매일</td><td class="num">Haiku $0.0046</td><td class="num">V4-Flash $0.0005</td></tr>
-        <tr style="border-top:2px solid var(--n300)"><td class="mname" style="font-weight:800">일 합계</td><td></td><td class="num" style="color:var(--r700);font-weight:800">$0.0505</td><td class="num" style="color:var(--g700);font-weight:800">$0.0055</td></tr>
-        <tr><td class="mname" style="font-weight:800">월 합계 (×30)</td><td></td><td class="num" style="color:var(--r700);font-weight:800;font-size:14px">≈ ₩1,970</td><td class="num" style="color:var(--g700);font-weight:800;font-size:14px">≈ ₩220</td></tr>
+        <tr><td class="mname">손 (편지)</td><td class="num">매일</td><td class="num">Haiku $0.0157</td><td class="num">V4-Flash $0.0012</td></tr>
+        <tr class="best"><td class="mname">일간 뇌</td><td class="num">매일</td><td class="num">Sonnet $0.0212</td><td class="num">V4-Pro $0.0027</td></tr>
+        <tr><td class="mname">주간 계획</td><td class="num">주1÷7</td><td class="num">Sonnet $0.0036</td><td class="num">V4-Pro $0.0004</td></tr>
+        <tr><td class="mname">윤문·검증·질문</td><td class="num">매일</td><td class="num">Haiku $0.0098</td><td class="num">V4-Flash $0.0010</td></tr>
+        <tr style="border-top:2px solid var(--n300)"><td class="mname" style="font-weight:800">월 합계 (×30)</td><td></td><td class="num" style="color:var(--r700);font-weight:800;font-size:14px">≈ ₩1,970</td><td class="num" style="color:var(--g700);font-weight:800;font-size:14px">≈ ₩210</td></tr>
       </tbody>
     </table></div>
-    <p class="ftnote">· <b>측정</b> = 손·일간 뇌(실제 프롬프트로 OpenRouter 1회 측정). <b>추정</b> = 주간·윤문·검증·질문(토큰 가정: 윤문 ~750/350, 검증 ~1,900/150, 질문 ~3,000/320, 주간 ~4,000/900). 작은 콜이라 추정 오차가 결론을 바꾸지 않음.<br>· 현재 Claude는 일간 뇌=<b>Sonnet</b>($3/$15)·주간=Sonnet·나머지=Haiku. 뇌가 매일이면 <b>뇌(Sonnet)가 단일 최대 비용</b>($0.0212/일).<br>· DeepSeek <b>손까지 V4-Pro로 올리는 프리미엄 구성</b>이면 ≈ ₩420/월(그래도 Claude의 ~1/4.7).<br>· 결론: 단일 편지 표(₩621/₩179)는 전체의 ~1/3 토막 — <b>풀스택은 Claude ≈ ₩1,970 vs DeepSeek ≈ ₩220 (~9× 절감)</b>.</p>
+    <p class="ftnote">· 환율 ₩1,300/$ · 콜드 캐시 · OpenRouter 라우팅 단가(공식·핀 공급자면 더 낮을 수 있음). · 손=비추론 Flash, 뇌=추론 Pro로 역할 분리하면 품질·비용 모두 최적. · 풀스택 절감 ~9× (Claude 뇌풀가동 ₩1,970 → DeepSeek ₩210).</p>
   </section>
 
   <section id="quality">
-    <div class="sec-h"><span class="no">4</span><h2>품질 분석 — 무엇이 갈렸나</h2></div>
-    <div class="verdict good"><b>V4-Pro ★★★★★</b> — 표현이 가장 생생("눈에 보일 듯 말 듯한 양")하고 <b>과거 5통의 "또래 아이들은 이렇게 시작해 나중에…" 템플릿을 안 씀</b>. 우리가 11세션 18회 싸운 "매일 같은 편지(수렴)" 문제에서 제일 강함. 간식까지 자연스럽게 녹임. <b>현재 Haiku보다 비반복 차원에서 더 나음 + 더 쌈.</b></div>
-    <div class="verdict warn" style="margin-top:9px"><b>V4-Flash ★★★★</b> — 내용·규칙 정확 + 간식 포함, 0.3초·₩57로 압도적 가성비. <b>단점</b>: "또래 아이들은 이렇게 시작해 나중에 ~ 만나곤 합니다", "한두 숟갈 섞어보세요"가 과거 4·5번째 편지와 거의 동일(수렴). 다만 운영의 <code>letterSimilarity</code> 재생성 가드가 이걸 잡아 다시 씀 → 실전에선 한 번 더 걸러짐.</div>
-    <div class="verdict" style="margin-top:9px;background:#FFF8F2;border:1px solid #FFD9B0"><b>V3.2 ★★★</b> — 정확하지만 짧고(간결) 간식을 뺌. "Pro" 변종 없는 이전 세대 — V4 대비 굳이 고를 이유 약함.</div>
-    <div class="verdict" style="margin-top:9px;background:#F4F4F5;border:1px solid var(--n200)"><b>Claude Haiku ★★★★ (현재 라이브)</b> — 실제 잘 먹는 음식(떡·조기)을 잘 인용해 그라운딩이 좋음. 그러나 역시 "또래 아이들은…" 템플릿 + 간식 누락. 토큰도 가장 김(400). 견고하지만 비반복·비용에서 V4-Pro에 밀림.</div>
+    <div class="sec-h"><span class="no">4</span><h2>5일이 드러낸 것</h2></div>
+    <div class="verdict good"><b>V4-Flash ★★★★★ (손 추천)</b> — 5일 내내 실패0, 환경-only 날엔 음식 제안을 안 끼워넣는 규율◎, 콩류일엔 두부·순두부찌개 정확. 0.3~3초·₩46. <b>Haiku급 품질에 비용 1/13.</b> 일간 편지의 정답.</div>
+    <div class="verdict bad" style="margin-top:9px"><b>V4-Pro ★★★ — 손엔 부적합(추론모델)</b> — 잘 나오면 가장 따뜻하고 완성도 높음(06-15 콩류+환경 arc 직조). 하지만 추론모드라 ① <b>06-13 빈 편지 발행 실패</b>(토큰 폭주로 잘림) ② 비용 ₩361~1,373(어떤 날 Haiku보다 비쌈) ③ 느림. <b>강한 추론은 손이 아니라 일간 뇌(결정)에 써야 함.</b></div>
+    <div class="verdict warn" style="margin-top:9px"><b>V3.2 ★★★☆</b> — 싸고(₩108) 정확하지만, <b>환경-only 날(06-11·12)에 당근·단호박 음식 제안을 끼워넣는 규율 누수</b>(useFood=false 무시). 콩류일은 무난. 굳이 V4-Flash 대신 쓸 이유 약함.</div>
+    <div class="verdict" style="margin-top:9px;background:#F4F4F5;border:1px solid var(--n200)"><b>Claude Haiku ★★★★ (현재 라이브)</b> — 5일 내내 안정·그라운딩 좋음(06-15 배추김치·두유·모닝빵 실제 급식 인용). 규율◎. 다만 비용 최고(₩614)이고 비반복·완성도에서 V4-Flash/V4-Pro에 우위 없음.</div>
+    <p class="note"><b>공통(중요):</b> 4모델 × 5일 = 20편 중 19편이 P10 분리·조리접두·괴식금지·급식변경 금지를 지킴(실패는 V4-Pro 추론 truncation 1편뿐, 품질이 아니라 토큰 문제). <b>DeepSeek이 우리 엔진 프롬프트를 제대로 따른다</b>는 게 5일로 더 단단해짐.</p>
   </section>
 
   <section id="verdict">
     <div class="sec-h"><span class="no">5</span><h2>판단 &amp; 다음</h2></div>
     <div class="card">
       <ul class="cl">
-        <li><b>스왑은 viable.</b> DeepSeek이 우리 프롬프트에서 괴식·환각 0, P10·조리접두·간식 가드를 지킴. 치명적 실패 없음.</li>
-        <li><b>품질 역전.</b> V4-Pro가 우리가 가장 신경 쓰는 "비반복"에서 현재 Haiku보다 더 좋고, 비용은 1/3.5(₩179 vs ₩621).</li>
-        <li><b>일간 편지 = V4-Flash 기본</b>(₩57·0.3초) + 수렴 가드 의존, <b>품질 욕심내면 V4-Pro</b>(₩179). V3.2는 비추천.</li>
-        <li><b>한계(N=1).</b> 프롬프트 1개·각 1회·temp 0.7(확률적). 결론 굳히려면 며칠치 여러 프롬프트로 평균·수렴률을 봐야 함.</li>
+        <li><b>스왑 viable — 5일로 확인.</b> 괴식·환각 0, 규칙 준수 19/20. 실패 1편도 품질이 아니라 추론모델 오용(토큰).</li>
+        <li><b>역할 분리가 핵심.</b> <b>손(편지) = V4-Flash(비추론)</b> · <b>일간 뇌(결정) = V4-Pro(추론)</b>. 손에 추론모델 쓰면 비싸고 잘림.</li>
+        <li><b>비용.</b> 손 5일 평균 V4-Flash ₩46 vs Haiku ₩614(1/13). 풀스택(뇌 풀가동) Claude ≈₩1,970 → DeepSeek ≈₩210(~9×).</li>
+        <li><b>남은 검증.</b> 주간·윤문·검증 콜도 실측 / 다른 자녀로 일반화 / V4-Flash 비추론 변종 핀.</li>
       </ul>
-      <p class="note" style="margin-top:14px"><b>다음 액션</b> — (1) 여러 날 배치 + 자동 채점(<code>--judge</code>)으로 N 키우기 · (2) 호스트 결정(DeepInfra/FriendliAI/Together — 비용·국내 데이터 레지던시 트레이드오프) · (3) 가입 동의·처리방침 국외이전 초안 + <code>callClaude</code>→DeepSeek 하드스왑 패치.</p>
+      <p class="note" style="margin-top:14px"><b>다음 액션</b> — (1) 호스트 결정(DeepInfra/FriendliAI/Together — 비용 vs 국내 데이터 레지던시) · (2) ①가입 동의·처리방침 국외이전 초안 ②<code>callClaude</code>→DeepSeek 하드스왑 패치(손=Flash·뇌=Pro 분리 배선).</p>
     </div>
   </section>
 
-  <p class="ftnote" style="text-align:center;margin-top:30px">실측: <code>scripts/bench-deepseek.mjs</code> · 입력 = 2026-06-15 아린 손 프롬프트(<a href="/coaching-prompt-architecture.html" style="color:var(--p700)">프롬프트 아키텍처</a>) · 생성 2026-06-16</p>
+  <p class="ftnote" style="text-align:center;margin-top:30px">실측: <code>scripts/bench-deepseek.mjs</code> · 입력 = 아린 06-11~15 손 프롬프트(저장 결정+실제 <code>buildLetterUser</code> 재구성, DB 읽기전용) · 생성 2026-06-16</p>
 
 </main>
 </body>
