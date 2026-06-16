@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 아키텍처 지도 — 엔진 1개·모듈 여럿 · 아이 현황 스토어 · 데이터 계약</title>
+<meta property="og:title" content="코칭 아키텍처 지도 — 엔진·모듈 정의 + 데이터 계약">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:#F1EDFB;color:#5b3a8c;padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:52px 24px 38px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 45%,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 22% 78%,rgba(52,152,219,.2)0,transparent 45%),radial-gradient(circle at 80% 16%,rgba(155,89,182,.22)0,transparent 48%)}
+.hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#bcdcf3;padding:7px 18px;border-radius:100px;font-size:11.5px;font-weight:700;letter-spacing:.06em;margin-bottom:16px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:29px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:13px}.hero h1 b{color:#5DADE2}
+.hero p{font-size:14px;color:#cfd8e3;max-width:710px;margin:0 auto;font-weight:500;line-height:1.78}
+.hero .crumbs{margin-top:15px;font-size:11.5px;color:#9fb0c2}.hero .crumbs a{color:#bcdcf3;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11.5px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 11px;border-radius:100px;margin-right:3px}
+nav.toc a:hover{background:var(--p50);color:var(--p700)}
+main{max-width:1020px;margin:0 auto;padding:8px 20px 70px}
+section{margin:40px 0;scroll-margin-top:54px}
+.sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px;padding-bottom:9px;border-bottom:2.5px solid var(--b500);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:20px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.sec-h .tech{font-size:10.5px;font-weight:700;color:var(--b700);background:#E3F2FD;padding:3px 10px;border-radius:100px;margin-left:auto;border:1px solid #bcdcf3}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 16px;line-height:1.74}.lead b{color:var(--s800)}
+.readme{background:linear-gradient(135deg,#FFF8F2,#E3F2FD);border:1px dashed var(--b500);border-radius:13px;padding:15px 17px;font-size:12.5px;color:var(--n700);line-height:1.7;margin-top:4px}.readme b{color:var(--b700)}
+.card{background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}.card+.card{margin-top:12px}
+h3.sub{font-size:14.5px;font-weight:800;color:var(--s800);margin:4px 0 8px;letter-spacing:-.01em}
+.callout{background:linear-gradient(135deg,#E3F2FD,#FFF8F2);border:1px solid #bcdcf3;border-radius:12px;padding:14px 16px;font-size:12.5px;color:var(--n700);line-height:1.72;margin-top:12px}.callout b{color:var(--b700)}
+.note{background:#FFF8F2;border:1px solid var(--p100);border-radius:11px;padding:12px 14px;font-size:12px;color:var(--n600);line-height:1.66;margin:12px 0}.note b{color:var(--p700)}
+.defn{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:11px;margin-top:6px}
+.dc{border:1px solid var(--n200);border-top:4px solid;border-radius:13px;padding:15px 16px;background:#fff}
+.dc.eng{border-top-color:var(--s700)}.dc.mod{border-top-color:var(--v500)}.dc.data{border-top-color:var(--g500)}
+.dc .dt{font-size:14px;font-weight:800;color:var(--s800)}
+.dc .dd{font-size:11.5px;color:var(--n600);font-weight:500;margin-top:6px;line-height:1.6}.dc .dd b{color:var(--s800)}
+.dc .ex{font-size:11px;font-weight:700;margin-top:8px;padding:6px 9px;border-radius:7px}
+.dc.eng .ex{background:#EEF1F5;color:var(--s800)}.dc.mod .ex{background:#F3E8FB;color:var(--v700)}.dc.data .ex{background:#E9F7F2;color:var(--g700)}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:560px}
+th,td{border:1px solid var(--n200);padding:8px 10px;text-align:left;vertical-align:top}th{background:#EEF4FB;font-size:11px;font-weight:800;color:var(--s800)}
+td b{color:var(--s800)}
+.tag2{font-size:9.5px;font-weight:800;padding:1px 7px;border-radius:100px}
+.t-live{background:#E9F7F2;color:var(--g700)}.t-plan{background:#FFF3CD;color:var(--y700)}.t-part{background:#E3F2FD;color:var(--b700)}
+.store{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.src3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+@media(max-width:680px){.src3{grid-template-columns:1fr}}
+.srcb{border-radius:11px;padding:12px 14px;border:1px solid var(--n200);background:#fff}
+.srcb .sh{font-size:12px;font-weight:800;color:var(--s800)}
+.srcb .sc{font-size:10.5px;color:var(--n500);font-weight:600;margin-top:2px}
+.srcb .sl{font-size:11px;color:var(--n600);font-weight:500;margin-top:7px;line-height:1.5}
+.sarrow{text-align:center;color:var(--n300);font-size:18px;font-weight:800;margin:6px 0}
+.snapbox{border:1.5px solid var(--g500);border-radius:13px;padding:14px 16px;background:#F4FBF8}
+.snapbox .sh{font-size:13px;font-weight:800;color:var(--g700)}
+.contract{background:#1F2D3D;border-radius:12px;padding:15px 17px;margin-top:8px;overflow-x:auto}
+.contract pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;color:#cfe3f5;white-space:pre;margin:0}
+.contract .k{color:#5DADE2;font-weight:700}.contract .c{color:#7d8aa0}.contract .m{color:#FFB375}
+.loop{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.ln{border-radius:12px;padding:12px 16px;border:1.5px solid;background:#fff}
+.ln .lh{font-size:12.5px;font-weight:800;color:var(--s800)}
+.ln .lb{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:4px;line-height:1.55}.ln .lb b{color:var(--s800)}
+.ln.s1{border-color:#bcdcf3;background:#F0F7FD}.ln.s2{border-color:#bfe6d9;background:#F4FBF8}.ln.s3{border-color:#ddc4ef;background:#FaF6FE}.ln.s4{border-color:#f5cbbb;background:#FFF6F1}.ln.s5{border-color:var(--n200);background:#FAFAFA}
+.larrow{text-align:center;color:var(--n300);font-size:16px;font-weight:800;margin:2px 0}
+.rm{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+.rmi{border-radius:12px;padding:13px 16px;border:1px solid var(--n200);border-left:4px solid}
+.rmi.done{border-left-color:var(--g500);background:#F4FBF8}.rmi.now{border-left-color:var(--y500);background:#FFFBEE}.rmi.next{border-left-color:var(--b500);background:#F0F7FD}
+.rmi .rh{font-size:13px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rmi .rl{font-size:12px;color:var(--n700);font-weight:500;margin-top:5px;line-height:1.6}.rmi .rl b{color:var(--s800)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;border-top:1px solid var(--n200);margin-top:38px;line-height:1.7}
+.stamp{display:inline-block;background:#F0F7FD;border:1px solid #bcdcf3;border-radius:100px;padding:4px 12px;font-size:10.5px;font-weight:700;color:var(--b700);margin:0 3px 6px}
+.svgwrap{overflow-x:auto}
+</style></head><body>
+
+<header class="hero"><div class="hero-in">
+<span class="tag">🗺️ ENGINE · ARCHITECTURE MAP</span>
+<h1>코칭 아키텍처 지도<br><b>엔진 1개 · 모듈 여럿</b> · 아이 현황 스토어가 잇는다</h1>
+<p>무엇을 '엔진'이라 부르고 무엇을 '모듈'이라 부를지부터, 아이 현황을 매일 어떻게 모아 <b>코칭 엔진에 무슨 데이터를 어떻게 넘길지</b>(데이터 계약)까지 — 추천·선호·네트워크 모듈이 코칭 엔진과 맞물리는 한 장의 지도.</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/food-chaining-personalization-engine.html">푸드체이닝 모듈</a> · <a href="/preference-quantification-engine.html">선호 계량화 모듈</a> · 2026-06-16</div>
+</div></header>
+
+<nav class="toc">
+<a href="#naming">네이밍 규칙</a><a href="#map">컴포넌트 지도</a><a href="#store">아이 현황 스토어</a><a href="#contract">⭐데이터 계약</a><a href="#io">모듈 입출력</a><a href="#loop">닫힌 루프</a><a href="#status">현재 상태·빌드순서</a>
+</nav>
+
+<main>
+
+<section id="naming"><div class="sec-h"><span class="no">0</span><h2>네이밍 규칙 — 엔진 / 모듈 / 데이터 레이어</h2><span class="tech">확정</span></div>
+<p class="lead">세 가지로만 부른다. 기준은 <b>"산출물과 루프를 가지면 엔진, 데이터를 돌려주면 모듈, 읽고 쓰는 공용 데이터면 레이어"</b>.</p>
+<div class="defn">
+<div class="dc eng"><div class="dt">⚙️ 엔진 (Engine)</div><div class="dd">사용자 향 <b>산출물을 만들고 자기 루프(크론)</b>를 가진 오케스트레이터. 시스템에 <b>하나</b>.</div><div class="ex">코칭 엔진 — 편지·도감을 씀</div></div>
+<div class="dc mod"><div class="dt">🧩 모듈 (Module)</div><div class="dd">엔진이 호출해 <b>구조화 데이터를 돌려주는 부품</b>. 사용자 향 산출 아님·순수 함수 지향.</div><div class="ex">선호 계량화 · 푸드체이닝 · 영양거울 · 간식 · 두뇌</div></div>
+<div class="dc data"><div class="dt">🗄️ 데이터 레이어</div><div class="dd">모듈들이 <b>읽고 쓰는 공용 데이터</b>. 판단 로직 없음.</div><div class="ex">추천 네트워크(food-graph) · 아이 현황 스토어</div></div>
+</div>
+<div class="note">📌 표기 정리: 기존에 "푸드체이닝 <b>엔진</b>"·"선호 계량화 <b>엔진</b>"이라 부른 것은 공식적으로 <b>모듈</b>입니다(일상 대화에선 엔진이라 불러도 무방). 사용자 향 편지를 만드는 <b>코칭 엔진만 '엔진'</b>.</div>
+</section>
+
+<section id="map"><div class="sec-h"><span class="no">1</span><h2>컴포넌트 지도</h2><span class="tech">한 장</span></div>
+<div class="card"><div class="svgwrap">
+<svg viewBox="0 0 760 430" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard,sans-serif" style="width:100%;height:auto;min-width:560px">
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9CA3AF"/></marker></defs>
+<!-- Coaching Engine box -->
+<rect x="40" y="24" width="680" height="150" rx="16" fill="#EEF1F5" stroke="#2C3E50" stroke-width="2.5"/>
+<text x="60" y="48" font-size="14" font-weight="800" fill="#1F2D3D">⚙️ 코칭 엔진 — 편지·도감 산출 (크론·온디맨드)</text>
+<text x="60" y="66" font-size="10.5" fill="#6B7280">재료=결정론(모듈 호출) · 문장=LLM</text>
+<!-- modules inside -->
+<g font-size="11" font-weight="700" text-anchor="middle">
+<rect x="62" y="82" width="150" height="74" rx="10" fill="#FaF6FE" stroke="#9C27B0" stroke-width="1.6"/><text x="137" y="108" fill="#6A1B9A">선호 계량화 모듈</text><text x="137" y="126" font-size="9" font-weight="600" fill="#8a6aa0">잘먹음/잘못먹음</text><text x="137" y="139" font-size="9" font-weight="600" fill="#8a6aa0">계량·확신도</text>
+<rect x="224" y="82" width="160" height="74" rx="10" fill="#FaF6FE" stroke="#9C27B0" stroke-width="1.6"/><text x="304" y="104" fill="#6A1B9A">푸드체이닝 모듈</text><text x="304" y="121" font-size="9" font-weight="600" fill="#8a6aa0">다음 걸음 후보</text><text x="304" y="134" font-size="9" font-weight="600" fill="#8a6aa0">(2축·노출·SOS)</text>
+<rect x="396" y="82" width="148" height="74" rx="10" fill="#FaF6FE" stroke="#9C27B0" stroke-width="1.6"/><text x="470" y="108" fill="#6A1B9A">영양거울·간식</text><text x="470" y="126" font-size="9" font-weight="600" fill="#8a6aa0">두뇌 모듈</text>
+<rect x="556" y="82" width="142" height="74" rx="10" fill="#fff" stroke="#E89244" stroke-width="1.6" stroke-dasharray="3 3"/><text x="627" y="108" fill="#B86A20">손(LLM) 작문</text><text x="627" y="126" font-size="9" font-weight="600" fill="#c08a4a">결정론 재료→문장</text>
+</g>
+<!-- child state store -->
+<rect x="120" y="208" width="520" height="58" rx="13" fill="#F4FBF8" stroke="#16A085" stroke-width="2.2"/>
+<text x="380" y="232" text-anchor="middle" font-size="12.5" font-weight="800" fill="#1B5E20">🗄️ 아이 현황 스토어 (child_daily_state · 매일 갱신)</text>
+<text x="380" y="250" text-anchor="middle" font-size="9.5" fill="#3a7a5a">주간계획 + 일간기록 + 편지 + 파생신호 → 코칭 엔진이 읽는 단일 스냅샷</text>
+<!-- recommendation network -->
+<rect x="120" y="300" width="250" height="52" rx="12" fill="#F4FBF8" stroke="#16A085" stroke-width="2"/>
+<text x="245" y="322" text-anchor="middle" font-size="12" font-weight="800" fill="#1B5E20">🕸️ 추천 네트워크</text><text x="245" y="338" text-anchor="middle" font-size="9.5" fill="#3a7a5a">food-graph 사촌·궁합 (data)</text>
+<rect x="390" y="300" width="250" height="52" rx="12" fill="#F4FBF8" stroke="#16A085" stroke-width="2"/>
+<text x="515" y="322" text-anchor="middle" font-size="12" font-weight="800" fill="#1B5E20">📒 원천 테이블</text><text x="515" y="338" text-anchor="middle" font-size="9.5" fill="#3a7a5a">meal_logs · weekly_plans · coach_letters</text>
+<!-- arrows -->
+<g stroke="#9CA3AF" stroke-width="1.6" fill="none">
+<path d="M304,156 L304,206" marker-end="url(#a)"/>
+<path d="M137,156 L300,206" marker-end="url(#a)"/>
+<path d="M470,156 L360,206" marker-end="url(#a)"/>
+<path d="M245,300 L290,268" marker-end="url(#a)"/>
+<path d="M515,300 L470,268" marker-end="url(#a)"/>
+</g>
+<!-- food-chaining -> network special -->
+<path d="M300,140 C200,150 180,260 240,300" stroke="#9C27B0" stroke-width="1.8" fill="none" stroke-dasharray="4 3" marker-end="url(#a)"/>
+<text x="150" y="240" font-size="9" font-weight="700" fill="#6A1B9A" transform="rotate(-58 150 240)">내부 호출</text>
+<text x="380" y="295" text-anchor="middle" font-size="9.5" fill="#9CA3AF">아이 현황 스토어 ← 원천·네트워크·모듈 출력 집계(야간)</text>
+</svg>
+</div></div>
+<div class="callout">읽는 법 — <b>코칭 엔진</b>이 모듈들을 호출하고, 그 결과와 원천을 <b>아이 현황 스토어</b>가 매일 한 스냅샷으로 모은다. <b>푸드체이닝 모듈은 추천 네트워크를 내부에서 호출</b>(보라 점선)해 '다음 걸음'을 만들고, 코칭 엔진은 네트워크를 직접 만지지 않는다.</div>
+</section>
+
+<section id="store"><div class="sec-h"><span class="no">2</span><h2>아이 현황 스토어 — 매일 무엇을 모으나</h2><span class="tech">child_daily_state</span></div>
+<p class="lead">이사님 지적대로 <b>주간 계획표·일간 기록·편지</b>를 매일 한곳에 모아야 코칭 엔진이 일관되게 읽습니다. 세 원천 + 모듈 파생을 야간에 한 스냅샷으로.</p>
+<div class="store">
+<div class="src3">
+<div class="srcb"><div class="sh">📅 주간 계획표</div><div class="sc">weekly_plans · weekly_coaching</div><div class="sl">이번 주 목표·타깃 식품군·교육 아크 단계·주력 레버</div></div>
+<div class="srcb"><div class="sh">📝 일간 기록</div><div class="sc">meal_logs (집/기관 분리)</div><div class="sl">오늘·누적 끼니·수용 수준·거부 사유</div></div>
+<div class="srcb"><div class="sh">✉️ 편지</div><div class="sc">coach_letters</div><div class="sl">최근 편지(반복 회피)·사용한 타깃·피드백(👍👎)</div></div>
+</div>
+<div class="sarrow">＋ 모듈 파생 ▼</div>
+<div class="snapbox"><div class="sh">🗄️ child_daily_state (자녀 × 날짜)</div>
+<div style="font-size:11.5px;color:var(--n700);margin-top:7px;line-height:1.6">선호 계량(잘먹음/잘못먹음·축별) · 영양 거울(식품군 신호) · 노출 카운트 · <b>푸드체이닝 다음 걸음</b>(모듈이 추천 네트워크로 산출) · 성숙도/콜드스타트 플래그. <b>매일 야간 materialize</b> → 코칭 엔진은 이 한 행만 읽는다.</div></div>
+</div>
+<div class="note"><b>왜 매일 스냅샷인가</b> — 세 원천을 편지 쓸 때마다 즉석 조인하면 느리고 일관성이 깨진다. 하루 1회 모아두면 편지·도감·어드민이 같은 '오늘의 아이 현황'을 본다. meal_logs는 append-only 원장, 스토어는 최신 롤업 + 추세.</div>
+</section>
+
+<section id="contract"><div class="sec-h"><span class="no">3</span><h2>⭐ 데이터 계약 — 코칭 엔진에 무엇을 어떻게 주나</h2><span class="tech">CoachContext</span></div>
+<p class="lead">코칭 엔진은 <b>이 한 객체</b>만 받습니다(아이 현황 스토어에서 조립). "어떤 데이터를 어떻게"의 답 — 모듈들이 채운 결정론 재료 + 푸드체이닝 다음 걸음.</p>
+<div class="contract"><pre><span class="c">// 자녀 × 하루 1객체 — 아이 현황 스토어가 조립해 코칭 엔진에 전달</span>
+CoachContext = {
+  <span class="k">child</span>:       { age, allergens, maturity },           <span class="c">// 기본</span>
+  <span class="k">week</span>:        { goal, targetGroup, arcStage, lever },  <span class="c">// ← 주간 계획표</span>
+  <span class="k">today</span>:       { meals, nutritionMirror(집+기관) },    <span class="c">// ← 일간 기록</span>
+  <span class="k">preference</span>:  { liked[], disliked[], exploring[], byForm },  <span class="m">// ← 선호 계량화 모듈</span>
+  <span class="k">foodChaining</span>:{ nextStep:{ axis, anchor, target,        <span class="m">// ← 푸드체이닝 모듈</span>
+                          method, exposure, sosLevel },     <span class="m">//    (추천 네트워크 내부 활용)</span>
+                 alts[] },
+  <span class="k">history</span>:     { recentLetters[], usedTargets[], feedback },  <span class="c">// ← 편지</span>
+  <span class="k">flags</span>:       { coldStart, dataMaturity }              <span class="c">// 콜드스타트 게이트</span>
+}</pre></div>
+<div class="tbl"><table><tr><th>필드</th><th>채우는 곳</th><th>코칭 엔진이 쓰는 법</th></tr>
+<tr><td><code>week</code></td><td>주간 계획표</td><td>이번 주 타깃·아크 단계에 편지 정렬(주간 일관성)</td></tr>
+<tr><td><code>today</code></td><td>일간 기록</td><td>오늘 끼니 칭찬·영양 거울(집/기관 종합)</td></tr>
+<tr><td><code>preference</code></td><td><b>선호 계량화 모듈</b></td><td>'잘 먹는' 단정은 여기 liked만 · disliked는 회피·형태 전환</td></tr>
+<tr><td><code>foodChaining.nextStep</code></td><td><b>푸드체이닝 모듈</b></td><td>오늘의 한 걸음(편지 산입 + 도감 카드). 추천 네트워크는 모듈 내부에서만</td></tr>
+<tr><td><code>history</code></td><td>편지</td><td>최근 문구·타깃 반복 회피 · 피드백 반영</td></tr>
+<tr><td><code>flags.coldStart</code></td><td>선호 계량화 모듈</td><td>true면 단정 금지·온보딩 톤(Day1 문제 해결)</td></tr>
+</table></div>
+<div class="callout"><b>철칙</b> — 모듈들이 <code>preference</code>·<code>foodChaining</code>을 <b>결정론으로</b> 채워 계약에 담고, 코칭 엔진(손-LLM)은 그 재료로 <b>문장만</b> 쓴다. 코칭 엔진은 추천 네트워크도, 원천 테이블도 직접 판단하지 않는다.</div>
+</section>
+
+<section id="io"><div class="sec-h"><span class="no">4</span><h2>모듈 입출력 계약</h2><span class="tech">I/O</span></div>
+<div class="tbl"><table><tr><th>모듈</th><th>입력</th><th>출력</th><th>상태</th></tr>
+<tr><td><b>선호 계량화</b></td><td>meal_logs(집만)·수용 수준</td><td><code>preference</code>(축별 liked/disliked/exploring·확신도)</td><td><span class="tag2 t-plan">계획</span></td></tr>
+<tr><td><b>푸드체이닝</b></td><td>preference·영양거울·<b>추천 네트워크</b>·노출 카운트</td><td><code>foodChaining.nextStep</code>(2축·노출·SOS)</td><td><span class="tag2 t-plan">계획</span></td></tr>
+<tr><td><b>영양 거울</b></td><td>meal_logs(집+기관)·KDRI</td><td>식품군 신호(green/yellow/red)</td><td><span class="tag2 t-live">라이브</span></td></tr>
+<tr><td><b>간식</b></td><td>meal_logs·BMI</td><td>간식 평가·추천</td><td><span class="tag2 t-live">라이브</span></td></tr>
+<tr><td><b>두뇌</b></td><td>주간계획·시나리오</td><td>오늘의 각도·타깃 선택</td><td><span class="tag2 t-live">라이브</span></td></tr>
+<tr><td><b>추천 네트워크</b>(데이터)</td><td>레시피 공출현·수기 사촌</td><td>사촌(bridge)·궁합(pair)</td><td><span class="tag2 t-live">라이브</span></td></tr>
+<tr><td><b>아이 현황 스토어</b>(데이터)</td><td>3원천 + 모듈 출력</td><td><code>CoachContext</code> 스냅샷</td><td><span class="tag2 t-part">부분</span></td></tr>
+</table></div>
+<div class="note">현재 라이브 모듈(영양거울·간식·두뇌)은 이미 코칭 엔진이 쓰는 중. <b>신규는 선호 계량화·푸드체이닝 두 모듈 + 아이 현황 스토어 통합</b>뿐 — 나머지는 배선만.</div>
+</section>
+
+<section id="loop"><div class="sec-h"><span class="no">5</span><h2>닫힌 루프 — 기록에서 다시 기록으로</h2><span class="tech">flow</span></div>
+<div class="loop">
+<div class="ln s1"><div class="lh">① 집 끼니 기록 (+수용 수준)</div><div class="lb">부모가 meal_logs 입력 — place·수용 5단계·거부 사유.</div></div>
+<div class="larrow">▼</div>
+<div class="ln s2"><div class="lh">② 선호 계량화 모듈</div><div class="lb">집만·노이즈 제거·축별 계량 → 잘먹음/잘못먹음/탐색(확신도).</div></div>
+<div class="larrow">▼</div>
+<div class="ln s3"><div class="lh">③ 푸드체이닝 모듈 (← 추천 네트워크)</div><div class="lb">확신 선호를 앵커로 사촌·곁들임·새 조리법 후보 → 오늘의 한 걸음.</div></div>
+<div class="larrow">▼</div>
+<div class="ln s4"><div class="lh">④ 코칭 엔진 → 편지·도감</div><div class="lb">CoachContext로 편지 산입 + 도감 맞춤 카드. 콜드스타트면 온보딩.</div></div>
+<div class="larrow">▼</div>
+<div class="ln s5"><div class="lh">⑤ 부모 실행 → 새 끼니 → ①로</div><div class="lb">결과가 다시 기록되어 계량이 갱신 — 노출 진척·추세 학습.</div></div>
+</div>
+<div class="callout"><b>아이 현황 스토어가 루프의 허브</b> — ②③의 출력이 매일 스토어에 적재되고 ④가 읽는다. 스토어가 비면(=선호 계량 안 됨) ③④가 허상 위에 선다. 그래서 <b>① 기록 + ② 계량이 1순위</b>.</div>
+</section>
+
+<section id="status"><div class="sec-h"><span class="no">6</span><h2>현재 상태 · 빌드 순서</h2><span class="tech">로드맵</span></div>
+<div class="rm">
+<div class="rmi done"><div class="rh">이미 있음 <span class="tag2 t-live">라이브</span></div><div class="rl">코칭 엔진 · 영양거울·간식·두뇌 모듈 · 추천 네트워크(food-graph) · 원천 테이블(meal_logs·weekly_plans·coach_letters)</div></div>
+<div class="rmi now"><div class="rh">1순위 — 선호 계량화 모듈 + 수용 수준 포착 <span class="tag2 t-plan">신규</span></div><div class="rl">집만 계량·확신도·콜드스타트 게이트 + 기록 화면 원탭 5단계. <b>이게 비면 전부 허상</b>. 상세 = <a href="/preference-quantification-engine.html" style="color:var(--b700);font-weight:700">선호 계량화 모듈 문서</a></div></div>
+<div class="rmi next"><div class="rh">2순위 — 푸드체이닝 모듈 + 아이 현황 스토어 <span class="tag2 t-plan">신규</span></div><div class="rl">2축 후보(추천 네트워크 활용) + child_daily_state 통합 + CoachContext 배선. 상세 = <a href="/food-chaining-personalization-engine.html" style="color:var(--b700);font-weight:700">푸드체이닝 모듈 문서</a> · 샘플 = <a href="/arin-foodchaining-live-sample.html" style="color:var(--b700);font-weight:700">아린 라이브</a></div></div>
+</div>
+<div class="callout" style="margin-top:14px"><b>이사님 확인</b> — ① 네이밍(엔진/모듈/데이터레이어) 이대로 ② 아이 현황 스토어 = 매일 스냅샷 방식 OK ③ CoachContext 계약 필드 추가/뺄 것 ④ 빌드 순서(선호 계량+포착 → 푸드체이닝+스토어) 동의하면 1순위부터 착수.</div>
+</section>
+
+</main>
+<footer>
+<div><span class="stamp">아키텍처 정의 · 검토용</span><span class="stamp">개발 전</span><span class="stamp">2026-06-16</span></div>
+밀프레드 — 코칭 아키텍처 지도 (엔진·모듈 정의 · 아이 현황 스토어 · 데이터 계약)<br>
+연계: <a href="/food-chaining-personalization-engine.html" style="color:var(--b700)">푸드체이닝 모듈</a> · <a href="/preference-quantification-engine.html" style="color:var(--b700)">선호 계량화 모듈</a> · <a href="/food-network-data-architecture.html" style="color:var(--b700)">추천 네트워크</a> · <a href="/arin-foodchaining-live-sample.html" style="color:var(--b700)">아린 샘플</a>
+</footer>
+</body></html>

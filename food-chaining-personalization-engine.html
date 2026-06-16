@@ -4,9 +4,9 @@
 <script src="/docs-gate.js?v=4"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>푸드체이닝 개인화 엔진 — 아이의 선호에서 식재료 경험의 폭을 넓히는 추천 설계 (기획 계획서)</title>
-<meta property="og:title" content="푸드체이닝 개인화 엔진 — 기획 계획서">
-<meta property="og:description" content="아이를 이해해 '심리스하게 먹는 식재료·음식의 폭'을 넓히는 추천 엔진. 푸드체이닝 이론·실증 + 현행 추천 원리 + 신규 엔진 설계 + 코칭편지/도감 연결.">
+<title>푸드체이닝 개인화 모듈 — 아이의 선호에서 식재료 경험의 폭을 넓히는 추천 설계 (기획 계획서)</title>
+<meta property="og:title" content="푸드체이닝 개인화 모듈 — 기획 계획서">
+<meta property="og:description" content="아이를 이해해 '심리스하게 먹는 식재료·음식의 폭'을 넓히는 추천 엔진. 푸드체이닝 이론·실증 + 현행 추천 원리 + 신규 모듈 설계 + 코칭편지/도감 연결.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -178,7 +178,7 @@
 <header class="hero">
   <div class="hero-in">
     <span class="tag">🌉 ENGINE · 기획 계획서 (PLANNING)</span>
-    <h1>푸드체이닝 개인화 엔진<br><b>아이의 선호</b>에서 <b>식재료 경험의 폭</b>을 넓히는 추천 설계</h1>
+    <h1>푸드체이닝 개인화 모듈<br><b>아이의 선호</b>에서 <b>식재료 경험의 폭</b>을 넓히는 추천 설계</h1>
     <p>아이가 이미 잘 먹는 음식에서 출발해, 한 번에 한 발씩 닮은 식재료·새 조리법으로 다리를 놓는다. 이 다리를 <b>데이터로 계산</b>해 ⓐ 코칭 편지에 녹이고 ⓑ 도감에서 '내 아이 맞춤 활용법'으로 펼친다. 푸드체이닝 이론·실증 근거 위에 세운 설계도 — <b>개발 전 기획 문서</b>다.</p>
     <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · ENGINE · 추천 네트워크 클러스터 · 2026-06-16 · 상태: 설계 검토용</div>
   </div>
@@ -189,7 +189,7 @@
   <a href="#theory">이론 지도</a>
   <a href="#evidence">실증 현황</a>
   <a href="#current">현행 추천 원리</a>
-  <a href="#engine">⭐신규 엔진</a>
+  <a href="#engine">⭐신규 모듈</a>
   <a href="#delivery">출력 2방식</a>
   <a href="#assets">데이터 자산</a>
   <a href="#roadmap">로드맵</a>
@@ -219,7 +219,7 @@
   </div>
 
   <div class="readme">
-    📌 <b>이 문서의 위치</b> — 본 계획서는 ① <a href="/food-chaining-expansion.html" style="color:var(--p700);font-weight:700">푸드체이닝 2축 확장 발제</a>(이사님 2026-06-13)와 ② <a href="/food-network-data-architecture.html" style="color:var(--p700);font-weight:700">음식 추천 네트워크 데이터 아키텍처</a>를 <b>하나의 '개인화 엔진'으로 승격</b>시키고, 거기에 <b>푸드체이닝 최신 이론·실증 리서치</b>(2026-06-16, 18 에이전트 웹조사+검증)와 <b>현행 코드</b>(<code>lib/coachRecos.ts</code>·<code>lib/cookingMatrix.ts</code>)의 한계 진단을 붙인 것이다. <b>개발은 아직 — 설계 합의용 문서.</b>
+    📌 <b>이 문서의 위치</b> — 본 계획서는 ① <a href="/food-chaining-expansion.html" style="color:var(--p700);font-weight:700">푸드체이닝 2축 확장 발제</a>(이사님 2026-06-13)와 ② <a href="/food-network-data-architecture.html" style="color:var(--p700);font-weight:700">음식 추천 네트워크 데이터 아키텍처</a>를 <b>하나의 '개인화 모듈'으로 승격</b>시키고, 거기에 <b>푸드체이닝 최신 이론·실증 리서치</b>(2026-06-16, 18 에이전트 웹조사+검증)와 <b>현행 코드</b>(<code>lib/coachRecos.ts</code>·<code>lib/cookingMatrix.ts</code>)의 한계 진단을 붙인 것이다. <b>개발은 아직 — 설계 합의용 문서.</b>
   </div>
 </section>
 
@@ -338,7 +338,7 @@
 <!-- 3. 현행 추천 원리 -->
 <section id="current">
   <div class="sec-h"><span class="no">3</span><h2>현행 추천 원리 — 지금은 어떻게 추천되나</h2><span class="tech"><code>coachRecos.ts</code></span></div>
-  <p class="lead">신규 엔진을 얹기 전에 <b>지금 무엇이 돌고 있는지</b>부터. 핵심 철칙 = <b>"무엇을 추천할지는 코드가 결정론으로 정하고, 문장만 LLM이 쓴다."</b> (괴식·환각 0 실적의 토대)</p>
+  <p class="lead">신규 모듈을 얹기 전에 <b>지금 무엇이 돌고 있는지</b>부터. 핵심 철칙 = <b>"무엇을 추천할지는 코드가 결정론으로 정하고, 문장만 LLM이 쓴다."</b> (괴식·환각 0 실적의 토대)</p>
 
   <div class="card">
     <h3 class="sub">🔁 파이프라인 — 재료=결정론, 문장=LLM</h3>
@@ -366,13 +366,13 @@
   </div>
 
   <div class="callout">
-    <b>한계 진단(왜 '엔진'으로 승격이 필요한가)</b> — 지금은 <b>식재료 축(사촌·궁합)</b>만 본다. (1) <b>조리법 축</b>이 추천에 없다(도감의 <code>cookingMatrix</code>는 일반 조리 안내일 뿐 '이 아이가 익숙한 기법'을 모름). (2) <b>온도 축</b> 부재. (3) <b>'몇 번째 노출인가' 카운팅</b> 부재 → 8~10회 반복 효과를 못 살린다. (4) 진척이 <b>이진(먹음/안먹음)</b>이라 SOS 단계 전진(만짐·냄새)을 인정 못 한다. (5) 사촌이 <b>수기 175쌍</b>이라 안 늘어난다. → 신규 엔진은 이 다섯을 메운다.
+    <b>한계 진단(왜 '엔진'으로 승격이 필요한가)</b> — 지금은 <b>식재료 축(사촌·궁합)</b>만 본다. (1) <b>조리법 축</b>이 추천에 없다(도감의 <code>cookingMatrix</code>는 일반 조리 안내일 뿐 '이 아이가 익숙한 기법'을 모름). (2) <b>온도 축</b> 부재. (3) <b>'몇 번째 노출인가' 카운팅</b> 부재 → 8~10회 반복 효과를 못 살린다. (4) 진척이 <b>이진(먹음/안먹음)</b>이라 SOS 단계 전진(만짐·냄새)을 인정 못 한다. (5) 사촌이 <b>수기 175쌍</b>이라 안 늘어난다. → 신규 모듈은 이 다섯을 메운다.
   </div>
 </section>
 
-<!-- 4. 신규 엔진 -->
+<!-- 4. 신규 모듈 -->
 <section id="engine">
-  <div class="sec-h"><span class="no">4</span><h2>⭐ 신규 엔진 설계 — 푸드체이닝 개인화 엔진</h2><span class="tech">전부 결정론·LLM 0</span></div>
+  <div class="sec-h"><span class="no">4</span><h2>⭐ 신규 모듈 설계 — 푸드체이닝 개인화 모듈</h2><span class="tech">전부 결정론·LLM 0</span></div>
   <p class="lead">아이의 상태를 <b>벡터</b>로 읽고, <b>한 번에 한 축</b>만 바꾼 '다음 걸음 후보'를 랭킹한다. 출력은 §5의 두 방식으로 흐른다. 핵심 = 발제의 2축 + 리서치가 짚은 빈 신호 4종.</p>
 
   <div class="card">
@@ -550,7 +550,7 @@
     <span class="stamp">개발 전 — 합의 후 착수</span>
     <span class="stamp">2026-06-16</span>
   </div>
-  밀프레드 — 푸드체이닝 개인화 엔진 기획 계획서<br>
+  밀프레드 — 푸드체이닝 개인화 모듈 기획 계획서<br>
   근거: 푸드체이닝 리서치(18 에이전트 웹조사+적대검증, 2026-06-16) · 현행 코드 <code>lib/coachRecos.ts</code>·<code>lib/cookingMatrix.ts</code> · 선행 설계 <a href="/food-chaining-expansion.html" style="color:var(--p700)">2축 확장 발제</a>·<a href="/food-network-data-architecture.html" style="color:var(--p700)">데이터 아키텍처</a><br>
   이론: Fraker Food Chaining(NCP 2006) · Toomey SOS(ASHA 2011) · Satter DOR(JADA 1986) · USDA NESR 반복노출 · AAP food bridges · 한국 푸드브릿지
 </footer>

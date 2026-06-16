@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>선호 계량화 모듈 — '잘 먹음·잘 못 먹음'을 집·다축·시계열로 계량 (기획 계획서)</title>
+<meta property="og:title" content="선호 계량화 모듈 — 잘먹음/잘못먹음 계량 설계">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:#F1EDFB;color:#5b3a8c;padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:52px 24px 38px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 45%,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 22% 78%,rgba(232,146,68,.2)0,transparent 45%),radial-gradient(circle at 80% 16%,rgba(72,201,176,.22)0,transparent 48%)}
+.hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#9be7d4;padding:7px 18px;border-radius:100px;font-size:11.5px;font-weight:700;letter-spacing:.06em;margin-bottom:16px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:29px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:13px}.hero h1 b{color:#48C9B0}
+.hero p{font-size:14px;color:#cfd8e3;max-width:710px;margin:0 auto;font-weight:500;line-height:1.78}
+.hero .crumbs{margin-top:15px;font-size:11.5px;color:#9fb0c2}.hero .crumbs a{color:#9be7d4;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11.5px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 11px;border-radius:100px;margin-right:3px}
+nav.toc a:hover{background:var(--p50);color:var(--p700)}
+main{max-width:1020px;margin:0 auto;padding:8px 20px 70px}
+section{margin:40px 0;scroll-margin-top:54px}
+.sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px;padding-bottom:9px;border-bottom:2.5px solid var(--g500);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:20px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.sec-h .tech{font-size:10.5px;font-weight:700;color:var(--g700);background:#E9F7F2;padding:3px 10px;border-radius:100px;margin-left:auto;border:1px solid #bfe6d9}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 16px;line-height:1.74}.lead b{color:var(--s800)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:11px;margin:6px 0 8px}
+.kpi{background:#fff;border:1px solid var(--n200);border-top:4px solid var(--g500);border-radius:13px;padding:15px 14px;text-align:center}
+.kpi .v{font-size:24px;font-weight:800;color:var(--s800);letter-spacing:-.03em;line-height:1.15}.kpi .v small{font-size:13px;color:var(--n500);font-weight:700}
+.kpi .l{font-size:11px;color:var(--n600);font-weight:700;margin-top:5px}.kpi .s{font-size:10px;color:var(--n400);font-weight:600;margin-top:2px}
+.kpi.b{border-top-color:var(--b500)}.kpi.r{border-top-color:var(--r500)}.kpi.y{border-top-color:var(--y500)}.kpi.v{border-top-color:var(--v500)}
+.readme{background:linear-gradient(135deg,#FFF8F2,#E9F7F2);border:1px dashed var(--g500);border-radius:13px;padding:15px 17px;font-size:12.5px;color:var(--n700);line-height:1.7;margin-top:4px}.readme b{color:var(--g700)}
+.card{background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}.card+.card{margin-top:12px}
+h3.sub{font-size:14.5px;font-weight:800;color:var(--s800);margin:4px 0 8px;letter-spacing:-.01em}
+.callout{background:linear-gradient(135deg,#E9F7F2,#FFF8F2);border:1px solid #bfe6d9;border-radius:12px;padding:14px 16px;font-size:12.5px;color:var(--n700);line-height:1.72;margin-top:12px}.callout b{color:var(--g700)}
+.warn{background:#FFF5F5;border:1.5px solid #f0a9a9;border-radius:11px;padding:13px 15px;font-size:12.5px;margin:12px 0;line-height:1.7}.warn b{color:var(--r700)}
+.note{background:#FFF8F2;border:1px solid var(--p100);border-radius:11px;padding:12px 14px;font-size:12px;color:var(--n600);line-height:1.66;margin:12px 0}.note b{color:var(--p700)}
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:11px;margin-top:6px}
+.wc{border:1px solid var(--n200);border-left:3px solid var(--r500);border-radius:11px;padding:13px 15px;background:#fff}
+.wc .wh{font-size:13px;font-weight:800;color:var(--r700)}
+.wc .wb{font-size:11.5px;color:var(--n600);margin-top:6px;line-height:1.6;font-weight:500}.wc .wb b{color:var(--s800)}
+.wc .data{font-size:10.5px;color:var(--n500);font-weight:700;background:var(--n100);border-radius:6px;padding:5px 8px;margin-top:7px;font-family:'SF Mono',monospace}
+.scale{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.srow{display:flex;align-items:center;gap:11px;border-radius:10px;padding:9px 13px;border:1px solid var(--n200);background:#fff}
+.srow .sn{flex:none;width:24px;height:24px;border-radius:7px;font-size:12px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center}
+.srow .stt{font-size:13px;font-weight:800;color:var(--s800)}.srow .stt small{font-size:11px;font-weight:600;color:var(--n500);margin-left:6px}
+.srow .sd{font-size:11px;color:var(--n600);font-weight:600;margin-left:auto;text-align:right}
+.tier{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+.tr{border-radius:12px;padding:13px 16px;border:1px solid var(--n200);border-left:4px solid}
+.tr.t1{border-left-color:var(--g500);background:#F4FBF8}.tr.t2{border-left-color:var(--y500);background:#FFFBEE}.tr.t3{border-left-color:var(--n400);background:#FAFAFA}
+.tr .th{font-size:13px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tr .tg{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px;margin-left:auto}
+.tr.t1 .tg{background:#E9F7F2;color:var(--g700)}.tr.t2 .tg{background:#FFF3CD;color:var(--y700)}.tr.t3 .tg{background:var(--n100);color:var(--n500)}
+.tr .tb{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:6px;line-height:1.6}.tr .tb b{color:var(--s800)}
+.axes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:6px}
+.ax{border-radius:12px;padding:13px 15px;border:1.5px solid #ddc4ef;background:#FaF6FE}
+.ax .an{font-size:13px;font-weight:800;color:var(--v700)}
+.ax .ad{font-size:11.5px;color:var(--n600);font-weight:500;margin-top:5px;line-height:1.55}
+.ax .ae{font-size:11px;font-weight:700;color:var(--s800);background:#fff;border:1px dashed #ddc4ef;border-radius:7px;padding:6px 9px;margin-top:7px}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:480px}
+th,td{border:1px solid var(--n200);padding:7px 9px;text-align:left}th{background:#EEF6F3;font-size:11px;font-weight:800;color:var(--s800)}
+td .sub{color:var(--n400);font-size:10px;font-weight:600}
+.st{font-size:10px;font-weight:800;padding:2px 8px;border-radius:100px}
+.st-g{background:#E9F7F2;color:var(--g700)}.st-y{background:#FFF3CD;color:var(--y700)}.st-r{background:#FDE7E7;color:var(--r700)}.st-n{background:var(--n100);color:var(--n500)}
+.tlwrap{display:flex;flex-direction:column;gap:3px;margin-top:8px}
+.tlrow{display:flex;align-items:center;gap:9px;font-size:10.5px}
+.tld{flex:none;width:42px;color:var(--n500);font-weight:700;font-family:'SF Mono',monospace}
+.tlbar{flex:1;height:14px;border-radius:4px;overflow:hidden;display:flex;background:var(--n100)}
+.seg{height:100%}.seg.g{background:var(--g500)}.seg.y{background:var(--y500)}.seg.r{background:var(--r500)}.seg.n{background:var(--n300)}
+.tln{flex:none;width:120px;color:var(--n500);font-weight:600;text-align:right}.tln .cg{color:var(--g700)}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.legend span{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:100px;display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--n200)}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+.loop{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.ln{border-radius:12px;padding:13px 16px;border:1.5px solid}
+.ln .lh{font-size:13px;font-weight:800;color:var(--s800);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ln .ltag{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px}
+.ln .lb{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:6px;line-height:1.6}.ln .lb b{color:var(--s800)}
+.ln.a{background:#F4FBF8;border-color:#bfe6d9}.ln.a .ltag{background:#E9F7F2;color:var(--g700)}
+.ln.b{background:#EEF6FD;border-color:#bcdcf3}.ln.b .ltag{background:#E3F2FD;color:var(--b700)}
+.ln.c{background:#F9F3FE;border-color:#ddc4ef}.ln.c .ltag{background:#F3E8FB;color:var(--v700)}
+.larrow{text-align:center;color:var(--n300);font-size:17px;font-weight:800;margin:3px 0}
+.beforeafter{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}@media(max-width:680px){.beforeafter{grid-template-columns:1fr}}
+.ba{border-radius:12px;padding:14px 16px;font-size:12.5px;line-height:1.7}
+.ba.before{background:#FFF5F5;border:1px solid #f0c9c9}.ba.after{background:#F4FBF8;border:1px solid #bfe6d9}
+.ba .bt{font-size:11px;font-weight:800;margin-bottom:8px}.ba.before .bt{color:var(--r700)}.ba.after .bt{color:var(--g700)}
+.mock{border:1px solid var(--n200);border-radius:14px;overflow:hidden;max-width:360px;margin:8px auto 0;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.mock .mt{background:var(--s700);color:#fff;padding:11px 15px;font-size:12.5px;font-weight:700}
+.mock .mb{padding:14px 15px;background:#fff}
+.mock .q{font-size:13px;font-weight:700;color:var(--s800);margin-bottom:10px}
+.mock .opts{display:flex;gap:6px;flex-wrap:wrap}
+.mock .opt{flex:1;min-width:58px;text-align:center;border:1.5px solid var(--n200);border-radius:10px;padding:9px 4px;font-size:11px;font-weight:700;color:var(--n600)}
+.mock .opt .em{font-size:18px;display:block;margin-bottom:3px}
+.mock .opt.sel{border-color:var(--g500);background:#E9F7F2;color:var(--g700)}
+.mock .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+.mock .chip{font-size:11px;font-weight:700;padding:5px 10px;border-radius:100px;background:var(--n100);color:var(--n600);border:1px solid var(--n200)}
+ul.clean{margin:6px 0 0;padding-left:0;list-style:none}
+ul.clean li{font-size:12.5px;color:var(--n700);font-weight:500;line-height:1.62;margin:8px 0;padding-left:18px;position:relative}
+ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--g500);font-weight:800}ul.clean li b{color:var(--s800)}
+.rm{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+.rmi{border-radius:12px;padding:13px 16px;border:1px solid var(--n200);border-left:4px solid}
+.rmi.a{border-left-color:var(--g500)}.rmi.b{border-left-color:var(--y500)}.rmi.c{border-left-color:var(--b500)}.rmi.d{border-left-color:var(--v500)}
+.rmi .rh{font-size:13px;font-weight:800;color:var(--s800)}.rmi .rl{font-size:12px;color:var(--n700);font-weight:500;margin-top:5px;line-height:1.62}.rmi .rl b{color:var(--s800)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;border-top:1px solid var(--n200);margin-top:38px;line-height:1.7}
+.stamp{display:inline-block;background:#F4FBF8;border:1px solid #bfe6d9;border-radius:100px;padding:4px 12px;font-size:10.5px;font-weight:700;color:var(--g700);margin:0 3px 6px}
+</style></head><body>
+
+<header class="hero"><div class="hero-in">
+<span class="tag">📊 ENGINE · 기획 계획서 (PLANNING)</span>
+<h1>선호 계량화 모듈<br><b>'잘 먹음 · 잘 못 먹음'</b>을 집·다축·수준·시계열로 계량한다</h1>
+<p>추천 엔진이 "잘 먹는 소고기"라고 말하려면, 그게 <b>측정된 사실</b>이어야 합니다. 기관 급식을 빼고 <b>집에서 챙긴 끼니</b>만으로, 식재료·메뉴·조리형태별 <b>수용 수준</b>을 시계열로 쌓아 확신도와 함께 판정하는 모듈 — 추천 네트워크가 딛고 설 토대입니다.</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/food-chaining-personalization-engine.html">푸드체이닝 모듈</a> · <a href="/arin-foodchaining-live-sample.html">아린 샘플</a> · 2026-06-16</div>
+</div></header>
+
+<nav class="toc">
+<a href="#sum">요약</a><a href="#bug">왜 Day1이 틀렸나</a><a href="#principle">원칙 4</a><a href="#scale">⭐수용 수준 척도</a><a href="#signal">신호 3티어</a><a href="#multi">⭐다축 모델</a><a href="#cold">콜드스타트</a><a href="#db">DB 설계</a><a href="#network">추천 네트워크 확장</a><a href="#capture">⭐신호 포착</a><a href="#road">로드맵</a>
+</nav>
+
+<main>
+
+<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약 — 가장 큰 병목은 알고리즘이 아니라 신호다</h2><span class="tech">실측</span></div>
+<p class="lead">아린이 21일 데이터를 <b>엄격히 계량</b>하면(집만·노이즈 제거·명시 수용신호만·Wilson 하한) <b>확신할 수 있는 '잘 먹는' 식재료가 0개</b>입니다. 지금 추천이 쓰던 "잘 먹는 소고기"는 <b>미입력(unknown)을 수용으로 오판</b>한 허상이었습니다. 추천을 고치기 전에 <b>선호를 측정</b>해야 합니다.</p>
+<div class="kpi-grid">
+<div class="kpi b"><div class="v">40<small>끼니</small></div><div class="l">집 끼니 (선호 신호원)</div><div class="s">기관 38·기타 8 제외</div></div>
+<div class="kpi r"><div class="v">30<small>%</small></div><div class="l">수용 '수준' 있는 끼니</div><div class="s">명시 4 + 추정 8 / 40</div></div>
+<div class="kpi"><div class="v">0</div><div class="l">확신 '잘 먹음' 식재료</div><div class="s">21일 내내 (Wilson 게이트)</div></div>
+<div class="kpi y"><div class="v">28<small>종</small></div><div class="l">자유텍스트 오염</div><div class="s">'한두입씩먹음'이 식재료로</div></div>
+<div class="kpi v"><div class="v">3<small>축</small></div><div class="l">선호 계량 축</div><div class="s">식재료·메뉴·조리형태</div></div>
+</div>
+<div class="readme">📌 <b>이 문서</b> = <a href="/food-chaining-personalization-engine.html" style="color:var(--g700);font-weight:700">푸드체이닝 모듈</a>이 입력으로 쓰는 <b>'잘 먹음/잘 못 먹음' 계량 모듈</b>의 설계. 이사님 지적(Day1 "잘 먹는 소고기"는 말이 안 됨 + 기관 제외 집 기준 + 식재료/메뉴/조리형태 다지표 + 수용 '수준' 데이터화 + 시계열)을 전부 반영. <b>개발 전 설계 — 검토용.</b></div>
+</section>
+
+<section id="bug"><div class="sec-h"><span class="no">1</span><h2>왜 Day1 "잘 먹는 소고기"가 틀렸나 — 4가지 결함 (실측)</h2><span class="tech">근본 원인</span></div>
+<div class="why">
+<div class="wc"><div class="wh">① served ≠ liked</div><div class="wb">엄마가 자주 <b>차린 것</b>이 아이가 <b>좋아하는 것</b>은 아니다. 빈도는 부모의 선택 신호.</div><div class="data">소고기: 집에서 10번 차림 · 수용 확인 2번</div></div>
+<div class="wc"><div class="wh">② 수용 여부 미입력</div><div class="wb"><code>ate_well</code>이 거의 안 찍힌다. <b>미상(null)을 '수용'으로 오판</b>해 "잘 먹는"이 양산됨.</div><div class="data">집 40끼니 · true 4 · false 0 · null 28</div></div>
+<div class="wc"><div class="wh">③ 자유텍스트 노이즈</div><div class="wb">거부·메모가 자유텍스트라 <b>'한두입씩먹음'이 식재료로</b> 잡힌다. 신호가 오염됨.</div><div class="data">오염 28종: 한두입씩먹음 · 피자아주조금먹음 · 배탈나서조금먹음 · 몇조각주워먹음 · 물 · 소스 · 토마토케찹 …</div></div>
+<div class="wc"><div class="wh">④ 기관 급식 혼입</div><div class="wb">선호는 <b>집 기준</b>이어야 하는데 기관·기타가 섞이면 '급식이라 먹은 것'을 선호로 오판.</div><div class="data">기관 38 · null/외식 8 끼니 (집 40과 혼입)</div></div>
+</div>
+<div class="warn">⚠️ 네 결함이 합쳐져, 현재 엔진은 <b>"미상인데 집에서 자주 차린 것"을 "잘 먹는 것"으로</b> 단정합니다. Day1처럼 기록이 거의 없을 때 특히 위험 — 계량·확신도·콜드스타트 게이트가 없기 때문.</div>
+</section>
+
+<section id="principle"><div class="sec-h"><span class="no">2</span><h2>원칙 4</h2><span class="tech">설계 사상</span></div>
+<div class="why">
+<div class="wc" style="border-left-color:var(--g500)"><div class="wh" style="color:var(--g700)">집만 (기관 제외)</div><div class="wb">선호 신호는 <b>집에서 엄마가 챙긴 끼니</b>만. 기관 급식은 <b>영양 커버리지</b>엔 쓰되 선호엔 안 쓴다(급식이라 먹은 것 ≠ 선호).</div></div>
+<div class="wc" style="border-left-color:var(--g500)"><div class="wh" style="color:var(--g700)">계량 + 확신도</div><div class="wb">'잘 먹음'은 <b>점수와 확신도</b>를 동반. 표본이 적으면 단정 금지(Wilson 하한·콜드스타트).</div></div>
+<div class="wc" style="border-left-color:var(--g500)"><div class="wh" style="color:var(--g700)">다축 (식재료·메뉴·조리형태)</div><div class="wb">한 칸이 아니라 <b>여러 지표</b>로 쪼갠다. '감자전은 먹는데 감자조림은 거부'를 구분해야 추천이 똑똑해진다.</div></div>
+<div class="wc" style="border-left-color:var(--g500)"><div class="wh" style="color:var(--g700)">수준 + 시계열</div><div class="wb">먹음/안먹음 이진이 아니라 <b>수용 '수준'</b>을, <b>시간 흐름</b>으로(최근 가중·추세·food jag).</div></div>
+</div>
+</section>
+
+<section id="scale"><div class="sec-h"><span class="no">3</span><h2>⭐ 수용 '수준' 척도 — 어느 정도로 받아들였나</h2><span class="tech">graded</span></div>
+<p class="lead">이사님 지적: "수용을 <b>어느 수준으로</b> 했나"가 데이터로 있어야 한다. 먹음/안먹음 이진을 버리고 <b>5단계 척도</b>로(SOS 노출 위계 + 섭취량 결합). 안 먹어도 <b>만지면 전진</b>으로 기록 → 푸드체이닝 진척을 측정.</p>
+<div class="scale">
+<div class="srow"><span class="sn" style="background:#C62828">0</span><span class="stt">거부 <small>안 봄·치움·울음</small></span><span class="sd">SOS 0 · 섭취 0</span></div>
+<div class="srow"><span class="sn" style="background:#E07A2A">1</span><span class="stt">탐색 <small>같은 식탁 OK·만짐·냄새</small></span><span class="sd">SOS 견딤~만짐 · 섭취 0</span></div>
+<div class="srow"><span class="sn" style="background:#E8A33C">2</span><span class="stt">한 입 <small>맛봄·뱉어도 OK</small></span><span class="sd">SOS 맛봄 · 섭취 소량</span></div>
+<div class="srow"><span class="sn" style="background:#7CB342">3</span><span class="stt">조금 <small>일부 섭취</small></span><span class="sd">SOS 먹음 · 섭취 일부</span></div>
+<div class="srow"><span class="sn" style="background:#16A085">4</span><span class="stt">잘 먹음 <small>대부분·완식</small></span><span class="sd">SOS 먹음 · 섭취 대부분</span></div>
+</div>
+<div class="callout">이 척도가 있으면 "당근 = 안 먹음(0)"이 아니라 "당근 = <b>지금 2단계(한 입), 3주 전엔 1단계</b> → 오르는 중"으로 읽힌다. <b>거부도 0과 1을 구분</b>(완전 거부 vs 식탁 위 허용)해 진척을 인정 → 부모 동기·노출 설계의 핵심.</div>
+<div class="note">⚠️ <b>현재 데이터로는 이 척도가 30%만 채워집니다</b>(집 40끼니 중 명시 4 + 메모추정 8). 나머지 28끼니는 수준 미상 → <b>§9 신호 포착</b>이 1순위 과제인 이유.</div>
+</section>
+
+<section id="signal"><div class="sec-h"><span class="no">4</span><h2>신호 3티어 — 무엇을 믿을 수 있나</h2><span class="tech">신뢰도</span></div>
+<div class="tier">
+<div class="tr t1"><div class="th">티어 1 · 명시 수용 수준 <span class="tg">강 · 골드</span></div><div class="tb">부모가 직접 찍은 5단계 수준 / 구조화 거부 사유(맛·식감·양·환경). <b>가장 신뢰</b>하나 현재 거의 없음(집 40끼니 중 4).</div></div>
+<div class="tr t2"><div class="th">티어 2 · 메모 추정 <span class="tg">중</span></div><div class="tb">"다 먹음"·"한두입"·"안 먹음" 같은 자유 메모를 수준으로 파싱. 현재 8끼니 추정 가능. 구조화 입력으로 승격 대상.</div></div>
+<div class="tr t3"><div class="th">티어 3 · 드러난 선호(re-serving) <span class="tg">약 · 추정</span></div><div class="tb">집에서 거부 신호 없이 <b>반복해 차린</b> 식재료 = 약한 양성 추정(부모는 거부한 걸 잘 안 다시 차림). 단 교란 많음 → 저확신 prior로만. 아린 예: 바나나(3회) · 우유(3회) · 김(3회).</div></div>
+</div>
+<div class="note"><b>확신도 = 어느 티어가 기여했나로 결정.</b> 티어1·2가 임계 미만이면 '미확정'으로 두고, 티어3은 "추정"이라고 라벨해서만 쓴다.</div>
+</section>
+
+<section id="multi"><div class="sec-h"><span class="no">5</span><h2>⭐ 다축 모델 — 식재료 · 메뉴 · 조리형태</h2><span class="tech"><code>child_food_pref</code></span></div>
+<p class="lead">선호를 <b>세 축</b>으로 따로 쌓고 롤업한다. 한 식재료가 형태에 따라 호불호가 갈리는 걸 잡아야(감자전 O / 감자조림 X) 추천이 정밀해진다.</p>
+<div class="axes">
+<div class="ax"><div class="an">🥕 식재료축 (ingredient)</div><div class="ad">당근 자체에 대한 종합 선호. 체이닝 <b>앵커·사촌 대상</b>.</div><div class="ae">당근 = 형태들의 롤업</div></div>
+<div class="ax"><div class="an">🍲 메뉴축 (dish)</div><div class="ad">당근볶음 같은 <b>완성 음식</b> 단위. 분해하면 식재료 신호로.</div><div class="ae">당근볶음 · 미역국 …</div></div>
+<div class="ax"><div class="an">🍳 조리형태축 (ingredient×method)</div><div class="ad">당근×볶음 vs 당근×조림. <b>형태별 호불호</b> → '조리법 바꿔 재도전'의 근거.</div><div class="ae">감자×전 O / 감자×조림 X</div></div>
+</div>
+<h3 class="sub" style="margin-top:16px">점수 산식 (축 공통)</h3>
+<ul class="clean">
+<li><b>수용 점수</b> = 최근 가중 <b>수용 수준 평균</b>(0~4 → 0~1 정규화). 최근 끼니에 가중(반감기 ~2주).</li>
+<li><b>확신도</b> = f(차림 횟수·티어). 표본 적으면 낮음 → 단정 차단.</li>
+<li><b>상태</b> = <span class="st st-g">잘 먹음</span>(Wilson 하한 ≥ 0.5) · <span class="st st-y">탐색 중</span>(신호 있으나 부족) · <span class="st st-r">잘 못 먹음</span>(반복 거부·수용 0) · <span class="st st-n">미확정</span>(표본/신호 부족).</li>
+<li><b>추세</b> = 수준이 오르면 'rising'(체이닝 작동), 떨어지면 'falling'(food jag — 같은 형태 권태 → 형태 바꿀 신호).</li>
+</ul>
+<h3 class="sub" style="margin-top:16px">아린 실측 — 식재료축 (집만·노이즈 제거·오늘 기준)</h3>
+<div class="tbl"><table><tr><th>식재료</th><th>차림</th><th>수용신호</th><th>확신도</th><th>Wilson↓</th><th>상태</th></tr><tr><td><b>소고기</b></td><td>10</td><td>4 <span class="sub">(수용2/거부2)</span></td><td>1</td><td>0.15</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td><b>계란</b></td><td>5</td><td>2 <span class="sub">(수용0/거부2)</span></td><td>1</td><td>0</td><td><span class="st st-r">잘 못 먹음</span></td></tr><tr><td><b>미역</b></td><td>4</td><td>2 <span class="sub">(수용1/거부1)</span></td><td>1</td><td>0.09</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td><b>감자</b></td><td>4</td><td>1 <span class="sub">(수용0/거부1)</span></td><td>1</td><td>0</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td><b>돼지고기</b></td><td>3</td><td>2 <span class="sub">(수용0/거부2)</span></td><td>0.75</td><td>0</td><td><span class="st st-r">잘 못 먹음</span></td></tr><tr><td><b>바나나</b></td><td>3</td><td>1 <span class="sub">(수용1/거부0)</span></td><td>0.75</td><td>0.21</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td><b>빵</b></td><td>3</td><td>1 <span class="sub">(수용0/거부1)</span></td><td>0.75</td><td>0</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td><b>우유</b></td><td>3</td><td>0 <span class="sub">(수용0/거부0)</span></td><td>0.75</td><td>0</td><td><span class="st st-n">미확정</span></td></tr><tr><td><b>김</b></td><td>3</td><td>0 <span class="sub">(수용0/거부0)</span></td><td>0.75</td><td>0</td><td><span class="st st-n">미확정</span></td></tr><tr><td><b>치즈</b></td><td>2</td><td>1 <span class="sub">(수용0/거부1)</span></td><td>0.5</td><td>0</td><td><span class="st st-n">미확정</span></td></tr><tr><td><b>닭고기</b></td><td>2</td><td>1 <span class="sub">(수용0/거부1)</span></td><td>0.5</td><td>0</td><td><span class="st st-n">미확정</span></td></tr><tr><td><b>크림</b></td><td>2</td><td>1 <span class="sub">(수용0/거부1)</span></td><td>0.5</td><td>0</td><td><span class="st st-n">미확정</span></td></tr><tr><td><b>가자미</b></td><td>1</td><td>0 <span class="sub">(수용0/거부0)</span></td><td>0.25</td><td>0</td><td><span class="st st-n">미확정</span></td></tr><tr><td><b>포도</b></td><td>1</td><td>1 <span class="sub">(수용0/거부1)</span></td><td>0.25</td><td>0</td><td><span class="st st-n">미확정</span></td></tr><tr><td><b>오렌지</b></td><td>1</td><td>1 <span class="sub">(수용0/거부1)</span></td><td>0.25</td><td>0</td><td><span class="st st-n">미확정</span></td></tr><tr><td><b>토마토</b></td><td>1</td><td>1 <span class="sub">(수용0/거부1)</span></td><td>0.25</td><td>0</td><td><span class="st st-n">미확정</span></td></tr></table></div>
+<div class="legend"><span><i class="dot" style="background:var(--g500)"></i>잘 먹음</span><span><i class="dot" style="background:var(--y500)"></i>탐색 중</span><span><i class="dot" style="background:var(--r500)"></i>잘 못 먹음</span><span><i class="dot" style="background:var(--n300)"></i>미확정</span></div>
+<div class="beforeafter" style="margin-top:14px">
+<div class="card" style="padding:14px 16px"><h3 class="sub">조리형태축 (예)</h3><div class="tbl"><table style="min-width:0"><tr><th>형태</th><th>차림</th><th>수용</th><th>상태</th></tr><tr><td>미역×국·탕</td><td>4</td><td>1/2</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>소고기×국·탕</td><td>4</td><td>1/2</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>바나나×기타</td><td>3</td><td>1/1</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>계란×기타</td><td>3</td><td>0/0</td><td><span class="st st-n">미확정</span></td></tr><tr><td>소고기×기타</td><td>3</td><td>1/1</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>우유×기타</td><td>3</td><td>0/0</td><td><span class="st st-n">미확정</span></td></tr><tr><td>감자×기타</td><td>3</td><td>0/1</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>김×기타</td><td>2</td><td>0/0</td><td><span class="st st-n">미확정</span></td></tr><tr><td>닭고기×기타</td><td>2</td><td>0/1</td><td><span class="st st-n">미확정</span></td></tr><tr><td>계란×튀김</td><td>2</td><td>0/2</td><td><span class="st st-n">미확정</span></td></tr></table></div></div>
+<div class="card" style="padding:14px 16px"><h3 class="sub">메뉴축 (예)</h3><div class="tbl"><table style="min-width:0"><tr><th>메뉴</th><th>차림</th><th>수용</th><th>상태</th></tr><tr><td>밥</td><td>20</td><td>2/6</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>미역국</td><td>4</td><td>1/2</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>바나나</td><td>3</td><td>1/1</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>짜파게티</td><td>3</td><td>1/1</td><td><span class="st st-y">탐색 중</span></td></tr><tr><td>김</td><td>3</td><td>0/0</td><td><span class="st st-n">미확정</span></td></tr><tr><td>햄</td><td>2</td><td>0/0</td><td><span class="st st-n">미확정</span></td></tr><tr><td>우유</td><td>2</td><td>0/0</td><td><span class="st st-n">미확정</span></td></tr><tr><td>La갈비</td><td>2</td><td>0/0</td><td><span class="st st-n">미확정</span></td></tr></table></div></div>
+</div>
+<div class="callout">실측 결론: 아린이는 <b>'잘 먹음'으로 확신할 식재료가 0개</b>, 대부분 <b>미확정</b>. 차림은 많아도(소고기 10번) 수용 신호가 비어서다. <b>계량 모델이 정직하게 "아직 모른다"고 말하는 것</b> — 이게 옳은 동작.</div>
+</section>
+
+<section id="cold"><div class="sec-h"><span class="no">6</span><h2>콜드스타트 게이트 — Day1을 고친다</h2><span class="tech">성숙도</span></div>
+<p class="lead">확신 '잘 먹음'이 생기기 전엔 추천 엔진이 <b>단정하지 않는다</b>. 아래는 아린이 21일 성숙도 — <b>잘 먹음(초록)이 끝내 0</b>이라, 지금이라면 매일 "수집 중" 온보딩이 맞다.</p>
+<div class="card">
+<div class="legend"><span><i class="dot" style="background:var(--g500)"></i>잘 먹음</span><span><i class="dot" style="background:var(--y500)"></i>탐색</span><span><i class="dot" style="background:var(--r500)"></i>잘 못 먹음</span><span><i class="dot" style="background:var(--n300)"></i>미확정</span></div>
+<div class="tlwrap"><div class="tlrow"><span class="tld">05-26</span><div class="tlbar"></div><span class="tln">집0 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">05-27</span><div class="tlbar"></div><span class="tln">집0 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">05-28</span><div class="tlbar"></div><span class="tln">집0 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">05-29</span><div class="tlbar"><span class="seg n" style="width:100%"></span></div><span class="tln">집1 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">05-30</span><div class="tlbar"><span class="seg n" style="width:100%"></span></div><span class="tln">집4 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">05-31</span><div class="tlbar"><span class="seg y" style="width:8.333333333333332%"></span><span class="seg n" style="width:91.66666666666666%"></span></div><span class="tln">집9 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-01</span><div class="tlbar"><span class="seg y" style="width:7.6923076923076925%"></span><span class="seg n" style="width:92.3076923076923%"></span></div><span class="tln">집10 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-02</span><div class="tlbar"><span class="seg y" style="width:6.666666666666667%"></span><span class="seg n" style="width:93.33333333333333%"></span></div><span class="tln">집13 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-03</span><div class="tlbar"><span class="seg y" style="width:6.666666666666667%"></span><span class="seg n" style="width:93.33333333333333%"></span></div><span class="tln">집14 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-04</span><div class="tlbar"><span class="seg y" style="width:5.88235294117647%"></span><span class="seg n" style="width:94.11764705882352%"></span></div><span class="tln">집17 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-05</span><div class="tlbar"><span class="seg y" style="width:11.76470588235294%"></span><span class="seg n" style="width:88.23529411764706%"></span></div><span class="tln">집19 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-06</span><div class="tlbar"><span class="seg y" style="width:10%"></span><span class="seg n" style="width:90%"></span></div><span class="tln">집21 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-07</span><div class="tlbar"><span class="seg y" style="width:14.285714285714285%"></span><span class="seg n" style="width:85.71428571428571%"></span></div><span class="tln">집25 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-08</span><div class="tlbar"><span class="seg y" style="width:19.047619047619047%"></span><span class="seg n" style="width:80.95238095238095%"></span></div><span class="tln">집27 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-09</span><div class="tlbar"><span class="seg y" style="width:19.047619047619047%"></span><span class="seg n" style="width:80.95238095238095%"></span></div><span class="tln">집29 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-10</span><div class="tlbar"><span class="seg y" style="width:18.181818181818183%"></span><span class="seg n" style="width:81.81818181818183%"></span></div><span class="tln">집30 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-11</span><div class="tlbar"><span class="seg y" style="width:17.391304347826086%"></span><span class="seg n" style="width:82.6086956521739%"></span></div><span class="tln">집32 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-12</span><div class="tlbar"><span class="seg y" style="width:17.391304347826086%"></span><span class="seg n" style="width:82.6086956521739%"></span></div><span class="tln">집33 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-13</span><div class="tlbar"><span class="seg y" style="width:21.73913043478261%"></span><span class="seg n" style="width:78.26086956521739%"></span></div><span class="tln">집36 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-14</span><div class="tlbar"><span class="seg y" style="width:17.391304347826086%"></span><span class="seg r" style="width:8.695652173913043%"></span><span class="seg n" style="width:73.91304347826086%"></span></div><span class="tln">집37 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-15</span><div class="tlbar"><span class="seg y" style="width:17.391304347826086%"></span><span class="seg r" style="width:8.695652173913043%"></span><span class="seg n" style="width:73.91304347826086%"></span></div><span class="tln">집39 · <b class="cg">잘먹음 0</b></span></div><div class="tlrow"><span class="tld">06-16</span><div class="tlbar"><span class="seg y" style="width:21.73913043478261%"></span><span class="seg r" style="width:8.695652173913043%"></span><span class="seg n" style="width:69.56521739130434%"></span></div><span class="tln">집40 · <b class="cg">잘먹음 0</b></span></div></div>
+</div>
+<h3 class="sub" style="margin-top:16px">Day1 편지 — Before / After</h3>
+<div class="beforeafter">
+<div class="ba before"><div class="bt">✗ 지금 (계량 없음)</div>잘 먹는 <b>소고기</b> 곁에 현미를 조금 곁들여주세요(곡물 보충). <br><span style="font-size:11px;color:var(--r700)">→ 소고기 수용 신호 0. 단정 불가인데 단정함.</span></div>
+<div class="ba after"><div class="bt">✓ 콜드스타트 게이트</div>아직 아린이의 입맛을 보는 중이에요. <b>집에서 먹은 끼니를 며칠 기록</b>해주시면, 아린이가 좋아하는 것에서 시작하는 맞춤 한 걸음을 찾아드릴게요. 오늘은 한 끼만 편하게 기록해볼까요?</div>
+</div>
+<div class="note">게이트 규칙(안): 자녀 성숙도(집 끼니 수·확신 식재료 수) 미만 → <b>온보딩 모드</b>(추천 단정 금지). 식재료별로도 확신도 임계 미만이면 앵커로 안 씀. 티어3(re-serving)만 있을 땐 "아린이가 자주 먹는 ○○" 정도로 <b>약하게·추정 라벨</b>.</div>
+</section>
+
+<section id="db"><div class="sec-h"><span class="no">7</span><h2>DB 설계 — 이벤트 원장 + 다축 롤업 (시계열)</h2><span class="tech">스키마</span></div>
+<div class="loop">
+<div class="ln b"><div class="lh">① <code>meal_logs</code> — 이벤트 원장(있음·보강) <span class="ltag">시계열 원천</span></div><div class="lb">끼니마다 <b>place(집/기관)</b> · ingredients · menus · <b>수용 수준(신규 5단계)</b> · <b>거부 사유 구조화(신규: 맛·식감·양·환경)</b>. 자유텍스트는 보조. → 모든 선호의 원천 진실.</div></div>
+<div class="larrow">▼ 야간 집계(집 끼니만)</div>
+<div class="ln a"><div class="lh">② <code>child_food_pref</code> — 다축 롤업(신규) <span class="ltag">빠른 읽기</span></div><div class="lb"><code>(child_id, axis, key)</code> — axis ∈ {ingredient·dish·form} · served · 수준합/수용·거부 카운트 · <b>pref_score · confidence · state · trend</b> · first/last_seen · exposure · inst_seen(영양용 별도). 매일 materialize.</div></div>
+<div class="larrow">▼ 읽기(결정론)</div>
+<div class="ln c"><div class="lh">③ 소비처 — 추천·편지·도감 <span class="ltag">신뢰</span></div><div class="lb">푸드체이닝 모듈은 <code>state='liked'·confidence≥임계</code>만 앵커로, <code>form-dislike</code>는 조리법축 기회로, <code>ingredient-dislike</code>는 회피로 읽는다. <b>판단은 여기서 안 함 — 계량은 ②에서 끝.</b></div></div>
+</div>
+<div class="note">시계열 = <code>meal_logs</code>가 원장(append-only), <code>child_food_pref</code>는 최신 롤업 + 추세. 과거 추적이 필요하면 <code>pref_history(주차 스냅샷)</code> 추가. 기관 급식은 <b>inst_seen</b>으로 따로 — 영양 거울엔 쓰고 선호엔 안 씀.</div>
+</section>
+
+<section id="network"><div class="sec-h"><span class="no">8</span><h2>추천 네트워크로의 확장 — 닫힌 루프</h2><span class="tech">왜 토대인가</span></div>
+<p class="lead">이사님 말씀대로, <b>계량된 선호가 있어야</b> 음식·식재료 추천 네트워크가 굴러간다. 선호 모듈은 <a href="/food-network-data-architecture.html" style="color:var(--g700);font-weight:700">추천 네트워크</a>에 정확히 이걸 공급한다:</p>
+<div class="tbl"><table style="min-width:520px"><tr><th>선호 신호</th><th>네트워크/추천에서 쓰임</th></tr>
+<tr><td><span class="st st-g">잘 먹음</span> 식재료 (확신)</td><td>체이닝 <b>앵커(F)</b> — food-graph 사촌으로 다리 / 곁들임 pair의 기준점</td></tr>
+<tr><td><span class="st st-r">잘 못 먹음</span> — 조리형태축</td><td><b>조리법 바꿔 재도전</b>(감자조림 X → 감자전 O). food jag 해소</td></tr>
+<tr><td><span class="st st-r">잘 못 먹음</span> — 식재료축</td><td>추천 <b>회피</b> + 먼 사촌으로 우회 / 장기 노출 대상</td></tr>
+<tr><td><span class="st st-y">탐색 중</span> + 노출 수준</td><td><b>반복노출 진척</b>("지금 2단계/8회") — 같은 것 반복 권유 근거</td></tr>
+<tr><td>추세 rising/falling</td><td>rising=성공 신호(다음 사촌 승급) · falling=권태(형태 전환)</td></tr></table></div>
+<div class="callout"><b>닫힌 루프</b>: 집 끼니 기록 → 수용 수준 계량(이 엔진) → 확신 선호 → 푸드체이닝 추천 → 편지·도감 → 부모 실행 → 새 끼니 기록 → 다시 계량. <b>이 엔진이 루프의 첫 칸</b>이라, 여기가 비면 뒤가 전부 허상 위에 선다(= 지금 "잘 먹는 소고기").</div>
+</section>
+
+<section id="capture"><div class="sec-h"><span class="no">9</span><h2>⭐ 신호 포착 개선 — 가장 큰 레버</h2><span class="tech">최우선</span></div>
+<p class="lead">모델보다 <b>입력</b>이 먼저다. 지금은 집 끼니의 70%가 수용 수준 미상. 한 번의 가벼운 탭으로 채우게 한다.</p>
+<div class="beforeafter">
+<div class="mock"><div class="mt">🍽️ 저녁 기록 — 당근볶음</div><div class="mb"><div class="q">아린이가 당근, 어느 정도 먹었어요?</div><div class="opts"><div class="opt"><span class="em">🙅</span>거부</div><div class="opt"><span class="em">👀</span>만짐</div><div class="opt sel"><span class="em">😋</span>한 입</div><div class="opt"><span class="em">🍴</span>조금</div><div class="opt"><span class="em">💯</span>잘 먹음</div></div><div class="chips"><span class="chip">거부 사유 ▾</span><span class="chip">식감</span><span class="chip">맛</span><span class="chip">양</span></div></div></div>
+<div>
+<h3 class="sub">3가지 포착 장치</h3>
+<ul class="clean">
+<li><b>원탭 5단계 수용 수준</b> — 끼니 기록 시 식재료(또는 끼니)별 이모지 한 번. 티어1 골드 신호를 매끼 확보.</li>
+<li><b>구조화 거부 사유칩</b> — 맛·식감·양·환경. '자유텍스트→식재료 오염' 차단 + 거부 원인별 처방(식감거부→조리법 전환).</li>
+<li><b>드러난 선호 자동 추론</b> — 명시 입력이 없어도 re-serving·완식 패턴으로 티어3 약신호 보충(추정 라벨).</li>
+</ul>
+<div class="note">입력 마찰 ↓ 가 핵심 — 끼니당 탭 1번. 미입력 시에도 티어3로 <b>저확신 추정</b>은 돌되, 절대 '단정'하지 않는다.</div>
+</div>
+</div>
+</section>
+
+<section id="road"><div class="sec-h"><span class="no">10</span><h2>로드맵 · 리스크</h2><span class="tech">단계</span></div>
+<div class="rm">
+<div class="rmi a"><div class="rh">A · 계량 코어 (~1일)</div><div class="rl">집만 필터(엄격 place) + 노이즈 제거(식재료 화이트리스트) + 다축 집계 + 점수/확신도/상태 + <code>child_food_pref</code> 야간 materialize. <b>읽기 전용·라이브 무영향.</b></div></div>
+<div class="rmi b"><div class="rh">B · 콜드스타트 게이트 (~0.5일)</div><div class="rl">성숙도/확신도 미만 → 추천 단정 차단·온보딩 모드. <b>Day1 "잘 먹는 소고기" 즉시 제거.</b></div></div>
+<div class="rmi c"><div class="rh">C · 수용 수준 포착 UX (~1~2일)</div><div class="rl">기록 화면에 원탭 5단계 + 구조화 거부칩. <code>meal_logs</code>에 수준·사유 필드. <b>신호 채우기 = 최대 레버.</b></div></div>
+<div class="rmi d"><div class="rh">D · 추세·food jag + 네트워크 배선 (후속)</div><div class="rl">수준 추세·권태 감지 → 체이닝 앵커/회피/형태전환 공급. 선호 모듈 → 추천 네트워크 닫힌 루프 완성.</div></div>
+</div>
+<div class="warn" style="margin-top:14px"><b>리스크</b> — ① <b>입력 마찰</b>: 수준 포착이 귀찮으면 신호가 또 빈다 → 탭 1번·선택사항·미입력도 degrade. ② <b>티어3 과신 금지</b>: re-serving은 약신호, 단정 라벨 금지. ③ <b>기관 데이터 유혹</b>: 양 많아도 선호엔 안 씀(영양만). ④ <b>표기 정합</b>: 쇠고기→소고기 등 캐논 매핑 선행(노이즈와 별개).</div>
+<div class="callout" style="margin-top:12px"><b>이사님 확인</b> — ① 수용 5단계 척도(거부·만짐·한입·조금·잘먹음) 이 구성 OK? ② 다축(식재료·메뉴·조리형태) 이대로 갈지 ③ A·B(계량 코어+콜드스타트 게이트)부터 착수 ④ 포착 UX(C)를 어디까지 강제 vs 선택으로.</div>
+</section>
+
+</main>
+<footer>
+<div><span class="stamp">기획 계획서 · 설계 검토용</span><span class="stamp">개발 전</span><span class="stamp">2026-06-16</span></div>
+밀프레드 — 선호 계량화 모듈 기획 계획서<br>
+근거: 아린 실측(집 40끼니·명시수용 4·확신 잘먹음 0·노이즈 28종) · 연계 <a href="/food-chaining-personalization-engine.html" style="color:var(--g700)">푸드체이닝 모듈</a> · <a href="/food-network-data-architecture.html" style="color:var(--g700)">추천 네트워크</a> · <a href="/arin-foodchaining-live-sample.html" style="color:var(--g700)">아린 샘플</a>
+</footer>
+</body></html>
