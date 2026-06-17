@@ -1,14 +1,23 @@
 /**
- * lib/growth-reference.ts — WHO Child Growth Standards: BMI-for-age LMS (0–60개월)
+ * lib/growth-reference.ts — BMI-for-age LMS. ⭐국내(KDCA 2017) 우선 (이사님 2026-06-18)
  *
- * 출처: WHO Child Growth Standards, BMI-for-age z-score expanded tables (boys/girls).
- *   bfa-boys-zscore-expanded-tables.xlsx / bfa-girls-zscore-expanded-tables.xlsx (cdn.who.int)
- *   월령 m → WHO 일령 round(m*30.4375)에서 [L, M, S] 추출. (질병관리청 2017 성장도표가 만3세 미만에 채택하는 표준)
- * 검증: 본 LMS로 계산한 ±2SD BMI가 WHO 표의 SD2neg/SD2 값과 소수점까지 일치함을 확인(지어낸 값 아님).
+ * 0~35개월  = WHO Child Growth Standards (KDCA 2017이 만3세 미만에 WHO를 그대로 채택 → 동일).
+ *   bfa-boys/girls-zscore-expanded-tables.xlsx (cdn.who.int), 월령 m→WHO 일령 round(m*30.4375)의 [L,M,S].
+ * 36개월+   = 질병관리청 2017 소아청소년 성장도표 BMI-for-age LMS (lib/kdca-bmi-lms.json, 24~227개월·남녀 각 204행).
+ *   검증: LMS→percentile 역산이 KDCA 공식 percentile과 일치(남5세 M15.92→P50·13.7→P3·18.7→P97 / 4앵커·±1.x%).
+ *   ⚠️ 36개월부터 국내 기준으로 전환(WHO와 만3세+ 값이 다름). 키·체중 for-age LMS는 공식 엑셀 입수 후 별도(미구현).
  *
  * 퍼센타일: z = ((BMI/M)^L − 1)/(L·S),  percentile = Φ(z)·100
  */
+import KDCA_BMI from './kdca-bmi-lms.json';
 export type Sex = 'M' | 'F';
+// KDCA 2017 BMI-for-age: 월령 → [L,M,S] (남=boys·여=girls). 36개월+에서 사용.
+const KDCA_BMI_MAP: Record<Sex, Record<number, [number, number, number]>> = (() => {
+  const m: Record<Sex, Record<number, [number, number, number]>> = { M: {}, F: {} };
+  for (const d of (KDCA_BMI as { boys: { m: number; L: number; M: number; S: number }[]; girls: { m: number; L: number; M: number; S: number }[] }).boys) m.M[d.m] = [d.L, d.M, d.S];
+  for (const d of (KDCA_BMI as { boys: { m: number; L: number; M: number; S: number }[]; girls: { m: number; L: number; M: number; S: number }[] }).girls) m.F[d.m] = [d.L, d.M, d.S];
+  return m;
+})();
 
 // index = 개월(0..60), 값 = [L, M, S]
 export const BMI_LMS: Record<Sex, [number, number, number][]> = {
@@ -148,14 +157,26 @@ function erf(x: number): number {
 }
 function normCdf(z: number): number { return 0.5 * (1 + erf(z / Math.SQRT2)); }
 
-/** BMI(=kg/m²)와 성별·월령으로 WHO BMI-for-age z-score. 범위 밖/무효 입력은 null. */
+/** BMI(=kg/m²)와 성별·월령으로 BMI-for-age z-score. 0~35개월=WHO·36개월+=KDCA 2017(국내). 범위 밖/무효 입력은 null. */
 export function bmiZ(bmi: number, sex: Sex, ageMonths: number): number | null {
-  if (!(bmi > 0) || !BMI_LMS[sex]) return null;
-  const tab = BMI_LMS[sex];
-  const m = Math.max(0, Math.min(60, ageMonths));
-  const lo = Math.floor(m), hi = Math.min(60, lo + 1), f = m - lo;
-  const it = (i: number) => tab[lo][i] + (tab[hi][i] - tab[lo][i]) * f;  // 월령 사이 선형보간
-  const L = it(0), M = it(1), S = it(2);
+  if (!(bmi > 0)) return null;
+  let L: number, M: number, S: number;
+  if (ageMonths >= 36) {
+    // ⭐ KDCA 2017 (국내) — 36~227개월. 월령 사이 선형보간.
+    const map = KDCA_BMI_MAP[sex]; if (!map) return null;
+    const mm = Math.max(36, Math.min(227, ageMonths));
+    const lo = Math.floor(mm), hi = Math.min(227, lo + 1), f = mm - lo;
+    const a = map[lo], b = map[hi] || map[lo];
+    if (!a) return null;
+    L = a[0] + (b[0] - a[0]) * f; M = a[1] + (b[1] - a[1]) * f; S = a[2] + (b[2] - a[2]) * f;
+  } else {
+    // WHO (0~35개월) — KDCA가 만3세 미만 WHO 채택.
+    const tab = BMI_LMS[sex]; if (!tab) return null;
+    const m = Math.max(0, Math.min(35, ageMonths));
+    const lo = Math.floor(m), hi = Math.min(35, lo + 1), f = m - lo;
+    const it = (i: number) => tab[lo][i] + (tab[hi][i] - tab[lo][i]) * f;  // 월령 사이 선형보간
+    L = it(0); M = it(1); S = it(2);
+  }
   return Math.abs(L) > 1e-9 ? (Math.pow(bmi / M, L) - 1) / (L * S) : Math.log(bmi / M) / S;
 }
 
