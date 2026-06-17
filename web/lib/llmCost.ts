@@ -2,7 +2,7 @@
  * lib/llmCost.ts — LLM 토큰 사용량 → 원가 계산(순수 함수). 코칭 유지비용 실측용.
  *
  * 단가는 2026-06 공식가(USD/token). 프롬프트 캐싱: read=0.1×in, write=1.25×in(5분 TTL).
- * callClaude가 응답의 usage(input/output/cache_read/cache_creation)를 적재 → 이 모듈이 원가로 환산.
+ * callLLM가 응답의 usage(input/output/cache_read/cache_creation)를 적재 → 이 모듈이 원가로 환산.
  */
 
 export type Family = 'haiku' | 'sonnet' | 'opus' | 'deepseek-pro' | 'deepseek-flash' | 'other';

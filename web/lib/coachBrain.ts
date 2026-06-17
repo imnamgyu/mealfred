@@ -10,10 +10,10 @@
  * 앞선 시도의 교훈: 두뇌에 작문까지 시키면 v2의 알맹이(음식평가·추천)가 사라진다(추상적 환경코칭만 남음).
  *   그래서 두뇌는 '선택'까지만. 작문은 v2 buildLetterUser/composeLetter가 그대로 담당.
  */
-import { callClaude, type LetterInput } from './coach';
+import { callLLM, type LetterInput } from './coach';
 import { SCENARIOS, type CoachScenario, type CoachSignals } from './coachScenarios';
 
-export const BRAIN_MODEL = 'claude-sonnet-4-6';   // 일간 전술 두뇌 = 강한 모델(일 1회·전 자녀 라이브). 하드코딩(이사님 2026-06-16: env 제거)
+export const BRAIN_MODEL = 'claude-sonnet-4-6';   // 일간 전술 두뇌. ⭐역할 키 → callLLM이 DeepSeek V4-Pro로 1차 호출, 실패 시 이 Claude Sonnet 폴백(이사님 2026-06-16 DeepSeek 전환·env 제거)
 
 /** 최근 3주 주간 계획 요약(두뇌가 흐름·일관성 판단에 참고). */
 export type WeeklyEcho = { weekKey: string; target: string | null; behaviorGoal: string | null; impression: string | null };
@@ -99,7 +99,7 @@ ${past || '(없음)'}
 
 /** 두뇌 호출 — BrainAction 반환. scenarioId가 목록 밖이면 그대로 두되(검증은 호출측), 방어적 파싱. */
 export async function pickActionByBrain(ctx: string, candidates: string[] = [], model: string = BRAIN_MODEL): Promise<BrainAction> {
-  const r = await callClaude(ctx, 600, SYSTEM_BRAIN, model);
+  const r = await callLLM(ctx, 600, SYSTEM_BRAIN, model);
   const s = (v: unknown) => (typeof v === 'string' ? v : '');
   const id = s(r.scenarioId);
   // ⭐ useFood는 두뇌 boolean을 직접 신뢰(이전 버그: approvedRecs를 텍스트 블록 후보의 부분집합으로 강제 매칭 →

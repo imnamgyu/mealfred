@@ -2,7 +2,7 @@
  * /admin/llm-usage — 코칭 유지비용 실측(토큰 기반).
  *
  * llm_usage(자녀×일자)에서 최근 N일을 읽어: 자녀별 누적 토큰·원가 → 1일 평균 → 월 추정(×30) → 1인당 월 평균.
- * 토큰은 callClaude가 적재한 실측값(추정 아님). 단가는 lib/llmCost.PRICE(2026-06 공식가) 기준.
+ * 토큰은 callLLM가 적재한 실측값(추정 아님). 단가는 lib/llmCost.PRICE(2026-06 공식가) 기준.
  * 접근: 관리자만(service_role). llm_usage 테이블 없으면(SQL 실행 전) 안내 배너로 안전 degrade.
  */
 import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
@@ -86,7 +86,7 @@ export default async function LlmUsagePage() {
     <main style={{ maxWidth: 1040, margin: '0 auto', padding: '28px 24px 80px', fontFamily: 'Pretendard, sans-serif' }}>
       <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>💸 코칭 유지비용 (토큰 실측)</h1>
       <p style={{ marginTop: 6, color: '#6B7280', fontSize: 13 }}>
-        최근 {WINDOW_DAYS}일 · callClaude가 적재한 실제 토큰 기준. 단가 Haiku ${'{'}1/$5{'}'}·Sonnet $3/$15 per MTok, 환율 ₩{KRW_PER_USD.toLocaleString()}/$. 시스템블록 캐싱 반영(실측).
+        최근 {WINDOW_DAYS}일 · callLLM가 적재한 실제 토큰 기준. 단가 Haiku ${'{'}1/$5{'}'}·Sonnet $3/$15 per MTok, 환율 ₩{KRW_PER_USD.toLocaleString()}/$. 시스템블록 캐싱 반영(실측).
       </p>
 
       {tableMissing && (

@@ -11,12 +11,12 @@
  *
  *  모델: 주간 종합=Sonnet 4.6(자녀당 주 1회 → 비싼 모델 OK). 일간=Haiku(coach.ts).
  */
-import { callClaude, buildCoachPlan, planSignature, MOVE_KEYS, MOVE_MENU, SNACK_CHANNEL, type CoachPlan } from './coach';
+import { callLLM, buildCoachPlan, planSignature, MOVE_KEYS, MOVE_MENU, SNACK_CHANNEL, type CoachPlan } from './coach';
 import { SCENARIOS, type CoachScenario, type CoachSignals } from './coachScenarios';
 import { UNITS, UNIT_IDS, TH, type UnitId, type Goal, type ProgressRow, type CandidateSignals } from './curriculumUnits';
 import { normalizeGoals, goalsOf } from './curriculum';
 
-const WEEKLY_MODEL = 'claude-sonnet-4-6';   // 주간 종합 = Sonnet(자녀당 주 1회). 하드코딩(이사님 2026-06-16: env 제거)
+const WEEKLY_MODEL = 'claude-sonnet-4-6';   // 주간 종합(자녀당 주 1회). ⭐역할 키 → callLLM이 DeepSeek V4-Pro로 1차, 실패 시 이 Claude Sonnet 폴백(이사님 2026-06-16 DeepSeek 전환·env 제거)
 
 // ── 날짜 헬퍼(KST 'YYYY-MM-DD') ───────────────────────────────────────────────
 /** 요일 0=일 … 6=토. 1970-01-01=목(4) 기준. */
@@ -229,7 +229,7 @@ export async function runWeeklyPlanning(i: WeeklyInput): Promise<WeeklySynthesis
   const ucands = i.candSignals ? candidateUnits({ sig: i.candSignals, progress: i.progress || {}, week: i.week ?? 99 }) : [];
   if (!cands.length && !ucands.length) return coldSynth(i, 'cold_synth');   // 후보 전무 = 관찰 닻(LLM 미호출)
   try {
-    const out = await callClaude(buildWeeklyUser(i, cands, ucands), 900, SYSTEM_WEEKLY, WEEKLY_MODEL);
+    const out = await callLLM(buildWeeklyUser(i, cands, ucands), 900, SYSTEM_WEEKLY, WEEKLY_MODEL);
     // 화이트리스트 강제 — 식품 후보가 아예 없으면(영양 OK·환경 문제 주) mission_target=null 허용
     const target = typeof out.mission_target === 'string' && cands.includes(out.mission_target) ? out.mission_target : (cands[0] ?? null);
     const pool = target ? [target, ...cands.filter((c) => c !== target)].slice(0, 4) : [];
