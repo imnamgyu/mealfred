@@ -100,7 +100,7 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 </table></div>
 <div class="callout"><b>주간계획 연동</b> — <code>weekly_plans</code>에 <b>3대영양소(macro) 카테고리</b> property 추가: 저체중·성장 더딤이면 주간 타깃을 <b>macro 트랙</b>으로 가중(채소우선 vegBonus를 BMI/성장으로 조건화). 즉 영양평가가 'BMI/성장 신호 + macro 우선순위'를 산출 → ① 주간이 타깃 잠금 → ② 추천엔진이 3대영양소 식재료/메뉴 생성.</div>
 <div class="note"><b>⏱️ 격주 케이던스 (이사님)</b> — 부모가 매일 키·몸무게를 잴 수 없어 <b>BMI/성장 신호는 자주 안 갱신</b>됩니다. 그래서 BMI 기반 <b>3대영양소(macro) 잔소리는 최대 격주 · 2주 연속 금지</b>. <code>runWeeklyPlanning</code>이 주간계획 수립 시 <b>직전 주 macro 트랙 사용 여부를 ledger에서 확인 → 연속 주 차단</b>(쓴 주 다음 주는 일반 결핍·다양성/환경 트랙으로 회전). 채근 주1회 캡과 같은 '과부하 방지' 철학. 측정 입력이 새로 들어온 주에 한해 재발동.</div>
-<div class="note">⚠️ <b>성장곡선 = 국내(KDCA) 기준 + soft 신호</b>: BMI·키 백분위는 <b>질병관리청 2017 성장도표(국내)</b> 기준으로 추적(WHO 아님 — 만3세+ 국내값이 다름). 키는 유전·체질 다인자라 <b>'성장 추세 느리면 단백·칼로리 점검' 안내 + 지속 시 소아과 상담'</b>의 soft 신호로만(진단 아님). <b>상태</b>: 간식 BMI stance만 라이브 / 식품 macro 타깃·키 성장곡선·KDCA 데이터 = 신규(리팩터 P3·선행=KDCA LMS 확보).</div>
+<div class="note">⚠️ <b>성장곡선 = 국내(KDCA) 기준 + soft 신호</b>: BMI·키 백분위는 <b>질병관리청 2017 성장도표(국내)</b> 기준으로 추적(WHO 아님 — 만3세+ 국내값이 다름). 키는 유전·체질 다인자라 <b>'성장 추세 느리면 단백·칼로리 점검' 안내 + 지속 시 소아과 상담'</b>의 soft 신호로만(진단 아님). <b>상태</b>: ✅ <b>BMI-for-age KDCA 2017(36개월+) 라이브</b>(검증 — 공식 percentile 4앵커 일치·vitest 377)·간식 BMI stance 라이브 / 식품 macro 타깃·키 성장곡선·성장속도 = 신규(<b>키·체중 for-age LMS는 공식 KDCA 엑셀 입수 후</b>·리팩터 P3).</div>
 </section>
 
 <section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
