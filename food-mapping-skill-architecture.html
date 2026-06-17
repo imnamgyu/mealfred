@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코퍼스·도감 유지보수 스킬 — 작동 원리 (데이터 흐름·왜 JSON인가)</title>
+<meta property="og:title" content="밀프레드 유지보수 스킬 작동 원리 — 어떤 테이블·JSON을 읽어 어떻게 가공·저장하나, 왜 테이블 없이 JSON인가">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.84em;background:#FBEFE3;color:#9a5418;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+.hero{padding:50px 24px 36px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 48%,#3a2e1f);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:14px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero h1{font-size:27px;font-weight:800;letter-spacing:-.025em;line-height:1.32}
+.hero p.sub{margin-top:12px;font-size:15px;color:#e7ecf1;font-weight:500}
+.hero .tagrow{margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.hero .tag{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;color:#fff}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;text-align:center}
+nav.toc a{display:inline-block;font-size:13px;font-weight:600;color:var(--n600);text-decoration:none;padding:5px 11px;border-radius:8px;margin:0 1px}
+nav.toc a:hover{background:var(--p100);color:var(--p700)}
+main{max-width:1020px;margin:0 auto;padding:10px 20px 80px}
+section{margin:42px 0;scroll-margin-top:54px}
+.sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:10px;padding-bottom:9px;border-bottom:2.5px solid var(--p500);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:20px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.lead{font-size:15px;color:var(--n700);margin:8px 2px 16px;line-height:1.66}
+.card{background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);margin:14px 0}
+.svgwrap{overflow-x:auto}
+.cap{font-size:12.5px;color:var(--n500);margin-top:9px;text-align:center}
+.callout{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:12px;padding:15px 17px;margin:14px 0;font-size:14px;color:#7a4a1a;line-height:1.66}
+.callout.blue{background:linear-gradient(135deg,#F0F7FD,#E6F0FA);border-color:#bcdcf3;color:#15486f}
+.callout.green{background:linear-gradient(135deg,#F1FBF7,#E4F5EE);border-color:#aee0cd;color:#155e43}
+.callout b{font-weight:800}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+@media(max-width:680px){.two{grid-template-columns:1fr}}
+.col{border:1px solid var(--n200);border-radius:13px;padding:16px 17px;background:#fff}
+.col h4{font-size:15px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.col.static{border-top:4px solid var(--g500)}
+.col.runtime{border-top:4px solid var(--p500)}
+.col .k{font-size:12px;font-weight:700;color:var(--n400);text-transform:uppercase;letter-spacing:.04em}
+.col ul{margin:9px 0 0;padding-left:18px}
+.col li{font-size:13.4px;color:var(--n700);margin:5px 0;line-height:1.55}
+.fn{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:14px 0}
+.fnc{border:1px solid var(--n200);border-left:4px solid var(--b500);border-radius:11px;padding:14px 15px;background:#fff}
+.fnc.a{border-left-color:var(--p500)}.fnc.b{border-left-color:var(--v500)}.fnc.c{border-left-color:var(--g500)}.fnc.z{border-left-color:var(--s700)}
+.fnc .t{font-size:14px;font-weight:800;color:var(--s800);margin-bottom:3px}
+.fnc .d{font-size:13px;color:var(--n600);line-height:1.55}
+.reason{border:1px solid var(--n200);border-radius:12px;padding:15px 17px;margin:11px 0;background:#fff}
+.reason .rh{font-size:15px;font-weight:800;color:var(--s800);margin-bottom:5px;display:flex;gap:9px;align-items:baseline}
+.reason .rn{font-size:12px;font-weight:800;color:#fff;background:var(--g500);width:22px;height:22px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.reason .rb{font-size:13.6px;color:var(--n700);line-height:1.64}
+.reason .ev{margin-top:8px;font-size:11.5px;color:var(--n500);font-family:'SF Mono',ui-monospace,Menlo,monospace;background:#F8F9FA;border:1px solid var(--n200);border-radius:7px;padding:6px 9px;overflow-x:auto;white-space:nowrap}
+.contract{background:#1F2D3D;border-radius:12px;padding:15px 17px;margin:14px 0;overflow-x:auto}
+.contract pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12.3px;color:#d6e2ee;line-height:1.62;white-space:pre}
+.contract .c{color:#7d93a8}.contract .g{color:#7fd6a8}.contract .o{color:#f0b878}.contract .p{color:#c9a6e6}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}
+.pill{border-radius:9px;padding:7px 11px;font-size:13px;font-weight:700;border:1.5px solid}
+.pill.json{background:#F4FBF8;border-color:var(--g500);color:var(--g700)}
+.pill.code{background:#EEF4FB;border-color:var(--b500);color:var(--b700)}
+.pill.llm{background:#fff;border-color:var(--p500);color:var(--p700);border-style:dashed}
+.pill.tbl{background:#FFF8F2;border-color:var(--p500);color:var(--p700)}
+.arr{color:var(--n400);font-weight:800;font-size:16px}
+.tagline{text-align:center;font-size:15px;font-weight:700;color:var(--s700);background:#fff;border:1px dashed var(--n300);border-radius:12px;padding:14px;margin:16px 0}
+.foot{margin-top:46px;padding-top:18px;border-top:1px solid var(--n200);font-size:12.5px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 2026-06-17 · ENGINE · 데이터 아키텍처</div>
+  <h1>코퍼스·도감 유지보수 스킬 — 작동 원리</h1>
+  <p class="sub">어떤 <b>테이블</b>과 <b>JSON</b>을 가져와, 어떻게 <b>가공</b>하고, 어디에 <b>저장</b>하는가 — 그리고 왜 이 데이터는 <b>DB 테이블이 아니라 정적 JSON</b>인가.</p>
+  <div class="tagrow">
+    <span class="tag">📒 DB는 읽기 전용 3테이블</span>
+    <span class="tag">🗂️ 저장은 파일·코드만 (DB 쓰기 0)</span>
+    <span class="tag">🌙 크론은 적용 · 스킬은 개선</span>
+  </div>
+</div></div>
+
+<nav class="toc">
+  <a href="#s1">① 한눈에</a>
+  <a href="#s2">② 목적·역할분담</a>
+  <a href="#s3">③ 주요 기능</a>
+  <a href="#s4">④ 무엇을 읽고 저장하나</a>
+  <a href="#s5">⑤ 매핑 파이프라인</a>
+  <a href="#s6">⑥ 왜 테이블 없이 JSON</a>
+  <a href="#s7">⑦ 안전 스크린</a>
+</nav>
+
+<main>
+
+<!-- 1 -->
+<section id="s1">
+  <div class="sec-h"><span class="no">1</span><h2>한눈에 — 입력 → 가공 → 산출 → 배포 → 크론 소비</h2></div>
+  <p class="lead">스킬은 <b>읽기 전용으로</b> DB·소스를 보고, <b>코드와 정적 JSON만 고쳐</b> 커밋한다. DB에는 한 줄도 쓰지 않는다. 실제로 DB 튜플이 바뀌는 건 한참 뒤 — 배포된 코드를 <b>매일 새벽 2시 크론</b>이 실행하면서 자동으로 분해·적재할 때뿐이다.</p>
+  <div class="card"><div class="svgwrap">
+  <svg viewBox="0 0 760 488" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard,sans-serif" style="width:100%;height:auto;min-width:600px">
+    <defs>
+      <marker id="a" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#9CA3AF"/></marker>
+      <marker id="ag" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#16A085"/></marker>
+    </defs>
+    <!-- Row A: 입력 -->
+    <text x="20" y="18" font-size="11.5" font-weight="800" fill="#9CA3AF">입력 (읽기 전용)</text>
+    <rect x="15" y="26" width="232" height="62" rx="11" fill="#FFF8F2" stroke="#E89244" stroke-width="1.8"/>
+    <text x="131" y="46" text-anchor="middle" font-size="12.5" font-weight="800" fill="#9a5418">📒 DB 3테이블 · READ</text>
+    <text x="131" y="62" text-anchor="middle" font-size="9.5" font-weight="600" fill="#b07a3c">learned_menus · meal_logs</text>
+    <text x="131" y="76" text-anchor="middle" font-size="9.5" font-weight="600" fill="#b07a3c">user_menu_overrides</text>
+    <rect x="264" y="26" width="232" height="62" rx="11" fill="#FaF6FE" stroke="#9C27B0" stroke-width="1.6"/>
+    <text x="380" y="46" text-anchor="middle" font-size="12.5" font-weight="800" fill="#6A1B9A">📚 레시피·표준식단 DB</text>
+    <text x="380" y="62" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a5aa0">young-recipes 90종 · 농진청</text>
+    <text x="380" y="76" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a5aa0">dietary4u · NEIS 식판 (권위 정답지)</text>
+    <rect x="513" y="26" width="232" height="62" rx="11" fill="#F4FBF8" stroke="#16A085" stroke-width="1.8"/>
+    <text x="629" y="46" text-anchor="middle" font-size="12.5" font-weight="800" fill="#155e43">🗂️ 기존 정적 JSON</text>
+    <text x="629" y="62" text-anchor="middle" font-size="9.5" font-weight="600" fill="#3a7a5a">도감 풀 · food-graph</text>
+    <text x="629" y="76" text-anchor="middle" font-size="9.5" font-weight="600" fill="#3a7a5a">매트릭스 · 체크포인트</text>
+    <!-- arrows A->B -->
+    <path d="M131,88 L131,118" stroke="#9CA3AF" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+    <path d="M380,88 L380,118" stroke="#9CA3AF" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+    <path d="M629,88 L629,118" stroke="#9CA3AF" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+    <!-- Row B: 스킬 -->
+    <rect x="15" y="120" width="730" height="96" rx="14" fill="#EEF1F5" stroke="#2C3E50" stroke-width="2.6"/>
+    <text x="380" y="143" text-anchor="middle" font-size="14.5" font-weight="800" fill="#1F2D3D">⚙️ 코퍼스·도감 유지보수 스킬 (사람이 부를 때 · 큐레이션 루프)</text>
+    <g>
+      <rect x="34" y="156" width="160" height="46" rx="9" fill="#fff" stroke="#E89244" stroke-width="1.5"/>
+      <text x="114" y="176" text-anchor="middle" font-size="11.5" font-weight="800" fill="#9a5418">A0 증분 정독</text>
+      <text x="114" y="192" text-anchor="middle" font-size="9" font-weight="600" fill="#b07a3c">신규 메뉴만 감사</text>
+      <rect x="210" y="156" width="160" height="46" rx="9" fill="#fff" stroke="#3498DB" stroke-width="1.5"/>
+      <text x="290" y="176" text-anchor="middle" font-size="11.5" font-weight="800" fill="#1565C0">A 사전 튜닝</text>
+      <text x="290" y="192" text-anchor="middle" font-size="9" font-weight="600" fill="#5a86b0">룰·렉시콘·제외</text>
+      <rect x="386" y="156" width="160" height="46" rx="9" fill="#fff" stroke="#9C27B0" stroke-width="1.5"/>
+      <text x="466" y="176" text-anchor="middle" font-size="11.5" font-weight="800" fill="#6A1B9A">B 매트릭스 재생성</text>
+      <text x="466" y="192" text-anchor="middle" font-size="9" font-weight="600" fill="#8a5aa0">궁합·사촌·통계</text>
+      <rect x="562" y="156" width="160" height="46" rx="9" fill="#fff" stroke="#16A085" stroke-width="1.5"/>
+      <text x="642" y="176" text-anchor="middle" font-size="11.5" font-weight="800" fill="#155e43">C 도감 확장</text>
+      <text x="642" y="192" text-anchor="middle" font-size="9" font-weight="600" fill="#3a7a5a">조사+안전스크린</text>
+      <path d="M194,179 L208,179" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#a)"/>
+      <path d="M370,179 L384,179" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#a)"/>
+      <path d="M546,179 L560,179" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#a)"/>
+    </g>
+    <!-- arrows B->C -->
+    <path d="M250,216 L250,250" stroke="#9CA3AF" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+    <path d="M510,216 L510,250" stroke="#9CA3AF" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+    <text x="385" y="238" text-anchor="middle" font-size="10.5" font-weight="700" fill="#6B7280">산출 = 파일·코드만 (DB 쓰기 0)</text>
+    <!-- Row C: 산출 -->
+    <rect x="92" y="252" width="316" height="60" rx="12" fill="#EEF4FB" stroke="#3498DB" stroke-width="2"/>
+    <text x="250" y="274" text-anchor="middle" font-size="12.5" font-weight="800" fill="#1565C0">💻 코드 사전</text>
+    <text x="250" y="292" text-anchor="middle" font-size="9.5" font-weight="600" fill="#5a86b0">menuMapCore.ts (MENU_MAP·boost·meatFix) · lexicon.ts</text>
+    <rect x="424" y="252" width="316" height="60" rx="12" fill="#F4FBF8" stroke="#16A085" stroke-width="2"/>
+    <text x="582" y="274" text-anchor="middle" font-size="12.5" font-weight="800" fill="#155e43">🗂️ 정적 JSON 산출</text>
+    <text x="582" y="292" text-anchor="middle" font-size="9.5" font-weight="600" fill="#3a7a5a">menu-dict · food-graph · kit-matrix · 도감 · 체크포인트</text>
+    <!-- arrows C->D -->
+    <path d="M250,312 L250,344" stroke="#9CA3AF" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+    <path d="M582,312 L582,344" stroke="#9CA3AF" stroke-width="1.6" fill="none" marker-end="url(#a)"/>
+    <!-- Row D: 배포 -->
+    <rect x="250" y="346" width="340" height="50" rx="12" fill="#1F2D3D" stroke="#1F2D3D"/>
+    <text x="420" y="367" text-anchor="middle" font-size="12.5" font-weight="800" fill="#fff">📦 git 커밋 → Vercel 원자 배포</text>
+    <text x="420" y="384" text-anchor="middle" font-size="9.5" font-weight="600" fill="#aebcc8">사전+코드가 한 커밋으로 · revert로 즉시 롤백</text>
+    <path d="M420,396 L420,426" stroke="#16A085" stroke-width="2" fill="none" marker-end="url(#ag)"/>
+    <!-- Row E: 크론 -->
+    <rect x="150" y="428" width="540" height="54" rx="13" fill="#F4FBF8" stroke="#16A085" stroke-width="2.2" stroke-dasharray="5 3"/>
+    <text x="420" y="450" text-anchor="middle" font-size="13" font-weight="800" fill="#155e43">🌙 매일 새벽 2시 크론이 이 사전으로 소비 (여기서 처음 DB가 바뀜)</text>
+    <text x="420" y="469" text-anchor="middle" font-size="10" font-weight="600" fill="#3a7a5a">새 메뉴를 개선된 매퍼로 분해 → learned_menus 백필 · 코칭 편지 작성 (크론이 자동 WRITE)</text>
+  </svg>
+  </div><div class="cap">입력은 읽기만, 스킬은 파일·코드만 고쳐 커밋, DB 변경은 배포 후 크론이 자동으로.</div></div>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <div class="sec-h"><span class="no">2</span><h2>스킬의 목적 — 크론은 '적용', 스킬은 '개선'</h2></div>
+  <p class="lead">메뉴→식재료 매핑 사전·식재료 도감·궁합 매트릭스는 전부 <b>빌드에 박히는 정적 자산</b>이다. 매일 도는 크론은 이 자산을 <b>쓰기만</b> 할 뿐 바꾸지 못한다(정적 import라 커밋+재배포가 필요하고, "이게 진짜 재료냐 오탐이냐 / 이 새 식재료가 영유아한테 안전하냐" 같은 <b>사람 판단</b>이 들어가야 한다). 그 자산 자체를 주기적으로 다듬어 정확도·범위를 올리는 게 이 스킬이다.</p>
+  <div class="two">
+    <div class="col static"><span class="k">매일 자동</span><h4>🌙 2시 크론</h4>
+      <ul>
+        <li>이미 만든 <b>사전·규칙대로</b> 새 메뉴를 분해 → <code>learned_menus</code> 백필</li>
+        <li>그 결과로 <b>코칭 편지·질문·주간계획</b> 작성</li>
+        <li><b>런타임 데이터(DB)</b>만 다룬다 — 사전 자체는 못 고침</li>
+        <li>비유: 레시피북대로 매일 요리하는 <b>요리사</b></li>
+      </ul></div>
+    <div class="col runtime"><span class="k">사람이 부를 때</span><h4>⚙️ 이 스킬</h4>
+      <ul>
+        <li>그 <b>사전·규칙·도감 자체</b>를 더 똑똑하게 고쳐 쓴다</li>
+        <li><b>빌드 산출물(정적 JSON)·코드</b>를 재생성·개선</li>
+        <li>DB는 <b>읽기 전용</b> — 커밋만 하고 끝</li>
+        <li>비유: 가끔 와서 레시피북을 고치는 <b>편집자</b></li>
+      </ul></div>
+  </div>
+  <div class="callout"><b>경계 한 줄:</b> 크론이 <b>소비하지만 스스로는 못 고치는</b> 정적 자산(매핑·도감·매트릭스)을, 사람이 주기적으로 다듬어 정확도를 올리는 <b>개선 루프</b>가 이 스킬이다. 그래서 매 호출은 한 번에 끝나는 작업이 아니라 "실제 입력·코퍼스 성장을 보고 조금씩" 올린다.</div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <div class="sec-h"><span class="no">3</span><h2>주요 기능 — A0 → A → B → C</h2></div>
+  <p class="lead">매 호출은 <b>증분 정독(A0)</b>으로 시작해, 매핑 사전(A) → 매트릭스(B) → 도감(C) 순으로 필요한 만큼만 손본다.</p>
+  <div class="fn">
+    <div class="fnc z"><div class="t">A0 · 증분 정독</div><div class="d">체크포인트 이후 <b>신규 유입 메뉴만</b> 골라 분해 상태를 정독. 무매핑·누락(under-map)을 후보로 산출. 복합 메뉴(카레→닭고기 빠짐)의 누락 잡는 게 목적.</div></div>
+    <div class="fnc a"><div class="t">A · 매핑 사전 튜닝</div><div class="d">흔한 메뉴+명확한 재료 → <code>MENU_MAP</code>, 표기변형 → <code>LEXICON</code>, 양념·물 → <code>EXCLUDE</code>. <b>오타·1회성은 사전화 금지</b>(LLM 폴백에 맡김). 회귀검증 코퍼스 100% 유지.</div></div>
+    <div class="fnc b"><div class="t">B · 매트릭스 재생성</div><div class="d">코퍼스가 충분히 컸을 때(+5% 또는 도감 변경) 궁합/사촌(<code>food-graph</code>)·통계(<code>corpus-stats</code>)를 다시 생성. 미달이면 "재생성 불필요"로 솔직히 스킵.</div></div>
+    <div class="fnc c"><div class="t">C · 도감 확장</div><div class="d">새 식재료를 <b>인터넷 조사 + 영유아 안전 스크린</b> → 통과하면 7파이프라인(풀·영양·💪배지·별등급·분량·제철·궁합) 자동 등재. <b>위험군은 보류·보고</b>.</div></div>
+  </div>
+  <div class="callout green"><b>한 줄 원리:</b> "실제 부모가 친 메뉴 + 부모가 고친 교정"이 가장 정확한 정답지다. 그걸 주기적으로 <b>전역 사전·매트릭스·도감</b>으로 승격시키는 게 이 스킬이다.</div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <div class="sec-h"><span class="no">4</span><h2>무엇을 읽고, 어떻게 가공하고, 어디에 저장하나</h2></div>
+  <p class="lead">스킬의 DB 발자국은 <b>읽기 전용 3테이블</b>이 전부다. 가공 결과는 <b>코드 2파일 + 정적 JSON 10종</b>으로만 저장되며, <b>DB INSERT/UPDATE/DELETE는 0건</b>이다.</p>
+
+  <div class="card">
+    <div style="font-size:14px;font-weight:800;color:var(--p700);margin-bottom:8px">📥 읽는 것 (READ only)</div>
+    <ul style="margin:0 0 4px 18px;font-size:13.6px;color:var(--n700);line-height:1.7">
+      <li><b><code>learned_menus</code></b> (DB) — 신규 유입 메뉴 증분 감지(<code>menu, created_at</code>만). <i>※ 스킬은 절대 쓰지 않음 — 쓰는 건 크론.</i></li>
+      <li><b><code>meal_logs</code></b> (DB) — 부모가 입력한 끼니의 <code>menus, ingredients</code>를 보고 매핑 튜닝 후보 산출</li>
+      <li><b><code>user_menu_overrides</code></b> (DB) — 부모가 고친 메뉴→식재료를 현재 전역 매핑과 대조(교정 충돌 = 전역 반영 후보)</li>
+      <li><b>레시피·표준식단 소스</b> — young-recipes 90종, 농진청 성분, dietary4u 영유아 식단, NEIS 식판(권위 정답지)</li>
+      <li><b>기존 정적 JSON</b> — 도감 풀·food-graph·매트릭스를 읽어 갭·동시출현 산출</li>
+    </ul>
+  </div>
+
+  <div class="flow" style="justify-content:center;margin:16px 0">
+    <span class="pill tbl">📥 DB 3 + 소스 (읽기)</span><span class="arr">→</span>
+    <span class="pill code">⚙️ A0·A·B·C 가공</span><span class="arr">→</span>
+    <span class="pill code">💻 코드 2</span><span class="pill json">🗂️ JSON 10</span><span class="arr">→</span>
+    <span class="pill" style="background:#1F2D3D;border-color:#1F2D3D;color:#fff">📦 커밋</span>
+  </div>
+
+  <div class="card">
+    <div style="font-size:14px;font-weight:800;color:var(--g700);margin-bottom:8px">📤 저장하는 것 (WRITE — 전부 파일·git, DB 아님)</div>
+    <div class="two" style="margin:6px 0 0">
+      <div class="col code" style="border-top:4px solid var(--b500)"><h4>💻 코드 사전 2</h4>
+        <ul>
+          <li><code>menuMapCore.ts</code> — <code>MENU_MAP</code>·<code>EXCLUDE</code>·<code>boostFromName</code>·<code>meatFix</code></li>
+          <li><code>lexicon.ts</code> — 표기변형 <code>LEXICON</code></li>
+        </ul></div>
+      <div class="col static"><h4>🗂️ 정적 JSON 10</h4>
+        <ul>
+          <li><code>menu-dict.json</code> 0차 사전 · <code>food-graph.json</code> 궁합/사촌 · <code>kit-dish-matrix.json</code></li>
+          <li><code>ingredients-light.json</code>+enriched 도감 · <code>must-eat</code>·<code>season</code>·<code>cooking-amounts</code>·<code>corpus-stats</code></li>
+          <li><code>foodmap-checkpoint.json</code> 증분 기준선</li>
+        </ul></div>
+    </div>
+  </div>
+  <div class="callout blue"><b>그래서 "DB 튜플 영향 0".</b> 매핑·도감을 고치는 일은 코드·JSON diff로 끝난다. DB가 바뀌는 건 배포 뒤 크론이 <code>learned_menus</code>를 백필하고 편지를 쓸 때이고, 그것도 <b>크론이 자기 일로 자동 WRITE</b>하는 것이지 스킬이 손대는 게 아니다. 과거 튜플을 소급해 다시 쓰지도 않는다(크론은 새 메뉴만).</div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <div class="sec-h"><span class="no">5</span><h2>결정론 매핑 파이프라인 — 정적 JSON과 코드가 LLM 앞을 막는다</h2></div>
+  <p class="lead">메뉴 한 줄이 식재료로 분해되는 순서. <b>0~2차가 다 결정론(정적 JSON + 코드 사전)</b>이라 대부분의 메뉴는 LLM 없이 즉시 풀린다. 0~2차가 전부 실패할 때만 <b>3차 LLM</b>이 마지막 수단으로 돈다 — 그 결과는 <code>learned_menus</code>에 적재돼 다음엔 무료 사전 히트가 된다.</p>
+  <div class="card"><div class="svgwrap">
+  <svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard,sans-serif" style="width:100%;height:auto;min-width:620px">
+    <defs><marker id="b" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#9CA3AF"/></marker>
+    <marker id="bo" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#E89244"/></marker></defs>
+    <!-- top chain -->
+    <rect x="8" y="30" width="92" height="50" rx="9" fill="#fff" stroke="#6B7280" stroke-width="1.6"/>
+    <text x="54" y="51" text-anchor="middle" font-size="11" font-weight="800" fill="#374151">메뉴</text>
+    <text x="54" y="66" text-anchor="middle" font-size="9" fill="#6B7280">텍스트 입력</text>
+    <rect x="116" y="30" width="100" height="50" rx="9" fill="#F4FBF8" stroke="#16A085" stroke-width="1.8"/>
+    <text x="166" y="48" text-anchor="middle" font-size="10.5" font-weight="800" fill="#155e43">0차 DICT</text>
+    <text x="166" y="62" text-anchor="middle" font-size="8.3" fill="#3a7a5a">menu-dict.json</text>
+    <text x="166" y="73" text-anchor="middle" font-size="8" fill="#3a7a5a">레시피 정확일치</text>
+    <rect x="232" y="30" width="100" height="50" rx="9" fill="#EEF4FB" stroke="#3498DB" stroke-width="1.8"/>
+    <text x="282" y="48" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1565C0">1차 룰</text>
+    <text x="282" y="62" text-anchor="middle" font-size="8.3" fill="#5a86b0">MENU_MAP (코드)</text>
+    <text x="282" y="73" text-anchor="middle" font-size="8" fill="#5a86b0">정확일치</text>
+    <rect x="348" y="30" width="100" height="50" rx="9" fill="#EEF4FB" stroke="#3498DB" stroke-width="1.8"/>
+    <text x="398" y="48" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1565C0">1b 부분일치</text>
+    <text x="398" y="62" text-anchor="middle" font-size="8.3" fill="#5a86b0">PARTIAL_KEYS</text>
+    <text x="398" y="73" text-anchor="middle" font-size="8" fill="#5a86b0">태그 흡수</text>
+    <rect x="464" y="30" width="108" height="50" rx="9" fill="#EEF4FB" stroke="#3498DB" stroke-width="1.8"/>
+    <text x="518" y="46" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1565C0">2차 스캔+boost</text>
+    <text x="518" y="60" text-anchor="middle" font-size="8" fill="#5a86b0">코드 + 도감 vocab(JSON)</text>
+    <text x="518" y="71" text-anchor="middle" font-size="8" fill="#5a86b0">숨은 곡물·단백질 보정</text>
+    <rect x="588" y="30" width="80" height="50" rx="9" fill="#EEF1F5" stroke="#2C3E50" stroke-width="1.8"/>
+    <text x="628" y="50" text-anchor="middle" font-size="10" font-weight="800" fill="#1F2D3D">meatFix</text>
+    <text x="628" y="64" text-anchor="middle" font-size="8" fill="#6B7280">소고기 치환</text>
+    <rect x="684" y="30" width="68" height="50" rx="9" fill="#F1FBF7" stroke="#16A085" stroke-width="2"/>
+    <text x="718" y="50" text-anchor="middle" font-size="11" font-weight="800" fill="#155e43">✓ 결과</text>
+    <text x="718" y="64" text-anchor="middle" font-size="8" fill="#3a7a5a">식재료 배열</text>
+    <!-- chain arrows -->
+    <path d="M100,55 L114,55" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#b)"/>
+    <path d="M216,55 L230,55" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#b)"/>
+    <path d="M332,55 L346,55" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#b)"/>
+    <path d="M448,55 L462,55" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#b)"/>
+    <path d="M572,55 L586,55" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#b)"/>
+    <path d="M668,55 L682,55" stroke="#9CA3AF" stroke-width="1.4" marker-end="url(#b)"/>
+    <!-- fallback -->
+    <text x="380" y="120" text-anchor="middle" font-size="10.5" font-weight="800" fill="#B86A20">0~2차 전부 미스일 때만 ↓</text>
+    <path d="M518,80 L518,150" stroke="#E89244" stroke-width="1.7" stroke-dasharray="4 3" fill="none" marker-end="url(#bo)"/>
+    <rect x="250" y="152" width="260" height="50" rx="10" fill="#fff" stroke="#E89244" stroke-width="1.8" stroke-dasharray="4 3"/>
+    <text x="380" y="172" text-anchor="middle" font-size="11.5" font-weight="800" fill="#B86A20">3차 LLM 폴백 (Claude Haiku · 서버)</text>
+    <text x="380" y="188" text-anchor="middle" font-size="9" fill="#b07a3c">"확실치 않으면 빈배열·환각 금지" → 도감 vocab에 있는 것만 통과</text>
+    <path d="M510,177 L600,177" stroke="#E89244" stroke-width="1.6" stroke-dasharray="4 3" fill="none" marker-end="url(#bo)"/>
+    <rect x="602" y="152" width="150" height="50" rx="10" fill="#FFF8F2" stroke="#E89244" stroke-width="1.8"/>
+    <text x="677" y="172" text-anchor="middle" font-size="10.5" font-weight="800" fill="#9a5418">learned_menus 적재</text>
+    <text x="677" y="188" text-anchor="middle" font-size="8.5" fill="#b07a3c">다음엔 무료 사전 히트</text>
+    <text x="380" y="228" text-anchor="middle" font-size="10" fill="#6B7280">※ 이 스킬이 키우는 건 0~2차 사전 — 결정론을 두껍게 해 비용·환각을 줄인다. learned_menus 적재는 크론/서버의 몫.</text>
+  </svg>
+  </div><div class="cap">초록=정적 JSON · 파랑=코드 사전 · 네이비=코드 후처리 · 주황 점선=LLM(마지막 수단).</div></div>
+  <div class="callout"><b>boostFromName</b>은 독립 단계가 아니라 0·1·2차 <b>모든 결정론 경로에 가산</b>된다(<code>wb()</code> 래퍼). 그래서 카레 템플릿이 <code>[감자,당근,양파]</code>여도 메뉴명에 "닭살"이 있으면 <code>닭고기</code>가 붙고, <b>돼지<u>감자</u></b>·<b>새우<u>젓</u></b> 같은 오탐은 가드 정규식이 막는다.</div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <div class="sec-h"><span class="no">6</span><h2>왜 테이블이 아니라 정적 JSON인가</h2></div>
+  <p class="lead">핵심은 <b>레퍼런스</b>와 <b>상태</b>의 분리다. 매핑 사전·도감·매트릭스는 <b>좀처럼 안 바뀌고, 빌드타임·클라에서 0ms로 읽혀야 하고, 바뀔 때 리뷰·롤백돼야 하는 레퍼런스</b>다 → 정적 JSON. 반대로 사용자마다 매초 바뀌는 건 전부 DB 테이블이다.</p>
+  <div class="two">
+    <div class="col static"><span class="k">정적 JSON = 레퍼런스</span><h4>🗂️ 좀처럼 안 바뀜</h4>
+      <ul>
+        <li>매핑 사전 · 도감 · 궁합 그래프 · 매트릭스</li>
+        <li>이 스킬이 가끔 갱신하는 <b>빌드 산출물</b></li>
+        <li>빌드타임/엣지/클라 <b>0ms 동기 읽기</b></li>
+        <li>git diff로 리뷰 · 원자 배포 · revert 롤백</li>
+      </ul></div>
+    <div class="col runtime"><span class="k">DB 테이블 = 상태</span><h4>📒 매초 바뀜</h4>
+      <ul>
+        <li><code>meal_logs</code> 끼니 기록 · <code>learned_menus</code> 학습</li>
+        <li><code>user_menu_overrides</code> · <code>coach_letters</code> · …</li>
+        <li>사용자·날짜마다 변동 · RLS·service_role·RPC</li>
+        <li>정적 사전이 못 푼 것만 런타임으로 흘림</li>
+      </ul></div>
+  </div>
+
+  <div class="reason"><div class="rh"><span class="rn">1</span>무네트워크·무지연 — 0ms 결정론 분해</div>
+    <div class="rb">사전은 정적 import라 빌드타임·엣지·클라 모두 동기로 즉시 읽힌다. 부모가 메뉴를 <b>한 글자 칠 때마다</b> DB 왕복이 들어가면 입력 UX가 죽는데, care 기록 화면은 매퍼를 메모리에 잡고 <b>네트워크 없이 즉석 분해</b>한다.</div>
+    <div class="ev">menuMapCore.ts:13 — import MENU_DICT from './menu-dict.json' with {type:'json'} · app/care/page.tsx — createMapper(pool) "네트워크 없이 즉시 분해"</div>
+  </div>
+  <div class="reason"><div class="rh"><span class="rn">2</span>클라 번들 분리 — 트리셰이킹으로 청크 제어</div>
+    <div class="rb">food-graph(156KB)·kit-matrix는 게터 안에서만 참조해 클라 번들에서 떨어져 나가고, 가벼운 menu-dict만 클라 코어에 들어간다. 정적 JSON이라 <b>빌드 시점에 어느 청크에 실릴지 트리셰이킹으로 제어</b>가 된다 — 런타임 DB라면 불가능.</div>
+    <div class="ev">foodGraph.ts:1-9 — "51KB 그래프를 클라 번들에 싣지 않으려는 의도" · graphSource.ts 정적 import 5종</div>
+  </div>
+  <div class="reason"><div class="rh"><span class="rn">3</span>git 버전관리 — 리뷰·원자 배포·롤백</div>
+    <div class="rb">JSON이 전부 git-tracked라, 사전을 바꾸는 건 <b>코드 diff로 리뷰</b>되고, 새 사전+그걸 쓰는 코드가 <b>한 커밋으로 원자 배포</b>되며, 잘못되면 <code>git revert</code> 한 번으로 즉시 롤백된다. DB row였다면 마이그레이션·데이터 드리프트가 코드와 따로 놀아 "어느 시점 사전으로 이 편지가 나왔나"가 추적 불가.</div>
+    <div class="ev">git ls-files — menu-dict·food-graph·kit-dish-matrix·ingredients-light·corpus-stats 전부 tracked</div>
+  </div>
+  <div class="reason"><div class="rh"><span class="rn">4</span>좀처럼 안 바뀌는 레퍼런스 — 빌드 산출물 ↔ 런타임 상태 경계</div>
+    <div class="rb">사전·그래프·도감은 사람이 검수하고 <code>scripts/gen-*</code>가 빌드 산출물로 한꺼번에 재생성하는 레퍼런스다. 유지보수 루프에서 가끔 갱신될 뿐 <b>유저 요청마다 바뀌지 않는다</b>. 빌드 산출물과 런타임 상태의 경계가 명확히 분리돼 있다.</div>
+    <div class="ev">scripts/gen-menu-dict.ts · gen-food-graph.py · gen-kit-matrix.py — 빌드 산출물 재생성(런타임 쓰기 아님)</div>
+  </div>
+  <div class="reason"><div class="rh"><span class="rn">5</span>그래도 SQL이 필요할 때를 위한 단일 격리층이 이미 있음</div>
+    <div class="rb"><code>graphSource.ts</code>가 "데이터를 어디서 읽는가"만 한 겹으로 격리한다(L2 스냅샷 JSON 기본·동기 / L1 SQL opt-in <code>COACH_GRAPH_SQL=1</code>). 소비 함수는 byte 무변경이고 SQL이 빈약하면 JSON을 유지하는 safe-degrade. <b>정적 JSON 기본 + 실시간 복리가 필요한 추천만 선택적 SQL warm</b>이라는 의도된 하이브리드 — "사전 자체는 정적이 정답"이라는 판단이 코드로 박제돼 있다.</div>
+    <div class="ev">graphSource.ts:1-21 — L2 JSON 기본 / L1 SQL opt-in · "추천 로직 그대로 · 데이터 어디서 읽는가만 격리 · safe degrade"</div>
+  </div>
+  <div class="tagline">레퍼런스(좀처럼 안 바뀜·0ms·리뷰 가능)는 정적 JSON, 상태(매초 바뀜·사용자별)는 DB 테이블. 이 스킬은 앞쪽을 다듬고, 크론은 양쪽을 써서 뒤쪽을 채운다.</div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <div class="sec-h"><span class="no">7</span><h2>안전 — 도감 자동 등재의 절대 우회 금지선</h2></div>
+  <p class="lead">도감 식재료 추가는 사람 승인 게이트를 없앴지만(2026-06-13), <b>영유아 안전 스크린만은 절대 우회하지 않는다</b>. 내가 인터넷 조사로 실존·정체·영양을 확인하고, 안전 스크린을 통과한 것만 자동 등재한다.</p>
+  <div class="two">
+    <div class="col" style="border-top:4px solid var(--g500)"><h4>✅ 통과 → 자동 등재</h4>
+      <ul><li>안전·실존·영유아 적합한 실재료</li><li>7파이프라인 전배선(풀·영양·💪배지·별등급·분량·제철·궁합)</li><li>흔하고 영양 우수면 💎, 아니면 일반</li></ul></div>
+    <div class="col" style="border-top:4px solid var(--r500)"><h4>⛔ 위험군 → 보류·보고</h4>
+      <ul><li>질식(곤약·문어·통대추) · 보툴리누스(꿀)</li><li>고나트륨·한방 부적합(인삼·함초) · 비타민A 과잉(장어)</li><li>"실존 식재료라도 영유아 부적합이면 절대 자동 등재 X"</li></ul></div>
+  </div>
+  <div class="callout green"><b>매핑에서도 같은 원칙이 작동한다.</b> 메뉴명에 한방 재료가 박혀 있어도 무시되고 안전한 베이스만 매핑된다 — 예: <code>인삼닭곰탕</code>·<code>황기닭곰탕</code> → <code>[닭고기,무,대파]</code>(인삼·황기는 도감에도 안 들어가고 추천에도 안 뜸), <code>함초삼겹</code> → <code>[돼지고기]</code>. 제3자(아이)를 보호하는 게 안전 우회 금지의 이유다.</div>
+  <div class="foot">밀프레드 — 코퍼스·도감 유지보수 스킬 작동 원리 · 2026-06-17 · 코드 근거 검증(5에이전트) 기반 · <a href="/docs.html" style="color:var(--p500)">문서 허브</a></div>
+</section>
+
+</main>
+</body></html>
