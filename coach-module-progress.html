@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>⑤ 진척·커리큘럼 레이어 — 작동 원리·데이터 파이프라인·I/O (모듈 명세)</title>
+<meta property="og:title" content="⑤ 진척·커리큘럼 레이어 — 코칭 모듈 명세">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ac:#16A085;--ad:#1B5E20;--abg:#F4FBF8;--abd:#bfe6d9;--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:var(--abg);color:var(--ad);padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:48px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,#16A08533 0,transparent 45%)}
+.hero-in{position:relative;z-index:1;max-width:860px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#fff;padding:6px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:14px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:27px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:11px}
+.hero h1 .ic{font-size:30px}
+.hero p{font-size:13.5px;color:#cfd8e3;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+.hero .crumbs{margin-top:14px;font-size:11px;color:#9fb0c2}.hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 10px;border-radius:100px;margin-right:2px}
+nav.toc a:hover{background:var(--abg);color:var(--ad)}
+nav.toc a.cur{background:var(--ac);color:#fff}
+main{max-width:920px;margin:0 auto;padding:8px 20px 64px}
+section{margin:34px 0;scroll-margin-top:52px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;padding-bottom:8px;border-bottom:2.5px solid var(--ac);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:19px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 14px;line-height:1.72}.lead b{color:var(--s800)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--abg);color:var(--ad);border:1px solid var(--abd)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.mtag{font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px}
+.mtag.st{background:#E9F7F2;color:var(--g700)}.mtag.fe{background:var(--abg);color:var(--ad);border:1px solid var(--abd)}.mtag.ab{background:var(--n100);color:var(--n600)}
+.card{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+ul.clean{margin:4px 0 0;padding-left:0;list-style:none}
+ul.clean li{font-size:12px;color:var(--n700);font-weight:500;line-height:1.6;margin:6px 0;padding-left:16px;position:relative}
+ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--ac);font-weight:800}
+.pipe{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.pn{display:flex;gap:12px;align-items:flex-start;background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:12px 15px}
+.pn .pnum{flex:none;width:26px;height:26px;border-radius:8px;background:var(--ac);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pn .pt{font-size:13px;font-weight:800;color:var(--s800)}
+.pn .pd{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:4px;line-height:1.6}
+.parrow{text-align:center;color:var(--n300);font-size:15px;font-weight:800;margin:3px 0}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:420px}
+th,td{border:1px solid var(--n200);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:720px){.io{grid-template-columns:1fr}}
+.iobox .iol{font-size:12px;font-weight:800;margin-bottom:5px}
+.iobox.inp .iol{color:var(--b700)}.iobox.out .iol{color:var(--g700)}
+.codeblk{background:#1F2D3D;border-radius:11px;padding:13px 14px;overflow-x:auto}
+.codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
+.note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
+.callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
+footer a{color:var(--ad);text-decoration:none;font-weight:700}
+.backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
+.backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+</style></head><body>
+<header class="hero"><div class="hero-in">
+<span class="tag">🧩 코칭 엔진 모듈 명세 · ⑤/⑦</span>
+<h1><span class="ic">📈</span> ⑤ 진척·커리큘럼 레이어</h1>
+<p>설문 없이 기록만으로 효과를 수치화하고, 12유닛 사다리로 행동을 가르친다</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
+</div></header>
+<nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html" class="cur">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a></nav>
+<main>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ⑤를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+
+<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
+<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: progress.ts + curriculumUnits.ts + coachDaily.ts</span></div>
+<p class="lead">설문 0개로 meal_logs·growth_logs 기록만 가지고 '편식이 좋아지는 중인지'를 28일 비교 수치로 증명(리텐션)하고, 부모 행동을 12개 커리큘럼 유닛의 사다리(steps)·판정(passWhen)·재발(relapseWhen)·관측 질문(probes)으로 가르치는 진척·커리큘럼 레이어다. progress.ts는 효과측정/BMI급변, curriculumUnits.ts는 12유닛 가드 레지스트리(선언이 곧 명세), coachDaily.ts는 크론이 호출하는 순수 신호 빌더·답변 파서.</p>
+<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
+<ul class="clean"><li>meal_logs (log_date·slot·menus·refused·note·environment·place·ate_well·duration_min + autonomy·texture·meal_time)</li><li>growth_logs (measured_on·또래 BMI 퍼센타일)</li><li>coach_questions (q_date·answer·context.unitProbe = 질문 답변)</li><li>child_unit_progress (child_id·unit_id·status·step·evidence·last_signal_at·relapse_count)</li><li>period_summaries (period_type·period_key·metrics — write-only 롤업)</li></ul>
+</section>
+
+<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
+<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
+<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">기록 적재</div><div class="pd">meal_logs를 ProgressRow/CRow(FactRow 확장: autonomy·texture·meal_time)로 로드. 모든 카운트는 '날짜' 단위로 dedup(행 부풀림 금지 — 적대감사 M6).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">효과측정 28일 비교</div><div class="pd">computeProgress가 최근28일 agg vs 직전28일(−55~−28) agg를 계산 → variety(2회+·비거부 식재료 수)·refusalPct·enjoyPct·avgDur 4지표를 improved 플래그와 함께 비교(양쪽 entries≥3일 때만 hasComparison).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">주간 후보 신호 빌더</div><div class="pd">buildCandSignals가 7일창에서 envBadPct(집 끼니만)·selfPct·texLow·mtOver30Pct·메모일수(압박/협상/끼니전간식)·간식과다일·신규식재료(28일창)·기관거부 식재료를 집계 → CandidateSignals.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">유닛 발동 점수화</div><div class="pd">각 UnitDef.trigger(s)가 CandidateSignals를 받아 0~3 발동 강도를 반환(예: pressureMemoDays≥2 → 2+). E-03 주간 종합(runWeeklyPlanning)이 이 점수로 focus 유닛 2~3개를 선발.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">신호 추출·사다리 판정</div><div class="pd">선발 유닛의 extract(rows·answers·today)가 7일창 evidence(예: envTablePct7d·targetExposeDays7d·signalToday)를 산출 → steps[].passWhen(e)로 단계 통과, relapseWhen(e)로 재발을 판정(표본 부족 시 null=보류).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">답변 블렌딩·롤업</div><div class="pd">parseProbeAnswers가 coach_questions.context.unitProbe + 칩 정확일치만 ProbeAnswer로 통과시켜('잘 모르겠어요'·자유텍스트 미적립) extract의 표본을 보충(G-04). periodMetrics는 기간 행을 요약해 period_summaries로 upsert(병원 차트).</div></div></div></div>
+</section>
+
+<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
+<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>computeProgress(rows, todayStr)</code></td><td>최근28일 vs 직전28일 4지표(잘먹는 다양성·거부율·완식률·식사시간) 비교 → ProgressResult{metrics·improved·total·verdict·hasComparison}. 홈 진척 카드(손)로 직행.</td></tr><tr><td><code>periodMetrics(rows) / isoWeekKey·monthKey·quarterKey·halfKey·yearKey</code></td><td>기간 행 요약 지표 + 기간 키 생성기. 크론이 period_summaries 롤업 upsert에 사용.</td></tr><tr><td><code>bmiTrend(points)</code></td><td>최근 두 측정의 또래 퍼센타일 변화 |Δ|≥15p면 급변 플래그(비알람 톤 note). 홈 BMI 경고 줄.</td></tr><tr><td><code>UNITS: Record&lt;UnitId, UnitDef&gt; + UNIT_IDS + TH</code></td><td>12유닛 레지스트리(id·label·lever·minWeek·steps·probes·extract·relapseWhen·trigger) + 임계 상수. 선언이 곧 명세 — 가드 4중 분산 금지.</td></tr><tr><td><code>buildCandSignals(rows, today, attendsDaycare)</code></td><td>7일/28일창에서 주간 후보 신호(CandidateSignals)를 rows로 계산. 크론이 runWeeklyPlanning에 주입(E-03 발동 입력).</td></tr><tr><td><code>parseProbeAnswers(qs)</code></td><td>coach_questions 답변 → ProbeAnswer[]. context.unitProbe·칩 정확일치만 통과(무지·자유텍스트 미적립 — 거짓 적립 차단).</td></tr></table></div>
+</section>
+
+<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
+<p class="lead">📥 <b>computeProgress=ProgressRow 배열+오늘(kstToday). extract=CRow 배열+ProbeAnswer 배열+today+{foodTarget}(콩류 결핍 → 대표 식재료 '두부' 주입).</b></p>
+<div class="io">
+<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>// computeProgress(rows, todayStr) — 아린(5세) 홈 진척 카드
+{
+  "rows": [
+    { "log_date": "2026-06-15", "ingredients": ["소고기", "감자", "계란"], "refused": null, "ate_well": true, "duration_min": 22 },
+    { "log_date": "2026-06-14", "ingredients": ["미역", "두부", "계란"], "refused": "콩나물", "ate_well": true, "duration_min": 28 },
+    { "log_date": "2026-06-12", "ingredients": ["소고기", "당근"], "refused": null, "ate_well": false, "duration_min": 35 },
+    { "log_date": "2026-05-20", "ingredients": ["감자", "계란"], "refused": "시금치", "ate_well": false, "duration_min": 41 },
+    { "log_date": "2026-05-18", "ingredients": ["소고기"], "refused": "브로콜리", "ate_well": true, "duration_min": 38 }
+  ],
+  "todayStr": "2026-06-16"
+}
+
+// UNITS['exposure-savings'].extract(rows, answers, today, opt) — 콩류 결핍 타깃
+{
+  "rows": [
+    { "log_date": "2026-06-15", "menus": ["미역국", "두부조림"], "note": "두부 한 입 먹음", "ate_well": true, "place": "home", "slot": "dinner", "environment": "table", "refused": null },
+    { "log_date": "2026-06-14", "menus": ["계란말이"], "note": null, "ate_well": false, "place": "home", "slot": "dinner", "environment": "screen", "refused": null }
+  ],
+  "answers": [],
+  "today": "2026-06-16",
+  "opt": { "foodTarget": "두부" }
+}</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// computeProgress 반환 → 홈 진척 카드(progress state)
+{
+  "hasComparison": true,
+  "metrics": [
+    { "key": "variety", "label": "잘 먹는 식재료", "recent": 3, "prior": 1, "unit": "종", "betterUp": true, "improved": true },
+    { "key": "refusal", "label": "거부 비율", "recent": 33, "prior": 100, "unit": "%", "betterUp": false, "improved": true },
+    { "key": "enjoy", "label": "완식 비율", "recent": 67, "prior": 50, "unit": "%", "betterUp": true, "improved": true },
+    { "key": "dur", "label": "식사 시간", "recent": 28, "prior": 40, "unit": "분", "betterUp": false, "improved": true }
+  ],
+  "improved": 4,
+  "total": 4,
+  "verdict": "편식이 좋아지는 중이에요 👏"
+}
+
+// exposure-savings.extract 반환 → evidence(병합기 lib/curriculum.ts가 적립)
+{
+  "targetExposeDays7d": 1,
+  "selfEatCount": 1,
+  "target": "두부",
+  "hitToday": "2026-06-15",
+  "signalToday": 1
+}</pre></div></div>
+</div>
+<div class="callout">📤 <b>전달</b> — computeProgress→손(홈 진척 카드 verdict·metrics 렌더). extract evidence→뇌(child_unit_progress.evidence 적립→passWhen 통과→두뇌 가이드 재료). buildCandSignals→뇌(주간 종합 focus 유닛 선발).</div>
+</section>
+
+<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
+<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
+<div class="chips"><span class="chip">progress (computeProgress → 홈 진척 카드)</span><span class="chip">candSignals (buildCandSignals → runWeeklyPlanning 입력)</span><span class="chip">weekly focus goals (UnitDef.trigger → E-07 목표 포트폴리오)</span><span class="chip">unit evidence/step (extract·passWhen → 진도 상태기계 advanceProgress)</span><span class="chip">bmiTrend (홈 급변 경고)</span><span class="chip">period_summaries.metrics (periodMetrics 롤업)</span></div>
+</section>
+
+<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
+<ul class="clean"><li>표본 부족 시 null 반환(판정 보류 — '기록 없음≠없음', 보류는 질문 정렬이 메움)</li><li>hasComparison 양쪽 entries≥3 게이트(통계적 환각 차단)</li><li>모든 카운트 '날짜' 단위 dedup(행 부풀림 금지 — 적대감사 M6)</li><li>parseProbeAnswers 칩 정확일치만 적립('잘 모르겠어요'·자유텍스트·미지 칩 미적립 = 거짓 적립 차단)</li><li>잘먹는 다양성=2회+ AND 비거부 식재료만(거부한 음식을 '잘먹음'으로 오판 금지)</li><li>food-bridge/link-rhythm 집 끼니만(place≠daycare) — 기관 급식을 부모 통제로 오귀속 금지</li><li>bmiTrend 비알람 톤(급변이어도 '전문가와 상의' 권유, 진단 단정 금지)</li></ul>
+</section>
+
+</main>
+<footer>
+밀프레드 코칭 엔진 모듈 명세 · ⑤ 진척·커리큘럼 레이어<br>
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
+코드 근거: progress.ts · curriculumUnits.ts · coachDaily.ts · 2026-06-17
+</footer>
+</body></html>

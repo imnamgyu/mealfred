@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>① 신호선택기 (시나리오 두뇌) — 작동 원리·데이터 파이프라인·I/O (모듈 명세)</title>
+<meta property="og:title" content="① 신호선택기 (시나리오 두뇌) — 코칭 모듈 명세">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ac:#9C27B0;--ad:#6A1B9A;--abg:#F9F3FE;--abd:#ddc4ef;--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:var(--abg);color:var(--ad);padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:48px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,#9C27B033 0,transparent 45%)}
+.hero-in{position:relative;z-index:1;max-width:860px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#fff;padding:6px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:14px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:27px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:11px}
+.hero h1 .ic{font-size:30px}
+.hero p{font-size:13.5px;color:#cfd8e3;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+.hero .crumbs{margin-top:14px;font-size:11px;color:#9fb0c2}.hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 10px;border-radius:100px;margin-right:2px}
+nav.toc a:hover{background:var(--abg);color:var(--ad)}
+nav.toc a.cur{background:var(--ac);color:#fff}
+main{max-width:920px;margin:0 auto;padding:8px 20px 64px}
+section{margin:34px 0;scroll-margin-top:52px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;padding-bottom:8px;border-bottom:2.5px solid var(--ac);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:19px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 14px;line-height:1.72}.lead b{color:var(--s800)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--abg);color:var(--ad);border:1px solid var(--abd)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.mtag{font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px}
+.mtag.st{background:#E9F7F2;color:var(--g700)}.mtag.fe{background:var(--abg);color:var(--ad);border:1px solid var(--abd)}.mtag.ab{background:var(--n100);color:var(--n600)}
+.card{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+ul.clean{margin:4px 0 0;padding-left:0;list-style:none}
+ul.clean li{font-size:12px;color:var(--n700);font-weight:500;line-height:1.6;margin:6px 0;padding-left:16px;position:relative}
+ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--ac);font-weight:800}
+.pipe{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.pn{display:flex;gap:12px;align-items:flex-start;background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:12px 15px}
+.pn .pnum{flex:none;width:26px;height:26px;border-radius:8px;background:var(--ac);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pn .pt{font-size:13px;font-weight:800;color:var(--s800)}
+.pn .pd{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:4px;line-height:1.6}
+.parrow{text-align:center;color:var(--n300);font-size:15px;font-weight:800;margin:3px 0}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:420px}
+th,td{border:1px solid var(--n200);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:720px){.io{grid-template-columns:1fr}}
+.iobox .iol{font-size:12px;font-weight:800;margin-bottom:5px}
+.iobox.inp .iol{color:var(--b700)}.iobox.out .iol{color:var(--g700)}
+.codeblk{background:#1F2D3D;border-radius:11px;padding:13px 14px;overflow-x:auto}
+.codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
+.note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
+.callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
+footer a{color:var(--ad);text-decoration:none;font-weight:700}
+.backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
+.backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+</style></head><body>
+<header class="hero"><div class="hero-in">
+<span class="tag">🧩 코칭 엔진 모듈 명세 · ①/⑦</span>
+<h1><span class="ic">🧠</span> ① 신호선택기 (시나리오 두뇌)</h1>
+<p>데이터 신호로 '오늘 편지의 각도(시나리오 1개)'를 고르고 음식 추천을 검수하는 행동선택 두뇌</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
+</div></header>
+<nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html" class="cur">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a></nav>
+<main>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ①를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+
+<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
+<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌(판단)로</span><span class="mtag ab">흡수: coachScenarios.ts + coachBrain.ts + coachWeekly.ts</span></div>
+<p class="lead">편지가 매일 똑같아지지 않게, 데이터 신호로 '오늘의 코칭 시나리오' 1개를 고르는 두뇌. 일간 전술층은 Sonnet 4.6 두뇌(pickActionByBrain)가 13개 후보 시나리오·최근 3주 주간계획·최근 편지·영양/시계열을 종합해 scenarioId+useFood(음식 다룰지)+approvedRecs(추천 검수)를 고른다. 두뇌는 편지를 쓰지 않는다 — 각도 선택과 추천 취사만 하고 작문·영양평가·추천 본문은 v2 엔진이 한다. 주간 작전층은 일요일 Sonnet(runWeeklyPlanning)이 다음 한 주 닻(타깃·레버·예산·부모 행동목표)을 잡고, 월~토는 planFromWeekly가 그 닻을 잠가 일관성을 유지한다.</p>
+<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
+<ul class="clean"><li>weekly_plans (주간 닻: mission_target·behavior_goal·impression·budget·ledger·goals — 두뇌 weeklyEchoes 입력 및 주간 닻 read/write)</li><li>coach_letters.context (최근 편지·scenarioId 이력 — recentScenarioIds/pastLetters 입력, 결과 context 저장)</li><li>SCENARIOS (코드 상수 13개 시나리오 라이브러리)</li><li>curriculumUnits UNITS/UNIT_IDS (v3 목표 포트폴리오 후보 산출)</li><li>ingredient-recipes·food-graph·kit-matrix (buildRecoFacts 추천 후보 — recoCandidates로 두뇌에 검수 입력)</li></ul>
+</section>
+
+<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
+<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
+<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">1) 신호 수집(CoachSignals)</div><div class="pd">cron이 meal_logs를 집/기관으로 분리해 계산한 timeseries·reds·homeReds·missing·homeMissing·homeRefused·daycareRefused·refused·notes·favoriteFoods·icfqRiskCount·envBadPct 등을 CoachSignals 한 묶음으로 받는다</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">2) 후보 시나리오 메뉴 생성</div><div class="pd">buildBrainContext가 SCENARIOS 13개 각각에 trigger(signals)를 실행해 '발동가능/비발동' 플래그 + recentScenarioIds로 '최근사용' 플래그를 붙여 메뉴 텍스트로 만든다</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">3) 컨텍스트 조립</div><div class="pd">후보 메뉴 + 영양거울(nutritionMirrorFromInput) + 음식추천 후보(recoCandidates=buildRecoFacts 결과) + 최근 3주 주간계획(weeklyEchoes) + 최근 5~7통 편지를 하나의 프롬프트 문자열로 합친다</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">4) Sonnet 두뇌 호출+검수</div><div class="pd">pickActionByBrain이 Sonnet 4.6(BRAIN_MODEL) SYSTEM_BRAIN으로 호출 → scenarioId·planTarget·moveKey·useFood·why를 JSON으로 받고, scenarioId는 SCEN_IDS 화이트리스트로 검증(밖이면 빈값→폴백), approvedRecs는 useFood=true일 때만 후보 부분집합으로 채움(환각 0)</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">5) v2 결정론 폴백/배선</div><div class="pd">두뇌 scenarioId가 유효하면 planFor(forceScenarioId)로 강제, 실패·빈값이면 결정론 selectScenario(priority+trigger·최근 2일 제외) 폴백. 구조 프레임(환경·자율성·식감)이면 useFood=false로 정합 강제</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">6) 주간 닻 잠금(작전층)</div><div class="pd">일요일 runWeeklyPlanning(Sonnet)이 다음 주 닻 산출(후보 화이트리스트로 타깃 환각 차단·ARFID면 push=0), 월~토 planFromWeekly가 mission_target을 잠그고 무브만 회전+채근 캡(주1회)+행동지연 적용, throw 없이 null/cold 폴백으로 발행 보장</div></div></div></div>
+</section>
+
+<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
+<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>selectScenario(s, recentIds)</code></td><td>[coachScenarios] 결정론 폴백 셀렉터 — trigger 충족 시나리오를 priority 내림차순 정렬, 최근 2일 사용분 1차 제외, fresh[0]→fired[0]→plateau 폴백으로 CoachScenario 1개 반환</td></tr><tr><td><code>SCENARIOS (상수 13개)</code></td><td>[coachScenarios] 진전축하(100)·ARFID관찰(92)·기록공백(84)·식사분위기(72)·보상역효과(70)·자율성다툼(66)·식감거부(60)·새거부(58)·재노출(54)·집기관격차(50)·영양공백(48)·반복메뉴(46)·정체기(30·폴백) — 각 id·label·priority·theoryBasis·promptHint(LLM 각도지시)·avoid·trigger(signals→boolean)</td></tr><tr><td><code>pickActionByBrain(ctx, candidates, model)</code></td><td>[coachBrain] Sonnet 두뇌 호출 → BrainAction 반환. scenarioId 화이트리스트 검증, useFood는 두뇌 boolean 직접 신뢰, approvedRecs=useFood?후보:[] (텍스트 echo 강제 매칭 제거된 수정본)</td></tr><tr><td><code>buildBrainContext(p)</code></td><td>[coachBrain] 13개 시나리오 메뉴(발동가능·최근사용 플래그)+영양거울+추천후보+3주 주간계획+최근편지를 JSON 지시 프롬프트로 조립</td></tr><tr><td><code>scenarioFromId / nutritionMirrorFromInput</code></td><td>[coachBrain] id→CoachScenario 역참조(폴백 null), LetterInput에서 영양 한 줄 추출(mirror 없으면 covered/missing 요약)</td></tr><tr><td><code>runWeeklyPlanning(i)</code></td><td>[coachWeekly] 일요일 Sonnet 종합 → WeeklySynthesis(mission·mission_target·lever·budget·impression·behaviorGoal·goals). 후보 화이트리스트 강제·ARFID push=0·실패시 coldSynth 폴백</td></tr><tr><td><code>planFromWeekly(p)</code></td><td>[coachWeekly] 월~토 닻 실행 — 안전 인터럽트(축하/적신호/공백) 우선, 비-food 레버는 LEVER_SCENARIO 프레임, food는 mission_target 잠금+채근캡(PUSH_MOVES 강등)+아크 단계 회전. null=폴백</td></tr><tr><td><code>candidateUnits / candidateTargets / healAnchor</code></td><td>[coachWeekly] v3 유닛 후보 산출(신호점수+재발우선·온보딩 게이트), 타깃 화이트리스트(집부족&gt;전체부족&gt;거부·스톨타깃 후순위), 구닻 behavior_goal/arc 결정론 치유</td></tr></table></div>
+</section>
+
+<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
+<p class="lead">📥 <b>cron이 meal_logs를 집/기관 분리·집계해 만든 CoachSignals + 영양거울 + 추천후보 + 주간계획 + 최근편지를 buildBrainContext가 프롬프트로 묶어 pickActionByBrain에 전달.</b></p>
+<div class="io">
+<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>// pickActionByBrain(ctx, candidates) — ctx는 buildBrainContext가 만든 프롬프트.
+// buildBrainContext에 들어가는 구조화 입력(아린·5세):
+{
+  "childName": "아린",
+  "signals": {
+    "timeseries": ["미역국 3회 반복"],
+    "reds": ["비타민A"],
+    "homeReds": ["비타민A"],
+    "missing": [],
+    "homeMissing": ["콩류", "비타민A채소"],
+    "homeRefused": ["당근"],
+    "daycareRefused": [],
+    "refused": ["당근"],
+    "notes": ["저녁마다 유튜브 보면서 먹어요"],
+    "favoriteFoods": ["소고기", "계란", "감자", "미역국"],
+    "attendsDaycare": true,
+    "ageBand": "3-4y",
+    "recentLoggedDays": 6,
+    "recentWindow": 7,
+    "icfqRiskCount": 0,
+    "envBadPct": 0.55,
+    "envCount": 5
+  },
+  "nutritionMirror": "충족: 곡류·어육류 / 집 부족: 콩류·비타민A채소",
+  "recoCandidates": ["콩류는 두부조림·순두부찌개로 잘 나가요. 당근은 잘 먹는 감자랑 함께 감자당근볶음으로."],
+  "weeklyEchoes": [
+    { "weekKey": "2026-W24", "target": "콩류", "behaviorGoal": "콩류를 격일로 작게 곁들여 다시 올리기", "impression": "콩류 노출은 늘었으나 집에서 수용 0. 환경(화면) 신호 커짐." }
+  ],
+  "pastLetters": [
+    { "date": "2026-06-16", "letter": "아린이가 미역국을 잘 먹는 모습이 보기 좋아요..." },
+    { "date": "2026-06-15", "letter": "콩류를 조금씩 다시 올려보면..." }
+  ],
+  "recentScenarioIds": ["nutrient-gap", "nutrient-gap"]
+}</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// pickActionByBrain 반환 (BrainAction):
+{
+  "scenarioId": "mealtime-atmosphere",
+  "planTarget": "콩류",
+  "moveKey": null,
+  "useFood": false,
+  "approvedRecs": [],
+  "why": "최근 2일 nutrient-gap 반복으로 잔소리 위험 + envBadPct 0.55(화면 식사)가 더 큰 문제라 오늘은 식사분위기 각도로 전환. 콩류 결핍은 다음 음식 날로 미룸."
+}
+// → cron: precomputed = planFor({ forceScenarioId: 'mealtime-atmosphere' })
+//   구조 프레임이라 useFood=false 정합 강제 → bridgeFacts='' (음식 추천 본문 제외)
+//   coach_letters.context.scenarioId/scenarioLabel/plan/brain 에 저장</pre></div></div>
+</div>
+<div class="callout">📤 <b>전달</b> — BrainAction → cron이 planFor(forceScenarioId)로 v2 작문 엔진에 주입(scenario/plan), useFood로 음식 추천 본문 on/off, brainPick 전체를 CoachContext.brain에 어드민 감사용으로 적재.</div>
+</section>
+
+<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌(판단)로</h2></div>
+<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
+<div class="chips"><span class="chip">scenarioId</span><span class="chip">scenarioLabel</span><span class="chip">plan</span><span class="chip">brain</span><span class="chip">weekly</span></div>
+</section>
+
+<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
+<ul class="clean"><li>scenarioId 화이트리스트(SCEN_IDS) 검증 — 목록 밖이면 빈값→v2 결정론 selectScenario 폴백(환각 시나리오 차단)</li><li>approvedRecs는 후보(food-graph)의 부분집합만·useFood=false면 빈 배열 — 후보 밖 음식·조합 추가 불가(괴식/환각 0)</li><li>useFood=false면 bridgeFacts='' 로 음식 추천 본문 제외 — 환경 날에 off-target 음식 박기 차단</li><li>구조 프레임(환경·자율성·식감)은 강제 useFood=false 정합 — '한 번에 하나' 위반(요구 3개 편지) 차단</li><li>다양성 강제 — 최근 2일 동일 시나리오면 다른 각도로(SYSTEM_BRAIN 원칙③ + selectScenario recentIds 1차 제외)</li><li>타깃 화이트리스트(candidateTargets/runWeeklyPlanning) — mission_target은 결핍/거부 후보 안에서만(없는 결핍 지어내기 금지)</li><li>ARFID 적신호(icfqRiskCount≥2) → push=0 선잠금·neophobia-arfid-watch는 진단·'장애' 단어 금지·1회만 안내</li><li>안전 제1원칙 — coachWeekly는 throw 안 함(synth는 cold 폴백, planFromWeekly는 null) → 닻 실패해도 발행 보장</li><li>stalledTarget 3주 진전0 → 후보 맨 뒤로 밀어 같은 음식 3주째 들이밀기 금지</li></ul>
+</section>
+
+</main>
+<footer>
+밀프레드 코칭 엔진 모듈 명세 · ① 신호선택기 (시나리오 두뇌)<br>
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
+코드 근거: coachScenarios.ts · coachBrain.ts · coachWeekly.ts · 2026-06-17
+</footer>
+</body></html>

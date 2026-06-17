@@ -1,0 +1,147 @@
+<!DOCTYPE html><html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>⑥ 작문기 (손) — 작동 원리·데이터 파이프라인·I/O (모듈 명세)</title>
+<meta property="og:title" content="⑥ 작문기 (손) — 코칭 모듈 명세">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ac:#E89244;--ad:#B86A20;--abg:#FFF6F1;--abd:#f5cbbb;--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:var(--abg);color:var(--ad);padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:48px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,#E8924433 0,transparent 45%)}
+.hero-in{position:relative;z-index:1;max-width:860px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#fff;padding:6px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:14px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:27px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:11px}
+.hero h1 .ic{font-size:30px}
+.hero p{font-size:13.5px;color:#cfd8e3;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+.hero .crumbs{margin-top:14px;font-size:11px;color:#9fb0c2}.hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 10px;border-radius:100px;margin-right:2px}
+nav.toc a:hover{background:var(--abg);color:var(--ad)}
+nav.toc a.cur{background:var(--ac);color:#fff}
+main{max-width:920px;margin:0 auto;padding:8px 20px 64px}
+section{margin:34px 0;scroll-margin-top:52px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;padding-bottom:8px;border-bottom:2.5px solid var(--ac);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:19px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 14px;line-height:1.72}.lead b{color:var(--s800)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--abg);color:var(--ad);border:1px solid var(--abd)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.mtag{font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px}
+.mtag.st{background:#E9F7F2;color:var(--g700)}.mtag.fe{background:var(--abg);color:var(--ad);border:1px solid var(--abd)}.mtag.ab{background:var(--n100);color:var(--n600)}
+.card{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+ul.clean{margin:4px 0 0;padding-left:0;list-style:none}
+ul.clean li{font-size:12px;color:var(--n700);font-weight:500;line-height:1.6;margin:6px 0;padding-left:16px;position:relative}
+ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--ac);font-weight:800}
+.pipe{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.pn{display:flex;gap:12px;align-items:flex-start;background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:12px 15px}
+.pn .pnum{flex:none;width:26px;height:26px;border-radius:8px;background:var(--ac);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pn .pt{font-size:13px;font-weight:800;color:var(--s800)}
+.pn .pd{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:4px;line-height:1.6}
+.parrow{text-align:center;color:var(--n300);font-size:15px;font-weight:800;margin:3px 0}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:420px}
+th,td{border:1px solid var(--n200);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:720px){.io{grid-template-columns:1fr}}
+.iobox .iol{font-size:12px;font-weight:800;margin-bottom:5px}
+.iobox.inp .iol{color:var(--b700)}.iobox.out .iol{color:var(--g700)}
+.codeblk{background:#1F2D3D;border-radius:11px;padding:13px 14px;overflow-x:auto}
+.codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
+.note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
+.callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
+footer a{color:var(--ad);text-decoration:none;font-weight:700}
+.backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
+.backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+</style></head><body>
+<header class="hero"><div class="hero-in">
+<span class="tag">🧩 코칭 엔진 모듈 명세 · ⑥/⑦</span>
+<h1><span class="ic">✍️</span> ⑥ 작문기 (손)</h1>
+<p>코드가 정한 계획을 따뜻한 한국어 편지·질문으로 바꾸는 LLM 작문 + 발행 전 품질 가드</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
+</div></header>
+<nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html" class="cur">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a></nav>
+<main>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ⑥를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+
+<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
+<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">✍️ 손(작문)으로</span><span class="mtag ab">흡수: coach.ts + coachChronic.ts</span></div>
+<p class="lead">'계획=코드·작문=LLM' 분리 원칙에서 '손' 역할. 두뇌(시나리오 선택)와 데이터(타깃·추천·시계열)가 확정한 입력을 받아, SYSTEM_COACH(편식 방법론 9개 + P1~P10 규칙)에 따라 DeepSeek/Claude로 따뜻한 부모용 편지·오늘의질문을 작문하고, 발행 전 결정론 안전가드·어휘 유사도·LLM 의미검증자로 괴식/환각/반복을 걸러낸다.</p>
+<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
+<ul class="clean"><li>coach-tips.json (휴면/저데이터용 편식 팁 풀)</li><li>CHRONIC_GUIDES (코드 상수 6질환 식이 방향)</li><li>MOVE_MENU / MOVE_KEYS / SCEN_MOVES / SCEN_OPEN / SCEN_ACT (코드 상수 무브·도입·행동 메뉴)</li><li>ICFQ_ITEMS / QUESTION_MOVES (코드 상수 질문 풀)</li><li>coachScenarios (selectScenario·SCENARIOS import)</li><li>llmCost (UsageRec 타입)</li></ul>
+</section>
+
+<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
+<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
+<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">입력 수신</div><div class="pd">크론/온디맨드가 조립한 LetterInput(base)을 composeLetter가 받음 — reds/covered/missing(우리 분석값)·favoriteFreq(집 끼니 빈도)·timeseries(시계열 사실)·homeRefused/daycareRefused·factCards(말해도 되는 사실)·weeklyArc·chronicGuidance·bridgeFacts(검증된 추천)·snackEval. 데이터를 *직접 조회하지 않고* 받아서 가공만 한다.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">전환사실 누수 차단·정규화</div><div class="pd">최종 시나리오 기준으로 ALLOW_TRANSITION 아닌 시나리오는 '거부→수용 전환' 시계열 제거(sanitizeTimeseries), 거부값 엄격정제(sanitizeRefusals=NOISE 메모 통째 드롭). 만성질환은 chronicGuidanceText로 식이 '방향' 1구절 변환(변비+장트러블 섬유충돌 가드).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">프롬프트 조립</div><div class="pd">buildLetterUser가 ctx + history(과거편지 중복금지) + factsBlock + mirrorBlock(영양거울 강제 1구절) + scenario/planTarget/open/action/arc/chronic/snack/move/safety 블록을 합쳐 USER 프롬프트 생성. SYSTEM은 캐싱 대상 SYSTEM_COACH 고정.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">LLM 작문</div><div class="pd">callClaude로 DeepSeek(DEEPINFRA/OPENROUTER 키 있으면, 뇌=v4-pro·손=v4-flash) 우선, 실패 시 서킷브레이커로 Claude Haiku 폴백. intro(주 첫 진단)만 Sonnet 승격. 최대 5회 재시도(깨진 JSON 회복). generateLetter가 polishKo(어법) + proofreadLetter(LLM 퇴고) 1회.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">결정론 안전 재생성</div><div class="pd">letterDeterministicBad로 환각시점·증상단정·섞기누수·김치괴식·튀김권유·과일↔끼니페어링·해조류↔생선혼동·날곡물 검출 시 최대 2회 재생성(detForbid 호출자 정규식도).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">유사도 + 의미검증 재생성</div><div class="pd">letterSimilarity(3-gram 자카드, 전체 0.45·도입 0.40 임계)로 표현 반복 시 무브 회전+regenAvoid 재생성. verifyLetter(LLM 검증자 1콜)로 사실왜곡·행동누수·금지표현·진단재서술 검사→위반시 fixNotes 주입 1회 재작성(개선되고 모든 가드 재통과 시만 채택·S1 대칭). deadlineMs 넘기면 발행 우선 강등.</div></div></div></div>
+</section>
+
+<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
+<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>composeLetter</code></td><td>통합 작성기(크론·온디맨드 공유). precomputed(시나리오·계획·varyOpener) 주입 → 생성 → 결정론/유사도/의미검증 재생성 → letter·oneliner·plan·verify·modelUsed 반환</td></tr><tr><td><code>buildLetterUser</code></td><td>LetterInput → 편지 USER 프롬프트 문자열 조립(영양거울·시나리오·타깃·무브·안전·만성·간식 블록). EPIC C byte-동일 회귀테스트용 export</td></tr><tr><td><code>generateLetter</code></td><td>callClaude로 편지 생성 후 polishKo+proofreadLetter 퇴고 → {letter, oneliner}</td></tr><tr><td><code>letterDeterministicBad</code></td><td>발행 전 결정론 정규식 가드 — 환각시점·증상·섞기누수·김치괴식·튀김·과일끼니페어링·날곡물 위반이면 true(재생성)</td></tr><tr><td><code>verifyLetter</code></td><td>LLM 의미 검증자 1콜 — 사실근거·행동1개·금지표현·진단재서술 검사. 장애 시 fail-open(발행 차단 안 함)</td></tr><tr><td><code>callClaude</code></td><td>DeepSeek 우선·Claude 폴백 LLM 호출 래퍼(서킷브레이커·5회 재시도·usage 적재·JSON 파싱)</td></tr><tr><td><code>generateOnboardingLetter</code></td><td>기록&lt;3일 신규자용 온보딩 편지(기록 칭찬+가벼운 평가+안내+팁)</td></tr><tr><td><code>generateQuestion</code></td><td>오늘의 질문 1개 생성(실제 로그 음식 짚기·결정론 주제 로테이션·1탭 chips)</td></tr><tr><td><code>chronicGuidanceText</code></td><td>부모 입력 만성질환 free-text → 식이 방향 1구절(진단·처방 금지·섬유충돌 가드)</td></tr></table></div>
+</section>
+
+<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
+<p class="lead">📥 <b>크론이 조립한 LetterInput(base) — 손은 데이터를 직접 안 읽고 이 입력만 받아 작문. precomputed(시나리오·plan·varyOpener)는 composeLetter 인자로 별도 주입.</b></p>
+<div class="io">
+<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>{
+  "childName": "아린",
+  "ageBand": "5y",
+  "eatenCount": 63,
+  "reds": ["비타민A", "식이섬유"],
+  "covered": ["곡류", "육류", "달걀", "유제품"],
+  "missing": ["콩류", "녹황색채소"],
+  "favoriteFreq": ["밥(16회)", "소고기(9회)", "계란말이(7회)", "미역국(5회)", "감자(4회)"],
+  "favoriteFoods": ["밥", "소고기", "계란말이", "미역국", "감자"],
+  "homeMissing": ["콩류", "녹황색채소"],
+  "homeReds": ["비타민A"],
+  "homeDays": 5,
+  "refused": ["당근", "브로콜리"],
+  "homeRefused": ["당근"],
+  "daycareRefused": ["브로콜리"],
+  "timeseries": ["3일 전 집 저녁에 '당근'을 처음 식탁에 올림(거부)"],
+  "factCards": ["[단발 1회] 3일 전 당근 첫 노출·거부", "[집 끼니 5일] 콩류 0회"],
+  "attendsDaycare": true,
+  "recentWindowDays": 5,
+  "recentLoggedDays": 5,
+  "bridgeFacts": "[오늘 타깃: 녹황색채소] 인기 음식 → 당근잡채, 시금치된장무침 / 잘 먹는 감자 → 닮은 사촌 단호박(찐 단호박), 궁합 단호박찜",
+  "chronicGuidance": "· 변비: 식이섬유(잘 익은 배·푹 익힌 채소)와 물을 한 가지씩 자연스럽게 더해 변을 부드럽게 돕는 각도. 변 횟수로 다그치지 않기.",
+  "weeklyArc": {"stage": "how", "behaviorGoal": "저녁마다 거부 채소 한 조각을 부담 없이 식탁에 올리기", "implIntention": "저녁 첫 숟갈 전", "progressNote": null}
+}</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>{
+  "letter": "아린이가 소고기와 계란말이를 든든히 잘 먹고 있어요. 어린이집 덕에 전체 영양은 잘 채워지고 있고, 집 끼니엔 녹황색채소가 좀 드무니 가끔 집에서도 만나면 다양성에 좋아요. 3일 전 당근을 처음 식탁에 올렸을 때 거부한 건 너무나 자연스러운 일이에요 — 새 음식은 여러 번 만나야 친해지거든요. 오늘 저녁 첫 숟갈 전에, 아린이가 좋아하는 감자 옆에 찐 단호박 한 조각만 부담 없이 곁들여 두어 보세요. 또래들은 단호박찜으로도 자주 먹는답니다.",
+  "oneliner": "소고기·계란을 든든히 챙기고 있어요. 오늘은 좋아하는 감자 옆에 찐 단호박 한 조각만 살짝 곁들여 보세요.",
+  "plan": {"frame": "home-daycare-gap", "target": "녹황색채소", "moveKey": "beside", "move": "좋아하는 음식 옆에 작은 한 조각을 곁들여 두기", "signature": "home-daycare-gap|녹황색채소|beside"},
+  "scenarioId": "home-daycare-gap",
+  "scenarioLabel": "집-기관 영양 격차",
+  "coachRegen": false,
+  "verify": {"ok": true, "violations": [], "regen": false},
+  "modelUsed": "claude-haiku-4-5-20251001"
+}</pre></div></div>
+</div>
+<div class="callout">📤 <b>전달</b> — composeLetter 반환물 → 크론이 letter/oneliner는 coach_letters 행으로, plan·scenarioId·coachRegen·verify·simToPrev·modelUsed는 letterCtx(context JSON)로 저장(앱 홈 편지 노출 + 어드민 검증·다음날 중복 회피 이력).</div>
+</section>
+
+<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — ✍️ 손(작문)으로</h2></div>
+<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
+<div class="chips"><span class="chip">letter</span><span class="chip">oneliner</span><span class="chip">context.plan(frame·target·moveKey·signature)</span><span class="chip">context.scenarioId</span><span class="chip">context.scenarioLabel</span><span class="chip">context.coachRegen</span><span class="chip">context.verify(ok·violations·regen)</span><span class="chip">context.simToPrev</span><span class="chip">context.repeatAlert</span><span class="chip">context.model</span></div>
+</section>
+
+<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
+<ul class="clean"><li>괴식: fruitSaltyMix(단과일+짭짤+섞는동사 동시), fruitMealPairing(과일을 끼니에 곁들임 — 과일은 SNACK_CHANNEL 간식 따로), 김치/깍두기에 섞기·칭찬, 짠맛 입맛발달 칭찬, 해조류↔생선·해산물 혼동, 밀·쌀 날곡물 섞기(밀→빵·면·떡/쌀→밥·떡)</li><li>환각: FORBID_TIME(지난달·N개월 등 없는 시점), SYMPTOM_RE(입력에 없는 사레·헛구역·뱉음 단정), factCards 밖 사실·횟수 창작 금지, fenceNotes로 부모메모 격리(주관·지시 아님), sanitizeRefusals/cleanRefusal로 메모형 거부 통째 드롭(거짓 전환 차단), 'N가지 식재료' 가짓수 칭찬 차단</li><li>안전(영유아): 매운음식·튀김·초가공(돈까스·너겟·소시지·어묵) 권유 차단, 간식 추천 조리표시(반으로잘라·익혀·잘게) 질식가드 보존, 만성질환 진단·처방·정량(mL)·체중언급 금지</li><li>행동: NO_FOOD_ACTION_FRAMES(환경·자율성 시나리오) 음식행동 누수 차단, '오늘의 타깃' 단일·행동 1개(P7), verifyLetter 의미검증(행동2개·계획밖 행동·진단재서술)</li><li>회복성: callClaude 5회 재시도·DeepSeek→Claude 서킷브레이커 폴백, verifyLetter fail-open(검증자 장애가 발행 막지 않음), deadlineMs 우아한 강등(SIGKILL 좀비 방지), 모든 재생성 산출물은 det+유사도 가드 재통과해야 채택(S1 가드 대칭)</li></ul>
+</section>
+
+</main>
+<footer>
+밀프레드 코칭 엔진 모듈 명세 · ⑥ 작문기 (손)<br>
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
+코드 근거: coach.ts · coachChronic.ts · 2026-06-17
+</footer>
+</body></html>

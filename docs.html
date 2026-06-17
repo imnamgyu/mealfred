@@ -216,13 +216,6 @@
       <p class="desc"><b>아이가 이미 잘 먹는 것에서 한 발씩, 닮은 식재료·새 조리법으로 다리를 놓는 모듈의 설계도(개발 전 기획).</b> ① <b>푸드체이닝 이론 지도</b>(Fraker 4축·SOS 6단계 위계·반복노출·Satter DOR·AAP food bridges·한국 푸드브릿지 계보 시각화) ② <b>실증 현황 정직 구분</b>(반복노출=강 / 체이닝·SOS 효능=논쟁 · ⚠️"5→20.5개" 날조 수치 인용 금지) ③ <b>현행 추천 원리 시각화</b>(<code>coachRecos</code> 5전략·재료=결정론·문장=LLM) ④ ⭐<b>신규 모듈</b>(아이 상태벡터 F·M·C·노출·SOS단계 + <b>2축 확장</b>[사촌×익숙기법 / 잘먹는음식×새기법] + 빈 신호 4종[온도축·노출카운트·비이진진척·연령기대]) ⑤ <b>출력 2방식</b>(ⓐ편지 산입 ⓑ편지→도감 맞춤 레시피) ⑥ 데이터 자산 매핑·로드맵 A~F·실용문서 17종(검증 URL). <span style="color:#C45A00">목표 = 아이가 '심리스하게' 먹는 폭을 넓히는 것.</span></p>
       <div class="meta"><span>ENGINE · 추천 모듈 기획 정본</span><span class="arrow">→</span></div>
     </a>
-    <a href="/coaching-architecture-map.html" class="doc-card cat-strategy">
-      <span class="badge new">🗺️ 신규 · 아키텍처 지도</span>
-      <div class="ico">🗺️</div>
-      <h4>코칭 아키텍처 지도 — 엔진·모듈 정의 · 아이 현황 스토어 · 데이터 계약</h4>
-      <p class="desc"><b>무엇을 '엔진'이라 부르고 무엇을 '모듈'이라 부를지, 아이 현황을 매일 어떻게 모아 코칭 엔진에 무슨 데이터를 넘길지의 한 장 지도.</b> ① <b>네이밍 규칙</b>(엔진=산출+루프 1개[코칭 엔진] / 모듈=데이터 공급[선호·푸드체이닝·영양거울·간식·두뇌] / 데이터 레이어[추천 네트워크·아이 현황 스토어]) ② <b>컴포넌트 지도</b>(SVG — 푸드체이닝 모듈이 추천 네트워크 내부 호출) ③ <b>아이 현황 스토어</b>(주간계획+일간기록+편지+파생 → child_daily_state 매일 갱신) ④ ⭐<b>데이터 계약 CoachContext</b>(코칭엔진에 넘기는 한 객체·필드별 출처) ⑤ 모듈 입출력·닫힌 루프·빌드 순서. <span style="color:#C45A00">"엔진/모듈 정의 + 어떤 데이터를 어떻게 넘기나"의 단일 진실.</span></p>
-      <div class="meta"><span>ENGINE · 아키텍처 정의 정본</span><span class="arrow">→</span></div>
-    </a>
     <a href="/preference-quantification-engine.html" class="doc-card cat-strategy">
       <span class="badge new">📊 신규 · 기획 계획서</span>
       <div class="ico">📊</div>
@@ -250,6 +243,73 @@
       <h4>추천 데이터 SQL 전환 — 코칭엔진 핸드오프</h4>
       <p class="desc"><b>추천 네트워크(사촌·궁합·음식×식재료)를 정적 JSON → SQL로 전환하는 양 세션 핸드오프.</b> 추천 로직은 그대로 두고 <b><code>graphSource</code> 한 겹</b>으로 JSON import 격리 → 소비 함수 byte 무변경. <b>7테이블 모델</b>(ingredients 허브·dogam·ingredient_edges·dish_ingredient_stats) + <b>캐시 3층</b>(SQL 원천→야간 스냅샷→인메모리+affinity_cache 폴백) + 현재 읽기 경로(file:line) + 불변 계약 + 분담 + 작업 순서. <span style="color:#C45A00">데이터 세션 ↔ 코칭엔진 세션 접점 = graphSource 반환 shape. 임시 참조용(전환 완료 후 정본 통합).</span></p>
       <div class="meta"><span>HANDOFF · 임시 참조</span><span class="arrow">→</span></div>
+    </a>
+  </div>
+</section>
+
+<!-- 3.5 코칭 엔진 모듈 명세 -->
+<section class="cat-section">
+  <div class="cat-head">
+    <h3>🧩 코칭 엔진 모듈 명세 (정본)</h3>
+    <span class="cnt">통합 1 · 모듈 7</span>
+    <span class="note">각 모듈의 작동원리 · 데이터 파이프라인(가져오기→가공) · 📥📤 I/O 예시 · 가드</span>
+  </div>
+  <div class="doc-grid">
+    <a href="/coaching-architecture-map.html" class="doc-card cat-arch">
+      <span class="badge new">🗺️ 허브 · 통합 정본</span>
+      <div class="ico">🗺️</div>
+      <h4>코칭 아키텍처 지도 — 엔진·모듈 정의 · CoachContext · 통합맵</h4>
+      <p class="desc"><b>이 섹션의 허브.</b> 엔진=1·모듈 정의 · 컴포넌트 지도(SVG) · <b>아이 현황 스토어</b>(child_daily_state) · ⭐<b>데이터 계약 CoachContext</b> · <b>11→6 통합맵</b> + 🧠✍️ 뇌·손 프롬프트 매핑 · 1만명 배치 2단계 · 타입/SQL 부록. <span style="color:#1B5E20">아래 7개 모듈이 이 지도의 한 칸씩.</span></p>
+      <div class="meta"><span>ENGINE · 통합 아키텍처</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coach-module-signal-selector.html" class="doc-card cat-arch">
+      <span class="badge new">🧠 ① 모듈</span>
+      <div class="ico">🧠</div>
+      <h4>① 신호선택기 (시나리오 두뇌)</h4>
+      <p class="desc">데이터 신호로 <b>오늘 편지의 각도(시나리오 1개)</b>를 고르고 음식 추천을 검수하는 행동선택 두뇌. 📥 CoachSignals·3주 닻·과거편지·추천후보 → 📤 <code>decision{scenarioId,planTarget,useFood}</code>. 흡수=coachScenarios+coachBrain+coachWeekly. 화이트리스트·다양성 가드.</p>
+      <div class="meta"><span>MODULE · 뇌(판단)</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coach-module-reco-engine.html" class="doc-card cat-arch">
+      <span class="badge new">🌉 ② 모듈</span>
+      <div class="ico">🌉</div>
+      <h4>② 추천엔진 (재료·궁합·체인)</h4>
+      <p class="desc">결핍 식품군을 <b>또래가 실제 먹는 음식·검증 사촌·강한 궁합</b>으로 근거화해 괴식(미역국+당근)·환각 차단. 📥 target·likedIngredients·freqMap → 📤 <code>recoCandidates</code>·<code>recoFacts</code>. 흡수=coachRecos(+휴면 coachMaterials·recoEvidence).</p>
+      <div class="meta"><span>MODULE · 뇌+손</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coach-module-facts-mirror.html" class="doc-card cat-arch">
+      <span class="badge new">🪞 ③ 모듈</span>
+      <div class="ico">🪞</div>
+      <h4>③ 사실·거울 컴파일러</h4>
+      <p class="desc">코드가 <b>'말해도 되는 진단 사실'</b>만 컴파일(시계열 라벨·식단 거울·재노출 타이밍)해 LLM 과일반화·환각·괴식을 구조 차단. 📥 FactRow[]·거울 쿨다운·노출횟수 → 📤 <code>factCards·mirror·forbidParts</code>. 흡수=coachFacts+reexposure.</p>
+      <div class="meta"><span>MODULE · 뇌+손</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coach-module-nutrition.html" class="doc-card cat-arch">
+      <span class="badge new">🚦 ④ 모듈</span>
+      <div class="ico">🚦</div>
+      <h4>④ 영양평가 레이어 (신호등·간식)</h4>
+      <p class="desc">식재료 빈도로 <b>결핍 신호등(green/yellow/red)·8군 다양성</b>을 켜고, 간식을 끼니와 분리해 4축으로 따로 감시. 📥 일별 식재료/끼니·BMI → 📤 <code>signals·snackEval</code>. 흡수=nutrition+snack.</p>
+      <div class="meta"><span>MODULE · 데이터</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coach-module-progress.html" class="doc-card cat-arch">
+      <span class="badge new">📈 ⑤ 모듈</span>
+      <div class="ico">📈</div>
+      <h4>⑤ 진척·커리큘럼 레이어</h4>
+      <p class="desc"><b>설문 없이 기록만으로 효과를 수치화</b>(CEBQ-lite·다양성·BMI)하고 12유닛 사다리로 행동을 가르침. LLM 0. 📥 28/7일창 meal_logs·성장·프로브 → 📤 <code>progress·candSignals·unitEvidence</code>. 흡수=progress+curriculumUnits+coachDaily.</p>
+      <div class="meta"><span>MODULE · 뇌+손</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coach-module-writer.html" class="doc-card cat-arch">
+      <span class="badge new">✍️ ⑥ 모듈</span>
+      <div class="ico">✍️</div>
+      <h4>⑥ 작문기 (손)</h4>
+      <p class="desc">코드가 정한 계획을 <b>따뜻한 한국어 편지·질문</b>으로 바꾸는 LLM 작문(DeepSeek V4-Flash) + 발행 전 안전·유사도·의미 가드. 📥 LetterInput(①~⑤ ctx)+만성framing → 📤 <code>{letter, oneliner}</code>. 흡수=coach(작문부)+coachChronic.</p>
+      <div class="meta"><span>MODULE · 손(작문)</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coach-module-graph-query.html" class="doc-card cat-arch">
+      <span class="badge new">🕸️ ⑦ 모듈</span>
+      <div class="ico">🕸️</div>
+      <h4>⑦ 네트워크 조회 헬퍼</h4>
+      <p class="desc">음식↔식재료 <b>궁합·사촌·음식적합도·급식빈도</b>를 <code>graphSource</code> 단일 읽기경로로 조회하는 그래프 질의층(②가 소비). 📥 식재료명 → 📤 Neighbor[]/DishFit[]/freq. 흡수=foodGraph+kitGuide+ingredientFreq+graphSource.</p>
+      <div class="meta"><span>MODULE · 데이터(뇌 경유)</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
@@ -371,7 +431,14 @@
     '/nutrient-signal-report.html':{c:'2026-06-01',m:'2026-06-01'},
     '/food-network-data-architecture.html':{c:'2026-06-14',m:'2026-06-14'},
     '/food-chaining-personalization-engine.html':{c:'2026-06-16',m:'2026-06-16'},
-    '/coaching-architecture-map.html':{c:'2026-06-16',m:'2026-06-16'},
+    '/coaching-architecture-map.html':{c:'2026-06-16',m:'2026-06-17'},
+    '/coach-module-signal-selector.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coach-module-reco-engine.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coach-module-facts-mirror.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coach-module-nutrition.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coach-module-progress.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coach-module-writer.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coach-module-graph-query.html':{c:'2026-06-17',m:'2026-06-17'},
     '/preference-quantification-engine.html':{c:'2026-06-16',m:'2026-06-16'},
     '/data-pipeline-erd.html':{c:'2026-06-14',m:'2026-06-14'},
     '/menu-ingest-pipeline.html':{c:'2026-06-15',m:'2026-06-15'},

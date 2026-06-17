@@ -1,0 +1,184 @@
+<!DOCTYPE html><html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>③ 사실·거울 컴파일러 — 작동 원리·데이터 파이프라인·I/O (모듈 명세)</title>
+<meta property="og:title" content="③ 사실·거울 컴파일러 — 코칭 모듈 명세">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ac:#16A085;--ad:#1B5E20;--abg:#F4FBF8;--abd:#bfe6d9;--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:var(--abg);color:var(--ad);padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:48px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,#16A08533 0,transparent 45%)}
+.hero-in{position:relative;z-index:1;max-width:860px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#fff;padding:6px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:14px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:27px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:11px}
+.hero h1 .ic{font-size:30px}
+.hero p{font-size:13.5px;color:#cfd8e3;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+.hero .crumbs{margin-top:14px;font-size:11px;color:#9fb0c2}.hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 10px;border-radius:100px;margin-right:2px}
+nav.toc a:hover{background:var(--abg);color:var(--ad)}
+nav.toc a.cur{background:var(--ac);color:#fff}
+main{max-width:920px;margin:0 auto;padding:8px 20px 64px}
+section{margin:34px 0;scroll-margin-top:52px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;padding-bottom:8px;border-bottom:2.5px solid var(--ac);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:19px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 14px;line-height:1.72}.lead b{color:var(--s800)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--abg);color:var(--ad);border:1px solid var(--abd)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.mtag{font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px}
+.mtag.st{background:#E9F7F2;color:var(--g700)}.mtag.fe{background:var(--abg);color:var(--ad);border:1px solid var(--abd)}.mtag.ab{background:var(--n100);color:var(--n600)}
+.card{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+ul.clean{margin:4px 0 0;padding-left:0;list-style:none}
+ul.clean li{font-size:12px;color:var(--n700);font-weight:500;line-height:1.6;margin:6px 0;padding-left:16px;position:relative}
+ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--ac);font-weight:800}
+.pipe{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.pn{display:flex;gap:12px;align-items:flex-start;background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:12px 15px}
+.pn .pnum{flex:none;width:26px;height:26px;border-radius:8px;background:var(--ac);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pn .pt{font-size:13px;font-weight:800;color:var(--s800)}
+.pn .pd{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:4px;line-height:1.6}
+.parrow{text-align:center;color:var(--n300);font-size:15px;font-weight:800;margin:3px 0}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:420px}
+th,td{border:1px solid var(--n200);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:720px){.io{grid-template-columns:1fr}}
+.iobox .iol{font-size:12px;font-weight:800;margin-bottom:5px}
+.iobox.inp .iol{color:var(--b700)}.iobox.out .iol{color:var(--g700)}
+.codeblk{background:#1F2D3D;border-radius:11px;padding:13px 14px;overflow-x:auto}
+.codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
+.note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
+.callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
+footer a{color:var(--ad);text-decoration:none;font-weight:700}
+.backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
+.backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+</style></head><body>
+<header class="hero"><div class="hero-in">
+<span class="tag">🧩 코칭 엔진 모듈 명세 · ③/⑦</span>
+<h1><span class="ic">🪞</span> ③ 사실·거울 컴파일러</h1>
+<p>코드가 '말해도 되는 진단 사실'을 시계열 라벨과 식단 거울로 컴파일해, LLM의 과일반화·환각·괴식을 구조적으로 차단</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
+</div></header>
+<nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html" class="cur">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a></nav>
+<main>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ③를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+
+<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
+<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: coachFacts.ts + reexposure.ts</span></div>
+<p class="lead">편지가 주장해도 되는 '사실 카드'를 LLM이 아니라 코드가 전부 계산한다. 각 사실에 시계열 추세 라벨(단발 1회/간헐 2~3회/반복 4회+)을 붙여, 하루치 사건을 '리듬·패턴'으로 일반화하거나(뷔페 사고) 데이터와 모순되게 단정하는('점심을 거른다') 것을 막는다. 동시에 매 편지가 아이의 실제 먹은 것을 비춰주는 '식단 거울'(어제 끼니 컨디션 + 최근 7일 영양신호등 강점/결핍 + 잘 먹는 음식에 결핍 식재료 섞기)을 생성하고, 거부 식재료 중 '재노출 적기' 1개를 숫자 근거 문장으로 만들어 코칭에 넘긴다.</p>
+<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
+<ul class="clean"><li>meal_logs (log_date·slot·menus·refused·note·environment·place·ate_well·ingredients — 기존 컬럼만, 스키마 변경 0)</li><li>lib/coachRecos.pickFoodReco (food-graph 추천 — 궁합/사촌/도전, 괴식0 테이블)</li><li>lib/nutrition.computeGroupSignals (식품군 green/red 신호등 — 홈 화면과 동일 로직)</li></ul>
+</section>
+
+<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
+<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
+<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">meal_logs 행을 FactRow[]로 받음</div><div class="pd">크론(route.ts)이 자녀별 최근 끼니 행(log_date·slot·menus·refused·note·environment·place·ate_well·ingredients)을 조회해 compileFactCards/compileFacts에 rows로 전달. 모두 기존 컬럼만 사용(스키마 변경 0).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">끼니·환경·음식·거부를 추세 라벨로 분류</div><div class="pd">점심 lastLunchAge로 분기(이어짐/끊김/드뭄)해 결식 단정 차단, env-week 화면식사 비율 %, topOf로 집(place≠daycare)/기관(daycare) 음식 분리, 거부는 '거부한 날 수' 기준 recurrenceLabel 부여.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">데이터 기반 금지 정규식(forbidParts) 산출</div><div class="pd">최근 2일 메모가 지지하지 않으면 '점심 거르/건너/굶' 단정 정규식 추가, 단발 이벤트 단어(뷔페·외식·여행)가 최근 2일 메모에 없으면 stale로 금지 — 과거 편지 메아리 차단.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">식단 거울(buildMealMirror) 합성</div><div class="pd">① 어제 컨디션 저하(SICK_RE) 감지 시 공감 한 줄로 조기 반환 ② 최근 7일 식품군 신호등으로 argmin 결핍(만성군 가중) 1개 선택, 집에서 2일+ 거부없이 먹은 liked 식재료/likedDishes에 결핍 식재료를 잘게 섞는 구체 행동 문장 생성. 과일·유제품은 간식 채널(끼니 곁들임 금지).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">재노출 적기 판정(reexposurePick)</div><div class="pd">거부 식재료별 노출 횟수·마지막 노출 후 일수로 어제/오늘(0~1일) 제외, 2~7일=due·8일+=overdue, due 안에서 많이 만난 것 우선. 숫자 박은 fact 문장 1개를 시계열 사실로 push.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">LetterInput·CoachContext로 배선</div><div class="pd">cards→factCards, noteCards→notes, forbidParts→detForbid 재생성 게이트, mirror→context.mirror(+nutritionMirrorFromInput으로 두뇌 영양평가), rx.fact→timeseries 사실. 카드는 14개로 컷.</div></div></div></div>
+</section>
+
+<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
+<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>compileFactCards</code></td><td>rows+today를 받아 시계열 라벨이 붙은 FactCard[](끼니·환경·집/기관 음식·거부)·noteCards(날짜 분류 메모)·forbidParts(금지 정규식)·mirror(식단 거울)를 반환하는 메인 컴파일러</td></tr><tr><td><code>compileFacts</code></td><td>compileFactCards의 문자열-카드 어댑터(cards를 c.text만으로 평탄화) — 크론 프롬프트·api/coach 등 문자열 경로용. route.ts가 실제로 호출하는 진입점</td></tr><tr><td><code>buildMealMirror</code></td><td>어제 컨디션 공감 + 최근 7일 영양신호등(강점 대비 argmin 결핍, 만성 가중) + 잘 먹는 음식/요리에 결핍 식재료 섞는 구체 행동 한두 문장을 합성한 '식단 거울' 문자열 생성</td></tr><tr><td><code>recurrenceLabel</code></td><td>count→'단발 1회'/'간헐 N회'/'반복 N회' 시계열 추세 라벨. 모든 사실 분석이 거쳐야 하는 패턴화 가드의 핵심</td></tr><tr><td><code>reexposurePick</code></td><td>거부 식재료+노출횟수+경과일로 '지금 다시 권하기 좋은' 1개를 due/overdue로 판정, 숫자 박힌 데이터 근거(fact) 한 줄을 만들어 ReexpoVerdict로 반환(LLM은 인용만)</td></tr></table></div>
+</section>
+
+<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
+<p class="lead">📥 <b>compileFactCards({ rows: FactRow[](meal_logs 끼니 행), today, recentMirrors?(거울 쿨다운용 최근 문장), name? }) — 아린 5세, 집에서 소고기·계란·감자 잘 먹고 콩류/비타민A채소(당근) 결핍·미역국 등장.</b></p>
+<div class="io">
+<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>{
+  "today": "2026-06-16",
+  "name": "아린",
+  "recentMirrors": [
+    "최근 고기·달걀은 잘 챙겼는데 노랑·주황 채소가 좀 아쉬워요. ..."
+  ],
+  "rows": [
+    {
+      "log_date": "2026-06-15",
+      "slot": "dinner",
+      "menus": ["미역국", "소고기무국", "잡곡밥"],
+      "refused": "당근",
+      "note": "당근은 골라냈어요",
+      "environment": "table",
+      "place": "home",
+      "ate_well": true,
+      "ingredients": ["미역", "소고기", "쌀", "무"]
+    },
+    {
+      "log_date": "2026-06-15",
+      "slot": "lunch",
+      "menus": ["김치volunteer", "닭갈비"],
+      "refused": null,
+      "note": null,
+      "environment": "table",
+      "place": "daycare",
+      "ate_well": true,
+      "ingredients": ["닭고기", "배추"]
+    },
+    {
+      "log_date": "2026-06-14",
+      "slot": "breakfast",
+      "menus": ["계란말이", "감자조림", "밥"],
+      "refused": null,
+      "note": null,
+      "environment": "screen",
+      "place": "home",
+      "ate_well": true,
+      "ingredients": ["계란", "감자", "쌀"]
+    }
+  ]
+}</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>{
+  "cards": [
+    {
+      "key": "lunch",
+      "text": "점심: 기록된 2일 중 1일만 점심 기록(최근 포함)",
+      "kind": "diagnosis",
+      "prose": "점심 기록이 아직 드문 편이에요"
+    },
+    {
+      "key": "top-home",
+      "text": "집에서 자주 오르는 음식: 미역국 1회 · 소고기무국 1회 · 계란말이 1회 · 감자조림 1회",
+      "kind": "diagnosis",
+      "prose": "집 식탁에는 미역국·소고기무국 같은 음식이 자주 올라요"
+    },
+    {
+      "key": "refuse:당근",
+      "text": "거부: 당근 — 단발 1회(마지막 어제 · 횟수=거부한 날 수)",
+      "kind": "diagnosis",
+      "prose": "최근 식탁에서 당근 거부가 한 차례 있었어요"
+    }
+  ],
+  "noteCards": [
+    "[어제·하루 관찰] 당근은 골라냈어요"
+  ],
+  "forbidParts": [
+    "점심(을|은)?[^.。\\n]{0,6}(거르|건너|굶)|점심(을|은)\\s?(거의\\s?)?안\\s?먹"
+  ],
+  "mirror": "최근 고기·달걀은 잘 챙겼는데 노랑·주황 채소가 좀 아쉬워요. 아린이가 잘 먹는 소고기무국에 당근을 잘게 썰어 넣어 보면 어떨까요."
+}</pre></div></div>
+</div>
+<div class="callout">📤 <b>전달</b> — cards→LetterInput.factCards(편지의 사실 주장은 이 안에서만), noteCards→notes, forbidParts→detForbid 정규식(위반 시 편지 재생성), mirror→context.mirror. reexposurePick의 fact는 timeseries 사실로 편지가 'N번·M일·적기'를 인용. mirror는 nutritionMirrorFromInput으로 두뇌 영양평가에도 재사용.</div>
+</section>
+
+<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
+<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
+<div class="chips"><span class="chip">factCards</span><span class="chip">notes</span><span class="chip">mirror</span><span class="chip">forbidParts(→detForbid 재생성 게이트)</span><span class="chip">factsCited(어드민 검증용)</span></div>
+</section>
+
+<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
+<ul class="clean"><li>시계열 추세 라벨(단발/간헐/반복)로 하루치 사건 과일반화 차단(뷔페 사고 방지)</li><li>점심 결식 단정은 최근 2일 메모 직접 지지 시에만 — 기록 부재≠결식, forbidParts 정규식으로 위반 재생성</li><li>단발 이벤트 단어(뷔페·외식·여행)가 최근 2일 메모에 없으면 stale 금지(과거 편지 메아리 차단)</li><li>집(home)/기관(daycare) 음식 분리 — 급식 메뉴를 '집에서 잘 먹는다' 칭찬 근거로 세탁 금지(P10)</li><li>거부 카운트=거부한 '날' 수(하루 2슬롯 거부를 간헐 2회로 부풀리는 라벨 거짓 방지·M6)</li><li>괴식 차단: 과일·유제품은 간식 채널(끼니 곁들임 금지), NOT_DISH 정규식으로 과일·우유·과자에 식재료 섞기 금지(바나나+시금치 차단)</li><li>컨디션 저하(SICK_RE) 감지 시 칭찬 차단·공감 톤만, 끼니 복기 제거</li><li>거울 문장 쿨다운(pickFresh+recentMirrors) — 만성 결핍이 같은 군 반복 지목해도 verbatim 복붙 방지</li><li>재노출은 어제/오늘(0~1일) 권태 제외, 숫자는 코드가 계산해 LLM은 인용만(환각 차단·P4·P5)</li><li>sanitizeMenu로 NEIS 원천 기호(&amp;·괄호·la) 손편지용 정리</li></ul>
+</section>
+
+</main>
+<footer>
+밀프레드 코칭 엔진 모듈 명세 · ③ 사실·거울 컴파일러<br>
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
+코드 근거: coachFacts.ts · reexposure.ts · 2026-06-17
+</footer>
+</body></html>

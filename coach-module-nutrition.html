@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>④ 영양평가 레이어 (신호등·간식) — 작동 원리·데이터 파이프라인·I/O (모듈 명세)</title>
+<meta property="og:title" content="④ 영양평가 레이어 (신호등·간식) — 코칭 모듈 명세">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ac:#3498DB;--ad:#1565C0;--abg:#EEF6FD;--abd:#bcdcf3;--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:var(--abg);color:var(--ad);padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:48px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,#3498DB33 0,transparent 45%)}
+.hero-in{position:relative;z-index:1;max-width:860px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#fff;padding:6px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:14px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:27px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:11px}
+.hero h1 .ic{font-size:30px}
+.hero p{font-size:13.5px;color:#cfd8e3;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+.hero .crumbs{margin-top:14px;font-size:11px;color:#9fb0c2}.hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 10px;border-radius:100px;margin-right:2px}
+nav.toc a:hover{background:var(--abg);color:var(--ad)}
+nav.toc a.cur{background:var(--ac);color:#fff}
+main{max-width:920px;margin:0 auto;padding:8px 20px 64px}
+section{margin:34px 0;scroll-margin-top:52px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;padding-bottom:8px;border-bottom:2.5px solid var(--ac);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:19px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 14px;line-height:1.72}.lead b{color:var(--s800)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--abg);color:var(--ad);border:1px solid var(--abd)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.mtag{font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px}
+.mtag.st{background:#E9F7F2;color:var(--g700)}.mtag.fe{background:var(--abg);color:var(--ad);border:1px solid var(--abd)}.mtag.ab{background:var(--n100);color:var(--n600)}
+.card{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+ul.clean{margin:4px 0 0;padding-left:0;list-style:none}
+ul.clean li{font-size:12px;color:var(--n700);font-weight:500;line-height:1.6;margin:6px 0;padding-left:16px;position:relative}
+ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--ac);font-weight:800}
+.pipe{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.pn{display:flex;gap:12px;align-items:flex-start;background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:12px 15px}
+.pn .pnum{flex:none;width:26px;height:26px;border-radius:8px;background:var(--ac);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pn .pt{font-size:13px;font-weight:800;color:var(--s800)}
+.pn .pd{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:4px;line-height:1.6}
+.parrow{text-align:center;color:var(--n300);font-size:15px;font-weight:800;margin:3px 0}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:420px}
+th,td{border:1px solid var(--n200);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:720px){.io{grid-template-columns:1fr}}
+.iobox .iol{font-size:12px;font-weight:800;margin-bottom:5px}
+.iobox.inp .iol{color:var(--b700)}.iobox.out .iol{color:var(--g700)}
+.codeblk{background:#1F2D3D;border-radius:11px;padding:13px 14px;overflow-x:auto}
+.codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
+.note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
+.callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
+footer a{color:var(--ad);text-decoration:none;font-weight:700}
+.backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
+.backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+</style></head><body>
+<header class="hero"><div class="hero-in">
+<span class="tag">🧩 코칭 엔진 모듈 명세 · ④/⑦</span>
+<h1><span class="ic">🚦</span> ④ 영양평가 레이어 (신호등·간식)</h1>
+<p>식재료 빈도로 결핍 신호등을 켜고, 간식을 끼니와 분리해 따로 감시한다</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
+</div></header>
+<nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html" class="cur">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a></nav>
+<main>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ④를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+
+<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
+<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: nutrition.ts + snack.ts</span></div>
+<p class="lead">care 식사 기록의 식재료를 영양소로 환산해 "며칠 동안 이 영양소를 커버했나"로 신호등(green/yellow/red)을 산출하고(정량 g이 아닌 빈도 평가), 끼니와 분리한 간식 엔진으로 초가공·가당음료·식사간섭·BMI 방향을 따로 감시한다. 신호등의 red 영양소(reds)는 코칭 두뇌(planFor 시나리오)와 추천 엔진의 결핍 앵커가 되고, 간식 평가는 편지에 부드럽게 합쳐진다.</p>
+<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
+<ul class="clean"><li>graphSource.getNutrientMap() (농진청 10.4 정밀맵 GEN_NUTRI, JSON)</li><li>ingredients-light.json의 cat (catOf 빗대기 입력)</li><li>meal_logs 행(slot·log_date·menus·ingredients·ate_well·meal_time — SnackRow)</li><li>내장 상수: NUTRI_MAP·CATEGORY_NUTRI·CATEGORY_GROUP·FOOD_GROUP·KEY_NUTRIENTS·KDRI_NUTRIENTS·KDRI_VAL_BY_AGE·GROUP_TARGET</li></ul>
+</section>
+
+<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
+<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
+<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">식재료→영양소 매핑</div><div class="pd">nutrientsOf(ing,catOf): ① 농진청 정밀맵 GEN_NUTRI ∪ NUTRI_MAP(둘 다 정확 출처) 우선, ② 둘 다 없으면 풀 카테고리(catOf)의 CATEGORY_NUTRI 빗대기 폴백 — '모름'으로 비우지 않음</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">날짜별 커버일 집계</div><div class="pd">ingredientsByDay(날짜별 식재료 목록)를 돌며 그날 커버된 영양소를 Set으로 모으고 coverDays[n]++ — '며칠 동안 닿았나'를 센다</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">밴드별 신호등 판정</div><div class="pd">영양소를 daily(5일+)/frequent(4일+)/occasional(2일+) 밴드로 나눠 KDRI_BAND_NEED 문턱과 비교. d&gt;=need green, d&gt;0 yellow, d==0 red. 데이터 가드: 기록&lt;3일 보류(yellow/reference), 비타민D는 red 비활성</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">식품군 다양성·점수</div><div class="pd">computeGroupSignals(8군 daily/rotation 목표 주간추정 weeklyEst), computeFoodGroups(covered/missing), computeDiversityScore(다양성 base + 결핍군 게이트캡 − 가공패널티 − 반복패널티). daycareMode면 과일·유제품 제외</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">간식 분리 분석</div><div class="pd">evaluateSnacks: meal_logs 전체 행에서 SNACK_SLOTS(am_snack/pm_snack/snack)만 추려 worst-of로 ultra/sugary/good 분류, 같은 날 간식 직후 2.5h내 덜 먹은 끼니(ate_well=false)로 간섭성 계산, BMI band→stance(encourage/maintain/reduce), reds로 결핍보완 간식 추천</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">두뇌·손 핸드오프</div><div class="pd">reds→CoachSignals.reds(두뇌 시나리오)·evaluateSnacks 입력. SnackEval→snackEvalToPrompt→LetterInput.snackEval(편지 한 블록). KDRI/그룹/다양성 신호등→app/page.tsx 홈 UI 렌더</div></div></div></div>
+</section>
+
+<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
+<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>nutrientsOf(ing, catOf)</code></td><td>식재료 1개→커버 영양소 배열. 농진청∪NUTRI_MAP 우선, 없으면 카테고리 빗대기 폴백</td></tr><tr><td><code>computeSignals(ingredientsByDay, catOf)</code></td><td>KEY 15종 영양소 신호등(NutrientSignal[]). cron이 red만 뽑아 reds로 사용</td></tr><tr><td><code>computeKdriSignals(ingredientsByDay, catOf, ageBand)</code></td><td>36종 KDRI 신호등(연령대 기준치·빈도 판정·미매핑은 reference). 홈 모달용</td></tr><tr><td><code>computeGroupSignals(ingredientsByDay, catOf)</code></td><td>8식품군 다양성 신호등(weeklyEst·green/yellow/red) + proteinOk</td></tr><tr><td><code>computeFoodGroups(allIngredients, catOf)</code></td><td>8군 covered/missing 분해</td></tr><tr><td><code>computeDiversityScore(args)</code></td><td>영양 점수 단일 진입점: 다양성 base + 게이트캡 − 가공 − 반복 (집/기관 분리)</td></tr><tr><td><code>computeTimeseries(byDate, menuFreq, catOf, today, opts)</code></td><td>추세 사실 문장(채소 N일째 없음·반복 메뉴) — LLM 날짜 추정 차단</td></tr><tr><td><code>evaluateSnacks(args)</code></td><td>간식 종합 평가→SnackEval|null (초가공·가당·간섭성·stance·좋은간식)</td></tr><tr><td><code>snackEvalToPrompt(ev, rotate)</code></td><td>SnackEval→편지용 한 블록 문자열(체중 단어 금지·예시 로테이션)</td></tr><tr><td><code>goodSnackSuggestions(stance, reds, rotate)</code></td><td>stance+결핍→좋은 간식 4종(질식 조리표시 보존·중복제거)</td></tr><tr><td><code>isProcessed(name)</code></td><td>메뉴명→초가공(ultra)/가공육(cured) 판정 정규식. snack 엔진도 재사용</td></tr></table></div>
+</section>
+
+<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
+<p class="lead">📥 <b>computeSignals=날짜별 식재료 2차원 배열+catOf, evaluateSnacks=meal_logs SnackRow[]+BmiBand+결핍영양소 reds(computeSignals 산출)</b></p>
+<div class="io">
+<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>// computeSignals — 아린(5세) 최근 5일 집/기관 식재료(날짜별)
+computeSignals(
+  [
+    ["쌀", "소고기", "계란", "감자", "미역"],
+    ["쌀", "계란", "김치", "두부"],
+    ["쌀", "소고기", "감자", "양파"],
+    ["쌀", "계란", "미역", "당근"],
+    ["쌀", "닭고기", "감자", "김치"]
+  ],
+  catOf   // ingredients-light.json cat 조회 함수
+)
+
+// evaluateSnacks — 같은 아이의 meal_logs 행 + 체격밴드 + reds
+evaluateSnacks({
+  rows: [
+    { slot: "pm_snack", log_date: "2026-06-15", menus: ["초코우유", "과자"], ingredients: [], ate_well: true, meal_time: 15.5 },
+    { slot: "dinner",   log_date: "2026-06-15", menus: ["밥","미역국"], ingredients: ["쌀","미역"], ate_well: false, meal_time: 18.5 },
+    { slot: "am_snack", log_date: "2026-06-16", menus: ["바나나"], ingredients: [], ate_well: true, meal_time: 10.5 }
+  ],
+  band: "정상",
+  reds: ["오메가3", "비타민D", "철"]   // computeSignals의 red 영양소
+})</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// computeSignals → NutrientSignal[] (KEY 15종, 일부 발췌)
+[
+  { "nutrient": "단백질",  "daysCovered": 5, "level": "green" },
+  { "nutrient": "철",     "daysCovered": 4, "level": "green" },
+  { "nutrient": "비타민A", "daysCovered": 1, "level": "yellow" },
+  { "nutrient": "오메가3", "daysCovered": 0, "level": "yellow" },
+  { "nutrient": "비타민D", "daysCovered": 0, "level": "yellow" },
+  { "nutrient": "요오드",  "daysCovered": 2, "level": "green" }
+]
+// → cron: reds = level==='red'인 nutrient만 추출 → CoachSignals.reds + evaluateSnacks 입력
+
+// evaluateSnacks → SnackEval
+{
+  "snackEntries": 3, "snackDays": 2,
+  "ultraCount": 1, "sugaryCount": 0, "goodCount": 1,
+  "ultraExamples": ["과자"],
+  "interference": [{ "date": "2026-06-15", "snackSlot": "pm_snack", "mealSlot": "dinner", "gapH": 3, "kind": "ultra" }],
+  "topInterferedMeal": "저녁",
+  "stance": "maintain", "band": "정상",
+  "reds": ["오메가3","비타민D","철"],
+  "goodSuggestions": ["치즈","삶은 계란","두유","과일"],
+  "concern": true,
+  "summary": "간식 3끼(2일) · 초가공 1 · 통식품 1 · 식사간섭 1 · 방향:maintain(정상)"
+}
+// → snackEvalToPrompt(ev) → LetterInput.snackEval(문자열 블록) → coach.ts 프롬프트</pre></div></div>
+</div>
+<div class="callout">📤 <b>전달</b> — reds→CoachSignals.reds(두뇌)·간식추천 앵커. SnackEval→snackEvalToPrompt→CoachContext(LetterInput).snackEval 한 블록으로 손(편지)에 합쳐짐. KDRI/그룹/다양성 신호등은 홈 UI(데이터)로</div>
+</section>
+
+<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
+<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
+<div class="chips"><span class="chip">signals.reds (CoachSignals — computeSignals red)</span><span class="chip">signals.homeReds</span><span class="chip">signals.missing / homeMissing (computeFoodGroups)</span><span class="chip">signals.timeseries (computeTimeseries)</span><span class="chip">snackEval (LetterInput — snackEvalToPrompt 블록)</span><span class="chip">letterCtx.snack (어드민 SnackEval.summary 스냅샷)</span><span class="chip">홈 UI: kdri/groupSig/diversityScore (data)</span></div>
+</section>
+
+<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
+<ul class="clean"><li>빈도 평가 명시(정량 g 아님) — '며칠 커버' 기반, 과대 단정 금지</li><li>데이터 가드: 기록&lt;3일이면 신호 보류(yellow/reference), 기록&lt;5일이면 red 보류, 비타민D는 빈도 red 비활성(보충제 영양소)</li><li>빗대기 안전망: 미매핑 식재료를 '모름'으로 비우지 않고 카테고리 근사 / KDRI 미매핑은 reference(가짜 빨강 방지)</li><li>KDRI 제외 5종(나트륨·에너지·수분·불소·크롬) — 결핍 걱정 없는 항목 신호화 안 함</li><li>환각 차단: computeTimeseries가 날짜 사실만 계산해 LLM 추정 방지, assertNoVeg는 catOf 신뢰 시에만 '채소 없음' 단정(P4)</li><li>질식 안전: 간식 추천에 (반으로 잘라)·(익혀·강판)·(잘게) 조리표시 보존 — coach.ts 프롬프트가 통째 표현으로 못 바꾸게</li><li>체중 민감 가드: snackStance/snackEvalToPrompt가 체중·살·다이어트·BMI 단어 금지, 방향(stance)만 노출</li><li>가공/반복 패널티 과잉처벌 방지: 끼니 3건 미만이면 미적용, 상한(가공22·반복12), 흰쌀밥·김치·국 등 주식 제외</li><li>daycareMode: 점심 급식만 평가하는 기관이 과일·유제품 결핍으로 부당 감점되지 않게 제외</li></ul>
+</section>
+
+</main>
+<footer>
+밀프레드 코칭 엔진 모듈 명세 · ④ 영양평가 레이어 (신호등·간식)<br>
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
+코드 근거: nutrition.ts · snack.ts · 2026-06-17
+</footer>
+</body></html>

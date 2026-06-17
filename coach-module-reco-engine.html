@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>② 추천엔진 (재료·궁합·체인) — 작동 원리·데이터 파이프라인·I/O (모듈 명세)</title>
+<meta property="og:title" content="② 추천엔진 (재료·궁합·체인) — 코칭 모듈 명세">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ac:#9C27B0;--ad:#6A1B9A;--abg:#F9F3FE;--abd:#ddc4ef;--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:var(--abg);color:var(--ad);padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:48px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,#9C27B033 0,transparent 45%)}
+.hero-in{position:relative;z-index:1;max-width:860px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#fff;padding:6px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:14px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:27px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:11px}
+.hero h1 .ic{font-size:30px}
+.hero p{font-size:13.5px;color:#cfd8e3;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+.hero .crumbs{margin-top:14px;font-size:11px;color:#9fb0c2}.hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 10px;border-radius:100px;margin-right:2px}
+nav.toc a:hover{background:var(--abg);color:var(--ad)}
+nav.toc a.cur{background:var(--ac);color:#fff}
+main{max-width:920px;margin:0 auto;padding:8px 20px 64px}
+section{margin:34px 0;scroll-margin-top:52px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;padding-bottom:8px;border-bottom:2.5px solid var(--ac);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:19px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 14px;line-height:1.72}.lead b{color:var(--s800)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;background:var(--abg);color:var(--ad);border:1px solid var(--abd)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.mtag{font-size:11px;font-weight:800;padding:4px 12px;border-radius:100px}
+.mtag.st{background:#E9F7F2;color:var(--g700)}.mtag.fe{background:var(--abg);color:var(--ad);border:1px solid var(--abd)}.mtag.ab{background:var(--n100);color:var(--n600)}
+.card{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+ul.clean{margin:4px 0 0;padding-left:0;list-style:none}
+ul.clean li{font-size:12px;color:var(--n700);font-weight:500;line-height:1.6;margin:6px 0;padding-left:16px;position:relative}
+ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--ac);font-weight:800}
+.pipe{display:flex;flex-direction:column;gap:0;margin-top:6px}
+.pn{display:flex;gap:12px;align-items:flex-start;background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:12px 15px}
+.pn .pnum{flex:none;width:26px;height:26px;border-radius:8px;background:var(--ac);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pn .pt{font-size:13px;font-weight:800;color:var(--s800)}
+.pn .pd{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:4px;line-height:1.6}
+.parrow{text-align:center;color:var(--n300);font-size:15px;font-weight:800;margin:3px 0}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:420px}
+th,td{border:1px solid var(--n200);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:720px){.io{grid-template-columns:1fr}}
+.iobox .iol{font-size:12px;font-weight:800;margin-bottom:5px}
+.iobox.inp .iol{color:var(--b700)}.iobox.out .iol{color:var(--g700)}
+.codeblk{background:#1F2D3D;border-radius:11px;padding:13px 14px;overflow-x:auto}
+.codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
+.note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
+.callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
+footer a{color:var(--ad);text-decoration:none;font-weight:700}
+.backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
+.backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+</style></head><body>
+<header class="hero"><div class="hero-in">
+<span class="tag">🧩 코칭 엔진 모듈 명세 · ②/⑦</span>
+<h1><span class="ic">🌉</span> ② 추천엔진 (재료·궁합·체인)</h1>
+<p>결핍 식품군을 또래가 실제로 먹는 음식·검증된 사촌·강한 궁합으로 '근거화'해 LLM 괴식·환각을 차단하는 결정론 재료 엔진</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
+</div></header>
+<nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html" class="cur">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a></nav>
+<main>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ②를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+
+<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
+<div class="meta-row"><span class="mtag st">부분/휴면 포함</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: coachRecos.ts + coachMaterials.ts + recoEvidence.ts</span></div>
+<p class="lead">결핍 식품군에서 '무엇을 추천할지'(식재료·조합·근거)를 코드가 결정론으로 못 박아 LLM에는 '어떻게 쓸지'(문장·톤)만 맡긴다. 추상 조리법 대신 또래가 실제로 가장 자주 먹는 '음식 이름'·검증된 사촌·강한 궁합만 권해 괴식(미역국+당근)과 환각(지어낸 궁합)을 원천 차단한다.</p>
+<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
+<ul class="clean"><li>lib/food-graph.json (foodGraph: strongPairsOf 강한 궁합·verifiedCousinsOf 검증 사촌)</li><li>lib/kit-dish-matrix.json (kitGuide: dishesForIngredient 실측 count 폴백)</li><li>lib/ingredient-recipes JSON (route가 로드→FreqMap 주입: 또래 급식 음식 빈도)</li><li>lib/kit-dish-matrix.json (comboMatrix: scoreCombo 조합 검증)</li><li>lib/ingredient-freq.json (ingredientFreq: topPctOf 급식 상위%)</li><li>NUTRIENT_FOODS / GROUP_TARGET (nutrition: 영양소 역인덱스·식품군 권장치)</li><li>coach-tips.json (온보딩 즉효 팁)</li></ul>
+</section>
+
+<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
+<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
+<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">결핍 신호 입력</div><div class="pd">영양 거울(computeGroupSignals)이 만든 GroupSignal[](group·level·weeklyEst)을 받아 끼니 채널 6군(과일·유제품 간식 제외)만 남기고 심각도순(red 먼저·채소 가점·주간추정 적은 순) 정렬 → deficiencyWindow/buildIngredientPool로 시급 결핍군 산출</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">잘 먹는 식재료 판정(집·P10)</div><div class="pd">deriveLikedIngredients가 meal_logs를 place=daycare/snack(차려진 것) 제외하고 집(place null/home)에서 서로 다른 2일+ 등장·거부 이력 없는 것만 liked로, 거부는 refused로 분리</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">대표 식재료 회전·랭킹</div><div class="pd">GROUP_INGREDIENTS에서 결핍군 대표 식재료를 뽑아 rankIngredients(시급도·급식빈도%·강한 궁합·검증 사촌 4기준 가중합)로 정렬, buildIngredientPool은 주간 5개 풀을 mode(supply/challenge/mixed)로 선정</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">3일 무재사용 회전</div><div class="pd">rotateRecommendation이 recentRecos(최근 3일 추천)에 없는 최상위를 골라 같은 식재료 연속 추천 차단(6/2·6/3 콩 반복 사고 방지), 전부 쿨다운이면 랭킹 1위 폴백</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">조합·궁합·사촌 근거 생성</div><div class="pd">buildValidatedCombos가 잘 먹는 음식×추천 식재료를 scoreCombo 임계 통과분만 남기고(미역국+당근 탈락), strongPairsOf(강한 궁합)·verifiedCousinsOf(검증 사촌)로 푸드체이닝 라인 구성, 주식 곡물은 stapleDisplay(밥·빵·면)·생채소는 cookedName(찐 단호박) 표기</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">사실 블록 산출→두뇌·손 주입</div><div class="pd">buildRecoFacts가 '오늘 타깃 음식+또래 인기 음식+곁들임' 멀티라인 text를 만들어 CoachContext.bridgeFacts(손)와 brainCtx.recoCandidates(두뇌)로 동시 전달, evidenceFor는 식재료별 '급식 상위%·영양역할' 결정론 근거 문구 생성</div></div></div></div>
+</section>
+
+<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
+<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>pickFoodReco</code></td><td>coachRecos: 거울용 구체 추천 1건 — liked→pair→chain→dish→plain 우선순위로 via 태그와 함께 반환(전부 테이블 근거)</td></tr><tr><td><code>buildRecoFacts</code></td><td>coachRecos: 타깃 식재료의 인기 음식+잘 먹는 것의 사촌·궁합을 멀티라인 RecoFacts(text)로 — CoachContext.bridgeFacts·두뇌 recoCandidates의 단일 소스</td></tr><tr><td><code>buildIngredientPool</code></td><td>coachRecos: 주간 추천 식재료 5개 풀을 영양거울 기반 supply/challenge/mixed mode로 선정(일일 회전 소스)</td></tr><tr><td><code>weeklyExposureTarget</code></td><td>coachRecos: 본문 노출용 '실제 결핍 도전 음식' 1개를 끼니 채널 결핍군에서 정렬(주간 고정)</td></tr><tr><td><code>popularDishesFor / cookedName / stapleDisplay</code></td><td>coachRecos: 식재료→또래 인기 음식 최대 2개(freqMap 우선·kit-matrix 폴백·매운 제외), 생채소엔 조리 접두(찐·데친), 주식은 먹는 형태(밥·빵·면)</td></tr><tr><td><code>selectDailyMaterials</code></td><td>coachMaterials: Letter B 재료 엔진 단일 산출물 — 온보딩 분기→결핍 수치→liked→4기준 랭킹→3일 회전→검증 조합→근거 문구를 DailyMaterials로 (현재 테스트만 참조·dormant)</td></tr><tr><td><code>rankIngredients / rotateRecommendation / buildValidatedCombos</code></td><td>coachMaterials: 4기준 가중 랭킹·3일 무재사용 회전·isComboOk 임계 통과 조합만 산출(괴식 조합 제외)</td></tr><tr><td><code>deriveLikedIngredients</code></td><td>coachMaterials: 집(daycare/snack 제외)·서로 다른 2일+·거부 없음으로 진짜 liked 판정, 거부는 refused 분리</td></tr><tr><td><code>evidenceFor</code></td><td>recoEvidence: 식재료의 '급식 상위%(0회는 절 생략)·영양역할' 결정론 근거 문구 — 정직성 가드(빈도 0을 상위 100%로 위장 금지)</td></tr></table></div>
+</section>
+
+<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
+<p class="lead">📥 <b>live: route가 meal_logs에서 집 빈도순 likedIng·planFor 타깃·일일 회전 recoIng(targetIngredient)·ingredient-recipes freqMap을 buildRecoFacts에 주입</b></p>
+<div class="io">
+<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>{
+  "// buildRecoFacts(아린·5세·콩류/비타민A채소 결핍·소고기/계란/감자 잘 먹음)": "live 경로",
+  "likedIngredients": ["소고기", "계란", "감자", "두부"],
+  "target": "비타민A채소",
+  "targetIngredient": "당근",
+  "freqMap": {
+    "당근": [{ "name": "당근라페", "freq": 9 }, { "name": "소고기당근볶음", "freq": 6 }],
+    "단호박": [{ "name": "단호박찜", "freq": 3 }]
+  }
+}</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>{
+  "target": "비타민A채소",
+  "cousins": ["단호박"],
+  "lines": [
+    "[오늘 타깃 비타민A채소] 익힌 당근 (또래 인기 음식: 당근라페·소고기당근볶음 · 잘 먹는 감자 곁들이면 좋아요)",
+    "소고기 → 궁합 감자·당근",
+    "감자 → 사촌 찐 단호박(또래 인기: 단호박찜)"
+  ],
+  "text": "[오늘 타깃 비타민A채소] 익힌 당근 (또래 인기 음식: 당근라페·소고기당근볶음 · 잘 먹는 감자 곁들이면 좋아요)\n소고기 → 궁합 감자·당근\n감자 → 사촌 찐 단호박(또래 인기: 단호박찜)"
+}</pre></div></div>
+</div>
+<div class="callout">📤 <b>전달</b> — text가 CoachContext.bridgeFacts(손=작문 재료)와 brainCtx.recoCandidates(두뇌=시나리오/useFood 판단)로 동시에 들어가 편지가 이 목록 밖 음식·조합을 못 짓게 함</div>
+</section>
+
+<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
+<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
+<div class="chips"><span class="chip">bridgeFacts</span><span class="chip">recoCandidates (brainCtx)</span><span class="chip">recoPoolArr/recoMode/recoIng (route 일일 회전 상태)</span></div>
+</section>
+
+<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
+<ul class="clean"><li>괴식 차단: buildValidatedCombos가 scoreCombo 임계(기본 2) 통과 조합만 — 미역국+당근 등 미통과 제외, 빈 결과 허용(조합 강요 금지)</li><li>환각 차단: 궁합은 strongPairsOf(강한 신호만), 사촌은 verifiedCousinsOf(검증된 것만), 음식은 freqMap/kit-matrix 실측만 — 편지는 이 목록 밖을 지어내지 않음</li><li>안전 조리 표기: 생채소·생선·말린콩·알류엔 COOK_ADJ 접두(찐 단호박·삶은 달걀)로 생물 오인 방지, 매운 음식 isSpicyDish 제외</li><li>주식 곡물 가드: STAPLE_FORMS로 밀·쌀은 날것 노출 금지 → 빵·면·떡·밥 먹는 형태로만(stapleDisplay)</li><li>정직성(evidenceFor): 급식빈도 0(단호박)이면 '상위 N%' 절 생략(0회를 상위 100%로 위장 금지), 영양·빈도 둘 다 없으면 빈 text</li><li>선호 신호 정제(deriveLikedIngredients): 급식·간식(차려진 것) 제외·집 2일+·거부 우선 — 당근 급식 오판 차단</li><li>온보딩 가드(materialsForLowData): 기록&lt;3일이면 결핍 분석 끄고(환각 위험) 입력 안내+즉효 팁</li><li>환각 방지(deficiencyWindow/weeklyExposureTarget): 끼니 채널이 전부 green이면 null 반환</li></ul>
+</section>
+
+</main>
+<footer>
+밀프레드 코칭 엔진 모듈 명세 · ② 추천엔진 (재료·궁합·체인)<br>
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
+코드 근거: coachRecos.ts · coachMaterials.ts · recoEvidence.ts · 2026-06-17
+</footer>
+</body></html>
