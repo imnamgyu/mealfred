@@ -82,13 +82,30 @@
 </head>
 <body>
 <div class="hero"><div class="hero-in">
-  <span class="tag">🧪 모델 실측 · 5일치 · 2026-06-16</span>
-  <h1>코칭 편지 LLM 모델 비교<br><b>DeepSeek vs Claude</b> — 아린 5일 실측</h1>
-  <p>코칭엔진 LLM을 DeepSeek로 바꿀 수 있나? 아린의 <b>최근 5일(06-11~15)</b> 손(편지) 프롬프트를 <b>실제 저장된 결정</b>(scenario·planTarget·brain 추천·주간 arc)으로 재구성해, 같은 입력을 <b>4개 모델 × 5일 = 20편</b> 생성·비교했습니다. 현재 라이브 편지는 <b>Claude Haiku</b>가 씁니다.</p>
+  <span class="tag">✅ 적용됨 · 정본 · 2026-06-17</span>
+  <h1>코칭 LLM = <b>DeepSeek 전환 완료</b><br>비용·근거 정본</h1>
+  <p><b>결정 끝 — 적용 완료.</b> 코칭엔진을 Claude → <b>DeepSeek(DeepInfra 직접·미국)</b>로 전환했습니다(뇌=V4-Pro·손=V4-Flash·실패 시 Claude 폴백). 아래 두괄식이 적용 후 비용, 그 아래가 이 결정의 근거(아린 5일·7일 실측)입니다.</p>
   <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 관련: <a href="/coaching-prompt-architecture.html">프롬프트 아키텍처</a></div>
 </div></div>
 
 <main>
+
+  <div style="background:linear-gradient(135deg,#E9F7F2,#FFF8E1);border:2px solid var(--g400);border-radius:15px;padding:20px 22px;margin-bottom:20px">
+    <div style="font-size:14.5px;font-weight:800;color:var(--g700);margin-bottom:12px">✅ 적용 완료 (2026-06-16) — Claude → DeepSeek 전환 · 비용 두괄식</div>
+    <div class="kpi-grid" style="margin:0 0 14px">
+      <div class="kpi g"><div class="v">₩25<small>/일</small></div><div class="l">자녀당 하루</div><div class="s">풀 파이프라인</div></div>
+      <div class="kpi g"><div class="v">₩730<small>/월</small></div><div class="l">자녀당 한 달</div><div class="s">≈ Claude의 1/2.7</div></div>
+      <div class="kpi b"><div class="v">₩180<small>/월</small></div><div class="l">뇌 추론 캡 시(예정)</div><div class="s">비용 1/4·속도 3배</div></div>
+      <div class="kpi"><div class="v">₩510</div><div class="l">아린 21일 재생성</div><div class="s">1회성</div></div>
+    </div>
+    <div style="font-size:12.5px;color:var(--n700);line-height:1.72">
+      <b>구성</b>: 일간·주간 뇌 = <b>V4-Pro</b> · 손(편지)+윤문 = <b>V4-Flash</b> · 호스트 = <b>DeepInfra 직접(미국·비중국·수수료 0)</b> · 실패 시 <b>Claude 자동 폴백</b>.<br>
+      <b>비용 구조</b>: 단가 V4-Pro $1.30/$2.60 · V4-Flash $0.10/$0.20 (per 1M). <b>비용의 83%가 뇌(V4-Pro 추론)</b> → 추론 캡하면 월 ₩730 → ~₩180(속도 40s→12s). 손(V4-Flash)은 자녀당 월 ₩2 미만.<br>
+      <b>비교</b>: Claude 풀스택(뇌 풀가동) ≈ ₩1,970/월 · 공식 DeepSeek(중국) ≈ ₩300/월(피함 — PIPA 국외이전 리스크). <b>DeepInfra = 중국 회피의 보험료(공식의 ~2.8배지만 Claude의 ~1/2.7).</b><br>
+      <b>함께 적용</b>: 영양거울 보강 · 가입 동의·처리방침 국외(미국) 이전 고지 · 아린 1일차부터 전체 재생성.<br>
+      <span style="color:var(--n500);font-size:11.5px">※ 추정치(측정 단가 기반) — 정확한 청구액은 DeepInfra 대시보드. ↓ 아래는 이 결정의 근거(테스트 시점 비교).</span>
+    </div>
+  </div>
 
   <div class="readme">
     <b>방법</b> — 모델만 바꾸고 나머지 100% 고정. 아린의 06-11~15 각 날짜 프롬프트를 <code>coach_letters.context</code>에 저장된 <b>그날 실제 결정</b>(시나리오·타깃·두뇌 추천·주간 arc·plan move) + <code>meal_logs</code> 재집계(favoriteFreq·factCards)로 <b>실제 <code>buildLetterUser</code></b>를 호출해 복원(DB 읽기전용). 시나리오 분포: <b>06-11~13 = 환경(식사분위기)</b>, <b>06-14 = 영양공백(콩류)</b>, <b>06-15 = 집-기관격차(콩류)</b>. 각 프롬프트를 DeepSeek <b>V3.2·V4-Flash·V4-Pro</b> + 현재 <b>Claude Haiku 4.5</b>에 통과.
