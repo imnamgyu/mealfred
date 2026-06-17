@@ -138,7 +138,7 @@
   <div class="hero-in">
     <span class="tag">⚙️ ENGINE PROMPT ARCHITECTURE · 실제 프롬프트 정독본</span>
     <h1>코칭 편지가 <b>어떻게 만들어지나</b><br>실제 프롬프트 라인바이라인</h1>
-    <p>매일 새벽 한 통의 코칭 편지가 나오기까지, 엔진은 4단 파이프라인을 거칩니다. <b>계획·판단은 코드와 두뇌(Sonnet)가, 글만 손(Haiku)이</b> — 이 문서는 두 개의 <b>실제 프롬프트</b>(2026-06-15 아린)를 한 줄도 빼지 않고 그대로 펼쳐, 각 블록이 무슨 데이터를 어디서 받아 무엇을 결정하는지 짚어 줍니다.</p>
+    <p>매일 새벽 한 통의 코칭 편지가 나오기까지, 엔진은 4단 파이프라인을 거칩니다. <b>계획·판단은 코드와 두뇌(DeepSeek V4-Pro)가, 글만 손(DeepSeek V4-Flash)이</b> — 이 문서는 두 개의 <b>실제 프롬프트</b>(2026-06-15 아린)를 한 줄도 빼지 않고 그대로 펼쳐, 각 블록이 무슨 데이터를 어디서 받아 무엇을 결정하는지 짚어 줍니다.</p>
     <div class="crumbs">📚 <a href="/docs.html">문서 허브</a> › ⚙️ 엔진·데이터 명세 › <b style="color:#fff">코칭 프롬프트 아키텍처</b> &nbsp;·&nbsp; 갱신 2026-06-16 · 코드 기준 라이브</div>
   </div>
 </header>
@@ -157,7 +157,8 @@
 <!-- §0 SUMMARY -->
 <section id="sum">
   <div class="sec-h"><span class="no">0</span><h2>한눈 요약 — 편지 한 통의 제작 공정</h2><span class="tech">Executive Summary</span></div>
-  <p class="lead">편지는 LLM이 즉흥으로 쓰는 게 아닙니다. <b>결정론(코드)</b>이 아이의 식사 기록에서 영양·환경·거부 신호를 계산해 후보를 깔고, <b>🧠 두뇌(Sonnet)</b>가 그중 오늘의 각도를 고르고 추천을 검수하고, <b>✍️ 손(Haiku)</b>은 정해진 각도·타깃·무브를 받아 <b>따뜻한 문장으로 옮기기만</b> 합니다. 두뇌·코드가 <b>무엇을·왜</b>, 손은 <b>어떻게 쓸지</b>만.</p>
+  <div class="callout" style="margin:0 0 16px;border-color:#bfe6d9;background:linear-gradient(135deg,#E9F7F2,#FFF8F2)"><b style="color:#1B5E20">🔄 2026-06-16 — LLM 백엔드 DeepSeek 전환</b> · 기본 모델이 <b>뇌(주간·일간)=DeepSeek V4-Pro</b>, <b>손=DeepSeek V4-Flash</b>로 교체됐습니다(DeepInfra 직접 호출·비중국·수수료 0). <b>프롬프트·파이프라인은 그대로</b>(모델만 교체) — 아래 예시 프롬프트도 동일하게 적용됩니다. <b>Claude(Sonnet/Haiku)는 DeepSeek 실패 시 자동 폴백</b>(서킷브레이커)으로 발행을 보장하고, <code>COACH_LLM=off</code>로 강제 비활성(안전밸브)할 수 있습니다. 실측 비용·4모델 비교 = <a href="/coaching-llm-model-comparison.html" style="color:var(--b700);font-weight:700">코칭 LLM 모델 비교</a>.</div>
+  <p class="lead">편지는 LLM이 즉흥으로 쓰는 게 아닙니다. <b>결정론(코드)</b>이 아이의 식사 기록에서 영양·환경·거부 신호를 계산해 후보를 깔고, <b>🧠 두뇌(DeepSeek V4-Pro)</b>가 그중 오늘의 각도를 고르고 추천을 검수하고, <b>✍️ 손(DeepSeek V4-Flash)</b>은 정해진 각도·타깃·무브를 받아 <b>따뜻한 문장으로 옮기기만</b> 합니다. 두뇌·코드가 <b>무엇을·왜</b>, 손은 <b>어떻게 쓸지</b>만.</p>
   <div class="kpi-grid">
     <div class="kpi b"><div class="v">4<small>단</small></div><div class="l">파이프라인</div><div class="s">결정론 → 주간 두뇌 → 일간 두뇌 → 손</div></div>
     <div class="kpi v"><div class="v">2<small>개</small></div><div class="l">실제 프롬프트</div><div class="s">🧠 일간 두뇌 · ✍️ 손</div></div>
@@ -189,7 +190,7 @@
     <div class="p4 week">
       <span class="pn">2</span>
       <div class="pbody">
-        <div class="pt">주간 두뇌 — 의사처럼 한 주를 종합 <span class="ptag">Sonnet · 자녀당 주 1회</span></div>
+        <div class="pt">주간 두뇌 — 의사처럼 한 주를 종합 <span class="ptag">V4-Pro · 자녀당 주 1회</span></div>
         <div class="pd"><code>runWeeklyPlanning</code>. 지난 <b>4주</b>를 진료하듯 읽어 이번 주의 <b>주력 레버 1개</b>(food / environment / autonomy / texture)·<b>음식 타깃</b>·<b>부모 행동변화</b>(behavior_goal = 부모가 배울 한 가지)·<b>목표 포트폴리오</b>(커리큘럼)·<b>내부 소견</b>을 정합니다. <code>weekly_plans</code>에 저장 = <b>작전(전략)</b>. 일간 두뇌·손이 이 닻을 존중합니다.</div>
       </div>
     </div>
@@ -198,7 +199,7 @@
     <div class="p4 day">
       <span class="pn">3</span>
       <div class="pbody">
-        <div class="pt">일간 두뇌 — 오늘의 각도를 고른다 <span class="ptag">Sonnet · 자녀당 일 1회</span></div>
+        <div class="pt">일간 두뇌 — 오늘의 각도를 고른다 <span class="ptag">V4-Pro · 자녀당 일 1회</span></div>
         <div class="pd"><code>pickActionByBrain</code>. <b>13개 후보 시나리오 + 주간계획 + 최근 7통 편지 + 영양 평가 + 추천 후보</b>를 받아 → 오늘 편지의 <b>시나리오</b> · <b>useFood</b>(오늘 음식을 다룰지 = 영양거울 평가) · <b>추천 검수</b>를 정합니다. <b>= 전술(매일 다른 각도)</b>. 작문은 하지 않습니다. <b>↓ 이 프롬프트가 §2</b>입니다.</div>
       </div>
     </div>
@@ -207,7 +208,7 @@
     <div class="p4 hand">
       <span class="pn">4</span>
       <div class="pbody">
-        <div class="pt">손 — 따뜻한 편지로 작문 <span class="ptag">Haiku (intro=주 첫 진단일만 Sonnet)</span></div>
+        <div class="pt">손 — 따뜻한 편지로 작문 <span class="ptag">V4-Flash (intro일=V4-Pro)</span></div>
         <div class="pd"><code>buildLetterUser</code> → <code>generateLetter</code>. 두뇌 결정(시나리오·타깃·무브) + 모든 데이터 + 가드(P1~P10·안전·괴식)를 받아 <b>따뜻한 편지</b>를 씁니다. <b>↓ 이 프롬프트가 §3</b>입니다.</div>
       </div>
     </div>
@@ -220,10 +221,10 @@
 
 <!-- §2 BRAIN PROMPT -->
 <section id="brain">
-  <div class="sec-h"><span class="no">2</span><h2>🧠 일간 두뇌 프롬프트 — 라인바이라인</h2><span class="tech">Sonnet · pickActionByBrain</span></div>
+  <div class="sec-h"><span class="no">2</span><h2>🧠 일간 두뇌 프롬프트 — 라인바이라인</h2><span class="tech">V4-Pro · pickActionByBrain</span></div>
   <p class="lead">아래는 2026-06-15 아린에게 실제로 들어간 <b>일간 두뇌 프롬프트 전문</b>입니다. 두뇌는 <b>글을 쓰지 않습니다</b> — 결정론이 깔아 둔 후보 안에서 '오늘 어떤 각도로 갈지'만 골라 <b>JSON</b>으로 답합니다. <code>[SYSTEM]</code>이 역할·원칙, <code>[USER]</code>가 그날의 데이터입니다.</p>
   <div class="promptwrap">
-    <div class="promptbar"><span class="who brain">🧠 BRAIN</span> 일간 두뇌 프롬프트 <span class="meta">Sonnet · 2026-06-15 아린 · 원문 그대로</span></div>
+    <div class="promptbar"><span class="who brain">🧠 BRAIN</span> 일간 두뇌 프롬프트 <span class="meta">V4-Pro · 프롬프트 원문(예시 06-15 아린)</span></div>
     <pre class="prompt">[SYSTEM]
 너는 영유아 편식 코칭의 *행동 선택 전략가*다. 편지를 쓰지 않는다 — 오늘 편지가 &quot;어떤 각도(시나리오)로 가야 가장 도움이 될지&quot;만 고른다(작문·영양평가·음식추천 본문은 다른 엔진이 한다). 원칙: ① 계산된 수치(결핍·환경·거부)는 사실 — 없는 문제를 지어내지 마라 ② 후보 시나리오 목록 안에서만 고른다. ③ ⭐**다양성이 최우선** — 최근 편지가 같은 시나리오를 2일 이상 반복했으면 반드시 다른 각도로 바꿔라. 한 신호(예: 환경)가 커도 매일 똑같은 시나리오로 고착되면 잔소리다. 환경·음식·자율성·식감·축하를 며칠에 걸쳐 번갈아 써라. ④ ⭐**음식 결핍을 영영 미루지 마라** — 집에 음식 결핍(콩류·과일·비타민A채소 등)이 있으면, 환경이 더 큰 문제라도 며칠에 한 번은 그 음식을 useFood=true로 다뤄라(v2가 콩류↔환경을 교대했던 것처럼). useFood=false는 &quot;오늘은 환경 날&quot;이라 잠시 미루는 것일 뿐, 결핍 자체가 0일 때만 계속 false. 진짜 결핍 없는데 음식 억지로 넣지도 마라(양방향 금지).
 
@@ -317,10 +318,10 @@
 
 <!-- §3 HAND PROMPT -->
 <section id="hand">
-  <div class="sec-h"><span class="no">3</span><h2>✍️ 손 프롬프트 — 라인바이라인</h2><span class="tech">Haiku · generateLetter</span></div>
+  <div class="sec-h"><span class="no">3</span><h2>✍️ 손 프롬프트 — 라인바이라인</h2><span class="tech">V4-Flash · generateLetter</span></div>
   <p class="lead">손 프롬프트의 <code>[SYSTEM]</code>은 <b>P1~P10이 박힌 긴 코치 표준 프롬프트</b>입니다(편식 방법론 9원칙 + 안전 규칙) — 매일 동일하게 고정돼 있어, 여기서는 <b>매일 바뀌는 <code>[USER]</code> 블록</b>을 그대로 펼칩니다. 이 한 덩어리에 두뇌의 결정·코드의 사실·모든 가드가 주입되고, 손은 이걸 받아 <b>JSON 한 통(letter + oneliner)</b>으로 작문합니다.</p>
   <div class="promptwrap">
-    <div class="promptbar"><span class="who hand">✍️ HAND</span> 손 프롬프트 — <code style="color:#fff;background:rgba(255,255,255,.15)">[USER]</code> 블록 (SYSTEM = P1~P10 표준 코치 프롬프트, 고정) <span class="meta">Haiku · 2026-06-15 아린 · 원문 그대로</span></div>
+    <div class="promptbar"><span class="who hand">✍️ HAND</span> 손 프롬프트 — <code style="color:#fff;background:rgba(255,255,255,.15)">[USER]</code> 블록 (SYSTEM = P1~P10 표준 코치 프롬프트, 고정) <span class="meta">V4-Flash · 프롬프트 원문(예시 06-15 아린)</span></div>
     <pre class="prompt">[USER]
 
 [최근 보낸 코칭 편지 — 최근 것부터. ⚠️ 이것들과 절대 겹치지 마라. 날짜·경과일 계산 금지]
@@ -484,13 +485,13 @@
     <div class="farrow">▼</div>
 
     <div class="fnode week">
-      <div class="fh">② 주간 두뇌 <span class="ftag">Sonnet · W25</span></div>
+      <div class="fh">② 주간 두뇌 <span class="ftag">V4-Pro · W25</span></div>
       <div class="fb">레버 = <b>environment</b> · 타깃 = <b>콩류</b> · 부모 행동 = <b>"저녁 한 끼 TV 끄고 식탁"</b>. 소견: 결핍·거부는 없고 잘 떠먹지만 화면·이동 식사 91%로 식사 집중이 무너진 상태 → 음식보다 환경이 큰 병목.</div>
     </div>
     <div class="farrow">▼</div>
 
     <div class="fnode day">
-      <div class="fh">③ 일간 두뇌 <span class="ftag">Sonnet · pickActionByBrain</span></div>
+      <div class="fh">③ 일간 두뇌 <span class="ftag">V4-Pro · pickActionByBrain</span></div>
       <div class="fb">최근 4일 연속 환경 각도 + 콩류를 계속 미뤄 옴 → 원칙④(음식 결핍 영영 미루지 말기)가 발동.
         <span class="q"><b>why</b> — "최근 4일 연속 환경 각도, 콩류 계속 미뤄짐 → 오늘은 음식 날"</span>
         <b>결정</b>: <code>scenarioId = nutrient-gap</code> · <code>useFood = true</code> · <code>planTarget = 콩류</code>(코드가 회전하며 비타민A채소 타깃으로 확정 → 손 프롬프트의 [오늘의 타깃] 줄).</div>
@@ -498,7 +499,7 @@
     <div class="farrow">▼</div>
 
     <div class="fnode hand">
-      <div class="fh">④ 손 <span class="ftag">intro일 → Sonnet</span></div>
+      <div class="fh">④ 손 <span class="ftag">intro일 → V4-Pro</span></div>
       <div class="fb">두뇌가 고른 nutrient-gap 각도 + 타깃 + '잘게 섞기' 무브 + 모든 데이터·가드를 받아 따뜻한 편지로 작문. 영양거울(전체 균형은 어린이집 덕) + 타깃 추천(콩류 일치) + 환경 리마인드를 한 통에.</div>
     </div>
     <div class="farrow">▼</div>
@@ -528,7 +529,7 @@
         <tr><td>ingredient-recipes / kit-dish-matrix</td><td>또래 인기 음식 · 괴식 게이트</td><td>'오늘 타깃→인기 음식' 추천명 + 괴식 조합 차단</td></tr>
         <tr><td>weekly_plans</td><td>주간 두뇌의 닻(레버·타깃·behavior_goal)</td><td>[최근 3주 주간계획] · [이번 주 코칭 방향]</td></tr>
         <tr><td>coach_letters</td><td>과거 편지</td><td>[최근 보낸 편지] — 겹침 회피 입력</td></tr>
-        <tr><td><b>LLM</b></td><td>Sonnet + Haiku</td><td>Sonnet = 주간 두뇌 · 일간 두뇌 · intro 손 / Haiku = 일반 손</td></tr>
+        <tr><td><b>LLM</b></td><td>DeepSeek V4-Pro + V4-Flash <span style="font-size:10px;color:var(--n500)">(폴백 Claude)</span></td><td>V4-Pro = 주간 두뇌 · 일간 두뇌 · intro 손 / V4-Flash = 일반 손 · 실패 시 Claude Sonnet/Haiku 자동 폴백</td></tr>
       </tbody>
     </table>
   </div>
