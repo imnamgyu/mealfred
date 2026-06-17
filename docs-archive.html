@@ -56,7 +56,7 @@
 <main>
 
 <section class="cat-section">
-  <div class="cat-head"><h3>⚡ 2026-06-16 완료된 설계 — 구현·배포 완료로 아카이브</h3><span class="cnt">1 문서</span></div>
+  <div class="cat-head"><h3>⚡ 2026-06-16~17 완료된 설계 — 구현·배포·적용 완료로 아카이브</h3><span class="cnt">3 문서</span></div>
   <p style="font-size:12.5px;color:#6B7280;font-weight:600;margin:0 0 12px">설계 후 <b>구현·배포가 완료</b>돼 메인 허브에서 내린 문서. 내용은 보존(열람 가능).</p>
   <div class="doc-grid">
     <a href="/cache-design.html" class="doc-card cat-strategy">
@@ -65,6 +65,20 @@
       <h4>앱 캐시 설계 — 페이지별 데이터 페칭·렌더링 최적화</h4>
       <p class="desc">app.mealfred.com 6영역 멀티에이전트 감사 → 캐시 처방. <b>P0·P1/P2 전부 구현·배포 완료</b>(홈·care 핫패스 병렬·모듈캐시 · blog SSG+ISR · recipe dedup+병렬 · plan unstable_cache · 홈 코치편지 타임아웃). 커밋 <code>182f40d</code>·<code>79399a2</code>.</p>
       <div class="meta"><span>PERF · 구현 완료</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-llm-model-comparison.html" class="doc-card cat-strategy">
+      <span class="badge done">적용 완료</span>
+      <div class="ico">✅</div>
+      <h4>코칭 LLM = DeepSeek 전환 완료 — 비용·근거</h4>
+      <p class="desc">코칭엔진 LLM = Claude → <b>DeepSeek(DeepInfra 직접·미국) 전환 적용 완료</b>(2026-06-16). 비용 자녀당 <b>하루 ₩25·월 ₩730</b>(Claude의 ~1/2.7). 뇌=V4-Pro·손=V4-Flash·Claude 폴백. 근거=아린 5일×4모델 20편 + 7일 풀 파이프라인 실측(괴식·환각 0). 맨 위 두괄식 비용.</p>
+      <div class="meta"><span>ENGINE · 적용 완료</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-v2-hybrid-build-plan.html" class="doc-card cat-strategy">
+      <span class="badge done">구현 완료</span>
+      <div class="ico">🧩</div>
+      <h4>v2 강화 하이브리드 빌드 플랜 — WBS (111원자)</h4>
+      <p class="desc">두뇌(v3)+손(v2 LLM) 하이브리드 빌드 WBS(10 EPIC × 111원자). <b>EPIC A~J 전부 구현 완료</b>. 이후 <b>DeepSeek 전환 + 새 코칭 아키텍처</b>(CoachContext·푸드체이닝 모듈·아린 정본 단일화)가 대체. A/B 카나리아 게이트는 단일 정본 전환으로 무효.</p>
+      <div class="meta"><span>COACHING · 구현 완료</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
