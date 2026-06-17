@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 엔진 리팩터 전략 — 흩어진 lib → 7 통합 모듈 (단계·리스크·롤백)</title>
+<meta property="og:title" content="코칭 엔진 리팩터 전략">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--ac:#E89244;--ad:#B86A20;--abg:#FFF6F1;--abd:#f5cbbb;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y700:#F57F17;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.85em;background:var(--abg);color:var(--ad);padding:1px 6px;border-radius:5px;font-weight:600}
+.hero{padding:50px 24px 36px;text-align:center;background:linear-gradient(155deg,#2C3E50,#3a2b52);color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:-40%;background:radial-gradient(circle at 25% 75%,rgba(232,146,68,.28)0,transparent 45%)}
+.hero-in{position:relative;z-index:1;max-width:880px;margin:0 auto}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.12);color:#FFD9B0;padding:6px 16px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:14px;border:1px solid rgba(255,255,255,.22)}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:11px}.hero h1 b{color:#FFB375}
+.hero p{font-size:13.5px;color:#cfd8e3;max-width:700px;margin:0 auto;font-weight:500;line-height:1.76}
+.hero .crumbs{margin-top:14px;font-size:11px;color:#9fb0c2}.hero .crumbs a{color:#FFD9B0;text-decoration:none;font-weight:700}
+nav.toc{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--n200);padding:9px 16px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{display:inline-block;font-size:11px;font-weight:700;color:var(--n600);text-decoration:none;padding:5px 10px;border-radius:100px;margin-right:2px}
+nav.toc a:hover{background:var(--abg);color:var(--ad)}
+main{max-width:980px;margin:0 auto;padding:8px 20px 64px}
+section{margin:36px 0;scroll-margin-top:52px}
+.sec-h{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;padding-bottom:8px;border-bottom:2.5px solid var(--ac);flex-wrap:wrap}
+.sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sec-h h2{font-size:20px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
+.lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 14px;line-height:1.74}.lead b{color:var(--s800)}
+.readme{background:linear-gradient(135deg,#FFF8F2,#F3E8FB);border:1px dashed var(--ac);border-radius:13px;padding:15px 17px;font-size:12.5px;color:var(--n700);line-height:1.7}.readme b{color:var(--ad)}
+.callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 16px;font-size:12.5px;color:var(--n700);line-height:1.7;margin-top:10px}.callout b{color:var(--ad)}
+.warn{background:#FFF5F5;border:1.5px solid #f0a9a9;border-radius:11px;padding:12px 15px;font-size:12px;color:var(--n700);margin:10px 0;line-height:1.68}.warn b{color:var(--r700)}
+.note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:12px;color:var(--n600);line-height:1.64;margin:10px 0}.note b{color:var(--ad)}
+ul.clean{margin:6px 0 0;padding-left:0;list-style:none}
+ul.clean li{font-size:12.5px;color:var(--n700);font-weight:500;line-height:1.62;margin:7px 0;padding-left:17px;position:relative}
+ul.clean li::before{content:'▸';position:absolute;left:0;color:var(--ac);font-weight:800}ul.clean li b{color:var(--s800)}
+.phase{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.ph{border-radius:13px;padding:14px 16px;border:1px solid var(--n200);border-left:5px solid}
+.ph.p0{border-left-color:var(--r500);background:#FFF5F5}.ph.p1{border-left-color:var(--g500);background:#F4FBF8}.ph.p2{border-left-color:var(--b500);background:#EEF6FD}.ph.p3{border-left-color:var(--v700);background:#F9F3FE}.ph.p4{border-left-color:var(--n400);background:#FAFAFA}
+.ph .phh{font-size:14px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.ph .pht{font-size:10px;font-weight:800;padding:2px 9px;border-radius:100px;background:#fff;border:1px solid var(--n200);color:var(--n500)}
+.ph .phw{font-size:11.5px;color:var(--n700);font-weight:500;margin-top:6px;line-height:1.62}.ph .phw b{color:var(--s800)}
+.ph .why{font-size:11px;color:var(--n500);font-weight:600;margin-top:6px;border-top:1px dotted var(--n300);padding-top:6px}
+.tbl{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:640px}
+th,td{border:1px solid var(--n200);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}td b{color:var(--s800)}
+.rk{font-size:9.5px;font-weight:800;padding:1px 7px;border-radius:100px}
+.rk.lo{background:#E9F7F2;color:var(--g700)}.rk.mid{background:#FFF3CD;color:var(--y700)}.rk.hi{background:#FDE7E7;color:var(--r700)}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:680px){.ba{grid-template-columns:1fr}}
+.bc{border-radius:12px;padding:13px 15px;font-size:12px;line-height:1.6}
+.bc.b4{background:var(--n100);border:1px solid var(--n200)}.bc.af{background:#F4FBF8;border:1px solid #bfe6d9}
+.bc .t{font-size:11px;font-weight:800;margin-bottom:6px}.bc.b4 .t{color:var(--n500)}.bc.af .t{color:var(--g700)}
+footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;border-top:1px solid var(--n200);margin-top:36px;line-height:1.8}
+footer a{color:var(--ad);text-decoration:none;font-weight:700}
+.stamp{display:inline-block;background:var(--abg);border:1px solid var(--abd);border-radius:100px;padding:4px 12px;font-size:10.5px;font-weight:700;color:var(--ad);margin:0 3px 6px}
+</style></head><body>
+<header class="hero"><div class="hero-in">
+<span class="tag">🛠️ ENGINE · 리팩터 전략 (개발 전)</span>
+<h1>코칭 엔진 리팩터 전략<br><b>흩어진 lib 파일 → 7 통합 모듈</b></h1>
+<p>모듈 개편(11→6+조회1)·CoachContext 계약·아이 현황 스토어로 가는 <b>안전한 이행 순서</b>. behavior 보존·한 모듈씩·라이브 무중단. DB 감사(무결성)·신규 기능(선호 계량화·푸드체이닝)을 한 로드맵에 흡수.</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 🧩 모듈 명세</div>
+</div></header>
+
+<nav class="toc">
+<a href="#why">원칙</a><a href="#goal">목표 상태</a><a href="#road">단계 로드맵</a><a href="#modules">모듈별 리팩터</a><a href="#risk">리스크·롤백</a>
+</nav>
+
+<main>
+<section id="why"><div class="sec-h"><span class="no">0</span><h2>왜 · 원칙</h2></div>
+<p class="lead">코칭 엔진은 지금 <b>흩어진 lib 파일 ~15개</b>로 잘 돌지만, ① 신규 기능(선호 계량화·푸드체이닝·노출)이 토대를 공유하고 ② <a href="/coaching-architecture-map.html#io">통합맵</a>대로 6+1 모듈로 정리하면 응집도·테스트·확장이 쉬워집니다. <b>한 번에 갈아엎지 않고</b> 아래 원칙으로 한 칸씩 옮깁니다.</p>
+<ul class="clean">
+<li><b>behavior 보존</b> — 겉보기 동작 동일. 리네임·파일 이동·배럴부터(오늘 <code>callClaude→callLLM</code>이 그 1번 사례: tsc 0·테스트 369/369 그린).</li>
+<li><b>additive·역호환</b> — 기존 호출부를 깨지 않고 새 진입점을 더한 뒤 옮긴다. 폴백 유지.</li>
+<li><b>한 모듈씩 · 테스트 그린 유지</b> — 매 단계 <code>vitest</code>(prebuild 게이트)·<code>tsc</code> 통과해야 다음.</li>
+<li><b>라이브 무중단</b> — 크론·편지 발행 경로는 마지막에, 카나리아(아린)→전자녀 순.</li>
+<li><b>DB 선행</b> — 데이터 무결성(멱등성·정규화)이 안 잡히면 모듈만 정리해도 모래 위. <b>Phase 0 먼저.</b></li>
+</ul>
+</section>
+
+<section id="goal"><div class="sec-h"><span class="no">1</span><h2>목표 상태 — Before / After</h2></div>
+<div class="ba">
+<div class="bc b4"><div class="t">BEFORE (지금)</div>lib 파일 ~15개가 평면으로(coachRecos·coachFacts·coachBrain·coachWeekly·nutrition·snack·progress·curriculumUnits·foodGraph·kitGuide·ingredientFreq·reexposure·coachDaily·coachChronic + 휴면 coachMaterials·comboMatrix·recoEvidence). 식재료=배열, 멱등성 제약 없음.</div>
+<div class="bc af"><div class="t">AFTER (목표)</div><b>코칭 엔진</b> 1 + <b>콘텐츠 모듈 6</b>(①신호선택기 ②추천엔진 ③사실·거울 ④영양평가 ⑤진척·커리큘럼 ⑥작문기) + <b>조회 헬퍼 ⑦</b> + <b>데이터 레이어</b>(추천 네트워크·아이 현황 스토어). 식재료=정규화 행, <code>CoachContext</code> 단일 계약, 야간 배치 2단계.</div>
+</div>
+<div class="note">상세 통합맵·입출력·뇌/손 프롬프트 매핑 = <a href="/coaching-architecture-map.html#io">통합 아키텍처 지도 §4</a>. 데이터 무결성 진단 = <b>DB 스키마 감사</b>(별도).</div>
+</section>
+
+<section id="road"><div class="sec-h"><span class="no">2</span><h2>단계 로드맵 — P0 → P4</h2></div>
+<p class="lead">의존 순서대로. <b>P0(무결성)·P1(선호 토대)</b>이 신규 기능의 전제라 먼저.</p>
+<div class="phase">
+<div class="ph p0"><div class="phh">Phase 0 · DB 무결성 핫픽스 <span class="pht">선행 · 위험 차단</span></div>
+<div class="phw">DB 감사 HIGH 정리: <b>멱등성 UNIQUE 제약</b>(<code>meal_logs(child_id,log_date,slot)</code>·<code>coach_letters(child_id,letter_date)</code>·<code>daily_questions</code>·<code>user_menu_overrides</code> 등)·핵심 <b>FK·name UNIQUE</b>(<code>ingredients.name</code>). PII 테이블 RLS·DDL 형상관리.</div>
+<div class="why">왜 먼저: 제약이 없으면 정규화·집계가 중복 위에 서고, 선호 계량(끼니수·거부율)이 부풀음. 코드 변경 0, SQL만.</div></div>
+<div class="ph p1"><div class="phh">Phase 1 · 선호 계량화 모듈 + 끼니 정규화 + 수용 포착 <span class="pht">신규 토대</span></div>
+<div class="phw"><code>meal_log_items</code>(끼니→음식 1행·<b>수용 5단계·거부사유</b>) 추가 + 기록 UX 원탭 포착 + <code>child_food_pref</code>(다축 롤업) + 콜드스타트 게이트. <b>읽기 전용 계산부터(라이브 무영향)</b>.</div>
+<div class="why">왜: 선호 계량화·푸드체이닝·노출 추적 셋의 공통 토대. 이게 비면 뒤가 허상(Day1 '잘 먹는 소고기' 문제).</div></div>
+<div class="ph p2"><div class="phh">Phase 2 · 모듈 경계 정리 (코드 재배치) <span class="pht">behavior 보존</span></div>
+<div class="phw">①신호선택기 <b>셀렉터 파사드</b>(selectScenario·pickActionByBrain·planFromWeekly 단일 진입) · ②추천엔진 <b>휴면 코드 정리</b>(coachMaterials·recoEvidence 흡수/삭제 결정, comboMatrix→괴식 유틸) · ③④⑤ <b>배럴(index)로 묶기</b> · ⑥작문기 = coach.ts에서 <b>판단부(planFor)는 ①로 분리하고 작문만 남김</b>.</div>
+<div class="why">왜: 파일 이동·배럴·rename은 동작 동일(tsc/test로 보증). ⑥의 coach.ts 분해가 가장 큼 → 마지막·테스트 두껍게.</div></div>
+<div class="ph p3"><div class="phh">Phase 3 · 푸드체이닝 모듈 + 아이 현황 스토어 + 배치 2단계 <span class="pht">신규 기능</span></div>
+<div class="phw">⑦ 조회 헬퍼 위에 <b>푸드체이닝 모듈</b>(2축 체인·candidates/recommended) + <code>child_daily_state</code> 야간 머티리얼라이즈(1단계) → 편지 워커(2단계)가 <code>CoachContext</code> 읽기. 아린 카나리아→전자녀.</div>
+<div class="why">왜: P1 선호·P2 경계가 선 뒤라야 푸드체이닝이 깨끗한 입력을 받음. 배치 2단계로 1만 명 확장.</div></div>
+<div class="ph p4"><div class="phh">Phase 4 · 정합·정리 <span class="pht">후속</span></div>
+<div class="phw">도먼트 코드 제거 · 질의 대상 jsonb→정형 컬럼(필요한 것만) · 도메인 값 enum/CHECK · date-util 공용 분리 · 추천코드 도메인 이중모델 통합.</div>
+<div class="why">왜: 급하지 않은 정리. 분석 쿼리가 실제로 들어올 때만 jsonb 분리(과잉정규화 경고).</div></div>
+</div>
+</section>
+
+<section id="modules"><div class="sec-h"><span class="no">3</span><h2>모듈별 리팩터 카드</h2></div>
+<div class="tbl"><table><tr><th style="width:16%">모듈</th><th style="width:30%">합치는 것 · 작업</th><th>리스크</th><th>테스트</th></tr>
+<tr><td><b>① 신호선택기</b></td><td>coachScenarios+coachBrain+coachWeekly → 셀렉터 파사드(선택 책임 3중복 일원화)</td><td><span class="rk hi">높음</span> 라이브 두뇌 경로</td><td>coach-hybrid-rotation·coach-guards</td></tr>
+<tr><td><b>② 추천엔진</b></td><td>coachRecos + 휴면(coachMaterials·recoEvidence) 흡수/삭제 결정 · 근거문구 일원화 · comboMatrix=괴식 유틸로 배선</td><td><span class="rk mid">중간</span> 휴면 정리·게이트</td><td>coach-recos·coach-combo-cells-gate·coach-materials</td></tr>
+<tr><td><b>③ 사실·거울</b></td><td>coachFacts+reexposure → 배럴(meal_logs 사실화 한곳)</td><td><span class="rk lo">낮음</span> 배럴</td><td>coach-data·coach-guards</td></tr>
+<tr><td><b>④ 영양평가</b></td><td>nutrition+snack → 배럴(isProcessed 공유)</td><td><span class="rk lo">낮음</span></td><td>(영양 신호 테스트)</td></tr>
+<tr><td><b>⑤ 진척·커리큘럼</b></td><td>progress+curriculumUnits+coachDaily → 배럴</td><td><span class="rk lo">낮음</span></td><td>curriculum.test</td></tr>
+<tr><td><b>⑥ 작문기(손)</b></td><td>coach.ts에서 <b>판단부(planFor)→①로 분리</b>, 작문(compose/generate/verify)+coachChronic만 남김</td><td><span class="rk hi">높음</span> coach.ts 분해·라이브 발행</td><td>전 coach 스위트·아린 카나리아</td></tr>
+<tr><td><b>⑦ 네트워크 조회</b></td><td>foodGraph+kitGuide+ingredientFreq+graphSource · freq 일원화</td><td><span class="rk mid">중간</span> graphSource SQL 토대</td><td>graph-source·coach-tray-cooccur</td></tr>
+</table></div>
+<div class="callout">데이터 레이어(<code>graphSource</code>·<code>cookingMatrix</code>·<code>comboMatrix</code>·<code>remapMenus</code>)는 <b>모듈로 흡수하지 않음</b> — 별도 계층/유틸 유지(통합맵 '합치면 안 되는 것').</div>
+</section>
+
+<section id="risk"><div class="sec-h"><span class="no">4</span><h2>리스크 · 롤백</h2></div>
+<ul class="clean">
+<li><b>매 단계 게이트</b>: tsc 0 + vitest 그린 + (라이브 경로면) 아린 카나리아 1~3일. 실패 시 그 커밋만 revert.</li>
+<li><b>라이브 발행 경로(①·⑥)는 마지막</b>: 데이터·계산부(P0·P1·③④⑤·⑦)를 먼저 안정화한 뒤 손댄다.</li>
+<li><b>휴면 코드 결정 명시</b>: coachMaterials·comboMatrix·recoEvidence는 '라이브 승격 vs 삭제'를 P2에서 한 번에 결정(어정쩡한 잔존 금지).</li>
+<li><b>DB 마이그레이션 additive</b>: 새 테이블·제약은 추가만, 기존 컬럼(배열)은 캐시로 유지하다 소비처 전환 후 제거.</li>
+<li><b>과잉정규화 경고</b>: 정당한 jsonb 스냅샷(context·metrics·child_daily_state)·집계 캐시는 건드리지 않는다.</li>
+</ul>
+<div class="warn"><b>착수 전 결정 필요</b> — ① 빌드 순서(P0→P1 먼저) 동의 ② 휴면 3종 승격/삭제 ③ <code>meal_log_items</code> 정규화 + 수용 5단계 포착 UX 범위 ④ ⑥ coach.ts 분해를 언제(가장 큰 작업).</div>
+</section>
+
+</main>
+<footer>
+<div><span class="stamp">리팩터 전략 · 개발 전</span><span class="stamp">2026-06-17</span></div>
+밀프레드 코칭 엔진 리팩터 전략<br>
+연계: <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 🧩 모듈 명세 7종 · DB 스키마 감사
+</footer>
+</body></html>

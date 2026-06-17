@@ -251,8 +251,8 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>🧩 코칭 엔진 모듈 명세 (정본)</h3>
-    <span class="cnt">통합 1 · 모듈 7</span>
-    <span class="note">각 모듈의 작동원리 · 데이터 파이프라인(가져오기→가공) · 📥📤 I/O 예시 · 가드</span>
+    <span class="cnt">통합 1 · 모듈 7 · 전략 1</span>
+    <span class="note">각 모듈의 작동원리 · 데이터 파이프라인 · 📥📤 I/O 예시 · 가드 + 비개발자 운영설명(문헌·테이블) · 리팩터 전략</span>
   </div>
   <div class="doc-grid">
     <a href="/coaching-architecture-map.html" class="doc-card cat-arch">
@@ -310,6 +310,13 @@
       <h4>⑦ 네트워크 조회 헬퍼</h4>
       <p class="desc">음식↔식재료 <b>궁합·사촌·음식적합도·급식빈도</b>를 <code>graphSource</code> 단일 읽기경로로 조회하는 그래프 질의층(②가 소비). 📥 식재료명 → 📤 Neighbor[]/DishFit[]/freq. 흡수=foodGraph+kitGuide+ingredientFreq+graphSource.</p>
       <div class="meta"><span>MODULE · 데이터(뇌 경유)</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-refactor-strategy.html" class="doc-card cat-arch">
+      <span class="badge new">🛠️ 리팩터 전략</span>
+      <div class="ico">🛠️</div>
+      <h4>코칭 엔진 리팩터 전략 — 흩어진 lib → 7 통합 모듈</h4>
+      <p class="desc"><b>모듈 개편으로 가는 안전한 이행 순서(개발 전).</b> 원칙(behavior 보존·한 모듈씩·라이브 무중단) + <b>단계 P0~P4</b>(P0 DB 무결성 핫픽스 → P1 선호 계량화+끼니 정규화+수용 포착 → P2 모듈 경계 정리 → P3 푸드체이닝+아이 현황 스토어 배치 2단계 → P4 정합) + <b>모듈별 리팩터 카드</b>(합치는 것·리스크·테스트) + 리스크·롤백. DB 감사·신규기능을 한 로드맵에 흡수.</p>
+      <div class="meta"><span>ENGINE · 리팩터 정본</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
@@ -439,6 +446,7 @@
     '/coach-module-progress.html':{c:'2026-06-17',m:'2026-06-17'},
     '/coach-module-writer.html':{c:'2026-06-17',m:'2026-06-17'},
     '/coach-module-graph-query.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coaching-refactor-strategy.html':{c:'2026-06-17',m:'2026-06-17'},
     '/preference-quantification-engine.html':{c:'2026-06-16',m:'2026-06-16'},
     '/data-pipeline-erd.html':{c:'2026-06-14',m:'2026-06-14'},
     '/menu-ingest-pipeline.html':{c:'2026-06-15',m:'2026-06-15'},
