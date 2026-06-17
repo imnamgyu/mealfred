@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-06-13T06:52:12.687Z",
-  "high_water_created_at": "2026-06-13T03:06:10.295956+00:00",
-  "learned_menus_count": 9992,
+  "last_run": "2026-06-17T07:01:18.217Z",
+  "high_water_created_at": "2026-06-15T12:10:22.382915+00:00",
+  "learned_menus_count": 13392,
   "notes": "스킬 1회 완료 시점 — 다음 호출은 이 이후 created_at 메뉴만 신규로 본다"
 }

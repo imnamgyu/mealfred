@@ -129,6 +129,23 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   '떡': { ing: ['쌀'] }, '빵': { ing: ['빵'] },
   // 1자 과일·견과(스캔 표면형 불가) — 정확일치 룰로만(부분일치 키 아님 → 배추·양배추 오탐 없음)
   '배': { ing: ['배'] }, '밤': { ing: ['밤'] }, '찐밤': { ing: ['밤'] }, '군밤': { ing: ['밤'] },
+  // ── 2026-06-17 유지보수 루프(A0 신규 3,400·무매핑 401) — 음료·과자·국 ──
+  // 차·가당음료: 캐논 식재료 없음 → '가공'으로만(매실주스·환각 방지와 동일 취급)
+  '둥글레차': { ing: [], processed: true }, '녹차': { ing: [], processed: true }, '결명자차': { ing: [], processed: true },
+  '오미자차': { ing: [], processed: true }, '매실차': { ing: [], processed: true }, '유자차': { ing: [], processed: true },
+  '식혜': { ing: [], processed: true }, '수정과': { ing: [], processed: true }, '숭늉': { ing: ['쌀'] }, '배주스': { ing: ['배'] },
+  // 구움·튀김 과자류 = 가공(밀·계란 베이스만, 마들렌·핫케이크와 동일 취급)
+  '크래커': { ing: ['밀'], processed: true }, '와플': { ing: ['밀','계란'], processed: true }, '츄러스': { ing: ['밀'], processed: true },
+  '약과': { ing: [], processed: true }, '한과': { ing: [], processed: true }, '쌀과자': { ing: ['쌀'], processed: true },
+  '롤케이크': { ing: ['밀','계란'], processed: true }, '케이크': { ing: ['밀','계란'], processed: true },
+  // 건어물 무침 = 가공(캐논 식재료 없음 — 쥐포채무침과 동일 취급)
+  '진미채마요무침': { ing: [], processed: true }, '명엽채무침': { ing: [], processed: true },
+  // 국·탕·찌개(실재료) — ing≥2는 부분일치라 (경남)·(성인) 등 지역/태그 자동 흡수
+  '육개장': { ing: ['소고기','고사리','대파','숙주나물'] }, '곰탕': { ing: ['소고기','무','대파'] },
+  '맑은배춧국': { ing: ['배추'] }, '배춧국': { ing: ['배추'] }, '배추국': { ing: ['배추'] },
+  '청국장국': { ing: ['두부'] }, '청국장찌개': { ing: ['두부','김치'] },
+  '콩비지국': { ing: ['두부'] }, '콩비지찌개': { ing: ['두부'] },
+  '부대찌개': { ing: ['김치','소시지','두부'], processed: true },
 };
 
 const PARTIAL_KEYS = Object.keys(MENU_MAP)
@@ -177,6 +194,32 @@ export function createMapper(poolNames: string[]): Mapper {
     if (/빵|머핀|베이글|크루?아상|크로?와상|러스크|포카치아|스콘|깜빠뉴/.test(menu)) out.push('빵');
     // 튀김옷·빵가루 = 밀(곡물). 까스·튀김·탕수·너겟·고로케·치킨(후라이드) 등 (밀가루는 EXCLUDE라 레시피서 누락되던 곡물 보정)
     if (/까스|가스|커틀렛|커틀릿|튀김|후라이드|프라이드|탕수|너겟|너깃|고로케|크로켓|덴푸라|텐푸라|치킨/.test(menu)) out.push('밀');
+    // 단백질 보정 — 메뉴명에 명시됐으나 베이스 템플릿(카레·볶음밥·주먹밥·잡채 등)에서 누락되던 육류·해산물.
+    //   meatFix는 '소고기 치환'만 하므로 소고기가 없는 템플릿(카레=[감자,당근,양파])엔 단백질이 안 들어감 → 여기서 가산.
+    if (/돈육|제육|돈수육|돈장|삼겹|목살/.test(menu) || /돼지(?!감자)/.test(menu)) out.push('돼지고기');
+    if (/닭|치킨/.test(menu)) out.push('닭고기');         // 닭갈비·닭개장·닭강정 전부 닭고기('갈비'→소고기 오탐은 가산 안 함)
+    if (/소고기|쇠고기|한우|우육/.test(menu)) out.push('소고기');
+    if (/오리/.test(menu)) out.push('오리고기');
+    if (/오징어/.test(menu)) out.push('오징어');
+    if (/새우(?!젓)/.test(menu)) out.push('새우');         // 새우젓 = 양념(EXCLUDE)
+    if (/멸치(?!육수|젓|액젓)/.test(menu)) out.push('멸치');  // 멸치육수·멸치젓 = 양념
+    if (/메추리알/.test(menu)) out.push('메추리알');
+    if (/고등어/.test(menu)) out.push('고등어');
+    if (/홍합/.test(menu)) out.push('홍합');
+    if (/숙주/.test(menu)) out.push('숙주나물');
+    if (/유부/.test(menu)) out.push('두부');               // 유부 = 튀긴 두부
+    // 나물·무침의 주재료가 양념(파·마늘·참깨) 템플릿에 가려지던 도감 채소 보정 (전부 도감 등재·고유 토큰)
+    if (/유채/.test(menu)) out.push('유채');
+    if (/곤드레/.test(menu)) out.push('곤드레');
+    if (/무말랭이/.test(menu)) out.push('무말랭이');
+    if (/치커리/.test(menu)) out.push('치커리');
+    if (/돌나물/.test(menu)) out.push('돌나물');
+    if (/비름/.test(menu)) out.push('비름나물');
+    if (/우엉/.test(menu)) out.push('우엉');
+    if (/고사리/.test(menu)) out.push('고사리');
+    if (/봄동/.test(menu)) out.push('배추');     // 봄동 = 봄배추(배추속) → 도감 배추로
+    if (/쪽파/.test(menu)) out.push('대파');     // 쪽파 = 실파(파속) → 도감 대파로
+    if (/스크램블/.test(menu)) out.push('계란');
     return out;
   }
 
