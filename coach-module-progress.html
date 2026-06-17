@@ -79,6 +79,25 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <ul class="clean"><li>meal_logs (log_date·slot·menus·refused·note·environment·place·ate_well·duration_min + autonomy·texture·meal_time)</li><li>growth_logs (measured_on·또래 BMI 퍼센타일)</li><li>coach_questions (q_date·answer·context.unitProbe = 질문 답변)</li><li>child_unit_progress (child_id·unit_id·status·step·evidence·last_signal_at·relapse_count)</li><li>period_summaries (period_type·period_key·metrics — write-only 롤업)</li></ul>
 </section>
 
+<section id="curriculum"><div class="sec-h"><span class="no" style="font-size:13px">📚</span><h2>커리큘럼 — 12유닛 (정의·측정)</h2></div>
+<div class="callout"><b>커리큘럼의 정의·사다리·측정이 이 모듈(<code>curriculumUnits.ts</code>)에 산다.</b> "선언이 곧 명세" — 유닛마다 <b>사다리(steps)·판정(passWhen)·재발(relapseWhen)·관측 질문(probes)</b>이 한 파일에. 전부 순수 함수·LLM 0콜·날짜 단위 카운트. <b>이번 주 어떤 유닛을 가르칠지 '선택'은 ① 신호선택기</b>(<a href="/coach-module-signal-selector.html">runWeeklyPlanning·candidateUnits</a>)가 하고, <b>여기 ⑤는 그 유닛의 내용·진척을 정의·측정</b>한다(선택=①, 정의·측정=⑤).</div>
+<div class="tbl"><table><tr><th style="width:24%">유닛(한글)</th><th>사다리 핵심 행동 (step1 → step2 …)</th></tr>
+<tr><td><b>① 압박 내려놓기</b> <code>pressure-off</code></td><td>"한 입만"·재촉 멘트 멈추기(남겨도 담담히) → 환호·박수도 담담하게</td></tr>
+<tr><td><b>② 공복 리듬</b> <code>hunger-rhythm</code></td><td>끼니 30분 전 간식·우유 멈추기 → 식사·간식 2~3시간 간격 고정</td></tr>
+<tr><td><b>③ 식탁 무대</b> <code>table-stage</code></td><td>하루 한 끼 화면 끄고 식탁에서 → 주 5끼+ 같은 자리·같은 시간</td></tr>
+<tr><td><b>④ 새 음식 조금씩 노출</b> <code>exposure-savings</code></td><td>새 음식 격일로 말없이 올리기 → 익숙해지면 티스푼 맛보기 초대</td></tr>
+<tr><td><b>⑤ 배부름 존중</b> <code>fullness-respect</code></td><td>"배불러" 인정하고 종료(완식 강요 멈춤) → 적게 담고 더 달라면 추가</td></tr>
+<tr><td><b>⑥ 부모가 메뉴판</b> <code>parent-model</code></td><td>같은 음식 곁에서 말없이 맛있게(하루 1회) → 가족 저녁 주 5회</td></tr>
+<tr><td><b>⑦ 달콤한 협상 끊기</b> <code>no-bargain</code></td><td>"먹으면 ~줄게" 거래 멈추기 → 디저트 지위 중립화(악마화 금지)</td></tr>
+<tr><td><b>⑧ 식탁의 말</b> <code>table-talk</code></td><td>금지어 3종 끊기("한 입만"·"다 먹어야지"·"안 먹으면…") → 객체 중심 질문("당근이 어땠어?")</td></tr>
+<tr><td><b>⑨ 감각·질감 트랙</b> <code>sensory-texture</code></td><td>질감 한 단계 올리기 → 만지기·탐색(IDDSI 사다리)</td></tr>
+<tr><td><b>⑩ 확장 트랙(음식 다리)</b> <code>food-bridge</code></td><td>새 음식 다리 놓기 → 딥·곁들임 — <b>푸드체이닝의 코칭 유닛</b></td></tr>
+<tr><td><b>⑪ 자율성·참여 트랙</b> <code>autonomy-part</code></td><td>역할 주기(상 차리기 등) → 스스로 덜어 먹기</td></tr>
+<tr><td><b>⑫ 연계·리듬 트랙</b> <code>link-rhythm</code></td><td>거부한 음식 재시도 → 주간 식단표 점검·연계</td></tr>
+</table></div>
+<div class="note"><b>유닛 상태기계</b>: <code>not_started → active → progressing → maintenance → mastered</code> (재발 시 <code>relapsed</code>·방향전환 <code>pivoted</code>). 각 step은 <code>passWhen(evidence)</code>로 통과 판정(표본 부족이면 null=보류), <code>holdWeeks</code> 유지 후 승급. <b>관측 질문(probes)</b>으로 신호 보완("오늘 식탁 분위기는?"·"도전 음식 반응은?"). → 출력 <code>unitEvidence/step</code>이 진도 상태기계(<code>advanceProgress</code>)를 굴리고, 골고루 진척이 홈 카드·E-07 목표 포트폴리오로.</div>
+</section>
+
 <section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
 <p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
 <div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">기록 적재</div><div class="pd">meal_logs를 ProgressRow/CRow(FactRow 확장: autonomy·texture·meal_time)로 로드. 모든 카운트는 '날짜' 단위로 dedup(행 부풀림 금지 — 적대감사 M6).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">효과측정 28일 비교</div><div class="pd">computeProgress가 최근28일 agg vs 직전28일(−55~−28) agg를 계산 → variety(2회+·비거부 식재료 수)·refusalPct·enjoyPct·avgDur 4지표를 improved 플래그와 함께 비교(양쪽 entries≥3일 때만 hasComparison).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">주간 후보 신호 빌더</div><div class="pd">buildCandSignals가 7일창에서 envBadPct(집 끼니만)·selfPct·texLow·mtOver30Pct·메모일수(압박/협상/끼니전간식)·간식과다일·신규식재료(28일창)·기관거부 식재료를 집계 → CandidateSignals.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">유닛 발동 점수화</div><div class="pd">각 UnitDef.trigger(s)가 CandidateSignals를 받아 0~3 발동 강도를 반환(예: pressureMemoDays≥2 → 2+). E-03 주간 종합(runWeeklyPlanning)이 이 점수로 focus 유닛 2~3개를 선발.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">신호 추출·사다리 판정</div><div class="pd">선발 유닛의 extract(rows·answers·today)가 7일창 evidence(예: envTablePct7d·targetExposeDays7d·signalToday)를 산출 → steps[].passWhen(e)로 단계 통과, relapseWhen(e)로 재발을 판정(표본 부족 시 null=보류).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">답변 블렌딩·롤업</div><div class="pd">parseProbeAnswers가 coach_questions.context.unitProbe + 칩 정확일치만 ProbeAnswer로 통과시켜('잘 모르겠어요'·자유텍스트 미적립) extract의 표본을 보충(G-04). periodMetrics는 기간 행을 요약해 period_summaries로 upsert(병원 차트).</div></div></div></div>
