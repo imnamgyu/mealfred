@@ -114,7 +114,25 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <tr><td><b>⑪ 자율성·참여 트랙</b> <code>autonomy-part</code></td><td>역할 주기(상 차리기 등) → 스스로 덜어 먹기</td></tr>
 <tr><td><b>⑫ 연계·리듬 트랙</b> <code>link-rhythm</code></td><td>거부한 음식 재시도 → 주간 식단표 점검·연계</td></tr>
 </table></div>
-<div class="note"><b>유닛 상태기계</b>: <code>not_started → active → progressing → maintenance → mastered</code> (재발 시 <code>relapsed</code>·방향전환 <code>pivoted</code>). 각 step은 <code>passWhen(evidence)</code>로 통과 판정(표본 부족이면 null=보류), <code>holdWeeks</code> 유지 후 승급. <b>관측 질문(probes)</b>으로 신호 보완("오늘 식탁 분위기는?"·"도전 음식 반응은?"). → 출력 <code>unitEvidence/step</code>이 진도 상태기계(<code>advanceProgress</code>)를 굴리고, 골고루 진척이 홈 카드·E-07 목표 포트폴리오로.</div>
+<div class="note"><b>유닛 상태기계</b>: <code>not_started → active → progressing → maintenance → mastered</code> (재발 시 <code>relapsed</code>·방향전환 <code>pivoted</code>). 각 step은 <code>passWhen(evidence)</code>로 통과 판정(표본 부족이면 null=보류), <code>holdWeeks</code> 유지 후 승급. → 출력 <code>unitEvidence/step</code>이 진도 상태기계(<code>advanceProgress</code>)를 굴리고, 골고루 진척이 홈 카드·E-07 목표 포트폴리오로.</div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:18px 0 6px">🎓 유닛별 졸업 기준 · 확인 방법</h3>
+<p class="lead">각 유닛은 2단계 사다리를 올라야 졸업(maintenance→mastered). <b>졸업 기준 = <code>passWhen</code></b>(코드가 자동 판정), <b>확인 방법 = 기록탭의 '팁'이 어떻게 질문으로 환산되나</b>(probe). <b>식사기록만으로 판단되면 확인 방법은 공란</b>(자동).</p>
+<div class="tbl"><table><tr><th style="width:20%">유닛</th><th style="width:46%">졸업 기준 (1단계 → 2단계)</th><th>확인 방법 (기록탭 팁 → 질문)</th></tr>
+<tr><td><b>① 압박 내려놓기</b></td><td>압박·재촉 메모 <b>0일</b>(7일) → 부정 환경칩 비율 ≤ 상한</td><td>"오늘 식탁 분위기는 어땠어요?" / "남기거나 거부할 때 어떠셨어요?"</td></tr>
+<tr><td><b>② 공복 리듬</b></td><td>끼니 직전 간식 메모 <b>0일</b> → 과식간식일 ≤ 상한</td><td>"저녁 전에 간식·우유를 먹였나요?" / "오늘 간식 흐름은?"</td></tr>
+<tr><td><b>③ 식탁 무대</b></td><td>화면 없이 식탁 비율 ≥ 1단계 → ≥ 2단계</td><td><span style="color:var(--n400)">— (환경칩 식사기록 자동)</span></td></tr>
+<tr><td><b>④ 새 음식 노출</b></td><td>주간 노출일수 ≥ 임계 → 누적 노출일수 ≥ 임계</td><td><span style="color:var(--n400)">— (노출 카운트 식사기록 자동)</span></td></tr>
+<tr><td><b>⑤ 배부름 존중</b></td><td>완식 강요 메모 <b>0일</b> → 30분 초과 비율 ≤ 상한</td><td>"그만 먹겠다 할 때 어떻게 했어요?" / "오늘 양 조절은?"</td></tr>
+<tr><td><b>⑥ 부모가 메뉴판</b></td><td>가족 식사일 ≥ 1단계(주N) → ≥ 2단계(주5)</td><td>"저녁, 아이와 같은 음식을 같이 드셨어요?"</td></tr>
+<tr><td><b>⑦ 협상 끊기</b></td><td>거래 메모 <b>0일</b> → 거래 0 + 중립 디저트 1회+</td><td>"오늘 디저트·간식은 어떻게 줬어요?"</td></tr>
+<tr><td><b>⑧ 식탁의 말</b></td><td>금지어 메모 <b>0일</b> → 객체 중심 대화 ≥ 70%</td><td>"오늘 식탁에서 어떤 말을 가장 많이 건넸어요?"</td></tr>
+<tr><td><b>⑨ 감각·질감</b></td><td>질감 핑거푸드(2단계) → 일반식(3단계) 도달</td><td><span style="color:var(--n400)">— (질감칩 식사기록 자동)</span> + 보조 "새 질감 시도?"</td></tr>
+<tr><td><b>⑩ 음식 다리</b></td><td>주간 새 음식 ≥ 임계(1·2단계 동일·홀딩↑)</td><td><span style="color:var(--n400)">— (새 음식 카운트 식사기록 자동)</span></td></tr>
+<tr><td><b>⑪ 자율성·참여</b></td><td>스스로 먹기 비율 ≥ 1단계 → ≥ 2단계(셀프서빙)</td><td><span style="color:var(--n400)">— (자율성칩 식사기록 자동)</span> + 보조 "작은 역할 줬어요?"</td></tr>
+<tr><td><b>⑫ 연계·리듬</b></td><td>거부 음식 재시도 → 주간 식단표 점검·연계</td><td>"거부했던 음식을 다시 올려봤어요?" / "식단표를 봤어요?"</td></tr>
+</table></div>
+<div class="note"><b>읽는 법</b> — '졸업 기준'은 코드(<code>passWhen</code>)가 식사기록·메모·질문답에서 자동 계산해 판정합니다. <b>확인 방법이 질문인 유닛(①②⑤⑥⑦⑧⑫)</b>은 부모 행동이라 식사기록에 안 남아 <b>기록탭 '팁'에서 그 질문(probe)으로</b> 신호를 얻습니다. <b>공란인 유닛(③④⑨⑩⑪)</b>은 환경·질감·자율성·노출 칩이 이미 식사기록에 있어 <b>질문 없이 자동 판정</b>됩니다(표본 부족이면 보류·질문으로 보완).</div>
 </section>
 
 <section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>

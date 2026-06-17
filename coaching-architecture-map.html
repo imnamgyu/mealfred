@@ -185,7 +185,7 @@ CoachContext = {
   <span class="k">foodChaining</span>:{ <span class="k">candidates</span>:[ {axis,anchor,target,method,  <span class="m">// ← 푸드체이닝 모듈(네트워크 내부 활용)</span>
                             exposure,sosLevel} ],          <span class="m">//   ★뇌가 고를 화이트리스트(목록 밖 금지)</span>
                  recommended },                            <span class="m">//   결정론 디폴트(안 바꾸면 이것)</span>
-  <span class="k">decision</span>:    { scenario, chainingPick },             <span class="m">// ★뇌(Sonnet) 출력 — 후보 안에서만 택1</span>
+  <span class="k">decision</span>:    { scenario, chainingPick, recoTrack },  <span class="m">// ★뇌 출력 — 후보 중 택1 · recoTrack=supply|challenge(일간 회전)</span>
   <span class="k">history</span>:     { recentLetters[], usedTargets[], feedback },  <span class="c">// ← 편지</span>
   <span class="k">flags</span>:       { coldStart, dataMaturity, riskScreen }  <span class="c">// 콜드스타트 + 위험신호 게이트</span>
 }

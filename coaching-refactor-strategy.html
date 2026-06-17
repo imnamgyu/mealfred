@@ -102,12 +102,26 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <div class="phw">①신호선택기 <b>셀렉터 파사드</b>(selectScenario·pickActionByBrain·planFromWeekly 단일 진입) · ②추천엔진 <b>휴면 코드 정리</b>(coachMaterials·recoEvidence 흡수/삭제 결정, comboMatrix→괴식 유틸) · ③④⑤ <b>배럴(index)로 묶기</b> · ⑥작문기 = coach.ts에서 <b>판단부(planFor)는 ①로 분리하고 작문만 남김</b>.</div>
 <div class="why">왜: 파일 이동·배럴·rename은 동작 동일(tsc/test로 보증). ⑥의 coach.ts 분해가 가장 큼 → 마지막·테스트 두껍게.</div></div>
 <div class="ph p3"><div class="phh">Phase 3 · 푸드체이닝 모듈 + 아이 현황 스토어 + 배치 2단계 <span class="pht">신규 기능</span></div>
-<div class="phw">⑦ 조회 헬퍼 위에 <b>푸드체이닝 모듈</b>(2축 체인·candidates/recommended) + <code>child_daily_state</code> 야간 머티리얼라이즈(1단계) → 편지 워커(2단계)가 <code>CoachContext</code> 읽기. 아린 카나리아→전자녀.</div>
+<div class="phw">⑦ 조회 헬퍼 위에 <b>푸드체이닝 모듈</b>(2축 체인·candidates/recommended) + <code>child_daily_state</code> 야간 머티리얼라이즈(1단계) → 편지 워커(2단계)가 <code>CoachContext</code> 읽기. 아린 카나리아→전자녀. ⭐<b>추천 두 트랙</b>(supply 결핍·challenge 사촌/공출현) + <code>weekly_plans.reco_balance</code>(주간 밸런스) + 뇌 <code>decision.recoTrack</code>(일간 회전). ⭐<b>BMI·성장곡선 연동 3대영양소 매크로 트랙</b>(저체중·성장더딤 → 탄·단·지 식재료 우선) + <code>weekly_plans</code> 3대영양소 카테고리.</div>
 <div class="why">왜: P1 선호·P2 경계가 선 뒤라야 푸드체이닝이 깨끗한 입력을 받음. 배치 2단계로 1만 명 확장.</div></div>
 <div class="ph p4"><div class="phh">Phase 4 · 정합·정리 <span class="pht">후속</span></div>
 <div class="phw">도먼트 코드 제거 · 질의 대상 jsonb→정형 컬럼(필요한 것만) · 도메인 값 enum/CHECK · date-util 공용 분리 · 추천코드 도메인 이중모델 통합.</div>
 <div class="why">왜: 급하지 않은 정리. 분석 쿼리가 실제로 들어올 때만 jsonb 분리(과잉정규화 경고).</div></div>
 </div>
+</section>
+
+<section id="jsonsql"><div class="sec-h"><span class="no" style="font-size:13px">🗄️</span><h2>JSON → SQL 전환 결정표 (무엇을 SQL/캐시/코드로)</h2></div>
+<p class="lead">"전부 SQL"이 아니라 <b>SSOT=DB · 핫패스/클라=파생 캐시 · 로직=코드</b>. 정적 JSON 스냅샷을 쓰던 이유(빌드 판정·클라 사용·속도)는 인정하되, <b>자라는 데이터는 DB를 SSOT로</b> 옮겨 푸시 없이 갱신되게 한다.</p>
+<div class="tbl"><table style="min-width:720px"><tr><th style="width:22%">데이터/자산</th><th style="width:14%">지금</th><th style="width:24%">→ 가야 할 곳</th><th>이유 · 단계</th></tr>
+<tr><td><b>food-graph (사촌·궁합)</b></td><td>정적 JSON</td><td><b>SQL(ingredient_edges) SSOT + 캐시</b></td><td>매일 자람(공출현 복리)·푸시없이 갱신·관계질의. <code>graphSource.warmGraphFromSql</code>+<code>COACH_GRAPH_SQL</code> <b>이미 배선</b>(켜기만) → <b>P3</b></td></tr>
+<tr><td><b>learned_menus (메뉴→식재료)</b></td><td>DB(배열)</td><td>DB 유지 + <b>menu_ingredients junction을 SSOT로</b></td><td>배열→junction 정규화(SSOT 이중·stale 해소) → <b>P1~P2</b></td></tr>
+<tr><td><b>도감 등급·vocab (ingredients-light)</b></td><td>정적 JSON(빌드)</td><td><b>SQL(ingredients 컬럼) SSOT + 생성 캐시/캐시 API</b></td><td>DB가 진실, 클라·핫패스는 캐시. gen-grade가 JSON 재생성 대신 컬럼 업데이트 → <b>P4</b></td></tr>
+<tr><td><b>meal_logs 식재료</b></td><td>배열 text[]</td><td><b>정규화(meal_log_items)</b></td><td>1NF·per-식재료 집계(선호/노출) → <b>P1</b></td></tr>
+<tr><td>cooking-amounts·cuisine-guide·curated 콘텐츠</td><td>정적 JSON</td><td><b>JSON 유지</b></td><td>거의 안 변함·ROI 낮음·관계질의 불요</td></tr>
+<tr><td>매퍼 규칙(menuMapCore boostFromName)·시나리오·유닛</td><td>코드</td><td><b>코드 유지</b></td><td>절차 로직(테이블화 부적합)·푸시 필요는 당연. MENU_MAP 사전 부분만 테이블화 검토</td></tr>
+</table></div>
+<div class="callout"><b>왜 정적 JSON이 '나쁜 게 아니라' 단계적 전환인가</b> — 정적 스냅샷은 ①빌드타임 사람 판정 게이트 ②클라(브라우저) 즉시 매핑 ③서버리스 콜드스타트 속도 ④git diff/롤백에 유리. 그래서 <b>참조·핫패스용 캐시는 유지</b>하고, <b>SSOT만 DB로</b> 올린다. "100% 매요청 SQL"은 편지/메뉴마다 수십 쿼리라 느림 → <b>DB SSOT + 캐시</b>가 정답.</div>
+<div class="note"><b>단계 매핑</b>: P0(제약·무결성) → P1(meal_log_items·learned_menus 정규화) → P3(<code>COACH_GRAPH_SQL</code> ON·ingredient_edges 재집계·정합검증) → P4(vocab/등급 DB SSOT·질의대상 jsonb 정형화). ⚠️ graphSource ON 조건 = SQL 테이블 적재 + 엣지 재집계 + JSON과 정합 확인(지금 SQL==JSON이라 켜도 무효).</div>
 </section>
 
 <section id="modules"><div class="sec-h"><span class="no">3</span><h2>모듈별 리팩터 카드</h2></div>

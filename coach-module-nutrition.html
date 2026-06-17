@@ -91,6 +91,17 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <div class="tbl"><table><tr><th style="width:24%">테이블 · 데이터</th><th style="width:30%">뽑는 값</th><th>운영상 의미</th></tr><tr><td><b>meal_logs (식사 기록 테이블)</b></td><td>log_date(날짜)·slot(끼니/간식 구분)·ingredients(식재료)·menus(메뉴 원문)·place(집/기관)·ate_well(잘 먹었나)·meal_time(먹은 시각)·refused(거부)</td><td>아이가 며칠간 무엇을 먹었는지의 원천 데이터. 여기서 '날짜별 식재료 목록'을 만들어 신호등을 켜고, place로 집/기관을 갈라 점수를 따로 내고, slot으로 간식만 떼어내 간식 엔진에 넣습니다.</td></tr><tr><td><b>children (아이 프로필)</b></td><td>age_band(연령대)·sex(성별)·height_cm·weight_kg·excluded_ingredients(제외 식재료)·daycare(기관 정보)</td><td>연령대로 KDRI 기준치(만1-2/3-5/6-8세)를 고르고, 키·몸무게·성별로 BMI 밴드를 계산해 간식 방향을 정합니다. 5세 아이에게 만1-2세 기준을 보여주던 연령 불일치 버그를 이 값으로 고쳤습니다.</td></tr><tr><td><b>nutrient-map.generated.json (농진청 정밀 영양맵)</b></td><td>식재료명→커버 영양소 목록(n)·농진청 원물명(nong)·신뢰도(conf)</td><td>농진청 성분표에서 '100g당 1일 권장의 15% 이상' 주는 영양소만 뽑은 정확한 사전. '소고기=철·아연·B12' 같은 판정의 1차 근거이고, 여기 없는 식재료만 카테고리 빗대기로 근사합니다.</td></tr><tr><td><b>ingredients-light.json (도감 경량본)</b></td><td>식재료명(nm)·카테고리(cat) — 예: 당근→뿌리채소</td><td>정밀맵에 없는 식재료를 '범주로 근사'할 때 쓰는 분류표. 곱창→고기, 오리고기→고기처럼 '모름'으로 비우지 않고 그 범주의 대표 영양으로 채워 영양 누락을 줄입니다.</td></tr><tr><td><b>NUTRI_MAP / CATEGORY_NUTRI (코드 내장 상수)</b></td><td>식재료 200여종→영양소 직접 매핑 + 18개 풀 카테고리→대표 영양 프로필</td><td>농진청맵을 보완하는 손큐레이션 사전과 범주 빗대기 안전망. 두 출처를 합쳐(∪) 쓰고, 둘 다 없으면 카테고리로 폴백합니다.</td></tr><tr><td><b>KDRI_NUTRIENTS / KDRI_VAL_BY_AGE (KDRI 2025 상수)</b></td><td>36종 영양소의 권장 기준치를 연령대별로(예: 단백질 만1-2세 20g·3-5세 25g·6-8세 35g)</td><td>보건복지부 2025 기준을 코드로 박은 값. 모달에 '아이 나이에 맞는 참고 기준치'로 보여주며(색 판정은 빈도로 함), 나트륨·에너지·수분·불소·크롬 5종은 결핍 걱정 없어 제외합니다.</td></tr></table></div>
 </section>
 
+<section id="growth"><div class="sec-h"><span class="no" style="font-size:12px">🩺</span><h2>BMI · 성장곡선 연동 + 3대 영양소 트랙 (설계)</h2></div>
+<p class="lead">영양평가는 <b>두 축</b>으로 봅니다 — ① <b>식품군 신호등</b>(미량·식품군 coverage, KDRI) ② <b>체격·성장</b>(BMI + 키 성장곡선). 성장곡선을 벗어나지 않게, 체격 방향에 따라 추천이 달라집니다.</p>
+<div class="tbl"><table><tr><th style="width:26%">체격·성장 상태</th><th style="width:30%">평가 방향</th><th>추천</th></tr>
+<tr><td><b>과체중·비만</b>(BMI 백분위 ↑)</td><td><b>간식 적극 평가</b> — 초가공·가당음료 → 포만감 좋은 간식 교체(snack reduce)</td><td>식품군 다양성 유지 + 칼로리 밀도 낮추기. <span style="color:var(--g700)">(현재 라이브)</span></td></tr>
+<tr><td><b>저체중·BMI 하락</b> 또는 <b>키 성장 추세 더딤</b></td><td><b>3대 영양소(탄수·단백·지방) 우선</b> — 칼로리·성장 영양 보강</td><td><b>탄수=곡물 · 단백=고기·계란·콩류·생선 · 지방=유제품·견과·유지</b>(영유아 안전) 식재료·메뉴 추천</td></tr>
+<tr><td><b>정상</b></td><td>지금처럼 유지 + 식품군 결핍 보강</td><td>일반 결핍·다양성 트랙</td></tr>
+</table></div>
+<div class="callout"><b>주간계획 연동</b> — <code>weekly_plans</code>에 <b>3대영양소(macro) 카테고리</b> property 추가: 저체중·성장 더딤이면 주간 타깃을 <b>macro 트랙</b>으로 가중(채소우선 vegBonus를 BMI/성장으로 조건화). 즉 영양평가가 'BMI/성장 신호 + macro 우선순위'를 산출 → ① 주간이 타깃 잠금 → ② 추천엔진이 3대영양소 식재료/메뉴 생성.</div>
+<div class="note">⚠️ <b>성장곡선 = 국내(KDCA) 기준 + soft 신호</b>: BMI·키 백분위는 <b>질병관리청 2017 성장도표(국내)</b> 기준으로 추적(WHO 아님 — 만3세+ 국내값이 다름). 키는 유전·체질 다인자라 <b>'성장 추세 느리면 단백·칼로리 점검' 안내 + 지속 시 소아과 상담'</b>의 soft 신호로만(진단 아님). <b>상태</b>: 간식 BMI stance만 라이브 / 식품 macro 타깃·키 성장곡선·KDCA 데이터 = 신규(리팩터 P3·선행=KDCA LMS 확보).</div>
+</section>
+
 <section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
 <div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: nutrition.ts + snack.ts</span></div>
 <p class="lead">care 식사 기록의 식재료를 영양소로 환산해 "며칠 동안 이 영양소를 커버했나"로 신호등(green/yellow/red)을 산출하고(정량 g이 아닌 빈도 평가), 끼니와 분리한 간식 엔진으로 초가공·가당음료·식사간섭·BMI 방향을 따로 감시한다. 신호등의 red 영양소(reds)는 코칭 두뇌(planFor 시나리오)와 추천 엔진의 결핍 앵커가 되고, 간식 평가는 편지에 부드럽게 합쳐진다.</p>
