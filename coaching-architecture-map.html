@@ -85,10 +85,26 @@ footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;bo
 </div></header>
 
 <nav class="toc">
-<a href="#naming">네이밍 규칙</a><a href="#map">컴포넌트 지도</a><a href="#store">아이 현황 스토어</a><a href="#contract">⭐데이터 계약</a><a href="#io">모듈 입출력</a><a href="#loop">닫힌 루프</a><a href="#batch">1만명 배치</a><a href="#status">현재 상태·빌드순서</a><a href="#schema">부록·스키마</a>
+<a href="#plain">🧭 비개발자 개요</a><a href="#naming">네이밍 규칙</a><a href="#map">컴포넌트 지도</a><a href="#store">아이 현황 스토어</a><a href="#contract">⭐데이터 계약</a><a href="#io">모듈 입출력</a><a href="#loop">닫힌 루프</a><a href="#batch">1만명 배치</a><a href="#status">현재 상태·빌드순서</a><a href="#schema">부록·스키마</a>
 </nav>
 
 <main>
+
+<section id="plain"><div class="sec-h"><span class="no" style="font-size:13px">🧭</span><h2>비개발자용 — 편지 한 통이 만들어지는 과정</h2></div>
+<p class="lead">매일 새벽, 아이 한 명마다 아래 5단계가 돕니다. 코드를 몰라도 읽히게 정리했습니다.</p>
+<div class="loop">
+<div class="ln s1"><div class="lh">① 오늘의 '아이 상태표' 만들기</div><div class="lb">어제까지의 <b>집·기관 식단 기록</b>을 모아 영양 신호등(부족/충분)·잘 먹는 음식·거부한 음식·새 음식 노출 진척을 한 장으로 계산합니다. <b>전부 실제 기록에서 나온 값</b>이라 없는 사실을 지어내지 않습니다.</div></div>
+<div class="larrow">▼</div>
+<div class="ln s3"><div class="lh">② '뇌'가 오늘의 각도 + 이번 주 목표 고르기</div><div class="lb">13개 코칭 각도(예: 영양 공백·식사 분위기·진전 축하) 중 오늘 가장 도움될 <b>1개</b>를 고르고, 이번 주 가르칠 교육 목표(커리큘럼 유닛)도 정합니다. <b>매일 다른 각도로 돌려</b> 잔소리 반복을 막습니다.</div></div>
+<div class="larrow">▼</div>
+<div class="ln s2"><div class="lh">③ '추천엔진'이 채울 음식 정하기</div><div class="lb">부족한 영양을 채울 <b>실제로 잘 먹는 음식의 사촌·곁들임</b>을 검증된 데이터에서만 뽑습니다(예: "미역국에 두부 조금"). 조리법을 함부로 지어내지 않아 <b>괴식이 안 나옵니다</b>.</div></div>
+<div class="larrow">▼</div>
+<div class="ln s4"><div class="lh">④ '손'이 따뜻한 편지로 쓰기</div><div class="lb">위 재료를 받아 <b>따뜻한 한국어 편지</b>로 옮깁니다. 강요·괴식·과한 소금은 안전가드가 거르고, 발행 전 한 번 더 검수합니다.</div></div>
+<div class="larrow">▼</div>
+<div class="ln s5"><div class="lh">⑤ 부모 실천 → 새 기록 → ①로</div><div class="lb">부모가 한 걸음 실천하고 기록하면, 그게 내일 상태표에 반영돼 코칭이 점점 그 아이에게 맞춰집니다.</div></div>
+</div>
+<div class="callout"><b>두 가지 핵심 약속</b> — (가) <b>'무엇을' 줄지는 코드가 결정론으로, '어떻게' 쓸지(문장)만 AI가</b> → 괴식·환각 0. (나) <b>판단은 하루 한 번 미리 계산해 저장(아이 현황 스토어), 편지는 그걸 읽어 글만</b> → 1만 명도 감당. 아래 §0~는 이 구조의 상세이고, <b>각 부품의 운영·문헌·테이블</b>은 <a href="/docs.html">🧩 모듈 명세 7종</a>에 있습니다.</div>
+</section>
 
 <section id="naming"><div class="sec-h"><span class="no">0</span><h2>네이밍 규칙 — 엔진 / 모듈 / 데이터 레이어</h2><span class="tech">확정</span></div>
 <p class="lead">세 가지로만 부른다. 기준은 <b>"산출물과 루프를 가지면 엔진, 데이터를 돌려주면 모듈, 읽고 쓰는 공용 데이터면 레이어"</b>.</p>
