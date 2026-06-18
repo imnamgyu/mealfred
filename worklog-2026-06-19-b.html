@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-06-18~19 — /admin 성능 캐싱 (편지 쓰면 즉시 갱신)</title>
+<meta property="og:title" content="작업 일지 2026-06-18~19 — app.mealfred.com /admin 읽기 캐싱(unstable_cache) + 편지 작성 시 자동 무효화 + eval 풀스캔 제거 + 수동 새로고침">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-06-18 ~ 06-19 · admin 성능 캐싱 세션 · 병행</div>
+  <h1>app.mealfred.com /admin 읽기 캐싱 — 편지 쓰면 즉시 갱신</h1>
+  <p class="sub">매 요청 Supabase 전부 재조회하던 admin을 캐시(unstable_cache)에 박고, 새벽 편지 크론이 다 쓰면 자동 무효화. eval 풀스캔 제거 + 인증 왕복 2→1 + 수동 새로고침. (커밋 1 · 라이브)</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">1 커밋 · 9 파일</div><div class="l">캐싱 변경만 격리 커밋(<code>6a3839a</code>)</div></div>
+    <div class="gcard"><div class="n">풀스캔 제거</div><div class="l">eval_results 전행 → count 3쿼리</div></div>
+    <div class="gcard"><div class="n">왕복 2→1</div><div class="l">layout+page 인증 dedupe</div></div>
+    <div class="gcard"><div class="n">6 에이전트</div><div class="l">감사 4 + 적대 검증 2</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>진단 — 왜 느렸나</h2><span class="commit">분석</span></div>
+    <ul class="wl">
+      <li>모든 admin 페이지 <code>force-dynamic</code> → <b>매 요청 Supabase 전부 재조회, 캐시 0</b>.</li>
+      <li>홈: <code>eval_results.select('created_at')</code> = <b>전체 행 풀스캔</b>(카운트만 내려고 모든 행 전송, 무한 증가). 스레드 <code>[childId]</code> = 요청당 <b>9개 테이블</b>.</li>
+      <li><code>layout</code>+<code>page</code>가 <code>auth.getUser()</code>를 <b>각각 호출</b>(왕복 2회). 편지는 오직 새벽 크론 <code>api/cron/coach</code>가 씀 → "편지 쓰고 나면" = 크론 직후.</li>
+    </ul>
+    <div class="out"><b>이사님 요청</b> · "/admin 너무 느림, 특히 편지 쓰고 나면 그거 다 캐시에 박아둬."</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>방향 — unstable_cache (cacheComponents 전역 플래그 회피)</h2><span class="commit">Next16</span></div>
+    <ul class="wl">
+      <li>번들 Next16 문서 정독 → <code>cacheComponents</code>+<code>use cache</code>는 <b>앱 전체 PPR화·고위험</b>이라 회피. 이미 <code>plan/page.tsx</code>가 쓰는 <b><code>unstable_cache</code></b>(무설정·격리) 채택.</li>
+      <li><b>4-에이전트 감사 워크플로</b>(서브페이지 무게 · 전체 쓰기경로 ↔ 무효화 매핑 · Next16 캐시 동작) + <b>2-에이전트 적대 검증</b>으로 교차확인.</li>
+    </ul>
+    <div class="out"><b>핵심 제약</b> · 캐시 함수 안엔 쿠키/날짜 금지(service_role <code>createSupabaseAdmin</code>만). SQL에 <code>.lte(today)</code> 안 넣음(캐시키 날짜 오염 방지) → '오늘까지' 필터는 페이지 JS에서.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>구현 — 데이터 계층 + eval 카운트 + 새로고침</h2><span class="commit">9 파일</span></div>
+    <ul class="wl">
+      <li>신규 <code>web/lib/admin-data.ts</code> = 단일 계층: <code>getAdminUser</code>(React <code>cache()</code>로 인증 dedupe), <code>getAdminOverview</code>/<code>getChildThread</code>(<code>unstable_cache</code> · 태그 + 60s TTL).</li>
+      <li><code>admin/page.tsx</code>·<code>[childId]/page.tsx</code>·<code>layout.tsx</code> = 캐시 계층 사용. 홈 eval 풀스캔 → <b>KST 일경계 → UTC <code>count head</code> 3쿼리</b>(행 0개 전송).</li>
+      <li>신규 <code>app/admin/actions.ts</code>(서버액션 <code>revalidateTag('admin',{expire:0})</code>) + <code>components/AdminRefreshButton.tsx</code> = 수동 <b>↻ 새로고침</b>.</li>
+    </ul>
+    <div class="out"><b>페이지는 <code>force-dynamic</code> 유지</b> · 쿠키 인증은 캐시 밖. 빌드 후 admin 라우트 모두 <code>ƒ</code> 동적 확인.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>무효화 배선 + 검증 + 격리 배포</h2><span class="commit">6a3839a</span></div>
+    <ul class="wl">
+      <li><b>편지 쓰면 갱신</b> — 크론이 다 쓴 직후 <code>revalidateTag('admin',{expire:0})</code> 1회 = 홈+모든 스레드 즉시(온디맨드 <code>?child=</code>도 커버). 피드백=<code>admin-child:&lt;id&gt;</code> · 리맵=<code>admin</code> 배선. 클라 쓰기는 60s TTL.</li>
+      <li>✅ <code>tsc</code> 0 · ✅ <code>next build</code> 성공. 적대 리뷰 2건 <b>pass</b> → nit 2개 반영(cron <code>{expire:0}</code>로 편지 후 첫 방문 즉시 fresh · eval total null 제외로 원본 동일).</li>
+      <li>⚠️ 병행 세션과 작업 트리 공유 → <code>cron/coach.ts</code>는 15개 변경 훅 중 <b>내 2개만 부분 스테이징</b>(<code>git apply --cached</code>), 나머지 coachWeekly·테스트는 미커밋 보존. 커밋될 상태를 stash 후 <b>단독 빌드 검증</b>.</li>
+    </ul>
+    <div class="out"><b>라이브</b> · <code>6a3839a</code> 푸시 → Vercel <code>mealfred-app</code> 배포 <b>success</b> · <a href="https://app.mealfred.com/admin">app.mealfred.com/admin</a>. 메모리 <code>reference_admin_caching.md</code> 신설(불변식 기록).</div>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li>이사님 — 로그인해 <code>/admin</code> 체감 확인(@mealfred.com 인증 필요 → 직접 확인 불가). 느리거나 이상 시 보고하면 즉시 대응.</li>
+      <li>후속(선택) — <code>getAdminOverview</code>의 전 자녀 meal_logs/letters는 유저베이스 증가 시 페이로드 ↑ → 향후 DB 집계로 최적화 여지(현 베타 규모 무영향).</li>
+      <li>별개 미커밋 — coachWeekly·coach.ts 주간계획 작업 + 신규 테스트는 작업 트리에 보존(다음에 별도 정리).</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-06-18~19 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>

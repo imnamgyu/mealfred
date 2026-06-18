@@ -417,10 +417,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 3</span>
+    <span class="cnt">세션 4</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-19-b.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-18~19 — /admin 성능 캐싱 · 편지 쓰면 즉시 갱신</h4>
+      <p class="desc"><b>app.mealfred.com /admin 캐싱 세션(병행).</b> ① 매 요청 Supabase 전부 재조회하던 admin을 <code>unstable_cache</code>에 캐시(태그+60s TTL) ② 편지 작성자(새벽 크론)가 다 쓴 직후 <code>revalidateTag('admin',{expire:0})</code>로 즉시 갱신 ③ eval_results 풀스캔 → count 3쿼리 · 인증 왕복 2→1 ④ 수동 ↻ 새로고침 버튼. <span style="color:#1B5E20">캐싱 변경만 격리 커밋(<code>6a3839a</code>) · Vercel 배포 success.</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-19.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -511,6 +518,7 @@
     '/design-spec.html':{c:'2026-05-24',m:'2026-05-31'},
     '/methodology.html':{c:'2026-06-01',m:'2026-06-01'},
     '/worklog.html':{c:'2026-05-30',m:'2026-06-01'},
+    '/worklog-2026-06-19-b.html':{c:'2026-06-19',m:'2026-06-19'},
     '/worklog-2026-06-19.html':{c:'2026-06-19',m:'2026-06-19'},
     '/worklog-2026-06-18.html':{c:'2026-06-18',m:'2026-06-18'},
     '/worklog-2026-06-18-b.html':{c:'2026-06-18',m:'2026-06-18'}
