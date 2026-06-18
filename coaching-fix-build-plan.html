@@ -60,10 +60,11 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 
 <div class="warn"><b>🚀 새 세션 시작 가이드 — 이 문서만 보고 개발 착수</b>
 <ul>
+<li><b>🔗 URL로 지시받으면(예 "mealfred.com/coaching-fix-build-plan.html 보고 EPIC A부터 구현해") = 로컬↔배포 자동 동기화 규약.</b> 배포본(URL)은 <b>읽기 전용·로그인 게이트</b>이니, <b>같은 내용의 로컬 레포 파일 <code>landing_page/deploy/coaching-fix-build-plan.html</code>을 정본으로 열어 작업</b>한다. 구현이 끝나면 코드(<code>web/</code>)와 이 문서를 <b>모두 로컬에서 수정</b>한 뒤 <b><code>git add → commit → push</code></b> 한 번으로 로컬·배포(URL)를 동기화한다. 즉 <b>구현 → 테스트 → 이 문서 진척 갱신 → commit·push(배포 반영)</b>까지 한 흐름으로 끝낸다. (사용자는 URL로만 지시하고, 동기화는 구현 세션이 알아서.)</li>
 <li><b>이 문서 = 작업의 단일 진실.</b> 진단 근거는 각 모듈 문서(통합지도 외 모듈7+전략)의 '🔧 증상 개선' 섹션. <b>코드 루트 = <code>web/</code></b>(Next.js·vitest·tsc). <b>이 문서 소스 파일 = <code>landing_page/deploy/coaching-fix-build-plan.html</code></b>(git <code>imnamgyu/mealfred</code>).</li>
 <li><b>착수</b>: P0 우선 — <b>A-01부터 순서대로</b>(권장 A→B→C = D1). 지시는 원자 ID로("A-04 구현해" / "EPIC C 진행해").</li>
 <li><b>원자 1개 구현 절차</b>: ①원자의 {구현명세(file:line)·테스트·DoD}대로 구현 ②해당 vitest 케이스 그린 + <code>npm test</code> 전체 그린(prebuild 게이트) + <code>tsc --noEmit</code>/<code>next build</code> ③커밋(메시지 맨 앞에 원자 ID) ④푸시.</li>
-<li><b>⭐ 진행상황 갱신(필수) — 이 문서가 곧 진척판</b>: 구현 후 <b>이 HTML 파일을 직접 편집</b> → (a) 해당 원자 <code>h4</code>의 상태칩 <code>⬜→✅</code> + 커밋해시 추가, (b) 📊 진척 대시보드 그 EPIC의 <b>완료 카운트 +1</b>·상태 갱신, (c) 전부 완료면 합계 행 갱신. 그 뒤 <b>커밋·푸시</b>하면 배포 URL(<code>mealfred.com/coaching-fix-build-plan.html</code>)에 즉시 반영된다.</li>
+<li><b>⭐ 진행상황 갱신(필수·자동) — 이 문서가 곧 진척판</b>: 원자 구현이 끝나면 같은 커밋 흐름에서 <b>이 로컬 HTML 파일을 직접 편집</b> → (a) 해당 원자 <code>h4</code>의 상태칩 <code>⬜→✅</code> + 커밋해시 추가, (b) 📊 진척 대시보드 그 EPIC의 <b>완료 카운트 +1</b>·상태 갱신, (c) 전부 완료면 합계 행 갱신. 코드+문서를 함께 <b>commit·push</b> → 배포 URL(<code>mealfred.com/coaching-fix-build-plan.html</code>)에 즉시 반영(로컬·배포 자동 동기화). <b>이 문서 갱신을 빼먹은 구현은 미완료로 간주.</b></li>
 <li><b>명세와 다르게 만들 때</b>: 코드 먼저 금지 — 이 문서 원자 명세를 먼저 고치고(사유 1줄·커밋) 구현(문서≠코드 드리프트 방지).</li>
 <li><b>엣지 발견</b>: fixture+테스트(red→green)+수정. 새 원자는 해당 EPIC 말미에 ID 추가.</li>
 </ul></div>
