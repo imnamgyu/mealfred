@@ -12,6 +12,7 @@
  * (Next 라우트 규약: node_modules/next/dist/docs/01-app/.../route.md — Web Request/Response 핸들러.)
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { createSupabaseServer } from '@/lib/supabase/server';
 
 const RATINGS = new Set(['up', 'down', 'repeat']);
@@ -47,5 +48,7 @@ export async function POST(req: NextRequest) {
         { onConflict: 'child_id,letter_date,variant' },
       );
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 200 }); // graceful(테이블 미적용 등)
+  // 자녀 스레드의 부모 피드백 집계가 바뀜 → 해당 자녀 admin 캐시만 무효화(블랭킷 불필요).
+  try { revalidateTag(`admin-child:${child_id}`, 'max'); } catch { /* no-op */ }
   return NextResponse.json({ ok: true, rating, variant });
 }

@@ -15,6 +15,7 @@
  * 주의: 한 실행에서 시간 안에 처리 못 한 자녀는 다음 실행이 '오래된 순'으로 이어받는다(누락 로그).
  */
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals, groupOf } from '@/lib/nutrition';
@@ -923,6 +924,13 @@ export async function GET(req: Request) {
       }
       if (ups.length) await supabase.from('period_summaries').upsert(ups, { onConflict: 'child_id,period_type,period_key' });
     } catch (e) { console.warn('[cron/coach] period_summaries skip:', e instanceof Error ? e.message : e); }
+
+    // ⭐ 편지·질문·주간·진도·기간요약 기록 끝 → /admin 캐시 무효화('편지 쓰면 어드민에 반영').
+    //    블랭킷 'admin' 한 번이면 홈+모든 자녀 스레드 커버. 온디맨드 ?child= 경로도 같은 라우트라 함께 갱신.
+    //    { expire:0 } = 즉시 만료(다음 첫 방문이 곧장 fresh) — 'max'(stale-while-revalidate)면 편지 쓴 직후
+    //    첫 로드가 옛 데이터라 'QA하러 열었더니 새 편지가 없네'가 됨. 크론은 외부 트리거이므로 즉시만료가 정석.
+    //    캐시 핸들러 부재 등 어떤 실패도 코칭에 영향 없게 try-catch.
+    try { revalidateTag('admin', { expire: 0 }); } catch { /* no-op */ }
 
     const topReds = Object.entries(redFreq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n, c]) => `${n}(${c})`);
     await supabase.from('cron_runs').update({

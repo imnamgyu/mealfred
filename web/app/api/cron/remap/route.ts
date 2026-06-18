@@ -8,6 +8,7 @@
  *   ?max=N   LLM 최대 호출(기본 20)
  */
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { backfillUnmappedMenus } from '@/lib/remapMenus';
 import { kstDateNDaysAgo } from '@/lib/date';
 
@@ -26,6 +27,8 @@ export async function GET(req: Request) {
 
   try {
     const result = await backfillUnmappedMenus({ windowDays: days, maxLlmCalls: maxLlm, timeBudgetMs: 45_000, dryRun: dry, sinceFn: kstDateNDaysAgo });
+    // 실제 백필(meal_logs 변경)이면 /admin 캐시 무효화. dry는 변경 없음 → 스킵.
+    if (!dry) { try { revalidateTag('admin', 'max'); } catch { /* no-op */ } }
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {
     return NextResponse.json({ ok: false, error: e instanceof Error ? e.message : String(e) }, { status: 500 });

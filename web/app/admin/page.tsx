@@ -6,9 +6,11 @@
  *
  * 접근: 관리자(uid/email 화이트리스트)만. service_role로 전 계정 PII를 읽으므로 하드 게이트.
  */
-import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
+import { createSupabaseAdmin } from '@/lib/supabase/server';
+import { getAdminUser, getAdminOverview } from '@/lib/admin-data';
 import { isAdmin } from '@/lib/admin';
 import AdminLogin from '@/components/AdminLogin';
+import AdminRefreshButton from '@/components/AdminRefreshButton';
 import Link from 'next/link';
 import { kstToday } from '@/lib/date';
 
@@ -19,8 +21,7 @@ const AGE_LABEL: Record<string, string> = {
 };
 
 export default async function AdminHome() {
-  const anon = await createSupabaseServerAnon();
-  const { data: { user } } = await anon.auth.getUser();
+  const user = await getAdminUser();
 
   if (!isAdmin(user)) {
     return (
@@ -37,50 +38,54 @@ export default async function AdminHome() {
     );
   }
 
-  const db = createSupabaseAdmin();
-  const { data: children, error: childErr } = await db.from('children')
-    .select('id,nickname,age_band,sex,daycare,parent_id,created_at')
-    .order('id', { ascending: true });
-  if (childErr) console.error('[admin] children query:', childErr.message);
+  // ⭐ 캐시된 원천(Data Cache) — 자녀 로스터 + 끼니/편지 행. 매 요청 Supabase 풀 재조회 X.
+  const { children, meals, letters } = await getAdminOverview();
 
-  // 활동 집계 — 자녀별 식단 수·최근 기록일 (작은 유저베이스 가정, 단순 집계)
-  const ids = (children || []).map((c) => c.id);
-  const { data: meals } = ids.length
-    ? await db.from('meal_logs').select('child_id,log_date').in('child_id', ids).lte('log_date', kstToday())   // 미래(미리입력) 제외 — 끼니수·최근기록일 정확
-    : { data: [] as { child_id: string; log_date: string }[] };
-  const { data: letters } = ids.length
-    ? await db.from('coach_letters').select('child_id,letter_date').in('child_id', ids)
-    : { data: [] as { child_id: string; letter_date: string }[] };
-
+  // 활동 집계 — 자녀별 식단 수·최근 기록일. 미래(미리입력) 제외는 여기서('오늘'은 캐시 밖에서만 계산).
+  const todayKst = kstToday();
   const mealCount: Record<string, number> = {};
   const lastDate: Record<string, string> = {};
-  (meals || []).forEach((m) => {
+  meals.forEach((m) => {
+    if (m.log_date > todayKst) return;   // 미래 노출 차단 — 끼니수·최근기록일 정확
     mealCount[m.child_id] = (mealCount[m.child_id] || 0) + 1;
     if (!lastDate[m.child_id] || m.log_date > lastDate[m.child_id]) lastDate[m.child_id] = m.log_date;
   });
   const letterCount: Record<string, number> = {};
-  (letters || []).forEach((l) => { letterCount[l.child_id] = (letterCount[l.child_id] || 0) + 1; });
+  letters.forEach((l) => { letterCount[l.child_id] = (letterCount[l.child_id] || 0) + 1; });
 
   // 대시보드 — 가입자(자녀)·식단표 평가 이용 (오늘/어제/누적, KST 기준)
-  const { data: evalRows } = await db.from('eval_results').select('created_at');
   const kstDateOnly = (d: Date) => d.toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0, 10);   // 수동 +9 대신 timeZone으로 정확
   const today = kstDateOnly(new Date()), yest = kstDateOnly(new Date(Date.now() - 86400e3));
   const dayKST = (ts: string) => kstDateOnly(new Date(ts));
-  const countBy = (arr: { created_at: string | null }[]) => {
+  // 가입자 = 캐시된 children 배열에서 카운트(추가 쿼리 0).
+  const signup = (() => {
     let total = 0, t = 0, y = 0;
-    (arr || []).forEach((r) => { if (!r.created_at) return; total++; const d = dayKST(r.created_at); if (d === today) t++; else if (d === yest) y++; });
+    children.forEach((c) => { if (!c.created_at) return; total++; const d = dayKST(c.created_at); if (d === today) t++; else if (d === yest) y++; });
     return { total, today: t, yest: y };
-  };
-  const signup = countBy((children || []) as { created_at: string | null }[]);
-  const evalStat = countBy((evalRows || []) as { created_at: string | null }[]);
+  })();
+  // 식단표 평가 = eval_results(child_id 없는 전역 익명 테이블). 전 행 풀스캔 대신 KST 일경계→UTC count head 3회(행 0개 전송).
+  const db = createSupabaseAdmin();
+  const kstNow = new Date(Date.now() + 9 * 3600e3);
+  const todayStartUtc = new Date(Date.UTC(kstNow.getUTCFullYear(), kstNow.getUTCMonth(), kstNow.getUTCDate()) - 9 * 3600e3);
+  const yestStartUtc = new Date(todayStartUtc.getTime() - 86400e3);
+  const tomorrowStartUtc = new Date(todayStartUtc.getTime() + 86400e3);
+  const [evTot, evTod, evYes] = await Promise.all([
+    db.from('eval_results').select('*', { count: 'exact', head: true }).not('created_at', 'is', null),   // 원본 countBy와 동일하게 created_at null 행 제외(today/yest는 gte로 이미 제외됨)
+    db.from('eval_results').select('*', { count: 'exact', head: true }).gte('created_at', todayStartUtc.toISOString()).lt('created_at', tomorrowStartUtc.toISOString()),
+    db.from('eval_results').select('*', { count: 'exact', head: true }).gte('created_at', yestStartUtc.toISOString()).lt('created_at', todayStartUtc.toISOString()),
+  ]);
+  const evalStat = { total: evTot.count ?? 0, today: evTod.count ?? 0, yest: evYes.count ?? 0 };
 
-  const rows = (children || []).slice().sort((a, b) => (lastDate[b.id] || '').localeCompare(lastDate[a.id] || ''));
+  const rows = children.slice().sort((a, b) => (lastDate[b.id] || '').localeCompare(lastDate[a.id] || ''));
 
   return (
     <main style={{ maxWidth: 720, margin: '0 auto', padding: 24, fontFamily: 'Pretendard, sans-serif' }}>
-      <header style={{ marginBottom: 18 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>📊 대시보드</h1>
-        <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>계정 {rows.length}명 · 아이를 누르면 대화 쓰레드로 검수</p>
+      <header style={{ marginBottom: 18, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1a2b4a' }}>📊 대시보드</h1>
+          <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>계정 {rows.length}명 · 아이를 누르면 대화 쓰레드로 검수</p>
+        </div>
+        <AdminRefreshButton />
       </header>
 
       {/* 대시보드 — 가입자·식단표 평가 이용 (어제 대비 누적·오늘) */}

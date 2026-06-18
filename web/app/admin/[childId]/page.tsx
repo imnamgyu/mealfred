@@ -8,11 +8,12 @@
  *
  * 접근: 관리자만(service_role 읽기).
  */
-import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
+import { getAdminUser, getChildThread } from '@/lib/admin-data';
 import { isAdmin } from '@/lib/admin';
 import { kstToday } from '@/lib/date';
 import { letterSimilarity } from '@/lib/coach';
 import { UNITS, type UnitId } from '@/lib/curriculumUnits';
+import AdminRefreshButton from '@/components/AdminRefreshButton';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -80,33 +81,27 @@ function Ctx({ ctx }: { ctx: Record<string, unknown> | null }) {
 
 export default async function AdminThread({ params }: { params: Promise<{ childId: string }> }) {
   const { childId } = await params;
-  const anon = await createSupabaseServerAnon();
-  const { data: { user } } = await anon.auth.getUser();
+  const user = await getAdminUser();
   if (!isAdmin(user)) {
     return <main style={{ maxWidth: 480, margin: '60px auto', padding: 24, fontFamily: 'Pretendard' }}><p style={{ color: '#6B7280' }}>🔒 관리자 전용. <Link href="/admin" style={{ color: '#FF6B1A' }}>← 콘솔</Link></p></main>;
   }
 
-  const db = createSupabaseAdmin();
-  const { data: child } = await db.from('children').select('nickname,age_band,sex,daycare').eq('id', childId).maybeSingle();
+  // ⭐ 캐시된 자녀 스레드(Data Cache) — 9개 테이블 한 번에. 매 요청 재조회 X. 편지 쓰면 크론이 'admin' 태그로 갱신.
+  const { child, meals: mealsRaw, letters: lettersRaw, questions: questionsRaw, psData, wkPlansRaw, progRaw, fbRaw } = await getChildThread(childId);
   // ⭐ 미래 노출 차단(이사님 2026-06-13) — 식단표 OCR이 미래 날짜 끼니를 미리 넣어도(차단 전 데이터 포함)
   //   스레드는 '오늘까지'만 보여준다. 편지·질문도 동일(QA date 시뮬 잔재 방어).
+  //   '오늘'은 캐시 밖 → SQL .lte(today) 대신 캐시된 전체를 여기서 필터(캐시키 날짜 오염 방지).
   const todayKst = kstToday();
-  const [{ data: meals }, { data: letters }, { data: questions }] = await Promise.all([
-    db.from('meal_logs').select('log_date,menus,ingredients,refused,note,texture,place,meal_time,created_at').eq('child_id', childId).lte('log_date', todayKst),
-    db.from('coach_letters').select('letter_date,letter,oneliner,context,source_hash').eq('child_id', childId).lte('letter_date', todayKst),
-    db.from('daily_questions').select('q_date,question,topic,chips,answer,answered_at,context').eq('child_id', childId).lte('q_date', todayKst),
-  ]);
+  const meals = (mealsRaw as Meal[]).filter((m) => m.log_date <= todayKst);
+  const letters = (lettersRaw as Letter[]).filter((l) => l.letter_date <= todayKst);
+  const questions = (questionsRaw as Question[]).filter((q) => q.q_date <= todayKst);
   type PS = { period_type: string; period_key: string; metrics: { variety?: number; refusalPct?: number; enjoyPct?: number | null; avgDur?: number | null; entries?: number } };
-  // period_summaries 테이블 미생성이면 error만 나고 data=null → 빈 배열(안전)
-  const { data: psData } = await db.from('period_summaries').select('period_type,period_key,metrics,updated_at').eq('child_id', childId).order('period_key', { ascending: false }).limit(200);
+  // period_summaries 테이블 미생성이면 빈 배열(안전)
   const periods = (psData || []) as PS[];
-  // ⭐ 엔진 가시화(이사님 2026-06-13): 주간 계획(작전층) + 일간 진도·판단 차트(전술층) — 테이블 없으면 null→빈 패널 생략(안전).
-  const { data: wkPlansRaw } = await db.from('weekly_plans').select('week_key,status,mission_target,target_pool,secondary_axis,goals,behavior_goal,teaching_arc,check_method,budget,ledger,impression,arc_week').eq('child_id', childId).order('week_key', { ascending: false }).limit(6);
-  const { data: progRaw } = await db.from('curriculum_progress').select('unit_id,status,step,evidence,last_signal_at,relapse_count,stop_reason,updated_at').eq('child_id', childId);
+  // ⭐ 엔진 가시화(이사님 2026-06-13): 주간 계획(작전층) + 일간 진도·판단 차트(전술층) — 테이블 없으면 빈 패널 생략(안전).
   const wkPlans = (wkPlansRaw || []) as Array<Record<string, unknown>>;
   const progRows = (progRaw || []) as Array<Record<string, unknown>>;
-  // 부모 1탭 피드백 집계(테이블 없으면 null→0). A=기존 v2(letter_feedback).
-  const { data: fbRaw } = await db.from('letter_feedback').select('rating').eq('child_id', childId);
+  // 부모 1탭 피드백 집계(테이블 없으면 0). A=기존 v2(letter_feedback).
   const fb = { up: 0, down: 0, repeat: 0 };   // = A(기존 단일 카드 = 변형 없음)
   ((fbRaw || []) as Array<{ rating: 'up' | 'down' | 'repeat' }>).forEach((f) => { if (f.rating in fb) fb[f.rating]++; });
   // 일간 판단 타임라인 — 편지 context.decision/v3에서(최근 14일, 최신 위)
@@ -155,6 +150,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
           <div style={{ fontSize: 15, fontWeight: 800, color: '#1a2b4a' }}>{child?.nickname || '(이름없음)'}</div>
           <div style={{ fontSize: 11, color: '#9CA3AF' }}>{child?.age_band}{child?.sex === 'M' ? '·남아' : child?.sex === 'F' ? '·여아' : ''}{child?.daycare ? ' · 기관 다님' : ''}</div>
         </div>
+        <div style={{ marginLeft: 'auto' }}><AdminRefreshButton /></div>
       </header>
 
       {/* ⭐ 자가진단(Task2) — 엔진이 스스로 편지 품질 점검(반복·거울누락·oneliner중복) */}

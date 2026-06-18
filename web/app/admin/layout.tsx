@@ -3,7 +3,7 @@
  * 인증을 여기서 한 번 게이트(비관리자는 로그인만, 사이드바 X). 각 페이지의 자체 가드는 방어용으로 유지.
  */
 import type { ReactNode } from 'react';
-import { createSupabaseServerAnon } from '@/lib/supabase/server';
+import { getAdminUser } from '@/lib/admin-data';
 import { isAdmin } from '@/lib/admin';
 import AdminSessionGate from '@/components/AdminSessionGate';
 import AdminSidebar from '@/components/AdminSidebar';
@@ -11,8 +11,7 @@ import AdminSidebar from '@/components/AdminSidebar';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const anon = await createSupabaseServerAnon();
-  const { data: { user } } = await anon.auth.getUser();
+  const user = await getAdminUser();   // layout+page 공유(React cache) — 한 요청에 getUser 1회
 
   if (!isAdmin(user)) {
     // user 없음 = 토큰 만료 가능성(브라우저 refresh token으로 자동복구 시도) · user 있고 비관리자 = 바로 로그인
