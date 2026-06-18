@@ -318,6 +318,13 @@
       <p class="desc">음식↔식재료 <b>궁합·사촌·음식적합도·급식빈도</b>를 <code>graphSource</code> 단일 읽기경로로 조회하는 그래프 질의층(②가 소비). 📥 식재료명 → 📤 Neighbor[]/DishFit[]/freq. 흡수=foodGraph+kitGuide+ingredientFreq+graphSource.</p>
       <div class="meta"><span>MODULE · 데이터(뇌 경유)</span><span class="arrow">→</span></div>
     </a>
+    <a href="/coach-module-weekly-planner.html" class="doc-card cat-arch">
+      <span class="badge new">🎚️ ⑧ 모듈</span>
+      <div class="ico">🎚️</div>
+      <h4>⑧ 주간계획 (작전층 오케스트레이터)</h4>
+      <p class="desc">일요일 종합 위에 <b>다른 모듈을 종합해 7일치 구체 계획</b>을 미리 굽는 작전 사령부 — 카테고리(콩류)가 아니라 구체 dish 회전(두부조림→순두부찌개→사촌)·BMI/탄단지 고기류 트랙·anti-stall·거울 쿨다운. 일간은 slot 소비 + 그날 데이터로 유연 적응(가드). 📥 EnrichContext → 📤 <code>plan_detail</code>. 흡수=coachWeekly(enrich+pickPlanSlot).</p>
+      <div class="meta"><span>MODULE · 작전층</span><span class="arrow">→</span></div>
+    </a>
     <a href="/coaching-refactor-strategy.html" class="doc-card cat-arch">
       <span class="badge new">🛠️ 리팩터 전략</span>
       <div class="ico">🛠️</div>
@@ -410,10 +417,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 2</span>
+    <span class="cnt">세션 3</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-19.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-18~19 — 업무일지 계층화 · HARNESS·MEMORY 다이어트 · 캠프 자료 갱신</h4>
+      <p class="desc"><b>거버넌스 정리 · 남양주/헨켈 B2B 문서 세션.</b> ① 업무일지 일·주·월 3계층화 + <code>_rollup.py</code>(19에이전트 적대검증) ② HARNESS 1,663→72줄 · MEMORY 93KB→6.7KB 다이어트(연속성 3겹→단일화) ③ 남양주 캠프 자료 8종 로고·「오감톡톡 버섯 요리교실」 반영 재생성 ④ 구글 닥스 4종(헨켈 출고 조정·남양주 회신). <span style="color:#1B5E20">제품·배포 커밋 0 · 거버넌스·B2B 문서 세션.</span></p>
+      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-18-b.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -485,6 +499,7 @@
     '/coach-module-progress.html':{c:'2026-06-17',m:'2026-06-17'},
     '/coach-module-writer.html':{c:'2026-06-17',m:'2026-06-17'},
     '/coach-module-graph-query.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coach-module-weekly-planner.html':{c:'2026-06-19',m:'2026-06-19'},
     '/coaching-refactor-strategy.html':{c:'2026-06-17',m:'2026-06-17'},
     '/coaching-fix-build-plan.html':{c:'2026-06-18',m:'2026-06-18'},
     '/preference-quantification-engine.html':{c:'2026-06-16',m:'2026-06-16'},
@@ -496,6 +511,7 @@
     '/design-spec.html':{c:'2026-05-24',m:'2026-05-31'},
     '/methodology.html':{c:'2026-06-01',m:'2026-06-01'},
     '/worklog.html':{c:'2026-05-30',m:'2026-06-01'},
+    '/worklog-2026-06-19.html':{c:'2026-06-19',m:'2026-06-19'},
     '/worklog-2026-06-18.html':{c:'2026-06-18',m:'2026-06-18'},
     '/worklog-2026-06-18-b.html':{c:'2026-06-18',m:'2026-06-18'}
   };
