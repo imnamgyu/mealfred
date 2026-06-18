@@ -34,7 +34,7 @@ import { buildRecoFacts, buildIngredientPool, groupOfIngredient, STAPLE_FORMS, t
 import { getIngredientsLight, getRecipeFreq, warmGraphFromSql } from '@/lib/graphSource';   // ⭐ JSON 격리(handoff §4) + SQL warm(#2)
 import { aggregateUsage } from '@/lib/llmCost';   // ⭐ LLM 사용량 계측(유지비용 실측)
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
-import { bmiOf, bmiPercentile, bmiBand, type Sex, type BmiBand } from '@/lib/growth-reference';
+import { bmiOf, bmiPercentile, bmiBand, growthTracking, growthTrackToPhrase, type Sex, type BmiBand } from '@/lib/growth-reference';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
@@ -164,12 +164,14 @@ export async function GET(req: Request) {
     const prevArcStage: Record<string, string | null> = {};  // ⭐ 직전 편지의 아크 단계 — reinforce 이틀 연속 방지
     const recentRecoIng: Record<string, string[]> = {};   // ⭐ 최근 편지가 추천한 '식재료'(A 경로) — 주간 풀 일일 회전(같은 식재료 연속 추천 방지)
     const recentBrainUseFood: Record<string, boolean[]> = {};   // ⭐ A-07 — 최근 편지가 음식을 다뤘는지(useFood) 이력(최신부터) — 연속 food날 캡
+    const recentGrowthDates: Record<string, string[]> = {};   // ⭐ E-09 — 성장 거울 노출 날짜(격주 케이던스·2주연속금지)
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
       if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
-      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; brain?: { useFood?: boolean } | null } | null;
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; growthShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; brain?: { useFood?: boolean } | null } | null;
       if (typeof ctx?.recoIng === 'string' && ctx.recoIng) (recentRecoIng[l.child_id] ||= []).push(ctx.recoIng);
       if (typeof ctx?.brain?.useFood === 'boolean') (recentBrainUseFood[l.child_id] ||= []).push(ctx.brain.useFood);   // ⭐ A-07
+      if (ctx?.growthShown) (recentGrowthDates[l.child_id] ||= []).push(l.letter_date);   // ⭐ E-09
       if (!(l.child_id in prevArcStage)) prevArcStage[l.child_id] = ctx?.weekly?.arc?.stage ?? null;   // 정렬상 첫 과거 편지 = 직전
       if (ctx?.weekly?.weekKey) (recentWeekKeys[l.child_id] ||= []).push(ctx.weekly.weekKey);
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
@@ -193,8 +195,14 @@ export async function GET(req: Request) {
     // 미입력 정보 권유용 — 체위(성장) 데이터가 있는 자녀(growth_logs 1행+). 테이블 없으면 안전 처리.
     const hasGrowth = new Set<string>();
     const latestGrowth: Record<string, { height_cm: number | null; weight_kg: number | null }> = {};   // BMI는 최신 체위로(care에서 갱신 가능)
+    const firstGrowth: Record<string, { height_cm: number | null; weight_kg: number | null; measured_on: string }> = {};   // ⭐ E-01 — 가장 오래된 측정(성장곡선 추종 기준 채널)
+    const latestGrowthDate: Record<string, string> = {};
     const { data: grRows, error: grErr } = await supabase.from('growth_logs').select('child_id,measured_on,height_cm,weight_kg').in('child_id', activeIds).order('measured_on', { ascending: false });
-    if (!grErr) (grRows || []).forEach((r: { child_id: string; measured_on: string; height_cm: number | null; weight_kg: number | null }) => { hasGrowth.add(r.child_id); if (!latestGrowth[r.child_id]) latestGrowth[r.child_id] = { height_cm: r.height_cm, weight_kg: r.weight_kg }; });   // 정렬상 첫 = 최신
+    if (!grErr) (grRows || []).forEach((r: { child_id: string; measured_on: string; height_cm: number | null; weight_kg: number | null }) => {
+      hasGrowth.add(r.child_id);
+      if (!latestGrowth[r.child_id]) { latestGrowth[r.child_id] = { height_cm: r.height_cm, weight_kg: r.weight_kg }; latestGrowthDate[r.child_id] = r.measured_on; }   // 정렬 desc → 첫 = 최신
+      firstGrowth[r.child_id] = { height_cm: r.height_cm, weight_kg: r.weight_kg, measured_on: r.measured_on };   // 매 행 덮어씀 → 마지막 = 가장 오래된(기준 채널)
+    });
 
     // 미입력 프로필을 '돌아가며 하나씩' 부드럽게 권유(기대효과 1개 포함). 다그치지 않게 ~4일에 1번·로테이션.
     // 기록 공백(P9) 권유가 떠 있는 날엔 안 띄움(권유 중첩 방지). 체위=명확히 미입력, 만성=선택(없으면 안 넣어도 됨 문구).
@@ -348,6 +356,22 @@ export async function GET(req: Request) {
         // 간식 평가(별도 간식 엔진) — 끼니와 분리해 초가공 모니터링·식사 간섭성·BMI 칼로리 방향·좋은 간식 추천. 편지에 부드럽게 합쳐짐(체중 단어 금지).
         const snackBand = bmiBandFor(meta, cid);
         const snackEval = evaluateSnacks({ rows: byChild[cid], band: snackBand, reds });   // 텍스트화는 계획 확정 후(쿨다운·과일타깃 중복제거·예시 로테이션 게이팅)
+        let growthMirrorCtx: string | null = null;   // ⭐ E-03 — 오늘 성장(BMI/곡선) 거울 한 구절(격주 케이던스). null=미노출
+        let growthShownCtx = false;   // ⭐ E-09 — 오늘 성장 거울 노출 여부(격주 케이던스 이력)
+        // ⭐ E-03/E-09 — 성장(BMI/곡선) 거울: 첫 측정 채널 대비 추종도 + BMI 밴드 → P10 한 구절. 격주 케이던스(13일 쿨다운·2주연속금지).
+        if (meta.sex === 'M' || meta.sex === 'F') {
+          const growthShownRecently = (recentGrowthDates[cid] || []).some((d) => d >= dAgo(13));   // 격주(13일) — 매일 키·몸무게 못 재니 잔소리 저빈도(이사님)
+          if (!growthShownRecently && meta.birth_year && meta.birth_month) {
+            const monthsAt = (d: string) => { const [y, m] = d.split('-').map(Number); return (y - meta.birth_year!) * 12 + (m - meta.birth_month!); };
+            const fg0 = firstGrowth[cid], lg0 = latestGrowth[cid], lgD = latestGrowthDate[cid];
+            const tk = (col: 'height_cm' | 'weight_kg', metric: 'height' | 'weight') =>
+              (fg0 && lg0 && lgD && fg0[col] != null && lg0[col] != null && fg0.measured_on !== lgD)
+                ? growthTracking({ value: fg0[col] as number, ageMonths: monthsAt(fg0.measured_on) }, { value: lg0[col] as number, ageMonths: monthsAt(lgD) }, meta.sex as Sex, metric)
+                : null;
+            growthMirrorCtx = growthTrackToPhrase({ band: snackBand, height: tk('height_cm', 'height'), weight: tk('weight_kg', 'weight') });
+            growthShownCtx = !!growthMirrorCtx;
+          }
+        }
         const uniqRef = [...new Set(ref)];
         // ⭐ C(이사님 2026-06-15) — 재노출 타깃은 '결핍 식품군에 속한 거부'만. 주식(밥/면/빵/떡) 일회성 거부·비결핍군(고기 등)·미매핑(치킨 등)은
         //   타깃 아님(밥·치킨이 음식 타깃이 되던 버그). 거부 '보고'(편지에 기관 거부 언급)는 sanitizeRefusals 그대로 유지·타깃 선정만 정제.
@@ -675,7 +699,7 @@ export async function GET(req: Request) {
           // ⭐ 구조(환경·자율성·식감) 편지엔 간식 음식 스왑을 얹지 않음 — '한 번에 하나' 위반으로 요구 3개 편지가 되던 것 차단(2026-06-11 검증자 적발).
           //   간식 신호는 사라지지 않고 food 주간/다음 기회에 환기(쿨다운과 동일 원리).
           const structuralFrame = STRUCTURAL_FRAMES.includes(scenarioId || '');   // 명단 단일 소스(coach.SCEN_MOVES 파생 — 수동 동기화 금지)
-          const snackText = (!snackShownRecently && !snackChannelTarget && !structuralFrame) ? snackEvalToPrompt(snackEval, daySeed) : null;
+          const snackText = (!snackShownRecently && !snackChannelTarget && !structuralFrame && !growthMirrorCtx) ? snackEvalToPrompt(snackEval, daySeed) : null;   // ⭐ E-08 — 성장 거울 있는 날은 간식 멘트 생략(한 번에 하나·과체중 간식 안내는 growthTrackToPhrase가 이미 담음)
           snackShownCtx = !!snackText;
           // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
           // ⭐ 두뇌 useFood ↔ 시나리오 정합: 구조 프레임(환경·자율성·식감)은 본문이 음식 제안을 안 하므로 useFood=false로 맞춤(칩·bridgeFacts 일관).
@@ -711,7 +735,7 @@ export async function GET(req: Request) {
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: gHomeMissing, homeReds: gHomeReds, homeDays: homeDays.length,
             chronicGuidance: chronicGuidanceText(meta.chronic),
-            bridgeFacts, snackEval: snackText,
+            bridgeFacts, snackEval: snackText, growthMirror: growthMirrorCtx,   // ⭐ E-04 — 성장(BMI/곡선) 거울 한 구절(격주)
             profileNudge: profileN, structuredTip: sTip ?? metaInv,   // ⭐ #4b 초기엔 메타 입력 초대가 이 한 줄 채널을 대신 채움
             weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };
@@ -744,6 +768,7 @@ export async function GET(req: Request) {
             simToPrev, repeatAlert,   // ⭐ 반복 자가 측정·경보(어드민 반복 모니터 — 2026-06-11)
             snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
             snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
+            growthShown: growthShownCtx, growthMirror: growthMirrorCtx,   // ⭐ E-09 — 성장 거울 노출(격주 케이던스 이력)·어드민
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
             brain: brainPick,   // ⭐ 두뇌 선택+검수(?brain=1) — 시나리오·useFood·근거(어드민 노출)
             recoIng, recoPool: recoPoolArr, recoMode,   // ⭐ 오늘 추천 식재료(회전) + 주간 풀 5개 + 모드(보급/도전) — 일일 회전 이력·어드민

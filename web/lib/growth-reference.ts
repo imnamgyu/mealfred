@@ -281,3 +281,21 @@ export function growthTracking(
   const score = Math.max(0, Math.min(100, Math.round(100 + Math.min(0, zDrift) * 45)));
   return { metric, baselinePct: bp, currentPct: cp, zDrift, expected, actual: current.value, gapMonths: gap, score, status };
 }
+
+/**
+ * ⭐ E-02 — BMI 밴드 + 성장곡선 추종도 → 코칭 편지에 녹일 P10 비수치 한 구절(없으면 null).
+ *   우선순위: 성장곡선 이탈(경고>주의) > BMI 밴드(비만·과체중·저체중). 정상·정보부족이면 null(성장 거울 생략).
+ *   ⚠️ 숫자·퍼센타일·점수·등급·체중·살·BMI 단어 금지(손 프롬프트가 그대로 녹이게 P10 톤으로 작성).
+ */
+export function growthTrackToPhrase(args: { band: BmiBand | null; height: GrowthTrack | null; weight: GrowthTrack | null }): string | null {
+  const tracks = [args.height, args.weight].filter((t): t is GrowthTrack => !!t && t.status !== '정보부족');
+  const warn = tracks.find((t) => t.status === '경고') || tracks.find((t) => t.status === '주의');
+  if (warn) {
+    const part = warn.metric === 'height' ? '키' : '몸무게';
+    if (warn.status === '경고') return `요즘 ${part}가 또래 성장 흐름을 천천히 따라가는 듯해요. 끼니 양과 단백질·열량(고기·계란·콩·유제품)을 평소보다 조금 넉넉히 챙겨보면 좋아요(걱정되시면 소아과와 한 번 상의).`;
+    return `최근 ${part}가 또래 성장 흐름을 조금 천천히 따라가는 듯하니, 끼니 양과 균형(탄수·단백·지방)을 부드럽게 살펴봐 주세요.`;
+  }
+  if (args.band === '비만' || args.band === '과체중') return `또래보다 체격이 넉넉한 편이라, 단 음료·과자 간식을 과일·요거트처럼 든든한 간식으로 바꿔주면 좋아요(끼니 다양성은 그대로 유지).`;
+  if (args.band === '저체중') return `또래보다 가벼운 편이라, 끼니 양과 단백질·열량(고기·계란·콩·유제품)을 평소보다 조금 더 챙겨주면 좋아요.`;
+  return null;   // 정상 → 성장 거울 생략(불필요한 잔소리 방지)
+}

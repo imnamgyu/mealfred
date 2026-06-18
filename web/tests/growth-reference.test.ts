@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest';
 import {
   bmiPercentile, bmiZ, bmiBand,
   heightPercentile, weightPercentile, heightAtPercentile, weightAtPercentile,
-  growthTracking,
+  growthTracking, growthTrackToPhrase, type GrowthTrack,
 } from '../lib/growth-reference';
 
 const near = (v: number | null, target: number, tol: number) => {
@@ -93,6 +93,28 @@ describe('성장곡선 추종도', () => {
     const base = { value: heightAtPercentile(50, 'M', 60) as number, ageMonths: 60 };
     const cur = { value: base.value, ageMonths: 60 };
     expect(growthTracking(base, cur, 'M', 'height')!.status).toBe('정보부족');
+  });
+});
+
+describe('E-02 — growthTrackToPhrase (BMI/성장곡선 → P10 비수치 한 구절)', () => {
+  const tk = (metric: 'height' | 'weight', status: GrowthTrack['status']): GrowthTrack =>
+    ({ metric, baselinePct: 50, currentPct: 30, zDrift: status === '경고' ? -1.5 : -0.8, expected: 0, actual: 0, gapMonths: 3, score: 50, status });
+  it('성장곡선 경고가 BMI보다 우선 — 숫자·BMI 단어 없음', () => {
+    const p = growthTrackToPhrase({ band: '비만', height: tk('height', '경고'), weight: null });
+    expect(p).toBeTruthy();
+    expect(p).toContain('키');
+    expect(p).not.toMatch(/BMI|퍼센타일|[0-9]+(번째|퍼센|%)/);
+  });
+  it('주의 = 부드러운 균형 살펴보기', () => {
+    expect(growthTrackToPhrase({ band: null, height: null, weight: tk('weight', '주의') })).toMatch(/몸무게|균형/);
+  });
+  it('성장 정상 + 과체중 = 간식 교체 / 저체중 = 양·단백 보강', () => {
+    expect(growthTrackToPhrase({ band: '과체중', height: null, weight: null })).toMatch(/간식/);
+    expect(growthTrackToPhrase({ band: '저체중', height: null, weight: null })).toMatch(/가벼운|단백/);
+  });
+  it('정상·정보부족이면 null(성장 거울 생략)', () => {
+    expect(growthTrackToPhrase({ band: '정상', height: null, weight: null })).toBeNull();
+    expect(growthTrackToPhrase({ band: null, height: tk('height', '정보부족'), weight: null })).toBeNull();
   });
 });
 
