@@ -22,8 +22,8 @@ import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
-import { type CoachSignals } from '@/lib/coachScenarios';
-import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, type WeeklyAnchor, type WeeklyArc, type WeeklyLedger, type WeeklyBudget } from '@/lib/coachWeekly';
+import { SCENARIOS, type CoachSignals } from '@/lib/coachScenarios';
+import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, anchorOverrideAllowed, type WeeklyAnchor, type WeeklyArc, type WeeklyLedger, type WeeklyBudget } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { compileFacts } from '@/lib/coachFacts';
 import { type CRow } from '@/lib/curriculumUnits';
@@ -163,11 +163,13 @@ export async function GET(req: Request) {
     const recentWeekKeys: Record<string, string[]> = {};     // ⭐ 최근 편지가 쓴 주간 닻 week_key — '이번 주 첫 편지(intro)' 판정
     const prevArcStage: Record<string, string | null> = {};  // ⭐ 직전 편지의 아크 단계 — reinforce 이틀 연속 방지
     const recentRecoIng: Record<string, string[]> = {};   // ⭐ 최근 편지가 추천한 '식재료'(A 경로) — 주간 풀 일일 회전(같은 식재료 연속 추천 방지)
+    const recentBrainUseFood: Record<string, boolean[]> = {};   // ⭐ A-07 — 최근 편지가 음식을 다뤘는지(useFood) 이력(최신부터) — 연속 food날 캡
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
       if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
-      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null } | null;
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; brain?: { useFood?: boolean } | null } | null;
       if (typeof ctx?.recoIng === 'string' && ctx.recoIng) (recentRecoIng[l.child_id] ||= []).push(ctx.recoIng);
+      if (typeof ctx?.brain?.useFood === 'boolean') (recentBrainUseFood[l.child_id] ||= []).push(ctx.brain.useFood);   // ⭐ A-07
       if (!(l.child_id in prevArcStage)) prevArcStage[l.child_id] = ctx?.weekly?.arc?.stage ?? null;   // 정렬상 첫 과거 편지 = 직전
       if (ctx?.weekly?.weekKey) (recentWeekKeys[l.child_id] ||= []).push(ctx.weekly.weekKey);
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
@@ -420,7 +422,8 @@ export async function GET(req: Request) {
         let brainPick: BrainAction | null = null;   // ⭐ 두뇌 선택+검수 결과(?brain=1) — context 저장·어드민 노출
         let recoIng: string | null = null; let recoPoolArr: string[] = []; let recoMode: string | null = null;   // ⭐ 오늘 추천 식재료(회전)+주간 풀 — context 저장(블록 밖 참조)
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
-        let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 — 어드민 검증
+        let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null; lever?: string; missionTarget?: string | null; targetPool?: string[]; ledger?: WeeklyLedger | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 + A-01 lever/ledger/targetPool(두뇌 게이트용) — 어드민 검증
+        let weeklyReplan: ((sid: string) => ReturnType<typeof planFromWeekly>) | null = null;   // ⭐ A-04 — 두뇌 override 허용 시 닻 안에서 시나리오만 교체(타깃 잠금·채근 캡 보존)
         let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
         let simToPrev: number | null = null;   // ⭐ 발행 직전 자가 측정 — 직전 편지들과 최대 유사도(어드민 반복 모니터·2026-06-11)
@@ -483,6 +486,7 @@ export async function GET(req: Request) {
           const signals: CoachSignals = {
             timeseries: ts, reds: gReds, homeReds: gHomeReds, missing: gMissing, homeMissing: gHomeMissing,
             homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef), refused: sanitizeRefusals(uniqRef),
+            refusedExposable: defMature ? refExposable : [],   // ⭐ A-08 — 타깃 선정 전용(주식제외+결핍군 거부만). 치킨 등 비결핍 누수 차단. 1주차 미성숙이면 빈 배열(결핍 단정 금지와 정합).
             notes, favoriteFoods, attendsDaycare: attends, ageBand: meta.age_band,
             recentLoggedDays, recentWindow: RECENT_WINDOW, icfqRiskCount,
             envBadPct: structuredSig.envBadPct, envCount: structuredSig.envCount,   // 식사 분위기 시나리오가 구조화 환경 입력으로도 발동
@@ -604,8 +608,12 @@ export async function GET(req: Request) {
               const wk = planFromWeekly({ anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, progressNote, firstOfWeek, lastArcStage: prevArcStage[cid] ?? null, daySeed, cidHash, dow });
               if (wk) {
                 precomputed = { scenario: wk.scenario, plan: wk.plan, varyOpener: wk.varyOpener };
-                weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc };
                 const newLedger = { ...(anchor.ledger || DEFAULT_LEDGER), ...wk.ledgerPatch, exposeCount: { ...((anchor.ledger || DEFAULT_LEDGER).exposeCount || {}), [tgt]: targetExposeWtd }, firstServeDow, targetAccepts };   // ⭐ 6-C targetAccepts 적재 → 다음 일요일 synth가 스톨 판정
+                // ⭐ A-01 — 두뇌 게이트가 읽도록 lever·targetPool·ledger(foodOverrideUsed 포함)를 weekCtx에 노출.
+                weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc, lever: anchor.budget?.lever || 'food', missionTarget: anchor.mission_target, targetPool: anchor.target_pool || [], ledger: newLedger };
+                // ⭐ A-04 — override 허용 시 닻 안에서 시나리오만 교체(타깃 잠금·채근 캡·아크 보존). 두뇌 블록에서 호출.
+                const _anchor = anchor as WeeklyAnchor;
+                weeklyReplan = (sid: string) => planFromWeekly({ anchor: _anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, progressNote, firstOfWeek, lastArcStage: prevArcStage[cid] ?? null, daySeed, cidHash, dow, forceScenarioId: sid });
                 await supabase.from('weekly_plans').update({ ledger: newLedger, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekKey);
               }
             }
@@ -623,10 +631,34 @@ export async function GET(req: Request) {
                 weeklyEchoes: (wk3 || []).map((w: { week_key: string; mission_target: string | null; behavior_goal: string | null; impression: string | null }) => ({ weekKey: w.week_key, target: w.mission_target, behaviorGoal: w.behavior_goal, impression: w.impression })),
                 pastLetters,
                 recentScenarioIds: recentScenarios[cid] || [],
+                anchorLever: weekCtx?.lever, anchorTargetPool: weekCtx?.targetPool, recentUseFood: (recentBrainUseFood[cid] || []).slice(0, 4),   // ⭐ A-07 — 닻 lever·연속 food 이력 주입
               });
               brainPick = await pickActionByBrain(brainCtx, recoCand ? [recoCand] : []);
+              // ⭐ A-07 — 연속 food날 캡: 직전 2일 모두 음식이면 오늘은 결정론으로 비음식 강등(프롬프트 신뢰 대신 보증).
+              if (brainPick && (recentBrainUseFood[cid] || []).slice(0, 2).filter(Boolean).length >= 2) brainPick.useFood = false;
               if (brainPick.scenarioId) {
-                precomputed = planFor({ signals, recentScenarioIds: recentScenarios[cid] || [], recentPlans: recentPlans[cid] || [], daySeed, cidHash, forceScenarioId: brainPick.scenarioId });
+                // ⭐ A-04/A-06 — 닻 종속 override 게이트. 트리거 충족 + (food주|레버호환|안전인터럽트|food override 캡 미소진)일 때만 두뇌 시나리오 채택.
+                const safeTrigger = (id: string): boolean => { const sc = SCENARIOS.find((s) => s.id === id); if (!sc) return false; try { return sc.trigger(signals); } catch { return false; } };
+                const anchorLever = weekCtx?.lever || 'food';
+                const sid = brainPick.scenarioId;
+                const fov = weekCtx?.ledger?.foodOverrideUsed ?? 0;
+                const { allow, isFoodOverride } = anchorOverrideAllowed({ anchorLever, sid, fov, triggerOk: safeTrigger(sid) });
+                if (allow) {
+                  const wk2 = (weekCtx?.fromWeekly && weeklyReplan) ? weeklyReplan(sid) : null;
+                  if (wk2) {
+                    precomputed = { scenario: wk2.scenario, plan: wk2.plan, varyOpener: wk2.varyOpener };
+                    weekCtx = { ...weekCtx!, arc: isFoodOverride ? null : wk2.weeklyArc };   // ⭐ A-05 — food override 날 환경 arc 제거(잡탕 편지 방지)
+                  } else {
+                    precomputed = planFor({ signals, recentScenarioIds: recentScenarios[cid] || [], recentPlans: recentPlans[cid] || [], daySeed, cidHash, forceScenarioId: sid });
+                    if (weekCtx && isFoodOverride) weekCtx = { ...weekCtx, arc: null };
+                  }
+                  if (isFoodOverride && weekCtx?.weekKey) {   // ⭐ A-09 — food override 캡 카운트 적재(주경계 리셋=새 주 synth DEFAULT_LEDGER)
+                    const merged = { ...(weekCtx.ledger || DEFAULT_LEDGER), foodOverrideUsed: fov + 1 };
+                    weekCtx = { ...weekCtx, ledger: merged };
+                    await supabase.from('weekly_plans').update({ ledger: merged, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekCtx.weekKey);
+                  }
+                }
+                // allow=false → 두뇌 시나리오 무시, 닻 레버 프레임/결정론 precomputed 유지(비-food 주 음식 잔소리·트리거 미충족 강제 차단)
               }
             } catch (e) { console.warn('[cron/coach] brain skip:', e instanceof Error ? e.message : e); brainPick = null; }
           }

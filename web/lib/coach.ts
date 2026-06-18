@@ -385,7 +385,11 @@ export function planSignature(frame: string, target: string | null, moveKey: str
 /** 시나리오별 타깃 후보 풀(결정론 회전 대상). 식품군 시나리오=부족 식품군, 거부 시나리오=거부 음식, 그 외=없음. */
 export function targetPoolForScenario(id: string, s: CoachSignals): string[] {
   if (id === 'nutrient-gap' || id === 'home-daycare-gap') return [...new Set([...(s.homeMissing || []), ...(s.missing || [])])];
-  if (id === 'new-refusal' || id === 're-exposure-timing') return [...new Set([...(s.homeRefused || []), ...(s.daycareRefused || [])])];
+  if (id === 'new-refusal' || id === 're-exposure-timing') {
+    // ⭐ A-08 — 타깃 선정은 '결핍군 소속 거부'만(치킨·비결핍 누수 차단). refusedExposable 있으면 우선, 없으면(구경로) 기존 합집합.
+    if (s.refusedExposable) return [...new Set(s.refusedExposable)];
+    return [...new Set([...(s.homeRefused || []), ...(s.daycareRefused || [])])];
+  }
   return [];
 }
 

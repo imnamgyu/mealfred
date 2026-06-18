@@ -18,6 +18,7 @@ export type CoachSignals = {
   homeRefused: string[];
   daycareRefused: string[];
   refused: string[];
+  refusedExposable?: string[];   // ⭐ A-08 — 주식 제외 + 결핍군 소속 거부만(타깃 선정 전용). refused 원본은 트리거·보고용 유지.
   notes: string[];
   favoriteFoods: string[];
   attendsDaycare: boolean;

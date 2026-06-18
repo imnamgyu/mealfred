@@ -36,6 +36,7 @@ export type WeeklyBudget = { expose: number; push: number; cadenceMinGap: number
 export type WeeklyLedger = { pushUsed: boolean; exposeCount: Record<string, number>; lastExposeDow: number | null; arcWeek: number; reanchorUsed: boolean; adviceGivenAt: string | null; firstServeDow: number | null; progressWeek: number;
   targetAccepts?: number;   // ⭐ 6-C(이사님 2026-06-15) 이번 주 잠긴 타깃을 '집에서 거부 없이 잘 먹은' 횟수 = 진짜 진척(단순 '차림'과 구분). 크론 일일 writeback이 채움.
   stallWeeks?: number;      // ⭐ 6-A 잠긴 타깃이 '진전 0'으로 흐른 연속 주차(일요일 synth가 직전 닻들의 targetAccepts로 산출·이월). 어드민 가시화용.
+  foodOverrideUsed?: number;   // ⭐ A-09 — 비-food 주에 일간 두뇌가 food 시나리오로 닻을 덮어쓴 횟수(주당 FOOD_OVERRIDE_CAP 캡). 새 주 닻 synth 시 0 리셋.
 };
 export type TeachingArc = { stages: string[]; implIntention?: string | null };   // 가르치는 단계 + 언제·어디서(Gollwitzer)
 // 일간 편지에 주입하는 그날 단계 — 요일·진척으로 결정. 잠긴 한 주 안에서 '매일 다른 각도'를 만드는 변주축(2026-06-11 복붙 사고 핫픽스).
@@ -52,8 +53,26 @@ export type WeeklyAnchor = {
 };
 export const DEFAULT_BUDGET: WeeklyBudget = { expose: 2, push: 1, cadenceMinGap: 1, pushWindow: [2, 3, 4], lever: 'food' };  // 노출 2·채근 1·간격 1일·push 윈도우 화수목(dow 2,3,4)·기본 레버=food
 // 구조 레버(비식품) → 그 주 일간 프레임이 되는 시나리오. food는 mission_target 잠금 경로로.
-const LEVER_SCENARIO: Record<string, string> = { environment: 'mealtime-atmosphere', autonomy: 'autonomy-power-struggle', texture: 'texture-refusal' };
-export const DEFAULT_LEDGER: WeeklyLedger = { pushUsed: false, exposeCount: {}, lastExposeDow: null, arcWeek: 1, reanchorUsed: false, adviceGivenAt: null, firstServeDow: null, progressWeek: 1 };
+// ⭐ A-02 — 단일 진실(route 두뇌 게이트가 import해 leverScenario 호환 판정). food는 키 없음(=mission_target 잠금 경로).
+export const LEVER_SCENARIO: Record<string, string> = { environment: 'mealtime-atmosphere', autonomy: 'autonomy-power-struggle', texture: 'texture-refusal' };
+// ⭐ A-02 — 닻 무관 항상 허용 시나리오(전환 축하·적신호·기록공백). planFromWeekly 인터럽트 목록과 단일 소스.
+export const SAFE_INTERRUPT_SCENARIOS = new Set(['progress-celebrate', 'neophobia-arfid-watch', 'low-data-gap']);
+// ⭐ A-04/A-09 — 비-food 주에 일간 두뇌가 food 시나리오로 닻을 덮어쓸 수 있는 주당 상한(초과분 차단 → 음식 잔소리 연속 방지).
+export const FOOD_OVERRIDE_CAP = 2;
+export const DEFAULT_LEDGER: WeeklyLedger = { pushUsed: false, exposeCount: {}, lastExposeDow: null, arcWeek: 1, reanchorUsed: false, adviceGivenAt: null, firstServeDow: null, progressWeek: 1, foodOverrideUsed: 0 };
+
+/**
+ * ⭐ A-04/A-10 — 두뇌가 고른 시나리오(sid)로 주간 닻을 덮어써도 되는지 판정(순수함수·테스트 가능).
+ *   허용 = trigger 충족(A-06) AND (닻이 food주 | sid가 닻 레버 시나리오 | 안전 인터럽트 | food override 캡 미소진).
+ *   isFoodOverride = 비-food 주인데 food 시나리오로 캡을 1 소진하는 경우(arc 비우기·ledger 카운트 대상).
+ */
+export function anchorOverrideAllowed(p: { anchorLever: string; sid: string; fov: number; triggerOk: boolean; cap?: number }): { allow: boolean; isFoodOverride: boolean } {
+  const cap = p.cap ?? FOOD_OVERRIDE_CAP;
+  const isLeverCompat = p.anchorLever === 'food' || p.sid === LEVER_SCENARIO[p.anchorLever] || SAFE_INTERRUPT_SCENARIOS.has(p.sid);
+  const allow = p.triggerOk && (isLeverCompat || p.fov < cap);
+  const isFoodOverride = p.anchorLever !== 'food' && !isLeverCompat && p.triggerOk;
+  return { allow, isFoodOverride };
+}
 
 // ── ⭐ v3 — 주간 목표 포트폴리오(E-02~E-06) ───────────────────────────────────
 /** 유닛 레버 → 레거시 lever 병행 기록(A-05 — 컷오버 기간 구코드 호환. mixed는 환경 프레임이 가장 가깝다). */
@@ -289,13 +308,14 @@ export function planFromWeekly(p: {
   firstOfWeek: boolean;      // 이번 주 닻으로 만드는 첫 편지인가 → intro(진단+왜는 주 1회만 — 2026-06-11 복붙 사고 핫픽스)
   lastArcStage?: string | null;   // 직전 편지의 아크 단계 — reinforce 이틀 연속 방지
   daySeed: number; cidHash: number; dow: number;
+  forceScenarioId?: string | null;   // ⭐ A-03 — 두뇌가 고른 시나리오(닻 종속 override). food 레버 경로의 frame만 교체, 타깃 잠금·채근 캡·아크는 그대로.
 }): { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean; ledgerPatch: Partial<WeeklyLedger>; pushApplied: boolean; weeklyArc: WeeklyArc | null } | null {
   const { anchor, signals, recentPlans, daySeed, cidHash, dow } = p;
   const sc = (id: string) => SCENARIOS.find((s) => s.id === id)!;
 
   // 1) 안전 인터럽트 — 전환 축하/적신호/기록공백은 닻보다 우선(그날만, 채근·아크 안 함)
   const fired = SCENARIOS.filter((s) => { try { return s.trigger(signals); } catch { return false; } }).sort((a, b) => b.priority - a.priority);
-  const interrupt = fired.find((s) => s.id === 'progress-celebrate' || s.id === 'neophobia-arfid-watch' || s.id === 'low-data-gap');
+  const interrupt = fired.find((s) => SAFE_INTERRUPT_SCENARIOS.has(s.id));
   if (interrupt) {
     const bp = buildCoachPlan({ frame: interrupt.id, targetPool: [], recentPlans, daySeed, cidHash });
     return { scenario: interrupt, plan: bp, varyOpener: recentPlans[0]?.frame === interrupt.id, ledgerPatch: {}, pushApplied: false, weeklyArc: null };
@@ -333,9 +353,11 @@ export function planFromWeekly(p: {
   }
   const target = pool[0];   // 닻 우선(mission_target이 pool[0])
   const isRefused = signals.refused.includes(target) || signals.homeRefused.includes(target) || signals.daycareRefused.includes(target);
-  const frame = SNACK_CHANNEL.has(target) ? 'nutrient-gap'
+  const baseFrame = SNACK_CHANNEL.has(target) ? 'nutrient-gap'
     : isRefused ? 'new-refusal'
     : (signals.attendsDaycare && signals.missing.length === 0) ? 'home-daycare-gap' : 'nutrient-gap';
+  // ⭐ A-03 — 두뇌가 고른 시나리오로 frame만 교체(타깃 잠금 pool[0]·채근 캡·아크는 그대로). food 레버 경로에서만(비-food는 route 게이트가 차단).
+  const frame = (p.forceScenarioId && SCENARIOS.some((s) => s.id === p.forceScenarioId)) ? p.forceScenarioId : baseFrame;
   let bp: CoachPlan = buildCoachPlan({ frame, targetPool: [target], recentPlans, daySeed, cidHash });
 
   // 3) 채근 캡 + 행동지연 — push 무브(mix/beside)는 '적기'(예산 남음 && 윈도우 && 이번 주 1회+ 차림)에만

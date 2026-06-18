@@ -53,6 +53,9 @@ export function buildBrainContext(p: {
   weeklyEchoes: WeeklyEcho[];       // 최근 3주(최신부터)
   pastLetters: { date: string; letter: string }[];   // 최근 5~7통(최신부터)
   recentScenarioIds?: string[];     // 최근 편지가 쓴 시나리오(겹침 회피)
+  anchorLever?: string;             // ⭐ A-07 — 이번 주 주력 레버(비-food면 음식 시나리오 자제)
+  anchorTargetPool?: string[];      // ⭐ A-07 — 주간이 잠근 음식 타깃 풀(음식 날엔 이 안에서)
+  recentUseFood?: boolean[];        // ⭐ A-07 — 최근 며칠 음식 다룸 여부(최신부터·연일 food 자제)
 }): string {
   const name = p.childName || '아이';
   const recos = (p.recoCandidates || []).filter(Boolean);
@@ -72,8 +75,15 @@ export function buildBrainContext(p: {
     ? recos.map((r, i) => `(${i + 1}) ${r}`).join('\n')
     : '(추천 후보 없음 — 음식 결핍 약함)';
 
+  const anchorBlock = p.anchorLever
+    ? `\n[주간 닻 — 이번 주 주력 = ${p.anchorLever}${p.anchorLever !== 'food' ? '(⚠️ 비-food 주: 음식 시나리오로 매일 갈아끼우지 마라 — 음식은 며칠에 한 번만, 나머지는 이 레버 각도로)' : ''}]${(p.anchorTargetPool && p.anchorTargetPool.length) ? ` 음식 다루는 날의 타깃 풀: ${p.anchorTargetPool.join('·')}` : ''}\n`
+    : '';
+  const useFoodBlock = (p.recentUseFood && p.recentUseFood.length)
+    ? `\n[최근 음식날 — ${p.recentUseFood.map((u) => (u ? '음식' : '비음식')).join('→')}(최신순). 직전 2일이 모두 '음식'이면 오늘은 음식 말고 다른 각도로(연일 음식 잔소리 금지).]\n`
+    : '';
+
   return `아이: ${name}
-${p.nutritionMirror ? `\n[영양 평가(참고)] ${p.nutritionMirror}\n` : ''}
+${p.nutritionMirror ? `\n[영양 평가(참고)] ${p.nutritionMirror}\n` : ''}${anchorBlock}${useFoodBlock}
 [후보 시나리오 — 이 목록 안에서만 골라라. '발동가능'=수치상 조건 충족 · '최근사용'=최근 편지가 씀(피하라)]
 ${menu}
 
