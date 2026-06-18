@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeKdriSignals, computeGroupSignals, computeGroupWeekly, computeDiversityScore, CATEGORY_GROUP, NUTRIENT_FOODS, KDRI_NUTRIENTS, KDRI_EXCLUDED, KDRI_AGE_LABEL, kdriAgeBandOf, type AgeBandKey, type NutrientSignal, type KdriSignal, type GroupSignal, type GroupWeekly } from '@/lib/nutrition';
-import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, type Sex } from '@/lib/growth-reference';
+import { bmiOf, bmiPercentile, bmiBand, bmiPhrase, growthTracking, type GrowthTrack, type Sex } from '@/lib/growth-reference';
 import { computeProgress, bmiTrend, type ProgressResult } from '@/lib/progress';
 import { composeWeeklyBox, BOX_REASON_META } from '@/lib/box';
 import { inSeason } from '@/lib/season';
@@ -436,6 +436,31 @@ export default function Home() {
         return { measured_on: g.measured_on, pct: b != null ? bmiPercentile(b, childMeta.sex as Sex, am) : null };
       }))
     : null;
+  // 성장곡선 추종도 — 첫 측정으로 그 아이의 백분위 채널을 잡고, 자기 곡선을 따라가는지 점수화(키·체중 각각)
+  const growthTracks: { h: GrowthTrack | null; w: GrowthTrack | null } | null =
+    (!isMockup && childMeta.sex && childMeta.birthY && childMeta.birthM && growthList.length >= 2)
+      ? (() => {
+          const amOf = (d: string) => (Number(d.slice(0, 4)) - childMeta.birthY!) * 12 + (Number(d.slice(5, 7)) - childMeta.birthM!);
+          const asc = [...growthList].sort((a, b) => (a.measured_on < b.measured_on ? -1 : 1));   // 기준=가장 오래된, 현재=최신
+          const mk = (metric: 'height' | 'weight', col: 'height_cm' | 'weight_kg'): GrowthTrack | null => {
+            const pts = asc.filter((g) => g[col] != null).map((g) => ({ value: g[col] as number, ageMonths: amOf(g.measured_on) }));
+            return pts.length >= 2 ? growthTracking(pts[0], pts[pts.length - 1], childMeta.sex as Sex, metric) : null;
+          };
+          const h = mk('height', 'height_cm'), w = mk('weight', 'weight_kg');
+          return h || w ? { h, w } : null;
+        })()
+      : null;
+  const growthMsg: string | null = (() => {
+    if (!growthTracks) return null;
+    const ts = [growthTracks.h, growthTracks.w].filter(Boolean) as GrowthTrack[];
+    const worst = ts.find((t) => t.status === '경고') || ts.find((t) => t.status === '주의') || ts.find((t) => t.status === '양호') || ts[0];
+    if (!worst) return null;
+    const lab = worst.metric === 'height' ? '키' : '몸무게';
+    if (worst.status === '경고') return `${lab} 성장곡선이 또래보다 처지고 있어요. 단백질·칼슘이 든 끼니를 늘리고, 계속 더디면 전문가와 상의해보세요.`;
+    if (worst.status === '주의') return `${lab} 성장 속도가 조금 더뎌요 — 3대 영양소(특히 단백질)가 든 식재료를 한 끼 더 챙겨주세요.`;
+    if (worst.status === '정보부족') return '측정 간격이 짧아요 — 한 달 뒤 다시 재보면 성장 추세를 정확히 보여드려요.';
+    return '자기 성장곡선을 잘 따라가고 있어요. 지금처럼 골고루 먹으면 충분해요.';
+  })();
   type MStat = 'green' | 'yellow' | 'red' | 'reference';
   // 실제 체위(키·몸무게)가 있으면 식사 기록이 적어도/성별이 없어도 항상 실제 BMI를 보여준다. 퍼센타일은 성별·월령 있을 때 추가.
   const bmiCard: null | { ageLabel: string; hw: string; bmi: number; band: string; pct: number | null; carb: MStat; protein: MStat; fat: MStat; tip: string } = bmiVal != null
@@ -460,6 +485,12 @@ export default function Home() {
     yellow: { label: '조금 부족', color: '#F57F17', bar: '#F9A825', w: 55 },
     red: { label: '부족', color: '#C62828', bar: '#E53935', w: 30 },
     reference: { label: '기준 참고', color: '#9CA3AF', bar: '#CBD5E1', w: 50 },
+  };
+  const GROWTH_ST: Record<GrowthTrack['status'], { lbl: string; fg: string; bar: string }> = {
+    '양호': { lbl: '양호', fg: '#1B5E20', bar: '#16A085' },
+    '주의': { lbl: '주의', fg: '#F57F17', bar: '#F9A825' },
+    '경고': { lbl: '경고', fg: '#C62828', bar: '#E53935' },
+    '정보부족': { lbl: '대기', fg: '#9CA3AF', bar: '#CBD5E1' },
   };
 
   // 식품군 다양성 신호등 — 목업=예시 / 실데이터=computeGroupSignals (충분/조금부족/부족)
@@ -978,6 +1009,30 @@ export default function Home() {
                       </div>
                     )}
                   </div>
+                  {/* 성장곡선 추종도 — 첫 기록 대비 자기 곡선 유지(키·체중) */}
+                  {growthTracks && (
+                    <div className="rounded-xl bg-white p-3 mb-2.5" style={{ border: '1px solid #F0E0D0' }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>📈 성장곡선 추종</span>
+                        <span className="text-[9.5px] font-semibold" style={{ color: '#9CA3AF' }}>첫 기록 대비 자기 곡선 유지도</span>
+                      </div>
+                      {([['키', growthTracks.h], ['몸무게', growthTracks.w]] as [string, GrowthTrack | null][]).filter(([, t]) => t).map(([nm, t]) => {
+                        const st = GROWTH_ST[t!.status];
+                        return (
+                          <div key={nm} className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[12px] font-semibold flex-shrink-0" style={{ color: '#1a2b4a', width: '52px' }}>{nm}</span>
+                            <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#F0F0F0' }}>
+                              <div style={{ width: `${t!.status === '정보부족' ? 50 : t!.score}%`, height: '100%', background: st.bar }} />
+                            </div>
+                            <span className="text-[10.5px] font-bold text-right flex-shrink-0" style={{ color: st.fg, width: '66px' }}>
+                              {t!.status === '정보부족' ? '측정 대기' : `${st.lbl} ${t!.score}점`}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      {growthMsg && <div className="mt-2 rounded-lg px-3 py-2 text-[10.5px] leading-relaxed font-semibold" style={{ background: '#FFF', color: '#C45A00', border: '1px solid #FFE0C0' }}>💡 {growthMsg}</div>}
+                    </div>
+                  )}
                   {/* 탄·단·지 바 */}
                   {([['탄수화물', '🍚', bmiCard.carb], ['단백질', '🥩', bmiCard.protein], ['지방', '🥑', bmiCard.fat]] as [string, string, MStat][]).map(([nm, em, st]) => (
                     <div key={nm} className="flex items-center gap-2 mb-1.5">
@@ -991,7 +1046,7 @@ export default function Home() {
               ) : (
                 <a href="/care" className="block rounded-2xl p-4 mb-4 text-center" style={{ background: '#FFF8F2', border: '1.5px dashed #FFD0A0' }}>
                   <div className="text-sm font-extrabold mb-1" style={{ color: '#C45A00' }}>📏 키·몸무게를 기록해보세요</div>
-                  <div className="text-[11.5px]" style={{ color: '#8a7a6a' }}>BMI·또래 비교(WHO 성장도표)를 보여드려요 — 식사 기록 화면에서 입력 →</div>
+                  <div className="text-[11.5px]" style={{ color: '#8a7a6a' }}>BMI·또래 비교·성장곡선 추종도(국내 성장도표)를 보여드려요 — 식사 기록 화면에서 입력 →</div>
                 </a>
               )}
 
