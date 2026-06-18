@@ -1,25 +1,42 @@
 /**
- * lib/growth-reference.ts — BMI-for-age LMS. ⭐국내(KDCA 2017) 우선 (이사님 2026-06-18)
+ * lib/growth-reference.ts — 성장도표 LMS (신장·체중·BMI for-age). ⭐국내 정본 (KDCA 2017)
  *
- * 0~35개월  = WHO Child Growth Standards (KDCA 2017이 만3세 미만에 WHO를 그대로 채택 → 동일).
- *   bfa-boys/girls-zscore-expanded-tables.xlsx (cdn.who.int), 월령 m→WHO 일령 round(m*30.4375)의 [L,M,S].
- * 36개월+   = 질병관리청 2017 소아청소년 성장도표 BMI-for-age LMS (lib/kdca-bmi-lms.json, 24~227개월·남녀 각 204행).
- *   검증: LMS→percentile 역산이 KDCA 공식 percentile과 일치(남5세 M15.92→P50·13.7→P3·18.7→P97 / 4앵커·±1.x%).
- *   ⚠️ 36개월부터 국내 기준으로 전환(WHO와 만3세+ 값이 다름). 키·체중 for-age LMS는 공식 엑셀 입수 후 별도(미구현).
+ * 정본: 질병관리청 「2017 소아청소년 성장도표」 '성장도표 데이터 테이블.xls'
+ *   (knhanes.kdca.go.kr/knhanes/grtcht → 성장도표 다운로드 dataNo=7) → lib/kdca-growth-lms.json.
+ *   이 표는 0~35개월(만3세 미만)에 WHO 기준을, 36개월+에 국내 기준을 이미 병합한 완성본.
+ *     - 신장(height)·체중(weight): 0~227개월 (남/여 각 228행)
+ *     - 체질량지수(BMI): 24~227개월 (남/여 각 204행)
+ *   ⚠️ KDCA는 24개월 미만 BMI-for-age를 정의하지 않음(신장별체중 사용) → 영아 BMI는
+ *     WHO BMI-for-age(아래 BMI_LMS, 0~35개월)로 폴백. 신장·체중은 0개월부터 정본 사용.
+ *   검증: LMS→percentile 역산이 KDCA 공식 percentile과 일치(tests/growth-reference.test.ts).
+ *     · BMI 남5세 M15.92→P50 / 신장 남5세 P3=101.6·P97=118 / 체중 남5세 P3=15.4·P97=24.3.
  *
- * 퍼센타일: z = ((BMI/M)^L − 1)/(L·S),  percentile = Φ(z)·100
+ * 퍼센타일: z = ((X/M)^L − 1)/(L·S),  percentile = Φ(z)·100
  */
-import KDCA_BMI from './kdca-bmi-lms.json';
+import KDCA from './kdca-growth-lms.json';
 export type Sex = 'M' | 'F';
-// KDCA 2017 BMI-for-age: 월령 → [L,M,S] (남=boys·여=girls). 36개월+에서 사용.
-const KDCA_BMI_MAP: Record<Sex, Record<number, [number, number, number]>> = (() => {
-  const m: Record<Sex, Record<number, [number, number, number]>> = { M: {}, F: {} };
-  for (const d of (KDCA_BMI as { boys: { m: number; L: number; M: number; S: number }[]; girls: { m: number; L: number; M: number; S: number }[] }).boys) m.M[d.m] = [d.L, d.M, d.S];
-  for (const d of (KDCA_BMI as { boys: { m: number; L: number; M: number; S: number }[]; girls: { m: number; L: number; M: number; S: number }[] }).girls) m.F[d.m] = [d.L, d.M, d.S];
-  return m;
-})();
+type LmsRow = { m: number; L: number; M: number; S: number };
+type Metric = { boys: LmsRow[]; girls: LmsRow[] };
+const G = KDCA as { height: Metric; weight: Metric; bmi: Metric };
 
-// index = 개월(0..60), 값 = [L, M, S]
+const table = (metric: Metric, sex: Sex): LmsRow[] => (sex === 'M' ? metric.boys : metric.girls);
+
+/** 월령으로 LMS 선형보간. 표 범위 밖은 양끝 클램프. 빈 표면 null. (행 간격 불규칙해도 안전) */
+function lmsAt(rows: LmsRow[], ageMonths: number): [number, number, number] | null {
+  if (!rows || rows.length === 0) return null;
+  const m = Math.max(rows[0].m, Math.min(rows[rows.length - 1].m, ageMonths));
+  let i = 0;
+  while (i < rows.length - 2 && rows[i + 1].m <= m) i++;
+  const a = rows[i], b = rows[i + 1] || a;
+  const span = (b.m - a.m) || 1, f = (m - a.m) / span;
+  return [a.L + (b.L - a.L) * f, a.M + (b.M - a.M) * f, a.S + (b.S - a.S) * f];
+}
+
+const zFromLms = (x: number, [L, M, S]: [number, number, number]): number =>
+  Math.abs(L) > 1e-9 ? (Math.pow(x / M, L) - 1) / (L * S) : Math.log(x / M) / S;
+
+// WHO BMI-for-age LMS (0~35개월) — KDCA가 만3세 미만에 채택. 24개월 미만 BMI 폴백 전용.
+// index = 개월(0..35), 값 = [L, M, S]
 export const BMI_LMS: Record<Sex, [number, number, number][]> = {
   M: [
   [-0.3053, 13.4069, 0.0956],
@@ -58,31 +75,6 @@ export const BMI_LMS: Record<Sex, [number, number, number][]> = {
   [-0.3575, 15.6939, 0.07882],
   [-0.3388, 15.6609, 0.07897],
   [-0.3233, 15.6297, 0.07913],
-  [-0.31, 15.5986, 0.07931],
-  [-0.3, 15.5695, 0.07949],
-  [-0.2927, 15.5406, 0.07969],
-  [-0.2884, 15.5141, 0.0799],
-  [-0.2869, 15.4881, 0.08013],
-  [-0.2881, 15.4645, 0.08036],
-  [-0.2918, 15.4423, 0.08061],
-  [-0.2982, 15.4209, 0.08087],
-  [-0.3066, 15.4015, 0.08114],
-  [-0.3175, 15.3825, 0.08144],
-  [-0.3302, 15.3652, 0.08174],
-  [-0.3455, 15.3483, 0.08206],
-  [-0.3622, 15.3326, 0.08238],
-  [-0.3808, 15.3176, 0.08272],
-  [-0.402, 15.3029, 0.08307],
-  [-0.4243, 15.2892, 0.08343],
-  [-0.449, 15.2758, 0.08381],
-  [-0.4745, 15.2634, 0.08418],
-  [-0.5022, 15.2513, 0.08457],
-  [-0.5302, 15.24, 0.08496],
-  [-0.5594, 15.2293, 0.08535],
-  [-0.5906, 15.2188, 0.08577],
-  [-0.6219, 15.2092, 0.08617],
-  [-0.6554, 15.2, 0.08659],
-  [-0.6889, 15.1917, 0.08699],
 ],
   F: [
   [-0.0631, 13.3363, 0.09272],
@@ -121,31 +113,6 @@ export const BMI_LMS: Record<Sex, [number, number, number][]> = {
   [-0.5684, 15.4575, 0.08467],
   [-0.5684, 15.4355, 0.08484],
   [-0.5684, 15.4157, 0.08506],
-  [-0.5684, 15.3966, 0.08535],
-  [-0.5684, 15.3797, 0.08569],
-  [-0.5684, 15.3636, 0.08609],
-  [-0.5684, 15.3493, 0.08654],
-  [-0.5684, 15.3356, 0.08704],
-  [-0.5684, 15.3233, 0.08757],
-  [-0.5684, 15.3117, 0.08813],
-  [-0.5684, 15.3006, 0.08872],
-  [-0.5684, 15.2906, 0.08931],
-  [-0.5684, 15.2813, 0.08992],
-  [-0.5684, 15.2732, 0.0905],
-  [-0.5684, 15.266, 0.0911],
-  [-0.5684, 15.2602, 0.09168],
-  [-0.5684, 15.2557, 0.09227],
-  [-0.5684, 15.2523, 0.09287],
-  [-0.5684, 15.2503, 0.09345],
-  [-0.5684, 15.2496, 0.09404],
-  [-0.5684, 15.2502, 0.0946],
-  [-0.5684, 15.2519, 0.09516],
-  [-0.5684, 15.2543, 0.09567],
-  [-0.5684, 15.2575, 0.09617],
-  [-0.5684, 15.2612, 0.09665],
-  [-0.5684, 15.2653, 0.09708],
-  [-0.5684, 15.2698, 0.0975],
-  [-0.5684, 15.2747, 0.09789],
 ],
 };
 
@@ -156,35 +123,48 @@ function erf(x: number): number {
   return x >= 0 ? y : -y;
 }
 function normCdf(z: number): number { return 0.5 * (1 + erf(z / Math.SQRT2)); }
+const toPct = (z: number | null): number | null => (z === null ? null : Math.max(0.1, Math.min(99.9, normCdf(z) * 100)));
 
-/** BMI(=kg/m²)와 성별·월령으로 BMI-for-age z-score. 0~35개월=WHO·36개월+=KDCA 2017(국내). 범위 밖/무효 입력은 null. */
+/** BMI(=kg/m²) → BMI-for-age z. 24개월+=KDCA 2017(정본)·24개월 미만=WHO 폴백. 무효 입력 null. */
 export function bmiZ(bmi: number, sex: Sex, ageMonths: number): number | null {
   if (!(bmi > 0)) return null;
-  let L: number, M: number, S: number;
-  if (ageMonths >= 36) {
-    // ⭐ KDCA 2017 (국내) — 36~227개월. 월령 사이 선형보간.
-    const map = KDCA_BMI_MAP[sex]; if (!map) return null;
-    const mm = Math.max(36, Math.min(227, ageMonths));
-    const lo = Math.floor(mm), hi = Math.min(227, lo + 1), f = mm - lo;
-    const a = map[lo], b = map[hi] || map[lo];
-    if (!a) return null;
-    L = a[0] + (b[0] - a[0]) * f; M = a[1] + (b[1] - a[1]) * f; S = a[2] + (b[2] - a[2]) * f;
-  } else {
-    // WHO (0~35개월) — KDCA가 만3세 미만 WHO 채택.
-    const tab = BMI_LMS[sex]; if (!tab) return null;
-    const m = Math.max(0, Math.min(35, ageMonths));
-    const lo = Math.floor(m), hi = Math.min(35, lo + 1), f = m - lo;
-    const it = (i: number) => tab[lo][i] + (tab[hi][i] - tab[lo][i]) * f;  // 월령 사이 선형보간
-    L = it(0); M = it(1); S = it(2);
+  if (ageMonths >= 24) {
+    const lms = lmsAt(table(G.bmi, sex), ageMonths);
+    return lms ? zFromLms(bmi, lms) : null;
   }
-  return Math.abs(L) > 1e-9 ? (Math.pow(bmi / M, L) - 1) / (L * S) : Math.log(bmi / M) / S;
+  // 24개월 미만 — WHO BMI-for-age(0~35개월) 폴백
+  const tab = BMI_LMS[sex]; if (!tab) return null;
+  const m = Math.max(0, Math.min(35, ageMonths));
+  const lo = Math.floor(m), hi = Math.min(35, lo + 1), f = m - lo;
+  const it = (i: number) => tab[lo][i] + (tab[hi][i] - tab[lo][i]) * f;
+  return zFromLms(bmi, [it(0), it(1), it(2)]);
+}
+
+/** 신장(cm) → 신장-for-age z. KDCA 2017 정본(0~227개월). 무효 입력 null. */
+export function heightZ(heightCm: number, sex: Sex, ageMonths: number): number | null {
+  if (!(heightCm > 0)) return null;
+  const lms = lmsAt(table(G.height, sex), ageMonths);
+  return lms ? zFromLms(heightCm, lms) : null;
+}
+
+/** 체중(kg) → 체중-for-age z. KDCA 2017 정본(0~227개월). 무효 입력 null. */
+export function weightZ(weightKg: number, sex: Sex, ageMonths: number): number | null {
+  if (!(weightKg > 0)) return null;
+  const lms = lmsAt(table(G.weight, sex), ageMonths);
+  return lms ? zFromLms(weightKg, lms) : null;
 }
 
 /** BMI 또래 퍼센타일(0.1~99.9). 입력 무효 시 null. */
 export function bmiPercentile(bmi: number, sex: Sex, ageMonths: number): number | null {
-  const z = bmiZ(bmi, sex, ageMonths);
-  if (z === null) return null;
-  return Math.max(0.1, Math.min(99.9, normCdf(z) * 100));
+  return toPct(bmiZ(bmi, sex, ageMonths));
+}
+/** 신장 또래 퍼센타일(0.1~99.9). */
+export function heightPercentile(heightCm: number, sex: Sex, ageMonths: number): number | null {
+  return toPct(heightZ(heightCm, sex, ageMonths));
+}
+/** 체중 또래 퍼센타일(0.1~99.9). */
+export function weightPercentile(weightKg: number, sex: Sex, ageMonths: number): number | null {
+  return toPct(weightZ(weightKg, sex, ageMonths));
 }
 
 export type BmiBand = '저체중' | '정상' | '과체중' | '비만';
@@ -196,7 +176,7 @@ export function bmiBand(pct: number): BmiBand {
   return '비만';
 }
 
-/** 퍼센타일 → 부모가 읽는 평이한 위치 표현('%ile' 용어 제거). */
+/** 퍼센타일 → 부모가 읽는 평이한 체격 위치('%ile' 용어 제거). */
 export function bmiPhrase(pct: number): string {
   if (pct < 5) return '또래보다 가벼운 편';
   if (pct < 25) return '또래보다 약간 가벼운 편';
@@ -206,8 +186,98 @@ export function bmiPhrase(pct: number): string {
   return '또래보다 많이 묵직한 편';
 }
 
+/** 신장 또래 위치 표현. */
+export function heightPhrase(pct: number): string {
+  if (pct < 3) return '또래보다 많이 작은 편';
+  if (pct < 15) return '또래보다 작은 편';
+  if (pct < 85) return '또래 평균 정도';
+  if (pct < 97) return '또래보다 큰 편';
+  return '또래보다 많이 큰 편';
+}
+
+/** 저신장 의심(3rd 미만) — 성장 더딤 신호용. */
+export function isShortStature(pct: number): boolean { return pct < 3; }
+
+/**
+ * 성장 추세: 이전 신장(또는 체중) 퍼센타일 대비 하향 교차 폭(%p).
+ * 성장곡선 이탈/성장 더딤 판단용. 시계열 보관은 호출측(아이 현황 스토어)이 담당.
+ */
+export function percentileDrop(prevPct: number | null | undefined, curPct: number | null | undefined): number {
+  if (prevPct == null || curPct == null) return 0;
+  return Math.max(0, prevPct - curPct);
+}
+
 export function bmiOf(heightCm: number, weightKg: number): number | null {
   if (!(heightCm > 0) || !(weightKg > 0)) return null;
   const h = heightCm / 100;
   return weightKg / (h * h);
+}
+
+// ── 성장곡선 추종도 (백분위 채널 추종) ────────────────────────────────────────
+// 표준정규 역함수(probit) — Acklam 유리근사, |오차|<1.2e-9 (0<p<1)
+function invNormCdf(p: number): number {
+  if (p <= 0) return -Infinity; if (p >= 1) return Infinity;
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.38357751867269e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
+  const pl = 0.02425;
+  if (p < pl) { const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+  if (p <= 1 - pl) { const q = p - 0.5, r = q * q; return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1); }
+  const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+}
+const valueFromLms = (z: number, [L, M, S]: [number, number, number]): number =>
+  Math.abs(L) > 1e-9 ? M * Math.pow(1 + L * S * z, 1 / L) : M * Math.exp(S * z);
+
+/** percentile(0.1~99.9)에 해당하는 신장(cm). 채널 추종 기대치 산출용. */
+export function heightAtPercentile(pct: number, sex: Sex, ageMonths: number): number | null {
+  const lms = lmsAt(table(G.height, sex), ageMonths);
+  return lms ? valueFromLms(invNormCdf(Math.max(0.1, Math.min(99.9, pct)) / 100), lms) : null;
+}
+/** percentile(0.1~99.9)에 해당하는 체중(kg). */
+export function weightAtPercentile(pct: number, sex: Sex, ageMonths: number): number | null {
+  const lms = lmsAt(table(G.weight, sex), ageMonths);
+  return lms ? valueFromLms(invNormCdf(Math.max(0.1, Math.min(99.9, pct)) / 100), lms) : null;
+}
+
+export type GrowthStatus = '양호' | '주의' | '경고' | '정보부족';
+export type GrowthTrack = {
+  metric: 'height' | 'weight';
+  baselinePct: number;   // 첫 측정(기준) 백분위
+  currentPct: number;    // 현재 백분위
+  zDrift: number;        // 현재 z − 기준 z (음수 = 자기 채널 하향 이탈)
+  expected: number;      // 기준 채널 유지 시 현재 월령 기대치
+  actual: number;
+  gapMonths: number;
+  score: number;         // 0~100 채널 추종도(하향 이탈만 감점)
+  status: GrowthStatus;
+};
+
+/**
+ * 성장곡선 추종도 — 첫 측정으로 그 아이의 '백분위 채널'을 잡고, 이후 측정이 그 채널을
+ * 유지하는지 점수화. 절대 위치(큼/작음)가 아니라 '자기 곡선을 따라가는가'가 핵심.
+ * 채널 변화는 z(표준편차점수, SDS)로 측정: 한 단계(≈0.67 SDS) 하향=주의, 두 단계(≈1.34)=경고.
+ * ⚠️ 가정 측정은 노이즈가 큼 → 최소 간격(기본 1개월) 미만이면 '정보부족'으로 판단 보류.
+ *    엔진은 단발 하락으로 단정하지 말고 추세(여러 측정)·평활화와 함께 사용할 것.
+ */
+export function growthTracking(
+  baseline: { value: number; ageMonths: number },
+  current: { value: number; ageMonths: number },
+  sex: Sex, metric: 'height' | 'weight', minGapMonths = 1,
+): GrowthTrack | null {
+  const zf = metric === 'height' ? heightZ : weightZ;
+  const pf = metric === 'height' ? heightPercentile : weightPercentile;
+  const bz = zf(baseline.value, sex, baseline.ageMonths);
+  const cz = zf(current.value, sex, current.ageMonths);
+  const bp = pf(baseline.value, sex, baseline.ageMonths);
+  const cp = pf(current.value, sex, current.ageMonths);
+  if (bz === null || cz === null || bp === null || cp === null) return null;
+  const gap = current.ageMonths - baseline.ageMonths;
+  const lms = lmsAt(table(metric === 'height' ? G.height : G.weight, sex), current.ageMonths);
+  const expected = lms ? valueFromLms(bz, lms) : current.value;   // 기준 z 유지 시 기대치
+  const zDrift = cz - bz;
+  const status: GrowthStatus = gap < minGapMonths ? '정보부족'
+    : zDrift <= -1.34 ? '경고' : zDrift <= -0.67 ? '주의' : '양호';
+  const score = Math.max(0, Math.min(100, Math.round(100 + Math.min(0, zDrift) * 45)));
+  return { metric, baselinePct: bp, currentPct: cp, zDrift, expected, actual: current.value, gapMonths: gap, score, status };
 }

@@ -1,24 +1,27 @@
 /**
- * growth-reference 골든 — BMI-for-age = WHO(0~35개월) + KDCA 2017 국내(36개월+).
- * KDCA 공식 percentile 앵커(남/여 5·7세)로 회귀 박제. 미러 전사 오류·보간 깨짐 방지.
- * 출처 검증: lib/kdca-bmi-lms.json (KDCA 2017 BMI LMS) → percentile 역산이 공식과 ±1.x% 일치.
+ * growth-reference 골든 — KDCA 2017 소아청소년 성장도표 정본(신장·체중·BMI for-age).
+ * 출처: '성장도표 데이터 테이블.xls'(knhanes.kdca.go.kr grtcht dataNo=7) → lib/kdca-growth-lms.json.
+ * 공식 percentile 앵커(P3·P50·P97)로 L/M/S 전부 회귀 박제. 전사·보간·역함수 오류 방지.
  */
 import { describe, it, expect } from 'vitest';
-import { bmiPercentile, bmiZ, bmiBand } from '../lib/growth-reference';
+import {
+  bmiPercentile, bmiZ, bmiBand,
+  heightPercentile, weightPercentile, heightAtPercentile, weightAtPercentile,
+  growthTracking,
+} from '../lib/growth-reference';
 
-describe('BMI-for-age KDCA 2017 (36개월+ 국내 기준)', () => {
-  // 공식 KDCA 2017: 남5세(60mo) P3=13.7·P50=15.9·P97=18.7 / 여7세(84mo) P3=13.4·P50=16.1·P97=20.1
-  const near = (v: number | null, target: number, tol: number) => {
-    expect(v).not.toBeNull();
-    expect(Math.abs((v as number) - target)).toBeLessThanOrEqual(tol);
-  };
+const near = (v: number | null, target: number, tol: number) => {
+  expect(v).not.toBeNull();
+  expect(Math.abs((v as number) - target)).toBeLessThanOrEqual(tol);
+};
+
+describe('BMI-for-age (24개월+ KDCA 2017 국내)', () => {
+  // 공식: 남5세(60mo) P3=13.7·P50=15.9·P97=18.7 / 여7세(84mo) P3=13.4·P50=16.1·P97=20.1
   it('남아 5세(60개월) — 공식 percentile 일치', () => {
     near(bmiPercentile(15.9, 'M', 60), 50, 1.5);
     near(bmiPercentile(13.7, 'M', 60), 3, 1.5);
     near(bmiPercentile(18.7, 'M', 60), 97, 1.5);
   });
-  it('남아 7세(84개월) — P50', () => near(bmiPercentile(16.4, 'M', 84), 50, 1.5));
-  it('여아 5세(60개월) — P50', () => near(bmiPercentile(15.7, 'F', 60), 50, 1.5));
   it('여아 7세(84개월) — 공식 percentile 일치', () => {
     near(bmiPercentile(16.1, 'F', 84), 50, 1.5);
     near(bmiPercentile(13.4, 'F', 84), 3, 1.5);
@@ -26,26 +29,85 @@ describe('BMI-for-age KDCA 2017 (36개월+ 국내 기준)', () => {
   });
   it('band 판정 — 중앙값=정상·P97=비만·P3=저체중', () => {
     expect(bmiBand(bmiPercentile(15.9, 'M', 60) as number)).toBe('정상');
-    expect(bmiBand(bmiPercentile(18.7, 'M', 60) as number)).toBe('비만');   // 97th ≥ 95 → 비만
-    expect(bmiBand(bmiPercentile(13.7, 'M', 60) as number)).toBe('저체중'); // 3rd < 5 → 저체중
+    expect(bmiBand(bmiPercentile(18.7, 'M', 60) as number)).toBe('비만');
+    expect(bmiBand(bmiPercentile(13.7, 'M', 60) as number)).toBe('저체중');
+  });
+});
+
+describe('신장-for-age (KDCA 2017 정본 0~227개월)', () => {
+  // 공식: 신장 남5세(60mo) P3=101.6·P50=109.6·P97=118.0 / 여7세(84mo) P3=112.2·P50=120.8·P97=130.2
+  it('남아 5세 — P3/P50/P97', () => {
+    near(heightPercentile(109.6, 'M', 60), 50, 2);
+    near(heightPercentile(101.6, 'M', 60), 3, 2);
+    near(heightPercentile(118.0, 'M', 60), 97, 2);
+  });
+  it('여아 7세 — P3/P50/P97', () => {
+    near(heightPercentile(120.8, 'F', 84), 50, 2);
+    near(heightPercentile(112.2, 'F', 84), 3, 2);
+    near(heightPercentile(130.2, 'F', 84), 97, 2);
+  });
+  it('역함수 round-trip(percentile↔cm)', () => {
+    near(heightAtPercentile(50, 'M', 60), 109.59, 0.4);
+    near(heightAtPercentile(97, 'M', 60), 118.0, 0.7);
+    const p = heightPercentile(112.3, 'M', 60) as number;
+    near(heightAtPercentile(p, 'M', 60), 112.3, 0.2); // 원값 복원
+  });
+});
+
+describe('체중-for-age (KDCA 2017 정본 0~227개월)', () => {
+  // 공식: 체중 남5세(60mo) P3=15.4·P50=19.0·P97=24.3 / 여5세(60mo) P3=14.9·P50=18.4·P97=23.7
+  it('남아 5세 — P3/P50/P97', () => {
+    near(weightPercentile(19.0, 'M', 60), 50, 2);
+    near(weightPercentile(15.4, 'M', 60), 3, 2);
+    near(weightPercentile(24.3, 'M', 60), 97, 2);
+  });
+  it('여아 5세 — P3/P50/P97', () => {
+    near(weightPercentile(18.4, 'F', 60), 50, 2);
+    near(weightPercentile(14.9, 'F', 60), 3, 2);
+    near(weightPercentile(23.7, 'F', 60), 97, 2);
+  });
+  it('역함수 round-trip', () => near(weightAtPercentile(3, 'M', 60), 15.4, 0.4));
+});
+
+describe('성장곡선 추종도', () => {
+  it('채널 유지 = 양호·고득점', () => {
+    // 남아: 60mo에 P50, 78mo에도 P50(자기 채널 유지)
+    const base = { value: heightAtPercentile(50, 'M', 60) as number, ageMonths: 60 };
+    const cur = { value: heightAtPercentile(50, 'M', 78) as number, ageMonths: 78 };
+    const t = growthTracking(base, cur, 'M', 'height')!;
+    expect(t.status).toBe('양호');
+    expect(t.score).toBeGreaterThanOrEqual(95);
+    expect(Math.abs(t.zDrift)).toBeLessThan(0.1);
+  });
+  it('성장 더딤(채널 하향 이탈) = 경고·감점', () => {
+    // 60mo P50였는데 78mo까지 키가 거의 안 자람 → z 크게 하락
+    const base = { value: heightAtPercentile(50, 'M', 60) as number, ageMonths: 60 };
+    const cur = { value: base.value + 0.5, ageMonths: 78 }; // 18개월간 0.5cm
+    const t = growthTracking(base, cur, 'M', 'height')!;
+    expect(t.status).toBe('경고');
+    expect(t.score).toBeLessThan(60);
+    expect(t.zDrift).toBeLessThan(-1.34);
+    expect(t.expected).toBeGreaterThan(t.actual); // 채널 기대치보다 실제가 낮음
+  });
+  it('측정 간격 부족 = 정보부족(판단 보류)', () => {
+    const base = { value: heightAtPercentile(50, 'M', 60) as number, ageMonths: 60 };
+    const cur = { value: base.value, ageMonths: 60 };
+    expect(growthTracking(base, cur, 'M', 'height')!.status).toBe('정보부족');
   });
 });
 
 describe('경계·폴백', () => {
-  it('0~35개월은 WHO(z 계산 정상)', () => {
-    expect(bmiZ(16.0, 'M', 24)).not.toBeNull();
-    expect(bmiZ(16.0, 'F', 12)).not.toBeNull();
+  it('BMI 24개월 미만은 WHO 폴백(z 정상)', () => {
+    expect(bmiZ(16.0, 'M', 12)).not.toBeNull();
+    expect(bmiZ(16.0, 'F', 23)).not.toBeNull();
   });
-  it('36개월 경계 — 35mo=WHO·36mo=KDCA 전환(국내 표준 자체의 의도된 divergence)', () => {
-    // WHO 중앙값(15.63) → KDCA 중앙값(15.95): KDCA 2017이 만3세에 WHO→국내로 바꾸며 생기는 공식 불연속.
-    expect(Math.abs((bmiPercentile(15.63, 'M', 35) as number) - 50)).toBeLessThanOrEqual(1.5);   // WHO P50
-    expect(Math.abs((bmiPercentile(15.95, 'M', 36) as number) - 50)).toBeLessThanOrEqual(1.5);   // KDCA P50
-    const jump = Math.abs((bmiPercentile(16.0, 'M', 35) as number) - (bmiPercentile(16.0, 'M', 36) as number));
-    expect(jump).toBeGreaterThan(0);    // 전환은 일어남(연속 아님 = 의도)
-    expect(jump).toBeLessThan(15);      // 단 비정상 폭(파싱·단위 오류)은 아님
+  it('BMI 24개월+는 KDCA 정본', () => {
+    near(bmiPercentile(16.0189, 'M', 24), 50, 2); // 공식 남24mo M=16.0189
+    near(bmiPercentile(15.9455, 'M', 36), 50, 2); // 공식 남36mo M=15.9455
   });
   it('무효 입력 null', () => {
     expect(bmiZ(0, 'M', 60)).toBeNull();
-    expect(bmiZ(-1, 'F', 60)).toBeNull();
+    expect(heightPercentile(-1, 'F', 60)).toBeNull();
+    expect(weightPercentile(0, 'M', 60)).toBeNull();
   });
 });
