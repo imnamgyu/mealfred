@@ -58,6 +58,16 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <h1>코칭 엔진 편지 품질 개선 — 개발 원자단위 WBS <span style="color:var(--p7)">(빌드 플랜)</span></h1>
 <p class="lead">2026-06-18 · 근거 = <b>적대감사 26 근본원인</b>(라이브 코드 정독 + 아린 weekly_plans·편지 DB 실측) + 이사님 지적(target_pool 빈약·커리큘럼 진척 미배선). 진단 문서 = <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> 외 모듈 명세 8종의 '🔧 증상 개선' 섹션. 본 문서는 그 수정안을 <b>구현 가능한 원자 단위</b>로 분해한 작업 명세서다. 각 원자는 {목적·요구·구현명세·유즈케이스·테스트·DoD·의존·규모·우선순위}를 갖고, 원자 ID로 커밋·테스트를 추적한다.</p>
 
+<div class="warn"><b>🚀 새 세션 시작 가이드 — 이 문서만 보고 개발 착수</b>
+<ul>
+<li><b>이 문서 = 작업의 단일 진실.</b> 진단 근거는 각 모듈 문서(통합지도 외 모듈7+전략)의 '🔧 증상 개선' 섹션. <b>코드 루트 = <code>web/</code></b>(Next.js·vitest·tsc). <b>이 문서 소스 파일 = <code>landing_page/deploy/coaching-fix-build-plan.html</code></b>(git <code>imnamgyu/mealfred</code>).</li>
+<li><b>착수</b>: P0 우선 — <b>A-01부터 순서대로</b>(권장 A→B→C = D1). 지시는 원자 ID로("A-04 구현해" / "EPIC C 진행해").</li>
+<li><b>원자 1개 구현 절차</b>: ①원자의 {구현명세(file:line)·테스트·DoD}대로 구현 ②해당 vitest 케이스 그린 + <code>npm test</code> 전체 그린(prebuild 게이트) + <code>tsc --noEmit</code>/<code>next build</code> ③커밋(메시지 맨 앞에 원자 ID) ④푸시.</li>
+<li><b>⭐ 진행상황 갱신(필수) — 이 문서가 곧 진척판</b>: 구현 후 <b>이 HTML 파일을 직접 편집</b> → (a) 해당 원자 <code>h4</code>의 상태칩 <code>⬜→✅</code> + 커밋해시 추가, (b) 📊 진척 대시보드 그 EPIC의 <b>완료 카운트 +1</b>·상태 갱신, (c) 전부 완료면 합계 행 갱신. 그 뒤 <b>커밋·푸시</b>하면 배포 URL(<code>mealfred.com/coaching-fix-build-plan.html</code>)에 즉시 반영된다.</li>
+<li><b>명세와 다르게 만들 때</b>: 코드 먼저 금지 — 이 문서 원자 명세를 먼저 고치고(사유 1줄·커밋) 구현(문서≠코드 드리프트 방지).</li>
+<li><b>엣지 발견</b>: fixture+테스트(red→green)+수정. 새 원자는 해당 EPIC 말미에 ID 추가.</li>
+</ul></div>
+
 <div class="ok"><b>전체 규모 요약</b> — EPIC <b>10개</b> · 원자 <b>95개</b> · 테스트 <b>382개</b> · P0(즉시) <b>47개</b> · 마일스톤 D1~D4.</div>
 
 <div class="design"><b>🧭 핵심 설계 — 최상위 단일 근본원인 봉합</b>
@@ -72,19 +82,19 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 <li><b>상태칩</b>: ⬜ 대기 · 🔨 진행 중 · ✅ 완료(커밋) · ⏸ 외부 대기(SQL 실행 등) · ❌ 드랍(사유 기입).</li>
 </ul></div>
 
-<div class="toc" id="progress"><b>📊 진척 대시보드</b> <span style="color:#7a6a8a;font-size:12px">(원자 완료 시 갱신 — 작성 2026-06-18 · 전 원자 ⬜ 대기)</span>
-<table class="hmap"><tr><th>EPIC</th><th>원자</th><th>테스트</th><th>P0</th><th>마일스톤</th><th>상태</th></tr>
-<tr><td>A 뇌↔주간 닻 계약 (Decision Subordination)</td><td>10</td><td>41</td><td>4</td><td><span class="tag" style="background:#6A1B9A;color:#fff">D1</span></td><td>⬜ 대기</td></tr>
-<tr><td>B 타깃 결핍군 필터 단일점 (refExposable Unification)</td><td>8</td><td>24</td><td>5</td><td><span class="tag" style="background:#6A1B9A;color:#fff">D1</span></td><td>⬜ 대기</td></tr>
-<tr><td>C 음식 잔소리 케이던스 캡 (Food Nag Cadence)</td><td>9</td><td>38</td><td>5</td><td><span class="tag" style="background:#6A1B9A;color:#fff">D1</span></td><td>⬜ 대기</td></tr>
-<tr><td>D target_pool 두 트랙 확장 (Supply/Challenge Portfolio)</td><td>8</td><td>35</td><td>4</td><td><span class="tag" style="background:#1565C0;color:#fff">D2</span></td><td>⬜ 대기</td></tr>
-<tr><td>E 영양평가 편지 배선 (Nutrition→Letter Wiring)</td><td>10</td><td>40</td><td>5</td><td><span class="tag" style="background:#1565C0;color:#fff">D2</span></td><td>⬜ 대기</td></tr>
-<tr><td>F 커리큘럼 진척 스토어 라이브 (Curriculum Progress Engine)</td><td>10</td><td>33</td><td>6</td><td><span class="tag" style="background:#1565C0;color:#fff">D2</span></td><td>⬜ 대기</td></tr>
-<tr><td>G 괴식·동일군 추천 게이트 (Combo Gate Live)</td><td>8</td><td>39</td><td>5</td><td><span class="tag" style="background:#1B5E20;color:#fff">D3</span></td><td>⬜ 대기</td></tr>
-<tr><td>H 앵무새 해체 (Anti-Parrot Variation)</td><td>10</td><td>37</td><td>5</td><td><span class="tag" style="background:#1B5E20;color:#fff">D3</span></td><td>⬜ 대기</td></tr>
-<tr><td>I 주간계획 위생 + 아이현황 스토어 (Weekly Hygiene &amp; State Store)</td><td>10</td><td>40</td><td>1</td><td><span class="tag" style="background:#1B5E20;color:#fff">D3</span></td><td>⬜ 대기</td></tr>
-<tr><td>J 검증·하네스·컷오버 (Verify Harness &amp; Cutover)</td><td>12</td><td>55</td><td>7</td><td><span class="tag" style="background:#B86A20;color:#fff">D4</span></td><td>⬜ 대기</td></tr>
-<tr><td><b>합계</b></td><td><b>95</b></td><td><b>382</b></td><td><b>47</b></td><td>D1~D4</td><td><b>⬜ 착수 전 — A·B·C(D1) 우선</b></td></tr>
+<div class="toc" id="progress"><b>📊 진척 대시보드</b> <span style="color:#7a6a8a;font-size:12px">(원자 완료 시 '완료' 카운트+상태칩 갱신 후 커밋·푸시 — 작성 2026-06-18 · 전 원자 ⬜ 대기)</span>
+<table class="hmap"><tr><th>EPIC</th><th>원자</th><th>완료</th><th>테스트</th><th>P0</th><th>마일스톤</th><th>상태</th></tr>
+<tr><td>A 뇌↔주간 닻 계약 (Decision Subordination)</td><td>10</td><td>0/10</td><td>41</td><td>4</td><td><span class="tag" style="background:#6A1B9A;color:#fff">D1</span></td><td>⬜ 대기</td></tr>
+<tr><td>B 타깃 결핍군 필터 단일점 (refExposable Unification)</td><td>8</td><td>0/8</td><td>24</td><td>5</td><td><span class="tag" style="background:#6A1B9A;color:#fff">D1</span></td><td>⬜ 대기</td></tr>
+<tr><td>C 음식 잔소리 케이던스 캡 (Food Nag Cadence)</td><td>9</td><td>0/9</td><td>38</td><td>5</td><td><span class="tag" style="background:#6A1B9A;color:#fff">D1</span></td><td>⬜ 대기</td></tr>
+<tr><td>D target_pool 두 트랙 확장 (Supply/Challenge Portfolio)</td><td>8</td><td>0/8</td><td>35</td><td>4</td><td><span class="tag" style="background:#1565C0;color:#fff">D2</span></td><td>⬜ 대기</td></tr>
+<tr><td>E 영양평가 편지 배선 (Nutrition→Letter Wiring)</td><td>10</td><td>0/10</td><td>40</td><td>5</td><td><span class="tag" style="background:#1565C0;color:#fff">D2</span></td><td>⬜ 대기</td></tr>
+<tr><td>F 커리큘럼 진척 스토어 라이브 (Curriculum Progress Engine)</td><td>10</td><td>0/10</td><td>33</td><td>6</td><td><span class="tag" style="background:#1565C0;color:#fff">D2</span></td><td>⬜ 대기</td></tr>
+<tr><td>G 괴식·동일군 추천 게이트 (Combo Gate Live)</td><td>8</td><td>0/8</td><td>39</td><td>5</td><td><span class="tag" style="background:#1B5E20;color:#fff">D3</span></td><td>⬜ 대기</td></tr>
+<tr><td>H 앵무새 해체 (Anti-Parrot Variation)</td><td>10</td><td>0/10</td><td>37</td><td>5</td><td><span class="tag" style="background:#1B5E20;color:#fff">D3</span></td><td>⬜ 대기</td></tr>
+<tr><td>I 주간계획 위생 + 아이현황 스토어 (Weekly Hygiene &amp; State Store)</td><td>10</td><td>0/10</td><td>40</td><td>1</td><td><span class="tag" style="background:#1B5E20;color:#fff">D3</span></td><td>⬜ 대기</td></tr>
+<tr><td>J 검증·하네스·컷오버 (Verify Harness &amp; Cutover)</td><td>12</td><td>0/12</td><td>55</td><td>7</td><td><span class="tag" style="background:#B86A20;color:#fff">D4</span></td><td>⬜ 대기</td></tr>
+<tr><td><b>합계</b></td><td><b>95</b></td><td><b>0/95</b></td><td><b>382</b></td><td><b>47</b></td><td>D1~D4</td><td><b>⬜ 착수 전 — A·B·C(D1) 우선</b></td></tr>
 </table></div>
 
 <div class="toc"><b>🔗 EPIC 바로가기</b> <a href="#epic-A">A</a> · <a href="#epic-B">B</a> · <a href="#epic-C">C</a> · <a href="#epic-D">D</a> · <a href="#epic-E">E</a> · <a href="#epic-F">F</a> · <a href="#epic-G">G</a> · <a href="#epic-H">H</a> · <a href="#epic-I">I</a> · <a href="#epic-J">J</a></div>
