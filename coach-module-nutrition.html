@@ -79,6 +79,34 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린(5세)의 최근 7일 식단을 보면 미역국·소고기·계란은 자주 나오는데 콩류(두부·콩)와 채소가 거의 안 보입니다. 입력: 매일 먹은 식재료 목록(날짜별)과 점심 기관급식·집 끼니 구분, 그리고 아린의 BMI 밴드(정상). 처리: 신호등 엔진이 '단백질=초록(소고기·계란 매일), 칼슘=초록(미역·계란), 철=초록(소고기), 식이섬유=노랑/빨강(채소 적음)'을 빈도로 매깁니다. 8식품군 다양성에서는 콩류가 7일 중 0회라 '부족(빨강)', 비타민A채소·기타채소도 주 2회 미만이면 '조금부족(노랑)'이 됩니다. 단, 콩류는 '가끔군(주2회 목표)'이라 0회일 때만 빨강이고, 채소는 '매일군'이라 더 엄격합니다. 간식 쪽은 기록이 거의 없고 아린이 정상 체격이라 간식 잔소리는 침묵합니다. 결과: 다양성 점수는 콩류 1개 빨강이라 상한 90으로 캡되고, 코칭 편지에는 '소고기·계란은 잘 챙기고 있어요. 이번 주는 콩류(두부·콩)를 끼니에 한 번 곁들여 볼까요' 같은 결핍 보완 신호가 넘어갑니다. 강요하지 않고 잘 먹는 음식(소고기)에 부족한 것(콩류·채소)을 섞는 방향만 제안합니다.</div>
 </section>
 
+<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:12px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
+<div class="meta-row"><span class="mtag ab">2026-06-18 적대감사</span><span class="mtag fe">근본원인 26건 중 ④영양평가 소관</span><span class="mtag st">이 모듈 책무 = 손에 넘길 영양 사실</span></div>
+<p class="lead"><b>★ 최상위 단일 근본원인</b> — 일간 두뇌 블록(<code>route.ts:628-630</code>)이 <code>brainPick.scenarioId</code>만 있으면 <code>planFor({forceScenarioId})</code>로 precomputed를 재할당하는데, 이 경로는 <b>주간 닻(mission_target·lever·채근캡·teaching arc)을 전혀 모르고</b> raw signals로 타깃을 새로 뽑습니다. 그래서 문서가 그린 '조립→뇌(판단)→손' 순서가 코드에선 '뇌가 작전층(주간)을 덮어쓰기'로 역전돼, 5개 증상이 한 곳에서 갈라져 나옵니다. <b>이 모듈(④영양평가)의 역할</b>: 그 상류 결함의 직접 당사자는 아니지만, ④가 산출하는 영양 사실(식품군 거울·BMI·성장곡선)이 <b>손(편지)에 닿는 배선 자체가 빠지거나, 닿더라도 매일 같은 prebaked 문장으로 반복</b>되어 '앵무새'와 '영양평가 누락' 두 증상에 직접 기여합니다. 즉 뇌의 문제가 아니라 <b>④의 배선 누락 + 반복 가드 부재</b>입니다.</p>
+<div class="tbl"><table>
+<tr><th style="width:24%">증상 · 문제</th><th style="width:28%">근본원인 (파일:라인 · 분류)</th><th style="width:36%">구현 · 기능 · 설계 변경 방향</th><th>우선순위</th></tr>
+<tr>
+<td><b>영양거울이 매 편지 동일 문장으로 반복(앵무새 꼬리)</b> — 등원+집결핍 아이는 '어린이집 덕에…집 끼니엔 ○○가 드무니…' 한 문장이 매일 verbatim 발행</td>
+<td><code>lib/coach.ts:621-630</code> mirrorBlock IIFE가 매일 무조건 같은 prebaked 문장(allMiss/homeMiss/일반 3분기)을 만들고 라인 636 지침이 '항상 포함'을 강제. snack엔 <code>SNACK_COOLDOWN=2</code>·daySeed rotate가 있는데 mirror만 둘 다 없는 비대칭 · <b>CODE_BUG</b></td>
+<td>(1) <code>lib/nutrition.ts</code>에 <code>mirrorPhrase(covered,allMiss,homeMiss,attendsDaycare,rotate)</code> 헬퍼 신설로 같은 의미를 daySeed 2~3표현 회전. (2) cron이 <code>recentSnackDates</code>(route.ts:169-175) 패턴으로 <code>recentMirrorShown</code>(직전 letter context의 mirror 문구해시)을 적재 → 최근 2~3일 같은 분기·문구면 base에서 mirror 생략. (3) '매일 강제' → 집/전체 결핍 실재 시만 강제, 일반 칭찬 분기('잘 채워지고 있어요')는 쿨다운 시 생략(must→optional).</td>
+<td><b>P0</b></td>
+</tr>
+<tr>
+<td><b>BMI·성장곡선이 편지에 아예 안 들어감 — 영양평가가 식품군 한 축으로만 매일 같은 말</b></td>
+<td><code>route.ts:37</code>은 <code>bmiOf·bmiPercentile·bmiBand</code>만 import하고 <code>growthTracking·heightZ·weightZ·heightPercentile</code>은 호출 0건(app/page.tsx 모달·테스트 전용). BMI도 <code>bmiBandFor</code>(213-225)→snackBand로 evaluateSnacks(347-348) stance 입력으로만 소비될 뿐 본문 프롬프트 미도달 · <b>DESIGN_GAP</b></td>
+<td>(1) cron(<code>route.ts:194-195</code>)이 <code>growth_logs</code>에서 baseline(가장 오래된 측정)+current(최신) <b>2점</b>을 metric별 보관(현재 latestGrowth 최신 1행만 보관해 <code>growthTracking(base,current)</code> 2점 불가). (2) <code>lib/growth-reference.ts</code>에 <code>growthTrackToPhrase</code> 신설 — 체중·살·다이어트·BMI·등급·숫자 단어 없이 문구화('또래 곡선을 잘 따라가요'/'키 성장이 자기 곡선보다 조금 처져 보여요'). (3) <code>base.growthMirror</code>로 전달 + <code>lib/coach.ts</code> buildLetterUser에 mirrorBlock과 별개 <b>growthBlock</b> 신설(한 구절 강제·숫자/등급/체중 금지).</td>
+<td><b>P1</b></td>
+</tr>
+<tr>
+<td><b>성장 신호가 매일 발행되면 또 다른 앵무새 · 간식 stance축과 성장곡선축이 한 편지서 동시 잔소리</b></td>
+<td>측정 저빈도(부모가 매일 키·몸무게를 못 잼)인데 growthBlock을 매일 발행하면 반복. 간식 stance(과체중→reduce/저체중→encourage)와 성장곡선축(키·체중 SDS 하향 이탈)이 게이팅 없이 겹침 · <b>DESIGN_GAP</b></td>
+<td>(1) macro 격주 정책 동형으로 growthBlock은 <code>growth_logs</code> 신규 측정 주 또는 격주·<b>2주 연속 금지</b>로만 발동(주간 ledger·snack 쿨다운 재사용), 측정간격&lt;1개월이면 growthTracking '정보부족'→생략. (2) ④ 내부 게이팅: 저체중은 snack encourage가 맡으니 growthBlock은 키(height) 트랙만, 과체중은 snack reduce가 맡고 growthBlock 침묵. (3) growthBlock은 끝줄 권유 채널(P9/profileNudge/structuredTip 하루 하나)이 아닌 <b>본문 구절 채널</b>. (4) 측정 0~1점 자녀는 침묵·기존 profileNudgeFor(route.ts:199-209) 유지(없는 데이터로 성장 단정 금지).</td>
+<td><b>P1</b></td>
+</tr>
+</table></div>
+<div class="callout"><b>🔑 이 모듈이 근본적으로 무엇을 바꿔야 하는가</b> — ④영양평가의 일은 '점수·신호등을 화면에 그리는 것'을 넘어, <b>BMI/성장곡선(growthTracking)+식품군 거울을 한 객체(CoachContext.nutrition)로 산출해 손(편지) 프롬프트에 실제로 주입</b>하는 것입니다. 지금은 식품군 거울만 닿고 BMI/성장은 배선이 끊겨 있어(growthTracking 미호출·latestGrowth 1행만 보관) '영양평가가 편지에 안 들어간다'는 증상이 됩니다. 동시에 닿는 식품군 거울조차 매일 같은 prebaked 문장이라 손이 누락하거나(어제 치킨편지 실측 누락) 앵무새로 반복됩니다. 따라서 ④는 ① 성장·BMI 축을 비수치 문구로 손에 <b>배선</b>하고, ② 거울/성장 문구가 손에서 <b>반드시 포함되도록 강제</b>하되(작문기 ⑥와 협업: 포함검증·재생성), ③ 측정 저빈도를 감안해 <b>격주·쿨다운 케이던스로 회전</b>시켜 같은 말을 매일 안 하게 해야 합니다. 한 줄로: '말할 거리를 다축화(식품군+성장)하고, 저빈도로 돌려가며, 빠짐없이 넣는다.'</div>
+<div class="note"><b>🧒 쉬운말 요약</b> — 지금 코칭 편지는 '오늘 먹은 음식이 어땠는지(식품군)'만 매일 비슷한 말로 들어가고, '키가 또래 곡선을 잘 따라가는지(성장)'는 앱 화면에만 있고 편지엔 한 번도 안 들어갑니다. 그래서 ① 키·몸무게가 자기 곡선보다 처지면 숫자나 '살' 같은 말 없이 부드럽게 한 줄 알려주고(자주 못 재니까 2주에 한 번씩만), ② 매일 똑같은 문장 대신 비슷한 뜻을 며칠에 한 번씩 다르게 돌려 말하도록 바꾸는 것이 이 모듈의 숙제입니다.</div>
+</section>
+
 <section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
 <p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
 <div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr><tr><td><b>보건복지부 「2025 한국인 영양소 섭취기준(KDRI)」</b></td><td>36종 영양소의 연령대별(만1-2/3-5/6-8세) 권장 기준치를 상수화해 모달 표시·신호등 밴드 근거로 사용</td></tr><tr><td><b>농촌진흥청 국가표준식품성분표 10.4</b></td><td>식재료별 100g당 값이 1일 권장의 15% 이상이면 '공급원'으로 보는 정밀 영양맵(nutrient-map.generated.json)을 만들어 빗대기 대신 1차 출처로 사용</td></tr><tr><td><b>식약처 영유아 식생활지침 / WHO 8식품군</b></td><td>'매끼 곡류·단백질·채소, 매일 우유·과일'을 식품군 다양성 목표(매일군 주5·로테이션군)로 코드화</td></tr><tr><td><b>Satter 식사 구조화(division of responsibility)</b></td><td>식간 군것질·단 음료가 끼니 식욕을 떨어뜨린다는 원리로 간식 직후 끼니를 덜 먹은 '식사 간섭성'을 판정</td></tr><tr><td><b>영양 신호등(nutrient-signal-report.html) 자체 근거 보고서</b></td><td>체내 저장·식품 분포·결핍 위험 3축으로 매일/자주/가끔 밴드(green 문턱 5/4/2일)를 정함</td></tr></table></div>

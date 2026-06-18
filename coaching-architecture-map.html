@@ -85,7 +85,7 @@ footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;bo
 </div></header>
 
 <nav class="toc">
-<a href="#plain">🧭 비개발자 개요</a><a href="#naming">네이밍 규칙</a><a href="#map">컴포넌트 지도</a><a href="#store">아이 현황 스토어</a><a href="#contract">⭐데이터 계약</a><a href="#io">모듈 입출력</a><a href="#loop">닫힌 루프</a><a href="#batch">1만명 배치</a><a href="#status">현재 상태·빌드순서</a><a href="#schema">부록·스키마</a>
+<a href="#plain">🧭 비개발자 개요</a><a href="#fix-20260618">🔧 증상 개선(06-18)</a><a href="#naming">네이밍 규칙</a><a href="#map">컴포넌트 지도</a><a href="#store">아이 현황 스토어</a><a href="#contract">⭐데이터 계약</a><a href="#io">모듈 입출력</a><a href="#loop">닫힌 루프</a><a href="#batch">1만명 배치</a><a href="#status">현재 상태·빌드순서</a><a href="#schema">부록·스키마</a>
 </nav>
 
 <main>
@@ -104,6 +104,66 @@ footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;bo
 <div class="ln s5"><div class="lh">⑤ 부모 실천 → 새 기록 → ①로</div><div class="lb">부모가 한 걸음 실천하고 기록하면, 그게 내일 상태표에 반영돼 코칭이 점점 그 아이에게 맞춰집니다.</div></div>
 </div>
 <div class="callout"><b>두 가지 핵심 약속</b> — (가) <b>'무엇을' 줄지는 코드가 결정론으로, '어떻게' 쓸지(문장)만 AI가</b> → 괴식·환각 0. (나) <b>판단은 하루 한 번 미리 계산해 저장(아이 현황 스토어), 편지는 그걸 읽어 글만</b> → 1만 명도 감당. 아래 §0~는 이 구조의 상세이고, <b>각 부품의 운영·문헌·테이블</b>은 <a href="/docs.html">🧩 모듈 명세 7종</a>에 있습니다.</div>
+</section>
+
+<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:13px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2><span class="tech">통합 책무</span></div>
+<p class="lead"><b>★ 최상위 단일 근본원인</b> — 이 문서가 <b>'조립 → 뇌(판단) → 손'</b>으로 그린 파이프라인이, 라이브 코드에선 <b>'뇌가 작전층(주간 닻)을 덮어쓰기'</b>로 역전돼 있다. <code>route.ts:628-630</code>의 일간 두뇌 블록은 <code>brainPick.scenarioId</code>만 있으면 무조건 <code>precomputed = planFor(&#123;forceScenarioId&#125;)</code>로 재할당하는데, 이 경로(<code>coach.ts:445-451</code>)는 주간 닻(<code>mission_target</code>·<code>target_pool</code>·<code>lever</code>·<code>budget.push</code>·<code>ledger</code>·teaching arc)을 <b>전혀 모른 채</b> raw signals로 타깃을 새로 뽑는다. 그 결과 주간이 잠근 타깃(콩류)·레버(environment)·채근캡(push=0)이 일간에서 전부 무력화된다. <b>이 통합 모듈의 역할</b> = 데이터 계약(<code>decision</code>)과 파이프라인 순서를 그리는 곳이므로, <b>뇌(decision)를 주간 닻의 하위 결정으로 계약화</b>하고 <b>거부 타깃 결핍군 필터(refExposable)를 세 경로가 공유하는 단일 수정점</b>으로 명시하는 것이 이 문서가 책임지는 봉합이다.</p>
+
+<p class="note" style="margin-bottom:4px">🧒 <b>한 줄 쉬운말</b> — "이번 주는 식탁 분위기를 코칭하자"고 정해놨는데, 다음 단계의 '오늘의 뇌'가 그 결정을 무시하고 매일 음식 추천으로 갈아끼우고 있었습니다. <b>뇌가 '이번 주 목표' 안에서만 오늘 각도를 고르도록 규칙을 코드에 박는 것</b>이 핵심 수정입니다.</p>
+
+<div class="tbl"><table style="min-width:780px">
+<tr><th>증상 / 문제</th><th>근본원인 (파일:라인 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th>우선순위</th></tr>
+<tr>
+<td><b>뇌가 주간 닻을 통째 폐기</b> — 타깃 잠금·채근캡(push=0)이 발행 편지에 안 먹힘(치킨 반복·음식 잔소리 연속의 단일 상류)</td>
+<td><code>route.ts:604-610, 628-630</code><br><code>coach.ts:445-451</code><br><span class="tag2 t-plan">CODE_BUG</span></td>
+<td><code>route.ts:628-630</code> 무조건 override를 <b>닻 종속 게이트</b>로 교체. <code>anchor</code>/<code>lever</code>를 두뇌 블록 스코프로 끌어올려(<code>weekCtx</code>에 <code>lever</code> 실어 노출) <code>const anchorLever = weekCtx?.lever ?? 'food'</code> 판정. <code>brainPick.scenarioId</code> 적용은 <b>anchorLever==='food' · leverScenario 일치 · SAFE_INTERRUPTS · 주당 FOOD_OVERRIDE_CAP(예 2) 미만</b>일 때만. 불허면 <code>planFromWeekly</code>가 만든 precomputed(레버 프레임) 유지.</td>
+<td><span class="tag2 t-plan">P0</span></td>
+</tr>
+<tr>
+<td><b>부분 override로 편지 내부 불일치</b> — plan만 바뀌고 weeklyArc(환경)는 그대로 남아 '환경 arc + food 본문' 동시주입(앵무새·결 어긋남)</td>
+<td><code>route.ts:681</code> base.weeklyArc 주입<br><span class="tag2 t-plan">CODE_BUG</span></td>
+<td>override가 비-food 닻에서 발동한 날은 <code>plan·weeklyArc·타깃풀</code>을 <b>함께 일관 전환</b>(부분 override 금지). 그날만 <code>weekCtx.arc=null</code>로 비우거나 arc.stage를 food 톤과 호환되는 한 구절 리마인드로 강등. <b>이 문서의 §3 <code>decision</code> 계약에 "전환 시 plan·arc 동시 전환" 불변식</b>으로 명시.</td>
+<td><span class="tag2 t-plan">P0</span></td>
+</tr>
+<tr>
+<td><b>음식 잔소리 며칠 연속</b> — 비-food 주에도 두뇌 <code>useFood</code>가 매일 true 가능(콩→과일→치킨 3연속)</td>
+<td><code>route.ts:647</code>(STRUCTURAL 기준이라 nutrient-gap override로 탈출)<br><code>coachBrain.ts:34-42,107-113</code><br><span class="tag2 t-part">DESIGN_GAP</span></td>
+<td>가드 기준을 <b>닻 lever로 변경</b>: <code>if (brainPick && anchorLever!=='food' && override 불허) brainPick.useFood=false</code>. + <b>연속 food날 쿨다운</b> — 상단 이력 적재부에서 <code>recentBrainUseFood[cid]</code>(최근 N일 <code>ctx.brain?.useFood</code>) 적재, 직전 2일 모두 true면 강제 휴지(<code>SNACK_COOLDOWN=2</code> 동형). 프롬프트 신뢰 대신 <b>결정론 캡으로 보증</b>.</td>
+<td><span class="tag2 t-plan">P0</span></td>
+</tr>
+<tr>
+<td><b>거부 타깃 결핍군 필터 비대칭</b> — refExposable이 weekly 경로에만 적용, 일간 signals·두뇌·폴백엔 미적용 → 치킨(미매핑·비결핍군)이 일간 타깃으로 누수</td>
+<td><code>route.ts:352-358</code> vs <code>485-489·523</code><br><code>coach.ts:388</code> targetPoolForScenario<br><span class="tag2 t-plan">CODE_BUG</span></td>
+<td>refExposable(주식 제외 + 결핍군 소속 거부만) 로직을 <b>lib 공유 함수</b>로 추출하고, <code>targetPoolForScenario</code>(또는 <code>lockedTargetPool</code> 인자)에 두어 <b>일간·폴백·두뇌 세 경로가 같은 잠금</b>을 보게 한다(단일 수정점). ⚠️ 통일 시 <code>catOf</code>=카테고리('고기') vs 결핍군='고기·계란' 네임스페이스를 <code>CATEGORY_GROUP</code>으로 변환 후 비교(과교정 방지) — ④영양평가 매핑 소관과 협의.</td>
+<td><span class="tag2 t-plan">P0</span></td>
+</tr>
+<tr>
+<td><b>트리거 미충족 시나리오 강제</b> — re-exposure-timing(daycareRefused&gt;0 트리거)을 daycareRefused=[]에서도 두뇌가 강제 → 집 거부를 기관 재노출 각도로 어색하게 코칭</td>
+<td><code>route.ts:628</code> 직전 게이트 부재<br><code>coachBrain.ts:109</code> / <code>coach.ts:445-451</code><br><span class="tag2 t-plan">CODE_BUG</span></td>
+<td><code>route.ts:628</code> 직전에 <code>const forced = SCENARIOS.find(s=&gt;s.id===brainPick.scenarioId); if (forced && safeTrigger(forced, signals)) &#123; planFor(forceScenarioId) &#125;</code> — 트리거 충족 시에만 강제, 미충족이면 결정론 <code>selectScenario</code> 폴백(line 492 precomputed 유지). <code>plateau</code>(trigger:()=&gt;true)는 항상 안전망.</td>
+<td><span class="tag2 t-plan">P1</span></td>
+</tr>
+<tr>
+<td><b>LEVER_SCENARIO·정책 상수 분산</b> — 두뇌 블록이 'lever 호환 시나리오'를 판정할 공유 정책이 없음</td>
+<td><code>coachWeekly.ts:55</code> (route에서 import 불가)<br><span class="tag2 t-part">DESIGN_GAP</span></td>
+<td><code>LEVER_SCENARIO</code> 맵을 route에서 공유 가능하게 export. <code>SAFE_INTERRUPTS</code>·<code>FOOD_OVERRIDE_CAP</code>도 통합층(coach.ts 또는 route 상단)에 <b>단일 정의</b>해 뇌·폴백 두 경로가 같은 정책을 본다.</td>
+<td><span class="tag2 t-plan">P1</span></td>
+</tr>
+<tr>
+<td><b>weekly_plans 다중 active</b> — supersede/archive 없이 매주 active로만 적재(W22~W25 4행 동시 active)</td>
+<td><code>route.ts:538, 559</code><br><span class="tag2 t-plan">CODE_BUG</span></td>
+<td>신규 닻 upsert(538) 직후 같은 child_id의 <code>week_key&lt;wk</code> active 행을 <code>status='archived'</code>로 일괄 update. <code>loadAnchor</code>(559)가 week_key로만 조회하므로 일간 무영향이나 <b>'1 active/child' 불변식·어드민 가시성</b> 확보. daily 동작 불변.</td>
+<td><span class="tag2 t-part">P2</span></td>
+</tr>
+<tr>
+<td><b>통합 불변식 회귀 미보증</b> — 닻 무력화가 테스트로 잡히지 않음</td>
+<td>신규 통합 회귀(<code>lib/__tests__/</code>)<br><span class="tag2 t-part">DESIGN_GAP</span></td>
+<td>골든 케이스: 닻 lever=environment·mission_target=콩류일 때 두뇌가 re-exposure-timing(치킨)을 골라도 <b>발행 plan.target이 콩류(또는 환경 프레임)로 유지</b>되고, useFood가 비-food 주 캡 내에 머물며, 같은 날 <b>weeklyArc와 plan이 같은 lever</b>인지 검증. §6 배치 1단계 머티리얼라이즈 → 골든 CoachContext → 골든 편지 회귀와 연결.</td>
+<td><span class="tag2 t-plan">P1</span></td>
+</tr>
+</table></div>
+
+<div class="callout"><b>이 모듈이 근본적으로 바꿔야 하는 것</b> — 이 문서가 그리는 <b>데이터 계약(<code>decision</code>)과 파이프라인 순서</b>가 진실원천이 되도록 계약을 강화한다. ① <b><code>decision</code>(뇌)을 <code>week</code>(주간 닻)의 하위 결정으로 계약화</b> — 닻 <code>lever</code>가 비-food거나 <code>push=0</code>이면 뇌는 시나리오를 override할 수 없고, food 주에서만·주당 캡 내에서만 바꾼다. ② <b>override 시 plan·weeklyArc·타깃풀을 함께 일관 전환</b>(부분 override 금지). ③ <b>refExposable 결핍군 필터를 weekly·daily·brain 세 경로의 단일 수정점</b>(<code>targetPoolForScenario</code>/<code>lockedTargetPool</code>)으로 둔다(괴식0 약속과 동급의 'off-anchor 0' 약속). ④ <b>파이프라인 다이어그램을 코드 실제(역전)와 목표(종속) 두 상태로 갱신</b> — §3 CoachContext에서 <code>decision</code>이 <code>week</code>과 동급으로 보이는 현 표기에 "week에 종속, 닻 잠금 위반 불가" 주석을 더하고, §4 뇌 프롬프트 카드에 "뇌의 선택은 trigger 충족 + lever 호환 후보로만 제한(코드 게이트)"을 명시한다.</div>
 </section>
 
 <section id="naming"><div class="sec-h"><span class="no">0</span><h2>네이밍 규칙 — 엔진 / 모듈 / 데이터 레이어</h2><span class="tech">확정</span></div>

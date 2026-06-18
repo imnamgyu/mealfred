@@ -66,7 +66,7 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 </div></header>
 
 <nav class="toc">
-<a href="#why">원칙</a><a href="#goal">목표 상태</a><a href="#road">단계 로드맵</a><a href="#modules">모듈별 리팩터</a><a href="#risk">리스크·롤백</a>
+<a href="#why">원칙</a><a href="#fix-20260618">🔧 증상 개선</a><a href="#goal">목표 상태</a><a href="#road">단계 로드맵</a><a href="#modules">모듈별 리팩터</a><a href="#risk">리스크·롤백</a>
 </nav>
 
 <main>
@@ -79,6 +79,35 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <li><b>라이브 무중단</b> — 크론·편지 발행 경로는 마지막에, 카나리아(아린)→전자녀 순.</li>
 <li><b>DB 선행</b> — 데이터 무결성(멱등성·정규화)이 안 잡히면 모듈만 정리해도 모래 위. <b>Phase 0 먼저.</b></li>
 </ul>
+</section>
+
+<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:13px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
+<p class="lead">★ <b>최상위 단일 근본원인</b> — 일간 두뇌 블록(<code>route.ts:628-629</code>)이 <code>brainPick.scenarioId</code>만 있으면 <code>precomputed = planFor({forceScenarioId})</code>로 재할당한다. 이 경로(<code>coach.ts:445-451</code>)는 주간 닻(타깃·lever·채근캡·teaching arc)을 <b>전혀 모른 채</b> raw signals로 타깃을 새로 뽑는다 → 주간이 잠근 모든 것이 일간에서 무력화. 즉 이 문서가 그린 <b>'조립→뇌(판단)→손'</b>이 코드에선 <b>'뇌가 작전층(주간)을 덮어쓰기'</b>로 역전돼 있다. <b>리팩터 전략(P0~P4)의 역할</b> = 이 역전을 끝내는 두 구조 결함을 단계 마일스톤으로 박는다 — ⓐ <b>판단 권한 이중화</b>(주간 닻 vs 일간 두뇌, 계약 부재)와 ⓑ <b>주간 진행 폐루프 부재</b>(<code>advanceProgress</code>·<code>curriculum_progress</code>·<code>focusHistory</code> 미배선으로 닻 고착). 개별 캡·필터·게이트는 각 모듈 소관이라 여기서 직접 구현하지 않고 <b>들어갈 단계·의존 순서·완료정의(계약)</b>만 조율한다.</p>
+<div class="note"><b>비개발자 한 줄</b> — "이번 주는 이걸 가르치자"는 <b>주간 계획(작전)</b>을 매일 아침 <b>일간 판단(전술)</b>이 멋대로 갈아엎고 있었다. 게다가 한 주가 끝나도 "다음 단계로 올라가자"는 진급 회로가 안 이어져 같은 말만 반복(앵무새). 리팩터는 ⓐ 주간 계획이 항상 윗사람이고 일간 판단은 그 안에서만 움직이게 계약을 박고, ⓑ 한 주의 결과를 다음 주에 물려주는 진급 회로를 연결한다.</div>
+<div class="tbl"><table style="min-width:760px"><tr><th style="width:21%">증상/문제</th><th style="width:25%">근본원인 (파일:라인 · 분류)</th><th style="width:40%">구현·기능·설계 변경 방향</th><th style="width:7%">우선</th></tr>
+<tr><td><b>치킨 반복·음식 잔소리 N연속·괴식·앵무새 4증상의 상류</b> — 일간 두뇌가 주간 닻(타깃 콩류·lever environment·push=0)을 통째 폐기</td><td><code>route.ts:628-629</code> vs <code>604-610</code> · <span class="rk hi">CODE_BUG</span></td><td><b>P2 판단 권한 단일화의 1번 산출물.</b> <code>planFor</code>에 <code>lockedPlan</code>/<code>anchor</code> 인자를 더해 <b>닻이 잠근 target·lever·push캡을 보존</b>한 채 두뇌는 <b>시나리오만 교체</b>. 비-food 레버 주엔 food override를 <b>결정론 캡(주당 N회)</b> 안에서만 허용. 셀렉터 파사드 계약으로 명문화하고 <b>P2 완료정의 = "두뇌 override가 닻 plan을 폐기하지 않음"을 테스트로 보증</b>. 캡 수치·결핍필터 구현은 ①신호선택기 소관.</td><td><span class="rk hi">P2(실질1)</span></td></tr>
+<tr><td>판단 권한 이중화의 구조 측면 — <code>planFor(forceScenarioId)</code>가 타깃 풀을 주간 닻 대신 새로 산출(치킨이 타깃이 됨)</td><td><code>coach.ts:445-450</code> · <code>386-388</code> · <span class="rk hi">CODE_BUG</span></td><td>위 계약의 lib 측면. <code>planFor</code>가 <b>호출자가 잠근 풀(lockedTargetPool)</b>을 받게 하고, 닻이 있으면 <code>mission_target</code>+잔여결핍을, 없으면 <code>refExposable</code>(결핍군 필터)을 단일 진실원천으로 받는다. <b>거부 결핍필터를 일간/폴백/두뇌 3경로가 공유하는 단일 수정점</b>으로 둔다는 원칙만 전략이 정의(구현은 ①).</td><td><span class="rk hi">P2</span></td></tr>
+<tr><td>주간 종합이 매주 environment·push0·식탁 behavior_goal로 고착 — teaching arc 진행·재앵커·stall 전환이 daily lever를 못 바꿈(앵무새 상류)</td><td><code>route.ts:520-534</code> · <code>coachWeekly.ts:96-108</code>(applyFocusFatigue dormant) · <span class="rk hi">DESIGN_GAP</span></td><td><b>P3 폐루프 닫기.</b> cron에 <code>advanceProgress</code> 호출 + <code>curriculum_progress</code> upsert(현재 write 0건) 배선, <code>runWeeklyPlanning</code>에 <code>progress·focusHistory</code> 주입으로 피로 캡 활성화. 그래야 "환경이 안 먹히면 음식으로 진행"(<code>curriculum.ts:200-215</code> limping/stall 피벗)이 데이터로 닫혀 닻 고착이 풀린다. <b>새 테이블 불필요 — 기존 <code>curriculum_progress</code>(sql/2026-06-12) 재사용.</b></td><td><span class="rk mid">P3</span></td></tr>
+<tr><td>두뇌가 상위 제약(lever·push캡)을 입력 단계에서 보지 못해 override를 남발</td><td><code>route.ts:619-626</code> buildBrainContext 입력 · <span class="rk mid">DESIGN_GAP</span></td><td><b>P3 CoachContext 단일 계약화.</b> 두뇌 입력을 산발적 <code>signals + wk3 + nutritionMirror</code> 조합에서 <b>동결된 <code>CoachContext</code> 객체</b>로 전환 — 닻의 <code>lever·mission_target·target_pool·ledger.pushUsed·budget.push</code> + 최근 food override 이력을 <b>계약 필드</b>로 포함. 상위 제약을 못 본 채 시나리오를 갈아끼우는 것을 <b>입력 단계에서 구조적 차단</b>.</td><td><span class="rk mid">P3</span></td></tr>
+<tr><td><code>weekly_plans.status</code>가 supersede/archive 없이 매주 active만 적재 → W22~W25 4행 동시 active(변별력 없는 표시 전용 데드값)</td><td><code>route.ts:538</code> · <code>559</code> · <span class="rk lo">CODE_BUG</span></td><td><b>P0 무결성에 1줄 추가.</b> 신규 닻 upsert 직후 같은 <code>child_id</code>의 직전 <code>week_key</code> active 행을 <code>status='archived'</code>로 강등 → <b>1-active-per-child 불변식</b>·어드민 가시성 확보. <code>loadAnchor</code>는 <code>week_key</code>로만 로드하므로 daily 동작 무영향·저위험.</td><td><span class="rk lo">P0</span></td></tr>
+</table></div>
+<div class="callout"><b>이 모듈(리팩터 전략)이 근본적으로 무엇을 바꿔야 하는가</b> — 앵무새의 구조적 뿌리는 개별 모듈 버그가 아니라 <b>판단 권한이 둘(주간 닻 vs 일간 두뇌)로 쪼개져 있는데 둘 사이 계약이 없고</b>, 주간→일간 <b>진행 폐루프가 끊겨 닻이 영영 고착</b>되는 아키텍처 결함이다. P2의 <code>planFor</code> 분리는 "파일 이동"이 아니라 <b>"닻이 상위 권한이고 두뇌는 닻 안에서만 시나리오를 고른다"는 단일 판단 권한 계약을 코드로 강제</b>하는 것이 본질이다. P3의 <code>child_daily_state</code> 배치는 "캐시"가 아니라 <b>닫히지 않은 주간 진행 폐루프를 닫는 단일 진실</b>이어야 한다.</div>
+<div class="warn"><b>⚠️ 의존 순서 경고</b> — 개별 캡·필터·게이트(거부 결핍필터·food 쿨다운·동군 곁들임 게이트·growth 배선·mirror 쿨다운·구조 유사도 검증)는 <b>P2 권한 단일화가 선 뒤에</b> 각 모듈 단계에서 박아야 효과가 남는다. <b>권한 단일화 전에 캡만 넣으면 두뇌 override가 그 캡을 다시 무력화</b>한다(=현재 <code>route.ts:647</code> STRUCTURAL 가드가 nutrient-gap override로 탈출하는 것과 동일 함정).</div>
+<div class="phase">
+<div class="ph p0"><div class="phh">P0 · <code>weekly_plans</code> 1-active-per-child 불변식 <span class="pht">SQL/한 줄 · 저위험</span></div>
+<div class="phw">신규 닻 upsert 직후 직전 <code>week_key</code> active 행 → <code>archived</code> 강등. daily는 <code>week_key</code> 로드라 동작 무영향.</div>
+<div class="why">리스크: 거의 없음(표시 전용 값 정리). 테스트: 같은 child 2주 적재 후 active=1 확인. 롤백: archive update만 제거(daily 무관).</div></div>
+<div class="ph p2"><div class="phh">P2 · 판단 권한 단일화 (닻 상위 · 두뇌 종속 계약) <span class="pht">⭐ 앵무새 구조 근본 · 실질 1순위</span></div>
+<div class="phw"><code>planFor</code> 판단부를 ①로 분리 = <b>계약 박기</b>(<code>lockedPlan</code>/<code>anchor</code> 인자·시나리오만 교체·비-food 주 override 캡). <b>완료정의 = 두뇌가 re-exposure-timing(치킨)을 골라도 발행 plan.target이 닻(콩류)/환경 프레임으로 유지됨을 골든 테스트로 보증.</b></div>
+<div class="why">리스크: <b>높음</b> — 라이브 두뇌 발행 경로. 테스트: 닻 lever=environment·target=콩류 골든 케이스 + 아린 카나리아 1~3일. 롤백: override 게이트 커밋만 revert(planFromWeekly 폴백 유지).</div></div>
+<div class="ph p3"><div class="phh">P3 · 주간 진행 폐루프 닫기 + CoachContext 단일 계약 <span class="pht">신규 배선</span></div>
+<div class="phw"><code>advanceProgress</code>→<code>curriculum_progress</code> upsert + <code>focusHistory</code> 주입(피로 캡 활성)으로 닻 고착 해소. 두뇌 입력을 <code>CoachContext</code> 동결 객체로 전환해 상위 제약(lever·push캡)을 입력 단계에서 노출.</div>
+<div class="why">리스크: 중간 — upsert 조용한 거부 선례(<code>route.ts:545</code>) → <b>upsert 결과 검사·폴백 필수.</b> 테스트: limping/stall 시 environment→food 피벗이 닻 goals에 영속되는지. 롤백: 배치 단계 플래그 OFF→재계산 경로 복귀.</div></div>
+<div class="ph p4"><div class="phh">P4 · 정합·정리 <span class="pht">후속</span></div>
+<div class="phw">권한 단일화·폐루프가 선 뒤, 산발적 signals 잔재 제거 · 휴면 게이트 승격/삭제 확정 · 계약 위반 정적 검사.</div>
+<div class="why">리스크: 낮음. P0~P3 안정화 이후에만.</div></div>
+</div>
+<div class="callout"><b>원칙 단서(why 보강)</b> — behavior 보존은 원칙이지만 <b>판단 권한 이중화·폐루프 부재 둘은 보존 대상이 아니라 교정 대상</b>이다. 이 둘만은 <b>동작이 바뀌어야 정상</b>(닻이 일간을 통제). 리네임·배럴의 behavior 보존과 명확히 구분한다.</div>
 </section>
 
 <section id="goal"><div class="sec-h"><span class="no">1</span><h2>목표 상태 — Before / After</h2></div>

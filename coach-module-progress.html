@@ -79,6 +79,42 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린(5세·콩류와 채소가 적게 들어옴·소고기/계란은 잘 먹음·미역국 좋아함)의 경우. [입력] 부모가 7일간 기록한 끼니에서 콩류·채소가 거의 안 보이고, 어린이집 식단표엔 시금치 거부가 찍힘. [처리] 진척 레이어가 '새 음식 조금씩 노출' 유닛을 켜고(missing&gt;0이라 trigger 발동), 부모 메모를 훑어 '한 입만/다 먹어'가 있으면 '압박 내려놓기'도 함께 켬. 매일 어제 기록을 보고 '새 음식을 식탁에 올렸는지'를 1/0/판단보류로 채점하고, 표본이 모자라면 코칭 편지에 '어제 도전 음식 반응은요?' 같은 칩 질문을 끼워 표본을 보충. 어린이집에서 거부한 시금치가 4일 안에 집 메뉴로 다시 등장하면 '연계·리듬' 유닛이 +1로 잡힘. [결과] 6일 넘게 새 노출 신호가 없으면 '가르쳤는데 안 됨(정체)'으로 보고 다른 각도(예: 잘 먹는 미역국에 당근 한 가지 곁들이는 '음식 다리')로 피벗. 한편 효과측정(progress.ts)은 최근 28일 vs 직전 28일을 비교해 '잘 먹는 식재료 종 수'가 늘고 거부율이 줄면 '편식이 좋아지는 중이에요'를 부모에게 보여줌.</div>
 </section>
 
+<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:13px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
+<p class="lead"><b>★ 최상위 단일 근본원인</b> — 일간 두뇌 블록(<code>route.ts:628-630</code>)이 <code>planFor({forceScenarioId})</code>로 주간 닻(타깃 잠금·레버·채근캡·teaching arc)을 통째 덮어쓴다. 문서가 그린 '조립 → 뇌(판단) → 손' 순서가 코드에선 '뇌가 작전층(주간)을 덮어쓰기'로 역전돼 있다. <b>이 모듈(⑤)의 역할</b> — 이 모듈은 12유닛 사다리(<code>steps[].behavior</code>·<code>passWhen</code>·진척)를 정의·측정하지만, <b>그 사다리가 일간 편지에 한 번도 렌더되지 않고</b>(<code>advanceProgress</code>·<code>curriculum_progress</code> write 0건) 편지에 닿는 부모 행동 텍스트는 오직 닻의 <code>behavior_goal</code> 한 줄뿐인데, 그 한 줄마저 레버와 어긋나고 매주 같은 유닛에 고착돼 '앵무새'(매 편지 동일 골격)의 <b>상류 원인</b>이 된다.</p>
+
+<div class="note"><b>🧭 한 줄 쉬운말</b> — '12개 수업 통지표'는 만들어 두기만 했지 정작 부모에게 가는 편지엔 안 실립니다. 편지에 들어가는 부모 행동은 '이번 주 목표' 한 문장뿐인데, 그 문장이 ①이번 주 주제(환경/음식)와 따로 놀고 ②매주 똑같은 수업에 멈춰 있어, 부모가 "또 같은 소리"로 느낍니다. → 수업 진도를 실제로 저장하고(한 칸씩 올리고) 그 칸의 행동을 편지에 흘려보내면 매주 다른 부모 코칭이 나갑니다.</div>
+
+<div class="tbl"><table>
+<tr><th style="width:24%">증상 · 문제</th><th style="width:28%">근본원인 (파일:라인 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th style="width:8%">우선</th></tr>
+<tr>
+<td><b>레버↔행동 불일치</b> — environment 주(식탁 무대)인데 <code>behavior_goal</code>이 '콩 3-5알 곁들이기'(food 노출 행동)로 저장돼, teaching arc가 부모 행동 코칭이 아니라 또 다른 음식 잔소리가 됨(W25 DB 실측)</td>
+<td><code>lib/coachWeekly.ts:242-245</code><br><b>CODE_BUG</b> · high<br>runWeeklyPlanning이 Sonnet <code>out.behavior_goal</code>을 lever 검증 없이 채택(L245). lever는 focus 유닛으로 강제하나 behaviorGoal은 정합 안 봄</td>
+<td>L245 직후 <b>lever 정합 가드</b>: 비-food 레버인데 behaviorGoal에 food/노출 신호(콩·두부·생선·멸치·과일 + 곁들·올려·담·차려·뿌려·섞)가 매칭되면 1회 재요청(lever 명시 재프롬프트)→여전히 불일치면 <code>defaultBehaviorGoal(lever, target)</code> 폴백(즉시 폐기 아닌 재요청→폴백으로 오탐 방지). <code>healAnchor(177-188)</code>에도 같은 가드로 구닻 치유. <code>SYSTEM_WEEKLY(132-135)</code>에 '비-food 레버엔 음식 차리기/노출 행동 금지' 명시(코드 가드와 병행)</td>
+<td><b>P0</b></td>
+</tr>
+<tr>
+<td><b>12유닛이 편지에 0회 렌더</b> — 사다리(step1→step2 behavior)·졸업(passWhen)·재발은 전부 선언만 돼 있고, 라이브 편지에 들어가는 부모 행동은 닻 <code>behavior_goal</code> 한 줄뿐. 진척 기반 단계 코칭 부재</td>
+<td><code>lib/curriculumUnits.ts:93-415</code> (UNITS) · <code>route.ts:615-684</code><br><b>DESIGN_GAP</b> · high<br>크론은 candidateUnits로 후보 id만 뽑아 goals에 저장. <code>advanceProgress</code>·<code>curriculum_progress</code> upsert·step.behavior 주입 경로 미배선(grep 0건)</td>
+<td><b>① <code>advanceProgress</code> 크론 배선</b>(가장 효과 큰 단일 수정): <code>route.ts</code>에서 자녀별 <code>curriculum_progress</code> 로드 → <code>lib/curriculum.ts advanceProgress(...)</code> 호출 → updates를 <code>curriculum_progress</code> upsert + <code>goalsAfter</code>를 닻(<code>weekly_plans.goals</code>)에 반영. <code>curriculum.ts:189-215</code>에 이미 limping/stall 시 environment→food(standby) 일간 피벗 + goalsAfter 영속 로직이 완성돼 있어 배선만 하면 '환경이 안 먹히면 음식으로 진행'이 닫힘. <b>② <code>behaviorGoal</code>=focus 유닛 현재 <code>step.behavior</code> 결정론 세팅</b>(<code>coachWeekly.ts:310-311</code>·Sonnet은 표현만 다듬음)으로 단계 전진마다 매주 다른 부모 행동(step1→step2)이 흐름. <code>coach.ts arcBlock(569-581)</code> stage 회전도 요일 기반→step/mode(advance/deepen/maintain) 병행. <b>주의</b>: weekly_coaching/curriculum 컬럼 미적용 시 upsert가 조용히 거부될 수 있어(route.ts:545 기존 사고 패턴) 결과 검사·폴백 필수</td>
+<td><b>P1</b></td>
+</tr>
+<tr>
+<td><b>매주 environment/식탁 고착</b> — 같은 focus 유닛이 영원히 focus라 teaching_arc 진행·재앵커·stall 전환이 daily lever를 못 바꿔, 매 편지가 같은 골격으로 수렴(앵무새 상류)</td>
+<td><code>lib/coachWeekly.ts:60-63, 96-108, 243, 268</code><br><b>PARTIAL</b> · high<br>크론 호출(route.ts:520-534)이 <code>focusHistory</code>·progress·week를 안 넘겨 피로 캡(<code>applyFocusFatigue</code>)이 dormant → table-stage 18일 deepen 고착</td>
+<td><b><code>focusHistory</code> 주입으로 피로 캡 활성화</b>: 직전 <code>STALL_LOOKBACK</code>개 닻(이미 route.ts:505-507에서 조회 중)에서 focus 유닛/lever와 step 전진 여부를 산출해 <code>focusHistory</code>로 주입. 더 견고하게는 <code>synthAndStoreAnchor</code>에 '같은 focus/lever 2주 연속 && targetAccepts/step 전진 0이면 차순위 standby로 강제 승격' 한 줄 게이트(추가 쿼리 불필요). <code>advanceProgress</code> 배선(P1)이 들어가면 보조 안전망이나, 배선 전이라도 단독으로 고착을 깸</td>
+<td><b>P1</b></td>
+</tr>
+<tr>
+<td><b>weekly_plans 다중 active</b> — supersede/archive 없이 매주 <code>status='active'</code>로만 적재돼 W22~W25 4행 동시 active('1 active/child' 불변식·운영 가시성 상실)</td>
+<td><code>app/api/cron/coach/route.ts:538, 559</code><br><b>CODE_BUG</b> · low<br><code>synthAndStoreAnchor</code>가 week_key마다 upsert만 하고 이전 주 행을 archived로 안 바꿈. <code>loadAnchor(559)</code>는 week_key로만 조회</td>
+<td>신규 닻 upsert 직후 같은 child_id의 <code>week_key &lt; wk</code> active 행을 <code>status='archived'</code>로 일괄 update해 '1 active/child' 불변식·어드민 가시성 확보. 또는 status 폐기 후 <code>isLatest=week_key 최댓값</code>으로 대체. 어느 쪽이든 <b>daily 동작 무변경</b>(loadAnchor가 week_key로만 조회하므로 일간 편지 오염 없음)</td>
+<td><b>P2</b></td>
+</tr>
+</table></div>
+
+<div class="callout"><b>이 모듈이 근본적으로 무엇을 바꿔야 하나</b> — ⑤는 '12유닛 통지표'를 만들어만 두고 편지에 흘려보내지 않는 <b>read-only dead-end</b>가 핵심 결함이다(<code>curriculum_progress</code> write 경로 자체가 부재 — §0의 <code>period_summaries</code> write-only dead-end와 같은 계열). 처방은 ⑴ <code>advanceProgress</code>를 크론에 배선해 진척으로 <b>step·lever를 닫고</b>(curriculum_progress upsert + goalsAfter 닻 반영), ⑵ <code>behaviorGoal</code>을 <b>focus 유닛 현재 step의 behavior로 결정론 세팅</b>(lever 정합 가드 포함)해 매주 사다리가 한 칸씩 다른 부모 행동을 가르치게 하고, ⑶ <code>focusHistory</code> 이월로 <b>teaching_arc 재앵커/stall이 daily lever를 실제로 전환</b>(같은 유닛 영구 focus 방지), ⑷ <code>weekly_plans</code> <b>supersede</b>로 active 1개를 보장하는 것이다. ⑴⑵⑶이 닫히면 12유닛 사다리가 비로소 편지에 닿아 '앵무새'의 상류가 풀린다.</div>
+</section>
+
 <section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
 <p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
 <div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr><tr><td><b>SOS Approach to Feeding (단계적 노출 사다리)</b></td><td>각 수업을 보고-만지고-냄새-맛보기처럼 '한 단계 위, 거부 시 즉시 후퇴'의 사다리(steps)로 구현 — 특히 질감 수업의 puree→mashed→finger→table 순서</td></tr><tr><td><b>Satter Division of Responsibility (DOR)</b></td><td>부모=무엇/언제/어디, 아이=먹을지/얼마나 원칙을 '압박 내려놓기·배부름 존중·자율성 참여'와 '부모가 메뉴판' 수업으로 분담 구현</td></tr><tr><td><b>Satter Family Meals</b></td><td>'부모가 메뉴판' 수업의 가족 저녁 주5회 기준(familyDinnerStep1=3, Step2=5)으로 반영</td></tr><tr><td><b>노출(친숙성) 효과 — Wardle 2003 / USDA NESR</b></td><td>'새 음식 노출' 수업의 누적 8회 기준(exposeTotalForStep2=8, NESR 8~15)·주2~3회 하한으로 수치화</td></tr><tr><td><b>30분 룰</b></td><td>'배부름 존중' 수업에서 식사시간 30분 초과율 상한 0.3으로 적용(mealOver30Cap)</td></tr><tr><td><b>WIC 식사·간식 2~3시간 간격</b></td><td>'공복 리듬' 수업에서 끼니 30분 전 간식 차단·간식 과다일 상한으로 간접 적용</td></tr><tr><td><b>CEBQ-lite (Child Eating Behaviour Questionnaire 프록시)</b></td><td>progress.ts가 설문 없이 식사기록으로 Food Fussiness·Enjoyment·Slowness를 거부율·완식률·식사시간 지표로 추정</td></tr><tr><td><b>BMI 또래 퍼센타일 / WHO 성장 추세</b></td><td>bmiTrend가 최근 두 측정의 또래 백분위 변화 |Δ|≥15p를 급변으로 보고 비알람 톤 알림</td></tr><tr><td><b>음식 다리(food chaining)</b></td><td>'확장 트랙(음식 다리)' 수업이 잘 먹는 음식의 사촌 1종을 한 축만 변형해 제시(newFoodWeekly=1·1~2주 한 칸)</td></tr></table></div>

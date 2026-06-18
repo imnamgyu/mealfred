@@ -79,6 +79,52 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린(5세·콩류·채소 결핍·소고기/계란 잘 먹음·미역국 좋아함) 예시. [입력] 영양 거울이 '비타민A채소 red, 콩류 yellow'를 보내고, 집 끼니 기록에서 '잘 먹는 것=소고기·계란·미역'을 집계해 넘김. [처리] (1) 결핍 상위군 중 채소가 가점으로 먼저 뽑힘 → 오늘 추천 식재료를 날짜로 회전해 '당근'이 됨. (2) 아린이 당근을 아직 안 먹으니 liked·pair는 통과. (3) 푸드체이닝 시도 — 아린이 잘 먹는 '소고기'의 검증된 사촌, 좋아하는 '미역'의 궁합을 표에서 조회. food-graph에 '돼지고기-미역(같은 끼니 50회)' 같은 강한 짝꿍이 있어 미역 계열을 다리로 활용. (4) 당근의 또래 인기 음식을 ingredient-recipes에서 찾되 매운 건 빼고, 생물 오인 방지로 '익힌 당근'으로 표기. 동시에 콩류는 두부→'순두부찌개·유부맑은국'(또래 12·13회)으로 도전 카드. [결과] 편지에 "잘 먹는 소고기·미역 옆에 익힌 당근을 살짝 곁들여보세요, 또래는 순두부찌개로 콩을 잘 먹어요"처럼 전부 실데이터 근거 음식만 등장. '미역국에 당근 갈아넣기' 같은 괴식은 약신호·미검증이라 자동 차단되고, 같은 식재료를 매일 반복하지 않게 주간 5개 풀에서 돌아가며 권함.</div>
 </section>
 
+<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:13px;background:#B71C1C">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
+<p class="lead"><b>★ 최상위 근본원인</b>: 일간 두뇌 블록(<code>route.ts:628-630</code>)이 주간 닻(잠근 타깃·레버·채근캡·teaching arc)을 모른 채 <code>planFor({forceScenarioId})</code>로 plan을 통째 덮어써, 문서가 그린 '조립→뇌(판단)→손' 순서가 코드에선 <b>'뇌가 작전층(주간)을 덮어쓰기'</b>로 역전돼 있습니다. <b>이 모듈(②추천엔진)의 역할</b>은 그 상류 누수로 잘못된 타깃(치킨 등 비결핍군)이 와도 <b>추천 산출물(곁들임·사촌·궁합)을 '결핍 보강'에만 한정</b>하는 2차 방어층입니다. 그런데 현재 ②는 결핍군 게이트가 없어 같은 식품군 사촌(돼지불고기→닭가슴살)을 곁들임으로 내보내 '단백질 위 단백질' 괴식을 만들고, 진짜 괴식 검증기(comboMatrix/comboGuard)는 휴면 상태로 라이브에 미배선이며, 매 편지가 '오늘 타깃+곁들임+또래 인기음식' 동일 골격으로 수렴해 앵무새를 부릅니다.</p>
+<p class="note" style="margin-top:6px"><b>🗣️ 쉬운말 한 줄</b> — 지금은 아이가 잘 먹는 '고기'에 또 다른 '고기(사촌)'를 곁들이라고 권하는 일이 생깁니다(영양상 의미가 없는 '고기 위에 고기'). 앞으로는 곁들임을 <b>부족한 영양군에서만</b>, 그리고 잘 먹는 것과 <b>다른 식품군에서만</b> 고르게 하고, 매일 똑같은 문장 골격으로 권하지 않도록 날짜별로 추천 방식을 돌려가며 씁니다.</p>
+<div class="tbl"><table>
+<tr><th style="width:22%">증상 / 문제</th><th style="width:27%">근본원인 (파일:라인 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th style="width:8%">우선</th></tr>
+<tr>
+<td><b>단백질 위 단백질 괴식</b> — 돼지불고기 옆에 닭가슴살(같은 고기·계란군). 결핍 보강 0</td>
+<td><code>coachRecos.ts buildRecoFacts (b) 사촌 경로 192-205</code><br><span style="color:#B71C1C;font-weight:800">DESIGN_GAP</span><br>verifiedCousinsOf가 결핍군 검사 없이 같은 군 사촌(고기→고기)을 곁들임으로 출력. food-graph상 닭고기↔돼지고기·소고기는 전부 bridge·verified·strength3로 빽빽이 연결돼 사촌이 항상 또 단백질</td>
+<td>buildRecoFacts 시그니처에 <code>deficientGroups</code>(또는 missing/homeMissing) Set 인자를 추가. 사촌은 (1) <code>groupOfIngredient(c.nm)</code>이 결핍군(target∪missing∪homeMissing)에 속할 때만 곁들임 라인으로 출력 (2) <code>groupOfIngredient(c.nm)===groupOfIngredient(ing)</code>인 '같은 군' 사촌은 곁들임 짝에서 제외(교체 사촌일 뿐). 교차군 사촌(고구마↔단호박)은 결핍군 통과 시 유지. <code>route.ts:662</code>·<code>app/api/coach/route.ts:55</code> 두 호출자가 gMissing/gHomeMissing 배선</td>
+<td><span style="color:#B71C1C;font-weight:800">P0</span></td>
+</tr>
+<tr>
+<td><b>진짜 괴식(음식×식재료)이 라이브에서 안 걸림</b> — 미역국+당근류 차단이 정규식 블랙리스트에만 의존</td>
+<td><code>comboMatrix.ts:31-49 (scoreCombo/isComboOk)</code> · <code>comboGuard.validCombos/dishIngredientFit</code><br><span style="color:#B71C1C;font-weight:800">CODE_BUG</span><br>설계된 dish×ingredient 괴식 게이트가 coachMaterials(휴면)만 호출 → 라이브 buildRecoFacts·buildIngredientPool 어디서도 미호출. 라이브는 strongPairsOf(식재료×식재료)만 써 '음식+식재료 자연스러움' 미검증</td>
+<td>휴면 게이트를 라이브 buildRecoFacts 곁들임 산출에 배선. <code>isComboOk(dish, ing)</code> 또는 <code>validCombos</code>(둘 다 임계 2·동일 사상이므로 한쪽으로 단일화) 통과분만 본문 라인에 내보냄(미통과=제외, 빈 결과 허용=조합 강요 금지). buildValidatedCombos 로직을 라이브로 끌어오거나 buildRecoFacts가 isComboOk 직접 호출. 중복 게이트(comboMatrix vs comboGuard) 병존 정리</td>
+<td><span style="color:#B71C1C;font-weight:800">P0</span></td>
+</tr>
+<tr>
+<td><b>앵무새 골격</b> — 매 편지 '오늘 타깃 음식+곁들임+또래 인기음식' 동일 멀티라인으로 수렴</td>
+<td><code>coachRecos.ts buildRecoFacts 169-208</code> + <code>coach.ts:639</code>('인기 음식 이름 반드시 한 번' 강제)<br><span style="color:#B71C1C;font-weight:800">DESIGN_GAP</span><br>buildRecoFacts가 (a)타깃 라인 + (b)사촌·궁합 라인을 항상 같은 구조로 산출하고, coach.ts:639가 매 편지 필수 슬롯을 강제해 골격 고착</td>
+<td>buildRecoFacts에 <code>seed/mode</code> 인자 추가 → 날짜별로 '곁들임-only / 사촌(푸드체이닝)-only / 또래 인기음식 도전-only' 중 하나를 단독 강조하는 회전 산출(<code>pickFoodReco</code>의 via 태그 liked/pair/chain/dish/plain를 text 주축으로 채택). coach.ts:639의 '인기 음식 이름 반드시 한 번 + 또래들은 OO' 필수 슬롯을 via가 dish일 때만 켜지는 조건부로 강등</td>
+<td><span style="color:#E89244;font-weight:800">P1</span></td>
+</tr>
+<tr>
+<td><b>운반체 음식명 group 미상으로 누수</b> — '치킨·닭가슴살' 같은 비표준명이 곁들임 결핍 보강에 잘못 분류</td>
+<td><code>coachRecos.ts ING_GROUP 119-120, groupOfIngredient</code><br><span style="color:#B71C1C;font-weight:800">CODE_BUG</span><br>groupOfIngredient(ING_GROUP)이 GROUP_INGREDIENTS 멤버(닭고기·소고기)만 알고 치킨·닭가슴살·삼겹살 같은 운반체 음식명/미매핑 토큰엔 null 반환</td>
+<td>ING_GROUP에 '고기·계란' 군 동의어(치킨·닭가슴살·닭다리·삼겹살·제육·돼지불고기 등) 보강, <b>또는</b> groupOfIngredient가 null이면 곁들임을 '결핍 보강'으로 절대 분류하지 않는 보수적 기본값(null=비결핍 취급=곁들임 짝 제외) 명시. 미매핑 운반체가 사촌·곁들임 경로로 누수돼 '단백질 위 단백질' 재발하지 않게 함</td>
+<td><span style="color:#E89244;font-weight:800">P1</span></td>
+</tr>
+<tr>
+<td><b>궁합 경로 결핍 보강 오프레이밍</b> — 같은 군 궁합을 '결핍 보강'으로 잘못 강조</td>
+<td><code>coachRecos.ts buildRecoFacts 185, 195-204 (strongPairsOf / pairWithLiked)</code><br><span style="color:#B71C1C;font-weight:800">DESIGN_GAP</span><br>궁합은 교차군이 정당(달걀↔가지=채소)하나, 같은 군 궁합·같은 군 head 페어를 '결핍 보강'으로 묶으면 무의미</td>
+<td>궁합(strongPairsOf)은 사촌과 달리 결핍군 게이트를 '약하게' 적용 — 결핍군 소속이면 우선 노출하되 같은 군 궁합은 강조 강등(곁들임 운반체로만, 결핍 보강 주장 금지). (a) head 경로 <code>pairWithLiked</code>도 '잘 먹는 것↔타깃'이 같은 군이면 결핍 보강 프레이밍에서 제외</td>
+<td><span style="color:#E89244;font-weight:800">P1</span></td>
+</tr>
+<tr>
+<td><b>상류 타깃 누수(이관 책임)</b> — 치킨(비결핍·미매핑)이 일간 타깃으로 잡힘</td>
+<td><code>route.ts:485 signals.*Refused 정제 누락</code> (①/통합 소관)<br><span style="color:#6B7280;font-weight:800">PARTIAL</span><br>refExposable(결핍군·주식제외 필터)이 weekly 경로에만 적용되고 daily signals·planFor·두뇌 경로엔 미적용</td>
+<td>1차(signals 결핍군 정제)는 ①신호선택기/통합에 위임 — ②만으로는 완전 봉합 불가. ②는 '추천 산출물을 결핍 보강으로 한정'하는 2차 방어층임을 코드 주석·문서에 명시하고, '타깃이 잘못 와도 같은 군 곁들임을 만들지 않음'까지만 보증</td>
+<td><span style="color:#6B7280;font-weight:800">P2</span></td>
+</tr>
+</table></div>
+<div class="callout" style="margin-top:12px"><b>이 모듈이 근본적으로 무엇을 바꿔야 하는가</b> — ②추천엔진의 존재이유는 '결핍 보강'인데, 그 게이트가 산출 로직에 강제돼 있지 않은 게 핵심 결함입니다. 셋을 봉합해야 합니다. (1) <b>타깃·곁들임을 결핍군으로 한정</b> — buildRecoFacts가 결핍군 Set을 받아 사촌·궁합을 '결핍 보강에 기여하는 것'으로만 게이트. (2) <b>곁들임 앵커는 타깃과 다른 식품군에서만</b>(같은 군 운반체 금지) — verifiedCousinsOf는 본질적으로 같은 군 사촌이 많으므로(food-graph same-group bridge 다수), 결핍군 게이트 없이는 '잘 먹는 단백질→사촌 단백질'을 곁들임으로 내보냅니다. (3) <b>괴식 게이트(comboMatrix/comboGuard) 라이브 배선</b> — 지금 휴면이라 괴식 차단이 정규식 블랙리스트에만 의존합니다. dish×ingredient 매트릭스를 buildRecoFacts 곁들임 산출에 단일화 배선하는 것이 본질적 해결입니다. 동시에 출력 골격을 daySeed via 회전으로 깨 앵무새 슬롯 수렴을 막아야 합니다.</div>
+<div class="note" style="margin-top:10px"><b>📎 문서 정합 메모</b> — 본 문서 §0/§2/§5는 buildValidatedCombos·comboMatrix·comboGuard·selectDailyMaterials를 라이브처럼 서술하나, 실제 라이브 추천은 <code>buildRecoFacts</code> + <code>buildIngredientPool</code> 단 둘뿐이며 나머지는 휴면입니다. §5의 "괴식 차단: buildValidatedCombos가 scoreCombo 임계 통과 조합만…"은 현재 라이브 미배선이라 사실과 다릅니다(위 P0 배선 완료 전까지는 strongPairsOf + letterDeterministicBad 정규식에만 의존). 후속 배선 시 §5 가드 문구도 함께 정정합니다.</div>
+</section>
+
 <section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
 <p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
 <div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr><tr><td><b>Fraker Food Chaining (푸드체이닝)</b></td><td>아이가 잘 먹는 음식에서 출발해 맛·식감이 닮은 '사촌'(food-graph bridge)을 징검다리 삼아 부족한 식재료까지 연결 — pickFoodReco의 chain 분기와 buildIngredientPool의 cousinsOfLiked가 정확히 이 원리를 구현</td></tr><tr><td><b>AAP food bridges (푸드 브릿지)</b></td><td>이미 수용하는 식품과 닮은 식품으로 다리를 놓아 거부감을 낮춤 — verifiedCousinsOf(검증된 사촌)와 strongPairsOf(강한 궁합 곁들임)로 '잘 먹는 것 옆에 새것 붙이기' 구현</td></tr><tr><td><b>반복노출 (repeated exposure)</b></td><td>새 음식은 여러 번 천천히 노출해야 수용 — 주간 5개 풀을 일일 회전(buildIngredientPool, 연속 같은 식재료 금지)으로 한 식재료를 며칠에 걸쳐 반복 제시</td></tr><tr><td><b>실측 동시출현 근거화 (괴식 방지 설계원칙)</b></td><td>코드 주석 명시: 추상 조리법을 AI에 맡기면 괴식 환각이 남 → 또래가 실제 먹는 음식 이름(ingredient-recipes freq·kit-matrix 실측 count·food-graph 동시출현)만 권하고 목록 밖은 지어내지 않음</td></tr></table></div>
