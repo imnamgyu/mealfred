@@ -258,8 +258,8 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>🧩 코칭 엔진 모듈 명세 (정본)</h3>
-    <span class="cnt">통합 1 · 모듈 7 · 전략 1</span>
-    <span class="note">각 모듈의 작동원리 · 데이터 파이프라인 · 📥📤 I/O 예시 · 가드 + 비개발자 운영설명(문헌·테이블) · 리팩터 전략</span>
+    <span class="cnt">통합 1 · 모듈 7 · 전략 1 · 빌드플랜 1</span>
+    <span class="note">각 모듈의 작동원리 · 데이터 파이프라인 · 📥📤 I/O 예시 · 가드 + 비개발자 운영설명(문헌·테이블) · 리팩터 전략 · 편지 품질 개선 WBS</span>
   </div>
   <div class="doc-grid">
     <a href="/coaching-architecture-map.html" class="doc-card cat-arch">
@@ -324,6 +324,13 @@
       <h4>코칭 엔진 리팩터 전략 — 흩어진 lib → 7 통합 모듈</h4>
       <p class="desc"><b>모듈 개편으로 가는 안전한 이행 순서(개발 전).</b> 원칙(behavior 보존·한 모듈씩·라이브 무중단) + <b>단계 P0~P4</b>(P0 DB 무결성 핫픽스 → P1 선호 계량화+끼니 정규화+수용 포착 → P2 모듈 경계 정리 → P3 푸드체이닝+아이 현황 스토어 배치 2단계 → P4 정합) + <b>모듈별 리팩터 카드</b>(합치는 것·리스크·테스트) + 리스크·롤백. DB 감사·신규기능을 한 로드맵에 흡수.</p>
       <div class="meta"><span>ENGINE · 리팩터 정본</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-fix-build-plan.html" class="doc-card cat-arch">
+      <span class="badge new">🧱 빌드 플랜 · 원자단위 WBS</span>
+      <div class="ico">🧱</div>
+      <h4>코칭 편지 품질 개선 — 개발 원자단위 WBS (10 EPIC · 95 원자)</h4>
+      <p class="desc"><b>2026-06-18 적대감사 26 근본원인(라이브 코드+아린 DB 실측)을 대형 개발 가능한 원자 단위로 분해.</b> 최상위 근본원인=일간 두뇌가 주간 닻을 덮어씀 → <b>EPIC A 뇌↔주간 닻 계약(P0)</b> 외 B 결핍군 필터 단일점·C 잔소리 캡·D target_pool 두 트랙·E 영양평가 배선·F 커리큘럼 진척 엔진·G 괴식 게이트·H 앵무새 해체·I 주간 위생+아이현황·J 검증·컷오버. 각 원자={목적·요구·구현명세(file:line)·테스트·DoD·의존·우선순위}. <b>원자 ID로 지시·추적</b>(예 "WBS 보고 A-04 구현해").</p>
+      <div class="meta"><span>ENGINE · 빌드 플랜 정본</span><span class="arrow">→</span></div>
     </a>
   </div>
 </section>
@@ -454,6 +461,7 @@
     '/coach-module-writer.html':{c:'2026-06-17',m:'2026-06-17'},
     '/coach-module-graph-query.html':{c:'2026-06-17',m:'2026-06-17'},
     '/coaching-refactor-strategy.html':{c:'2026-06-17',m:'2026-06-17'},
+    '/coaching-fix-build-plan.html':{c:'2026-06-18',m:'2026-06-18'},
     '/preference-quantification-engine.html':{c:'2026-06-16',m:'2026-06-16'},
     '/data-pipeline-erd.html':{c:'2026-06-14',m:'2026-06-14'},
     '/menu-ingest-pipeline.html':{c:'2026-06-15',m:'2026-06-15'},
