@@ -831,11 +831,27 @@ export async function composeLetter(p: {
     if (!v.ok && (v.violations.length || v.hint)) {
       const g = await generateLetter({ ...letterInput, fixNotes: [...v.violations, ...(v.hint ? [v.hint] : [])] }, model);
       const v2 = await verifyLetter({ letter: g.letter, facts, noFoodAction, noRediagnose });
-      if ((v2.ok || v2.violations.length < v.violations.length) && !detBad(g.letter) && simBadness(g.letter) < 1) {
+      // ⭐ K-05(가드감사) — det는 하드 차단 유지, 유사도는 타이브레이커로 강등: 의미 위반을 '완전히' 고친 본문(v2.ok)은
+      //   어휘가 다소 겹쳐도 채택(의미 정확 > 어휘 신선). 부분 개선만이면 기존대로 유사도<1 요구. 의미위반 원본 발행을 막음.
+      if ((v2.ok || v2.violations.length < v.violations.length) && !detBad(g.letter) && (v2.ok || simBadness(g.letter) < 1)) {
         gen = g; coachRegen = true; verify = { ok: v2.ok, violations: v2.violations, regen: true };
       }
     }
   } catch { /* 검증 실패는 발행을 막지 않음 */ }
+  // ⭐ K-03(가드감사) — 영양거울 포함 검증: 결핍 분기(전체/집 부족)인데 손 LLM이 영양 한 구절을 누락하면(must-weave 무시)
+  //   1회 재생성해 보강(영양평가 누락=메타① 방치 차단). 결핍 분기 아닐 땐(잘 채워짐) 검증 생략(오탐 방지).
+  try {
+    const allMiss = (p.base.missing || []).slice(0, 3);
+    const homeMiss = (p.base.homeMissing || []).slice(0, 3);
+    const mirrorGroups = allMiss.length ? allMiss : (p.base.attendsDaycare ? homeMiss : []);
+    if (mirrorGroups.length && timeLeft()) {
+      const hasMirror = (L: string) => mirrorGroups.some((g) => L.includes(g)) || /부족|채워|채우|다양성|드무|드물|골고루|만나면/.test(L);
+      if (!hasMirror(gen.letter)) {
+        const g = await generateLetter({ ...letterInput, fixNotes: [`영양 평가 한 구절을 반드시 자연스럽게 포함하라(예: "${mirrorGroups.join('·')} 식품군을 집에서 조금씩 채워주면 좋아요" — 강요·점수·등급 금지).`] }, model);
+        if (!detBad(g.letter) && simBadness(g.letter) < 1 && hasMirror(g.letter)) { gen = g; coachRegen = true; }   // S1 대칭 + 실제 거울 포함 확인 후에만 채택
+      }
+    }
+  } catch { /* 포함검증 실패는 발행을 막지 않음 */ }
   return { letter: gen.letter, oneliner: gen.oneliner, plan, scenarioId: scenario.id, scenarioLabel: scenario.label, coachRegen, verify, modelUsed: model || HAND_MODEL };
 }
 

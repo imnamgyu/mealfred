@@ -18,7 +18,7 @@ import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals, groupOf } from '@/lib/nutrition';
-import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, metaInputNudge, letterSimilarity, resetUsage, getUsage, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, metaInputNudge, letterSimilarity, resetUsage, getUsage, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, NO_FOOD_ACTION_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -397,7 +397,8 @@ export async function GET(req: Request) {
           const offerDaysAgo: Record<string, number> = {};
           Object.entries(offerLast).forEach(([nm, d]) => { offerDaysAgo[nm] = Math.round((todayMs - Date.parse(d)) / 86400000); });
           // 재노출도 정제된 진짜 거부만 + 이미 '전환 축하'된 식재료는 제외(축하 vs 재노출 모순 차단)
-          const rxRefs = sanitizeRefusals(uniqRef).filter((f) => !transitioned.has(f));
+          // ⭐ K-02(가드감사) — refExposable(주식제외+결핍군 소속, K-01 빗대기 적용)로 통일. 치킨 등 비결핍 거부가 '재노출 적기' 사실로 본문 누수하던 것 봉합(타깃 경로 refExposable과 동일 게이트).
+          const rxRefs = refExposable.filter((f) => !transitioned.has(f));
           const rx = reexposurePick(rxRefs, offerCount, offerDaysAgo);
           if (rx && ts.length < 8) ts.push(rx.fact);   // 시계열 사실로 → 편지가 'N번·M일·적기'를 인용
         } catch { /* 전환 감지는 보조 — 실패해도 코칭 계속 */ }
@@ -635,7 +636,9 @@ export async function GET(req: Request) {
               });
               brainPick = await pickActionByBrain(brainCtx, recoCand ? [recoCand] : []);
               // ⭐ A-07 — 연속 food날 캡: 직전 2일 모두 음식이면 오늘은 결정론으로 비음식 강등(프롬프트 신뢰 대신 보증).
-              if (brainPick && (recentBrainUseFood[cid] || []).slice(0, 2).filter(Boolean).length >= 2) brainPick.useFood = false;
+              // ⭐ K-06(가드감사) — lever 인지: food 닻 주는 음식이 본업이라 3일 연속일 때만 휴지, 비-food 주는 2일 캡(원래 잔소리연속 버그 보존).
+              { const _foodWk = (weekCtx?.lever || 'food') === 'food'; const _need = _foodWk ? 3 : 2;
+                if (brainPick && (recentBrainUseFood[cid] || []).slice(0, _need).filter(Boolean).length >= _need) brainPick.useFood = false; }
               if (brainPick.scenarioId) {
                 // ⭐ A-04/A-06 — 닻 종속 override 게이트. 트리거 충족 + (food주|레버호환|안전인터럽트|food override 캡 미소진)일 때만 두뇌 시나리오 채택.
                 const safeTrigger = (id: string): boolean => { const sc = SCENARIOS.find((s) => s.id === id); if (!sc) return false; try { return sc.trigger(signals); } catch { return false; } };
@@ -676,7 +679,7 @@ export async function GET(req: Request) {
           snackShownCtx = !!snackText;
           // ⭐ 추천 근거화(이사님) — 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료의 사촌·궁합(전부 테이블). 편지는 이 목록 밖 음식·조합 금지 → 괴식 차단.
           // ⭐ 두뇌 useFood ↔ 시나리오 정합: 구조 프레임(환경·자율성·식감)은 본문이 음식 제안을 안 하므로 useFood=false로 맞춤(칩·bridgeFacts 일관).
-          if (brainPick && STRUCTURAL_FRAMES.includes(scenarioId || '')) brainPick.useFood = false;
+          if (brainPick && NO_FOOD_ACTION_FRAMES.has(scenarioId || '')) brainPick.useFood = false;   // ⭐ K-11 — 텍스처(음식 형태 변경) 날은 음식 추천 허용(STRUCTURAL_FRAMES→NO_FOOD_ACTION_FRAMES)
           // ⭐ 주간 추천 식재료 풀(영양거울 기반 5개) + 일일 회전 — 같은 식재료 연속 추천 방지(6/2·6/3 콩 반복 사고).
           //   ⭐ E(이사님 2026-06-15) — 풀을 '집 끼니' 신호로 산출(byDay→homeDays). 기관이 콩류·채소를 채우면 전체는 green이라
           //   풀에서 빠지고 추천이 곡물·계란 등으로 엉뚱하게 새던 것 수정 → 영양거울(집 부족군)과 음식 추천이 일치(집 부족=콩류면 두부).
