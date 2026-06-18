@@ -17,7 +17,7 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
-import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals } from '@/lib/nutrition';
+import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals, groupOf } from '@/lib/nutrition';
 import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, metaInputNudge, letterSimilarity, resetUsage, getUsage, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
@@ -355,7 +355,7 @@ export async function GET(req: Request) {
         const _deficientGroups = new Set([...homeFg.missing, ...fg.missing]);
         const refExposable = sanitizeRefusals(uniqRef).filter((r) => {
           if (_STAPLE_WORD.test(r) || STAPLE_FORMS[r]) return false;   // 주식 제외
-          const g = catOf(r);                                          // 식재료→식품군
+          const g = groupOf(r, catOf);                                 // ⭐ K-01 — 식재료→식품군(빗대기 경유). catOf(카테고리)를 식품군과 직접 비교하던 네임스페이스 버그 수정(콩·생선·단백질·비타민A채소 결핍거부 영구차단 해소)
           return !!g && _deficientGroups.has(g);                       // 결핍군 소속 거부만 재노출 타깃
         });
         const ts = computeTimeseries(byDate, menuFreq, catOf, dAgo(1), { assertNoVeg: catReliable });   // 어제 앵커(평가 기준일)

@@ -6,6 +6,7 @@
 import { describe, it, expect } from 'vitest';
 import { anchorOverrideAllowed, planFromWeekly, LEVER_SCENARIO, SAFE_INTERRUPT_SCENARIOS, FOOD_OVERRIDE_CAP, DEFAULT_LEDGER, type WeeklyAnchor } from '../lib/coachWeekly';
 import { targetPoolForScenario } from '../lib/coach';
+import { groupOf } from '../lib/nutrition';
 import type { CoachSignals } from '../lib/coachScenarios';
 
 const sig = (o: Partial<CoachSignals> = {}): CoachSignals => ({
@@ -85,5 +86,22 @@ describe('A-08 — targetPoolForScenario 결핍군 필터(치킨 누수 차단)'
   it('nutrient-gap은 결핍 식품군 풀(거부 필터 무관)', () => {
     const s = sig({ homeMissing: ['콩류'], missing: ['비타민A채소'] });
     expect(targetPoolForScenario('nutrient-gap', s).sort()).toEqual(['비타민A채소', '콩류']);
+  });
+});
+
+describe('K-01(가드감사) — refExposable 네임스페이스: 카테고리→식품군 빗대기(과잉억제 봉합)', () => {
+  const catStub = (cat: string) => (x: string): string | undefined => (x ? cat : undefined);
+  it('catOf 카테고리를 식품군 공간으로 매핑(생선→생선·해산물·콩_콩제품→콩류·잎채소→비타민A채소)', () => {
+    expect(groupOf('고등어거부', catStub('생선'))).toBe('생선·해산물');
+    expect(groupOf('두부거부', catStub('콩_콩제품'))).toBe('콩류');
+    expect(groupOf('시금치거부', catStub('잎채소'))).toBe('비타민A채소');
+  });
+  it('결핍군 필터가 식품군 공간에서 매치 — 구버전(카테고리 직접비교)이면 영구차단되던 케이스 회귀 박제', () => {
+    const deficient = new Set(['콩류', '생선·해산물']);
+    const filt = (r: string, cat: string) => { const g = groupOf(r, catStub(cat)); return !!g && deficient.has(g); };
+    expect(filt('고등어거부', '생선')).toBe(true);       // ✅ 신버전: 재노출 타깃 가능
+    expect(filt('두부거부', '콩_콩제품')).toBe(true);
+    expect(deficient.has('생선')).toBe(false);            // ⚠️ 구버전은 catOf='생선'을 직접 비교 → false(영구차단)
+    expect(deficient.has('콩_콩제품')).toBe(false);
   });
 });

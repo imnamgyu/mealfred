@@ -192,7 +192,9 @@ export const GROUP_TARGET: Record<string, { green: number; type: 'daily' | 'rota
   '과일': { green: 5, type: 'daily' }, '유제품': { green: 5, type: 'daily' },
   '고기·계란': { green: 5, type: 'rotation' }, '생선·해산물': { green: 2, type: 'rotation' }, '콩류': { green: 2, type: 'rotation' },
 };
-function groupOf(ing: string, catOf?: CatOf): string | undefined {
+// ⭐ K-01 — 식재료→식품군 정본 매핑(FOOD_GROUP 직접 → catOf 카테고리 빗대기). computeFoodGroups(308)와 동일 공간.
+//   refExposable(거부 결핍군 필터)이 catOf(카테고리 18종)를 _deficientGroups(식품군 8종)와 직접 비교하던 네임스페이스 버그 수정용으로 export.
+export function groupOf(ing: string, catOf?: CatOf): string | undefined {
   return FOOD_GROUP[ing] || (catOf && CATEGORY_GROUP[catOf(ing) || '']);
 }
 export function computeGroupSignals(ingredientsByDay: string[][], catOf?: CatOf): { signals: GroupSignal[]; proteinOk: boolean } {
