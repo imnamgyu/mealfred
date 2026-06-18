@@ -56,6 +56,7 @@ export function buildBrainContext(p: {
   anchorLever?: string;             // ⭐ A-07 — 이번 주 주력 레버(비-food면 음식 시나리오 자제)
   anchorTargetPool?: string[];      // ⭐ A-07 — 주간이 잠근 음식 타깃 풀(음식 날엔 이 안에서)
   recentUseFood?: boolean[];        // ⭐ A-07 — 최근 며칠 음식 다룸 여부(최신부터·연일 food 자제)
+  curriculumSummary?: string | null;   // ⭐ F-15 — 커리큘럼 진도 요약(수료/진행/미시작·오늘 초점) — 두뇌가 일관 진행 참조
 }): string {
   const name = p.childName || '아이';
   const recos = (p.recoCandidates || []).filter(Boolean);
@@ -82,8 +83,11 @@ export function buildBrainContext(p: {
     ? `\n[최근 음식날 — ${p.recentUseFood.map((u) => (u ? '음식' : '비음식')).join('→')}(최신순). 직전 2일이 모두 '음식'이면 오늘은 음식 말고 다른 각도로(연일 음식 잔소리 금지).]\n`
     : '';
 
+  const curriculumBlock = p.curriculumSummary
+    ? `\n[커리큘럼 진도 — 부모 행동 수업의 누적 상태. 이미 수료한 단계로 되돌아가지 말고, 진행중 단계를 이어가거나 오늘 초점을 존중하라]\n${p.curriculumSummary}\n`
+    : '';
   return `아이: ${name}
-${p.nutritionMirror ? `\n[영양 평가(참고)] ${p.nutritionMirror}\n` : ''}${anchorBlock}${useFoodBlock}
+${p.nutritionMirror ? `\n[영양 평가(참고)] ${p.nutritionMirror}\n` : ''}${anchorBlock}${useFoodBlock}${curriculumBlock}
 [후보 시나리오 — 이 목록 안에서만 골라라. '발동가능'=수치상 조건 충족 · '최근사용'=최근 편지가 씀(피하라)]
 ${menu}
 

@@ -26,8 +26,9 @@ import { SCENARIOS, type CoachSignals } from '@/lib/coachScenarios';
 import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, anchorOverrideAllowed, type WeeklyAnchor, type WeeklyArc, type WeeklyLedger, type WeeklyBudget } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { compileFacts } from '@/lib/coachFacts';
-import { type CRow } from '@/lib/curriculumUnits';
-import { buildCandSignals } from '@/lib/coachDaily';
+import { UNITS, UNIT_IDS, TH, type CRow, type UnitId, type Goal, type ProbeAnswer, type ProgressRow as CurriculumProgressRow } from '@/lib/curriculumUnits';
+import { buildCandSignals, parseProbeAnswers } from '@/lib/coachDaily';
+import { advanceProgress, blankRow, goalsOf, normalizeGoals, type DailyDecision } from '@/lib/curriculum';
 import { buildBrainContext, pickActionByBrain, nutritionMirrorFromInput, type BrainAction } from '@/lib/coachBrain';   // ⭐ 두뇌 선택+검수(시나리오는 LLM, 음식추천은 검수)
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, buildIngredientPool, groupOfIngredient, STAPLE_FORMS, type FreqMap } from '@/lib/coachRecos';
@@ -165,13 +166,15 @@ export async function GET(req: Request) {
     const recentRecoIng: Record<string, string[]> = {};   // ⭐ 최근 편지가 추천한 '식재료'(A 경로) — 주간 풀 일일 회전(같은 식재료 연속 추천 방지)
     const recentBrainUseFood: Record<string, boolean[]> = {};   // ⭐ A-07 — 최근 편지가 음식을 다뤘는지(useFood) 이력(최신부터) — 연속 food날 캡
     const recentGrowthDates: Record<string, string[]> = {};   // ⭐ E-09 — 성장 거울 노출 날짜(격주 케이던스·2주연속금지)
+    const curriculumHist: Record<string, Array<{ date: string; unit: UnitId; mode: string }>> = {};   // ⭐ F-09 입력 — 최근 편지가 코칭한 유닛(coachedDays/Yesterday/pivots)
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
       if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
-      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; growthShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; brain?: { useFood?: boolean } | null } | null;
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; growthShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; brain?: { useFood?: boolean } | null; curriculum?: { unit?: string; mode?: string } | null } | null;
       if (typeof ctx?.recoIng === 'string' && ctx.recoIng) (recentRecoIng[l.child_id] ||= []).push(ctx.recoIng);
       if (typeof ctx?.brain?.useFood === 'boolean') (recentBrainUseFood[l.child_id] ||= []).push(ctx.brain.useFood);   // ⭐ A-07
       if (ctx?.growthShown) (recentGrowthDates[l.child_id] ||= []).push(l.letter_date);   // ⭐ E-09
+      if (ctx?.curriculum?.unit) (curriculumHist[l.child_id] ||= []).push({ date: l.letter_date, unit: ctx.curriculum.unit as UnitId, mode: ctx.curriculum.mode || '' });   // ⭐ F-09 입력
       if (!(l.child_id in prevArcStage)) prevArcStage[l.child_id] = ctx?.weekly?.arc?.stage ?? null;   // 정렬상 첫 과거 편지 = 직전
       if (ctx?.weekly?.weekKey) (recentWeekKeys[l.child_id] ||= []).push(ctx.weekly.weekKey);
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
@@ -203,6 +206,14 @@ export async function GET(req: Request) {
       if (!latestGrowth[r.child_id]) { latestGrowth[r.child_id] = { height_cm: r.height_cm, weight_kg: r.weight_kg }; latestGrowthDate[r.child_id] = r.measured_on; }   // 정렬 desc → 첫 = 최신
       firstGrowth[r.child_id] = { height_cm: r.height_cm, weight_kg: r.weight_kg, measured_on: r.measured_on };   // 매 행 덮어씀 → 마지막 = 가장 오래된(기준 채널)
     });
+
+    // ⭐ F-02 — 자녀별 커리큘럼 진척(curriculum_progress) 일괄 prefetch. 테이블/컬럼 미적용이면 빈 맵 degrade(안전).
+    const progByChild: Record<string, Partial<Record<UnitId, CurriculumProgressRow>>> = {};
+    try {
+      const { data: progRows } = await supabase.from('curriculum_progress')
+        .select('child_id,unit_id,status,step,evidence,started_at,mastered_at,last_signal_at,stop_reason,relapse_count').in('child_id', activeIds);
+      (progRows || []).forEach((r: CurriculumProgressRow & { child_id: string }) => { (progByChild[r.child_id] ||= {})[r.unit_id as UnitId] = r; });
+    } catch { /* 테이블 미존재 — 진척 미배선 degrade */ }
 
     // 미입력 프로필을 '돌아가며 하나씩' 부드럽게 권유(기대효과 1개 포함). 다그치지 않게 ~4일에 1번·로테이션.
     // 기록 공백(P9) 권유가 떠 있는 날엔 안 띄움(권유 중첩 방지). 체위=명확히 미입력, 만성=선택(없으면 안 넣어도 됨 문구).
@@ -449,6 +460,8 @@ export async function GET(req: Request) {
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
         let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null; lever?: string; missionTarget?: string | null; targetPool?: string[]; ledger?: WeeklyLedger | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 + A-01 lever/ledger/targetPool(두뇌 게이트용) — 어드민 검증
         let weeklyReplan: ((sid: string) => ReturnType<typeof planFromWeekly>) | null = null;   // ⭐ A-04 — 두뇌 override 허용 시 닻 안에서 시나리오만 교체(타깃 잠금·채근 캡 보존)
+        let curriculumDecision: DailyDecision | null = null;   // ⭐ F-05 — 오늘 커리큘럼 결정(유닛·step·mode) — behavior_goal·원장·어드민
+        let curriculumSummary: string | null = null;   // ⭐ F-15 — 진도 요약(두뇌 참조·주간 표시)
         let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
         let simToPrev: number | null = null;   // ⭐ 발행 직전 자가 측정 — 직전 편지들과 최대 유사도(어드민 반복 모니터·2026-06-11)
@@ -530,11 +543,12 @@ export async function GET(req: Request) {
               // ⭐ 6-A(이사님 2026-06-15) — '3주 진전0' 자동탐지: 직전 닻들의 ledger.targetAccepts를 읽어 같은 타깃이
               //   연속으로 '집에서 받아들임 0'(food 레버 주)이었는지 센다. 3주면 stalledTarget → 종합이 다른 축으로 전환.
               let recentTgt: string | null = null; let priorStall = 0;
+              let focusHistory: Array<{ unit_id: UnitId | null; stepAdvanced: boolean }> = [];   // ⭐ F-06/E-06 — 최근 주 focus 이력(피로 캡: 2주 정체 유닛 교체)
               try {
                 const { data: rAnchors } = await supabase.from('weekly_plans')
-                  .select('week_key,mission_target,budget,ledger').eq('child_id', cid)
+                  .select('week_key,mission_target,budget,ledger,goals').eq('child_id', cid)
                   .lt('week_key', wk).order('week_key', { ascending: false }).limit(STALL_LOOKBACK);
-                const ra = (rAnchors || []) as Array<{ mission_target: string | null; budget: WeeklyBudget | null; ledger: WeeklyLedger | null }>;
+                const ra = (rAnchors || []) as Array<{ mission_target: string | null; budget: WeeklyBudget | null; ledger: WeeklyLedger | null; goals: unknown }>;
                 recentTgt = ra[0]?.mission_target || null;
                 if (recentTgt) for (const a of ra) {
                   if (a.mission_target !== recentTgt) break;             // 타깃 바뀜 → streak 끊김
@@ -544,8 +558,18 @@ export async function GET(req: Request) {
                   if (acc > 0) break;                                    // 받아들인 주 있음 → streak 끊김(6-C: 진짜 진척 중인 아이 보호)
                   priorStall++;
                 }
+                // ⭐ F-06 — 최근 주 focus 이력(최신순): 같은 유닛이 2주 연속 focus였고 진전 0이면 applyFocusFatigue가 차순위로 교체(포트폴리오 다채로움).
+                focusHistory = ra.map((a) => {
+                  const fg = normalizeGoals(a.goals).find((g) => g.status === 'focus');
+                  const u = (fg?.unit_id ?? null) as UnitId | null;
+                  const adv = !!u && ((progByChild[cid]?.[u]?.step || 1) > 1 || progByChild[cid]?.[u]?.status === 'mastered');
+                  return { unit_id: u, stepAdvanced: adv };
+                });
               } catch { /* 스톨 감지 실패해도 종합은 계속(안전 제1원칙) */ }
               const stalledTarget = (recentTgt && priorStall >= STALL_PIVOT_WEEKS) ? recentTgt : null;
+              // ⭐ F-06/F-12 — 가입 후 주차(첫 기록일 기준): goalsCapForWeek·minWeek 게이트 + arc_week 표시(1주차 고정 버그 수정).
+              const _firstLog = histDays[cid] && histDays[cid].size ? [...histDays[cid]].sort()[0] : today;
+              const weekSinceSignup = Math.max(1, Math.floor((Date.parse(today) - Date.parse(_firstLog)) / (7 * 86400000)) + 1);
               const synth = await runWeeklyPlanning({
                 childName: meta.nickname, ageBand: meta.age_band,
                 reds, missing: fg.missing, homeMissing: homeFg.missing,
@@ -553,8 +577,10 @@ export async function GET(req: Request) {
                 transitions: ts.filter((t) => /거부→수용 전환|받아들이기 시작/.test(t)),
                 structuredSummary: buildStructuredSummary(), chronicGuidance: chronicGuidanceText(meta.chronic),
                 icfqRiskCount, stalledTarget,   // ⭐ 6-A — 정체 타깃은 후보 맨 뒤로 + '축 전환' 지시
+                // ⭐ F-06 — 진척·주차·focus 이력 라이브 주입: candidateUnits가 mastered/maintenance 제외(졸업)·minWeek 게이트, applyFocusFatigue가 2주 정체 focus 교체(다채로움).
+                progress: progByChild[cid] || {}, week: weekSinceSignup, focusHistory,
                 // ⭐ E-07 — v3 목표 포트폴리오 후보 신호(E-03). 메모·간식·구조화는 buildCandSignals(rows 계산),
-                //   영양 결핍 카운트만 영양 파이프라인 산출로 덮어씀(rows만으론 모름). 진도·주차·focus 이력은 컷오버 후 정밀화.
+                //   영양 결핍 카운트만 영양 파이프라인 산출로 덮어씀(rows만으론 모름).
                 candSignals: {
                   ...buildCandSignals(rs as CRow[], today, attends),
                   missingCount: new Set([...fg.missing, ...homeFg.missing]).size,
@@ -566,7 +592,7 @@ export async function GET(req: Request) {
               const row = {
                 child_id: cid, week_key: wk, status: synth.source === 'weekly_llm' ? 'active' : 'cold_synth', source: synth.source,
                 mission: synth.mission, mission_target: synth.mission_target, target_pool: synth.target_pool, secondary_axis: synth.secondary_axis,
-                budget: synth.budget, ledger: { ...DEFAULT_LEDGER, stallWeeks: carriedStall }, impression: synth.impression, arc_week: 1,
+                budget: synth.budget, ledger: { ...DEFAULT_LEDGER, stallWeeks: carriedStall }, impression: synth.impression, arc_week: weekSinceSignup,   // ⭐ F-12 — 가입 후 주차(1주차 고정 버그 수정)
                 behavior_goal: synth.behaviorGoal, teaching_arc: synth.teachingArc, check_method: synth.checkMethod,   // §14 주간 커리큘럼
                 goals: synth.goals?.length ? synth.goals : null,   // ⭐ A-04/E-07 — 포트폴리오(lever는 budget에 병행 기록=A-05)
                 basis_attends_daycare: attends, model: synth.source === 'weekly_llm' ? 'sonnet-4-6' : 'cold', updated_at: new Date().toISOString(),
@@ -598,6 +624,32 @@ export async function GET(req: Request) {
               const needPersist = !anchor.behavior_goal;
               anchor = healAnchor(anchor);
               if (needPersist) await supabase.from('weekly_plans').update({ behavior_goal: anchor.behavior_goal, teaching_arc: anchor.teaching_arc, check_method: anchor.check_method }).eq('child_id', cid).eq('week_key', weekKey);
+              // ⭐ F-05/F-07/F-15 — 커리큘럼 진척: 오늘 advanceProgress → 진화·결정, curriculum_progress upsert, 두뇌/주간 진도 요약.
+              try {
+                const cgoals = (anchor.goals && anchor.goals.length ? anchor.goals : goalsOf(anchor)) as Goal[];
+                const yKey = addDaysStr(today, -1);
+                const hist = curriculumHist[cid] || [];
+                const coachedYesterday = [...new Set(hist.filter((h) => h.date === yKey).map((h) => h.unit))];
+                const coachedDays: Partial<Record<UnitId, number>> = {};
+                hist.filter((h) => h.date >= dAgo(TH.stallDays)).forEach((h) => { coachedDays[h.unit] = (coachedDays[h.unit] || 0) + 1; });
+                const pivotsThisWeek = hist.filter((h) => isoWeekKey(h.date) === weekKey && h.mode === 'pivot').length;
+                let probeAnswers: ProbeAnswer[] = [];
+                try { const { data: ansRows } = await supabase.from('daily_questions').select('q_date,answer,context').eq('child_id', cid).gte('q_date', dAgo(7)).not('answer', 'is', null); probeAnswers = parseProbeAnswers((ansRows || []) as Array<{ q_date: string; answer: string | null; context: Record<string, unknown> | null }>); } catch { /* 질문 미존재 */ }
+                const adv = advanceProgress({ childId: cid, goals: normalizeGoals(cgoals), progress: progByChild[cid] || {}, rows: rs as CRow[], answers: probeAnswers, coachedDays, coachedYesterday, pivotsThisWeek, foodTarget: anchor.mission_target, today });
+                curriculumDecision = adv.decision;
+                if (adv.updates.length) {
+                  const { error: cpErr } = await supabase.from('curriculum_progress').upsert(adv.updates.map((u) => ({ child_id: u.child_id, unit_id: u.unit_id, status: u.status, step: u.step, evidence: u.evidence, started_at: u.started_at, mastered_at: u.mastered_at, last_signal_at: u.last_signal_at, stop_reason: u.stop_reason, relapse_count: u.relapse_count, updated_at: new Date().toISOString() })), { onConflict: 'child_id,unit_id' });
+                  if (cpErr) issues.push(`커리큘럼 저장 장애 ${meta.nickname}: ${cpErr.message.slice(0, 60)}`);
+                  else adv.updates.forEach((u) => { (progByChild[cid] ||= {})[u.unit_id as UnitId] = u as CurriculumProgressRow; });
+                }
+                // ⭐ F-15 진도 요약(두뇌 참조·주간 표시) — 수료/진행중/미시작 + 오늘 초점 단계
+                const m = progByChild[cid] || {};
+                const mastered = UNIT_IDS.filter((u) => m[u]?.status === 'mastered').map((u) => UNITS[u].label);
+                const active = UNIT_IDS.filter((u) => ['active', 'progressing', 'maintenance'].includes(m[u]?.status || '')).map((u) => `${UNITS[u].label}(${m[u]!.status}·${m[u]!.step}단)`);
+                const notStarted = UNIT_IDS.filter((u) => !m[u] || m[u]?.status === 'not_started').length;
+                const dec = adv.decision ? ` · 오늘 ${UNITS[adv.decision.unit].label} ${adv.decision.step}단(${adv.decision.mode})` : '';
+                curriculumSummary = `수료 ${mastered.length}${mastered.length ? `(${mastered.slice(0, 3).join('·')})` : ''} · 진행중 ${active.slice(0, 3).join('·') || '없음'} · 미시작 ${notStarted}${dec}`;
+              } catch (e) { console.warn('[cron/coach] curriculum advance skip:', e instanceof Error ? e.message : e); }
             }
             if (anchor && anchor.mission_target) {
               const tgt = anchor.mission_target;
@@ -636,6 +688,11 @@ export async function GET(req: Request) {
                 const newLedger = { ...(anchor.ledger || DEFAULT_LEDGER), ...wk.ledgerPatch, exposeCount: { ...((anchor.ledger || DEFAULT_LEDGER).exposeCount || {}), [tgt]: targetExposeWtd }, firstServeDow, targetAccepts };   // ⭐ 6-C targetAccepts 적재 → 다음 일요일 synth가 스톨 판정
                 // ⭐ A-01 — 두뇌 게이트가 읽도록 lever·targetPool·ledger(foodOverrideUsed 포함)를 weekCtx에 노출.
                 weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc, lever: anchor.budget?.lever || 'food', missionTarget: anchor.mission_target, targetPool: anchor.target_pool || [], ledger: newLedger };
+                // ⭐ F-08 — 오늘 가르치는 행동을 커리큘럼 현 step.behavior로 결정론화(진도 누적 서사). mode=celebrate/maintain이면 톤만 살짝.
+                if (weekCtx.arc && curriculumDecision) {
+                  const sd = UNITS[curriculumDecision.unit]?.steps[Math.max(0, curriculumDecision.step - 1)];
+                  if (sd) weekCtx = { ...weekCtx, arc: { ...weekCtx.arc, behaviorGoal: curriculumDecision.mode === 'celebrate' ? `${sd.behavior}가 자리 잡았어요 — 이제 다음 한 걸음으로` : sd.behavior } };
+                }
                 // ⭐ A-04 — override 허용 시 닻 안에서 시나리오만 교체(타깃 잠금·채근 캡·아크 보존). 두뇌 블록에서 호출.
                 const _anchor = anchor as WeeklyAnchor;
                 weeklyReplan = (sid: string) => planFromWeekly({ anchor: _anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, progressNote, firstOfWeek, lastArcStage: prevArcStage[cid] ?? null, daySeed, cidHash, dow, forceScenarioId: sid });
@@ -657,6 +714,7 @@ export async function GET(req: Request) {
                 pastLetters,
                 recentScenarioIds: recentScenarios[cid] || [],
                 anchorLever: weekCtx?.lever, anchorTargetPool: weekCtx?.targetPool, recentUseFood: (recentBrainUseFood[cid] || []).slice(0, 4),   // ⭐ A-07 — 닻 lever·연속 food 이력 주입
+                curriculumSummary,   // ⭐ F-15 — 두뇌가 유닛 수료/진행/미시작·오늘 초점 참조(같은 환경만 반복 방지)
               });
               brainPick = await pickActionByBrain(brainCtx, recoCand ? [recoCand] : []);
               // ⭐ A-07 — 연속 food날 캡: 직전 2일 모두 음식이면 오늘은 결정론으로 비음식 강등(프롬프트 신뢰 대신 보증).
@@ -771,6 +829,8 @@ export async function GET(req: Request) {
             growthShown: growthShownCtx, growthMirror: growthMirrorCtx,   // ⭐ E-09 — 성장 거울 노출(격주 케이던스 이력)·어드민
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
             brain: brainPick,   // ⭐ 두뇌 선택+검수(?brain=1) — 시나리오·useFood·근거(어드민 노출)
+            curriculum: curriculumDecision ? { unit: curriculumDecision.unit, step: curriculumDecision.step, mode: curriculumDecision.mode, pivotTo: curriculumDecision.pivotTo } : null,   // ⭐ F-09 — 오늘 커리큘럼 결정(원장·어드민·다음날 coachedDays)
+            curriculumSummary,   // ⭐ F-15 — 진도 요약 스냅샷(어드민)
             recoIng, recoPool: recoPoolArr, recoMode,   // ⭐ 오늘 추천 식재료(회전) + 주간 풀 5개 + 모드(보급/도전) — 일일 회전 이력·어드민
           };
           await supabase.from('coach_letters').upsert(
