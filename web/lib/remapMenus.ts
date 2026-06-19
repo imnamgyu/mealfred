@@ -14,6 +14,7 @@
 import { createSupabaseAdmin } from '@/lib/supabase/server';
 import { mapMenuLocal, canon, CANON_VOCAB } from '@/lib/menuMap';
 import { lookupLearned, saveLearned, normalizeMenuKey } from '@/lib/learnedMenus';
+import { llmText, parseLLMJson, hasLLMBackend } from '@/lib/llmText';   // ⭐ DeepSeek 1차·Claude 폴백(이사님 2026-06-19)
 
 export type BackfillResult = {
   scanRows: number; menusFound: number; learnedHits: number; localHits: number;
@@ -22,33 +23,21 @@ export type BackfillResult = {
 
 type Resolved = { ings: string[]; processed: boolean };
 
-// meal/parse와 동일한 LLM 분해(표준 어휘로 환각 제거). 실패·빈 결과는 null.
-async function llmDecompose(menu: string, key: string): Promise<Resolved | null> {
+// meal/parse와 동일한 LLM 분해(표준 어휘로 환각 제거). ⭐DeepSeek V4-Flash(폴백 Claude Haiku). 실패·빈 결과는 null.
+async function llmDecompose(menu: string): Promise<Resolved | null> {
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
-        messages: [{
-          role: 'user',
-          content: `한국 가정식 메뉴 "${menu}"에 실제로 들어가는 핵심 식재료만 분해하세요.
+    const text = await llmText({
+      role: 'flash', maxTokens: 300, json: true,
+      user: `한국 가정식 메뉴 "${menu}"에 실제로 들어가는 핵심 식재료만 분해하세요.
 - 양념(소금·간장·설탕)·물·육수·기름 제외
 - ⚠️ 확실히 들어가는 재료만. **확실치 않으면 빈 배열 []**. 메뉴 이름만으로 추측 금지 — 과자·한과·스낵·빵·디저트·처음 보는 가공식품은 주재료(쌀·밀·견과)를 확실히 알 때만, 모르면 빈 배열. **'상투과자' 같은 한과에 고기·계란을 넣는 환각 절대 금지.** 고기·계란·생선도 확실할 때만.
 - 단순 곡물 메뉴(밥·죽·면)는 곡물만(쌀·국수 등). 채소 끼워넣지 말 것.
 - 가공식품(소시지·햄·어묵·라면 등) 포함 시 processed: true
 - 식재료명은 표준 단일명으로(예: 닭안심→닭고기, 단호박→호박, 백미→쌀)
 - JSON만: {"ingredients": ["재료1"], "processed": false}`,
-        }],
-      }),
     });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const text = (data?.content?.[0]?.text as string) || '';
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) return null;
-    const parsed = JSON.parse(match[0]);
+    const parsed = parseLLMJson<{ ingredients?: string[]; processed?: boolean }>(text);
+    if (!parsed) return null;
     const raw: string[] = parsed.ingredients || [];
     const ings = [...new Set(raw.map(canon).filter((nm): nm is string => !!nm && CANON_VOCAB.has(nm)))];
     return { ings, processed: !!parsed.processed };
@@ -64,7 +53,7 @@ export async function backfillUnmappedMenus(opts: {
   const maxLlm = opts.maxLlmCalls ?? 8;
   const timeBudget = opts.timeBudgetMs ?? 6000;
   const dryRun = !!opts.dryRun;
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  const llmReady = hasLLMBackend();   // ⭐ DeepSeek/Claude 중 하나라도 있으면 LLM 분해 가동(이사님 2026-06-19)
   const since = opts.sinceFn
     ? opts.sinceFn(windowDays)
     : new Date(Date.now() + 9 * 3600e3 - windowDays * 86400e3).toISOString().slice(0, 10);
@@ -121,8 +110,8 @@ export async function backfillUnmappedMenus(opts: {
     // negative-cache 쿨다운 — 최근 분해 실패 메뉴는 LLM 건너뛰어 예산을 신규로 보냄.
     if (skipSet.has(k)) { skippedLLM++; continue; }
     // LLM — dry/예산/시간 가드. dry는 LLM 호출 안 함(비용 0 시뮬).
-    if (dryRun || !anthropicKey || llmCalls >= maxLlm || Date.now() - start > timeBudget) { skippedLLM++; continue; }
-    const gen = await llmDecompose(keyToMenu[k], k);
+    if (dryRun || !llmReady || llmCalls >= maxLlm || Date.now() - start > timeBudget) { skippedLLM++; continue; }
+    const gen = await llmDecompose(keyToMenu[k]);
     llmCalls++;
     if (gen && gen.ings.length) { resolved[k] = gen; await saveLearned(keyToMenu[k], gen.ings, gen.processed, 'llm'); }
     else {

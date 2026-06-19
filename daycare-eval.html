@@ -424,6 +424,22 @@
     </div>
 
     <div class="form-group">
+      <label class="form-label">━ 어린이집·유치원 (선택) ━</label>
+      <div style="position:relative">
+        <input type="text" id="instSearch" placeholder="기관명 검색 (예: 햇살어린이집)" autocomplete="off"
+          style="width:100%;padding:11px 12px;border:1.5px solid var(--n200);border-radius:10px;font-size:14px;box-sizing:border-box"
+          oninput="onInstSearch(this.value)">
+        <div id="instResults" style="display:none;position:absolute;top:calc(100% - 1px);left:0;right:0;z-index:40;background:white;border:1.5px solid var(--n200);border-radius:0 0 10px 10px;max-height:230px;overflow-y:auto;box-shadow:0 10px 28px rgba(0,0,0,0.13)"></div>
+      </div>
+      <div id="instPicked" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:#E8F5E9;border:1px solid #4CAF50;border-radius:10px;padding:9px 11px;margin-top:8px;font-size:12.5px;color:#1B5E20;font-weight:700"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:9px">
+        <label style="font-size:12px;color:var(--n600);font-weight:700;white-space:nowrap">식단표 해당 월</label>
+        <input type="month" id="instMonth" style="padding:7px 9px;border:1.5px solid var(--n200);border-radius:8px;font-size:13px;font-weight:600">
+      </div>
+      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.6">기관을 선택하면 <strong style="color:var(--p700)">전국·우리 지역에서 영양 몇 위</strong>인지 알려드려요 <span style="color:var(--n400)">(선택 안 해도 평가는 그대로 진행)</span></div>
+    </div>
+
+    <div class="form-group">
       <label class="form-label">━ 식단표 사진 ━</label>
       <div class="upload-zone" onclick="document.getElementById('photoInput').click()">
         <input type="file" id="photoInput" accept="image/*,.pdf" style="display:none" onchange="handlePhotoSelect(this)">
@@ -438,7 +454,7 @@
 
 
     <button class="modal-cta" id="startBtn" onclick="startAnalysis()" disabled style="opacity:0.4;cursor:not-allowed">📸 식단표 사진을 먼저 선택해주세요</button>
-    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·기관·위치</strong> 같은 개인·기관 식별 정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong><br>사진은 분석 후 24시간 내 자동 삭제</div>
+    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·위치</strong> 같은 개인정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong> · 사진은 분석 후 24시간 내 자동 삭제<br><span style="color:var(--n400)">기관을 선택하면 해당 월 식단·영양점수는 순위 비교를 위해 저장돼요</span></div>
   </div>
 </div>
 
@@ -1003,6 +1019,7 @@ function renderResult(result, ageBand){
       </div>
     </div>
     <div style="background:var(--n50);border-radius:8px;padding:8px 10px;margin:8px 0;font-size:11px;color:var(--n600);font-weight:600;line-height:1.5"><strong style="color:${g.color}">${g.grade}</strong> — ${gradeDesc}</div>
+    <div id="rankLine"></div>
     ${axisHtml}
   `;
 
@@ -1174,6 +1191,90 @@ function startProcessingCreep(fill, msg){
 }
 
 const OCR_API = 'https://app.mealfred.com/api/ocr';
+const INST_API = 'https://app.mealfred.com/api';
+
+// ── 기관 선택 + 영양 순위(이사님 2026-06-19) ─────────────────────────────────
+let selectedInstitution = null;
+let _instResults = [];
+let _instSearchTimer = null;
+const INST_TYPE_LABEL = { daycare:'어린이집', kindergarten:'유치원', school:'학교' };
+
+function currentYM(){ return new Date(Date.now() + 9*3600e3).toISOString().slice(0,7); }   // KST 'YYYY-MM'
+try { const _mi = document.getElementById('instMonth'); if(_mi && !_mi.value) _mi.value = currentYM(); } catch(e){}
+
+function onInstSearch(q){
+  selectedInstitution = null;
+  document.getElementById('instPicked').style.display = 'none';
+  const box = document.getElementById('instResults');
+  const query = (q||'').trim();
+  if(query.replace(/\s/g,'').length < 2){ box.style.display='none'; box.innerHTML=''; return; }
+  clearTimeout(_instSearchTimer);
+  _instSearchTimer = setTimeout(async ()=>{
+    try{
+      const r = await fetch(`${INST_API}/institution/search?q=${encodeURIComponent(query)}`);
+      const d = await r.json();
+      _instResults = d.results || [];
+      if(!_instResults.length){ box.innerHTML = `<div style="padding:11px 12px;font-size:12.5px;color:var(--n500);font-weight:600">검색 결과가 없어요 — 띄어쓰기를 빼고 다시 시도해보세요</div>`; box.style.display='block'; return; }
+      box.innerHTML = _instResults.map((it,i) => {
+        const loc = [it.sido, it.sigungu, it.dong].filter(Boolean).join(' ');
+        const tag = INST_TYPE_LABEL[it.type] || '';
+        return `<div onclick="pickInstitutionByIdx(${i})" style="padding:10px 12px;border-bottom:1px solid var(--n100);cursor:pointer" onmouseover="this.style.background='var(--n50)'" onmouseout="this.style.background='white'">
+          <div style="font-weight:800;color:var(--s800);font-size:13px">${it.name} <span style="font-size:10.5px;color:var(--p700);font-weight:700">${tag}</span></div>
+          <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:1px">${loc || '지역 정보 없음'}</div>
+        </div>`;
+      }).join('');
+      box.style.display='block';
+    }catch(e){ box.style.display='none'; }
+  }, 280);
+}
+function pickInstitutionByIdx(i){ if(_instResults[i]) pickInstitution(_instResults[i]); }
+function pickInstitution(it){
+  selectedInstitution = it;
+  document.getElementById('instSearch').value = it.name;
+  document.getElementById('instResults').style.display='none';
+  const loc = [it.sido, it.sigungu].filter(Boolean).join(' ');
+  const tag = INST_TYPE_LABEL[it.type] || '기관';
+  const picked = document.getElementById('instPicked');
+  picked.style.display='flex';
+  picked.innerHTML = `<span>✅ ${it.name} <span style="font-weight:600;color:#388E3C">· ${tag}${loc?' · '+loc:''}</span></span><span onclick="clearInstitution()" style="cursor:pointer;color:#888;font-weight:800;font-size:15px">✕</span>`;
+}
+function clearInstitution(){
+  selectedInstitution = null;
+  document.getElementById('instSearch').value = '';
+  document.getElementById('instPicked').style.display='none';
+  document.getElementById('instResults').style.display='none';
+}
+
+// 업로드 식단을 기관·월에 귀속(저장+채점) → 순위 조회 → 결과카드 #rankLine 주입
+async function attributeAndRank(items, ocrText){
+  const rankEl = document.getElementById('rankLine');
+  if(!selectedInstitution || !items || !items.length){ if(rankEl) rankEl.innerHTML=''; return; }
+  const month = ((document.getElementById('instMonth')||{}).value || currentYM()).slice(0,7);
+  if(rankEl) rankEl.innerHTML = `<div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:8px;padding:9px 11px;margin:10px 0;font-size:11.5px;color:#8a6d3b;font-weight:700;text-align:center">📊 ${selectedInstitution.name} 영양 순위 계산 중…</div>`;
+  try{
+    await fetch(`${INST_API}/institution/menu`, {
+      method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ institution_id: selectedInstitution.id, month, items, raw_ocr_text: (ocrText||'').slice(0,20000) })
+    });
+    const r = await fetch(`${INST_API}/eval/rank?institution_id=${selectedInstitution.id}&month=${month}`);
+    const d = await r.json();
+    if(rankEl) rankEl.innerHTML = renderRank(d);
+  }catch(e){ if(rankEl) rankEl.innerHTML=''; }
+}
+function renderRank(d){
+  if(!d || !d.ranked) return '';
+  const nat = d.nationalTotal>0 ? `전국 ${d.typeLabel} <strong style="color:var(--p700);font-size:15px">${d.nationalRank}위</strong> <span style="color:var(--n500);font-weight:600">/ ${d.nationalTotal}곳</span>` : '';
+  const reg = (d.regionRank && d.regionTotal>0 && d.sigungu) ? `${d.sigungu} <strong style="color:#E65100;font-size:15px">${d.regionRank}위</strong> <span style="color:var(--n500);font-weight:600">/ ${d.regionTotal}곳</span>` : '';
+  const top = d.topPercent ? `<span style="display:inline-block;background:var(--p500);color:white;font-size:10px;font-weight:800;border-radius:10px;padding:2px 8px;margin-left:4px">상위 ${d.topPercent}%</span>` : '';
+  const note = d.lowConfidence ? `<div style="font-size:10px;color:var(--n400);font-weight:600;margin-top:4px">※ 등록된 식단 일수가 적어 참고용이에요</div>` : '';
+  const summary = d.summary ? `<div style="font-size:11px;color:#5a4a3a;font-weight:600;margin-top:6px;line-height:1.5">🍽 ${d.summary}</div>` : '';
+  const body = nat ? `${nat}${reg?'<br>':''}${reg}` : `<span style="color:var(--n500);font-weight:600">아직 비교할 기관 데이터가 모이는 중이에요</span>`;
+  return `<div style="background:linear-gradient(135deg,#F3E5F5,#E8F5E9);border:1.5px solid var(--p300,#CE93D8);border-radius:10px;padding:11px 12px;margin:10px 0">
+    <div style="font-size:11px;font-weight:800;color:var(--s800);margin-bottom:5px">📊 우리 기관 영양 순위 ${top}</div>
+    <div style="font-size:12.5px;color:var(--s800);font-weight:700;line-height:1.7">${body}</div>
+    ${summary}${note}
+  </div>`;
+}
 
 // 식단표 사진 1장 → 서버 CLOVA OCR(전사)+Claude(분해). 업로드 진행률 콜백(onUploadProgress) 지원.
 function ocrOneImage(file, onUploadProgress){
@@ -1257,6 +1358,7 @@ async function startAnalysis(){
   console.log('[mealfred-eval] 평가 결과:', result.total, result.axes.map(a => a.name + ':' + a.score).join(' · '));
 
   renderResult(result, selectedAge);
+  attributeAndRank(ocrItems, text);   // ⭐ 기관 선택 시: 식단 귀속+채점→전국·지역 순위 주입(비동기·결과 표시 막지 않음)
   renderOcrTable(ocrItems, text);
   bumpRealCount();   // 실제 평가 완료 1건 → 카운터 즉시 +1
   try {

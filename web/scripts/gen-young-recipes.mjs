@@ -6,7 +6,6 @@
 //   cd web && node --env-file=.env.local scripts/gen-young-recipes.mjs --dry --only=시금치 --per=3
 //   cd web && node --env-file=.env.local scripts/gen-young-recipes.mjs --per=3        (전체 저장, 기존 AI템플릿 정리 후)
 
-import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 
 const args = process.argv.slice(2);
@@ -15,7 +14,8 @@ const only = (args.find(a => a.startsWith('--only=')) || '').split('=')[1]?.spli
 const PER = parseInt((args.find(a => a.startsWith('--per=')) || '--per=3').split('=')[1], 10) || 3;
 const SOURCE = 'AI 생성(영유아 템플릿)';
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// ⭐ DeepSeek V4-Pro(DeepInfra 직접·이사님 2026-06-19 Claude→DeepSeek). DEEPINFRA_API_KEY 필요.
+const DEEPINFRA_KEY = process.env.DEEPINFRA_API_KEY;
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 const AGE_BANDS = [
@@ -73,19 +73,29 @@ async function genRecipes(ingName, band, n, refList) {
 - time_min: 조리 시간(분, 현실적)
 - allergens: 식약처 알레르겐 중 해당 (없으면 [])
 - nutri_point: 아이에게 주는 핵심 영양 (예: "철분·엽산")
-**실제로 아이가 먹을 만한 현실적인 레시피만.** ${n}개는 조리법이 겹치지 않게. recipes 배열로 응답.`;
-  const resp = await anthropic.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 3000,
-    thinking: { type: 'disabled' },
-    output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
-    messages: [{ role: 'user', content: [{ type: 'text', text: prompt }] }],
+**실제로 아이가 먹을 만한 현실적인 레시피만.** ${n}개는 조리법이 겹치지 않게.
+반드시 아래 형태의 JSON 객체로만 응답(코드펜스·설명 없이):
+{"recipes":[{"recipe_name":"…","cooking_method":"…","ingredients":["…"],"steps":["…"],"texture":"…","tip":"…","time_min":10,"allergens":[],"nutri_point":"…"}]}`;
+  const resp = await fetch('https://api.deepinfra.com/v1/openai/chat/completions', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${DEEPINFRA_KEY}` },
+    body: JSON.stringify({
+      model: 'deepseek-ai/DeepSeek-V4-Pro',
+      max_tokens: 3000,
+      temperature: 0.7,
+      response_format: { type: 'json_object' },
+      messages: [{ role: 'user', content: prompt }],
+    }),
   });
-  const tb = resp.content.find((b) => b.type === 'text');
-  return (JSON.parse(tb.text).recipes || []).slice(0, n);
+  if (!resp.ok) throw new Error(`deepseek ${resp.status}: ${(await resp.text().catch(() => '')).slice(0, 200)}`);
+  const data = await resp.json();
+  const text = data?.choices?.[0]?.message?.content || '';
+  const parsed = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || text);
+  return (parsed.recipes || []).slice(0, n);
 }
 
 async function main() {
+  if (!DEEPINFRA_KEY) { console.error('DEEPINFRA_API_KEY 누락 — cd web && node --env-file=.env.local 로 실행하세요'); process.exit(1); }
   const { data, error } = await supabase
     .from('ingredients').select('id,name,grade_label').in('grade_label', ['필수', '권장']);
   if (error) { console.error('ingredients 조회 실패:', error.message); process.exit(1); }

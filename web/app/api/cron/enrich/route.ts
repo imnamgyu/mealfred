@@ -14,25 +14,17 @@
  */
 import { NextResponse } from 'next/server';
 import { createSupabaseServer } from '@/lib/supabase/server';
+import { llmText, parseLLMJson, hasLLMBackend } from '@/lib/llmText';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
 
-async function classifyWithHaiku(name: string, anthropicKey: string): Promise<{
+// ⭐ DeepSeek V4-Flash 분류(이사님 2026-06-19 Claude→DeepSeek). 실패 시 llmText가 Claude Haiku 폴백.
+async function classifyIngredient(name: string): Promise<{
   category: string; food_group: string; emoji: string;
   estimated_nutri?: Record<string, number>; reason?: string;
 }> {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': anthropicKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 400,
-      system: `너는 한국 영유아 식재료 분류 어시스턴트야. 식재료명을 받아 JSON으로 변환한다.
+  const system = `너는 한국 영유아 식재료 분류 어시스턴트야. 식재료명을 받아 JSON으로 변환한다.
 
 스키마:
 {
@@ -45,15 +37,11 @@ async function classifyWithHaiku(name: string, anthropicKey: string): Promise<{
 규칙:
 - 정확한 이모지 없으면 빈 문자열 (절대 비슷한 거 추측 X)
 - 가공식품·발효식품(김치·치즈 등)도 적절한 category 부여
-- 추정·창작 금지. 모호하면 'other' food_group`,
-      messages: [{ role: 'user', content: `식재료명: ${name}` }],
-    }),
-  });
-  const data = await res.json();
-  const text = data.content?.[0]?.text || '';
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('JSON 파싱 실패');
-  return JSON.parse(match[0]);
+- 추정·창작 금지. 모호하면 'other' food_group`;
+  const text = await llmText({ system, user: `식재료명: ${name}`, maxTokens: 400, role: 'flash', json: true });
+  const parsed = parseLLMJson<{ category: string; food_group: string; emoji: string; reason?: string }>(text);
+  if (!parsed) throw new Error('JSON 파싱 실패');
+  return parsed;
 }
 
 export async function GET(req: Request) {
@@ -62,8 +50,8 @@ export async function GET(req: Request) {
   if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   }
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ ok: false, error: 'ANTHROPIC_API_KEY missing' }, { status: 500 });
+  if (!hasLLMBackend()) {
+    return NextResponse.json({ ok: false, error: 'no LLM backend (DEEPINFRA/OPENROUTER/ANTHROPIC)' }, { status: 500 });
   }
 
   const supabase = await createSupabaseServer();
@@ -89,14 +77,14 @@ export async function GET(req: Request) {
     for (const q of queue || []) {
       try {
         await supabase.from('enrich_queue').update({ status: 'processing' }).eq('id', q.id);
-        const enriched = await classifyWithHaiku(q.name, process.env.ANTHROPIC_API_KEY!);
+        const enriched = await classifyIngredient(q.name);
         const { data: ing } = await supabase.from('ingredients').upsert({
           slug: q.name, name: q.name,
           category: enriched.category,
           food_group: enriched.food_group,
           emoji: enriched.emoji || '',
           v4_reason: enriched.reason || null,
-          source: 'enrich · Haiku',
+          source: 'enrich · DeepSeek',
           status: 'ai_enriched',
           enriched_at: new Date().toISOString(),
         }, { onConflict: 'slug' }).select('id').single();

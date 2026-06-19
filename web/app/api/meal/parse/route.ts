@@ -11,11 +11,9 @@
  * resp: { ingredients: ["쌀","당근","양파","계란"], processed, source: "dict"|"rule"|"scan"|"llm" }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
 import { mapMenuLocal, canon, CANON_VOCAB } from '@/lib/menuMap';
 import { lookupLearned, saveLearned, normalizeMenuKey } from '@/lib/learnedMenus';
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { llmText, parseLLMJson } from '@/lib/llmText';
 
 const ALLOWED_ORIGINS = [
   'https://www.mealfred.com', 'https://mealfred.com',
@@ -63,13 +61,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3차: LLM 추정 (마지막 수단)
-    const resp = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
-      messages: [{
-        role: 'user',
-        content: `한국 가정식 메뉴 "${menu}"에 실제로 들어가는 핵심 식재료만 분해하세요.
+    // 3차: LLM 추정 (마지막 수단) — ⭐DeepSeek V4-Flash(폴백 Claude Haiku), 이사님 2026-06-19
+    const text = await llmText({
+      role: 'flash',
+      maxTokens: 300,
+      json: true,
+      user: `한국 가정식 메뉴 "${menu}"에 실제로 들어가는 핵심 식재료만 분해하세요.
 - 양념(소금·간장·설탕)·물·육수·기름 제외
 - ⚠️ 확실히 들어가는 재료만. **확실치 않으면 빈 배열 []**. 메뉴 이름만으로 재료를 추측하지 마세요.
 - ⚠️ 과자·한과·스낵·빵·디저트·사탕·젤리·처음 보는 가공식품은 주재료(쌀·밀·견과 등)를 확실히 알 때만 적고, 모르면 빈 배열. **'상투과자' 같은 한과에 고기·계란을 넣는 식의 환각 금지.**
@@ -78,18 +75,12 @@ export async function POST(req: NextRequest) {
 - 가공식품(소시지·햄·어묵·라면 등) 포함 시 processed: true
 - 식재료명은 표준 단일명으로(예: 닭안심→닭고기, 단호박→호박, 백미→쌀)
 - JSON만: {"ingredients": ["재료1"], "processed": false}`,
-      }],
     });
 
-    const content = resp.content[0];
-    if (content.type !== 'text') {
+    const parsed = parseLLMJson<{ ingredients?: string[]; processed?: boolean }>(text);
+    if (!parsed) {
       return NextResponse.json({ ingredients: [], source: 'llm_fail' }, { headers });
     }
-    const match = content.text.match(/\{[\s\S]*\}/);
-    if (!match) {
-      return NextResponse.json({ ingredients: [], source: 'llm_fail' }, { headers });
-    }
-    const parsed = JSON.parse(match[0]);
     // LLM 환각 제거 — 표준 어휘로 정규화 후 어휘에 있는 것만 통과
     const raw: string[] = parsed.ingredients || [];
     const filtered = [...new Set(

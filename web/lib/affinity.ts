@@ -6,6 +6,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { neighborsOf, type Neighbor } from './foodGraph';
 import { getIngredientsLight } from './graphSource';   // ⭐ JSON 직접 import 격리(handoff §4)
+import { llmText, hasLLMBackend } from './llmText';   // ⭐ DeepSeek 1차·Claude 폴백(이사님 2026-06-19)
 
 const VOCAB: string[] = (getIngredientsLight() as { ingredients: { nm: string }[] }).ingredients.map((i) => i.nm);
 const VOCAB_SET = new Set(VOCAB);
@@ -20,8 +21,7 @@ function svc() {
 }
 
 async function llmNeighbors(food: string): Promise<{ nm: string; kind: 'pair' | 'bridge'; basis: string }[]> {
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return [];
+  if (!hasLLMBackend()) return [];
   const prompt = `한국 영유아 가정식 기준으로 식재료 "${food}"의 궁합 네트워크를 만들어라.\n` +
     `- pair(궁합/곁들임): "${food}"와(과) 같은 요리에 자연스럽게 같이 쓰는 식재료 3~5개.\n` +
     `- bridge(사촌): 맛·식감이 닮아 "${food}"를 잘 먹으면 받아들이기 쉬운 식재료 1~2개.\n` +
@@ -29,14 +29,8 @@ async function llmNeighbors(food: string): Promise<{ nm: string; kind: 'pair' | 
     `[도감 어휘] ${VOCAB.join(', ')}\n\n` +
     `JSON만(basis는 12자 이내로 짧게): {"neighbors":[{"nm":"…","kind":"pair","basis":"짧은 근거"}]}`;
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 800, messages: [{ role: 'user', content: prompt }] }),
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    const text: string = data?.content?.[0]?.text || '';
+    // ⭐ DeepSeek V4-Flash(폴백 Claude Haiku). json:false — truncate 복구 파싱을 그대로 유지.
+    const text: string = await llmText({ user: prompt, maxTokens: 800, role: 'flash' });
     try {
       const m = text.match(/\{[\s\S]*\}/);
       const obj = m ? JSON.parse(m[0]) : {};
