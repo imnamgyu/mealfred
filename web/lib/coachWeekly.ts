@@ -13,7 +13,7 @@
  */
 import { callLLM, buildCoachPlan, planSignature, MOVE_KEYS, MOVE_MENU, SNACK_CHANNEL, type CoachPlan } from './coach';
 import { SCENARIOS, type CoachScenario, type CoachSignals } from './coachScenarios';
-import { UNITS, UNIT_IDS, TH, type UnitId, type Goal, type ProgressRow, type CandidateSignals } from './curriculumUnits';
+import { UNITS, UNIT_IDS, TH, CORE_ORDER, type UnitId, type Goal, type ProgressRow, type CandidateSignals } from './curriculumUnits';
 import { normalizeGoals, goalsOf } from './curriculum';
 // ⭐ 주간계획 모듈(enrichWeeklyPlan)이 오케스트레이션할 다른 모듈들(순환 의존 없음 — 이들은 coachWeekly를 import하지 않음)
 import { popularDishesFor, buildIngredientPool, cookedName, groupOfIngredient, GROUP_INGREDIENTS, type FreqMap } from './coachRecos';
@@ -62,6 +62,10 @@ export type PlanSlot = {
   track: 'supply' | 'challenge';   // 결핍 보급 / 사촌 도전
   via: 'deficit' | 'cousin' | 'pair';
   pairLiked?: string;        // challenge면 어떤 잘 먹는 음식의 사촌/궁합인지
+  // ⭐ A(이사님 2026-06-19) — 어드민 '왜 이 식재료가 타깃인지+출현빈도' 근거(전부 옵셔널·구 plan_detail 하위호환)
+  weeklyEstFreq?: number;    // supply: 그 결핍군의 주간 추정 출현(groupSignals.weeklyEst — '얼마나 부족해서')
+  level?: 'green' | 'yellow' | 'red';   // supply: 결핍 강도
+  reason?: string;           // 슬롯별 근거 한 줄(어드민 직접 표시 — supply='결핍군 X 보급(주 N회·red)', challenge='잘 먹는 Y의 검증 사촌')
 };
 export type MirrorSlot = { deficitGroup: string | null; line: string | null; kind: 'deficit' | 'covered' | 'macro' | null };
 export type MacroTrack = {
@@ -131,7 +135,7 @@ export function leverForUnit(u: UnitId): WeeklyLever {
   const l = UNITS[u].lever;
   return l === 'mixed' ? 'environment' : l;
 }
-const CORE_ORDER: UnitId[] = ['pressure-off', 'hunger-rhythm', 'table-stage', 'exposure-savings', 'fullness-respect', 'parent-model', 'no-bargain', 'table-talk'];   // 수업 기초 순서(코어 1→8)
+// CORE_ORDER는 curriculumUnits.ts로 단일 소스화(C 온보딩 확장 + curriculum.ts fallbackPivot 공용). import는 파일 상단.
 export type UnitCandidate = { unit_id: UnitId; score: number; label: string };
 
 /** E-03 후보 산출기 — 신호 강도(레지스트리 trigger) + 재발 +3 / 전주 중단 +1, mastered·maintenance 제외, 온보딩 게이트(E-05). 상한 5. */
@@ -157,10 +161,17 @@ export function candidateUnits(p: { sig: CandidateSignals; progress: Partial<Rec
   return out.slice(0, 5);
 }
 
-/** E-05 — 온보딩 주차별 goals 상한: 1주차(신뢰)=1 · 2주차(관찰)=2 · 3주차+=3. */
+/** ⭐ C(이사님 2026-06-19) — 온보딩 3주 아크: 1주차=신뢰 주(압박 내려놓기)·2주차=관찰 주(리듬·환경)·3주차=확장 주(노출·자율·질감).
+ *   이사님 지적 '온보딩 3주차 목표 없음'을 명명으로 실재화 — 어드민/부모 카피·goals 상한이 이 단일 소스를 참조. */
+export const ONBOARDING_ARC: Record<1 | 2 | 3, { label: string; cap: 1 | 2 | 3; intent: string }> = {
+  1: { label: '신뢰 주', cap: 1, intent: '압박 내려놓기·식탁 안착' },
+  2: { label: '관찰 주', cap: 2, intent: '식사 리듬·환경 관찰' },
+  3: { label: '확장 주', cap: 3, intent: '노출·자율·질감으로 폭 넓히기' },
+};
+/** E-05 — 온보딩 주차별 goals 상한(ONBOARDING_ARC 위임): 1주차=1 · 2주차=2 · 3주차+=3. byte-동일. */
 export function goalsCapForWeek(week: number): 1 | 2 | 3 {
-  const w = Math.max(1, week || 99);
-  return w <= 1 ? 1 : w === 2 ? 2 : 3;
+  const w = Math.min(3, Math.max(1, week || 99)) as 1 | 2 | 3;
+  return ONBOARDING_ARC[w]?.cap ?? 3;
 }
 
 /** E-06 — 주제 피로 캡: 같은 유닛이 직전 2주 연속 focus였고 그 2주간 step 전진 0이면 3주째 강등(차순위 승격). */
@@ -530,8 +541,10 @@ export function enrichWeeklyPlan(synth: WeeklySynthesis, ctx: EnrichContext): Pl
     if (challengePool.length >= 6) break;
   }
   // 3) 7-슬롯 회전 — supply 2 : challenge 1 인터리브(연속 동일 식재료 금지)
-  const mkSupply = (ing: string): PlanSlot | null => { const g = groupOfIngredient(ing); if (!g) return null; return { ingredient: ing, cookedName: cookedName(ing), dishes: popularDishesFor(ing, freqMap).slice(0, 2), group: g, track: 'supply', via: 'deficit' }; };
-  const mkChallenge = (c: { ingredient: string; cousinOf: string }): PlanSlot | null => { const g = groupOfIngredient(c.ingredient); if (!g) return null; return { ingredient: c.ingredient, cookedName: cookedName(c.ingredient), dishes: popularDishesFor(c.ingredient, freqMap).slice(0, 2), group: g, track: 'challenge', via: 'cousin', pairLiked: c.cousinOf }; };
+  // ⭐ A — 슬롯 근거(어드민 '왜 타깃'): supply는 결핍군 신호(weeklyEst·level), challenge는 잘 먹는 사촌. group→signal 룩업.
+  const gsMap = new Map(ctx.groupSignals.map((s) => [s.group, s]));
+  const mkSupply = (ing: string): PlanSlot | null => { const g = groupOfIngredient(ing); if (!g) return null; const gs = gsMap.get(g); return { ingredient: ing, cookedName: cookedName(ing), dishes: popularDishesFor(ing, freqMap).slice(0, 2), group: g, track: 'supply', via: 'deficit', weeklyEstFreq: gs?.weeklyEst, level: gs?.level as 'green' | 'yellow' | 'red' | undefined, reason: `결핍군 ${g} 보급(주 ${gs ? Math.round(gs.weeklyEst * 10) / 10 : '?'}회${gs?.level ? `·${gs.level}` : ''})` }; };
+  const mkChallenge = (c: { ingredient: string; cousinOf: string }): PlanSlot | null => { const g = groupOfIngredient(c.ingredient); if (!g) return null; return { ingredient: c.ingredient, cookedName: cookedName(c.ingredient), dishes: popularDishesFor(c.ingredient, freqMap).slice(0, 2), group: g, track: 'challenge', via: 'cousin', pairLiked: c.cousinOf, reason: `잘 먹는 ${c.cousinOf}의 검증 사촌(푸드체이닝)` }; };
   const supplySlots = supplyPool.map(mkSupply).filter(Boolean) as PlanSlot[];
   const challengeSlots = challengePool.map(mkChallenge).filter(Boolean) as PlanSlot[];
   const slots: PlanSlot[] = []; let si = 0, ci = 0, lastIng = '';

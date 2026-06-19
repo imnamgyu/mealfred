@@ -20,7 +20,7 @@ for (const d of dates) {
   const t0 = Date.now();
   try {
     const ctrl = new AbortController();
-    const to = setTimeout(() => ctrl.abort(), 180000);   // 180s — 편지+재생성+주간 Sonnet 여유
+    const to = setTimeout(() => ctrl.abort(), Number(process.env.REPLAY_TIMEOUT_MS) || 180000);   // 180s 기본 — 무거운 주간 Sonnet synth 날은 REPLAY_TIMEOUT_MS로 상향
     const r = await fetch(`${BASE}/api/cron/coach?child=${CID}&force=1&date=${d}`, { signal: ctrl.signal });
     clearTimeout(to);
     const j = await r.json().catch(() => ({}));

@@ -188,7 +188,7 @@ export type RecoFacts = { target: string | null; cousins: string[]; lines: strin
  * 추천 사실 블록 — (a) 타깃(부족 식품군) 대표 식재료의 인기 음식 + 잘 먹는 식재료와의 궁합,
  * (b) 잘 먹는 식재료 → 사촌(+그 사촌의 인기 음식)·궁합. 전부 테이블 근거(편지는 이 목록 밖을 지어내지 않는다).
  */
-export function buildRecoFacts(args: { likedIngredients: string[]; target?: string | null; targetIngredient?: string | null; freqMap?: FreqMap }): RecoFacts {
+export function buildRecoFacts(args: { likedIngredients: string[]; target?: string | null; targetIngredient?: string | null; freqMap?: FreqMap; suppressCousins?: boolean }): RecoFacts {
   const liked = (args.likedIngredients || []).slice(0, 8);
   const likedSet = new Set(liked);
   const lines: string[] = [];
@@ -211,7 +211,9 @@ export function buildRecoFacts(args: { likedIngredients: string[]; target?: stri
   }
 
   // (b) 잘 먹는 식재료 → 사촌(+그 사촌의 인기 음식)·궁합
-  for (const ing of liked) {
+  //   ⭐ F-18(2026-06-19) — 주간슬롯이 오늘 음식 타깃을 이미 정한 날(suppressCousins)은 part(b)를 생략한다.
+  //   part(b)의 사촌(예: 감자→두부)이 슬롯 음식(단호박)과 경쟁해 본문이 두부로 회귀하던 근원(랄프위검 rank1). 슬롯이 곧 푸드체이닝 타깃이므로 두 번째 체인은 불필요.
+  for (const ing of (args.suppressCousins ? [] : liked)) {
     if (lines.length >= 4) break;
     const cs = verifiedCousinsOf(ing).filter((n) => !likedSet.has(n.nm) && !cousins.includes(n.nm)).slice(0, 1);   // 검증된 사촌만
     const pr = [...new Set(strongPairsOf(ing).filter((n) => !likedSet.has(n.nm)).slice(0, 3).map((n) => stapleDisplay(n.nm)))].slice(0, 2);   // 강한 궁합만·주식은 먹는 형태

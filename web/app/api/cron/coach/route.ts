@@ -33,6 +33,7 @@ import { advanceProgress, blankRow, goalsOf, normalizeGoals, type DailyDecision 
 import { buildBrainContext, pickActionByBrain, nutritionMirrorFromInput, type BrainAction } from '@/lib/coachBrain';   // ⭐ 두뇌 선택+검수(시나리오는 LLM, 음식추천은 검수)
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, buildIngredientPool, groupOfIngredient, coldStartSeed, STAPLE_FORMS, type FreqMap } from '@/lib/coachRecos';
+import { quantifyPreferences, acceptanceLevel, confidentLiked as confidentLikedFrom, dislikedFoods, type PrefRow } from '@/lib/preferenceQuantification';   // ⭐ 신호포착(이사님 2026-06-19) — 미상을 liked로 오판 차단(확신 신호=완식 반복+Wilson만 liked)
 import { getIngredientsLight, getRecipeFreq, warmGraphFromSql } from '@/lib/graphSource';   // ⭐ JSON 격리(handoff §4) + SQL warm(#2)
 import { aggregateUsage } from '@/lib/llmCost';   // ⭐ LLM 사용량 계측(유지비용 실측)
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
@@ -308,7 +309,6 @@ export async function GET(req: Request) {
         const menuFreq: Record<string, number> = {};
         const favMenu: Record<string, number> = {};   // 잘 먹은(거부 아닌) 메뉴 빈도 — 푸드체이닝 출발점
         const favIngFreq: Record<string, number> = {};   // 잘 먹은(거부 아닌) 식재료 빈도 — 그래프 푸드브릿지 앵커
-        const confidentLikedFreq: Record<string, number> = {};   // ⭐ 확신 liked(ate_well===true·집) — 콜드스타트 사다리 트리거(미상 null 제외)
         const servedHomeFreq: Record<string, number> = {};   // ⭐ 자주 차려진 식재료(집·수용도 무관) — Tier2 콜드스타트 앵커
         const homeByDate: Record<string, string[]> = {}; const homeIng: string[] = [];   // 집 끼니만(place!=daycare) — 코칭 톤 보정용
         const todayMs = Date.parse(today);
@@ -319,7 +319,6 @@ export async function GET(req: Request) {
           (r.ingredients || []).forEach((i) => {
             byDate[r.log_date].push(i); allIng.push(i);
             if (r.ate_well !== false && atHome) favIngFreq[i] = (favIngFreq[i] || 0) + 1;   // ⭐ 1-B(이사님 2026-06-15) 집 끼니만 — 기관 급식에서 잘 먹은 식재료를 부모의 '잘 먹는 것'(사촌 시드)으로 착각 금지. menuFreq와 일관(거부 아닌 식재료 = 그래프 브릿지 앵커)
-            if (r.ate_well === true && atHome) confidentLikedFreq[i] = (confidentLikedFreq[i] || 0) + 1;   // ⭐ 확신 liked(명시 잘먹음만·null 제외) — 콜드스타트 사다리 트리거(이사님 2026-06-19)
             if (atHome) { servedHomeFreq[i] = (servedHomeFreq[i] || 0) + 1; (homeByDate[r.log_date] ||= []).push(i); homeIng.push(i); }   // ⭐ 자주 차려진 음식(수용도 무관·집 빈도) — Tier2 콜드스타트 앵커
             const daysAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
             if (daysAgo <= 3 && !seenFood.has(i)) {
@@ -360,12 +359,15 @@ export async function GET(req: Request) {
         const favoriteFreq = favEntries.map(([m, c]) => `${m}(${c}회)`);   // ⭐ D(이사님 2026-06-15) — LLM에 '집 끼니 빈도' 정량 전달(밥16회 vs 1회를 동급으로 칭찬하던 것 차단)
         // 잘 먹는 식재료(빈도순) — 추천 엔진(사촌·인기 음식·궁합) 앵커. recoFacts는 planFor 후(타깃 확정) 생성.
         const likedIng = Object.entries(favIngFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
-        // ⭐ 콜드스타트 사다리(이사님 2026-06-19) — '확신 liked'(ate_well===true)가 빈약하면(아린: 미상 null 80%) 추천 앵커가 두부 디폴트로 무너진다.
-        //   확신 liked가 2개 미만이면 시드 사다리로 보강: Tier2(자주 차려진=servedHomeFreq) → Tier3(youa 급식 고빈도). '칭찬용' likedIng과 분리(미상을 '잘 먹는다' 칭찬 금지·추천 앵커로만).
-        const confidentLiked = Object.entries(confidentLikedFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
+        // ⭐ 선호계량화 모듈(이사님 2026-06-19) — 미상(null)을 liked로 오판 차단. '확신 liked'는 명시 완식(ate_well===true 또는 acceptance_level≥3)이 ≥2회 + Wilson 하한 통과한 식재료만(단발·미상 제외).
+        //   아린 실측: ate_well true가 4건이지만 전부 다른 식재료(각 1회) → 모듈은 confidentLiked=0 = 콜드스타트. (구 누적기는 4개로 오판해 콜드스타트 미발동·두부 디폴트로 무너졌음.) acceptance_level 컬럼 미적용 시 ate_well 폴백.
+        const prefs = quantifyPreferences(rs as unknown as PrefRow[], today);   // homeOnly 기본 — 기관 급식 제외(부모 통제 영역만)
+        const confidentLiked = confidentLikedFrom(prefs);   // state==='liked'만(미상·탐색 제외) — 추천 앵커·콜드스타트 게이트·칭찬 근거
+        const dislikedIng = new Set(dislikedFoods(prefs));   // 확실 거부(≥2회) — 추천 후보에서 제외(거부한 걸 또 권하지 않기). (exploringFoods=진척 칭찬 배선은 후속 — 프롬프트·골든 필요)
         const servedTop = Object.entries(servedHomeFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
         const coldStart = confidentLiked.length < 2;   // 콜드스타트 게이트(확신 신호 빈약)
-        const likedSeed = coldStart ? [...new Set([...confidentLiked, ...coldStartSeed(servedTop, 6)])] : likedIng;   // 추천 앵커(사촌·도전 트랙)는 시드 사다리, 칭찬은 likedIng
+        const likedSeed = (coldStart ? [...new Set([...confidentLiked, ...coldStartSeed(servedTop, 6)])] : likedIng)
+          .filter((i) => !dislikedIng.has(i));   // ⭐ 확실 거부 식재료는 추천 앵커에서 제외(거부한 걸 사촌 시드로 또 권하지 않기)
         const sig = computeSignals(byDay, catOf);
         const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
         const fg = computeFoodGroups(allIng, catOf);
@@ -660,6 +662,8 @@ export async function GET(req: Request) {
               // ⭐ F-05/F-07/F-15 — 커리큘럼 진척: 오늘 advanceProgress → 진화·결정, curriculum_progress upsert, 두뇌/주간 진도 요약.
               try {
                 const cgoals = (anchor.goals && anchor.goals.length ? anchor.goals : goalsOf(anchor)) as Goal[];
+                const _firstLogA = histDays[cid] && histDays[cid].size ? [...histDays[cid]].sort()[0] : today;
+                const weekA = Math.max(1, Math.floor((Date.parse(today) - Date.parse(_firstLogA)) / (7 * 86400000)) + 1);   // ⭐ B — fallbackPivot minWeek 게이트용 가입 주차(synth의 weekSinceSignup과 동일식)
                 const yKey = addDaysStr(today, -1);
                 const hist = curriculumHist[cid] || [];
                 const coachedYesterday = [...new Set(hist.filter((h) => h.date === yKey).map((h) => h.unit))];
@@ -668,7 +672,7 @@ export async function GET(req: Request) {
                 const pivotsThisWeek = hist.filter((h) => isoWeekKey(h.date) === weekKey && h.mode === 'pivot').length;
                 let probeAnswers: ProbeAnswer[] = [];
                 try { const { data: ansRows } = await supabase.from('daily_questions').select('q_date,answer,context').eq('child_id', cid).gte('q_date', dAgo(7)).not('answer', 'is', null); probeAnswers = parseProbeAnswers((ansRows || []) as Array<{ q_date: string; answer: string | null; context: Record<string, unknown> | null }>); } catch { /* 질문 미존재 */ }
-                const adv = advanceProgress({ childId: cid, goals: normalizeGoals(cgoals), progress: progByChild[cid] || {}, rows: rs as CRow[], answers: probeAnswers, coachedDays, coachedYesterday, pivotsThisWeek, foodTarget: anchor.mission_target, today });
+                const adv = advanceProgress({ childId: cid, goals: normalizeGoals(cgoals), progress: progByChild[cid] || {}, rows: rs as CRow[], answers: probeAnswers, coachedDays, coachedYesterday, pivotsThisWeek, foodTarget: anchor.mission_target, today, week: weekA });
                 curriculumDecision = adv.decision;
                 if (adv.updates.length) {
                   const { error: cpErr } = await supabase.from('curriculum_progress').upsert(adv.updates.map((u) => ({ child_id: u.child_id, unit_id: u.unit_id, status: u.status, step: u.step, evidence: u.evidence, started_at: u.started_at, mastered_at: u.mastered_at, last_signal_at: u.last_signal_at, stop_reason: u.stop_reason, relapse_count: u.relapse_count, updated_at: new Date().toISOString() })), { onConflict: 'child_id,unit_id' });
@@ -697,11 +701,11 @@ export async function GET(req: Request) {
               const servedDays = weekRows.filter((r) => (r.ingredients || []).some((ing) => ing === tgt || catOf(ing) === tgt));   // 실제 차림(그룹=catOf·음식=정확일치)
               const targetExposeWtd = servedDays.length;
               const firstServeDow = servedDays.length ? Math.min(...servedDays.map((r) => kstDow(r.log_date))) : null;
-              // ⭐ 6-C(이사님 2026-06-15) — '진짜 진척' 신호: 집에서 거부 없이 잘 먹은 타깃 횟수(단순 '차림'과 구분).
-              //   stall 감지(6-A·일요일 synth)가 이 값으로 'N주 진전0'을 판정 → 진짜 받아들이는 중인 아이는 전환하지 않음.
-              const targetAccepts = weekRows.filter((r) => r.place !== 'daycare' && r.ate_well !== false
+              // ⭐ 6-C(이사님 2026-06-15) + 신호포착(2026-06-19) — '진짜 진척' 신호: 집에서 명시 진전(만짐 이상)을 보인 타깃 횟수.
+              //   ⚠️ 구버전은 `ate_well !== false`라 미상(null)도 진척으로 셌다 → 아린처럼 미상 80%인 아이가 영원히 '진전 중'으로 보여 같은 타깃(두부) 반복. acceptanceLevel로 미상을 배제(≥1=만짐/한입/조금/완식만). acceptance_level 컬럼 미적용 시 ate_well 폴백(=완식만 카운트).
+              const targetAccepts = weekRows.filter((r) => { const lv = acceptanceLevel(r); return r.place !== 'daycare' && lv != null && lv >= 1
                 && (r.ingredients || []).some((ing) => ing === tgt || catOf(ing) === tgt)
-                && !(r.refused && (r.refused === tgt || catOf(r.refused) === tgt))).length;
+                && !(r.refused && (r.refused === tgt || catOf(r.refused) === tgt)); }).length;
               // 행동변화 관측(아크 단계 결정) — food=실제 차림, 구조 레버=그 좋은 행동이 이번 주 1회+ (거짓 칭찬 방지)
               const goodRow = (r: Row) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : false;
               const progress = lever === 'food' ? firstServeDow != null : weekRows.some(goodRow);
@@ -845,8 +849,27 @@ export async function GET(req: Request) {
           }
           // ⭐ 두뇌 검수: useFood=false면(오늘 진짜 문제가 환경이라 음식 억지 금지) 음식 추천 본문 제외(B의 'off-target 음식 박기' 차단). 기본=결정론 추천.
           //   ⭐ 슬롯→본문 전파(자가정독 #2): planSlot이 있으면 bridgeFacts target/식재료를 '슬롯'으로(결핍군 대표=두부 회귀 차단 → 메추리알장조림 등 구체 dish가 본문에).
+          const _noFood = !!(brainPick && brainPick.useFood === false);
           const _recoTarget = planSlotCtx?.slot ? planSlotCtx.slot.group : (planCtx?.target ?? null);
-          const bridgeFacts = (brainPick && brainPick.useFood === false) ? '' : buildRecoFacts({ likedIngredients: likedSeed, target: _recoTarget, targetIngredient: recoIng, freqMap }).text;
+          // ⭐ F-18 슬롯본문봉합(랄프위검 2026-06-19 rank1) — 슬롯이 정한 구체 dish(단호박찜·치즈스틱)를 본문 음식 제안으로 강제(must-weave).
+          //   직전 라운드: 슬롯은 단호박인데 본문은 결핍군 대표(콩류→두부)로 회귀. slotDish/slotFood를 작문기에 넘겨 본문에 1회 직조 + linter 재생성. 환경(useFood=false) 편지는 음식 제안 없음 → null.
+          const slotDish = (!_noFood && planSlotCtx?.slot?.dishes?.length) ? planSlotCtx.slot.dishes[0] : null;
+          const slotFood = (!_noFood && planSlotCtx?.slot) ? planSlotCtx.slot.cookedName : null;
+          // ⭐ F-18b — 슬롯이 음식 타깃을 정한 날은 bridgeFacts의 '잘 먹는 음식→사촌'(예 감자→두부)을 끄다(슬롯과 경쟁해 본문 두부 회귀시키던 근원). 슬롯이 곧 푸드체이닝 타깃.
+          const bridgeFacts = _noFood ? '' : buildRecoFacts({ likedIngredients: likedSeed, target: _recoTarget, targetIngredient: recoIng, freqMap, suppressCousins: !!slotFood }).text;
+          // ⭐ F-18 거울↔슬롯 정합(랄프위검 2026-06-19) — 한 편지에 음식 타깃 2개(슬롯 vs 거울 결핍군)가 충돌하면 LLM이 결핍군(콩류→두부)을 택하고 슬롯을 버린다.
+          //   슬롯이 음식 타깃을 정한 날은 거울을 슬롯에 맞춘다: (1)거울 결핍군 없음(covered/macro)=그대로 (2)결핍군==슬롯군=정합(dish 포함 유지) (3)결핍군≠슬롯군=결핍군을 '호명하지 않는' generic-positive(콩류 단어 자체를 빼 두부 재소환 차단). 슬롯이 콩류 supply인 날엔 거울도 콩류라 자연 정합.
+          // ⭐ F-18 거울 음식 = 항상 '그날 슬롯 음식'(랄프위검 2026-06-19) — deficitDishFor(콩류→두부 디폴트)를 거울에서 완전 제거.
+          //   결핍군과 슬롯이 충돌(콩류 거울 vs 단호박 슬롯)하면 LLM이 두부를 택해 본문이 두부로 회귀하던 근원. 거울이 가리키는 음식과 슬롯 음식을 단일화한다.
+          //   (1)결핍군 없음(칭찬/쿨다운/macro)=그대로 (2)환경 코칭 날(_noFood)=본문에 음식 없음 → 거울에 슬롯 음식 소프트 노출('음식 추천 항상 포함'·이사님 2026-06-15 복원) (3)음식 액션 날=본문이 슬롯 음식 직조 → 거울은 음식 없는 generic(중복·두부 디폴트·경쟁 전부 차단).
+          const _mirror = planSlotCtx?.mirror ?? null;
+          const _mDef = _mirror?.deficitGroup ?? null;
+          const _slotDishAny = planSlotCtx?.slot ? (planSlotCtx.slot.dishes?.[0] ?? planSlotCtx.slot.cookedName) : null;
+          const _posBase = attends ? '어린이집 덕에 여러 식품군을 두루 잘 챙기고 있어요' : '여러 식품군을 두루 만나 균형이 좋아지고 있어요';
+          const mirrorLineSel = !planSlotCtx ? undefined
+            : (!_mDef ? (_mirror?.line ?? null)                       // 결핍군 없음(칭찬/쿨다운/macro) — 그대로
+              : _noFood ? `${_posBase}${_slotDishAny ? `. 집 식단 다양성엔 ${_slotDishAny} 같은 것도 가끔 곁들여 좋아요` : ''}`   // 환경 날 — 슬롯 음식 소프트 노출(두부 디폴트 없음)
+                : _posBase);                                          // 음식 액션 날 — 본문이 슬롯 음식 직조하므로 거울은 음식 없는 generic
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
           // 끝줄 권유는 하루 하나만 — profileNudge 우선, 없으면 구조화 개선 팁을 ~주1회만 노출(매일=잔소리 금지·Q5).
           const profileN = recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null;
@@ -864,8 +887,9 @@ export async function GET(req: Request) {
             homeMissing: gHomeMissing, homeReds: gHomeReds, homeDays: homeDays.length,
             chronicGuidance: chronicGuidanceText(meta.chronic),
             bridgeFacts, snackEval: snackText, growthMirror: planSlotCtx?.macroPhrase ?? growthMirrorCtx,   // ⭐ E-04 + 주간계획 macro 슬롯(저체중/성장더딤 탄단지) 우선
-            // ⭐ 주간계획 영양거울 스케줄(이사님 2026-06-18) — 결핍군 회전·단일결핍 격일 쿨다운(K-04b). plan_detail 있으면 그날 슬롯 라인 사용(null=쿨다운 생략).
-            mirrorLine: planSlotCtx ? (planSlotCtx.mirror?.line ?? null) : undefined, mirrorPlanned: !!planSlotCtx,
+            slotFood, slotDish,   // ⭐ F-18 — 슬롯이 정한 구체 음식(본문 음식 제안 강제·두부 회귀 차단)
+            // ⭐ 주간계획 영양거울 스케줄(이사님 2026-06-18) — 결핍군 회전·단일결핍 격일 쿨다운(K-04b). plan_detail 있으면 그날 슬롯 라인 사용(null=쿨다운 생략). F-18=슬롯≠결핍군 날은 dish 없는 generic 라인(경쟁 두부 제거).
+            mirrorLine: mirrorLineSel, mirrorPlanned: !!planSlotCtx,
             profileNudge: profileN, structuredTip: sTip ?? metaInv,   // ⭐ #4b 초기엔 메타 입력 초대가 이 한 줄 채널을 대신 채움
             weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };

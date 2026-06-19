@@ -400,10 +400,53 @@ describe('B-23 advanceProgress', () => {
   });
 });
 
+// ── B-25 hardStall 강제 피벗 + deepen 봉합 (이사님 2026-06-19 — '환경 안 먹히면 다른 커리큘럼으로') ──
+describe('B-25 hardStall→pivot (stall→pivot)', () => {
+  const g2 = normalizeGoals([{ unit_id: 'table-stage', priority: 1 }, { unit_id: 'exposure-savings', priority: 2 }]);
+  const gOnly = normalizeGoals([{ unit_id: 'table-stage', priority: 1 }]);
+  const base2 = { childId: 'c1', answers: [] as ProbeAnswer[], coachedYesterday: [] as UnitId[], today: TODAY };
+  // tableRows(0.14) = passWhen 미달(진전0), coachedDays 4 + passStreak 0 = limping
+  it('G-B1 stallStreak 18 + 피벗캡 소진이어도 hardStall로 강제 피벗(standby exposure-savings)', () => {
+    const prog = { 'table-stage': mkProg('table-stage', { last_signal_at: D(2), evidence: { passStreakDays: 0, stallStreakDays: 18 } }) };
+    const { decision, goalsAfter } = advanceProgress({ ...base2, goals: g2, progress: prog, rows: tableRows(0.14), coachedDays: { 'table-stage': 4 }, pivotsThisWeek: 1, week: 3 });
+    expect(decision?.mode).toBe('pivot');
+    expect(decision?.pivotTo).toBe('exposure-savings');
+    expect(goalsAfter.find((g) => g.unit_id === 'exposure-savings')?.status).toBe('focus');
+    expect(goalsAfter.find((g) => g.unit_id === 'table-stage')?.status).toBe('stopped');
+  });
+  it('G-B2 stallStreak 17은 캡 소진 시 피벗 안 함(임계 18 직전 경계)', () => {
+    const prog = { 'table-stage': mkProg('table-stage', { last_signal_at: D(2), evidence: { passStreakDays: 0, stallStreakDays: 17 } }) };
+    const { decision } = advanceProgress({ ...base2, goals: g2, progress: prog, rows: tableRows(0.14), coachedDays: { 'table-stage': 4 }, pivotsThisWeek: 1, week: 3 });
+    expect(decision?.mode).not.toBe('pivot');
+  });
+  it('G-B3 부모가 환경 바꾸면(passWhen 충족) stallStreak 0 리셋 — 거짓 강등 없음', () => {
+    const { row: r } = evolveRow({ def: UNITS['table-stage'], row: mkProg('table-stage', { evidence: { passStreakDays: 0, stallStreakDays: 10 } }), rows: tableRows(0.5), answers: [], today: TODAY, coachedYesterday: true });
+    expect(Number(r.evidence?.stallStreakDays)).toBe(0);
+  });
+  it('G-B4 deepen 봉합: limping+캡소진+standby없음이면 약신호여도 observe(과거엔 deepen)', () => {
+    const prog = { 'table-stage': mkProg('table-stage', { last_signal_at: D(2), evidence: { passStreakDays: 0, stallStreakDays: 5 } }) };
+    const { decision } = advanceProgress({ ...base2, goals: gOnly, progress: prog, rows: tableRows(0.14), coachedDays: { 'table-stage': 4 }, pivotsThisWeek: 1, week: 3 });
+    expect(decision?.mode).toBe('observe');
+  });
+  it('G-B5 standby 비어도 fallbackPivot이 CORE_ORDER에서 전환 보장(exposure-savings)', () => {
+    const prog = { 'table-stage': mkProg('table-stage', { last_signal_at: D(2), evidence: { passStreakDays: 0, stallStreakDays: 18 } }) };
+    const { decision, goalsAfter } = advanceProgress({ ...base2, goals: gOnly, progress: prog, rows: tableRows(0.14), coachedDays: { 'table-stage': 4 }, pivotsThisWeek: 1, week: 3 });
+    expect(decision?.mode).toBe('pivot');
+    expect(decision?.pivotTo).toBe('exposure-savings');
+    expect(goalsAfter.find((g) => g.unit_id === 'exposure-savings')?.status).toBe('focus');
+  });
+  it('G-B6 byte-동일 회귀: stallStreak 누적은 정상 단 전진(advance) 결정에 영향 0', () => {
+    const prog = { 'table-stage': mkProg('table-stage', { evidence: { passStreakDays: 6, stallStreakDays: 99 } }) };
+    const { decision } = advanceProgress({ ...base2, goals: g2, progress: prog, rows: tableRows(0.5), coachedDays: {}, pivotsThisWeek: 0, week: 3 });
+    expect(decision?.mode).toBe('advance');
+    expect(decision?.step).toBe(2);
+  });
+});
+
 // ════════════════════════════════════════════════════════════════════════════
 // EPIC E — 주간 목표 포트폴리오 (E-03~E-09)
 // ════════════════════════════════════════════════════════════════════════════
-import { candidateUnits, goalsCapForWeek, applyFocusFatigue, leverForUnit, healAnchor as healAnchorW, type WeeklyAnchor } from '../lib/coachWeekly';
+import { candidateUnits, goalsCapForWeek, applyFocusFatigue, leverForUnit, healAnchor as healAnchorW, ONBOARDING_ARC, type WeeklyAnchor } from '../lib/coachWeekly';
 import { parseProbeAnswers } from '../lib/coachDaily';
 import type { CandidateSignals, Goal } from '../lib/curriculumUnits';
 
@@ -445,6 +488,27 @@ describe('E-03 candidateUnits 후보 산출', () => {
     expect(c.some((x) => x.unit_id === 'exposure-savings')).toBe(false);   // minWeek 2
     const c3 = candidateUnits({ sig: { ...SIG0, missingCount: 2 }, progress: {}, week: 3 });
     expect(c3.some((x) => x.unit_id === 'exposure-savings')).toBe(true);
+  });
+  // ── C(이사님 2026-06-19) — 온보딩 3주차 목표 실재화 ──
+  it('G-C1 3주차: 코어 8유닛 다 이수해도 확장 트랙(sensory-texture 등)이 새 목표로 열림(전엔 빈손)', () => {
+    const doneCore: Partial<Record<UnitId, ProgressRow>> = {};
+    for (const u of ['pressure-off', 'hunger-rhythm', 'table-stage', 'exposure-savings', 'fullness-respect', 'parent-model', 'no-bargain', 'table-talk'] as UnitId[]) doneCore[u] = mkProg(u, { status: 'mastered' });
+    const c = candidateUnits({ sig: SIG0, progress: doneCore, week: 3 });
+    expect(c.length).toBe(1);   // 폴백이 빈손 아님
+    expect(['sensory-texture', 'food-bridge', 'autonomy-part', 'link-rhythm']).toContain(c[0].unit_id);   // 확장 트랙
+  });
+  it('G-C2 minWeek 게이트 보존: 2주차엔 확장 트랙(minWeek 3) 누출 0', () => {
+    const c = candidateUnits({ sig: { ...SIG0, missingCount: 2 }, progress: {}, week: 2 });
+    for (const u of ['sensory-texture', 'food-bridge', 'autonomy-part', 'link-rhythm', 'table-talk']) expect(c.some((x) => x.unit_id === u)).toBe(false);
+  });
+  it('G-C3 goalsCapForWeek byte-동일(ONBOARDING_ARC 위임 전후)', () => {
+    expect(goalsCapForWeek(1)).toBe(1); expect(goalsCapForWeek(2)).toBe(2); expect(goalsCapForWeek(3)).toBe(3);
+    expect(goalsCapForWeek(99)).toBe(3); expect(goalsCapForWeek(0)).toBe(3); expect(goalsCapForWeek(-1)).toBe(1);
+  });
+  it('G-C4 ONBOARDING_ARC 3주차 명명 존재(이사님 "3주차 목표")', () => {
+    expect(ONBOARDING_ARC[3].label).toBe('확장 주');
+    expect(ONBOARDING_ARC[3].cap).toBe(3);
+    expect(ONBOARDING_ARC[3].intent).toContain('노출');
   });
 });
 

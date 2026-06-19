@@ -7,7 +7,7 @@
  * "기록 없음≠없음", 보류는 질문 정렬(G)이 메운다).
  *
  * evidence 예약 키(병합기 lib/curriculum.ts가 관리): signalToday(1|0|null)·hitToday(string|null)·
- * hitDays(string[])·passStreakDays·relapseStreakDays·maintStartedAt·maintCoached.
+ * hitDays(string[])·passStreakDays·stallStreakDays(코칭했는데 진전0 누적일·B hardStall)·relapseStreakDays·maintStartedAt·maintCoached.
  */
 import { type FactRow } from './coachFacts';
 import { cleanRefusal } from './coach';
@@ -54,6 +54,7 @@ export const TH = {
   maintenanceWeeks: 1,     // 유지 주(코칭 없이 유지) — 졸업 게이트 (v3 설계 §2)
   relapseWindowDays: 14,   // 재발 확정: 임계 미달 연속 일수 ≈ 2주 (설계 §2 표)
   maxPivotsPerWeek: 1,     // 주당 피벗 캡 — 휙휙 방지 (이사님 원칙)
+  hardStallDays: 18,       // ⭐ B(이사님 2026-06-19) — 한 유닛을 N일째 코칭했는데 진전 0이면 주1회 피벗 캡을 무시하고 강제 전환(환경 유닛 21일 고착 차단). stallDays(6)×3 = food stalledTarget(3주·21일)보다 한 사다리 빨리 끊음.
   focusMaxStallWeeks: 2,   // 같은 유닛 focus 연속 정체 한도 (E-06)
   envTableStep1: 0.4, envTableStep2: 0.6,   // 식탁 무대 (자체 — 화면·이동 93% 실측 가정 기준)
   mealOver30Cap: 0.3,      // 30분 초과율 상한 (30분 룰 — 07 §4-2·12장 Q2)
@@ -415,3 +416,12 @@ export const UNITS: Record<UnitId, UnitDef> = {
 };
 
 export const UNIT_IDS = Object.keys(UNITS) as UnitId[];
+
+// ⭐ 수업 기초 순서(코어 1→N) — 단일 소스(coachWeekly 폴백·온보딩 후보, curriculum fallbackPivot 공용).
+//   C(이사님 2026-06-19): minWeek=3 트랙(sensory-texture·food-bridge·autonomy-part·link-rhythm)을 뒤에 편입해
+//   3주차+ 아이가 코어 재선택에 갇히지 않고 '확장 주' 목표가 실제로 열리게 한다(minWeek 게이트가 1·2주차엔 자동 제외).
+//   link-rhythm은 등원아 한정이라 맨 뒤(다른 미이수 유닛이 먼저 픽되게).
+export const CORE_ORDER: UnitId[] = [
+  'pressure-off', 'hunger-rhythm', 'table-stage', 'exposure-savings', 'fullness-respect', 'parent-model', 'no-bargain', 'table-talk',
+  'sensory-texture', 'food-bridge', 'autonomy-part', 'link-rhythm',
+];

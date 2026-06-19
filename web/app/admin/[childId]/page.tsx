@@ -224,7 +224,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                 {(() => {
                   // ⭐ 주간계획 모듈 산출(plan_detail) 전부 전사(이사님 2026-06-19) — 7일치 구체 dish·2트랙풀·결핍/충족군·BMI탄단지·anti-stall·거울 스케줄
                   const pd = w.plan_detail as null | {
-                    targetRotation?: { ingredient: string; cookedName?: string; dishes?: string[]; group: string; track: string; via?: string; pairLiked?: string }[];
+                    targetRotation?: { ingredient: string; cookedName?: string; dishes?: string[]; group: string; track: string; via?: string; pairLiked?: string; weeklyEstFreq?: number; level?: string; reason?: string }[];
                     supplyPool?: string[]; challengePool?: { ingredient: string; cousinOf: string }[]; poolMode?: string;
                     deficitGroups?: string[]; coveredGroups?: string[];
                     macroTrack?: { active?: boolean; band?: string | null; reason?: string | null; boostGroups?: string[]; boostDishes?: string[]; snackRestraint?: boolean; phrase?: string | null; cadenceWeek?: boolean };
@@ -236,10 +236,13 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                   return (
                     <div style={{ marginTop: 5, paddingTop: 5, borderTop: '1px dashed #E5E7EB' }}>
                       <div style={{ fontWeight: 700, color: '#2E7D32', marginBottom: 2 }}>🍽️ 주간계획 모듈 — 7일치 구체 계획</div>
+                      <div style={{ fontSize: 10.5, color: '#9CA3AF', marginBottom: 3 }}>↳ 식재료 선정 근거: <b style={{ color: '#374151' }}>보급</b>=집에서 부족한 결핍 식품군을 채움(옆에 주간 출현빈도·결핍강도) · <b style={{ color: '#6A1B9A' }}>도전🆕</b>=아이가 잘 먹는 음식의 '검증된 사촌'(비슷한 색·식감·맛 → 받아들이기 쉬움). 매일 회전.</div>
                       <ol style={{ margin: '2px 0 4px', paddingLeft: 20, fontSize: 12 }}>
                         {(pd.targetRotation || []).map((s, i) => (
                           <li key={i} style={{ color: s.track === 'challenge' ? '#6A1B9A' : '#374151' }}>
                             <b>{s.cookedName || s.ingredient}</b>{s.dishes?.length ? ` → ${s.dishes.join('·')}` : ''} <span style={{ color: '#9CA3AF' }}>[{s.group}·{s.track === 'challenge' ? `도전🆕${s.pairLiked ? `(${s.pairLiked}사촌)` : ''}` : '보급'}]</span>
+                            {/* ⭐ A — 왜 이 식재료가 타깃인지+출현빈도 근거 */}
+                            {s.reason ? <span style={{ color: '#94A3B8', fontSize: 10.5 }}> · {s.reason}</span> : (s.weeklyEstFreq != null ? <span style={{ color: '#94A3B8', fontSize: 10.5 }}> · 주{Math.round(s.weeklyEstFreq * 10) / 10}회{s.level ? `(${s.level})` : ''}</span> : null)}
                           </li>
                         ))}
                       </ol>

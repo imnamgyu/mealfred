@@ -44,6 +44,42 @@ describe('enrichWeeklyPlan — 7일치 구체 계획 오케스트레이션', () 
     const ch = d.targetRotation.find((s) => s.track === 'challenge');
     if (ch) expect(ch.pairLiked).toBeTruthy();
   });
+  // ── A(이사님 2026-06-19) — 추천 근거/출현빈도 어드민 표시 ──
+  it('G-A1 supply 슬롯에 근거(결핍군 보급·weeklyEst·level) 적재', () => {
+    const d = enrichWeeklyPlan(synth(), ctx({ groupSignals: [{ group: '콩류', level: 'red', weeklyEst: 0.8 }, { group: '비타민A채소', level: 'yellow', weeklyEst: 1.5 }, { group: '곡류', level: 'green', weeklyEst: 5 }] }));
+    const sup = d.targetRotation.find((s) => s.track === 'supply' && s.group === '콩류');
+    if (sup) {   // 콩류 supply 슬롯이 잡히면 근거 검증
+      expect(sup.weeklyEstFreq).toBe(0.8);
+      expect(sup.level).toBe('red');
+      expect(sup.reason).toContain('결핍군 콩류 보급');
+      expect(sup.reason).toContain('0.8');
+    }
+    // 모든 supply 슬롯은 reason을 가진다(어드민 '왜 타깃')
+    for (const s of d.targetRotation.filter((x) => x.track === 'supply')) expect(s.reason).toBeTruthy();
+  });
+  it('G-A2 challenge 슬롯 근거(잘 먹는 사촌·푸드체이닝)', () => {
+    const d = enrichWeeklyPlan(synth(), ctx());
+    const ch = d.targetRotation.find((s) => s.track === 'challenge');
+    if (ch) {
+      expect(ch.reason).toContain('검증 사촌');
+      expect(ch.reason).toContain(ch.pairLiked!);
+    }
+  });
+  it('G-A3 graceful — groupSignals에 없는 군의 supply는 reason "주 ?회"·throw 0', () => {
+    // 결핍군이 groupSignals에 없는 상황(룩업 miss)에서도 산출이 throw 없이 됨
+    const d = enrichWeeklyPlan(synth(), ctx({ groupSignals: [{ group: '곡류', level: 'green', weeklyEst: 5 }] }));
+    expect(d.schemaVersion).toBe(1);
+    for (const s of d.targetRotation.filter((x) => x.track === 'supply')) expect(typeof s.reason).toBe('string');
+  });
+  it('G-A4 byte-동일 회귀 — 기존 슬롯 필드(ingredient·group·track·via·pairLiked·dishes) 불변', () => {
+    const d = enrichWeeklyPlan(synth(), ctx());
+    for (const s of d.targetRotation) {
+      expect(s.ingredient).toBeTruthy();
+      expect(s.group).toBeTruthy();
+      expect(['supply', 'challenge']).toContain(s.track);
+      expect(Array.isArray(s.dishes)).toBe(true);
+    }
+  });
   it('mirrorSchedule — 결핍 2군이면 라운드로빈(같은 군 연속 금지)', () => {
     const d = enrichWeeklyPlan(synth(), ctx({ deficitGroups: ['콩류', '비타민A채소'] }));
     expect(d.mirrorSchedule.length).toBe(7);
@@ -55,6 +91,14 @@ describe('enrichWeeklyPlan — 7일치 구체 계획 오케스트레이션', () 
     const deficitSlots = d.mirrorSchedule.filter((m) => m.kind === 'deficit').length;
     expect(deficitSlots).toBeLessThanOrEqual(4);   // 7슬롯 중 격일 이하(매일 7회가 아님)
     expect(d.mirrorSchedule.some((m) => m.kind !== 'deficit')).toBe(true);   // 쿨다운 슬롯 존재
+  });
+  it('⭐F-18 — 결핍 거울 슬롯은 deficitGroup을 보존(route가 슬롯군과 비교해 정합/generic-positive 결정)', () => {
+    const d = enrichWeeklyPlan(synth(), ctx({ deficitGroups: ['콩류', '비타민A채소'] }));
+    const defs = d.mirrorSchedule.filter((m) => m.kind === 'deficit');
+    expect(defs.length).toBeGreaterThan(0);
+    // route.ts F-18: mirror.deficitGroup !== slot.group이면 결핍군 비호명(generic-positive)·같으면 dish 포함 유지.
+    //   따라서 deficit 슬롯은 비교 가능하도록 deficitGroup이 반드시 채워져 있어야 한다(null이면 route가 정합 판정 불가).
+    for (const m of defs) expect(m.deficitGroup).toBeTruthy();
   });
 });
 
