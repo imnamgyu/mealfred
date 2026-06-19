@@ -53,6 +53,7 @@ type Row = {
   child_id: string; parent_id: string | null; log_date: string; slot: string | null;
   ingredients: string[] | null; refused: string | null; note: string | null;
   texture: string | null; menus: string[] | null; place: string | null; ate_well: boolean | null;
+  acceptance_level: number | null;   // ⭐ 수용 5단계(0~4) — 있으면 선호계량화가 granular로, 없으면 ate_well 폴백
   meal_time: number | null; autonomy: string | null; environment: string | null; duration_min: number | null;
 };
 
@@ -108,7 +109,7 @@ export async function GET(req: Request) {
 
     // 1) 최근 7일 모든 기록 → 자녀별 그룹
     const { data: rows, error: rErr } = await supabase.from('meal_logs')
-      .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well,meal_time,autonomy,environment,duration_min')
+      .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well,acceptance_level,meal_time,autonomy,environment,duration_min')
       .gte('log_date', since).lte('log_date', dAgo(1));   // 편지는 '어제까지' 확정 데이터로 평가 — 당일 입력이 편지를 바꾸지 않게 · autonomy·environment는 이전에 select 안 해 0% 반영이던 버그 수정(구조화 입력 코칭 반영)
     if (rErr) throw rErr;
 

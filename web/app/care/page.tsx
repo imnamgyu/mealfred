@@ -43,9 +43,21 @@ function defaultPlace(slot: string, dateStr: string): PlaceVal {
   const day = new Date(dateStr).getUTCDay();  // dateStr=YYYY-MM-DD는 UTC 자정 파싱 → getUTCDay로 요일 일치
   return day >= 1 && day <= 5 ? 'daycare' : 'home';
 }
-type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string; place: PlaceVal };
+// ⭐ 수용 5단계 척도(이사님 2026-06-19) — 0 거부·1 만짐·2 한입·3 조금·4 완식. 이진 ate_well의 '미상 80%' 한계를 깨는 신호포착.
+//   엔진(lib/preferenceQuantification)이 acceptance_level을 1차로 읽고, 없으면 ate_well로 폴백 → 점진 전환 안전.
+const ACCEPT_LEVELS = [
+  { lvl: 0, emoji: '🙅', label: '거부', desc: '안 먹음', c: '#E53935' },
+  { lvl: 1, emoji: '👀', label: '만짐', desc: '만지작', c: '#EF6C00' },
+  { lvl: 2, emoji: '😐', label: '한입', desc: '한 입 시도', c: '#F9A825' },
+  { lvl: 3, emoji: '🙂', label: '조금', desc: '조금 먹음', c: '#7CB342' },
+  { lvl: 4, emoji: '😋', label: '완식', desc: '잘 먹음', c: '#16A085' },
+] as const;
+const levelToAteWell = (lvl: number | null): boolean | null => lvl == null ? null : lvl <= 0 ? false : lvl >= 3 ? true : null;   // 0→거부(false)·3·4→수용(true)·1·2 만짐/한입→미상(null, 기존 이진 의미 보존)
+const ateWellToLevel = (aw: boolean | null): number | null => aw === true ? 4 : aw === false ? 0 : null;   // 구 행(acceptance_level 없음) 표시용 역매핑
+
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; acceptLevel: number | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string; place: PlaceVal };
 function emptyEntry(slot: string, dateStr: string): MealEntry {
-  return { menus: [], ingredients: [], note: '', ateWell: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '', place: defaultPlace(slot, dateStr) };
+  return { menus: [], ingredients: [], note: '', ateWell: null, acceptLevel: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '', place: defaultPlace(slot, dateStr) };
 }
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
@@ -57,13 +69,14 @@ const todayStr = kstToday;   // KST 기준 — 크론(letter_date/q_date)과 동
 const loadGuestLogs = (): Record<string, DayLog> => loadCareLogs<Record<string, DayLog>>(null);
 
 // Supabase row ↔ MealEntry 변환
-type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null; place: string | null };
+type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; acceptance_level?: number | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null; place: string | null };
 function rowToEntry(r: MealRow): MealEntry {
   return {
     menus: r.menus || [],
     ingredients: (r.ingredients || []).map((name) => ({ name, ai: false })),
     note: r.note || '',
     ateWell: r.ate_well,
+    acceptLevel: r.acceptance_level ?? ateWellToLevel(r.ate_well),   // 신규 5단계 우선, 구 행은 ate_well에서 역매핑(완식/거부만 복원)
     refused: r.refused || '',
     texture: r.texture || '',
     autonomy: r.autonomy || '',
@@ -84,7 +97,8 @@ function entryToRow(e: MealEntry, childId: string, userId: string, date: string,
     ingredients: e.ingredients.map((t) => t.name),
     note: e.note || null,
     refused: e.refused || null,
-    ate_well: e.ateWell,
+    acceptance_level: e.acceptLevel,   // ⭐ 5단계 수용 신호(원장)
+    ate_well: e.acceptLevel != null ? levelToAteWell(e.acceptLevel) : e.ateWell,   // 5단계 선택 시 이진은 파생(구 소비자 호환) — 5단계 미선택(구 입력)은 ateWell 유지
     texture: e.texture || null,
     autonomy: e.autonomy || null,
     environment: e.environment || null,
@@ -197,7 +211,7 @@ export default function CarePage() {
 
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
-        .select('log_date,slot,menus,ingredients,note,ate_well,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place,source')
+        .select('log_date,slot,menus,ingredients,note,ate_well,acceptance_level,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place,source')
         .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(365));   // P0-3: 과거 1년 상한(다년 누적 풀스캔 차단·미래 식단표는 lte 없어 유지)
 
       const cloud: Record<string, DayLog> = {};
@@ -907,32 +921,30 @@ export default function CarePage() {
             style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB', color: '#374151' }} />
         </div>
 
-        {/* 잘 먹었는지 */}
+        {/* 얼마나 받아들였나요 — 수용 5단계(거부→만짐→한입→조금→완식). 이진 '잘먹음/보통/거부'보다 진전을 촘촘히 포착(한 입 시도도 발전). */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>잘 먹었나요?</h3>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { v: true, label: '😋 잘 먹음', c: '#16A085' },
-              { v: null, label: '😐 보통', c: '#F9A825' },
-              { v: false, label: '😣 거부', c: '#E53935' },
-            ].map((o) => (
-              <button key={String(o.v)} onClick={() => setEntry((x) => ({ ...x, ateWell: o.v }))}
-                className="rounded-lg py-2.5 text-sm font-bold transition"
-                style={{
-                  background: entry.ateWell === o.v ? o.c : '#FAFAF7',
-                  color: entry.ateWell === o.v ? 'white' : '#6B7280',
-                  border: `1.5px solid ${entry.ateWell === o.v ? o.c : '#E5E7EB'}`,
-                }}>
-                {o.label}
-              </button>
-            ))}
+          <h3 className="text-sm font-extrabold mb-1" style={{ color: '#1a2b4a' }}>얼마나 받아들였나요?</h3>
+          <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>한 입 시도·만지작도 <strong>발전</strong>이에요 — 솔직히 골라주시면 받아들이는 속도에 맞춰 코칭해드려요</p>
+          <div className="grid grid-cols-5 gap-1.5">
+            {ACCEPT_LEVELS.map((o) => {
+              const on = entry.acceptLevel === o.lvl;
+              return (
+                <button key={o.lvl} onClick={() => setEntry((x) => ({ ...x, acceptLevel: o.lvl, ateWell: levelToAteWell(o.lvl) }))}
+                  className="rounded-lg py-2 flex flex-col items-center gap-0.5 transition"
+                  style={{ background: on ? o.c : '#FAFAF7', border: `1.5px solid ${on ? o.c : '#E5E7EB'}` }}>
+                  <span className="text-lg leading-none">{o.emoji}</span>
+                  <span className="text-[11px] font-bold" style={{ color: on ? 'white' : '#6B7280' }}>{o.label}</span>
+                  <span className="text-[8.5px] leading-tight" style={{ color: on ? 'rgba(255,255,255,0.9)' : '#B0A99F' }}>{o.desc}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* 거부·보통 시 남긴 음식 입력 — '보통(일부 남김)'도 거부 추적 대상(거부→수용 전환 포착) */}
-          {(entry.ateWell === false || entry.ateWell === null) && (
-            <div className="mt-3 p-3 rounded-lg" style={{ background: entry.ateWell === false ? '#FFF5F5' : '#FAFAF7', border: `1.5px solid ${entry.ateWell === false ? '#FFCDD2' : '#E5E7EB'}` }}>
-              <label className="text-xs font-bold block mb-1.5" style={{ color: entry.ateWell === false ? '#C62828' : '#6B7280' }}>
-                {entry.ateWell === false ? '어떤 음식을 남겼나요? (탭)' : '혹시 남기거나 안 먹은 음식이 있나요? (탭 · 선택)'}
+          {/* 거부·만짐·한입(level≤2 = 사실상 안 먹음) 시 남긴 음식 입력 — 거부→수용 전환 포착 */}
+          {(entry.acceptLevel != null && entry.acceptLevel <= 2) && (
+            <div className="mt-3 p-3 rounded-lg" style={{ background: entry.acceptLevel === 0 ? '#FFF5F5' : '#FAFAF7', border: `1.5px solid ${entry.acceptLevel === 0 ? '#FFCDD2' : '#E5E7EB'}` }}>
+              <label className="text-xs font-bold block mb-1.5" style={{ color: entry.acceptLevel === 0 ? '#C62828' : '#6B7280' }}>
+                {entry.acceptLevel === 0 ? '어떤 음식을 거부했나요? (탭)' : '어떤 음식을 남겼나요? (탭 · 선택)'}
               </label>
               <p className="text-[10.5px] mb-2" style={{ color: '#8a7a6a' }}>
                 남긴·거부한 음식을 <strong>탭</strong>하세요 — 그 식재료에 천천히 친해지는 코스를 추천하고 <strong>받아들이는 순간</strong>까지 추적해드려요
