@@ -71,7 +71,7 @@ export function getChildThread(childId: string) {
         db.from('coach_letters').select('letter_date,letter,oneliner,context,source_hash').eq('child_id', childId),
         db.from('daily_questions').select('q_date,question,topic,chips,answer,answered_at,context').eq('child_id', childId),
         db.from('period_summaries').select('period_type,period_key,metrics,updated_at').eq('child_id', childId).order('period_key', { ascending: false }).limit(200),
-        db.from('weekly_plans').select('week_key,status,mission_target,target_pool,secondary_axis,goals,behavior_goal,teaching_arc,check_method,budget,ledger,impression,arc_week').eq('child_id', childId).order('week_key', { ascending: false }).limit(6),
+        db.from('weekly_plans').select('week_key,status,mission_target,target_pool,secondary_axis,goals,behavior_goal,teaching_arc,check_method,budget,ledger,impression,arc_week,plan_detail').eq('child_id', childId).order('week_key', { ascending: false }).limit(6),
         db.from('curriculum_progress').select('unit_id,status,step,evidence,last_signal_at,relapse_count,stop_reason,updated_at').eq('child_id', childId),
         db.from('letter_feedback').select('rating').eq('child_id', childId),
       ]);

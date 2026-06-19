@@ -18,6 +18,30 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
+// ⭐ 어드민 비개발자 설명(이사님 2026-06-19) — 처음 보는 관리자도 '이 주간계획이 뭘 하려는지' 이해되게.
+const LEVER_EXPLAIN: Record<string, string> = {
+  food: '음식 노출이 이번 주 핵심 — 부족 식품군/거부 음식을 좋아하는 음식 옆에 조금씩 다시 올림(반복 노출)',
+  environment: '식사 환경이 핵심 — 화면 끄고 식탁에 집중하는 무압력 식사 구조화(음식보다 환경 먼저)',
+  autonomy: '자율성이 핵심 — 스스로 떠먹기·선택권을 줘 "내가 먹는다"는 자율감으로 식욕을 키움',
+  texture: '질감이 핵심 — 죽·다진 단계에서 핑거푸드·일반식으로 씹는 단계를 한 칸 올림(SOS 감각 사다리)',
+};
+const UNIT_PURPOSE: Record<string, string> = {
+  'pressure-off': '압박 내려놓기 — "한 입만"·재촉을 멈춰 식탁 긴장을 푼다(압박은 거부를 키움)',
+  'hunger-rhythm': '공복 리듬 — 끼니 30분 전 간식·우유를 멈춰 배고픔이 제때 살아나게(WIC 간식 간격)',
+  'table-stage': '식탁 무대 — 화면 끄고 식탁에 앉는 기본 환경. 식탁은 사회적 모델링·감각 탐색의 무대라, 이게 없으면 음식 노출도 잘 안 먹힘',
+  'exposure-savings': '새 음식 조금씩 노출 — 거부 음식을 격일로 아주 작게 다시 올려 친숙도 적립(보통 8~15회 만나야 받아들임)',
+  'fullness-respect': '배부름 존중 — 완식 강요를 멈추고 아이의 "배불러" 신호로 끝냄(반응적 수유)',
+  'parent-model': '부모가 메뉴판 — 같은 음식을 곁에서 말없이 맛있게 먹는 모습(가장 강력한 본보기)',
+  'no-bargain': '달콤한 협상 끊기 — "먹으면 ~줄게" 보상 거래 중단(보상은 장기적으로 그 음식 선호를 떨어뜨림)',
+  'table-talk': '식탁의 말 — "당근 어땠어?"처럼 음식 자체를 화제로(먹으라는 압박어 대신)',
+  'sensory-texture': '감각·질감 트랙 — 싫은 게 음식이 아니라 질감일 수 있어, 한 단계 순한 질감으로 형태만 바꿔 친해지기',
+  'food-bridge': '확장 트랙(음식 다리) — 좋아하는 음식의 닮은 사촌으로 한 칸씩 넓힘(푸드체이닝)',
+  'autonomy-part': '자율·참여 트랙 — 스스로 떠먹기·상차림 역할로 자율감을 키움(SDT)',
+  'link-rhythm': '연계·리듬 트랙 — 어린이집에서 거부한 식재료를 집에서 격일로 다시 만나게(기관↔집 연계)',
+};
+const STAGE_EXPLAIN = (week: number | null): string =>
+  !week || week >= 3 ? '' : week === 1 ? ' · 🐣 온보딩 1주차(신뢰 쌓기 — 목표 1개만, 단정·채근 없이)' : ' · 🐣 온보딩 2주차(관찰 — 목표 2개로 천천히)';
+
 type Meal = { log_date: string; menus: string[] | null; ingredients: string[] | null; refused: string | null; note: string | null; texture: string | null; place: string | null; meal_time: number | null; created_at?: string };
 type Letter = { letter_date: string; letter: string; oneliner: string | null; context: Record<string, unknown> | null; source_hash?: string };
 type Question = { q_date: string; question: string; topic: string | null; chips: string[] | null; answer: string | null; answered_at: string | null; context: Record<string, unknown> | null };
@@ -175,9 +199,12 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
             const pool = Array.isArray(w.target_pool) ? (w.target_pool as string[]) : [];
             return (
               <div key={String(w.week_key)} style={{ marginTop: 8, fontSize: 12, color: '#374151', borderTop: '1px dashed #E5E7EB', paddingTop: 6 }}>
-                <div style={{ fontWeight: 800, color: '#C45A00' }}>{String(w.week_key)} · {String(w.status)} {w.arc_week ? `· ${w.arc_week}주차` : ''}</div>
+                <div style={{ fontWeight: 800, color: '#C45A00' }}>{String(w.week_key)} · {String(w.status)} {w.arc_week ? `· ${w.arc_week}주차` : ''}{STAGE_EXPLAIN(Number(w.arc_week) || null)}</div>
+                <div style={{ fontSize: 11.5, color: '#9CA3AF', marginBottom: 2 }}>이 주의 코칭 작전 — 일요일에 지난 4주를 의사처럼 종합해 "이번 주 한 가지 핵심(레버)+가르칠 수업+음식 타깃"을 정함. 월~토는 이걸 잠그고 매일 다른 각도로 편지를 씀.</div>
                 <div>🎚️ 주력 레버: <b>{String(budget.lever ?? '-')}</b>{w.secondary_axis ? ` · 2차축 ${String(w.secondary_axis)}` : ''}</div>
+                {LEVER_EXPLAIN[String(budget.lever)] ? <div style={{ fontSize: 11.5, color: '#9CA3AF', marginLeft: 16, marginTop: -2 }}>↳ {LEVER_EXPLAIN[String(budget.lever)]}</div> : null}
                 <div>🎯 목표 포트폴리오: {goals.length ? goals.map((g) => `${g.unit_id}(${g.status}${g.priority ? `·${g.priority}` : ''})`).join(' · ') : '-'}</div>
+                <div style={{ fontSize: 11.5, color: '#9CA3AF', marginLeft: 16, marginTop: -2 }}>↳ 이번 주 가르칠 부모 수업(과목) 후보 — <b>focus</b>=주력 1개 · <b>standby</b>=주중 정체 시 갈아탈 대기. 1주차 1개→2주차 2개→3주차+ 3개로 부담을 천천히 늘림. (stopped=정체로 강등)</div>
                 {(() => {
                   const focus = goals.find((g) => g.status === 'focus');
                   const fu = focus?.unit_id as UnitId | undefined;
@@ -188,9 +215,42 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                   const lesson = def.steps[Math.min(step, def.steps.length) - 1]?.behavior;
                   const arc = (w.teaching_arc || {}) as { stages?: string[] };
                   const chk = (w.check_method || {}) as { signal?: string };
-                  return <div style={{ color: '#0369A1' }}>📚 이번 주 수업: <b>{def.label}</b> {step}단 — {lesson || '-'}{arc.stages?.length ? ` · 아크 ${arc.stages.join('→')}` : ''}{chk.signal ? ` · 확인 ${chk.signal}` : ''}</div>;
+                  return (<>
+                    <div style={{ color: '#0369A1' }}>📚 이번 주 수업: <b>{def.label}</b> {step}단 — {lesson || '-'}{arc.stages?.length ? ` · 아크 ${arc.stages.join('→')}` : ''}{chk.signal ? ` · 확인 ${chk.signal}` : ''}</div>
+                    {fu && UNIT_PURPOSE[fu] ? <div style={{ fontSize: 11.5, color: '#9CA3AF', marginLeft: 16, marginTop: -2 }}>↳ <b>왜 이 수업?</b> {UNIT_PURPOSE[fu]}. ({step}단={lesson} · 이걸 며칠 해내면 다음 단계로 승급) · 아크=한 주를 매일 다른 각도로(why 진단→reinforce 강화) · 확인={chk.signal}(이 신호가 오르면 진척)</div> : null}
+                  </>);
                 })()}
                 <div>🥗 음식 타깃: <b>{String(w.mission_target ?? '-')}</b>{pool.length ? ` · 풀: ${pool.join(', ')}` : ''}</div>
+                {(() => {
+                  // ⭐ 주간계획 모듈 산출(plan_detail) 전부 전사(이사님 2026-06-19) — 7일치 구체 dish·2트랙풀·결핍/충족군·BMI탄단지·anti-stall·거울 스케줄
+                  const pd = w.plan_detail as null | {
+                    targetRotation?: { ingredient: string; cookedName?: string; dishes?: string[]; group: string; track: string; via?: string; pairLiked?: string }[];
+                    supplyPool?: string[]; challengePool?: { ingredient: string; cousinOf: string }[]; poolMode?: string;
+                    deficitGroups?: string[]; coveredGroups?: string[];
+                    macroTrack?: { active?: boolean; band?: string | null; reason?: string | null; boostGroups?: string[]; boostDishes?: string[]; snackRestraint?: boolean; phrase?: string | null; cadenceWeek?: boolean };
+                    curriculum?: { focusUnit?: string | null; focusLabel?: string | null; standby?: string[]; stalledOut?: string | null; graduatedTo?: string | null; lever?: string };
+                    mirrorSchedule?: { kind?: string | null; deficitGroup?: string | null; line?: string | null }[];
+                  };
+                  if (!pd) return <div style={{ color: '#9CA3AF', fontSize: 11.5, marginTop: 4 }}>🍽️ 주간계획 모듈: (plan_detail 미생성 — 이 주는 구버전/thin 폴백)</div>;
+                  const mt = pd.macroTrack; const cu = pd.curriculum;
+                  return (
+                    <div style={{ marginTop: 5, paddingTop: 5, borderTop: '1px dashed #E5E7EB' }}>
+                      <div style={{ fontWeight: 700, color: '#2E7D32', marginBottom: 2 }}>🍽️ 주간계획 모듈 — 7일치 구체 계획</div>
+                      <ol style={{ margin: '2px 0 4px', paddingLeft: 20, fontSize: 12 }}>
+                        {(pd.targetRotation || []).map((s, i) => (
+                          <li key={i} style={{ color: s.track === 'challenge' ? '#6A1B9A' : '#374151' }}>
+                            <b>{s.cookedName || s.ingredient}</b>{s.dishes?.length ? ` → ${s.dishes.join('·')}` : ''} <span style={{ color: '#9CA3AF' }}>[{s.group}·{s.track === 'challenge' ? `도전🆕${s.pairLiked ? `(${s.pairLiked}사촌)` : ''}` : '보급'}]</span>
+                          </li>
+                        ))}
+                      </ol>
+                      <div style={{ fontSize: 11.5, color: '#4B5563' }}>📦 풀({pd.poolMode}): 보급 [{(pd.supplyPool || []).join(', ') || '-'}] · 도전 [{(pd.challengePool || []).map((c) => `${c.ingredient}←${c.cousinOf}`).join(', ') || '-'}]</div>
+                      <div style={{ fontSize: 11.5, color: '#4B5563' }}>🥗 결핍군 [{(pd.deficitGroups || []).join('·') || '-'}] · 충족군 [{(pd.coveredGroups || []).slice(0, 6).join('·') || '-'}]</div>
+                      <div style={{ fontSize: 11.5, color: '#B86A20' }}>⚖️ BMI/탄단지 트랙: {mt?.active ? `${mt.band}·${mt.reason}${mt.boostGroups?.length ? ` 보강 ${mt.boostGroups.join('·')}(${(mt.boostDishes || []).slice(0, 3).join('·')})` : ''}${mt.snackRestraint ? ' 간식절제' : ''} ${mt.cadenceWeek ? '·이번주 노출' : '·격주 쉼'}` : `비활성(${mt?.band || 'BMI 정보없음'})`}</div>
+                      <div style={{ fontSize: 11.5, color: '#6A1B9A' }}>📈 커리큘럼: focus {cu?.focusLabel || cu?.focusUnit || '-'}(레버 {cu?.lever || '-'}) · standby [{(cu?.standby || []).join('·') || '-'}]{cu?.stalledOut ? ` · 정체강등 ${cu.stalledOut}` : ''}{cu?.graduatedTo ? ` → 승격 ${cu.graduatedTo}` : ''}</div>
+                      <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>🪞 거울 스케줄: {(pd.mirrorSchedule || []).map((m, i) => `${i}:${m.kind === 'deficit' ? (m.deficitGroup || 'D') : m.kind === 'covered' ? '✓충족' : m.kind === 'macro' ? '⚖성장' : '·쉼'}`).join(' / ')}</div>
+                    </div>
+                  );
+                })()}
                 <div>👪 부모 행동: {String(w.behavior_goal ?? '-')}</div>
                 <div>⏱️ 채근 예산: push {String(budget.push ?? '-')}/주 · 노출 {String(budget.expose ?? '-')} · 사용 {ledger.pushUsed ? '✅' : '⬜'}</div>
                 {w.impression ? <div style={{ color: '#6B7280' }}>🩺 코치 소견(내부): {String(w.impression)}</div> : null}

@@ -15,6 +15,10 @@ import { callLLM, buildCoachPlan, planSignature, MOVE_KEYS, MOVE_MENU, SNACK_CHA
 import { SCENARIOS, type CoachScenario, type CoachSignals } from './coachScenarios';
 import { UNITS, UNIT_IDS, TH, type UnitId, type Goal, type ProgressRow, type CandidateSignals } from './curriculumUnits';
 import { normalizeGoals, goalsOf } from './curriculum';
+// ⭐ 주간계획 모듈(enrichWeeklyPlan)이 오케스트레이션할 다른 모듈들(순환 의존 없음 — 이들은 coachWeekly를 import하지 않음)
+import { popularDishesFor, buildIngredientPool, cookedName, groupOfIngredient, GROUP_INGREDIENTS, type FreqMap } from './coachRecos';
+import { verifiedCousinsOf, strongPairsOf } from './foodGraph';
+import { bmiBand, growthTrackToPhrase, type BmiBand, type GrowthTrack } from './growth-reference';
 
 const WEEKLY_MODEL = 'claude-sonnet-4-6';   // 주간 종합(자녀당 주 1회). ⭐역할 키 → callLLM이 DeepSeek V4-Pro로 1차, 실패 시 이 Claude Sonnet 폴백(이사님 2026-06-16 DeepSeek 전환·env 제거)
 
@@ -42,7 +46,45 @@ export type TeachingArc = { stages: string[]; implIntention?: string | null };  
 // 일간 편지에 주입하는 그날 단계 — 요일·진척으로 결정. 잠긴 한 주 안에서 '매일 다른 각도'를 만드는 변주축(2026-06-11 복붙 사고 핫픽스).
 //   intro(주 첫 편지·진단+왜) → how/obstacle/observe(요일 회전·진단 재서술 금지) / reinforce(실행 관측 시·연속 금지).
 export type WeeklyArcStage = 'intro' | 'how' | 'obstacle' | 'observe' | 'reinforce';
-export type WeeklyArc = { stage: WeeklyArcStage; behaviorGoal: string; implIntention?: string | null; progressNote?: string | null };
+// ⭐ F-17 — step 누적 서사: 오늘 코칭 유닛의 사다리 위치(이전/현재/다음 단계)+캠페인 누적일. 손이 '지난 X→오늘 Y' 진도감을 녹인다.
+export type StepStory = { mode: string; stepNum: number; totalSteps: number; prevBehavior: string | null; nextBehavior: string | null; unitLabel: string; unitDays: number };
+export type WeeklyArc = { stage: WeeklyArcStage; behaviorGoal: string; implIntention?: string | null; progressNote?: string | null; stepStory?: StepStory | null };
+
+// ── ⭐ 주간계획 모듈(작전층) 산출 — plan_detail (이사님 2026-06-18) ──────────────
+//  일요일 종합(Sonnet)이 잡은 thin 닻(mission_target 카테고리) 위에, 결정론 후처리 enrichWeeklyPlan이
+//  다른 모듈(추천엔진·그래프·영양평가·진척)을 오케스트레이션해 '7일치 구체 dish 회전·2트랙 풀·macro·거울 스케줄'을
+//  미리 굽는다. 일간은 slot=(daySeed+cidHash)%7로 소비하되 그날 데이터로 vetting(유연성 가드).
+export type PlanSlot = {
+  ingredient: string;        // '두부'(도감 표준명)
+  cookedName: string;        // '두부'·'삶은 두부'·'밥'(cookedName 적용 — 생물 오인 방지)
+  dishes: string[];          // popularDishesFor → ['두부조림','순두부찌개'](≤2·괴식필터됨)
+  group: string;             // '콩류'(식품군)
+  track: 'supply' | 'challenge';   // 결핍 보급 / 사촌 도전
+  via: 'deficit' | 'cousin' | 'pair';
+  pairLiked?: string;        // challenge면 어떤 잘 먹는 음식의 사촌/궁합인지
+};
+export type MirrorSlot = { deficitGroup: string | null; line: string | null; kind: 'deficit' | 'covered' | 'macro' | null };
+export type MacroTrack = {
+  active: boolean; band: BmiBand | null; reason: 'lowWeight' | 'growthLag' | 'overweight' | null;
+  boostGroups: string[];     // 저체중/성장더딤이면 탄단지 보강군['고기·계란','콩류','유제품']
+  boostDishes: string[];     // 그 군 대표의 popularDishesFor 평탄화(편지 인용)
+  snackRestraint: boolean;   // 과체중/비만 = 간식 절제
+  phrase: string | null;     // growthTrackToPhrase(P10 톤·숫자/체중 단어 0)
+  cadenceWeek: boolean;      // 이 주차에 macro 줄 노출(격주·arcWeek 짝수)
+};
+export type PlanDetail = {
+  schemaVersion: 1;
+  targetRotation: PlanSlot[];                  // 길이 ≤7(슬롯별 구체 타깃 — 일간이 slot으로 픽)
+  supplyPool: string[];                        // 결핍군 대표 식재료
+  challengePool: Array<{ ingredient: string; cousinOf: string }>;
+  poolMode: 'supply' | 'challenge' | 'mixed';
+  macroTrack: MacroTrack;
+  curriculum: { focusUnit: UnitId | null; focusLabel: string | null; standby: UnitId[]; stalledOut: UnitId | null; graduatedTo: UnitId | null; lever: WeeklyLever };
+  mirrorSchedule: MirrorSlot[];                // 길이 ≤7(결핍군 회전·쿨다운 — 매일 콩류 금지)
+  deficitGroups: string[];
+  coveredGroups: string[];
+};
+
 export type WeeklyAnchor = {
   child_id: string; week_key: string; status: string; source: string;
   mission: string | null; mission_target: string | null; target_pool: string[] | null; secondary_axis: string | null;
@@ -50,6 +92,7 @@ export type WeeklyAnchor = {
   basis_hash: string | null; basis_attends_daycare: boolean | null;
   behavior_goal: string | null; teaching_arc: TeachingArc | null; check_method: Record<string, unknown> | null;   // §14 주간 커리큘럼(부모 행동변화·메시징 아크·확인)
   goals?: Goal[] | null;   // ⭐ v3 목표 포트폴리오 2~3(A-04 컬럼 — 구닻은 null, goalsOf가 lever에서 승격)
+  plan_detail?: PlanDetail | null;   // ⭐ 주간계획 모듈 산출(작전층 부가 계획) — 일간이 slot 소비. null=thin 폴백.
 };
 export const DEFAULT_BUDGET: WeeklyBudget = { expose: 2, push: 1, cadenceMinGap: 1, pushWindow: [2, 3, 4], lever: 'food' };  // 노출 2·채근 1·간격 1일·push 윈도우 화수목(dow 2,3,4)·기본 레버=food
 // 구조 레버(비식품) → 그 주 일간 프레임이 되는 시나리오. food는 mission_target 잠금 경로로.
@@ -57,19 +100,27 @@ export const DEFAULT_BUDGET: WeeklyBudget = { expose: 2, push: 1, cadenceMinGap:
 export const LEVER_SCENARIO: Record<string, string> = { environment: 'mealtime-atmosphere', autonomy: 'autonomy-power-struggle', texture: 'texture-refusal' };
 // ⭐ A-02 — 닻 무관 항상 허용 시나리오(전환 축하·적신호·기록공백). planFromWeekly 인터럽트 목록과 단일 소스.
 export const SAFE_INTERRUPT_SCENARIOS = new Set(['progress-celebrate', 'neophobia-arfid-watch', 'low-data-gap']);
+// ⭐ F-16 — 구조(비식품) 레버 시나리오 집합(환경·자율·식감). food 주에 두뇌가 이쪽으로 덮는 것을 막는 게이트 단일 소스.
+export const STRUCTURAL_SCENARIOS = new Set(Object.values(LEVER_SCENARIO));
 // ⭐ A-04/A-09 — 비-food 주에 일간 두뇌가 food 시나리오로 닻을 덮어쓸 수 있는 주당 상한(초과분 차단 → 음식 잔소리 연속 방지).
 export const FOOD_OVERRIDE_CAP = 2;
 export const DEFAULT_LEDGER: WeeklyLedger = { pushUsed: false, exposeCount: {}, lastExposeDow: null, arcWeek: 1, reanchorUsed: false, adviceGivenAt: null, firstServeDow: null, progressWeek: 1, foodOverrideUsed: 0 };
 
 /**
- * ⭐ A-04/A-10 — 두뇌가 고른 시나리오(sid)로 주간 닻을 덮어써도 되는지 판정(순수함수·테스트 가능).
- *   허용 = trigger 충족(A-06) AND (닻이 food주 | sid가 닻 레버 시나리오 | 안전 인터럽트 | food override 캡 미소진).
+ * ⭐ A-04/A-10 + F-16(양방향화) — 두뇌가 고른 시나리오(sid)로 주간 닻을 덮어써도 되는지 판정(순수함수·테스트 가능).
+ *   레버 호환 = 안전 인터럽트(항상) OR (food주: '비구조(food)' 시나리오만 / 비-food주: 그 레버의 구조 시나리오만).
+ *   ⭐ F-16 — 기존엔 food주가 '모든' 시나리오 호환이라 두뇌가 환경(mealtime-atmosphere) 시나리오를 무제한 꽂아
+ *     lever:food 주간을 환경 잔소리로 덮었다(유닛↔무브 결속 무력화·자가정독 #1). 이제 food주의 '구조 override'를 차단
+ *     (주간 food 잠금 보존). 비-food주의 food override는 종전대로 캡(FOOD_OVERRIDE_CAP)으로만 제한적 허용(다양성 보존).
  *   isFoodOverride = 비-food 주인데 food 시나리오로 캡을 1 소진하는 경우(arc 비우기·ledger 카운트 대상).
  */
 export function anchorOverrideAllowed(p: { anchorLever: string; sid: string; fov: number; triggerOk: boolean; cap?: number }): { allow: boolean; isFoodOverride: boolean } {
   const cap = p.cap ?? FOOD_OVERRIDE_CAP;
-  const isLeverCompat = p.anchorLever === 'food' || p.sid === LEVER_SCENARIO[p.anchorLever] || SAFE_INTERRUPT_SCENARIOS.has(p.sid);
-  const allow = p.triggerOk && (isLeverCompat || p.fov < cap);
+  const structuralSid = STRUCTURAL_SCENARIOS.has(p.sid);
+  const isLeverCompat = SAFE_INTERRUPT_SCENARIOS.has(p.sid)
+    || (p.anchorLever === 'food' ? !structuralSid : p.sid === LEVER_SCENARIO[p.anchorLever]);
+  // food override(비-food 주 → food 시나리오)만 캡으로 제한 허용. food 주 → 구조 시나리오는 차단(주간 food 잠금·F-16 보존).
+  const allow = p.triggerOk && (isLeverCompat || (p.anchorLever !== 'food' && p.fov < cap));
   const isFoodOverride = p.anchorLever !== 'food' && !isLeverCompat && p.triggerOk;
   return { allow, isFoodOverride };
 }
@@ -309,6 +360,7 @@ export function planFromWeekly(p: {
   lastArcStage?: string | null;   // 직전 편지의 아크 단계 — reinforce 이틀 연속 방지
   daySeed: number; cidHash: number; dow: number;
   forceScenarioId?: string | null;   // ⭐ A-03 — 두뇌가 고른 시나리오(닻 종속 override). food 레버 경로의 frame만 교체, 타깃 잠금·채근 캡·아크는 그대로.
+  effectiveLever?: WeeklyLever | null;   // ⭐ F-16 — 오늘 코칭 유닛(커리큘럼 결정)의 레버로 프레임/무브를 끈다(주간 레버가 stale일 때 유닛이 진짜로 무브를 결정). null/미전달=주간 레버(현행). weekCtx.lever·채근 캡은 그대로 주간 레버 유지(route).
 }): { scenario: CoachScenario; plan: CoachPlan; varyOpener: boolean; ledgerPatch: Partial<WeeklyLedger>; pushApplied: boolean; weeklyArc: WeeklyArc | null } | null {
   const { anchor, signals, recentPlans, daySeed, cidHash, dow } = p;
   const sc = (id: string) => SCENARIOS.find((s) => s.id === id)!;
@@ -332,7 +384,8 @@ export function planFromWeekly(p: {
     : null;
 
   // 1.5) ⭐ 주력 레버가 비-food면 그 주는 환경/자율성/식감 코칭이 중심(어머니에게 다양한 코칭). 음식 타깃은 배경(이번 주 행동 아님).
-  const lever = anchor.budget?.lever || 'food';
+  //   ⭐ F-16 — effectiveLever(오늘 코칭 유닛의 레버)가 오면 그걸로 프레임/무브를 끈다(주간 레버가 유닛 피벗을 못 따라가던 plateau 봉합). 미전달이면 주간 레버(현행 byte-동일).
+  const lever = p.effectiveLever ?? (anchor.budget?.lever || 'food');
   if (lever !== 'food' && LEVER_SCENARIO[lever]) {
     const frame = LEVER_SCENARIO[lever];   // mealtime-atmosphere | autonomy-power-struggle | texture-refusal
     // ⭐ 전용 무브 메뉴(SCEN_MOVES)를 buildCoachPlan으로 회전 — 프레임은 한 주 잠겨도 행동 방식·시그니처는 매일 달라진다
@@ -377,6 +430,155 @@ export function planFromWeekly(p: {
   const ledgerPatch: Partial<WeeklyLedger> = { lastExposeDow: dow };
   if (pushApplied) ledgerPatch.pushUsed = true;
   return { scenario: sc(frame), plan: bp, varyOpener: recentPlans[0]?.frame === frame, ledgerPatch, pushApplied, weeklyArc };
+}
+
+// ── ⭐ 주간계획 모듈 — enrichWeeklyPlan(오케스트레이션) + pickPlanSlot(유연성 가드 소비) ──
+//  이사님 2026-06-18: 빈약한 카테고리 1개 타깃이 일간 반복의 근원. 일요일 종합 직후 결정론 후처리가
+//  다른 모듈(추천엔진·그래프·영양평가·진척)을 오케스트레이션해 7일치 구체 계획을 굽는다(LLM 0콜·순수).
+export const PLAN_MEAL_GROUPS = new Set(['콩류', '비타민A채소', '녹색채소', '생선·해산물', '고기·계란', '유제품', '과일', '곡류']);   // 식품군 8(회전·거울 대상)
+
+export type EnrichContext = {
+  groupSignals: { group: string; level: string; weeklyEst: number }[];   // computeGroupSignals(homeDays).signals
+  likedIngredients: string[]; freqMap?: FreqMap;
+  deficitGroups: string[];   // fg.missing ∪ homeMissing(식품군)
+  coveredGroups: string[];   // 충족군
+  band: BmiBand | null; heightTrack: GrowthTrack | null; weightTrack: GrowthTrack | null;
+  goals: Goal[];             // synth.goals(focusFatigue 거침)
+  focusHistory?: Array<{ unit_id: UnitId | null; stepAdvanced: boolean }>;
+  arcWeek: number; attendsDaycare: boolean;
+};
+
+// ⭐ K-04b — 거울 문장틀 3변형 회전(클로징 앵무새 차단) + 결핍군 구체 dish 주입(이사님 '음식 추천 항상 포함').
+//   환경날엔 본문에 음식 행동이 없으므로, 거울(정보 채널)이 결핍군의 구체 메뉴 1개를 '소프트 안내'로 담는다(deficit군 dish라 코히어런트·행동 아님).
+function mirrorLineFor(g: string, attendsDaycare: boolean, variant = 0, dish?: string | null): string {
+  const v = ((variant % 3) + 3) % 3;
+  const d = dish ? ` ${dish} 같은 걸로` : '';
+  return attendsDaycare
+    ? [
+      `어린이집 덕에 전체 영양은 잘 채워지고 있고, 집 끼니엔 ${g}가 좀 드무니${d} 가끔 만나면 다양성에 좋아요`,
+      `기관 급식이 ${g} 빼고는 영양을 든든히 받쳐주고 있어요. 집에선${d || ` ${g}를`} 한 번씩 만나게 해주면 더 고르게 채워져요`,
+      `전체 영양은 기관에서 잘 챙겨지고 있으니, 집에선 ${g}를${d ? `${d} ` : ' '}부담 없이 가끔 만나는 정도면 충분해요`,
+    ][v]
+    : [
+      `${g}가 요즘 식단에서 만나기 어려웠어요.${d ? `${d} 집 끼니에 한 번씩` : ' 집 끼니에 한 번씩'} 곁들이면 다양성이 좋아져요`,
+      `집 끼니에 ${g}가 좀 드무니${d} 가끔 만나면 영양 균형이 한결 고르게 잡혀요`,
+      `${g}를${d ? `${d}` : ''} 조금만 더 챙겨주면 식단이 한결 고르게 채워져요`,
+    ][v];
+}
+/** 결핍군의 대표 식재료(salt로 회전)의 인기 dish 1개 — 거울에 넣을 구체 메뉴(매일 다른 dish). */
+function deficitDishFor(g: string, salt: number, freqMap?: FreqMap): string | null {
+  const reps = GROUP_INGREDIENTS[g] || []; if (!reps.length) return null;
+  const rep = reps[((salt % reps.length) + reps.length) % reps.length];
+  return popularDishesFor(rep, freqMap)[0] || null;
+}
+function buildMacroTrack(ctx: EnrichContext): MacroTrack {
+  const lagging = (t: GrowthTrack | null) => !!t && (t.status === '주의' || t.status === '경고');
+  const growthLag = lagging(ctx.heightTrack) || lagging(ctx.weightTrack);
+  const lowWeight = ctx.band === '저체중';
+  const overweight = ctx.band === '과체중' || ctx.band === '비만';
+  const cadence = (ctx.arcWeek % 2) === 0;   // 격주(2주 연속 금지·측정 저빈도 존중)
+  if (lowWeight || growthLag) {
+    const boostGroups = ['고기·계란', '콩류', '유제품'];   // 탄단지(단백·지방·열량) 보강 — 고기류 중심(이사님)
+    const boostDishes: string[] = [];
+    for (const g of boostGroups) for (const rep of (GROUP_INGREDIENTS[g] || []).slice(0, 2)) for (const d of popularDishesFor(rep, ctx.freqMap).slice(0, 1)) if (!boostDishes.includes(d)) boostDishes.push(d);
+    return { active: true, band: ctx.band, reason: lowWeight ? 'lowWeight' : 'growthLag', boostGroups, boostDishes: boostDishes.slice(0, 5), snackRestraint: false, phrase: growthTrackToPhrase({ band: ctx.band, height: ctx.heightTrack, weight: ctx.weightTrack }), cadenceWeek: cadence };
+  }
+  if (overweight) return { active: true, band: ctx.band, reason: 'overweight', boostGroups: [], boostDishes: [], snackRestraint: true, phrase: growthTrackToPhrase({ band: ctx.band, height: ctx.heightTrack, weight: ctx.weightTrack }), cadenceWeek: cadence };
+  return { active: false, band: ctx.band, reason: null, boostGroups: [], boostDishes: [], snackRestraint: false, phrase: null, cadenceWeek: false };
+}
+function buildMirrorSchedule(deficits: string[], covered: string[], macro: MacroTrack, attendsDaycare: boolean, freqMap?: FreqMap): MirrorSlot[] {
+  const out: MirrorSlot[] = [];
+  const coveredLine = covered.length ? `여러 식품군을 두루 만나 균형이 좋아요(${covered.slice(0, 3).join('·')})` : null;
+  for (let i = 0; i < 7; i++) {
+    if (macro.active && macro.cadenceWeek && i === 3) { out.push({ deficitGroup: null, line: macro.phrase, kind: 'macro' }); continue; }
+    if (deficits.length >= 2) {
+      const g = deficits[i % deficits.length];   // 결핍군 라운드로빈(같은 군 연속 금지)
+      out.push({ deficitGroup: g, line: mirrorLineFor(g, attendsDaycare, i, deficitDishFor(g, i, freqMap)), kind: 'deficit' });
+    } else if (deficits.length === 1) {
+      // ⭐ K-04b — 단일 결핍은 매일 같은 줄이 앵무새가 되므로 격일 쿨다운(짝수 슬롯만 결핍줄·홀수는 칭찬/생략) + 문장틀·구체 dish 회전
+      if (i % 2 === 0) out.push({ deficitGroup: deficits[0], line: mirrorLineFor(deficits[0], attendsDaycare, i, deficitDishFor(deficits[0], i, freqMap)), kind: 'deficit' });
+      else out.push({ deficitGroup: null, line: coveredLine, kind: coveredLine ? 'covered' : null });
+    } else {
+      out.push({ deficitGroup: null, line: coveredLine, kind: coveredLine ? 'covered' : null });
+    }
+  }
+  return out;
+}
+
+/** ⭐ 주간계획 모듈 핵심 — 일요일 종합(synth) 위에 7일치 구체 계획을 오케스트레이션. 순수·LLM0·throw 시 호출자 catch→null. */
+export function enrichWeeklyPlan(synth: WeeklySynthesis, ctx: EnrichContext): PlanDetail {
+  const freqMap = ctx.freqMap;
+  const macro = buildMacroTrack(ctx);   // ⭐ 먼저 계산 — 저체중/성장더딤이면 고기류를 타깃 회전에 주입
+  // 1) supply 풀 — 결핍군 대표 식재료 (+ ⭐이사님: BMI 저체중/성장더딤이면 탄단지 보강군(고기·계란 등)을 앞에 주입해 '고기류 타깃'화)
+  const poolOut = buildIngredientPool({ signals: ctx.groupSignals, likedIngredients: ctx.likedIngredients, freqMap, max: 8 });
+  let supplyPool = poolOut.pool.slice(0, 8);
+  if (macro.active && (macro.reason === 'lowWeight' || macro.reason === 'growthLag')) {
+    const macroIngs = macro.boostGroups.flatMap((g) => (GROUP_INGREDIENTS[g] || []).slice(0, 2)).filter((i) => i && !supplyPool.includes(i));
+    supplyPool = [...macroIngs, ...supplyPool].slice(0, 8);   // 고기류 우선
+  }
+  // 2) challenge 풀 — 잘 먹는 음식의 검증 사촌(안 먹는 쪽·식품군 한정) → 콩류 3주 도돌이표 구조적 차단
+  const likedSet = new Set(ctx.likedIngredients);
+  const challengePool: Array<{ ingredient: string; cousinOf: string }> = []; const seenC = new Set<string>();
+  for (const lk of ctx.likedIngredients.slice(0, 8)) {
+    for (const c of verifiedCousinsOf(lk).slice(0, 3)) {
+      const g = groupOfIngredient(c.nm);
+      if (!c.nm || likedSet.has(c.nm) || seenC.has(c.nm)) continue;
+      if (g && !PLAN_MEAL_GROUPS.has(g)) continue;
+      seenC.add(c.nm); challengePool.push({ ingredient: c.nm, cousinOf: lk });
+      if (challengePool.length >= 6) break;
+    }
+    if (challengePool.length >= 6) break;
+  }
+  // 3) 7-슬롯 회전 — supply 2 : challenge 1 인터리브(연속 동일 식재료 금지)
+  const mkSupply = (ing: string): PlanSlot | null => { const g = groupOfIngredient(ing); if (!g) return null; return { ingredient: ing, cookedName: cookedName(ing), dishes: popularDishesFor(ing, freqMap).slice(0, 2), group: g, track: 'supply', via: 'deficit' }; };
+  const mkChallenge = (c: { ingredient: string; cousinOf: string }): PlanSlot | null => { const g = groupOfIngredient(c.ingredient); if (!g) return null; return { ingredient: c.ingredient, cookedName: cookedName(c.ingredient), dishes: popularDishesFor(c.ingredient, freqMap).slice(0, 2), group: g, track: 'challenge', via: 'cousin', pairLiked: c.cousinOf }; };
+  const supplySlots = supplyPool.map(mkSupply).filter(Boolean) as PlanSlot[];
+  const challengeSlots = challengePool.map(mkChallenge).filter(Boolean) as PlanSlot[];
+  const slots: PlanSlot[] = []; let si = 0, ci = 0, lastIng = '';
+  while (slots.length < 7 && (si < supplySlots.length || ci < challengeSlots.length)) {
+    const wantChallenge = (slots.length % 3 === 2) && ci < challengeSlots.length;
+    const pick = wantChallenge ? challengeSlots[ci++] : (si < supplySlots.length ? supplySlots[si++] : (ci < challengeSlots.length ? challengeSlots[ci++] : undefined));
+    if (!pick) break;
+    if (pick.ingredient === lastIng) continue;
+    slots.push(pick); lastIng = pick.ingredient;
+  }
+  if (slots.length && slots.length < 7) { const extra: PlanSlot[] = []; for (const s of slots) if (s.dishes.length >= 2 && slots.length + extra.length < 7) extra.push({ ...s, dishes: [s.dishes[1]] }); slots.push(...extra); }
+  // 4) (macro는 위에서 계산됨) · 5) 커리큘럼 anti-stall 가시화 · 6) 거울 스케줄
+  const focus = ctx.goals.find((g) => g.status === 'focus') || null;
+  const standby = ctx.goals.filter((g) => g.status === 'standby').map((g) => g.unit_id);
+  const stalledOut = ctx.goals.find((g) => g.status === 'stopped')?.unit_id ?? null;
+  const prevFocus = (ctx.focusHistory && ctx.focusHistory[0]?.unit_id) || null;
+  const graduatedTo = (focus && prevFocus && focus.unit_id !== prevFocus) ? focus.unit_id : null;
+  const mirrorSchedule = buildMirrorSchedule(ctx.deficitGroups.filter((g) => PLAN_MEAL_GROUPS.has(g)), ctx.coveredGroups, macro, ctx.attendsDaycare, freqMap);
+  return {
+    schemaVersion: 1, targetRotation: slots.slice(0, 7), supplyPool, challengePool, poolMode: poolOut.mode, macroTrack: macro,
+    curriculum: { focusUnit: focus?.unit_id ?? null, focusLabel: focus ? UNITS[focus.unit_id].label : null, standby, stalledOut, graduatedTo, lever: focus ? leverForUnit(focus.unit_id) : (synth.budget.lever || 'food') },
+    mirrorSchedule, deficitGroups: ctx.deficitGroups, coveredGroups: ctx.coveredGroups,
+  };
+}
+
+export type PlanSlotPick = { slot: PlanSlot; slotIndex: number; mirror: MirrorSlot | null; macroPhrase: string | null };
+/** ⭐ 일간 소비(유연성 가드) — 주간 plan_detail은 '가이드'. 그날 기록 데이터(현재 결핍)로 vetting해 적응(이사님).
+ *  slot=(daySeed+cidHash)%n 시작, supply 슬롯의 group이 더는 결핍 아니면(받아들임/채워짐) 다음 유효 슬롯으로 회전. challenge는 항상 유효. */
+export function pickPlanSlot(detail: PlanDetail | null | undefined, p: { daySeed: number; cidHash: number; deficitNow: Set<string>; recentIngredients?: string[] }): PlanSlotPick | null {
+  if (!detail || !detail.targetRotation?.length) return null;
+  const rot = detail.targetRotation, n = rot.length;
+  const base = (((p.daySeed + p.cidHash) % n) + n) % n;
+  const recent = new Set(p.recentIngredients || []);
+  const pack = (s: PlanSlot, idx: number): PlanSlotPick => {
+    const macroPhrase = (detail.macroTrack.active && detail.macroTrack.cadenceWeek && detail.mirrorSchedule[idx]?.kind === 'macro') ? detail.macroTrack.phrase : null;
+    return { slot: s, slotIndex: idx, mirror: detail.mirrorSchedule[idx] ?? null, macroPhrase };
+  };
+  const valid = (s: PlanSlot) => !(s.track === 'supply' && p.deficitNow.size > 0 && !p.deficitNow.has(s.group));   // 유연성 가드: 채워진 supply 스킵
+  // 1차: 유효 + 최근 미추천(메추리알 수렴 차단) / 2차: 유효(최근 무시) / 3차: base
+  for (const avoidRecent of [true, false]) {
+    for (let i = 0; i < n; i++) {
+      const idx = (base + i) % n; const s = rot[idx]; if (!s || !valid(s)) continue;
+      if (avoidRecent && recent.has(s.ingredient)) continue;
+      return pack(s, idx);
+    }
+  }
+  return pack(rot[base], base);
 }
 
 // ── ⭐ E-08 — 일요일 회고 편지(자유작문 잔존면) 규격 ───────────────────────────

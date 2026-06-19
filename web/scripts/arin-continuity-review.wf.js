@@ -1,0 +1,87 @@
+/**
+ * 아린 편지 연속성 자가정독(랄프위검) 워크플로우 — 재생성 후 launch.
+ * args = { loop: 'F-16', file: '/tmp/arin-letters-f16.txt', baseline: 52 }
+ *   file = scripts/arin-read.mjs 텍스트 덤프(각 편지: 날짜·커리큘럼[unit/step/mode/pivot]·시나리오·레버·행동목표·무브·추천·본문).
+ * 다차원 리뷰(병렬, 각 에이전트가 Read로 파일 정독) → 종합(연속성 점수 + 우선순위 문제 + 문서 보강점).
+ */
+export const meta = {
+  name: 'arin-continuity-review',
+  description: 'Adversarial self-read of Arin letters for continuity (move-unit binding/repetition/parrot/contradiction/arc) + doc-reinforcement findings',
+  phases: [
+    { title: 'Review', detail: 'parallel reviewers per continuity dimension (each reads the dump file)' },
+    { title: 'Synthesize', detail: 'continuity score + ranked problems + doc reinforcement' },
+  ],
+}
+
+const loop = args?.loop || '주간계획 모듈+슬롯본문봉합'
+const file = args?.file || '/tmp/arin-letters-wp2.txt'
+const baseline = args?.baseline ?? 56
+
+const COMMON = `당신은 영유아 편식 코칭 편지 엔진의 '연속성 감사관'입니다. 먼저 Read 도구로 파일 \`${file}\` 을 끝까지 읽으세요 — 한 아이(아린)에게 가입 1일차부터 오늘까지 매일 발행된 편지 23통을 순서대로 정독한 것입니다. 이번 검토는 방금 적용한 수정 '${loop}'의 효과/부작용을 보는 라운드입니다(직전 라운드 연속성 ${baseline}/100).
+
+각 편지엔 코드가 정한 메타(커리큘럼 유닛/단계/모드/피벗, 시나리오, 주간 레버, 행동목표, 오늘의 무브, 추천 식재료)가 붙어 있습니다. '말투'가 아니라 **구조적 연속성**을 봅니다. 부모가 23일을 연속으로 읽었을 때 느낄 반복·모순·정체·잡탕을 냉정하게 찾으세요. 칭찬 말고 문제를 찾는 게 임무입니다(랄프위검처럼 솔직하게). 반드시 실제 날짜와 인용으로 증거를 대세요.
+
+[참고 — 이번 라운드(⭐주간계획 모듈 격상) 코드 분석가가 미리 관찰한 것(검증/반박/보강하라, 맹신 금지)]
+- 이번 핵심 변경: 빈약한 카테고리 1개 타깃(콩류) → 주간계획 모듈이 다른 모듈을 종합해 7일치 '구체 dish 회전'(메타 🎚️주간슬롯에 표시)·BMI/탄단지 macro·거울 쿨다운·anti-stall을 미리 굽고, 일간이 slot 소비 + 그날 데이터로 유연 적응(가드).
+- 개선 관찰(메타): 추천 식재료가 두부 11/23 도돌이표 → 7종 분산(메추리알·두부·단호박·달걀·당근·치즈·검은콩). 본문에 구체 dish(순두부찌개·메추리알장조림·달걀팟국 등) 등장. 거울이 covered/deficit 회전(단일 결핍 격일 쿨다운).
+- ⭐이번 라운드 추가 봉합(직전 56점 자가정독 #1·#2·#4·#6 대응 — 효과 검증하라): ①bridgeFacts를 슬롯 식재료/그룹으로 교체(결핍군 대표 두부 회귀 차단) ②환경 코칭 날에도 거울(정보 채널)에 결핍군 구체 dish 주입(이사님 '음식 추천 항상 포함' — 별도 음식 숙제 아닌 소프트 정보 1줄, verify 완화) ③거울 문장틀 3변형+결핍 dish 회전(클로징 앵무새) ④pickPlanSlot 최근 식재료 dedup(메추리알 수렴 차단).
+- 검증 질문: 메타 추천 다양성(두부5·달걀4·메추리알4·단호박3 등)이 '본문 다양성'으로 실제 번역됐는가(본문에 메추리알장조림·순두부찌개·달걀장조림 등 구체 dish가 두부 도돌이표 없이 도달했는가)? 환경 코칭 날 음식 정보 1줄이 잡탕(한 번에 하나 위반)으로 읽히는가, 아니면 자연스러운 소프트 안내인가? 클로징 거울 앵무새가 줄었는가? 수업 정체(table↔exposure·step 1단)는 여전(F 범위 밖·신호포착 병목 명기).
+- ⭐이사님 5조건(반드시 평가): 음식타깃 구체성·주간수업 정체·BMI/macro·주간계획 다양성·커리큘럼 진행.`
+
+phase('Review')
+const FINDING_SCHEMA = {
+  type: 'object', additionalProperties: false,
+  required: ['dimension', 'severity', 'findings'],
+  properties: {
+    dimension: { type: 'string' },
+    severity: { type: 'string', enum: ['low', 'medium', 'high'] },
+    findings: { type: 'array', items: { type: 'object', additionalProperties: false,
+      required: ['issue', 'dates', 'evidence', 'rootCauseGuess'],
+      properties: {
+        issue: { type: 'string' },
+        dates: { type: 'array', items: { type: 'string' } },
+        evidence: { type: 'string', description: 'quote the repeated/contradictory text' },
+        rootCauseGuess: { type: 'string', description: 'which engine mechanism (file/concept)' },
+      } } },
+  },
+}
+
+const DIMENSIONS = [
+  { key: '무브-유닛 결속(F-16 핵심)', prompt: `각 편지 본문의 실제 '행동 제안'이 그날 커리큘럼 유닛과 맞는지 보라. 노출/음식 유닛(exposure-savings·food-bridge·link-rhythm) 날인데 본문이 환경 얘기(TV·간식타이밍·정리·수저)만 하면 결속 실패. 환경/자율/식감 유닛 날에 음식 곁들임/섞기가 들어가면 잡탕. 유닛 피벗 뒤 본문이 며칠이나 그 유닛을 따라갔는지 날짜로. 메타 레버와 본문이 어긋난 날을 모두 짚어라.` },
+  { key: '반복·앵무새', prompt: `여러 날 거의 같은 문장/표현/클로징(특히 '어린이집 덕에…' 영양거울 결핍줄), 같은 무브, 같은 추천 식재료, 같은 칭찬 틀의 반복. 인접일(연속 2일) 복붙에 가까운 쌍 최우선. 같은 환경 무브 4종이 몇 번씩 재등장하는지 카운트.` },
+  { key: '모순·잡탕·괴식·한번에하나', prompt: `데이터/직전 편지와 모순되는 단정, 한 편지 안 레버 잡탕(환경 코칭인데 음식 숙제도), 괴식(단과일+짭짤·김치섞기·미역↔생선), '오늘 행동 1개' 위반(요구 2~3개). 주간 레버=food인데 본문은 환경인 모순도.` },
+  { key: '아크·진도 서사', prompt: `23일 통틀어 '커리큘럼이 전진하는 느낌'이 부모에게 가는가? step 1단 고정인데 본문 진도감 0인지, '지난주 X→이번주 Y' 누적 서사 부재인지(F-17 대상 — 증거만 모아라), 졸업/피벗이 서사로 드러나는지. 같은 유닛을 며칠째 같은 말로 반복하는 정체.` },
+  { key: '도입 다양성·온보딩', prompt: `첫 문장이 매일 다른 소재로 열리는지, 같은 도입 구조(아이 이름 시작·'어린이집이 채워준'·메모 일화) 반복인지. 온보딩(첫 1~2일) 따뜻함·적절성·인접 복붙.` },
+  // ⭐ 이사님 지시(2026-06-18) — 랄프위검 정식 조건 3종 추가(주간계획·영양 정합)
+  { key: '🥗 음식 타깃 구체성(이사님 조건)', prompt: `이사님 반복 지시: 주간계획의 '음식 타깃'은 카테고리(식품군: 콩류·과일·비타민A채소 등)가 아니라 '구체적 음식/메뉴 이름'(예: 두부조림·순두부찌개·소고기무국)이어야 한다. 편지 본문·주간계획 메타에서 음식 타깃/추천이 여전히 식품군 카테고리로만 제시되는지(구체 메뉴명 부재), 구체 메뉴가 나와도 매번 같은 것(두부 도돌이표)인지 날짜로 짚어라. popularDishesFor 같은 구체메뉴 산출이 주간계획에 배선됐는가.` },
+  { key: '📚 주간 수업 정체(이사님 조건)', prompt: `이사님 지적: 주간계획 '이번 주 수업'(커리큘럼 유닛·step)이 여러 주(W22·W23·W24…) 거의 동일(식탁무대 1단 고정)하면 안 된다. 같은 유닛·같은 step이 2주+ 반복되는지, focusFatigue(2주 정체 유닛 강등)가 작동하는지, 유닛이 table↔exposure 진동만 하고 졸업/전진이 없는지. 부모가 '3주째 똑같은 수업'으로 느끼는 정체를 주차별로 짚어라.` },
+  { key: '⚖️ BMI·성장 → 탄단지 트랙(이사님 조건)', prompt: `이사님 지시: 아이 BMI·성장을 고려해 '탄단지(탄수화물·단백질·지방) 보강'도 타깃이 돼야 한다 — 저체중/성장더딤이면 과일·채소가 아니라 '고기류(단백질·지방)'를 타깃 음식으로. 현재 타깃이 BMI/성장과 무관하게 결핍 식품군(과일·콩류)만 잡는지, 성장 신호가 있는데 macro 보강 트랙이 누락됐는지. 과체중이면 간식 절제, 저체중/성장더딤이면 탄단지↑ 트랙이 격주로 배선됐는가.` },
+  { key: '📈 커리큘럼 진행(이사님 조건)', prompt: `이사님 지시: 커리큘럼이 '잘 진행되고 있는지' 체크. step이 여러 주 1단에 고착인지, 유닛이 졸업(mastered)·전진(step++)하지 못하고 table↔exposure 진동만 하는지, passWhen 충족이 한 번도 안 일어나는지(신호 포착 병목), 부모가 '진도가 어디로도 안 간다'고 느낄 정체인지. 진행이 막혔다면 그 원인(신호 미포착/유닛 부적합/passWhen 임계 과엄격)을 주차별로 짚어라.` },
+]
+
+const reviews = await parallel(DIMENSIONS.map((d) => () =>
+  agent(`${COMMON}\n\n## 당신의 검토 차원: ${d.key}\n${d.prompt}\n\n구조화 결과(JSON)로만. 문제 없으면 findings=[]·severity=low.`,
+    { label: `review:${d.key}`, phase: 'Review', schema: FINDING_SCHEMA })
+))
+
+phase('Synthesize')
+const valid = reviews.filter(Boolean)
+const synthesis = await agent(
+  `당신은 코칭 엔진 연속성 종합관입니다. 먼저 Read로 \`${file}\` 23통을 정독하고, 아래 차원별 감사 결과를 종합하세요. 이번 라운드 수정='${loop}'(직전 연속성 ${baseline}/100).\n\n## 차원별 감사 결과\n${JSON.stringify(valid, null, 2)}\n\n## 종합 임무\n(1) 연속성 점수 0~100(${baseline} 대비 ${loop}로 올랐는지/내렸는지 + 근거). (2) 우선순위 문제(가장 아픈 것부터·날짜·증거·중복제거). (3) 각 문제별 '개발 문서 보강점'(어느 메커니즘을 어떻게·F-16/F-17/K-04b/그 외 EPIC 중 무엇의 영역). (4) '${loop}'가 의도대로 작동했는가 판정(무브-유닛 결속이 본문에 실제 드러나는가) + 남은 한계.`,
+  { label: 'synthesize', phase: 'Synthesize', schema: {
+    type: 'object', additionalProperties: false,
+    required: ['continuityScore', 'scoreRationale', 'fixVerdict', 'rankedProblems', 'docReinforcements'],
+    properties: {
+      continuityScore: { type: 'number' },
+      scoreRationale: { type: 'string' },
+      fixVerdict: { type: 'string' },
+      rankedProblems: { type: 'array', items: { type: 'object', additionalProperties: false,
+        required: ['rank', 'problem', 'dates', 'evidence', 'owner'],
+        properties: { rank: { type: 'number' }, problem: { type: 'string' }, dates: { type: 'array', items: { type: 'string' } }, evidence: { type: 'string' }, owner: { type: 'string' } } } },
+      docReinforcements: { type: 'array', items: { type: 'object', additionalProperties: false,
+        required: ['target', 'note'], properties: { target: { type: 'string' }, note: { type: 'string' } } } },
+    },
+  } }
+)
+
+return { loop, baseline, reviews: valid, synthesis }

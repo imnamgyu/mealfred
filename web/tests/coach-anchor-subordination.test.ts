@@ -48,6 +48,19 @@ describe('A-04/A-06 — anchorOverrideAllowed 게이트', () => {
     expect(r.allow).toBe(false);
   });
   it('FOOD_OVERRIDE_CAP = 2(주당)', () => expect(FOOD_OVERRIDE_CAP).toBe(2));
+  // ⭐ F-16 양방향화 — food 주에 두뇌가 구조(환경·자율·식감) 시나리오로 덮는 것을 차단(주간 food 잠금 보존·자가정독 #1 봉합)
+  it('F-16 — food 주 + 구조 시나리오(mealtime-atmosphere) = 차단', () => {
+    const r = anchorOverrideAllowed({ anchorLever: 'food', sid: 'mealtime-atmosphere', fov: 0, triggerOk: true });
+    expect(r.allow).toBe(false); expect(r.isFoodOverride).toBe(false);
+  });
+  it('F-16 — food 주 + food 시나리오(nutrient-gap) = 종전대로 허용', () => {
+    const r = anchorOverrideAllowed({ anchorLever: 'food', sid: 'nutrient-gap', fov: 0, triggerOk: true });
+    expect(r.allow).toBe(true);
+  });
+  it('F-16 — food 주 + 안전 인터럽트(적신호)는 구조여도 항상 허용', () => {
+    const r = anchorOverrideAllowed({ anchorLever: 'food', sid: 'neophobia-arfid-watch', fov: 0, triggerOk: true });
+    expect(r.allow).toBe(true);
+  });
 });
 
 describe('A-03 — planFromWeekly forceScenarioId(닻 안에서 시나리오만 교체·타깃 잠금 보존)', () => {

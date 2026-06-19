@@ -24,7 +24,7 @@ import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
 import { SCENARIOS, type CoachSignals } from '@/lib/coachScenarios';
-import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, anchorOverrideAllowed, type WeeklyAnchor, type WeeklyArc, type WeeklyLedger, type WeeklyBudget } from '@/lib/coachWeekly';
+import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFAULT_LEDGER, anchorOverrideAllowed, leverForUnit, enrichWeeklyPlan, pickPlanSlot, type EnrichContext, type WeeklyAnchor, type WeeklyArc, type WeeklyLedger, type WeeklyBudget } from '@/lib/coachWeekly';
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { compileFacts } from '@/lib/coachFacts';
 import { UNITS, UNIT_IDS, TH, type CRow, type UnitId, type Goal, type ProbeAnswer, type ProgressRow as CurriculumProgressRow } from '@/lib/curriculumUnits';
@@ -32,11 +32,11 @@ import { buildCandSignals, parseProbeAnswers } from '@/lib/coachDaily';
 import { advanceProgress, blankRow, goalsOf, normalizeGoals, type DailyDecision } from '@/lib/curriculum';
 import { buildBrainContext, pickActionByBrain, nutritionMirrorFromInput, type BrainAction } from '@/lib/coachBrain';   // ⭐ 두뇌 선택+검수(시나리오는 LLM, 음식추천은 검수)
 import { reexposurePick } from '@/lib/reexposure';
-import { buildRecoFacts, buildIngredientPool, groupOfIngredient, STAPLE_FORMS, type FreqMap } from '@/lib/coachRecos';
+import { buildRecoFacts, buildIngredientPool, groupOfIngredient, coldStartSeed, STAPLE_FORMS, type FreqMap } from '@/lib/coachRecos';
 import { getIngredientsLight, getRecipeFreq, warmGraphFromSql } from '@/lib/graphSource';   // ⭐ JSON 격리(handoff §4) + SQL warm(#2)
 import { aggregateUsage } from '@/lib/llmCost';   // ⭐ LLM 사용량 계측(유지비용 실측)
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
-import { bmiOf, bmiPercentile, bmiBand, growthTracking, growthTrackToPhrase, type Sex, type BmiBand } from '@/lib/growth-reference';
+import { bmiOf, bmiPercentile, bmiBand, growthTracking, growthTrackToPhrase, type Sex, type BmiBand, type GrowthTrack } from '@/lib/growth-reference';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Vercel Hobby plan 한도
@@ -308,6 +308,8 @@ export async function GET(req: Request) {
         const menuFreq: Record<string, number> = {};
         const favMenu: Record<string, number> = {};   // 잘 먹은(거부 아닌) 메뉴 빈도 — 푸드체이닝 출발점
         const favIngFreq: Record<string, number> = {};   // 잘 먹은(거부 아닌) 식재료 빈도 — 그래프 푸드브릿지 앵커
+        const confidentLikedFreq: Record<string, number> = {};   // ⭐ 확신 liked(ate_well===true·집) — 콜드스타트 사다리 트리거(미상 null 제외)
+        const servedHomeFreq: Record<string, number> = {};   // ⭐ 자주 차려진 식재료(집·수용도 무관) — Tier2 콜드스타트 앵커
         const homeByDate: Record<string, string[]> = {}; const homeIng: string[] = [];   // 집 끼니만(place!=daycare) — 코칭 톤 보정용
         const todayMs = Date.parse(today);
 
@@ -317,7 +319,8 @@ export async function GET(req: Request) {
           (r.ingredients || []).forEach((i) => {
             byDate[r.log_date].push(i); allIng.push(i);
             if (r.ate_well !== false && atHome) favIngFreq[i] = (favIngFreq[i] || 0) + 1;   // ⭐ 1-B(이사님 2026-06-15) 집 끼니만 — 기관 급식에서 잘 먹은 식재료를 부모의 '잘 먹는 것'(사촌 시드)으로 착각 금지. menuFreq와 일관(거부 아닌 식재료 = 그래프 브릿지 앵커)
-            if (atHome) { (homeByDate[r.log_date] ||= []).push(i); homeIng.push(i); }
+            if (r.ate_well === true && atHome) confidentLikedFreq[i] = (confidentLikedFreq[i] || 0) + 1;   // ⭐ 확신 liked(명시 잘먹음만·null 제외) — 콜드스타트 사다리 트리거(이사님 2026-06-19)
+            if (atHome) { servedHomeFreq[i] = (servedHomeFreq[i] || 0) + 1; (homeByDate[r.log_date] ||= []).push(i); homeIng.push(i); }   // ⭐ 자주 차려진 음식(수용도 무관·집 빈도) — Tier2 콜드스타트 앵커
             const daysAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
             if (daysAgo <= 3 && !seenFood.has(i)) {
               seenFood.add(i);
@@ -357,6 +360,12 @@ export async function GET(req: Request) {
         const favoriteFreq = favEntries.map(([m, c]) => `${m}(${c}회)`);   // ⭐ D(이사님 2026-06-15) — LLM에 '집 끼니 빈도' 정량 전달(밥16회 vs 1회를 동급으로 칭찬하던 것 차단)
         // 잘 먹는 식재료(빈도순) — 추천 엔진(사촌·인기 음식·궁합) 앵커. recoFacts는 planFor 후(타깃 확정) 생성.
         const likedIng = Object.entries(favIngFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
+        // ⭐ 콜드스타트 사다리(이사님 2026-06-19) — '확신 liked'(ate_well===true)가 빈약하면(아린: 미상 null 80%) 추천 앵커가 두부 디폴트로 무너진다.
+        //   확신 liked가 2개 미만이면 시드 사다리로 보강: Tier2(자주 차려진=servedHomeFreq) → Tier3(youa 급식 고빈도). '칭찬용' likedIng과 분리(미상을 '잘 먹는다' 칭찬 금지·추천 앵커로만).
+        const confidentLiked = Object.entries(confidentLikedFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
+        const servedTop = Object.entries(servedHomeFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
+        const coldStart = confidentLiked.length < 2;   // 콜드스타트 게이트(확신 신호 빈약)
+        const likedSeed = coldStart ? [...new Set([...confidentLiked, ...coldStartSeed(servedTop, 6)])] : likedIng;   // 추천 앵커(사촌·도전 트랙)는 시드 사다리, 칭찬은 likedIng
         const sig = computeSignals(byDay, catOf);
         const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
         const fg = computeFoodGroups(allIng, catOf);
@@ -370,18 +379,22 @@ export async function GET(req: Request) {
         const snackEval = evaluateSnacks({ rows: byChild[cid], band: snackBand, reds });   // 텍스트화는 계획 확정 후(쿨다운·과일타깃 중복제거·예시 로테이션 게이팅)
         let growthMirrorCtx: string | null = null;   // ⭐ E-03 — 오늘 성장(BMI/곡선) 거울 한 구절(격주 케이던스). null=미노출
         let growthShownCtx = false;   // ⭐ E-09 — 오늘 성장 거울 노출 여부(격주 케이던스 이력)
+        let heightTrack: GrowthTrack | null = null, weightTrack: GrowthTrack | null = null;   // ⭐ 주간계획 macro 트랙용 — 격주 게이트와 무관하게 계산(저체중/성장더딤 판정)
         // ⭐ E-03/E-09 — 성장(BMI/곡선) 거울: 첫 측정 채널 대비 추종도 + BMI 밴드 → P10 한 구절. 격주 케이던스(13일 쿨다운·2주연속금지).
         if (meta.sex === 'M' || meta.sex === 'F') {
-          const growthShownRecently = (recentGrowthDates[cid] || []).some((d) => d >= dAgo(13));   // 격주(13일) — 매일 키·몸무게 못 재니 잔소리 저빈도(이사님)
-          if (!growthShownRecently && meta.birth_year && meta.birth_month) {
+          if (meta.birth_year && meta.birth_month) {
             const monthsAt = (d: string) => { const [y, m] = d.split('-').map(Number); return (y - meta.birth_year!) * 12 + (m - meta.birth_month!); };
             const fg0 = firstGrowth[cid], lg0 = latestGrowth[cid], lgD = latestGrowthDate[cid];
             const tk = (col: 'height_cm' | 'weight_kg', metric: 'height' | 'weight') =>
               (fg0 && lg0 && lgD && fg0[col] != null && lg0[col] != null && fg0.measured_on !== lgD)
                 ? growthTracking({ value: fg0[col] as number, ageMonths: monthsAt(fg0.measured_on) }, { value: lg0[col] as number, ageMonths: monthsAt(lgD) }, meta.sex as Sex, metric)
                 : null;
-            growthMirrorCtx = growthTrackToPhrase({ band: snackBand, height: tk('height_cm', 'height'), weight: tk('weight_kg', 'weight') });
-            growthShownCtx = !!growthMirrorCtx;
+            heightTrack = tk('height_cm', 'height'); weightTrack = tk('weight_kg', 'weight');
+            const growthShownRecently = (recentGrowthDates[cid] || []).some((d) => d >= dAgo(13));   // 격주(13일) — 매일 키·몸무게 못 재니 잔소리 저빈도(이사님)
+            if (!growthShownRecently) {
+              growthMirrorCtx = growthTrackToPhrase({ band: snackBand, height: heightTrack, weight: weightTrack });
+              growthShownCtx = !!growthMirrorCtx;
+            }
           }
         }
         const uniqRef = [...new Set(ref)];
@@ -458,6 +471,8 @@ export async function GET(req: Request) {
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
         let brainPick: BrainAction | null = null;   // ⭐ 두뇌 선택+검수 결과(?brain=1) — context 저장·어드민 노출
         let recoIng: string | null = null; let recoPoolArr: string[] = []; let recoMode: string | null = null;   // ⭐ 오늘 추천 식재료(회전)+주간 풀 — context 저장(블록 밖 참조)
+        let planDetailCtx: WeeklyAnchor['plan_detail'] = null;   // ⭐ 주간계획 모듈 산출(작전층) — anchor가 try 로컬이라 외부로 끌어냄(일간 슬롯 소비용)
+        let planSlotCtx: ReturnType<typeof pickPlanSlot> = null;   // ⭐ 오늘 소비한 주간 슬롯(구체 dish·거울·macro) — 어드민·context
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
         let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null; lever?: string; missionTarget?: string | null; targetPool?: string[]; ledger?: WeeklyLedger | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 + A-01 lever/ledger/targetPool(두뇌 게이트용) — 어드민 검증
         let weeklyReplan: ((sid: string) => ReturnType<typeof planFromWeekly>) | null = null;   // ⭐ A-04 — 두뇌 override 허용 시 닻 안에서 시나리오만 교체(타깃 잠금·채근 캡 보존)
@@ -590,12 +605,28 @@ export async function GET(req: Request) {
               });
               // ⭐ 6-A — stallWeeks 이월: 종합이 같은 타깃을 계속 잡았고(전환 안 함·food 레버) 정체였으면 streak 유지, 아니면 0(새 타깃·전환·비-food).
               const carriedStall = (synth.mission_target && synth.mission_target === recentTgt && synth.budget?.lever === 'food' && !stalledTarget) ? priorStall : 0;
+              // ⭐ 주간계획 모듈 — 일요일 종합(synth) 위에 결정론 후처리로 7일치 구체 계획(plan_detail) 오케스트레이션(이사님 2026-06-18).
+              //   추천엔진(구체 dish 회전)·그래프(사촌 도전트랙)·영양평가(BMI/탄단지 macro)·진척(anti-stall)·거울 스케줄을 종합. throw 시 null degrade.
+              const planDetail = (() => {
+                try {
+                  const enrichCtx: EnrichContext = {
+                    groupSignals: computeGroupSignals(homeDays.length ? homeDays : byDay, catOf).signals,
+                    likedIngredients: likedSeed, freqMap,
+                    deficitGroups: [...new Set([...homeFg.missing, ...fg.missing])].filter(Boolean),
+                    coveredGroups: fg.covered,
+                    band: snackBand, heightTrack, weightTrack,
+                    goals: synth.goals || [], focusHistory, arcWeek: weekSinceSignup, attendsDaycare: attends,
+                  };
+                  return enrichWeeklyPlan(synth, enrichCtx);
+                } catch (e) { console.warn('[cron/coach] enrichWeeklyPlan skip:', e instanceof Error ? e.message : e); return null; }
+              })();
               const row = {
                 child_id: cid, week_key: wk, status: synth.source === 'weekly_llm' ? 'active' : 'cold_synth', source: synth.source,
                 mission: synth.mission, mission_target: synth.mission_target, target_pool: synth.target_pool, secondary_axis: synth.secondary_axis,
                 budget: synth.budget, ledger: { ...DEFAULT_LEDGER, stallWeeks: carriedStall }, impression: synth.impression, arc_week: weekSinceSignup,   // ⭐ F-12 — 가입 후 주차(1주차 고정 버그 수정)
                 behavior_goal: synth.behaviorGoal, teaching_arc: synth.teachingArc, check_method: synth.checkMethod,   // §14 주간 커리큘럼
                 goals: synth.goals?.length ? synth.goals : null,   // ⭐ A-04/E-07 — 포트폴리오(lever는 budget에 병행 기록=A-05)
+                plan_detail: planDetail,   // ⭐ 주간계획 모듈 산출(작전층 부가 계획) — 일간이 slot 소비
                 basis_attends_daycare: attends, model: synth.source === 'weekly_llm' ? 'sonnet-4-6' : 'cold', updated_at: new Date().toISOString(),
               };
               // ⭐ upsert 결과 검사(2026-06-11 사고) — 커리큘럼 컬럼 미적용(weekly_coaching.sql 전)이면 행 전체가 조용히 거부돼
@@ -605,7 +636,7 @@ export async function GET(req: Request) {
                 console.warn('[cron/coach] weekly anchor upsert:', upErr.message);
                 issues.push(`닻 저장 장애 ${meta.nickname}: ${upErr.message.slice(0, 80)} — 매일 재종합 모드(비용 누수) 의심`);   // H-06(M9) — 조용한 장애 가시화
                 const legacy = { ...row } as Record<string, unknown>;
-                delete legacy.behavior_goal; delete legacy.teaching_arc; delete legacy.check_method; delete legacy.goals;   // E-07 양분기(goals 포함/제외)
+                delete legacy.behavior_goal; delete legacy.teaching_arc; delete legacy.check_method; delete legacy.goals; delete legacy.plan_detail;   // E-07 양분기 + plan_detail 컬럼 미적용 degrade
                 const { error: e2 } = await supabase.from('weekly_plans').upsert(legacy, { onConflict: 'child_id,week_key' });
                 if (e2) console.warn('[cron/coach] weekly anchor legacy upsert:', e2.message);
               }
@@ -621,6 +652,7 @@ export async function GET(req: Request) {
             let anchor = await loadAnchor(weekKey);
             if (!anchor && dow !== 0) anchor = await synthAndStoreAnchor(weekKey);          // 평일 닻 없으면 lazy 생성 → 레이어 즉시 활성
             if (anchor) {
+              planDetailCtx = anchor.plan_detail ?? null;   // ⭐ 주간계획 모듈 산출 — 일간 슬롯 소비용으로 외부 변수에 노출(anchor는 try 로컬)
               // ⭐ 구버전/컬럼 미적용 닻 치유(E-09: goals는 항상 정규화 — goalsOf가 lever에서 승격) + behavior_goal 결손 시만 best-effort 영속화
               const needPersist = !anchor.behavior_goal;
               anchor = healAnchor(anchor);
@@ -642,6 +674,12 @@ export async function GET(req: Request) {
                   const { error: cpErr } = await supabase.from('curriculum_progress').upsert(adv.updates.map((u) => ({ child_id: u.child_id, unit_id: u.unit_id, status: u.status, step: u.step, evidence: u.evidence, started_at: u.started_at, mastered_at: u.mastered_at, last_signal_at: u.last_signal_at, stop_reason: u.stop_reason, relapse_count: u.relapse_count, updated_at: new Date().toISOString() })), { onConflict: 'child_id,unit_id' });
                   if (cpErr) issues.push(`커리큘럼 저장 장애 ${meta.nickname}: ${cpErr.message.slice(0, 60)}`);
                   else adv.updates.forEach((u) => { (progByChild[cid] ||= {})[u.unit_id as UnitId] = u as CurriculumProgressRow; });
+                }
+                // ⭐ F-16 — 피벗으로 focus가 플립되면(goalsAfter) 닻 goals에 영속화. 안 하면 정적 goals가 다음날 피벗을 되돌려(table-stage 재고착·1-pivot 캡 소진 후 observe로 회귀=환경무브 복귀) 유닛↔무브 결속이 '하루'만 유지된다(curriculum.ts:210 계약 — 호출자의 영속화 의무).
+                if (adv.decision?.mode === 'pivot' && adv.goalsAfter && adv.goalsAfter.length) {
+                  anchor.goals = adv.goalsAfter;   // 같은 런 downstream + 다음날 재로드 모두 피벗 후 focus 사용
+                  const { error: gErr } = await supabase.from('weekly_plans').update({ goals: adv.goalsAfter, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekKey);
+                  if (gErr) issues.push(`피벗 goals 저장 장애 ${meta.nickname}: ${gErr.message.slice(0, 60)}`);
                 }
                 // ⭐ F-15 진도 요약(두뇌 참조·주간 표시) — 수료/진행중/미시작 + 오늘 초점 단계
                 const m = progByChild[cid] || {};
@@ -683,20 +721,24 @@ export async function GET(req: Request) {
                 }
               }
               const firstOfWeek = !(recentWeekKeys[cid] || []).includes(weekKey);   // 이번 주 닻의 첫 편지 → intro(진단+왜는 주 1회만)
-              const wk = planFromWeekly({ anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, progressNote, firstOfWeek, lastArcStage: prevArcStage[cid] ?? null, daySeed, cidHash, dow });
+              // ⭐ F-16 — 오늘 코칭 유닛(커리큘럼 결정)의 레버가 주간 레버와 다르면 그 유닛 레버로 프레임/무브를 끈다(유닛 피벗을 독자가 본문에서 느끼게).
+              //   celebrate/maintain(축하·유지)은 익숙한 주간 프레임 유지(새 음식 무브 금지). 레버 전환 날은 직전 레버의 progressNote(reinforce 사실) 주입 금지(잡탕 편지 차단·A-05 arc-null 패턴과 동일).
+              //   weekCtx.lever·FOOD_OVERRIDE_CAP은 주간 레버 그대로(두뇌 게이트·음식 잔소리 캡 의미 보존).
+              const unitLever = curriculumDecision ? leverForUnit(curriculumDecision.unit) : null;
+              const tonalMode = curriculumDecision?.mode === 'celebrate' || curriculumDecision?.mode === 'maintain';
+              const effectiveLever = (unitLever && !tonalMode && unitLever !== lever) ? unitLever : null;
+              const effProgressNote = effectiveLever ? null : progressNote;
+              const wk = planFromWeekly({ anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, progressNote: effProgressNote, firstOfWeek, lastArcStage: prevArcStage[cid] ?? null, daySeed, cidHash, dow, effectiveLever });
               if (wk) {
                 precomputed = { scenario: wk.scenario, plan: wk.plan, varyOpener: wk.varyOpener };
                 const newLedger = { ...(anchor.ledger || DEFAULT_LEDGER), ...wk.ledgerPatch, exposeCount: { ...((anchor.ledger || DEFAULT_LEDGER).exposeCount || {}), [tgt]: targetExposeWtd }, firstServeDow, targetAccepts };   // ⭐ 6-C targetAccepts 적재 → 다음 일요일 synth가 스톨 판정
                 // ⭐ A-01 — 두뇌 게이트가 읽도록 lever·targetPool·ledger(foodOverrideUsed 포함)를 weekCtx에 노출.
                 weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc, lever: anchor.budget?.lever || 'food', missionTarget: anchor.mission_target, targetPool: anchor.target_pool || [], ledger: newLedger };
-                // ⭐ F-08 — 오늘 가르치는 행동을 커리큘럼 현 step.behavior로 결정론화(진도 누적 서사). mode=celebrate/maintain이면 톤만 살짝.
-                if (weekCtx.arc && curriculumDecision) {
-                  const sd = UNITS[curriculumDecision.unit]?.steps[Math.max(0, curriculumDecision.step - 1)];
-                  if (sd) weekCtx = { ...weekCtx, arc: { ...weekCtx.arc, behaviorGoal: curriculumDecision.mode === 'celebrate' ? `${sd.behavior}가 자리 잡았어요 — 이제 다음 한 걸음으로` : sd.behavior } };
-                }
+                // ⭐ F-08/F-17 — 커리큘럼 step.behavior + 사다리 누적 서사 주입은 두뇌 블록 '이후'(scenarioId 확정 후)에 단일 적용한다.
+                //   (옛 F-08은 여기서 했으나 두뇌 override가 arc를 wk2.weeklyArc로 덮어 step behavior가 손실됐음 — F-16 자가정독 #4 봉합.)
                 // ⭐ A-04 — override 허용 시 닻 안에서 시나리오만 교체(타깃 잠금·채근 캡·아크 보존). 두뇌 블록에서 호출.
                 const _anchor = anchor as WeeklyAnchor;
-                weeklyReplan = (sid: string) => planFromWeekly({ anchor: _anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, progressNote, firstOfWeek, lastArcStage: prevArcStage[cid] ?? null, daySeed, cidHash, dow, forceScenarioId: sid });
+                weeklyReplan = (sid: string) => planFromWeekly({ anchor: _anchor, signals, recentPlans: recentPlans[cid] || [], targetExposeWtd, progress, progressNote: effProgressNote, firstOfWeek, lastArcStage: prevArcStage[cid] ?? null, daySeed, cidHash, dow, forceScenarioId: sid, effectiveLever });
                 await supabase.from('weekly_plans').update({ ledger: newLedger, updated_at: new Date().toISOString() }).eq('child_id', cid).eq('week_key', weekKey);
               }
             }
@@ -706,7 +748,7 @@ export async function GET(req: Request) {
           {
             try {
               const { data: wk3 } = await supabase.from('weekly_plans').select('week_key,mission_target,behavior_goal,impression').eq('child_id', cid).order('week_key', { ascending: false }).limit(3);
-              const recoCand = buildRecoFacts({ likedIngredients: likedIng, target: precomputed.plan?.target ?? null, freqMap }).text;
+              const recoCand = buildRecoFacts({ likedIngredients: likedSeed, target: precomputed.plan?.target ?? null, freqMap }).text;
               const brainCtx = buildBrainContext({
                 childName: meta.nickname, signals,
                 nutritionMirror: nutritionMirrorFromInput({ homeMissing: homeFg.missing, missing: fg.missing, covered: fg.covered }),
@@ -749,6 +791,28 @@ export async function GET(req: Request) {
             } catch (e) { console.warn('[cron/coach] brain skip:', e instanceof Error ? e.message : e); brainPick = null; }
           }
           scenarioId = precomputed.scenario.id; scenarioLabel = precomputed.scenario.label; planCtx = precomputed.plan;
+          // ⭐ F-08/F-17 — 커리큘럼 step 누적 서사: 최종 arc에 현 step.behavior + 사다리(이전/다음 단계) + 캠페인 누적일 주입.
+          //   두뇌 override가 arc를 교체한 '뒤'에 적용 → override 날에도 step behavior 보존(자가정독 #4 봉합).
+          //   step이 고착이어도 손이 '며칠째 X를 함께 해오셨고 → 익숙해지면 다음은 Y' 사다리로 부모에게 '길'(진도감)을 보여준다.
+          if (weekCtx?.arc && curriculumDecision) {
+            const _u = curriculumDecision.unit; const _steps = UNITS[_u]?.steps || [];
+            const _i = Math.max(0, Math.min(_steps.length - 1, curriculumDecision.step - 1));
+            const _cur = _steps[_i];
+            if (_cur) {
+              // 캠페인 누적일 = 유닛 최초 활성(started_at)부터 — curriculumHist는 최근 3일치뿐이라 부적합. started_at은 ??로 한 번만 세팅돼 재활성에도 보존(진짜 시작일).
+              const _started = progByChild[cid]?.[_u]?.started_at;
+              const _unitDays = _started ? Math.max(1, Math.round((Date.parse(today) - Date.parse(_started)) / 86400000)) : 1;
+              weekCtx = { ...weekCtx, arc: { ...weekCtx.arc,
+                behaviorGoal: curriculumDecision.mode === 'celebrate' ? `${_cur.behavior}가 자리 잡았어요` : _cur.behavior,
+                stepStory: {
+                  mode: curriculumDecision.mode, stepNum: curriculumDecision.step, totalSteps: _steps.length,
+                  prevBehavior: _i > 0 ? _steps[_i - 1].behavior : null,
+                  nextBehavior: _i < _steps.length - 1 ? _steps[_i + 1].behavior : null,
+                  unitLabel: UNITS[_u].label, unitDays: _unitDays,
+                },
+              } };
+            }
+          }
           // ⭐ 간식 멘트 다듬기(이사님) — 매일 '과자 대신 과일·요거트…' 반복 방지:
           //   ① 쿨다운: 최근 2일 안에 이미 실었으면 오늘은 생략(며칠에 한 번만) ② 과일이 오늘 타깃이면 본문이 이미 좋은 간식을 다루므로 중복 생략
           //   ③ 실을 땐 daySeed로 예시 로테이션. 신호(초가공 등)는 사라지지 않고 며칠 간격으로 다시 환기됨.
@@ -766,18 +830,23 @@ export async function GET(req: Request) {
           // ⭐ 주간 추천 식재료 풀(영양거울 기반 5개) + 일일 회전 — 같은 식재료 연속 추천 방지(6/2·6/3 콩 반복 사고).
           //   ⭐ E(이사님 2026-06-15) — 풀을 '집 끼니' 신호로 산출(byDay→homeDays). 기관이 콩류·채소를 채우면 전체는 green이라
           //   풀에서 빠지고 추천이 곡물·계란 등으로 엉뚱하게 새던 것 수정 → 영양거울(집 부족군)과 음식 추천이 일치(집 부족=콩류면 두부).
-          { const _rp = buildIngredientPool({ signals: computeGroupSignals(homeDays.length ? homeDays : byDay, catOf).signals, likedIngredients: likedIng, freqMap, max: 5 });
+          { const _rp = buildIngredientPool({ signals: computeGroupSignals(homeDays.length ? homeDays : byDay, catOf).signals, likedIngredients: likedSeed, freqMap, max: 5 });
             recoPoolArr = _rp.pool; recoMode = _rp.mode;
             // ⭐ B(이사님 2026-06-15) — 추천 식재료를 '오늘 타깃 식품군' 또는 (환경 등 비-food 레버 주) '집 부족 식품군'에 맞춰 회전.
-            //   → 영양거울(집 부족군)과 음식 추천이 항상 일치(환경 편지여도 콩류 부족이면 두부·비타민A채소면 당근). 타깃=비타민A채소인데 달걀 추천하던 불일치 차단.
-            // ⭐ 영양거울=집+기관 종합(이사님 2026-06-15): 추천은 '전체(집+기관) 부족 식품군' 우선(있으면 그걸 집에서 채움),
-            //   전체는 충분한데 집만 드문 군이면(gMissing 빔→gHomeMissing) 그 군을 '집 다양성' 부드러운 제안용으로.
             const _alignGroups = planCtx?.target ? [planCtx.target] : (gMissing.length ? gMissing : gHomeMissing);
             const _inTgt = recoPoolArr.filter((p) => { const g = groupOfIngredient(p); return g != null && _alignGroups.includes(g); });
             const _basis = _inTgt.length ? _inTgt : recoPoolArr;
-            recoIng = _basis.find((p) => !(recentRecoIng[cid] || []).slice(0, 5).includes(p)) || _basis[0] || null; }
+            recoIng = _basis.find((p) => !(recentRecoIng[cid] || []).slice(0, 5).includes(p)) || _basis[0] || null;
+            // ⭐ 주간계획 모듈 소비(이사님 2026-06-18) — plan_detail이 있으면 '7일치 구체 dish 회전 슬롯'을 우선 사용(유연성 가드:
+            //   그날 결핍으로 vetting). slot.ingredient가 구체 회전(콩류 두부 도돌이표 차단). 없으면 위 기존 회전 폴백(degrade-safe).
+            if (defMature && planDetailCtx) {
+              planSlotCtx = pickPlanSlot(planDetailCtx, { daySeed, cidHash, deficitNow: new Set([...gMissing, ...gHomeMissing]), recentIngredients: (recentRecoIng[cid] || []).slice(0, 3) });   // ⭐ 최근 3일 추천 식재료 dedup(메추리알 수렴 차단)
+              if (planSlotCtx?.slot?.ingredient) { recoIng = planSlotCtx.slot.ingredient; recoMode = planSlotCtx.slot.track; } }
+          }
           // ⭐ 두뇌 검수: useFood=false면(오늘 진짜 문제가 환경이라 음식 억지 금지) 음식 추천 본문 제외(B의 'off-target 음식 박기' 차단). 기본=결정론 추천.
-          const bridgeFacts = (brainPick && brainPick.useFood === false) ? '' : buildRecoFacts({ likedIngredients: likedIng, target: planCtx?.target, targetIngredient: recoIng, freqMap }).text;
+          //   ⭐ 슬롯→본문 전파(자가정독 #2): planSlot이 있으면 bridgeFacts target/식재료를 '슬롯'으로(결핍군 대표=두부 회귀 차단 → 메추리알장조림 등 구체 dish가 본문에).
+          const _recoTarget = planSlotCtx?.slot ? planSlotCtx.slot.group : (planCtx?.target ?? null);
+          const bridgeFacts = (brainPick && brainPick.useFood === false) ? '' : buildRecoFacts({ likedIngredients: likedSeed, target: _recoTarget, targetIngredient: recoIng, freqMap }).text;
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
           // 끝줄 권유는 하루 하나만 — profileNudge 우선, 없으면 구조화 개선 팁을 ~주1회만 노출(매일=잔소리 금지·Q5).
           const profileN = recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null;
@@ -794,7 +863,9 @@ export async function GET(req: Request) {
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: gHomeMissing, homeReds: gHomeReds, homeDays: homeDays.length,
             chronicGuidance: chronicGuidanceText(meta.chronic),
-            bridgeFacts, snackEval: snackText, growthMirror: growthMirrorCtx,   // ⭐ E-04 — 성장(BMI/곡선) 거울 한 구절(격주)
+            bridgeFacts, snackEval: snackText, growthMirror: planSlotCtx?.macroPhrase ?? growthMirrorCtx,   // ⭐ E-04 + 주간계획 macro 슬롯(저체중/성장더딤 탄단지) 우선
+            // ⭐ 주간계획 영양거울 스케줄(이사님 2026-06-18) — 결핍군 회전·단일결핍 격일 쿨다운(K-04b). plan_detail 있으면 그날 슬롯 라인 사용(null=쿨다운 생략).
+            mirrorLine: planSlotCtx ? (planSlotCtx.mirror?.line ?? null) : undefined, mirrorPlanned: !!planSlotCtx,
             profileNudge: profileN, structuredTip: sTip ?? metaInv,   // ⭐ #4b 초기엔 메타 입력 초대가 이 한 줄 채널을 대신 채움
             weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };
@@ -829,6 +900,7 @@ export async function GET(req: Request) {
             snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
             growthShown: growthShownCtx, growthMirror: growthMirrorCtx,   // ⭐ E-09 — 성장 거울 노출(격주 케이던스 이력)·어드민
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
+            planSlot: planSlotCtx ? { slotIndex: planSlotCtx.slotIndex, ingredient: planSlotCtx.slot.ingredient, dishes: planSlotCtx.slot.dishes, group: planSlotCtx.slot.group, track: planSlotCtx.slot.track, via: planSlotCtx.slot.via, mirror: planSlotCtx.mirror?.line ?? null, mirrorKind: planSlotCtx.mirror?.kind ?? null, macro: planSlotCtx.macroPhrase ?? null } : null,   // ⭐ 주간계획 모듈 — 오늘 소비한 슬롯(구체 dish 회전·거울·macro) 어드민 가시화
             brain: brainPick,   // ⭐ 두뇌 선택+검수(?brain=1) — 시나리오·useFood·근거(어드민 노출)
             curriculum: curriculumDecision ? { unit: curriculumDecision.unit, step: curriculumDecision.step, mode: curriculumDecision.mode, pivotTo: curriculumDecision.pivotTo } : null,   // ⭐ F-09 — 오늘 커리큘럼 결정(원장·어드민·다음날 coachedDays)
             curriculumSummary,   // ⭐ F-15 — 진도 요약 스냅샷(어드민)

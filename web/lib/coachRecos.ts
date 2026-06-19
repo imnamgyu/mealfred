@@ -119,6 +119,28 @@ export function weeklyExposureTarget(signals: { group: string; level: string; we
 const ING_GROUP: Record<string, string> = (() => { const m: Record<string, string> = {}; for (const [g, list] of Object.entries(GROUP_INGREDIENTS)) for (const i of list) if (!m[i]) m[i] = g; return m; })();
 export const groupOfIngredient = (ing: string): string | null => ING_GROUP[ing] || null;
 
+// ── ⭐ 콜드스타트 시드 사다리(이사님 2026-06-19) — '확신 liked'가 적을 때 추천이 두부 디폴트로 무너지지 않게 ──
+//   아린처럼 ate_well 미상(null)이 80%면 '뭘 좋아하는지' 모른다 → 추천 출발점(앵커)을 사다리로 보강:
+//   Tier2 = '자주 차려진 음식'(수용도 무관·집 빈도) → food-graph 사촌/궁합으로 네트워크 확장.
+//   Tier3 = 그마저 빈약하면 '영유아 급식 고빈도(youa-freq=dietary4u 표준식단 등장률) 큐레이션'(아이 잘 먹음×급식 흔함×안전).
+import youaFreqJson from './youa-freq.json';
+const YOUA_TOP: string[] = Object.entries(youaFreqJson as Record<string, unknown>)
+  .filter(([k, v]) => k !== '_meta' && typeof v === 'number')
+  .sort((a, b) => (b[1] as number) - (a[1] as number))
+  .map(([k]) => k)
+  .filter((k) => !!groupOfIngredient(k));   // 식품군 인식되는 표준 식재료만(사촌·궁합 그래프 진입 가능)
+/** 확신 liked가 적을 때의 추천 앵커 시드 — Tier2(자주 차려진=servedIngredients) → Tier3(youa 급식 고빈도). 중복·간식채널(과일/유제품) 제외·식품군 인식만. */
+export function coldStartSeed(servedIngredients: string[], max = 6): string[] {
+  const out: string[] = []; const seen = new Set<string>();
+  for (const s of [...(servedIngredients || []), ...YOUA_TOP]) {
+    const g = s && groupOfIngredient(s);
+    if (!g || seen.has(s) || g === '과일') continue;   // 간식채널(과일)은 끼니 추천 앵커 제외(SNACK_CHANNEL 동치·순환 import 회피)
+    seen.add(s); out.push(s);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
 export type IngredientPool = { pool: string[]; mode: 'supply' | 'challenge' | 'mixed'; reason: string };
 /**
  * ⭐ 주간 추천 식재료 풀(이사님 2026-06-14): 주간 계획 시 '먹으면 좋을 식재료 5개'를 영양 거울 기반으로 선정 →
