@@ -147,6 +147,7 @@ export default function CarePage() {
   const [gH, setGH] = useState(''); const [gW, setGW] = useState(''); const [gSaved, setGSaved] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const mealDefaultsRef = useRef<MealDefaults | null>(null);   // 끼니×주중주말 패턴 prefill (본인 기록서 계산)
+  const lastEnvRef = useRef<string>('');                        // ⭐ P0-D(이사님 2026-06-19) — 직전 명시 식사환경 carry-forward(한 번 찍으면 다음 끼니 자동) → 환경신호 표본 축적·table-stage 졸업 가능
   const [hasPattern, setHasPattern] = useState(false);          // prefill 단서 존재 → "지난 패턴으로 채움" 힌트용
 
   // emptyEntry + 개인 패턴(장소·시간·식감) 덮어쓰기 → 새 입력 폼 prefill
@@ -159,7 +160,7 @@ export default function CarePage() {
       mealTime: d.mealTime ?? base.mealTime,
       texture: d.texture ?? base.texture,
       autonomy: d.autonomy ?? base.autonomy,
-      environment: d.environment ?? base.environment,
+      environment: lastEnvRef.current || d.environment || base.environment,   // ⭐ P0-D — 직전 명시값 우선 carry-forward(한 번 찍으면 자동), 없으면 패턴 기본값
       durationMin: d.durationMin ?? base.durationMin,
     };
   }
@@ -246,6 +247,8 @@ export default function CarePage() {
       // 끼니×주중주말 패턴 prefill 계산 (본인 전체 기록) — 새 입력 폼 장소·시간·식감 미리채움
       const md = computeMealDefaults((rows || []).map((r: MealRow) => ({ slot: r.slot, log_date: r.log_date, place: r.place, meal_time: r.meal_time, texture: r.texture, autonomy: r.autonomy, environment: r.environment, duration_min: r.duration_min })));
       mealDefaultsRef.current = md;
+      // ⭐ P0-D — 직전 명시 식사환경(가장 최근 비공백) carry-forward. mode()가 ''/null을 버려 '한 번도 안 찍은 부모=영영 공백'이던 콜드스타트를 끊는다.
+      lastEnvRef.current = [...(rows || [])].sort((a: MealRow, b: MealRow) => `${b.log_date}${b.slot || ''}`.localeCompare(`${a.log_date}${a.slot || ''}`)).find((r: MealRow) => r.environment)?.environment || '';
       setHasPattern(Object.keys(md).length > 0);
 
       // 최근 30일 '단일 메뉴' 기록 → 메뉴→식재료 캐시. override 아닌 미지 메뉴도

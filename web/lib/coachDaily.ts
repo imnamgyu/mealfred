@@ -64,3 +64,15 @@ export function parseProbeAnswers(qs: Array<{ q_date: string; answer: string | n
   }
   return out;
 }
+
+/** ⭐ P0-D(이사님 2026-06-19) — 오늘 focus 유닛의 1차 신호 프로브를 데일리 질문으로 결정론 emit.
+ *  코치가 매일 LLM 질문을 던졌으나 칩이 정규 프로브와 안 맞고 context.unitProbe가 없어 '답해도 신호로 안 흐르던' 다리를 잇는다
+ *  (parseProbeAnswers가 unitProbe + 정확한 칩 일치를 요구). focus 유닛의 첫 프로브(=passWhen 신호)를 그 유닛 진행 중엔 매일 물어 표본을 쌓아 minSamples 게이트를 넘긴다. 환경/자율/식감처럼 양성신호 표본이 0이라 영영 보류되던 졸업을 푼다. */
+export function pickUnitProbe(unitId: UnitId | null | undefined):
+  { question: string; topic: string; chips: string[]; unitProbe: { unit_id: string; signal: string; probeId: string } } | null {
+  if (!unitId) return null;
+  const def = UNITS[unitId];
+  const probe = def?.probes?.[0];
+  if (!probe) return null;
+  return { question: probe.q, topic: unitId, chips: probe.chips, unitProbe: { unit_id: unitId, signal: probe.signal, probeId: probe.id } };
+}

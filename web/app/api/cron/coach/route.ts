@@ -28,7 +28,7 @@ import { kstDow, addDaysStr, runWeeklyPlanning, planFromWeekly, healAnchor, DEFA
 import { chronicGuidanceText } from '@/lib/coachChronic';
 import { compileFacts } from '@/lib/coachFacts';
 import { UNITS, UNIT_IDS, TH, type CRow, type UnitId, type Goal, type ProbeAnswer, type ProgressRow as CurriculumProgressRow } from '@/lib/curriculumUnits';
-import { buildCandSignals, parseProbeAnswers } from '@/lib/coachDaily';
+import { buildCandSignals, parseProbeAnswers, pickUnitProbe } from '@/lib/coachDaily';
 import { advanceProgress, blankRow, goalsOf, normalizeGoals, type DailyDecision } from '@/lib/curriculum';
 import { buildBrainContext, pickActionByBrain, nutritionMirrorFromInput, type BrainAction } from '@/lib/coachBrain';   // ⭐ 두뇌 선택+검수(시나리오는 LLM, 음식추천은 검수)
 import { reexposurePick } from '@/lib/reexposure';
@@ -955,14 +955,20 @@ export async function GET(req: Request) {
           const icfq = icfqForDate(today);
           let q: { question: string; topic?: string | null; chips?: string[] | null };
           let icfqKey: string | null = null;
+          let unitProbe: { unit_id: string; signal: string; probeId: string } | null = null;
+          // ⭐ P0-D(이사님 2026-06-19) — ICFQ 위험 스크리너가 아닌 날엔, 오늘 focus 유닛의 1차 신호 프로브를 결정론 질문으로 던진다(정규 칩 + unitProbe).
+          //   이게 '답해도 신호로 안 흐르던' 다리를 이어 envTablePct7d 등 양성신호 표본을 쌓아 졸업(passWhen)을 푼다. 유닛/프로브 없으면 LLM 질문 폴백(degrade-safe).
+          let up: ReturnType<typeof pickUnitProbe> = null;
+          try { up = !icfq ? pickUnitProbe(curriculumDecision?.unit) : null; } catch { up = null; }
           if (icfq) { q = { question: icfq.q, topic: 'icfq', chips: icfq.chips }; icfqKey = icfq.key; }
+          else if (up) { q = { question: up.question, topic: up.topic, chips: up.chips }; unitProbe = up.unitProbe; }
           else q = await generateQuestion({
             childName: meta.nickname, ageBand: meta.age_band,
             recentMeals, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef), refused: sanitizeRefusals(uniqRef), attendsDaycare: daycareMap[cid], pastQA,
             topicHint: pickQuestionTopic(today, [...cid].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0)).hint,   // ⭐ 결정론 주제 로테이션(완식 반복 방지)
           });
           if (q.question) {
-            const qCtx = { recentMeals: recentMeals.slice(0, 12), homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], attendsDaycare: !!daycareMap[cid], topic: q.topic || null, source: 'cron', icfq: icfqKey };   // ⭐ A-07·G-08 — 답변→evidence 적립 키
+            const qCtx = { recentMeals: recentMeals.slice(0, 12), homeRefused: [...new Set(homeRef)], daycareRefused: [...new Set(daycareRef)], attendsDaycare: !!daycareMap[cid], topic: q.topic || null, source: 'cron', icfq: icfqKey, unitProbe };   // ⭐ A-07·G-08 — 답변→evidence 적립 키 · P0-D unitProbe=프로브 답변→신호 다리
             await supabase.from('daily_questions').upsert(
               { child_id: cid, parent_id: meta.parent_id, q_date: today, question: q.question, topic: q.topic || null, chips: q.chips || null, context: qCtx },
               { onConflict: 'child_id,q_date' }

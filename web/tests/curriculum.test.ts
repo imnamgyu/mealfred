@@ -447,7 +447,7 @@ describe('B-25 hardStall→pivot (stall→pivot)', () => {
 // EPIC E — 주간 목표 포트폴리오 (E-03~E-09)
 // ════════════════════════════════════════════════════════════════════════════
 import { candidateUnits, goalsCapForWeek, applyFocusFatigue, leverForUnit, healAnchor as healAnchorW, ONBOARDING_ARC, type WeeklyAnchor } from '../lib/coachWeekly';
-import { parseProbeAnswers } from '../lib/coachDaily';
+import { parseProbeAnswers, pickUnitProbe } from '../lib/coachDaily';
 import type { CandidateSignals, Goal } from '../lib/curriculumUnits';
 
 const SIG0: CandidateSignals = {
@@ -573,6 +573,26 @@ describe('G-04 답변→evidence 파서', () => {
   });
   it('G-04-3 unitProbe 없는 답(ICFQ·일반질문) 무시', () => {
     expect(parseProbeAnswers([{ q_date: D(1), answer: '네', context: { icfq: 'x' } }])).toEqual([]);
+  });
+  // ── P0-D(이사님 2026-06-19) — 프로브 질문→신호 다리(환경 유닛 졸업 잠금 해제) ──
+  it('G-D1 pickUnitProbe(table-stage) → ts-env 프로브 + unitProbe(다리 키)', () => {
+    const up = pickUnitProbe('table-stage');
+    expect(up?.unitProbe).toEqual({ unit_id: 'table-stage', signal: 'envTablePct7d', probeId: 'ts-env' });
+    expect(up?.chips).toContain('식탁에서 화면 없이');
+    expect(up?.question).toBeTruthy();
+    expect(up?.topic).toBe('table-stage');
+  });
+  it('G-D2 null/undefined 유닛 → null (degrade·LLM 질문 폴백)', () => {
+    expect(pickUnitProbe(null)).toBeNull();
+    expect(pickUnitProbe(undefined)).toBeNull();
+  });
+  it('G-D3 E2E: 프로브답이 parseProbeAnswers→extract로 흘러 N<3 보류·N≥3 게이트 탈출→passWhen true', () => {
+    const mkQ = (dAgo: number) => ({ q_date: D(dAgo), answer: '식탁에서 화면 없이', context: { unitProbe: pickUnitProbe('table-stage')!.unitProbe } });
+    const e2 = ev('table-stage', baseDays(2), parseProbeAnswers([mkQ(1), mkQ(2)]));
+    expect(e2.envTablePct7d).toBeNull();                       // 표본 2 < minEnvSamples(3) → 보류(가짜 졸업 불가)
+    const e3 = ev('table-stage', baseDays(3), parseProbeAnswers([mkQ(1), mkQ(2), mkQ(3)]));
+    expect(e3.envTablePct7d).toBe(1);                          // 표본 3 → 게이트 탈출(전부 식탁)
+    expect(UNITS['table-stage'].steps[0].passWhen(e3)).toBe(true);   // 0.4 임계 충족 → step1 졸업 가능
   });
   it('B-04 회귀 — pressure-off 부정태그는 칩 원문으로 계산(매핑 키 비교 잠복버그 박제)', () => {
     const answers = [ans('pressure-off', '먹이느라 실랑이했어요'), ans('pressure-off', '편안했어요', 2), ans('pressure-off', '속상해서 한마디 했어요', 3), ans('pressure-off', '편안했어요', 4)];
