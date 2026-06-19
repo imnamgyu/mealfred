@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>코칭 엔진 현재 구현 + 문제 (2026-06-20)</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p500:#E89244;--p700:#B86A20;--b700:#1565C0;--g700:#1B5E20;--r500:#E53935;--r700:#B71C1C;--s700:#2C3E50;--s800:#1F2D3D;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:#FFFDFB;color:var(--n900);line-height:1.66;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}a{color:var(--b700)}
+.hero{padding:42px 24px 30px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 55%,#243447);color:#fff}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:11px}.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero h1{font-size:23px;font-weight:800;letter-spacing:-.02em}.hero p{margin-top:10px;font-size:14px;color:#e7ecf1;max-width:760px;margin-left:auto;margin-right:auto}
+main{max-width:920px;margin:0 auto;padding:18px 20px 80px}
+h2{font-size:18px;font-weight:800;color:var(--s800);margin:26px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--n200)}
+h3{font-size:15px;font-weight:800;color:var(--p700);margin:16px 0 4px}
+p{margin:6px 0;font-size:14px;color:var(--n700)}
+ul{margin:4px 0 8px;padding-left:20px}li{font-size:13.6px;color:var(--n700);margin:4px 0}
+.flow{background:#F8FAFC;border:1px solid var(--n200);border-radius:11px;padding:12px 15px;margin:10px 0;font-size:13px;color:var(--n600)}
+.flow b{color:var(--s800)}
+.mod{background:#fff;border:1px solid var(--n200);border-left:4px solid var(--p500);border-radius:9px;padding:12px 15px;margin:9px 0}
+.mod h3{margin-top:0}
+.prob{background:#FFF7F6;border:1px solid #FAD4CF;border-left:4px solid var(--r500);border-radius:9px;padding:12px 15px;margin:9px 0}
+.prob h3{color:var(--r700)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;margin-right:5px}
+.t-data{background:#FFF3E0;color:#B86A20}.t-bug{background:#FDECEA;color:#B71C1C}.t-other{background:#EDE7F6;color:#6A1B9A}.t-ok{background:#E8F5E9;color:#1B5E20}
+.note{font-size:12.5px;color:var(--n500)}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12.7px}
+th,td{border:1px solid var(--n200);padding:6px 9px;text-align:left;vertical-align:top}th{background:#F4F4F5;font-weight:700;color:var(--s700)}
+.foot{margin-top:32px;padding-top:14px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+<div class="hero">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 🔧 엔진 상태</div>
+  <h1>코칭 엔진 — 현재 구현 + 문제 (2026-06-20)</h1>
+  <p>새벽 크론이 매일 아이마다 편지 1통·질문 1개를 생성하는 파이프라인의 정확한 동작과, 자가정독(랄프위검)이 지목한 천장들의 근본 원인·코드 위치. 이사님이 전체를 보고 해결하기 위한 단일 진실.</p>
+</div>
+<main>
+
+<h2>0. 한눈에 — 매일 일어나는 일</h2>
+<div class="flow">
+<b>새벽 크론</b> <code>app/api/cron/coach/route.ts</code> 가 활성 아이마다:<br>
+① <b>신호 수집</b> — meal_logs(끼니·식재료·수용도·환경)·daily_questions(어제 답) 읽어 잘먹는음식·결핍군·선호상태 산출<br>
+② <b>주간 닻</b>(일요일만) — <code>runWeeklyPlanning</code>(Sonnet LLM)이 이번주 mission_target·레버·goals·소견 → <code>enrichWeeklyPlan</code>(결정론)이 7일치 구체 dish 슬롯·거울 스케줄 구움(<code>weekly_plans.plan_detail</code>)<br>
+③ <b>커리큘럼 진척</b> — <code>advanceProgress</code>가 오늘 유닛 결정(deepen/advance/pivot/celebrate)<br>
+④ <b>일간 두뇌</b> — <code>pickActionByBrain</code>이 오늘 시나리오·레버·음식추천여부(useFood) 결정<br>
+⑤ <b>작문</b> — <code>composeLetter</code>가 위 전부를 프롬프트로 묶어 DeepSeek(intro만 Sonnet)로 편지 생성 → 안전·유사도·must-weave 가드로 재생성<br>
+⑥ <b>오늘의 질문</b> — focus 유닛의 신호 프로브를 던져(P0-D) 답이 다음날 진척 신호로 흐르게
+</div>
+
+<h2>1. 모듈별 정확한 동작</h2>
+
+<div class="mod"><h3>① 신호 수집 + 선호계량화 <span class="tag t-ok">출고</span></h3>
+<p><code>lib/preferenceQuantification.ts</code> — 수용도를 식재료별 <b>상태</b>(liked/exploring/unknown/disliked)·Wilson 하한·집필터로 정량화. <b>핵심: 미상(null)을 liked로 오판 차단</b> — 명시 완식(<code>acceptance_level≥3</code> 또는 <code>ate_well=true</code>)이 ≥2회+Wilson 통과만 'liked'.</p>
+<ul>
+<li><b>입력</b>: <code>meal_logs.acceptance_level</code>(수용 5단계 0거부~4완식, care UX) 우선, 없으면 <code>ate_well</code> 폴백.</li>
+<li><b>소비</b>(route.ts): <code>confidentLiked</code>→콜드스타트 게이트, <code>targetAccepts</code>=acceptanceLevel≥1(미상 배제)→스톨 감지, <code>dislikedIng</code>→추천 제외.</li>
+<li><b>콜드스타트</b>(<code>coachRecos.coldStartSeed</code>): 확신 liked&lt;2면 Tier2(자주 차려진)→Tier3(youa 급식 고빈도)로 추천 앵커 보강.</li>
+</ul></div>
+
+<div class="mod"><h3>② 커리큘럼 상태기계 <span class="tag t-ok">출고</span></h3>
+<p><code>lib/curriculumUnits.ts</code>(12유닛 선언=명세)·<code>lib/curriculum.ts</code>(advanceProgress 순수함수). 각 유닛이 <code>steps[].passWhen(evidence)</code>로 졸업, <code>extract</code>가 meal_logs+프로브답에서 신호 산출.</p>
+<ul>
+<li><b>진척</b>: passWhen 7일 연속 충족(holdWeeks)→step++. 최종 단→maintenance→1주 무코칭 유지→mastered.</li>
+<li><b>피벗</b>: 정체(stalled/limping)면 standby 유닛으로 전환. <b>hardStallDays:18</b> — 18일 코칭했는데 진전0이면 주1회 캡 무시 강제 전환, <code>fallbackPivot</code>이 standby 비어도 CORE_ORDER에서 음식 트랙으로.</li>
+<li><b>온보딩</b>: <code>ONBOARDING_ARC</code>(1신뢰·2관찰·3확장 주)·<code>CORE_ORDER</code>에 확장 트랙 4종(minWeek3).</li>
+</ul></div>
+
+<div class="mod"><h3>③ 주간계획 — LLM 종합 + 결정론 enrich <span class="tag t-ok">출고</span></h3>
+<p>일요일에만. <code>runWeeklyPlanning</code>(Sonnet)=mission_target·budget(레버)·goals·<b>impression(코치 내부 소견)</b> 산출. <code>enrichWeeklyPlan</code>(coachWeekly·LLM0)=7일치 <code>plan_detail</code>: 구체 dish 슬롯 회전(supply 결핍보급 2 : challenge 잘먹는음식 사촌 1)·BMI/탄단지 macro·거울 스케줄.</p>
+<ul>
+<li><b>슬롯</b> <code>PlanSlot</code>: ingredient·dishes·group·track(supply/challenge)·pairLiked·reason·weeklyEstFreq(어드민 근거).</li>
+<li><b>일간 소비</b> <code>pickPlanSlot</code>: 그날 슬롯 1개 선택(유연성 가드: 더는 결핍 아니면 다음 슬롯).</li>
+</ul></div>
+
+<div class="mod"><h3>④⑤ 일간 두뇌 + 작문(F-18 슬롯본문봉합) <span class="tag t-ok">부분</span></h3>
+<p><code>pickActionByBrain</code>이 오늘 <b>시나리오</b>(예 nutrient-gap·mealtime-atmosphere)·<b>useFood</b>(음식추천 여부)를 정함. <code>composeLetter</code>가 프롬프트 조립:</p>
+<ul>
+<li><b>F-18</b>: 슬롯 음식(slotDish)을 본문 must-weave 블록+linter 재생성으로 강제. part(b) 사촌(감자→두부) 억제. 거울 음식=항상 슬롯 음식(deficitDishFor 두부 디폴트 제거).</li>
+<li><b>카테고리 정합</b>: challenge 슬롯이면 "감자 잘 먹으니 비슷한 단호박부터"(부족 프레이밍 금지), supply면 부족군 채움.</li>
+<li><b>급식 근거</b>: <code>youaRankOf</code>→"또래 급식에 자주 나오는 재료(상위 N%)"를 안심 톤으로.</li>
+<li><b>가드</b>: 결정론 안전(괴식·없는증상)·어휘 유사도·영양거울/슬롯/성장 must-weave 재생성.</li>
+</ul></div>
+
+<div class="mod"><h3>⑥ P0-D 환경신호 다리 <span class="tag t-ok">출고(다리만)</span></h3>
+<p><code>pickUnitProbe</code>(coachDaily) — ICFQ 아닌 날 오늘 focus 유닛의 신호 프로브를 결정론 질문으로 던지고 <code>daily_questions.context.unitProbe</code>에 키 박음. 부모가 답하면 <code>parseProbeAnswers</code>→<code>advanceProgress</code>→유닛 extract로 흘러 envTablePct 등 표본 축적. <b>유닛 내 2프로브 일별 회전.</b></p>
+<p class="note">⚠️ 다리만 깔림 — 실제 진척은 <b>부모가 답을 줘야</b> 발생. 아린(시뮬)은 양성신호 0이라 envTablePct가 null→실수로만 바뀌고 0.4 미달.</p></div>
+
+<h2>2. 문제 — 랄프위검 천장 (연속성 52→48→44 하락)</h2>
+<p><b>핵심 통찰</b>: 인프라(선호계량화·신호 다리·피벗·카테고리 정합)는 깔렸으나, <b>아린 시뮬은 양성신호 0이라 letters가 본질적으로 정체</b>를 비춘다. 최근 라운드의 통독 품질 패치(변주·lever정합·일째단조)는 <b>같은 정체를 더 또렷이 노출</b>해 점수가 오히려 내려갔다. 분류: <span class="tag t-data">실데이터 대기</span> <span class="tag t-bug">코드 버그</span> <span class="tag t-other">다른 세션(coachRecos)</span></p>
+
+<div class="prob"><h3>#1 슬롯-본문 음식 이혼 <span class="tag t-bug">버그(부분봉합)</span></h3>
+<p>비-콩류 슬롯(치즈·메추리알 challenge) 날 메타는 슬롯 음식인데 <b>본문은 두부로 회귀</b> → 메타-본문 이중장부.</p>
+<p><b>근본</b>(실측 06-16): <code>brain.useFood=false</code>(음식 쉬는 날)인데 최종 <b>시나리오=home-daycare-gap</b>(콩류 채우라는 음식 시나리오)로 모순. useFood=false라 slotFood=null이 돼 슬롯 강제가 풀리고, 시나리오 promptHint(<code>coachScenarios.ts:116</code> "집에서 비는 식품군 1개에 행동을 두라")의 콩류→두부가 이김.</p>
+<p><b>이번 봉합</b>(route.ts:853): 음식-제안 시나리오(home-daycare-gap/nutrient-gap/repeat-menu)는 어차피 음식을 권하므로 _noFood를 끄고 슬롯 음식 강제. <b>남은 근본</b>: brain.useFood ↔ 최종 scenario ↔ curriculum unit 3자가 독립 결정돼 모순 가능(별도 EPIC — brain이 useFood=false면 시나리오도 환경이어야).</p></div>
+
+<div class="prob"><h3>#2 step 24일 1단 고착 — 전진 0 <span class="tag t-data">실데이터 대기</span></h3>
+<p>커리큘럼이 피벗(table↔exposure)은 하나 step 1단→2단 전진이 24일 0회. '다음:' 목표 문구가 글자까지 불변.</p>
+<p><b>근본</b>: passWhen 졸업 게이트가 아린 <b>양성신호 0개</b>(완식·환경 신호 미입력)로 영영 미충족. P0-D 다리는 깔렸으나 부모가 실제로 답·기록을 줘야 envTablePct가 임계(0.4)를 넘어 졸업. <b>코드 문제 아님 — 실데이터 필요.</b> 일째단조 수술(전역 캠페인일)이 정체를 더 또렷이 보이게 함(숫자↑·단계 불변).</p></div>
+
+<div class="prob"><h3>#3 두부 단일 디폴트 과포화 <span class="tag t-other">coachRecos·다른 세션</span></h3>
+<p>슬롯이 검은콩·메추리알·치즈·단호박으로 회전해도 본문 추천은 두부·달걀 2종에 46% 쏠림. '미역국+두부' 동일 문장 반복.</p>
+<p><b>근본</b>: 콜드스타트 시드(<code>coachRecos.coldStartSeed</code>)가 확신 liked 0개라 Tier2(자주 차려진=두부·달걀)에 수렴, <b>Tier3 youa 큐레이션이 실추천으로 안 빠짐</b>. 추천 풀 후보가 콩류 deficit→두부로 좁음. <b>coachRecos는 현재 다른 세션이 개발 중(메뉴 정제·괴식 필터) — 충돌 회피로 미관여.</b></p></div>
+
+<div class="prob"><h3>#4 7일 주기 무브/피벗 복붙 <span class="tag t-data">실데이터 대기</span><span class="tag t-bug">일부</span></h3>
+<p>table↔exposure 교대가 진척이 아니라 같은 트랙 두 바퀴. 06-11≈06-18 무브·추천·피벗문구 완전 동일.</p>
+<p><b>근본</b>: 환경 무브풀 작고(7종으로 확장했으나) table-stage가 정체라 7일 주기로 같은 순열 재진입. 근본은 #2(정체)이고, 정체가 풀리면(실데이터) 자연 해소. <b>안티반복 윈도를 7일+로 넓히면 부분 완화 가능(코드).</b></p></div>
+
+<div class="prob"><h3>#5 급식 안심·영양거울 후렴구 과다(17/24통) <span class="tag t-bug">구조</span></h3>
+<p>"어린이집 덕에 전체 영양 채워지고…"가 17통에 박힘. 변주 수술이 어절만 흔들고 <b>출현빈도 자체는 안 줄임</b>.</p>
+<p><b>근본</b>: 영양거울이 매일 무조건 1줄 삽입되는 구조(쿨다운/생략 게이트가 결핍줄 출현빈도엔 미적용). LLM 자체 기본 클로징 습관도 가세. <b>해결</b>: 거울 결핍줄에 '최근 N일 출현이력 쿨다운'(생략 게이트)을 걸어 매일 출력을 막아야 — 변주가 아니라 <b>빈도 감소</b>.</p></div>
+
+<div class="prob"><h3>#6 도입 훅 "부모님," 수렴(17/24) <span class="tag t-bug">코드</span></h3>
+<p>편지 첫 문장이 "부모님," 호명으로 수렴(후반 8/9). 도입 소재가 매일 달라야 하는데 한 종류로.</p>
+<p><b>근본</b>: 편지 빌더에 도입 훅 회전 풀이 없음(시간대·소재·질문형 회전). <b>해결</b>: 도입 hook 선택기를 daySeed·소재로 회전(프로브회전을 첫문장에 연결 가능).</p></div>
+
+<div class="prob"><h3>#7 macro(BMI/탄단지) 트랙 dead — 24통 0회 <span class="tag t-data">실데이터+배선</span></h3>
+<p>이사님 5조건 중 'BMI보고 저체중이면 고기류↑'가 본문에 한 번도 안 나옴. <code>enrichWeeklyPlan</code>의 macro 트랙이 <code>plan_detail</code>엔 있으나 <b>일일 편지 본문 산출 경로에 미배선</b> + 아린 성장데이터(키·몸무게) 부재로 게이트 영영 false(profileNudge도 미도달=input starvation).</p></div>
+
+<h2>3. 무엇이 준비됐고 무엇이 대기인가</h2>
+<table>
+<tr><th>영역</th><th>상태</th><th>다음</th></tr>
+<tr><td>선호계량화 캡처→정량화</td><td class="t-ok">✅ end-to-end 라이브</td><td>실데이터 유입 대기</td></tr>
+<tr><td>P0-D 환경신호 다리</td><td class="t-ok">✅ 다리 라이브</td><td>부모 답 유입 시 졸업 작동</td></tr>
+<tr><td>커리큘럼 피벗·온보딩</td><td class="t-ok">✅ 라이브</td><td>전진은 #2(실데이터)</td></tr>
+<tr><td>F-18 슬롯본문봉합</td><td>🟡 부분(#1 봉합)</td><td>brain↔scenario↔unit 정합 EPIC</td></tr>
+<tr><td>추천 풀 다양성</td><td class="t-other">🟣 coachRecos(다른 세션)</td><td>Tier3 youa 큐레이션 배선</td></tr>
+<tr><td>거울/도입 후렴구 빈도</td><td>🔴 미해결(#5·#6)</td><td>출현이력 쿨다운·도입 훅 회전</td></tr>
+<tr><td>macro 트랙</td><td>🔴 dead(#7)</td><td>성장데이터 nudge + 본문 배선</td></tr>
+</table>
+
+<p class="note">⭐ <b>전략적 결론</b>: 아린(양성신호 0) 시뮬 폴리싱은 바닥에 도달 — 더 패치하면 정체를 더 또렷이 비출 뿐(점수 역효과). 진짜 개선은 <b>실제 부모가 5단계 수용·환경 신호를 줄 때</b> 인프라가 작동하며 나온다. 코드로 더 잡을 것: #1 잔여(정합 EPIC)·#5(거울 빈도 쿨다운)·#6(도입 훅 회전)·#7(macro 배선). #3은 coachRecos(다른 세션).</p>
+
+<div class="foot">밀프레드 코칭 엔진 · 2026-06-20 · 단일 진실(이사님 검토용)</div>
+</main></body></html>

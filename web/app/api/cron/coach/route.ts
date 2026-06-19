@@ -850,7 +850,10 @@ export async function GET(req: Request) {
           }
           // ⭐ 두뇌 검수: useFood=false면(오늘 진짜 문제가 환경이라 음식 억지 금지) 음식 추천 본문 제외(B의 'off-target 음식 박기' 차단). 기본=결정론 추천.
           //   ⭐ 슬롯→본문 전파(자가정독 #2): planSlot이 있으면 bridgeFacts target/식재료를 '슬롯'으로(결핍군 대표=두부 회귀 차단 → 메추리알장조림 등 구체 dish가 본문에).
-          const _noFood = !!(brainPick && brainPick.useFood === false);
+          // ⭐ #1 슬롯-본문 이혼 봉합(랄프위검 2026-06-19) — 음식-제안 시나리오(집-기관격차·영양공백·반복메뉴)는 promptHint가 '결핍군(콩류)을 채우라'라 본문이 어차피 음식을 권한다.
+          //   이런 날 brain.useFood=false면 slotFood가 null이 돼 슬롯 강제가 풀리고 시나리오의 콩류→두부 디폴트가 이겨 '메타=메추리알, 본문=두부' 이중장부가 났다. 음식 시나리오엔 _noFood를 끄고 슬롯 음식을 본문에 강제(두부 차단). (brain↔scenario↔unit 정합은 별도 EPIC.)
+          const _foodScen = new Set(['home-daycare-gap', 'nutrient-gap', 'repeat-menu']);
+          const _noFood = !!(brainPick && brainPick.useFood === false) && !_foodScen.has(scenarioId || '');
           const _recoTarget = planSlotCtx?.slot ? planSlotCtx.slot.group : (planCtx?.target ?? null);
           // ⭐ F-18 슬롯본문봉합(랄프위검 2026-06-19 rank1) — 슬롯이 정한 구체 dish(단호박찜·치즈스틱)를 본문 음식 제안으로 강제(must-weave).
           //   직전 라운드: 슬롯은 단호박인데 본문은 결핍군 대표(콩류→두부)로 회귀. slotDish/slotFood를 작문기에 넘겨 본문에 1회 직조 + linter 재생성. 환경(useFood=false) 편지는 음식 제안 없음 → null.
