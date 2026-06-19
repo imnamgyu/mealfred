@@ -29,11 +29,56 @@ export const GIO_FREQ: Record<string, { freq: number; pct: number }> = {
 //   재집계해 lib/ingredient-freq.json을 갱신한다. 이 파일만 매일(크론) 다시 만들면 **코드 변경 0으로** 빈도 가중이 자동 리밸런싱된다.
 //   GIO_FREQ(인계서 실측 스냅샷)는 라이브가 침묵하는 키의 폴백으로만 유지 — 겹치는 키 값이 동일해 골든은 그대로 그린.
 const LIVE_FREQ = LIVE_ING_FREQ as Record<string, { freq: number; rank?: number; topPct: number }>;
-/** 식재료의 급식빈도 메타. 라이브 관측(ingredient-freq.json) 우선 → GIO_FREQ 스냅샷 폴백 → 미상이면 {freq:0,pct:100}(빈도 가중 최하). */
+
+// ⭐ 런타임 리밸런싱 warm(이사님 2026-06-19) — graphSource.warmGraphFromSql와 동형. 새벽 coach 크론이 1회 호출하면
+//   learned_menus(급식 식단표 코퍼스·OCR 유입)를 식재료 등장빈도로 집계해 **메모리 캐시**를 교체한다(재배포 0).
+//   ⭐핵심: 정적 파일(ingredient-freq.json)·GIO_FREQ는 무변경이라 **I-01-9 불변식이 그대로 그린**(파일 키우는 방식의 충돌 회피).
+//   실패/빈약하면 스냅샷 유지(safe degrade). ⚠️ 배선: 크론 라우트(다른 세션)가 `await warmIngredientFreqFromSql(supabase)` 1줄을
+//   추가해야 동작(옵트인). 미배선 시 _observedFreq=null → 전부 라이브/GIO 폴백(현행 동일).
+const SEASONING = new Set(('마늘 파 대파 쪽파 실파 소금 간장 진간장 설탕 흑설탕 물엿 조청 고춧가루 참깨 깨소금 참기름 들기름 콩기름 식용유 카놀라유 포도씨유 올리브유 후추 후춧가루 식초 맛술 미림 청주 정종 생강 고추장 된장 쌈장 춘장 올리고당 꿀 전분 녹말 감자전분 밀가루 부침가루 튀김가루 빵가루 케첩 마요네즈 굴소스 액젓 멸치액젓 까나리액젓 새우젓 고추 청양고추 홍고추 풋고추 깨 들깨 미원 다시다 식소다 베이킹파우더 이스트 물 육수 버터 마가린').split(' '));
+type FreqQueryable = { from: (t: string) => { select: (c: string) => PromiseLike<{ data: unknown; error: unknown }> } };
+let _observedFreq: Record<string, { freq: number; pct: number }> | null = null;
+/** 런타임 warm 적용 여부(진단·테스트용). */
+export function isFreqWarmed(): boolean { return _observedFreq !== null; }
+/** 런타임 warm 캐시 초기화(테스트/운영 캐시 무효화용). */
+export function resetIngredientFreqWarm(): void { _observedFreq = null; }
+/**
+ * 새벽 크론용 SQL warm — learned_menus.ingredients를 식재료별 등장빈도로 집계해 메모리 캐시 교체(재배포 0·정적파일 무변경).
+ * 동률 안전 순위→상위%(pctToScore와 동일 축·작을수록 흔함). SEASONING 제외. 20종 미만이면 빈약→스냅샷 유지(safe degrade).
+ * ⚠️ supabase 단일 select는 1000행 상한 — 표본 기반 상대빈도(리밸런싱 신호로 충분). 전수는 집계 뷰/RPC가 더 정확(후속).
+ */
+export async function warmIngredientFreqFromSql(db: FreqQueryable): Promise<{ ok: boolean; count: number; reason?: string }> {
+  try {
+    const { data, error } = await db.from('learned_menus').select('ingredients');
+    if (error || !Array.isArray(data)) return { ok: false, count: 0, reason: 'no learned_menus' };
+    const counts: Record<string, number> = {};
+    for (const row of data as Array<{ ingredients?: unknown }>) {
+      const arr = Array.isArray(row.ingredients) ? row.ingredients : [];
+      const uniq = new Set(arr.filter((x): x is string => typeof x === 'string' && !!x.trim() && !SEASONING.has(x.trim())).map((x) => x.trim()));
+      for (const ing of uniq) counts[ing] = (counts[ing] || 0) + 1;
+    }
+    const entries = Object.entries(counts);
+    if (entries.length < 20) return { ok: false, count: entries.length, reason: 'sql too sparse — kept snapshot' };   // 안전 게이트
+    const all = entries.map(([, c]) => c);
+    const total = entries.length;
+    const next: Record<string, { freq: number; pct: number }> = {};
+    for (const [ing, c] of entries) {
+      const rank = all.filter((x) => x > c).length + 1;   // 동률 안전(엄격히 큰 것 +1)
+      next[ing] = { freq: c, pct: Math.max(1, Math.round((rank / total) * 100)) };
+    }
+    _observedFreq = next;
+    return { ok: true, count: total };
+  } catch (e) {
+    return { ok: false, count: 0, reason: e instanceof Error ? e.message : String(e) };
+  }
+}
+/** 식재료의 급식빈도 메타. 런타임 warm(매일 리밸런싱) → 라이브 ingredient-freq.json → GIO_FREQ 스냅샷 → 미상 {0,100}(최하). */
 export function ingredientGioFreq(nm: string): { freq: number; pct: number } {
+  const warm = _observedFreq?.[nm];
+  if (warm && warm.freq > 0) return warm;                                     // ① 런타임 warm(새벽 크론·매일 리밸런싱)
   const live = LIVE_FREQ[nm];
-  if (live && live.freq > 0) return { freq: live.freq, pct: live.topPct };   // 라이브 우선(매일 재집계 반영·pct=상위%)
-  return GIO_FREQ[nm] || { freq: 0, pct: 100 };
+  if (live && live.freq > 0) return { freq: live.freq, pct: live.topPct };    // ② 라이브 스냅샷(재배포 시 갱신)
+  return GIO_FREQ[nm] || { freq: 0, pct: 100 };                              // ③ 인계서 권위 스냅샷 → 미상
 }
 /**
  * GROUP_INGREDIENTS를 식품군별로 급식빈도 내림차순 정렬한 사본(빈도 미상=0=끝).
