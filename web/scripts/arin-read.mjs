@@ -18,7 +18,7 @@ const out = rows.map((r) => {
     curriculum: c.curriculum ? `${c.curriculum.unit}/${c.curriculum.step}단/${c.curriculum.mode}${c.curriculum.pivotTo ? `→${c.curriculum.pivotTo}` : ''}` : null,
     scenario: c.scenarioId || null,
     arcStage: c.weekly?.arc?.stage || null,
-    lever: c.weekly?.lever || null,
+    lever: c.weekly?.effLever || c.weekly?.lever || null,   // ⭐ A — 본문이 실제 따르는 레버(effLever) 우선(메타-본문 정합)
     behaviorGoal: c.weekly?.arc?.behaviorGoal || null,
     recoIng: c.recoIng || null,
     planSlot: c.planSlot ? `슬롯${c.planSlot.slotIndex}·${c.planSlot.ingredient}(${c.planSlot.track})${c.planSlot.dishes?.length ? '→'+c.planSlot.dishes.join('/') : ''}${c.planSlot.macro ? '·macro' : ''}${c.planSlot.mirrorKind ? '·거울:'+c.planSlot.mirrorKind : ''}` : null,

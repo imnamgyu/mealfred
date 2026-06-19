@@ -477,7 +477,7 @@ export async function GET(req: Request) {
         let planDetailCtx: WeeklyAnchor['plan_detail'] = null;   // ⭐ 주간계획 모듈 산출(작전층) — anchor가 try 로컬이라 외부로 끌어냄(일간 슬롯 소비용)
         let planSlotCtx: ReturnType<typeof pickPlanSlot> = null;   // ⭐ 오늘 소비한 주간 슬롯(구체 dish·거울·macro) — 어드민·context
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
-        let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null; lever?: string; missionTarget?: string | null; targetPool?: string[]; ledger?: WeeklyLedger | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 + A-01 lever/ledger/targetPool(두뇌 게이트용) — 어드민 검증
+        let weekCtx: { weekKey: string; fromWeekly: boolean; impression: string | null; pushApplied: boolean; arc: WeeklyArc | null; lever?: string; effLever?: string; missionTarget?: string | null; targetPool?: string[]; ledger?: WeeklyLedger | null } | null = null;   // ⭐ 주간 닻(작전층) 사용 여부·소견·아크 + A-01 lever/ledger/targetPool(두뇌 게이트용) · effLever=표시용 본문 레버(A) — 어드민 검증
         let weeklyReplan: ((sid: string) => ReturnType<typeof planFromWeekly>) | null = null;   // ⭐ A-04 — 두뇌 override 허용 시 닻 안에서 시나리오만 교체(타깃 잠금·채근 캡 보존)
         let curriculumDecision: DailyDecision | null = null;   // ⭐ F-05 — 오늘 커리큘럼 결정(유닛·step·mode) — behavior_goal·원장·어드민
         let curriculumSummary: string | null = null;   // ⭐ F-15 — 진도 요약(두뇌 참조·주간 표시)
@@ -738,7 +738,7 @@ export async function GET(req: Request) {
                 precomputed = { scenario: wk.scenario, plan: wk.plan, varyOpener: wk.varyOpener };
                 const newLedger = { ...(anchor.ledger || DEFAULT_LEDGER), ...wk.ledgerPatch, exposeCount: { ...((anchor.ledger || DEFAULT_LEDGER).exposeCount || {}), [tgt]: targetExposeWtd }, firstServeDow, targetAccepts };   // ⭐ 6-C targetAccepts 적재 → 다음 일요일 synth가 스톨 판정
                 // ⭐ A-01 — 두뇌 게이트가 읽도록 lever·targetPool·ledger(foodOverrideUsed 포함)를 weekCtx에 노출.
-                weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc, lever: anchor.budget?.lever || 'food', missionTarget: anchor.mission_target, targetPool: anchor.target_pool || [], ledger: newLedger };
+                weekCtx = { weekKey, fromWeekly: true, impression: anchor.impression, pushApplied: wk.pushApplied, arc: wk.weeklyArc, lever: anchor.budget?.lever || 'food', effLever: effectiveLever ?? (anchor.budget?.lever || 'food'), missionTarget: anchor.mission_target, targetPool: anchor.target_pool || [], ledger: newLedger };   // ⭐ A(랄프위검 2026-06-19 #2) — lever=주간 닻 레버(두뇌 캡 기능용·불변), effLever=오늘 본문이 실제 따르는 레버(table-stage 피벗 시 environment). 디버그/어드민 표시는 effLever(메타-본문 정합).
                 // ⭐ F-08/F-17 — 커리큘럼 step.behavior + 사다리 누적 서사 주입은 두뇌 블록 '이후'(scenarioId 확정 후)에 단일 적용한다.
                 //   (옛 F-08은 여기서 했으나 두뇌 override가 arc를 wk2.weeklyArc로 덮어 step behavior가 손실됐음 — F-16 자가정독 #4 봉합.)
                 // ⭐ A-04 — override 허용 시 닻 안에서 시나리오만 교체(타깃 잠금·채근 캡·아크 보존). 두뇌 블록에서 호출.
@@ -804,9 +804,9 @@ export async function GET(req: Request) {
             const _i = Math.max(0, Math.min(_steps.length - 1, curriculumDecision.step - 1));
             const _cur = _steps[_i];
             if (_cur) {
-              // 캠페인 누적일 = 유닛 최초 활성(started_at)부터 — curriculumHist는 최근 3일치뿐이라 부적합. started_at은 ??로 한 번만 세팅돼 재활성에도 보존(진짜 시작일).
-              const _started = progByChild[cid]?.[_u]?.started_at;
-              const _unitDays = _started ? Math.max(1, Math.round((Date.parse(today) - Date.parse(_started)) / 86400000)) : 1;
+              // ⭐ D(랄프위검 2026-06-19 #1) — 진행일은 '전역 단조 캠페인일'(가입 첫 기록부터). 유닛이 교대(table↔exposure)하면 per-unit started_at이 20→7로 역행해 '망가진 주행거리계'로 읽히던 것 제거. 서사는 임계(≥4·≥6)로만 쓰므로 의미 보존.
+              const _firstLogD = histDays[cid] && histDays[cid].size ? [...histDays[cid]].sort()[0] : today;
+              const _unitDays = Math.max(1, Math.round((Date.parse(today) - Date.parse(_firstLogD)) / 86400000));
               weekCtx = { ...weekCtx, arc: { ...weekCtx.arc,
                 behaviorGoal: curriculumDecision.mode === 'celebrate' ? `${_cur.behavior}가 자리 잡았어요` : _cur.behavior,
                 stepStory: {
@@ -866,11 +866,20 @@ export async function GET(req: Request) {
           const _mirror = planSlotCtx?.mirror ?? null;
           const _mDef = _mirror?.deficitGroup ?? null;
           const _slotDishAny = planSlotCtx?.slot ? (planSlotCtx.slot.dishes?.[0] ?? planSlotCtx.slot.cookedName) : null;
-          const _posBase = attends ? '어린이집 덕에 여러 식품군을 두루 잘 챙기고 있어요' : '여러 식품군을 두루 만나 균형이 좋아지고 있어요';
+          // ⭐ C(랄프위검 2026-06-19 #4) — 거울 문장 daySeed 변주(템플릿 마모 차단). '어린이집 덕에 두루 챙기고'·'환경 자리잡으면 X 곁들여'가 4~11통 축자 반복되던 것.
+          const _posV = attends
+            ? ['어린이집 덕에 여러 식품군을 두루 잘 챙기고 있어요', '기관 급식이 영양을 든든히 받쳐주고 있어요', '어린이집에서 여러 음식을 골고루 만나고 있어 든든해요']
+            : ['여러 식품군을 두루 만나 균형이 좋아지고 있어요', '식단이 조금씩 고르게 채워지고 있어요', '여러 음식을 두루 만나는 흐름이 좋아요'];
+          const _posBase = _posV[((daySeed % _posV.length) + _posV.length) % _posV.length];
+          const _foodClause = (dish: string) => {
+            const v = [`. 집에선 ${dish} 같은 음식도 가끔 식탁에 올리면 다양성에 좋아요`, `. 여유 될 때 ${dish}도 한 번 만나보면 좋겠어요`, `. ${dish} 같은 것도 가끔 곁들여 폭을 넓혀가면 좋아요`];
+            return v[((daySeed % v.length) + v.length) % v.length];
+          };
           const mirrorLineSel = !planSlotCtx ? undefined
-            : (!_mDef ? (_mirror?.line ?? null)                       // 결핍군 없음(칭찬/쿨다운/macro) — 그대로
-              : _noFood ? `${_posBase}${_slotDishAny ? `. 집 식단 다양성엔 ${_slotDishAny} 같은 것도 가끔 곁들여 좋아요` : ''}`   // 환경 날 — 슬롯 음식 소프트 노출(두부 디폴트 없음)
-                : _posBase);                                          // 음식 액션 날 — 본문이 슬롯 음식 직조하므로 거울은 음식 없는 generic
+            : _noFood   // ⭐ 환경 코칭 날 — 본문에 음식 액션이 없으므로 거울에 '그날 슬롯 음식'을 항상 소프트 노출('음식 추천 항상 포함'·이사님). 쿨다운/covered여도 결핍줄(콩류) 대신 슬롯 음식(변주)이라 K-04b 위배 아님·두부 디폴트 없음.
+              ? `${_posBase}${_slotDishAny ? _foodClause(_slotDishAny) : ''}`
+              : (!_mDef ? (_mirror?.line ?? null)                     // 음식 액션 날·결핍군 없음(칭찬/macro) — 그대로
+                : _posBase);                                          // 음식 액션 날·결핍 — 본문이 슬롯 음식 직조하므로 거울은 음식 없는 generic
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
           // 끝줄 권유는 하루 하나만 — profileNudge 우선, 없으면 구조화 개선 팁을 ~주1회만 노출(매일=잔소리 금지·Q5).
           const profileN = recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null;
