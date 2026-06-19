@@ -31,12 +31,14 @@ export const GIO_FREQ: Record<string, { freq: number; pct: number }> = {
 const LIVE_FREQ = LIVE_ING_FREQ as Record<string, { freq: number; rank?: number; topPct: number }>;
 
 // ⭐ 런타임 리밸런싱 warm(이사님 2026-06-19) — graphSource.warmGraphFromSql와 동형. 새벽 coach 크론이 1회 호출하면
-//   meal_logs(부모 수기 입력 + OCR 식단표가 함께 적재되는 실기록·반복 포함)를 식재료 등장빈도로 집계해 **메모리 캐시**를 교체한다(재배포 0).
-//   ⭐ 소스 선택: learned_menus는 메뉴→식재료 '사전'(on_conflict=menu·중복제거)이라 유입돼도 거의 안 늘어 리밸런싱엔 부적합 →
-//      실제 유입이 반복 포함으로 쌓이는 meal_logs.ingredients(remap 크론이 정제해 채운 표준식재료)를 센다.
+//   '급식·기록에 식재료가 등장한 빈도'를 다시 세서 **메모리 캐시**를 교체한다(재배포 0).
+//   ⭐ 소스 두 곳(OCR이 둘로 갈림 — 이사님 지적): 둘 다 이미 ingredients[]로 분해돼 있어 그대로 합산.
+//      ① institution_menu_items — '내가 긁어 입력한 급식 식단표'(daycare-eval OCR)가 적재되는 곳(meal_logs 아님!). 급식 출현의 순수 신호.
+//      ② meal_logs — 부모 수기 입력 + care 페이지 OCR이 적재되는 아동 실기록(반복 포함). remap 크론이 ingredients 정제.
+//      (learned_menus는 메뉴→식재료 '사전'·중복제거라 유입돼도 거의 안 늘어 빈도 신호로 부적합 → 제외.)
 //   ⭐ 핵심: 정적 파일(ingredient-freq.json)·GIO_FREQ는 무변경이라 **I-01-9 불변식이 그대로 그린**(파일 키우는 방식의 충돌 회피).
-//   실패/빈약하면 스냅샷 유지(safe degrade). ⚠️ 배선: 크론 라우트(다른 세션)가 `await warmIngredientFreqFromSql(supabase)` 1줄을
-//   추가해야 동작(옵트인). 미배선 시 _observedFreq=null → 전부 라이브/GIO 폴백(현행 동일).
+//   한쪽 테이블 실패/빈약해도 다른 쪽으로 degrade, 합산도 빈약하면 스냅샷 유지. ⚠️ 배선: 크론 라우트(다른 세션)가
+//   `await warmIngredientFreqFromSql(supabase)` 1줄 추가해야 동작(옵트인). 미배선 시 _observedFreq=null → 라이브/GIO 폴백(현행 동일).
 const SEASONING = new Set(('마늘 파 대파 쪽파 실파 소금 간장 진간장 설탕 흑설탕 물엿 조청 고춧가루 참깨 깨소금 참기름 들기름 콩기름 식용유 카놀라유 포도씨유 올리브유 후추 후춧가루 식초 맛술 미림 청주 정종 생강 고추장 된장 쌈장 춘장 올리고당 꿀 전분 녹말 감자전분 밀가루 부침가루 튀김가루 빵가루 케첩 마요네즈 굴소스 액젓 멸치액젓 까나리액젓 새우젓 고추 청양고추 홍고추 풋고추 깨 들깨 미원 다시다 식소다 베이킹파우더 이스트 물 육수 버터 마가린').split(' '));
 type FreqQueryable = { from: (t: string) => { select: (c: string) => PromiseLike<{ data: unknown; error: unknown }> } };
 let _observedFreq: Record<string, { freq: number; pct: number }> | null = null;
@@ -45,34 +47,36 @@ export function isFreqWarmed(): boolean { return _observedFreq !== null; }
 /** 런타임 warm 캐시 초기화(테스트/운영 캐시 무효화용). */
 export function resetIngredientFreqWarm(): void { _observedFreq = null; }
 /**
- * 새벽 크론용 SQL warm — meal_logs.ingredients(부모 기록+OCR 식단표 유입·반복 포함)를 식재료별 등장빈도로 집계해 메모리 캐시 교체(재배포 0·정적파일 무변경).
- * 동률 안전 순위→상위%(pctToScore와 동일 축·작을수록 흔함). SEASONING 제외. 20종 미만이면 빈약→스냅샷 유지(safe degrade).
- * ⚠️ supabase 단일 select는 1000행 상한 — 최근 표본 기반 상대빈도(리밸런싱 신호로 충분). 전수/기간창은 집계 뷰·RPC나 크론측 .gte(log_date)가 더 정확(후속).
+ * 새벽 크론용 SQL warm — institution_menu_items(급식 식단표 OCR) + meal_logs(부모/care 실기록)의 ingredients[]를
+ * 식재료별 등장빈도로 집계해 메모리 캐시 교체(재배포 0·정적파일 무변경). 둘 다 '등장 1회'로 합산(테이블당 graceful).
+ * 동률 안전 순위→상위%(pctToScore와 동일 축·작을수록 흔함). SEASONING 제외. 합산 20종 미만이면 빈약→스냅샷 유지(safe degrade).
+ * ⚠️ supabase 단일 select는 1000행 상한 — 최근 표본 상대빈도(리밸런싱 신호로 충분). 전수/기간창은 집계 뷰·RPC나 크론측 .gte가 더 정확(후속).
  */
 export async function warmIngredientFreqFromSql(db: FreqQueryable): Promise<{ ok: boolean; count: number; reason?: string }> {
-  try {
-    const { data, error } = await db.from('meal_logs').select('ingredients');
-    if (error || !Array.isArray(data)) return { ok: false, count: 0, reason: 'no meal_logs' };
-    const counts: Record<string, number> = {};
-    for (const row of data as Array<{ ingredients?: unknown }>) {
-      const arr = Array.isArray(row.ingredients) ? row.ingredients : [];
+  const counts: Record<string, number> = {};
+  const tally = (rows: unknown): void => {
+    if (!Array.isArray(rows)) return;
+    for (const row of rows as Array<{ ingredients?: unknown }>) {
+      const arr = Array.isArray(row?.ingredients) ? row.ingredients : [];
       const uniq = new Set(arr.filter((x): x is string => typeof x === 'string' && !!x.trim() && !SEASONING.has(x.trim())).map((x) => x.trim()));
       for (const ing of uniq) counts[ing] = (counts[ing] || 0) + 1;
     }
-    const entries = Object.entries(counts);
-    if (entries.length < 20) return { ok: false, count: entries.length, reason: 'sql too sparse — kept snapshot' };   // 안전 게이트
-    const all = entries.map(([, c]) => c);
-    const total = entries.length;
-    const next: Record<string, { freq: number; pct: number }> = {};
-    for (const [ing, c] of entries) {
-      const rank = all.filter((x) => x > c).length + 1;   // 동률 안전(엄격히 큰 것 +1)
-      next[ing] = { freq: c, pct: Math.max(1, Math.round((rank / total) * 100)) };
-    }
-    _observedFreq = next;
-    return { ok: true, count: total };
-  } catch (e) {
-    return { ok: false, count: 0, reason: e instanceof Error ? e.message : String(e) };
+  };
+  // 급식 식단표 + 실기록 — 한쪽 테이블이 없거나 실패해도 다른 쪽으로 degrade.
+  for (const table of ['institution_menu_items', 'meal_logs']) {
+    try { const { data, error } = await db.from(table).select('ingredients'); if (!error) tally(data); } catch { /* graceful — 다른 소스로 */ }
   }
+  const entries = Object.entries(counts);
+  if (entries.length < 20) return { ok: false, count: entries.length, reason: 'sql too sparse — kept snapshot' };   // 안전 게이트
+  const all = entries.map(([, c]) => c);
+  const total = entries.length;
+  const next: Record<string, { freq: number; pct: number }> = {};
+  for (const [ing, c] of entries) {
+    const rank = all.filter((x) => x > c).length + 1;   // 동률 안전(엄격히 큰 것 +1)
+    next[ing] = { freq: c, pct: Math.max(1, Math.round((rank / total) * 100)) };
+  }
+  _observedFreq = next;
+  return { ok: true, count: total };
 }
 /** 식재료의 급식빈도 메타. 런타임 warm(매일 리밸런싱) → 라이브 ingredient-freq.json → GIO_FREQ 스냅샷 → 미상 {0,100}(최하). */
 export function ingredientGioFreq(nm: string): { freq: number; pct: number } {
