@@ -889,6 +889,7 @@ export async function GET(req: Request) {
             chronicGuidance: chronicGuidanceText(meta.chronic),
             bridgeFacts, snackEval: snackText, growthMirror: planSlotCtx?.macroPhrase ?? growthMirrorCtx,   // ⭐ E-04 + 주간계획 macro 슬롯(저체중/성장더딤 탄단지) 우선
             slotFood, slotDish,   // ⭐ F-18 — 슬롯이 정한 구체 음식(본문 음식 제안 강제·두부 회귀 차단)
+            slotTrack: (!_noFood && planSlotCtx?.slot) ? planSlotCtx.slot.track : null, slotPairLiked: (!_noFood && planSlotCtx?.slot) ? (planSlotCtx.slot.pairLiked ?? null) : null,   // ⭐ 카테고리정합 — supply/challenge·잘 먹는 짝(프레이밍 분기·명시 연결)
             // ⭐ 주간계획 영양거울 스케줄(이사님 2026-06-18) — 결핍군 회전·단일결핍 격일 쿨다운(K-04b). plan_detail 있으면 그날 슬롯 라인 사용(null=쿨다운 생략). F-18=슬롯≠결핍군 날은 dish 없는 generic 라인(경쟁 두부 제거).
             mirrorLine: mirrorLineSel, mirrorPlanned: !!planSlotCtx,
             profileNudge: profileN, structuredTip: sTip ?? metaInv,   // ⭐ #4b 초기엔 메타 입력 초대가 이 한 줄 채널을 대신 채움
@@ -959,7 +960,7 @@ export async function GET(req: Request) {
           // ⭐ P0-D(이사님 2026-06-19) — ICFQ 위험 스크리너가 아닌 날엔, 오늘 focus 유닛의 1차 신호 프로브를 결정론 질문으로 던진다(정규 칩 + unitProbe).
           //   이게 '답해도 신호로 안 흐르던' 다리를 이어 envTablePct7d 등 양성신호 표본을 쌓아 졸업(passWhen)을 푼다. 유닛/프로브 없으면 LLM 질문 폴백(degrade-safe).
           let up: ReturnType<typeof pickUnitProbe> = null;
-          try { up = !icfq ? pickUnitProbe(curriculumDecision?.unit) : null; } catch { up = null; }
+          try { up = !icfq ? pickUnitProbe(curriculumDecision?.unit, Math.floor(Date.parse(today) / 86400000)) : null; } catch { up = null; }   // 일별(day-number) 회전 — 유닛 내 2프로브 번갈아
           if (icfq) { q = { question: icfq.q, topic: 'icfq', chips: icfq.chips }; icfqKey = icfq.key; }
           else if (up) { q = { question: up.question, topic: up.topic, chips: up.chips }; unitProbe = up.unitProbe; }
           else q = await generateQuestion({

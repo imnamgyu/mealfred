@@ -129,6 +129,23 @@ const YOUA_TOP: string[] = Object.entries(youaFreqJson as Record<string, unknown
   .sort((a, b) => (b[1] as number) - (a[1] as number))
   .map(([k]) => k)
   .filter((k) => !!groupOfIngredient(k));   // 식품군 인식되는 표준 식재료만(사촌·궁합 그래프 진입 가능)
+// ⭐ 급식 출현 순위(이사님 2026-06-19) — 추천 음식이 '급식에 얼마나 흔한지'를 근거로 붙인다('자주 나오니 처음 권하기 좋다').
+//   youa-freq는 횟수가 아니라 '등장률%'이고 98.6에 다수 동률이라, 정수 등수 대신 '동률 안전 순위(엄격히 높은 것 수 +1)→상위 N%'로 정직하게.
+const YOUA_RANK: Record<string, { rank: number; total: number; pct: number; topPct: number }> = (() => {
+  const pcts = YOUA_TOP.map((k) => (youaFreqJson as unknown as Record<string, number>)[k]);
+  const total = YOUA_TOP.length;
+  const m: Record<string, { rank: number; total: number; pct: number; topPct: number }> = {};
+  YOUA_TOP.forEach((k, i) => {
+    const pct = pcts[i];
+    const rank = pcts.filter((p) => p > pct).length + 1;   // 동률 안전: 같은 % 식재료는 같은 순위
+    m[k] = { rank, total, pct, topPct: Math.max(1, Math.round((rank / total) * 100)) };
+  });
+  return m;
+})();
+/** 급식(영유아 표준식단) 출현 순위 — topPct=상위 N%(동률 안전), pct=등장률%. 미수록(매칭 실패·식품군 미인식)은 null(0을 '꼴등'으로 위장 금지). */
+export function youaRankOf(ing: string): { rank: number; total: number; pct: number; topPct: number } | null {
+  return YOUA_RANK[ing] ?? null;
+}
 /** 확신 liked가 적을 때의 추천 앵커 시드 — Tier2(자주 차려진=servedIngredients) → Tier3(youa 급식 고빈도). 중복·간식채널(과일/유제품) 제외·식품군 인식만. */
 export function coldStartSeed(servedIngredients: string[], max = 6): string[] {
   const out: string[] = []; const seen = new Set<string>();
@@ -206,7 +223,10 @@ export function buildRecoFacts(args: { likedIngredients: string[]; target?: stri
     const grp = args.target || groupOfIngredient(ing) || '오늘';
     const pairWithLiked = [...new Set(strongPairsOf(ing).filter((n) => likedSet.has(n.nm)).slice(0, 3).map((n) => stapleDisplay(n.nm)))].slice(0, 2);   // 강한 궁합만(약신호 곁들임 차단)·주식은 먹는 형태
     const dishStr = (dishes.length ? dishes : (STAPLE_FORMS[ing] || [])).join('·');
-    lines.push(`[오늘 타깃 ${grp}] ${cookedName(ing)} (또래 인기 음식: ${dishStr}${pairWithLiked.length ? ` · 잘 먹는 ${pairWithLiked.join('·')} 곁들이면 좋아요` : ''})`);   // ⭐ 조리법+식재료(찐 단호박) — 생물 오인 방지
+    // ⭐ 급식 흔함 근거(이사님 2026-06-19) — '또래 급식에 자주 나오는 재료'를 LLM 재료로 제공('처음 권하기 좋다'). 미수록은 절 생략(degrade). 부모엔 서열 아닌 안심 톤으로 작문기가 푼다.
+    const yr = youaRankOf(ing);
+    const evid = yr ? ` · 또래 급식에 자주 나오는 재료(영유아 표준식단 등장률 ${yr.pct}%·상위 ${yr.topPct}%)` : '';
+    lines.push(`[오늘 타깃 ${grp}] ${cookedName(ing)} (또래 인기 음식: ${dishStr}${pairWithLiked.length ? ` · 잘 먹는 ${pairWithLiked.join('·')} 곁들이면 좋아요` : ''}${evid})`);   // ⭐ 조리법+식재료(찐 단호박) — 생물 오인 방지
     break;   // 오늘 추천 식재료 1개만
   }
 

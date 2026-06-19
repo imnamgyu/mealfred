@@ -586,6 +586,12 @@ describe('G-04 답변→evidence 파서', () => {
     expect(pickUnitProbe(null)).toBeNull();
     expect(pickUnitProbe(undefined)).toBeNull();
   });
+  it('G-D2b 유닛 내 2프로브 일별 회전(seed) — 같은 질문 매일 반복 방지', () => {
+    expect(pickUnitProbe('table-stage', 0)?.unitProbe.probeId).toBe('ts-env');     // probes[0]
+    expect(pickUnitProbe('table-stage', 1)?.unitProbe.probeId).toBe('ts-ritual');  // probes[1]
+    expect(pickUnitProbe('table-stage', 2)?.unitProbe.probeId).toBe('ts-env');     // 순환(2개)
+    expect(pickUnitProbe('table-stage', -1)?.unitProbe.probeId).toBe('ts-ritual'); // 음수 안전
+  });
   it('G-D3 E2E: 프로브답이 parseProbeAnswers→extract로 흘러 N<3 보류·N≥3 게이트 탈출→passWhen true', () => {
     const mkQ = (dAgo: number) => ({ q_date: D(dAgo), answer: '식탁에서 화면 없이', context: { unitProbe: pickUnitProbe('table-stage')!.unitProbe } });
     const e2 = ev('table-stage', baseDays(2), parseProbeAnswers([mkQ(1), mkQ(2)]));

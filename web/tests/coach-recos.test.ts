@@ -3,7 +3,32 @@
  */
 import { describe, it, expect } from 'vitest';
 import { normalizeFreqMap } from '../lib/coachMaterials';
-import { popularDishesFor, GROUP_INGREDIENTS, buildRecoFacts } from '../lib/coachRecos';
+import { popularDishesFor, GROUP_INGREDIENTS, buildRecoFacts, youaRankOf } from '../lib/coachRecos';
+
+describe('⭐급식 순위(이사님 2026-06-19) — youaRankOf + buildRecoFacts 근거 주입', () => {
+  it('youaRankOf — 수록 식재료는 순위/등장률, 미수록·_meta는 null(정직)', () => {
+    const r = youaRankOf('당근');   // youa 98.6 상위권
+    expect(r).not.toBeNull();
+    expect(r!.topPct).toBeGreaterThanOrEqual(1);
+    expect(r!.topPct).toBeLessThanOrEqual(100);
+    expect(r!.pct).toBeGreaterThan(0);
+    expect(youaRankOf('존재하지않는식재료xyz')).toBeNull();   // 미수록 — 0을 꼴등으로 위장 안 함
+    expect(youaRankOf('_meta')).toBeNull();
+  });
+  it('동률 안전 순위 — 같은 등장률 식재료는 같은 순위(정수 등수 자의성 차단)', () => {
+    const a = youaRankOf('당근'); const b = youaRankOf('두부');   // 둘 다 98.6
+    if (a && b && a.pct === b.pct) expect(a.rank).toBe(b.rank);
+  });
+  it("buildRecoFacts — 추천 타깃 줄에 '급식에 자주 나오는' 근거 절(수록 식재료)", () => {
+    const r = buildRecoFacts({ likedIngredients: [], targetIngredient: '당근', target: '비타민A채소' });
+    expect(r.text).toContain('급식에 자주 나오는');
+    expect(r.text).toMatch(/상위 \d+%/);
+  });
+  it('buildRecoFacts — youa 미수록 타깃은 근거 절 생략(degrade·현행 유지)', () => {
+    const r = buildRecoFacts({ likedIngredients: [], targetIngredient: '존재하지않는식재료xyz', target: '곡류' });
+    expect(r.text).not.toContain('급식에 자주 나오는');
+  });
+});
 
 describe('⭐F-18 buildRecoFacts suppressCousins — 슬롯 활성 시 사촌(경쟁 두부원) 제거', () => {
   const liked = ['감자', '소고기', '계란'];   // 감자→사촌 두부가 part(b)로 새던 케이스
