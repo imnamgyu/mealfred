@@ -2,8 +2,15 @@
  * tests/coach-recos.test.ts — freqMap 어댑터 + Letter A 보존 회귀 (WBS EPIC A · A-11·A-01)
  */
 import { describe, it, expect } from 'vitest';
-import { normalizeFreqMap } from '../lib/coachMaterials';
-import { popularDishesFor, GROUP_INGREDIENTS, buildRecoFacts, youaRankOf } from '../lib/coachRecos';
+import { normalizeFreqMap, ingredientGioFreq, rankIngredients } from '../lib/coachMaterials';
+import { popularDishesFor, GROUP_INGREDIENTS, STAPLE_FORMS, buildRecoFacts, youaRankOf, safeGarnishOf } from '../lib/coachRecos';
+import { strongPairsOf, garnishPairsOf } from '../lib/foodGraph';
+import { isSpicyIngredient } from '../lib/spicy';
+import recipeFreqJson from '../public/ingredient-recipes.json';
+
+const FM = normalizeFreqMap(recipeFreqJson);
+const ALL_REPS = [...new Set([...Object.values(GROUP_INGREDIENTS).flat(), ...Object.keys(STAPLE_FORMS)])];
+const SEAFOOD = /고등어|연어|새우|멸치|오징어|명태|갈치|삼치|대구|가자미|미역|다시마|김|어묵|게맛살|바지락|홍합|전복/;
 
 describe('⭐급식 순위(이사님 2026-06-19) — youaRankOf + buildRecoFacts 근거 주입', () => {
   it('youaRankOf — 수록 식재료는 순위/등장률, 미수록·_meta는 null(정직)', () => {
@@ -19,14 +26,15 @@ describe('⭐급식 순위(이사님 2026-06-19) — youaRankOf + buildRecoFacts
     const a = youaRankOf('당근'); const b = youaRankOf('두부');   // 둘 다 98.6
     if (a && b && a.pct === b.pct) expect(a.rank).toBe(b.rank);
   });
-  it("buildRecoFacts — 추천 타깃 줄에 '급식에 자주 나오는' 근거 절(수록 식재료)", () => {
+  it('buildRecoFacts — 추천 타깃 줄에 안심 톤 근거 절(서열·등수·% 금지)', () => {
     const r = buildRecoFacts({ likedIngredients: [], targetIngredient: '당근', target: '비타민A채소' });
-    expect(r.text).toContain('급식에 자주 나오는');
-    expect(r.text).toMatch(/상위 \d+%/);
+    expect(r.text).toContain('자주 오르는 익숙한');   // 안심 톤
+    expect(r.text).not.toContain('상위');            // 서열·등수 금지(이사님)
+    expect(r.text).not.toMatch(/\d+\s*%/);           // % 노출 금지
   });
-  it('buildRecoFacts — youa 미수록 타깃은 근거 절 생략(degrade·현행 유지)', () => {
+  it('buildRecoFacts — youa 미수록 타깃은 근거 절 생략(degrade)', () => {
     const r = buildRecoFacts({ likedIngredients: [], targetIngredient: '존재하지않는식재료xyz', target: '곡류' });
-    expect(r.text).not.toContain('급식에 자주 나오는');
+    expect(r.text).not.toContain('자주 오르는');
   });
 });
 
@@ -83,5 +91,150 @@ describe('A-01 Letter A 보존 — GROUP_INGREDIENTS 원본 불변(대조군)', 
   });
   it('A-01-7b 기타채소 원본 순서 유지(브로콜리 먼저)', () => {
     expect(GROUP_INGREDIENTS['기타채소'][0]).toBe('브로콜리');
+  });
+});
+
+// ── ⭐ J-01 곁들임 안전 게이트(2026-06-19) — tray/매운/교차괴식 차단 ──────────────────
+describe('J-01 garnishPairsOf / safeGarnishOf — 곁들임 안전(strongPairsOf는 무변경)', () => {
+  it('J-01-1 garnishPairsOf ⊆ strongPairsOf 이고 tray-src 엣지 제외(두부 토마토는 tray라 빠짐)', () => {
+    const sp = strongPairsOf('두부').map((n) => n.nm);
+    const gp = garnishPairsOf('두부');
+    expect(gp.every((n) => n.src !== 'tray')).toBe(true);                 // tray 제외
+    expect(gp.every((n) => sp.includes(n.nm))).toBe(true);               // 부분집합(strong에서만 추림)
+    expect(sp).toContain('토마토');                                       // strongPairsOf엔 tray 토마토 남음(TR-02 의도 보존)
+    expect(gp.map((n) => n.nm)).not.toContain('토마토');                  // 곁들임 뷰에선 제거
+  });
+  it('J-01-2 safeGarnishOf(두부)에 김치 없음(매운류 차단) — strongPairsOf엔 있음', () => {
+    expect(strongPairsOf('두부').some((n) => n.nm === '김치')).toBe(true);
+    expect(safeGarnishOf('두부').some((n) => n.nm === '김치')).toBe(false);
+  });
+  it('J-01-3 [속성] 모든 대표의 safeGarnishOf에 매운류·tray 0(미래 그래프 재생성 회귀 가드)', () => {
+    for (const r of ALL_REPS) {
+      for (const n of safeGarnishOf(r)) {
+        expect(isSpicyIngredient(n.nm)).toBe(false);
+        expect(n.src).not.toBe('tray');
+      }
+    }
+  });
+  it('J-01-4 [속성] 유제품 대표 곁들임에 생선·해산물 0(생선↔유제품 교차괴식 가드)', () => {
+    for (const dairy of ['치즈', '요거트', '우유']) {
+      for (const n of safeGarnishOf(dairy)) expect(SEAFOOD.test(n.nm)).toBe(false);
+    }
+  });
+  it('J-01-5 라이브 누수 봉합 — 두부 타깃·liked=김치 본문에 "김치 곁들" 없음', () => {
+    const r = buildRecoFacts({ likedIngredients: ['김치'], target: '콩류', targetIngredient: '두부' });
+    expect(r.lines[0]).not.toContain('김치');   // part(a) 슬롯 줄에 김치 곁들임 권유 없음
+  });
+});
+
+// ── ⭐ J-02 popularDishesFor 메뉴 정제 ───────────────────────────────────────────────
+describe('J-02 popularDishesFor — NEIS 원본명 정제·부적합 차단', () => {
+  it('J-02-1 접두 분류태그·짠지 제거(당근: (간식)/깻잎지 안 나옴)', () => {
+    const d = popularDishesFor('당근', FM);
+    expect(d.length).toBeGreaterThan(0);
+    expect(d.some((x) => x.startsWith('('))).toBe(false);
+    expect(d).not.toContain('깻잎지');
+    expect(d).not.toContain('(간식)꼬마김밥');
+  });
+  it('J-02-2 isSpicyDish 미탐 매운국 차단(소고기: 육개장 안 나옴)', () => {
+    expect(popularDishesFor('소고기', FM)).not.toContain('육개장');
+    expect(popularDishesFor('닭고기', FM)).not.toContain('닭개장');
+  });
+  it('J-02-3 [속성] 정제 산출물에 접두괄호·&접미·용량괄호 없음', () => {
+    for (const r of ALL_REPS) {
+      for (const dish of popularDishesFor(r, FM)) {
+        expect(/^\(/.test(dish)).toBe(false);
+        expect(/[&＆]/.test(dish)).toBe(false);
+        expect(/\([^)]*\)$/.test(dish)).toBe(false);
+      }
+    }
+  });
+});
+
+// ── ⭐ J-03/J-04 급식 표기 별칭 + 분모 정직화 ────────────────────────────────────────
+describe('J-03 youaRankOf 별칭 — 표준명 불일치 봉합(% 날조 0)', () => {
+  it('J-03-1 동의어·대표 매핑 전부 non-null', () => {
+    for (const r of ['요거트', '달걀', '콩', '검은콩', '현미', '잡곡', '버섯', '쌀', '백미', '밀가루']) {
+      expect(youaRankOf(r), r).not.toBeNull();
+    }
+  });
+  it('J-03-2 별칭 값이 원천 키와 일치(요거트=요구르트·달걀=계란)', () => {
+    expect(youaRankOf('요거트')!.pct).toBe(youaRankOf('요구르트')!.pct);
+    expect(youaRankOf('달걀')!.pct).toBe(youaRankOf('계란')!.pct);
+  });
+  it('J-03-3 연어는 의도적 null(한국 영유아 급식 희소·정직)', () => {
+    expect(youaRankOf('연어')).toBeNull();
+  });
+  it('J-04-1 [속성] 모든 대표가 youa 해소(연어만 예외)', () => {
+    const nulls = ALL_REPS.filter((r) => !youaRankOf(r));
+    expect(nulls).toEqual(['연어']);
+  });
+});
+
+// ── ⭐ J-05 급식빈도 반영(안전가산) + OCR 리밸런싱 준비 ──────────────────────────────
+describe('J-05 빈도 가중 — 라이브 우선 + youa 동률 가산(골든 보존)', () => {
+  it('J-05-1 ingredientGioFreq 골든 보존(당근 184/2·요거트 0)', () => {
+    expect(ingredientGioFreq('당근')).toEqual({ freq: 184, pct: 2 });   // 라이브=스냅샷 동일값 → 그린
+    expect(ingredientGioFreq('요거트').freq).toBe(0);                    // 라이브 침묵 → GIO 폴백
+    expect(ingredientGioFreq('아스파라거스')).toEqual({ freq: 0, pct: 100 });
+  });
+  it('J-05-2 rankIngredients 결정론 유지(동률 타이브레이크 삽입 후에도)', () => {
+    const a = rankIngredients({ targetGroup: '비타민A채소', groupLevel: 'red', liked: [] });
+    const b = rankIngredients({ targetGroup: '비타민A채소', groupLevel: 'red', liked: [] });
+    expect(a).toEqual(b);
+    expect(a[0].ing).toBe('당근');             // 최상위 불변(대조군)
+    expect(a.at(-1)!.ing).toBe('단호박');      // 최하위 불변
+  });
+});
+
+// ── ⭐ J-06 안심 톤(서열·등수·% 금지) ──────────────────────────────────────────────
+describe('J-06 급식 근거 — 안심 톤만, 서열·% 금지(이사님 2026-06-19)', () => {
+  it('J-06-1 [속성] 모든 그룹×대표 본문에 상위/등수/% 없음', () => {
+    for (const [g, list] of Object.entries(GROUP_INGREDIENTS)) for (const ing of list) {
+      const t = buildRecoFacts({ likedIngredients: [], target: g, targetIngredient: ing, freqMap: FM }).text;
+      expect(t, `${g}|${ing}`).not.toContain('상위');
+      expect(t, `${g}|${ing}`).not.toMatch(/\d+\s*%/);
+      expect(t, `${g}|${ing}`).not.toContain('등장률');
+    }
+  });
+  it('J-06-2 희소 재료(단호박 등장률 1.4%)는 "자주 오른다" 주장 안 함(정직)', () => {
+    const t = buildRecoFacts({ likedIngredients: [], target: '비타민A채소', targetIngredient: '단호박', freqMap: FM }).text;
+    expect(t).toContain('단호박');
+    expect(t).not.toContain('자주 오르는');
+  });
+  it('J-06-3 흔한 재료(당근)는 안심 절 포함', () => {
+    const t = buildRecoFacts({ likedIngredients: [], target: '비타민A채소', targetIngredient: '당근', freqMap: FM }).text;
+    expect(t).toContain('자주 오르는 익숙한');
+  });
+});
+
+// ── ⭐ J-07 괴식 추가 규칙(단↔짠·날곡물·과일매핑·튀김·김치앵커) ────────────────────────
+describe('J-07 괴식 규칙 — 단↔짠/날곡물/과일매핑/초가공/김치앵커', () => {
+  it('J-07-1 과일은 popularDishesFor가 빈 배열(배→너비아니구이 매핑 차단)', () => {
+    expect(popularDishesFor('배', FM)).toEqual([]);
+    expect(popularDishesFor('사과', FM)).toEqual([]);
+  });
+  it('J-07-2 단↔짠 차단: 유제품 곁들임에 생선·콩류 0 (생선↔콩 같은 짠↔짠은 허용=두부+멸치)', () => {
+    for (const dairy of ['치즈', '요거트', '우유']) {
+      for (const n of safeGarnishOf(dairy)) {
+        expect(SEAFOOD.test(n.nm), `${dairy}+${n.nm}`).toBe(false);
+        expect(GROUP_INGREDIENTS['콩류'].includes(n.nm), `${dairy}+${n.nm}`).toBe(false);
+      }
+    }
+    expect(safeGarnishOf('두부').some((n) => n.nm === '멸치')).toBe(true);   // 짠↔짠 과차단 방지
+  });
+  it('J-07-3 [속성] 날곡물(생쌀·밀가루 등)은 어떤 곁들임에도 안 나옴', () => {
+    const rawGrains = new Set(Object.keys(STAPLE_FORMS));
+    for (const r of ALL_REPS) for (const n of safeGarnishOf(r)) expect(rawGrains.has(n.nm), `${r}+${n.nm}`).toBe(false);
+  });
+  it('J-07-4 [속성] popularDishesFor 산출물에 튀김·초가공·단음료 없음', () => {
+    for (const r of ALL_REPS) for (const d of popularDishesFor(r, FM)) {
+      expect(/튀김|돈가스|과자|사탕|젤리|초콜릿|사이다|콜라|탄산|아이스크림/.test(d), `${r}:${d}`).toBe(false);
+    }
+  });
+  it('J-07-5 김치류 liked 앵커는 part(b)에서 제외("김치 → 섞어라" 차단)', () => {
+    const r = buildRecoFacts({ likedIngredients: ['김치', '두부'], target: '비타민A채소', targetIngredient: '단호박' });
+    expect(r.text).not.toContain('김치 →');
+    expect(r.lines.some((l) => l.startsWith('두부 →'))).toBe(true);   // 비김치 앵커는 정상
   });
 });

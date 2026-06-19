@@ -54,3 +54,14 @@ export function strongPairsOf(nm: string): Neighbor[] {
 export function verifiedCousinsOf(nm: string): Neighbor[] {
   return neighborsOf(nm).filter((n) => n.kind === 'bridge' && (n.verified === undefined || n.verified === true));
 }
+
+/**
+ * ⭐ 곁들임(garnish) 전용 강한 궁합 — strongPairsOf에서 '식판 동시출현(src='tray')' 엣지를 제외(이사님 2026-06-19).
+ *  근거: tray 엣지는 NEIS 식판에 같은 끼니로 차려진 공출현(김치+요구르트·미역+돼지고기처럼 김치가 모든 식판에 끼는 류)이라
+ *  "맛 궁합/곁들임"이 아니다. 음식 추천을 '식단으로 판단'하는 strongPairsOf(TR-02 골든)는 byte 무변경으로 보존하고,
+ *  부모에게 "곁들이면 좋아요"로 노출되는 경로만 이 좁은 뷰를 쓴다(레시피 동시출현 근거 pair만).
+ *  spicy·교차괴식 차단은 상위(coachRecos.safeGarnishOf)에서 추가로 건다(식품군 의존이라 그래프 레이어 밖).
+ */
+export function garnishPairsOf(nm: string): Neighbor[] {
+  return strongPairsOf(nm).filter((n) => n.src !== 'tray');
+}

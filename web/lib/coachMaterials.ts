@@ -11,11 +11,12 @@
  * 원자: A-01 빈도 정비 · A-02 liked 판정 · A-04 4기준 랭킹 · A-05 회전 · A-06 결핍 수치 ·
  *       A-07 조합 검증 후보 · A-08 근거문구 · A-09 온보딩 가드 · A-10 오케스트레이터 · A-11 freqMap 어댑터.
  */
-import { GROUP_INGREDIENTS, STAPLE_FORMS, stapleDisplay, type FreqMap } from './coachRecos';
+import { GROUP_INGREDIENTS, STAPLE_FORMS, stapleDisplay, safeGarnishOf, youaRankOf, type FreqMap } from './coachRecos';
 import { strongPairsOf, verifiedCousinsOf } from './foodGraph';
 import { scoreCombo } from './comboMatrix';
 import { GROUP_TARGET, type GroupSignal, type GroupLevel } from './nutrition';
 import COACH_TIPS from './coach-tips.json';
+import LIVE_ING_FREQ from './ingredient-freq.json';
 
 // ── A-01 — 실측 급식빈도 정비(I) ────────────────────────────────────────────────
 // learned_menus 1000개 집계(인계서 실측표). 빈도 가중(A-04)에 쓰여 단호박(0회)이 가라앉게 한다.
@@ -24,8 +25,14 @@ export const GIO_FREQ: Record<string, { freq: number; pct: number }> = {
   '양배추': { freq: 20, pct: 24 }, '치즈': { freq: 18, pct: 27 }, '시금치': { freq: 13, pct: 33 },
   '근대': { freq: 11, pct: 39 }, '단호박': { freq: 0, pct: 100 }, '요거트': { freq: 0, pct: 100 },
 };
-/** 식재료의 급식빈도 메타. 미상이면 {freq:0,pct:100}(빈도 가중에서 최하). */
+// ⭐ 라이브 관측 빈도(이사님 2026-06-19 OCR 리밸런싱) — scripts/build-ingredient-freq.py가 OCR로 쌓인 meal_logs/learned_menus를
+//   재집계해 lib/ingredient-freq.json을 갱신한다. 이 파일만 매일(크론) 다시 만들면 **코드 변경 0으로** 빈도 가중이 자동 리밸런싱된다.
+//   GIO_FREQ(인계서 실측 스냅샷)는 라이브가 침묵하는 키의 폴백으로만 유지 — 겹치는 키 값이 동일해 골든은 그대로 그린.
+const LIVE_FREQ = LIVE_ING_FREQ as Record<string, { freq: number; rank?: number; topPct: number }>;
+/** 식재료의 급식빈도 메타. 라이브 관측(ingredient-freq.json) 우선 → GIO_FREQ 스냅샷 폴백 → 미상이면 {freq:0,pct:100}(빈도 가중 최하). */
 export function ingredientGioFreq(nm: string): { freq: number; pct: number } {
+  const live = LIVE_FREQ[nm];
+  if (live && live.freq > 0) return { freq: live.freq, pct: live.topPct };   // 라이브 우선(매일 재집계 반영·pct=상위%)
   return GIO_FREQ[nm] || { freq: 0, pct: 100 };
 }
 /**
@@ -77,7 +84,10 @@ export function rankIngredients(args: { targetGroup: string; groupLevel: GroupLe
     const score = parts.urgency * RANK_W.urgency + parts.freq * RANK_W.freq + parts.pair * RANK_W.pair + parts.bridge * RANK_W.bridge;
     return { ing, score, parts };
   });
+  // ⭐ 안전가산(이사님 2026-06-19): 점수 동률이면 '급식에 더 자주 나오는'(youa 등장률) 식재료를 먼저 — 골든 점수/parts는 무변경, 동률만 결정.
+  const youaPct = (ing: string): number => youaRankOf(ing)?.pct ?? 0;
   rows.sort((a, b) => b.score - a.score
+    || (youaPct(b.ing) - youaPct(a.ing))                                    // 급식 흔함 우선(동률 결정)
     || (ingredientGioFreq(b.ing).freq - ingredientGioFreq(a.ing).freq)
     || a.ing.localeCompare(b.ing));   // 결정론 타이브레이크
   return rows;
@@ -234,7 +244,7 @@ export function selectDailyMaterials(args: {
   let pairLiked: string | null = null;
   let cousinOf: string | null = null;
   if (recommendedIng) {
-    pairLiked = strongPairsOf(recommendedIng).find((n) => liked.includes(n.nm))?.nm ?? null;   // 강한 궁합만
+    pairLiked = safeGarnishOf(recommendedIng).find((n) => liked.includes(n.nm))?.nm ?? null;   // 곁들임 안전(tray/매운/교차괴식 제외)
     cousinOf = liked.find((lk) => verifiedCousinsOf(lk).some((n) => n.nm === recommendedIng)) ?? null;   // 검증된 사촌만
   }
   const validatedCombos = recommendedIng

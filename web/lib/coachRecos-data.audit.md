@@ -84,3 +84,39 @@ EPIC I = "데이터 정합성·근거 보강". Letter B의 '재료 결정론'이
 - 추천 파이프(`validCombos(popularDishesFor(당근), ['당근'])`)에 미역국 미포함(괴식 0).
 - route.ts L101 `'/ingredient-recipes.json'` freqMap 소스 경로 회귀 고정.
 - A 대조군 영향: GROUP_INGREDIENTS **무변경**이라 Letter A 출력 불변(I-07-8·기존 A-01-7 그대로 그린).
+
+---
+
+## 2026-06-19 — 추천 품질·커버리지 보강 (이사님: 메뉴 매핑/괴식/그래프/급식빈도)
+
+시그니처 전부 고정·신규 export만 추가·`strongPairsOf`/`GROUP_INGREDIENTS` **byte 무변경**(대조군·TR-02 골든 보존). throw 0·LLM 0·degrade 폴백.
+
+### J-01 — 곁들임 안전 게이트(라이브 괴식 봉합)
+- **사고:** `buildRecoFacts`/`selectDailyMaterials`가 `strongPairsOf`를 곁들임 추천에 직접 써서 **"잘 먹는 김치 곁들이면 좋아요"**(두부 타깃)가 라이브로 노출됨. 원인 ⓐ tray(식판 동시출현) 엣지가 strong(김치+요구르트·미역+돼지고기), ⓑ spicy/교차괴식 미차단.
+- **봉합:** `foodGraph.garnishPairsOf`(=strongPairsOf − tray) → `coachRecos.safeGarnishOf`가 추가 차단 ① 매운/김치류(`isSpicyIngredient`+깍두기/총각) ② **날곡물**(생쌀·밀가루 등 STAPLE_FORMS 키 — 곁들임 금지, 먹는 형태로만) ③ **교차괴식**(`단 것[과일·우유류] ↔ 짠 단백질[생선·해산물·콩/두부]`. 짠↔짠 두부+멸치는 허용). 곁들임 노출 경로(`buildRecoFacts` part a·b, `pickFoodReco` pl, `selectDailyMaterials` pairLiked)만 사용. **`strongPairsOf`는 무변경**(음식 추천을 '식단으로 판단'하는 TR-02 의도·골든 보존).
+- **김치 앵커 차단:** part(b)는 liked가 김치류면 앵커째 생략("김치 → 궁합 X"는 '김치에 X 섞어라' 권유이므로).
+- **과일 매핑 차단:** `popularDishesFor`가 과일이면 빈 배열(배=양념인 '너비아니구이'처럼 숨은-재료 음식으로 오인 금지). 과일은 과일로(간식채널).
+- **부적합 메뉴 확장:** 매운국(육개장·닭개장·부대찌개·얼큰)·짠절임(장아찌·단무지·깻잎지·젓)·견과 알레르겐·**튀김/초가공/단음료**(튀김·돈가스·과자·사탕·탄산·아이스크림) 차단.
+
+### J-02 — popularDishesFor 메뉴 정제
+- NEIS 원본명 정제: 접두 `(간식)`·접미 `&쌈장`/`(200ml)` 제거, `육개장·닭개장`(isSpicyDish 미탐 매운국)·짠지·견과 알레르겐 차단. kit 카테고리 폴백이 받쳐 빈 배열 없음. 급식빈도순(freqMap freq 내림차순) 유지.
+- 예: 당근 `(간식)꼬마김밥·깻잎지` → `꼬마김밥·채소죽` / 소고기 `육개장` 제거.
+
+### J-03 — 식재료명 별칭 정규화(`ING_YOUA_ALIAS`)
+- 도감 표준명 ↔ youa 키 불일치로 `youaRankOf`가 null이던 대표 봉합: 요거트→요구르트·달걀→계란·콩/검은콩→콩(대두)·현미/쌀/백미→멥쌀·잡곡→보리·밀가루→밀·버섯→느타리버섯. **전부 youa 실재 키 매핑(% 날조 0).**
+- **의도적 미매핑:** 연어(한국 영유아 급식 희소·고가) → null 유지(정직).
+
+### J-04 — youaRankOf 분모 정직화 + 부모 노출은 안심 톤(서열·등수·% 금지)
+- 순위 모집단을 youa **전 항목(169종)**으로(기존 식품군 인식 부분집합 → 인위 축소). 동률 안전(엄격히 큰 것 +1). rank/topPct는 **내부용**(빈도 동률 타이브레이크)으로만 유지.
+- **부모 노출(`buildRecoFacts`)은 `youaReassuranceFor`** — `상위 N%`·등수·등장률% **전부 제거**, "또래 급식에도 자주 오르는 익숙한 재료"라는 **안심 톤만**(이사님: 서열은 부모 부담). 등장률 `YOUA_COMMON_PCT(50)` **이상인 흔한 재료만** 노출, 미만/미수록은 절 생략(근거 없으면 안 넣음 → 단호박 1.4%는 "자주" 주장 안 함).
+
+### J-05 — 급식빈도 추천 반영(이사님: 흔할수록 매우 우선) + OCR 일일 리밸런싱
+- **안전가산(Q1):** `rankIngredients` 정렬에 youa 등장률 **동률 타이브레이크** 삽입 — 골든 점수/parts 무변경, 점수 동률만 '급식에 더 흔한 것' 우선.
+- **리밸런싱 준비(엔진만 — 자동 실행 아님):** `ingredientGioFreq`가 **라이브 `ingredient-freq.json` 우선 → GIO_FREQ 폴백**으로 읽도록 죽은 배선을 살림. 현재는 무동작(라이브=GIO 동일값·골든 그린).
+  - ⚠️ **아직 매일 자동 갱신 안 됨.** `build-ingredient-freq.py`는 어디서도 자동 실행 안 함(크론/Actions 없음·2026-06-13 수동 1회). 새벽 2시(UTC 17:00) coach 크론은 `warmGraphFromSql`(그래프 SQL 워밍)만 함. Vercel 크론은 TS 라우트만 때려 **.py를 직접 못 돌림**. ingredient-freq.json은 빌드타임 import라 갱신 시 **재배포** 필요(그래프 같은 런타임 warm 경로 없음).
+  - ⚠️ **불변식 충돌:** `I-01-9`가 `public/ingredient-freq.json ≡ GIO_FREQ` 완전일치를 강제 + 데이터세션 핸드오프가 freq 스크립트/GIO_FREQ/ingredient-freq.json **고정**을 명시. 즉 재집계로 파일을 키우면 I-01-9가 깨짐 → **리밸런싱 활성화는 데이터세션 owner 합의 사안**(GIO_FREQ 동반 갱신 + I-01-9 완화 + 러너[Actions/TS포팅] + 재배포 or 런타임 warm).
+- **빈도 역할 분리:** youa-freq=모집단 기준선(고정 레퍼런스·표준식단 등장률) / ingredient-freq=우리 관측(매일 갱신). youa 확장/재생성은 DB(Supabase `learned_menus`) 의존 → 오프라인 불가, 별칭으로 정합 처리.
+
+### J-06 — food-graph 구조적 빈 구멍(검증 결과·degrade 정상)
+- pickFoodReco chain/pair가 조용히 실패하는 대표(곁들임/사촌 0): `잡곡·콩·버섯`(포괄어 — 그래프 노드 아님), `연어·단호박·검은콩`(pairs 0), `멸치`(bridge 0). 전부 `dish`/`plain` 폴백으로 안전 degrade(괴식 0).
+- food-graph.json은 야간 SQL→JSON 재생성물이라 **수기 편집 금지**(덮어씀). 보강은 생성 파이프(gen-food-graph.py/SQL)에서. 여기선 소비 로직 degrade로 흡수 + 본 문서로 추적.
