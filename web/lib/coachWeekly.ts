@@ -67,7 +67,10 @@ export type PlanSlot = {
   level?: 'green' | 'yellow' | 'red';   // supply: 결핍 강도
   reason?: string;           // 슬롯별 근거 한 줄(어드민 직접 표시 — supply='결핍군 X 보급(주 N회·red)', challenge='잘 먹는 Y의 검증 사촌')
 };
-export type MirrorSlot = { deficitGroup: string | null; line: string | null; kind: 'deficit' | 'covered' | 'macro' | null };
+export type MirrorSlot = { deficitGroup: string | null; line: string | null; kind: 'deficit' | 'covered' | 'macro' | 'expand' | null };
+// ⭐ 우선순위 카테고리(이사님 2026-06-20) — 주간계획이 카테고리 1개만 둬서 '콩류 부족인데 달걀(알류) 추천' 모순이 나던 것 차단.
+//   결핍(+BMI 곡류·고기류 가중)을 우선순위로, 3개 미달이면 자주 안 나온 군을 회전 충원(green이어도). kind=deficit('채우자') | expand('잘 먹지만 새 음식 넓히자').
+export type PriorityGroup = { group: string; kind: 'deficit' | 'expand'; level: 'green' | 'yellow' | 'red'; weeklyEst: number; rank: number; reason: string };
 export type MacroTrack = {
   active: boolean; band: BmiBand | null; reason: 'lowWeight' | 'growthLag' | 'overweight' | null;
   boostGroups: string[];     // 저체중/성장더딤이면 탄단지 보강군['고기·계란','콩류','유제품']
@@ -84,9 +87,10 @@ export type PlanDetail = {
   poolMode: 'supply' | 'challenge' | 'mixed';
   macroTrack: MacroTrack;
   curriculum: { focusUnit: UnitId | null; focusLabel: string | null; standby: UnitId[]; stalledOut: UnitId | null; graduatedTo: UnitId | null; lever: WeeklyLever };
-  mirrorSchedule: MirrorSlot[];                // 길이 ≤7(결핍군 회전·쿨다운 — 매일 콩류 금지)
+  mirrorSchedule: MirrorSlot[];                // 길이 ≤7(슬롯에 인덱스 정렬 — 거울[i]가 슬롯[i]의 군·track과 정합. 모순 차단)
   deficitGroups: string[];
   coveredGroups: string[];
+  priorityGroups: PriorityGroup[];             // ⭐ 우선순위 3군(결핍+BMI+회전 충원) — 추천이 항상 이 중 한 군과 정합
 };
 
 export type WeeklyAnchor = {
@@ -497,20 +501,48 @@ function buildMacroTrack(ctx: EnrichContext): MacroTrack {
   if (overweight) return { active: true, band: ctx.band, reason: 'overweight', boostGroups: [], boostDishes: [], snackRestraint: true, phrase: growthTrackToPhrase({ band: ctx.band, height: ctx.heightTrack, weight: ctx.weightTrack }), cadenceWeek: cadence };
   return { active: false, band: ctx.band, reason: null, boostGroups: [], boostDishes: [], snackRestraint: false, phrase: null, cadenceWeek: false };
 }
-function buildMirrorSchedule(deficits: string[], covered: string[], macro: MacroTrack, attendsDaycare: boolean, freqMap?: FreqMap): MirrorSlot[] {
+// ⭐ 슬롯 인덱스 정렬 거울(이사님 2026-06-20) — 거울[i]를 targetRotation[i]의 군·track에 맞춤. '콩류 부족인데 달걀(알류) 추천' 모순 차단.
+//   supply 슬롯 날=그 슬롯의 결핍군 명명(거울·추천 같은 군) / challenge(expand)·빈 날=결핍군 호명 0(본문 slotMandate가 '잘 먹는 사촌 넓히기' 직조 → 거울은 음식 없는 generic-positive). 빈도 격일화는 route _cooldownDue가 담당.
+function buildMirrorSchedule(slots: PlanSlot[], covered: string[], macro: MacroTrack, attendsDaycare: boolean, freqMap?: FreqMap): MirrorSlot[] {
   const out: MirrorSlot[] = [];
   const coveredLine = covered.length ? `여러 식품군을 두루 만나 균형이 좋아요(${covered.slice(0, 3).join('·')})` : null;
   for (let i = 0; i < 7; i++) {
     if (macro.active && macro.cadenceWeek && i === 3) { out.push({ deficitGroup: null, line: macro.phrase, kind: 'macro' }); continue; }
-    if (deficits.length >= 2) {
-      const g = deficits[i % deficits.length];   // 결핍군 라운드로빈(같은 군 연속 금지)
-      out.push({ deficitGroup: g, line: mirrorLineFor(g, attendsDaycare, i, deficitDishFor(g, i, freqMap)), kind: 'deficit' });
-    } else if (deficits.length === 1) {
-      // ⭐ K-04b — 단일 결핍은 매일 같은 줄이 앵무새가 되므로 격일 쿨다운(짝수 슬롯만 결핍줄·홀수는 칭찬/생략) + 문장틀·구체 dish 회전
-      if (i % 2 === 0) out.push({ deficitGroup: deficits[0], line: mirrorLineFor(deficits[0], attendsDaycare, i, deficitDishFor(deficits[0], i, freqMap)), kind: 'deficit' });
-      else out.push({ deficitGroup: null, line: coveredLine, kind: coveredLine ? 'covered' : null });
+    const s = slots[i];
+    if (s && s.track === 'supply') {
+      // supply 날 — 거울이 그 슬롯의 결핍군을 명명(dish도 슬롯 dish라 두부 재소환 0). 거울·본문 추천 같은 군 = 모순 0.
+      out.push({ deficitGroup: s.group, line: mirrorLineFor(s.group, attendsDaycare, i, s.dishes?.[0] ?? deficitDishFor(s.group, i, freqMap)), kind: 'deficit' });
     } else {
+      // challenge(expand)·빈 슬롯 날 — 결핍군 호명 금지(본문이 '잘 먹는 X의 사촌'으로 직조). 거울은 음식 없는 generic-positive.
       out.push({ deficitGroup: null, line: coveredLine, kind: coveredLine ? 'covered' : null });
+    }
+  }
+  return out;
+}
+// ⭐ 우선순위 3군 선정(이사님 2026-06-20) — 결핍(+BMI 저체중/성장더딤이면 곡물·고기류 가중) 우선 → 3개 미달이면 자주 안 나온 군을 arcWeek 회전으로 충원(green이어도 새 음식 학습). groupSignals(ALL_GROUPS 네임스페이스) 직접 사용.
+function buildPriorityGroups(ctx: EnrichContext, macro: MacroTrack): PriorityGroup[] {
+  const meal = ctx.groupSignals;   // 8군(곡물·콩류·유제품·고기·계란·생선·해산물·비타민A채소·기타채소·과일)
+  const sev = (lv: string) => (lv === 'red' ? 0 : lv === 'yellow' ? 1 : 2);
+  const macroBoost = macro.active && (macro.reason === 'lowWeight' || macro.reason === 'growthLag');
+  const MACRO_PRIORITY = new Set(['곡물', '고기·계란']);   // BMI 저체중/성장더딤 → 탄단지·열량군 가중(이사님 'bmi로 곡물·고기류도 체크')
+  const isBoost = (g: string) => macroBoost && MACRO_PRIORITY.has(g);
+  // 1) 결핍(red/yellow) 또는 BMI 부스트군 — 심한 순 → 부스트 우선 → 적게 나온 순
+  const deficits = meal.filter((s) => s.level !== 'green' || isBoost(s.group))
+    .sort((a, b) => (sev(a.level) - sev(b.level)) || ((isBoost(b.group) ? 1 : 0) - (isBoost(a.group) ? 1 : 0)) || (a.weeklyEst - b.weeklyEst));
+  const out: PriorityGroup[] = deficits.slice(0, 3).map((s, i) => ({
+    group: s.group, kind: 'deficit' as const, level: s.level as 'green' | 'yellow' | 'red', weeklyEst: s.weeklyEst, rank: i + 1,
+    reason: (isBoost(s.group) && s.level === 'green') ? '성장·열량 보강군(BMI 저체중/성장더딤)' : `결핍 보급(주 ${Math.round(s.weeklyEst * 10) / 10}회·${s.level})`,
+  }));
+  // 2) 3개 미달 → 자주 안 나온 군(weeklyEst 낮은 순)을 arcWeek 회전으로 충원(green이어도 — 거기서도 배울 음식 있음)
+  if (out.length < 3) {
+    const used = new Set(out.map((o) => o.group));
+    const greens = meal.filter((s) => !used.has(s.group)).sort((a, b) => a.weeklyEst - b.weeklyEst);
+    const m = Math.max(1, greens.length);
+    const rot = (((ctx.arcWeek % m) + m) % m);
+    const rotated = [...greens.slice(rot), ...greens.slice(0, rot)];   // 주마다 다른 green 시작점
+    for (const s of rotated) {
+      if (out.length >= 3) break;
+      out.push({ group: s.group, kind: 'expand' as const, level: s.level as 'green' | 'yellow' | 'red', weeklyEst: s.weeklyEst, rank: out.length + 1, reason: '잘 먹는 군에서 새 음식 확장(자주 안 나온 군 회전)' });
     }
   }
   return out;
@@ -562,11 +594,12 @@ export function enrichWeeklyPlan(synth: WeeklySynthesis, ctx: EnrichContext): Pl
   const stalledOut = ctx.goals.find((g) => g.status === 'stopped')?.unit_id ?? null;
   const prevFocus = (ctx.focusHistory && ctx.focusHistory[0]?.unit_id) || null;
   const graduatedTo = (focus && prevFocus && focus.unit_id !== prevFocus) ? focus.unit_id : null;
-  const mirrorSchedule = buildMirrorSchedule(ctx.deficitGroups.filter((g) => PLAN_MEAL_GROUPS.has(g)), ctx.coveredGroups, macro, ctx.attendsDaycare, freqMap);
+  const priorityGroups = buildPriorityGroups(ctx, macro);   // ⭐ 우선순위 3군(결핍+BMI+자주 안 나온 군 회전) — 추천·거울 정합 + 어드민 가시화
+  const mirrorSchedule = buildMirrorSchedule(slots.slice(0, 7), ctx.coveredGroups, macro, ctx.attendsDaycare, freqMap);   // ⭐ 슬롯 인덱스 정렬 — 거울[i]=슬롯[i] 군(모순 차단)
   return {
     schemaVersion: 1, targetRotation: slots.slice(0, 7), supplyPool, challengePool, poolMode: poolOut.mode, macroTrack: macro,
     curriculum: { focusUnit: focus?.unit_id ?? null, focusLabel: focus ? UNITS[focus.unit_id].label : null, standby, stalledOut, graduatedTo, lever: focus ? leverForUnit(focus.unit_id) : (synth.budget.lever || 'food') },
-    mirrorSchedule, deficitGroups: ctx.deficitGroups, coveredGroups: ctx.coveredGroups,
+    mirrorSchedule, deficitGroups: ctx.deficitGroups, coveredGroups: ctx.coveredGroups, priorityGroups,
   };
 }
 

@@ -86,11 +86,32 @@ describe('enrichWeeklyPlan — 7일치 구체 계획 오케스트레이션', () 
     const defs = d.mirrorSchedule.filter((m) => m.kind === 'deficit');
     for (let i = 1; i < defs.length; i++) expect(defs[i].deficitGroup).not.toBe(defs[i - 1].deficitGroup);
   });
-  it('⭐K-04b — 단일 결핍(콩류만)은 격일 쿨다운(매일 같은 콩류 클로징 앵무새 차단)', () => {
+  it('⭐ 슬롯 정렬 거울 — deficit 거울[i]는 targetRotation[i] supply 슬롯과 같은 군(콩류 부족인데 달걀 모순 차단). 빈도 격일화는 route _cooldownDue 담당', () => {
     const d = enrichWeeklyPlan(synth(), ctx({ deficitGroups: ['콩류'] }));
-    const deficitSlots = d.mirrorSchedule.filter((m) => m.kind === 'deficit').length;
-    expect(deficitSlots).toBeLessThanOrEqual(4);   // 7슬롯 중 격일 이하(매일 7회가 아님)
-    expect(d.mirrorSchedule.some((m) => m.kind !== 'deficit')).toBe(true);   // 쿨다운 슬롯 존재
+    expect(d.mirrorSchedule.length).toBe(7);
+    for (let i = 0; i < 7; i++) {
+      const m = d.mirrorSchedule[i]; const s = d.targetRotation[i];
+      if (m.kind === 'deficit') { expect(s?.track).toBe('supply'); expect(m.deficitGroup).toBe(s?.group); }   // 거울 군 = 슬롯 군
+      if (s && s.track === 'challenge') expect(m.kind).not.toBe('deficit');   // challenge(expand) 날 결핍 호명 0
+    }
+  });
+  it('⭐ priorityGroups — 결핍 우선 + 3개 미달이면 green 군 회전 충원(kind deficit/expand)', () => {
+    const d = enrichWeeklyPlan(synth(), ctx());
+    expect(d.priorityGroups.length).toBe(3);
+    expect(d.priorityGroups[0].kind).toBe('deficit');                          // 1순위=결핍
+    const exp = d.priorityGroups.find((p) => p.kind === 'expand');
+    expect(exp).toBeTruthy();                                                  // green 충원(곡류) 존재
+    expect(exp?.level).toBe('green');                                          // expand 군은 부족 아님
+    expect(d.priorityGroups.every((p) => p.rank >= 1 && !!p.reason)).toBe(true);
+  });
+  it('⭐ priorityGroups BMI — 저체중이면 곡물·고기류가 green이어도 우선순위(탄단지·열량)', () => {
+    const d = enrichWeeklyPlan(synth(), ctx({
+      groupSignals: [{ group: '콩류', level: 'red', weeklyEst: 0 }, { group: '곡물', level: 'green', weeklyEst: 6 }, { group: '고기·계란', level: 'green', weeklyEst: 6 }],
+      band: '저체중',
+    }));
+    const groups = d.priorityGroups.map((p) => p.group);
+    expect(groups).toContain('곡물');                                          // green이어도 BMI 부스트로 진입
+    expect(groups).toContain('고기·계란');
   });
   it('⭐F-18 — 결핍 거울 슬롯은 deficitGroup을 보존(route가 슬롯군과 비교해 정합/generic-positive 결정)', () => {
     const d = enrichWeeklyPlan(synth(), ctx({ deficitGroups: ['콩류', '비타민A채소'] }));

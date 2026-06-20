@@ -871,7 +871,6 @@ export async function GET(req: Request) {
           //   결핍군과 슬롯이 충돌(콩류 거울 vs 단호박 슬롯)하면 LLM이 두부를 택해 본문이 두부로 회귀하던 근원. 거울이 가리키는 음식과 슬롯 음식을 단일화한다.
           //   (1)결핍군 없음(칭찬/쿨다운/macro)=그대로 (2)환경 코칭 날(_noFood)=본문에 음식 없음 → 거울에 슬롯 음식 소프트 노출('음식 추천 항상 포함'·이사님 2026-06-15 복원) (3)음식 액션 날=본문이 슬롯 음식 직조 → 거울은 음식 없는 generic(중복·두부 디폴트·경쟁 전부 차단).
           const _mirror = planSlotCtx?.mirror ?? null;
-          const _mDef = _mirror?.deficitGroup ?? null;
           const _slotDishAny = planSlotCtx?.slot ? (planSlotCtx.slot.dishes?.[0] ?? planSlotCtx.slot.cookedName) : null;
           // ⭐ F-18b(랄프위검 47점 rank2) — 환경(_noFood) 레버 날도 슬롯 음식을 본문에 1회 소프트 직조. 기존엔 slotFood/slotDish가 null이라 본문 must-weave가 안 돌고, 음식이 거울 _foodClause로만 흐르다 LLM이 누락(06-11~19 5연속 본문 음식 증발). 작문기 softSlot must-weave로 음식 이름 보장(환경이 주제·음식은 곁들임).
           //   곁들임 앵커는 '식재료명(cookedName: 단호박·검은콩·두부)' 우선 — 슬롯 dishes[0]가 맨 조리법('찜'·'조림')만일 때 불완전 음식이 돼 LLM이 못 녹이는 걸 차단(식재료명은 항상 일관된 음식).
@@ -882,10 +881,10 @@ export async function GET(req: Request) {
             : ['여러 식품군을 두루 만나 균형이 좋아지고 있어요', '식단이 조금씩 고르게 채워지고 있어요', '여러 음식을 두루 만나는 흐름이 좋아요'];
           const _posBase = _posV[((daySeed % _posV.length) + _posV.length) % _posV.length];
           const _mirrorRaw = !planSlotCtx ? undefined
-            : _noFood   // ⭐ F-18b(랄프위검 47점 rank2) — 환경 코칭 날 슬롯 음식은 이제 본문 softSlot로 직조(프롬프트+must-weave). 거울은 순수 generic-positive로 둔다(기존 _foodClause는 LLM이 자주 누락해 '음식이 거울에도 본문에도 없음'의 직접 원인이라 제거 — '음식 추천 항상 포함'은 본문 softSlot가 더 강하게 보장).
+            : _noFood   // ⭐ F-18b(랄프위검 47점 rank2) — 환경 코칭 날 슬롯 음식은 본문 softSlot로 직조(프롬프트+must-weave). 거울은 순수 generic-positive.
               ? _posBase
-              : (!_mDef ? (_mirror?.line ?? null)                     // 음식 액션 날·결핍군 없음(칭찬/macro) — 그대로
-                : _posBase);                                          // 음식 액션 날·결핍 — 본문이 슬롯 음식 직조하므로 거울은 음식 없는 generic
+              // ⭐ 슬롯 정렬 거울(이사님 2026-06-20) — 거울[i]=슬롯[i] 군. supply 날 결핍거울은 슬롯 군·슬롯 dish라 본문 추천과 정합(두부 재소환 0·'콩류 부족인데 달걀' 모순 0), challenge 날은 covered/generic. 결핍 라인을 generic으로 버리던 기존 분기 폐기.
+              : (_mirror?.line ?? null);
           // ⭐ 영양거울 출현빈도 쿨다운(이사님 2026-06-20) — '어린이집 덕에 영양 채워진다' 거울줄이 거의 매일 박혀 24통 중 17통.
           //   변주가 아니라 출현 자체를 격일화: 최근 2일 안에 거울이 나왔으면 오늘은 생략. degrade-safe: 전체(집+기관) 부족 2개+ = 심한 결핍이면 면제.
           //   ⭐ 골든완화(이사님 승인 2026-06-20) — 무슬롯(저데이터·plateau) 경로도 동일 쿨다운 적용(변종 안심줄 격일화). _cooldownDue를 base로 전달.
