@@ -94,9 +94,10 @@
         <tr><th>경로</th><th>입력</th><th>적재 테이블</th><th>dedup</th><th>기관 연결</th></tr>
         <tr><td><b>① zip (관리자)</b></td><td>식단표.zip(급식관리지원센터)</td><td>CSV→도감 <span style="color:var(--n500)">(+선택 <code>institution_menus</code>=<code>batch_import</code>)</span></td><td class="ok">파일=센터-월</td><td>파일명/내용 센터명</td></tr>
         <tr><td><b>② daycare-eval</b></td><td>daycare-eval.html 업로드</td><td><code>institution_menus</code>+items+scores</td><td class="ok">✅ (기관,월) UNIQUE upsert</td><td>명시 institution_id</td></tr>
-        <tr><td><b>③ 부모 기록탭</b></td><td>care OCR/수기</td><td><code>meal_logs</code></td><td class="no">❌ 없음(부모마다 중복)</td><td><code>children.institution_id</code>+place=daycare</td></tr>
+        <tr><td><b>③ 부모 기록탭</b></td><td>care OCR/수기</td><td><code>meal_logs</code> <span style="color:var(--n500)">(place=daycare·source=daycare_menu·ocrMonth)</span></td><td class="mid">△ <code>(institution_id, ocrMonth)</code>로 도출 가능</td><td><code>children.institution_id</code> (InstitutionSelect·온보딩+기록탭)</td></tr>
       </table>
-      <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-top:10px">※ 경로2는 이미 <b>(institution_id,month) 멱등</b> upsert. <code>source</code>에 <code>batch_import</code>가 있어 경로1도 같은 테이블로 흘릴 수 있고, <code>children.institution_id</code>가 있어 경로3도 (기관,월)로 환원 가능 → <b>3경로 → <code>institution_menus</code> 수렴</b>이 정답.</p>
+      <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-top:10px">※ 경로2는 이미 <b>(institution_id,month) 멱등</b> upsert. <code>source</code>에 <code>batch_import</code>가 있어 경로1도 같은 테이블로 흘릴 수 있고, <code>children.institution_id</code>(디렉터리 선택·불변 FK·<code>institutions</code> 표준데이터)가 있어 경로3도 (기관,월)로 환원 가능 → <b>3경로 → <code>institution_menus</code> 수렴</b>이 정답.</p>
+      <div class="gotcha" style="margin-top:10px;border-color:var(--y700);background:var(--y50)"><b style="color:var(--y700)">⚠️ 경로3 전제 — 기관 등록 필수화</b> — <code>children.institution_id</code>가 현재 <b>nullable(optional·<code>?? null</code>)</b>이라 부모가 건너뛰면 (기관,월) 키가 안 나온다. <b>식단표 저장("기관 급식으로 저장") 전 기관 등록을 요구</b>(미등록이면 InstitutionSelect로 유도)해야 경로3이 dedup·집계에 합류. 그리고 경로3의 <code>daycare_menu</code>는 개인 <code>meal_logs</code>뿐 아니라 <b><code>institution_menus</code>로도 수렴</b>(기존 (기관,월) 있으면 기존 분해 반환).</div>
     </div>
 
     <p style="font-weight:800;color:var(--s800);font-size:15.5px;margin:24px 0 8px">빈도는 두 층으로 분리 <span style="font-size:12px;color:var(--r700)">(가장 중요)</span></p>
