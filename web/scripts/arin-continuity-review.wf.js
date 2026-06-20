@@ -13,9 +13,9 @@ export const meta = {
   ],
 }
 
-const loop = args?.loop || '신호포착(선호계량화)+F-18+커리큘럼B/C/A+P0-D+프로브회전·카테고리정합·급식근거 전부 출고 후'
+const loop = args?.loop || 'A~D 통독품질(lever정합·거울변주·급식변주·일째단조·무브풀) 후'
 const file = args?.file || '/tmp/arin-letters-pref.txt'
-const baseline = args?.baseline ?? 52
+const baseline = args?.baseline ?? 48
 
 const COMMON = `당신은 영유아 편식 코칭 편지 엔진의 '연속성 감사관'입니다. 먼저 Read 도구로 파일 \`${file}\` 을 끝까지 읽으세요 — 한 아이(아린)에게 가입 1일차부터 오늘까지 매일 발행된 편지 24통을 순서대로 정독한 것입니다. 이번 검토는 방금 적용한 수정 '${loop}'의 효과/부작용을 보는 라운드입니다(직전 라운드 연속성 ${baseline}/100).
 
