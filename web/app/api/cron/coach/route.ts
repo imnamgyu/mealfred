@@ -873,18 +873,17 @@ export async function GET(req: Request) {
           const _mirror = planSlotCtx?.mirror ?? null;
           const _mDef = _mirror?.deficitGroup ?? null;
           const _slotDishAny = planSlotCtx?.slot ? (planSlotCtx.slot.dishes?.[0] ?? planSlotCtx.slot.cookedName) : null;
+          // ⭐ F-18b(랄프위검 47점 rank2) — 환경(_noFood) 레버 날도 슬롯 음식을 본문에 1회 소프트 직조. 기존엔 slotFood/slotDish가 null이라 본문 must-weave가 안 돌고, 음식이 거울 _foodClause로만 흐르다 LLM이 누락(06-11~19 5연속 본문 음식 증발). 작문기 softSlot must-weave로 음식 이름 보장(환경이 주제·음식은 곁들임).
+          //   곁들임 앵커는 '식재료명(cookedName: 단호박·검은콩·두부)' 우선 — 슬롯 dishes[0]가 맨 조리법('찜'·'조림')만일 때 불완전 음식이 돼 LLM이 못 녹이는 걸 차단(식재료명은 항상 일관된 음식).
+          const softSlotDish = (_noFood && planSlotCtx?.slot) ? (planSlotCtx.slot.cookedName ?? _slotDishAny) : null;
           // ⭐ C(랄프위검 2026-06-19 #4) — 거울 문장 daySeed 변주(템플릿 마모 차단). '어린이집 덕에 두루 챙기고'·'환경 자리잡으면 X 곁들여'가 4~11통 축자 반복되던 것.
           const _posV = attends
             ? ['어린이집 덕에 여러 식품군을 두루 잘 챙기고 있어요', '기관 급식이 영양을 든든히 받쳐주고 있어요', '어린이집에서 여러 음식을 골고루 만나고 있어 든든해요']
             : ['여러 식품군을 두루 만나 균형이 좋아지고 있어요', '식단이 조금씩 고르게 채워지고 있어요', '여러 음식을 두루 만나는 흐름이 좋아요'];
           const _posBase = _posV[((daySeed % _posV.length) + _posV.length) % _posV.length];
-          const _foodClause = (dish: string) => {
-            const v = [`. 집에선 ${dish} 같은 음식도 가끔 식탁에 올리면 다양성에 좋아요`, `. 여유 될 때 ${dish}도 한 번 만나보면 좋겠어요`, `. ${dish} 같은 것도 가끔 곁들여 폭을 넓혀가면 좋아요`];
-            return v[((daySeed % v.length) + v.length) % v.length];
-          };
           const _mirrorRaw = !planSlotCtx ? undefined
-            : _noFood   // ⭐ 환경 코칭 날 — 본문에 음식 액션이 없으므로 거울에 '그날 슬롯 음식'을 항상 소프트 노출('음식 추천 항상 포함'·이사님). 쿨다운/covered여도 결핍줄(콩류) 대신 슬롯 음식(변주)이라 K-04b 위배 아님·두부 디폴트 없음.
-              ? `${_posBase}${_slotDishAny ? _foodClause(_slotDishAny) : ''}`
+            : _noFood   // ⭐ F-18b(랄프위검 47점 rank2) — 환경 코칭 날 슬롯 음식은 이제 본문 softSlot로 직조(프롬프트+must-weave). 거울은 순수 generic-positive로 둔다(기존 _foodClause는 LLM이 자주 누락해 '음식이 거울에도 본문에도 없음'의 직접 원인이라 제거 — '음식 추천 항상 포함'은 본문 softSlot가 더 강하게 보장).
+              ? _posBase
               : (!_mDef ? (_mirror?.line ?? null)                     // 음식 액션 날·결핍군 없음(칭찬/macro) — 그대로
                 : _posBase);                                          // 음식 액션 날·결핍 — 본문이 슬롯 음식 직조하므로 거울은 음식 없는 generic
           // ⭐ 영양거울 출현빈도 쿨다운(이사님 2026-06-20) — '어린이집 덕에 영양 채워진다' 거울줄이 거의 매일 박혀 24통 중 17통.
@@ -914,7 +913,7 @@ export async function GET(req: Request) {
             homeMissing: gHomeMissing, homeReds: gHomeReds, homeDays: homeDays.length,
             chronicGuidance: chronicGuidanceText(meta.chronic),
             bridgeFacts, snackEval: snackText, growthMirror: planSlotCtx?.macroPhrase ?? growthMirrorCtx,   // ⭐ E-04 + 주간계획 macro 슬롯(저체중/성장더딤 탄단지) 우선
-            slotFood, slotDish,   // ⭐ F-18 — 슬롯이 정한 구체 음식(본문 음식 제안 강제·두부 회귀 차단)
+            slotFood, slotDish, softSlotDish,   // ⭐ F-18 — 슬롯이 정한 구체 음식(본문 음식 제안 강제·두부 회귀 차단) · F-18b softSlotDish=환경 레버 날 곁들임 직조 타깃
             slotTrack: (!_noFood && planSlotCtx?.slot) ? planSlotCtx.slot.track : null, slotPairLiked: (!_noFood && planSlotCtx?.slot) ? (planSlotCtx.slot.pairLiked ?? null) : null,   // ⭐ 카테고리정합 — supply/challenge·잘 먹는 짝(프레이밍 분기·명시 연결)
             // ⭐ 주간계획 영양거울 스케줄(이사님 2026-06-18) — 결핍군 회전·단일결핍 격일 쿨다운(K-04b). plan_detail 있으면 그날 슬롯 라인 사용(null=쿨다운 생략). F-18=슬롯≠결핍군 날은 dish 없는 generic 라인(경쟁 두부 제거).
             mirrorLine: mirrorLineSel, mirrorPlanned: !!planSlotCtx, mirrorCooldown: _cooldownDue,   // ⭐ 무슬롯 경로 쿨다운(골든완화) — mirrorBlock 폴백이 순수 positive 안심을 생략

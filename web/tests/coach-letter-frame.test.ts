@@ -35,3 +35,21 @@ describe('② buildLetterUser 카테고리정합 프레이밍', () => {
     expect(out).toContain('단호박찜');                      // F-18 mandate 폴백
   });
 });
+
+describe('F-18b 환경 레버 날 슬롯 음식 곁들임 직조(softSlotDish)', () => {
+  it('환경 날(softSlotDish만) — 음식 이름 곁들임 + 환경이 주제 명시', () => {
+    const out = buildLetterUser(base({ softSlotDish: '달걀팟국' }));   // slotFood/slotDish 없음(환경 _noFood 날)
+    expect(out).toContain('달걀팟국');                       // 슬롯 음식 이름 본문 직조 타깃
+    expect(out).toContain('곁들일 음식 — 가볍게');            // 소프트 곁들임 블록
+    expect(out).toContain('음식이 편지의 주제가 되면 안 된다'); // 환경이 주·음식은 곁들임
+  });
+  it('상호배타 — slotFood/slotDish가 있으면(음식 주제 날) softSlotBlock 미발화', () => {
+    const out = buildLetterUser(base({ slotFood: '두부', slotDish: '두부조림', slotTrack: 'supply', softSlotDish: '달걀팟국' }));
+    expect(out).toContain('두부조림');                       // 하드 슬롯 mandate가 주도
+    expect(out).not.toContain('곁들일 음식 — 가볍게');        // 소프트 블록 비활성(이중 음식 명령 차단)
+  });
+  it('degrade — softSlotDish 없으면 곁들임 블록 0(기존 경로 보존)', () => {
+    const out = buildLetterUser(base());
+    expect(out).not.toContain('곁들일 음식 — 가볍게');
+  });
+});
