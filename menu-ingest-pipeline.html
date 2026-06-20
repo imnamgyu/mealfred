@@ -56,6 +56,13 @@
   .stat .s .l{font-size:11px;font-weight:700;color:var(--n500);margin-top:2px}
   .foot{text-align:center;font-size:12px;color:var(--n500);font-weight:600;padding:20px}
   .foot a{color:var(--b700);text-decoration:none;font-weight:700}
+  /* end-to-end 데이터 변환 흐름도 */
+  .apib{font-size:10px;font-weight:800;color:#fff;border-radius:100px;padding:2px 8px;white-space:nowrap}
+  .apib.b{background:var(--b500)} .apib.p{background:#9C27B0} .apib.g{background:var(--g500)}
+  .dbw{margin-top:7px;background:var(--g50);border:1px solid #B8E0D2;border-left:4px solid var(--g500);border-radius:8px;padding:6px 10px;font-size:11.3px;color:var(--g700);font-weight:600;line-height:1.6}
+  .dbw code{background:#fff;border:1px solid #B8E0D2;border-radius:4px;padding:0 5px;font-size:10.8px;color:var(--g700)}
+  .step4{display:inline-block;font-size:10.5px;font-weight:700;color:var(--n700);background:var(--n100);border:1px solid var(--n200);border-radius:6px;padding:1px 6px;margin:1px}
+  .step4.llm{color:#fff;background:#9C27B0;border-color:#9C27B0}
 </style>
 </head>
 <body>
@@ -138,7 +145,90 @@
         <li><b>2. 추천 빈도원</b> — ⓐ baseline(youa)만 / ⓑ baseline + live observed warm(dedup 버전으로 수정) <b style="color:var(--g700)">(권장)</b> / ⓒ live 보류</li>
         <li><b>3. 경로3 집밥(home)</b> — ⓐ제외(급식만) <b style="color:var(--g700)">(권장)</b> / ⓑ포함(가정 노출 반영)</li>
       </ul>
-      <p style="font-size:12.5px;color:var(--n600);font-weight:700;margin-top:10px">제안 기본값 <b>1-ⓐ / 2-ⓑ / 3-ⓐ</b> — 확정 주시면 ① 멱등 적재 게이트 ② warm dedup 수정 순으로 구현.</p>
+      <p style="font-size:12.5px;color:var(--n600);font-weight:700;margin-top:10px">✅ <b>확정: 1-ⓐ / 2-ⓑ / 3-ⓐ + 기관 필수화</b> — warm (기관,월) dedup <b>적용 완료</b>(코드 라이브) · 멱등 적재 게이트 + 기관 필수화 구현 진행.</p>
+    </div>
+  </section>
+
+  <!-- 📊 데이터 변환 흐름 end-to-end (2026-06-20) -->
+  <section class="blk">
+    <div class="sec-head"><span class="num" style="background:var(--s700)">📊</span><h2>데이터 변환 흐름 — 식단표 1장 따라가기 (end-to-end)</h2></div>
+    <p class="sec-sub">예: <b>○○어린이집 2026-06 식단표</b> 사진 1장(점심 = 흑미밥·소고기무국·순두부조림·배추김치·오이무침)이 어떤 모듈·외부 API를 거쳐 어떤 DB에 어떤 형태로 저장되는지.</p>
+
+    <div class="card" style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:11.5px;font-weight:700;color:var(--n600)">범례</span>
+      <span class="apib b">외부 OCR</span><span class="apib p">외부 LLM</span><span class="apib g">DB·Storage</span>
+      <span style="font-size:10.5px;font-weight:800;color:var(--n700);background:var(--n100);border:1px solid var(--n200);border-radius:100px;padding:2px 9px">우리 모듈 <code style="font-size:9.5px">code</code></span>
+      <span style="font-size:11px;color:var(--p700);font-weight:700;margin-left:2px">🍚 = 예시 "소고기무국" 추적</span>
+    </div>
+
+    <div class="pipe" style="max-width:880px">
+      <div class="pstep">
+        <div class="ph"><span class="pn">입력</span><span class="ptt">식단표 1장 — 3경로</span></div>
+        <div class="pd">① zip(관리자) · ② daycare-eval 업로드 · ③ 부모 기록탭. <span style="color:var(--p700)">🍚 사진 속 "소고기무국"</span></div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep">
+        <div class="ph"><span class="pn">S1</span><span class="ptt">OCR 전사 (사진 → 글자)</span><span class="apib b">Naver CLOVA OCR V2</span><span class="apib g">Supabase Storage</span></div>
+        <div class="pd"><code>app/api/ocr/route.ts</code> — 원본 사진을 <b>eval-uploads</b> 버킷 저장 → CLOVA 표 인식(실패 시 일반 OCR 폴백·회전 보정) → raw 텍스트.
+          <div class="dbw">📦 <code>ocr_logs</code> (감사) — image_url · ocr_text · model · input/output_tokens</div></div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep">
+        <div class="ph"><span class="pn">S2</span><span class="ptt">메뉴 추출 + 이름 교정</span><span class="apib p">Claude Sonnet 4.6 · Vision</span></div>
+        <div class="pd">OCR 텍스트 + 원본 이미지(날짜 격자) → JSON schema 강제 → <code>items[{date, slot, menu}]</code>. 오인식 교정(돈까스→돈가스), 알레르기기호(①②) 제거, 한 칸=한 메뉴.
+          <br><span style="color:var(--p700)">🍚 → <code>{date:"2", slot:"점심", menu:"소고기무국"}</code></span></div>
+      </div>
+      <div class="pchev">▼</div>
+      <div class="pstep">
+        <div class="ph"><span class="pn">S3</span><span class="ptt">메뉴 → 식재료 분해·정제</span><span class="apib p">DeepSeek V4-Flash</span><span style="font-size:10px;color:var(--n500);font-weight:700">폴백 Claude Haiku</span></div>
+        <div class="pd"><code>meal/parse</code> + <code>menuMapCore</code> — <b>4단 폴백(앞쪽일수록 무료·즉시)</b>:
+          <div style="margin:5px 0"><span class="step4">0 learned 캐시</span> → <span class="step4">1 menu-dict 3천+</span> → <span class="step4">1b 부분일치</span> → <span class="step4">2 substring 스캔</span> → <span class="step4 llm">3 LLM</span></div>
+          표준명 정규화(<code>lexicon</code>: 달걀→계란) + <code>canon</code>/CANON_VOCAB 검증(양념 제외·환각 차단).
+          <br><span style="color:var(--p700)">🍚 소고기무국 → <code>[소고기, 무]</code></span> · 순두부조림 → <code>[두부]</code> · 흑미밥 → <code>[쌀]</code>
+          <div class="dbw">📦 <code>learned_menus</code> (사전 캐시·멱등 upsert) — menu PK · ingredients[] · hits++ → 다음부터 무료</div></div>
+      </div>
+      <div class="pchev">▼ &nbsp;경로별 최종 저장&nbsp; ▼</div>
+      <div class="grid2">
+        <div class="pstep" style="border-color:#CFE3F5;background:#F7FBFE">
+          <div class="ph"><span class="pn" style="background:var(--b700)">②③ 기관</span><span class="ptt">institution_menus</span></div>
+          <div class="pd"><code>api/institution/menu</code> + <code>institutionScore</code> — <code>buildMenuItemRows</code>(분해) + <code>computeDiversityScore</code>(영양 0~100) + <span class="apib p">DeepSeek 한줄총평</span>.
+            <div class="dbw">📦 <code>institution_menus</code> — (기관,월) 1벌<br>📦 <code>institution_menu_items</code> — <code>{menu_date, slot, menus[], ingredients[]}</code><br>📦 <code>institution_scores</code> — score · red_groups[] · summary</div></div>
+        </div>
+        <div class="pstep">
+          <div class="ph"><span class="pn">① 부모</span><span class="ptt">meal_logs</span></div>
+          <div class="pd"><code>care/page.tsx · saveDaycareMenu</code> — 우리 아이 끼니로 저장(미래날짜 차단·부모 입력 보호).
+            <div class="dbw">📦 <code>meal_logs</code> — <code>{child_id, log_date, slot, menus[], ingredients[], place:'daycare', source:'daycare_menu'}</code></div></div>
+        </div>
+      </div>
+      <div class="pchev">▼ &nbsp;새벽 크론 · 배치(다운스트림)&nbsp; ▼</div>
+      <div class="pstep det">
+        <div class="ph"><span class="pn">S5</span><span class="ptt">집계 · 백필 · 도감 갱신</span><span class="tagdet">결정론</span></div>
+        <div class="pd">
+          • <code>remapMenus.backfillUnmappedMenus</code> — 인입 때 못 푼 끼니만 LLM 백필 + learned 학습<br>
+          • <code>warmIngredientFreqFromSql</code> — <code>institution_menu_items</code>를 (기관,월) dedup → 급식 빈도 메모리캐시 → <b>추천 리밸런싱</b><br>
+          • (경로1 zip 배치) <code>parse_and_aggregate</code> + <code>apply_dogam_redefine</code> → <code>ingredients</code> <b>도감 2축 재등급</b>(↑ 위 시각화)</div>
+      </div>
+    </div>
+
+    <div class="card grid2" style="margin-top:14px">
+      <div><b style="color:var(--s800)">외부 API</b>
+        <ul class="tight">
+          <li><span class="apib b">CLOVA OCR V2</span> 사진→글자(표 인식)</li>
+          <li><span class="apib p">Claude Sonnet 4.6</span> 이미지→메뉴 추출·교정</li>
+          <li><span class="apib p">DeepSeek V4-Flash</span> 메뉴→식재료·기관 총평 (폴백 Claude Haiku 4.5)</li>
+          <li><span class="apib g">Supabase</span> Storage(사진)·PostgreSQL(전 테이블)</li>
+          <li style="color:var(--n500)">시드: 공공데이터 표준데이터·NEIS → <code>institutions</code>·<code>elem_count</code></li>
+        </ul>
+      </div>
+      <div><b style="color:var(--s800)">최종 저장 테이블</b>
+        <ul class="tight">
+          <li><code>institution_menu_items</code> — 기관 식단(날짜·끼니·메뉴[]·<b>식재료[]</b>)</li>
+          <li><code>institution_menus</code>·<code>institution_scores</code> — 기관-월 1벌·점수</li>
+          <li><code>meal_logs</code> — 부모 개인기록(아이별)</li>
+          <li><code>learned_menus</code> — 메뉴→식재료 사전 캐시</li>
+          <li><code>ingredients</code> — 도감(등급) · <code>ocr_logs</code> — 감사</li>
+        </ul>
+      </div>
     </div>
   </section>
 
