@@ -57,161 +57,221 @@ th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
 .codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
 .note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
 .callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+.diagram{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:16px;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.dgrid{display:flex;align-items:stretch;gap:0;min-width:560px}
+.dcol{flex:1;display:flex;flex-direction:column;gap:8px}
+.dcol-h{font-size:10.5px;font-weight:800;text-align:center;padding:4px;border-radius:7px;margin-bottom:2px}
+.dcol-h.in{background:#E8F1FC;color:var(--b700)}.dcol-h.proc{background:var(--abg);color:var(--ad)}.dcol-h.out{background:#E9F7F2;color:var(--g700)}
+.dbox{font-size:10.5px;font-weight:600;background:#fff;border:1.5px solid var(--n200);border-radius:9px;padding:7px 9px;line-height:1.45;color:var(--n700)}
+.dbox b{color:var(--s800);font-weight:800}
+.dbox.bin{border-color:#bcd6f2;background:#F5F9FE}
+.dbox.bproc{border-color:var(--abd);background:var(--abg)}
+.dbox.bout{border-color:#bfe6d9;background:#F4FBF8}
+.dbox.bguard{border-color:#FFD9B0;background:#FFF8F2}
+.darrow{display:flex;align-items:center;justify-content:center;color:var(--ac);font-size:18px;font-weight:800;padding:0 4px}
+.dflow{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10px;line-height:1.7;color:var(--n700);white-space:pre;margin:0;overflow-x:auto}
+.dflow b{color:var(--ad)}.dflow .hl{color:var(--p700);font-weight:700}
 footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
 footer a{color:var(--ad);text-decoration:none;font-weight:700}
 .backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
 .backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+.earn{background:#E9F7F2;border:1px solid #bfe6d9;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--g700);line-height:1.62;margin:10px 0}.earn b{color:var(--ad)}
 </style></head><body>
 <header class="hero"><div class="hero-in">
 <span class="tag">🧩 코칭 엔진 모듈 명세 · ③/⑦</span>
 <h1><span class="ic">🪞</span> ③ 사실·거울 컴파일러</h1>
-<p>코드가 '말해도 되는 진단 사실'을 시계열 라벨과 식단 거울로 컴파일해, LLM의 과일반화·환각·괴식을 구조적으로 차단</p>
+<p>아이가 실제 먹은 사실과 집·어린이집 영양 거울(어디가 채워지고 비었는지)을 LLM이 인용만 하도록 컴파일 — 과일반화·환각·괴식·앵무새를 구조적으로 차단</p>
 <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
 </div></header>
 <nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html" class="cur">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a><a href="/coach-module-weekly-planner.html">⑧ 주간계획</a></nav>
 <main>
-<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ③를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ③를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드. 코드 근거: <code>lib/coachFacts.ts</code> · <code>lib/reexposure.ts</code> · <code>lib/coach.ts</code> · <code>app/api/cron/coach/route.ts</code> (실측 2026-06-20).</div>
+
+<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">소스: coachFacts.ts · reexposure.ts · coach.ts · route.ts</span></div>
 
 
-<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:11px;background:var(--p700)">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
-<p class="lead" style="margin:8px 0"><b>★ 최상위 단일 근본원인</b> — 일간 두뇌 블록(<code>route.ts:628-630</code>)이 <code>brainPick.scenarioId</code>만 있으면 <code>precomputed = planFor({forceScenarioId})</code>로 재할당해, 주간 닻(타깃 잠금·lever·채근캡·teaching arc)을 일간이 통째로 덮어쓴다. 문서가 그린 '조립→뇌(판단)→손' 순서가 코드에선 '뇌가 작전층(주간)을 덮어쓰기'로 <b>역전</b>돼 있다. <b>③ 사실·거울 컴파일러가 여기서 맡는 역할</b> — 이 역전 위에서 ③의 두 산출물(① 재노출 fact, ② 식단 거울)이 무게이트로 매일 본문에 흘러들어 '음식 잔소리 며칠 연속'과 '앵무새 꼬리'를 만든다. ③은 <b>재노출 입력을 결핍군·주간 타깃에 종속</b>시키고, <b>거울 문구를 주간 lever와 일치·쿨다운/회전</b>시켜 상류의 역전이 만든 누수를 봉합하는 2차 방어층이다.</p>
-<div class="note" style="margin-top:6px;background:var(--abg);border-color:var(--abd)"><b style="color:var(--ad)">🧭 한 줄 쉬운말</b> — "팩트 정리 기자"인 이 모듈이 지금은 (1) 아이가 거부한 음식이면 영양상 안 부족한 음식(치킨)이라도 매일 "다시 권할 때예요" 쪽지를 끼워 넣고, (2) 식단 거울도 똑같은 한 문장을 매일 복붙해서, 편지가 "또 그 소리" 앵무새처럼 들리게 만들고 있었습니다. 앞으로는 '진짜 부족한 식품군'에 대해서만 쪽지를 쓰고, 거울 문장도 며칠 쉬거나 표현을 바꿔 돌려쓰게 고칩니다.</div>
-<div class="tbl" style="margin-top:10px"><table><tr><th style="width:22%">증상 / 문제</th><th style="width:27%">근본원인 (파일:라인 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th style="width:7%">우선</th></tr>
-<tr><td><b>음식 잔소리 며칠 연속 · 타깃 표류</b> (치킨 등 비결핍 거부가 매일 '재노출 적기'로 본문 인용)</td><td><code>route.ts:398-400</code> — reexposurePick 입력 rxRefs=<code>sanitizeRefusals(uniqRef).filter(!transitioned)</code>가 결핍군 필터를 안 거쳐, 치킨(미매핑·비결핍) '5일 전 재노출 적기' fact를 timeseries에 매일 push · <b>CODE_BUG</b></td><td>rxRefs를 <code>route.ts:354-358</code> refExposable(주식 제외 + catOf(r)가 _deficientGroups 소속)와 동일 게이트로 교체해 <b>결핍군 거부만</b> 재노출 fact화. 단 refExposable의 카테고리↔식품군 네임스페이스 버그(catOf='고기' vs _deficientGroups='고기·계란')도 함께 고쳐 <code>CATEGORY_GROUP[catOf(r)] ?? FOOD_GROUP[r]</code> 매핑 후 비교(진짜 결핍 시 재노출까지 영구 차단되는 과교정 방지). 이 catOf/결핍군 매핑은 ①과 공유하므로 공용 함수(exposable)로 통일.</td><td><b>P0</b></td></tr>
-<tr><td><b>앵무새 꼬리</b> — 매 편지 말미가 매일 동일 거울 문구 verbatim 반복(6/16 아린 편지 말미 동일)</td><td><code>coach.ts:621-630</code> — 발행 거울 mirrorBlock(IIFE)이 covered/missing/homeMissing 3분기 고정 문구 중 하나를 매일 must-weave로 verbatim 주입. 쿨다운·daySeed 회전 부재 · <b>CODE_BUG</b></td><td>mirrorBlock에 (a) 최근 2~3일 동일 문구면 스킵하는 <b>쿨다운</b>(snackShown SNACK_COOLDOWN=2 패턴 동형), (b) daySeed 기반 <b>문구 회전</b>(현 3분기 각 2~3변형), (c) must-weave→optional 강등을 이식. 또는 모듈이 이미 갖춘 buildMealMirror의 pickFresh+recentMirrors+argmin 회전을 작문 경로에 단일화(아래 행 참조).</td><td><b>P0</b></td></tr>
-<tr><td><b>거울 쿨다운 휴면</b> — '같은 군 verbatim 복붙 방지'가 실제로 안 걸림</td><td><code>route.ts:366</code> — compileFacts 호출이 recentMirrors를 안 넘겨 buildMealMirror의 recent/pickFresh가 항상 recent=[]로 휴면 · <b>CODE_BUG</b></td><td>상단 이력 적재부(<code>route.ts:166-176</code> recentSnackDates 동형)에서 과거 편지 context.mirror 문구를 recentMirrors[cid]로 적재해 <code>compileFacts({ rows, today, recentMirrors, name })</code>로 전달. 아래 '거울 경로 단일화'를 먼저 정하지 않으면 휴면 산출물에만 배선되니 P0과 묶어 처리.</td><td><b>P0</b></td></tr>
-<tr><td><b>거울 산출 경로 이원화</b> — 정교한 거울은 죽고 단순 거울이 매일 나감(앵무새 구조적 원인)</td><td><code>coach.ts:206</code> + <code>route.ts:366</code> — buildMealMirror(argmin 결핍 회전·집2일+liked dish 섞기·간식채널 분리·pickFresh 쿨다운)는 fc.mirror로 나오나 작문 경로가 미소비(grep 0건), 실제 발행은 정보량 적은 하드코딩 mirrorBlock이 함 · <b>DESIGN_GAP</b></td><td>두 거울을 <b>단일화</b>: buildMealMirror 출력을 LetterInput으로 넘겨 작문 거울 블록으로 쓰거나(권장 — 회전·섞기·쿨다운이 이미 구현됨), 반대로 mirrorBlock을 폐기하고 fc.mirror를 must-weave 슬롯에 주입. 이원화가 '좋은 거울은 죽고 나쁜 거울이 매일 나가는' 앵무새의 구조적 원인.</td><td>P1</td></tr>
-<tr><td><b>off-target 재노출 인용</b> — 시나리오가 재노출이 아닌 날에도 본문이 'N일 전 적기' 숫자를 인용</td><td><code>coach.ts</code> tsFiltered — reexposurePick fact가 timeseries에 들어가면 시나리오가 re-exposure-timing이 아닌 날에도 '재노출 적기' 숫자가 본문에 누수(2차 안전망 부재) · <b>DESIGN_GAP</b></td><td>composeLetter의 tsFiltered 단계에서 비-re-exposure-timing/비-ALLOW_TRANSITION 시나리오일 때 재노출 fact 정규식(<code>재노출 주기상|잊히기 전에|다시 권하기 좋은|마지막이 N일 전</code>)을 제거. (P0 결핍군 게이트로 1차 차단되지만 off-target 인용까지 막는 방어층.)</td><td>P2</td></tr>
+<!-- ① 비개발자용 -->
+<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">①</span><h2>비개발자용 — 무엇을 왜 하는가</h2></div>
+<p class="lead" style="margin:8px 0">이 모듈은 코칭 편지가 "아이에 대해 말해도 되는 사실"을 코드가 미리 다 계산해서, 깔끔한 사실 카드로 만들어 AI에게 넘기는 부분입니다. 비유하자면, AI(LLM)가 글솜씨 좋은 작가라면 이 모듈은 옆에서 <b>"팩트만 정리해주는 꼼꼼한 기자"</b>예요. 작가가 분위기 살린답시고 없는 얘기를 지어내거나("매일 점심을 거른대요"), 하루 외식을 보고 "이 집은 늘 뷔페만 다녀요" 식으로 과장하지 못하게, 기자가 미리 검증된 팩트와 <b>"이건 한 번뿐인 일/가끔 있는 일/자주 있는 일"</b>이라는 빈도 도장을 찍어 넘깁니다. 즉, 숫자와 판단은 코드가 하고, AI는 그 사실을 따뜻한 문장으로 옮기기만 합니다.</p>
+<p class="lead" style="margin:8px 0">가장 핵심은 <b>"식단 거울"</b>입니다. 편지 안에, 아이가 실제로 먹은 것과 영양이 어디가 채워지고 어디가 비었는지를 비춰주는 한 구절을 얹어요. "코치가 우리 애가 뭘 먹는지 보고 있구나"를 부모가 느끼게 하려는 장치죠. 거울은 (1) 어제 컨디션이 안 좋았으면 그냥 공감만 하고 끝, (2) 최근 7일 영양을 보고 잘 챙긴 식품군(강점)과 가장 부족한 식품군(결핍)을 골라 "노랑채소는 잘 챙겼는데 콩류가 좀 아쉬워요" 같은 해석 한 문장, (3) 그 결핍을 아이가 잘 먹는 음식에 슬쩍 섞는 구체 행동을 만듭니다. "어제 뭐뭐 먹었어요" 식의 단순 나열은 엄마에게 도움이 안 되니 일부러 뺐습니다.</p>
+<p class="lead" style="margin:8px 0">집/기관을 정직하게 나눠 비추는 것도 이 모듈의 일입니다(P10). 어린이집·유치원 급식은 부모가 못 바꾸는 끼니라, 전체 영양이 괜찮아도 그게 <b>기관 급식 덕이면 "어린이집 덕에 전체 영양은 잘 채워지고 있어요"라고 솔직히 밝히고</b>, 집에서 비는 식품군에 한 걸음을 둡니다. "전반적으로 잘하고 계세요"처럼 기관 덕을 부모 공으로 돌리는 뭉뚱그린 칭찬은 금지합니다.</p>
+<p class="lead" style="margin:8px 0"><b>#5 거울 빈도 쿨다운(2026-06-20 신규)</b> — 가장 최근에 고친 부분입니다. 예전에는 매일 편지 끝에 "어린이집 덕에 영양 잘 채워지고 있어요" 같은 안심 문구가 거의 매일 박혀(아린이 24통 중 17통) 부모가 보기에 "또 그 소리" 앵무새처럼 들렸습니다. 그래서 이 거울 안심 문구의 <b>'출현 자체를 격일화'</b>했습니다 — 최근 2일 안에 거울 안심이 한 번이라도 나왔으면 오늘은 통째로 쉽니다. 단, 집·기관 양쪽에서 부족한 게 2개 이상이면(심한 결핍) 쿨다운을 면제해 반드시 알립니다. 결과: 안심줄이 17통 → 6~8통으로 줄었습니다.</p>
+<div class="callout" style="margin-top:10px"><b>🥗 영양·편식 정보는 이렇게 처리합니다</b><br>결핍 판정: 최근 7일 동안 각 식품군(곡물·노랑채소·채소·과일·유제품·고기달걀·생선해산물·콩류)이 며칠 등장했는지로 신호등(green/yellow/red)을 매깁니다(④ 영양평가 모듈과 동일 로직). 그중 가장 시급한 결핍 하나만 골라(<code>argmin</code>) 코칭합니다 — red 먼저, 만성적으로 잘 비는 군(노랑채소·과일)에 가중치(-5).<br><br>같은 잔소리 반복 차단: 거울 문장은 최근에 쓴 표현과 안 겹치게 고릅니다(<code>pickFresh</code>+<code>recentMirrors</code>). 더해 #5 쿨다운으로 거울 안심줄 자체를 격일로 쉽니다.<br><br>집/기관 분리(P10): 어린이집 급식은 "차려져서 먹은 것"이라 "이 아이가 잘 먹는다"는 칭찬 근거로 쓰지 않습니다. 영양 충족(다양성)만 집+기관 전체로 보고, 칭찬·평가·선호 판단은 집 끼니 기준입니다.<br><br>괴식 차단: 결핍을 섞을 때는 끼니 음식에만 섞고, 과일·우유·간식류는 섞기 대상에서 제외합니다(바나나에 시금치 같은 괴식 방지). 추천 음식도 실제 식단에서 검증된 궁합·사촌 테이블만 씁니다.<br><br>강요 금지: 컨디션이 안 좋은 날(<code>SICK_RE</code> 감지)은 칭찬도 행동도 빼고 공감만 합니다. 재노출도 "부담 없이 다시 만나기 좋은 때"처럼 부드럽게 권하고, 어제오늘 막 준 음식은 권태를 막으려 제외합니다.</div>
+<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린이는 소고기·계란·미역국은 집에서 거부 없이 자주 먹지만 콩류·채소가 비어 있습니다. 거울이 최근 7일 기록에서 '잘 먹는 음식'(집에서 거부 없이 먹은 미역국·소고기무국)과 신호등(고기·계란=green, 콩류=red)을 읽고, 가장 시급한 결핍 한 군(콩류)을 골라 강점 인정 + 구체 행동 한 구절을 만듭니다. 만약 어제 '배아파서 카레 거부' 메모가 있으면 거울은 코칭을 멈추고 '무리하지 않아도 괜찮아요' 공감만 합니다. 그리고 #5 쿨다운: 이번 편지에 거울 안심줄을 썼으면, 다음 1~2통은 그 안심줄을 통째로 쉬어 앵무새를 막습니다.</div>
+</section>
+
+
+<!-- ② 구현된 내용 -->
+<section id="impl"><div class="sec-h"><span class="no" style="font-size:12px">②</span><h2>구현된 내용 — 함수·데이터흐름·입출력 (실측)</h2></div>
+<p class="lead">코드에 <b>실제로 존재하는</b> 함수·타입·데이터흐름입니다(file:line 실측, 환각 없음). 4개 파일에 걸쳐 산다: <code>lib/coachFacts.ts</code>(거울 직조·사실 카드), <code>lib/reexposure.ts</code>(재노출 판정), <code>lib/coach.ts</code>(쿨다운·누수 탐지·mirrorBlock·역 must-weave), <code>app/api/cron/coach/route.ts</code>(이력 적재·거울 선택·배선).</p>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:14px 0 6px">핵심 함수</h3>
+<div class="tbl"><table><tr><th style="width:30%">함수 · file:line</th><th>역할 (실측)</th></tr>
+<tr><td><code>compileFactCards</code><br><span style="color:var(--n500)">coachFacts.ts:190</span></td><td><code>{ rows, today, recentMirrors?, name? }</code> → <code>{ cards: FactCard[], noteCards, forbidParts, mirror }</code>. 시계열 라벨이 붙은 사실 카드(끼니·환경 <code>env-week</code>:235·거부 <code>refuse:k</code>:278)·메모 분류·금지 정규식·식단 거울을 만드는 메인 컴파일러. mirror는 <code>buildMealMirror</code> 호출(:292).</td></tr>
+<tr><td><code>compileFacts</code><br><span style="color:var(--n500)">coachFacts.ts:297</span></td><td><code>{ rows, today }</code> → cards를 <code>c.text</code> 문자열로 평탄화한 어댑터. <b>route.ts:423이 실제로 호출하는 진입점</b>(<code>const fc = compileFacts({ rows: rs, today })</code>).</td></tr>
+<tr><td><code>buildMealMirror</code><br><span style="color:var(--n500)">coachFacts.ts:73</span></td><td>어제 컨디션 공감(<code>sick</code>:104) + 최근 7일 신호등 argmin 결핍(red→만성-5→daily→weeklyEst:117) + 잘 먹는 음식/요리에 결핍 섞는 행동(:136,150,157,175) 합성. <code>recent</code>로 <code>pickFresh</code>(:65) 쿨다운. 반환 <code>string|null</code>.</td></tr>
+<tr><td><code>recurrenceLabel</code><br><span style="color:var(--n500)">coachFacts.ts:26</span></td><td>count → '단발 1회'/'간헐 N회'/'반복 N회' 추세 라벨. 모든 사실이 거쳐야 하는 과일반화 가드 핵심. 거부는 행 수가 아닌 <b>'거부한 날 수'</b>(<code>v.days.size</code>:278)로 셈(M6).</td></tr>
+<tr><td><code>reexposurePick</code><br><span style="color:var(--n500)">reexposure.ts:26</span></td><td><code>(refs, offerCount, offerDaysAgo)</code> → <code>ReexpoVerdict|null</code>. 0~1일 제외, 2~7일=<code>due</code>, 8일+=<code>overdue</code>(:41). due에서 많이 만난 것 우선(:36). 8회+면 친해질 때 격려(<code>nearAccept</code>:42). 숫자 박힌 <code>fact</code> 한 줄(:43-45)을 timeseries로(route.ts:457-458).</td></tr>
+<tr><td><code>mirrorCooldownDue</code> ⭐신규<br><span style="color:var(--n500)">coach.ts:299</span></td><td><b>#5 거울 빈도 쿨다운(2026-06-20)</b>. 순수함수 <code>(recentShown: boolean[], { cooldownDays=2, severe })</code> → boolean. 최근 n일 안에 거울 출현 있으면 true(오늘 생략). <code>severe</code>(전체 결핍 심함)면 면제(:300). 이력 부족이면 false(초기 보존).</td></tr>
+<tr><td><code>mirrorReassureLeak</code> ⭐신규<br><span style="color:var(--n500)">coach.ts:307</span></td><td>거울 생략한 날인데 손이 '어린이집/기관 급식 덕에 영양 채워진다' 안심줄을 자체로 붙였는지 탐지(역 must-weave 트리거). (a) 데이크어 귀속 안심(:310) (b) '어린이집' 단어 빼고도 '전체 영양 괜찮다' 변종(:313) (c) '안심하셔도/안심되네요'(:314).</td></tr>
+<tr><td><code>stripMirrorReassure</code> ⭐신규<br><span style="color:var(--n500)">coach.ts:323</span></td><td>재생성으로도 누수 남으면 결정론 절단 v2. 순수 daycare-praise 문장=통째 절단(:331), 행동(<code>_ENDIMP</code>:321)·집-결핍(<code>_HOMEDEF</code>:322)이 섞이면 선행 praise 절(쉼표 경계)만 제거하고 행동/결핍 절 보존(:332-340). 못 자르면 원본 유지.</td></tr>
 </table></div>
-<div class="callout" style="margin-top:10px"><b>이 모듈이 근본적으로 무엇을 바꿔야 하는가</b> — ③의 책무는 '코드가 계산한 검증된 사실만 LLM에 넘긴다'인데, 정작 그 사실들이 <b>주간 작전층과 단절</b>돼 무분별하게 매일 주입되는 게 문제다. (1) <b>reexposurePick을 결핍군·주간 타깃에 종속</b> — 비결핍·미매핑 거부(치킨)는 애초에 재노출 fact가 되지 못하게 refExposable 동일 게이트로 입력을 정제하고, catOf↔식품군 네임스페이스 버그를 ①과 공유 함수로 통일한다. (2) <b>거울 사실이 주간 lever와 일치</b>하고 매일 verbatim 복붙되지 않도록, 정교한 buildMealMirror를 작문 경로에 단일화하거나 mirrorBlock에 쿨다운·daySeed 회전·must→optional 강등을 이식하고 recentMirrors를 실제로 배선한다. (3) <b>재노출 사실의 무분별 본문 주입을 차단</b> — 결핍군 1차 게이트 + 비-재노출 시나리오 day의 off-target 인용 제거(2차 안전망)로, 같은 숫자가 매일 흘러나오는 앵무새를 끊는다. 핵심 단일 수정점은 'refExposable을 weekly/daily/brain/재노출 네 경로가 공유하는 한 곳'에 두는 것이다.</div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">route.ts — 이력 적재 · 거울 선택 · 쿨다운 배선 (실측)</h3>
+<div class="tbl"><table><tr><th style="width:24%">단계 · line</th><th>실제 코드 동작</th></tr>
+<tr><td><b>거울 이력 적재</b><br>route.ts:167,187</td><td><code>recentMirrorShown[cid]: boolean[]</code>를 최근 3일 편지 <code>context.mirrorShown</code>에서 적재(최신부터). 슬롯 유무 무관히 <b>매 과거 편지 1엔트리</b>(쿨다운 격일화의 분모).</td></tr>
+<tr><td><b>거울 라인 변주</b><br>route.ts:876-889</td><td>등원 여부(<code>attends</code>)별 positive 안심 3변형 풀(<code>_posV</code>:877-879)을 <code>daySeed</code>로 회전(<code>_posBase</code>:880). 음식 액션 날(<code>!_noFood</code>+결핍)이면 음식 없는 generic, 환경 날(<code>_noFood</code>)이면 거울에 그날 슬롯 음식 소프트 노출(<code>_foodClause</code>:881-887, F-18).</td></tr>
+<tr><td><b>#5 쿨다운 판정</b><br>route.ts:893-896</td><td><code>_mirrorSevere = gMissing.length >= 2</code>(전체 결핍 2개+). <code>_cooldownDue = mirrorCooldownDue(recentMirrorShown[cid]||[], { cooldownDays:2, severe:_mirrorSevere })</code>. 슬롯 날 쿨다운이면 <code>mirrorLineSel = null</code>(라인 생략·mirrorPlanned=true 보존, :896).</td></tr>
+<tr><td><b>거울 노출 이력 기록</b><br>route.ts:899</td><td><code>mirrorShownCtx = planSlotCtx ? !!mirrorLineSel : (_hasDeficitDay || !_cooldownDue)</code>. 슬롯 날=라인 선택 여부 · 무슬롯=결핍 있거나 쿨다운 아니면 표시. → context.mirrorShown(:953)으로 저장돼 다음날 분모가 됨.</td></tr>
+<tr><td><b>base로 배선</b><br>route.ts:910-922</td><td><code>mirrorLine: mirrorLineSel, mirrorPlanned: !!planSlotCtx, mirrorCooldown: _cooldownDue</code>(:920). 그 외 <code>covered/missing/homeMissing</code>(영양평가), <code>notes/factCards</code>(=fc.noteCards/fc.cards, :911), <code>growthMirror: planSlotCtx?.macroPhrase ?? growthMirrorCtx</code>(:916 — 주간계획 macro 슬롯 우선, E-04).</td></tr>
+</table></div>
+<div class="note" style="margin-top:8px"><b>경로 분기(2026-06-20 골든완화)</b> — 거울은 두 경로로 산다. <b>슬롯 날</b>(주간계획 plan_detail 있음·<code>mirrorPlanned=true</code>): <code>mirrorLineSel</code>이 라인 또는 null(쿨다운). <b>무슬롯 날</b>(저데이터·plateau): <code>mirrorBlock</code> IIFE(coach.ts:743)가 <code>mirrorCooldown</code> + 결핍 유무로 폴백 처리. 두 경로 모두 동일 <code>_cooldownDue</code>를 base로 받아 쿨다운이 일관 적용된다.</div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">coach.ts mirrorBlock — 프롬프트 직조 + 역 must-weave (실측)</h3>
+<div class="tbl"><table><tr><th style="width:28%">분기 · line</th><th>실제 직조 결과</th></tr>
+<tr><td>슬롯 날 · 쿨다운<br>coach.ts:750</td><td><code>mirrorPlanned && !mirrorLine</code> → 빈 문자열 아니라 <b>'안심 문구 금지' 가드 주입</b>: "오늘은 영양거울 생략 — 어린이집/기관 덕에 영양 채워진다는 안심 문구를 어떤 표현으로도 넣지 마라". LLM이 습관적 기본 클로징을 못 붙이게.</td></tr>
+<tr><td>슬롯 날 · 라인 있음<br>coach.ts:751</td><td>"이 평가를 한 구절로 반드시 자연스럽게 녹여라(P10 톤·강요/점수/등급 금지)" + <code>mirrorLine</code> + 충족 식품군 <code>cov</code>.</td></tr>
+<tr><td>무슬롯 · 쿨다운 + 순수positive<br>coach.ts:758-759</td><td><code>mirrorCooldown && _purePositive</code>(결핍 없음) → 안심 문구 금지 가드. 결핍 있으면 actionable이라 항상 표시(degrade-safe).</td></tr>
+<tr><td>무슬롯 · 결핍 코칭<br>coach.ts:764-784</td><td>전체 결핍(<code>allMiss</code>)·집 결핍(<code>homeMiss</code>)·순수 칭찬 3분기, 각 <code>daySeed</code> 3변형(<code>pick</code>:762). 집 결핍 분기가 P10 "어린이집 덕에 전체는 채워지고 집엔 ○○가 드무니"(:774).</td></tr>
+<tr><td>역 must-weave(누수 절단)<br>coach.ts:1014-1028</td><td><code>intendMirror</code>(:1017) 거짓인데 <code>mirrorReassureLeak</code>이면: (1) LLM 1회 재생성(:1021) → (2) 그래도 남으면 <code>stripMirrorReassure</code> 결정론 절단(:1026). 출현빈도 격일화의 마지막 빗장. fail-open.</td></tr>
+<tr><td>거울 must-weave 검증<br>coach.ts:1004-1012</td><td><code>mirrorGroups</code>(쿨다운 날은 빈 배열 →강제 안 함). 라인 있으면 본문에 그 군/포괄어 포함 검증, 없으면 1회 재생성(F-18 generic-positive 감지 :1008).</td></tr>
+</table></div>
+
+<div class="note" style="margin-top:10px"><b>이번 세션 신규 중 이 모듈에 해당하는 것 (실측 확인)</b> — ✅ <b>#5 거울 빈도 쿨다운</b>(<code>mirrorCooldownDue</code>·<code>mirrorReassureLeak</code>·<code>stripMirrorReassure</code> 신규, route.ts:167/187/893-899 배선). ✅ <b>F-18 거울↔슬롯 봉합</b>(거울 음식=항상 그날 슬롯 음식, deficitDishFor 두부 디폴트 제거, route.ts:870-889). ✅ <b>#7 macro</b>(<code>growthMirror: planSlotCtx?.macroPhrase ?? growthMirrorCtx</code> :916 — 저체중/성장더딤 탄단지 우선). ☐ 아래는 이 모듈 <b>밖</b>이라 여기서 다루지 않음: 선호계량화(① 신호선택기·<code>preferenceQuantification.ts</code>), hardStall 피벗·#6 도입회전·A 어드민 근거(⑤ 진척·⑥ 작문), P0-D child_daily_state 프로브(① 입력).</div>
 </section>
 
 
-<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">🧭</span><h2>비개발자용 — 이렇게 운영됩니다</h2></div>
-<p class="lead" style="margin:8px 0">이 모듈은 코칭 편지가 "아이에 대해 말해도 되는 사실"을 코드가 미리 다 계산해서, 깔끔한 사실 카드로 만들어 AI에게 넘기는 부분입니다. 비유하자면, AI(LLM)가 글솜씨 좋은 작가라면 이 모듈은 옆에서 "팩트만 정리해주는 꼼꼼한 기자"예요. 작가가 분위기 살린답시고 없는 얘기를 지어내거나("매일 점심을 거른대요"), 하루 외식을 보고 "이 집은 늘 뷔페만 다녀요" 식으로 과장하지 못하게, 기자가 미리 검증된 팩트와 "이건 한 번뿐인 일/가끔 있는 일/자주 있는 일"이라는 빈도 도장을 찍어 넘깁니다. 즉, 숫자와 판단은 코드가 하고, AI는 그 사실을 따뜻한 문장으로 옮기기만 합니다.</p><p class="lead" style="margin:8px 0">가장 핵심은 "식단 거울"입니다. 매일 편지 맨 위에 아이가 실제로 먹은 것을 비춰주는 한두 문장을 얹어요. "코치가 우리 애가 뭘 먹는지 보고 있구나"를 부모가 매일 느끼게 하려는 장치죠. 거울은 (1) 어제 컨디션이 안 좋았으면 그냥 공감만 하고 끝, (2) 최근 7일 영양을 보고 잘 챙긴 식품군(강점) 하나와 가장 부족한 식품군(결핍) 하나를 골라 "노랑채소는 잘 챙겼는데 콩류가 좀 아쉬워요" 같은 해석 한 문장, (3) 그 결핍을 아이가 잘 먹는 음식에 슬쩍 섞는 구체 행동 한 문장("잘 먹는 미역국에 두부를 잘게 넣어보세요")을 만듭니다. "어제 뭐뭐 먹었어요" 식의 단순 나열은 엄마한테 도움이 안 되니 일부러 뺐습니다.</p><p class="lead" style="margin:8px 0">또 하나는 "재노출 타이밍"입니다. 아이가 거부한 음식을 언제 다시 권하면 좋은지를 날짜 계산으로 판정해요. 어제오늘 막 줬으면 질리니까 제외하고, 2~7일 전에 만난 거면 "지금이 다시 권하기 딱 좋은 때", 8일 넘게 안 나왔으면 "잊히기 전에 다시"라고 알려줍니다. 그리고 "이 음식 벌써 8번이나 만났으니 거의 친해질 때예요" 같은 격려도 붙입니다.</p>
-<div class="callout" style="margin-top:10px"><b>🥗 영양·편식 정보는 이렇게 처리합니다</b><br>결핍 판정: 최근 7일 동안 각 식품군(곡물·노랑채소·채소·과일·유제품·고기달걀·생선해산물·콩류)이 며칠 등장했는지로 신호등(green/yellow/red)을 매깁니다. 매일 먹어야 할 군(곡물·채소·과일·유제품)은 주5회 이상이면 충분, 콩류·생선은 주2회면 충분 식으로 기준이 다릅니다. 그중 가장 시급한 결핍 하나만 골라(argmin) 코칭합니다 — red 먼저, 만성적으로 잘 비는 군(노랑채소·과일)에 가중치, 매일군 우선 순서로.<br><br>같은 잔소리 반복 차단: 결핍 코칭은 "주 1회 회전"이 원칙입니다. 같은 결핍(예: 당근)을 매일 지적하지 않도록, 최근 거울에 안 나온 결핍을 먼저 고르고, 문장 템플릿도 최근에 쓴 것과 안 겹치게 골라 씁니다.<br><br>집/기관 분리 (P10): 어린이집·유치원 급식은 "차려져서 먹은 것"이라 "이 아이가 잘 먹는다"는 근거로 쓰지 않습니다. "잘 먹는 음식"은 집에서(place≠daycare) 최소 2일 이상 거부 없이 먹은 것만 인정합니다. 한 번 먹은 걸로 "잘 먹는다"고 단정하지 않습니다.<br><br>괴식 차단: 결핍을 섞을 때는 끼니 음식에만 섞고, 과일·우유·간식류는 섞기 대상에서 제외합니다(바나나에 시금치 같은 괴식 방지). 추천 음식도 실제 식단에서 검증된 궁합·사촌 테이블만 써서 AI가 이상한 조합을 지어내지 못하게 합니다. 과일·유제품은 끼니에 곁들이지 말고 "간식으로 따로" 권합니다.<br><br>강요 금지: 컨디션이 안 좋은 날(배아픔·체함 등 메모/거부칸 감지)은 칭찬도 행동도 빼고 "무리하지 않아도 괜찮아요" 공감만 합니다. 재노출도 "부담 없이 다시 만나기 좋은 때"처럼 부드럽게 권하고, 어제오늘 막 준 음식은 권태를 막으려 제외합니다.<br><br>거짓 단정 방지: "점심을 거른다" 같은 단정은 최근 2일 메모가 직접 뒷받침할 때만 허용합니다. 기록이 없다고 결식으로 단정하지 않고("기록 누락일 수 있으니"), 부드럽게 확인을 권합니다. 거부 횟수도 "행" 수가 아니라 "날" 수로 세어, 하루에 두 끼 거부한 걸 "2회"로 부풀리지 않습니다.</div>
-<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 5세 아린이는 소고기·계란·미역국은 집에서 거부 없이 자주 먹지만 콩류와 채소가 비어 있습니다. [입력] 최근 7일 meal_logs에서 거울이 식재료를 읽습니다 — 집에서 2일 넘게 거부 없이 먹은 '미역국·LA갈비'를 '잘 먹는 음식'으로 인정(어린이집 급식 메뉴는 P10으로 제외), 영양 신호등은 고기·계란=green, 콩류=red로 판정. [처리] 가장 시급한 결핍 한 군만 골라(argmin) 콩류 선택, 최근 거울에 콩류·두부를 안 썼는지 확인(주1회 회전), 추천은 검증 테이블에서 '잘 먹는 미역국에 두부'를 가져옴(괴식 아님). [결과] 거울 문장: '최근 고기·달걀은 잘 챙겼는데 콩류가 좀 아쉬워요. 아린이가 잘 먹는 미역국에 두부를 잘게 썰어 넣어 보면 어떨까요.' — 강점 인정 한 문장 + 구체 행동 한 문장, '어제 뭐뭐 먹었어요' 나열은 없음. 만약 아린이가 어제 '배아파서 카레 거부' 메모가 있었다면 거울은 코칭을 멈추고 '어제는 속이 편치 않았던 날이었나 봐요, 무리하지 않아도 괜찮아요'로 바뀝니다(강요 금지). 별도로 재노출 엔진은 아린이가 거부했던 브로콜리를 '최근 4번 만났고 마지막이 3일 전 — 지금 다시 권하기 좋은 시점'이라고 사실 한 줄을 만들어 편지에 넘깁니다.</div>
+<!-- ③ 설계 아키텍처 시각화 -->
+<section id="arch"><div class="sec-h"><span class="no" style="font-size:12px">③</span><h2>설계 아키텍처 — 데이터 파이프라인 시각화</h2></div>
+<p class="lead">입력 테이블 → 가공 함수 → 출력 컨텍스트키 파이프라인입니다.</p>
+<div class="diagram"><div class="dgrid">
+<div class="dcol">
+<div class="dcol-h in">📥 입력 테이블/상수</div>
+<div class="dbox bin"><b>meal_logs</b><br>log_date·slot·menus·ingredients·refused·note·environment·place·ate_well</div>
+<div class="dbox bin"><b>meal_logs (최근 28일)</b><br>offerCount·offerDaysAgo (재노출용)</div>
+<div class="dbox bin"><b>coach_letters</b><br>context.mirrorShown[] (쿨다운 이력)<br>recentMirrors (문구 쿨다운)</div>
+<div class="dbox bin"><b>GROUP_TARGET</b><br>nutrition.ts 군별 주간목표 상수</div>
+<div class="dbox bin"><b>plan_detail (주간계획 ⑧)</b><br>planSlot·macroPhrase</div>
+</div>
+<div class="darrow">→</div>
+<div class="dcol">
+<div class="dcol-h proc">⚙️ 가공 함수</div>
+<div class="dbox bproc"><b>compileFacts</b> / compileFactCards<br><span style="color:var(--n500)">→ recurrenceLabel 추세도장</span></div>
+<div class="dbox bproc"><b>buildMealMirror</b><br><span style="color:var(--n500)">sick공감→argmin결핍→섞기행동<br>pickFresh+recent 쿨다운</span></div>
+<div class="dbox bproc"><b>reexposurePick</b><br><span style="color:var(--n500)">due/overdue·nearAccept fact</span></div>
+<div class="dbox bguard"><b>mirrorCooldownDue</b> ⭐#5<br><span style="color:var(--p700)">recentShown[0..2] → 라인 생략</span></div>
+<div class="dbox bguard"><b>mirrorReassureLeak<br>+ stripMirrorReassure</b> ⭐<br><span style="color:var(--p700)">역 must-weave 누수 절단</span></div>
+</div>
+<div class="darrow">→</div>
+<div class="dcol">
+<div class="dcol-h out">📤 CoachContext 키</div>
+<div class="dbox bout"><b>factCards</b> (사실 주장 화이트리스트)</div>
+<div class="dbox bout"><b>notes</b> (날짜 분류 메모)</div>
+<div class="dbox bout"><b>mirrorLine</b> + mirrorPlanned + mirrorCooldown</div>
+<div class="dbox bout"><b>timeseries</b> ← reexposure fact push</div>
+<div class="dbox bout"><b>forbidParts</b> → detForbid 재생성 게이트</div>
+<div class="dbox bout"><b>mirrorShown</b> → 다음날 쿨다운 분모</div>
+</div>
+</div></div>
+
+<div class="diagram" style="margin-top:12px"><pre class="dflow">#5 거울 빈도 쿨다운 — 폐루프 (2026-06-20)
+
+  [어제·그제 편지] context.mirrorShown ──┐
+                                        ▼
+  route.ts:187  recentMirrorShown[cid] = [t/f, t/f, ...]  (최신부터)
+                                        │
+                                        ▼
+  route.ts:894  _cooldownDue = <b>mirrorCooldownDue</b>(recentShown, {cooldownDays:2, severe:gMissing≥2})
+                                        │
+            ┌───────────────────────────┼───────────────────────────┐
+       severe(결핍2+)               cooldownDue=true            cooldownDue=false
+       <b>면제</b> → 라인 노출            라인 <span class="hl">생략</span>(mirrorLineSel=null)   라인 노출
+            │                           │                           │
+            ▼                           ▼                           ▼
+  coach.ts:751 라인 직조      coach.ts:750 '안심금지' 가드      coach.ts:751 라인 직조
+                                        │
+                                        ▼
+            LLM이 습관적 안심줄 붙이면? → coach.ts:1018 <b>mirrorReassureLeak</b>
+                                        │ true
+                          ┌─────────────┴─────────────┐
+                   :1021 LLM 재생성 1회          :1026 <b>stripMirrorReassure</b>(결정론 절단)
+                                        │
+                                        ▼
+            route.ts:899  mirrorShownCtx 기록 → <b>다음날 분모로 환류</b> ↺</pre></div>
+<div class="callout" style="margin-top:8px"><b>핵심 구조</b> — 거울 안심줄은 <b>① 구조적 쿨다운</b>(라인을 아예 안 만듦)과 <b>② 텍스트 누수 절단</b>(LLM이 그래도 붙이면 정규식 탐지+재생성+결정론 절단)의 2중 빗장으로 격일화된다. 노출 여부가 다음날 분모로 환류하는 <b>폐루프</b>라 'cooldownDays:2'면 출현이 1회/3일로 수렴한다(coach.ts:298 주석 명시).</div>
 </section>
 
-<section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
-<p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
-<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr><tr><td><b>반복 노출 8~10회 수용 이론</b></td><td>거부 식재료를 보통 8~10번은 만나야 받아들인다 — 노출 8회+면 '거의 친해질 때'라는 격려 문구를 붙임(reexposure.ts nearAccept)</td></tr><tr><td><b>재노출 주기(격일~주2~3회)</b></td><td>매일 누르면 권태로 빨리 물리고 너무 오래 안 주면 잊힌다 — 2~7일 전=due(적기), 8일+=overdue(잊히기 전 재노출)로 판정</td></tr><tr><td><b>P10 집/기관 급식 분리</b></td><td>기관 급식은 '차려진 것'이라 잘 먹는 근거로 쓰지 않음 — '잘 먹는 음식'은 집에서 2일+ 거부 없이 먹은 것만 인정(place=daycare 제외)</td></tr><tr><td><b>P9 간식 채널 분리</b></td><td>과일·유제품은 끼니에 곁들이지 말고 간식으로 따로 권함(끼니 곁들임 금지)</td></tr><tr><td><b>P4·P5 환각 차단(숫자는 코드가)</b></td><td>노출 횟수·경과일·결핍 판정 등 모든 숫자는 코드가 계산해 '사실 문장'으로 넘기고 LLM은 인용만 — 환각·괴식 차단</td></tr><tr><td><b>식약처 영유아 식생활지침 + WHO 8군</b></td><td>매끼 곡류·단백질·채소, 매일 우유·과일 + WHO 8식품군을 군별 주간 목표(weeklyEst)로 코드화(nutrition.ts GROUP_TARGET)</td></tr><tr><td><b>시계열 추세 라벨(단발/간헐/반복)</b></td><td>1회=단발·2~3회=간헐·4회+=반복 도장을 모든 사실에 붙여 LLM의 하루 사건 과잉 일반화(뷔페 사고) 차단(이사님 원칙)</td></tr><tr><td><b>argmin 단일 결핍 + 만성 가중</b></td><td>결핍을 한꺼번에 쏟지 않고 가장 시급한 한 군만 선택, 노랑채소·과일 같은 만성 결핍군에 가중치(카테고리 다양성 정직)</td></tr></table></div>
-<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">🎬 시나리오 · 유닛 (13)</h3>
-<div class="tbl"><table><tr><th style="width:26%">이름</th><th>언제 적용</th><th>이론 근거</th></tr><tr><td><b>컨디션 저하 — 공감만</b></td><td>어제(0~1일 전) 메모나 거부칸에 배아픔·체함·입맛없음 등이 감지되면</td><td>강요 금지 — 안 좋은 날은 칭찬·행동 빼고 '무리하지 않아도 괜찮아요' 공감만(거울 즉시 종료)</td></tr><tr><td><b>결핍 코칭(끼니 채널)</b></td><td>최근 7일 결핍 식품군이 곡물/채소/고기달걀/생선/콩류 등 끼니군일 때</td><td>잘 먹는 음식에 결핍 식재료 섞기(짜파게티에 당근 채썰어) — 검증 궁합·사촌 테이블만, 괴식 0</td></tr><tr><td><b>결핍 코칭(과일 간식 채널)</b></td><td>결핍이 과일일 때</td><td>P9 간식 분리 — 끼니 곁들임 금지, 잘 먹는 과일을 '간식으로' 한 번 더</td></tr><tr><td><b>결핍 코칭(유제품 간식 채널)</b></td><td>결핍이 유제품일 때</td><td>P9 간식 분리 — 요거트 등 유제품을 끼니 아닌 간식으로 가볍게 더하기</td></tr><tr><td><b>전부 green(결핍 0) 축하</b></td><td>최근 7일 모든 식품군이 green일 때</td><td>데이터 근거 축하 톤 — 행동 지시 없이 '지금처럼만 가면 충분' (거짓 결핍 만들기 금지)</td></tr><tr><td><b>재노출 due(적기)</b></td><td>거부 식재료를 2~7일 전 마지막으로 만났을 때</td><td>재노출 주기 격일~주2~3회 — '지금 다시 권하기 좋은 시점', 노출 8회+면 친해질 때 격려 추가</td></tr><tr><td><b>재노출 overdue(잊히기 전)</b></td><td>거부 식재료가 8일+ 안 올라왔을 때</td><td>너무 오래 안 주면 잊힘 — '잊히기 전에 부담 없이 다시 만나기 좋은 때'</td></tr><tr><td><b>재노출 권태 제외</b></td><td>거부 식재료를 어제·오늘(0~1일 전) 줬을 때</td><td>매일 누르면 권태로 더 빨리 물림 — 후보에서 제외(null 가능)</td></tr><tr><td><b>점심 분기 — 급식으로 먹음</b></td><td>점심 기록이 3일+이고 어제까지 이어지며 절반 이상이 급식일 때</td><td>P10 — 결식 아님, '집에서는 아침·저녁에 집중' 행동 가이드로 전환</td></tr><tr><td><b>점심 분기 — 최근 비어 있음</b></td><td>점심 기록이 있다가 마지막이 3일+ 전일 때</td><td>기록 부재≠결식 — '거른다' 단정 금지, 부드럽게 확인 권유</td></tr><tr><td><b>단발 이벤트 메아리 차단</b></td><td>뷔페·외식·여행 등 단어가 과거 메모엔 있으나 최근 2일엔 없을 때</td><td>과거 편지 메아리 채널 차단 — 오늘 편지에서 언급 금지(forbidParts)</td></tr><tr><td><b>거부 횟수='날' 수 카운트</b></td><td>거부 식재료의 추세 라벨을 매길 때</td><td>M6 — 하루 2슬롯 거부를 '2회'로 부풀리지 않게 행 단위 아닌 날 단위로 셈</td></tr><tr><td><b>기관 급식 vs 집 음식 분리 표기</b></td><td>자주 오르는 음식 카드를 만들 때</td><td>P10 — 급식 메뉴는 '나온다'는 사실만, '집에서 잘 먹는다' 칭찬 근거로 세탁 금지</td></tr></table></div>
-</section>
 
-<section id="tables-ext"><div class="sec-h"><span class="no" style="font-size:12px">🗄️</span><h2>어느 테이블에서 무엇을 — 데이터 추출</h2></div>
-<p class="lead">이 모듈이 <b>어떤 데이터에서 무엇을 뽑아</b> 운영하는지(비개발자용).</p>
-<div class="tbl"><table><tr><th style="width:24%">테이블 · 데이터</th><th style="width:30%">뽑는 값</th><th>운영상 의미</th></tr><tr><td><b>meal_logs (식단 기록)</b></td><td>log_date(날짜)·slot(끼니)·menus(메뉴)·ingredients(식재료)·refused(거부)·note(부모 메모)·environment(식사 환경)·place(집/기관)·ate_well(잘 먹었나)</td><td>부모가 매일 입력하는 식단 기록이 이 모듈의 유일한 재료입니다. 여기서 '뭘 먹었나·뭘 거부했나·집인지 급식인지·잘 먹었는지'를 다 읽어 거울 문장과 재노출 판정을 만듭니다. 새 컬럼은 하나도 안 만들고 기존 기록만 씁니다.</td></tr><tr><td><b>meal_logs (최근 한 달, 재노출용)</b></td><td>거부 식재료별 노출 횟수(offerCount)와 마지막 노출 후 경과일(offerDaysAgo)</td><td>거부한 음식이 그동안 몇 번 식탁에 올랐고 마지막이 며칠 전인지를 한 달 치 기록에서 계산해, '지금이 다시 권할 적기인지'를 판정합니다.</td></tr><tr><td><b>coach_letters (편지 원장)</b></td><td>최근 편지의 거울 문장(recentMirrors)</td><td>지난 편지에 어떤 거울 문장을 썼는지 읽어와, 같은 결핍·같은 문구를 매일 반복하지 않도록 쿨다운(겹치지 않는 표현 고르기)에 씁니다.</td></tr><tr><td><b>food-graph / 궁합·사촌 테이블 (coachRecos 경유)</b></td><td>결핍 식재료의 또래 인기 음식·강한 궁합(pair)·사촌(bridge/chain) 조합</td><td>결핍을 잘 먹는 음식에 섞을 때 AI가 이상한 조합을 지어내지 않도록, 실제 식단에서 검증된(괴식 0) 음식·궁합만 골라 추천 문장에 씁니다.</td></tr><tr><td><b>GROUP_TARGET (군별 주간 목표, nutrition.ts 코드 상수)</b></td><td>8식품군별 충분 기준(매일군 주5회·콩류/생선 주2회)과 daily/rotation 구분</td><td>식약처·WHO 지침을 숫자로 박아둔 표입니다. '며칠 등장했나'를 이 기준에 비춰 green/yellow/red 신호등을 매기고 가장 시급한 결핍을 가립니다.</td></tr></table></div>
-</section>
-
-<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
-<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: coachFacts.ts + reexposure.ts</span></div>
-<p class="lead">편지가 주장해도 되는 '사실 카드'를 LLM이 아니라 코드가 전부 계산한다. 각 사실에 시계열 추세 라벨(단발 1회/간헐 2~3회/반복 4회+)을 붙여, 하루치 사건을 '리듬·패턴'으로 일반화하거나(뷔페 사고) 데이터와 모순되게 단정하는('점심을 거른다') 것을 막는다. 동시에 매 편지가 아이의 실제 먹은 것을 비춰주는 '식단 거울'(어제 끼니 컨디션 + 최근 7일 영양신호등 강점/결핍 + 잘 먹는 음식에 결핍 식재료 섞기)을 생성하고, 거부 식재료 중 '재노출 적기' 1개를 숫자 근거 문장으로 만들어 코칭에 넘긴다.</p>
-<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
-<ul class="clean"><li>meal_logs (log_date·slot·menus·refused·note·environment·place·ate_well·ingredients — 기존 컬럼만, 스키마 변경 0)</li><li>lib/coachRecos.pickFoodReco (food-graph 추천 — 궁합/사촌/도전, 괴식0 테이블)</li><li>lib/nutrition.computeGroupSignals (식품군 green/red 신호등 — 홈 화면과 동일 로직)</li></ul>
-</section>
-
-<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
-<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
-<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">meal_logs 행을 FactRow[]로 받음</div><div class="pd">크론(route.ts)이 자녀별 최근 끼니 행(log_date·slot·menus·refused·note·environment·place·ate_well·ingredients)을 조회해 compileFactCards/compileFacts에 rows로 전달. 모두 기존 컬럼만 사용(스키마 변경 0).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">끼니·환경·음식·거부를 추세 라벨로 분류</div><div class="pd">점심 lastLunchAge로 분기(이어짐/끊김/드뭄)해 결식 단정 차단, env-week 화면식사 비율 %, topOf로 집(place≠daycare)/기관(daycare) 음식 분리, 거부는 '거부한 날 수' 기준 recurrenceLabel 부여.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">데이터 기반 금지 정규식(forbidParts) 산출</div><div class="pd">최근 2일 메모가 지지하지 않으면 '점심 거르/건너/굶' 단정 정규식 추가, 단발 이벤트 단어(뷔페·외식·여행)가 최근 2일 메모에 없으면 stale로 금지 — 과거 편지 메아리 차단.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">식단 거울(buildMealMirror) 합성</div><div class="pd">① 어제 컨디션 저하(SICK_RE) 감지 시 공감 한 줄로 조기 반환 ② 최근 7일 식품군 신호등으로 argmin 결핍(만성군 가중) 1개 선택, 집에서 2일+ 거부없이 먹은 liked 식재료/likedDishes에 결핍 식재료를 잘게 섞는 구체 행동 문장 생성. 과일·유제품은 간식 채널(끼니 곁들임 금지).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">재노출 적기 판정(reexposurePick)</div><div class="pd">거부 식재료별 노출 횟수·마지막 노출 후 일수로 어제/오늘(0~1일) 제외, 2~7일=due·8일+=overdue, due 안에서 많이 만난 것 우선. 숫자 박은 fact 문장 1개를 시계열 사실로 push.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">LetterInput·CoachContext로 배선</div><div class="pd">cards→factCards, noteCards→notes, forbidParts→detForbid 재생성 게이트, mirror→context.mirror(+nutritionMirrorFromInput으로 두뇌 영양평가), rx.fact→timeseries 사실. 카드는 14개로 컷.</div></div></div></div>
-</section>
-
-<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
-<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>compileFactCards</code></td><td>rows+today를 받아 시계열 라벨이 붙은 FactCard[](끼니·환경·집/기관 음식·거부)·noteCards(날짜 분류 메모)·forbidParts(금지 정규식)·mirror(식단 거울)를 반환하는 메인 컴파일러</td></tr><tr><td><code>compileFacts</code></td><td>compileFactCards의 문자열-카드 어댑터(cards를 c.text만으로 평탄화) — 크론 프롬프트·api/coach 등 문자열 경로용. route.ts가 실제로 호출하는 진입점</td></tr><tr><td><code>buildMealMirror</code></td><td>어제 컨디션 공감 + 최근 7일 영양신호등(강점 대비 argmin 결핍, 만성 가중) + 잘 먹는 음식/요리에 결핍 식재료 섞는 구체 행동 한두 문장을 합성한 '식단 거울' 문자열 생성</td></tr><tr><td><code>recurrenceLabel</code></td><td>count→'단발 1회'/'간헐 N회'/'반복 N회' 시계열 추세 라벨. 모든 사실 분석이 거쳐야 하는 패턴화 가드의 핵심</td></tr><tr><td><code>reexposurePick</code></td><td>거부 식재료+노출횟수+경과일로 '지금 다시 권하기 좋은' 1개를 due/overdue로 판정, 숫자 박힌 데이터 근거(fact) 한 줄을 만들어 ReexpoVerdict로 반환(LLM은 인용만)</td></tr></table></div>
-</section>
-
-<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
-<p class="lead">📥 <b>compileFactCards({ rows: FactRow[](meal_logs 끼니 행), today, recentMirrors?(거울 쿨다운용 최근 문장), name? }) — 아린 5세, 집에서 소고기·계란·감자 잘 먹고 콩류/비타민A채소(당근) 결핍·미역국 등장.</b></p>
+<!-- ④ 작동 예시 -->
+<section id="example"><div class="sec-h"><span class="no" style="font-size:12px">④</span><h2>작동 예시 — 아린 실데이터 before/after</h2></div>
+<p class="lead">아린(5세)이 집에서 소고기·계란·미역국 잘 먹고 콩류/채소(당근) 결핍, 어린이집 등원. <code>compileFactCards</code> 통과 I/O와, #5 쿨다운 적용 전/후 편지 말미 비교.</p>
 <div class="io">
-<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>{
+<div class="iobox inp"><div class="iol">📥 INPUT — compileFactCards({rows, today, recentMirrors, name})</div><div class="codeblk"><pre>{
   "today": "2026-06-16",
   "name": "아린",
   "recentMirrors": [
-    "최근 고기·달걀은 잘 챙겼는데 노랑·주황 채소가 좀 아쉬워요. ..."
+    "최근 고기·달걀은 잘 챙겼는데
+     노랑·주황 채소가 좀 아쉬워요. ..."
   ],
   "rows": [
-    {
-      "log_date": "2026-06-15",
-      "slot": "dinner",
-      "menus": ["미역국", "소고기무국", "잡곡밥"],
-      "refused": "당근",
-      "note": "당근은 골라냈어요",
-      "environment": "table",
-      "place": "home",
-      "ate_well": true,
-      "ingredients": ["미역", "소고기", "쌀", "무"]
-    },
-    {
-      "log_date": "2026-06-15",
-      "slot": "lunch",
-      "menus": ["김치volunteer", "닭갈비"],
-      "refused": null,
-      "note": null,
-      "environment": "table",
-      "place": "daycare",
-      "ate_well": true,
-      "ingredients": ["닭고기", "배추"]
-    },
-    {
-      "log_date": "2026-06-14",
-      "slot": "breakfast",
-      "menus": ["계란말이", "감자조림", "밥"],
-      "refused": null,
-      "note": null,
-      "environment": "screen",
-      "place": "home",
-      "ate_well": true,
-      "ingredients": ["계란", "감자", "쌀"]
-    }
+    { "log_date":"2026-06-15","slot":"dinner",
+      "menus":["미역국","소고기무국","잡곡밥"],
+      "refused":"당근","note":"당근은 골라냈어요",
+      "environment":"table","place":"home",
+      "ate_well":true,
+      "ingredients":["미역","소고기","쌀","무"] },
+    { "log_date":"2026-06-15","slot":"lunch",
+      "menus":["김치","닭갈비"],"refused":null,
+      "environment":"table","place":"daycare",
+      "ate_well":true,
+      "ingredients":["닭고기","배추"] }
   ]
 }</pre></div></div>
 <div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>{
   "cards": [
-    {
-      "key": "lunch",
-      "text": "점심: 기록된 2일 중 1일만 점심 기록(최근 포함)",
-      "kind": "diagnosis",
-      "prose": "점심 기록이 아직 드문 편이에요"
-    },
-    {
-      "key": "top-home",
-      "text": "집에서 자주 오르는 음식: 미역국 1회 · 소고기무국 1회 · 계란말이 1회 · 감자조림 1회",
-      "kind": "diagnosis",
-      "prose": "집 식탁에는 미역국·소고기무국 같은 음식이 자주 올라요"
-    },
-    {
-      "key": "refuse:당근",
-      "text": "거부: 당근 — 단발 1회(마지막 어제 · 횟수=거부한 날 수)",
-      "kind": "diagnosis",
-      "prose": "최근 식탁에서 당근 거부가 한 차례 있었어요"
-    }
+    { "key":"refuse:당근",
+      "text":"거부: 당근 — 단발 1회(마지막 어제
+              · 횟수=거부한 날 수)",
+      "kind":"diagnosis" }
   ],
-  "noteCards": [
-    "[어제·하루 관찰] 당근은 골라냈어요"
-  ],
+  "noteCards": ["[어제·하루 관찰] 당근은 골라냈어요"],
   "forbidParts": [
-    "점심(을|은)?[^.。\\n]{0,6}(거르|건너|굶)|점심(을|은)\\s?(거의\\s?)?안\\s?먹"
+    "점심(을|은)?[^.。\\n]{0,6}(거르|건너|굶)|..."
   ],
-  "mirror": "최근 고기·달걀은 잘 챙겼는데 노랑·주황 채소가 좀 아쉬워요. 아린이가 잘 먹는 소고기무국에 당근을 잘게 썰어 넣어 보면 어떨까요."
+  "mirror":
+    "최근 고기·달걀은 잘 챙겼는데 콩류가 좀
+     아쉬워요. 아린이가 잘 먹는 소고기무국에
+     당근을 잘게 썰어 넣어 보면 어떨까요."
 }</pre></div></div>
 </div>
-<div class="callout">📤 <b>전달</b> — cards→LetterInput.factCards(편지의 사실 주장은 이 안에서만), noteCards→notes, forbidParts→detForbid 정규식(위반 시 편지 재생성), mirror→context.mirror. reexposurePick의 fact는 timeseries 사실로 편지가 'N번·M일·적기'를 인용. mirror는 nutritionMirrorFromInput으로 두뇌 영양평가에도 재사용.</div>
+
+<div class="card" style="margin-top:14px">
+<div style="font-size:12px;font-weight:800;color:var(--p700);margin-bottom:6px">❌ BEFORE — #5 쿨다운 도입 전 (랄프위검 0610≈0613 복붙)</div>
+<p style="font-size:12px;color:var(--n700);line-height:1.7;background:#FFF8F2;border:1px solid #FFE8D1;border-radius:9px;padding:10px 13px">…아린이가 잘 먹는 소고기무국에 당근을 한 번 곁들여 보면 어때요. <b style="color:var(--p700)">어린이집 덕에 전체 영양은 잘 채워지고 있으니 집에서는 부담 내려놓으셔도 괜찮아요.</b></p>
+<p style="font-size:11px;color:var(--n500);margin-top:4px">→ 같은 '어린이집 덕에 안심' 클로징이 <b>24통 중 17통</b>에 verbatim에 가깝게 박힘. 부모 체감 = "또 그 소리" 앵무새.</p>
+<div style="font-size:12px;font-weight:800;color:var(--g700);margin:14px 0 6px">✅ AFTER — #5 쿨다운 적용 (어제 편지에 거울 안심을 이미 씀)</div>
+<p style="font-size:12px;color:var(--n700);line-height:1.7;background:#F4FBF8;border:1px solid var(--abd);border-radius:9px;padding:10px 13px">…아린이가 잘 먹는 소고기무국에 당근을 잘게 썰어 넣어 보면 어떨까요. 오늘 한 걸음이면 충분해요.</p>
+<p style="font-size:11px;color:var(--n500);margin-top:4px">→ <code>recentMirrorShown[아린]=[true,…]</code> → <code>_cooldownDue=true</code> → <code>mirrorLineSel=null</code> → coach.ts:750이 '안심 금지' 가드 주입 → LLM이 안심줄 없이 행동·마무리로 닫음. 만약 LLM이 습관적으로 안심줄을 붙였다면 coach.ts:1018 <code>mirrorReassureLeak</code>이 잡아 재생성/절단.</p>
+</div>
+<div class="callout" style="margin-top:10px">📤 <b>전달 경로</b> — cards→<code>LetterInput.factCards</code>(사실 주장은 이 안에서만), noteCards→notes, forbidParts→<code>detForbid</code> 정규식(위반 시 재생성), mirror→<code>buildMealMirror</code>가 직접·또는 route의 변주 라인→<code>mirrorLine</code>. <code>reexposurePick.fact</code>는 timeseries 사실로 편지가 'N번·M일·적기'를 인용. 거울 노출 여부는 <code>context.mirrorShown</code>으로 저장돼 다음날 쿨다운 분모가 됨.</div>
 </section>
 
-<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
-<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
-<div class="chips"><span class="chip">factCards</span><span class="chip">notes</span><span class="chip">mirror</span><span class="chip">forbidParts(→detForbid 재생성 게이트)</span><span class="chip">factsCited(어드민 검증용)</span></div>
-</section>
 
-<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
-<ul class="clean"><li>시계열 추세 라벨(단발/간헐/반복)로 하루치 사건 과일반화 차단(뷔페 사고 방지)</li><li>점심 결식 단정은 최근 2일 메모 직접 지지 시에만 — 기록 부재≠결식, forbidParts 정규식으로 위반 재생성</li><li>단발 이벤트 단어(뷔페·외식·여행)가 최근 2일 메모에 없으면 stale 금지(과거 편지 메아리 차단)</li><li>집(home)/기관(daycare) 음식 분리 — 급식 메뉴를 '집에서 잘 먹는다' 칭찬 근거로 세탁 금지(P10)</li><li>거부 카운트=거부한 '날' 수(하루 2슬롯 거부를 간헐 2회로 부풀리는 라벨 거짓 방지·M6)</li><li>괴식 차단: 과일·유제품은 간식 채널(끼니 곁들임 금지), NOT_DISH 정규식으로 과일·우유·과자에 식재료 섞기 금지(바나나+시금치 차단)</li><li>컨디션 저하(SICK_RE) 감지 시 칭찬 차단·공감 톤만, 끼니 복기 제거</li><li>거울 문장 쿨다운(pickFresh+recentMirrors) — 만성 결핍이 같은 군 반복 지목해도 verbatim 복붙 방지</li><li>재노출은 어제/오늘(0~1일) 권태 제외, 숫자는 코드가 계산해 LLM은 인용만(환각 차단·P4·P5)</li><li>sanitizeMenu로 NEIS 원천 기호(&amp;·괄호·la) 손편지용 정리</li></ul>
+<!-- ⑤ 남은 문제점 -->
+<section id="todo"><div class="sec-h"><span class="no" style="font-size:12px">⑤</span><h2>남은 문제점 · 해야할 일 (랄프위검 연속성 47점, 2026-06-20)</h2></div>
+<div class="earn"><b>✅ EARNED (검증된 성과)</b> — #5 거울 빈도 쿨다운이 <b>실제로 작동했다</b>: 거울 안심줄 17통 → 6~8통, 거울 태그 회전(생략/노출/deficit/covered), 톤 비서열('집&lt;어린이집' 프레임 0건) 검증됨. F-18 거울=슬롯음식 봉합도 성립(비-콩류 슬롯 12일에서 두부 누수 0). 즉 <b>거울줄(mirror line)</b> 차원의 앵무새는 끊겼다. 아래 천장은 그 옆 동네(본문 '어린이집 안심' 산문절)에 남아 있다.</div>
+<div class="tbl" style="margin-top:10px"><table><tr><th style="width:20%">증상</th><th style="width:34%">근본원인</th><th>해야할 일 (owner)</th></tr>
+<tr><td><b>천장6 일부 — 본문 '어린이집 안심' 6통+ 반복</b><br>0610≈0613 본문 안심줄이 거의 복붙</td><td><b>쿨다운의 적용 범위가 거울줄에만</b> 걸린다. <code>mirrorCooldownDue</code>가 끄는 것은 ③이 직접 만든 <b>mirrorLine</b>이고, LLM이 본문 산문 중간에 자체로 짜 넣는 '어린이집 덕에 전체 영양 안심' 문장에는 빈도 가드가 없다. <code>mirrorReassureLeak</code>(coach.ts:307)은 '오늘 거울을 안 의도한 날'(<code>!intendMirror</code>, :1018)에만 발동하므로, 거울을 의도한 날 본문에 끼어든 추가 안심 산문은 통과한다.</td><td><b>#5 쿨다운을 본문 '어린이집 안심' 절까지 확대</b>(거울줄 밖). <code>intendMirror=true</code>인 날에도, 최근 N일 본문에 daycare-praise가 이미 났으면 본문 안심 산문을 1회로 제한하는 빈도 가드 추가. <code>mirrorReassureLeak</code> 탐지기를 '거울 의도 여부와 무관한 빈도 카운터'로 승격. <span style="color:var(--ad);font-weight:700">(owner: ③ 코칭엔진)</span></td></tr>
+<tr><td><b>인접 N일 본문 또래근거 슬롯절 dedup 미적용</b></td><td>인접일 dedup이 거울줄·시그니처엔 걸리나, '또래 급식에 자주 나오는 재료'(coach.ts:799) 같은 또래근거 슬롯 산문은 표현 변주(매번 다른 어미)만 요구하고 <b>출현 빈도 자체는 가드 없음</b>. 변주 풀이 마르면 의미가 매일 반복.</td><td><b>인접 N일 본문 dedup을 또래근거 슬롯절까지 확대</b>. 거울 쿨다운과 동형으로 '또래근거 노출 여부'를 context에 기록해 격일화. <span style="color:var(--ad);font-weight:700">(owner: ③+⑥ 작문기 공동)</span></td></tr>
+<tr><td><b>안심줄 카피 변주 풀 협소</b><br>현재 단일 의미 템플릿</td><td><code>_posV</code>(route.ts:877-879)·mirrorBlock 분기(coach.ts:766-784)가 각 3변형뿐 — <b>어미·구조는 다르나 의미는 단일</b>('전체 영양 채워지고 있다'). 쿨다운으로 빈도는 줄였으나, 나오는 날의 안심줄은 의미적으로 동일.</td><td><b>안심줄 카피 변주 풀 확장</b> — 의미 축을 다양화(전체-충족 안심 외에 '오늘의 작은 성공'·'한 걸음 인정'·'리듬 관찰' 등 비-안심 클로징 풀). pickFresh가 의미 클러스터 단위로 회전하게. <span style="color:var(--ad);font-weight:700">(owner: ③+⑥)</span></td></tr>
+</table></div>
+<div class="callout" style="margin-top:10px"><b>이 모듈 관점 한 줄 정직 평가</b> — #5는 <b>거울줄 차원에서 이겼다</b>(EARNED). 남은 천장은 전부 <b>같은 안심 의미가 거울줄 '밖'(본문 산문·또래근거 슬롯절)으로 새는</b> 문제다. 근본 처방은 동일: '어린이집 덕에 전체 영양 안심'을 <b>위치(거울/본문) 무관한 단일 의미 단위로 보고 빈도를 카운트</b>하는 것 — 지금은 거울줄만 격일화하고, 같은 의미가 본문으로 옮겨가 출현 횟수를 보존하는 풍선효과가 남아 있다. 미화하지 않으면, 쿨다운은 '거울줄 앵무새'는 끊었지만 '안심 의미 앵무새'는 아직 못 끊었다.</div>
 </section>
 
 </main>
 <footer>
 밀프레드 코칭 엔진 모듈 명세 · ③ 사실·거울 컴파일러<br>
 🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
-코드 근거: coachFacts.ts · reexposure.ts · 2026-06-17
+코드 근거: coachFacts.ts · reexposure.ts · coach.ts · route.ts · 실측 2026-06-20
 </footer>
 </body></html>

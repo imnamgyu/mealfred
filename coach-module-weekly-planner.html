@@ -61,188 +61,265 @@ footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;bo
 footer a{color:var(--ad);text-decoration:none;font-weight:700}
 .backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
 .backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+.diag{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:16px;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.diag pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.5;color:var(--n800);white-space:pre;margin:0}
+.flow{display:flex;flex-direction:column;gap:0;margin-top:8px}
+.frow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;justify-content:center}
+.fbox{flex:1;min-width:150px;border-radius:11px;padding:10px 12px;font-size:11px;line-height:1.5}
+.fbox .fbl{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;opacity:.7;margin-bottom:3px}
+.fbox .fbt{font-weight:800;font-size:11.5px}
+.fbox.inp{background:#EAF2FB;border:1px solid #C5DBF2;color:var(--b700)}
+.fbox.proc{background:var(--abg);border:1px solid var(--abd);color:var(--ad)}
+.fbox.out{background:#FFF4E9;border:1px solid #FFD9B0;color:var(--p700)}
+.fdown{text-align:center;color:var(--n300);font-size:16px;font-weight:800;margin:4px 0}
+.bad{background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:13px 15px;font-size:12px;color:#7F1D1D;line-height:1.68;margin-top:10px}.bad b{color:#B91C1C}
+.good{background:#ECFDF5;border:1px solid #A7F3D0;border-radius:12px;padding:12px 15px;font-size:12px;color:#065F46;line-height:1.66;margin-top:10px}.good b{color:#047857}
+.tslvl{font-size:10px;font-weight:800;padding:2px 7px;border-radius:100px;white-space:nowrap}
+.tslvl.p0{background:#FEE2E2;color:#B91C1C}.tslvl.p1{background:#FEF3C7;color:#92400E}.tslvl.p2{background:#E0E7FF;color:#3730A3}
 </style></head><body>
 <header class="hero"><div class="hero-in">
 <span class="tag">🧩 코칭 엔진 모듈 명세 · ⑧/⑧</span>
 <h1><span class="ic">📅</span> ⑧ 주간계획 (작전층 오케스트레이터)</h1>
-<p>일요일 종합 위에 다른 모듈을 종합해 7일치 구체 계획을 미리 굽는 작전 사령부</p>
+<p>일요일에 지난 4주를 의사처럼 종합해 7일치 구체 계획(dish 회전·macro·커리큘럼·거울)을 미리 굽는 작전 사령부 — 일간은 슬롯으로 소비</p>
 <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
 </div></header>
 <nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a><a href="/coach-module-weekly-planner.html" class="cur">⑧ 주간계획</a></nav>
 <main>
-<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ⑧을 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
-<div class="callout" style="margin:8px 0 0"><b>📅 이 모듈은 '작전 사령부'입니다.</b> 일요일 종합(① 신호선택기의 <code>runWeeklyPlanning</code>·Sonnet)이 잡은 <b>빈약한 닻</b>(<code>mission_target</code>=식품군 카테고리 1개) 위에, 결정론 후처리 <code>enrichWeeklyPlan(synth, ctx)</code>이 <b>다른 모든 모듈을 호출(오케스트레이션)</b>해 한 주치 구체 계획(<code>plan_detail</code>)을 미리 굽습니다 — <b>LLM 0콜·순수함수·throw 시 null degrade</b>. 추천엔진(②)의 <code>popularDishesFor</code>로 카테고리를 실제 음식으로 펼치고, 네트워크(⑦)의 <code>verifiedCousinsOf</code>로 도전 사촌을 붙이고, 영양평가(④)의 <code>bmiBand</code>/<code>growthTracking</code>으로 탄단지 macro 트랙을 깔고, 진척(⑤)의 <code>goals</code>로 anti-stall을 가시화합니다. 월~토 일간 전술층(① 신호선택기)은 <code>pickPlanSlot</code>으로 그날 데이터에 맞춰 슬롯을 소비합니다. 신규 영속 필드: <b><code>weekly_plans.plan_detail jsonb</code></b>(additive·degrade-safe).</div>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ⑧을 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드·천장. 코드 근거: <code>lib/coachWeekly.ts</code> · <code>app/api/cron/coach/route.ts</code> (2026-06-20 실측).</div>
+<div class="callout" style="margin:8px 0 0"><b>📅 한 줄 정의.</b> 이 모듈은 일요일 1회 <code>enrichWeeklyPlan(synth, ctx)</code>(<code>coachWeekly.ts:520</code>)가 일요일 종합(① 신호선택기 <code>runWeeklyPlanning</code>·Sonnet)이 잡은 <b>빈약한 닻</b>(<code>mission_target</code>=식품군 1개) 위에서 <b>다른 모듈을 전부 호출(오케스트레이션)</b>해 7일치 구체 계획(<code>PlanDetail</code>)을 굽고 <code>weekly_plans.plan_detail jsonb</code>에 영속하는 작전층입니다. 추천엔진(②) <code>popularDishesFor</code>로 카테고리를 dish로 펼치고, 네트워크(⑦) <code>verifiedCousinsOf</code>로 도전 사촌을 붙이고, 영양평가(④) <code>bmiBand</code>/<code>growthTracking</code>으로 macro 트랙을 깔고, 진척(⑤) <code>goals</code>로 anti-stall을 가시화합니다. <b>LLM 0콜·순수함수·throw 시 호출자(cron)가 null degrade</b>. 월~토 일간(① 신호선택기)은 <code>pickPlanSlot</code>(<code>coachWeekly.ts:576</code>)으로 그날 결핍 데이터에 맞춰 슬롯을 소비합니다.</div>
 
 
-<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">🧭</span><h2>비개발자용 — 이렇게 운영됩니다</h2></div>
-<p class="lead" style="margin:8px 0">이 모듈은 '한 주 식단표를 미리 짜는 주방장'입니다. 식당에 비유하면, 일요일 밤에 주방장이 다음 한 주(월~토) 무엇을 어떤 순서로 낼지 메뉴판을 통째로 미리 짜두는 일입니다. 왜 필요했냐면, 예전 주간계획은 너무 빈약했습니다. 한 주의 목표가 '콩류'라는 <b>식품군 카테고리 딱 하나</b>였고, 후보도 카테고리 4개 이하였습니다. 그러니 월요일도 콩류 → 두부, 화요일도 콩류 → 두부, … 몇 주 내내 '콩류 도돌이표'가 됐습니다. 이사님 지적의 핵심이 이것입니다.</p>
-<p class="lead" style="margin:8px 0">그래서 이 모듈은 주간계획을 <b>진짜 작전 사령부</b>로 격상했습니다. 일요일 종합이 '이번 주는 콩류'라고 큰 방향만 잡으면, 그 직후 이 모듈이 다른 모든 엔진을 한꺼번에 불러 7일치 <b>구체적인 음식 회전표</b>를 미리 굽습니다. '콩류'를 두부조림 → 순두부찌개 → (사촌 도전) 검은콩 → … 처럼 <b>실제 음식 이름 7칸</b>으로 펼쳐, 같은 식재료가 이틀 연속 나오지 않게 짭니다. 두 갈래를 번갈아 섞습니다 — '부족한 걸 보충하는 칸(supply)' 둘에, '잘 먹는 음식의 검증된 사촌으로 도전하는 칸(challenge)' 하나. 이 도전 칸이 '콩류 3주 도돌이표'를 구조적으로 끊습니다.</p>
-<p class="lead" style="margin:8px 0">여기에 세 가지를 더 깝니다. ① 키·몸무게(BMI/성장곡선)를 봐서, 또래보다 가볍거나 성장이 더딘 아이면 '탄단지(단백·지방·열량) 보강 트랙'을 켜고 회전표에 고기류를 앞에 끼워넣습니다(격주). ② 부모 교육 '수업'이 3주째 제자리면 그게 보이게 표시해, 일간 편지가 '지난주 X에서 이번주 Y로'라고 진도를 말할 수 있게 합니다. ③ '오늘의 영양 거울 한 줄'도 7일치로 미리 짭니다 — 결핍이 콩류 하나뿐이면 매일 같은 콩류 클로징이 앵무새가 되니 격일로만 넣습니다. 마지막으로, 이 표는 어디까지나 <b>가이드</b>입니다. 월~토 그날 아침에 일간 엔진이 그날 기록 데이터로 다시 검수해서, 이미 채워진 칸은 건너뛰고 다음 유효한 칸으로 적응합니다.</p>
-<div class="callout" style="margin-top:10px"><b>🥗 영양·BMI는 이렇게 처리합니다</b><br>탄단지(macro) 트랙은 추측이 아니라 우리가 계산한 성장 수치만 씁니다. 영양평가(④)가 준 BMI 밴드(<code>bmiBand</code>)와 성장곡선 추종도(<code>growthTracking</code>)를 봅니다. <b>저체중이거나 성장곡선이 자기 채널에서 아래로 이탈(주의·경고)</b>이면 '탄단지 보강군'(고기·계란·콩류·유제품)을 켜서 supply 회전표 앞에 고기류를 주입하고, 부모 편지엔 <code>growthTrackToPhrase</code>가 만든 P10 톤 한 구절(숫자·체중·살·BMI 단어 0)을 넣습니다 — 이게 이사님이 말한 '키·몸무게 고려해서 탄단지를 높이는 트랙, 타깃=고기류'입니다. <b>과체중·비만</b>이면 거꾸로 간식 절제(snackRestraint)로 안내합니다. <b>정상</b>이면 트랙을 끕니다(불필요한 잔소리 0). 그것도 <b>격주</b>로만 노출합니다 — 가정 측정은 노이즈가 크고 자주 말하면 부담이 되니, <code>arcWeek</code>이 짝수인 주에만 macro 줄을 넣습니다.</div>
-<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린의 일요일 종합이 잡은 닻: 주력 타깃=콩류(집에서 단일 결핍), 비타민A채소도 약함, 잘 먹는 음식=소고기·계란·감자·미역, BMI 밴드=정상. 예전이라면 월~토 내내 '콩류 → 두부'였습니다. 이 모듈은 그 직후 7칸 회전표를 굽습니다: ①두부(콩류·supply, 두부조림·순두부찌개) → ②단호박(비타민A채소·supply, 단호박죽) → ③검은콩(콩류·challenge·소고기의 검증 사촌, 콩조림) → ④콩나물(콩류·supply, 콩나물무침) → ⑤시금치(비타민A채소·supply) → ⑥두부(두 번째 dish로) → ⑦… 같은 식재료가 이틀 연속 없이 7칸이 채워집니다. 영양 거울도 콩류가 단일 결핍이면 격일로만('K-04b 쿨다운'). 만약 아린이 저체중이었다면, 회전표 맨 앞에 소고기·달걀·치즈가 끼워지고('고기류 타깃'), 격주로 "또래보다 가벼운 편이라 끼니 양과 단백질·열량을 조금 더 챙겨주면 좋아요" 한 구절이 들어갑니다. 월요일 아침, 일간 엔진은 슬롯 인덱스 <code>(daySeed+cidHash)%7</code>로 한 칸을 고르되, 그 칸이 supply인데 그날 보니 콩류가 이미 채워졌다면 다음 유효 칸으로 회전합니다(유연성 가드).</div>
+<section id="nondev"><div class="sec-h"><span class="no" style="font-size:12px">①</span><h2>비개발자용 — 왜 필요했고 무엇을 하나</h2></div>
+<p class="lead" style="margin:8px 0">이 모듈은 <b>'한 주 식단 작전을 미리 짜는 주방장'</b>입니다. 식당에 비유하면, 일요일 밤에 주방장이 다음 한 주(월~토) 무엇을 어떤 순서로 낼지 메뉴판을 통째로 미리 짜두는 일입니다. 왜 필요했냐면, 예전 주간계획은 너무 빈약했습니다. 한 주의 목표가 '콩류'라는 <b>식품군 카테고리 딱 하나</b>였고, 그러니 월요일도 콩류→두부, 화요일도 콩류→두부… 몇 주 내내 '콩류 도돌이표'가 됐습니다. 이사님 지적의 핵심이 이것입니다.</p>
+<p class="lead" style="margin:8px 0">그래서 이 모듈은 주간계획을 <b>진짜 작전 사령부</b>로 격상했습니다. 일요일 종합이 '이번 주는 콩류'라고 큰 방향만 잡으면, 그 직후 이 모듈이 다른 모든 엔진을 한꺼번에 불러 7일치 <b>구체적인 음식 회전표</b>를 미리 굽습니다. '콩류'를 두부조림→단호박죽→(사촌 도전) 검은콩→콩나물무침… 처럼 <b>실제 음식 이름 7칸</b>으로 펼쳐, 같은 식재료가 이틀 연속 나오지 않게 짭니다. 두 갈래를 번갈아 섞습니다 — '부족한 걸 보충하는 칸(supply)' 둘에, '잘 먹는 음식의 검증된 사촌으로 도전하는 칸(challenge)' 하나. 이 도전 칸이 '콩류 3주 도돌이표'를 구조적으로 끊습니다.</p>
+<p class="lead" style="margin:8px 0">여기에 세 가지를 더 깝니다. ① 키·몸무게(BMI/성장곡선)를 봐서, 또래보다 가볍거나 성장이 더딘 아이면 '탄단지(단백·지방·열량) 보강 트랙'을 켜고 회전표 맨 앞에 고기·계란을 끼워넣습니다(격주). ② 부모 교육 '수업'이 정체되면 그게 보이게 표시해, 일간 편지가 '지난주 X에서 이번주 Y로'라고 진도를 말할 수 있게 합니다. ③ '오늘의 영양 거울 한 줄'도 7일치로 미리 짭니다 — 결핍이 콩류 하나뿐이면 매일 같은 콩류 클로징이 앵무새가 되니 격일로만 넣습니다. 마지막으로, 이 표는 어디까지나 <b>가이드</b>입니다. 월~토 그날 아침에 일간 엔진이 그날 기록 데이터로 다시 검수해서, 이미 채워진 칸은 건너뛰고 다음 유효한 칸으로 적응합니다(유연성 가드).</p>
+<div class="callout" style="margin-top:10px"><b>🥗 영양·BMI는 이렇게 처리합니다.</b><br>탄단지(macro) 트랙은 추측이 아니라 우리가 계산한 성장 수치만 씁니다. 영양평가(④)가 준 BMI 밴드(<code>bmiBand</code>)와 성장곡선 추종도(<code>growthTracking</code>)를 봅니다. <b>저체중이거나 성장곡선이 자기 채널에서 아래로 이탈(주의·경고)</b>이면 '탄단지 보강군'(고기·계란·콩류·유제품)을 켜서 supply 회전표 앞에 고기류를 주입하고, 부모 편지엔 <code>growthTrackToPhrase</code>가 만든 한 구절(숫자·체중·살·BMI 단어 0)을 넣습니다. <b>과체중·비만</b>이면 거꾸로 간식 절제로 안내합니다. <b>정상</b>이면 트랙을 끕니다(불필요한 잔소리 0). 그것도 <b>격주</b>로만 노출합니다(<code>arcWeek</code>이 짝수인 주). <b>단, 솔직히:</b> 대부분의 자녀는 키·몸무게·성별을 아직 입력하지 않아 이 트랙이 사실상 꺼져 있습니다(아래 ⑤ 천장3 참조).</div>
+<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세).</b> 아린의 일요일 종합이 잡은 닻: 주력 타깃=콩류(집에서 단일 결핍), 비타민A채소도 약함, 잘 먹는 음식=소고기·계란·감자·미역, BMI 밴드=정상. 예전이라면 월~토 내내 '콩류→두부'였습니다. 이 모듈은 그 직후 7칸 회전표를 굽습니다: 두부(콩류·supply)→단호박(비타민A채소·supply)→검은콩(콩류·challenge·소고기의 검증 사촌)→콩나물(콩류·supply)→… 같은 식재료가 이틀 연속 없이 채워집니다. 월요일 아침, 일간 엔진은 슬롯 인덱스 <code>(daySeed+cidHash)%n</code>으로 한 칸을 고르되, 그 칸이 supply인데 그날 보니 콩류가 이미 채워졌다면 다음 유효 칸으로 회전합니다.</div>
 </section>
 
-<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:12px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 이사님 지시)</h2></div>
-<p class="lead"><b>★최상위 근본원인</b> — 주간계획이 <b>'얇았다'</b>. 닻의 <code>mission_target</code>이 식품군 <b>카테고리 1개</b>('콩류')였고 <code>target_pool</code>도 카테고리 ≤4개여서(<code>coachWeekly.ts</code> resolveGoals/coldSynth), 월~토 일간 편지가 매번 같은 카테고리의 첫 대표(<code>GROUP_INGREDIENTS['콩류'][0]</code>=두부)로 붕괴했다. 결과로 '콩류 → 두부' 도돌이표가 몇 주씩 갔다. 이 모듈은 주간계획을 <b>일급 오케스트레이터</b>로 격상해, 일요일 종합 직후 결정론 후처리 <code>enrichWeeklyPlan</code>이 다른 모든 모듈을 호출해 <b>카테고리가 아니라 구체 dish 7칸 회전·2트랙·macro·거울 스케줄</b>을 미리 굽고, 일간은 <code>pickPlanSlot</code>으로 그날 데이터에 맞춰 소비한다.</p>
-<div class="tbl"><table>
-<tr><th style="width:24%">증상 · 문제</th><th style="width:26%">근본원인 (위치 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th style="width:8%">우선순위</th></tr>
-<tr><td><b>음식 타깃이 식품군 카테고리(콩류)</b> — 매일 같은 카테고리 첫 대표(두부)로 붕괴</td><td>thin 닻: mission_target=카테고리·일간이 <code>GROUP_INGREDIENTS[g][0]</code>로 환원 — <code>coachWeekly.ts</code> coldSynth/resolveGoals · <b>DESIGN_GAP</b></td><td>일요일 종합 직후 <code>enrichWeeklyPlan</code>이 추천엔진(②) <code>popularDishesFor(rep, freqMap)</code>로 각 결핍 식재료를 <b>실제 음식 ≤2개</b>로 펼쳐 <code>targetRotation: PlanSlot[≤7]</code>을 만든다. 카테고리가 아니라 <code>{ingredient, cookedName, dishes[], group, track}</code> 구체 슬롯. 일간은 <code>pickPlanSlot</code>으로 슬롯을 픽 → '콩류' 대신 '두부조림·순두부찌개'가 본문에 든다.</td><td><b>P0</b></td></tr>
-<tr><td><b>'콩류 3주 도돌이표'</b> — 단일 결핍이 몇 주 내내 같은 식재료</td><td>supply만 회전·도전 채널 부재 — <b>DESIGN_GAP</b></td><td>2트랙 인터리브: <b>supply</b>(결핍 보급)에 <b>challenge</b>(잘 먹는 음식의 검증 사촌·네트워크 ⑦ <code>verifiedCousinsOf</code>)를 <b>2:1</b>로 섞는다(<code>slots.length % 3 === 2</code>면 challenge). 연속 동일 식재료 금지(<code>pick.ingredient === lastIng → continue</code>). 도전 칸이 콩류 결핍 밖의 사촌(소고기→검은콩 등)을 끌어와 도돌이표를 구조적으로 끊는다.</td><td><b>P0</b></td></tr>
-<tr><td><b>매일 같은 콩류 클로징 앵무새</b> — 영양 거울이 매 편지 동일 결핍 줄</td><td>단일 결핍은 매일 같은 mirrorLine — <code>route.ts</code> mirrorLine 무쿨다운 · <b>K-04b · DESIGN_GAP</b></td><td><code>buildMirrorSchedule</code>이 7일치 <code>MirrorSlot[]</code>을 미리 짠다. <b>단일 결핍</b>(콩류만)은 격일 쿨다운(짝수 슬롯만 결핍줄·홀수는 칭찬/생략). <b>다중 결핍</b>은 라운드로빈(같은 군 연속 금지). macro 주에는 슬롯 i=3에 macro 줄을 끼운다. 일간은 <code>planSlotCtx.mirror.line</code>을 클로징으로 쓴다(없으면 생략).</td><td><b>P0</b></td></tr>
-<tr><td><b>BMI/성장(탄단지)이 주간계획에 없음</b> — 저체중/성장더딤인데 고기류 보강 트랙 부재</td><td>영양평가(BMI/성장) 미배선 — <b>DESIGN_GAP</b></td><td><code>buildMacroTrack(ctx)</code>이 <code>bmiBand</code>+<code>growthTracking</code>으로 판정. <b>저체중·성장더딤(주의/경고)</b> → <code>boostGroups=['고기·계란','콩류','유제품']</code>를 supply 회전 앞에 주입(고기류 타깃·이사님) + <code>growthTrackToPhrase</code> P10 구절. <b>과체중·비만</b> → <code>snackRestraint=true</code>. <b>정상</b> → <code>active:false</code>(잔소리 0). <b>격주</b>(<code>arcWeek % 2 === 0</code>) 노출(측정 저빈도 존중).</td><td><b>P1</b></td></tr>
-<tr><td><b>3주째 동일 수업</b> — 커리큘럼 정체가 일간에 안 드러남</td><td>focus/standby·피벗 가시화 부재 — <b>DESIGN_GAP</b></td><td><code>enrichWeeklyPlan</code>의 <code>curriculum</code> 블록이 <code>focusUnit·standby·stalledOut·graduatedTo·lever</code>를 산출(<code>applyFocusFatigue</code>를 이미 거친 <code>goals</code>에서). <code>graduatedTo</code>=직전 주 focus와 다르면 '졸업'으로 표시 → 일간 편지가 '지난 X→이번 Y' 진도를 말할 수 있다. 진척 영속(advanceProgress)은 <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> 소관, 본 모듈은 '주간 스냅샷 가시화'만.</td><td><b>P1</b></td></tr>
-<tr><td><b>일간 다양성 붕괴</b> — 하루하루가 같은 추천</td><td>일간이 매번 <code>buildIngredientPool</code> 첫 항목 — <b>DESIGN_GAP</b></td><td>일요일에 7슬롯을 미리 구워 다양성을 <b>구조적으로 보장</b>. 일간 <code>pickPlanSlot</code>이 <code>slot=(daySeed+cidHash)%7</code>로 그날 칸을 고른다(자녀별·날짜별 갈림). 7칸이 이미 무반복으로 짜였으므로 일간은 LLM 0콜·결정론으로 다양성을 얻는다.</td><td><b>P1</b></td></tr>
-<tr><td><b>일간이 그날 데이터를 무시</b> — 주간 가이드를 맹목 추종하면 이미 채운 결핍을 또 민다</td><td>주간계획이 '명령'이면 적응 불가 — <b>DESIGN_GAP</b></td><td>⭐유연성 가드(이사님): 주간계획=<b>후보 가이드</b>, 일간=<b>그날 데이터로 종합결정</b>. <code>pickPlanSlot</code>이 supply 슬롯의 group이 <code>deficitNow</code>에 더는 없으면(받아들임/채워짐) 다음 유효 슬롯으로 회전. challenge 슬롯은 항상 유효(도전이라 결핍 무관). 일간 두뇌 + 안전 인터럽트(전환 축하·ARFID)는 이 위에서 여전히 override.</td><td><b>P2</b></td></tr>
+
+<section id="impl"><div class="sec-h"><span class="no" style="font-size:12px">②</span><h2>구현된 내용 — 실제 함수·타입·데이터흐름</h2></div>
+<p class="lead">전부 <code>lib/coachWeekly.ts</code>·<code>app/api/cron/coach/route.ts</code> 실측(2026-06-20). 1~6은 일요일 1회, 7은 월~토 매일.</p>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:14px 0 6px">🎬 산출 타입 — PlanDetail (coachWeekly.ts:79)</h3>
+<div class="tbl"><table><tr><th style="width:24%">필드</th><th style="width:20%">타입</th><th>의미 · 운영 (file:line)</th></tr>
+<tr><td><code>schemaVersion</code></td><td><code>1</code></td><td>신선도·하위호환 게이트 (<code>:80</code>)</td></tr>
+<tr><td><code>targetRotation</code></td><td><code>PlanSlot[≤7]</code></td><td>슬롯별 구체 타깃. 각 슬롯: <code>ingredient·cookedName·dishes[≤2]·group·track('supply'|'challenge')·via·pairLiked?·weeklyEstFreq?·level?·reason?</code> (<code>:57-69</code>). supply 2 : challenge 1 인터리브·연속 동일 식재료 금지 (<code>:550-557</code>)</td></tr>
+<tr><td><code>supplyPool</code></td><td><code>string[]</code></td><td><code>buildIngredientPool</code>(②) 결핍군 대표 식재료 ≤8. macro active면 boostGroups 대표를 풀 <b>앞</b>에 주입 (<code>:524-529</code>)</td></tr>
+<tr><td><code>challengePool</code></td><td><code>{ingredient,cousinOf}[≤6]</code></td><td>잘 먹는 식재료(≤8) 각각의 <code>verifiedCousinsOf</code>(⑦) 중 안 먹는·<code>PLAN_MEAL_GROUPS</code> 소속 사촌 (<code>:531-542</code>)</td></tr>
+<tr><td><code>poolMode</code></td><td><code>'supply'|'challenge'|'mixed'</code></td><td><code>buildIngredientPool</code>의 결핍 심각도 모드 (<code>:567</code>)</td></tr>
+<tr><td><code>macroTrack</code></td><td><code>MacroTrack</code></td><td><code>active·band·reason(lowWeight|growthLag|overweight)·boostGroups·boostDishes·snackRestraint·phrase·cadenceWeek</code> (<code>:71-78</code>, 생성 <code>buildMacroTrack:485</code>)</td></tr>
+<tr><td><code>curriculum</code></td><td>객체</td><td><code>focusUnit·focusLabel·standby[]·stalledOut·graduatedTo·lever</code> — anti-stall 스냅샷 (<code>:86</code>, 산출 <code>:560-564</code>)</td></tr>
+<tr><td><code>mirrorSchedule</code></td><td><code>MirrorSlot[≤7]</code></td><td>일자별 영양 거울 — <code>deficitGroup·line·kind('deficit'|'covered'|'macro')</code> (<code>:70</code>, 생성 <code>buildMirrorSchedule:500</code>)</td></tr>
+<tr><td><code>deficitGroups / coveredGroups</code></td><td><code>string[]</code></td><td>결핍 식품군(<code>missing∪homeMissing</code>) / 충족군 — 거울·진단 근거 (<code>:88-89</code>)</td></tr>
 </table></div>
-<div class="callout"><b>📅 이 모듈이 근본적으로 바꾸는 것</b> — 주간계획은 이제 <b>'카테고리 1개'가 아니라 '7일치 구체 계획 한 묶음(plan_detail)'</b>을 미리 굽는 작전층이다. 핵심은 셋. ① 일요일에 <b>다른 모듈을 전부 호출(오케스트레이션)</b>해 카테고리를 실제 dish로 펼치고(②), 도전 사촌을 붙이고(⑦), 탄단지 macro를 깔고(④), anti-stall을 가시화한다(⑤) — 단 LLM 0콜·순수·throw 시 null degrade. ② supply 2 : challenge 1 인터리브 + 연속 동일 식재료 금지로 도돌이표를 <b>구조적으로</b> 끊는다. ③ 일간은 <code>pickPlanSlot</code>으로 그날 결핍 데이터에 맞춰 슬롯을 <b>vetting</b>한다 — 주간은 가이드, 일간은 적응. <code>plan_detail</code>은 additive 캐시(기존 컬럼이 SSOT), null이면 일간이 옛 <code>buildIngredientPool</code> 회전으로 자동 폴백한다.</div>
-<div class="note"><b>🧒 한 줄 쉬운말</b> — 예전엔 '이번 주는 콩류' 한 마디만 정해놓으니 매일 두부만 나왔습니다. 이제는 일요일 밤에 <b>한 주치 음식표(두부조림→단호박→검은콩→…)를 미리 통째로 짜두고</b>, 키·몸무게에 따라 고기류를 더하고, 매일은 그날 상태를 보고 그 표에서 한 칸씩 골라 씁니다.</div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">🔧 핵심 함수</h3>
+<div class="tbl"><table><tr><th style="width:32%">함수 (file:line)</th><th>역할 — 실측</th></tr>
+<tr><td><code>enrichWeeklyPlan(synth, ctx)</code><br><code>coachWeekly.ts:520</code></td><td>⭐모듈 핵심 오케스트레이터. ① <code>buildMacroTrack(ctx)</code> 먼저(고기류 주입 결정에 필요) → ② <code>buildIngredientPool</code>로 supplyPool, macro active면 boostGroups 대표를 앞에 주입 → ③ likedIngredients의 <code>verifiedCousinsOf</code>로 challengePool → ④ <code>mkSupply</code>/<code>mkChallenge</code>로 dish 붙여 슬롯화, <code>slots.length%3===2</code>면 challenge·연속 동일 식재료 skip로 7-슬롯 회전 → ⑤ goals에서 curriculum 산출 → ⑥ <code>buildMirrorSchedule</code>. <b>순수·LLM 0콜</b>, throw 시 cron이 catch→null (<code>route.ts:617-629</code>)</td></tr>
+<tr><td><code>pickPlanSlot(detail, p)</code><br><code>coachWeekly.ts:576</code></td><td>⭐일간 소비(유연성 가드). <code>base=(daySeed+cidHash)%n</code>에서 시작. <code>valid()</code>= supply 슬롯의 group이 <code>deficitNow</code>(그날 결핍)에 없으면 무효(challenge는 항상 유효). 2-pass: ①유효+최근 미추천(<code>recentIngredients</code> dedup·메추리알 수렴 차단) ②유효(최근 무시) ③폴백 base. <code>PlanSlotPick{slot, slotIndex, mirror, macroPhrase}</code> 반환. detail null/빈 회전이면 null</td></tr>
+<tr><td><code>buildMacroTrack(ctx)</code><br><code>coachWeekly.ts:485</code></td><td>저체중(<code>band==='저체중'</code>) OR 성장더딤(<code>heightTrack/weightTrack.status==='주의'|'경고'</code>)→<code>active:true·boostGroups['고기·계란','콩류','유제품']·boostDishes·phrase(growthTrackToPhrase)·reason</code>. 과체중/비만→<code>snackRestraint:true</code>. 정상→<code>active:false</code>. <code>cadenceWeek=arcWeek%2===0</code>(격주). <b>입력 band·track 전부 growth_logs+sex 의존</b></td></tr>
+<tr><td><code>buildMirrorSchedule(deficits, covered, macro, attendsDaycare, freqMap)</code><br><code>coachWeekly.ts:500</code></td><td>7-루프. macro 주면 i=3에 macro 슬롯. 결핍 ≥2 라운드로빈(같은 군 연속 금지). 결핍 1개=격일 쿨다운(K-04b: 짝수 슬롯만 결핍줄·홀수는 <code>coveredLine</code>). 결핍 0=covered. <code>mirrorLineFor</code>는 3변형×daySeed 회전·<code>deficitDishFor</code>로 dish 1개 주입(어린이집 톤 분기)</td></tr>
+<tr><td><code>runWeeklyPlanning(i)</code><br><code>coachWeekly.ts:308</code></td><td>(① 모듈) 일요일 Sonnet 종합 → <code>WeeklySynthesis</code>(mission_target·target_pool·budget·goals·behaviorGoal). 후보 화이트리스트 강제(<code>candidateTargets</code>)·ARFID push=0·실패 시 <code>coldSynth</code> 폴백. enrich의 입력 thin 닻을 만든다</td></tr>
+<tr><td><code>applyFocusFatigue(goals, focusHistory)</code><br><code>coachWeekly.ts:178</code></td><td>(⑤ 흡수) 같은 유닛 직전 2주(<code>TH.focusMaxStallWeeks</code>) 연속 focus·step 전진 0이면 standby 강등·차순위 승격. <code>resolveGoals:288</code>에서 호출 → goals가 이미 거친 채로 enrich에 들어옴 → curriculum.graduatedTo가 가시화</td></tr>
+<tr><td><code>planFromWeekly(p)</code><br><code>coachWeekly.ts:365</code></td><td>월~토 닻 실행(슬롯 소비와 별개 경로). 안전 인터럽트 우선, 비-food 레버는 LEVER_SCENARIO 프레임, food는 mission_target 잠금+채근 캡(<code>PUSH_MOVES</code>·ledger). <code>effectiveLever</code>(F-16)로 유닛 피벗 추종. ⭐plan_detail 슬롯 소비는 이 함수가 아니라 route가 직접 <code>pickPlanSlot</code> 호출</td></tr>
+</table></div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">🆕 이번 세션 신규가 이 모듈에 닿는 지점 (실측)</h3>
+<div class="tbl"><table><tr><th style="width:22%">신규 기능</th><th style="width:30%">이 모듈 내 위치 · 배선</th><th>주의 / 한계</th></tr>
+<tr><td><b>선호계량화</b>(미상→liked 오판 차단)</td><td>이 모듈 바깥(<code>lib/preferenceQuantification.ts</code>)에서 산출. route(<code>:368-374</code>)가 <code>confidentLiked</code>·<code>dislikedIng</code>로 <code>likedSeed</code>를 만들고, 그 <code>likedSeed</code>가 <code>EnrichContext.likedIngredients</code>로 enrich에 주입(<code>route.ts:621</code>)</td><td>이 모듈은 likedIngredients를 <b>받기만</b> 함. challenge 풀(<code>:531-542</code>)이 이 시드의 사촌을 끈다. 아린 confidentLiked=0이면 challenge 풀 빈약(천장 참조)</td></tr>
+<tr><td><b>A 슬롯 근거</b>(어드민 '왜 타깃')</td><td>⭐이 모듈 내부. <code>mkSupply</code>/<code>mkChallenge</code>(<code>:546-547</code>)가 <code>PlanSlot.reason·weeklyEstFreq·level</code> 산출 — supply=<code>결핍군 X 보급(주 N회·red)</code>, challenge=<code>잘 먹는 Y의 검증 사촌</code>. <code>gsMap</code>(group→signal) 룩업</td><td>EARNED. route(<code>:956</code>)가 <code>context.planSlot</code>로 어드민 전사</td></tr>
+<tr><td><b>F-18 슬롯본문봉합</b></td><td>소비 측(route <code>:862-872</code>). <code>pickPlanSlot</code> 슬롯의 <code>dishes[0]</code>→<code>slotDish</code>·<code>cookedName</code>→<code>slotFood</code>를 작문기에 must-weave. 거울 음식=항상 슬롯 음식(<code>deficitDishFor</code> 두부 디폴트 제거)</td><td>이 모듈은 슬롯을 <b>제공</b>, 봉합 로직은 route/작문기. environment 레버 주는 본문 음식 없음 → 거울에 슬롯 음식 소프트 노출</td></tr>
+<tr><td><b>hardStall 피벗</b>(18일 강제전환)</td><td>이 모듈 <b>밖</b>(<code>lib/curriculum.ts:222</code> advanceProgress·<code>TH.hardStallDays:18</code>). 이 모듈의 curriculum 블록은 <code>stalledOut</code>(<code>:562</code>)으로 그 결과를 <b>읽어 가시화</b>한다 — enum 정합 OK(<code>Goal.status==='stopped'</code>, <code>curriculum.ts:237</code>이 set)</td><td>⚠️ 룩업 enum은 정상. 한계는 enum이 아니라 <b>goals에 <code>'stopped'</code> 상태가 실제로 도달하느냐</b>(focusHistory/applyFocusFatigue 경유) — table-stage 졸업 채널 부재로 피벗 자체가 드묾(천장1/2·P0-D)</td></tr>
+<tr><td><b>#5 거울 쿨다운</b>(출현빈도 격일)</td><td>소비 측(route <code>:893-899</code> <code>mirrorCooldownDue</code>). 이 모듈의 <code>buildMirrorSchedule</code> K-04b(단일결핍 격일)와 2층 방어</td><td>이 모듈은 7일치 라인을 굽고, 출현 자체의 격일화는 route 쿨다운이 담당</td></tr>
+<tr><td><b>#6 도입회전·#7 macro</b></td><td>#7 macro 입력 기아: route(<code>:229-232</code>) profileNudge가 키·몸무게 입력을 유도(매 3일)해 이 모듈 <code>buildMacroTrack</code>에 데이터를 공급하려 함. <code>heightTrack/weightTrack</code>은 격주 게이트와 무관하게 계산(<code>route.ts:388,398</code>) → EnrichContext로 전달</td><td>⚠️ 데이터 미입력이면 track=null → macroTrack always off(천장3)</td></tr>
+<tr><td><b>P0-D <code>child_daily_state</code></b></td><td><b>미구현</b>. route.ts·coachWeekly.ts에 해당 테이블/읽기 없음(grep 0건). 환경신호 입력으로 table-stage step을 전진시키는 채널이 아직 없음</td><td>이 모듈은 일요일 focus를 굽고 피벗만 가능, 졸업(step 전진)은 0 (천장1/2 근본)</td></tr>
+</table></div>
 </section>
 
-<section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
-<p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
-<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr>
-<tr><td><b>푸드 체이닝(food chaining)·맛-맛/식감 닮음</b></td><td>challenge 트랙 — 잘 먹는 음식의 <b>검증된 사촌</b>(<code>verifiedCousinsOf</code>·food-graph bridge)을 결핍 식품군 안에서 끌어와 '다리'를 놓는다(소고기→검은콩). 도돌이표를 끊는 핵심 장치</td></tr>
-<tr><td><b>반복 노출(HabEat)·단순노출 효과</b></td><td>supply 트랙 — 결핍군 대표 식재료를 7칸 회전으로 격일~여러 번 다시 올린다. 연속 동일 식재료 금지로 권태 없이 친숙도를 쌓음</td></tr>
-<tr><td><b>USDA·식생활지침 식품군 다양성</b></td><td><code>PLAN_MEAL_GROUPS</code> 8군(콩류·비타민A채소·녹색채소·생선해산물·고기계란·유제품·과일·곡류)을 회전·거울 대상으로 삼아 '한 군 편중' 대신 두루 만나게 함</td></tr>
-<tr><td><b>성장곡선 추종(growth channel tracking)</b></td><td><code>growthTracking</code>이 첫 측정으로 자기 백분위 채널을 잡고, z(SDS) 하향 이탈(≈0.67=주의·1.34=경고)을 본다. 절대 위치가 아니라 '자기 곡선을 따라가는가'로 macro 트랙을 켠다</td></tr>
-<tr><td><b>탄단지 보강(저체중·성장더딤)</b></td><td>저체중/성장더딤이면 <code>boostGroups=['고기·계란','콩류','유제품']</code>(단백·지방·열량=탄단지)을 supply 회전 앞에 주입해 '고기류 타깃'화(이사님). 끼니 양·열량을 P10 톤으로 안내</td></tr>
-<tr><td><b>제한·잔소리의 역효과(Satter)·무압력</b></td><td>정상 밴드면 macro 트랙을 끄고(잔소리 0), macro도 격주로만 노출. 과체중도 '금지'가 아니라 간식 '교체'(단 음료→과일·요거트)로 안내. 끼니 다양성은 유지</td></tr>
-<tr><td><b>주제 피로 캡(focus fatigue)</b></td><td>커리큘럼 가시화에 <code>applyFocusFatigue</code>를 거친 goals를 쓴다 — 같은 유닛 2주 연속 focus이고 step 전진 0이면 standby로 강등돼, <code>graduatedTo</code>로 '수업 전환'이 일간에 드러남</td></tr>
-<tr><td><b>괴식 차단(검증된 조합만)</b></td><td>모든 dish는 <code>popularDishesFor</code>(매운·튀김 필터·또래 인기 빈도)로만, 사촌은 <code>verifiedCousinsOf</code>(verified만), 궁합은 <code>strongPairsOf</code>(강신호만)로만 — 지어낸 조합 0(괴식 차단)</td></tr></table></div>
-<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">🎬 PlanDetail 구조 (필드 명세)</h3>
-<div class="tbl"><table><tr><th style="width:24%">필드</th><th style="width:18%">타입</th><th>의미 · 운영</th></tr>
-<tr><td><code>targetRotation</code></td><td><code>PlanSlot[≤7]</code></td><td>슬롯별 구체 타깃 — 일간이 <code>(daySeed+cidHash)%n</code>으로 픽. 각 슬롯: <code>ingredient·cookedName·dishes[≤2]·group·track·via·pairLiked?</code>. supply 2 : challenge 1 인터리브·연속 동일 식재료 금지</td></tr>
-<tr><td><code>supplyPool / challengePool</code></td><td><code>string[] / {ingredient,cousinOf}[]</code></td><td>supply=결핍군 대표 식재료(<code>buildIngredientPool</code>·macro 시 고기류 앞 주입). challenge=잘 먹는 음식의 검증 사촌(어떤 음식의 사촌인지 <code>cousinOf</code>)</td></tr>
-<tr><td><code>poolMode</code></td><td><code>'supply'|'challenge'|'mixed'</code></td><td>결핍 심각도에 따른 풀 모드(<code>buildIngredientPool</code> — red 2+=supply, 균형 OK=challenge, 중간=mixed)</td></tr>
-<tr><td><code>macroTrack</code></td><td><code>MacroTrack</code></td><td><code>active·band·reason(lowWeight|growthLag|overweight)·boostGroups·boostDishes·snackRestraint·phrase(P10)·cadenceWeek(격주)</code>. BMI/성장 → 탄단지 트랙</td></tr>
-<tr><td><code>curriculum</code></td><td>객체</td><td><code>focusUnit·focusLabel·standby[]·stalledOut·graduatedTo·lever</code> — anti-stall 가시화(지난 X→이번 Y)</td></tr>
-<tr><td><code>mirrorSchedule</code></td><td><code>MirrorSlot[≤7]</code></td><td>일자별 영양 거울 줄 — <code>deficitGroup·line·kind('deficit'|'covered'|'macro')</code>. 단일 결핍 격일 쿨다운(K-04b)·다중 라운드로빈·macro 주 i=3 macro 슬롯</td></tr>
-<tr><td><code>deficitGroups / coveredGroups</code></td><td><code>string[]</code></td><td>결핍 식품군(<code>missing∪homeMissing</code>) / 충족군 — 거울 스케줄·진단 근거</td></tr>
-<tr><td><code>schemaVersion</code></td><td><code>1</code></td><td>plan_detail 스키마 버전(신선도·하위호환 게이트)</td></tr></table></div>
+
+<section id="arch"><div class="sec-h"><span class="no" style="font-size:12px">③</span><h2>설계 아키텍처 시각화 — 입력테이블 → 가공함수 → 출력컨텍스트키</h2></div>
+<p class="lead">일요일(굽기) 파이프라인과 월~토(소비) 파이프라인. 가공 함수가 어느 모듈을 호출하는지 화살표로.</p>
+
+<div class="diag"><pre>┌─────────────────────────────────────── 일요일 1회 (dow===0, ?date QA는 차단) ───────────────────────────────────────┐
+│                                                                                                                        │
+│  [입력 테이블]                          [① 신호선택기]                       [EnrichContext 조립 · route.ts:619-626]   │
+│  meal_logs ─┐                                                                                                          │
+│  growth_logs┼─▶ computeGroupSignals ─▶  runWeeklyPlanning(Sonnet) ─▶ synth ──┐                                         │
+│  children   │   computeFoodGroups        (thin 닻: mission_target=콩류,        │  groupSignals · likedIngredients(=    │
+│  curriculum_│   bmiBandFor/growthTracking budget.lever, goals[focusFatigue])  │  likedSeed←선호계량화) · freqMap ·     │
+│  progress   │   quantifyPreferences ─▶ likedSeed                              ├─ deficitGroups · coveredGroups ·     │
+│             │   (confidentLiked·disliked)                                     │  band · heightTrack · weightTrack ·   │
+│             ▼                                                                 │  goals · focusHistory · arcWeek ·     │
+│         (식재료/거부/장소 집계)                                              ▼  attendsDaycare                       │
+│                                                                  ╔══════════════════════════════════════╗            │
+│                                                                  ║  enrichWeeklyPlan(synth, ctx)        ║  순수·LLM0 │
+│                                                                  ║  coachWeekly.ts:520                   ║            │
+│                                                                  ╚══════════════════════════════════════╝            │
+│                                                                                  │                                     │
+│              ┌─────────────────┬─────────────────┬──────────────┬──────────────┼──────────────┐                     │
+│              ▼ 1) buildMacro   ▼ 2) supplyPool   ▼ 3) challenge ▼ 4) 7-슬롯    ▼ 5) curric.   ▼ 6) mirrorSchedule  │
+│         buildMacroTrack    buildIngredientPool  verifiedCousins  회전(2:1·    goals→focus/   buildMirrorSchedule  │
+│         ④ bmiBand·         ② (+macro 고기류    Of ⑦ (사촌)      연속금지)     standby/        (K-04b 격일·         │
+│         growthTracking     앞 주입)                              mkSupply/      graduatedTo     라운드로빈·         │
+│         (band·track)                                            mkChallenge    (⑤ 가시화)      macro i=3)          │
+│              └─────────────────┴─────────────────┴──────────────┴──────────────┴──────────────┘                     │
+│                                                                  ▼                                                     │
+│                                                  PlanDetail{schemaVersion,targetRotation,supply/challengePool,        │
+│                                                  poolMode,macroTrack,curriculum,mirrorSchedule,deficit/covered}       │
+│                                                                  ▼                                                     │
+│                                                  weekly_plans.plan_detail jsonb  (additive·SSOT=기존컬럼·throw→null)  │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                                  │ (read 월~토)
+┌──────────────────────────────────────────── 월~토 매일 (route.ts:851-853) ────────────────────────────────────────────┐
+│  weekly_plans.plan_detail ─▶ pickPlanSlot(detail, {daySeed, cidHash, deficitNow=그날 gMissing∪gHomeMissing,          │
+│                              coachWeekly.ts:576           recentIngredients}) ─▶ PlanSlotPick{slot,slotIndex,         │
+│                              (유연성 vetting: supply 슬롯 group∉deficitNow → 다음 유효 슬롯 회전·challenge 항상 유효)  │
+│                                          │                                                                            │
+│       ┌──────────────────┬──────────────┼──────────────────┬─────────────────────┐                                  │
+│       ▼ recoIng=         ▼ recoMode=    ▼ slotDish/slotFood ▼ mirrorLine          ▼ growthMirror=                    │
+│       slot.ingredient    slot.track     (F-18 본문 must-    (slot.mirror.line·    macroPhrase ?? growthMirrorCtx     │
+│                                          weave)             출현 쿨다운)                                              │
+│       └──────────────────┴──────────────┴──────────────────┴─────────────────────┘                                  │
+│                                          ▼                                                                            │
+│                              ⑥ 작문기(LetterInput) + context.planSlot(어드민 전사)                                   │
+│                              · plan_detail null/!defMature → 옛 buildIngredientPool 회전 폴백(degrade)                │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</pre></div>
+
+<div class="callout" style="margin-top:12px"><b>오케스트레이션 소스 요약</b> — 이 모듈은 직접 계산하지 않고 다른 모듈을 호출한다: ②추천엔진(<code>popularDishesFor·buildIngredientPool·cookedName·groupOfIngredient·GROUP_INGREDIENTS</code>) · ⑦네트워크(<code>verifiedCousinsOf·strongPairsOf</code>) · ④영양평가(<code>bmiBand·growthTracking·growthTrackToPhrase</code>) · ⑤진척(<code>UNITS.label·leverForUnit·applyFocusFatigue</code>). 입력은 전부 우리가 실측한 값(환각 0). 순환 의존 없음(이 모듈들은 coachWeekly를 import하지 않음).</div>
 </section>
 
-<section id="tables-ext"><div class="sec-h"><span class="no" style="font-size:12px">🗄️</span><h2>어느 모듈·테이블에서 무엇을 — 오케스트레이션 소스</h2></div>
-<p class="lead">이 모듈이 <b>어느 모듈·데이터에서 무엇을 가져와</b> 7일치 계획을 굽는지(비개발자용). 핵심은 '직접 계산하지 않고 <b>다른 모듈을 호출(오케스트레이션)</b>한다'입니다.</p>
-<div class="tbl"><table><tr><th style="width:24%">모듈 · 테이블</th><th style="width:30%">가져오는 함수 · 값</th><th>운영상 의미</th></tr>
-<tr><td><b>② 추천엔진 (coachRecos.ts)</b></td><td><code>popularDishesFor(ing, freqMap)</code>(식재료→인기 음식 ≤2)·<code>buildIngredientPool</code>(결핍군 supply 풀)·<code>cookedName</code>(생물 오인 방지)·<code>groupOfIngredient</code>(식재료→식품군)·<code>GROUP_INGREDIENTS</code>(군→대표 식재료)</td><td>카테고리('콩류')를 실제 음식('두부조림·순두부찌개')으로 펼치는 엔진. 매운·튀김은 필터됨. 주식 곡물은 먹는 형태(밥·빵·떡)로만</td></tr>
-<tr><td><b>⑦ 네트워크 (foodGraph.ts)</b></td><td><code>verifiedCousinsOf(nm)</code>(검증된 사촌·bridge)·<code>strongPairsOf(nm)</code>(강한 궁합·pair)</td><td>challenge 트랙의 도전 사촌을 끌어오는 그래프 조회. verified·strong만 통과해 지어낸 조합(괴식) 0</td></tr>
-<tr><td><b>④ 영양평가 (growth-reference.ts)</b></td><td><code>bmiBand(pct)</code>(저체중/정상/과체중/비만)·<code>growthTracking</code>(성장곡선 추종 GrowthTrack)·<code>growthTrackToPhrase</code>(P10 비수치 한 구절)</td><td>탄단지 macro 트랙의 켜짐/꺼짐·고기류 주입·간식 절제를 판정. 정상이면 끔(잔소리 0)·격주 노출</td></tr>
-<tr><td><b>⑤ 진척·커리큘럼 (curriculumUnits.ts + synth.goals)</b></td><td><code>goals</code>(focus/standby·<code>applyFocusFatigue</code> 거침)·<code>UNITS[u].label</code>·<code>leverForUnit</code>·<code>focusHistory</code></td><td>이번 주 수업(focus)·대기(standby)·졸업(graduatedTo) 가시화. '3주째 동일 수업'을 끊고 진도 서사를 일간에 공급</td></tr>
-<tr><td><b>meal_logs → computeGroupSignals (nutrition.ts)</b></td><td><code>groupSignals[{group, level, weeklyEst}]</code>(집 끼니 기준)·<code>deficitGroups</code>(missing∪homeMissing)·<code>coveredGroups</code>·<code>likedIngredients</code>(잘 먹는 식재료)</td><td>'무엇이 비고 무엇이 채워졌나'의 원천. supply 풀·거울 스케줄·유연성 가드(deficitNow)의 근거. 전부 우리가 실측한 값(환각 0)</td></tr>
-<tr><td><b>weekly_plans (.plan_detail jsonb)</b></td><td>일요일에 <code>enrichWeeklyPlan</code> 산출을 <code>plan_detail</code>로 영속, 월~토 일간이 read → <code>pickPlanSlot</code></td><td>신규 additive 컬럼. 기존 컬럼(mission_target 등)이 SSOT, plan_detail은 부가 캐시. 컬럼 미적용/null이면 일간이 옛 회전으로 degrade(안전)</td></tr></table></div>
-</section>
 
-<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
-<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">📅 작전층 오케스트레이터로</span><span class="mtag ab">흡수: coachWeekly.ts enrichWeeklyPlan + pickPlanSlot</span></div>
-<p class="lead">빈약한 '카테고리 1개' 닻이 일간 도돌이표의 근원이었다(이사님 2026-06-18). 이 모듈은 일요일 종합(Sonnet <code>runWeeklyPlanning</code>) 직후 결정론 후처리 <code>enrichWeeklyPlan(synth, ctx)</code>이 다른 모든 모듈(추천엔진·네트워크·영양평가·진척)을 <b>오케스트레이션</b>해 7일치 구체 계획(<code>plan_detail</code>)을 미리 굽는다 — <b>LLM 0콜·순수·throw 시 null degrade</b>. 카테고리를 실제 dish 회전으로 펼치고(supply 2 : challenge 1·연속 동일 금지·도돌이표 구조적 차단), BMI/성장으로 탄단지 macro를 깔고, 진척으로 anti-stall을 가시화하고, 영양 거울을 7일치 쿨다운 스케줄로 짠다. 월~토 일간 전술층(① 신호선택기)은 <code>pickPlanSlot</code>으로 그날 결핍 데이터에 맞춰 슬롯을 vetting해 소비한다(주간=가이드·일간=적응). 신규 영속 필드 <code>weekly_plans.plan_detail jsonb</code>(additive·SSOT=기존 컬럼·degrade-safe).</p>
-<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
-<ul class="clean"><li>weekly_plans (.plan_detail jsonb — 일요일 enrich write·월~토 일간 read/pickPlanSlot. mission_target 등 기존 컬럼이 SSOT)</li><li>meal_logs → computeGroupSignals (집 끼니 groupSignals·deficit/covered·likedIngredients — EnrichContext 입력)</li><li>growth_logs → bmiBand·growthTracking (BMI 밴드·성장곡선 추종 GrowthTrack — macroTrack 판정)</li><li>synth.goals (① runWeeklyPlanning 산출 포트폴리오·applyFocusFatigue 거침 — curriculum 가시화)</li><li>ingredient-recipes(freqMap)·food-graph (popularDishesFor·verifiedCousinsOf·strongPairsOf — dish 확장·사촌·궁합)</li><li>curriculumUnits UNITS (focusUnit label·leverForUnit — 수업 가시화)</li></ul>
-</section>
+<section id="example"><div class="sec-h"><span class="no" style="font-size:12px">④</span><h2>작동 예시 — 아린(5세) before / after 한 케이스</h2></div>
+<p class="lead">실데이터 입력 → enrich 통과 → 출력. before=이 모듈 없던 시절, after=현재 라이브.</p>
 
-<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
-<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별. 1~6은 일요일 1회(enrichWeeklyPlan), 7은 월~토 매일(pickPlanSlot).</p>
-<div class="pipe">
-<div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">1) 종합 + EnrichContext 조립</div><div class="pd">일요일 <code>runWeeklyPlanning</code>(① 신호선택기·Sonnet)이 thin 닻(<code>WeeklySynthesis</code>: mission_target 카테고리·budget·goals)을 만든다. cron이 그 위에 <code>EnrichContext</code>를 조립 — groupSignals(computeGroupSignals)·likedIngredients·freqMap·deficitGroups·coveredGroups·band·heightTrack·weightTrack·goals·focusHistory·arcWeek·attendsDaycare</div></div></div><div class="parrow">▼</div>
-<div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">2) macro 트랙 먼저 계산</div><div class="pd"><code>buildMacroTrack(ctx)</code> — <code>bmiBand</code>+<code>growthTracking</code>으로 저체중/성장더딤이면 <code>boostGroups=['고기·계란','콩류','유제품']</code>(탄단지) 활성·<code>growthTrackToPhrase</code> P10 구절, 과체중이면 snackRestraint, 정상이면 비활성. <code>cadenceWeek=arcWeek%2===0</code>(격주). ⭐먼저 계산 — supply 풀에 고기류를 앞에 주입하려면 macro 결과가 필요</div></div></div><div class="parrow">▼</div>
-<div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">3) supply 풀 — 결핍군 보급(+macro 고기류 주입)</div><div class="pd">추천엔진 <code>buildIngredientPool({signals, likedIngredients, freqMap, max:8})</code>로 결핍군 대표 식재료 풀. macro active(저체중/성장더딤)면 boostGroups의 대표 식재료를 풀 <b>앞에</b> 주입(고기류 우선·이사님)</div></div></div><div class="parrow">▼</div>
-<div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">4) challenge 풀 — 검증 사촌 도전</div><div class="pd">잘 먹는 식재료(≤8) 각각의 <code>verifiedCousinsOf</code>(⑦ 네트워크) 중, 잘 먹는 것이 아니고·<code>PLAN_MEAL_GROUPS</code> 식품군에 속하는 사촌만 ≤6개 모은다(어떤 음식의 사촌인지 <code>cousinOf</code> 기록). 이게 결핍 밖에서 새 식재료를 끌어와 도돌이표를 끊는다</div></div></div><div class="parrow">▼</div>
-<div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">5) 7-슬롯 회전 — supply 2 : challenge 1 인터리브</div><div class="pd">각 식재료를 <code>popularDishesFor</code>로 dish ≤2 붙여 <code>PlanSlot</code>화. <code>slots.length%3===2</code>면 challenge·아니면 supply를 픽하되 <b>연속 동일 식재료 금지</b>(<code>pick.ingredient===lastIng→skip</code>). 7칸 미만이면 dish[1]로 한 칸 더 채워 다양성 보강</div></div></div><div class="parrow">▼</div>
-<div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">6) curriculum 가시화 + 거울 스케줄 + persist</div><div class="pd">goals에서 focusUnit·standby·stalledOut·graduatedTo(직전 focus와 다르면 졸업) 산출. <code>buildMirrorSchedule</code>로 7일치 <code>MirrorSlot</code>(단일 결핍 격일 쿨다운·다중 라운드로빈·macro 주 i=3). 전체를 <code>PlanDetail</code>로 묶어 <code>weekly_plans.plan_detail</code>에 upsert(컬럼 미적용/throw 시 null degrade)</div></div></div><div class="parrow">▼</div>
-<div class="pn"><div class="pnum">7</div><div class="pbody"><div class="pt">7) 일간 소비 — pickPlanSlot + 유연성 vetting</div><div class="pd">월~토 cron이 <code>plan_detail</code>을 read → <code>pickPlanSlot(detail, {daySeed, cidHash, deficitNow})</code>. <code>base=(daySeed+cidHash)%n</code>에서 시작해, supply 슬롯의 group이 <code>deficitNow</code>에 더는 없으면 다음 유효 슬롯으로 회전(challenge는 항상 유효). 픽한 슬롯의 ingredient→recoIng·dishes·mirror.line·macroPhrase를 작문기(⑥)에 전달. plan_detail null이면 옛 <code>buildIngredientPool</code> 회전으로 폴백</div></div></div>
-</div>
-</section>
+<div class="bad"><b>BEFORE (모듈 없음).</b> 일요일 종합이 <code>mission_target='콩류'</code> 하나만 잡음. 월~토 일간이 매번 <code>GROUP_INGREDIENTS['콩류'][0]</code>=두부로 환원 → 본문 클로징 "콩류(두부)를 곁들여보세요"가 몇 주 내내 축자 반복. 거울도 매일 "어린이집 덕에…콩류" 동일 줄. 도전·다양성 0.</div>
 
-<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
-<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr>
-<tr><td><code>enrichWeeklyPlan(synth, ctx)</code></td><td>[coachWeekly] ⭐모듈 핵심 오케스트레이터 — thin 닻(<code>WeeklySynthesis</code>) 위에 다른 모듈(②④⑤⑦)을 호출해 <code>PlanDetail</code>(targetRotation·supply/challengePool·macroTrack·curriculum·mirrorSchedule) 산출. <b>순수·LLM 0콜</b>, throw 시 호출자(cron) catch → null degrade</td></tr>
-<tr><td><code>pickPlanSlot(detail, p)</code></td><td>[coachWeekly] ⭐일간 소비(유연성 가드) — <code>base=(daySeed+cidHash)%n</code>에서 supply 슬롯 group이 <code>deficitNow</code>에 없으면 다음 유효 슬롯으로 회전(challenge 항상 유효). <code>PlanSlotPick{slot, slotIndex, mirror, macroPhrase}</code> 반환. detail null/빈 회전이면 null(일간 폴백)</td></tr>
-<tr><td><code>buildMacroTrack(ctx)</code></td><td>[coachWeekly] <code>bmiBand</code>+<code>growthTracking</code> 판정 — 저체중/성장더딤(주의·경고)→탄단지 boostGroups['고기·계란','콩류','유제품']·boostDishes·phrase·격주, 과체중/비만→snackRestraint, 정상→active:false. <code>cadenceWeek=arcWeek%2===0</code></td></tr>
-<tr><td><code>buildMirrorSchedule(deficits, covered, macro, attendsDaycare)</code></td><td>[coachWeekly] 7일치 <code>MirrorSlot[]</code> — 단일 결핍 격일 쿨다운(K-04b: 짝수 슬롯만 결핍줄·홀수는 칭찬/생략), 다중 결핍 라운드로빈(연속 동일 군 금지), macro 주 i=3에 macro 슬롯. <code>mirrorLineFor</code>(어린이집 여부로 톤)</td></tr>
-<tr><td><code>runWeeklyPlanning(i)</code></td><td>[coachWeekly] (① 모듈) 일요일 Sonnet 종합 → <code>WeeklySynthesis</code>(mission_target·target_pool·budget·lever·goals·behaviorGoal). 후보 화이트리스트 강제·ARFID push=0·실패 시 coldSynth 폴백. enrich의 입력 thin 닻을 만든다</td></tr>
-<tr><td><code>planFromWeekly(p)</code></td><td>[coachWeekly] 월~토 닻 실행 — 안전 인터럽트 우선, 비-food 레버는 LEVER_SCENARIO 프레임, food는 mission_target 잠금+채근 캡. plan_detail이 dish 회전을 주면 그 위에서 무브만 회전(타깃 잠금은 그대로)</td></tr>
-<tr><td><code>applyFocusFatigue(goals, focusHistory)</code></td><td>[coachWeekly] (⑤ 흡수) 같은 유닛 2주 연속 focus·step 전진 0이면 standby로 강등·차순위 승격. enrich의 curriculum.graduatedTo가 이 결과를 가시화('수업 전환')</td></tr>
-<tr><td><code>candidateUnits / leverForUnit / PLAN_MEAL_GROUPS</code></td><td>[coachWeekly] 유닛 후보 산출(신호점수+재발 우선·온보딩 게이트), 유닛→레버 매핑(mixed→environment), 회전·거울 대상 식품군 8 집합(콩류·비타민A채소·녹색채소·생선해산물·고기계란·유제품·과일·곡류)</td></tr></table></div>
-</section>
-
-<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
-<p class="lead">📥 <b>일요일: cron이 종합(synth) + meal_logs/growth_logs 집계로 EnrichContext를 만들어 enrichWeeklyPlan에 전달. 📤 PlanDetail이 weekly_plans.plan_detail에 영속, 월~토 pickPlanSlot이 슬롯을 픽.</b></p>
 <div class="io">
-<div class="iobox inp"><div class="iol">📥 INPUT — EnrichContext (아린·5세)</div><div class="codeblk"><pre>// enrichWeeklyPlan(synth, ctx) — synth.mission_target='콩류', budget.lever='food', goals 포함.
-// EnrichContext (cron이 조립):
+<div class="iobox inp"><div class="iol">📥 INPUT — EnrichContext (아린·route.ts:619)</div><div class="codeblk"><pre>// synth.mission_target='콩류', budget.lever='food', goals 포함
 {
   "groupSignals": [
     { "group": "콩류", "level": "red", "weeklyEst": 0 },
     { "group": "비타민A채소", "level": "yellow", "weeklyEst": 1 },
     { "group": "고기·계란", "level": "green", "weeklyEst": 6 }
   ],
-  "likedIngredients": ["소고기", "계란", "감자", "미역"],
-  "deficitGroups": ["콩류", "비타민A채소"],
-  "coveredGroups": ["곡류", "고기·계란", "생선·해산물"],
-  "band": "정상",            // ⭐ 저체중이면 macro 트랙 켜짐
-  "heightTrack": { "status": "양호", "zDrift": -0.1, "metric": "height" },
-  "weightTrack": { "status": "양호", "zDrift": -0.2, "metric": "weight" },
+  "likedIngredients": ["소고기","계란","감자","미역"],  // ⭐ likedSeed(선호계량화)
+  "deficitGroups": ["콩류","비타민A채소"],
+  "coveredGroups": ["곡류","고기·계란","생선·해산물"],
+  "band": "정상",           // ⭐ 정상 → macro off
+  "heightTrack": null,      // ⭐ growth_logs 없음 → null (실데이터에선 흔함)
+  "weightTrack": null,
   "goals": [
     { "unit_id": "exposure-savings", "priority": 1, "status": "focus" },
     { "unit_id": "table-stage", "priority": 2, "status": "standby" }
   ],
-  "focusHistory": [{ "unit_id": "pressure-off", "stepAdvanced": true }],
-  "arcWeek": 4,             // ⭐ 짝수 → macro cadenceWeek=true(켜지면 노출)
-  "attendsDaycare": true
+  "focusHistory": [{ "unit_id": "table-stage", "stepAdvanced": false }],
+  "arcWeek": 4, "attendsDaycare": true
 }</pre></div></div>
-<div class="iobox out"><div class="iol">📤 OUTPUT — PlanDetail (발췌)</div><div class="codeblk"><pre>// enrichWeeklyPlan 반환 (PlanDetail) → weekly_plans.plan_detail:
-{
+<div class="iobox out"><div class="iol">📤 OUTPUT — PlanDetail (enrichWeeklyPlan 반환)</div><div class="codeblk"><pre>{
   "schemaVersion": 1,
   "targetRotation": [
-    { "ingredient": "두부", "cookedName": "두부", "dishes": ["두부조림","순두부찌개"],
-      "group": "콩류", "track": "supply", "via": "deficit" },
-    { "ingredient": "당근", "cookedName": "익힌 당근", "dishes": ["당근볶음","감자당근조림"],
-      "group": "비타민A채소", "track": "supply", "via": "deficit" },
-    { "ingredient": "검은콩", "cookedName": "삶은 검은콩", "dishes": ["콩조림"],
-      "group": "콩류", "track": "challenge", "via": "cousin", "pairLiked": "소고기" },
-    { "ingredient": "콩나물", "cookedName": "데친 콩나물", "dishes": ["콩나물무침"],
-      "group": "콩류", "track": "supply", "via": "deficit" },
-    { "ingredient": "단호박", "cookedName": "찐 단호박", "dishes": ["단호박죽"],
-      "group": "비타민A채소", "track": "supply", "via": "deficit" }
+    { "ingredient":"두부", "cookedName":"두부", "dishes":["두부조림","순두부찌개"],
+      "group":"콩류", "track":"supply", "via":"deficit",
+      "weeklyEstFreq":0, "level":"red", "reason":"결핍군 콩류 보급(주 0회·red)" },
+    { "ingredient":"단호박", "cookedName":"찐 단호박", "dishes":["단호박죽"],
+      "group":"비타민A채소", "track":"supply", "via":"deficit",
+      "weeklyEstFreq":1, "level":"yellow", "reason":"결핍군 비타민A채소 보급(주 1회·yellow)" },
+    { "ingredient":"검은콩", "cookedName":"삶은 검은콩", "dishes":["콩조림"],
+      "group":"콩류", "track":"challenge", "via":"cousin", "pairLiked":"소고기",
+      "reason":"잘 먹는 소고기의 검증 사촌(푸드체이닝)" },
+    { "ingredient":"콩나물", "cookedName":"데친 콩나물", "dishes":["콩나물무침"],
+      "group":"콩류", "track":"supply", "via":"deficit", "reason":"결핍군 콩류 보급(주 0회·red)" }
+    // … (연속 동일 식재료 없이 ≤7칸)
   ],
-  "supplyPool": ["두부","당근","검은콩","콩나물","단호박","시금치"],
-  "challengePool": [{ "ingredient": "검은콩", "cousinOf": "소고기" }],
-  "poolMode": "mixed",
-  "macroTrack": { "active": false, "band": "정상", "reason": null,
-    "boostGroups": [], "snackRestraint": false, "phrase": null, "cadenceWeek": false },
-  "curriculum": { "focusUnit": "exposure-savings", "focusLabel": "새 음식 조금씩 노출",
-    "standby": ["table-stage"], "stalledOut": null,
-    "graduatedTo": "exposure-savings", "lever": "food" },
-  "mirrorSchedule": [
-    { "deficitGroup": "콩류", "line": "어린이집 덕에 전체 영양은 잘 채워지고…", "kind": "deficit" },
-    { "deficitGroup": "비타민A채소", "line": "비타민A채소가 요즘…", "kind": "deficit" },
-    { "deficitGroup": "콩류", "line": "어린이집 덕에…", "kind": "deficit" }
-  ],
-  "deficitGroups": ["콩류","비타민A채소"], "coveredGroups": ["곡류","고기·계란","생선·해산물"]
+  "macroTrack": { "active": false, "band":"정상", "reason":null, "boostGroups":[], "cadenceWeek":false, ... },
+  "curriculum": { "focusUnit":"exposure-savings", "focusLabel":"새 음식 조금씩 노출",
+    "standby":["table-stage"], "stalledOut":null,
+    "graduatedTo":"exposure-savings", "lever":"food" },   // prevFocus=table-stage≠focus → 졸업 표시
+  "mirrorSchedule": [ /* 콩류·비타민A채소 라운드로빈, macro 주 i=3 macro */ ],
+  "deficitGroups":["콩류","비타민A채소"], "coveredGroups":["곡류","고기·계란","생선·해산물"]
 }
-// ── 월요일 일간 소비 ──
-pickPlanSlot(detail, { daySeed: 12, cidHash: 5, deficitNow: new Set(["콩류","비타민A채소"]) })
-// → base=(12+5)%5=2 → slot[2]=검은콩(challenge·항상 유효)
-//   { slot: {ingredient:"검은콩", dishes:["콩조림"], track:"challenge"...},
-//     slotIndex: 2, mirror: {line:"어린이집 덕에…", kind:"deficit"}, macroPhrase: null }
-// → recoIng="검은콩"·recoMode="challenge" → 작문기(⑥)에 dish·mirror 전달</pre></div></div>
+// ── 월요일 일간 소비 (route.ts:852) ──
+pickPlanSlot(detail, { daySeed:12, cidHash:5, deficitNow:Set("콩류","비타민A채소") })
+//  base=(12+5)%4=1 → slot[1]=단호박(supply·콩류 아닌 비타민A채소·deficitNow에 있음=유효)
+//  → recoIng="단호박" · recoMode="supply" · slotDish="단호박죽"(F-18 본문 must-weave)</pre></div></div>
 </div>
-<div class="callout">📤 <b>전달</b> — PlanDetail → weekly_plans.plan_detail(영속) → 월~토 pickPlanSlot이 그날 슬롯을 픽 → cron이 <code>recoIng</code>(=slot.ingredient)·<code>recoMode</code>(track)·<code>mirrorLine</code>(slot.mirror.line)·<code>growthMirror</code>(<code>planSlotCtx.macroPhrase ?? growthMirrorCtx</code>)를 작문기 LetterInput에 주입. 어드민 감사용으로 <code>context.planSlot</code>(slotIndex·dishes·track·mirror·macro)을 적재. ⭐유연성: supply 슬롯의 group이 그날 결핍이 아니면(<code>deficitNow</code>에 없으면) 다음 유효 슬롯으로 회전.</div>
+
+<div class="good" style="margin-top:12px"><b>AFTER (현재 라이브).</b> 같은 '콩류' 닻에서 월=단호박죽, 화=콩조림(소고기 사촌 도전), 수=콩나물무침… 처럼 본문 dish가 매일 갈린다. 어드민엔 슬롯별 <code>reason</code>("결핍군 콩류 보급(주 0회·red)"·"잘 먹는 소고기의 검증 사촌")이 전사된다. 거울은 콩류↔비타민A채소 라운드로빈 + 출현 쿨다운으로 앵무새가 끊긴다.</div>
+
+<div class="note" style="margin-top:10px"><b>단, 정직하게 — 같은 닻 W24·W25 비교.</b> 위 예시는 한 주 안의 다양성은 살아난다. 그러나 <b>주 단위로 보면</b> 일요일마다 focus가 CORE_ORDER 다음(exposure-savings)으로 리셋되고 주중 table-stage 정체가 반복돼, W24와 W25의 plan_detail이 사실상 같은 진동을 그린다(focus 졸업이 진짜 step 전진이 아니라 순서 이동). 또 <code>heightTrack=null</code>(흔한 케이스)이라 macroTrack은 always off다. 아래 ⑤에서 다룬다.</div>
 </section>
 
-<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 📅 작전층 부가 계획으로</h2></div>
-<p class="lead">이 모듈이 채우는 <code>CoachContext</code>/닻 필드(통합 아키텍처 §3 데이터 계약):</p>
-<div class="chips"><span class="chip">plan_detail</span><span class="chip">planSlot</span><span class="chip">recoIng</span><span class="chip">recoMode</span><span class="chip">mirrorLine</span><span class="chip">growthMirror(macroPhrase)</span></div>
-<p class="lead" style="margin-top:10px">일요일 <code>enrichWeeklyPlan</code>이 <code>weekly_plans.plan_detail</code>(jsonb)을 채우고, 월~토 <code>pickPlanSlot</code>이 그날 소비한 슬롯을 <code>context.planSlot</code>(slotIndex·ingredient·dishes·group·track·via·mirror·mirrorKind·macro)으로 적재한다. 작문기(⑥)에는 <code>recoIng</code>(슬롯 식재료)·<code>recoMode</code>(supply/challenge)·<code>mirrorLine</code>(거울 줄)·<code>growthMirror</code>(macroPhrase 우선)가 전달된다. plan_detail이 null이면 이 필드들은 옛 <code>buildIngredientPool</code> 회전 값으로 채워진다(degrade).</p>
+
+<section id="ceiling"><div class="sec-h"><span class="no" style="font-size:12px">⑤</span><h2>남은 문제점 · 해야할 일 — 랄프위검 실측 천장 (연속성 47점, 2026-06-20)</h2></div>
+<p class="lead">이 모듈 관점에서 정직하게. 각 항목: 증상 → 근본원인 → 해야할일(owner). 미화 금지.</p>
+
+<div class="tbl"><table>
+<tr><th style="width:5%">#</th><th style="width:26%">증상</th><th style="width:34%">근본원인 (이 모듈 위치)</th><th>해야할일 · owner</th></tr>
+<tr>
+<td><span class="tslvl p0">천장 1·2</span></td>
+<td><b>매주 동일 진동</b> — W24·W25가 같은 패턴. 한 주 안 다양성은 살았는데 주 단위로는 정체</td>
+<td>일요일 종합이 focus를 CORE_ORDER 다음(exposure-savings)로 <b>리셋</b> → 주중 table-stage 정체 시 일간이 hardStall 피벗 → 다음 일요일 또 리셋. <b>일요일 의도(<code>plan_detail.curriculum.focus</code>)와 주중 일간 피벗이 어긋나</b> 정체로 귀결. <code>stalledOut</code> 룩업(<code>g.status==='stopped'</code>·<code>coachWeekly.ts:562</code>) 자체는 <b>정상</b>(<code>Goal.status</code> enum=<code>'stopped'</code>, <code>curriculum.ts:237</code>이 set·<code>'pivoted'</code>는 별개 타입 <code>UnitStatus/ProgressRow</code>라 Goal엔 안 들어옴). 진짜 한계는 <b>goals에 <code>'stopped'</code> 상태가 실제로 도달하느냐</b>다 — table-stage 졸업 채널 부재로 focusHistory에 정체가 누적되지 않아 피벗 자체가 드물고, 그래서 <code>stalledOut</code>이 비는 것. <code>graduatedTo</code>도 순서 이동(focus≠prevFocus)일 뿐 진짜 step 전진이 아님</td>
+<td>① 주간 focus를 '실제로 주중 이기는 유닛'에 맞춘다(일요일 리셋 대신 직전 주 일간이 전진시킨 유닛 우선). ② 피벗을 plan_detail에 확실히 반영: 룩업 enum은 그대로 두고, <code>applyFocusFatigue</code>/<code>focusHistory</code>가 정체를 누적해 goals에 <code>'stopped'</code>가 실제 도달하도록 배선(근본은 P0-D 졸업 채널). <b>owner: 코칭엔진(이 모듈 + curriculum.ts 정합)</b></td>
+</tr>
+<tr>
+<td><span class="tslvl p0">천장 3</span></td>
+<td><b>macroTrack 항상 off</b>(<code>active:false</code>) — 저체중·성장더딤 아이도 고기류 보강 트랙·탄단지 안내 미발동</td>
+<td><code>buildMacroTrack</code>(<code>:485</code>)이 <code>band·heightTrack·weightTrack</code>으로 판정하는데, 이 입력 3개가 전부 <b>growth_logs + sex</b>에 의존(<code>route.ts:388-405</code> <code>tk()</code>는 첫 측정≠최신 측정 2행이 있어야 track 산출). 실데이터에선 대부분 키·몸무게·성별 미입력 → <code>band=null·track=null</code> → 무조건 정상 분기로 떨어져 트랙 dead. 이번 세션 #7 profileNudge(매 3일 입력 유도)가 입구이나 아직 데이터 유입 전</td>
+<td>macroTrack 성장지표 입력 배선을 끝까지: ① profileNudge 효과 모니터링(hasGrowth 전환율) ② 측정 1행만 있어도(채널 추종 불가) BMI 밴드만으로 저체중→boost 부분 활성 허용 검토 ③ growth 미입력 상태를 어드민에 '트랙 입력대기'로 가시화. <b>owner: 코칭엔진 + 데이터 입력 UX</b></td>
+</tr>
+<tr>
+<td><span class="tslvl p1">천장 2(파생)</span></td>
+<td><b>레버 주 본문 미직조</b> — 슬롯에 음식이 걸려도(특히 environment 레버 주) 본문에 슬롯 음식이 안 짜임</td>
+<td>일간 본문 봉합이 레버 분기와 어긋남. environment 레버(<code>_noFood</code>) 주는 본문에 음식 액션이 없어 <code>slotFood=null</code>(<code>route.ts:864-865</code>)이 됨. F-18에서 거울에 슬롯 음식 소프트 노출(<code>:886-887</code>)로 일부 보완했으나, 음식-제안 시나리오(<code>_foodScen</code>)와 brain.useFood=false가 충돌하면 슬롯 강제가 풀려 결핍군 대표(두부)가 다시 이길 여지. 이 모듈은 슬롯을 정확히 제공하지만 봉합은 route/작문기 소관</td>
+<td>environment 레버 주에도 슬롯음식 본문 보장: useFood↔scenario↔unit 정합을 단일 게이트로(별도 EPIC). 이 모듈 측 할일은 작음 — 슬롯 <code>track·pairLiked</code>가 봉합 로직에 충분히 전달되는지만 유지. <b>owner: ① 신호선택기/⑥ 작문기 봉합(이 모듈은 슬롯 제공자)</b></td>
+</tr>
+<tr>
+<td><span class="tslvl p0">P0-D</span></td>
+<td><b>졸업 0</b> — table-stage가 피벗만 되고 step 전진(졸업)이 안 됨</td>
+<td><code>child_daily_state</code> 테이블 미구현(route.ts·coachWeekly.ts grep 0건). 환경신호(식탁 안착·화면 끔 등) 입력 채널이 없어 advanceProgress가 table-stage step을 전진시킬 hitDay를 못 받음 → hardStall 18일 후 강제 피벗만 가능, 졸업은 영영 0. 이게 천장1/2의 단일 뿌리</td>
+<td>P0-D <code>child_daily_state</code> 구현: 환경신호 입력 → table-stage step 전진 가능하게. 그래야 주간 focus가 '이긴 유닛'을 잡을 거리가 생김. <b>owner: 코칭엔진(다음 작업)</b></td>
+</tr>
+</table></div>
+
+<div class="good" style="margin-top:12px"><b>✅ 성과 (EARNED·사실).</b> <b>plan_detail 9필드 전사</b> — <code>targetRotation·supply/challengePool·poolMode·macroTrack·curriculum·mirrorSchedule·deficitGroups·coveredGroups</code>가 일요일 enrich에서 산출돼 <code>weekly_plans.plan_detail</code>에 영속되고, 일간 소비 시 <code>context.planSlot</code>(<code>route.ts:956</code>)으로 어드민 뷰에 전부 전사된다. <b>A 슬롯 근거 정상</b> — 슬롯별 <code>reason</code>("결핍군 콩류 보급(주 0.8회·red)"·"잘 먹는 두부의 검증 사촌")·<code>weeklyEstFreq</code>·<code>level</code>이 <code>mkSupply</code>/<code>mkChallenge</code>(<code>coachWeekly.ts:546-547</code>)에서 산출돼 어드민에 노출된다. <b>한 주 안 다양성 구조적 보장</b> — supply 2:challenge 1 인터리브 + 연속 동일 식재료 금지로 '콩류 도돌이표'가 한 주 단위에선 끊겼다. <b>유연성 가드</b> — <code>pickPlanSlot</code>이 그날 결핍으로 supply 슬롯을 vetting해 이미 채운 결핍 재추천을 차단한다.</div>
+
+<div class="bad" style="margin-top:10px"><b>요약(미화 없이).</b> 작전층 '굽기·전사·근거'는 EARNED. 그러나 <b>주 단위 정체</b>(천장1/2)와 <b>macro dead</b>(천장3)는 미해결이며, 둘 다 단일 뿌리 = <b>P0-D 미구현</b>(졸업 채널 부재)이다. <code>stalledOut</code> 룩업(<code>coachWeekly.ts:562</code>)은 enum 정합 정상(<code>Goal.status==='stopped'</code>) — <b>버그가 아니다</b>. 비어 보이는 원인은 졸업 채널 부재로 goals에 <code>'stopped'</code>가 도달하지 못하는 것이며, P0-D가 풀리면 자연 해소된다.</div>
 </section>
 
-<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
-<ul class="clean"><li>괴식 0 — 모든 dish는 <code>popularDishesFor</code>(매운·튀김 필터·또래 인기 빈도)로만, 사촌은 <code>verifiedCousinsOf</code>(verified만), 궁합은 <code>strongPairsOf</code>(strong 강신호만)·<code>PLAN_MEAL_GROUPS</code> 식품군 한정 → 지어낸 조합·약신호 곁들임 불가</li><li>degrade-safe — <code>enrichWeeklyPlan</code>은 throw 가능하나 호출자(cron)가 try/catch로 null degrade. <code>plan_detail</code> 컬럼 미적용 시 legacy upsert로 plan_detail만 빼고 닻 영속 보장. plan_detail null → 일간이 옛 <code>buildIngredientPool</code> 회전으로 폴백(닻 유무와 무관하게 발행)</li><li>SSOT 보존 — <code>plan_detail</code>은 <b>additive 캐시</b>일 뿐, 기존 컬럼(mission_target·target_pool·budget·ledger·goals)이 단일 진실. 일간 잠금·채근 캡·아크는 기존 컬럼이 계속 좌우(plan_detail은 'dish 회전·거울·macro'만 부가)</li><li>유연성 vetting — 주간계획=후보 가이드, 일간=그날 데이터로 종합결정. <code>pickPlanSlot</code>이 supply 슬롯 group을 <code>deficitNow</code>로 검수해 이미 채운 결핍 재추천을 차단. challenge는 도전이라 결핍 무관 항상 유효. 일간 두뇌·SAFE_INTERRUPT(전환 축하·ARFID)는 이 위에서 override</li><li>macro 격주 — 탄단지 트랙은 <code>cadenceWeek=arcWeek%2===0</code>(격주)일 때만 노출, 2주 연속 금지(측정 저빈도·부담 존중). 정상 밴드면 <code>active:false</code>로 트랙 자체를 끔(불필요한 잔소리 0)</li><li>거울 쿨다운(K-04b) — 단일 결핍은 격일(짝수 슬롯)만 결핍줄, 홀수는 칭찬/생략 → 매일 같은 콩류 클로징 앵무새 차단. 다중 결핍은 라운드로빈으로 같은 군 연속 금지</li><li>연속 동일 식재료 금지 — 7-슬롯 회전이 <code>pick.ingredient===lastIng</code>이면 skip → 같은 식재료 이틀 연속 불가('콩류 3주 도돌이표' 구조적 차단)</li><li>QA 시뮬 안전 — 일요일 synth는 <code>?date=</code> QA 오버라이드에선 금지(과거 일요일 재실행이 라이브 닻·ledger를 DEFAULT로 파괴하던 버그 봉합)</li></ul>
+
+<section id="guard"><div class="sec-h"><span class="no">⑥</span><h2>가드 — 괴식·환각·안전 차단 (보존)</h2></div>
+<ul class="clean">
+<li>괴식 0 — 모든 dish는 <code>popularDishesFor</code>(매운·튀김 필터·또래 인기 빈도)로만, 사촌은 <code>verifiedCousinsOf</code>(verified만), 궁합은 <code>strongPairsOf</code>(strong 강신호만)·<code>PLAN_MEAL_GROUPS</code> 8군 한정(<code>:537</code>) → 지어낸 조합 불가</li>
+<li>degrade-safe — <code>enrichWeeklyPlan</code>은 throw 가능하나 호출자(cron <code>:617-628</code>)가 try/catch로 null. <code>plan_detail</code> 컬럼 미적용 시 legacy upsert로 plan_detail만 빼고 닻 영속(<code>:645-648</code>). plan_detail null/<code>!defMature</code> → 옛 <code>buildIngredientPool</code> 회전 폴백</li>
+<li>SSOT 보존 — <code>plan_detail</code>은 <b>additive 캐시</b>일 뿐, 기존 컬럼(mission_target·target_pool·budget·ledger·goals)이 단일 진실. 일간 잠금·채근 캡·아크는 기존 컬럼이 좌우</li>
+<li>유연성 vetting — 주간=후보 가이드, 일간=그날 데이터로 종합결정. <code>pickPlanSlot</code>의 <code>valid()</code>가 supply 슬롯을 <code>deficitNow</code>로 검수(challenge 항상 유효). SAFE_INTERRUPT(전환 축하·ARFID)는 이 위에서 override</li>
+<li>macro 격주 — <code>cadenceWeek=arcWeek%2===0</code>일 때만 노출, 정상 밴드면 <code>active:false</code>(잔소리 0)</li>
+<li>거울 쿨다운(K-04b) — 단일 결핍은 격일(짝수 슬롯)만 결핍줄. 다중은 라운드로빈(같은 군 연속 금지). 추가로 route 출현빈도 쿨다운(<code>mirrorCooldownDue</code>)이 2층 방어</li>
+<li>연속 동일 식재료 금지 — 7-슬롯 회전이 <code>pick.ingredient===lastIng</code>이면 skip(<code>:555</code>)</li>
+<li>QA 시뮬 안전 — 일요일 synth는 <code>?date=</code> QA 오버라이드에선 금지(<code>route.ts:658</code> — 과거 일요일 재실행이 라이브 닻·ledger를 DEFAULT로 파괴하던 버그 봉합)</li>
+</ul>
+</section>
+
+
+<section id="lit"><div class="sec-h"><span class="no">⑦</span><h2>문헌 · 이론 근거 (보존)</h2></div>
+<p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론(코드 근거).</p>
+<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr>
+<tr><td><b>푸드 체이닝(food chaining)</b></td><td>challenge 트랙 — 잘 먹는 음식의 <b>검증 사촌</b>(<code>verifiedCousinsOf</code>·food-graph bridge)을 끌어와 다리를 놓는다(소고기→검은콩). 도돌이표 차단 핵심</td></tr>
+<tr><td><b>반복 노출(HabEat)·단순노출</b></td><td>supply 트랙 — 결핍군 대표를 7칸 회전으로 격일~여러 번 재노출. 연속 동일 식재료 금지로 권태 없이 친숙도 축적</td></tr>
+<tr><td><b>USDA·식품군 다양성</b></td><td><code>PLAN_MEAL_GROUPS</code> 8군을 회전·거울 대상으로 — '한 군 편중' 대신 두루</td></tr>
+<tr><td><b>성장곡선 추종(growth channel)</b></td><td><code>growthTracking</code>이 첫 측정으로 백분위 채널을 잡고 z(SDS) 하향 이탈(주의·경고)을 본다. 절대 위치가 아니라 '자기 곡선 추종'으로 macro 트랙 점화 (⚠️ 입력 미충족 시 dead — 천장3)</td></tr>
+<tr><td><b>탄단지 보강(저체중·성장더딤)</b></td><td>저체중/성장더딤이면 <code>boostGroups=['고기·계란','콩류','유제품']</code>을 supply 회전 앞에 주입해 '고기류 타깃'화. P10 톤 안내</td></tr>
+<tr><td><b>제한·잔소리 역효과(Satter)·무압력</b></td><td>정상 밴드면 macro off(잔소리 0)·macro도 격주. 과체중도 금지가 아니라 간식 절제로 안내</td></tr>
+<tr><td><b>주제 피로 캡(focus fatigue)</b></td><td>curriculum 가시화에 <code>applyFocusFatigue</code> 거친 goals 사용 — 같은 유닛 2주 연속 focus·step 0이면 standby 강등 (⚠️ stalledOut 룩업 enum은 정상이나, 졸업 채널 부재로 정체가 goals에 누적되지 않아 노출이 드묾 — 천장1/2·P0-D)</td></tr>
+<tr><td><b>괴식 차단(검증 조합만)</b></td><td>dish=<code>popularDishesFor</code>, 사촌=<code>verifiedCousinsOf</code>(verified만), 궁합=<code>strongPairsOf</code>(strong만) → 지어낸 조합 0</td></tr>
+</table></div>
 </section>
 
 </main>
 <footer>
 밀프레드 코칭 엔진 모듈 명세 · ⑧ 주간계획 (작전층 오케스트레이터)<br>
 🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
-코드 근거: coachWeekly.ts (enrichWeeklyPlan · pickPlanSlot · buildMacroTrack · buildMirrorSchedule) · coachRecos.ts · foodGraph.ts · growth-reference.ts · 2026-06-18
+코드 근거: coachWeekly.ts (enrichWeeklyPlan:520 · pickPlanSlot:576 · buildMacroTrack:485 · buildMirrorSchedule:500 · applyFocusFatigue:178) · app/api/cron/coach/route.ts (enrich:617 · 소비:851) · coachRecos.ts · foodGraph.ts · growth-reference.ts · 2026-06-20
 </footer>
 </body></html>

@@ -57,193 +57,210 @@ th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
 .codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
 .note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
 .callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+.diagram{background:#1F2D3D;border-radius:13px;padding:16px 14px;overflow-x:auto;margin-top:8px}
+.diagram pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#cfe3f5;white-space:pre;margin:0}
+.diagram pre .hi{color:#7FD8B8;font-weight:700}.diagram pre .ho{color:#FFD9B0;font-weight:700}.diagram pre .hf{color:#9fb0c2}
 footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
 footer a{color:var(--ad);text-decoration:none;font-weight:700}
 .backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
 .backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+.badedge{background:#FEF2F2;border:1px solid #FECACA;border-radius:11px;padding:11px 14px;font-size:11.5px;color:#7F1D1D;line-height:1.62;margin:10px 0}.badedge b{color:#B91C1C}
+.win{background:#ECFDF5;border:1px solid #A7F3D0;border-radius:11px;padding:11px 14px;font-size:11.5px;color:#065F46;line-height:1.62;margin:10px 0}.win b{color:#047857}
 </style></head><body>
 <header class="hero"><div class="hero-in">
 <span class="tag">🧩 코칭 엔진 모듈 명세 · ⑤/⑦</span>
 <h1><span class="ic">📈</span> ⑤ 진척·커리큘럼 레이어</h1>
-<p>설문 없이 기록만으로 효과를 수치화하고, 12유닛 사다리로 행동을 가르친다</p>
+<p>설문 없이 기록만으로 효과를 수치화하고, 12유닛 사다리·상태머신으로 행동을 가르친다</p>
 <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
 </div></header>
 <nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html" class="cur">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a><a href="/coach-module-weekly-planner.html">⑧ 주간계획</a></nav>
 <main>
-<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ⑤를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ⑤를 코드 단위로 펼친 명세입니다 — 비개발자 설명·구현·아키텍처 시각화·작동 예시·남은 문제. 코드 근거: <code>lib/curriculum.ts</code>·<code>lib/curriculumUnits.ts</code>·<code>lib/coachWeekly.ts</code> (2026-06-20 실측).</div>
 
-
-<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">🧭</span><h2>비개발자용 — 이렇게 운영됩니다</h2></div>
-<p class="lead" style="margin:8px 0">이 모듈은 편식 코칭을 '한 번의 조언'이 아니라 '12개 수업으로 짜인 커리큘럼'처럼 굴립니다(curriculumUnits.ts). 마치 학교 통지표처럼, 각 아이가 12개 수업(압박 내려놓기, 공복 리듬, 식탁 무대, 새 음식 노출 등) 중 지금 어디까지 와 있는지를 '시작 전 → 진행 중 → 유지 → 졸업' 같은 단계로 추적합니다. 각 수업에는 1~2단계 사다리(쉬운 행동→다음 행동)와 '이 정도면 통과'라는 판정 기준, 그리고 '다시 나빠졌다'는 재발 기준이 들어 있습니다. 중요한 점은 이 판정에 AI(LLM)를 전혀 쓰지 않는다는 것입니다. 전부 부모가 입력한 식사 기록과 칩(버튼) 답변을 순수 계산으로만 채점합니다.</p><p class="lead" style="margin:8px 0">작동 방식은 이렇습니다. 매일 한 번, 코칭 크론(자동 작업)이 어제까지의 식사 기록을 불러와 각 수업별로 '어제 그 행동을 했는가'를 1(했음)·0(안 했음)·판단보류(기록 없음)로 채점합니다. '기록이 없다'를 '안 했다'로 단정하지 않는 것이 핵심 원칙이라, 표본이 모자라면 함부로 점수를 매기지 않고 보류합니다. 보류가 생기면 코칭 편지 끝에 '어제 식탁 분위기 어땠어요?' 같은 칩 질문을 끼워 부모 답을 받아 표본을 채웁니다. 모든 카운트는 '몇 번'이 아니라 '며칠'로 셉니다(같은 날 여러 끼 기록해도 하루로 묶어 부풀림 방지).</p><p class="lead" style="margin:8px 0">여기에 더해 별도의 '효과 측정자'(progress.ts)가 있습니다. 이건 설문 없이 식사 기록만으로 최근 28일과 직전 28일을 비교해 '잘 먹는 식재료 종 수·거부 비율·완식 비율·식사 시간'이 좋아졌는지를 수치로 보여줍니다. 부모에게는 '편식이 좋아지는 중이에요'처럼 격려로, 회사 입장에선 '우리 코칭이 실제로 효과 있다'는 증거(리텐션·투자 설명)로 쓰입니다. 또 키·몸무게 측정 두 번을 비교해 또래 대비 체중 순위가 15계단 이상 급변하면(살이 빠르게 빠지거나 늘면) 알람이 아닌 부드러운 톤으로 '한 번 살펴보세요'를 띄웁니다.</p>
-<div class="callout" style="margin-top:10px"><b>🥗 영양·편식 정보는 이렇게 처리합니다</b><br>결핍 판정: '잘 먹는 식재료'는 28일 안에 2회 이상 나오고 거부 목록에 없는 식재료로 셉니다(1회짜리나 거부한 건 안 침). 새 음식 노출이 필요한지는 '결핍·거부 식품이 있으면(missing&gt;0 또는 refused&gt;0)' 자동으로 노출 수업을 켜는 식으로 판단합니다.<br><br>반복노출(노출 적금): 새 음식은 '말없이 식탁에 아주 조금씩' 올리는 걸 1단계로 보고 주 2~3회 노출을 하한, 누적 8회 이상을 다음 단계 기준으로 잡습니다(노출 효과 이론을 수치화). 노출 일수를 평생 누적해 모읍니다(폭주 방지로 최근 60개까지만).<br><br>괴식·위험 차단: 질감 수업은 '한 단계 위 질감만, 거부하면 즉시 후퇴'를 규칙으로 둬 무리한 점프를 막습니다. 어린이집에서 거부한 음식을 집에서 다시 시도하는 '연계' 수업은 거부 식재료를 정제(cleanRefusal)해 부모의 거부 메모가 음식으로 오인되는 오염을 막습니다.<br><br>강요 금지: '압박 내려놓기·배부름 존중·달콤한 협상 끊기·식탁의 말' 수업이 부모 메모에서 '한 입만/다 먹어/억지로/혼냈' 같은 강요 신호와 '먹으면 ~줄게' 보상 거래를 잡아내, 그게 0이 되어야 통과로 칩니다. 식사 시간 30분 초과율이 50%를 넘으면 완식 강요 신호로 봅니다. 디저트는 악마화하지 말고 끼니와 함께 소량 내라는 중립화 규칙을 둡니다. 같은 수업을 이틀 연속 채근하지 않도록 주당 피벗(방향 전환) 횟수도 1회로 제한합니다.</div>
-<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린(5세·콩류와 채소가 적게 들어옴·소고기/계란은 잘 먹음·미역국 좋아함)의 경우. [입력] 부모가 7일간 기록한 끼니에서 콩류·채소가 거의 안 보이고, 어린이집 식단표엔 시금치 거부가 찍힘. [처리] 진척 레이어가 '새 음식 조금씩 노출' 유닛을 켜고(missing&gt;0이라 trigger 발동), 부모 메모를 훑어 '한 입만/다 먹어'가 있으면 '압박 내려놓기'도 함께 켬. 매일 어제 기록을 보고 '새 음식을 식탁에 올렸는지'를 1/0/판단보류로 채점하고, 표본이 모자라면 코칭 편지에 '어제 도전 음식 반응은요?' 같은 칩 질문을 끼워 표본을 보충. 어린이집에서 거부한 시금치가 4일 안에 집 메뉴로 다시 등장하면 '연계·리듬' 유닛이 +1로 잡힘. [결과] 6일 넘게 새 노출 신호가 없으면 '가르쳤는데 안 됨(정체)'으로 보고 다른 각도(예: 잘 먹는 미역국에 당근 한 가지 곁들이는 '음식 다리')로 피벗. 한편 효과측정(progress.ts)은 최근 28일 vs 직전 28일을 비교해 '잘 먹는 식재료 종 수'가 늘고 거부율이 줄면 '편식이 좋아지는 중이에요'를 부모에게 보여줌.</div>
+<!-- ───────────── ① 비개발자용 ───────────── -->
+<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">🧭</span><h2>① 비개발자용 — 이 모듈이 무엇을 왜 하나</h2></div>
+<p class="lead">이 모듈은 편식 코칭을 '한 번의 조언'이 아니라 <b>12개 수업으로 짜인 커리큘럼</b>처럼 굴립니다(<code>curriculumUnits.ts</code>). 마치 학교 통지표처럼, 각 아이가 12개 수업(압박 내려놓기, 공복 리듬, 식탁 무대, 새 음식 노출 등) 중 지금 어디까지 와 있는지를 '시작 전 → 진행 중 → 유지 → 졸업'이라는 단계로 추적합니다. 각 수업에는 1·2단계 사다리(쉬운 행동 → 다음 행동)와 '이 정도면 통과'라는 판정 기준(<code>passWhen</code>), '다시 나빠졌다'는 재발 기준(<code>relapseWhen</code>)이 들어 있습니다. <b>중요한 점은 이 판정에 AI(LLM)를 전혀 쓰지 않는다</b>는 것입니다. 전부 부모가 입력한 식사 기록과 칩(버튼) 답변을 순수 계산으로만 채점합니다.</p>
+<p class="lead">작동 방식은 이렇습니다. 매일 한 번, 코칭 크론(자동 작업)이 어제까지의 식사 기록을 불러와 각 수업별로 '어제 그 행동을 했는가'를 1(했음)·0(안 했음)·<b>판단보류</b>(기록 없음)로 채점합니다. '기록이 없다'를 '안 했다'로 단정하지 않는 것이 핵심 원칙이라, 표본이 모자라면 함부로 점수를 매기지 않고 보류합니다. 보류가 생기면 코칭 편지 끝에 '어제 식탁 분위기 어땠어요?' 같은 칩 질문을 끼워 부모 답을 받아 표본을 채웁니다(<code>probes</code>). 모든 카운트는 '몇 번'이 아니라 '<b>며칠</b>'로 셉니다(같은 날 여러 끼 기록해도 하루로 묶어 부풀림 방지).</p>
+<p class="lead">한 수업이 '통과 기준'을 일정 주(<code>holdWeeks</code>) 동안 채우면 다음 단으로 올라가고(전진), 마지막 단까지 채우면 한 주 '유지'를 본 뒤 <b>졸업(mastered)</b>합니다. 반대로 며칠을 코칭했는데도 신호가 0이면 '가르쳤는데 안 됨(정체)'으로 보고 다른 각도(다른 수업)로 <b>피벗</b>합니다. 그리고 너무 오래(18일) 한 수업에 매달려 진전이 없으면, 주당 1회 피벗 제한을 무시하고 <b>강제로 다른 수업으로 전환</b>(hardStall)합니다. 같은 수업을 이틀 연속 채근하지 않게 주당 피벗 횟수도 1회로 제한합니다.</p>
+<div class="callout"><b>🥗 이 모듈이 영양·편식 정보를 다루는 원칙</b><br><b>결핍 판정</b>: '잘 먹는 식재료'는 28일 안에 2회 이상 나오고 거부 목록에 없는 식재료로 셉니다(1회짜리나 거부한 건 안 침). <b>반복노출(노출 적금)</b>: 새 음식은 '말없이 식탁에 아주 조금씩' 올리는 걸 1단계로 보고 주 2회 이상 노출을 하한(<code>exposeWeekly:2</code>), 누적 8회 이상을 다음 단계 기준으로 잡습니다(<code>exposeTotalForStep2:8</code> — 노출 효과 이론을 수치화). 노출 일수를 평생 누적해 모읍니다(폭주 방지로 최근 60개까지만). <b>괴식·위험 차단</b>: 질감 수업은 'puree→mashed→finger→table 한 단계만 위로, 거부하면 즉시 후퇴'를 규칙으로 둬 무리한 점프를 막습니다. 어린이집 거부를 집에서 재시도하는 '연계' 수업은 거부 메모를 정제(<code>cleanRefusal</code>)해 부모 메모가 음식으로 오인되는 오염을 막습니다. <b>강요 금지</b>: 압박·배부름·협상·식탁의 말 수업이 '한 입만/다 먹어/억지로' 강요 신호와 '먹으면 ~줄게' 보상 거래를 잡아내, 그게 0이 되어야 통과로 칩니다.</div>
+<div class="note"><b>🧒 운영 예시(아린·5세)</b> — 아린(콩류·채소가 적게 들어옴·소고기/계란은 잘 먹음·미역국 좋아함). <b>[입력]</b> 부모가 기록한 끼니에 콩류·채소가 거의 안 보이고, 어린이집 식단표엔 시금치 거부가 찍힘. <b>[처리]</b> 신호선택기①가 결핍을 보고 '새 음식 조금씩 노출' 유닛을 후보로 올리고, 부모 메모에 '한 입만/다 먹어'가 있으면 '압박 내려놓기'도 후보로. 이 모듈⑤이 매일 어제 기록으로 '새 음식을 식탁에 올렸는지'를 1/0/보류로 채점하고, 표본이 모자라면 편지에 칩 질문을 끼워 보충. 어린이집 거부 시금치가 4일 안에 집 메뉴로 다시 등장하면 '연계·리듬' 유닛이 +1. <b>[결과]</b> 한 수업이 18일째 진전 0이면 강제로 다른 각도(잘 먹는 미역국에 두부를 곁들이는 '음식 다리')로 피벗. 효과측정(<code>computeProgress</code>)은 최근 28일 vs 직전 28일을 비교해 '잘 먹는 식재료 종 수'가 늘고 거부율이 줄면 '편식이 좋아지는 중이에요'를 부모에게 보여줌.</div>
 </section>
 
-<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:13px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
-<p class="lead"><b>★ 최상위 단일 근본원인</b> — 일간 두뇌 블록(<code>route.ts:628-630</code>)이 <code>planFor({forceScenarioId})</code>로 주간 닻(타깃 잠금·레버·채근캡·teaching arc)을 통째 덮어쓴다. 문서가 그린 '조립 → 뇌(판단) → 손' 순서가 코드에선 '뇌가 작전층(주간)을 덮어쓰기'로 역전돼 있다. <b>이 모듈(⑤)의 역할</b> — 이 모듈은 12유닛 사다리(<code>steps[].behavior</code>·<code>passWhen</code>·진척)를 정의·측정하지만, <b>그 사다리가 일간 편지에 한 번도 렌더되지 않고</b>(<code>advanceProgress</code>·<code>curriculum_progress</code> write 0건) 편지에 닿는 부모 행동 텍스트는 오직 닻의 <code>behavior_goal</code> 한 줄뿐인데, 그 한 줄마저 레버와 어긋나고 매주 같은 유닛에 고착돼 '앵무새'(매 편지 동일 골격)의 <b>상류 원인</b>이 된다.</p>
+<!-- ───────────── ② 구현된 내용 ───────────── -->
+<section id="impl"><div class="sec-h"><span class="no" style="font-size:13px">⚙️</span><h2>② 구현된 내용 — 함수·데이터흐름·입출력 (실측)</h2></div>
+<p class="lead">이 모듈은 코드상 <b>세 파일</b>에 산다: <code>curriculumUnits.ts</code>(12유닛 레지스트리·임계 상수·신호 추출기), <code>curriculum.ts</code>(진도 상태머신 — <code>evolveRow</code>·<code>advanceProgress</code>·<code>pickPivot</code>·<code>fallbackPivot</code>), <code>coachWeekly.ts</code>(<code>candidateUnits</code>·<code>applyFocusFatigue</code>·<code>enrichWeeklyPlan</code>의 <code>curriculum</code> 블록 산출).</p>
 
-<div class="note"><b>🧭 한 줄 쉬운말</b> — '12개 수업 통지표'는 만들어 두기만 했지 정작 부모에게 가는 편지엔 안 실립니다. 편지에 들어가는 부모 행동은 '이번 주 목표' 한 문장뿐인데, 그 문장이 ①이번 주 주제(환경/음식)와 따로 놀고 ②매주 똑같은 수업에 멈춰 있어, 부모가 "또 같은 소리"로 느낍니다. → 수업 진도를 실제로 저장하고(한 칸씩 올리고) 그 칸의 행동을 편지에 흘려보내면 매주 다른 부모 코칭이 나갑니다.</div>
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:14px 0 6px">A. 12유닛 레지스트리 — <code>curriculumUnits.ts:94-416</code></h3>
+<p class="lead"><code>UNITS: Record&lt;UnitId, UnitDef&gt;</code>(<code>L94</code>) — 12개 유닛 각각이 <code>{ id·label·lever·minWeek·steps[]·probes[]·extract()·relapseWhen()·trigger() }</code>. 전부 순수 함수, LLM 0콜, 모든 카운트는 '날짜' 단위 dedup(<code>dates()</code> 헬퍼). <code>UNIT_IDS</code>(<code>L418</code>)는 키 배열. <b>임계 상수는 전부 <code>TH</code>(<code>L51-70</code>)</b>에 모아 리플레이로 보정: <code>stallDays:6</code>·<code>coachedDaysForStall:3</code>·<code>maintenanceWeeks:1</code>·<code>relapseWindowDays:14</code>·<code>maxPivotsPerWeek:1</code>·<b><code>hardStallDays:18</code></b>(이번 세션 신규)·<code>focusMaxStallWeeks:2</code>·<code>exposeWeekly:2</code>·<code>exposeTotalForStep2:8</code>.</p>
+<div class="tbl"><table><tr><th style="width:26%">유닛(id·lever·minWeek)</th><th style="width:42%">사다리 step1 → step2 (passWhen)</th><th>trigger 발동 신호</th></tr>
+<tr><td><b>pressure-off</b> · mixed · 1</td><td>압박 메모 0일 → 부정 칩비율 ≤ 0.2</td><td>pressureMemoDays≥2 → 2+</td></tr>
+<tr><td><b>hunger-rhythm</b> · environment · 1</td><td>끼니 전 간식 0일 → 과식간식일 ≤ 2</td><td>snackHeavy/preMeal ≥2 → 2</td></tr>
+<tr><td><b>table-stage</b> · environment · 1</td><td>식탁비율 ≥ 0.4 → ≥ 0.6</td><td>envBadPct≥0.4 &amp; count≥4</td></tr>
+<tr><td><b>exposure-savings</b> · food · 2</td><td>주간 노출 ≥ 2일 → 누적 hitDays ≥ 8</td><td>missing&gt;0 ‖ refused&gt;0 → 1.5+</td></tr>
+<tr><td><b>fullness-respect</b> · mixed · 2</td><td>완식강요 0일 → 30분초과율 ≤ 0.3</td><td>mtOver30&gt;0.5 &amp; count≥4</td></tr>
+<tr><td><b>parent-model</b> · mixed · 2</td><td>가족저녁 ≥ 3일 → ≥ 5일</td><td>0 (Sonnet 재량·폴백만)</td></tr>
+<tr><td><b>no-bargain</b> · mixed · 2</td><td>거래 메모 0일 → 0일+중립디저트 1회</td><td>bargainMemoDays≥1 → 1.5+</td></tr>
+<tr><td><b>table-talk</b> · mixed · 3</td><td>금지어 0일 → 객체대화 ≥ 0.7</td><td>pressureMemoDays≥1 → 1</td></tr>
+<tr><td><b>sensory-texture</b> · texture · 3</td><td>texModeIdx ≥ 2(finger) → ≥ 3(table)</td><td>texLow &amp; count≥3 → 2</td></tr>
+<tr><td><b>food-bridge</b> · food · 3</td><td>주간 신규 ≥ 1 → ≥ 1(holdWeeks↑)</td><td>newFood=0 &amp; eaten&gt;0 → 1.2</td></tr>
+<tr><td><b>autonomy-part</b> · autonomy · 3</td><td>자기주도 ≥ 0.3 → ≥ 0.5</td><td>selfPct&lt;0.3 &amp; count≥4 → 2+</td></tr>
+<tr><td><b>link-rhythm</b> · food · 3</td><td>기관거부 집재노출 ≥ 1 → ≥ 2</td><td>등원 &amp; dcRefused&gt;0 → 1.5</td></tr>
+</table></div>
+<p class="lead" style="margin-top:8px">각 <code>extract(rows, answers, today, opt)</code>는 7일창 evidence를 산출하되 <b>표본 부족이면 <code>{signalToday:null}</code>(판정 보류)</b>를 반환합니다(<code>minLoggedDays:3</code> 등). <code>probes[]</code>는 표본 부족 시 편지에 띄울 칩 질문 — <code>map</code>에 칩 원문 → 신호 매핑이 들어가 있고, 칩 '원문' 비교가 규약입니다(<code>L102</code> 주석: 매핑 키로 비교하면 영원히 0이 되는 잠복 버그를 G-04에서 적발). <code>CORE_ORDER</code>(<code>L424</code>)는 코어 1→N 단일 소스 — 이번 세션(C)에 minWeek=3 트랙(texture·food-bridge·autonomy·link-rhythm)을 뒤에 편입해 3주차+ 아이의 확장 주 목표가 실제로 열리게 했고, <code>coachWeekly</code> 폴백·<code>curriculum.fallbackPivot</code>이 공용으로 참조합니다.</p>
 
-<div class="tbl"><table>
-<tr><th style="width:24%">증상 · 문제</th><th style="width:28%">근본원인 (파일:라인 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th style="width:8%">우선</th></tr>
-<tr>
-<td><b>레버↔행동 불일치</b> — environment 주(식탁 무대)인데 <code>behavior_goal</code>이 '콩 3-5알 곁들이기'(food 노출 행동)로 저장돼, teaching arc가 부모 행동 코칭이 아니라 또 다른 음식 잔소리가 됨(W25 DB 실측)</td>
-<td><code>lib/coachWeekly.ts:242-245</code><br><b>CODE_BUG</b> · high<br>runWeeklyPlanning이 Sonnet <code>out.behavior_goal</code>을 lever 검증 없이 채택(L245). lever는 focus 유닛으로 강제하나 behaviorGoal은 정합 안 봄</td>
-<td>L245 직후 <b>lever 정합 가드</b>: 비-food 레버인데 behaviorGoal에 food/노출 신호(콩·두부·생선·멸치·과일 + 곁들·올려·담·차려·뿌려·섞)가 매칭되면 1회 재요청(lever 명시 재프롬프트)→여전히 불일치면 <code>defaultBehaviorGoal(lever, target)</code> 폴백(즉시 폐기 아닌 재요청→폴백으로 오탐 방지). <code>healAnchor(177-188)</code>에도 같은 가드로 구닻 치유. <code>SYSTEM_WEEKLY(132-135)</code>에 '비-food 레버엔 음식 차리기/노출 행동 금지' 명시(코드 가드와 병행)</td>
-<td><b>P0</b></td>
-</tr>
-<tr>
-<td><b>12유닛이 편지에 0회 렌더</b> — 사다리(step1→step2 behavior)·졸업(passWhen)·재발은 전부 선언만 돼 있고, 라이브 편지에 들어가는 부모 행동은 닻 <code>behavior_goal</code> 한 줄뿐. 진척 기반 단계 코칭 부재</td>
-<td><code>lib/curriculumUnits.ts:93-415</code> (UNITS) · <code>route.ts:615-684</code><br><b>DESIGN_GAP</b> · high<br>크론은 candidateUnits로 후보 id만 뽑아 goals에 저장. <code>advanceProgress</code>·<code>curriculum_progress</code> upsert·step.behavior 주입 경로 미배선(grep 0건)</td>
-<td><b>① <code>advanceProgress</code> 크론 배선</b>(가장 효과 큰 단일 수정): <code>route.ts</code>에서 자녀별 <code>curriculum_progress</code> 로드 → <code>lib/curriculum.ts advanceProgress(...)</code> 호출 → updates를 <code>curriculum_progress</code> upsert + <code>goalsAfter</code>를 닻(<code>weekly_plans.goals</code>)에 반영. <code>curriculum.ts:189-215</code>에 이미 limping/stall 시 environment→food(standby) 일간 피벗 + goalsAfter 영속 로직이 완성돼 있어 배선만 하면 '환경이 안 먹히면 음식으로 진행'이 닫힘. <b>② <code>behaviorGoal</code>=focus 유닛 현재 <code>step.behavior</code> 결정론 세팅</b>(<code>coachWeekly.ts:310-311</code>·Sonnet은 표현만 다듬음)으로 단계 전진마다 매주 다른 부모 행동(step1→step2)이 흐름. <code>coach.ts arcBlock(569-581)</code> stage 회전도 요일 기반→step/mode(advance/deepen/maintain) 병행. <b>주의</b>: weekly_coaching/curriculum 컬럼 미적용 시 upsert가 조용히 거부될 수 있어(route.ts:545 기존 사고 패턴) 결과 검사·폴백 필수</td>
-<td><b>P1</b></td>
-</tr>
-<tr>
-<td><b>매주 environment/식탁 고착</b> — 같은 focus 유닛이 영원히 focus라 teaching_arc 진행·재앵커·stall 전환이 daily lever를 못 바꿔, 매 편지가 같은 골격으로 수렴(앵무새 상류)</td>
-<td><code>lib/coachWeekly.ts:60-63, 96-108, 243, 268</code><br><b>PARTIAL</b> · high<br>크론 호출(route.ts:520-534)이 <code>focusHistory</code>·progress·week를 안 넘겨 피로 캡(<code>applyFocusFatigue</code>)이 dormant → table-stage 18일 deepen 고착</td>
-<td><b><code>focusHistory</code> 주입으로 피로 캡 활성화</b>: 직전 <code>STALL_LOOKBACK</code>개 닻(이미 route.ts:505-507에서 조회 중)에서 focus 유닛/lever와 step 전진 여부를 산출해 <code>focusHistory</code>로 주입. 더 견고하게는 <code>synthAndStoreAnchor</code>에 '같은 focus/lever 2주 연속 && targetAccepts/step 전진 0이면 차순위 standby로 강제 승격' 한 줄 게이트(추가 쿼리 불필요). <code>advanceProgress</code> 배선(P1)이 들어가면 보조 안전망이나, 배선 전이라도 단독으로 고착을 깸</td>
-<td><b>P1</b></td>
-</tr>
-<tr>
-<td><b>weekly_plans 다중 active</b> — supersede/archive 없이 매주 <code>status='active'</code>로만 적재돼 W22~W25 4행 동시 active('1 active/child' 불변식·운영 가시성 상실)</td>
-<td><code>app/api/cron/coach/route.ts:538, 559</code><br><b>CODE_BUG</b> · low<br><code>synthAndStoreAnchor</code>가 week_key마다 upsert만 하고 이전 주 행을 archived로 안 바꿈. <code>loadAnchor(559)</code>는 week_key로만 조회</td>
-<td>신규 닻 upsert 직후 같은 child_id의 <code>week_key &lt; wk</code> active 행을 <code>status='archived'</code>로 일괄 update해 '1 active/child' 불변식·어드민 가시성 확보. 또는 status 폐기 후 <code>isLatest=week_key 최댓값</code>으로 대체. 어느 쪽이든 <b>daily 동작 무변경</b>(loadAnchor가 week_key로만 조회하므로 일간 편지 오염 없음)</td>
-<td><b>P2</b></td>
-</tr>
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">B. 진도 상태머신 — <code>curriculum.ts</code></h3>
+<div class="tbl"><table><tr><th style="width:34%">함수 (file:line)</th><th>역할</th></tr>
+<tr><td><code>evolveRow(p)</code> · <code>L35-93</code></td><td>단일 유닛 하루치 진화. <code>def.extract</code>로 snapshot evidence 병합 → 상태별 전이. <code>mastered</code>면 <code>relapseWhen</code> 연속 <code>relapseWindowDays(14)</code> → <code>relapsed</code>(step=최종단-1 재개). <code>maintenance</code>면 <code>maintCoached==0</code>&amp;7주일 유지&amp;pass=true → <code>mastered</code>. <code>active/progressing</code>면 사다리(<code>passStreakDays</code>/7 ≥ holdWeeks → step+1, 최종단 → maintenance). <b>이번 세션 신규</b>: <code>stallStreakDays</code>(<code>L89</code>) = pass=true·step++이면 0 리셋, 그 외엔 <code>coachedYesterday</code>일 때만 +1(standby/코칭 전 적립 차단=거짓 강등 방지).</td></tr>
+<tr><td><code>isProgressing / isStalled</code> · <code>L24-31</code></td><td>진전 = 최근 <code>stallDays(6)</code> 내 1차 신호. 정체 = 무신호 <code>stallDays+</code> <b>그리고</b> 그 기간 코칭 일수 ≥ <code>coachedDaysForStall(3)</code> — '안 가르침'과 '가르쳤는데 안 됨'을 구분.</td></tr>
+<tr><td><code>advanceProgress(p)</code> · <code>L158-246</code></td><td>통합 상태머신(크론이 자녀별 하루 1회 호출 의도). ①mastered 전체 재발 스캔 → ②focus 활성화·진화(<code>preEvolved</code> 이중적립 가드) → ③standby 증거 적립(판정용) → ④오늘 전개 결정(<code>DailyDecision{unit,step,mode,pivotTo}</code>). <b>mode</b>: graduated→celebrate, maintenance→maintain, stepAdvanced→advance, progressing&amp;!limping→deepen, stalled‖limping→pivot/observe. <code>goalsAfter</code> 반환(피벗이 goals.focus를 플립해야 영속 — 정적 goals가 다음날 되돌리는 버그를 B-26 리플레이가 적발).</td></tr>
+<tr><td><b>limping/hardStall 분기</b> · <code>L208-224</code></td><td><b>이번 세션 핵심</b>. <code>limping</code> = step 미전진 &amp; <code>passStreakDays==0</code> &amp; coachedF≥3(가끔 약신호가 들어와 완전 무신호 <code>isStalled</code>엔 안 걸리지만 사다리 진전 0). <code>hardStall</code> = <code>stallStreakDays ≥ TH.hardStallDays(18)</code>. hardStall이면 <b>주1회 피벗 캡을 무시</b>하고 <code>pickPivot</code> → null이면 <code>fallbackPivot</code>으로 강제 전환. limping이면 'deepen 위장' 금지하고 <code>observe</code> 고정(21일 deepen 고착 직접 원인 제거).</td></tr>
+<tr><td><code>pickPivot(goals,progress)</code> · <code>L96-104</code></td><td>standby goal 중 mastered/maintenance 아닌 첫 유닛.</td></tr>
+<tr><td><code>fallbackPivot(focusId,progress,week)</code> · <code>L107-119</code></td><td><b>이번 세션 신규</b>. standby가 비어 pickPivot=null일 때 폴백 — <code>CORE_ORDER</code>에서 focus 이후(순환) 첫 '미이수 &amp; minWeek≤주차' 유닛. 콜드스타트(goals standby 비어도) 음식 트랙 전환 보장. 순수·throw 0.</td></tr>
+<tr><td><code>normalizeGoals / goalsOf</code> · <code>L122-147</code></td><td>goals 정규화(상위 3·dedup·focus 1개 강제). 구닻(단일 lever) → <code>LEVER_TO_UNIT</code>으로 goal 승격(A-05 컷오버 호환).</td></tr>
 </table></div>
 
-<div class="callout"><b>이 모듈이 근본적으로 무엇을 바꿔야 하나</b> — ⑤는 '12유닛 통지표'를 만들어만 두고 편지에 흘려보내지 않는 <b>read-only dead-end</b>가 핵심 결함이다(<code>curriculum_progress</code> write 경로 자체가 부재 — §0의 <code>period_summaries</code> write-only dead-end와 같은 계열). 처방은 ⑴ <code>advanceProgress</code>를 크론에 배선해 진척으로 <b>step·lever를 닫고</b>(curriculum_progress upsert + goalsAfter 닻 반영), ⑵ <code>behaviorGoal</code>을 <b>focus 유닛 현재 step의 behavior로 결정론 세팅</b>(lever 정합 가드 포함)해 매주 사다리가 한 칸씩 다른 부모 행동을 가르치게 하고, ⑶ <code>focusHistory</code> 이월로 <b>teaching_arc 재앵커/stall이 daily lever를 실제로 전환</b>(같은 유닛 영구 focus 방지), ⑷ <code>weekly_plans</code> <b>supersede</b>로 active 1개를 보장하는 것이다. ⑴⑵⑶이 닫히면 12유닛 사다리가 비로소 편지에 닿아 '앵무새'의 상류가 풀린다.</div>
-</section>
-
-<section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
-<p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
-<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr><tr><td><b>SOS Approach to Feeding (단계적 노출 사다리)</b></td><td>각 수업을 보고-만지고-냄새-맛보기처럼 '한 단계 위, 거부 시 즉시 후퇴'의 사다리(steps)로 구현 — 특히 질감 수업의 puree→mashed→finger→table 순서</td></tr><tr><td><b>Satter Division of Responsibility (DOR)</b></td><td>부모=무엇/언제/어디, 아이=먹을지/얼마나 원칙을 '압박 내려놓기·배부름 존중·자율성 참여'와 '부모가 메뉴판' 수업으로 분담 구현</td></tr><tr><td><b>Satter Family Meals</b></td><td>'부모가 메뉴판' 수업의 가족 저녁 주5회 기준(familyDinnerStep1=3, Step2=5)으로 반영</td></tr><tr><td><b>노출(친숙성) 효과 — Wardle 2003 / USDA NESR</b></td><td>'새 음식 노출' 수업의 누적 8회 기준(exposeTotalForStep2=8, NESR 8~15)·주2~3회 하한으로 수치화</td></tr><tr><td><b>30분 룰</b></td><td>'배부름 존중' 수업에서 식사시간 30분 초과율 상한 0.3으로 적용(mealOver30Cap)</td></tr><tr><td><b>WIC 식사·간식 2~3시간 간격</b></td><td>'공복 리듬' 수업에서 끼니 30분 전 간식 차단·간식 과다일 상한으로 간접 적용</td></tr><tr><td><b>CEBQ-lite (Child Eating Behaviour Questionnaire 프록시)</b></td><td>progress.ts가 설문 없이 식사기록으로 Food Fussiness·Enjoyment·Slowness를 거부율·완식률·식사시간 지표로 추정</td></tr><tr><td><b>BMI 또래 퍼센타일 / WHO 성장 추세</b></td><td>bmiTrend가 최근 두 측정의 또래 백분위 변화 |Δ|≥15p를 급변으로 보고 비알람 톤 알림</td></tr><tr><td><b>음식 다리(food chaining)</b></td><td>'확장 트랙(음식 다리)' 수업이 잘 먹는 음식의 사촌 1종을 한 축만 변형해 제시(newFoodWeekly=1·1~2주 한 칸)</td></tr></table></div>
-<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">🎬 시나리오 · 유닛 (16)</h3>
-<div class="tbl"><table><tr><th style="width:26%">이름</th><th>언제 적용</th><th>이론 근거</th></tr><tr><td><b>① 압박 내려놓기 (pressure-off)</b></td><td>부모 메모에 '한 입만/다 먹어/억지로/혼냈' 강요 신호가 2일 이상 잡힐 때</td><td>Satter DOR — 부모는 분위기, 아이는 먹을지 결정. 강요 멘트 0일이 1단계 통과</td></tr><tr><td><b>② 공복 리듬 (hunger-rhythm)</b></td><td>끼니 30분 전 간식·우유를 주거나 하루 3회 이상 수시 간식이 잡힐 때</td><td>WIC 2~3시간 간격 — 끼니 전 간식 차단·간식 과다일 2일 이하</td></tr><tr><td><b>③ 식탁 무대 (table-stage)</b></td><td>화면 보며·돌아다니며 먹는 비율이 높을 때(나쁜 환경 40%+·표본 4+)</td><td>규칙적 식사 환경 — 식탁/화면off 비율 40%→60% 사다리</td></tr><tr><td><b>④ 새 음식 조금씩 노출 (exposure-savings)</b></td><td>결핍·거부 식품(콩류·채소 등)이 타깃으로 잡힐 때(2주차+)</td><td>Wardle 2003·USDA NESR — 주2~3회 노출, 누적 8회+로 친숙화</td></tr><tr><td><b>⑤ 배부름 존중 (fullness-respect)</b></td><td>식사시간 30분 초과율 50% 초과 또는 '몇 입 더 권함' 메모가 있을 때</td><td>30분 룰·DOR — 완식 강요 0일, 30분 초과율 30% 이하</td></tr><tr><td><b>⑥ 부모가 메뉴판 (parent-model)</b></td><td>식단 데이터만으론 비발동(Sonnet 주간 종합 재량·기초 폴백으로만 선발)</td><td>Satter Family Meals — 같은 음식 곁에서 모델링, 가족저녁 주3→5회</td></tr><tr><td><b>⑦ 달콤한 협상 끊기 (no-bargain)</b></td><td>'먹으면 ~줄게/상으로' 보상 거래 메모가 1일 이상 있을 때</td><td>보상 거래는 음식 선호를 떨어뜨림 — 거래 0일+디저트 중립화</td></tr><tr><td><b>⑧ 식탁의 말 (table-talk)</b></td><td>강요 메모가 있고(3주차+) 식탁 대화가 '얼마나 먹는지' 위주일 때</td><td>객체 중심 질문('당근 어땠어?') — 금지어 3종 0일, 객체대화 70%+</td></tr><tr><td><b>⑨ 감각·질감 트랙 (sensory-texture)</b></td><td>퓨레·다짐 같은 낮은 질감에 머물러 있을 때(표본 3+)</td><td>SOS Approach — puree→mashed→finger→table 한 단계 위, 거부 시 즉시 후퇴</td></tr><tr><td><b>⑩ 확장 트랙·음식 다리 (food-bridge)</b></td><td>먹기는 하는데 새 음식이 0종일 때(집 끼니, 28일 창)</td><td>food chaining — 잘 먹는 음식의 사촌 1종을 한 축만 변형, 주1종+</td></tr><tr><td><b>⑪ 자율성·참여 트랙 (autonomy-part)</b></td><td>스스로 떠먹는 비율이 낮을 때(30% 미만·표본 4+)</td><td>DOR 아이 자율 — 자기주도 30%→50%, 상차림 역할 주기</td></tr><tr><td><b>⑫ 연계·리듬 트랙 (link-rhythm)</b></td><td>등원 아이가 어린이집에서 거부한 식재료가 있을 때</td><td>기관 거부→집 4일 내 저압력 재노출(주1→2회)</td></tr><tr><td><b>⑬ 효과 측정 (CEBQ-lite, progress.ts)</b></td><td>최근 28일·직전 28일 각각 기록 3일 이상일 때 비교 발동</td><td>CEBQ Fussiness/Enjoyment/Slowness 프록시 — 잘먹는종·거부율·완식률·식사시간 4지표</td></tr><tr><td><b>⑭ BMI 급변 감지 (progress.ts)</b></td><td>키·몸무게 측정이 2회 이상이고 또래 백분위 변화 |Δ|≥15계단일 때</td><td>또래 퍼센타일 급변 비알람 알림 — 빠른 증가/감소 톤 구분</td></tr><tr><td><b>정체→피벗 (상태기계)</b></td><td>6일+ 1차 신호 무관측이고 그 기간 실제로 코칭한 일수 3일+</td><td>'안 가르침'과 '가르쳤는데 안 됨' 구분 — 후자만 다른 각도로 전환(주당 1회 캡)</td></tr><tr><td><b>졸업→재발 (상태기계)</b></td><td>졸업(유지 1주 성공) 후 재발 기준이 연속 14일 이어질 때</td><td>마스터 후 신호 붕괴 — 처음이 아니라 직전 단부터 재개(기억 존중)</td></tr></table></div>
-</section>
-
-<section id="tables-ext"><div class="sec-h"><span class="no" style="font-size:12px">🗄️</span><h2>어느 테이블에서 무엇을 — 데이터 추출</h2></div>
-<p class="lead">이 모듈이 <b>어떤 데이터에서 무엇을 뽑아</b> 운영하는지(비개발자용).</p>
-<div class="tbl"><table><tr><th style="width:24%">테이블 · 데이터</th><th style="width:30%">뽑는 값</th><th>운영상 의미</th></tr><tr><td><b>meal_logs (식사 기록)</b></td><td>log_date, slot(끼니), ingredients(식재료), menus(메뉴명), refused(거부), note(부모 메모), texture(질감), place(집/어린이집), ate_well(완식), meal_time/duration_min(식사시간), autonomy(자기주도), environment(식탁/화면)</td><td>모든 진척 판정의 1차 원료. 부모가 매일 남기는 끼니 기록에서 '강요 메모·새 음식·거부·자기주도·질감·식사시간'을 뽑아 12수업 채점과 28일 효과측정에 씁니다. autonomy·environment는 과거에 안 불러와 0% 반영되던 버그를 고쳐 지금은 칩 입력도 반영</td></tr><tr><td><b>daily_questions (오늘의 칩 질문/답변)</b></td><td>q_date, answer, context — 파싱해 ProbeAnswer(unit_id·signal·value)로 변환</td><td>기록이 모자라 판정 보류된 수업은 편지에 칩 질문을 띄우고, 그 답('편안했어요'·'직전에 조금 줬어요'·'스스로 먹었어요' 등)을 표본으로 더해 판정을 메웁니다(표본 부족→질문→적립→판정 루프)</td></tr><tr><td><b>curriculum_progress (수업 진도 저장)</b></td><td>child_id, unit_id, status(시작전/진행중/유지/졸업/피벗/재발), step(사다리 단), evidence(누적 노출일·연속 통과/재발일 등), started_at, mastered_at, last_signal_at, relapse_count</td><td>아이별 12수업 '통지표' 그 자체. 크론이 매일 불러와 어제 신호로 단계를 올리거나 정체/재발을 판정해 다시 저장. RLS 정책 없음=부모에겐 직접 노출 안 됨(내부 엔진용)</td></tr><tr><td><b>growth_logs (성장 기록)</b></td><td>measured_on, height_cm, weight_kg → 또래 BMI 퍼센타일로 변환</td><td>키·몸무게 두 측정으로 또래 대비 체중 순위 변화를 계산해, 15계단 이상 급변하면 홈 화면에 부드러운 살펴보기 안내를 띄움</td></tr><tr><td><b>period_summaries (기간 요약 차트)</b></td><td>period_type/period_key(주·월·분기·반기·연)별 variety·refusalPct·enjoyPct·avgDur·entries (periodMetrics로 집계)</td><td>effect 측정을 주간/월간 등 기간 단위로 굳혀 저장하는 병원 차트식 롤업. 장기 추세(편식이 분기별로 좋아지는지)를 보여주는 증명 데이터</td></tr><tr><td><b>weekly_plans (주간 계획·원장)</b></td><td>week_key, behavior_goal, teaching_arc, ledger(어제 어떤 수업을 코칭했나) 등</td><td>'어제 이 수업을 실제로 가르쳤나'를 알아야 '가르쳤는데 안 됨(정체)'을 '안 가르침'과 구분할 수 있어, 진도 상태기계가 이 원장을 참고</td></tr></table></div>
-</section>
-
-<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
-<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: progress.ts + curriculumUnits.ts + coachDaily.ts</span></div>
-<p class="lead">설문 0개로 meal_logs·growth_logs 기록만 가지고 '편식이 좋아지는 중인지'를 28일 비교 수치로 증명(리텐션)하고, 부모 행동을 12개 커리큘럼 유닛의 사다리(steps)·판정(passWhen)·재발(relapseWhen)·관측 질문(probes)으로 가르치는 진척·커리큘럼 레이어다. progress.ts는 효과측정/BMI급변, curriculumUnits.ts는 12유닛 가드 레지스트리(선언이 곧 명세), coachDaily.ts는 크론이 호출하는 순수 신호 빌더·답변 파서.</p>
-<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
-<ul class="clean"><li>meal_logs (log_date·slot·menus·refused·note·environment·place·ate_well·duration_min + autonomy·texture·meal_time)</li><li>growth_logs (measured_on·또래 BMI 퍼센타일)</li><li>coach_questions (q_date·answer·context.unitProbe = 질문 답변)</li><li>child_unit_progress (child_id·unit_id·status·step·evidence·last_signal_at·relapse_count)</li><li>period_summaries (period_type·period_key·metrics — write-only 롤업)</li></ul>
-</section>
-
-<section id="curriculum"><div class="sec-h"><span class="no" style="font-size:13px">📚</span><h2>커리큘럼 — 12유닛 (정의·측정)</h2></div>
-<div class="callout"><b>커리큘럼의 정의·사다리·측정이 이 모듈(<code>curriculumUnits.ts</code>)에 산다.</b> "선언이 곧 명세" — 유닛마다 <b>사다리(steps)·판정(passWhen)·재발(relapseWhen)·관측 질문(probes)</b>이 한 파일에. 전부 순수 함수·LLM 0콜·날짜 단위 카운트. <b>이번 주 어떤 유닛을 가르칠지 '선택'은 ① 신호선택기</b>(<a href="/coach-module-signal-selector.html">runWeeklyPlanning·candidateUnits</a>)가 하고, <b>여기 ⑤는 그 유닛의 내용·진척을 정의·측정</b>한다(선택=①, 정의·측정=⑤).</div>
-<div class="tbl"><table><tr><th style="width:24%">유닛(한글)</th><th>사다리 핵심 행동 (step1 → step2 …)</th></tr>
-<tr><td><b>① 압박 내려놓기</b> <code>pressure-off</code></td><td>"한 입만"·재촉 멘트 멈추기(남겨도 담담히) → 환호·박수도 담담하게</td></tr>
-<tr><td><b>② 공복 리듬</b> <code>hunger-rhythm</code></td><td>끼니 30분 전 간식·우유 멈추기 → 식사·간식 2~3시간 간격 고정</td></tr>
-<tr><td><b>③ 식탁 무대</b> <code>table-stage</code></td><td>하루 한 끼 화면 끄고 식탁에서 → 주 5끼+ 같은 자리·같은 시간</td></tr>
-<tr><td><b>④ 새 음식 조금씩 노출</b> <code>exposure-savings</code></td><td>새 음식 격일로 말없이 올리기 → 익숙해지면 티스푼 맛보기 초대</td></tr>
-<tr><td><b>⑤ 배부름 존중</b> <code>fullness-respect</code></td><td>"배불러" 인정하고 종료(완식 강요 멈춤) → 적게 담고 더 달라면 추가</td></tr>
-<tr><td><b>⑥ 부모가 메뉴판</b> <code>parent-model</code></td><td>같은 음식 곁에서 말없이 맛있게(하루 1회) → 가족 저녁 주 5회</td></tr>
-<tr><td><b>⑦ 달콤한 협상 끊기</b> <code>no-bargain</code></td><td>"먹으면 ~줄게" 거래 멈추기 → 디저트 지위 중립화(악마화 금지)</td></tr>
-<tr><td><b>⑧ 식탁의 말</b> <code>table-talk</code></td><td>금지어 3종 끊기("한 입만"·"다 먹어야지"·"안 먹으면…") → 객체 중심 질문("당근이 어땠어?")</td></tr>
-<tr><td><b>⑨ 감각·질감 트랙</b> <code>sensory-texture</code></td><td>질감 한 단계 올리기 → 만지기·탐색(IDDSI 사다리)</td></tr>
-<tr><td><b>⑩ 확장 트랙(음식 다리)</b> <code>food-bridge</code></td><td>새 음식 다리 놓기 → 딥·곁들임 — <b>푸드체이닝의 코칭 유닛</b></td></tr>
-<tr><td><b>⑪ 자율성·참여 트랙</b> <code>autonomy-part</code></td><td>역할 주기(상 차리기 등) → 스스로 덜어 먹기</td></tr>
-<tr><td><b>⑫ 연계·리듬 트랙</b> <code>link-rhythm</code></td><td>거부한 음식 재시도 → 주간 식단표 점검·연계</td></tr>
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">C. 주간 후보·피로캡·plan_detail 산출 — <code>coachWeekly.ts</code></h3>
+<div class="tbl"><table><tr><th style="width:34%">함수 (file:line)</th><th>역할</th></tr>
+<tr><td><code>candidateUnits(p)</code> · <code>L142-162</code></td><td>유닛 후보 산출 — <code>UNITS[u].trigger(sig)</code> + 재발 +3 / 전주 중단 +1, mastered·maintenance 제외, <code>minWeek &gt; week</code> 제외(E-05 온보딩 게이트). 신호 0이면 <code>CORE_ORDER</code> 미이수 첫 유닛 폴백. 상한 5.</td></tr>
+<tr><td><code>ONBOARDING_ARC</code> · <code>L166-170</code></td><td><b>이번 세션 신규(C)</b> — 온보딩 3주 아크: 1주차=신뢰 주(cap 1), 2주차=관찰 주(cap 2), 3주차=확장 주(cap 3). <code>goalsCapForWeek</code>(<code>L172</code>)가 위임. '온보딩 3주차 목표 없음'을 명명으로 실재화.</td></tr>
+<tr><td><code>applyFocusFatigue(goals,history)</code> · <code>L178-189</code></td><td>같은 유닛이 직전 2주(<code>focusMaxStallWeeks</code>) 연속 focus였고 그 2주 step 전진 0이면 3주째 강등(차순위 승격). <code>focusHistory</code> 비면 no-op.</td></tr>
+<tr><td><code>enrichWeeklyPlan(synth,ctx)</code> · <code>L520-571</code></td><td>이 모듈의 출력이 <code>plan_detail.curriculum</code> 블록(<code>L560-568</code>)으로 빚어지는 곳. <code>focusUnit·focusLabel·standby[]·stalledOut·graduatedTo·lever</code> 산출. <code>graduatedTo</code> = focus가 직전 주 focus(<code>focusHistory[0]</code>)와 다르면 그 유닛(유닛 전환=진척 가시화). <code>stalledOut</code> = goals 중 status='stopped' 유닛.</td></tr>
+<tr><td><b>거울·macro</b>(인접 산출) · <code>L464-516</code></td><td>이번 세션 #5/#6/#7 신규 — <code>mirrorLineFor</code> 3변형 회전 + <code>deficitDishFor</code> 구체 dish 주입, <code>buildMirrorSchedule</code>(단일 결핍 격일 쿨다운=#5 거울 쿨다운, 결핍군 라운드로빈=#6 도입 회전), <code>buildMacroTrack</code>(저체중/성장더딤 탄단지 보강 = #7 macro, 격주 cadence). 진척 레이어와 같은 <code>EnrichContext.goals</code>를 공유하나 진도 판정 본체는 아님.</td></tr>
 </table></div>
-<div class="note"><b>유닛 상태기계</b>: <code>not_started → active → progressing → maintenance → mastered</code> (재발 시 <code>relapsed</code>·방향전환 <code>pivoted</code>). 각 step은 <code>passWhen(evidence)</code>로 통과 판정(표본 부족이면 null=보류), <code>holdWeeks</code> 유지 후 승급. → 출력 <code>unitEvidence/step</code>이 진도 상태기계(<code>advanceProgress</code>)를 굴리고, 골고루 진척이 홈 카드·E-07 목표 포트폴리오로.</div>
 
-<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:18px 0 6px">🎓 유닛별 졸업 기준 · 확인 방법</h3>
-<p class="lead">각 유닛은 2단계 사다리를 올라야 졸업(maintenance→mastered). <b>졸업 기준 = <code>passWhen</code></b>(코드가 자동 판정), <b>확인 방법 = 기록탭의 '팁'이 어떻게 질문으로 환산되나</b>(probe). <b>식사기록만으로 판단되면 확인 방법은 공란</b>(자동).</p>
-<div class="tbl"><table><tr><th style="width:20%">유닛</th><th style="width:46%">졸업 기준 (1단계 → 2단계)</th><th>확인 방법 (기록탭 팁 → 질문)</th></tr>
-<tr><td><b>① 압박 내려놓기</b></td><td>압박·재촉 메모 <b>0일</b>(7일) → 부정 환경칩 비율 ≤ 상한</td><td>"오늘 식탁 분위기는 어땠어요?" / "남기거나 거부할 때 어떠셨어요?"</td></tr>
-<tr><td><b>② 공복 리듬</b></td><td>끼니 직전 간식 메모 <b>0일</b> → 과식간식일 ≤ 상한</td><td>"저녁 전에 간식·우유를 먹였나요?" / "오늘 간식 흐름은?"</td></tr>
-<tr><td><b>③ 식탁 무대</b></td><td>화면 없이 식탁 비율 ≥ 1단계 → ≥ 2단계</td><td><span style="color:var(--n400)">— (환경칩 식사기록 자동)</span></td></tr>
-<tr><td><b>④ 새 음식 노출</b></td><td>주간 노출일수 ≥ 임계 → 누적 노출일수 ≥ 임계</td><td><span style="color:var(--n400)">— (노출 카운트 식사기록 자동)</span></td></tr>
-<tr><td><b>⑤ 배부름 존중</b></td><td>완식 강요 메모 <b>0일</b> → 30분 초과 비율 ≤ 상한</td><td>"그만 먹겠다 할 때 어떻게 했어요?" / "오늘 양 조절은?"</td></tr>
-<tr><td><b>⑥ 부모가 메뉴판</b></td><td>가족 식사일 ≥ 1단계(주N) → ≥ 2단계(주5)</td><td>"저녁, 아이와 같은 음식을 같이 드셨어요?"</td></tr>
-<tr><td><b>⑦ 협상 끊기</b></td><td>거래 메모 <b>0일</b> → 거래 0 + 중립 디저트 1회+</td><td>"오늘 디저트·간식은 어떻게 줬어요?"</td></tr>
-<tr><td><b>⑧ 식탁의 말</b></td><td>금지어 메모 <b>0일</b> → 객체 중심 대화 ≥ 70%</td><td>"오늘 식탁에서 어떤 말을 가장 많이 건넸어요?"</td></tr>
-<tr><td><b>⑨ 감각·질감</b></td><td>질감 핑거푸드(2단계) → 일반식(3단계) 도달</td><td><span style="color:var(--n400)">— (질감칩 식사기록 자동)</span> + 보조 "새 질감 시도?"</td></tr>
-<tr><td><b>⑩ 음식 다리</b></td><td>주간 새 음식 ≥ 임계(1·2단계 동일·홀딩↑)</td><td><span style="color:var(--n400)">— (새 음식 카운트 식사기록 자동)</span></td></tr>
-<tr><td><b>⑪ 자율성·참여</b></td><td>스스로 먹기 비율 ≥ 1단계 → ≥ 2단계(셀프서빙)</td><td><span style="color:var(--n400)">— (자율성칩 식사기록 자동)</span> + 보조 "작은 역할 줬어요?"</td></tr>
-<tr><td><b>⑫ 연계·리듬</b></td><td>거부 음식 재시도 → 주간 식단표 점검·연계</td><td>"거부했던 음식을 다시 올려봤어요?" / "식단표를 봤어요?"</td></tr>
-</table></div>
-<div class="note"><b>읽는 법</b> — '졸업 기준'은 코드(<code>passWhen</code>)가 식사기록·메모·질문답에서 자동 계산해 판정합니다. <b>확인 방법이 질문인 유닛(①②⑤⑥⑦⑧⑫)</b>은 부모 행동이라 식사기록에 안 남아 <b>기록탭 '팁'에서 그 질문(probe)으로</b> 신호를 얻습니다. <b>공란인 유닛(③④⑨⑩⑪)</b>은 환경·질감·자율성·노출 칩이 이미 식사기록에 있어 <b>질문 없이 자동 판정</b>됩니다(표본 부족이면 보류·질문으로 보완).</div>
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">D. 상태 전이 매트릭스 (<code>curriculum.ts:6-10</code> 실측)</h3>
+<div class="diagram"><pre><span class="hf">not_started ─활성화→ active ─신호→ progressing ─사다리(holdWeeks)→ step+1 …</span>
+            <span class="hf">최종단 충족 →</span> <span class="hi">maintenance</span> <span class="hf">(코칭 중단·관찰) ─유지성공→</span> <span class="hi">mastered</span>
+                                          <span class="hf">└─신호붕괴→ active(재코칭)</span>
+<span class="hf">active|progressing ─정체(stalled ‖ limping)→</span> <span class="ho">pivoted</span> <span class="hf">(stop_reason=stalled|limping)</span>
+<span class="hi">mastered</span> <span class="hf">─relapseWhen 연속 14일→</span> <span class="ho">relapsed</span> <span class="hf">(step=최종단-1 재개) ─활성화→ active</span></pre></div>
+<div class="callout"><b>문헌·이론 근거(코드가 실제 구현)</b> — <b>SOS Approach</b>(질감 puree→mashed→finger→table 한 단계 위·거부 시 즉시 후퇴), <b>Satter DOR</b>(압박 내려놓기·배부름 존중), <b>Satter Family Meals</b>(가족저녁 3→5회), <b>Wardle 2003 / USDA NESR</b>(노출 누적 8회), <b>30분 룰</b>(<code>mealOver30Cap:0.3</code>), <b>WIC 2~3시간 간격</b>(공복 리듬), <b>food chaining</b>(food-bridge 사촌 1축 변형 — ⑦ 네트워크 <code>verifiedCousinsOf</code> 연계), <b>BMI 또래 퍼센타일</b>(macroTrack 저체중/성장더딤).</div>
 </section>
 
-<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
-<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
-<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">기록 적재</div><div class="pd">meal_logs를 ProgressRow/CRow(FactRow 확장: autonomy·texture·meal_time)로 로드. 모든 카운트는 '날짜' 단위로 dedup(행 부풀림 금지 — 적대감사 M6).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">효과측정 28일 비교</div><div class="pd">computeProgress가 최근28일 agg vs 직전28일(−55~−28) agg를 계산 → variety(2회+·비거부 식재료 수)·refusalPct·enjoyPct·avgDur 4지표를 improved 플래그와 함께 비교(양쪽 entries≥3일 때만 hasComparison).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">주간 후보 신호 빌더</div><div class="pd">buildCandSignals가 7일창에서 envBadPct(집 끼니만)·selfPct·texLow·mtOver30Pct·메모일수(압박/협상/끼니전간식)·간식과다일·신규식재료(28일창)·기관거부 식재료를 집계 → CandidateSignals.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">유닛 발동 점수화</div><div class="pd">각 UnitDef.trigger(s)가 CandidateSignals를 받아 0~3 발동 강도를 반환(예: pressureMemoDays≥2 → 2+). E-03 주간 종합(runWeeklyPlanning)이 이 점수로 focus 유닛 2~3개를 선발.</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">신호 추출·사다리 판정</div><div class="pd">선발 유닛의 extract(rows·answers·today)가 7일창 evidence(예: envTablePct7d·targetExposeDays7d·signalToday)를 산출 → steps[].passWhen(e)로 단계 통과, relapseWhen(e)로 재발을 판정(표본 부족 시 null=보류).</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">답변 블렌딩·롤업</div><div class="pd">parseProbeAnswers가 coach_questions.context.unitProbe + 칩 정확일치만 ProbeAnswer로 통과시켜('잘 모르겠어요'·자유텍스트 미적립) extract의 표본을 보충(G-04). periodMetrics는 기간 행을 요약해 period_summaries로 upsert(병원 차트).</div></div></div></div>
+<!-- ───────────── ③ 설계 아키텍처 시각화 ───────────── -->
+<section id="arch"><div class="sec-h"><span class="no" style="font-size:13px">🗺️</span><h2>③ 설계 아키텍처 — 데이터 파이프라인 (그림)</h2></div>
+<p class="lead"><b>입력 테이블 → 가공 함수 → 출력 컨텍스트키</b>의 흐름을 그림으로. 굵은 화살표는 라이브 배선, 점선(⇢)은 <b>미배선(read-only dead-end)</b>입니다.</p>
+<div class="diagram"><pre><span class="hi">┌─ 입력 테이블 ──────────┐</span>      <span class="hf">가공 함수(순수·LLM0)</span>          <span class="ho">출력 컨텍스트키</span>
+<span class="hi">│ meal_logs            │</span>──┐
+<span class="hi">│  (slot·menus·refused │</span>  │   ┌──────────────────────┐
+<span class="hi">│   note·environment·  │</span>  ├──▶│ UNITS[u].extract()   │── evidence ──┐
+<span class="hi">│   ate_well·meal_time·│</span>  │   │  (7일창·날짜dedup)   │              │
+<span class="hi">│   autonomy·texture)  │</span>  │   └──────────────────────┘              ▼
+<span class="hi">│ coach_questions      │</span>──┤                              ┌────────────────────┐
+<span class="hi">│  (context.unitProbe) │</span>  ├──▶ parseProbeAnswers ──┐    │ evolveRow()        │
+<span class="hi">│ child_unit_progress  │</span>──┤        (칩→ProbeAnswer)│───▶│  passWhen/relapse  │
+<span class="hi">│  (status·step·       │</span>  │                        │    │  stallStreakDays++ │
+<span class="hi">│   evidence·          │</span>  │                        │    └─────────┬──────────┘
+<span class="hi">│   last_signal_at)    │</span>──┘                        │              ▼
+<span class="hi">│ weekly_plans.goals   │</span>───────────────────────────┘    ┌────────────────────┐
+<span class="hi">│  (goals·ledger)      │</span>                                │ advanceProgress()  │
+<span class="hi">└──────────────────────┘</span>                                │  limping?hardStall?│
+                                                        │  pickPivot /       │
+   <span class="hf">buildCandSignals(rows) ──▶ candidateUnits ──▶ goals</span>  │  fallbackPivot     │
+   <span class="hf">(① 신호선택기가 호출)        applyFocusFatigue</span>      └─────────┬──────────┘
+                                                                  │
+       <span class="ho">┌─────────────── 출력 ───────────────────────────────────────┘</span>
+       <span class="ho">▼</span>                              <span class="ho">▼</span>
+  <span class="ho">decision{unit,step,mode}</span>   <span class="ho">goalsAfter[]</span>  ⇢⇢  weekly_plans.goals (upsert)
+       │                                        <span class="hf">[배선 약함]</span>
+       ⇢⇢  편지 부모행동 텍스트  <span class="hf">[⚠ DEAD-END: curriculum_progress write ≈0건]</span>
+
+  <span class="hi">growth_logs</span> ──▶ <span class="hf">bmiTrend / buildMacroTrack</span> ──▶ <span class="ho">macroTrack.phrase (홈·거울)</span>
+  <span class="hi">meal_logs (28일)</span> ──▶ <span class="hf">computeProgress</span> ──▶ <span class="ho">progress(홈 진척카드 verdict)  [라이브]</span>
+  <span class="hf">enrichWeeklyPlan ──▶</span> <span class="ho">plan_detail.curriculum{focusUnit·standby·stalledOut·graduatedTo·lever}</span></pre></div>
+<div class="callout"><b>읽는 법</b> — 라이브로 부모에게 직행하는 출력은 <b><code>computeProgress</code>(홈 진척 카드)</b>와 <b><code>plan_detail.curriculum</code>(어드민 가시화)</b>입니다. 반면 상태머신의 핵심 출력인 <b><code>decision</code>(오늘의 step·mode)과 <code>curriculum_progress</code> write는 편지에 닿는 배선이 약합니다</b> — ⑤가 12유닛 통지표를 '측정'하지만 그 step·mode가 편지 본문으로 흐르는 경로가 dead-end에 가깝습니다(§⑤ 천장 참조). 이번 세션에 <code>goalsAfter</code> 영속·<code>plan_detail.curriculum</code> 가시화는 배선됐으나, <code>curriculum_progress</code> 자체의 안정적 write/read 루프는 여전히 약합니다.</div>
 </section>
 
-<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
-<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>computeProgress(rows, todayStr)</code></td><td>최근28일 vs 직전28일 4지표(잘먹는 다양성·거부율·완식률·식사시간) 비교 → ProgressResult{metrics·improved·total·verdict·hasComparison}. 홈 진척 카드(손)로 직행.</td></tr><tr><td><code>periodMetrics(rows) / isoWeekKey·monthKey·quarterKey·halfKey·yearKey</code></td><td>기간 행 요약 지표 + 기간 키 생성기. 크론이 period_summaries 롤업 upsert에 사용.</td></tr><tr><td><code>bmiTrend(points)</code></td><td>최근 두 측정의 또래 퍼센타일 변화 |Δ|≥15p면 급변 플래그(비알람 톤 note). 홈 BMI 경고 줄.</td></tr><tr><td><code>UNITS: Record&lt;UnitId, UnitDef&gt; + UNIT_IDS + TH</code></td><td>12유닛 레지스트리(id·label·lever·minWeek·steps·probes·extract·relapseWhen·trigger) + 임계 상수. 선언이 곧 명세 — 가드 4중 분산 금지.</td></tr><tr><td><code>buildCandSignals(rows, today, attendsDaycare)</code></td><td>7일/28일창에서 주간 후보 신호(CandidateSignals)를 rows로 계산. 크론이 runWeeklyPlanning에 주입(E-03 발동 입력).</td></tr><tr><td><code>parseProbeAnswers(qs)</code></td><td>coach_questions 답변 → ProbeAnswer[]. context.unitProbe·칩 정확일치만 통과(무지·자유텍스트 미적립 — 거짓 적립 차단).</td></tr></table></div>
-</section>
-
-<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
-<p class="lead">📥 <b>computeProgress=ProgressRow 배열+오늘(kstToday). extract=CRow 배열+ProbeAnswer 배열+today+{foodTarget}(콩류 결핍 → 대표 식재료 '두부' 주입).</b></p>
+<!-- ───────────── ④ 작동 예시 ───────────── -->
+<section id="io"><div class="sec-h"><span class="no" style="font-size:13px">🧪</span><h2>④ 작동 예시 — 아린(5세) before/after</h2></div>
+<p class="lead">실제 입력 → 이 모듈 통과 → 출력의 구체 한 케이스. 두 흐름을 보입니다: <b>(가) 효과측정</b>(<code>computeProgress</code>·라이브)과 <b>(나) 상태머신 피벗</b>(<code>advanceProgress</code>·hardStall).</p>
 <div class="io">
-<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>// computeProgress(rows, todayStr) — 아린(5세) 홈 진척 카드
-{
-  "rows": [
-    { "log_date": "2026-06-15", "ingredients": ["소고기", "감자", "계란"], "refused": null, "ate_well": true, "duration_min": 22 },
-    { "log_date": "2026-06-14", "ingredients": ["미역", "두부", "계란"], "refused": "콩나물", "ate_well": true, "duration_min": 28 },
-    { "log_date": "2026-06-12", "ingredients": ["소고기", "당근"], "refused": null, "ate_well": false, "duration_min": 35 },
-    { "log_date": "2026-05-20", "ingredients": ["감자", "계란"], "refused": "시금치", "ate_well": false, "duration_min": 41 },
-    { "log_date": "2026-05-18", "ingredients": ["소고기"], "refused": "브로콜리", "ate_well": true, "duration_min": 38 }
-  ],
-  "todayStr": "2026-06-16"
-}
+<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>// (가) computeProgress(rows, "2026-06-16") — 홈 진척카드
+rows: [
+ {log_date:"2026-06-15", ingredients:["소고기","감자","계란"],
+  refused:null, ate_well:true,  duration_min:22},
+ {log_date:"2026-06-14", ingredients:["미역","두부","계란"],
+  refused:"콩나물", ate_well:true, duration_min:28},
+ {log_date:"2026-05-20", ingredients:["감자","계란"],
+  refused:"시금치", ate_well:false, duration_min:41},
+ {log_date:"2026-05-18", ingredients:["소고기"],
+  refused:"브로콜리", ate_well:true, duration_min:38}
+]
 
-// UNITS['exposure-savings'].extract(rows, answers, today, opt) — 콩류 결핍 타깃
-{
-  "rows": [
-    { "log_date": "2026-06-15", "menus": ["미역국", "두부조림"], "note": "두부 한 입 먹음", "ate_well": true, "place": "home", "slot": "dinner", "environment": "table", "refused": null },
-    { "log_date": "2026-06-14", "menus": ["계란말이"], "note": null, "ate_well": false, "place": "home", "slot": "dinner", "environment": "screen", "refused": null }
-  ],
-  "answers": [],
-  "today": "2026-06-16",
-  "opt": { "foodTarget": "두부" }
-}</pre></div></div>
-<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// computeProgress 반환 → 홈 진척 카드(progress state)
-{
-  "hasComparison": true,
-  "metrics": [
-    { "key": "variety", "label": "잘 먹는 식재료", "recent": 3, "prior": 1, "unit": "종", "betterUp": true, "improved": true },
-    { "key": "refusal", "label": "거부 비율", "recent": 33, "prior": 100, "unit": "%", "betterUp": false, "improved": true },
-    { "key": "enjoy", "label": "완식 비율", "recent": 67, "prior": 50, "unit": "%", "betterUp": true, "improved": true },
-    { "key": "dur", "label": "식사 시간", "recent": 28, "prior": 40, "unit": "분", "betterUp": false, "improved": true }
-  ],
-  "improved": 4,
-  "total": 4,
-  "verdict": "편식이 좋아지는 중이에요 👏"
-}
+// (나) advanceProgress — focus=table-stage 24일째
+goals: [{unit_id:"table-stage", priority:1, status:"focus"},
+        {unit_id:"exposure-savings", priority:2, status:"standby"}]
+progress["table-stage"]: {
+  status:"active", step:1,
+  evidence:{ envTablePct7d:0.14,        // 임계 0.4 미달
+             passStreakDays:0,
+             stallStreakDays:18 },       // ⭐ 18일째
+  last_signal_at:"2026-06-05" }
+coachedDays:{ "table-stage":12 }
+pivotsThisWeek: 1   // 주1회 캡 이미 소진
+week: 6</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// (가) computeProgress → progress(홈 카드)
+{ hasComparison:true,
+  metrics:[
+   {key:"variety", recent:3, prior:1, unit:"종", improved:true},
+   {key:"refusal", recent:33, prior:100, unit:"%", improved:true},
+   {key:"enjoy",   recent:67, prior:50, unit:"%", improved:true},
+   {key:"dur",     recent:28, prior:40, unit:"분", improved:true}],
+  improved:4, total:4,
+  verdict:"편식이 좋아지는 중이에요 👏" }
 
-// exposure-savings.extract 반환 → evidence(병합기 lib/curriculum.ts가 적립)
-{
-  "targetExposeDays7d": 1,
-  "selfEatCount": 1,
-  "target": "두부",
-  "hitToday": "2026-06-15",
-  "signalToday": 1
-}</pre></div></div>
+// (나) advanceProgress → BEFORE(hardStall 전·구코드)
+//   limping → pivotsThisWeek(1) ≥ cap(1) → pickPivot 호출 안 함
+//   → mode:"deepen"  ❌ 24일째 같은 식탁무대 deepen 고착
+
+// (나) AFTER(이번 세션 hardStall:18)
+//   stallStreakDays(18) ≥ hardStallDays(18) → 캡 무시
+//   pickPivot(standby=exposure-savings) → "exposure-savings"
+decision: { unit:"exposure-savings", step:1, mode:"pivot",
+            pivotTo:"exposure-savings" }
+goalsAfter: [{unit_id:"table-stage", status:"stopped",
+              reason:"limping"},
+             {unit_id:"exposure-savings", status:"focus"}]</pre></div></div>
 </div>
-<div class="callout">📤 <b>전달</b> — computeProgress→손(홈 진척 카드 verdict·metrics 렌더). extract evidence→뇌(child_unit_progress.evidence 적립→passWhen 통과→두뇌 가이드 재료). buildCandSignals→뇌(주간 종합 focus 유닛 선발).</div>
+<div class="win"><b>✅ EARNED(이번 세션 실측 성과)</b> — (가) 효과측정은 라이브로 작동: 아린의 잘 먹는 다양성 1→3종·거부율 100→33%가 '편식이 좋아지는 중이에요'로 부모 홈에 렌더됩니다. (나) <code>hardStall:18</code>+<code>fallbackPivot</code> 배선으로 <b>24일 식탁무대 deepen 고착이 코드 레벨에서는 끊깁니다</b> — limping이 'deepen 위장' 못 하게 막고(<code>L240</code>), 캡이 소진돼도 18일이면 강제 피벗. <code>goalsAfter</code>가 focus를 플립해 다음날 되돌림도 막습니다.</div>
+<div class="badedge"><b>⚠ 그러나(천장)</b> — 위 (나)의 피벗 도착지가 <code>exposure-savings</code>(음식)이면 다행이나, standby도 비고 <code>fallbackPivot</code>이 <code>CORE_ORDER</code> 순환에서 다시 <code>table-stage</code> 계열로 회귀하면 <b>'→table-stage' 제자리 피벗</b>이 됩니다(랄프위검 실측: table-stage ↔ exposure-savings 핑퐁, 06-11≡06-18 메타 쌍둥이). 더 근본은 (나)의 출력 <code>decision.step</code>이 24일 내내 <b>1단에 고착</b> — <code>passWhen</code>이 한 번도 충족 안 되어 step++가 0회(아래 §⑤).</div>
 </section>
 
-<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
-<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
-<div class="chips"><span class="chip">progress (computeProgress → 홈 진척 카드)</span><span class="chip">candSignals (buildCandSignals → runWeeklyPlanning 입력)</span><span class="chip">weekly focus goals (UnitDef.trigger → E-07 목표 포트폴리오)</span><span class="chip">unit evidence/step (extract·passWhen → 진도 상태기계 advanceProgress)</span><span class="chip">bmiTrend (홈 급변 경고)</span><span class="chip">period_summaries.metrics (periodMetrics 롤업)</span></div>
-</section>
+<!-- ───────────── ⑤ 남은 문제점·해야할 일 ───────────── -->
+<section id="todo"><div class="sec-h"><span class="no" style="font-size:13px">🚧</span><h2>⑤ 남은 문제점 · 해야할 일 (랄프위검 47점·2026-06-20 실측 천장)</h2></div>
+<p class="lead">연속성 평가 47점에서 드러난 이 모듈의 천장을 <b>미화 없이</b>. 각 항목: 증상 → 근본원인 → 해야할일(owner). 성과(EARNED)도 사실이면 명시하되, 실측 고착은 정직하게.</p>
 
-<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
-<ul class="clean"><li>표본 부족 시 null 반환(판정 보류 — '기록 없음≠없음', 보류는 질문 정렬이 메움)</li><li>hasComparison 양쪽 entries≥3 게이트(통계적 환각 차단)</li><li>모든 카운트 '날짜' 단위 dedup(행 부풀림 금지 — 적대감사 M6)</li><li>parseProbeAnswers 칩 정확일치만 적립('잘 모르겠어요'·자유텍스트·미지 칩 미적립 = 거짓 적립 차단)</li><li>잘먹는 다양성=2회+ AND 비거부 식재료만(거부한 음식을 '잘먹음'으로 오판 금지)</li><li>food-bridge/link-rhythm 집 끼니만(place≠daycare) — 기관 급식을 부모 통제로 오귀속 금지</li><li>bmiTrend 비알람 톤(급변이어도 '전문가와 상의' 권유, 진단 단정 금지)</li></ul>
+<div class="tbl"><table><tr><th style="width:24%">증상</th><th style="width:34%">근본원인 (file:line · 분류)</th><th>해야할일 (owner)</th></tr>
+<tr>
+<td><b>★ step이 24일 내내 1·2단 완전 고착</b> — 5일째→24일째 전진 0. <code>passWhen</code>이 단 한 번도 충족 안 됨. '다음:' 졸업 마일스톤 0회. 부모가 '제자리걸음'을 가장 직접 체감.</td>
+<td><code>curriculumUnits.ts:170-171</code>(table-stage passWhen) · <code>curriculum.ts:78-86</code><br><b>ROOT</b> · 최우선<br><code>passWhen=envTablePct7d≥0.4</code>인데 실측 0.14. evidence 0.4를 채울 <b>양성 신호 입력 자체가 안 들어옴</b> → <code>passStreakDays</code> 영원히 0 → step++ 영구 0.</td>
+<td><b>P0-D 신호 입력 게이트 완성(owner: 코칭엔진)</b> — <code>child_daily_state</code> 환경신호 입력 경로를 닫아 table-stage step 전진을 가능케. 지금은 피벗만 되고 졸업 0. 칩 답(<code>ts-env</code> '식탁에서 화면 없이')이 <code>extract</code> 표본으로 실제 적립되는지 end-to-end 검증.</td>
+</tr>
+<tr>
+<td><b>table-stage ↔ exposure-savings 졸업 없는 핑퐁</b> — 진척 아닌 정체. 06-11≡06-18, 06-12≡06-19 7일 간격 메타 쌍둥이(같은 두 유닛 사이 왕복).</td>
+<td><code>curriculum.ts:107-119</code>(fallbackPivot) · <code>L223-239</code><br><b>DESIGN_GAP</b> · high<br>pivot이 <b>unit 토글만</b> 수행하고 누적 진도 좌표가 없음. <code>CORE_ORDER</code> 순환이 두 미이수 유닛 사이를 무한 왕복. pivot 도착지가 출발 유닛과 동류면 '진척 좌표 미생성'.</td>
+<td><b>단일 진행 좌표(누적 진도바) 신설(owner: 코칭엔진)</b> — 유닛 토글이 아니라 <b>'mastered 졸업' 경로</b>를 가진 누적 좌표. <code>fallbackPivot</code>이 같은 stage로 회귀하면 '진척 좌표 미생성'을 <b>버그로 분류</b>(현재는 정상 흐름으로 통과). 핑퐁 카운터를 두어 N회 왕복 시 다른 lever 강제.</td>
+</tr>
+<tr>
+<td><b>정체 해소 메커니즘이 정체를 못 끝내는 역설</b> — hardStall-18 강제피벗이 발동해도 step이 안 오름. 06-11엔 16일째 조기 발동 관찰(18 미만).</td>
+<td><code>curriculum.ts:222-227</code> · <code>curriculumUnits.ts:57,89</code><br><b>CODE_BUG</b> · high<br>pivot이 <code>step++</code>가 아니라 <b>unit 토글</b>만. <code>hardStallDays:18</code> 카운터 기준이 '유닛 연속 정체일'인지 '전체 일자'인지 혼선 — <code>stallStreakDays</code>는 <code>coachedYesterday</code>일만 +1이라 달력일과 어긋나 16일째 발동 가능.</td>
+<td><b>hardStall 카운터 기준 명문화(owner: 코칭엔진)</b> — <code>stallStreakDays</code>가 '유닛 연속 코칭 정체일'임을 주석·테스트로 고정하고, 16일 조기발동이 의도인지(코칭일 18≈달력일 21) 회귀 테스트로 확정. pivot이 누적 진도 좌표를 전진시키도록 §2 좌표와 묶기.</td>
+</tr>
+<tr>
+<td><b>passWhen 충족 = P0-D 신호 의존인데 실데이터 미입력</b> — <code>child_daily_state</code> 미입력 → 모든 step 전진의 상류가 막힘(천장의 단일 뿌리 = '아린 확신liked 0개'와 동일 계열).</td>
+<td><code>curriculumUnits.ts:154-179</code>(extract 표본 게이트) · route 배선<br><b>DESIGN_GAP</b> · 최우선<br><code>extract</code>가 표본 부족이면 <code>null</code>(보류)을 정확히 반환하나, 그 보류를 메울 환경/care 5단계 실데이터가 아직 안 쌓임. 측정기는 정상, <b>입력이 빈 것</b>.</td>
+<td><b>P0-D부터 착수(owner: 코칭엔진·다음 세션)</b> — care 5단계·환경칩 실데이터가 쌓이면 대부분 자연해소. 그 전 단독 수정: <code>advanceProgress</code> 결과를 <code>curriculum_progress</code>에 안정 write(현재 ≈0건)하고 편지 부모행동 텍스트로 step.behavior를 흘려보내는 read 루프 완성.</td>
+</tr>
+</table></div>
+
+<div class="win"><b>✅ 이번 세션 EARNED(사실)</b> — ⒜ <code>hardStallDays:18</code>+<code>fallbackPivot</code>+limping observe 고정으로 <b>'21일 deepen 고착'의 코드 직접 원인은 제거</b>(stalledTarget 21일보다 한 사다리 빨리 끊음). ⒝ <code>CORE_ORDER</code>에 확장 트랙 편입(C)으로 3주차+ 확장 주 목표가 실제로 열림. ⒞ <code>ONBOARDING_ARC</code>로 '온보딩 3주차 목표 없음' 명명 실재화. ⒟ <code>stallStreakDays</code> coachedYesterday 게이트로 거짓 강등 차단. ⒠ <code>computeProgress</code> 효과측정은 라이브로 부모 홈에 검증된 진척 렌더. ⒡ <code>plan_detail.curriculum{focusUnit·standby·stalledOut·graduatedTo}</code> 어드민 가시화 배선.</div>
+<div class="badedge"><b>정직 요약</b> — 천장의 단일 뿌리는 <b>'아린 확신 liked 0개 / P0-D 환경신호 미입력'</b> 하나다. ⑤의 상태머신·임계·피벗 로직은 정밀하게 작동하지만, <b>그 측정기를 채울 양성 신호가 아직 안 들어와 step 전진이 영구 0</b>이다. 다음 세션 = <b>P0-D 신호 입력 게이트</b>부터. 그게 닫히면 핑퐁·step 고착·hardStall 역설이 대부분 동시 해소된다(대부분 care 5단계 실데이터로 자연해소).</div>
 </section>
 
 </main>
 <footer>
 밀프레드 코칭 엔진 모듈 명세 · ⑤ 진척·커리큘럼 레이어<br>
 🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
-코드 근거: progress.ts · curriculumUnits.ts · coachDaily.ts · 2026-06-17
+코드 근거: lib/curriculum.ts · lib/curriculumUnits.ts · lib/coachWeekly.ts · 2026-06-20 실측 정본화
 </footer>
 </body></html>

@@ -57,142 +57,205 @@ th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
 .codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
 .note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
 .callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+.diagram{background:#1F2D3D;border-radius:14px;padding:18px 16px;overflow-x:auto;margin-top:8px}
+.diagram pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#cfe3f5;white-space:pre;margin:0}
+.diagram .gi{color:#7FE3B0}.diagram .gf{color:#FFD9B0}.diagram .go{color:#C9A7FF}.diagram .gx{color:#FF9A9A}
 footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
 footer a{color:var(--ad);text-decoration:none;font-weight:700}
 .backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
 .backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+.ceil{background:#FBEBEB;border:1px solid #E9B8B8;border-radius:12px;padding:13px 15px;margin:10px 0;font-size:12px;line-height:1.66}
+.ceil .ct{font-size:13px;font-weight:800;color:#B71C1C;margin-bottom:5px}
+.ceil .row{margin:4px 0}.ceil .row b{color:#8B1A1A}
+.earned{background:#E9F7F2;border:1px solid #9FD8BF;border-radius:12px;padding:12px 15px;margin:10px 0;font-size:12px;color:var(--g700);line-height:1.66}.earned b{color:#13503A}
 </style></head><body>
 <header class="hero"><div class="hero-in">
 <span class="tag">🧩 코칭 엔진 모듈 명세 · ②/⑦</span>
 <h1><span class="ic">🌉</span> ② 추천엔진 (재료·궁합·체인)</h1>
-<p>결핍 식품군을 또래가 실제로 먹는 음식·검증된 사촌·강한 궁합으로 '근거화'해 LLM 괴식·환각을 차단하는 결정론 재료 엔진</p>
+<p>오늘 무슨 식재료·메뉴를 권할지 고르는 결정론 엔진 — 결핍군 풀·콜드스타트 시드·youa 급식랭킹·구체 메뉴(popularDishesFor)로 LLM 괴식·환각을 차단</p>
 <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
 </div></header>
 <nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html" class="cur">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a><a href="/coach-module-weekly-planner.html">⑧ 주간계획</a></nav>
 <main>
-<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ②를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ②를 코드 단위로 펼친 명세입니다 — 비개발자 설명 → 구현 → 아키텍처 시각화 → 작동 예시 → 남은 문제. <b>정본 기준</b>: <code>lib/coachRecos.ts</code> + <code>app/api/cron/coach/route.ts</code> 실측(2026-06-20).</div>
 
 
-<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">🧭</span><h2>비개발자용 — 이렇게 운영됩니다</h2></div>
-<p class="lead" style="margin:8px 0">이 모듈은 코칭 편지가 부모에게 "이걸 먹여보세요"라고 권할 때, AI가 머릿속으로 음식 조합을 상상하지 못하게 막고, 우리가 미리 만들어 둔 '음식 관계도 표'에서만 답을 꺼내오게 하는 안전장치입니다. 왜 필요하냐면, AI한테 자유롭게 조리법을 시키면 '미역국에 당근'처럼 아무도 안 먹는 이상한 조합(괴식)을 그럴듯하게 지어내기 때문입니다. 그래서 우리는 추상적인 조리법 대신 '또래가 실제로 가장 자주 먹는 음식 이름'만 권합니다. 조합은 그 음식 안에 이미 들어 있으니까요(예: '순두부찌개'를 권하면 두부 조합은 그 안에 검증돼 있음).</p><p class="lead" style="margin:8px 0">작동 방식은 음식 인맥 지도라고 생각하면 쉽습니다. 식재료마다 두 종류의 '친구'가 등록돼 있습니다. 하나는 '사촌'(맛·식감이 닮아서 갈아탈 수 있는 친구, 예: 고구마-단호박-감자)이고, 다른 하나는 '궁합'(실제 급식 레시피에서 같이 자주 쓰인 짝꿍, 예: 가다랑어-김치)입니다. 아이가 잘 먹는 음식에서 출발해 → 그 사촌을 따라가면 → 부족한 영양 식재료까지 자연스럽게 다리(푸드체이닝)를 놓을 수 있습니다.</p><p class="lead" style="margin:8px 0">핵심 전략은 5단계 우선순위입니다. 아이가 (1) 이미 잘 먹는 식재료를 한 번 더 → (2) 잘 먹는 것에 궁합 좋은 걸 곁들이기 → (3) 잘 먹는 것의 사촌이 부족한 영양군에 있으면 그걸로 다리 놓기(푸드체이닝) → (4) 또래 인기 음식으로 도전 → (5) 그냥 그 식재료. 위로 갈수록 성공 확률이 높고, 다섯 단계 모두 실제 데이터 표에 근거가 있어서 괴식이 0건입니다.</p>
-<div class="callout" style="margin-top:10px"><b>🥗 영양·편식 정보는 이렇게 처리합니다</b><br>영양·편식 정보를 다루는 규칙이 코드에 촘촘히 박혀 있습니다. (1) 결핍 판정: 영양 거울에서 나온 식품군 신호등(red/yellow/green)을 받아, green이 아닌(=부족한) 끼니 식품군만 추천 대상으로 삼습니다. 부족이 심할수록(red 2개 이상) '보급 위주'(결핍군 대표 식재료를 직접), 균형이 괜찮으면 '도전 위주'(사촌·또래 인기), 그 사이면 '혼합'으로 모드를 바꿉니다. 채소(비타민A채소·기타채소)는 편식의 핵심이라 정렬 시 가점을 줘서 먼저 추천됩니다. (2) 반복노출: 주간에 '먹으면 좋을 식재료 5개' 풀을 뽑아두고, 일일은 그 풀을 '돌아가며' 권합니다 — 같은 식재료를 연속으로 권하지 않게 해서(6/2·6/3 콩 반복 사고 방지) 한 식재료를 며칠에 걸쳐 여러 번 천천히 노출시킵니다. 결핍 상위 3군에만 초점을 맞춥니다(6군에 흩뿌리면 초점이 흐려짐). (3) 괴식 차단: 궁합은 약신호(strength 1, 떡+달걀 같은 우연한 동시출현)를 일괄 차단하고 '강한 궁합(strong)'만 곁들임에 씁니다. 사촌도 '검증된(verified)' 것만 다리에 씁니다. 매운 음식·매운 식재료는 영유아 부적합이라 제외하고, 과일·유제품은 끼니가 아니라 간식 채널이라 끼니 추천에서 빼고, 주식 곡물(밀·쌀)은 날것으로 섞지 않고 반드시 '먹는 형태'(빵·면·떡·밥)로만 권합니다. 익혀야 하는 식재료(생채소·생선·말린콩·알류)는 '찐 단호박'·'삶은 달걀'처럼 조리법을 붙여서 생물로 오인하지 않게 합니다. (4) 강요 금지: 이 모듈은 '권할 음식 이름'만 산출하고, 양념·불세기 같은 조리 상세나 강압적 지시는 절대 주지 않습니다(부모가 스스로 검색·결정).</div>
-<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린(5세·콩류·채소 결핍·소고기/계란 잘 먹음·미역국 좋아함) 예시. [입력] 영양 거울이 '비타민A채소 red, 콩류 yellow'를 보내고, 집 끼니 기록에서 '잘 먹는 것=소고기·계란·미역'을 집계해 넘김. [처리] (1) 결핍 상위군 중 채소가 가점으로 먼저 뽑힘 → 오늘 추천 식재료를 날짜로 회전해 '당근'이 됨. (2) 아린이 당근을 아직 안 먹으니 liked·pair는 통과. (3) 푸드체이닝 시도 — 아린이 잘 먹는 '소고기'의 검증된 사촌, 좋아하는 '미역'의 궁합을 표에서 조회. food-graph에 '돼지고기-미역(같은 끼니 50회)' 같은 강한 짝꿍이 있어 미역 계열을 다리로 활용. (4) 당근의 또래 인기 음식을 ingredient-recipes에서 찾되 매운 건 빼고, 생물 오인 방지로 '익힌 당근'으로 표기. 동시에 콩류는 두부→'순두부찌개·유부맑은국'(또래 12·13회)으로 도전 카드. [결과] 편지에 "잘 먹는 소고기·미역 옆에 익힌 당근을 살짝 곁들여보세요, 또래는 순두부찌개로 콩을 잘 먹어요"처럼 전부 실데이터 근거 음식만 등장. '미역국에 당근 갈아넣기' 같은 괴식은 약신호·미검증이라 자동 차단되고, 같은 식재료를 매일 반복하지 않게 주간 5개 풀에서 돌아가며 권함.</div>
+<!-- ① 비개발자 -->
+<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">①</span><h2>비개발자용 — 이 모듈이 무엇을 왜 하나</h2></div>
+<p class="lead" style="margin:8px 0">이 모듈은 코칭 편지가 부모에게 "오늘은 이걸 먹여보세요"라고 권할 때, <b>AI가 머릿속으로 음식을 상상하지 못하게 막고</b>, 우리가 미리 만들어 둔 '음식 관계도 표'에서만 답을 꺼내오게 하는 안전장치입니다. AI한테 자유롭게 조리법을 시키면 '미역국에 당근 갈아넣기'처럼 아무도 안 먹는 괴식을 그럴듯하게 지어내기 때문입니다. 그래서 우리는 추상 조리법 대신 <b>또래가 실제로 가장 자주 먹는 '음식 이름'</b>만 권합니다 — 조합은 그 음식 안에 이미 검증돼 있으니까요(예: '순두부찌개'를 권하면 두부 조합은 그 안에 있음).</p>
+<p class="lead" style="margin:8px 0">작동은 <b>음식 인맥 지도</b>라고 생각하면 쉽습니다. 식재료마다 두 종류의 친구가 등록돼 있습니다. 하나는 <b>사촌</b>(맛·식감이 닮아 갈아탈 수 있는 친구 — 고구마·단호박·감자)이고, 다른 하나는 <b>궁합</b>(실제 급식 레시피에서 같이 자주 쓰인 짝꿍 — 가다랑어·김치)입니다. 아이가 잘 먹는 음식에서 출발해 → 사촌을 따라가면 → 부족한 영양 식재료까지 자연스럽게 다리(푸드체이닝)를 놓습니다.</p>
+<p class="lead" style="margin:8px 0">핵심 전략은 <b>5단계 우선순위</b>입니다. 아이가 (1) 이미 잘 먹는 식재료를 한 번 더 → (2) 잘 먹는 것에 궁합 좋은 걸 곁들이기 → (3) 잘 먹는 것의 사촌이 부족한 군에 있으면 그걸로 다리 놓기 → (4) 또래 인기 음식으로 도전 → (5) 그냥 그 식재료. 위로 갈수록 성공 확률이 높고, 다섯 단계 모두 실데이터 표에 근거가 있어 괴식이 0건입니다.</p>
+<div class="callout" style="margin-top:10px"><b>🆕 이번 세션 추가 — '뭘 좋아하는지 모를 때'의 콜드스타트</b><br>가장 큰 보강입니다. 아린처럼 부모가 '완식했어요'를 거의 안 찍어서 <b>아이가 뭘 좋아하는지 확신이 없을 때</b>(완식 신호 2개 미만), 예전엔 추천이 '두부 디폴트'로 무너졌습니다(콩류군 첫 대표가 두부라서). 이제는 ① <b>신호계량화</b>(①신호선택기 모듈)가 '한 번 완식한 걸 좋아한다고 착각'하지 않게 거르고, ② <b>콜드스타트 시드 사다리</b>가 출발점을 '집에서 자주 차려진 음식'(Tier2) → 그것도 빈약하면 '영유아 급식에 흔히 오르는 재료'(Tier3 youa 큐레이션)로 보강합니다. 또 추천 음식에 '<b>또래 급식에도 자주 오르는 익숙한 재료</b>'라는 안심 한 마디를 붙이되, 서열·등수·%는 절대 노출하지 않고(이사님 원칙), 흔하지 않은 재료엔 그 절을 아예 빼서 '0회를 흔함으로 위장'하지 않습니다.</div>
+<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린(콩류·비타민A채소 결핍·완식 신호 빈약). [입력] 영양 거울이 '비타민A채소 red·콩류 yellow'를 보내고, 집 끼니에서 '자주 차려진 것=소고기·계란·감자·미역'을 집계해 넘김(단 '완식 확신'은 0개 → 콜드스타트). [처리] 콜드스타트 시드가 servedTop을 앵커로 삼아 주간 풀 5개를 짜고, 일일은 그 풀을 날짜로 돌려가며 추천(같은 식재료 연속 금지). 주간계획(⑧)이 정한 '오늘의 슬롯 음식'(단호박찜 등)이 있으면 그것을 본문 음식으로 강제하고, 추천 사실 블록은 슬롯과 안 싸우게 사촌 줄을 끕니다(F-18). [결과] "단호박찜 같은 것도 가끔 식탁에 올려보세요"처럼 전부 실데이터 근거 음식만 등장. '미역국에 당근' 같은 괴식은 약신호·미검증이라 자동 차단.</div>
 </section>
 
-<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:13px;background:#B71C1C">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
-<p class="lead"><b>★ 최상위 근본원인</b>: 일간 두뇌 블록(<code>route.ts:628-630</code>)이 주간 닻(잠근 타깃·레버·채근캡·teaching arc)을 모른 채 <code>planFor({forceScenarioId})</code>로 plan을 통째 덮어써, 문서가 그린 '조립→뇌(판단)→손' 순서가 코드에선 <b>'뇌가 작전층(주간)을 덮어쓰기'</b>로 역전돼 있습니다. <b>이 모듈(②추천엔진)의 역할</b>은 그 상류 누수로 잘못된 타깃(치킨 등 비결핍군)이 와도 <b>추천 산출물(곁들임·사촌·궁합)을 '결핍 보강'에만 한정</b>하는 2차 방어층입니다. 그런데 현재 ②는 결핍군 게이트가 없어 같은 식품군 사촌(돼지불고기→닭가슴살)을 곁들임으로 내보내 '단백질 위 단백질' 괴식을 만들고, 진짜 괴식 검증기(comboMatrix/comboGuard)는 휴면 상태로 라이브에 미배선이며, 매 편지가 '오늘 타깃+곁들임+또래 인기음식' 동일 골격으로 수렴해 앵무새를 부릅니다.</p>
-<p class="note" style="margin-top:6px"><b>🗣️ 쉬운말 한 줄</b> — 지금은 아이가 잘 먹는 '고기'에 또 다른 '고기(사촌)'를 곁들이라고 권하는 일이 생깁니다(영양상 의미가 없는 '고기 위에 고기'). 앞으로는 곁들임을 <b>부족한 영양군에서만</b>, 그리고 잘 먹는 것과 <b>다른 식품군에서만</b> 고르게 하고, 매일 똑같은 문장 골격으로 권하지 않도록 날짜별로 추천 방식을 돌려가며 씁니다.</p>
-<div class="tbl"><table>
-<tr><th style="width:22%">증상 / 문제</th><th style="width:27%">근본원인 (파일:라인 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th style="width:8%">우선</th></tr>
-<tr>
-<td><b>단백질 위 단백질 괴식</b> — 돼지불고기 옆에 닭가슴살(같은 고기·계란군). 결핍 보강 0</td>
-<td><code>coachRecos.ts buildRecoFacts (b) 사촌 경로 192-205</code><br><span style="color:#B71C1C;font-weight:800">DESIGN_GAP</span><br>verifiedCousinsOf가 결핍군 검사 없이 같은 군 사촌(고기→고기)을 곁들임으로 출력. food-graph상 닭고기↔돼지고기·소고기는 전부 bridge·verified·strength3로 빽빽이 연결돼 사촌이 항상 또 단백질</td>
-<td>buildRecoFacts 시그니처에 <code>deficientGroups</code>(또는 missing/homeMissing) Set 인자를 추가. 사촌은 (1) <code>groupOfIngredient(c.nm)</code>이 결핍군(target∪missing∪homeMissing)에 속할 때만 곁들임 라인으로 출력 (2) <code>groupOfIngredient(c.nm)===groupOfIngredient(ing)</code>인 '같은 군' 사촌은 곁들임 짝에서 제외(교체 사촌일 뿐). 교차군 사촌(고구마↔단호박)은 결핍군 통과 시 유지. <code>route.ts:662</code>·<code>app/api/coach/route.ts:55</code> 두 호출자가 gMissing/gHomeMissing 배선</td>
-<td><span style="color:#B71C1C;font-weight:800">P0</span></td>
-</tr>
-<tr>
-<td><b>진짜 괴식(음식×식재료)이 라이브에서 안 걸림</b> — 미역국+당근류 차단이 정규식 블랙리스트에만 의존</td>
-<td><code>comboMatrix.ts:31-49 (scoreCombo/isComboOk)</code> · <code>comboGuard.validCombos/dishIngredientFit</code><br><span style="color:#B71C1C;font-weight:800">CODE_BUG</span><br>설계된 dish×ingredient 괴식 게이트가 coachMaterials(휴면)만 호출 → 라이브 buildRecoFacts·buildIngredientPool 어디서도 미호출. 라이브는 strongPairsOf(식재료×식재료)만 써 '음식+식재료 자연스러움' 미검증</td>
-<td>휴면 게이트를 라이브 buildRecoFacts 곁들임 산출에 배선. <code>isComboOk(dish, ing)</code> 또는 <code>validCombos</code>(둘 다 임계 2·동일 사상이므로 한쪽으로 단일화) 통과분만 본문 라인에 내보냄(미통과=제외, 빈 결과 허용=조합 강요 금지). buildValidatedCombos 로직을 라이브로 끌어오거나 buildRecoFacts가 isComboOk 직접 호출. 중복 게이트(comboMatrix vs comboGuard) 병존 정리</td>
-<td><span style="color:#B71C1C;font-weight:800">P0</span></td>
-</tr>
-<tr>
-<td><b>앵무새 골격</b> — 매 편지 '오늘 타깃 음식+곁들임+또래 인기음식' 동일 멀티라인으로 수렴</td>
-<td><code>coachRecos.ts buildRecoFacts 169-208</code> + <code>coach.ts:639</code>('인기 음식 이름 반드시 한 번' 강제)<br><span style="color:#B71C1C;font-weight:800">DESIGN_GAP</span><br>buildRecoFacts가 (a)타깃 라인 + (b)사촌·궁합 라인을 항상 같은 구조로 산출하고, coach.ts:639가 매 편지 필수 슬롯을 강제해 골격 고착</td>
-<td>buildRecoFacts에 <code>seed/mode</code> 인자 추가 → 날짜별로 '곁들임-only / 사촌(푸드체이닝)-only / 또래 인기음식 도전-only' 중 하나를 단독 강조하는 회전 산출(<code>pickFoodReco</code>의 via 태그 liked/pair/chain/dish/plain를 text 주축으로 채택). coach.ts:639의 '인기 음식 이름 반드시 한 번 + 또래들은 OO' 필수 슬롯을 via가 dish일 때만 켜지는 조건부로 강등</td>
-<td><span style="color:#E89244;font-weight:800">P1</span></td>
-</tr>
-<tr>
-<td><b>운반체 음식명 group 미상으로 누수</b> — '치킨·닭가슴살' 같은 비표준명이 곁들임 결핍 보강에 잘못 분류</td>
-<td><code>coachRecos.ts ING_GROUP 119-120, groupOfIngredient</code><br><span style="color:#B71C1C;font-weight:800">CODE_BUG</span><br>groupOfIngredient(ING_GROUP)이 GROUP_INGREDIENTS 멤버(닭고기·소고기)만 알고 치킨·닭가슴살·삼겹살 같은 운반체 음식명/미매핑 토큰엔 null 반환</td>
-<td>ING_GROUP에 '고기·계란' 군 동의어(치킨·닭가슴살·닭다리·삼겹살·제육·돼지불고기 등) 보강, <b>또는</b> groupOfIngredient가 null이면 곁들임을 '결핍 보강'으로 절대 분류하지 않는 보수적 기본값(null=비결핍 취급=곁들임 짝 제외) 명시. 미매핑 운반체가 사촌·곁들임 경로로 누수돼 '단백질 위 단백질' 재발하지 않게 함</td>
-<td><span style="color:#E89244;font-weight:800">P1</span></td>
-</tr>
-<tr>
-<td><b>궁합 경로 결핍 보강 오프레이밍</b> — 같은 군 궁합을 '결핍 보강'으로 잘못 강조</td>
-<td><code>coachRecos.ts buildRecoFacts 185, 195-204 (strongPairsOf / pairWithLiked)</code><br><span style="color:#B71C1C;font-weight:800">DESIGN_GAP</span><br>궁합은 교차군이 정당(달걀↔가지=채소)하나, 같은 군 궁합·같은 군 head 페어를 '결핍 보강'으로 묶으면 무의미</td>
-<td>궁합(strongPairsOf)은 사촌과 달리 결핍군 게이트를 '약하게' 적용 — 결핍군 소속이면 우선 노출하되 같은 군 궁합은 강조 강등(곁들임 운반체로만, 결핍 보강 주장 금지). (a) head 경로 <code>pairWithLiked</code>도 '잘 먹는 것↔타깃'이 같은 군이면 결핍 보강 프레이밍에서 제외</td>
-<td><span style="color:#E89244;font-weight:800">P1</span></td>
-</tr>
-<tr>
-<td><b>상류 타깃 누수(이관 책임)</b> — 치킨(비결핍·미매핑)이 일간 타깃으로 잡힘</td>
-<td><code>route.ts:485 signals.*Refused 정제 누락</code> (①/통합 소관)<br><span style="color:#6B7280;font-weight:800">PARTIAL</span><br>refExposable(결핍군·주식제외 필터)이 weekly 경로에만 적용되고 daily signals·planFor·두뇌 경로엔 미적용</td>
-<td>1차(signals 결핍군 정제)는 ①신호선택기/통합에 위임 — ②만으로는 완전 봉합 불가. ②는 '추천 산출물을 결핍 보강으로 한정'하는 2차 방어층임을 코드 주석·문서에 명시하고, '타깃이 잘못 와도 같은 군 곁들임을 만들지 않음'까지만 보증</td>
-<td><span style="color:#6B7280;font-weight:800">P2</span></td>
-</tr>
+
+<!-- ② 구현 -->
+<section id="impl"><div class="sec-h"><span class="no" style="font-size:12px">②</span><h2>구현된 내용 — 코드에 실제로 있는 것</h2></div>
+<div class="meta-row"><span class="mtag st">라이브 배선됨</span><span class="mtag fe">정본: lib/coachRecos.ts</span><span class="mtag ab">호출자: app/api/cron/coach/route.ts</span></div>
+<p class="lead"><b>이 모듈의 라이브 산출물은 단 두 함수</b>입니다 — <code>buildRecoFacts</code>(추천 사실 블록 text) + <code>buildIngredientPool</code>(주간 5개 풀). 나머지(<code>popularDishesFor</code>·<code>coldStartSeed</code>·<code>youaRankOf</code>·<code>safeGarnishOf</code>·<code>cookedName</code>·<code>stapleDisplay</code>)는 이 둘과 주간계획(⑧)이 호출하는 결정론 헬퍼입니다. <code>pickFoodReco</code>·<code>weeklyExposureTarget</code>은 존재하지만 라이브 본문 경로에서는 호출되지 않습니다(거울/하위호환 잔존).</p>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">핵심 함수 (coachRecos.ts 실측 file:line)</h3>
+<div class="tbl"><table><tr><th style="width:30%">함수 · 타입</th><th>역할 · 입출력</th></tr>
+<tr><td><code>buildRecoFacts</code><br><span style="color:var(--n500)">coachRecos.ts:276</span></td><td>추천 사실 블록 단일 소스. 입력 <code>{likedIngredients, target?, targetIngredient?, freqMap?, suppressCousins?}</code> → 출력 <code>RecoFacts{target, cousins[], lines[], text}</code>. (a) 타깃 라인 = <code>targetIngredient</code>(주간 풀 일일회전 식재료) 우선, 없으면 target 그룹 첫 대표 → 그 식재료의 인기 음식 + <code>safeGarnishOf</code>로 거른 '잘 먹는 것 곁들임' + youa 안심절. (b) 잘 먹는 것 → 검증 사촌·궁합. <b>⭐F-18 신규</b>: <code>suppressCousins</code>=true면 (b) 전체 생략(라인 303 <code>args.suppressCousins ? [] : liked</code>) — 슬롯이 음식 타깃을 정한 날 사촌(감자→두부)이 슬롯과 경쟁해 본문이 두부로 회귀하던 근원 차단</td></tr>
+<tr><td><code>buildIngredientPool</code><br><span style="color:var(--n500)">coachRecos.ts:237</span></td><td>주간 추천 식재료 5개 풀. 입력 <code>{signals, likedIngredients, freqMap?, max?}</code> → 출력 <code>IngredientPool{pool[], mode, reason}</code>. 끼니 6군(<code>MEAL_GROUPS</code>·과일/유제품 제외) 중 결핍 상위 3군만(흩뿌림 방지). mode 결정: red≥2 → <b>supply</b>(결핍 대표 라운드로빈) / red=0 &amp;&amp; nonGreen≤1 → <b>challenge</b>(<code>cousinsOfLiked</code> 푸드체이닝 + 도전) / 그 외 → <b>mixed</b>. reason 예: <code>"supply(red 2·결핍군 3)"</code></td></tr>
+<tr><td><code>popularDishesFor</code><br><span style="color:var(--n500)">coachRecos.ts:80</span></td><td>식재료 → '가장 많이 쓰이는 실존 음식' 최대 2개. <code>STAPLE_FORMS</code>(밀·쌀)는 빵·면·떡·밥으로, <code>FRUIT</code>는 빈 배열(간식채널). freqMap(ingredient-recipes) freq≥4 우선 → <code>dishesForIngredient</code>(kit-matrix count&gt;0) 폴백. <code>cleanDishName</code>(NEIS 접두태그·'&amp;곁들임'·용량괄호 제거)·<code>inappropriateDish</code>(매운·짠지·견과·튀김 차단)로 정제. <b>⚠️ 날짜seed·노출이력 입력 없음 → 같은 식재료=항상 같은 top-2</b></td></tr>
+<tr><td><code>coldStartSeed</code> <span style="color:var(--n500)">:218</span> · <code>YOUA_TOP</code> <span style="color:var(--n500)">:177</span></td><td><b>⭐신규 콜드스타트 시드 사다리</b>. 입력 <code>servedIngredients[]</code> → Tier2(자주 차려진 집 식재료) → Tier3(<code>YOUA_TOP</code>=youa-freq.json 등장률 내림차순·식품군 인식만). 과일(간식채널)·중복 제외, max 6. 확신 liked가 빈약할 때 추천 앵커가 두부 디폴트로 안 무너지게 보강</td></tr>
+<tr><td><code>youaRankOf</code> <span style="color:var(--n500)">:207</span> · <code>youaReassuranceFor</code> <span style="color:var(--n500)">:213</span></td><td><b>⭐신규 급식 출현 랭킹</b>. <code>YOUA_RANK</code>(youa-freq 등장률→동률안전 순위+상위N%)를 <code>ING_YOUA_ALIAS</code>(요거트→요구르트·콩→콩(대두)·현미→멥쌀 등)로 별칭 해소 후 조회. 미수록=null(0을 꼴등으로 위장 금지). <code>youaReassuranceFor</code>는 등장률 ≥<code>YOUA_COMMON_PCT(50)</code>일 때만 '또래 급식에도 자주 오르는 익숙한 재료' 반환 — <b>서열·등수·% 노출 0</b>(이사님 원칙). 연어는 의도적 미매핑(고가·수입이라 급식 희소 → 흔함 위장 금지)</td></tr>
+<tr><td><code>safeGarnishOf</code> <span style="color:var(--n500)">:165</span></td><td>곁들임 전용 안전 궁합. <code>garnishPairsOf</code>(tray 제외)에서 ①매운/김치류(<code>KIMCHI_EXTRA</code>) ②날곡물(<code>STAPLE_FORMS</code>) ③교차괴식(<code>garnishConflict</code>: 단과일/우유류 ↔ 생선·해산물/콩·두부)을 한 번 더 거름. buildRecoFacts (a)/(b) 곁들임이 이걸 씀</td></tr>
+<tr><td><code>cookedName</code> <span style="color:var(--n500)">:60</span> · <code>stapleDisplay</code> <span style="color:var(--n500)">:38</span></td><td>안전 조리표기. <code>COOK_ADJ</code>(찐 단호박·삶은 달걀·구운 고등어·익힌 당근)로 생물 오인 방지, 주식 곡물은 먹는 형태(밥·빵·면·떡). 두부·치즈 등 가공식품은 접두 없음</td></tr>
+<tr><td><code>groupOfIngredient</code> <span style="color:var(--n500)">:144</span> · <code>GROUP_INGREDIENTS</code> <span style="color:var(--n500)">:21</span></td><td>식재료↔식품군 역색인 + 결핍군→대표 식재료 사전(콩류→두부·검은콩·콩·콩나물). ING_GROUP 멤버 외(치킨·삼겹살 등 운반체명)는 null</td></tr>
+<tr><td><code>pickFoodReco</code> <span style="color:var(--n500)">:103</span> · <code>weeklyExposureTarget</code> <span style="color:var(--n500)">:128</span></td><td>liked→pair→chain→dish→plain 5단계 via 태그(거울용)·주간 노출 타깃. <b>현 라이브 본문 경로 미호출</b>(잔존). via 회전 아이디어의 원형</td></tr>
 </table></div>
-<div class="callout" style="margin-top:12px"><b>이 모듈이 근본적으로 무엇을 바꿔야 하는가</b> — ②추천엔진의 존재이유는 '결핍 보강'인데, 그 게이트가 산출 로직에 강제돼 있지 않은 게 핵심 결함입니다. 셋을 봉합해야 합니다. (1) <b>타깃·곁들임을 결핍군으로 한정</b> — buildRecoFacts가 결핍군 Set을 받아 사촌·궁합을 '결핍 보강에 기여하는 것'으로만 게이트. (2) <b>곁들임 앵커는 타깃과 다른 식품군에서만</b>(같은 군 운반체 금지) — verifiedCousinsOf는 본질적으로 같은 군 사촌이 많으므로(food-graph same-group bridge 다수), 결핍군 게이트 없이는 '잘 먹는 단백질→사촌 단백질'을 곁들임으로 내보냅니다. (3) <b>괴식 게이트(comboMatrix/comboGuard) 라이브 배선</b> — 지금 휴면이라 괴식 차단이 정규식 블랙리스트에만 의존합니다. dish×ingredient 매트릭스를 buildRecoFacts 곁들임 산출에 단일화 배선하는 것이 본질적 해결입니다. 동시에 출력 골격을 daySeed via 회전으로 깨 앵무새 슬롯 수렴을 막아야 합니다.</div>
-<div class="note" style="margin-top:10px"><b>📎 문서 정합 메모</b> — 본 문서 §0/§2/§5는 buildValidatedCombos·comboMatrix·comboGuard·selectDailyMaterials를 라이브처럼 서술하나, 실제 라이브 추천은 <code>buildRecoFacts</code> + <code>buildIngredientPool</code> 단 둘뿐이며 나머지는 휴면입니다. §5의 "괴식 차단: buildValidatedCombos가 scoreCombo 임계 통과 조합만…"은 현재 라이브 미배선이라 사실과 다릅니다(위 P0 배선 완료 전까지는 strongPairsOf + letterDeterministicBad 정규식에만 의존). 후속 배선 시 §5 가드 문구도 함께 정정합니다.</div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">route.ts 배선 (실측 file:line)</h3>
+<div class="tbl"><table><tr><th style="width:24%">위치</th><th>무엇을 하나</th></tr>
+<tr><td><code>route.ts:368-374</code></td><td><b>⭐콜드스타트 게이트</b>. <code>quantifyPreferences(rs)</code>(①신호선택기) → <code>confidentLiked</code>(state==='liked'만) · <code>dislikedIng</code>(확실 거부). <code>coldStart = confidentLiked.length &lt; 2</code>이면 <code>likedSeed = [...confidentLiked, ...coldStartSeed(servedTop, 6)]</code>, 아니면 <code>likedIng</code>(빈도순). <b>dislikedIng는 앵커에서 제외</b>(거부한 걸 또 권하지 않기)</td></tr>
+<tr><td><code>route.ts:842-848</code></td><td><code>buildIngredientPool({signals: computeGroupSignals(homeDays||byDay), likedIngredients: likedSeed, freqMap})</code> → <code>recoPoolArr·recoMode</code>. 그 다음 풀을 '오늘 타깃군(또는 집 부족군)'에 정렬하고 <code>recentRecoIng[cid].slice(0,5)</code>에 없는 첫 식재료로 <b>일일 회전</b> → <code>recoIng</code>(같은 식재료 연속 추천 방지)</td></tr>
+<tr><td><code>route.ts:851-853</code></td><td><code>defMature &amp;&amp; planDetailCtx</code>면 주간계획(⑧) <code>pickPlanSlot(...)</code>이 우선 → <code>recoIng = slot.ingredient</code>, <code>recoMode = slot.track</code>(콩류 두부 도돌이표 차단·구체 dish 회전). dedup에 <code>recentIngredients</code> 전달</td></tr>
+<tr><td><code>route.ts:864-867</code></td><td><b>⭐F-18 슬롯본문봉합</b>. <code>slotDish</code>=슬롯이 정한 구체 dish(단호박찜)·<code>slotFood</code>=슬롯 cookedName. <code>bridgeFacts = _noFood ? '' : buildRecoFacts({likedIngredients: likedSeed, target: _recoTarget, targetIngredient: recoIng, freqMap, suppressCousins: !!slotFood}).text</code></td></tr>
+<tr><td><code>route.ts:760-764</code></td><td>두뇌(coachBrain) 경로: <code>recoCand = buildRecoFacts({likedIngredients: likedSeed, target: precomputed.plan?.target, freqMap}).text</code> → <code>brainCtx.recoCandidates</code>(시나리오·useFood 판단 재료)</td></tr>
+<tr><td><code>route.ts:316·326·371</code></td><td><code>servedHomeFreq</code>(집·수용도 무관 자주 차려진 식재료) 집계 → <code>servedTop</code> = coldStartSeed Tier2 앵커</td></tr>
+<tr><td><code>route.ts:960</code></td><td>context 저장: <code>recoIng, recoPool: recoPoolArr, recoMode</code> + <code>planSlot{reason·weeklyEstFreq·level·via·track}</code>(:956) — 어드민·다음날 회전이력</td></tr>
+</table></div>
+
+<div class="note" style="margin-top:10px"><b>📎 어드민 추천 근거(A) — 인접 모듈⑧ 소관이나 본 엔진이 공급</b> — <code>PlanSlot.reason/weeklyEstFreq/level</code>(coachWeekly.ts:57-68)은 주간계획 모듈의 타입이지만, 그 <code>dishes</code>는 <b>본 엔진의 <code>popularDishesFor</code></b>가 채우고 reason 문구('결핍군 콩류 보급(주 0.8회·red)'·'잘 먹는 두부의 검증 사촌')의 식재료·사촌 판정은 <code>groupOfIngredient</code>/<code>cookedName</code>이 만듭니다. 어드민은 이 reason을 직접 표시합니다.</div>
+<div class="note" style="margin-top:8px"><b>📎 휴면 코드 정직 표기</b> — 과거 문서가 라이브처럼 서술한 <code>selectDailyMaterials·buildValidatedCombos·comboMatrix·comboGuard·rankIngredients·rotateRecommendation·deriveLikedIngredients</code>(coachMaterials.ts)는 <b>현재 라이브 추천 경로에서 호출되지 않습니다</b>(테스트만 참조·dormant). 라이브 괴식 차단은 <code>safeGarnishOf</code> + <code>inappropriateDish</code> 정규식 + 그래프 strong/verified 게이트에만 의존합니다(combo matrix 미배선).</div>
 </section>
 
-<section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
-<p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
-<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr><tr><td><b>Fraker Food Chaining (푸드체이닝)</b></td><td>아이가 잘 먹는 음식에서 출발해 맛·식감이 닮은 '사촌'(food-graph bridge)을 징검다리 삼아 부족한 식재료까지 연결 — pickFoodReco의 chain 분기와 buildIngredientPool의 cousinsOfLiked가 정확히 이 원리를 구현</td></tr><tr><td><b>AAP food bridges (푸드 브릿지)</b></td><td>이미 수용하는 식품과 닮은 식품으로 다리를 놓아 거부감을 낮춤 — verifiedCousinsOf(검증된 사촌)와 strongPairsOf(강한 궁합 곁들임)로 '잘 먹는 것 옆에 새것 붙이기' 구현</td></tr><tr><td><b>반복노출 (repeated exposure)</b></td><td>새 음식은 여러 번 천천히 노출해야 수용 — 주간 5개 풀을 일일 회전(buildIngredientPool, 연속 같은 식재료 금지)으로 한 식재료를 며칠에 걸쳐 반복 제시</td></tr><tr><td><b>실측 동시출현 근거화 (괴식 방지 설계원칙)</b></td><td>코드 주석 명시: 추상 조리법을 AI에 맡기면 괴식 환각이 남 → 또래가 실제 먹는 음식 이름(ingredient-recipes freq·kit-matrix 실측 count·food-graph 동시출현)만 권하고 목록 밖은 지어내지 않음</td></tr></table></div>
-<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">🎬 시나리오 · 유닛 (13)</h3>
-<div class="tbl"><table><tr><th style="width:26%">이름</th><th>언제 적용</th><th>이론 근거</th></tr><tr><td><b>liked — 이미 잘 먹는 것 한 번 더</b></td><td>오늘의 추천 식재료를 아이가 이미 잘 먹는 목록에 있을 때</td><td>성공 보장 우선(가장 확실한 수용)·반복노출</td></tr><tr><td><b>pair — 잘 먹는 것에 궁합 곁들이기</b></td><td>추천 식재료의 '강한 궁합' 짝꿍 중 아이가 잘 먹는 것이 있을 때</td><td>AAP food bridges(수용 음식 옆에 붙이기)·약신호 차단(strong만)</td></tr><tr><td><b>chain — 사촌으로 다리 놓기(푸드체이닝)</b></td><td>아이가 잘 먹는 것의 '검증된 사촌'이 마침 부족한 영양군 식재료일 때</td><td>Fraker Food Chaining(닮은 사촌 징검다리)</td></tr><tr><td><b>dish — 또래 인기 음식으로 도전</b></td><td>위 세 경로가 안 되면, 그 식재료가 가장 많이 쓰이는 또래 실존 음식으로</td><td>실측 빈도 근거화(ingredient-recipes·kit-matrix)·괴식 차단</td></tr><tr><td><b>plain — 그냥 그 식재료</b></td><td>인기 음식 데이터도 없을 때 최종 폴백</td><td>안전 폴백(목록 밖 환각 금지)</td></tr><tr><td><b>supply 모드 — 보급 위주</b></td><td>영양이 많이 무너짐(red 2개 이상)</td><td>결핍군 대표 식재료를 심각도순 라운드로빈으로 직접 보급</td></tr><tr><td><b>challenge 모드 — 도전 위주</b></td><td>영양 균형 OK(red 0·결핍군 1개 이하)</td><td>푸드체이닝(잘 먹는 것의 사촌)+아직 안 먹는 인기 식재료</td></tr><tr><td><b>mixed 모드 — 혼합</b></td><td>red 1개 또는 yellow 다수(그 사이)</td><td>보급+사촌 도전 섞기</td></tr><tr><td><b>채소 우선 가점</b></td><td>추천 식재료 정렬·주간 노출 타깃 선정 시</td><td>편식 핵심=채소(vegBonus -5로 비타민A채소·기타채소 먼저)</td></tr><tr><td><b>주식 곡물 먹는 형태 변환</b></td><td>밀·쌀 등 곡물이 추천·궁합·사촌에 등장할 때</td><td>날것 섞기 방지 — 빵·면·떡·밥으로만 표시(STAPLE_FORMS)</td></tr><tr><td><b>조리법 접두 부착</b></td><td>생채소·생선·말린콩·알류 등 익혀야 하는 식재료</td><td>생물 오인 방지(찐 단호박·삶은 달걀·구운 고등어)·질식 안전</td></tr><tr><td><b>매운 음식/식재료 제외</b></td><td>인기 음식·궁합·식재료 추천 전 과정</td><td>영유아 부적합(isSpicyDish/isSpicyIngredient)</td></tr><tr><td><b>과일·유제품 끼니 제외</b></td><td>끼니 결핍군 선정·주간 풀 구성 시</td><td>과일·유제품=간식 채널(SNACK_CHANNEL)이라 끼니에 안 섞음</td></tr></table></div>
+
+<!-- ③ 아키텍처 시각화 -->
+<section id="arch"><div class="sec-h"><span class="no" style="font-size:12px">③</span><h2>설계 아키텍처 — 데이터 파이프라인 그림</h2></div>
+<p class="lead">입력 테이블 → 가공 함수 → 출력 컨텍스트키. 실선=라이브 호출, <span style="color:#FF9A9A">붉은 점선</span>=설계됐으나 미배선(휴면).</p>
+<div class="diagram"><pre><span class="gi">┌───────────────────── 입력 (route.ts 집계 · 정적 JSON) ─────────────────────┐</span>
+<span class="gi">│ meal_logs (집 끼니·place≠daycare)        lib/youa-freq.json   lib/food-graph.json │</span>
+<span class="gi">│   ├ servedHomeFreq → servedTop          (급식 등장률%)     (bridge 사촌·pair 궁합) │</span>
+<span class="gi">│   ├ favIngFreq    → likedIng            ingredient-recipes  lib/kit-dish-matrix    │</span>
+<span class="gi">│   └ acceptance_level/ate_well           (freqMap freq≥4)   (count&gt;0 폴백)        │</span>
+<span class="gi">└──────────┬──────────────────────────────┬───────────────────┬──────────────────┘</span>
+           │                              │                   │
+           ▼ (①신호계량화)                 ▼                   ▼
+  <span class="gf">quantifyPreferences ───► confidentLiked</span>   <span class="gf">YOUA_RANK/YOUA_TOP</span>   <span class="gf">verifiedCousinsOf</span>
+           │  (state==='liked'만)          │  youaRankOf        garnishPairsOf
+           │  dislikedIng (거부 제외)        │  youaReassuranceFor       │
+           ▼                              ▼                   ▼
+  <span class="gf">coldStart = confidentLiked &lt; 2 ?</span>     ┌──── safeGarnishOf ◄── garnishConflict
+  <span class="gf">  coldStartSeed(servedTop)  ───┐</span>     │     (매운/날곡물/교차괴식 제거)
+  <span class="gf">: likedIng                   ─┴► likedSeed</span>
+           │
+           ▼  signals = computeGroupSignals(homeDays)
+  <span class="gf">┌──────────── buildIngredientPool(signals, likedSeed, freqMap) ────────────┐</span>
+  <span class="gf">│  결핍 상위3군 · mode = supply / challenge / mixed                          │</span>
+  <span class="gf">└──────────────────────────┬───────────────────────────────────────────────┘</span>
+                             ▼  recoPoolArr (5개)  ─ 타깃군 정렬 ─ recentRecoIng dedup
+                    <span class="gf">recoIng (일일 회전)</span>
+                             │
+              ┌──────────────┴───────────────┐
+              ▼ (defMature &amp; planDetail)      ▼ (폴백)
+   <span class="go">⑧ pickPlanSlot → slot.ingredient</span>     recoIng 그대로
+   slotDish / slotFood / track / reason
+              │
+              ▼  suppressCousins = !!slotFood (F-18)
+  <span class="gf">┌──── buildRecoFacts(likedSeed, target=_recoTarget, targetIngredient=recoIng) ────┐</span>
+  <span class="gf">│  (a) 타깃 라인: popularDishesFor + safeGarnishOf 곁들임 + youa 안심절          │</span>
+  <span class="gf">│  (b) 잘먹는것→사촌·궁합   ← suppressCousins면 생략(F-18)                       │</span>
+  <span class="gf">└──────────────────────────────────┬───────────────────────────────────────────┘</span>
+                                     ▼  .text
+  <span class="go">┌──────────────── 출력 CoachContext 키 ────────────────┐</span>
+  <span class="go">│ bridgeFacts (✍️손=작문 재료)   recoCandidates (🧠뇌)   │</span>
+  <span class="go">│ slotFood·slotDish·slotTrack    recoIng·recoPool·recoMode │</span>
+  <span class="go">│ planSlot.reason/level/weeklyEstFreq (어드민 근거 A)      │</span>
+  <span class="go">└─────────────────────────────────────────────────────────┘</span>
+
+  <span class="gx">┌╌╌╌ 휴면(미배선) ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐</span>
+  <span class="gx">┊ coachMaterials: selectDailyMaterials · buildValidatedCombos ┊</span>
+  <span class="gx">┊ comboMatrix.scoreCombo · comboGuard ── 라이브 호출 없음     ┊</span>
+  <span class="gx">└╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘</span></pre></div>
 </section>
 
-<section id="tables-ext"><div class="sec-h"><span class="no" style="font-size:12px">🗄️</span><h2>어느 테이블에서 무엇을 — 데이터 추출</h2></div>
-<p class="lead">이 모듈이 <b>어떤 데이터에서 무엇을 뽑아</b> 운영하는지(비개발자용).</p>
-<div class="tbl"><table><tr><th style="width:24%">테이블 · 데이터</th><th style="width:30%">뽑는 값</th><th>운영상 의미</th></tr><tr><td><b>food-graph.json (사촌·궁합 네트워크, 총 1,115개 연결)</b></td><td>bridge 175개(맛·식감 닮은 '사촌'·verified 표시)와 pair 940개(같이 쓰는 레시피 N개 '궁합'·strong/medium/weak 등급·lift)</td><td>음식 인맥 지도. 푸드체이닝의 핵심 — 아이가 잘 먹는 것에서 닮은 사촌(고구마→단호박)으로 다리를 놓고, 실제 레시피에서 같이 쓰인 짝꿍만 곁들이게 함. 일부는 NEIS 전국 급식 '같은 끼니에 함께 차려진' 식판 근거(tray)</td></tr><tr><td><b>kit-dish-matrix.json (음식×식재료 적합도 매트릭스)</b></td><td>음식별 식재료 LLM 적합도 점수(0~3)와 레시피 동시출현 횟수(cells). dishesForIngredient가 점수 2 이상만 추출</td><td>'이 식재료를 어떤 음식에 넣으면 자연스러운가'의 실측 표. 또래 인기 음식이 없을 때 폴백으로, 실제로 같이 쓰인 적 있는(count&gt;0) 음식만 권해서 괴식을 막음</td></tr><tr><td><b>ingredient-recipes.json (또래 급식 빈도, public)</b></td><td>식재료별 '가장 자주 등장한 실존 음식'과 빈도(예: 두부→유부맑은국 13회·순두부찌개 12회). freq 4 이상만 채택</td><td>또래 아이들이 실제로 가장 많이 먹는 음식 순위표. '이 음식을 권하면 또래가 진짜 먹는다'는 증거라 부모가 안심하고 따라할 수 있음</td></tr><tr><td><b>meal_logs (크론이 집계 → likedIngredients/freqMap로 주입)</b></td><td>집 끼니(place≠daycare)에서 거부 안 하고 잘 먹은(ate_well≠false) 식재료·메뉴 빈도</td><td>⭐기관 급식에서 잘 먹은 건 부모가 못 바꾸니 제외하고 '집에서 잘 먹는 것'만 사촌 다리의 출발점으로 씀. 당근(급식)을 부모의 '잘 먹는 것'으로 착각하는 오류 방지</td></tr><tr><td><b>GROUP_INGREDIENTS (코드 내장 표)</b></td><td>부족 식품군→대표 식재료(콩류→두부·검은콩·콩·콩나물 등). 과일은 간식 채널이라 제외</td><td>'콩류가 부족하다'는 신호를 실제 권할 수 있는 구체 식재료로 번역하는 사전</td></tr><tr><td><b>ingredient_edges / dish_ingredient_stats (SQL, 옵트인)</b></td><td>위 food-graph·kit-matrix와 같은 내용을 DB에서 id→이름으로 변환해 읽음(COACH_GRAPH_SQL=1일 때만)</td><td>데이터가 SQL로 이관돼도 추천 로직은 그대로 — 야간에 실데이터로 사촌·궁합을 실시간 갱신하는 통로(현재는 JSON 스냅샷이 기본)</td></tr></table></div>
-</section>
 
-<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
-<div class="meta-row"><span class="mtag st">부분/휴면 포함</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: coachRecos.ts + coachMaterials.ts + recoEvidence.ts</span></div>
-<p class="lead">결핍 식품군에서 '무엇을 추천할지'(식재료·조합·근거)를 코드가 결정론으로 못 박아 LLM에는 '어떻게 쓸지'(문장·톤)만 맡긴다. 추상 조리법 대신 또래가 실제로 가장 자주 먹는 '음식 이름'·검증된 사촌·강한 궁합만 권해 괴식(미역국+당근)과 환각(지어낸 궁합)을 원천 차단한다.</p>
-<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
-<ul class="clean"><li>lib/food-graph.json (foodGraph: strongPairsOf 강한 궁합·verifiedCousinsOf 검증 사촌)</li><li>lib/kit-dish-matrix.json (kitGuide: dishesForIngredient 실측 count 폴백)</li><li>lib/ingredient-recipes JSON (route가 로드→FreqMap 주입: 또래 급식 음식 빈도)</li><li>lib/kit-dish-matrix.json (comboMatrix: scoreCombo 조합 검증)</li><li>lib/ingredient-freq.json (ingredientFreq: topPctOf 급식 상위%)</li><li>NUTRIENT_FOODS / GROUP_TARGET (nutrition: 영양소 역인덱스·식품군 권장치)</li><li>coach-tips.json (온보딩 즉효 팁)</li></ul>
-</section>
-
-<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
-<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
-<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">결핍 신호 입력</div><div class="pd">영양 거울(computeGroupSignals)이 만든 GroupSignal[](group·level·weeklyEst)을 받아 끼니 채널 6군(과일·유제품 간식 제외)만 남기고 심각도순(red 먼저·채소 가점·주간추정 적은 순) 정렬 → deficiencyWindow/buildIngredientPool로 시급 결핍군 산출</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">잘 먹는 식재료 판정(집·P10)</div><div class="pd">deriveLikedIngredients가 meal_logs를 place=daycare/snack(차려진 것) 제외하고 집(place null/home)에서 서로 다른 2일+ 등장·거부 이력 없는 것만 liked로, 거부는 refused로 분리</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">대표 식재료 회전·랭킹</div><div class="pd">GROUP_INGREDIENTS에서 결핍군 대표 식재료를 뽑아 rankIngredients(시급도·급식빈도%·강한 궁합·검증 사촌 4기준 가중합)로 정렬, buildIngredientPool은 주간 5개 풀을 mode(supply/challenge/mixed)로 선정</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">3일 무재사용 회전</div><div class="pd">rotateRecommendation이 recentRecos(최근 3일 추천)에 없는 최상위를 골라 같은 식재료 연속 추천 차단(6/2·6/3 콩 반복 사고 방지), 전부 쿨다운이면 랭킹 1위 폴백</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">조합·궁합·사촌 근거 생성</div><div class="pd">buildValidatedCombos가 잘 먹는 음식×추천 식재료를 scoreCombo 임계 통과분만 남기고(미역국+당근 탈락), strongPairsOf(강한 궁합)·verifiedCousinsOf(검증 사촌)로 푸드체이닝 라인 구성, 주식 곡물은 stapleDisplay(밥·빵·면)·생채소는 cookedName(찐 단호박) 표기</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">사실 블록 산출→두뇌·손 주입</div><div class="pd">buildRecoFacts가 '오늘 타깃 음식+또래 인기 음식+곁들임' 멀티라인 text를 만들어 CoachContext.bridgeFacts(손)와 brainCtx.recoCandidates(두뇌)로 동시 전달, evidenceFor는 식재료별 '급식 상위%·영양역할' 결정론 근거 문구 생성</div></div></div></div>
-</section>
-
-<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
-<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>pickFoodReco</code></td><td>coachRecos: 거울용 구체 추천 1건 — liked→pair→chain→dish→plain 우선순위로 via 태그와 함께 반환(전부 테이블 근거)</td></tr><tr><td><code>buildRecoFacts</code></td><td>coachRecos: 타깃 식재료의 인기 음식+잘 먹는 것의 사촌·궁합을 멀티라인 RecoFacts(text)로 — CoachContext.bridgeFacts·두뇌 recoCandidates의 단일 소스</td></tr><tr><td><code>buildIngredientPool</code></td><td>coachRecos: 주간 추천 식재료 5개 풀을 영양거울 기반 supply/challenge/mixed mode로 선정(일일 회전 소스)</td></tr><tr><td><code>weeklyExposureTarget</code></td><td>coachRecos: 본문 노출용 '실제 결핍 도전 음식' 1개를 끼니 채널 결핍군에서 정렬(주간 고정)</td></tr><tr><td><code>popularDishesFor / cookedName / stapleDisplay</code></td><td>coachRecos: 식재료→또래 인기 음식 최대 2개(freqMap 우선·kit-matrix 폴백·매운 제외), 생채소엔 조리 접두(찐·데친), 주식은 먹는 형태(밥·빵·면)</td></tr><tr><td><code>selectDailyMaterials</code></td><td>coachMaterials: Letter B 재료 엔진 단일 산출물 — 온보딩 분기→결핍 수치→liked→4기준 랭킹→3일 회전→검증 조합→근거 문구를 DailyMaterials로 (현재 테스트만 참조·dormant)</td></tr><tr><td><code>rankIngredients / rotateRecommendation / buildValidatedCombos</code></td><td>coachMaterials: 4기준 가중 랭킹·3일 무재사용 회전·isComboOk 임계 통과 조합만 산출(괴식 조합 제외)</td></tr><tr><td><code>deriveLikedIngredients</code></td><td>coachMaterials: 집(daycare/snack 제외)·서로 다른 2일+·거부 없음으로 진짜 liked 판정, 거부는 refused 분리</td></tr><tr><td><code>evidenceFor</code></td><td>recoEvidence: 식재료의 '급식 상위%(0회는 절 생략)·영양역할' 결정론 근거 문구 — 정직성 가드(빈도 0을 상위 100%로 위장 금지)</td></tr></table></div>
-</section>
-
-<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
-<p class="lead">📥 <b>live: route가 meal_logs에서 집 빈도순 likedIng·planFor 타깃·일일 회전 recoIng(targetIngredient)·ingredient-recipes freqMap을 buildRecoFacts에 주입</b></p>
+<!-- ④ 작동 예시 -->
+<section id="example"><div class="sec-h"><span class="no" style="font-size:12px">④</span><h2>작동 예시 — 아린 케이스 before/after</h2></div>
+<p class="lead"><b>아린(5세)</b> · 콩류 yellow·비타민A채소 red · 완식 신호 빈약(<code>ate_well===true</code>가 4건이나 전부 다른 식재료 각 1회) · 자주 차려진 것=소고기·계란·감자·미역.</p>
 <div class="io">
-<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>{
-  "// buildRecoFacts(아린·5세·콩류/비타민A채소 결핍·소고기/계란/감자 잘 먹음)": "live 경로",
-  "likedIngredients": ["소고기", "계란", "감자", "두부"],
-  "target": "비타민A채소",
-  "targetIngredient": "당근",
-  "freqMap": {
-    "당근": [{ "name": "당근라페", "freq": 9 }, { "name": "소고기당근볶음", "freq": 6 }],
-    "단호박": [{ "name": "단호박찜", "freq": 3 }]
-  }
+<div class="iobox inp"><div class="iol">📥 INPUT (route.ts 집계)</div><div class="codeblk"><pre>{
+  "// quantifyPreferences 결과": "①신호선택기",
+  "confidentLiked": [],          // 완식 반복+Wilson 통과 0개
+  "coldStart": true,             // &lt; 2 → 콜드스타트 발동
+  "servedTop": ["소고기","계란","감자","미역"],
+  "likedSeed": ["소고기","계란","감자","미역", "...youa Tier3"],
+  "signals(homeDays)": [
+    {"group":"비타민A채소","level":"red","weeklyEst":0.4},
+    {"group":"콩류","level":"yellow","weeklyEst":0.8}
+  ],
+  "freqMap": { "단호박":[{"name":"단호박찜","freq":7}] },
+  "planDetailCtx.slot": { "ingredient":"단호박",
+    "cookedName":"찐 단호박", "dishes":["단호박찜"],
+    "group":"비타민A채소", "track":"supply",
+    "reason":"결핍군 비타민A채소 보급(주 0.4회·red)" }
 }</pre></div></div>
 <div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>{
-  "target": "비타민A채소",
-  "cousins": ["단호박"],
-  "lines": [
-    "[오늘 타깃 비타민A채소] 익힌 당근 (또래 인기 음식: 당근라페·소고기당근볶음 · 잘 먹는 감자 곁들이면 좋아요)",
-    "소고기 → 궁합 감자·당근",
-    "감자 → 사촌 찐 단호박(또래 인기: 단호박찜)"
-  ],
-  "text": "[오늘 타깃 비타민A채소] 익힌 당근 (또래 인기 음식: 당근라페·소고기당근볶음 · 잘 먹는 감자 곁들이면 좋아요)\n소고기 → 궁합 감자·당근\n감자 → 사촌 찐 단호박(또래 인기: 단호박찜)"
+  "recoIng": "단호박",          // 슬롯이 override (line 853)
+  "recoMode": "supply",
+  "slotFood": "찐 단호박", "slotDish": "단호박찜",
+  "// buildRecoFacts(suppressCousins:true)": "F-18",
+  "bridgeFacts":
+    "[오늘 타깃 비타민A채소] 찐 단호박 (또래 인기 음식: 단호박찜)",
+  "// part(b) 사촌 줄 생략": "슬롯과 경쟁 차단",
+  "planSlot.reason": "결핍군 비타민A채소 보급(주 0.4회·red)"
 }</pre></div></div>
 </div>
-<div class="callout">📤 <b>전달</b> — text가 CoachContext.bridgeFacts(손=작문 재료)와 brainCtx.recoCandidates(두뇌=시나리오/useFood 판단)로 동시에 들어가 편지가 이 목록 밖 음식·조합을 못 짓게 함</div>
+<div class="callout" style="margin-top:12px"><b>BEFORE (콜드스타트·F-18 도입 전) vs AFTER</b><br>
+<b>BEFORE</b> — 구 누적기가 '완식 true 4건'을 그대로 liked 4개로 오판 → 콜드스타트 미발동. 슬롯은 단호박인데 추천 사실 블록 part(b)가 '<code>감자 → 사촌 두부</code>'를 동시에 내보내, LLM이 결핍군 대표 두부를 택해 <b>메타=단호박 / 본문=두부</b> 이중장부. 거울줄도 '콩류→두부' 디폴트로 두부 재소환. 결과: 24통 중 두부5·달걀6 복붙.<br>
+<b>AFTER</b> — <code>confidentLiked=0</code>이 정확히 콜드스타트를 켜 servedTop 앵커로 풀을 짜고, <code>suppressCousins=!!slotFood</code>가 part(b)를 꺼 사촌 두부 줄이 사라짐. 본문·메타·거울이 모두 '찐 단호박/단호박찜'으로 단일화. 실측: 비-콩류 슬롯 12일 두부누수 0.</div>
+<div class="note" style="margin-top:10px"><b>📌 한계가 그대로 보이는 지점</b> — 위 예시에서 <code>popularDishesFor("단호박")</code>은 날짜·노출이력을 입력으로 안 받으므로, 다음에 단호박이 또 슬롯이 되면 <b>'단호박찜'이 100% 복붙</b>됩니다. 같은 음식의 메뉴 회전이 없습니다(⑤ 천장 참조).</div>
 </section>
 
-<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
-<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
-<div class="chips"><span class="chip">bridgeFacts</span><span class="chip">recoCandidates (brainCtx)</span><span class="chip">recoPoolArr/recoMode/recoIng (route 일일 회전 상태)</span></div>
+
+<!-- ⑤ 남은 문제 -->
+<section id="ceiling"><div class="sec-h"><span class="no" style="font-size:12px">⑤</span><h2>남은 문제점 · 해야할 일 — 랄프위검 실측 천장</h2></div>
+<p class="lead">랄프위검(연속성 <b>47점</b>·2026-06-20) 실측 기준, 이 모듈 관점에서 정직하게. 증상 → 근본원인 → 해야할일(owner). 미화·과장 금지.</p>
+
+<div class="earned"><b>✅ EARNED (사실인 성과)</b> — ⓐ 괴식 0건은 실측으로 유지(<code>safeGarnishOf</code> 교차괴식·매운·날곡물 + <code>inappropriateDish</code>). ⓑ 콜드스타트 시드·신호계량화로 '완식 true 단발을 liked 오판'하던 두부 디폴트 붕괴를 차단(<code>confidentLiked&lt;2</code> 게이트). ⓒ F-18 <code>suppressCousins</code>로 슬롯-본문 이중장부(메타 단호박/본문 두부) 봉합 — 비-콩류 슬롯 12일 두부누수 0. ⓓ youa 안심절은 서열·% 노출 0·미수록 null로 정직성 유지. 비용 ₩331/자녀·월.</div>
+
+<div class="ceil"><div class="ct">🔴 천장4 (핵심) — 추천 풀 협소: 24통 중 두부5·달걀6이 추천 절반 점유</div>
+<div class="row"><b>증상</b> — 24통 편지 중 추천 음식의 절반이 두부(5)·달걀(6)에 쏠림. 콜드스타트가 Tier2(두부·달걀류) 안에서만 회전.</div>
+<div class="row"><b>근본원인</b> — <code>coldStartSeed</code>의 Tier3(<code>YOUA_TOP</code> 큐레이션)가 사실상 미확장: servedTop이 채워지면 Tier2에서 max 6이 다 차 Tier3가 잘려나감. 또 <code>GROUP_INGREDIENTS</code> 풀 자체가 협소(콩류=두부·검은콩·콩·콩나물 4종, 그중 그래프·freqMap 커버는 두부에 집중). confidentLiked 확장은 P0-D 신호 입력에 종속(천장1 의존).</div>
+<div class="row"><b>해야할일</b> — <b>P0-B/C</b>: coldStartSeed Tier2→Tier3 확장(servedTop이 충분해도 Tier3 youa 큐레이션을 일정 비율 강제 혼입), GROUP_INGREDIENTS 결핍군 대표 풀 확장(두부5·달걀6 협소 → 사촌 다양화). <span style="color:var(--n500)">owner: 추천엔진</span></div>
+</div>
+
+<div class="ceil"><div class="ct">🔴 메뉴 문자열 100% 복붙 — popularDishesFor 결정론 캐싱</div>
+<div class="row"><b>증상</b> — 재방문 시 같은 음식의 메뉴가 100% 복붙(달걀→달걀팟국/달걀장조림, 두부→유부맑은국/순두부찌개). 슬롯 dish도 음식별 top-2 고정.</div>
+<div class="row"><b>근본원인</b> — <code>popularDishesFor(ing, freqMap)</code>(coachRecos.ts:80)이 <b>날짜seed·노출이력을 입력으로 받지 않음</b> → freqMap freq 내림차순 top-2를 결정론으로 잘라 캐싱. 같은 식재료면 항상 같은 두 메뉴. slotDish는 <code>dishes[0]</code> 단일 선택(coachWeekly:864).</div>
+<div class="row"><b>해야할일</b> — <code>popularDishesFor(ing, freqMap, {seed, recentDishes})</code> 시그니처 확장 → 날짜seed로 freq≥4 후보 중 회전, 노출이력(<code>recentRecoIng</code>처럼 <code>recentDishes</code> 원장)에 있는 메뉴는 후순위. 같은 식재료라도 방문마다 다른 메뉴 노출. <span style="color:var(--n500)">owner: 추천엔진</span></div>
+</div>
+
+<div class="ceil"><div class="ct">🟠 추천 필드(식재료 단품) ↔ 주간슬롯(메뉴) 이원화</div>
+<div class="row"><b>증상</b> — <code>recoIng</code>(식재료 단품)과 <code>slotDish/slotFood</code>(메뉴)가 별 경로로 산출돼, 부모가 '오늘의 타깃'을 어느 걸로 봐야 할지 모호. context에 <code>recoIng·recoPool</code>과 <code>planSlot.ingredient·dishes</code>가 병존.</div>
+<div class="row"><b>근본원인</b> — 추천 필드는 <code>buildIngredientPool</code> 회전(route.ts:848)에서, 슬롯은 <code>pickPlanSlot</code>(⑧)에서 나오는 이원 파이프라인. slot이 있으면 recoIng를 덮어쓰지만(853), 슬롯 없는 날엔 식재료 단품만 남아 표현 단위가 들쭉날쭉.</div>
+<div class="row"><b>해야할일</b> — 추천 필드 메뉴화(<code>recoIng</code>도 <code>popularDishesFor</code>로 메뉴까지 동반) 또는 슬롯/추천 단일 소스화(buildIngredientPool 출력을 slot 형태로 통일). <span style="color:var(--n500)">owner: 추천엔진+⑧주간계획</span></div>
+</div>
+
+<div class="ceil"><div class="ct">🟠 confidentLiked 확장 = P0-D 신호 입력에 종속 (천장1 의존)</div>
+<div class="row"><b>증상</b> — 콜드스타트가 거의 항상 켜진 상태로 머묾(아린 confidentLiked=0 지속). 5단계 우선순위의 (1)liked·(2)pair·(3)chain 경로가 사실상 비활성 → 추천이 (4)dish/supply에 편중.</div>
+<div class="row"><b>근본원인</b> — confidentLiked는 명시 완식(<code>acceptance_level≥3</code> 또는 <code>ate_well===true</code>)이 ≥2회 필요한데, 부모가 그 신호를 거의 입력 안 함. <code>child_daily_state</code>(환경신호) 프로브가 라이브 미배선(P0-D)이라 졸업·확신 데이터가 안 쌓임.</div>
+<div class="row"><b>해야할일</b> — <b>본 모듈만으로 봉합 불가</b>. P0-D <code>child_daily_state</code> 신호 입력(care 5단계 실데이터 축적·table-stage 전진)이 선행돼야 confidentLiked가 채워짐. 본 모듈은 그때 likedSeed가 confidentLiked로 자동 전환되도록 게이트만 유지. <span style="color:var(--n500)">owner: ①신호선택기/P0-D (이 모듈은 종속)</span></div>
+</div>
+
+<div class="ceil"><div class="ct">🟠 combo 괴식 게이트(comboMatrix/comboGuard) 휴면 — 라이브 미배선</div>
+<div class="row"><b>증상</b> — dish×ingredient 괴식 검증(미역국+당근류)이 라이브에선 정규식 블랙리스트(<code>inappropriateDish</code>)와 그래프 strong/verified 게이트에만 의존. 음식+식재료 '자연스러움' 매트릭스 미검증.</div>
+<div class="row"><b>근본원인</b> — <code>comboMatrix.scoreCombo/isComboOk</code>·<code>buildValidatedCombos</code>가 coachMaterials(휴면)에만 묶여 있어 라이브 <code>buildRecoFacts</code>/<code>popularDishesFor</code> 어디서도 호출 안 됨. 라이브는 식재료×식재료(<code>safeGarnishOf</code>)만 검증.</div>
+<div class="row"><b>해야할일</b> — 휴면 게이트를 <code>buildRecoFacts</code> 곁들임 산출에 배선(<code>isComboOk(dish, ing)</code> 통과분만), comboMatrix↔comboGuard 중복 단일화. 단 현재 괴식 0건이라 우선순위는 천장4·메뉴회전 뒤(P1). <span style="color:var(--n500)">owner: 추천엔진</span></div>
+</div>
+
+<div class="note" style="margin-top:10px"><b>요약</b> — 이 모듈의 천장은 <b>'안전하지만 협소'</b>입니다. 괴식·환각·이중장부는 봉합됐으나(EARNED), 추천 다양성이 두부5·달걀6에 묶여 있고 같은 음식이면 메뉴까지 복붙됩니다. 다양성의 두 뿌리는 ⓐ <b>popularDishesFor 날짜seed·노출이력 입력(이 모듈 단독 해결 가능, P0-B/C)</b>과 ⓑ <b>confidentLiked 확장(P0-D 신호 입력 종속, 천장1)</b>입니다. 다음 우선순위 = P0-D 신호 입력부터(대부분 care 5단계 실데이터가 쌓이면 자연 해소).</div>
 </section>
 
-<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
-<ul class="clean"><li>괴식 차단: buildValidatedCombos가 scoreCombo 임계(기본 2) 통과 조합만 — 미역국+당근 등 미통과 제외, 빈 결과 허용(조합 강요 금지)</li><li>환각 차단: 궁합은 strongPairsOf(강한 신호만), 사촌은 verifiedCousinsOf(검증된 것만), 음식은 freqMap/kit-matrix 실측만 — 편지는 이 목록 밖을 지어내지 않음</li><li>안전 조리 표기: 생채소·생선·말린콩·알류엔 COOK_ADJ 접두(찐 단호박·삶은 달걀)로 생물 오인 방지, 매운 음식 isSpicyDish 제외</li><li>주식 곡물 가드: STAPLE_FORMS로 밀·쌀은 날것 노출 금지 → 빵·면·떡·밥 먹는 형태로만(stapleDisplay)</li><li>정직성(evidenceFor): 급식빈도 0(단호박)이면 '상위 N%' 절 생략(0회를 상위 100%로 위장 금지), 영양·빈도 둘 다 없으면 빈 text</li><li>선호 신호 정제(deriveLikedIngredients): 급식·간식(차려진 것) 제외·집 2일+·거부 우선 — 당근 급식 오판 차단</li><li>온보딩 가드(materialsForLowData): 기록&lt;3일이면 결핍 분석 끄고(환각 위험) 입력 안내+즉효 팁</li><li>환각 방지(deficiencyWindow/weeklyExposureTarget): 끼니 채널이 전부 green이면 null 반환</li></ul>
-</section>
 
 </main>
 <footer>
 밀프레드 코칭 엔진 모듈 명세 · ② 추천엔진 (재료·궁합·체인)<br>
-🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
-코드 근거: coachRecos.ts · coachMaterials.ts · recoEvidence.ts · 2026-06-17
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a> · <a href="/coach-module-weekly-planner.html">⑧ 주간계획</a><br>
+코드 근거: lib/coachRecos.ts · app/api/cron/coach/route.ts · 2026-06-20 (랄프위검 47점 실측 반영)
 </footer>
 </body></html>

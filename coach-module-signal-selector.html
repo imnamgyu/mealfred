@@ -57,140 +57,240 @@ th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
 .codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
 .note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
 .callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+.diagram{background:#fff;border:1px solid var(--n200);border-radius:14px;padding:16px;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.flowrow{display:flex;align-items:stretch;gap:10px;flex-wrap:nowrap;min-width:640px;margin:4px 0}
+.fbox{flex:1;border-radius:11px;padding:10px 12px;font-size:11px;line-height:1.5}
+.fbox .ft{font-size:11.5px;font-weight:800;margin-bottom:4px}
+.fbox.src{background:#EEF4FB;border:1px solid #cfe0f3;color:#1d3a5c}.fbox.src .ft{color:var(--b700)}
+.fbox.fn{background:var(--abg);border:1px solid var(--abd);color:var(--n700)}.fbox.fn .ft{color:var(--ad)}
+.fbox.out{background:#EAF7F0;border:1px solid #c3e6d3;color:#14502f}.fbox.out .ft{color:var(--g700)}
+.fcol{display:flex;flex-direction:column;gap:8px;flex:1}
+.fxar{display:flex;align-items:center;justify-content:center;color:var(--ac);font-size:18px;font-weight:800;flex:none;width:18px}
+.asciibox{background:#1F2D3D;border-radius:11px;padding:13px 15px;overflow-x:auto;margin-top:10px}
+.asciibox pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.55;color:#cfe3f5;white-space:pre;margin:0}
+.dmark{font-weight:800}.dgood{color:var(--g700)}.dbad{color:#C0392B}.dwarn{color:var(--p700)}
 footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
 footer a{color:var(--ad);text-decoration:none;font-weight:700}
 .backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
 .backbar a{color:var(--ad);font-weight:700;text-decoration:none}
+.earn{background:#E9F7F2;border:1px solid #b9e3d2;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--g700);line-height:1.6;margin:10px 0}.earn b{color:#14502f}
 </style></head><body>
 <header class="hero"><div class="hero-in">
-<span class="tag">🧩 코칭 엔진 모듈 명세 · ①/⑦</span>
+<span class="tag">🧩 코칭 엔진 모듈 명세 · ①/⑧</span>
 <h1><span class="ic">🧠</span> ① 신호선택기 (시나리오 두뇌)</h1>
-<p>데이터 신호로 '오늘 편지의 각도(시나리오 1개)'를 고르고 음식 추천을 검수하는 행동선택 두뇌</p>
+<p>매일 아이 데이터에서 신호를 읽어 오늘 편지의 시나리오(각도)와 행동을 고르는 두뇌 — 선호계량화·P0-D 프로브 신호 입력 지점</p>
 <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
 </div></header>
 <nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html" class="cur">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a><a href="/coach-module-weekly-planner.html">⑧ 주간계획</a></nav>
 <main>
-<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ①를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
-<div class="callout" style="margin:8px 0 0"><b>🧠 이 모듈이 '뇌'입니다.</b> 오늘의 <b>시나리오(각도) 선택</b> + 음식 추천 검수(일간) 에 더해, <b>⭐주간 목표 포트폴리오(커리큘럼 유닛) 선택</b>도 여기서 합니다 — 일요일 <code>runWeeklyPlanning</code>의 <code>candidateUnits</code>(신호점수+재발우선·온보딩 게이트)가 이번 주 가르칠 유닛 N개를 고르고 <code>weekly.goals</code>로 잠급니다. <b>유닛의 정의·사다리·진척 측정</b>은 <a href="/coach-module-progress.html">⑤ 진척·커리큘럼 레이어</a>가 담당(선택=①, 정의·측정=⑤). 모델: <b>뇌 = DeepSeek V4-Pro</b>(BRAIN_MODEL=sonnet 역할·실패 시 Claude 폴백).</div>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ①를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드. 코드 근거: <code>route.ts</code> · <code>coachBrain.ts</code> · <code>coachWeekly.ts</code> · <code>coachDaily.ts</code> · <code>preferenceQuantification.ts</code> (실측 2026-06-20).</div>
+<div class="callout" style="margin:8px 0 0"><b>🧠 이 모듈이 '뇌'입니다.</b> 매일 아이 데이터에서 신호를 읽어 <b>오늘 편지의 시나리오(각도) 1개 + 음식을 다룰지(useFood) + 추천 검수(approvedRecs)</b>를 고릅니다. 편지 글 자체는 쓰지 않습니다(작문은 <a href="/coach-module-writer.html">⑥ 작문기</a>). 모델: <b>뇌 = DeepSeek V4-Pro</b>(<code>BRAIN_MODEL</code> 역할·실패 시 결정론 폴백). 주간 목표 포트폴리오(커리큘럼 유닛) 선택은 일요일 <code>runWeeklyPlanning</code>가 하고, 유닛의 정의·사다리·진척 측정은 <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a>이 담당합니다(선택=①, 정의·측정=⑤). <b>P0-D 프로브 신호 입력 지점</b>(<code>pickUnitProbe</code>)도 이 모듈에 있습니다.</div>
 
-
-<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">🧭</span><h2>비개발자용 — 이렇게 운영됩니다</h2></div>
-<p class="lead" style="margin:8px 0">이 모듈은 '오늘 부모에게 보낼 코칭 편지를 어떤 각도로 쓸까'를 고르는 두뇌입니다. 편지 글 자체는 쓰지 않습니다. 식당 셰프에 비유하면, 이 모듈은 '오늘은 콩류 얘기를 할까, 식사 분위기 얘기를 할까, 칭찬만 할까'를 정하는 주방장이고, 실제 요리(편지 문장 쓰기)는 다른 엔진이 합니다. 왜 필요하냐면, 같은 아이의 데이터로 매일 편지를 쓰면 LLM이 자꾸 같은 해법으로 수렴해 '매일 똑같은 잔소리'가 되기 때문입니다. 그래서 13개의 미리 짜둔 '각도(시나리오)'를 두고, 그날 데이터 신호로 딱 1개만 골라 그 각도로만 쓰게 합니다.</p><p class="lead" style="margin:8px 0">고르는 방식은 두 가지가 있습니다. 첫째는 코드가 자동으로 고르는 방식(결정론): 각 시나리오에는 '언제 발동하나'라는 조건과 '우선순위'가 붙어 있어, 조건을 만족한 것 중 우선순위가 높은 걸 고릅니다. 단 최근 2일 쓴 각도는 1차로 빼서 매일 다르게 돌립니다. 둘째는 LLM 두뇌(coachBrain)가 고르는 방식: 발동 가능한 시나리오 목록·최근 3주 주간계획·최근 보낸 편지·영양 평가를 한꺼번에 보고 '오늘 이 아이에게 가장 도움될 각도'를 사람처럼 고릅니다. 두뇌의 제1원칙은 '다양성'과 '없는 문제 지어내지 않기'입니다.</p><p class="lead" style="margin:8px 0">그 위에 '주간 닻(coachWeekly)'이 있습니다. 일요일마다 더 똑똑한 모델이 지난 한 주를 의사처럼 종합해 '이번 주 주력 축(레버)'을 1개 정합니다 — 음식이냐, 식사 환경이냐, 자율성이냐, 질감이냐. 월~토에는 그 축에 맞춰 일관되게 코칭하되, 매일의 행동 방식과 표현은 돌려가며 바꿔, 한 주는 일관되고 매일은 신선하게 만듭니다.</p>
-<div class="callout" style="margin-top:10px"><b>🥗 영양·편식 정보는 이렇게 처리합니다</b><br>결핍 판정은 '추측'이 아니라 우리가 계산한 수치만 사용합니다. 신호에는 부족 영양소(reds), 비는 식품군(missing), 특히 '집 끼니에서만 비는 것(homeMissing/homeReds)', 거부한 음식(refused/homeRefused/daycareRefused)이 구분돼 들어옵니다. 핵심 규칙: 어린이집 급식 덕에 전체 영양은 채워졌어도 집 끼니에서 비면 '집-기관 격차' 각도로 가서 '기관이 챙겨준 덕'이라고 솔직히 인정하고 집 끼니 한 가지에만 행동을 둡니다(기관 메뉴 변경 요청 금지).<br><br>반복 노출이 중심 철학입니다. 거부한 음식은 '실패'가 아니라 '아직 처음 보는 것'으로 재정의하고, 격일~주2~3회로 좋아하는 음식 옆에 작게 다시 올려두라고 안내합니다. 향 맡기·만지기도 1회 노출로 칩니다.<br><br>괴식·강요는 코드와 프롬프트 양쪽에서 차단합니다. 음식 추천은 LLM이 새로 지어내지 못하고, 'food-graph가 계산한 실제 음식 후보' 안에서만 두뇌가 취사선택합니다(후보 밖 추가 금지 = 환각 0). 강요 금지가 곳곳에 박혀 있습니다: 축하 직후 새 숙제 얹기 금지, '한 입만'·보상 거래 금지, 비행기 놀이·빈 그릇 요구 금지, 몰래 섞어 속이기 금지. '직접 밀기(채근)'는 주 1회로 캡하고, 그것도 이미 한 번 차려준 뒤(행동지연)에만 허용합니다. 식사 적신호(사레·헛구역질·먹는 종류 감소)가 누적되면 push=0으로 잠그고 무압력을 우선합니다. 진단·장애 단어는 금지(코치는 의사 아님)하되, 신호가 이어지면 '전문가와 한번 이야기해보라'고 1회만 부드럽게 안내합니다.</div>
-<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린(5세)의 최근 데이터가 두뇌에 들어옵니다. 입력: 콩류·채소가 집 끼니에서 비고(homeMissing), 소고기·계란·미역국은 잘 먹고(favoriteFoods), 어린이집 급식 덕에 전체 영양은 채워짐(missing=0). 일요일 주간 닻은 "이번 주 주력 레버=food, 타깃=콩류"로 잡혔습니다. 처리: 월~토 매일 두뇌(또는 코드)가 13개 시나리오 중 오늘 1개를 고릅니다. 콩류가 집에서 계속 비므로 '집-기관 격차(home-daycare-gap)' 또는 '영양 공백(nutrient-gap)' 각도가 발동가능으로 뜨고, 두뇌는 최근 2~3일 같은 각도를 안 썼는지 확인합니다. 콩류 추천 후보(food-graph가 계산한 '잘 먹는 미역국에 두부 곁들이기' 같은 실제 음식 이름)를 두뇌가 검수해 useFood=true로 통과시킵니다. 단 채근(직접 밀기)은 주 1회만, 그것도 화·수·목 중 이미 한 번 콩류를 차려준 뒤에만 허용됩니다. 결과: "어린이집이 콩류를 잘 챙겨준 덕이에요. 집 저녁에는 아린이가 좋아하는 미역국에 두부를 조금만 곁들여 격일로 다시 올려보세요" 같은 각도가 그날 편지의 뼈대가 됩니다. 다음 날은 같은 콩류여도 '식사 분위기'나 '자율성' 등 다른 각도로 자동 회전해, 매일 똑같은 잔소리가 되지 않습니다.</div>
+<!-- ===================== ① 비개발자용 ===================== -->
+<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">①</span><h2>비개발자용 — 이 두뇌가 무엇을 왜 하나</h2></div>
+<p class="lead">이 모듈은 '오늘 부모에게 보낼 코칭 편지를 <b>어떤 각도</b>로 쓸까'를 고르는 두뇌입니다. 식당 셰프에 비유하면, 이 모듈은 '오늘은 콩류 얘기를 할까, 식사 분위기 얘기를 할까, 칭찬만 할까'를 정하는 주방장이고, 실제 요리(편지 문장 쓰기)는 다른 엔진이 합니다. 왜 필요하냐면, 같은 아이의 데이터로 매일 편지를 쓰면 LLM이 자꾸 같은 해법으로 수렴해 '매일 똑같은 잔소리'가 되기 때문입니다. 그래서 13개의 미리 짜둔 '각도(시나리오)'를 두고, 그날 데이터 신호로 딱 1개만 골라 그 각도로만 쓰게 합니다.</p>
+<p class="lead">고르는 방식은 두 층입니다. <b>주간 닻(작전층)</b>: 일요일마다 더 똑똑한 모델이 지난 한 주를 의사처럼 종합해 '이번 주 주력 축(레버)'을 1개 정합니다 — 음식이냐, 식사 환경이냐, 자율성이냐, 질감이냐. 월~토는 그 축에 맞춰 일관되게 가되, 매일 표현만 바꿉니다. <b>일간 두뇌(전술층)</b>: 매일 두뇌(DeepSeek V4-Pro)가 '발동 가능한 시나리오 목록·최근 편지·영양 평가·이번 주 닻'을 한꺼번에 보고 오늘의 각도를 고릅니다. <b>두뇌의 제1원칙은 '다양성'과 '없는 문제 지어내지 않기'</b>입니다. 그래서 두뇌가 고른 각도라도 '이번 주 닻이 음식이 아니면 음식 잔소리를 못 넣고', '데이터에 그 신호가 없으면 강제 못 하고', '며칠 연속 음식날이면 휴지'하도록 코드가 잠급니다(프롬프트 호소가 아니라 코드 게이트).</p>
+<div class="callout"><b>🥗 영양·편식 정보는 이렇게 처리합니다</b><br>결핍 판정은 '추측'이 아니라 우리가 계산한 수치만 씁니다. 신호에는 부족 영양소·비는 식품군·'집 끼니에서만 비는 것(homeMissing)'·거부한 음식이 구분돼 들어옵니다. 어린이집 급식 덕에 전체 영양은 채워졌어도 집에서 비면 '집-기관 격차' 각도로 가서 '기관이 챙겨준 덕'이라고 솔직히 인정하고 집 끼니 한 가지에만 행동을 둡니다(기관 메뉴 변경 요청 금지).<br><br>반복 노출이 중심 철학입니다. 거부한 음식은 '실패'가 아니라 '아직 처음 보는 것'으로 재정의하고, 격일~주2~3회로 좋아하는 음식 옆에 작게 다시 올려두라고 안내합니다. 괴식·강요는 코드와 프롬프트 양쪽에서 차단합니다 — 음식 추천은 LLM이 새로 지어내지 못하고 'food-graph가 계산한 실제 후보' 안에서만 두뇌가 취사선택합니다(후보 밖 추가 금지 = 환각 0).</div>
+<div class="callout" style="margin-top:10px"><b>🆕 이번에 추가된 것(이사님 2026-06-19~20)</b><br>① <b>선호계량화</b> — 지금까지는 '아이가 잘 먹었다(ate_well)'만 봐서, 4번 다 다른 음식을 한 번씩 잘 먹어도 '4개를 좋아한다'고 오판했습니다. 이제 <b>같은 음식을 2번 이상 완식 + 통계적으로 확실</b>해야만 '확신하고 좋아함(liked)'으로 칩니다. 아린은 이 기준으로 '확신 liked = 0' → 그래서 '잘 먹는 것 위에 다리 놓기'가 아니라 '콜드스타트(자주 차려진 음식으로 출발)'로만 작동합니다.<br>② <b>P0-D 프로브</b> — 코치가 매일 던지던 질문이 '답해도 신호로 흐르지 않던' 다리를 잇기 위해, 오늘 가르치는 유닛의 정식 질문(정규 칩)을 매일 던져 부모 답변을 신호 표본으로 쌓습니다(졸업 판정의 연료). <b>단, 출력(질문 내보내기) 다리만 깔렸고 입력(답변이 신호로 들어오는 흐름)은 아직 비어 있습니다</b> — ⑤ 남은 문제 참고.</div>
+<div class="note"><b>🧒 운영 예시(아린·5세)</b> — 입력: 콩류·채소가 집 끼니에서 비고(homeMissing), 미역국·소고기는 잘 먹지만 전부 한 번씩이라 '확신 liked=0'(콜드스타트), 어린이집 급식 덕에 전체 영양은 채워짐(missing=0), 메모에 "저녁마다 유튜브 보며 먹어요"(envBadPct 0.55). 일요일 주간 닻은 "이번 주 주력 레버=environment(식사 환경)"로 잡혔습니다. 처리: 두뇌가 13개 시나리오 중 오늘 1개를 고르는데, 닻이 비-food이므로 음식 시나리오는 '며칠에 한 번·캡 안에서만' 허용되고 나머지는 환경 각도(mealtime-atmosphere)로 갑니다. 콩류 추천은 food-graph가 계산한 실제 음식(단호박찜·치즈스틱 등 슬롯 dish)만 후보로 두고, 두뇌가 useFood로 검수합니다. 결과: 매일 '콩 먹여라'가 아니라 '저녁 한 끼만 화면 끄고 식탁에 앉아 함께 먹기' 각도가 그날 편지의 뼈대가 됩니다.</div>
 </section>
 
-<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:12px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
-<p class="lead"><b>★최상위 근본원인</b> — 일간 두뇌 블록(<code>route.ts:628-630</code>)이 <code>brainPick.scenarioId</code>만 있으면 <code>precomputed = planFor(&#123;forceScenarioId&#125;)</code>로 무조건 재할당하는데, 이 경로(<code>coach.ts:445-451</code>)는 주간 닻(mission_target·target_pool·lever·budget.push·ledger)을 <b>전혀 모른 채</b> raw signals로 타깃을 새로 뽑는다. 결과로 문서가 그린 '조립→뇌(판단)→손' 순서가 코드에선 <b>'뇌가 작전층(주간)을 덮어쓰기'</b>로 역전돼, 주간이 잠근 타깃(콩류)·레버(environment)·채근캡(push=0)·teaching arc가 일간에서 전부 무력화된다. <b>이 모듈(①신호선택기=뇌)이 바로 그 역전의 진원지</b>다 — 뇌의 책무는 작문이 아니라 '각도/타깃/useFood/lever 회전을 결정론으로 보증'하는 것이므로, 뇌가 주간 닻을 입력으로 받고 그 안에서만 결정하도록 게이트를 코드에 박는 것이 근본 수정이다.</p>
-<div class="tbl"><table>
-<tr><th style="width:24%">증상 · 문제</th><th style="width:26%">근본원인 (파일:라인 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th style="width:8%">우선순위</th></tr>
-<tr><td><b>치킨 반복 + 음식 잔소리 며칠 연속</b> — 주간이 잠근 타깃·채근캡이 발행 편지에 안 먹힘</td><td>두뇌 override가 주간 닻 통째 폐기 — <code>route.ts:604-610, 628-630</code> · <b>CODE_BUG</b></td><td>두뇌 override 블록을 주간 닻 lever에 종속시킨다. (a) lever/anchor를 두뇌 블록 스코프로 끌어올림(<code>route.ts:573-575</code>의 if 블록 밖으로, 또는 <code>weekCtx={...,lever}</code>로 노출). (b) 게이트: <code>anchorLever==='food' || scenarioId===LEVER_SCENARIO[lever] || SAFE_INTERRUPTS(progress-celebrate·neophobia-arfid-watch·low-data-gap) || foodOverrideUsedThisWeek&lt;FOOD_OVERRIDE_CAP(예 2)</code>일 때만 <code>planFor(forceScenarioId)</code> 적용, 불허면 <code>planFromWeekly</code>가 만든 precomputed(레버 프레임) 유지. (c) override 발동일은 <code>weekCtx.arc</code>를 null로 비우거나 한 구절 리마인드로 강등(환경 arc + food 본문 동시주입='한 번에 하나' 위반 제거).</td><td><b>P0</b></td></tr>
-<tr><td><b>부모 행동 코칭(teaching arc) 소멸</b> — 비-food 주에도 매일 food 시나리오</td><td>일간 두뇌가 주간 lever(environment) 무시·매일 food override — <code>route.ts:615-632</code>(특히 629) · <b>CODE_BUG</b></td><td>위 게이트로 비-food 닻 주에는 leverScenario·안전인터럽트·주당 food override 캡 내에서만 두뇌 시나리오를 허용. <code>LEVER_SCENARIO</code> 맵(<code>coachWeekly.ts:55</code>)·<code>SAFE_INTERRUPTS</code>·<code>FOOD_OVERRIDE_CAP</code>을 통합층 단일 정의로 export해 뇌·폴백 두 경로가 같은 정책을 본다.</td><td><b>P0</b></td></tr>
-<tr><td><b>음식 잔소리 3연속</b>(콩·과일·치킨) — 비-food 주에도 food날 끼워넣음</td><td>연속 N일 food 캡 부재 — <code>coachBrain.ts:34-42,94,107-113</code> · <b>DESIGN_GAP</b></td><td>코드 레벨 캡 2겹: (a) <b>lever 클램프</b> — <code>route.ts:647</code>의 STRUCTURAL 기준을 닻 lever로 교체(<code>if(brainPick &amp;&amp; anchorLever!=='food') brainPick.useFood=false</code>, 두뇌가 구조→nutrient-gap override로 탈출하던 구멍 봉합). (b) <b>연속 food날 쿨다운</b> — 이력 적재부(<code>route.ts:166-176</code>)에서 <code>recentBrainUseFood[cid]</code>=최근 N일 <code>ctx.brain?.useFood</code> 적재, 직전 2일 모두 useFood=true면 강제 휴지(SNACK_COOLDOWN=2 동형). (c) buildBrainContext 입력에 '최근 며칠 useFood 시퀀스' 추가로 '영영 미루지 마라'(프롬프트 압력)와 '연일 금지'를 함께 판단.</td><td><b>P0</b></td></tr>
-<tr><td><b>치킨이 일간 타깃으로 누수</b> — 미매핑·비결핍군 거부가 planTarget</td><td>targetPoolForScenario 결핍군 게이트 부재 — <code>coach.ts:386-388, 445-451</code> · <b>CODE_BUG</b></td><td><code>targetPoolForScenario</code>(new-refusal/re-exposure-timing)가 그대로 반환하던 <code>[...homeRefused,...daycareRefused]</code>에 결핍군 게이트 추가 — 주식(STAPLE) 제외 + <code>CATEGORY_GROUP[catOf(r)] ?? FOOD_GROUP[r]</code>로 그룹 변환 후 결핍군 Set 소속만 통과(<code>route.ts:354-358</code> refExposable 로직을 lib 공유 함수로 추출·단일 수정점). ⚠️네임스페이스: catOf는 '고기' 반환, 결핍군 Set은 '고기·계란' 보유 → 그룹 매핑 변환 필수(미변환 시 진짜 결핍 재노출까지 과교정). 두뇌 forced 경로와 결정론 selectScenario 경로를 한 곳에서 봉합.</td><td><b>P1</b></td></tr>
-<tr><td><b>어색한 코칭</b> — daycareRefused=[]인데 기관 재노출(re-exposure-timing) 각도</td><td>두뇌가 트리거 미충족 시나리오 강제 가능 — <code>coachBrain.ts:109</code> / <code>coach.ts:445-451</code> · <b>CODE_BUG</b></td><td><code>route.ts:628</code> 직전에 trigger 충족 게이트: <code>const forced=SCENARIOS.find(s=&gt;s.id===brainPick.scenarioId); if(forced &amp;&amp; safeTrigger(forced, signals)){ planFor(forceScenarioId) }</code> — 미충족이면 결정론 <code>selectScenario</code> 폴백(line 492 precomputed 유지). <code>plateau</code>(trigger:()=&gt;true)는 항상 안전망.</td><td><b>P1</b></td></tr>
-<tr><td><b>앵무새</b> — 매 편지 동일 도입 톤</td><td>SCEN_OPEN 고정 도입 + varyOpener 직전 1편만 검사 — <code>coach.ts:550-554, 467(forced 449)</code> · <b>PARTIAL</b></td><td><code>varyOpener</code>를 직전 1편→최근 3편 내 동일 frame까지 확장(forceScenarioId 경로 <code>449</code>와 일반 경로 <code>467</code>에 <b>동시 적용</b>, 한쪽만 고치면 forced 경로 재발). <code>SCEN_OPEN[sid]</code>에 시나리오당 2~3 도입 변형을 <code>(daySeed + cidHash)</code>로 회전(자녀별 갈림). history 블록(<code>coach.ts:536-541</code>) LLM 지시와 결정론 가드가 같은 윈도(최근 3편)를 보도록 길이 일치.</td><td><b>P1</b></td></tr>
-<tr><td><b>앵무새 상류</b> — 주간 닻이 매주 environment/식탁 고착</td><td>coachWeekly focusHistory 미주입 → 피로 캡 dormant — <code>coachWeekly.ts:60-63, 96-108, 243</code> · <b>PARTIAL</b></td><td><code>runWeeklyPlanning</code> 호출(<code>route.ts:520-534</code>)에 <code>focusHistory·progress·week</code> 미전달로 <code>applyFocusFatigue</code>('직전 2주 연속 focus·step전진0→standby 강등')가 dormant. 최소수정: <code>synthAndStoreAnchor</code>에 결정론 게이트 한 줄 — 직전 주 <code>weekly_plans.goals/budget.lever</code>와 비교해 '같은 focus/같은 lever 2주 연속 &amp;&amp; step 전진 0'이면 차순위 standby 유닛으로 강제 승격(STALL_LOOKBACK으로 직전 닻 이미 읽음·추가 쿼리 불필요). 본 모듈은 'lever 회전 보증'까지 책임, 진척 영속(advanceProgress·curriculum_progress upsert)은 <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> 소관.</td><td><b>P2</b></td></tr>
-<tr><td><b>BMI/성장곡선이 편지에 안 들어감</b> — '뇌 문제인가?'</td><td><b>경계 확정 — 뇌 문제 아님</b> · 두뇌는 BMI/성장을 입력으로 받지도 않음 — <code>coachBrain.ts:48-130</code> · <b>PARTIAL(변경 불필요)</b></td><td>BrainAction=scenarioId·planTarget·moveKey·useFood·approvedRecs만 반환하며 BMI/성장은 입력에조차 없다. 두뇌 useFood는 '음식 추천 본문 on/off'만 좌우하고 영양거울·간식은 안 건드림. → 배선 누락은 <a href="/coach-module-nutrition.html">④ 영양평가</a>(BMI/성장 미배선)·<a href="/coach-module-writer.html">⑥ 작문기</a>(포함 강제 부재) 소관. <b>본 모듈 코드 변경 없음</b> — 단 '두뇌 useFood가 영양거울을 게이팅한다'는 오해 소지 표현이 있으면 '영양거울 강제삽입은 <code>coach.ts:621-630</code> mirrorBlock이며 두뇌와 무관'으로 명확화만.</td><td><b>P2</b></td></tr>
+<!-- ===================== ② 구현된 내용 ===================== -->
+<section id="impl"><div class="sec-h"><span class="no" style="font-size:12px">②</span><h2>구현된 내용 — 함수·데이터흐름·입출력 (실측)</h2></div>
+<p class="lead">현재 코드에 <b>실제로 존재</b>하는 함수·타입·file:line·데이터흐름입니다. 환각 없이 실측만.</p>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:14px 0 6px">핵심 함수</h3>
+<div class="tbl"><table><tr><th style="width:36%">함수 · file:line</th><th>역할 (실측)</th></tr>
+<tr><td><code>pickActionByBrain(ctx, candidates, model)</code><br><span style="color:var(--n500)">coachBrain.ts:115</span></td><td>DeepSeek V4-Pro 두뇌 호출 → <code>BrainAction</code> 반환. <code>scenarioId</code>는 <code>SCEN_IDS</code> 화이트리스트(coachBrain.ts:32) 검증 — 목록 밖이면 <code>''</code>(빈값)으로 두고 호출측이 v2 폴백. <code>useFood</code> boolean·<code>approvedRecs</code> 방어 파싱.</td></tr>
+<tr><td><code>buildBrainContext(p)</code><br><span style="color:var(--n500)">coachBrain.ts:48</span></td><td>13개 시나리오 메뉴(발동가능·최근사용 플래그) + 영양거울 + 추천후보 + 최근 3주 닻(weeklyEchoes) + 최근편지 + <b>anchorBlock</b>(coachBrain.ts:79 — 닻 lever가 비-food면 '음식 시나리오로 매일 갈아끼우지 마라' 지시) + <b>useFoodBlock</b>(coachBrain.ts:82 — 최근 음식날 시퀀스 '음식→비음식→…' + 직전 2일 음식이면 다른 각도로) + <code>curriculumSummary</code>를 JSON 지시 프롬프트로 조립.</td></tr>
+<tr><td><code>anchorOverrideAllowed({anchorLever,sid,fov,triggerOk})</code><br><span style="color:var(--n500)">coachWeekly.ts:121</span></td><td>⭐ <b>두뇌 override 게이트(핵심).</b> <code>{allow, isFoodOverride}</code> 반환. <code>SAFE_INTERRUPT_SCENARIOS</code>(progress-celebrate·neophobia-arfid-watch·low-data-gap)거나, food주에선 비구조 시나리오, 비-food주에선 그 레버의 <code>LEVER_SCENARIO[lever]</code> 시나리오면 호환. food주 아닌 식 override는 <code>FOOD_OVERRIDE_CAP=2</code>(coachWeekly.ts:110) 캡 내에서만. <code>triggerOk=false</code>(데이터에 신호 없음)면 불허.</td></tr>
+<tr><td><code>planFromWeekly(p)</code> / <code>weeklyReplan(sid)</code><br><span style="color:var(--n500)">route.ts:740 / 750</span></td><td>월~토 닻 실행 — mission_target 잠금·채근캡·아크 단계 회전. <code>weeklyReplan</code>은 두뇌 override 허용 시 '닻 안에서 시나리오만 교체'(타깃·채근캡·effectiveLever 보존).</td></tr>
+<tr><td><code>quantifyPreferences(rows, asOf, {homeOnly})</code><br><span style="color:var(--n500)">preferenceQuantification.ts:51</span></td><td>⭐ <b>선호계량화.</b> 수용 5단계(0거부·1만짐·2한입·3조금·4완식)로 식재료별 <code>FoodPref</code>(state·score·confidence·trend) 산출. <code>homeOnly</code> 기본 true(기관 급식 제외). <code>state</code>: 신호&lt;2면 unknown, 거부≥2&amp;수용률&lt;0.34면 disliked, 완식≥2&amp;Wilson≥0.5면 liked, 나머지 exploring.</td></tr>
+<tr><td><code>acceptanceLevel(r)</code> / <code>wilsonLower(pos,n)</code><br><span style="color:var(--n500)">preferenceQuantification.ts:32 / 40</span></td><td><code>acceptance_level</code>(5단계 컬럼) 우선, 없으면 <code>ate_well</code> 폴백(true→4·false→0·<b>null→미상</b>). <code>wilsonLower</code>=Wilson 95% 하한(표본 적을수록 보수적 — 1/1 완식을 '확실'로 단정 안 함).</td></tr>
+<tr><td><code>confidentLiked(prefs)</code> / <code>dislikedFoods(prefs)</code><br><span style="color:var(--n500)">preferenceQuantification.ts:91 / 95</span></td><td><code>state==='liked'</code>만 추천 앵커·콜드스타트 게이트로(미상·탐색 제외). <code>dislikedFoods</code>=확실 거부 → 추천 후보에서 제외(거부한 걸 또 권하지 않기).</td></tr>
+<tr><td><code>pickUnitProbe(unitId, seed)</code><br><span style="color:var(--n500)">coachDaily.ts:71</span></td><td>⭐ <b>P0-D 유닛 프로브 회전.</b> 오늘 focus 유닛의 정규 프로브(passWhen 신호) 1개를 <code>seed % probes.length</code>로 일별 회전 emit. 반환 <code>{question, topic, chips, unitProbe:{unit_id,signal,probeId}}</code>. 유닛/프로브 없으면 null(→ LLM 질문 폴백).</td></tr>
+<tr><td><code>parseProbeAnswers(qs)</code> / <code>buildCandSignals(rows,…)</code><br><span style="color:var(--n500)">coachDaily.ts:52 / 17</span></td><td><code>parseProbeAnswers</code>=부모 답변 → evidence. <code>context.unitProbe</code> 있고 답이 정규 칩과 <b>정확 일치</b>할 때만 적립('잘 모르겠어요'·자유텍스트 미적립). <code>buildCandSignals</code>=주간 후보 신호(envBadPct·refusedCount 등) rows에서 계산.</td></tr>
+<tr><td><code>SCENARIOS</code> / <code>selectScenario(s,recentIds)</code><br><span style="color:var(--n500)">coachScenarios.ts</span></td><td>13개 시나리오 상수(라이브러리) + 결정론 폴백 셀렉터 — trigger 충족분을 priority 내림차순, 최근 2일 1차 제외, fresh→fired→plateau 폴백. 두뇌 실패·빈값 시 안전망.</td></tr>
 </table></div>
-<div class="callout"><b>🧠 이 모듈이 근본적으로 바꿔야 하는 것</b> — 두뇌는 이제 <b>주간 닻(lever·budget.push·target_pool·ledger)을 입력으로 받고 그 안에서만 결정·트리거</b>해야 한다. 구체적으로 ① 닻 lever가 비-food이거나 push=0이면 뇌는 시나리오를 override할 수 없고, food 주에서만·주당 캡 내에서만 각도를 바꾼다(비-food 주 useFood 클램프). ② 뇌가 고른 시나리오가 signals 트리거를 미충족하면 강제하지 않고 결정론 폴백(없는 신호 지어내기 금지). ③ 연속 food날 캡으로 며칠 연속 음식 잔소리를 결정론으로 막는다. 이 세 가지는 모두 <b>프롬프트 신뢰가 아니라 코드 게이트로 보증</b>한다 — 작문을 하지 않는 뇌의 책무는 '각도·타깃·useFood·lever 회전의 결정론 보증'이기 때문이다.</div>
-<div class="note"><b>🧒 한 줄 쉬운말</b> — 지금은 매일 고르는 두뇌가 '이번 주는 식사 환경 얘기로 가자'는 주간 계획을 무시하고 자꾸 음식 얘기로 덮어쓰고 있었습니다. 앞으로 두뇌는 <b>이번 주 목표(주간 닻) 안에서만 오늘의 각도를 고르도록</b> 바꿔, 비-food 주엔 음식 잔소리를 못 넣고 음식날도 며칠 연속으로 못 잡게 코드로 잠급니다.</div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">일간 두뇌 데이터흐름 (route.ts 실측 라인)</h3>
+<div class="tbl"><table><tr><th style="width:30%">단계 · route.ts 라인</th><th>무엇을 하나</th></tr>
+<tr><td><b>선호계량화</b> · route.ts:368-374</td><td><code>prefs=quantifyPreferences(rs, today)</code> → <code>confidentLiked</code>·<code>dislikedIng</code>. <code>coldStart = confidentLiked.length &lt; 2</code>(route.ts:372). 콜드스타트면 <code>coldStartSeed(servedTop,6)</code>로 앵커 보충, 아니면 likedIng. dislikedIng는 앵커에서 제외(route.ts:374).</td></tr>
+<tr><td><b>신호 묶음</b> · route.ts:547-554</td><td><code>CoachSignals</code> 조립 — 1주차 미성숙(loggedDays&lt;7)이면 결핍 신호(reds/missing/homeMissing) 비움(route.ts:542-546, 결핍 단정 금지). envBadPct=집 끼니만(route.ts:529).</td></tr>
+<tr><td><b>주간 닻 잠금</b> · route.ts:702-753</td><td>anchor.mission_target·lever 로드 → <code>targetAccepts</code>(route.ts:711 — <b>acceptanceLevel≥1만</b>, 미상 null 배제 ⭐신호포착) → <code>planFromWeekly</code>(route.ts:740) → <code>weekCtx</code>에 lever·targetPool·ledger 노출(route.ts:745, 두뇌 게이트 입력).</td></tr>
+<tr><td><b>연속 food날 캡</b> · route.ts:774-775</td><td>food주=3일·비-food주=2일 연속 useFood면 <code>brainPick.useFood=false</code> 강제(프롬프트 신뢰 대신 코드 보증).</td></tr>
+<tr><td><b>override 게이트</b> · route.ts:776-799</td><td>두뇌 scenarioId 있으면 <code>safeTrigger(sid)</code>(route.ts:778, signals 트리거 충족) + <code>anchorOverrideAllowed</code>(route.ts:782) 통과 시에만 <code>weeklyReplan(sid)</code> 또는 <code>planFor(forceScenarioId)</code>. isFoodOverride면 arc=null(잡탕 차단·route.ts:787) + foodOverrideUsed 카운트 적재(route.ts:792-796).</td></tr>
+<tr><td><b>슬롯-본문 봉합(F-18)</b> · route.ts:857-872</td><td>음식 시나리오(home-daycare-gap·nutrient-gap·repeat-menu)는 <code>_noFood</code>를 끄고 슬롯 음식을 본문에 강제(route.ts:859-860, 콩류→두부 디폴트 차단). <code>slotDish</code>/<code>slotFood</code>(route.ts:864-865) must-weave. 거울 음식=항상 그날 슬롯 음식(route.ts:870-889, deficitDishFor 제거).</td></tr>
+<tr><td><b>거울 출현빈도 쿨다운(#5)</b> · route.ts:890-899</td><td><code>mirrorCooldownDue</code>(route.ts:894) — '어린이집 덕에…' 거울줄이 최근 2일 안에 나왔으면 오늘 생략(전체 결핍 2개+면 면제). 무슬롯 경로도 동일 쿨다운(골든완화).</td></tr>
+<tr><td><b>도입 회전(#6)</b> · route.ts:876-883</td><td>거울 positive 문장을 <code>daySeed</code> 변주 3종(<code>_posV</code>·<code>_foodClause</code>)으로 회전 — 템플릿 축자 반복(4~11통) 차단.</td></tr>
+<tr><td><b>macro input-starvation(#7)</b> · route.ts:229-232</td><td>성장데이터(키·몸무게·성별) 없으면 macro 트랙(저체중→고기↑)이 영영 비활성 → 성장 권유를 매 3일·효과 명시로 데이터 유입 유도, 들어오면 자동 중단.</td></tr>
+<tr><td><b>P0-D 프로브 emit</b> · route.ts:989-1002</td><td>ICFQ 스크리너 아닌 날 <code>pickUnitProbe(curriculumDecision?.unit, day-number)</code>(route.ts:990) → 질문 + <code>context.unitProbe</code> 저장(route.ts:999-1002). <b>출력 다리</b>.</td></tr>
+</table></div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">A 추천 근거 — 어드민 노출(이번 세션)</h3>
+<div class="callout">두뇌·계획 산출은 <code>coach_letters.context</code>에 <code>brain</code>(scenarioId·useFood·why) + <code>weekly</code>(lever·effLever·missionTarget·targetPool·ledger) + <code>planSlot</code>(slotIndex·ingredient·dishes·group·track·via·macro) + <code>recoIng/recoPool/recoMode</code> + <code>curriculum</code>(unit·step·mode·pivotTo)로 적재(route.ts:947-960) — 어드민이 "결핍군 콩류 보급(주N회)"·"잘 먹는 두부의 검증 사촌" 같은 추천 근거를 검증.</div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">어느 테이블에서 무엇을 뽑나</h3>
+<div class="tbl"><table><tr><th style="width:24%">테이블 · 데이터</th><th style="width:30%">뽑는 값</th><th>운영 의미</th></tr>
+<tr><td><b>meal_logs</b></td><td>ingredients·refused·note·place·ate_well·<code>acceptance_level</code>(5단계)·environment·autonomy·texture·meal_time</td><td>아이 '오늘 상태표'. acceptance_level 컬럼이 선호계량화 granular 입력(없으면 ate_well 폴백)</td></tr>
+<tr><td><b>weekly_plans</b></td><td>mission_target·budget(lever·push)·ledger(targetAccepts·foodOverrideUsed)·goals·impression</td><td>이번 주 '나침반'. 두뇌 override 게이트가 이 lever·ledger를 읽고 잠금</td></tr>
+<tr><td><b>coach_letters.context</b></td><td>최근 scenarioId·plan·brain.useFood·weekly·mirrorShown — 중복 회피 이력</td><td>'어제 뭐라 보냈는지'로 같은 각도·연속 food날 반복 차단(다양성 장치)</td></tr>
+<tr><td><b>daily_questions</b></td><td>answer·<code>context.unitProbe</code>(P0-D)·icfq</td><td>프로브 답변→신호 적립(parseProbeAnswers). ICFQ 위험 누적은 ARFID 신호</td></tr>
+<tr><td><b>curriculum_progress</b></td><td>unit_id·status·step·evidence</td><td>오늘 focus 유닛 결정(pickUnitProbe·effectiveLever 입력) — 정의·측정은 ⑤</td></tr>
+<tr><td><b>SCENARIOS (코드 상수)</b></td><td>13개 각도의 label·priority·trigger·promptHint·avoid</td><td>DB 아닌 코드 라이브러리 — 두뇌가 이 안에서만 골라 환각 0</td></tr>
+</table></div>
 </section>
 
-<section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
-<p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
-<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr><tr><td><b>반복 노출(HabEat)·단순노출 효과</b></td><td>거부 음식을 격일~주2~3회 작게 다시 올려 친숙도를 쌓는 행동을 처방(진전 축하·새 거부·거부 재노출 시나리오의 근거)</td></tr><tr><td><b>ARFID 구분·감각적 음식 거부</b></td><td>식사 적신호가 60일 내 2회 이상 누적되면 진단 없이 전문가 안내 1회+채근 0으로 전환</td></tr><tr><td><b>자율성 지지(SDT)·Satter 식사 분담(DOR)</b></td><td>어린 연령 광범위 거부를 '내가 정한다'는 발달 과업으로 보고 결과는 같되 작은 선택권을 주게 함(자율성 다툼·집기관 격차 시나리오)</td></tr><tr><td><b>압박의 역효과·무압력 식사</b></td><td>식사 환경에 압박·영상·돌아다님 신호가 있으면 단일 레버 1개만 제안하고 과한 보상을 막음(식사 분위기 시나리오)</td></tr><tr><td><b>보상 역효과(과잉정당화)·제한의 역효과</b></td><td>보상·디저트 협상이 장기엔 그 음식 선호를 떨어뜨림을 알리고 거래를 끊게 함(보상 역효과 시나리오)</td></tr><tr><td><b>감각적 음식 거부·SOS 접근·질감 단계</b></td><td>싫은 게 음식이 아니라 질감일 수 있다고 보고 한 단계 순한 질감으로 형태만 바꾸게 함(식감 거부 시나리오)</td></tr><tr><td><b>음식 신공포증</b></td><td>새 음식 거부를 처음 보는 것으로 재정의해 안심시키고 부담 없는 재노출을 유도(새 식재료 거부 시나리오)</td></tr><tr><td><b>푸드 체이닝·맛-맛 연합·반응적 수유</b></td><td>부족한 식품군을 좋아하는 음식에 잘게 섞거나 그 군의 음식 이름으로 다리를 놓음(영양 공백·반복 메뉴 시나리오)</td></tr><tr><td><b>편식 궤적(자연 완화)·신뢰 모델</b></td><td>뚜렷한 신호가 없으면 행동을 빼고 칭찬만, 정체로 보여도 정상임을 안심(정체기 폴백·기록 공백 시나리오)</td></tr><tr><td><b>Fogg 행동설계(가장 작은 버전)</b></td><td>주간 부모 행동목표를 '매 끼니'가 아니라 '하루 한 끼/한 번'의 가장 작은 행동으로 설계</td></tr><tr><td><b>Gollwitzer 실행의도(impl_intention)</b></td><td>행동을 언제·어디서 할지 구체 트리거 1구('저녁 6시 TV 끄고')로 묶어 실행률을 높임</td></tr><tr><td><b>35개 국제 편식 이론 큐레이션(coaching-scenarios.html)</b></td><td>주간 종합 프롬프트가 신공포→SOS, 자율성→Satter, 정체→푸드체이닝 식으로 아이 패턴에 맞는 방법론을 진단</td></tr></table></div>
-<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">🎬 시나리오 · 유닛 (18)</h3>
-<div class="tbl"><table><tr><th style="width:26%">이름</th><th>언제 적용</th><th>이론 근거</th></tr><tr><td><b>진전 축하 (progress-celebrate, 우선순위 100·최우선)</b></td><td>시계열에 '거부→수용 전환'이 잡힐 때. 전환된 식재료를 콕 집어 축하만 하고 새 숙제는 절대 안 얹음</td><td>반복 노출(HabEat)·단순노출 효과·신뢰 모델 — 축하 직후 압박은 강화를 깸</td></tr><tr><td><b>신경성 회피 관찰 (neophobia-arfid-watch, 92)</b></td><td>최근 60일 식사 적신호(사레·헛구역질·먹는 종류 감소)가 2회 이상 누적될 때. 진단 없이 전문가 안내 1회만</td><td>ARFID 구분·감각적 음식 거부·구강운동 — 정상 편식 과잉경보·강제 한 입 금지</td></tr><tr><td><b>기록 공백 (low-data-gap, 84)</b></td><td>최근 기록일수가 분석 윈도우보다 적을 때. 강한 진단 보류·작은 강점 1개만·끝에 부담없는 기록 권유 1회</td><td>신뢰 모델·편식 궤적 — 적은 데이터로 심한 편식 단정·없는 결핍 지어내기 금지</td></tr><tr><td><b>식사 분위기 (mealtime-atmosphere, 72)</b></td><td>메모에 전쟁·실랑이·강요·영상·'안 먹/다 먹' 신호 OR 환경 칩의 나쁜 비율&gt;40%(4끼 이상)일 때. 분위기 레버 1개만</td><td>압박의 역효과·자율성 지지(SDT)·무압력 식사 — 여러 개선 동시요구·과한 보상 금지</td></tr><tr><td><b>보상·협상 역효과 (reward-bribe-backfire, 70)</b></td><td>메모에 '줄게·상으로·스티커·디저트·약속·보상' 신호가 있을 때. 오늘 거래 한 번도 안 하기 1개</td><td>보상 역효과(과잉정당화)·제한의 역효과 — 채소→디저트 관문 거래·특정음식 완전금지 금지</td></tr><tr><td><b>자율성 다툼 (autonomy-power-struggle, 66)</b></td><td>어린 연령대(younger/3-4y)+고집·싫·실랑이 메모+거부 2개 이상일 때. 결과는 같되 작은 선택권 부여</td><td>자율성 발달·SDT·Satter DOR — 강제 한 입·비행기 놀이·빈 그릇 요구·착한아이 보상 금지</td></tr><tr><td><b>식감 거부 (texture-refusal, 60)</b></td><td>메모에 뱉음·헛구역·물컹·식감·오래 물기 신호가 있을 때. 한 단계 순한 질감으로 형태만 바꾸기 1개</td><td>감각적 음식 거부·SOS·질감 단계 — 같은 질감 반복강요·몰래 섞어 속이기 금지</td></tr><tr><td><b>새 식재료 거부 (new-refusal, 58)</b></td><td>집/기관에서 최근 거부한 식재료가 있을 때. 거부를 '아직 처음 보는 것'으로 재정의·격일 재노출</td><td>음식 신공포증·반복 노출(HabEat)·압박 역효과 — 첫 노출 '한 입만'·한두 번 거부로 영구제외 금지</td></tr><tr><td><b>거부 재노출 (re-exposure-timing, 54)</b></td><td>기관 급식에서 거부한 식재료가 있을 때. 집에서 격일로 작게 재노출, 시계열 횟수·일수가 있으면 그대로 인용</td><td>반복 노출(HabEat)·맛보기 우선 — 매일 들이밀어 권태·기관 급식 재노출 요청 금지</td></tr><tr><td><b>집-기관 격차 (home-daycare-gap, 50)</b></td><td>어린이집을 다니고 전체 영양은 OK인데 집 끼니에서만 비는 식품군·결핍이 있을 때. '기관 덕'을 인정하고 집 한 군에만 행동</td><td>Satter DOR·수유 스타일·식사 구조 — 기관 덕을 부모 공으로 뭉뚱그리기·기관 메뉴 변경요청 금지</td></tr><tr><td><b>영양 공백 (nutrient-gap, 48)</b></td><td>집 끼니에 부족한 식품군·결핍 영양소가 있을 때(우리 분석값만). 부족 한 가지를 푸드브릿지로 채움</td><td>푸드 체이닝·맛-맛 연합·반응적 수유 — 없는 결핍 지어내기·'흰쌀밥 줄이라' 금지</td></tr><tr><td><b>반복 메뉴 (repeat-menu, 46)</b></td><td>집 끼니가 단조롭게 같은 메뉴 반복일 때. 반복을 탓하지 말고 인기메뉴를 다리 삼아 한 칸만 바꾸기</td><td>푸드 체이닝·단순노출·신공포증 — 좋아하는 반복메뉴를 건강 핑계로 끊기·김치/흰쌀밥 반복 지적 금지</td></tr><tr><td><b>정체기 (plateau, 30·최종 폴백)</b></td><td>뚜렷한 새 신호가 없을 때(항상 발동=마지막 안전망). 행동 빼고 다른 측면으로 구체 칭찬만</td><td>편식 궤적(자연 완화)·신뢰 모델 — 같은 식재료/행동 3일째 반복·정체를 부정 프레이밍 금지</td></tr><tr><td><b>주간 레버: food (주간계획 축)</b></td><td>영양 결핍·거부가 큰 문제일 때. mission_target(콩류 등)을 한 주 잠그고 일간은 무브만 회전·채근 주1회 캡</td><td>푸드 체이닝·반복 노출 — '한 번에 하나'(식품 2개 동시 금지)</td></tr><tr><td><b>주간 레버: environment (주간계획 축)</b></td><td>화면·돌아다님·식사시간 지연이 결핍보다 클 때. 그 주는 '식사 분위기' 시나리오가 일간 프레임</td><td>무압력 식사 구조화·SDT — 폴백 행동목표 '하루 한 끼 화면 끄고 식탁에 앉기'</td></tr><tr><td><b>주간 레버: autonomy (주간계획 축)</b></td><td>떠먹여주기만·선택권 없음이 클 때. 그 주는 '자율성 다툼' 시나리오가 일간 프레임</td><td>자율성 발달·SDT — '하루 한 끼 스스로 떠먹게 두기(좀 흘려도 괜찮아요)'</td></tr><tr><td><b>주간 레버: texture (주간계획 축)</b></td><td>죽·다진 단계에 오래 머물 때. 그 주는 '식감 거부' 시나리오가 일간 프레임</td><td>질감 단계·SOS — '한 끼만 한 단계 위 질감으로 부드럽게 올리기'</td></tr><tr><td><b>커리큘럼 12유닛 (주간 목표 포트폴리오 — 후보 화이트리스트)</b></td><td>일요일 종합이 신호 점수로 후보를 올려 2~3개를 순위(focus 1·standby 2~3)로 고름. 정체 시 피벗·주제피로 캡</td><td>각 유닛이 이론 1개씩: ①압박 내려놓기(압박 역효과) ②공복 리듬(WIC 간식간격) ③식탁 무대(무압력 구조) ④새 음식 조금씩 노출(Wardle 8~15회) ⑤배부름 존중(반응적 수유) ⑥부모가 메뉴판(부모 모델링) ⑦달콤한 협상 끊기(보상 역효과) ⑧식탁의 말(객체 중심 대화) ⑨감각·질감 트랙(SOS) ⑩확장 트랙 음식다리(푸드 체이닝) ⑪자율성·참여 트랙(SDT) ⑫연계·리듬 트랙(기관거부→집 재노출)</td></tr></table></div>
-</section>
-
-<section id="tables-ext"><div class="sec-h"><span class="no" style="font-size:12px">🗄️</span><h2>어느 테이블에서 무엇을 — 데이터 추출</h2></div>
-<p class="lead">이 모듈이 <b>어떤 데이터에서 무엇을 뽑아</b> 운영하는지(비개발자용).</p>
-<div class="tbl"><table><tr><th style="width:24%">테이블 · 데이터</th><th style="width:30%">뽑는 값</th><th>운영상 의미</th></tr><tr><td><b>SCENARIOS (코드 내장 시나리오 라이브러리·coachScenarios.ts)</b></td><td>각 시나리오의 label(라벨)·priority(우선순위)·theoryBasis(이론 근거)·promptHint(편지 각도 지시)·avoid(하면 안 되는 것)·trigger(발동 조건)</td><td>13개 코칭 각도의 '메뉴판'. DB 테이블이 아니라 코드에 박힌 규칙집이라 매번 똑같이 안전하게 적용됩니다. 두뇌가 이 목록 안에서만 고르므로 엉뚱한 코칭이 나올 수 없습니다</td></tr><tr><td><b>CoachSignals (cron/coach가 미리 계산해 넘기는 그날의 신호 묶음)</b></td><td>부족 영양소(reds)·비는 식품군(missing)·집에서만 비는 것(homeMissing/homeReds)·거부 음식(refused/homeRefused/daycareRefused)·시계열 전환(timeseries)·부모 메모(notes)·잘 먹는 음식(favoriteFoods)·어린이집 여부·연령대·최근 기록일수·식사 적신호 수(icfqRiskCount)·식사환경 나쁜 비율(envBadPct)</td><td>아이 한 명의 '오늘 상태표'. 이 숫자/신호가 시나리오 발동 조건을 켭니다. 전부 우리가 실제 계산한 값이라, 없는 결핍을 지어내지 않습니다(환각 차단의 핵심)</td></tr><tr><td><b>food-graph 음식 추천 후보(recoCandidates — coachRecos가 계산)</b></td><td>부족 식품군을 채울 '실제로 잘 먹는 음식 이름' 후보(예: 미역국에 두부)</td><td>LLM이 새 음식을 지어내지 못하게, 우리 데이터에서 검증된 음식 이름만 후보로 줍니다. 두뇌는 이 후보 중 '오늘 맞는 것'만 골라 approvedRecs로 통과(후보 밖 추가 금지)</td></tr><tr><td><b>weekly_plans / 주간 닻(WeeklyAnchor — coachWeekly가 일요일에 생성)</b></td><td>이번 주 주력 레버(food/environment/autonomy/texture)·mission_target(잠긴 타깃)·budget(노출·채근 횟수·윈도우)·ledger(채근 사용여부·노출 카운트·진척)·behavior_goal·teaching_arc·goals(목표 포트폴리오)</td><td>이번 주 코칭의 '나침반'. 월~토는 이 닻에 맞춰 일관되게 가되 매일 표현만 바꿉니다. 닻이 없거나 실패해도 일간 엔진은 폴백으로 항상 돌아갑니다(안전 제1원칙)</td></tr><tr><td><b>weekly_coaching / 커리큘럼 12유닛(UNITS·UNIT_IDS — curriculumUnits.ts)</b></td><td>각 유닛의 label·lever(축)·minWeek(가입 후 몇 주차부터 다룰지)·trigger(신호 점수)·진도 상태(focus/standby/mastered/relapsed)</td><td>부모 교육 '교과 과정' 12과목. 일요일 종합이 신호 점수로 이번 주 배울 2~3과목을 정합니다. 1주차=신뢰(1개)·2주차=관찰(2개)·3주차+=3개로 천천히 늘려 부모 부담을 막습니다</td></tr><tr><td><b>최근 보낸 편지·최근 시나리오 ID·최근 3주 주간계획(pastLetters/recentScenarioIds/weeklyEchoes)</b></td><td>최근 5~7통 편지 본문·최근 2일 쓴 시나리오 id·최근 3주 타깃과 소견</td><td>'어제 뭐라고 보냈는지'를 두뇌에게 보여줘 같은 각도 반복을 막습니다. 매일 똑같은 잔소리가 되지 않게 하는 다양성 장치</td></tr></table></div>
-</section>
-
-<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
-<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌(판단)로</span><span class="mtag ab">흡수: coachScenarios.ts + coachBrain.ts + coachWeekly.ts</span></div>
-<p class="lead">편지가 매일 똑같아지지 않게, 데이터 신호로 '오늘의 코칭 시나리오' 1개를 고르는 두뇌. 일간 전술층은 DeepSeek V4-Pro 두뇌(pickActionByBrain)가 13개 후보 시나리오·최근 3주 주간계획·최근 편지·영양/시계열을 종합해 scenarioId+useFood(음식 다룰지)+approvedRecs(추천 검수)를 고른다. 두뇌는 편지를 쓰지 않는다 — 각도 선택과 추천 취사만 하고 작문·영양평가·추천 본문은 v2 엔진이 한다. 주간 작전층은 일요일 DeepSeek V4-Pro(runWeeklyPlanning)이 다음 한 주 닻(타깃·레버·예산·부모 행동목표)을 잡고, 월~토는 planFromWeekly가 그 닻을 잠가 일관성을 유지한다.</p>
-<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
-<ul class="clean"><li>weekly_plans (주간 닻: mission_target·behavior_goal·impression·budget·ledger·goals — 두뇌 weeklyEchoes 입력 및 주간 닻 read/write)</li><li>coach_letters.context (최근 편지·scenarioId 이력 — recentScenarioIds/pastLetters 입력, 결과 context 저장)</li><li>SCENARIOS (코드 상수 13개 시나리오 라이브러리)</li><li>curriculumUnits UNITS/UNIT_IDS (v3 목표 포트폴리오 후보 산출)</li><li>ingredient-recipes·food-graph·kit-matrix (buildRecoFacts 추천 후보 — recoCandidates로 두뇌에 검수 입력)</li></ul>
-</section>
-
-<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
-<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
-<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">1) 신호 수집(CoachSignals)</div><div class="pd">cron이 meal_logs를 집/기관으로 분리해 계산한 timeseries·reds·homeReds·missing·homeMissing·homeRefused·daycareRefused·refused·notes·favoriteFoods·icfqRiskCount·envBadPct 등을 CoachSignals 한 묶음으로 받는다</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">2) 후보 시나리오 메뉴 생성</div><div class="pd">buildBrainContext가 SCENARIOS 13개 각각에 trigger(signals)를 실행해 '발동가능/비발동' 플래그 + recentScenarioIds로 '최근사용' 플래그를 붙여 메뉴 텍스트로 만든다</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">3) 컨텍스트 조립</div><div class="pd">후보 메뉴 + 영양거울(nutritionMirrorFromInput) + 음식추천 후보(recoCandidates=buildRecoFacts 결과) + 최근 3주 주간계획(weeklyEchoes) + 최근 5~7통 편지를 하나의 프롬프트 문자열로 합친다</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">4) DeepSeek V4-Pro 두뇌 호출+검수</div><div class="pd">pickActionByBrain이 DeepSeek V4-Pro(BRAIN_MODEL=sonnet 역할·실패 시 Claude 폴백) SYSTEM_BRAIN으로 호출 → scenarioId·planTarget·moveKey·useFood·why를 JSON으로 받고, scenarioId는 SCEN_IDS 화이트리스트로 검증(밖이면 빈값→폴백), approvedRecs는 useFood=true일 때만 후보 부분집합으로 채움(환각 0)</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">5) v2 결정론 폴백/배선</div><div class="pd">두뇌 scenarioId가 유효하면 planFor(forceScenarioId)로 강제, 실패·빈값이면 결정론 selectScenario(priority+trigger·최근 2일 제외) 폴백. 구조 프레임(환경·자율성·식감)이면 useFood=false로 정합 강제</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">6) 주간 닻 잠금(작전층)</div><div class="pd">일요일 runWeeklyPlanning(DeepSeek V4-Pro)이 다음 주 닻 산출(후보 화이트리스트로 타깃 환각 차단·ARFID면 push=0), 월~토 planFromWeekly가 mission_target을 잠그고 무브만 회전+채근 캡(주1회)+행동지연 적용, throw 없이 null/cold 폴백으로 발행 보장</div></div></div></div>
-</section>
-
-<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
-<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>selectScenario(s, recentIds)</code></td><td>[coachScenarios] 결정론 폴백 셀렉터 — trigger 충족 시나리오를 priority 내림차순 정렬, 최근 2일 사용분 1차 제외, fresh[0]→fired[0]→plateau 폴백으로 CoachScenario 1개 반환</td></tr><tr><td><code>SCENARIOS (상수 13개)</code></td><td>[coachScenarios] 진전축하(100)·ARFID관찰(92)·기록공백(84)·식사분위기(72)·보상역효과(70)·자율성다툼(66)·식감거부(60)·새거부(58)·재노출(54)·집기관격차(50)·영양공백(48)·반복메뉴(46)·정체기(30·폴백) — 각 id·label·priority·theoryBasis·promptHint(LLM 각도지시)·avoid·trigger(signals→boolean)</td></tr><tr><td><code>pickActionByBrain(ctx, candidates, model)</code></td><td>[coachBrain] DeepSeek V4-Pro 두뇌 호출 → BrainAction 반환. scenarioId 화이트리스트 검증, useFood는 두뇌 boolean 직접 신뢰, approvedRecs=useFood?후보:[] (텍스트 echo 강제 매칭 제거된 수정본)</td></tr><tr><td><code>buildBrainContext(p)</code></td><td>[coachBrain] 13개 시나리오 메뉴(발동가능·최근사용 플래그)+영양거울+추천후보+3주 주간계획+최근편지를 JSON 지시 프롬프트로 조립</td></tr><tr><td><code>scenarioFromId / nutritionMirrorFromInput</code></td><td>[coachBrain] id→CoachScenario 역참조(폴백 null), LetterInput에서 영양 한 줄 추출(mirror 없으면 covered/missing 요약)</td></tr><tr><td><code>runWeeklyPlanning(i)</code></td><td>[coachWeekly] 일요일 DeepSeek V4-Pro 종합 → WeeklySynthesis(mission·mission_target·lever·budget·impression·behaviorGoal·goals). 후보 화이트리스트 강제·ARFID push=0·실패시 coldSynth 폴백</td></tr><tr><td><code>planFromWeekly(p)</code></td><td>[coachWeekly] 월~토 닻 실행 — 안전 인터럽트(축하/적신호/공백) 우선, 비-food 레버는 LEVER_SCENARIO 프레임, food는 mission_target 잠금+채근캡(PUSH_MOVES 강등)+아크 단계 회전. null=폴백</td></tr><tr><td><code>candidateUnits / candidateTargets / healAnchor</code></td><td>[coachWeekly] v3 유닛 후보 산출(신호점수+재발우선·온보딩 게이트), 타깃 화이트리스트(집부족&gt;전체부족&gt;거부·스톨타깃 후순위), 구닻 behavior_goal/arc 결정론 치유</td></tr></table></div>
-</section>
-
-<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
-<p class="lead">📥 <b>cron이 meal_logs를 집/기관 분리·집계해 만든 CoachSignals + 영양거울 + 추천후보 + 주간계획 + 최근편지를 buildBrainContext가 프롬프트로 묶어 pickActionByBrain에 전달.</b></p>
-<div class="io">
-<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>// pickActionByBrain(ctx, candidates) — ctx는 buildBrainContext가 만든 프롬프트.
-// buildBrainContext에 들어가는 구조화 입력(아린·5세):
-{
-  "childName": "아린",
-  "signals": {
-    "timeseries": ["미역국 3회 반복"],
-    "reds": ["비타민A"],
-    "homeReds": ["비타민A"],
-    "missing": [],
-    "homeMissing": ["콩류", "비타민A채소"],
-    "homeRefused": ["당근"],
-    "daycareRefused": [],
-    "refused": ["당근"],
-    "notes": ["저녁마다 유튜브 보면서 먹어요"],
-    "favoriteFoods": ["소고기", "계란", "감자", "미역국"],
-    "attendsDaycare": true,
-    "ageBand": "3-4y",
-    "recentLoggedDays": 6,
-    "recentWindow": 7,
-    "icfqRiskCount": 0,
-    "envBadPct": 0.55,
-    "envCount": 5
-  },
-  "nutritionMirror": "충족: 곡류·어육류 / 집 부족: 콩류·비타민A채소",
-  "recoCandidates": ["콩류는 두부조림·순두부찌개로 잘 나가요. 당근은 잘 먹는 감자랑 함께 감자당근볶음으로."],
-  "weeklyEchoes": [
-    { "weekKey": "2026-W24", "target": "콩류", "behaviorGoal": "콩류를 격일로 작게 곁들여 다시 올리기", "impression": "콩류 노출은 늘었으나 집에서 수용 0. 환경(화면) 신호 커짐." }
-  ],
-  "pastLetters": [
-    { "date": "2026-06-16", "letter": "아린이가 미역국을 잘 먹는 모습이 보기 좋아요..." },
-    { "date": "2026-06-15", "letter": "콩류를 조금씩 다시 올려보면..." }
-  ],
-  "recentScenarioIds": ["nutrient-gap", "nutrient-gap"]
-}</pre></div></div>
-<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// pickActionByBrain 반환 (BrainAction):
-{
-  "scenarioId": "mealtime-atmosphere",
-  "planTarget": "콩류",
-  "moveKey": null,
-  "useFood": false,
-  "approvedRecs": [],
-  "why": "최근 2일 nutrient-gap 반복으로 잔소리 위험 + envBadPct 0.55(화면 식사)가 더 큰 문제라 오늘은 식사분위기 각도로 전환. 콩류 결핍은 다음 음식 날로 미룸."
-}
-// → cron: precomputed = planFor({ forceScenarioId: 'mealtime-atmosphere' })
-//   구조 프레임이라 useFood=false 정합 강제 → bridgeFacts='' (음식 추천 본문 제외)
-//   coach_letters.context.scenarioId/scenarioLabel/plan/brain 에 저장</pre></div></div>
+<!-- ===================== ③ 설계 아키텍처 시각화 ===================== -->
+<section id="arch"><div class="sec-h"><span class="no" style="font-size:12px">③</span><h2>설계 아키텍처 시각화 — 입력테이블 → 가공함수 → 출력키</h2></div>
+<p class="lead">데이터 파이프라인을 '그림'으로. 좌 입력테이블 → 중 가공함수 → 우 출력 컨텍스트키.</p>
+<div class="diagram">
+<div class="flowrow">
+  <div class="fcol">
+    <div class="fbox src"><div class="ft">📥 meal_logs</div>ingredients · ate_well · <b>acceptance_level</b> · place · environment · note</div>
+    <div class="fbox src"><div class="ft">📥 weekly_plans</div>mission_target · budget.lever · ledger</div>
+    <div class="fbox src"><div class="ft">📥 coach_letters.context</div>recent scenarioId · brain.useFood · mirrorShown</div>
+    <div class="fbox src"><div class="ft">📥 curriculum_progress</div>focus unit · step</div>
+    <div class="fbox src"><div class="ft">📥 daily_questions</div>answer · context.unitProbe</div>
+  </div>
+  <div class="fxar">▶</div>
+  <div class="fcol">
+    <div class="fbox fn"><div class="ft">⚙ quantifyPreferences</div>5단계 수용 → state(liked/exploring/unknown/disliked) · Wilson score · confidentLiked</div>
+    <div class="fbox fn"><div class="ft">⚙ planFromWeekly</div>닻 lever 잠금 · targetAccepts(≥1만) · weekCtx 노출</div>
+    <div class="fbox fn"><div class="ft">⚙ buildBrainContext → pickActionByBrain</div>13 시나리오 메뉴 + anchorBlock + useFoodBlock → 두뇌 scenarioId·useFood</div>
+    <div class="fbox fn"><div class="ft">⚙ anchorOverrideAllowed + safeTrigger</div>닻 종속 게이트(허용 시만 override) · 연속 food캡</div>
+    <div class="fbox fn"><div class="ft">⚙ pickUnitProbe</div>focus 유닛 정규 프로브 회전 emit</div>
+  </div>
+  <div class="fxar">▶</div>
+  <div class="fcol">
+    <div class="fbox out"><div class="ft">📤 CoachContext</div>scenarioId · scenarioLabel · plan · brain · weekly</div>
+    <div class="fbox out"><div class="ft">📤 planSlot</div>slotDish · slotFood · mirrorLine(쿨다운)</div>
+    <div class="fbox out"><div class="ft">📤 daily_questions</div>question + context.unitProbe</div>
+    <div class="fbox out"><div class="ft">📤 weekly_plans.ledger</div>targetAccepts · foodOverrideUsed</div>
+  </div>
 </div>
-<div class="callout">📤 <b>전달</b> — BrainAction → cron이 planFor(forceScenarioId)로 v2 작문 엔진에 주입(scenario/plan), useFood로 음식 추천 본문 on/off, brainPick 전체를 CoachContext.brain에 어드민 감사용으로 적재.</div>
+</div>
+<div class="asciibox"><pre>일간 두뇌 결정 트리 (route.ts:755-799) ─ '뇌는 작문 안 함, 각도/타깃/useFood/lever 회전만 결정론 보증'
+
+  signals + weekCtx(lever·ledger) ──▶ pickActionByBrain ──▶ brainPick{scenarioId, useFood, why}
+                                                                     │
+                              ┌──────────────────────────────────────┤
+                              ▼                                       ▼
+                   연속 food날 캡(774-775)                  scenarioId 있나?
+                   food주 3일/비-food 2일                          │
+                   ─▶ useFood=false 강제                  ┌────────┴────────┐
+                                                          ▼                 ▼
+                                              safeTrigger(sid)?         (빈값/실패)
+                                              signals에 신호 있나          │
+                                                   │                       ▼
+                                          ┌────────┴───────┐    <span class="dwarn">결정론 selectScenario 폴백</span>
+                                          ▼                ▼        (planFor precomputed 유지)
+                              anchorOverrideAllowed(782)   미충족
+                              food주│레버호환│안전인터럽트│cap내    │
+                                   │                              ▼
+                          ┌────────┴────────┐         <span class="dwarn">override 무시 ─ 닻 프레임 유지</span>
+                          ▼ allow=true      ▼ allow=false  (비-food주 음식잔소리 차단)
+                   weeklyReplan(sid)    닻 lever 프레임 유지
+                   타깃·채근캡 보존      (precomputed=닻)
+                   isFoodOverride면 arc=null + foodOverrideUsed++
+
+  <span class="dgood">EARNED</span>: 게이트는 코드에 박혀 프롬프트 신뢰가 아님. 트리거 미충족·비-food주·연속food = 결정론으로 막힘.
+  <span class="dbad">천장</span>: 게이트 입구의 신호(targetAccepts·envTablePct)가 거의 0 ─ 두뇌가 mealtime-atmosphere에 고착(⑤ 참조).</pre></div>
 </section>
 
-<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌(판단)로</h2></div>
-<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
-<div class="chips"><span class="chip">scenarioId</span><span class="chip">scenarioLabel</span><span class="chip">plan</span><span class="chip">brain</span><span class="chip">weekly</span></div>
+<!-- ===================== ④ 작동 예시 ===================== -->
+<section id="io"><div class="sec-h"><span class="no" style="font-size:12px">④</span><h2>작동 예시 — 아린 데이터 before/after</h2></div>
+<p class="lead">실제 입력(아린·5세) → 이 모듈 통과 → 출력. <b>핵심 변화 = 선호계량화로 콜드스타트가 켜지고, 닻 게이트로 음식 override가 막힌다.</b></p>
+<div class="io">
+<div class="iobox inp"><div class="iol">📥 INPUT (route.ts가 조립한 신호)</div><div class="codeblk"><pre>// meal_logs(집 끼니만, 최근 7일):
+//   미역국·소고기·계란·감자 각 1회 ate_well=true (서로 다른 식재료)
+//   acceptance_level 대부분 null(미상 80%)
+//   environment: 5끼 중 3끼 'screen' → envBadPct 0.55
+//   note: "저녁마다 유튜브 보며 먹어요"
+signals = {
+  homeMissing: ["콩류","비타민A채소"], missing: [],   // 기관 급식 덕 전체 OK
+  homeRefused: ["당근"], daycareRefused: [],
+  notes: ["저녁마다 유튜브 보면서 먹어요"],
+  favoriteFoods: ["소고기","계란","감자","미역국"],
+  attendsDaycare: true, envBadPct: 0.55, icfqRiskCount: 0
+}
+weekCtx = { lever: "environment", missionTarget: "콩류",
+            ledger: { targetAccepts: 0, foodOverrideUsed: 0 } }</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// ① 선호계량화(quantifyPreferences):
+//   미역국·소고기·계란·감자 = 각 1회 → signal&lt;2 → state="unknown"
+confidentLiked = []            // ⭐ 0개! (구 누적기는 4개로 오판)
+coldStart = true               // confidentLiked.length &lt; 2
+likedSeed = coldStartSeed(servedTop,6)   // 자주 차려진 음식으로 출발
+
+// ② 두뇌 brainPick:
+{ scenarioId: "nutrient-gap", useFood: true,
+  why: "콩류가 집에서 비어 음식 각도 제안" }
+
+// ③ override 게이트(anchorOverrideAllowed):
+//   anchorLever="environment"(비-food) · sid="nutrient-gap"(음식)
+//   → LEVER_SCENARIO[environment]="mealtime-atmosphere" ≠ sid
+//   → 안전인터럽트 아님 · foodOverrideUsed(0)&lt;CAP(2)
+//   → isFoodOverride=true, allow=true(캡 내 1회 허용) ...단
+//   recentUseFood 직전 2일 모두 음식이었으면 774-775서 useFood=false 선차단
+
+// ④ 최종 CoachContext:
+scenarioId: "mealtime-atmosphere"   // 환경 닻 프레임 유지(override 캡 소진 시)
+plan.target: "콩류"(배경) · weekCtx.effLever: "environment"
+slotFood: 슬롯 dish(콩류 supply 날엔 두부 아닌 구체 dish)
+mirrorLine: 쿨다운이면 null</pre></div></div>
+</div>
+<div class="callout"><b>실제 편지 거울/슬롯 줄(예시)</b> — 환경 코칭 날이라 본문엔 음식 액션이 없고, 거울에 슬롯 음식을 소프트 노출: <i>"어린이집 덕에 여러 식품군을 두루 잘 챙기고 있어요. 여유 될 때 단호박찜도 한 번 만나보면 좋겠어요."</i> + 본문 행동: <i>"저녁 한 끼만 화면 끄고 식탁에 앉아 함께 먹어보세요."</i> — <b>before</b>(구 누적기): confidentLiked=4 오판 → 콜드스타트 미발동 → 두부 디폴트 반복 + 비-food주에 매일 음식 잔소리. <b>after</b>: confidentLiked=0 → 콜드스타트 + 닻 게이트로 환경 프레임 유지.</div>
 </section>
 
-<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
-<ul class="clean"><li>scenarioId 화이트리스트(SCEN_IDS) 검증 — 목록 밖이면 빈값→v2 결정론 selectScenario 폴백(환각 시나리오 차단)</li><li>approvedRecs는 후보(food-graph)의 부분집합만·useFood=false면 빈 배열 — 후보 밖 음식·조합 추가 불가(괴식/환각 0)</li><li>useFood=false면 bridgeFacts='' 로 음식 추천 본문 제외 — 환경 날에 off-target 음식 박기 차단</li><li>구조 프레임(환경·자율성·식감)은 강제 useFood=false 정합 — '한 번에 하나' 위반(요구 3개 편지) 차단</li><li>다양성 강제 — 최근 2일 동일 시나리오면 다른 각도로(SYSTEM_BRAIN 원칙③ + selectScenario recentIds 1차 제외)</li><li>타깃 화이트리스트(candidateTargets/runWeeklyPlanning) — mission_target은 결핍/거부 후보 안에서만(없는 결핍 지어내기 금지)</li><li>ARFID 적신호(icfqRiskCount≥2) → push=0 선잠금·neophobia-arfid-watch는 진단·'장애' 단어 금지·1회만 안내</li><li>안전 제1원칙 — coachWeekly는 throw 안 함(synth는 cold 폴백, planFromWeekly는 null) → 닻 실패해도 발행 보장</li><li>stalledTarget 3주 진전0 → 후보 맨 뒤로 밀어 같은 음식 3주째 들이밀기 금지</li></ul>
+<!-- ===================== 문헌·이론 근거 (흡수 보존) ===================== -->
+<section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거 (이 모듈이 적용하는 이론)</h2></div>
+<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr>
+<tr><td><b>반복 노출(HabEat)·단순노출</b></td><td>거부 음식을 격일~주2~3회 작게 다시 올려 친숙도 축적(진전축하·새거부·재노출 시나리오 근거)</td></tr>
+<tr><td><b>ARFID 구분·감각적 음식 거부</b></td><td>식사 적신호가 60일 내 2회+ 누적되면 진단 없이 전문가 안내 1회 + 채근 0(neophobia-arfid-watch·push=0)</td></tr>
+<tr><td><b>자율성 지지(SDT)·Satter DOR</b></td><td>어린 연령 광범위 거부를 발달 과업으로 보고 결과는 같되 작은 선택권(자율성·집기관격차 시나리오)</td></tr>
+<tr><td><b>압박의 역효과·무압력 식사</b></td><td>환경에 압박·영상 신호가 있으면 단일 레버 1개만(mealtime-atmosphere)</td></tr>
+<tr><td><b>보상 역효과(과잉정당화)</b></td><td>보상·디저트 협상이 장기 선호를 떨어뜨림을 알리고 거래를 끊게 함(reward-bribe-backfire)</td></tr>
+<tr><td><b>푸드 체이닝·맛-맛 연합</b></td><td>부족 식품군을 좋아하는 음식에 다리 놓기(nutrient-gap·repeat-menu) — 슬롯 dish로 구체화</td></tr>
+<tr><td><b>Wilson 점수 하한(통계)</b></td><td>⭐ 선호계량화 — 1/1 완식을 '확실히 좋아함'으로 단정 안 함(표본 적을수록 보수적, likedScore≥0.5 게이트)</td></tr>
+<tr><td><b>편식 궤적(자연 완화)·신뢰 모델</b></td><td>뚜렷한 신호 없으면 행동 빼고 칭찬만(plateau·low-data-gap)</td></tr>
+<tr><td><b>Fogg 행동설계 · Gollwitzer 실행의도</b></td><td>주간 행동목표를 '하루 한 끼'의 가장 작은 행동 + 구체 트리거 1구('저녁 6시 TV 끄고')로</td></tr>
+</table></div>
+</section>
+
+<!-- ===================== ⑤ 남은 문제점·해야할 일 ===================== -->
+<section id="todo"><div class="sec-h"><span class="no" style="font-size:12px">⑤</span><h2>남은 문제점 · 해야할 일 (랄프위검 47점·2026-06-20)</h2></div>
+<p class="lead">랄프위검(연속성 감사) <b>47점</b>. 이 모듈 관점에서 정직하게 — 증상 → 근본원인 → 해야할일. 미화 없음. 단 사실인 성과는 EARNED로 명시.</p>
+<div class="earn"><b>✅ EARNED (사실인 성과)</b> — ① 선호계량화가 아린의 '미상 80%를 liked로 오판'을 실제로 차단(confidentLiked=4 오판 → 0 정정, route.ts:366-374 실측). ② 닻 종속 override 게이트(anchorOverrideAllowed)가 코드에 박혀 비-food주 음식 잔소리·트리거 미충족 강제를 결정론으로 막음(프롬프트 신뢰 아님). ③ F-18 슬롯본문봉합으로 비-콩류 슬롯 12일 두부누수 0(실측). ④ 거울 출현빈도 쿨다운(#5)·도입 회전(#6)으로 템플릿 축자 반복 격일화. <b>가드는 견고하다 — 무너진 건 가드가 아니라 그 가드 입구로 들어올 신호다.</b></div>
+<div class="tbl"><table>
+<tr><th style="width:18%">증상</th><th style="width:34%">근본원인</th><th>해야할일 (owner)</th></tr>
+<tr><td><b>[천장1·뿌리] P0-D 환경신호가 step 전진 트리거 0</b> — 졸업 0, 피벗만 됨</td><td><code>child_daily_state</code>·envTablePct가 '다리만 깔리고' 실데이터 미입력. <code>pickUnitProbe</code>가 <code>context.unitProbe</code>로 질문은 내보내나(출력 다리·route.ts:990 EARNED), <b>답변 파이프(parseProbeAnswers→advanceProgress)에 양성신호가 안 들어옴</b> — 입력 다리 공백. <code>targetAccepts</code>(route.ts:711)·focus 유닛 passWhen이 표본 0이라 영구 보류</td><td><b>환경신호 '입력 UI/경로'까지 정의</b>(현재 출력 다리만) — care 5단계/환경칩 입력이 child_daily_state·envTablePct로 흘러 parseProbeAnswers 양성표본을 쌓게 배선. <span style="color:var(--ad)">owner: route.ts + ⑤ 진척(advanceProgress passWhen) + care UI</span></td></tr>
+<tr><td><b>[천장5] 시나리오 mealtime-atmosphere 고착</b> — 9일 중 7일 동일 각도</td><td>focusFatigue(정체 유닛/시나리오 강등)가 environment 레버를 강등 후에도 <b>즉시 재선택</b> → 강등 면역. 강등 기준이 '직전 주 비교'라 일간 누적빈도를 못 봄. 시나리오 다양성이 도입 다양성과 직결</td><td><b>focusFatigue 강등 기준을 '연속 정체일/시나리오 누적빈도'로</b> 교체(직전 주 비교 → 최근 N일 시나리오 카운트). <code>recentScenarios</code> 윈도를 두뇌 입력에 누적빈도로 주입해 7일 중 5일+ 동일이면 강제 차순위. <span style="color:var(--ad)">owner: route.ts:584-590 focusHistory + buildBrainContext</span></td></tr>
+<tr><td><b>선호계량화 confidentLiked=0 → 콜드스타트만</b> — 영원히 콜드스타트</td><td>아린 양성신호 없음(완식 반복 2회+ 없음). 미상 null을 liked 오판 차단은 <b>정상</b>(EARNED). 그러나 신호 입력이 0이면 콜드스타트 탈출 불가 — 천장1과 같은 뿌리(신호 0 구간)</td><td><b>신호 0 구간 식별 후 시나리오 강제 다변화</b> — confidentLiked=0 + targetAccepts=0이 N일+ 지속이면 '신호 수집 모드'로 진입해 시나리오를 강제 회전(같은 각도 고착 방지)하고 프로브를 우선 emit. acceptance_level 입력 유도(care 5단계)로 양성표본을 적극 수집. <span style="color:var(--ad)">owner: route.ts:372 coldStart 분기 + pickUnitProbe 우선순위</span></td></tr>
+<tr><td><b>추천 풀 협소</b> — 콜드스타트 후보가 두부5·달걀6에 수렴</td><td>콜드스타트 Tier2→Tier3(youa 큐레이션)까지 못 가 풀이 좁음 · 앵커 다양화 부족(돼지불고기 단일)</td><td>P0-B/C — 추천 풀 확장(Tier3 큐레이션 배선) · 앵커 다양화. <span style="color:var(--ad)">owner: ② 추천엔진(coachRecos) — 본 모듈은 confidentLiked/likedSeed 제공만</span></td></tr>
+<tr><td><b>lever 태그 정합·plateau 카피풀</b></td><td>effLever 디버그 표시와 본문 레버가 어긋나는 케이스 산발 · plateau/무브 카피 풀 빈약(반복 톤)</td><td>lever 태그 정합 디버그 · plateau·무브 카피풀 확충. <span style="color:var(--ad)">owner: route.ts weekCtx.effLever + ⑥ 작문기 카피풀</span></td></tr>
+</table></div>
+<div class="callout"><b>🧠 한 줄 요약</b> — 이 모듈의 가드(선호계량화·닻 게이트·슬롯봉합)는 <b>EARNED</b>다. 무너진 단일 뿌리는 '<b>아린 확신 liked 0개 = 신호 0</b>'이다 — 졸업·콜드스타트 탈출·시나리오 다양화가 전부 '양성신호 입력'에 막혀 있다. 그래서 다음 P0 = <b>P0-D 환경신호 입력 경로</b>(출력 다리만 깔린 것을 입력까지 잇기). 대부분 care 5단계 실데이터가 쌓이면 자연 해소된다.</div>
+</section>
+
+<!-- ===================== 가드 (흡수 보존) ===================== -->
+<section id="guard"><div class="sec-h"><span class="no" style="font-size:12px">🛡️</span><h2>가드 — 괴식·환각·안전 차단 (실측)</h2></div>
+<ul class="clean">
+<li>scenarioId 화이트리스트(<code>SCEN_IDS</code>·coachBrain.ts:32) — 목록 밖이면 빈값 → 결정론 selectScenario 폴백(환각 시나리오 차단)</li>
+<li>approvedRecs는 food-graph 후보의 부분집합만·useFood=false면 빈 배열 — 후보 밖 음식·조합 추가 불가(괴식/환각 0)</li>
+<li>닻 종속 override 게이트(<code>anchorOverrideAllowed</code>) — 비-food주·트리거 미충족·캡 초과 시 두뇌 override 불허(코드 보증, 프롬프트 신뢰 아님)</li>
+<li>연속 food날 캡(route.ts:774-775) — food주 3일·비-food주 2일 연속 useFood면 강제 휴지</li>
+<li>선호 오판 차단 — <code>acceptanceLevel</code>이 null(미상)을 liked/disliked 어디에도 안 셈. confidentLiked=완식≥2+Wilson만(미상 80% 아이를 '잘 먹는다' 오판 차단)</li>
+<li>targetAccepts 미상 배제(route.ts:711) — <code>acceptanceLevel≥1</code>만 진척으로(구 <code>ate_well!==false</code>는 미상도 진척으로 세 같은 타깃 영구 반복했음)</li>
+<li>프로브 적립 보수(parseProbeAnswers) — context.unitProbe + 정규 칩 정확 일치만(자유텍스트·'잘 모르겠어요' 미적립)</li>
+<li>ARFID 적신호(icfqRiskCount≥2) → push=0 선잠금·진단/'장애' 단어 금지·1회만 안내</li>
+<li>안전 제1원칙 — 주간 닻은 throw 안 함(cold 폴백·null degrade) → 닻 실패해도 일간 엔진 발행 보장</li>
+</ul>
 </section>
 
 </main>
 <footer>
 밀프레드 코칭 엔진 모듈 명세 · ① 신호선택기 (시나리오 두뇌)<br>
-🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
-코드 근거: coachScenarios.ts · coachBrain.ts · coachWeekly.ts · 2026-06-17
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-nutrition.html">④ 영양평가</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a> · <a href="/coach-module-weekly-planner.html">⑧ 주간계획</a><br>
+코드 근거: route.ts · coachBrain.ts · coachWeekly.ts · coachDaily.ts · preferenceQuantification.ts · 실측 2026-06-20
 </footer>
 </body></html>

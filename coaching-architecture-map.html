@@ -2,12 +2,12 @@
 <html lang="ko"><head>
 <script src="/docs-gate.js?v=4"></script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>코칭 아키텍처 지도 — 엔진 1개·모듈 여럿 · 아이 현황 스토어 · 데이터 계약</title>
-<meta property="og:title" content="코칭 아키텍처 지도 — 엔진·모듈 정의 + 데이터 계약">
+<title>코칭 엔진 통합 지도 — 모듈 8종 오케스트레이션 · 하루 한 통의 편지</title>
+<meta property="og:title" content="코칭 엔진 통합 지도 — 8개 모듈이 편지 한 통을 만들기까지">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827}
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--r700:#C62828;--y500:#F9A825;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n800:#1F2937;--n900:#111827;--ac:#3498DB;--ad:#1565C0;--abg:#E3F2FD;--abd:#bcdcf3}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FBF7FF);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
@@ -25,15 +25,15 @@ nav.toc a{display:inline-block;font-size:11.5px;font-weight:700;color:var(--n600
 nav.toc a:hover{background:var(--p50);color:var(--p700)}
 main{max-width:1020px;margin:0 auto;padding:8px 20px 70px}
 section{margin:40px 0;scroll-margin-top:54px}
-.sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px;padding-bottom:9px;border-bottom:2.5px solid var(--b500);flex-wrap:wrap}
+.sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px;padding-bottom:9px;border-bottom:2.5px solid var(--ac);flex-wrap:wrap}
 .sec-h .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:25px;height:25px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .sec-h h2{font-size:20px;font-weight:800;color:var(--s800);letter-spacing:-.02em}
-.sec-h .tech{font-size:10.5px;font-weight:700;color:var(--b700);background:#E3F2FD;padding:3px 10px;border-radius:100px;margin-left:auto;border:1px solid #bcdcf3}
+.sec-h .tech{font-size:10.5px;font-weight:700;color:var(--ad);background:var(--abg);padding:3px 10px;border-radius:100px;margin-left:auto;border:1px solid var(--abd)}
 .lead{font-size:13.5px;color:var(--n600);font-weight:500;margin:10px 0 16px;line-height:1.74}.lead b{color:var(--s800)}
-.readme{background:linear-gradient(135deg,#FFF8F2,#E3F2FD);border:1px dashed var(--b500);border-radius:13px;padding:15px 17px;font-size:12.5px;color:var(--n700);line-height:1.7;margin-top:4px}.readme b{color:var(--b700)}
+.readme{background:linear-gradient(135deg,#FFF8F2,#E3F2FD);border:1px dashed var(--ac);border-radius:13px;padding:15px 17px;font-size:12.5px;color:var(--n700);line-height:1.7;margin-top:4px}.readme b{color:var(--ad)}
 .card{background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}.card+.card{margin-top:12px}
 h3.sub{font-size:14.5px;font-weight:800;color:var(--s800);margin:4px 0 8px;letter-spacing:-.01em}
-.callout{background:linear-gradient(135deg,#E3F2FD,#FFF8F2);border:1px solid #bcdcf3;border-radius:12px;padding:14px 16px;font-size:12.5px;color:var(--n700);line-height:1.72;margin-top:12px}.callout b{color:var(--b700)}
+.callout{background:linear-gradient(135deg,#E3F2FD,#FFF8F2);border:1px solid var(--abd);border-radius:12px;padding:14px 16px;font-size:12.5px;color:var(--n700);line-height:1.72;margin-top:12px}.callout b{color:var(--ad)}
 .note{background:#FFF8F2;border:1px solid var(--p100);border-radius:11px;padding:12px 14px;font-size:12px;color:var(--n600);line-height:1.66;margin:12px 0}.note b{color:var(--p700)}
 .defn{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:11px;margin-top:6px}
 .dc{border:1px solid var(--n200);border-top:4px solid;border-radius:13px;padding:15px 16px;background:#fff}
@@ -47,7 +47,7 @@ table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:560px}
 th,td{border:1px solid var(--n200);padding:8px 10px;text-align:left;vertical-align:top}th{background:#EEF4FB;font-size:11px;font-weight:800;color:var(--s800)}
 td b{color:var(--s800)}
 .tag2{font-size:9.5px;font-weight:800;padding:1px 7px;border-radius:100px}
-.t-live{background:#E9F7F2;color:var(--g700)}.t-plan{background:#FFF3CD;color:var(--y700)}.t-part{background:#E3F2FD;color:var(--b700)}
+.t-live{background:#E9F7F2;color:var(--g700)}.t-plan{background:#FFF3CD;color:var(--y700)}.t-part{background:#E3F2FD;color:var(--ad)}
 .store{display:flex;flex-direction:column;gap:0;margin-top:6px}
 .src3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
 @media(max-width:680px){.src3{grid-template-columns:1fr}}
@@ -72,334 +72,238 @@ td b{color:var(--s800)}
 .rmi.done{border-left-color:var(--g500);background:#F4FBF8}.rmi.now{border-left-color:var(--y500);background:#FFFBEE}.rmi.next{border-left-color:var(--b500);background:#F0F7FD}
 .rmi .rh{font-size:13px;font-weight:800;color:var(--s800);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .rmi .rl{font-size:12px;color:var(--n700);font-weight:500;margin-top:5px;line-height:1.6}.rmi .rl b{color:var(--s800)}
+.beforeafter{display:grid;gap:11px;margin-top:6px}
+.ba{border-radius:12px;padding:13px 16px;border:1px solid var(--n200)}
+.ba.before{background:#FDF2F2;border-color:#f3c9c9}.ba.after{background:#F1FBF6;border-color:#bfe6d9}
+.ba .bh{font-size:12px;font-weight:800;margin-bottom:6px}.ba.before .bh{color:var(--r700)}.ba.after .bh{color:var(--g700)}
+.ba .bt{font-size:11.5px;color:var(--n700);line-height:1.66}.ba .bt b{color:var(--s800)}
+.quote{font-style:italic;color:var(--n600);border-left:3px solid var(--n300);padding-left:10px;margin:5px 0;font-size:11.5px;line-height:1.6}
+.flow{display:flex;flex-direction:column;gap:0;margin-top:8px;font-size:11px}
+.frow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap}
+.fbox{border-radius:10px;padding:9px 12px;border:1.5px solid;flex:1;min-width:150px}
+.fbox .ft{font-size:11.5px;font-weight:800}.fbox .fd{font-size:10px;font-weight:600;margin-top:3px;line-height:1.45}
+.fin{background:#F4FBF8;border-color:#16A085}.fin .ft{color:#1B5E20}
+.fproc{background:#FaF6FE;border-color:#9C27B0}.fproc .ft{color:#6A1B9A}
+.fout{background:#FFF6F1;border-color:#E89244}.fout .ft{color:#B86A20}
+.fbrain{background:#EEF1F5;border-color:#2C3E50}.fbrain .ft{color:#1F2D3D}
+.fdown{text-align:center;color:var(--n400);font-size:15px;font-weight:800;margin:3px 0}
+.fcode{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:9.5px;color:#5b3a8c;background:#F1EDFB;padding:1px 4px;border-radius:4px;font-weight:600}
 footer{text-align:center;color:var(--n400);font-size:11px;padding:26px 20px 0;border-top:1px solid var(--n200);margin-top:38px;line-height:1.7}
-.stamp{display:inline-block;background:#F0F7FD;border:1px solid #bcdcf3;border-radius:100px;padding:4px 12px;font-size:10.5px;font-weight:700;color:var(--b700);margin:0 3px 6px}
+.stamp{display:inline-block;background:#F0F7FD;border:1px solid #bcdcf3;border-radius:100px;padding:4px 12px;font-size:10.5px;font-weight:700;color:var(--ad);margin:0 3px 6px}
 .svgwrap{overflow-x:auto}
 </style></head><body>
 
 <header class="hero"><div class="hero-in">
-<span class="tag">🗺️ ENGINE · ARCHITECTURE MAP</span>
-<h1>코칭 아키텍처 지도<br><b>엔진 1개 · 모듈 여럿</b> · 아이 현황 스토어가 잇는다</h1>
-<p>무엇을 '엔진'이라 부르고 무엇을 '모듈'이라 부를지부터, 아이 현황을 매일 어떻게 모아 <b>코칭 엔진에 무슨 데이터를 어떻게 넘길지</b>(데이터 계약)까지 — 추천·선호·네트워크 모듈이 코칭 엔진과 맞물리는 한 장의 지도.</p>
-<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/food-chaining-personalization-engine.html">푸드체이닝 모듈</a> · <a href="/preference-quantification-engine.html">선호 계량화 모듈</a> · 2026-06-16</div>
+<span class="tag">🗺️ ENGINE · 8-MODULE ORCHESTRATION</span>
+<h1>코칭 엔진 통합 지도<br><b>모듈 8종</b>이 하루 한 통의 편지를 만들기까지</h1>
+<p>새벽 크론 한 바퀴 안에서 <b>신호 수집 → 주간 닻 → 커리큘럼 → 일간 두뇌 → 슬롯 → 작문 → 질문</b>이 어떻게 맞물리는지 — <code>route.ts</code> 1,097줄을 실측한 시스템 전체 지도이자 모듈 명세로 가는 nav 허브.</p>
+<div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/preference-quantification-engine.html">선호 계량화 모듈</a> · <a href="/food-chaining-personalization-engine.html">푸드체이닝 모듈</a> · <a href="/coaching-prompt-architecture.html">프롬프트 아키텍처</a> · 2026-06-20</div>
 </div></header>
 
 <nav class="toc">
-<a href="#plain">🧭 비개발자 개요</a><a href="#fix-20260618">🔧 증상 개선(06-18)</a><a href="#naming">네이밍 규칙</a><a href="#map">컴포넌트 지도</a><a href="#store">아이 현황 스토어</a><a href="#contract">⭐데이터 계약</a><a href="#io">모듈 입출력</a><a href="#loop">닫힌 루프</a><a href="#batch">1만명 배치</a><a href="#status">현재 상태·빌드순서</a><a href="#schema">부록·스키마</a>
+<a href="#plain">🧭 비개발자 설명</a><a href="#impl">⚙️ 구현된 내용</a><a href="#viz">🗂️ 아키텍처 시각화</a><a href="#example">🧒 작동 예시</a><a href="#todo">🚧 남은 문제·할 일</a><a href="#naming">부록·네이밍</a>
 </nav>
 
 <main>
 
-<section id="plain"><div class="sec-h"><span class="no" style="font-size:13px">🧭</span><h2>비개발자용 — 편지 한 통이 만들어지는 과정</h2></div>
-<p class="lead">매일 새벽, 아이 한 명마다 아래 5단계가 돕니다. 코드를 몰라도 읽히게 정리했습니다.</p>
-<div class="loop">
-<div class="ln s1"><div class="lh">① 오늘의 '아이 상태표' 만들기</div><div class="lb">어제까지의 <b>집·기관 식단 기록</b>을 모아 영양 신호등(부족/충분)·잘 먹는 음식·거부한 음식·새 음식 노출 진척을 한 장으로 계산합니다. <b>전부 실제 기록에서 나온 값</b>이라 없는 사실을 지어내지 않습니다.</div></div>
+<!-- ───────────────────────── ① 비개발자용 ───────────────────────── -->
+<section id="plain"><div class="sec-h"><span class="no" style="font-size:13px">①</span><h2>비개발자용 — 편지 한 통이 만들어지는 과정</h2><span class="tech">왜 8개로 나누나</span></div>
+<p class="lead">매일 새벽 2시(<code>0 17 * * *</code> UTC), 활성 자녀 한 명마다 아래 흐름이 한 바퀴 돕니다. <b>한 명의 코치가 하는 일을 8개 부품이 나눠 맡습니다</b> — 코드를 몰라도 읽히게 정리했습니다.</p>
+
+<div class="readme"><b>비유 — 좋은 코치는 혼자 다 하지 않는다.</b> 한 사람이 ⓐ아이 식단 기록을 읽고 ⓑ이번 주에 뭘 가르칠지 정하고 ⓒ어떤 음식으로 다리를 놓을지 고르고 ⓓ오늘 어떤 각도로 말할지 판단하고 ⓔ따뜻한 편지로 옮긴다면 매일 5가지를 동시에 합니다. 밀프레드는 이걸 <b>8개 부품</b>으로 쪼갰습니다. 부품마다 한 가지만 잘하면 되고, 한 부품이 고장 나도 나머지가 폴백으로 편지를 끝까지 발행합니다(<code>try/catch degrade</code>).</p></div>
+
+<div class="loop" style="margin-top:14px">
+<div class="ln s1"><div class="lh">① 어제까지의 '아이 상태표' 모으기 <span style="font-size:9.5px;color:var(--n400)">신호 수집 · 선호 계량화 · 영양평가</span></div><div class="lb">집·기관 식단 기록을 모아 <b>영양 신호등(부족/충분)·잘 먹는 음식·거부한 음식·새 음식 노출 진척</b>을 한 장으로 계산합니다. ⭐<b>'잘 먹는다'는 단정은 완식이 반복된 음식만</b> — 한 번 먹은 건 '아직 모름'으로 둬서 없는 사실을 지어내지 않습니다.</div></div>
 <div class="larrow">▼</div>
-<div class="ln s3"><div class="lh">② '뇌'가 오늘의 각도 + 이번 주 목표 고르기</div><div class="lb">13개 코칭 각도(예: 영양 공백·식사 분위기·진전 축하) 중 오늘 가장 도움될 <b>1개</b>를 고르고, 이번 주 가르칠 교육 목표(커리큘럼 유닛)도 정합니다. <b>매일 다른 각도로 돌려</b> 잔소리 반복을 막습니다.</div></div>
+<div class="ln s2"><div class="lh">② 이번 주 작전 정하기 <span style="font-size:9.5px;color:var(--n400)">주간 닻 · 커리큘럼</span></div><div class="lb">일요일에 <b>이번 주 타깃 식품군·교육 목표·주력 레버</b>(음식이냐 식탁 분위기냐)를 잠급니다. 한 유닛이 18일째 진전이 없으면 강제로 다른 유닛으로 <b>피벗</b>합니다(잔소리 고착 방지).</div></div>
 <div class="larrow">▼</div>
-<div class="ln s2"><div class="lh">③ '추천엔진'이 채울 음식 정하기</div><div class="lb">부족한 영양을 채울 <b>실제로 잘 먹는 음식의 사촌·곁들임</b>을 검증된 데이터에서만 뽑습니다(예: "미역국에 두부 조금"). 조리법을 함부로 지어내지 않아 <b>괴식이 안 나옵니다</b>.</div></div>
+<div class="ln s3"><div class="lh">③ 오늘의 각도 고르기 + 채울 음식 정하기 <span style="font-size:9.5px;color:var(--n400)">일간 두뇌 · 추천엔진 · 슬롯</span></div><div class="lb">13개 코칭 각도 중 오늘 가장 도움될 <b>1개</b>를 AI가 고르되, <b>이번 주 작전을 못 벗어나게</b> 코드가 게이트합니다. 채울 음식은 검증된 데이터에서만(예: 콩류 결핍이면 '단호박찜·치즈스틱' 같은 구체 음식) — <b>매일 다른 음식으로 회전</b>해 두부 도돌이표를 막습니다.</div></div>
 <div class="larrow">▼</div>
-<div class="ln s4"><div class="lh">④ '손'이 따뜻한 편지로 쓰기</div><div class="lb">위 재료를 받아 <b>따뜻한 한국어 편지</b>로 옮깁니다. 강요·괴식·과한 소금은 안전가드가 거르고, 발행 전 한 번 더 검수합니다.</div></div>
+<div class="ln s4"><div class="lh">④ 따뜻한 편지로 쓰기 <span style="font-size:9.5px;color:var(--n400)">작문(손)</span></div><div class="lb">위 재료를 받아 <b>한국어 편지</b>로 옮깁니다. 강요·괴식·과한 소금은 안전가드가 거르고, 발행 전 검증자가 한 번 더 검수합니다.</div></div>
 <div class="larrow">▼</div>
-<div class="ln s5"><div class="lh">⑤ 부모 실천 → 새 기록 → ①로</div><div class="lb">부모가 한 걸음 실천하고 기록하면, 그게 내일 상태표에 반영돼 코칭이 점점 그 아이에게 맞춰집니다.</div></div>
+<div class="ln s5"><div class="lh">⑤ 오늘의 질문 → 부모 답변 → 내일 ①로 <span style="font-size:9.5px;color:var(--n400)">질문 · 프로브</span></div><div class="lb">편지 끝에 <b>오늘의 질문</b>을 답니다. ⭐이번 주 가르치는 유닛의 '신호 프로브'를 던져, 부모 답이 내일 상태표의 양성신호로 흘러 코칭이 점점 그 아이에게 맞춰집니다.</div></div>
 </div>
-<div class="callout"><b>두 가지 핵심 약속</b> — (가) <b>'무엇을' 줄지는 코드가 결정론으로, '어떻게' 쓸지(문장)만 AI가</b> → 괴식·환각 0. (나) <b>판단은 하루 한 번 미리 계산해 저장(아이 현황 스토어), 편지는 그걸 읽어 글만</b> → 1만 명도 감당. 아래 §0~는 이 구조의 상세이고, <b>각 부품의 운영·문헌·테이블</b>은 <a href="/docs.html">🧩 모듈 명세 7종</a>에 있습니다.</div>
+
+<div class="callout"><b>두 가지 핵심 약속</b> — (가) <b>'무엇을' 줄지는 코드가 결정론으로, '어떻게' 쓸지(문장)만 AI가</b> → 괴식·환각 0. (나) <b>판단은 하루 한 번 미리 계산해 저장, 편지는 그걸 읽어 글만</b> → 1만 명도 감당. 각 부품의 운영·문헌·테이블 상세는 <a href="/docs.html">🧩 모듈 명세</a>에, 이 문서는 <b>8개가 한 크론에서 어떻게 맞물리는지</b>를 봅니다.</div>
 </section>
 
-<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:13px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2><span class="tech">통합 책무</span></div>
-<p class="lead"><b>★ 최상위 단일 근본원인</b> — 이 문서가 <b>'조립 → 뇌(판단) → 손'</b>으로 그린 파이프라인이, 라이브 코드에선 <b>'뇌가 작전층(주간 닻)을 덮어쓰기'</b>로 역전돼 있다. <code>route.ts:628-630</code>의 일간 두뇌 블록은 <code>brainPick.scenarioId</code>만 있으면 무조건 <code>precomputed = planFor(&#123;forceScenarioId&#125;)</code>로 재할당하는데, 이 경로(<code>coach.ts:445-451</code>)는 주간 닻(<code>mission_target</code>·<code>target_pool</code>·<code>lever</code>·<code>budget.push</code>·<code>ledger</code>·teaching arc)을 <b>전혀 모른 채</b> raw signals로 타깃을 새로 뽑는다. 그 결과 주간이 잠근 타깃(콩류)·레버(environment)·채근캡(push=0)이 일간에서 전부 무력화된다. <b>이 통합 모듈의 역할</b> = 데이터 계약(<code>decision</code>)과 파이프라인 순서를 그리는 곳이므로, <b>뇌(decision)를 주간 닻의 하위 결정으로 계약화</b>하고 <b>거부 타깃 결핍군 필터(refExposable)를 세 경로가 공유하는 단일 수정점</b>으로 명시하는 것이 이 문서가 책임지는 봉합이다.</p>
+<!-- ───────────────────────── ② 구현된 내용 ───────────────────────── -->
+<section id="impl"><div class="sec-h"><span class="no">②</span><h2>구현된 내용 — 코드에 실제로 있는 파이프라인</h2><span class="tech">route.ts 실측</span></div>
+<p class="lead">전부 <code>web/app/api/cron/coach/route.ts</code>(1,097줄)의 단일 <code>GET</code> 핸들러 안에서 자녀 루프(<code>for (const cid of activeIds)</code>·<code>route.ts:264</code>)로 순차 실행됩니다. 모듈은 <code>@/lib/*</code> 순수 함수로 import되어 결정론 재료를 채우고, LLM은 두뇌(<code>pickActionByBrain</code>)·작문(<code>composeLetter</code>)·질문(<code>generateQuestion</code>) 3곳뿐입니다.</p>
 
-<p class="note" style="margin-bottom:4px">🧒 <b>한 줄 쉬운말</b> — "이번 주는 식탁 분위기를 코칭하자"고 정해놨는데, 다음 단계의 '오늘의 뇌'가 그 결정을 무시하고 매일 음식 추천으로 갈아끼우고 있었습니다. <b>뇌가 '이번 주 목표' 안에서만 오늘 각도를 고르도록 규칙을 코드에 박는 것</b>이 핵심 수정입니다.</p>
+<h3 class="sub">8개 모듈 · 입력 → 함수 → 출력(컨텍스트 키)</h3>
+<div class="tbl"><table style="min-width:880px">
+<tr><th>#</th><th>모듈 (lib)</th><th>핵심 함수 · file:line</th><th>📥 입력</th><th>📤 출력 → context</th><th>상태</th></tr>
+<tr><td><b>0</b></td><td><b>야간 백필</b><br>remapMenus</td><td><code>backfillUnmappedMenus()</code><br><code>route.ts:95</code></td><td>menus 있고 ingredients 빈 meal_logs(60일·LLM≤8콜)</td><td>식재료 백필(영양계산 선행) → <code>backfill</code> 지표</td><td><span class="tag2 t-live">live</span></td></tr>
+<tr><td><b>1</b></td><td><b>신호 수집 + 선호 계량화</b><br>nutrition · preferenceQuantification</td><td><code>computeSignals/FoodGroups/Timeseries/GroupSignals</code>·<code>quantifyPreferences()</code>·<code>confidentLiked()</code>·<code>dislikedFoods()</code><br><code>route.ts:368-381</code></td><td>7일 meal_logs(집/기관 분해·<code>place!=='daycare'</code>)·<code>acceptance_level(0~4)</code>·catMap</td><td><code>CoachSignals</code>(reds/missing/refusedExposable)·<code>confidentLiked[]</code>·<code>dislikedIng</code>·<code>coldStart</code></td><td><span class="tag2 t-live">live⭐신규</span></td></tr>
+<tr><td><b>2</b></td><td><b>사실·재노출 컴파일러</b><br>coachFacts · reexposure</td><td><code>compileFacts()</code>·<code>reexposurePick()</code><br><code>route.ts:423,457</code></td><td>rows·거부→수용 전환(28일)·노출횟수/경과일</td><td><code>fc.cards/noteCards/forbidParts</code>·재노출 적기 사실(ts에 push)</td><td><span class="tag2 t-live">live</span></td></tr>
+<tr><td><b>3</b></td><td><b>주간 닻(작전층)</b><br>coachWeekly · curriculumUnits · curriculum · coachDaily</td><td><code>runWeeklyPlanning()</code>·<code>enrichWeeklyPlan()</code>·<code>planFromWeekly()</code>·<code>advanceProgress()</code>·<code>pickPlanSlot()</code><br><code>route.ts:596,627,740,680,852</code></td><td>reds·missing·refExposable·<code>stalledTarget(3주)</code>·progByChild·focusHistory·candSignals</td><td>weekly_plans 행(<code>mission_target·target_pool·budget.lever·ledger·plan_detail</code>)·<code>curriculumDecision</code>·<code>planSlotCtx</code></td><td><span class="tag2 t-live">live⭐신규</span></td></tr>
+<tr><td><b>4</b></td><td><b>추천엔진 + 네트워크 조회</b><br>coachRecos · graphSource</td><td><code>buildRecoFacts()</code>·<code>buildIngredientPool()</code>·<code>coldStartSeed()</code>·<code>getRecipeFreq/IngredientsLight()</code><br><code>route.ts:760,842,867</code></td><td><code>likedSeed</code>·target(결핍군)·<code>freqMap</code>·<code>recentRecoIng</code>(회전)</td><td><code>recoPoolArr(5)·recoIng(회전)·bridgeFacts·slotFood/slotDish</code></td><td><span class="tag2 t-live">live⭐신규</span></td></tr>
+<tr><td><b>5</b></td><td><b>영양 거울 + 간식 + 성장</b><br>snack · growth-reference · (mirror)</td><td><code>evaluateSnacks()</code>·<code>growthTracking()</code>·<code>bmiBand()</code>·<code>mirrorCooldownDue()</code><br><code>route.ts:385,401,894</code></td><td>byChild rows·snackBand(BMI)·firstGrowth/latestGrowth·<code>recentMirrorShown</code></td><td><code>snackText·growthMirror·mirrorLine(쿨다운)·heightTrack/weightTrack</code></td><td><span class="tag2 t-live">live⭐신규</span></td></tr>
+<tr><td><b>6</b></td><td><b>일간 두뇌(판단)</b><br>coachBrain · coachScenarios</td><td><code>buildBrainContext()</code>·<code>pickActionByBrain()</code>·<code>anchorOverrideAllowed()</code><br><code>route.ts:761,771,782</code></td><td>signals·nutritionMirror·recoCandidates·weeklyEchoes·<code>anchorLever·anchorTargetPool·recentUseFood·curriculumSummary</code></td><td><code>brainPick:BrainAction{scenarioId,useFood}</code> → 닻 게이트 통과 시 <code>precomputed</code> 교체</td><td><span class="tag2 t-live">live·LLM</span></td></tr>
+<tr><td><b>7</b></td><td><b>작문기(손)</b><br>coach · coachChronic</td><td><code>composeLetter()</code>·<code>generateLetter/OnboardingLetter()</code>·<code>chronicGuidanceText()</code><br><code>route.ts:925</code></td><td><code>base</code>(①~⑤ 재료 전부)+<code>precomputed</code>(plan/scenario)+<code>detForbid</code>+slotFood/slotDish</td><td><code>{letter, oneliner}</code>+<code>verifyCtx</code>(검증자)+<code>simToPrev/repeatAlert</code></td><td><span class="tag2 t-live">live·LLM</span></td></tr>
+</table></div>
+<div class="note">위 7행 + <b>질문/프로브 생성</b>(<code>generateQuestion()</code>·<code>pickUnitProbe()</code>·<code>icfqForDate()</code>·<code>route.ts:983-997</code>)을 합쳐 <b>오케스트레이션 단위 8종</b>. 모든 모듈 호출이 try/catch로 감싸져 한 모듈이 throw해도 <code>precomputed = planFor(...)</code>(<code>route.ts:557</code>) 폴백으로 편지를 끝까지 발행합니다(안전 제1원칙).</div>
 
-<div class="tbl"><table style="min-width:780px">
-<tr><th>증상 / 문제</th><th>근본원인 (파일:라인 · 분류)</th><th>구현 · 기능 · 설계 변경 방향</th><th>우선순위</th></tr>
-<tr>
-<td><b>뇌가 주간 닻을 통째 폐기</b> — 타깃 잠금·채근캡(push=0)이 발행 편지에 안 먹힘(치킨 반복·음식 잔소리 연속의 단일 상류)</td>
-<td><code>route.ts:604-610, 628-630</code><br><code>coach.ts:445-451</code><br><span class="tag2 t-plan">CODE_BUG</span></td>
-<td><code>route.ts:628-630</code> 무조건 override를 <b>닻 종속 게이트</b>로 교체. <code>anchor</code>/<code>lever</code>를 두뇌 블록 스코프로 끌어올려(<code>weekCtx</code>에 <code>lever</code> 실어 노출) <code>const anchorLever = weekCtx?.lever ?? 'food'</code> 판정. <code>brainPick.scenarioId</code> 적용은 <b>anchorLever==='food' · leverScenario 일치 · SAFE_INTERRUPTS · 주당 FOOD_OVERRIDE_CAP(예 2) 미만</b>일 때만. 불허면 <code>planFromWeekly</code>가 만든 precomputed(레버 프레임) 유지.</td>
-<td><span class="tag2 t-plan">P0</span></td>
-</tr>
-<tr>
-<td><b>부분 override로 편지 내부 불일치</b> — plan만 바뀌고 weeklyArc(환경)는 그대로 남아 '환경 arc + food 본문' 동시주입(앵무새·결 어긋남)</td>
-<td><code>route.ts:681</code> base.weeklyArc 주입<br><span class="tag2 t-plan">CODE_BUG</span></td>
-<td>override가 비-food 닻에서 발동한 날은 <code>plan·weeklyArc·타깃풀</code>을 <b>함께 일관 전환</b>(부분 override 금지). 그날만 <code>weekCtx.arc=null</code>로 비우거나 arc.stage를 food 톤과 호환되는 한 구절 리마인드로 강등. <b>이 문서의 §3 <code>decision</code> 계약에 "전환 시 plan·arc 동시 전환" 불변식</b>으로 명시.</td>
-<td><span class="tag2 t-plan">P0</span></td>
-</tr>
-<tr>
-<td><b>음식 잔소리 며칠 연속</b> — 비-food 주에도 두뇌 <code>useFood</code>가 매일 true 가능(콩→과일→치킨 3연속)</td>
-<td><code>route.ts:647</code>(STRUCTURAL 기준이라 nutrient-gap override로 탈출)<br><code>coachBrain.ts:34-42,107-113</code><br><span class="tag2 t-part">DESIGN_GAP</span></td>
-<td>가드 기준을 <b>닻 lever로 변경</b>: <code>if (brainPick && anchorLever!=='food' && override 불허) brainPick.useFood=false</code>. + <b>연속 food날 쿨다운</b> — 상단 이력 적재부에서 <code>recentBrainUseFood[cid]</code>(최근 N일 <code>ctx.brain?.useFood</code>) 적재, 직전 2일 모두 true면 강제 휴지(<code>SNACK_COOLDOWN=2</code> 동형). 프롬프트 신뢰 대신 <b>결정론 캡으로 보증</b>.</td>
-<td><span class="tag2 t-plan">P0</span></td>
-</tr>
-<tr>
-<td><b>거부 타깃 결핍군 필터 비대칭</b> — refExposable이 weekly 경로에만 적용, 일간 signals·두뇌·폴백엔 미적용 → 치킨(미매핑·비결핍군)이 일간 타깃으로 누수</td>
-<td><code>route.ts:352-358</code> vs <code>485-489·523</code><br><code>coach.ts:388</code> targetPoolForScenario<br><span class="tag2 t-plan">CODE_BUG</span></td>
-<td>refExposable(주식 제외 + 결핍군 소속 거부만) 로직을 <b>lib 공유 함수</b>로 추출하고, <code>targetPoolForScenario</code>(또는 <code>lockedTargetPool</code> 인자)에 두어 <b>일간·폴백·두뇌 세 경로가 같은 잠금</b>을 보게 한다(단일 수정점). ⚠️ 통일 시 <code>catOf</code>=카테고리('고기') vs 결핍군='고기·계란' 네임스페이스를 <code>CATEGORY_GROUP</code>으로 변환 후 비교(과교정 방지) — ④영양평가 매핑 소관과 협의.</td>
-<td><span class="tag2 t-plan">P0</span></td>
-</tr>
-<tr>
-<td><b>트리거 미충족 시나리오 강제</b> — re-exposure-timing(daycareRefused&gt;0 트리거)을 daycareRefused=[]에서도 두뇌가 강제 → 집 거부를 기관 재노출 각도로 어색하게 코칭</td>
-<td><code>route.ts:628</code> 직전 게이트 부재<br><code>coachBrain.ts:109</code> / <code>coach.ts:445-451</code><br><span class="tag2 t-plan">CODE_BUG</span></td>
-<td><code>route.ts:628</code> 직전에 <code>const forced = SCENARIOS.find(s=&gt;s.id===brainPick.scenarioId); if (forced && safeTrigger(forced, signals)) &#123; planFor(forceScenarioId) &#125;</code> — 트리거 충족 시에만 강제, 미충족이면 결정론 <code>selectScenario</code> 폴백(line 492 precomputed 유지). <code>plateau</code>(trigger:()=&gt;true)는 항상 안전망.</td>
-<td><span class="tag2 t-plan">P1</span></td>
-</tr>
-<tr>
-<td><b>LEVER_SCENARIO·정책 상수 분산</b> — 두뇌 블록이 'lever 호환 시나리오'를 판정할 공유 정책이 없음</td>
-<td><code>coachWeekly.ts:55</code> (route에서 import 불가)<br><span class="tag2 t-part">DESIGN_GAP</span></td>
-<td><code>LEVER_SCENARIO</code> 맵을 route에서 공유 가능하게 export. <code>SAFE_INTERRUPTS</code>·<code>FOOD_OVERRIDE_CAP</code>도 통합층(coach.ts 또는 route 상단)에 <b>단일 정의</b>해 뇌·폴백 두 경로가 같은 정책을 본다.</td>
-<td><span class="tag2 t-plan">P1</span></td>
-</tr>
-<tr>
-<td><b>weekly_plans 다중 active</b> — supersede/archive 없이 매주 active로만 적재(W22~W25 4행 동시 active)</td>
-<td><code>route.ts:538, 559</code><br><span class="tag2 t-plan">CODE_BUG</span></td>
-<td>신규 닻 upsert(538) 직후 같은 child_id의 <code>week_key&lt;wk</code> active 행을 <code>status='archived'</code>로 일괄 update. <code>loadAnchor</code>(559)가 week_key로만 조회하므로 일간 무영향이나 <b>'1 active/child' 불변식·어드민 가시성</b> 확보. daily 동작 불변.</td>
-<td><span class="tag2 t-part">P2</span></td>
-</tr>
-<tr>
-<td><b>통합 불변식 회귀 미보증</b> — 닻 무력화가 테스트로 잡히지 않음</td>
-<td>신규 통합 회귀(<code>lib/__tests__/</code>)<br><span class="tag2 t-part">DESIGN_GAP</span></td>
-<td>골든 케이스: 닻 lever=environment·mission_target=콩류일 때 두뇌가 re-exposure-timing(치킨)을 골라도 <b>발행 plan.target이 콩류(또는 환경 프레임)로 유지</b>되고, useFood가 비-food 주 캡 내에 머물며, 같은 날 <b>weeklyArc와 plan이 같은 lever</b>인지 검증. §6 배치 1단계 머티리얼라이즈 → 골든 CoachContext → 골든 편지 회귀와 연결.</td>
-<td><span class="tag2 t-plan">P1</span></td>
-</tr>
+<h3 class="sub" style="margin-top:18px">⭐ 이번 세션(2026-06-19~20) 신규 — 이 모듈에 반영된 것</h3>
+<div class="tbl"><table style="min-width:820px">
+<tr><th>신규</th><th>무엇 · file:line</th><th>오케스트레이션 영향</th></tr>
+<tr><td><b>선호 계량화</b><br><span class="tag2 t-live">신호포착</span></td><td><code>quantifyPreferences(rs, today)</code>·<code>confidentLikedFrom</code>·<code>dislikedFoods</code> (route.ts:368-370). <code>acceptance_level</code> 컬럼 select 추가(route.ts:112). 미상(null)을 liked로 오판 차단 — 확신=완식 반복+Wilson만.</td><td><code>coldStart = confidentLiked.length &lt; 2</code>(372)로 콜드스타트 게이트·<code>likedSeed</code>(373)·<code>dislikedIng</code> 추천 제외(374). 아린: ate_well true 4건이 전부 다른 식재료 → confidentLiked=0 = 콜드스타트(구 누적기는 4로 오판).</td></tr>
+<tr><td><b>targetAccepts 정량화</b></td><td><code>acceptanceLevel(r) != null &amp;&amp; lv &gt;= 1</code> (route.ts:711). 구버전 <code>ate_well !== false</code>가 미상도 진척으로 세던 것을 만짐(≥1) 이상으로 제한.</td><td>ledger.targetAccepts(743)→ 일요일 synth 스톨 판정 입력. 미상 80% 아동이 영영 '진전 중'으로 보여 두부 반복하던 근원 차단.</td></tr>
+<tr><td><b>hardStall 피벗</b></td><td>주간: <code>stalledTarget(STALL_PIVOT_WEEKS=3)</code>(route.ts:49,592)로 타깃 전환. 일간: <code>advanceProgress({...coachedDays, pivotsThisWeek})</code>(680)가 유닛 18일 정체 시 강제 피벗 → <code>adv.goalsAfter</code> 영속화(688-692).</td><td>한 유닛 18일 진전0이면 주1회 캡 무시 강제전환. table↔exposure 교대.</td></tr>
+<tr><td><b>F-18 슬롯본문봉합</b><br><span class="tag2 t-live">rank1</span></td><td><code>slotDish/slotFood</code>를 작문기에 must-weave(route.ts:864-865). <code>suppressCousins:!!slotFood</code>(867)·거울음식=항상 슬롯음식(870-889·<code>deficitDishFor</code> 디폴트 제거). <code>_foodScen</code>(859)으로 음식 시나리오엔 _noFood 끔.</td><td>본문 두부 도돌이표 종결 — 메타=메추리알·본문=두부 이중장부 봉합. 실측 비-콩류 슬롯 12일 두부누수 0.</td></tr>
+<tr><td><b>#5 거울 쿨다운</b></td><td><code>mirrorCooldownDue(recentMirrorShown, {cooldownDays:2, severe})</code> (route.ts:894). 최근 2일 거울 나왔으면 오늘 생략·심한 결핍(≥2)이면 면제.</td><td>'어린이집 덕에 영양 채워진다' 줄이 24통 중 17통이던 것 격일화. 무슬롯(plateau) 경로도 동일 적용(<code>mirrorCooldown</code>·920).</td></tr>
+<tr><td><b>#6 도입/추천 회전</b></td><td>식재료: <code>recentRecoIng</code> dedup(route.ts:848). 슬롯: <code>pickPlanSlot({recentIngredients})</code>(852). 거울 문장: <code>daySeed</code> 변주 3종(<code>_posV</code>·877-883).</td><td>같은 식재료 연속 추천·축자 반복(템플릿 마모) 차단. (※도입 새 수렴은 §④ 천장 참조 — 풀 협소로 여전히 잔존.)</td></tr>
+<tr><td><b>#7 macro 트랙</b></td><td><code>growthTracking()</code>·<code>heightTrack/weightTrack</code>(route.ts:398)·<code>planSlotCtx.macroPhrase</code> 우선(916). 성장 권유 매3일 강화(231-232) — 데이터 유입 유도.</td><td>저체중→고기·계란 macro 슬롯. 단 <b>성장데이터 없으면 트랙 전체 dead</b>(input-starvation·§④ 참조).</td></tr>
+<tr><td><b>A 추천 근거(어드민)</b></td><td>context에 <code>planSlot{group,track,via,mirror,macro}·recoIng·recoPool·recoMode</code> 적재(route.ts:956,960). <code>slot.track</code>=supply/challenge·<code>pairLiked</code>(918).</td><td>어드민이 '결핍군 콩류 보급(주0.8회·red)'·'잘먹는 두부의 검증사촌' 노출.</td></tr>
+<tr><td><b>P0-D 프로브</b><br><span class="tag2 t-part">다리 절반</span></td><td><code>pickUnitProbe(curriculumDecision?.unit, dayNum)</code>(route.ts:990)·<code>unitProbe</code>를 질문 context에 적재(999). ICFQ 위험일 아닌 날 focus 유닛 1차 신호 프로브를 결정론 질문으로.</td><td>'답해도 신호로 안 흐르던' 다리의 <b>출력측</b>은 이어짐(질문 발행). <b>입력측</b>(답→envTablePct7d 등 양성신호 적립)이 미완 = §④ 단일 천장.</td></tr>
 </table></div>
 
-<div class="callout"><b>이 모듈이 근본적으로 바꿔야 하는 것</b> — 이 문서가 그리는 <b>데이터 계약(<code>decision</code>)과 파이프라인 순서</b>가 진실원천이 되도록 계약을 강화한다. ① <b><code>decision</code>(뇌)을 <code>week</code>(주간 닻)의 하위 결정으로 계약화</b> — 닻 <code>lever</code>가 비-food거나 <code>push=0</code>이면 뇌는 시나리오를 override할 수 없고, food 주에서만·주당 캡 내에서만 바꾼다. ② <b>override 시 plan·weeklyArc·타깃풀을 함께 일관 전환</b>(부분 override 금지). ③ <b>refExposable 결핍군 필터를 weekly·daily·brain 세 경로의 단일 수정점</b>(<code>targetPoolForScenario</code>/<code>lockedTargetPool</code>)으로 둔다(괴식0 약속과 동급의 'off-anchor 0' 약속). ④ <b>파이프라인 다이어그램을 코드 실제(역전)와 목표(종속) 두 상태로 갱신</b> — §3 CoachContext에서 <code>decision</code>이 <code>week</code>과 동급으로 보이는 현 표기에 "week에 종속, 닻 잠금 위반 불가" 주석을 더하고, §4 뇌 프롬프트 카드에 "뇌의 선택은 trigger 충족 + lever 호환 후보로만 제한(코드 게이트)"을 명시한다.</div>
+<h3 class="sub" style="margin-top:18px">발행 게이트 · 안전 불변식 (실측)</h3>
+<div class="tbl"><table>
+<tr><th>가드</th><th>코드</th><th>지키는 약속</th></tr>
+<tr><td>당일 입력 차단</td><td><code>.lte('log_date', dAgo(1))</code> (route.ts:113)</td><td>편지는 '어제까지' 확정 데이터로 — 자기참조·미래 차단</td></tr>
+<tr><td>닻 종속 override</td><td><code>anchorOverrideAllowed({anchorLever,sid,fov,triggerOk})</code> (route.ts:782)</td><td>비-food 주·트리거 미충족·food override 캡 소진 시 두뇌 시나리오 무시 → 닻 잠금 보존</td></tr>
+<tr><td>연속 food 캡</td><td><code>recentBrainUseFood.slice(0,_need).filter(Boolean).length >= _need</code> (route.ts:774-775)</td><td>food주 3일·비food주 2일 연속 음식이면 useFood=false 강제(잔소리 쿨다운)</td></tr>
+<tr><td>재사용 동결 방지</td><td><code>srcHash</code>에 <code>today</code> 포함(472)·재사용 시 context 전체 보존(498-509)</td><td>날짜 바뀌면 식단 같아도 새 편지·firstOfWeek 오판 방지(S6)</td></tr>
+<tr><td>검증자 + 반복경보</td><td><code>verifyCtx</code>(927)·<code>simToPrev>=0.6 ‖ sigRun>=2 → repeatAlert</code>(931)</td><td>발행 전 의미 검증·자가 유사도 측정 → issues에 노출(사람 제보 의존 탈피)</td></tr>
+<tr><td>비용 계측</td><td><code>resetUsage()</code>(269)·<code>aggregateUsage</code>→llm_usage upsert(finally·1020)</td><td>자녀별 LLM 비용 실측 — ₩331/자녀·월</td></tr>
+</table></div>
 </section>
 
-<section id="naming"><div class="sec-h"><span class="no">0</span><h2>네이밍 규칙 — 엔진 / 모듈 / 데이터 레이어</h2><span class="tech">확정</span></div>
-<p class="lead">세 가지로만 부른다. 기준은 <b>"산출물과 루프를 가지면 엔진, 데이터를 돌려주면 모듈, 읽고 쓰는 공용 데이터면 레이어"</b>.</p>
-<div class="defn">
-<div class="dc eng"><div class="dt">⚙️ 엔진 (Engine)</div><div class="dd">사용자 향 <b>산출물을 만들고 자기 루프(크론)</b>를 가진 오케스트레이터. 시스템에 <b>하나</b>.</div><div class="ex">코칭 엔진 — 편지·도감을 씀</div></div>
-<div class="dc mod"><div class="dt">🧩 모듈 (Module)</div><div class="dd">엔진이 호출해 <b>구조화 데이터를 돌려주는 부품</b>. 사용자 향 산출 아님·순수 함수 지향.</div><div class="ex">선호 계량화 · 푸드체이닝 · 영양거울 · 간식 · 두뇌</div></div>
-<div class="dc data"><div class="dt">🗄️ 데이터 레이어</div><div class="dd">모듈들이 <b>읽고 쓰는 공용 데이터</b>. 판단 로직 없음.</div><div class="ex">추천 네트워크(food-graph) · 아이 현황 스토어</div></div>
+<!-- ───────────────────────── ③ 시각화 ───────────────────────── -->
+<section id="viz"><div class="sec-h"><span class="no">③</span><h2>설계 아키텍처 시각화 — 입력 테이블 → 가공 함수 → 출력 키</h2><span class="tech">파이프라인</span></div>
+<p class="lead">한 자녀 루프(<code>route.ts:264~1029</code>) 안의 데이터 파이프라인. <span style="color:#1B5E20;font-weight:800">초록=입력 테이블/데이터</span> → <span style="color:#6A1B9A;font-weight:800">보라=가공 모듈</span> → <span style="color:#1F2D3D;font-weight:800">회색=두뇌(판단)</span> → <span style="color:#B86A20;font-weight:800">주황=출력(편지)</span>.</p>
+
+<div class="card"><div class="flow">
+
+<div class="frow">
+<div class="fbox fin"><div class="ft">📒 meal_logs (7일·집/기관)</div><div class="fd">ingredients·refused·place·<span class="fcode">acceptance_level</span>·environment</div></div>
+<div class="fbox fin"><div class="ft">📅 weekly_plans</div><div class="fd">mission_target·budget.lever·ledger·plan_detail</div></div>
+<div class="fbox fin"><div class="ft">✉️ coach_letters (3일)</div><div class="fd">context: scenario·plan·recoIng·mirrorShown·brain.useFood</div></div>
+<div class="fbox fin"><div class="ft">📈 curriculum_progress · growth_logs</div><div class="fd">unit step·status · 키/몸무게</div></div>
 </div>
-<div class="note">📌 표기 정리: 기존에 "푸드체이닝 <b>엔진</b>"·"선호 계량화 <b>엔진</b>"이라 부른 것은 공식적으로 <b>모듈</b>입니다(일상 대화에선 엔진이라 불러도 무방). 사용자 향 편지를 만드는 <b>코칭 엔진만 '엔진'</b>.</div>
-</section>
 
-<section id="map"><div class="sec-h"><span class="no">1</span><h2>컴포넌트 지도</h2><span class="tech">한 장</span></div>
-<div class="card"><div class="svgwrap">
-<svg viewBox="0 0 760 430" xmlns="http://www.w3.org/2000/svg" font-family="Pretendard,sans-serif" style="width:100%;height:auto;min-width:560px">
-<defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9CA3AF"/></marker></defs>
-<!-- Coaching Engine box -->
-<rect x="40" y="24" width="680" height="150" rx="16" fill="#EEF1F5" stroke="#2C3E50" stroke-width="2.5"/>
-<text x="60" y="48" font-size="14" font-weight="800" fill="#1F2D3D">⚙️ 코칭 엔진 — 편지·도감 산출 (크론·온디맨드)</text>
-<text x="60" y="66" font-size="10.5" fill="#6B7280">재료=결정론(모듈 호출) · 문장=LLM</text>
-<!-- modules inside -->
-<g font-size="11" font-weight="700" text-anchor="middle">
-<rect x="62" y="82" width="150" height="74" rx="10" fill="#FaF6FE" stroke="#9C27B0" stroke-width="1.6"/><text x="137" y="104" fill="#6A1B9A">①신호선택기</text><text x="137" y="121" font-size="9" font-weight="600" fill="#8a6aa0">시나리오 두뇌</text><text x="137" y="134" font-size="9" font-weight="600" fill="#8a6aa0">오늘 각도 택1</text>
-<rect x="224" y="82" width="160" height="74" rx="10" fill="#FaF6FE" stroke="#9C27B0" stroke-width="1.6"/><text x="304" y="104" fill="#6A1B9A">②추천엔진(+⑦조회)</text><text x="304" y="121" font-size="9" font-weight="600" fill="#8a6aa0">재료·궁합·체인</text><text x="304" y="134" font-size="9" font-weight="600" fill="#8a6aa0">사촌→결핍 다리</text>
-<rect x="396" y="82" width="148" height="74" rx="10" fill="#FaF6FE" stroke="#9C27B0" stroke-width="1.6"/><text x="470" y="104" fill="#6A1B9A">③④⑤ 콘텐츠</text><text x="470" y="121" font-size="9" font-weight="600" fill="#8a6aa0">사실·거울·영양</text><text x="470" y="134" font-size="9" font-weight="600" fill="#8a6aa0">진척·커리큘럼</text>
-<rect x="556" y="82" width="142" height="74" rx="10" fill="#fff" stroke="#E89244" stroke-width="1.6" stroke-dasharray="3 3"/><text x="627" y="108" fill="#B86A20">⑥손(LLM) 작문</text><text x="627" y="126" font-size="9" font-weight="600" fill="#c08a4a">재료→문장</text>
-</g>
-<!-- child state store -->
-<rect x="120" y="208" width="520" height="58" rx="13" fill="#F4FBF8" stroke="#16A085" stroke-width="2.2"/>
-<text x="380" y="232" text-anchor="middle" font-size="12.5" font-weight="800" fill="#1B5E20">🗄️ 아이 현황 스토어 (child_daily_state · 매일 갱신)</text>
-<text x="380" y="250" text-anchor="middle" font-size="9.5" fill="#3a7a5a">주간계획 + 일간기록 + 편지 + 파생신호 → 코칭 엔진이 읽는 단일 스냅샷</text>
-<!-- recommendation network -->
-<rect x="120" y="300" width="250" height="52" rx="12" fill="#F4FBF8" stroke="#16A085" stroke-width="2"/>
-<text x="245" y="322" text-anchor="middle" font-size="12" font-weight="800" fill="#1B5E20">🕸️ 추천 네트워크</text><text x="245" y="338" text-anchor="middle" font-size="9.5" fill="#3a7a5a">food-graph 사촌·궁합 (data)</text>
-<rect x="390" y="300" width="250" height="52" rx="12" fill="#F4FBF8" stroke="#16A085" stroke-width="2"/>
-<text x="515" y="322" text-anchor="middle" font-size="12" font-weight="800" fill="#1B5E20">📒 원천 테이블</text><text x="515" y="338" text-anchor="middle" font-size="9.5" fill="#3a7a5a">meal_logs · weekly_plans · coach_letters</text>
-<!-- arrows -->
-<g stroke="#9CA3AF" stroke-width="1.6" fill="none">
-<path d="M304,156 L304,206" marker-end="url(#a)"/>
-<path d="M137,156 L300,206" marker-end="url(#a)"/>
-<path d="M470,156 L360,206" marker-end="url(#a)"/>
-<path d="M245,300 L290,268" marker-end="url(#a)"/>
-<path d="M515,300 L470,268" marker-end="url(#a)"/>
-</g>
-<!-- food-chaining -> network special -->
-<path d="M300,140 C200,150 180,260 240,300" stroke="#9C27B0" stroke-width="1.8" fill="none" stroke-dasharray="4 3" marker-end="url(#a)"/>
-<text x="150" y="240" font-size="9" font-weight="700" fill="#6A1B9A" transform="rotate(-58 150 240)">내부 호출</text>
-<text x="380" y="295" text-anchor="middle" font-size="9.5" fill="#9CA3AF">아이 현황 스토어 ← 원천·네트워크·모듈 출력 집계(야간)</text>
-</svg>
+<div class="fdown">▼ 자녀 루프 진입 (route.ts:264)</div>
+
+<div class="frow">
+<div class="fbox fproc"><div class="ft">①신호+선호계량 <span class="fcode">L368</span></div><div class="fd"><span class="fcode">quantifyPreferences</span> → confidentLiked·coldStart·dislikedIng · <span class="fcode">computeSignals</span> → reds/missing/refExposable</div></div>
+<div class="fbox fproc"><div class="ft">②사실 컴파일러 <span class="fcode">L423</span></div><div class="fd"><span class="fcode">compileFacts</span> → factCards·forbidParts · <span class="fcode">reexposurePick</span> → 재노출 적기</div></div>
+</div>
+
+<div class="fdown">▼ signals · likedSeed</div>
+
+<div class="frow">
+<div class="fbox fproc"><div class="ft">③주간 닻(작전층) <span class="fcode">L560-754</span></div><div class="fd">일요일 <span class="fcode">runWeeklyPlanning</span>→<span class="fcode">enrichWeeklyPlan</span>(plan_detail) · 평일 <span class="fcode">planFromWeekly</span>→precomputed · <span class="fcode">advanceProgress</span>→curriculumDecision(피벗) · <span class="fcode">pickPlanSlot</span>→planSlotCtx(구체 dish 회전)</div></div>
+</div>
+
+<div class="fdown">▼ precomputed(scenario/plan) · weekCtx{lever,targetPool,ledger} · planSlotCtx</div>
+
+<div class="frow">
+<div class="fbox fproc" style="flex:2"><div class="ft">④추천엔진+⑤거울/간식/성장 <span class="fcode">L760-899</span></div><div class="fd"><span class="fcode">buildIngredientPool</span>→recoPool(5)·recoIng(recentRecoIng 회전) · <span class="fcode">buildRecoFacts</span>→bridgeFacts(suppressCousins) · slotFood/slotDish · <span class="fcode">evaluateSnacks</span>·<span class="fcode">growthTracking</span> · <span class="fcode">mirrorCooldownDue</span>→mirrorLine</div></div>
+</div>
+
+<div class="fdown">▼ recoCand · nutritionMirror · curriculumSummary</div>
+
+<div class="frow">
+<div class="fbox fbrain"><div class="ft">⑥🧠 일간 두뇌 = 판단 <span class="fcode">L757-801</span></div><div class="fd"><span class="fcode">buildBrainContext</span>(anchorLever·targetPool·recentUseFood 주입)→<span class="fcode">pickActionByBrain</span>→brainPick{scenarioId,useFood}<br>⤷ <span class="fcode">anchorOverrideAllowed</span> 게이트 통과 시에만 <span class="fcode">weeklyReplan(sid)</span>로 precomputed 교체(닻 잠금 보존)</div></div>
+</div>
+
+<div class="fdown">▼ 최종 precomputed · weekCtx.arc · base(재료 전부)</div>
+
+<div class="frow">
+<div class="fbox fout" style="flex:2"><div class="ft">⑦✍️ 작문(손) = composeLetter <span class="fcode">L925</span></div><div class="fd">base + precomputed + detForbid + slotFood/slotDish(must-weave) → 생성 → 안전 재생성 → 검증자(verifyCtx) → 어휘 유사도 재생성 → <span class="fcode">{letter, oneliner}</span></div></div>
+</div>
+
+<div class="fdown">▼ upsert</div>
+
+<div class="frow">
+<div class="fbox fout"><div class="ft">✉️ coach_letters.upsert <span class="fcode">L962</span></div><div class="fd">letter·oneliner·source_hash·<b>context</b>(scenario·plan·weekly·planSlot·brain·curriculum·recoIng·mirrorShown)</div></div>
+<div class="fbox fout"><div class="ft">❓ daily_questions <span class="fcode">L1000</span></div><div class="fd"><span class="fcode">pickUnitProbe</span>→unitProbe(P0-D) ‖ ICFQ ‖ <span class="fcode">generateQuestion</span></div></div>
+</div>
+
 </div></div>
-<div class="callout">읽는 법 — <b>코칭 엔진</b>이 콘텐츠 모듈들을 호출하고, 그 결과와 원천을 <b>아이 현황 스토어</b>가 매일 한 스냅샷으로 모은다. <b>②추천엔진이 ⑦조회 헬퍼로 추천 네트워크를 읽어</b>(보라 점선) '다음 걸음 <b>후보</b>'를 만들고, 코칭 엔진은 네트워크를 직접 만지지 않는다. <b>통합 후 콘텐츠 모듈은 6개(①~⑥) + 조회 헬퍼 ⑦</b> — 상세는 §4.</div>
-<div class="note" style="margin-top:10px">⚙️ <b>처리 순서(코칭 엔진 내부)</b>: ① <b>컨텍스트 조립</b>(②③④⑤⑦ 결정론 모듈이 CoachContext 채움) → ② <b>🧠 뇌(DeepSeek V4-Pro)=판단</b>(=①신호선택기, 후보 중 오늘의 시나리오·축 택1 → <code>decision</code>) → ③ <b>✍️ 손(DeepSeek V4-Flash)=작문</b>(=⑥). 뇌는 '입력 모듈'이 아니라 <b>컨텍스트를 읽고 결정을 더하는 단계</b>.</div>
+
+<div class="callout"><b>핵심 비대칭(읽는 법)</b> — 화살표는 한 방향이지만 <b>context(coach_letters)는 다음날 루프의 입력으로 되먹임</b>됩니다(recentScenarios·recentPlans·recentRecoIng·recentBrainUseFood·recentMirrorShown·curriculumHist 모두 <code>route.ts:174-188</code>에서 어제 context를 읽어 복원). 즉 <b>편지가 곧 상태 원장</b> — child_daily_state 테이블은 설계상 미구현이고, 실제로는 <b>coach_letters.context가 그 역할을 대신</b>합니다(§④ 참조).</div>
 </section>
 
-<section id="store"><div class="sec-h"><span class="no">2</span><h2>아이 현황 스토어 — 매일 무엇을 모으나</h2><span class="tech">child_daily_state</span></div>
-<p class="lead">이사님 지적대로 <b>주간 계획표·일간 기록·편지</b>를 매일 한곳에 모아야 코칭 엔진이 일관되게 읽습니다. 세 원천 + 모듈 파생을 야간에 한 스냅샷으로.</p>
-<div class="store">
-<div class="src3">
-<div class="srcb"><div class="sh">📅 주간 계획표</div><div class="sc">weekly_plans · weekly_coaching</div><div class="sl">이번 주 목표·타깃 식품군·교육 아크 단계·주력 레버</div></div>
-<div class="srcb"><div class="sh">📝 일간 기록</div><div class="sc">meal_logs (집/기관 분리)</div><div class="sl">오늘·누적 끼니·수용 수준·거부 사유</div></div>
-<div class="srcb"><div class="sh">✉️ 편지</div><div class="sc">coach_letters</div><div class="sl">최근 편지(반복 회피)·사용한 타깃·피드백(👍👎)</div></div>
+<!-- ───────────────────────── ④ 작동 예시 ───────────────────────── -->
+<section id="example"><div class="sec-h"><span class="no">④</span><h2>작동 예시 — 아린 케이스 한 바퀴 (before / after)</h2><span class="tech">실측</span></div>
+<p class="lead">아린(table-stage·콩류 결핍·미상 80%) 한 명이 이번 세션 신규 기능을 통과하며 무엇이 바뀌었는지, F-18 슬롯본문봉합 + 선호계량화 두 케이스로 봅니다.</p>
+
+<h3 class="sub">케이스 1 — 선호 계량화: 콜드스타트 오판 차단</h3>
+<div class="beforeafter">
+<div class="ba before"><div class="bh">BEFORE (구 누적기)</div><div class="bt">아린의 <code>ate_well===true</code>가 4건 — 그런데 <b>전부 다른 식재료</b>(각 1회). 구 누적기는 <code>likedIng.length=4</code>로 보고 <b>콜드스타트 미발동</b>. 추천 앵커가 빈약한데도 '잘 먹는 것 많음'으로 오판 → 결핍군 대표 디폴트(<b>콩류→두부</b>)로 무너짐.</div></div>
+<div class="ba after"><div class="bh">AFTER (preferenceQuantification·route.ts:368-372)</div><div class="bt"><code>quantifyPreferences(rs, today)</code> → <code>confidentLiked()</code>는 완식 반복+Wilson 통과만 liked. 아린은 단발 4건이라 <b>confidentLiked = 0</b> → <code>coldStart = true</code>(<code>&lt;2</code>). <code>likedSeed = coldStartSeed(servedTop, 6)</code>로 전환 — <b>자주 차려진 음식</b>을 앵커로 안전 추천. 미상(null)은 더 이상 liked로 새지 않음.</div></div>
 </div>
-<div class="sarrow">＋ 모듈 파생 ▼</div>
-<div class="snapbox"><div class="sh">🗄️ child_daily_state (자녀 × 날짜)</div>
-<div style="font-size:11.5px;color:var(--n700);margin-top:7px;line-height:1.6">선호 계량(잘먹음/잘못먹음·축별) · 영양 거울(식품군 신호) · 노출 카운트 · <b>푸드체이닝 후보집합+추천</b>(모듈이 추천 네트워크로 산출) · 성숙도/콜드스타트/위험신호 플래그. <b>매일 야간 materialize</b>(배치 1단계) → 코칭 엔진은 이 한 행만 읽는다.</div></div>
+
+<h3 class="sub" style="margin-top:16px">케이스 2 — F-18: 메타·본문 이중장부 봉합</h3>
+<div class="beforeafter">
+<div class="ba before"><div class="bh">BEFORE (슬롯-본문 이혼)</div><div class="bt">슬롯이 정한 음식 = <b>단호박찜</b>(콩류가 아닌 회전 dish). 그런데 작문 프롬프트의 거울 결핍줄이 '콩류'를 호명 → LLM이 결핍군 대표 <b>두부</b>를 본문에 박음.<div class="quote">슬롯(메타): 단호박찜 · 편지(본문): "콩류가 부족하니 두부를…" — <b>이중장부</b></div></div></div>
+<div class="ba after"><div class="bh">AFTER (route.ts:864-889)</div><div class="bt"><code>slotDish='단호박찜'</code>를 작문기에 <b>must-weave</b>로 강제 + linter 재생성. <code>suppressCousins:!!slotFood</code>로 감자→두부 사촌 끄기. <b>거울음식=항상 슬롯음식</b>(<code>deficitDishFor</code> 콩류 디폴트 제거) — 슬롯≠결핍군 날엔 거울이 콩류 단어를 빼고 generic-positive로.<div class="quote">슬롯=본문=거울: 단호박찜 단일화. <b>실측 비-콩류 슬롯 12일 두부누수 0</b></div></div></div>
 </div>
-<div class="note"><b>왜 매일 스냅샷인가</b> — 세 원천을 편지 쓸 때마다 즉석 조인하면 느리고 일관성이 깨진다. 하루 1회 모아두면 편지·도감·어드민이 같은 '오늘의 아이 현황'을 본다. meal_logs는 append-only 원장, 스토어는 최신 롤업 + 추세.</div>
+
+<div class="callout"><b>그런데도 졸업은 0</b> — 위 두 봉합으로 <b>본문 품질</b>은 회복됐지만, 아린의 table-stage 유닛은 9일째 step 1/2단 고착. 환경 양성신호(envTablePct7d)가 입력되지 않아 <code>advanceProgress</code>의 졸업 조건(passWhen)이 영영 안 풀립니다. 피벗(table↔exposure 교대)만 돌고 <b>진짜 졸업은 0</b> — 이것이 §⑤ 단일 천장입니다.</div>
 </section>
 
-<section id="contract"><div class="sec-h"><span class="no">3</span><h2>⭐ 데이터 계약 — 코칭 엔진에 무엇을 어떻게 주나</h2><span class="tech">CoachContext</span></div>
-<p class="lead">코칭 엔진은 <b>이 한 객체</b>만 받습니다(아이 현황 스토어에서 조립). "어떤 데이터를 어떻게"의 답 — 모듈들이 채운 결정론 재료 + 푸드체이닝 다음 걸음.</p>
-<div class="contract"><pre><span class="c">// 자녀 × 하루 1객체 — 아이 현황 스토어가 조립 · asOf = 전일까지 확정 스냅샷</span>
-CoachContext = {
-  <span class="k">meta</span>:        { schemaVersion, asOf },                <span class="c">// 계약 버전 · 신선도(어제까지)</span>
-  <span class="k">child</span>:       { age, allergens, maturity },
-  <span class="k">week</span>:        { goal, targetGroup, arcStage, lever },  <span class="c">// ← 주간 계획표</span>
-  <span class="k">today</span>:       { meals, nutritionMirror(집+기관) },    <span class="c">// ← 일간 기록(전일까지)</span>
-  <span class="k">preference</span>:  { liked[], disliked[], exploring[], byForm },  <span class="m">// ← 선호 계량화 모듈</span>
-  <span class="k">foodChaining</span>:{ <span class="k">candidates</span>:[ {axis,anchor,target,method,  <span class="m">// ← 푸드체이닝 모듈(네트워크 내부 활용)</span>
-                            exposure,sosLevel} ],          <span class="m">//   ★뇌가 고를 화이트리스트(목록 밖 금지)</span>
-                 recommended },                            <span class="m">//   결정론 디폴트(안 바꾸면 이것)</span>
-  <span class="k">decision</span>:    { scenario, chainingPick, recoTrack },  <span class="m">// ★뇌 출력 — 후보 중 택1 · recoTrack=supply|challenge(일간 회전)</span>
-  <span class="k">history</span>:     { recentLetters[], usedTargets[], feedback },  <span class="c">// ← 편지</span>
-  <span class="k">flags</span>:       { coldStart, dataMaturity, riskScreen }  <span class="c">// 콜드스타트 + 위험신호 게이트</span>
-}
-<span class="c">// 파이프라인: ① 컨텍스트 조립(결정론 모듈) → ② 뇌=decision(후보 택1) → ③ 손=작문</span></pre></div>
-<div class="tbl"><table><tr><th>필드</th><th>채우는 곳</th><th>코칭 엔진이 쓰는 법</th></tr>
-<tr><td><code>week</code></td><td>주간 계획표</td><td>이번 주 타깃·아크 단계에 편지 정렬(주간 일관성)</td></tr>
-<tr><td><code>today</code></td><td>일간 기록</td><td>오늘 끼니 칭찬·영양 거울(집/기관 종합)</td></tr>
-<tr><td><code>preference</code></td><td><b>선호 계량화 모듈</b></td><td>'잘 먹는' 단정은 여기 liked만 · disliked는 회피·형태 전환</td></tr>
-<tr><td><code>foodChaining.candidates[]</code></td><td><b>푸드체이닝 모듈</b></td><td>뇌가 맥락으로 <b>골라 쓸 후보집합(화이트리스트)</b> — 목록 밖 생성 금지(괴식0)</td></tr>
-<tr><td><code>foodChaining.recommended</code></td><td><b>푸드체이닝 모듈</b></td><td>결정론 디폴트 한 걸음 — 뇌가 안 바꾸면 이게 쓰임</td></tr>
-<tr><td><code>decision</code></td><td><b>두뇌(Sonnet)</b> 출력</td><td>오늘 시나리오 + 후보 중 택1(<code>chainingPick</code>). <b>후보 안에서만</b></td></tr>
-<tr><td><code>history</code></td><td>편지</td><td>최근 문구·타깃 반복 회피 · 피드백 반영</td></tr>
-<tr><td><code>flags</code></td><td>선호 계량화 모듈</td><td><code>coldStart</code>=단정금지·온보딩(Day1) · <code>riskScreen</code>=위험신호 시 소아과 상담 게이트</td></tr>
-<tr><td><code>meta</code></td><td>아이 현황 스토어</td><td><code>asOf</code>=전일까지 확정(당일 입력은 다음날 반영) · <code>schemaVersion</code>=계약 버전</td></tr>
+<!-- ───────────────────────── ⑤ 남은 문제 ───────────────────────── -->
+<section id="todo"><div class="sec-h"><span class="no">⑤</span><h2>남은 문제점 · 해야할 일 — 랄프위검 47점 천장</h2><span class="tech">정직 감사</span></div>
+<p class="lead"><b>연속성 47점(2026-06-20)</b>. 추이 <b>52→48→44→47</b>. 6개 랭크천장이 전부 <b>단일 뿌리 = P0-D 양성신호 미입력</b>으로 수렴합니다. 이번 세션이 <b>본문 품질(F-18·#5·#6)</b>은 EARNED했으나, <b>시스템이 학습으로 진전하는 능력</b>은 입력 기근에 막혀 있습니다. 미화하지 않습니다.</p>
+
+<div class="callout" style="background:linear-gradient(135deg,#F1FBF6,#FFF8F2);border-color:#bfe6d9"><b>EARNED(사실인 성과)</b> — F-18 슬롯본문봉합으로 비-콩류 슬롯 12일 두부누수 0 · 선호계량화로 미상→liked 오판 차단(콜드스타트 정상 발동) · #5 거울 17/24→격일화 · #6 식재료/거울 daySeed 회전. <b>괴식 0·환각 0·발행 보장(degrade-safe)은 견고</b>. 천장은 '나쁜 편지'가 아니라 '학습이 안 도는' 데서 옵니다.</div>
+
+<div class="tbl"><table style="min-width:880px">
+<tr><th>랭크천장 증상</th><th>근본원인</th><th>해야할 일 (owner)</th></tr>
+<tr>
+<td><b>① step 1/2단 19일 고착 + table↔exposure 핑퐁</b> — 피벗만 돌고 졸업 0</td>
+<td>⭐<b>P0-D 단일 뿌리</b>. <code>advanceProgress</code> 졸업(passWhen)은 envTablePct7d 등 <b>양성신호 표본</b>을 요구하는데, 프로브 답이 신호로 적립되는 <b>입력측 다리가 미완</b>. 출력측(질문 발행·route.ts:990)만 이어짐.</td>
+<td><b>P0-D 환경신호 입력 완성</b>(코칭엔진) — <code>daily_questions.context.unitProbe</code> 답변을 읽어 <code>child_daily_state</code>(또는 progress.evidence)에 envTablePct7d 적립 → <code>advanceProgress</code>가 졸업 판정. <b>다음 P0=여기부터.</b></td>
+</tr>
+<tr>
+<td><b>② F-16 environment 레버 슬롯음식 본문 증발</b> — 환경 코칭 날 음식 추천이 사라짐</td>
+<td>environment 날 <code>_noFood=true</code>면 본문에 음식 액션 없음(route.ts:860). 거울에 슬롯음식 소프트 노출(886-887)로 완화했으나, 환경 양성신호가 안 들어와 environment 유닛 자체가 졸업 못 함 → 음식 트랙 복귀 지연.</td>
+<td><b>①과 동근</b>. 환경신호 입력되면 environment 졸업 → food 레버 자연 복귀. 그 전까지 거울 소프트 노출(현행) 유지로 음식 다양성 최소 보장.</td>
+</tr>
+<tr>
+<td><b>③ macro/성장 트랙 dead</b> — 저체중 탄단지 슬롯이 영영 비활성</td>
+<td><b>input-starvation</b> — <code>growthTracking</code>은 <code>firstGrowth/latestGrowth</code> 2점이 필요한데(route.ts:394-398) 성장데이터 없으면 <code>heightTrack/weightTrack=null</code>. macro 슬롯(<code>macroPhrase</code>)이 안 켜짐.</td>
+<td>이번 세션 #7로 <b>성장 권유 매3일 강화</b>(route.ts:231) 착수 — 데이터 유입 유도. owner=코칭엔진(현행 유지) + 앱 care 화면 키/몸무게 입력 UX(앱). 데이터 들어오면 자동 활성.</td>
+</tr>
+<tr>
+<td><b>④ 추천풀·앵커 협소</b> — 콜드스타트 Tier2→Tier3, 앵커 단일(돼지불고기)</td>
+<td>youa 큐레이션 풀이 두부5·달걀6로 협소. <code>coldStartSeed</code>·<code>buildIngredientPool</code>이 뽑을 후보가 적어 회전(#6)을 해도 금세 수렴.</td>
+<td><b>P0-B/C 추천풀 확장</b>(코칭엔진+콘텐츠) — Tier2→Tier3 youa 큐레이션 확대 · 앵커 다양화(돼지불고기 단일 탈피). <code>/mealfred-food-mapping</code> 코퍼스 보강과 연계.</td>
+</tr>
+<tr>
+<td><b>⑤ 도입(온보딩) 새 수렴</b> — 새 음식 도입이 좁은 집합으로 수렴</td>
+<td>④와 동근(풀 협소) + 회전 dedup(<code>recentRecoIng.slice(0,5)</code>·route.ts:848)가 풀이 작으면 곧 소진. CORE_ORDER 확장트랙 4종 편입(C 온보딩3주차)은 됐으나 풀 자체가 얕음.</td>
+<td><b>④ 풀 확장과 함께</b> 해소. lever 태그 정합(디버그) 점검 — 슬롯 track(supply/challenge) 라벨이 어드민과 어긋나는지 확인(코칭엔진).</td>
+</tr>
+<tr>
+<td><b>⑥ 본문 템플릿 회전 부재</b> — plateau/무브 카피 반복</td>
+<td>거울줄은 daySeed 변주(#6·route.ts:877-883)했으나 <b>무브·plateau 카피풀</b>이 얕아 반복 인상 잔존. plateau는 <code>trigger:()=&gt;true</code> 안전망이라 자주 도달.</td>
+<td><b>무브/plateau 카피풀 확충</b>(콘텐츠+코칭엔진) — daySeed 변주 슬롯을 거울 외 무브 문장으로 확대.</td>
+</tr>
 </table></div>
-<div class="callout"><b>철칙</b> — 모듈들이 <code>preference</code>·<code>foodChaining</code>을 <b>결정론으로</b> 채워 계약에 담고, 코칭 엔진(손-LLM)은 그 재료로 <b>문장만</b> 쓴다. 코칭 엔진은 추천 네트워크도, 원천 테이블도 직접 판단하지 않는다.</div>
+
+<div class="callout" style="background:#FDF2F2;border-color:#f3c9c9"><b>정직한 결론</b> — 6개 천장 중 <b>①②③⑤가 P0-D 양성신호 미입력 한 뿌리</b>로 수렴하고, ④⑥은 풀/카피 협소(데이터·콘텐츠 작업). <b>대부분 care 5단계 실데이터가 쌓이면 자연 해소</b>됩니다. 그래서 <b>다음 작업 = P0-D 환경신호 입력측 완성</b>(<code>unitProbe</code> 답 → progress.evidence → <code>advanceProgress</code> 졸업)이 단 하나의 최우선입니다. 이게 풀리기 전엔 추천풀을 넓혀도 '졸업 없는 회전'이 계속됩니다.</div>
 </section>
 
-<section id="io"><div class="sec-h"><span class="no">4</span><h2>통합 모듈 맵 & 입출력 — 11 → 6 (+조회 1)</h2><span class="tech">consolidation</span></div>
-<p class="lead">같은 데이터셋·같은 관심사만 합쳤습니다(억지 통합 X). 라이브 콘텐츠 모듈 <b>11개 → 6개 + 조회 헬퍼 1</b>. 각 모듈이 채운 결정론 재료가 <code>CoachContext</code>로 모여 뇌·손에 전달됩니다.</p>
-<div class="tbl"><table style="min-width:760px"><tr><th>한글 모듈</th><th>흡수한 기존 파일</th><th>📥 input</th><th>📤 output → CoachContext</th><th>상태</th></tr>
-<tr><td><b>① 신호선택기</b><br><span style="font-size:10px;color:var(--n500)">시나리오 두뇌</span></td><td>coachScenarios + coachBrain + coachWeekly</td><td>CoachSignals · 3주 닻 · 과거편지5~7 · 추천후보</td><td><code>scenario</code> + <code>brainAction{scenarioId,planTarget,moveKey,useFood}</code> + <code>weeklyArc</code></td><td><span class="tag2 t-live">live·뇌</span></td></tr>
-<tr><td><b>② 추천엔진</b><br><span style="font-size:10px;color:var(--n500)">재료·궁합·체인</span></td><td>coachRecos <span style="color:var(--n400)">(+휴면 coachMaterials·recoEvidence)</span></td><td>target(결핍군) · likedIngredients · freqMap · 신호배열</td><td><code>recoCandidates[]</code> + <code>recoFacts{cousins,lines}</code> + <code>reasonPhrases[]</code></td><td><span class="tag2 t-live">live·양방</span></td></tr>
-<tr><td><b>③ 사실·거울 컴파일러</b><br><span style="font-size:10px;color:var(--n500)">진단 산문화</span></td><td>coachFacts + reexposure</td><td>FactRow[](meal_logs) · 거울 쿨다운 · 노출횟수/경과일</td><td><code>factCards[]</code> + <code>mirror</code> + <code>forbidParts[]</code> + <code>reexposureFact</code></td><td><span class="tag2 t-live">live·양방</span></td></tr>
-<tr><td><b>④ 영양평가 레이어</b><br><span style="font-size:10px;color:var(--n500)">신호등·간식</span></td><td>nutrition + snack</td><td>일별 식재료/끼니 · ageBand · 간식행 · BMI</td><td><code>signals[]</code>(green/yellow/red) + <code>covered/missing</code> + <code>snackEval</code></td><td><span class="tag2 t-live">live·데이터</span></td></tr>
-<tr><td><b>⑤ 진척·커리큘럼 레이어</b><br><span style="font-size:10px;color:var(--n500)">효과측정·유닛</span></td><td>progress + curriculumUnits + coachDaily</td><td>28/7일창 meal_logs · 성장 · 프로브 · 후보신호</td><td><code>progress{metrics,verdict}</code> + <code>candSignals</code> + <code>unitEvidence</code></td><td><span class="tag2 t-live">live·양방</span></td></tr>
-<tr><td><b>⑥ 작문기(손)</b><br><span style="font-size:10px;color:var(--n500)">편지 생성</span></td><td>coach(작문부) + coachChronic</td><td>LetterInput(①~⑤ ctx 전부) + 만성질환 framing</td><td><code>{letter, oneliner}</code> <span style="color:var(--n400)">(최종 산출·뇌 입력 아님)</span></td><td><span class="tag2 t-live">live·손</span></td></tr>
-<tr><td><b>⑦ 네트워크 조회 헬퍼</b><br><span style="font-size:10px;color:var(--n500)">궁합·사촌·빈도</span></td><td>foodGraph + kitGuide + ingredientFreq</td><td>식재료명</td><td>Neighbor[]/DishFit[]/freq → <b>②가 소비</b> → recoCandidates 합류</td><td><span class="tag2 t-part">data·뇌경유</span></td></tr>
-</table></div>
-<div class="note"><b>합치면 안 되는 것</b> — <code>graphSource</code>=데이터 액세스 계층(JSON↔SQL·<code>COACH_GRAPH_SQL</code>, ②⑦가 얹힘) · <code>cookingMatrix</code>=도감 상세 전용(크론 미사용) · <code>comboMatrix</code>=괴식 0~3 판정 유틸(라이브 comboGuard와 일원화 후 ②가 호출) · <code>remapMenus</code>=야간 메뉴→식재료 백필(업스트림·코칭 선행) · date-util=공용 분리.</div>
-
-<h3 class="sub" style="margin-top:18px">🧠✍️ 모듈 출력 → 뇌·손 프롬프트 매핑</h3>
-<p style="font-size:12px;color:var(--n600);font-weight:500;margin-bottom:6px">①~⑦이 채운 <code>CoachContext</code>가 두 프롬프트로 들어갑니다. <b>뇌=판단(후보 택1), 손=작문(재료→문장)</b>. 실제 라인바이라인 = <a href="/coaching-prompt-architecture.html" style="color:var(--b700);font-weight:700">프롬프트 아키텍처</a>.</p>
-<div class="beforeafter" style="grid-template-columns:1fr 1fr">
-<div class="card" style="padding:14px 16px;background:#FaF6FE;border-color:#ddc4ef">
-<div style="font-size:12.5px;font-weight:800;color:var(--v700);margin-bottom:7px">🧠 뇌 프롬프트 (=① · DeepSeek V4-Pro)</div>
-<div style="font-size:11.5px;color:var(--n700);line-height:1.65">
-<b>[SYSTEM]</b> 역할 + 13 시나리오 선택 원칙(후보 밖 금지)<br>
-<b>[USER]</b> ← 모듈 출력 주입:<br>
-· ④ <code>signals[]</code>(신호등) · ③ <code>factCards·mirror</code><br>
-· ②⑦ <code>recoCandidates</code>(승인할 추천 후보)<br>
-· ⑤ <code>candSignals·progress·unitEvidence</code><br>
-· ① <code>weeklyArc</code>(3주 닻) · 과거편지<br>
-<b>→ 출력(JSON)</b>: <code>decision{scenarioId,planTarget,moveKey,useFood,approvedRecs,chainingPick}</code></div>
+<!-- ───────────────────────── 부록 · 네이밍 ───────────────────────── -->
+<section id="naming"><div class="sec-h"><span class="no">📎</span><h2>부록 — 네이밍 규칙 · 연계 문서</h2><span class="tech">참고</span></div>
+<p class="lead">세 가지로만 부릅니다 — <b>산출물과 루프를 가지면 엔진, 데이터를 돌려주면 모듈, 읽고 쓰는 공용 데이터면 레이어</b>.</p>
+<div class="defn">
+<div class="dc eng"><div class="dt">⚙️ 엔진 (Engine)</div><div class="dd">사용자 향 <b>산출물(편지·도감)을 만들고 자기 크론 루프</b>를 가진 오케스트레이터. 시스템에 <b>하나</b>.</div><div class="ex">코칭 엔진 = 이 cron/coach/route.ts</div></div>
+<div class="dc mod"><div class="dt">🧩 모듈 (Module)</div><div class="dd">엔진이 호출해 <b>구조화 데이터를 돌려주는 부품</b>. 순수 함수 지향·사용자 향 산출 아님.</div><div class="ex">선호계량 · 주간닻 · 추천 · 거울 · 두뇌 · 작문</div></div>
+<div class="dc data"><div class="dt">🗄️ 데이터 레이어</div><div class="dd">모듈들이 <b>읽고 쓰는 공용 데이터</b>. 판단 로직 없음.</div><div class="ex">meal_logs · weekly_plans · coach_letters.context(상태 원장 겸용)</div></div>
 </div>
-<div class="card" style="padding:14px 16px;background:#FFF6F1;border-color:#f5cbbb">
-<div style="font-size:12.5px;font-weight:800;color:var(--p700);margin-bottom:7px">✍️ 손 프롬프트 (=⑥ · DeepSeek V4-Flash)</div>
-<div style="font-size:11.5px;color:var(--n700);line-height:1.65">
-<b>[SYSTEM]</b> P1~P10 코치 표준(편식 9원칙·안전·괴식·저염) — 고정<br>
-<b>[USER]</b> ← 뇌 결정 + 결정론 재료:<br>
-· ① <code>decision</code>(오늘 각도/타깃/무브)<br>
-· ② <code>recoFacts·reasonPhrases</code>(검증 음식·근거)<br>
-· ③ <code>mirror·factCards</code> · ④ <code>signals</code><br>
-· ⑥ 만성질환 framing · 가드(연령·질식·저염)<br>
-<b>→ 출력(JSON)</b>: <code>{letter, oneliner}</code></div>
-</div>
-</div>
-<div class="callout" style="margin-top:10px"><b>핵심</b> — 뇌는 <b>②⑦이 만든 후보 안에서만</b> 고르고(괴식0), 손은 <b>①~⑤가 깐 재료를 문장으로</b>만 옮긴다. 두 프롬프트 모두 <b>지어내지 않음</b> — 재료=결정론, 문장=LLM.</div>
-</section>
-
-<section id="loop"><div class="sec-h"><span class="no">5</span><h2>닫힌 루프 — 기록에서 다시 기록으로</h2><span class="tech">flow</span></div>
-<div class="loop">
-<div class="ln s1"><div class="lh">① 집 끼니 기록 (+수용 수준)</div><div class="lb">부모가 meal_logs 입력 — place·수용 5단계·거부 사유.</div></div>
-<div class="larrow">▼</div>
-<div class="ln s2"><div class="lh">② 선호 계량화 모듈</div><div class="lb">집만·노이즈 제거·축별 계량 → 잘먹음/잘못먹음/탐색(확신도).</div></div>
-<div class="larrow">▼</div>
-<div class="ln s3"><div class="lh">③ 푸드체이닝 모듈 (← 추천 네트워크)</div><div class="lb">확신 선호를 앵커로 사촌·곁들임·새 조리법 <b>후보집합 + 결정론 디폴트</b> 산출.</div></div>
-<div class="larrow">▼</div>
-<div class="ln s4"><div class="lh">④ 코칭 엔진 = 뇌(후보 택1) → 손(작문) → 편지·도감</div><div class="lb">뇌가 후보 중 오늘 한 걸음을 고르고(decision), 손이 작문. 콜드스타트면 온보딩.</div></div>
-<div class="larrow">▼</div>
-<div class="ln s5"><div class="lh">⑤ 부모 실행 → 새 끼니 → ①로</div><div class="lb">결과가 다시 기록되어 계량이 갱신 — 노출 진척·추세 학습.</div></div>
-</div>
-<div class="callout"><b>아이 현황 스토어가 루프의 허브</b> — ②③의 출력이 매일 스토어에 적재되고 ④가 읽는다. 스토어가 비면(=선호 계량 안 됨) ③④가 허상 위에 선다. 그래서 <b>① 기록 + ② 계량이 1순위</b>.</div>
-</section>
-
-<section id="batch"><div class="sec-h"><span class="no">6</span><h2>1만 명 배치 = 이 구조 그대로 2단계</h2><span class="tech">scale</span></div>
-<p class="lead">결정론 상태를 야간에 미리 계산해 스냅샷으로 두면, 편지 워커는 그걸 읽고 LLM만 돌린다 — <b>느린 LLM과 빠른 결정론을 분리</b>. child_daily_state·CoachContext가 그대로 배치의 정답 형태다.</p>
-<div class="loop">
-<div class="ln s2"><div class="lh">1단계 · 상태 머티리얼라이즈 <span style="font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px;background:#E9F7F2;color:var(--g700);margin-left:6px">결정론 · 병렬 · LLM 0</span></div><div class="lb">전 자녀 meal_logs(전일까지) → 선호 계량·영양거울·푸드체이닝 후보 산출 → <code>child_daily_state</code> upsert. 순수 함수라 <b>대량 병렬·재실행 안전</b>. 가장 무거운 결정론 계산을 LLM과 떼어 한 번에.</div></div>
-<div class="larrow">▼ 스냅샷 적재 후</div>
-<div class="ln s4"><div class="lh">2단계 · 편지 워커풀 <span style="font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:100px;background:#FFE8D1;color:var(--p700);margin-left:6px">LLM(뇌+손)</span></div><div class="lb">워커가 <code>CoachContext</code> 1행씩 읽어 뇌(후보 택1) → 손(작문). 상태가 이미 계산돼 있어 <b>LLM 호출에만 집중</b> · 실패 시 그 자녀만 재시도(상태 재계산 불필요).</div></div>
-</div>
-<div class="callout"><b>신선도 모델</b> — 스냅샷은 <b>전일까지 확정 상태</b>(<code>asOf</code>). 당일 입력은 다음 배치에 반영 — 현행 "당일 입력이 오늘 편지를 안 바꾼다"와 정확히 일치(미래·자기참조 차단). 덕분에 골든 <code>CoachContext</code> → 골든 편지 <b>회귀 테스트</b>가 가능하다.</div>
-</section>
-
-<section id="status"><div class="sec-h"><span class="no">7</span><h2>현재 상태 · 빌드 순서</h2><span class="tech">로드맵</span></div>
-<div class="rm">
-<div class="rmi done"><div class="rh">이미 있음 <span class="tag2 t-live">라이브</span></div><div class="rl">코칭 엔진 · 영양거울·간식·두뇌 모듈 · 추천 네트워크(food-graph) · 원천 테이블(meal_logs·weekly_plans·coach_letters)</div></div>
-<div class="rmi now"><div class="rh">1순위 — 선호 계량화 모듈 + 수용 수준 포착 <span class="tag2 t-plan">신규</span></div><div class="rl">집만 계량·확신도·콜드스타트 게이트 + 기록 화면 원탭 5단계. <b>이게 비면 전부 허상</b>. 상세 = <a href="/preference-quantification-engine.html" style="color:var(--b700);font-weight:700">선호 계량화 모듈 문서</a></div></div>
-<div class="rmi next"><div class="rh">2순위 — 푸드체이닝 모듈 + 아이 현황 스토어 <span class="tag2 t-plan">신규</span></div><div class="rl">2축 후보(추천 네트워크 활용) + child_daily_state 통합 + CoachContext 배선. 상세 = <a href="/food-chaining-personalization-engine.html" style="color:var(--b700);font-weight:700">푸드체이닝 모듈 문서</a></div></div>
-</div>
-<div class="callout" style="margin-top:14px"><b>리뷰 반영 完(2026-06-16)</b> — ① 푸드체이닝 = <b>후보집합 + 결정론 디폴트</b>(뇌가 후보 안에서 택1) ② 뇌 = <b>조립→판단→작문</b>의 판단 단계(<code>decision</code>) ③ 스토어 = <b>배치 1단계 머티리얼라이즈</b> ④ <b>신선도(전일까지)+schemaVersion</b> ⑤ <code>flags.riskScreen</code> 위험신호 게이트. <b>남은 확인</b>: 빌드 순서(선호 계량+포착 → 푸드체이닝+스토어) 동의하면 1순위 착수.</div>
-</section>
-
-<section id="schema"><div class="sec-h"><span class="no">8</span><h2>부록 — 타입 · 스키마 초안</h2><span class="tech">구현 준비</span></div>
-<p class="lead">구현 시작점. 세부는 각 모듈 문서(<a href="/preference-quantification-engine.html" style="color:var(--b700);font-weight:700">선호 계량화</a>·<a href="/food-chaining-personalization-engine.html" style="color:var(--b700);font-weight:700">푸드체이닝</a>) 참조.</p>
-<h3 class="sub">CoachContext (TypeScript)</h3>
-<div class="contract"><pre><span class="k">type</span> Axis = <span class="m">'chain'|'pair'|'method'|'temperature'</span>;
-<span class="k">type</span> SosLevel = 0|1|2|3|4;            <span class="c">// 거부·만짐·한입·조금·완식</span>
-<span class="k">type</span> PrefState = <span class="m">'liked'|'disliked'|'exploring'|'unknown'</span>;
-
-<span class="k">interface</span> ChainCandidate {
-  axis: Axis; anchor: string; target: string;
-  method?: string; exposure: number; sosLevel: SosLevel; reason: string;
-}
-<span class="k">interface</span> CoachContext {
-  meta:    { schemaVersion: number; asOf: string };        <span class="c">// asOf=YYYY-MM-DD(전일까지)</span>
-  child:   { id: string; ageBand: string; allergens: string[]; maturity: number };
-  week:    { goal: string; targetGroup: string; arcStage: number; lever: string };
-  today:   { meals: MealLog[]; nutritionMirror: Record&lt;string,'green'|'yellow'|'red'&gt; };
-  preference: {
-    liked: PrefItem[]; disliked: PrefItem[]; exploring: PrefItem[];
-    byForm: Record&lt;string, PrefState&gt;;                     <span class="c">// "감자×조림" → state</span>
-  };
-  foodChaining: { candidates: ChainCandidate[]; recommended: ChainCandidate | null };
-  decision?: { scenario: string; chainingPick: string | null };  <span class="c">// 뇌가 채움</span>
-  history: { recentLetters: string[]; usedTargets: string[]; feedback?: 'up'|'down'|'retry' };
-  flags:   { coldStart: boolean; dataMaturity: number; riskScreen: boolean };
-}</pre></div>
-<h3 class="sub">child_daily_state · child_food_pref (SQL 초안)</h3>
-<div class="contract"><pre><span class="c">-- 배치 1단계가 자녀×날짜로 upsert · 코칭 엔진(2단계)이 read</span>
-<span class="k">create table</span> child_daily_state (
-  child_id   uuid <span class="k">not null</span>,
-  as_of      date <span class="k">not null</span>,            <span class="c">-- 전일까지 확정</span>
-  schema_ver int  <span class="k">not null default</span> 1,
-  preference jsonb <span class="k">not null</span>,           <span class="c">-- liked/disliked/exploring/byForm</span>
-  nutrition  jsonb <span class="k">not null</span>,           <span class="c">-- 식품군 신호</span>
-  food_chain jsonb <span class="k">not null</span>,           <span class="c">-- {candidates[], recommended}</span>
-  flags      jsonb <span class="k">not null</span>,           <span class="c">-- coldStart/dataMaturity/riskScreen</span>
-  exposure   jsonb,                       <span class="c">-- 식재료→노출수준·횟수</span>
-  updated_at timestamptz <span class="k">default</span> now(),
-  <span class="k">primary key</span> (child_id, as_of)
-);
-<span class="c">-- 선호 롤업 원장(다축) — 1단계가 meal_logs(집만)에서 집계</span>
-<span class="k">create table</span> child_food_pref (
-  child_id uuid <span class="k">not null</span>,
-  axis     text <span class="k">not null</span>,             <span class="c">-- 'ingredient'|'dish'|'form'</span>
-  key      text <span class="k">not null</span>,             <span class="c">-- '당근' | '당근볶음' | '당근×볶음'</span>
-  served int, accepted int, rejected int, known int,
-  pref_score real, confidence real,
-  state text,                            <span class="c">-- liked/disliked/exploring/unknown</span>
-  trend text,                            <span class="c">-- rising/flat/falling(food jag)</span>
-  first_seen date, last_seen date, exposure int,
-  inst_seen int,                         <span class="c">-- 기관 노출(영양용·선호 제외)</span>
-  updated_at timestamptz <span class="k">default</span> now(),
-  <span class="k">primary key</span> (child_id, axis, key)
-);</pre></div>
-<div class="note">초안 — 구현 시 확정. <code>meal_logs</code>에 <b>수용 수준(0~4)·구조화 거부 사유</b> 컬럼 추가가 선행(선호 계량화 모듈 문서 §9 포착). ⭐<b>도감 식재료별 경험 횟수</b> = <code>child_food_pref</code>(axis='ingredient')의 <code>exposure</code>(+<code>last_seen</code>·수용수준) — <b>별도 테이블 없이 식재료축 행</b>으로 관리하고 <code>meal_logs</code>가 이벤트 원장. 폼별(감자×볶음) 경험도 axis='form' 행에 같이 쌓인다.</div>
+<div class="note">📌 설계 문서가 그린 <code>child_daily_state</code> 단일 스냅샷 테이블은 <b>아직 미구현</b>이며, 실제 코드에선 <b><code>coach_letters.context</code>가 그 역할을 대신</b>합니다(다음날 루프가 어제 context를 읽어 회전·중복회피 이력 복원). 1만 명 배치로 갈 때 머티리얼라이즈 테이블로 승격하는 것이 후속 과제입니다.</div>
 </section>
 
 </main>
 <footer>
-<div><span class="stamp">아키텍처 정의 · 검토용</span><span class="stamp">개발 전</span><span class="stamp">2026-06-16</span></div>
-밀프레드 — 코칭 아키텍처 지도 (엔진·모듈 정의 · 아이 현황 스토어 · 데이터 계약)<br>
-연계: <a href="/food-chaining-personalization-engine.html" style="color:var(--b700)">푸드체이닝 모듈</a> · <a href="/preference-quantification-engine.html" style="color:var(--b700)">선호 계량화 모듈</a> · <a href="/food-network-data-architecture.html" style="color:var(--b700)">추천 네트워크</a>
+<div><span class="stamp">엔진 통합 지도 · route.ts 실측</span><span class="stamp">연속성 47점</span><span class="stamp">2026-06-20</span></div>
+밀프레드 — 코칭 엔진 통합 지도 (모듈 8종 오케스트레이션 · 하루 한 통의 편지)<br>
+연계: <a href="/preference-quantification-engine.html" style="color:var(--ad)">선호 계량화 모듈</a> · <a href="/food-chaining-personalization-engine.html" style="color:var(--ad)">푸드체이닝 모듈</a> · <a href="/coaching-prompt-architecture.html" style="color:var(--ad)">프롬프트 아키텍처</a> · <a href="/food-network-data-architecture.html" style="color:var(--ad)">추천 네트워크</a> · <a href="/docs.html" style="color:var(--ad)">문서 허브</a>
 </footer>
 </body></html>

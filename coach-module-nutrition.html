@@ -57,6 +57,19 @@ th{background:var(--abg);font-size:11px;font-weight:800;color:var(--ad)}
 .codeblk pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.6;color:#cfe3f5;white-space:pre;margin:0}
 .note{background:#FFF8F2;border:1px solid #FFE8D1;border-radius:11px;padding:11px 14px;font-size:11.5px;color:var(--n600);line-height:1.62;margin:10px 0}.note b{color:var(--p700)}
 .callout{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:13px 15px;font-size:12px;color:var(--n700);line-height:1.68;margin-top:10px}.callout b{color:var(--ad)}
+.diagram{background:#1F2D3D;border-radius:14px;padding:18px 16px;overflow-x:auto;margin-top:10px}
+.diagram pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1.62;color:#cfe3f5;white-space:pre;margin:0}
+.flow{display:flex;flex-direction:column;gap:0;margin-top:10px}
+.frow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:stretch}
+.fbox{flex:1;min-width:150px;border-radius:11px;padding:10px 12px;font-size:11px;line-height:1.5}
+.fbox .ft{font-size:11.5px;font-weight:800;margin-bottom:3px}
+.fbox.src{background:#eef2f7;border:1.5px solid #cbd5e1;color:var(--n700)}.fbox.src .ft{color:var(--s800)}
+.fbox.proc{background:var(--abg);border:1.5px solid var(--abd);color:var(--n700)}.fbox.proc .ft{color:var(--ad)}
+.fbox.out{background:#E9F7F2;border:1.5px solid #b6e2cf;color:var(--n700)}.fbox.out .ft{color:var(--g700)}
+.fbox.dead{background:#FBEBEB;border:1.5px dashed #E5A6A6;color:#7a3a3a}.fbox.dead .ft{color:#B43232}
+.farrow{text-align:center;color:var(--n400);font-size:16px;font-weight:800;margin:5px 0}
+.deadtag{display:inline-block;background:#B43232;color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:5px;margin-left:5px;vertical-align:middle}
+.live{display:inline-block;background:#1B5E20;color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:5px;margin-left:5px;vertical-align:middle}
 footer{text-align:center;color:var(--n400);font-size:11px;padding:24px 20px 0;border-top:1px solid var(--n200);margin-top:34px;line-height:1.8}
 footer a{color:var(--ad);text-decoration:none;font-weight:700}
 .backbar{background:var(--abg);border:1px solid var(--abd);border-radius:12px;padding:11px 15px;font-size:12px;color:var(--n700);margin-bottom:4px}
@@ -65,155 +78,267 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 <header class="hero"><div class="hero-in">
 <span class="tag">🧩 코칭 엔진 모듈 명세 · ④/⑦</span>
 <h1><span class="ic">🚦</span> ④ 영양평가 레이어 (신호등·간식)</h1>
-<p>식재료 빈도로 결핍 신호등을 켜고, 간식을 끼니와 분리해 따로 감시한다</p>
+<p>식재료 빈도로 결핍 신호등을 켜고, BMI·성장곡선으로 탄단지(macro) 트랙을 판정하며, 간식을 끼니와 분리해 따로 감시한다</p>
 <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 코칭 엔진 모듈 명세</div>
 </div></header>
 <nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html" class="cur">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a><a href="/coach-module-weekly-planner.html">⑧ 주간계획</a></nav>
 <main>
-<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ④를 코드 단위로 펼친 명세입니다 — 데이터 파이프라인·입출력 예시·가드.</div>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ④를 코드 단위로 펼친 명세입니다 — 결핍 식품군·BMI·성장곡선·macro 트랙·간식. 코드 실측(<code>lib/nutrition.ts</code>·<code>lib/coach.ts</code>·<code>lib/coachWeekly.ts</code>·<code>lib/growth-reference.ts</code>·<code>lib/snack.ts</code>·<code>app/api/cron/coach/route.ts</code>) 기준 정본.</div>
 
-
-<section id="ops"><div class="sec-h"><span class="no" style="font-size:12px">🧭</span><h2>비개발자용 — 이렇게 운영됩니다</h2></div>
-<p class="lead" style="margin:8px 0">이 모듈은 아이가 며칠간 먹은 식재료 목록을 받아서 '영양 신호등'을 켜는 곳입니다. 부엌 저울로 그램(g)을 재는 게 아니라, "이 영양소를 채워주는 음식을 며칠에 한 번꼴로 먹었나"라는 빈도로 판단합니다. 예를 들어 단백질은 매일(주5일+) 먹어야 초록, 철분처럼 몸에 저장이 잘 되는 건 주2일만 닿아도 초록이 됩니다. 정량 측정이 불가능한 가정·기관 식단 기록의 한계를 '빈도'라는 현실적인 잣대로 바꾼 것입니다. 색은 초록(충분)·노랑(조금 부족)·빨강(부족) 세 단계입니다.</p><p class="lead" style="margin:8px 0">작동은 두 갈래입니다. 하나는 '식사 신호등'(nutrition.ts): 36종 영양소(보건복지부 KDRI 2025 기준)와 8개 식품군(곡물·콩류·유제품·고기계란·생선해산물·비타민A채소·기타채소·과일)을 각각 빈도로 평가하고, 거기에 가공식품·반복 메뉴 감점을 붙여 '다양성 점수'를 냅니다. 다른 하나는 '간식 엔진'(snack.ts): 끼니와 완전히 분리해 간식만 따로 봅니다. 과자·사탕·단 음료 같은 초가공을 얼마나 자주 주는지, 좋은 통식품(과일·삶은 계란·치즈)으로 채우는지, 그리고 간식이 다음 끼니 입맛을 망쳤는지를 봅니다.</p><p class="lead" style="margin:8px 0">핵심 비유는 '신호등 + 안전장치'입니다. 데이터가 적으면(기록 3일 미만) 섣불리 빨강을 켜지 않고 노랑으로 보류하고, 비타민D처럼 음식보다 햇빛·보충제로 채우는 건 빨강을 끕니다. 짠 음식 많은 한국 식단 특성상 나트륨은 아예 집계에서 빼서 '괜한 빨강(가짜 경고)'을 막습니다. 결과물은 별도 화면이 아니라 매일 가는 코칭 편지 안에 자연스럽게 녹아 들어갑니다.</p>
-<div class="callout" style="margin-top:10px"><b>🥗 영양·편식 정보는 이렇게 처리합니다</b><br>결핍 판정은 '빈도 밴드'로 합니다. 영양소를 몸의 저장성·식품 분포·결핍 위험에 따라 매일군(green=주5일+)·자주군(주4일+)·가끔군(주2일+)으로 나눕니다. 한 번도 안 닿으면(0일) 빨강이지만, 비타민D는 빨강을 끄고(보충제 영양소), 기록 5일 미만이면 빨강을 노랑으로 보류합니다. 데이터가 3일 미만이면 모두 '참고(reference)'로 보류해 가짜 경고를 안 냅니다. 8식품군은 매일군(곡물·채소·과일·유제품 주5회)과 로테이션군(고기계란 주5회, 생선해산물 주2회, 콩류 주2회)으로 목표가 다르고, 로테이션군은 0회일 때만 빨강입니다.<br><br>편식 대응의 핵심은 '강요 금지 + 잘 먹는 것에 섞기'입니다. 부족 영양소가 나오면 그걸 채우는 음식을 추천하되(NUTRIENT_FOODS), 이 모듈은 신호만 만들고 실제 편지는 잘 먹는 음식에 결핍을 곁들이는 방향으로 씁니다. 집과 기관(점심 급식)을 분리해서, 부모가 못 바꾸는 기관 급식엔 가공·반복 감점을 안 매기고(applyMealPenalty=false) 과일·유제품 결핍도 빼줍니다(기관은 점심만이라 부당 감점 방지). 가공식품도 단백질은 주니 과잉 처벌하지 않게 감점 상한(가공 22·반복 12)을 둡니다.<br><br>간식에서 '괴식 차단(질식 안전)'을 명시 적용합니다. 방울토마토·생당근·포도·견과 같은 작고 단단한 식품은 추천에 항상 조리 표시('반으로 잘라'·'익혀·강판'·'잘게')를 붙이고, 편지가 통째 표현으로 바꾸지 못하게 합니다. 또 체중·살·다이어트 단어를 절대 안 쓰고(유아 체중 민감), BMI 밴드는 '방향'(든든하게/유지/바꾸기)으로만 표현합니다. 반복 노출 차원에서는 좋은 간식 예시를 매일 회전(rotate)시켜 같은 멘트가 같은 예시로만 보이지 않게 합니다.</div>
-<div class="note" style="margin-top:10px"><b>🧒 운영 예시(아린·5세)</b> — 아린(5세)의 최근 7일 식단을 보면 미역국·소고기·계란은 자주 나오는데 콩류(두부·콩)와 채소가 거의 안 보입니다. 입력: 매일 먹은 식재료 목록(날짜별)과 점심 기관급식·집 끼니 구분, 그리고 아린의 BMI 밴드(정상). 처리: 신호등 엔진이 '단백질=초록(소고기·계란 매일), 칼슘=초록(미역·계란), 철=초록(소고기), 식이섬유=노랑/빨강(채소 적음)'을 빈도로 매깁니다. 8식품군 다양성에서는 콩류가 7일 중 0회라 '부족(빨강)', 비타민A채소·기타채소도 주 2회 미만이면 '조금부족(노랑)'이 됩니다. 단, 콩류는 '가끔군(주2회 목표)'이라 0회일 때만 빨강이고, 채소는 '매일군'이라 더 엄격합니다. 간식 쪽은 기록이 거의 없고 아린이 정상 체격이라 간식 잔소리는 침묵합니다. 결과: 다양성 점수는 콩류 1개 빨강이라 상한 90으로 캡되고, 코칭 편지에는 '소고기·계란은 잘 챙기고 있어요. 이번 주는 콩류(두부·콩)를 끼니에 한 번 곁들여 볼까요' 같은 결핍 보완 신호가 넘어갑니다. 강요하지 않고 잘 먹는 음식(소고기)에 부족한 것(콩류·채소)을 섞는 방향만 제안합니다.</div>
+<!-- ───────────────────────── ① 비개발자용 ───────────────────────── -->
+<section id="plain"><div class="sec-h"><span class="no" style="font-size:12px">🧭</span><h2>① 한눈에 — 이 모듈이 무엇을 왜 하나</h2></div>
+<p class="lead">이 모듈은 아이가 며칠간 먹은 식재료 목록을 받아 <b>'영양 신호등'</b>을 켭니다. 부엌 저울로 그램(g)을 재는 게 아니라 <b>"이 영양소를 채워주는 음식을 며칠에 한 번꼴로 먹었나"라는 빈도</b>로 판단합니다. 단백질은 매일(주5일+) 먹어야 초록, 철분처럼 몸에 저장이 잘 되는 건 주2일만 닿아도 초록이 됩니다. 정량 측정이 불가능한 가정·기관 식단 기록의 한계를 '빈도'라는 현실적 잣대로 바꾼 것입니다. 색은 초록(충분)·노랑(조금 부족)·빨강(부족) 세 단계입니다.</p>
+<p class="lead">이 모듈에는 <b>세 갈래</b>가 있습니다. <b>(가) 식사 신호등</b>(<code>nutrition.ts</code>): 36종 영양소(보건복지부 KDRI 2025)와 8개 식품군(곡물·콩류·유제품·고기계란·생선해산물·비타민A채소·기타채소·과일)을 각각 빈도로 평가하고, 가공식품·반복 메뉴 감점을 붙여 '다양성 점수'를 냅니다. <b>(나) 간식 엔진</b>(<code>snack.ts</code>): 끼니와 완전히 분리해 간식만 봅니다. 과자·사탕·단 음료 같은 초가공을 얼마나 자주 주는지, 좋은 통식품(과일·삶은 계란·치즈)으로 채우는지, 그리고 간식이 다음 끼니 입맛을 망쳤는지를 봅니다. <b>(다) 체격·성장 트랙</b>(<code>growth-reference.ts</code> + <code>coachWeekly.ts</code>): 키·몸무게를 질병관리청 성장도표에 빗대 <b>또래 곡선을 잘 따라가는지</b> 보고, 저체중·성장 더딤이면 결핍 다양성 대신 <b>탄단지(고기·계란·콩·유제품) 보강</b>으로 추천 방향을 틀고(macro 트랙), 과체중이면 간식 절제로 틉니다.</p>
+<p class="lead">핵심 비유는 <b>'신호등 + 안전장치'</b>입니다. 데이터가 적으면(기록 3일 미만) 섣불리 빨강을 켜지 않고 노랑으로 보류하고, 비타민D처럼 음식보다 햇빛·보충제로 채우는 건 빨강을 끕니다. 짠 음식 많은 한국 식단 특성상 나트륨은 아예 집계에서 빼서 '괜한 빨강(가짜 경고)'을 막습니다. 결과물은 별도 화면이 아니라 매일 가는 코칭 편지 안에 자연스럽게 녹습니다.</p>
+<div class="callout"><b>🥗 영양·편식 정보는 이렇게 처리합니다</b><br>결핍 판정은 '빈도 밴드'로 합니다. 영양소를 몸의 저장성·식품 분포·결핍 위험에 따라 매일군(green=주5일+)·자주군(주4일+)·가끔군(주2일+)으로 나눕니다. 한 번도 안 닿으면(0일) 빨강이지만, 비타민D는 빨강을 끄고(보충제 영양소), 기록 5일 미만이면 빨강을 노랑으로 보류합니다. 데이터가 3일 미만이면 모두 '참고(reference)'로 보류해 가짜 경고를 안 냅니다. 8식품군은 매일군(곡물·채소·과일·유제품 주5회)과 로테이션군(고기계란 주5회, 생선해산물 주2회, 콩류 주2회)으로 목표가 다르고, 로테이션군은 0회일 때만 빨강입니다.<br><br>편식 대응의 핵심은 '강요 금지 + 잘 먹는 것에 섞기'입니다. 부족 영양소가 나오면 그걸 채우는 음식을 추천하되(NUTRIENT_FOODS), 이 모듈은 신호만 만들고 실제 편지는 잘 먹는 음식에 결핍을 곁들이는 방향으로 씁니다. 집과 기관(점심 급식)을 분리해서, 부모가 못 바꾸는 기관 급식엔 가공·반복 감점을 안 매기고(applyMealPenalty=false) 과일·유제품 결핍도 빼줍니다(기관은 점심만이라 부당 감점 방지). 가공식품도 단백질은 주니 과잉 처벌하지 않게 감점 상한(가공 22·반복 12)을 둡니다.<br><br>체격은 '방향'으로만 말합니다 — 체중·살·다이어트 단어를 절대 안 쓰고, BMI 밴드·성장곡선은 '든든하게/유지/넉넉히 챙기기'로만 표현합니다. 간식의 작고 단단한 식품(방울토마토·생당근·포도·견과)은 추천에 항상 조리 표시('반으로 잘라'·'익혀·강판'·'잘게')를 붙여 질식을 막고, 같은 멘트가 같은 예시로만 보이지 않게 매일 회전(rotate)시킵니다.</div>
+<div class="note"><b>🧒 실제 부모 시나리오 (아린·5세·정상 체격)</b> — 아린의 최근 7일 식단엔 미역국·소고기·계란은 자주 나오는데 콩류(두부·콩)와 채소가 거의 안 보입니다. <b>입력</b>: 날짜별 식재료 목록, 집 끼니/점심 기관급식 구분, 아린의 키·몸무게(있으면). <b>처리</b>: 신호등이 '단백질=초록(소고기·계란 매일), 칼슘=초록, 철=초록, 식이섬유=노랑/빨강(채소 적음)'을 빈도로 매기고, 8식품군에서 콩류가 0회라 '부족(빨강)'이 됩니다(콩류는 가끔군이라 0회만 빨강). 아린은 정상 체격이라 macro 트랙은 잠자고 간식 잔소리도 침묵합니다. <b>결과</b>: 코칭 편지엔 '소고기·계란은 잘 챙기고 있어요. 이번 주는 콩류(두부조림 같은 걸로)를 한 번 곁들여 볼까요' 같은 결핍 보완 신호가 넘어갑니다. 만약 아린이 <b>저체중</b>이었다면 같은 모듈이 결핍 다양성 대신 '끼니 양과 단백질·열량(고기·계란·콩·유제품)을 조금 더 챙겨주세요'라는 macro 방향으로 틀었을 것입니다.</div>
 </section>
 
-<section id="fix-20260618"><div class="sec-h"><span class="no" style="font-size:12px">🔧</span><h2>증상 개선 — 구현 · 기능 · 설계 변경 방향 (2026-06-18 적대감사)</h2></div>
-<div class="meta-row"><span class="mtag ab">2026-06-18 적대감사</span><span class="mtag fe">근본원인 26건 중 ④영양평가 소관</span><span class="mtag st">이 모듈 책무 = 손에 넘길 영양 사실</span></div>
-<p class="lead"><b>★ 최상위 단일 근본원인</b> — 일간 두뇌 블록(<code>route.ts:628-630</code>)이 <code>brainPick.scenarioId</code>만 있으면 <code>planFor({forceScenarioId})</code>로 precomputed를 재할당하는데, 이 경로는 <b>주간 닻(mission_target·lever·채근캡·teaching arc)을 전혀 모르고</b> raw signals로 타깃을 새로 뽑습니다. 그래서 문서가 그린 '조립→뇌(판단)→손' 순서가 코드에선 '뇌가 작전층(주간)을 덮어쓰기'로 역전돼, 5개 증상이 한 곳에서 갈라져 나옵니다. <b>이 모듈(④영양평가)의 역할</b>: 그 상류 결함의 직접 당사자는 아니지만, ④가 산출하는 영양 사실(식품군 거울·BMI·성장곡선)이 <b>손(편지)에 닿는 배선 자체가 빠지거나, 닿더라도 매일 같은 prebaked 문장으로 반복</b>되어 '앵무새'와 '영양평가 누락' 두 증상에 직접 기여합니다. 즉 뇌의 문제가 아니라 <b>④의 배선 누락 + 반복 가드 부재</b>입니다.</p>
-<div class="tbl"><table>
-<tr><th style="width:24%">증상 · 문제</th><th style="width:28%">근본원인 (파일:라인 · 분류)</th><th style="width:36%">구현 · 기능 · 설계 변경 방향</th><th>우선순위</th></tr>
-<tr>
-<td><b>영양거울이 매 편지 동일 문장으로 반복(앵무새 꼬리)</b> — 등원+집결핍 아이는 '어린이집 덕에…집 끼니엔 ○○가 드무니…' 한 문장이 매일 verbatim 발행</td>
-<td><code>lib/coach.ts:621-630</code> mirrorBlock IIFE가 매일 무조건 같은 prebaked 문장(allMiss/homeMiss/일반 3분기)을 만들고 라인 636 지침이 '항상 포함'을 강제. snack엔 <code>SNACK_COOLDOWN=2</code>·daySeed rotate가 있는데 mirror만 둘 다 없는 비대칭 · <b>CODE_BUG</b></td>
-<td>(1) <code>lib/nutrition.ts</code>에 <code>mirrorPhrase(covered,allMiss,homeMiss,attendsDaycare,rotate)</code> 헬퍼 신설로 같은 의미를 daySeed 2~3표현 회전. (2) cron이 <code>recentSnackDates</code>(route.ts:169-175) 패턴으로 <code>recentMirrorShown</code>(직전 letter context의 mirror 문구해시)을 적재 → 최근 2~3일 같은 분기·문구면 base에서 mirror 생략. (3) '매일 강제' → 집/전체 결핍 실재 시만 강제, 일반 칭찬 분기('잘 채워지고 있어요')는 쿨다운 시 생략(must→optional).</td>
-<td><b>P0</b></td>
-</tr>
-<tr>
-<td><b>BMI·성장곡선이 편지에 아예 안 들어감 — 영양평가가 식품군 한 축으로만 매일 같은 말</b></td>
-<td><code>route.ts:37</code>은 <code>bmiOf·bmiPercentile·bmiBand</code>만 import하고 <code>growthTracking·heightZ·weightZ·heightPercentile</code>은 호출 0건(app/page.tsx 모달·테스트 전용). BMI도 <code>bmiBandFor</code>(213-225)→snackBand로 evaluateSnacks(347-348) stance 입력으로만 소비될 뿐 본문 프롬프트 미도달 · <b>DESIGN_GAP</b></td>
-<td>(1) cron(<code>route.ts:194-195</code>)이 <code>growth_logs</code>에서 baseline(가장 오래된 측정)+current(최신) <b>2점</b>을 metric별 보관(현재 latestGrowth 최신 1행만 보관해 <code>growthTracking(base,current)</code> 2점 불가). (2) <code>lib/growth-reference.ts</code>에 <code>growthTrackToPhrase</code> 신설 — 체중·살·다이어트·BMI·등급·숫자 단어 없이 문구화('또래 곡선을 잘 따라가요'/'키 성장이 자기 곡선보다 조금 처져 보여요'). (3) <code>base.growthMirror</code>로 전달 + <code>lib/coach.ts</code> buildLetterUser에 mirrorBlock과 별개 <b>growthBlock</b> 신설(한 구절 강제·숫자/등급/체중 금지).</td>
-<td><b>P1</b></td>
-</tr>
-<tr>
-<td><b>성장 신호가 매일 발행되면 또 다른 앵무새 · 간식 stance축과 성장곡선축이 한 편지서 동시 잔소리</b></td>
-<td>측정 저빈도(부모가 매일 키·몸무게를 못 잼)인데 growthBlock을 매일 발행하면 반복. 간식 stance(과체중→reduce/저체중→encourage)와 성장곡선축(키·체중 SDS 하향 이탈)이 게이팅 없이 겹침 · <b>DESIGN_GAP</b></td>
-<td>(1) macro 격주 정책 동형으로 growthBlock은 <code>growth_logs</code> 신규 측정 주 또는 격주·<b>2주 연속 금지</b>로만 발동(주간 ledger·snack 쿨다운 재사용), 측정간격&lt;1개월이면 growthTracking '정보부족'→생략. (2) ④ 내부 게이팅: 저체중은 snack encourage가 맡으니 growthBlock은 키(height) 트랙만, 과체중은 snack reduce가 맡고 growthBlock 침묵. (3) growthBlock은 끝줄 권유 채널(P9/profileNudge/structuredTip 하루 하나)이 아닌 <b>본문 구절 채널</b>. (4) 측정 0~1점 자녀는 침묵·기존 profileNudgeFor(route.ts:199-209) 유지(없는 데이터로 성장 단정 금지).</td>
-<td><b>P1</b></td>
-</tr>
-</table></div>
-<div class="callout"><b>🔑 이 모듈이 근본적으로 무엇을 바꿔야 하는가</b> — ④영양평가의 일은 '점수·신호등을 화면에 그리는 것'을 넘어, <b>BMI/성장곡선(growthTracking)+식품군 거울을 한 객체(CoachContext.nutrition)로 산출해 손(편지) 프롬프트에 실제로 주입</b>하는 것입니다. 지금은 식품군 거울만 닿고 BMI/성장은 배선이 끊겨 있어(growthTracking 미호출·latestGrowth 1행만 보관) '영양평가가 편지에 안 들어간다'는 증상이 됩니다. 동시에 닿는 식품군 거울조차 매일 같은 prebaked 문장이라 손이 누락하거나(어제 치킨편지 실측 누락) 앵무새로 반복됩니다. 따라서 ④는 ① 성장·BMI 축을 비수치 문구로 손에 <b>배선</b>하고, ② 거울/성장 문구가 손에서 <b>반드시 포함되도록 강제</b>하되(작문기 ⑥와 협업: 포함검증·재생성), ③ 측정 저빈도를 감안해 <b>격주·쿨다운 케이던스로 회전</b>시켜 같은 말을 매일 안 하게 해야 합니다. 한 줄로: '말할 거리를 다축화(식품군+성장)하고, 저빈도로 돌려가며, 빠짐없이 넣는다.'</div>
-<div class="note"><b>🧒 쉬운말 요약</b> — 지금 코칭 편지는 '오늘 먹은 음식이 어땠는지(식품군)'만 매일 비슷한 말로 들어가고, '키가 또래 곡선을 잘 따라가는지(성장)'는 앱 화면에만 있고 편지엔 한 번도 안 들어갑니다. 그래서 ① 키·몸무게가 자기 곡선보다 처지면 숫자나 '살' 같은 말 없이 부드럽게 한 줄 알려주고(자주 못 재니까 2주에 한 번씩만), ② 매일 똑같은 문장 대신 비슷한 뜻을 며칠에 한 번씩 다르게 돌려 말하도록 바꾸는 것이 이 모듈의 숙제입니다.</div>
+<!-- ───────────────────────── ② 구현된 내용 ───────────────────────── -->
+<section id="impl"><div class="sec-h"><span class="no">②</span><h2>구현된 내용 — 함수·타입·데이터흐름 (실측)</h2></div>
+<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">nutrition.ts · snack.ts · growth-reference.ts · coachWeekly.ts</span></div>
+<p class="lead">이 모듈은 세 파일에 걸쳐 산다 — <b>식품군·미량 신호등</b>(<code>nutrition.ts</code>), <b>BMI·성장 추종도</b>(<code>growth-reference.ts</code>), <b>macro 트랙 + 거울 스케줄</b>(<code>coachWeekly.ts</code> 주간계획 모듈). cron(<code>app/api/cron/coach/route.ts</code>)이 셋을 조립해 손(<code>coach.ts</code>)에 넘긴다.</p>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">A. 식품군·미량 신호등 — <code>lib/nutrition.ts</code></h3>
+<div class="tbl"><table><tr><th style="width:38%">함수 · 타입 (file:line)</th><th>역할 · 실측 동작</th></tr>
+<tr><td><code>nutrientsOf(ing, catOf)</code> <span style="color:var(--n400)">:147</span></td><td>식재료 1개 → 커버 영양소 배열. ① 농진청 정밀맵 <code>GEN_NUTRI</code>(getNutrientMap) ∪ <code>NUTRI_MAP</code>(손큐레이션 200여종) 우선, ② 둘 다 없으면 <code>CATEGORY_NUTRI</code> 18종 카테고리 빗대기 폴백. '모름'으로 안 비움.</td></tr>
+<tr><td><code>computeSignals(byDay, catOf)</code> <span style="color:var(--n400)">:266</span> → <code>NutrientSignal[]</code></td><td>KEY 15종 신호등. <code>KEY_BAND</code>(daily/frequent/occasional) × <code>KDRI_BAND_NEED{5,4,2}</code> 문턱. 기록&lt;3일=yellow 보류, d===0이면 비타민D·기록&lt;5일은 yellow 클램프 아니면 red. <b>cron이 red만 뽑아 reds로 사용</b>.</td></tr>
+<tr><td><code>computeKdriSignals(byDay, catOf, ageBand)</code> <span style="color:var(--n400)">:485</span></td><td>36종 KDRI 신호등(연령대 <code>KDRI_VAL_BY_AGE</code> 1-2/3-5/6-8세 기준치). mapped 없으면 'reference', 기록&lt;3일 보류. 분모는 달력 7일 고정(누수 교정). 홈 모달용 데이터.</td></tr>
+<tr><td><code>computeGroupSignals(byDay, catOf)</code> <span style="color:var(--n400)">:200</span></td><td>8식품군 신호등(<code>GROUP_TARGET</code>: daily 5+ / rotation). daily는 weeklyEst≥5 green·≥2 yellow·else red. rotation은 <b>0회만 red</b>·≥green green·else yellow. <code>proteinOk</code>(고기계란·생선·콩 중 매일≥1군) 동반 반환.</td></tr>
+<tr><td><code>computeFoodGroups(allIng, catOf)</code> <span style="color:var(--n400)">:307</span></td><td>8군 covered/missing 분해(<code>FOOD_GROUP</code> 직접 → <code>CATEGORY_GROUP</code> 빗대기). cron이 missing/homeMissing으로 분리.</td></tr>
+<tr><td><code>groupOf(ing, catOf)</code> <span style="color:var(--n400)">:197</span></td><td>식재료→식품군 정본(<code>FOOD_GROUP</code>‖<code>CATEGORY_GROUP[catOf]</code>). K-01 — catOf(카테고리 18종)를 식품군(8종)과 직접 비교하던 네임스페이스 버그 수정용으로 export. refExposable(거부 결핍군 필터)이 공유.</td></tr>
+<tr><td><code>computeTimeseries(byDate, menuFreq, catOf, today, {assertNoVeg})</code> <span style="color:var(--n400)">:335</span></td><td>추세 사실 문장('채소 N일째 없음'·반복 메뉴 3회+·흰쌀밥→잡곡 제안 전환). LLM 날짜 환각 차단(분석이 계산한 사실만). <code>assertNoVeg</code>는 catOf 신뢰 시만 '채소 없음' 단정(P4).</td></tr>
+<tr><td><code>computeDiversityScore(args)</code> <span style="color:var(--n400)">:551</span></td><td>점수 단일 진입점: 다양성 base(green100/yellow65/red0 평균) − 게이트캡(red 1개=90, 추가군당 −8, 하한66) − 가공패널티(상한22) − 반복패널티(상한12). <code>applyMealPenalty=false</code> 또는 끼니&lt;3건이면 패널티 미적용. <code>daycareMode</code>면 과일·유제품 군 제외.</td></tr>
+<tr><td><code>processedPenalty</code> :525 · <code>repeatPenalty</code> :539 · <code>isProcessed</code> :518</td><td><code>ULTRA_RE</code>(초가공 가중1.0)·<code>CURED_RE</code>(가공육 0.7) 정규식으로 메뉴명 매칭. 흰쌀밥·김치·국 등 <code>REPEAT_SKIP</code> 제외. snack 엔진도 isProcessed 재사용.</td></tr>
+<tr><td>상수: <code>KDRI_NUTRIENTS</code>:381 · <code>KDRI_VAL_BY_AGE</code>:451 · <code>KDRI_EXCLUDED</code>:374 · <code>GROUP_TARGET</code>:190 · <code>NUTRIENT_FOODS</code>:164</td><td>KDRI 2025 연령대 기준치·제외 5종(나트륨·에너지·수분·불소·크롬)·8군 목표·부족 영양소별 추천 식재료.</td></tr></table></div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">B. BMI · 성장 추종도 — <code>lib/growth-reference.ts</code> <span class="live">라이브</span></h3>
+<div class="tbl"><table><tr><th style="width:38%">함수 (file:line)</th><th>역할 · 실측 동작</th></tr>
+<tr><td><code>bmiOf</code>:210 · <code>bmiPercentile</code>:158 · <code>bmiBand(pct)</code>:172 → <code>BmiBand</code>('저체중'|'정상'|'과체중'|'비만')</td><td>키·몸무게·성별·월령 → KDCA 2017 LMS로 BMI 백분위·밴드. cron <code>bmiBandFor</code>(route:240)가 최신 growth_logs 체위 우선, 없으면 children 스냅샷.</td></tr>
+<tr><td><code>growthTracking(baseline, current, sex, metric)</code> :263 → <code>GrowthTrack | null</code></td><td><b>성장곡선 추종도</b>: 첫 측정(baseline)으로 그 아이 백분위 채널을 잡고, 현재 측정의 z(SDS) 하향 이탈로 status 판정 — zDrift≤−1.34='경고', ≤−0.67='주의', else='양호'. <b>측정간격&lt;1개월='정보부족'</b>(노이즈 보류). z 둘 중 하나라도 null이면 전체 null. score=100+min(0,zDrift)×45.</td></tr>
+<tr><td><code>growthTrackToPhrase({band, height, weight})</code> :290 → <code>string | null</code></td><td>BMI 밴드+추종도 → 비수치 P10 한 구절. 우선순위: 곡선 경고&gt;주의 &gt; BMI 비만·과체중·저체중. <b>정상·정보부족이면 null(거울 생략)</b>. 숫자·퍼센타일·BMI·체중·살 단어 0(P10 톤). 경고 키 구절: '키가 또래 흐름을 천천히…단백질·열량(고기·계란·콩·유제품)을 넉넉히…소아과 상의'.</td></tr></table></div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">C. macro 트랙 + 거울 스케줄 — <code>lib/coachWeekly.ts</code> (주간계획 모듈) <span class="live">라이브(코드)</span></h3>
+<div class="tbl"><table><tr><th style="width:38%">함수 · 타입 (file:line)</th><th>역할 · 실측 동작</th></tr>
+<tr><td><code>MacroTrack</code> 타입 :71 · <code>buildMacroTrack(ctx)</code> :485</td><td><b>#7 macro 성장 nudge.</b> <code>EnrichContext.band/heightTrack/weightTrack</code> 입력. <code>lowWeight(band==='저체중')</code> 또는 <code>growthLag</code>(height/weight track status가 '주의'|'경고')이면 <code>active:true·boostGroups=['고기·계란','콩류','유제품']·boostDishes</code>(각 군 대표의 popularDishesFor) 산출. <code>overweight</code>(과체중·비만)이면 <code>snackRestraint:true</code>. <code>phrase=growthTrackToPhrase(...)</code>. <code>cadenceWeek=(arcWeek%2===0)</code> — <b>격주(2주 연속 금지·측정 저빈도 존중)</b>.</td></tr>
+<tr><td><code>enrichWeeklyPlan(synth, ctx)</code> :520 → <code>PlanDetail</code></td><td>일요일 종합 위 7일치 결정론 후처리(LLM 0콜). macro를 먼저 계산해 <b>저체중/성장더딤이면 boostGroups 식재료를 supplyPool 앞에 주입('고기류 타깃'화)</b>(:526-529). macroTrack을 PlanDetail에 박제.</td></tr>
+<tr><td><code>buildMirrorSchedule(deficits, covered, macro, daycare, freqMap)</code> :500 → <code>MirrorSlot[7]</code></td><td>7일 거울 스케줄. <b>macro.active &amp;&amp; cadenceWeek면 슬롯 i===3에 macro.phrase를 kind:'macro'로 박제</b>(:504). 결핍 2군+면 라운드로빈, 단일 결핍은 격일 쿨다운(#5·K-04b — 짝수 슬롯만 결핍줄·홀수 칭찬/생략). 거울줄은 <code>mirrorLineFor</code> 3변형 회전 + <code>deficitDishFor</code> 구체 dish.</td></tr>
+<tr><td><code>pickPlanSlot(detail, {daySeed,cidHash,deficitNow,recentIngredients})</code> :576 → <code>PlanSlotPick</code></td><td>일간 소비(유연성 가드). <code>macroPhrase = (macroTrack.active &amp;&amp; cadenceWeek &amp;&amp; mirrorSchedule[idx].kind==='macro') ? phrase : null</code>(:582). 즉 그날 슬롯이 macro 슬롯일 때만 macroPhrase가 살아 나온다.</td></tr></table></div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">D. 간식 엔진 — <code>lib/snack.ts</code></h3>
+<div class="tbl"><table><tr><th style="width:38%">함수 (file:line)</th><th>역할</th></tr>
+<tr><td><code>evaluateSnacks(args)</code> :149 → <code>SnackEval|null</code></td><td>SNACK_SLOTS만 추려 worst-of로 ultra/sugary/good 분류, 간식 직후 0~2.5h 내 덜 먹은 끼니(ate_well=false)로 간섭성, <code>snackStance(band)</code>→stance(encourage/maintain/reduce), reds로 결핍보완 간식.</td></tr>
+<tr><td><code>snackStance(band)</code> :74 · <code>goodSnackSuggestions(stance, reds, rotate)</code> :106 · <code>snackEvalToPrompt(ev, rotate)</code> :229</td><td>BMI 밴드→방향(체중 단어 금지). 좋은 간식 4종(질식 조리표시 보존·중복제거·예시 rotate). 편지용 한 블록.</td></tr></table></div>
+
+<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">E. cron 조립 + 손(편지) 배선 — <code>app/api/cron/coach/route.ts</code> · <code>lib/coach.ts</code></h3>
+<ul class="clean">
+<li><b>BMI·성장 산출</b>(route:384-405): <code>snackBand=bmiBandFor()</code> · <code>heightTrack/weightTrack=growthTracking(firstGrowth, latestGrowth)</code> — <b>baseline(가장 오래된) + current(최신) 2점</b>으로 추종도 계산(<code>firstGrowth</code>:206·<code>latestGrowth</code>:205). 격주 게이트: 최근 13일 내 성장 거울 노출 있으면(<code>recentGrowthDates</code>) 생략, 없으면 <code>growthMirrorCtx=growthTrackToPhrase(...)</code>.</li>
+<li><b>macro 슬롯</b>(route:624-627): <code>enrichWeeklyPlan</code>에 <code>band·heightTrack·weightTrack</code> 전달 → macroTrack 박제. <code>pickPlanSlot</code>(route:852)이 오늘 슬롯·<code>macroPhrase</code> 픽.</li>
+<li><b>손 배선</b>(route:916): <code>growthMirror: planSlotCtx?.macroPhrase ?? growthMirrorCtx</code> — macro 슬롯 우선, 없으면 격주 BMI 거울. 같은 날 간식 멘트는 생략(route:834 — 성장 거울 있으면 snackText=null, 한 번에 하나).</li>
+<li><b>편지 주입</b>(coach.ts:788-789·793): <code>growthBlock = b.growthMirror ? '[⚠️ 성장 신호 — 숫자·퍼센타일·BMI·체중·살 단어 금지…]\n'+growthMirror : ''</code> → 프롬프트 본문에 <code>${growthBlock}</code> 인서트. 작문기 재생성(coach.ts:1031)이 성장 구절 누락 시 fixNotes로 강제 포함.</li>
+</ul>
+<div class="note"><b>⚠️ 정정 — 이전 문서(2026-06-18)는 'BMI·성장이 편지에 아예 안 들어감(배선 끊김)'으로 적었으나, 코드 실측상 배선은 그 후 완성됐습니다.</b> <code>growthTracking</code>은 firstGrowth+latestGrowth 2점으로 호출되고, <code>growthMirror</code>/<code>growthBlock</code>/macro 슬롯이 손까지 닿습니다. <b>다만</b> ⑤에서 보듯 — <code>growthTrackToPhrase</code>가 '정상·정보부족'이면 <b>null</b>을 반환하므로, 측정이 1점뿐이거나(정보부족) 밴드가 정상이면 거울이 비어 실제 발행 편지에는 한 번도 안 들어갑니다(랄프위검 24통 0토큰). <b>배선은 살았으나 데이터 다리(2점 측정)가 비어 트랙이 실전에서 잠자는 상태</b>입니다.</div>
 </section>
 
-<section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거</h2></div>
-<p class="lead">이 모듈이 <b>실제로 구현·적용</b>하는 이론입니다(코드의 근거 기준).</p>
-<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr><tr><td><b>보건복지부 「2025 한국인 영양소 섭취기준(KDRI)」</b></td><td>36종 영양소의 연령대별(만1-2/3-5/6-8세) 권장 기준치를 상수화해 모달 표시·신호등 밴드 근거로 사용</td></tr><tr><td><b>농촌진흥청 국가표준식품성분표 10.4</b></td><td>식재료별 100g당 값이 1일 권장의 15% 이상이면 '공급원'으로 보는 정밀 영양맵(nutrient-map.generated.json)을 만들어 빗대기 대신 1차 출처로 사용</td></tr><tr><td><b>식약처 영유아 식생활지침 / WHO 8식품군</b></td><td>'매끼 곡류·단백질·채소, 매일 우유·과일'을 식품군 다양성 목표(매일군 주5·로테이션군)로 코드화</td></tr><tr><td><b>Satter 식사 구조화(division of responsibility)</b></td><td>식간 군것질·단 음료가 끼니 식욕을 떨어뜨린다는 원리로 간식 직후 끼니를 덜 먹은 '식사 간섭성'을 판정</td></tr><tr><td><b>영양 신호등(nutrient-signal-report.html) 자체 근거 보고서</b></td><td>체내 저장·식품 분포·결핍 위험 3축으로 매일/자주/가끔 밴드(green 문턱 5/4/2일)를 정함</td></tr></table></div>
-<h3 style="font-size:14px;font-weight:800;color:var(--s800);margin:16px 0 6px">🎬 시나리오 · 유닛 (14)</h3>
-<div class="tbl"><table><tr><th style="width:26%">이름</th><th>언제 적용</th><th>이론 근거</th></tr><tr><td><b>식사 영양 신호등 36종(KDRI)</b></td><td>기록 3일+이면 식재료가 그 영양소를 며칠 닿았는지로 초록/노랑/빨강 판정. 매핑 없는 ~5종은 reference 표시</td><td>KDRI 2025 + 농진청 정밀맵, 밴드별 문턱 5/4/2일</td></tr><tr><td><b>빨강 보류 가드</b></td><td>기록 5일 미만이면 0회여도 빨강을 노랑으로 클램프, 비타민D는 빈도 빨강 영구 비활성</td><td>가짜 빨강(오탐) 방지 — 보충제 영양소·표본 부족</td></tr><tr><td><b>8식품군 다양성 신호등(매일군)</b></td><td>곡물·비타민A채소·기타채소·과일·유제품: 주5회+ 초록, 주2~4 노랑, 주2 미만 빨강</td><td>식약처 지침 '매끼 채소·매일 과일우유' + WHO 8군</td></tr><tr><td><b>8식품군 다양성 신호등(로테이션군)</b></td><td>고기·계란 주5+, 생선·해산물 주2+(수은 주의 1~2회), 콩류 주2+ — 0회만 빨강</td><td>단백질 공급원 교대 섭취 / 생선 수은 안전</td></tr><tr><td><b>단백질 총괄 게이트</b></td><td>고기계란·생선해산물·콩류 중 매일 1군이라도 닿으면 proteinOk</td><td>단백질은 매일 어떤 형태로든 채워야</td></tr><tr><td><b>식품군 노출 시계열</b></td><td>기록 30일 미만이면 최근 14일 일 단위, 이상이면 최근 10주 주 단위 추이 선차트</td><td>기록 길이에 따라 해상도 자동 전환·선 끊김 방지</td></tr><tr><td><b>추세 사실 문장</b></td><td>채소 2일+ 무기록이면 'N일째 없음', 같은 메뉴 3회+면 반복 경고(흰쌀밥은 잡곡섞기 제안으로 전환)</td><td>LLM이 날짜 환각 못하게 분석이 계산한 사실만 전달(코칭 §4)</td></tr><tr><td><b>가공식품 감점</b></td><td>끼니 3건+ &amp; 집 끼니일 때 초가공(가중1.0)·가공육(0.7) 비중으로 감점, 상한 22</td><td>초가공 모니터링 / 가공식품도 단백질 공급 → 과잉처벌 금지</td></tr><tr><td><b>반복 메뉴 감점</b></td><td>흰쌀밥·김치·국 제외 같은 메인 4회+면 (회수-3)×4 감점, 상한 12</td><td>다양성 중심 점수 — 단조로운 식단 경고</td></tr><tr><td><b>집70:기관30 분리 평가</b></td><td>place=daycare는 가공·반복 미적용 &amp; 과일·유제품 군 제외, 집(home·미상)만 풀 평가</td><td>부모 통제 밖 급식 부당 감점 방지(이사님 지시)</td></tr><tr><td><b>간식 초가공/가당 모니터링</b></td><td>간식 슬롯에서 과자·사탕·아이스크림(ultra)·탄산/주스/에이드(sugary) 빈도 집계</td><td>부모가 가장 놓치기 쉬운 곳 — 끼니와 분리</td></tr><tr><td><b>간식 BMI 방향(stance)</b></td><td>저체중→든든하게(encourage), 정상→유지(maintain), 과체중/비만→좋은간식 교체(reduce)</td><td>체중 단어 금지·'방향'만 — 유아 체중 민감</td></tr><tr><td><b>간식 식사 간섭성</b></td><td>같은 날 간식 직후 0~2.5시간 내 시작한 끼니를 덜 먹었으면(ate_well=false) 간섭 사례 기록</td><td>Satter 식사 구조화 — 끼니 1~2h 전 비우기</td></tr><tr><td><b>결핍 맞춤 좋은 간식 추천</b></td><td>부족 영양소(reds)별 손으로 집어먹는 간식 + stance 풀에서 4종, 예시는 매일 회전</td><td>끼니 추천과 별개·질식 안전 조리표시 보존</td></tr></table></div>
+<!-- ───────────────────────── ③ 시각화 ───────────────────────── -->
+<section id="viz"><div class="sec-h"><span class="no">③</span><h2>설계 아키텍처 시각화 — 입력테이블 → 가공함수 → 출력컨텍스트키</h2></div>
+<p class="lead">데이터 파이프라인 전체 그림. 초록=손까지 닿음, 빨강 점선=코드는 있으나 실전에서 잠자는(DEAD) 경로.</p>
+
+<div class="flow">
+<div class="frow">
+<div class="fbox src"><div class="ft">📥 meal_logs</div>slot·log_date·ingredients·menus·place·ate_well·meal_time</div>
+<div class="fbox src"><div class="ft">📥 children</div>age_band·sex·birth_year/month·height·weight·excluded</div>
+<div class="fbox src"><div class="ft">📥 growth_logs</div>measured_on·height_cm·weight_kg<br><span style="color:#B43232;font-weight:700">(≥2점·≥1개월 간격 필요)</span></div>
+</div>
+<div class="farrow">▼</div>
+<div class="frow">
+<div class="fbox proc"><div class="ft">computeSignals / computeGroupSignals / computeFoodGroups</div>빈도 밴드 신호등 · 8식품군 covered/missing · proteinOk</div>
+<div class="fbox proc"><div class="ft">computeDiversityScore</div>base − 게이트캡 − 가공 − 반복 (집/기관 분리)</div>
+</div>
+<div class="farrow">▼</div>
+<div class="frow">
+<div class="fbox proc"><div class="ft">bmiBandFor → bmiBand</div>저체중/정상/과체중/비만</div>
+<div class="fbox proc"><div class="ft">growthTracking(first,latest)</div>키·체중 zDrift → 양호/주의/경고/정보부족</div>
+</div>
+<div class="farrow">▼</div>
+<div class="frow">
+<div class="fbox proc"><div class="ft">buildMacroTrack(ctx) <span style="font-weight:700">[#7]</span></div>저체중/성장더딤 → boostGroups=고기·계란/콩류/유제품 · 격주 cadenceWeek</div>
+<div class="fbox proc"><div class="ft">growthTrackToPhrase</div>비수치 P10 한 구절<br><span style="color:#B43232;font-weight:700">(정상·정보부족 → null)</span></div>
+<div class="fbox proc"><div class="ft">evaluateSnacks → snackStance</div>encourage/maintain/reduce · 간섭성 · 좋은간식</div>
+</div>
+<div class="farrow">▼</div>
+<div class="frow">
+<div class="fbox proc"><div class="ft">enrichWeeklyPlan → buildMirrorSchedule</div>7일 거울 슬롯[i] · macro phrase는 i===3(격주)에 박제</div>
+<div class="fbox proc"><div class="ft">pickPlanSlot(detail)</div>오늘 slot · macroPhrase(슬롯이 macro일 때만)</div>
+</div>
+<div class="farrow">▼ <span style="color:var(--n500);font-size:11px;font-weight:700">cron route.ts:916 손 배선</span></div>
+<div class="frow">
+<div class="fbox out"><div class="ft">🧠 CoachSignals.reds / missing / homeMissing / timeseries</div>두뇌 시나리오 앵커 · 추천엔진 결핍 타깃</div>
+<div class="fbox out"><div class="ft">✍️ LetterInput.snackEval</div>간식 한 블록(snackEvalToPrompt)</div>
+</div>
+<div class="farrow">▼</div>
+<div class="frow">
+<div class="fbox out"><div class="ft">✍️ LetterInput.growthMirror</div>= planSlotCtx.macroPhrase ?? growthMirrorCtx</div>
+<div class="fbox dead"><div class="ft">✍️ coach.ts growthBlock <span class="deadtag">실전 DEAD</span></div>growthMirror==null이면 빈 문자열 → 본문 0구절(랄프위검 24/24)</div>
+</div>
+</div>
+
+<div class="diagram"><pre>┌──────────────────────────── 두 진단 축 (이 모듈의 골격) ────────────────────────────┐
+│                                                                                      │
+│   축1: 식품군 8분류 다양성  ──▶  reds·missing  ──▶  [라이브] 거울줄·추천 타깃·점수    │
+│        (computeGroupSignals)      매일 손에 닿음                                       │
+│                                                                                      │
+│   축2: 체격·성장 연료(macro) ──▶  band·track   ──▶  [코드 라이브 / 실전 잠] phrase     │
+│        (bmiBand·growthTracking)   growthTrack    null 다발 → growthBlock 빈 채 발행    │
+│        ↑                                                                              │
+│        └── 데이터 다리 부재: growth_logs 2점(≥1개월) 자녀 거의 없음 → 정보부족/정상   │
+│            → growthTrackToPhrase=null → macro 트랙·성장 nudge 실전 미점화              │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+   결론: 칼로리·단백·지방 절대량(성장 연료) 차원이 진단에서 사실상 빠짐 — 축1만 굴러감</pre></div>
 </section>
 
-<section id="tables-ext"><div class="sec-h"><span class="no" style="font-size:12px">🗄️</span><h2>어느 테이블에서 무엇을 — 데이터 추출</h2></div>
-<p class="lead">이 모듈이 <b>어떤 데이터에서 무엇을 뽑아</b> 운영하는지(비개발자용).</p>
-<div class="tbl"><table><tr><th style="width:24%">테이블 · 데이터</th><th style="width:30%">뽑는 값</th><th>운영상 의미</th></tr><tr><td><b>meal_logs (식사 기록 테이블)</b></td><td>log_date(날짜)·slot(끼니/간식 구분)·ingredients(식재료)·menus(메뉴 원문)·place(집/기관)·ate_well(잘 먹었나)·meal_time(먹은 시각)·refused(거부)</td><td>아이가 며칠간 무엇을 먹었는지의 원천 데이터. 여기서 '날짜별 식재료 목록'을 만들어 신호등을 켜고, place로 집/기관을 갈라 점수를 따로 내고, slot으로 간식만 떼어내 간식 엔진에 넣습니다.</td></tr><tr><td><b>children (아이 프로필)</b></td><td>age_band(연령대)·sex(성별)·height_cm·weight_kg·excluded_ingredients(제외 식재료)·daycare(기관 정보)</td><td>연령대로 KDRI 기준치(만1-2/3-5/6-8세)를 고르고, 키·몸무게·성별로 BMI 밴드를 계산해 간식 방향을 정합니다. 5세 아이에게 만1-2세 기준을 보여주던 연령 불일치 버그를 이 값으로 고쳤습니다.</td></tr><tr><td><b>nutrient-map.generated.json (농진청 정밀 영양맵)</b></td><td>식재료명→커버 영양소 목록(n)·농진청 원물명(nong)·신뢰도(conf)</td><td>농진청 성분표에서 '100g당 1일 권장의 15% 이상' 주는 영양소만 뽑은 정확한 사전. '소고기=철·아연·B12' 같은 판정의 1차 근거이고, 여기 없는 식재료만 카테고리 빗대기로 근사합니다.</td></tr><tr><td><b>ingredients-light.json (도감 경량본)</b></td><td>식재료명(nm)·카테고리(cat) — 예: 당근→뿌리채소</td><td>정밀맵에 없는 식재료를 '범주로 근사'할 때 쓰는 분류표. 곱창→고기, 오리고기→고기처럼 '모름'으로 비우지 않고 그 범주의 대표 영양으로 채워 영양 누락을 줄입니다.</td></tr><tr><td><b>NUTRI_MAP / CATEGORY_NUTRI (코드 내장 상수)</b></td><td>식재료 200여종→영양소 직접 매핑 + 18개 풀 카테고리→대표 영양 프로필</td><td>농진청맵을 보완하는 손큐레이션 사전과 범주 빗대기 안전망. 두 출처를 합쳐(∪) 쓰고, 둘 다 없으면 카테고리로 폴백합니다.</td></tr><tr><td><b>KDRI_NUTRIENTS / KDRI_VAL_BY_AGE (KDRI 2025 상수)</b></td><td>36종 영양소의 권장 기준치를 연령대별로(예: 단백질 만1-2세 20g·3-5세 25g·6-8세 35g)</td><td>보건복지부 2025 기준을 코드로 박은 값. 모달에 '아이 나이에 맞는 참고 기준치'로 보여주며(색 판정은 빈도로 함), 나트륨·에너지·수분·불소·크롬 5종은 결핍 걱정 없어 제외합니다.</td></tr></table></div>
-</section>
-
-<section id="growth"><div class="sec-h"><span class="no" style="font-size:12px">🩺</span><h2>BMI · 성장곡선 연동 + 3대 영양소 트랙 (설계)</h2></div>
-<p class="lead">영양평가는 <b>두 축</b>으로 봅니다 — ① <b>식품군 신호등</b>(미량·식품군 coverage, KDRI) ② <b>체격·성장</b>(BMI + 키 성장곡선). 성장곡선을 벗어나지 않게, 체격 방향에 따라 추천이 달라집니다.</p>
-<div class="tbl"><table><tr><th style="width:26%">체격·성장 상태</th><th style="width:30%">평가 방향</th><th>추천</th></tr>
-<tr><td><b>과체중·비만</b>(BMI 백분위 ↑)</td><td><b>간식 적극 평가</b> — 초가공·가당음료 → 포만감 좋은 간식 교체(snack reduce)</td><td>식품군 다양성 유지 + 칼로리 밀도 낮추기. <span style="color:var(--g700)">(현재 라이브)</span></td></tr>
-<tr><td><b>저체중·BMI 하락</b> 또는 <b>키 성장 추세 더딤</b></td><td><b>3대 영양소(탄수·단백·지방) 우선</b> — 칼로리·성장 영양 보강</td><td><b>탄수=곡물 · 단백=고기·계란·콩류·생선 · 지방=유제품·견과·유지</b>(영유아 안전) 식재료·메뉴 추천</td></tr>
-<tr><td><b>정상</b></td><td>지금처럼 유지 + 식품군 결핍 보강</td><td>일반 결핍·다양성 트랙</td></tr>
-</table></div>
-<div class="callout"><b>주간계획 연동</b> — <code>weekly_plans</code>에 <b>3대영양소(macro) 카테고리</b> property 추가: 저체중·성장 더딤이면 주간 타깃을 <b>macro 트랙</b>으로 가중(채소우선 vegBonus를 BMI/성장으로 조건화). 즉 영양평가가 'BMI/성장 신호 + macro 우선순위'를 산출 → ① 주간이 타깃 잠금 → ② 추천엔진이 3대영양소 식재료/메뉴 생성.</div>
-<div class="note"><b>⏱️ 격주 케이던스 (이사님)</b> — 부모가 매일 키·몸무게를 잴 수 없어 <b>BMI/성장 신호는 자주 안 갱신</b>됩니다. 그래서 BMI 기반 <b>3대영양소(macro) 잔소리는 최대 격주 · 2주 연속 금지</b>. <code>runWeeklyPlanning</code>이 주간계획 수립 시 <b>직전 주 macro 트랙 사용 여부를 ledger에서 확인 → 연속 주 차단</b>(쓴 주 다음 주는 일반 결핍·다양성/환경 트랙으로 회전). 채근 주1회 캡과 같은 '과부하 방지' 철학. 측정 입력이 새로 들어온 주에 한해 재발동.</div>
-<div class="note">⚠️ <b>성장곡선 = 국내(KDCA) 기준 + soft 신호</b>: BMI·키 백분위는 <b>질병관리청 2017 성장도표(국내)</b> 기준으로 추적(WHO 아님 — 만3세+ 국내값이 다름). 키는 유전·체질 다인자라 <b>'성장 추세 느리면 단백·칼로리 점검' 안내 + 지속 시 소아과 상담'</b>의 soft 신호로만(진단 아님). <b>상태</b>: ✅ <b>신장·체중·BMI for-age KDCA 2017 정본 라이브</b>(공식 「2017 소아청소년 성장도표」 '성장도표 데이터 테이블.xls' 직접 파싱 → <code>lib/kdca-growth-lms.json</code> 신장·체중 0~227mo·BMI 24~227mo·미만 WHO 폴백. P3/P50/P97 골든 박제·vitest 384) · ✅ <b>성장곡선 추종도</b>(<code>growthTracking</code>) 앱 영양점수 모달 라이브 — 첫 측정으로 그 아이 백분위 채널을 잡고 z(SDS) 하향 이탈로 키·체중 각 0~100점(주의 −0.67 / 경고 −1.34 SDS·측정간격&lt;1개월=정보부족). 간식 BMI stance 라이브 / ⏸ <b>식품 macro 격주 트랙</b>(성장더딤→3대영양소)=코칭엔진 배선 후속(리팩터 P3).</div>
-</section>
-
-<section id="sum"><div class="sec-h"><span class="no">0</span><h2>요약</h2></div>
-<div class="meta-row"><span class="mtag st">라이브</span><span class="mtag fe">🧠 뇌 + ✍️ 손 양쪽</span><span class="mtag ab">흡수: nutrition.ts + snack.ts</span></div>
-<p class="lead">care 식사 기록의 식재료를 영양소로 환산해 "며칠 동안 이 영양소를 커버했나"로 신호등(green/yellow/red)을 산출하고(정량 g이 아닌 빈도 평가), 끼니와 분리한 간식 엔진으로 초가공·가당음료·식사간섭·BMI 방향을 따로 감시한다. 신호등의 red 영양소(reds)는 코칭 두뇌(planFor 시나리오)와 추천 엔진의 결핍 앵커가 되고, 간식 평가는 편지에 부드럽게 합쳐진다.</p>
-<div style="font-size:11.5px;font-weight:800;color:var(--n500);margin-top:8px">📚 읽는 데이터셋</div>
-<ul class="clean"><li>graphSource.getNutrientMap() (농진청 10.4 정밀맵 GEN_NUTRI, JSON)</li><li>ingredients-light.json의 cat (catOf 빗대기 입력)</li><li>meal_logs 행(slot·log_date·menus·ingredients·ate_well·meal_time — SnackRow)</li><li>내장 상수: NUTRI_MAP·CATEGORY_NUTRI·CATEGORY_GROUP·FOOD_GROUP·KEY_NUTRIENTS·KDRI_NUTRIENTS·KDRI_VAL_BY_AGE·GROUP_TARGET</li></ul>
-</section>
-
-<section id="pipe"><div class="sec-h"><span class="no">1</span><h2>데이터 파이프라인 — 가져오기 → 가공</h2></div>
-<p class="lead">이 모듈이 데이터를 <b>어떻게 가져와서 어떻게 가공</b>하는지 단계별.</p>
-<div class="pipe"><div class="pn"><div class="pnum">1</div><div class="pbody"><div class="pt">식재료→영양소 매핑</div><div class="pd">nutrientsOf(ing,catOf): ① 농진청 정밀맵 GEN_NUTRI ∪ NUTRI_MAP(둘 다 정확 출처) 우선, ② 둘 다 없으면 풀 카테고리(catOf)의 CATEGORY_NUTRI 빗대기 폴백 — '모름'으로 비우지 않음</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">2</div><div class="pbody"><div class="pt">날짜별 커버일 집계</div><div class="pd">ingredientsByDay(날짜별 식재료 목록)를 돌며 그날 커버된 영양소를 Set으로 모으고 coverDays[n]++ — '며칠 동안 닿았나'를 센다</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">3</div><div class="pbody"><div class="pt">밴드별 신호등 판정</div><div class="pd">영양소를 daily(5일+)/frequent(4일+)/occasional(2일+) 밴드로 나눠 KDRI_BAND_NEED 문턱과 비교. d&gt;=need green, d&gt;0 yellow, d==0 red. 데이터 가드: 기록&lt;3일 보류(yellow/reference), 비타민D는 red 비활성</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">4</div><div class="pbody"><div class="pt">식품군 다양성·점수</div><div class="pd">computeGroupSignals(8군 daily/rotation 목표 주간추정 weeklyEst), computeFoodGroups(covered/missing), computeDiversityScore(다양성 base + 결핍군 게이트캡 − 가공패널티 − 반복패널티). daycareMode면 과일·유제품 제외</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">5</div><div class="pbody"><div class="pt">간식 분리 분석</div><div class="pd">evaluateSnacks: meal_logs 전체 행에서 SNACK_SLOTS(am_snack/pm_snack/snack)만 추려 worst-of로 ultra/sugary/good 분류, 같은 날 간식 직후 2.5h내 덜 먹은 끼니(ate_well=false)로 간섭성 계산, BMI band→stance(encourage/maintain/reduce), reds로 결핍보완 간식 추천</div></div></div><div class="parrow">▼</div><div class="pn"><div class="pnum">6</div><div class="pbody"><div class="pt">두뇌·손 핸드오프</div><div class="pd">reds→CoachSignals.reds(두뇌 시나리오)·evaluateSnacks 입력. SnackEval→snackEvalToPrompt→LetterInput.snackEval(편지 한 블록). KDRI/그룹/다양성 신호등→app/page.tsx 홈 UI 렌더</div></div></div></div>
-</section>
-
-<section id="fns"><div class="sec-h"><span class="no">2</span><h2>핵심 함수</h2></div>
-<div class="tbl"><table><tr><th style="width:34%">함수</th><th>역할</th></tr><tr><td><code>nutrientsOf(ing, catOf)</code></td><td>식재료 1개→커버 영양소 배열. 농진청∪NUTRI_MAP 우선, 없으면 카테고리 빗대기 폴백</td></tr><tr><td><code>computeSignals(ingredientsByDay, catOf)</code></td><td>KEY 15종 영양소 신호등(NutrientSignal[]). cron이 red만 뽑아 reds로 사용</td></tr><tr><td><code>computeKdriSignals(ingredientsByDay, catOf, ageBand)</code></td><td>36종 KDRI 신호등(연령대 기준치·빈도 판정·미매핑은 reference). 홈 모달용</td></tr><tr><td><code>computeGroupSignals(ingredientsByDay, catOf)</code></td><td>8식품군 다양성 신호등(weeklyEst·green/yellow/red) + proteinOk</td></tr><tr><td><code>computeFoodGroups(allIngredients, catOf)</code></td><td>8군 covered/missing 분해</td></tr><tr><td><code>computeDiversityScore(args)</code></td><td>영양 점수 단일 진입점: 다양성 base + 게이트캡 − 가공 − 반복 (집/기관 분리)</td></tr><tr><td><code>computeTimeseries(byDate, menuFreq, catOf, today, opts)</code></td><td>추세 사실 문장(채소 N일째 없음·반복 메뉴) — LLM 날짜 추정 차단</td></tr><tr><td><code>evaluateSnacks(args)</code></td><td>간식 종합 평가→SnackEval|null (초가공·가당·간섭성·stance·좋은간식)</td></tr><tr><td><code>snackEvalToPrompt(ev, rotate)</code></td><td>SnackEval→편지용 한 블록 문자열(체중 단어 금지·예시 로테이션)</td></tr><tr><td><code>goodSnackSuggestions(stance, reds, rotate)</code></td><td>stance+결핍→좋은 간식 4종(질식 조리표시 보존·중복제거)</td></tr><tr><td><code>isProcessed(name)</code></td><td>메뉴명→초가공(ultra)/가공육(cured) 판정 정규식. snack 엔진도 재사용</td></tr></table></div>
-</section>
-
-<section id="io"><div class="sec-h"><span class="no">3</span><h2>입력 / 출력 예시</h2></div>
-<p class="lead">📥 <b>computeSignals=날짜별 식재료 2차원 배열+catOf, evaluateSnacks=meal_logs SnackRow[]+BmiBand+결핍영양소 reds(computeSignals 산출)</b></p>
+<!-- ───────────────────────── ④ 작동 예시 ───────────────────────── -->
+<section id="example"><div class="sec-h"><span class="no">④</span><h2>작동 예시 — 아린 실데이터 before / after</h2></div>
+<p class="lead">아린(5세) 최근 5일 집/기관 식재료 → 이 모듈 통과 → 손에 닿는 출력. 두 케이스로 비교한다.</p>
 <div class="io">
-<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>// computeSignals — 아린(5세) 최근 5일 집/기관 식재료(날짜별)
-computeSignals(
-  [
-    ["쌀", "소고기", "계란", "감자", "미역"],
-    ["쌀", "계란", "김치", "두부"],
-    ["쌀", "소고기", "감자", "양파"],
-    ["쌀", "계란", "미역", "당근"],
-    ["쌀", "닭고기", "감자", "김치"]
-  ],
-  catOf   // ingredients-light.json cat 조회 함수
-)
+<div class="iobox inp"><div class="iol">📥 INPUT</div><div class="codeblk"><pre>// computeSignals — 아린(5세) 최근 5일 식재료(날짜별)
+computeSignals([
+  ["쌀","소고기","계란","감자","미역"],
+  ["쌀","계란","김치","두부"],
+  ["쌀","소고기","감자","양파"],
+  ["쌀","계란","미역","당근"],
+  ["쌀","닭고기","감자","김치"],
+], catOf)
 
-// evaluateSnacks — 같은 아이의 meal_logs 행 + 체격밴드 + reds
+// evaluateSnacks — 같은 아이 meal_logs + 밴드 + reds
 evaluateSnacks({
   rows: [
-    { slot: "pm_snack", log_date: "2026-06-15", menus: ["초코우유", "과자"], ingredients: [], ate_well: true, meal_time: 15.5 },
-    { slot: "dinner",   log_date: "2026-06-15", menus: ["밥","미역국"], ingredients: ["쌀","미역"], ate_well: false, meal_time: 18.5 },
-    { slot: "am_snack", log_date: "2026-06-16", menus: ["바나나"], ingredients: [], ate_well: true, meal_time: 10.5 }
+   {slot:"pm_snack",log_date:"2026-06-15",
+    menus:["초코우유","과자"],ingredients:[],
+    ate_well:true,meal_time:15.5},
+   {slot:"dinner",log_date:"2026-06-15",
+    menus:["밥","미역국"],ingredients:["쌀","미역"],
+    ate_well:false,meal_time:18.5},
   ],
-  band: "정상",
-  reds: ["오메가3", "비타민D", "철"]   // computeSignals의 red 영양소
-})</pre></div></div>
-<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// computeSignals → NutrientSignal[] (KEY 15종, 일부 발췌)
-[
-  { "nutrient": "단백질",  "daysCovered": 5, "level": "green" },
-  { "nutrient": "철",     "daysCovered": 4, "level": "green" },
-  { "nutrient": "비타민A", "daysCovered": 1, "level": "yellow" },
-  { "nutrient": "오메가3", "daysCovered": 0, "level": "yellow" },
-  { "nutrient": "비타민D", "daysCovered": 0, "level": "yellow" },
-  { "nutrient": "요오드",  "daysCovered": 2, "level": "green" }
-]
-// → cron: reds = level==='red'인 nutrient만 추출 → CoachSignals.reds + evaluateSnacks 입력
+  band:"정상",
+  reds:["오메가3","비타민D","철"],
+})
+
+// macro 트랙 입력(EnrichContext 발췌)
+band: "정상",  heightTrack: null,  weightTrack: null
+// ↑ growth_logs 2점 없음 → growthTracking=null</pre></div></div>
+<div class="iobox out"><div class="iol">📤 OUTPUT</div><div class="codeblk"><pre>// computeSignals → NutrientSignal[] (발췌)
+[{nutrient:"단백질",daysCovered:5,level:"green"},
+ {nutrient:"철",    daysCovered:4,level:"green"},
+ {nutrient:"비타민A",daysCovered:1,level:"yellow"},
+ {nutrient:"오메가3",daysCovered:0,level:"yellow"}]
+// computeGroupSignals: 콩류 weeklyEst≈1.4
+//   → rotation·0회 아님 → yellow (0회였다면 red)
 
 // evaluateSnacks → SnackEval
-{
-  "snackEntries": 3, "snackDays": 2,
-  "ultraCount": 1, "sugaryCount": 0, "goodCount": 1,
-  "ultraExamples": ["과자"],
-  "interference": [{ "date": "2026-06-15", "snackSlot": "pm_snack", "mealSlot": "dinner", "gapH": 3, "kind": "ultra" }],
-  "topInterferedMeal": "저녁",
-  "stance": "maintain", "band": "정상",
-  "reds": ["오메가3","비타민D","철"],
-  "goodSuggestions": ["치즈","삶은 계란","두유","과일"],
-  "concern": true,
-  "summary": "간식 3끼(2일) · 초가공 1 · 통식품 1 · 식사간섭 1 · 방향:maintain(정상)"
-}
-// → snackEvalToPrompt(ev) → LetterInput.snackEval(문자열 블록) → coach.ts 프롬프트</pre></div></div>
+{ultraCount:1, interference:[{date:"2026-06-15",
+  mealSlot:"dinner",gapH:3,kind:"ultra"}],
+ stance:"maintain", band:"정상",
+ goodSuggestions:["치즈","삶은 계란","두유","과일"]}
+
+// buildMacroTrack(band:정상,tracks:null)
+{active:false, reason:null, boostGroups:[],
+ phrase:null, cadenceWeek:false}   // ← macro 잠
+
+// → LetterInput.growthMirror = null  (macroPhrase·격주거울 둘 다 null)
+// → coach.ts growthBlock = ''  (성장 구절 0)</pre></div></div>
 </div>
-<div class="callout">📤 <b>전달</b> — reds→CoachSignals.reds(두뇌)·간식추천 앵커. SnackEval→snackEvalToPrompt→CoachContext(LetterInput).snackEval 한 블록으로 손(편지)에 합쳐짐. KDRI/그룹/다양성 신호등은 홈 UI(데이터)로</div>
+
+<div class="callout"><b>CASE 1 — 정상 체격 아린 (현 라이브 실측)</b><br>
+<b>거울줄(손에 닿음·라이브)</b>: <code>buildMirrorSchedule</code>이 콩류 결핍을 잡아 슬롯에 박고, 편지는 →<br>
+<span style="color:var(--g700);font-weight:700">"소고기·계란은 잘 챙기고 있어요. 집 끼니에 콩류(두부조림 같은 걸로)를 한 번씩 곁들이면 다양성이 좋아져요."</span><br>
+<b>성장줄(DEAD)</b>: <code>growthMirror=null</code> → growthBlock 빈 채 발행. <span style="color:#B43232;font-weight:700">성장·BMI 토큰 0개.</span> 이게 랄프위검 24/24의 실태다.</div>
+
+<div class="callout" style="background:#FBEBEB;border-color:#E5A6A6"><b>CASE 2 — 만약 아린이 저체중이었다면 (코드상 의도된 동작)</b><br>
+입력에 <code>band:"저체중"</code>(또는 weightTrack.status:"주의")만 바뀌면:<br>
+• <code>buildMacroTrack</code> → <code>active:true·reason:"lowWeight"·boostGroups:["고기·계란","콩류","유제품"]·phrase:"또래보다 가벼운 편이라 끼니 양과 단백질·열량(고기·계란·콩·유제품)을 평소보다 조금 더…"</code><br>
+• <code>enrichWeeklyPlan</code>이 supplyPool 앞에 고기·계란/콩류/유제품 식재료 주입 → 추천 타깃이 결핍 다양성에서 <b>탄단지 보강</b>으로 전환<br>
+• 격주(<code>cadenceWeek</code>)인 주에 한해 mirrorSchedule[3]에 macro 구절 박제 → 그날 편지 본문에 성장 nudge 한 구절<br>
+<b>그러나</b> 이 분기는 실데이터에서 거의 점화되지 않는다 — band 산출에 필요한 growth_logs 측정이 비어 대부분 band=null/정상으로 떨어지기 때문(⑤ 천장).</div>
 </section>
 
-<section id="cc"><div class="sec-h"><span class="no">4</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
-<p class="lead">이 모듈이 채우는 <code>CoachContext</code> 필드(통합 아키텍처 §3 데이터 계약):</p>
-<div class="chips"><span class="chip">signals.reds (CoachSignals — computeSignals red)</span><span class="chip">signals.homeReds</span><span class="chip">signals.missing / homeMissing (computeFoodGroups)</span><span class="chip">signals.timeseries (computeTimeseries)</span><span class="chip">snackEval (LetterInput — snackEvalToPrompt 블록)</span><span class="chip">letterCtx.snack (어드민 SnackEval.summary 스냅샷)</span><span class="chip">홈 UI: kdri/groupSig/diversityScore (data)</span></div>
+<!-- ───────────────────────── ⑤ 남은 문제 ───────────────────────── -->
+<section id="todo"><div class="sec-h"><span class="no">⑤</span><h2>남은 문제점 · 해야할 일 — 랄프위검 실측 천장 (연속성 47점, 2026-06-20)</h2></div>
+<div class="meta-row"><span class="mtag ab">연속성 47점</span><span class="mtag fe">천장3 = 이 모듈 소관</span><span class="mtag st">EARNED: 식품군 축·간식 축은 실전 라이브</span></div>
+<p class="lead"><b>EARNED(사실)</b> — 식품군 8분류 신호등·결핍 거울줄·간식 stance·다양성 점수·집/기관 분리·질식 가드는 실측상 매일 손에 닿아 작동한다. macro/성장 <b>코드</b>(buildMacroTrack·growthTracking·growthBlock 배선)도 깔려 있다. 아래는 미화 없이 정직한 천장.</p>
+
+<div class="tbl"><table>
+<tr><th style="width:22%">증상</th><th style="width:38%">근본원인</th><th style="width:32%">해야할일</th><th>owner</th></tr>
+<tr>
+<td><b>[천장3] macro/성장 트랙 100% DEAD</b> — 발행 24통에 BMI/키/몸무게/percentile 토큰 0. '단백질'은 안심 멘트로만 소비, 성장신호→고기류 타깃 전환 <b>0회</b>. #7 코드는 깔렸으나 본문 점화 0.</td>
+<td>① <code>growthTrackToPhrase</code>(growth-reference:290)가 <b>정상·정보부족이면 null</b>을 반환 → 측정 1점뿐이거나 정상 밴드면 <code>growthBlock</code>이 빈 문자열로 발행. ② 더 근본은 <b>데이터 다리 부재</b>: <code>growthTracking</code>은 firstGrowth+latestGrowth 2점(≥1개월 간격)을 요구하는데, 실제 <code>growth_logs</code>에 2점 쌓인 자녀가 거의 없어 track=null/정보부족으로 떨어짐. <b>P0-D(<code>child_daily_state</code>)는 환경신호 전용이라 성장신호 다리가 아님.</b></td>
+<td><b>성장지표 데이터 다리 신설</b> — care 앱에서 키·몸무게 입력 유도(온보딩+주기 리마인드)로 growth_logs 2점 확보 경로를 명시 배선. 1점만 있는 자녀는 절대량(BMI 밴드)만이라도 살리도록 <code>growthTrackToPhrase</code>의 band 분기를 측정 1점에서도 쓰게 게이팅 분리(정보부족은 track만 보류·band는 살림).</td>
+<td><b>P0</b> · 코칭엔진(route+growth-reference)</td>
+</tr>
+<tr>
+<td><b>결핍 모델이 식품군 다양성 축에만 편향</b> — 칼로리·단백질·지방 절대량(성장 연료) 차원이 진단에서 통째로 빠짐.</td>
+<td><code>computeGroupSignals</code>/<code>computeDiversityScore</code>가 전부 <b>'며칠 닿았나'(빈도·다양성)</b> 축. 단백질도 <code>proteinOk</code>(매일≥1군 닿음)로만 보고 <b>총량·열량</b>은 안 봄. BMI/percentile이 진단(reds·missing) 산출로 흐르는 다리가 없음 — macro는 enrichWeeklyPlan 부가 트랙에만 있고 핵심 신호 산출에 안 섞임.</td>
+<td><b>저체중/성장더딤 분기 강화</b> — band='저체중' 또는 track.status∈{주의,경고}이면 reds/supplyPool 산출 단계에서 결핍 다양성군 대신 <b>고기류(단백·지방) 타깃을 1차 후보로</b> 승격(현재 enrichWeeklyPlan:526에 supplyPool 주입은 있으나, 두뇌 시나리오·reds까지는 안 닿음 → 시나리오 게이트에도 macro 분기 추가).</td>
+<td><b>P1</b> · 코칭엔진(coachScenarios+route)</td>
+</tr>
+<tr>
+<td><b>'끼니 30분 전 간식·우유·주스 멈춤' 무브가 BMI 무관 blind 4회</b> — 저체중 아이엔 총칼로리를 깎아 macro 목표와 정반대.</td>
+<td>간식 절제·식사 간섭 무브 셀렉터가 <code>snackStance</code>/macro의 <code>snackRestraint</code>를 안 봄. 저체중(encourage)인데도 칼로리-차단 무브가 발동. evaluateSnacks의 stance는 산출되나 <b>무브 선택 게이트에 stance/band 가드가 없음</b>.</td>
+<td><b>무브 셀렉터 BMI 가드</b> — 칼로리-차단 무브(끼니 전 간식 멈춤·우유 줄이기)는 저체중/성장더딤(macro.snackRestraint=false)이면 억제, 과체중/비만(snackRestraint=true)이면 강화. snackStance를 무브 셀렉터 입력으로 연결.</td>
+<td><b>P1</b> · 코칭엔진(coach 무브 게이트)</td>
+</tr>
+<tr>
+<td><b>거울 앵무새 잔여(비대칭 해소됨·완전 종결 아님)</b></td>
+<td>단일 결핍 격일 쿨다운(#5·K-04b)·문장틀 3변형 회전·macro 슬롯 격주는 라이브. 다만 추천풀이 협소(콜드스타트 Tier2·두부5/달걀6)해 같은 식재료가 회전 풀로 재등장하는 잔여 반복.</td>
+<td>추천풀 확장(Tier3 youa 큐레이션·앵커 다양화)으로 거울 dish 다양성 확보. care 5단계 실데이터 누적 시 자연 완화.</td>
+<td>P2 · 추천엔진(②)·food-mapping</td>
+</tr>
+</table></div>
+
+<div class="callout"><b>🔑 이 모듈이 근본적으로 무엇을 바꿔야 하는가</b> — ④의 진짜 숙제는 <b>두 진단 축을 대등하게 굴리는 것</b>이다. 축1(식품군 다양성)은 산다. 축2(체격·성장 연료=macro)는 코드는 깔렸으나 <b>데이터 다리가 비어</b> 실전에서 잠잔다. 우선순위 한 줄: ① growth_logs 2점 확보 경로(데이터 다리)를 만들고, ② 1점·정상에서도 band 절대량만이라도 살려 성장 nudge가 점화되게 하며, ③ 저체중/성장더딤이면 reds·시나리오·무브 게이트까지 macro로 분기시켜 '단백질 안심 멘트'가 아니라 '고기류 타깃 전환'이 실제로 일어나게 한다.</div>
+
+<div class="note"><b>🧒 쉬운말 요약</b> — 지금 편지는 '오늘 먹은 음식 종류가 골고루였나(식품군)'는 매일 잘 말하는데, '키·몸무게가 또래 곡선을 잘 따라가는지(성장)'는 코드는 다 만들어 놓고도 한 번도 못 말합니다. 이유는 단순합니다 — 부모가 앱에 키·몸무게를 두 번(한 달 간격) 안 넣으면 엔진이 성장을 판단할 재료가 없어 입을 닫아버립니다. 그래서 ① 키·몸무게를 모으는 길을 터주고, ② 한 번만 재도 '또래보다 가벼운 편'은 말해주고, ③ 마른 아이한텐 '간식 줄이기' 같은 칼로리 깎는 잔소리를 막고 고기·계란·콩을 권하게 바꾸는 게 이 모듈의 숙제입니다.</div>
 </section>
 
-<section id="guard"><div class="sec-h"><span class="no">5</span><h2>가드 — 괴식·환각·안전 차단</h2></div>
-<ul class="clean"><li>빈도 평가 명시(정량 g 아님) — '며칠 커버' 기반, 과대 단정 금지</li><li>데이터 가드: 기록&lt;3일이면 신호 보류(yellow/reference), 기록&lt;5일이면 red 보류, 비타민D는 빈도 red 비활성(보충제 영양소)</li><li>빗대기 안전망: 미매핑 식재료를 '모름'으로 비우지 않고 카테고리 근사 / KDRI 미매핑은 reference(가짜 빨강 방지)</li><li>KDRI 제외 5종(나트륨·에너지·수분·불소·크롬) — 결핍 걱정 없는 항목 신호화 안 함</li><li>환각 차단: computeTimeseries가 날짜 사실만 계산해 LLM 추정 방지, assertNoVeg는 catOf 신뢰 시에만 '채소 없음' 단정(P4)</li><li>질식 안전: 간식 추천에 (반으로 잘라)·(익혀·강판)·(잘게) 조리표시 보존 — coach.ts 프롬프트가 통째 표현으로 못 바꾸게</li><li>체중 민감 가드: snackStance/snackEvalToPrompt가 체중·살·다이어트·BMI 단어 금지, 방향(stance)만 노출</li><li>가공/반복 패널티 과잉처벌 방지: 끼니 3건 미만이면 미적용, 상한(가공22·반복12), 흰쌀밥·김치·국 등 주식 제외</li><li>daycareMode: 점심 급식만 평가하는 기관이 과일·유제품 결핍으로 부당 감점되지 않게 제외</li></ul>
+<!-- ───────────────────────── 문헌·이론 근거 (흡수 보존) ───────────────────────── -->
+<section id="lit"><div class="sec-h"><span class="no" style="font-size:12px">📖</span><h2>문헌 · 이론 근거 (실구현 적용)</h2></div>
+<div class="tbl"><table><tr><th style="width:30%">이론 · 문헌</th><th>어떻게 적용하나</th></tr>
+<tr><td><b>보건복지부 「2025 한국인 영양소 섭취기준(KDRI)」</b></td><td>36종 영양소의 연령대별(만1-2/3-5/6-8세) 권장 기준치를 <code>KDRI_VAL_BY_AGE</code>로 상수화해 모달 표시·신호등 밴드 근거로 사용</td></tr>
+<tr><td><b>농촌진흥청 국가표준식품성분표 10.4</b></td><td>식재료별 100g당 1일 권장 15%↑를 '공급원'으로 보는 정밀 영양맵(<code>GEN_NUTRI</code>)을 빗대기 대신 1차 출처로 사용</td></tr>
+<tr><td><b>식약처 영유아 식생활지침 / WHO 8식품군</b></td><td>'매끼 곡류·단백질·채소, 매일 우유·과일'을 <code>GROUP_TARGET</code>(매일군 주5·로테이션군)으로 코드화</td></tr>
+<tr><td><b>질병관리청 「2017 소아청소년 성장도표」</b></td><td>신장·체중·BMI for-age LMS를 <code>kdca-growth-lms.json</code>으로 박제(P3/P50/P97 골든·vitest 384). WHO 아님(만3세+ 국내값 상이·24mo 미만 WHO 폴백)</td></tr>
+<tr><td><b>성장곡선 추종 모델(z/SDS 채널)</b></td><td>첫 측정으로 백분위 채널을 잡고 z 하향 이탈로 주의(−0.67)/경고(−1.34) — 절대 위치 아니라 '자기 곡선 유지'를 봄. 가정 측정 노이즈는 측정간격&lt;1개월='정보부족'으로 보류</td></tr>
+<tr><td><b>Satter 식사 구조화(division of responsibility)</b></td><td>식간 군것질·단 음료가 끼니 식욕을 떨어뜨린다는 원리로 간식 직후 끼니를 덜 먹은 '식사 간섭성' 판정</td></tr>
+<tr><td><b>영양 신호등 자체 근거 보고서</b></td><td>체내 저장·식품 분포·결핍 위험 3축으로 매일/자주/가끔 밴드(green 문턱 5/4/2일)를 정함</td></tr>
+</table></div>
+</section>
+
+<!-- ───────────────────────── 가드 (흡수 보존) ───────────────────────── -->
+<section id="guard"><div class="sec-h"><span class="no" style="font-size:12px">🛡️</span><h2>가드 — 괴식·환각·안전 차단 (실구현)</h2></div>
+<ul class="clean">
+<li>빈도 평가 명시(정량 g 아님) — '며칠 커버' 기반, 과대 단정 금지</li>
+<li>데이터 가드: 기록&lt;3일이면 신호 보류(yellow/reference), 기록&lt;5일이면 red 보류, 비타민D는 빈도 red 비활성(보충제 영양소)</li>
+<li>빗대기 안전망: 미매핑 식재료를 '모름'으로 비우지 않고 카테고리 근사 / KDRI 미매핑은 reference(가짜 빨강 방지)</li>
+<li>KDRI 제외 5종(나트륨·에너지·수분·불소·크롬) — 결핍 걱정 없는 항목 신호화 안 함</li>
+<li>환각 차단: <code>computeTimeseries</code>가 날짜 사실만 계산해 LLM 추정 방지, <code>assertNoVeg</code>는 catOf 신뢰 시에만 '채소 없음' 단정(P4)</li>
+<li>질식 안전: 간식 추천에 (반으로 잘라)·(익혀·강판)·(잘게) 조리표시 보존 — 작문기가 통째 표현으로 못 바꾸게</li>
+<li>체중 민감 가드: <code>snackStance</code>·<code>snackEvalToPrompt</code>·<code>growthTrackToPhrase</code> 모두 체중·살·다이어트·BMI·숫자·퍼센타일·등급 단어 금지, 방향(stance)·비수치 문구만 노출. growthBlock 지침도 동일 금지어 강제(coach.ts:789)</li>
+<li>가공/반복 패널티 과잉처벌 방지: 끼니 3건 미만 미적용, 상한(가공22·반복12), 흰쌀밥·김치·국 등 주식 제외</li>
+<li>daycareMode: 점심 급식만 평가하는 기관이 과일·유제품 결핍으로 부당 감점되지 않게 제외</li>
+<li>성장 잔소리 저빈도: 성장 거울은 <b>격주(13일 쿨다운)</b>, macro 슬롯은 <code>cadenceWeek=arcWeek%2===0</code>(2주 연속 금지) — 측정 저빈도 존중</li>
+</ul>
+</section>
+
+<!-- ───────────────────────── CoachContext 전달 ───────────────────────── -->
+<section id="cc"><div class="sec-h"><span class="no" style="font-size:12px">🔗</span><h2>CoachContext 전달 — 🧠 뇌 + ✍️ 손 양쪽</h2></div>
+<p class="lead">이 모듈이 채우는 컨텍스트 키:</p>
+<div class="chips"><span class="chip">signals.reds (computeSignals red)</span><span class="chip">signals.homeReds</span><span class="chip">signals.missing / homeMissing (computeFoodGroups)</span><span class="chip">signals.timeseries (computeTimeseries)</span><span class="chip">snackEval (snackEvalToPrompt 블록)</span><span class="chip">growthMirror (macroPhrase ?? growthMirrorCtx → growthBlock)</span><span class="chip">plan_detail.macroTrack / mirrorSchedule (enrichWeeklyPlan)</span><span class="chip">홈 UI: kdri/groupSig/diversityScore (data)</span></div>
 </section>
 
 </main>
 <footer>
 밀프레드 코칭 엔진 모듈 명세 · ④ 영양평가 레이어 (신호등·간식)<br>
-🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a><br>
-코드 근거: nutrition.ts · snack.ts · 2026-06-17
+🗺️ <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> · 다른 모듈: <a href="/coach-module-signal-selector.html">① 신호선택기</a> · <a href="/coach-module-reco-engine.html">② 추천엔진</a> · <a href="/coach-module-facts-mirror.html">③ 사실·거울</a> · <a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a> · <a href="/coach-module-writer.html">⑥ 작문기</a> · <a href="/coach-module-graph-query.html">⑦ 네트워크</a> · <a href="/coach-module-weekly-planner.html">⑧ 주간계획</a><br>
+코드 근거: nutrition.ts · snack.ts · growth-reference.ts · coachWeekly.ts · cron/coach/route.ts · 2026-06-20 (랄프위검 연속성 47점 반영)
 </footer>
 </body></html>
