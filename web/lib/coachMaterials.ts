@@ -30,15 +30,14 @@ export const GIO_FREQ: Record<string, { freq: number; pct: number }> = {
 //   GIO_FREQ(인계서 실측 스냅샷)는 라이브가 침묵하는 키의 폴백으로만 유지 — 겹치는 키 값이 동일해 골든은 그대로 그린.
 const LIVE_FREQ = LIVE_ING_FREQ as Record<string, { freq: number; rank?: number; topPct: number }>;
 
-// ⭐ 런타임 리밸런싱 warm(이사님 2026-06-19) — graphSource.warmGraphFromSql와 동형. 새벽 coach 크론이 1회 호출하면
-//   '급식·기록에 식재료가 등장한 빈도'를 다시 세서 **메모리 캐시**를 교체한다(재배포 0).
-//   ⭐ 소스 두 곳(OCR이 둘로 갈림 — 이사님 지적): 둘 다 이미 ingredients[]로 분해돼 있어 그대로 합산.
-//      ① institution_menu_items — '내가 긁어 입력한 급식 식단표'(daycare-eval OCR)가 적재되는 곳(meal_logs 아님!). 급식 출현의 순수 신호.
-//      ② meal_logs — 부모 수기 입력 + care 페이지 OCR이 적재되는 아동 실기록(반복 포함). remap 크론이 ingredients 정제.
-//      (learned_menus는 메뉴→식재료 '사전'·중복제거라 유입돼도 거의 안 늘어 빈도 신호로 부적합 → 제외.)
-//   ⭐ 핵심: 정적 파일(ingredient-freq.json)·GIO_FREQ는 무변경이라 **I-01-9 불변식이 그대로 그린**(파일 키우는 방식의 충돌 회피).
-//   한쪽 테이블 실패/빈약해도 다른 쪽으로 degrade, 합산도 빈약하면 스냅샷 유지. ⚠️ 배선: 크론 라우트(다른 세션)가
-//   `await warmIngredientFreqFromSql(supabase)` 1줄 추가해야 동작(옵트인). 미배선 시 _observedFreq=null → 라이브/GIO 폴백(현행 동일).
+// ⭐ 런타임 리밸런싱 warm(이사님 2026-06-19 · 06-20 (기관,월) dedup 확정) — graphSource.warmGraphFromSql와 동형.
+//   새벽 coach 크론이 1회 호출하면 '급식 식단표에 식재료가 등장한 빈도'를 다시 세서 **메모리 캐시**를 교체한다(재배포 0).
+//   ⭐ 소스 = institution_menus(3경로 수렴 후 단일 진실) → institution_menu_items.ingredients[](이미 분해됨).
+//   ⭐ (기관,월) dedup(2ⓑ·3ⓐ): institution_menu_id(=기관-월 1벌) 단위로 식재료를 모아 '등장한 기관-월 수'를 센다.
+//      같은 기관-월의 여러 끼니 중복은 1회만(인기 어린이집 과대계상 방지). meal_logs(개인·집밥)는 제외 —
+//      집밥은 3ⓐ로 빼고, 기관 급식(경로3)은 institution_menus로 수렴되므로 한 곳에서만 센다.
+//   ⭐ 핵심: 정적 파일(ingredient-freq.json)·GIO_FREQ 무변경 → I-01-9 불변식 그대로 그린. 빈약(기관-월<3·식재료<20)이면 스냅샷 유지(safe degrade).
+//   ⚠️ 배선: 크론 라우트가 `await warmIngredientFreqFromSql(supabase)` 1줄 추가 시 동작(옵트인). 미배선 시 라이브/GIO 폴백(현행 동일).
 const SEASONING = new Set(('마늘 파 대파 쪽파 실파 소금 간장 진간장 설탕 흑설탕 물엿 조청 고춧가루 참깨 깨소금 참기름 들기름 콩기름 식용유 카놀라유 포도씨유 올리브유 후추 후춧가루 식초 맛술 미림 청주 정종 생강 고추장 된장 쌈장 춘장 올리고당 꿀 전분 녹말 감자전분 밀가루 부침가루 튀김가루 빵가루 케첩 마요네즈 굴소스 액젓 멸치액젓 까나리액젓 새우젓 고추 청양고추 홍고추 풋고추 깨 들깨 미원 다시다 식소다 베이킹파우더 이스트 물 육수 버터 마가린').split(' '));
 type FreqQueryable = { from: (t: string) => { select: (c: string) => PromiseLike<{ data: unknown; error: unknown }> } };
 let _observedFreq: Record<string, { freq: number; pct: number }> | null = null;
@@ -47,36 +46,39 @@ export function isFreqWarmed(): boolean { return _observedFreq !== null; }
 /** 런타임 warm 캐시 초기화(테스트/운영 캐시 무효화용). */
 export function resetIngredientFreqWarm(): void { _observedFreq = null; }
 /**
- * 새벽 크론용 SQL warm — institution_menu_items(급식 식단표 OCR) + meal_logs(부모/care 실기록)의 ingredients[]를
- * 식재료별 등장빈도로 집계해 메모리 캐시 교체(재배포 0·정적파일 무변경). 둘 다 '등장 1회'로 합산(테이블당 graceful).
- * 동률 안전 순위→상위%(pctToScore와 동일 축·작을수록 흔함). SEASONING 제외. 합산 20종 미만이면 빈약→스냅샷 유지(safe degrade).
- * ⚠️ supabase 단일 select는 1000행 상한 — 최근 표본 상대빈도(리밸런싱 신호로 충분). 전수/기간창은 집계 뷰·RPC나 크론측 .gte가 더 정확(후속).
+ * 새벽 크론용 SQL warm — institution_menu_items를 (기관,월)=institution_menu_id 단위로 dedup해
+ * 식재료별 '등장한 기관-월 수'를 집계, 메모리 캐시 교체(재배포 0·정적파일 무변경).
+ * 동률 안전 순위→상위%(pctToScore와 동일 축·작을수록 흔함). SEASONING 제외. 기관-월<3 또는 식재료<20이면 스냅샷 유지(safe degrade).
+ * ⚠️ supabase 단일 select는 1000행(item) 상한 — 최근 표본. 전수/기간창은 집계 뷰·RPC나 크론측 .gte(month)가 더 정확(후속).
  */
 export async function warmIngredientFreqFromSql(db: FreqQueryable): Promise<{ ok: boolean; count: number; reason?: string }> {
-  const counts: Record<string, number> = {};
-  const tally = (rows: unknown): void => {
-    if (!Array.isArray(rows)) return;
-    for (const row of rows as Array<{ ingredients?: unknown }>) {
-      const arr = Array.isArray(row?.ingredients) ? row.ingredients : [];
-      const uniq = new Set(arr.filter((x): x is string => typeof x === 'string' && !!x.trim() && !SEASONING.has(x.trim())).map((x) => x.trim()));
-      for (const ing of uniq) counts[ing] = (counts[ing] || 0) + 1;
-    }
-  };
-  // 급식 식단표 + 실기록 — 한쪽 테이블이 없거나 실패해도 다른 쪽으로 degrade.
-  for (const table of ['institution_menu_items', 'meal_logs']) {
-    try { const { data, error } = await db.from(table).select('ingredients'); if (!error) tally(data); } catch { /* graceful — 다른 소스로 */ }
+  let rows: Array<{ institution_menu_id?: unknown; ingredients?: unknown }> = [];
+  try {
+    const { data, error } = await db.from('institution_menu_items').select('institution_menu_id,ingredients');
+    if (!error && Array.isArray(data)) rows = data as typeof rows;
+  } catch { /* graceful */ }
+  // (기관,월) dedup — institution_menu_id별 식재료 합집합(같은 기관-월의 끼니 중복은 1회).
+  const perMenu = new Map<string, Set<string>>();
+  for (const r of rows) {
+    const key = typeof r.institution_menu_id === 'string' ? r.institution_menu_id : '';
+    if (!key) continue;   // 고아 행(키 없음) 무시
+    let set = perMenu.get(key); if (!set) { set = new Set(); perMenu.set(key, set); }
+    const arr = Array.isArray(r.ingredients) ? r.ingredients : [];
+    for (const x of arr) if (typeof x === 'string' && x.trim() && !SEASONING.has(x.trim())) set.add(x.trim());
   }
+  const groups = perMenu.size;   // 기관-월 수(=등장률 분모)
+  const counts: Record<string, number> = {};
+  for (const set of perMenu.values()) for (const ing of set) counts[ing] = (counts[ing] || 0) + 1;
   const entries = Object.entries(counts);
-  if (entries.length < 20) return { ok: false, count: entries.length, reason: 'sql too sparse — kept snapshot' };   // 안전 게이트
+  if (groups < 3 || entries.length < 20) return { ok: false, count: entries.length, reason: `sql too sparse (기관-월 ${groups}) — kept snapshot` };
   const all = entries.map(([, c]) => c);
-  const total = entries.length;
   const next: Record<string, { freq: number; pct: number }> = {};
   for (const [ing, c] of entries) {
     const rank = all.filter((x) => x > c).length + 1;   // 동률 안전(엄격히 큰 것 +1)
-    next[ing] = { freq: c, pct: Math.max(1, Math.round((rank / total) * 100)) };
+    next[ing] = { freq: c, pct: Math.max(1, Math.round((rank / entries.length) * 100)) };
   }
   _observedFreq = next;
-  return { ok: true, count: total };
+  return { ok: true, count: groups };
 }
 /** 식재료의 급식빈도 메타. 런타임 warm(매일 리밸런싱) → 라이브 ingredient-freq.json → GIO_FREQ 스냅샷 → 미상 {0,100}(최하). */
 export function ingredientGioFreq(nm: string): { freq: number; pct: number } {
