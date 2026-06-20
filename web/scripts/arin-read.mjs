@@ -24,6 +24,7 @@ const out = rows.map((r) => {
     planSlot: c.planSlot ? `슬롯${c.planSlot.slotIndex}·${c.planSlot.ingredient}(${c.planSlot.track})${c.planSlot.dishes?.length ? '→'+c.planSlot.dishes.join('/') : ''}${c.planSlot.macro ? '·macro' : ''}${c.planSlot.mirrorKind ? '·거울:'+c.planSlot.mirrorKind : ''}` : null,
     stepStory: c.weekly?.arc?.stepStory ? `${c.weekly.arc.stepStory.mode}·${c.weekly.arc.stepStory.stepNum}/${c.weekly.arc.stepStory.totalSteps}단·${c.weekly.arc.stepStory.unitDays}일째${c.weekly.arc.stepStory.nextBehavior ? `·다음:${c.weekly.arc.stepStory.nextBehavior.slice(0,14)}` : ''}` : null,
     mirror: c.weekly?.arc?.progressNote || null,
+    mirrorShown: c.mirrorShown === true ? '노출' : (c.mirrorShown === false ? '생략' : '-'),   // ⭐ 영양거울 출현빈도 쿨다운(2026-06-20) — '어린이집 덕에…' 격일화 검증
     move: c.plan?.move || null,
     oneliner: r.oneliner,
     letter: r.letter,
@@ -34,7 +35,7 @@ if (JSON_OUT) { console.log(JSON.stringify(out, null, 1)); process.exit(0); }
 
 for (const r of out) {
   console.log(`\n━━ ${r.date}  [${r.curriculum || '-'} · ${r.scenario || '-'} · arc:${r.arcStage || '-'} · lever:${r.lever || '-'}]`);
-  console.log(`   행동목표: ${r.behaviorGoal || '-'} · 무브: ${r.move || '-'} · 추천: ${r.recoIng || '-'}${r.stepStory ? ` · 📈step:${r.stepStory}` : ''}${r.planSlot ? `\n   🎚️주간슬롯: ${r.planSlot}` : ''}`);
+  console.log(`   행동목표: ${r.behaviorGoal || '-'} · 무브: ${r.move || '-'} · 추천: ${r.recoIng || '-'} · 거울:${r.mirrorShown}${r.stepStory ? ` · 📈step:${r.stepStory}` : ''}${r.planSlot ? `\n   🎚️주간슬롯: ${r.planSlot}` : ''}`);
   console.log(r.letter);
 }
 console.log(`\n총 ${out.length}통.`);

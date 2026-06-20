@@ -19,7 +19,7 @@ import { revalidateTag } from 'next/cache';
 import { createSupabaseServer, createSupabaseAdmin } from '@/lib/supabase/server';
 import { sendCoachLetterPreview, sendReengage, alimtalkReady } from '@/lib/sens';
 import { computeSignals, computeFoodGroups, computeTimeseries, computeGroupSignals, groupOf } from '@/lib/nutrition';
-import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, metaInputNudge, letterSimilarity, resetUsage, getUsage, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, NO_FOOD_ACTION_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
+import { generateLetter, generateOnboardingLetter, generateQuestion, icfqForDate, isIcfqRisk, pickTip, pickQuestionTopic, sanitizeRefusals, cleanRefusal, composeLetter, planFor, structuredTip, metaInputNudge, letterSimilarity, mirrorCooldownDue, resetUsage, getUsage, SLOT_LABEL, SNACK_CHANNEL, STRUCTURAL_FRAMES, NO_FOOD_ACTION_FRAMES, type CoachPlan, type StructuredSig, type Place, type LoggedFood } from '@/lib/coach';
 import { periodMetrics, isoWeekKey, monthKey, quarterKey, halfKey, yearKey, type ProgressRow } from '@/lib/progress';
 import { kstToday, kstDateNDaysAgo } from '@/lib/date';
 import { backfillUnmappedMenus, type BackfillResult } from '@/lib/remapMenus';
@@ -164,6 +164,7 @@ export async function GET(req: Request) {
     const recentScenarios: Record<string, string[]> = {};   // 최근 3일 편지가 쓴 scenarioId — 프레임 중복 회피
     const recentPlans: Record<string, CoachPlan[]> = {};     // ⭐ 최근 3일 편지의 구조화 계획(프레임·타깃·무브) — 상태 원장: 의미 중복 회피
     const recentSnackDates: Record<string, string[]> = {};   // ⭐ 간식 멘트를 노출한 최근 날짜 — 쿨다운(매일 '과자 대신…' 반복 방지)
+    const recentMirrorShown: Record<string, boolean[]> = {};  // ⭐ 영양거울 노출 여부 이력(최신부터·2026-06-20) — '어린이집 덕에…' 출현빈도 격일화 쿨다운
     const recentWeekKeys: Record<string, string[]> = {};     // ⭐ 최근 편지가 쓴 주간 닻 week_key — '이번 주 첫 편지(intro)' 판정
     const prevArcStage: Record<string, string | null> = {};  // ⭐ 직전 편지의 아크 단계 — reinforce 이틀 연속 방지
     const recentRecoIng: Record<string, string[]> = {};   // ⭐ 최근 편지가 추천한 '식재료'(A 경로) — 주간 풀 일일 회전(같은 식재료 연속 추천 방지)
@@ -173,7 +174,7 @@ export async function GET(req: Request) {
     (recentLetters || []).forEach((l: RecentLetter) => {
       if (!lastLetter[l.child_id]) lastLetter[l.child_id] = l;  // 정렬상 첫 = 최신(재사용 판정용 — 오늘자 포함)
       if (l.letter_date >= today) return;   // 원장(중복 회피 이력)은 '과거' 편지만 — 오늘/미래(QA date 시뮬·force 재실행) 자기참조 차단
-      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; growthShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; brain?: { useFood?: boolean } | null; curriculum?: { unit?: string; mode?: string } | null } | null;
+      const ctx = l.context as { scenarioId?: string; plan?: CoachPlan; snackShown?: boolean; mirrorShown?: boolean; growthShown?: boolean; recoIng?: string | null; weekly?: { weekKey?: string; arc?: { stage?: string } | null } | null; brain?: { useFood?: boolean } | null; curriculum?: { unit?: string; mode?: string } | null } | null;
       if (typeof ctx?.recoIng === 'string' && ctx.recoIng) (recentRecoIng[l.child_id] ||= []).push(ctx.recoIng);
       if (typeof ctx?.brain?.useFood === 'boolean') (recentBrainUseFood[l.child_id] ||= []).push(ctx.brain.useFood);   // ⭐ A-07
       if (ctx?.growthShown) (recentGrowthDates[l.child_id] ||= []).push(l.letter_date);   // ⭐ E-09
@@ -183,6 +184,7 @@ export async function GET(req: Request) {
       if (ctx?.scenarioId) (recentScenarios[l.child_id] ||= []).push(ctx.scenarioId);
       if (ctx?.plan?.signature) (recentPlans[l.child_id] ||= []).push(ctx.plan);
       if (ctx?.snackShown) (recentSnackDates[l.child_id] ||= []).push(l.letter_date);
+      (recentMirrorShown[l.child_id] ||= []).push(!!ctx?.mirrorShown);   // ⭐ 거울 노출 이력(최신부터) — 슬롯 유무 무관히 매 과거편지 1엔트리(쿨다운 격일화)
     });
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
@@ -222,14 +224,15 @@ export async function GET(req: Request) {
     // 기록 공백(P9) 권유가 떠 있는 날엔 안 띄움(권유 중첩 방지). 체위=명확히 미입력, 만성=선택(없으면 안 넣어도 됨 문구).
     const profileNudgeFor = (cid: string): string | null => {
       const k = kidMap[cid]; if (!k) return null;
-      const miss: string[] = [];
-      if (!hasGrowth.has(cid) || !k.sex) miss.push('아직 키·몸무게(와 성별)를 안 알려주셨어요 — 한 번 넣어두시면 또래 대비 성장 곡선과 BMI를 함께 봐드릴 수 있어요');
-      if (!k.chronic || !String(k.chronic).trim()) miss.push('혹시 변비·아토피·장 트러블처럼 신경 쓰이는 게 있다면 알려주시면, 그에 맞는 식이 방향을 코칭에 자연스럽게 반영해드려요(없으면 안 넣으셔도 돼요)');
-      if (miss.length === 0) return null;
       const dayIndex = Math.floor(Date.parse(today) / 86400000);
       let h = 0; for (const c of cid) h = (h + c.charCodeAt(0)) % 997;
-      if ((dayIndex + h) % 4 !== 0) return null;   // 약 4일에 한 번만
-      return miss[(dayIndex + h) % miss.length];   // 여러 개면 날짜별로 돌아가며 하나씩
+      // ⭐ #7 macro input-starvation 해소(이사님 2026-06-20) — 성장데이터(키·몸무게) 없으면 macro 트랙(저체중→고기류↑·이사님 5조건)이 영영 비활성.
+      //   성장 권유를 우선·더 자주(매 3일)·macro 효과 명시로 데이터 유입을 유도한다. 들어오면(hasGrowth) 자동 중단(잔소리 방지).
+      if ((!hasGrowth.has(cid) || !k.sex) && (dayIndex + h) % 3 === 0)
+        return '아직 키·몸무게(와 성별)를 안 알려주셨어요 — 한 번 넣어두시면 또래 대비 성장 곡선·BMI를 함께 봐드리고, 필요하면 단백·지방(고기·계란 등)을 채울 음식도 맞춤으로 권해드려요';
+      if ((!k.chronic || !String(k.chronic).trim()) && (dayIndex + h) % 4 === 0)
+        return '혹시 변비·아토피·장 트러블처럼 신경 쓰이는 게 있다면 알려주시면, 그에 맞는 식이 방향을 코칭에 자연스럽게 반영해드려요(없으면 안 넣으셔도 돼요)';
+      return null;
     };
 
     // 또래 대비 체격 밴드(BMI) — 간식 칼로리 방향(stance)용. 최신 growth_logs 체위 우선, 없으면 children 스냅샷.
@@ -482,6 +485,7 @@ export async function GET(req: Request) {
         let curriculumDecision: DailyDecision | null = null;   // ⭐ F-05 — 오늘 커리큘럼 결정(유닛·step·mode) — behavior_goal·원장·어드민
         let curriculumSummary: string | null = null;   // ⭐ F-15 — 진도 요약(두뇌 참조·주간 표시)
         let snackShownCtx = false;   // ⭐ 오늘 간식 멘트를 실었는지 — 쿨다운 이력(매일 '과자 대신…' 반복 방지)
+        let mirrorShownCtx = false;  // ⭐ 오늘 영양거울을 노출했는지(2026-06-20) — 출현빈도 쿨다운 이력('어린이집 덕에…' 격일화)
         let coachRegen = false;   // 비중복 가드로 재생성됐는지(어드민 검증용)
         let simToPrev: number | null = null;   // ⭐ 발행 직전 자가 측정 — 직전 편지들과 최대 유사도(어드민 반복 모니터·2026-06-11)
         let repeatAlert = false;               // ⭐ 자동 반복 경보 — 직전 2일 동일 시그니처 or 유사도 0.6+ (탐지 자동화 — '사람 제보' 의존 탈피)
@@ -878,11 +882,21 @@ export async function GET(req: Request) {
             const v = [`. 집에선 ${dish} 같은 음식도 가끔 식탁에 올리면 다양성에 좋아요`, `. 여유 될 때 ${dish}도 한 번 만나보면 좋겠어요`, `. ${dish} 같은 것도 가끔 곁들여 폭을 넓혀가면 좋아요`];
             return v[((daySeed % v.length) + v.length) % v.length];
           };
-          const mirrorLineSel = !planSlotCtx ? undefined
+          const _mirrorRaw = !planSlotCtx ? undefined
             : _noFood   // ⭐ 환경 코칭 날 — 본문에 음식 액션이 없으므로 거울에 '그날 슬롯 음식'을 항상 소프트 노출('음식 추천 항상 포함'·이사님). 쿨다운/covered여도 결핍줄(콩류) 대신 슬롯 음식(변주)이라 K-04b 위배 아님·두부 디폴트 없음.
               ? `${_posBase}${_slotDishAny ? _foodClause(_slotDishAny) : ''}`
               : (!_mDef ? (_mirror?.line ?? null)                     // 음식 액션 날·결핍군 없음(칭찬/macro) — 그대로
                 : _posBase);                                          // 음식 액션 날·결핍 — 본문이 슬롯 음식 직조하므로 거울은 음식 없는 generic
+          // ⭐ 영양거울 출현빈도 쿨다운(이사님 2026-06-20) — '어린이집 덕에 영양 채워진다' 거울줄이 거의 매일 박혀 24통 중 17통.
+          //   변주가 아니라 출현 자체를 격일화: 최근 2일 안에 거울이 나왔으면 오늘은 생략. degrade-safe: 전체(집+기관) 부족 2개+ = 심한 결핍이면 면제.
+          //   ⭐ 골든완화(이사님 승인 2026-06-20) — 무슬롯(저데이터·plateau) 경로도 동일 쿨다운 적용(변종 안심줄 격일화). _cooldownDue를 base로 전달.
+          const _mirrorSevere = gMissing.length >= 2;
+          const _cooldownDue = mirrorCooldownDue(recentMirrorShown[cid] || [], { cooldownDays: 2, severe: _mirrorSevere });
+          // 슬롯 날: 쿨다운이면 라인 생략(mirrorPlanned=true 보존 → K-04b 경로). 슬롯 없는 날: base.mirrorCooldown으로 mirrorBlock 폴백이 처리.
+          const mirrorLineSel = (typeof _mirrorRaw === 'string' && _mirrorRaw && _cooldownDue) ? null : _mirrorRaw;
+          const _hasDeficitDay = gMissing.length > 0 || (attends && gHomeMissing.length > 0);
+          // ⭐ 거울 노출 이력(쿨다운용) — 슬롯 날=라인 선택 여부 · 무슬롯=결핍 있거나 쿨다운 아니면 표시(쿨다운+결핍없음만 생략, mirrorBlock 폴백과 정합).
+          mirrorShownCtx = planSlotCtx ? !!mirrorLineSel : (_hasDeficitDay || !_cooldownDue);
           // ⭐ 통합 작성기(크론·온디맨드 공유) — 계획 주입 → 생성 → 안전 재생성 → 어휘 유사도 재생성
           // 끝줄 권유는 하루 하나만 — profileNudge 우선, 없으면 구조화 개선 팁을 ~주1회만 노출(매일=잔소리 금지·Q5).
           const profileN = recentLoggedDays >= RECENT_WINDOW ? profileNudgeFor(cid) : null;
@@ -903,7 +917,7 @@ export async function GET(req: Request) {
             slotFood, slotDish,   // ⭐ F-18 — 슬롯이 정한 구체 음식(본문 음식 제안 강제·두부 회귀 차단)
             slotTrack: (!_noFood && planSlotCtx?.slot) ? planSlotCtx.slot.track : null, slotPairLiked: (!_noFood && planSlotCtx?.slot) ? (planSlotCtx.slot.pairLiked ?? null) : null,   // ⭐ 카테고리정합 — supply/challenge·잘 먹는 짝(프레이밍 분기·명시 연결)
             // ⭐ 주간계획 영양거울 스케줄(이사님 2026-06-18) — 결핍군 회전·단일결핍 격일 쿨다운(K-04b). plan_detail 있으면 그날 슬롯 라인 사용(null=쿨다운 생략). F-18=슬롯≠결핍군 날은 dish 없는 generic 라인(경쟁 두부 제거).
-            mirrorLine: mirrorLineSel, mirrorPlanned: !!planSlotCtx,
+            mirrorLine: mirrorLineSel, mirrorPlanned: !!planSlotCtx, mirrorCooldown: _cooldownDue,   // ⭐ 무슬롯 경로 쿨다운(골든완화) — mirrorBlock 폴백이 순수 positive 안심을 생략
             profileNudge: profileN, structuredTip: sTip ?? metaInv,   // ⭐ #4b 초기엔 메타 입력 초대가 이 한 줄 채널을 대신 채움
             weeklyArc: weekCtx?.arc ?? null,   // ⭐ 주간 코칭 커리큘럼(부모 행동변화 단계) — 편지가 '왜→강화' 톤으로 가르침
           };
@@ -936,6 +950,7 @@ export async function GET(req: Request) {
             simToPrev, repeatAlert,   // ⭐ 반복 자가 측정·경보(어드민 반복 모니터 — 2026-06-11)
             snack: snackEval?.summary || null,   // 간식 엔진 판단 스냅샷(어드민 검증)
             snackShown: snackShownCtx,   // ⭐ 오늘 간식 멘트 노출 여부 — 쿨다운 이력
+            mirrorShown: mirrorShownCtx,   // ⭐ 영양거울 노출 여부(2026-06-20) — 출현빈도 쿨다운 이력(슬롯 날=라인 선택 여부·슬롯 없는 날=K-03 결핍 폴백)
             growthShown: growthShownCtx, growthMirror: growthMirrorCtx,   // ⭐ E-09 — 성장 거울 노출(격주 케이던스 이력)·어드민
             weekly: weekCtx,   // ⭐ 주간 닻(작전층) 사용 여부·소견·채근 적용 — 어드민 검증
             planSlot: planSlotCtx ? { slotIndex: planSlotCtx.slotIndex, ingredient: planSlotCtx.slot.ingredient, dishes: planSlotCtx.slot.dishes, group: planSlotCtx.slot.group, track: planSlotCtx.slot.track, via: planSlotCtx.slot.via, mirror: planSlotCtx.mirror?.line ?? null, mirrorKind: planSlotCtx.mirror?.kind ?? null, macro: planSlotCtx.macroPhrase ?? null } : null,   // ⭐ 주간계획 모듈 — 오늘 소비한 슬롯(구체 dish 회전·거울·macro) 어드민 가시화
