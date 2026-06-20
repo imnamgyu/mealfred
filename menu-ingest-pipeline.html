@@ -209,6 +209,37 @@
         <li><b>등재 자격</b> = 단일 원물 식재료 + 영유아 안전 통과. <b>빈출도는 후보선정 기준일 뿐, 등재 기준 아님</b>(가공·음료·양념·국물·안전결격은 빈출해도 탈락)</li>
       </ul>
     </div>
+
+    <!-- 🖼 도감 2축 재정의 SQL 반영 시각화 -->
+    <div class="card" style="margin-top:14px">
+      <p style="font-weight:800;color:var(--s800);font-size:14px;margin-bottom:13px">🖼 "도감 2축 재정의 SQL 반영" 이란 — 한눈에</p>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div class="grid2">
+          <div style="border:1.5px solid var(--p100);background:var(--p50);border-radius:11px;padding:11px 13px">
+            <b style="color:var(--p700)">① 영유아축</b> <span style="font-size:11px;color:var(--n500)">수집 식단(본 파이프라인)</span><br>
+            <span style="font-size:12.5px;color:var(--n700);font-weight:700">등장률 = 식재료가 등장한 <b>기관-월 비율</b></span><br>
+            <span style="font-size:11px;color:var(--n600)">매일 ≥70% · 자주 ≥35% · 가끔 ≥10% · 드묾</span>
+          </div>
+          <div style="border:1.5px solid #CFE3F5;background:#F2F8FD;border-radius:11px;padding:11px 13px">
+            <b style="color:var(--b700)">② 초등축</b> <span style="font-size:11px;color:var(--n500)">SQL <code>ingredients.elem_count</code>(NEIS)</span><br>
+            <span style="font-size:12.5px;color:var(--n700);font-weight:700">등장 <b>횟수</b> 기준</span><br>
+            <span style="font-size:11px;color:var(--n600)">매일 ≥300 · 자주 ≥100 · 가끔 ≥10 · 드묾</span>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--n300);font-size:14px;font-weight:800">▼ 두 축 합치기</div>
+        <div style="border:1.6px solid var(--g500);background:var(--g50);border-radius:11px;padding:12px 14px;text-align:center">
+          <b style="color:var(--g700);font-size:14px">③ 결합등급 = MAX(영유아, 초등)</b> <span style="color:var(--n600);font-weight:700">+ 연령플래그</span>(공통/영유아특이/초등특이)<br>
+          <span style="font-size:11.5px;color:var(--n600)">예) <b>계란</b> = 영유아 <b style="color:var(--p700)">매일</b> × 초등 가끔 → 결합 <b>매일</b> · <b>영유아특이</b></span>
+        </div>
+        <div style="text-align:center;color:var(--n300);font-size:14px;font-weight:800">▼ SQL 반영 <code style="background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 5px;font-size:11px;color:var(--n700)">apply_dogam_redefine.py</code></div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <div style="flex:1;min-width:150px;border:1.5px solid var(--n200);border-radius:10px;padding:9px 11px;font-size:11.8px;font-weight:600;color:var(--n700)"><b>1. 스냅샷</b><br><code>ingredients_snapshot_&lt;날짜&gt;.json</code> 저장 — 롤백 안전망</div>
+          <div style="flex:1;min-width:150px;border:1.5px solid var(--n200);border-radius:10px;padding:9px 11px;font-size:11.8px;font-weight:600;color:var(--n700)"><b>2. PATCH</b><br><code>ingredients</code>(도감) 행별 <b>grade·meta 갱신</b> — 상향·신규만, per row</div>
+          <div style="flex:1;min-width:150px;border:1.5px solid var(--n200);border-radius:10px;padding:9px 11px;font-size:11.8px;font-weight:600;color:var(--n700)"><b>3. 승격</b><br>안전스크린 통과분 <code>tier=dogam</code> 추가(신규 등재)</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--n500);font-weight:600;margin-top:11px">→ 결과: <b><code>ingredients</code>(도감) 테이블의 식재료 등급(grade)</b>이 '영유아 실측 빈도'까지 반영해 갱신됨. 이 등급이 곧 <b>코칭 노출 우선순위</b>. <span style="color:var(--r700)">하향은 자동 안 함</span>(meta 플래그만·사람 검토) · 같은 식단 다시 돌려도 멱등.</p>
+    </div>
   </section>
 
   <section class="blk">
