@@ -75,6 +75,69 @@
       📌 <b>호출법</b> — 식단 파일을 한 폴더에 모은 뒤, 이 문서 링크를 주면서 <b>"이 파이프라인 돌려줘"</b>라고 하면 된다.
       그러면 ① 파싱·정제·집계 → ② 승격후보 안전스크린 → ③ SQL 반영(롤백 스냅샷 포함)을 순서대로 실행한다.
       파일은 <code>.xlsx / .csv</code>가 가장 깨끗하고, 여러 센터·여러 달 섞여 있어도 된다.
+      <br><span style="color:#B86A20">↓ 이 zip 배치는 <b>3경로 중 경로1</b> — 전체 인입·중복제거·빈도 운용은 바로 아래 <b>「3경로 운용전략」</b> 참고.</span>
+    </div>
+  </section>
+
+  <!-- ⭐ 3경로 인입 + 데이터 운용전략 (2026-06-20 보고 · 검토요망) -->
+  <section class="blk">
+    <div class="sec-head"><span class="num" style="background:var(--b500)">🔀</span><h2>3경로 인입 + 데이터 운용전략 <span style="font-size:11px;font-weight:800;color:#fff;background:var(--r500);border-radius:100px;padding:3px 11px;margin-left:6px;vertical-align:middle">검토요망 · 2026-06-20</span></h2></div>
+    <p class="sec-sub">식단 데이터가 들어오는 길이 <b>3개</b>다. <b>아래 ①~⑤ 배치 런북은 그중 경로1</b>(관리자 zip)의 상세일 뿐 — 셋을 <b>한 곳(<code>institution_menus</code>)으로 수렴</b>하고 <b>(기관,월) 멱등키로 중복 제거</b>하는 게 운용의 핵심.</p>
+
+    <div class="callbox" style="margin-bottom:16px">
+      🔑 <b>단일 원칙</b> — 모든 경로를 <code>{institution_id, month, date, slot, menus[], ingredients[], source}</code>로 정규화하고 <b>dedup 키 = (기관, 월)</b>.
+      OCR 직후 (기관,월) 확정 → 이미 있으면 <b>집계 스킵 + 기존 ingredients 즉시 반환</b>(재OCR·재분해·재집계 0), 없으면 분해·적재. 기관 미상(집밥·매칭 실패)은 집계 제외, 개인 기록으로만.
+    </div>
+
+    <div class="card">
+      <table>
+        <tr><th>경로</th><th>입력</th><th>적재 테이블</th><th>dedup</th><th>기관 연결</th></tr>
+        <tr><td><b>① zip (관리자)</b></td><td>식단표.zip(급식관리지원센터)</td><td>CSV→도감 <span style="color:var(--n500)">(+선택 <code>institution_menus</code>=<code>batch_import</code>)</span></td><td class="ok">파일=센터-월</td><td>파일명/내용 센터명</td></tr>
+        <tr><td><b>② daycare-eval</b></td><td>daycare-eval.html 업로드</td><td><code>institution_menus</code>+items+scores</td><td class="ok">✅ (기관,월) UNIQUE upsert</td><td>명시 institution_id</td></tr>
+        <tr><td><b>③ 부모 기록탭</b></td><td>care OCR/수기</td><td><code>meal_logs</code></td><td class="no">❌ 없음(부모마다 중복)</td><td><code>children.institution_id</code>+place=daycare</td></tr>
+      </table>
+      <p style="font-size:12.5px;color:var(--n500);font-weight:600;margin-top:10px">※ 경로2는 이미 <b>(institution_id,month) 멱등</b> upsert. <code>source</code>에 <code>batch_import</code>가 있어 경로1도 같은 테이블로 흘릴 수 있고, <code>children.institution_id</code>가 있어 경로3도 (기관,월)로 환원 가능 → <b>3경로 → <code>institution_menus</code> 수렴</b>이 정답.</p>
+    </div>
+
+    <p style="font-weight:800;color:var(--s800);font-size:15.5px;margin:24px 0 8px">빈도는 두 층으로 분리 <span style="font-size:12px;color:var(--r700)">(가장 중요)</span></p>
+    <div class="card grid2">
+      <div>
+        <b style="color:var(--p700)">baseline (youa-freq)</b>
+        <ul class="tight">
+          <li>소스: 경로1 + 누적 <code>institution_menus</code></li>
+          <li>단위: <b>(기관-월) 1벌당 등장률</b></li>
+          <li>용도: 도감 2축 등급 → 코칭 노출 우선순위 (모집단 기준·안정)</li>
+        </ul>
+      </div>
+      <div>
+        <b style="color:var(--b700)">live observed</b>
+        <ul class="tight">
+          <li>소스: 최근 N개월 <code>institution_menus</code>(+옵션 개인)</li>
+          <li>단위: (기관-월) dedup 후 동률안전 상위%</li>
+          <li>용도: 추천 랭킹 동률가산 (라이브 자가보정)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="gotcha" style="margin-top:12px"><b>⚠️ warm 정정 포인트</b> — 런타임 freq warm이 <code>meal_logs</code>/<code>institution_menu_items</code>의 <b>'행'을 직접 카운트</b>하면 인기 어린이집이 부모 수만큼 과대계상. → <b>(기관,월) dedup 후 집계</b>로 바꿔야 정확(이사님 dedup 규칙의 집계측 적용).</div>
+
+    <p style="font-weight:800;color:var(--s800);font-size:15.5px;margin:24px 0 8px">정제 · 배치 운용</p>
+    <div class="card">
+      <ul class="tight" style="margin-left:16px">
+        <li><b>정제(3경로 공통)</b> — <code>parse_and_aggregate</code>의 <code>CANON</code>(쌀→멥쌀·콩→콩(대두)·요거트→요구르트…)+<code>SEASON</code> 제외+노이즈컷을 단일 사전으로. 메뉴→식재료 분해는 <code>menuMap</code>+<code>learned_menus</code> 캐시 = 공통 분해기(중복 분해·비용 방지).</li>
+        <li><b>경로1(zip)</b> — 온디맨드 CLI(폴더 줄 때). 기존 3단계 유지 + 선택적 <code>institution_menus(batch_import)</code> 적재.</li>
+        <li><b>경로2·3(라이브)</b> — 적재=실시간(멱등 게이트). 집계=새벽 coach 크론 1회: (a) 증분 baseline(새 기관-월만)→<code>youa_pct</code>, (b) live observed 런타임 warm(재배포0·정적파일 무변경=<code>I-01-9</code> 안전).</li>
+        <li><b>멱등</b> — 같은 (기관,월) 재실행해도 결과 불변.</li>
+      </ul>
+    </div>
+
+    <p style="font-weight:800;color:var(--s800);font-size:15.5px;margin:24px 0 8px">잠그고 갈 결정 3가지</p>
+    <div class="card">
+      <ul class="tight" style="margin-left:16px">
+        <li><b>1. 경로1 귀속</b> — ⓐ baseline 집계 전용 <b style="color:var(--g700)">(권장)</b> / ⓑ per-어린이집 institution_menus까지 <span style="color:var(--n500)">(센터=다수 어린이집이라 ⓐ가 깔끔)</span></li>
+        <li><b>2. 추천 빈도원</b> — ⓐ baseline(youa)만 / ⓑ baseline + live observed warm(dedup 버전으로 수정) <b style="color:var(--g700)">(권장)</b> / ⓒ live 보류</li>
+        <li><b>3. 경로3 집밥(home)</b> — ⓐ제외(급식만) <b style="color:var(--g700)">(권장)</b> / ⓑ포함(가정 노출 반영)</li>
+      </ul>
+      <p style="font-size:12.5px;color:var(--n600);font-weight:700;margin-top:10px">제안 기본값 <b>1-ⓐ / 2-ⓑ / 3-ⓐ</b> — 확정 주시면 ① 멱등 적재 게이트 ② warm dedup 수정 순으로 구현.</p>
     </div>
   </section>
 
