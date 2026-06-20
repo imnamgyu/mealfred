@@ -53,3 +53,22 @@ describe('F-18b 환경 레버 날 슬롯 음식 곁들임 직조(softSlotDish)',
     expect(out).not.toContain('곁들일 음식 — 가볍게');
   });
 });
+
+describe('부모 질문 최우선(parentQuestions·이사님 2026-06-20)', () => {
+  it('질문 있으면 최우선 블록 + 도입부 먼저 답 지시 + 질문 원문 주입', () => {
+    const out = buildLetterUser(base({ parentQuestions: ['우유를 안 먹는데 칼슘은 어떻게 챙기나요?'] }));
+    expect(out).toContain('부모 질문');
+    expect(out).toContain('우유를 안 먹는데 칼슘은');     // 질문 원문
+    expect(out).toContain('먼저 답하라');                 // 도입부 우선
+  });
+  it('여러 질문이면 번호 매겨 종합 1개 답 지시', () => {
+    const out = buildLetterUser(base({ parentQuestions: ['두부를 안 먹어요 어떻게 하죠?', '간식 줄이려면?'] }));
+    expect(out).toContain('종합해 하나');
+    expect(out).toContain('1)');
+    expect(out).toContain('2)');
+  });
+  it('질문 없으면 블록 0(기존 경로 보존)', () => {
+    const out = buildLetterUser(base());
+    expect(out).not.toContain('부모 질문');
+  });
+});

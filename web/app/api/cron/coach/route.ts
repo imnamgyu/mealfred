@@ -307,7 +307,7 @@ export async function GET(req: Request) {
         }
         const rs = [...(byChild[cid] || [])].sort((a, b) => b.log_date.localeCompare(a.log_date) || (b.slot || '').localeCompare(a.slot || ''));  // 최신순 — dedup이 최신 끼니를 남김
         const byDate: Record<string, string[]> = {};
-        const allIng: string[] = []; const ref: string[] = []; const notes: string[] = [];
+        const allIng: string[] = []; const ref: string[] = []; const notes: string[] = []; const parentQuestions: string[] = [];   // ⭐ 부모 질문(편지 최우선·이사님 2026-06-20)
         const homeRef: string[] = []; const daycareRef: string[] = [];
         const recentMeals: LoggedFood[] = []; const seenFood = new Set<string>();
         const menuFreq: Record<string, number> = {};
@@ -331,7 +331,13 @@ export async function GET(req: Request) {
             }
           });
           if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
-          if (r.note) notes.push(r.note);
+          if (r.note) {
+            notes.push(r.note);
+            // ⭐ 부모 질문(이사님 2026-06-20) — 끼니 기록 note에 '?'로 남긴 질문은 편지 최우선. 최근(≤2일)만 모아 종합 답변(오래된 질문 반복 답 방지).
+            const _qAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
+            const _q = r.note.trim();
+            if (_qAgo <= 2 && /[?？]/.test(_q) && _q.length >= 4 && parentQuestions.length < 5 && !parentQuestions.includes(_q)) parentQuestions.push(_q);
+          }
           if (atHome) (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); if (k) menuFreq[k] = (menuFreq[k] || 0) + 1; });   // 집 메뉴만 — 기관 반복은 부모가 못 바꿈
           if (r.ate_well !== false && atHome) (r.menus || []).forEach((mn) => { const t = mn.trim(); if (t) favMenu[t] = (favMenu[t] || 0) + 1; });   // ⭐ 5-A(이사님 2026-06-15) 집 끼니만 — 기관 급식에서 잘 먹은 메뉴를 부모 칭찬 근거(favoriteFoods)로 돌리지 않기(거부 아닌 끼니 = 좋아하는 음식 후보)
         });
@@ -906,7 +912,7 @@ export async function GET(req: Request) {
           const base = {
             childName: meta.nickname, ageBand: meta.age_band,
             eatenCount: new Set(allIng).size, reds: gReds, covered: fg.covered, missing: gMissing,   // ⭐ #4a 1주일차(기록<7일) 결핍 끄기 — covered(잘 먹음)는 유지, 부족 단정만 차단
-            notes: fc.noteCards, factCards: fc.cards, refused: sanitizeRefusals(uniqRef), favoriteFoods, favoriteFreq, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),   // ⭐ 메모=날짜·시계열 라벨 분류본, 사실 주장=사실 카드 안에서만('1번') · favoriteFreq=집 끼니 빈도(D)
+            notes: fc.noteCards, factCards: fc.cards, parentQuestions, refused: sanitizeRefusals(uniqRef), favoriteFoods, favoriteFreq, homeRefused: sanitizeRefusals(homeRef), daycareRefused: sanitizeRefusals(daycareRef),   // ⭐ 메모=날짜·시계열 라벨 분류본, 사실 주장=사실 카드 안에서만('1번') · favoriteFreq=집 끼니 빈도(D)
             timeseries: ts, attendsDaycare: attends, pastLetters,   // timeseries=원본 ts(composeLetter가 최종 시나리오 기준 필터)
             recentWindowDays: RECENT_WINDOW, recentLoggedDays,
             homeMissing: gHomeMissing, homeReds: gHomeReds, homeDays: homeDays.length,
@@ -942,7 +948,7 @@ export async function GET(req: Request) {
             eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
             source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: modelUsed,
             verify: verifyCtx,   // ⭐ 의미 검증자(발행 전 1콜) 결과 — 위반·재작성 여부(어드민 검증)
-            scenarioId, scenarioLabel,   // 오늘의 코칭 시나리오(편지 다양성·중복 회피 이력)
+            scenarioId, scenarioLabel, parentQuestions,   // 오늘의 코칭 시나리오 + 부모 질문(최우선 답변 대상·디버그/어드민)
             plan: planCtx,   // ⭐ 구조화 계획(프레임·타깃·무브·시그니처) — 다음날 의미 중복 회피 이력(상태 원장)
             coachRegen,   // 비중복 가드로 재생성됐는지(최근 편지와 유사도 ≥0.45)
             simToPrev, repeatAlert,   // ⭐ 반복 자가 측정·경보(어드민 반복 모니터 — 2026-06-11)
