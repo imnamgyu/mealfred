@@ -51,7 +51,7 @@ const STALL_LOOKBACK = 4;      // 직전 닻 조회 수(스톨 streak 산출용)
 
 type Row = {
   child_id: string; parent_id: string | null; log_date: string; slot: string | null;
-  ingredients: string[] | null; refused: string | null; note: string | null;
+  ingredients: string[] | null; refused: string | null; note: string | null; question?: string | null;
   texture: string | null; menus: string[] | null; place: string | null; ate_well: boolean | null;
   acceptance_level: number | null;   // ⭐ 수용 5단계(0~4) — 있으면 선호계량화가 granular로, 없으면 ate_well 폴백
   meal_time: number | null; autonomy: string | null; environment: string | null; duration_min: number | null;
@@ -109,7 +109,7 @@ export async function GET(req: Request) {
 
     // 1) 최근 7일 모든 기록 → 자녀별 그룹
     const { data: rows, error: rErr } = await supabase.from('meal_logs')
-      .select('child_id,parent_id,log_date,slot,ingredients,refused,note,texture,menus,place,ate_well,acceptance_level,meal_time,autonomy,environment,duration_min')
+      .select('child_id,parent_id,log_date,slot,ingredients,refused,note,question,texture,menus,place,ate_well,acceptance_level,meal_time,autonomy,environment,duration_min')
       .gte('log_date', since).lte('log_date', dAgo(1));   // 편지는 '어제까지' 확정 데이터로 평가 — 당일 입력이 편지를 바꾸지 않게 · autonomy·environment는 이전에 select 안 해 0% 반영이던 버그 수정(구조화 입력 코칭 반영)
     if (rErr) throw rErr;
 
@@ -251,15 +251,13 @@ export async function GET(req: Request) {
       return pct == null ? null : bmiBand(pct);
     };
 
-    // ⭐ graphSource SQL warm(handoff #2) — 옵트인(COACH_GRAPH_SQL=1). 자녀 루프 전 1회: ingredient_edges⋈ingredients(id→name)로
-    //   추천 캐시를 SQL로 교체(실시간 복리). OFF=JSON 스냅샷(데이터 세션 야간 export=동일 shape). 빈약/실패 시 자동 JSON 유지.
-    if (process.env.COACH_GRAPH_SQL === '1') {
-      try {
-        const w = await warmGraphFromSql(supabase);
-        if (w.ok) console.log(`[cron/coach] graph warmed from SQL: ${w.edges} edges, ${w.cells} dishes`);
-        else issues.push(`graph warm skip(JSON 유지): ${w.reason}`.slice(0, 120));
-      } catch (e) { console.warn('[cron/coach] graph warm error', e instanceof Error ? e.message : e); }
-    }
+    // ⭐ graphSource SQL warm(handoff #2) — SQL이 단일 진실(플래그 졸업 2026-06-21). 매 실행 자녀 루프 전 1회 ingredient_edges⋈ingredients(id→name)로
+    //   추천 캐시를 SQL로 교체(야간 학습 강화가 재배포 없이 편지에 반영). SQL 빈약/실패 시 warmGraphFromSql이 자동 JSON 스냅샷 유지(safe degrade).
+    try {
+      const w = await warmGraphFromSql(supabase);
+      if (w.ok) console.log(`[cron/coach] graph warmed from SQL: ${w.edges} edges, ${w.cells} dishes`);
+      else issues.push(`graph warm skip(JSON 유지): ${w.reason}`.slice(0, 120));
+    } catch (e) { console.warn('[cron/coach] graph warm error', e instanceof Error ? e.message : e); }
 
     for (const cid of activeIds) {
       // maxDuration 전 안전 종료 — 남은 자녀는 다음 실행(오래된 순)이 이어받음
@@ -331,13 +329,11 @@ export async function GET(req: Request) {
             }
           });
           if (r.refused) { ref.push(r.refused); if (r.place === 'home') homeRef.push(r.refused); else if (r.place === 'daycare') daycareRef.push(r.refused); }
-          if (r.note) {
-            notes.push(r.note);
-            // ⭐ 부모 질문(이사님 2026-06-20) — 끼니 기록 note에 '?'로 남긴 질문은 편지 최우선. 최근(≤2일)만 모아 종합 답변(오래된 질문 반복 답 방지).
-            const _qAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
-            const _q = r.note.trim();
-            if (_qAgo <= 2 && /[?？]/.test(_q) && _q.length >= 4 && parentQuestions.length < 5 && !parentQuestions.includes(_q)) parentQuestions.push(_q);
-          }
+          // ⭐ 부모 질문(이사님 2026-06-20·편지 최우선) — (1) 전용 question 컬럼(끼니별 질문 입력) 우선 (2) note에 '?'로 남긴 것도 폴백. 최근 ≤2일만(오래된 질문 반복 답 방지).
+          const _qAgo = Math.round((todayMs - Date.parse(r.log_date)) / 86400000);
+          const _pushQ = (q?: string | null) => { const t = (q || '').trim(); if (_qAgo <= 2 && t.length >= 2 && parentQuestions.length < 5 && !parentQuestions.includes(t)) parentQuestions.push(t); };
+          if (r.question) _pushQ(r.question);                                         // 전용 컬럼 = 명시 질문('?' 불요)
+          if (r.note) { notes.push(r.note); if (/[?？]/.test(r.note)) _pushQ(r.note); }   // note 폴백 = '?' 포함 시만
           if (atHome) (r.menus || []).forEach((mn) => { const k = mn.replace(/\s/g, ''); if (k) menuFreq[k] = (menuFreq[k] || 0) + 1; });   // 집 메뉴만 — 기관 반복은 부모가 못 바꿈
           if (r.ate_well !== false && atHome) (r.menus || []).forEach((mn) => { const t = mn.trim(); if (t) favMenu[t] = (favMenu[t] || 0) + 1; });   // ⭐ 5-A(이사님 2026-06-15) 집 끼니만 — 기관 급식에서 잘 먹은 메뉴를 부모 칭찬 근거(favoriteFoods)로 돌리지 않기(거부 아닌 끼니 = 좋아하는 음식 후보)
         });

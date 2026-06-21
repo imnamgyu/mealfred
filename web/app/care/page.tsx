@@ -55,9 +55,9 @@ const ACCEPT_LEVELS = [
 const levelToAteWell = (lvl: number | null): boolean | null => lvl == null ? null : lvl <= 0 ? false : lvl >= 3 ? true : null;   // 0→거부(false)·3·4→수용(true)·1·2 만짐/한입→미상(null, 기존 이진 의미 보존)
 const ateWellToLevel = (aw: boolean | null): number | null => aw === true ? 4 : aw === false ? 0 : null;   // 구 행(acceptance_level 없음) 표시용 역매핑
 
-type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; ateWell: boolean | null; acceptLevel: number | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string; place: PlaceVal };
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; question: string; ateWell: boolean | null; acceptLevel: number | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string; place: PlaceVal };
 function emptyEntry(slot: string, dateStr: string): MealEntry {
-  return { menus: [], ingredients: [], note: '', ateWell: null, acceptLevel: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '', place: defaultPlace(slot, dateStr) };
+  return { menus: [], ingredients: [], note: '', question: '', ateWell: null, acceptLevel: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '', place: defaultPlace(slot, dateStr) };
 }
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
@@ -69,12 +69,13 @@ const todayStr = kstToday;   // KST 기준 — 크론(letter_date/q_date)과 동
 const loadGuestLogs = (): Record<string, DayLog> => loadCareLogs<Record<string, DayLog>>(null);
 
 // Supabase row ↔ MealEntry 변환
-type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; ate_well: boolean | null; acceptance_level?: number | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null; place: string | null };
+type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; question?: string | null; ate_well: boolean | null; acceptance_level?: number | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null; place: string | null };
 function rowToEntry(r: MealRow): MealEntry {
   return {
     menus: r.menus || [],
     ingredients: (r.ingredients || []).map((name) => ({ name, ai: false })),
     note: r.note || '',
+    question: r.question || '',
     ateWell: r.ate_well,
     acceptLevel: r.acceptance_level ?? ateWellToLevel(r.ate_well),   // 신규 5단계 우선, 구 행은 ate_well에서 역매핑(완식/거부만 복원)
     refused: r.refused || '',
@@ -96,6 +97,7 @@ function entryToRow(e: MealEntry, childId: string, userId: string, date: string,
     menus: e.menus,
     ingredients: e.ingredients.map((t) => t.name),
     note: e.note || null,
+    question: e.question || null,   // ⭐ 부모 질문(끼니별) — 코칭 편지 최우선 답변(이사님 2026-06-20)
     refused: e.refused || null,
     acceptance_level: e.acceptLevel,   // ⭐ 5단계 수용 신호(원장)
     ate_well: e.acceptLevel != null ? levelToAteWell(e.acceptLevel) : e.ateWell,   // 5단계 선택 시 이진은 파생(구 소비자 호환) — 5단계 미선택(구 입력)은 ateWell 유지
@@ -212,7 +214,7 @@ export default function CarePage() {
 
       // Supabase에서 기존 기록 로드
       const { data: rows } = await supabase.from('meal_logs')
-        .select('log_date,slot,menus,ingredients,note,ate_well,acceptance_level,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place,source')
+        .select('log_date,slot,menus,ingredients,note,question,ate_well,acceptance_level,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place,source')
         .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(365));   // P0-3: 과거 1년 상한(다년 누적 풀스캔 차단·미래 식단표는 lte 없어 유지)
 
       const cloud: Record<string, DayLog> = {};
@@ -229,7 +231,7 @@ export default function CarePage() {
       const toSync: ReturnType<typeof entryToRow>[] = [];
       for (const [d, dayLog] of Object.entries(local)) {
         for (const [slot, e] of Object.entries(dayLog)) {
-          const hasContent = e.menus?.length || e.ingredients?.length || e.note;
+          const hasContent = e.menus?.length || e.ingredients?.length || e.note || e.question;
           if (hasContent && !cloud[d]?.[slot]) {
             toSync.push(entryToRow(e as MealEntry, child.id, user.id, d, slot));
             if (!cloud[d]) cloud[d] = {};
@@ -915,9 +917,18 @@ export default function CarePage() {
           </div>
         )}
 
+        {/* ⭐ 코치에게 질문 (끼니별) — 코칭 편지가 최우선으로 답변(이사님 2026-06-20) */}
+        <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#D7C4EF' }}>
+          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#6A1B9A' }}>코치에게 질문 <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택 · 다음 편지가 먼저 답해드려요)</span></h3>
+          <textarea value={entry.question} onChange={(e) => setEntry((x) => ({ ...x, question: e.target.value }))}
+            rows={2} placeholder="예: 우유를 안 먹는데 칼슘은 어떻게 챙기나요? / 새 음식을 자꾸 뱉어요, 계속 줘도 될까요?"
+            className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
+            style={{ background: '#F9F3FE', border: '1.5px solid #D7C4EF', color: '#374151' }} />
+        </div>
+
         {/* 자유 메모 (정성 기록) */}
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>{date === todayStr() ? '오늘 궁금한 점 있나요' : '그날 메모'} <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택)</span></h3>
+          <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>{date === todayStr() ? '오늘 메모' : '그날 메모'} <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택)</span></h3>
           <textarea value={entry.note} onChange={(e) => setEntry((x) => ({ ...x, note: e.target.value }))}
             rows={3} placeholder="예: 그날 배가 아팠어요 / 새로운 메뉴를 시도했어요 (거부 음식은 위에서 탭하세요)"
             className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"

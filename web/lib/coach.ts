@@ -1010,15 +1010,24 @@ export async function composeLetter(p: {
   } catch { /* 검증 실패는 발행을 막지 않음 */ }
   // ⭐ 부모 질문 must-answer(이사님 2026-06-20·최우선) — 질문이 있는데 본문이 답하지 않으면(질문 핵심어 0개) 1회 재생성. 질문은 편지 최우선이라 체인 앞쪽.
   if (p.base.parentQuestions?.length && timeLeft()) {
-    // 답변 여부 휴리스틱 — 질문의 '내용어'(조사 제거·불용어/아이 이름 제외)가 본문에 하나라도 있으면 답한 것으로 본다(이름·인사말 오탐 차단).
-    const _stop = new Set(['아린', '아린이', '아이', '우리', '저희', '엄마', '아빠', '어떻게', '할까요', '하나요', '인가요', '있을까요', '좋을까요', '될까요', '건가요', '나요', '까요', '안', '잘', '좀', '너무', '자꾸', '요즘', '계속', '왜', '뭐', '무엇', '그리고', '근데', '그런데', '먹는데', '먹어요', '하는', '하고', '있는', '있어요', '없어요', '같아요', '대요', '주나요', '주는']);
+    // 답변 여부 휴리스틱 — 질문의 '내용어'가 본문에 있으면 답한 것으로 본다. ⚠️ 아이 이름·인사말뿐 아니라 흔한 식품군·일반어(채소·고기·영양 등)도 제외 — 이런 단어는 편지 영양 나열에 우연히 등장해 오탐('채소'가 본문에 있다고 답한 걸로 오판)을 일으킨다.
+    const _stop = new Set(['아린', '아린이', '아이', '우리', '저희', '엄마', '아빠', '어떻게', '할까요', '하나요', '인가요', '있을까요', '좋을까요', '될까요', '건가요', '나요', '까요', '안', '잘', '좀', '너무', '자꾸', '요즘', '계속', '왜', '뭐', '무엇', '그리고', '근데', '그런데', '먹는데', '먹어요', '하는', '하고', '있는', '있어요', '없어요', '같아요', '대요', '주나요', '주는', '줘도', '새로운', '자꾸만', '요새',
+      '채소', '고기', '계란', '과일', '콩류', '유제품', '생선', '해산물', '곡물', '곡류', '영양', '음식', '식탁', '식사', '끼니', '식품군', '반찬', '메뉴', '밥', '국']);   // 흔한 식품군·일반어(오탐원) 제외
     const _josa = /(이가|은|는|을|를|이|가|에|의|도|만|로|으로|에서|한테|께|랑|와|과)$/;
     const _qWords = [...new Set(p.base.parentQuestions.join(' ').replace(/[?？!.,'"()]/g, ' ').split(/\s+/)
       .map((w) => w.replace(_josa, '')).filter((w) => w.length >= 2 && !_stop.has(w) && w !== (p.base.childName || '')))];
     const answered = (L: string) => _qWords.some((w) => L.includes(w));
-    for (let qa = 0; qa < 2 && _qWords.length && !answered(gen.letter) && timeLeft(); qa++) {
-      const g = await generateLetter({ ...letterInput, fixNotes: [`부모가 끼니 기록에 남긴 질문에 편지 '첫 문장부터' 먼저 답하라(오늘 편지의 최우선): "${p.base.parentQuestions.join(' / ')}". 정확하고 따뜻하게, 여러 개면 종합해 하나로. 근거 없는 단정·의학 진단 금지(불확실하면 소아과 상의를 부드럽게 권함). 답한 뒤 오늘의 음식·행동 코칭으로 이어가라.`] }, model);
-      if (!detBad(g.letter) && answered(g.letter)) { gen = g; coachRegen = true; break; }
+    const _qFix = [`부모가 끼니 기록에 남긴 질문에 편지 '첫 문장부터' 먼저 답하라(오늘 편지의 최우선): "${p.base.parentQuestions.join(' / ')}". 정확하고 따뜻하게, 여러 개면 종합해 하나로. 근거 없는 단정·의학 진단 금지(불확실하면 소아과 상의를 부드럽게 권함). 답한 뒤 오늘의 음식·행동 코칭으로 이어가라.`];
+    if (_qWords.length) {
+      // 핵심어 있음 — 본문에 없으면 최대 2회 답변-리드 재생성
+      for (let qa = 0; qa < 2 && !answered(gen.letter) && timeLeft(); qa++) {
+        const g = await generateLetter({ ...letterInput, fixNotes: _qFix }, model);
+        if (!detBad(g.letter) && answered(g.letter)) { gen = g; coachRegen = true; break; }
+      }
+    } else if (timeLeft()) {
+      // 핵심어 없음(질문이 흔한 단어뿐) — 검증 불가라 1회 답변-리드 재생성으로 보완(prompt 신뢰, detBad만 거름)
+      const g = await generateLetter({ ...letterInput, fixNotes: _qFix }, model);
+      if (!detBad(g.letter)) { gen = g; coachRegen = true; }
     }
   }
   // ⭐ K-03(가드감사) — 영양거울 포함 검증: 결핍 분기(전체/집 부족)인데 손 LLM이 영양 한 구절을 누락하면(must-weave 무시)
