@@ -192,11 +192,13 @@ export async function GET(req: Request) {
     const { data: letters14 } = await supabase.from('coach_letters')
       .select('child_id,letter_date,context').in('child_id', activeIds).gte('letter_date', dAgo(14)).lt('letter_date', today);
     const reco14: Record<string, Set<string>> = {};
-    (letters14 || []).forEach((l: { child_id: string; context: Record<string, unknown> | null }) => {
-      const c = l.context as { recoIng?: string | null; planSlot?: { ingredient?: string } | null } | null;
+    const envHist: Record<string, Array<{ date: string; n: number }>> = {};   // ⭐ P0-D 진척 가시화(이사님 2026-06-21) — 과거 편지의 구조레버 진척 카운트(주간 '좋은 행동' 끼니 수) 이력 → 추세('지난주보다 늘었어요')
+    (letters14 || []).forEach((l: { child_id: string; letter_date: string; context: Record<string, unknown> | null }) => {
+      const c = l.context as { recoIng?: string | null; planSlot?: { ingredient?: string } | null; envGoodN?: number } | null;
       const s = (reco14[l.child_id] ||= new Set<string>());
       if (c?.recoIng) s.add(c.recoIng);
       if (c?.planSlot?.ingredient) s.add(c.planSlot.ingredient);
+      if (typeof c?.envGoodN === 'number') (envHist[l.child_id] ||= []).push({ date: l.letter_date, n: c.envGoodN });
     });
 
     // 자녀 메타 + 오늘 이미 생성된 질문(중복 회피)
@@ -490,6 +492,7 @@ export async function GET(req: Request) {
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
         let brainPick: BrainAction | null = null;   // ⭐ 두뇌 선택+검수 결과(?brain=1) — context 저장·어드민 노출
         let recoIng: string | null = null; let recoPoolArr: string[] = []; let recoMode: string | null = null;   // ⭐ 오늘 추천 식재료(회전)+주간 풀 — context 저장(블록 밖 참조)
+        let envGoodN: number | null = null;   // ⭐ P0-D 진척 가시화 — 구조레버 '좋은 행동' 끼니 수(블록 밖 context 저장용)
         let planDetailCtx: WeeklyAnchor['plan_detail'] = null;   // ⭐ 주간계획 모듈 산출(작전층) — anchor가 try 로컬이라 외부로 끌어냄(일간 슬롯 소비용)
         let planSlotCtx: ReturnType<typeof pickPlanSlot> = null;   // ⭐ 오늘 소비한 주간 슬롯(구체 dish·거울·macro) — 어드민·context
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
@@ -728,19 +731,17 @@ export async function GET(req: Request) {
               // 행동변화 관측(아크 단계 결정) — food=실제 차림, 구조 레버=그 좋은 행동이 이번 주 1회+ (거짓 칭찬 방지)
               const goodRow = (r: Row) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : false;
               const progress = lever === 'food' ? firstServeDow != null : weekRows.some(goodRow);
+              envGoodN = lever !== 'food' ? weekRows.filter(goodRow).length : null;   // ⭐ P0-D 진척 가시화(이사님 2026-06-21) — 구조레버 '좋은 행동' 끼니 수(이번 윈도). context 저장 → 다음 주 추세 비교.
               // ⭐ 관측된 실행의 구체 사실 한 줄 — reinforce/observe 편지가 '실제 일어난 일'을 콕 집어 칭찬하게(거짓 칭찬 차단·2026-06-11)
               let progressNote: string | null = null;
               if (progress) {
-                const ago = (d: string) => { const n = Math.round((Date.parse(today) - Date.parse(d)) / 86400000); return n <= 1 ? '어제' : `${n}일 전`; };
                 if (lever === 'food') progressNote = `이번 주 '${tgt}'를 식탁에 올린 기록 있음(${targetExposeWtd}회)`;
-                else {
-                  const r = [...weekRows].filter(goodRow).sort((a, b) => b.log_date.localeCompare(a.log_date))[0];
-                  if (r) {
-                    const slot = SLOT_LABEL[r.slot || ''] ? `${SLOT_LABEL[r.slot || '']} ` : '';   // '아침 끼니를' 형태 — 조사 충돌 회피
-                    progressNote = lever === 'environment' ? `${ago(r.log_date)} ${slot}끼니를 화면 없이 식탁에 앉아서 먹음`
-                      : lever === 'autonomy' ? `${ago(r.log_date)} ${slot}끼니를 아이가 스스로 떠먹음`
-                      : `${ago(r.log_date)} ${slot}끼니에서 한 단계 위 질감을 시도함`;
-                  }
+                else if (envGoodN && envGoodN >= 1) {
+                  // ⭐ P0-D 진척 가시화 — 단일 끼니 사실 대신 '최근 N번 + 지난번 대비 추세'로 다이얼이 움직이는 걸 보여줌(이진 step 전에 진척 체감·랄프위검 'step 19통 불변' 해소). 내부 '단계' 단어는 노출 금지(P10).
+                  const prior = (envHist[cid] || []).filter((h) => h.date <= addDaysStr(today, -5)).sort((a, b) => b.date.localeCompare(a.date))[0];
+                  const trend = prior ? (envGoodN > prior.n ? `(지난번 ${prior.n}번보다 늘었어요)` : envGoodN === prior.n ? '(지난번만큼 꾸준해요)' : '') : '';
+                  const verb = lever === 'environment' ? '화면 없이 식탁에 앉아' : lever === 'autonomy' ? '스스로 떠' : '한 단계 위 질감을 시도하며';
+                  progressNote = `최근 ${verb} 먹은 끼니가 ${envGoodN}번이에요${trend ? ` ${trend}` : ''} — 이 흐름이 조금씩 쌓이고 있어요`;
                 }
               }
               const firstOfWeek = !(recentWeekKeys[cid] || []).includes(weekKey);   // 이번 주 닻의 첫 편지 → intro(진단+왜는 주 1회만)
@@ -956,7 +957,7 @@ export async function GET(req: Request) {
             eatenCount: new Set(allIng).size, attendsDaycare: !!daycareMap[cid], notesCount: notes.length,
             source: reusedThis ? 'cron(재사용)' : (force ? 'cron(force)' : 'cron'), model: modelUsed,
             verify: verifyCtx,   // ⭐ 의미 검증자(발행 전 1콜) 결과 — 위반·재작성 여부(어드민 검증)
-            scenarioId, scenarioLabel, parentQuestions,   // 오늘의 코칭 시나리오 + 부모 질문(최우선 답변 대상·디버그/어드민)
+            scenarioId, scenarioLabel, parentQuestions, envGoodN,   // 오늘의 코칭 시나리오 + 부모 질문 + P0-D 진척 카운트(다음 주 추세 비교용)
             plan: planCtx,   // ⭐ 구조화 계획(프레임·타깃·무브·시그니처) — 다음날 의미 중복 회피 이력(상태 원장)
             coachRegen,   // 비중복 가드로 재생성됐는지(최근 편지와 유사도 ≥0.45)
             simToPrev, repeatAlert,   // ⭐ 반복 자가 측정·경보(어드민 반복 모니터 — 2026-06-11)
