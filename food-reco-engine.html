@@ -135,7 +135,7 @@
         <div class="ap">전국 식단표 3경로 → (기관,월) 멱등 → 모집단 빈도(youa-freq) baseline</div>
         <ul class="tight">
           <li>3경로: zip(센터)·daycare-eval(<code>institution_menus</code> UNIQUE upsert)·부모 기록탭(<code>children.institution_id</code>+place=daycare로 환원)</li>
-          <li><b>빈도 2층 분리</b>: baseline(기관-월 등장률 = 도감 등급·코칭 우선순위) / live observed(최근 N개월 dedup 상위% = 랭킹 동률가산)</li>
+          <li><b>빈도 2층 분리</b>: baseline(기관-월 등장률 <code>youa-freq.json</code> = 도감 등급·코칭 우선순위 — <b>2026-06-21 실측 OCR 식단 MAX 병합</b>: 단호박 1.4→65.7%·애호박·배추김치 게이트 통과) / observed(<code>ingredient-freq.json</code> = 랭킹·풀 순서 — <b>7종 degraded → 162종 실측 식단 재구축</b> <code>build-ingredient-freq.py --src sikdan</code>)</li>
           <li>경로1 zip = 사진/PDF면 OCR 경로(parse_and_aggregate는 xlsx 전용). 폐지된 식약처 영유아 API를 이 OCR 적재가 대체.</li>
         </ul>
       </div>
@@ -212,8 +212,8 @@
       <div style="font-size:12.5px;color:var(--n700);font-weight:600;line-height:1.7">
         <b>S1·S2 (CLOVA+Sonnet):</b> <code>1(수) 오전간식: 떠먹는요구르트, 파프리카스틱 / 점심: 닭살채소볶음밥, 연근조림, 자른토마토, 배추김치 / 오후간식: 단호박샐러드</code><br>
         <b>S3 분해:</b> 닭살채소볶음밥→[닭고기·당근·양파·쌀] · 연근조림→[연근] · 배추김치→[배추·김치]<br>
-        <b>S4 집계(9개 기관-월·멱등):</b> 등장률 TOP = 느타리버섯·단호박·멸치·김치·표고버섯·소고기(소표본이라 다수 100%) · 공출현(같은 끼니) = <code>멥쌀+파 ×140 · 김치+배추 ×133 · 멸치+파 ×129</code><br>
-        <b>멱등 검증:</b> 같은 데이터 재투입 → 신규 0·중복 스킵 9·누적 불변(중복 카운팅 0).
+        <b>S4 집계(143개 기관-월·멱등):</b> 등장률 TOP = 양파·소고기·두부·미역 100% · 단호박 65.7%(표준식단 1.4%였던 것 복권) · 공출현(같은 끼니) = <code>멥쌀+파 ×140 · 김치+배추 ×133 · 멸치+파 ×129</code> → <code>ingredient-freq.json</code> 162종·<code>youa-freq.json</code> 병합으로 라이브<br>
+        <b>멱등 검증:</b> 같은 데이터 재투입 → 신규 0·전량 중복 스킵·누적 불변(중복 카운팅 0).
       </div>
       <p style="font-size:11.5px;color:var(--n500);font-weight:600;margin-top:9px">※ 데이터 쌓일수록(현재 OCR 배치 가동 중·155개 식단표) 등장률이 차등화 → 폐지된 식약처 영유아 API 대체. 분해 미스(돈가스·오므라이스 등)는 야간 DeepSeek.</p>
     </div>
