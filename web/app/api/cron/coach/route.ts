@@ -610,6 +610,7 @@ export async function GET(req: Request) {
               const _firstLog = histDays[cid] && histDays[cid].size ? [...histDays[cid]].sort()[0] : today;
               const weekSinceSignup = Math.max(1, Math.floor((Date.parse(today) - Date.parse(_firstLog)) / (7 * 86400000)) + 1);
               const synth = await runWeeklyPlanning({
+                today,   // ⭐ 핑퐁 쿨다운 — candidateUnits가 포기 유닛 stalledAt 경과 판정
                 childName: meta.nickname, ageBand: meta.age_band,
                 reds, missing: fg.missing, homeMissing: homeFg.missing,
                 refused: refExposable, favoriteFoods,   // ⭐ C — 정제된 재노출 타깃(밥·치킨 제외)

@@ -29,6 +29,11 @@ export function isStalled(row: ProgressRow, today: string, coachedDays: number):
   const noSignal = !row.last_signal_at || dayAge(today, row.last_signal_at) > TH.stallDays;
   return noSignal && coachedDays >= TH.coachedDaysForStall;
 }
+/** ⭐ 핑퐁 쿨다운(이사님 2026-06-21) — 정체로 포기(피벗)한 유닛은 evidence.stalledAt 기록 후 pivotCooldownDays간 재선택(focus/pivot) 제외. 'table↔exposure 무한 왕복'을 끊어 '포기'가 sticking되게. */
+export function inPivotCooldown(row: ProgressRow | undefined, today?: string): boolean {
+  const sa = (row?.evidence as { stalledAt?: string } | undefined)?.stalledAt;
+  return !!sa && !!today && dayAge(today, sa) < TH.pivotCooldownDays;   // today 없으면 degrade(쿨다운 미적용)
+}
 
 // ── B-16 + 상태별 진화(단일 유닛 하루치) ────────────────────────────────────────
 export type EvolveEvents = { stepAdvanced: boolean; enteredMaintenance: boolean; graduated: boolean; backFromMaintenance: boolean; relapsed: boolean };
@@ -93,18 +98,19 @@ export function evolveRow(p: {
 }
 
 // ── B-22 피벗 선택 ────────────────────────────────────────────────────────────
-export function pickPivot(goals: Goal[], progress: Partial<Record<UnitId, ProgressRow>>): UnitId | null {
+export function pickPivot(goals: Goal[], progress: Partial<Record<UnitId, ProgressRow>>, today?: string): UnitId | null {
   const cands = goals.filter((g) => g.status === 'standby').sort((a, b) => a.priority - b.priority);
   for (const g of cands) {
     const st = progress[g.unit_id]?.status;
     if (st === 'mastered' || st === 'maintenance') continue;
+    if (inPivotCooldown(progress[g.unit_id], today)) continue;   // ⭐ 핑퐁 쿨다운 — 최근 포기한 유닛으로 되돌아가지 않음
     return g.unit_id;
   }
   return null;
 }
 // ⭐ B(이사님 2026-06-19) — standby 후보가 비어 pickPivot이 null일 때의 폴백. CORE_ORDER에서 focus 이후(순환) 첫 '미이수+minWeek<=주차' 유닛.
 //   환경 유닛(table-stage)이 hardStall인데 goals standby가 비어도(콜드스타트) 음식 트랙 등으로 전환 보장. 순수·throw 0.
-export function fallbackPivot(focusId: UnitId, progress: Partial<Record<UnitId, ProgressRow>>, week: number): UnitId | null {
+export function fallbackPivot(focusId: UnitId, progress: Partial<Record<UnitId, ProgressRow>>, week: number, today?: string): UnitId | null {
   const n = CORE_ORDER.length;
   const fi = Math.max(0, CORE_ORDER.indexOf(focusId));
   for (let k = 1; k <= n; k++) {
@@ -113,6 +119,7 @@ export function fallbackPivot(focusId: UnitId, progress: Partial<Record<UnitId, 
     if (UNITS[u].minWeek > week) continue;
     const st = progress[u]?.status;
     if (st === 'mastered' || st === 'maintenance') continue;
+    if (inPivotCooldown(progress[u], today)) continue;   // ⭐ 핑퐁 쿨다운 — 최근 포기한 유닛 제외(table↔exposure 왕복 차단)
     return u;
   }
   return null;
@@ -221,14 +228,15 @@ export function advanceProgress(p: {
     // ⭐ B(이사님 2026-06-19) — 'N일째 코칭했는데 진전 0'(hardStall)이면 주1회 피벗 캡을 무시하고 강제 전환(환경 유닛 21일 고착 차단).
     //   standby가 비어 pickPivot이 null이어도 fallbackPivot(CORE_ORDER)이 음식 트랙 등으로 전환을 보장한다.
     const hardStall = (Number((fr2.evidence as Evidence)?.stallStreakDays) || 0) >= TH.hardStallDays;
-    pivotTo = (p.pivotsThisWeek < TH.maxPivotsPerWeek || hardStall) ? pickPivot(p.goals, p.progress) : null;
-    if (!pivotTo && hardStall) pivotTo = fallbackPivot(focus.unit_id, p.progress, p.week ?? 99);
+    pivotTo = (p.pivotsThisWeek < TH.maxPivotsPerWeek || hardStall) ? pickPivot(p.goals, p.progress, p.today) : null;
+    if (!pivotTo && hardStall) pivotTo = fallbackPivot(focus.unit_id, p.progress, p.week ?? 99, p.today);
     if (pivotTo) {
       mode = 'pivot';
-      out.set(focus.unit_id, { ...fr2, status: 'pivoted', stop_reason: stalled ? 'stalled' : 'limping' });
+      // ⭐ 핑퐁 쿨다운(이사님 2026-06-21) — 포기한 유닛에 stalledAt 기록 → pivotCooldownDays간 재선택 제외('포기'가 sticking).
+      out.set(focus.unit_id, { ...fr2, status: 'pivoted', stop_reason: stalled ? 'stalled' : 'limping', evidence: { ...(fr2.evidence as Evidence), stalledAt: p.today } });
       let prow = get(pivotTo);
       if (prow.status === 'not_started' || prow.status === 'pivoted' || prow.status === 'relapsed') {
-        prow = { ...prow, status: 'active', step: Math.max(1, prow.step || 1), started_at: prow.started_at ?? p.today, stop_reason: null };
+        prow = { ...prow, status: 'active', step: Math.max(1, prow.step || 1), started_at: prow.started_at ?? p.today, stop_reason: null, evidence: { ...(prow.evidence as Evidence), stalledAt: undefined } };   // 재활성 = 쿨다운 클리어(다시 시도)
       }
       out.set(pivotTo, prow);
       // ⭐ 피벗은 goals의 focus도 플립해야 영속된다(정적 goals가 다음 날 피벗을 되돌리는 버그 — B-26 리플레이 적발).
@@ -238,7 +246,12 @@ export function advanceProgress(p: {
         g.unit_id === focus.unit_id ? { ...g, status: 'stopped' as const, reason: stalled ? 'stalled' : 'limping' }
         : g.unit_id === pivotTo ? { ...g, status: 'focus' as const } : g);
       if (!pivotInGoals) goalsAfter = [...goalsAfter, { unit_id: pivotTo, priority: 1, status: 'focus' as const }];
-    } else { mode = (limping || !isProgressing(fr2, p.today)) ? 'observe' : 'deepen'; stalledCoaching = true; }   // ⭐ B — limping이면 'deepen' 위장 금지·observe 고정. ⭐ 동기부여 — 정체인데 피벗 못 함 → 편지가 장벽 인정·바 낮추기로(같은 행동 반복 금지). 캡 소진+대상 없을 때만 여기.
+    } else {
+      mode = (limping || !isProgressing(fr2, p.today)) ? 'observe' : 'deepen'; stalledCoaching = true;   // ⭐ B — limping이면 'deepen' 위장 금지·observe. ⭐ 동기부여 — 정체인데 피벗 못 함 → 편지가 장벽 인정·바 낮추기로.
+      // ⭐ 핑퐁 쿨다운(이사님 2026-06-21) — 정체인데 피벗 못 해도 stalledAt 기록 → 다음 주간계획(candidateUnits)이 이 유닛을 쿨다운으로 드롭 → table↔exposure 왕복 차단. 표본 부족(else)엔 안 찍음.
+      const _frO = out.get(focus.unit_id)!;
+      out.set(focus.unit_id, { ..._frO, evidence: { ...(_frO.evidence as Evidence), stalledAt: p.today } });
+    }
   } else mode = 'observe';     // 판정 보류(표본 부족 등) — 질문 정렬(G)이 메움
 
   const dUnit = mode === 'pivot' && pivotTo ? pivotTo : focus.unit_id;

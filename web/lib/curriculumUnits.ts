@@ -55,6 +55,7 @@ export const TH = {
   relapseWindowDays: 14,   // 재발 확정: 임계 미달 연속 일수 ≈ 2주 (설계 §2 표)
   maxPivotsPerWeek: 1,     // 주당 피벗 캡 — 휙휙 방지 (이사님 원칙)
   hardStallDays: 18,       // ⭐ B(이사님 2026-06-19) — 한 유닛을 N일째 코칭했는데 진전 0이면 주1회 피벗 캡을 무시하고 강제 전환(환경 유닛 21일 고착 차단). stallDays(6)×3 = food stalledTarget(3주·21일)보다 한 사다리 빨리 끊음.
+  pivotCooldownDays: 14,   // ⭐ 핑퐁 쿨다운(이사님 2026-06-21) — 정체로 포기(피벗)한 유닛은 N일간 다시 focus/pivot 후보에서 제외. table↔exposure 무한 왕복('포기'가 안 sticking) 차단 → 앞으로 나아감.
   focusMaxStallWeeks: 2,   // 같은 유닛 focus 연속 정체 한도 (E-06)
   envTableStep1: 0.4, envTableStep2: 0.6,   // 식탁 무대 (자체 — 화면·이동 93% 실측 가정 기준)
   mealOver30Cap: 0.3,      // 30분 초과율 상한 (30분 룰 — 07 §4-2·12장 Q2)
