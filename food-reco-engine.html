@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>음식·식재료 추천 데이터 엔진 (통합 정본)</title>
+<meta property="og:title" content="음식·식재료 추천 데이터 엔진 — 통합 정본">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g50:#E8F6F1;--g500:#16A085;--g700:#1B5E20;--r50:#FDECEA;--r500:#E53935;--r700:#C62828;--y50:#FEF6E0;--y700:#F57F17;--s700:#2C3E50;--s800:#1F2D3D;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+  .hero{padding:52px 24px 34px;text-align:center;background:linear-gradient(160deg,#FFF1E2 0%,#FFE3C9 50%,#FFD9B8 100%);color:#5a3410;position:relative}
+  .hero-inner{max-width:880px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(184,106,32,0.12);color:#B86A20;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.05em;margin-bottom:16px;border:1px solid rgba(184,106,32,.3)}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.3;margin-bottom:12px;color:#5a3410}
+  .hero p{font-size:14.5px;color:#7a5530;max-width:760px;margin:0 auto;font-weight:500;line-height:1.75}
+  .hero .crumb{margin-top:15px;font-size:12px;color:#8a6540;font-weight:600}
+  .hero .crumb a{color:#B86A20;text-decoration:none;font-weight:700}
+  main{max-width:980px;margin:0 auto;padding:30px 20px 70px}
+  section.blk{margin-bottom:42px}
+  .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .sec-head .num{font-size:12px;font-weight:800;color:#fff;background:var(--p500);min-width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:0 6px}
+  .sec-head h2{font-size:20px;color:var(--s800);font-weight:800;letter-spacing:-.02em}
+  .sec-sub{font-size:13.5px;color:var(--n500);font-weight:600;margin:0 0 16px 36px;line-height:1.6}
+  .card{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+  .purpose{background:#FFF6EC;border:1.5px solid var(--p100);border-left:5px solid var(--p500);border-radius:14px;padding:18px 20px;font-size:14.5px;font-weight:600;color:#7a5530;line-height:1.75}
+  .purpose b{color:#B86A20}
+  .callbox{background:#F2F8FD;border:1.5px solid #CFE3F5;border-left:5px solid var(--b500);border-radius:12px;padding:14px 17px;font-size:13px;font-weight:600;color:var(--n700);line-height:1.7}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:4px}
+  th,td{border:1px solid var(--n200);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--n50);font-weight:800;color:var(--s800);font-size:11.5px}
+  td b{color:var(--n900)} .ok{color:var(--g700);font-weight:800}.no{color:var(--r700);font-weight:800}.mid{color:var(--y700);font-weight:800}
+  .pipe{display:flex;flex-direction:column;gap:0;max-width:820px;margin:0 auto}
+  .pstep{border:1.6px solid var(--n200);border-radius:13px;padding:13px 16px;background:#fff}
+  .pstep .ph{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+  .pstep .pn{font-size:11px;font-weight:800;color:#fff;background:var(--s700);border-radius:6px;padding:2px 8px}
+  .pstep .ptt{font-size:14px;font-weight:800;color:var(--s800)}
+  .pstep .pd{font-size:12.4px;color:var(--n600);font-weight:600;line-height:1.6}
+  .pstep code,.pd code,td code,.purpose code{background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 5px;font-size:11px;color:var(--n700)}
+  .pchev{align-self:center;color:var(--n300);font-size:14px;font-weight:800;padding:4px 0}
+  ul.tight{margin:8px 0 0 18px;font-size:13px;color:var(--n700);font-weight:600;line-height:1.7}
+  ul.tight code{background:var(--n50);border:1px solid var(--n200);border-radius:4px;padding:0 5px;font-size:11px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  @media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+  .gotcha{border:1.5px solid var(--r50);background:var(--r50);border-radius:11px;padding:12px 15px;font-size:12.4px;color:var(--n700);font-weight:600;line-height:1.65}
+  .gotcha b{color:var(--r700)}
+  .axis{border:1.5px solid var(--n200);border-radius:13px;padding:15px 17px;background:#fff}
+  .axis .at{font-size:15px;font-weight:800;color:var(--s800);margin-bottom:3px}
+  .axis .ap{font-size:12px;color:var(--p700);font-weight:700;margin-bottom:8px}
+  .st{display:inline-block;font-size:10px;font-weight:800;border-radius:100px;padding:2px 8px;color:#fff}
+  .st.live{background:var(--g500)}.st.part{background:var(--y700)}.st.plan{background:var(--n500)}
+  .apib{font-size:10px;font-weight:800;color:#fff;border-radius:100px;padding:2px 8px;white-space:nowrap}
+  .apib.b{background:var(--b500)}.apib.p{background:#9C27B0}.apib.g{background:var(--g500)}
+  .dbw{margin-top:7px;background:var(--g50);border:1px solid #B8E0D2;border-left:4px solid var(--g500);border-radius:8px;padding:6px 10px;font-size:11.3px;color:var(--g700);font-weight:600;line-height:1.6}
+  .dbw code{background:#fff;border:1px solid #B8E0D2;color:var(--g700)}
+  .stat{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .stat .s{background:#fff;border:1.5px solid var(--n200);border-radius:11px;padding:10px 14px;text-align:center;min-width:104px}
+  .stat .s .v{font-size:19px;font-weight:800;color:var(--p700)}
+  .stat .s .l{font-size:10.5px;font-weight:700;color:var(--n500);margin-top:2px}
+  .foot{text-align:center;font-size:12px;color:var(--n500);font-weight:600;padding:20px}
+  .foot a{color:var(--b700);text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+  <span class="tag">🧭 통합 정본 · 2026-06-21</span>
+  <h1>음식·식재료 추천 데이터 엔진</h1>
+  <p>식단 데이터를 모아 식재료 지식 그래프로 만들고, 아이가 잘 먹는 것에서 닮은 식재료·새 조리법으로 다리를 놓아
+  코치 편지가 <b>괴식 없이 믿고 추천</b>하게 하는 엔진. (옛 6개 문서를 이 정본 1개로 통합)</p>
+  <div class="crumb"><a href="/docs.html">← 문서 허브</a> · 통합: 음식추천네트워크 · 코퍼스/도감 · 식단파이프라인 · 푸드체이닝 · 추천SQL · menu-ingest</div>
+</div></div>
+
+<main>
+
+  <!-- 0. 목적 (최상단) -->
+  <section class="blk">
+    <div class="sec-head"><span class="num">목적</span><h2>이 엔진은 무엇을 위한 것인가</h2></div>
+    <div class="purpose">
+      <b>한 줄:</b> 2~6세 아이가 <b>거부감 없이 먹는 음식의 '가짓수'를 한 발씩 넓히도록</b> — 양이 아니라 <b>다양성</b>을 키운다.
+      그러려면 ① 추천이 "지어낸 조합"이 아니라 <b>실측 데이터로 검증된 것</b>이어야 하고, ② 아이의 <b>실제 선호·결핍</b>에 맞아야 하며, ③ 영유아 <b>안전</b>(질식·알레르겐·저염·괴식)을 절대 어기지 않아야 한다.
+      <ul class="tight" style="margin-top:10px">
+        <li><b>① 데이터 인입</b> — 전국 어린이집·유치원 식단표(3경로)를 모아 "급식에 뭐가 자주 나오나"의 모집단 기준을 만든다.</li>
+        <li><b>② 식재료 지식 그래프</b> — 식재료를 <b>곁들임(pair)·사촌(bridge)</b>으로 잇고, 도감 등급(2축)·영양을 붙인다.</li>
+        <li><b>③ 메뉴→식재료 분해</b> — 식단표의 '음식 이름'을 표준 '식재료'로 결정론 분해(환각·괴식 0).</li>
+        <li><b>④ 추천·푸드체이닝</b> — 잘 먹는 것 → 곁들임 → 사촌 → 새 조리법으로 다리를 놓아 편지에 안전한 후보만 넘긴다.</li>
+        <li><b>⑤ 저장·자가학습</b> — SQL을 단일 진실로, 데이터가 쌓일수록 추천이 현실에 맞게 야간 자가보정(복리).</li>
+      </ul>
+      <div style="margin-top:10px;font-size:13px"><b>핵심 설계 원칙:</b> 판단(괴식이냐·등재냐)은 <b>빌드타임 1곳</b>에서 사람·증거가 정하고, 런타임/편지는 <b>검증된 것을 믿고</b> 결정론 필터(연령·알레르기)만 건다. <span style="color:var(--r700)">"수치가 LLM을 이기는 게 아니라, 수치가 LLM을 증거로 무장시킨다."</span></div>
+    </div>
+  </section>
+
+  <!-- 1. 전체 흐름 -->
+  <section class="blk">
+    <div class="sec-head"><span class="num">1</span><h2>전체 흐름 — 식단 1장이 추천이 되기까지</h2></div>
+    <p class="sec-sub">3경로로 들어온 식단표가 식재료 지식이 되고, 그게 추천·편지로 나가는 e2e. 외부 OCR/LLM·우리 모듈·DB를 색으로 구분.</p>
+    <div class="card" style="margin-bottom:13px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:11.5px;font-weight:700;color:var(--n600)">
+      범례 <span class="apib b">외부 OCR</span><span class="apib p">외부 LLM</span><span class="apib g">DB·SQL</span>
+      <span style="background:var(--n100);border:1px solid var(--n200);border-radius:100px;padding:2px 9px;font-size:10.5px">우리 모듈 <code style="font-size:9px">code</code></span>
+    </div>
+    <div class="pipe">
+      <div class="pstep"><div class="ph"><span class="pn">입력</span><span class="ptt">식단표 3경로 → ocr_logs 큐(멱등)</span></div>
+        <div class="pd">① <b>zip 관리자</b>(센터 식단 묶음) · ② <b>daycare-eval</b> 업로드 · ③ <b>부모 기록탭</b>. 모두 <code>(기관,월)</code> 멱등키로 중복 제거 — 같은 기관-월 재입력해도 한 번만.</div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep"><div class="ph"><span class="pn">S1</span><span class="ptt">OCR 전사 (사진/PDF → 글자)</span><span class="apib b">Naver CLOVA OCR V2</span><span class="apib g">Storage</span></div>
+        <div class="pd"><code>app/api/ocr</code> — 표 인식(실패 시 일반 OCR 폴백). PDF는 pdftoppm 래스터화. <div class="dbw">📦 <code>ocr_logs</code>(감사): ocr_text·model·tokens</div></div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep"><div class="ph"><span class="pn">S2</span><span class="ptt">메뉴 추출·이름 교정</span><span class="apib p">Claude Sonnet 4.6 · Vision</span></div>
+        <div class="pd">OCR 텍스트+이미지 → <code>items[{date,slot,menu}]</code>. 오인식 교정(돈까스→돈가스)·알레르기기호 제거.</div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep"><div class="ph"><span class="pn">S3</span><span class="ptt">메뉴 → 식재료 분해 (결정론 6단계)</span><span class="apib p">DeepSeek/Haiku 미해결만</span></div>
+        <div class="pd"><code>0 learned 캐시</code>→<code>1 dict 2062</code>→<code>1b 부분</code>→<code>2 스캔+boost</code>→<code>meatFix</code> → 미스만 <code>3 LLM</code>. 표준명(lexicon)·CANON_VOCAB 검증(양념 제외·환각 차단). <div class="dbw">📦 <code>learned_menus</code> 캐시(멱등·다음부터 무료)</div></div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep"><div class="ph"><span class="pn">S4</span><span class="ptt">(기관,월) dedup 집계 → 지식</span><span class="apib g">SQL</span></div>
+        <div class="pd">기관-월 1벌 단위로: <b>등장률</b>(youa-freq baseline) + <b>공출현 쌍</b>(같은 끼니) + <b>도감 2축 등급</b>. <div class="dbw">📦 <code>institution_menus</code>·<code>ingredient_edges</code>(pair/bridge)·<code>ingredients</code>(도감)</div></div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep"><div class="ph"><span class="pn">S5</span><span class="ptt">추천·푸드체이닝 → 편지</span><span class="apib p">DeepSeek 작문만</span></div>
+        <div class="pd"><code>graphSource</code>(SQL) → <code>strongPairsOf·verifiedCousinsOf·safeGarnishOf</code> → 5전략(liked·pair·chain·dish·plain) → 안전 필터 → 편지(재료=결정론, 문장=LLM).</div></div>
+      <div class="pchev">▼ &nbsp;새벽 크론(자가학습 복리)&nbsp; ▼</div>
+      <div class="pstep" style="border-color:#CFE3F5;background:#F7FBFE"><div class="ph"><span class="pn">🌙</span><span class="ptt">야간 통합 배치</span></div>
+        <div class="pd">ocr_logs 큐 정제→learned_menus · 식재료 backfill · 신규 식재료→enrich_queue(영양) · 공출현→<code>ingredient_edges</code> 갱신 · warm(SQL→메모리). 데이터 쌓일수록 추천 자가보정.</div></div>
+    </div>
+  </section>
+
+  <!-- 2. 5축 통합 -->
+  <section class="blk">
+    <div class="sec-head"><span class="num">2</span><h2>5개 축 (옛 문서들의 통합)</h2></div>
+    <p class="sec-sub">옛 6개 문서가 다루던 내용을 5축으로 합쳤다. 각 축 제목 옆 = 현재 상태(<span class="st live">라이브</span>/<span class="st part">부분</span>/<span class="st plan">계획</span>).</p>
+    <div style="display:flex;flex-direction:column;gap:13px">
+      <div class="axis">
+        <div class="at">A. 데이터 인입 <span class="st part">부분</span> <span style="font-size:11px;color:var(--n400)">← menu-ingest</span></div>
+        <div class="ap">전국 식단표 3경로 → (기관,월) 멱등 → 모집단 빈도(youa-freq) baseline</div>
+        <ul class="tight">
+          <li>3경로: zip(센터)·daycare-eval(<code>institution_menus</code> UNIQUE upsert)·부모 기록탭(<code>children.institution_id</code>+place=daycare로 환원)</li>
+          <li><b>빈도 2층 분리</b>: baseline(기관-월 등장률 = 도감 등급·코칭 우선순위) / live observed(최근 N개월 dedup 상위% = 랭킹 동률가산)</li>
+          <li>경로1 zip = 사진/PDF면 OCR 경로(parse_and_aggregate는 xlsx 전용). 폐지된 식약처 영유아 API를 이 OCR 적재가 대체.</li>
+        </ul>
+      </div>
+      <div class="axis">
+        <div class="at">B. 식재료 지식 그래프 <span class="st live">라이브</span> <span style="font-size:11px;color:var(--n400)">← 음식추천네트워크</span></div>
+        <div class="ap">식재료 노드 + pair(곁들임/궁합)·bridge(사촌/대체)·도감 2축 등급</div>
+        <ul class="tight">
+          <li><b>pair 940 · bridge 175</b>(무방향). lift=c·N/(na·nb)로 우연 보정 → grade strong/medium/weak. tray(NEIS 식판 공출현) 축 병합.</li>
+          <li><code>strongPairsOf</code>(약신호 차단)·<code>verifiedCousinsOf</code>(검증 사촌)·<code>garnishPairsOf</code>(tray 제외 곁들임).</li>
+          <li><b>도감 2축</b>: 영유아 등장률 ⊕ 초등 elem_count → 결합등급 MAX → 코칭 노출 우선순위. <span class="st plan">계획</span> TIER2 자동 bridge(영양 코사인·감각 7축).</li>
+        </ul>
+      </div>
+      <div class="axis">
+        <div class="at">C. 메뉴→식재료 분해·유지 <span class="st live">라이브</span> <span style="font-size:11px;color:var(--n400)">← 코퍼스/도감 스킬</span></div>
+        <div class="ap">음식 이름을 표준 식재료로 결정론 분해 + 사전/도감 유지보수</div>
+        <ul class="tight">
+          <li>결정론 6단계(<code>0 dict→1 룰→1b 부분→2 스캔+boost→meatFix</code>) → 미스만 LLM. 대부분 메뉴 무료·즉시.</li>
+          <li><b>크론=적용 / 스킬=개선</b>: 새벽 크론은 사전대로 분해·백필, <code>/mealfred-food-mapping</code> 스킬은 사전·도감 자체를 개선(DB 쓰기 0·정적 JSON+코드 커밋).</li>
+          <li><b>안전 스크린 우회 금지</b>: 도감 자동 등재해도 영유아 안전(질식·보툴리누스·고나트륨 한방·비타민A 과잉)은 절대 통과 못 함. 한방 재료는 매핑에서 무시(인삼닭곰탕→[닭고기,무,대파]).</li>
+        </ul>
+      </div>
+      <div class="axis">
+        <div class="at">D. 추천·푸드체이닝 <span class="st part">부분</span> <span style="font-size:11px;color:var(--n400)">← 푸드체이닝</span></div>
+        <div class="ap">잘 먹는 것에서 닮은 식재료·새 조리법으로 한 발씩 (다양성 ↑)</div>
+        <ul class="tight">
+          <li><b>거울 5전략</b>(liked·pair·chain·dish·plain) + supply/challenge 주간 로테이션(영양 심각도 기반). <span class="st live">라이브</span></li>
+          <li><b>한 번에 한 축만</b>(novelty 과부하 차단). 아이 상태벡터(F먹음·M메뉴·C조리법…). 노출 8~10회 안심(USDA·최대 30회 정상).</li>
+          <li><span class="st plan">계획</span> 2축 확장(조리법축·온도축)·neophobia 연령곡선(2세 가까운 사촌/5~6세 먼 도약)·아이별 학습루프. <span style="color:var(--r700)">⚠️ "5→20.5" 날조 수치 인용 영구 금지(정확: n=10·범위 1~8→8~129).</span></li>
+        </ul>
+      </div>
+      <div class="axis">
+        <div class="at">E. 저장·전환·자가학습 <span class="st part">부분</span> <span style="font-size:11px;color:var(--n400)">← 추천 SQL 핸드오프</span></div>
+        <div class="ap">SQL 단일 진실 + graphSource 격리 + 야간 복리 학습</div>
+        <ul class="tight">
+          <li><b>7테이블</b>(ingredients 허브 ⊃ ingredient_edges·dish_ingredient_stats·dogam·meal_logs·learned_menus·nong_foods). <b>3층 캐시</b>(L1 SQL→L2 스냅샷 JSON→L3 인메모리+폴백).</li>
+          <li><code>graphSource.ts</code> 한 겹으로 JSON↔SQL 격리 → 소비 함수 byte 무변경. <span class="st live">라이브</span> 크론이 항상 SQL warm(플래그 졸업).</li>
+          <li><span class="st plan">미구현</span> 야간 SQL→JSON export job(스냅샷 자동 갱신) · 야간 공출현 학습 write(증분 강화) — 로직 검증 완료(아래 예시).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 현재 개발현황 -->
+  <section class="blk">
+    <div class="sec-head"><span class="num">3</span><h2>현재 개발현황 (2026-06-21)</h2></div>
+    <div class="card">
+      <div class="stat">
+        <div class="s"><div class="v">1115</div><div class="l">ingredient_edges(SQL=JSON)</div></div>
+        <div class="s"><div class="v">175</div><div class="l">검증 사촌(bridge)</div></div>
+        <div class="s"><div class="v">2062</div><div class="l">menu-dict 메뉴</div></div>
+        <div class="s"><div class="v">679</div><div class="l">도감 식재료</div></div>
+        <div class="s"><div class="v">13.4k</div><div class="l">learned_menus 캐시</div></div>
+      </div>
+      <table style="margin-top:14px">
+        <tr><th>항목</th><th>상태</th><th>메모</th></tr>
+        <tr><td>식재료 그래프 pair/bridge·lift·tray·garnish 분리</td><td class="ok">라이브</td><td>strongPairsOf/garnishPairsOf 등 적용</td></tr>
+        <tr><td>SQL ingredient_edges ↔ JSON 동기화</td><td class="ok">완료</td><td>782→1115(strong 276→517, tray 복구)·값 100% 일치</td></tr>
+        <tr><td><code>COACH_GRAPH_SQL</code> 플래그 졸업(항상 warm)</td><td class="mid">코드 완료·배포 대기</td><td>route.ts 타 작업과 얽혀 합류 대기(prod는 JSON 폴백으로 안전)</td></tr>
+        <tr><td>메뉴 분해(결정론 6단+LLM)·도감 스킬</td><td class="ok">라이브</td><td>커버리지 ~83%(실측), 미스만 DeepSeek</td></tr>
+        <tr><td>추천 5전략·괴식 게이트·안심 톤</td><td class="ok">라이브</td><td>tray/매운/단↔짠 교차괴식 차단</td></tr>
+        <tr><td>데이터 인입 3경로 통합·(기관,월) 멱등</td><td class="mid">부분</td><td>OCR 배치 가동 중·<code>institution_menu_items</code> 아직 0행</td></tr>
+        <tr><td>야간 공출현 학습 write·SQL→JSON export job</td><td class="no">미구현</td><td>집계 로직은 검증(아래 예시)·크론 배선 남음</td></tr>
+        <tr><td>푸드체이닝 2축 확장·neophobia·학습루프</td><td class="no">계획</td><td>5전략·진척5단계는 라이브, 조리법/온도축은 설계</td></tr>
+        <tr><td>TIER2 자동 bridge(영양 코사인·감각 7축)</td><td class="no">계획</td><td>현재 bridge 175 수기 시드</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. 예시 데이터 -->
+  <section class="blk">
+    <div class="sec-head"><span class="num">4</span><h2>예시 데이터 사례</h2></div>
+
+    <p style="font-weight:800;color:var(--s800);font-size:14.5px;margin:0 0 8px">① 실데이터 — 광진구 어린이집 10월 식단표 (OCR→분해→집계)</p>
+    <div class="card">
+      <div style="font-size:12.5px;color:var(--n700);font-weight:600;line-height:1.7">
+        <b>S1·S2 (CLOVA+Sonnet):</b> <code>1(수) 오전간식: 떠먹는요구르트, 파프리카스틱 / 점심: 닭살채소볶음밥, 연근조림, 자른토마토, 배추김치 / 오후간식: 단호박샐러드</code><br>
+        <b>S3 분해:</b> 닭살채소볶음밥→[닭고기·당근·양파·쌀] · 연근조림→[연근] · 배추김치→[배추·김치]<br>
+        <b>S4 집계(9개 기관-월·멱등):</b> 등장률 TOP = 느타리버섯·단호박·멸치·김치·표고버섯·소고기(소표본이라 다수 100%) · 공출현(같은 끼니) = <code>멥쌀+파 ×140 · 김치+배추 ×133 · 멸치+파 ×129</code><br>
+        <b>멱등 검증:</b> 같은 데이터 재투입 → 신규 0·중복 스킵 9·누적 불변(중복 카운팅 0).
+      </div>
+      <p style="font-size:11.5px;color:var(--n500);font-weight:600;margin-top:9px">※ 데이터 쌓일수록(현재 OCR 배치 가동 중·155개 식단표) 등장률이 차등화 → 폐지된 식약처 영유아 API 대체. 분해 미스(돈가스·오므라이스 등)는 야간 DeepSeek.</p>
+    </div>
+
+    <p style="font-weight:800;color:var(--s800);font-size:14.5px;margin:22px 0 8px">② 판정 엑셀 — 사람이 증거 보고 결정(빌드타임 1곳)</p>
+    <div class="card">
+      <table>
+        <tr><th>a ↔ b</th><th>종류</th><th>lift</th><th>증거</th><th>안전</th><th>판정</th></tr>
+        <tr><td>소고기 ↔ 시금치</td><td>pair</td><td>1.8</td><td>시금치무침+불고기 식판 3건</td><td class="ok">O</td><td class="ok">승인</td></tr>
+        <tr><td>떡 ↔ 달걀</td><td>pair</td><td class="no">0.72</td><td>같은 끼니 거의 없음(우연 이하)</td><td class="no">음성lift</td><td class="no">거부</td></tr>
+        <tr><td>견과 ↔ 요거트</td><td>bridge</td><td>—</td><td>flavor 유사</td><td class="no">질식·알레르겐</td><td class="mid">조건부(만3+·잘게)</td></tr>
+        <tr><td>두부 ↔ 근대</td><td>bridge</td><td>—</td><td>부드러운 식감·철분 결핍 동급</td><td class="ok">O</td><td class="ok">승인</td></tr>
+      </table>
+      <p style="font-size:11.5px;color:var(--n500);font-weight:600;margin-top:9px">안전플래그(질식·8대알레르겐·음성lift·꿀만1세)는 코드 자동 계산 = 판단 대상 아님. 나머지만 사람 판정.</p>
+    </div>
+
+    <div class="grid2" style="margin-top:16px">
+      <div class="card"><b style="color:var(--s800)">③ 분해 4단 폴백</b>
+        <ul class="tight">
+          <li>'계란찜' → learned 캐시 → menu-dict 일치 → substring 최장일치 → LLM(Haiku)</li>
+          <li>'인삼닭곰탕' → [닭고기·무·대파] (인삼=한방 안전스크린 차단)</li>
+          <li>'함초삼겹' → [돼지고기] (함초=고나트륨 차단)</li>
+        </ul>
+      </div>
+      <div class="card"><b style="color:var(--s800)">④ 추천·괴식 차단</b>
+        <ul class="tight">
+          <li>감자 잘 먹음 → 단호박(사촌·비타민A 갭) + 찐 감자(조리법 전이)</li>
+          <li>미역국+당근 = 괴식 자동 제외(scoreCombo&lt;임계)</li>
+          <li>두부 타깃 + 김치 → "김치 곁들임" 차단(매운/tray 제외)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 안전 불변선 -->
+  <section class="blk">
+    <div class="sec-head"><span class="num">5</span><h2>안전·불변선 (절대 어기지 않는 것)</h2></div>
+    <div class="grid2">
+      <div class="gotcha"><b>하드 차단(코드 자동)</b> — 질식위험·8대 알레르겐·음성 lift·꿀(만1세). 판단 대상 아님, 무조건 제외.</div>
+      <div class="gotcha"><b>괴식 0</b> — 검증 테이블 안의 조합만 추천. 공출현 0 조합은 메뉴로 존재 안 함. 단↔짠(과일·우유 ↔ 생선·콩)·매운/김치류 곁들임 차단.</div>
+      <div class="gotcha"><b>도감 안전스크린 우회 금지</b> — 자동 등재해도 보툴리누스·고나트륨 한방·비타민A 과잉은 통과 못 함. 위험군 보류·보고.</div>
+      <div class="gotcha"><b>날조·과장 금지</b> — "5→20.5" 영구 금지. 서열·등수·% 부모 노출 금지(안심 톤만). 근거 없으면 안 넣음.</div>
+      <div class="gotcha"><b>불변 계약</b> — 소비 함수 시그니처·RawEdge 필드명·PAIR_MIN_STRENGTH=2·괴식 가드·골든 테스트는 불변. graphSource 한 겹으로만 JSON↔SQL 전환.</div>
+      <div class="gotcha"><b>저작권·경계</b> — Satter sDOR 무수정만, SOS표 복제 금지. 점검 신호 ≠ 진단(위험 신호 시 소아과 게이트). 푸드브릿지 ≠ 푸드체이닝.</div>
+    </div>
+  </section>
+
+</main>
+<div class="foot"><a href="/docs.html">← 문서 허브로</a> · 음식·식재료 추천 데이터 엔진 (통합 정본) · 옛 6문서 통합본</div>
+</body>
+</html>

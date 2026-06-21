@@ -55,6 +55,55 @@
 
 <main>
 
+
+<section class="cat-section">
+  <div class="cat-head"><h3>🧭 2026-06-21 추천 데이터 엔진 통합 — 정본 1개로 통합</h3><span class="cnt">6 문서</span><span class="note">→ <a href="/food-reco-engine.html" style="color:#C45A00;font-weight:700">food-reco-engine (통합 정본)</a>이 대체</span></div>
+  <div class="doc-grid">
+    <a href="/food-network-data-architecture.html" class="doc-card cat-strategy">
+      <span class="badge deprecated">📦 통합됨</span>
+      <div class="ico">🕸️</div>
+      <h4>음식 추천 네트워크 — 데이터 강화 아키텍처 (2~6세)</h4>
+      <p class="desc"><b>추천 그래프를 어떤 데이터로·어떤 관문을 거쳐 풍성하게 만들 것인가.</b> 핵심 원칙 = <b>수치는 후보를 만들고(+안전 바닥), 사람(Claude)이 증거 엑셀을 보고 판정하고, 편지는 믿고 쓴다</b> — 판단은 빌드타임 1곳, 런타임은 연령·알레르기 결정론 필터뿐. 위에 부어 넣을 <b>데이터 3티어</b>(보유 1차 신호·국가 공공데이터·유사도 모델) + <b>국가 레시피 backbone</b>(조리기능사·농진청 3,248·식약처 영유아 식단 API) + <b>bridge 수기→데이터 자동화</b>(영양∩감각∩향미) + <b>2~6세 안전 메타</b>(질식·IDDSI 식감·8대 알레르겐·KDRI·신포비아). 3약점 진단·검수 엑셀 포맷·즉시/단기/중기 로드맵. <span style="color:#C45A00">떡+달걀 교훈 = "LLM 빼라"가 아니라 "데이터로 무장시켜라".</span></p>
+      <div class="meta"><span>ENGINE · 추천 네트워크 설계 정본</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/food-chaining-personalization-engine.html" class="doc-card cat-strategy">
+      <span class="badge deprecated">📦 통합됨</span>
+      <div class="ico">🌉</div>
+      <h4>푸드체이닝 개인화 모듈 — 아이의 선호에서 식재료 경험의 폭을 넓히는 추천 설계</h4>
+      <p class="desc"><b>아이가 이미 잘 먹는 것에서 한 발씩, 닮은 식재료·새 조리법으로 다리를 놓는 모듈의 설계도(개발 전 기획).</b> ① <b>푸드체이닝 이론 지도</b>(Fraker 4축·SOS 6단계 위계·반복노출·Satter DOR·AAP food bridges·한국 푸드브릿지 계보 시각화) ② <b>실증 현황 정직 구분</b>(반복노출=강 / 체이닝·SOS 효능=논쟁 · ⚠️"5→20.5개" 날조 수치 인용 금지) ③ <b>현행 추천 원리 시각화</b>(<code>coachRecos</code> 5전략·재료=결정론·문장=LLM) ④ ⭐<b>신규 모듈</b>(아이 상태벡터 F·M·C·노출·SOS단계 + <b>2축 확장</b>[사촌×익숙기법 / 잘먹는음식×새기법] + 빈 신호 4종[온도축·노출카운트·비이진진척·연령기대]) ⑤ <b>출력 2방식</b>(ⓐ편지 산입 ⓑ편지→도감 맞춤 레시피) ⑥ 데이터 자산 매핑·로드맵 A~F·실용문서 17종(검증 URL). <span style="color:#C45A00">목표 = 아이가 '심리스하게' 먹는 폭을 넓히는 것.</span></p>
+      <div class="meta"><span>ENGINE · 추천 모듈 기획 정본</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/data-pipeline-erd.html" class="doc-card cat-strategy">
+      <span class="badge deprecated">📦 통합됨</span>
+      <div class="ico">🔄</div>
+      <h4>식단 데이터 파이프라인 · ERD · 시스템 아키텍처</h4>
+      <p class="desc"><b>원천에서 편지까지 데이터가 어떻게 흐르는가 — 실제 코드 단위.</b> ① <b>원천 합법 3층</b>(NEIS 학교만·식약처 영유아 식단 API·CCFSM 표준식단 vs ❌알림장·카페 크롤링) ② <b>파이프라인 S1~S6</b>(수집→정규화→메뉴 4단 분해→<b>웹 식재료 추정</b>→코퍼스→네트워크)·LLM 개입 3곳(미지분해 Haiku·OCR Sonnet Vision·작문)·환각 가드 ③ <b>ERD</b>(음식·식재료·음식↔식재료·식재료↔식재료 + meal_logs/ocr/coach_letters 관계) ④ <b>편지 8단 소비 경로</b>(재료=결정론·문장=LLM·4중 게이트) ⑤ <b>시스템 8층</b>. <span style="color:#C45A00">"긁어서 어떻게 DB에 넣고 편지가 끌어다 쓰나"의 단일 진실.</span></p>
+      <div class="meta"><span>ENGINE · 파이프라인·ERD 정본</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/food-mapping-skill-architecture.html" class="doc-card cat-strategy">
+      <span class="badge deprecated">📦 통합됨</span>
+      <div class="ico">🛠️</div>
+      <h4>코퍼스·도감 유지보수 스킬 — 작동 원리 (데이터 흐름·왜 JSON)</h4>
+      <p class="desc"><b>메뉴→식재료 매핑·도감·매트릭스를 살아있는 데이터로 다듬는 큐레이션 스킬이 어떻게 도나.</b> 코드 근거 검증(5에이전트) 기반. ① <b>한눈에 SVG</b>(입력→가공→산출→배포→크론 소비) ② <b>크론은 적용·스킬은 개선</b>(요리사 vs 편집자) ③ <b>주요 기능 A0→A→B→C</b>(증분 정독·사전 튜닝·매트릭스·도감 확장) ④ ⭐<b>무엇을 읽고 저장하나</b>(DB는 <code>learned_menus·meal_logs·user_menu_overrides</code> 읽기 전용 3 / 저장은 코드 2+정적 JSON 10, <b>DB 쓰기 0</b>) ⑤ <b>결정론 매핑 파이프라인 SVG</b>(0차 dict→1차 룰→1b 부분일치→2차 스캔+boost→meatFix→3차 LLM 폴백) ⑥ ⭐<b>왜 테이블 없이 JSON인가</b>(레퍼런스↔상태 분리·0ms·트리셰이킹·git 롤백·graphSource 격리층 — 코드 file:line 근거) ⑦ <b>안전 스크린</b>(인삼닭곰탕→[닭고기,무,대파]). <span style="color:#C45A00">"DB 튜플 영향 0 · 크론이 자동 WRITE"의 단일 진실.</span></p>
+      <div class="meta"><span>SKILL · 작동 원리 정본</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/coaching-db-migration-handoff.html" class="doc-card cat-strategy">
+      <span class="badge deprecated">📦 통합됨</span>
+      <div class="ico">🔀</div>
+      <h4>추천 데이터 SQL 전환 — 코칭엔진 핸드오프</h4>
+      <p class="desc"><b>추천 네트워크(사촌·궁합·음식×식재료)를 정적 JSON → SQL로 전환하는 양 세션 핸드오프.</b> 추천 로직은 그대로 두고 <b><code>graphSource</code> 한 겹</b>으로 JSON import 격리 → 소비 함수 byte 무변경. <b>7테이블 모델</b>(ingredients 허브·dogam·ingredient_edges·dish_ingredient_stats) + <b>캐시 3층</b>(SQL 원천→야간 스냅샷→인메모리+affinity_cache 폴백) + 현재 읽기 경로(file:line) + 불변 계약 + 분담 + 작업 순서. <span style="color:#C45A00">데이터 세션 ↔ 코칭엔진 세션 접점 = graphSource 반환 shape. 임시 참조용(전환 완료 후 정본 통합).</span></p>
+      <div class="meta"><span>HANDOFF · 임시 참조</span><span class="arrow">→</span></div>
+    </a>
+    <a href="/menu-ingest-pipeline.html" class="doc-card cat-strategy">
+      <span class="badge deprecated">📦 통합됨</span>
+      <div class="ico">🔁</div>
+      <h4>식단 인입 파이프라인 — 3경로 운용전략 · 변환 흐름 · 야간 배치 (menu-ingest)</h4>
+      <p class="desc"><b>식단표가 OCR→분해→정제→DB까지 가는 전 흐름 + 3경로 통합 운용전략(정본).</b> ① <b>3경로 인입</b>(zip 관리자·daycare-eval·부모 기록탭)을 <code>institution_menus</code>로 수렴·<b>(기관,월) 멱등 dedup</b> ② <b>end-to-end 변환 흐름도</b>(CLOVA OCR→Claude Sonnet Vision→DeepSeek 분해→learned_menus→최종 테이블, "소고기무국→[소고기,무]" 추적) ③ <b>도감 2축 재정의 SQL 반영</b> 시각화(영유아 등장률⊕초등 elem_count→결합등급→<code>ingredients</code> PATCH) ④ <b>야간 통합 배치 설계</b>(ocr_logs 큐→정제→learned→enrich_queue 도감+영양→공출현 갱신) ⑤ 기존 zip 배치 3단계 런북·2축 등급. <span style="color:#C45A00">결정 1ⓐ2ⓑ3ⓐ+기관필수화 확정 · warm (기관,월) dedup 라이브 · 멱등게이트/공출현 야간화 구현 예정(2026-06-21).</span></p>
+      <div class="meta"><span>PIPELINE · 운용전략 정본</span><span class="arrow">→</span></div>
+    </a>
+  </div>
+</section>
+
 <section class="cat-section">
   <div class="cat-head"><h3>⚡ 2026-06-16~17 완료된 설계 — 구현·배포·적용 완료로 아카이브</h3><span class="cnt">3 문서</span></div>
   <p style="font-size:12.5px;color:#6B7280;font-weight:600;margin:0 0 12px">설계 후 <b>구현·배포가 완료</b>돼 메인 허브에서 내린 문서. 내용은 보존(열람 가능).</p>
