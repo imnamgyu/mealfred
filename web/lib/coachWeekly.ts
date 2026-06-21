@@ -103,7 +103,7 @@ export type WeeklyAnchor = {
   goals?: Goal[] | null;   // ⭐ v3 목표 포트폴리오 2~3(A-04 컬럼 — 구닻은 null, goalsOf가 lever에서 승격)
   plan_detail?: PlanDetail | null;   // ⭐ 주간계획 모듈 산출(작전층 부가 계획) — 일간이 slot 소비. null=thin 폴백.
 };
-export const DEFAULT_BUDGET: WeeklyBudget = { expose: 2, push: 1, cadenceMinGap: 1, pushWindow: [2, 3, 4], lever: 'food' };  // 노출 2·채근 1·간격 1일·push 윈도우 화수목(dow 2,3,4)·기본 레버=food
+export const DEFAULT_BUDGET: WeeklyBudget = { expose: 2, push: 1, cadenceMinGap: 1, pushWindow: [1, 2, 3, 4, 5], lever: 'food' };  // ⭐ K-10(2026-06-21) — push 윈도우 월~금(dow 1~5)으로 확장(차림 늦은 주도 주중 push 1회). line366 게이트·firstServe·주1회캡·강등 무변경.
 // 구조 레버(비식품) → 그 주 일간 프레임이 되는 시나리오. food는 mission_target 잠금 경로로.
 // ⭐ A-02 — 단일 진실(route 두뇌 게이트가 import해 leverScenario 호환 판정). food는 키 없음(=mission_target 잠금 경로).
 export const LEVER_SCENARIO: Record<string, string> = { environment: 'mealtime-atmosphere', autonomy: 'autonomy-power-struggle', texture: 'texture-refusal' };

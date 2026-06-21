@@ -665,6 +665,10 @@ export async function GET(req: Request) {
                 const { error: e2 } = await supabase.from('weekly_plans').upsert(legacy, { onConflict: 'child_id,week_key' });
                 if (e2) console.warn('[cron/coach] weekly anchor legacy upsert:', e2.message);
               }
+              // ⭐ D-07/I-01(2026-06-21) — status supersede: 새 active 닻 저장 시 직전 다른 주의 active를 stale_carried로 강등(1 active/child 불변식 — W22~W25 동시 active 다행 차단).
+              if (!upErr && row.status === 'active') {
+                await supabase.from('weekly_plans').update({ status: 'stale_carried' }).eq('child_id', cid).neq('week_key', wk).eq('status', 'active');
+              }
               return row as unknown as WeeklyAnchor;
             };
             const loadAnchor = async (wk: string): Promise<WeeklyAnchor | null> => {
@@ -877,7 +881,9 @@ export async function GET(req: Request) {
             const _alignGroups = planCtx?.target ? [planCtx.target] : (gMissing.length ? gMissing : gHomeMissing);
             const _inTgt = recoPoolArr.filter((p) => { const g = groupOfIngredient(p); return g != null && _alignGroups.includes(g); });
             const _basis = _inTgt.length ? _inTgt : recoPoolArr;
-            recoIng = _basis.find((p) => !(recentRecoIng[cid] || []).slice(0, 5).includes(p)) || _basis[0] || null;
+            // ⭐ K-09(2026-06-21) — 회전 dedup 창을 풀크기 종속으로(고정 5창은 협소 풀에서 전부 배제→회전0). 풀≤1이면 회전 스킵.
+            recoIng = _basis.length <= 1 ? (_basis[0] || null)
+              : (_basis.find((p) => !(recentRecoIng[cid] || []).slice(0, Math.max(1, Math.min(5, _basis.length - 1))).includes(p)) || _basis[0] || null);
             // ⭐ 주간계획 모듈 소비(이사님 2026-06-18) — plan_detail이 있으면 '7일치 구체 dish 회전 슬롯'을 우선 사용(유연성 가드:
             //   그날 결핍으로 vetting). slot.ingredient가 구체 회전(콩류 두부 도돌이표 차단). 없으면 위 기존 회전 폴백(degrade-safe).
             if (defMature && planDetailCtx) {
