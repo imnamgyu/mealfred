@@ -1219,21 +1219,78 @@ ${mealLines}
 ${pastQA.length ? `[지난 질문·답변 — 겹치지 말 것]\n${pastQA.map((p) => `Q:${p.q} → A:${p.a || '무응답'}`).join('\n')}` : ''}
 
 규칙:
-- **질문은 부모가 아는 형태로 짚어라: {언제}(어제/오늘/N일 전) + {끼니}(점심 등) + {음식명}(카레 등) + {재료명}(감자 등).** 예: "어제 점심 카레에 든 감자, 안 남기고 잘 먹었나요?" — 식재료명만 대면 부모가 못 알아본다(아이가 '감자'를 먹은 게 아니라 '카레'를 먹었다고 기억). **음식명("…"의)이 있으면 반드시 질문에 넣어라.** 음식명이 없으면 끼니+재료명만.
+- **질문은 부모가 아는 형태로 짚어라: {언제}(어제/오늘/N일 전) + {끼니}(점심 등) + {음식명 또는 재료명}.** 음식명(부모가 차린 요리명)이 [최근 로그한 음식]에 있으면 그걸 그대로 인용("…"의)하고, 없으면 끼니+재료명만 써라. 식재료명만 대면 부모가 못 알아보니(아이는 '감자'가 아니라 그 요리를 먹었다고 기억) 요리명이 목록에 있으면 반드시 넣어라.
+- ⚠️⚠️ **음식·끼니·날짜는 반드시 [최근 로그한 음식] 목록에 실제로 있는 것만 써라.** 목록에 없는 음식명을 절대 지어내지 마라(목록에 없는데 임의의 인기 메뉴명을 갖다 쓰면 안 된다).
+- ⚠️⚠️ **없는 사건·이유·배경을 절대 지어내지 마라.** '배탈/체함/아파서/토함/속이 안 좋아' 같은 건강 사건, "~라고 하셨는데"·"~드셨다고 하셨는데"처럼 부모가 하지도 않은 말을 인용하는 것 — 모두 금지. 질문은 기록된 사실(어느 끼니에 무엇을 먹었다)만 근거로 담백하게 한 문장으로 물어라. 동정적 도입을 지어내지 말 것.
 - **어떤 음식을 짚을지**(우선순위): ① 최근(어제 등) 새로 시도한 식재료, ② 거부했던 식재료 중 아직 반응이 기록 안 된 것. **무엇을 물을지**는 위 '오늘의 질문 주제'(반응·혼합·환경 등)를 따른다 — 매번 '잘 먹었나요'(완식)로 묻지 말 것.
 - 이미 '잘먹음'/'거부'가 표시된(=엄마가 반응 남긴) 음식은 다시 묻지 않는다(중복).
 - 짚을 음식은 집 끼니(부모가 차린 것) 또는 거부 식재료(집 재노출 가능)에서. 기관에서 잘 먹은 끼니는 부모가 통제 못 하므로 혼합·환경을 묻지 않는다.
 - 먹었는지 여부(데이터로 아는 것)는 묻지 않는다. 정성(완식·혼합·반응·환경)만.
-- 짧고 따뜻하게(존댓말). 죄책감 유발 금지. 없는 과거를 지어내지 말 것.
+- 짧고 따뜻하게(존댓말). 죄책감 유발 금지.
 - chips: 1탭 답변 보기 4~5개. **반드시 "잘 모르겠어요"를 마지막에 포함**(부모가 특정 재료의 반응을 모를 수 있음). 예: ["남김없이 잘 먹었어요","조금 남겼어요","거부했어요","잘 모르겠어요"].
 
 JSON만: {"question": "...", "topic": "반응", "chips": ["보기1","보기2","보기3","잘 모르겠어요"]}`;
 }
 
+// ⭐ 질문 환각 가드(이사님 2026-06-21) — "어제 저녁에 배탈이 나서 조금만 드셨다고 하셨는데…카레…"(아린 06-21) 사건에서 도입.
+//   질문 생성기가 기록에 없는 사실을 지어내던 걸 결정론으로 거른다. 적대 워크플로우(84케이스)로 4갈래 보강.
+// ① 건강·증상 날조 — 의학 사건은 기록에 없으면 100% 환각(가장 위험: 거짓 의학 단정)
+const Q_FABRICATION_RX = /배탈|체했|체함|체한|체기|토했|토함|토하|구토|복통|설사|열이|열나|아파|아픈|아팠|메스꺼|울렁|속이?\s*안\s*좋|배가?\s*아|감기|콧물|몸살|기침|장염|인후통|무기력|두통|어지럼|빈혈|입맛이?\s*없|목이?\s*부|기운이?\s*없/;
+// ② 부모 발언 전가 — 질문 생성기는 부모가 '말한' 적이 없다(부모는 로그=데이터로만 소통). "~라고 하셨/적어주셨/먹었다고"류 단정은 전부 날조
+const Q_FALSE_ATTRIB_RX = /하셨는데|하셨죠|하셨으니|하셨던|하셨다는|하셨다니|하셨다고|하셨다면서|하셨다던|하셨더|하셔서|드셨다고|드셨다니|드셨다는|적어\s*주[셔셨]|적으셨|메모\s*해?\s*주[셔셨신]|말씀하[셨신]|라고\s*하[셨신]|다고\s*하셨|먹는다고|좋아한다고|먹었다고|거부했다고|비웠다니/;
+// ③ 감정·사회·행동 정황 — 정상 음식 질문엔 절대 안 나오는 어휘(기록에 없는 배경·행동·과장수량 날조)
+const Q_EMOTION_EVENT_RX = /속상|시무룩|토라|삐[치쳐]|질투|떼[를쓰써]|보채|짜증|혼나|혼났|꾸중|다툰|다투|울던|울면서|울어서|긴장했|낯선\s*사람|분리불안|뺏[어아]|던졌|집어\s*던|박차|기분이?\s*안\s*좋|달래\s*주|먹어\s*치웠|들이켜|대접/;
+// ④ 미등록 음식 날조 — 흔한 음식이 질문에 나왔는데 실제 로그(allowed)에 없으면 패럿. allowedHasWord가 오탐 차단(로그에 있으면 통과)
+const Q_COMMON_FOODS = ['카레', '감자', '김치찌개', '된장찌개', '미역국', '북엇국', '불고기', '떡국', '떡볶이', '잡채', '오므라이스', '고등어', '갈치', '시금치나물', '브로콜리', '닭볶음탕', '유부초밥', '콩나물국', '함박스테이크', '비빔밥'];
+function allowedFoodSet(input: QuestionInput): Set<string> {
+  const s = new Set<string>();
+  for (const m of (input.recentMeals || [])) {
+    if (m.food) s.add(m.food);
+    if (m.menu) m.menu.split('·').forEach((x) => { const t = x.trim(); if (t) s.add(t); });
+  }
+  for (const arr of [input.recentIngredients, input.refused, input.homeRefused, input.daycareRefused]) {
+    (arr || []).forEach((x) => { if (x) s.add(x); });
+  }
+  return s;
+}
+// 로그(allowed)에 이 음식이 실제로 있나. ⚠️ 1글자 토큰('김')이 '김치찌개'를 오매칭하지 않게 w.includes 방향은 a 길이≥2 요구.
+const allowedHasWord = (set: Set<string>, w: string) => [...set].some((a) => a.includes(w) || (a.length >= 2 && w.includes(a)));
+/** 질문이 기록을 벗어나 지어냈으면 사유 문자열, 아니면 null. (export = 테스트) */
+export function questionFabricates(q: string, allowed: Set<string>): string | null {
+  if (!q) return null;
+  if (Q_FABRICATION_RX.test(q)) return 'health';        // ① 건강 사건 날조
+  if (Q_FALSE_ATTRIB_RX.test(q)) return 'attrib';       // ② 부모 발언 전가
+  if (Q_EMOTION_EVENT_RX.test(q)) return 'emotion';     // ③ 감정·사회 갈등 정황 날조
+  for (const w of Q_COMMON_FOODS) if (q.includes(w) && !allowedHasWord(allowed, w)) return 'food:' + w;   // ④ 미등록 음식
+  return null;
+}
+/** LLM 없이 최근 로그 음식으로 짓는 안전 질문(환각 구조적으로 불가). */
+function safeQuestion(input: QuestionInput): { question: string; topic: string; chips: string[] } {
+  const chips = ['남김없이 잘 먹었어요', '조금 남겼어요', '거부했어요', '잘 모르겠어요'];
+  const m = (input.recentMeals || [])[0];
+  if (m && (m.menu || m.food)) {
+    const when = agoLabel(m.daysAgo); const slot = m.slot ? (SLOT_LABEL[m.slot] || '') : '';
+    const dish = m.menu ? `'${m.menu.split('·')[0]}'` : `'${m.food}'`;
+    const ctx = [when, slot].filter(Boolean).join(' ');
+    return { question: `${ctx ? ctx + ' ' : ''}${dish} 먹을 때 아이 표정이나 반응은 어땠어요?`, topic: '반응', chips };
+  }
+  return { question: '오늘 식탁에서 아이가 새로 만나본 음식이 있었나요?', topic: '노출', chips: ['있었어요', '없었어요', '잘 모르겠어요'] };
+}
+
 export async function generateQuestion(input: QuestionInput): Promise<{ question: string; topic: string; chips: string[] }> {
-  const out = await callLLM(buildQuestionUser(input), 320);
+  const allowed = allowedFoodSet(input);
+  let out = await callLLM(buildQuestionUser(input), 320);
+  let q = (out.question as string) || '';
+  const bad = questionFabricates(q, allowed);
+  if (bad) {
+    // 1회 교정 재생성 — 위반 사유 명시
+    const fix = `\n\n[⚠️ 재작성 — 직전 질문이 규칙 위반(${bad})] 없는 사건·이유·건강(배탈·아픔 등)을 지어내거나, 부모가 하지도 않은 말("~하셨는데")을 인용하거나, [최근 로그한 음식]에 없는 음식명을 쓰지 마라. 목록에 실제로 있는 끼니·음식만 짚어 담백하게 한 문장으로 다시 물어라.`;
+    out = await callLLM(buildQuestionUser(input) + fix, 320);
+    q = (out.question as string) || q;
+    if (questionFabricates(q, allowed)) return safeQuestion(input);   // 여전히 불량 → 결정론 안전 질문
+  }
   return {
-    question: (out.question as string) || '',
+    question: q,
     topic: (out.topic as string) || '',
     chips: (out.chips as string[]) || [],
   };

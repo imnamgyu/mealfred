@@ -35,6 +35,7 @@ import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, buildIngredientPool, groupOfIngredient, coldStartSeed, STAPLE_FORMS, type FreqMap } from '@/lib/coachRecos';
 import { quantifyPreferences, acceptanceLevel, confidentLiked as confidentLikedFrom, dislikedFoods, type PrefRow } from '@/lib/preferenceQuantification';   // ⭐ 신호포착(이사님 2026-06-19) — 미상을 liked로 오판 차단(확신 신호=완식 반복+Wilson만 liked)
 import { getIngredientsLight, getRecipeFreq, warmGraphFromSql } from '@/lib/graphSource';   // ⭐ JSON 격리(handoff §4) + SQL warm(#2)
+import { warmIngredientFreqFromSql } from '@/lib/coachMaterials';   // ⭐ ingredient-freq 야간 SQL 리밸런싱(타세션 핸드오프 #2)
 import { aggregateUsage } from '@/lib/llmCost';   // ⭐ LLM 사용량 계측(유지비용 실측)
 import { evaluateSnacks, snackEvalToPrompt } from '@/lib/snack';
 import { bmiOf, bmiPercentile, bmiBand, growthTracking, growthTrackToPhrase, type Sex, type BmiBand, type GrowthTrack } from '@/lib/growth-reference';
@@ -202,10 +203,15 @@ export async function GET(req: Request) {
     });
 
     // 자녀 메타 + 오늘 이미 생성된 질문(중복 회피)
-    const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band,chronic_conditions,sex,birth_year,birth_month,height_cm,weight_kg').in('id', activeIds);
+    const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band,chronic_conditions,sex,birth_year,birth_month,height_cm,weight_kg,excluded_ingredients,allergens').in('id', activeIds);
     type KidMeta = { parent_id: string; nickname: string; age_band: string; chronic: string | null; sex: string | null; birth_year: number | null; birth_month: number | null; height_cm: number | null; weight_kg: number | null };
     const kidMap: Record<string, KidMeta> = {};
-    (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string; chronic_conditions: string | null; sex: string | null; birth_year: number | null; birth_month: number | null; height_cm: number | null; weight_kg: number | null }) => { kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band, chronic: k.chronic_conditions, sex: k.sex, birth_year: k.birth_year, birth_month: k.birth_month, height_cm: k.height_cm, weight_kg: k.weight_kg }; });
+    const excludedMap: Record<string, Set<string>> = {};   // ⭐ 제외/알레르겐 안전필터(타세션 핸드오프 2026-06-21) — 추천에 새던 것 차단(아린 06-19 달걀 추천 사고)
+    (kids || []).forEach((k: { id: string; parent_id: string; nickname: string; age_band: string; chronic_conditions: string | null; sex: string | null; birth_year: number | null; birth_month: number | null; height_cm: number | null; weight_kg: number | null; excluded_ingredients: string[] | null; allergens: string[] | null }) => {
+      kidMap[k.id] = { parent_id: k.parent_id, nickname: k.nickname, age_band: k.age_band, chronic: k.chronic_conditions, sex: k.sex, birth_year: k.birth_year, birth_month: k.birth_month, height_cm: k.height_cm, weight_kg: k.weight_kg };
+      const ex = [...(k.excluded_ingredients || []), ...(k.allergens || [])].filter(Boolean);
+      excludedMap[k.id] = new Set(ex.flatMap((s) => s === '달걀' ? ['달걀', '계란'] : s === '계란' ? ['계란', '달걀'] : [s]));   // 달걀↔계란 동의어 갭 방어
+    });
     const { data: todayQs } = await supabase.from('daily_questions').select('child_id').eq('q_date', today).in('child_id', activeIds);
     const hasQToday = new Set((todayQs || []).map((q: { child_id: string }) => q.child_id));
     // 등원 여부 — daycare 컬럼 마이그레이션 전이면 에러(컬럼없음) → 전부 false로 안전 처리
@@ -271,6 +277,12 @@ export async function GET(req: Request) {
       if (w.ok) console.log(`[cron/coach] graph warmed from SQL: ${w.edges} edges, ${w.cells} dishes`);
       else issues.push(`graph warm skip(JSON 유지): ${w.reason}`.slice(0, 120));
     } catch (e) { console.warn('[cron/coach] graph warm error', e instanceof Error ? e.message : e); }
+    // ⭐ ingredient-freq SQL warm(타세션 핸드오프 #2) — institution_menu_items 누적분으로 야간 자동 리밸런싱. 빈약(<3기관-월)/실패 시 정적 ingredient-freq.json 유지(safe degrade).
+    try {
+      const wf = await warmIngredientFreqFromSql(supabase);
+      if (wf.ok) console.log(`[cron/coach] ingredient-freq warmed from SQL: ${wf.count} ingredients`);
+      else issues.push(`ingredient-freq warm skip(JSON 유지): ${wf.reason}`.slice(0, 120));
+    } catch (e) { console.warn('[cron/coach] ingredient-freq warm error', e instanceof Error ? e.message : e); }
 
     for (const cid of activeIds) {
       // maxDuration 전 안전 종료 — 남은 자녀는 다음 실행(오래된 순)이 이어받음
@@ -317,6 +329,7 @@ export async function GET(req: Request) {
           continue;   // 정상 경로 스킵
         }
         const rs = [...(byChild[cid] || [])].sort((a, b) => b.log_date.localeCompare(a.log_date) || (b.slot || '').localeCompare(a.slot || ''));  // 최신순 — dedup이 최신 끼니를 남김
+        const excludedIng = excludedMap[cid] || new Set<string>();   // ⭐ 이 자녀의 제외/알레르겐 — 추천 경로 전체(앵커·풀·슬롯·주간계획)에서 제거
         const byDate: Record<string, string[]> = {};
         const allIng: string[] = []; const ref: string[] = []; const notes: string[] = []; const parentQuestions: string[] = [];   // ⭐ 부모 질문(편지 최우선·이사님 2026-06-20)
         const homeRef: string[] = []; const daycareRef: string[] = [];
@@ -386,7 +399,7 @@ export async function GET(req: Request) {
         const servedTop = Object.entries(servedHomeFreq).sort((a, b) => b[1] - a[1]).map(([n]) => n);
         const coldStart = confidentLiked.length < 2;   // 콜드스타트 게이트(확신 신호 빈약)
         const likedSeed = (coldStart ? [...new Set([...confidentLiked, ...coldStartSeed(servedTop, 6)])] : likedIng)
-          .filter((i) => !dislikedIng.has(i));   // ⭐ 확실 거부 식재료는 추천 앵커에서 제외(거부한 걸 사촌 시드로 또 권하지 않기)
+          .filter((i) => !dislikedIng.has(i) && !excludedIng.has(i));   // ⭐ 확실 거부 + 제외/알레르겐 식재료는 추천 앵커에서 제외(거부·제외를 사촌 시드로 또 권하지 않기)
         const sig = computeSignals(byDay, catOf);
         const reds = sig.filter((s) => s.level === 'red').map((s) => s.nutrient);
         const fg = computeFoodGroups(allIng, catOf);
@@ -640,7 +653,7 @@ export async function GET(req: Request) {
                     coveredGroups: fg.covered,
                     band: snackBand, heightTrack, weightTrack,
                     goals: synth.goals || [], focusHistory, arcWeek: weekSinceSignup, attendsDaycare: attends,
-                    excludeFoods: [...(reco14[cid] || [])].filter((f) => !allIng.includes(f)),   // ⭐ 추천-무시 배제(이사님 2026-06-21) — 최근 14일 추천했는데 식단(allIng) 미등장 식재료. 등장하면 allIng에 들어 자동 복귀.
+                    excludeFoods: [...new Set([...[...(reco14[cid] || [])].filter((f) => !allIng.includes(f)), ...excludedIng])],   // ⭐ 추천-무시 배제(이사님 2026-06-21) + 제외/알레르겐(핸드오프) — 14일 추천했는데 미등장 + 제외식재료. enrichWeeklyPlan 풀(supply/challenge)에서 제거.
                   };
                   return enrichWeeklyPlan(synth, enrichCtx);
                 } catch (e) { console.warn('[cron/coach] enrichWeeklyPlan skip:', e instanceof Error ? e.message : e); return null; }
@@ -877,7 +890,7 @@ export async function GET(req: Request) {
           //   ⭐ E(이사님 2026-06-15) — 풀을 '집 끼니' 신호로 산출(byDay→homeDays). 기관이 콩류·채소를 채우면 전체는 green이라
           //   풀에서 빠지고 추천이 곡물·계란 등으로 엉뚱하게 새던 것 수정 → 영양거울(집 부족군)과 음식 추천이 일치(집 부족=콩류면 두부).
           { const _rp = buildIngredientPool({ signals: computeGroupSignals(homeDays.length ? homeDays : byDay, catOf).signals, likedIngredients: likedSeed, freqMap, max: 5 });
-            recoPoolArr = _rp.pool; recoMode = _rp.mode;
+            recoPoolArr = _rp.pool.filter((p) => !excludedIng.has(p)); recoMode = _rp.mode;   // ⭐ 제외/알레르겐 식재료는 추천 풀에서 제거(핸드오프 안전필터)
             // ⭐ B(이사님 2026-06-15) — 추천 식재료를 '오늘 타깃 식품군' 또는 (환경 등 비-food 레버 주) '집 부족 식품군'에 맞춰 회전.
             const _alignGroups = planCtx?.target ? [planCtx.target] : (gMissing.length ? gMissing : gHomeMissing);
             const _inTgt = recoPoolArr.filter((p) => { const g = groupOfIngredient(p); return g != null && _alignGroups.includes(g); });
@@ -889,7 +902,9 @@ export async function GET(req: Request) {
             //   그날 결핍으로 vetting). slot.ingredient가 구체 회전(콩류 두부 도돌이표 차단). 없으면 위 기존 회전 폴백(degrade-safe).
             if (defMature && planDetailCtx) {
               planSlotCtx = pickPlanSlot(planDetailCtx, { daySeed, cidHash, deficitNow: new Set([...gMissing, ...gHomeMissing]), recentIngredients: (recentRecoIng[cid] || []).slice(0, 3) });   // ⭐ 최근 3일 추천 식재료 dedup(메추리알 수렴 차단)
-              if (planSlotCtx?.slot?.ingredient) { recoIng = planSlotCtx.slot.ingredient; recoMode = planSlotCtx.slot.track; } }
+              if (planSlotCtx?.slot?.ingredient && excludedIng.has(planSlotCtx.slot.ingredient)) planSlotCtx = null;   // ⭐ 제외 식재료 슬롯은 통째로 폐기(레거시 plan_detail 방어 — slotDish/거울로도 안 새게)
+              if (planSlotCtx?.slot?.ingredient && !excludedIng.has(planSlotCtx.slot.ingredient)) { recoIng = planSlotCtx.slot.ingredient; recoMode = planSlotCtx.slot.track; } }
+            if (recoIng && excludedIng.has(recoIng)) recoIng = null;   // ⭐ 최종 안전 가드 — 제외/알레르겐 식재료가 추천에 새지 않게(레거시 plan_detail·동의어 대비)
           }
           // ⭐ 두뇌 검수: useFood=false면(오늘 진짜 문제가 환경이라 음식 억지 금지) 음식 추천 본문 제외(B의 'off-target 음식 박기' 차단). 기본=결정론 추천.
           //   ⭐ 슬롯→본문 전파(자가정독 #2): planSlot이 있으면 bridgeFacts target/식재료를 '슬롯'으로(결핍군 대표=두부 회귀 차단 → 메추리알장조림 등 구체 dish가 본문에).

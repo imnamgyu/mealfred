@@ -9,8 +9,8 @@
  * 2층 소스:
  *   · L2 스냅샷(기본·동기): lib/food-graph.json·kit-dish-matrix.json 을 import.
  *       이 파일들은 데이터 세션이 *SQL→이름기반 JSON*으로 야간 export(동일 path·shape) → 클라/SSG/빌드가 그대로 읽음.
- *   · L1 SQL(서버·비동기·옵트인 COACH_GRAPH_SQL=1): warmGraphFromSql(db)가 ingredient_edges⋈ingredients로
- *       id→name resolve해 메모리 캐시를 교체. 크론이 자녀 루프 전 1회 호출 → 실시간 복리. 실패/빈약하면 L2 유지(safe degrade).
+ *   · L1 SQL(서버·비동기·항상 ON·2026-06-21 플래그 졸업): warmGraphFromSql(db)가 ingredient_edges⋈ingredients로
+ *       id→name resolve해 메모리 캐시를 교체. 크론이 매 실행 자녀 루프 전 1회 호출 → 야간 학습 강화가 재배포 없이 반영. 실패/빈약하면 L2(JSON) 유지(safe degrade).
  *
  * 규칙(handoff): 이 데이터는 *여기서만* 읽는다 — 엔진 모듈은 직접 import 금지(전환 시 누락 방지).
  */
