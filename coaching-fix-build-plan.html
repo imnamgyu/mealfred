@@ -56,6 +56,14 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;bord
 </style></head><body><div class="wrap">
 
 <h1>코칭 엔진 편지 품질 개선 — 개발 원자단위 WBS <span style="color:var(--p7)">(빌드 플랜)</span></h1>
+<div style="background:linear-gradient(135deg,#2C3E50,#1F2D3D);color:#fff;border-radius:14px;padding:18px 22px;margin:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.15)">
+  <div style="font-size:20px;font-weight:800;margin-bottom:6px">🗄️ ARCHIVED — 빌드 플랜 종료 (2026-06-21)</div>
+  <div style="font-size:14px;line-height:1.65;color:#e7ecf1">
+    <b>87 원자 중 64 완료 + 20 해소.</b> 미완료로 보이던 20개는 대부분 <b>더 나은 방식으로 달성·대체</b>됨 — plan_detail jsonb(D-04 reco_balance 대체)·foodGraph/comboMatrix 일원화(G-02)·OPEN_MATERIALS daySeed 회전(H-02)·arin-replay + 랄프위검 워크플로 + vitest 537 회귀(J-01·J-08·J-09·I-10). 이번 세션 마무리: <b>K-10·K-09·D-07</b>(<code>5a5a258</code>) + 카테고리 정합·부모 질문 최우선·추천-무시 배제·F-18b·동기부여 코칭.<br>
+    <b>이월(별도 세션) — 핑퐁(rank1):</b> F-10·I-07·I-08 = table↔exposure 오실레이션. 주간 focus 선택(applyFocusFatigue/candidateUnits) 재설계가 필요하고 커리큘럼 상태기계 전반에 영향(회귀위험)이라 신중한 격리 작업으로 분리. 진척 가시화·정체 동기부여는 핑퐁 해소 후 비로소 안정 작동.<br>
+    <span style="color:#FFD9A8">이 문서는 <b>종료·아카이브</b>되었습니다(아래 원자 명세는 이력 보존용). 코칭 엔진 현행 상태 = 모듈 명세 8종 + <a href="/coaching-engine-state.html" style="color:#FFD9A8">엔진 상태 문서</a> + <a href="/coaching-architecture-map.html" style="color:#FFD9A8">통합 지도</a>.</span>
+  </div>
+</div>
 <p class="lead">2026-06-18 · 근거 = <b>적대감사 26 근본원인</b>(라이브 코드 정독 + 아린 weekly_plans·편지 DB 실측) + 이사님 지적(target_pool 빈약·커리큘럼 진척 미배선). 진단 문서 = <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a> 외 모듈 명세 8종의 '🔧 증상 개선' 섹션. 본 문서는 그 수정안을 <b>구현 가능한 원자 단위</b>로 분해한 작업 명세서다. 각 원자는 {목적·요구·구현명세·유즈케이스·테스트·DoD·의존·규모·우선순위}를 갖고, 원자 ID로 커밋·테스트를 추적한다.</p>
 
 <div class="warn"><b>🚀 새 세션 시작 가이드 — 이 문서만 보고 개발 착수</b>
