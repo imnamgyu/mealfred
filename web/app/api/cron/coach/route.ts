@@ -492,7 +492,7 @@ export async function GET(req: Request) {
         let scenarioId: string | null = null, scenarioLabel: string | null = null;   // 오늘의 코칭 시나리오(편지 다양성)
         let brainPick: BrainAction | null = null;   // ⭐ 두뇌 선택+검수 결과(?brain=1) — context 저장·어드민 노출
         let recoIng: string | null = null; let recoPoolArr: string[] = []; let recoMode: string | null = null;   // ⭐ 오늘 추천 식재료(회전)+주간 풀 — context 저장(블록 밖 참조)
-        let envGoodN: number | null = null;   // ⭐ P0-D 진척 가시화 — 구조레버 '좋은 행동' 끼니 수(블록 밖 context 저장용)
+        let envGoodN: number | null = null; let _envVerb: string | null = null;   // ⭐ P0-D 진척 가시화 — 구조레버 '좋은 행동' 끼니 수 + 동사(블록 밖 stepStory/context용)
         let planDetailCtx: WeeklyAnchor['plan_detail'] = null;   // ⭐ 주간계획 모듈 산출(작전층) — anchor가 try 로컬이라 외부로 끌어냄(일간 슬롯 소비용)
         let planSlotCtx: ReturnType<typeof pickPlanSlot> = null;   // ⭐ 오늘 소비한 주간 슬롯(구체 dish·거울·macro) — 어드민·context
         let planCtx: CoachPlan | null = null;   // ⭐ 오늘의 구조화 계획(프레임·타깃·무브·시그니처) — 상태 원장(의미 중복 회피 이력)
@@ -731,17 +731,19 @@ export async function GET(req: Request) {
               // 행동변화 관측(아크 단계 결정) — food=실제 차림, 구조 레버=그 좋은 행동이 이번 주 1회+ (거짓 칭찬 방지)
               const goodRow = (r: Row) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : false;
               const progress = lever === 'food' ? firstServeDow != null : weekRows.some(goodRow);
-              envGoodN = lever !== 'food' ? weekRows.filter(goodRow).length : null;   // ⭐ P0-D 진척 가시화(이사님 2026-06-21) — 구조레버 '좋은 행동' 끼니 수(이번 윈도). context 저장 → 다음 주 추세 비교.
               // ⭐ 관측된 실행의 구체 사실 한 줄 — reinforce/observe 편지가 '실제 일어난 일'을 콕 집어 칭찬하게(거짓 칭찬 차단·2026-06-11)
               let progressNote: string | null = null;
               if (progress) {
+                const ago = (d: string) => { const n = Math.round((Date.parse(today) - Date.parse(d)) / 86400000); return n <= 1 ? '어제' : `${n}일 전`; };
                 if (lever === 'food') progressNote = `이번 주 '${tgt}'를 식탁에 올린 기록 있음(${targetExposeWtd}회)`;
-                else if (envGoodN && envGoodN >= 1) {
-                  // ⭐ P0-D 진척 가시화 — 단일 끼니 사실 대신 '최근 N번 + 지난번 대비 추세'로 다이얼이 움직이는 걸 보여줌(이진 step 전에 진척 체감·랄프위검 'step 19통 불변' 해소). 내부 '단계' 단어는 노출 금지(P10).
-                  const prior = (envHist[cid] || []).filter((h) => h.date <= addDaysStr(today, -5)).sort((a, b) => b.date.localeCompare(a.date))[0];
-                  const trend = prior ? (envGoodN > prior.n ? `(지난번 ${prior.n}번보다 늘었어요)` : envGoodN === prior.n ? '(지난번만큼 꾸준해요)' : '') : '';
-                  const verb = lever === 'environment' ? '화면 없이 식탁에 앉아' : lever === 'autonomy' ? '스스로 떠' : '한 단계 위 질감을 시도하며';
-                  progressNote = `최근 ${verb} 먹은 끼니가 ${envGoodN}번이에요${trend ? ` ${trend}` : ''} — 이 흐름이 조금씩 쌓이고 있어요`;
+                else {
+                  const r = [...weekRows].filter(goodRow).sort((a, b) => b.log_date.localeCompare(a.log_date))[0];
+                  if (r) {
+                    const slot = SLOT_LABEL[r.slot || ''] ? `${SLOT_LABEL[r.slot || '']} ` : '';   // '아침 끼니를' 형태 — 조사 충돌 회피
+                    progressNote = lever === 'environment' ? `${ago(r.log_date)} ${slot}끼니를 화면 없이 식탁에 앉아서 먹음`
+                      : lever === 'autonomy' ? `${ago(r.log_date)} ${slot}끼니를 아이가 스스로 떠먹음`
+                      : `${ago(r.log_date)} ${slot}끼니에서 한 단계 위 질감을 시도함`;
+                  }
                 }
               }
               const firstOfWeek = !(recentWeekKeys[cid] || []).includes(weekKey);   // 이번 주 닻의 첫 편지 → intro(진단+왜는 주 1회만)
@@ -749,6 +751,12 @@ export async function GET(req: Request) {
               //   celebrate/maintain(축하·유지)은 익숙한 주간 프레임 유지(새 음식 무브 금지). 레버 전환 날은 직전 레버의 progressNote(reinforce 사실) 주입 금지(잡탕 편지 차단·A-05 arc-null 패턴과 동일).
               //   weekCtx.lever·FOOD_OVERRIDE_CAP은 주간 레버 그대로(두뇌 게이트·음식 잔소리 캡 의미 보존).
               const unitLever = curriculumDecision ? leverForUnit(curriculumDecision.unit) : null;
+              // ⭐ P0-D 진척 가시화(이사님 2026-06-21) — 오늘 코칭 유닛 레버 기준 '좋은 행동' 끼니 수(닻 레버=food 피벗 날도 잡힘). 추세는 stepStory 블록에서 envHist로 붙임.
+              if (unitLever === 'environment' || unitLever === 'autonomy' || unitLever === 'texture') {
+                const _ugr = (r: Row) => unitLever === 'environment' ? r.environment === 'table' : unitLever === 'autonomy' ? r.autonomy === 'self' : (r.texture === 'finger' || r.texture === 'table');
+                envGoodN = (byChild[cid] || []).filter(_ugr).length;   // ⭐ 롤링 6일(읽기 윈도) — ISO 주 리셋(weekRows)이면 주 경계에서 카운트 0이 돼 진척이 끊김
+                _envVerb = unitLever === 'environment' ? '화면 없이 식탁에 앉아' : unitLever === 'autonomy' ? '스스로 떠' : '한 단계 위 질감으로';
+              }
               const tonalMode = curriculumDecision?.mode === 'celebrate' || curriculumDecision?.mode === 'maintain';
               const effectiveLever = (unitLever && !tonalMode && unitLever !== lever) ? unitLever : null;
               const effProgressNote = effectiveLever ? null : progressNote;
@@ -826,13 +834,21 @@ export async function GET(req: Request) {
               // ⭐ D(랄프위검 2026-06-19 #1) — 진행일은 '전역 단조 캠페인일'(가입 첫 기록부터). 유닛이 교대(table↔exposure)하면 per-unit started_at이 20→7로 역행해 '망가진 주행거리계'로 읽히던 것 제거. 서사는 임계(≥4·≥6)로만 쓰므로 의미 보존.
               const _firstLogD = histDays[cid] && histDays[cid].size ? [...histDays[cid]].sort()[0] : today;
               const _unitDays = Math.max(1, Math.round((Date.parse(today) - Date.parse(_firstLogD)) / 86400000));
+              // ⭐ P0-D 진척 가시화(이사님 2026-06-21) — envGoodN·_envVerb는 위(weekRows 스코프)에서 유닛 레버로 계산됨. 여기선 envHist로 '지난번 대비' 추세를 붙여 문구화. 이진 step 전 다이얼이 보이게(랄프위검 'step 19통 불변' 해소).
+              let _envProgress: string | null = null;
+              // ⭐ ≥2만 노출 — '1번'은 너무 작아 어색·비격려(부모가 거의 못 한 날은 진척줄 강요 대신 평소 환경 코칭). 나아지는 부모(누적·상승)에 다이얼이 보이게.
+              if (envGoodN != null && envGoodN >= 2 && _envVerb) {
+                const _prior = (envHist[cid] || []).filter((h) => h.date <= addDaysStr(today, -5)).sort((a, b) => b.date.localeCompare(a.date))[0];
+                const _trend = _prior ? (envGoodN > _prior.n ? `, 지난번 ${_prior.n}번보다 늘었어요` : envGoodN === _prior.n ? ', 지난번만큼 꾸준해요' : '') : '';
+                _envProgress = `최근 ${_envVerb} 먹은 끼니가 ${envGoodN}번이에요${_trend}`;
+              }
               weekCtx = { ...weekCtx, arc: { ...weekCtx.arc,
                 behaviorGoal: curriculumDecision.mode === 'celebrate' ? `${_cur.behavior}가 자리 잡았어요` : _cur.behavior,
                 stepStory: {
                   mode: curriculumDecision.mode, stepNum: curriculumDecision.step, totalSteps: _steps.length,
                   prevBehavior: _i > 0 ? _steps[_i - 1].behavior : null,
                   nextBehavior: _i < _steps.length - 1 ? _steps[_i + 1].behavior : null,
-                  unitLabel: UNITS[_u].label, unitDays: _unitDays,
+                  unitLabel: UNITS[_u].label, unitDays: _unitDays, envProgress: _envProgress,
                 },
               } };
             }
