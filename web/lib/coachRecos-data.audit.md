@@ -5,6 +5,16 @@ EPIC I = "데이터 정합성·근거 보강". Letter B의 '재료 결정론'이
 
 산출일: 2026-06-13 · 소스: scripts/build-ingredient-freq.py(권위표=인계서 실측 learned_menus 1000개).
 
+> ⭐ **2026-06-21 실측 식단 baseline 전환 (이사님)** — 아래 "0회/미수록" 서술 다수가 **갱신됨**.
+> `ingredient-freq.json`이 7종 degraded 폴백(measured)에서 **실측 OCR 급식 식단표(143 기관-월·162종)** 로 재구축됐다
+> (`build-ingredient-freq.py --src sikdan`). 핵심 변동:
+> - **단호박**: 0회 미수록 → **freq 174·상위 35% 수록**(실측 65.7% 등장). 단 비타민A채소 RANKED에선 여전히 **끝**
+>   (당근 1938 > 시금치 409 > 근대 233 > 단호박 174 → 강등 *결과*는 동일, *근거*만 "0회"→"그룹 내 최하위").
+> - **당근**: 184/상위2% → **1938/상위5%** · **근대** 11/39% → **233/30%** · **양배추(387) > 토마토(306)** 재정렬.
+> - **단일 진실원 = ingredient-freq.json(실측 식단)**, GIO_FREQ는 라이브 미수록 키 폴백(런타임 라이브 우선·I-01-9 모델 변경).
+> - **youa-freq.json**(evid 게이트)도 MAX 병합(`merge-youa-baseline.py`): 단호박 1.4→65.7·애호박 7→72.7 등 게이트 통과.
+> - **계란→달걀 이름갭** 봉합(`popularDishesFor` DISH_ALIAS): 계란이 코퍼스 '달걀' 표기라 dishes 누수하던 것 복구(계란팟국·계란장조림).
+
 ---
 
 ## I-01/I-02 — 식재료 급식빈도·상위% (public/ingredient-freq.json · lib/ingredient-freq.json)

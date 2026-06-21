@@ -34,6 +34,9 @@ OUT_LIB = os.path.join(WEB, 'lib', 'ingredient-freq.json')
 # 1차 소스(레시피 DB) — build-foods-recipes.py와 동일 경로. 없으면 폴백.
 RECIPE_DB_BASE = '/Users/ing/Desktop/편식극복키트/01_참고자료/B_레시피DB'
 RECIPE_DB_FILES = ['아동기_레시피DB.json', '유아기_월별식단_레시피DB.json']
+# ⭐ 실측 급식 식단 baseline(이사님 2026-06-21) — sikdan-learn/merge가 OCR 식단표(143 기관-월)에서 산출.
+#    원래 의도된 ① 소스(learned_menus 직접접속 불가로 그동안 measured 폴백). freq = 실측 총 출현횟수(raw).
+SIKDAN_BASELINE = '/tmp/sikdan_ocr/_baseline.json'
 
 # 양념 블로클리스트 (build-foods-recipes.py L17 그대로 재사용) — 식재료 빈도에서 제외.
 SEASONING = set(
@@ -122,6 +125,21 @@ def from_measured(dex_set):
     }
 
 
+def from_sikdan(dex_list, dex_set):
+    """① 실측 급식 식단 baseline(OCR 식단표·143 기관-월) — 식재료별 실측 총 출현횟수(raw).
+    _baseline.json(sikdan 집계)을 도감 표준명으로 norm + 양념 제외. 동일 표준명은 합산."""
+    if not os.path.exists(SIKDAN_BASELINE):
+        return None
+    data = json.load(open(SIKDAN_BASELINE, encoding='utf-8'))
+    out = {}
+    for raw_nm, v in data.get('ings', {}).items():
+        nm = raw_nm if raw_nm in dex_set else norm(raw_nm, dex_list, dex_set)
+        if not nm or nm in SEASONING:
+            continue
+        out[nm] = out.get(nm, 0) + int(v.get('raw', 0) or 0)
+    return {k: val for k, val in out.items() if val > 0} or None
+
+
 def with_ranks(freq_by_ing):
     """freq 내림차순 정렬 → rank(동률 같은 rank) → topPct.
     값이 {freq,pct}면 pct를 topPct로 보존(권위표·전체 분포 상위%), int면 rank/total로 산출."""
@@ -154,6 +172,7 @@ def main():
     dex_list, dex_set = load_dex()
 
     sources = {
+        'sikdan': lambda: from_sikdan(dex_list, dex_set),
         'recipedb': lambda: from_recipe_db(dex_list, dex_set),
         'recipes': lambda: from_recipes_json(dex_list, dex_set),
         'measured': lambda: from_measured(dex_set),

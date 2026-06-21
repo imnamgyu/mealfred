@@ -77,19 +77,25 @@ const inappropriateDish = (name: string): boolean => isSpicyDish(name) || SPICY_
 
 /** 식재료가 '가장 많이 쓰이는 실존 음식' 최대 2개(급식 빈도순). 주식 곡물=먹는 형태 / freqMap(또래 급식 빈도) 우선 → kit-matrix(실측 count>0) 폴백.
  *  매운·짠지·견과 메뉴 제외 + 원본명 정제. 후보가 전부 부적합이어도 kit 카테고리 폴백(볶음·무침)이 받쳐 빈 배열을 피한다(degrade). */
+// ⭐ 레시피 코퍼스 표기 불일치(이사님 2026-06-21) — 엔진 표준명 ↔ ingredient-recipes/kit-matrix 표기.
+//   체계 점검 결과 실측 갭은 '계란'만(소고기·멥쌀 등은 코퍼스에 직접 매칭). 계란이 표준명인데 코퍼스는 '달걀' → dishes 통째 누수.
+const DISH_ALIAS: Record<string, string> = { '계란': '달걀' };
 export function popularDishesFor(ing: string, freqMap?: FreqMap): string[] {
   if (STAPLE_FORMS[ing]) return STAPLE_FORMS[ing].slice(0, 2);   // 밀·쌀은 날것 아님 → 빵·면·떡·밥으로만
   if (FRUIT.has(ing)) return [];   // ⭐ 과일은 '과일로' 먹는다(간식채널) — 배=양념인 너비아니구이처럼 '숨은 재료' 음식으로 매핑하면 오인(이사님 괴식 방지)
+  const alias = DISH_ALIAS[ing];
+  const norm = (s: string) => (alias ? s.split(alias).join(ing) : s);   // '달걀팟국' → '계란팟국'(표준명으로 표시)
   const out: string[] = [];
   const add = (raw: string) => {
     if (out.length >= 2) return;
-    const nm = cleanDishName(raw);
+    const nm = cleanDishName(norm(raw));
     if (!nm || nm === ing || inappropriateDish(nm) || out.includes(nm)) return;   // 빈문자·식재료=음식 위장·부적합·중복 차단
     out.push(nm);
   };
-  const fm = freqMap?.[ing];
+  const fm = freqMap?.[ing] ?? (alias ? freqMap?.[alias] : undefined);
   if (fm) for (const r of fm) { if (out.length >= 2) break; if (r.freq >= 4) add(r.name); }   // freqMap은 이미 freq 내림차순 = 급식 빈도순
   if (out.length < 2) for (const d of dishesForIngredient(ing, 2)) { if (out.length >= 2) break; if (d.count > 0) add(d.dish); }
+  if (out.length < 2 && alias) for (const d of dishesForIngredient(alias, 2)) { if (out.length >= 2) break; if (d.count > 0) add(d.dish); }   // 별칭 폴백(계란→달걀)
   return out;
 }
 
@@ -263,6 +269,9 @@ export function buildIngredientPool(args: { signals: { group: string; level: str
     for (const s of nonGreen) { const r = (GROUP_INGREDIENTS[s.group] || []).find((x) => !likedSet.has(x)) || (GROUP_INGREDIENTS[s.group] || [])[0]; add(r); }
     for (const c of cousinsOfLiked()) add(c);
   }
+  // ⭐ 풀 기아 방지(이사님 2026-06-21) — coldStart(사촌 0)·단일 결핍군이면 mixed가 군당 1개만 담아 풀이 1~2개로 굶음
+  //   → '두부만 매일' 반복(주간계획 거의 매번 동일). 결핍군 대표로 라운드로빈 백필해 풀을 채운다(일일 회전·주간계획 다양성).
+  if (pool.length < max) { const reps = nonGreen.map((s) => (GROUP_INGREDIENTS[s.group] || []).filter(Boolean)); for (let i = 0; pool.length < max && reps.some((r) => r[i]); i++) for (const r of reps) add(r[i]); }
   if (!pool.length) for (const s of nonGreen) for (const r of (GROUP_INGREDIENTS[s.group] || [])) add(r);   // 폴백
   return { pool: pool.slice(0, max), mode, reason: `${mode}(red ${red.length}·결핍군 ${nonGreen.length})` };
 }

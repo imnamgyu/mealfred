@@ -24,8 +24,8 @@ describe('A-01 GROUP_INGREDIENTS_RANKED · ingredientGioFreq', () => {
     const r = GROUP_INGREDIENTS_RANKED['비타민A채소'];
     expect(r.indexOf('근대')).toBeLessThan(r.indexOf('단호박'));
   });
-  it('A-01-4 ingredientGioFreq(당근)={184,2}', () => {
-    expect(ingredientGioFreq('당근')).toEqual({ freq: 184, pct: 2 });
+  it('A-01-4 ingredientGioFreq(당근)={1938,5} — 라이브 실측 식단 우선', () => {
+    expect(ingredientGioFreq('당근')).toEqual({ freq: 1938, pct: 5 });
   });
   it('A-01-5 미상 식재료 폴백 {0,100}', () => {
     expect(ingredientGioFreq('아스파라거스')).toEqual({ freq: 0, pct: 100 });
@@ -34,9 +34,9 @@ describe('A-01 GROUP_INGREDIENTS_RANKED · ingredientGioFreq', () => {
     expect(GIO_FREQ['치즈'].freq).toBe(18);
     expect(ingredientGioFreq('요거트').freq).toBe(0);
   });
-  it('A-01-9 기타채소 RANKED 토마토(42) > 양배추(20)', () => {
+  it('A-01-9 기타채소 RANKED 양배추(387) > 토마토(306) — 실측 식단 재정렬', () => {
     const r = GROUP_INGREDIENTS_RANKED['기타채소'];
-    expect(r.indexOf('토마토')).toBeLessThan(r.indexOf('양배추'));
+    expect(r.indexOf('양배추')).toBeLessThan(r.indexOf('토마토'));
   });
   it('A-01-8 RANKED 원소 집합 = GROUP_INGREDIENTS 원본(누락·추가 0)', async () => {
     const { GROUP_INGREDIENTS } = await import('../lib/coachRecos');
@@ -98,12 +98,12 @@ describe('A-04 rankIngredients', () => {
     const r = rankIngredients({ targetGroup: '비타민A채소', groupLevel: 'red', liked: [] });
     expect(r[0].ing).toBe('당근');
   });
-  it('A-04-2 freq 점수: 당근 pct2→3 · 근대 pct39→1 · 단호박 pct100→0', () => {
+  it('A-04-2 freq 점수: 당근 상위5%→3 · 근대 30%→1 · 단호박 35%→1(실측 복권)', () => {
     const r = rankIngredients({ targetGroup: '비타민A채소', groupLevel: 'red', liked: [] });
     const by = Object.fromEntries(r.map((x) => [x.ing, x.parts.freq]));
     expect(by['당근']).toBe(3);
     expect(by['근대']).toBe(1);
-    expect(by['단호박']).toBe(0);
+    expect(by['단호박']).toBe(1);
   });
   it('A-04-3 단호박은 liked 사촌/궁합 없으면 최하위로 가라앉음', () => {
     const r = rankIngredients({ targetGroup: '비타민A채소', groupLevel: 'red', liked: [] });
@@ -212,9 +212,9 @@ describe('A-07 buildValidatedCombos', () => {
 // ── A-08 근거 문구 ───────────────────────────────────────────────────────────────
 describe('A-08 buildReasonPhrases', () => {
   const win = { group: '비타민A채소', daysOf7: 1, threshold: 5, level: 'red' as const };
-  it('A-08-1 급식빈도 상위% 문구(당근 상위 2%)', () => {
+  it('A-08-1 급식빈도 상위% 문구(당근 상위 5%)', () => {
     const ps = buildReasonPhrases({ ing: '당근', window: win });
-    expect(ps.some((p) => p.includes('상위 2%'))).toBe(true);
+    expect(ps.some((p) => p.includes('상위 5%'))).toBe(true);
   });
   it('A-08-2 결핍 수치 문구(7일 중 N일·권장)', () => {
     const ps = buildReasonPhrases({ ing: '당근', window: win });

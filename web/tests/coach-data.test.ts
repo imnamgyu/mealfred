@@ -32,13 +32,14 @@ describe('I-01 ingredient-freq.json — 산출 정합', () => {
     const outside = Object.keys(freqJson).filter((k) => !dexNms.has(k));
     expect(outside).toEqual([]);
   });
-  it('I-01-2 당근 상위% < 근대 상위%(당근이 더 흔함·실측 2% vs 39%)', () => {
+  it('I-01-2 당근 상위% < 근대 상위%(당근이 더 흔함·실측 식단 5% vs 30%)', () => {
     expect(freqJson['당근'].topPct).toBeLessThan(freqJson['근대'].topPct);
-    expect(freqJson['당근'].topPct).toBe(2);
-    expect(freqJson['근대'].topPct).toBe(39);
+    expect(freqJson['당근'].topPct).toBe(5);
+    expect(freqJson['근대'].topPct).toBe(30);
   });
-  it('I-01-3 단호박 0회 → 미수록', () => {
-    expect(freqJson['단호박']).toBeUndefined();
+  it('I-01-3 단호박 실측 식단 복권(표준식단 0회 → 실측 65.7%·freq>0 수록)', () => {
+    expect(freqJson['단호박']).toBeDefined();
+    expect(freqJson['단호박'].freq).toBeGreaterThan(0);
   });
   it('I-01-4 요거트 0회 → 미수록', () => {
     expect(freqJson['요거트']).toBeUndefined();
@@ -63,11 +64,10 @@ describe('I-01 ingredient-freq.json — 산출 정합', () => {
   it('I-01-8 양념(마늘·소금·간장) 0개', () => {
     for (const s of ['마늘', '소금', '간장', '참기름', '설탕']) expect(freqJson[s]).toBeUndefined();
   });
-  it('I-01-9 ingredient-freq vs GIO_FREQ 단일 진실원 일치(freq·pct)', () => {
-    for (const [nm, v] of Object.entries(freqJson)) {
-      expect(v.freq).toBe(GIO_FREQ[nm].freq);
-      expect(v.topPct).toBe(GIO_FREQ[nm].pct);
-    }
+  it('I-01-9 ingredient-freq(실측 식단 baseline)=단일 진실원 · GIO_FREQ=라이브 미수록 키 폴백', () => {
+    // 2026-06-21: live가 실측 식단 baseline(162종)으로 확장 → 9종 GIO 스냅샷과 강제일치 해제(런타임은 live 우선).
+    expect(Object.keys(freqJson).length).toBeGreaterThan(Object.keys(GIO_FREQ).length);
+    for (const v of Object.values(freqJson)) expect(v.freq).toBeGreaterThan(0);   // live 전수 freq>0(0회 위장 0)
   });
 });
 
@@ -77,14 +77,14 @@ describe('I-02 ingredientFreq 로더 — 순수 함수', () => {
     const v = freqOf('당근');
     expect(v).not.toBeNull();
     expect(v!.freq).toBeGreaterThan(0);
-    expect(v!.topPct).toBe(2);
+    expect(v!.topPct).toBe(5);
   });
-  it('I-02-2 미수록 0회 식재료 null(단호박·요거트)', () => {
-    expect(freqOf('단호박')).toBeNull();
-    expect(freqOf('요거트')).toBeNull();
+  it('I-02-2 미수록 식재료 null(요거트) · 단호박은 실측 복권', () => {
+    expect(freqOf('요거트')).toBeNull();        // 요거트=여전히 미수록(요구르트가 표준명)
+    expect(freqOf('단호박')).not.toBeNull();    // 단호박=실측 식단으로 수록
   });
-  it('I-02-3 topPctOf 0회 null(상위 100% 위장 금지)', () => {
-    expect(topPctOf('단호박')).toBeNull();
+  it('I-02-3 topPctOf 미수록 null(상위 100% 위장 금지)', () => {
+    expect(topPctOf('요거트')).toBeNull();
   });
   it('I-02-4 isCommon 임계 경계', () => {
     expect(isCommon('당근', 20)).toBe(true);
@@ -92,7 +92,7 @@ describe('I-02 ingredientFreq 로더 — 순수 함수', () => {
     expect(isCommon('근대', 40)).toBe(true);
   });
   it('I-02-5 isCommon은 freq 0 배제(미수록은 흔함 아님)', () => {
-    expect(isCommon('단호박', 100)).toBe(false);
+    expect(isCommon('요거트', 100)).toBe(false);
   });
   it('I-02-6 존재하지 않는 임의 문자열 null', () => {
     expect(freqOf('존재안함xyz')).toBeNull();
@@ -150,7 +150,7 @@ describe('I-03 GROUP_INGREDIENTS 정비 — RANKED 빈도순·원본 보존', ()
     }
   });
   it('I-03-6b 비타민A채소 RANKED는 freq 내림차순(당근>시금치>근대>단호박)', () => {
-    // ingredient-freq 권위표가 커버하는 그룹은 freq 내림차순 정렬이 보장됨(단호박 0=끝).
+    // 실측 식단 baseline: 당근1938>시금치409>근대233>단호박174 → 단호박 수록돼도 그룹 내 최하위(끝) 유지.
     const list = GROUP_INGREDIENTS_RANKED['비타민A채소'];
     expect(list).toEqual(['당근', '시금치', '근대', '단호박']);
   });
@@ -287,8 +287,8 @@ describe('I-06 recoEvidence — 식재료→영양역할+급식 상위%', () => 
     expect(e.text).toContain('상위');
     expect(e.text).toContain('비타민A');
   });
-  it('I-06-2 0회 식재료 상위% 위장 금지(단호박)', () => {
-    const e = evidenceFor('단호박');
+  it('I-06-2 미수록 식재료 상위% 위장 금지(요거트)', () => {
+    const e = evidenceFor('요거트');
     expect(e.freqPct).toBeNull();
     expect(e.text).not.toContain('상위');
   });
@@ -312,8 +312,8 @@ describe('I-06 recoEvidence — 식재료→영양역할+급식 상위%', () => 
   it('I-06-8 순수성(2회 호출 동일)', () => {
     expect(evidenceFor('당근')).toEqual(evidenceFor('당근'));
   });
-  it('I-06-9 freqPct null이면 nutrients만으로 text 구성(멸치=칼슘·상위 절 없음)', () => {
-    const e = evidenceFor('멸치');   // 멸치 freq 0(미수록)이나 NUTRIENT_FOODS 칼슘 대표
+  it('I-06-9 freqPct null이면 nutrients만으로 text 구성(요거트=칼슘·상위 절 없음)', () => {
+    const e = evidenceFor('요거트');   // 요거트 미수록(요구르트가 표준명)이나 NUTRIENT_FOODS 칼슘 대표
     expect(e.freqPct).toBeNull();
     expect(e.text.length).toBeGreaterThan(0);
     expect(e.text).not.toContain('상위');
@@ -376,9 +376,9 @@ describe('I-07 데이터 정합 통합 계약', () => {
     expect(recipes['당근']).toBeDefined();
     expect(recipes['근대']).toBeDefined();
   });
-  it('I-07-7 단호박 회전 시 환각 방지(evidence에 상위 절 0)', () => {
-    expect(evidenceFor('단호박').text).not.toContain('상위');
-    expect(evidenceFor('단호박').freqPct).toBeNull();
+  it('I-07-7 미수록 식재료(요거트) 회전 시 환각 방지(evidence에 상위 절 0)', () => {
+    expect(evidenceFor('요거트').text).not.toContain('상위');
+    expect(evidenceFor('요거트').freqPct).toBeNull();
   });
   it('I-07-8 A 대조군 불변(원본 GROUP_INGREDIENTS 무변경 — Letter A 영향 0)', () => {
     expect(GROUP_INGREDIENTS['비타민A채소']).toEqual(['단호박', '당근', '시금치', '근대']);

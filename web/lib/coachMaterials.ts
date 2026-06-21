@@ -27,7 +27,8 @@ export const GIO_FREQ: Record<string, { freq: number; pct: number }> = {
 };
 // ⭐ 라이브 관측 빈도(이사님 2026-06-19 OCR 리밸런싱) — scripts/build-ingredient-freq.py가 OCR로 쌓인 meal_logs/learned_menus를
 //   재집계해 lib/ingredient-freq.json을 갱신한다. 이 파일만 매일(크론) 다시 만들면 **코드 변경 0으로** 빈도 가중이 자동 리밸런싱된다.
-//   GIO_FREQ(인계서 실측 스냅샷)는 라이브가 침묵하는 키의 폴백으로만 유지 — 겹치는 키 값이 동일해 골든은 그대로 그린.
+//   GIO_FREQ(인계서 실측 스냅샷)는 라이브가 침묵하는 키의 폴백 — 2026-06-21 라이브가 실측 식단 baseline(162종)으로 확장돼
+//   겹치는 키는 라이브(실측)가 우선(GIO는 미수록 키만). 단일 진실원 = ingredient-freq.json(실측 식단).
 const LIVE_FREQ = LIVE_ING_FREQ as Record<string, { freq: number; rank?: number; topPct: number }>;
 
 // ⭐ 런타임 리밸런싱 warm(이사님 2026-06-19 · 06-20 (기관,월) dedup 확정) — graphSource.warmGraphFromSql와 동형.
@@ -36,7 +37,8 @@ const LIVE_FREQ = LIVE_ING_FREQ as Record<string, { freq: number; rank?: number;
 //   ⭐ (기관,월) dedup(2ⓑ·3ⓐ): institution_menu_id(=기관-월 1벌) 단위로 식재료를 모아 '등장한 기관-월 수'를 센다.
 //      같은 기관-월의 여러 끼니 중복은 1회만(인기 어린이집 과대계상 방지). meal_logs(개인·집밥)는 제외 —
 //      집밥은 3ⓐ로 빼고, 기관 급식(경로3)은 institution_menus로 수렴되므로 한 곳에서만 센다.
-//   ⭐ 핵심: 정적 파일(ingredient-freq.json)·GIO_FREQ 무변경 → I-01-9 불변식 그대로 그린. 빈약(기관-월<3·식재료<20)이면 스냅샷 유지(safe degrade).
+//   ⭐ 핵심: warm 실패/빈약(기관-월<3·식재료<20)이면 라이브 정적 파일(ingredient-freq.json) 유지(safe degrade).
+//      라이브=실측 식단 단일 진실원 · GIO_FREQ는 미수록 키 폴백(2026-06-21 모델).
 //   ⚠️ 배선: 크론 라우트가 `await warmIngredientFreqFromSql(supabase)` 1줄 추가 시 동작(옵트인). 미배선 시 라이브/GIO 폴백(현행 동일).
 const SEASONING = new Set(('마늘 파 대파 쪽파 실파 소금 간장 진간장 설탕 흑설탕 물엿 조청 고춧가루 참깨 깨소금 참기름 들기름 콩기름 식용유 카놀라유 포도씨유 올리브유 후추 후춧가루 식초 맛술 미림 청주 정종 생강 고추장 된장 쌈장 춘장 올리고당 꿀 전분 녹말 감자전분 밀가루 부침가루 튀김가루 빵가루 케첩 마요네즈 굴소스 액젓 멸치액젓 까나리액젓 새우젓 고추 청양고추 홍고추 풋고추 깨 들깨 미원 다시다 식소다 베이킹파우더 이스트 물 육수 버터 마가린').split(' '));
 type FreqQueryable = { from: (t: string) => { select: (c: string) => PromiseLike<{ data: unknown; error: unknown }> } };
