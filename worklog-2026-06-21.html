@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-06-21 — 식단-기반 추천 리밸런싱 · 풀-기아 봉합</title>
+<meta property="og:title" content="작업 일지 2026-06-21 — 실측 식단 baseline 162종 · 아린형 추천 풀 1→4종 · vitest 551">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.warn{margin-top:10px;font-size:12.7px;color:#8a3a1a;background:#FFF4EC;border:1px solid var(--p300);border-radius:9px;padding:9px 12px}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-06-21 · 추천 데이터 세션 (병행)</div>
+  <h1>식단-기반 추천 리밸런싱 · 풀-기아 봉합 · 정본 docs 동기화</h1>
+  <p class="sub">실측 급식 식단표(143 기관-월)를 추천 빈도의 단일 진실원으로 — 아린형 추천 풀 1→4종 다양화.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">2</div><div class="l">배포 커밋 (코드·docs)</div></div>
+    <div class="gcard"><div class="n">7→162</div><div class="l">실측 식재료 baseline 종</div></div>
+    <div class="gcard"><div class="n">1→4</div><div class="l">아린형 추천 풀 다양성</div></div>
+    <div class="gcard"><div class="n">551</div><div class="l">vitest 그린 (tsc 0)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>youa-freq 실측 MAX 병합 — 빈도 안심절 복권</h2><span class="commit">f8a423e</span></div>
+    <ul class="wl">
+      <li>'또래 급식에 자주 오르는' 안심절이 표준식단(dietary4u) 단일 소스라, 실제 흔한 <b>단호박(youa 1.4%)</b>이 게이트(≥50%) 탈락 → 이사님 "빈도/식단 출현 랭킹 표기 무시"의 직접 원인.</li>
+      <li>실측 OCR 식단 baseline(143 기관-월)을 <b>MAX(youa, 실측)</b> 비파괴 병합 — <code>scripts/merge-youa-baseline.py</code> 신설(야간 크론 재사용 가능).</li>
+      <li>게이트 신규통과 4종: 단호박 1.4→65.7 · 애호박 7→72.7 · 배추김치 16.9→92.3 · 대파 8.5→79.7.</li>
+    </ul>
+    <div class="out"><b>정직성</b> · 연어는 실측 12.6%로 게이트 아래 유지 → "자주 나온다" 주장 안 함(과장 0).</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>ingredient-freq 7→162종 실측 재구축</h2><span class="commit">f8a423e</span></div>
+    <ul class="wl">
+      <li>근본: <code>ingredient-freq.json</code>이 learned_menus 미접속으로 <b>7종 degraded 폴백</b>이었고, 단호박이 "0 관찰"로 풀 순서(RANKED) 꼴찌 강등 — 실측 65.7%가 전제를 뒤집음.</li>
+      <li><code>build-ingredient-freq.py --src sikdan</code> 추가 — 실측 식단을 원래 의도된 ① 소스로 물려 162종 재구축. 양배추(387)&gt;토마토(306) 등 실데이터 재정렬.</li>
+      <li>모델 변경: <b>단일 진실원=실측 식단</b>, GIO_FREQ는 미수록 키 폴백(I-01-9 불변식·런타임 라이브 우선).</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>⭐ buildIngredientPool 풀-기아 봉합 — 주간계획 반복 해결</h2><span class="commit">f8a423e</span></div>
+    <ul class="wl">
+      <li>로컬 시뮬 진단: 아린형(콩류 단일 결핍 + 콜드스타트)에서 풀이 <code>["두부"]</code> <b>단 1개</b> → 14일 내내 두부. <code>mixed</code> 모드가 결핍군당 대표 1개만 담는데 콜드스타트라 사촌풀 0.</li>
+      <li>해결: 풀이 max 미달이면 결핍군 대표 <b>라운드로빈 백필</b> → 아린형 <b>1→4종</b>(두부·검은콩·콩·콩나물).</li>
+      <li>주간계획(<code>enrichWeeklyPlan</code> supplyPool)·일일 회전 다양화. 병행 세션 K-09(회전창=풀크기 종속)와 합쳐 깔끔한 N-사이클.</li>
+    </ul>
+    <div class="out"><b>이사님 질문 응답</b> · "주간계획 식재료 매번 반복" = 이 풀-기아가 근원. 단일 결핍군이면 콩류 내 4종 회전이 정상(영양상 콩류 필요).</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>계란→달걀 이름갭 봉합 + 테스트·감사문서</h2><span class="commit">f8a423e</span></div>
+    <ul class="wl">
+      <li>체계 점검 결과 dishes 누수는 <b>계란만</b> — 코퍼스가 '달걀' 표기라 <code>popularDishesFor('계란')=[]</code> → 계란(실측 99%) 메뉴 줄 통째 생략. <code>DISH_ALIAS{계란:달걀}</code> + 표시 정규화(달걀팟국→계란팟국).</li>
+      <li>테스트 16+α 실측 갱신 — 정직성 가드(0회→상위% 위장 금지)는 여전히-미수록인 <b>요거트로 재지정</b>해 보존. 감사문서에 실측 전환 노트.</li>
+    </ul>
+    <div class="out"><b>검증</b> · tsc 0 · vitest <b>551 그린</b>.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">5</span><h2>라이브 진단 + 정본 docs 동기화</h2><span class="commit">d90a0cb</span></div>
+    <ul class="wl">
+      <li>식단 baseline TOP 산출(143 기관-월·메뉴 30,719): 식재료 양파·소고기·두부·미역 100% · 단호박 65.7%.</li>
+      <li>정본 docs 2개 동기화: <a href="/food-reco-engine.html">food-reco-engine</a>(빈도 2층·S4 집계 143) + <a href="/coach-module-reco-engine.html">coach-module-reco-engine</a>(풀-기아 봉합·DISH_ALIAS).</li>
+    </ul>
+    <div class="warn">⚠️ <b>안전결함 라이브 확정</b> · 아린(<code>excluded_ingredients=[달걀,꼬막,전복,굴]</code>)에게 06-19 편지가 <b>달걀(달걀팟국/장조림) 추천</b> — <code>route.ts:205</code> children select에 excluded 미포함 → 추천 경로 전체 무필터. 핸드오프로 전달.</div>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션 — route.ts (편지 세션 핸드오프)</h3>
+    <ul>
+      <li>ⓐ <code>excluded_ingredients</code> 안전필터(달걀 누수·🔴안전) · ⓑ <code>warmIngredientFreqFromSql</code> 배선(야간 자동 리밸런싱).</li>
+      <li>이미 해결: 일일 회전(K-09 + 풀 백필) · 플래그 졸업(<code>warmGraphFromSql</code> 무조건 호출).</li>
+      <li>배포: <code>f8a423e</code>·<code>d90a0cb</code> main 푸시 완료 → Vercel. 다음 새벽 크론(KST 02:00)부터 반영.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-06-21 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>

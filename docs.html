@@ -389,10 +389,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 11</span>
+    <span class="cnt">세션 12</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-21.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-21 — 식단-기반 추천 리밸런싱 · 풀-기아 봉합 · 정본 docs 동기화</h4>
+      <p class="desc"><b>추천 데이터 세션(병행).</b> ① youa-freq 실측 MAX 병합 — 단호박 1.4→65.7% 등 빈도 안심절 복권(<code>f8a423e</code>) ② ingredient-freq 7→162종 실측 재구축 + buildIngredientPool 풀-기아 봉합으로 아린형 추천 풀 <b>1→4종</b> ③ 계란→달걀 이름갭 봉합 · 테스트 16+α 갱신(tsc 0·vitest 551) ④ 정본 docs 2종 동기화(<code>d90a0cb</code>). <span style="color:#1B5E20">남은 route.ts 2건(excluded 안전필터·warm 배선)은 편지 세션 핸드오프.</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-20-d.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -506,6 +513,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-21.html':{c:'2026-06-21',m:'2026-06-21'},
     '/worklog-2026-06-20-d.html':{c:'2026-06-20',m:'2026-06-20'},
     '/worklog-2026-06-20-c.html':{c:'2026-06-20',m:'2026-06-20'},
     '/worklog-2026-06-20-b.html':{c:'2026-06-20',m:'2026-06-20'},
