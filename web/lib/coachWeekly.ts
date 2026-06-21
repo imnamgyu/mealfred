@@ -91,6 +91,7 @@ export type PlanDetail = {
   deficitGroups: string[];
   coveredGroups: string[];
   priorityGroups: PriorityGroup[];             // ⭐ 우선순위 3군(결핍+BMI+회전 충원) — 추천이 항상 이 중 한 군과 정합
+  excludeFoods?: string[];                      // ⭐ 추천-무시 배제(이사님 2026-06-21) — 최근 14일 추천했는데 식단 미등장이라 이번 풀에서 뺀 식재료(어드민 가시화)
 };
 
 export type WeeklyAnchor = {
@@ -461,6 +462,7 @@ export type EnrichContext = {
   goals: Goal[];             // synth.goals(focusFatigue 거침)
   focusHistory?: Array<{ unit_id: UnitId | null; stepAdvanced: boolean }>;
   arcWeek: number; attendsDaycare: boolean;
+  excludeFoods?: string[];   // ⭐ 추천-무시 배제(이사님 2026-06-21) — 최근 14일 추천했는데 식단 미등장 식재료. supply/challenge 풀에서 제외(다음 2주). 식단 등장 시 route가 자동 복귀.
 };
 
 // ⭐ K-04b — 거울 문장틀 3변형 회전(클로징 앵무새 차단) + 결핍군 구체 dish 주입(이사님 '음식 추천 항상 포함').
@@ -553,10 +555,13 @@ export function enrichWeeklyPlan(synth: WeeklySynthesis, ctx: EnrichContext): Pl
   const freqMap = ctx.freqMap;
   const macro = buildMacroTrack(ctx);   // ⭐ 먼저 계산 — 저체중/성장더딤이면 고기류를 타깃 회전에 주입
   // 1) supply 풀 — 결핍군 대표 식재료 (+ ⭐이사님: BMI 저체중/성장더딤이면 탄단지 보강군(고기·계란 등)을 앞에 주입해 '고기류 타깃'화)
+  const _exclude = new Set(ctx.excludeFoods || []);   // ⭐ 추천-무시 배제(이사님 2026-06-21) — 최근 14일 추천했는데 식단 미등장 식재료. 전부 배제 시 degrade로 원본 유지(굶기 방지).
   const poolOut = buildIngredientPool({ signals: ctx.groupSignals, likedIngredients: ctx.likedIngredients, freqMap, max: 8 });
-  let supplyPool = poolOut.pool.slice(0, 8);
+  const _supRaw = poolOut.pool.slice(0, 8);
+  const _supEx = _supRaw.filter((i) => !_exclude.has(i));
+  let supplyPool = _supEx.length >= 2 ? _supEx : _supRaw;   // 배제 후 2개 미만이면 원본(plan 비지 않게)
   if (macro.active && (macro.reason === 'lowWeight' || macro.reason === 'growthLag')) {
-    const macroIngs = macro.boostGroups.flatMap((g) => (GROUP_INGREDIENTS[g] || []).slice(0, 2)).filter((i) => i && !supplyPool.includes(i));
+    const macroIngs = macro.boostGroups.flatMap((g) => (GROUP_INGREDIENTS[g] || []).slice(0, 2)).filter((i) => i && !supplyPool.includes(i) && !_exclude.has(i));
     supplyPool = [...macroIngs, ...supplyPool].slice(0, 8);   // 고기류 우선
   }
   // 2) challenge 풀 — 잘 먹는 음식의 검증 사촌(안 먹는 쪽·식품군 한정) → 콩류 3주 도돌이표 구조적 차단
@@ -565,7 +570,7 @@ export function enrichWeeklyPlan(synth: WeeklySynthesis, ctx: EnrichContext): Pl
   for (const lk of ctx.likedIngredients.slice(0, 8)) {
     for (const c of verifiedCousinsOf(lk).slice(0, 3)) {
       const g = groupOfIngredient(c.nm);
-      if (!c.nm || likedSet.has(c.nm) || seenC.has(c.nm)) continue;
+      if (!c.nm || likedSet.has(c.nm) || seenC.has(c.nm) || _exclude.has(c.nm)) continue;   // ⭐ 추천-무시 배제 — 사촌도 제외
       if (g && !PLAN_MEAL_GROUPS.has(g)) continue;
       seenC.add(c.nm); challengePool.push({ ingredient: c.nm, cousinOf: lk });
       if (challengePool.length >= 6) break;
@@ -599,7 +604,7 @@ export function enrichWeeklyPlan(synth: WeeklySynthesis, ctx: EnrichContext): Pl
   return {
     schemaVersion: 1, targetRotation: slots.slice(0, 7), supplyPool, challengePool, poolMode: poolOut.mode, macroTrack: macro,
     curriculum: { focusUnit: focus?.unit_id ?? null, focusLabel: focus ? UNITS[focus.unit_id].label : null, standby, stalledOut, graduatedTo, lever: focus ? leverForUnit(focus.unit_id) : (synth.budget.lever || 'food') },
-    mirrorSchedule, deficitGroups: ctx.deficitGroups, coveredGroups: ctx.coveredGroups, priorityGroups,
+    mirrorSchedule, deficitGroups: ctx.deficitGroups, coveredGroups: ctx.coveredGroups, priorityGroups, excludeFoods: ctx.excludeFoods || [],
   };
 }
 

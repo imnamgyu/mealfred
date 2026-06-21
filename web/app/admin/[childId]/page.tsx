@@ -228,6 +228,7 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                     supplyPool?: string[]; challengePool?: { ingredient: string; cousinOf: string }[]; poolMode?: string;
                     deficitGroups?: string[]; coveredGroups?: string[];
                     priorityGroups?: { group: string; kind: 'deficit' | 'expand'; level?: string; weeklyEst?: number; rank?: number; reason?: string }[];
+                    excludeFoods?: string[];
                     macroTrack?: { active?: boolean; band?: string | null; reason?: string | null; boostGroups?: string[]; boostDishes?: string[]; snackRestraint?: boolean; phrase?: string | null; cadenceWeek?: boolean };
                     curriculum?: { focusUnit?: string | null; focusLabel?: string | null; standby?: string[]; stalledOut?: string | null; graduatedTo?: string | null; lever?: string };
                     mirrorSchedule?: { kind?: string | null; deficitGroup?: string | null; line?: string | null }[];
@@ -254,6 +255,10 @@ export default async function AdminThread({ params }: { params: Promise<{ childI
                         <div style={{ fontSize: 11.5, color: '#4B5563' }}>🎯 우선순위 3군: {(pd.priorityGroups || []).map((p, i) => (
                           <span key={i} style={{ color: p.kind === 'deficit' ? '#C0392B' : '#1B5E20' }}>{i ? ' · ' : ''}{p.rank ?? i + 1}.{p.group}<span style={{ color: '#9CA3AF' }}>[{p.kind === 'deficit' ? '채움' : '확장'}{p.weeklyEst != null ? `·주${Math.round(p.weeklyEst * 10) / 10}회` : ''}{p.level ? `·${p.level}` : ''}]</span></span>
                         ))}</div>
+                      ) : null}
+                      {/* ⭐ 추천-무시 배제(이사님 2026-06-21) — 2주 추천했는데 식단 미등장이라 이번 풀에서 뺀 식재료. 식단 등장 시 자동 복귀 */}
+                      {(pd.excludeFoods || []).length ? (
+                        <div style={{ fontSize: 11, color: '#9CA3AF' }}>🚫 풀 배제(2주 추천했는데 식단 미등장): [{(pd.excludeFoods || []).join('·')}] <span style={{ color: '#B0B0B0' }}>— 식단 등장 시 자동 복귀</span></div>
                       ) : null}
                       <div style={{ fontSize: 11.5, color: '#B86A20' }}>⚖️ BMI/탄단지 트랙: {mt?.active ? `${mt.band}·${mt.reason}${mt.boostGroups?.length ? ` 보강 ${mt.boostGroups.join('·')}(${(mt.boostDishes || []).slice(0, 3).join('·')})` : ''}${mt.snackRestraint ? ' 간식절제' : ''} ${mt.cadenceWeek ? '·이번주 노출' : '·격주 쉼'}` : `비활성(${mt?.band || 'BMI 정보없음'})`}</div>
                       <div style={{ fontSize: 11.5, color: '#6A1B9A' }}>📈 커리큘럼: focus {cu?.focusLabel || cu?.focusUnit || '-'}(레버 {cu?.lever || '-'}) · standby [{(cu?.standby || []).join('·') || '-'}]{cu?.stalledOut ? ` · 정체강등 ${cu.stalledOut}` : ''}{cu?.graduatedTo ? ` → 승격 ${cu.graduatedTo}` : ''}</div>

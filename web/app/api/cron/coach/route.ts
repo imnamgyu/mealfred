@@ -188,6 +188,17 @@ export async function GET(req: Request) {
     });
     activeIds.sort((a, b) => (lastLetter[a]?.letter_date || '').localeCompare(lastLetter[b]?.letter_date || ''));
 
+    // ⭐ 추천-무시 풀 배제(이사님 2026-06-21) — 최근 14일 추천한 식재료(recoIng + 주간슬롯) 이력. 식단(meal_logs)에 한 번도 안 나오면 다음 주간계획 풀에서 배제, 식단 등장 시 자동 복귀(served에 들어감).
+    const { data: letters14 } = await supabase.from('coach_letters')
+      .select('child_id,letter_date,context').in('child_id', activeIds).gte('letter_date', dAgo(14)).lt('letter_date', today);
+    const reco14: Record<string, Set<string>> = {};
+    (letters14 || []).forEach((l: { child_id: string; context: Record<string, unknown> | null }) => {
+      const c = l.context as { recoIng?: string | null; planSlot?: { ingredient?: string } | null } | null;
+      const s = (reco14[l.child_id] ||= new Set<string>());
+      if (c?.recoIng) s.add(c.recoIng);
+      if (c?.planSlot?.ingredient) s.add(c.planSlot.ingredient);
+    });
+
     // 자녀 메타 + 오늘 이미 생성된 질문(중복 회피)
     const { data: kids } = await supabase.from('children').select('id,parent_id,nickname,age_band,chronic_conditions,sex,birth_year,birth_month,height_cm,weight_kg').in('id', activeIds);
     type KidMeta = { parent_id: string; nickname: string; age_band: string; chronic: string | null; sex: string | null; birth_year: number | null; birth_month: number | null; height_cm: number | null; weight_kg: number | null };
@@ -625,6 +636,7 @@ export async function GET(req: Request) {
                     coveredGroups: fg.covered,
                     band: snackBand, heightTrack, weightTrack,
                     goals: synth.goals || [], focusHistory, arcWeek: weekSinceSignup, attendsDaycare: attends,
+                    excludeFoods: [...(reco14[cid] || [])].filter((f) => !allIng.includes(f)),   // ⭐ 추천-무시 배제(이사님 2026-06-21) — 최근 14일 추천했는데 식단(allIng) 미등장 식재료. 등장하면 allIng에 들어 자동 복귀.
                   };
                   return enrichWeeklyPlan(synth, enrichCtx);
                 } catch (e) { console.warn('[cron/coach] enrichWeeklyPlan skip:', e instanceof Error ? e.message : e); return null; }

@@ -113,6 +113,21 @@ describe('enrichWeeklyPlan — 7일치 구체 계획 오케스트레이션', () 
     expect(groups).toContain('곡물');                                          // green이어도 BMI 부스트로 진입
     expect(groups).toContain('고기·계란');
   });
+  it('⭐ 추천-무시 배제 — excludeFoods는 supply 풀·targetRotation에서 빠짐(식단 등장 시 route가 자동 복귀)', () => {
+    const base = enrichWeeklyPlan(synth(), ctx());
+    const target = base.supplyPool[0];                                         // 풀에 있던 식재료 1개
+    expect(target).toBeTruthy();
+    const d = enrichWeeklyPlan(synth(), ctx({ excludeFoods: [target] }));
+    expect(d.supplyPool).not.toContain(target);                               // 풀에서 제외
+    expect(d.targetRotation.some((s) => s.ingredient === target)).toBe(false); // 슬롯에도 없음
+    expect(d.excludeFoods).toContain(target);                                  // 어드민 가시화
+  });
+  it('⭐ 추천-무시 배제 degrade — 풀 전부 배제 시도해도 굶지 않음(원본 유지)', () => {
+    const base = enrichWeeklyPlan(synth(), ctx());
+    const all = [...base.supplyPool, ...base.challengePool.map((c) => c.ingredient)];
+    const d = enrichWeeklyPlan(synth(), ctx({ excludeFoods: all }));
+    expect(d.targetRotation.length).toBeGreaterThan(0);                        // 슬롯 비지 않음(plan 보존)
+  });
   it('⭐F-18 — 결핍 거울 슬롯은 deficitGroup을 보존(route가 슬롯군과 비교해 정합/generic-positive 결정)', () => {
     const d = enrichWeeklyPlan(synth(), ctx({ deficitGroups: ['콩류', '비타민A채소'] }));
     const defs = d.mirrorSchedule.filter((m) => m.kind === 'deficit');
