@@ -181,13 +181,6 @@
     <span class="note">① <b>기술 아키텍처 해부도</b> = 코칭 엔진 기술 구성 단일 진실(코드 단위·시각화) ② <b>v2 하이브리드 빌드 플랜</b> = 코칭 빌드·작업 단일 진실(A~J 구현 완료) ③ <b>영양 신호등</b> = 데이터 기준 ④ <b>음식 추천 네트워크 데이터 강화 아키텍처</b>(2026-06-14) = 추천 그래프를 2~6세용으로 풍성하게 만들 데이터 소스·판정 관문 설계 ⑤ <b>식단 데이터 파이프라인·ERD·시스템 아키텍처</b>(2026-06-14 신규) = 원천→수집→분해→DB→편지 전 흐름·LLM 개입·ERD ⑥ <b>유지보수 스킬 작동 원리</b>(2026-06-17 신규) = 매핑·도감 큐레이션 스킬이 어떤 테이블·JSON을 읽어 어떻게 가공·저장하나 · 왜 테이블 없이 JSON인가(코드 근거). 지난 코칭 정본·v3·로드맵·발제·코퍼스 문서는 <a href="/docs-archive.html">아카이브</a>로 이관했습니다.</span>
   </div>
   <div class="doc-grid">
-    <a href="/food-reco-engine.html" class="doc-card cat-strategy">
-      <span class="badge new">🧭 통합 정본</span>
-      <div class="ico">🧭</div>
-      <h4>음식·식재료 추천 데이터 엔진 (통합 정본)</h4>
-      <p class="desc"><b>식단 데이터→식재료 지식→추천→편지 전 과정의 단일 정본.</b> 옛 6문서(음식추천네트워크·코퍼스도감·식단파이프라인·푸드체이닝·추천SQL·menu-ingest) 통합. ① <b>목적</b>(2~6세 다양성↑·검증된 추천·안전) ② <b>e2e 흐름</b>(3경로→OCR→분해→(기관,월)멱등 집계→그래프→추천→편지+야간 자가학습) ③ <b>5축</b>(인입·지식그래프·분해·푸드체이닝·SQL전환) ④ <b>개발현황</b>(SQL 1115 동기화·always-warm 대기·OCR 배치) ⑤ <b>실데이터 예시</b>(광진구 식단표→분해→등장률/공출현)+판정엑셀+안전불변선. <span style="color:#C45A00">2026-06-21 통합·정본 1개.</span></p>
-      <div class="meta"><span>ENGINE · 추천 데이터 정본</span><span class="arrow">→</span></div>
-    </a>
     <a href="/coaching-engine-architecture.html" class="doc-card cat-strategy">
       <span class="badge new">🔬 엔진 정본</span>
       <div class="ico">⚙️</div>
@@ -227,6 +220,13 @@
     <span class="note">각 모듈의 작동원리 · 데이터 파이프라인 · 📥📤 I/O 예시 · 가드 + 비개발자 운영설명(문헌·테이블) · 리팩터 전략 · 편지 품질 개선 WBS · 현재 구현·문제 단일 진실</span>
   </div>
   <div class="doc-grid">
+    <a href="/food-reco-engine.html" class="doc-card cat-strategy">
+      <span class="badge new">🧭 통합 정본</span>
+      <div class="ico">🧭</div>
+      <h4>음식·식재료 추천 데이터 엔진 (통합 정본)</h4>
+      <p class="desc"><b>식단 데이터→식재료 지식→추천→편지 전 과정의 단일 정본.</b> 옛 6문서(음식추천네트워크·코퍼스도감·식단파이프라인·푸드체이닝·추천SQL·menu-ingest) 통합. ① <b>목적</b>(2~6세 다양성↑·검증된 추천·안전) ② <b>e2e 흐름</b>(3경로→OCR→분해→(기관,월)멱등 집계→그래프→추천→편지+야간 자가학습) ③ <b>5축</b>(인입·지식그래프·분해·푸드체이닝·SQL전환) ④ <b>개발현황</b>(SQL 1115 동기화·always-warm 대기·OCR 배치) ⑤ <b>실데이터 예시</b>(광진구 식단표→분해→등장률/공출현)+판정엑셀+안전불변선. <span style="color:#C45A00">2026-06-21 통합·정본 1개.</span></p>
+      <div class="meta"><span>ENGINE · 추천 데이터 정본</span><span class="arrow">→</span></div>
+    </a>
     <a href="/coaching-engine-state.html" class="doc-card cat-arch">
       <span class="badge new">🔧 신규 · 엔진 상태</span>
       <div class="ico">🔧</div>
