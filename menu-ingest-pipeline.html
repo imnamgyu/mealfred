@@ -232,6 +232,56 @@
     </div>
   </section>
 
+  <!-- 🌙 야간 통합 배치 (2026-06-21) -->
+  <section class="blk">
+    <div class="sec-head"><span class="num" style="background:#3b2a6b">🌙</span><h2>야간 통합 배치 파이프라인 <span style="font-size:11px;font-weight:800;color:#fff;background:var(--r500);border-radius:100px;padding:3px 11px;margin-left:6px;vertical-align:middle">설계·검토요망</span></h2></div>
+    <p class="sec-sub">3경로 인입 데이터를 <b><code>ocr_logs</code> 한 큐</b>로 모으고(멱등), 밤에 크론이 <b>한 번에</b> 정제→학습→도감→영양→공출현까지 돌린다.</p>
+
+    <div class="callbox" style="margin-bottom:14px">
+      🔑 <b>ocr_logs = 3경로 통합 인입 큐</b> — zip·daycare-eval·부모기록탭 모두 OCR/파싱 직후 ocr_logs에 적재(<code>source·institution_id·month·child_id·items[]·processed=false</code>).
+      <b>멱등</b>: insert 전 <code>(institution_id, month)</code> 존재 체크 → 있으면 <b>스킵</b>(재OCR·재처리 0, 기존 결과 재사용).
+    </div>
+
+    <div class="pipe" style="max-width:880px">
+      <div class="pstep"><div class="ph"><span class="pn" style="background:#3b2a6b">큐</span><span class="ptt">ocr_logs (미처리 processed=false)</span></div>
+        <div class="pd">3경로 인입분이 한 곳에. 야간 크론이 <code>WHERE processed=false</code>로 픽업.</div></div>
+      <div class="pchev">▼ &nbsp;야간 크론(단일 처리기)&nbsp; ▼</div>
+      <div class="pstep det"><div class="ph"><span class="pn">1</span><span class="ptt">메뉴 정제 → learned_menus</span><span class="apib p">DeepSeek 미해결분</span></div>
+        <div class="pd">canon/표준명 → menuMap(dict·rule·scan) → 미해결 LLM 분해 → <code>CANON_VOCAB</code> 검증(양념 제외·환각 차단) → <code>learned_menus</code> 학습(다음부터 무료).</div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep det"><div class="ph"><span class="pn">2</span><span class="ptt">최종 테이블 식재료 backfill</span></div>
+        <div class="pd"><code>institution_menu_items</code> · <code>meal_logs</code>의 빈 <code>ingredients[]</code> 채움. <span style="color:var(--r700)">현재 remap은 meal_logs만 → institution_menu_items 갭 메움(신규)</span>.</div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep"><div class="ph"><span class="pn">3</span><span class="ptt">처음 보는 식재료 → 도감 + 영양</span><span class="apib g">✅ enrich 크론 기존</span></div>
+        <div class="pd">신규 식재료를 <code>enrich_queue</code>에 큐잉 → <b>enrich 크론(KST 04시)</b>이 DeepSeek 분류 + 영양 메타 → <code>ingredients</code> 등재.
+          <div class="gotcha" style="margin-top:7px"><b>⚠️ 안전 게이트 유지</b> — 영유아 안전 스크린(질식·한방·나트륨·알레르기)+사람 검토는 별도(dogam-promotion). <b>위험군은 무조건 등재 금지</b>, 보류 큐로.</div></div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep"><div class="ph"><span class="pn">4</span><span class="ptt">공출현 네트워크 업데이트</span><span style="font-size:10px;font-weight:800;color:#fff;background:var(--p500);border-radius:100px;padding:2px 8px">🆕 야간화 필요</span></div>
+        <div class="pd">새 (기관-월) 식단의 식재료 동시출현 → <code>ingredient_edges</code> 증분 갱신(사촌·궁합). <span style="color:var(--r700)">현재 오프라인(gen-food-graph)만 — 크론은 warm read뿐. 야간 증분 생성은 신규 빌드.</span></div></div>
+      <div class="pchev">▼</div>
+      <div class="pstep det"><div class="ph"><span class="pn">5</span><span class="ptt">메모리 warm + 마킹</span><span class="apib g">✅ 기존</span></div>
+        <div class="pd"><code>warmGraphFromSql</code>(그래프) + <code>warmIngredientFreqFromSql</code>((기관,월) 빈도 리밸런싱) → <code>processed=true</code> 마킹. 멱등(재실행 동일).</div></div>
+    </div>
+
+    <div class="card grid2" style="margin-top:14px">
+      <div><b style="color:var(--g700)">✅ 이미 있는 것(재사용)</b>
+        <ul class="tight">
+          <li><code>enrich_queue</code>→enrich 크론(04시): 식재료 분류+영양 메타→<code>ingredients</code></li>
+          <li><code>warmGraphFromSql</code>·<code>warmIngredientFreqFromSql</code>(야간 read·빈도)</li>
+          <li><code>meal/parse</code> 4단 폴백·<code>learned_menus</code> 캐시·<code>remap</code>(meal_logs 백필)</li>
+        </ul>
+      </div>
+      <div><b style="color:var(--p700)">🆕 새로 만들 것</b>
+        <ul class="tight">
+          <li><code>ocr_logs</code> 큐 스키마 확장 + 3경로 적재 + <b>(기관,월) 멱등</b></li>
+          <li>야간 통합 처리기(큐 픽업→정제→learned→backfill→enrich_queue 큐잉)</li>
+          <li><code>institution_menu_items</code> 식재료 backfill(현재 갭)</li>
+          <li><b>공출현 야간 증분 생성</b>(gen-food-graph 포팅/증분)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <section class="blk">
     <div class="sec-head"><span class="num">1</span><h2>입력 — 어떤 파일을 주면 되나</h2></div>
     <p class="sec-sub">폴더 하나에 모아서 경로만 알려주면 폴더째 읽는다. 형식별 처리 난이도:</p>
