@@ -77,7 +77,7 @@ footer a{color:var(--ad);text-decoration:none;font-weight:700}
 </div></header>
 <nav class="toc"><a href="/coaching-architecture-map.html">🗺️ 통합지도</a><a href="/coach-module-signal-selector.html">① 신호선택기</a><a href="/coach-module-reco-engine.html" class="cur">② 추천엔진</a><a href="/coach-module-facts-mirror.html">③ 사실·거울</a><a href="/coach-module-nutrition.html">④ 영양평가</a><a href="/coach-module-progress.html">⑤ 진척·커리큘럼</a><a href="/coach-module-writer.html">⑥ 작문기</a><a href="/coach-module-graph-query.html">⑦ 네트워크</a><a href="/coach-module-weekly-planner.html">⑧ 주간계획</a></nav>
 <main>
-<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ②를 코드 단위로 펼친 명세입니다 — 비개발자 설명 → 구현 → 아키텍처 시각화 → 작동 예시 → 남은 문제. <b>정본 기준</b>: <code>lib/coachRecos.ts</code> + <code>app/api/cron/coach/route.ts</code> 실측(2026-06-20).</div>
+<div class="backbar">🗺️ 이 문서는 <a href="/coaching-architecture-map.html">통합 아키텍처 지도</a>의 모듈 ②를 코드 단위로 펼친 명세입니다 — 비개발자 설명 → 구현 → 아키텍처 시각화 → 작동 예시 → 남은 문제. <b>정본 기준</b>: <code>lib/coachRecos.ts</code> + <code>app/api/cron/coach/route.ts</code> 실측(2026-06-21). 이 모듈은 <b>런타임에 추천을 고르는</b> 쪽 — 그 재료가 되는 식재료 지식그래프·식단 인입·SQL·야간 자가학습은 <a href="/food-reco-engine.html">추천 데이터 엔진(통합 정본)</a> 참고(<code>warmIngredientFreqFromSql</code>·(기관,월) 멱등 집계는 거기 소관).</div>
 
 
 <!-- ① 비개발자 -->
