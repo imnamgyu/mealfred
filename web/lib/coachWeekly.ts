@@ -47,7 +47,7 @@ export type TeachingArc = { stages: string[]; implIntention?: string | null };  
 //   intro(주 첫 편지·진단+왜) → how/obstacle/observe(요일 회전·진단 재서술 금지) / reinforce(실행 관측 시·연속 금지).
 export type WeeklyArcStage = 'intro' | 'how' | 'obstacle' | 'observe' | 'reinforce';
 // ⭐ F-17 — step 누적 서사: 오늘 코칭 유닛의 사다리 위치(이전/현재/다음 단계)+캠페인 누적일. 손이 '지난 X→오늘 Y' 진도감을 녹인다.
-export type StepStory = { mode: string; stepNum: number; totalSteps: number; prevBehavior: string | null; nextBehavior: string | null; unitLabel: string; unitDays: number; envProgress?: string | null };
+export type StepStory = { mode: string; stepNum: number; totalSteps: number; prevBehavior: string | null; nextBehavior: string | null; unitLabel: string; unitDays: number; envProgress?: string | null; stalled?: boolean };
 export type WeeklyArc = { stage: WeeklyArcStage; behaviorGoal: string; implIntention?: string | null; progressNote?: string | null; stepStory?: StepStory | null };
 
 // ── ⭐ 주간계획 모듈(작전층) 산출 — plan_detail (이사님 2026-06-18) ──────────────

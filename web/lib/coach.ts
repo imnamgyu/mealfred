@@ -193,7 +193,7 @@ export type LetterInput = {
   bridgeFacts?: string;            // 검증된 푸드 브릿지(잘 먹는 음식→닮은 사촌·어울리는 궁합) — lib/foodGraph 기반, 편지가 궁합을 지어내지 않게
   profileNudge?: string | null;    // 미입력 프로필(체위·만성질환 등) 1개를 부드럽게 권유 + 기대효과 — cron이 로테이션으로 결정(없으면 언급 금지)
   structuredTip?: string | null;    // ⭐ 구조화 입력(식감·자율성·환경·식사시간) 기반 개선 팁 1개 — cron이 분포 집계+~주1회 로테이션으로 결정(profileNudge와 상호배타, 없으면 언급 금지)
-  weeklyArc?: { stage: 'intro' | 'how' | 'obstacle' | 'observe' | 'reinforce' | 'why'; behaviorGoal: string; implIntention?: string | null; progressNote?: string | null; stepStory?: { mode: string; stepNum: number; totalSteps: number; prevBehavior: string | null; nextBehavior: string | null; unitLabel: string; unitDays: number; envProgress?: string | null } | null } | null;   // ⭐ 주간 코칭 커리큘럼 — planFromWeekly가 요일·진척으로 단계 결정(매일 다른 각도 — 2026-06-11 복붙 사고 핫픽스). 'why'=구버전 호환(intro 취급). 부모에 '미션' 단어 노출 금지. ⭐F-17 stepStory=step 사다리 누적 서사.
+  weeklyArc?: { stage: 'intro' | 'how' | 'obstacle' | 'observe' | 'reinforce' | 'why'; behaviorGoal: string; implIntention?: string | null; progressNote?: string | null; stepStory?: { mode: string; stepNum: number; totalSteps: number; prevBehavior: string | null; nextBehavior: string | null; unitLabel: string; unitDays: number; envProgress?: string | null; stalled?: boolean } | null } | null;   // ⭐ 주간 코칭 커리큘럼 — planFromWeekly가 요일·진척으로 단계 결정(매일 다른 각도 — 2026-06-11 복붙 사고 핫픽스). 'why'=구버전 호환(intro 취급). 부모에 '미션' 단어 노출 금지. ⭐F-17 stepStory=step 사다리 누적 서사.
   snackEval?: string | null;        // 간식 평가(별도 간식 엔진) — 초가공 모니터링·식사 간섭성·BMI 칼로리 방향·좋은 간식 추천. lib/snack
   rotateMove?: string | null;       // 오늘의 코칭 무브(결정론적 로테이션) — cron이 날짜+자녀 시드로 회전. 매일 다른 '행동 방식'을 강제해 무브 반복(매일 곁들이기)을 구조적으로 차단
   planTarget?: string | null;        // ⭐ 코드가 확정한 오늘의 단일 타깃(부족 식품군/거부 음식). LLM은 고르지 않고 주어진 것만 다룸(계획=코드·작문=LLM 분리)
@@ -1092,21 +1092,24 @@ export async function composeLetter(p: {
     // ⭐ F-17 — step 누적 서사 must-weave: 메타 주입만으론 손이 거의 항상 생략(자가정독 #1: 23통 중 본문 번역 1통).
     //   '자연스러운 진도 순간'(주 시작 intro·단계 전환 advance/celebrate)에만 강제(매일=새 앵무새 방지). 정체 유닛도 '며칠째 이어옴' 한 구절로 연속감.
     const _ss = p.base.weeklyArc?.stepStory;
-    const _ep = _ss?.envProgress || null;   // ⭐ P0-D 진척 가시화 — '최근 N번 + 지난번 대비' 카운트(구조 유닛 코칭 날)
+    const _stalled = !!_ss?.stalled;   // ⭐ 동기부여(이사님 2026-06-21) — 정체(부모 행동 미달성) 날 = '며칠째 이어온 흐름' 거짓칭찬 대신 장벽 인정·바 낮추기
+    const _ep = !_stalled ? (_ss?.envProgress || null) : null;   // 정체 날엔 진척카운트보다 동기부여 우선(보여줄 진척이 없음)
     const _epNum = _ep ? (_ep.match(/(\d+)번/)?.[1] ?? null) : null;
-    const _wantStory = !!_ss && (p.base.weeklyArc?.stage === 'intro' || _ss.mode === 'advance' || _ss.mode === 'celebrate' || !!_ep);
+    const _wantStory = !!_ss && (_stalled || p.base.weeklyArc?.stage === 'intro' || _ss.mode === 'advance' || _ss.mode === 'celebrate' || !!_ep);
     if (_wantStory && _ss && timeLeft()) {
-      // 진척 가시화 날(_ep)은 '카운트 숫자가 본문에 있어야' 통과(다이얼이 실제로 보이게). 그 외엔 기존 누적 서사 키워드.
-      const storyWoven = (L: string) => _ep ? (!!_epNum && L.includes(`${_epNum}번`)) : /지난|며칠째|그동안|이어|꾸준|이번\s*주|한\s*걸음|다음(엔|은|\s)|익숙해지|자리\s*잡|단계|첫걸음|쌓이/.test(L);
+      // 정체 날(_stalled)=공감·바낮추기 어휘 / 진척 날(_ep)=카운트 숫자 / 그 외=누적 서사 키워드.
+      const storyWoven = (L: string) => _stalled ? /쉽지\s*않|어렵|괜찮|딱\s*한|작은\s*한|부담\s*없|욕심|아주\s*작|천천히/.test(L)
+        : _ep ? (!!_epNum && L.includes(`${_epNum}번`)) : /지난|며칠째|그동안|이어|꾸준|이번\s*주|한\s*걸음|다음(엔|은|\s)|익숙해지|자리\s*잡|단계|첫걸음|쌓이/.test(L);
       if (!storyWoven(gen.letter)) {
-        const fix = _ep ? `'${_ep}'를 한 구절로 자연스럽게 녹여 부모가 진척이 쌓이는 걸 느끼게 하되, 숫자 '${_epNum}번'은 꼭 그대로 포함하고 '단계'·'미션' 같은 내부 용어는 쓰지 않는 구절`
+        const fix = _stalled ? `'${p.base.weeklyArc?.behaviorGoal || '이 행동'}'이 매번 쉽지 않다는 걸 진심으로 공감하고(못 한 걸 탓하지 말 것), 같은 지시를 반복하는 대신 이번 주는 '딱 한 끼·가장 작은 한 걸음'으로 부담을 확 낮춰 제안하는 한 구절(\"괜찮아요·아주 작게 시작해봐요\" 톤·새 숙제 추가 금지·'단계/미션' 같은 내부 용어 금지)`
+          : _ep ? `'${_ep}'를 한 구절로 자연스럽게 녹여 부모가 진척이 쌓이는 걸 느끼게 하되, 숫자 '${_epNum}번'은 꼭 그대로 포함하고 '단계'·'미션' 같은 내부 용어는 쓰지 않는 구절`
           : (_ss.mode === 'advance' && _ss.prevBehavior) ? `지난 단계('${_ss.prevBehavior}')가 어느 정도 자리잡아 오늘 한 걸음 더 나아간다는 누적 서사 한 구절(거짓 진전 단정 금지)`
           : (_ss.mode === 'celebrate') ? `'${_ss.unitLabel}'을(를) 익혀가고 있음을 인정하고${_ss.nextBehavior ? ` 다음 걸음을 부담 없이 한 번 예고하는` : ''} 한 구절`
           : (_ss.unitDays >= 3
             ? `'${_ss.unitDays}일째 함께 이어오는 흐름'임을 가볍게 인정해(매일 끊긴 게 아니라 연속된 노력)${_ss.nextBehavior ? `, 익숙해지면 다음엔 '${_ss.nextBehavior}'로 이어진다는 방향만 한 번 비추는` : ''} 한 구절(새 숙제 추가 금지·표현 자연스럽게)`
             : `'이번 주는 함께 ${_ss.unitLabel}에 집중해 본다'는 한 주의 방향을 부드럽게 여는 한 구절(부담 없이)`);
         const g = await generateLetter({ ...letterInput, fixNotes: [`${fix}을 자연스럽게 포함하라.`] }, model);
-        if (!detBad(g.letter) && (_ep ? true : simBadness(g.letter) < 1) && storyWoven(g.letter)) { gen = g; coachRegen = true; }   // 진척 가시화는 유사도 게이트 완화(카운트 포함이 우선)
+        if (!detBad(g.letter) && (_ep || _stalled ? true : simBadness(g.letter) < 1) && storyWoven(g.letter)) { gen = g; coachRegen = true; }   // 진척/동기부여는 유사도 게이트 완화(메시지 전달 우선)
       }
     }
   } catch { /* 포함검증 실패는 발행을 막지 않음 */ }

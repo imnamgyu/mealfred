@@ -848,7 +848,7 @@ export async function GET(req: Request) {
                   mode: curriculumDecision.mode, stepNum: curriculumDecision.step, totalSteps: _steps.length,
                   prevBehavior: _i > 0 ? _steps[_i - 1].behavior : null,
                   nextBehavior: _i < _steps.length - 1 ? _steps[_i + 1].behavior : null,
-                  unitLabel: UNITS[_u].label, unitDays: _unitDays, envProgress: _envProgress,
+                  unitLabel: UNITS[_u].label, unitDays: _unitDays, envProgress: _envProgress, stalled: !!curriculumDecision.stalled,   // ⭐ 동기부여(이사님 2026-06-21) — 정체(부모 행동 미달성) 날 편지를 '장벽 인정·바 낮추기'로
                 },
               } };
             }

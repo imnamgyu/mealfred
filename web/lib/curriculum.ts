@@ -154,7 +154,7 @@ export function shouldSuppressInterrupt(id: string, recentScenarioIds: string[])
 }
 
 // ── B-23 통합 상태기계 ─────────────────────────────────────────────────────────
-export type DailyDecision = { unit: UnitId; step: number; mode: 'advance' | 'deepen' | 'pivot' | 'maintain' | 'celebrate' | 'observe'; pivotTo: UnitId | null };
+export type DailyDecision = { unit: UnitId; step: number; mode: 'advance' | 'deepen' | 'pivot' | 'maintain' | 'celebrate' | 'observe'; pivotTo: UnitId | null; stalled?: boolean };   // ⭐ stalled=정체(부모 행동 미달성)인데 아직 피벗 안 함 → 편지가 동기부여(장벽 인정·바 낮추기)로 전환(이사님 2026-06-21)
 export function advanceProgress(p: {
   childId: string; goals: Goal[]; progress: Partial<Record<UnitId, ProgressRow>>;
   rows: CRow[]; answers: ProbeAnswer[];
@@ -201,6 +201,7 @@ export function advanceProgress(p: {
 
   // 4) 오늘의 전개 결정
   let mode: DailyDecision['mode'];
+  let stalledCoaching = false;   // ⭐ 동기부여(이사님 2026-06-21) — 정체인데 피벗 못 한 날(같은 행동 반복 대신 장벽 인정·바 낮추기)
   let pivotTo: UnitId | null = null;
   let goalsAfter: Goal[] = p.goals;
   const fr2 = out.get(focus.unit_id)!;
@@ -237,10 +238,10 @@ export function advanceProgress(p: {
         g.unit_id === focus.unit_id ? { ...g, status: 'stopped' as const, reason: stalled ? 'stalled' : 'limping' }
         : g.unit_id === pivotTo ? { ...g, status: 'focus' as const } : g);
       if (!pivotInGoals) goalsAfter = [...goalsAfter, { unit_id: pivotTo, priority: 1, status: 'focus' as const }];
-    } else mode = (limping || !isProgressing(fr2, p.today)) ? 'observe' : 'deepen';   // ⭐ B — limping(절뚝)이면 가끔 든 약신호로 'deepen' 위장 금지·observe 고정(21일 deepen 직접 원인 제거). 캡 소진+대상 없을 때만 여기.
+    } else { mode = (limping || !isProgressing(fr2, p.today)) ? 'observe' : 'deepen'; stalledCoaching = true; }   // ⭐ B — limping이면 'deepen' 위장 금지·observe 고정. ⭐ 동기부여 — 정체인데 피벗 못 함 → 편지가 장벽 인정·바 낮추기로(같은 행동 반복 금지). 캡 소진+대상 없을 때만 여기.
   } else mode = 'observe';     // 판정 보류(표본 부족 등) — 질문 정렬(G)이 메움
 
   const dUnit = mode === 'pivot' && pivotTo ? pivotTo : focus.unit_id;
   const dRow = out.get(dUnit)!;
-  return { updates: [...out.values()], decision: { unit: dUnit, step: dRow.step, mode, pivotTo }, goalsAfter };
+  return { updates: [...out.values()], decision: { unit: dUnit, step: dRow.step, mode, pivotTo, stalled: stalledCoaching }, goalsAfter };
 }
