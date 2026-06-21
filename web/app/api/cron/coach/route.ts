@@ -666,8 +666,9 @@ export async function GET(req: Request) {
                 if (e2) console.warn('[cron/coach] weekly anchor legacy upsert:', e2.message);
               }
               // ⭐ D-07/I-01(2026-06-21) — status supersede: 새 active 닻 저장 시 직전 다른 주의 active를 stale_carried로 강등(1 active/child 불변식 — W22~W25 동시 active 다행 차단).
-              if (!upErr && row.status === 'active') {
-                await supabase.from('weekly_plans').update({ status: 'stale_carried' }).eq('child_id', cid).neq('week_key', wk).eq('status', 'active');
+              if (row.status === 'active') {   // 메인 upsert errored→legacy 저장 케이스도 포함(active 저장됐으면 supersede)
+                const { error: supErr } = await supabase.from('weekly_plans').update({ status: 'stale_carried' }).eq('child_id', cid).neq('week_key', wk).eq('status', 'active');
+                if (supErr) console.warn('[cron/coach] supersede:', supErr.message);
               }
               return row as unknown as WeeklyAnchor;
             };
