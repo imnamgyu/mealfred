@@ -85,15 +85,18 @@ export async function POST(req: NextRequest) {
     const nextCount = (existingMenu?.analysis_count || 0) + 1;
 
     // ① 식단 upsert (institution+month = 1벌, 재업로드 시 갱신 · 분석횟수 누적)
+    const menuUpsert: Record<string, unknown> = {
+      institution_id: institutionId, month,
+      source: body.source || 'eval_upload',
+      raw_ocr_text: typeof body.raw_ocr_text === 'string' ? body.raw_ocr_text.slice(0, 20000) : null,
+      created_by: body.created_by || null,
+      analysis_count: nextCount,
+      updated_at: new Date().toISOString(),
+    };
+    // ⭐ 부모 업로드도 원본 이미지 연결(어드민 상세용) — 있을 때만 set(재업로드로 기존 이미지 안 지워지게)
+    if (Array.isArray(body.image_urls) && body.image_urls.length) menuUpsert.image_urls = body.image_urls.slice(0, 12);
     const { data: menuRow, error: mErr } = await supabase.from('institution_menus')
-      .upsert({
-        institution_id: institutionId, month,
-        source: body.source || 'eval_upload',
-        raw_ocr_text: typeof body.raw_ocr_text === 'string' ? body.raw_ocr_text.slice(0, 20000) : null,
-        created_by: body.created_by || null,
-        analysis_count: nextCount,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'institution_id,month' })
+      .upsert(menuUpsert, { onConflict: 'institution_id,month' })
       .select('id').single();
     if (mErr || !menuRow) return NextResponse.json({ error: mErr?.message || 'menu upsert 실패' }, { status: 500, headers });
 

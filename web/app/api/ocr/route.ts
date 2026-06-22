@@ -282,6 +282,7 @@ export async function POST(req: NextRequest) {
       {
         is_menu: parsed.is_menu,
         institution_name: parsed.institution_name || null,
+        image_url: imageUrl,
         text: parsed.text || ocrText,
         items: ((parsed.items || []) as { date?: string; day?: string; slot?: string; menu?: string }[])
           .map((it) => ({ ...it, ingredients: mapMenuLocal(String(it.menu || ''))?.ingredients || [] })),

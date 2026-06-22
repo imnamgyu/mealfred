@@ -1284,7 +1284,7 @@ async function showInstantResult(){
 }
 
 // 업로드 식단을 기관·월에 귀속(저장+채점) → 순위 조회 → 결과카드 #rankLine 주입
-async function attributeAndRank(items, ocrText){
+async function attributeAndRank(items, ocrText, imageUrls){
   const rankEl = document.getElementById('rankLine');
   if(!selectedInstitution || !items || !items.length){ if(rankEl) rankEl.innerHTML=''; return; }
   const month = ((document.getElementById('instMonth')||{}).value || currentYM()).slice(0,7);
@@ -1292,7 +1292,7 @@ async function attributeAndRank(items, ocrText){
   try{
     await fetch(`${INST_API}/institution/menu`, {
       method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ institution_id: selectedInstitution.id, month, items, raw_ocr_text: (ocrText||'').slice(0,20000) })
+      body: JSON.stringify({ institution_id: selectedInstitution.id, month, items, raw_ocr_text: (ocrText||'').slice(0,20000), image_urls: imageUrls||[] })
     });
     const r = await fetch(`${INST_API}/eval/rank?institution_id=${selectedInstitution.id}&month=${month}`);
     const d = await r.json();
@@ -1386,7 +1386,7 @@ async function startAnalysis(){
   fill.style.width = '6%';
   msg.textContent = '📤 사진 업로드 준비 중…';
 
-  let text, inputMode, ocrItems = [];
+  let text, inputMode, ocrItems = [], imageUrls = [];
   let creep = null;
   const file0 = photoInput.files[0];
   const isPdf = /\.pdf$/i.test(file0.name||'') || file0.type === 'application/pdf';
@@ -1406,7 +1406,7 @@ async function startAnalysis(){
         if(d && d.error) continue;
         if(d && d.reason && !reason) reason = d.reason;
         if(!d || !d.is_menu) continue;
-        isMenu=true; txt += (d.text||'')+'\n';
+        isMenu=true; if(d.image_url) imageUrls.push(d.image_url); txt += (d.text||'')+'\n';
         for(const it of (d.items||[])){ const k=`${it.date||''}|${it.slot||''}|${String(it.menu||'').replace(/\s/g,'')}`; if(seen.has(k))continue; seen.add(k); merged.push(it); }
       }
       data = { is_menu:isMenu, text:txt.trim(), items:merged, reason: reason||'식단표를 읽지 못했어요 — 더 선명한 파일로 시도해주세요.' };
@@ -1420,6 +1420,7 @@ async function startAnalysis(){
           creep = startProcessingCreep(fill, msg);
         }
       });
+      if(data && data.image_url) imageUrls = [data.image_url];
     }
     if(creep){ clearInterval(creep); creep = null; }
 
@@ -1452,7 +1453,7 @@ async function startAnalysis(){
   console.log('[mealfred-eval] 평가 결과:', result.total, result.axes.map(a => a.name + ':' + a.score).join(' · '));
 
   renderResult(result, selectedAge);
-  attributeAndRank(ocrItems, text);   // ⭐ 기관 선택 시: 식단 귀속+채점→전국·지역 순위 주입(비동기·결과 표시 막지 않음)
+  attributeAndRank(ocrItems, text, imageUrls);   // ⭐ 기관 선택 시: 식단 귀속+채점→전국·지역 순위 주입 + 원본 이미지 연결(비동기)
   renderOcrTable(ocrItems, text);
   bumpRealCount();   // 실제 평가 완료 1건 → 카운터 즉시 +1
   try {
