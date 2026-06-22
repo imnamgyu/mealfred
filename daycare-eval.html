@@ -467,6 +467,7 @@
       <h3>AI가 분석 중이에요</h3>
       <div class="step-msg" id="analyzeMsg">메뉴 인식 중...</div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div style="font-size:11.5px;color:var(--n500);font-weight:600;margin-top:13px;line-height:1.65">한 달치 식단표는 <strong style="color:var(--p700)">1~3분</strong>까지 걸릴 수 있어요.<br>창을 닫지 말고 잠시만 기다려주세요 🙏</div>
     </div>
   </div>
 </div>
@@ -1186,7 +1187,7 @@ function startProcessingCreep(fill, msg){
     const pct = Math.min(95, 40 + 55 * (1 - Math.exp(-t / 22)));   // 40→95% 점근(멈춘 느낌 제거)
     fill.style.width = pct.toFixed(1) + '%';
     const phase = phases[Math.min(phases.length - 1, Math.floor(t / 14))];
-    msg.textContent = `${phase}… (${Math.round(t)}초 · 보통 40~90초)`;
+    msg.textContent = `${phase}… (${Math.round(t)}초)` + (t > 90 ? ' · 한 달치는 더 걸려요, 기다려주세요 🙏' : ' · 보통 40~90초');
   }, 300);
 }
 
@@ -1281,7 +1282,7 @@ function ocrOneImage(file, onUploadProgress){
   return new Promise((resolve)=>{
     const xhr = new XMLHttpRequest();
     xhr.open('POST', OCR_API);
-    xhr.timeout = 200000;  // 서버 maxDuration 300s. 한 달치 식단표는 CLOVA+Sonnet 비전이 60~85초+ 걸려 70초는 너무 짧아 정상 완료를 끊었음(이사님 제보 2026-06-22, ocr_logs 81초 완료 사례)
+    xhr.timeout = 300000;  // ⭐ 서버 maxDuration 300s에 정렬(이사님 2026-06-22) — 서버가 최대로 걸릴 수 있는 시간만큼 기다린다. 한 달치는 60~85초+ 걸리고 서버가 300s에 자체 종료하므로, 그 전엔 클라가 먼저 끊지 않음(70s→81s 완료를 끊던 버그 해소)
     if(xhr.upload && onUploadProgress){
       xhr.upload.onprogress = (e)=>{ if(e.lengthComputable) onUploadProgress(e.loaded / e.total); };
       xhr.upload.onload = ()=>{ onUploadProgress(1); };
