@@ -1177,7 +1177,7 @@ function saveHistory(result, ageBand){
   } catch(e) { console.warn('history save failed', e); }
 }
 
-// 서버 처리(CLOVA+Claude, 보통 30~50초) 중 프로그래스를 끊김 없이 진행 + 경과초·단계 안내
+// 서버 처리(CLOVA+Claude, 보통 40~90초) 중 프로그래스를 끊김 없이 진행 + 경과초·단계 안내
 function startProcessingCreep(fill, msg){
   const start = Date.now();
   const phases = ['📋 식단표 글자 읽는 중 (CLOVA OCR)','🍳 메뉴를 식재료로 분해 중 (AI)','📊 8축 평가 계산 중','✨ 끼니별 분석 정리 중'];
@@ -1186,7 +1186,7 @@ function startProcessingCreep(fill, msg){
     const pct = Math.min(95, 40 + 55 * (1 - Math.exp(-t / 22)));   // 40→95% 점근(멈춘 느낌 제거)
     fill.style.width = pct.toFixed(1) + '%';
     const phase = phases[Math.min(phases.length - 1, Math.floor(t / 14))];
-    msg.textContent = `${phase}… (${Math.round(t)}초 · 보통 30~50초)`;
+    msg.textContent = `${phase}… (${Math.round(t)}초 · 보통 40~90초)`;
   }, 300);
 }
 
@@ -1281,7 +1281,7 @@ function ocrOneImage(file, onUploadProgress){
   return new Promise((resolve)=>{
     const xhr = new XMLHttpRequest();
     xhr.open('POST', OCR_API);
-    xhr.timeout = 70000;  // 서버 maxDuration 60s + 여유
+    xhr.timeout = 200000;  // 서버 maxDuration 300s. 한 달치 식단표는 CLOVA+Sonnet 비전이 60~85초+ 걸려 70초는 너무 짧아 정상 완료를 끊었음(이사님 제보 2026-06-22, ocr_logs 81초 완료 사례)
     if(xhr.upload && onUploadProgress){
       xhr.upload.onprogress = (e)=>{ if(e.lengthComputable) onUploadProgress(e.loaded / e.total); };
       xhr.upload.onload = ()=>{ onUploadProgress(1); };
