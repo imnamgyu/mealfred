@@ -32,6 +32,7 @@ const MENU_SCHEMA: Record<string, unknown> = {
   type: 'object',
   properties: {
     is_menu: { type: 'boolean' },
+    institution_name: { type: 'string' },
     reason: { type: 'string' },
     text: { type: 'string' },
     items: {
@@ -49,7 +50,7 @@ const MENU_SCHEMA: Record<string, unknown> = {
       },
     },
   },
-  required: ['is_menu', 'reason', 'text', 'items'],
+  required: ['is_menu', 'institution_name', 'reason', 'text', 'items'],
   additionalProperties: false,
 };
 
@@ -76,9 +77,10 @@ C. 각 item의 day(요일)가 그 date(날짜)의 표 헤더 요일과 일치하
 
 **중요: 식재료 분해나 메뉴 평가는 하지 마세요. 시스템이 메뉴명으로 자동 처리합니다. 당신은 메뉴명을 정확히 추출·교정하고 올바른 날짜에 매핑하면 됩니다.** (이렇게 출력을 짧게 유지해야 한 달치 식단표도 안 잘립니다.)
 
+institution_name: 식단표 상단·제목·머리글(보통 좌측 상단 로고/제목 영역)에 적힌 **기관 이름**을 그대로 적으세요 — "○○어린이집"·"○○유치원"·"○○초등학교" 형태. 제목 영역 글자를 이미지로 정확히 보고, [OCR 추출 텍스트]의 기관명과 대조해 한두 글자 오인식은 교정하세요. 식단표 안에 기관명이 전혀 없으면 "".
 items 원소: {date(날짜 숫자 1~31, 모르면 ""), day(요일 월화수목금토일, 모르면 ""), slot(오전간식/점심/오후간식), menu(교정한 메뉴명 하나)}.
 text: 정리한 전체 식단(날짜/요일별 줄바꿈).
-식단표가 아니면 is_menu=false, reason 한 줄, text="", items=[].`;
+식단표가 아니면 is_menu=false, institution_name(있으면 기관명), reason 한 줄, text="", items=[].`;
 
 export async function OPTIONS(req: NextRequest) {
   return NextResponse.json(null, { headers: getCorsHeaders(req) });
@@ -226,7 +228,7 @@ export async function POST(req: NextRequest) {
       await supabase.from('ocr_logs').insert({ is_menu: false, reject_reason: 'truncated: max_tokens', duration_ms: Date.now() - startMs, model: 'clova-ocr+claude-sonnet-4-6', input_tokens: decomp.usage?.input_tokens || 0, output_tokens: decomp.usage?.output_tokens || 0 });
       return NextResponse.json({ is_menu: false, reason: '식단표가 커서 한 번에 다 읽지 못했어요 — 한 주(또는 2주)씩 잘라서 올려주시면 정확히 읽어드려요.' }, { headers: cors });
     }
-    let parsed: { is_menu?: boolean; reason?: string; text?: string; items?: unknown[] };
+    let parsed: { is_menu?: boolean; institution_name?: string; reason?: string; text?: string; items?: unknown[] };
     try {
       parsed = JSON.parse(textBlock.text);
     } catch {
@@ -277,6 +279,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         is_menu: parsed.is_menu,
+        institution_name: parsed.institution_name || null,
         text: parsed.text || ocrText,
         items: parsed.items || [],
         reason: parsed.reason || null,

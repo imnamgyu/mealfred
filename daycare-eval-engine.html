@@ -59,11 +59,11 @@
   <table>
     <tr><th style="width:130px">축</th><th>무엇을</th><th>산식 요약</th></tr>
     <tr><td><span class="ax">1. 식품군 다양성</span><br><span class="note">WHO MDD</span></td><td>8개 식품군 충족 + 군 내 세부 종류</td><td>8/8 + 세부 10종↑ = A+(95) · 8/8 = B(80) · 7/8 = B-(78)</td></tr>
-    <tr><td><span class="ax">2. KDRI 36종</span><br><span class="note">복지부 2025</span></td><td>36종 필수 영양소 커버율(식재료→영양맵)</td><td>29종↑ A+ · 22종↑ A · 16종↑ B+</td></tr>
+    <tr><td><span class="ax">2. KDRI 31종</span><br><span class="note">복지부 2025</span></td><td>31종 필수 영양소 커버율(식재료→영양맵)</td><td>25종↑ A+ · 19종↑ A · 14종↑ B+</td></tr>
     <tr><td><span class="ax">3. 메뉴 반복도</span></td><td>한 달 최다 반복(밥·김치·우유 등 주식 제외)</td><td>≤2회 A+ · ≤4 B · ≤6 C</td></tr>
     <tr><td><span class="ax">4. 알레르겐 표시</span><br><span class="note">식약처 17대</span></td><td>알레르겐 표기 유무</td><td>3종↑ 표시 = 100 · 그 외 80</td></tr>
     <tr><td><span class="ax">5. 가공식품</span><br><span class="note">WHO NOVA</span></td><td>초가공(너겟·소시지 등) 비중</td><td>&lt;8% A+ · &lt;18% A- · &lt;30% B-</td></tr>
-    <tr><td><span class="ax">6. 제철 식재료</span><br><span class="note">농진청</span></td><td>그 달 제철 식재료 매칭 수</td><td>3종↑ A+ · 2종 A · 1종 B+</td></tr>
+    <tr><td><span class="ax">6. 제철 식재료</span><br><span class="note">농진청·해수부</span></td><td>식단표 '해당 월' 제철 식재료 정확매칭 수</td><td>3종↑ A+ · 2종 A · 1종 B+</td></tr>
     <tr><td><span class="ax">7. 조리 스타일</span></td><td>한식·양식·일식·중식 다양성</td><td>4종 A+ · 3종 B+ · 2종 C</td></tr>
   </table>
   <p class="note">총점 = 7축 평균 → 등급(95+ A+ · 90+ A · 85+ B+ · 80+ B · 70+ C · D). 부모 결과카드엔 이 7축 막대 + 등급.</p>
@@ -71,7 +71,7 @@
   <h2>3. 기관 랭킹 시스템</h2>
   <div class="card">
     <h3>점수기(줄세우기용)</h3>
-    <p><code>computeDiversityScore</code> (결정론·<code>daycareMode</code>: 과일·유제품 제외, 가공/반복 패널티 ON). 실측 53곳 <b>중앙값 94·표준편차 4.9</b> = 변별력 낮음(다 훌륭) → 화면은 <b>고대역(거의 만점)</b> + <b>'매우 우수 · 모두 안심 등급'</b> + <b>전국 {유형} 상위 X%</b>(공동, 우리 동네 등수는 미노출).</p>
+    <p><code>computeDiversityScore</code> (결정론·<code>daycareMode</code>: 과일·유제품 제외, 가공/반복 패널티 ON). 실측 <b>113곳(서울 7개 구)</b> 중앙값 <b>91·평균 90</b> = 변별력 낮음(다 훌륭) → 화면은 인위적 커브·등급밴드 없이 <b>객관 점수</b> + <b>전국 {유형} 상위 X%</b>만(절대값·등급·동네 등수 미노출).</p>
     <h3>변별 = 8개 강점지표 (코호트 percentile 1위 1개만 긍정 노출)</h3>
     <table>
       <tr><th>지표</th><th>산출(결정론)</th><th>노출 문구(예)</th></tr>
@@ -98,13 +98,13 @@
     <span class="st">/api/eval/rank (코호트 percentile)</span>
   </div>
   <ul>
-    <li><b>OCR</b>: <code>/api/ocr</code> — CLOVA(표 셀) + Claude Sonnet <b>비전</b>(빈칸 날짜밀림 보정). 메뉴명·날짜·기관명 추출. (비전만 Claude 유지, 그 외 텍스트 LLM은 DeepSeek)</li>
+    <li><b>OCR</b>: <code>/api/ocr</code> — CLOVA(표 셀) + Claude Sonnet <b>비전</b>(빈칸 날짜밀림 보정). 메뉴명·날짜·<b>기관명(스키마 전용필드)</b> 추출. 비전 대체로 DeepSeek-OCR(환각·149초로 부적합)·Qwen3-VL 검토 → <b>Sonnet 유지</b>(Qwen은 정확도 A/B 후 판단). 그 외 텍스트 LLM은 DeepSeek.</li>
     <li><b>기관 매칭</b>: 이미지 <b>좌측 상단 기관명</b>을 <code>institutions</code> 디렉터리(31,819개)에서 매칭 → <code>institution_id</code>+시군구. 폴더/업로드의 구+유형으로 후보를 좁혀 동명이원 방지.</li>
     <li><b>식재료</b>: <code>mapMenuLocal</code>(농진청 표준명·결정론) → 식품군·영양맵. 미매핑은 DeepSeek 폴백.</li>
     <li><b>저장(멱등)</b>: <code>institution_menus</code>(institution_id, month UNIQUE = 월 1벌) → <code>institution_menu_items</code>(끼니별 m:n) → <code>institution_scores</code>(점수 + 강점지표 <code>standout_dims</code> jsonb).</li>
-    <li><b>멱등 캐시</b>: (기관, 월)이 이미 있으면 <b>OCR 생략</b>하고 저장본으로 즉시 결과. zip 시드 후 대부분 부모는 OCR 0회.</li>
+    <li><b>멱등 캐시 + 5회 캡</b>: (기관, 월)이 이미 있으면 <b>OCR 생략</b>하고 저장본 결과(~10초 분석 연출). 잘못된 사진 업로드로 스코어 오염·비용 폭주 방지 위해 <code>analysis_count</code>로 <b>(기관,월)당 재채점 최대 5회</b> 캡.</li>
     <li><b>배치 임포터</b>: <code>scripts/import-seoul-menus.ts</code> — 폴더(구/유형/월) 순회 → OCR(동시 4) → 매칭 → 채점 → 적재. PDF는 <code>pdftoppm</code> 래스터.</li>
-    <li><b>LLM 정책</b>: 텍스트(메뉴 분해·총평)=DeepSeek V4(DeepInfra) · OCR 비전=Claude Sonnet 유지(2026-06).</li>
+    <li><b>LLM 정책</b>: 텍스트(메뉴 분해·총평)=DeepSeek V4(DeepInfra) · OCR 비전=Claude Sonnet(~₩104/장). 전국 대량 확장 시 Qwen3-VL(~₩4/장·24배↓) 전환 후보 — 날짜매핑 정확도 A/B 통과 시.</li>
   </ul>
 
   <h2>5. 데이터 인입 3경로</h2>

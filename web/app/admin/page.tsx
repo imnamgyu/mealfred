@@ -102,6 +102,10 @@ export default async function AdminHome() {
         ))}
       </div>
 
+      <Link href="/admin/institutions" style={{ display: 'block', textDecoration: 'none', background: '#FFF7ED', border: '1.5px solid #FFE0C0', borderRadius: 12, padding: '12px 14px', marginBottom: 16, color: '#C45A00', fontWeight: 800, fontSize: 14 }}>
+        🏫 기관 평가 기록 — 등수·핵심지표 리스트 보기 →
+      </Link>
+
       <div style={{ display: 'grid', gap: 10 }}>
         {rows.map((c) => (
           <Link key={c.id} href={`/admin/${c.id}`} style={{ textDecoration: 'none' }}>

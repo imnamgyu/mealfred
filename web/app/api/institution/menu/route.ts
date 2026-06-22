@@ -72,13 +72,26 @@ export async function POST(req: NextRequest) {
       .select('id,name,type,sido,sigungu').eq('id', institutionId).maybeSingle();
     if (!inst) return NextResponse.json({ error: '기관을 찾을 수 없습니다' }, { status: 404, headers });
 
-    // ① 식단 upsert (institution+month = 1벌, 재업로드 시 갱신)
+    // ⭐ 중복분석 5회 캡(이사님 2026-06-22): 사람들이 사진을 자기멋대로 올려 잘못된 분석으로 스코어 오염·비용 폭주하는 걸 방지.
+    //   (inst,month)당 5회까지만 재채점 저장, 초과 시 저장본 결과만 돌려줌(덮어쓰기 차단).
+    const { data: existingMenu } = await supabase.from('institution_menus')
+      .select('id, analysis_count').eq('institution_id', institutionId).eq('month', month).maybeSingle();
+    if (existingMenu && (existingMenu.analysis_count || 0) >= 5) {
+      const { data: capped } = await supabase.from('institution_scores')
+        .select('score, day_count, summary').eq('institution_id', institutionId).eq('month', month).maybeSingle();
+      return NextResponse.json({ ok: true, capped: true, score: capped?.score ?? null, summary: capped?.summary ?? null, dayCount: capped?.day_count ?? null,
+        message: '이 기관·이번 달은 이미 충분히 분석됐어요(최대 5회) — 저장된 결과로 보여드려요.' }, { headers });
+    }
+    const nextCount = (existingMenu?.analysis_count || 0) + 1;
+
+    // ① 식단 upsert (institution+month = 1벌, 재업로드 시 갱신 · 분석횟수 누적)
     const { data: menuRow, error: mErr } = await supabase.from('institution_menus')
       .upsert({
         institution_id: institutionId, month,
         source: body.source || 'eval_upload',
         raw_ocr_text: typeof body.raw_ocr_text === 'string' ? body.raw_ocr_text.slice(0, 20000) : null,
         created_by: body.created_by || null,
+        analysis_count: nextCount,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'institution_id,month' })
       .select('id').single();

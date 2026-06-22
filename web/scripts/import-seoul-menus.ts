@@ -11,13 +11,14 @@ import { execSync } from 'child_process';
 import { scoreInstitutionMonth, computeStandoutDims, buildMenuItemRows, type OcrMenuItem } from '../lib/institutionScore.ts';
 
 const BASE = '/Users/ing/Downloads/서울';
-const OCR_URL = 'https://app.mealfred.com/api/ocr';
+const OCR_URL = process.env.OCR_URL || 'https://app.mealfred.com/api/ocr';   // 로컬 OCR(미배포 스키마 테스트): OCR_URL=http://localhost:3000/api/ocr
 const CONC = 4;
 const TYPE: Record<string, string> = { '어린이집': 'daycare', '유치원': 'kindergarten' };
 const NAME_RE = /([가-힣A-Za-z0-9·]+(?:어린이집|유치원))/;
 
 const args = process.argv.slice(2);
 const CLEAR = args.includes('--clear');
+const SKIP_DONE = args.includes('--skip-done');   // 이미 적재된 (구·유형) 폴더는 OCR 건너뜀(빠진 폴더만 복구)
 const LIMIT = parseInt((args.find(a => a.startsWith('--limit=')) || '').split('=')[1] || '0', 10);
 const GU = (args.find(a => a.startsWith('--gu=')) || '').split('=')[1] || '';
 
@@ -50,7 +51,7 @@ function toPng(file: string): string {
   return out + '-1.png';
 }
 
-type OcrOut = { is_menu?: boolean; reason?: string; text?: string; items?: OcrMenuItem[] };
+type OcrOut = { is_menu?: boolean; institution_name?: string | null; reason?: string; text?: string; items?: OcrMenuItem[] };
 async function ocrFile(file: string): Promise<OcrOut> {
   let img = file, tmp: string | null = null;
   if (/\.pdf$/i.test(file)) { img = toPng(file); tmp = img; }
@@ -83,6 +84,16 @@ async function main() {
     console.log('기존 institution_menus/scores 전체 삭제(깨끗이)');
   }
 
+  // --skip-done: '완료(6개월+) 적재된' (구·유형) 폴더만 OCR 건너뜀(부분복구 폴더는 마저 채움)
+  const doneFolders = new Set<string>();
+  if (SKIP_DONE) {
+    const sc = (await rest('institution_scores?select=sigungu,type')) as { sigungu: string; type: string }[];
+    const cnt: Record<string, number> = {};
+    for (const r of (sc || [])) { const k = `${r.sigungu}|${r.type}`; cnt[k] = (cnt[k] || 0) + 1; }
+    for (const k of Object.keys(cnt)) if (cnt[k] >= 6) doneFolders.add(k);
+    console.log(`skip-done: 완료(6개월+) (구·유형) ${doneFolders.size}쌍 OCR 건너뜀`);
+  }
+
   // 파일 수집 — ⭐macOS 한글 파일명은 NFD(분해형) → 비교/표시는 NFC 정규화, 파일 접근은 raw 사용.
   const files: { file: string; gu: string; type: string; fn: string }[] = [];
   const NFC = (s: string) => s.normalize('NFC');
@@ -93,6 +104,7 @@ async function main() {
     const guPath = path.join(BASE, guRaw); if (!fs.statSync(guPath).isDirectory()) continue;
     for (const tyRaw of fs.readdirSync(guPath)) {
       const type = TYPE[NFC(tyRaw)]; if (!type) continue;
+      if (SKIP_DONE && doneFolders.has(`${gu}|${type}`)) continue;
       const tyPath = path.join(guPath, tyRaw); if (!fs.statSync(tyPath).isDirectory()) continue;
       for (const fnRaw of fs.readdirSync(tyPath)) {
         if (!/\.(pdf|jpe?g|png)$/i.test(fnRaw)) continue;
@@ -112,7 +124,9 @@ async function main() {
       try {
         const d = await ocrFile(f.file);
         const reason = d.reason || '', text = d.text || '';
-        const name = (reason.match(NAME_RE) || [])[1] || (text.match(NAME_RE) || [])[1] || null;
+        // ⭐ 기관명: OCR 전용 필드(institution_name) 우선 → reason/text 폴백(이사님 2026-06-22, 9폴더 추출실패 근본수정)
+        const instName = (d.institution_name || '').trim();
+        const name = (instName.match(NAME_RE) || [])[1] || instName || (reason.match(NAME_RE) || [])[1] || (text.match(NAME_RE) || [])[1] || null;
         results.push({ ...f, isMenu: !!d.is_menu, name, month: monthOf(text, reason, f.fn), items: Array.isArray(d.items) ? d.items : [] });
       } catch (e) { results.push({ ...f, error: String(e).slice(0, 80) }); }
       done++; if (done % 8 === 0 || done === targets.length) console.log(`  OCR ${done}/${targets.length}`);
