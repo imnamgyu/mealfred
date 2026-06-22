@@ -45,24 +45,44 @@ function monthOf(ocrText: string, reason: string, filename: string): string | nu
   return null;
 }
 
-function toPng(file: string): string {
+function toPngAll(file: string): string[] {
   const out = path.join(os.tmpdir(), 'imp_' + process.pid + '_' + Math.floor(Math.random() * 1e9));
-  execSync(`pdftoppm -png -r 150 -f 1 -l 1 "${file}" "${out}"`, { stdio: 'ignore' });
-  return out + '-1.png';
+  execSync(`pdftoppm -png -r 150 "${file}" "${out}"`, { stdio: 'ignore' });   // ⭐ 전 페이지(이전 -f1 -l1는 1페이지만 → 주별 다페이지 PDF 2쪽+ 누락 = SK행복 4일 버그)
+  const dir = path.dirname(out), base = path.basename(out);
+  return fs.readdirSync(dir).filter((f) => f.startsWith(base + '-') && /\.png$/i.test(f)).sort().map((f) => path.join(dir, f));
 }
 
 type OcrOut = { is_menu?: boolean; institution_name?: string | null; reason?: string; text?: string; items?: OcrMenuItem[] };
+async function ocrOneImg(img: string): Promise<OcrOut> {
+  const buf = fs.readFileSync(img);
+  const fd = new FormData();
+  fd.append('image', new Blob([buf], { type: img.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg' }), path.basename(img));
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 220000);
+  try { const r = await fetch(OCR_URL, { method: 'POST', body: fd, signal: ctrl.signal }); return await r.json(); }
+  finally { clearTimeout(t); }
+}
+// ⭐ 다페이지 PDF: 전 페이지 OCR → items 병합(date|slot|menu 중복제거). 주별 1페이지 PDF의 2쪽+ 누락(SK행복 4일) 수정.
 async function ocrFile(file: string): Promise<OcrOut> {
-  let img = file, tmp: string | null = null;
-  if (/\.pdf$/i.test(file)) { img = toPng(file); tmp = img; }
+  let imgs: string[]; const tmps: string[] = [];
+  if (/\.pdf$/i.test(file)) { imgs = toPngAll(file); tmps.push(...imgs); }
+  else imgs = [file];
   try {
-    const buf = fs.readFileSync(img);
-    const fd = new FormData();
-    fd.append('image', new Blob([buf], { type: img.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg' }), path.basename(img));
-    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 220000);
-    try { const r = await fetch(OCR_URL, { method: 'POST', body: fd, signal: ctrl.signal }); return await r.json(); }
-    finally { clearTimeout(t); }
-  } finally { if (tmp) try { fs.unlinkSync(tmp); } catch { /* */ } }
+    const merged: OcrMenuItem[] = []; const seen = new Set<string>();
+    let isMenu = false, name: string | null = null, text = '', reason = '';
+    for (const img of imgs) {
+      let d: OcrOut; try { d = await ocrOneImg(img); } catch { continue; }
+      if (d.reason && !reason) reason = d.reason;
+      if (!d.is_menu) continue;
+      isMenu = true;
+      if (!name && d.institution_name) name = d.institution_name;
+      text += (d.text || '') + '\n';
+      for (const it of (d.items || [])) {
+        const k = `${it.date || ''}|${it.slot || ''}|${String(it.menu || '').replace(/\s/g, '')}`;
+        if (seen.has(k)) continue; seen.add(k); merged.push(it);
+      }
+    }
+    return { is_menu: isMenu, institution_name: name, reason, text: text.trim(), items: merged };
+  } finally { for (const t of tmps) try { fs.unlinkSync(t); } catch { /* */ } }
 }
 
 async function matchInst(name: string, type: string, gu: string) {

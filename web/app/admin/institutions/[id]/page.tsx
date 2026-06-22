@@ -45,10 +45,10 @@ export default async function InstitutionDetail({ params }: { params: Promise<{ 
     : { data: [] };
   const items = (itemsData || []) as ItemRow[];
 
-  // 이미지 — image_url 컬럼이 없으면 에러나도 캘린더는 살아있게(resilient)
-  const imageMap: Record<string, string> = {};
-  const imgRes = menuIds.length ? await db.from('institution_menus').select('id,image_url').eq('institution_id', id) : { data: null };
-  for (const r of ((imgRes.data || []) as { id: string; image_url: string | null }[])) if (r.image_url) imageMap[r.id] = r.image_url;
+  // 이미지(다페이지 = 배열) — image_urls 컬럼 없으면 에러나도 캘린더는 살아있게(resilient)
+  const imageMap: Record<string, string[]> = {};
+  const imgRes = menuIds.length ? await db.from('institution_menus').select('id,image_urls').eq('institution_id', id) : { data: null };
+  for (const r of ((imgRes.data || []) as { id: string; image_urls: string[] | null }[])) if (r.image_urls && r.image_urls.length) imageMap[r.id] = r.image_urls;
 
   const byMenu = new Map<string, ItemRow[]>();
   for (const it of items) { const a = byMenu.get(it.institution_menu_id); if (a) a.push(it); else byMenu.set(it.institution_menu_id, [it]); }
@@ -78,18 +78,20 @@ export default async function InstitutionDetail({ params }: { params: Promise<{ 
           slotMap[it.slot] = (slotMap[it.slot] || []).concat(it.menus || []);
         }
         const dates = [...byDate.keys()].sort();
-        const img = imageMap[m.id];
+        const imgs = imageMap[m.id] || [];
         return (
           <section key={m.id} style={{ marginTop: 22, border: '1px solid #E5E7EB', borderRadius: 14, padding: 16, background: '#fff' }}>
             <h2 style={{ fontSize: 16, fontWeight: 800, color: navy, margin: '0 0 12px' }}>
               📅 {m.month} <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>· {dates.length}일 · {m.source || '—'}{m.analysis_count ? ` · 분석 ${m.analysis_count}회` : ''}</span>
             </h2>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-              <div style={{ flex: '0 0 340px', maxWidth: '100%' }}>
-                {img
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  ? <a href={img} target="_blank" rel="noreferrer"><img src={img} alt={`${m.month} 식단표 원본`} style={{ width: '100%', borderRadius: 10, border: '1px solid #E5E7EB', display: 'block' }} /></a>
-                  : <div style={{ padding: '40px 16px', textAlign: 'center', background: '#F8F9FA', border: '1.5px dashed #D1D5DB', borderRadius: 10, color: '#9CA3AF', fontSize: 12.5, lineHeight: 1.7 }}>📷 원본 사진 미연결<br /><span style={{ fontSize: 11 }}>(재업로드 연결 후 표시)</span></div>}
+              <div style={{ flex: '0 0 340px', maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {imgs.length
+                  ? imgs.map((u, pi) => (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <a key={pi} href={u} target="_blank" rel="noreferrer"><img src={u} alt={`${m.month} 식단표 ${pi + 1}쪽`} style={{ width: '100%', borderRadius: 10, border: '1px solid #E5E7EB', display: 'block' }} /></a>
+                  ))
+                  : <div style={{ padding: '40px 16px', textAlign: 'center', background: '#F8F9FA', border: '1.5px dashed #D1D5DB', borderRadius: 10, color: '#9CA3AF', fontSize: 12.5, lineHeight: 1.7 }}>📷 원본 사진 미연결<br /><span style={{ fontSize: 11 }}>(image_urls DDL + 연결 후 표시)</span></div>}
               </div>
               <div style={{ flex: 1, minWidth: 320, overflowX: 'auto' }}>
                 <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 12 }}>
