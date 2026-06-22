@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { scoreInstitutionMonth, summarizeInstitutionMenu, buildMenuItemRows, computeStandoutDims, type OcrMenuItem } from '@/lib/institutionScore';
+import { mapMenuLocal } from '@/lib/menuMap';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -47,7 +48,8 @@ export async function GET(req: NextRequest) {
     const { data: rows } = await supabase.from('institution_menu_items').select('menu_date,slot,menus,ingredients').eq('institution_menu_id', menu.id);
     const items: { date: string | null; slot: string; menu: string; ingredients: string[] }[] = [];
     for (const r of (rows || []) as { menu_date: string | null; slot: string; menus: string[] | null; ingredients: string[] | null }[]) {
-      for (const m of r.menus || []) items.push({ date: r.menu_date, slot: SLOT_KO[r.slot] || r.slot, menu: m, ingredients: r.ingredients || [] });
+      // ⭐ 메뉴별 개별 재매핑(이사님 2026-06-22) — 끼니 그룹 식재료 union이 메뉴마다 붙어 보이던 표시버그 수정(예: 오이스틱→요거트). 점수는 무관(하루 합집합 기준).
+      for (const m of r.menus || []) items.push({ date: r.menu_date, slot: SLOT_KO[r.slot] || r.slot, menu: m, ingredients: mapMenuLocal(m)?.ingredients || [] });
     }
     return NextResponse.json({ exists: items.length > 0, month, items }, { headers });
   } catch (e: unknown) {
