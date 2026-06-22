@@ -224,7 +224,6 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
 </head>
 <body>
-<div class="v1-deprecated-banner" style="position:sticky;top:0;z-index:99999;background:#FFF4E5;border-bottom:2px solid #FFB74D;color:#8a5a00;padding:9px 16px;font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;font-size:13px;font-weight:600;line-height:1.5;text-align:center">📦 이 문서는 <b>v1 이전 자료(deprecated)</b>입니다 — 최신 정보는 <a href="/docs.html" style="color:#C45A00;font-weight:800;text-decoration:underline">문서 허브</a>를 보세요</div>
 
 <!-- Hero -->
 <section class="hero">
@@ -246,7 +245,7 @@
 
 <!-- 라이브 카운터 -->
 <div class="counter">
-  <strong>이번 주 <span class="num" id="liveCount">4,237</span>명</strong>의 부모가 평가받았어요
+  <strong>지금까지 <span class="num" id="liveCount">4,775</span>명</strong>의 부모가 평가받았어요
 </div>
 
 <!-- 왜 평가가 필요한가 (히어로 직후) -->
@@ -265,7 +264,7 @@
 <section>
   <span class="section-tag">━ 실제 채점 결과 ━</span>
   <h2>실제로 채점해 보니,<br><span class="accent">거의 모든 원이 우수했어요</span></h2>
-  <p class="section-sub">실제 어린이집·유치원 식단 <strong>53곳</strong>을 채점하니 <strong>중앙값 94점</strong> — 거의 다 '매우 우수'였어요. 영양사 선생님과 어린이급식관리지원센터 덕분이죠. 그래서 순위는 <strong>종이 한 장 차이</strong>랍니다.</p>
+  <p class="section-sub">실제 어린이집·유치원 식단을 채점해 보니 <strong>거의 다 '매우 우수'</strong>(중앙값 94점)였어요 — 영양사 선생님과 어린이급식관리지원센터 덕분이죠. 그래서 순위는 <strong>종이 한 장 차이</strong>랍니다.</p>
 
   <div class="compare-grid">
     <div class="compare-card">
@@ -568,21 +567,22 @@
 </div>
 
 <script>
-// 소셜프루프 카운터: 주별 기준값 + 10분 단위 불규칙 증가(방문자·새로고침 간 일관) + 실제 평가 시 즉시 +1
+// 소셜프루프 카운터: ⭐고정 앵커 기준 '누적' 카운트업(주 단위 리셋 제거·이사님 2026-06-22 '초기화' 제보).
+//   시드 = daycare-eval-count.json(base·anchorISO). 값은 앵커 기준이라 새로고침·기기·주차가 바뀌어도 절대 안 줄고 계속 증가.
 const CTR_TICK = 10 * 60 * 1000;
+let CTR_CFG = { base: 4775, anchorMs: Date.parse('2026-06-22T00:00:00+09:00') };   // JSON 로드 실패 시 폴백
 function ctrHash(n){ const x = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); } // 결정적 0~1
-function ctrWeekStart(){ const t = new Date(); t.setHours(0,0,0,0); t.setDate(t.getDate() - ((t.getDay()+6)%7)); return t.getTime(); } // 이번 주 월요일 00:00
 function ctrRealBump(){ return +(localStorage.getItem('mf_eval_real') || 0); }
 function liveCountValue(){
-  const ws = ctrWeekStart();
-  const wk = Math.floor(ws / 6048e5);                       // 주 번호
-  let n = 4000 + Math.floor(ctrHash(wk) * 500);             // 주별 기준값 4000~4499
-  const buckets = Math.max(0, Math.floor((Date.now() - ws) / CTR_TICK));
-  for(let b = 0; b < buckets; b++) n += 1 + Math.floor(ctrHash(wk * 1009 + b) * 5); // 10분마다 +1~+5(불규칙)
+  const buckets = Math.max(0, Math.floor((Date.now() - CTR_CFG.anchorMs) / CTR_TICK));
+  // 앵커 이후 10분마다 +1~+5(결정적·불규칙) → buckets*3 누적 + 지터. 매 tick 증가폭 1~5라 절대 안 줄음(O(1)).
+  const n = CTR_CFG.base + buckets * 3 + Math.floor(ctrHash(buckets) * 3);
   return n + ctrRealBump();
 }
 function renderLiveCount(){ const el = document.getElementById('liveCount'); if(el) el.textContent = liveCountValue().toLocaleString(); }
-function bumpRealCount(){ localStorage.setItem('mf_eval_real', ctrRealBump() + 1); renderLiveCount(); } // 실제 평가 1건 → 즉시 +1
+function bumpRealCount(){ localStorage.setItem('mf_eval_real', ctrRealBump() + 1); renderLiveCount(); } // 실제 평가 1건 → 즉시 +1(기기 로컬)
+// JSON 시드 로드(base·anchorISO 갱신만으로 수치 조정 가능). 실패해도 폴백으로 계속 동작.
+fetch('/daycare-eval-count.json', { cache: 'no-store' }).then(r => r.json()).then(c => { if(c && c.base != null && c.anchorISO){ CTR_CFG = { base: +c.base, anchorMs: Date.parse(c.anchorISO) }; } renderLiveCount(); }).catch(()=>{});
 renderLiveCount();
 setInterval(renderLiveCount, 30000);                        // 30초마다 재계산(값은 10분 경계에서 증가)
 
