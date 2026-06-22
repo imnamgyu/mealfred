@@ -1316,6 +1316,33 @@ function renderRank(d){
   </div>`;
 }
 
+// ⭐ 다페이지 PDF(이사님 2026-06-22): 서버리스는 PDF 래스터 불가 → 클라에서 pdf.js로 쪽별 PNG 렌더(쪽별 이미지라 Sonnet 비전도 유지). 각 쪽 OCR 후 병합.
+let _pdfjsP = null;
+function loadPdfjs(){
+  if(_pdfjsP) return _pdfjsP;
+  _pdfjsP = new Promise((resolve, reject)=>{
+    if(window.pdfjsLib){ resolve(window.pdfjsLib); return; }
+    const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload=()=>{ try{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; resolve(window.pdfjsLib);}catch(e){reject(e);} };
+    s.onerror=()=>reject(new Error('pdf.js 로드 실패')); document.head.appendChild(s);
+  });
+  return _pdfjsP;
+}
+async function pdfToPageFiles(file){
+  const lib=await loadPdfjs();
+  const pdf=await lib.getDocument({data:await file.arrayBuffer()}).promise;
+  const files=[];
+  for(let p=1;p<=pdf.numPages;p++){
+    const page=await pdf.getPage(p);
+    const vp=page.getViewport({scale:2});
+    const c=document.createElement('canvas'); c.width=vp.width; c.height=vp.height;
+    await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+    const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+    files.push(new File([blob],`page${p}.png`,{type:'image/png'}));
+  }
+  return files;
+}
+
 // 식단표 사진 1장 → 서버 CLOVA OCR(전사)+Claude(분해). 업로드 진행률 콜백(onUploadProgress) 지원.
 function ocrOneImage(file, onUploadProgress){
   return new Promise((resolve)=>{
@@ -1361,17 +1388,39 @@ async function startAnalysis(){
 
   let text, inputMode, ocrItems = [];
   let creep = null;
+  const file0 = photoInput.files[0];
+  const isPdf = /\.pdf$/i.test(file0.name||'') || file0.type === 'application/pdf';
 
   try {
-    const data = await ocrOneImage(photoInput.files[0], (frac)=>{
-      if(frac < 1){
-        fill.style.width = (8 + Math.round(frac * 30)) + '%';      // 업로드: 8→38%
-        msg.textContent = `📤 사진 업로드 중… ${Math.round(frac * 100)}%`;
-      } else if(!creep){
-        fill.style.width = '40%';                                   // 업로드 완료 → 서버 처리 구간
-        creep = startProcessingCreep(fill, msg);
+    let data;
+    if(isPdf){
+      // ⭐ 다페이지 PDF: 쪽별 렌더 → 각 쪽 OCR → 병합(date|slot|menu 중복제거). 주별 다페이지도 전부 잡힘.
+      msg.textContent = '📄 PDF 페이지 변환 중…'; fill.style.width = '12%';
+      let pages;
+      try { pages = await pdfToPageFiles(file0); } catch(e){ pages = [file0]; }   // pdf.js 실패 시 원본 단일 폴백
+      const merged = []; const seen = new Set(); let isMenu=false, txt='', reason='';
+      for(let i=0;i<pages.length;i++){
+        fill.style.width = (15 + Math.round((i/Math.max(1,pages.length))*72)) + '%';
+        msg.textContent = pages.length>1 ? `🔍 ${pages.length}쪽 중 ${i+1}쪽 인식 중…` : '🔍 식단표 인식 중…';
+        const d = await ocrOneImage(pages[i]);
+        if(d && d.error) continue;
+        if(d && d.reason && !reason) reason = d.reason;
+        if(!d || !d.is_menu) continue;
+        isMenu=true; txt += (d.text||'')+'\n';
+        for(const it of (d.items||[])){ const k=`${it.date||''}|${it.slot||''}|${String(it.menu||'').replace(/\s/g,'')}`; if(seen.has(k))continue; seen.add(k); merged.push(it); }
       }
-    });
+      data = { is_menu:isMenu, text:txt.trim(), items:merged, reason: reason||'식단표를 읽지 못했어요 — 더 선명한 파일로 시도해주세요.' };
+    } else {
+      data = await ocrOneImage(file0, (frac)=>{
+        if(frac < 1){
+          fill.style.width = (8 + Math.round(frac * 30)) + '%';      // 업로드: 8→38%
+          msg.textContent = `📤 사진 업로드 중… ${Math.round(frac * 100)}%`;
+        } else if(!creep){
+          fill.style.width = '40%';                                   // 업로드 완료 → 서버 처리 구간
+          creep = startProcessingCreep(fill, msg);
+        }
+      });
+    }
     if(creep){ clearInterval(creep); creep = null; }
 
     if(data.error){

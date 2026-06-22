@@ -15,11 +15,14 @@ const td: React.CSSProperties = { padding: '7px 9px', fontSize: 12.5, color: '#3
 const scoreColor = (s: number) => s >= 95 ? '#16A085' : s >= 90 ? '#1a8f6f' : s >= 80 ? '#C45A00' : '#C62828';
 
 export default function InstitutionList({ rows, instCount, monthCount }: { rows: Row[]; instCount: number; monthCount: number }) {
+  const months = useMemo(() => [...new Set(rows.map((r) => r.month))].sort().reverse(), [rows]);
   const [q, setQ] = useState('');
-  const [month, setMonth] = useState('');
+  const [month, setMonth] = useState(() => {
+    const cur = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 7);   // KST 현재 달 기본(없으면 최신)
+    return months.includes(cur) ? cur : (months[0] || '');
+  });
   const [sort, setSort] = useState<SortKey>('score');
   const [asc, setAsc] = useState(false);
-  const months = useMemo(() => [...new Set(rows.map((r) => r.month))].sort().reverse(), [rows]);
 
   const view = useMemo(() => {
     const t = q.trim();
