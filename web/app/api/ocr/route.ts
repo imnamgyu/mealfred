@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
+import { mapMenuLocal } from '@/lib/menuMap';   // 결정론 메뉴→식재료(농진청 표준명) — items에 부착해 평가/표시가 식재료 0종 안 나게
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const supabase = createClient(
@@ -281,7 +282,8 @@ export async function POST(req: NextRequest) {
         is_menu: parsed.is_menu,
         institution_name: parsed.institution_name || null,
         text: parsed.text || ocrText,
-        items: parsed.items || [],
+        items: ((parsed.items || []) as { date?: string; day?: string; slot?: string; menu?: string }[])
+          .map((it) => ({ ...it, ingredients: mapMenuLocal(String(it.menu || ''))?.ingredients || [] })),
         reason: parsed.reason || null,
         log_id: logId,
       },

@@ -817,13 +817,17 @@ function extractIngredientsFromItems(items){
   const found = new Set(), cats = new Set(), matched = [];
   const poolMap = {};
   INGREDIENT_POOL.forEach(ing => { poolMap[ing.nm] = ing; });
+  const add = (pool) => { if(pool && !found.has(pool.nm)){ found.add(pool.nm); cats.add(pool.cat); matched.push(pool); } };
   items.forEach(it => {
-    (it.ingredients||[]).forEach(name => {
-      const pool = poolMap[name] || INGREDIENT_POOL.find(p => name.includes(p.nm) || p.nm.includes(name));
-      if(pool && !found.has(pool.nm)){
-        found.add(pool.nm); cats.add(pool.cat); matched.push(pool);
-      }
-    });
+    const ings = it.ingredients || [];
+    if(ings.length){
+      ings.forEach(name => add(poolMap[name] || INGREDIENT_POOL.find(p => name.includes(p.nm) || p.nm.includes(name))));
+    } else {
+      // ⭐ ingredients 없으면(OCR 경로 등) 메뉴명에서 직접 추출 — 식재료 0종 방지(이사님 2026-06-22)
+      const menu = String(it.menu || '');
+      INGREDIENT_POOL.forEach(ing => { if(menu.includes(ing.nm)) add(ing); });
+      Object.entries(MENU_SUB_INGREDIENTS).forEach(([m, subs]) => { if(menu.includes(m)) subs.forEach(s => add(poolMap[s])); });
+    }
   });
   return {ingredients:[...found], categories:[...cats], matched};
 }
