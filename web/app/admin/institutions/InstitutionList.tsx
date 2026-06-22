@@ -16,12 +16,16 @@ const scoreColor = (s: number) => s >= 95 ? '#16A085' : s >= 90 ? '#1a8f6f' : s 
 
 export default function InstitutionList({ rows, instCount, monthCount }: { rows: Row[]; instCount: number; monthCount: number }) {
   const [q, setQ] = useState('');
+  const [month, setMonth] = useState('');
   const [sort, setSort] = useState<SortKey>('score');
   const [asc, setAsc] = useState(false);
+  const months = useMemo(() => [...new Set(rows.map((r) => r.month))].sort().reverse(), [rows]);
 
   const view = useMemo(() => {
     const t = q.trim();
-    let r = t ? rows.filter((x) => x.name.includes(t) || x.sigungu.includes(t)) : rows;
+    let r = rows;
+    if (month) r = r.filter((x) => x.month === month);
+    if (t) r = r.filter((x) => x.name.includes(t) || x.sigungu.includes(t));
     r = [...r].sort((a, b) => {
       let d = 0;
       if (sort === 'score') d = a.score - b.score;
@@ -32,7 +36,7 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
       return asc ? d : -d;
     });
     return r;
-  }, [rows, q, sort, asc]);
+  }, [rows, q, sort, asc, month]);
 
   function clickSort(k: SortKey) {
     if (sort === k) setAsc(!asc);
@@ -48,12 +52,19 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
         평가 적재 <b>{instCount.toLocaleString()}개 기관 · {monthCount.toLocaleString()}개월</b> · 등수는 <b>같은 유형·같은 월</b> 코호트 기준. 헤더 클릭으로 정렬.
       </p>
 
-      <input
-        value={q} onChange={(e) => setQ(e.target.value)}
-        placeholder="🔎 기관명·구 검색 (예: 햇살, 광진구)" autoCapitalize="none"
-        style={{ width: '100%', boxSizing: 'border-box', marginTop: 14, border: '1.5px solid #E5E7EB', borderRadius: 10, padding: '11px 13px', fontSize: 14 }}
-      />
-      <div style={{ fontSize: 12, color: '#9CA3AF', margin: '8px 2px' }}>{view.length.toLocaleString()}건 표시</div>
+      <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+        <select value={month} onChange={(e) => setMonth(e.target.value)}
+          style={{ border: '1.5px solid #E5E7EB', borderRadius: 10, padding: '11px 10px', fontSize: 14, fontWeight: 700, color: navy, background: '#fff' }}>
+          <option value="">전체 월</option>
+          {months.map((m) => <option key={m} value={m}>{m}</option>)}
+        </select>
+        <input
+          value={q} onChange={(e) => setQ(e.target.value)}
+          placeholder="🔎 기관명·구 검색 (예: 햇살, 광진구)" autoCapitalize="none"
+          style={{ flex: 1, boxSizing: 'border-box', border: '1.5px solid #E5E7EB', borderRadius: 10, padding: '11px 13px', fontSize: 14 }}
+        />
+      </div>
+      <div style={{ fontSize: 12, color: '#9CA3AF', margin: '8px 2px' }}>{view.length.toLocaleString()}건 표시{month ? ` · ${month} 등수순` : ''}</div>
 
       <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: 12 }}>
         <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 900 }}>
