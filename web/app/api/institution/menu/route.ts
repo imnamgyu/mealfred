@@ -25,11 +25,35 @@ function cors(req: NextRequest) {
   const origin = req.headers.get('origin') || '';
   return {
     'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
 export async function OPTIONS(req: NextRequest) { return NextResponse.json(null, { headers: cors(req) }); }
+
+// ⭐ 멱등 캐시 조회(이사님 2026-06-22): 이미 입력된 기관+월이면 저장 식단을 돌려줘 OCR 없이 즉시 결과.
+const SLOT_KO: Record<string, string> = { am_snack: '오전간식', lunch: '점심', pm_snack: '오후간식' };
+export async function GET(req: NextRequest) {
+  const headers = cors(req);
+  try {
+    const url = new URL(req.url);
+    const institutionId = url.searchParams.get('institution_id') || '';
+    const month = (url.searchParams.get('month') || '').slice(0, 7);
+    if (!institutionId || !/^\d{4}-\d{2}$/.test(month)) {
+      return NextResponse.json({ exists: false, error: 'institution_id·month 필요' }, { status: 400, headers });
+    }
+    const { data: menu } = await supabase.from('institution_menus').select('id').eq('institution_id', institutionId).eq('month', month).maybeSingle();
+    if (!menu) return NextResponse.json({ exists: false }, { headers });
+    const { data: rows } = await supabase.from('institution_menu_items').select('menu_date,slot,menus,ingredients').eq('institution_menu_id', menu.id);
+    const items: { date: string | null; slot: string; menu: string; ingredients: string[] }[] = [];
+    for (const r of (rows || []) as { menu_date: string | null; slot: string; menus: string[] | null; ingredients: string[] | null }[]) {
+      for (const m of r.menus || []) items.push({ date: r.menu_date, slot: SLOT_KO[r.slot] || r.slot, menu: m, ingredients: r.ingredients || [] });
+    }
+    return NextResponse.json({ exists: items.length > 0, month, items }, { headers });
+  } catch (e: unknown) {
+    return NextResponse.json({ exists: false, error: e instanceof Error ? e.message : 'unknown' }, { status: 500, headers });
+  }
+}
 
 export async function POST(req: NextRequest) {
   const headers = cors(req);

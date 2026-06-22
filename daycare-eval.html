@@ -433,8 +433,9 @@
       <div id="instPicked" style="display:none;align-items:center;justify-content:space-between;gap:8px;background:#E8F5E9;border:1px solid #4CAF50;border-radius:10px;padding:9px 11px;margin-top:8px;font-size:12.5px;color:#1B5E20;font-weight:700"></div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:9px">
         <label style="font-size:12px;color:var(--n600);font-weight:700;white-space:nowrap">식단표 해당 월</label>
-        <input type="month" id="instMonth" style="padding:7px 9px;border:1.5px solid var(--n200);border-radius:8px;font-size:13px;font-weight:600">
+        <input type="month" id="instMonth" onchange="checkExistingMenu()" style="padding:7px 9px;border:1.5px solid var(--n200);border-radius:8px;font-size:13px;font-weight:600">
       </div>
+      <div id="instCached" style="display:none;margin-top:9px"></div>
       <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.6"><strong style="color:var(--s800)">한두 글자만 쳐도 목록이 자동완성</strong>돼요 — 골라주세요. 선택하면 <strong style="color:var(--p700)">전국·우리 지역 영양 순위</strong>까지 보여드려요 <span style="color:var(--n400)">(선택 안 해도 평가는 진행)</span></div>
     </div>
 
@@ -1258,12 +1259,54 @@ function pickInstitution(it){
   const picked = document.getElementById('instPicked');
   picked.style.display='flex';
   picked.innerHTML = `<span>✅ ${it.name} <span style="font-weight:600;color:#388E3C">· ${tag}${loc?' · '+loc:''}</span></span><span onclick="clearInstitution()" style="cursor:pointer;color:#888;font-weight:800;font-size:15px">✕</span>`;
+  checkExistingMenu();   // ⭐ 이미 입력된 기관-월이면 OCR 없이 '바로 보기' 제안
 }
 function clearInstitution(){
   selectedInstitution = null;
   document.getElementById('instSearch').value = '';
   document.getElementById('instPicked').style.display='none';
   document.getElementById('instResults').style.display='none';
+  const c = document.getElementById('instCached'); if(c){ c.style.display='none'; c.innerHTML=''; } _existingItems = null;
+}
+// ⭐ 멱등 캐시(이사님 2026-06-22): 기관+월이 이미 DB에 있으면 OCR 없이 즉시 결과로.
+let _existingItems = null;
+async function checkExistingMenu(){
+  const box = document.getElementById('instCached');
+  _existingItems = null; if(box){ box.style.display='none'; box.innerHTML=''; }
+  if(!selectedInstitution) return;
+  const month = ((document.getElementById('instMonth')||{}).value || currentYM()).slice(0,7);
+  try{
+    const r = await fetch(`${INST_API}/institution/menu?institution_id=${selectedInstitution.id}&month=${encodeURIComponent(month)}`);
+    const d = await r.json();
+    if(d && d.exists && (d.items||[]).length && box){
+      _existingItems = d.items;
+      const ml = parseInt(month.slice(5,7),10) + '월';
+      box.innerHTML = `<div style="background:#E8F5E9;border:1.5px solid #66BB6A;border-radius:10px;padding:11px 12px;font-size:12px;color:#1B5E20;font-weight:700;line-height:1.55">✅ <strong>${selectedInstitution.name} ${ml}</strong> 식단은 이미 분석돼 있어요!<br><span style="font-weight:600;color:#388E3C">사진 업로드·OCR 없이 바로 결과를 볼 수 있어요.</span>
+        <button onclick="showInstantResult()" style="display:block;width:100%;margin-top:9px;background:#43A047;color:white;border:none;border-radius:8px;padding:10px;font-weight:800;font-size:13px;cursor:pointer">⚡ 바로 결과 보기 (OCR 생략) →</button></div>`;
+      box.style.display='block';
+    }
+  }catch(e){}
+}
+// 저장된 식단으로 즉시 결과 — OCR·재저장 생략, 순위는 fetch만.
+async function showInstantResult(){
+  if(!_existingItems || !_existingItems.length) return;
+  const items = _existingItems;
+  const text = items.map(it=>it.menu).filter(Boolean).join(', ');
+  const result = evaluate(text, selectedAge, items);
+  result._inputMode = 'cached';
+  renderResult(result, selectedAge);
+  renderOcrTable(items, text);
+  bumpRealCount();
+  const month = ((document.getElementById('instMonth')||{}).value || currentYM()).slice(0,7);
+  const rankEl = document.getElementById('rankLine');
+  if(rankEl) rankEl.innerHTML = `<div style="background:#FFF8E1;border:1px solid #FFE082;border-radius:8px;padding:9px 11px;margin:10px 0;font-size:11.5px;color:#8a6d3b;font-weight:700;text-align:center">📊 순위 불러오는 중…</div>`;
+  try{
+    const r = await fetch(`${INST_API}/eval/rank?institution_id=${selectedInstitution.id}&month=${month}`);
+    const d = await r.json();
+    if(rankEl) rankEl.innerHTML = renderRank(d);
+  }catch(e){ if(rankEl) rankEl.innerHTML=''; }
+  closeModal('uploadModal');
+  document.getElementById('resultModal').classList.add('show');
 }
 
 // 업로드 식단을 기관·월에 귀속(저장+채점) → 순위 조회 → 결과카드 #rankLine 주입
