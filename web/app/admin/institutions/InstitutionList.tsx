@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 
 type Row = {
-  name: string; sigungu: string; typeLabel: string; month: string;
+  institutionId: string; name: string; sigungu: string; typeLabel: string; month: string;
   score: number; dayCount: number; rank: number; total: number; topPercent: number | null;
   standout: string; fish: string; legume: string; veg: number; lowProc: string;
 };
@@ -89,7 +89,7 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
             {view.map((x, i) => (
               <tr key={i} style={{ background: i % 2 ? '#FAFBFC' : '#fff' }}>
                 <td style={{ ...td, fontWeight: 800, color: navy }}>{x.rank}<span style={{ color: '#9CA3AF', fontWeight: 600 }}>/{x.total}</span></td>
-                <td style={{ ...td, fontWeight: 700, color: '#111827' }}>{x.name}</td>
+                <td style={{ ...td, fontWeight: 700 }}><Link href={`/admin/institutions/${x.institutionId}`} style={{ color: '#1d4ed8', textDecoration: 'none' }}>{x.name}</Link></td>
                 <td style={td}>{x.sigungu || '—'}</td>
                 <td style={td}>{x.typeLabel}</td>
                 <td style={td}>{x.month}</td>

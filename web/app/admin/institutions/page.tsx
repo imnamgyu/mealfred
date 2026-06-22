@@ -73,6 +73,7 @@ export default async function InstitutionsPage() {
     const total = cohort.length;
     const d = (s.standout_dims || {}) as Record<string, number>;
     return {
+      institutionId: s.institution_id,
       name: nameMap[s.institution_id] || '(미상)',
       sigungu: s.sigungu || '',
       typeLabel: TYPE_LABEL[s.type] || s.type,
