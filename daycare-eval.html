@@ -262,9 +262,9 @@
 
 <!-- ★ 실제 평가 사례 비교 (2 식단표) -->
 <section>
-  <span class="section-tag">━ 실제 채점 결과 ━</span>
-  <h2>실제로 채점해 보니,<br><span class="accent">거의 모든 원이 우수했어요</span></h2>
-  <p class="section-sub">실제 어린이집·유치원 식단을 채점해 보니 <strong>거의 다 '매우 우수'</strong>(중앙값 94점)였어요 — 영양사 선생님과 어린이급식관리지원센터 덕분이죠. 그래서 순위는 <strong>종이 한 장 차이</strong>랍니다.</p>
+  <span class="section-tag">━ 채점 방식 ━</span>
+  <h2>같은 7축 기준으로<br><span class="accent">우리 원은 몇 점일까요?</span></h2>
+  <p class="section-sub">WHO·보건복지부 KDRI·NOVA·농진청 기준으로 식단표를 7축 자동 분석해요. 사진 1장이면 30초 안에 우리 원 점수와 전국 순위가 나옵니다.</p>
 
   <div class="compare-grid">
     <div class="compare-card">
@@ -304,11 +304,7 @@
   </table>
 
   <div style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:12px;padding:14px;margin-top:14px;border-left:4px solid var(--y500)">
-    <div style="font-size:11px;font-weight:800;color:var(--y700);letter-spacing:0.04em;margin-bottom:6px">━ 💡 7축 평가 인사이트 ━</div>
-    <div style="font-size:12.5px;color:var(--n700);line-height:1.7;font-weight:600">
-      두 원 모두 <strong style="color:var(--s800)">8개 식품군을 골고루 잘 챙겼어요</strong>. 차이는 '어느 축에서 더 빛나느냐'일 뿐 <strong style="color:var(--s800)">우열이 아니에요</strong> — 사례 ②는 잡곡을 9종(귀리·흑미·수수 등)이나 써서 곡물 다양성이 돋보이죠. 실제 53곳을 채점해도 거의 다 우수해서 <strong style="color:var(--s800)">등수는 정말 종이 한 장 차이</strong>예요. 그래서 진짜 차이를 만드는 건 어린이집·유치원이 아니라 <strong style="color:var(--p700)">집에서 먹는 나머지 끼니</strong>랍니다.
-    </div>
-    <div style="background:white;border-radius:8px;padding:10px 12px;margin-top:10px;font-size:11.5px;color:var(--n700);font-weight:600;line-height:1.6">
+    <div style="background:white;border-radius:8px;padding:10px 12px;font-size:11.5px;color:var(--n700);font-weight:600;line-height:1.6">
       <strong style="color:var(--p700)">밀프레드 7축 기준</strong>:<br>
       ① <strong>식품군 다양성</strong> (WHO 기준 8개 식품군 + 세부 종류) · ② 36가지 영양소 (보건복지부 KDRI) · ③ 메뉴 반복도 · ④ 알레르겐 표시 · ⑤ 가공식품 비율 (NOVA) · ⑥ 제철 식재료 (농진청) · ⑦ 조리 스타일 다양성
     </div>
@@ -432,7 +428,6 @@
         <label style="font-size:12px;color:var(--n600);font-weight:700;white-space:nowrap">식단표 해당 월</label>
         <input type="month" id="instMonth" onchange="checkExistingMenu()" style="padding:7px 9px;border:1.5px solid var(--n200);border-radius:8px;font-size:13px;font-weight:600">
       </div>
-      <div id="instCached" style="display:none;margin-top:9px"></div>
       <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.6"><strong style="color:var(--s800)">한두 글자만 쳐도 목록이 자동완성</strong>돼요 — 골라주세요. 선택하면 <strong style="color:var(--p700)">전국·우리 지역 영양 순위</strong>까지 보여드려요 <span style="color:var(--n400)">(선택 안 해도 평가는 진행)</span></div>
     </div>
 
@@ -508,22 +503,8 @@
         <div class="insight-row warn"><span class="em">📉</span>조리 스타일 한식 only (D) — 양식·일식·중식 추가 필요</div>
       </div>
 
-      <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:var(--p700);margin:14px 0 4px">━ 🎒 초등학교 입학 전까지 채워주면 좋아요 ━</div>
-      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-bottom:6px;line-height:1.5">식단표에 안 보이는 것 중, 카테고리별로 자주 쓰이는 식재료예요. 집에서 골고루 챙겨주면 좋아요.</div>
-      <div id="tipsList">
-        <div class="insight-row"><span class="em">🌾</span>세부 식재료 종류 → 잡곡 (귀리·흑미·수수) · 잎채소 (시금치·근대·아욱)</div>
-        <div class="insight-row"><span class="em">🌍</span>조리 스타일 → 양식 1회 + 일식 1회 / 주</div>
-        <div class="insight-row"><span class="em">🥕</span>핑거푸드 → 당근·고구마 스틱 / KDRI 부족 영양 → 달걀 노른자 + 연어</div>
-      </div>
     </div>
 
-    <!-- ★ 5문장 자연어 — 어떻게 먹일지 구체 권고 -->
-    <div style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:16px;margin-top:12px;border:1.5px solid var(--b500)">
-      <div style="font-size:11px;font-weight:800;color:var(--b700);letter-spacing:0.04em;margin-bottom:8px">━ 💡 집에서는 이렇게 먹여주세요 ━</div>
-      <div id="guideText" style="font-size:13px;color:var(--n700);font-weight:600;line-height:1.75">
-        <strong style="color:var(--s800)">7축 평균 86점이에요.</strong> 가장 큰 약점은 <strong>조리 스타일이 한식에 치우친 것</strong>이라, 가정에서 <strong>주 1-2회 양식(스파게티·오믈렛) 또는 일식(우동·계란찜)</strong>을 더해주면 +20점 가능해요.
-      </div>
-    </div>
 
     <!-- ★ 핵심 CTA — 앱으로 개인화 편식 코칭 (35개 국제기준) -->
     <div onclick="window.location.href='https://app.mealfred.com'" style="background:linear-gradient(135deg,#FF6B1A,#C45A00);border-radius:14px;padding:18px;margin-top:14px;border:none;cursor:pointer;transition:transform 0.15s;color:white" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
@@ -1016,6 +997,11 @@ function renderResult(result, ageBand){
     <div style="background:var(--n50);border-radius:8px;padding:8px 10px;margin:8px 0;font-size:11px;color:var(--n600);font-weight:600;line-height:1.5"><strong style="color:${g.color}">${g.grade}</strong> — ${gradeDesc}</div>
     <div id="rankLine"></div>
     ${axisHtml}
+    <div style="background:linear-gradient(135deg,#FB8C00,#F4511E);color:white;border-radius:11px;padding:14px;margin-top:14px">
+      <div style="font-size:13.5px;font-weight:800;line-height:1.5;margin-bottom:7px">기관 한 끼가 이렇게 든든하니까,<br>진짜 차이는 <span style="text-decoration:underline;text-underline-offset:2px">집에서 먹는 나머지 끼니</span>에서 시작돼요</div>
+      <div style="font-size:11.5px;font-weight:600;opacity:0.95;line-height:1.55;margin-bottom:10px">거창하지 않아도 괜찮아요. 우리 아이 하루의 마지막 퍼즐 한 조각, 가볍게 같이 맞춰볼까요?</div>
+      <a href="https://app.mealfred.com" style="display:block;background:white;color:#E65100;text-align:center;padding:11px;border-radius:9px;font-weight:800;font-size:13px;text-decoration:none">🌱 30초 가정 보충 가이드 받기 →</a>
+    </div>
   `;
 
   // 강점·주의·보충 동적 생성
@@ -1053,13 +1039,6 @@ function renderResult(result, ageBand){
     ? concernTexts.join('')
     : '<div class="insight-row"><span class="em">✨</span>주의할 축 없음 — 모든 영역 양호</div>';
 
-  // 자연어 보충 가이드 생성 (룰 템플릿, LLM 없이도 동적)
-  const guideHtml = generateGuide(result, ageBand);
-  document.getElementById('guideText').innerHTML = guideHtml;
-
-  // 가정 보충 동적
-  const tipsHtml = generateTips(result, ageBand);
-  document.getElementById('tipsList').innerHTML = tipsHtml;
 
   // localStorage 이력 저장
   saveHistory(result, ageBand);
@@ -1259,25 +1238,18 @@ function clearInstitution(){
   document.getElementById('instSearch').value = '';
   document.getElementById('instPicked').style.display='none';
   document.getElementById('instResults').style.display='none';
-  const c = document.getElementById('instCached'); if(c){ c.style.display='none'; c.innerHTML=''; } _existingItems = null;
+  _existingItems = null;
 }
-// ⭐ 멱등 캐시(이사님 2026-06-22): 기관+월이 이미 DB에 있으면 OCR 없이 즉시 결과로.
+// ⭐ 멱등 캐시(이사님 2026-06-22): 기관+월이 이미 DB에 있으면 _existingItems에 silently 저장 → 업로드 시 OCR 생략하고 바로 결과(버튼·안내문 없이 심리스).
 let _existingItems = null;
 async function checkExistingMenu(){
-  const box = document.getElementById('instCached');
-  _existingItems = null; if(box){ box.style.display='none'; box.innerHTML=''; }
+  _existingItems = null;
   if(!selectedInstitution) return;
   const month = ((document.getElementById('instMonth')||{}).value || currentYM()).slice(0,7);
   try{
     const r = await fetch(`${INST_API}/institution/menu?institution_id=${selectedInstitution.id}&month=${encodeURIComponent(month)}`);
     const d = await r.json();
-    if(d && d.exists && (d.items||[]).length && box){
-      _existingItems = d.items;
-      const ml = parseInt(month.slice(5,7),10) + '월';
-      box.innerHTML = `<div style="background:#E8F5E9;border:1.5px solid #66BB6A;border-radius:10px;padding:11px 12px;font-size:12px;color:#1B5E20;font-weight:700;line-height:1.55">✅ <strong>${selectedInstitution.name} ${ml}</strong> 식단은 이미 분석돼 있어요!<br><span style="font-weight:600;color:#388E3C">사진 업로드·OCR 없이 바로 결과를 볼 수 있어요.</span>
-        <button onclick="showInstantResult()" style="display:block;width:100%;margin-top:9px;background:#43A047;color:white;border:none;border-radius:8px;padding:10px;font-weight:800;font-size:13px;cursor:pointer">⚡ 바로 결과 보기 (OCR 생략) →</button></div>`;
-      box.style.display='block';
-    }
+    if(d && d.exists && (d.items||[]).length) _existingItems = d.items;
   }catch(e){}
 }
 // 저장된 식단으로 즉시 결과 — OCR·재저장 생략, 순위는 fetch만.
@@ -1321,26 +1293,17 @@ async function attributeAndRank(items, ocrText){
 function renderRank(d){
   if(!d || !d.ranked) return '';
   const rankBody = (d.nationalTotal>1 && d.topPercent)
-    ? `전국 ${d.typeLabel} <strong style="color:var(--p700);font-size:19px">상위 ${d.topPercent}%</strong> <span style="color:var(--n500);font-weight:600">(${d.nationalTotal}곳 중)</span><div style="font-size:10.5px;color:var(--n400);font-weight:600;margin-top:5px">사실상 다 같이 최상위권 — 차이는 종이 한 장이에요</div>`
+    ? `전국 ${d.typeLabel} <strong style="color:var(--p700);font-size:21px">상위 ${d.topPercent}%</strong><div style="font-size:10.5px;color:var(--n400);font-weight:600;margin-top:5px">사실상 다 같이 최상위권 — 차이는 종이 한 장이에요</div>`
     : `<span style="color:var(--n500);font-weight:600">아직 비교할 기관이 모이는 중이에요 — 그래도 우리 원은 충분히 훌륭해요 🙂</span>`;
   const standout = d.standout ? `<div style="background:linear-gradient(135deg,#FFF3E0,#FFFDE7);border:1.5px solid #FFCC80;border-radius:10px;padding:11px 12px;margin:10px 0">
     <div style="font-size:11px;font-weight:800;color:#E65100;margin-bottom:3px">⭐ 우리 원의 빛나는 강점</div>
     <div style="font-size:13px;font-weight:700;color:var(--s800);line-height:1.5">${d.standout.phrase}</div>
   </div>` : '';
   const note = d.lowConfidence ? `<div style="font-size:10px;color:var(--n400);font-weight:600;margin-top:5px">※ 등록된 식단 일수가 적어 참고용이에요</div>` : '';
-  const home = `<div style="background:linear-gradient(135deg,#FB8C00,#F4511E);color:white;border-radius:11px;padding:13px 14px;margin-top:11px">
-    <div style="font-size:13.5px;font-weight:800;line-height:1.5;margin-bottom:7px">기관 한 끼가 이렇게 든든하니까,<br>진짜 차이는 <span style="text-decoration:underline;text-underline-offset:2px">집에서 먹는 나머지 끼니</span>에서 시작돼요</div>
-    <div style="font-size:11.5px;font-weight:600;opacity:0.95;line-height:1.55;margin-bottom:10px">거창하지 않아도 괜찮아요. 우리 아이 하루의 마지막 퍼즐 한 조각, 가볍게 같이 맞춰볼까요?</div>
-    <a href="https://app.mealfred.com" style="display:block;background:white;color:#E65100;text-align:center;padding:11px;border-radius:9px;font-weight:800;font-size:13px;text-decoration:none">🌱 30초 가정 보충 가이드 받기 →</a>
-  </div>`;
   return `<div style="border:1.5px solid var(--p200,#E1BEE7);border-radius:12px;padding:12px;margin:11px 0;background:#FAF7FF">
-    <div style="text-align:center;margin-bottom:7px">
-      <div style="font-size:13px;font-weight:800;color:var(--p700)">🏅 ${d.gradeBand}</div>
-      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:2px">우리 원 식단 ${d.displayScore}점</div>
-    </div>
     <div style="font-size:11.5px;color:var(--n600);font-weight:600;line-height:1.65;margin-bottom:9px">어린이집·유치원 급식은 <strong style="color:var(--s800)">영양사 선생님과 어린이급식관리지원센터</strong>가 함께 챙겨서 대부분 훌륭해요. 여기 순위는 잘잘못이 아니라 <strong style="color:var(--p700)">정말 종이 한 장 차이</strong>랍니다 🙂</div>
-    <div style="background:white;border:1px solid var(--n200);border-radius:9px;padding:10px 11px;font-size:12.5px;color:var(--s800);font-weight:700;line-height:1.75">${rankBody}</div>
-    ${standout}${note}${home}
+    <div style="background:white;border:1px solid var(--n200);border-radius:9px;padding:11px;font-size:12.5px;color:var(--s800);font-weight:700;line-height:1.75;text-align:center">${rankBody}</div>
+    ${standout}${note}
   </div>`;
 }
 
@@ -1372,6 +1335,12 @@ async function startAnalysis(){
   const photoInput = document.getElementById('photoInput');
   if(!photoInput.files || !photoInput.files[0]){
     alert('📸 식단표 사진을 업로드해주세요!');
+    return;
+  }
+  // ⭐ 멱등 캐시(심리스): 선택한 기관+월이 이미 분석돼 있으면 OCR 없이 저장본으로 바로 결과 — 안내문·버튼 없이.
+  if(selectedInstitution && _existingItems && _existingItems.length){
+    closeModal('uploadModal');
+    showInstantResult();
     return;
   }
 

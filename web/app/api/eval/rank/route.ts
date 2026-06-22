@@ -91,13 +91,11 @@ export async function GET(req: NextRequest) {
     } catch { /* standout_dims 컬럼 미존재(마이그레이션 전) → 강점 생략 */ }
 
     const topPercent = nationalTotal ? Math.max(1, Math.round((nationalRank / nationalTotal) * 100)) : null;
-    // 화면 점수 = 고대역(거의 만점): raw 70~100 → 90~99. 순서 보존, 하위도 우수해 보이게.
-    const displayScore = Math.round(90 + (Math.min(100, Math.max(70, me.score)) - 70) / 30 * 9);
-    const gradeBand = me.score >= 92 ? '매우 우수 · 모두 안심 등급' : (me.score >= 84 ? '우수 · 안심 등급' : '양호 · 안심 등급');
+    // ⭐ 이사님 2026-06-22: 점수 인위적 상향(고대역 커브)·gradeBand 제거 → 객관 점수만. 화면엔 상위 X%만 노출(절대값·등급 미노출).
 
     return NextResponse.json({
       ranked: true,
-      score: me.score, displayScore, gradeBand,
+      score: me.score,
       typeLabel: TYPE_LABEL[me.type] || '기관',
       sido: me.sido || null, sigungu: me.sigungu || null,
       nationalRank, nationalTotal, nationalTie,
