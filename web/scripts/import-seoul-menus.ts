@@ -90,8 +90,9 @@ async function matchInst(name: string, type: string, gu: string) {
   let d = await rest(`institutions?select=id,name,type,sido,sigungu&type=eq.${type}&sigungu=eq.${enc(gu)}&name_norm=ilike.${enc('%' + norm + '%')}&limit=5`);
   let hit = (d || []).find((x: any) => x.name.replace(/\s/g, '') === norm) || (d || [])[0];
   if (hit) return hit;
-  d = await rest(`institutions?select=id,name,type,sido,sigungu&type=eq.${type}&name_norm=ilike.${enc('%' + norm + '%')}&limit=8`);
-  return (d || []).find((x: any) => x.name.replace(/\s/g, '') === norm) || (d || [])[0] || null;
+  // ⭐ 2차 폴백 = 같은 시도(서울) + 정확 이름만 — 시도 넘는 오매칭(안성시 햇병아리) 방지(이사님 2026-06-22)
+  d = await rest(`institutions?select=id,name,type,sido,sigungu&type=eq.${type}&sido=eq.${enc('서울특별시')}&name_norm=ilike.${enc('%' + norm + '%')}&limit=8`);
+  return (d || []).find((x: any) => x.name.replace(/\s/g, '') === norm) || null;
 }
 
 async function main() {
