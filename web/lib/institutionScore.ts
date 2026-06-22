@@ -175,6 +175,92 @@ export function computeStandoutDims(items: OcrMenuItem[], month: string): Stando
   };
 }
 
+// ── ⭐ 7축 점수(부모 daycare-eval evaluate()와 동일 개념·임계값을 서버에서 — 어드민 리스트용, 이사님 2026-06-22) ──
+// 다양성=groupOf·가공=isProcessed 재사용. KDRI·알레르겐·조리·제철 상수만 클라에서 복제(7축 단일 기준 유지).
+export type SevenAxes = { diversity: number; kdri: number; repeat: number; allergen: number; nova: number; season: number; cuisine: number };
+const SVN_NUTRI: Record<string, string[]> = {
+  '당근': ['비타민A', '비타민K', '식이섬유'], '시금치': ['철', '엽산', '비타민K', '비타민A', '마그네슘'], '근대': ['철', '엽산', '비타민K'],
+  '계란': ['콜린', '비타민D', '단백질', '비타민B12', '셀레늄'], '달걀': ['콜린', '비타민D', '단백질', '비타민B12', '셀레늄'],
+  '연어': ['비타민D', 'EPA-DHA', '단백질', '셀레늄'], '고등어': ['EPA-DHA', '비타민D', '셀레늄'],
+  '두부': ['칼슘', '단백질', '철', '마그네슘'], '우유': ['칼슘', '비타민D', '단백질', '인', '비타민B2'], '치즈': ['칼슘', '단백질', '비타민A'],
+  '소고기': ['철', '아연', '단백질', '비타민B12', '니아신'], '돼지고기': ['비타민B1', '단백질', '아연', '인'], '닭고기': ['단백질', '니아신', '비타민B6', '셀레늄'],
+  '미역': ['요오드', '칼슘', '식이섬유'], '김': ['철', '요오드', '비타민A'], '다시마': ['요오드', '칼슘'],
+  '브로콜리': ['비타민C', '비타민K', '엽산', '식이섬유'], '토마토': ['리코펜', '비타민C', '칼륨'],
+  '고구마': ['비타민A', '비타민C', '식이섬유', '칼륨'], '감자': ['비타민C', '칼륨', '비타민B6'],
+  '사과': ['비타민C', '식이섬유'], '바나나': ['칼륨', '마그네슘', '비타민B6'], '블루베리': ['안토시아닌', '비타민C', '식이섬유'],
+  '호두': ['오메가3', '마그네슘', '비타민E'], '아몬드': ['비타민E', '마그네슘', '칼슘'],
+  '양파': ['비타민C', '식이섬유'], '대파': ['비타민A', '비타민C'], '마늘': ['셀레늄', '비타민B6'],
+  '콩나물': ['비타민C', '엽산', '식이섬유'], '배추': ['비타민C', '엽산', '식이섬유'],
+  '양배추': ['비타민C', '비타민K', '식이섬유'], '오이': ['비타민K', '칼륨'], '호박': ['비타민A', '비타민C'],
+  '멸치': ['칼슘', '단백질', '비타민D'], '갈치': ['단백질', '비타민D'], '새우': ['셀레늄', '단백질', '아연'],
+  '귤': ['비타민C', '엽산'], '딸기': ['비타민C', '엽산', '식이섬유'], '키위': ['비타민C', '비타민K', '칼륨'],
+  '현미': ['식이섬유', '마그네슘', '비타민B1'], '귀리': ['식이섬유', '철', '마그네슘'], '잡곡': ['식이섬유', '마그네슘'],
+  '된장': ['단백질', '철', '칼륨'], '요거트': ['칼슘', '단백질', '비타민B2'], '요구르트': ['칼슘', '단백질'],
+};
+const SVN_ALLERGEN = ['우유', '계란', '달걀', '메밀', '땅콩', '대두', '콩', '밀', '새우', '게', '고등어', '조개', '복숭아', '토마토', '호두', '잣', '아황산'];
+const SVN_CUISINE: Record<string, string[]> = {
+  korean: ['김치', '된장', '미역', '나물', '조림', '무침', '쌈', '국밥', '비빔', '갈비', '불고기', '잡채', '떡', '죽', '전', '튀김', '찜', '국', '찌개', '구이', '볶음'],
+  western: ['스파게티', '파스타', '오믈렛', '샐러드', '샌드위치', '햄버거', '피자', '스튜', '리조또', '크림', '수프'],
+  japanese: ['우동', '돈부리', '소바', '오니기리', '낫토', '미소', '돈가스', '계란찜', '초밥', '롤', '데리야끼', '규동'],
+  chinese: ['짜장', '짬뽕', '탕수육', '깐풍기', '마파두부', '볶음밥', '꽃빵', '만두', '잡채'],
+  asian: ['카레', '쌀국수', '월남쌈', '반미', '팟타이', '나시고렝'],
+};
+const SVN_SEASON: Record<number, string[]> = {
+  1: ['배추', '무', '시금치', '고구마', '귤', '굴', '대구', '미역'], 2: ['시금치', '봄동', '딸기', '미역', '꼬막', '대구'],
+  3: ['딸기', '냉이', '쑥', '미나리', '시금치', '봄동', '바지락'], 4: ['딸기', '달래', '쑥', '미나리', '봄동', '도다리', '꽃게'],
+  5: ['딸기', '참외', '완두콩', '양배추', '오이', '토마토', '다시마'], 6: ['감자', '마늘', '애호박', '오이', '토마토', '매실', '오징어'],
+  7: ['수박', '복숭아', '옥수수', '오이', '가지', '토마토', '고등어', '오징어'], 8: ['수박', '복숭아', '포도', '옥수수', '가지', '오징어', '갈치'],
+  9: ['배', '포도', '단감', '고구마', '단호박', '고등어', '전어', '새송이버섯'], 10: ['고구마', '단호박', '무', '사과', '단감', '배', '고등어'],
+  11: ['배', '사과', '단감', '귤', '무', '배추', '대구', '새우'], 12: ['귤', '배추', '무', '시금치', '고구마', '딸기', '대구', '고등어'],
+};
+const SVN_STAPLE = ['우유', '김치', '깍두기', '단무지', '보리차', '둥글레차', '메밀차', '옥수수차', '생수', '요구르트', '요거트', '백미밥', '잡곡밥', '흰밥', '기장밥', '수수밥', '쌀밥', '현미밥', '찹쌀밥'];
+
+/** OCR items + month → 7축 점수(부모 화면과 동일 임계값). 어드민 리스트 표시용. */
+export function computeSevenAxes(items: OcrMenuItem[], month: string): SevenAxes {
+  const monthNum = parseInt(month.slice(5, 7), 10) || 0;
+  const lines: string[] = []; const allIngs = new Set<string>(); const cats = new Set<string>(); const groups = new Set<string>(); const nutri = new Set<string>();
+  let scan = '';
+  for (const it of items) {
+    const menu = (it.menu || '').trim(); if (!menu) continue;
+    lines.push(menu);
+    const ings = mapMenuLocal(menu)?.ingredients || [];
+    scan += menu + ' ' + ings.join(' ') + '\n';
+    for (const ing of ings) {
+      allIngs.add(ing);
+      const c = catOf(ing); if (c) cats.add(c);
+      const g = groupOf(ing, catOf); if (g) groups.add(g);
+      const ns = SVN_NUTRI[ing]; if (ns) ns.forEach((n) => nutri.add(n));
+    }
+  }
+  // 1. 식품군 다양성
+  const mdd = groups.size, sub = cats.size;
+  const diversity = mdd <= 4 ? 40 + mdd * 8 : mdd <= 6 ? 55 + mdd * 5 : mdd === 7 ? 78 : sub >= 10 ? 95 : sub >= 7 ? 90 : sub >= 5 ? 85 : 80;
+  // 2. KDRI 31
+  const np = nutri.size / 31;
+  const kdri = np >= 0.8 ? 95 : np >= 0.6 ? 90 : np >= 0.45 ? 85 : np >= 0.35 ? 80 : np >= 0.22 ? 70 : 50 + Math.round(np * 100);
+  // 3. 메뉴 반복도
+  const freq: Record<string, number> = {};
+  for (const line of lines) { if (SVN_STAPLE.some((k) => line.includes(k))) continue; const key = line.replace(/[\s,]/g, '').slice(0, 8); if (key) freq[key] = (freq[key] || 0) + 1; }
+  const maxRep = Math.max(1, ...Object.values(freq));
+  const repeat = maxRep <= 2 ? 95 : maxRep <= 4 ? 80 : maxRep <= 6 ? 60 : 40;
+  // 4. 알레르겐
+  const am = SVN_ALLERGEN.filter((k) => scan.includes(k)).length;
+  const allergen = am >= 3 ? 100 : 80;
+  // 5. 가공식품(NOVA) — isProcessed 재사용
+  let ultra = 0, proc = 0;
+  for (const m of lines) { const p = isProcessed(m); if (p.hit) { if (p.kind === 'ultra') ultra++; else proc++; } }
+  const novaPct = lines.length ? (ultra + proc * 0.3) / lines.length : 0;
+  const nova = novaPct < 0.08 ? 95 : novaPct < 0.18 ? 88 : novaPct < 0.3 ? 78 : 65;
+  // 6. 제철(식단 월·식재료 정확매칭)
+  const sm = (SVN_SEASON[monthNum] || []).filter((s) => allIngs.has(s)).length;
+  const season = sm >= 3 ? 95 : sm >= 2 ? 90 : sm >= 1 ? 85 : 75;
+  // 7. 조리 스타일
+  const cu = new Set<string>();
+  for (const [k, kws] of Object.entries(SVN_CUISINE)) if (kws.some((kw) => scan.includes(kw))) cu.add(k);
+  const cuisine = cu.size >= 4 ? 95 : cu.size >= 3 ? 85 : cu.size >= 2 ? 70 : 60;
+  return { diversity, kdri, repeat, allergen, nova, season, cuisine };
+}
+
 /** DeepSeek 한 줄 정성 총평(랭킹 카드용). 점수·등급·순위 언급 금지. 실패 시 결정론 폴백. */
 // ⭐ 긍정 칭찬 전용(이사님 2026-06-22). 약점·부족·점수·순위 언급 금지 — 기관은 모두 훌륭하다는 전략과 정합.
 //   (extra 필드는 호출 호환을 위해 optional로 받되 약점 노출에 쓰지 않는다.)

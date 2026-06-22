@@ -5,7 +5,7 @@
  */
 import { createSupabaseAdmin, createSupabaseServerAnon } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/admin';
-import { STANDOUT_META } from '@/lib/institutionScore';
+import { STANDOUT_META, type SevenAxes } from '@/lib/institutionScore';
 import Link from 'next/link';
 import InstitutionList from './InstitutionList';
 
@@ -39,6 +39,11 @@ export default async function InstitutionsPage() {
     .order('score', { ascending: false })
     .limit(5000);
   const scores = (scoreRows || []) as ScoreRow[];
+
+  // 7축(axes) — axes 컬럼 없으면 에러나도 리스트는 살아있게(resilient)
+  const axesMap: Record<string, SevenAxes> = {};
+  const axRes = await db.from('institution_scores').select('institution_id,month,axes').limit(5000);
+  for (const r of ((axRes.data || []) as { institution_id: string; month: string; axes: SevenAxes | null }[])) if (r.axes) axesMap[`${r.institution_id}|${r.month}`] = r.axes;
 
   const ids = [...new Set(scores.map((s) => s.institution_id))];
   const instRes = ids.length ? await db.from('institutions').select('id,name').in('id', ids) : { data: [] };
@@ -84,6 +89,7 @@ export default async function InstitutionsPage() {
       topPercent: total ? Math.max(1, Math.round((rank / total) * 100)) : null,
       standout: standoutOf(s),
       fish: r1(d.fishFrequency), legume: r1(d.legumeFrequency), veg: Math.round(d.vegVariety || 0), lowProc: pc(d.lowProcessed),
+      axes: axesMap[`${s.institution_id}|${s.month}`] || null,
     };
   });
 

@@ -6,6 +6,7 @@ type Row = {
   institutionId: string; name: string; sigungu: string; typeLabel: string; month: string;
   score: number; dayCount: number; rank: number; total: number; topPercent: number | null;
   standout: string; fish: string; legume: string; veg: number; lowProc: string;
+  axes: { diversity: number; kdri: number; repeat: number; allergen: number; nova: number; season: number; cuisine: number } | null;
 };
 type SortKey = 'score' | 'month' | 'name' | 'sigungu' | 'days';
 
@@ -13,6 +14,7 @@ const navy = '#1a2b4a';
 const th: React.CSSProperties = { textAlign: 'left', padding: '8px 9px', fontSize: 11, fontWeight: 800, color: '#fff', whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' };
 const td: React.CSSProperties = { padding: '7px 9px', fontSize: 12.5, color: '#374151', borderBottom: '1px solid #F1F3F5', whiteSpace: 'nowrap' };
 const scoreColor = (s: number) => s >= 95 ? '#16A085' : s >= 90 ? '#1a8f6f' : s >= 80 ? '#C45A00' : '#C62828';
+const Ax = ({ v }: { v?: number }) => v == null ? <span style={{ color: '#D1D5DB' }}>—</span> : <span style={{ color: scoreColor(v), fontWeight: 700 }}>{v}</span>;
 
 export default function InstitutionList({ rows, instCount, monthCount }: { rows: Row[]; instCount: number; monthCount: number }) {
   const months = useMemo(() => [...new Set(rows.map((r) => r.month))].sort().reverse(), [rows]);
@@ -82,10 +84,13 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
               <th style={th} onClick={() => clickSort('days')}>일수{caret('days')}</th>
               <th style={th}>상위%</th>
               <th style={th}>⭐ 대표강점</th>
-              <th style={th}>🐟생선</th>
-              <th style={th}>🫘콩</th>
-              <th style={th}>🥬채소</th>
-              <th style={th}>저가공</th>
+              <th style={th}>다양성</th>
+              <th style={th}>KDRI</th>
+              <th style={th}>반복</th>
+              <th style={th}>알레르겐</th>
+              <th style={th}>가공</th>
+              <th style={th}>제철</th>
+              <th style={th}>조리</th>
             </tr>
           </thead>
           <tbody>
@@ -100,14 +105,17 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
                 <td style={td}>{x.dayCount}</td>
                 <td style={td}>{x.topPercent != null ? `${x.topPercent}%` : '—'}</td>
                 <td style={{ ...td, color: x.standout === '—' ? '#9CA3AF' : '#C45A00', fontWeight: x.standout === '—' ? 400 : 700 }}>{x.standout}</td>
-                <td style={td}>{x.fish}</td>
-                <td style={td}>{x.legume}</td>
-                <td style={td}>{x.veg}</td>
-                <td style={td}>{x.lowProc}</td>
+                <td style={td}><Ax v={x.axes?.diversity} /></td>
+                <td style={td}><Ax v={x.axes?.kdri} /></td>
+                <td style={td}><Ax v={x.axes?.repeat} /></td>
+                <td style={td}><Ax v={x.axes?.allergen} /></td>
+                <td style={td}><Ax v={x.axes?.nova} /></td>
+                <td style={td}><Ax v={x.axes?.season} /></td>
+                <td style={td}><Ax v={x.axes?.cuisine} /></td>
               </tr>
             ))}
             {!view.length && (
-              <tr><td colSpan={13} style={{ ...td, textAlign: 'center', color: '#9CA3AF', padding: 24 }}>검색 결과가 없어요.</td></tr>
+              <tr><td colSpan={16} style={{ ...td, textAlign: 'center', color: '#9CA3AF', padding: 24 }}>검색 결과가 없어요.</td></tr>
             )}
           </tbody>
         </table>
