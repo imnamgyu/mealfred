@@ -423,9 +423,9 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">━ 어린이집·유치원 (선택) ━</label>
+      <label class="form-label">━ 어린이집·유치원 검색 (선택·자동완성) ━</label>
       <div style="position:relative">
-        <input type="text" id="instSearch" placeholder="기관명 검색 (예: 햇살어린이집)" autocomplete="off"
+        <input type="text" id="instSearch" placeholder="🔎 기관명 입력하면 자동완성 (예: 햇살)" autocomplete="off"
           style="width:100%;padding:11px 12px;border:1.5px solid var(--n200);border-radius:10px;font-size:14px;box-sizing:border-box"
           oninput="onInstSearch(this.value)">
         <div id="instResults" style="display:none;position:absolute;top:calc(100% - 1px);left:0;right:0;z-index:40;background:white;border:1.5px solid var(--n200);border-radius:0 0 10px 10px;max-height:230px;overflow-y:auto;box-shadow:0 10px 28px rgba(0,0,0,0.13)"></div>
@@ -435,7 +435,7 @@
         <label style="font-size:12px;color:var(--n600);font-weight:700;white-space:nowrap">식단표 해당 월</label>
         <input type="month" id="instMonth" style="padding:7px 9px;border:1.5px solid var(--n200);border-radius:8px;font-size:13px;font-weight:600">
       </div>
-      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.6">기관을 선택하면 <strong style="color:var(--p700)">전국·우리 지역에서 영양 몇 위</strong>인지 알려드려요 <span style="color:var(--n400)">(선택 안 해도 평가는 그대로 진행)</span></div>
+      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.6"><strong style="color:var(--s800)">한두 글자만 쳐도 목록이 자동완성</strong>돼요 — 골라주세요. 선택하면 <strong style="color:var(--p700)">전국·우리 지역 영양 순위</strong>까지 보여드려요 <span style="color:var(--n400)">(선택 안 해도 평가는 진행)</span></div>
     </div>
 
     <div class="form-group">
@@ -1203,30 +1203,50 @@ const INST_TYPE_LABEL = { daycare:'어린이집', kindergarten:'유치원', scho
 function currentYM(){ return new Date(Date.now() + 9*3600e3).toISOString().slice(0,7); }   // KST 'YYYY-MM'
 try { const _mi = document.getElementById('instMonth'); if(_mi && !_mi.value) _mi.value = currentYM(); } catch(e){}
 
+const _instCache = new Map();   // ⚡ normQuery → results[] (재방문·prefix 재사용 시 네트워크 0)
+function renderInstResults(rows, box){
+  _instResults = rows;
+  if(!rows.length){ box.innerHTML = `<div style="padding:11px 12px;font-size:12.5px;color:var(--n500);font-weight:600">검색 결과가 없어요 — 띄어쓰기를 빼고 다시 시도해보세요</div>`; box.style.display='block'; return; }
+  box.innerHTML = rows.map((it,i) => {
+    const loc = [it.sido, it.sigungu, it.dong].filter(Boolean).join(' ');
+    const tag = INST_TYPE_LABEL[it.type] || '';
+    return `<div onclick="pickInstitutionByIdx(${i})" style="padding:10px 12px;border-bottom:1px solid var(--n100);cursor:pointer" onmouseover="this.style.background='var(--n50)'" onmouseout="this.style.background='white'">
+      <div style="font-weight:800;color:var(--s800);font-size:13px">${it.name} <span style="font-size:10.5px;color:var(--p700);font-weight:700">${tag}</span></div>
+      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:1px">${loc || '지역 정보 없음'}</div>
+    </div>`;
+  }).join('');
+  box.style.display='block';
+}
 function onInstSearch(q){
   selectedInstitution = null;
   document.getElementById('instPicked').style.display = 'none';
   const box = document.getElementById('instResults');
-  const query = (q||'').trim();
-  if(query.replace(/\s/g,'').length < 2){ box.style.display='none'; box.innerHTML=''; return; }
+  const norm = (q||'').replace(/\s/g,'').trim();
+  if(norm.length < 2){ box.style.display='none'; box.innerHTML=''; clearTimeout(_instSearchTimer); return; }
+  // ⚡ 즉시 표시(네트워크 0): 정확히 같은 검색어 캐시 → 바로 렌더.
+  if(_instCache.has(norm)){ renderInstResults(_instCache.get(norm), box); return; }
+  // ⚡ prefix 캐시 재사용: 더 짧은 검색어 결과가 '전체(12개 미만)'였다면 그 부분집합이 곧 정답 → fetch 생략.
+  let provisional = false;
+  for(let i=norm.length-1; i>=2; i--){
+    const pc = _instCache.get(norm.slice(0,i));
+    if(!pc) continue;
+    const sub = pc.filter(it => (it.name||'').replace(/\s/g,'').includes(norm));
+    renderInstResults(sub, box); provisional = true;
+    if(pc.length < 12){ _instCache.set(norm, sub); return; }   // prefix가 전체였음 → 확정, 네트워크 불필요
+    break;                                                     // prefix가 12개로 잘렸으면 잠정 표시만, 아래 fetch로 보정
+  }
+  if(!provisional){ box.innerHTML = `<div style="padding:11px 12px;font-size:12px;color:var(--n400);font-weight:600">검색 중…</div>`; box.style.display='block'; }
   clearTimeout(_instSearchTimer);
   _instSearchTimer = setTimeout(async ()=>{
     try{
-      const r = await fetch(`${INST_API}/institution/search?q=${encodeURIComponent(query)}`);
+      const r = await fetch(`${INST_API}/institution/search?q=${encodeURIComponent(norm)}`);
       const d = await r.json();
-      _instResults = d.results || [];
-      if(!_instResults.length){ box.innerHTML = `<div style="padding:11px 12px;font-size:12.5px;color:var(--n500);font-weight:600">검색 결과가 없어요 — 띄어쓰기를 빼고 다시 시도해보세요</div>`; box.style.display='block'; return; }
-      box.innerHTML = _instResults.map((it,i) => {
-        const loc = [it.sido, it.sigungu, it.dong].filter(Boolean).join(' ');
-        const tag = INST_TYPE_LABEL[it.type] || '';
-        return `<div onclick="pickInstitutionByIdx(${i})" style="padding:10px 12px;border-bottom:1px solid var(--n100);cursor:pointer" onmouseover="this.style.background='var(--n50)'" onmouseout="this.style.background='white'">
-          <div style="font-weight:800;color:var(--s800);font-size:13px">${it.name} <span style="font-size:10.5px;color:var(--p700);font-weight:700">${tag}</span></div>
-          <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:1px">${loc || '지역 정보 없음'}</div>
-        </div>`;
-      }).join('');
-      box.style.display='block';
-    }catch(e){ box.style.display='none'; }
-  }, 280);
+      const rows = d.results || [];
+      _instCache.set(norm, rows);
+      // 그 사이 더 타이핑했으면(현재 입력≠norm) stale → 렌더 스킵.
+      if((document.getElementById('instSearch').value||'').replace(/\s/g,'').trim() === norm) renderInstResults(rows, box);
+    }catch(e){}
+  }, 130);
 }
 function pickInstitutionByIdx(i){ if(_instResults[i]) pickInstitution(_instResults[i]); }
 function pickInstitution(it){

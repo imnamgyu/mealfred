@@ -45,7 +45,8 @@ export async function GET(req: NextRequest) {
     if (type === 'daycare' || type === 'kindergarten' || type === 'school') query = query.eq('type', type);
     const { data, error } = await query;
     if (error) return NextResponse.json({ results: [], error: error.message }, { status: 500, headers });
-    return NextResponse.json({ results: data || [] }, { headers });
+    // institutions는 정적 디렉터리 → 같은 검색어 5분 캐시(브라우저·CDN). 클라 Map 캐시와 합쳐 네트워크 최소화.
+    return NextResponse.json({ results: data || [] }, { headers: { ...headers, 'Cache-Control': 'public, max-age=300, s-maxage=300', Vary: 'Origin' } });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'unknown';
     return NextResponse.json({ results: [], error: msg }, { status: 500, headers });
