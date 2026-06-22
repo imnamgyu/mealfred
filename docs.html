@@ -227,6 +227,13 @@
       <p class="desc"><b>식단 데이터→식재료 지식→추천→편지 전 과정의 단일 정본.</b> 옛 6문서(음식추천네트워크·코퍼스도감·식단파이프라인·푸드체이닝·추천SQL·menu-ingest) 통합. ① <b>목적</b>(2~6세 다양성↑·검증된 추천·안전) ② <b>e2e 흐름</b>(3경로→OCR→분해→(기관,월)멱등 집계→그래프→추천→편지+야간 자가학습) ③ <b>5축</b>(인입·지식그래프·분해·푸드체이닝·SQL전환) ④ <b>개발현황</b>(SQL 1115 동기화·always-warm 대기·OCR 배치) ⑤ <b>실데이터 예시</b>(광진구 식단표→분해→등장률/공출현)+판정엑셀+안전불변선. <span style="color:#C45A00">2026-06-21 통합·정본 1개.</span></p>
       <div class="meta"><span>ENGINE · 추천 데이터 정본</span><span class="arrow">→</span></div>
     </a>
+    <a href="/daycare-eval-engine.html" class="doc-card cat-strategy">
+      <span class="badge new">🍽 신규 · 식단평가 엔진</span>
+      <div class="ico">🍽</div>
+      <h4>어린이집·유치원 식단 평가 엔진 (정본)</h4>
+      <p class="desc"><b><code>daycare-eval.html</code>의 평가 기준 · 기관 랭킹 · 데이터 흐름 단일 정본.</b> ① <b>7축 기준표</b>(식품군·KDRI36·반복·알레르겐·NOVA가공·제철·조리 — 식감 단계는 모호·기관차로 제외) ② <b>랭킹 시스템</b>(점수기 거의 전원 90+ → 고대역·'매우 우수 안심등급'·전국 상위 X% + <b>8개 강점지표 percentile</b>로 '우리 원 빛나는 강점' 1줄, 약점 미노출) ③ <b>설계/구현</b>(식단표→CLOVA+Claude비전 OCR→좌측상단 기관명 자동매칭→채점→institution_scores·멱등캐시·서울 임포터·DeepSeek 정책) ④ <b>3경로 인입</b> ⑤ <b>📊 수집 현황(기관·시군구·월 라이브 동기화)</b>. <span style="color:#C45A00">2026-06-22 신규.</span></p>
+      <div class="meta"><span>ENGINE · 식단평가·순위</span><span class="arrow">→</span></div>
+    </a>
     <a href="/coaching-engine-state.html" class="doc-card cat-arch">
       <span class="badge new">🔧 신규 · 엔진 상태</span>
       <div class="ico">🔧</div>

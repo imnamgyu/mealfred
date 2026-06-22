@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>어린이집·유치원 식단 평가 엔진 (정본) | 밀프레드 문서</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{--s800:#1F2A44;--p700:#6A1B9A;--p500:#8E24AA;--or:#F4511E;--n700:#374151;--n600:#4B5563;--n500:#6B7280;--n400:#9CA3AF;--n200:#E5E7EB;--n100:#F3F4F6;--n50:#FAFAF8;--g:#2E7D32;--g50:#E8F5E9;--y50:#FFF8E1;--y700:#8a6d00}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--n50);color:var(--s800);font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;line-height:1.65;font-size:15px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 18px 80px}
+  .crumb{font-size:12.5px;color:var(--n500);font-weight:600;margin-bottom:18px}
+  .crumb a{color:var(--p700);text-decoration:none;font-weight:700}
+  h1{font-size:26px;font-weight:800;letter-spacing:-0.02em;margin:0 0 6px}
+  .sub{font-size:14px;color:var(--n600);font-weight:600;margin-bottom:24px}
+  h2{font-size:19px;font-weight:800;letter-spacing:-0.01em;margin:34px 0 12px;padding-bottom:7px;border-bottom:2px solid var(--p500)}
+  h3{font-size:15px;font-weight:800;margin:18px 0 8px;color:var(--s800)}
+  p{margin:8px 0}
+  .card{background:white;border:1.5px solid var(--n200);border-radius:14px;padding:16px 18px;margin:12px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;background:white;border-radius:10px;overflow:hidden;border:1.5px solid var(--n200)}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--n100);vertical-align:top}
+  th{background:var(--n50);font-weight:800;font-size:12px;color:var(--n700)}
+  tr:last-child td{border-bottom:none}
+  td .ax{font-weight:800}
+  .pill{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:100px;background:var(--p500);color:white}
+  .pill.g{background:var(--g)}.pill.or{background:var(--or)}.pill.gray{background:var(--n500)}
+  code{background:var(--n100);border-radius:5px;padding:1px 5px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;color:var(--p700)}
+  ul{margin:8px 0;padding-left:18px}li{margin:4px 0}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;font-weight:700;margin:10px 0}
+  .flow .st{background:white;border:1.5px solid var(--n200);border-radius:8px;padding:6px 10px}
+  .flow .st.db{border-color:var(--g);background:var(--g50)}
+  .flow .ar{color:var(--n400);font-weight:800}
+  .live{background:linear-gradient(135deg,#F3E5F5,#E8F5E9);border:1.5px solid #CE93D8;border-radius:14px;padding:18px}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:12px}
+  .stat{background:white;border-radius:10px;padding:12px;text-align:center;border:1px solid var(--n200)}
+  .stat .v{font-size:24px;font-weight:800;color:var(--p700);line-height:1}
+  .stat .l{font-size:11px;color:var(--n500);font-weight:700;margin-top:4px}
+  .note{font-size:12px;color:var(--n500);font-weight:600}
+  .warn{background:var(--y50);border-left:4px solid #FFB300;border-radius:8px;padding:11px 13px;font-size:13px;font-weight:600;color:var(--n700);margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="crumb"><a href="/docs.html">← 문서 허브</a> · 엔진 정본 · <a href="/daycare-eval.html">라이브 앱 →</a></div>
+  <h1>🍽 어린이집·유치원 식단 평가 엔진 <span class="pill g">정본</span></h1>
+  <div class="sub">식단표 사진 1장 → 7축 영양 평가 + 전국 기관 순위 + 빛나는 강점 → "집 끼니가 진짜" 전환. <code>daycare-eval.html</code>의 평가 기준 · 랭킹 설계 · 데이터 흐름 · <b>수집 현황(라이브)</b> 단일 정본.</div>
+
+  <h2>0. 한 줄 철학</h2>
+  <div class="card">
+    실측 결과 <b>기관 급식은 거의 다 훌륭</b>(영양사 + 어린이급식관리지원센터). 그래서 <b>점수는 의도적으로 거의 만점·공동 상위권</b>으로 보여 어떤 기관도 깎이지 않게(B2B 안전) 하고, 변별은 <b>'우리 원의 빛나는 강점' 한 줄</b>(약점은 절대 미노출)이 맡는다. 그리고 부모가 바꿀 수 있는 <b>집에서 먹는 나머지 끼니</b>로 전환 → 코칭 가치. <span class="note">= 점수 후킹 → 기관 안심 → 집 끼니 전환.</span>
+  </div>
+
+  <h2>1. 📊 수집된 데이터 현황 <span class="note" style="font-weight:600">(라이브 · /api/institution/stats)</span></h2>
+  <div class="live" id="liveStats"><div class="note">불러오는 중…</div></div>
+
+  <h2>2. 평가 기준 — 7축 (룰베이스·결정론·클라이언트)</h2>
+  <p class="note">임의 점수가 아니라 보건복지부·WHO·NOVA·농진청 기준. 식감 단계(HabEat)는 모호·기관유형차로 2026-06-22 제외 → 8축→7축.</p>
+  <table>
+    <tr><th style="width:130px">축</th><th>무엇을</th><th>산식 요약</th></tr>
+    <tr><td><span class="ax">1. 식품군 다양성</span><br><span class="note">WHO MDD</span></td><td>8개 식품군 충족 + 군 내 세부 종류</td><td>8/8 + 세부 10종↑ = A+(95) · 8/8 = B(80) · 7/8 = B-(78)</td></tr>
+    <tr><td><span class="ax">2. KDRI 36종</span><br><span class="note">복지부 2025</span></td><td>36종 필수 영양소 커버율(식재료→영양맵)</td><td>29종↑ A+ · 22종↑ A · 16종↑ B+</td></tr>
+    <tr><td><span class="ax">3. 메뉴 반복도</span></td><td>한 달 최다 반복(밥·김치·우유 등 주식 제외)</td><td>≤2회 A+ · ≤4 B · ≤6 C</td></tr>
+    <tr><td><span class="ax">4. 알레르겐 표시</span><br><span class="note">식약처 17대</span></td><td>알레르겐 표기 유무</td><td>3종↑ 표시 = 100 · 그 외 80</td></tr>
+    <tr><td><span class="ax">5. 가공식품</span><br><span class="note">WHO NOVA</span></td><td>초가공(너겟·소시지 등) 비중</td><td>&lt;8% A+ · &lt;18% A- · &lt;30% B-</td></tr>
+    <tr><td><span class="ax">6. 제철 식재료</span><br><span class="note">농진청</span></td><td>그 달 제철 식재료 매칭 수</td><td>3종↑ A+ · 2종 A · 1종 B+</td></tr>
+    <tr><td><span class="ax">7. 조리 스타일</span></td><td>한식·양식·일식·중식 다양성</td><td>4종 A+ · 3종 B+ · 2종 C</td></tr>
+  </table>
+  <p class="note">총점 = 7축 평균 → 등급(95+ A+ · 90+ A · 85+ B+ · 80+ B · 70+ C · D). 부모 결과카드엔 이 7축 막대 + 등급.</p>
+
+  <h2>3. 기관 랭킹 시스템</h2>
+  <div class="card">
+    <h3>점수기(줄세우기용)</h3>
+    <p><code>computeDiversityScore</code> (결정론·<code>daycareMode</code>: 과일·유제품 제외, 가공/반복 패널티 ON). 실측 53곳 <b>중앙값 94·표준편차 4.9</b> = 변별력 낮음(다 훌륭) → 화면은 <b>고대역(거의 만점)</b> + <b>'매우 우수 · 모두 안심 등급'</b> + <b>전국 {유형} 상위 X%</b>(공동, 우리 동네 등수는 미노출).</p>
+    <h3>변별 = 8개 강점지표 (코호트 percentile 1위 1개만 긍정 노출)</h3>
+    <table>
+      <tr><th>지표</th><th>산출(결정론)</th><th>노출 문구(예)</th></tr>
+      <tr><td>생선·해산물</td><td>생선 등장 distinct 날/일수×7</td><td>오메가3 풍부한 생선을 다른 원보다 자주</td></tr>
+      <tr><td>제철 식재료</td><td>그 달 제철 식재료 비율(season.ts)</td><td>이번 달 제철 식재료를 자주</td></tr>
+      <tr><td>콩류</td><td>콩류 등장 distinct 날/일수×7</td><td>두부·콩 식물성 단백질을 자주</td></tr>
+      <tr><td>통곡물·잡곡</td><td>잡곡밥/전체 밥끼니</td><td>흰쌀밥 대신 잡곡을 자주</td></tr>
+      <tr><td>단백질 로테이션</td><td>distinct 단백질 급원 종 수</td><td>고기·생선·콩·계란 골고루</td></tr>
+      <tr><td>채소 다양성</td><td>distinct 채소 표준명 종 수</td><td>다양한 채소를 폭넓게</td></tr>
+      <tr><td>국·탕 다양성</td><td>distinct 국·탕 메뉴 종 수</td><td>국·탕을 다양하게 돌려</td></tr>
+      <tr><td>저가공</td><td>1−가공끼니비중</td><td>자연 식재료 끼니가 많아요</td></tr>
+    </table>
+    <p class="note">규칙: percentile ≥60일 때만, 그 원의 최고 1개만. 동률 타이브레이크 = 생선→제철→콩류→통곡물→단백질→채소→국탕→저가공. <b>약점·저점은 절대 미노출.</b></p>
+    <div class="warn">⚠️ 불변선: 어떤 기관도 '못해 보이게' 하지 않는다. 부모가 평가받는 느낌·죄책감 0. 순위는 '잘잘못 아님 = 종이 한 장'. 집 끼니 전환은 부담 아닌 '하루의 마지막 퍼즐'.</div>
+  </div>
+
+  <h2>4. 설계 · 구현 (데이터 흐름)</h2>
+  <div class="flow">
+    <span class="st">식단표 사진/PDF</span><span class="ar">→</span>
+    <span class="st">CLOVA OCR + Claude Sonnet 비전</span><span class="ar">→</span>
+    <span class="st">기관명(좌측상단)·월·끼니별 메뉴</span><span class="ar">→</span>
+    <span class="st">디렉터리 매칭(구+유형)</span><span class="ar">→</span>
+    <span class="st db">📦 institution_menus / items / scores</span><span class="ar">→</span>
+    <span class="st">/api/eval/rank (코호트 percentile)</span>
+  </div>
+  <ul>
+    <li><b>OCR</b>: <code>/api/ocr</code> — CLOVA(표 셀) + Claude Sonnet <b>비전</b>(빈칸 날짜밀림 보정). 메뉴명·날짜·기관명 추출. (비전만 Claude 유지, 그 외 텍스트 LLM은 DeepSeek)</li>
+    <li><b>기관 매칭</b>: 이미지 <b>좌측 상단 기관명</b>을 <code>institutions</code> 디렉터리(31,819개)에서 매칭 → <code>institution_id</code>+시군구. 폴더/업로드의 구+유형으로 후보를 좁혀 동명이원 방지.</li>
+    <li><b>식재료</b>: <code>mapMenuLocal</code>(농진청 표준명·결정론) → 식품군·영양맵. 미매핑은 DeepSeek 폴백.</li>
+    <li><b>저장(멱등)</b>: <code>institution_menus</code>(institution_id, month UNIQUE = 월 1벌) → <code>institution_menu_items</code>(끼니별 m:n) → <code>institution_scores</code>(점수 + 강점지표 <code>standout_dims</code> jsonb).</li>
+    <li><b>멱등 캐시</b>: (기관, 월)이 이미 있으면 <b>OCR 생략</b>하고 저장본으로 즉시 결과. zip 시드 후 대부분 부모는 OCR 0회.</li>
+    <li><b>배치 임포터</b>: <code>scripts/import-seoul-menus.ts</code> — 폴더(구/유형/월) 순회 → OCR(동시 4) → 매칭 → 채점 → 적재. PDF는 <code>pdftoppm</code> 래스터.</li>
+    <li><b>LLM 정책</b>: 텍스트(메뉴 분해·총평)=DeepSeek V4(DeepInfra) · OCR 비전=Claude Sonnet 유지(2026-06).</li>
+  </ul>
+
+  <h2>5. 데이터 인입 3경로</h2>
+  <table>
+    <tr><th>경로</th><th>방식</th><th>채우는 것</th></tr>
+    <tr><td>① 배치 zip/폴더</td><td>센터·구별 식단표 묶음 → 임포터 OCR</td><td>전국 기관 순위 풀(institution_scores) + 추천 빈도</td></tr>
+    <tr><td>② daycare-eval 업로드</td><td>부모가 1장 업로드 → 기관 선택/자동매칭</td><td>그 기관-월 (institution_menus UNIQUE upsert)</td></tr>
+    <tr><td>③ 부모 기록탭</td><td>care 앱 식단표 → meal_logs(place=daycare)</td><td>자녀별 급식 기록(추천·코칭)</td></tr>
+  </table>
+  <p class="note">세 경로 모두 OCR 결과가 ① 추천 데이터 엔진(<a href="/food-reco-engine.html" style="color:var(--p700);font-weight:700">food-reco-engine</a>: 식재료 빈도·도감) ② <b>기관별 식단 평가</b>(이 문서: 점수·순위·강점) 양쪽으로 적재된다.</p>
+
+  <div class="note" style="margin-top:30px;padding-top:14px;border-top:1px solid var(--n200)">밀프레드 내부 문서 · 라이브 앱 <a href="/daycare-eval.html" style="color:var(--p700);font-weight:700">daycare-eval.html</a> · 추천엔진 <a href="/food-reco-engine.html" style="color:var(--p700);font-weight:700">food-reco-engine.html</a></div>
+</div>
+
+<script>
+fetch('https://app.mealfred.com/api/institution/stats').then(r=>r.json()).then(d=>{
+  const el=document.getElementById('liveStats');
+  if(!d || d.error){ el.innerHTML='<div class="note">현황을 불러오지 못했어요.</div>'; return; }
+  const span = d.monthSpan ? `${d.monthSpan[0]} ~ ${d.monthSpan[1]}` : '—';
+  const sc = d.score ? `${d.score.min}~${d.score.max} (중앙 ${d.score.median})` : '—';
+  const guList = (d.sigunguList||[]).slice(0,12).map(s=>`${s.sigungu} ${s.institutions}`).join(' · ') || '—';
+  el.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat"><div class="v">${d.institutions||0}</div><div class="l">기관</div></div>
+      <div class="stat"><div class="v">${d.sigunguCount||0}</div><div class="l">시군구</div></div>
+      <div class="stat"><div class="v">${d.institutionMonths||0}</div><div class="l">기관-월</div></div>
+      <div class="stat"><div class="v">${(d.menuItems||0).toLocaleString()}</div><div class="l">끼니 메뉴</div></div>
+      <div class="stat"><div class="v">${d.byType?.daycare?.institutions||0}</div><div class="l">어린이집</div></div>
+      <div class="stat"><div class="v">${d.byType?.kindergarten?.institutions||0}</div><div class="l">유치원</div></div>
+    </div>
+    <div style="margin-top:12px;font-size:12.5px;color:var(--n700);font-weight:600;line-height:1.7">
+      📅 월 범위: <b>${span}</b> · 📈 점수: <b>${sc}</b> · 🗂 OCR 누적: <b>${(d.ocrLogs||0).toLocaleString()}</b>건<br>
+      🏙 시군구별 기관: ${guList}
+    </div>
+    <div class="note" style="margin-top:8px">갱신 ${new Date(d.updatedAt).toLocaleString('ko-KR')} · 2분 캐시</div>`;
+}).catch(()=>{ document.getElementById('liveStats').innerHTML='<div class="note">현황을 불러오지 못했어요.</div>'; });
+</script>
+</body>
+</html>
