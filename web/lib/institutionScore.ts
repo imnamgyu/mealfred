@@ -7,7 +7,8 @@
  *  - 총평: DeepSeek(llmText) 한 줄 정성 코멘트. LLM 미가용/실패 시 결정론 폴백.
  * 서버 전용(menuMap이 fs로 도감 풀 로드).
  */
-import { computeDiversityScore } from './nutrition';
+import { computeDiversityScore, groupOf, isProcessed } from './nutrition';
+import { inSeason, seasonMonths } from './season';
 import { mapMenuLocal } from './menuMap';
 import { getIngredientsLight } from './graphSource';
 import { llmText, parseLLMJson, hasLLMBackend } from './llmText';
@@ -100,20 +101,93 @@ export function buildMenuItemRows(items: OcrMenuItem[], month: string, instituti
   return Object.values(grouped);
 }
 
+// ── ⭐ 강점지표(코호트 비교용) — '우리 원이 다른 원보다 특별히 뛰어난 점' (이사님 2026-06-22) ──
+// 전부 결정론. 점수와 별개로, 같은 유형 코호트 percentile에서 가장 높은 1개만 긍정 노출(약점 절대 미노출).
+export type StandoutDims = {
+  seasonalFreshness: number; fishFrequency: number; legumeFrequency: number; lowProcessed: number;
+  vegVariety: number; soupVariety: number; wholeGrain: number; proteinRotation: number;
+};
+export type StandoutKey = keyof StandoutDims;
+
+// 노출 우선순위·라벨·문구(동률 타이브레이크 = 영유아 결핍 흔하고 집에서 바꾸기 어려운 군 순).
+export const STANDOUT_META: { key: StandoutKey; label: string; phrase: string; low: string; priority: number }[] = [
+  { key: 'fishFrequency',     label: '생선·해산물',   phrase: '오메가3가 풍부한 생선을 다른 원보다 자주 올려요',          low: '생선을 잘 챙기는 편이에요',           priority: 1 },
+  { key: 'seasonalFreshness', label: '제철 식재료',   phrase: '이번 달 제철 식재료를 다른 원보다 자주 챙겨요',            low: '제철 식재료가 돋보이는 편이에요',     priority: 2 },
+  { key: 'legumeFrequency',   label: '콩류',          phrase: '두부·콩 같은 식물성 단백질을 다른 원보다 자주 챙겨요',     low: '두부·콩을 잘 챙기는 편이에요',         priority: 3 },
+  { key: 'wholeGrain',        label: '통곡물·잡곡',   phrase: '흰쌀밥 대신 잡곡·통곡물을 다른 원보다 자주 섞어요',        low: '잡곡·통곡물이 돋보이는 편이에요',     priority: 4 },
+  { key: 'proteinRotation',   label: '단백질 다양성', phrase: '단백질을 고기·생선·콩·계란으로 골고루 돌려요',            low: '단백질 급원이 다양한 편이에요',       priority: 5 },
+  { key: 'vegVariety',        label: '채소 다양성',   phrase: '다양한 종류의 채소를 다른 원보다 폭넓게 써요',            low: '채소 종류가 다양한 편이에요',         priority: 6 },
+  { key: 'soupVariety',       label: '국·탕 다양성',  phrase: '국·탕 종류를 다양하게 돌려 다른 원보다 폭이 넓어요',      low: '국·탕이 다양한 편이에요',             priority: 7 },
+  { key: 'lowProcessed',      label: '저가공',        phrase: '가공식품 대신 자연 식재료로 차린 끼니가 다른 원보다 많아요', low: '자연 식재료 비중이 높은 편이에요',     priority: 8 },
+];
+
+const WHOLE_GRAIN_RE = /현미|잡곡|보리|흑미|기장|수수|차조|귀리|메밀|오곡|혼합곡|콩밥|통곡/;
+const WHOLE_GRAIN_ING = new Set(['현미', '잡곡', '보리', '귀리', '흑미', '기장', '수수', '메밀', '보리(겉보리)']);
+const SOUP_RE = /(국|탕|찌개|전골|국밥)$/;
+
+/** OCR items + month(YYYY-MM) → 8개 강점 raw 지표(결정론). 코호트 percentile은 rank에서 산출. */
+export function computeStandoutDims(items: OcrMenuItem[], month: string): StandoutDims {
+  const monthNum = parseInt(month.slice(5, 7), 10) || 0;
+  const daySet = new Set<string>();
+  const dayGroups: Record<string, Set<string>> = {};
+  const mealMenus: Record<string, string[]> = {};               // date|slot → menus
+  const vegSet = new Set<string>(), proteinSet = new Set<string>(), soupSet = new Set<string>();
+  let seasonNum = 0, seasonDen = 0, riceMeals = 0, wholeRiceMeals = 0;
+
+  for (const it of items) {
+    const menu = (it.menu || '').trim(); if (!menu) continue;
+    const date = (it.date || '').trim() || 'nodate';
+    daySet.add(date);
+    const mealKey = `${date}|${normalizeSlot(it.slot)}`;
+    (mealMenus[mealKey] ||= []).push(menu);
+    const flat = menu.replace(/\s/g, '');
+    const ings = mapMenuLocal(menu)?.ingredients || [];
+    for (const ing of ings) {
+      const g = groupOf(ing, catOf);
+      if (g) (dayGroups[date] ||= new Set()).add(g);
+      if (g === '비타민A채소' || g === '기타채소') vegSet.add(ing);
+      if (g === '고기·계란' || g === '생선·해산물' || g === '콩류' || g === '유제품') proteinSet.add(ing);
+      if (seasonMonths(ing)) { seasonDen++; if (monthNum && inSeason(ing, monthNum)) seasonNum++; }
+    }
+    if (SOUP_RE.test(flat) && !isProcessed(menu).hit) soupSet.add(flat);
+    if (/밥$/.test(flat)) { riceMeals++; if (WHOLE_GRAIN_RE.test(flat) || ings.some((i) => WHOLE_GRAIN_ING.has(i))) wholeRiceMeals++; }
+  }
+
+  const dayCount = Math.max(1, daySet.size);
+  let fishDays = 0, legumeDays = 0;
+  for (const d of Object.keys(dayGroups)) {
+    if (dayGroups[d].has('생선·해산물')) fishDays++;
+    if (dayGroups[d].has('콩류')) legumeDays++;
+  }
+  const meals = Object.values(mealMenus);
+  let pw = 0;
+  for (const ms of meals) { let w = 0; for (const m of ms) { const p = isProcessed(m); if (p.hit) w = Math.max(w, p.kind === 'ultra' ? 1 : 0.7); } pw += w; }
+
+  return {
+    seasonalFreshness: seasonDen ? +(seasonNum / seasonDen).toFixed(3) : 0,
+    fishFrequency: +((fishDays / dayCount) * 7).toFixed(2),
+    legumeFrequency: +((legumeDays / dayCount) * 7).toFixed(2),
+    lowProcessed: meals.length ? +(1 - pw / meals.length).toFixed(3) : 1,
+    vegVariety: vegSet.size,
+    soupVariety: soupSet.size,
+    wholeGrain: riceMeals ? +(wholeRiceMeals / riceMeals).toFixed(3) : 0,
+    proteinRotation: proteinSet.size,
+  };
+}
+
 /** DeepSeek 한 줄 정성 총평(랭킹 카드용). 점수·등급·순위 언급 금지. 실패 시 결정론 폴백. */
+// ⭐ 긍정 칭찬 전용(이사님 2026-06-22). 약점·부족·점수·순위 언급 금지 — 기관은 모두 훌륭하다는 전략과 정합.
+//   (extra 필드는 호출 호환을 위해 optional로 받되 약점 노출에 쓰지 않는다.)
 export async function summarizeInstitutionMenu(input: {
-  institutionName: string; score: number; redGroups: string[]; processed: number; repeat: number;
+  institutionName: string; score?: number; redGroups?: string[]; processed?: number; repeat?: number;
 }): Promise<string> {
-  const { institutionName, score, redGroups, processed, repeat } = input;
-  const fallback = redGroups.length
-    ? `${redGroups.slice(0, 2).join('·')}이(가) 다소 적은 편이에요. 가정에서 가볍게 채워주면 좋아요.`
-    : (processed > 8 ? '가공식품 비중이 조금 있지만 전반적으로 식품군이 다양해요.' : '식품군이 고르게 짜인 식단이에요.');
+  const fallback = '영양사 선생님과 어린이급식관리지원센터 지원으로 식품군이 고르게 짜인 든든한 식단이에요.';
   if (!hasLLMBackend()) return fallback;
   try {
     const text = await llmText({
-      role: 'flash', maxTokens: 200, json: true, temperature: 0.5,
-      system: '너는 영유아 급식 영양 코치다. 어린이집/유치원 한 달 식단의 영양 다양성을 부모에게 한 줄로 따뜻하게 요약한다. 점수·등급·순위·숫자 언급 금지, 특정 기관 비난 금지, 40자 이내 존댓말.',
-      user: `기관: ${institutionName}\n부족 식품군: ${redGroups.join('·') || '없음'}\n가공식품 패널티: ${processed}\n반복 패널티: ${repeat}\n\n부모에게 보여줄 '한 줄 총평'을 JSON으로: {"summary":"…"}`,
+      role: 'flash', maxTokens: 160, json: true, temperature: 0.6,
+      system: '너는 영유아 급식 영양 코치다. 어린이집/유치원 한 달 식단을 부모에게 한 줄로 따뜻하고 긍정적으로 칭찬한다. 약점·부족·아쉬움·점수·등급·순위·숫자 언급 절대 금지. 특정 기관 비난 금지. 35자 이내 존댓말. 영양사·어린이급식관리지원센터의 노고를 인정하는 톤.',
+      user: `기관명: ${input.institutionName}\n부모에게 보여줄 따뜻한 '한 줄 칭찬'을 JSON으로: {"summary":"…"}`,
     });
     const s = (parseLLMJson<{ summary?: string }>(text)?.summary || '').trim();
     return s || fallback;

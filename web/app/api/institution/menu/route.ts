@@ -7,7 +7,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { scoreInstitutionMonth, summarizeInstitutionMenu, buildMenuItemRows, type OcrMenuItem } from '@/lib/institutionScore';
+import { scoreInstitutionMonth, summarizeInstitutionMenu, buildMenuItemRows, computeStandoutDims, type OcrMenuItem } from '@/lib/institutionScore';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -65,13 +65,12 @@ export async function POST(req: NextRequest) {
 
     // ③ 결정론 점수 + DeepSeek 총평 → institution_scores upsert
     const sc = scoreInstitutionMonth(items);
-    const summary = await summarizeInstitutionMenu({
-      institutionName: inst.name, score: sc.score, redGroups: sc.redGroups, processed: sc.processed, repeat: sc.repeat,
-    });
+    const dims = computeStandoutDims(items, month);   // ⭐ 강점지표(코호트 비교는 rank에서)
+    const summary = await summarizeInstitutionMenu({ institutionName: inst.name });
     const { error: sErr } = await supabase.from('institution_scores').upsert({
       institution_id: institutionId, month, type: inst.type, sido: inst.sido, sigungu: inst.sigungu,
       score: sc.score, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat,
-      red_groups: sc.redGroups, summary, day_count: sc.dayCount, item_count: sc.itemCount, computed_at: new Date().toISOString(),
+      red_groups: sc.redGroups, summary, day_count: sc.dayCount, item_count: sc.itemCount, standout_dims: dims, computed_at: new Date().toISOString(),
     }, { onConflict: 'institution_id,month' });
     if (sErr) console.error('[institution/menu] score upsert:', sErr.message);
 
