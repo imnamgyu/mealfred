@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-06-23 — daycare-eval 1만 SMS 런칭 + 부산 적재 + OCR 그리드 계획</title>
+<meta property="og:title" content="작업 일지 2026-06-23 — 식단표 평가 1만 발송 런칭 · 보안/비용 가드 · 부산 5기관 적재 · OCR 비전제거 계획">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-06-23 · 런칭 세션 (daycare-eval 1만 SMS 발송일)</div>
+  <h1>식단표 평가 1만 발송 런칭 — 카피·UX·보안·비용 가드 + 부산 5기관 적재 + OCR 비전제거 계획</h1>
+  <p class="sub">기관명 흐름 반영·제철 버그·런칭 가드(500방지·OCR상한·이미지병렬) → 1만 발송 → funnel 고객전용 → 부산 import 스킬 → OCR 그리드 빌드플랜 문서화.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">19</div><div class="l">배포 커밋 (전부 라이브)</div></div>
+    <div class="gcard"><div class="n">1만</div><div class="l">SMS 발송 (30·40대 엄마)</div></div>
+    <div class="gcard"><div class="n">5기관·45개월</div><div class="l">부산 식단 적재 (신규 스킬)</div></div>
+    <div class="gcard"><div class="n">$500→$5</div><div class="l">OCR 비전제거 계획 (5k콜/일)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>런칭 카피·UX 정비 — 기관명 흐름·히어로·1분·식판 차단</h2><span class="commit">2bb44b1…170ae18</span></div>
+    <ul class="wl">
+      <li>기관명을 묻는 흐름이라 "어디서 받은 식단인지 묻지 않아요"·지역순위 약속·개인정보 미저장 문구 제거. "한 달치 전체" 안내. 히어로 2줄 <b>"우리 아이 어린이집·유치원에서 / 잘 먹고 있는 건가 궁금하시죠?"</b> + title·og·twitter 동기화.</li>
+      <li>분석시간 <b>30초→1분</b>(실제 처리시간·푸시 멘트와 일치). </li>
+      <li><b>식판 오업로드 차단</b>: 업로드존 📋 라벨·경고 콜아웃·예시 썸네일(42KB)·"📷 앨범에서 사진 선택하기(터치)" 버튼·거부 메시지 강화 — 실사용자가 음식 트레이를 올리던 문제.</li>
+    </ul>
+    <div class="out"><b>라이브</b> · <a href="/daycare-eval.html">daycare-eval.html</a> · 커밋 <code>2bb44b1</code> <code>70f1a9b</code> <code>a8be0a2</code> <code>09dde94</code> <code>41f3bd2</code> <code>170ae18</code> <code>9ab88f3</code></div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>제철 버그 — 메뉴명에 든 식재료만 인정</h2><span class="commit">2d2fb64</span></div>
+    <ul class="wl">
+      <li>버그: '돼지고기볶음'이 분해 시 숨은 양파·마늘 때문에 제철로 오인. 수정: <b>메뉴명에 이름이 직접 든 식재료만 제철 인정</b>(메뉴명.includes 게이트) — 서버 2(computeSevenAxes·standoutDims) + 클라 2(evaluate·배지).</li>
+      <li>검증: 돼지고기볶음 <b>75</b>(마늘 숨음·미인정) vs 감자돼지볶음 <b>85</b>(감자 명시). tsc0·vitest582. 기존 121건 rescore(재OCR 0).</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>런칭 보안·스케일 가드 (감사 워크플로 → 가드)</h2><span class="commit">054948a·fdcc730·0b6f5b7</span></div>
+    <ul class="wl">
+      <li>다차원 감사 워크플로(<b>41 에이전트·critical 6·high 10</b>): /api/ocr 무인증 비용폭탄·동시성 고갈·마이그레이션 부재·저장형 XSS·cron 무인증 등 → <b>10만 일괄=No-Go, 1만=OK</b> 판정.</li>
+      <li><b>500 방지</b>(<code>054948a</code>): institution/menu가 DB 쓰기 실패해도 항상 200+점수. <b>일일 OCR 상한 보험</b>(<code>fdcc730</code>): 원자 카운터 초과 시 안내(기본 5000/일). <b>이미지 업로드 병렬+3회 재시도</b>(<code>0b6f5b7</code>): 부모 대기 0초·유실 방지.</li>
+    </ul>
+    <div class="out"><b>이사님 실행</b> · DDL 2개(스키마 가드 컬럼 · ocr_budget 테이블+RPC). 감사 잔여(XSS·cron)는 1만엔 비차단, 추후.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>식재료 실측빈도 재정렬 + GA4 펀넬</h2><span class="commit">5ea90c7·2ac7e16·b2a645f</span></div>
+    <ul class="wl">
+      <li>"집에서 챙길 식재료": 카테고리당 대표 1개(곡물 쏠림 방지) + <b>실측 등장빈도 재정렬</b>(institution_menu_items 6,820행·22,064메뉴 분해 — 시금치348·무1652·두부1144·멸치1382·계란1312).</li>
+      <li>GA4(G-3FRTKL3NFL)에 <b>9개 펀넬 이벤트</b>: 방문→모달→사진선택→분석→성공/실패(<code>not_menu</code>=식판). Funnel exploration으로 이탈·식판 비율 추적.</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">5</span><h2>1만 SMS 발송 + funnel 고객 전용</h2><span class="commit">f0531c3</span></div>
+    <ul class="wl">
+      <li>네이버 친구톡 멘트(부탁형 공감) + 라이브 검증(WebFetch 프론트·앱 200). 발송 완료.</li>
+      <li>funnel 스트립이 zip-import·재채점으로 오염(71/61/165) → <b>eval_results(부모 경로 전용) + source=eval_upload</b>로 교체. 실제 고객 오늘 2건. /admin/institutions(목록)는 전부 보임.</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">6</span><h2>부산 식단 적재 — /mealfred-menu-import 스킬 신설</h2><span class="commit">4336c68·d593b6a</span></div>
+    <ul class="wl">
+      <li>신규 스킬: zip → 압축해제·구조정규화·OCR·매칭·채점·검증·최종집계. 부산 zip(CP949 한글복원) → <b>5기관/45개월</b> 적재. <b>학습 메뉴 1,932종·식재료 153종</b>.</li>
+      <li>스크립트 <b>전국 일반화</b>(MENU_BASE/MENU_SIDO) + 기관명 추출에 <b>파일명 폴백</b>(OCR '범일 건강 식단' 오독 → 파일명 '범일초등학교병설유치원' 회수). import에 axes(7축) 추가 + rescore 168건 백필(어드민 컬럼 "—" 해결).</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">7</span><h2>OCR 비전제거(결정론 CLOVA 그리드) 개발계획 문서</h2><span class="commit">9a7fad3</span></div>
+    <ul class="wl">
+      <li><a href="/ocr-grid-build-plan.html">ocr-grid-build-plan.html</a> 신설(빌드플랜 형식·P0~P3·DoD) + docs.html cat-arch 카드. 목표: /api/ocr에서 Sonnet 비전 제거 → CLOVA 표 인식만 → <b>5k콜/일 $500→$5</b>.</li>
+      <li>현황: 실날짜 4포맷+주차폴백 구현·단일사진 12/12=100%·미통합. 런칭 안정화 후 P0(깨끗한 측정)부터.</li>
+    </ul>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션 / 다음</h3>
+    <ul>
+      <li>모니터: <code>/admin/funnel</code> ⚪실시간(고객만) · <code>ocr_budget</code> · 식판 오업로드율(<code>eval_fail not_menu</code>).</li>
+      <li>다음 개발: <b>OCR 비전제거 그리드 P0부터</b> — <a href="/ocr-grid-build-plan.html">빌드플랜</a>. 런칭 트래픽 안정화 후.</li>
+      <li>감사 잔여(저장형 XSS·cron 무인증)는 1만엔 비차단 — 추후 처리.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-06-23 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
