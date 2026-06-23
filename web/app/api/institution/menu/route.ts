@@ -84,40 +84,60 @@ export async function POST(req: NextRequest) {
     }
     const nextCount = (existingMenu?.analysis_count || 0) + 1;
 
-    // ① 식단 upsert (institution+month = 1벌, 재업로드 시 갱신 · 분석횟수 누적)
-    const menuUpsert: Record<string, unknown> = {
-      institution_id: institutionId, month,
-      source: body.source || 'eval_upload',
-      raw_ocr_text: typeof body.raw_ocr_text === 'string' ? body.raw_ocr_text.slice(0, 20000) : null,
-      created_by: body.created_by || null,
-      analysis_count: nextCount,
-      updated_at: new Date().toISOString(),
-    };
-    // ⭐ 부모 업로드도 원본 이미지 연결(어드민 상세용) — 있을 때만 set(재업로드로 기존 이미지 안 지워지게)
-    if (Array.isArray(body.image_urls) && body.image_urls.length) menuUpsert.image_urls = body.image_urls.slice(0, 12);
-    const { data: menuRow, error: mErr } = await supabase.from('institution_menus')
-      .upsert(menuUpsert, { onConflict: 'institution_id,month' })
-      .select('id').single();
-    if (mErr || !menuRow) return NextResponse.json({ error: mErr?.message || 'menu upsert 실패' }, { status: 500, headers });
-
-    // ② items 교체(이번 달 1벌)
-    await supabase.from('institution_menu_items').delete().eq('institution_menu_id', menuRow.id);
-    const rows = buildMenuItemRows(items, month, menuRow.id);
-    if (rows.length) await supabase.from('institution_menu_items').insert(rows);
-
-    // ③ 결정론 점수 + DeepSeek 총평 → institution_scores upsert
+    // ⭐ 점수는 items에서 서버계산 — DB 쓰기 성공여부와 무관하게 항상 사용자에게 반환(500 방지, 이사님 2026-06-23)
+    //   런칭 트래픽 중 스키마 드리프트/일시 DB오류가 있어도 사용자는 결과를 본다. 저장·순위는 best-effort.
     const sc = scoreInstitutionMonth(items);
-    const dims = computeStandoutDims(items, month);   // ⭐ 강점지표(코호트 비교는 rank에서)
-    const axes = computeSevenAxes(items, month);       // ⭐ 7축 점수(어드민 리스트용)
-    const summary = await summarizeInstitutionMenu({ institutionName: inst.name });
-    const { error: sErr } = await supabase.from('institution_scores').upsert({
-      institution_id: institutionId, month, type: inst.type, sido: inst.sido, sigungu: inst.sigungu,
-      score: sc.score, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat,
-      red_groups: sc.redGroups, summary, day_count: sc.dayCount, item_count: sc.itemCount, standout_dims: dims, axes, computed_at: new Date().toISOString(),
-    }, { onConflict: 'institution_id,month' });
-    if (sErr) console.error('[institution/menu] score upsert:', sErr.message);
+    const dims = computeStandoutDims(items, month);
+    const axes = computeSevenAxes(items, month);       // 7축(어드민 리스트용)
+    let summary: string | null = null;
+    try { summary = await summarizeInstitutionMenu({ institutionName: inst.name }); } catch { summary = null; }
 
-    return NextResponse.json({ ok: true, score: sc.score, summary, dayCount: sc.dayCount }, { headers });
+    // ── 저장(영속화·순위용) — 실패해도 결과 반환을 막지 않음 ──
+    let stored = false;
+    try {
+      // ① 식단 upsert (institution+month = 1벌 · 분석횟수 누적)
+      const menuUpsert: Record<string, unknown> = {
+        institution_id: institutionId, month,
+        source: body.source || 'eval_upload',
+        raw_ocr_text: typeof body.raw_ocr_text === 'string' ? body.raw_ocr_text.slice(0, 20000) : null,
+        created_by: body.created_by || null,
+        analysis_count: nextCount,
+        updated_at: new Date().toISOString(),
+      };
+      if (Array.isArray(body.image_urls) && body.image_urls.length) menuUpsert.image_urls = body.image_urls.slice(0, 12);
+      let up = await supabase.from('institution_menus').upsert(menuUpsert, { onConflict: 'institution_id,month' }).select('id').single();
+      // 캡/이미지 컬럼이 prod에 없으면(스키마 드리프트) 옵션 컬럼 빼고 1회 재시도 — 500 대신 핵심 저장 유지
+      if (up.error) {
+        const core: Record<string, unknown> = { ...menuUpsert }; delete core.analysis_count; delete core.image_urls;
+        up = await supabase.from('institution_menus').upsert(core, { onConflict: 'institution_id,month' }).select('id').single();
+      }
+      const menuRow = up.data;
+      if (up.error || !menuRow) {
+        console.error('[institution/menu] menu upsert(비치명적):', up.error?.message);
+      } else {
+        // ② items 교체(이번 달 1벌)
+        await supabase.from('institution_menu_items').delete().eq('institution_menu_id', menuRow.id);
+        const rows = buildMenuItemRows(items, month, menuRow.id);
+        if (rows.length) await supabase.from('institution_menu_items').insert(rows);
+        // ③ 점수 upsert (axes/standout_dims 컬럼 없으면 빼고 재시도)
+        const scoreRow: Record<string, unknown> = {
+          institution_id: institutionId, month, type: inst.type, sido: inst.sido, sigungu: inst.sigungu,
+          score: sc.score, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat,
+          red_groups: sc.redGroups, summary, day_count: sc.dayCount, item_count: sc.itemCount, standout_dims: dims, axes, computed_at: new Date().toISOString(),
+        };
+        let sUp = await supabase.from('institution_scores').upsert(scoreRow, { onConflict: 'institution_id,month' });
+        if (sUp.error) {
+          const sCore: Record<string, unknown> = { ...scoreRow }; delete sCore.axes; delete sCore.standout_dims;
+          sUp = await supabase.from('institution_scores').upsert(sCore, { onConflict: 'institution_id,month' });
+        }
+        if (sUp.error) console.error('[institution/menu] score upsert(비치명적):', sUp.error.message);
+        else stored = true;
+      }
+    } catch (e: unknown) {
+      console.error('[institution/menu] 저장 실패(비치명적):', e instanceof Error ? e.message : e);
+    }
+
+    return NextResponse.json({ ok: true, score: sc.score, summary, dayCount: sc.dayCount, stored }, { headers });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'unknown';
     console.error('[institution/menu] error:', msg);
