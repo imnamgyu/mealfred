@@ -57,15 +57,16 @@ export default async function FunnelPage() {
     return d.toISOString().slice(0, 10);
   });
 
-  // 오늘(KST) 런칭 지표 — 식단표 평가 퍼널: ocr_budget(OCR 콜)·ocr_logs(식단표 인식)·institution_scores(기관평가 저장).
+  // 오늘(KST) '실제 고객만' 평가 지표(이사님 2026-06-23) — zip-import(source=seoul_import)·재채점은 제외.
+  //   eval_results는 부모 daycare-eval 경로 전용(관리자 import가 안 건드림) → 깨끗한 고객 신호. ocr_budget/ocr_logs는 import 포함이라 안 씀.
   //   테이블/컬럼 없거나 에러여도 count null → 0으로 안전 degrade.
   const kstMidnightUtc = `${todayKst}T00:00:00+09:00`;
+  const { count: custEvalCnt } = await db.from('eval_results').select('id', { count: 'exact', head: true }).gte('created_at', kstMidnightUtc);
+  const { count: custInstCnt } = await db.from('institution_menus').select('id', { count: 'exact', head: true }).eq('source', 'eval_upload').gte('updated_at', kstMidnightUtc);
   const { data: budgetRow } = await db.from('ocr_budget').select('count').order('day', { ascending: false }).limit(1).maybeSingle();
-  const ocrCalls = (budgetRow as { count: number } | null)?.count ?? 0;
-  const { count: menuOkCnt } = await db.from('ocr_logs').select('id', { count: 'exact', head: true }).gte('created_at', kstMidnightUtc).eq('is_menu', true);
-  const { count: evalSavedCnt } = await db.from('institution_scores').select('institution_id', { count: 'exact', head: true }).gte('computed_at', kstMidnightUtc);
-  const menuOk = menuOkCnt ?? 0;
-  const evalSaved = evalSavedCnt ?? 0;
+  const custEval = custEvalCnt ?? 0;
+  const custInst = custInstCnt ?? 0;
+  const ocrAll = (budgetRow as { count: number } | null)?.count ?? 0;   // 전체 OCR 콜(관리자 import 포함) — 참고용
 
   const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
   const Stage = ({ n, base, color }: { n: number; base: number; color: string }) => (
@@ -96,18 +97,17 @@ export default async function FunnelPage() {
 
       {/* 오늘(런칭) 식단표 평가 실시간 스트립 */}
       <div style={{ marginBottom: 14, padding: '12px 16px', background: 'linear-gradient(135deg,#FFF1F2,#FFF7ED)', border: '1.5px solid #FECACA', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-        <div style={{ fontSize: 13, fontWeight: 800, color: '#DC2626', whiteSpace: 'nowrap' }}>🔴 오늘 식단표 평가 <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>({todayKst} KST)</span></div>
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#DC2626', whiteSpace: 'nowrap' }}>🔴 오늘 고객 평가 <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>(실제 고객만 · {todayKst} KST)</span></div>
         {[
-          { l: 'OCR 분석 콜', n: ocrCalls, c: '#1a2b4a' },
-          { l: '식단표 인식', n: menuOk, c: '#16A085' },
-          { l: '기관 평가 저장', n: evalSaved, c: '#C45A00' },
+          { l: '고객 평가 완료', n: custEval, c: '#16A085' },
+          { l: '그중 기관 선택', n: custInst, c: '#C45A00' },
         ].map((x) => (
           <div key={x.l} style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: 22, fontWeight: 800, color: x.c, lineHeight: 1.1 }}>{x.n}</span>
             <span style={{ fontSize: 11, color: '#6B7280', fontWeight: 700 }}>{x.l}</span>
           </div>
         ))}
-        <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 'auto' }}>우상단 ⚪실시간 켜면 20초 자동 갱신</span>
+        <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 'auto' }}>전체 OCR 콜(관리자 import 포함) {ocrAll} · 우상단 ⚪실시간 켜면 20초 갱신</span>
       </div>
 
       {/* KPI */}
