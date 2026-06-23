@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OCR 비전 제거 — 결정론 CLOVA 그리드 (빌드 플랜)</title>
+<meta property="og:title" content="OCR 비전 제거 — 결정론 CLOVA 그리드 빌드 플랜">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p:#0E7C66;--p7:#0A5C4C;--mut:#5f7a72;--line:#dceee8;--bg:#FBFDFC;--ink:#142621}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:42px 22px 90px}
+h1{font-size:25px;letter-spacing:-0.02em;margin-bottom:8px}
+h2{font-size:21px;margin:44px 0 6px;padding:10px 14px;background:#EAF6F2;border-left:5px solid var(--p);border-radius:8px;scroll-margin-top:10px}
+h3{font-size:15.5px;margin:22px 0 6px;color:var(--p7)}
+p{margin:7px 0;font-size:14px}
+li{font-size:13.5px;margin:4px 0 4px 18px}
+.lead{color:#446057;font-size:13.5px}
+a{color:var(--p7)}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12.5px}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:#F1FAF6;font-size:11.5px;white-space:nowrap}
+code{background:#E9F5F0;border-radius:5px;padding:1px 5px;font-size:11.5px;font-family:'SF Mono',ui-monospace,Menlo,monospace;color:#0A5C4C}
+.atom{border:1.5px solid var(--line);border-left:5px solid var(--p);border-radius:10px;padding:13px 15px;margin:14px 0;background:#fff}
+.atom h4{font-size:15px;margin-bottom:8px;line-height:1.4}
+.atom h4 .sz{float:right;font-size:11px;color:var(--mut);font-weight:600}
+.atom .row{font-size:13px;margin:5px 0}
+.atom .k{display:inline-block;min-width:54px;font-weight:800;color:var(--p7);font-size:12px;vertical-align:top}
+.atom ul{margin:2px 0}
+.atom li{font-size:12.7px;margin:3px 0 3px 16px}
+.note{background:#F2FAF7;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:13px;margin:12px 0}
+.warn{background:#FFF5F5;border:1.5px solid #E53935;border-radius:10px;padding:11px 13px;font-size:13px;margin:12px 0}
+.ok{background:#F0FAF4;border:1.5px solid #9CCFA8;border-radius:10px;padding:11px 13px;font-size:13px;margin:12px 0}
+.toc{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0}
+.toc li{font-size:13px}.toc a{text-decoration:none}
+.tag{display:inline-block;font-size:10.5px;font-weight:800;border-radius:100px;padding:1px 8px;margin-left:6px}
+.tag.plan{background:#EAF6F2;color:#0A5C4C}
+footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line);margin-top:48px}
+</style></head><body><div class="wrap">
+
+<h1>OCR 비전 제거 — 결정론 CLOVA 그리드 <span style="color:var(--p7)">(빌드 플랜)</span><span class="tag plan">계획</span></h1>
+<div style="background:linear-gradient(135deg,#0E7C66,#0A5C4C);color:#fff;border-radius:14px;padding:18px 22px;margin:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.15)">
+  <div style="font-size:19px;font-weight:800;margin-bottom:6px">💰 목표 — 식단표 OCR에서 Sonnet 비전 제거 → 비용 ~99%↓</div>
+  <div style="font-size:13.5px;line-height:1.7;color:#e3f2ec">
+    현재 <code>/api/ocr</code>는 날짜↔메뉴 매핑을 <b>Claude Sonnet 비전</b>으로 처리(콜당 ~$0.10). CLOVA 표 인식(<code>rowIndex·columnIndex·span</code>)만으로 <b>결정론 매핑</b>이 가능하면 비전이 통째로 빠진다 → <b>5,000콜/일 기준 ~$500/일 → ~$5/일</b>(CLOVA만, 월 5천 무료).<br>
+    현황: <code>web/scripts/grid-date-map.mjs</code> = 실날짜 4포맷(<code>1(수)</code>·<code>10/1(수)</code>·<code>1일(수)</code>·<code>7월28일</code>) + <b>주차 폴백</b>(요일헤더+맨숫자) 구현. <b>단일 사진(부모 경로) 12/12=100%</b>. <b>미통합</b>(/api/ocr는 아직 Sonnet) · 일부 레이아웃은 CLOVA 표는 되는데 날짜 0(중랑 2026-06 등).
+  </div>
+</div>
+<p class="lead">2026-06-23 작성 · 근거 = 이번 런칭 세션의 그리드 검증(단일사진 100%·전수테스트는 파일명중복+CLOVA 레이트리밋으로 오염되어 깨끗한 %는 P0에서 확정). ⏰ <b>타이밍: 런칭 트래픽 안정화 후 P0부터</b> — 런칭 중 OCR 경로 교체는 부모 경험을 깨뜨릴 위험. 프로토타입 = <code>grid-date-map.mjs</code>(결정론 매핑·CLOVA만, Sonnet 미사용).</p>
+
+<div class="warn"><b>🚀 새 세션 시작 — 이 문서만 보고 착수</b>
+<ul>
+  <li>프롬프트: "OCR 비전 제거(결정론 CLOVA 그리드) 개발 이어서 하자. 이 빌드플랜 P0부터."</li>
+  <li>핵심 파일: <code>web/scripts/grid-date-map.mjs</code>(프로토타입) · <code>web/app/api/ocr/route.ts</code>(통합 대상) · <code>web/lib/institutionScore.ts</code></li>
+</ul></div>
+
+<div class="toc"><b>목차</b>
+<ul>
+  <li><a href="#p0">P0 — 깨끗한 측정 (0.5일)</a></li>
+  <li><a href="#p1">P1 — 파서 갭 메우기 (1일)</a></li>
+  <li><a href="#p2">P2 — /api/ocr 통합 (1일)</a></li>
+  <li><a href="#p3">P3 — 검증·확대 (0.5일)</a></li>
+  <li><a href="#dod">전체 DoD · 비용 임팩트</a></li>
+</ul></div>
+
+<h2 id="p0">P0 — 깨끗한 측정 <span style="font-size:13px;color:var(--mut);font-weight:600">0.5일</span></h2>
+<div class="atom">
+  <h4>P0-1 전수 커버리지 정확 측정<span class="sz">0.5일</span></h4>
+  <div class="row"><span class="k">목적</span>그동안 전수테스트가 ① 파일명 중복(같은 이름 다른 기관 섞임) ② CLOVA 난타 시 레이트리밋(429)로 오염 → 진짜 커버리지%를 모름. 깨끗하게 다시.</div>
+  <div class="row"><span class="k">구현</span><ul>
+    <li>전체경로 기준 dedup(파일명 아닌 풀패스 키)</li>
+    <li>CLOVA 호출 사이 딜레이(쓰로틀) 넣어 레이트리밋 회피</li>
+    <li>레이아웃별 실패 분류: "CLOVA 표0" vs "표는 되는데 날짜0" vs "주차폴백 성공" vs "실날짜 성공"</li>
+  </ul></div>
+  <div class="row"><span class="k">DoD</span>레이아웃 유형별 커버리지% 표 + 0-date 케이스 목록(P1 입력)</div>
+</div>
+
+<h2 id="p1">P1 — 파서 갭 메우기 <span style="font-size:13px;color:var(--mut);font-weight:600">1일</span></h2>
+<div class="atom">
+  <h4>P1-1 0-date 레이아웃 회수<span class="sz">1일</span></h4>
+  <div class="row"><span class="k">목적</span>CLOVA가 표는 주는데 파서가 날짜 0인 레이아웃(중랑 2026-06 등)을 케이스별 진단 → 정규식/폴백 확장.</div>
+  <div class="row"><span class="k">구현</span><ul>
+    <li>P0의 0-date 목록을 셀 덤프로 진단(날짜 표기 형태 파악)</li>
+    <li>날짜 정규식 추가 또는 주차 폴백 트리거 확장</li>
+    <li>목표: 단일사진 ~100% 유지 + PDF 커버리지 상승</li>
+  </ul></div>
+  <div class="row"><span class="k">DoD</span>P0 측정 재실행 시 커버리지 유의미 상승, 회귀 0</div>
+</div>
+
+<h2 id="p2">P2 — /api/ocr 통합 <span style="font-size:13px;color:var(--mut);font-weight:600">1일</span></h2>
+<div class="atom">
+  <h4>P2-1 그리드-우선 + Sonnet-폴백<span class="sz">1일</span></h4>
+  <div class="row"><span class="k">목적</span>/api/ocr가 CLOVA 표 → 그리드 파싱 → 충분하면(날짜≥N·item≥M) 그걸로, 아니면 Sonnet 폴백. <b>단일 이미지(부모 경로=런칭 핵심)부터.</b></div>
+  <div class="row"><span class="k">구현</span><ul>
+    <li><code>route.ts</code>에 그리드 파서 포팅(grid-date-map.mjs 로직)</li>
+    <li>그리드 결과 충분성 게이트 → 통과 시 Sonnet 호출 스킵</li>
+    <li><b>shadow 모드</b>: 며칠간 그리드 vs Sonnet 결과를 둘 다 계산해 ocr_logs에 비교 로깅(전환 전 정확도 검증)</li>
+  </ul></div>
+  <div class="row"><span class="k">리스크</span><span style="color:#9a2a2a">런칭 중 OCR 경로 교체는 위험 → shadow로 안전 검증 후 전환. 단일이미지부터 점진.</span></div>
+  <div class="row"><span class="k">DoD</span>단일사진 그리드 적중 ≥95%, Sonnet은 폴백만, shadow 비교로 정확도 동등 확인</div>
+</div>
+
+<h2 id="p3">P3 — 검증·확대 <span style="font-size:13px;color:var(--mut);font-weight:600">0.5일</span></h2>
+<div class="atom">
+  <h4>P3-1 모니터 + PDF 확대<span class="sz">0.5일</span></h4>
+  <div class="row"><span class="k">구현</span><ul>
+    <li><code>ocr_logs</code>에 <code>method</code>(grid/sonnet) 필드 추가 → 실트래픽 적중률 모니터</li>
+    <li>단일이미지 안정 확인 후 PDF 경로도 그리드 우선 적용</li>
+  </ul></div>
+  <div class="row"><span class="k">DoD</span>method 분포·적중률 대시보드(또는 쿼리) + PDF 그리드 적용</div>
+</div>
+
+<h2 id="dod">전체 DoD · 비용 임팩트</h2>
+<div class="ok">
+  <b>완료 기준:</b> 단일사진 부모 경로가 그리드(CLOVA만)로 처리되고 Sonnet은 폴백만 → 그 경로 OCR 비용 ~0.<br>
+  <b>비용:</b> Sonnet 비전 콜당 ~$0.10 제거 → 5k콜/일 기준 <b>~$500/일 → ~$5/일</b>(CLOVA 종량, 월 5천 무료). 단일사진(런칭 핵심)은 그리드 100% 검증되어 거의 풀 절감.
+</div>
+<table>
+  <tr><th>단계</th><th>내용</th><th>공수</th></tr>
+  <tr><td>P0</td><td>깨끗한 측정(중복제거·쓰로틀 전수)</td><td>0.5일</td></tr>
+  <tr><td>P1</td><td>파서 갭 메우기(0-date 회수)</td><td>1일</td></tr>
+  <tr><td>P2</td><td>/api/ocr 통합(그리드우선+Sonnet폴백·shadow)</td><td>1일</td></tr>
+  <tr><td>P3</td><td>검증·확대(method 필드·PDF)</td><td>0.5일</td></tr>
+  <tr><td colspan="2"><b>합계</b></td><td><b>~3일</b></td></tr>
+</table>
+
+<footer>밀프레드 — OCR 비전 제거 빌드 플랜 · 2026-06-23 · 프로토타입 grid-date-map.mjs</footer>
+</div></body></html>
