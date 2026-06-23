@@ -20,7 +20,7 @@
 <meta name="twitter:title" content="우리 아이 어린이집·유치원에서 잘 먹고 있는 건가 궁금하시죠?">
 <meta name="twitter:description" content="WHO·KDRI·NOVA 7가지 학술 기준 · 30초 평가 · 가정 보충 가이드">
 <meta name="twitter:image" content="https://www.mealfred.com/samples/og-daycare-eval.jpg?v=7">
-<meta name="description" content="어린이집·유치원 식단표 사진 1장으로 우리 원 한 달 영양 점수와 전국 순위 확인. 모든 원이 훌륭한 이유, 집에서 챙길 나머지 끼니 가이드. WHO·KDRI·NOVA·농진청 기준 · 익명 · 30초.">
+<meta name="description" content="어린이집·유치원 식단표 사진 1장으로 우리 원 한 달 영양 점수와 전국 순위 확인. 모든 원이 훌륭한 이유, 집에서 챙길 나머지 끼니 가이드. WHO·KDRI·NOVA·농진청 기준 · 30초.">
 <link rel="canonical" href="https://www.mealfred.com/daycare-eval.html">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -47,7 +47,7 @@
   .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
   .hero-inner{max-width:560px;margin:0 auto;position:relative;z-index:1}
   .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25);backdrop-filter:blur(6px)}
-  .hero h1{font-size:32px;font-weight:800;color:#1a2b4a;letter-spacing:-0.03em;line-height:1.25;margin-bottom:14px}
+  .hero h1{font-size:clamp(22px,6.5vw,30px);font-weight:800;color:#1a2b4a;letter-spacing:-0.03em;line-height:1.3;margin-bottom:14px}
   .hero h1 .accent{color:#FF8A47;padding:0 4px}
   .hero p{font-size:15px;color:#5a4a3a;font-weight:500;margin-bottom:24px;line-height:1.75}
   .hero p strong{color:#C45A00;font-weight:700}
@@ -233,12 +233,11 @@
     <p>어린이집·유치원 식단표 <strong>사진 1장</strong>이면 <strong>30초</strong> 만에<br>우리 원 식단 <strong>영양 점수와 전국 순위</strong>를 알려드려요.</p>
     <div class="cta-row">
       <button class="cta-main" onclick="openUpload()">📋 우리 원 식단표 점수 보기 →</button>
-      <div class="cta-sub">신용카드 X · 가입 X · 익명 분석</div>
+      <div class="cta-sub">신용카드 X · 가입 X</div>
     </div>
     <div class="trust-row">
       <span class="trust-pill">🏛 보건복지부 KDRI 2025</span>
       <span class="trust-pill">🌍 WHO 다양성 기준</span>
-      <span class="trust-pill">🎓 식약처 17대 알레르겐</span>
     </div>
   </div>
 </section>
@@ -924,12 +923,19 @@ function evaluate(text, ageBand, items, evalMonth){
   const novaPct = totalMenus > 0 ? (ultraCount + procCount * 0.3) / totalMenus : 0;
   const novaScore = novaPct < 0.08 ? 95 : novaPct < 0.18 ? 88 : novaPct < 0.3 ? 78 : 65;
 
-  // 7. 제철 식재료 — 식단표가 가리키는 월 기준(오늘 아님) · 식재료 정확매칭으로 부분문자열 오탐 제거('무'→무침·'배'→배추 방지)
+  // 7. 제철 식재료 — 식단표가 가리키는 월 기준(오늘 아님) · ⭐ '메뉴명에 이름이 직접 든' 제철 식재료만 인정(이사님 2026-06-23)
+  //    분해된 숨은재료 제외: '돼지고기볶음'에 양파가 분해돼 들어가도 메뉴명에 '양파'가 없으면 제철로 안 침('양파돼지볶음'이라야 인정)
   const seasonMonth = (evalMonth >= 1 && evalMonth <= 12) ? evalMonth : (new Date().getMonth() + 1);
   _evalMonth = seasonMonth;
   const seasonItems = SEASON_MAP[seasonMonth] || [];
-  const ingSet = new Set(ingredients);
-  const seasonMatch = seasonItems.filter(s => ingSet.has(s)).length;
+  const namedSeasonal = new Set();
+  const seasonScan = hasItems ? items.map(it => ({ nm: String(it.menu||'').replace(/\s/g,''), ings: it.ingredients||[] }))
+                              : lines.map(l => ({ nm: String(l).replace(/\s/g,''), ings: [] }));
+  seasonScan.forEach(({nm, ings}) => {
+    const cand = (ings && ings.length) ? ings : INGREDIENT_POOL.filter(p => nm.includes(p.nm)).map(p => p.nm);
+    cand.forEach(ing => { if(seasonItems.includes(ing) && nm.includes(ing)) namedSeasonal.add(ing); });
+  });
+  const seasonMatch = namedSeasonal.size;
   const seasonScore = seasonMatch >= 3 ? 95 : seasonMatch >= 2 ? 90 : seasonMatch >= 1 ? 85 : 75;
 
   // 8. 조리 스타일 다양성
@@ -1604,7 +1610,7 @@ function menuHealthPoint(menu, ingredients, seasonItems){
     const nutris=(pool?NUTRI_MAP[pool.nm]:NUTRI_MAP[name])||[];
     nutris.forEach(n=>{const b=NUTRI_BENEFIT[n]; if(b&&!seen.has(b.t)){seen.add(b.t); benefits.push(b);}});
   });
-  const isSeason=(ingredients||[]).some(i=>seasonItems.some(s=>i===s));
+  const _flat=String(menu||'').replace(/\s/g,''); const isSeason=(ingredients||[]).some(i=>seasonItems.includes(i) && _flat.includes(i));  // ⭐ 제철 배지=메뉴명에 이름이 직접 든 식재료만
   const parts=[];
   if(benefits.length){
     parts.push(`<span style="color:var(--g700);font-weight:700">${benefits[0].e} ${benefits.slice(0,3).map(b=>b.t).join('·')}</span>`);

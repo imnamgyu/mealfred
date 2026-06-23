@@ -147,7 +147,7 @@ export function computeStandoutDims(items: OcrMenuItem[], month: string): Stando
       if (g) (dayGroups[date] ||= new Set()).add(g);
       if (g === '비타민A채소' || g === '기타채소') vegSet.add(ing);
       if (g === '고기·계란' || g === '생선·해산물' || g === '콩류' || g === '유제품') proteinSet.add(ing);
-      if (seasonMonths(ing)) { seasonDen++; if (monthNum && inSeason(ing, monthNum)) seasonNum++; }
+      if (flat.includes(ing) && seasonMonths(ing)) { seasonDen++; if (monthNum && inSeason(ing, monthNum)) seasonNum++; }   // ⭐ 제철=메뉴명에 이름이 직접 든 식재료만(분해 숨은재료 제외, 이사님 2026-06-23)
     }
     if (SOUP_RE.test(flat) && !isProcessed(menu).hit) soupSet.add(flat);
     if (/밥$/.test(flat)) { riceMeals++; if (WHOLE_GRAIN_RE.test(flat) || ings.some((i) => WHOLE_GRAIN_ING.has(i))) wholeRiceMeals++; }
@@ -219,10 +219,12 @@ const SVN_STAPLE = ['우유', '김치', '깍두기', '단무지', '보리차', '
 export function computeSevenAxes(items: OcrMenuItem[], month: string): SevenAxes {
   const monthNum = parseInt(month.slice(5, 7), 10) || 0;
   const lines: string[] = []; const allIngs = new Set<string>(); const cats = new Set<string>(); const groups = new Set<string>(); const nutri = new Set<string>();
+  const namedSeasonal = new Set<string>(); const seasonList = SVN_SEASON[monthNum] || [];   // ⭐ 제철=메뉴명에 이름이 직접 든 식재료만
   let scan = '';
   for (const it of items) {
     const menu = (it.menu || '').trim(); if (!menu) continue;
     lines.push(menu);
+    const flat = menu.replace(/\s/g, '');
     const ings = mapMenuLocal(menu)?.ingredients || [];
     scan += menu + ' ' + ings.join(' ') + '\n';
     for (const ing of ings) {
@@ -230,6 +232,7 @@ export function computeSevenAxes(items: OcrMenuItem[], month: string): SevenAxes
       const c = catOf(ing); if (c) cats.add(c);
       const g = groupOf(ing, catOf); if (g) groups.add(g);
       const ns = SVN_NUTRI[ing]; if (ns) ns.forEach((n) => nutri.add(n));
+      if (seasonList.includes(ing) && flat.includes(ing)) namedSeasonal.add(ing);   // ⭐ 제철=메뉴명에 이름이 직접 든 식재료만(분해 숨은재료 제외)
     }
   }
   // 1. 식품군 다양성
@@ -251,8 +254,8 @@ export function computeSevenAxes(items: OcrMenuItem[], month: string): SevenAxes
   for (const m of lines) { const p = isProcessed(m); if (p.hit) { if (p.kind === 'ultra') ultra++; else proc++; } }
   const novaPct = lines.length ? (ultra + proc * 0.3) / lines.length : 0;
   const nova = novaPct < 0.08 ? 95 : novaPct < 0.18 ? 88 : novaPct < 0.3 ? 78 : 65;
-  // 6. 제철(식단 월·식재료 정확매칭)
-  const sm = (SVN_SEASON[monthNum] || []).filter((s) => allIngs.has(s)).length;
+  // 6. 제철(식단 월 · 메뉴명에 이름이 직접 든 제철 식재료만 — '돼지고기볶음'의 숨은 양파 등 제외)
+  const sm = namedSeasonal.size;
   const season = sm >= 3 ? 95 : sm >= 2 ? 90 : sm >= 1 ? 85 : 75;
   // 7. 조리 스타일
   const cu = new Set<string>();
