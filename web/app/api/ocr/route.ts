@@ -163,6 +163,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '파일 크기가 10MB를 초과합니다' }, { status: 400, headers: cors });
     }
 
+    // ⭐ 일일 전역 OCR 상한(보험·이사님 2026-06-23) — 정상 스파이크·악용 모두에 비용 천장.
+    //   비싼 CLOVA+Sonnet 호출 전에 원자적 증가→초과면 안내 반환. RPC 없거나 장애면 통과(가용성 우선).
+    const OCR_DAILY_CAP = Number(process.env.OCR_DAILY_CAP || 5000);
+    try {
+      const { data: used, error: capErr } = await supabase.rpc('incr_ocr_budget');
+      if (!capErr && typeof used === 'number' && used > OCR_DAILY_CAP) {
+        console.warn(`[ocr] 일일 상한(${OCR_DAILY_CAP}) 초과 — used=${used}`);
+        return NextResponse.json({ is_menu: false, reason: '지금 이용이 많아 잠시 후 다시 시도해주세요 🙏' }, { status: 200, headers: cors });
+      }
+    } catch { /* 카운터 장애 시 분석을 막지 않음(가용성 우선) */ }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const base64 = buffer.toString('base64');
