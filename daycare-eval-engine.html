@@ -43,8 +43,9 @@
 <body>
 <div class="wrap">
   <div class="crumb"><a href="/docs.html">← 문서 허브</a> · 엔진 정본 · <a href="/daycare-eval.html">라이브 앱 →</a></div>
-  <h1>🍽 어린이집·유치원 식단 평가 엔진 <span class="pill g">정본</span></h1>
-  <div class="sub">식단표 사진 1장 → 7축 영양 평가 + 전국 기관 순위 + 빛나는 강점 → "집 끼니가 진짜" 전환. <code>daycare-eval.html</code>의 평가 기준 · 랭킹 설계 · 데이터 흐름 · <b>수집 현황(라이브)</b> 단일 정본.</div>
+  <h1>🍽 어린이집·유치원 식단 평가 엔진 <span class="pill" style="background:#9a8a7a;color:#fff">📦 아카이브</span></h1>
+  <div class="sub">식단표 사진 1장 → 7축 영양 평가 + 전국 기관 순위 + 빛나는 강점 → "집 끼니가 진짜" 전환. <code>daycare-eval.html</code>의 평가 기준 · 랭킹 설계 · 데이터 흐름.</div>
+  <div class="card" style="border:1.5px solid #C45A00;background:#FFF7ED;margin:12px 0;font-size:13.5px">📦 <b>아카이브 문서</b> (2026-06-23) — 부모용 식단 평가엔진 설계 보관본. <b>점수 산식이 7축 평균으로 통일</b>됨: 이전엔 부모 총점=7축평균인데 줄세우기=<code>computeDiversityScore</code>(penalty)로 따로 놀아 학부모에게 <b>'95점인데 전국 꼴찌(상위 100%)'</b> 모순이 노출되는 버그가 있었음 → <code>institution_scores.score</code>를 7축 평균으로 단일화(penalty 이중계산 제거). 아래 '3. 랭킹'의 점수기 서술은 구버전 보관.</div>
 
   <h2>0. 한 줄 철학</h2>
   <div class="card">
@@ -70,8 +71,9 @@
 
   <h2>3. 기관 랭킹 시스템</h2>
   <div class="card">
-    <h3>점수기(줄세우기용)</h3>
-    <p><code>computeDiversityScore</code> (결정론·<code>daycareMode</code>: 과일·유제품 제외, 가공/반복 패널티 ON). 실측 <b>113곳(서울 7개 구)</b> 중앙값 <b>91·평균 90</b> = 변별력 낮음(다 훌륭) → 화면은 인위적 커브·등급밴드 없이 <b>객관 점수</b> + <b>전국 {유형} 상위 X%</b>만(절대값·등급·동네 등수 미노출).</p>
+    <h3>점수기(줄세우기용) <span style="color:#C45A00;font-size:12px">⚠️ 2026-06-23 변경됨</span></h3>
+    <p style="background:#FFF7ED;border-left:3px solid #C45A00;padding:8px 10px;font-size:13px"><b>현행:</b> 줄세우기·부모 총점 <b>모두 7축 평균으로 통일</b>(<code>institution_scores.score</code> = 7축 평균). penalty(반복/가공)는 7축 <code>repeat</code>·<code>nova</code>에 이미 반영돼 이중계산이라 제거. 단독 코호트(1개)는 등수 미표시·하위권 순위 미노출. <span class="note">아래 구버전 서술 보관.</span></p>
+    <p><s><code>computeDiversityScore</code> (결정론·<code>daycareMode</code>: 과일·유제품 제외, 가공/반복 패널티 ON)</s>. 실측 <b>113곳(서울 7개 구)</b> 중앙값 <b>91·평균 90</b> = 변별력 낮음(다 훌륭) → 화면은 인위적 커브·등급밴드 없이 <b>객관 점수</b> + <b>전국 {유형} 상위 X%</b>만(절대값·등급·동네 등수 미노출).</p>
     <h3>변별 = 8개 강점지표 (코호트 percentile 1위 1개만 긍정 노출)</h3>
     <table>
       <tr><th>지표</th><th>산출(결정론)</th><th>노출 문구(예)</th></tr>
