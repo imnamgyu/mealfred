@@ -362,7 +362,7 @@
   <span class="section-tag">━ 어떻게 작동하나 ━</span>
   <h2>업로드 → 30초 → 결과</h2>
   <div class="step-grid">
-    <div class="step"><div class="icon">📸</div><div class="body"><strong>1. 사진 업로드</strong><div class="desc">종이 식단표 사진 또는 PDF 1장. 어디서 받은 식단인지 묻지 않아요.</div></div></div>
+    <div class="step"><div class="icon">📸</div><div class="body"><strong>1. 사진 업로드</strong><div class="desc">종이 식단표 사진 또는 PDF 1장. 한 달치 전체를 올려주세요.</div></div></div>
     <div class="step"><div class="icon">🤖</div><div class="body"><strong>2. AI 메뉴 인식</strong><div class="desc">OCR로 한 달 메뉴 자동 추출. 정확하지 않으면 직접 수정 가능.</div></div></div>
     <div class="step"><div class="icon">📊</div><div class="body"><strong>3. 7축 영양 분석</strong><div class="desc">식품군 다양성·영양소·반복도·알레르겐·가공식품·제철·조리법 7가지 자동 점수화.</div></div></div>
     <div class="step"><div class="icon">💡</div><div class="body"><strong>4. 가정 보충 가이드</strong><div class="desc">부족한 영양은 집에서 어떻게 채울지 구체적 레시피로 안내.</div></div></div>
@@ -398,7 +398,7 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <h2>📋 이번 달 식단표 평가</h2>
-    <p class="desc">어디서 받은 식단인지 묻지 않아요 — 평가만 도와드릴게요.</p>
+    <p class="desc">사진 1장이면 30초 만에 우리 원 영양 점수를 알려드려요.</p>
 
     <!-- 출생년월 입력 제거(이사님 2026-06-22): 만 3-7세 기준 평가라 연령 입력 불필요 -->
 
@@ -415,7 +415,7 @@
         <label style="font-size:12px;color:var(--n600);font-weight:700;white-space:nowrap">식단표 해당 월</label>
         <input type="month" id="instMonth" onchange="checkExistingMenu()" style="padding:7px 9px;border:1.5px solid var(--n200);border-radius:8px;font-size:13px;font-weight:600">
       </div>
-      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.6"><strong style="color:var(--s800)">한두 글자만 쳐도 목록이 자동완성</strong>돼요 — 골라주세요. 선택하면 <strong style="color:var(--p700)">전국·우리 지역 영양 순위</strong>까지 보여드려요 <span style="color:var(--n400)">(선택 안 해도 평가는 진행)</span></div>
+      <div style="font-size:11px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.6"><strong style="color:var(--s800)">한두 글자만 쳐도 목록이 자동완성</strong>돼요 — 골라주세요. 선택하면 <strong style="color:var(--p700)">전국 영양 순위</strong>까지 보여드려요 <span style="color:var(--n400)">(선택 안 해도 평가는 진행)</span></div>
     </div>
 
     <div class="form-group">
@@ -424,7 +424,7 @@
         <input type="file" id="photoInput" accept="image/*,.pdf" style="display:none" onchange="handlePhotoSelect(this)">
         <div class="em">📸</div>
         <div class="lbl">사진 1장 업로드</div>
-        <div class="sub">JPG · PNG · PDF · 한 달치 또는 일주일치</div>
+        <div class="sub">JPG · PNG · PDF · 한 달치 전체를 올려주세요</div>
       </div>
       <div id="photoPreview" style="display:none;background:#E8F5E9;border:1px solid #4CAF50;border-radius:10px;padding:10px;margin-top:8px;font-size:11.5px;color:#1B5E20;line-height:1.7">
         ✅ 사진 첨부됨 — AI가 식단표를 자동 인식합니다.<br>식단표가 아닌 사진은 자동 거부됩니다.
@@ -433,7 +433,7 @@
 
 
     <button class="modal-cta" id="startBtn" onclick="startAnalysis()" disabled style="opacity:0.4;cursor:not-allowed">📸 식단표 사진을 먼저 선택해주세요</button>
-    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">🔒 <strong style="color:var(--s800)">이름·위치</strong> 같은 개인정보는 <strong style="color:var(--s800)">저장하지 않습니다</strong> · 사진은 분석 후 24시간 내 자동 삭제<br><span style="color:var(--n400)">기관을 선택하면 해당 월 식단·영양점수는 순위 비교를 위해 저장돼요</span></div>
+    <div style="font-size:10.5px;color:var(--n500);text-align:center;margin-top:10px;line-height:1.65;background:var(--n50);padding:9px 11px;border-radius:8px;font-weight:600">📊 <span style="color:var(--n400)">기관을 선택하면 해당 월 식단·영양점수는 순위 비교를 위해 저장돼요</span></div>
   </div>
 </div>
 
