@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-06-23(b) — CLOVA 그리드 OCR 전환 + 점수 모순 버그 수정 + 영양사 SaaS 시장조사</title>
+<meta property="og:title" content="작업 일지 2026-06-23(b) — OCR 비전제거 라이브 전환 · 학부모 점수/등수 모순 버그 수정 · B2B 시장조사 2건">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.bug{background:#FFF5F5;border:1px solid #f3c0c0}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-06-23 (b) · OCR 그리드·점수버그·시장조사 세션 (런칭 세션과 병행)</div>
+  <h1>CLOVA 결정론 그리드 OCR 라이브 전환 — 학부모 점수/등수 모순 치명버그 수정 + 영양사 SaaS 시장조사</h1>
+  <p class="sub">OCR 비전제거 P0~P2 실행·배포(Sonnet 비전 제거) → 점수 이중산식 모순 버그(1위 유치원이 꼴찌로 노출) 수정 → B2B 피벗 시장조사 2건.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">4</div><div class="l">배포 커밋 (전부 라이브)</div></div>
+    <div class="gcard"><div class="n">$500→≈0</div><div class="l">사진 OCR 비전비용 (grid 전환)</div></div>
+    <div class="gcard"><div class="n">82→95</div><div class="l">버그 수정(꼴찌→1위, 162행 정상화)</div></div>
+    <div class="gcard"><div class="n">2건</div><div class="l">B2B 시장조사 (deep-research)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>OCR 비전 제거 — CLOVA 결정론 그리드 라이브 전환</h2><span class="commit">b832930</span></div>
+    <ul class="wl">
+      <li><b>P0 깨끗한 측정</b>: 파서 단일진실(<code>gridParse</code>) + CLOVA 캐시·쓰로틀·429 백오프 + 전수 하네스. 154파일을 zip index→풀패스(1:1)로 dedup — basename 충돌(<code>2025년 10월 식단표.pdf</code> ×3 다른 구)이 과거 측정 오염 원인이었음.</li>
+      <li><b>P1 파서 재구축</b>(이사님 통찰: 요일·정확일자는 영양점수 변별력 0 → "그달 메뉴 전부 추출"): 요일괄호 없는 날짜(N일·M/D·D요일·맨숫자) + slot 디폴트 + 비메뉴셀 필터 + 칸분산 폐지(원산지표 오염 차단). 메뉴추출 <b>78.6%→99.3%</b>(유치원 53.6%→98.6%).</li>
+      <li><b>P2 통합</b>: <code>route.ts</code> grid우선+Sonnet폴백. 채택 게이트=실날짜 격자 &amp; 메뉴≥20(care 합성날짜·비식단 오탐 방어). <b>적대리뷰 워크플로 4차원</b> 통과. Sonnet 대비 식재료 recall <b>94.8%</b>·라이브 점수차 1.5점. grid채택 121/폴백 31(전사깨짐·맨숫자 양식).</li>
+    </ul>
+    <div class="out"><b>라이브</b> · <a href="/daycare-eval.html">daycare-eval</a> 사진경로 grid 100% → <b>Sonnet 비전($0.10/건) 제거</b> · <code>b832930</code> · "신용카드 X·가입 X" 멘트도 제거</div>
+  </section>
+
+  <section class="work bug">
+    <div class="wh"><span class="no">2</span><h2>⚠️ 학부모 점수/등수 모순 치명버그 — 1위 유치원이 "꼴찌"로 노출</h2><span class="commit">dace2dd·11bd40b</span></div>
+    <ul class="wl">
+      <li><b>발견</b>: 광일초병설유치원이 어드민 82점·9/9 꼴찌·상위 100%인데 7축은 전부 90+. <b>근본</b>: <code>institution_scores.score</code>=<code>computeDiversityScore</code>(penalty·82)인데 학부모 화면은 <b>7축 평균(95)</b> 노출, 등수는 82 기준 → 학부모에게 <b>"95점인데 전국 꼴찌(상위 100%)"</b>가 나갔음. penalty(반복·가공)는 7축에 이미 반영된 <b>이중계산</b>.</li>
+      <li><b>수정</b>: 적재 score를 7축 평균으로 단일화 + 기존 <b>162행 재계산</b> + 하위권 순위 미노출(약점 안 보임) + 어드민 단독코호트 등수 차단 + 라벨 <code>반복적음</code>·<code>저가공</code>.</li>
+    </ul>
+    <div class="out"><b>검증</b> · 광일초 <b>82→95점</b> · 9/9 꼴찌→<b>1/9 1위</b> · 상위 100%→<b>11%</b> · 생선 강점. 실제 학부모에게 잘못 나가던 라이브 버그였음.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>영양사 SaaS B2B 피벗 시장조사 2건 (deep-research)</h2><span class="commit">조사 산출</span></div>
+    <ul class="wl">
+      <li><b>① 경쟁지형</b>: 레드오션(식단작성=무료 메뉴젠·통합=재치영양사·학교=NEIS). 빈틈 = 발주·통신문·캘린더 <b>통합 워크플로우</b> + <b>어린이집</b>(NEIS 무풍). 해외 PrimeroEdge·Nutrislice·KidKare 선례. ⚠️ 결제주체·페인포인트·WTP 미검증.</li>
+      <li><b>② 영양사 시간배분</b>(영양교사 3,565명, 2023): 11.14h=영양관리55%+행정31%+교육14%. 시간 1·2위=<b>식단작성·배식</b>. 발주·HACCP은 빈도 최고지만 시간 무게중심 아님(가설 2회 기각). 자동화 표적=<b>식단작성+행정서류(위생일지·통신문)</b>, 비자동화=배식·민원. 어린이집 미규명 → Mom Test 질문지 제공.</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>식단 평가엔진 문서 아카이빙</h2><span class="commit">671d65f</span></div>
+    <ul class="wl">
+      <li><a href="/daycare-eval-engine.html">daycare-eval-engine.html</a>에 아카이브 배너 + 점수기 산식 정정(이중산식→7축평균 통일 기록). docs 허브에서 카드 내리고 <a href="/docs-archive.html">아카이브</a>에 등록.</li>
+    </ul>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션 / 다음</h3>
+    <ul>
+      <li>⭐ <b>어린이집 영양사 5~10명 Mom Test 인터뷰</b>(페인포인트·결제주체·WTP) = B2B 피벗 결정 관문. 질문지 준비됨.</li>
+      <li>CLOVA OCR 일비용 정확 계산 = ncloud 콘솔 건당 단가 확인(공개 안 됨). Sonnet $500/일은 확정 제거.</li>
+      <li>성동구류(맨숫자 양식) grid 점수 −11 원인 디버그하면 폴백 줄여 비용 추가절감(보류).</li>
+      <li>OCR grid 실트래픽 모니터: <code>ocr_logs.model</code>의 <code>clova-grid(real)</code> 채택률·폴백 사유.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-06-23 (b) · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
