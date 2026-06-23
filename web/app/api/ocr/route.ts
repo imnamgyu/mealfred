@@ -180,17 +180,24 @@ export async function POST(req: NextRequest) {
     const ext = (file.type.split('/')[1] || 'jpeg').toLowerCase();
     const format = ext === 'jpeg' ? 'jpg' : (['jpg', 'png', 'tiff', 'pdf'].includes(ext) ? ext : 'jpg');
 
-    // 1) 원본 사진 Storage 저장
+    // 1) 원본 사진 Storage 저장 — CLOVA·Sonnet 분석과 '병렬'로 돌려 부모 대기에 0초 추가(이사님 2026-06-23).
+    //    이미지는 어드민 검수용일 뿐 부모 결과(점수)와 무관 → 실패해도 분석은 진행. 최대 3회 재시도(분석 1~2분 창 안에 다 들어감).
     const ts = new Date().toISOString().replace(/[:.]/g, '-');
     const storagePath = `eval-photos/${ts}_${file.name.replace(/[^a-zA-Z0-9가-힣._-]/g, '_')}`;
-    let imageUrl: string | null = null;
-    const { error: uploadErr } = await supabase.storage
-      .from('eval-uploads')
-      .upload(storagePath, buffer, { contentType: file.type, upsert: false });
-    if (!uploadErr) {
-      const { data: urlData } = supabase.storage.from('eval-uploads').getPublicUrl(storagePath);
-      imageUrl = urlData?.publicUrl || null;
-    }
+    const uploadImage = async (): Promise<string | null> => {
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const { error } = await supabase.storage.from('eval-uploads')
+          .upload(storagePath, buffer, { contentType: file.type, upsert: attempt > 1 });
+        if (!error) {
+          const { data: urlData } = supabase.storage.from('eval-uploads').getPublicUrl(storagePath);
+          return urlData?.publicUrl || null;
+        }
+        console.warn(`[ocr] 이미지 업로드 실패(시도 ${attempt}/3): ${error.message}`);
+        if (attempt < 3) await new Promise((r) => setTimeout(r, 300 * attempt));
+      }
+      return null;
+    };
+    const imagePromise: Promise<string | null> = uploadImage().catch(() => null);   // await 안 함 — 분석과 병렬, 응답 직전 회수
 
     // 2) CLOVA OCR 전사
     let ocrText = '';
@@ -273,6 +280,7 @@ export async function POST(req: NextRequest) {
     }
 
     const durationMs = Date.now() - startMs;
+    const imageUrl = await imagePromise;   // 병렬 업로드 결과 회수 — CLOVA·Sonnet 시간(1~2분) 안에 이미 끝나 있음
     const { data: logRow } = await supabase.from('ocr_logs').insert({
       image_url: imageUrl,
       storage_path: storagePath,
