@@ -38,7 +38,8 @@ code{background:#E9F5F0;border-radius:5px;padding:1px 5px;font-size:11.5px;font-
 footer{text-align:center;color:var(--mut);font-size:11.5px;padding:24px 0 0;border-top:1px solid var(--line);margin-top:48px}
 </style></head><body><div class="wrap">
 
-<h1>OCR 비전 제거 — 결정론 CLOVA 그리드 <span style="color:var(--p7)">(빌드 플랜)</span><span class="tag plan">계획</span></h1>
+<h1>OCR 비전 제거 — 결정론 CLOVA 그리드 <span style="color:var(--p7)">(빌드 플랜)</span><span class="tag plan" style="background:#9a8a7a;color:#fff">📦 아카이브</span></h1>
+<div style="background:#FFF7ED;border:1.5px solid #C45A00;border-radius:12px;padding:13px 16px;margin:14px 0;font-size:13.5px;line-height:1.7">📦 <b>아카이브 (2026-06-23 구현 완료)</b> — 이 빌드플랜은 <b>P0~P2 전부 구현·라이브 배포 완료</b>. CLOVA 결정론 그리드가 <code>/api/ocr</code>에 통합돼 사진경로 Sonnet 비전 제거(grid 우선 + 부족 시 Sonnet 폴백). 결과: 메뉴추출 <b>99.3%</b>(유치원 53.6%→98.6%), Sonnet 대비 영양점수차 1.5점. <b>비용: 일 ~₩78.5만 → ~₩11만(약 86%↓ · CLOVA 표추출 ₩22/건 기준)</b> — 본문의 "$500→$5"는 CLOVA 단가 미반영 낙관치였음(실제 표추출 ₩22/건). 다음 최적화: 글자추출(₩3) 좌표 재구성 시 추가 7배↓ 여지.</div>
 <div style="background:linear-gradient(135deg,#0E7C66,#0A5C4C);color:#fff;border-radius:14px;padding:18px 22px;margin:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.15)">
   <div style="font-size:19px;font-weight:800;margin-bottom:6px">💰 목표 — 식단표 OCR에서 Sonnet 비전 제거 → 비용 ~99%↓</div>
   <div style="font-size:13.5px;line-height:1.7;color:#e3f2ec">
