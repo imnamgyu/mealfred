@@ -179,19 +179,20 @@ async function main() {
       const sc = scoreInstitutionMonth(items);
       if (sc.dayCount < 3) { skip.push(`${inst.name} ${month}: 표본<3일`); continue; }
       const dims = computeStandoutDims(items, month);
-      const axes = computeSevenAxes(items, month);   // ⭐ 7축(어드민 리스트 컬럼) — 누락 시 "—"로 떠서 추가(이사님 2026-06-23)
+      const axes = computeSevenAxes(items, month);   // ⭐ 7축(어드민 리스트 컬럼)
+      const sevenAvg = Math.round(Object.values(axes).reduce((a, b) => a + (b as number), 0) / Object.values(axes).length);   // ⭐ 공식 총점 = 7축 평균(학부모 daycare-eval total과 동일 산식) — computeDiversityScore penalty 이중계산 제거(이사님 2026-06-23)
       standoutDump[`${inst.id}|${month}`] = dims;
       const mr = await (await fetch(`${URL_}/rest/v1/institution_menus?on_conflict=institution_id,month`, { method: 'POST', headers: { ...H, Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ institution_id: inst.id, month, source: 'seoul_import', updated_at: new Date().toISOString() }) })).json();
       const menuId = mr?.[0]?.id; if (!menuId) { skip.push(`${inst.name} ${month}: menus upsert 실패`); continue; }
       await fetch(`${URL_}/rest/v1/institution_menu_items?institution_menu_id=eq.${menuId}`, { method: 'DELETE', headers: H });
       const rows = buildMenuItemRows(items, month, menuId);
       if (rows.length) await fetch(`${URL_}/rest/v1/institution_menu_items`, { method: 'POST', headers: H, body: JSON.stringify(rows) });
-      const score: Record<string, unknown> = { institution_id: inst.id, month, type, sido: inst.sido, sigungu: inst.sigungu, score: sc.score, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat, red_groups: sc.redGroups, day_count: sc.dayCount, item_count: sc.itemCount, computed_at: new Date().toISOString() };
+      const score: Record<string, unknown> = { institution_id: inst.id, month, type, sido: inst.sido, sigungu: inst.sigungu, score: sevenAvg, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat, red_groups: sc.redGroups, day_count: sc.dayCount, item_count: sc.itemCount, computed_at: new Date().toISOString() };
       if (hasStandout) score.standout_dims = dims;
       score.axes = axes;
       await fetch(`${URL_}/rest/v1/institution_scores?on_conflict=institution_id,month`, { method: 'POST', headers: { ...H, Prefer: 'resolution=merge-duplicates' }, body: JSON.stringify(score) });
       inserted++;
-      console.log(`  ✓ ${inst.name}(${gu}·${type === 'daycare' ? '어' : '유'}) ${month} → ${sc.score}점 (${sc.dayCount}일)`);
+      console.log(`  ✓ ${inst.name}(${gu}·${type === 'daycare' ? '어' : '유'}) ${month} → ${sevenAvg}점 (${sc.dayCount}일)`);
     }
   }
   if (!hasStandout) { fs.writeFileSync(path.join(process.cwd(), 'scripts', '_standout_backfill.json'), JSON.stringify(standoutDump)); console.log(`\nstandout 백필 덤프: scripts/_standout_backfill.json (${Object.keys(standoutDump).length}개월)`); }

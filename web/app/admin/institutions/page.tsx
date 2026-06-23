@@ -86,7 +86,7 @@ export default async function InstitutionsPage() {
       score: s.score,
       dayCount: s.day_count || 0,
       rank, total,
-      topPercent: total ? Math.max(1, Math.round((rank / total) * 100)) : null,
+      topPercent: total > 1 ? Math.max(1, Math.round((rank / total) * 100)) : null,   // 단독(코호트 1개)이면 등수 무의미 → null('상위 100%' 표시 차단·이사님 2026-06-23)
       standout: standoutOf(s),
       fish: r1(d.fishFrequency), legume: r1(d.legumeFrequency), veg: Math.round(d.vegVariety || 0), lowProc: pc(d.lowProcessed),
       axes: axesMap[`${s.institution_id}|${s.month}`] || null,

@@ -1359,9 +1359,11 @@ async function attributeAndRank(items, ocrText, imageUrls){
 }
 function renderRank(d){
   if(!d || !d.ranked) return '';
-  const rankBody = (d.nationalTotal>1 && d.topPercent)
+  // ⭐ 하위권 순위는 절대 미노출(컨셉='약점 안 보임'). 표본 충분(≥5) + 상위 절반(≤50%)일 때만 '상위 X%' 표시. 그 외엔 긍정 중립문구('상위 100%=꼴찌' 노출 버그 차단·이사님 2026-06-23)
+  const goodRank = d.nationalTotal >= 5 && d.topPercent && d.topPercent <= 50;
+  const rankBody = goodRank
     ? `전국 ${d.typeLabel} <strong style="color:var(--p700);font-size:21px">상위 ${d.topPercent}%</strong><div style="font-size:10.5px;color:var(--n400);font-weight:600;margin-top:5px">사실상 다 같이 최상위권 — 차이는 종이 한 장이에요</div>`
-    : `<span style="color:var(--n500);font-weight:600">아직 비교할 기관이 모이는 중이에요 — 그래도 우리 원은 충분히 훌륭해요 🙂</span>`;
+    : `<span style="color:var(--n500);font-weight:600">우리 원 식단은 영양사 선생님·어린이급식관리지원센터가 함께 챙겨서 충분히 훌륭해요 🙂</span>`;
   const standout = d.standout ? `<div style="background:linear-gradient(135deg,#FFF3E0,#FFFDE7);border:1.5px solid #FFCC80;border-radius:10px;padding:11px 12px;margin:10px 0">
     <div style="font-size:11px;font-weight:800;color:#E65100;margin-bottom:3px">⭐ 우리 원의 빛나는 강점</div>
     <div style="font-size:13px;font-weight:700;color:var(--s800);line-height:1.5">${d.standout.phrase}</div>
