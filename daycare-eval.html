@@ -418,15 +418,18 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">━ 식단표 사진 ━</label>
+      <label class="form-label">━ 종이 식단표(한 달 메뉴표) ━</label>
       <div class="upload-zone" onclick="document.getElementById('photoInput').click()">
         <input type="file" id="photoInput" accept="image/*,.pdf" style="display:none" onchange="handlePhotoSelect(this)">
-        <div class="em">📸</div>
-        <div class="lbl">사진 1장 업로드</div>
-        <div class="sub">JPG · PNG · PDF · 한 달치 전체를 올려주세요</div>
+        <div class="em">📋</div>
+        <div class="lbl">한 달 식단표 사진 올리기</div>
+        <div class="sub">어린이집·유치원에서 받은 <b>종이 메뉴 달력</b> · JPG·PNG·PDF</div>
+      </div>
+      <div style="background:#FFF4E5;border:1.5px solid #FFD8A8;border-radius:10px;padding:10px 12px;margin-top:8px;font-size:12px;color:#9A3412;line-height:1.6;font-weight:600">
+        ⚠️ <b style="color:#C2410C">음식·식판 사진은 평가가 안 돼요.</b><br><span style="color:#7C2D12">📋 종이에 적힌 <b>한 달 메뉴 달력(식단표)</b>을 찍어 올려주세요!</span>
       </div>
       <div id="photoPreview" style="display:none;background:#E8F5E9;border:1px solid #4CAF50;border-radius:10px;padding:10px;margin-top:8px;font-size:11.5px;color:#1B5E20;line-height:1.7">
-        ✅ 사진 첨부됨 — AI가 식단표를 자동 인식합니다.<br>식단표가 아닌 사진은 자동 거부됩니다.
+        ✅ 사진 첨부됨 — AI가 한 달 식단표를 자동으로 읽어드려요.
       </div>
     </div>
 
@@ -1472,7 +1475,7 @@ async function startAnalysis(){
     }
     if(!data.is_menu){
       closeModal('analyzingModal');
-      alert('📋 식단표가 아닌 것 같아요.\n\n' + (data.reason || '식단표 사진을 다시 올려주세요.'));
+      alert('📋 식단표를 인식하지 못했어요.\n\n🍽️ 음식·식판 사진이 아니라,\n어린이집·유치원에서 받은 "한 달 종이 식단표(메뉴 달력)"를 찍어 올려주세요.' + (data.reason ? '\n\n(' + data.reason + ')' : ''));
       return;
     }
     text = data.text || '';

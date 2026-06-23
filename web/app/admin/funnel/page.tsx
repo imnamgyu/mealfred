@@ -57,6 +57,16 @@ export default async function FunnelPage() {
     return d.toISOString().slice(0, 10);
   });
 
+  // 오늘(KST) 런칭 지표 — 식단표 평가 퍼널: ocr_budget(OCR 콜)·ocr_logs(식단표 인식)·institution_scores(기관평가 저장).
+  //   테이블/컬럼 없거나 에러여도 count null → 0으로 안전 degrade.
+  const kstMidnightUtc = `${todayKst}T00:00:00+09:00`;
+  const { data: budgetRow } = await db.from('ocr_budget').select('count').order('day', { ascending: false }).limit(1).maybeSingle();
+  const ocrCalls = (budgetRow as { count: number } | null)?.count ?? 0;
+  const { count: menuOkCnt } = await db.from('ocr_logs').select('id', { count: 'exact', head: true }).gte('created_at', kstMidnightUtc).eq('is_menu', true);
+  const { count: evalSavedCnt } = await db.from('institution_scores').select('institution_id', { count: 'exact', head: true }).gte('computed_at', kstMidnightUtc);
+  const menuOk = menuOkCnt ?? 0;
+  const evalSaved = evalSavedCnt ?? 0;
+
   const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
   const Stage = ({ n, base, color }: { n: number; base: number; color: string }) => (
     <td style={{ padding: '9px 10px', textAlign: 'right', whiteSpace: 'nowrap' }}>
@@ -83,6 +93,22 @@ export default async function FunnelPage() {
           ⚠️ 집계 함수가 아직 없어요. <code>sql/2026-06-05_funnel_cohort.sql</code>을 Supabase SQL Editor에서 1회 실행하면 숫자가 채워집니다.
         </div>
       )}
+
+      {/* 오늘(런칭) 식단표 평가 실시간 스트립 */}
+      <div style={{ marginBottom: 14, padding: '12px 16px', background: 'linear-gradient(135deg,#FFF1F2,#FFF7ED)', border: '1.5px solid #FECACA', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: '#DC2626', whiteSpace: 'nowrap' }}>🔴 오늘 식단표 평가 <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>({todayKst} KST)</span></div>
+        {[
+          { l: 'OCR 분석 콜', n: ocrCalls, c: '#1a2b4a' },
+          { l: '식단표 인식', n: menuOk, c: '#16A085' },
+          { l: '기관 평가 저장', n: evalSaved, c: '#C45A00' },
+        ].map((x) => (
+          <div key={x.l} style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 22, fontWeight: 800, color: x.c, lineHeight: 1.1 }}>{x.n}</span>
+            <span style={{ fontSize: 11, color: '#6B7280', fontWeight: 700 }}>{x.l}</span>
+          </div>
+        ))}
+        <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 'auto' }}>우상단 ⚪실시간 켜면 20초 자동 갱신</span>
+      </div>
 
       {/* KPI */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
@@ -123,9 +149,10 @@ export default async function FunnelPage() {
             {dates.map((d) => {
               const c = coh[d] || { signup: 0, child: 0, meal: 0 };
               const v = visitByDay[d] || 0;
+              const isToday = d === todayKst;
               return (
-                <tr key={d} style={{ borderBottom: '1px solid #F3F3F1' }}>
-                  <td style={{ padding: '9px 10px', color: '#374151', fontWeight: 600 }}>{label(d)}</td>
+                <tr key={d} style={{ borderBottom: '1px solid #F3F3F1', background: isToday ? '#FEF9C3' : undefined }}>
+                  <td style={{ padding: '9px 10px', color: '#374151', fontWeight: isToday ? 800 : 600 }}>{label(d)}{isToday ? ' · 오늘' : ''}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'right', fontWeight: 700, color: '#6B7280' }}>{v}</td>
                   <td style={{ padding: '9px 10px', textAlign: 'right', fontWeight: 800, color: '#1a2b4a' }}>{c.signup}</td>
                   <Stage n={c.child} base={c.signup} color="#C45A00" />
