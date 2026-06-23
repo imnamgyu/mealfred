@@ -1159,20 +1159,21 @@ function homeIngredientTips(result, ageBand){
   const young = ageBand === 'younger' || ageBand === '3-4y';
   const foundNames = new Set((result.matched||[]).map(m=>m.nm));
   const foundCats = new Set((result.matched||[]).map(m=>m.cat));
-  const cand = [];
+  // ⭐ 카테고리당 '대표 1개'만(이사님 2026-06-23) — 5개가 서로 다른 식품군이 되게(전부 곡물 같은 쏠림 방지).
+  //   각 군 리스트는 등장빈도/대표성 높은 순 → 그 군에 '빠진' 첫 식재료 = 대표 추천.
+  const perCat = [];
   Object.entries(CATEGORY_ESSENTIALS).forEach(([cat, {must, rec}])=>{
-    const absent = !foundCats.has(cat);
-    [...must, ...rec].forEach(n=>{
+    for(const n of [...must, ...rec]){
       const base = n.replace('(대두)','').replace('버섯','');
-      if(foundNames.has(n) || foundNames.has(base)) return;
-      if(young && n === '땅콩') return;
+      if(foundNames.has(n) || foundNames.has(base)) continue;
+      if(young && n === '땅콩') continue;
       const disp = (young && (n === '아몬드' || n === '호두')) ? n + '(갈아서)' : n;
-      cand.push({ disp, base, absent });
-    });
+      perCat.push({ cat, disp, base, absent: !foundCats.has(cat) });
+      break;   // 카테고리당 1개만
+    }
   });
-  cand.sort((a,b)=> a.absent === b.absent ? 0 : (a.absent ? -1 : 1));   // 식단에 아예 없는 군 먼저
-  const seen = new Set(); const top = [];
-  for(const c of cand){ if(seen.has(c.base)) continue; seen.add(c.base); top.push(c); if(top.length>=5) break; }
+  perCat.sort((a,b)=> a.absent === b.absent ? 0 : (a.absent ? -1 : 1));   // 식품군이 통째로 빠진 군 먼저
+  const top = perCat.slice(0, 5);
   if(!top.length) return '';
   const benefitOf = (base)=>{ for(const nut of (NUTRI_MAP[base]||[])){ const b=NUTRI_BENEFIT[nut]; if(b) return `${b.e} ${b.t}`; } return '🌱 영양 보충'; };
   return top.map(t=> `<div class="insight-row"><span class="em">🛒</span><strong>${t.disp}</strong> — ${benefitOf(t.base)}에 좋아요</div>`).join('');
