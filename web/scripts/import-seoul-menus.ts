@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { execSync } from 'child_process';
-import { scoreInstitutionMonth, computeStandoutDims, buildMenuItemRows, type OcrMenuItem } from '../lib/institutionScore.ts';
+import { scoreInstitutionMonth, computeStandoutDims, computeSevenAxes, buildMenuItemRows, type OcrMenuItem } from '../lib/institutionScore.ts';
 
 const BASE = process.env.MENU_BASE || '/Users/ing/Downloads/서울';   // MENU_BASE로 비서울 폴더 지정(예: /tmp/menu-import/부산)
 const SIDO = process.env.MENU_SIDO || '서울특별시';                    // MENU_SIDO로 비서울 시도 매칭(예: 부산광역시)
@@ -179,6 +179,7 @@ async function main() {
       const sc = scoreInstitutionMonth(items);
       if (sc.dayCount < 3) { skip.push(`${inst.name} ${month}: 표본<3일`); continue; }
       const dims = computeStandoutDims(items, month);
+      const axes = computeSevenAxes(items, month);   // ⭐ 7축(어드민 리스트 컬럼) — 누락 시 "—"로 떠서 추가(이사님 2026-06-23)
       standoutDump[`${inst.id}|${month}`] = dims;
       const mr = await (await fetch(`${URL_}/rest/v1/institution_menus?on_conflict=institution_id,month`, { method: 'POST', headers: { ...H, Prefer: 'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ institution_id: inst.id, month, source: 'seoul_import', updated_at: new Date().toISOString() }) })).json();
       const menuId = mr?.[0]?.id; if (!menuId) { skip.push(`${inst.name} ${month}: menus upsert 실패`); continue; }
@@ -187,6 +188,7 @@ async function main() {
       if (rows.length) await fetch(`${URL_}/rest/v1/institution_menu_items`, { method: 'POST', headers: H, body: JSON.stringify(rows) });
       const score: Record<string, unknown> = { institution_id: inst.id, month, type, sido: inst.sido, sigungu: inst.sigungu, score: sc.score, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat, red_groups: sc.redGroups, day_count: sc.dayCount, item_count: sc.itemCount, computed_at: new Date().toISOString() };
       if (hasStandout) score.standout_dims = dims;
+      score.axes = axes;
       await fetch(`${URL_}/rest/v1/institution_scores?on_conflict=institution_id,month`, { method: 'POST', headers: { ...H, Prefer: 'resolution=merge-duplicates' }, body: JSON.stringify(score) });
       inserted++;
       console.log(`  ✓ ${inst.name}(${gu}·${type === 'daycare' ? '어' : '유'}) ${month} → ${sc.score}점 (${sc.dayCount}일)`);
