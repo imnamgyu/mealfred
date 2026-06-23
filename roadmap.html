@@ -138,7 +138,7 @@ gantt
       <li><strong>M12 AI 추천 레시피 + 운영 대시보드</strong> — 코칭 엔진 완료, 추천·대시보드 확장 남음</li>
       <li><strong>M13 B2B 기부 + 밀프레드 박스 정식 + RCT</strong></li>
     </ul>
-    <p style="font-size:11.5px;color:#9a7a40;margin-top:10px;font-weight:600">+ 백로그: <strong>learned_menus SQL 실행(학습 활성화)</strong> · 영양 오매핑 재매핑(아몬드→"아몬드음료") · 미매핑 12종(KDRI) 농진청 성분 보강 · 박스 배합 알고리즘 · 홈 식품군 8개 주간 선차트 · 부모 홈에 기간요약(이번 달) 노출</p>
+    <p style="font-size:11.5px;color:#9a7a40;margin-top:10px;font-weight:600">+ 백로그: <strong>learned_menus SQL 실행(학습 활성화)</strong> · 영양 오매핑 재매핑(아몬드→"아몬드음료") · 미매핑 12종(KDRI) 농진청 성분 보강 · 박스 배합 알고리즘 · 홈 식품군 8개 주간 선차트 · 부모 홈에 기간요약(이번 달) 노출 · <strong>OCR 비전 제거(결정론 CLOVA 그리드, $500→$5/일 — 아래 OCR 카드)</strong></p>
   </div>
 </section>
 
@@ -502,6 +502,32 @@ gantt
   </div>
   <div class="ms-deploy">🚀 배포 #14: SCALE 단계 진입</div>
   <div class="ms-dep">의존성: M10, M12</div>
+</div>
+
+<div class="ms-card next">
+  <div class="head">
+    <div><span class="ms-id">OCR</span> <span class="ms-title">결정론 CLOVA 그리드 — Sonnet 비전 제거 (OCR 비용 99%↓)</span></div>
+    <span class="ms-duration">~3일 · 런칭 안정화 후</span>
+  </div>
+  <div class="ms-body">
+    <div class="ms-block"><h5>배경·근거</h5><ul>
+      <li>현재 <code>/api/ocr</code>는 날짜↔메뉴 매핑을 Claude Sonnet 비전으로 처리(콜당 ~$0.10)</li>
+      <li>CLOVA 표 인식(rowIndex·columnIndex)만으로 결정론 매핑 가능 → 비전 제거 시 <strong>5k콜/일 ~$500→$5</strong></li>
+      <li>현황: 실날짜 4포맷 + 주차폴백 구현, 단일사진 12/12=100%. /api/ocr 미통합·일부 레이아웃 갭</li>
+    </ul></div>
+    <div class="ms-block"><h5>단계 (P0~P3)</h5><ul>
+      <li>P0 깨끗한 측정 — 전체경로 중복제거 + CLOVA 쓰로틀 전수 → 진짜 커버리지% (0.5일)</li>
+      <li>P1 파서 갭 메우기 — 0-date 레이아웃 진단·정규식/폴백 확장 (1일)</li>
+      <li>P2 /api/ocr 통합 — 그리드우선+Sonnet폴백, shadow모드 비교, 단일이미지부터 (1일)</li>
+      <li>P3 검증·확대 — ocr_logs method 필드 모니터, 안정 후 PDF까지 (0.5일)</li>
+    </ul></div>
+    <div class="ms-block"><h5>DoD</h5><ul>
+      <li>단일사진(부모 경로) 그리드 적중 ≥95%, Sonnet은 폴백만</li>
+      <li>단일사진 OCR 비용 ~0 (CLOVA만)</li>
+      <li>shadow 비교로 그리드=Sonnet 정확도 검증 후 전환</li>
+    </ul></div>
+  </div>
+  <div class="ms-deploy">⏰ 타이밍: 런칭 트래픽 안정화 후 P0부터 (런칭 중 OCR 경로 교체 위험) · 작성 2026-06-23</div>
 </div>
 
 <section>
