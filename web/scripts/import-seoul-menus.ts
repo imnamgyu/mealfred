@@ -10,7 +10,8 @@ import os from 'os';
 import { execSync } from 'child_process';
 import { scoreInstitutionMonth, computeStandoutDims, buildMenuItemRows, type OcrMenuItem } from '../lib/institutionScore.ts';
 
-const BASE = '/Users/ing/Downloads/서울';
+const BASE = process.env.MENU_BASE || '/Users/ing/Downloads/서울';   // MENU_BASE로 비서울 폴더 지정(예: /tmp/menu-import/부산)
+const SIDO = process.env.MENU_SIDO || '서울특별시';                    // MENU_SIDO로 비서울 시도 매칭(예: 부산광역시)
 const OCR_URL = process.env.OCR_URL || 'https://app.mealfred.com/api/ocr';   // 로컬 OCR(미배포 스키마 테스트): OCR_URL=http://localhost:3000/api/ocr
 const CONC = 4;
 const TYPE: Record<string, string> = { '어린이집': 'daycare', '유치원': 'kindergarten' };
@@ -87,11 +88,11 @@ async function ocrFile(file: string): Promise<OcrOut> {
 
 async function matchInst(name: string, type: string, gu: string) {
   const norm = name.replace(/\s/g, '');
-  let d = await rest(`institutions?select=id,name,type,sido,sigungu&type=eq.${type}&sigungu=eq.${enc(gu)}&name_norm=ilike.${enc('%' + norm + '%')}&limit=5`);
+  let d = await rest(`institutions?select=id,name,type,sido,sigungu&type=eq.${type}&sido=eq.${enc(SIDO)}&sigungu=eq.${enc(gu)}&name_norm=ilike.${enc('%' + norm + '%')}&limit=5`);
   let hit = (d || []).find((x: any) => x.name.replace(/\s/g, '') === norm) || (d || [])[0];
   if (hit) return hit;
-  // ⭐ 2차 폴백 = 같은 시도(서울) + 정확 이름만 — 시도 넘는 오매칭(안성시 햇병아리) 방지(이사님 2026-06-22)
-  d = await rest(`institutions?select=id,name,type,sido,sigungu&type=eq.${type}&sido=eq.${enc('서울특별시')}&name_norm=ilike.${enc('%' + norm + '%')}&limit=8`);
+  // ⭐ 2차 폴백 = 같은 시도(SIDO) + 정확 이름만 — 시도 넘는 오매칭(안성시 햇병아리) 방지(이사님 2026-06-22). MENU_SIDO로 비서울.
+  d = await rest(`institutions?select=id,name,type,sido,sigungu&type=eq.${type}&sido=eq.${enc(SIDO)}&name_norm=ilike.${enc('%' + norm + '%')}&limit=8`);
   return (d || []).find((x: any) => x.name.replace(/\s/g, '') === norm) || null;
 }
 
@@ -147,7 +148,8 @@ async function main() {
         const reason = d.reason || '', text = d.text || '';
         // ⭐ 기관명: OCR 전용 필드(institution_name) 우선 → reason/text 폴백(이사님 2026-06-22, 9폴더 추출실패 근본수정)
         const instName = (d.institution_name || '').trim();
-        const name = (instName.match(NAME_RE) || [])[1] || instName || (reason.match(NAME_RE) || [])[1] || (text.match(NAME_RE) || [])[1] || null;
+        // ⭐ 정식 기관명(…어린이집/유치원)을 instName·파일명·reason·text 어디서든 우선 추출 → 다 없을 때만 raw OCR명(이사님 2026-06-23, 범일 '범일 건강 식단' 오독 회수)
+        const name = (instName.match(NAME_RE) || [])[1] || (f.fn.match(NAME_RE) || [])[1] || (reason.match(NAME_RE) || [])[1] || (text.match(NAME_RE) || [])[1] || instName || null;
         results.push({ ...f, isMenu: !!d.is_menu, name, month: monthOf(text, reason, f.fn), items: Array.isArray(d.items) ? d.items : [] });
       } catch (e) { results.push({ ...f, error: String(e).slice(0, 80) }); }
       done++; if (done % 8 === 0 || done === targets.length) console.log(`  OCR ${done}/${targets.length}`);
