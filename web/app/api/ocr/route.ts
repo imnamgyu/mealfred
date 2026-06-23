@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import { mapMenuLocal } from '@/lib/menuMap';   // 결정론 메뉴→식재료(농진청 표준명) — items에 부착해 평가/표시가 식재료 0종 안 나게
+import { parseImageTables, ymFromName, type GridItem } from '@/lib/gridDateMapCore';   // P2: CLOVA 표만으로 날짜↔메뉴 결정론 매핑(비전 제거)
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const supabase = createClient(
@@ -12,6 +13,16 @@ const supabase = createClient(
 
 const CLOVA_OCR_URL = process.env.CLOVA_OCR_URL || '';
 const CLOVA_OCR_SECRET = process.env.CLOVA_OCR_SECRET || '';
+
+// ── 결정론 CLOVA 그리드(비전 제거 — 이사님 2026-06-23 즉시 적용) ──
+//   CLOVA 표만으로 날짜↔메뉴 매핑. grid가 실날짜 격자로 충분(method='real' & 실날짜메뉴≥GRID_MIN)하면 Sonnet 비전 스킵(비용~99%↓),
+//   부족(전사깨짐·비식단·합성날짜)하면 Sonnet 폴백. ocr_logs.model에 grid 요약 부기로 실트래픽 모니터. 롤백은 git revert.
+const GRID_MIN = Number(process.env.OCR_GRID_MIN || 20);                   // grid 실날짜 메뉴 충분성 임계(이 미만이면 Sonnet 폴백)
+const KR_SLOT: Record<string, string> = { lunch: '점심', am_snack: '오전간식', pm_snack: '오후간식' };
+// grid item → 응답 item(끼니 한글화·합성날짜는 빈 date). date 변별력 0이라 합성은 버려도 점수 무관.
+function gridToResponseItems(items: GridItem[]) {
+  return items.map((it) => ({ date: /^\d+$/.test(it.date) ? it.date : '', day: it.wd || '', slot: KR_SLOT[it.slot] || '점심', menu: it.menu }));
+}
 
 function getCorsHeaders(req?: NextRequest) {
   const origin = req?.headers.get('origin') || '';
@@ -119,7 +130,7 @@ async function clovaOcr(base64: string, format: string, tableDetection: boolean)
 }
 
 // CLOVA 결과 → 텍스트 (표 셀 우선, 없으면 필드 줄바꿈)
-function reconstructText(clova: ClovaResp): string {
+function reconstructText(clova: ClovaResp | null): string {
   const image = clova?.images?.[0];
   if (!image) return '';
   let out = '';
@@ -201,18 +212,18 @@ export async function POST(req: NextRequest) {
 
     // 2) CLOVA OCR 전사
     let ocrText = '';
+    let clovaResp: ClovaResp | null = null;
     try {
-      let clova: ClovaResp;
       try {
-        clova = await clovaOcr(base64, format, true);     // 표 셀 인식 우선
+        clovaResp = await clovaOcr(base64, format, true);     // 표 셀 인식 우선
       } catch (e1) {
         const m1 = e1 instanceof Error ? e1.message : '';
         if (m1.includes('Table detection disabled') || m1.includes('0028')) {
           console.warn('[ocr] 표 추출 비활성 도메인 → 일반 OCR 폴백');
-          clova = await clovaOcr(base64, format, false);  // 일반 OCR 폴백
+          clovaResp = await clovaOcr(base64, format, false);  // 일반 OCR 폴백
         } else { throw e1; }
       }
-      ocrText = reconstructText(clova);
+      ocrText = reconstructText(clovaResp);
       console.log('[ocr] CLOVA 전사 길이:', ocrText.length);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'CLOVA 오류';
@@ -223,43 +234,63 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ is_menu: false, reason: '사진에서 글자를 읽지 못했어요. 더 선명한 사진으로 시도해주세요.' }, { headers: cors });
     }
 
-    // 3) Claude(Sonnet)로 메뉴 추출+날짜 매핑.
-    //    CLOVA 텍스트는 글자가 정확하지만 표 인식이 꺼진 도메인에선 빈 칸(공휴일·잔반없는날)이 무너져
-    //    날짜가 한 칸씩 밀린다(목/금 메뉴가 수/목으로 당겨짐). 그래서 원본 이미지를 함께 넣어
-    //    '메뉴 글자=텍스트, 날짜 매핑=이미지 격자'로 분리 처리 → 빈 칸을 건너뛰고 날짜를 정확히 맞춘다.
-    //    날짜 격자 정렬은 비전이 약한 Haiku로는 밀집 표에서 흔들려 Sonnet 사용(월 1회 업로드라 비용 무시 가능).
-    const VISION_MEDIA: Record<string, 'image/jpeg' | 'image/png'> = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png' };
-    const mediaType = VISION_MEDIA[format];   // jpg/png만 비전 첨부, 그 외(pdf/tiff)는 텍스트만
-    const content: Anthropic.MessageParam['content'] = [];
-    if (mediaType) content.push({ type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } });
-    content.push({ type: 'text', text: `${DECOMPOSE_PROMPT}\n\n[OCR 추출 텍스트]\n${ocrText}` });
-    const decomp = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8192,   // 한 달치 식단표는 초과해 잘릴 수 있어 아래 stop_reason로 안내
-      output_config: { format: { type: 'json_schema', schema: MENU_SCHEMA } },
-      messages: [{ role: 'user', content }],
-    });
-    const textBlock = decomp.content.find((b) => b.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
-      return NextResponse.json({ error: '분해 실패' }, { status: 500, headers: cors });
-    }
-    // 출력이 토큰 한도로 잘렸으면 JSON 불완전 → 파싱 말고 '한 주씩' 안내(500 방지). 한 달치 식단표가 주원인.
-    if (decomp.stop_reason === 'max_tokens') {
-      await supabase.from('ocr_logs').insert({ is_menu: false, reject_reason: 'truncated: max_tokens', duration_ms: Date.now() - startMs, model: 'clova-ocr+claude-sonnet-4-6', input_tokens: decomp.usage?.input_tokens || 0, output_tokens: decomp.usage?.output_tokens || 0 });
-      return NextResponse.json({ is_menu: false, reason: '식단표가 커서 한 번에 다 읽지 못했어요 — 한 주(또는 2주)씩 잘라서 올려주시면 정확히 읽어드려요.' }, { headers: cors });
-    }
+    // 2.5) 결정론 그리드 파싱(CLOVA 표만, 비전 0) — shadow 비교용 + (GRID_MODE='on') Sonnet 대체 후보.
+    const ym = ymFromName(file.name);
+    let grid: ReturnType<typeof parseImageTables> | null = null;
+    try { grid = parseImageTables(clovaResp?.images?.[0], ym); } catch { grid = null; }
+    // 채택 게이트: care 저장부가 숫자 date(1~31)만 수용(합성 'N주_' 버림)하고, 비식단 오탐을 막으려면
+    //   method='real'(실날짜 격자)이고 숫자날짜 메뉴가 충분할 때만 grid로 Sonnet을 대체. fallback(주차합성)·부족은 Sonnet 폴백.
+    const gridRealItems = grid ? grid.items.filter((it) => /^\d+$/.test(it.date)).length : 0;
+    const gridEnough = !!grid && grid.method === 'real' && gridRealItems >= GRID_MIN;
+    const gridSummary = grid ? `grid:${grid.method}:${grid.items.length}:real${gridRealItems}` : 'grid:none';   // ocr_logs.model에 부기 → 실트래픽 shadow 비교
+
     let parsed: { is_menu?: boolean; institution_name?: string; reason?: string; text?: string; items?: unknown[] };
-    try {
-      parsed = JSON.parse(textBlock.text);
-    } catch {
-      const m = textBlock.text.match(/\{[\s\S]*\}/);
+    let usedModel: string;
+    let usageIn = 0, usageOut = 0;
+
+    if (gridEnough && grid) {
+      // ── 그리드 우선: CLOVA 표만으로 결정론 매핑 → Sonnet 비전 호출 스킵(비용 ~99%↓) ──
+      usedModel = `clova-grid(${grid.method})|${gridSummary}`;
+      parsed = { is_menu: true, institution_name: '', reason: undefined, text: ocrText, items: gridToResponseItems(grid.items) };
+      console.log('[ocr] 그리드 채택:', grid.items.length, '개 ·', grid.method);
+    } else {
+      // ── Sonnet 폴백(grid 부족=전사깨짐·비식단·합성날짜) — 기존 비전 경로 ──
+      //    CLOVA 텍스트는 글자가 정확하지만 표 인식이 꺼진 도메인에선 빈 칸이 무너져 날짜가 밀린다.
+      //    원본 이미지를 함께 넣어 '메뉴 글자=텍스트, 날짜 매핑=이미지 격자'로 분리 처리.
+      const VISION_MEDIA: Record<string, 'image/jpeg' | 'image/png'> = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png' };
+      const mediaType = VISION_MEDIA[format];   // jpg/png만 비전 첨부, 그 외(pdf/tiff)는 텍스트만
+      const content: Anthropic.MessageParam['content'] = [];
+      if (mediaType) content.push({ type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } });
+      content.push({ type: 'text', text: `${DECOMPOSE_PROMPT}\n\n[OCR 추출 텍스트]\n${ocrText}` });
+      const decomp = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 8192,   // 한 달치 식단표는 초과해 잘릴 수 있어 아래 stop_reason로 안내
+        output_config: { format: { type: 'json_schema', schema: MENU_SCHEMA } },
+        messages: [{ role: 'user', content }],
+      });
+      usedModel = `clova-ocr+claude-sonnet-4-6|${gridSummary}`;   // shadow: grid가 뽑았을 결과 요약을 함께 기록
+      usageIn = decomp.usage?.input_tokens || 0; usageOut = decomp.usage?.output_tokens || 0;
+      const textBlock = decomp.content.find((b) => b.type === 'text');
+      if (!textBlock || textBlock.type !== 'text') {
+        return NextResponse.json({ error: '분해 실패' }, { status: 500, headers: cors });
+      }
+      // 출력이 토큰 한도로 잘렸으면 JSON 불완전 → 파싱 말고 '한 주씩' 안내(500 방지). 한 달치 식단표가 주원인.
+      if (decomp.stop_reason === 'max_tokens') {
+        await supabase.from('ocr_logs').insert({ is_menu: false, reject_reason: 'truncated: max_tokens', duration_ms: Date.now() - startMs, model: usedModel, input_tokens: usageIn, output_tokens: usageOut });
+        return NextResponse.json({ is_menu: false, reason: '식단표가 커서 한 번에 다 읽지 못했어요 — 한 주(또는 2주)씩 잘라서 올려주시면 정확히 읽어드려요.' }, { headers: cors });
+      }
       try {
-        if (!m) throw new Error('no json');
-        parsed = JSON.parse(m[0]);
+        parsed = JSON.parse(textBlock.text);
       } catch {
-        // 잘림 외 깨진 JSON도 500 대신 안내
-        await supabase.from('ocr_logs').insert({ is_menu: false, reject_reason: 'parse_fail', duration_ms: Date.now() - startMs, model: 'clova-ocr+claude-sonnet-4-6' });
-        return NextResponse.json({ is_menu: false, reason: '식단표를 읽었지만 정리에 실패했어요 — 한 주씩 잘라서, 또는 더 선명한 사진으로 다시 시도해주세요.' }, { headers: cors });
+        const m = textBlock.text.match(/\{[\s\S]*\}/);
+        try {
+          if (!m) throw new Error('no json');
+          parsed = JSON.parse(m[0]);
+        } catch {
+          // 잘림 외 깨진 JSON도 500 대신 안내
+          await supabase.from('ocr_logs').insert({ is_menu: false, reject_reason: 'parse_fail', duration_ms: Date.now() - startMs, model: usedModel });
+          return NextResponse.json({ is_menu: false, reason: '식단표를 읽었지만 정리에 실패했어요 — 한 주씩 잘라서, 또는 더 선명한 사진으로 다시 시도해주세요.' }, { headers: cors });
+        }
       }
     }
 
@@ -291,9 +322,9 @@ export async function POST(req: NextRequest) {
       ocr_text: parsed.text || ocrText,
       reject_reason: parsed.reason || null,
       duration_ms: durationMs,
-      model: 'clova-ocr+claude-sonnet-4-6',
-      input_tokens: decomp.usage?.input_tokens || 0,
-      output_tokens: decomp.usage?.output_tokens || 0,
+      model: usedModel,
+      input_tokens: usageIn,
+      output_tokens: usageOut,
     }).select('id').single();
     logId = logRow?.id || null;
 
