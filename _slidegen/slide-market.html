@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="_slide.css">
+<style>
+  .stage{background:#FFFFFF}
+  .mcols{display:flex;gap:70px;margin-top:96px;align-items:center}
+  .mbars{flex:1;display:flex;flex-direction:column;gap:26px}
+  .mbar{border-radius:18px;padding:26px 32px}
+  .mbar .t{font-size:36px;font-weight:800;line-height:1}
+  .mbar .s{font-size:21px;font-weight:600;margin-top:11px;color:#8A8276}
+  .m1{background:#FBEAD8;width:60%}.m1 .t{color:#C45A00}
+  .m2{background:#E8F0FB;width:78%}.m2 .t{color:#2E6FB5}
+  .m3{background:#E7F4EC;width:96%}.m3 .t{color:#2E7D46}
+  .circ{flex:0 0 680px;height:680px;position:relative}
+  .ring{position:absolute;border-radius:50%;left:50%;transform:translateX(-50%);display:flex;justify-content:center}
+  .r-tam{width:680px;height:680px;top:0;background:#E7F4EC}
+  .r-sam{width:470px;height:470px;top:150px;background:#DCE9F8}
+  .r-som{width:270px;height:270px;top:330px;background:#E08A3A;align-items:center}
+  .ring .cap{text-align:center;margin-top:26px}
+  .ring .cap .lab{font-size:19px;font-weight:800;letter-spacing:.12em}
+  .ring .cap .big{font-size:25px;font-weight:800;margin-top:3px}
+  .r-tam .cap .lab{color:#2E7D46}.r-tam .cap .big{color:#1F5E34}
+  .r-sam .cap .lab{color:#2E6FB5}.r-sam .cap .big{color:#1E5694}
+  .r-som{flex-direction:column;align-items:center}
+  .r-som .cap{margin-top:0}
+  .r-som .cap .lab{color:#fff;opacity:.92}.r-som .cap .big{color:#fff}
+</style></head>
+<body>
+<div class="stage">
+  <div class="seclabel"><span class="n">13</span><span class="dash"></span><span class="lab">MARKET</span></div>
+  <h1 style="font-size:88px">송곳에서, <span class="o">우산으로</span></h1>
+
+  <div class="mcols">
+    <div class="mbars">
+      <div class="mbar m1"><div class="t">편식 60만</div><div class="s">송곳 — 절박한 진입점</div></div>
+      <div class="mbar m2"><div class="t">영유아 200만</div><div class="s">우산 — 영양·이유식·발달로 확장</div></div>
+      <div class="mbar m3"><div class="t">글로벌 편식 시장</div><div class="s">코칭 엔진은 언어·식문화로 확장</div></div>
+    </div>
+    <div class="circ">
+      <div class="ring r-tam"><div class="cap"><div class="lab">TAM</div><div class="big">글로벌 편식 시장</div></div></div>
+      <div class="ring r-sam"><div class="cap"><div class="lab">SAM</div><div class="big">영유아 200만</div></div></div>
+      <div class="ring r-som"><div class="cap"><div class="lab">SOM</div><div class="big">편식 60만</div></div></div>
+    </div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,47 @@
+/* 2000x1125 pitch slide — matches mealfred pitch deck design system */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:2000px;height:1125px;overflow:hidden}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color:#1A2B4A;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision}
+.stage{position:relative;width:2000px;height:1125px;padding:84px 112px 72px;background:#FBF6F0}
+.stage.white{background:#FFFFFF}
+
+/* top-left section label */
+.seclabel{display:flex;align-items:center;gap:22px;margin-bottom:30px}
+.seclabel .n{font-size:27px;font-weight:800;letter-spacing:.12em;color:#E2761E}
+.seclabel .dash{width:46px;height:3px;border-radius:2px;background:#E2761E;opacity:.85}
+.seclabel .lab{font-size:27px;font-weight:800;letter-spacing:.34em;color:#E2761E}
+
+/* headline */
+h1{font-size:74px;font-weight:800;letter-spacing:-.02em;line-height:1.16;color:#1A2B4A}
+h1 .o{color:#E2761E}
+.sub{font-size:27px;font-weight:600;color:#6A6256;margin-top:22px;letter-spacing:-.01em}
+
+/* generic */
+.o{color:#E2761E}.nav{color:#1A2B4A}.mut{color:#7A7264}
+b,strong{font-weight:800;color:#1A2B4A}
+
+/* two-column body */
+.cols{display:flex;gap:64px;margin-top:46px;align-items:flex-start}
+.colL{flex:1;min-width:0}
+.colR{flex:0 0 760px}
+
+/* numbered list (orange square index) */
+.nlist{display:flex;flex-direction:column;gap:22px;margin-top:6px}
+.nrow{display:flex;gap:20px;align-items:flex-start}
+.nrow .idx{flex:0 0 38px;height:38px;border-radius:9px;background:#E2761E;color:#fff;font-size:21px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.nrow .tx{font-size:25.5px;line-height:1.5;color:#3C4654;font-weight:500}
+.nrow .tx b{color:#1A2B4A}
+
+/* highlight pill */
+.pill{display:inline-flex;align-items:center;gap:14px;margin-top:34px;background:#FCEAD7;border-radius:16px;padding:18px 26px}
+.pill .k{font-size:24px;font-weight:800;color:#C45A00;white-space:nowrap}
+.pill .v{font-size:22px;font-weight:600;color:#6A5238}
+
+/* footnote */
+.foot{position:absolute;left:112px;bottom:54px;display:flex;align-items:center;gap:11px;font-size:20px;font-weight:600;color:#9A9080}
+.foot .dot{width:9px;height:9px;border-radius:50%;background:#E2761E}
+
+/* page number (kept off — pitch.html overlay renders it) */
+
+/* cards */
+.card{background:#fff;border:1.6px solid #ECE3D6;border-radius:22px;box-shadow:0 14px 40px rgba(60,40,15,.06)}

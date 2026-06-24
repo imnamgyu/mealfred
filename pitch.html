@@ -16,9 +16,13 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color
 .deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;background:linear-gradient(180deg,#16243f 0%,#1a2b4a 100%)}
 .deck::-webkit-scrollbar{width:0}
 .slide{min-height:100vh;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;padding:clamp(14px,3.2vh,42px) clamp(14px,3vw,48px);position:relative}
-.slide .frame{width:100%;max-width:1180px;aspect-ratio:16/9;border-radius:clamp(8px,1vw,16px);overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,0.45),0 2px 0 rgba(255,255,255,0.04);background:#fff}
+.slide .frame{position:relative;container-type:inline-size;width:100%;max-width:1180px;aspect-ratio:16/9;border-radius:clamp(8px,1vw,16px);overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,0.45),0 2px 0 rgba(255,255,255,0.04);background:#fff}
 .slide img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
-.num{position:absolute;bottom:clamp(10px,2vh,22px);right:clamp(14px,3vw,40px);font-size:12px;font-weight:800;color:rgba(255,255,255,0.4);letter-spacing:0.04em}
+/* page-number overlay: masks burned "/13" on untouched slides, prints correct "/14" */
+.frame .msk{position:absolute;left:87.6%;top:91.8%;width:8.6%;height:5.2%;border-radius:3px;z-index:2}
+.frame .msk.cr{background:#FBF6F0}
+.frame .msk.wh{background:#FFFFFF}
+.frame .pg{position:absolute;right:5.75%;bottom:3.4%;z-index:3;font-weight:800;font-size:1.5cqw;letter-spacing:0.04em;color:#5A6373}
 /* top bar */
 .bar{position:fixed;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:30;pointer-events:none}
 .bar a,.bar .pill{pointer-events:auto;text-decoration:none;font-weight:800;font-size:12.5px;padding:8px 14px;border-radius:100px;display:inline-flex;align-items:center;gap:6px;transition:all .15s;backdrop-filter:blur(8px)}
@@ -48,22 +52,23 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color
 </div>
 
 <div class="deck" id="deck">
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-01.jpg" alt="표지 — 밀프레드 편식 · AI 영유아 편식 헬스케어 · 편식, 데이터로 다루다 · 진단→코칭→충족"></div><div class="num">01 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-02.jpg" loading="lazy" alt="문제 — 4명 중 1명이 편식, 마땅한 해결책조차 없습니다 · 골든타임 만 2~6세 · 맘카페·사설치료·간편식의 한계"></div><div class="num">02 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-03.jpg" loading="lazy" alt="아하 모먼트 — 엄마도 포기한 아이, 코칭 10회·3주 만에 생당근을 스스로 집어 먹다"></div><div class="num">03 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-04.jpg" loading="lazy" alt="솔루션 — 진단·코칭·충족, 하나의 루프로 (측정→결핍 진단 / 결핍→개인화 처방 / 처방→충족)"></div><div class="num">04 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-05.jpg" loading="lazy" alt="엔진 01 매핑 — 메뉴 한 줄을 영양으로 환원 · 4단 매핑·learned 코퍼스 플라이휠·31종 영양 신호등"></div><div class="num">05 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-06.jpg" loading="lazy" alt="엔진 02 코칭 엔진 — 35가지 국제 편식 이론을 하나의 코칭 엔진으로 · 8개 엔진 모듈 · 매 판단마다 LLM을 부르지 않음"></div><div class="num">06 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-07.jpg" loading="lazy" alt="엔진 02 방법론 하네스 — 35가지 방법론 5×7 · CoachPlan(frame·target·move·signature) · 얇은 LLM 작문 월 약 900원"></div><div class="num">07 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-08.jpg" loading="lazy" alt="엔진 02 코치 편지 — 엔진의 결론은 매일 한 통의 편지로 · 매일 새로 도착·최근 3일 보관·강요 없는 어조"></div><div class="num">08 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-09.jpg" loading="lazy" alt="엔진 03 궁합·사촌 — 잘 먹는 데서 사촌으로 다리를 놓다 · NEIS 4,727건 식단 지식 그래프·푸드체이닝·아이 맞춤 추천"></div><div class="num">09 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-10.jpg" loading="lazy" alt="충족 — 폐기 없이 딱 필요한 만큼만 · 골고루 키트 개인화 박스 19,900원·일주일 14끼니·콜드체인 배송"></div><div class="num">10 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-11.jpg" loading="lazy" alt="유통 — 업계 1위 교육용 요리키트 영업망으로 학부모에게 바로 · 누적 10만+ 요리수업 아이·YoY 130%·재구매 50%"></div><div class="num">11 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-12.jpg" loading="lazy" alt="시장 — 송곳에서 우산으로 · 편식 60만(SOM)→영유아 200만(SAM)→글로벌 편식 시장(TAM)"></div><div class="num">12 / 13</div></section>
-  <section class="slide"><div class="frame"><img src="/pitch-slides/s-13.jpg" loading="lazy" alt="팀 — 실패까지 겪은 창업가가 엔진을 직접 짠다 · 임남규 CEO/CTO(밀프레드 편식 AI) ↔ 푸드히스토리 협력사(대표 임재희)"></div><div class="num">13 / 13</div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-01.jpg" alt="표지 — 밀프레드 편식 · AI 영유아 편식 헬스케어 · 편식, 데이터로 다루다 · 진단→코칭→충족"></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-02.jpg" loading="lazy" alt="문제 — 4명 중 1명이 편식, 마땅한 해결책조차 없습니다 · 골든타임 만 2~6세 · 맘카페·사설치료·간편식의 한계"><span class="msk cr"></span><span class="pg">02 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-03.jpg" loading="lazy" alt="아하 모먼트 — 엄마도 포기한 아이, 코칭 10회·3주 만에 생당근을 스스로 집어 먹다"></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-04.jpg" loading="lazy" alt="솔루션 — 진단·코칭·충족, 하나의 루프로 (측정→결핍 진단 / 결핍→개인화 처방 / 처방→충족)"><span class="msk wh"></span><span class="pg">04 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-05.jpg" loading="lazy" alt="엔진 01 매핑 — 메뉴 한 줄을 영양으로 환원 · 4단 매핑·learned 코퍼스 플라이휠·31종 영양 신호등"><span class="msk cr"></span><span class="pg">05 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-06.jpg" loading="lazy" alt="엔진 02 코칭 엔진 — 35가지 국제 편식 이론을 하나의 코칭 엔진으로 · 8개 엔진 모듈 · 매 판단마다 LLM을 부르지 않음"><span class="msk wh"></span><span class="pg">06 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-07.jpg" loading="lazy" alt="엔진 02 방법론 하네스 — 35가지 방법론 5×7 · CoachPlan(frame·target·move·signature) · 얇은 LLM 작문 월 약 900원"><span class="msk cr"></span><span class="pg">07 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-08.jpg" loading="lazy" alt="엔진 02 코치 편지 — 엔진의 결론은 매일 한 통의 편지로 · 매일 새로 도착·최근 3일 보관·강요 없는 어조"><span class="msk wh"></span><span class="pg">08 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-09.jpg" loading="lazy" alt="엔진 03 궁합·사촌 — 잘 먹는 데서 사촌으로 다리를 놓다 · NEIS 4,727건 식단 지식 그래프·푸드체이닝·아이 맞춤 추천"><span class="msk cr"></span><span class="pg">09 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-10.jpg" loading="lazy" alt="충족 — 폐기 없이 딱 필요한 만큼만 · 골고루 키트 개인화 박스 19,900원·일주일 14끼니·콜드체인 배송"><span class="msk wh"></span><span class="pg">10 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-11.jpg" loading="lazy" alt="유통 — 업계 1위 교육용 요리키트 영업망으로 학부모에게 바로 · 누적 10만+ 요리수업 아이·YoY 130%·재구매 50%"><span class="msk cr"></span><span class="pg">11 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-12.jpg" loading="lazy" alt="성장 — 무료 식단표 평가가 가장 싼 학부모 유입 채널 · 미끼(스낵 콘텐츠)→유입→데이터 플라이휠→편식 전환 · CAC≈0"><span class="pg">12 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-13.jpg" loading="lazy" alt="시장 — 송곳에서 우산으로 · 편식 60만(SOM)→영유아 200만(SAM)→글로벌 편식 시장(TAM)"><span class="pg">13 / 14</span></div></section>
+  <section class="slide"><div class="frame"><img src="/pitch-slides/s-14.jpg" loading="lazy" alt="팀 — 유료고객 10만을 만든 창업가가 엔진을 직접 짠다 · 임남규 CEO/CTO(밀프레드 편식 AI) ↔ 푸드희스토리 협력사(대표 임재희)"><span class="pg">14 / 14</span></div></section>
 </div>
 
-<div class="counter" id="counter"><b>01</b> / 13</div>
+<div class="counter" id="counter"><b>01</b> / 14</div>
 <div class="nav">
   <button id="prev" aria-label="이전 슬라이드">↑</button>
   <button id="next" aria-label="다음 슬라이드">↓</button>
