@@ -2,15 +2,13 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="stylesheet" href="_slide.css">
 <style>
-  .funnel{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:10px}
-  .fbar{border-radius:18px;padding:22px 26px;text-align:center;width:100%}
-  .fbar .t{font-size:27px;font-weight:800;line-height:1.15}
-  .fbar .s{font-size:18.5px;font-weight:600;margin-top:6px;opacity:.92}
-  .f1{background:#FBE3CB;color:#1A2B4A;width:100%}
-  .f1 .s{color:#9A6A3A}
-  .f2{background:linear-gradient(135deg,#F2933F,#F4A85C);color:#fff;width:80%}
-  .f3{background:#1A2B4A;color:#fff;width:60%}
-  .farr{color:#D8A36A;font-size:30px;font-weight:800;line-height:1;margin:9px 0}
+  .shots{position:relative;height:548px;margin-top:6px}
+  .shot{position:absolute;display:block;background:#fff}
+  .shot.hero{top:0;left:0;width:470px;border-radius:18px;border:1.5px solid #ECE3D6;box-shadow:0 16px 42px rgba(60,40,15,.14)}
+  .shot.result{top:40px;right:0;width:330px;border-radius:30px;border:7px solid #fff;box-shadow:0 22px 54px rgba(60,40,15,.22);z-index:2}
+  .flowtag{position:absolute;left:8px;bottom:6px;z-index:3;display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid #ECE3D6;border-radius:12px;padding:11px 17px;box-shadow:0 8px 22px rgba(60,40,15,.10)}
+  .flowtag .a{font-size:21px;font-weight:800;color:#E2761E}
+  .flowtag .b{font-size:19px;font-weight:700;color:#1A2B4A}
   .loop{display:flex;align-items:center;gap:16px;margin-top:26px;background:#EAF6EF;border:1.6px solid #BFE3CD;border-radius:16px;padding:18px 24px}
   .loop .ic{font-size:30px;color:#1B7A3D;line-height:1}
   .loop .tx{font-size:21px;font-weight:700;color:#1B6E3A;line-height:1.45}
@@ -36,15 +34,13 @@
     </div>
 
     <div class="colR">
-      <div class="rtag"><span class="bar"></span>성장 깔때기 · 데이터 플라이휠</div>
-      <div class="funnel">
-        <div class="fbar f1"><div class="t">무료 식단표 평가</div><div class="s">스낵 콘텐츠 · 진입장벽 0</div></div>
-        <div class="farr">↓</div>
-        <div class="fbar f2"><div class="t">학부모 유입</div><div class="s">회원 전환</div></div>
-        <div class="farr">↓</div>
-        <div class="fbar f3"><div class="t">밀프레드 편식 전환</div><div class="s">코칭 · 도감 · 키트</div></div>
+      <div class="rtag"><span class="bar"></span>실제 화면 — 미끼(무료 평가)부터 결과까지</div>
+      <div class="shots">
+        <img class="shot hero" src="img/daycare-hero.png" alt="어린이집·유치원 식단 영양 순위 — 사진 1장이면 1분, 지금까지 6,052명 이용">
+        <img class="shot result" src="img/daycare-result.png" alt="평가 결과 — 이번 식단 종합 A 92점, 7축 영양 분석">
+        <div class="flowtag"><span class="a">사진 1장</span><span class="b">→ 1분 → 결과 → 편식 전환</span></div>
       </div>
-      <div class="loop"><span class="ic">↻</span><span class="tx">매달 새 식단표 = <b>매달 새 유입 + 새 평가 데이터</b><br>데이터가 다시 진단 엔진으로 환류된다</span></div>
+      <div class="loop"><span class="ic">↻</span><span class="tx">매달 새 식단표 = <b>매달 새 유입 + 새 평가 데이터</b> · 데이터가 다시 진단 엔진으로 환류</span></div>
     </div>
   </div>
 
