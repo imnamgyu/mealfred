@@ -1127,6 +1127,35 @@ const CATEGORY_ESSENTIALS = {
   '기타채소': {em:'🧅', must:['양파','부추'], rec:[]},
 };
 
+// ⭐ 식재료 → 대표 메뉴 + 급식 출현근거(이사님 2026-06-24) — '집에서 챙겨주는' 추천 카드에 예시 메뉴 + 신뢰배지 노출.
+//   도출: institution_menu_items 30,458 급식메뉴 인스턴스 출현빈도 × learned_menus 분해사전(web/scripts/_gen_repr_final.mjs).
+//   m=대표메뉴(메뉴명에 그 식재료가 든 메뉴 중 최빈) · n=급식 출현횟수 · r=그 식재료 메뉴 중 순위.
+//   원물 그대로(우유·바나나 등)·오탐(더덕·순무·조개)·갈아먹는 견과는 의도적 미수록. 무·옥수수는 가정친화 메뉴로 보정(실제 순위 표기).
+const REPR_MENU = {
+  // 잎채소
+  '시금치':{m:'시금치나물',n:87,r:1}, '배추':{m:'배추김치',n:1712,r:1}, '청경채':{m:'청경채나물',n:68,r:1}, '근대':{m:'근대된장국',n:83,r:1}, '쑥갓':{m:'쑥갓나물',n:11,r:1}, '아욱':{m:'아욱된장국',n:71,r:1}, '상추':{m:'상추무침',n:25,r:1}, '들깻잎':{m:'깻잎나물',n:42,r:1}, '양상추':{m:'양상추샐러드',n:12,r:1}, '미나리':{m:'미나리나물',n:10,r:1}, '양배추':{m:'양배추나물',n:39,r:1}, '얼갈이배추':{m:'얼갈이배추된장국',n:1,r:1}, '참나물':{m:'참나물무침',n:67,r:1}, '달래':{m:'달래된장국',n:3,r:1}, '쑥':{m:'쑥된장국',n:1,r:1},
+  // 뿌리채소
+  '무':{m:'무나물',n:33,r:3}, '당근':{m:'당근스틱',n:27,r:1}, '우엉':{m:'우엉조림',n:30,r:1}, '연근':{m:'연근조림',n:37,r:1}, '도라지':{m:'도라지나물',n:5,r:1},
+  // 열매채소
+  '호박':{m:'애호박나물',n:76,r:1}, '오이':{m:'오이무침',n:55,r:1}, '피망':{m:'돈채피망볶음',n:7,r:1}, '파프리카':{m:'파프리카스틱',n:33,r:1}, '가지':{m:'가지나물',n:63,r:1},
+  // 곡물·탄수
+  '감자':{m:'찐감자',n:80,r:1}, '고구마':{m:'찐고구마',n:113,r:1}, '보리':{m:'보리밥',n:86,r:1}, '현미':{m:'현미밥',n:105,r:1}, '찹쌀':{m:'찹쌀밥',n:188,r:1}, '옥수수':{m:'옥수수밥',n:9,r:3},
+  // 콩·콩제품
+  '두부':{m:'두부된장국',n:38,r:1}, '검은콩':{m:'검은콩두유',n:22,r:1}, '콩나물':{m:'콩나물국',n:115,r:1}, '완두콩':{m:'완두콩죽',n:3,r:1},
+  // 생선
+  '멸치':{m:'멸치호두아몬드볶음',n:233,r:1}, '명태':{m:'명태전',n:1,r:1}, '삼치':{m:'삼치구이',n:33,r:1}, '고등어':{m:'고등어구이',n:16,r:1}, '대구':{m:'대구살전',n:4,r:1}, '오징어':{m:'오징어볶음',n:23,r:1}, '가자미':{m:'가자미구이',n:21,r:1}, '갈치':{m:'갈치구이',n:1,r:1},
+  // 고기
+  '소고기':{m:'소고기미역국',n:79,r:1}, '돼지고기':{m:'돼지고기수육',n:25,r:1}, '닭고기':{m:'닭곰탕',n:41,r:1}, '오리고기':{m:'오리고기채소볶음',n:3,r:1},
+  // 계란
+  '계란':{m:'삶은달걀',n:36,r:1}, '달걀':{m:'삶은달걀',n:36,r:1}, '메추리알':{m:'메추리알장조림',n:34,r:1},
+  // 버섯
+  '느타리버섯':{m:'느타리버섯나물',n:14,r:1}, '표고버섯':{m:'표고버섯된장국',n:3,r:1}, '팽이버섯':{m:'팽이버섯된장국',n:27,r:1}, '양송이버섯':{m:'양송이스프',n:16,r:1},
+  // 갑각·조개
+  '새우':{m:'새우살채소볶음',n:12,r:1}, '바지락':{m:'바지락순두부국',n:5,r:1}, '홍합':{m:'홍합살미역국',n:3,r:1},
+  // 기타채소
+  '양파':{m:'감자양파국',n:35,r:1}, '부추':{m:'부추전',n:12,r:1},
+};
+
 function generateTips(result, ageBand){
   const young = ageBand === 'younger' || ageBand === '3-4y';  // 어린 연령 안전 필터
   const foundNames = new Set((result.matched||[]).map(m=>m.nm));
@@ -1174,7 +1203,7 @@ function homeIngredientTips(result, ageBand){
       if(foundNames.has(n) || foundNames.has(base)) continue;
       if(young && n === '땅콩') continue;
       const disp = (young && (n === '아몬드' || n === '호두')) ? n + '(갈아서)' : n;
-      perCat.push({ cat, disp, base, absent: !foundCats.has(cat) });
+      perCat.push({ cat, n, disp, base, absent: !foundCats.has(cat) });
       break;   // 카테고리당 1개만
     }
   });
@@ -1182,7 +1211,15 @@ function homeIngredientTips(result, ageBand){
   const top = perCat.slice(0, 5);
   if(!top.length) return '';
   const benefitOf = (base)=>{ for(const nut of (NUTRI_MAP[base]||[])){ const b=NUTRI_BENEFIT[nut]; if(b) return `${b.e} ${b.t}`; } return '🌱 영양 보충'; };
-  return top.map(t=> `<div class="insight-row"><span class="em">🛒</span><strong>${t.disp}</strong> — ${benefitOf(t.base)}에 좋아요</div>`).join('');
+  return top.map(t=>{
+    const r = REPR_MENU[t.n] || REPR_MENU[t.base];   // 대표 메뉴 + 급식 출현근거
+    let hint = '';
+    if(r && r.m !== t.base && r.m !== t.disp){
+      const badge = (r.n >= 5) ? ` · 급식 ${r.n}회 출현·${r.r}위 메뉴` : '';   // 출현 적으면(<5) 배지 생략
+      hint = ` · <span style="color:var(--n400);font-weight:600">예) ${r.m}${badge}</span>`;
+    }
+    return `<div class="insight-row"><span class="em">🛒</span><strong>${t.disp}</strong> — ${benefitOf(t.base)}에 좋아요${hint}</div>`;
+  }).join('');
 }
 
 // localStorage 이력 저장
