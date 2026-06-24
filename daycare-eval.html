@@ -229,10 +229,10 @@
 <section class="hero">
   <div class="hero-inner">
     <span class="tag">🍽 어린이집·유치원 식단 영양 순위</span>
-    <h1>우리 아이 어린이집·유치원에서<br><span class="accent">잘 먹고 있는 건가 궁금하시죠?</span></h1>
-    <p>어린이집·유치원 식단표 <strong>사진 1장</strong>이면 <strong>1분</strong> 만에<br>우리 원 식단 <strong>영양 점수와 전국 순위</strong>를 알려드려요.</p>
+    <h1>어린이집·유치원에서 매달 받는 식단표.<br>우리 아이가 이거 <span class="accent">잘 먹고 있는 건지 궁금하시죠?</span></h1>
+    <p>식단표 <strong>사진 1장</strong>이면 <strong>1분</strong> 만에 우리 원 <strong>영양 점수와 전국 순위</strong>를 알려드려요.</p>
     <div class="cta-row">
-      <button class="cta-main" onclick="openUpload()">📋 우리 원 식단표 점수 보기 →</button>
+      <button class="cta-main" onclick="openUpload()">📋 식단표 분석하기</button>
     </div>
     <div class="trust-row">
       <span class="trust-pill">🏛 보건복지부 KDRI 2025</span>
@@ -1127,27 +1127,28 @@ const CATEGORY_ESSENTIALS = {
   '기타채소': {em:'🧅', must:['양파','부추'], rec:[]},
 };
 
-// ⭐ 식재료 → 대표 메뉴 + 급식 출현근거(이사님 2026-06-24) — '집에서 챙겨주는' 추천 카드에 예시 메뉴 + 신뢰배지 노출.
-//   도출: institution_menu_items 30,458 급식메뉴 인스턴스 출현빈도 × learned_menus 분해사전(web/scripts/_gen_repr_final.mjs).
-//   m=대표메뉴(메뉴명에 그 식재료가 든 메뉴 중 최빈) · n=급식 출현횟수 · r=그 식재료 메뉴 중 순위.
-//   원물 그대로(우유·바나나 등)·오탐(더덕·순무·조개)·갈아먹는 견과는 의도적 미수록. 무·옥수수는 가정친화 메뉴로 보정(실제 순위 표기).
+// ⭐ 식재료 → 대표 '요리' + 급식 출현근거(이사님 2026-06-24) — '집에서 챙겨주는' 카드에 실제 식단에 뜨는 요리 예시 + 신뢰배지.
+//   도출: institution_menu_items 30,458 급식메뉴 인스턴스 출현빈도 × learned_menus 분해사전(web/scripts/_gen_repr_dish.mjs).
+//   m=대표요리(메뉴명에 그 식재료가 든 '요리' 중 최빈) · n=급식 출현횟수 · r=그 식재료 요리 중 순위.
+//   ⭐요리만: 찐감자·삶은달걀·당근스틱·옥수수차 등 단순조리/생것/음료는 제외 → 감자채볶음·달걀팟국처럼 실제 '요리'로.
+//   원물(우유·치즈·과일)·오탐(더덕·순무·조개)·갈아먹는 견과는 미수록. 무는 가정친화 메뉴로 보정(실제 순위).
 const REPR_MENU = {
   // 잎채소
   '시금치':{m:'시금치나물',n:87,r:1}, '배추':{m:'배추김치',n:1712,r:1}, '청경채':{m:'청경채나물',n:68,r:1}, '근대':{m:'근대된장국',n:83,r:1}, '쑥갓':{m:'쑥갓나물',n:11,r:1}, '아욱':{m:'아욱된장국',n:71,r:1}, '상추':{m:'상추무침',n:25,r:1}, '들깻잎':{m:'깻잎나물',n:42,r:1}, '양상추':{m:'양상추샐러드',n:12,r:1}, '미나리':{m:'미나리나물',n:10,r:1}, '양배추':{m:'양배추나물',n:39,r:1}, '얼갈이배추':{m:'얼갈이배추된장국',n:1,r:1}, '참나물':{m:'참나물무침',n:67,r:1}, '달래':{m:'달래된장국',n:3,r:1}, '쑥':{m:'쑥된장국',n:1,r:1},
   // 뿌리채소
-  '무':{m:'무나물',n:33,r:3}, '당근':{m:'당근스틱',n:27,r:1}, '우엉':{m:'우엉조림',n:30,r:1}, '연근':{m:'연근조림',n:37,r:1}, '도라지':{m:'도라지나물',n:5,r:1},
+  '무':{m:'무나물',n:33,r:3}, '당근':{m:'숙주당근무침',n:13,r:1}, '우엉':{m:'우엉조림',n:30,r:1}, '연근':{m:'연근조림',n:37,r:1}, '도라지':{m:'도라지나물',n:5,r:1},
   // 열매채소
-  '호박':{m:'애호박나물',n:76,r:1}, '오이':{m:'오이무침',n:55,r:1}, '피망':{m:'돈채피망볶음',n:7,r:1}, '파프리카':{m:'파프리카스틱',n:33,r:1}, '가지':{m:'가지나물',n:63,r:1},
+  '호박':{m:'애호박나물',n:76,r:1}, '오이':{m:'오이무침',n:55,r:1}, '피망':{m:'돈채피망볶음',n:7,r:1}, '파프리카':{m:'파프리카무침',n:19,r:1}, '가지':{m:'가지나물',n:63,r:1},
   // 곡물·탄수
-  '감자':{m:'찐감자',n:80,r:1}, '고구마':{m:'찐고구마',n:113,r:1}, '보리':{m:'보리밥',n:86,r:1}, '현미':{m:'현미밥',n:105,r:1}, '찹쌀':{m:'찹쌀밥',n:188,r:1}, '옥수수':{m:'옥수수밥',n:9,r:3},
+  '감자':{m:'감자채볶음',n:52,r:1}, '고구마':{m:'고구마맛탕',n:24,r:1}, '보리':{m:'보리밥',n:86,r:1}, '현미':{m:'현미밥',n:105,r:1}, '찹쌀':{m:'찹쌀밥',n:188,r:1}, '옥수수':{m:'옥수수스프',n:11,r:1},
   // 콩·콩제품
-  '두부':{m:'두부된장국',n:38,r:1}, '검은콩':{m:'검은콩두유',n:22,r:1}, '콩나물':{m:'콩나물국',n:115,r:1}, '완두콩':{m:'완두콩죽',n:3,r:1},
+  '두부':{m:'두부된장국',n:38,r:1}, '검은콩':{m:'검은콩죽',n:1,r:1}, '콩나물':{m:'콩나물국',n:115,r:1}, '완두콩':{m:'완두콩죽',n:3,r:1},
   // 생선
   '멸치':{m:'멸치호두아몬드볶음',n:233,r:1}, '명태':{m:'명태전',n:1,r:1}, '삼치':{m:'삼치구이',n:33,r:1}, '고등어':{m:'고등어구이',n:16,r:1}, '대구':{m:'대구살전',n:4,r:1}, '오징어':{m:'오징어볶음',n:23,r:1}, '가자미':{m:'가자미구이',n:21,r:1}, '갈치':{m:'갈치구이',n:1,r:1},
   // 고기
   '소고기':{m:'소고기미역국',n:79,r:1}, '돼지고기':{m:'돼지고기수육',n:25,r:1}, '닭고기':{m:'닭곰탕',n:41,r:1}, '오리고기':{m:'오리고기채소볶음',n:3,r:1},
   // 계란
-  '계란':{m:'삶은달걀',n:36,r:1}, '달걀':{m:'삶은달걀',n:36,r:1}, '메추리알':{m:'메추리알장조림',n:34,r:1},
+  '계란':{m:'달걀팟국',n:26,r:1}, '달걀':{m:'달걀팟국',n:26,r:1}, '메추리알':{m:'메추리알장조림',n:34,r:1},
   // 버섯
   '느타리버섯':{m:'느타리버섯나물',n:14,r:1}, '표고버섯':{m:'표고버섯된장국',n:3,r:1}, '팽이버섯':{m:'팽이버섯된장국',n:27,r:1}, '양송이버섯':{m:'양송이스프',n:16,r:1},
   // 갑각·조개
@@ -1190,35 +1191,49 @@ function generateTips(result, ageBand){
 }
 
 // ⭐ 집에서 더 챙겨주면 좋은 식재료 5가지 + 코멘트(이사님 2026-06-22) — 식단에 빠진 핵심 식재료 우선
+// ⭐ WHO 8개 식품군에서 각 1개씩(이사님 2026-06-24) — 식단에 빠진(없으면 대표) 식재료 + 급식에 실제 뜨는 '요리' 예시.
+//   각 군 후보 = 그 군에 매핑되는 CATEGORY_ESSENTIALS 리스트(급식 출현빈도순)를 이어붙인 것.
+const HOME_GROUPS = [
+  {em:'🌾', label:'곡물',         cats:['곡물_탄수']},
+  {em:'🫘', label:'콩류',         cats:['콩_콩제품']},
+  {em:'🥕', label:'비타민A 채소', cats:['잎채소','뿌리채소']},
+  {em:'🥬', label:'기타 채소',    cats:['열매채소','버섯','기타채소','견과_씨앗']},
+  {em:'🥩', label:'고기·생선',    cats:['고기','생선','갑각_조개']},
+  {em:'🥚', label:'계란',         cats:['계란']},
+  {em:'🥛', label:'유제품',       cats:['유제품']},
+  {em:'🍎', label:'과일',         cats:['과일']},
+];
 function homeIngredientTips(result, ageBand){
   const young = ageBand === 'younger' || ageBand === '3-4y';
   const foundNames = new Set((result.matched||[]).map(m=>m.nm));
-  const foundCats = new Set((result.matched||[]).map(m=>m.cat));
-  // ⭐ 카테고리당 '대표 1개'만(이사님 2026-06-23) — 5개가 서로 다른 식품군이 되게(전부 곡물 같은 쏠림 방지).
-  //   각 군 리스트는 등장빈도/대표성 높은 순 → 그 군에 '빠진' 첫 식재료 = 대표 추천.
-  const perCat = [];
-  Object.entries(CATEGORY_ESSENTIALS).forEach(([cat, {must, rec}])=>{
-    for(const n of [...must, ...rec]){
-      const base = n.replace('(대두)','').replace('버섯','');
-      if(foundNames.has(n) || foundNames.has(base)) continue;
-      if(young && n === '땅콩') continue;
-      const disp = (young && (n === '아몬드' || n === '호두')) ? n + '(갈아서)' : n;
-      perCat.push({ cat, n, disp, base, absent: !foundCats.has(cat) });
-      break;   // 카테고리당 1개만
-    }
-  });
-  perCat.sort((a,b)=> a.absent === b.absent ? 0 : (a.absent ? -1 : 1));   // 식품군이 통째로 빠진 군 먼저
-  const top = perCat.slice(0, 5);
-  if(!top.length) return '';
   const benefitOf = (base)=>{ for(const nut of (NUTRI_MAP[base]||[])){ const b=NUTRI_BENEFIT[nut]; if(b) return `${b.e} ${b.t}`; } return '🌱 영양 보충'; };
-  return top.map(t=>{
-    const r = REPR_MENU[t.n] || REPR_MENU[t.base];   // 대표 메뉴 + 급식 출현근거
+  const picks = [];
+  HOME_GROUPS.forEach(grp=>{
+    const cands = grp.cats.flatMap(c => { const e = CATEGORY_ESSENTIALS[c]; return e ? [...e.must, ...e.rec] : []; });   // 출현빈도순
+    let chosen = null, fallback = null;
+    for(const n of cands){
+      if(young && n === '땅콩') continue;                          // 알레르겐·질식 위험 제외
+      const base = n.replace('(대두)','').replace('버섯','');
+      if(!fallback) fallback = { n, base };
+      if(foundNames.has(n) || foundNames.has(base)) continue;       // 이미 식단에 있으면 건너뜀
+      chosen = { n, base }; break;                                  // 그 군에 '빠진' 첫(=최빈) 식재료
+    }
+    const sel = chosen || fallback;                                 // 다 있으면 그 군 대표로 채움(8개 보장)
+    if(!sel) return;
+    const disp = (young && (sel.n === '아몬드' || sel.n === '호두')) ? sel.n + '(갈아서)' : sel.n;
+    picks.push({ em: grp.em, label: grp.label, n: sel.n, base: sel.base, disp });
+  });
+  if(!picks.length) return '';
+  currentPlanIngredients = picks.map(p => p.base);                  // /plan 식단 생성용
+  return picks.map(p=>{
+    const r = REPR_MENU[p.n] || REPR_MENU[p.base];                  // 대표 요리 + 급식 출현근거
     let hint = '';
-    if(r && r.m !== t.base && r.m !== t.disp){
+    if(r && r.m !== p.base && r.m !== p.disp){
       const badge = (r.n >= 5) ? ` · 급식 ${r.n}회 출현·${r.r}위 메뉴` : '';   // 출현 적으면(<5) 배지 생략
       hint = ` · <span style="color:var(--n400);font-weight:600">예) ${r.m}${badge}</span>`;
     }
-    return `<div class="insight-row"><span class="em">🛒</span><strong>${t.disp}</strong> — ${benefitOf(t.base)}에 좋아요${hint}</div>`;
+    const tag = `<span style="color:var(--n400);font-weight:700;font-size:0.82em">${p.label}</span>`;
+    return `<div class="insight-row"><span class="em">${p.em}</span>${tag} <strong>${p.disp}</strong> — ${benefitOf(p.base)}에 좋아요${hint}</div>`;
   }).join('');
 }
 
