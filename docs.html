@@ -389,10 +389,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 15</span>
+    <span class="cnt">세션 16</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-24.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-24 — 편식 블로그 40편(UCL Tiny Tastes) 배포 · 제목 라이브 노출 구조 통일</h4>
+      <p class="desc"><b>블로그·배포 세션.</b> ① 스낵 40편 작성 — UCL Tiny Tastes 2주 반복 노출 → 채소 선호 61%↑·섭취 3배(출처 검증·임상표준 가드·위원회 6/6) ② ⭐ md <code>#</code> 제목이 라이브에 안 뜨던 구조 발견 — <code>후킹제목</code>·<code>첫화면자막</code>·md 통일(<code>f146d12</code>) ③ 인포그래픽 추가 + 전 채널 배포(정적·앱 팁·메인 카드). <span style="color:#1B5E20">라이브.</span></p>
+      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-23-b.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -468,34 +475,6 @@
       <p class="desc"><b>코칭 엔진 세션(병행).</b> ① F-16(유닛↔무브 결속)·F-17(step 누적서사) ② ⭐<b>주간계획 모듈⑧</b>(7일치 구체 dish 회전·BMI탄단지·anti-stall·거울 쿨다운 — 문서 <code>a4ac716</code> 라이브) ③ 콜드스타트 사다리(추천 두부 디폴트 봉합) ④ 자가정독 3라운드 58→56→54로 천장(<b>신호포착</b>) 진단 → 선호계량화 전환 + 엔진·어드민 배포. <span style="color:#1B5E20">엔진·주간계획 모듈 라이브화.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-19-b.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-18~19 — /admin 성능 캐싱 · 편지 쓰면 즉시 갱신</h4>
-      <p class="desc"><b>app.mealfred.com /admin 캐싱 세션(병행).</b> ① 매 요청 Supabase 전부 재조회하던 admin을 <code>unstable_cache</code>에 캐시(태그+60s TTL) ② 편지 작성자(새벽 크론)가 다 쓴 직후 <code>revalidateTag('admin',{expire:0})</code>로 즉시 갱신 ③ eval_results 풀스캔 → count 3쿼리 · 인증 왕복 2→1 ④ 수동 ↻ 새로고침 버튼. <span style="color:#1B5E20">캐싱 변경만 격리 커밋(<code>6a3839a</code>) · Vercel 배포 success.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/worklog-2026-06-19.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-18~19 — 업무일지 계층화 · HARNESS·MEMORY 다이어트 · 캠프 자료 갱신</h4>
-      <p class="desc"><b>거버넌스 정리 · 남양주/헨켈 B2B 문서 세션.</b> ① 업무일지 일·주·월 3계층화 + <code>_rollup.py</code>(19에이전트 적대검증) ② HARNESS 1,663→72줄 · MEMORY 93KB→6.7KB 다이어트(연속성 3겹→단일화) ③ 남양주 캠프 자료 8종 로고·「오감톡톡 버섯 요리교실」 반영 재생성 ④ 구글 닥스 4종(헨켈 출고 조정·남양주 회신) ⑤ 남양주 1인분 재료 원가 분석·결제 서류·원가 시트. <span style="color:#1B5E20">제품·배포 커밋 0 · 거버넌스·B2B 문서 세션.</span></p>
-      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/worklog-2026-06-18-b.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-18 (B) — 캠프 최종 레시피 · 앞치마 안내 · 174인분 결제·출고</h4>
-      <p class="desc"><b>남양주 캠프·B2B 영업 세션(병행).</b> ① 캠프 최종 레시피 전수 정리(버섯 롤 샌드위치 3종·음식/비음식/g수 표·B5 구버전 발견) ② 기부 어린이집 앞치마 대여 안내문('버리지 마세요' 프레임) ③ 기업 174인분 결제·출고 메일(합계 <b>5,449,900원</b>·금액 불일치 검증) ④ <b>구글 닥스 생성</b>(Drive MCP). <span style="color:#1B5E20">코드 커밋 0 · 운영·영업 문서 세션.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
-    <a href="/worklog-2026-06-18.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-17~18 — 매핑 보정 409건 · 스킬 문서 · 블로그 37편</h4>
-      <p class="desc"><b>코퍼스·문서·블로그 세션(병행).</b> ① food-mapping 매핑 사전 보정 <b>409건</b>(<code>c0347d2</code>) ② 스킬 작동원리 문서 발행(<code>77b2c3c</code>) ③ 블로그 37편 「38개월에 더 심해질 수 있어요」 발행·위원회 6인 통과(<code>d4c7391</code>) ④ <b>작업일지 스킬 신설</b>. <span style="color:#1B5E20">DB 튜플 직접 수정 0 · 전부 배포·푸시 완.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
@@ -532,6 +511,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-24.html':{c:'2026-06-24',m:'2026-06-24'},
     '/worklog-2026-06-23.html':{c:'2026-06-23',m:'2026-06-23'},
     '/worklog-2026-06-23-b.html':{c:'2026-06-23',m:'2026-06-23'},
     '/worklog-2026-06-22.html':{c:'2026-06-22',m:'2026-06-22'},
