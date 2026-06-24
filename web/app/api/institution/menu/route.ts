@@ -7,7 +7,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { scoreInstitutionMonth, summarizeInstitutionMenu, buildMenuItemRows, computeStandoutDims, computeSevenAxes, type OcrMenuItem } from '@/lib/institutionScore';
+import { scoreInstitutionMonth, summarizeInstitutionMenu, buildMenuItemRows, computeStandoutDims, computeSevenAxes, sevenAxisScore, type OcrMenuItem } from '@/lib/institutionScore';
 import { mapMenuLocal } from '@/lib/menuMap';
 
 export const dynamic = 'force-dynamic';
@@ -86,9 +86,10 @@ export async function POST(req: NextRequest) {
 
     // ⭐ 점수는 items에서 서버계산 — DB 쓰기 성공여부와 무관하게 항상 사용자에게 반환(500 방지, 이사님 2026-06-23)
     //   런칭 트래픽 중 스키마 드리프트/일시 DB오류가 있어도 사용자는 결과를 본다. 저장·순위는 best-effort.
-    const sc = scoreInstitutionMonth(items);
+    const sc = scoreInstitutionMonth(items);           // diversity_base·gate_cap·감점 등 진단 컬럼용(공식 점수 아님)
     const dims = computeStandoutDims(items, month);
     const axes = computeSevenAxes(items, month);       // 7축(어드민 리스트용)
+    const totalScore = sevenAxisScore(axes);           // ⭐ 공식 종합점수 = 7축 가중 평균(단일 산식)
     let summary: string | null = null;
     try { summary = await summarizeInstitutionMenu({ institutionName: inst.name }); } catch { summary = null; }
 
@@ -122,7 +123,7 @@ export async function POST(req: NextRequest) {
         // ③ 점수 upsert (axes/standout_dims 컬럼 없으면 빼고 재시도)
         const scoreRow: Record<string, unknown> = {
           institution_id: institutionId, month, type: inst.type, sido: inst.sido, sigungu: inst.sigungu,
-          score: sc.score, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat,
+          score: totalScore, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat,
           red_groups: sc.redGroups, summary, day_count: sc.dayCount, item_count: sc.itemCount, standout_dims: dims, axes, computed_at: new Date().toISOString(),
         };
         let sUp = await supabase.from('institution_scores').upsert(scoreRow, { onConflict: 'institution_id,month' });
@@ -137,7 +138,7 @@ export async function POST(req: NextRequest) {
       console.error('[institution/menu] 저장 실패(비치명적):', e instanceof Error ? e.message : e);
     }
 
-    return NextResponse.json({ ok: true, score: sc.score, summary, dayCount: sc.dayCount, stored }, { headers });
+    return NextResponse.json({ ok: true, score: totalScore, summary, dayCount: sc.dayCount, stored }, { headers });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : 'unknown';
     console.error('[institution/menu] error:', msg);

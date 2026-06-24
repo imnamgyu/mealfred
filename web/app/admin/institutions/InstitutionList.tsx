@@ -54,7 +54,7 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
       <Link href="/admin" style={{ fontSize: 13, color: '#FF6B1A', fontWeight: 700, textDecoration: 'none' }}>← 콘솔</Link>
       <h1 style={{ fontSize: 22, fontWeight: 800, color: navy, marginTop: 10 }}>🏫 기관 평가 기록</h1>
       <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>
-        평가 적재 <b>{instCount.toLocaleString()}개 기관 · {monthCount.toLocaleString()}개월</b> · 등수는 <b>같은 유형·같은 월</b> 코호트 기준. 헤더 클릭으로 정렬. · <b>점수=7축 평균</b>(학부모 화면과 동일) · 7축은 모두 <b>높을수록 우수</b>(반복적음·저가공도 점수↑=좋음) · 상위%는 낮을수록 상위.
+        평가 적재 <b>{instCount.toLocaleString()}개 기관 · {monthCount.toLocaleString()}개월</b> · 등수는 <b>같은 유형·전체 기간 누적</b> 코호트 기준. 헤더 클릭으로 정렬. · <b>점수=7축 가중 평균</b>(다양성24·KDRI22·저가공16·반복14·제철10·조리8·알레르겐6) · 7축은 모두 <b>높을수록 우수</b>(반복적음·저가공도 점수↑=좋음) · 상위%는 낮을수록 상위.
       </p>
 
       <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>

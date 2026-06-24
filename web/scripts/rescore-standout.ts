@@ -6,7 +6,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { scoreInstitutionMonth, computeStandoutDims, computeSevenAxes, type OcrMenuItem } from '../lib/institutionScore.ts';
+import { scoreInstitutionMonth, computeStandoutDims, computeSevenAxes, sevenAxisScore, type OcrMenuItem } from '../lib/institutionScore.ts';
 
 function loadEnv(): { url: string; key: string } {
   const env: Record<string, string> = {};
@@ -53,11 +53,12 @@ async function main() {
     const sc = scoreInstitutionMonth(items);
     const dims = computeStandoutDims(items, m.month);
     const axes = computeSevenAxes(items, m.month);
-    scores.push(sc.score);
-    if (DRY) { console.log(`  ${m.institution_id.slice(0, 8)} ${m.month}: ${sc.score}점 (${sc.dayCount}일) fish${dims.fishFrequency} 콩${dims.legumeFrequency} 채소${dims.vegVariety}`); continue; }
+    const totalScore = sevenAxisScore(axes);   // ⭐ 공식 점수 = 7축 가중 평균(단일 산식)
+    scores.push(totalScore);
+    if (DRY) { console.log(`  ${m.institution_id.slice(0, 8)} ${m.month}: ${totalScore}점 (${sc.dayCount}일) fish${dims.fishFrequency} 콩${dims.legumeFrequency} 채소${dims.vegVariety}`); continue; }
 
     const patch = {
-      score: sc.score, diversity_base: sc.diversityBase, gate_cap: sc.gateCap,
+      score: totalScore, diversity_base: sc.diversityBase, gate_cap: sc.gateCap,
       processed: sc.processed, repeat_pen: sc.repeat, red_groups: sc.redGroups,
       day_count: sc.dayCount, item_count: sc.itemCount, standout_dims: dims, axes,
       computed_at: new Date().toISOString(),

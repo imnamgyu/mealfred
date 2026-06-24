@@ -49,12 +49,10 @@ export default async function InstitutionsPage() {
   const instRes = ids.length ? await db.from('institutions').select('id,name').in('id', ids) : { data: [] };
   const nameMap = Object.fromEntries(((instRes.data || []) as { id: string; name: string }[]).map((i) => [i.id, i.name]));
 
-  // 코호트(유형·월) 등수, 유형 풀(대표강점 percentile)
-  const cohortMap = new Map<string, ScoreRow[]>();
+  // 코호트 = 유형 단위 전체 기간 누적(월 격리 제거·이사님 2026-06-24): /api/eval/rank와 동일 기준.
+  //   byType = 등수·대표강점 percentile 공통 풀(같은 유형의 모든 월 기관-월 행).
   const byType = new Map<string, ScoreRow[]>();
   for (const s of scores) {
-    const ck = `${s.type}|${s.month}`;
-    (cohortMap.get(ck) ?? cohortMap.set(ck, []).get(ck)!).push(s);
     (byType.get(s.type) ?? byType.set(s.type, []).get(s.type)!).push(s);
   }
 
@@ -73,7 +71,7 @@ export default async function InstitutionsPage() {
   }
 
   const rows = scores.map((s) => {
-    const cohort = cohortMap.get(`${s.type}|${s.month}`) || [];
+    const cohort = byType.get(s.type) || [];
     const rank = cohort.filter((x) => x.score > s.score).length + 1;
     const total = cohort.length;
     const d = (s.standout_dims || {}) as Record<string, number>;

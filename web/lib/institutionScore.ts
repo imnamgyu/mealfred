@@ -264,6 +264,24 @@ export function computeSevenAxes(items: OcrMenuItem[], month: string): SevenAxes
   return { diversity, kdri, repeat, allergen, nova, season, cuisine };
 }
 
+// ── ⭐ 공식 종합점수 = 7축 가중 평균(이사님 2026-06-24 확정) ──────────────────────────
+// 단일 진실: 실시간 업로드·대량적재·재집계·백필·학부모 화면이 모두 이 가중치를 쓴다(산식 split-brain 종결).
+// 7축 전부 '높을수록 우수'(반복적음·저가공 포함). 변별력 약한 알레르겐(80/100 2값)은 최소 가중.
+//   ※ daycare-eval.html(클라)·_fix-institution-scores.mjs(백필)에도 같은 숫자를 복제 — 바꾸면 3곳 동기화.
+export const AXIS_WEIGHTS: Record<keyof SevenAxes, number> = {
+  diversity: 24, kdri: 22, nova: 16, repeat: 14, season: 10, cuisine: 8, allergen: 6,
+};
+/** 7축 → 공식 종합점수(가중 평균·0~100 정수). 가중치 단일 소스 = AXIS_WEIGHTS. */
+export function sevenAxisScore(axes: SevenAxes, weights: Record<keyof SevenAxes, number> = AXIS_WEIGHTS): number {
+  let num = 0, den = 0;
+  for (const k of Object.keys(weights) as (keyof SevenAxes)[]) {
+    const w = weights[k]; const v = Number(axes[k]);
+    if (!w || !Number.isFinite(v)) continue;
+    num += v * w; den += w;
+  }
+  return den ? Math.round(num / den) : 0;
+}
+
 /** DeepSeek 한 줄 정성 총평(랭킹 카드용). 점수·등급·순위 언급 금지. 실패 시 결정론 폴백. */
 // ⭐ 긍정 칭찬 전용(이사님 2026-06-22). 약점·부족·점수·순위 언급 금지 — 기관은 모두 훌륭하다는 전략과 정합.
 //   (extra 필드는 호출 호환을 위해 optional로 받되 약점 노출에 쓰지 않는다.)

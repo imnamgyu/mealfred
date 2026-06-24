@@ -48,9 +48,11 @@ export async function GET(req: NextRequest) {
       .eq('institution_id', institutionId).eq('month', month).maybeSingle();
     if (!me) return NextResponse.json({ ranked: false, reason: '아직 이 기관의 이번 달 점수가 없어요.' }, { headers });
 
-    // 코호트 = 같은 유형·같은 월(순위 산출 — dims 없이도 동작)
+    // 코호트 = 같은 유형·전체 기간 누적(월 격리 제거·이사님 2026-06-24): 월별 표본이 작아 '상위 X%'가 거의 안 뜨던 문제 해소.
+    //   풀 = 같은 유형의 '모든 월' 점수 행(기관-월 단위로 누적). me.score(선택한 달 점수)를 이 누적 분포에 대고 순위 산출.
+    //   limit는 누적 성장에 대비해 넉넉히(PostgREST 기본 1000행 절단 시 백분위가 왜곡되므로 명시).
     const { data: cohortData } = await supabase.from('institution_scores')
-      .select('score,sigungu').eq('type', me.type).eq('month', month);
+      .select('score,sigungu').eq('type', me.type).limit(100000);
     const cohort = (cohortData || []) as { score: number; sigungu: string | null }[];
     const nationalTotal = cohort.length;
     const nationalRank = cohort.filter((c) => c.score > me.score).length + 1;

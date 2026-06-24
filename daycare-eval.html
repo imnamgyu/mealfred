@@ -298,7 +298,7 @@
     <tr><td class="l">5. 가공식품 비율 ⚠️</td><td class="diff-down">78 (C+ · 27%)</td><td class="diff-down">70 (C · 45%)</td></tr>
     <tr><td class="l">6. 🌸 제철 식재료</td><td class="same">90 (A · 봄나물 풍부)</td><td class="same">95 (A+ · 죽순·새우·딸기)</td></tr>
     <tr><td class="l">7. 🌍 조리 스타일</td><td class="diff-down">60 (D · 한식 only)</td><td class="diff-down">65 (D+ · 한식+짜장 1)</td></tr>
-    <tr class="total"><td class="l">총점 (7축 평균)</td><td>86점 (B+)</td><td>88점 (B+)</td></tr>
+    <tr class="total"><td class="l">총점 (종합점수)</td><td>86점 (B+)</td><td>88점 (B+)</td></tr>
   </table>
 
   <div style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);border-radius:12px;padding:14px;margin-top:14px;border-left:4px solid var(--y500)">
@@ -324,7 +324,7 @@
         <div class="grade B">B+</div>
         <div class="top-info">
           <div class="ttl">이번 달 식단 종합</div>
-          <div class="sub">만 14개월 기준 · 86점 (7축 평균)</div>
+          <div class="sub">만 14개월 기준 · 86점 (종합점수)</div>
         </div>
       </div>
       <div class="axis-bar"><span class="nm">1. 식품군 다양성<br><span style="font-size:9.5px;color:var(--n500)">8개 식품군 충족 = B · 세부 종류 다양하면 A</span></span><div class="b"><div class="f B" style="width:85%"></div></div><span class="g B">B+</span></div>
@@ -475,7 +475,7 @@
         <div class="grade B">B+</div>
         <div class="top-info">
           <div class="ttl">이번 달 식단 종합</div>
-          <div class="sub">86점 (7축 평균)</div>
+          <div class="sub">86점 (종합점수)</div>
         </div>
       </div>
       <div class="axis-bar"><span class="nm">1. 다양성<br><span style="font-size:9.5px;color:var(--n500)">8개 식품군 충족 = B · 세부 종류 다양하면 A</span></span><div class="b"><div class="f B" style="width:85%"></div></div><span class="g B">B+</span></div>
@@ -960,8 +960,12 @@ function evaluate(text, ageBand, items, evalMonth){
   const cuisineDiv = cuisineSet.size;
   const cuisineScore = cuisineDiv >= 4 ? 95 : cuisineDiv >= 3 ? 85 : cuisineDiv >= 2 ? 70 : 60;
 
-  // 총점 (7축 평균 — 식감 단계 제외, 이사님 2026-06-22: 모호·기관유형마다 다름)
-  const total = Math.round((divScore + kdriScore + repeatScore + allergenScore + novaScore + seasonScore + cuisineScore) / 7);
+  // 종합점수 = 7축 가중 평균(이사님 2026-06-24 확정 · 서버 lib/institutionScore.ts sevenAxisScore와 동일 가중치 — 바꾸면 동기화). 식감 단계 제외.
+  const AXIS_W = { div:24, kdri:22, nova:16, repeat:14, season:10, cuisine:8, allergen:6 };
+  const total = Math.round(
+    (divScore*AXIS_W.div + kdriScore*AXIS_W.kdri + repeatScore*AXIS_W.repeat + allergenScore*AXIS_W.allergen + novaScore*AXIS_W.nova + seasonScore*AXIS_W.season + cuisineScore*AXIS_W.cuisine)
+    / (AXIS_W.div + AXIS_W.kdri + AXIS_W.repeat + AXIS_W.allergen + AXIS_W.nova + AXIS_W.season + AXIS_W.cuisine)
+  );
 
   return {
     total,
@@ -1009,7 +1013,7 @@ function renderResult(result, ageBand){
       <div class="grade" style="color:${g.color};font-size:48px;font-weight:800;line-height:1;letter-spacing:-0.04em">${g.grade}</div>
       <div class="top-info">
         <div class="ttl" style="font-size:13px;font-weight:800;color:var(--s800)">이번 식단 종합</div>
-        <div class="sub" style="font-size:11px;color:var(--n500);font-weight:600;margin-top:3px">${result.total}점 (7축 평균)</div>
+        <div class="sub" style="font-size:11px;color:var(--n500);font-weight:600;margin-top:3px">${result.total}점 (종합점수)</div>
         <div style="font-size:10px;color:var(--n400);margin-top:2px;font-weight:600">유아·유치원 기준 · 식재료 ${result.ingredients.length}종 · 메뉴 ${result.totalMenus}건</div>
       </div>
     </div>
@@ -1359,11 +1363,13 @@ async function attributeAndRank(items, ocrText, imageUrls){
 }
 function renderRank(d){
   if(!d || !d.ranked) return '';
-  // ⭐ 하위권 순위는 절대 미노출(컨셉='약점 안 보임'). 표본 충분(≥5) + 상위 절반(≤50%)일 때만 '상위 X%' 표시. 그 외엔 긍정 중립문구('상위 100%=꼴찌' 노출 버그 차단·이사님 2026-06-23)
-  const goodRank = d.nationalTotal >= 5 && d.topPercent && d.topPercent <= 50;
-  const rankBody = goodRank
-    ? `전국 ${d.typeLabel} <strong style="color:var(--p700);font-size:21px">상위 ${d.topPercent}%</strong><div style="font-size:10.5px;color:var(--n400);font-weight:600;margin-top:5px">사실상 다 같이 최상위권 — 차이는 종이 한 장이에요</div>`
-    : `<span style="color:var(--n500);font-weight:600">우리 원 식단은 영양사 선생님·어린이급식관리지원센터가 함께 챙겨서 충분히 훌륭해요 🙂</span>`;
+  // ⭐ 신규 고객 보호(이사님 2026-06-24): 표본 충분(≥5) + 상위 29% 이내일 때만 '상위 X%'(실제 %) 노출.
+  //   30% 밑은 숫자 없이 따뜻한 메시지(박한 숫자 미노출). 최상위(≤5%)는 ⭐ 한 개로 격려.
+  const showRank = d.nationalTotal >= 5 && d.topPercent && d.topPercent <= 29;
+  const star = d.topPercent && d.topPercent <= 5 ? ' ⭐' : '';
+  const rankBody = showRank
+    ? `전국 ${d.typeLabel} <strong style="color:var(--p700);font-size:21px">상위 ${d.topPercent}%${star}</strong><div style="font-size:10.5px;color:var(--n400);font-weight:600;margin-top:5px">사실상 다 같이 최상위권 — 차이는 종이 한 장이에요</div>`
+    : `<span style="color:var(--n500);font-weight:600">우리 원도 영양사 선생님·어린이급식관리지원센터가 함께 챙긴 훌륭한 식단이에요 👏</span>`;
   const standout = d.standout ? `<div style="background:linear-gradient(135deg,#FFF3E0,#FFFDE7);border:1.5px solid #FFCC80;border-radius:10px;padding:11px 12px;margin:10px 0">
     <div style="font-size:11px;font-weight:800;color:#E65100;margin-bottom:3px">⭐ 우리 원의 빛나는 강점</div>
     <div style="font-size:13px;font-weight:700;color:var(--s800);line-height:1.5">${d.standout.phrase}</div>
