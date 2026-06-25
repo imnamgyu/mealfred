@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-06-25 — 반복도 축 화이트리스트 누락 버그 → isStapleMenu 식품군 분류로 종결</title>
+<meta property="og:title" content="작업 일지 2026-06-25 — 산양유 8회를 '메뉴 반복'으로 오집계하던 점수 버그를 식품군 기반 isStapleMenu로 근본수정 + prod 298개월 재채점">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.star{background:#FFFDF4;border:1px solid #f0e3a8}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-06-25 (목) · 코칭 점수엔진 디버그 세션</div>
+  <h1>반복도 축 화이트리스트 누락 버그 → isStapleMenu 식품군 분류로 종결</h1>
+  <p class="sub">어드민에서 "이 어린이집 메뉴 반복도가 왜 최악?"이라는 질문으로 시작 — 실은 산양유(음료) 8회·차조밥/흑미밥(주식)이 무시목록에서 빠져 멀쩡한 식단을 '반복도 40'으로 깎던 버그. 음료엔 식품군이 없어 형태소, 밥은 식품군으로 분류하는 정본 분류기 1개로 화이트리스트 3곳을 통합. 타깃 40→95·총점 88→95.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">반복도 40 → 95</div><div class="l">타깃 어린이집 · 총점 88 → 95</div></div>
+    <div class="gcard"><div class="n">73개월 해소</div><div class="l">억울한 패널티 · 회귀 0 · 마스킹 0</div></div>
+    <div class="gcard"><div class="n">화이트리스트 3 → 1</div><div class="l">SVN_STAPLE·REPEAT_SKIP → isStapleMenu</div></div>
+    <div class="gcard"><div class="n">재채점 298개월</div><div class="l">prod 재집계(결정론·재OCR 0)</div></div>
+  </div>
+
+  <section class="work star">
+    <div class="wh"><span class="no">1</span><h2>⭐ 진단 — 산양유 8회가 반복도를 혼자 최악(40)으로</h2></div>
+    <ul class="wl">
+      <li>센텀롯데캐슬자연어린이집 2026-06: 7축 중 6개가 95~100인데 <b>반복도만 40</b> → 총점 88. 실제론 distinct 메뉴 176/230으로 매우 다양.</li>
+      <li>실데이터 재현: 오후간식 음료 <b>산양유가 8일</b> 제공. 반복도 축(<code>computeSevenAxes</code>)은 8글자 키 max빈도 ≥7이면 40 부여 → 산양유×8이 트립.</li>
+      <li><b>근본원인</b>: 반복 집계는 <code>SVN_STAPLE</code>(매일 나오는 주식·음료 무시 목록)에 없는 메뉴만 카운트 — <b>우유는 목록에 있는데 산양유는 빠짐</b>. 부차로 차조밥·흑미밥(밥)도 누락.</li>
+    </ul>
+    <div class="out"><b>결론</b> · 식단이 단조로워서가 아니라 채점 화이트리스트 누락 버그. What-if: 산양유 화이트 → 80(총점93), 밥까지 → 95(총점95)</div>
+  </section>
+
+  <section class="work star">
+    <div class="wh"><span class="no">2</span><h2>⭐ 수정(B) — isStapleMenu 식품군 분류로 화이트리스트 3곳 통합</h2><span class="commit">5169ff9</span></div>
+    <ul class="wl">
+      <li>이사님이 빠른 패치(A: 문자열 추가) 대신 <b>근본수정(B)</b> 선택. 식품군 8종에 <b>'음료'가 없음</b> 실측(두유=콩류·보리차=곡물·산양유=미분류) → 음료는 식품군으로 못 잡음. 밥은 곡물(±콩류), 요리밥은 채소·고기군이 붙어 분리 가능.</li>
+      <li>전체 코퍼스 6,194종 오탐 감사: <code>유$</code> 253종·<code>차$</code> 147종 전부 음료/차(오탐 0), <code>밥$</code> 582종은 맨밥 vs 요리밥으로 깔끔히 분리 확인.</li>
+      <li>정본 <code>isStapleMenu(name, ings?, catOf?)</code> 신설 — 음료=형태소(<code>유$</code>/<code>차$</code>/우유/두유/요거트), 주식밥=꼬리표 제거 후 <code>밥$</code>+곡물/콩류만(요리밥 제외), 밑반찬=김치·깍두기·단무지 부분일치. <code>SVN_STAPLE</code>·<code>REPEAT_SKIP</code> 2곳을 단일 소스로 통합.</li>
+    </ul>
+    <div class="out"><b>위치</b> · <code>lib/nutrition.ts</code>(분류기) + <code>lib/institutionScore.ts</code>(반복도 축이 라인별 식재료 전달해 사용)</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>검증 — 250개월 전수·회귀 0·마스킹 0</h2></div>
+    <ul class="wl">
+      <li>타깃 40→95·총점 88→95. 전체 250개월: <b>73개월 억울한 패널티 해소·회귀 0</b>.</li>
+      <li><b>마스킹 0</b>: 밥으로 스킵된 게 진짜 반복인지 직접 스캔 → 쌀밥×21·백미밥×11·차조밥×5 등 전부 매일 기본밥(요리밥 마스킹 0건).</li>
+      <li>1차 회귀 4건 발견·봉합: <code>백미밥(잡곡밥)×18</code>·<code>김치류×5</code>가 접미 앵커에 안 잡힘 → 꼬리표 제거 + 밑반찬 부분일치로 과거 동작 복원. tsc 0 errors.</li>
+    </ul>
+    <div class="out"><b>분포</b> · dry-run min82 · 중앙92 · 평균91.7</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>반영 — prod 재채점 + 코드 푸시</h2><span class="commit">5169ff9</span></div>
+    <ul class="wl">
+      <li>기존 데이터: <code>rescore-standout.ts</code> 실행 → <b>298개월 재채점</b>(결정론·재OCR 없음). 타깃 라이브 DB total=95·axes.repeat=95·repeat_pen=0 확인.</li>
+      <li>코드: deploy 레포 main 푸시 → Vercel 자동 배포(앞으로 올라오는 식단표에 적용). ⚠️ prod DB write는 auto-mode가 1차 차단 → 이사님 명시 승인 후 실행.</li>
+    </ul>
+    <div class="out"><b>라이브</b> · 어드민 기관 상세에서 해당 어린이집 반복도 95로 표시</div>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션 / 다음</h3>
+    <ul>
+      <li>이 버그는 <b>종결</b> — 새 식단표 자동 적용·기존 데이터 재채점 반영 완료.</li>
+      <li>(참고) MEMORY 진행중 다음 항목은 여전히 <b>P0-D</b>(child_daily_state 환경신호 입력 = table-stage step 전진 게이트).</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-06-25 (목) · 코칭 점수엔진 디버그 세션 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>

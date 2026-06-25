@@ -389,10 +389,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 20</span>
+    <span class="cnt">세션 21</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-25.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-25 — 반복도 축 화이트리스트 누락 버그 → isStapleMenu 식품군 분류로 종결</h4>
+      <p class="desc"><b>코칭 점수엔진 디버그 세션.</b> ① 어드민 "이 어린이집 반복도 왜 최악?" → 실은 <b>산양유(음료) 8회</b>가 무시목록(우유만 등록·산양유 누락)에 안 잡혀 멀쩡한 식단을 반복도 40으로 깎던 버그(차조밥·흑미밥도 누락) ② ⭐ 근본수정 — 식품군에 '음료'가 없어(두유=콩류·보리차=곡물) 음료는 형태소·밥은 식품군으로 분류하는 정본 <code>isStapleMenu</code> 1개로 화이트리스트 3곳 통합(<code>5169ff9</code>) ③ 250개월 검증 — 73개월 억울한 패널티 해소·회귀 0·마스킹 0(밥-스킵 전부 진짜 맨밥류) ④ prod 298개월 재채점 + 푸시 → 타깃 40→95·총점 88→95. <span style="color:#1B5E20">전부 라이브.</span></p>
+      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-24-e.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -468,13 +475,6 @@
       <p class="desc"><b>코칭 엔진 세션(병행).</b> ① 영양거울 결핍줄("어린이집 덕에 전체 영양 채워진다") 24통 중 17통 도배 → <b>출현빈도 자체</b>를 며칠 간격으로(<code>mirrorCooldownDue</code> 결정론 격일화·3일 1회) ② 누수 차단 — 쿨다운날 안심문구 금지 가드 + <code>mirrorReassureLeak</code>/<code>stripMirrorReassure</code>(변종 탐지·문장 절단, 집-결핍·행동 보존) ③ 골든완화 Option A로 무슬롯 경로까지 확대(랄프위검 48→53 변종누수 봉합)·<b>vitest 528 그린</b>·통합 커밋(<code>c3cf49d</code>). <span style="color:#1B5E20">17→8 균일 3일 cadence·생략날 누수 0·replay 24/24.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-20-b.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-20 — 코칭 편지 도입 "부모님," 수렴 차단 (소재 daySeed 회전)</h4>
-      <p class="desc"><b>코칭 엔진 세션(병행).</b> ① 도입 소재 <b>daySeed 회전 풀 6종</b>(관찰·변화·질문·장면·일상·공감) — SCEN_OPEN 각도와 직교 합성, 첫 문장 형태를 매일 회전 ② '부모님' 호명 시작 금지(아이 이름 금지와 대칭)·시나리오 게이트라 무시나리오 <b>byte 0</b> ③ 골든 5케이스·<b>vitest 509+5 그린</b>·내 hunk만 격리 커밋(<code>b6c1908</code>). <span style="color:#1B5E20">06-04 재생성 도입이 장면형으로 부모님 호명 탈피.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
@@ -511,6 +511,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-25.html':{c:'2026-06-25',m:'2026-06-25'},
     '/worklog-2026-06-24-e.html':{c:'2026-06-24',m:'2026-06-24'},
     '/worklog-2026-06-24-d.html':{c:'2026-06-24',m:'2026-06-24'},
     '/worklog-2026-06-24-c.html':{c:'2026-06-24',m:'2026-06-24'},
