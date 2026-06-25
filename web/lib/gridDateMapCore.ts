@@ -20,6 +20,14 @@ const isWd = (t?: string): string | null => { const m = (t || '').trim().match(W
 const ENDMEAL = /열량|단백질|kcal|에너지|탄수화물|지방/;
 // 비메뉴 셀 — 원산지·영양·헤더·안내문(셀 통째로 메뉴가 아님). 메뉴셀엔 이 키워드가 거의 안 나옴.
 const NONMENU = /국내산|외국산|수입산|러시아산|미국산|중국산|노르웨이|페루산|원양|국거리|무항생제|유기농|HACCP|친환경|한우|등급|원산지|품목|구분|대상|급식일|급식단가|식재료비|관리비|홈페이지|게시|소식지|유발|번호로|예정량|첨가물|알레르기|미량영양|아랫줄|식단표|학교급식|가정통신|식생활/;
+// 표 하단 범례/사이드바 — 식단표 맨 아래 블록(알레르기 19종·식품군·제철음식·푸드브릿지 특집·각주)이
+//   마지막 날짜열로 흡수돼 가짜 진수성찬이 되는 것 방지(2026-06-25 동래래미안 06-30 42토큰 사고).
+//   알레르기는 '난류 우유 메밀…'처럼 단독토큰으로 나열됨 — 메뉴는 '소불고기'처럼 음식명에 박혀 단독 아님 → 정확토큰 매칭으로 오탐 차단.
+const ALLERGEN = new Set(['난류', '우유', '메밀', '땅콩', '대두', '밀', '고등어', '게', '새우', '돼지고기', '복숭아', '토마토', '아황산류', '아황산', '호두', '닭고기', '쇠고기', '오징어', '조개류', '잣', '메추리', '전복', '홍합']);
+// 사이드바/푸터 마커(정상 메뉴엔 안 나옴) — 푸드브릿지 특집·제철음식·식품군범례·알레르기 각주
+const LEGEND_RE = /푸드브릿지|제철음식|어육가공품|식육가공품|수산물가공품|산화방지제|보존료|표백제|나트륨함량|간접노출|소극적노출|적극적노출|기호도\s*낮은|단계적으로/;
+// 제철음식 사이드바 셀머리: [채소]·[해산물]·[과일] / -채소: -해산물:
+const SEASON_TAG_RE = /^\s*[-·]?\s*\[(채소|해산물|과일|채소류|해산물류)\]|^\s*[-·]\s*(채소|해산물|과일)\s*:/;
 
 interface DateHit { date: number; wd: string; mon?: number; bare?: boolean }
 // 날짜셀 인식 (요일 괄호 없는 변종 포함) — N일·M/D·D/요일·맨숫자. maxDay = 그달 일수(범위검증으로 영양/원산지 숫자 오인 차단).
@@ -75,6 +83,14 @@ export function gridToItems(cells: GridCell[], ym: string | null): GridResult {
 
   for (const ri of rk) {
     const cs = rows[ri].slice().sort((a, b) => a.col - b.col);
+    // (0) 하단범례 컷 — 알레르기 단독토큰 다수(≥4) 또는 사이드바 마커 = 식단표 맨 아래 범례블록.
+    //   메뉴가 시작된 뒤(dayMap 존재)면 이 행부터 표 하단 범례 → 이후 행 전부 제외(break). 메뉴 전이면 그냥 스킵.
+    const rowToks = cs.flatMap((c) => (c.txt || '').split(/[\s,，/·]+/).map((s) => s.trim()).filter(Boolean));
+    const allergenHits = rowToks.filter((t) => ALLERGEN.has(t)).length;
+    if (allergenHits >= 4 || LEGEND_RE.test(cs.map((c) => c.txt).join(' '))) {
+      if (dayMap) { warns.push('하단범례 컷'); break; }
+      continue;
+    }
     // (1) 요일헤더행 — col→요일 기억(날짜 못 읽어도 분산·교차검증에 사용)
     const wdCells = cs.filter((c) => isWd(c.txt));
     if (wdCells.length >= 3) { wdMap = {}; for (const c of cs) { const w = isWd(c.txt); if (w) for (let col = c.col; col < c.col + c.cs; col++) wdMap[col] = w; } continue; }
@@ -101,6 +117,7 @@ export function gridToItems(cells: GridCell[], ym: string | null): GridResult {
     for (const c of cs) {
       if (c.col === 0 || !c.txt || c.txt === '·') continue;   // col0 = 라벨/안내 자리
       if (NONMENU.test(c.txt)) continue;                       // 원산지·영양·안내 셀 제외
+      if (LEGEND_RE.test(c.txt) || SEASON_TAG_RE.test(c.txt)) continue;   // 푸드브릿지·제철음식·식품군 범례 셀(컷 위로 샌 경우 방어)
       if (c.txt.length < 14 && HOLIDAY_RE.test(c.txt)) continue;
       let day: { date: string; wd: string } | null = null;
       if (dayMap) for (let col = c.col; col < c.col + c.cs; col++) if (dayMap[col]) { day = dayMap[col]; break; }
