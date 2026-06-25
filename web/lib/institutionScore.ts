@@ -7,7 +7,7 @@
  *  - 총평: DeepSeek(llmText) 한 줄 정성 코멘트. LLM 미가용/실패 시 결정론 폴백.
  * 서버 전용(menuMap이 fs로 도감 풀 로드).
  */
-import { computeDiversityScore, groupOf, isProcessed } from './nutrition';
+import { computeDiversityScore, groupOf, isProcessed, isStapleMenu } from './nutrition';
 import { inSeason, seasonMonths } from './season';
 import { mapMenuLocal } from './menuMap';
 import { getIngredientsLight } from './graphSource';
@@ -213,12 +213,11 @@ const SVN_SEASON: Record<number, string[]> = {
   9: ['배', '포도', '단감', '고구마', '단호박', '고등어', '전어', '새송이버섯'], 10: ['고구마', '단호박', '무', '사과', '단감', '배', '고등어'],
   11: ['배', '사과', '단감', '귤', '무', '배추', '대구', '새우'], 12: ['귤', '배추', '무', '시금치', '고구마', '딸기', '대구', '고등어'],
 };
-const SVN_STAPLE = ['우유', '김치', '깍두기', '단무지', '보리차', '둥글레차', '메밀차', '옥수수차', '생수', '요구르트', '요거트', '백미밥', '잡곡밥', '흰밥', '기장밥', '수수밥', '쌀밥', '현미밥', '찹쌀밥'];
 
 /** OCR items + month → 7축 점수(부모 화면과 동일 임계값). 어드민 리스트 표시용. */
 export function computeSevenAxes(items: OcrMenuItem[], month: string): SevenAxes {
   const monthNum = parseInt(month.slice(5, 7), 10) || 0;
-  const lines: string[] = []; const allIngs = new Set<string>(); const cats = new Set<string>(); const groups = new Set<string>(); const nutri = new Set<string>();
+  const lines: string[] = []; const lineIngs: string[][] = []; const allIngs = new Set<string>(); const cats = new Set<string>(); const groups = new Set<string>(); const nutri = new Set<string>();
   const namedSeasonal = new Set<string>(); const seasonList = SVN_SEASON[monthNum] || [];   // ⭐ 제철=메뉴명에 이름이 직접 든 식재료만
   let scan = '';
   for (const it of items) {
@@ -226,6 +225,7 @@ export function computeSevenAxes(items: OcrMenuItem[], month: string): SevenAxes
     lines.push(menu);
     const flat = menu.replace(/\s/g, '');
     const ings = mapMenuLocal(menu)?.ingredients || [];
+    lineIngs.push(ings);
     scan += menu + ' ' + ings.join(' ') + '\n';
     for (const ing of ings) {
       allIngs.add(ing);
@@ -241,9 +241,9 @@ export function computeSevenAxes(items: OcrMenuItem[], month: string): SevenAxes
   // 2. KDRI 31
   const np = nutri.size / 31;
   const kdri = np >= 0.8 ? 95 : np >= 0.6 ? 90 : np >= 0.45 ? 85 : np >= 0.35 ? 80 : np >= 0.22 ? 70 : 50 + Math.round(np * 100);
-  // 3. 메뉴 반복도
+  // 3. 메뉴 반복도 — 주식·음료·고정 밑반찬(isStapleMenu)은 제외(식품군+형태소 분류, 단일 소스)
   const freq: Record<string, number> = {};
-  for (const line of lines) { if (SVN_STAPLE.some((k) => line.includes(k))) continue; const key = line.replace(/[\s,]/g, '').slice(0, 8); if (key) freq[key] = (freq[key] || 0) + 1; }
+  for (let i = 0; i < lines.length; i++) { if (isStapleMenu(lines[i], lineIngs[i], catOf)) continue; const key = lines[i].replace(/[\s,]/g, '').slice(0, 8); if (key) freq[key] = (freq[key] || 0) + 1; }
   const maxRep = Math.max(1, ...Object.values(freq));
   const repeat = maxRep <= 2 ? 95 : maxRep <= 4 ? 80 : maxRep <= 6 ? 60 : 40;
   // 4. 알레르겐

@@ -534,11 +534,31 @@ export function processedPenalty(menusByMeal: string[][]): { ratio: number; pena
   const ratio = weighted / meals.length;
   return { ratio, penalty: Math.round(ratio * 22), sampleNames: [...names].slice(0, 3) };
 }
-// 반복 패널티 — 흰쌀밥·김치·국 등 주식/기본 제외. 같은 메인 4회+ 감점, 상한 12.
-const REPEAT_SKIP = new Set(['물', '국', '김', '우유', '생수', '보리차', '숭늉', '밥', '쌀밥', '흰밥', '흰쌀밥', '백미밥', '진밥', '쌀', '맨밥', '김치', '배추김치', '깍두기', '총각김치', '백김치', '열무김치', '나박김치', '물김치', '갓김치', '파김치', '오이소박이']);
+// ── 매일 반복되는 '주식·음료·고정 밑반찬'은 메뉴 단조로움이 아님 → 반복 집계에서 제외(단일 소스) ──
+// 과거엔 곳곳의 문자열 화이트리스트(SVN_STAPLE·REPEAT_SKIP)가 산양유·차조밥·결명자차 등을 놓쳐
+// 멀쩡한 식단이 '반복도 최악'으로 깎였다. 음료엔 식품군이 없어(두유=콩류·보리차=곡물) 형태소로,
+// 주식밥은 '밥으로 끝 + 곡물/콩류로만 구성(요리밥 제외)'으로 식품군 분류한다. (이사님 2026-06-25)
+const BEVERAGE_RE = /(우유|두유|산양유|연유|미숫|유$|차$|주스|에이드|스무디|라떼|식혜|수정과|요거트|요구르트|요플레|생수|음료)/;
+const FIXTURE_RE = /(김치|깍두기|단무지|장아찌|짠지|소박이|겉절이|총각무)/;   // 밑반찬은 부분일치(과거 화이트리스트 동등·안전쪽)
+const RICE_DISH_RE = /(볶음밥|비빔밥|김밥|주먹밥|덮밥|회덮|카레|커리|짜장|자장|국밥|무른밥|섞음밥|마요|묵밥)/;   // '밥'이지만 요리 → 반복 집계 대상
+/** 메뉴가 매일 반복되는 주식·음료·고정 밑반찬인가(반복도 집계 제외 대상). ings 주면 밥류 판정 정밀(곡물·콩류만). */
+export function isStapleMenu(name: string, ings?: string[], catOf?: CatOf): boolean {
+  const flat = (name || '').replace(/\s/g, '');
+  if (!flat) return false;
+  if (BEVERAGE_RE.test(flat)) return true;            // 음료(우유·산양유·두유·각종 차·요거트)
+  if (FIXTURE_RE.test(flat)) return true;             // 고정 밑반찬(김치·깍두기·단무지류)
+  const core = flat.replace(/[(（\[【/].*$/, '');     // 'A(B)'·'A/B' 등 꼬리표 제거 → 본체로 밥 판정('백미밥(잡곡밥)')
+  if (/밥$/.test(core) && !RICE_DISH_RE.test(flat)) { // 주식 밥(맨밥·잡곡밥·차조밥…) — 곡물/콩류로만 구성
+    const groups = (ings || []).map((i) => groupOf(i, catOf)).filter(Boolean) as string[];
+    if (groups.every((g) => g === '곡물' || g === '콩류')) return true;
+  }
+  return false;
+}
+
+// 반복 패널티 — 주식·음료·고정 밑반찬(isStapleMenu) 제외. 같은 메인 4회+ 감점, 상한 12.
 export function repeatPenalty(menusByMeal: string[][]): { topMenu: string | null; count: number; penalty: number } {
   const freq: Record<string, number> = {};
-  menusByMeal.forEach((meal) => meal.forEach((mn) => { const k = (mn || '').replace(/\s/g, ''); if (k && !REPEAT_SKIP.has(k)) freq[k] = (freq[k] || 0) + 1; }));
+  menusByMeal.forEach((meal) => meal.forEach((mn) => { const k = (mn || '').replace(/\s/g, ''); if (k && !isStapleMenu(mn)) freq[k] = (freq[k] || 0) + 1; }));
   const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
   if (!top || top[1] < 4) return { topMenu: top?.[0] ?? null, count: top?.[1] ?? 0, penalty: 0 };
   return { topMenu: top[0], count: top[1], penalty: Math.min(12, (top[1] - 3) * 4) };
