@@ -389,10 +389,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 21</span>
+    <span class="cnt">세션 22</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-25-b.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-25 (b) — 06-30 "가짜 진수성찬": 하단범례 흡수 OCR 버그 종결 · 전 기관 정리 · 312 재채점</h4>
+      <p class="desc"><b>식단 데이터 정리 세션(병행 b).</b> ① 어드민 "06-30 (화) 이상하게?" → 요일은 정상, 진짜는 식단표 하단 범례블록(알레르기19·제철·푸드브릿지 특집)이 마지막 날짜열로 흡수된 <b>42토큰 가짜 진수성찬</b> ② ⭐ 파서 <b>하단범례 컷</b>(알레르기 단독토큰≥4·사이드바 마커→break)+회귀테스트(<code>a10d4d3</code>·tsc0·586통과) ③ 재OCR 불가라 후처리 <code>clean-menu-legend.mjs</code> 2단계 — 전수검증(진짜음식 오탐0) 후 <b>전 기관 10일 삭제·250행 strip</b>(1자 음식 귤·배 보존 버그도 수정) ④ 312개월 재채점 + <code>/mealfred-menu-import</code> 스킬 5-B 정리패스 영구화. <span style="color:#1B5E20">전부 라이브.</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-25.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -468,13 +475,6 @@
       <p class="desc"><b>코칭 통합·문서 세션(병행).</b> ① 병행 #5(거울 쿨다운)·#7(macro)를 대표로 통합 머지·배포(<code>c3cf49d</code>·vitest 528) ② 최종 재생성(아린 24통) → 랄프위검 <b>연속성 44→47</b>(#5 WORKED·#6 재수렴·#7 dead·F-16 environment 레버 슬롯음식 본문 증발) ③ 어드민 뷰 plan_detail 9필드 전사 검증 = 수정불필요 ④ 모듈 통합문서 9종을 5섹션(비개발자·구현·아키텍처시각화·예시·남은문제)으로 21에이전트 코드실측 정본화 · <b>9/9 통과</b>(<code>5fd75ad</code>). <span style="color:#1B5E20">남은 P0 = P0-D 환경신호 입력(step 전진 게이트).</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-20-c.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-20 — 영양거울 "어린이집 덕에…" 출현빈도 쿨다운 (17→8 격일화)</h4>
-      <p class="desc"><b>코칭 엔진 세션(병행).</b> ① 영양거울 결핍줄("어린이집 덕에 전체 영양 채워진다") 24통 중 17통 도배 → <b>출현빈도 자체</b>를 며칠 간격으로(<code>mirrorCooldownDue</code> 결정론 격일화·3일 1회) ② 누수 차단 — 쿨다운날 안심문구 금지 가드 + <code>mirrorReassureLeak</code>/<code>stripMirrorReassure</code>(변종 탐지·문장 절단, 집-결핍·행동 보존) ③ 골든완화 Option A로 무슬롯 경로까지 확대(랄프위검 48→53 변종누수 봉합)·<b>vitest 528 그린</b>·통합 커밋(<code>c3cf49d</code>). <span style="color:#1B5E20">17→8 균일 3일 cadence·생략날 누수 0·replay 24/24.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
@@ -511,6 +511,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-25-b.html':{c:'2026-06-25',m:'2026-06-25'},
     '/worklog-2026-06-25.html':{c:'2026-06-25',m:'2026-06-25'},
     '/worklog-2026-06-24-e.html':{c:'2026-06-24',m:'2026-06-24'},
     '/worklog-2026-06-24-d.html':{c:'2026-06-24',m:'2026-06-24'},

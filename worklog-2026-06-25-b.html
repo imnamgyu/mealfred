@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-06-25 — 06-30 가짜 진수성찬: 하단범례 OCR 버그 종결</title>
+<meta property="og:title" content="작업 일지 2026-06-25(식단 정리) — 하단범례 흡수 버그 파서 컷 + 전 기관 10일 정리 + 312 재채점">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-06-25 · 식단 데이터 정리 세션 (병행)</div>
+  <h1>06-30 "가짜 진수성찬" — 하단범례가 마지막 날짜열로 흡수되는 OCR 버그 종결</h1>
+  <p class="sub">요일은 정상이었고 진짜 문제는 식단표 맨 아래 범례블록 흡수. 파서 컷 + 전 기관 데이터 정리 + 312 재채점 + 스킬 영구 반영.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">42→0</div><div class="l">06-30 가짜토큰 (삭제)</div></div>
+    <div class="gcard"><div class="n">10일 · 250행</div><div class="l">전 기관 정리 (삭제·strip)</div></div>
+    <div class="gcard"><div class="n">312</div><div class="l">개월 재채점</div></div>
+    <div class="gcard"><div class="n">0</div><div class="l">진짜음식 오탐 (전수검증)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>진단 — 요일은 정상, 진짜는 하단범례 흡수</h2><span class="commit">진단</span></div>
+    <ul class="wl">
+      <li>이사님 질문 "<code>06-30 (화)</code> 이상하게 잡힌듯?"(동래래미안아이파크2단지, 부산 동래). 요일 자체는 정상 — 2026-06-30 = 진짜 화요일(6월이 06-01=월로 시작 → 2026 달력 일치).</li>
+      <li>진짜 이상은 그 칸의 <b>메뉴 42토큰 가짜 진수성찬</b>: 식단표 맨 아래 범례블록(알레르기 19종 · 식품군 <code>식육·어육가공품</code> · 제철음식 <code>[채소]감자</code> · "6월의 푸드브릿지: 감자" 특집 <code>:감자죽</code>)이 마지막 날짜열로 통째 흡수. 진짜 메뉴는 앞 5개(잡곡밥·다시마챗국·쇠불고기·시금치나물·깍두기)뿐.</li>
+      <li>근본원인 2곳(<code>lib/gridDateMapCore.ts</code>): NONMENU 필터가 범례 토큰을 못 거름 + 고아 셀을 "가장 가까운 날짜 col로 흡수"하는 로직이 표 하단 사이드바를 마지막 칸으로 몰아넣음. 전 기관 스캔 → systematic(매달 가장자리 날짜).</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>파서 하드닝 — 하단범례 컷 + 회귀테스트</h2><span class="commit">a10d4d3</span></div>
+    <ul class="wl">
+      <li><b>하단범례 컷</b>: 한 행에 알레르기 단독토큰 ≥4 또는 사이드바 마커(<code>LEGEND_RE</code>=푸드브릿지·제철음식·어육가공품) → 메뉴 시작 후면 그 행부터 표 하단으로 보고 <code>break</code>. 메뉴행 per-cell 범례/제철 셀 방어 추가.</li>
+      <li>알레르기는 <b>정확토큰 매칭</b>(<code>난류</code>)으로만 카운트 → <code>소불고기</code>처럼 음식명에 박힌 건 오탐 0.</li>
+      <li>회귀테스트 <code>grid-legend-cut.test.ts</code>(4케이스). <b>tsc 0 · 전체 586개 통과.</b></li>
+    </ul>
+    <div class="out"><b>배포</b> · deploy 레포 main 푸시 <code>a10d4d3</code> → Vercel 자동배포(라이브 <code>/api/ocr</code>=care 탭 적용) · bulk import는 로컬이라 즉시</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>전 기관 데이터 정리 — clean-menu-legend.mjs 2단계</h2><span class="commit">DB · 전수검증</span></div>
+    <ul class="wl">
+      <li>재OCR 불가(원본이미지 미보관)라 후처리: ① 마커·콜론·범례·끼니라벨·알레르기클러스터·OCR쓰레기 토큰 strip → ② 점심 원본 ≥26토큰(범례덤프=분리불가)이거나 하루가 통째 비면 그 날짜 삭제. 그 외엔 strip만(깨끗한 점심 보존).</li>
+      <li>제거토큰 사유별 전수 집계 → 전부 비-메뉴(끼니라벨 <code>점심·간식</code>·영양량·알레르기클러스터·식품군분류어·사이드바), <b>진짜음식 오탐 0</b> 확인 후 적용.</li>
+      <li>부수버그: <code>length&lt;2</code>가 <code>귤·배·파·감</code> 1자 음식을 파편으로 오삭제 → <code>DROP1</code> 세트로 수정(한글 1자 보존). 10-01은 사이드바 제거 후 진짜 메뉴 완전 복구.</li>
+    </ul>
+    <div class="out"><b>적용(all)</b> · <b>10일 삭제 + 250행 strip</b>(센트럴에일린의뜰 4·꿀벌 2·동덕여대 2·센텀 1·사랑유치원 1) + 동래래미안 5일·82행. 멱등 재실행 0건.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>재채점 312개월 + 스킬 영구 반영</h2><span class="commit">312 갱신</span></div>
+    <ul class="wl">
+      <li>정리된 데이터로 <code>rescore-standout.ts</code>(결정론·재OCR·LLM비용 0) → <b>312개월 재채점</b>. 6개 기관 점수가 부풀려진 다양성 제거 후 정정(분포 min82·중앙92·평균91.8).</li>
+      <li><code>/mealfred-menu-import</code> 스킬에 <b>신규 스텝 5-B "하단범례 오염 정리"</b>(적재 직후 clean-menu-legend dry-run→검증→apply 필수화) + 핵심사실·주의·재채점 권장 반영.</li>
+    </ul>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li>외부 액션 없음 — 신규 적재는 파서가 컷, 기존 데이터는 전 기관 정리+재채점 완료, 스킬에 영구 반영.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-06-25 (식단 정리 세션) · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
