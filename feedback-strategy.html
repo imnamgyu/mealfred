@@ -124,6 +124,20 @@
   .tcard .tt{font-size:1.7cqw;font-weight:800;color:var(--navy);line-height:1.35;margin-bottom:.8cqw}
   .tcard .td{font-size:1.3cqw;font-weight:600;color:var(--n600);line-height:1.55}
 
+  /* 2-month execution gantt */
+  .gantt{margin-top:2cqw;display:flex;flex-direction:column;gap:.9cqw}
+  .grow{display:grid;grid-template-columns:13cqw repeat(4,1fr);gap:.8cqw;align-items:stretch}
+  .grow.head .gcell{font-size:1.25cqw;font-weight:800;color:var(--n500);text-align:center;background:var(--n50);border-radius:.6cqw;padding:.7cqw 0}
+  .glabel{display:flex;align-items:center;gap:.7cqw;font-size:1.55cqw;font-weight:800;color:var(--navy)}
+  .glabel .gdot{width:1.1cqw;height:1.1cqw;border-radius:.3cqw;flex:none}
+  .gtask{border-radius:.7cqw;padding:.95cqw 1cqw;font-size:1.16cqw;font-weight:700;line-height:1.38;color:#fff;display:flex;align-items:center}
+  .gtask.b{background:linear-gradient(180deg,#4AA3D8,#2E86C1)}
+  .gtask.o{background:linear-gradient(180deg,#EE9A52,#D87A2E)}
+  .goutput{margin-top:1.5cqw;background:#EAF7F3;border:1.5px solid #BFE6DC;border-radius:1cqw;padding:1.2cqw 1.6cqw;display:flex;align-items:center;gap:1.3cqw}
+  .goutput .gico{font-size:2.4cqw;flex:none}
+  .goutput .gx{font-size:1.5cqw;font-weight:800;color:var(--g700)}
+  .goutput .gy{font-size:1.2cqw;font-weight:600;color:var(--n600);margin-top:.2cqw;line-height:1.5}
+
   /* price barrier */
   .pricewrap{flex:1;display:flex;align-items:center;justify-content:center;gap:4cqw;margin-top:1cqw}
   .pricetag{background:var(--navy);color:#fff;border-radius:2cqw;padding:3cqw 4cqw;text-align:center;box-shadow:0 1.4cqw 3cqw rgba(20,30,50,.25);position:relative}
@@ -249,7 +263,7 @@
   <section class="slide"><div class="frame"><div class="s cover">
     <div class="kick">정부지원사업 1차 통과 · 2026.06</div>
     <h1>피드백을<br><span class="o">전략</span>으로</h1>
-    <div class="csub">심사 피드백을 '반박'하지 않고<br>'사업'으로 만들어 가겠습니다.</div>
+    <div class="csub">심사 피드백을 반영해,<br>2개월 실행 전략을 수립했습니다.</div>
     <div class="crow"><span class="chip ghost">① 측정 신뢰성</span><span class="chip ghost">② 실현가능성</span></div>
     <div class="coverdeco"></div>
   </div><span class="wm">밀프레드 편식 · AI 영유아 편식 헬스케어</span></div></section>
@@ -267,9 +281,9 @@
 
   <!-- 03 선언: 매핑 -->
   <section class="slide"><div class="frame"><div class="s">
-    <div class="eyebrow"><span class="dot"></span>저희의 태도</div>
-    <h2 class="h">반박하지 않고, <span class="g">흡수</span>하겠습니다</h2>
-    <div class="lead" style="margin-bottom:2.6cqw">두 피드백을 각각 저희 전략의 한 축으로 바꿔 끼웁니다.</div>
+    <div class="eyebrow"><span class="dot"></span>피드백을 어떻게 반영했나</div>
+    <h2 class="h">피드백을 반영해, <span class="g">실행 전략</span>으로 옮겼습니다</h2>
+    <div class="lead" style="margin-bottom:2.6cqw">두 피드백을 각각 저희 전략의 한 축으로 바꿔 끼우고, 곧바로 2개월 실행 계획으로 옮겼습니다.</div>
     <div class="maprow">
       <div class="mbox from"><div class="l">피드백 ① — 신뢰성</div><div class="t">편식 판단을 믿을 수 있나요?</div></div>
       <div class="marrow">→</div>
@@ -499,23 +513,38 @@
     <div class="honest">공개 숫자는 정의를 통일해 1세트로 제시합니다(매핑/등재·테스트 범위 등) — '신뢰성'을 따지는 자리일수록 숫자 정합성이 곧 신뢰입니다.</div>
   </div><span class="pg">17 / 19</span></div></section>
 
-  <!-- 18 컨설팅 + 마일스톤 -->
+  <!-- 18 2개월 실행 전략 (간트) -->
   <section class="slide"><div class="frame"><div class="s">
-    <div class="eyebrow"><span class="dot"></span>피드백 ② — 컨설팅 활용</div>
-    <h2 class="h">컨설팅으로 <span class="o">메울 곳</span>은 정해져 있습니다</h2>
-    <div class="lead">컨설팅은 '약한 고리 보강용'으로, 다음 라운드 마일스톤으로 제출하겠습니다.</div>
-    <div class="timeline">
-      <div class="tcard"><span class="when">① BM · IR</span><div class="tt">퍼널 전환율 실측</div><div class="td">입구별 단가·전환·구독 설계를 고도화하고 실측 데이터로 검증합니다.</div></div>
-      <div class="tcard"><span class="when">② 임상 · 통계</span><div class="tt">측정 준거검증</div><div class="td">K-CEBQ 동시측정 코호트를 자문과 함께 설계해 신뢰성을 산출합니다.</div></div>
-      <div class="tcard"><span class="when">③ 파일럿</span><div class="tt">기관 연결</div><div class="td">어린이집·소아과 파일럿으로 실사용 데이터와 전환을 확보합니다.</div></div>
+    <div class="eyebrow"><span class="dot"></span>지금부터 8주 — 실행 로드맵</div>
+    <h2 class="h">피드백을 반영해, <span class="o">2개월 실행 전략</span>을 수립했습니다</h2>
+    <div class="gantt">
+      <div class="grow head">
+        <div class="glabel"></div>
+        <div class="gcell">1–2주</div><div class="gcell">3–4주</div><div class="gcell">5–6주</div><div class="gcell">7–8주</div>
+      </div>
+      <div class="grow">
+        <div class="glabel"><span class="gdot" style="background:#2E86C1"></span>측정 신뢰성</div>
+        <div class="gtask b">지표 정의 · K-CEBQ 설계 · 임상/통계 자문 컨택</div>
+        <div class="gtask b">코호트 모집 · 베이스라인 측정</div>
+        <div class="gtask b">종단 데이터 누적 · 중간 상관 점검</div>
+        <div class="gtask b">준거타당도 1차 산출 · 재검사</div>
+      </div>
+      <div class="grow">
+        <div class="glabel"><span class="gdot" style="background:#D87A2E"></span>모객 · 퍼널</div>
+        <div class="gtask o">저장벽 입구 정비 · 광고 소재(틱톡·인스타·SEO)</div>
+        <div class="gtask o">광고 집행 시작 · 퍼널 A/B 계측</div>
+        <div class="gtask o">퍼널 최적화(CPL↓) · 라이트 상품 전환</div>
+        <div class="gtask o">전환율 실측 · 키트 전환 코호트</div>
+      </div>
     </div>
+    <div class="goutput"><span class="gico">📦</span><div><div class="gx">8주 후 산출물 — 다음 라운드 증빙 패키지</div><div class="gy">자문 위촉서 · 검증 중간결과(준거타당도) · 퍼널 전환율 실측 · 파일럿 기관 LOI</div></div></div>
   </div><span class="pg">18 / 19</span></div></section>
 
   <!-- 19 클로징 -->
   <section class="slide"><div class="frame"><div class="s center closing">
     <div class="eyebrow" style="justify-content:center"><span class="dot"></span>한 줄 결론</div>
     <h1>심사위원께서 짚어 주신 두 약점이,<br>곧 저희 사업의 <span class="o">두 엔진</span>입니다</h1>
-    <div class="cl">신뢰성은 <b>측정 해자</b>로, 실현가능성은 <b>저장벽 퍼널</b>로 흡수하겠습니다.<br>피드백을 반영할수록, 회사가 또렷해집니다. 감사합니다.</div>
+    <div class="cl">신뢰성은 <b>측정 해자</b>로, 실현가능성은 <b>저장벽 퍼널</b>로.<br>피드백을 반영해 <b>2개월 실행 전략</b>으로 증명하겠습니다. 감사합니다.</div>
   </div><span class="wm">밀프레드 편식 · 2026.06.26</span><span class="pg">19 / 19</span></div></section>
 
 </div>
