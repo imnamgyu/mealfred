@@ -215,6 +215,13 @@
   body.result-page #resultModal .modal { max-width:600px; margin:0 auto; border-radius:0; max-height:none; box-shadow:none; animation:none; padding-top:28px }
   body.result-page #resultModal .modal-handle { display:none }
 
+  /* ?r= 진입 시 결과 fetch 전에 마케팅 랜딩이 먼저 번쩍 뜨는 FOUC 방지 — 첫 페인트부터 숨기고 로딩만 노출 */
+  html.loading-shared .hero, html.loading-shared .counter, html.loading-shared section,
+  html.loading-shared .sticky-cta, html.loading-shared footer { display:none !important; }
+  html.loading-shared body::before { content:'결과 불러오는 중…'; position:fixed; inset:0; z-index:1;
+    display:flex; align-items:center; justify-content:center; background:#FFFDFB; color:#6B7280; font-size:15px;
+    font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif; }
+
   @media (max-width:380px){
     .hero h1{font-size:26px}
     .stats-grid{grid-template-columns:1fr 1fr;gap:8px}
@@ -223,6 +230,8 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");function ev(n,p){try{if(window.gtag)gtag('event',n,p||{});}catch(e){}}</script>
 </head>
 <body>
+<script>/* 공유결과(?r=)면 마케팅 랜딩을 첫 페인트부터 숨김(FOUC 방지) — loadSharedResult가 결과/실패 후 해제 */
+if(new URLSearchParams(location.search).get('r'))document.documentElement.classList.add('loading-shared');</script>
 
 <!-- Hero -->
 <section class="hero">
@@ -1814,6 +1823,7 @@ async function loadSharedResult(id){
     document.getElementById('resultModal').classList.add('show');
     window.scrollTo(0, 0);
   } catch(e){ alert('결과를 불러오는 중 오류가 났어요.'); }
+  finally { document.documentElement.classList.remove('loading-shared'); }   // 로딩 가림막 해제(성공=result-page가 가림, 실패=랜딩 복원)
 }
 (function(){
   const r = new URLSearchParams(location.search).get('r');
