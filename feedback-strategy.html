@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>피드백을 전략으로 — 정부지원사업 1차 통과 후 사업 로직</title>
+<meta property="og:title" content="피드백을 전략으로 — 반박이 아니라 반영">
+<meta property="og:description" content="심사 피드백 2가지(편식 판단 신뢰성·실현가능성)를 방어가 아니라 사업 전략의 두 축으로 흡수한다.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--r500:#E53935;--r700:#C62828;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827;--s700:#2C3E50;--s800:#1F2D3D}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .hero{padding:54px 24px 38px;text-align:center;background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);color:#3a2a1a;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
+  .hero-inner{position:relative;z-index:1;max-width:800px;margin:0 auto}
+  .hero .tag{display:inline-block;background:rgba(255,107,26,0.1);color:#C45A00;padding:7px 18px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:0.05em;margin-bottom:18px;border:1px solid rgba(255,107,26,0.25)}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px;color:#1a2b4a}
+  .hero p{font-size:14.5px;color:#5a4a3a;max-width:680px;margin:0 auto;font-weight:500;line-height:1.75}
+  main{max-width:900px;margin:0 auto;padding:34px 22px 70px}
+
+  .spine{background:#fff;border:1.5px solid var(--p300);border-left:5px solid var(--p500);border-radius:14px;padding:22px 24px;margin-bottom:24px;box-shadow:0 4px 18px rgba(232,146,68,0.08)}
+  .spine .lbl{font-size:11px;font-weight:800;color:#C45A00;letter-spacing:0.06em;margin-bottom:10px}
+  .spine p{font-size:15.5px;font-weight:600;color:var(--s800);line-height:1.8}
+  .spine b{color:#C45A00}
+
+  .blk-head{display:flex;align-items:baseline;gap:11px;margin:30px 0 16px;padding-bottom:9px;border-bottom:2px solid var(--p500)}
+  .blk-head h2{font-size:19px;color:var(--s800);font-weight:800;letter-spacing:-0.02em}
+  .blk-head .sub{font-size:11.5px;color:var(--n500);font-weight:600;margin-left:auto;font-style:italic}
+
+  /* 피드백 → 반영 매핑 */
+  .reframe{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px}
+  .rcard{border-radius:13px;padding:16px 17px;border:1.5px solid var(--n200);background:#fff;border-top:4px solid var(--b500)}
+  .rcard .fb{font-size:12px;font-weight:800;color:var(--r700);background:#FFF4F3;border:1px solid #FAD4D0;border-radius:8px;padding:9px 11px;margin-bottom:11px;line-height:1.55}
+  .rcard .fb span{display:block;font-size:10px;color:#b06;opacity:.7;margin-bottom:3px;letter-spacing:.04em}
+  .rcard .resp{font-size:13px;font-weight:600;color:var(--s800);line-height:1.72}
+  .rcard .resp .rl{display:inline-block;font-size:10px;font-weight:800;color:#1d6b5a;background:#E7F6F1;border-radius:6px;padding:2px 8px;margin-bottom:7px;letter-spacing:.04em}
+  .rcard .resp b{color:#C45A00}
+  @media(max-width:640px){.reframe{grid-template-columns:1fr}}
+
+  .moatline{background:var(--s800);color:#fff;border-radius:12px;padding:14px 18px;font-size:13.5px;font-weight:600;line-height:1.7;margin-bottom:30px}
+  .moatline b{color:var(--p300)}
+
+  .slide{position:relative;background:#fff;border:1.5px solid var(--n200);border-radius:14px;padding:18px 20px;margin-bottom:13px;border-left:5px solid var(--b500)}
+  .slide .num{position:absolute;top:-10px;left:16px;font-size:10px;font-weight:800;color:#fff;background:var(--s800);padding:3px 10px;border-radius:100px;letter-spacing:0.05em}
+  .slide h3{font-size:16px;font-weight:800;color:var(--s800);margin:5px 0 7px}
+  .slide .msg{font-size:13.5px;color:var(--n700);font-weight:600;line-height:1.72}
+  .slide .msg b{color:var(--s800)}
+  .slide .ev{margin-top:9px;font-size:12.5px;color:var(--n600);font-weight:500;line-height:1.65;background:var(--n50);border-radius:8px;padding:9px 12px}
+  .slide .ev b{color:var(--s800)}
+  .slide .caution{margin-top:9px;font-size:12px;color:#9a6512;font-weight:700;background:#FFFBF0;border:1px solid #F7E3B0;border-radius:8px;padding:8px 12px}
+  .slide.hero-slide{border-left-color:var(--p500);background:linear-gradient(180deg,#FFFDFA,#FFF8F1)}
+  .slide.hero-slide .num{background:var(--p500)}
+  .slide.moat-slide{border-left-color:var(--g500)}
+  .slide.moat-slide .num{background:var(--g500)}
+  .slide .pill{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:100px;margin-left:7px;vertical-align:middle}
+  .pill.live{background:var(--g500);color:#fff}
+  .pill.bet{background:var(--p500);color:#fff}
+  .pill.road{background:var(--b500);color:#fff}
+
+  .loopviz{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:11px;font-size:12px;font-weight:700}
+  .loopviz .s{background:var(--p50);border:1px solid var(--p100);color:var(--s800);padding:6px 11px;border-radius:100px}
+  .loopviz .s.meas{background:var(--b500);color:#fff;border-color:var(--b500)}
+  .loopviz .s.win{background:var(--g500);color:#fff;border-color:var(--g500)}
+  .loopviz .a{color:var(--p500);font-size:14px}
+
+  .funnel{display:flex;flex-direction:column;gap:6px;margin-top:11px}
+  .frow{display:flex;align-items:center;gap:9px}
+  .fbar{height:30px;border-radius:7px;display:flex;align-items:center;padding:0 13px;font-size:12px;font-weight:800;color:#fff;white-space:nowrap}
+  .frow .lab{font-size:11.5px;font-weight:600;color:var(--n600)}
+  .fbar.l0{width:100%;background:var(--b500)}
+  .fbar.l1{width:74%;background:#5BA7C9}
+  .fbar.l2{width:48%;background:var(--p500)}
+  .fbar.l3{width:26%;background:var(--g500)}
+
+  .note{background:#EFF6FF;border:1px solid #BBD9F5;border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--b700);font-weight:600;margin-top:11px;line-height:1.6}
+  .note b{color:#0d47a1}
+
+  footer{text-align:center;font-size:11px;color:var(--n400);padding:30px;border-top:1px solid var(--n100);font-weight:600;margin-top:24px}
+  footer a{color:#9CA3AF}
+  .back{display:inline-block;font-size:12.5px;font-weight:700;color:#C45A00;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">🎯 피드백 → 전략 · 정부지원사업 1차 통과 · 2026-06-26</span>
+    <h1>심사 피드백을 '반박'하지 않고 '사업'으로 만든다</h1>
+    <p>1차 통과 피드백은 둘이었습니다 — <b>①편식 판단의 신뢰성 확보</b>, <b>②컨설팅으로 실현가능성 제고</b>. 우리는 이 둘을 방어하지 않고 <b>사업 전략의 두 바퀴로 흡수</b>합니다. 신뢰성은 '측정 해자'로, 실현가능성은 '저장벽 퍼널 GTM + 검증된 실행력'으로. 약점을 인정할수록 다음 라운드에서 더 강해집니다.</p>
+  </div>
+</header>
+
+<main>
+  <a href="/docs.html" class="back">← 문서 허브</a>
+
+  <!-- SPINE -->
+  <div class="spine" style="margin-top:18px">
+    <div class="lbl">논리의 척추 — 한 줄</div>
+    <p>20만원 키트를 <b>바로 팔지 않는다</b> → 진입장벽 0의 <b>'매달 식단표 평가'로 모으고</b>(퍼널) → 신뢰성 있는 측정으로 <b>데이터·신뢰를 쌓고</b>(엔진) → 브랜드가 서면 <b>키트로 전환</b>한다. 심사 피드백 2개는 정확히 이 루프의 <b>두 바퀴</b>다 — 측정 신뢰성(엔진)과 실현가능성(퍼널).</p>
+  </div>
+
+  <!-- ============ PAGE 1 : 피드백 반영 ============ -->
+  <div class="blk-head"><h2>⚖️ 심사 피드백을 어떻게 '반영'하는가</h2><span class="sub">반박 0 · 흡수 2</span></div>
+  <div class="reframe">
+    <div class="rcard">
+      <div class="fb"><span>심사 피드백 ①</span>"편식 여부 판단이 중요해 보이며, 판단에 대한 신뢰성 확보가 필요해 보임"</div>
+      <div class="resp"><span class="rl">→ 우리의 반영</span>
+        밀프레드는 아이를 '편식이다/아니다'로 <b>판정하지 않는다</b>. 식재료·음식별 수용도를 <b>매 끼니 5단계 × 반복 노출의 종단(longitudinal) 행동 데이터</b>로 측정한다. "설문 한 번"보다 "실제 식사 수십 번"이 정확하다는 것을 <b>학술 준거검증으로 증명</b>하는 로드맵을 제출 → '약점'을 '검증 예정 항목'으로 전환한다.
+      </div>
+    </div>
+    <div class="rcard">
+      <div class="fb"><span>심사 피드백 ②</span>"컨설팅을 통해 실현 가능성을 더 높일 필요는 있어 보임"</div>
+      <div class="resp"><span class="rl">→ 우리의 반영</span>
+        실현가능성은 <b>이미 라이브로 증명 중</b>(식단표 평가 1만 발송·B2C 유통망·B2B 매출). 컨설팅은 <b>BM 고도화·IR·임상/통계 자문 연결</b>에 활용해 약한 고리만 보강한다. 핵심 실행력은 <b>B2C 제품을 만들어 판 대표(임남규)</b>가 뒷받침한다.
+      </div>
+    </div>
+  </div>
+  <div class="moatline">반박이 아니라 반영이다 — <b>신뢰성 지적</b>은 우리가 가장 잘 만든 '측정 엔진'을 학술로 무장시키는 계기로, <b>실현가능성 지적</b>은 '저장벽 퍼널'이라는 GTM을 또렷하게 만드는 계기로 흡수한다.</div>
+
+  <div class="slide hero-slide">
+    <span class="num">01 · 신뢰성 = 우리의 해자</span>
+    <h3>'판정'이 아니라 '측정' — 단일 설문이 못 잡는 곳을 메운다 <span class="pill road">검증 로드맵</span></h3>
+    <p class="msg">표준 편식 척도(설문)는 모두 <b>단일시점·부모 인식</b>이라, 실제 섭취행동과의 상관이 약하다. 밀프레드의 <b>종단 행동측정</b>(5단계 acceptance_level·Wilson 구간추정)은 바로 그 공백을 메운다. 이것을 <b>한국 표준화 척도와 동시측정</b>해 준거타당도로 검증한다.</p>
+    <div class="ev"><b>학술 근거:</b> ① 표준 척도 설문↔실측 섭취 상관 <b>r ≈ −.17~−.40</b>(약함) — 선행 관찰연구가 스스로 "자연 환경의 반복 관찰"을 권고. ② 신규 음식 수용에 <b>8~15회 반복 노출</b> 필요(정설) → Wilson 누적추정이 이 곡선을 직접 추적. ③ 식약처 <b>'푸드브릿지' 4단계</b> = 우리 노출 커리큘럼과 1:1 매핑. ④ 준거 골든스탠다드 = <b>K-CEBQ Food Fussiness</b>(국내 687명 표준화).</div>
+    <div class="caution">⚠️ 정직 고지: 준거타당도는 아직 '검증 예정'(로드맵). 코호트 동시측정으로 산출 예정임을 명시 — 과대주장 금지가 오히려 신뢰를 준다.</div>
+  </div>
+
+  <!-- ============ PAGE 2 : GTM 로직 (저장벽 퍼널) ============ -->
+  <div class="blk-head"><h2>🪜 GTM 로직 — 왜 20만원 키트를 바로 팔지 않는가</h2><span class="sub">가격장벽 → 저장벽 퍼널</span></div>
+
+  <div class="slide">
+    <span class="num">02 · 가격장벽</span>
+    <h3>20만원대 키트는 '브랜드 신뢰' 전엔 지갑이 안 열린다</h3>
+    <p class="msg">편식 키트는 <b>20만원대 고관여·고가 상품</b>이다. 브랜드가 구축되기 전에는 <b>혁신수용자(early adopter)조차 쉽게 결제하지 않는다.</b> '바로 키트 판매'로 시작하면 모객 단가(CAC)가 비싸고 전환이 느리다 — 콜드 트래픽에 고가를 던지는 구조이기 때문.</p>
+  </div>
+
+  <div class="slide hero-slide">
+    <span class="num">03 · 저장벽 입구</span>
+    <h3>그래서 '매달 식단표 평가'를 입구로 둔다 <span class="pill live">LIVE</span></h3>
+    <p class="msg">부모가 어린이집·유치원 <b>식단표를 올리면 영양·편식 관점 평가</b>를 받는다 — 결제 마찰 0, 가입 마찰 최소의 <b>진입장벽 0 퍼널</b>. 여기로 들어온 사용자에게 코칭 편지·도감으로 <b>데이터와 신뢰를 먼저 쌓고</b>, 신뢰가 서면 키트로 전환한다. 퍼널은 하나로 고정하지 않고 <b>여러 저장벽 입구를 설계·A/B 실험하며 계속 모집</b>한다.</p>
+    <div class="funnel">
+      <div class="frow"><div class="fbar l0">무료 식단표 평가</div><div class="lab">진입장벽 0 · CAC ≈ 0</div></div>
+      <div class="frow"><div class="fbar l1">코칭·도감 무료 체험</div><div class="lab">측정 데이터 축적 · 신뢰 형성</div></div>
+      <div class="frow"><div class="fbar l2">월 구독 / 라이트 상품</div><div class="lab">소액 결제로 관여 상승</div></div>
+      <div class="frow"><div class="fbar l3">20만원대 편식 키트</div><div class="lab">브랜드 신뢰 후 전환 · 高 LTV</div></div>
+    </div>
+    <div class="note">🔗 <b>피드백 ①과 한 몸:</b> 이 퍼널의 연료는 <b>'신뢰성 있는 측정'</b>이다. 측정이 믿을 만해야 평가·코칭이 설득력을 갖고, 그래야 전환이 일어난다 → 신뢰성 확보가 곧 GTM 엔진이다.</div>
+  </div>
+
+  <div class="slide moat-slide">
+    <span class="num">04 · 플라이휠</span>
+    <h3>입구가 많아질수록 데이터가 쌓이고, 데이터가 전환을 만든다</h3>
+    <p class="msg">저가/무료 입구로 모은 사용자의 <b>측정 데이터</b>가 코칭 정밀도를 높이고, 정밀해진 코칭이 신뢰를 만들어 <b>키트 전환</b>을 일으킨다. 전환 고객의 데이터가 다시 엔진을 키운다.</p>
+    <div class="loopviz">
+      <span class="s">저장벽 입구(평가)</span><span class="a">→</span>
+      <span class="s meas">측정 데이터</span><span class="a">→</span>
+      <span class="s">코칭 신뢰</span><span class="a">→</span>
+      <span class="s win">키트 전환</span><span class="a">↺</span>
+    </div>
+    <div class="caution">⚠️ 전환율·구독 잔존은 '검증 목표'(가설). 이번 라운드의 마일스톤 = 퍼널별 전환율 실측.</div>
+  </div>
+
+  <!-- ============ PAGE 3 : 실행력 & 자원 ============ -->
+  <div class="blk-head"><h2>🚀 실현가능성 — 실행력과 자원이 이미 있다</h2><span class="sub">대표 · 지원금 · 라이브 트랙션</span></div>
+
+  <div class="slide hero-slide">
+    <span class="num">05 · WHY US</span>
+    <h3>B2C를 만들어 판 대표가 직접 엔진을 짠다</h3>
+    <p class="msg"><b>대표 임남규 = 검증된 B2C 실행력.</b> IoT 스마트홈 스타트업 창업(<b>시리즈A 7.5억·TIPS 선정</b>) 경험, SW마에스트로 멘토, 그리고 지금의 <b>매핑·코칭 엔진을 직접 개발</b>. '제품을 만들어 시장에 내놓아 본' 이력이 실현가능성의 1차 증거다.</p>
+    <div class="ev"><b>실행 자산:</b> 협력 유통망(교육용 요리키트 <b>누적 10만+ 아이·YoY 130%·재구매 50%</b>)으로 학부모 접점 확보 · 신선 밀키트 제조·콜드체인 협력사 보유 → 키트 충족(제조·배송)을 자체 역량으로 해결.</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">06 · 지원금 = 모객 연료</span>
+    <h3>AI 솔루션 지원금의 상당 부분이 '마케팅비' → 초반 빠른 모객</h3>
+    <p class="msg">이번 정부지원 AI 솔루션 지원금은 <b>상당 부분을 디지털 마케팅(틱톡·인스타·SEO)에 집행</b>할 수 있다. 즉 지원금이 곧 <b>저장벽 퍼널에 트래픽을 부어 초반 모객을 가속</b>하는 연료가 된다. 고가 키트가 아니라 <b>무료 평가 입구</b>로 트래픽을 받으니 광고 효율(전환·CPL)이 좋다.</p>
+    <div class="ev"><b>왜 맞물리나:</b> 저장벽 퍼널 = 광고로 데려온 콜드 트래픽이 부담 없이 들어오는 구조 → 마케팅 지원금의 ROI가 극대화. 검증된 실행력(대표)이 그 예산을 효율적으로 태운다.</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">07 · 라이브 트랙션</span>
+    <h3>아이디어가 아니라 이미 작동 중 <span class="pill live">LIVE</span></h3>
+    <p class="msg">실현가능성은 말이 아니라 운영으로 보인다.</p>
+    <div class="ev"><b>지금 작동:</b> 무료 <b>식단표 평가 1만 명 발송</b>(저장벽 퍼널 가동) · 코칭 엔진 실데이터 운영(평일 LLM 0콜, <b>아이 1명 월 약 900원</b> 추정) · 식재료 도감 <b>650+종</b> · 국가 급식 데이터 <b>NEIS 기반 지식 그래프</b> · <b>835개 테스트·방어 가드</b>로 품질 보증 · B2B 매출(기업 대량주문·식습관 캠프).</div>
+    <div class="caution">⚠️ 공개 숫자는 정의를 통일해 1세트로 제시(매핑/등재·테스트 범위 등) — '신뢰성'을 따지는 자리일수록 숫자 정합성이 곧 신뢰다.</div>
+  </div>
+
+  <div class="slide">
+    <span class="num">08 · 컨설팅 활용 + 마일스톤</span>
+    <h3>컨설팅으로 메울 곳은 딱 정해져 있다</h3>
+    <p class="msg"><b>컨설팅 = 약한 고리 보강용.</b> ① <b>BM·IR 고도화</b>(퍼널 단가·전환·구독 설계) ② <b>임상/통계 자문</b>(K-CEBQ 준거검증·코호트 설계) ③ <b>파일럿 기관 연결</b>(어린이집·소아과). 이걸 다음 라운드 마일스톤으로 제출한다.</p>
+    <div class="loopviz">
+      <span class="s">① 저장벽 퍼널 전환율 실측</span><span class="a">→</span>
+      <span class="s meas">② 측정 신뢰성 준거검증</span><span class="a">→</span>
+      <span class="s win">③ 키트 전환·구독 잔존</span>
+    </div>
+  </div>
+
+  <div class="moatline" style="margin-top:20px">한 줄 결론 — <b>심사위원이 짚은 두 약점이 곧 우리 사업의 두 엔진이다.</b> 신뢰성은 측정 해자로, 실현가능성은 저장벽 퍼널로 흡수한다. 피드백을 반영할수록 회사가 또렷해진다.</div>
+
+  <div class="note" style="margin-top:18px">📎 신뢰성 검증의 학술 상세(K-CEBQ·푸드브릿지·반복노출 근거)와 발표 예상 Q&amp;A는 별도 전략 문서로 이어집니다.</div>
+
+  <a href="/docs.html" class="back" style="margin-top:18px">← 문서 허브</a>
+</main>
+
+<footer>
+  <p>밀프레드 · 피드백을 전략으로(반영판) · 2026-06-26 · 정부지원사업 1차 통과 대응 · <a href="/docs.html">문서 허브</a></p>
+</footer>
+
+</body>
+</html>
