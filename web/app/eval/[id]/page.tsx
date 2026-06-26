@@ -2,6 +2,10 @@ import type { Metadata } from 'next';
 import { getEvalSnapshot } from '@/lib/evalSnapshot';
 import Redirect from './Redirect';
 
+// 공유링크(카톡 등)로 들어오는 바운스 페이지 — 결과 스냅샷은 불변이라 id별로 ISR 캐싱.
+// 같은 링크 재진입·크롤러 미리보기가 매번 Supabase를 안 타고 즉시 뜨도록 5분 단위로만 재생성.
+export const revalidate = 300;
+
 const SHARE_BASE = 'https://www.mealfred.com/daycare-eval.html';
 const OG_IMAGE = 'https://www.mealfred.com/samples/og-daycare-eval.jpg';
 
