@@ -209,12 +209,11 @@
   .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s800);color:white;padding:12px 24px;border-radius:100px;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:200;opacity:0;transition:all 0.3s ease;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  /* 공유 결과(?r=) 단독 페이지 뷰 — 마케팅 랜딩 숨기고 결과만 풀페이지 */
-  body.shared .hero, body.shared .counter, body.shared section, body.shared .sticky-cta, body.shared footer { display:none !important; }
-  body.shared { background:#FFFDFB; }
-  body.shared #resultModal { position:static; inset:auto; background:transparent; display:block }
-  body.shared #resultModal .modal { max-width:600px; margin:0 auto; border-radius:0; max-height:none; box-shadow:none; animation:none; padding-top:28px }
-  body.shared #resultModal .modal-handle { display:none }
+  /* 결과 풀페이지 뷰 — 마케팅 랜딩 숨기고 결과만 한 페이지로(분석 직후 + 공유 ?r= 공통). 팝업·뒤 배경 스크롤 제거. */
+  body.result-page .hero, body.result-page .counter, body.result-page section, body.result-page .sticky-cta, body.result-page footer { display:none !important; }
+  body.result-page #resultModal { position:static; inset:auto; background:transparent; display:block }
+  body.result-page #resultModal .modal { max-width:600px; margin:0 auto; border-radius:0; max-height:none; box-shadow:none; animation:none; padding-top:28px }
+  body.result-page #resultModal .modal-handle { display:none }
 
   @media (max-width:380px){
     .hero h1{font-size:26px}
@@ -572,6 +571,7 @@ function openUpload(){
 }
 function closeModal(id){
   document.getElementById(id).classList.remove('show');
+  if(id === 'resultModal') document.body.classList.remove('result-page', 'shared');   // 결과 닫으면 마케팅 랜딩 복원
 }
 let selectedAge = '3-4y';
 let _evalMonth = new Date().getMonth() + 1;   // ⭐ 제철 평가의 단일 월 소스 = 식단표 해당 월(오늘 아님). evaluate()가 갱신.
@@ -1395,6 +1395,7 @@ async function showInstantResult(){
     if(rankEl) rankEl.innerHTML = renderRank(d);
   }catch(e){ if(rankEl) rankEl.innerHTML=''; }
   document.getElementById('resultModal').classList.add('show');
+  document.body.classList.add('result-page'); window.scrollTo(0, 0);   // 팝업이 아닌 한 페이지로
 }
 
 // 업로드 식단을 기관·월에 귀속(저장+채점) → 순위 조회 → 결과카드 #rankLine 주입
@@ -1607,6 +1608,7 @@ async function startAnalysis(){
   setTimeout(()=>{
     closeModal('analyzingModal');
     document.getElementById('resultModal').classList.add('show');
+    document.body.classList.add('result-page'); window.scrollTo(0, 0);   // 팝업이 아닌 한 페이지로
   }, 350);
 }
 
@@ -1806,7 +1808,7 @@ async function loadSharedResult(id){
     if(!snap || !snap.result){ alert('결과 데이터를 불러오지 못했어요.'); return; }
     currentShareId = id;
     selectedAge = snap.ageBand || selectedAge;   // 공유 결과의 아이 연령으로 식단 CTA 정합
-    document.body.classList.add('shared');   // 단독 페이지 뷰
+    document.body.classList.add('shared', 'result-page');   // 단독 페이지 뷰(풀페이지)
     renderResult(snap.result, snap.ageBand);
     renderOcrTable(snap.items || [], snap.text || '');
     document.getElementById('resultModal').classList.add('show');
