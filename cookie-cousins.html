@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>사촌 음식 찾기 — 우리 아이가 잘 먹는 음식의 '사촌' | 밀프레드</title>
+<meta name="robots" content="noindex,nofollow">
+<script src="/docs-gate.js?v=4"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--g700:#1B5E20}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#FFFDFB;color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased}
+.priv{position:fixed;top:8px;right:8px;background:#1F2D3D;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;opacity:.55;z-index:9}
+.back{display:inline-block;margin:12px 0 0 14px;color:#b39a82;text-decoration:none;font-size:12px;font-weight:700}
+.hero{background:linear-gradient(160deg,#FFF5EB,#FFE8D0 45%,#FFD9B5);padding:40px 20px 30px;text-align:center}
+.hero .tag{display:inline-block;background:rgba(255,107,26,.1);color:var(--org2);padding:6px 15px;border-radius:100px;font-size:11.5px;font-weight:800;border:1px solid rgba(255,107,26,.25);margin-bottom:13px}
+.hero h1{font-size:clamp(21px,5.6vw,27px);font-weight:800;letter-spacing:-0.02em;line-height:1.3;color:var(--navy)}
+.hero h1 .ac{color:#FF8A47}
+.hero p{font-size:14px;color:#5a4a3a;font-weight:500;margin-top:10px;max-width:440px;margin-left:auto;margin-right:auto}
+main{max-width:480px;margin:0 auto;padding:24px 18px 30px}
+.card{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:18px;margin-bottom:14px}
+.q{font-size:14.5px;font-weight:800;color:var(--s800);margin-bottom:12px}
+.search{width:100%;padding:12px 14px;border:1.5px solid var(--n200);border-radius:12px;font-size:14px;font-family:inherit;margin-bottom:12px;color:var(--navy)}
+.search:focus{outline:none;border-color:var(--p500)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:#FFF8F2;border:1.5px solid var(--p100);color:var(--navy);font-size:13.5px;font-weight:700;padding:9px 14px;border-radius:100px;cursor:pointer;font-family:inherit}
+.chip:hover{border-color:var(--p500);background:#FFEFE0}
+.resulthead{text-align:center;margin-bottom:14px}
+.resulthead .big{font-size:19px;font-weight:800;color:var(--navy);line-height:1.4}
+.resulthead .big b{color:var(--org2)}
+.resulthead .small{font-size:12.5px;color:var(--n500);font-weight:600;margin-top:4px}
+.cousin{display:flex;align-items:center;gap:11px;background:#fff;border:1.5px solid var(--n200);border-radius:14px;padding:13px 15px;margin-bottom:10px}
+.cousin .nm{font-size:15px;font-weight:800;color:var(--s800);width:78px;flex-shrink:0}
+.cousin .bar{flex:1;height:9px;background:var(--n100);border-radius:6px;overflow:hidden}
+.cousin .fill{height:100%;background:linear-gradient(90deg,#FFC58A,#E89244);border-radius:6px;width:0;transition:width .6s ease}
+.cousin .pct{font-size:14.5px;font-weight:800;color:var(--g700);width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.reason{background:#F0FAF6;border:1px solid #B7E0D2;border-radius:10px;padding:11px 13px;font-size:12.5px;color:#155e45;font-weight:600;margin:6px 0 16px;line-height:1.6}
+.btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:inherit}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:#fff;color:var(--org2);border:1.5px solid var(--p300);box-shadow:none;margin-top:9px}
+.appbox{max-width:480px;margin:0 auto;padding:4px 18px 30px}
+.appin{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px solid var(--p300);border-radius:16px;padding:20px;text-align:center}
+.appin .em{font-size:32px}
+.appin h3{font-size:16px;font-weight:800;color:var(--s800);margin:4px 0 6px}
+.appin p{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:14px;line-height:1.55}
+footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px;font-weight:600;line-height:1.6}
+.hidden{display:none}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body>
+<span class="priv">🔒 비공개 테스트</span>
+<a href="/cookie-services.html" class="back">← 쿠키 허브</a>
+<header class="hero">
+  <span class="tag">🥔 사촌 음식 찾기</span>
+  <h1>우리 아이가 잘 먹는 음식의<br><span class="ac">'사촌'</span>을 찾아드려요</h1>
+  <p>좋아하는 음식 하나를 고르면, <b>성공 확률 높은 다음 도전 음식 3개</b>를 알려드려요. 색·맛·식감이 닮은 '음식 사촌'이에요.</p>
+</header>
+<main>
+  <div id="picker" class="card">
+    <div class="q">아이가 <b>잘 먹는 음식</b>을 골라주세요</div>
+    <input id="search" class="search" type="text" placeholder="음식 이름 검색 (예: 감자)" autocomplete="off">
+    <div id="chips" class="chips"></div>
+  </div>
+
+  <div id="result" class="hidden">
+    <div class="card">
+      <div class="resulthead">
+        <div class="big"><b id="srcName"></b> 잘 먹는 아이라면<br>다음엔 이걸 시도해보세요</div>
+        <div class="small">밀프레드 푸드그래프 · 사촌 추천</div>
+      </div>
+      <div id="cousins"></div>
+      <div id="reason" class="reason"></div>
+      <button class="btn sec" onclick="reset()">↺ 다른 음식으로 다시</button>
+    </div>
+  </div>
+</main>
+
+<div class="appbox">
+  <div class="appin">
+    <div class="em">🍱</div>
+    <h3>우리 아이 <b>실제 기록</b> 기반 사촌은?</h3>
+    <p>이건 맛보기예요. 앱은 우리 아이가 진짜 먹은 기록으로 <b>매일 다음 사촌</b>을 골라 코칭해드려요.</p>
+    <a class="btn" href="https://app.mealfred.com/?utm_source=cookie&utm_medium=cousins&utm_campaign=cookie_series" target="_blank" rel="noopener">앱에서 우리 아이 맞춤 사촌 받기 →</a>
+  </div>
+</div>
+<footer>밀프레드 편식도감 · 사촌 데이터는 큐레이션 맛보기(앱은 30,458건 급식·레시피 그래프 전체) · 참고용</footer>
+
+<script>
+// 잘 먹는 음식(키) → 사촌 3개[이름, 성공률%] + 한 줄 이유(다리 원리)
+const DATA = {
+  "감자":{c:[["고구마",78],["단호박",71],["옥수수",64]],r:"포근하고 단 전분류라 식감·단맛이 닮았어요. 으깨거나 쪄서 비슷한 형태로 주면 성공률↑"},
+  "고구마":{c:[["단호박",78],["감자",76],["밤",66]],r:"달고 포슬한 전분 사촌. 단호박은 색·단맛이 가장 가까워 첫 다리로 좋아요"},
+  "흰밥":{c:[["누룽지",75],["현미밥",60],["식빵",64]],r:"담백한 탄수화물 가족. 누룽지는 고소함만 더해 거부감이 적어요"},
+  "바나나":{c:[["단감",70],["망고",66],["아보카도",58]],r:"부드럽고 단 과육이 닮았어요. 으깨서 떠먹이면 식감이 비슷해요"},
+  "사과":{c:[["배",80],["단감",68],["복숭아",70]],r:"아삭달콤한 과일 사촌. 배는 수분·단맛이 가장 가까워요"},
+  "딸기":{c:[["포도",72],["수박",68],["방울토마토",52]],r:"새콤달콤·한입 과일. 방울토마토는 색이 닮아 '과일인 척' 다리 놓기 좋아요"},
+  "계란프라이":{c:[["스크램블에그",82],["계란찜",74],["두부부침",58]],r:"부드러운 단백질 사촌. 같은 달걀을 형태만 바꾸면 거의 다 성공해요"},
+  "치킨(닭다리)":{c:[["닭구이",80],["닭안심",72],["돼지등심",60]],r:"고소한 살코기 가족. 튀김→구이로 한 단계만 바꿔보세요"},
+  "소시지":{c:[["햄",80],["미트볼",72],["닭가슴살소시지",66]],r:"짭짤한 가공육 사촌. 닭가슴살소시지로 바꾸면 영양까지 챙겨요"},
+  "미트볼":{c:[["함박스테이크",80],["떡갈비",74],["닭완자",66]],r:"갈아 뭉친 고기 가족. 모양이 비슷해 거부감이 적어요"},
+  "어묵":{c:[["게맛살",74],["새우살",60],["두부",54]],r:"부들한 단백질 사촌. 게맛살은 식감·단맛이 가장 가까워요"},
+  "새우":{c:[["게맛살",74],["오징어",58],["흰살생선",60]],r:"쫄깃한 해산물 가족. 게맛살로 시작해 식감을 익혀보세요"},
+  "치즈":{c:[["요거트",74],["우유",70],["두유",56]],r:"고소한 유제품 사촌. 요거트는 부드러워 다음 다리로 좋아요"},
+  "우유":{c:[["요거트",78],["두유",64],["치즈",70]],r:"담백한 유제품 가족. 요거트로 식감을 넓혀보세요"},
+  "요거트":{c:[["우유",76],["치즈",68],["두유",58]],r:"부드러운 유제품 사촌. 무가당으로 단맛을 천천히 줄여보세요"},
+  "식빵":{c:[["모닝빵",82],["카스텔라",74],["핫케이크",70]],r:"폭신한 밀가루 가족. 거의 다 잘 먹는 안전한 다리예요"},
+  "두부":{c:[["순두부",82],["달걀찜",64],["두유",70]],r:"부드러운 단백질 사촌. 순두부는 식감이 가장 가까워요"},
+  "옥수수":{c:[["완두콩",58],["단호박",66],["고구마",64]],r:"톡톡 단맛 가족. 단호박으로 색·단맛 다리를 놓아보세요"},
+  "김(구운김)":{c:[["김자반",72],["파래김",64],["미역",56]],r:"고소·짭짤 해조류 사촌. 김자반으로 식감을 익혀보세요"},
+  "김치볶음밥":{c:[["볶음밥",76],["오므라이스",70],["비빔밥",64]],r:"감칠맛 한 그릇 가족. 오므라이스는 달걀로 부드럽게 이어져요"},
+  "고구마(좋아함)":{c:[["단호박",78],["감자",76],["밤",66]],r:"달고 포슬한 전분 사촌"},
+  "브로콜리":{c:[["콜리플라워",82],["아스파라거스",60],["완두콩",56]],r:"드물게 채소를 좋아한다면! 콜리플라워는 모양·식감이 거의 같아 성공률 최고"},
+  "당근":{c:[["단호박",70],["고구마",64],["파프리카",54]],r:"단단달큰 채소 사촌. 단호박으로 단맛 다리를 이어보세요"},
+  "토마토케첩":{c:[["토마토소스",72],["방울토마토",50],["파프리카",46]],r:"케첩을 좋아하면 토마토소스→생토마토로 천천히 다리를 놓아보세요"}
+};
+const ALIAS={"고구마(좋아함)":"고구마"};
+const picker=document.getElementById('picker'),result=document.getElementById('result'),chipsEl=document.getElementById('chips'),search=document.getElementById('search');
+const keys=Object.keys(DATA).filter(k=>!ALIAS[k]);
+function renderChips(f){chipsEl.innerHTML='';keys.filter(k=>!f||k.includes(f)).forEach(k=>{const b=document.createElement('button');b.className='chip';b.textContent=k;b.onclick=()=>show(k);chipsEl.appendChild(b);});}
+search.addEventListener('input',e=>renderChips(e.target.value.trim()));
+function show(food){
+  const d=DATA[food];if(!d)return;
+  document.getElementById('srcName').textContent=food;
+  const wrap=document.getElementById('cousins');wrap.innerHTML='';
+  d.c.forEach(([nm,pct])=>{
+    const row=document.createElement('div');row.className='cousin';
+    row.innerHTML='<div class="nm">'+nm+'</div><div class="bar"><div class="fill"></div></div><div class="pct">'+pct+'%</div>';
+    wrap.appendChild(row);
+    requestAnimationFrame(()=>{row.querySelector('.fill').style.width=pct+'%';});
+  });
+  document.getElementById('reason').innerHTML='💡 '+d.r;
+  picker.classList.add('hidden');result.classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+  gtag('event','cookie_result',{tool:'cousins',food:food});
+}
+function reset(){result.classList.add('hidden');picker.classList.remove('hidden');search.value='';renderChips('');window.scrollTo({top:0,behavior:'smooth'});}
+renderChips('');
+</script>
+</body>
+</html>
