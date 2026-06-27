@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>쿠키서비스 14종 — 부모를 앱으로 끄는 바이럴 미끼 도구 (제품 시각화)</title>
+<meta property="og:title" content="밀프레드 쿠키서비스 14종 — 바이럴 미끼 도구 제안">
+<script src="/docs-gate.js?v=4"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--org:#E89244;--org2:#C45A00;--navy:#1a2b4a;--ink:#3a4555;--mut:#8a7a6a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#FFFDFB;color:var(--navy);line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:36px 22px 90px}
+.back{display:inline-block;margin-bottom:18px;color:#9CA3AF;text-decoration:none;font-size:13px;font-weight:700}
+.back:hover{color:var(--org2)}
+.htag{display:inline-block;background:#FFF0E0;color:var(--org2);font-size:11px;font-weight:800;letter-spacing:0.04em;padding:5px 13px;border-radius:100px;border:1px solid #FFD8B0;margin-bottom:12px}
+h1{font-size:29px;font-weight:800;letter-spacing:-0.02em;line-height:1.25;margin-bottom:8px}
+h1 span{color:var(--org2)}
+.sub{color:var(--mut);font-size:14.5px;margin-bottom:8px;max-width:760px}
+h2{font-size:20px;font-weight:800;margin:46px 0 12px;border-left:4px solid var(--org);padding-left:12px;letter-spacing:-0.01em}
+.note{font-size:12px;color:#9a8a7a}
+b{color:var(--navy)}
+
+/* 전략 플로우 */
+.flow{display:flex;align-items:stretch;gap:0;margin:16px 0;flex-wrap:wrap}
+.fstep{flex:1;min-width:120px;background:#fff;border:1.5px solid #F0E0CE;border-radius:12px;padding:13px 12px;text-align:center;position:relative}
+.fstep b{display:block;font-size:18px;color:var(--org);margin-bottom:3px}
+.fstep .ft{font-size:13px;font-weight:800;color:var(--navy)}
+.fstep span{display:block;font-size:11px;color:var(--mut);margin-top:2px}
+.farrow{display:flex;align-items:center;color:#FFB375;font-size:20px;font-weight:300;padding:0 4px}
+.moat{background:#F0FAF6;border:1.5px solid #A5D6C6;border-radius:14px;padding:15px 18px;margin:14px 0;font-size:13.5px;color:#155e45;line-height:1.7}
+.moat b{color:#0f5236}
+
+/* 매트릭스 표 */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+th{background:var(--navy);color:#fff;padding:9px 7px;text-align:left;font-weight:700;white-space:nowrap}
+td{padding:8px 7px;border:1px solid #F0E8E0;color:var(--ink);vertical-align:middle}
+tr:nth-child(even) td{background:#FCF8F3}
+.star{color:var(--org);font-weight:800;letter-spacing:-1px}
+.star.lo{color:#D9C5B0}
+.diff{font-weight:800;font-size:11px;padding:2px 7px;border-radius:100px}
+.d-e{background:#E8F5E9;color:#1B5E20}.d-m{background:#FFF8E8;color:#8a6a2a}.d-h{background:#FDECEC;color:#C62828}
+.llm{font-size:11px;font-weight:800;color:#6A1B9A}
+.srcs{font-size:11px;color:#1565C0;font-weight:600}
+.nm{font-weight:800;color:var(--navy);white-space:nowrap}
+
+/* 우선순위 맵 */
+.pmap{position:relative;height:400px;border:1.5px solid #F0E0CE;border-radius:16px;background:linear-gradient(180deg,#FFFDFB,#FFF6EC);margin:14px 0 8px;overflow:hidden}
+.pmap .vline{position:absolute;left:50%;top:8px;bottom:30px;border-left:1px dashed #EAD8C4}
+.pmap .hline{position:absolute;top:50%;left:24px;right:8px;border-top:1px dashed #EAD8C4}
+.quad{position:absolute;font-size:11.5px;font-weight:800;padding:4px 9px;border-radius:8px;background:rgba(255,255,255,0.72);color:#B07A40}
+.pdot{position:absolute;width:26px;height:26px;border-radius:50%;background:var(--org);color:#fff;font-size:11.5px;font-weight:800;display:grid;place-items:center;transform:translate(-50%,-50%);box-shadow:0 2px 7px rgba(200,120,40,0.35);z-index:2}
+.pdot.w2{background:#9C27B0;box-shadow:0 2px 7px rgba(120,30,160,0.3)}
+.pdot.w3{background:#90A4AE;box-shadow:0 2px 7px rgba(90,110,120,0.25)}
+.axl{position:absolute;font-size:10.5px;font-weight:700;color:#A8906F}
+.axl.x{bottom:8px;left:50%;transform:translateX(-50%)}
+.axl.y{top:50%;left:2px;transform:translateY(-50%) rotate(-90deg);transform-origin:left}
+.maplegend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;font-weight:700;color:#6B7280;margin-bottom:4px}
+.maplegend i{font-style:normal;display:inline-flex;align-items:center;gap:5px}
+.dotmini{width:13px;height:13px;border-radius:50%;display:inline-block}
+
+/* wave 밴드 */
+.wave{margin:36px 0 6px;padding:11px 16px;border-radius:12px;font-weight:800;font-size:15.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wave .wn{font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px;background:#fff}
+.wave .wd{font-size:12px;font-weight:600;margin-left:auto}
+.w1b{background:linear-gradient(90deg,#FFE8D0,#FFF3E8);color:var(--org2);border:1.5px solid #FFD0A0}
+.w2b{background:#F3EFFA;color:#6A1B9A;border:1.5px solid #E0D0F0}
+.w3b{background:#F4F4F5;color:#546E7A;border:1.5px solid #E5E7EB}
+
+/* 제품 카드 */
+.prod{border:1.5px solid #F0E0CE;border-radius:16px;margin:14px 0;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(200,150,100,0.05)}
+.prod-h{display:flex;align-items:center;gap:11px;padding:13px 16px;background:linear-gradient(90deg,#FFF8F2,#fff);border-bottom:1px solid #F4ECE2}
+.prod-h .pn{width:27px;height:27px;border-radius:8px;background:var(--navy);color:#fff;font-weight:800;font-size:13px;display:grid;place-items:center;flex-shrink:0}
+.prod.p2 .pn{background:#6A1B9A}.prod.p3 .pn{background:#90A4AE}
+.prod-h .pico{font-size:24px;line-height:1}
+.prod-h .pt{flex:1;min-width:0}
+.prod-h h3{margin:0;border:0;padding:0;font-size:16.5px;color:var(--navy);letter-spacing:-0.01em}
+.prod-h .ptag{font-size:11.5px;color:var(--mut);font-weight:600}
+.prod-b{display:grid;grid-template-columns:1.35fr 0.9fr;gap:18px;padding:16px}
+.prod.nomock .prod-b{grid-template-columns:1fr}
+@media(max-width:760px){.prod-b{grid-template-columns:1fr!important}}
+.kv{margin-bottom:8px}
+.kv .k{font-size:9.5px;font-weight:800;color:var(--org2);letter-spacing:0.05em;display:block;margin-bottom:1px}
+.kv .v{font-size:13px;color:var(--ink)}
+.kv .v b{color:var(--navy)}
+.rateline{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 4px}
+.rb{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:100px;background:#F6F4F2;color:#6B7280;border:1px solid #EEE6DC}
+.rb b{color:var(--org2)}
+.src{display:inline-block;font-size:11px;background:#EEF6FF;color:#1565C0;border:1px solid #CFE5FB;border-radius:7px;padding:3px 8px;font-weight:700;margin-top:4px}
+.warn{background:#FFF8E8;border:1px solid #FFE0A0;border-radius:8px;padding:7px 10px;font-size:11.5px;color:#8a6a2a;margin-top:8px}
+
+/* 목업 */
+.mock{background:#fff;border:1.5px solid #FFD8B0;border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(200,120,40,0.10);align-self:start}
+.mock-top{background:linear-gradient(135deg,#FFF1E2,#FFE3C7);padding:8px 12px;font-size:11px;font-weight:800;color:var(--org2);border-bottom:1px solid #FFE0C0;display:flex;align-items:center;gap:6px}
+.mock-body{padding:12px}
+.mi{background:#FAFAFA;border:1px solid #E5E7EB;border-radius:8px;padding:6px 9px;font-size:10.5px;color:#374151;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.mi .qa{color:var(--org2);font-weight:800;white-space:nowrap}
+.marrow{text-align:center;color:#FFB375;font-size:15px;margin:3px 0}
+.mres{background:#FFF8F2;border:1.5px dashed #FFC890;border-radius:10px;padding:11px;text-align:center}
+.mtype{font-size:14.5px;font-weight:800;color:var(--navy);margin-bottom:3px}
+.msub{font-size:10.5px;color:var(--mut);margin-bottom:7px}
+.gauge{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;margin:4px auto 6px;background:conic-gradient(var(--org) calc(var(--v)*1%),#FFE8D1 0)}
+.gauge i{width:62px;height:62px;border-radius:50%;background:#fff;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:19px;color:var(--navy);line-height:1}
+.gauge i small{font-size:9px;color:var(--mut);font-weight:700}
+.bars{text-align:left;margin:2px 0}
+.bar{display:flex;align-items:center;gap:6px;font-size:9.5px;margin:3px 0}
+.bar .bl{width:52px;color:#6B7280;font-weight:700;text-align:right;flex-shrink:0}
+.bar .bt{flex:1;height:7px;background:#F0E8E0;border-radius:6px;overflow:hidden}
+.bar .bf{height:100%;background:linear-gradient(90deg,#FFC58A,#E89244);border-radius:6px}
+.chips{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:3px}
+.chip{font-size:10.5px;font-weight:800;background:#FFEAD6;color:var(--org2);border:1px solid #FFD0A0;border-radius:100px;padding:3px 9px}
+.chip .pc{color:#1B5E20;font-weight:800}
+.mcta{margin-top:9px;background:var(--org);color:#fff;font-weight:800;font-size:10.5px;padding:7px;border-radius:8px;text-align:center}
+.okbadge{display:inline-block;background:#E8F5E9;color:#1B5E20;font-weight:800;font-size:12px;border-radius:100px;padding:4px 12px;margin-bottom:4px}
+
+/* 로드맵 / 마무리 */
+.callout{border-radius:14px;padding:16px 18px;margin:16px 0;font-size:13.5px;line-height:1.7}
+.c-rec{background:#F0FAF6;border:1.5px solid #A5D6C6;color:#1B5E20}
+.c-warn{background:#FFF8E8;border:1.5px solid #FFE0A0;color:#8a6a2a}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid #F0E8E0;font-size:11.5px;color:#9a8a7a;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="/docs.html" class="back">← 문서 맵</a>
+<span class="htag">🍪 GROWTH · 쿠키서비스 제안 · v1</span>
+<h1>쿠키서비스 <span>18종</span> — 부모를 앱으로 끄는 바이럴 미끼 도구</h1>
+<p class="sub">기존 <b>daycare-eval</b>(식단표 평가) 패턴을 확장 — <b>docs.html 47개 기능 문서</b> + <b>편식극복키트 폴더 전체</b> + <b>설문·고객개발</b>을 뒤져, 이미 있는 자산에서 <b>바로 떼어내 만들 수 있는</b> 무료 미끼 도구를 발굴·시각화했습니다. <b>핵심 14종</b>(매트릭스·맵) + <b>부모 페인 기반 4종</b>. 대부분 <b>LLM 구현</b> 권장.</p>
+
+<!-- 전략 -->
+<h2>왜 쿠키서비스인가 — 4단 퍼널</h2>
+<div class="flow">
+  <div class="fstep"><b>①</b><span class="ft">호기심 갭</span><span>"내 아이 어때?"</span></div>
+  <div class="farrow">→</div>
+  <div class="fstep"><b>②</b><span class="ft">1분 즉답</span><span>개인화된 결과</span></div>
+  <div class="farrow">→</div>
+  <div class="fstep"><b>③</b><span class="ft">공유 카드</span><span>맘카페·카톡 확산</span></div>
+  <div class="farrow">→</div>
+  <div class="fstep"><b>④</b><span class="ft">앱 가입</span><span>저장벽 퍼널</span></div>
+</div>
+<div class="moat">🛡️ <b>핵심 원칙 — 독점 데이터를 태운다.</b> 그냥 MBTI 퀴즈는 누구나 베낀다. 하지만 <b>"감자 좋아하면 → 고구마(성공률 78%)"</b>는 우리 푸드그래프만 가능하고, <b>"급식 생존 점수"</b>는 4,301건 급식 데이터만 가능하다. 독점 자산을 태우면 ① 남이 못 베끼고 ② 결과가 자연스럽게 <b>"이걸 매일 자동으로 해주는 게 앱이에요"</b>로 연결된다. 14종 중 ★★★ 해자 도구를 1순위로.</div>
+
+<!-- 한눈에 매트릭스 -->
+<h2>한눈에 — 핵심 14종 매트릭스</h2>
+<p class="note">바이럴/해자/LLM = ★ 많을수록 강함 · 구현 = 🟢쉬움 🟡보통 🔴어려움. 점수는 1차 가설(A/B로 검증).</p>
+<table>
+<tr><th>#</th><th>도구</th><th>푸는 질문</th><th>바이럴</th><th>구현</th><th>해자</th><th>LLM</th><th>출처 자산</th></tr>
+<tr><td>1</td><td class="nm">편식 유형 테스트<br>(편식 MBTI)</td><td>정상이야 문제야? 왜 안 먹지?</td><td class="star">★★★</td><td><span class="diff d-m">🟡보통</span></td><td class="star">★★</td><td class="llm">●●●</td><td class="srcs">SOS 7축 자가진단(채점 완성)</td></tr>
+<tr><td>2</td><td class="nm">급식 생존 점수</td><td>안 먹는 것들, 학교 가서 문제될까?</td><td class="star">★★★</td><td><span class="diff d-m">🟡보통</span></td><td class="star">★★★</td><td class="llm">●●</td><td class="srcs">Must-Eat 랭킹(급식 4,301건)</td></tr>
+<tr><td>3</td><td class="nm">사촌 음식 찾기</td><td>OO는 잘 먹는데, 다음엔 뭘?</td><td class="star">★★★</td><td><span class="diff d-e">🟢쉬움</span></td><td class="star">★★★</td><td class="llm">●●</td><td class="srcs">푸드그래프 음식 사촌</td></tr>
+<tr><td>4</td><td class="nm">"먹여도 돼요?"<br>안전·시기 체커</td><td>OO 몇 개월부터? 알레르기·질식?</td><td class="star">★★<span class="star lo">★</span></td><td><span class="diff d-e">🟢쉬움</span></td><td class="star">★★</td><td class="llm">●●</td><td class="srcs">도감 + 삼킴사고예방</td></tr>
+<tr><td>5</td><td class="nm">식탁 언어 번역기<br>(압박 측정기)</td><td>내 말이 편식을 키우나?</td><td class="star">★★★</td><td><span class="diff d-m">🟡보통</span></td><td class="star">★★</td><td class="llm">●●●</td><td class="srcs">용어사전 + 압박 가드</td></tr>
+<tr><td>6</td><td class="nm">편식 정상 진단<br>(또래 백분위)</td><td>정상일까 문제일까? 우리 애만?</td><td class="star">★★<span class="star lo">★</span></td><td><span class="diff d-e">🟢쉬움</span></td><td class="star">★★</td><td class="llm">●●</td><td class="srcs">PFD 6문항(채점 공식 완성)</td></tr>
+<tr><td>7</td><td class="nm">음식 다리 생성기<br>(Food Chaining)</td><td>안 먹는 OO, 어떻게 단계적으로?</td><td class="star">★★<span class="star lo">★</span></td><td><span class="diff d-h">🔴어려움</span></td><td class="star">★★★</td><td class="llm">●●●</td><td class="srcs">FoodChaining 4축 + 그래프</td></tr>
+<tr><td>8</td><td class="nm">우리 아이 OO<br>21일 친해지기</td><td>이 채소를 5주간 어떻게 친해지게?</td><td class="star">★★<span class="star lo">★</span></td><td><span class="diff d-h">🔴어려움</span></td><td class="star">★★</td><td class="llm">●●●</td><td class="srcs">채소 9종 21일 커리큘럼</td></tr>
+<tr><td>9</td><td class="nm">편식 IQ 퀴즈</td><td>내 대처법이 과학적으로 맞나?</td><td class="star">★★<span class="star lo">★</span></td><td><span class="diff d-e">🟢쉬움</span></td><td class="star lo">★</td><td class="llm">●</td><td class="srcs">35개 국제기준 강조카드</td></tr>
+<tr><td>10</td><td class="nm">영양 신호등<br>자가체크</td><td>우리 아이 식단, 뭐가 부족?</td><td class="star">★★<span class="star lo">★</span></td><td><span class="diff d-m">🟡보통</span></td><td class="star">★★</td><td class="llm">●●</td><td class="srcs">KDRI 31 신호등 + 농진청</td></tr>
+<tr><td>11</td><td class="nm">어린이집<br>편식 유발 위험도</td><td>우리 애 어린이집이 편식을 부추기나?</td><td class="star">★★</td><td><span class="diff d-m">🟡보통</span></td><td class="star">★★</td><td class="llm">●</td><td class="srcs">기관 7축 채점 엔진</td></tr>
+<tr><td>12</td><td class="nm">영양소 격차 계산기</td><td>먹는 것만으로 영양 충분?</td><td class="star">★<span class="star lo">★</span></td><td><span class="diff d-h">🔴어려움</span></td><td class="star">★★★</td><td class="llm">●●</td><td class="srcs">KDRI + 농진청 3겹</td></tr>
+<tr><td>13</td><td class="nm">질식 안전 배식 체커</td><td>이 음식 잘라줘야 하나?</td><td class="star">★<span class="star lo">★</span></td><td><span class="diff d-e">🟢쉬움</span></td><td class="star">★</td><td class="llm">●</td><td class="srcs">삼킴사고예방 요약</td></tr>
+<tr><td>14</td><td class="nm">식재료 캐릭터 도감</td><td>(참여형 — 질문 약함)</td><td class="star lo">★</td><td><span class="diff d-m">🟡보통</span></td><td class="star">★★</td><td class="llm">●●</td><td class="srcs">캐릭터 30종 + 도감</td></tr>
+</table>
+
+<!-- 우선순위 맵 -->
+<h2>우선순위 맵 — 어디부터 출시?</h2>
+<div class="maplegend">
+  <i><span class="dotmini" style="background:#E89244"></span>Wave 1 즉시</i>
+  <i><span class="dotmini" style="background:#9C27B0"></span>Wave 2 다음</i>
+  <i><span class="dotmini" style="background:#90A4AE"></span>Wave 3 통합·후순위</i>
+</div>
+<div class="pmap">
+  <div class="vline"></div><div class="hline"></div>
+  <div class="quad" style="top:8px;left:26px">🚀 즉시 출시 (쉬움 × 고임팩트)</div>
+  <div class="quad" style="top:8px;right:10px">💎 2차 투자 (어렵지만 강함)</div>
+  <div class="quad" style="bottom:34px;left:26px">🎁 빠른 보너스</div>
+  <div class="quad" style="bottom:34px;right:10px">🔻 통합·후순위</div>
+  <span class="axl x">구현 난이도 →  (쉬움 ··· 어려움)</span>
+  <span class="axl y">임팩트(바이럴·전환) →</span>
+  <div class="pdot" style="left:34%;top:12%">1</div>
+  <div class="pdot" style="left:46%;top:16%">2</div>
+  <div class="pdot" style="left:24%;top:14%">3</div>
+  <div class="pdot" style="left:18%;top:23%">4</div>
+  <div class="pdot" style="left:40%;top:20%">5</div>
+  <div class="pdot" style="left:30%;top:27%">6</div>
+  <div class="pdot w2" style="left:70%;top:20%">7</div>
+  <div class="pdot w2" style="left:77%;top:37%">8</div>
+  <div class="pdot w2" style="left:22%;top:45%">9</div>
+  <div class="pdot w2" style="left:53%;top:37%">10</div>
+  <div class="pdot w2" style="left:47%;top:43%">11</div>
+  <div class="pdot w3" style="left:72%;top:51%">12</div>
+  <div class="pdot w3" style="left:16%;top:59%">13</div>
+  <div class="pdot w3" style="left:57%;top:64%">14</div>
+</div>
+<p class="note">좌상단 클러스터(1·2·3·5·6)가 <b>스위트 스폿</b> — 쉽게 만들고 바이럴/전환 모두 높음. 여기부터.</p>
+
+<!-- ===== WAVE 1 ===== -->
+<div class="wave w1b"><span class="wn">WAVE 1</span> 즉시 출시 추천 — 쉬움 × 고임팩트 × 독점<span class="wd">6종 · 각 1~2일 제작</span></div>
+
+<!-- 1 -->
+<div class="prod">
+  <div class="prod-h"><div class="pn">1</div><div class="pico">🦔</div><div class="pt"><h3>편식 유형 테스트 (편식 MBTI)</h3><div class="ptag">바이럴 최강 · SOS 7축 자가진단을 인터랙티브로</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"우리 아이 편식, <b>정상이야 문제야?</b> 도대체 왜 안 먹지?"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">7축 13문항 + 자유서술 1칸 → <b>유형 카드</b>(감각예민형·구강운동지연형·환경형·식탁트라우마형…) + 7축 레이더</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">"우리 아이 = 감각예민형 탐험가" 공유 카드. <b>"3명 중 1명은 정상 편식"</b> 죄책감 완화가 공유 동기 자극</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">7축 패턴 + 자유서술 → 유형 명명·맞춤 3팁(국제기준 인용). 위험축 감지 시 전문가 의뢰로 자동 분기</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱이 매일 식단 기록으로 7축 자동 재측정 → 6주 뒤 변화 추적"</span></div>
+      <span class="src">📁 03_코스별/06_사전체크 · SOS Whole-Child 7축 (HTML+해석표 완비)</span>
+      <div class="rateline"><span class="rb">바이럴 <b>★★★</b></span><span class="rb">구현 🟡보통</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🦔 우리 아이 편식 유형</div>
+      <div class="mock-body">
+        <div class="mi">새 음식을 보면? <span class="qa">○ 일단 거부</span></div>
+        <div class="mi">질감 싫어함? <span class="qa">● 매우 그렇다</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="mtype">🦔 감각예민형</div>
+          <div class="msub">정상 picky · 식감이 핵심</div>
+          <div class="bars">
+            <div class="bar"><span class="bl">감각</span><span class="bt"><span class="bf" style="width:88%"></span></span></div>
+            <div class="bar"><span class="bl">구강운동</span><span class="bt"><span class="bf" style="width:40%"></span></span></div>
+            <div class="bar"><span class="bl">환경</span><span class="bt"><span class="bf" style="width:55%"></span></span></div>
+          </div>
+          <div class="mcta">맞춤 코칭 받기 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="prod">
+  <div class="prod-h"><div class="pn">2</div><div class="pico">🎒</div><div class="pt"><h3>급식 생존 점수</h3><div class="ptag">독점 IP · 입학 시즌 긴급성 · Must-Eat 랭킹</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"우리 애가 안 먹는 것들, <b>학교 가서 문제될까?</b>"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">아이가 거부하는 식재료 체크 → 급식 등장빈도 합산 → <b>"급식 생존 점수 42/100 — S등급 5개 거부 중, 급식 거부 위험 높음"</b></span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">숫자 점수 + "S등급 거부 ○개" 경고 카드. 입학 앞둔 부모에게 실질 긴급성</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">식재료별 학부모 메시지 개인화 + 영양 격차 한 줄("당근 모르고 급식 가면 거부↑")</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱 도감이 114 식재료 친숙도 자동 추적 → 입학 전 D-day 채우기"</span></div>
+      <span class="src">📁 B_레시피DB/식재료_랭킹_마스터_v4.xlsx · 식생활안전관리원 급식 4,301건 (독점)</span>
+      <div class="rateline"><span class="rb">바이럴 <b>★★★</b></span><span class="rb">구현 🟡보통</span><span class="rb">해자 <b>★★★</b></span><span class="rb">LLM ●●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🎒 급식 생존 점수</div>
+      <div class="mock-body">
+        <div class="mi">거부 식재료 <span class="qa">당근·시금치·버섯·…</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="gauge" style="--v:42"><i>42<small>/100</small></i></div>
+          <div class="mtype" style="font-size:12.5px;color:#C62828">⚠️ 급식 거부 위험 높음</div>
+          <div class="msub">급식 핵심 S등급 5개를 거부 중</div>
+          <div class="mcta">친숙도 채우기 → 앱 도감</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="prod">
+  <div class="prod-h"><div class="pn">3</div><div class="pico">🥔</div><div class="pt"><h3>사촌 음식 찾기</h3><div class="ptag">전환 최강 · 우리 비밀병기(푸드그래프) · 즉답</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"얘 <b>OO는 잘 먹는데</b>, 다음엔 뭘 시도하지?"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">잘 먹는 음식 1개 입력 → 성공 확률 높은 <b>사촌 음식 3개</b> ("감자 → 고구마 78%·단호박 71%·옥수수 64%")</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">즉답 + 의외성("이렇게 연결되는구나"). 저장·캡처 공유 잘 됨</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">푸드그래프 사촌 추출 + LLM이 "왜 성공률 높은지·조리 팁" 한 줄 생성</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱이 우리 아이 <b>실제 기록 기반</b>으로 매일 다음 사촌을 코칭" — 토이가 곧 제품의 한 조각</span></div>
+      <span class="src">📁 푸드그래프(음식 사촌 네트워크) · food-reco-engine / graph-query (독점 핵심)</span>
+      <div class="rateline"><span class="rb">바이럴 <b>★★★</b></span><span class="rb">구현 🟢쉬움</span><span class="rb">해자 <b>★★★</b></span><span class="rb">LLM ●●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🥔 사촌 음식 찾기</div>
+      <div class="mock-body">
+        <div class="mi">잘 먹는 음식 <span class="qa">감자 🥔</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="mtype" style="font-size:12.5px">다음에 이걸 시도하세요</div>
+          <div class="chips" style="margin-top:8px">
+            <span class="chip">고구마 <span class="pc">78%</span></span>
+            <span class="chip">단호박 <span class="pc">71%</span></span>
+            <span class="chip">옥수수 <span class="pc">64%</span></span>
+          </div>
+          <div class="msub" style="margin-top:8px">같은 '포근한 단맛·전분' 사촌</div>
+          <div class="mcta">우리 아이 맞춤 사촌 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="prod">
+  <div class="prod-h"><div class="pn">4</div><div class="pico">🍅</div><div class="pt"><h3>"먹여도 돼요?" 음식 안전·시기 체커</h3><div class="ptag">SEO 금광 · 검색량 폭발 키워드 즉답 유틸</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"<b>OO 몇 개월부터?</b> 알레르기 위험? 질식 위험?"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">음식 + 아이 월령 → <b>권장 시작 시기 · 알레르기 위험 · 질식 안전 배식법</b> 즉답</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">"아보카도 몇개월"·"땅콩 알레르기" 등 검색량 폭발 → <b>공유보다 SEO 유입</b>으로 터짐 + 북마크</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">도감 데이터 기반 즉답 생성 + 손질/자르기 팁. 위험군은 보수적 분기</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"우리 아이 월령 넣으면 먹어도 되는 음식 <b>전체 도감</b> → 앱"</span></div>
+      <span class="src">📁 도감(dietary4u) · 삼킴사고예방 요약 · 알레르기 정보</span>
+      <div class="rateline"><span class="rb">바이럴 ★★★</span><span class="rb">구현 🟢쉬움</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●</span><span class="rb"><b>SEO 유입</b></span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🍅 먹여도 돼요?</div>
+      <div class="mock-body">
+        <div class="mi">음식 <span class="qa">방울토마토</span></div>
+        <div class="mi">월령 <span class="qa">18개월</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="okbadge">✅ 먹여도 OK</div>
+          <div class="bars" style="margin-top:6px">
+            <div class="bar"><span class="bl">시작</span><span class="bt"><span class="bf" style="width:90%"></span></span></div>
+            <div class="bar"><span class="bl">알레르기</span><span class="bt"><span class="bf" style="width:18%"></span></span></div>
+            <div class="bar"><span class="bl">질식</span><span class="bt"><span class="bf" style="width:60%"></span></span></div>
+          </div>
+          <div class="msub" style="margin-top:6px">⚠️ 통째 금지 · <b>1/4로 잘라서</b></div>
+          <div class="mcta">전체 도감 보기 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="prod">
+  <div class="prod-h"><div class="pn">5</div><div class="pico">🗣️</div><div class="pt"><h3>식탁 언어 번역기 (압박 측정기)</h3><div class="ptag">도발적 자기성찰 · 태그 유발 · 용어사전 가드</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"내가 식탁에서 하는 말이 <b>오히려 편식을 키우나?</b>"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">식사 중 자주 하는 말 입력("한 입만 더", "다 먹어야 놀지") → <b>압박 지수 + 금지어 검출 + 긍정 대체 카피</b></span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">"당신의 식탁 언어 압박 점수 73점" — 살짝 뜨끔한 자기성찰형 = 공유·친구 태그 유발</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v"><b>핵심</b> — 압박 표현 탐지 + DOR 정합 재작성(용어사전이 룰 가드 제공)</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱 코칭이 매주 부모 멘트 피드백 + 상황별 긍정 카피 제안"</span></div>
+      <span class="src">📁 06_운영/공통_부모_언어가이드_v1.html — ❌→✅ 변환 카드 30+개(즉시 사용 가능) · 용어사전 · Galloway 압박 연구</span>
+      <div class="rateline"><span class="rb">바이럴 <b>★★★</b></span><span class="rb">구현 🟡보통</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🗣️ 식탁 언어 번역기</div>
+      <div class="mock-body">
+        <div class="mi" style="font-style:italic">"한 입만 더 먹어야 착하지"</div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="gauge" style="--v:73"><i>73<small>압박</small></i></div>
+          <div class="mtype" style="font-size:12px;color:#C62828">🚫 압박·조건부 보상</div>
+          <div class="msub" style="margin:6px 0 2px">이렇게 바꿔보세요 ↓</div>
+          <div class="chip" style="display:inline-block">"오늘은 여기까지 할까?"</div>
+          <div class="mcta">매주 멘트 피드백 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="prod">
+  <div class="prod-h"><div class="pn">6</div><div class="pico">🧭</div><div class="pt"><h3>편식 정상 진단 (또래 백분위)</h3><div class="ptag">불안→안심 루프 · PFD 6문항(채점 공식 완성)</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"내 아이 편식, <b>정상일까 문제일까?</b> 병원 가야 하나?"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">PFD 6문항(risk = PFD신호−정상신호) → <b>정상 / 경계 / PFD 의심</b> 3분기 + "정상 편식, 상위 32%" + 안심 메시지</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">불안 해소 = 강력한 확산. "정상이래!" 안심 카드를 공유</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">6문항 + 자유서술 → 분기 해석·안심/의뢰 카피 톤 조절</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱이 6주마다 자동 재측정 — 경계→정상 이동을 추적"</span></div>
+      <span class="src">📁 03_코스별/06_사전체크 · PFD 스크리너 6문항 (3분기 채점 코딩 완료)</span>
+      <div class="rateline"><span class="rb">바이럴 ★★★</span><span class="rb">구현 🟢쉬움</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🧭 편식 정상 진단</div>
+      <div class="mock-body">
+        <div class="mi">또래보다 까다롭다? <span class="qa">● 그렇다</span></div>
+        <div class="mi">체중·성장 정상? <span class="qa">○ 정상</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="okbadge">😌 정상 범위</div>
+          <div class="mtype" style="font-size:13px;margin-top:4px">까다롭지만 정상 편식</div>
+          <div class="msub">또래 중 상위 32% (걱정 단계 아님)</div>
+          <div class="mcta">6주 변화 추적 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WAVE 2 ===== -->
+<div class="wave w2b"><span class="wn">WAVE 2</span> 다음 — 강하지만 제작량/입력 부담↑<span class="wd">5종 · 각 3~5일 제작</span></div>
+
+<!-- 7 -->
+<div class="prod p2">
+  <div class="prod-h"><div class="pn">7</div><div class="pico">🌉</div><div class="pt"><h3>음식 다리 생성기 (Food Chaining)</h3><div class="ptag">LLM 네이티브 · 4축 매트릭스 결정론+생성</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"안 먹는 OO, <b>어떻게 단계적으로</b> 친해지게 하죠?"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">잘 먹는 음식 + 도전 음식 → 4축(색·온도·질감·맛) <b>단계적 다리</b> (너겟→닭구이→…→삶은 닭가슴살), 각 단계가 바꾼 축 표시</span></div>
+      <div class="kv"><span class="k">사촌 찾기(#3)와 차이</span><span class="v">사촌 = 1-hop 즉시 횡확장 · 다리 = <b>다단계 종적 경로</b>(먼 목표까지)</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v"><b>핵심</b> — 4축 규칙으로 임의 음식쌍의 다리를 결정론+LLM 하이브리드 생성</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱이 실제 먹은 기록 기반으로 다음 다리를 매일 코칭"</span></div>
+      <span class="src">📁 00_설계원칙/09_FoodChaining.md (Fraker 4축 매트릭스) · 푸드그래프</span>
+      <div class="rateline"><span class="rb">바이럴 ★★★</span><span class="rb">구현 🔴어려움</span><span class="rb">해자 <b>★★★</b></span><span class="rb">LLM ●●●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🌉 음식 다리</div>
+      <div class="mock-body">
+        <div class="mi">치킨너겟 <span class="qa">→ 삶은 닭가슴살</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres" style="text-align:left">
+          <div class="bar" style="font-size:10px;margin:5px 0"><span class="bl" style="width:18px">1</span> 치킨너겟</div>
+          <div class="bar" style="font-size:10px;margin:5px 0"><span class="bl" style="width:18px">2</span> 닭구이 <span style="color:#C45A00;font-weight:800;font-size:9px">(질감)</span></div>
+          <div class="bar" style="font-size:10px;margin:5px 0"><span class="bl" style="width:18px">3</span> 닭조림 <span style="color:#C45A00;font-weight:800;font-size:9px">(맛)</span></div>
+          <div class="bar" style="font-size:10px;margin:5px 0"><span class="bl" style="width:18px">4</span> 삶은 닭가슴살</div>
+          <div class="mcta">우리 아이 다리 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8 -->
+<div class="prod p2">
+  <div class="prod-h"><div class="pn">8</div><div class="pico">📅</div><div class="pt"><h3>우리 아이 OO 21일 친해지기 플랜</h3><div class="ptag">인쇄·수료증 공유 · 채소 9종 커리큘럼 IP 전체</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"당근(거부 채소)을 <b>5주간 어떻게</b> 친해지게 하지?"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">거부 채소 + 아이 나이 → <b>21일 데일리 활동 달력</b>(활동명+놀이법+부모 대사) + 수료증</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">"21일 채소 친해지기 달력" + 수료증 → 인쇄·캡처 공유(완주 자랑)</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">요일 슬롯 공식 + 캐릭터 스토리로 임의 식재료의 Day별 활동 생성(압박 카피 자동 차단 가드)</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱이 매일 활동 알림 + 반응 기록 + 진도 추적 — 종이 없이 자동"</span></div>
+      <span class="src">📁 03_코스별_프로그램 9채소 × 21일 + 요일 슬롯 공식 + 수료증 템플릿</span>
+      <div class="rateline"><span class="rb">바이럴 ★★★</span><span class="rb">구현 🔴어려움</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">📅 당근 21일 플랜</div>
+      <div class="mock-body">
+        <div class="mi" style="font-size:9.5px">Day 1 색 비교 · Day 2 단면 스탬프</div>
+        <div class="mi" style="font-size:9.5px">Day 3 내부 구조 · Day 4 입체 조형</div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="mtype" style="font-size:12px">🥕 당근이와 21일</div>
+          <div class="chips"><span class="chip">놀이</span><span class="chip">디핑</span><span class="chip">토핑</span><span class="chip">섞기</span></div>
+          <div class="msub" style="margin-top:6px">완주 시 🏅 수료증</div>
+          <div class="mcta">매일 자동 운영 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9 -->
+<div class="prod p2">
+  <div class="prod-h"><div class="pn">9</div><div class="pico">🧠</div><div class="pt"><h3>편식 IQ 퀴즈</h3><div class="ptag">퀴즈=바이럴 기본형 · 35개 국제기준 의외성</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"내 편식 대처법이 <b>과학적으로 맞나?</b>" (지식 플렉스)</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">O/X·객관식 8문항("새 음식은 몇 번 권해야?"→<b>30번</b> / "'한 입만 더'는 효과적"→X) → "편식 IQ 87점·상위 20%" + 틀린 항목 해설</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">점수 + 의외 정답("헐 30번?!") → 캡처 공유</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">약함(해설 생성 정도) — 데이터가 본체</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱이 35개 국제기준 기반으로 매일 코칭" — 신뢰성 해자와 연결</span></div>
+      <span class="src">📁 L_국제가이드라인 · "강조 한 줄" 카드 32장 (Food Dudes·Tiny Tastes…)</span>
+      <div class="rateline"><span class="rb">바이럴 ★★</span><span class="rb">구현 🟢쉬움</span><span class="rb">해자 ★</span><span class="rb">LLM ●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🧠 편식 IQ 퀴즈</div>
+      <div class="mock-body">
+        <div class="mi">새 음식, 몇 번 권해야? <span class="qa">정답 30번</span></div>
+        <div class="mi">"한 입만 더" 효과적? <span class="qa">정답 X</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="gauge" style="--v:87"><i>87<small>IQ</small></i></div>
+          <div class="msub">상위 20% · 편식 박사님!</div>
+          <div class="mcta">매일 과학 코칭 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 -->
+<div class="prod p2">
+  <div class="prod-h"><div class="pn">10</div><div class="pico">🚦</div><div class="pt"><h3>영양 신호등 자가체크</h3><div class="ptag">KDRI 31 신호등 · daycare-eval의 '우리 아이' 버전</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"우리 아이 식단, <b>뭐가 부족하지?</b> 영양제 먹여야 하나?"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">식단표/먹은 것 입력 → <b>31 KDRI 영양소 신호등</b>(green/yellow/red) + 부족분 보충 식재료</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">"우리 아이 영양 신호등" 카드. 단 입력 부담 약간 있음 → 식단표 OCR로 줄이기</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">음식→식재료→영양(농진청 3겹) 매핑 후 신호등 계산</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱이 매일 식단 기록으로 신호등 자동 + 데일리 박스 추천"</span></div>
+      <span class="src">📁 nutrient-signal-report(KDRI 31) · 농진청 성분 DB</span>
+      <div class="rateline"><span class="rb">바이럴 ★★</span><span class="rb">구현 🟡보통</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●</span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🚦 영양 신호등</div>
+      <div class="mock-body">
+        <div class="mi">어제 먹은 것 <span class="qa">밥·김·달걀…</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres" style="text-align:left">
+          <div class="bar"><span class="bl">🔴 철분</span><span class="bt"><span class="bf" style="width:28%;background:#E53935"></span></span></div>
+          <div class="bar"><span class="bl">🟡 칼슘</span><span class="bt"><span class="bf" style="width:55%;background:#F9A825"></span></span></div>
+          <div class="bar"><span class="bl">🟢 단백질</span><span class="bt"><span class="bf" style="width:88%;background:#16A085"></span></span></div>
+          <div class="msub" style="margin-top:6px">철분 부족 → 들깨·콩 추천</div>
+          <div class="mcta">매일 자동 추적 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 -->
+<div class="prod p2">
+  <div class="prod-h"><div class="pn">11</div><div class="pico">🏫</div><div class="pt"><h3>어린이집 편식 유발 위험도</h3><div class="ptag">daycare-eval 확장 각도 · 기관 7축 채점</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 질문</span><span class="v">"우리 애 어린이집 식단이 <b>편식을 부추기나?</b>"</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">어린이집 식단표 → 반복도·다양성 기반 <b>편식 유발 위험 점수</b>(같은 메뉴 반복·새 식재료 노출 부족)</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">daycare-eval 변주지만 <b>'편식' 각도</b>라 더 자극적</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">약함(결정론 채점) — 식단표 OCR이 핵심</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"집에서 보완할 식재료 → 앱"</span></div>
+      <span class="src">📁 기관 7축 채점 엔진(daycare-eval-engine) 재포장</span>
+      <div class="rateline"><span class="rb">바이럴 ★★</span><span class="rb">구현 🟡보통</span><span class="rb">해자 ★★</span><span class="rb">LLM ●</span></div>
+      <div class="warn">⚠️ <b>카니발라이즈 주의</b> — 기존 daycare-eval과 겹침. 별도 페이지보다 daycare-eval 결과에 <b>'편식 위험' 탭 추가</b>가 더 나을 수 있음.</div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🏫 편식 유발 위험도</div>
+      <div class="mock-body">
+        <div class="mi">식단표 사진 <span class="qa">📷 OCR</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="gauge" style="--v:64"><i>64<small>위험</small></i></div>
+          <div class="mtype" style="font-size:12px;color:#EF6C00">반복 메뉴 多·새 식재료 少</div>
+          <div class="mcta">집 보완 식재료 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WAVE 3 ===== -->
+<div class="wave w3b"><span class="wn">WAVE 3</span> 통합·후순위 — 약함(정직 표기)<span class="wd">3종 · 단독보다 흡수 권장</span></div>
+
+<div class="prod p3 nomock">
+  <div class="prod-h"><div class="pn">12</div><div class="pico">📊</div><div class="pt"><h3>영양소 격차 계산기 (영양 지도)</h3><div class="ptag">IP는 강하나 입력 마찰 큼</div></div></div>
+  <div class="prod-b"><div>
+    <div class="kv"><span class="k">개념</span><span class="v">일주일 먹은 음식 입력 → KDRI 대비 영양소 격차 레이더 + 부족분 식재료. 농진청 3겹 영양맵 그대로.</span></div>
+    <div class="warn">🔻 <b>솔직 평가</b> — IP는 강력하지만 <b>일주일치 나열 = 1분 즉답성이 깨짐</b>. 입력을 "거부 식재료 체크"로 줄이면 <b>#2 급식 생존 점수</b>나 <b>#10 신호등</b>에 흡수하는 게 낫다.</div>
+    <span class="src">📁 KDRI 2025 + 농진청 국가표준식품성분표</span>
+  </div></div>
+</div>
+
+<div class="prod p3 nomock">
+  <div class="prod-h"><div class="pn">13</div><div class="pico">✂️</div><div class="pt"><h3>질식 안전 배식 체커</h3><div class="ptag">진짜 1분 유틸이지만 바이럴 낮음</div></div></div>
+  <div class="prod-b"><div>
+    <div class="kv"><span class="k">개념</span><span class="v">음식 + 아이 나이 → 안전 배식법(자르기 크기·제공 여부) 즉답. 방울토마토·포도·떡·견과 1/2~1/4 등.</span></div>
+    <div class="warn">🔻 <b>솔직 평가</b> — 감정 자극이 약해 바이럴 낮음. 단 저장·북마크 가치 높은 진짜 유틸 → <b>#4 "먹여도 돼요?"에 통합</b>(질식 축으로 흡수)이 정답.</div>
+    <span class="src">📁 D_편식지도/영유아_삼킴사고_예방_요약.md</span>
+  </div></div>
+</div>
+
+<div class="prod p3 nomock">
+  <div class="prod-h"><div class="pn">14</div><div class="pico">🎭</div><div class="pt"><h3>식재료 캐릭터 도감</h3><div class="ptag">참여형 토이 · 질문 해결 축 약함</div></div></div>
+  <div class="prod-b"><div>
+    <div class="kv"><span class="k">개념</span><span class="v">게이미피케이션 캐릭터 30종 + 도감으로 "우리 아이 식탁 친구들" 생성. 귀엽고 도감 IP와 직결.</span></div>
+    <div class="warn">🔻 <b>솔직 평가</b> — "부모 질문에 답"하는 축이 약한 순수 참여 토이. 단독 쿠키보다 <b>#1 유형 테스트·#8 21일 플랜의 결과 카드 비주얼</b>로 활용 권장.</div>
+    <span class="src">📁 00_설계원칙/08_게이미피케이션.md + 도감 캐릭터</span>
+  </div></div>
+</div>
+
+<!-- ===== 추가 발굴: 부모 페인 기반 ===== -->
+<h2>📋 추가 발굴 — 부모 페인 기반 (설문·고객개발)</h2>
+<div class="callout c-warn">⚠️ <b>부모 직접 응답 원자료는 아직 빈약</b> — 4월 설문은 교사·원장 대상(부모는 교사 전언 인용만), 5월 학부모 설문은 <b>문항만 있고 응답 결과는 없음</b>. 아래는 ① 교사가 전한 부모 직접 인용 ② 설문에 인코딩된 가설 페인 ③ 부모 언어가이드(❌→✅ 30+ 카드)를 종합. <b>역발상 — 이 쿠키들 자체가 '첫 부모 데이터 수집 도구'</b>가 된다(바이럴 + 데이터 일석이조).</div>
+
+<!-- 15 -->
+<div class="prod p2">
+  <div class="prod-h"><div class="pn" style="background:#E89244">15</div><div class="pico">🏠</div><div class="pt"><h3>집밥 vs 어린이집밥 격차 진단기 <span style="font-size:11px;color:#C45A00;font-weight:800">⭐ 설문 #1 신호 · Wave 1급</span></h3><div class="ptag">"우리 집만 그런 게 아니구나" — 즉시 공유 최강</div></div></div>
+  <div class="prod-b">
+    <div>
+      <div class="kv"><span class="k">부모의 실제 말</span><span class="v">"<b>원에선 잘 먹는데 집에선 왜 안 먹을까요?</b>" (4월 교사 Q5 <b>최다 선택</b> · 모든 소스 1순위)</span></div>
+      <div class="kv"><span class="k">입력 → 출력</span><span class="v">집/원 반응 몇 개 입력 → <b>"왜 집에서만 안 먹나" 원인 카드</b>(관심 끌기·자율성·메뉴 차이) + 한 줄 처방</span></div>
+      <div class="kv"><span class="k">바이럴 포인트</span><span class="v">결과가 <b>"당신 잘못 아님 + 집에서만 안 먹는 데엔 이유가 있음"</b>으로 끝나면 공유율 최상. 가장 보편·공감 강한 페인</span></div>
+      <div class="kv"><span class="k">LLM 활용</span><span class="v">집/원 패턴 대조 → 원인 진단 + 처방 카피</span></div>
+      <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">"앱이 장소별(집/기관) 분리를 <b>핵심 설계축</b>으로 매일 추적" — 이미 코칭엔진의 중심축</span></div>
+      <span class="src">📁 08_고객개발/설문조사 4월 교사 Q5(최다) · 카톡코칭 코칭엔진 home/daycare 분리축</span>
+      <div class="rateline"><span class="rb">바이럴 <b>★★★</b></span><span class="rb">구현 🟢쉬움</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●●</span><span class="rb"><b>설문 #1</b></span></div>
+    </div>
+    <div class="mock">
+      <div class="mock-top">🏠 집밥 vs 원밥 격차</div>
+      <div class="mock-body">
+        <div class="mi">어린이집에선? <span class="qa">● 잘 먹음</span></div>
+        <div class="mi">집에선? <span class="qa">○ 거의 안 먹음</span></div>
+        <div class="marrow">▼</div>
+        <div class="mres">
+          <div class="mtype" style="font-size:13px">원인: 관심 끌기 · 자율성</div>
+          <div class="msub">집에서 '먹어라' 관심이 거부를 강화</div>
+          <div class="chip" style="display:inline-block;margin-top:6px">처방: 셀프 서빙 + 무관심 노출</div>
+          <div class="mcta">장소별 추적 → 앱</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 16 -->
+<div class="prod p2 nomock">
+  <div class="prod-h"><div class="pn" style="background:#E89244">16</div><div class="pico">🪜</div><div class="pt"><h3>SOS 감각사다리 6단계 진단</h3><div class="ptag">"우리 아이 거부, 몇 단계까지 와 있지?"</div></div></div>
+  <div class="prod-b"><div>
+    <div class="kv"><span class="k">입력 → 출력</span><span class="v">거부 음식 1개 + 반응 → <b>6단계(보기→만지기→냄새→핥기→씹기→삼키기)</b> 중 현 위치 + 다음 단계 미션. "우리 아이는 3단계(냄새)까지"</span></div>
+    <div class="kv"><span class="k">바이럴 · LLM</span><span class="v">진척 게이지 공유 · 반응 서술 → 단계 판정 + 다음 미션 카피</span></div>
+    <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">앱이 매 끼니 단계 전진을 자동 기록(SOS는 앱 코칭 백본)</span></div>
+    <span class="src">📁 카톡코칭/코칭엔진_스펙_v1.md (SOS 6단계) · 5월 설문 Q4(거부 반응)</span>
+    <div class="rateline"><span class="rb">바이럴 ★★</span><span class="rb">구현 🟢쉬움</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●</span></div>
+  </div></div>
+</div>
+
+<!-- 17 -->
+<div class="prod p2 nomock">
+  <div class="prod-h"><div class="pn" style="background:#E89244">17</div><div class="pico">😮‍💨</div><div class="pt"><h3>편식 육아 번아웃 자가체크</h3><div class="ptag">"나만 이렇게 지치나?" — 위로형 공유</div></div></div>
+  <div class="prod-b"><div>
+    <div class="kv"><span class="k">입력 → 출력</span><span class="v">마음상태 문항(적극 해결~사실상 포기 <b>6단계</b>) → 번아웃 단계 + <b>상태별 위로 한마디</b></span></div>
+    <div class="kv"><span class="k">바이럴 · LLM</span><span class="v">"엄마 잘못 아니에요" 위로 공유·태그 · 상태 → 죄책감 완화 톤 카피</span></div>
+    <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">앱 코칭이 점수로 다그치지 않고 <b>위로 먼저</b>(P8)</span></div>
+    <span class="src">📁 5월 설문 Q8(마음상태) · 코칭엔진 죄책감 완화 설계</span>
+    <div class="rateline"><span class="rb">바이럴 ★★</span><span class="rb">구현 🟢쉬움</span><span class="rb">해자 ★</span><span class="rb">LLM ●●</span></div>
+  </div></div>
+</div>
+
+<!-- 18 -->
+<div class="prod p2 nomock">
+  <div class="prod-h"><div class="pn" style="background:#E89244">18</div><div class="pico">🔄</div><div class="pt"><h3>"내가 써본 방법, 효과 있었나?" 시도 진단</h3><div class="ptag">"다 해봤는데 왜 안 통하지?"</div></div></div>
+  <div class="prod-b"><div>
+    <div class="kv"><span class="k">입력 → 출력</span><span class="v">11가지 시도 체크(몰래 섞기·보상·한입만…) → <b>안 통한 이유 + 다음 한 수</b>("몰래 섞기 = 역효과, 대신…")</span></div>
+    <div class="kv"><span class="k">바이럴 · LLM</span><span class="v">"내가 한 게 역효과였다니" 반전 · 시도 조합 → 역효과 진단 + 검증된 대안</span></div>
+    <div class="kv"><span class="k">앱으로 가는 다리</span><span class="v">앱이 검증된 방법만 매일 코칭</span></div>
+    <span class="src">📁 5월 설문 Q10(11 시도) · 부모 언어가이드(몰래 섞기·외적 보상 = 금지)</span>
+    <div class="rateline"><span class="rb">바이럴 ★★</span><span class="rb">구현 🟢쉬움</span><span class="rb">해자 ★★</span><span class="rb">LLM ●●</span></div>
+  </div></div>
+</div>
+
+<p class="note" style="margin-top:6px">+ 가벼운 유틸로 시리즈 보강: <b>외식·할머니댁 편식 SOS</b>(상황 선택 → 그 자리서 쓸 말 한 장) · <b>식사 시간 진단</b>(평균보다 몇 분 긴지 + 줄이는 환경 체크). 출처 5월 Q6·Q7 · 부모 언어가이드 외부환경 섹션.</p>
+
+<!-- 로드맵 -->
+<h2>추천 출시 로드맵</h2>
+<div class="callout c-rec">✅ <b>Wave 1을 한 쌍 전략으로</b> — <b>#1 편식 유형 테스트</b>(바이럴·도달 최강)로 맘카페·카톡에 퍼뜨려 끌어오고, <b>#3 사촌 찾기</b>(전환·해자 최강, 토이가 곧 제품)가 그 트래픽을 앱으로 꽂는다. 바이럴과 전환을 <b>분리해 각각 최적화</b>. 그다음 #4(SEO 유입)·#2(입학 시즌)·#6(안심)·#5(자기성찰)을 차례로. 여기에 <b>#15 집밥-원밥 격차 진단기</b>(설문 #1 신호)도 Wave 1에 합류 — 가장 공감·공유 강한 페인.</div>
+<div class="grid2">
+  <div>
+    <h3 style="color:#C45A00;font-size:15px;font-weight:800;margin:8px 0 4px">🍪 시리즈로 묶어라</h3>
+    <p style="font-size:13px;color:var(--ink)">14종을 <b>「밀프레드 1분 진단」 시리즈</b>로 브랜딩 — 각 도구 결과 끝에 "다른 진단도 해보기" 크로스링크. 쿠키가 쌓일수록 복리로 붙는다(daycare-eval도 시리즈 1번으로 편입).</p>
+  </div>
+  <div>
+    <h3 style="color:#1B5E20;font-size:15px;font-weight:800;margin:8px 0 4px">🔁 공통 퍼널 골격</h3>
+    <p style="font-size:13px;color:var(--ink)"><b>무료 즉답 결과(로그인 0)</b> → "결과 카드 저장 / 우리 아이 맞춤 플랜은 → <b>앱 가입</b>" (저장벽 퍼널). 모든 도구에 같은 골격 + GA4 펀넬 태깅.</p>
+  </div>
+</div>
+<div class="callout c-warn">⚠️ <b>바이럴·구현·해자 점수는 1차 가설(내부 판단).</b> 실제 정답지는 출시 후 공유율·가입 전환율 — A/B가 순위를 다시 쓴다. Wave 1 중 2개를 먼저 띄워 데이터로 보정 권장.</div>
+
+<footer>
+작성 2026-06-27 · 쿠키서비스 14종 제안 v1 · 출처 = <b>docs.html 47개 기능 문서</b> + <b>편식극복키트 폴더 전수 발굴</b>(03_코스별 사전체크 진단지·B_레시피DB Must-Eat 랭킹·00_설계원칙 FoodChaining·용어사전·L_국제가이드라인 · 08_고객개발 설문(부모 원자료는 빈약—교사 전언·가설 페인)·06_운영 부모 언어가이드 등). 우선순위 = 바이럴 × 구현난이도 × 독점성(해자). <b>대부분 LLM 구현 권장.</b><br>다음 — Wave 1 도구 1개 프로토타입(daycare-eval 포맷) 또는 office-hours로 수요 검증.
+</footer>
+</div>
+</body>
+</html>
