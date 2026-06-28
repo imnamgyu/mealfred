@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>편식 IQ 퀴즈 — 내 편식 대처법, 과학적으로 맞을까? | 밀프레드</title>
 <meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="편식 IQ 퀴즈 — 내 편식 대처법, 과학적으로 맞을까?">
+<meta property="og:description" content="8문제로 알아보는 편식 IQ. 정답이 의외라 깜짝 놀랄지도! 35개 국제 가이드라인 기준 · 1분.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
 <script src="/docs-gate.js?v=4"></script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -47,7 +51,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
 </head>
-<body>
+<body data-cookie="quiz">
 <span class="priv">🔒 비공개 테스트</span>
 <a href="/cookie-services.html" class="back">← 쿠키 허브</a>
 <header class="hero">
@@ -71,6 +75,12 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
         <div class="rank" id="rank"></div>
       </div>
       <div id="review"></div>
+    </div>
+    <div class="appin" style="background:linear-gradient(135deg,#FFEFE0,#FFE2C4)">
+      <div class="em">📣</div>
+      <h3>친구도 해보게 공유!</h3>
+      <p>내 편식 IQ를 카톡·맘카페에 — "너도 해봐!"</p>
+      <button class="btn" onclick="mfShare()">카톡·맘카페에 공유하기 📣</button>
     </div>
     <div class="appin">
       <div class="em">💌</div>
@@ -126,6 +136,7 @@ function show(){
  const iq=60+correct*5; // 0→60, 8→100
  let rank;if(correct>=8)rank='상위 5% · 편식 박사님!';else if(correct>=7)rank='상위 15% · 편식 고수';else if(correct>=5)rank='상위 40% · 평균 이상';else if(correct>=3)rank='평균 · 함께 배워가요';else rank='이제 시작! 알면 쉬워져요';
  document.getElementById('iq').textContent=iq;
+ window.mfShareText='나의 편식 IQ는 '+iq+'점('+rank+')! 너도 편식 IQ 테스트 해봐 🧠';
  document.getElementById('rank').textContent=correct+'/'+QUIZ.length+' 정답 · '+rank;
  document.getElementById('review').innerHTML=QUIZ.map((q,n)=>{
    const ok=picked[n]===q.a;
@@ -139,5 +150,6 @@ function show(){
 }
 render();
 </script>
+<script src="/cookie-common.js?v=1"></script>
 </body>
 </html>

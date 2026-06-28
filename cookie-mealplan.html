@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>우리 아이 맞춤 식단표 — 어린이집·유치원·초등 급식 데이터 기반 | 밀프레드</title>
 <meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="우리 아이 맞춤 식단표 — 어린이집·유치원·초등 급식 데이터로">
+<meta property="og:description" content="나이·식감·좋아/싫어만 넣으면 실제 급식에 자주 나온 검증 메뉴로 일주일 식단표를! 급식 등장 횟수 근거 · 1분.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
 <script src="/docs-gate.js?v=4"></script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -61,7 +65,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
 </head>
-<body>
+<body data-cookie="mealplan">
 <span class="priv">🔒 비공개 테스트</span>
 <a href="/cookie-services.html" class="back">← 쿠키 허브</a>
 <header class="hero">
@@ -93,6 +97,12 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
       <div id="bridge" class="bridge hidden"></div>
       <div id="agenote" class="note hidden"></div>
       <div class="disc">⚠️ <b>참고용 제안</b>이에요(처방 아님). 알레르기 식품은 빼고 보시고, 강요 없이 한 입씩 권해주세요. 영양·알레르기가 걱정되면 전문가와 상담하세요.</div>
+    </div>
+    <div class="appin" style="background:linear-gradient(135deg,#FFEFE0,#FFE2C4)">
+      <div class="em">📣</div>
+      <h3>친구도 해보게 공유!</h3>
+      <p>우리 아이 식단표를 카톡·맘카페에 — "너도 해봐!"</p>
+      <button class="btn" onclick="mfShare()">카톡·맘카페에 공유하기 📣</button>
     </div>
     <div class="appin">
       <div class="em">🍱</div>
@@ -152,6 +162,7 @@ function gen(){
   rows.forEach(([k,label])=>{html+='<tr><td class="lab">'+label+'</td>'+plan[k].map(cell).join('')+'</tr>';});
   document.getElementById('mtable').innerHTML=html;
   document.getElementById('mtitle').textContent=inst+' · 이번 주 식단표';
+  window.mfShareText=inst+' 우리 아이 맞춤 일주일 식단표를 1분 만에! 전국 급식 데이터 기반 🍱 너도 해봐';
   const texL=TEXS.find(t=>t.v===tex).l;
   document.getElementById('basis').innerHTML='✅ <b>'+inst+'</b>('+(band==='e'?'초등':'유아')+' 급식)·<b>'+texL+'</b> 기준으로, 그 연령대 식단표에 실제로 자주 나온 메뉴를 골랐어요'+(like.length?' (좋아하는 '+parse('like').join('·')+' 반영)':'')+(parse('dislike').length?' · 싫어하는 '+parse('dislike').join('·')+'는 뺐어요':'')+'.'+(band==='u'?' <span style="color:#9a8a7a">어린이집·유치원은 같은 유아 급식 데이터예요.</span>':'');
   const br=document.getElementById('bridge');let bridged=null;
@@ -169,5 +180,6 @@ function gen(){
 }
 function back(){document.getElementById('out').classList.add('hidden');document.getElementById('form').classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
 </script>
+<script src="/cookie-common.js?v=1"></script>
 </body>
 </html>

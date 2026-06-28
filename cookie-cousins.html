@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>사촌 음식 찾기 — 우리 아이가 잘 먹는 음식의 '사촌' | 밀프레드</title>
 <meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="사촌 음식 찾기 — 우리 아이가 잘 먹는 음식의 '사촌'">
+<meta property="og:description" content="좋아하는 음식 하나만 고르면 성공 확률 높은 다음 도전 음식 3개를! 색·맛·식감이 닮은 음식 사촌 · 1분.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
 <script src="/docs-gate.js?v=4"></script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -50,7 +54,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
 </head>
-<body>
+<body data-cookie="cousins">
 <span class="priv">🔒 비공개 테스트</span>
 <a href="/cookie-services.html" class="back">← 쿠키 허브</a>
 <header class="hero">
@@ -73,6 +77,11 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
       </div>
       <div id="cousins"></div>
       <div id="reason" class="reason"></div>
+      <div style="background:linear-gradient(135deg,#FFEFE0,#FFE2C4);border:1.5px solid #FFD0A0;border-radius:14px;padding:16px;text-align:center;margin:4px 0 12px">
+        <div style="font-size:14.5px;font-weight:800;color:#1F2D3D;margin-bottom:3px">📣 친구도 해보게 공유!</div>
+        <div style="font-size:11.5px;color:#8a6a2a;font-weight:600;margin-bottom:11px">카톡·맘카페에 — "너도 해봐!"</div>
+        <button class="btn" onclick="mfShare()">카톡·맘카페에 공유하기 📣</button>
+      </div>
       <button class="btn sec" onclick="reset()">↺ 다른 음식으로 다시</button>
     </div>
   </div>
@@ -132,6 +141,7 @@ function show(food){
     requestAnimationFrame(()=>{row.querySelector('.fill').style.width=pct+'%';});
   });
   document.getElementById('reason').innerHTML='💡 '+d.r;
+  window.mfShareText=food+' 좋아하는 우리 아이, 다음엔 뭘 먹일까? 사촌 음식 찾기 해봤어요 🥔 너도 해봐';
   picker.classList.add('hidden');result.classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
   gtag('event','cookie_result',{tool:'cousins',food:food});
@@ -139,5 +149,6 @@ function show(food){
 function reset(){result.classList.add('hidden');picker.classList.remove('hidden');search.value='';renderChips('');window.scrollTo({top:0,behavior:'smooth'});}
 renderChips('');
 </script>
+<script src="/cookie-common.js?v=1"></script>
 </body>
 </html>

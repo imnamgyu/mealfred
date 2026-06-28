@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>편식 정상 진단 — 우리 아이 편식, 정상일까 문제일까? | 밀프레드</title>
 <meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="편식 정상 진단 — 우리 아이 편식, 정상일까 문제일까?">
+<meta property="og:description" content="6가지만 체크하면 또래 대비 어디쯤인지 1분에. 편식하는 아이는 또래의 25~35% — 대부분 정상이에요.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
 <script src="/docs-gate.js?v=4"></script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -51,7 +55,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
 </head>
-<body>
+<body data-cookie="normal">
 <span class="priv">🔒 비공개 테스트</span>
 <a href="/cookie-services.html" class="back">← 쿠키 허브</a>
 <header class="hero">
@@ -68,6 +72,12 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
       <div id="tier" class="tier"></div>
       <div id="tips" class="tips"></div>
       <div class="disc">⚠️ 이 진단은 <b>의학적 진단이 아니라 선별 도구</b>예요. 사레·구역질·체중 정체가 잦거나 걱정되면 소아과·섭식(feeding) 전문가와 상담하세요.</div>
+    </div>
+    <div class="appin" style="background:linear-gradient(135deg,#FFEFE0,#FFE2C4)">
+      <div class="em">📣</div>
+      <h3>친구도 해보게 공유!</h3>
+      <p>우리 아이 결과를 카톡·맘카페에 — "너도 해봐!"</p>
+      <button class="btn" onclick="mfShare()">카톡·맘카페에 공유하기 📣</button>
     </div>
     <div class="appin">
       <div class="em">📈</div>
@@ -134,11 +144,13 @@ function result(){
   const te=document.getElementById('tier');te.className='tier '+tier;
   te.innerHTML='<div class="emoji">'+emoji+'</div><div class="label">'+label+'</div><div class="pct">'+pct+'</div>';
   document.getElementById('tips').innerHTML=tips.map(([ic,t])=>'<div class="tip"><span class="ic">'+ic+'</span><span>'+t+'</span></div>').join('');
+  window.mfShareText='우리 아이 편식, 정상인지 1분 자가진단 해봤어요 🧭 너도 해봐';
   submit.classList.add('hidden');quiz.classList.add('hidden');
   document.getElementById('out').classList.remove('hidden');
   window.scrollTo({top:0,behavior:'smooth'});
   gtag('event','cookie_result',{tool:'normal',tier:tier});
 }
 </script>
+<script src="/cookie-common.js?v=1"></script>
 </body>
 </html>
