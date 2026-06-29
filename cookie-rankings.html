@@ -19,9 +19,12 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;backg
 .hero h1{font-size:clamp(20px,5.4vw,26px);font-weight:800;letter-spacing:-0.02em}
 .hero p{font-size:13px;color:#6b5a48;font-weight:500;margin-top:7px}
 main{max-width:680px;margin:0 auto;padding:8px 12px 40px}
-.tabs{display:flex;gap:8px;margin-bottom:10px}
+.tabs{display:flex;gap:8px;margin-bottom:9px}
 .tab{flex:1;padding:11px;border:1.5px solid var(--n200);border-radius:12px;background:#fff;font-size:13.5px;font-weight:800;color:var(--n500);cursor:pointer;font-family:inherit}
 .tab.on{border-color:var(--p500);background:#FFF0E0;color:var(--org2)}
+.cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.ct{font-size:12px;font-weight:800;color:var(--n600);background:#fff;border:1.5px solid var(--n200);border-radius:100px;padding:6px 12px;cursor:pointer;font-family:inherit}
+.ct.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .search{width:100%;padding:11px 14px;border:1.5px solid var(--n200);border-radius:12px;font-size:14px;font-family:inherit;color:var(--navy);margin-bottom:9px}
 .search:focus{outline:none;border-color:var(--p500)}
 .sortrow{display:flex;align-items:center;gap:6px;margin-bottom:10px;font-size:11.5px;font-weight:700;color:var(--n500);flex-wrap:wrap}
@@ -56,13 +59,14 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 60px
 <header class="hero">
   <span class="tag">📊 급식 등장 순위 · LIVE</span>
   <h1>전국 급식, 뭐가 제일 많이 나올까?</h1>
-  <p><b>앱에 수집된 실제 식단표</b>(어린이집·유치원 17,032행) 라이브 집계 · 양념·흰쌀 제외</p>
+  <p><b>앱에 수집된 실제 식단표</b>(어린이집·유치원 17,032행) 라이브 집계 · 카테고리별 순위</p>
 </header>
 <main>
   <div class="tabs">
     <button class="tab on" data-t="ing" onclick="tab('ing')">📊 식재료 순위</button>
     <button class="tab" data-t="menu" onclick="tab('menu')">🍽️ 메뉴 순위</button>
   </div>
+  <div class="cats" id="cats"></div>
   <input id="q" class="search" type="text" placeholder="이름 검색 (예: 당근, 미역국)" autocomplete="off">
   <div class="sortrow">정렬
     <button class="sb on" data-s="freq" onclick="setSort('freq')">빈도순</button>
@@ -80,40 +84,60 @@ const R={"ings":[{"n":"김치","freq":5786,"g":"채소","youa":99.3,"rank":1,"to
 const GC={'곡물':'#E8A23D','콩류':'#C98A2E','고기·계란':'#E06B5A','생선·해산물':'#4A90C2','유제품':'#D9B84A','과일':'#D364A0','버섯':'#9B8B7A','채소':'#6FB358'};
 const maxIng=Math.max(...R.ings.map(r=>r.freq||0));
 const maxMenu=Math.max(...R.menus.map(r=>r.freq||0));
-let cur='ing',sortMode='freq';
-const rkCls=r=>r.rank<=3?' t'+r.rank:'';
+let cur='ing',sortMode='freq',catSel='전체';
+const ING_CATS=['전체','채소','육류','생선','곡물','콩류','유제품','과일'];
+const MENU_CATS=['전체','메인반찬','밑반찬','국류','밥·면','디저트'];
+const CAT_ING={'채소':'채소','버섯':'채소','고기·계란':'육류','생선·해산물':'생선','곡물':'곡물','콩류':'콩류','유제품':'유제품','과일':'과일'};
+function menuCat(n,g){
+  if(/김치|깍두기|겉절이|장아찌|단무지|피클/.test(n))return '밑반찬';
+  if(/국$|탕$|찌개$|전골$/.test(n))return '국류';
+  if(g==='과일'||g==='유제품'||/떡|빵|케이크|샌드|시루|증편|카스테라|머핀|쿠키|푸딩|젤리|화채|꿀떡|약과|식혜|치즈스틱|핫케이크|와플|또띠아|스콘|마들렌|타르트|파이|도넛|아이스|에이드|쉐이크/.test(n))return '디저트';
+  if(/밥$|죽$|면$|국수|볶음밥|비빔밥|덮밥|리조또|우동|쫄면|수제비|파스타|스파게티|주먹밥|김밥|필라프/.test(n))return '밥·면';
+  if(/멸치|진미채|김자반|미역줄기|파래|매생이|뱅어|잔멸치|건새우|쥐포|어묵볶음|조미김|무말랭이/.test(n))return '밑반찬';
+  if((g==='고기·계란'||g==='생선·해산물'||g==='콩류')&&/구이|조림|볶음|찜|장조림|강정|수육|불고기|제육|너겟|까스|돈가스|동그랑땡|전$|적$|스테이크|함박|미트볼|탕수|데리야끼|마요|튀김|볼$|커틀릿|꼬치|말이|순살|찜닭/.test(n))return '메인반찬';
+  return '밑반찬';
+}
+const catOf=r=>cur==='ing'?(CAT_ING[r.g]||'채소'):menuCat(r.n,r.g);
+const rkCls=rank=>rank<=3?' t'+rank:'';
 const gcell=g=>'<td class="g"><span class="dot" style="background:'+(GC[g]||'#bbb')+'"></span>'+g+'</td>';
 const fcell=(f,mx)=>'<td class="fq">'+(f!=null?'<span class="fnum">'+f.toLocaleString()+'</span><span class="fbar"><i style="width:'+Math.max(2,Math.round(f/mx*100))+'%"></i></span>':'<span class="mut">—</span>')+'</td>';
-function ingRow(r){return '<tr data-n="'+r.n+'"><td class="rk'+rkCls(r)+'">'+r.rank+'</td><td class="nm">'+r.n+'</td>'+fcell(r.freq,maxIng)+'<td class="num">'+(r.youa!=null?r.youa+'%':'<span class="mut">—</span>')+'</td>'+gcell(r.g)+'<td class="dish">'+(r.dish||'<span class="mut">—</span>')+'</td></tr>';}
-function menuRow(r){return '<tr data-n="'+r.n+'"><td class="rk'+rkCls(r)+'">'+r.rank+'</td><td class="nm">'+r.n+'</td>'+fcell(r.freq,maxMenu)+gcell(r.g)+'<td class="dish">'+r.ing+'</td></tr>';}
+function ingRow(r,rank){return '<tr data-n="'+r.n+'"><td class="rk'+rkCls(rank)+'">'+rank+'</td><td class="nm">'+r.n+'</td>'+fcell(r.freq,maxIng)+'<td class="num">'+(r.youa!=null?r.youa+'%':'<span class="mut">—</span>')+'</td>'+gcell(r.g)+'<td class="dish">'+(r.dish||'<span class="mut">—</span>')+'</td></tr>';}
+function menuRow(r,rank){return '<tr data-n="'+r.n+'"><td class="rk'+rkCls(rank)+'">'+rank+'</td><td class="nm">'+r.n+'</td>'+fcell(r.freq,maxMenu)+gcell(r.g)+'<td class="dish">'+r.ing+'</td></tr>';}
 const HEAD={
   ing:'<tr><th class="rk">#</th><th>식재료</th><th>급식 빈도</th><th class="num">또래%</th><th>식품군</th><th>대표 메뉴(실측)</th></tr>',
   menu:'<tr><th class="rk">#</th><th>메뉴</th><th>급식 빈도</th><th>식품군</th><th>관련 식재료</th></tr>'
 };
 const NOTE={
-  ing:'💡 <b>급식 빈도 = 앱 prod DB에 수집된 실제 식단표</b>(institution_menu_items · 17,032행)를 식재료로 분해·집계한 <b>최신 실측값</b>. 또래% = dietary4u 영유아 표준식단 + 실측 baseline. 양념(마늘·파 등)·흰쌀 제외 · 중복(배추김치→배추) 통합 · 대표 메뉴는 실제 급식 최다 메뉴.',
-  menu:'💡 <b>메뉴 빈도 = 앱 prod DB 수집 실제 식단표</b>(institution_menu_items 메뉴 그대로 집계)의 등장 횟수. 수집 식단표가 <b>전부 어린이집·유치원(유아)</b>이라 유아/초등 분리는 없음(초등 기관 미수집). 흰쌀밥·음료 제외 · 잡곡밥 등 유지.'
+  ing:'💡 <b>급식 빈도 = 앱 prod DB에 수집된 실제 식단표</b>(institution_menu_items · 17,032행)를 식재료로 분해·집계한 <b>최신 실측값</b>. 또래% = dietary4u 표준식단+실측 baseline. 양념(마늘·파)·흰쌀 제외 · 중복 통합 · 카테고리 탭은 그 안에서 순위 재계산.',
+  menu:'💡 <b>메뉴 빈도 = 앱 prod DB 수집 실제 식단표</b> 그대로 집계. 수집 식단표가 <b>전부 어린이집·유치원(유아)</b>이라 유아/초등 분리는 없음. 흰쌀밥·음료 제외 · 잡곡밥 유지 · 카테고리는 메뉴명으로 자동 분류.'
 };
-function tab(t){cur=t;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.getElementById('q').value='';if(cur==='menu'&&sortMode==='alt')sortMode='freq';render();}
-function setSort(m){sortMode=m;document.querySelectorAll('.sb').forEach(b=>b.classList.toggle('on',b.dataset.s===m));render();}
+function renderCats(){const cats=cur==='ing'?ING_CATS:MENU_CATS;document.getElementById('cats').innerHTML=cats.map(c=>'<button class="ct'+(c===catSel?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</button>').join('');}
+function setCat(c){catSel=c;render();}
+function tab(t){cur=t;catSel='전체';sortMode=(cur==='menu'&&sortMode==='alt')?'freq':sortMode;document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.getElementById('q').value='';renderCats();render();}
+function setSort(m){sortMode=m;render();}
 function sortRows(rows){const a=rows.slice();if(sortMode==='name')a.sort((x,y)=>x.n.localeCompare(y.n,'ko'));else if(sortMode==='alt'&&cur==='ing')a.sort((x,y)=>(y.youa??-1)-(x.youa??-1));else a.sort((x,y)=>(y.freq??-1)-(x.freq??-1));return a;}
 function render(){
-  const rows=sortRows(cur==='ing'?R.ings:R.menus);
+  const all=cur==='ing'?R.ings:R.menus;
+  const filt=catSel==='전체'?all.slice():all.filter(r=>catOf(r)===catSel);
+  const byFreq=filt.slice().sort((a,b)=>(b.freq??-1)-(a.freq??-1));
+  const rmap=new Map();byFreq.forEach((r,i)=>rmap.set(r,i+1));
+  const disp=sortRows(filt);
   document.getElementById('thead').innerHTML=HEAD[cur];
-  document.getElementById('tbody').innerHTML=rows.map(cur==='ing'?ingRow:menuRow).join('');
+  document.getElementById('tbody').innerHTML=disp.map(r=>(cur==='ing'?ingRow:menuRow)(r,rmap.get(r))).join('');
   document.getElementById('note').innerHTML=NOTE[cur];
   document.getElementById('altsb').style.display=cur==='ing'?'':'none';
   document.querySelectorAll('.sb').forEach(b=>b.classList.toggle('on',b.dataset.s===sortMode));
+  document.querySelectorAll('.ct').forEach(b=>b.classList.toggle('on',b.textContent===catSel));
   filter();
 }
 function filter(){
   const q=document.getElementById('q').value.trim();
-  let shown=0;const total=(cur==='ing'?R.ings:R.menus).length;
+  let shown=0,total=document.querySelectorAll('#tbody tr').length;
   document.querySelectorAll('#tbody tr').forEach(tr=>{const ok=!q||tr.dataset.n.includes(q);tr.style.display=ok?'':'none';if(ok)shown++;});
-  document.getElementById('count').textContent=q?(shown+' / '+total+'개'):('총 '+total+'개 · 수집 식단표 라이브');
+  document.getElementById('count').textContent=(q?shown+' / ':'총 ')+total+'개'+(catSel!=='전체'?' · '+catSel:' · 수집 식단표 라이브');
 }
 document.getElementById('q').addEventListener('input',filter);
-render();
+renderCats();render();
 </script>
 <script src="/cookie-common.js?v=1"></script>
 </body>
