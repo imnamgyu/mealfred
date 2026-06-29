@@ -1,6 +1,7 @@
 /* cookie-common.js — 밀프레드 1분 진단 시리즈 공통: 공유(카톡·맘카페) + 시리즈 크로스링크 */
 (function () {
   var SERIES = [
+    { id: 'foodmap', ico: '🗺️', label: '편식 스킬트리 푸드맵', desc: '우리 아이 푸드맵 정복', href: '/cookie-foodmap.html' },
     { id: 'mealplan', ico: '🍱', label: '우리 아이 맞춤 식단표', desc: '급식 데이터로 일주일 식단', href: '/cookie-mealplan.html' },
     { id: 'cousins', ico: '🥔', label: '사촌 음식 찾기', desc: '잘 먹는 음식의 다음 도전', href: '/cookie-cousins.html' },
     { id: 'normal', ico: '🧭', label: '편식 정상 진단', desc: '우리 아이 편식, 정상일까?', href: '/cookie-normal.html' },
