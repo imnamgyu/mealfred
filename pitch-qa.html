@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>투자자 예상 질문 Q&A (시각화 장표) — 밀프레드 편식</title>
+<meta property="og:title" content="투자자 예상 질문 Q&A — 밀프레드 편식 (시각화 장표)">
+<meta property="og:description" content="2026-06-29 실제 발표 질문 7개를 한 장씩 시각화 — 21회 노출·원가/가격결정력·실데이터·초등 확장·비교심리·식품 capa·마트 대체.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--orange:#E8732B;--cta:#C45A00;--b400:#5BA7C9;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--r500:#E53935;--r700:#C62828;--n50:#FAFAFA;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827;--navy:#1a2b4a;--s800:#1F2D3D}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;color:var(--navy);background:#0e1626;-webkit-font-smoothing:antialiased}
+  .deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;background:linear-gradient(180deg,#101b30 0%,#1a2b4a 100%)}
+  .deck::-webkit-scrollbar{width:0}
+  .slide{min-height:100vh;scroll-snap-align:center;display:flex;align-items:center;justify-content:center;padding:clamp(14px,3.2vh,40px) clamp(12px,3vw,46px)}
+  .frame{position:relative;container-type:inline-size;width:100%;max-width:1240px;aspect-ratio:16/9;border-radius:clamp(8px,1vw,16px);overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,0.45),0 2px 0 rgba(255,255,255,0.04);background:linear-gradient(165deg,#FFFDFB 0%,#FFF6EC 100%)}
+  .pg{position:absolute;right:3.2cqw;bottom:2.4cqw;z-index:5;font-weight:800;font-size:1.15cqw;letter-spacing:.05em;color:#B9A892}
+  .wm{position:absolute;left:3.2cqw;bottom:2.3cqw;z-index:5;font-weight:800;font-size:1.15cqw;letter-spacing:.02em;color:#CDBCA8}
+
+  .s{position:absolute;inset:0;padding:4.6cqw 5.4cqw;display:flex;flex-direction:column;opacity:0;transform:translateY(1.6cqw);transition:opacity .55s ease,transform .55s ease}
+  .frame.in .s{opacity:1;transform:none}
+  .eyebrow{font-size:1.3cqw;font-weight:800;letter-spacing:.12em;color:var(--cta);text-transform:uppercase;margin-bottom:1.3cqw;display:flex;align-items:center;gap:.8cqw}
+  .eyebrow .dot{width:.7cqw;height:.7cqw;border-radius:50%;background:var(--orange)}
+  .eyebrow .qn{background:var(--g500);color:#fff;border-radius:100px;padding:.2cqw 1.1cqw;font-size:1.1cqw;letter-spacing:.04em}
+  .h{font-size:3.05cqw;font-weight:800;color:var(--navy);line-height:1.2;letter-spacing:-.02em}
+  .h.xl{font-size:5cqw;line-height:1.12}
+  .h .o{color:var(--orange)}.h .b{color:var(--b700)}.h .g{color:var(--g700)}
+  .lead{font-size:1.7cqw;color:var(--n600);font-weight:600;line-height:1.55;margin-top:1.4cqw;max-width:82cqw}
+  .lead b{color:var(--navy)}
+  .grow{flex:1}.center{align-items:center;text-align:center;justify-content:center}
+
+  /* question banner */
+  .qask{display:flex;gap:1.1cqw;align-items:flex-start;background:#fff;border:1.5px solid var(--n200);border-left:.55cqw solid var(--r500);border-radius:1.1cqw;padding:1.4cqw 1.7cqw;margin-bottom:1.6cqw;box-shadow:0 .6cqw 1.8cqw rgba(20,30,50,.05)}
+  .qask .qi{font-size:1.9cqw;font-weight:800;color:var(--r500);line-height:1;flex:none}
+  .qask .qt{font-size:1.62cqw;font-weight:700;color:var(--s800);line-height:1.45}
+  /* one-line answer punch */
+  .ans{background:linear-gradient(180deg,#F4FBF7,#EAF7F1);border:1.5px solid #A9DCBC;border-radius:1.1cqw;padding:1.3cqw 1.6cqw;font-size:1.62cqw;font-weight:800;color:#13603A;line-height:1.5;display:flex;gap:1cqw;align-items:flex-start}
+  .ans .ai{font-size:1.7cqw;flex:none}
+  .ans b{color:var(--g700)}
+
+  /* chips */
+  .chip{display:inline-flex;align-items:center;gap:.5cqw;font-size:1.18cqw;font-weight:800;padding:.55cqw 1.3cqw;border-radius:100px}
+  .chip.live{background:var(--g500);color:#fff}.chip.bet{background:#E7ECF2;color:var(--n600)}
+  .chip.ghost{background:rgba(232,115,43,.1);color:var(--cta);border:1px solid rgba(232,115,43,.3)}
+
+  /* honest note */
+  .honest{background:#FFFBF0;border:1px solid #F2D98C;border-radius:1cqw;padding:1cqw 1.4cqw;font-size:1.25cqw;color:#9a6512;font-weight:700;line-height:1.5;margin-top:1.3cqw}
+  .honest b{color:#7a4f0a}
+  .note{background:#EFF6FF;border:1px solid #BBD9F5;border-radius:1cqw;padding:1cqw 1.4cqw;font-size:1.25cqw;color:var(--b700);font-weight:700;line-height:1.5;margin-top:1.3cqw}
+
+  /* ===== Q1 engine diagram ===== */
+  .eng{flex:1;display:grid;grid-template-columns:15cqw 4cqw 1fr 4cqw 17cqw;align-items:center;gap:0;margin-top:1.4cqw}
+  .einput{background:#F1F3F6;border:1.5px dashed var(--n400);border-radius:1.2cqw;padding:1.6cqw 1.2cqw;text-align:center}
+  .einput .ev{font-size:2.2cqw;font-weight:800;color:var(--n600)}
+  .einput .el{font-size:1.15cqw;font-weight:700;color:var(--n500);margin-top:.5cqw}
+  .einput .et{display:inline-block;margin-top:.8cqw;font-size:1cqw;font-weight:800;color:#fff;background:var(--n400);border-radius:100px;padding:.25cqw 1cqw}
+  .earrow{font-size:2.6cqw;color:var(--orange);font-weight:800;text-align:center}
+  .ecore{background:linear-gradient(165deg,#1a2b4a,#16243f);border-radius:1.4cqw;padding:1.6cqw;text-align:center;box-shadow:0 1cqw 2.4cqw rgba(20,30,50,.25)}
+  .ecore .ect{font-size:1.5cqw;font-weight:800;color:#FFD9B8}
+  .efeed{display:grid;grid-template-columns:1fr 1fr;gap:.7cqw;margin-top:1cqw}
+  .efeed div{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:.7cqw;padding:.7cqw .5cqw;font-size:1.12cqw;font-weight:700;color:#fff;line-height:1.25}
+  .efeed b{color:#FFB877}
+  .eout{background:linear-gradient(180deg,#FFF3E8,#FFE8D1);border:1.5px solid var(--p300);border-radius:1.2cqw;padding:1.6cqw 1.3cqw;text-align:center}
+  .eout .ov{font-size:1.7cqw;font-weight:800;color:var(--cta);line-height:1.3}
+  .eout .ol{font-size:1.15cqw;font-weight:700;color:var(--p700);margin-top:.6cqw}
+
+  /* ===== Q2 margin bars + pillars ===== */
+  .bars{display:flex;flex-direction:column;gap:1.1cqw;margin-top:1.2cqw}
+  .barrow{display:grid;grid-template-columns:13cqw 1fr;align-items:center;gap:1.2cqw}
+  .barrow .bl{font-size:1.4cqw;font-weight:800;color:var(--navy);line-height:1.2}
+  .barrow .bl small{display:block;font-size:1.05cqw;font-weight:600;color:var(--n500)}
+  .btrack{height:3.4cqw;background:var(--n100);border-radius:100px;position:relative;overflow:hidden;border:1px solid var(--n200)}
+  .bfill{position:absolute;top:0;left:0;bottom:0;border-radius:100px;display:flex;align-items:center;justify-content:flex-end;padding-right:1.3cqw;font-size:1.3cqw;font-weight:800;color:#fff}
+  .bfill.sw{width:80%;background:linear-gradient(90deg,#2E86C1,#3498DB)}
+  .bfill.kit{width:60%;background:linear-gradient(90deg,#D87A2E,#E8924E)}
+  .bcost{position:absolute;top:50%;transform:translateY(-50%);font-size:1.05cqw;font-weight:800;color:var(--n500)}
+  .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2cqw;margin-top:1.5cqw}
+  .pillar{background:#fff;border:1.5px solid var(--n200);border-top:.5cqw solid var(--g500);border-radius:1.1cqw;padding:1.3cqw 1.3cqw}
+  .pillar .pi{font-size:2cqw}.pillar .pt{font-size:1.5cqw;font-weight:800;color:var(--navy);margin-top:.5cqw;line-height:1.3}
+  .pillar .pd{font-size:1.18cqw;font-weight:600;color:var(--n600);margin-top:.5cqw;line-height:1.45}
+
+  /* ===== split (실측 vs 베팅 / 마트 vs 키트) ===== */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:2cqw;margin-top:1.4cqw;flex:1}
+  .pane{background:#fff;border-radius:1.3cqw;border:1.5px solid var(--n200);padding:1.8cqw 1.7cqw;display:flex;flex-direction:column}
+  .pane h4{font-size:1.6cqw;font-weight:800;margin-bottom:.3cqw;display:flex;align-items:center;gap:.7cqw}
+  .pane .psub{font-size:1.15cqw;font-weight:600;color:var(--n500);margin-bottom:1.1cqw}
+  .pane.good{border-color:#BFE6DC;background:linear-gradient(180deg,#fff,#F4FBF8)} .pane.good h4{color:var(--g700)}
+  .pane.bet{border-color:var(--n200)} .pane.bet h4{color:var(--n500)}
+  .pane ul{list-style:none;display:flex;flex-direction:column;gap:.7cqw}
+  .pane li{font-size:1.32cqw;font-weight:700;color:var(--n700);line-height:1.4;display:flex;gap:.7cqw;align-items:flex-start}
+  .pane li .ck{flex:none;font-weight:800}
+  .pane.good li .ck{color:var(--g500)} .pane.bet li .ck{color:var(--n400)}
+  .pane li b{color:var(--navy)}
+  .betnext{margin-top:auto;background:#FFF3E8;border:1.5px solid var(--p300);border-radius:1cqw;padding:1cqw 1.2cqw;font-size:1.25cqw;font-weight:800;color:var(--cta);line-height:1.4}
+
+  /* ===== Q4 age timeline + funnel ===== */
+  .agewrap{display:grid;grid-template-columns:1.65fr 1fr;gap:2cqw;margin-top:1.2cqw;flex:1}
+  .timeline{display:flex;flex-direction:column;gap:1cqw}
+  .tcard{background:#fff;border:1.5px solid var(--n200);border-left:.5cqw solid var(--b500);border-radius:1.1cqw;padding:1.2cqw 1.4cqw;display:flex;align-items:center;gap:1.2cqw}
+  .tcard.now{border-left-color:var(--g500);background:linear-gradient(90deg,#F4FBF8,#fff)}
+  .tcard .tage{font-size:1.5cqw;font-weight:800;color:var(--navy);min-width:11cqw}
+  .tcard .tage small{display:block;font-size:1.05cqw;font-weight:700;color:var(--n500)}
+  .tcard .tdesc{font-size:1.22cqw;font-weight:600;color:var(--n600);line-height:1.4}
+  .engbar{margin-top:1.1cqw;background:linear-gradient(90deg,#16243f,#1a2b4a);border-radius:1cqw;padding:1.1cqw 1.4cqw;text-align:center;font-size:1.35cqw;font-weight:800;color:#FFD9B8}
+  .tam{display:flex;flex-direction:column;gap:.9cqw;justify-content:center}
+  .tamrow{border-radius:1cqw;padding:1.1cqw 1.4cqw;color:#fff;font-weight:800}
+  .tamrow .tk{font-size:1.1cqw;letter-spacing:.05em;opacity:.9}
+  .tamrow .tv{font-size:1.7cqw;line-height:1.2;margin-top:.2cqw}
+  .tamrow.som{background:var(--g500);width:62%}
+  .tamrow.sam{background:var(--b500);width:80%}
+  .tamrow.tam2{background:var(--p500);width:100%}
+
+  /* ===== Q5 motive matrix ===== */
+  .matrix{display:grid;grid-template-columns:1fr 1fr;gap:1.6cqw;margin-top:1.2cqw}
+  .mcell{background:#fff;border:1.5px solid var(--n200);border-radius:1.2cqw;padding:1.5cqw 1.5cqw}
+  .mcell .mh{font-size:1.45cqw;font-weight:800;color:var(--navy);margin-bottom:.8cqw}
+  .mcell .mtag{display:inline-block;font-size:1.05cqw;font-weight:800;border-radius:100px;padding:.25cqw 1cqw;margin-bottom:.9cqw}
+  .mcell.a .mtag{background:#EAF3FB;color:var(--b700)} .mcell.b .mtag{background:#FFF3E8;color:var(--cta)}
+  .mcell .mtxt{font-size:1.3cqw;font-weight:700;color:var(--n700);line-height:1.45}
+  .mcell .mtxt b{color:var(--navy)}
+  .truth{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw;margin-top:1.4cqw}
+  .tbox{border-radius:1cqw;padding:1.1cqw 1.4cqw;font-size:1.3cqw;font-weight:800;line-height:1.4;display:flex;gap:.8cqw;align-items:flex-start}
+  .tbox.ok{background:#F2FBF5;border:1.5px solid #A9DCBC;color:#13603A}
+  .tbox.no{background:#FDF3F2;border:1.5px solid #F1C9C4;color:var(--r700)}
+
+  /* ===== Q6 supply chain ===== */
+  .chain{display:flex;align-items:stretch;gap:.7cqw;margin-top:1.4cqw}
+  .cnode{flex:1;background:#fff;border:1.5px solid #BFE6DC;border-top:.5cqw solid var(--g500);border-radius:1cqw;padding:1.2cqw .8cqw;text-align:center;position:relative}
+  .cnode .cck{position:absolute;top:.5cqw;right:.6cqw;font-size:1.1cqw;color:var(--g500);font-weight:800}
+  .cnode .ct{font-size:1.32cqw;font-weight:800;color:var(--navy);line-height:1.25}
+  .cnode .cd{font-size:1.05cqw;font-weight:700;color:var(--g700);margin-top:.4cqw}
+  .cnode.gap{border-color:var(--p300);border-top-color:var(--orange);background:linear-gradient(180deg,#FFF6EC,#FFF3E8)}
+  .cnode.gap .cck{color:var(--orange)}.cnode.gap .cd{color:var(--cta)}
+  .csep{display:flex;align-items:center;font-size:1.6cqw;color:var(--g500);font-weight:800}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2cqw;margin-top:1.4cqw}
+  .stat{background:#fff;border:1.5px solid var(--n200);border-radius:1cqw;padding:1.2cqw 1cqw;border-bottom:.5cqw solid var(--g500);text-align:center}
+  .stat .num{font-size:2.4cqw;font-weight:800;color:var(--navy);line-height:1}
+  .stat .num small{font-size:1.2cqw}
+  .stat .cap{font-size:1.1cqw;font-weight:700;color:var(--n600);margin-top:.5cqw;line-height:1.3}
+
+  /* ===== Q7 vs table ===== */
+  .vs{margin-top:1.3cqw;flex:1;display:flex;flex-direction:column;gap:.9cqw}
+  .vshead{display:grid;grid-template-columns:1fr 1.1fr 1.1fr;gap:1.2cqw}
+  .vshead div{font-size:1.4cqw;font-weight:800;text-align:center;padding:.7cqw;border-radius:.8cqw}
+  .vshead .vsmart{background:var(--n100);color:var(--n600)}
+  .vshead .vskit{background:var(--navy);color:#FFD9B8}
+  .vsrow{display:grid;grid-template-columns:1fr 1.1fr 1.1fr;gap:1.2cqw;align-items:stretch}
+  .vsrow .axis{font-size:1.25cqw;font-weight:800;color:var(--n500);display:flex;align-items:center;justify-content:center;text-align:center;background:#fff;border:1px solid var(--n200);border-radius:.8cqw;padding:.7cqw}
+  .vsrow .cell{font-size:1.3cqw;font-weight:700;line-height:1.35;border-radius:.8cqw;padding:1cqw 1.1cqw;display:flex;align-items:center}
+  .vsrow .mart{background:#FAFAFA;border:1px solid var(--n200);color:var(--n600)}
+  .vsrow .kit{background:linear-gradient(180deg,#F4FBF8,#EAF7F1);border:1.5px solid #BFE6DC;color:#13603A}
+  .vsrow .kit b{color:var(--g700)}
+  .kits{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw;margin-top:.4cqw}
+  .kitc{border-radius:1cqw;padding:1cqw 1.3cqw;font-size:1.25cqw;font-weight:700;line-height:1.4}
+  .kitc.g{background:#EAF3FB;border:1.5px solid #CBE2F5;color:var(--b700)}
+  .kitc.f{background:#FFF3E8;border:1.5px solid var(--p300);color:var(--cta)}
+  .kitc b{font-size:1.45cqw}
+
+  /* cover / closing */
+  .cover{align-items:flex-start;justify-content:center}
+  .cover .kick{font-size:1.45cqw;font-weight:800;letter-spacing:.16em;color:var(--cta);text-transform:uppercase;margin-bottom:1.8cqw}
+  .cover h1{font-size:6.4cqw;font-weight:800;color:var(--navy);line-height:1.08;letter-spacing:-.03em}
+  .cover h1 .o{color:var(--orange)}
+  .cover .csub{font-size:2cqw;font-weight:600;color:var(--n600);margin-top:2.2cqw;line-height:1.5}
+  .cover .crow{display:flex;gap:.8cqw;margin-top:2.6cqw;flex-wrap:wrap}
+  .coverdeco{position:absolute;right:-6cqw;bottom:-8cqw;width:42cqw;height:42cqw;border-radius:50%;background:radial-gradient(circle at 40% 40%,rgba(232,115,43,.16),transparent 65%)}
+  .closing h1{font-size:4cqw;font-weight:800;color:var(--navy);line-height:1.25;letter-spacing:-.02em}
+  .closing h1 .o{color:var(--orange)}
+  .closing .cl{font-size:1.8cqw;font-weight:600;color:var(--n600);margin-top:2cqw;line-height:1.6}
+  .clsplit{display:grid;grid-template-columns:1fr 1fr;gap:1.6cqw;margin-top:2.4cqw;width:100%;max-width:74cqw}
+  .clbox{border-radius:1.2cqw;padding:1.6cqw;text-align:left}
+  .clbox.m{background:#F4FBF8;border:1.5px solid #BFE6DC}
+  .clbox.b{background:#F1F3F6;border:1.5px solid var(--n200)}
+  .clbox .clh{font-size:1.5cqw;font-weight:800;margin-bottom:.5cqw}
+  .clbox.m .clh{color:var(--g700)} .clbox.b .clh{color:var(--n600)}
+  .clbox .cld{font-size:1.25cqw;font-weight:600;color:var(--n600);line-height:1.5}
+
+  /* deck chrome */
+  .bar{position:fixed;top:0;left:0;right:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:30;pointer-events:none}
+  .bar a,.bar .brand{pointer-events:auto;text-decoration:none;font-weight:800;font-size:12.5px;padding:8px 14px;border-radius:100px;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(8px)}
+  .bar .home{background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.18);transition:all .15s}
+  .bar .home:hover{background:rgba(255,255,255,0.24)}
+  .bar .brand{background:rgba(255,184,119,.16);color:#FFD9B8;border:1px solid rgba(255,184,119,.25)}
+  .bar .right{display:flex;gap:8px;pointer-events:none}
+  .prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#FF8A47,#FFB877);width:0;z-index:31;transition:width .2s}
+  .counter{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:30;background:rgba(0,0,0,0.32);color:rgba(255,255,255,0.85);font-size:12px;font-weight:800;padding:6px 14px;border-radius:100px;backdrop-filter:blur(8px);letter-spacing:0.03em}
+  .counter b{color:#FFD9B8}
+  .nav{position:fixed;right:18px;bottom:52px;z-index:30;display:flex;flex-direction:column;gap:8px}
+  .nav button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.12);color:#fff;font-size:16px;font-weight:700;cursor:pointer;backdrop-filter:blur(8px);transition:all .15s;display:flex;align-items:center;justify-content:center}
+  .nav button:hover{background:rgba(255,255,255,0.25)}
+  .nav button:disabled{opacity:0.3;cursor:default}
+  @media(max-width:680px){.nav{display:none}.bar a,.bar .brand{font-size:10.5px;padding:7px 9px}}
+  @media print{.bar,.prog,.counter,.nav{display:none}.deck{height:auto;overflow:visible}.slide{min-height:auto;page-break-after:always;padding:0}.frame{box-shadow:none;border-radius:0;max-width:100%}.s{opacity:1;transform:none}@page{size:A4 landscape;margin:0}}
+</style>
+</head>
+<body>
+
+<div class="prog" id="prog"></div>
+<div class="bar">
+  <a href="/docs.html" class="home">← 문서 허브</a>
+  <div class="right">
+    <a href="/pitch.html" class="home">🎤 사업소개서</a>
+    <a href="/investor-objections.html" class="brand">상세 대응 32문 →</a>
+  </div>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 01 COVER -->
+  <section class="slide"><div class="frame"><div class="s cover">
+    <div class="kick">투자자 예상 질문 · 2026.06.29 발표</div>
+    <h1>예상 질문,<br><span class="o">준비된 답</span>으로.</h1>
+    <div class="csub">실제 발표에서 나온 질문 <b>7개</b>를 한 장씩 시각화했습니다.<br>정직 원칙 — <b>실측(엔진은 돈다)</b>과 <b>베팅(효능·전환)</b>을 섞지 않습니다.</div>
+    <div class="crow"><span class="chip ghost">① 21회 노출</span><span class="chip ghost">② 원가·가격결정력</span><span class="chip ghost">③ 실데이터</span><span class="chip ghost">④ 초등 확장</span><span class="chip ghost">⑤ 비교심리·학업</span><span class="chip ghost">⑥ 식품 capa</span><span class="chip ghost">⑦ 마트 대체</span></div>
+    <div class="coverdeco"></div>
+  </div><span class="wm">밀프레드 편식 · AI 영유아 편식 헬스케어</span></div></section>
+
+  <!-- 02 Q1 -->
+  <section class="slide"><div class="frame"><div class="s">
+    <div class="eyebrow"><span class="qn">Q1</span><span class="dot"></span>해자 · 방법론</div>
+    <div class="qask"><div class="qi">Q.</div><div class="qt">편식 코칭이 결국 "음식을 21번 노출시키면 먹는다", 그게 전부 아닌가? 누구나 따라 할 수 있는데?</div></div>
+    <h2 class="h">'21회'는 <span class="o">입력 하나</span>, 답은 데이터와 엔진이 만듭니다</h2>
+    <div class="eng">
+      <div class="einput"><div class="ev">21회</div><div class="el">반복 노출</div><div class="et">입력 1개</div></div>
+      <div class="earrow">→</div>
+      <div class="ecore"><div class="ect">코칭 엔진</div><div class="efeed"><div><b>35</b>가지 국제 이론</div><div><b>5단계</b> 수용 측정</div><div>푸드<b>그래프</b>(사촌)</div><div>종단 <b>데이터</b>(기록)</div></div></div>
+      <div class="earrow">→</div>
+      <div class="eout"><div class="ov">이 아이의<br>오늘 처방</div><div class="ol">매일 다르게 전개·진화</div></div>
+    </div>
+    <div class="honest">학술 근거는 한 음식 수용까지 <b>8~15회</b> — '21회'는 5주 커리큘럼의 노출 설계 버퍼입니다. (영양 신호 '31종'과 편식 이론 '35가지'는 다른 것)</div>
+  </div><span class="pg">02 / 09</span></div></section>
+
+  <!-- 03 Q2 -->
+  <section class="slide"><div class="frame"><div class="s">
+    <div class="eyebrow"><span class="qn">Q2</span><span class="dot"></span>유닛 이코노믹스</div>
+    <div class="qask"><div class="qi">Q.</div><div class="qt">원가율은 얼마이고, 가격 결정력은 있나? 남이 더 싸게 내면 끝나는 것 아닌가?</div></div>
+    <h2 class="h">두 개의 <span class="o">마진 구조</span>, 비교 불가능한 가격</h2>
+    <div class="bars">
+      <div class="barrow"><div class="bl">구독 (SW)<small>4,900원/월</small></div><div class="btrack"><div class="bfill sw">총마진 ~80%</div><span class="bcost" style="left:81%">변동비 LLM ~900원</span></div></div>
+      <div class="barrow"><div class="bl">집중 키트<small>20만원대</small></div><div class="btrack"><div class="bfill kit">계획 마진 60%+</div><span class="bcost" style="left:61%">식자재·교구·콜드체인</span></div></div>
+    </div>
+    <div class="pillars">
+      <div class="pillar"><div class="pi">🎯</div><div class="pt">처방 ≠ 식재료</div><div class="pd">'이번 주 이 아이의 검증된 다음 한 걸음' — 가격 비교 대상이 없다</div></div>
+      <div class="pillar"><div class="pi">🔁</div><div class="pt">닫힌 루프 락인</div><div class="pd">측정→처방→충족→재측정이 전환비용을 만든다</div></div>
+      <div class="pillar"><div class="pi">♻️</div><div class="pt">폐기 0 가치</div><div class="pd">극소량·극다품종 — '버리는 돈이 없다'가 정가를 정당화</div></div>
+    </div>
+    <div class="honest">개인화 극소량 소분의 <b>규모 단위 실측 마진은 아직</b>(자동화 전엔 50%대 아래) — 라운드 자금으로 소분 자동화. 골고루 키트 정가는 단일 기준 확정 중.</div>
+  </div><span class="pg">03 / 09</span></div></section>
+
+  <!-- 04 Q3 -->
+  <section class="slide"><div class="frame"><div class="s">
+    <div class="eyebrow"><span class="qn">Q3</span><span class="dot"></span>트랙션 · 증거</div>
+    <div class="qask"><div class="qi">Q.</div><div class="qt">실제 데이터가 있나? 말로만 '데이터로 다룬다'고 하는데, 진짜 돌아가는 숫자를 보여줄 수 있나?</div></div>
+    <h2 class="h">실측과 <span class="b">베팅</span>을 <span class="o">섞지 않습니다</span></h2>
+    <div class="split">
+      <div class="pane good"><h4>✅ 실측 — 지금 돈다</h4><div class="psub">엔진은 라이브로 작동 중</div>
+        <ul>
+          <li><span class="ck">✓</span><span>매일 개인화 <b>코치 편지</b> 발송 (아린 베타)</span></li>
+          <li><span class="ck">✓</span><span>무료 식단표 평가 <b>1만 명</b> 발송</span></li>
+          <li><span class="ck">✓</span><span>식재료 <b>도감 650+종</b></span></li>
+          <li><span class="ck">✓</span><span>테스트·가드 <b>835개</b> · 환각 0 · 괴식 0</span></li>
+        </ul>
+      </div>
+      <div class="pane bet"><h4>◻ 베팅 — 아직 0</h4><div class="psub">이번 라운드가 증명할 숫자</div>
+        <ul>
+          <li><span class="ck">·</span><span>유료 구독 <b>전환율</b></span></li>
+          <li><span class="ck">·</span><span>30/90일 <b>리텐션</b></span></li>
+          <li><span class="ck">·</span><span>편식 개선 <b>효능</b> (조카 일화 = 가설의 출처)</span></li>
+        </ul>
+        <div class="betnext">→ <b>8월 파일럿</b>: 30~50가정 단일군 전후 비교(수용 식재료 종수·거부율)로 '베팅 → 실측' 전환 시작</div>
+      </div>
+    </div>
+  </div><span class="pg">04 / 09</span></div></section>
+
+  <!-- 05 Q4 -->
+  <section class="slide"><div class="frame"><div class="s">
+    <div class="eyebrow"><span class="qn">Q4</span><span class="dot"></span>시장 · 확장</div>
+    <div class="qask"><div class="qi">Q.</div><div class="qt">초등학생 시장도 고려해야 하지 않나? '초등은 안 된다'는 식으로 들렸는데, 큰 시장을 놓치면 아깝다.</div></div>
+    <h2 class="h">초등을 버린 게 아니라, <span class="o">가장 효율적인 곳부터</span></h2>
+    <div class="agewrap">
+      <div class="timeline">
+        <div class="tcard now"><div class="tage">만 2~6세<small>비치헤드 · LIVE</small></div><div class="tdesc">관여도·지불의사 최고 + 급식(NEIS) 데이터 최다 → 엔진 최단 학습</div></div>
+        <div class="tcard"><div class="tage">초등<small>확장</small></div><div class="tdesc">또래 비교 · 성장 · 집중 · 면역 — 같은 엔진 재사용</div></div>
+        <div class="tcard"><div class="tage">청소년<small>확장</small></div><div class="tdesc">성장기 전반 식습관·영양으로 관계 지속</div></div>
+        <div class="engbar">⚙️ 매핑 · 코칭 · 푸드그래프 엔진은 <b>연령에 종속되지 않는다</b></div>
+      </div>
+      <div class="tam">
+        <div class="tamrow som"><div class="tk">SOM</div><div class="tv">편식 60만 가구</div></div>
+        <div class="tamrow sam"><div class="tk">SAM</div><div class="tv">영유아 200만</div></div>
+        <div class="tamrow tam2"><div class="tk">TAM</div><div class="tv">+ 초등·성장기</div></div>
+      </div>
+    </div>
+    <div class="honest">초등 확장은 로드맵상 <b>베팅</b> — 영유아 리텐션·전환을 먼저 증명해야 확장 근거가 선다. 연령마다 페인·채널이 달라 그대로 복붙되진 않는다.</div>
+  </div><span class="pg">05 / 09</span></div></section>
+
+  <!-- 06 Q5 -->
+  <section class="slide"><div class="frame"><div class="s">
+    <div class="eyebrow"><span class="qn">Q5</span><span class="dot"></span>GTM · 수요</div>
+    <div class="qask"><div class="qi">Q.</div><div class="qt">초등 부모의 비교심리(또래 대비 키·지능·집중력)를 쓰면 학업 시장으로도 접근할 수 있지 않나?</div></div>
+    <h2 class="h">초등 부모의 동기는 다릅니다 — <span class="o">또래 비교</span></h2>
+    <div class="matrix">
+      <div class="mcell a"><span class="mtag">영유아 부모</span><div class="mtxt"><b>편식 스트레스 해소</b> — "안 먹어서 속상해요"</div></div>
+      <div class="mcell b"><span class="mtag">초등 부모</span><div class="mtxt"><b>또래 대비 키·집중력·면역</b> — "우리 애만 작을까 봐"</div></div>
+    </div>
+    <div class="note">우리 <b>31종 영양 신호</b> → "철·칼슘이 며칠째 비었다" → 결핍 보급 = <b>성장·집중의 토대</b>. 바로 이 동기에 정직하게 붙어 <b>학업·성장 시장 접근성</b>을 만든다.</div>
+    <div class="truth">
+      <div class="tbox ok"><span>✓</span><span>'균형 영양 = 성장·집중의 토대' (학계 동의 효익까지만)</span></div>
+      <div class="tbox no"><span>✗</span><span>'먹으면 키 크고 성적 오른다' (과장 인과·표시광고법 위반 — 금지)</span></div>
+    </div>
+  </div><span class="pg">06 / 09</span></div></section>
+
+  <!-- 07 Q6 -->
+  <section class="slide"><div class="frame"><div class="s">
+    <div class="eyebrow"><span class="qn">Q6</span><span class="dot"></span>공급 · 실현가능성</div>
+    <div class="qask"><div class="qi">Q.</div><div class="qt">그 식품을 실제로 공급할 생산 capa가 되나?</div></div>
+    <h2 class="h">공급은 <span class="g">이미 검증된 운영</span>입니다</h2>
+    <div class="chain">
+      <div class="cnode"><span class="cck">✓</span><div class="ct">원물 소싱</div><div class="cd">단가 검증</div></div>
+      <div class="csep">→</div>
+      <div class="cnode"><span class="cck">✓</span><div class="ct">제조</div><div class="cd">100만 인분</div></div>
+      <div class="csep">→</div>
+      <div class="cnode"><span class="cck">✓</span><div class="ct">콜드체인</div><div class="cd">가동 실적</div></div>
+      <div class="csep">→</div>
+      <div class="cnode gap"><span class="cck">⚙</span><div class="ct">개인화 소분</div><div class="cd">자동화 = 자금 용처</div></div>
+      <div class="csep">→</div>
+      <div class="cnode"><span class="cck">✓</span><div class="ct">유통·배송</div><div class="cd">10만+ 아이</div></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="num">100<small>만 인분</small></div><div class="cap">제조·콜드체인 누적</div></div>
+      <div class="stat"><div class="num">10<small>만+ 아이</small></div><div class="cap">교육키트 유통망</div></div>
+      <div class="stat"><div class="num">130<small>%</small></div><div class="cap">YoY 성장</div></div>
+      <div class="stat"><div class="num">50<small>%</small></div><div class="cap">재구매(B2G 재발주)</div></div>
+    </div>
+    <div class="honest">진짜 질문은 '만들 수 있나'가 아니라 <b>'개인화 극소량 소분을 마진 나게 자동화하나'</b> — 그 답이 자금 용처. 제조가 별도 법인이라 독점 공급계약은 클로징 조건으로 묶는다.</div>
+  </div><span class="pg">07 / 09</span></div></section>
+
+  <!-- 08 Q7 -->
+  <section class="slide"><div class="frame"><div class="s">
+    <div class="eyebrow"><span class="qn">Q7</span><span class="dot"></span>대체재 · 차별화</div>
+    <div class="qask"><div class="qi">Q.</div><div class="qt">본인 근처 마트에서 그냥 사도 되지 않나? 왜 굳이 키트를 사야 하나?</div></div>
+    <h2 class="h">마트는 <span class="b">식재료</span>, 우리는 <span class="g">처방</span></h2>
+    <div class="vs">
+      <div class="vshead"><div></div><div class="vsmart">🛒 마트</div><div class="vskit">📦 밀프레드 키트</div></div>
+      <div class="vsrow"><div class="axis">무엇을 파나</div><div class="cell mart">식재료 (당근·두부)</div><div class="cell kit"><b>이 아이의 검증된 다음 한 걸음</b></div></div>
+      <div class="vsrow"><div class="axis">폐기</div><div class="cell mart">한 봉지 → 대부분 버림</div><div class="cell kit"><b>극소량 5g · 폐기 0</b></div></div>
+      <div class="vsrow"><div class="axis">학습</div><div class="cell mart">학습 안 함 (그대로)</div><div class="cell kit"><b>아이 반응 → 다음 주 자동 교체</b></div></div>
+    </div>
+    <div class="kits">
+      <div class="kitc g"><b>🌈 골고루 키트</b> — 다양성 소분 · 일상 균형 보급 · 구독</div>
+      <div class="kitc f"><b>🎯 집중 키트</b> — 거부 식재료 1종 집중 공략 · 처방 기반 프리미엄</div>
+    </div>
+  </div><span class="pg">08 / 09</span></div></section>
+
+  <!-- 09 CLOSING -->
+  <section class="slide"><div class="frame"><div class="s center closing">
+    <div class="eyebrow" style="justify-content:center"><span class="dot"></span>한 줄 결론</div>
+    <h1>모르는 건 먼저 말하고,<br>아는 건 <span class="o">증명합니다</span></h1>
+    <div class="clsplit">
+      <div class="clbox m"><div class="clh">✅ 실측 — 지금</div><div class="cld">엔진 라이브 · 식단평가 1만 · 도감 650+ · 테스트 835 · 환각 0</div></div>
+      <div class="clbox b"><div class="clh">◻ 베팅 → 8월 파일럿</div><div class="cld">효능·전환·리텐션을 30~50가정 전후 측정으로 '실측'으로 옮긴다</div></div>
+    </div>
+    <div class="cl">전체 32문 상세 대응(한 줄 답·근거·정직한 공백) → <b>investor-objections.html</b></div>
+  </div><span class="wm">밀프레드 편식 · 2026.06.29</span><span class="pg">09 / 09</span></div></section>
+
+</div>
+
+<div class="counter" id="counter"><b>01</b> / 09</div>
+<div class="nav">
+  <button id="prev" aria-label="이전 슬라이드">↑</button>
+  <button id="next" aria-label="다음 슬라이드">↓</button>
+</div>
+
+<script>
+(function(){
+  var deck=document.getElementById('deck');
+  var slides=[].slice.call(deck.querySelectorAll('.slide'));
+  var N=slides.length;
+  var counter=document.getElementById('counter');
+  var prog=document.getElementById('prog');
+  var prev=document.getElementById('prev'), next=document.getElementById('next');
+  function current(){
+    var mid=deck.scrollTop+deck.clientHeight/2, i=0;
+    for(var k=0;k<N;k++){ if(slides[k].offsetTop<=mid) i=k; }
+    return i;
+  }
+  function render(){
+    var cur=current();
+    counter.innerHTML='<b>'+String(cur+1).padStart(2,'0')+'</b> / '+N;
+    prog.style.width=((cur)/(N-1)*100)+'%';
+    prev.disabled=(cur===0); next.disabled=(cur===N-1);
+  }
+  function go(i){ i=Math.max(0,Math.min(N-1,i)); slides[i].scrollIntoView({behavior:'smooth'}); }
+  deck.addEventListener('scroll',function(){ window.requestAnimationFrame(render); },{passive:true});
+  prev.addEventListener('click',function(){ go(current()-1); });
+  next.addEventListener('click',function(){ go(current()+1); });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'||e.key==='PageDown'||(e.key===' '&&!e.shiftKey)||e.key==='j'){ e.preventDefault(); go(current()+1); }
+    else if(e.key==='ArrowUp'||e.key==='PageUp'||(e.key===' '&&e.shiftKey)||e.key==='k'){ e.preventDefault(); go(current()-1); }
+    else if(e.key==='Home'){ e.preventDefault(); go(0); }
+    else if(e.key==='End'){ e.preventDefault(); go(N-1); }
+  });
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(en){ if(en.isIntersecting) en.target.classList.add('in'); });
+  },{threshold:0.35});
+  deck.querySelectorAll('.frame').forEach(function(f){ io.observe(f); });
+  render();
+})();
+</script>
+</body>
+</html>
