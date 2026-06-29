@@ -114,7 +114,7 @@ const HEAD={
 };
 const NOTE={
   ing:'💡 <b>급식 빈도 = 밀프레드 데이터베이스 실제 식단표</b>(18,251끼니)를 식재료로 분해·집계한 최신 실측값. <b>식재료를 누르면</b> 그 재료가 주인공인 실제 급식 메뉴 3개가 펼쳐져요. 양념·흰쌀 제외 · 중복 통합.',
-  menu:'💡 <b>메뉴 빈도 = 밀프레드 데이터베이스 실제 식단표</b> 그대로 집계. <b>카테고리별 각 top 200</b>(메뉴명 자동 분류) · 전체 탭은 상위 200. 수집 식단표가 전부 어린이집·유치원(유아)이라 유아/초등 분리 없음 · 흰쌀밥·음료 제외.'
+  menu:'💡 <b>메뉴 빈도 = 밀프레드 데이터베이스 실제 식단표</b> 그대로 집계. <b>카테고리별 각 top 200</b>(메뉴명 자동 분류) · 전체 탭은 상위 200. 식단표가 전부 어린이집·유치원(유아)이라 유아/초등 분리 없음 · 흰쌀밥·음료 제외.'
 };
 function renderCats(){const cats=cur==='ing'?ING_CATS:MENU_CATS;document.getElementById('cats').innerHTML=cats.map(c=>'<button class="ct'+(c===catSel?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</button>').join('');}
 function setCat(c){catSel=c;render();}
