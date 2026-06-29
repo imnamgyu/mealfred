@@ -410,10 +410,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 26</span>
+    <span class="cnt">세션 27</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-29-b.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-29 (b) — 투자자 Q&amp;A 시각화 장표 + next build 핫픽스 + 재발방지 훅</h4>
+      <p class="desc"><b>투자 Q&amp;A·빌드 핫픽스 세션(병행).</b> ① 발표 실제 질문 7개 코칭 — "21회 노출=입력1개 vs 35이론 엔진"(31종 영양신호와 구분) · investor-objections 최상단 7카드 + Killer 11(<code>00dd23d</code>) ② <b>pitch-qa.html 신규 9장 시각 장표</b> — 질문마다 그림(마진 3단·실측vs베팅·연령 로드맵·마트vs키트 등) ③ ⭐ <b>next build 실패 핫픽스</b> — <code>menuMapCore.ts</code> 중복 키(짜장면·청국장찌개) TS1117 → 제거·재빌드 통과, app.mealfred.com 배포 복구(<code>82f662c</code>) ④ 골고루 마진 ~50% 보강(<code>f5965d2</code>) + <b>pre-push 훅</b>(dup 스캔·tsc 게이트)로 재발방지. <span style="color:#1B5E20">전 페이지 라이브 200 · 3겹 방어.</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-26-b.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -541,6 +548,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-29-b.html':{c:'2026-06-29',m:'2026-06-29'},
     '/worklog-2026-06-29.html':{c:'2026-06-29',m:'2026-06-29'},
     '/worklog-2026-06-26.html':{c:'2026-06-26',m:'2026-06-26'},
     '/worklog-2026-06-26-b.html':{c:'2026-06-26',m:'2026-06-29'},

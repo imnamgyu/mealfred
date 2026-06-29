@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-06-29 (b) — 투자자 Q&amp;A 시각화 장표 + next build 핫픽스</title>
+<meta property="og:title" content="작업 일지 2026-06-29 (b) — 투자자 실제 질문 7개 시각화 Q&amp;A + 빌드 실패 핫픽스 + 재발방지 훅">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+.wh .commit.fix{color:var(--r500);background:#FDF3F2;border-color:#f3c9c6}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-06-29 (월) · 투자 Q&amp;A·빌드 핫픽스 세션 (병행)</div>
+  <h1>투자자 실제 질문 7개 → 시각화 Q&amp;A 장표 + next build 실패 핫픽스 + 재발방지 훅</h1>
+  <p class="sub">발표에서 나온 7개 질문을 한 장씩 그림으로. 도중 앱 배포를 막던 빌드 에러를 잡고, 재발까지 막았습니다.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">7 질문</div><div class="l">실제 발표 Q&amp;A 시각화</div></div>
+    <div class="gcard"><div class="n">9 장표</div><div class="l">pitch-qa.html 신규</div></div>
+    <div class="gcard"><div class="n">TS1117</div><div class="l">next build 핫픽스</div></div>
+    <div class="gcard"><div class="n">3 커밋</div><div class="l">+ pre-push 훅</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>투자자 Q&amp;A 코칭 + investor-objections.html 보강</h2><span class="commit">00dd23d</span></div>
+    <ul class="wl">
+      <li>발표 실제 질문 7개: ①21회 노출이 다냐 ②원가율·가격결정력 ③실데이터 ④초등 시장 ⑤비교심리·학업 ⑥식품 capa ⑦마트 대체.</li>
+      <li>⭐<b>숫자 정정</b>: "31가지 편식이론"은 사실 <b>35가지 국제 편식 이론</b>(코칭 엔진) — "31종"은 영양 신호등(매핑 엔진)이라 섞으면 안 됨.</li>
+      <li>기존 시뮬 25문 문서 <b>최상단에 "🔥 실제 발표 질문" 7카드</b>(초록 강조) + Killer Lines 09~11(21회·마트·초등) + 메타·네비·푸터 갱신 = 총 32문.</li>
+    </ul>
+    <div class="out"><b>형식</b> · 각 카드 = 질문 · 한 줄 답 · 풀 답 · 근거 · 정직한 공백 · 피해야 할 답(정직 척추 실측 vs 베팅 유지)</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>pitch-qa.html 신규 — 시각화 Q&amp;A 장표 9장</h2><span class="commit">00dd23d · f5965d2</span></div>
+    <ul class="wl">
+      <li>이사님 "각 질문답변 다 시각화" → <code>feedback-strategy.html</code> 디자인 패밀리(다크 덱 + 크림 프레임 · cqw 반응형 · SVG)로 9장 덱 신규.</li>
+      <li>표지 → ①21회=입력1개 vs 엔진(35이론·5단계·푸드그래프·데이터) ②마진 3단 막대 + 가격결정력 3기둥 ③실측 vs 베팅 + 8월 파일럿 ④연령 확장 로드맵 + SOM/SAM/TAM ⑤동기 매트릭스 + 정직선 ⑥공급망 체크 + 소분 자동화 갭 ⑦마트 vs 키트 표 → 클로징.</li>
+      <li><code>pitch.html</code> 상단바 "❓ 예상 질문 Q&amp;A" 링크 · <code>docs.html</code> 투자 섹션 Q&amp;A 장표 카드.</li>
+    </ul>
+    <div class="out"><b>라이브</b> · <a href="/pitch-qa.html">mealfred.com/pitch-qa.html</a> · 풀스크린 슬라이드 · 키보드 넘김 · PDF 인쇄</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>⭐ Vercel next build 실패 진단·핫픽스</h2><span class="commit fix">82f662c</span></div>
+    <ul class="wl">
+      <li>"Build Failed — next build exited 1" 제보. <b>deploy/ 자체가 <code>imnamgyu/mealfred</code> repo</b>(처음 부모 폴더만 확인해 놓침). repo 1개 = Vercel 프로젝트 2개(정적 mealfred.com=next 없음 / 앱 web/=next build).</li>
+      <li>로컬 재현 → 진짜 에러: <code>web/lib/menuMapCore.ts:126</code> <b>TS1117(중복 object 키)</b>. food-mapping <code>ff40e18</code>에서 <code>'짜장면'</code>·<code>'청국장찌개'</code> 2건 중복 유입.</li>
+      <li>짜장면=신규(밀·processed) 유지 / 청국장찌개=<b>콩(대두) 포함 쪽 유지</b>(런타임상 콩 빠진 dup이 이기던 데이터 버그도 교정). <code>tsconfig</code> exclude=scripts라 web/scripts 변경은 빌드 무관 확인.</li>
+    </ul>
+    <div class="out"><b>해소</b> · 재빌드 <code>✓ Compiled</code> · 정적 348/348 · <code>tsc --noEmit</code> exit0 → <b>app.mealfred.com 배포 다시 풀림</b></div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>골고루 키트 마진 보강 + 재발방지 훅</h2><span class="commit">f5965d2 + hook</span></div>
+    <ul class="wl">
+      <li>"마진 이야기할 때 골고루키트는?" → Q2에 <b>골고루 19,900원/주(14끼니·구독) 계획마진 ~50%</b> 추가(집중 60%+보다 낮은 박리다매). 둘 다 협력사 밀키트 원가 기준 추정치·소분 자동화 전 미검증 정직 표기. Q2 <b>3단 막대</b>(구독80/집중60+/골고루~50)로 시각화.</li>
+      <li>⭐<b>pre-push 훅</b> 설치: (1) menuMapCore 중복 키 즉시 스캔 (2) web/ 변경 시 <code>tsc --noEmit</code>(~9s = Vercel 타입체크) (3) 정적만이면 즉시통과. 우회 <code>--no-verify</code>·제거 <code>rm</code>.</li>
+      <li>핵심: 이 에러는 <b>런타임 테스트로 못 잡음</b>(JS가 중복 키를 파싱 때 합침) → 정적 검사(tsc·스캔)만 잡음. 메모리 <code>feedback_food-mapping_build_guard.md</code> 신규.</li>
+    </ul>
+    <div class="out"><b>3겹 방어</b> · 푸시 훅(예방) + food-mapping 스킬 자가검사(근원) + Vercel(최후 그물)</div>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li>이사님 결정: ① <b>골고루 정가 단일화</b>(19,900원/주 ↔ 108,000원/월 자료 충돌) ② cost-sheet xlsx <b>정확한 원가율 %</b> 채우기.</li>
+      <li>선택(둘 다 사실상 무료): 공유 훅(repo 커밋 + <code>core.hooksPath</code>) · GitHub Actions CI(tsc 게이트).</li>
+      <li>라이브 확인 완료: pitch-qa · investor-objections · pitch · docs 전부 200. app.mealfred.com은 빌드픽스 푸시됨(통과 예상).</li>
+      <li>(참고) 같은 날 병행: 편식 블로그 45편(<code>37508d9</code>) · menu-import dedup(<code>0a77a23·7a3abee</code>) 별도 세션 — 무관.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-06-29 (b) · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
