@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { execSync } from 'child_process';
+import crypto from 'crypto';
 import { scoreInstitutionMonth, computeStandoutDims, computeSevenAxes, sevenAxisScore, buildMenuItemRows, type OcrMenuItem } from '../lib/institutionScore.ts';
 
 const BASE = process.env.MENU_BASE || '/Users/ing/Downloads/서울';   // MENU_BASE로 비서울 폴더 지정(예: /tmp/menu-import/부산)
@@ -20,8 +21,16 @@ const NAME_RE = /([가-힣A-Za-z0-9·]+(?:어린이집|유치원))/;
 const args = process.argv.slice(2);
 const CLEAR = args.includes('--clear');
 const SKIP_DONE = args.includes('--skip-done');   // 이미 적재된 (구·유형) 폴더는 OCR 건너뜀(빠진 폴더만 복구)
+const FORCE = args.includes('--force');           // 중복검사 무시하고 전체 강제 재OCR
+const PRECHECK = args.includes('--precheck');      // OCR 없이 중복 사전점검만 출력하고 종료(읽기 전용)
 const LIMIT = parseInt((args.find(a => a.startsWith('--limit=')) || '').split('=')[1] || '0', 10);
 const GU = (args.find(a => a.startsWith('--gu=')) || '').split('=')[1] || '';
+
+// ── 중복 작업 예방(dedup) ledger: OCR·적재 끝낸 파일의 sha256 누적 → 재실행 시 동일 파일 OCR 건너뜀 ──
+const LEDGER_PATH = path.join(process.cwd(), 'scripts', '.ocr-ledger.json');
+const loadLedger = (): Record<string, any> => { try { return JSON.parse(fs.readFileSync(LEDGER_PATH, 'utf-8')); } catch { return {}; } };
+const saveLedger = (l: Record<string, any>) => fs.writeFileSync(LEDGER_PATH, JSON.stringify(l));
+const sha256 = (file: string) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 
 function loadEnv() {
   const env: Record<string, string> = {};
@@ -98,7 +107,7 @@ async function matchInst(name: string, type: string, gu: string) {
 
 async function main() {
   const hasStandout = (await fetch(`${URL_}/rest/v1/institution_scores?select=standout_dims&limit=1`, { headers: H })).ok;
-  console.log(`standout_dims 컬럼: ${hasStandout ? '있음(직접 저장)' : '없음(백필 JSON 덤프)'} · clear=${CLEAR}`);
+  if (!PRECHECK) console.log(`standout_dims 컬럼: ${hasStandout ? '있음(직접 저장)' : '없음(백필 JSON 덤프)'} · clear=${CLEAR}`);
 
   if (CLEAR) {
     await fetch(`${URL_}/rest/v1/institution_menus?id=not.is.null`, { method: 'DELETE', headers: H });
@@ -135,11 +144,29 @@ async function main() {
     }
   }
   const targets = LIMIT ? files.slice(0, LIMIT) : files;
-  console.log(`대상 ${targets.length}개 파일 (전체 ${files.length})`);
+
+  // ── 🔁 중복 작업 예방: (1) 동일 파일(sha256 ledger 기처리) (2) 동일 (구·유형·월) 기적재 → OCR 건너뜀 ──
+  const ledger = loadLedger();
+  const scAll = (await rest('institution_scores?select=sigungu,type,month&sido=eq.' + enc(SIDO))) as { sigungu: string; type: string; month: string }[];
+  const loadedKeys = new Set((scAll || []).map((r) => `${r.sigungu}|${r.type}|${r.month}`));
+  let dupHash = 0, dupLoaded = 0;
+  const fresh: typeof targets = [];
+  for (const f of targets) {
+    (f as any)._hash = sha256(f.file);
+    const mo = monthOf('', '', f.fn);
+    if (!FORCE && ledger[(f as any)._hash]) { dupHash++; continue; }                               // 정확히 같은 파일 = 이미 처리함
+    if (!FORCE && mo && loadedKeys.has(`${f.gu}|${f.type}|${mo}`)) { dupLoaded++; continue; }       // 그 (구·유형·월) 이미 적재 = 재탕
+    fresh.push(f);
+  }
+  // ⭐ 사전점검 맨 첫 줄 = 중복 숫자
+  console.log(`🔁 중복 ${dupHash + dupLoaded}건 (동일파일 ${dupHash} + 기적재 구·유형·월 ${dupLoaded}) · 🆕 신규 ${fresh.length}건 · 총 ${targets.length}파일${FORCE ? ' · ⚠️--force(중복무시 전체처리)' : ''}`);
+  if (PRECHECK) { console.log('--precheck: 사전점검만 수행(OCR·적재 안 함)'); return; }
+  const work = FORCE ? targets : fresh;
+  console.log(`대상 ${work.length}개 OCR (전체 ${files.length} · 중복 ${targets.length - work.length} 제외)`);
 
   // OCR (동시 CONC)
   const results: any[] = []; let done = 0;
-  const q = [...targets];
+  const q = [...work];
   await Promise.all(Array.from({ length: CONC }, async () => {
     while (q.length) {
       const f = q.shift()!;
@@ -152,7 +179,7 @@ async function main() {
         const name = (instName.match(NAME_RE) || [])[1] || (f.fn.match(NAME_RE) || [])[1] || (reason.match(NAME_RE) || [])[1] || (text.match(NAME_RE) || [])[1] || instName || null;
         results.push({ ...f, isMenu: !!d.is_menu, name, month: monthOf(text, reason, f.fn), items: Array.isArray(d.items) ? d.items : [] });
       } catch (e) { results.push({ ...f, error: String(e).slice(0, 80) }); }
-      done++; if (done % 8 === 0 || done === targets.length) console.log(`  OCR ${done}/${targets.length}`);
+      done++; if (done % 8 === 0 || done === work.length) console.log(`  OCR ${done}/${work.length}`);
     }
   }));
 
@@ -160,7 +187,7 @@ async function main() {
   const byFolder: Record<string, any[]> = {};
   for (const r of results) (byFolder[`${r.gu}|${r.type}`] ||= []).push(r);
   const standoutDump: Record<string, unknown> = {};
-  let inserted = 0; const insts = new Set<string>(); const skip: string[] = [];
+  let inserted = 0; const insts = new Set<string>(); const skip: string[] = []; const insertedKeys = new Set<string>();
 
   for (const k of Object.keys(byFolder)) {
     const [gu, type] = k.split('|'); const rs = byFolder[k];
@@ -191,12 +218,21 @@ async function main() {
       if (hasStandout) score.standout_dims = dims;
       score.axes = axes;
       await fetch(`${URL_}/rest/v1/institution_scores?on_conflict=institution_id,month`, { method: 'POST', headers: { ...H, Prefer: 'resolution=merge-duplicates' }, body: JSON.stringify(score) });
-      inserted++;
+      inserted++; insertedKeys.add(`${gu}|${type}|${month}`);
       console.log(`  ✓ ${inst.name}(${gu}·${type === 'daycare' ? '어' : '유'}) ${month} → ${totalScore}점 (${sc.dayCount}일)`);
     }
   }
   if (!hasStandout) { fs.writeFileSync(path.join(process.cwd(), 'scripts', '_standout_backfill.json'), JSON.stringify(standoutDump)); console.log(`\nstandout 백필 덤프: scripts/_standout_backfill.json (${Object.keys(standoutDump).length}개월)`); }
-  console.log(`\n━━━ 완료: ${inserted}개월 적재 / ${insts.size}개 기관 / 스킵 ${skip.length} ━━━`);
+
+  // 🔁 적재 성공한 (구·유형·월)의 파일 해시만 ledger에 기록 → 다음 실행 때 동일 파일 자동 skip(매칭 실패분은 미기록 → 재시도 가능)
+  let logged = 0;
+  for (const r of results) {
+    if (r._hash && r.month && insertedKeys.has(`${r.gu}|${r.type}|${r.month}`) && !ledger[r._hash]) {
+      ledger[r._hash] = { gu: r.gu, type: r.type, month: r.month, at: new Date().toISOString().slice(0, 10) }; logged++;
+    }
+  }
+  saveLedger(ledger);
+  console.log(`\n━━━ 완료: ${inserted}개월 적재 / ${insts.size}개 기관 / 스킵 ${skip.length} · 🔁 ledger +${logged}(누적 ${Object.keys(ledger).length}) ━━━`);
   skip.forEach(s => console.log('   skip:', s));
 }
 main().catch((e) => { console.error(e); process.exit(1); });
