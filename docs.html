@@ -410,10 +410,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 27</span>
+    <span class="cnt">세션 28</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-29-c.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-29 (c) — 도감 3종 확장 + 쿠키 순위표 정식 자동화 + 식단표 중복예방 적재</h4>
+      <p class="desc"><b>코퍼스·식단표 적재 세션(병행).</b> ① /mealfred-food-mapping Part C — 방어💎·도토리묵·청포묵 안전스크린 자동등재 + 매핑(묵류·청국장→콩·산양유→우유)·골든 100%(<code>efdc1f0</code>) ② <b>쿠키 순위표 정식 스크립트화</b> <code>gen-cookie-rankings.ts</code> — prod 재집계→cookie-rankings 자리교체(idempotent)·스킬 마무리에 편입(<code>ff40e18</code>) ③ ⭐ <b>/mealfred-menu-import 중복 작업예방 dedup</b> — OCR 전 동일파일 sha256 + (구·유형·월) 기적재 2겹 skip·<code>--precheck</code> 첫줄 중복숫자(<code>0a77a23</code>) ④ 서울 269파일 → <b>중복 210 skip·신규 59만 OCR</b> → 22개월/5기관 적재(은평 자이나무·명문 신규)·메뉴894·식재료131(<code>7a3abee</code>). <span style="color:#1B5E20">재탕 비용 ~3/4 절감 · 미매칭 7폴더 기관명 대기.</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-29-b.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -548,6 +555,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-29-c.html':{c:'2026-06-29',m:'2026-06-29'},
     '/worklog-2026-06-29-b.html':{c:'2026-06-29',m:'2026-06-29'},
     '/worklog-2026-06-29.html':{c:'2026-06-29',m:'2026-06-29'},
     '/worklog-2026-06-26.html':{c:'2026-06-26',m:'2026-06-26'},
