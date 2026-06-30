@@ -410,10 +410,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 32</span>
+    <span class="cnt">세션 33</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-30-e.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-30 (e) — 급식 등장 순위표 공식 공개 + NEIS 전국 초등 288,797끼니 + 미꾸라지 완전등재</h4>
+      <p class="desc"><b>NEIS 전국 수집·순위표 공개화·미꾸라지 등재 세션(병행 · 오늘 5번째).</b> ① <b>급식 순위표 공식 공개</b> — docs-gate 해제·메인 타일 교체·<b>편식코칭앱 유입 CTA</b>·후킹 카피(<code>f8bdeac</code>·<code>4f38cef</code>) ② ⭐ <b>NEIS Open API 전국 초등 수집</b> — schoolInfo+mealServiceDietInfo로 <b>1,501교·288,797끼니</b> OCR 없이 적재, 유치원=식단표 API 없음 확인(<code>f965fde</code>·<code>23b538f</code>) ③ <b>닭간(내장류) 회수</b> — 영유아 부적합+닭간장 오분해 → 전면 제거, 떡갈비 메인반찬 교정(<code>2ebea78</code>·<code>1c0bf8f</code>) ④ 순위표 전국 재집계·캐논 누수(꽈배기→빵)(<code>bf1dcd7</code>·<code>fec05ea</code>) ⑤ ⭐ <b>미꾸라지 완전등재</b> — DB·enriched·food-graph 사촌·제철·cookie지도 7파이프라인(<code>2dc0201</code>). <span style="color:#1B5E20">순위표 백본 28만 끼니로 확장 · 미꾸라지 앱 검색 즉시 라이브.</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-30-d.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -519,13 +526,6 @@
       <p class="desc"><b>daycare-eval 추천·히어로 세션(병행 c).</b> ① "집에서 챙겨주면 좋은 식재료" 기준 규명(페이지 내장 결정론 룰·식단 presence 기반) ② 실급식 30,458건 × 분해사전으로 식재료별 대표 '요리' 도출 ③ ⭐ 추천을 <b>WHO 8식품군 각 1개씩</b>·찐감자/삶은달걀 빼고 <b>실제 '요리'만</b>(감자채볶음·달걀팟국)·<code>급식 n회·m위</code> 신뢰배지(<code>c82b19b·991c9fa</code>) ④ 히어로 "매달 받는 식단표, 잘 먹고 있는 건지 궁금하시죠?" + 버튼 "식단표 분석하기". <span style="color:#1B5E20">전부 라이브.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-24-b.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-24 (b) — 기관 점수 7축 가중평균 통일 · 상위% 전기간 누적 · 신규고객 보호 게이트</h4>
-      <p class="desc"><b>점수 산식·순위 세션(블로그와 병행).</b> ① 상위% 월격리 제거 → 같은 유형 전기간 누적(공개 API+어드민) ② ⭐ 점수 산식 split-brain 발견 — 4곳 제각각을 <code>sevenAxisScore()</code> 7축 가중평균 1곳으로 통일(다양성24·KDRI22…)(<code>6d13bd7</code>) ③ DB 173곳 재집계(122 갱신) + 신규고객 ≤29% 보호 게이트 ④ 정적+앱 라이브 검증(nationalTotal 96·score 92). <span style="color:#1B5E20">전부 라이브.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
@@ -562,6 +562,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-30-e.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-30-d.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-30-c.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-30-b.html':{c:'2026-06-30',m:'2026-06-30'},
