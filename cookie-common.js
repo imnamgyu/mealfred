@@ -28,9 +28,24 @@
     } else { mfToast(url); }
   };
 
+  // 공개 도구(rankings 등)는 비공개 쿠키 cross-link 대신 → 편식코칭앱 유입 CTA(미끼→앱 전환)
+  var APP_CTA_TOOLS = ['rankings'];
+  function appCta() {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'max-width:540px;margin:0 auto;padding:4px 18px 26px';
+    wrap.innerHTML = '<div style="background:linear-gradient(135deg,#FFF8F2,#FFEAD6);border:1.5px solid #FFCF9F;border-radius:16px;padding:18px;text-align:center">'
+      + '<div style="font-size:14.5px;font-weight:800;color:#1a2b4a;margin-bottom:5px">📱 우리 아이는 이 중에 뭘 잘 먹을까?</div>'
+      + '<div style="font-size:12px;color:#8a7a6a;font-weight:600;line-height:1.65;margin-bottom:13px">급식 순위는 <b>전체 평균</b>이에요. 우리 아이 식단만 입력하면<br><b>편식코칭앱</b>이 35가지 편식이론으로 <b>맞춤 코칭 + 편식 도감</b>을 만들어줘요.</div>'
+      + '<a href="https://app.mealfred.com" onclick="window.gtag&&gtag(\'event\',\'cookie_app_cta_click\',{tool:document.body.dataset.cookie||\'\'})" style="display:inline-block;background:#E89244;color:#fff;font-size:13.5px;font-weight:800;text-decoration:none;padding:12px 26px;border-radius:100px">편식코칭앱 무료로 시작 →</a>'
+      + '</div>';
+    var footer = document.querySelector('footer');
+    if (footer) footer.parentNode.insertBefore(wrap, footer); else document.body.appendChild(wrap);
+    if (window.gtag) gtag('event', 'cookie_app_cta_view', { tool: document.body.dataset.cookie || '' });
+  }
   // 시리즈 크로스링크 스트립 — 매 페이지 푸터 위에 자동 삽입(현재 도구 제외)
   function strip() {
     var cur = (document.body.dataset.cookie || '');
+    if (APP_CTA_TOOLS.indexOf(cur) !== -1) { appCta(); return; }
     var others = SERIES.filter(function (s) { return s.id !== cur; });
     if (!others.length) return;
     var wrap = document.createElement('div');
