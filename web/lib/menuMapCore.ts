@@ -228,10 +228,16 @@ export function createMapper(poolNames: string[]): Mapper {
     return out;
   }
 
+  // 부분일치 오탐 가드(A3 부위명·양념 복합어): surface가 매치돼도 패턴이면 그 식재료 아님 — '목살구이·삼겹살구이'의 '살구'(과일)
+  const SCAN_FALSEPOS: Record<string, RegExp> = { '살구': /살구이/ };
   function scanIngredients(menu: string): string[] {
     const found = new Set<string>();
     for (const [surface, real] of SCAN_TOKENS) {
-      if ((surface.length >= 2 || ONE_CHAR_SCAN.has(surface)) && menu.includes(surface)) found.add(real);
+      if ((surface.length >= 2 || ONE_CHAR_SCAN.has(surface)) && menu.includes(surface)) {
+        const fp = SCAN_FALSEPOS[surface];
+        if (fp && fp.test(menu)) continue;   // 'X살구이'(부위살+구이) → '살구' 오탐 제외
+        found.add(real);
+      }
     }
     for (const b of boostFromName(menu)) found.add(b);
     const arr = [...found];
