@@ -410,10 +410,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 28</span>
+    <span class="cnt">세션 29</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-30.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-30 — eval 결과 캐싱·풀페이지·FOUC 제거 + 식단 API 조사 + 채점 모듈 감사</h4>
+      <p class="desc"><b>eval 페이지·식단 API·채점 감사 세션(병행).</b> ① 부모 공유결과 <b>CDN 캐싱</b> — <code>/api/eval/result</code> 불변 스냅샷 s-maxage 1일·SWR·Vary:Origin, <code>/eval/[id]</code> ISR(<code>4fd224c</code>) ② 결과를 <b>팝업→한 페이지</b>로(분석직후·공유 공통 풀페이지, 배경스크롤 제거)(<code>e46eb6d</code>) ③ 공유결과 <b>첫 화면 번쩍임(FOUC) 제거</b> — &lt;body&gt; 동기 가드로 첫 페인트부터 로딩만(<code>54c95ce</code>) ④ <b>식단 공공 API 조사</b> — NEIS·dietary4u 생존·식약처 15118065/61 폐기·사립 API 공백 ⑤ 서울+부산 <b>14기관/140월 신규 적재</b>(복구4·월수정2) ⑥ ⭐ <b>채점 모듈 감사</b> — 부모 eval은 코칭/서버와 모듈 비공유 독립 사본·등급체계 상이. <span style="color:#1B5E20">eval 3종 라이브 · 채점 일원화는 "그냥 두자"로 보류.</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-29-c.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -512,13 +519,6 @@
       <p class="desc"><b>OCR그리드·점수버그·시장조사 세션(런칭과 병행).</b> ① OCR 비전제거 CLOVA 그리드 라이브 전환 — 사진경로 Sonnet 제거(<code>b832930</code>) ② <b>학부모 점수/등수 모순 치명버그</b> — 1위 유치원이 '95점 꼴찌(상위100%)'로 노출되던 것, 총점 7축평균 단일화·162행 재계산(<code>dace2dd</code>) ③ 영양사 SaaS 시장조사 2건(경쟁지형·영양사 시간배분) ④ engine 문서 아카이빙(<code>671d65f</code>). <span style="color:#1B5E20">전부 라이브.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-23.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-23 — 식단표 평가 1만 SMS 런칭 + 부산 적재 + OCR 그리드 계획</h4>
-      <p class="desc"><b>런칭 세션(daycare-eval 1만 발송일).</b> ① 카피·UX 정비(기관명 흐름·히어로 2줄·30초→1분·식판 차단) ② 제철 버그 메뉴명 기반(<code>2d2fb64</code>) ③ 런칭 가드 — 감사 워크플로(critical 6) → 500방지·OCR 일일상한·이미지 병렬(<code>054948a</code> <code>fdcc730</code> <code>0b6f5b7</code>) ④ 식재료 실측빈도 재정렬 + GA4 9개 펀넬 ⑤ 1만 발송 + funnel 고객전용(<code>f0531c3</code>) ⑥ 부산 5기관/45개월 적재 + <code>/mealfred-menu-import</code> 스킬 신설 ⑦ OCR 비전제거 빌드플랜(<code>9a7fad3</code>). <span style="color:#1B5E20">커밋 19개 전부 라이브.</span></p>
-      <div class="meta"><span>세션 로그 · 런칭</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
@@ -555,6 +555,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-30.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-29-c.html':{c:'2026-06-29',m:'2026-06-29'},
     '/worklog-2026-06-29-b.html':{c:'2026-06-29',m:'2026-06-29'},
     '/worklog-2026-06-29.html':{c:'2026-06-29',m:'2026-06-29'},

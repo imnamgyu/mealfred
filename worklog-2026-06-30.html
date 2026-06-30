@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-06-30 — eval 결과 페이지 캐싱·풀페이지·FOUC + 식단 API 조사 + 채점 모듈 감사</title>
+<meta property="og:title" content="작업 일지 2026-06-30 — 부모 eval 페이지 속도·UX 3종 라이브 + 공공 식단 API 조사 + 채점 일관성 감사">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+.wh .commit.fix{color:var(--r500);background:#FDF3F2;border-color:#f3c9c6}
+.wh .commit.db{color:var(--v700);background:#F8F0FB;border-color:#e3c6ee}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-06-25 ~ 06-30 · eval 페이지·식단 API·채점 감사 세션 (병행)</div>
+  <h1>부모 식단표 평가 페이지 속도·UX 3종 라이브 + 공공 식단 API 조사 + 채점 모듈 일관성 감사</h1>
+  <p class="sub">공유 결과를 CDN 캐싱하고, 팝업을 한 페이지로 바꾸고, 첫 화면 번쩍임(FOUC)을 없앴습니다. 더해 식단 공공 API 생존 여부와 eval·코칭 채점이 같은 기준인지 코드로 감사했습니다.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">eval 3종 라이브</div><div class="l">CDN 캐싱 · 풀페이지 · FOUC 제거</div></div>
+    <div class="gcard"><div class="n">14기관 · 140월</div><div class="l">서울+부산 신규 적재 (309콜)</div></div>
+    <div class="gcard"><div class="n">식단 API 조사</div><div class="l">NEIS·dietary4u 생존 · 15118065 폐기</div></div>
+    <div class="gcard"><div class="n">채점 감사</div><div class="l">eval = 독립 사본 → 보류 결정</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>식단표 일괄 적재 — 서울 + 부산 (신규 구만)</h2><span class="commit db">DB 적재</span></div>
+    <ul class="wl">
+      <li>한글 파일명 CP949 복원 → 정규화. <b>이미 등록된 구는 건너뛰고 신규 구만</b> OCR(중복 회피) → <b>신규 14기관 · 140개월</b>(메뉴 2,918종·식재료 162종, 오늘 OCR 309콜).</li>
+      <li>이름이 로고에만 있던 <b>4폴더 복구</b>: 동덕여대부속유치원·길물빛유치원·서울우이유치원·동래래미안아이파크2단지어린이집(일회용 복구 스크립트, 정본 import는 보존). 월 오파싱 2건 수정(금옥 <code>2024-09→2025-09</code>·서울우이 <code>2025-24→2025-12</code>).</li>
+      <li>⚠️ <b>혼합폴더 오귀속</b> 발견(소스가 한 폴더에 여러 기관 혼재 → import가 1기관으로 합침): 중구유치원(덕수+광희+숭의)·도봉어린이집(꿀벌+늘봄)·영도유치원(태종대+봉학) → 이사님 "현 상태 유지"로 <b>보고만</b>.</li>
+    </ul>
+    <div class="out"><b>참고</b> · 이 적재 위에서 이후 06-25 OCR 범례정리 · 06-29 dedup·재집계 세션이 이어 작업</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>공공 식단 API 조사 (멀티에이전트 + 적대검증)</h2><span class="commit db">조사</span></div>
+    <ul class="wl">
+      <li>살아있는 메뉴 소스 = <b>NEIS 급식식단 API</b>(학교 + 병설유치원, 무료·일별·알레르겐/영양) + <b>dietary4u</b>(센터 월간 표준식단, HWP/xlsx 파일·API 아님).</li>
+      <li>식약처 <b>어린이 식단(15118065)·유아 식단(15118061) 둘 다 폐기(404)</b> — 재등록 ID 없음. 유치원알리미·어린이집정보공개·아동복지급식표준은 메뉴 아님.</li>
+      <li>결론: <b>사립 어린이집·단설유치원의 일별 실식단은 공공 API 공백 → OCR 유지가 유일.</b> 병설유치원·센터 표준식단만 API 대체 가능.</li>
+    </ul>
+    <div class="out"><b>산출</b> · API 생존 매트릭스 + 권장 아키텍처(병설=NEIS · 센터=dietary4u · 사립=OCR)</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>eval 결과 페이지 CDN 캐싱 — 부모 결과 즉시 로딩</h2><span class="commit">4fd224c</span></div>
+    <ul class="wl">
+      <li>공유 결과(<code>?r=</code>)가 매 조회마다 서버리스+Supabase를 다시 타던 문제. 스냅샷은 분석 시 1회 기록 후 불변(재분석=새 id) → 캐시 적격.</li>
+      <li><code>/api/eval/result</code>: 200에 <code>Cache-Control: s-maxage=1d · SWR · max-age=60s</code> + <code>Vary: Origin</code> → Vercel CDN가 id별 1일 캐싱. 410/404/500은 <code>no-store</code>.</li>
+      <li><code>/eval/[id]</code>: <code>revalidate=300</code>(ISR) — 카톡 링크 바운스 페이지도 캐싱.</li>
+    </ul>
+    <div class="out"><b>검증</b> · tsc 0 · vitest 586 통과 · 라이브(첫 조회 후 CDN에서 즉시)</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>eval 결과를 '한 페이지'로 — 팝업·배경스크롤 제거</h2><span class="commit fix">e46eb6d</span></div>
+    <ul class="wl">
+      <li>분석 직후 결과가 바텀시트 팝업으로 떠 뒤 마케팅 랜딩이 스크롤되던 문제(이사님 "짜증남").</li>
+      <li>공유 전용이던 풀페이지 처리를 <code>result-page</code> 클래스로 일반화 → <b>분석 직후·공유 공통 풀페이지</b>(마케팅 숨김 + 결과 정적 표시). 닫기 시 랜딩 복원, 공유 redirect 분기 유지.</li>
+    </ul>
+    <div class="out"><b>검증</b> · headless: <code>.hero</code> 숨김·보이는 section 0·결과 표시 ✓</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">5</span><h2>eval 공유결과 첫 화면 번쩍임(FOUC) 제거</h2><span class="commit fix">54c95ce</span></div>
+    <ul class="wl">
+      <li><code>?r=</code> 진입 시 마케팅 랜딩이 먼저 뜬 뒤 결과로 바뀌던 FOUC. <code>&lt;body&gt;</code> 첫머리 <b>동기 인라인 가드</b>(<code>html.loading-shared</code>)가 첫 페인트 전에 랜딩을 숨기고 "결과 불러오는 중…"만 노출.</li>
+      <li>결과 도착(풀페이지 교체)·실패(랜딩 복원) 후 <code>finally</code>로 가드 해제.</li>
+    </ul>
+    <div class="out"><b>검증</b> · 로딩 순간 <code>html=loading-shared·.hero=none</code> 포착(번쩍임 없음) · 잘못된 id면 랜딩 복원(갇힘 없음)</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">6</span><h2>eval 채점 vs 코칭앱/기관 채점 — 모듈 공유 감사</h2><span class="commit db">감사 · 보류</span></div>
+    <ul class="wl">
+      <li>이사님 질문("같은 모듈·같은 기준으로 채점?")에 3출처 코드 정독·대조·적대검증. <b>답: "같은 모듈" 아님.</b></li>
+      <li>부모 eval은 web/lib을 import 안 하는 <b>독립 인라인 사본</b>(7축 사전·가중치·임계 HTML 하드코딩). 기관 채점만 <code>nutrition.ts</code> 저수준 함수 공유. KDRI·종합·등급 산식은 코칭과 상이.</li>
+      <li>리스크: 같은 'A'가 다른 점수대(코칭홈 70+/5등급 vs eval·기관 90+/6등급) · 7축 상수 3중 미러 drift · 데이터소스 격차. <b>→ 이사님 "그냥 두자"로 보류(미작업).</b></li>
+    </ul>
+    <div class="out"><b>권장(보류)</b> · 부모 eval → 서버 채점 API 일원화 + 등급체계 통일</div>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li>(보류) 부모 eval 채점 일원화 + 등급체계(S~D vs A+~D) 통일 — 이사님 결정으로 보류.</li>
+      <li>예시 라이브 링크: <code>eval_results</code> 1건(95d629bf · A 93점) 만료 7/7 연장(테스트용, 승인).</li>
+      <li>혼합폴더 오귀속(중구유치원 등) · "KDRI 31종" 카피 근거는 현 상태 유지.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-06-30 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
