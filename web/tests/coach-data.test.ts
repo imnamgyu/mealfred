@@ -249,15 +249,15 @@ describe('I-05 food-graph 경계 — pair/bridge·dish 미포함', () => {
     expect(dishIngredientFit('볶음밥', '당근').ok).toBe(true);
     expect(dishIngredientFit('카레', '당근').ok).toBe(true);
   });
-  it('I-05-4 graph 엣지 카운트 드리프트 감지(pair 940·bridge 175·합 1115 — 레시피 + dietary4u 영유아표준식단 + 식판 병합, 과일 교차채널·미역+당근 괴식 차단)', () => {
+  it('I-05-4 graph 엣지 카운트 드리프트 감지(pair 940·bridge 177·합 1117 — 레시피 + dietary4u 영유아표준식단 + 식판 병합 + 미꾸라지 생선 사촌 2, 과일 교차채널·미역+당근 괴식 차단)', () => {
     const pair = graph.edges.filter((e) => e.kind === 'pair').length;
     const bridge = graph.edges.filter((e) => e.kind === 'bridge').length;
     expect(pair).toBe(940);    // 레시피 동시출현 + dietary4u(learned_menus source=dietary4u 3,484메뉴) + 식판 strong 신규, 과일·괴식 제외
-    expect(bridge).toBe(175);
-    expect(graph.edges.length).toBe(1115);
+    expect(bridge).toBe(177);  // +미꾸라지↔멸치·갈치(추어탕 신규 등재 2026-06-30)
+    expect(graph.edges.length).toBe(1117);
   });
-  it('I-05-5 노드 수(201 — dietary4u 합산·현 도감 기준)', () => {
-    expect(graph.nodes.length).toBe(201);
+  it('I-05-5 노드 수(202 — dietary4u 합산 + 미꾸라지 등재·현 도감 기준)', () => {
+    expect(graph.nodes.length).toBe(202);
   });
   it('I-05-6 미역 pair에 당근 없음(미역국 괴식과 정합)', () => {
     const pairs = neighborsOf('미역').filter((n) => n.kind === 'pair').map((n) => n.nm);
