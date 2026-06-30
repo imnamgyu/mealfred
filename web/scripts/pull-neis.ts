@@ -29,6 +29,7 @@ const SIDO = arg('sido', '서울특별시');
 const GU = arg('gu');
 const FROM = arg('from');               // YYYYMM
 const TO = arg('to', FROM);
+const PER_GU = parseInt(arg('per-gu', '0'), 10);   // 구별 표본 N곳씩(25개구 균형 표본)
 const LIMIT = parseInt(arg('limit', '0'), 10);
 const DRY = args.includes('--dry');
 
@@ -68,6 +69,12 @@ async function main() {
   // 1) 초등 학교 목록(schoolInfo) — 시도 전체 → 구 필터
   let schools = await neisAll('schoolInfo', { LCTN_SC_NM: SIDO, SCHUL_KND_SC_NM: '초등학교' });
   if (GU) schools = schools.filter((s: any) => (s.ORG_RDNMA || '').includes(GU));
+  if (PER_GU) {   // 25개구 균형 표본: 구별 앞 N곳씩
+    const byGu: Record<string, any[]> = {};
+    for (const s of schools) { const g = guOf(s.ORG_RDNMA); if (g) (byGu[g] ||= []).push(s); }
+    schools = Object.keys(byGu).sort().flatMap((g) => byGu[g].slice(0, PER_GU));
+    console.log(`  구별 ${PER_GU}곳 표본 · ${Object.keys(byGu).length}개구`);
+  }
   if (LIMIT) schools = schools.slice(0, LIMIT);
   console.log(`  대상 초등 ${schools.length}곳`);
 
