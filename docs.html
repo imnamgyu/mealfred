@@ -410,10 +410,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 31</span>
+    <span class="cnt">세션 32</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-30-d.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-30 (d) — 남양주 캠프 PDF를 '통이미지' 아닌 진짜 요소 PPT로 (인증서·교안·레시피·22장 수업덱)</h4>
+      <p class="desc"><b>남양주 캠프 PDF→편집가능 PPT 변환 세션(병행 · 오늘 4번째).</b> ① <b>인증서 통이미지 적발</b> — 배경 PNG 1장+이름칸뿐이라 편집 불가 → HTML 소스로 <b>30개 네이티브 요소</b> 재구성 ② <b>PDF→네이티브 변환기</b>(<code>pdf2pptx.py</code>) — 로고 알파·뱃지 z순서·민트박스 클리핑(면적정렬) 해결 ③ <b>폰트 함정</b> — 맑은고딕 대체+미리보기가 줄바꿈 무시로 글자 터짐 → <b>Apple SD Gothic Neo</b>+박스확장, <code>qlmanage</code>로 재검증 ④ <b>A2 사진 크롭</b> — clip 추출해 PowerPoint 네이티브 크롭 ⑤ <b>A0 22장</b>(<code>pdf2pptx_a0.py</code>) — 배경 도형재현·픽셀차분 색·공백복원·이모지 이미지. <span style="color:#1B5E20">4종 전부 통이미지 0 · 전달 폴더 산출(deploy 무관).</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-30-c.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -519,13 +526,6 @@
       <p class="desc"><b>점수 산식·순위 세션(블로그와 병행).</b> ① 상위% 월격리 제거 → 같은 유형 전기간 누적(공개 API+어드민) ② ⭐ 점수 산식 split-brain 발견 — 4곳 제각각을 <code>sevenAxisScore()</code> 7축 가중평균 1곳으로 통일(다양성24·KDRI22…)(<code>6d13bd7</code>) ③ DB 173곳 재집계(122 갱신) + 신규고객 ≤29% 보호 게이트 ④ 정적+앱 라이브 검증(nationalTotal 96·score 92). <span style="color:#1B5E20">전부 라이브.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-24.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-24 — 편식 블로그 40편(UCL Tiny Tastes) 배포 · 제목 라이브 노출 구조 통일</h4>
-      <p class="desc"><b>블로그·배포 세션.</b> ① 스낵 40편 작성 — UCL Tiny Tastes 2주 반복 노출 → 채소 선호 61%↑·섭취 3배(출처 검증·임상표준 가드·위원회 6/6) ② ⭐ md <code>#</code> 제목이 라이브에 안 뜨던 구조 발견 — <code>후킹제목</code>·<code>첫화면자막</code>·md 통일(<code>f146d12</code>) ③ 인포그래픽 추가 + 전 채널 배포(정적·앱 팁·메인 카드). <span style="color:#1B5E20">라이브.</span></p>
-      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
@@ -562,6 +562,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-30-d.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-30-c.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-30-b.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-30.html':{c:'2026-06-30',m:'2026-06-30'},
