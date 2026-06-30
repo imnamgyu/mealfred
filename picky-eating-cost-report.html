@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>편식, 진짜 문제인가 — 경제·발달 손실 근거 보고서</title>
+<meta property="og:title" content="편식, 진짜 문제인가 — 검증된 19건의 근거">
+<meta property="og:description" content="28개 검색 에이전트가 모은 46건을 1차 출처 대조로 적대 검증한 19건. 부모를 움직이는 공포마케팅을 '진짜 숫자'로만.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB;--bg-warm-1:#FFE8D0;--bg-warm-2:#FFDBB8;--bg-warm-3:#FFD0A0;
+    --bg-soft:#FFFBF5;--bg-soft-2:#FFF9F3;--bg-soft-3:#FFF3E8;--bg-page:#FAFAF7;
+    --orange-main:#FF6B1A;--orange-soft:#FF8A47;--orange-deep:#C45A00;--orange-deeper:#E65100;
+    --orange-tint:rgba(255,107,26,0.1);--orange-tint-line:rgba(255,107,26,0.25);
+    --navy-deep:#0F1D35;--navy:#1a2b4a;
+    --brown-deep:#3a2a1a;--brown-mid:#5a4a3a;--brown-soft:#8a7a6a;
+    --green-bg:#E8F5E9;--green-fg:#2D8B4E;--green-deep:#1B5E20;
+    --warn-bg:#FFF8E1;--warn-fg:#F9A825;--warn-deep:#F57F17;
+    --red-bg:#FFEBEE;--red-fg:#E53935;--red-deep:#C62828;
+    --blue-bg:#E3F2FD;--blue-fg:#1565C0;
+    --n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;
+    --card-bg:#FFFFFF;--card-border:#FFE8D0;
+    --card-shadow-sm:0 2px 16px rgba(0,0,0,0.05);--card-shadow:0 4px 20px rgba(0,0,0,0.06);--card-shadow-hover:0 12px 40px rgba(0,0,0,0.1);
+    --r-sm:8px;--r:14px;--r-lg:20px;--r-xl:24px;--r-pill:100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg-page);color:var(--navy);line-height:1.7;-webkit-font-smoothing:antialiased}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;background:var(--bg-soft);padding:1px 6px;border-radius:4px;color:var(--orange-deep)}
+  cite{font-style:normal;color:var(--brown-soft);font-size:11.5px;font-weight:600}
+
+  /* HERO */
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);padding:60px 20px 46px;text-align:center;position:relative;overflow:hidden;color:var(--brown-deep)}
+  .hero::before{content:'';position:absolute;top:-40%;left:-40%;width:180%;height:180%;background:radial-gradient(circle at 30% 70%,rgba(255,120,50,0.08) 0%,transparent 50%),radial-gradient(circle at 70% 20%,rgba(255,255,255,0.3) 0%,transparent 50%);pointer-events:none}
+  .hero-inner{max-width:820px;margin:0 auto;position:relative;z-index:1}
+  .hero .tag{display:inline-block;background:var(--orange-tint);backdrop-filter:blur(6px);border:1px solid var(--orange-tint-line);color:var(--orange-deep);padding:7px 18px;border-radius:var(--r-pill);font-size:12px;font-weight:700;letter-spacing:0.04em;margin-bottom:18px}
+  .hero h1{font-size:clamp(27px,5vw,40px);font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.22;margin-bottom:14px}
+  .hero h1 .accent{color:var(--orange-soft)}
+  .hero p{font-size:15px;color:var(--brown-mid);font-weight:500;margin:0 auto 8px;line-height:1.75;max-width:640px}
+  .hero p strong{color:var(--orange-deep);font-weight:700}
+  .hero-meta{margin-top:18px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .hero-meta .pill{background:rgba(255,255,255,0.6);border:1px solid var(--orange-tint-line);color:var(--brown-mid);font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:var(--r-pill)}
+
+  /* TOC */
+  .toc{background:white;border-bottom:1px solid var(--card-border);padding:13px 20px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1000px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--brown-mid);font-weight:700;padding:6px 11px;border-radius:var(--r-pill);background:var(--bg-soft);text-decoration:none;flex-shrink:0;border:1px solid transparent;transition:all .15s}
+  .toc a:hover{background:var(--orange-main);color:white;border-color:var(--orange-main)}
+
+  main{max-width:1000px;margin:0 auto;padding:28px 24px 40px}
+  section{margin-bottom:46px;scroll-margin-top:62px}
+  .stag{display:inline-block;font-size:11px;color:var(--orange-deep);font-weight:800;letter-spacing:0.08em;margin-bottom:8px}
+  h2{font-size:23px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:10px;padding-bottom:8px;border-bottom:3px solid var(--orange-main)}
+  h3{font-size:17px;font-weight:800;color:var(--navy);margin:22px 0 10px;padding-left:12px;border-left:4px solid var(--orange-main)}
+  p{font-size:14px;color:var(--brown-mid);font-weight:500;margin-bottom:10px}
+  .lead{font-size:15.5px;color:var(--brown-deep);font-weight:600;line-height:1.8}
+  strong{color:var(--navy);font-weight:700}
+  .ohl{color:var(--orange-deep);font-weight:800}
+
+  /* 핵심 결론 박스 */
+  .verdict{background:linear-gradient(135deg,var(--bg-soft-2),#FFFFFF);border:1px solid var(--card-border);border-left:5px solid var(--orange-main);border-radius:var(--r);padding:22px 24px;margin:16px 0;box-shadow:var(--card-shadow-sm)}
+  .verdict .q{font-size:13px;font-weight:800;color:var(--orange-deep);margin-bottom:6px;letter-spacing:0.02em}
+  .verdict .a{font-size:19px;font-weight:800;color:var(--navy);line-height:1.5;letter-spacing:-0.01em}
+  .verdict .a em{font-style:normal;color:var(--orange-main)}
+
+  /* 스탯 그리드 (대형 숫자) */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin:16px 0}
+  .stat{background:white;border:1px solid var(--card-border);border-top:4px solid var(--orange-main);border-radius:var(--r);padding:16px 16px 14px;box-shadow:var(--card-shadow-sm);position:relative}
+  .stat.t1{border-top-color:var(--red-fg)}
+  .stat.t2{border-top-color:var(--orange-main)}
+  .stat.kr{border-top-color:var(--blue-fg)}
+  .stat .v{font-size:38px;font-weight:800;color:var(--navy);letter-spacing:-0.04em;line-height:1}
+  .stat.t1 .v{color:var(--red-deep)}
+  .stat.t2 .v{color:var(--orange-deeper)}
+  .stat.kr .v{color:var(--blue-fg)}
+  .stat .u{font-size:16px;font-weight:800;margin-left:1px}
+  .stat .lbl{font-size:12px;color:var(--brown-mid);font-weight:700;margin-top:8px;line-height:1.45}
+  .stat .src{font-size:10px;color:var(--brown-soft);font-weight:600;margin-top:7px;padding-top:6px;border-top:1px dashed var(--n200)}
+
+  /* 경고/정직 박스 */
+  .warning-box{background:linear-gradient(135deg,#FFEBEE,#FFF1F2);border:2px solid var(--red-fg);border-radius:var(--r);padding:18px 20px;margin:16px 0}
+  .warning-box h4{color:var(--red-deep);font-size:15px;margin-bottom:8px;font-weight:800}
+  .warning-box p{font-size:13.5px;color:#7a2a2a;font-weight:600;margin-bottom:0}
+  .honest-box{background:linear-gradient(135deg,#FFF8E1,#FFFDF5);border:1.5px solid var(--warn-fg);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+  .honest-box h4{color:var(--warn-deep);font-size:14px;margin-bottom:6px;font-weight:800}
+  .honest-box p{font-size:13px;color:#6b5520;font-weight:600;margin-bottom:0}
+
+  /* 티어 헤더 */
+  .tier-head{display:flex;align-items:center;gap:12px;margin:8px 0 4px}
+  .tier-badge{font-size:12px;font-weight:800;color:white;padding:5px 13px;border-radius:var(--r-pill);letter-spacing:0.02em;flex-shrink:0}
+  .tier-badge.t1{background:var(--red-fg)}
+  .tier-badge.t2{background:var(--orange-main)}
+  .tier-badge.t3{background:var(--n500)}
+  .tier-head .desc{font-size:12.5px;color:var(--brown-soft);font-weight:700}
+
+  /* 근거 카드 */
+  .ev{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:16px 18px;margin-bottom:12px;box-shadow:var(--card-shadow-sm);position:relative}
+  .ev .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:7px}
+  .ev .num{font-size:21px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;line-height:1.3}
+  .ev .num em{font-style:normal;color:var(--orange-main)}
+  .ev.danger .num em{color:var(--red-deep)}
+  .ev .grade{font-size:9.5px;font-weight:800;padding:4px 9px;border-radius:var(--r-pill);white-space:nowrap;flex-shrink:0;height:fit-content}
+  .grade.g{background:var(--green-bg);color:var(--green-deep);border:1px solid var(--green-fg)}
+  .grade.y{background:var(--warn-bg);color:var(--warn-deep);border:1px solid var(--warn-fg)}
+  .grade.r{background:var(--red-bg);color:var(--red-deep);border:1px solid var(--red-fg)}
+  .ev .body{font-size:13px;color:var(--brown-mid);font-weight:500;line-height:1.6;margin-bottom:8px}
+  .ev .src{font-size:11px;color:var(--brown-soft);font-weight:600;display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding-top:8px;border-top:1px dashed var(--n200)}
+  .ev .src .vtag{font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:var(--r-pill);background:var(--green-bg);color:var(--green-deep)}
+  .ev .src .vtag.over{background:var(--warn-bg);color:var(--warn-deep)}
+  .ev .src .j{color:var(--navy);font-weight:700}
+
+  /* 골든타임 시퀀스 */
+  .seq{counter-reset:step;margin:16px 0}
+  .seq .step{display:flex;gap:14px;align-items:flex-start;background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;box-shadow:var(--card-shadow-sm);position:relative}
+  .seq .step::before{counter-increment:step;content:counter(step);flex-shrink:0;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--orange-main),var(--orange-deep));color:white;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center}
+  .seq .step .c .t{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:3px}
+  .seq .step .c .d{font-size:12.5px;color:var(--brown-mid);font-weight:600;line-height:1.55}
+  .seq .step.fire::before{background:linear-gradient(135deg,#E53935,#C62828)}
+
+  /* 카피 등급 (before/after 톤테이블 변형) */
+  .copy-block{border-radius:var(--r);padding:16px 18px;margin-bottom:12px;border:1.5px solid}
+  .copy-block.a{background:var(--green-bg);border-color:var(--green-fg)}
+  .copy-block.b{background:var(--warn-bg);border-color:var(--warn-fg)}
+  .copy-block.c{background:var(--red-bg);border-color:var(--red-fg)}
+  .copy-block .ghead{font-size:12px;font-weight:800;margin-bottom:10px;letter-spacing:0.02em}
+  .copy-block.a .ghead{color:var(--green-deep)}
+  .copy-block.b .ghead{color:var(--warn-deep)}
+  .copy-block.c .ghead{color:var(--red-deep)}
+  .copy-line{background:white;border-radius:var(--r-sm);padding:11px 14px;margin-bottom:8px;font-size:13.5px;font-weight:600;color:var(--brown-deep);line-height:1.6;border:1px solid rgba(0,0,0,0.04)}
+  .copy-line:last-child{margin-bottom:0}
+  .copy-line .q{color:var(--navy);font-weight:800}
+  .copy-line cite{display:block;margin-top:4px}
+  .copy-line.no{color:var(--red-deep);text-decoration:none}
+  .copy-line.no b{text-decoration:line-through;color:var(--red-deep)}
+
+  /* 신뢰도 표 */
+  .cred-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px;background:white;border-radius:var(--r);overflow:hidden;border:1px solid var(--card-border)}
+  .cred-table th{background:var(--navy);color:white;padding:10px 12px;text-align:left;font-size:11px;font-weight:800}
+  .cred-table td{padding:9px 12px;border-bottom:1px solid var(--bg-soft);vertical-align:top;color:var(--brown-mid)}
+  .cred-table tr:last-child td{border-bottom:none}
+  .cred-table .jn{color:var(--navy);font-weight:700}
+
+  /* 방법론 카드 */
+  .method{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+  .method .m{background:var(--bg-soft);border:1px solid var(--card-border);border-radius:var(--r);padding:14px}
+  .method .m .n{font-size:26px;font-weight:800;color:var(--orange-main);line-height:1}
+  .method .m .l{font-size:12px;color:var(--brown-mid);font-weight:700;margin-top:6px}
+
+  .refs{background:var(--bg-soft);border:1px solid var(--card-border);border-radius:var(--r);padding:16px 18px;font-size:11.5px;color:var(--brown-mid);line-height:2;font-weight:500}
+  .refs a{color:var(--orange-deep);text-decoration:none;font-weight:700}
+
+  .nav-back{background:linear-gradient(135deg,var(--bg-warm-1),var(--bg-warm-2));padding:20px;border-radius:var(--r);margin-top:34px;text-align:center}
+  .nav-back a{color:var(--orange-deep);font-weight:800;text-decoration:none;font-size:13.5px;margin:0 10px}
+  footer{padding:30px;text-align:center;font-size:11px;color:var(--brown-soft);border-top:1px solid var(--card-border);font-weight:600}
+  @media(max-width:600px){.stat .v{font-size:32px}.ev .num{font-size:18px}}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">📑 근거 보고서 · 2026-06-30</span>
+    <h1>편식, 진짜 문제일까?<br><span class="accent">— 부모가 움직여야 하는 이유, 숫자로</span></h1>
+    <p>"크면 괜찮아진다"는 말 뒤에서, 편식은 <strong>속에서 격차</strong>를 만듭니다. 28개 검색 에이전트가 모은 46건을 <strong>1차 출처(원논문·국가보고서)와 직접 대조</strong>해 적대적으로 검증, 살아남은 <strong>19건</strong>만 남겼습니다.</p>
+    <div class="hero-meta">
+      <span class="pill">🔬 검증 통과 19건</span>
+      <span class="pill">📚 Lancet · Pediatrics · AJCN</span>
+      <span class="pill">🇰🇷 KNHANES 한국 데이터</span>
+      <span class="pill">⚖️ 과장 3건 직접 걸러냄</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#verdict">결론</a>
+    <a href="#trap">⚠️ 정직 함정</a>
+    <a href="#headline">한눈에 숫자</a>
+    <a href="#t1">T1 편식 직접</a>
+    <a href="#t2">T2 골든타임</a>
+    <a href="#t3">T3 거시배경</a>
+    <a href="#golden">히어로 시퀀스</a>
+    <a href="#copy">카피 3등급</a>
+    <a href="#cred">출처 신뢰도</a>
+    <a href="#method">검증 방법</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- 결론 -->
+<section id="verdict">
+  <span class="stag">━ 결론 ━</span>
+  <h2>편식은 "진짜 문제"가 맞다 — 단, 무서운 건 살이 아니라 '속'이다</h2>
+  <div class="verdict">
+    <div class="q">Q. 편식이 심한 아이는 무엇을 잃는가?</div>
+    <div class="a">편식 아동은 또래보다 <em>철·아연을 적게 먹고</em>, 그 부족이 하필 <em>되돌리기 어려운 시기</em>에 생긴다. 영아기 철결핍은 <em>치료한 뒤에도 19년 후까지</em> 인지·실행기능 격차로 남았다. 그래서 "편식 골든타임"이다.</div>
+  </div>
+  <p class="lead">핵심은 <strong>겉으로 안 드러난다</strong>는 점입니다. 한국 편식아 대부분은 굶지 않습니다. 그래서 부모는 "좀 안 먹어도 크겠지" 합니다. 그러나 데이터는 — 편식아의 <strong class="ohl">78.6%가 철분 권장량에 미달</strong>(영국 4천 명 코호트), 지속 편식아의 <strong class="ohl">저체중 위험은 약 2.4배</strong>, 그리고 그 시기의 철 부족은 <strong class="ohl">보충해도 10~19년 뒤까지</strong> 인지에 흔적을 남긴다고 말합니다.</p>
+</section>
+
+<!-- 정직 함정 -->
+<section id="trap">
+  <span class="stag">━ 먼저 짚을 함정 ━</span>
+  <h2>⚠️ 가장 섬뜩한 숫자일수록, 한국 편식아엔 못 쓴다</h2>
+  <div class="warning-box">
+    <h4>❌ "발육부진이면 평생소득 −7%, 키 1cm당 임금 +6%, 성인 시급 +46%"</h4>
+    <p>이 거시 숫자들은 <b>전부 개도국 기아·발육부진(stunting) 연구</b>입니다. 만성 영양실조로 키가 안 자란 아이의 평생 손실이지, 밥투정하는 한국 아이의 이야기가 아닙니다. 그대로 갖다 붙이면 <b>과장</b>이고, 똑똑한 부모나 심사위원이 "그거 개도국 굶주림 데이터잖아요" 한 방이면 제품 신뢰가 통째로 무너집니다.</p>
+  </div>
+  <div class="honest-box">
+    <h4>✅ 그래서 이 보고서의 설계</h4>
+    <p>공포의 <b>본체는 T1(편식 직접연구) + T2(영양결핍→인지 매개)</b>로 짓고, GDP·소득 같은 <b>T3 거시 숫자는 "생애 초기 영양이 평생을 좌우한다"는 배경 분위기로만</b> 씁니다. 정직성이 곧 무기입니다 — 사업계획서·심사위원 앞에서도 동일한 숫자를 써야 하니까요.</p>
+  </div>
+</section>
+
+<!-- 한눈에 숫자 -->
+<section id="headline">
+  <span class="stag">━ 한눈에 ━</span>
+  <h2>부모를 멈추게 하는 6개의 숫자</h2>
+  <div class="stat-grid">
+    <div class="stat t2"><div class="v">78.6<span class="u">%</span></div><div class="lbl">편식아 중 철분 권장량 미달 (비편식 65.4%)</div><div class="src">Taylor, AJCN 2016 · 영국 ALSPAC</div></div>
+    <div class="stat t1"><div class="v">2.4<span class="u">배</span></div><div class="lbl">지속 편식아의 저체중 위험</div><div class="src">Dubois, IJBNPA 2007 · 퀘벡 1,498명</div></div>
+    <div class="stat t2"><div class="v">19<span class="u">년</span></div><div class="lbl">영아기 철결핍 인지 결손이 지속된 추적 기간</div><div class="src">Lukowski, Nutr Neurosci 2010</div></div>
+    <div class="stat t1"><div class="v">7<span class="u">배</span></div><div class="lbl">중증 편식아의 사회불안 진단 위험</div><div class="src">Zucker, Pediatrics 2015</div></div>
+    <div class="stat kr"><div class="v">55.9<span class="u">%</span></div><div class="lbl">한국 만3~5세 유아 중 칼슘 부족(EAR 미만)</div><div class="src">한영희·현태선, NRP 2025 · KNHANES</div></div>
+    <div class="stat t1"><div class="v">2.3<span class="u">kg</span></div><div class="lbl">편식아가 15세에 더 가벼웠던 체중</div><div class="src">Grulichová, Nutrients 2022 · 체코</div></div>
+  </div>
+  <p style="font-size:12px;color:var(--brown-soft);margin-top:4px">※ 모든 수치는 1차 출처에서 직접 대조 확인. 전부 <b>관찰(상관)연구</b>이며 "편식이 ~를 유발한다"는 인과가 아니라 "편식아에서 더 흔하게 관찰된다"는 뜻입니다(카피 작성 시 필수 단서).</p>
+</section>
+
+<!-- T1 -->
+<section id="t1">
+  <span class="stag">━ TIER 1 ━</span>
+  <h2>편식 그 자체를 본 연구 — 마케팅의 본체</h2>
+  <div class="tier-head"><span class="tier-badge t1">T1 · 편식 직접</span><span class="desc">진짜 '편식아'를 노출로 정의한 종단·관찰 연구. 한국 부모에게 가장 정직하게 쓸 수 있는 층.</span></div>
+
+  <div class="ev">
+    <div class="top"><div class="num">지속 편식아 저체중 위험 <em>약 2.4배</em></div><span class="grade g">🟢 그대로 사용</span></div>
+    <div class="body">2.5~4.5세 세 시점 '모두' 편식한 아이는 저체중(BMI&lt;10백분위)일 위험이 비편식아의 약 2.4배(보정 OR 2.42, 95% CI 1.38–4.22). 동시에 과체중 위험군 비율은 더 낮았다.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Dubois et al. 2007</span><span>· Int J Behav Nutr Phys Act 4:9 · 퀘벡 1,498명 종단</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">편식아 저체중 위험 <em>2.28배</em> (체중 보정 후에도)</div><span class="grade g">🟢 그대로 사용</span></div>
+    <div class="body">4세 편식 프로파일 아동은 4세 BMI를 보정한 뒤에도 6세 저체중 위험이 2.28배(95% CI 1.34–3.87). Dubois와 독립적으로 같은 방향을 재현 — 교차검증 가치가 큼.</div>
+    <div class="src"><span class="vtag over">⚠️ 헤드라인만 사용</span><span class="j">de Barse et al. 2015</span><span>· IJBNPA · 네덜란드 Generation R 4,191명 · (BMI-SDS·체지방 수치는 '보정 전'값이라 인용 금지)</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">편식아 15세에 체중 <em>−2.3kg</em>·키 −0.8cm</div><span class="grade y">🟡 맥락 단서</span></div>
+    <div class="body">1.5·3·5세에 편식이던 아이는 15세에 비편식아보다 평균 2.3kg 가볍고 0.8cm 작았다(지속 편식 시 −4kg). 어린 시절 식습관의 흔적이 청소년기에도 관찰됨.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Grulichová et al. 2022</span><span>· Nutrients · 체코 ELSPAC 2,068명 · 단일시점 차이(궤적 아님)</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">중증 편식아 사회불안 <em>7배</em>·식사갈등 5배</div><span class="grade y">🟡 맥락 단서</span></div>
+    <div class="body">취학 전 917명에서 중증 선택적 편식아는 사회불안 진단 7배·우울 2배·식사갈등 5.1배·구강질감 과민 8.3배. '버릇'이 아니라 감각·심리 기반 문제일 수 있다는 신호.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Zucker et al. 2015</span><span>· Pediatrics 136(3) · 사회불안 7배는 중증 3%·CI 넓음 단서 필요</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">편식아 철분 권장량 미달 <em>78.6%</em>·아연 58.8%</div><span class="grade y">🟡 맥락 단서</span></div>
+    <div class="body">편식아의 78.6%가 철분(비편식 65.4%), 58.8%가 아연(비편식 47%) 권장 기준에 미달. 단, 에너지·단백질·비타민C는 결핍 수준 아님 — 부족 신호는 <b>철·아연·카로틴·섬유소에 집중</b>됨(정직).</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Taylor, Northstone, Emmett 2016</span><span>· Am J Clin Nutr 104(6) · 영국 ALSPAC · 영양학 최상위지</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">편식아 아연 결핍 위험 <em>2.1배</em> (실제 혈중 측정)</div><span class="grade y">🟡 맥락 단서</span></div>
+    <div class="body">섭취 추정이 아니라 실제 혈청 아연을 측정 — 편식아의 아연 결핍률 43% vs 비편식 26%, 보정 OR 2.12. '섭취 부족' 주장을 임상 결핍 한 단계로 끌어올림.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Chao et al. 2021</span><span>· Nutrients 13(7) · 대만 4–7세 203명 · 단면·소표본</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">🇰🇷 한국 유아 편식: 특정식품 거부 <em>61%</em>·소식 30%</div><span class="grade y">🟡 맥락 단서</span></div>
+    <div class="body">서울·경기 만3~5세 237명: 특정식품 거부 61.2%·새음식 거부 46.8%·소식 29.5%. 가장 많이 거부된 식품=조개·콩·버섯·새우·채소. '소식형' 편식군은 체중·BMI가 유의하게 낮았다.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">김지선·강수경·계승희 2021</span><span>· 대한지역사회영양학회지 26(1) · 한국 유일급 1차근거</span></div>
+  </div>
+</section>
+
+<!-- T2 -->
+<section id="t2">
+  <span class="stag">━ TIER 2 ━</span>
+  <h2>영양결핍 → 인지·성장 — '골든타임'의 과학적 심장</h2>
+  <div class="tier-head"><span class="tier-badge t2">T2 · 영양결핍 매개</span><span class="desc">편식 → 철·아연 부족 → 인지·학습. "되돌릴 수 없는 시기"를 입증하는 층. 편식 직접연구는 아니므로 '매개 사슬'로 연결.</span></div>
+
+  <div class="ev">
+    <div class="top"><div class="num">영아기 철결핍 → 치료 후 <em>10년 뒤</em>에도 인지 결손</div><span class="grade y">🟡 매개 단서</span></div>
+    <div class="body">영아기에 철결핍이던 아이는 <b>철분을 보충해 치료한 뒤에도</b> 11~14세까지 산수·쓰기·기억·운동에서 또래보다 낮았고, 유급·특수교육 의뢰가 더 많았다. "한번 놓친 시기는 채워줘도 안 돌아온다"의 근거.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Lozoff et al. 2000</span><span>· Pediatrics 105(4):E51 · 코스타리카 종단 87% 추적</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">같은 아이들, <em>19세</em>까지 실행기능·기억 결손 지속</div><span class="grade y">🟡 매개 단서</span></div>
+    <div class="body">동일 코호트를 19세까지 추적: 영아기 철결핍군은 실행기능·재인기억에서 효과크기 0.4~0.5 SD 결손, 전환오류 3.45배. 성인 초기까지 격차가 남음을 정밀 신경검사로 확인.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Lukowski et al. 2010</span><span>· Nutritional Neuroscience 13(2)</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">만3세 가공식 식습관 1SD↑ → 8.5세 IQ <em>−1.67점</em></div><span class="grade y">🟡 맥락 단서</span></div>
+    <div class="body">만3세에 가공식 위주로 먹던 아이는 8.5세 IQ가 평균 1.67점 낮았다(건강식 패턴은 +1.20점). 교란 보정 후에도 유의. 단, 이건 '편식'이 아니라 '식이의 질' 연구이고 효과는 작음.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Northstone et al. 2012</span><span>· J Epidemiol Community Health · 영국 3,966명</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">🇰🇷 한국 유아 EAR 미만: 칼슘 <em>55.9%</em>·비타민A 40%·철 26%</div><span class="grade y">🟡 맥락 단서</span></div>
+    <div class="body">전국 대표표본(KNHANES) 만3~5세 706명: 칼슘 55.9%·비타민A 40%·비타민C 40%·엽산 31.1%·철 26.3%가 권장 기준 미만. <b>한국 유아 약 절반이 칼슘을 충분히 못 먹는다</b>는 국가 데이터.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">한영희·현태선 2025</span><span>· Nutrition Research and Practice 19(2) · 전국 KNHANES</span></div>
+  </div>
+
+  <div class="ev">
+    <div class="top"><div class="num">🇰🇷 한국 아동·청소년 철결핍 <em>12.1%</em>·15~17세 여아 24.1%</div><span class="grade y">🟡 맥락 단서</span></div>
+    <div class="body">국가조사 종합리뷰: 철 결핍 12.1%·철결핍빈혈 4.3%, 비타민D 결핍 73.3%. 단, 사춘기 여아 급증(24.1%)은 월경 철손실이 주동인 — 편식 단독 아님(과장 금지). 학령기·청소년 데이터.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">강민지 et al. 2021</span><span>· Clinical and Experimental Pediatrics 64(9)</span></div>
+  </div>
+</section>
+
+<!-- T3 -->
+<section id="t3">
+  <span class="stag">━ TIER 3 ━</span>
+  <h2>거시 경제손실 — '배경 분위기'로만, 직접 적용 금지</h2>
+  <div class="tier-head"><span class="tier-badge t3">T3 · 거시배경</span><span class="desc">개도국 기아·발육부진 연구. 과학적으로는 최상급이나 한국 편식아에 직접 대입 불가. "생애 초기 영양이 평생을 좌우한다"는 분위기로만.</span></div>
+
+  <div class="ev danger">
+    <div class="top"><div class="num">생애초기 영양보충 → 성인 시급 <em>+46%</em></div><span class="grade r">🔴 거시배경만</span></div>
+    <div class="body">과테말라 마을 단위 무작위배정: 0~2세 영양보충에 노출된 남성의 성인 시급이 평균 대비 +46%. 영양경제학 최다 인용 인과 근거. <b>단, 단백질·칼로리 결핍 보충 실험</b>이라 한국 편식아에 직접 적용 불가.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Hoddinott et al. 2008</span><span>· The Lancet 371 · 개도국 발육부진 모집단</span></div>
+  </div>
+
+  <div class="ev danger">
+    <div class="top"><div class="num">철결핍 경제손실 GDP <em>0.57%→4.05%</em>, ROI 36:1</div><span class="grade r">🔴 거시배경만</span></div>
+    <div class="body">철결핍의 신체 생산성 손실만 GDP 0.57%, 아동 인지 손상까지 더하면 4.05%. 철분 강화 1달러당 36달러 회수. 단, 인지손실분은 모델 가정 기반 추정치(개도국 10개국).</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Horton &amp; Ross 2003</span><span>· Food Policy 28(1) · 경제 모델 추정</span></div>
+  </div>
+
+  <div class="ev danger">
+    <div class="top"><div class="num">영양개입 편익비용비 <em>약 18:1</em> (개발투자 최고 가성비)</div><span class="grade r">🔴 거시배경만</span></div>
+    <div class="body">코펜하겐 컨센서스(노벨경제학자 패널)는 영양개입을 반복해서 최고 가성비 개발투자로 평가. 2023년 편익비용비 약 18(8% 할인율). 개도국 영양실조 ROI이지 편식 개입 효과 아님.</div>
+    <div class="src"><span class="vtag">✅ CONFIRMED</span><span class="j">Copenhagen Consensus 2023</span><span>· 개도국 미량영양소 결핍</span></div>
+  </div>
+
+  <p style="font-size:12.5px;color:var(--brown-soft);margin-top:6px">＋ 검증은 통과했으나 <b>부모 카피 사용비권장</b>: ④ 24개월 발육부진 → 교육 −4.64학년(Hoddinott 2013, AJCN) · ⑤ 성인 키 1cm당 임금 +4~6%(McGovern 2017, Int J Epidemiology) · ⑥ 발육부진 → 개도국 1인당 소득 −7%(Galasso·Wagstaff 2018, World Bank). 모두 stunting 연구 — 한국 편식과 모집단 자체가 다름.</p>
+</section>
+
+<!-- 골든타임 시퀀스 -->
+<section id="golden">
+  <span class="stag">━ 적용 ━</span>
+  <h2>🔥 히어로 시퀀스 — 랜딩·피치 한 방</h2>
+  <p>위 근거를 <strong>정직하면서도 가장 무섭게</strong> 잇는 4단 흐름. T1(격차) → T2(되돌릴 수 없음)으로 골든타임을 완성합니다.</p>
+  <div class="seq">
+    <div class="step fire"><div class="c"><div class="t">"편식, 크면 괜찮아진다고요?"</div><div class="d">통념을 정면으로 건드려 불씨를 켠다.</div></div></div>
+    <div class="step"><div class="c"><div class="t">"편식 아동은 철·아연을 또래보다 적게 먹습니다."</div><div class="d">편식아 78.6%가 철분 권장량 미달 — 영국 4천 명 코호트(Taylor 2016). 겉은 멀쩡해도 속에서 격차.</div></div></div>
+    <div class="step"><div class="c"><div class="t">"그 시기의 철 부족은, 치료해도 19세까지 인지에 남았습니다."</div><div class="d">Lozoff 2000 · Lukowski 2010, 코스타리카 종단. 되돌릴 수 없음 = 공포의 핵.</div></div></div>
+    <div class="step"><div class="c"><div class="t">"그래서 '편식 골든타임'입니다. 지나간 뒤가 아니라, 지금."</div><div class="d">불안을 행동으로 전환 — 지금 시작해야 하는 이유.</div></div></div>
+  </div>
+</section>
+
+<!-- 카피 3등급 -->
+<section id="copy">
+  <span class="stag">━ 사용 가이드 ━</span>
+  <h2>공포마케팅 카피 — 안전 3등급</h2>
+  <p>같은 근거라도 <strong>어떻게 쓰느냐</strong>가 신뢰를 가르고 무너뜨립니다. 검증 결과에 따라 3등급으로 분류했습니다.</p>
+
+  <div class="copy-block a">
+    <div class="ghead">🟢 등급 A — 짧은 단서만 달면 그대로 사용</div>
+    <div class="copy-line"><span class="q">"편식은 살로 안 드러나도, 속에서 격차를 만듭니다."</span> 편식 아동의 78.6%가 철분 권장량에 못 미쳤습니다.<cite>Taylor, Am J Clin Nutr 2016 · 관찰연구</cite></div>
+    <div class="copy-line"><span class="q">"한국 유아 절반이, 이미 칼슘이 부족합니다."</span> 전국 조사에서 만3~5세의 55.9%가 칼슘, 40%가 비타민A·C 기준에 미달했습니다.<cite>한영희·현태선, NRP 2025 · KNHANES</cite></div>
+    <div class="copy-line"><span class="q">"편식이 오래가면, 몸에도 흔적이 남습니다."</span> 2.5~4.5세 내내 편식한 아이는 저체중일 가능성이 약 2.4배였습니다.<cite>Dubois, IJBNPA 2007 · 종단 관찰</cite></div>
+  </div>
+
+  <div class="copy-block b">
+    <div class="ghead">🟡 등급 B — 강력하지만 반드시 맥락 단서 (골든타임 핵심 무기)</div>
+    <div class="copy-line"><span class="q">"한번 놓친 시기는, 채워줘도 돌아오지 않습니다."</span> 영아기에 철분이 부족했던 아이는 철분을 보충해 치료한 뒤에도 19세까지 또래보다 기억력·집중력이 낮았습니다.<cite>Lozoff 2000 · Lukowski 2010 — 단서: '심한 철결핍' 연구. 편식은 그 부족으로 가는 가장 흔한 길.</cite></div>
+    <div class="copy-line"><span class="q">"어릴 때 식습관이, 학교 성적표까지 따라옵니다."</span> 만3세 가공식 위주 아이는 8세 IQ가 평균 낮았습니다.<cite>Northstone, JECH 2012 · 상관, 효과는 작지만 4천 명에서 일관</cite></div>
+    <div class="copy-line"><span class="q">"편식은 버릇이 아니라, 신호일 수 있습니다."</span> 심한 편식 아동은 또래보다 사회불안·식사 갈등이 잦았습니다.<cite>Zucker, Pediatrics 2015</cite></div>
+  </div>
+
+  <div class="copy-block c">
+    <div class="ghead">🔴 등급 C — 매력적이지만 쓰면 위험 (검증에서 걸러낸 함정)</div>
+    <div class="copy-line no"><b>"편식하면 평생소득이 7~46% 낮아진다"</b> → 개도국 기아·발육부진 연구. 모집단 자체가 다름.</div>
+    <div class="copy-line no"><b>"편식이 IQ를 떨어뜨린다"</b> → Northstone은 '편식'이 아니라 '식이의 질' 연구. 인과 아님.</div>
+    <div class="copy-line no"><b>de Barse "BMI −0.37 SD" · Florence "41%"</b> → 둘 다 보정 전·미보정 수치. 보정하면 약해지거나 사라짐(적대검증서 OVERREACH).</div>
+    <div class="copy-line">✅ T3는 이렇게만: <span class="q">"생애 초기 영양이 평생 건강·학습·소득까지 좌우한다는 건 세계은행·란셋이 거듭 확인한 사실입니다"</span> — 출처를 '거시 배경'으로만, 개인 편식아 효과로 번역 금지.</div>
+  </div>
+</section>
+
+<!-- 출처 신뢰도 -->
+<section id="cred">
+  <span class="stag">━ 신뢰도 ━</span>
+  <h2>출처 등급 — 어느 학술지가 받쳐주나</h2>
+  <table class="cred-table">
+    <thead><tr><th style="width:90px">등급</th><th>학술지·기관</th><th style="width:230px">성격</th></tr></thead>
+    <tbody>
+      <tr><td>🟢 최상위</td><td class="jn">The Lancet · Pediatrics · Am J Clin Nutr · Int J Epidemiology</td><td>임팩트 최상·분야 표준 레퍼런스·교차검증 용이</td></tr>
+      <tr><td>🟡 견고</td><td class="jn">IJBNPA · JECH · Nutritional Neuroscience · Nutrition Research and Practice · Clin Exp Pediatr · 대한지역사회영양학회지</td><td>정평 있는 동료심사 저널(KNHANES·한국영양학회 포함)</td></tr>
+      <tr><td>🟠 중견</td><td class="jn">Nutrients(Chao·Grulichová) · J School Health · World Bank WP</td><td>단면·소표본·워킹페이퍼 — 단서 필요</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12.5px;color:var(--brown-soft)">19건 전부 1차 출처 URL과 검증 노트를 별도 근거자료(<code>편식_경제발달손실_근거자료_2026-06-30.md</code>)에 보관. 본 페이지는 그 검증 통과본의 시각화입니다.</p>
+</section>
+
+<!-- 검증 방법 -->
+<section id="method">
+  <span class="stag">━ 방법론 ━</span>
+  <h2>어떻게 검증했나 — 28개 에이전트, 정직 척추</h2>
+  <div class="method">
+    <div class="m"><div class="n">8</div><div class="l">차원 병렬 검색 (편식·영양·인지·거시·한국)</div></div>
+    <div class="m"><div class="n">46</div><div class="l">원시 발견 수집 → 중복제거·티어 분류</div></div>
+    <div class="m"><div class="n">19</div><div class="l">적대 검증 통과 (1차 출처 직접 대조)</div></div>
+    <div class="m"><div class="n">3</div><div class="l">과장·오귀속 직접 적발(OVERREACH)</div></div>
+  </div>
+  <p>각 주장을 <strong>회의적 검증 에이전트</strong>가 독립적으로 재조사했습니다 — 저자·연도·학술지 귀속이 정확한가, 숫자가 원문과 일치하는가, 인과로 과장했는가, <strong>편식아 연구를 발육부진 연구와 혼동했는가</strong>. 그 결과 ① de Barse의 체지방 수치(보정 전값을 보정 후로 오귀속) ② Florence의 41%(미보정값) ③ 다수 T3 거시 숫자(개도국→한국 적용 비약)를 걸러냈습니다. <strong>정직성이 곧 방어선</strong>이라는 원칙으로 작성되었습니다.</p>
+</section>
+
+<div class="nav-back">
+  <a href="/docs.html">← 문서 허브</a>
+  <a href="/pitch.html">사업소개서 →</a>
+  <a href="/feedback-strategy.html">정부지원 전략 →</a>
+</div>
+
+</main>
+
+<footer>
+  밀프레드 · 편식 경제·발달 손실 근거 보고서 · 2026-06-30 · 검증 19건 (1차 출처 직접 대조)<br>
+  ⚠️ 모든 수치는 관찰(상관)연구 — 카피 사용 시 인과 단정 금지, '편식아에서 더 흔하게 관찰됨'으로 표현
+</footer>
+
+</body>
+</html>
