@@ -410,10 +410,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 29</span>
+    <span class="cnt">세션 30</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-06-30-b.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-06-30 (b) — 테스트 배포게이트 + SessionStart 일지 자동주입 훅 + 학부모 편식 설문 구글폼(브라우저)</h4>
+      <p class="desc"><b>개발 게이트·훅·학부모 설문 세션(병행 · 06-29 투자 Q&amp;A 연속).</b> ① 빌드 사고 후속 — <b>테스트를 배포 게이트에</b>: <code>vercel.json</code> npm run build(prebuild vitest)·pre-push 훅 test 추가·CLAUDE.md/AGENTS.md 규칙(<code>704ec0a</code>) ② <b>SessionStart 훅</b> — 매 세션 최근 주간 일지 자동 주입 + "새 작업 시 일지 훑기" 규칙(<code>6fdd635</code>) ③ ⭐ <b>학부모 편식 설문 구글폼</b>을 Claude in Chrome으로 직접 생성·반복수정(문항 정리·혜택=편식 코칭 평생무료·담백 카피·오렌지·바이럴 개방) → 라이브, 응답 받는 중. <span style="color:#1B5E20">forms.gle 죽음→viewform 사용 · 배포 카톡 메시지 작성.</span></p>
+      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-06-30.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -555,6 +562,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-06-30-b.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-30.html':{c:'2026-06-30',m:'2026-06-30'},
     '/worklog-2026-06-29-c.html':{c:'2026-06-29',m:'2026-06-29'},
     '/worklog-2026-06-29-b.html':{c:'2026-06-29',m:'2026-06-29'},
