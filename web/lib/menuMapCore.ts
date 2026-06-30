@@ -124,6 +124,13 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   '너겟': { ing: ['닭고기'], processed: true }, '치킨너겟': { ing: ['닭고기'], processed: true }, '치킨너깃': { ing: ['닭고기'], processed: true },
   '미트볼': { ing: ['소고기'], processed: true }, '미트볼구이': { ing: ['소고기'], processed: true }, '미트볼채소조림': { ing: ['소고기'], processed: true }, '수제함박스테이크': { ing: ['소고기'], processed: true }, '폭찹스테이크': { ing: ['돼지고기'], processed: true }, '바베큐폭찹': { ing: ['돼지고기'], processed: true },
   '자장면': { ing: ['밀','돼지고기','양파'], processed: true }, '짜장면': { ing: ['밀','돼지고기','양파'], processed: true },
+  // 초등 급식 신규 메뉴(중·일식·국 등) — 2026-06-30 NEIS 전국 수집 유입
+  '추어탕': { ing: ['미꾸라지'] }, '마라탕': { ing: ['두부','돼지고기','청경채','당면'] }, '순한마라탕': { ing: ['두부','돼지고기','청경채','당면'] },
+  '짬뽕': { ing: ['오징어','돼지고기','양파','밀'] }, '짬뽕국': { ing: ['오징어','돼지고기','양파','밀'] }, '오향장육': { ing: ['돼지고기'] },
+  '꿔바로우': { ing: ['돼지고기','밀'], processed: true }, '동파육': { ing: ['돼지고기'] }, '유린기': { ing: ['닭고기','밀'] }, '돈코츠라멘': { ing: ['밀','돼지고기'] },
+  '타코야끼': { ing: ['밀','양배추'], processed: true }, '누룽지탕': { ing: ['쌀'] }, '순대국': { ing: ['돼지고기','당면'], processed: true }, '수육': { ing: ['돼지고기'] },
+  '사골우거지국': { ing: ['소고기','배추'] }, '시저샐러드': { ing: ['양상추','닭고기','치즈'] }, '비엔나야채볶음': { ing: ['소시지','양파','당근'] },
+  '국물떡볶이': { ing: ['쌀','어묵'] }, '바베큐폭립': { ing: ['돼지고기'] }, '동치미': { ing: ['무'] }, '햄모듬찌개': { ing: ['햄','두부','김치'] }, '열대과일샐러드': { ing: ['파인애플'] },
   '동그랑땡': { ing: ['돼지고기','두부','계란'], processed: true },
   '핫바': { ing: ['어묵'], processed: true }, '오뎅': { ing: ['어묵'], processed: true }, '오뎅국': { ing: ['어묵','무','대파'], processed: true },
   '햄버거': { ing: ['빵','소고기','양상추'], processed: true }, '핫케이크': { ing: ['빵','계란','우유'], processed: true },
