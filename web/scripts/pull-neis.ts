@@ -25,7 +25,7 @@ const enc = encodeURIComponent;
 
 const args = process.argv.slice(2);
 const arg = (k: string, d = '') => (args.find((a) => a.startsWith(`--${k}=`)) || '').split('=')[1] || d;
-const SIDO = arg('sido', '서울특별시');
+const SIDO = arg('sido');                // 없으면 전국(LCTN_SC_NM 생략)
 const GU = arg('gu');
 const FROM = arg('from');               // YYYYMM
 const TO = arg('to', FROM);
@@ -67,13 +67,13 @@ async function main() {
   console.log(`NEIS 초등 수집 · ${SIDO}${GU ? '/' + GU : ''} · ${FROM}~${TO}${DRY ? ' · DRY(미적재)' : ''}`);
 
   // 1) 초등 학교 목록(schoolInfo) — 시도 전체 → 구 필터
-  let schools = await neisAll('schoolInfo', { LCTN_SC_NM: SIDO, SCHUL_KND_SC_NM: '초등학교' });
+  let schools = await neisAll('schoolInfo', { SCHUL_KND_SC_NM: '초등학교', ...(SIDO ? { LCTN_SC_NM: SIDO } : {}) });
   if (GU) schools = schools.filter((s: any) => (s.ORG_RDNMA || '').includes(GU));
-  if (PER_GU) {   // 25개구 균형 표본: 구별 앞 N곳씩
+  if (PER_GU) {   // 시군구별 균형 표본(전국이면 시도+구 키로 동명 시군구 분리)
     const byGu: Record<string, any[]> = {};
-    for (const s of schools) { const g = guOf(s.ORG_RDNMA); if (g) (byGu[g] ||= []).push(s); }
+    for (const s of schools) { const gg = guOf(s.ORG_RDNMA); if (gg) (byGu[(s.LCTN_SC_NM || '') + '|' + gg] ||= []).push(s); }
     schools = Object.keys(byGu).sort().flatMap((g) => byGu[g].slice(0, PER_GU));
-    console.log(`  구별 ${PER_GU}곳 표본 · ${Object.keys(byGu).length}개구`);
+    console.log(`  시군구별 ${PER_GU}곳 표본 · ${Object.keys(byGu).length}개 시군구`);
   }
   if (LIMIT) schools = schools.slice(0, LIMIT);
   console.log(`  대상 초등 ${schools.length}곳`);
@@ -102,7 +102,7 @@ async function main() {
     const found = await rest(`institutions?select=id&ext_code=eq.${enc(ext)}&limit=1`);
     let instId = found?.[0]?.id;
     if (!instId) {
-      const up = await rest('institutions', { method: 'POST', headers: { ...H, Prefer: 'return=representation' }, body: JSON.stringify({ name, name_norm: name.replace(/\s/g, ''), type: 'elementary', inst_type: '초등학교', sido: SIDO, sigungu, address: s.ORG_RDNMA, ext_code: ext, source: 'neis', status: 'active' }) });
+      const up = await rest('institutions', { method: 'POST', headers: { ...H, Prefer: 'return=representation' }, body: JSON.stringify({ name, name_norm: name.replace(/\s/g, ''), type: 'elementary', inst_type: '초등학교', sido: SIDO || s.LCTN_SC_NM, sigungu, address: s.ORG_RDNMA, ext_code: ext, source: 'neis', status: 'active' }) });
       instId = up?.[0]?.id;
     }
     if (!instId) { skip.push(`${name}: institution upsert 실패`); continue; }
@@ -118,7 +118,7 @@ async function main() {
       await fetch(`${URL_}/rest/v1/institution_menu_items?institution_menu_id=eq.${menuId}`, { method: 'DELETE', headers: H });
       const rr = buildMenuItemRows(items, month, menuId);
       if (rr.length) await fetch(`${URL_}/rest/v1/institution_menu_items`, { method: 'POST', headers: H, body: JSON.stringify(rr) });
-      await fetch(`${URL_}/rest/v1/institution_scores?on_conflict=institution_id,month`, { method: 'POST', headers: { ...H, Prefer: 'resolution=merge-duplicates' }, body: JSON.stringify({ institution_id: instId, month, type: 'elementary', sido: SIDO, sigungu, score: total, day_count: sc.dayCount, item_count: sc.itemCount, axes, standout_dims: dims, computed_at: new Date().toISOString() }) });
+      await fetch(`${URL_}/rest/v1/institution_scores?on_conflict=institution_id,month`, { method: 'POST', headers: { ...H, Prefer: 'resolution=merge-duplicates' }, body: JSON.stringify({ institution_id: instId, month, type: 'elementary', sido: SIDO || s.LCTN_SC_NM, sigungu, score: total, day_count: sc.dayCount, item_count: sc.itemCount, axes, standout_dims: dims, computed_at: new Date().toISOString() }) });
       inserted++; console.log(`  ✓ ${name}(${sigungu}) ${month} → ${total}점 (${sc.dayCount}일)`);
     }
   }
