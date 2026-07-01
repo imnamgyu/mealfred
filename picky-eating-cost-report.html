@@ -69,6 +69,16 @@
   .verdict .vref b{color:var(--orange-deep);font-weight:800}
   .verdict .vsrc{font-size:12px;color:var(--green-deep);font-weight:700;margin-top:9px;line-height:1.5}
   .verdict .vsrc a{color:var(--green-deep)}
+  .risk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:6px 0 4px}
+  .risk{background:white;border:1px solid var(--card-border);border-top:4px solid var(--red-fg);border-radius:var(--r);padding:15px 16px 13px;box-shadow:var(--card-shadow-sm)}
+  .risk .ico{font-size:26px;line-height:1}
+  .risk .rname{font-size:14px;font-weight:800;color:var(--navy);margin-top:6px}
+  .risk .stat{font-size:31px;font-weight:800;color:var(--red-deep);letter-spacing:-0.03em;line-height:1;margin-top:8px}
+  .risk .stat span{font-size:15px;font-weight:800;margin-left:1px}
+  .risk .desc{font-size:12px;color:var(--brown-mid);font-weight:600;margin-top:7px;line-height:1.5}
+  .risk .desc b{color:var(--navy);font-weight:700}
+  .risk .src{font-size:10px;color:var(--brown-soft);font-weight:600;margin-top:8px;padding-top:6px;border-top:1px dashed var(--n200)}
+  .risk .caveat{font-size:9.5px;color:var(--warn-deep);font-weight:700;margin-top:5px;line-height:1.4}
   .govhook{background:linear-gradient(135deg,#E8F5E9,#F4FBF5);border:1px solid var(--green-fg);border-left:5px solid var(--green-fg);border-radius:var(--r);padding:18px 20px;margin:16px 0;box-shadow:var(--card-shadow-sm)}
   .govhook .k{font-size:12.5px;font-weight:800;color:var(--green-deep);margin-bottom:7px;letter-spacing:0.01em}
   .govhook p{font-size:14.5px;color:var(--brown-deep);font-weight:600;line-height:1.68;margin-bottom:7px}
@@ -214,7 +224,39 @@
   <div class="verdict">
     <div class="a">편식은 <em>성장 지연 · 면역력 저하 · 신경과민 · 학습장애</em>로 이어질 수 있다.</div>
     <div class="vsrc">— 식약처 어린이·사회복지급식관리지원센터가 규정한 '편식의 문제' · <a href="https://dietary4u.mfds.go.kr/" target="_blank" rel="noopener">dietary4u.mfds.go.kr</a></div>
-    <div class="vref">그리고 검증 77건이 그 위험을 숫자로 확인 — 편식아 <b>78.6% 철분 미달</b> (Taylor 2016) · 지속 편식아 <b>저체중 2.4배</b> (Dubois 2007) · 중증 편식아 <b>사회불안 7배</b> (Zucker 2015) · 영아 철결핍 <b>19세까지 인지결손</b> (Lozoff·Lukowski)</div>
+  </div>
+
+  <p style="font-size:13.5px;color:var(--brown-mid);font-weight:600;margin:16px 0 6px">그리고 <b style="color:var(--navy)">검증 77건</b>이 그 네 가지 위험을 각각 숫자로 뒷받침합니다:</p>
+  <div class="risk-grid">
+    <div class="risk">
+      <div class="ico">📏</div>
+      <div class="rname">성장 지연</div>
+      <div class="stat">2.4<span>배</span></div>
+      <div class="desc">지속 편식아의 <b>저체중 위험</b>. 15세에 또래보다 체중 −2.3kg.</div>
+      <div class="src">Dubois 2007 · Grulichová 2022 · 종단</div>
+    </div>
+    <div class="risk">
+      <div class="ico">🛡️</div>
+      <div class="rname">면역력 저하</div>
+      <div class="stat">78.6<span>%</span></div>
+      <div class="desc">편식아 중 <b>철분 권장량 미달</b> 비율. 아연 결핍 위험도 2배.</div>
+      <div class="src">Taylor 2016(ALSPAC) · Chao 2021</div>
+    </div>
+    <div class="risk">
+      <div class="ico">💢</div>
+      <div class="rname">신경과민</div>
+      <div class="stat">7<span>배</span></div>
+      <div class="desc">중증 편식아의 <b>사회불안</b> 위험. 식탁 갈등도 5배.</div>
+      <div class="src">Zucker 2015(Pediatrics)</div>
+    </div>
+    <div class="risk">
+      <div class="ico">🧠</div>
+      <div class="rname">학습장애</div>
+      <div class="stat">19<span>년</span></div>
+      <div class="desc">영아기 철결핍은 치료 뒤에도 <b>19세까지 인지·실행기능 격차</b>.</div>
+      <div class="src">Lozoff 2000 · Lukowski 2010</div>
+      <div class="caveat">※ '학습장애'는 식약처 표현 · 근거는 결핍→인지</div>
+    </div>
   </div>
 
   <div class="govhook">
