@@ -62,8 +62,10 @@
   /* 핵심 결론 박스 */
   .verdict{background:linear-gradient(135deg,var(--bg-soft-2),#FFFFFF);border:1px solid var(--card-border);border-left:5px solid var(--orange-main);border-radius:var(--r);padding:22px 24px;margin:16px 0;box-shadow:var(--card-shadow-sm)}
   .verdict .q{font-size:13px;font-weight:800;color:var(--orange-deep);margin-bottom:6px;letter-spacing:0.02em}
-  .verdict .a{font-size:19px;font-weight:800;color:var(--navy);line-height:1.5;letter-spacing:-0.01em}
+  .verdict .a{font-size:clamp(21px,3.4vw,27px);font-weight:800;color:var(--navy);line-height:1.42;letter-spacing:-0.02em}
   .verdict .a em{font-style:normal;color:var(--orange-main)}
+  .verdict .vref{font-size:11px;color:var(--brown-soft);font-weight:600;margin-top:14px;padding-top:11px;border-top:1px dashed var(--n200);line-height:1.55}
+  .verdict .vref i{font-style:italic;color:var(--brown-mid)}
 
   /* 스탯 그리드 (대형 숫자) */
   .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin:16px 0}
@@ -201,8 +203,8 @@
   <span class="stag">━ 결론 ━</span>
   <h2>편식은 "진짜 문제"가 맞다 — 단, 무서운 건 살이 아니라 '속'이다</h2>
   <div class="verdict">
-    <div class="q">Q. 편식이 심한 아이는 무엇을 잃는가?</div>
-    <div class="a">편식 아동은 또래보다 <em>철·아연을 적게 먹고</em>, 그 부족이 하필 <em>되돌리기 어려운 시기</em>에 생긴다. 영아기 철결핍은 <em>치료한 뒤에도 19년 후까지</em> 인지·실행기능 격차로 남았다. 그래서 "편식 골든타임"이다.</div>
+    <div class="a">지금 놓친 이 시기는, 채워줘도 <em>열아홉 살까지</em> 돌아오지 않는다.</div>
+    <div class="vref">편식아 10명 중 8명이 철분 권장량 미달 (Taylor, <i>Am J Clin Nutr</i> 2016) · 영아기 철결핍은 철분 치료 뒤에도 11~14세·19세까지 인지·실행기능 격차로 남음 (Lozoff, <i>Pediatrics</i> 2000 · Lukowski, <i>Nutritional Neuroscience</i> 2010)</div>
   </div>
   <p class="lead">핵심은 <strong>겉으로 안 드러난다</strong>는 점입니다. 한국 편식아 대부분은 굶지 않습니다. 그래서 부모는 "좀 안 먹어도 크겠지" 합니다. 그러나 데이터는 — 편식아의 <strong class="ohl">78.6%가 철분 권장량에 미달</strong>(영국 4천 명 코호트), 지속 편식아의 <strong class="ohl">저체중 위험은 약 2.4배</strong>, 그리고 그 시기의 철 부족은 <strong class="ohl">보충해도 10~19년 뒤까지</strong> 인지에 흔적을 남긴다고 말합니다.</p>
 </section>
