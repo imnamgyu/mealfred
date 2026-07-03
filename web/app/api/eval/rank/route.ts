@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { STANDOUT_META, type StandoutDims } from '@/lib/institutionScore';
+import { fetchAllPages } from '@/lib/fetchAllPages';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +32,7 @@ function cors(req: NextRequest) {
 }
 export async function OPTIONS(req: NextRequest) { return NextResponse.json(null, { headers: cors(req) }); }
 
-const TYPE_LABEL: Record<string, string> = { daycare: '어린이집', kindergarten: '유치원', school: '학교' };
+const TYPE_LABEL: Record<string, string> = { daycare: '어린이집', kindergarten: '유치원', school: '학교', elementary: '초등학교' };
 
 export async function GET(req: NextRequest) {
   const headers = cors(req);
@@ -50,10 +51,10 @@ export async function GET(req: NextRequest) {
 
     // 코호트 = 같은 유형·전체 기간 누적(월 격리 제거·이사님 2026-06-24): 월별 표본이 작아 '상위 X%'가 거의 안 뜨던 문제 해소.
     //   풀 = 같은 유형의 '모든 월' 점수 행(기관-월 단위로 누적). me.score(선택한 달 점수)를 이 누적 분포에 대고 순위 산출.
-    //   limit는 누적 성장에 대비해 넉넉히(PostgREST 기본 1000행 절단 시 백분위가 왜곡되므로 명시).
-    const { data: cohortData } = await supabase.from('institution_scores')
-      .select('score,sigungu').eq('type', me.type).limit(100000);
-    const cohort = (cohortData || []) as { score: number; sigungu: string | null }[];
+    //   ⚠️ .limit(100000)은 무력 — Supabase가 요청당 1000행으로 응답 절단(2026-07-03 실측) → 전량은 fetchAllPages로.
+    const cohort = await fetchAllPages<{ score: number; sigungu: string | null }>((from, to) =>
+      supabase.from('institution_scores').select('score,sigungu', { count: 'exact' })
+        .eq('type', me.type).order('institution_id').order('month').range(from, to));
     const nationalTotal = cohort.length;
     const nationalRank = cohort.filter((c) => c.score > me.score).length + 1;
     const nationalTie = cohort.filter((c) => c.score === me.score).length > 1;
@@ -75,9 +76,15 @@ export async function GET(req: NextRequest) {
         .select('standout_dims').eq('institution_id', institutionId).eq('month', month).maybeSingle();
       const myDims = (meDim.data?.standout_dims || null) as Partial<StandoutDims> | null;
       if (myDims && Object.keys(myDims).length) {
-        let pool = ((await supabase.from('institution_scores').select('standout_dims').eq('type', me.type).eq('month', month)).data || []) as { standout_dims: Partial<StandoutDims> | null }[];
+        // 풀도 1000행 절단 대상(월별 1400+행) → 전량 페이지 순회.
+        type DimRow = { standout_dims: Partial<StandoutDims> | null };
+        let pool = await fetchAllPages<DimRow>((from, to) =>
+          supabase.from('institution_scores').select('standout_dims', { count: 'exact' })
+            .eq('type', me.type).eq('month', month).order('institution_id').range(from, to));
         if (pool.length < 8) {
-          pool = ((await supabase.from('institution_scores').select('standout_dims').eq('type', me.type)).data || pool) as typeof pool;
+          pool = await fetchAllPages<DimRow>((from, to) =>
+            supabase.from('institution_scores').select('standout_dims', { count: 'exact' })
+              .eq('type', me.type).order('institution_id').order('month').range(from, to));
         }
         if (pool.length >= 8) {
           const cand = STANDOUT_META.map((m) => {

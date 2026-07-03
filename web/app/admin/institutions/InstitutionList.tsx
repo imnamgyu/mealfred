@@ -1,5 +1,6 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useTransition, useOptimistic } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 type Row = {
@@ -16,20 +17,28 @@ const td: React.CSSProperties = { padding: '7px 9px', fontSize: 12.5, color: '#3
 const scoreColor = (s: number) => s >= 95 ? '#16A085' : s >= 90 ? '#1a8f6f' : s >= 80 ? '#C45A00' : '#C62828';
 const Ax = ({ v }: { v?: number }) => v == null ? <span style={{ color: '#D1D5DB' }}>—</span> : <span style={{ color: scoreColor(v), fontWeight: 700 }}>{v}</span>;
 
-export default function InstitutionList({ rows, instCount, monthCount }: { rows: Row[]; instCount: number; monthCount: number }) {
-  const months = useMemo(() => [...new Set(rows.map((r) => r.month))].sort().reverse(), [rows]);
+export default function InstitutionList({ rows, months, selected, instCount, rowCount }: {
+  rows: Row[]; months: string[]; selected: string; instCount: number; rowCount: number;
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  // 낙관 미러 — controlled select가 pending 동안 이전 값으로 되돌아가 보이는 것 방지(서버 응답 오면 자동 정합).
+  const [optimisticMonth, setOptimisticMonth] = useOptimistic(selected);
   const [q, setQ] = useState('');
-  const [month, setMonth] = useState(() => {
-    const cur = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 7);   // KST 현재 달 기본(없으면 최신)
-    return months.includes(cur) ? cur : (months[0] || '');
-  });
   const [sort, setSort] = useState<SortKey>('score');
   const [asc, setAsc] = useState(false);
+
+  // 월 선택 = 서버 필터(?month=) — 서버가 선택 월 행만 보내므로 데이터가 커져도 페이로드 일정.
+  function changeMonth(v: string) {
+    startTransition(() => {
+      setOptimisticMonth(v);
+      router.push(`/admin/institutions?month=${v}`);
+    });
+  }
 
   const view = useMemo(() => {
     const t = q.trim();
     let r = rows;
-    if (month) r = r.filter((x) => x.month === month);
     if (t) r = r.filter((x) => x.name.includes(t) || x.sigungu.includes(t));
     r = [...r].sort((a, b) => {
       let d = 0;
@@ -41,7 +50,7 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
       return asc ? d : -d;
     });
     return r;
-  }, [rows, q, sort, asc, month]);
+  }, [rows, q, sort, asc]);
 
   function clickSort(k: SortKey) {
     if (sort === k) setAsc(!asc);
@@ -54,13 +63,13 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
       <Link href="/admin" style={{ fontSize: 13, color: '#FF6B1A', fontWeight: 700, textDecoration: 'none' }}>← 콘솔</Link>
       <h1 style={{ fontSize: 22, fontWeight: 800, color: navy, marginTop: 10 }}>🏫 기관 평가 기록</h1>
       <p style={{ marginTop: 4, color: '#6B7280', fontSize: 13 }}>
-        평가 적재 <b>{instCount.toLocaleString()}개 기관 · {monthCount.toLocaleString()}개월</b> · 등수는 <b>같은 유형·전체 기간 누적</b> 코호트 기준. 헤더 클릭으로 정렬. · <b>점수=7축 가중 평균</b>(다양성24·KDRI22·저가공16·반복14·제철10·조리8·알레르겐6) · 7축은 모두 <b>높을수록 우수</b>(반복적음·저가공도 점수↑=좋음) · 상위%는 낮을수록 상위.
+        평가 적재 <b>{instCount.toLocaleString()}개 기관 · 기관-월 {rowCount.toLocaleString()}건</b> · 등수는 <b>같은 유형·전체 기간 누적</b> 코호트 기준. 헤더 클릭으로 정렬. · <b>점수=7축 가중 평균</b>(다양성24·KDRI22·저가공16·반복14·제철10·조리8·알레르겐6) · 7축은 모두 <b>높을수록 우수</b>(반복적음·저가공도 점수↑=좋음) · 상위%는 낮을수록 상위.
       </p>
 
       <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-        <select value={month} onChange={(e) => setMonth(e.target.value)}
+        <select value={optimisticMonth} onChange={(e) => changeMonth(e.target.value)}
           style={{ border: '1.5px solid #E5E7EB', borderRadius: 10, padding: '11px 10px', fontSize: 14, fontWeight: 700, color: navy, background: '#fff' }}>
-          <option value="">전체 월</option>
+          <option value="all">전체 월</option>
           {months.map((m) => <option key={m} value={m}>{m}</option>)}
         </select>
         <input
@@ -69,9 +78,11 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
           style={{ flex: 1, boxSizing: 'border-box', border: '1.5px solid #E5E7EB', borderRadius: 10, padding: '11px 13px', fontSize: 14 }}
         />
       </div>
-      <div style={{ fontSize: 12, color: '#9CA3AF', margin: '8px 2px' }}>{view.length.toLocaleString()}건 표시{month ? ` · ${month} 등수순` : ''}</div>
+      <div style={{ fontSize: 12, color: '#9CA3AF', margin: '8px 2px' }}>
+        {isPending ? '불러오는 중…' : `${view.length.toLocaleString()}건 표시${selected !== 'all' ? ` · ${selected} 등수순` : ''}`}
+      </div>
 
-      <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: 12 }}>
+      <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: 12, opacity: isPending ? 0.5 : 1, transition: 'opacity .15s' }}>
         <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: 900 }}>
           <thead>
             <tr style={{ background: navy }}>
@@ -115,7 +126,11 @@ export default function InstitutionList({ rows, instCount, monthCount }: { rows:
               </tr>
             ))}
             {!view.length && (
-              <tr><td colSpan={16} style={{ ...td, textAlign: 'center', color: '#9CA3AF', padding: 24 }}>검색 결과가 없어요.</td></tr>
+              <tr><td colSpan={16} style={{ ...td, textAlign: 'center', color: '#9CA3AF', padding: 24 }}>
+                {rows.length === 0 && selected !== 'all'
+                  ? `${selected}에 적재된 평가가 아직 없어요 — 식단표를 적재하면 여기에 떠요.`
+                  : '검색 결과가 없어요.'}
+              </td></tr>
             )}
           </tbody>
         </table>

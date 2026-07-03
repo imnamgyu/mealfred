@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { fetchAllPages } from '@/lib/fetchAllPages';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,8 +25,10 @@ async function headCount(table: string): Promise<number> {
 export async function GET(req: NextRequest) {
   const headers = { ...cors(req), 'Cache-Control': 'public, max-age=120, s-maxage=120', Vary: 'Origin' };
   try {
-    const { data } = await supabase.from('institution_scores').select('institution_id,sigungu,sido,type,month,score');
-    const rows = (data || []) as { institution_id: string; sigungu: string | null; sido: string | null; type: string; month: string; score: number }[];
+    // 전량 페이지 순회 — 무제한 select도 Supabase가 1000행으로 절단(2026-07-03 실측), 통계가 상위 1000행만 집계되던 버그 수정.
+    const rows = await fetchAllPages<{ institution_id: string; sigungu: string | null; sido: string | null; type: string; month: string; score: number }>((from, to) =>
+      supabase.from('institution_scores').select('institution_id,sigungu,sido,type,month,score', { count: 'exact' })
+        .order('institution_id').order('month').range(from, to));
     const insts = new Set(rows.map((r) => r.institution_id));
     const sigungu = new Set(rows.map((r) => r.sigungu).filter(Boolean));
     const sido = new Set(rows.map((r) => r.sido).filter(Boolean));
@@ -57,6 +60,8 @@ export async function GET(req: NextRequest) {
       updatedAt: new Date().toISOString(),
     }, { headers });
   } catch (e: unknown) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : 'unknown' }, { status: 500, headers });
+    // 오류는 캐시 금지 — 성공용 max-age=120을 그대로 쓰면 일시 장애가 2분간 캐시돼 복구 후에도 오류가 보임.
+    return NextResponse.json({ error: e instanceof Error ? e.message : 'unknown' },
+      { status: 500, headers: { ...headers, 'Cache-Control': 'no-store' } });
   }
 }
