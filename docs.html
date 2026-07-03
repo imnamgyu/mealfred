@@ -424,10 +424,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 38</span>
+    <span class="cnt">세션 39</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-07-03.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-07-03 — 편식 50편 「상냥한 권유의 역설」: CSV 원안 오류 검증 정정 후 157 대 30 발행</h4>
+      <p class="desc"><b>블로그 50편 세션.</b> <code>/mealfred-blog</code> 자동 슬롯 → 50편(스낵·Galloway 2006). ① 9번(보류초안) 보호하고 50편 선택·앱 기능 회전(식단 기록) ② ⭐<b>CSV 원안 "칭찬·보상도 압박 정의" = 원문에 없음 적발</b>(가드 E) → 검증된 진짜 반전으로 교체: <b>"Finish your soup, please" 공손한 권유 4번</b>에 아이들은 덜 먹고 반찬 투정 <b>157 대 30</b> ③ 400자·위원회 6/6·5어절 중복 0 ④ 이사님 수정본('반찬 투정') 반영, <b>후킹제목→title/h1 매핑 발견</b>해 슬롯 라벨 노출 차단 → INFOGRAPHICS 050(157:30 비교막대)·빌드·앱 팁·메인 카드 50/49/47(<code>e435d5d</code>). <span style="color:#1B5E20">라이브 mealfred.com/blog/050.html · 앱 팁.</span></p>
+      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-07-02.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -547,13 +554,6 @@
       <p class="desc"><b>식단 데이터 정리 세션(병행 b).</b> ① 어드민 "06-30 (화) 이상하게?" → 요일은 정상, 진짜는 식단표 하단 범례블록(알레르기19·제철·푸드브릿지 특집)이 마지막 날짜열로 흡수된 <b>42토큰 가짜 진수성찬</b> ② ⭐ 파서 <b>하단범례 컷</b>(알레르기 단독토큰≥4·사이드바 마커→break)+회귀테스트(<code>a10d4d3</code>·tsc0·586통과) ③ 재OCR 불가라 후처리 <code>clean-menu-legend.mjs</code> 2단계 — 전수검증(진짜음식 오탐0) 후 <b>전 기관 10일 삭제·250행 strip</b>(1자 음식 귤·배 보존 버그도 수정) ④ 312개월 재채점 + <code>/mealfred-menu-import</code> 스킬 5-B 정리패스 영구화. <span style="color:#1B5E20">전부 라이브.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-25.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-25 — 반복도 축 화이트리스트 누락 버그 → isStapleMenu 식품군 분류로 종결</h4>
-      <p class="desc"><b>코칭 점수엔진 디버그 세션.</b> ① 어드민 "이 어린이집 반복도 왜 최악?" → 실은 <b>산양유(음료) 8회</b>가 무시목록(우유만 등록·산양유 누락)에 안 잡혀 멀쩡한 식단을 반복도 40으로 깎던 버그(차조밥·흑미밥도 누락) ② ⭐ 근본수정 — 식품군에 '음료'가 없어(두유=콩류·보리차=곡물) 음료는 형태소·밥은 식품군으로 분류하는 정본 <code>isStapleMenu</code> 1개로 화이트리스트 3곳 통합(<code>5169ff9</code>) ③ 250개월 검증 — 73개월 억울한 패널티 해소·회귀 0·마스킹 0(밥-스킵 전부 진짜 맨밥류) ④ prod 298개월 재채점 + 푸시 → 타깃 40→95·총점 88→95. <span style="color:#1B5E20">전부 라이브.</span></p>
-      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
@@ -590,6 +590,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-07-03.html':{c:'2026-07-03',m:'2026-07-03'},
     '/worklog-2026-07-02.html':{c:'2026-07-02',m:'2026-07-02'},
     '/worklog-2026-07-02-b.html':{c:'2026-07-02',m:'2026-07-02'},
     '/worklog-2026-07-01-c.html':{c:'2026-07-01',m:'2026-07-01'},
