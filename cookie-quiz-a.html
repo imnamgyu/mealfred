@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밥상 빌런 테스트 — 나의 편식 유발력은 몇%? | 밀프레드</title>
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="밥상 빌런 테스트 — 나의 편식 유발력은 몇%?">
+<meta property="og:description" content="사랑해서 하는 그 행동이 편식 유발력을 올리는 중? 그렇다/아니다 10개 · 1분 · 결과는 유발력 %로.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script src="/docs-gate.js?v=4"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--g700:#1B5E20;--r700:#C62828;--y700:#B45309}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#FFFDFB;color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased}
+.priv{position:fixed;top:8px;right:8px;background:#1F2D3D;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;opacity:.55;z-index:9}
+.back{display:inline-block;margin:12px 0 0 14px;color:#b39a82;text-decoration:none;font-size:12px;font-weight:700}
+.hero{background:linear-gradient(160deg,#FFF5EB,#FFE8D0 45%,#FFD9B5);padding:38px 20px 26px;text-align:center}
+.hero .tag{display:inline-block;background:rgba(255,107,26,.1);color:var(--org2);padding:6px 15px;border-radius:100px;font-size:11.5px;font-weight:800;border:1px solid rgba(255,107,26,.25);margin-bottom:13px}
+.hero h1{font-size:clamp(21px,5.6vw,27px);font-weight:800;letter-spacing:-0.02em;line-height:1.3;color:var(--navy)}
+.hero h1 .ac{color:#FF8A47}
+.hero p{font-size:14px;color:#5a4a3a;font-weight:500;margin-top:10px;max-width:430px;margin-left:auto;margin-right:auto}
+.hero .meta{margin-top:12px;font-size:11.5px;color:#9a8468;font-weight:700}
+main{max-width:480px;margin:0 auto;padding:24px 18px 30px}
+.prog{height:8px;background:var(--n100);border-radius:6px;overflow:hidden;margin-bottom:18px}
+.prog .pf{height:100%;background:linear-gradient(90deg,#FFC58A,#E89244);width:0;transition:width .3s}
+.qnum{font-size:12px;font-weight:800;color:var(--org2);margin-bottom:7px}
+.qtext{font-size:17px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:18px}
+.opt{display:block;width:100%;text-align:center;padding:15px 16px;border:1.5px solid var(--n200);border-radius:12px;background:#fff;font-size:15px;font-weight:800;color:var(--n700);cursor:pointer;margin-bottom:10px;font-family:inherit;transition:.12s}
+.opt:hover{border-color:var(--p500);background:#FFF8F2}
+.card{border:1.5px solid var(--n200);border-radius:16px;padding:22px 18px;background:#fff}
+.card.bg-g{background:#F1F8F0;border-color:#CDE8CC}.card.bg-y{background:#FFF9E8;border-color:#FFE6A8}.card.bg-r{background:#FFF1F0;border-color:#FFD2CC}
+.score{text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.06);margin-bottom:16px}
+.score .pct{font-size:52px;font-weight:800;line-height:1;letter-spacing:-0.03em}
+.score .pct.lg{color:var(--g700)}.score .pct.ly{color:var(--y700)}.score .pct.lr{color:var(--r700)}
+.score .pctlabel{font-size:12px;color:var(--n500);font-weight:800;margin-top:4px;letter-spacing:.08em}
+.score .em{font-size:44px;margin-top:10px;line-height:1.1}
+.score .nick{font-size:19px;font-weight:800;margin-top:6px;letter-spacing:-0.02em}
+.score .mod{font-size:12.5px;color:var(--n600);font-weight:700;margin-top:2px}
+.gauge{height:14px;background:rgba(0,0,0,.06);border-radius:100px;overflow:hidden;margin:14px 6px 4px}
+.gauge i{display:block;height:100%;width:0;border-radius:100px;background:linear-gradient(90deg,#7BC67E,#FFD666,#FF8A80);transition:width 1s ease}
+.feat{margin-top:12px;text-align:left}
+.feat li{list-style:none;font-size:13px;font-weight:700;color:var(--s800);background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.05);border-radius:10px;padding:9px 12px;margin-bottom:7px;line-height:1.5}
+.noblame{font-size:12px;color:var(--n500);font-weight:600;margin-top:8px;background:rgba(255,255,255,.7);border:1px solid rgba(0,0,0,.05);border-radius:10px;padding:9px 12px;line-height:1.6;text-align:left}
+.rev{border:1.5px solid var(--n200);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.rev .rq{font-size:13px;font-weight:800;color:var(--s800);margin-bottom:6px;line-height:1.4}
+.rev .ra{font-size:12.5px;font-weight:800}
+.rev .ra.ok{color:var(--g700)}.rev .ra.no{color:var(--r700)}.rev .ra.tip{color:var(--y700)}
+.rev .ex{font-size:12px;color:var(--n600);font-weight:600;margin-top:6px;line-height:1.55;background:#FAFAFA;border-radius:8px;padding:8px 10px}
+.btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:inherit}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:#fff;color:var(--org2);border:1.5px solid var(--p300);box-shadow:none;margin-top:9px}
+.appin{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px solid var(--p300);border-radius:16px;padding:20px;text-align:center;margin-top:14px}
+.appin .em{font-size:30px}.appin h3{font-size:15.5px;font-weight:800;color:var(--s800);margin:4px 0 6px}
+.appin p{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:14px;line-height:1.55}
+footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px;font-weight:600;line-height:1.6}
+.hidden{display:none}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body data-cookie="quiz">
+<span class="priv">🔒 비공개 테스트</span>
+<a href="/cookie-services.html" class="back">← 쿠키 허브</a>
+<header class="hero">
+  <span class="tag">🍚 밥상 빌런 테스트 · A안</span>
+  <h1>사랑해서 하는 그 행동이<br><span class="ac">편식 유발력을 올리는 중?</span></h1>
+  <p>그렇다/아니다 10개면 나의 <b>편식 유발력 %</b>가 나와요.<br>미리 말해두는데 — 빌런일수록 아이 끼니에 진심인 사람입니다.</p>
+  <div class="meta">⏱ 약 1분 · 10문항 · 결과는 %로</div>
+</header>
+<main>
+  <div id="play">
+    <div class="prog"><div id="pf" class="pf"></div></div>
+    <div class="qnum" id="qnum"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+  </div>
+
+  <div id="out" class="hidden">
+    <div class="card" id="rescard">
+      <div class="score">
+        <div class="pct" id="pct"></div>
+        <div class="pctlabel">나의 편식 유발력</div>
+        <div class="gauge"><i id="gfill"></i></div>
+        <div class="em" id="em"></div>
+        <div class="nick" id="nick"></div>
+        <div class="mod" id="mod"></div>
+        <ul class="feat" id="feat"></ul>
+        <div class="noblame" id="noblame"></div>
+      </div>
+      <div id="review"></div>
+    </div>
+    <div class="appin" id="coach"></div>
+    <div class="appin" style="background:linear-gradient(135deg,#FFEFE0,#FFE2C4)">
+      <div class="em">📣</div>
+      <h3>남편/아내의 유발력은 몇%일까?</h3>
+      <p>내 유발력 %를 카톡·맘카페에 — "너는 몇 %야?"</p>
+      <button class="btn" onclick="mfShare()">카톡·맘카페에 공유하기 📣</button>
+    </div>
+    <button class="btn sec" onclick="location.reload()">↺ 다시 하기</button>
+  </div>
+</main>
+<footer>밀프레드 편식도감 · SOS·Satter·식약처 등 35개 국제 가이드라인 근거 · 참고용 놀이 테스트</footer>
+
+<script>
+// A안(테토남 문법): 행동 진술 그렇다/아니다 → 유발력 % 게이지 + 6밴드 별명 그라데이션.
+// 별명 법칙: 나쁠수록 더 웃기고 귀엽게(자학 공유 유발) — 빌런=애정의 다른 이름 프레임.
+const QUIZ=[
+ {q:"\"딱 한 입만 먹어보자\"를 한 끼에 세 번 이상 말한 적 있다.",trap:true,
+  ex:"'한 입만' 압박은 그 음식 거부를 오히려 강화해요(Galloway 2006). 먹이려는 정성이 클수록 식탁이 전쟁이 되는 이유예요."},
+ {q:"\"이거 다 먹으면 아이스크림(유튜브) 줄게\" 거래를 해봤다.",trap:true,
+  ex:"거래는 '채소=참아야 하는 벌, 디저트=진짜 좋은 것'을 각인해요. 보상 걸고 먹인 음식은 나중에 선호가 오히려 떨어졌어요."},
+ {q:"싫어하는 채소는 다지고 갈아서 볶음밥·전·카레에 숨긴다.",trap:true,
+  ex:"그날 영양은 채워져요. 하지만 아이는 먹은 줄 모르니 '보이는 채소'는 여전히 거부 — 숨기기만으로는 편식이 안 바뀌어요."},
+ {q:"\"남기지 말고 싹 비우자~\" 그릇 검사를 한다.",trap:true,
+  ex:"기준은 '그릇'이 아니라 '아이 배'여야 해요. 그릇 기준 식사는 배부름 신호를 무시하는 습관을 만들어요."},
+ {q:"두세 번 뱉어낸 반찬은 식단에서 조용히 은퇴시켰다.",trap:true,
+  ex:"새 음식은 많게는 8~15번 이상 노출돼야 받아들여지는 경우가 많아요. 서너 번에서 포기하는 게 제일 아까운 지점이에요."},
+ {q:"저녁 전인데 \"배고파\" 소리에 우유·치즈·과일을 내준 적 있다.",trap:true,
+  ex:"밥 1~2시간 전 간식·우유면 아이 위는 이미 차요. '안 먹는 아이'가 아니라 '배고플 틈이 없던 아이'인 경우가 정말 많아요."},
+ {q:"\"이거 먹으면 키 쑥쑥 커!\" 영양 프레젠테이션을 한다.",trap:true,
+  ex:"아이에게 '몸에 좋다'는 말은 '맛없다'로 번역돼요. 연구에서 건강 설득은 섭취를 오히려 줄였어요. 설명 대신 맛있게 먹는 모습을."},
+ {q:"먹는 양은 아이가 정하게 두고, 남겨도 잔소리하지 않는다.",trap:false,
+  ex:"사터의 책임 분담(DOR) 정석이에요 — 부모는 '무엇을·언제', 아이는 '먹을지·얼마나'.",
+  miss:"부모가 양까지 정하면 식탁이 힘겨루기가 돼요. '얼마나'는 아이 몫으로 돌려주는 게 정석(사터 DOR)이에요."},
+ {q:"아이가 안 먹는 반찬도 부모가 먼저 맛있게 먹는 모습을 보여준다.",trap:false,
+  ex:"아이는 말보다 눈으로 배워요. 부모의 '맛있게 먹는 모습'은 가장 검증된 방법 중 하나예요.",
+  miss:"백 마디 설명보다 부모가 같은 음식을 맛있게 먹는 모습이 강해요 — '먹이는 사람'이 아니라 '같이 먹는 사람'."},
+ {q:"새 반찬은 좋아하는 음식과 안 닿게 따로 두고, 먹으라는 말은 안 한다.",trap:false,
+  ex:"정석 노출법! 음식이 닿는 것조차 싫어하는 아이가 많고, '식판에 있기만' 해도 노출은 시작돼요.",
+  miss:"음식이 서로 닿는 것도 싫어하는 아이가 많아요. 새 음식은 분리해서, 노코멘트로 놓아두는 것부터가 노출의 시작이에요."}
+];
+const OPTS=["네, 그렇다","아니요, 안 그런다"];
+// 6밴드: 낮을수록 성인군자, 높을수록 레전드 빌런(더 웃기게)
+const BANDS=[
+ {max:9, cls:'lg',bg:'bg-g',em:'🕊️',nick:'식탁 위 스위스',mod:'중립국을 선포한 밥상 외교관',
+  feat:['압박도 거래도 없는 영세중립 식탁','아이 접시에 평화만 놓는 타입','전국 부모 중 극소수만 도달하는 경지'],
+  blame:'이 경지에서 남은 건 하나 — 우리 아이에게 맞는 <b>다음 메뉴 한 수</b>뿐이에요.'},
+ {max:29,cls:'lg',bg:'bg-g',em:'🫖',nick:'이성적인 밥상 집사',mod:'감정보다 시스템으로 차리는',
+  feat:['웬만한 함정은 이미 피하는 중','가끔 나오는 "한 입만"은 인간적인 애교','정석 루틴이 몸에 반쯤 배어 있음'],
+  blame:'거의 다 왔어요. 남은 한두 개 습관만 갈아끼우면 스위스 승격입니다.'},
+ {max:49,cls:'ly',bg:'bg-y',em:'🥄',nick:'한입만 협상가',mod:'오늘도 협상 테이블을 여는',
+  feat:['"한 입만"이 사실상 인사말','협상 결렬 시 플랜B(거래) 가동','그만큼 아이 끼니에 진심이라는 뜻'],
+  blame:'부모 잘못이 아니에요 — 다들 "좋은 부모라서" 하게 되는 행동이에요. 그런데 그 협상이 <b>편식을 유지시키는 원인</b>일 수 있어요.'},
+ {max:69,cls:'ly',bg:'bg-y',em:'🏃',nick:'숟가락 든 추격자',mod:'거실 세 바퀴는 기본',
+  feat:['식탁을 벗어난 배식 경험 보유','당근을 숨기고 거래하고 쫓아감','체력과 애정 만렙, 방향만 반대'],
+  blame:'노력이 부족한 게 아니라 <b>방향이 반대</b>였을 뿐. 그 체력이면 방향만 돌려도 금방입니다.'},
+ {max:89,cls:'lr',bg:'bg-r',em:'🍚',nick:'풀옵션 밥상 빌런',mod:'갈고 · 숨기고 · 걸고 · 쫓는',
+  feat:['압박·거래·은닉·추격 4대 스킬 만렙','아이 끼니 앞에서 수단과 방법을 안 가림','이 정성이면 방향 바꾸는 순간 최강 부모'],
+  blame:'빌런의 정체는 사실 <b>애정 과다</b>예요. 다들 그렇게 배웠으니까요. 아는 순간부터 바뀝니다.'},
+ {max:100,cls:'lr',bg:'bg-r',em:'👑',nick:'레전드 밥상 빌런',mod:'사랑이 죄라면 무기징역',
+  feat:['교과서에 나오는 함정을 전부 밟는 중','그 누구보다 아이 밥에 진심인 사람','연구와 반대로만 가는 것도 재능(?)'],
+  blame:'축하(?)드립니다 — 이 점수는 <b>애정 점수</b>이기도 해요. 방향만 돌리면 그 사랑이 그대로 성과가 됩니다.'}
+];
+let i=0;const picked=[];
+const play=document.getElementById('play');
+function render(){
+ const q=QUIZ[i];
+ document.getElementById('pf').style.width=((i)/QUIZ.length*100)+'%';
+ document.getElementById('qnum').textContent='장면 '+(i+1)+' / '+QUIZ.length;
+ document.getElementById('qtext').textContent=q.q;
+ const ol=document.getElementById('opts');ol.innerHTML='';
+ OPTS.forEach((opt,idx)=>{const b=document.createElement('button');b.className='opt';b.textContent=opt;b.onclick=()=>choose(idx);ol.appendChild(b);});
+}
+function choose(idx){picked[i]=idx;i++;if(i<QUIZ.length){render();window.scrollTo({top:0,behavior:'smooth'});}else show();}
+function show(){
+ const bad=QUIZ.map((q,n)=>q.trap ? picked[n]===0 : picked[n]===1);
+ const wrong=bad.filter(Boolean).length;
+ const pct=wrong*10;
+ const B=BANDS.find(b=>pct<=b.max);
+ const pe=document.getElementById('pct');pe.textContent=pct+'%';pe.className='pct '+B.cls;
+ document.getElementById('em').textContent=B.em;
+ document.getElementById('nick').textContent='「'+B.nick+'」';
+ document.getElementById('mod').textContent=B.mod;
+ document.getElementById('feat').innerHTML=B.feat.map(f=>'<li>'+f+'</li>').join('');
+ document.getElementById('noblame').innerHTML=B.blame;
+ document.getElementById('rescard').className='card '+B.bg;
+ setTimeout(()=>{document.getElementById('gfill').style.width=Math.max(pct,4)+'%';},80);
+ document.getElementById('coach').innerHTML='<div class="em">💌</div><h3>'+(pct<=29?'이제 "우리 아이 맞춤" 단계':'유발력, 앱이 같이 내려드려요')+'</h3><p>'+(pct<=29
+   ?'좋은 습관 위에, 앱이 우리 아이 식사 기록을 보고 <b>오늘 뭘 내놓을지</b>까지 매일 코칭해요.'
+   :'어떤 행동부터 바꿀지, 앱이 우리 아이 식사 기록 기준으로 <b>매일 한 줄 코칭</b>을 보내드려요.')+'</p>'+
+  '<a class="btn" href="https://app.mealfred.com/?utm_source=cookie&utm_medium=quiz&utm_campaign=cookie_series" target="_blank" rel="noopener">앱에서 편식 코칭 받기 →</a>';
+ window.mfShareText='내 편식 유발력 '+pct+'% 「'+B.nick+'」 '+B.em+' ㅋㅋ 너는 몇 %야? 🍚';
+ document.getElementById('review').innerHTML=QUIZ.map((q,n)=>{
+   const yes=picked[n]===0;
+   let cls,head,body;
+   if(q.trap&&yes){cls='no';head='❌ 유발력 +10% — 연구는 반대예요';body=q.ex;}
+   else if(q.trap&&!yes){cls='ok';head='✅ 이 함정은 피하는 중';body=q.ex;}
+   else if(!q.trap&&yes){cls='ok';head='✅ 정석 실천 중';body=q.ex;}
+   else{cls='tip';head='💡 유발력 +10% — 놓치고 있던 정석';body=q.miss;}
+   return '<div class="rev"><div class="rq">'+(n+1)+'. '+q.q+'</div>'+
+     '<div class="ra '+cls+'">'+head+'</div>'+
+     '<div class="ex">'+body+'</div></div>';
+ }).join('');
+ play.classList.add('hidden');document.getElementById('out').classList.remove('hidden');
+ window.scrollTo({top:0,behavior:'smooth'});
+ gtag('event','cookie_result',{tool:'quiz_a',score:100-pct,light:B.cls});
+}
+render();
+</script>
+<script src="/cookie-common.js?v=2"></script>
+</body>
+</html>

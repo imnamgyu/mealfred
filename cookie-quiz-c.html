@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>제1회 전국 밥상머리 모의평가 — 학부모 탐구영역 | 밀프레드</title>
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="제1회 전국 밥상머리 모의평가 — 학부모 탐구영역(편식 대응)">
+<meta property="og:description" content="총 10문항 · 제한시간 2분 · 감독관: 아이. 당신의 밥상머리 등급은 몇 등급? 오답노트까지 발급됩니다.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script src="/docs-gate.js?v=4"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--g700:#1B5E20;--r700:#C62828;--y700:#B45309;--paper:#FDFDF9;--ink:#1c1c1c}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#F3F1EA;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.priv{position:fixed;top:8px;right:8px;background:#1F2D3D;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;opacity:.55;z-index:9}
+.back{display:inline-block;margin:12px 0 0 14px;color:#8a8578;text-decoration:none;font-size:12px;font-weight:700}
+.sheet{max-width:520px;margin:14px auto 30px;background:var(--paper);border:1px solid #D8D4C6;box-shadow:0 2px 14px rgba(0,0,0,.07);padding:0 0 26px}
+.exam-head{border-bottom:3px double var(--ink);padding:20px 20px 14px;text-align:center;font-family:'Noto Serif KR',serif}
+.exam-head .yr{font-size:12px;font-weight:600;letter-spacing:.35em;color:#555}
+.exam-head h1{font-size:clamp(19px,5vw,23px);font-weight:700;letter-spacing:.02em;margin-top:6px;color:var(--ink)}
+.exam-head .sub{font-size:13.5px;font-weight:700;margin-top:6px;color:var(--org2)}
+.exam-head .box{display:flex;border:1.5px solid var(--ink);margin-top:14px;font-size:11px;font-weight:700}
+.exam-head .box>div{flex:1;padding:7px 4px;border-right:1px solid var(--ink)}
+.exam-head .box>div:last-child{border-right:none}
+.exam-head .box b{display:block;font-size:12.5px;margin-top:1px}
+.notice{font-size:11px;color:#666;padding:10px 22px 0;font-weight:600;line-height:1.7;font-family:'Noto Serif KR',serif}
+main{padding:8px 20px 0}
+.prog{height:6px;background:#E8E5D9;border-radius:6px;overflow:hidden;margin:14px 0 16px}
+.prog .pf{height:100%;background:var(--org2);width:0;transition:width .3s}
+.qnum{font-family:'Noto Serif KR',serif;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.qtext{font-family:'Noto Serif KR',serif;font-size:16.5px;font-weight:700;color:var(--ink);line-height:1.55;margin-bottom:8px}
+.qbox{font-family:'Noto Serif KR',serif;font-size:13.5px;border:1.5px solid var(--ink);padding:11px 13px;margin:4px 0 12px;line-height:1.7;background:#fff}
+.opt{display:block;width:100%;text-align:left;padding:12px 14px;border:1.5px solid #D9D5C7;border-radius:8px;background:#fff;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;margin-bottom:8px;font-family:'Noto Serif KR',serif;line-height:1.5;transition:.12s}
+.opt:hover{border-color:var(--org2);background:#FFF9F2}
+.opt .no{font-weight:700;color:var(--org2);margin-right:7px}
+.card{border:1.5px solid var(--ink);padding:20px 18px;background:#fff;margin-top:6px}
+.rp-head{font-family:'Noto Serif KR',serif;text-align:center;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:14px}
+.rp-head .t{font-size:12px;letter-spacing:.3em;font-weight:600;color:#555}
+.rp-head .g{font-size:56px;font-weight:700;line-height:1.15;margin-top:6px}
+.rp-head .g.lg{color:var(--g700)}.rp-head .g.ly{color:var(--y700)}.rp-head .g.lr{color:var(--r700)}
+.rp-head .nick{font-size:18px;font-weight:700;margin-top:2px}
+.rp-head .mod{font-size:12.5px;color:#555;font-weight:600;margin-top:3px}
+.rp-row{display:flex;border:1.5px solid var(--ink);margin-bottom:12px;font-family:'Noto Serif KR',serif;text-align:center}
+.rp-row>div{flex:1;padding:8px 4px;border-right:1px solid var(--ink);font-size:11px;font-weight:600;color:#444}
+.rp-row>div:last-child{border-right:none}
+.rp-row b{display:block;font-size:16px;color:var(--ink);margin-top:2px}
+.comment{font-size:12.5px;color:#333;font-weight:600;background:#FBFAF4;border:1px dashed #B9B29A;padding:11px 13px;line-height:1.7;font-family:'Noto Serif KR',serif}
+.wrongtitle{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:700;margin:18px 0 9px;padding-left:9px;border-left:4px solid var(--org2)}
+.rev{border:1px solid #D9D5C7;padding:11px 13px;margin-bottom:9px;background:#fff}
+.rev .rq{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:5px;line-height:1.45;font-family:'Noto Serif KR',serif}
+.rev .ra{font-size:12px;font-weight:800}
+.rev .ra.ok{color:var(--g700)}.rev .ra.no{color:var(--r700)}
+.rev .ex{font-size:12px;color:#444;font-weight:500;margin-top:5px;line-height:1.6;background:#FBFAF4;padding:8px 10px}
+.btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:'Pretendard Variable',Pretendard,sans-serif}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:#fff;color:var(--org2);border:1.5px solid var(--p300);box-shadow:none;margin-top:9px}
+.appin{background:#FFF6EC;border:1.5px solid var(--p300);border-radius:14px;padding:20px;text-align:center;margin-top:14px}
+.appin .em{font-size:30px}.appin h3{font-size:15.5px;font-weight:800;color:var(--s800);margin:4px 0 6px;font-family:'Pretendard Variable',Pretendard,sans-serif}
+.appin p{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:14px;line-height:1.55}
+footer{text-align:center;font-size:11px;color:#8a8578;padding:20px 20px 70px;font-weight:600;line-height:1.6}
+.hidden{display:none}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body data-cookie="quiz">
+<span class="priv">🔒 비공개 테스트</span>
+<a href="/cookie-services.html" class="back">← 쿠키 허브</a>
+<div class="sheet">
+  <header class="exam-head">
+    <div class="yr">2026학년도 전국연합</div>
+    <h1>밥상머리 모의평가 문제지</h1>
+    <div class="sub">학부모 탐구 영역 (편식 대응) · C안</div>
+    <div class="box">
+      <div>제한시간<b>2분</b></div>
+      <div>문항 수<b>10문항</b></div>
+      <div>배점<b>100점</b></div>
+      <div>감독관<b>아이</b></div>
+    </div>
+  </header>
+  <div class="notice">◦ 답안 수정은 불가하며, 결과지에 오답노트가 발급됩니다.<br>◦ 본 평가는 참고용 놀이 시험으로, 등급이 낮을수록 애정 과다로 판정됩니다.</div>
+  <main>
+    <div id="play">
+      <div class="prog"><div id="pf" class="pf"></div></div>
+      <div class="qnum" id="qnum"></div>
+      <div class="qtext" id="qtext"></div>
+      <div id="qbox"></div>
+      <div id="opts"></div>
+    </div>
+
+    <div id="out" class="hidden">
+      <div class="card">
+        <div class="rp-head">
+          <div class="t">성 적 통 지 표</div>
+          <div class="g" id="grade"></div>
+          <div class="nick" id="nick"></div>
+          <div class="mod" id="mod"></div>
+        </div>
+        <div class="rp-row">
+          <div>원점수<b id="raw"></b></div>
+          <div>정답<b id="crt"></b></div>
+          <div>영역<b>편식 대응</b></div>
+          <div>판정<b id="verdict"></b></div>
+        </div>
+        <div class="comment" id="comment"></div>
+        <div class="wrongtitle" id="wrongtitle"></div>
+        <div id="review"></div>
+      </div>
+      <div class="appin" id="coach"></div>
+      <div class="appin" style="background:#FFF1E2">
+        <div class="em">📣</div>
+        <h3>같이 응시할 사람?</h3>
+        <p>내 등급을 카톡·맘카페에 — "너 몇 등급 나오나 보자"</p>
+        <button class="btn" onclick="mfShare()">성적표 공유하기 📣</button>
+      </div>
+      <button class="btn sec" onclick="location.reload()">↺ 재응시하기</button>
+    </div>
+  </main>
+</div>
+<footer>밀프레드 편식도감 · SOS·Satter·식약처 등 35개 국제 가이드라인 근거 · 참고용 놀이 시험</footer>
+
+<script>
+// C안(치믈리에·수능 패러디 문법): 지식형 부활 — '시험' 프레임에선 정답 맞히기가 자연스럽고,
+// 보기 유머(존버는 승리한다·증거인멸)가 단조로움을 깬다. 결과=등급 성적표+오답노트. 근거=기검증 10건.
+const QUIZ=[
+ {q:"1. 아이가 새 음식을 받아들이기까지 필요한 평균 노출 횟수로 가장 적절한 것은? [10점]",
+  o:["1~2번 — 첫인상이 전부다","3~5번 — 삼세판이면 충분하다","8~15번 이상 — 존버는 승리한다","횟수 무관 — 입맛은 유전이다"],a:2,
+  ex:"많게는 8~15번 이상 노출돼야 받아들여지는 경우가 많아요. 대부분의 부모가 서너 번에서 포기하는데, 거기가 제일 아까운 지점이에요."},
+ {box:"5세 김밀프 어린이가 브로콜리를 30분째 노려보고만 있다.",
+  q:"2. 위 상황에서 연구가 권장하는 보호자의 대응은? [10점]",
+  o:["\"한 입만 먹어보자\"를 무한 반복한다","아이스크림 협상 카드를 개시한다","옆에서 브로콜리를 맛있게 먹는 모습을 보여준다","갈아서 증거인멸 후 볶음밥에 은닉한다"],a:2,
+  ex:"아이는 말보다 눈으로 배워요. 부모의 '맛있게 먹는 모습'(모델링)이 설득·압박·은닉보다 검증된 방법이에요."},
+ {q:"3. \"이거 다 먹으면 아이스크림 줄게\" 거래의 장기 효과로 연구가 확인한 것은? [10점]",
+  o:["채소 호감도가 점점 오른다","'채소=참는 벌, 디저트=진짜 상'이 각인된다","채소와 아이스크림 둘 다 좋아하게 된다","효과는 모르겠고 일단 조용해진다"],a:1,
+  ex:"보상을 걸고 먹인 음식은 나중에 선호가 오히려 떨어졌어요. 거래는 채소를 '참아야 하는 것'으로 만들어요."},
+ {q:"4. '그릇 싹 비우기' 교육이 실제로 기르는 것은? [10점]",
+  o:["바른 식습관의 기초","배부름 신호를 무시하는 습관","절약 정신과 경제 관념","식기 반납 매너"],a:1,
+  ex:"기준은 그릇이 아니라 아이 배여야 해요. 그릇 기준 식사는 포만 신호 무시 습관을 만들고 식탁을 숙제로 만들어요."},
+ {q:"5. 싫어하는 채소를 몰래 갈아넣는 전략의 효과 범위는? [10점]",
+  o:["편식 완치까지 가능하다","그날의 영양 보충까지다","'보이는 채소'도 점차 좋아하게 된다","나의 요리 실력 상승이 주효과다"],a:1,
+  ex:"아이는 먹은 줄 모르니 보이는 채소는 여전히 거부해요. 숨기기는 응급처치 — 보이는 노출이 함께 가야 편식이 바뀌어요."},
+ {q:"6. \"편식은 크면 다 나아진다\"에 대한 연구의 판정은? [10점]",
+  o:["참 — 기다리면 전부 해결된다","절반만 참 — 수년씩 지속되는 경우도 상당수다","거짓 — 절대 저절로 안 나아진다","판정 불가 — 아이 마음이다"],a:1,
+  ex:"가벼운 편식은 대개 나아지지만, 추적 연구에선 학령기까지 수년씩 이어진 아이들도 상당수였어요. 심하면 부드러운 개입이 빨라요."},
+ {q:"7. '저녁 식사 거부 사건'의 제1용의자로 가장 먼저 조사해야 할 것은? [10점]",
+  o:["반찬 메뉴의 취향 저격 실패","식전 1~2시간의 간식·우유","식탁 의자의 높이","오늘의 운세"],a:1,
+  ex:"밥 전 간식 한 줌·우유 한 컵이면 위는 이미 차요. '안 먹는 아이'가 아니라 '배고플 틈이 없던 아이'인 경우가 정말 많아요."},
+ {q:"8. 사터(Satter)의 식사 역할 분담에서 '아이의 결정 권한'에 해당하는 것은? [10점]",
+  o:["오늘의 메뉴 선정","먹을지 말지 · 얼마나 먹을지","장보기와 예산 집행","설거지 당번 지정"],a:1,
+  ex:"부모는 '무엇을·언제·어디서', 아이는 '먹을지·얼마나'(DOR). '얼마나'를 아이에게 돌려주는 순간 식탁 전쟁의 절반이 끝나요."},
+ {q:"9. 새 반찬을 식판에 올릴 때 올바른 배치는? [10점]",
+  o:["좋아하는 음식에 섞어 위장 침투","안 닿게 따로 + 먹으라는 말 없이","식판 정중앙 스포트라이트 배치 후 브리핑","아이가 한눈판 사이 입에 투입"],a:1,
+  ex:"음식이 닿는 것조차 싫어하는 아이가 많아요. 분리해서 노코멘트로 — '식판에 있기만' 해도 노출은 시작돼요."},
+ {q:"10. \"한 입만 먹어봐\" 반복 권유에 대한 연구 결과는? [10점]",
+  o:["결국 먹게 되고 양도 는다","그 음식이 오히려 더 싫어질 수 있다","말한 횟수에 비례해 호감이 오른다","목청 크기에 비례해 효과가 오른다"],a:1,
+  ex:"압박은 그 음식 거부를 강화해요(Galloway 2006). 먹이려는 정성이 클수록 식탁이 전쟁이 되는 이유예요."}
+];
+const CIRC=['①','②','③','④'];
+const GRADES=[
+ {min:9,g:'1등급',cls:'lg',nick:'🎓 밥상머리 수석',mod:'전국 학부모 최상위권',verdict:'수석',
+  cm:'이론은 이미 만점권입니다. 이제 남은 과목은 하나 — \"우리 아이 실전\". 교과서에 없는 우리 아이 데이터는 코칭에서 배웁니다.'},
+ {min:7,g:'2등급',cls:'lg',nick:'📚 모범 학부모',mod:'내신 든든 · 상위권',verdict:'우수',
+  cm:'몇 문제만 더 잡으면 수석입니다. 오답노트의 개념만 정리하면 등급 상승은 시간문제.'},
+ {min:5,g:'3등급',cls:'ly',nick:'✏️ 평균의 정석',mod:'전국 학부모 볼륨존',verdict:'보통',
+  cm:'다들 여기 있습니다 — 학교에서 안 가르쳐준 과목이니까요. 오답노트 개념 몇 개만 잡으면 바로 2등급.'},
+ {min:3,g:'4등급',cls:'ly',nick:'📝 애정 과다 감점형',mod:'사랑이 지식을 앞지른 케이스',verdict:'분발',
+  cm:'열심히 안 해서가 아니라 반대로 배워서 감점됐습니다. 애정 점수는 이미 만점 — 방향만 돌리면 됩니다.'},
+ {min:0,g:'5등급',cls:'lr',nick:'🚨 코칭반 특별장학생',mod:'열정만큼은 전국 수석',verdict:'장학생',
+  cm:'축하합니다, 특별장학생 선발! 지금 배운 것과 반대로만 하면 되니 오히려 성장 폭이 가장 큽니다. 코칭반은 전액 무료입니다.'}
+];
+let i=0;const picked=[];
+const play=document.getElementById('play');
+function render(){
+ const q=QUIZ[i];
+ document.getElementById('pf').style.width=((i)/QUIZ.length*100)+'%';
+ document.getElementById('qnum').textContent='문항 '+(i+1)+' / '+QUIZ.length;
+ document.getElementById('qtext').textContent=q.q;
+ document.getElementById('qbox').innerHTML=q.box?'<div class="qbox">'+q.box+'</div>':'';
+ const ol=document.getElementById('opts');ol.innerHTML='';
+ q.o.forEach((opt,idx)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="no">'+CIRC[idx]+'</span>'+opt;b.onclick=()=>choose(idx);ol.appendChild(b);});
+}
+function choose(idx){picked[i]=idx;i++;if(i<QUIZ.length){render();window.scrollTo({top:0,behavior:'smooth'});}else show();}
+function show(){
+ let correct=0;QUIZ.forEach((q,n)=>{if(picked[n]===q.a)correct++;});
+ const G=GRADES.find(g=>correct>=g.min);
+ const ge=document.getElementById('grade');ge.textContent=G.g;ge.className='g '+G.cls;
+ document.getElementById('nick').textContent='「'+G.nick+'」';
+ document.getElementById('mod').textContent=G.mod;
+ document.getElementById('raw').textContent=(correct*10)+'점';
+ document.getElementById('crt').textContent=correct+'/10';
+ document.getElementById('verdict').textContent=G.verdict;
+ document.getElementById('comment').innerHTML='<b>담임 코멘트</b> — '+G.cm;
+ document.getElementById('wrongtitle').textContent=correct===10?'📗 오답 없음 — 전 문항 정답':'📕 오답노트 ('+(10-correct)+'문항)';
+ document.getElementById('coach').innerHTML='<div class="em">💌</div><h3>'+(correct>=7?'심화반: 우리 아이 맞춤 실전':'코칭반 개강 — 전액 무료')+'</h3><p>'+(correct>=7
+   ?'이론 위에, 앱이 우리 아이 식사 기록으로 <b>오늘의 실전 한 수</b>를 매일 알려드려요.'
+   :'오답노트를 외울 필요 없어요 — 앱이 우리 아이 상황에 맞춰 <b>매일 한 줄</b>씩 과외해드립니다.')+'</p>'+
+  '<a class="btn" href="https://app.mealfred.com/?utm_source=cookie&utm_medium=quiz&utm_campaign=cookie_series" target="_blank" rel="noopener">앱에서 편식 코칭 받기 →</a>';
+ window.mfShareText='2026 밥상머리 모의평가 '+G.g+' '+G.nick+' ('+correct*10+'점) — 너 몇 등급 나오나 보자 ✏️';
+ document.getElementById('review').innerHTML=QUIZ.map((q,n)=>{
+   const ok=picked[n]===q.a;
+   if(ok&&correct===10)return '';
+   return '<div class="rev"><div class="rq">'+q.q.replace(' [10점]','')+'</div>'+
+     '<div class="ra '+(ok?'ok':'no')+'">'+(ok?'✅ 정답':'❌ 오답')+' — 정답: '+CIRC[q.a]+' '+q.o[q.a]+(ok?'':' (내 답: '+CIRC[picked[n]]+')')+'</div>'+
+     '<div class="ex">'+q.ex+'</div></div>';
+ }).join('');
+ play.classList.add('hidden');document.getElementById('out').classList.remove('hidden');
+ window.scrollTo({top:0,behavior:'smooth'});
+ gtag('event','cookie_result',{tool:'quiz_c',score:correct,grade:G.g});
+}
+render();
+</script>
+<script src="/cookie-common.js?v=2"></script>
+</body>
+</html>
