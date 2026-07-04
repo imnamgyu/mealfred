@@ -424,10 +424,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 39</span>
+    <span class="cnt">세션 40</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+    <a href="/worklog-2026-07-04.html" class="doc-card cat-app">
+      <span class="badge new">📓 신규</span>
+      <div class="ico">📓</div>
+      <h4>2026-07-04 — 편식 51편 「성인 편식 35.5%」: Wardle 오귀속 교정 후 발행</h4>
+      <p class="desc"><b>블로그 51편 세션.</b> <code>/mealfred-blog</code> 자동 슬롯 → 51편(정주행·통계형). ① 9번(보류초안) 재보호하고 51편 선택·앱 기능 회전(식품군 8 신호등) ② ⭐<b>CSV 라벨 "Wardle" = 오귀속 적발</b>(가드 E 4연속) → 진짜 출처 <b>Kauer 2015</b>(Appetite·펜실베이니아대+모넬센터): 배심원 대기실+온라인의 <b>보통 어른 489명 중 35.5%가 편식</b> ③ "어른은 피해 살 수 있어 안 보일 뿐" 시선 전환 각도 · 위원회 6/6 · 5어절 중복 0(18편 "셋 중 하나"·46편 "잘못" 프레임 회피) ④ 이사님 수정본(채소 · "열 명 중 세 명" · "선택권" 프레임 · 515자) 반영 → INFOGRAPHICS 051(35.5% grid-100)·빌드·앱 팁·메인 카드 51/50/49(<code>f8f85b1</code>). <span style="color:#1B5E20">라이브 mealfred.com/blog/051.html · 앱 팁.</span></p>
+      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
+    </a>
     <a href="/worklog-2026-07-03.html" class="doc-card cat-app">
       <span class="badge new">📓 신규</span>
       <div class="ico">📓</div>
@@ -547,13 +554,6 @@
       <p class="desc"><b>남양주 캠프 자료 세션(병행 c).</b> ① 이사님 추가 요청 — 인증서(D1) <b>50분·직인 삭제</b>, A0 PPT 인증서 문구 정리 + <b>「전체 레시피 한눈에」 슬라이드 신규</b>(21→22) ② ⭐ "직인 안 가려짐" 근본원인 = 이름입력용 <b>pptx가 배경이미지 인증서</b>(인증서가 PNG로 구워짐) → D1 PNG 220DPI 재생성→zip 교체로 해결 ③ A1 2p 백지 강제나눔 제거(7p→6p)·교사용 의자 삭제·<b>페이스트=양송이+크림</b>(팽이 제거) ④ ⚠️ 크림=유제품 → 우유 알레르기 <b>전 자료 전면 수정</b>(우유=치즈+페이스트 전 롤·"우유만 빼면 다른 롤"→전 롤 제외)·7문서 재렌더. <span style="color:#1B5E20">06-25 전달본 갱신 · 커밋 0(캠프 자료 미추적).</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-25-b.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-25 (b) — 06-30 "가짜 진수성찬": 하단범례 흡수 OCR 버그 종결 · 전 기관 정리 · 312 재채점</h4>
-      <p class="desc"><b>식단 데이터 정리 세션(병행 b).</b> ① 어드민 "06-30 (화) 이상하게?" → 요일은 정상, 진짜는 식단표 하단 범례블록(알레르기19·제철·푸드브릿지 특집)이 마지막 날짜열로 흡수된 <b>42토큰 가짜 진수성찬</b> ② ⭐ 파서 <b>하단범례 컷</b>(알레르기 단독토큰≥4·사이드바 마커→break)+회귀테스트(<code>a10d4d3</code>·tsc0·586통과) ③ 재OCR 불가라 후처리 <code>clean-menu-legend.mjs</code> 2단계 — 전수검증(진짜음식 오탐0) 후 <b>전 기관 10일 삭제·250행 strip</b>(1자 음식 귤·배 보존 버그도 수정) ④ 312개월 재채점 + <code>/mealfred-menu-import</code> 스킬 5-B 정리패스 영구화. <span style="color:#1B5E20">전부 라이브.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
   </div>
 </section>
 
@@ -590,6 +590,7 @@
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
   var DOC_DATES = {
+    '/worklog-2026-07-04.html':{c:'2026-07-04',m:'2026-07-04'},
     '/worklog-2026-07-03.html':{c:'2026-07-03',m:'2026-07-03'},
     '/worklog-2026-07-02.html':{c:'2026-07-02',m:'2026-07-02'},
     '/worklog-2026-07-02-b.html':{c:'2026-07-02',m:'2026-07-02'},
