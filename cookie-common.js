@@ -29,8 +29,10 @@
     } else { mfToast(url); }
   };
 
-  // 공개 도구(rankings·quiz 등)는 비공개 쿠키 cross-link 대신 → 편식코칭앱 유입 CTA(미끼→앱 전환)
-  var APP_CTA_TOOLS = ['rankings', 'quiz'];
+  // 공개 도구(rankings 등)는 비공개 쿠키 cross-link 대신 → 편식코칭앱 유입 CTA(미끼→앱 전환)
+  var APP_CTA_TOOLS = ['rankings'];
+  // 스트립 자체를 안 붙이는 페이지 — quiz는 급식순위용 배너 카피가 맥락에 안 맞음(이사님 2026-07-05), 자체 CTA(coach)로 충분
+  var NO_STRIP_TOOLS = ['quiz'];
   function appCta() {
     var wrap = document.createElement('div');
     wrap.style.cssText = 'max-width:540px;margin:0 auto;padding:4px 18px 26px';
@@ -46,6 +48,7 @@
   // 시리즈 크로스링크 스트립 — 매 페이지 푸터 위에 자동 삽입(현재 도구 제외)
   function strip() {
     var cur = (document.body.dataset.cookie || '');
+    if (NO_STRIP_TOOLS.indexOf(cur) !== -1) return;
     if (APP_CTA_TOOLS.indexOf(cur) !== -1) { appCta(); return; }
     var others = SERIES.filter(function (s) { return s.id !== cur; });
     if (!others.length) return;

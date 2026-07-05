@@ -87,7 +87,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 <header class="hero">
   <span class="tag">💯 아이 편식 상식 점수</span>
   <h1>나는 <span class="ac">편식을 잘 아는 부모</span>일까?</h1>
-  <p>우리 아이가 편식하는 이유, <b>10문제 점수</b>로 확인해보세요. 몇 점 나올지 — 감이 오시나요?</p>
+  <p>우리 아이가 편식하는 이유, <b>10문제 점수</b>로 확인해보세요.</p>
   <div class="meta">⏱ 약 1분 · 10문제 · 문제당 10점</div>
 </header>
 <main>
@@ -112,17 +112,17 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
         <div class="noblame" id="noblame"></div>
         <div class="wm">💯 아이 편식 상식 점수 · mealfred.com</div>
       </div>
-      <div class="caps"><span class="ce">📸</span><span>위 점수 카드를 <b>캡처해서 인스타 스토리에 자랑</b>하세요 — 친구들이 점수 들고 찾아옵니다</span></div>
-      <div class="wrongtitle" id="wrongtitle"></div>
-      <div id="review"></div>
     </div>
-    <div class="appin" id="coach"></div>
+    <div class="caps hidden" id="caps"><span class="ce">📸</span><span>위 점수 카드를 <b>캡처해서 인스타 스토리에 자랑</b>하세요 — 친구들이 점수 들고 찾아옵니다</span></div>
     <div class="appin" style="background:linear-gradient(135deg,#FFEFE0,#FFE2C4)">
       <div class="em">🏆</div>
-      <h3>친구들은 몇 점일까?</h3>
-      <p>링크 보내고 <b>점수 내기 한 판</b> — 남편/아내부터 시켜보세요. 생각보다 다들 못 맞힙니다 😏</p>
-      <button class="btn" onclick="qe('share');mfShare()">카톡으로 도전장 보내기 📣</button>
+      <h3>가족·친구와 함께 풀어보세요</h3>
+      <p>링크를 보내고 서로의 점수를 비교해보세요.</p>
+      <button class="btn" onclick="shareLink()">카카오톡으로 링크 공유하기 📣</button>
     </div>
+    <div class="wrongtitle" id="wrongtitle"></div>
+    <div id="review"></div>
+    <div class="appin" id="coach"></div>
     <button class="btn sec" onclick="location.reload()">↺ 다시 풀기</button>
   </div>
 </main>
@@ -194,6 +194,15 @@ let i=0;const picked=[];
 const play=document.getElementById('play');
 // 전환 클릭 적재(어드민 /admin/quiz 전환율) — 실패 무시. app_cta는 위임 리스너로 결과 화면의 모든 앱 링크(코칭 CTA·하단 배너) 커버.
 function qe(ev){try{fetch('https://app.mealfred.com/api/quiz-event',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tool:'knowledge',event:ev})}).catch(()=>{});}catch(e){}}
+// 담백한 공유(이사님 2026-07-05): 도전 멘트 없이 링크만 복사 + "링크가 복사되었습니다" 토스트
+function shareLink(){
+ qe('share');if(window.gtag)gtag('event','cookie_share',{tool:'quiz'});
+ const url='https://www.mealfred.com/cookie-quiz.html';
+ const done=()=>mfToast('링크가 복사되었습니다');
+ const legacy=()=>{try{const t=document.createElement('textarea');t.value=url;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();ok?done():mfToast(url);}catch(e){mfToast(url);}};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done).catch(legacy);
+ else legacy();
+}
 document.addEventListener('click',e=>{const a=e.target&&e.target.closest&&e.target.closest('a[href*="app.mealfred.com"]');if(a)qe('app_cta');});
 function render(){
  const q=QUIZ[i];
@@ -232,7 +241,8 @@ function show(){
    ?'이론 위에, 앱이 우리 아이 식사 기록으로 <b>오늘의 실전 한 수</b>를 매일 알려드려요.'
    :'오답노트를 외울 필요 없어요 — 앱이 우리 아이 상황에 맞춰 <b>매일 한 줄</b>씩 코칭해드립니다.')+'</p>'+
   '<a class="btn" href="'+appUrl+'" target="_blank" rel="noopener">앱에서 편식 코칭 받기 →</a>';
- window.mfShareText='나 아이 편식 상식 점수 '+score+'점 「'+B.nick+'」'+B.em+' — 너도 10문제 풀고 점수로 붙자, 생각보다 어렵다? 💯';
+ // 캡처 자랑 유도는 자랑이 되는 점수(70+·초록 밴드)에서만 — 낮은 점수에 자랑하란 말은 상처(이사님 2026-07-05)
+ document.getElementById('caps').classList.toggle('hidden',score<70);
  document.getElementById('review').innerHTML=QUIZ.map((q,n)=>{
    const ok=picked[n]===q.a;
    if(ok&&correct===10)return '';
