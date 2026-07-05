@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
+import GaLoader from "@/components/GaLoader";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -46,11 +46,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL" strategy="afterInteractive" />
-        <Script id="gtag-init" strategy="afterInteractive">{`
-          window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-          gtag('js',new Date());gtag('config','G-3FRTKL3NFL');
-        `}</Script>
+        {/* GA는 GaLoader가 경로 보고 주입 — 어드민(/admin*)은 전면 제외(내부 트래픽 노이즈 방지) */}
+        <GaLoader />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
