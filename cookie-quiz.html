@@ -30,7 +30,8 @@ main{max-width:480px;margin:0 auto;padding:24px 18px 30px}
 .qbox{font-size:13.5px;border:1.5px solid var(--n200);border-radius:12px;background:#FFFDF6;padding:11px 13px;margin:4px 0 12px;line-height:1.65;font-weight:600;color:var(--n700)}
 .opt{display:block;width:100%;text-align:left;padding:13px 15px;border:1.5px solid var(--n200);border-radius:12px;background:#fff;font-size:14px;font-weight:700;color:var(--n700);cursor:pointer;margin-bottom:9px;font-family:inherit;line-height:1.5;transition:.12s}
 /* hover는 진짜 호버 기기에서만 — 모바일은 탭 자리 hover가 다음 문항에 남아 '정답이 미리 선택된 듯' 보이는 버그(이사님 2026-07-05) */
-@media(hover:hover){.opt:hover{border-color:var(--p500);background:#FFF8F2}}
+/* 데스크톱도 새 문항 렌더 직후엔 커서가 얹혀만 있는 보기(#opts.nh)는 색칠 금지 — 마우스를 실제로 움직여야 hover 발동 */
+@media(hover:hover){#opts:not(.nh) .opt:hover{border-color:var(--p500);background:#FFF8F2}}
 .opt:active{border-color:var(--p500);background:#FFF8F2}
 .opt .no{font-weight:800;color:var(--org2);margin-right:7px}
 .card{border:1.5px solid var(--n200);border-radius:16px;padding:22px 18px;background:#fff}
@@ -189,6 +190,9 @@ function render(){
  document.getElementById('qbox').innerHTML=q.box?'<div class="qbox">'+q.box+'</div>':'';
  const ol=document.getElementById('opts');ol.innerHTML='';
  q.o.forEach((opt,idx)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="no">'+CIRC[idx]+'</span>'+opt;b.onclick=()=>choose(idx);ol.appendChild(b);});
+ // 렌더 직후 hover 잠금 — 마우스가 실제로 움직일 때만 해제(제자리 연속 클릭 시 '미리 색칠' 방지)
+ ol.classList.add('nh');
+ window.addEventListener('mousemove',function unh(){ol.classList.remove('nh');window.removeEventListener('mousemove',unh);},{once:true});
 }
 function choose(idx){picked[i]=idx;i++;if(i<QUIZ.length){render();window.scrollTo({top:0,behavior:'smooth'});}else show();}
 function toggleR(n){
