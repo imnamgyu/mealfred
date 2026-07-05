@@ -102,9 +102,13 @@ describe('B-07 exposure-savings', () => {
   });
 });
 describe('B-08 fullness-respect', () => {
-  it('1 30분 초과율(표본 4+)', () => {
-    const rows = [35, 20, 40, 15].map((m, i) => row({ log_date: D(i + 1), meal_time: m }));
+  it('1 30분 초과율(표본 4+) — 소요시간=duration_min', () => {
+    const rows = [35, 20, 40, 15].map((m, i) => row({ log_date: D(i + 1), duration_min: m }));
     expect(ev('fullness-respect', rows).over30Pct).toBe(0.5);
+  });
+  it('1b meal_time(시각 5~22시)은 소요시간이 아님 — 저녁 7시(19시)를 소요분으로 오인 금지(교차배선 버그 박제 2026-07-05)', () => {
+    const rows = [19, 19, 19, 19].map((h, i) => row({ log_date: D(i + 1), meal_time: h }));
+    expect(ev('fullness-respect', rows).over30Pct).toBeNull();   // duration_min 표본 0 → 판정 보류(가짜 0%로 step 자동통과 금지)
   });
   it('2 표본 부족=null', () => {
     expect(ev('fullness-respect', baseDays(4)).over30Pct).toBeNull();

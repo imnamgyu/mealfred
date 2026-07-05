@@ -13,7 +13,7 @@ import { type FactRow } from './coachFacts';
 import { cleanRefusal } from './coach';
 
 // ── 타입 (B-01) ───────────────────────────────────────────────────────────────
-export type CRow = FactRow & { autonomy?: string | null; texture?: string | null; meal_time?: number | null };
+export type CRow = FactRow & { autonomy?: string | null; texture?: string | null; meal_time?: number | null; duration_min?: number | null };
 export type ProbeAnswer = { q_date: string; unit_id: string; signal: string; value: string };
 export type Evidence = Record<string, number | string | string[] | null | undefined>;
 export type UnitId =
@@ -212,13 +212,14 @@ export const UNITS: Record<UnitId, UnitDef> = {
     id: 'fullness-respect', label: '배부름 존중', lever: 'mixed', minWeek: 2,
     extract: (rows, answers, today) => {
       const w = last7(rows, today);
-      const mt = w.filter((r) => typeof r.meal_time === 'number');
-      const over30Pct = mt.length >= TH.minMtSamples ? mt.filter((r) => (r.meal_time as number) >= 30).length / mt.length : null;
+      // ⚠️ 소요시간 = duration_min (meal_time은 '몇 시에 먹었나' 5~22시 — >=30이 영원히 false였던 교차배선 버그 수정 2026-07-05)
+      const mt = w.filter((r) => typeof r.duration_min === 'number');
+      const over30Pct = mt.length >= TH.minMtSamples ? mt.filter((r) => (r.duration_min as number) >= 30).length / mt.length : null;
       const ansForceDays = probeDays(answers, 'fullness-respect', today, ['몇 입 더 권했어요']);
       const enough = dates(w).length >= TH.minLoggedDays || ansForceDays.length > 0 || probe7(answers, 'fullness-respect', today).length >= 2;
       const forceMemoDays = enough ? new Set([...memoDays(w, FORCE_FINISH_RE), ...ansForceDays]).size : null;
-      const yMt = w.filter((r) => r.log_date === yest(today) && typeof r.meal_time === 'number');
-      return { over30Pct, forceMemoDays, signalToday: sig(yMt.length ? yMt.every((r) => (r.meal_time as number) < 30) : null) };
+      const yMt = w.filter((r) => r.log_date === yest(today) && typeof r.duration_min === 'number');
+      return { over30Pct, forceMemoDays, signalToday: sig(yMt.length ? yMt.every((r) => (r.duration_min as number) < 30) : null) };
     },
     steps: [
       { step: 1, behavior: '"배불러" 인정하고 종료 — 완식 강요 멈추기', passWhen: (e) => (typeof e.forceMemoDays === 'number' ? e.forceMemoDays === 0 : null), holdWeeks: 1 },

@@ -66,3 +66,65 @@ describe('quantifyPreferences — 상태 판정', () => {
     expect(p.trend).toBe('rising');
   });
 });
+
+describe('⭐혼합 끼니 — refused 식재료는 끼니 레벨 대신 거부로 귀속 (2026-07-05)', () => {
+  const rowR = (log_date: string, ings: string[], o: { acceptance_level?: number | null; refused?: string | null } = {}) =>
+    ({ log_date, ingredients: ings, ate_well: null, acceptance_level: o.acceptance_level ?? null, refused: o.refused ?? null, place: 'home' });
+  it('완식(4) 끼니에서 남긴 브로콜리는 liked로 오집계되지 않음', () => {
+    const rows = Array.from({ length: 4 }, (_, i) =>
+      rowR(days(ASOF, i + 1), ['쌀', '계란', '브로콜리'], { acceptance_level: 4, refused: '브로콜리' }));
+    const prefs = quantifyPreferences(rows, ASOF);
+    expect(confidentLiked(prefs)).toContain('쌀');
+    expect(confidentLiked(prefs)).toContain('계란');
+    expect(confidentLiked(prefs)).not.toContain('브로콜리');
+    expect(dislikedFoods(prefs)).toContain('브로콜리');   // 명시 거부 반복 → disliked
+  });
+  it('refused가 메뉴명이어도 포함 식재료 매칭("브로콜리볶음"⊃"브로콜리")', () => {
+    const rows = Array.from({ length: 4 }, (_, i) =>
+      rowR(days(ASOF, i + 1), ['브로콜리', '쌀'], { acceptance_level: 4, refused: '브로콜리볶음' }));
+    const prefs = quantifyPreferences(rows, ASOF);
+    expect(dislikedFoods(prefs)).toContain('브로콜리');
+    expect(confidentLiked(prefs)).toContain('쌀');
+  });
+  it('1글자 식재료는 정확일치만 — "김치" 거부가 "김"을 오탐하지 않음', () => {
+    const rows = Array.from({ length: 4 }, (_, i) =>
+      rowR(days(ASOF, i + 1), ['김', '김치'], { acceptance_level: 4, refused: '김치' }));
+    const prefs = quantifyPreferences(rows, ASOF);
+    expect(confidentLiked(prefs)).toContain('김');        // 김(해조류)은 완식 유지
+    expect(dislikedFoods(prefs)).toContain('김치');
+  });
+  it('레벨 미상 + refused 명시 → 그 식재료만 거부, 나머지는 미상 유지', () => {
+    const rows = Array.from({ length: 3 }, (_, i) =>
+      rowR(days(ASOF, i + 1), ['가지', '두부'], { refused: '가지' }));
+    const prefs = quantifyPreferences(rows, ASOF);
+    expect(dislikedFoods(prefs)).toContain('가지');
+    expect(prefs.find((p) => p.key === '두부')!.state).toBe('unknown');
+  });
+});
+
+describe('⭐refused 토큰 정규화 — 요리명 거부가 대표 식재료와 만난다 (적대검증 발견 수정 2026-07-05)', () => {
+  const rowR = (log_date: string, ings: string[], o: { acceptance_level?: number | null; refused?: string | null } = {}) =>
+    ({ log_date, ingredients: ings, ate_well: null, acceptance_level: o.acceptance_level ?? null, refused: o.refused ?? null, place: 'home' });
+  it('"탕수육" 거부 → 정규화(돼지고기) 정확일치 — 거부가 수용으로 뒤집히지 않음', () => {
+    const rows = Array.from({ length: 4 }, (_, i) =>
+      rowR(days(ASOF, i + 1), ['돼지고기', '쌀'], { acceptance_level: 4, refused: '탕수육' }));
+    const prefs = quantifyPreferences(rows, ASOF);
+    expect(dislikedFoods(prefs)).toContain('돼지고기');
+    expect(confidentLiked(prefs)).not.toContain('돼지고기');
+    expect(confidentLiked(prefs)).toContain('쌀');
+  });
+  it('"소세지볶음"(미정규 표기 메뉴) 거부 → 소시지(정규 식재료) 미스매치는 수용 크레딧이 아니라 최소 무해', () => {
+    const rows = Array.from({ length: 4 }, (_, i) =>
+      rowR(days(ASOF, i + 1), ['소시지'], { acceptance_level: 4, refused: '소세지볶음' }));
+    // '소세지볶음'은 렉시콘 미스(볶음 접미) — 포함매칭도 실패 가능. 최소 보장: liked 오판이 나도 명시 거부 반복이 disliked를 이기지 못하는 상황을 문서화.
+    // 정규화 토큰('소세지'→'소시지')이 콤마 없이 메뉴 통째면 못 잡는 잔여 한계 — 부모가 식재료 칩(소시지)을 탭하면 정확일치로 잡힌다.
+    const prefs = quantifyPreferences(rows, ASOF);
+    expect(prefs.find((p) => p.key === '소시지')).toBeDefined();   // 최소한 크래시 없이 집계
+  });
+  it('과길이 토큰(레거시 자유문장)은 버림 — 문장 속 식재료를 거부로 오귀속하지 않음', () => {
+    const rows = Array.from({ length: 3 }, (_, i) =>
+      rowR(days(ASOF, i + 1), ['카레'], { acceptance_level: 4, refused: '카레는 조금 먹었어요 그래도 잘함' }));
+    const prefs = quantifyPreferences(rows, ASOF);
+    expect(dislikedFoods(prefs)).not.toContain('카레');   // 문장은 토큰으로 안 삼킴
+  });
+});

@@ -33,7 +33,7 @@ import { advanceProgress, blankRow, goalsOf, normalizeGoals, type DailyDecision 
 import { buildBrainContext, pickActionByBrain, nutritionMirrorFromInput, type BrainAction } from '@/lib/coachBrain';   // ⭐ 두뇌 선택+검수(시나리오는 LLM, 음식추천은 검수)
 import { reexposurePick } from '@/lib/reexposure';
 import { buildRecoFacts, buildIngredientPool, groupOfIngredient, coldStartSeed, STAPLE_FORMS, type FreqMap } from '@/lib/coachRecos';
-import { quantifyPreferences, acceptanceLevel, confidentLiked as confidentLikedFrom, dislikedFoods, type PrefRow } from '@/lib/preferenceQuantification';   // ⭐ 신호포착(이사님 2026-06-19) — 미상을 liked로 오판 차단(확신 신호=완식 반복+Wilson만 liked)
+import { quantifyPreferences, acceptanceLevel, confidentLiked as confidentLikedFrom, dislikedFoods, parseRefused, refusedIng, type PrefRow } from '@/lib/preferenceQuantification';   // ⭐ 신호포착(이사님 2026-06-19) — 미상을 liked로 오판 차단(확신 신호=완식 반복+Wilson만 liked)
 import { getIngredientsLight, getRecipeFreq, warmGraphFromSql } from '@/lib/graphSource';   // ⭐ JSON 격리(handoff §4) + SQL warm(#2)
 import { warmIngredientFreqFromSql } from '@/lib/coachMaterials';   // ⭐ ingredient-freq 야간 SQL 리밸런싱(타세션 핸드오프 #2)
 import { aggregateUsage } from '@/lib/llmCost';   // ⭐ LLM 사용량 계측(유지비용 실측)
@@ -556,7 +556,7 @@ export async function GET(req: Request) {
             if (r.texture) texC[r.texture] = (texC[r.texture] || 0) + 1;
             if (r.autonomy) { autoN++; if (r.autonomy === 'self') selfN++; }
             if (r.environment && r.place !== 'daycare') { envN++; if (r.environment !== 'table') envBad++; }   // ⭐ 5-B(이사님 2026-06-15) 집 끼니만 — 식사환경은 부모가 통제하는 집 기준(기관 분위기는 부모가 못 바꿈). table 외(영상·돌아다님·놀이)=주의
-            if (typeof r.meal_time === 'number') { mtN++; if (r.meal_time >= 30) mtOver++; }
+            if (typeof r.duration_min === 'number') { mtN++; if (r.duration_min >= 30) mtOver++; }   // 소요시간 = duration_min (meal_time=시각 오배선 수정 2026-07-05)
           });
           const texMode = Object.entries(texC).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
           const structuredSig: StructuredSig = {
@@ -744,9 +744,11 @@ export async function GET(req: Request) {
               const firstServeDow = servedDays.length ? Math.min(...servedDays.map((r) => kstDow(r.log_date))) : null;
               // ⭐ 6-C(이사님 2026-06-15) + 신호포착(2026-06-19) — '진짜 진척' 신호: 집에서 명시 진전(만짐 이상)을 보인 타깃 횟수.
               //   ⚠️ 구버전은 `ate_well !== false`라 미상(null)도 진척으로 셌다 → 아린처럼 미상 80%인 아이가 영원히 '진전 중'으로 보여 같은 타깃(두부) 반복. acceptanceLevel로 미상을 배제(≥1=만짐/한입/조금/완식만). acceptance_level 컬럼 미적용 시 ate_well 폴백(=완식만 카운트).
-              const targetAccepts = weekRows.filter((r) => { const lv = acceptanceLevel(r); return r.place !== 'daycare' && lv != null && lv >= 1
-                && (r.ingredients || []).some((ing) => ing === tgt || catOf(ing) === tgt)
-                && !(r.refused && (r.refused === tgt || catOf(r.refused) === tgt)); }).length;
+              const targetAccepts = weekRows.filter((r) => { const lv = acceptanceLevel(r); if (r.place === 'daycare' || lv == null || lv < 1) return false;
+                if (!(r.ingredients || []).some((ing) => ing === tgt || catOf(ing) === tgt)) return false;
+                // 거부 가드 — refused는 콤마 조인·요리명 가능(혼합 끼니 게이트 개방 2026-07-05). 토큰 분해+정규화 매칭으로 '명시적으로 남긴 타깃'을 진척으로 안 세게.
+                const refTokens = parseRefused(r.refused);
+                return !refusedIng(tgt, refTokens) && ![...refTokens].some((t) => catOf(t) === tgt); }).length;
               // 행동변화 관측(아크 단계 결정) — food=실제 차림, 구조 레버=그 좋은 행동이 이번 주 1회+ (거짓 칭찬 방지)
               const goodRow = (r: Row) => lever === 'environment' ? r.environment === 'table' : lever === 'autonomy' ? r.autonomy === 'self' : lever === 'texture' ? (r.texture === 'finger' || r.texture === 'table') : false;
               const progress = lever === 'food' ? firstServeDow != null : weekRows.some(goodRow);

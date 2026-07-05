@@ -55,9 +55,11 @@ const ACCEPT_LEVELS = [
 const levelToAteWell = (lvl: number | null): boolean | null => lvl == null ? null : lvl <= 0 ? false : lvl >= 3 ? true : null;   // 0→거부(false)·3·4→수용(true)·1·2 만짐/한입→미상(null, 기존 이진 의미 보존)
 const ateWellToLevel = (aw: boolean | null): number | null => aw === true ? 4 : aw === false ? 0 : null;   // 구 행(acceptance_level 없음) 표시용 역매핑
 
-type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; question: string; ateWell: boolean | null; acceptLevel: number | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string; place: PlaceVal };
+// inferred: 부모가 직접 안 찍고 prefill(패턴·carry-forward·슬롯 규칙)로 채워진 필드의 DB 컬럼명 목록.
+//   저장은 되지만 '추정'으로 마킹(inferred_fields 컬럼) — 패턴 학습(mealDefaults)이 추정을 재학습하는 자기강화 루프 차단.
+type MealEntry = { menus: string[]; ingredients: Tag[]; note: string; question: string; ateWell: boolean | null; acceptLevel: number | null; refused: string; texture: string; autonomy: string; environment: string; durationMin: number | null; mealTime: number | null; reaction: string; place: PlaceVal; inferred: string[] };
 function emptyEntry(slot: string, dateStr: string): MealEntry {
-  return { menus: [], ingredients: [], note: '', question: '', ateWell: null, acceptLevel: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '', place: defaultPlace(slot, dateStr) };
+  return { menus: [], ingredients: [], note: '', question: '', ateWell: null, acceptLevel: null, refused: '', texture: '', autonomy: '', environment: '', durationMin: null, mealTime: null, reaction: '', place: defaultPlace(slot, dateStr), inferred: ['place'] };
 }
 type DayLog = Record<string, MealEntry>;
 const MEAL_PARSE_API = 'https://app.mealfred.com/api/meal/parse';
@@ -69,7 +71,7 @@ const todayStr = kstToday;   // KST 기준 — 크론(letter_date/q_date)과 동
 const loadGuestLogs = (): Record<string, DayLog> => loadCareLogs<Record<string, DayLog>>(null);
 
 // Supabase row ↔ MealEntry 변환
-type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; question?: string | null; ate_well: boolean | null; acceptance_level?: number | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null; place: string | null };
+type MealRow = { log_date: string; slot: string; menus: string[] | null; ingredients: string[] | null; note: string | null; question?: string | null; ate_well: boolean | null; acceptance_level?: number | null; refused: string | null; texture: string | null; autonomy: string | null; environment: string | null; duration_min: number | null; meal_time: number | null; reaction: string | null; place: string | null; inferred_fields?: string[] | null };
 function rowToEntry(r: MealRow): MealEntry {
   return {
     menus: r.menus || [],
@@ -86,10 +88,17 @@ function rowToEntry(r: MealRow): MealEntry {
     mealTime: r.meal_time ?? null,
     reaction: r.reaction || '',
     place: (r.place as PlaceVal) || '',   // 미상은 보존 — 추정값으로 덮어쓰지 않음(저장 시 영구화 방지). 신규 입력만 emptyEntry에서 스마트 기본값
+    inferred: r.inferred_fields || [],
   };
 }
-function entryToRow(e: MealEntry, childId: string, userId: string, date: string, slot: string) {
+// 저장 시 실제로 값이 있는 필드만 추정 마킹(값 없는 필드는 null이라 마킹 의미 없음)
+const CTX_VAL: Record<string, (e: MealEntry) => unknown> = { place: (e) => e.place, meal_time: (e) => e.mealTime, texture: (e) => e.texture, autonomy: (e) => e.autonomy, environment: (e) => e.environment, duration_min: (e) => e.durationMin };
+function inferredOf(e: MealEntry): string[] {
+  return (e.inferred || []).filter((f) => { const v = CTX_VAL[f]?.(e); return v !== null && v !== undefined && v !== ''; });   // 구 localStorage 행은 inferred 없음 — 방어
+}
+function entryToRow(e: MealEntry, childId: string, userId: string, date: string, slot: string, withInferred: boolean) {
   return {
+    ...(withInferred ? { inferred_fields: inferredOf(e) } : {}),
     child_id: childId,
     parent_id: userId,
     log_date: date,
@@ -123,6 +132,7 @@ export default function CarePage() {
   const [logs, setLogs] = useState<Record<string, DayLog>>({});
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);   // 서버 저장 중 — 진행바 표시
+  const [saveErr, setSaveErr] = useState(false); // 저장 실패 — 성공으로 위장 금지, '다시 시도' 노출
   const [userId, setUserId] = useState<string | null>(null);
   const [childId, setChildId] = useState<string | null>(null);
   const [dailyQ, setDailyQ] = useState<{ question: string; chips: string[]; answer: string } | null>(null);
@@ -150,13 +160,18 @@ export default function CarePage() {
   const inputRef = useRef<HTMLInputElement>(null);
   const mealDefaultsRef = useRef<MealDefaults | null>(null);   // 끼니×주중주말 패턴 prefill (본인 기록서 계산)
   const lastEnvRef = useRef<string>('');                        // ⭐ P0-D(이사님 2026-06-19) — 직전 명시 식사환경 carry-forward(한 번 찍으면 다음 끼니 자동) → 환경신호 표본 축적·table-stage 졸업 가능
+  const inferredColRef = useRef(true);                          // meal_logs.inferred_fields 컬럼 존재 여부 — DDL 미적용이면 마커 없이 동작(폴백)
+  const draftsRef = useRef<Record<string, MealEntry>>({});      // ⭐ 미저장 편집분 스태시(`date|slot` 키) — 슬롯·날짜 전환해도 안 날아가게
+  const prevKeyRef = useRef<string>('');
+  const loadedSnapRef = useRef<string>('');                     // 전환 시 '편집했나' 판정용 — 로드 직후 스냅샷
+  const entryLiveRef = useRef<MealEntry | null>(null);          // 이펙트에서 최신 entry 접근용(의존성 루프 없이)
   const [hasPattern, setHasPattern] = useState(false);          // prefill 단서 존재 → "지난 패턴으로 채움" 힌트용
 
   // emptyEntry + 개인 패턴(장소·시간·식감) 덮어쓰기 → 새 입력 폼 prefill
   function freshEntry(slot: string, dateStr: string): MealEntry {
     const base = emptyEntry(slot, dateStr);
     const d = pickDefault(mealDefaultsRef.current, slot, dateStr);
-    return {
+    const next: MealEntry = {
       ...base,   // 음식(menus)·식재료(ingredients)는 절대 prefill 안 함 — 매번 달라지므로
       place: (d.place as PlaceVal) || base.place,
       mealTime: d.mealTime ?? base.mealTime,
@@ -165,12 +180,22 @@ export default function CarePage() {
       environment: lastEnvRef.current || d.environment || base.environment,   // ⭐ P0-D — 직전 명시값 우선 carry-forward(한 번 찍으면 자동), 없으면 패턴 기본값
       durationMin: d.durationMin ?? base.durationMin,
     };
+    // prefill로 값이 생긴 필드 전부 '추정' 마킹 — 부모가 탭하면 그 필드만 마킹 해제(touch)
+    next.inferred = Object.keys(CTX_VAL).filter((f) => { const v = CTX_VAL[f](next); return v !== null && v !== undefined && v !== ''; });
+    return next;
   }
+  // 부모가 맥락 필드를 직접 탭 → 그 필드는 관찰값(추정 마킹 해제)
+  const touch = (field: string, fn: (x: MealEntry) => Partial<MealEntry>) =>
+    setEntry((x) => ({ ...x, ...fn(x), inferred: (x.inferred || []).filter((f) => f !== field) }));
   const supabase = createSupabaseBrowser();
   // 홈 '미기록 알림(P9)' 딥링크 — /care?date=YYYY-MM-DD 면 그 날짜로 시작
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get('date');
     if (q && /^\d{4}-\d{2}-\d{2}$/.test(q) && q <= todayStr()) setDate(q);
+    // ⭐ 현재 시각(KST) 기반 슬롯 자동 선택 — 저녁에 열면 저녁이 켜져 있게('breakfast' 하드코딩으로 매끼 교정 탭을 내던 세금 제거).
+    //   초기 useState가 아니라 mount 이펙트인 이유: SSR·hydration 불일치 방지.
+    const h = new Date(Date.now() + 9 * 3600 * 1000).getUTCHours();
+    setActiveSlot(h < 10 ? 'breakfast' : h < 12 ? 'am_snack' : h < 15 ? 'lunch' : h < 17 ? 'pm_snack' : h < 21 ? 'dinner' : 'night');
   }, []);
   // 클라 전역 매퍼 — 로드된 풀로 흔한 메뉴를 네트워크 없이 즉시 분해
   const mapper = useMemo(() => createMapper(pool.map((p) => p.nm)), [pool]);
@@ -212,10 +237,21 @@ export default function CarePage() {
           setPersonalMap(pm);
         });
 
-      // Supabase에서 기존 기록 로드
-      const { data: rows } = await supabase.from('meal_logs')
-        .select('log_date,slot,menus,ingredients,note,question,ate_well,acceptance_level,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place,source')
+      // Supabase에서 기존 기록 로드 — inferred_fields(prefill 추정 마커)는 DDL 미적용 환경 폴백 지원
+      const BASE_SEL = 'log_date,slot,menus,ingredients,note,question,ate_well,acceptance_level,refused,texture,autonomy,environment,duration_min,meal_time,reaction,place,source';
+      type LoadedRow = MealRow & { source?: string | null };
+      let rows: LoadedRow[];
+      const r1 = await supabase.from('meal_logs').select(BASE_SEL + ',inferred_fields')
         .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(365));   // P0-3: 과거 1년 상한(다년 누적 풀스캔 차단·미래 식단표는 lte 없어 유지)
+      if (r1.error) {
+        // '컬럼 없음'(42703)일 때만 마커 기능 오프 — 일시 네트워크 오류를 컬럼 부재로 오인해 세션 내내 마커 저장을 끄지 않기
+        if (r1.error.code === '42703' || /inferred_fields/i.test(r1.error.message || '')) inferredColRef.current = false;
+        const r2 = await supabase.from('meal_logs').select(BASE_SEL)
+          .eq('child_id', child.id).gte('log_date', kstDateNDaysAgo(365));
+        rows = (r2.data || []) as unknown as LoadedRow[];
+      } else {
+        rows = (r1.data || []) as unknown as LoadedRow[];
+      }
 
       const cloud: Record<string, DayLog> = {};
       const mm = new Set<string>();   // 식단표 OCR(daycare_menu) 등록된 'YYYY-MM' — 그 달은 업로더 숨김
@@ -231,9 +267,9 @@ export default function CarePage() {
       const toSync: ReturnType<typeof entryToRow>[] = [];
       for (const [d, dayLog] of Object.entries(local)) {
         for (const [slot, e] of Object.entries(dayLog)) {
-          const hasContent = e.menus?.length || e.ingredients?.length || e.note || e.question;
+          const hasContent = e.menus?.length || e.ingredients?.length || e.note || e.question || e.acceptLevel != null || e.ateWell != null;   // 수용도만 찍은 기록도 이관(신호 유실 방지)
           if (hasContent && !cloud[d]?.[slot]) {
-            toSync.push(entryToRow(e as MealEntry, child.id, user.id, d, slot));
+            toSync.push(entryToRow(e as MealEntry, child.id, user.id, d, slot, inferredColRef.current));
             if (!cloud[d]) cloud[d] = {};
             cloud[d][slot] = e as MealEntry;
           }
@@ -246,11 +282,12 @@ export default function CarePage() {
 
       setLogs(cloud);
 
-      // 끼니×주중주말 패턴 prefill 계산 (본인 전체 기록) — 새 입력 폼 장소·시간·식감 미리채움
-      const md = computeMealDefaults((rows || []).map((r: MealRow) => ({ slot: r.slot, log_date: r.log_date, place: r.place, meal_time: r.meal_time, texture: r.texture, autonomy: r.autonomy, environment: r.environment, duration_min: r.duration_min })));
+      // 끼니×주중주말 패턴 prefill 계산 (본인 전체 기록) — 새 입력 폼 장소·시간·식감 미리채움.
+      // inferred_fields 전달 → 추정으로 저장된 값은 학습에서 빠짐(추정이 최빈값을 굳히는 자기강화 차단)
+      const md = computeMealDefaults((rows || []).map((r: MealRow) => ({ slot: r.slot, log_date: r.log_date, place: r.place, meal_time: r.meal_time, texture: r.texture, autonomy: r.autonomy, environment: r.environment, duration_min: r.duration_min, inferred_fields: r.inferred_fields })));
       mealDefaultsRef.current = md;
-      // ⭐ P0-D — 직전 명시 식사환경(가장 최근 비공백) carry-forward. mode()가 ''/null을 버려 '한 번도 안 찍은 부모=영영 공백'이던 콜드스타트를 끊는다.
-      lastEnvRef.current = [...(rows || [])].sort((a: MealRow, b: MealRow) => `${b.log_date}${b.slot || ''}`.localeCompare(`${a.log_date}${a.slot || ''}`)).find((r: MealRow) => r.environment)?.environment || '';
+      // ⭐ P0-D — 직전 '명시' 식사환경 carry-forward. 추정(inferred)으로 저장된 환경은 건너뜀 — carry-forward가 자기 복제를 다시 물어오는 연쇄 차단.
+      lastEnvRef.current = [...(rows || [])].sort((a: MealRow, b: MealRow) => `${b.log_date}${b.slot || ''}`.localeCompare(`${a.log_date}${a.slot || ''}`)).find((r: MealRow) => r.environment && !(r.inferred_fields || []).includes('environment'))?.environment || '';
       setHasPattern(Object.keys(md).length > 0);
 
       // 최근 30일 '단일 메뉴' 기록 → 메뉴→식재료 캐시. override 아닌 미지 메뉴도
@@ -346,10 +383,27 @@ export default function CarePage() {
     return () => clearInterval(id);
   }, [ocrBusy]);
 
-  // 슬롯·날짜 바뀌면 기존 기록 불러오기 (없으면 개인 패턴으로 prefill된 빈 폼)
+  // 슬롯·날짜 바뀌면 기존 기록 불러오기 (없으면 개인 패턴으로 prefill된 빈 폼).
+  // ⭐ 전환 직전 미저장 편집분은 드래프트로 스태시 — "쓰다가 슬롯 눌렀더니 증발"하던 무경고 유실 수정(2026-07-05)
+  entryLiveRef.current = entry;
   useEffect(() => {
+    const key = `${date}|${activeSlot}`;
+    const cur = entryLiveRef.current;
+    const dirty = !!cur && JSON.stringify(cur) !== loadedSnapRef.current;
+    if (prevKeyRef.current === key) {
+      // 같은 끼니에서 logs만 갱신(클라우드 로드 완료·다른 저장 완료 등) — 쓰는 중이면 절대 리셋하지 않는다(타이핑 증발 방지)
+      if (dirty) return;
+    } else if (prevKeyRef.current && dirty) {
+      draftsRef.current[prevKeyRef.current] = cur!;   // 전환 — 미저장 편집분 스태시
+    }
+    prevKeyRef.current = key;
+    const draft = draftsRef.current[key];
     const dayLog = logs[date] || {};
-    setEntry(dayLog[activeSlot] || freshEntry(activeSlot, date));
+    const next = draft || dayLog[activeSlot] || freshEntry(activeSlot, date);
+    setEntry({ ...next, inferred: next.inferred || [] });   // 구 캐시 행 방어(inferred 필드 없음)
+    setSaveErr(false);
+    // 드래프트 복원이면 스냅샷을 비워 '항상 미저장' 취급 — 다시 전환해도 재스태시
+    loadedSnapRef.current = draft ? '' : JSON.stringify({ ...next, inferred: next.inferred || [] });
   }, [date, activeSlot, logs]);
 
   const hasName = (nm: string) => entry.ingredients.some((t) => t.name === nm);
@@ -565,18 +619,25 @@ export default function CarePage() {
       if (add.length) { e = { ...entry, ingredients: [...entry.ingredients, ...add] }; setEntry(e); }
     }
     const next = { ...logs };
-    if (!next[date]) next[date] = {};
+    next[date] = { ...(next[date] || {}) };   // day 객체도 복사 — 얕은 복사로 기존 logs를 in-place 오염시키면 저장 실패에도 슬롯 ✓가 켜진다
     next[date][activeSlot] = e;
-    setLogs(next);
-    if (!uid) saveCareLogs(next, null);   // 비로그인(guest)만 디스크 캐시 — 로그인은 메모리(setLogs)+server가 진실(아래 upsert)
 
     // 로그인 + 자녀 있으면 Supabase 동기화 — 저장 중 진행바 노출(서버 왕복 동안)
     if (uid && childId) {
       setSaving(true);
+      setSaveErr(false);
       const { error } = await supabase.from('meal_logs')
-        .upsert(entryToRow(e, childId, uid, date, activeSlot), { onConflict: 'child_id,log_date,slot' });
-      if (error) console.warn('[care] save error:', error.message);
+        .upsert(entryToRow(e, childId, uid, date, activeSlot, inferredColRef.current), { onConflict: 'child_id,log_date,slot' });
       setSaving(false);
+      if (error) {
+        // ⭐ 실패를 성공으로 위장하지 않기 — 편집분은 화면·드래프트에 그대로, 버튼이 '다시 시도'로
+        console.warn('[care] save error:', error.message);
+        setSaveErr(true);
+        return;
+      }
+      setLogs(next);   // 성공 후에만 반영 — 실패 시 슬롯 ✓가 거짓으로 켜지지 않게
+      delete draftsRef.current[`${date}|${activeSlot}`];   // 저장됨 — 스태시 폐기
+      loadedSnapRef.current = JSON.stringify(e);
       setSaved(true);
       setTimeout(() => setSaved(false), 1800);
       // 끼니에 내용 있으면 포인트 적립(서버가 멱등·일일5끼 한도 처리 — 같은 끼니 재저장은 적립 0)
@@ -587,6 +648,10 @@ export default function CarePage() {
           }).catch(() => {});
       }
     } else {
+      setLogs(next);
+      if (!uid) saveCareLogs(next, null);   // 비로그인(guest)만 디스크 캐시 — 로그인은 메모리(setLogs)+server가 진실
+      delete draftsRef.current[`${date}|${activeSlot}`];
+      loadedSnapRef.current = JSON.stringify(e);
       setSaved(true);   // 비로그인 = 즉시
       setTimeout(() => setSaved(false), 1500);
     }
@@ -782,14 +847,14 @@ export default function CarePage() {
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-extrabold" style={{ color: '#1a2b4a' }}>어디서 먹었나요?</h3>
             {hasPattern && !logs[date]?.[activeSlot] && (
-              <span className="text-[10.5px] font-bold" style={{ color: '#16A085' }}>🔁 장소·시간만 미리 채움</span>
+              <span className="text-[10.5px] font-bold" style={{ color: '#16A085' }}>🔁 지난 패턴으로 미리 채움 — 다르면 바꿔주세요</span>
             )}
           </div>
           <div className="grid grid-cols-3 gap-2">
             {PLACE_OPTS.map((o) => {
               const on = entry.place === o.v;
               return (
-                <button key={o.v} onClick={() => setEntry((x) => ({ ...x, place: o.v }))}
+                <button key={o.v} onClick={() => touch('place', () => ({ place: o.v }))}
                   className="rounded-lg py-2.5 text-[13px] font-bold transition leading-tight"
                   style={{ background: on ? '#1a2b4a' : '#FAFAF7', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? '#1a2b4a' : '#E5E7EB'}` }}>
                   {o.emoji} {o.v === 'daycare' ? (instType === 'kindergarten' ? '유치원' : instType === 'daycare' ? '어린이집' : '기관') : o.label}
@@ -800,7 +865,7 @@ export default function CarePage() {
           {/* 몇 시쯤 먹었나요 — 대략 시간단위 (선택) */}
           <div className="mt-3 flex items-center justify-between gap-2">
             <span className="text-[12px] font-bold" style={{ color: '#8a7a6a' }}>🕐 몇 시쯤 먹었나요? <span style={{ color: '#9CA3AF' }}>(선택)</span></span>
-            <select value={entry.mealTime ?? ''} onChange={(e) => setEntry((x) => ({ ...x, mealTime: e.target.value === '' ? null : Number(e.target.value) }))}
+            <select value={entry.mealTime ?? ''} onChange={(e) => touch('meal_time', () => ({ mealTime: e.target.value === '' ? null : Number(e.target.value) }))}
               className="px-3 py-1.5 rounded-lg text-sm outline-none font-semibold" style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB', color: '#1a2b4a' }}>
               <option value="">--시</option>
               {Array.from({ length: 18 }, (_, i) => i + 5).map((h) => (<option key={h} value={h}>{h <= 12 ? `오전 ${h}시`.replace('오전 12시', '낮 12시') : `오후 ${h - 12}시`}</option>))}
@@ -826,10 +891,10 @@ export default function CarePage() {
               placeholder="예: 소세지볶음, 미역국"
               className="flex-1 px-3 py-2.5 rounded-lg text-sm outline-none"
               style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB' }} />
-            <button onClick={() => addMenu(menuInput)} disabled={parsing || !menuInput.trim()}
+            <button onClick={() => addMenu(menuInput)} disabled={!menuInput.trim()}
               className="px-4 rounded-lg text-sm font-bold text-white"
-              style={{ background: parsing ? '#9CA3AF' : '#FF6B1A' }}>
-              {parsing ? '...' : '추가'}
+              style={{ background: '#FF6B1A' }}>
+              추가
             </button>
           </div>
         </div>
@@ -930,7 +995,7 @@ export default function CarePage() {
         <div className="bg-white rounded-2xl p-4 mb-3 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
           <h3 className="text-sm font-extrabold mb-2" style={{ color: '#1a2b4a' }}>{date === todayStr() ? '오늘 메모' : '그날 메모'} <span className="font-normal text-xs" style={{ color: '#9CA3AF' }}>(선택)</span></h3>
           <textarea value={entry.note} onChange={(e) => setEntry((x) => ({ ...x, note: e.target.value }))}
-            rows={3} placeholder="예: 그날 배가 아팠어요 / 새로운 메뉴를 시도했어요 (거부 음식은 위에서 탭하세요)"
+            rows={3} placeholder="예: 그날 배가 아팠어요 / 새로운 메뉴를 시도했어요 (남긴 음식은 아래 수용도에서 탭하세요)"
             className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
             style={{ background: '#FAFAF7', border: '1.5px solid #E5E7EB', color: '#374151' }} />
         </div>
@@ -943,7 +1008,9 @@ export default function CarePage() {
             {ACCEPT_LEVELS.map((o) => {
               const on = entry.acceptLevel === o.lvl;
               return (
-                <button key={o.lvl} onClick={() => setEntry((x) => ({ ...x, acceptLevel: o.lvl, ateWell: levelToAteWell(o.lvl) }))}
+                <button key={o.lvl} onClick={() => setEntry((x) => x.acceptLevel === o.lvl
+                  ? { ...x, acceptLevel: null, ateWell: null, refused: '' }   // 재탭 = 해제(오탭 교정) — 패널이 닫히므로 refused도 초기화
+                  : { ...x, acceptLevel: o.lvl, ateWell: levelToAteWell(o.lvl) })}
                   className="rounded-lg py-2 flex flex-col items-center gap-0.5 transition"
                   style={{ background: on ? o.c : '#FAFAF7', border: `1.5px solid ${on ? o.c : '#E5E7EB'}` }}>
                   <span className="text-lg leading-none">{o.emoji}</span>
@@ -954,8 +1021,8 @@ export default function CarePage() {
             })}
           </div>
 
-          {/* 거부·만짐·한입(level≤2 = 사실상 안 먹음) 시 남긴 음식 입력 — 거부→수용 전환 포착 */}
-          {(entry.acceptLevel != null && entry.acceptLevel <= 2) && (
+          {/* 수용도를 찍으면 항상 남긴 음식 선택 가능 — "완식인데 이것만 남김" 혼합 끼니도 포착(≤2 게이트가 가장 흔한 편식 신호를 잠그던 것 수정 2026-07-05) */}
+          {entry.acceptLevel != null && (
             <div className="mt-3 p-3 rounded-lg" style={{ background: entry.acceptLevel === 0 ? '#FFF5F5' : '#FAFAF7', border: `1.5px solid ${entry.acceptLevel === 0 ? '#FFCDD2' : '#E5E7EB'}` }}>
               <label className="text-xs font-bold block mb-1.5" style={{ color: entry.acceptLevel === 0 ? '#C62828' : '#6B7280' }}>
                 {entry.acceptLevel === 0 ? '어떤 음식을 거부했나요? (탭)' : '어떤 음식을 남겼나요? (탭 · 선택)'}
@@ -994,7 +1061,7 @@ export default function CarePage() {
               { v: 'finger', label: '🤏 핑거푸드' },
               { v: 'table', label: '🍽 일반식' },
             ].map((o) => (
-              <button key={o.v} onClick={() => setEntry((x) => ({ ...x, texture: x.texture === o.v ? '' : o.v }))}
+              <button key={o.v} onClick={() => touch('texture', (x) => ({ texture: x.texture === o.v ? '' : o.v }))}
                 className="rounded-lg py-2 text-[11px] font-bold transition"
                 style={{
                   background: entry.texture === o.v ? '#1a2b4a' : '#FAFAF7',
@@ -1010,7 +1077,7 @@ export default function CarePage() {
               { v: 'helped', label: '🍼 도와줌' },
               { v: 'self', label: '🙋 스스로' },
             ].map((o) => (
-              <button key={o.v} onClick={() => setEntry((x) => ({ ...x, autonomy: x.autonomy === o.v ? '' : o.v }))}
+              <button key={o.v} onClick={() => touch('autonomy', (x) => ({ autonomy: x.autonomy === o.v ? '' : o.v }))}
                 className="rounded-lg py-2 text-[11px] font-bold transition"
                 style={{
                   background: entry.autonomy === o.v ? '#16A085' : '#FAFAF7',
@@ -1035,7 +1102,7 @@ export default function CarePage() {
               const on = entry.environment === o.v;
               const onColor = o.good ? '#16A085' : '#E67E22';
               return (
-                <button key={o.v} onClick={() => setEntry((x) => ({ ...x, environment: x.environment === o.v ? '' : o.v }))}
+                <button key={o.v} onClick={() => touch('environment', (x) => ({ environment: x.environment === o.v ? '' : o.v }))}
                   className="rounded-lg py-2 text-[11.5px] font-bold transition"
                   style={{ background: on ? onColor : '#FAFAF7', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? onColor : '#E5E7EB'}` }}>{o.label}</button>
               );
@@ -1054,7 +1121,7 @@ export default function CarePage() {
             ].map((o) => {
               const on = entry.durationMin === o.v;
               return (
-                <button key={o.v} onClick={() => setEntry((x) => ({ ...x, durationMin: x.durationMin === o.v ? null : o.v }))}
+                <button key={o.v} onClick={() => touch('duration_min', (x) => ({ durationMin: x.durationMin === o.v ? null : o.v }))}
                   className="rounded-lg py-2 text-[11px] font-bold transition"
                   style={{ background: on ? '#1a2b4a' : '#FAFAF7', color: on ? 'white' : '#6B7280', border: `1.5px solid ${on ? '#1a2b4a' : '#E5E7EB'}` }}>{o.label}</button>
               );
@@ -1069,11 +1136,14 @@ export default function CarePage() {
       {/* 저장 버튼 */}
       <div className="px-5 py-3 border-t bg-white" style={{ borderColor: '#FFE8D0' }}>
         <style>{`@keyframes careprog{0%{left:-40%}100%{left:100%}}`}</style>
+        {saveErr && (
+          <div className="text-[11.5px] font-bold text-center mb-2" style={{ color: '#C62828' }}>저장에 실패했어요 — 연결을 확인하고 다시 시도해주세요. 쓰신 내용은 그대로 남아 있어요.</div>
+        )}
         <button onClick={saveEntry} disabled={saving}
           className="w-full py-3.5 rounded-xl font-extrabold text-white text-sm transition relative overflow-hidden"
-          style={{ background: saving ? '#C45A00' : saved ? '#16A085' : '#FF6B1A' }}>
+          style={{ background: saving ? '#C45A00' : saveErr ? '#C62828' : saved ? '#16A085' : '#FF6B1A' }}>
           {saving && <span style={{ position: 'absolute', top: 0, bottom: 0, width: '40%', background: 'rgba(255,255,255,0.28)', animation: 'careprog 0.9s linear infinite' }} />}
-          <span className="relative">{saving ? '저장 중…' : saved ? '✓ 저장됐어요' : `${SLOTS.find((s) => s.key === activeSlot)?.label} 기록 저장`}</span>
+          <span className="relative">{saving ? '저장 중…' : saveErr ? '다시 시도' : saved ? '✓ 저장됐어요' : `${SLOTS.find((s) => s.key === activeSlot)?.label} 기록 저장`}</span>
         </button>
         <button onClick={() => { window.location.href = '/foods'; }}
           className="w-full mt-2 py-2 text-xs font-semibold" style={{ color: '#8a7a6a' }}>

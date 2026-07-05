@@ -19,7 +19,7 @@ export function buildCandSignals(rows: CRow[], today: string, attendsDaycare: bo
   const env = w7.filter((r) => r.environment && r.place !== 'daycare');   // ⭐ 5-B(이사님 2026-06-15) 집 끼니만 — 식사환경은 부모 통제 가능한 집 기준(주간 종합 structuredSummary와 일관)
   const auto = w7.filter((r) => r.autonomy);
   const tex = w7.filter((r) => r.texture);
-  const mt = w7.filter((r) => typeof r.meal_time === 'number');
+  const mt = w7.filter((r) => typeof r.duration_min === 'number');   // 소요시간 = duration_min (meal_time=시각 5~22시 오배선 수정 2026-07-05)
   const memoDays = (re: RegExp) => new Set(w7.filter((r) => r.note && re.test(r.note)).map((r) => r.log_date)).size;
   const snackBy: Record<string, number> = {};
   w7.forEach((r) => { if ((r.slot || '').includes('snack')) snackBy[r.log_date] = (snackBy[r.log_date] || 0) + 1; });
@@ -39,7 +39,7 @@ export function buildCandSignals(rows: CRow[], today: string, attendsDaycare: bo
     envBadPct: env.length ? env.filter((r) => r.environment !== 'table').length / env.length : null, envCount: env.length,
     selfPct: auto.length ? auto.filter((r) => r.autonomy === 'self').length / auto.length : null, autoCount: auto.length,
     texLow: tex.length >= 3 && tex.filter((r) => r.texture === 'puree' || r.texture === 'mashed').length / tex.length > 0.5, texCount: tex.length,
-    mtOver30Pct: mt.length ? mt.filter((r) => (r.meal_time as number) >= 30).length / mt.length : null, mtCount: mt.length,
+    mtOver30Pct: mt.length ? mt.filter((r) => (r.duration_min as number) >= 30).length / mt.length : null, mtCount: mt.length,
     missingCount: 0,   // 영양 파이프라인 산출(크론이 fg.missing으로 덮음)
     refusedCount: refusedAll.size, dcRefusedCount: refusedDc.size,
     pressureMemoDays: memoDays(SIG_PRESSURE_RE), bargainMemoDays: memoDays(SIG_BARGAIN_RE),

@@ -28,7 +28,13 @@ export type MealDefaults = Record<string, Partial<Record<DayType, SlotDefault>>>
 type HistRow = {
   slot: string; log_date: string; place?: string | null; meal_time?: number | null; texture?: string | null;
   autonomy?: string | null; environment?: string | null; duration_min?: number | null;
+  inferred_fields?: string[] | null;   // 부모가 안 만진 prefill로 저장된 필드 목록(DB 컬럼명) — 패턴 학습에서 제외
 };
+
+/** 명시값만 — 그 필드가 prefill 추정으로 저장된 행이면 null 취급(추정이 추정을 낳는 자기강화 루프 차단). */
+function explicit<T>(r: HistRow, col: string, v: T | null | undefined): T | null | undefined {
+  return r.inferred_fields?.includes(col) ? null : v;
+}
 
 // 최빈값(가장 자주 나온 값) — 동률이면 먼저 본 값. null/빈값은 무시.
 function mode<T>(vals: (T | null | undefined)[]): T | null {
@@ -54,12 +60,12 @@ export function computeMealDefaults(rows: HistRow[]): MealDefaults {
   for (const [k, rs] of bucket) {
     const [slot, dt] = k.split('|') as [string, DayType];
     (out[slot] ||= {})[dt] = {
-      place: mode(rs.map((r) => r.place)),
-      mealTime: mode(rs.map((r) => r.meal_time)),
-      texture: mode(rs.map((r) => r.texture)),
-      autonomy: mode(rs.map((r) => r.autonomy)),
-      environment: mode(rs.map((r) => r.environment)),
-      durationMin: mode(rs.map((r) => r.duration_min)),
+      place: mode(rs.map((r) => explicit(r, 'place', r.place))),
+      mealTime: mode(rs.map((r) => explicit(r, 'meal_time', r.meal_time))),
+      texture: mode(rs.map((r) => explicit(r, 'texture', r.texture))),
+      autonomy: mode(rs.map((r) => explicit(r, 'autonomy', r.autonomy))),
+      environment: mode(rs.map((r) => explicit(r, 'environment', r.environment))),
+      durationMin: mode(rs.map((r) => explicit(r, 'duration_min', r.duration_min))),
     };
   }
   return out;
