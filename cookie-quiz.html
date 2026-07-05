@@ -7,7 +7,12 @@
 <meta property="og:title" content="아이 편식 상식 점수 — 나는 몇 점일까?">
 <meta property="og:description" content="나는 편식을 잘 아는 부모일까? 우리 아이가 편식하는 이유, 10문제 점수로 확인해보세요 · 1분.">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta property="og:url" content="https://www.mealfred.com/cookie-quiz.html">
+<meta property="og:image" content="https://www.mealfred.com/og-quiz.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.mealfred.com/og-quiz.jpg">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -220,10 +225,13 @@ function show(){
  document.getElementById('rescard').className='card '+B.bg;
  setTimeout(()=>{document.getElementById('gfill').style.width=Math.max(score,4)+'%';},80);
  document.getElementById('wrongtitle').textContent=correct===10?'📗 오답 없음 — 전 문항 정답':'📕 오답노트 ('+(10-correct)+'문항)';
+ // 앱 핸드오프: 점수·오답 문항(qz/qzw)을 CTA URL에 실어 보낸다 — 앱 홈이 '아까 그 점수' 환영 배너로 이어받아 퀴즈→앱이 한 대화처럼 이어지게(자연 전환).
+ const wrong=[];QUIZ.forEach((q,n)=>{if(picked[n]!==q.a)wrong.push(n);});
+ const appUrl='https://app.mealfred.com/?utm_source=cookie&utm_medium=quiz&utm_campaign=cookie_series&qz='+score+(wrong.length?'&qzw='+wrong.join(','):'');
  document.getElementById('coach').innerHTML='<div class="em">💌</div><h3>'+(score>=70?'이제 "우리 아이 실전" 과목이 남았어요':'점수, 앱이 매일 올려드려요')+'</h3><p>'+(score>=70
    ?'이론 위에, 앱이 우리 아이 식사 기록으로 <b>오늘의 실전 한 수</b>를 매일 알려드려요.'
    :'오답노트를 외울 필요 없어요 — 앱이 우리 아이 상황에 맞춰 <b>매일 한 줄</b>씩 코칭해드립니다.')+'</p>'+
-  '<a class="btn" href="https://app.mealfred.com/?utm_source=cookie&utm_medium=quiz&utm_campaign=cookie_series" target="_blank" rel="noopener">앱에서 편식 코칭 받기 →</a>';
+  '<a class="btn" href="'+appUrl+'" target="_blank" rel="noopener">앱에서 편식 코칭 받기 →</a>';
  window.mfShareText='나 아이 편식 상식 점수 '+score+'점 「'+B.nick+'」'+B.em+' — 너도 10문제 풀고 점수로 붙자, 생각보다 어렵다? 💯';
  document.getElementById('review').innerHTML=QUIZ.map((q,n)=>{
    const ok=picked[n]===q.a;
@@ -247,7 +255,6 @@ function show(){
  // 결과 익명 적재(문항별 오답률·평균 실측용 — 게시글/보고서 소재). 실패해도 무시(fire-and-forget).
  // qv='k3' = 2026-07-05 문항 세트 3판(Q1 보기 미끼 재구성·Q3 식사환경). 문항을 바꾸면 qv를 올릴 것(집계 오염 방지).
  try{
-  const wrong=[];QUIZ.forEach((q,n)=>{if(picked[n]!==q.a)wrong.push(n);});
   fetch('https://app.mealfred.com/api/quiz-result',{method:'POST',headers:{'content-type':'application/json'},
    body:JSON.stringify({tool:'knowledge',qv:'k3',score:score,correct:correct,
     answers:picked.map((p,n)=>QUIZ[n].map[p]),wrong:wrong})}).catch(()=>{});
