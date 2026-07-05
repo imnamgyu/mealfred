@@ -206,7 +206,7 @@ function shareLink(){
  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done).catch(legacy);
  else legacy();
 }
-document.addEventListener('click',e=>{const a=e.target&&e.target.closest&&e.target.closest('a[href*="app.mealfred.com"]');if(a)qe('app_cta');});
+document.addEventListener('click',e=>{const a=e.target&&e.target.closest&&e.target.closest('a[href*="app.mealfred.com"]');if(a){qe('app_cta');if(window.gtag)gtag('event','cookie_app_cta_click',{tool:'quiz'});}});
 function render(){
  const q=QUIZ[i];
  document.getElementById('pf').style.width=((i)/QUIZ.length*100)+'%';
