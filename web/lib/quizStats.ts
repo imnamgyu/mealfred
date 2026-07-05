@@ -36,6 +36,32 @@ export function validateQuizPayload(body: unknown): QuizPayload | null {
   return { tool, qv, score, correct, answers, wrong };
 }
 
+/** 전환 이벤트 검증 — 허용된 슬러그만(quiz_events 오염 방지). */
+const EVENTS = new Set(['app_cta', 'share']);
+export function validateQuizEvent(body: unknown): { tool: string; event: string } | null {
+  if (!body || typeof body !== 'object') return null;
+  const b = body as Record<string, unknown>;
+  const tool = typeof b.tool === 'string' && TOOL_RE.test(b.tool) ? b.tool : null;
+  const event = typeof b.event === 'string' && EVENTS.has(b.event) ? b.event : null;
+  return tool && event ? { tool, event } : null;
+}
+
+/** 문항 라벨(어드민 오답률 표기용) — 정적 페이지(cookie-quiz.html)의 문항 순서와 동기. qv 올릴 때 함께 갱신할 것. */
+export const QUIZ_LABELS: Record<string, string[]> = {
+  k3: [
+    '새 음식 노출 횟수 (정답: 8~15번 이상)',
+    '브로콜리 30분 대치 — 무압박 마무리',
+    '식사 환경 — 정해진 시간·같은 식탁',
+    '그릇 비우기가 기르는 것 — 포만신호 무시',
+    '몰래 갈아넣기 — 영양 보충까지만',
+    '"크면 나아진다" — 절반만 참',
+    '저녁 거부 1용의자 — 식전 간식·우유',
+    '역할 분담(DOR) — 아이는 먹을지·얼마나',
+    '새 반찬 배치 — 안 닿게 따로·노코멘트',
+    '"한 입만" 권유 — 거부 강화',
+  ],
+};
+
 export type QuizStatRow = { score: number; wrong: number[] | null };
 export type QuizStats = {
   n: number;

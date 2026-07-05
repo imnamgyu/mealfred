@@ -102,8 +102,11 @@ export default async function AdminHome() {
         ))}
       </div>
 
-      <Link href="/admin/institutions" style={{ display: 'block', textDecoration: 'none', background: '#FFF7ED', border: '1.5px solid #FFE0C0', borderRadius: 12, padding: '12px 14px', marginBottom: 16, color: '#C45A00', fontWeight: 800, fontSize: 14 }}>
+      <Link href="/admin/institutions" style={{ display: 'block', textDecoration: 'none', background: '#FFF7ED', border: '1.5px solid #FFE0C0', borderRadius: 12, padding: '12px 14px', marginBottom: 10, color: '#C45A00', fontWeight: 800, fontSize: 14 }}>
         🏫 기관 평가 기록 — 등수·핵심지표 리스트 보기 →
+      </Link>
+      <Link href="/admin/quiz" style={{ display: 'block', textDecoration: 'none', background: '#FDF7FF', border: '1.5px solid #EBD8F7', borderRadius: 12, padding: '12px 14px', marginBottom: 16, color: '#7c3aed', fontWeight: 800, fontSize: 14 }}>
+        💯 편식 상식 점수 퀴즈 — 참여·전환·문항별 오답률 →
       </Link>
 
       <div style={{ display: 'grid', gap: 10 }}>

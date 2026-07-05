@@ -116,7 +116,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
       <div class="em">🏆</div>
       <h3>친구들은 몇 점일까?</h3>
       <p>링크 보내고 <b>점수 내기 한 판</b> — 남편/아내부터 시켜보세요. 생각보다 다들 못 맞힙니다 😏</p>
-      <button class="btn" onclick="mfShare()">카톡으로 도전장 보내기 📣</button>
+      <button class="btn" onclick="qe('share');mfShare()">카톡으로 도전장 보내기 📣</button>
     </div>
     <button class="btn sec" onclick="location.reload()">↺ 다시 풀기</button>
   </div>
@@ -187,6 +187,9 @@ const BANDS=[
 ];
 let i=0;const picked=[];
 const play=document.getElementById('play');
+// 전환 클릭 적재(어드민 /admin/quiz 전환율) — 실패 무시. app_cta는 위임 리스너로 결과 화면의 모든 앱 링크(코칭 CTA·하단 배너) 커버.
+function qe(ev){try{fetch('https://app.mealfred.com/api/quiz-event',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({tool:'knowledge',event:ev})}).catch(()=>{});}catch(e){}}
+document.addEventListener('click',e=>{const a=e.target&&e.target.closest&&e.target.closest('a[href*="app.mealfred.com"]');if(a)qe('app_cta');});
 function render(){
  const q=QUIZ[i];
  document.getElementById('pf').style.width=((i)/QUIZ.length*100)+'%';

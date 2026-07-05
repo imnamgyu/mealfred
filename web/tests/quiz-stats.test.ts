@@ -3,7 +3,7 @@
  * 회귀방지: ①범위 밖 페이로드로 집계 오염 ②wrong 개수와 correct 불일치 ③오답률 정렬·백분율 계산.
  */
 import { describe, it, expect } from 'vitest';
-import { validateQuizPayload, aggregateQuizStats } from '../lib/quizStats';
+import { validateQuizPayload, aggregateQuizStats, validateQuizEvent, QUIZ_LABELS } from '../lib/quizStats';
 
 const good = { tool: 'knowledge', qv: 'k1', score: 70, correct: 7, answers: [1, 2, 0, 3, 1, 1, 1, 1, 1, 1], wrong: [0, 4, 7] };
 
@@ -30,6 +30,22 @@ describe('validateQuizPayload', () => {
     expect(validateQuizPayload(null)).toBeNull();
     expect(validateQuizPayload('x')).toBeNull();
     expect(validateQuizPayload({})).toBeNull();
+  });
+});
+
+describe('validateQuizEvent', () => {
+  it('허용 슬러그만 통과(app_cta·share)', () => {
+    expect(validateQuizEvent({ tool: 'knowledge', event: 'app_cta' })).toEqual({ tool: 'knowledge', event: 'app_cta' });
+    expect(validateQuizEvent({ tool: 'knowledge', event: 'share' })).toEqual({ tool: 'knowledge', event: 'share' });
+    expect(validateQuizEvent({ tool: 'knowledge', event: 'hack' })).toBeNull();
+    expect(validateQuizEvent({ tool: 'DROP', event: 'share' })).toBeNull();
+    expect(validateQuizEvent(null)).toBeNull();
+  });
+});
+
+describe('QUIZ_LABELS', () => {
+  it('k3 라벨 10개(어드민 오답률 표기와 문항 수 일치)', () => {
+    expect(QUIZ_LABELS.k3).toHaveLength(10);
   });
 });
 
