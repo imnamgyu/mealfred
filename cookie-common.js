@@ -5,7 +5,8 @@
     { id: 'mealplan', ico: '🍱', label: '우리 아이 맞춤 식단표', desc: '급식 데이터로 일주일 식단', href: '/cookie-mealplan.html' },
     { id: 'cousins', ico: '🥔', label: '사촌 음식 찾기', desc: '잘 먹는 음식의 다음 도전', href: '/cookie-cousins.html' },
     { id: 'normal', ico: '🧭', label: '편식 정상 진단', desc: '우리 아이 편식, 정상일까?', href: '/cookie-normal.html' },
-    { id: 'quiz', ico: '🚦', label: '우리 집 식탁 테스트', desc: '이 행동, 몇 개나 해당되세요?', href: '/cookie-quiz.html' }
+    { id: 'quiz', ico: '💯', label: '아이 편식 상식 점수', desc: '나는 몇 점일까? 10문제 1분', href: '/cookie-quiz.html' },
+    { id: 'bti', ico: '🍽️', label: '밥상BTI', desc: '나는 어떤 밥상 부모일까?', href: '/cookie-bti.html' }
   ];
 
   window.mfToast = function (msg) {

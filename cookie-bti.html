@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밥상BTI — 나는 어떤 밥상 부모일까? | 밀프레드</title>
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="밥상BTI — 나는 어떤 밥상 부모일까?">
+<meta property="og:description" content="한입만 협상가? 몰래 연금술사? 12문항으로 나오는 우리 집 밥상 유형 — 배우자와 조합까지. 약 2분.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script src="/docs-gate.js?v=4"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--g700:#1B5E20;--r700:#C62828;--y700:#B45309}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#FFFDFB;color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased}
+.priv{position:fixed;top:8px;right:8px;background:#1F2D3D;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;opacity:.55;z-index:9}
+.back{display:inline-block;margin:12px 0 0 14px;color:#b39a82;text-decoration:none;font-size:12px;font-weight:700}
+.hero{background:linear-gradient(160deg,#FFF5EB,#FFE8D0 45%,#FFD9B5);padding:38px 20px 26px;text-align:center}
+.hero .tag{display:inline-block;background:rgba(255,107,26,.1);color:var(--org2);padding:6px 15px;border-radius:100px;font-size:11.5px;font-weight:800;border:1px solid rgba(255,107,26,.25);margin-bottom:13px}
+.hero h1{font-size:clamp(21px,5.6vw,27px);font-weight:800;letter-spacing:-0.02em;line-height:1.3;color:var(--navy)}
+.hero h1 .ac{color:#FF8A47}
+.hero p{font-size:14px;color:#5a4a3a;font-weight:500;margin-top:10px;max-width:430px;margin-left:auto;margin-right:auto}
+.hero .meta{margin-top:12px;font-size:11.5px;color:#9a8468;font-weight:700}
+main{max-width:480px;margin:0 auto;padding:24px 18px 30px}
+.prog{height:8px;background:var(--n100);border-radius:6px;overflow:hidden;margin-bottom:18px}
+.prog .pf{height:100%;background:linear-gradient(90deg,#FFC58A,#E89244);width:0;transition:width .3s}
+.qnum{font-size:12px;font-weight:800;color:var(--org2);margin-bottom:7px}
+.qtext{font-size:17px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:18px}
+.balance{font-size:11.5px;font-weight:800;color:#7c3aed;background:#F5F3FF;border:1px solid #DDD6FE;display:inline-block;padding:4px 11px;border-radius:100px;margin-bottom:9px}
+.opt{display:block;width:100%;text-align:left;padding:14px 16px;border:1.5px solid var(--n200);border-radius:12px;background:#fff;font-size:14.5px;font-weight:700;color:var(--n700);cursor:pointer;margin-bottom:10px;font-family:inherit;transition:.12s;line-height:1.45}
+.opt:hover{border-color:var(--p500);background:#FFF8F2}
+.card{border:1.5px solid var(--n200);border-radius:16px;padding:22px 18px;background:#fff}
+.card.bg-g{background:#F1F8F0;border-color:#CDE8CC}.card.bg-y{background:#FFF9E8;border-color:#FFE6A8}.card.bg-r{background:#FFF1F0;border-color:#FFD2CC}
+.score{text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.06);margin-bottom:16px}
+.score .em{font-size:58px;line-height:1.1}
+.score .tcode{font-size:11.5px;font-weight:800;letter-spacing:.22em;color:var(--n500);margin-top:8px}
+.score .nick{font-size:21px;font-weight:800;margin-top:3px;letter-spacing:-0.02em}
+.score .nick.lg{color:var(--g700)}.score .nick.ly{color:var(--y700)}.score .nick.lr{color:var(--r700)}
+.score .mod{font-size:12.5px;color:var(--n600);font-weight:700;margin-top:2px}
+.defbox{margin:13px 4px 0;background:rgba(255,255,255,.8);border:1.5px dashed rgba(0,0,0,.14);border-radius:12px;padding:12px 14px;text-align:left;font-size:13px;font-weight:700;color:var(--s800);line-height:1.8}
+.defbox b{color:var(--org2)}
+.feat{margin-top:12px;text-align:left}
+.feat li{list-style:none;font-size:13px;font-weight:700;color:var(--s800);background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.05);border-radius:10px;padding:9px 12px;margin-bottom:7px;line-height:1.5}
+.chem{display:flex;gap:8px;margin-top:12px}
+.chem>div{flex:1;border-radius:12px;padding:11px 12px;text-align:left;font-size:12px;font-weight:700;line-height:1.5}
+.chem .good{background:#EFF8EF;border:1px solid #CDE8CC;color:#1B5E20}
+.chem .bad{background:#FFF1F0;border:1px solid #FFD2CC;color:#C62828}
+.chem .lbl{font-size:10.5px;font-weight:800;letter-spacing:.06em;opacity:.75;display:block;margin-bottom:2px}
+.spouse{font-size:11.5px;color:var(--n500);font-weight:700;margin-top:9px;text-align:center}
+.noblame{font-size:12px;color:var(--n500);font-weight:600;margin-top:12px;background:rgba(255,255,255,.7);border:1px solid rgba(0,0,0,.05);border-radius:10px;padding:9px 12px;line-height:1.6;text-align:left}
+.rev{border:1.5px solid var(--n200);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
+.rev .rq{font-size:13px;font-weight:800;color:var(--s800);margin-bottom:6px;line-height:1.4}
+.rev .ra{font-size:12.5px;font-weight:800}
+.rev .ra.ok{color:var(--g700)}.rev .ra.no{color:var(--r700)}.rev .ra.tip{color:var(--y700)}.rev .ra.fun{color:#7c3aed}
+.rev .ex{font-size:12px;color:var(--n600);font-weight:600;margin-top:6px;line-height:1.55;background:#FAFAFA;border-radius:8px;padding:8px 10px}
+.btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:inherit}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:#fff;color:var(--org2);border:1.5px solid var(--p300);box-shadow:none;margin-top:9px}
+.appin{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px solid var(--p300);border-radius:16px;padding:20px;text-align:center;margin-top:14px}
+.appin .em{font-size:30px}.appin h3{font-size:15.5px;font-weight:800;color:var(--s800);margin:4px 0 6px}
+.appin p{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:14px;line-height:1.55}
+footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px;font-weight:600;line-height:1.6}
+.hidden{display:none}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body data-cookie="bti">
+<span class="priv">🔒 비공개 테스트</span>
+<a href="/cookie-services.html" class="back">← 쿠키 허브</a>
+<header class="hero">
+  <span class="tag">🍽️ 밥상BTI</span>
+  <h1>나는 어떤 <span class="ac">밥상 부모</span>일까?</h1>
+  <p>한입만 협상가? 몰래 연금술사? 우리 집 식탁 장면 12개로 나의 밥상 유형이 나와요. <b>배우자와의 조합</b>이 진짜 재미입니다.</p>
+  <div class="meta">⏱ 약 2분 · 12문항 · 유형 4종 + 궁합</div>
+</header>
+<main>
+  <div id="play">
+    <div class="prog"><div id="pf" class="pf"></div></div>
+    <div class="qnum" id="qnum"></div>
+    <div id="qbal"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+  </div>
+
+  <div id="out" class="hidden">
+    <div class="card" id="rescard">
+      <div class="score">
+        <div class="em" id="em"></div>
+        <div class="tcode" id="tcode"></div>
+        <div class="nick" id="nick"></div>
+        <div class="mod" id="mod"></div>
+        <div class="defbox" id="defbox"></div>
+        <ul class="feat" id="feat"></ul>
+        <div class="chem">
+          <div class="good"><span class="lbl">💚 찰떡 조합</span><span id="good"></span></div>
+          <div class="bad"><span class="lbl">💥 폭발 조합</span><span id="bad"></span></div>
+        </div>
+        <div class="spouse">부부가 각자 해보세요 — 조합이 진짜입니다 (전략가✕협상가 조합은 아이가 파업합니다)</div>
+        <div class="noblame" id="noblame"></div>
+      </div>
+      <div id="review"></div>
+    </div>
+    <div class="appin" id="coach"></div>
+    <div class="appin" style="background:linear-gradient(135deg,#FFEFE0,#FFE2C4)">
+      <div class="em">📣</div>
+      <h3>배우자는 무슨 유형일까?</h3>
+      <p>내 밥상BTI를 카톡에 — "당신도 해봐, 우리 조합 보자"</p>
+      <button class="btn" onclick="mfShare()">카톡·맘카페에 공유하기 📣</button>
+    </div>
+    <button class="btn sec" onclick="location.reload()">↺ 다시 하기</button>
+  </div>
+</main>
+<footer>밀프레드 편식도감 · SOS·Satter·식약처 등 35개 국제 가이드라인 근거 · 참고용 놀이 테스트</footer>
+
+<script>
+// 밥상BTI(정식 서비스·이사님 2026-07-05): 행동 진술 10 + 밸런스 게임 2 = 12문항 → 2축(압박P·우회T) 4유형 캐릭터.
+// 이식 요소: 빈칸 정의문(detailSentence)·궁합 good/bad·유형명=수식절+별명·밸런스로 단조로움 파괴.
+const QUIZ=[
+ {q:"아이가 반찬을 안 먹으면 \"딱 한 입만\" 하고 숟가락을 들이민다.",axis:'P',trap:true,
+  ex:"'한 입만' 압박은 그 음식 거부를 오히려 강화해요(Galloway 2006). 정석은 강요 없는 반복 노출."},
+ {q:"\"이거 다 먹으면 아이스크림(유튜브) 줄게\" 거래를 한다.",axis:'T',trap:true,
+  ex:"거래는 '채소=벌, 디저트=상'을 각인해요. 보상 걸고 먹인 음식은 나중에 선호가 오히려 떨어졌어요."},
+ {q:"싫어하는 채소는 다지고 갈아서 볶음밥·전·카레에 숨긴다.",axis:'T',trap:true,
+  ex:"그날 영양은 채워지지만 아이는 먹은 줄 몰라요. '보이는 채소'는 여전히 거부 — 숨기기만으로는 편식이 안 바뀌어요."},
+ {q:"\"남기지 말고 싹 비우자~\" 그릇 검사를 한다.",axis:'P',trap:true,
+  ex:"기준은 그릇이 아니라 아이 배여야 해요. 그릇 기준 식사는 배부름 신호를 무시하는 습관을 만들어요."},
+ {bal:true,q:"반드시 하나만 골라야 한다면?",
+  o:["🥦 싫어하는 채소, 몰래 갈아서라도 먹인다","🍽️ 안 먹으면 쿨하게 그냥 치운다"],
+  tIf:0,
+  ex:"갈기파는 우회 전략(연금술) 성향, 치우기파는 중립국 성향이에요. 정석은 '치우되, 다음 끼니까지 간식 없이 + 다음에 또 노코멘트로 내놓기'."},
+ {q:"두세 번 뱉어낸 반찬은 \"얘는 이거 안 먹어\" 하고 식단에서 뺀다.",axis:null,trap:true,
+  ex:"새 음식은 많게는 8~15번 이상 노출돼야 받아들여지는 경우가 많아요. 서너 번 포기가 제일 아까운 지점이에요."},
+ {q:"저녁 전인데 \"배고파\" 소리에 우유·치즈·과일을 준다.",axis:null,trap:true,
+  ex:"밥 1~2시간 전 간식·우유면 위는 이미 차요. '안 먹는 아이'가 아니라 '배고플 틈이 없던 아이'인 경우가 많아요."},
+ {bal:true,q:"이번에도 하나만 골라야 한다면?",
+  o:["🍦 디저트를 걸고 꼬신다","🏃 숟가락 들고 따라다니며 먹인다"],
+  tIf:0,pIf:1,
+  ex:"디저트파는 우회 전략, 추격파는 압박 전략 — 둘 다 연구는 말려요(보상=선호 하락, 추격 배식=식탁 이탈 강화). 그래도 하나를 골라야 했다면… 그게 나의 본능 성향입니다."},
+ {q:"\"이거 먹으면 키 쑥쑥 커!\" 하고 설명해서 설득한다.",axis:'P',trap:true,
+  ex:"아이에게 '몸에 좋다'는 '맛없다'로 번역돼요. 건강 설득은 섭취를 오히려 줄였다는 연구가 있어요."},
+ {q:"먹는 양은 아이가 정하게 두고, 남겨도 잔소리하지 않는다.",axis:'Pr',trap:false,
+  ex:"사터의 책임 분담(DOR) 정석 — 부모는 '무엇을·언제', 아이는 '먹을지·얼마나'.",
+  miss:"부모가 양까지 정하면 식탁이 힘겨루기가 돼요. '얼마나'는 아이 몫(사터 DOR)으로."},
+ {q:"아이가 안 먹는 반찬도 부모가 먼저 맛있게 먹는 모습을 보여준다.",axis:null,trap:false,
+  ex:"아이는 말보다 눈으로 배워요. 부모의 맛있게 먹는 모습이 가장 검증된 방법 중 하나예요.",
+  miss:"백 마디 설명보다 부모가 맛있게 먹는 모습이 강해요 — '같이 먹는 사람' 되기."},
+ {q:"새 반찬은 좋아하는 음식과 안 닿게 따로 두고, 먹으라는 말은 안 한다.",axis:null,trap:false,
+  ex:"정석 노출법! '식판에 있기만' 해도 노출은 시작돼요.",
+  miss:"음식이 닿는 것도 싫어하는 아이가 많아요. 분리해서 노코멘트로 놓아두는 게 노출의 시작이에요."}
+];
+const OPTS=["네, 우리 집 얘기예요","아니요, 안 그래요"];
+const TYPES={
+ SS:{code:'STRATEGIST',em:'♟️',nick:'풀코스 전략가',cls:'lr',bg:'bg-r',mod:'갈고 · 걸고 · 밀어붙이는 종합상사',
+   def:'<b>풀코스 전략가</b>님에게<br>식탁이란 <b>매일 새로 짜는 작전상황실</b>,<br>아이란 <b>매수도 회유도 안 통하는 철벽 CEO</b>.',
+   feat:['압박과 우회 전략을 동시에 굴리는 멀티태스커','작전이 많다는 건 그만큼 진심이 크다는 뜻','아이는 이미 모든 작전을 간파했을 확률 높음'],
+   good:'식탁 위 스위스 (브레이크 담당)',bad:'한입만 협상가 (압박 시너지 폭발)',
+   blame:'전략이 많은 건 애정이 많아서예요. 그런데 그 작전 몇 개가 <b>편식을 유지시키는 원인</b>일 수 있어요 — 방향만 돌리면 이 전략력이 최강 무기가 됩니다.'},
+ SP:{code:'NEGOTIATOR',em:'🥄',nick:'한입만 협상가',cls:'ly',bg:'bg-y',mod:'오늘도 협상 테이블을 여는 정공법 외길',
+   def:'<b>한입만 협상가</b>님에게<br>식탁이란 <b>매일 열리는 협상 테이블</b>,<br>아이란 <b>세상에서 제일 콧대 높은 바이어</b>.',
+   feat:['"한 입만"이 사실상 인사말','꼼수는 안 쓰는 정직한 정면돌파형','오늘도 협상은 결렬됐지만 내일 또 연다'],
+   good:'몰래 연금술사 (밀당 역할분담)',bad:'풀코스 전략가 (둘 다 밀어붙이면 아이 파업)',
+   blame:'정면돌파는 정직해서 나오는 방식이에요. 다만 연구는 압박 대신 <b>노코멘트 반복 노출</b>이 그 자리를 대신해야 한다고 말해요.'},
+ PS:{code:'ALCHEMIST',em:'⚗️',nick:'몰래 연금술사',cls:'ly',bg:'bg-y',mod:'들키면 끝나는 비밀 실험실 운영 중',
+   def:'<b>몰래 연금술사</b>님에게<br>식탁이란 <b>들키면 끝나는 비밀 실험실</b>,<br>아이란 <b>눈치 100단 품질검사관</b>.',
+   feat:['다지기·갈기·섞기 연성 스킬 만렙','압박은 안 하는 평화주의자(단, 지하공작 활발)','영양은 챙기는데 편식 자체는 제자리인 게 함정'],
+   good:'한입만 협상가 (음지·양지 분업)',bad:'몰래 연금술사 (부부가 둘 다 숨기면 아이는 평생 모름)',
+   blame:'숨기기는 죄가 아니라 응급처치예요. 다만 <b>보이는 노출</b>이 함께 가야 편식이 진짜로 바뀝니다.'},
+ PP:{code:'SWITZERLAND',em:'🕊️',nick:'식탁 위 스위스',cls:'lg',bg:'bg-g',mod:'놓아두고 기다리는 영세중립국',
+   def:'<b>식탁 위 스위스</b>님에게<br>식탁이란 <b>평화 협정 체결지</b>,<br>아이란 <b>언젠가 국경을 여는 이웃나라</b>.',
+   feat:['압박도 지하공작도 없는 중립 외교','연구가 권하는 방향에 이미 가장 가까운 유형','가끔은 중립이 방임이 되지 않게 다음 수가 필요'],
+   good:'모든 유형 (당신이 우리 집 밸런스 담당)',bad:'없음 (단, 전략가 배우자를 말리다 지칠 수 있음)',
+   blame:'좋은 방향이에요. 이제 남은 건 기다림에 <b>설계</b>를 더하는 것 — 뭘 언제 어떻게 내놓을지요.'}
+};
+let i=0;const picked=[];
+const play=document.getElementById('play');
+function render(){
+ const q=QUIZ[i];
+ document.getElementById('pf').style.width=((i)/QUIZ.length*100)+'%';
+ document.getElementById('qnum').textContent='Q'+(i+1)+' / '+QUIZ.length;
+ document.getElementById('qbal').innerHTML=q.bal?'<span class="balance">⚖️ 밸런스 게임 — 반드시 하나!</span>':'';
+ document.getElementById('qtext').textContent=q.q;
+ const ol=document.getElementById('opts');ol.innerHTML='';
+ (q.o||OPTS).forEach((opt,idx)=>{const b=document.createElement('button');b.className='opt';b.textContent=opt;b.onclick=()=>choose(idx);ol.appendChild(b);});
+}
+function choose(idx){picked[i]=idx;i++;if(i<QUIZ.length){render();window.scrollTo({top:0,behavior:'smooth'});}else show();}
+function show(){
+ let P=0,T=0,wrong=0;
+ QUIZ.forEach((q,n)=>{
+  const a=picked[n];
+  if(q.bal){ if(q.tIf===a)T++; if(q.pIf===a)P++; return; }
+  const hit=q.trap? a===0 : a===1;
+  if(hit)wrong++;
+  if(hit&&q.axis==='P')P++;
+  if(hit&&q.axis==='T')T++;
+  if(hit&&q.axis==='Pr')P++;   // 정석(양은 아이가)을 안 하면 통제 성향 → 압박축
+ });
+ const key=(P>=2?'S':'P')+(T>=2?'S':'P');
+ const t=TYPES[key];
+ document.getElementById('em').textContent=t.em;
+ document.getElementById('tcode').textContent='BAPSANG TYPE · '+t.code;
+ const nk=document.getElementById('nick');nk.textContent='「'+t.nick+'」';nk.className='nick '+t.cls;
+ document.getElementById('mod').textContent=t.mod;
+ document.getElementById('defbox').innerHTML=t.def;
+ document.getElementById('feat').innerHTML=t.feat.map(f=>'<li>'+f+'</li>').join('');
+ document.getElementById('good').textContent=t.good;
+ document.getElementById('bad').textContent=t.bad;
+ document.getElementById('noblame').innerHTML='연구와 반대 방향 행동 <b>'+wrong+'개 / 10개</b> — '+t.blame;
+ document.getElementById('rescard').className='card '+t.bg;
+ document.getElementById('coach').innerHTML='<div class="em">💌</div><h3>'+t.nick+' 맞춤 코칭이 있어요</h3><p>유형은 재미지만 코칭은 진짜예요 — 앱이 우리 아이 식사 기록을 보고 <b>매일 한 줄</b>씩, '+t.nick+'의 다음 수를 알려드려요.</p>'+
+  '<a class="btn" href="https://app.mealfred.com/?utm_source=cookie&utm_medium=quiz&utm_campaign=cookie_series" target="_blank" rel="noopener">앱에서 편식 코칭 받기 →</a>';
+ window.mfShareText='내 밥상BTI는 '+t.em+'「'+t.nick+'」 ('+t.mod+') — 당신도 해봐, 우리 조합 보자 🍽️';
+ document.getElementById('review').innerHTML=QUIZ.map((q,n)=>{
+   const a=picked[n];
+   let cls,head,body;
+   if(q.bal){cls='fun';head='⚖️ 성향 수집용 밸런스 — 정답 없음';body=q.ex;}
+   else{
+     const yes=a===0;
+     if(q.trap&&yes){cls='no';head='❌ 이 행동, 연구는 반대예요';body=q.ex;}
+     else if(q.trap&&!yes){cls='ok';head='✅ 이 함정은 피하는 중';body=q.ex;}
+     else if(!q.trap&&yes){cls='ok';head='✅ 정석 실천 중';body=q.ex;}
+     else{cls='tip';head='💡 놓치고 있던 정석';body=q.miss;}
+   }
+   return '<div class="rev"><div class="rq">'+(n+1)+'. '+q.q+(q.o?' ('+q.o[a]+')':'')+'</div>'+
+     '<div class="ra '+cls+'">'+head+'</div>'+
+     '<div class="ex">'+body+'</div></div>';
+ }).join('');
+ play.classList.add('hidden');document.getElementById('out').classList.remove('hidden');
+ window.scrollTo({top:0,behavior:'smooth'});
+ gtag('event','cookie_result',{tool:'bti',score:10-wrong,light:t.cls,type:t.code});
+}
+render();
+</script>
+<script src="/cookie-common.js?v=2"></script>
+</body>
+</html>

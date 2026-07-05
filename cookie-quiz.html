@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>우리 집 식탁 테스트 — 이 행동, 몇 개나 해당되세요? | 밀프레드</title>
+<title>아이 편식 상식 점수 — 나는 몇 점일까? | 밀프레드</title>
 <meta name="robots" content="noindex,nofollow">
-<meta property="og:title" content="우리 집 식탁 테스트 — 이 행동, 몇 개나 해당되세요?">
-<meta property="og:description" content="좋은 부모라서 하는 행동 중 몇 개는 연구와 반대예요. 그렇다/아니다 10개 · 1분 · 결과는 신호등으로.">
+<meta property="og:title" content="아이 편식 상식 점수 — 나는 몇 점일까?">
+<meta property="og:description" content="다들 좋다고 믿는 그 방법, 연구는 반대로 말해요. 10문제 · 1분 · 내 편식 상식 점수가 나옵니다.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
 <script src="/docs-gate.js?v=4"></script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--g700:#1B5E20;--r700:#C62828;--y700:#B45309}
+:root{--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--g700:#1B5E20;--r700:#C62828;--y700:#B45309}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#FFFDFB;color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased}
 .priv{position:fixed;top:8px;right:8px;background:#1F2D3D;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;opacity:.55;z-index:9}
@@ -23,24 +23,36 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;backg
 .hero h1{font-size:clamp(21px,5.6vw,27px);font-weight:800;letter-spacing:-0.02em;line-height:1.3;color:var(--navy)}
 .hero h1 .ac{color:#FF8A47}
 .hero p{font-size:14px;color:#5a4a3a;font-weight:500;margin-top:10px;max-width:430px;margin-left:auto;margin-right:auto}
+.hero .meta{margin-top:12px;font-size:11.5px;color:#9a8468;font-weight:700}
 main{max-width:480px;margin:0 auto;padding:24px 18px 30px}
 .prog{height:8px;background:var(--n100);border-radius:6px;overflow:hidden;margin-bottom:18px}
 .prog .pf{height:100%;background:linear-gradient(90deg,#FFC58A,#E89244);width:0;transition:width .3s}
 .qnum{font-size:12px;font-weight:800;color:var(--org2);margin-bottom:7px}
-.qtext{font-size:17px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:18px}
-.opt{display:block;width:100%;text-align:center;padding:15px 16px;border:1.5px solid var(--n200);border-radius:12px;background:#fff;font-size:15px;font-weight:800;color:var(--n700);cursor:pointer;margin-bottom:10px;font-family:inherit;transition:.12s}
+.qtext{font-size:17px;font-weight:800;color:var(--s800);line-height:1.45;margin-bottom:8px}
+.qbox{font-size:13.5px;border:1.5px solid var(--n200);border-radius:12px;background:#FFFDF6;padding:11px 13px;margin:4px 0 12px;line-height:1.65;font-weight:600;color:var(--n700)}
+.opt{display:block;width:100%;text-align:left;padding:13px 15px;border:1.5px solid var(--n200);border-radius:12px;background:#fff;font-size:14px;font-weight:700;color:var(--n700);cursor:pointer;margin-bottom:9px;font-family:inherit;line-height:1.5;transition:.12s}
 .opt:hover{border-color:var(--p500);background:#FFF8F2}
-.card{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:22px 18px}
-.score{text-align:center;padding-bottom:14px;border-bottom:1px solid var(--n100);margin-bottom:16px}
-.score .light{font-size:62px;line-height:1.1}
-.score .ltitle{font-size:20px;font-weight:800;letter-spacing:-0.02em;margin-top:8px}
-.score .ltitle.lg{color:var(--g700)}.score .ltitle.ly{color:var(--y700)}.score .ltitle.lr{color:var(--r700)}
-.score .lsub{font-size:13px;color:var(--n600);font-weight:700;margin-top:7px;line-height:1.55}
-.score .noblame{font-size:12px;color:var(--n500);font-weight:600;margin-top:10px;background:#FAFAF8;border:1px solid var(--n100);border-radius:10px;padding:9px 12px;line-height:1.6;text-align:left}
-.rev{border:1.5px solid var(--n200);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.opt .no{font-weight:800;color:var(--org2);margin-right:7px}
+.card{border:1.5px solid var(--n200);border-radius:16px;padding:22px 18px;background:#fff}
+.card.bg-g{background:#F1F8F0;border-color:#CDE8CC}.card.bg-y{background:#FFF9E8;border-color:#FFE6A8}.card.bg-r{background:#FFF1F0;border-color:#FFD2CC}
+.score{text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.06);margin-bottom:16px}
+.score .pts{font-size:56px;font-weight:800;line-height:1;letter-spacing:-0.03em}
+.score .pts small{font-size:22px;font-weight:800}
+.score .pts.lg{color:var(--g700)}.score .pts.ly{color:var(--y700)}.score .pts.lr{color:var(--r700)}
+.score .ptslabel{font-size:12px;color:var(--n500);font-weight:800;margin-top:4px;letter-spacing:.08em}
+.gauge{height:14px;background:rgba(0,0,0,.06);border-radius:100px;overflow:hidden;margin:14px 6px 4px}
+.gauge i{display:block;height:100%;width:0;border-radius:100px;background:linear-gradient(90deg,#FF8A80,#FFD666,#7BC67E);transition:width 1s ease}
+.score .em{font-size:44px;margin-top:10px;line-height:1.1}
+.score .nick{font-size:19px;font-weight:800;margin-top:6px;letter-spacing:-0.02em}
+.score .mod{font-size:12.5px;color:var(--n600);font-weight:700;margin-top:2px}
+.feat{margin-top:12px;text-align:left}
+.feat li{list-style:none;font-size:13px;font-weight:700;color:var(--s800);background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.05);border-radius:10px;padding:9px 12px;margin-bottom:7px;line-height:1.5}
+.noblame{font-size:12px;color:var(--n500);font-weight:600;margin-top:8px;background:rgba(255,255,255,.7);border:1px solid rgba(0,0,0,.05);border-radius:10px;padding:9px 12px;line-height:1.6;text-align:left}
+.wrongtitle{font-size:14px;font-weight:800;margin:16px 0 9px;color:var(--s800)}
+.rev{border:1.5px solid var(--n200);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff}
 .rev .rq{font-size:13px;font-weight:800;color:var(--s800);margin-bottom:6px;line-height:1.4}
-.rev .ra{font-size:12.5px;font-weight:800;display:flex;gap:6px;align-items:flex-start}
-.rev .ra.ok{color:var(--g700)}.rev .ra.no{color:var(--r700)}.rev .ra.tip{color:var(--y700)}
+.rev .ra{font-size:12.5px;font-weight:800}
+.rev .ra.ok{color:var(--g700)}.rev .ra.no{color:var(--r700)}
 .rev .ex{font-size:12px;color:var(--n600);font-weight:600;margin-top:6px;line-height:1.55;background:#FAFAFA;border-radius:8px;padding:8px 10px}
 .btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:inherit}
 .btn:active{transform:translateY(1px)}
@@ -57,123 +69,142 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 <span class="priv">🔒 비공개 테스트</span>
 <a href="/cookie-services.html" class="back">← 쿠키 허브</a>
 <header class="hero">
-  <span class="tag">🚦 우리 집 식탁 테스트</span>
-  <h1>좋은 부모라서 하는 행동,<br><span class="ac">몇 개는 연구와 반대예요</span></h1>
-  <p>맞다/아니다만 고르세요 — 정답 찾기가 아니라 <b>우리 집 이야기</b>니까요. 10개 장면, 1분. 결과는 식탁 신호등 🚦</p>
+  <span class="tag">💯 아이 편식 상식 점수</span>
+  <h1>다들 좋다고 믿는 그 방법,<br><span class="ac">연구는 반대로 말해요</span></h1>
+  <p>10문제 풀면 나의 <b>편식 상식 점수</b>가 나와요. 부모 잘못이 아니라 배운 적이 없어서예요 — 점수는 오늘부터 오릅니다.</p>
+  <div class="meta">⏱ 약 1분 · 10문제 · 문제당 10점</div>
 </header>
 <main>
   <div id="play">
     <div class="prog"><div id="pf" class="pf"></div></div>
     <div class="qnum" id="qnum"></div>
     <div class="qtext" id="qtext"></div>
+    <div id="qbox"></div>
     <div id="opts"></div>
   </div>
 
   <div id="out" class="hidden">
-    <div class="card">
+    <div class="card" id="rescard">
       <div class="score">
-        <div class="light" id="light"></div>
-        <div class="ltitle" id="ltitle"></div>
-        <div class="lsub" id="lsub"></div>
+        <div class="pts" id="pts"></div>
+        <div class="ptslabel">나의 아이 편식 상식 점수</div>
+        <div class="gauge"><i id="gfill"></i></div>
+        <div class="em" id="em"></div>
+        <div class="nick" id="nick"></div>
+        <div class="mod" id="mod"></div>
+        <ul class="feat" id="feat"></ul>
         <div class="noblame" id="noblame"></div>
       </div>
+      <div class="wrongtitle" id="wrongtitle"></div>
       <div id="review"></div>
     </div>
     <div class="appin" id="coach"></div>
     <div class="appin" style="background:linear-gradient(135deg,#FFEFE0,#FFE2C4)">
       <div class="em">📣</div>
-      <h3>친구네 식탁은 무슨 색일까?</h3>
-      <p>내 신호등 결과를 카톡·맘카페에 — "너희 집은?"</p>
+      <h3>남편/아내는 몇 점일까?</h3>
+      <p>내 점수를 카톡·맘카페에 — "너는 몇 점 나오나 보자"</p>
       <button class="btn" onclick="mfShare()">카톡·맘카페에 공유하기 📣</button>
     </div>
-    <button class="btn sec" onclick="location.reload()">↺ 다시 하기</button>
+    <button class="btn sec" onclick="location.reload()">↺ 다시 풀기</button>
   </div>
 </main>
 <footer>밀프레드 편식도감 · SOS·Satter·식약처 등 35개 국제 가이드라인 근거 · 참고용</footer>
 
 <script>
-// 행동 체크 방식(2026-07-04 이사님): 정답 유추가 가능한 지식퀴즈 대신 "우리 집 얘기다/아니다"만 고르게 하고
-// 결과에서 뒤집는다. trap=true(하고 있으면 연구와 반대) 7개 + trap=false(정석, 안 하면 놓침) 3개를 섞어
-// "전부 함정" 패턴을 못 읽게 한다. 근거는 문항별 사실검증 10/10 통과분 그대로(Galloway·Birch·Mascola·NHS·Satter).
+// 편식 상식 점수(이사님 확정 2026-07-05): 검증 문항 10개(사실검증 10/10 통과) × 10점 = 0~100 스코어링.
+// 바이럴 문법 이식: 유머 4지선다(보기가 재미 담당) · 점수 밴드별 별명(낮을수록 더 웃기게=자학 공유) · 게이지 · 신호등은 배경색으로만.
 const QUIZ=[
- {q:"아이가 반찬을 안 먹으면 \"딱 한 입만 먹어보자\" 하고 숟가락을 들이민다.",trap:true,
-  ex:"'한 입만' 압박은 그 음식 거부를 오히려 강화해요(Galloway 2006). 먹이려는 정성이 클수록 식탁이 전쟁이 되는 이유예요. 정석은 강요 없는 반복 노출."},
- {q:"\"이거 다 먹으면 아이스크림(영상) 줄게\" 거래를 한다.",trap:true,
-  ex:"거래는 아이 머릿속에 '채소=참아야 하는 벌, 디저트=진짜 좋은 것'을 각인해요. 연구에서 보상 걸고 먹인 음식은 나중에 선호가 오히려 떨어졌어요."},
- {q:"싫어하는 채소는 잘게 갈아서 볶음밥·전에 몰래 숨겨 먹인다.",trap:true,
-  ex:"그날 영양은 채워져요. 하지만 아이는 먹은 줄 모르니 '보이는 채소'는 여전히 거부해요. 숨기기만으로는 편식이 안 바뀌어요 — 보이는 노출이 같이 가야 해요."},
- {q:"\"남기지 말고 그릇 싹 비워야지\" 하고 다 먹게 한다.",trap:true,
-  ex:"먹는 양의 기준은 '그릇'이 아니라 '아이 배'여야 해요. 그릇 기준으로 먹이면 배부름 신호를 무시하는 습관이 들고, 식사가 숙제가 되면서 거부만 커져요."},
- {q:"두세 번 거부한 음식은 \"얘는 이거 안 먹어\" 하고 식단에서 뺀다.",trap:true,
-  ex:"새 음식은 많게는 8~15번 이상 노출돼야 받아들여지는 경우가 많아요. 대부분 서너 번에서 포기하는데 — 사실 거기가 제일 아까운 지점이에요."},
- {q:"저녁 1~2시간 전에 간식이나 우유를 준다.",trap:true,
-  ex:"밥 전 간식 한 줌, 우유 한 컵이면 아이 위는 이미 차요. '안 먹는 아이'가 아니라 '배고플 틈이 없던 아이'인 경우가 정말 많아요. 코칭에서 제일 먼저 확인하는 신호예요."},
- {q:"\"이거 먹으면 키 커\" \"몸에 좋은 거야\" 하고 설명해서 설득한다.",trap:true,
-  ex:"아이에게 '몸에 좋다'는 말은 '맛없다'로 번역돼요. 연구에서 건강 설득은 미취학 아이의 섭취를 오히려 줄였어요. 설명 대신 그냥 맛있게 먹는 모습을 보여주세요."},
- {q:"아이가 먹을 양은 아이가 정하게 두고, 남겨도 잔소리하지 않는다.",trap:false,
-  ex:"사터의 책임 분담(DOR) 그대로예요 — 부모는 '무엇을·언제', 아이는 '먹을지·얼마나'. '얼마나'를 아이에게 돌려주는 순간 식탁 전쟁의 절반이 끝나요.",
-  miss:"부모가 양까지 정하면 식탁이 힘겨루기가 돼요. 사터의 책임 분담(DOR): 부모는 '무엇을·언제', 아이는 '먹을지·얼마나' — '얼마나'를 아이에게 돌려주는 게 정석이에요."},
- {q:"아이 앞에서 같은 음식을 부모가 맛있게 먹는 모습을 자주 보여준다.",trap:false,
-  ex:"아이는 말보다 눈으로 배워요. 부모의 '맛있게 먹는 모습'은 새 음식 수용을 높이는 가장 검증된 방법 중 하나예요.",
-  miss:"아이는 말보다 눈으로 배워요. 백 마디 설명보다 부모가 같은 음식을 맛있게 먹는 모습이 강해요 — '먹이는 사람'이 아니라 '같이 먹는 사람'이 되는 게 핵심이에요."},
- {q:"새 음식은 좋아하는 음식과 안 닿게 따로 담고, 먹으라는 말 없이 그냥 놓아둔다.",trap:false,
-  ex:"정석 노출법이에요. 음식이 닿는 것조차 싫어하는 아이가 많고, '식판에 있기만' 해도 노출은 시작돼요.",
-  miss:"음식이 서로 닿는 것조차 싫어하는 아이가 많아요. 새 음식은 분리해서, 먹으라는 말 없이 '식판에 있기만' 하게 두는 것부터가 노출의 시작이에요."}
+ {q:"아이가 새 음식을 받아들이기까지 필요한 평균 노출 횟수는?",
+  o:["1~2번 — 첫인상이 전부다","3~5번 — 삼세판이면 충분하다","8~15번 이상 — 존버는 승리한다","횟수 무관 — 입맛은 유전이다"],a:2,
+  ex:"많게는 8~15번 이상 노출돼야 받아들여지는 경우가 많아요. 대부분의 부모가 서너 번에서 포기하는데, 거기가 제일 아까운 지점이에요."},
+ {box:"5세 김밀프 어린이가 브로콜리를 30분째 노려보고만 있다.",
+  q:"이 상황에서 연구가 권장하는 부모의 대응은?",
+  o:["\"한 입만 먹어보자\"를 무한 반복한다","아이스크림 협상 카드를 개시한다","옆에서 브로콜리를 맛있게 먹는 모습을 보여준다","갈아서 증거인멸 후 볶음밥에 은닉한다"],a:2,
+  ex:"아이는 말보다 눈으로 배워요. 부모의 '맛있게 먹는 모습'(모델링)이 설득·압박·은닉보다 검증된 방법이에요."},
+ {q:"\"이거 다 먹으면 아이스크림 줄게\" 거래의 장기 효과로 연구가 확인한 것은?",
+  o:["채소 호감도가 점점 오른다","'채소=참는 벌, 디저트=진짜 상'이 각인된다","채소와 아이스크림 둘 다 좋아하게 된다","효과는 모르겠고 일단 조용해진다"],a:1,
+  ex:"보상을 걸고 먹인 음식은 나중에 선호가 오히려 떨어졌어요. 거래는 채소를 '참아야 하는 것'으로 만들어요."},
+ {q:"'그릇 싹 비우기' 교육이 실제로 기르는 것은?",
+  o:["바른 식습관의 기초","배부름 신호를 무시하는 습관","절약 정신과 경제 관념","식기 반납 매너"],a:1,
+  ex:"기준은 그릇이 아니라 아이 배여야 해요. 그릇 기준 식사는 포만 신호 무시 습관을 만들고 식탁을 숙제로 만들어요."},
+ {q:"싫어하는 채소를 몰래 갈아넣는 전략의 효과 범위는?",
+  o:["편식 완치까지 가능하다","그날의 영양 보충까지다","'보이는 채소'도 점차 좋아하게 된다","나의 요리 실력 상승이 주효과다"],a:1,
+  ex:"아이는 먹은 줄 모르니 보이는 채소는 여전히 거부해요. 숨기기는 응급처치 — 보이는 노출이 함께 가야 편식이 바뀌어요."},
+ {q:"\"편식은 크면 다 나아진다\"에 대한 연구의 판정은?",
+  o:["참 — 기다리면 전부 해결된다","절반만 참 — 수년씩 지속되는 경우도 상당수다","거짓 — 절대 저절로 안 나아진다","판정 불가 — 아이 마음이다"],a:1,
+  ex:"가벼운 편식은 대개 나아지지만, 추적 연구에선 학령기까지 수년씩 이어진 아이들도 상당수였어요. 심하면 부드러운 개입이 빨라요."},
+ {q:"'저녁 식사 거부 사건'의 제1용의자로 가장 먼저 조사해야 할 것은?",
+  o:["반찬 메뉴의 취향 저격 실패","식전 1~2시간의 간식·우유","식탁 의자의 높이","오늘의 운세"],a:1,
+  ex:"밥 전 간식 한 줌·우유 한 컵이면 위는 이미 차요. '안 먹는 아이'가 아니라 '배고플 틈이 없던 아이'인 경우가 정말 많아요."},
+ {q:"사터(Satter)의 식사 역할 분담에서 '아이의 결정 권한'은?",
+  o:["오늘의 메뉴 선정","먹을지 말지 · 얼마나 먹을지","장보기와 예산 집행","설거지 당번 지정"],a:1,
+  ex:"부모는 '무엇을·언제·어디서', 아이는 '먹을지·얼마나'(DOR). '얼마나'를 아이에게 돌려주는 순간 식탁 전쟁의 절반이 끝나요."},
+ {q:"새 반찬을 식판에 올릴 때 올바른 배치는?",
+  o:["좋아하는 음식에 섞어 위장 침투","안 닿게 따로 + 먹으라는 말 없이","식판 정중앙 스포트라이트 배치 후 브리핑","아이가 한눈판 사이 입에 투입"],a:1,
+  ex:"음식이 닿는 것조차 싫어하는 아이가 많아요. 분리해서 노코멘트로 — '식판에 있기만' 해도 노출은 시작돼요."},
+ {q:"\"한 입만 먹어봐\" 반복 권유에 대한 연구 결과는?",
+  o:["결국 먹게 되고 양도 는다","그 음식이 오히려 더 싫어질 수 있다","말한 횟수에 비례해 호감이 오른다","목청 크기에 비례해 효과가 오른다"],a:1,
+  ex:"압박은 그 음식 거부를 강화해요(Galloway 2006). 먹이려는 정성이 클수록 식탁이 전쟁이 되는 이유예요."}
 ];
-const OPTS=["네, 우리 집 얘기예요","아니요, 안 그래요"];
+const CIRC=['①','②','③','④'];
+// 점수 밴드 — 낮을수록 별명이 더 웃겨야 공유된다(자학 인증 문법). 배경 = 신호등 파스텔.
+const BANDS=[
+ {min:90,cls:'lg',bg:'bg-g',em:'🎓',nick:'편식 박사님',mod:'이론 만점권 — 남은 과목은 우리 아이 실전',
+  feat:['교과서에 없는 함정까지 전부 간파','이 점수, 아무나 못 받습니다','이제 필요한 건 지식이 아니라 우리 아이 데이터'],
+  blame:'상식은 끝났어요. 이제 <b>우리 아이 맞춤 실전</b>만 남았습니다.'},
+ {min:70,cls:'lg',bg:'bg-g',em:'📚',nick:'상식 고인물',mod:'상위권 — 한두 개념만 더',
+  feat:['웬만한 육아 미신에는 안 속는 타입','틀린 한두 개가 하필 일상에서 제일 자주 나오는 장면','감 잡으면 바로 박사님 승급'],
+  blame:'거의 다 왔어요. 오답 한두 개만 잡으면 만점입니다.'},
+ {min:50,cls:'ly',bg:'bg-y',em:'✏️',nick:'반반 상식',mod:'아는 것 반, 반대로 아는 것 반',
+  feat:['맞힌 문제는 확실히 아는데, 틀린 건 정반대로 알고 있음','다들 여기 있습니다 — 학교에서 안 가르쳐준 과목이라','반대로 아는 반쪽이 매일 식탁에서 일하는 중'],
+  blame:'부모 잘못이 아니에요 — 다들 "좋다"고 배워온 방법이라 그래요. 반대로 아는 쪽이 <b>편식을 유지시키는 원인</b>일 수 있어요.'},
+ {min:30,cls:'ly',bg:'bg-y',em:'📝',nick:'애정 과다 감점형',mod:'사랑이 상식을 앞지른 케이스',
+  feat:['먹이려는 열정만큼은 전국 상위 1%','그 열정이 하필 연구와 반대 방향','방향만 돌리면 열정이 그대로 점수가 됨'],
+  blame:'노력이 부족한 게 아니라 <b>방향이 반대</b>였을 뿐이에요. 아는 순간부터 바뀝니다.'},
+ {min:0,cls:'lr',bg:'bg-r',em:'🚨',nick:'상식 리셋 완료',mod:'오히려 좋아 — 백지에서 시작',
+  feat:['지금까지 배운 것과 반대로만 하면 됩니다(진심)','이 점수는 사실 애정 점수의 반증','성장 폭 전국 1위 예약'],
+  blame:'축하(?)드립니다 — 여기서부터는 <b>오르는 일만</b> 남았어요. 다들 그렇게 배웠으니 부끄러울 것 없습니다.'}
+];
 let i=0;const picked=[];
 const play=document.getElementById('play');
 function render(){
  const q=QUIZ[i];
  document.getElementById('pf').style.width=((i)/QUIZ.length*100)+'%';
- document.getElementById('qnum').textContent='장면 '+(i+1)+' / '+QUIZ.length;
+ document.getElementById('qnum').textContent='Q'+(i+1)+' / '+QUIZ.length+' · 10점';
  document.getElementById('qtext').textContent=q.q;
+ document.getElementById('qbox').innerHTML=q.box?'<div class="qbox">'+q.box+'</div>':'';
  const ol=document.getElementById('opts');ol.innerHTML='';
- OPTS.forEach((opt,idx)=>{const b=document.createElement('button');b.className='opt';b.textContent=opt;b.onclick=()=>choose(idx);ol.appendChild(b);});
+ q.o.forEach((opt,idx)=>{const b=document.createElement('button');b.className='opt';b.innerHTML='<span class="no">'+CIRC[idx]+'</span>'+opt;b.onclick=()=>choose(idx);ol.appendChild(b);});
 }
 function choose(idx){picked[i]=idx;i++;if(i<QUIZ.length){render();window.scrollTo({top:0,behavior:'smooth'});}else show();}
 function show(){
- // 연구와 반대 = 함정 행동을 '하고 있음'(trap&&네) + 정석을 '안 하고 있음'(!trap&&아니요)
- const bad=QUIZ.map((q,n)=>q.trap ? picked[n]===0 : picked[n]===1);
- const wrong=bad.filter(Boolean).length;
- const L=wrong<=2
-  ?{em:'🟢',cls:'lg',title:'초록불 · 식탁이 건강해요',share:'초록불🟢',
-    sub:'10가지 장면 중 '+wrong+'개만 연구와 반대 방향이에요.',
-    blame:'식탁 습관이 이미 상위권이에요. 이제 관건은 우리 아이에게 맞는 <b>다음 한 걸음</b> — 어떤 음식을 언제 어떻게 내놓을지예요.',
-    ch3:'초록불! 이제 "우리 아이 맞춤"이 관건',
-    cp:'좋은 습관 위에, 앱이 우리 아이 식사 기록을 보고 <b>오늘 뭘 내놓을지</b>까지 매일 코칭해요.'}
-  :wrong<=5
-  ?{em:'🟡',cls:'ly',title:'노란불 · 정성이 반대로 가는 중',share:'노란불🟡',
-    sub:'10가지 장면 중 <b>'+wrong+'개</b>가 연구와 반대 방향이었어요.',
-    blame:'부모 잘못이 아니에요 — 전부 "좋은 부모라서" 하게 되는 행동이라 그래요. 그런데 그중 몇 개가 <b>편식을 유지시키는 원인</b>일 수 있어요. 아는 순간부터 바뀝니다.',
-    ch3:'노란불 — 몇 장면만 바꿔도 달라져요',
-    cp:'뭘 먼저 바꿀지가 중요해요. 앱이 우리 아이 식사 기록을 보고 <b>매일 한 줄 코칭</b>으로 우선순위를 짚어드려요.'}
-  :{em:'🔴',cls:'lr',title:'빨간불 · 애쓴 방향이 반대였어요',share:'빨간불🔴',
-    sub:'10가지 장면 중 <b>'+wrong+'개</b>가 연구와 반대 방향이었어요.',
-    blame:'노력이 부족했던 게 아니라 <b>방향이 반대</b>였을 뿐이에요. 다들 그렇게 배웠으니까요. 애쓴 만큼 역효과가 났을 수 있는데 — 방향만 돌리면 그 노력이 그대로 성과가 돼요.',
-    ch3:'빨간불 — 방향만 돌리면 됩니다',
-    cp:'혼자 교정하긴 어려워요. 앱이 35개 국제 가이드라인 기준으로 우리 아이 상황에 맞춘 <b>맞춤 코칭</b>을 매일 보내드려요.'};
- document.getElementById('light').textContent=L.em;
- const lt=document.getElementById('ltitle');lt.textContent=L.title;lt.className='ltitle '+L.cls;
- document.getElementById('lsub').innerHTML=L.sub;
- document.getElementById('noblame').innerHTML=L.blame;
- document.getElementById('coach').innerHTML='<div class="em">💌</div><h3>'+L.ch3+'</h3><p>'+L.cp+'</p>'+
+ let correct=0;QUIZ.forEach((q,n)=>{if(picked[n]===q.a)correct++;});
+ const score=correct*10;
+ const B=BANDS.find(b=>score>=b.min);
+ const pe=document.getElementById('pts');pe.innerHTML=score+'<small>점</small>';pe.className='pts '+B.cls;
+ document.getElementById('em').textContent=B.em;
+ document.getElementById('nick').textContent='「'+B.nick+'」';
+ document.getElementById('mod').textContent=B.mod;
+ document.getElementById('feat').innerHTML=B.feat.map(f=>'<li>'+f+'</li>').join('');
+ document.getElementById('noblame').innerHTML=B.blame;
+ document.getElementById('rescard').className='card '+B.bg;
+ setTimeout(()=>{document.getElementById('gfill').style.width=Math.max(score,4)+'%';},80);
+ document.getElementById('wrongtitle').textContent=correct===10?'📗 오답 없음 — 전 문항 정답':'📕 오답노트 ('+(10-correct)+'문항)';
+ document.getElementById('coach').innerHTML='<div class="em">💌</div><h3>'+(score>=70?'이제 "우리 아이 실전" 과목이 남았어요':'점수, 앱이 매일 올려드려요')+'</h3><p>'+(score>=70
+   ?'이론 위에, 앱이 우리 아이 식사 기록으로 <b>오늘의 실전 한 수</b>를 매일 알려드려요.'
+   :'오답노트를 외울 필요 없어요 — 앱이 우리 아이 상황에 맞춰 <b>매일 한 줄</b>씩 코칭해드립니다.')+'</p>'+
   '<a class="btn" href="https://app.mealfred.com/?utm_source=cookie&utm_medium=quiz&utm_campaign=cookie_series" target="_blank" rel="noopener">앱에서 편식 코칭 받기 →</a>';
- window.mfShareText='우리 집 식탁 신호등은 '+L.share+'! (10가지 장면 중 '+wrong+'개가 연구와 반대래) 너희 집은 몇 개야? 🚦';
+ window.mfShareText='내 아이 편식 상식 점수 '+score+'점 「'+B.nick+'」'+B.em+' — 너는 몇 점 나오나 보자 💯';
  document.getElementById('review').innerHTML=QUIZ.map((q,n)=>{
-   const yes=picked[n]===0;
-   let cls,head,body;
-   if(q.trap&&yes){cls='no';head='❌ 이 행동, 연구는 반대예요';body=q.ex;}
-   else if(q.trap&&!yes){cls='ok';head='✅ 이 함정은 피하고 계세요';body=q.ex;}
-   else if(!q.trap&&yes){cls='ok';head='✅ 정석대로 하고 계세요';body=q.ex;}
-   else{cls='tip';head='💡 놓치고 있던 정석이에요';body=q.miss;}
-   return '<div class="rev"><div class="rq">'+(n+1)+'. '+q.q+'</div>'+
-     '<div class="ra '+cls+'"><span>'+head+'</span></div>'+
-     '<div class="ex">'+body+'</div></div>';
+   const ok=picked[n]===q.a;
+   if(ok&&correct===10)return '';
+   return '<div class="rev"><div class="rq">Q'+(n+1)+'. '+q.q+'</div>'+
+     '<div class="ra '+(ok?'ok':'no')+'">'+(ok?'✅ 정답 +10점':'❌ 오답')+' — 정답: '+CIRC[q.a]+' '+q.o[q.a]+(ok?'':' (내 답: '+CIRC[picked[n]]+')')+'</div>'+
+     '<div class="ex">'+q.ex+'</div></div>';
  }).join('');
  play.classList.add('hidden');document.getElementById('out').classList.remove('hidden');
  window.scrollTo({top:0,behavior:'smooth'});
- gtag('event','cookie_result',{tool:'quiz',score:QUIZ.length-wrong,light:L.cls});
+ gtag('event','cookie_result',{tool:'quiz',score:score,light:B.cls});
 }
 render();
 </script>
