@@ -77,6 +77,8 @@ main{max-width:480px;margin:0 auto;padding:24px 18px 30px}
 .appin{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px solid var(--p300);border-radius:16px;padding:20px;text-align:center;margin-top:14px}
 .appin .em{font-size:30px}.appin h3{font-size:15.5px;font-weight:800;color:var(--s800);margin:4px 0 6px}
 .appin p{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:14px;line-height:1.55}
+.backq{background:none;border:none;color:var(--n400);font-weight:700;font-size:12.5px;cursor:pointer;padding:8px 4px;font-family:inherit}
+.backq:active{color:var(--org2)}
 footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px;font-weight:600;line-height:1.6}
 .hidden{display:none}
 </style>
@@ -97,6 +99,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
     <div class="qtext" id="qtext"></div>
     <div id="qbox"></div>
     <div id="opts"></div>
+    <button id="backq" class="backq hidden" onclick="goBack()">← 이전 문제로</button>
   </div>
 
   <div id="out" class="hidden">
@@ -215,7 +218,9 @@ function render(){
  // 렌더 직후 hover 잠금 — 마우스가 실제로 움직일 때만 해제(제자리 연속 클릭 시 '미리 색칠' 방지)
  ol.classList.add('nh');
  window.addEventListener('mousemove',function unh(){ol.classList.remove('nh');window.removeEventListener('mousemove',unh);},{once:true});
+ document.getElementById('backq').classList.toggle('hidden',i===0);
 }
+function goBack(){if(i>0){i--;render();window.scrollTo({top:0,behavior:'smooth'});}}
 function choose(idx){picked[i]=idx;i++;if(i<QUIZ.length){render();window.scrollTo({top:0,behavior:'smooth'});}else show();}
 function toggleR(n){
  const el=document.getElementById('ropts'+n);el.classList.toggle('hidden');
