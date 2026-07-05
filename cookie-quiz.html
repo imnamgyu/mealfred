@@ -122,8 +122,8 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 // 바이럴 문법 이식: 유머 4지선다(보기가 재미 담당) · 점수 밴드별 별명(낮을수록 더 웃기게=자학 공유) · 게이지 · 신호등은 배경색으로만.
 const QUIZ=[
  {q:"아이가 새 음식을 받아들이기까지 필요한 평균 노출 횟수는?",
-  o:["1~2번 — 첫인상이 전부다","3~5번 — 삼세판이면 충분하다","8~15번 이상 — 존버는 승리한다","횟수 무관 — 입맛은 유전이다"],a:2,
-  ex:"많게는 8~15번 이상 노출돼야 받아들여지는 경우가 많아요. 대부분의 부모가 서너 번에서 포기하는데, 거기가 제일 아까운 지점이에요."},
+  o:["1~2번 — 첫인상에서 거의 결정된다","3~5번 — 세 번 거부하면 안 맞는 음식이 맞다","8~15번 이상 — 부모가 먼저 지칠 때까지","횟수는 상관없다 — 입맛은 타고난다"],a:2,
+  ex:"진짜로 8~15번 이상이에요. 대부분의 부모가 서너 번 거부에서 '얘는 안 먹는 애'로 결론 내리는데 — 연구가 보기엔 거기가 제일 아까운 포기 지점이에요."},
  {box:"5세 김서아 어린이가 브로콜리를 30분째 노려보고만 있다.",
   q:"이 상황에서 연구가 권장하는 부모의 대응은?",
   o:["\"한 입만 먹어보자\" 하고 권유한다","아이스크림 협상 카드를 개시한다","아무 말 없이 뒀다가, 안 먹으면 그대로 치운다","갈아서 증거인멸 후 볶음밥에 은닉한다"],a:2,
@@ -233,11 +233,11 @@ function show(){
  window.scrollTo({top:0,behavior:'smooth'});
  gtag('event','cookie_result',{tool:'quiz',score:score,light:B.cls});
  // 결과 익명 적재(문항별 오답률·평균 실측용 — 게시글/보고서 소재). 실패해도 무시(fire-and-forget).
- // qv='k2' = 2026-07-05 문항 세트 2판(Q3 보상거래→식사환경 교체). 문항을 바꾸면 qv를 올릴 것(집계 오염 방지).
+ // qv='k3' = 2026-07-05 문항 세트 3판(Q1 보기 미끼 재구성·Q3 식사환경). 문항을 바꾸면 qv를 올릴 것(집계 오염 방지).
  try{
   const wrong=[];QUIZ.forEach((q,n)=>{if(picked[n]!==q.a)wrong.push(n);});
   fetch('https://app.mealfred.com/api/quiz-result',{method:'POST',headers:{'content-type':'application/json'},
-   body:JSON.stringify({tool:'knowledge',qv:'k2',score:score,correct:correct,
+   body:JSON.stringify({tool:'knowledge',qv:'k3',score:score,correct:correct,
     answers:picked.map((p,n)=>QUIZ[n].map[p]),wrong:wrong})}).catch(()=>{});
  }catch(e){}
 }
