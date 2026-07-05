@@ -29,8 +29,8 @@
     } else { mfToast(url); }
   };
 
-  // 공개 도구(rankings 등)는 비공개 쿠키 cross-link 대신 → 편식코칭앱 유입 CTA(미끼→앱 전환)
-  var APP_CTA_TOOLS = ['rankings'];
+  // 공개 도구(rankings·quiz 등)는 비공개 쿠키 cross-link 대신 → 편식코칭앱 유입 CTA(미끼→앱 전환)
+  var APP_CTA_TOOLS = ['rankings', 'quiz'];
   function appCta() {
     var wrap = document.createElement('div');
     wrap.style.cssText = 'max-width:540px;margin:0 auto;padding:4px 18px 26px';
