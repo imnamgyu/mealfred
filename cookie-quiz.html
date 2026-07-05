@@ -62,6 +62,7 @@ main{max-width:480px;margin:0 auto;padding:24px 18px 30px}
 .rev .rq{font-size:13px;font-weight:800;color:var(--s800);margin-bottom:6px;line-height:1.4}
 .rev .ra{font-size:12.5px;font-weight:800}
 .rev .ra.ok{color:var(--g700)}.rev .ra.no{color:var(--r700)}
+.rev .rate{font-size:11.5px;font-weight:800;color:#fff;background:var(--p500);border-radius:100px;padding:2px 9px;margin-left:7px;white-space:nowrap}
 .rev .ex{font-size:12px;color:var(--n600);font-weight:600;margin-top:6px;line-height:1.55;background:#FAFAFA;border-radius:8px;padding:8px 10px}
 .rev .hint{font-size:11px;color:var(--n400);font-weight:700;margin-top:7px}
 .ropts{margin-top:9px}
@@ -264,7 +265,7 @@ function show(){
      return '<div class="ropt '+cls+'"><span class="badge">'+badge+'</span><span class="no">'+CIRC[oi]+'</span>'+opt+'</div>';
    }).join('');
    return '<div class="rev" onclick="toggleR('+n+')"><div class="rq">Q'+(n+1)+'. '+q.q+'</div>'+
-     '<div class="ra '+(ok?'ok':'no')+'">'+(ok?'✅ 정답 +10점':'❌ 오답 — 정답: '+CIRC[q.a]+' '+q.o[q.a])+'</div>'+
+     '<div class="ra '+(ok?'ok':'no')+'">'+(ok?'✅ 정답 +10점':'❌ 오답 — 정답: '+CIRC[q.a]+' '+q.o[q.a])+'<span class="rate hidden" id="rate'+n+'"></span></div>'+
      '<div class="ropts hidden" id="ropts'+n+'">'+(q.box?'<div class="rqbox">'+q.box+'</div>':'')+opts+'</div>'+
      '<div class="ex">'+q.ex+'</div>'+
      '<div class="hint" id="rhint'+n+'">▾ 눌러서 문제·보기 다시 보기</div></div>';
@@ -272,6 +273,14 @@ function show(){
  play.classList.add('hidden');document.getElementById('out').classList.remove('hidden');
  window.scrollTo({top:0,behavior:'smooth'});
  gtag('event','cookie_result',{tool:'quiz',score:score,light:B.cls});
+ // 문항별 실측 정답률 — 결과를 먼저 그리고 비차단으로 채움(체감 지연 0). 응답 30건 미만이면 미표기(소표본 왜곡 방지).
+ fetch('https://app.mealfred.com/api/quiz-result?tool=knowledge&qv=k3').then(r=>r.json()).then(s=>{
+  if(!s||!s.n||s.n<30||!s.wrongRate)return;
+  s.wrongRate.forEach(w=>{
+   const el=document.getElementById('rate'+(w.q-1));
+   if(el){el.textContent='지금까지 정답률 '+(100-w.pct)+'%';el.classList.remove('hidden');}
+  });
+ }).catch(()=>{});
  // 결과 익명 적재(문항별 오답률·평균 실측용 — 게시글/보고서 소재). 실패해도 무시(fire-and-forget).
  // qv='k3' = 2026-07-05 문항 세트 3판(Q1 보기 미끼 재구성·Q3 식사환경). 문항을 바꾸면 qv를 올릴 것(집계 오염 방지).
  try{
