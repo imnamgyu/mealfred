@@ -53,6 +53,7 @@ export default async function QuizAdminPage() {
   const nToday = results.filter((r) => r.created_at >= kstMidnightUtc).length;
   const cta = events.filter((e) => e.event === 'app_cta');
   const share = events.filter((e) => e.event === 'share');
+  const evalCta = events.filter((e) => e.event === 'eval_cta');
   const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
 
   // qv별 집계(최신 qv 먼저) — 문항이 바뀌면 오답률이 섞이지 않게 세트 단위로 표시
@@ -64,7 +65,8 @@ export default async function QuizAdminPage() {
     { label: '참여(응답 완료)', v: n.toLocaleString(), sub: `오늘 +${nToday}`, c: navy },
     { label: '평균 점수', v: n ? `${aggregateQuizStats(results).avgScore}점` : '—', sub: '전체 세트 합산', c: '#C45A00' },
     { label: '앱으로 이어감', v: cta.length.toLocaleString(), sub: `참여 대비 ${pct(cta.length, n)}% · 오늘 +${cta.filter((e) => e.created_at >= kstMidnightUtc).length}`, c: '#16A085' },
-    { label: '공유·도전장', v: share.length.toLocaleString(), sub: `참여 대비 ${pct(share.length, n)}% · 오늘 +${share.filter((e) => e.created_at >= kstMidnightUtc).length}`, c: '#7c3aed' },
+    { label: '공유(링크 복사)', v: share.length.toLocaleString(), sub: `참여 대비 ${pct(share.length, n)}% · 오늘 +${share.filter((e) => e.created_at >= kstMidnightUtc).length}`, c: '#7c3aed' },
+    { label: '식단표 평가로', v: evalCta.length.toLocaleString(), sub: `참여 대비 ${pct(evalCta.length, n)}% · 오늘 +${evalCta.filter((e) => e.created_at >= kstMidnightUtc).length}`, c: '#1565C0' },
   ];
 
   return (
@@ -82,7 +84,7 @@ export default async function QuizAdminPage() {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 10, margin: '16px 0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, margin: '16px 0' }}>
         {kpi.map((x) => (
           <div key={x.label} style={{ padding: 14, background: 'white', border: '1px solid #ECECEC', borderRadius: 12 }}>
             <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 700 }}>{x.label}</div>
@@ -139,7 +141,7 @@ export default async function QuizAdminPage() {
       {!qvs.length && !resErr && <p style={{ color: '#9CA3AF', fontSize: 13, marginTop: 16 }}>아직 응답이 없어요 — 퀴즈가 공유되면 여기부터 채워집니다.</p>}
 
       <p style={{ marginTop: 10, fontSize: 11.5, color: '#9CA3AF', lineHeight: 1.7 }}>
-        · <b>앱으로 이어감</b> = 결과 화면에서 app.mealfred.com 링크 클릭(코칭 CTA·하단 앱 배너). <b>공유</b> = 도전장/공유 버튼 클릭.<br />
+        · <b>앱으로 이어감</b> = 결과 화면의 app.mealfred.com 링크 클릭. <b>공유</b> = 링크 복사 버튼. <b>식단표 평가로</b> = daycare-eval 연계 버튼 클릭.<br />
         · 문항 라벨은 <code>lib/quizStats.ts QUIZ_LABELS</code> — 문항 세트(qv) 올릴 때 함께 갱신.
       </p>
     </main>

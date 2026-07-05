@@ -36,8 +36,8 @@ export function validateQuizPayload(body: unknown): QuizPayload | null {
   return { tool, qv, score, correct, answers, wrong };
 }
 
-/** 전환 이벤트 검증 — 허용된 슬러그만(quiz_events 오염 방지). */
-const EVENTS = new Set(['app_cta', 'share']);
+/** 전환 이벤트 검증 — 허용된 슬러그만(quiz_events 오염 방지). eval_cta=식단표 평가 연계 클릭. */
+const EVENTS = new Set(['app_cta', 'share', 'eval_cta']);
 export function validateQuizEvent(body: unknown): { tool: string; event: string } | null {
   if (!body || typeof body !== 'object') return null;
   const b = body as Record<string, unknown>;

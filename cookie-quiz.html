@@ -126,6 +126,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
     <div class="wrongtitle" id="wrongtitle"></div>
     <div id="review"></div>
     <div class="appin" id="coach"></div>
+    <div class="appin" id="evalcta" style="background:linear-gradient(135deg,#FFFDF6,#FFF3DF)"></div>
     <button class="btn sec" onclick="location.reload()">↺ 다시 풀기</button>
   </div>
 </main>
@@ -245,6 +246,11 @@ function show(){
  document.getElementById('coach').innerHTML='<div class="em">💌</div><h3>'+(score>=70?'이제 우리 아이 맞춤 실전만 남았어요':'오답노트, 외우지 않으셔도 됩니다')+'</h3>'+
   '<p>전 세계 <b>35개 국제 가이드라인</b>을 통합한 <b>밀프레드 편식 코치</b>가<br>아이의 편식을 바로 곁에서 고쳐드릴게요.</p>'+
   '<a class="btn" href="'+appUrl+'" target="_blank" rel="noopener">밀프레드 편식 코칭 받기 →</a>';
+ // 식단표 평가 서비스 연계(이사님 2026-07-05) — 현재 KST 월 자동 표기, 클릭은 eval_cta로 적재
+ const evM=parseInt(new Date(Date.now()+9*3600e3).toISOString().slice(5,7),10);
+ document.getElementById('evalcta').innerHTML='<div class="em">🍱</div><h3>우리 아이 어린이집 '+evM+'월 식단표는 몇 점일까요?</h3>'+
+  '<p>식단표 사진 한 장이면 <b>7가지 영양 기준</b>으로 평가해드립니다 — 전국 순위 비교까지.</p>'+
+  '<a class="btn" href="https://www.mealfred.com/daycare-eval.html?utm_source=cookie&utm_medium=quiz&utm_campaign=cookie_series" onclick="qe(\'eval_cta\');if(window.gtag)gtag(\'event\',\'cookie_eval_cta_click\',{tool:\'quiz\'})" target="_blank" rel="noopener">'+evM+'월 식단표 평가하기 →</a>';
  // 캡처 자랑 유도는 자랑이 되는 점수(70+·초록 밴드)에서만 — 낮은 점수에 자랑하란 말은 상처(이사님 2026-07-05)
  document.getElementById('caps').classList.toggle('hidden',score<70);
  document.getElementById('review').innerHTML=QUIZ.map((q,n)=>{

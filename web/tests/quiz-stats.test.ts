@@ -34,9 +34,10 @@ describe('validateQuizPayload', () => {
 });
 
 describe('validateQuizEvent', () => {
-  it('허용 슬러그만 통과(app_cta·share)', () => {
+  it('허용 슬러그만 통과(app_cta·share·eval_cta)', () => {
     expect(validateQuizEvent({ tool: 'knowledge', event: 'app_cta' })).toEqual({ tool: 'knowledge', event: 'app_cta' });
     expect(validateQuizEvent({ tool: 'knowledge', event: 'share' })).toEqual({ tool: 'knowledge', event: 'share' });
+    expect(validateQuizEvent({ tool: 'knowledge', event: 'eval_cta' })).toEqual({ tool: 'knowledge', event: 'eval_cta' });
     expect(validateQuizEvent({ tool: 'knowledge', event: 'hack' })).toBeNull();
     expect(validateQuizEvent({ tool: 'DROP', event: 'share' })).toBeNull();
     expect(validateQuizEvent(null)).toBeNull();
