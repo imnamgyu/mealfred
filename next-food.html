@@ -3,13 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>사촌 음식 추천 — 잘 먹는 음식에서 다음 도전 찾기 | 밀프레드</title>
-<meta name="robots" content="noindex,nofollow">
-<meta property="og:title" content="사촌 음식 추천 — 잘 먹는 음식에서 다음 도전 찾기">
+<title>다음 도전 음식 추천 — 잘 먹는 음식에서 찾기 | 밀프레드</title>
+<meta property="og:title" content="다음 도전 음식 추천 — 잘 먹는 음식에서 찾기">
+<meta property="og:url" content="https://www.mealfred.com/next-food.html">
 <meta property="og:description" content="잘 먹는 음식의 식재료를 분해해, 전국 어린이집·유치원 실제 식단에서 성공 확률 높은 다음 메뉴를 찾아드려요.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
-<script src="/docs-gate.js?v=4"></script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -76,10 +75,9 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
 </head>
 <body data-cookie="cousins">
-<span class="priv">🔒 비공개 테스트</span>
-<a href="/cookie-services.html" class="back">← 쿠키 허브</a>
+<a href="/" class="back">← 밀프레드</a>
 <header class="hero">
-  <span class="tag">🥔 사촌 음식 추천 · 초안 v2</span>
+  <span class="tag">🥔 다음 도전 음식 추천</span>
   <h1>잘 먹는 음식에서<br><span class="ac">다음 도전 음식</span>을 찾아드려요</h1>
   <p>잘 먹는 음식의 <b>식재료를 분해</b>해서, 전국 어린이집·유치원 <b>실제 식단 28만 건</b>에 자주 오르는 사촌 메뉴를 골라드립니다.</p>
   <div class="meta">⏱ 30초 · 기관 식단 실데이터 기반</div>
@@ -110,6 +108,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
       <h2 id="rtitle">3. 다음 도전 후보</h2>
       <div class="sub" id="rsub"></div>
       <div id="list"></div>
+      <button class="btn sec" id="morebtn" onclick="nextPage()" style="display:none">다른 추천 보기 →</button>
       <div class="notice">추천은 <b>식재료 겹침</b>(같은 재료가 든 낯선 메뉴일수록 수용 확률이 높다는 푸드브릿지 원리)과 <b>기관 식단 등장 빈도</b>로 계산해요. 참고용이며, 알레르기가 있다면 재료를 꼭 확인해주세요.</div>
     </div>
     <div class="appin">
@@ -189,11 +188,11 @@ function recommend(name,ings){
  const inSet=new Set(useIngs);
  // 주재료 가중 — 분해 재료는 중요도순(첫 번째=주재료). 입력 주재료 2.0 / 2번째 1.0 / 나머지 0.8
  const inW={};useIngs.forEach((x,i)=>{inW[x]=i===0?2.0:(i===1?1.0:0.8);});
- const cousW={},cousVia={};
+ const cousW={};CVIA={};
  ings.forEach(x=>{(DATA.cous&&DATA.cous[x]||[]).forEach(([c,st])=>{
   if(inSet.has(c))return;
   const w=0.45*(st/3);
-  if(!cousW[c]||w>cousW[c]){cousW[c]=w;cousVia[c]=x;}
+  if(!cousW[c]||w>cousW[c]){cousW[c]=w;CVIA[c]=x;}
  });});
  const scored=[];
  for(const [m,v] of Object.entries(pool)){
@@ -203,28 +202,57 @@ function recommend(name,ings){
   if(!shared.length&&!cshared.length)continue;
   const main=v.i[0];   // 후보 메뉴의 주재료
   let s=(shared.reduce((a,x)=>a+(IDF[x]||0.3)*(inW[x]||1)*(x===main?1.5:1),0)
-         +cshared.reduce((a,x)=>a+(IDF[x]||0.3)*cousW[x]*(inW[cousVia[x]]||0.8)*(x===main?1.5:1),0))*(1+Math.log10(v.f));
+         +cshared.reduce((a,x)=>a+(IDF[x]||0.3)*cousW[x]*(inW[CVIA[x]]||0.8)*(x===main?1.5:1),0))*(1+Math.log10(v.f));
   const im=methodOf(name),cm=methodOf(m);
   const sameCook=!!(im&&cm&&im===cm&&im!=='밥'&&im!=='국');
   if(sameCook)s*=1.15;
   scored.push({m,v,shared,cshared,sameCook,cook:im,s});
  }
  scored.sort((a,b)=>b.s-a.s);
- const top=scored.slice(0,5);
+ // 15개를 5개×3페이지로 — 1페이지=안전한 최상위, 2·3페이지는 주재료 다변화로 "조금 색다른" 후보(이사님 2026-07-06)
+ const used=new Set(),mainSeen={};
+ const p1=scored.slice(0,5);p1.forEach(c=>{used.add(c.m);const mn=c.v.i[0];mainSeen[mn]=(mainSeen[mn]||0)+1;});
+ PAGES=[p1];
+ for(let p=0;p<2;p++){
+  const pg=[],mc={};
+  for(const c of scored){
+   if(pg.length>=5)break;
+   if(used.has(c.m))continue;
+   const mn=c.v.i[0];
+   if((mc[mn]||0)>=2)continue;                                  // 페이지 안 주재료 최대 2종
+   if(p===1&&(mainSeen[mn]||0)>=2&&pg.length<4)continue;        // 마지막 페이지는 앞에서 많이 본 주재료 회피(색다름)
+   pg.push(c);mc[mn]=(mc[mn]||0)+1;mainSeen[mn]=(mainSeen[mn]||0)+1;used.add(c.m);
+  }
+  if(pg.length)PAGES.push(pg);
+ }
+ PIDX=0;RNAME=name;
+ renderPage();
+}
+let PAGES=[],PIDX=0,RNAME='',CVIA={};
+const PAGE_SUB=[
+ '와(과) 같은 재료(또는 맛·식감이 닮은 사촌)가 들어가고, 기관 식단에 자주 오르는 메뉴예요.',
+ ' 기준, 이번엔 주재료를 살짝 바꾼 조금 색다른 후보예요.',
+ ' 기준, 더 새로운 도전 후보예요 — 그래도 익숙한 연결고리는 남겨뒀어요.'];
+function nextPage(){PIDX=(PIDX+1)%PAGES.length;renderPage();if(window.gtag)gtag('event','cookie_more',{tool:'cousins',page:PIDX});}
+function renderPage(){
+ const top=PAGES[PIDX]||[];
  const tyLabel=TYPE==='daycare'?'어린이집':'유치원';
- document.getElementById('rsub').textContent=name+'와(과) 같은 재료(또는 맛·식감이 닮은 사촌 재료)가 들어가고, 전국 '+tyLabel+' 식단에 실제로 자주 오르는 메뉴예요.';
+ document.getElementById('rsub').textContent=RNAME+PAGE_SUB[PIDX].replace('기관',tyLabel);
+ const mb=document.getElementById('morebtn');
+ mb.style.display=PAGES.length>1?'block':'none';
+ mb.textContent=PIDX<PAGES.length-1?'다른 추천 보기 ('+(PIDX+2)+'/'+PAGES.length+') →':'↺ 처음 추천으로';
  document.getElementById('list').innerHTML=top.length?top.map(c=>{
   const why=[];
   if(c.shared.length)why.push('잘 먹는 재료 그대로('+c.shared.join('·')+')');
-  if(c.cshared.length)why.push('맛·식감이 닮은 사촌 재료('+c.cshared.map(x=>cousVia[x]+'→'+x).join('·')+')');
+  if(c.cshared.length)why.push('맛·식감이 닮은 사촌 재료('+c.cshared.map(x=>CVIA[x]+'→'+x).join('·')+')');
   if(c.sameCook)why.push('같은 조리법('+c.cook+')이라 익숙한 모양새');
   return '<div class="cous"><div class="top"><span class="nm">'+c.m+'</span><span class="fq">'+tyLabel+' 식단 '+c.v.f.toLocaleString()+'회 등장</span></div>'+
-  '<div class="shared">'+c.shared.map(x=>'<span class="sh">'+x+' 겹침</span>').join('')+c.cshared.map(x=>'<span class="shc">'+cousVia[x]+'의 사촌 · '+x+'</span>').join('')+(c.sameCook?'<span class="shm">같은 조리법 · '+c.cook+'</span>':'')+'</div>'+
+  '<div class="shared">'+c.shared.map(x=>'<span class="sh">'+x+' 겹침</span>').join('')+c.cshared.map(x=>'<span class="shc">'+CVIA[x]+'의 사촌 · '+x+'</span>').join('')+(c.sameCook?'<span class="shm">같은 조리법 · '+c.cook+'</span>':'')+'</div>'+
   '<div class="why">추천 이유 — '+why.join(' · ')+'. '+tyLabel+' 급식에 자주 나와 앞으로 만날 확률도 높아요.</div></div>';}).join('')
   :'<div class="empty">겹치는 사촌 메뉴를 찾지 못했어요 — 다른 음식으로 시도해보세요.</div>';
  document.getElementById('result').classList.remove('hidden');
  window.scrollTo({top:document.getElementById('result').offsetTop-10,behavior:'smooth'});
- gtag('event','cookie_result',{tool:'cousins',type:TYPE,months:MONTHS||0});
+ if(PIDX===0)gtag('event','cookie_result',{tool:'cousins',type:TYPE,months:MONTHS||0});
 }
 // 🍳 레시피 카드 (밀프레드 레시피DB — 식약처 표준레시피 기반, 유아 3-5세 1인분)
 document.getElementById('list').addEventListener('click',e=>{
@@ -243,6 +271,6 @@ document.getElementById('list').addEventListener('click',e=>{
  gtag('event','cookie_recipe_open',{tool:'cousins',dish:btn.dataset.dish});
 });
 </script>
-<script src="/cookie-common.js?v=5"></script>
+<script src="/cookie-common.js?v=6"></script>
 </body>
 </html>

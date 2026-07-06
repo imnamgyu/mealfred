@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>레시피 | 밀프레드</title>
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="아이 1인분 레시피 — 소금까지 g 단위">
+<meta property="og:description" content="식약처 표준레시피 기반, 아이 1인분 재료 무게·조리 순서·영양평가.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script src="/docs-gate.js?v=4"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--g700:#1B5E20;--warn:#B7791F;--bad:#C62828}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#FFFDFB;color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased}
+.priv{position:fixed;top:8px;right:8px;background:#1F2D3D;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;opacity:.55;z-index:9}
+.back{display:inline-block;margin:12px 0 0 14px;color:#b39a82;text-decoration:none;font-size:12px;font-weight:700}
+.hero{background:linear-gradient(160deg,#FFF5EB,#FFE8D0 45%,#FFD9B5);padding:30px 20px 22px;text-align:center}
+.hero .tag{display:inline-block;background:rgba(255,107,26,.1);color:var(--org2);padding:5px 14px;border-radius:100px;font-size:11.5px;font-weight:800;border:1px solid rgba(255,107,26,.25);margin-bottom:11px}
+.hero h1{font-size:clamp(22px,6vw,28px);font-weight:800;letter-spacing:-0.02em;line-height:1.28;color:var(--navy)}
+.badges{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:12px}
+.bdg{font-size:11.5px;font-weight:800;background:rgba(255,255,255,.85);border:1px solid #F0DCC2;color:var(--n600);border-radius:100px;padding:5px 12px}
+.bdg b{color:var(--org2)}
+main{max-width:520px;margin:0 auto;padding:20px 18px 30px}
+.sec{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:18px;margin-bottom:14px}
+.sec h2{font-size:15.5px;font-weight:800;color:var(--s800);margin-bottom:3px}
+.sec .sub{font-size:11.5px;color:var(--n500);font-weight:600;margin-bottom:12px}
+.srv{display:flex;gap:7px;margin-bottom:12px}
+.srv button{flex:1;padding:9px;border:1.5px solid var(--n200);border-radius:10px;background:#fff;font-size:12.5px;font-weight:800;color:var(--n600);cursor:pointer;font-family:inherit}
+.srv button.on{border-color:var(--p500);background:#FFF8F2;color:var(--org2)}
+table.ing{width:100%;border-collapse:collapse}
+table.ing td{padding:8px 4px;border-top:1px dashed #F0E8E0;font-size:13px;font-weight:600;color:var(--n700)}
+table.ing tr:first-child td{border-top:none}
+table.ing .nm{width:44%}
+table.ing .g{text-align:right;font-weight:800;color:var(--s800);white-space:nowrap;font-variant-numeric:tabular-nums}
+table.ing .disp{text-align:right;font-size:11px;color:var(--n500);white-space:nowrap}
+tr.ssn td{background:#FFFBF3}
+tr.ssn .nm::before{content:'🧂 '}
+.saltline{margin-top:10px;font-size:11.5px;font-weight:700;color:var(--warn);background:#FFF9EC;border:1px dashed #EAD9AE;border-radius:9px;padding:8px 11px;line-height:1.55}
+ol.steps{list-style:none;counter-reset:st}
+ol.steps li{counter-increment:st;display:flex;gap:11px;padding:11px 2px;border-top:1px dashed #F0E8E0;font-size:13.5px;font-weight:600;color:var(--n700);line-height:1.65;cursor:pointer}
+ol.steps li:first-child{border-top:none}
+ol.steps li::before{content:counter(st);flex:none;width:24px;height:24px;border-radius:50%;background:#FFF0E0;color:var(--org2);font-weight:800;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+ol.steps li.done{color:var(--n400);text-decoration:line-through}
+ol.steps li.done::before{background:#E8F5E9;color:var(--g700);content:'✓'}
+.stephint{font-size:11px;color:var(--n400);font-weight:600;margin-top:8px;text-align:center}
+.nrow{display:flex;justify-content:space-between;align-items:baseline;padding:7px 2px;border-top:1px dashed #F0E8E0;font-size:13px;font-weight:600;color:var(--n700)}
+.nrow:first-of-type{border-top:none}
+.nrow b{font-weight:800;color:var(--s800);font-variant-numeric:tabular-nums}
+.gauge{height:9px;background:#F0E8E0;border-radius:6px;overflow:hidden;margin:6px 0 3px}
+.gauge i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#8BBF4E,#E89244)}
+.gnote{font-size:11px;color:var(--n500);font-weight:600}
+.verdict{margin-top:12px;font-size:12.5px;font-weight:700;border-radius:10px;padding:10px 12px;line-height:1.6}
+.verdict.ok{background:#F1F8F0;color:var(--g700);border:1px solid #CDE8CC}
+.verdict.review{background:#FFF9EC;color:var(--warn);border:1px solid #EAD9AE}
+.verdict.over{background:#FDF0EF;color:var(--bad);border:1px solid #F2CFCC}
+.altags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.alt{font-size:11px;font-weight:800;color:var(--bad);background:#FDF3F2;border:1px solid #F2CFCC;border-radius:100px;padding:3px 10px}
+.alt.none{color:var(--g700);background:#F1F8F0;border-color:#CDE8CC}
+.notice{font-size:11.5px;color:var(--n500);font-weight:600;background:#FFFDF6;border:1px dashed var(--n200);border-radius:10px;padding:9px 12px;line-height:1.6;margin-top:12px}
+.btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:inherit}
+.appin{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px solid var(--p300);border-radius:16px;padding:20px;text-align:center;margin-top:14px}
+.appin .em{font-size:30px}.appin h3{font-size:15.5px;font-weight:800;color:var(--s800);margin:4px 0 6px}
+.appin p{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:14px;line-height:1.55}
+footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px;font-weight:600;line-height:1.6}
+.err{max-width:520px;margin:40px auto;text-align:center;font-size:14px;font-weight:700;color:var(--n500);padding:0 20px}
+.hidden{display:none}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body data-cookie="recipe">
+<span class="priv">🔒 비공개 테스트</span>
+<a href="javascript:history.length>1?history.back():location.href='/cookie-cousins.html'" class="back">← 돌아가기</a>
+
+<header class="hero">
+  <span class="tag" id="hband">🍳 아이 1인분 레시피</span>
+  <h1 id="htitle">불러오는 중…</h1>
+  <div class="badges" id="hbadges"></div>
+</header>
+
+<main id="mainbox" class="hidden">
+  <div class="sec">
+    <h2>🧺 식재료 무게</h2>
+    <div class="sub">저울에 올려 그대로 따라 하세요 — 간(🧂)은 0.1g까지.</div>
+    <div class="srv" id="srv">
+      <button data-x="1" class="on">아이 1인분</button>
+      <button data-x="2">2인분</button>
+      <button data-x="3">3인분</button>
+    </div>
+    <table class="ing"><tbody id="ingbody"></tbody></table>
+    <div class="saltline" id="saltline"></div>
+  </div>
+
+  <div class="sec">
+    <h2>👩‍🍳 조리 순서</h2>
+    <div class="sub" id="timesub"></div>
+    <ol class="steps" id="steps"></ol>
+    <div class="stephint">각 단계를 탭하면 완료 표시가 돼요 ✓</div>
+  </div>
+
+  <div class="sec">
+    <h2>📊 영양평가</h2>
+    <div class="sub" id="nsub"></div>
+    <div id="nrows"></div>
+    <div class="gauge"><i id="nagauge" style="width:0"></i></div>
+    <div class="gnote" id="nanote"></div>
+    <div class="verdict" id="verdict"></div>
+    <div class="altags" id="altags"></div>
+    <div class="notice">나트륨은 식약처 표준레시피 재료량 × 농촌진흥청 식품성분표로 계산한 추정치예요(건조 재료의 불림·헹굼 손실 미반영 → 실제는 이보다 낮을 수 있어요). 참고용이며, 알레르기가 있다면 재료를 꼭 확인해주세요.</div>
+  </div>
+
+  <div class="appin">
+    <div class="em">💌</div>
+    <h3>이 메뉴, 우리 아이가 먹게 하려면?</h3>
+    <p>전 세계 <b>35개 국제 가이드라인</b>을 통합한 <b>밀프레드 편식 코치</b>가<br>우리 아이 기록에 맞춰 내놓는 순서·방법까지 짜드립니다.</p>
+    <a class="btn" href="https://app.mealfred.com/?utm_source=cookie&utm_medium=recipe&utm_campaign=recipe_detail" target="_blank" rel="noopener">밀프레드 편식 코칭 받기 →</a>
+  </div>
+</main>
+<div class="err hidden" id="errbox">레시피를 찾지 못했어요 😢<br><a href="/cookie-cousins.html" style="color:var(--org2)">← 사촌 음식 추천으로 돌아가기</a></div>
+
+<footer>밀프레드 레시피 · 식약처 어린이급식관리지원센터 표준레시피 기반 · 영양 계산=농진청 국가표준식품성분표 · 참고용</footer>
+
+<script>
+// 레시피 상세 템플릿(이사님 2026-07-06): /recipe.html?m=메뉴&b=3-5세|6-11세
+// 데이터 = /recipe-data/{band}/{menu}.json (scripts 재생성: scratchpad gen-recipe-data.mjs → recipes DB 원본)
+const Q=new URLSearchParams(location.search);
+const MENU=(Q.get('m')||'').trim(), BAND=(Q.get('b')||'3-5세').trim();
+const BANDLABEL={'3-5세':'유아(3-5세)','6-11세':'초등(6-11세)','1-2세':'1-2세'};
+// 한 끼(점심) 기준: 유아 CDRR 1,500mg/일의 1/3≈500 · 초등=교육부 권장 900 (참고 기준)
+const NA_BUDGET={'3-5세':500,'6-11세':900}, KCAL_MEAL={'3-5세':400,'6-11세':570};
+let R=null, X=1;
+const fname=m=>m.replace(/[\/\\:*?"<>|]/g,'·');
+
+fetch('/recipe-data/'+encodeURIComponent(BAND)+'/'+encodeURIComponent(fname(MENU))+'.json')
+ .then(r=>{if(!r.ok)throw 0;return r.json()})
+ .then(d=>{R=d;render();})
+ .catch(()=>{
+   // 밴드 폴백: 3-5세 없으면 6-11세, 그 반대도
+   const alt=BAND==='3-5세'?'6-11세':'3-5세';
+   fetch('/recipe-data/'+encodeURIComponent(alt)+'/'+encodeURIComponent(fname(MENU))+'.json')
+    .then(r=>{if(!r.ok)throw 0;return r.json()})
+    .then(d=>{R=d;render();})
+    .catch(()=>{document.getElementById('htitle').textContent=MENU||'레시피';document.getElementById('errbox').classList.remove('hidden');});
+ });
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function render(){
+ document.title=R.title+' — 아이 1인분 레시피 | 밀프레드';
+ document.getElementById('htitle').textContent=R.title;
+ document.getElementById('hband').textContent='🍳 '+(BANDLABEL[R.band]||R.band)+' 1인분 레시피';
+ const na=R.nutri.sodium_mg, kcal=R.nutri.kcal;
+ document.getElementById('hbadges').innerHTML=
+  '<span class="bdg">⏱ 조리 <b>약 '+R.cook_min+'분</b>'+(R.wait_min?' <span style="font-weight:600">(+불리기 등 '+R.wait_min+'분)</span>':'')+'</span>'
+  +'<span class="bdg">🧺 재료 <b>'+R.ings.length+'개</b></span>'
+  +(na!=null?'<span class="bdg">🧂 나트륨 <b>'+na+'mg</b></span>':'');
+ renderIngs();
+ // 스텝
+ document.getElementById('timesub').textContent='약 '+R.cook_min+'분'+(R.wait_min?' + 대기 '+R.wait_min+'분':'')+' · 아이가 먹기 좋은 크기로 잘라 주세요';
+ document.getElementById('steps').innerHTML=R.steps.map(s=>'<li>'+esc(String(s).replace(/^[①-⑳]\s*|^\d+\.\s*/,''))+'</li>').join('');
+ document.getElementById('steps').addEventListener('click',e=>{const li=e.target.closest('li');if(li)li.classList.toggle('done');});
+ // 영양평가
+ const rows=[];
+ if(kcal!=null)rows.push(['에너지',kcal+' kcal','한 끼 기준('+KCAL_MEAL[R.band]+'kcal)의 '+Math.round(kcal/KCAL_MEAL[R.band]*100)+'%']);
+ if(R.nutri.protein_g!=null)rows.push(['단백질',R.nutri.protein_g+' g','']);
+ if(R.nutri.carb_g!=null)rows.push(['탄수화물',R.nutri.carb_g+' g','']);
+ if(R.nutri.fat_g!=null)rows.push(['지방',R.nutri.fat_g+' g','']);
+ if(R.nutri.calcium_mg!=null)rows.push(['칼슘',R.nutri.calcium_mg+' mg','']);
+ if(R.nutri.iron_mg!=null)rows.push(['철',R.nutri.iron_mg+' mg','']);
+ if(na!=null)rows.push(['나트륨',na+' mg','']);
+ document.getElementById('nsub').textContent=(BANDLABEL[R.band]||R.band)+' 1인분 기준';
+ document.getElementById('nrows').innerHTML=rows.map(r=>'<div class="nrow"><span>'+r[0]+(r[2]?' <span style="font-size:10.5px;color:var(--n400)">'+r[2]+'</span>':'')+'</span><b>'+r[1]+'</b></div>').join('');
+ // 나트륨 게이지 + 평가
+ const budget=NA_BUDGET[R.band]||500;
+ if(na!=null){
+  const pct=Math.min(100,Math.round(na/budget*100));
+  document.getElementById('nagauge').style.width=pct+'%';
+  document.getElementById('nanote').textContent='한 끼 나트륨 기준('+budget+'mg) 대비 '+pct+'% — 이 메뉴 하나 기준이라, 반찬·국을 더하면 합산돼요.';
+  const v=document.getElementById('verdict');
+  if(na<=budget*0.4){v.className='verdict ok';v.textContent='✓ 간이 순한 편이에요. 다른 반찬과 함께 차려도 한 끼 나트륨에 여유가 있어요.';}
+  else if(na<=budget*0.8){v.className='verdict review';v.textContent='△ 간이 보통이에요. 함께 내는 국·반찬은 싱겁게 맞추면 좋아요.';}
+  else{v.className='verdict over';v.textContent='⚠ 이 메뉴만으로 한 끼 나트륨 기준에 가까워요. 소금·장류를 절반으로 줄이거나(맛은 마늘·참기름으로), 싱거운 반찬과 함께 주세요.';}
+ }else{document.getElementById('nanote').textContent='';document.getElementById('verdict').className='hidden';}
+ // 알레르기
+ document.getElementById('altags').innerHTML=(R.allergens&&R.allergens.length)
+  ?R.allergens.map(a=>'<span class="alt">⚠ '+esc(a)+'</span>').join('')
+  :'<span class="alt none">✓ 알레르기 표시대상 재료 없음</span>';
+ document.getElementById('mainbox').classList.remove('hidden');
+ gtag('event','recipe_view',{menu:R.menu,band:R.band});
+}
+function renderIngs(){
+ const tb=document.getElementById('ingbody');
+ tb.innerHTML=R.ings.map(i=>{
+  const g=Math.round(i.g*X*10)/10;
+  return '<tr'+(i.ssn?' class="ssn"':'')+'><td class="nm">'+esc(i.n)+'</td><td class="g">'+g+'g</td><td class="disp">'+(X===1&&i.disp?esc(i.disp):'')+'</td></tr>';
+ }).join('');
+ const saltNa=R.ings.filter(i=>i.ssn&&i.na).reduce((a,i)=>a+i.na,0);
+ document.getElementById('saltline').innerHTML='🧂 간 전체(소금·장류)의 나트륨 ≈ <b>'+Math.round(saltNa*X)+'mg</b>'+(X>1?' ('+X+'인분)':' (1인분)')+' — 양념 g은 인분에 비례해 그대로 늘리면 돼요.';
+}
+document.getElementById('srv').addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ X=parseInt(b.dataset.x,10);
+ document.querySelectorAll('#srv button').forEach(x=>x.classList.toggle('on',x===b));
+ renderIngs();
+});
+</script>
+<script src="/cookie-common.js?v=6"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@
   var SERIES = [
     { id: 'quiz', ico: '💯', label: '아이 편식 상식 점수', desc: '나는 편식을 잘 아는 부모일까? 10문제 1분', href: '/picky-score.html' },
     { id: 'child', ico: '🍽️', label: '우리 아이 먹BTI', desc: '우리 아이는 어떤 미식가 유형일까?', href: '/meokbti.html' },
+    { id: 'cousins', ico: '🥔', label: '다음 도전 음식 추천', desc: '잘 먹는 음식으로 다음 메뉴를 찾아드려요', href: '/next-food.html' },
     { id: 'eval', ico: '🍱', label: '어린이집 식단표 평가', desc: '식단표 사진 한 장이면 영양 점수·전국 비교까지', href: '/daycare-eval.html' },
     { id: 'app', ico: '💌', label: '밀프레드 편식 코칭', desc: '우리 아이 편식 전담 코치 · 35개 국제 가이드라인 기반', href: 'https://app.mealfred.com/?utm_source=cookie&utm_medium=strip' }
   ];
@@ -30,8 +31,8 @@
 
   // 공개 도구(rankings 등)는 비공개 쿠키 cross-link 대신 → 편식코칭앱 유입 CTA(미끼→앱 전환)
   var APP_CTA_TOOLS = ['rankings'];
-  // 스트립 자체를 안 붙이는 페이지 — quiz는 급식순위용 배너 카피가 맥락에 안 맞음(이사님 2026-07-05), 자체 CTA(coach)로 충분
-  var NO_STRIP_TOOLS = ['quiz'];
+  // 모든 공개 서비스가 서로 링크 공유(이사님 2026-07-06) — 제외할 페이지 생기면 여기에
+  var NO_STRIP_TOOLS = [];
   function appCta() {
     var wrap = document.createElement('div');
     wrap.style.cssText = 'max-width:540px;margin:0 auto;padding:4px 18px 26px';

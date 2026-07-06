@@ -49,6 +49,11 @@
       "source": "/cookie-rankings.html",
       "destination": "/meal-ranking.html",
       "permanent": true
+    },
+    {
+      "source": "/cookie-cousins.html",
+      "destination": "/next-food.html",
+      "permanent": true
     }
   ]
 }
