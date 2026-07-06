@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-07-05 (b) — 식단입력 UX 감사 → 버그 10건 일괄 수정</title>
+<meta property="og:title" content="작업 일지 2026-07-05 (b) — 기록 입력 UX 코드 감사, 혼합끼니·meal_time 오배선·prefill 마커 등 버그 일괄 수정 라이브">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-07-05 · 식단입력 UX 감사→버그픽스 세션 (병행 · 07-04 심야~07-06)</div>
+  <h1>기록 입력 UX 코드 감사 → 확정 버그 10건 일괄 수정 라이브</h1>
+  <p class="sub">"부모가 매 끼니 편하게 입력되게 돼 있나?" 감사에서 시작 — 혼합 끼니가 만들던 가짜 liked, 시각을 분으로 읽던 오배선, 추정값의 관찰값 위장까지 잡았다.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">e3fc588</div><div class="l">버그픽스 커밋 (선택 커밋 10파일)</div></div>
+    <div class="gcard"><div class="n">6+4</div><div class="l">확정 버그 수정 (감사 6 + 적대검증 적발 4)</div></div>
+    <div class="gcard"><div class="n">636</div><div class="l">vitest 전부 통과 · tsc 0</div></div>
+    <div class="gcard"><div class="n">9</div><div class="l">멀티에이전트 (감사 6 + 검증 3)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>멀티에이전트 UX 감사 — 수정 0, 평가만</h2><span class="commit">워크플로우 6에이전트</span></div>
+    <ul class="wl">
+      <li>정독 3(입력 화면 1,090줄 필드 인벤토리 · 보조 인프라 · 엔진 소비처) + 평가 3(지친 부모 워크스루 · 입력 UX 원칙 대조 · 비용×가치). 총평은 직감과 반대 — 맥락 필드는 prefill로 이미 0~1탭, 진짜 마찰은 <b>메뉴 타이핑</b>과 <b>수용 5단계의 위치·단위</b>.</li>
+      <li>확정 발견: <b>혼합 끼니 게이트</b>("완식인데 브로콜리만 남김" 기록 불가 → 가짜 liked) · <b>meal_time 오배선 3곳</b>(시각을 분으로 → "30분+" 코칭 경로 사망, 테스트가 잘못된 가정을 박제) · <b>무접촉 prefill의 관찰값 위장</b>(자기강화 루프) · 유령 2(reaction, refused_category) · 저장 실패 위장 + 무경고 유실.</li>
+    </ul>
+    <div class="out">산출: 필드별 판정 보고(매끼 지속가능/사망) — 기능 결정 3건(quick-add 등)과 버그를 분리해 보고.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>확정 버그 일괄 수정 — 혼합끼니·오배선·마커·드래프트·저장오류</h2><span class="commit">e3fc588</span></div>
+    <ul class="wl">
+      <li><b>혼합 끼니</b>: 거부 패널 전 레벨 개방 + 엔진이 refused 식재료를 끼니 레벨 대신 거부(0)로 귀속(렉시콘 정규화 토큰 매칭: 탕수육→돼지고기 · 1글자 가드: 김치⊅김). 주간 진척(targetAccepts) 가드도 동일 토큰 매칭.</li>
+      <li><b>meal_time→duration_min 재배선 3곳</b> — fullness-respect 유닛·분위기 시나리오가 처음으로 실제 작동. <b>prefill 마커</b>(이사님 결정): 안 만진 추정값은 저장하되 inferred_fields 마킹, 패턴 학습·carry-forward는 명시값만(P0-D 엔진 동작은 유지).</li>
+      <li><b>드래프트 스태시</b>(전환·로드 레이스에도 타이핑 보존) · <b>저장 실패 정직화</b>(실패 안내+다시 시도) · 소소 5(재탭 해제 · 현재 시각 슬롯 자동선택 · 파싱 중 추가버튼 · 게스트 이관 · 문구 2).</li>
+    </ul>
+    <div class="out">라이브: <b>app.mealfred.com/care</b> — vitest 636/636 · tsc 0 · 프리푸시 게이트 통과(병행 세션 미커밋분 제외, 10파일 선택 커밋).</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>적대검증 3렌즈 — 내 수정에서 4건 추가 적발·반영</h2><span class="commit">워크플로우 3에이전트</span></div>
+    <ul class="wl">
+      <li><b>blocker</b>: 얕은 복사가 logs를 in-place 오염 — 저장 실패에도 슬롯 ✓ 거짓 점등(수정). <b>major 3</b>: 같은 끼니에서 클라우드 로드가 타이핑을 리셋 · refused 토큰 정규화 불일치(거부가 완식 크레딧으로 뒤집힘) · targetAccepts 미배선 — 전부 수정.</li>
+      <li>DDL <code>meal_logs.inferred_fields text[]</code> 이사님 대시보드 적용 → service role probe로 컬럼 라이브 확인. 캡처→마킹→학습 배제 체인 end-to-end 가동.</li>
+    </ul>
+    <div class="out">교훈: <b>테스트가 잘못된 가정을 박제하면 버그가 게이트를 통과한다</b> — 오배선 방지 케이스(시각≠분)를 테스트에 박제.</div>
+  </section>
+
+  <div class="next">
+    <h3>다음 · 대기</h3>
+    <ul>
+      <li>기능 결정 3건(이사님): reaction 유령 필드 제거 · refused_category('왜' 축 — DB 컬럼은 있음) 배선 여부 · 메뉴 quick-add(최근 메뉴 원탭 — 감사 판정 "가장 저평가된 UX 투자처").</li>
+      <li>잔여 한계: 미정규 표기 메뉴 통째 거부는 매칭이 샐 수 있음(식재료 칩 탭이면 정확) · dirty 드래프트의 서버 행 마스킹(사용자 입력 우선 — 의도된 트레이드오프).</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-07-05 (b) · 식단입력 UX 감사→버그픽스 세션</div>
+</main>
+</body></html>

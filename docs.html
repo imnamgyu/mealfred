@@ -424,10 +424,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 42</span>
+    <span class="cnt">세션 43</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+<a href="/worklog-2026-07-05-b.html" class="doc-card cat-app">
+  <span class="badge new">📓 신규</span>
+  <div class="ico">📓</div>
+  <h4>07-05 (b) — 식단입력 UX 감사 → 버그 10건 일괄 수정</h4>
+  <p class="desc"><b>식단입력 UX 감사→버그픽스 세션(병행).</b> ① 멀티에이전트 감사 — 혼합끼니 가짜 liked·meal_time 오배선·prefill 관찰값 위장 확정 ② 일괄 수정+적대검증 4건 추가 반영 (<code>e3fc588</code>) ③ inferred_fields DDL 적용·검증 <span style="color:#1B5E20">vitest 636 · /care 라이브.</span></p>
+  <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
+</a>
 <a href="/worklog-2026-07-05.html" class="doc-card cat-app">
   <span class="badge new">📓 신규</span>
   <div class="ico">📓</div>
@@ -554,14 +561,7 @@
       <p class="desc"><b>블로그 발행 세션.</b> ① 자동 슬롯 44편(Wardle)이 40·42편과 <b>'반복 노출' 주제 3연속 중복</b> → 이사님 3안 질문 → <b>44 skip</b>(31편 선례) ② 45편(정주행·미취학 3~5세) — 모호 출처 <code>발달심리</code>를 <b>Birch 1980</b>(Child Development·미취학 39명·또래 곁 나흘 만에 싫던 채소 선택)로 검증·교정, "어린이집 탓 아니라 또래는 지렛대" 반전(모델링≠비교) · 위원회 6/6 ③ 이사님 수정 — 제목 단축·<b>"그날→한 달 급식"</b>(식단표 월단위) ④ ⭐ 빌드 제목버그(<code>Object.assign</code>이 CSV placeholder 우선) 수정 → 배포(<code>37508d9</code>). <span style="color:#1B5E20">라이브 mealfred.com/blog/045.html · 앱 팁.</span></p>
       <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-26.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-26 — 편식 42편 발행 · de Wild 오인용→Karagiannaki 정정 · 제목 정직성(시금치→무)</h4>
-      <p class="desc"><b>블로그 발행 세션.</b> ① 자동 슬롯 42편(스낵·7회 노출 곡선) — 직전 40편(UCL 61%)과 차별화 ② ⭐ CSV <code>de Wild 2021</code>이 <b>실재 안 하는 오인용</b> 발견(de Wild는 2013~2018만) → 실제 <b>Karagiannaki 외 Foods 2021</b>(코펜하겐대·무·159명·7회째 최다 68±8g)로 본문·CSV 3필드 정정 ③ 제목 "시금치" 요청 → 연구식물=무라 오인 소지 → 일반 제목 「서너 번 보고 접은 그 채소…」로 정합 ④ 7번째 vs 최대 30번 논의(모순 아님·표면별 8~10/12~30/7회 불일치 확인) → 배포(<code>8c26dd8</code>). <span style="color:#1B5E20">라이브 mealfred.com/blog/042.html · 앱 팁.</span></p>
-      <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
-    </a>
-    </div>
+        </div>
 </section>
 
 <!-- 아카이브 -->
@@ -596,7 +596,7 @@
 <script>
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
-  var DOC_DATES = {'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
+  var DOC_DATES = {'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
     '/worklog-2026-07-04.html':{c:'2026-07-04',m:'2026-07-04'},
     '/worklog-2026-07-03.html':{c:'2026-07-03',m:'2026-07-03'},
     '/worklog-2026-07-02.html':{c:'2026-07-02',m:'2026-07-02'},
