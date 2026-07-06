@@ -51,8 +51,10 @@ main{max-width:500px;margin:0 auto;padding:24px 18px 30px}
 .cous .shc{font-size:11px;font-weight:800;color:var(--org2);background:#FFF8F2;border:1px dashed var(--p300);border-radius:100px;padding:3px 9px}
 .cous .shm{font-size:11px;font-weight:800;color:#1565C0;background:#F0F6FF;border:1px solid #C9DDF6;border-radius:100px;padding:3px 9px}
 .cous .why{font-size:11.5px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.55}
-.rbtn{margin-top:9px;font-size:11.5px;font-weight:800;color:var(--org2);background:#FFF4E8;border:1px solid #F5C89A;border-radius:8px;padding:6px 10px;cursor:pointer;font-family:inherit}
-.rbtn.open{background:#FFEAD6}
+.rbtn{display:inline-block;margin-top:9px;font-size:11.5px;font-weight:800;color:var(--org2);background:#FFF4E8;border:1px solid #F5C89A;border-radius:8px;padding:6px 10px;cursor:pointer;font-family:inherit;text-decoration:none}
+.rbtn:active{background:#FFEAD6}
+a.nmlink{text-decoration:none;color:var(--s800)}
+a.nmlink:active{color:var(--org2)}
 .rbox{margin-top:8px;background:#FAFAF7;border:1px solid #EFE9E1;border-radius:10px;padding:10px 12px}
 .rbox .rt{font-size:12px;font-weight:800;color:var(--s800);margin-bottom:6px}
 .rbox .rt .bd{font-weight:700;color:#8A8378;font-size:10.5px;margin-left:6px}
@@ -246,29 +248,22 @@ function renderPage(){
   if(c.shared.length)why.push('잘 먹는 재료 그대로('+c.shared.join('·')+')');
   if(c.cshared.length)why.push('맛·식감이 닮은 사촌 재료('+c.cshared.map(x=>CVIA[x]+'→'+x).join('·')+')');
   if(c.sameCook)why.push('같은 조리법('+c.cook+')이라 익숙한 모양새');
-  return '<div class="cous"><div class="top"><span class="nm">'+c.m+'</span><span class="fq">'+tyLabel+' 식단 '+c.v.f.toLocaleString()+'회 등장</span></div>'+
+  const rurl='/recipe.html?m='+encodeURIComponent(c.m)+'&b=3-5%EC%84%B8';
+  const hasR=window.MF_RECIPES&&window.MF_RECIPES[c.m];
+  return '<div class="cous"><div class="top">'+(hasR?'<a class="nm nmlink" href="'+rurl+'">'+c.m+' ›</a>':'<span class="nm">'+c.m+'</span>')+'<span class="fq">'+tyLabel+' 식단 '+c.v.f.toLocaleString()+'회 등장</span></div>'+
   '<div class="shared">'+c.shared.map(x=>'<span class="sh">'+x+' 겹침</span>').join('')+c.cshared.map(x=>'<span class="shc">'+CVIA[x]+'의 사촌 · '+x+'</span>').join('')+(c.sameCook?'<span class="shm">같은 조리법 · '+c.cook+'</span>':'')+'</div>'+
-  '<div class="why">추천 이유 — '+why.join(' · ')+'. '+tyLabel+' 급식에 자주 나와 앞으로 만날 확률도 높아요.</div></div>';}).join('')
+  '<div class="why">추천 이유 — '+why.join(' · ')+'. '+tyLabel+' 급식에 자주 나와 앞으로 만날 확률도 높아요.</div>'+
+  (hasR?'<a class="rbtn" href="'+rurl+'" data-dish="'+c.m+'">🍳 레시피 보기 — 재료 무게·조리 순서·영양평가 →</a>':'')+
+  '</div>';}).join('')
   :'<div class="empty">겹치는 사촌 메뉴를 찾지 못했어요 — 다른 음식으로 시도해보세요.</div>';
  document.getElementById('result').classList.remove('hidden');
  window.scrollTo({top:document.getElementById('result').offsetTop-10,behavior:'smooth'});
  if(PIDX===0)gtag('event','cookie_result',{tool:'cousins',type:TYPE,months:MONTHS||0});
 }
-// 🍳 레시피 카드 (밀프레드 레시피DB — 식약처 표준레시피 기반, 유아 3-5세 1인분)
+// 🍳 레시피 = 상세페이지(/recipe.html — 재료 무게·조리 순서·영양평가). 클릭 계측만.
 document.getElementById('list').addEventListener('click',e=>{
- const btn=e.target.closest('.rbtn');if(!btn)return;
- const box=btn.nextElementSibling,R=window.MF_RECIPES[btn.dataset.dish];
- if(!box||!R)return;
- const opening=box.classList.contains('hidden');
- box.classList.toggle('hidden');btn.classList.toggle('open',opening);
- btn.textContent=opening?'🍳 유아 1인분 레시피 — 소금까지 g 단위 ▴':'🍳 유아 1인분 레시피 — 소금까지 g 단위 ▾';
- if(!opening||box.innerHTML)return;
- const ings=R.i.map(x=>'<span class="ig'+(x[3]?' ssn':'')+'">'+(x[3]?'🧂 ':'')+x[0]+' <b>'+x[1]+'g</b>'+(x[2]?'('+x[2]+')':'')+'</span>').join('');
- box.innerHTML='<div class="rt">'+R.t+'<span class="bd">유아(3-5세) 1인분</span></div>'
-  +'<div class="ings">'+ings+'</div>'
-  +'<div class="rmeta">'+(R.na!=null?'나트륨 <b>약 '+R.na+'mg</b> (식약처 표준레시피 기반 계산) · ':'')+(R.al&&R.al.length?'알레르기: '+R.al.join('·'):'알레르기 표시대상 없음')+'</div>'
-  +(MONTHS&&MONTHS<36?'<div class="banote">✓ 만 1~2세는 이 양의 약 65%가 적당해요 (식약처 영유아 급식 기준)</div>':'');
- gtag('event','cookie_recipe_open',{tool:'cousins',dish:btn.dataset.dish});
+ const a=e.target.closest('.rbtn,.nmlink');if(!a)return;
+ gtag('event','cookie_recipe_open',{tool:'cousins',dish:a.dataset.dish||a.textContent.replace(' ›','')});
 });
 </script>
 <script src="/cookie-common.js?v=6"></script>
