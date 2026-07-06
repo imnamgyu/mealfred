@@ -7,7 +7,7 @@
 <meta property="og:title" content="아이 편식 상식 점수 — 나는 몇 점일까?">
 <meta property="og:description" content="나는 편식을 잘 아는 부모일까? 우리 아이가 편식하는 이유, 10문제 점수로 확인해보세요 · 1분.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://www.mealfred.com/cookie-quiz.html">
+<meta property="og:url" content="https://www.mealfred.com/picky-score.html">
 <meta property="og:image" content="https://www.mealfred.com/og-quiz.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -202,7 +202,7 @@ function qe(ev){try{fetch('https://app.mealfred.com/api/quiz-event',{method:'POS
 // 담백한 공유(이사님 2026-07-05): 도전 멘트 없이 링크만 복사 + "링크가 복사되었습니다" 토스트
 function shareLink(){
  qe('share');if(window.gtag)gtag('event','cookie_share',{tool:'quiz'});
- const url='https://www.mealfred.com/cookie-quiz.html';
+ const url='https://www.mealfred.com/picky-score.html';
  const done=()=>mfToast('링크가 복사되었습니다');
  const legacy=()=>{try{const t=document.createElement('textarea');t.value=url;t.style.cssText='position:fixed;opacity:0';document.body.appendChild(t);t.select();const ok=document.execCommand('copy');t.remove();ok?done():mfToast(url);}catch(e){mfToast(url);}};
  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(done).catch(legacy);
@@ -291,6 +291,6 @@ function show(){
 }
 render();
 </script>
-<script src="/cookie-common.js?v=3"></script>
+<script src="/cookie-common.js?v=4"></script>
 </body>
 </html>

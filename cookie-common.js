@@ -2,7 +2,8 @@
 (function () {
   // 스트립엔 실제 배포(공개)된 서비스만 노출(이사님 2026-07-06) — 비공개 쿠키 초안은 여기 넣지 말 것.
   var SERIES = [
-    { id: 'quiz', ico: '💯', label: '아이 편식 상식 점수', desc: '나는 편식을 잘 아는 부모일까? 10문제 1분', href: '/cookie-quiz.html' },
+    { id: 'quiz', ico: '💯', label: '아이 편식 상식 점수', desc: '나는 편식을 잘 아는 부모일까? 10문제 1분', href: '/picky-score.html' },
+    { id: 'child', ico: '🍽️', label: '우리 아이 먹BTI', desc: '우리 아이는 어떤 미식가 유형일까?', href: '/meokbti.html' },
     { id: 'eval', ico: '🍱', label: '어린이집 식단표 평가', desc: '식단표 사진 한 장이면 영양 점수·전국 비교까지', href: '/daycare-eval.html' },
     { id: 'app', ico: '💌', label: '밀프레드 편식 코칭', desc: '35개 국제 가이드라인 기반 우리 아이 맞춤 코칭', href: 'https://app.mealfred.com/?utm_source=cookie&utm_medium=strip' }
   ];

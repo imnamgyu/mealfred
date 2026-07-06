@@ -3,15 +3,47 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
       ]
     }
   ],
   "redirects": [
-    { "source": "/admin.html", "destination": "https://app.mealfred.com/admin", "permanent": false },
-    { "source": "/admin", "destination": "https://app.mealfred.com/admin", "permanent": false },
-    { "source": "/foodbridge.html", "destination": "https://app.mealfred.com/", "permanent": false },
-    { "source": "/foodbridge", "destination": "https://app.mealfred.com/", "permanent": false }
+    {
+      "source": "/admin.html",
+      "destination": "https://app.mealfred.com/admin",
+      "permanent": false
+    },
+    {
+      "source": "/admin",
+      "destination": "https://app.mealfred.com/admin",
+      "permanent": false
+    },
+    {
+      "source": "/foodbridge.html",
+      "destination": "https://app.mealfred.com/",
+      "permanent": false
+    },
+    {
+      "source": "/foodbridge",
+      "destination": "https://app.mealfred.com/",
+      "permanent": false
+    },
+    {
+      "source": "/cookie-quiz.html",
+      "destination": "/picky-score.html",
+      "permanent": true
+    },
+    {
+      "source": "/cookie-child.html",
+      "destination": "/meokbti.html",
+      "permanent": true
+    }
   ]
 }
