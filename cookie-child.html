@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>우리 아이 편식 유형 테스트 — 어떤 미식가일까? | 밀프레드</title>
+<meta name="robots" content="noindex,nofollow">
+<meta property="og:title" content="우리 아이 편식 유형 테스트 — 어떤 미식가일까?">
+<meta property="og:description" content="국제 식행동 척도 개념으로 만든 16문항. 우리 아이는 신중 미식가? 센서 미식가? 약 2분.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<script src="/docs-gate.js?v=4"></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--g700:#1B5E20;--r700:#C62828;--y700:#B45309}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#FFFDFB;color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased}
+.priv{position:fixed;top:8px;right:8px;background:#1F2D3D;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;opacity:.55;z-index:9}
+.back{display:inline-block;margin:12px 0 0 14px;color:#b39a82;text-decoration:none;font-size:12px;font-weight:700}
+.hero{background:linear-gradient(160deg,#FFF5EB,#FFE8D0 45%,#FFD9B5);padding:38px 20px 26px;text-align:center}
+.hero .tag{display:inline-block;background:rgba(255,107,26,.1);color:var(--org2);padding:6px 15px;border-radius:100px;font-size:11.5px;font-weight:800;border:1px solid rgba(255,107,26,.25);margin-bottom:13px}
+.hero h1{font-size:clamp(21px,5.6vw,27px);font-weight:800;letter-spacing:-0.02em;line-height:1.3;color:var(--navy)}
+.hero h1 .ac{color:#FF8A47}
+.hero p{font-size:14px;color:#5a4a3a;font-weight:500;margin-top:10px;max-width:430px;margin-left:auto;margin-right:auto}
+.hero .meta{margin-top:12px;font-size:11.5px;color:#9a8468;font-weight:700}
+main{max-width:480px;margin:0 auto;padding:24px 18px 30px}
+.agewrap{text-align:center}
+.agewrap h2{font-size:17px;font-weight:800;color:var(--s800);margin-bottom:6px}
+.agewrap p{font-size:12.5px;color:var(--n500);font-weight:600;margin-bottom:16px}
+.agebtn{display:block;width:100%;padding:16px;border:1.5px solid var(--n200);border-radius:14px;background:#fff;font-size:15.5px;font-weight:800;color:var(--s800);cursor:pointer;margin-bottom:10px;font-family:inherit}
+.agebtn:active{border-color:var(--p500);background:#FFF8F2}
+.prog{height:8px;background:var(--n100);border-radius:6px;overflow:hidden;margin-bottom:18px}
+.prog .pf{height:100%;background:linear-gradient(90deg,#FFC58A,#E89244);width:0;transition:width .3s}
+.qnum{font-size:12px;font-weight:800;color:var(--org2);margin-bottom:7px}
+.qtext{font-size:16.5px;font-weight:800;color:var(--s800);line-height:1.5;margin-bottom:16px}
+.opt{display:block;width:100%;text-align:center;padding:14px 16px;border:1.5px solid var(--n200);border-radius:12px;background:#fff;font-size:14.5px;font-weight:800;color:var(--n700);cursor:pointer;margin-bottom:9px;font-family:inherit;transition:.12s}
+@media(hover:hover){#opts:not(.nh) .opt:hover{border-color:var(--p500);background:#FFF8F2}}
+.opt:active{border-color:var(--p500);background:#FFF8F2}
+.backq{background:none;border:none;color:var(--n400);font-weight:700;font-size:12.5px;cursor:pointer;padding:8px 4px;font-family:inherit}
+.card{border:1.5px solid var(--n200);border-radius:16px;padding:22px 18px;background:#fff}
+.score{text-align:center;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.06);margin-bottom:16px}
+.score .em{font-size:58px;line-height:1.1}
+.score .nick{font-size:20px;font-weight:800;margin-top:8px;letter-spacing:-0.02em;color:var(--org2)}
+.score .mod{font-size:12.5px;color:var(--n600);font-weight:700;margin-top:3px}
+.axes{margin:16px 4px 4px;text-align:left}
+.axrow{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.axrow .al{width:96px;font-size:12px;font-weight:800;color:var(--s800);flex:none}
+.axrow .abar{flex:1;height:12px;background:var(--n100);border-radius:100px;overflow:hidden}
+.axrow .abar i{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,#FFC58A,#E89244)}
+.axrow .av{width:34px;font-size:11.5px;font-weight:800;color:var(--n500);text-align:right;flex:none}
+.agecmt{font-size:12.5px;color:var(--n600);font-weight:600;background:#F1F8F0;border:1px solid #CDE8CC;border-radius:10px;padding:10px 13px;line-height:1.65;text-align:left;margin-top:12px}
+.desc{font-size:13px;color:var(--n700);font-weight:600;line-height:1.7;text-align:left;background:#FAFAF8;border:1px solid var(--n100);border-radius:10px;padding:11px 13px;margin-top:10px}
+.notice{font-size:11.5px;color:var(--n500);font-weight:600;background:#FFFDF6;border:1px dashed var(--n200);border-radius:10px;padding:9px 12px;line-height:1.65;text-align:left;margin-top:12px}
+.redflag{font-size:12px;color:#7a3a30;font-weight:600;background:#FFF6F4;border:1px solid #F5C9C0;border-radius:10px;padding:10px 13px;line-height:1.65;text-align:left;margin-top:10px}
+.btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:inherit}
+.btn:active{transform:translateY(1px)}
+.btn.sec{background:#fff;color:var(--org2);border:1.5px solid var(--p300);box-shadow:none;margin-top:9px}
+.appin{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px solid var(--p300);border-radius:16px;padding:20px;text-align:center;margin-top:14px}
+.appin .em{font-size:30px}.appin h3{font-size:15.5px;font-weight:800;color:var(--s800);margin:4px 0 6px}
+.appin p{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:14px;line-height:1.55}
+footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px;font-weight:600;line-height:1.6}
+.hidden{display:none}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body data-cookie="child">
+<span class="priv">🔒 비공개 테스트</span>
+<a href="/cookie-services.html" class="back">← 쿠키 허브</a>
+<header class="hero">
+  <span class="tag">🍽️ 우리 아이 편식 유형 테스트 · 초안</span>
+  <h1>우리 아이는 <span class="ac">어떤 미식가</span>일까?</h1>
+  <p>아이마다 편식의 결이 다릅니다. 국제 식행동 척도 개념으로 만든 16개 장면으로 <b>우리 아이의 성향</b>을 확인해보세요.</p>
+  <div class="meta">⏱ 약 2분 · 16문항 · 성향 4축 프로필</div>
+</header>
+<main>
+  <div id="agepick" class="agewrap">
+    <h2>아이 나이를 골라주세요</h2>
+    <p>같은 행동도 나이에 따라 의미가 달라서, 해석에 반영됩니다.</p>
+    <button class="agebtn" onclick="setAge(0)">만 1~2세 (이유식·유아식 전환기)</button>
+    <button class="agebtn" onclick="setAge(1)">만 3~4세 (편식 절정기)</button>
+    <button class="agebtn" onclick="setAge(2)">만 5~7세 (식습관 자리잡는 시기)</button>
+  </div>
+
+  <div id="play" class="hidden">
+    <div class="prog"><div id="pf" class="pf"></div></div>
+    <div class="qnum" id="qnum"></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="opts"></div>
+    <button id="backq" class="backq hidden" onclick="goBack()">← 이전 문제로</button>
+  </div>
+
+  <div id="out" class="hidden">
+    <div class="card">
+      <div class="score">
+        <div class="em" id="em"></div>
+        <div class="nick" id="nick"></div>
+        <div class="mod" id="mod"></div>
+        <div class="axes" id="axes"></div>
+        <div class="desc" id="desc"></div>
+        <div class="agecmt" id="agecmt"></div>
+        <div class="redflag hidden" id="redflag"></div>
+        <div class="notice">이 테스트는 국제 식행동 척도(CEBQ·아동 신기피 척도·SOS 접근법 등)의 개념을 참고해 만든 <b>참고용 놀이 테스트</b>로, 진단 도구가 아닙니다. 아이 상태에 따라 결과는 달라질 수 있어요.</div>
+      </div>
+      <div id="review"></div>
+    </div>
+    <div class="appin" id="coach"></div>
+    <button class="btn sec" onclick="location.reload()">↺ 다시 하기</button>
+  </div>
+</main>
+<footer>밀프레드 편식도감 · SOS·Satter·식약처 등 35개 국제 가이드라인 근거 · 참고용 놀이 테스트</footer>
+
+<script>
+// 우리 아이 편식 유형(초안·이사님 평가용 2026-07-06): 4축(N신중·S감각·A식욕·C환경) × 4문항 = 16, 3점 빈도 척도.
+// 문항 = CEBQ·CFNS·SOS·BPFAS·MCH-FS 원문항 전수 대조 워크플로우(20후보→검증 수정 반영) 산출. 지어낸 문항 0.
+// 채점: 자주2·가끔1·거의0 → 축당 0~8. 대표 유형 = 최고 축(동률=복합형, 전축 낮음=순항형).
+const AXES={N:'신중(새 음식)',S:'감각(식감·냄새)',A:'식욕(양·속도)',C:'환경(맥락 의존)'};
+const QUIZ=[
+ // N — 신기피·까다로움 (CEBQ FF·CFNS)
+ {axis:'N',q:"처음 보는 반찬이 나오면, 맛보기도 전에 고개를 젓거나 밀어내며 '싫다'부터 표현해요. (말로든 몸짓으로든)"},
+ {axis:'N',q:"뭔지 확실하지 않은 음식은 입에 대지 않아요. (큰 아이라면 \"이거 뭐야? 뭐 들었어?\" 하고 캐묻기도)"},
+ {axis:'N',q:"실제로 먹는 음식 가짓수가 손에 꼽을 정도로 적고, 새 메뉴가 잘 늘지 않아요."},
+ {axis:'N',q:"먹는 것에 유난히 까다로워서, 자기 마음속 '합격'한 음식이 아니면 좀처럼 입을 대지 않아요."},
+ // S — 감각 민감 (Sensory Profile·SOS·임상 지표)
+ {axis:'S',q:"물컹한 두부나 미끌한 버섯처럼 특정 식감이 입에 들어가면 헛구역질을 하거나 바로 뱉어내요.",rf:true},
+ {axis:'S',q:"'물컹한 것'·'질척한 것'처럼 한 가지 식감 계열을 통째로 거부해요. (예: 죽·계란찜·으깬 감자 전부)",rf:true},
+ {axis:'S',q:"식판에서 반찬끼리 닿거나 소스가 밥에 묻으면, 그 음식을 통째로 안 먹으려 해요."},
+ {axis:'S',q:"늘 먹던 과자·요거트도 브랜드나 모양이 조금만 바뀌면 귀신같이 알아채고 거부해요."},
+ // A — 식욕·포만 (CEBQ SR·SE·EF)
+ {axis:'A',q:"몇 숟갈 뜨지도 않았는데 금방 배부른 기색으로 수저를 내려놓아요."},
+ {axis:'A',q:"식사 전에 간식을 조금이라도 먹으면, 그 끼니 밥은 거의 못 먹어요."},
+ {axis:'A',q:"한 끼 식사에 30분이 훌쩍 넘는 날이 많아요."},
+ {axis:'A',q:"'밥 먹자' 해도 시큰둥하고, 좋아하던 반찬이 나와도 크게 반가워하지 않아요."},
+ // C — 환경·맥락 의존 (CEBI-R·MCH-FS·BPFAS·일관성 관찰)
+ {axis:'C',q:"TV나 영상을 틀어주지 않으면 밥을 잘 먹으려 하지 않아요."},
+ {axis:'C',q:"식탁에 가만히 앉아 먹기보다, 돌아다니는 아이를 쫓아다니며 한 입씩 넣어줘야 해요."},
+ {axis:'C',q:"집에서는 안 먹던 반찬을 어린이집·유치원에서는 곧잘 먹었다고 해요."},
+ {axis:'C',q:"스스로 숟가락질을 할 수 있는데도, 어르고 달래주는 사람이 없으면 거의 먹지 않아요.",minAge:1}
+];
+const OPTS=[["자주 그래요",2],["가끔 그래요",1],["거의 안 그래요",0]];
+const TYPES={
+ N:{em:'🧐',nick:'돌다리도 두드리는 신중 미식가',mod:'새로운 것 앞에서 충분한 확인이 필요한 타입',
+   desc:'새 음식을 경계하는 건 이 아이에겐 신중함이에요. 억지로 먹이면 경계가 굳고, 부담 없는 반복 노출(보고·만지고·식판에 두기)이 쌓이면 어느 날 스스로 다가옵니다. 노출 횟수가 평균 8~15번이라는 걸 기억하면 조급함이 줄어요.'},
+ S:{em:'👃',nick:'초정밀 센서 미식가',mod:'식감·냄새·모양의 작은 차이까지 감지하는 타입',
+   desc:'예민한 게 아니라 감각 해상도가 높은 아이예요. 이 성향은 혼내서 바뀌지 않고, 편한 식감에서 시작해 아주 작은 단계로 넓혀가는 접근(감각 사다리)이 잘 맞아요. 싫어하는 식감을 몰래 섞는 건 신뢰만 깎일 수 있어요.'},
+ A:{em:'🐣',nick:'한입이 소중한 미니멀 미식가',mod:'적게·천천히, 배부름 신호에 민감한 타입',
+   desc:'성장곡선이 정상이라면 이 아이의 양은 "문제"가 아니라 "스타일"일 가능성이 커요. 정해진 식사·간식 간격(3~4시간)으로 식탁에 배고픈 채 앉게 하는 것이 가장 큰 지렛대이고, 양을 늘리라는 압박은 역효과가 나기 쉬워요.'},
+ C:{em:'📺',nick:'분위기 타는 무드 미식가',mod:'언제·어디서·누구와 먹느냐에 크게 좌우되는 타입',
+   desc:'좋은 소식이에요 — 이 축은 아이 기질보다 "바꿀 수 있는 식사 환경"의 신호라서, 루틴(정해진 자리·시간·영상 없는 식탁)을 잡으면 가장 빨리 달라지는 유형입니다. 아이 탓도 부모 탓도 아니고, 설계의 문제예요.'},
+ OK:{em:'🍀',nick:'골고루 순항형',mod:'뚜렷한 편식 성향이 보이지 않아요',
+   desc:'네 성향 축 모두 낮게 나왔어요. 지금의 식탁 리듬을 유지하면서, 새 음식을 부담 없이 계속 노출해주는 것만으로 충분해 보입니다.'}
+};
+const AGE_CMT=[
+ {N:'만 1~2세는 신기피가 본격적으로 나타나기 직전~초입이에요. 지금 잘 먹어도 곧 까다로워질 수 있고, 그것도 정상 발달입니다.',S:'만 1~2세는 고형식 전환기라 식감 거부·구역질이 발달적으로 흔해요. 수개월 지속 여부를 지켜봐 주세요.',A:'만 1세 이후엔 성장 속도가 줄며 식욕도 생리적으로 줄어요. 성장곡선이 정상이면 적게 먹어도 대개 괜찮습니다.',C:'이 시기는 앉아서 먹기 자체가 발달적으로 어려워요. 유형보다는 식사 루틴(정해진 자리·시간)을 천천히 만들어가는 시기입니다.',OK:'이 시기는 식행동이 빠르게 변해요. 몇 달 뒤 다시 해보면 결과가 달라질 수 있습니다.'},
+ {N:'만 3~4세는 신기피의 절정기 — 이 나이 아이들 대부분이 새 음식을 경계합니다. 우리 아이만 그런 게 아니에요.',S:'만 3~4세는 "내 방식대로" 의례적 행동이 흔한 시기라, 감각 성향은 여러 장면에서 반복될 때만 의미가 있어요.',A:'이 시기 소식·느린 식사는 정상 범주가 넓어요. 놀고 싶어서 식탁을 떠나는 것과 음식에 흥미가 없는 건 다릅니다.',C:'환경 의존은 이 나이에 가장 굳기 쉽고, 또 가장 잘 바뀌어요. 영상 없는 식탁 루틴을 시작하기 좋은 시기입니다.',OK:'편식 절정기(만 2~6세)를 순하게 지나고 있는 편이에요.'},
+ {N:'만 5~7세에도 신중함이 강하게 남아 있다면, 이제 부드러운 노출 설계(순서·단계)가 도움이 되는 시기예요.',S:'만 5~7세에 감각 거부가 여전히 뚜렷하다면 기질일 가능성이 높아요. 고치기보다 "이 아이의 방식"에 맞는 단계 설계가 맞습니다.',A:'학령 전후에도 소식이 이어진다면 급식 적응을 위해 식사 리듬(간식 간격·식사 시간)을 정돈해두면 좋아요.',C:'입학 전에 영상·어르기 없는 식탁을 연습해두면 학교 급식 적응이 훨씬 수월해집니다.',OK:'식습관이 자리잡는 시기를 잘 지나고 있어요. 학교 급식에서 새 음식을 만날 좋은 기회가 옵니다.'}
+];
+let age=null,i=0;const picked=[];
+function setAge(a){age=a;document.getElementById('agepick').classList.add('hidden');document.getElementById('play').classList.remove('hidden');render();}
+function activeQuiz(){return QUIZ.filter(q=>!(q.minAge!=null&&age<q.minAge));}
+function render(){
+ const list=activeQuiz();const q=list[i];
+ document.getElementById('pf').style.width=(i/list.length*100)+'%';
+ document.getElementById('qnum').textContent='장면 '+(i+1)+' / '+list.length+' · '+AXES[q.axis].split('(')[0]+' 영역';
+ document.getElementById('qtext').textContent=q.q;
+ const ol=document.getElementById('opts');ol.innerHTML='';
+ OPTS.forEach((o,idx)=>{const b=document.createElement('button');b.className='opt';b.textContent=o[0];b.onclick=()=>choose(idx);ol.appendChild(b);});
+ ol.classList.add('nh');
+ window.addEventListener('mousemove',function unh(){ol.classList.remove('nh');window.removeEventListener('mousemove',unh);},{once:true});
+ document.getElementById('backq').classList.toggle('hidden',i===0);
+}
+function choose(idx){picked[i]=idx;i++;const list=activeQuiz();if(i<list.length){render();window.scrollTo({top:0,behavior:'smooth'});}else show();}
+function goBack(){if(i>0){i--;render();window.scrollTo({top:0,behavior:'smooth'});}}
+function show(){
+ const list=activeQuiz();
+ const score={N:0,S:0,A:0,C:0},max={N:0,S:0,A:0,C:0};
+ let rfHit=0;
+ list.forEach((q,n)=>{const v=OPTS[picked[n]][1];score[q.axis]+=v;max[q.axis]+=2;if(q.rf&&v===2)rfHit++;});
+ const pctOf=k=>Math.round(score[k]/max[k]*100);
+ const ranked=Object.keys(score).sort((a,b)=>pctOf(b)-pctOf(a));
+ const top=ranked[0],second=ranked[1];
+ const allLow=Object.keys(score).every(k=>pctOf(k)<=25);
+ const isCombo=!allLow&&(pctOf(top)-pctOf(second))<=12&&pctOf(second)>=50;
+ const key=allLow?'OK':top;
+ const T=TYPES[key];
+ document.getElementById('em').textContent=T.em;
+ document.getElementById('nick').textContent='「'+T.nick+'」'+(isCombo?' + '+TYPES[second].nick.split(' ').pop():'');
+ document.getElementById('mod').textContent=isCombo?T.mod+' (보조 성향: '+AXES[second].split('(')[0]+')':T.mod;
+ document.getElementById('axes').innerHTML=Object.keys(AXES).map(k=>
+  '<div class="axrow"><span class="al">'+AXES[k]+'</span><div class="abar"><i style="width:'+Math.max(pctOf(k),3)+'%"></i></div><span class="av">'+pctOf(k)+'%</span></div>').join('');
+ document.getElementById('desc').textContent=T.desc;
+ document.getElementById('agecmt').textContent='👶 '+['만 1~2세','만 3~4세','만 5~7세'][age]+' 기준 — '+AGE_CMT[age][key];
+ // 소프트 red flag(SOS 기준 참조): 감각 축의 구역질·식감군 통째 거부가 둘 다 '자주'일 때만, 단정 없이 안내
+ if(rfHit>=2){const rf=document.getElementById('redflag');rf.classList.remove('hidden');
+  rf.innerHTML='참고: 특정 식감에 대한 구역질과 식감 계열 통째 거부가 모두 잦다고 답하셨어요. 이런 모습이 <b>수개월 이상 지속</b>되거나 체중·성장이 걱정된다면, 놀이 테스트와 별개로 소아과 선생님과 한번 상의해보시는 것도 좋아요.';}
+ document.getElementById('coach').innerHTML='<div class="em">💌</div><h3>'+T.nick.split(' ').pop()+'에게 맞는 코칭이 있어요</h3>'+
+  '<p>전 세계 <b>35개 국제 가이드라인</b>을 통합한 <b>밀프레드 편식 코치</b>가<br>이 성향에 맞는 순서로, 아이의 편식을 곁에서 함께 풀어드립니다.</p>'+
+  '<a class="btn" href="https://app.mealfred.com/?utm_source=cookie&utm_medium=child&utm_campaign=cookie_series" target="_blank" rel="noopener">밀프레드 편식 코칭 받기 →</a>';
+ document.getElementById('play').classList.add('hidden');document.getElementById('out').classList.remove('hidden');
+ window.scrollTo({top:0,behavior:'smooth'});
+ gtag('event','cookie_result',{tool:'child',type:key,age:age});
+}
+</script>
+<script src="/cookie-common.js?v=2"></script>
+</body>
+</html>
