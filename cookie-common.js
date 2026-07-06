@@ -1,12 +1,10 @@
 /* cookie-common.js — 밀프레드 1분 진단 시리즈 공통: 공유(카톡·맘카페) + 시리즈 크로스링크 */
 (function () {
+  // 스트립엔 실제 배포(공개)된 서비스만 노출(이사님 2026-07-06) — 비공개 쿠키 초안은 여기 넣지 말 것.
   var SERIES = [
-    { id: 'foodmap', ico: '🗺️', label: '편식 스킬트리 푸드맵', desc: '우리 아이 푸드맵 정복', href: '/cookie-foodmap.html' },
-    { id: 'mealplan', ico: '🍱', label: '우리 아이 맞춤 식단표', desc: '급식 데이터로 일주일 식단', href: '/cookie-mealplan.html' },
-    { id: 'cousins', ico: '🥔', label: '사촌 음식 찾기', desc: '잘 먹는 음식의 다음 도전', href: '/cookie-cousins.html' },
-    { id: 'normal', ico: '🧭', label: '편식 정상 진단', desc: '우리 아이 편식, 정상일까?', href: '/cookie-normal.html' },
-    { id: 'quiz', ico: '💯', label: '아이 편식 상식 점수', desc: '나는 몇 점일까? 10문제 1분', href: '/cookie-quiz.html' },
-    { id: 'bti', ico: '🍽️', label: '밥상BTI', desc: '나는 어떤 밥상 부모일까?', href: '/cookie-bti.html' }
+    { id: 'quiz', ico: '💯', label: '아이 편식 상식 점수', desc: '나는 편식을 잘 아는 부모일까? 10문제 1분', href: '/cookie-quiz.html' },
+    { id: 'eval', ico: '🍱', label: '어린이집 식단표 평가', desc: '식단표 사진 한 장이면 영양 점수·전국 비교까지', href: '/daycare-eval.html' },
+    { id: 'app', ico: '💌', label: '밀프레드 편식 코칭', desc: '35개 국제 가이드라인 기반 우리 아이 맞춤 코칭', href: 'https://app.mealfred.com/?utm_source=cookie&utm_medium=strip' }
   ];
 
   window.mfToast = function (msg) {
@@ -55,8 +53,8 @@
     var wrap = document.createElement('div');
     wrap.style.cssText = 'max-width:540px;margin:0 auto;padding:4px 18px 26px';
     var inner = '<div style="background:#fff;border:1.5px solid #FFE0C0;border-radius:16px;padding:16px">'
-      + '<div style="font-size:13.5px;font-weight:800;color:#1a2b4a;margin-bottom:4px">🍪 밀프레드 1분 진단</div>'
-      + '<div style="font-size:11.5px;color:#9a8a7a;font-weight:600;margin-bottom:11px">다른 진단도 1분이면 끝나요</div>'
+      + '<div style="font-size:13.5px;font-weight:800;color:#1a2b4a;margin-bottom:4px">🥄 밀프레드 편식 서비스</div>'
+      + '<div style="font-size:11.5px;color:#9a8a7a;font-weight:600;margin-bottom:11px">우리 아이 편식, 여기서부터 풀려요</div>'
       + '<div style="display:flex;flex-direction:column;gap:8px">';
     others.forEach(function (s) {
       inner += '<a href="' + s.href + '" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid #F0E0CE;border-radius:11px;text-decoration:none;color:#1a2b4a">'
