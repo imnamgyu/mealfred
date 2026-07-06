@@ -157,7 +157,7 @@ inp.addEventListener('input',()=>{
  const q=inp.value.trim();sug.innerHTML='';
  if(!DATA||q.length<1)return;
  const menuHits=VOCAB.filter(m=>m.includes(q)).slice(0,10);
- const ingHits=[...INGSET].filter(x=>x.includes(q)).slice(0,4);
+ const ingHits=[...INGSET].filter(x=>x.includes(q)&&!BASE.has(x)).slice(0,4);
  menuHits.forEach(m=>{const b=document.createElement('button');b.className='chip';b.textContent=m;b.onclick=()=>pick(m,null);sug.appendChild(b);});
  ingHits.forEach(x=>{const b=document.createElement('button');b.className='chip ing';b.textContent='재료: '+x;b.onclick=()=>pick(x,[x]);sug.appendChild(b);});
 });
@@ -175,14 +175,14 @@ function pick(name,forced){
  document.getElementById('ingline').innerHTML='식재료 분해 → <b>'+ings.join(' · ')+'</b>';
  recommend(name,ings);
 }
+// 매칭·사촌확장·자동완성에서 제외할 베이스 재료 — ①양념(마늘 겹침은 설득력 없음) ②주식 곡류(자장면→밀→보리차 뜬금 추천 방지·이사님 2026-07-06)
+const BASE=new Set(['마늘','파','대파','쪽파','양파','간장','소금','설탕','참기름','들기름','식용유','깨','참깨','검은깨','후추','생강','물엿','올리고당','전분','밀가루','쌀','잡곡','밀','보리','현미','찹쌀','흑미','백미','기장','수수','율무','귀리']);
 // 조리법 감지(추천 이유용) — 메뉴명 끝부분 우선 매칭
 const COOKS=['볶음밥','비빔밥','덮밥','장조림','불고기','스테이크','샐러드','커틀릿','까스','볶음','구이','조림','튀김','무침','전골','찌개','수프','스프','밥','죽','찜','전','국','탕'];
 function methodOf(n){for(const c of COOKS){if(n.endsWith(c)||n.includes(c+'*'))return c;}return null;}
 function recommend(name,ings){
  const pool=DATA.types[TYPE];
  // 사촌 확장(이사님 2026-07-06): 정확 일치(가중 1.0) + 맛·식감 닮은 사촌 재료(bridge, 가중 0.45×강도/3)
- // 양념 베이스 재료는 매칭·점수에서 제외(마늘 겹침은 설득력 없음 — 2026-07-06)
- const BASE=new Set(['마늘','파','대파','쪽파','양파','간장','소금','설탕','참기름','들기름','식용유','깨','참깨','검은깨','후추','생강','물엿','올리고당','전분','밀가루','쌀','잡곡']);
  const core=ings.filter(x=>!BASE.has(x));
  const useIngs=core.length?core:ings;
  const inSet=new Set(useIngs);
