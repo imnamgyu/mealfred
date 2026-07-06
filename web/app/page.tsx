@@ -19,6 +19,7 @@ import BottomNav from '@/components/BottomNav';
 import FoodIcon from '@/components/FoodIcon';
 import AuthModal from '@/components/AuthModal';
 import { kakaoErrorText } from '@/lib/kakaoAuth';
+import { parseQuizHandoff, quizWelcome, type QuizHandoff } from '@/lib/quizHandoff';
 
 const todayStr = kstToday;   // KST 기준 — 새벽 크론(letter_date)과 동일 앵커
 
@@ -116,6 +117,7 @@ export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);    // 가입/로그인 팝업(카카오) — /signup 페이지 대체
   const [authErr, setAuthErr] = useState<string | null>(null);
+  const [quizHo, setQuizHo] = useState<QuizHandoff | null>(null);   // 쿠키 상식점수 핸드오프(qz/qzw) — 비로그인 배너를 '아까 그 점수' 환영으로 교체
   const [days, setDays] = useState(0);
   const [signals, setSignals] = useState<NutrientSignal[]>([]);
   const [scoreParts, setScoreParts] = useState<{ home: number | null; daycare: number | null; final: number }>({ home: null, daycare: null, final: 0 });   // 집70:기관30 가중 점수
@@ -176,6 +178,18 @@ export default function Home() {
       const ref = q.get('ref'); if (ref) localStorage.setItem('mf_ref', ref);
       const err = q.get('autherr'); if (err) setAuthErr(kakaoErrorText(err));
       if (q.get('auth') === '1' || err) setAuthOpen(true);
+      // 쿠키 상식점수 → 앱 핸드오프(qz/qzw). URL에 없으면 24h 내 저장분 복원(카카오 OAuth 왕복·재방문에도 연속감 유지)
+      const qh = parseQuizHandoff(q);
+      if (qh) {
+        setQuizHo(qh);
+        localStorage.setItem('mf_quiz', JSON.stringify({ ...qh, ts: Date.now() }));
+      } else {
+        const raw = localStorage.getItem('mf_quiz');
+        if (raw) {
+          const s = JSON.parse(raw) as { score?: number; wrong?: number[]; ts?: number };
+          if (typeof s.score === 'number' && Date.now() - (s.ts || 0) < 86400000) setQuizHo({ score: s.score, wrong: Array.isArray(s.wrong) ? s.wrong : [] });
+        }
+      }
     } catch { /* SSR/차단 환경 무시 */ }
   }, []);
 
@@ -582,7 +596,7 @@ export default function Home() {
         <div className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-sm.png" alt="밀프레드" width={28} height={28} style={{ borderRadius: 8 }} />
-          <h2 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>밀프레드 편식 관리</h2>
+          <h2 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>밀프레드 편식 코치</h2>
           {!isMockup && days >= 1 && <span className="text-[10px] font-extrabold text-white px-2.5 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg,#FF6B6B,#FFB375)' }}>🔥 {days}일 연속 기록중</span>}
         </div>
         {!loading && !loggedIn && (
@@ -608,16 +622,30 @@ export default function Home() {
       )}
 
       <div className="flex-1 px-5 pb-4">
-        {/* 비로그인 첫 진입 — 가입 강요 없이 바로 예시 화면. '아래가 미리보기'임을 알리고 현행 기능을 칩으로 */}
+        {/* 비로그인 첫 진입 — 가입 강요 없이 바로 예시 화면. '아래가 미리보기'임을 알리고 현행 기능을 칩으로.
+            쿠키 상식점수에서 넘어온 방문(quizHo)은 '아까 그 점수' 환영으로 교체 — 퀴즈 결과가 앱까지 이어지는 자연 전환. */}
         {!loading && !loggedIn && (
           <div className="rounded-2xl p-4 mb-3" style={{ background: 'linear-gradient(160deg,#FFF5EB,#FFE8D0 60%,#FFD9B8)', border: '1.5px solid #FFD0A0' }}>
-            <div className="flex items-start gap-2 mb-1">
-              <span className="text-xl leading-none mt-0.5">👀</span>
-              <div className="flex-1">
-                <div className="text-[13.5px] font-extrabold" style={{ color: '#C45A00' }}>아래는 예시 화면이에요 · 가입 없이 둘러보세요</div>
-                <div className="text-[11.5px] mt-0.5 leading-relaxed" style={{ color: '#8a7a6a' }}>식단만 기록하면 — <strong style={{ color: '#5a4a3a' }}>우리 아이</strong> 데이터로 매일 자동으로 채워져요.</div>
+            {quizHo ? (
+              <div className="mb-1">
+                <div className="text-[13.5px] font-extrabold" style={{ color: '#C45A00' }}>{quizWelcome(quizHo).title}</div>
+                <div className="text-[11.5px] mt-0.5 leading-relaxed" style={{ color: '#8a7a6a' }}>{quizWelcome(quizHo).body}</div>
+                <button onClick={() => { setAuthErr(null); setAuthOpen(true); }}
+                  className="mt-2.5 w-full text-[13px] font-extrabold text-white px-4 py-2.5 rounded-full"
+                  style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)', boxShadow: '0 6px 16px rgba(255,107,26,.22)' }}>
+                  우리 아이 실전 점수 재러 가기 — 3초 카카오 가입
+                </button>
+                <div className="text-[10.5px] mt-1.5 text-center" style={{ color: '#9a8468' }}>가입 없이 아래 예시 화면 먼저 둘러봐도 돼요 👇</div>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-start gap-2 mb-1">
+                <span className="text-xl leading-none mt-0.5">👀</span>
+                <div className="flex-1">
+                  <div className="text-[13.5px] font-extrabold" style={{ color: '#C45A00' }}>아래는 예시 화면이에요 · 가입 없이 둘러보세요</div>
+                  <div className="text-[11.5px] mt-0.5 leading-relaxed" style={{ color: '#8a7a6a' }}>식단만 기록하면 — <strong style={{ color: '#5a4a3a' }}>우리 아이</strong> 데이터로 매일 자동으로 채워져요.</div>
+                </div>
+              </div>
+            )}
             <div className="flex flex-wrap gap-1.5 mt-2.5">
               {['💌 매일 코치 편지', '🚦 31종 영양 신호등', '🍪 간식 평가', '📏 BMI·성장', '📈 편식 변화', '📦 골고루 키트', '🗂 식재료 도감'].map((c) => (
                 <span key={c} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: 'white', color: '#C45A00', border: '1px solid #FFD0A0' }}>{c}</span>

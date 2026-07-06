@@ -15,11 +15,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.mealfred.com"),
-  title: "밀프레드 — 우리 아이 식습관 파트너",
+  title: "밀프레드 — 우리 아이 편식 전담 코치",
   description: "영유아 식재료 도감 · 식단 평가 · 개인화 추천. 초등 입학 전 반드시 먹어야 할 식재료 204종.",
   // 카톡 등 공유(바이럴 /r 링크) 미리보기 — 아린이 사진 + 무료 혜택 후킹
   openGraph: {
-    title: "우리 아이 편식, 매일 코칭 — 밀프레드",
+    title: "우리 아이 편식 전담 코치 — 밀프레드",
     description: "35가지 국제 편식 이론으로 매일 분석·코칭. 🎁 첫 달 무료 + 친구 초대마다 한 달 무료.",
     url: "https://app.mealfred.com",
     siteName: "밀프레드",
