@@ -273,9 +273,9 @@ function show(){
  play.classList.add('hidden');document.getElementById('out').classList.remove('hidden');
  window.scrollTo({top:0,behavior:'smooth'});
  gtag('event','cookie_result',{tool:'quiz',score:score,light:B.cls});
- // 문항별 실측 정답률 — 결과를 먼저 그리고 비차단으로 채움(체감 지연 0). 응답 30건 미만이면 미표기(소표본 왜곡 방지).
+ // 문항별 실측 정답률 — 결과를 먼저 그리고 비차단으로 채움(체감 지연 0). 응답 1건부터 표시(이사님 2026-07-06 "지금부터 뿌리자").
  fetch('https://app.mealfred.com/api/quiz-result?tool=knowledge&qv=k3').then(r=>r.json()).then(s=>{
-  if(!s||!s.n||s.n<30||!s.wrongRate)return;
+  if(!s||!s.n||!s.wrongRate)return;
   s.wrongRate.forEach(w=>{
    const el=document.getElementById('rate'+(w.q-1));
    if(el){el.textContent='지금까지 정답률 '+(100-w.pct)+'%';el.classList.remove('hidden');}
