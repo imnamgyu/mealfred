@@ -2,7 +2,7 @@
 <html lang="ko"><head>
 <script src="/docs-gate.js?v=4"></script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>작업 일지 · 2026-07-03~05 — 어드민 절단 수정 · 편식 상식 점수 퀴즈</title>
+<title>작업 일지 · 2026-07-03~06 — 절단 수정 · 상식점수 · 먹BTI · next-food</title>
 <meta property="og:title" content="작업 일지 2026-07-03~05 — Supabase 1000행 절단 수정 · 아이 편식 상식 점수 퀴즈 전면 개편·DB·대시보드">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -43,14 +43,14 @@ ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
 
 <div class="hero"><div class="hero-in">
   <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
-  <div class="date">2026-07-03 ~ 07-05 · 어드민·쿠키퀴즈 세션 (병행)</div>
-  <h1>Supabase 1000행 절단 수정 · 「아이 편식 상식 점수」 전면 개편 · 응답 DB + 퀴즈 대시보드</h1>
+  <div class="date">2026-07-03 ~ 07-06 · 어드민·쿠키퀴즈 세션 (병행)</div>
+  <h1>Supabase 절단 수정 · 상식점수 · 먹BTI · next-food — 공개 무료 서비스 5종 체계 완성</h1>
   <p class="sub">"7월 컬럼 안 보임" 문의 → 순위·통계 왜곡 대발견 수정 → IQ퀴즈를 바이럴 리서치 기반 상식 점수로 재탄생 → 공개 배포·OG·홍보 원고까지.</p>
 </div></div>
 
 <main>
   <div class="glance">
-    <div class="gcard"><div class="n">25</div><div class="l">배포 커밋 (이 세션)</div></div>
+    <div class="gcard"><div class="n">43</div><div class="l">배포 커밋 (이 세션 3일)</div></div>
     <div class="gcard"><div class="n">1,000행</div><div class="l">Supabase 응답 절단 실측 → 전량 순회 수정 3곳</div></div>
     <div class="gcard"><div class="n">10/10</div><div class="l">퀴즈 문항 사실검증 통과 (1차 문헌 대조)</div></div>
     <div class="gcard"><div class="n">618</div><div class="l">vitest 통과 · 신규 테이블 2 · 워크플로우 3회</div></div>
@@ -104,6 +104,26 @@ ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
       <li>오답노트에 <b>"지금까지 정답률 N%" 실측 칩</b>(비차단 로드·체감 지연 0) — 1건부터 즉시 표시 (<code>5602aa6</code>·<code>1986f2b</code>). 코칭앱 캐치프레이즈 후보 8종 브레인스토밍(결정 대기).</li>
     </ul>
     <div class="out">산출: 퀴즈 퍼널 완성형 — 응답이 쌓일수록 정답률 칩이 콘텐츠가 되는 구조.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">6</span><h2>3차분 — 먹BTI 신서비스 · URL 개편 · 랜딩 재단장 · 캐치프레이즈</h2><span class="commit">1f0965f → 69640ee</span></div>
+    <ul class="wl">
+      <li><b>우리 아이 먹BTI</b>(4축×4문항·3점 척도·연령 3밴드): CEBQ·FNS·SOS <b>원문항 전수 대조 워크플로우</b>(20후보→검증 수정)로 문항 제작, 지어낸 문항 0. MBTI 상표권 KIPRIS 실측 리서치 → 먹BTI 네이밍 + 귀속 고지.</li>
+      <li>공개 URL에서 cookie 접두 제거(<code>d98b7ee</code>): picky-score·meokbti·meal-ranking + 301 리다이렉트 + OG 카드 2종(시험지·돋보기 아기).</li>
+      <li>랜딩 재단장(<code>71b9246</code>): 히어로 2장 + 「무료로 시작해보세요」 섹션. 요리키트에 학교장터·계좌이체 5% 버튼(<code>06fa179</code>). 캐치프레이즈 확정 「우리 아이 편식 전담 코치」 전 접점 통일(<code>69640ee</code>).</li>
+    </ul>
+    <div class="out">라이브: <b>meokbti.html</b> 정식 공개 · 앱 타이틀/헤더/스트립/타일 문구 정합 · quizHandoff 빌드 사고 복구(<code>73e91ba</code>).</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">7</span><h2>3차분 — next-food(다음 도전 음식 추천) 공개</h2><span class="commit">a24d6e2 → f8faf55</span></div>
+    <ul class="wl">
+      <li>기관 실식단 <b>288,797행 전량 집계</b>(keyset) → 유형별 메뉴+식재료 데이터. 개월 입력→기관 자동판정→잘 먹는 음식→사촌 메뉴 랭킹.</li>
+      <li>품질 연타: 사촌 유사도 확장(bridge 177쌍) · 추천 이유 3계열 칩 · 양념 베이스/주식 곡류 제외(자장면→보리차 수정) · 주재료 가중 · <b>15개 3페이지</b> 색다른 후보.</li>
+      <li>정식 공개 + 랜딩 카드 5종 + <b>전 서비스 상호 링크</b>(공개 5종 순환).</li>
+    </ul>
+    <div class="out">라이브: <b>next-food.html</b> — 공개 무료 서비스 5종(상식점수·먹BTI·다음도전음식·식단표평가·급식순위) 체계 완성.</div>
   </section>
 
 <div class="next">
