@@ -49,7 +49,20 @@ main{max-width:500px;margin:0 auto;padding:24px 18px 30px}
 .cous .fq{font-size:11px;font-weight:800;color:#fff;background:var(--p500);border-radius:100px;padding:2px 9px;white-space:nowrap}
 .cous .shared{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
 .cous .sh{font-size:11px;font-weight:800;color:var(--g700);background:#F1F8F0;border:1px solid #CDE8CC;border-radius:100px;padding:3px 9px}
+.cous .shc{font-size:11px;font-weight:800;color:var(--org2);background:#FFF8F2;border:1px dashed var(--p300);border-radius:100px;padding:3px 9px}
+.cous .shm{font-size:11px;font-weight:800;color:#1565C0;background:#F0F6FF;border:1px solid #C9DDF6;border-radius:100px;padding:3px 9px}
 .cous .why{font-size:11.5px;color:var(--n500);font-weight:600;margin-top:7px;line-height:1.55}
+.rbtn{margin-top:9px;font-size:11.5px;font-weight:800;color:var(--org2);background:#FFF4E8;border:1px solid #F5C89A;border-radius:8px;padding:6px 10px;cursor:pointer;font-family:inherit}
+.rbtn.open{background:#FFEAD6}
+.rbox{margin-top:8px;background:#FAFAF7;border:1px solid #EFE9E1;border-radius:10px;padding:10px 12px}
+.rbox .rt{font-size:12px;font-weight:800;color:var(--s800);margin-bottom:6px}
+.rbox .rt .bd{font-weight:700;color:#8A8378;font-size:10.5px;margin-left:6px}
+.rbox .ings{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px}
+.rbox .ig{font-size:10.5px;background:#fff;border:1px solid #ECE5DB;border-radius:6px;padding:2px 6px;color:var(--n700)}
+.rbox .ig.ssn{background:#FFF7EC;border-color:#F1D9B8;font-weight:700}
+.rbox .rmeta{font-size:10.5px;color:#8A8378;line-height:1.5}
+.rbox .rmeta b{color:var(--n700)}
+.rbox .banote{font-size:10.5px;color:var(--g700);font-weight:700;margin-top:5px}
 .empty{font-size:13px;color:var(--n500);font-weight:600;background:#FAFAF8;border:1px dashed var(--n200);border-radius:12px;padding:14px;text-align:center}
 .notice{font-size:11.5px;color:var(--n500);font-weight:600;background:#FFFDF6;border:1px dashed var(--n200);border-radius:10px;padding:9px 12px;line-height:1.6;margin-top:12px}
 .btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:inherit}
@@ -110,6 +123,7 @@ footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 70px
 </main>
 <footer>밀프레드 편식도감 · 전국 어린이집·유치원 식단 288,797건 집계(2026-07) · 참고용</footer>
 
+<script src="/cousins-recipes.js?v=1"></script>
 <script>
 // 사촌 음식 추천 v2(이사님 2026-07-06): 잘먹는 음식 → 식재료 분해 → 같은 식재료가 든 "기관 실식단 상위 메뉴"를
 // IDF 가중 겹침 × 등장빈도로 랭킹. 데이터=cousin-data.json(web/scripts/_cousin_build.mts 산출, 288,797행 집계).
@@ -162,30 +176,72 @@ function pick(name,forced){
  document.getElementById('ingline').innerHTML='식재료 분해 → <b>'+ings.join(' · ')+'</b>';
  recommend(name,ings);
 }
+// 조리법 감지(추천 이유용) — 메뉴명 끝부분 우선 매칭
+const COOKS=['볶음밥','비빔밥','덮밥','장조림','불고기','스테이크','샐러드','커틀릿','까스','볶음','구이','조림','튀김','무침','전골','찌개','수프','스프','밥','죽','찜','전','국','탕'];
+function methodOf(n){for(const c of COOKS){if(n.endsWith(c)||n.includes(c+'*'))return c;}return null;}
 function recommend(name,ings){
  const pool=DATA.types[TYPE];
- const inSet=new Set(ings);
+ // 사촌 확장(이사님 2026-07-06): 정확 일치(가중 1.0) + 맛·식감 닮은 사촌 재료(bridge, 가중 0.45×강도/3)
+ // 양념 베이스 재료는 매칭·점수에서 제외(마늘 겹침은 설득력 없음 — 2026-07-06)
+ const BASE=new Set(['마늘','파','대파','쪽파','양파','간장','소금','설탕','참기름','들기름','식용유','깨','참깨','검은깨','후추','생강','물엿','올리고당','전분','밀가루','쌀','잡곡']);
+ const core=ings.filter(x=>!BASE.has(x));
+ const useIngs=core.length?core:ings;
+ const inSet=new Set(useIngs);
+ // 주재료 가중 — 분해 재료는 중요도순(첫 번째=주재료). 입력 주재료 2.0 / 2번째 1.0 / 나머지 0.8
+ const inW={};useIngs.forEach((x,i)=>{inW[x]=i===0?2.0:(i===1?1.0:0.8);});
+ const cousW={},cousVia={};
+ ings.forEach(x=>{(DATA.cous&&DATA.cous[x]||[]).forEach(([c,st])=>{
+  if(inSet.has(c))return;
+  const w=0.45*(st/3);
+  if(!cousW[c]||w>cousW[c]){cousW[c]=w;cousVia[c]=x;}
+ });});
  const scored=[];
  for(const [m,v] of Object.entries(pool)){
   if(m===name||m.includes(name)||name.includes(m))continue;
-  const shared=v.i.filter(x=>inSet.has(x));
-  if(!shared.length)continue;
-  const s=shared.reduce((a,x)=>a+(IDF[x]||0.3),0)*(1+Math.log10(v.f));
-  scored.push({m,v,shared,s});
+  const shared=v.i.filter(x=>inSet.has(x)&&!BASE.has(x));
+  const cshared=v.i.filter(x=>!inSet.has(x)&&!BASE.has(x)&&cousW[x]);
+  if(!shared.length&&!cshared.length)continue;
+  const main=v.i[0];   // 후보 메뉴의 주재료
+  let s=(shared.reduce((a,x)=>a+(IDF[x]||0.3)*(inW[x]||1)*(x===main?1.5:1),0)
+         +cshared.reduce((a,x)=>a+(IDF[x]||0.3)*cousW[x]*(inW[cousVia[x]]||0.8)*(x===main?1.5:1),0))*(1+Math.log10(v.f));
+  const im=methodOf(name),cm=methodOf(m);
+  const sameCook=!!(im&&cm&&im===cm&&im!=='밥'&&im!=='국');
+  if(sameCook)s*=1.15;
+  scored.push({m,v,shared,cshared,sameCook,cook:im,s});
  }
  scored.sort((a,b)=>b.s-a.s);
  const top=scored.slice(0,5);
  const tyLabel=TYPE==='daycare'?'어린이집':'유치원';
- document.getElementById('rsub').textContent=name+'와(과) 같은 재료가 들어가고, 전국 '+tyLabel+' 식단에 실제로 자주 오르는 메뉴예요.';
- document.getElementById('list').innerHTML=top.length?top.map(c=>
-  '<div class="cous"><div class="top"><span class="nm">'+c.m+'</span><span class="fq">'+tyLabel+' 식단 '+c.v.f.toLocaleString()+'회 등장</span></div>'+
-  '<div class="shared">'+c.shared.map(x=>'<span class="sh">'+x+' 겹침</span>').join('')+'</div>'+
-  '<div class="why">익숙한 재료('+c.shared.join('·')+')가 들어 있어 첫 도전 부담이 낮고, '+tyLabel+' 급식에 자주 나와 앞으로 만날 확률도 높아요.</div></div>').join('')
+ document.getElementById('rsub').textContent=name+'와(과) 같은 재료(또는 맛·식감이 닮은 사촌 재료)가 들어가고, 전국 '+tyLabel+' 식단에 실제로 자주 오르는 메뉴예요.';
+ document.getElementById('list').innerHTML=top.length?top.map(c=>{
+  const why=[];
+  if(c.shared.length)why.push('잘 먹는 재료 그대로('+c.shared.join('·')+')');
+  if(c.cshared.length)why.push('맛·식감이 닮은 사촌 재료('+c.cshared.map(x=>cousVia[x]+'→'+x).join('·')+')');
+  if(c.sameCook)why.push('같은 조리법('+c.cook+')이라 익숙한 모양새');
+  return '<div class="cous"><div class="top"><span class="nm">'+c.m+'</span><span class="fq">'+tyLabel+' 식단 '+c.v.f.toLocaleString()+'회 등장</span></div>'+
+  '<div class="shared">'+c.shared.map(x=>'<span class="sh">'+x+' 겹침</span>').join('')+c.cshared.map(x=>'<span class="shc">'+cousVia[x]+'의 사촌 · '+x+'</span>').join('')+(c.sameCook?'<span class="shm">같은 조리법 · '+c.cook+'</span>':'')+'</div>'+
+  '<div class="why">추천 이유 — '+why.join(' · ')+'. '+tyLabel+' 급식에 자주 나와 앞으로 만날 확률도 높아요.</div></div>';}).join('')
   :'<div class="empty">겹치는 사촌 메뉴를 찾지 못했어요 — 다른 음식으로 시도해보세요.</div>';
  document.getElementById('result').classList.remove('hidden');
  window.scrollTo({top:document.getElementById('result').offsetTop-10,behavior:'smooth'});
  gtag('event','cookie_result',{tool:'cousins',type:TYPE,months:MONTHS||0});
 }
+// 🍳 레시피 카드 (밀프레드 레시피DB — 식약처 표준레시피 기반, 유아 3-5세 1인분)
+document.getElementById('list').addEventListener('click',e=>{
+ const btn=e.target.closest('.rbtn');if(!btn)return;
+ const box=btn.nextElementSibling,R=window.MF_RECIPES[btn.dataset.dish];
+ if(!box||!R)return;
+ const opening=box.classList.contains('hidden');
+ box.classList.toggle('hidden');btn.classList.toggle('open',opening);
+ btn.textContent=opening?'🍳 유아 1인분 레시피 — 소금까지 g 단위 ▴':'🍳 유아 1인분 레시피 — 소금까지 g 단위 ▾';
+ if(!opening||box.innerHTML)return;
+ const ings=R.i.map(x=>'<span class="ig'+(x[3]?' ssn':'')+'">'+(x[3]?'🧂 ':'')+x[0]+' <b>'+x[1]+'g</b>'+(x[2]?'('+x[2]+')':'')+'</span>').join('');
+ box.innerHTML='<div class="rt">'+R.t+'<span class="bd">유아(3-5세) 1인분</span></div>'
+  +'<div class="ings">'+ings+'</div>'
+  +'<div class="rmeta">'+(R.na!=null?'나트륨 <b>약 '+R.na+'mg</b> (식약처 표준레시피 기반 계산) · ':'')+(R.al&&R.al.length?'알레르기: '+R.al.join('·'):'알레르기 표시대상 없음')+'</div>'
+  +(MONTHS&&MONTHS<36?'<div class="banote">✓ 만 1~2세는 이 양의 약 65%가 적당해요 (식약처 영유아 급식 기준)</div>':'');
+ gtag('event','cookie_recipe_open',{tool:'cousins',dish:btn.dataset.dish});
+});
 </script>
 <script src="/cookie-common.js?v=5"></script>
 </body>

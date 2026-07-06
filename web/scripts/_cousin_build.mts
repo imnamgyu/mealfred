@@ -88,6 +88,23 @@ async function all<T>(pager: (f: number, t: number) => PromiseLike<{ data: T[] |
     console.log(`   ${ty}: 상위 ${top.length} → 식재료 확보 ${Object.keys(rec).length}메뉴`);
   }
 
+  // 식재료 사촌 맵(이사님 2026-07-06: 정확 일치만 말고 유사 식재료로도 추천) —
+  // food-graph.json의 kind='bridge'(맛·식감 닮은 사촌, LLM 채점·검증) 엣지만 사용. 데이터에 등장하는 재료로 한정해 경량화.
+  const graph = JSON.parse(fs.readFileSync(new URL('../lib/food-graph.json', import.meta.url).pathname, 'utf8')) as
+    { edges: { a: string; b: string; kind: string; strength: number }[] };
+  const vocab = new Set<string>();
+  for (const ty of ['daycare', 'kindergarten'] as const) for (const v of Object.values(out.types[ty])) v.i.forEach((x) => vocab.add(x));
+  const cous: Record<string, [string, number][]> = {};
+  for (const e of graph.edges) {
+    if (e.kind !== 'bridge') continue;
+    if (vocab.has(e.a) || vocab.has(e.b)) {
+      (cous[e.a] = cous[e.a] || []).push([e.b, e.strength]);
+      (cous[e.b] = cous[e.b] || []).push([e.a, e.strength]);
+    }
+  }
+  (out as unknown as Record<string, unknown>).cous = cous;
+  console.log('   사촌 맵:', Object.keys(cous).length, '재료');
+
   const path = new URL('../../cousin-data.json', import.meta.url).pathname;
   fs.writeFileSync(path, JSON.stringify(out));
   console.log('완료 →', path, Math.round(fs.statSync(path).size / 1024) + 'KB');
