@@ -14,7 +14,7 @@ import path from 'path';
 import { mapMenuLocal } from '../lib/menuMap.ts';
 
 const WEB = process.cwd();                                  // 항상 web/ 에서 실행
-const HTML = path.join(WEB, '..', 'cookie-rankings.html');  // deploy/cookie-rankings.html
+const HTML = path.join(WEB, '..', 'meal-ranking.html');  // deploy/meal-ranking.html (구 cookie-rankings, 2026-07-06 개명)
 
 const env: Record<string, string> = {};
 for (const line of fs.readFileSync(path.join(WEB, '.env.local'), 'utf-8').split('\n')) {

@@ -44,6 +44,11 @@
       "source": "/cookie-child.html",
       "destination": "/meokbti.html",
       "permanent": true
+    },
+    {
+      "source": "/cookie-rankings.html",
+      "destination": "/meal-ranking.html",
+      "permanent": true
     }
   ]
 }

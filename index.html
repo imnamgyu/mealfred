@@ -50,6 +50,20 @@ body{font-family:'Noto Sans KR',sans-serif;color:#222;background:#fafaf7;line-he
 .product-link::after{content:'→';transition:transform 0.2s;}
 .product-card:hover .product-link::after{transform:translateX(4px);}
 
+/* ===== FREE TOOLS (쿠키서비스 공개분) ===== */
+.tools{background:#fff;padding:56px 20px 48px;}
+.tools-inner{max-width:900px;margin:0 auto;}
+.tools-title{text-align:center;font-size:clamp(18px,3vw,24px);font-weight:800;margin-bottom:8px;color:#1a2b4a;}
+.tools-sub{text-align:center;font-size:13px;color:#888;margin-bottom:32px;}
+.tools-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.tool-card{background:#FFFBF5;border:1.5px solid #FFE8D0;border-radius:18px;padding:22px 20px;text-decoration:none;color:#1a2b4a;transition:all .25s;display:block;}
+.tool-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.08);background:#fff;}
+.tool-emoji{font-size:34px;display:block;margin-bottom:10px;}
+.tool-name{font-size:17px;font-weight:800;margin-bottom:5px;}
+.tool-desc{font-size:12.5px;color:#777;line-height:1.6;margin-bottom:10px;}
+.tool-meta{font-size:11px;font-weight:700;color:#C45A00;background:rgba(255,107,26,.08);border-radius:100px;padding:3px 10px;display:inline-block;}
+@media(max-width:640px){.tools-grid{grid-template-columns:1fr;}}
+
 /* ===== VALUES ===== */
 .values{background:#fff;padding:60px 20px;}
 .values-inner{max-width:900px;margin:0 auto;}
@@ -172,29 +186,40 @@ footer a{color:#aaa;text-decoration:none;}
           <span class="product-link">📱 앱 둘러보기 (예시 화면) →</span>
         </div>
       </a>
-      <a class="product-card" href="cookie-rankings.html">
-        <span class="product-emoji">📊</span>
-        <div class="product-name">입학 전 꼭 먹을 음식</div>
-        <p class="product-desc">전국 어린이집·유치원이 가장 많이 주는 음식<br>입학 전 우리 아이가 익숙해지면 좋아요 (무료)</p>
-        <div class="product-tags">
-          <span class="product-tag">실데이터 집계</span>
-          <span class="product-tag">식재료·메뉴</span>
-          <span class="product-tag">카테고리별</span>
-          <span class="product-tag">로그인 X</span>
-        </div>
-        <span class="product-link">급식 순위 보기</span>
+      
+    </div>
+  </div>
+</section>
+
+<!-- ===== FREE TOOLS ===== -->
+<section class="tools">
+  <div class="tools-inner">
+    <h2 class="tools-title">🥄 무료로 시작해보세요</h2>
+    <p class="tools-sub">로그인 없이 1~2분 — 우리 아이 편식, 가볍게 확인하는 무료 도구들</p>
+    <div class="tools-grid">
+      <a class="tool-card" href="picky-score.html">
+        <span class="tool-emoji">💯</span>
+        <div class="tool-name">아이 편식 상식 점수</div>
+        <p class="tool-desc">나는 편식을 잘 아는 부모일까?<br>10문제 점수로 확인해보세요.</p>
+        <span class="tool-meta">10문제 · 1분</span>
       </a>
-      <a class="product-card" href="daycare-eval.html">
-        <span class="product-emoji">📋</span>
-        <div class="product-name">우리 아이 식단표 평가</div>
-        <p class="product-desc">어린이집·유치원 식단표<br>WHO·KDRI 8축 평가 (30초)</p>
-        <div class="product-tags">
-          <span class="product-tag">8축 알고리즘</span>
-          <span class="product-tag">실시간 분석</span>
-          <span class="product-tag">로그인 X</span>
-          <span class="product-tag">무료</span>
-        </div>
-        <span class="product-link">평가받으러 가기</span>
+      <a class="tool-card" href="meokbti.html">
+        <span class="tool-emoji">🍽️</span>
+        <div class="tool-name">우리 아이 먹BTI</div>
+        <p class="tool-desc">신중 미식가? 센서 미식가?<br>국제 식행동 척도 개념의 유형 테스트.</p>
+        <span class="tool-meta">16문항 · 2분</span>
+      </a>
+      <a class="tool-card" href="daycare-eval.html">
+        <span class="tool-emoji">📋</span>
+        <div class="tool-name">우리 아이 식단표 평가</div>
+        <p class="tool-desc">어린이집·유치원 식단표 사진 한 장이면<br>영양 점수와 전국 비교까지.</p>
+        <span class="tool-meta">사진 1장 · 30초</span>
+      </a>
+      <a class="tool-card" href="meal-ranking.html">
+        <span class="tool-emoji">📊</span>
+        <div class="tool-name">입학 전 꼭 먹을 음식</div>
+        <p class="tool-desc">전국 어린이집·유치원이 가장 많이 주는<br>음식·식재료 실데이터 순위.</p>
+        <span class="tool-meta">실식단 집계 · 무료</span>
       </a>
     </div>
   </div>
