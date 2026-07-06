@@ -50,7 +50,7 @@ ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
 
 <main>
   <div class="glance">
-    <div class="gcard"><div class="n">21</div><div class="l">배포 커밋 (이 세션)</div></div>
+    <div class="gcard"><div class="n">25</div><div class="l">배포 커밋 (이 세션)</div></div>
     <div class="gcard"><div class="n">1,000행</div><div class="l">Supabase 응답 절단 실측 → 전량 순회 수정 3곳</div></div>
     <div class="gcard"><div class="n">10/10</div><div class="l">퀴즈 문항 사실검증 통과 (1차 문헌 대조)</div></div>
     <div class="gcard"><div class="n">618</div><div class="l">vitest 통과 · 신규 테이블 2 · 워크플로우 3회</div></div>
@@ -96,10 +96,20 @@ ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
     <div class="out">산출: 배포 준비 완료 세트 — 페이지·OG·DB·대시보드·원고. 오답률 실데이터 수집 대기.</div>
   </section>
 
-  <div class="next">
+    <section class="work">
+    <div class="wh"><span class="no">5</span><h2>추가분 (07-05~06) — 평가 연계 · GA 위생 · 실측 정답률</h2><span class="commit">d89e857 → 1986f2b</span></div>
+    <ul class="wl">
+      <li>결과 화면에 <b>N월 식단표 평가(daycare-eval) 연계 섹션</b> + eval_cta 추적 → 퀴즈에서 코칭앱/식단표평가 2갈래 퍼널 (<code>d89e857</code>).</li>
+      <li><b>GA 어드민(/admin*) 전면 제외</b> — GaLoader 경로 분기 + ga-disable 플래그, 내부 트래픽 노이즈 차단 (<code>ab4f0b1</code>).</li>
+      <li>오답노트에 <b>"지금까지 정답률 N%" 실측 칩</b>(비차단 로드·체감 지연 0) — 1건부터 즉시 표시 (<code>5602aa6</code>·<code>1986f2b</code>). 코칭앱 캐치프레이즈 후보 8종 브레인스토밍(결정 대기).</li>
+    </ul>
+    <div class="out">산출: 퀴즈 퍼널 완성형 — 응답이 쌓일수록 정답률 칩이 콘텐츠가 되는 구조.</div>
+  </section>
+
+<div class="next">
     <h3>남은 액션</h3>
     <ul>
-      <li>이사님: 인스타·블로그 게시(원고 v2), 프로필 링크 설정. 기존 카톡 공유 이력 있으면 카카오 공유 디버거 캐시 초기화.</li>
+      <li>이사님: 캐치프레이즈 계열 결정("우리 아이 편식 전담 코치" 추천안 포함). 인스타·블로그 게시(원고 v2), 프로필 링크 설정. 기존 카톡 공유 이력 있으면 카카오 공유 디버거 캐시 초기화.</li>
       <li>오답률 수십 건 쌓이면: "부모 N%가 틀림" 실측 게시글·상위% 표시 검토.</li>
       <li>7월 식단표 zip 수령 시 /mealfred-menu-import (어드민 7월 탭 선택 가능 상태).</li>
     </ul>
