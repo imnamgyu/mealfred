@@ -6,9 +6,10 @@
  *        게시글("부모 N%가 이 문제를 틀려요")·보고서 소재용. 전량은 fetchAllPages(1000행 절단 대응).
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { unstable_cache } from 'next/cache';
 import { createClient } from '@supabase/supabase-js';
 import { fetchAllPages } from '@/lib/fetchAllPages';
-import { validateQuizPayload, aggregateQuizStats, type QuizStatRow } from '@/lib/quizStats';
+import { validateQuizPayload, aggregateQuizStats, type QuizStats, type QuizStatRow } from '@/lib/quizStats';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,16 +42,28 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true }, { headers });
 }
 
+// 집계 이중 캐시(트래픽 스파이크 대비·이사님 2026-07-06):
+//  ①CDN: s-maxage=300 + stale-while-revalidate=600 — 5분 캐시, 갱신 중에도 stale 즉시 응답(사용자 대기 0)
+//  ②서버: unstable_cache 5분 — POP별 CDN 미스가 몰려도 Supabase 전량 스캔은 5분에 1회
+//  (admin-data.ts와 같은 하우스 패턴. 캐시 함수 안 쿠키/날짜 사용 금지 준수)
+const getStats = unstable_cache(
+  async (tool: string, qv: string): Promise<QuizStats> => {
+    const rows = await fetchAllPages<QuizStatRow>((from, to) =>
+      supabase.from('quiz_results').select('score,wrong', { count: 'exact' })
+        .eq('tool', tool).eq('qv', qv).order('id').range(from, to));
+    return aggregateQuizStats(rows);
+  },
+  ['quiz-stats'],
+  { revalidate: 300 },
+);
+
 export async function GET(req: NextRequest) {
-  const headers = { ...cors(req), 'Cache-Control': 'public, max-age=60, s-maxage=60', Vary: 'Origin' };
+  const headers = { ...cors(req), 'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600', Vary: 'Origin' };
   try {
     const url = new URL(req.url);
     const tool = (url.searchParams.get('tool') || 'knowledge').slice(0, 20);
     const qv = (url.searchParams.get('qv') || 'k1').slice(0, 12);
-    const rows = await fetchAllPages<QuizStatRow>((from, to) =>
-      supabase.from('quiz_results').select('score,wrong', { count: 'exact' })
-        .eq('tool', tool).eq('qv', qv).order('id').range(from, to));
-    return NextResponse.json({ tool, qv, ...aggregateQuizStats(rows) }, { headers });
+    return NextResponse.json({ tool, qv, ...(await getStats(tool, qv)) }, { headers });
   } catch (e: unknown) {
     return NextResponse.json({ error: e instanceof Error ? e.message : 'unknown' },
       { status: 500, headers: { ...headers, 'Cache-Control': 'no-store' } });
