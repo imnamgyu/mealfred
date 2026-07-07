@@ -1015,6 +1015,14 @@ function renderResult(result, ageBand){
     ? `<div style="background:#FFEBEE;border:1.5px solid #E53935;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#C62828;font-weight:700;text-align:center;line-height:1.5">⚠️ 샘플 식단 시뮬레이션 결과입니다<br><span style="font-weight:600;color:#5a4a3a">실제 식단 텍스트를 입력하면 정확한 평가를 받을 수 있어요</span></div>`
     : '';
   const gradeDesc = GRADE_DESC[g.grade] || '';
+  // 안심 배너 — 이 점수는 '잘잘못'이 아니라 이미 영양 기준을 통과한 식단들 사이의 '풍성함' 비교. 80점(B) 이상이면 걱정 불필요.
+  const reassure = result.total >= 80
+    ? `<div style="background:#F1F8F0;border:1.5px solid #CDE8CC;border-radius:10px;padding:11px 13px;margin:10px 0;font-size:11.5px;color:#1B5E20;font-weight:600;line-height:1.6">
+        <strong style="font-size:12.5px">✅ 안심하세요 — 우수한 식단이에요</strong><br>
+        어린이집·유치원 식단은 영양사 선생님이 <strong>급식 영양관리기준</strong>에 맞춰 짜요. 이 점수는 잘잘못이 아니라, <strong>이미 기준을 통과한 식단끼리 얼마나 다양하고 풍성한지</strong>를 비교한 참고값이에요. <strong>80점 이상이면 영양 걱정은 안 하셔도 좋고</strong>, 실제로 거의 모든 원이 여기에 들어요. 아래 '가정에서 보충' 팁은 <strong>더 좋게 만드는 선택지</strong>일 뿐, 문제가 아니랍니다 🌱</div>`
+    : `<div style="background:#FFF8E1;border:1.5px solid #FFE082;border-radius:10px;padding:11px 13px;margin:10px 0;font-size:11.5px;color:#8a6d3b;font-weight:600;line-height:1.6">
+        <strong style="font-size:12.5px">🌱 기본 영양은 갖춘 식단이에요</strong><br>
+        핵심 영양은 채워져 있어요. 다만 다양성 등 몇 가지를 <strong>가정에서 가볍게 보충</strong>하면 더 좋아요 — 아래 팁을 참고하세요. 급식만으로도 큰 걱정은 없답니다.</div>`;
   card.innerHTML = `
     ${sampleBanner}
     <div class="result-watermark">밀프레드 편식도감</div>
@@ -1027,6 +1035,7 @@ function renderResult(result, ageBand){
       </div>
     </div>
     <div style="background:var(--n50);border-radius:8px;padding:8px 10px;margin:8px 0;font-size:11px;color:var(--n600);font-weight:600;line-height:1.5"><strong style="color:${g.color}">${g.grade}</strong> — ${gradeDesc}</div>
+    ${reassure}
     <div id="rankLine"></div>
     ${axisHtml}
   `;
