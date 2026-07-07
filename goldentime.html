@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>우리 아이 편식 골든타임 지도 | 밀프레드</title>
+
+<meta property="og:title" content="우리 아이 편식 골든타임 지도 — 어디부터 넓혀갈까?">
+<meta property="og:description" content="겁주지 않아요. 8개 식품군으로 우리 아이 편식 지도를 그려보고, 가장 잘 바뀌는 시기에 어디부터 시작할지 짚어드려요 · 40초.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.mealfred.com/goldentime.html">
+<meta property="og:image" content="https://www.mealfred.com/og-goldentime.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.mealfred.com/og-goldentime.png">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p300:#FFB375;--p500:#E89244;--org2:#C45A00;--navy:#1a2b4a;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--g700:#1B5E20;--y700:#B45309;--tc:#A15A3A}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;background:#FFFDFB;color:var(--navy);line-height:1.6;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2.5px solid var(--p500);outline-offset:2px;border-radius:6px}
+.back{display:inline-block;margin:12px 0 0 14px;color:#b39a82;text-decoration:none;font-size:12px;font-weight:700}
+.hero{background:linear-gradient(160deg,#FFF5EB,#FFE8D0 45%,#FFD9B5);padding:38px 20px 26px;text-align:center}
+.hero .tag{display:inline-block;background:rgba(255,107,26,.1);color:var(--org2);padding:6px 15px;border-radius:100px;font-size:11.5px;font-weight:800;border:1px solid rgba(255,107,26,.25);margin-bottom:13px}
+.hero h1{font-size:clamp(21px,5.6vw,27px);font-weight:800;letter-spacing:-0.02em;line-height:1.32;color:var(--navy);text-wrap:balance}
+.hero h1 .ac{color:#FF8A47}
+.hero p{font-size:14px;color:#5a4a3a;font-weight:500;margin-top:11px;max-width:440px;margin-left:auto;margin-right:auto}
+.hero .meta{margin-top:12px;font-size:11.5px;color:#9a8468;font-weight:700}
+main{max-width:500px;margin:0 auto;padding:24px 18px 30px}
+.step{background:#fff;border:1.5px solid var(--n200);border-radius:16px;padding:18px;margin-bottom:14px}
+.step h2{font-size:15px;font-weight:800;color:var(--s800);margin-bottom:4px}
+.step .sub{font-size:12px;color:var(--n500);font-weight:600;margin-bottom:12px}
+.mrow{display:flex;gap:8px;align-items:center}
+.mrow input{flex:1;border:1.5px solid var(--n200);border-radius:12px;padding:13px 14px;font-size:15px;font-weight:700;font-family:inherit;min-width:0;color:var(--s800)}
+.mrow .unit{font-size:14px;font-weight:800;color:var(--n600);flex:none}
+.namerow{margin-top:10px}
+.namerow input{width:100%;border:1.5px solid var(--n200);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;font-family:inherit;color:var(--s800)}
+.autonote{font-size:11.5px;color:var(--g700);font-weight:700;margin-top:9px}
+/* 식품군 수용도 */
+.grow{border:1.5px solid var(--n200);border-radius:14px;padding:12px 13px;margin-bottom:9px}
+.ginfo{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.gem{font-size:23px;flex:none}
+.gname{font-size:14.5px;font-weight:800;color:var(--s800)}
+.gname .gsub{font-size:11.5px;font-weight:700;color:var(--n400);margin-left:4px}
+.gjob{font-size:11px;font-weight:600;color:var(--n500);margin-top:1px;line-height:1.4}
+.gopts{display:flex;gap:6px}
+.gopt{flex:1;padding:9px 4px;border:1.5px solid var(--n200);border-radius:10px;background:#fff;font-size:12px;font-weight:800;color:var(--n600);cursor:pointer;font-family:inherit;line-height:1.35;transition:.12s}
+.gopt:active{transform:translateY(1px)}
+.gopt.on2{border-color:#8FCB90;background:#F1F8F0;color:var(--g700)}
+.gopt.on1{border-color:#F1D9B8;background:#FFF7EC;color:var(--y700)}
+.gopt.on0{border-color:#E7CFC3;background:#FBF3EF;color:var(--tc)}
+.favrow{margin-top:14px}
+.favrow label{display:block;font-size:12.5px;font-weight:800;color:var(--s800);margin-bottom:3px}
+.favrow .fh{font-size:11px;font-weight:600;color:var(--n500);margin-bottom:8px}
+.favrow input{width:100%;border:1.5px solid var(--n200);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;font-family:inherit;color:var(--s800)}
+.cnt{text-align:center;font-size:12px;font-weight:800;color:var(--n500);margin:4px 0 10px}
+.cnt b{color:var(--org2)}
+/* 결과 */
+.gt{background:linear-gradient(135deg,#F1F8F0,#E4F1E3);border:1.5px solid #CDE8CC;border-radius:16px;padding:16px 16px 15px;margin-bottom:14px}
+.gt .h{font-size:14.5px;font-weight:800;color:var(--g700);margin-bottom:6px}
+.gt p{font-size:12.5px;font-weight:600;color:#3f5a3f;line-height:1.6}
+.summ{font-size:13px;font-weight:700;color:var(--n700);text-align:center;margin-bottom:12px;line-height:1.5}
+.summ b.g{color:var(--g700)}.summ b.t{color:var(--tc)}
+.map{margin-bottom:14px}
+.maprow{display:flex;align-items:center;gap:10px;border:1.5px solid;border-radius:12px;padding:10px 13px;margin-bottom:7px}
+.maprow .mem{font-size:19px;flex:none}
+.maprow .mname{font-size:13.5px;font-weight:800;flex:1}
+.maprow .mst{font-size:11.5px;font-weight:800;flex:none;padding:3px 10px;border-radius:100px}
+.maprow.good{border-color:#CDE8CC;background:#F7FCF6}.maprow.good .mname{color:var(--g700)}.maprow.good .mst{background:#E4F1E3;color:var(--g700)}
+.maprow.mid{border-color:#F1D9B8;background:#FFFCF5}.maprow.mid .mname{color:var(--y700)}.maprow.mid .mst{background:#FBEBD3;color:var(--y700)}
+.maprow.new{border-color:#EAD9CF;background:#FDF9F6}.maprow.new .mname{color:var(--tc)}.maprow.new .mst{background:#F3E4DB;color:var(--tc)}
+.note{border:1.5px solid var(--n200);border-radius:14px;padding:14px 15px;margin-bottom:10px;background:#FCFBF9}
+.note .nt{font-size:13.5px;font-weight:800;color:var(--s800);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.note .nb{font-size:12.5px;font-weight:600;color:var(--n700);line-height:1.68}
+.note .nb b{color:var(--org2)}
+.rev{background:linear-gradient(135deg,#FFF8F2,#FFF1E4);border:1.5px solid var(--p300);border-radius:14px;padding:14px 15px;margin-bottom:10px}
+.rev .nt{font-size:13.5px;font-weight:800;color:var(--org2);margin-bottom:6px}
+.rev .nb{font-size:12.5px;font-weight:600;color:#6a4a2f;line-height:1.68}
+.redflag{font-size:12px;color:#7a3a30;font-weight:600;background:#FFF6F4;border:1px solid #F5C9C0;border-radius:12px;padding:12px 14px;line-height:1.68;margin-bottom:10px}
+.redflag b{color:#a83a2a}
+.notice{font-size:11px;color:var(--n500);font-weight:600;background:#FFFDF6;border:1px dashed var(--n200);border-radius:10px;padding:10px 13px;line-height:1.65;margin-bottom:14px}
+.sharebox{background:#fff;border:1.5px solid var(--p300);border-radius:16px;padding:18px 16px;text-align:center;margin-bottom:14px}
+.sharebox .em{font-size:28px}
+.sharebox h3{font-size:15px;font-weight:800;color:var(--s800);margin:3px 0 4px;text-wrap:balance}
+.sharebox p{font-size:12px;color:var(--n600);font-weight:600;line-height:1.5;margin-bottom:13px}
+.sharebtn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;border:none;border-radius:100px;font-weight:800;font-size:14px;padding:12px 26px;cursor:pointer;font-family:inherit;box-shadow:0 8px 22px rgba(255,107,26,.22)}
+.sharebtn:active{transform:translateY(1px)}
+.sharedbanner{background:#EEF4FF;border:1.5px solid #C9DDF6;border-radius:14px;padding:12px 15px;margin-bottom:14px;font-size:12.5px;font-weight:700;color:#1565C0;line-height:1.5}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--s800);color:#fff;font-size:13px;font-weight:700;padding:12px 20px;border-radius:100px;box-shadow:0 8px 26px rgba(0,0,0,.22);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:50;max-width:88vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.letter{background:#fff;border:1.5px solid var(--p300);border-radius:16px;padding:0;overflow:hidden;margin-bottom:14px;box-shadow:0 6px 20px rgba(255,107,26,.08)}
+.letter .lh{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);padding:11px 16px;font-size:11.5px;font-weight:800;color:var(--org2);display:flex;align-items:center;gap:6px}
+.letter .lh .prev{margin-left:auto;font-size:10px;font-weight:800;color:#fff;background:var(--p500);border-radius:100px;padding:2px 8px}
+.letter .lb{padding:16px 17px 15px;font-size:13px;font-weight:600;color:var(--s800);line-height:1.85;white-space:pre-line}
+.letter .lsign{font-weight:800;color:var(--org2)}
+.letter .lfoot{padding:0 17px 15px;font-size:11.5px;font-weight:600;color:var(--n500);line-height:1.55}
+.btn{display:block;width:100%;background:linear-gradient(135deg,#FF6B1A,#C45A00);color:#fff;font-weight:800;font-size:15px;padding:15px;border-radius:100px;text-align:center;border:none;cursor:pointer;box-shadow:0 8px 22px rgba(255,107,26,.22);text-decoration:none;font-family:inherit}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{background:var(--n200);color:var(--n400);box-shadow:none;cursor:default}
+.btn.sec{background:#fff;color:var(--org2);border:1.5px solid var(--p300);box-shadow:none;margin-top:9px}
+.appin{background:linear-gradient(135deg,#FFF3E8,#FFE0BD);border:1.5px solid var(--p300);border-radius:16px;padding:20px;text-align:center;margin-top:4px;margin-bottom:12px}
+.appin .em{font-size:30px}.appin h3{font-size:15.5px;font-weight:800;color:var(--s800);margin:4px 0 6px;text-wrap:balance}
+.appin p{font-size:12.5px;color:var(--n600);font-weight:600;margin-bottom:14px;line-height:1.55}
+footer{text-align:center;font-size:11px;color:var(--n400);padding:22px 20px 50px;font-weight:600;line-height:1.6}
+.hidden{display:none}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
+</head>
+<body data-cookie="goldentime">
+<a href="/" class="back">← 밀프레드</a>
+<header class="hero">
+  <span class="tag">🌱 편식 골든타임 지도</span>
+  <h1>우리 아이 편식,<br>지금 <span class="ac">어디부터 넓혀갈까</span>요?</h1>
+  <p>겁주려는 게 아니에요. 아이가 지금 <b>어떤 식품군이 잘 되고 어디가 아직 낯선지</b> 지도로 그려보고, <b>가장 잘 바뀌는 시기</b>에 어디부터 함께 시작할지 짚어드려요.</p>
+  <div class="meta">⏱ 40초 · 8개 식품군 · 35개 국제 가이드라인 개념</div>
+</header>
+<main>
+  <!-- STEP 1 -->
+  <div class="step" id="step1">
+    <h2>1. 아이는 몇 개월인가요?</h2>
+    <div class="sub">같은 행동도 나이에 따라 의미가 달라서, 해석에 반영해요.</div>
+    <div class="mrow"><input id="months" type="number" inputmode="numeric" min="6" max="96" placeholder="예: 40"><span class="unit">개월</span></div>
+    <div class="namerow"><input id="cname" maxlength="12" placeholder="아이 이름 (선택) — 코치 편지에 불러줄게요"></div>
+    <div class="autonote hidden" id="autonote"></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step hidden" id="step2">
+    <h2>2. 식품군별로 요즘 어때요?</h2>
+    <div class="sub">완벽하지 않아도 괜찮아요. 요즘 식탁 느낌대로 골라주세요.</div>
+    <div id="groups"></div>
+    <div class="favrow">
+      <label>우리 아이가 특히 잘 먹는 음식 하나 (선택)</label>
+      <div class="fh">코치 편지에서 여기서부터 한 걸음을 시작해요. 예: 돼지불고기, 김·계란밥</div>
+      <input id="fav" maxlength="20" placeholder="🔎 잘 먹는 음식 하나">
+    </div>
+  </div>
+
+  <div id="cta2" class="hidden">
+    <div class="cnt" id="cnt"><b>0</b> / 8 골랐어요</div>
+    <button class="btn" id="goBtn" disabled onclick="build()">우리 아이 편식 지도 보기 →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="hidden">
+    <div class="sharedbanner hidden" id="sharedBanner">👋 친구가 공유한 <b>편식 골든타임 지도</b>예요. 아래에서 보고, <b>우리 아이 것도</b> 그려볼 수 있어요.</div>
+    <div class="gt">
+      <div class="h">🌱 먼저, 안심하세요</div>
+      <p id="gtBody"></p>
+    </div>
+    <div class="summ" id="summ"></div>
+    <div class="map" id="map"></div>
+    <div id="notes"></div>
+    <div class="redflag hidden" id="redflag"></div>
+    <div class="rev" id="rev">
+      <div class="nt">🕑 지금이 가장 잘 바뀌는 시기예요</div>
+      <div class="nb">만 2~6세는 식습관이 만들어지는 <b>골든타임</b>이에요. 새 음식은 억지로가 아니라 <b>부담 없이 여러 번(대개 8~15번)</b> 만나면 어느 날 스스로 다가와요. 식약처 <b>푸드브릿지</b>도 '보고 → 만지고 → 한 입'의 작은 단계로 넓혀가라고 말해요. 오늘 안 먹어도 괜찮습니다.</div>
+    </div>
+    <div class="notice">이 자가점검은 SOS·Satter·식약처 등 <b>35개 국제 가이드라인의 개념을 참고한 참고용 도구</b>로, 의료 진단이 아니에요. 결과는 질병 판정이 아니며 소아과 상담을 대체하지 않아요. 밀프레드는 정부 인증·지정 기관이 아니고, 정부·학회 자료는 방법론 참고로만 인용했어요.</div>
+
+    <div class="letter" id="letter">
+      <div class="lh">💌 밀프레드 코치가 쓰는 편지<span class="prev">미리보기 · 예시</span></div>
+      <div class="lb" id="letterBody"></div>
+      <div class="lfoot">가입하면 이런 편지가 <b>매일, 우리 아이 기록에 맞춰</b> 도착해요 — 오늘 그린 지도가 그 첫 페이지가 됩니다.</div>
+    </div>
+
+    <div class="sharebox">
+      <div class="em">🔗</div>
+      <h3>이 지도, 친구에게도 보여주세요</h3>
+      <p>링크 하나면 우리 아이 지도가 그대로 열려요.<br><b>만료 없이</b>, 언제 열어도 그대로예요.</p>
+      <button class="sharebtn" onclick="shareResult()">🔗 결과 링크 공유하기</button>
+    </div>
+
+    <div class="appin">
+      <div class="em">💌</div>
+      <h3>이 지도대로, 어디부터 어떻게 시작할까요?</h3>
+      <p>전 세계 <b>35개 국제 가이드라인</b>을 통합한 <b>밀프레드 편식 코치</b>가<br>우리 아이가 낯설어하는 그 지점부터, 순서까지 짜서 곁에서 함께 풀어드려요.</p>
+      <a class="btn" id="coachCta" href="#" target="_blank" rel="noopener">밀프레드 편식 코칭 받기 →</a>
+    </div>
+    <button class="btn sec" id="restartBtn" onclick="location.reload()">↺ 다시 그려보기</button>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+<footer>밀프레드 편식도감 · SOS·Satter·식약처 등 35개 국제 가이드라인 근거 · 참고용 자가점검(의료 진단 아님)</footer>
+
+<script>
+// 8개 식품군 — 부모 대상 카피는 '몸에서 하는 일'로 번역(feedback_parent_facing_copy)
+const GROUPS=[
+ {k:'grain',emoji:'🍚',name:'곡류',sub:'밥·면·빵',job:'하루를 움직이는 에너지'},
+ {k:'meat', emoji:'🍖',name:'고기류',sub:'소·돼지·닭',job:'피·근육·집중에 쓰는 철분과 단백질'},
+ {k:'fish', emoji:'🐟',name:'생선·해산물',sub:'',job:'두뇌·눈에 좋은 지방'},
+ {k:'egg',  emoji:'🥚',name:'달걀',sub:'',job:'작지만 알찬 단백질'},
+ {k:'bean', emoji:'🫘',name:'콩류',sub:'두부·콩',job:'고기 없이 채우는 단백질·철분'},
+ {k:'veg',  emoji:'🥦',name:'채소류',sub:'',job:'배변을 돕고 몸의 균형을 맞추는 섬유질'},
+ {k:'fruit',emoji:'🍎',name:'과일류',sub:'',job:'면역·수분·비타민'},
+ {k:'milk', emoji:'🥛',name:'우유·유제품',sub:'',job:'뼈와 키에 쓰는 칼슘'}
+];
+const OPTS=[['🙅 잘 안 먹어요',0],['😐 가끔',1],['😋 잘 먹어요',2]];
+const STLABEL={2:'잘 먹어요',1:'가끔',0:'아직 낯설어요'};
+const STCLASS={2:'good',1:'mid',0:'new'};
+const BRIDGE={grain:'진밥 한 술',meat:'불고기 한 점',fish:'흰살생선 한 조각',egg:'달걀말이 한 입',bean:'두부 한 조각',veg:'애호박 한 조각',fruit:'사과 한 조각',milk:'치즈 한 조각'};
+let ans={},MONTHS=null;
+
+// STEP1 → STEP2
+document.getElementById('months').addEventListener('input',e=>{
+ const m=parseInt(e.target.value,10);MONTHS=m;
+ const an=document.getElementById('autonote');
+ if(!m||m<6){an.classList.add('hidden');return;}
+ an.classList.remove('hidden');
+ an.textContent='✓ '+ageBand(m).note;
+ document.getElementById('step2').classList.remove('hidden');
+ document.getElementById('cta2').classList.remove('hidden');
+});
+function ageBand(m){
+ if(m<24) return {label:'만 1~2세',note:'이유식·유아식 전환기라 식감 거부·가리기가 발달적으로 흔한 시기예요.'};
+ if(m<60) return {label:'만 2~4세',note:'편식이 가장 도드라지는 시기예요 — 우리 아이만 그런 게 아니에요.'};
+ return {label:'만 5세~',note:'식습관이 자리잡는 시기예요. 학교 급식 전 넓혀두기 좋아요.'};
+}
+
+// 식품군 버튼 렌더
+const gwrap=document.getElementById('groups');
+GROUPS.forEach(g=>{
+ const row=document.createElement('div');row.className='grow';
+ row.innerHTML='<div class="ginfo"><span class="gem">'+g.emoji+'</span><div>'+
+   '<div class="gname">'+g.name+(g.sub?'<span class="gsub">'+g.sub+'</span>':'')+'</div>'+
+   '<div class="gjob">'+g.job+'</div></div></div><div class="gopts"></div>';
+ const opts=row.querySelector('.gopts');
+ OPTS.forEach(o=>{
+  const b=document.createElement('button');b.className='gopt';b.textContent=o[0];
+  b.onclick=()=>{
+   ans[g.k]=o[1];
+   opts.querySelectorAll('.gopt').forEach(x=>x.className='gopt');
+   b.className='gopt on'+o[1];
+   updateCnt();
+  };
+  opts.appendChild(b);
+ });
+ gwrap.appendChild(row);
+});
+function updateCnt(){
+ const n=Object.keys(ans).length;
+ document.getElementById('cnt').innerHTML='<b>'+n+'</b> / 8 골랐어요';
+ document.getElementById('goBtn').disabled=n<8;
+}
+
+function build(){
+ const name=(document.getElementById('cname').value||'').trim()||'우리 아이';
+ const fav=(document.getElementById('fav').value||'').trim();
+ const red=GROUPS.filter(g=>ans[g.k]===0), green=GROUPS.filter(g=>ans[g.k]===2);
+ const band=ageBand(MONTHS||40);
+
+ // 골든타임 배너(두 전제 고정)
+ document.getElementById('gtBody').textContent=
+  '대부분의 편식은 크면서 자연스럽게 좋아져요('+band.label+'는 특히 그래요). 그리고 지금이 가장 잘 바뀌는 시기예요. 아래 지도는 「위험 경고」가 아니라, 어디부터 함께 넓혀갈지 보는 지도예요.';
+
+ // 요약(등급·점수 없이 개수만)
+ document.getElementById('summ').innerHTML=
+  '8개 식품군 중 <b class="g">'+green.length+'개</b>는 잘 먹고, <b class="t">'+red.length+'개</b>가 아직 낯선 편이에요.';
+
+ // 신호등 지도
+ document.getElementById('map').innerHTML=GROUPS.map(g=>{
+  const v=ans[g.k];
+  return '<div class="maprow '+STCLASS[v]+'"><span class="mem">'+g.emoji+'</span><span class="mname">'+g.name+'</span><span class="mst">'+STLABEL[v]+'</span></div>';
+ }).join('');
+
+ // 좁은 군별 정직 노트 — 근거 강도 moderate만, 경향·비예언 언어, 대체음식+가역성
+ const notes=[];
+ const proteinRed=['meat','egg','bean','fish'].filter(k=>ans[k]===0).length;
+ if(proteinRed>=3){
+  notes.push(['🥩 단백질·철분을 챙길 지점',
+   '고기·달걀·콩·생선을 폭넓게 낯설어하네요. 아이는 <b>철분·아연</b>을 주로 이 음식들에서 얻는데, 이런 편식이 오래 이어지면 섭취가 권장 수준에 <b>못 미칠 수 있어요</b>. 이건 「결핍」이라는 뜻이 아니라 <b>챙겨볼 신호</b>예요. 그나마 편해하는 두부·달걀부터 반복해 만나게 하면 대개 채워지고, 걱정되면 소아과에서 철분(빈혈)을 간단히 확인할 수 있어요.']);
+ }else if(proteinRed===2){
+  notes.push(['🥩 단백질 공급의 폭',
+   '단백질 음식(고기·달걀·콩·생선) 중 두 가지가 아직 낯선 편이에요. 잘 먹는 나머지 단백질로도 채울 수 있지만, 철분이 풍부한 음식(고기·콩·달걀)을 <b>조금씩 넓혀두면</b> 이 시기 성장에 도움이 돼요.']);
+ }
+ const vf=['veg','fruit'].filter(k=>ans[k]===0);
+ if(vf.length===2){
+  notes.push(['🥦 섬유질과 배변',
+   '채소와 과일이 둘 다 아직 낯선 편이에요. 식이섬유가 부족하면 변이 딱딱해지거나 <b>변비가 오기 쉬운데</b>(물·활동량도 함께 작용해요), 대개 물·과일·규칙적인 배변 습관으로 관리돼요. 잘 먹는 과일 <b>한 가지부터</b> 늘려가면 좋아요.']);
+ }else if(vf.length===1){
+  const one=vf[0]==='veg'?'채소':'과일';
+  notes.push(['🥦 '+one+'의 섬유질',
+   one+'이(가) 아직 낯선 편이에요. 섬유질·비타민을 여기서 많이 얻으니, '+(vf[0]==='veg'?'잘 먹는 과일이 어느 정도 메워주긴 하지만 ':'')+'부담 없는 것부터 <b>조금씩</b> 만나게 해보세요.']);
+ }
+ if(ans.milk===0){
+  notes.push(['🥛 칼슘 채우기',
+   '우유·유제품이 아직 낯설다면 <b>칼슘</b> 공급이 줄 수 있어요. 두부·뼈째 먹는 생선·칼슘 강화 두유처럼 <b>다른 칼슘 음식</b>으로 채울 수 있으니, 우유만 고집하지 않아도 괜찮아요.']);
+ }
+ if(ans.grain===0){
+  notes.push(['🍚 하루 에너지',
+   '밥·면·빵을 잘 안 먹으면 하루 에너지가 부족할 수 있어요. 다만 이 시기 소식은 흔하고, <b>성장곡선이 정상이면 괜찮은 경우가 많아요</b>. 체중·키가 계속 처지면 소아과와 상의해보세요.']);
+ }
+ if(!notes.length){
+  notes.push(['🍀 지금 균형이 좋아요',
+   '여덟 식품군이 고르게 자리잡은 편이에요. 지금의 식탁 리듬을 유지하면서, 새 음식을 <b>부담 없이 계속 노출</b>해주는 것만으로 충분해 보여요.']);
+ }
+ document.getElementById('notes').innerHTML=notes.map(n=>
+  '<div class="note"><div class="nt">'+n[0]+'</div><div class="nb">'+n[1]+'</div></div>').join('');
+
+ // 소프트 적신호(ARFID 정직 프레임) — 폭넓은 거부일 때만, 안심 먼저·경보 좁게
+ const rf=document.getElementById('redflag');
+ if(red.length>=5){
+  rf.classList.remove('hidden');
+  rf.innerHTML='참고: 지금 여러 식품군을 폭넓게 낯설어하고 있어요. 대부분의 편식은 크면서 좋아지지만, ①먹는 음식 종류가 <b>극단적으로 좁거나</b> ②체중·키가 성장곡선에서 <b>뚜렷이 처지거나 계속 떨어지거나</b> ③식사 때 아이가 많이 힘들어한다면 — 이건 자가점검과 별개로 <b>소아과·영양 상담</b>을 한번 받아보시길 권해요. 소수지만, 일찍 확인할수록 도움이 돼요.';
+ }else{rf.classList.add('hidden');}
+
+ // 💌 warm-start 코치 편지 미리보기 — 진단→처방 대칭 시연
+ const NARROW_ORDER=['veg','meat','bean','fish','fruit','egg','milk','grain'];
+ const firstRed=NARROW_ORDER.find(k=>ans[k]===0);
+ const narrowG=GROUPS.find(g=>g.k===firstRed);
+ const favShow=fav||(green[0]?green[0].name:'지금 잘 먹는 음식');
+ let body;
+ if(narrowG){
+  body=name+'에게 —\n지금은 '+narrowG.name+'이(가) 아직 낯선 시기예요. 그래도 괜찮아요, 크는 과정이니까요.\n오늘은 '+name+'가 잘 먹는 '+favShow+' 옆에, '+BRIDGE[narrowG.k]+'을(를) 살짝 올려둘게요. 먹지 않아도 돼요 — 같이 쳐다보는 것도 훌륭한 첫 걸음이에요.\n내일 또, 부담 없이 만나요.\n<span class="lsign">— 밀프레드 코치</span>';
+ }else{
+  body=name+'에게 —\n지금 여덟 식품군이 참 고르게 자리잡았어요. 대단한 일이에요.\n오늘은 '+favShow+'처럼 익숙한 것 곁에 새로운 색깔 하나를 더해볼까요? 놀이처럼요.\n<span class="lsign">— 밀프레드 코치</span>';
+ }
+ document.getElementById('letterBody').innerHTML=body;
+
+ // CTA UTM(신규 medium=goldentime)
+ document.getElementById('coachCta').href='https://app.mealfred.com/?utm_source=cookie&utm_medium=goldentime&utm_campaign=cookie_series';
+
+ // 결과 상태를 URL에 인코딩 → 만료 없는 공유 링크(서버·DB 불필요, 결정론 재생)
+ CURRENT_ENC=b64urlEncode(JSON.stringify({m:MONTHS,n:name,f:fav,a:GROUPS.map(g=>ans[g.k])}));
+
+ document.getElementById('step1').classList.add('hidden');
+ document.getElementById('step2').classList.add('hidden');
+ document.getElementById('cta2').classList.add('hidden');
+ document.getElementById('result').classList.remove('hidden');
+ window.scrollTo({top:0,behavior:'smooth'});
+ if(window.gtag)gtag('event','cookie_result',{tool:'goldentime',red:red.length,months:MONTHS||0,shared:SHARED});
+}
+
+/* ===== 만료 없는 공유 링크: 상태를 해시(#s=)에 인코딩 ===== */
+let CURRENT_ENC='',SHARED=false;
+function b64urlEncode(str){const bytes=new TextEncoder().encode(str);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function b64urlDecode(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)));}
+let TOAST_T;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(TOAST_T);TOAST_T=setTimeout(()=>t.classList.remove('on'),2800);}
+function shareResult(){
+ const url=location.origin+location.pathname+'#s='+CURRENT_ENC;
+ const data={title:'우리 아이 편식 골든타임 지도',text:'우리 아이 편식, 어디부터 넓혀갈까? 40초 지도 그려봤어요 🌱',url};
+ if(window.gtag)gtag('event','cookie_share',{tool:'goldentime'});
+ if(navigator.share){navigator.share(data).catch(()=>{});}
+ else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(()=>toast('🔗 링크를 복사했어요 — 붙여넣기 해서 공유하세요')).catch(()=>toast(url));}
+ else{toast(url);}
+}
+function applyState(o){
+ MONTHS=o.m;ans={};GROUPS.forEach((g,i)=>{ans[g.k]=o.a[i];});
+ document.getElementById('cname').value=(o.n&&o.n!=='우리 아이')?o.n:'';
+ document.getElementById('fav').value=o.f||'';
+ SHARED=true;build();
+ document.getElementById('sharedBanner').classList.remove('hidden');
+ const rb=document.getElementById('restartBtn');
+ rb.textContent='🌱 나도 우리 아이 편식 지도 그려보기';rb.classList.remove('sec');
+ rb.onclick=function(){location.assign(location.pathname);};
+}
+window.addEventListener('DOMContentLoaded',function(){
+ const h=location.hash||'';
+ if(h.indexOf('#s=')===0){try{applyState(JSON.parse(b64urlDecode(h.slice(3))));}catch(e){/* 손상된 링크는 무시하고 일반 진입 */}}
+});
+</script>
+<script src="/cookie-common.js?v=6"></script>
+</body>
+</html>
