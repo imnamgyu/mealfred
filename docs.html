@@ -424,10 +424,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 47</span>
+    <span class="cnt">세션 48</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+<a href="/worklog-2026-07-07-b.html" class="doc-card cat-app">
+  <span class="badge new">📓 신규</span>
+  <div class="ico">📓</div>
+  <h4>07-07 (b) — 편식 시리즈 54~57편 · 중복검증 2편 skip · 57편(철분) 발행</h4>
+  <p class="desc"><b>편식 블로그 세션(병행).</b> ① 이사님 교차검증으로 <b>54·55편 중복 skip</b>(35·37편 발행본·27·33편 총론 선점) ② 56편 비타민D "열에 여덟" 작성 — CSV '영유아 70%' 3중오류→<b>소아청소년 79.8·83.8%</b> 실검증(<code>초안</code>) ③ 57편 철분 「우리 앤 고기만 안 먹어요」 작성·발행(<code>f8b532b</code>·AAP 검증·시금치 삭제 반영). <span style="color:#1B5E20">CSV 근거 오류 3건 가드E 정정 · 라이브 blog/057.</span></p>
+  <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+</a>
 <a href="/worklog-2026-07-07.html" class="doc-card cat-app">
   <span class="badge new">📓 신규</span>
   <div class="ico">📓</div>
@@ -561,13 +568,6 @@
       <p class="desc"><b>eval 페이지·식단 API·채점 감사 세션(병행).</b> ① 부모 공유결과 <b>CDN 캐싱</b> — <code>/api/eval/result</code> 불변 스냅샷 s-maxage 1일·SWR·Vary:Origin, <code>/eval/[id]</code> ISR(<code>4fd224c</code>) ② 결과를 <b>팝업→한 페이지</b>로(분석직후·공유 공통 풀페이지, 배경스크롤 제거)(<code>e46eb6d</code>) ③ 공유결과 <b>첫 화면 번쩍임(FOUC) 제거</b> — &lt;body&gt; 동기 가드로 첫 페인트부터 로딩만(<code>54c95ce</code>) ④ <b>식단 공공 API 조사</b> — NEIS·dietary4u 생존·식약처 15118065/61 폐기·사립 API 공백 ⑤ 서울+부산 <b>14기관/140월 신규 적재</b>(복구4·월수정2) ⑥ ⭐ <b>채점 모듈 감사</b> — 부모 eval은 코칭/서버와 모듈 비공유 독립 사본·등급체계 상이. <span style="color:#1B5E20">eval 3종 라이브 · 채점 일원화는 "그냥 두자"로 보류.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-29-c.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-29 (c) — 도감 3종 확장 + 쿠키 순위표 정식 자동화 + 식단표 중복예방 적재</h4>
-      <p class="desc"><b>코퍼스·식단표 적재 세션(병행).</b> ① /mealfred-food-mapping Part C — 방어💎·도토리묵·청포묵 안전스크린 자동등재 + 매핑(묵류·청국장→콩·산양유→우유)·골든 100%(<code>efdc1f0</code>) ② <b>쿠키 순위표 정식 스크립트화</b> <code>gen-cookie-rankings.ts</code> — prod 재집계→cookie-rankings 자리교체(idempotent)·스킬 마무리에 편입(<code>ff40e18</code>) ③ ⭐ <b>/mealfred-menu-import 중복 작업예방 dedup</b> — OCR 전 동일파일 sha256 + (구·유형·월) 기적재 2겹 skip·<code>--precheck</code> 첫줄 중복숫자(<code>0a77a23</code>) ④ 서울 269파일 → <b>중복 210 skip·신규 59만 OCR</b> → 22개월/5기관 적재(은평 자이나무·명문 신규)·메뉴894·식재료131(<code>7a3abee</code>). <span style="color:#1B5E20">재탕 비용 ~3/4 절감 · 미매칭 7폴더 기관명 대기.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
         </div>
 </section>
 
@@ -603,7 +603,7 @@
 <script>
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
-  var DOC_DATES = {'/worklog-2026-07-07.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-c.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-b.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-06.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
+  var DOC_DATES = {'/worklog-2026-07-07-b.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-07.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-c.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-b.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-06.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
     '/worklog-2026-07-04.html':{c:'2026-07-04',m:'2026-07-04'},
     '/worklog-2026-07-03.html':{c:'2026-07-03',m:'2026-07-03'},
     '/worklog-2026-07-02.html':{c:'2026-07-02',m:'2026-07-02'},
