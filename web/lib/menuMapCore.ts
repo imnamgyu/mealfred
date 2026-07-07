@@ -29,6 +29,18 @@ function cleanName(raw: string): string {
   return LEXICON[t] || t;
 }
 
+// ── OCR 식단표 라벨 정규화 (2026-07-07): 급식표 특유의 라벨을 벗겨 같은 메뉴의 변형을 한 대표형으로 합친다.
+//   예) '깍두기(영양)'·'깍두기*'·'배추김치(자율)'·'친환경배'·'귤(생과)'·'우유(급식)' → '깍두기'·'배추김치'·'배'·'귤'·'우유'.
+//   ⚠️ 화이트리스트 라벨만 벗긴다 — '콩(대두)'·'김밥(참치)'처럼 정보성 괄호는 보존(대두·참치는 목록에 없음).
+const OCR_LABEL = /\((?:영양(?:량|성분)?|자율|완|초|급식|희망급식|선택|생과|영유아|영,?유아|유아|영아|중식|조식|석식|아침|점심|저녁|일반|추가|더|무료|알레르기|택[0-9])\)/g;
+const OCR_PREFIX = /^(?:친환경|무항생제|유기농|국내산|해썹|HACCP|저염|저당)\s*/;
+export function stripMenuLabels(m: string): string {
+  let s = m.replace(OCR_LABEL, '');
+  s = s.replace(/[*!~#★☆♥♡&]+/g, '');            // OCR 잡기호
+  s = s.replace(OCR_PREFIX, '');
+  return s.trim() || m;                          // 다 벗겨 빈 문자열이면 원본 유지
+}
+
 /** 토큰 → 표준 식재료명. 양념·물·모호어는 null. (어휘 무관 — 순수) */
 export function canon(raw: string): string | null {
   const t0 = (raw || '').replace(/\s*약간$/, '').replace(/^약간의\s*/, '').trim();
@@ -71,6 +83,13 @@ export const MENU_MAP: Record<string, { ing: string[]; processed?: boolean }> = 
   '도토리묵무침': { ing: ['도토리묵'] }, '도토리묵김가루무침': { ing: ['도토리묵'] }, '청포묵무침': { ing: ['청포묵'] }, '청포묵김가루무침': { ing: ['청포묵'] }, '묵무침': { ing: ['도토리묵'] },
   '비타민나물': { ing: ['비타민채'] }, '청국장': { ing: ['콩(대두)'] }, '청국장찌개': { ing: ['콩(대두)','두부'] }, '산양유': { ing: ['우유'] },
   '콩나물무침': { ing: ['콩나물','마늘'] },
+  // 2026-07-07 식단표 대량 적재(서울·부산·대구 267월) 후 무매핑 상위 보강 — 출력은 전부 vocab 표준명
+  '진미채볶음': { ing: ['오징어'], processed: true },   // 진미채=오징어 가공(≈901회)
+  '도시락김': { ing: ['김'] },
+  '깻잎양념무침': { ing: ['들깻잎'] }, '깻잎순볶음': { ing: ['들깻잎'] },
+  '모듬장조림': { ing: ['소고기','메추리알'] }, '모둠장조림': { ing: ['소고기','메추리알'] },
+  '삼색나물무침': { ing: ['시금치','당근','도라지'] }, '삼색나물': { ing: ['시금치','당근','도라지'] },
+  '비름나물무침': { ing: ['비름나물','마늘'] }, '비름나물': { ing: ['비름나물','마늘'] },
   '돈가스': { ing: ['돼지고기','계란','양배추'], processed: true },
   '스파게티': { ing: ['토마토','양파','마늘'] },
   '오므라이스': { ing: ['계란','양파','당근','쌀'] },
@@ -271,7 +290,7 @@ export function createMapper(poolNames: string[]): Mapper {
   }
 
   function mapMenu(menu: string, opts?: { skipDict?: boolean }): MapResult | null {
-    const m = menu.trim().replace(/\s/g, '');
+    const m = stripMenuLabels(menu.trim().replace(/\s/g, ''));   // OCR 라벨(영양·자율·친환경·*) 제거 후 조회
     const boost = boostFromName(m);   // 모든 소스에 적용 — dict/rule도 숨은 곡물(밥·떡·빵·튀김옷) 보정
     const wb = (ings: string[]) => meatFix(m, dedupCanon([...ings, ...boost]));
     if (!opts?.skipDict && DICT[m]) return { ingredients: wb(DICT[m]), processed: false, source: 'dict' };
