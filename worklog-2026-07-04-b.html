@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-07-04~07 (b) — 설문 퍼널 · 퀴즈→앱 핸드오프 · 인터뷰 설계</title>
+<meta property="og:title" content="작업 일지 2026-07-04~07 — 설문 n=12 해석 · 퀴즈→앱 점수 핸드오프 · 전환 0 진단 · 인터뷰 질문지 v3">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-07-04 ~ 07-07 · 설문 퍼널·인터뷰 설계 세션 (병행)</div>
+  <h1>설문 n=12 해석 · 퀴즈→앱 점수 핸드오프 · 전환 0 진단 · 인터뷰 질문지 v3</h1>
+  <p class="sub">학부모 설문의 후속 전 과정 — 해석 → 문자 발송 → 퍼널 실측(끊긴 곳 발견) → 맘테스트+패턴리딩 인터뷰 설계까지.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">n=12</div><div class="l">설문 3기관 (유효 11자녀·10가정)</div></div>
+    <div class="gcard"><div class="n">17회</div><div class="l">퀴즈 완주 (평균 48점·공유 4)</div></div>
+    <div class="gcard"><div class="n">가입 0</div><div class="l">앱 전환 — 끊긴 곳=결과→앱 다리</div></div>
+    <div class="gcard"><div class="n">v3</div><div class="l">인터뷰 질문지 (패턴리딩+진단 16항)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>설문 n=12 해석 + 스냅샷 갱신</h2><span class="commit">로컬 아카이브</span></div>
+    <ul class="wl">
+      <li><b>봉우리유치원 신규 2건</b>(7/3) = 3번째 기관·첫 유치원 — 광고 0원 원 경유 채널 재현. 유효 11자녀/10가정(동일번호 한 가정 2자녀·번호무효 1 발견).</li>
+      <li>실질 편식 고민 8/11(73%)·심각 5 · 연 20만원+ 지출 8/11 · <b>"한 입만" 10/11(91%)</b> · 원↔집 괴리 4건.</li>
+      <li>⭐"시간이 해결" 5명(최다)이 실제론 20만+ 지출·다수 시도 — 포기가 아니라 <b>지쳐서 기대 낮춘 상태</b>(카피 각도).</li>
+    </ul>
+    <div class="out"><b>산출</b> · <code>M_학부모설문_어린이집파일럿/학부모편식설문_3곳파일럿_2026-07-04_스냅샷.md</code> (7/2 스냅샷은 시점 보존) · 정직 가드: 유병률 주장 불가, 페인·WTP·채널 실증만</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>쿠키퀴즈 → 앱 점수 핸드오프 — "아까 그 점수" 환영</h2><span class="commit">69640ee·73e91ba 편입</span></div>
+    <ul class="wl">
+      <li>결과 CTA가 맨몸 링크라 앱 도착 시 퀴즈 맥락 소실 → <code>qz</code>(점수)·<code>qzw</code>(오답)를 URL에 실어 <b>앱 비로그인 배너가 "상식 N점으로 오셨네요 — 아까 헷갈린 '한 입만'의 역효과부터"로 이어받게</b>. localStorage 24h(카카오 OAuth 왕복 생존).</li>
+      <li><code>web/lib/quizHandoff.ts</code> 신설 — vitest 7/7·tsc 0. ⭐테스트가 실버그 적발: <code>Number('')===0</code>으로 <b>만점자에게 유령 오답 0번</b> 생기던 것 수정.</li>
+      <li>⚠️사고·교훈: 커밋 보류 중 병행 세션 커밋(<code>69640ee</code>)에 page.tsx가 섞여 미추적 lib 때문에 Vercel 빌드 실패 → 병행 세션이 <code>73e91ba</code>로 복구·라이브. <b>병행 환경에선 웹레포 변경 보류 말고 즉시 스코프 커밋.</b></li>
+    </ul>
+    <div class="out"><b>라이브</b> · 퀴즈 완주 → 결과 CTA → 앱 홈이 점수·첫 오답을 호명하며 카카오 가입 CTA — 퀴즈→앱이 한 대화로 이어짐</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>설문 가정 문자 발송 — 일괄 1통 + 인터뷰 1통</h2><span class="commit">이사님 발송</span></div>
+    <ul class="wl">
+      <li>개인화 8통 초안(각 가정 설문 답변 그대로 에코 + no-blame 톤) → 이사님 결정으로 <b>일괄 1통(①1분 퀴즈 ②오답노트 상식 흡수 ③앱 가입 — 3단 여정 안내)</b> + 인터뷰 1통으로 단순화. 개인화판은 후속 소재 보관.</li>
+      <li>훅 = "이번 설문에서 가장 많이 보인 방법이 '한 입만'인데, 연구에선 역효과" — 죄책감 대신 "아무도 알려주지 않았을 뿐" 프레임.</li>
+    </ul>
+    <div class="out"><b>산출</b> · <code>문자발송안_개인화_2026-07-05.md</code> (v3 확정 + v2 개인화 보관) · utm_campaign=survey2607</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>퍼널 실측 — 앱 전환 0의 위치 확인 + '평생 무료' 발견</h2><span class="commit">DB 실측</span></div>
+    <ul class="wl">
+      <li>quiz_results 실측: <b>완주 17회·평균 48점</b>(밤 10시·아침 7시 완주=엄마 시간대)·공유 4회 / <b>app_cta 1회(내부 추정)·가입 0</b> → 끊긴 곳은 문자→퀴즈가 아니라 <b>퀴즈 결과→앱 다리</b>(결과 화면이 만족을 완결시킴).</li>
+      <li>⭐설문 폼 재확인: 폼 제목 "<b>참여하면 평생 무료</b>(연 58,800원 상당 코칭)" = 이용권 실체. <b>문자에 이 약속이 없었음</b> → 전환 0의 유력 원인 후보 + 후속 문자는 "약속드린 평생 무료 받는 법" 프레임 유력.</li>
+    </ul>
+    <div class="out"><b>판정</b> · 퀴즈는 콘텐츠로 작동(완주·공유·평균 48점="반대로 알고 있다" 실증) — 다리가 문제. 인터뷰 질문 5(라이브 관찰)로 원인 확정 예정</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">5</span><h2>맘테스트 인터뷰 질문지 v1→v3 FINAL (구글닥스)</h2><span class="commit">20분 구성</span></div>
+    <ul class="wl">
+      <li>f07(전포·만3세·국 외 반찬 거부·9시도·연 50만+·인터뷰 동의) 대상. 원칙: 설문이 '무엇을' 답함 → 인터뷰는 <b>'언제·어떻게·왜·돈'만 심화</b>, 중복 0.</li>
+      <li>v2 +원인 진단: <b>24시간 리와인드</b>·식탁환경 5문(공동식사·부모 밥상·미디어·국밥/씹기·거부→대체식) → v3 +<b>패턴 리딩</b>(설문 단서로 3연속 예측: 이유식 반전 / 안전음식+국밥 / 옷태그·솔기 감각예민 → 적중 후 "알려진 유형" 정체 공개=신뢰+안도) + 성향 2문(신중·완고) + 체크리스트 16항 + <b>선물 한 수</b>(최대 원인 1개만 처방 → "2주 후 10분 후속 통화" 명분).</li>
+      <li>질문 5 = 라이브 관찰: 문자→퀴즈→<b>앱 버튼 앞에서 멈추면 "방금 무슨 생각 드셨어요?"</b> — 전환 0 원인을 직접 듣는 장치.</li>
+    </ul>
+    <div class="out"><b>정본</b> · 구글닥스 v3 (v1·v2 삭제 예정) · 로컬 포인터 <code>인터뷰질문지_f07_2026-07-07.md</code> · 인터뷰 요청 문자 2안(평생무료 변형 포함)</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">6</span><h2>SessionStart 훅 개조 — 일지 자동 주입 3일치 확장</h2><span class="commit">로컬 인프라</span></div>
+    <ul class="wl">
+      <li>주간 롤업만 주입하던 <code>worklog-context.sh</code>를 <b>주간 롤업 + 최근 3일 일 파일</b>(파일당 5,000B 캡, 초과 시 앞 3,000+뒤 2,000 — 최신 세션 꼬리 보존)로 확장. 실측 18.8KB.</li>
+    </ul>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li>이사님: f07 인터뷰 문자 발송 → 통화(질문지 v3) · 구글닥스 v1·v2 삭제.</li>
+      <li>인터뷰 라이브 관찰로 전환 0 원인 확정 → 후속 일괄 문자("평생 무료 받는 법") 여부 결정.</li>
+      <li>설문 숫자(n=12·3곳) PSSD 반영 — v7.0 재작성 세션과 조율.</li>
+      <li>GA utm(survey2607)·/admin/quiz 전환 추적 → 창업활동보고서 실측 숫자.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-07-04~07 (b) · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
