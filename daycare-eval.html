@@ -549,8 +549,19 @@ if(new URLSearchParams(location.search).get('r'))document.documentElement.classL
       <div style="margin-top:8px;color:var(--n700)">이 평가는 <strong>대략적인 경향 파악</strong>을 위한 참고 자료입니다. 정확한 영양 진단은 <strong>매일 아이 식단을 직접 기록</strong>할 때 가능합니다.</div>
     </div>
 
-    <!-- 메뉴별 식단분석 (맨 아래, 바이럴보다 아래) -->
-    <div id="ocrTableSection" style="display:none;margin-top:18px"></div>
+    <!-- 다른 편식 쿠키 서비스 크로스링크(이사님 2026-07-08 · 메뉴별 식단분석 표 대체 — DB select 지연 제거) -->
+    <div style="margin-top:18px;background:#fff;border:1.5px solid #FFE0C0;border-radius:16px;padding:16px">
+      <div style="font-size:13.5px;font-weight:800;color:#1a2b4a;margin-bottom:4px">🥄 이런 것도 있어요 — 밀프레드 편식 서비스</div>
+      <div style="font-size:11.5px;color:#9a8a7a;font-weight:600;margin-bottom:11px">우리 아이 편식, 여기서부터 풀려요 · 전부 무료</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <a href="/goldentime.html?utm_source=cookie&utm_medium=eval_result" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid #F0E0CE;border-radius:11px;text-decoration:none;color:#1a2b4a"><span style="font-size:20px">🌱</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;font-weight:800;display:block">편식 골든타임 지도</b><span style="font-size:11px;color:#8a7a6a;font-weight:600">8개 식품군으로 우리 아이 편식 지도 · 40초</span></span><span style="color:#E89244;font-weight:800">→</span></a>
+        <a href="/meokbti.html?utm_source=cookie&utm_medium=eval_result" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid #F0E0CE;border-radius:11px;text-decoration:none;color:#1a2b4a"><span style="font-size:20px">🍽️</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;font-weight:800;display:block">우리 아이 먹BTI</b><span style="font-size:11px;color:#8a7a6a;font-weight:600">우리 아이는 어떤 미식가 유형일까?</span></span><span style="color:#E89244;font-weight:800">→</span></a>
+        <a href="/picky-score.html?utm_source=cookie&utm_medium=eval_result" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid #F0E0CE;border-radius:11px;text-decoration:none;color:#1a2b4a"><span style="font-size:20px">💯</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;font-weight:800;display:block">아이 편식 상식 점수</b><span style="font-size:11px;color:#8a7a6a;font-weight:600">나는 편식을 잘 아는 부모일까? 10문제 1분</span></span><span style="color:#E89244;font-weight:800">→</span></a>
+        <a href="/next-food.html?utm_source=cookie&utm_medium=eval_result" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid #F0E0CE;border-radius:11px;text-decoration:none;color:#1a2b4a"><span style="font-size:20px">🥔</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;font-weight:800;display:block">다음 도전 음식 추천</b><span style="font-size:11px;color:#8a7a6a;font-weight:600">잘 먹는 음식으로 다음 메뉴를 찾아드려요</span></span><span style="color:#E89244;font-weight:800">→</span></a>
+        <a href="/mealenv-check.html?utm_source=cookie&utm_medium=eval_result" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid #F0E0CE;border-radius:11px;text-decoration:none;color:#1a2b4a"><span style="font-size:20px">🍚</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;font-weight:800;display:block">우리 집 밥상 환경 점검</b><span style="font-size:11px;color:#8a7a6a;font-weight:600">부모가 놓치는 식사 환경 30가지 · 3분</span></span><span style="color:#E89244;font-weight:800">→</span></a>
+        <a href="https://app.mealfred.com/?utm_source=cookie&utm_medium=eval_result&utm_campaign=cookie_series" style="display:flex;align-items:center;gap:11px;padding:11px 13px;border:1.5px solid #FFB375;background:#FFF8F2;border-radius:11px;text-decoration:none;color:#1a2b4a"><span style="font-size:20px">💌</span><span style="flex:1;min-width:0"><b style="font-size:13.5px;font-weight:800;display:block;color:#C45A00">밀프레드 편식 코칭</b><span style="font-size:11px;color:#8a7a6a;font-weight:600">우리 아이 편식 전담 코치 · 35개 국제 가이드라인</span></span><span style="color:#E89244;font-weight:800">→</span></a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1795,13 +1806,15 @@ function shareSite(){
 // 결과 자체를 URL로 공유 — 받은 사람은 재분석 없이 저장된 결과를 바로 봄 (3일 유효)
 function shareResult(){
   if(!currentShareId){ shareSite(); return; }
-  const url = 'https://app.mealfred.com/eval/' + currentShareId;  // 카톡 미리보기에 등급·점수 노출되는 바이럴 URL
-  const text = '우리 아이 식단표 평가 결과예요 — 사진 1장 1분 진단';
-  if(navigator.share){
-    navigator.share({title:'우리 아이 식단 평가 결과', text, url}).catch(()=>{});
+  // 결과 링크 = 정적 결과 페이지(?r=). 네이티브 공유시트 없이 '그냥 클립보드 복사'(이사님 2026-07-08)
+  const url = 'https://www.mealfred.com/daycare-eval.html?r=' + currentShareId;
+  if(window.ev) ev('eval_share', {});
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>{
+      alert('결과 링크가 복사됐어요!\n카톡·맘카페에 붙여넣기로 공유하세요.');
+    }).catch(()=>{ alert('결과 링크:\n' + url); });
   } else {
-    navigator.clipboard.writeText(url);
-    alert('결과 링크가 복사됐어요! (3일간 유효)\n친구에게 붙여넣기로 공유하세요.');
+    alert('결과 링크:\n' + url);
   }
 }
 
