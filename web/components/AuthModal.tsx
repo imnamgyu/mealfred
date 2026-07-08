@@ -3,6 +3,8 @@
  *
  * 별도 /signup 페이지를 없애고, 비로그인 어디서나 '로그인/가입' 버튼이 이걸 띄운다.
  * 약관·개인정보(자녀 건강·식이 민감정보 포함) 동의 후 카카오 OAuth 시작.
+ * 가입 마찰 축소: 체크박스에는 민감정보 처리 동의만 노출하고, AI 코칭을 위한 국외(미국) 이전 등 상세는
+ * /privacy(개인정보처리방침 2·5항)에 명시한다. mf_consent에는 sensitive:true로 동의 사실을 기록한다.
  */
 'use client';
 import { useState } from 'react';
@@ -52,7 +54,7 @@ export default function AuthModal({ open, onClose, initialError }: { open: boole
             style={{ width: 17, height: 17, marginTop: 1, accentColor: '#FF6B1A', flexShrink: 0 }} />
           <span>
             <b>[필수]</b> 만 14세 이상이며, <a href="/terms" target="_blank" rel="noopener" style={{ color: '#C45A00', fontWeight: 700, textDecoration: 'underline' }}>이용약관</a>과{' '}
-            <a href="/privacy" target="_blank" rel="noopener" style={{ color: '#C45A00', fontWeight: 700, textDecoration: 'underline' }}>개인정보처리방침</a>(자녀의 건강·식이 정보 처리 및 <b>AI 코칭을 위한 국외(미국) 이전</b> 포함)에 동의합니다.
+            <a href="/privacy" target="_blank" rel="noopener" style={{ color: '#C45A00', fontWeight: 700, textDecoration: 'underline' }}>개인정보처리방침</a>(자녀 식이·건강정보 처리 포함)에 동의합니다.
           </span>
         </label>
 
