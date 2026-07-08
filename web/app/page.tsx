@@ -1147,6 +1147,23 @@ export default function Home() {
 
       {authOpen && <AuthModal open onClose={() => setAuthOpen(false)} initialError={authErr} />}
 
+      {/* 플로팅 로그인/가입 — 로그아웃 시 스크롤 내내 우측 하단(하단 탭 NAV_H=58 위)에 상시 노출해 가입 유도.
+          래퍼는 pointer-events-none로 뒤 콘텐츠 탭을 막지 않고, max-w-md 컬럼 우측에 정렬. */}
+      {!loading && !loggedIn && (
+        <div className="fixed inset-x-0 z-50 pointer-events-none" style={{ bottom: 'calc(58px + env(safe-area-inset-bottom) + 14px)' }}>
+          <div className="max-w-md mx-auto px-5 flex justify-end">
+            <button onClick={() => { setAuthErr(null); setAuthOpen(true); }} aria-label="로그인 또는 가입"
+              className="pointer-events-auto flex items-center gap-2 font-extrabold text-[14px] px-5 py-3 rounded-full"
+              style={{ background: '#FEE500', color: '#1a2b4a', boxShadow: '0 8px 22px rgba(0,0,0,0.20)' }}>
+              <svg width="17" height="16" viewBox="0 0 18 17" fill="#1a2b4a" aria-hidden="true">
+                <path d="M9 .5C4 .5 0 3.6 0 7.5c0 2.5 1.7 4.7 4.2 6L3 17.4c-.1.3.3.5.5.4l4.3-2.8c.4 0 .8.1 1.2.1 5 0 9-3.1 9-7s-4-7-9-7z" />
+              </svg>
+              로그인 / 가입
+            </button>
+          </div>
+        </div>
+      )}
+
       <BottomNav active="/" />
     </main>
   );
