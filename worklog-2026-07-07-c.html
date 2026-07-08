@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-07-07~08 — 전국 식단 267월 적재 · 매핑 튜닝 · 안심 배너</title>
+<meta property="og:title" content="작업 일지 2026-07-07 — 식단표 OCR 267월 적재 · OCR 비용 규명 · daycare-eval 안심 배너">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-07-07~08 · 식단표 OCR·매핑·안심 배너 세션 (병행)</div>
+  <h1>전국 식단표 267개월 OCR 적재 → 매핑 라벨 스트리퍼 튜닝 → daycare-eval 안심 배너</h1>
+  <p class="sub">서울·부산·대구 식단을 코퍼스에 넣고, OCR 라벨 변형 수십 개를 한 번에 합치고, 부모에게 "80점 이상은 걱정 마세요"를 전한다.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">267</div><div class="l">적재 식단 (기관×월 · 서울79·부산153·대구35)</div></div>
+    <div class="gcard"><div class="n">~61,900원</div><div class="l">OCR 실지출 (CLOVA + Sonnet 폴백)</div></div>
+    <div class="gcard"><div class="n">2</div><div class="l">커밋 (매핑 튜닝 · 안심 배너)</div></div>
+    <div class="gcard"><div class="n">100%</div><div class="l">매핑 감사 유지 · 테스트 636</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>식단표 OCR 대량 적재 + 비용 구조 규명 (menu-import)</h2><span class="commit">데이터 적재</span></div>
+    <ul class="wl">
+      <li>서울·부산·대구 식단표 846장 → 신규 527 OCR → <b>267 institution-months 적재</b>. 적재율 편차(서울 40%·부산 70%·대구 33%).</li>
+      <li>⭐ <b>비용 구조 확정(딥시크 혼선 교정)</b>: <code>/api/ocr</code>은 daycare-eval과 동일 엔진 — 딥시크 안 씀. <b>CLOVA(저렴)→결정론 격자(무료)</b>가 처리하고, 격자가 깨질 때만 <b>Claude Sonnet 4.6 비전 폴백</b>(비싼 부분). 실측 폴백률 51%.</li>
+      <li>⭐ <b>적재율 교훈</b>: 폴더가 구·유형까지라 기관 특정은 OCR 헤더 기관명에 의존 — 이름이 안 읽히면 폴더째 skip(OCR 비용은 나가고 적재 0). 이 규칙을 menu-import SKILL에 명시.</li>
+    </ul>
+    <div class="out"><b>실지출</b> ≈ 61,900원 (OCR 콜 1,187 · grid 575 공짜 / Sonnet 612 유료)</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>food-mapping 매핑 튜닝 — OCR 라벨 스트리퍼 + 신규 6종</h2><span class="commit">cba470f</span></div>
+    <ul class="wl">
+      <li>⭐ <b>stripMenuLabels</b>: 급식표 OCR 라벨(영양·자율·급식·생과·친환경·<code>*</code>)을 화이트리스트로 벗겨 대표형으로 합침 → <code>깍두기(영양)→무</code>·<code>친환경배→배</code>·<code>배추김치*→배추김치</code> 등 고빈도 변형 수십 개 일괄 해소. <code>콩(대두)</code> 같은 정보성 괄호는 보존.</li>
+      <li>MENU_MAP +6(진미채볶음→오징어·도시락김→김·모듬장조림→소고기·메추리알 등) + pull-menus 노이즈 확장.</li>
+    </ul>
+    <div class="out"><b>검증</b> · 감사 100% 유지 · tsc 0 · vitest 636 · menu-dict/meal-ranking 재생성 · 체크포인트 기록</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>랭킹·백분위 변화 분석 (모수 40~46% 증가)</h2><span class="commit">진단</span></div>
+    <ul class="wl">
+      <li>식재료 순위 이동(무 7→6·멸치 13→10·소고기 4→3위). <b>김치 +23,643 ↔ 배추 −18,955</b> = 매핑 개선으로 배추김치가 김치로 일관 분류(더 정확).</li>
+      <li>"상위 X%" 모수 <b>40~46% 증가</b>(어린이집 305·유치원 297행). eval/rank가 실시간 조회라 즉시 반영.</li>
+      <li>특정 유치원 "상위 86%" 원인: <b>점수 분포가 92~94에 극단 압축</b>(89점=중앙값 −4점인데 백분위 85%로 튐) + 그 원 7월 점수 dip. 모수 증가 영향은 1%p로 미미.</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>daycare-eval 결과 '안심' 배너 + admin 사용자 확인</h2><span class="commit">85e0804</span></div>
+    <ul class="wl">
+      <li>결과 카드에 초록 안심 배너: "이 점수는 이미 기준을 통과한 식단끼리의 풍성함 비교 · <b>80점 이상이면 영양 걱정 불필요</b> · 가정 보충은 문제가 아니라 선택지". 실측상 전 기관이 84~95점이라 사실상 전원 안심 구간.</li>
+      <li>admin "오늘 1명" 정체 확인 — <code>eval_results</code>의 진짜 익명 사용자(오후 2:43·3-4세·93점 A·실제 7월 식단). <b>우리 import와 무관</b>(import는 이 테이블 안 씀).</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">5</span><h2>2차 식단표 zip — API별 비용 실측 → 구조 문제로 보류</h2><span class="commit">측정</span></div>
+    <ul class="wl">
+      <li>신규 161(중복 281 자동 skip=어제 적재분 제외). ⭐ <b>API별 비용 실측(추정 아님)</b>: <b>깨끗한 디지털 PDF=100% grid·거의 공짜</b> vs <b>종이 사진스캔 IMG=100% Sonnet</b>(비싼 부분). "이미지=CLOVA만"은 정반대 — 사진스캔은 표 인식이 깨져 Sonnet을 탄다.</li>
+      <li>달서구(29 PNG) 측정 → PNG도 Sonnet + <b>여전히 "기관명 추출 실패"로 0개 적재</b> + 폴더에 여러 원이 섞인 정황. 지금 구조로 "그냥 넣기" 불가 → 적재 방식 결정 대기.</li>
+    </ul>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li>이사님 결정: 미매칭 식단 적재 방식 — 미상 기관 생성(코퍼스용) vs 원별 폴더 재제공(순위까지 유효) vs 스킵.</li>
+      <li>헤더 기관명 추출 로직 개선이 미적재 ~260파일의 근본 해결(재OCR 비용 재발 방지).</li>
+      <li>Part C 도감 5종(방풍나물·꼬시래기·공심채 등) 안전스크린+7파이프라인 정식 등재는 별도 세션.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-07-07~08 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>

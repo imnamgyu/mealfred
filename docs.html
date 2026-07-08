@@ -424,10 +424,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 49</span>
+    <span class="cnt">세션 50</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+<a href="/worklog-2026-07-07-c.html" class="doc-card cat-app">
+  <span class="badge new">📓 신규</span>
+  <div class="ico">📓</div>
+  <h4>07-07~08 — 전국 식단 267월 OCR 적재 · 매핑 라벨 스트리퍼 · daycare-eval 안심 배너</h4>
+  <p class="desc"><b>식단표 OCR·매핑·안심 세션(병행).</b> ① 서울·부산·대구 식단 <b>267 institution-months 적재</b>(실지출 ~61,900원) + OCR 비용 구조 규명(딥시크 아님·CLOVA→격자→Sonnet 폴백) ② <b>stripMenuLabels</b>로 OCR 라벨 변형(깍두기(영양)→무 등) 수십 개 일괄 해소 + 신규 6종(<code>cba470f</code>, 감사 100%) ③ "상위 X%" 모수 40~46%↑·점수 압축 왜곡 진단 ④ daycare-eval 결과에 <b>"80점 이상 걱정 불필요" 안심 배너</b>(<code>85e0804</code>) + admin 1명=진짜 익명 사용자 확인 <span style="color:#1B5E20">2차 zip은 사진스캔 비용·기관명 미추출로 적재 방식 결정 대기.</span></p>
+  <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
+</a>
 <a href="/worklog-2026-07-04-b.html" class="doc-card cat-app">
   <span class="badge new">📓 신규</span>
   <div class="ico">📓</div>
@@ -561,13 +568,6 @@
       <p class="desc"><b>블로그·출처교정·배포 세션(병행 · 오늘 3번째).</b> ① <b>자동 다음 슬롯 46이 깨짐</b> — <code>Cooke 2007</code>은 실제로 「음식 신공포증 유전율 0.78」(쌍둥이 5,390쌍) 연구라 "청소년 70% 지속"은 출처 오귀속 + 49·207편 3중 중복 + 루시 쿡 40편 반복 ② <b>가드 E로 슬롯 교체</b> — 검증된 유전율(새것 무서워하는 기질 78% 유전→부모 탓 아님)로 046.md 작성·위원회 6명 통과, CSV 46 교정·49/207 ⚠플래그 ③ <b>배포 6단계</b> — 발행일 마킹·INFOGRAPHICS·빌드·앱 팁 upsert·메인 카드 042→046·푸시(<code>f265cb0</code>). <span style="color:#1B5E20">렌더 13/13 · mealfred.com/blog/046.html 라이브.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-30-b.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-30 (b) — 테스트 배포게이트 + SessionStart 일지 자동주입 훅 + 학부모 편식 설문 구글폼(브라우저)</h4>
-      <p class="desc"><b>개발 게이트·훅·학부모 설문 세션(병행 · 06-29 투자 Q&amp;A 연속).</b> ① 빌드 사고 후속 — <b>테스트를 배포 게이트에</b>: <code>vercel.json</code> npm run build(prebuild vitest)·pre-push 훅 test 추가·CLAUDE.md/AGENTS.md 규칙(<code>704ec0a</code>) ② <b>SessionStart 훅</b> — 매 세션 최근 주간 일지 자동 주입 + "새 작업 시 일지 훑기" 규칙(<code>6fdd635</code>) ③ ⭐ <b>학부모 편식 설문 구글폼</b>을 Claude in Chrome으로 직접 생성·반복수정(문항 정리·혜택=편식 코칭 평생무료·담백 카피·오렌지·바이럴 개방) → 라이브, 응답 받는 중. <span style="color:#1B5E20">forms.gle 죽음→viewform 사용 · 배포 카톡 메시지 작성.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
         </div>
 </section>
 
@@ -603,7 +603,7 @@
 <script>
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
-  var DOC_DATES = {'/worklog-2026-07-04-b.html':{c:'2026-07-04',m:'2026-07-08'},'/worklog-2026-07-07-b.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-07.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-c.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-b.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-06.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
+  var DOC_DATES = {'/worklog-2026-07-07-c.html':{c:'2026-07-08',m:'2026-07-08'},'/worklog-2026-07-04-b.html':{c:'2026-07-04',m:'2026-07-08'},'/worklog-2026-07-07-b.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-07.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-c.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-b.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-06.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
     '/worklog-2026-07-04.html':{c:'2026-07-04',m:'2026-07-04'},
     '/worklog-2026-07-03.html':{c:'2026-07-03',m:'2026-07-03'},
     '/worklog-2026-07-02.html':{c:'2026-07-02',m:'2026-07-02'},
