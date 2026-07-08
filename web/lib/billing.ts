@@ -4,12 +4,12 @@
  * 정책(2026-06~):
  *   - 가입 후 1개월 무조건 무료(trial).
  *   - 내 전용 초대링크로 5명 이상 '방문'(가입 불필요)하면 아이 1명 평생 무료(lifetime).
- *   - 그 외에는 아이 1명당 월 1,900원.
+ *   - 그 외에는 아이 1명당 월 4,900원.
  *
  * 결제(PG) 연동 전이라 상태 "계산 + 표기"만. 방문 카운트는 referrals/referral_visits(서비스 로우).
  */
 
-export const MONTHLY_PRICE = 1900;            // 아이 1명당 월 구독료(원)
+export const MONTHLY_PRICE = 4900;            // 아이 1명당 월 구독료(원)
 export const FREE_TRIAL_DAYS = 30;            // 가입 후 무조건 무료 일수
 export const REFERRAL_GOAL = 5;               // 이만큼 방문하면 평생 무료
 
