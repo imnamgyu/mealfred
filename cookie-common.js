@@ -7,6 +7,7 @@
     { id: 'cousins', ico: '🥔', label: '다음 도전 음식 추천', desc: '잘 먹는 음식으로 다음 메뉴를 찾아드려요', href: '/next-food.html' },
     { id: 'eval', ico: '🍱', label: '어린이집 식단표 평가', desc: '식단표 사진 한 장이면 영양 점수·전국 비교까지', href: '/daycare-eval.html' },
     { id: 'goldentime', ico: '🌱', label: '편식 골든타임 지도', desc: '8개 식품군으로 우리 아이 편식 지도 · 40초', href: '/goldentime.html' },
+    { id: 'mealenv', ico: '🍚', label: '우리 집 밥상 환경 점검', desc: '부모가 놓치는 식사 환경 30가지 · 3분', href: '/mealenv-check.html' },
     { id: 'app', ico: '💌', label: '밀프레드 편식 코칭', desc: '우리 아이 편식 전담 코치 · 35개 국제 가이드라인 기반', href: 'https://app.mealfred.com/?utm_source=cookie&utm_medium=strip' }
   ];
 
