@@ -424,10 +424,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 50</span>
+    <span class="cnt">세션 51</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+<a href="/worklog-2026-07-08.html" class="doc-card cat-app">
+  <span class="badge new">📓 신규</span>
+  <div class="ico">📓</div>
+  <h4>07-08 — 브랜드 커넥트 캠페인 문서(v3) · 가격 월 4,900원 통일 · 동의 간소화 · 랜딩 편지 · 플로팅 로그인</h4>
+  <p class="desc"><b>네이버 브랜드 커넥트 캠페인 + 앱 가입전환 세션.</b> ① 리워드 계산 중 가격 불일치 발견 → <b>구독 정가 월 4,900원 통일</b>(billing.ts 1,900→4,900·care/me·terms와 일치, <code>e287165</code>) ② <b>가입 동의 체크박스 간소화</b> — "국외(미국) 이전" 문구 삭제→개인정보처리방침으로(<code>da6e428</code>) ③ 랜딩 가짜 "지우 두부" 편지 → <b>아린 실발행 편지 기반 교체</b>(시금치·수저컵, <code>2c5aca2</code>) ④ 로그아웃 홈에 <b>플로팅 로그인 버튼</b>(우측하단·하단탭 위, <code>1994f47</code>) ⑤ 캠페인 구글 닥스 v3(식단표분석 영상 → 코칭 12개월 이용권). <span style="color:#1B5E20">4배포·vitest 636 통과 · v4 카피 확정 대기.</span></p>
+  <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
+</a>
 <a href="/worklog-2026-07-07-c.html" class="doc-card cat-app">
   <span class="badge new">📓 신규</span>
   <div class="ico">📓</div>
@@ -561,13 +568,6 @@
       <p class="desc"><b>남양주 캠프 PDF→편집가능 PPT 변환 세션(병행 · 오늘 4번째).</b> ① <b>인증서 통이미지 적발</b> — 배경 PNG 1장+이름칸뿐이라 편집 불가 → HTML 소스로 <b>30개 네이티브 요소</b> 재구성 ② <b>PDF→네이티브 변환기</b>(<code>pdf2pptx.py</code>) — 로고 알파·뱃지 z순서·민트박스 클리핑(면적정렬) 해결 ③ <b>폰트 함정</b> — 맑은고딕 대체+미리보기가 줄바꿈 무시로 글자 터짐 → <b>Apple SD Gothic Neo</b>+박스확장, <code>qlmanage</code>로 재검증 ④ <b>A2 사진 크롭</b> — clip 추출해 PowerPoint 네이티브 크롭 ⑤ <b>A0 22장</b>(<code>pdf2pptx_a0.py</code>) — 배경 도형재현·픽셀차분 색·공백복원·이모지 이미지. <span style="color:#1B5E20">4종 전부 통이미지 0 · 전달 폴더 산출(deploy 무관).</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-30-c.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-30 (c) — 편식 46편: Cooke 2007 출처 오귀속 교정 → 검증된 유전율(78%)로 슬롯 교체 → 배포</h4>
-      <p class="desc"><b>블로그·출처교정·배포 세션(병행 · 오늘 3번째).</b> ① <b>자동 다음 슬롯 46이 깨짐</b> — <code>Cooke 2007</code>은 실제로 「음식 신공포증 유전율 0.78」(쌍둥이 5,390쌍) 연구라 "청소년 70% 지속"은 출처 오귀속 + 49·207편 3중 중복 + 루시 쿡 40편 반복 ② <b>가드 E로 슬롯 교체</b> — 검증된 유전율(새것 무서워하는 기질 78% 유전→부모 탓 아님)로 046.md 작성·위원회 6명 통과, CSV 46 교정·49/207 ⚠플래그 ③ <b>배포 6단계</b> — 발행일 마킹·INFOGRAPHICS·빌드·앱 팁 upsert·메인 카드 042→046·푸시(<code>f265cb0</code>). <span style="color:#1B5E20">렌더 13/13 · mealfred.com/blog/046.html 라이브.</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
         </div>
 </section>
 
@@ -603,7 +603,7 @@
 <script>
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
-  var DOC_DATES = {'/worklog-2026-07-07-c.html':{c:'2026-07-08',m:'2026-07-08'},'/worklog-2026-07-04-b.html':{c:'2026-07-04',m:'2026-07-08'},'/worklog-2026-07-07-b.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-07.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-c.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-b.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-06.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
+  var DOC_DATES = {'/worklog-2026-07-08.html':{c:'2026-07-08',m:'2026-07-08'},'/worklog-2026-07-07-c.html':{c:'2026-07-08',m:'2026-07-08'},'/worklog-2026-07-04-b.html':{c:'2026-07-04',m:'2026-07-08'},'/worklog-2026-07-07-b.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-07.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-c.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-b.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-06.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
     '/worklog-2026-07-04.html':{c:'2026-07-04',m:'2026-07-04'},
     '/worklog-2026-07-03.html':{c:'2026-07-03',m:'2026-07-03'},
     '/worklog-2026-07-02.html':{c:'2026-07-02',m:'2026-07-02'},
