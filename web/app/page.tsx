@@ -710,8 +710,8 @@ export default function Home() {
               </>
             ) : (
               <>
-                <div className="text-sm font-extrabold leading-snug mb-1.5" style={{ color: '#1a2b4a' }}>&ldquo;집 끼니에 콩류가 잘 안 올라오네요. 지우가 잘 먹는 밥에 두부를 아주 잘게 으깨 섞어보세요.<br />또래 아이들은 두부를 순두부찌개나 유부된장국으로도 자주 먹어요 — 익숙한 것 옆에 조금씩이면 충분해요.&rdquo;</div>
-                <div className="text-[11.5px] leading-relaxed" style={{ color: '#5a4a3a' }}><span className="italic">과일은 끼니에 섞지 말고 오후 간식으로 따로 챙겨주면 좋아요.</span><br />매일 식단만 기록하면, 코치가 이렇게 우리 아이 데이터에 맞춰 답장을 드려요.</div>
+                <div className="text-[13px] font-semibold leading-relaxed" style={{ color: '#1a2b4a' }}>며칠 전 감자빵 반쪽을 남겼던 아침, 프렌치토스트도 조금만 먹었던 날이 있었죠. 그런 날에도 지우는 식탁에 앉아 있었고, 그 자체가 의미 있는 순간이었어요. 어린이집 급식이 전체 영양은 든든히 채워주고 있으니, 집에서는 &lsquo;무얼 더 먹일까&rsquo;보다 편안하게 식탁에 머무는 연습에 집중하면 돼요. 오늘 저녁, 식탁에 앉기 전에 지우에게 수저와 컵을 놓는 작은 역할을 맡겨보세요 &mdash; &lsquo;이제 우리 밥 먹을 시간이구나&rsquo; 하는 신호가 되어, 화면 없이도 식탁에 머무는 시간이 조금씩 길어질 거예요.</div>
+                <div className="text-[11.5px] leading-relaxed mt-2" style={{ color: '#5a4a3a' }}>매일 식단만 기록하면, 코치가 이렇게 우리 아이 데이터에 맞춰 답장을 드려요.</div>
               </>
             )}
             {/* 지난 편지 — 오랜만에 온 엄마가 흐름을 다시 읽게 */}
