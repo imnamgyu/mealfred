@@ -424,10 +424,17 @@
 <section class="cat-section">
   <div class="cat-head">
     <h3>📓 작업 일지 (세션 로그)</h3>
-    <span class="cnt">세션 51</span>
+    <span class="cnt">세션 52</span>
     <span class="note">세션 종료 시 <code>/mealfred-worklog</code>가 자동 기록 — 그날 한 일·산출물·커밋·결정. 최신순. (월간 타임라인은 위 <a href="/worklog.html">업무일지</a>.)</span>
   </div>
   <div class="doc-grid">
+<a href="/worklog-2026-07-09.html" class="doc-card cat-app">
+  <span class="badge new">📓 신규</span>
+  <div class="ico">📓</div>
+  <h4>07-09 — 편식 58편(자폐×편식·감각 프레임) 작성→3각 검증→6인 위원회→배포</h4>
+  <p class="desc"><b>편식 블로그 세션(ultracode·멀티에이전트).</b> ① 슬롯 판단 — <b>56(비타민D)은 발행대기 초안</b> 발견·9(시청가이드) skip·58 확정 ② <b>ASD×편식 3각 검증 워크플로</b> → 가드E: CSV "JAMA Pediatrics" 오귀속 → <b>Mayes &amp; Zickgraf 2019(RASD)</b>·70.4%는 '비전형적 식행동'(편식은 최다 하위 88%)·인과 ASD→편식 한 방향 ③ 58편 작성 — 스케어훅 버리고 <b>'편식=고집 아닌 감각' 자책완화</b>·일반5%vs자폐70% 대비·"편식한다고 자폐 아님" 명시 ④ <b>6인 위원회 워크플로 전원 approve</b> ⑤ 배포(발행일·인포그래픽·앱팁·메인카드 051→058, <code>35dbc00</code>). <span style="color:#1B5E20">라이브 blog/058.html · app/tips.</span></p>
+  <div class="meta"><span>세션 로그</span><span class="arrow">→</span></div>
+</a>
 <a href="/worklog-2026-07-08.html" class="doc-card cat-app">
   <span class="badge new">📓 신규</span>
   <div class="ico">📓</div>
@@ -561,13 +568,6 @@
       <p class="desc"><b>NEIS 전국 수집·순위표 공개화·미꾸라지 등재 세션(병행 · 오늘 5번째).</b> ① <b>급식 순위표 공식 공개</b> — docs-gate 해제·메인 타일 교체·<b>편식코칭앱 유입 CTA</b>·후킹 카피(<code>f8bdeac</code>·<code>4f38cef</code>) ② ⭐ <b>NEIS Open API 전국 초등 수집</b> — schoolInfo+mealServiceDietInfo로 <b>1,501교·288,797끼니</b> OCR 없이 적재, 유치원=식단표 API 없음 확인(<code>f965fde</code>·<code>23b538f</code>) ③ <b>닭간(내장류) 회수</b> — 영유아 부적합+닭간장 오분해 → 전면 제거, 떡갈비 메인반찬 교정(<code>2ebea78</code>·<code>1c0bf8f</code>) ④ 순위표 전국 재집계·캐논 누수(꽈배기→빵)(<code>bf1dcd7</code>·<code>fec05ea</code>) ⑤ ⭐ <b>미꾸라지 완전등재</b> — DB·enriched·food-graph 사촌·제철·cookie지도 7파이프라인(<code>2dc0201</code>). <span style="color:#1B5E20">순위표 백본 28만 끼니로 확장 · 미꾸라지 앱 검색 즉시 라이브.</span></p>
       <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
     </a>
-    <a href="/worklog-2026-06-30-d.html" class="doc-card cat-app">
-      <span class="badge new">📓 신규</span>
-      <div class="ico">📓</div>
-      <h4>2026-06-30 (d) — 남양주 캠프 PDF를 '통이미지' 아닌 진짜 요소 PPT로 (인증서·교안·레시피·22장 수업덱)</h4>
-      <p class="desc"><b>남양주 캠프 PDF→편집가능 PPT 변환 세션(병행 · 오늘 4번째).</b> ① <b>인증서 통이미지 적발</b> — 배경 PNG 1장+이름칸뿐이라 편집 불가 → HTML 소스로 <b>30개 네이티브 요소</b> 재구성 ② <b>PDF→네이티브 변환기</b>(<code>pdf2pptx.py</code>) — 로고 알파·뱃지 z순서·민트박스 클리핑(면적정렬) 해결 ③ <b>폰트 함정</b> — 맑은고딕 대체+미리보기가 줄바꿈 무시로 글자 터짐 → <b>Apple SD Gothic Neo</b>+박스확장, <code>qlmanage</code>로 재검증 ④ <b>A2 사진 크롭</b> — clip 추출해 PowerPoint 네이티브 크롭 ⑤ <b>A0 22장</b>(<code>pdf2pptx_a0.py</code>) — 배경 도형재현·픽셀차분 색·공백복원·이모지 이미지. <span style="color:#1B5E20">4종 전부 통이미지 0 · 전달 폴더 산출(deploy 무관).</span></p>
-      <div class="meta"><span>세션 로그 · 병행</span><span class="arrow">→</span></div>
-    </a>
         </div>
 </section>
 
@@ -603,7 +603,7 @@
 <script>
 (function(){
   // 각 문서의 생성·수정일 (git 이력 기준, YYYY-MM-DD)
-  var DOC_DATES = {'/worklog-2026-07-08.html':{c:'2026-07-08',m:'2026-07-08'},'/worklog-2026-07-07-c.html':{c:'2026-07-08',m:'2026-07-08'},'/worklog-2026-07-04-b.html':{c:'2026-07-04',m:'2026-07-08'},'/worklog-2026-07-07-b.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-07.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-c.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-b.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-06.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
+  var DOC_DATES = {'/worklog-2026-07-09.html':{c:'2026-07-09',m:'2026-07-09'},'/worklog-2026-07-08.html':{c:'2026-07-08',m:'2026-07-08'},'/worklog-2026-07-07-c.html':{c:'2026-07-08',m:'2026-07-08'},'/worklog-2026-07-04-b.html':{c:'2026-07-04',m:'2026-07-08'},'/worklog-2026-07-07-b.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-07.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-c.html':{c:'2026-07-07',m:'2026-07-07'},'/worklog-2026-07-06-b.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-06.html':{c:'2026-07-06',m:'2026-07-06'},'/worklog-2026-07-05-b.html':{c:'2026-07-05',m:'2026-07-06'},'/worklog-2026-07-05.html':{c:'2026-07-05',m:'2026-07-05'},'/worklog-2026-07-03-b.html':{c:'2026-07-05',m:'2026-07-05'},
     '/worklog-2026-07-04.html':{c:'2026-07-04',m:'2026-07-04'},
     '/worklog-2026-07-03.html':{c:'2026-07-03',m:'2026-07-03'},
     '/worklog-2026-07-02.html':{c:'2026-07-02',m:'2026-07-02'},
