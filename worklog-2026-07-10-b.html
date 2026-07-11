@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-07-10~11 — 영유 영어커리큘럼 리서치·개발계획 v1.1 · 위키 개칭 · LLM위키 시스템 구축</title>
+<meta property="og:title" content="작업 일지 2026-07-10~11 — 영유 리서치 21에이전트 · 개발계획 v1.1 · 밀프레드 위키 시스템">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 위키</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-07-10 ~ 07-11 · 영유 영어커리큘럼·위키 시스템 세션 (병행)</div>
+  <h1>영유 리서치 21에이전트 → 개발계획 v1.1 · 문서허브→위키 개칭 · LLM위키 시스템 자체 구축</h1>
+  <p class="sub">"영유 교육이론 문서정리" 한 마디가 → 리서치 정본 → 검토 보고서 → 위키 개칭 → 카파시 패턴 자체 구현까지 확장된 메가세션.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">21</div><div class="l">리서치 에이전트 (영유 14 + LLM위키 7)</div></div>
+    <div class="gcard"><div class="n">5중</div><div class="l">영유 화이트스페이스 확인</div></div>
+    <div class="gcard"><div class="n">v1.1</div><div class="l">개발계획 구글닥스 (결정 6건 대기)</div></div>
+    <div class="gcard"><div class="n">395</div><div class="l">지식층 64일치 체크포인트 커밋</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>영유(영어유치원) 9각도 리서치 → 정본 3건</h2><span class="commit">wf_50db640b</span></div>
+    <ul class="wl">
+      <li>울트라코드 워크플로우: 9각도 병렬 웹리서치 + 완결성 크리틱 + 보강 4건(식품법규·구매결정·책임/알레르겐·레벨링) — <b>14 에이전트 · 463 도구호출</b>.</li>
+      <li>⭐<b>화이트스페이스 5중 확인</b>: 대형 8브랜드 쿠킹 정규과목 전무 · '영어요리' 전문업체 국내외 부재 · Sapere×영어 상용품 없음. <b>2026-09 레벨테스트 금지 = 놀이형 전환 순풍</b>(업계 가이드 예시가 "요리 놀이 Can you pass me the carrot?").</li>
+      <li>⏰<b>영업 데드라인 = 2027학년도 정규 편성 계약 9~10월 초</b>(설명회 10~11월). 레벨링 3단 수렴(pre-A1/A1/A2 = 5/6/7세) · 알레르겐 한국형(우유·계란·밀·호두).</li>
+    </ul>
+    <div class="out"><b>산출</b> · <code>11_영유_영어커리큘럼/</code> 원자료 풀덤프 144KB(출처 전량) + 리서치 정본 + 제작계획 초안 · 위키 게시 <a href="/yeongyu-english-plan.html">yeongyu-english-plan.html</a></div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>기존 키트 실사 + 개발계획 보고서 v1.1 (검토 대기)</h2><span class="commit">gdocs 1kM-Yt…</span></div>
+    <ul class="wl">
+      <li>메뉴.zip(별칭) → 원본 실사: <b>완성 메뉴 20종 × 자료 4종 세트</b>(실사진 레시피 포스터·조리영상·성분표·상세페이지) 기존재 — 해외 벤치마크 키트 요건 대부분 충족.</li>
+      <li>이사님 정정 반영: 지마켓·11번가 <b>실판매가 전수 실측</b>(4인용 15,900~29,960원·중심 19,950원) → v1.0 폐기·v1.1 재제출.</li>
+      <li>⭐계획 대전환: 신규 개발 = <b>'영어 수업 레이어' 8종뿐</b>(축어대본 tight/loose·영어 포스터·플래시카드·워크시트 3레벨·챈트·알레르겐 시트·Daily Note·수용도 체크리스트). 1호 유닛 = 화전→과일샌드→주먹밥→꼬마김밥.</li>
+    </ul>
+    <div class="out"><b>대기</b> · 이사님 결정 6건(프로그램명·1호 유닛·물성·파일럿 규모·가격·착수) → 승인 시 Phase 0 제작(~2주)</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>문서허브 → '밀프레드 위키' 개칭 + 영유 B2B 섹션 + 세션시작 위키 우선</h2><span class="commit">aa26ee4</span></div>
+    <ul class="wl">
+      <li>docs.html 개칭(타이틀·히어로·푸터) + <b>🏫 영유 B2B 섹션 신설</b> + 개발계획 페이지 게시.</li>
+      <li>SessionStart 훅 확장: <b>위키 문서 인덱스(전 섹션·카드) 매 세션 자동 주입</b> — "새 작업 전 정본 존재 확인"의 기계화. deploy/CLAUDE.md "⓪ 위키 먼저" 규칙.</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>카파시 LLM Wiki 리서치 → 시스템 자체 구축 (스킬 미설치)</h2><span class="commit">1104837</span></div>
+    <ul class="wl">
+      <li>구현체 5종+실사용 후기 정독(7 에이전트) — 만장일치 1위 실패요인 = <b>드리프트</b>, 해법 = 정기 결정론 lint. 해킹 리스크로 코드 반입 0, 아이디어만 자체 구현.</li>
+      <li><b><code>WIKI.md</code> 헌법</b>(3층 구조·권한 매트릭스·컴파일/인용 규약) · <b><code>tools/wiki_lint.py</code></b>(0.4초, 훅이 매 세션 자동 실행 — 첫 실행에서 고아 메모리 4건·64일 미커밋 실적발) · <b><code>review.json</code></b> 영속 큐 · <b>가정 레지스터</b>(임의 제안치 10건 추적) · <b><code>synthesis/</code></b> 합성층 1호.</li>
+      <li>worklog 스킬 v3: 마감에 위키 3종+지식층 커밋 추가. 편식극복키트 = 로컬 git repo 확인(옛 '미추적' 기록 정정) → <b>64일치 395파일 체크포인트 커밋</b>.</li>
+    </ul>
+    <div class="out"><b>한몸 구조</b> · 지식층(편식극복키트)=진실 → 출판층(위키)=파생 → 세션층(memory)=포인터, 이탈은 lint가 감지·큐가 기억·훅이 매 세션 보고</div>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li><b>이사님</b>: ① 영유 v1.1 구글닥스 검토(결정 6건) ② 지식층 원격 백업(GitHub private) 결정 ③ 트렐로 연동 시 API 키 ④ v1.0 구글닥스 삭제.</li>
+      <li>다음 세션: 결정 수신 → Phase 0 제작(파일럿 4회차 자료+원장 제안서+시연 킷). 7월 3주차 착수가 데드라인 역산상 안전.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-07-10~11 · <a href="/docs.html">위키</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
