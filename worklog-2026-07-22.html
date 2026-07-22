@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-07-22 — 계약서 v13 최종본 적대검증 10에이전트 · 내부 오류·모순 12건</title>
+<meta property="og:title" content="작업 일지 2026-07-22 — 마곱간 계약서 v13 이사님 수정본 적대검증 · 5렌즈 10에이전트 · 결함 12건 + 조항 상담">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">&larr; 문서 허브</a> &middot; 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-07-22 · 문현곱창 매각 — 계약서 v13 최종본 적대검증</div>
+  <h1>이사님 수정본 v13 적대검증 10에이전트 → 내부 오류·모순 12건 발견 + 조항별 상담</h1>
+  <p class="sub">서명 직전 계약서를 5개 렌즈로 재검증했다. 존재하지 않는 날짜, 별지-본문 개수 충돌, 자기참조, 경업금지 역전 등 을 측 변호사가 바로 짚을 결함을 잡아냈고, 스토어 이용권과 브랜드 대금의 관계를 명확히 했다.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">10</div><div class="l">검증 에이전트 (5렌즈+재검증)</div></div>
+    <div class="gcard"><div class="n">12</div><div class="l">확정 결함 (오탐 1건 제외)</div></div>
+    <div class="gcard"><div class="n">5</div><div class="l">🔴 반드시 수정 (내부 오류)</div></div>
+    <div class="gcard"><div class="n">7/24</div><div class="l">계약금 입금 예정 (임박)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>v13 이사님 수정본 적대검증 — 5개 렌즈 + 재검증</h2><span class="commit">검증 10</span></div>
+    <ul class="wl">
+      <li>어제 확정한 v13을 이사님이 직접 여러 군데 수정한 최종 후보본을 재검증. 상호참조·날짜/숫자·경업금지·매도인 보호·이행가능성 5개 렌즈를 병렬로 돌리고 렌즈마다 적대적 재검증을 붙였다.</li>
+      <li>핵심 발견 — <b>수정 과정에서 조항을 지우고 바꾸며 번호·참조·개수가 깨졌다.</b> 원안에 있던 안전장치가 빠진 자리에 새 결함이 생겼다.</li>
+      <li>재검증으로 오탐 1건(제6조 &ldquo;9,000만원 누계&rdquo; 이중지급 우려)을 걸러냈다 — 다른 조항이 이미 해소.</li>
+    </ul>
+    <div class="out"><b>방법</b> · 문서는 수정하지 않고(이사님 지시) 발견만 심각도순으로 보고. 확정 12건 중 5건은 내부 오류(반드시 수정), 3건은 보호 공백(복원 권고), 나머지는 명확화.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>🔴 반드시 고쳐야 할 내부 오류·모순 5건</h2><span class="commit">critical</span></div>
+    <ul class="wl">
+      <li><b>제6조 &ldquo;2027년 4월 31일&rdquo;</b> — 존재하지 않는 날짜(4월은 30일까지). 다른 조항·별지는 &ldquo;3월 31일&rdquo;이라 협의 마감일이 어긋난다.</li>
+      <li><b>별지 2 &ldquo;두 가지&rdquo; vs 제12조 &ldquo;세 가지&rdquo;</b> — 을이 서명하는 고지서와 본문의 경업금지 개수가 정면 충돌.</li>
+      <li><b>제4조 &ldquo;3영업일&rdquo; vs 별지4 &ldquo;5영업일&rdquo;</b> + 기계 인도 타이밍 모순 — 갑이 8/13까지 영업하는데 유일 생산설비를 7/29에 넘기면 양념장을 못 만든다.</li>
+      <li><b>제7조(완납 후 위반 시 해지) vs 제10조(완납 후 해지 불가)</b> 정면충돌 · <b>제10조 5항 자기참조</b>(&ldquo;제5항 외의 부분&rdquo;이 제5항 안에 있음).</li>
+    </ul>
+    <div class="out"><b>원인</b> · 최소실적 해지권 등을 삭제하며 항 번호가 밀렸는데 참조는 안 고쳐졌고, 경업금지 3호를 추가하며 별지 숫자를 안 맞췄다. 모두 을 측이 바로 지적할 부분이라 서명 전 필수 수정.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>🟠 담백화 과정에서 빠진 매도인 보호 공백</h2><span class="commit">복원 권고</span></div>
+    <ul class="wl">
+      <li><b>해지해도 기계·프로그램·협업 리스트가 안 돌아온다</b> — 을이 계약금 2,000만원만 내고 해지돼도 사출기·교반기·리스트 1,000건을 그대로 보유(리스트는 개인정보라 파기 안 하면 갑의 개보법 책임 잔존).</li>
+      <li><b>고객정보 위탁 위반 위약벌 삭제</b> — 동종 경쟁사인 을이 알림받기 5만 명 DB를 자기 채널로 빼가도 제재가 없다.</li>
+      <li><b>상표 이전등록 협력 의무 없음</b> — 등록상표면 완납해도 을이 상표를 실제 취득하지 못해 이행청구 소지.</li>
+    </ul>
+    <div class="out"><b>주의</b> · 완납 기한·최소실적 해지권을 없앤 건 이사님 결정(&ldquo;계속 영업할 거니까&rdquo;)이라 재권유하지 않되, 레시피가 3영업일 내 전부 넘어가는데 완납 강제 장치가 없다는 사실은 짚어둠.</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>이사님 결정·조항 상담</h2><span class="commit">상담</span></div>
+    <ul class="wl">
+      <li><b>곱창 밀키트 사업 &ldquo;접을 예정&rdquo;</b> → 경업금지 3호는 의도와 부합. 단 &ldquo;곱창관련&rdquo;을 &ldquo;곱창전골&rdquo;로 좁히고, 푸드희스토리(식자재 공급)는 명시 배제 권고.</li>
+      <li><b>제10조 5항</b> — 자기참조를 없애려면 단서를 삭제하는 게 깔끔(제6조 5항이 이미 완납 후 이용료 미납 시 전환을 커버).</li>
+      <li><b>스토어 이용권은 브랜드 대금과 별개인가</b> → <b>별개 맞음.</b> 을 채널 전환 10%는 누계에 쌓여 완납·브랜드 이전으로 가지만, 스토어 계속 사용 10%는 이용료라 누계에 안 쌓여 <b>완납이 구조적으로 안 될 수 있다</b>(브랜드가 계속 갑 소유).</li>
+    </ul>
+    <div class="out"><b>결정 대기</b> · 스토어 계속 사용을 &ldquo;임대(브랜드는 계속 우리 것)&rdquo;로 볼지, &ldquo;완납되면 브랜드 넘기고 이후 이용료 별개&rdquo;로 볼지 — 이사님 의도 확정 후 v14 작성.</div>
+  </section>
+
+  <div class="next">
+    <h3>🔜 이사님 결정 대기 (v14 작성 전)</h3>
+    <ul>
+      <li><b>스토어 이용권 구조</b>: 완납 불가(임대) vs 완납 후 이용료 별개 — 둘 중 택일.</li>
+      <li><b>경업금지</b>: 3호를 &ldquo;곱창전골 밀키트&rdquo;로 좁힐지 + 푸드희스토리 배제 문구.</li>
+      <li><b>보호 공백 복원 여부</b>: 해지 시 기계·리스트 반환 / 고객정보 위약벌 / 상표 이전등록.</li>
+      <li><b>7/24 입금 전</b>: 변호사 검토 → 수·목 서명 · 빈칸 확정(법인·가액배분·KIPRIS 상표) · 세무사 6건 · 나머지 인수후보 3곳 마감통보.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-07-22 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
