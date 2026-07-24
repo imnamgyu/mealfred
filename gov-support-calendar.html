@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>정부지원사업 지원 캘린더 — 편식·영유아 식생활 × 초기 스타트업 (2026 하반기~2027)</title>
+<meta property="og:title" content="밀프레드 정부지원사업 지원 캘린더">
+<meta property="og:description" content="식약처·복지부·농식품부·서울시·부산 7방향 스윕, 29건 공고 URL 검증. 지금 모집 중 D-day부터 2027 연례 공고까지.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB;--bg-warm-1:#FFE8D0;--bg-warm-2:#FFDBB8;--bg-warm-3:#FFD0A0;
+    --bg-soft:#FFFBF5;--bg-soft-2:#FFF9F3;--bg-page:#FAFAF7;
+    --orange-main:#FF6B1A;--orange-soft:#FF8A47;--orange-deep:#C45A00;
+    --orange-tint:rgba(255,107,26,0.1);--orange-tint-line:rgba(255,107,26,0.25);
+    --navy:#1a2b4a;
+    --brown-deep:#3a2a1a;--brown-mid:#5a4a3a;--brown-soft:#8a7a6a;
+    --green-bg:#E8F5E9;--green-fg:#2D8B4E;--green-deep:#1B5E20;
+    --warn-bg:#FFF8E1;--warn-deep:#F57F17;
+    --red-bg:#FFEBEE;--red-fg:#E53935;--red-deep:#C62828;
+    --blue-bg:#E3F2FD;--blue-fg:#1565C0;
+    --n200:#E5E7EB;--n500:#6B7280;
+    --card-border:#FFE8D0;
+    --card-shadow-sm:0 2px 16px rgba(0,0,0,0.05);
+    --r-sm:8px;--r:14px;--r-pill:100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg-page);color:var(--navy);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);padding:54px 20px 40px;text-align:center;color:var(--brown-deep)}
+  .hero-inner{max-width:860px;margin:0 auto}
+  .hero .tag{display:inline-block;background:var(--orange-tint);border:1px solid var(--orange-tint-line);color:var(--orange-deep);padding:7px 18px;border-radius:var(--r-pill);font-size:12px;font-weight:700;letter-spacing:0.04em;margin-bottom:16px}
+  .hero h1{font-size:clamp(24px,4.6vw,34px);font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.25;margin-bottom:12px}
+  .hero h1 .accent{color:var(--orange-soft)}
+  .hero p{font-size:14.5px;color:var(--brown-mid);font-weight:500;margin:0 auto 6px;line-height:1.75;max-width:680px}
+  .hero p strong{color:var(--orange-deep);font-weight:700}
+  .hero-meta{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .hero-meta .pill{background:rgba(255,255,255,0.6);border:1px solid var(--orange-tint-line);color:var(--brown-mid);font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:var(--r-pill)}
+  .toc{background:white;border-bottom:1px solid var(--card-border);padding:12px 20px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1000px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--brown-mid);font-weight:700;padding:6px 11px;border-radius:var(--r-pill);background:var(--bg-soft);text-decoration:none;flex-shrink:0;transition:all .15s}
+  .toc a:hover{background:var(--orange-main);color:white}
+  main{max-width:1000px;margin:0 auto;padding:26px 24px 48px}
+  section{margin-bottom:44px;scroll-margin-top:60px}
+  h2{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:6px;padding-bottom:8px;border-bottom:3px solid var(--orange-main)}
+  .sub{font-size:13px;color:var(--brown-soft);font-weight:600;margin-bottom:14px}
+  p{font-size:14px;color:var(--brown-mid);font-weight:500;margin-bottom:10px}
+  strong{color:var(--navy);font-weight:700}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--card-border);border-radius:var(--r);background:white;box-shadow:var(--card-shadow-sm);margin:14px 0}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+  th{background:var(--bg-soft-2);color:var(--brown-deep);font-weight:800;text-align:left;padding:10px 13px;border-bottom:2px solid var(--card-border);white-space:nowrap}
+  td{padding:9px 13px;border-bottom:1px solid #F3EDE5;color:var(--brown-mid);font-weight:500;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .dday{display:inline-block;font-weight:800;font-size:12px;padding:2px 9px;border-radius:var(--r-pill);white-space:nowrap}
+  .d-red{background:var(--red-bg);color:var(--red-deep)}
+  .d-warn{background:var(--warn-bg);color:var(--warn-deep)}
+  .d-ok{background:var(--green-bg);color:var(--green-deep)}
+  .prog{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:16px 18px;margin-bottom:12px;box-shadow:var(--card-shadow-sm)}
+  .prog .head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:5px}
+  .prog h4{font-size:15px;font-weight:800;color:var(--navy);line-height:1.4}
+  .prog .agency{font-size:11.5px;color:var(--brown-soft);font-weight:700}
+  .prog .row{font-size:13px;color:var(--brown-mid);margin-top:4px;line-height:1.65}
+  .prog .row b{color:var(--orange-deep);font-weight:800;font-size:12px;margin-right:4px}
+  .prog .note{margin-top:8px;background:var(--bg-soft);border-left:3px solid var(--orange-soft);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:7px 11px;font-size:12.5px;color:var(--brown-mid)}
+  .prog .note.warn{border-left-color:var(--red-fg);background:var(--red-bg)}
+  .prog a.src{font-size:11.5px;color:var(--blue-fg);font-weight:700;text-decoration:none}
+  .prog a.src:hover{text-decoration:underline}
+  .chip{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);vertical-align:middle}
+  .c-open{background:var(--green-bg);color:var(--green-deep)}
+  .c-soon{background:var(--blue-bg);color:var(--blue-fg)}
+  .c-always{background:var(--bg-warm-1);color:var(--orange-deep)}
+  .c-annual{background:#F3E5F5;color:#7B1FA2}
+  .c-ref{background:var(--n200);color:var(--n500)}
+  .c-fit{background:var(--warn-bg);color:var(--warn-deep)}
+  .draft{background:linear-gradient(135deg,var(--bg-soft-2),#fff);border:1px solid var(--card-border);border-left:5px solid var(--orange-main);border-radius:var(--r);padding:20px 22px;margin:14px 0;box-shadow:var(--card-shadow-sm)}
+  .draft h4{font-size:14px;font-weight:800;color:var(--orange-deep);margin-bottom:8px}
+  .draft .body{font-size:13.5px;color:var(--brown-deep);font-weight:500;line-height:1.85;white-space:pre-wrap}
+  .draft .body .blank{background:var(--warn-bg);color:var(--warn-deep);font-weight:800;padding:1px 6px;border-radius:4px}
+  .guard{background:var(--bg-soft);border:1px dashed var(--orange-tint-line);border-radius:var(--r);padding:14px 18px;font-size:12.5px;color:var(--brown-mid);margin-top:10px}
+  .guard b{color:var(--red-deep)}
+  footer{text-align:center;padding:26px 20px 40px;font-size:12px;color:var(--brown-soft);font-weight:600}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="tag">🏛️ 정부지원 · 지원 캘린더</span>
+    <h1>정부지원사업 지원 캘린더<span class="accent">.</span><br>편식·영유아 식생활 × 초기 스타트업</h1>
+    <p><strong>식약처 · 보건복지부 · 농식품부 · 서울시 · 부산 · 중기부(K-Startup)</strong> 7방향 병렬 스윕으로 후보 30건을 모아, 건별로 <strong>공고 원문 URL을 다시 열어 기간·금액·신청자격을 재검증</strong>했습니다(29건 실존 확인). 사업계획서 Q3 '사업화 계획'에 "지원하겠다"고 쓸 수 있는 것만 단계별로 배치.</p>
+    <div class="hero-meta">
+      <span class="pill">기준일 2026-07-24</span>
+      <span class="pill">검증 29건 + 확보 2건</span>
+      <span class="pill">에이전트 36 · 전 건 원문 대조</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc"><div class="toc-inner">
+  <a href="#timeline">⏰ 마감 타임라인</a>
+  <a href="#open">① 지금 모집 중</a>
+  <a href="#soon">② 하반기 예정</a>
+  <a href="#always">③ 상시</a>
+  <a href="#annual">④ 연례(2027)</a>
+  <a href="#ref">⑤ 참고</a>
+  <a href="#draft">📝 사업계획서 문안</a>
+  <a href="#method">🔍 검증 방법</a>
+</div></nav>
+
+<main>
+
+<section id="timeline">
+  <h2>⏰ 마감 타임라인 — 지금 움직여야 하는 것</h2>
+  <p class="sub">기준일 2026-07-24(금). 마감 시각까지 표기 — 공고별 시간 컷이 다르니 주의.</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>마감</th><th>D-day</th><th>사업</th><th>핵심 지원</th><th>자격 게이트</th></tr>
+    <tr><td><b>7/24(금) 16:00</b></td><td><span class="dday d-red">오늘</span></td><td>부산대병원 의료·헬스케어 스타트업 인큐베이터</td><td>최대 1,500만원 (임상전문가 멘토링·시작품)</td><td>업력 3년 이내·예비 가능, 이메일 접수</td></tr>
+    <tr><td>7/28(화) 18:00</td><td><span class="dday d-red">D-4</span></td><td>식품 데이터 기반 상품화·제품화 기술지원</td><td>최대 1,360만원 (데이터 분석 바우처)</td><td>사업자 필요 (예비 불가)</td></tr>
+    <tr><td>7/29(수) 17:59</td><td><span class="dday d-red">D-5</span></td><td>제8회 B-스타트업챌린지</td><td>5개사 총 3억원 투자 + MBC 방영</td><td>창업 5년 이내·예비 가능(수상 후 1개월 내 법인)</td></tr>
+    <tr><td>7/31(금) 18:00</td><td><span class="dday d-warn">D-7</span></td><td>청년식품 창업캠프 (식품진흥원)</td><td>무료 교육·합숙 + 수상 시 K-푸드 사관학교 서류면제</td><td>만 19~39세 <b>예비창업자만</b>(사업자등록 있으면 불가)</td></tr>
+    <tr><td>7/31(금) 23:59</td><td><span class="dday d-warn">D-7</span></td><td>HUG UP 청년 예비창업가 육성 (사회서비스)</td><td>팀당 1,000만원 + 컨설팅 5회</td><td>만 18~39세 <b>예비창업자만</b>·부산 창업 의지</td></tr>
+    <tr><td>8/3(월) 14:59</td><td><span class="dday d-warn">D-10</span></td><td>부경대 창업보육센터 9월 입주</td><td>입주공간 + 산학협력 인프라</td><td>예비·초기 가능. <b>오후 3시 전 시간 컷</b></td></tr>
+    <tr><td>8/4(화) 18:00</td><td><span class="dday d-warn">D-11</span></td><td>롯데중앙연구소×스타트업 오픈이노베이션</td><td>PoC 최대 1,000만원 + 대기업 테스트베드</td><td>업력 7년 미만 <b>기창업만</b>(예비 불가)·총 1개사</td></tr>
+    <tr><td>8/10(월) 16:00</td><td><span class="dday d-ok">D-17</span></td><td>프리팁스(Pre-TIPS) 2차</td><td>평균 9,000만원(최대 1억)</td><td><b>투자 1,000만원 유치 완료</b>가 선결 — 이번 회차는 사실상 불가</td></tr>
+    <tr><td>8/19(수)</td><td><span class="dday d-ok">D-26</span></td><td>식약처 '단짠 탈출' 공모전</td><td>영상·포스터 상금(최우수 200만원·식약처장상)</td><td>국민 누구나 (개인/팀)</td></tr>
+  </table></div>
+</section>
+
+<section id="open">
+  <h2>① 지금 모집 중 <span class="chip c-open">신청 가능</span></h2>
+  <p class="sub">공고 원문에서 접수기간 확인 완료. 위 타임라인 순서대로.</p>
+
+  <div class="prog">
+    <div class="head"><h4>부산대학교병원 의료·헬스케어 스타트업 인큐베이터 (창업활력프로젝트)</h4><span class="agency">부산대학교병원</span></div>
+    <div class="row"><b>지원</b>2개 분야(예비·초기) 10개사, 업체당 최대 1,500만원 — 디지털헬스케어 창업컨설팅·임상전문가 멘토링·시작품 설계/제작</div>
+    <div class="row"><b>접수</b>2026-07-06 ~ <strong>07-24(금) 16:00</strong> · 이메일 접수(우편 불가) · 051-240-6860</div>
+    <div class="note warn">⚠️ 오늘 마감. 화이트보드의 "임상연구 ↔ 부산대 1,500만"이 바로 이 사업 — 사업계획서의 임상 협력 서사(부산대병원)와 직결되는 핵심 매칭.</div>
+    <div class="row"><a class="src" href="https://www.busanstartup.kr/biz_sup/2171?mcode=biz02" target="_blank">공고 원문 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>2026 식품 데이터 기반 상품화·제품화 기술지원</h4><span class="agency">한국식품산업클러스터진흥원(식품진흥원) · 농식품부</span></div>
+    <div class="row"><b>지원</b>선정기업당 최대 1,360만원 — 제품 기획~시장진입~판로 데이터를 전문 공급기업이 분석·제공(보고서·실행 권고안)</div>
+    <div class="row"><b>접수</b>2026-07-10 ~ <strong>07-28(화) 18:00</strong> · 디지털식품정보플랫폼(foodpolis.kr/dfip) 온라인</div>
+    <div class="note">현금이 아닌 데이터 분석 서비스 바우처형. 사업자 단위 신청(예비창업자 불가). 골고루 키트 시장적합성 데이터 확보 용도로 적합.</div>
+    <div class="row"><a class="src" href="https://www.foodpolis.kr/web/Board/4253/detailView.do" target="_blank">플랫폼 공고 게시판 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>제8회 창업투자경진대회 B-스타트업챌린지</h4><span class="agency">부산시 · BNK부산은행 · 부산MBC (주관 부산기술창업투자원·BNK벤처투자)</span></div>
+    <div class="row"><b>지원</b><strong>5개사 총 3억원 투자</strong> + MBC 방영 홍보 + 투자사 미팅·Pre-IR 코칭 + 차년도 SUM 인큐베이터</div>
+    <div class="row"><b>접수</b>2026-07-01 ~ <strong>07-29(수) 17:59</strong> · 부산창업포털 온라인(이메일 불가) · 051-715-1796</div>
+    <div class="note warn">⚠️ 화이트보드의 "부산은행 경진대회 1.5억"은 공고와 다름 — 정확 표기는 <strong>"5개사 총 3억원 투자"</strong>. 예비창업자도 가능(수상 후 1개월 내 법인 설립 조건).</div>
+    <div class="row"><a class="src" href="https://www.busanstartup.kr/biz_sup/2165?mcode=biz02" target="_blank">공고 원문 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>2026 하반기 청년식품 창업캠프</h4><span class="agency">한국식품산업클러스터진흥원(식품진흥원)</span></div>
+    <div class="row"><b>지원</b>참가 무료(합숙 숙식 제공) 20명 내외 — 식품창업 교육·제조 실습·경진대회(최우수 100만원), 수상 시 차년도 K-푸드 창업사관학교 서류평가 면제</div>
+    <div class="row"><b>접수</b>2026-06-29 ~ <strong>07-31(금) 18:00</strong> · 이메일 접수 · 교육 8월(온라인 10시간 + 합숙 2박3일)</div>
+    <div class="note warn">자격 게이트: 만 19~39세 <strong>예비창업자만</strong> — 모집 마감일 기준 본인 명의 사업자등록·법인등기가 없어야 함. 현재 사업자 보유 상태면 신청 불가.</div>
+    <div class="row"><a class="src" href="https://www.foodpolis.kr/web/Board/4253/detailView.do" target="_blank">공고 원문 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>HUG UP 청년 예비창업가 육성 프로그램 (사회서비스 분야)</h4><span class="agency">주택도시보증공사(HUG) · 운영 (재)큐네스티</span></div>
+    <div class="row"><b>지원</b>6팀 — 팀당 창업지원금 1,000만원(시제품·마케팅·인건비 사용 가능) + 비즈니스 컨설팅 5회 + 성과발표회</div>
+    <div class="row"><b>접수</b>2026-06-22 ~ <strong>07-31(금) 23:59</strong> · hugup-busan.com</div>
+    <div class="note warn">자격 게이트: 만 18~39세 <strong>예비창업가(사업자등록 전)</strong>, 부산 창업 의지 필수. 분야가 사회서비스(복지·보건·교육) — 편식 코칭 서사와 정합.</div>
+    <div class="row"><a class="src" href="https://www.busanstartup.kr/biz_sup/2163?mcode=biz02" target="_blank">공고 원문 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>부경대학교 창업보육센터 9월 신규 입주 기업 모집</h4><span class="agency">부경대학교 산학협력단</span></div>
+    <div class="row"><b>지원</b>창업보육센터 입주공간 + 대학 보육 프로그램·산학협력 인프라 (비용·공간 세부는 공고문 PDF)</div>
+    <div class="row"><b>접수</b>2026-07-21 ~ <strong>08-03(월) 14:59</strong> · 051-629-5205</div>
+    <div class="note">예비·초기창업자 가능. 부경대 교육학과 석사·디자인 에이전시 교구 설계 등 기존 부경대 연결과 한 줄로 이어지는 준비정도 서사 — 오후 3시 전 시간 컷 주의.</div>
+    <div class="row"><a class="src" href="https://www.busanstartup.kr/biz_sup/2184?mcode=biz02" target="_blank">공고 원문 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>롯데중앙연구소×스타트업 오픈이노베이션 챌린지 2026</h4><span class="agency">부산창조경제혁신센터 · 롯데중앙연구소</span></div>
+    <div class="row"><b>지원</b>PoC 지원금 최대 1,000만원 + 롯데중앙연구소 테스트베드·멘토링 + 투자 연계 검토 (선정 총 1개사)</div>
+    <div class="row"><b>접수</b>2026-07-22 ~ <strong>08-04(화) 18:00</strong> · 이메일 접수(051-749-8931)</div>
+    <div class="note">모집분야 ②"식품 섭취·소비 경험 혁신" ③"AI·Digital Food" — 편식 코칭+키트가 정면으로 맞는 드문 공고. 단 업력 7년 미만 <strong>기창업 스타트업만</strong>(예비 불가), 1개사 선정이라 경쟁 극심.</div>
+    <div class="row"><a class="src" href="https://www.busanstartup.kr/biz_sup/2190?mcode=biz02" target="_blank">공고 원문 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>프리팁스(Pre-TIPS) 2026년 2차</h4><span class="agency">중소벤처기업부 · 창업진흥원 (부산·경남권 운영사 로우파트너스)</span></div>
+    <div class="row"><b>지원</b>전국 65개사 — 사업화 자금 평균 9,000만원(최대 1억) + TIPS 연계</div>
+    <div class="row"><b>접수</b>2026-07-10 ~ <strong>08-10(월) 16:00</strong> · K-Startup</div>
+    <div class="note warn">하드 게이트: <strong>투자기관 1,000만원 이상 투자 납입 완료</strong>(공고일 기준 2년 내)가 신청 요건 — 투자 이력이 없으면 이번 회차 신청 불가. 연 2회(3월·7월) 연례라 <strong>초기투자 유치 후 2027년 회차</strong>가 현실 경로.</div>
+    <div class="row"><a class="src" href="https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do?schM=view&amp;pbancSn=178481" target="_blank">K-Startup 공고 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>2026 대국민 단짠 탈출 공모전</h4><span class="agency">식품의약품안전처 · EBS</span></div>
+    <div class="row"><b>지원</b>숏폼 영상·포스터 공모 — 일반부 영상 최우수 200만원(식약처장상) 등. 주제 '물·건·덜·삼'(덜 짜고 덜 달게)</div>
+    <div class="row"><b>접수</b>2026-07-10 ~ <strong>08-19(수)</strong> · 국민 누구나(개인/팀)</div>
+    <div class="note">사업화 자금이 아닌 콘텐츠 공모. 가치는 <strong>식약처장상 수상 레퍼런스</strong> — 쿠키 서비스·블로그 콘텐츠 제작 역량을 그대로 출품 가능. 여력 있을 때만.</div>
+    <div class="row"><a class="src" href="https://www.mfds.go.kr/brd/m_99/view.do?seq=50184" target="_blank">식약처 공고 →</a></div>
+  </div>
+</section>
+
+<section id="soon">
+  <h2>② 2026 하반기 공고 예정 <span class="chip c-soon">모니터링</span></h2>
+  <p class="sub">하반기 재공고 근거(연간 회차 관행·공고문 명시)가 확인된 것. 공고 시 즉시 신청.</p>
+
+  <div class="prog">
+    <div class="head"><h4>사회서비스 투자 교류회 — 하반기 회차</h4><span class="agency">보건복지부 · 중앙사회서비스원</span></div>
+    <div class="row"><b>지원</b>사회서비스 기업 IR 발표·VC 라운드테이블 1:1·실증(PoC) 논의 — 복지부 공식 투자유치 연계 채널</div>
+    <div class="row"><b>근거</b>2026 제1회 7/29 개최(접수 7/3~15 마감). 2023~2025년 연 2~4회 개최 관행 → 하반기 회차 공고 가능성 높음</div>
+    <div class="note">아동 돌봄(편식 코칭) 기술 기업으로 참가 자격 정합. 시드 3억 조달 서사의 복지부 트랙.</div>
+    <div class="row"><a class="src" href="https://www.kcpass.or.kr/board/view?menuId=MENU002030101000000&amp;linkId=3dWRGrIWIg" target="_blank">제1회 공고(관행 근거) →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>서울먹거리창업센터 입주 19차</h4><span class="agency">서울특별시 (서울먹거리창업센터)</span></div>
+    <div class="row"><b>지원</b>공유오피스·오픈키친·식품 R&amp;D랩 최대 4년 + 대형 유통사 품평회·투자 연계 (18차 15개사)</div>
+    <div class="row"><b>근거</b>연 2회 모집 관행 — 17차 2025-11-11~12-02, 18차 2026-06-11~07-09(마감) → <strong>19차 2026년 11~12월 예상</strong></div>
+    <div class="note">소재지 제한 없음 + 입주 시 '지점 설립' 방식 공식 허용 → 부산 본사 유지하며 서울 판로 거점 확보 가능.</div>
+    <div class="row"><a class="src" href="https://www.seoulfoodstartup.org/board/list/notice" target="_blank">공지 게시판 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>K-푸드 창업사관학교 — 추가 10팀 별도모집</h4><span class="agency">한국식품산업클러스터진흥원 · 농식품부</span></div>
+    <div class="row"><b>지원</b>총 사업비 최대 1,800만원(보조 80%·자부담 20%) — 창업교육·시제품 품평·IR·판로(펀딩·홈쇼핑)</div>
+    <div class="row"><b>근거</b>2026 본모집(35社)은 3/9 마감. 공고문에 <strong>"추가 10팀 별도모집 예정(방식 추후 공유)"</strong> 명시 — 하반기 게시 모니터링</div>
+    <div class="note">청년(만 19~39세) 창업 7년 미만 사업자 대상. 자부담 360만원+VAT 현금 필요.</div>
+    <div class="row"><a class="src" href="https://www.foodpolis.kr/web/Board/4048/detailView.do?pageIndex=1&amp;menu=2302" target="_blank">2026 공고 원문 →</a></div>
+  </div>
+</section>
+
+<section id="always">
+  <h2>③ 상시 접수 <span class="chip c-always">연중</span></h2>
+  <p class="sub">공고 기간 없이 열려 있는 채널 — 사업계획서에 "상시 채널"로 묶어 기재.</p>
+
+  <div class="prog">
+    <div class="head"><h4>B.Startup PIE 배치 프로그램 (직접투자 사전모집)</h4><span class="agency">부산창조경제혁신센터</span></div>
+    <div class="row"><b>지원</b>센터 <strong>직접투자 1억~2억원 내외</strong> + 파트너 투자사 추가 연계 (배치형 보육)</div>
+    <div class="row"><b>접수</b>상시(2026-07-24 현재 '접수중' 확인) · 업력 3년 이내 비수도권 기업</div>
+    <div class="note">시드 3억 조달 로드맵의 부산 트랙으로 가장 직접적인 경로. 모두의 창업 보육기관(부산창조경제혁신센터)과 동일 기관이라 연계 서사도 자연스러움.</div>
+    <div class="row"><a class="src" href="https://www.busanstartup.kr/biz_sup/1589?mcode=biz02" target="_blank">공고 원문 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>팁스(TIPS) 창업기업 지원</h4><span class="agency">중소벤처기업부 · 창업진흥원</span></div>
+    <div class="row"><b>지원</b>R&amp;D 24개월 최대 8억(딥테크 15억) + 연계 사업화·해외마케팅 각 최대 3억</div>
+    <div class="row"><b>접수</b>2026-03-19 ~ 12-31 연중 수시 · 팁스 운영사 투자·추천이 선결 요건</div>
+    <div class="note">사업계획서에는 "액셀러레이터/프리팁스 → 운영사 추천 확보 → 팁스"의 단계 경로로 기재(즉시 신청 가능한 사업 아님).</div>
+    <div class="row"><a class="src" href="https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do?schM=view&amp;pbancSn=176076" target="_blank">K-Startup 공고 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>농식품 크라우드펀딩 활성화 지원</h4><span class="agency">농업정책보험금융원(농금원) · 농식품부</span></div>
+    <div class="row"><b>지원</b>펀딩 전 컨설팅·콘텐츠 제작(후원형 최대 100만원·증권형 250만원) + 성공 시 수수료(후원형 100만원·증권형 300만원) + 데모데이·IR 연계</div>
+    <div class="row"><b>접수</b>2026년 연중 선착순(예산 소진 시 마감, ~12/31) · 후원형은 농식품 사업자 전반(개인사업자 포함)</div>
+    <div class="note">골고루 키트 와디즈류 후원형 펀딩에 바로 적용 가능. 신청 전 잔여 예산 확인(02-3775-6796).</div>
+    <div class="row"><a class="src" href="https://www.apfs.kr/front/contents/sub.do?contId=53&amp;menuId=5322" target="_blank">농금원 안내 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>지역사회서비스투자사업 제공기관 등록 (아동 바우처 B2G)</h4><span class="agency">보건복지부 · 한국사회보장정보원 · 관할 구군</span></div>
+    <div class="row"><b>지원</b>보조금이 아닌 <strong>공공 바우처 판로</strong> — 국가 표준모델에 영유아발달지원(만 0~6세)·비만아동건강관리(만 5~12세) 포함, 등록 기관이 서비스 제공하고 정부지원금+본인부담금 수취</div>
+    <div class="row"><b>접수</b>관할 시군구 상시 등록제 · 영리기업·개인사업자 등록 가능 (인력·시설 기준 충족 시)</div>
+    <div class="note warn">유의 2가지: ① 부산의 2026 시행 목록에서 영유아발달지원 모델은 미확인(아동심리·정서발달만 확인) — 부산지원단(051-552-8881) 확인 필요. ② '편식 코칭'을 그대로 등록할 수는 없고 기존 사업 모델에 맞추거나 지자체 신규 기획 제안 경로.</div>
+    <div class="row"><a class="src" href="https://www.socialservice.or.kr:444/user/htmlEditor/rssi/view2.do?p_sn=8" target="_blank">전자바우처 안내 →</a></div>
+  </div>
+
+  <div class="prog">
+    <div class="head"><h4>어린이 기호식품 품질인증</h4><span class="agency">식품의약품안전처 (어린이 식생활안전관리 특별법 §15)</span></div>
+    <div class="row"><b>지원</b>정부 품질인증 마크 표시 + 식약처·식품안전나라 포털 게재 — 수수료 5만원, 처리 20일, 정부24 상시</div>
+    <div class="note warn">제약: 인증 대상은 법정 어린이 기호식품 11개 유형(과자·음료류 등) <strong>제품 단위</strong> — 키트 전체 불가. 밀프레드는 제조사가 아니므로 MOU 제조사 명의 또는 판매 영업자 지위 등 신청 구조를 확정해야 함.</div>
+    <div class="row"><a class="src" href="https://www.gov.kr/mw/AA020InfoCappView.do?HighCtgCD=&amp;CappBizCD=14700000621&amp;tp_seq=" target="_blank">정부24 민원 안내 →</a></div>
+  </div>
+</section>
+
+<section id="annual">
+  <h2>④ 연례 사업 — 2027 공고 예상 <span class="chip c-annual">이력 확인</span></h2>
+  <p class="sub">2026년(또는 2025 하반기) 회차가 마감된 연례 사업. 공고 이력이 확인돼 "차기 공고 시 신청 예정"으로 기재 가능. 공고 월 순.</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>예상 공고</th><th>사업</th><th>기관</th><th>지원</th><th>확인된 직전 회차</th></tr>
+    <tr><td>2026-12월</td><td>식품기능성평가지원</td><td>농식품부·한국식품연구원</td><td>기능성 평가비용(동물·인체적용시험 등) — 기능성 쿠키/키트 소재 근거화</td><td>2026년분 접수 2025-12-23~2026-01-16</td></tr>
+    <tr><td>2027-01월</td><td>소비자 맞춤형 제품개선 지원</td><td>식품진흥원</td><td>소비자 데이터 기반 제품 진단·개선 전략 + 실증</td><td>2026-01-06~01-23</td></tr>
+    <tr><td>2027-01~02월</td><td>농식품 벤처육성 지원(A+센터)</td><td>농식품부·한국농업기술진흥원</td><td>사업화 자금 + 기술사업화·보육</td><td>2026-01-21~02-23</td></tr>
+    <tr><td>2027-02월</td><td>K-푸드 창업사관학교</td><td>식품진흥원</td><td>최대 1,800만원(자부담 20%) + 판로·IR</td><td>2026-02-06~03-09 (35社)</td></tr>
+    <tr><td>2027-03월</td><td>프리팁스 1차</td><td>중기부·창업진흥원</td><td>평균 9,000만원 — 투자 1,000만원 유치 후 자격</td><td>2026년 1차 3월·2차 7월</td></tr>
+    <tr><td>2027-04~05월</td><td>식의약 공공데이터·AI 경진대회 (제8회)</td><td>식약처</td><td>최우수 500만원·식약처장상 + 창업지원 연계 3팀 — 식의약 데이터×AI 코칭 fit 높음</td><td>제7회 2026-04-06~05-29</td></tr>
+    <tr><td>2027-05월</td><td>농식품 창업콘테스트 (제13회)</td><td>농식품부·한국농업기술진흥원</td><td>총상금 1.25억(대상 5,000만원 대통령상) + 투자유치 프로그램</td><td>제12회 2026-05-06~06-03</td></tr>
+    <tr><td>2027-06월</td><td>소셜 링크 아카데미 5기</td><td>복지부·중앙사회서비스원</td><td>돌봄기술 15개사 — 운영사 직접투자 검토 최대 2억 상당·PoC 5천만원 연계</td><td>4기 2026-06-25~07-10 (경쟁률 12:1, 법인 필수)</td></tr>
+  </table></div>
+</section>
+
+<section id="ref">
+  <h2>⑤ 참고 — 직접 신청 불가·조건 미충족 <span class="chip c-ref">기재 제외</span></h2>
+  <p class="sub">스윕에서 확인했지만 사업계획서 "지원 예정" 목록에서 뺀 것과 그 이유. (지시: 이해 안 되는/안 맞는 부분은 제외)</p>
+  <div class="tbl-wrap"><table>
+    <tr><th>사업</th><th>제외 이유</th><th>활용 여지</th></tr>
+    <tr><td>찾아가는 서울시 식생활교육 (어린이집·유치원 2차 모집 중)</td><td>신청 주체가 기관(어린이집·유치원) 전용 — 기업 신청 불가</td><td>차수당 230개소·6,500명 규모 = <strong>공공 편식·식생활교육 수요의 근거 인용</strong> + B2B 파트너 원 연계 소재</td></tr>
+    <tr><td>식약처 용역연구개발과제 (연중 차수제)</td><td>주관 자격 = 기업부설연구소 + 규제과학 인력 5명 — 초기기업 미충족</td><td>부경대 등 대학 주관 컨소시엄의 참여기업 경로만 가능</td></tr>
+    <tr><td>민관협력 오픈이노베이션 (Bottom-Up 2차, ~7/31)</td><td>수요기업(대기업)의 선별·추천이 선결 — 협력사 합의 없이 신청 불가</td><td>롯데 OI 챌린지 선정 시 차기 회차 연계 가능성</td></tr>
+    <tr><td>나트륨·당류 저감 요리 경연대회 (7/28~9/6)</td><td>2026 주제가 '어르신 백세 활력 밥상' — 영유아 편식과 무관</td><td>개인 자격 출품만 가능, 우선순위 낮음</td></tr>
+    <tr><td>테스트베드 서울 (예산지원형 최대 2억)</td><td>주관 신청은 서울 소재 기업 한정 — 부산 소재는 단독 신청 불가</td><td>서울 지점 설치(서울먹거리센터 입주) 후 2027 정기공모 재검토</td></tr>
+  </table></div>
+</section>
+
+<section id="draft">
+  <h2>📝 사업계획서 반영 문안 (Q3 사업화 계획)</h2>
+  <p class="sub">그대로 붙여넣는 초안. <span class="chip c-fit">공란</span> 표시는 이사님 지시대로 <strong>이유를 달아 비워둔 것</strong> — 확정되면 채움. 글자수 압박 시 아래 '초압축판' 사용.</p>
+
+  <div class="draft">
+    <h4>A. 표준판 — 정부지원·공공 프로그램 연계 계획</h4>
+    <div class="body">◦ (2026 하반기 — 공고 확인, 신청) 부산대학교병원 헬스케어 스타트업 인큐베이터(임상전문가 멘토링·시작품, 최대 1,500만원) · B-스타트업챌린지(부산시·BNK부산은행, 5개사 총 3억원 투자경진) · 부산창조경제혁신센터×롯데중앙연구소 오픈이노베이션(식품 소비경험 혁신 PoC 최대 1,000만원) · 부경대 창업보육센터 입주(산학협력 인프라) · 보건복지부 사회서비스 투자 교류회 하반기 회차(VC 라운드테이블) · 서울먹거리창업센터 19차 입주(<span class="blank">[모집일정 공란 — 연 2회 관행상 11~12월 공고 예상, 공고 시 확정 기입]</span>)
+
+◦ (2027 — 연례 공고 이력 확인, 공고 시 신청) 중기부 프리팁스(사업화 자금 평균 9,000만원 — 초기투자 유치 후 자격 발생) → 팁스 R&amp;D(운영사 추천) · 농식품부 K-푸드 창업사관학교 및 A+센터 농식품 벤처육성 · 농식품 창업콘테스트 · 식약처 식의약 공공데이터·AI 경진대회(창업지원 연계) · 보건복지부 소셜 링크 아카데미(돌봄기술 기업 투자검토·PoC 연계, 법인 설립 후)
+
+◦ (상시 채널) 부산창조경제혁신센터 B.Startup PIE 직접투자(1~2억원, 비수도권 초기기업) · 농식품 크라우드펀딩 지원(키트 후원형 펀딩 콘텐츠·수수료) · 지역사회서비스투자사업 제공기관 등록(아동 대상 바우처 B2G 판로 — <span class="blank">[부산 시행 서비스 목록에 영유아 모델 포함 여부 확인 후 기재]</span>) · 식약처 어린이 기호식품 품질인증(<span class="blank">[공란 — 인증은 법정 기호식품 11유형 제품 단위라 MOU 제조사 명의 신청 구조 확정 후 기입]</span>)</div>
+  </div>
+
+  <div class="draft">
+    <h4>B. 초압축판 — 글자수 빡빡할 때 (3문장)</h4>
+    <div class="body">정부지원 연계: (하반기) 부산대병원 헬스케어 인큐베이터·B-스타트업챌린지(총 3억 투자경진)·부산창경센터×롯데중앙연구소 오픈이노베이션 PoC·부경대 창업보육센터·복지부 사회서비스 투자교류회에 신청하고, (2027) 프리팁스→팁스, 농식품부 K-푸드 창업사관학교·창업콘테스트, 식약처 식의약 데이터·AI 경진대회, 복지부 소셜 링크 아카데미의 연례 공고에 지원한다. 상시 채널로 부산창경센터 PIE 직접투자(1~2억)·농식품 크라우드펀딩 지원·아동 사회서비스 바우처 제공기관 등록(B2G)을 병행한다.</div>
+  </div>
+
+  <div class="guard">
+    <b>정직 가드</b> — ① "선정"이 아니라 <strong>"신청(지원) 예정"</strong>으로만 기재(선정 여부 미정). ② 2027 연례 사업은 "공고 이력 기반 예상"이며 재공고가 보장되지 않음 — "공고 시 신청" 표현 유지. ③ 부산대병원·부산은행은 이미 화이트보드 자금조달표에 있으므로 금액을 공고 원문 기준으로 교정(부산대병원 최대 1,500만원 = 지원 서비스 상당액, 현금 아님 / B-챌린지 = 5개사 총 3억 투자). ④ 예비창업자 전용 사업(HUG UP·청년식품캠프)은 사업자등록 시점과 충돌하므로 계획서에 넣기 전 등록 시점 전략과 대조 필요 — 본 문안에서는 제외해 둠.
+  </div>
+</section>
+
+<section id="method">
+  <h2>🔍 검증 방법</h2>
+  <p>2026-07-24, 7방향(식약처 / 복지부 / 농식품부·식품진흥원 / 서울시·식생활지원 / 부산 / 중기부 K-Startup / 기타 지역) 병렬 에이전트가 후보 30건을 수집 → 중복 제거 29건 → <strong>건별 독립 에이전트가 공고 원문 URL을 다시 열어</strong> 사업명·주관·접수기간·지원 금액·신청자격을 대조(전 건 실존 확인). 원 후보의 오기 4건 교정(B-챌린지 금액, K-푸드 모집규모, 크라우드펀딩 단가, 테스트베드 서울 소재지 요건). 서울 식생활종합지원센터 자체의 기업 대상 공모는 이번 스윕에서 확인되지 않았고, 서울시 식생활교육은 기관 전용이라 ⑤로 분류.</p>
+  <div class="guard"><b>한계</b> — 나라장터(g2b) 용역 입찰 전수는 미포함(로그인 게이트). 하반기 신규 공고는 수시로 뜨므로 이 페이지는 스냅샷이며, 8월 말~9월 초 재스윕 권장.</div>
+</section>
+
+</main>
+<footer>밀프레드 위키 · 정부지원사업 지원 캘린더 · 2026-07-24 생성 · 다음 재스윕 권장 2026-09월 초</footer>
+</body>
+</html>
