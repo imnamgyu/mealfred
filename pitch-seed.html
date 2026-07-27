@@ -5,90 +5,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>밀프레드 — Pitch Deck</title>
 <style>
-  :root{
-    --navy:#1a2b4a; --ink:#1a2b4a; --muted:#5a6373; --line:#e7ebf1;
-    --orange:#FF6B1A; --orange-d:#C45A00; --peach:#FFB877; --cream:#FFF5EB; --cream2:#FFF1E6;
-    --green:#1B5E20; --blue:#1565C0;
-  }
+  :root{--navy:#1a2b4a;--ink:#1a2b4a;--muted:#5a6373;--line:#e7ebf1;--orange:#FF6B1A;--orange-d:#C45A00;--peach:#FFB877;--cream:#FFF5EB;--green:#1B5E20;--blue:#1565C0}
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%}
   body{font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo',-apple-system,sans-serif;color:var(--ink);background:#0f1830;-webkit-font-smoothing:antialiased}
   .deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;background:linear-gradient(180deg,#16243f 0%,#1a2b4a 100%)}
-  .slide{height:100vh;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;padding:3.2vh 3vw}
-  .frame{position:relative;width:100%;max-width:1200px;aspect-ratio:16/9;background:#fff;border-radius:16px;overflow:hidden;
-    box-shadow:0 24px 70px rgba(0,0,0,.45);container-type:inline-size}
-  .pad{position:absolute;inset:0;padding:6cqw 6.6cqw;display:flex;flex-direction:column}
-  .label{font-size:1.55cqw;font-weight:800;letter-spacing:.14em;color:var(--orange);text-transform:uppercase;margin-bottom:2.2cqw}
-  h1{font-size:6.4cqw;font-weight:800;line-height:1.14;letter-spacing:-.01em}
-  h2{font-size:4.2cqw;font-weight:800;line-height:1.2;letter-spacing:-.01em}
-  .sub{font-size:2.15cqw;font-weight:600;color:var(--muted);line-height:1.5}
-  .big{font-size:2.45cqw;font-weight:700;line-height:1.42;color:var(--navy)}
-  p{font-size:1.95cqw;line-height:1.55;color:#33405a}
-  .pg{position:absolute;right:6.6cqw;bottom:3.2cqw;font-size:1.3cqw;font-weight:800;color:#aab2c0}
-  .bm{position:absolute;left:6.6cqw;bottom:3.2cqw;font-size:1.3cqw;font-weight:800;color:var(--orange)}
+  .slide{height:100vh;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;padding:3vh 3vw}
+  .frame{position:relative;width:100%;max-width:1200px;aspect-ratio:16/9;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.45);container-type:inline-size}
+  .pad{position:absolute;inset:0;padding:5.4cqw 6cqw;display:flex;flex-direction:column}
+  .label{font-size:1.5cqw;font-weight:800;letter-spacing:.13em;color:var(--orange);text-transform:uppercase;margin-bottom:1.8cqw}
+  h1{font-size:6.2cqw;font-weight:800;line-height:1.14;letter-spacing:-.01em}
+  h2{font-size:4cqw;font-weight:800;line-height:1.18;letter-spacing:-.01em}
+  .big{font-size:2.35cqw;font-weight:700;line-height:1.4;color:var(--navy)}
+  p{font-size:1.9cqw;line-height:1.52;color:#33405a}
+  .pg{position:absolute;right:6cqw;bottom:3cqw;font-size:1.25cqw;font-weight:800;color:#aab2c0}
+  .bm{position:absolute;left:6cqw;bottom:3cqw;font-size:1.25cqw;font-weight:800;color:var(--orange)}
   .spacer{flex:1}
   .em{color:var(--orange-d);font-weight:800}
-  ul.clean{list-style:none;margin-top:.6cqw}
-  ul.clean li{font-size:2cqw;line-height:1.5;color:#33405a;padding-left:2.6cqw;position:relative;margin-bottom:1.5cqw}
-  ul.clean li:before{content:"";position:absolute;left:0;top:.72cqw;width:1.1cqw;height:1.1cqw;border-radius:3px;background:var(--orange)}
+  ul.clean{list-style:none;margin-top:.5cqw}
+  ul.clean li{font-size:1.95cqw;line-height:1.48;color:#33405a;padding-left:2.5cqw;position:relative;margin-bottom:1.35cqw}
+  ul.clean li:before{content:"";position:absolute;left:0;top:.7cqw;width:1.05cqw;height:1.05cqw;border-radius:3px;background:var(--orange)}
   ul.clean li b{color:var(--navy)}
-  /* cover */
-  .cover{background:linear-gradient(150deg,#1a2b4a 0%,#22345a 100%);color:#fff}
+  .photo{border-radius:12px;object-fit:cover;box-shadow:0 8px 24px rgba(20,30,55,.16);display:block;background:#eef1f6}
+  .cover{background:linear-gradient(150deg,#182948 0%,#22345a 100%);color:#fff}
   .cover .pad{justify-content:center}
   .cover h1{color:#fff}
-  .cover .kick{font-size:2.1cqw;color:var(--peach);font-weight:700;margin-bottom:3cqw;letter-spacing:.04em}
-  .cover .tag{font-size:2.1cqw;color:#c7d0e0;margin-top:3cqw;font-weight:500;line-height:1.5}
-  .cover .foot{position:absolute;left:6.6cqw;bottom:5cqw;font-size:1.55cqw;color:#8ea0c0;font-weight:600}
-  /* grids/cards */
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2cqw;margin-top:.8cqw}
-  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:2.4cqw;margin-top:.8cqw}
-  .card{background:var(--cream);border:1px solid #f0e2d3;border-radius:12px;padding:2.6cqw 2.4cqw}
-  .card .ct{font-size:2cqw;font-weight:800;color:var(--navy);margin-bottom:.9cqw}
-  .card p{font-size:1.68cqw;line-height:1.5;color:#4a5568}
-  .statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2cqw;margin:1.4cqw 0}
-  .stat{text-align:center;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:2.4cqw 1cqw}
-  .stat.hot{background:#fff6ef;border-color:#ffd3ac}
-  .stat .n{font-size:4.6cqw;font-weight:800;color:var(--orange);line-height:1}
-  .stat .n.navy{color:var(--navy)}
-  .stat .l{font-size:1.45cqw;font-weight:700;color:var(--muted);margin-top:.9cqw;line-height:1.35}
-  /* silhouette fill (편식 현황) */
-  .fillwrap{display:flex;align-items:center;gap:4cqw;margin-top:1cqw}
-  .fillbar{flex:0 0 34cqw;height:12cqw;border-radius:14px;background:#eef1f6;position:relative;overflow:hidden;border:1.5px solid var(--line)}
+  .cover .kick{font-size:2cqw;color:var(--peach);font-weight:700;margin-bottom:2.6cqw;letter-spacing:.04em}
+  .cover .tag{font-size:2cqw;color:#c7d0e0;margin-top:2.8cqw;font-weight:500;line-height:1.5}
+  .cover .foot{position:absolute;left:6cqw;bottom:4.6cqw;font-size:1.5cqw;color:#8ea0c0;font-weight:600}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:2.2cqw;margin-top:.6cqw}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:2cqw;margin-top:.6cqw}
+  .card{background:var(--cream);border:1px solid #f0e2d3;border-radius:12px;padding:2.4cqw 2.2cqw}
+  .card .ct{font-size:1.95cqw;font-weight:800;color:var(--navy);margin-bottom:.8cqw}
+  .card p{font-size:1.6cqw;line-height:1.46;color:#4a5568}
+  .fillbar{height:11cqw;border-radius:14px;background:#eef1f6;position:relative;overflow:hidden;border:1.5px solid var(--line);margin-top:.6cqw}
   .fillbar .fl{position:absolute;left:0;top:0;bottom:0;width:40%;background:linear-gradient(90deg,var(--orange),var(--peach));display:flex;align-items:center;justify-content:center}
-  .fillbar .fl b{color:#fff;font-size:3.4cqw;font-weight:800}
-  .fillbar .rest{position:absolute;right:3cqw;top:50%;transform:translateY(-50%);font-size:1.7cqw;font-weight:700;color:#8a97ab}
-  /* market rings */
-  .tam{display:flex;flex-direction:column;gap:1.2cqw;margin-top:1.2cqw}
-  .ring{border-radius:10px;padding:1.6cqw 2.2cqw;display:flex;justify-content:space-between;align-items:center}
-  .ring .rl{font-size:1.85cqw;font-weight:800}
-  .ring .rv{font-size:1.65cqw;font-weight:700}
+  .fillbar .fl b{color:#fff;font-size:3.2cqw;font-weight:800}
+  .fillbar .rest{position:absolute;right:3cqw;top:50%;transform:translateY(-50%);font-size:1.6cqw;font-weight:700;color:#8a97ab}
+  .quizbig{font-size:8.5cqw;font-weight:800;color:var(--orange);line-height:1}
+  .qcard{background:var(--cream);border-radius:12px;padding:1.6cqw 1.9cqw;margin-bottom:1.1cqw;border:1px solid #f0e2d3}
+  .qcard .qn{font-size:1.45cqw;color:var(--muted);font-weight:700}
+  .qcard .qt{font-size:1.85cqw;color:var(--navy);font-weight:700;line-height:1.4;margin-top:.3cqw}
+  .tam{display:flex;flex-direction:column;gap:1.1cqw;margin-top:1cqw}
+  .ring{border-radius:10px;padding:1.5cqw 2cqw;display:flex;justify-content:space-between;align-items:center}
+  .ring .rl{font-size:1.8cqw;font-weight:800} .ring .rv{font-size:1.55cqw;font-weight:700}
   .r1{background:#dfe6f0;color:var(--navy)} .r2{background:var(--peach);color:var(--navy)} .r3{background:var(--orange);color:#fff}
-  /* steps */
-  .steps{display:flex;gap:1.5cqw;margin-top:1.2cqw;align-items:stretch}
-  .step{flex:1;background:var(--cream);border-radius:12px;padding:2cqw 1.7cqw}
-  .step .sn{font-size:1.3cqw;font-weight:800;color:var(--orange);letter-spacing:.06em}
-  .step .sh{font-size:1.95cqw;font-weight:800;color:var(--navy);margin:.5cqw 0 .7cqw}
-  .step p{font-size:1.5cqw;line-height:1.42}
-  .arrowsm{align-self:center;color:var(--peach);font-size:2.2cqw;font-weight:800}
-  /* table */
-  table{width:100%;border-collapse:collapse;margin-top:1.2cqw;font-size:1.62cqw}
-  th,td{border:1px solid #e2e7ef;padding:1.1cqw 1.1cqw;text-align:center}
-  th{background:#f3f5f9;font-weight:800;color:var(--navy)}
-  td.g{background:var(--cream);font-weight:700;color:var(--navy)}
-  /* team */
-  .team{display:grid;grid-template-columns:1.1fr 1fr;gap:2.4cqw;margin-top:.8cqw}
-  .teamlead{background:var(--navy);color:#fff;border-radius:12px;padding:2.6cqw}
-  .teamlead .r{font-size:1.5cqw;font-weight:800;color:var(--peach);letter-spacing:.05em}
-  .teamlead .nm{font-size:2.6cqw;font-weight:800;margin:.5cqw 0 .9cqw}
-  .teamlead p{font-size:1.62cqw;line-height:1.5;color:#d3dcec}
-  .partners{display:flex;flex-direction:column;gap:1.2cqw}
-  .partner{background:var(--cream);border-radius:10px;padding:1.5cqw 1.7cqw}
-  .partner b{font-size:1.72cqw;color:var(--navy)} .partner span{display:block;font-size:1.42cqw;color:var(--muted);margin-top:.25cqw}
-  .quizbig{font-size:9cqw;font-weight:800;color:var(--orange);line-height:1;margin:1cqw 0}
+  .steps{display:flex;gap:1.4cqw;margin-top:1cqw}
+  .step{flex:1;background:var(--cream);border-radius:12px;padding:1.9cqw 1.6cqw}
+  .step .sn{font-size:1.25cqw;font-weight:800;color:var(--orange);letter-spacing:.05em}
+  .step .sh{font-size:1.9cqw;font-weight:800;color:var(--navy);margin:.4cqw 0 .6cqw}
+  .step p{font-size:1.45cqw;line-height:1.4}
+  .arrowsm{align-self:center;color:var(--peach);font-size:2cqw;font-weight:800}
+  table{width:100%;border-collapse:collapse;margin-top:1cqw;font-size:1.55cqw}
+  th,td{border:1px solid #e2e7ef;padding:1cqw;text-align:center}
+  th{background:#f3f5f9;font-weight:800;color:var(--navy)} td.g{background:var(--cream);font-weight:700;color:var(--navy)}
+  .teamlead{background:var(--navy);color:#fff;border-radius:12px;padding:2.4cqw}
+  .teamlead .r{font-size:1.45cqw;font-weight:800;color:var(--peach);letter-spacing:.05em}
+  .teamlead .nm{font-size:2.4cqw;font-weight:800;margin:.4cqw 0 .8cqw}
+  .teamlead p{font-size:1.55cqw;line-height:1.48;color:#d3dcec}
+  .partner{background:var(--cream);border-radius:10px;padding:1.4cqw 1.6cqw;margin-bottom:1.1cqw}
+  .partner b{font-size:1.68cqw;color:var(--navy)} .partner span{display:block;font-size:1.4cqw;color:var(--muted);margin-top:.2cqw}
 </style>
 </head>
 <body>
-<div class="prog" id="prog" style="position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#FF8A47,#FFB877);width:0;z-index:40;transition:width .2s"></div>
+<div id="prog" style="position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#FF8A47,#FFB877);width:0;z-index:40;transition:width .2s"></div>
 <div class="deck" id="deck">
 
   <!-- 1 COVER -->
@@ -103,122 +83,133 @@
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Problem · 편식의 현황</div>
     <h2>영유아 40%가 겪는, 흔하지만 방치된 문제</h2>
-    <div class="fillwrap">
-      <div class="fillbar"><div class="fl"><b>40%</b></div><div class="rest">영유아 편식</div></div>
-      <div style="flex:1"><p><b style="color:var(--navy)">식습관 형성 골든타임은 만 2~6세.</b> 이 시기를 놓치면 편향된 식습관이 성인병(비만 등)으로 이어집니다. (보건복지부 영유아 건강검진)</p></div>
-    </div>
-    <div class="grid2" style="margin-top:1.6cqw">
-      <div class="card"><div class="ct">건강 문제 4가지</div><p>성장 지연 · 면역력 저하 · 신경과민 · 학습장애 (식약처 어린이급식관리지원센터). 철분 결핍은 ADHD와도 연관(Konofal, 2004).</p></div>
-      <div class="card"><div class="ct">→ 성인병으로</div><p>골든타임을 놓친 편식은 평생 식습관이 되어 비만·만성질환의 씨앗이 됩니다.</p></div>
+    <div class="fillbar"><div class="fl"><b>40%</b></div><div class="rest">영유아가 편식</div></div>
+    <div class="grid3" style="margin-top:1.6cqw">
+      <div class="card"><div class="ct">건강 문제 4가지</div><p>성장 지연 · 면역력 저하 · 신경과민 · 학습장애 (식약처). 철분 결핍은 ADHD와도 연관.</p></div>
+      <div class="card"><div class="ct">골든타임 만 2~6세</div><p>식습관이 형성되는 시기. 놓치면 편향된 식습관이 굳어집니다.</p></div>
+      <div class="card"><div class="ct">→ 성인병으로</div><p>어릴 때 방치된 편식은 평생 식습관이 되어 비만·만성질환의 씨앗이 됩니다.</p></div>
     </div>
     <div class="bm">밀프레드</div><div class="pg">02</div>
   </div></div></section>
 
-  <!-- 3 정답률 10% (퀴즈 훅) -->
+  <!-- 3 정답률(퀴즈) -->
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">그런데, 부모는 편식을 잘 알까요?</div>
     <h2>당신의 편식 상식 점수는?</h2>
-    <div style="display:flex;align-items:center;gap:5cqw;margin-top:.5cqw">
-      <div style="text-align:center"><div class="quizbig">50<span style="font-size:4cqw">점</span></div><div style="font-size:1.6cqw;font-weight:700;color:var(--muted)">부모 상식 퀴즈 평균 (실측)</div></div>
+    <div style="display:flex;gap:4cqw;margin-top:1cqw;align-items:center">
+      <img class="photo" src="pitch-img/quiz.jpg" style="width:20cqw;height:30cqw">
       <div style="flex:1">
-        <ul class="clean">
-          <li>무료 '편식 상식점수' 퀴즈 응답자 평균이 <b>100점 만점에 약 50점</b> — 부모의 지식 공백이 큽니다.</li>
-          <li>가장 많이 틀린 문항은 '그릇 비우기'처럼 <b>매일 하는 흔한 습관</b>이었습니다.</li>
+        <div style="display:flex;align-items:baseline;gap:1.5cqw"><div class="quizbig">50<span style="font-size:3.4cqw">점</span></div><div style="font-size:1.55cqw;font-weight:700;color:var(--muted)">부모 상식 퀴즈<br>평균 (실측)</div></div>
+        <ul class="clean" style="margin-top:1.6cqw">
+          <li>무료 '편식 상식점수' 응답자 평균이 <b>100점 만점에 약 50점</b> — 지식 공백이 큽니다.</li>
+          <li>가장 많이 틀린 건 '그릇 비우기'처럼 <b>매일 하는 흔한 습관</b>이었습니다.</li>
         </ul>
+        <div style="display:flex;align-items:center;gap:1.3cqw;margin-top:1.4cqw"><img src="pitch-img/qr.png" style="width:6cqw;height:6cqw;border-radius:6px"><span style="font-size:1.5cqw;font-weight:700;color:var(--navy)">QR로 직접 풀어보세요 — 당신의 점수는?</span></div>
       </div>
     </div>
-    <div class="spacer"></div>
-    <div class="big">부모가 편식을 안다는 건 착각입니다. <span class="em">문제의 시작은 잘못된 지식입니다.</span></div>
     <div class="bm">밀프레드</div><div class="pg">03</div>
   </div></div></section>
 
-  <!-- 4 편식이 풀기 어려운 이유 -->
+  <!-- 4 풀기 어려운 이유 -->
   <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Why it's hard · 편식이 풀기 어려운 이유</div>
+    <div class="label">Why it's hard · 편식을 풀기 어려운 이유</div>
     <h2>정보는 틀렸고, 처방은 아이마다 달라야 합니다</h2>
-    <div class="grid2" style="margin-top:1cqw">
-      <div class="card"><div class="ct">① 잘못된 미신</div><p>맘카페에 퍼진 '몰래 갈아 먹이기', '한 입만 더' 같은 <b style="color:var(--orange-d)">역효과 방법</b>이 지식처럼 통용됩니다.</p></div>
-      <div class="card"><div class="ct">② 개인화 처방의 부재</div><p>아이마다 타고난 감각·기질·식사 환경이 달라, <b style="color:var(--orange-d)">아이별 맞춤 처방</b>이 필요합니다. 일반론 강의로는 안 풀립니다.</p></div>
+    <div style="display:flex;gap:2.4cqw;margin-top:1cqw">
+      <div style="flex:1.15">
+        <div class="card" style="margin-bottom:1.4cqw"><div class="ct">① 잘못된 미신</div><p>부모 상식 평균 <b style="color:var(--orange-d)">50점</b>. 맘카페에 퍼진 '몰래 갈아 먹이기', '한 입만 더' 같은 역효과 방법이 지식처럼 통용됩니다.</p></div>
+        <div class="card"><div class="ct">② 개인화 처방의 부재</div><p>아이마다 감각·기질·식사 환경이 달라 <b style="color:var(--orange-d)">아이별 맞춤 처방</b>이 필요합니다. 일반론으론 안 풀립니다.</p></div>
+      </div>
+      <div style="flex:1;background:#f6f8fb;border-radius:12px;padding:1.8cqw 2cqw">
+        <div style="font-size:1.35cqw;font-weight:700;color:var(--green);margin-bottom:.7cqw">이유식·유아식 질문방 · 조회 281 · 댓글 9</div>
+        <div style="font-size:1.8cqw;font-weight:800;color:var(--navy);line-height:1.32;margin-bottom:1.1cqw">"24개월인데.. 진짜 너무 반찬을 안 먹어요 ㅠㅠ"</div>
+        <div class="qcard" style="background:#fff"><div class="qn">👤 다른 부모의 답</div><div class="qt" style="font-weight:600;font-size:1.7cqw">"솥밥하세요! 섞여 있으니 어찌어찌 먹더라고요 — 냉털하는 느낌으로"</div></div>
+        <div style="font-size:1.45cqw;color:var(--orange-d);font-weight:800;margin-top:.7cqw">→ '몰래 섞어 먹이기' = 대표적 역효과 미신</div>
+      </div>
     </div>
-    <div class="spacer"></div>
-    <div class="big">정부·급식센터의 교육자료조차 <span class="em">가정에서 실행할 실물이 없습니다.</span></div>
     <div class="bm">밀프레드</div><div class="pg">04</div>
   </div></div></section>
 
-  <!-- 5 개인적 동기 -->
-  <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Why us · 개인적 동기</div>
-    <h2>골드키즈 시대, 저희 집 식탁에서 시작됐습니다</h2>
-    <ul class="clean">
-      <li><b>골드키즈</b> — 아이를 적게 낳는 대신 한 명에게 프리미엄 소비를 집중하는 시대입니다.</li>
-      <li>귀하게 자라는 <b>다섯 살 조카</b>도 편식이 심했고, 아이 엄마는 맘카페를 보며 이것저것 시도했지만 효과가 없었습니다.</li>
-      <li>매년 <b>수십만 원의 영양제와 이유식</b>을 사도 편식은 조금도 나아지지 않았습니다.</li>
-    </ul>
-    <div class="spacer"></div>
-    <div class="big">돈은 쓰는데 아이는 그대로 — 수많은 부모가 겪는 현실이었습니다.</div>
-    <div class="bm">밀프레드</div><div class="pg">05</div>
+  <!-- 5 아하 (조카) -->
+  <section class="slide"><div class="frame"><div class="pad" style="padding:0">
+    <div style="display:flex;height:100%">
+      <div style="flex:1.05;padding:5.4cqw 3cqw 5.4cqw 6cqw;display:flex;flex-direction:column;justify-content:center">
+        <div class="label">Aha Moment</div>
+        <h2 style="font-size:3.6cqw">스스로 당근을 집어먹은<br>편식쟁이 조카</h2>
+        <ul class="clean" style="margin-top:1.6cqw">
+          <li>엄마도 포기한 <b>만 다섯 살 조카</b>의 심한 편식.</li>
+          <li><b>6개월간</b> 전 세계 각국의 편식 지침·이론을 연구해 솔루션을 구현.</li>
+          <li>단 <b>3주 만에</b>, 채소를 싫어하던 아이가 생당근을 스스로 집어 먹었습니다.</li>
+        </ul>
+        <div class="big" style="margin-top:2cqw">편식은 기질이 아니라 <span class="em">교정되는 '행동'</span>입니다.</div>
+      </div>
+      <div style="flex:1;position:relative"><img class="photo" src="pitch-img/aha.jpg" style="position:absolute;inset:0;width:100%;height:100%;border-radius:0"></div>
+    </div>
+    <div class="bm" style="color:#fff;z-index:2">밀프레드</div><div class="pg">05</div>
   </div></div></section>
 
-  <!-- 6 아하 모먼트 -->
-  <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Aha Moment</div>
-    <h2>3주 만에, 조카가 스스로 당근을 집어 먹었습니다</h2>
-    <ul class="clean">
-      <li>전 세계 편식 지침과 이론을 연구해 <b>솔루션을 빠르게 구현</b>했습니다.</li>
-      <li><b>주 3회, 하루 20분</b>씩 진행한 편식 개선 세션.</li>
-      <li>3주 만에 <b>채소를 싫어하던 아이가 생당근을 스스로 집어 먹었습니다.</b></li>
-    </ul>
-    <div class="spacer"></div>
-    <div class="big">편식은 타고난 기질이 아니라, <span class="em">올바른 방법으로 교정되는 '행동'</span>입니다.</div>
-    <div class="bm">밀프레드</div><div class="pg">06</div>
-  </div></div></section>
-
-  <!-- 7 Solution 35이론 -->
+  <!-- 6 솔루션 -->
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Solution</div>
     <h2>전 세계 35가지 편식 이론을 하나로 통합했습니다</h2>
-    <div class="grid3">
-      <div class="card"><div class="ct">① 단계적 접근 (물리 키트)</div><p>SOS 6단계로 '먹기'를 잘게 쪼갠 <b>비강요 놀이형 키트</b>.</p></div>
-      <div class="card"><div class="ct">② 개인화 AI 코칭</div><p>아이 반응을 시계열 분석해 <b>매일 오늘의 대처법</b>을 안내. 결정론적 엔진이라 환각이 없고, 아이 1명당 <b style="color:var(--orange-d)">월 300원</b>. 부모는 편식 이론을 몰라도 됩니다.</p></div>
+    <div class="grid3" style="margin-top:.4cqw">
+      <div class="card"><div class="ct">① 단계적 접근 · 물리 키트</div><p>SOS 6단계로 '먹기'를 잘게 쪼갠 <b>비강요 놀이형 키트</b>.</p></div>
+      <div class="card"><div class="ct">② 개인화 AI 코칭</div><p>기록을 시계열 분석해 <b>매일 오늘의 처방</b>. 결정론적 엔진이라 환각 없이, <b style="color:var(--orange-d)">월 300원</b>.</p></div>
       <div class="card"><div class="ct">③ 놀이교육</div><p>감각놀이 → 직접 요리로 <b>'내가 만든 음식'</b>을 스스로 먹는 이케아 효과.</p></div>
     </div>
-    <div class="spacer"></div>
-    <div class="big">키트(HW) + AI 코칭(SW)을 <span class="em">함께 구현한 서비스는 저희가 처음</span>입니다.</div>
+    <div style="display:flex;gap:1.4cqw;margin-top:1.8cqw">
+      <figure style="flex:1"><img class="photo" src="pitch-img/play-color.jpg" style="width:100%;height:15cqw"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">감각놀이 (색깔 탐험)</figcaption></figure>
+      <figure style="flex:1"><img class="photo" src="pitch-img/play-touch.jpg" style="width:100%;height:15cqw"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">촉감·모양 놀이</figcaption></figure>
+      <figure style="flex:1"><img class="photo" src="pitch-img/log.jpg" style="width:100%;height:15cqw"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">부모 기록지 → AI 입력</figcaption></figure>
+    </div>
+    <div class="bm">밀프레드</div><div class="pg">06</div>
+  </div></div></section>
+
+  <!-- 7 팀 -->
+  <section class="slide"><div class="frame"><div class="pad">
+    <div class="label">Team · 전국 1등 교육용 요리키트 브랜드를 만든 팀</div>
+    <h2>HW와 SW를 모두 해내는 팀</h2>
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:2.2cqw;margin-top:.6cqw">
+      <div class="teamlead">
+        <div class="r">FOUNDER / CEO · 임남규</div>
+        <div class="nm">개발자 출신 창업가</div>
+        <p>교육용 요리키트 20종을 개발해 선생님·자녀가 함께 쓰는 교구 역량 검증. <b style="color:#fff">전국 3,000개 교육기관, 누적 10만 명 아동</b>이 사용. 앱·웹·코칭 엔진을 직접 구현.</p>
+      </div>
+      <div>
+        <div class="partner"><b>김효진 (팀원)</b><span>부경대 디자인학과 학사 · 부산대 미술교육학 석사 · 미술학원 운영 — 놀이 교구 공동 설계</span></div>
+        <div class="partner"><b>푸드희스토리 (협력사)</b><span>제조·물류 지원 · 5천만원 규모 MOU</span></div>
+        <div class="partner" style="margin-bottom:0;background:var(--navy);color:#fff"><b style="color:#fff">Why us</b><span style="color:#c7d0e0">HW(키트)와 SW(코칭)를 둘 다 해야만 하는 서비스 — 어느 진영도 못 들어옵니다</span></div>
+      </div>
+    </div>
     <div class="bm">밀프레드</div><div class="pg">07</div>
   </div></div></section>
 
-  <!-- 8 Team -->
+  <!-- 8 성장전략1 -->
   <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Team · 전국 1위 교육용 요리키트 브랜드를 만든 팀</div>
-    <h2>HW와 SW를 모두 해내는 팀</h2>
-    <div class="team">
-      <div class="teamlead">
-        <div class="r">FOUNDER / CEO</div>
-        <div class="nm">대표</div>
-        <p>요리 수업용 키트 20종을 개발해 <b style="color:#fff">선생님(부모)·학생(자녀)이 함께 쓰는 교구</b> 개발 역량을 검증. 개발자 출신으로 앱·웹·코칭 엔진을 직접 구현.</p>
+    <div class="label">성장전략 ① · 기존 고객사 자산 레버리지</div>
+    <h2>첫 고객 확보를, 우리는 건너뜁니다</h2>
+    <div style="display:flex;gap:2.4cqw;margin-top:1cqw">
+      <div style="flex:1.15">
+        <ul class="clean">
+          <li>3년간 요리키트를 납품하며 구축한 <b>전국 기관 거래처 3,000곳</b>. 신규 브랜드가 가장 어려워하는 첫 고객 확보를 <b>이미 신뢰가 쌓인 기관 경로</b>에서 시작합니다.</li>
+          <li>원 안내문 한 장이면 <b>학부모 전체에게 광고비 0원</b>으로 침투. 실제로 한 원에서 안내문만으로 <b>정원의 절반 가정이 코칭을 신청</b>했습니다.</li>
+          <li>하반기 파일럿 학부모 테스트에서 <b style="color:var(--orange-d)">편식 개선효과 90%</b>를 목표로 검증합니다.</li>
+        </ul>
       </div>
-      <div class="partners">
-        <div class="partner"><b>푸드희스토리 (협력사)</b><span>제조·물류 지원 · 5천만원 MOU</span></div>
-        <div class="partner"><b>김효진 (팀원)</b><span>교육학 석사 · 미술학원 운영 · 놀이 교구 설계</span></div>
-        <div class="partner"><b>Why us</b><span>HW와 SW를 둘 다 해야만 하는 서비스 — 어느 진영도 못 들어옵니다</span></div>
-      </div>
+      <figure style="flex:1"><img class="photo" src="pitch-img/cooking.jpg" style="width:100%;height:26cqw"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">밀프레드 앞치마를 입고 요리활동 중인 기관 아이들</figcaption></figure>
     </div>
     <div class="bm">밀프레드</div><div class="pg">08</div>
   </div></div></section>
 
-  <!-- 9 지표 Traction -->
+  <!-- 9 성장전략2 -->
   <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Traction · 지표</div>
-    <h2>이미 확보된 채널, 이미 반응한 시장</h2>
-    <div class="statrow">
-      <div class="stat hot"><div class="n">10만+</div><div class="l">기존 요리키트 이용 아동<br>(3,000개 기관 거래처)</div></div>
-      <div class="stat hot"><div class="n">10k</div><div class="l">인플루언서 자발적 협찬<br>평균 조회수(내외)</div></div>
-      <div class="stat"><div class="n navy">80%</div><div class="l">파일럿 편식 개선효과<br>목표치</div></div>
+    <div class="label">성장전략 ② · 신뢰 구축 + 커뮤니티 바이럴</div>
+    <h2>병원이 검증하고, 동네가 퍼뜨립니다</h2>
+    <div class="grid2" style="margin-top:1cqw">
+      <div class="card"><div class="ct">임상 신뢰 · 부산대학교병원</div><p>헬스케어 스타트업 프로그램으로 <b>임상 전문가 자문</b> 확보, 편식 개선 효과의 <b>임상적 검증</b>. 2027년 식품영양학과 <b>공동연구</b>로 확장 — '병원이 검증한 서비스'.</p></div>
+      <div class="card"><div class="ct">커뮤니티 바이럴</div><p>육아 시장은 '조리원 동기·동네 커뮤니티'로 움직입니다. '식단표 영양분석'은 소개만으로 맘카페에 자발 확산, 인플루언서 실험에서 <b>이용자당 1,400원</b> 실증.</p><div style="margin-top:1cqw;padding:1cqw 1.3cqw;background:#fff;border-radius:8px;font-size:1.5cqw;font-weight:700;color:var(--navy)">💬 "사이트 알려주세요!" — 맘카페에서 <b style="color:var(--orange-d)">먼저 찾아온 부모들</b></div></div>
     </div>
-    <ul class="clean">
-      <li>누적 10만 명 아동이 이용한 <b>3,000개 브랜드 기존 고객</b>으로 크로스셀링 — 신규 브랜드의 첫 고객 확보 문제를 건너뜁니다.</li>
-      <li>육아 마이크로 인플루언서의 <b>자발적 제품 협찬</b>이 확인됐습니다.</li>
-    </ul>
+    <div class="spacer"></div>
+    <div class="big">기관에서 만난 부모가 커뮤니티에 후기를 남기며 <span class="em">두 전략이 맞물려 돕니다.</span></div>
     <div class="bm">밀프레드</div><div class="pg">09</div>
   </div></div></section>
 
@@ -226,16 +217,25 @@
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Market Size</div>
     <h2>이미 부모는 편식에 큰돈을 쓰고 있습니다</h2>
-    <div class="grid2" style="margin-top:.4cqw">
-      <div class="card"><div class="ct">현재 부모의 지출</div><p>편식 대응(영양제·이유식·요리키트·병원)에 <b style="color:var(--orange-d)">연 평균 35만원</b>(상위 15%는 50만원+). 섭식 관련 사설·병원 치료는 <b>50~100만원대</b>.</p></div>
-      <div class="tam">
-        <div class="ring r3"><span class="rl">SOM · 편식 적극 고민 가구</span><span class="rv">약 50만 가구</span></div>
-        <div class="ring r2"><span class="rl">SAM · 만 2~6세 인구</span><span class="rv">약 130만 명</span></div>
-        <div class="ring r1"><span class="rl">TAM · 성장기 헬스케어 + 글로벌</span><span class="rv">확장 시장</span></div>
+    <div style="display:flex;gap:2.6cqw;margin-top:.6cqw">
+      <div style="flex:1">
+        <div class="tam">
+          <div class="ring r3"><span class="rl">SOM · 영유아 편식</span><span class="rv">약 50만 가구</span></div>
+          <div class="ring r2"><span class="rl">SAM · 성장기 헬스케어</span><span class="rv">만 2~6세 130만</span></div>
+          <div class="ring r1"><span class="rl">TAM · 글로벌 진출</span><span class="rv">해외 아동 헬스케어</span></div>
+        </div>
+      </div>
+      <div style="flex:1">
+        <div class="card"><div class="ct">산출 근거</div>
+        <ul class="clean" style="margin-top:.3cqw">
+          <li style="font-size:1.6cqw">편식 대응(영양제·이유식·요리키트·병원) <b>연 평균 35만원</b>(상위 15%는 50만원+)</li>
+          <li style="font-size:1.6cqw">섭식 관련 병원·사설 치료는 <b>50~100만원대</b></li>
+          <li style="font-size:1.6cqw"><b>골드키즈</b> — 한 아이에게 프리미엄 소비를 집중하는 시대</li>
+        </ul></div>
       </div>
     </div>
     <div class="spacer"></div>
-    <div class="big">50만 가구 × 연 35만원 = <span class="em">이미 존재하는 수천억 원 시장</span>입니다.</div>
+    <div class="big">50만 가구 × 연 35만원 = <span class="em">이미 존재하는 수천억 원 시장</span>.</div>
     <div class="bm">밀프레드</div><div class="pg">10</div>
   </div></div></section>
 
@@ -248,7 +248,7 @@
       <div class="card"><div class="ct">해자 ② HW + SW 동시</div><p>키트(식재료+교육 교구)와 AI 코칭을 <b>동시에</b> 제공합니다. 식품사엔 코칭이 없고, 교육사엔 제조·콜드체인이 없습니다.</p></div>
     </div>
     <div class="spacer"></div>
-    <div class="big">사설 편식 치료 50~100만원 대비, <span class="em">압도적 경제성</span>까지.</div>
+    <div class="big">사설 편식 치료 50~100만원 대비 <span class="em">압도적 경제성</span>까지.</div>
     <div class="bm">밀프레드</div><div class="pg">11</div>
   </div></div></section>
 
@@ -261,9 +261,9 @@
       <div class="arrowsm">+</div>
       <div class="step"><div class="sn">수익 ②</div><div class="sh">실물 키트 구매</div><p>골고루 키트(구독) + 집중 키트(고관여). 본격 매출원.</p></div>
     </div>
-    <div class="grid2" style="margin-top:1.8cqw">
-      <div class="card"><div class="ct">1차 GTM · 거래처 3,000곳</div><p>기존 기관 거래처에 <b>원 안내문 한 장</b>이면 학부모 전체에 광고비 0원으로 침투.</p></div>
-      <div class="card"><div class="ct">2차 GTM · 커뮤니티 바이럴</div><p>맘카페·인플루언서로 '옆집 엄마 후기'가 퍼집니다 — 이용자당 <b>모집비 1,400원</b> 실증.</p></div>
+    <div class="grid2" style="margin-top:1.7cqw">
+      <div class="card"><div class="ct">GTM ① 거래처 3,000곳</div><p>원 안내문 한 장이면 학부모 전체에 <b>광고비 0원</b> 침투.</p></div>
+      <div class="card"><div class="ct">GTM ② 커뮤니티 바이럴</div><p>맘카페·인플루언서로 후기가 퍼집니다 — 이용자당 <b>모집비 1,400원</b>.</p></div>
     </div>
     <div class="bm">밀프레드</div><div class="pg">12</div>
   </div></div></section>
@@ -273,10 +273,10 @@
     <div class="label" style="color:var(--peach)">Financials · Roadmap</div>
     <h2 style="color:#fff">검증 → 성장 → 확장 → 글로벌</h2>
     <table style="color:#fff">
-      <tr><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">연도</th><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">핵심 실행</th><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">유료 가구 · 매출</th></tr>
-      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2026</td><td style="border-color:rgba(255,255,255,.2)">편식 키트 출시 · 클로즈드 베타 · 거래처/커뮤니티 가동</td><td style="border-color:rgba(255,255,255,.2)">1,000가구 · 2억</td></tr>
-      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2027</td><td style="border-color:rgba(255,255,255,.2)">시드 3억 · 영유아 건강관리 서비스 · 골고루 키트 출시</td><td style="border-color:rgba(255,255,255,.2)">5,000명 · 누적 10억</td></tr>
-      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2028</td><td style="border-color:rgba(255,255,255,.2)">HACCP 자동화 공장 · 성장기 영양관리 확장</td><td style="border-color:rgba(255,255,255,.2)">연매출 50억</td></tr>
+      <tr><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">연도</th><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">핵심 실행</th><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">목표</th></tr>
+      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2026</td><td style="border-color:rgba(255,255,255,.2)">편식 키트 출시(9종) · 클로즈드 베타 30명 · 거래처/커뮤니티 마케팅</td><td style="border-color:rgba(255,255,255,.2)">개선효과 90%</td></tr>
+      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2027</td><td style="border-color:rgba(255,255,255,.2)">시드 3억 · 식품영양학과 공동연구 · 영유아 건강관리 · 골고루 키트</td><td style="border-color:rgba(255,255,255,.2)">5,000명 · 누적 10억</td></tr>
+      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2028</td><td style="border-color:rgba(255,255,255,.2)">자동화 로봇 HACCP 공장 · 성장기 영양관리(소아비만·키·집중력)</td><td style="border-color:rgba(255,255,255,.2)">연매출 50억</td></tr>
       <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2029</td><td style="border-color:rgba(255,255,255,.2)">글로벌 진출</td><td style="border-color:rgba(255,255,255,.2)">해외 시장</td></tr>
     </table>
     <div class="foot">밀프레드 · 세상의 모든 편식을 해결합니다</div>
