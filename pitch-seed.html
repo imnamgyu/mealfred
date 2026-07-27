@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>밀프레드 — Seed Pitch</title>
+<title>밀프레드 — Pitch Deck</title>
 <style>
   :root{
-    --navy:#1a2b4a; --navy2:#16243f; --ink:#1a2b4a; --muted:#5a6373; --line:#e7ebf1;
+    --navy:#1a2b4a; --ink:#1a2b4a; --muted:#5a6373; --line:#e7ebf1;
     --orange:#FF6B1A; --orange-d:#C45A00; --peach:#FFB877; --cream:#FFF5EB; --cream2:#FFF1E6;
-    --green:#1B5E20; --blue:#1565C0; --red:#C62828;
+    --green:#1B5E20; --blue:#1565C0;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%}
@@ -16,286 +16,283 @@
   .deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;background:linear-gradient(180deg,#16243f 0%,#1a2b4a 100%)}
   .slide{height:100vh;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;padding:3.2vh 3vw}
   .frame{position:relative;width:100%;max-width:1200px;aspect-ratio:16/9;background:#fff;border-radius:16px;overflow:hidden;
-    box-shadow:0 24px 70px rgba(0,0,0,.45),0 2px 0 rgba(255,255,255,.04);container-type:inline-size}
-  .pad{position:absolute;inset:0;padding:6.2cqw 6.6cqw;display:flex;flex-direction:column}
-  /* typography scales with slide width (cqw) */
-  .label{font-size:1.55cqw;font-weight:800;letter-spacing:.14em;color:var(--orange);text-transform:uppercase;margin-bottom:2.4cqw}
-  h1{font-size:6.4cqw;font-weight:800;line-height:1.12;letter-spacing:-.01em}
-  h2{font-size:4.3cqw;font-weight:800;line-height:1.18;letter-spacing:-.01em}
-  .sub{font-size:2.2cqw;font-weight:600;color:var(--muted);line-height:1.5}
-  .big{font-size:2.5cqw;font-weight:700;line-height:1.4}
+    box-shadow:0 24px 70px rgba(0,0,0,.45);container-type:inline-size}
+  .pad{position:absolute;inset:0;padding:6cqw 6.6cqw;display:flex;flex-direction:column}
+  .label{font-size:1.55cqw;font-weight:800;letter-spacing:.14em;color:var(--orange);text-transform:uppercase;margin-bottom:2.2cqw}
+  h1{font-size:6.4cqw;font-weight:800;line-height:1.14;letter-spacing:-.01em}
+  h2{font-size:4.2cqw;font-weight:800;line-height:1.2;letter-spacing:-.01em}
+  .sub{font-size:2.15cqw;font-weight:600;color:var(--muted);line-height:1.5}
+  .big{font-size:2.45cqw;font-weight:700;line-height:1.42;color:var(--navy)}
   p{font-size:1.95cqw;line-height:1.55;color:#33405a}
-  .pg{position:absolute;right:6.6cqw;bottom:3.4cqw;font-size:1.35cqw;font-weight:800;color:#aab2c0;letter-spacing:.05em}
-  .brandmark{position:absolute;left:6.6cqw;bottom:3.4cqw;font-size:1.35cqw;font-weight:800;color:var(--orange);letter-spacing:.02em}
+  .pg{position:absolute;right:6.6cqw;bottom:3.2cqw;font-size:1.3cqw;font-weight:800;color:#aab2c0}
+  .bm{position:absolute;left:6.6cqw;bottom:3.2cqw;font-size:1.3cqw;font-weight:800;color:var(--orange)}
   .spacer{flex:1}
+  .em{color:var(--orange-d);font-weight:800}
+  ul.clean{list-style:none;margin-top:.6cqw}
+  ul.clean li{font-size:2cqw;line-height:1.5;color:#33405a;padding-left:2.6cqw;position:relative;margin-bottom:1.5cqw}
+  ul.clean li:before{content:"";position:absolute;left:0;top:.72cqw;width:1.1cqw;height:1.1cqw;border-radius:3px;background:var(--orange)}
+  ul.clean li b{color:var(--navy)}
   /* cover */
   .cover{background:linear-gradient(150deg,#1a2b4a 0%,#22345a 100%);color:#fff}
   .cover .pad{justify-content:center}
-  .cover h1{color:#fff;font-size:6.8cqw}
-  .cover .kick{font-size:2.2cqw;color:var(--peach);font-weight:700;margin-bottom:3cqw;letter-spacing:.02em}
-  .cover .tag{font-size:2.15cqw;color:#c7d0e0;margin-top:3.2cqw;font-weight:500;line-height:1.5}
-  .cover .foot{position:absolute;left:6.6cqw;bottom:5cqw;font-size:1.6cqw;color:#8ea0c0;font-weight:600}
-  .amp{color:var(--orange)}
-  /* grids */
-  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4cqw;margin-top:1cqw}
-  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:2.6cqw;margin-top:1cqw}
-  .card{background:var(--cream);border:1px solid #f0e2d3;border-radius:12px;padding:2.8cqw 2.6cqw}
-  .card .ct{font-size:2.05cqw;font-weight:800;color:var(--navy);margin-bottom:1cqw}
-  .card p{font-size:1.7cqw;line-height:1.5;color:#4a5568}
-  .card .em{color:var(--orange-d);font-weight:800}
-  .statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4cqw;margin:1.5cqw 0}
-  .stat{text-align:center;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:2.6cqw 1cqw}
+  .cover h1{color:#fff}
+  .cover .kick{font-size:2.1cqw;color:var(--peach);font-weight:700;margin-bottom:3cqw;letter-spacing:.04em}
+  .cover .tag{font-size:2.1cqw;color:#c7d0e0;margin-top:3cqw;font-weight:500;line-height:1.5}
+  .cover .foot{position:absolute;left:6.6cqw;bottom:5cqw;font-size:1.55cqw;color:#8ea0c0;font-weight:600}
+  /* grids/cards */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2cqw;margin-top:.8cqw}
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:2.4cqw;margin-top:.8cqw}
+  .card{background:var(--cream);border:1px solid #f0e2d3;border-radius:12px;padding:2.6cqw 2.4cqw}
+  .card .ct{font-size:2cqw;font-weight:800;color:var(--navy);margin-bottom:.9cqw}
+  .card p{font-size:1.68cqw;line-height:1.5;color:#4a5568}
+  .statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2cqw;margin:1.4cqw 0}
+  .stat{text-align:center;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:2.4cqw 1cqw}
   .stat.hot{background:#fff6ef;border-color:#ffd3ac}
   .stat .n{font-size:4.6cqw;font-weight:800;color:var(--orange);line-height:1}
   .stat .n.navy{color:var(--navy)}
-  .stat .l{font-size:1.5cqw;font-weight:700;color:var(--muted);margin-top:1cqw;line-height:1.35}
-  ul.clean{list-style:none;margin-top:1cqw}
-  ul.clean li{font-size:1.95cqw;line-height:1.5;color:#33405a;padding-left:2.6cqw;position:relative;margin-bottom:1.4cqw}
-  ul.clean li:before{content:"";position:absolute;left:0;top:.72cqw;width:1.1cqw;height:1.1cqw;border-radius:3px;background:var(--orange)}
-  ul.clean li b{color:var(--navy)}
+  .stat .l{font-size:1.45cqw;font-weight:700;color:var(--muted);margin-top:.9cqw;line-height:1.35}
+  /* silhouette fill (편식 현황) */
+  .fillwrap{display:flex;align-items:center;gap:4cqw;margin-top:1cqw}
+  .fillbar{flex:0 0 34cqw;height:12cqw;border-radius:14px;background:#eef1f6;position:relative;overflow:hidden;border:1.5px solid var(--line)}
+  .fillbar .fl{position:absolute;left:0;top:0;bottom:0;width:40%;background:linear-gradient(90deg,var(--orange),var(--peach));display:flex;align-items:center;justify-content:center}
+  .fillbar .fl b{color:#fff;font-size:3.4cqw;font-weight:800}
+  .fillbar .rest{position:absolute;right:3cqw;top:50%;transform:translateY(-50%);font-size:1.7cqw;font-weight:700;color:#8a97ab}
+  /* market rings */
+  .tam{display:flex;flex-direction:column;gap:1.2cqw;margin-top:1.2cqw}
+  .ring{border-radius:10px;padding:1.6cqw 2.2cqw;display:flex;justify-content:space-between;align-items:center}
+  .ring .rl{font-size:1.85cqw;font-weight:800}
+  .ring .rv{font-size:1.65cqw;font-weight:700}
+  .r1{background:#dfe6f0;color:var(--navy)} .r2{background:var(--peach);color:var(--navy)} .r3{background:var(--orange);color:#fff}
+  /* steps */
+  .steps{display:flex;gap:1.5cqw;margin-top:1.2cqw;align-items:stretch}
+  .step{flex:1;background:var(--cream);border-radius:12px;padding:2cqw 1.7cqw}
+  .step .sn{font-size:1.3cqw;font-weight:800;color:var(--orange);letter-spacing:.06em}
+  .step .sh{font-size:1.95cqw;font-weight:800;color:var(--navy);margin:.5cqw 0 .7cqw}
+  .step p{font-size:1.5cqw;line-height:1.42}
+  .arrowsm{align-self:center;color:var(--peach);font-size:2.2cqw;font-weight:800}
   /* table */
-  table{width:100%;border-collapse:collapse;margin-top:1.6cqw;font-size:1.6cqw}
-  th,td{border:1px solid #e2e7ef;padding:1.15cqw 1.2cqw;text-align:center}
+  table{width:100%;border-collapse:collapse;margin-top:1.2cqw;font-size:1.62cqw}
+  th,td{border:1px solid #e2e7ef;padding:1.1cqw 1.1cqw;text-align:center}
   th{background:#f3f5f9;font-weight:800;color:var(--navy)}
   td.g{background:var(--cream);font-weight:700;color:var(--navy)}
-  /* funnel / steps */
-  .steps{display:flex;gap:1.6cqw;margin-top:1.6cqw}
-  .step{flex:1;background:var(--cream);border-radius:12px;padding:2.2cqw 1.8cqw;position:relative}
-  .step .sn{font-size:1.35cqw;font-weight:800;color:var(--orange);letter-spacing:.08em}
-  .step .sh{font-size:2cqw;font-weight:800;color:var(--navy);margin:.6cqw 0 .8cqw}
-  .step p{font-size:1.55cqw;line-height:1.45}
-  .step.hot{background:var(--navy);}
-  .step.hot .sh,.step.hot p{color:#fff}
-  .step.hot .sn{color:var(--peach)}
-  .arrowsm{align-self:center;color:var(--peach);font-size:2.4cqw;font-weight:800}
-  /* market rings */
-  .tam{display:flex;flex-direction:column;gap:1.3cqw;margin-top:1.4cqw}
-  .ring{border-radius:10px;padding:1.7cqw 2.2cqw;display:flex;justify-content:space-between;align-items:center;color:#fff}
-  .ring .rl{font-size:1.9cqw;font-weight:800}
-  .ring .rv{font-size:1.7cqw;font-weight:700;opacity:.95}
-  .r1{background:#dfe6f0;color:var(--navy)} .r2{background:var(--peach);color:var(--navy)} .r3{background:var(--orange);}
-  .lead{font-size:2.35cqw;font-weight:700;color:var(--navy);line-height:1.4;margin-bottom:1.6cqw}
-  .em{color:var(--orange-d);font-weight:800}
-  .foot-note{font-size:1.4cqw;color:#9aa3b2;margin-top:1.4cqw}
   /* team */
-  .team{display:grid;grid-template-columns:1.2fr 1fr;gap:2.4cqw;margin-top:1cqw}
-  .teamcard{background:var(--cream);border-radius:12px;padding:2.4cqw}
-  .teamcard .r{font-size:1.55cqw;font-weight:800;color:var(--orange-d);letter-spacing:.05em}
-  .teamcard .nm{font-size:2.3cqw;font-weight:800;color:var(--navy);margin:.5cqw 0 .8cqw}
-  .teamcard p{font-size:1.6cqw;line-height:1.5}
-  .partners{display:flex;flex-direction:column;gap:1.3cqw}
-  .partner{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:1.5cqw 1.8cqw}
-  .partner b{font-size:1.75cqw;color:var(--navy)} .partner span{display:block;font-size:1.45cqw;color:var(--muted);margin-top:.3cqw}
-  .ask{display:grid;grid-template-columns:1fr 1fr;gap:2.6cqw;margin-top:1.2cqw}
-  .askbox{background:var(--navy);color:#fff;border-radius:14px;padding:3cqw;display:flex;flex-direction:column;justify-content:center}
-  .askbox .n{font-size:5.2cqw;font-weight:800;color:var(--peach);line-height:1}
-  .askbox .l{font-size:1.75cqw;font-weight:600;color:#c7d0e0;margin-top:1cqw;line-height:1.4}
-  .uses{background:var(--cream);border-radius:14px;padding:2.6cqw}
-  .uses li{font-size:1.65cqw!important}
-  /* nav */
-  .prog{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#FF8A47,#FFB877);width:0;z-index:40;transition:width .2s}
-  .counter{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:40;background:rgba(0,0,0,.34);color:rgba(255,255,255,.9);font-size:12px;font-weight:800;padding:6px 14px;border-radius:100px;backdrop-filter:blur(8px);letter-spacing:.03em}
-  .counter b{color:#FFD9B8}
-  .nav{position:fixed;right:18px;bottom:14px;z-index:40;display:flex;gap:8px}
-  .nav button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:#fff;font-size:16px;font-weight:700;cursor:pointer;backdrop-filter:blur(8px)}
-  .nav button:hover{background:rgba(255,255,255,.25)}
-  @media(max-width:680px){.nav{display:none}}
+  .team{display:grid;grid-template-columns:1.1fr 1fr;gap:2.4cqw;margin-top:.8cqw}
+  .teamlead{background:var(--navy);color:#fff;border-radius:12px;padding:2.6cqw}
+  .teamlead .r{font-size:1.5cqw;font-weight:800;color:var(--peach);letter-spacing:.05em}
+  .teamlead .nm{font-size:2.6cqw;font-weight:800;margin:.5cqw 0 .9cqw}
+  .teamlead p{font-size:1.62cqw;line-height:1.5;color:#d3dcec}
+  .partners{display:flex;flex-direction:column;gap:1.2cqw}
+  .partner{background:var(--cream);border-radius:10px;padding:1.5cqw 1.7cqw}
+  .partner b{font-size:1.72cqw;color:var(--navy)} .partner span{display:block;font-size:1.42cqw;color:var(--muted);margin-top:.25cqw}
+  .quizbig{font-size:9cqw;font-weight:800;color:var(--orange);line-height:1;margin:1cqw 0}
 </style>
 </head>
 <body>
-<div class="prog" id="prog"></div>
+<div class="prog" id="prog" style="position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#FF8A47,#FFB877);width:0;z-index:40;transition:width .2s"></div>
 <div class="deck" id="deck">
 
-  <!-- 1. COVER / PURPOSE -->
+  <!-- 1 COVER -->
   <section class="slide"><div class="frame cover"><div class="pad">
     <div class="kick">밀프레드 · MEALFRED</div>
-    <h1>편식은 못 고치는 게 아니라<br>방법을 몰랐을 뿐입니다</h1>
-    <div class="tag">전 세계 편식 이론 35가지를 하나로 통합한, <span class="amp">우리 아이 편식 전담 코치</span>.<br>강요 없는 놀이형 키트와 AI 코칭으로 5주 만에 편식을 교정합니다.</div>
-    <div class="foot">모두의 창업 1R · Seed Pitch · 2026</div>
+    <h1>세상의 모든 편식을<br>해결합니다</h1>
+    <div class="tag">전 세계 편식 이론 35가지를 하나로 통합한, 우리 아이 편식 전담 코치.<br>강요 없는 놀이형 키트와 AI 코칭으로 편식을 교정합니다.</div>
+    <div class="foot">Seed Pitch · 2026</div>
   </div></div></section>
 
-  <!-- 2. PROBLEM -->
+  <!-- 2 편식의 현황 -->
   <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Problem</div>
-    <h2>편식은 두 집 중 한 집의 문제인데,<br>해결은 가정에 방치돼 있습니다</h2>
-    <div class="statrow">
-      <div class="stat"><div class="n">40%</div><div class="l">영유아 편식 습관<br>(보건복지부, 2016)</div></div>
-      <div class="stat"><div class="n">61.2%</div><div class="l">만 3~5세 특정 음식 거부<br>(대한지역사회영양학회지)</div></div>
-      <div class="stat hot"><div class="n">수천억</div><div class="l">편식 대응 가계 지출<br>(연 20만원 × 50만 가구)</div></div>
+    <div class="label">Problem · 편식의 현황</div>
+    <h2>영유아 40%가 겪는, 흔하지만 방치된 문제</h2>
+    <div class="fillwrap">
+      <div class="fillbar"><div class="fl"><b>40%</b></div><div class="rest">영유아 편식</div></div>
+      <div style="flex:1"><p><b style="color:var(--navy)">식습관 형성 골든타임은 만 2~6세.</b> 이 시기를 놓치면 편향된 식습관이 성인병(비만 등)으로 이어집니다. (보건복지부 영유아 건강검진)</p></div>
     </div>
-    <ul class="clean">
-      <li><b>개인 성향</b> — 아이마다 감각·기질이 달라 부모가 스스로 판단하기 어렵습니다</li>
-      <li><b>잘못된 통념</b> — 정부 교육은 실물이 없고, 그 빈자리를 맘카페 미신('몰래 갈아 먹이기')이 채웁니다</li>
-      <li><b>악화되는 환경</b> — 응답 가정의 <span class="em">90%</span>가 편식을 악화시키는 식사 환경을 갖고 있었습니다</li>
-    </ul>
-    <div class="brandmark">밀프레드</div><div class="pg">02</div>
+    <div class="grid2" style="margin-top:1.6cqw">
+      <div class="card"><div class="ct">건강 문제 4가지</div><p>성장 지연 · 면역력 저하 · 신경과민 · 학습장애 (식약처 어린이급식관리지원센터). 철분 결핍은 ADHD와도 연관(Konofal, 2004).</p></div>
+      <div class="card"><div class="ct">→ 성인병으로</div><p>골든타임을 놓친 편식은 평생 식습관이 되어 비만·만성질환의 씨앗이 됩니다.</p></div>
+    </div>
+    <div class="bm">밀프레드</div><div class="pg">02</div>
   </div></div></section>
 
-  <!-- 3. WHY NOW -->
+  <!-- 3 정답률 10% (퀴즈 훅) -->
   <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Why Now</div>
-    <h2>지금이 아니면 안 되는 이유</h2>
-    <div class="grid3">
-      <div class="card"><div class="ct">① 골든타임</div><p>식습관은 <span class="em">만 2~6세</span>에 형성됩니다. 이 시기를 놓치면 성인 비만·만성질환으로 이어집니다.</p></div>
-      <div class="card"><div class="ct">② 정부가 못 채운 공백</div><p>보건복지부·급식지원센터가 '푸드브릿지'를 이론화했지만 <span class="em">가정용 실물이 없습니다</span>.</p></div>
-      <div class="card"><div class="ct">③ AI 코칭의 성숙</div><p>이제 아이별 반응을 시계열로 분석해 <span class="em">매일 다른 처방</span>을 자동으로 줄 수 있습니다.</p></div>
+    <div class="label">그런데, 부모는 편식을 잘 알까요?</div>
+    <h2>당신의 편식 상식 점수는?</h2>
+    <div style="display:flex;align-items:center;gap:5cqw;margin-top:.5cqw">
+      <div style="text-align:center"><div class="quizbig">50<span style="font-size:4cqw">점</span></div><div style="font-size:1.6cqw;font-weight:700;color:var(--muted)">부모 상식 퀴즈 평균 (실측)</div></div>
+      <div style="flex:1">
+        <ul class="clean">
+          <li>무료 '편식 상식점수' 퀴즈 응답자 평균이 <b>100점 만점에 약 50점</b> — 부모의 지식 공백이 큽니다.</li>
+          <li>가장 많이 틀린 문항은 '그릇 비우기'처럼 <b>매일 하는 흔한 습관</b>이었습니다.</li>
+        </ul>
+      </div>
     </div>
     <div class="spacer"></div>
-    <div class="big" style="color:var(--navy)">검증된 이론 · 정부가 남긴 실물 공백 · AI — 세 조건이 처음으로 동시에 갖춰졌습니다.</div>
-    <div class="brandmark">밀프레드</div><div class="pg">03</div>
+    <div class="big">부모가 편식을 안다는 건 착각입니다. <span class="em">문제의 시작은 잘못된 지식입니다.</span></div>
+    <div class="bm">밀프레드</div><div class="pg">03</div>
   </div></div></section>
 
-  <!-- 4. SOLUTION -->
+  <!-- 4 편식이 풀기 어려운 이유 -->
+  <section class="slide"><div class="frame"><div class="pad">
+    <div class="label">Why it's hard · 편식이 풀기 어려운 이유</div>
+    <h2>정보는 틀렸고, 처방은 아이마다 달라야 합니다</h2>
+    <div class="grid2" style="margin-top:1cqw">
+      <div class="card"><div class="ct">① 잘못된 미신</div><p>맘카페에 퍼진 '몰래 갈아 먹이기', '한 입만 더' 같은 <b style="color:var(--orange-d)">역효과 방법</b>이 지식처럼 통용됩니다.</p></div>
+      <div class="card"><div class="ct">② 개인화 처방의 부재</div><p>아이마다 타고난 감각·기질·식사 환경이 달라, <b style="color:var(--orange-d)">아이별 맞춤 처방</b>이 필요합니다. 일반론 강의로는 안 풀립니다.</p></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="big">정부·급식센터의 교육자료조차 <span class="em">가정에서 실행할 실물이 없습니다.</span></div>
+    <div class="bm">밀프레드</div><div class="pg">04</div>
+  </div></div></section>
+
+  <!-- 5 개인적 동기 -->
+  <section class="slide"><div class="frame"><div class="pad">
+    <div class="label">Why us · 개인적 동기</div>
+    <h2>골드키즈 시대, 저희 집 식탁에서 시작됐습니다</h2>
+    <ul class="clean">
+      <li><b>골드키즈</b> — 아이를 적게 낳는 대신 한 명에게 프리미엄 소비를 집중하는 시대입니다.</li>
+      <li>귀하게 자라는 <b>다섯 살 조카</b>도 편식이 심했고, 아이 엄마는 맘카페를 보며 이것저것 시도했지만 효과가 없었습니다.</li>
+      <li>매년 <b>수십만 원의 영양제와 이유식</b>을 사도 편식은 조금도 나아지지 않았습니다.</li>
+    </ul>
+    <div class="spacer"></div>
+    <div class="big">돈은 쓰는데 아이는 그대로 — 수많은 부모가 겪는 현실이었습니다.</div>
+    <div class="bm">밀프레드</div><div class="pg">05</div>
+  </div></div></section>
+
+  <!-- 6 아하 모먼트 -->
+  <section class="slide"><div class="frame"><div class="pad">
+    <div class="label">Aha Moment</div>
+    <h2>3주 만에, 조카가 스스로 당근을 집어 먹었습니다</h2>
+    <ul class="clean">
+      <li>전 세계 편식 지침과 이론을 연구해 <b>솔루션을 빠르게 구현</b>했습니다.</li>
+      <li><b>주 3회, 하루 20분</b>씩 진행한 편식 개선 세션.</li>
+      <li>3주 만에 <b>채소를 싫어하던 아이가 생당근을 스스로 집어 먹었습니다.</b></li>
+    </ul>
+    <div class="spacer"></div>
+    <div class="big">편식은 타고난 기질이 아니라, <span class="em">올바른 방법으로 교정되는 '행동'</span>입니다.</div>
+    <div class="bm">밀프레드</div><div class="pg">06</div>
+  </div></div></section>
+
+  <!-- 7 Solution 35이론 -->
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Solution</div>
-    <h2>강요하지 않는 놀이형 단계적 접근을<br>상자 하나에 담았습니다</h2>
+    <h2>전 세계 35가지 편식 이론을 하나로 통합했습니다</h2>
     <div class="grid3">
-      <div class="card"><div class="ct">① 단계적 접근 (SOS)</div><p>'먹기'를 6단계(세부 32)로 쪼갭니다. 겁내면 한 단계 물러나는 <span class="em">비강요 방식</span>. 1997년부터 검증된 SOS 접근법.</p></div>
-      <div class="card"><div class="ct">② 상황별 AI 코칭</div><p>뱉으면·거부하면 어떻게 할지, 아이 반응을 시계열 분석해 <span class="em">그날의 대처법</span>을 앱이 안내합니다.</p></div>
-      <div class="card"><div class="ct">③ 놀이 → 요리</div><p>1~3주 감각놀이로 적응, 4~5주 직접 요리로 <span class="em">'내가 만든 음식'</span>을 스스로 먹는 이케아 효과.</p></div>
+      <div class="card"><div class="ct">① 단계적 접근 (물리 키트)</div><p>SOS 6단계로 '먹기'를 잘게 쪼갠 <b>비강요 놀이형 키트</b>.</p></div>
+      <div class="card"><div class="ct">② 개인화 AI 코칭</div><p>아이 반응을 시계열 분석해 <b>매일 오늘의 대처법</b>을 안내. 결정론적 엔진이라 환각이 없고, 아이 1명당 <b style="color:var(--orange-d)">월 300원</b>. 부모는 편식 이론을 몰라도 됩니다.</p></div>
+      <div class="card"><div class="ct">③ 놀이교육</div><p>감각놀이 → 직접 요리로 <b>'내가 만든 음식'</b>을 스스로 먹는 이케아 효과.</p></div>
     </div>
     <div class="spacer"></div>
-    <div class="big" style="color:var(--navy)">아이가 거부하는 식재료 하나를, <span class="em">5주 21회 노출</span>로 극복합니다.</div>
-    <div class="brandmark">밀프레드</div><div class="pg">04</div>
+    <div class="big">키트(HW) + AI 코칭(SW)을 <span class="em">함께 구현한 서비스는 저희가 처음</span>입니다.</div>
+    <div class="bm">밀프레드</div><div class="pg">07</div>
   </div></div></section>
 
-  <!-- 5. PRODUCT -->
+  <!-- 8 Team -->
   <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Product · 당근 키트 예시</div>
-    <h2>5주의 여정 — 모든 코스가 같은 사다리를 오릅니다</h2>
-    <table>
-      <tr><th>주차</th><th>목표</th><th>대표 활동</th><th>노출 단계</th></tr>
-      <tr><td class="g">1주</td><td>눈으로 친해지기</td><td>당근 도장 찍기, 색깔 탐험</td><td>견디기·상호작용</td></tr>
-      <tr><td class="g">2주</td><td>만지고 냄새 맡기</td><td>촉감 탐정, 강판 갈기</td><td>냄새·만지기</td></tr>
-      <tr><td class="g">3주</td><td>입 근처까지</td><td>모양 놀이, 립터치, 디핑</td><td>만지기·맛보기</td></tr>
-      <tr><td class="g">4주</td><td>한 입 도전</td><td>반조리 요리에 토핑 올려 완성</td><td>맛보기·먹기</td></tr>
-      <tr><td class="g">5주</td><td>스스로 먹기</td><td>요리 완성, 수료식</td><td>먹기</td></tr>
-    </table>
-    <ul class="clean" style="margin-top:1.8cqw">
-      <li>당근을 시작으로 <b>양파·두부·버섯·토마토·파프리카·시금치·브로콜리·가지 등 9종 코스</b> — 아이의 거부 패턴에 맞게 처방</li>
-    </ul>
-    <div class="brandmark">밀프레드</div><div class="pg">05</div>
+    <div class="label">Team · 전국 1위 교육용 요리키트 브랜드를 만든 팀</div>
+    <h2>HW와 SW를 모두 해내는 팀</h2>
+    <div class="team">
+      <div class="teamlead">
+        <div class="r">FOUNDER / CEO</div>
+        <div class="nm">대표</div>
+        <p>요리 수업용 키트 20종을 개발해 <b style="color:#fff">선생님(부모)·학생(자녀)이 함께 쓰는 교구</b> 개발 역량을 검증. 개발자 출신으로 앱·웹·코칭 엔진을 직접 구현.</p>
+      </div>
+      <div class="partners">
+        <div class="partner"><b>푸드희스토리 (협력사)</b><span>제조·물류 지원 · 5천만원 MOU</span></div>
+        <div class="partner"><b>김효진 (팀원)</b><span>교육학 석사 · 미술학원 운영 · 놀이 교구 설계</span></div>
+        <div class="partner"><b>Why us</b><span>HW와 SW를 둘 다 해야만 하는 서비스 — 어느 진영도 못 들어옵니다</span></div>
+      </div>
+    </div>
+    <div class="bm">밀프레드</div><div class="pg">08</div>
   </div></div></section>
 
-  <!-- 6. TRACTION (앞으로 당김) -->
+  <!-- 9 지표 Traction -->
   <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Traction · 광고비 없이 확인한 신호</div>
-    <h2>이미 시장이 반응하고 있습니다</h2>
+    <div class="label">Traction · 지표</div>
+    <h2>이미 확보된 채널, 이미 반응한 시장</h2>
     <div class="statrow">
-      <div class="stat hot"><div class="n">절반</div><div class="l">거래처 원(園) 정원의 절반 가정이<br>안내문 한 장으로 코칭 신청</div></div>
-      <div class="stat hot"><div class="n">₩1,400</div><div class="l">인플루언서 실험 이용자당 모집 비용<br>(6만원 → 43명 이용)</div></div>
-      <div class="stat"><div class="n navy">50점</div><div class="l">부모 편식 상식 평균<br>(자체 퀴즈 실측)</div></div>
+      <div class="stat hot"><div class="n">10만+</div><div class="l">기존 요리키트 이용 아동<br>(3,000개 기관 거래처)</div></div>
+      <div class="stat hot"><div class="n">10k</div><div class="l">인플루언서 자발적 협찬<br>평균 조회수(내외)</div></div>
+      <div class="stat"><div class="n navy">80%</div><div class="l">파일럿 편식 개선효과<br>목표치</div></div>
     </div>
     <ul class="clean">
-      <li>설문 거부 상위 식재료(파프리카·당근·브로콜리·토마토·시금치)가 <b>우리 키트 라인업과 정확히 일치</b></li>
-      <li>'식단표 영양분석'은 소개만으로 <b>맘카페에 자발적으로 확산</b> — 커뮤니티 바이럴 신호 확인</li>
+      <li>누적 10만 명 아동이 이용한 <b>3,000개 브랜드 기존 고객</b>으로 크로스셀링 — 신규 브랜드의 첫 고객 확보 문제를 건너뜁니다.</li>
+      <li>육아 마이크로 인플루언서의 <b>자발적 제품 협찬</b>이 확인됐습니다.</li>
     </ul>
-    <div class="brandmark">밀프레드</div><div class="pg">06</div>
+    <div class="bm">밀프레드</div><div class="pg">09</div>
   </div></div></section>
 
-  <!-- 7. MARKET -->
+  <!-- 10 Market -->
   <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Market</div>
-    <h2>골든타임에서 시작해 성장기 전체로</h2>
-    <div class="tam">
-      <div class="ring r3"><span class="rl">SOM · 편식 적극 고민 가구</span><span class="rv">약 50만 가구</span></div>
-      <div class="ring r2"><span class="rl">SAM · 만 2~6세 인구</span><span class="rv">약 130만 명</span></div>
-      <div class="ring r1"><span class="rl">TAM · 성장기 자녀 헬스케어 + 글로벌</span><span class="rv">국내 성장기 아동 전체 → 해외</span></div>
+    <div class="label">Market Size</div>
+    <h2>이미 부모는 편식에 큰돈을 쓰고 있습니다</h2>
+    <div class="grid2" style="margin-top:.4cqw">
+      <div class="card"><div class="ct">현재 부모의 지출</div><p>편식 대응(영양제·이유식·요리키트·병원)에 <b style="color:var(--orange-d)">연 평균 35만원</b>(상위 15%는 50만원+). 섭식 관련 사설·병원 치료는 <b>50~100만원대</b>.</p></div>
+      <div class="tam">
+        <div class="ring r3"><span class="rl">SOM · 편식 적극 고민 가구</span><span class="rv">약 50만 가구</span></div>
+        <div class="ring r2"><span class="rl">SAM · 만 2~6세 인구</span><span class="rv">약 130만 명</span></div>
+        <div class="ring r1"><span class="rl">TAM · 성장기 헬스케어 + 글로벌</span><span class="rv">확장 시장</span></div>
+      </div>
     </div>
     <div class="spacer"></div>
-    <div class="big" style="color:var(--navy)">진입은 편식 골든타임, 확장은 <span class="em">영양·성장 관리 전반</span>, 최종은 글로벌 자녀 헬스케어.</div>
-    <div class="brandmark">밀프레드</div><div class="pg">07</div>
+    <div class="big">50만 가구 × 연 35만원 = <span class="em">이미 존재하는 수천억 원 시장</span>입니다.</div>
+    <div class="bm">밀프레드</div><div class="pg">10</div>
   </div></div></section>
 
-  <!-- 8. COMPETITION / MOAT -->
+  <!-- 11 해자 -->
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Competitive Advantage · 해자</div>
     <h2>어느 진영도 쉽게 못 들어옵니다</h2>
-    <div class="grid2">
-      <div class="card"><div class="ct">새로운 카테고리</div><p>키트는 <span class="em">식재료이자 교육 교구</span>. 식품사엔 코칭이 없고, 교육사엔 제조·콜드체인이 없습니다.</p></div>
-      <div class="card"><div class="ct">세계 최초 35이론 통합</div><p>흩어진 편식 이론의 장점을 <span class="em">실물 키트 + AI 코칭</span>으로 함께 구현한 건 우리가 처음입니다.</p></div>
-      <div class="card"><div class="ct">쌓이는 데이터 해자</div><p>아이별 몇 달치 식사 기록은 복제 불가. 쌓일수록 <span class="em">추천이 정확해지고 이탈이 어려워집니다.</span></p></div>
-      <div class="card"><div class="ct">압도적 경제성</div><p>사설 식습관 교정은 <span class="em">50~100만원</span>. 밀프레드는 그보다 훨씬 낮은 비용으로 해결합니다.</p></div>
+    <div class="grid2" style="margin-top:1cqw">
+      <div class="card"><div class="ct">해자 ① 데이터 비즈니스</div><p>본질적으로 <b>개인화 데이터 사업</b>입니다. 아이별로 쌓인 몇 달치 식사 기록은 복제 불가 — 쌓일수록 추천이 정확해지고 이탈이 어려워집니다.</p></div>
+      <div class="card"><div class="ct">해자 ② HW + SW 동시</div><p>키트(식재료+교육 교구)와 AI 코칭을 <b>동시에</b> 제공합니다. 식품사엔 코칭이 없고, 교육사엔 제조·콜드체인이 없습니다.</p></div>
     </div>
-    <div class="brandmark">밀프레드</div><div class="pg">08</div>
+    <div class="spacer"></div>
+    <div class="big">사설 편식 치료 50~100만원 대비, <span class="em">압도적 경제성</span>까지.</div>
+    <div class="bm">밀프레드</div><div class="pg">11</div>
   </div></div></section>
 
-  <!-- 9. BUSINESS MODEL / GTM -->
+  <!-- 12 BM/GTM -->
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Business Model · Go-to-Market</div>
-    <h2>3단계로 신뢰를 쌓아 키트로 전환합니다</h2>
+    <h2>구독으로 쌓고, 키트로 번다</h2>
     <div class="steps">
-      <div class="step"><div class="sn">STEP 1 · 무료</div><div class="sh">쿠키 서비스</div><p>식단표 평가·영양분석. 문턱 0원의 입구.</p></div>
-      <div class="arrowsm">→</div>
-      <div class="step"><div class="sn">STEP 2 · 월 4,900</div><div class="sh">AI 코칭 구독</div><p>매일 기록·처방. 데이터가 쌓이는 원료.</p></div>
-      <div class="arrowsm">→</div>
-      <div class="step hot"><div class="sn">STEP 3 · 매출원</div><div class="sh">실물 키트</div><p>골고루 키트(구독) + 집중 키트(고관여).</p></div>
+      <div class="step"><div class="sn">수익 ①</div><div class="sh">AI 코칭 구독료</div><p>매일 처방하는 코치. 데이터가 쌓이는 원료이자 반복 매출.</p></div>
+      <div class="arrowsm">+</div>
+      <div class="step"><div class="sn">수익 ②</div><div class="sh">실물 키트 구매</div><p>골고루 키트(구독) + 집중 키트(고관여). 본격 매출원.</p></div>
     </div>
-    <div class="grid2" style="margin-top:2cqw">
-      <div class="card"><div class="ct">1차 · 거래처 레버리지</div><p>3년간 구축한 <span class="em">전국 기관 거래처 2,000곳</span>. 원 안내문 한 장이면 학부모 전체에게 광고비 0원으로 침투합니다.</p></div>
-      <div class="card"><div class="ct">2차 · 커뮤니티 바이럴</div><p>맘카페·인플루언서로 '옆집 엄마 후기'가 퍼집니다. 이용자당 <span class="em">모집 비용 1,400원</span> 실증.</p></div>
+    <div class="grid2" style="margin-top:1.8cqw">
+      <div class="card"><div class="ct">1차 GTM · 거래처 3,000곳</div><p>기존 기관 거래처에 <b>원 안내문 한 장</b>이면 학부모 전체에 광고비 0원으로 침투.</p></div>
+      <div class="card"><div class="ct">2차 GTM · 커뮤니티 바이럴</div><p>맘카페·인플루언서로 '옆집 엄마 후기'가 퍼집니다 — 이용자당 <b>모집비 1,400원</b> 실증.</p></div>
     </div>
-    <div class="brandmark">밀프레드</div><div class="pg">09</div>
+    <div class="bm">밀프레드</div><div class="pg">12</div>
   </div></div></section>
 
-  <!-- 10. TEAM -->
-  <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Team</div>
-    <h2>실행할 수 있는 팀 · 검증된 파트너</h2>
-    <div class="team">
-      <div class="teamcard">
-        <div class="r">FOUNDER / CEO</div>
-        <div class="nm">임남규</div>
-        <p>개발자 출신 창업가. 지난 3년간 영유아 교육용 요리키트 20종을 개발해 <b>전국 3,000곳 기관에 납품</b>. 편식 이론 35가지를 직접 통합·구현.</p>
-      </div>
-      <div class="partners">
-        <div class="partner"><b>부경대 미술교육학 석사</b><span>놀이형 편식 교구 공동 설계</span></div>
-        <div class="partner"><b>푸드희스토리 (MOU)</b><span>5천만원 규모 밀키트 제조·콜드체인</span></div>
-        <div class="partner"><b>부산대학교병원 (추진)</b><span>임상 전문가 자문·편식 개선 임상 검증</span></div>
-      </div>
-    </div>
-    <div class="brandmark">밀프레드</div><div class="pg">10</div>
-  </div></div></section>
-
-  <!-- 11. FINANCIALS / ROADMAP -->
-  <section class="slide"><div class="frame"><div class="pad">
-    <div class="label">Roadmap · Financials</div>
-    <h2>검증(2026) → 성장 → 확장 → 글로벌</h2>
-    <table>
-      <tr><th>연도</th><th>단계</th><th>핵심 실행</th><th>유료 가구 · 매출</th></tr>
-      <tr><td class="g">2026</td><td>검증·베타</td><td>파일럿 실측, 거래처·커뮤니티 가동, 베타 600명</td><td>1,000가구 · 2억</td></tr>
-      <tr><td class="g">2027</td><td>본격 성장</td><td>영양관리 AI 고도화, 집중 키트 확장, 커뮤니티</td><td>1만 가구 · 20억</td></tr>
-      <tr><td class="g">2028</td><td>아이템 확장</td><td>초등 성장 관리(영양·성장·집중력)로 확장</td><td>5만 가구 · 100억</td></tr>
-      <tr><td class="g">2029</td><td>글로벌</td><td>검증된 편식 코칭 모델 해외 진출</td><td>10만 가구 · 200억</td></tr>
-    </table>
-    <div class="foot-note">* 매출 목표는 가구수 × 객단가 × 전환율 기반 추정치이며, 파일럿 실측으로 정교화합니다.</div>
-    <div class="brandmark">밀프레드</div><div class="pg">11</div>
-  </div></div></section>
-
-  <!-- 12. THE ASK -->
+  <!-- 13 Roadmap -->
   <section class="slide"><div class="frame cover"><div class="pad">
-    <div class="label" style="color:var(--peach)">The Ask</div>
-    <h2 style="color:#fff">시드 3억으로<br>검증된 성장 공식을 확장합니다</h2>
-    <div class="ask">
-      <div class="askbox"><div class="n">3억</div><div class="l">시드 라운드 조달<br>+ 정부 사업화 자금 연계<br>(B-스타트업챌린지 · 부산대병원 인큐베이터 등)</div></div>
-      <div class="uses"><ul class="clean">
-        <li style="color:#33405a"><b>제품·생산</b> — 편식 키트 제조·배송(푸드희스토리 MOU)</li>
-        <li style="color:#33405a"><b>임상 검증</b> — 부산대병원 협업, 편식 개선 효과 입증</li>
-        <li style="color:#33405a"><b>성장</b> — 거래처 2,000곳 확산 + 커뮤니티 바이럴</li>
-        <li style="color:#33405a"><b>AI 고도화</b> — 코칭 엔진 개인화 품질</li>
-      </ul></div>
-    </div>
-    <div class="foot">밀프레드 · 쌓일수록 정확해지는 코치, 쌓일수록 떠나기 어려운 데이터</div>
+    <div class="label" style="color:var(--peach)">Financials · Roadmap</div>
+    <h2 style="color:#fff">검증 → 성장 → 확장 → 글로벌</h2>
+    <table style="color:#fff">
+      <tr><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">연도</th><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">핵심 실행</th><th style="background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)">유료 가구 · 매출</th></tr>
+      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2026</td><td style="border-color:rgba(255,255,255,.2)">편식 키트 출시 · 클로즈드 베타 · 거래처/커뮤니티 가동</td><td style="border-color:rgba(255,255,255,.2)">1,000가구 · 2억</td></tr>
+      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2027</td><td style="border-color:rgba(255,255,255,.2)">시드 3억 · 영유아 건강관리 서비스 · 골고루 키트 출시</td><td style="border-color:rgba(255,255,255,.2)">5,000명 · 누적 10억</td></tr>
+      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2028</td><td style="border-color:rgba(255,255,255,.2)">HACCP 자동화 공장 · 성장기 영양관리 확장</td><td style="border-color:rgba(255,255,255,.2)">연매출 50억</td></tr>
+      <tr><td style="border-color:rgba(255,255,255,.2);color:var(--peach);font-weight:800">2029</td><td style="border-color:rgba(255,255,255,.2)">글로벌 진출</td><td style="border-color:rgba(255,255,255,.2)">해외 시장</td></tr>
+    </table>
+    <div class="foot">밀프레드 · 세상의 모든 편식을 해결합니다</div>
   </div></div></section>
 
 </div>
-<div class="counter"><b id="cur">1</b> / 12</div>
-<div class="nav"><button onclick="go(-1)">‹</button><button onclick="go(1)">›</button></div>
+<div style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:40;background:rgba(0,0,0,.34);color:rgba(255,255,255,.9);font-size:12px;font-weight:800;padding:6px 14px;border-radius:100px"><span id="cur">1</span> / 13</div>
+<div style="position:fixed;right:18px;bottom:14px;z-index:40;display:flex;gap:8px">
+  <button onclick="go(-1)" style="width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:#fff;font-size:16px;font-weight:700;cursor:pointer">‹</button>
+  <button onclick="go(1)" style="width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:#fff;font-size:16px;font-weight:700;cursor:pointer">›</button>
+</div>
 <script>
   const deck=document.getElementById('deck'), slides=[...document.querySelectorAll('.slide')];
   const prog=document.getElementById('prog'), cur=document.getElementById('cur');
   function idx(){return Math.round(deck.scrollTop/window.innerHeight)}
-  function upd(){const i=idx();cur.textContent=i+1;prog.style.width=((i)/(slides.length-1)*100)+'%'}
+  function upd(){const i=idx();cur.textContent=i+1;prog.style.width=(i/(slides.length-1)*100)+'%'}
   function go(d){const i=Math.max(0,Math.min(slides.length-1,idx()+d));slides[i].scrollIntoView()}
   deck.addEventListener('scroll',()=>{clearTimeout(window._t);window._t=setTimeout(upd,60)});
   addEventListener('keydown',e=>{if(['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1)}});
