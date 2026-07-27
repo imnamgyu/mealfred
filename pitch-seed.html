@@ -86,28 +86,42 @@
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Problem</div>
     <h2>편식의 현황</h2>
-    <div style="display:flex;gap:4cqw;margin-top:1.2cqw;align-items:center">
-      <div style="flex:0 0 21cqw;text-align:center">
-        <svg viewBox="0 0 200 280" style="width:100%;height:auto">
-          <defs>
-            <clipPath id="kidclip"><path d="M100 10 c-25 0 -45 20 -45 45 c0 18 11 34 26 41 c-22 5 -37 22 -43 45 c-6 23 -8 62 -8 99 c0 22 5 40 14 40 h112 c9 0 14 -18 14 -40 c0 -37 -2 -76 -8 -99 c-6 -23 -21 -40 -43 -45 c15 -7 26 -23 26 -41 c0 -25 -20 -45 -45 -45 z"/></clipPath>
-            <linearGradient id="og" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FF6B1A"/><stop offset="1" stop-color="#FFB877"/></linearGradient>
-          </defs>
-          <g clip-path="url(#kidclip)">
-            <rect x="0" y="0" width="200" height="280" fill="#e6eaf0"/>
-            <rect x="0" y="168" width="200" height="112" fill="url(#og)"/>
-          </g>
-          <text x="100" y="212" text-anchor="middle" font-size="44" font-weight="800" fill="#fff" font-family="Pretendard,sans-serif">40%</text>
-        </svg>
-        <div style="font-size:1.7cqw;font-weight:800;color:var(--navy);margin-top:.8cqw">영유아가 편식</div>
-        <div style="font-size:1.25cqw;color:var(--muted);margin-top:.35cqw">출처: 보건복지부 영유아 건강검진</div>
+    <div style="position:relative;width:70cqw;margin:1cqw auto 0">
+      <svg viewBox="0 0 900 430" style="width:100%;display:block">
+        <defs>
+          <clipPath id="kidclip"><path d="M100 10 c-25 0 -45 20 -45 45 c0 18 11 34 26 41 c-22 5 -37 22 -43 45 c-6 23 -8 62 -8 99 c0 22 5 40 14 40 h112 c9 0 14 -18 14 -40 c0 -37 -2 -76 -8 -99 c-6 -23 -21 -40 -43 -45 c15 -7 26 -23 26 -41 c0 -25 -20 -45 -45 -45 z"/></clipPath>
+          <linearGradient id="og" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FF6B1A"/><stop offset="1" stop-color="#FFB877"/></linearGradient>
+        </defs>
+        <!-- 연결선 -->
+        <g stroke="#c9d2df" stroke-width="2.5" stroke-dasharray="5 5" fill="none">
+          <path d="M393 89 L230 82"/><path d="M507 89 L670 82"/><path d="M515 218 L680 225"/><path d="M412 359 L230 350"/>
+        </g>
+        <g fill="#FF6B1A"><circle cx="393" cy="89" r="5"/><circle cx="507" cy="89" r="5"/><circle cx="515" cy="218" r="5"/><circle cx="412" cy="359" r="5"/></g>
+        <!-- 아이 실루엣 40% -->
+        <g transform="translate(315,15) scale(1.35)">
+          <g clip-path="url(#kidclip)"><rect x="0" y="0" width="200" height="280" fill="#e6eaf0"/><rect x="0" y="168" width="200" height="112" fill="url(#og)"/></g>
+          <text x="100" y="212" text-anchor="middle" font-size="40" font-weight="800" fill="#fff" font-family="Pretendard,sans-serif">40%</text>
+        </g>
+        <text x="450" y="415" text-anchor="middle" font-size="21" font-weight="800" fill="#1a2b4a" font-family="Pretendard,sans-serif">영유아 편식 비율</text>
+      </svg>
+      <div style="position:absolute;left:18.3%;top:18.6%;transform:translate(-50%,-50%);text-align:center;width:22cqw">
+        <div style="width:5.2cqw;height:5.2cqw;border-radius:50%;background:#fff;border:2.5px solid var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 14px rgba(255,107,26,.18);font-size:2.7cqw">⚡</div>
+        <div style="font-size:1.75cqw;font-weight:800;color:var(--navy);margin-top:.5cqw">신경과민</div>
       </div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:1.5cqw">
-        <div class="card"><div class="ct">건강 문제 4가지</div><p>성장 지연 · 면역력 저하 · 신경과민 · 학습장애 (식약처). 철분 결핍은 ADHD와도 연관.</p></div>
-        <div class="card"><div class="ct">골든타임 만 2~6세</div><p>식습관이 형성되는 시기. 놓치면 편향된 식습관이 굳어집니다.</p></div>
-        <div class="card"><div class="ct">→ 성인병으로</div><p>방치된 편식은 평생 식습관이 되어 비만·만성질환의 씨앗이 됩니다.</p></div>
+      <div style="position:absolute;left:81.7%;top:18.6%;transform:translate(-50%,-50%);text-align:center;width:22cqw">
+        <div style="width:5.2cqw;height:5.2cqw;border-radius:50%;background:#fff;border:2.5px solid var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 14px rgba(255,107,26,.18);font-size:2.7cqw">🧠</div>
+        <div style="font-size:1.75cqw;font-weight:800;color:var(--navy);margin-top:.5cqw">학습장애</div>
+      </div>
+      <div style="position:absolute;left:82.8%;top:52.3%;transform:translate(-50%,-50%);text-align:center;width:22cqw">
+        <div style="width:5.2cqw;height:5.2cqw;border-radius:50%;background:#fff;border:2.5px solid var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 14px rgba(255,107,26,.18);font-size:2.7cqw">🛡️</div>
+        <div style="font-size:1.75cqw;font-weight:800;color:var(--navy);margin-top:.5cqw">면역력 저하</div>
+      </div>
+      <div style="position:absolute;left:18.3%;top:81.4%;transform:translate(-50%,-50%);text-align:center;width:22cqw">
+        <div style="width:5.2cqw;height:5.2cqw;border-radius:50%;background:#fff;border:2.5px solid var(--orange);display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 14px rgba(255,107,26,.18);font-size:2.7cqw">📏</div>
+        <div style="font-size:1.75cqw;font-weight:800;color:var(--navy);margin-top:.5cqw">성장 지연 · 키</div>
       </div>
     </div>
+    <div style="text-align:center;margin-top:1cqw;font-size:1.5cqw;color:var(--muted)">편식이 방치되면 나타나는 <b style="color:var(--navy)">4가지 건강 문제</b> (식약처) · 골든타임 만 2~6세 · 출처: 보건복지부 영유아 건강검진</div>
     <div class="bm">밀프레드</div><div class="pg">02</div>
   </div></div></section>
 
@@ -184,16 +198,52 @@
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Team</div>
     <h2>전국 1등 교육용 요리키트 브랜드를 만든 팀</h2>
-    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:2.2cqw;margin-top:.6cqw">
-      <div class="teamlead">
-        <div class="r">FOUNDER / CEO · 임남규</div>
-        <div class="nm">개발자 출신 창업가</div>
-        <p>교육용 요리키트 20종을 개발해 선생님·자녀가 함께 쓰는 교구 역량 검증. <b style="color:#fff">전국 3,000개 교육기관, 누적 10만 명 아동</b>이 사용. 앱·웹·코칭 엔진을 직접 구현.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2cqw;margin-top:1cqw">
+      <!-- 타일1: 대표 (강조) -->
+      <div style="background:var(--navy);border-radius:14px;padding:2.4cqw 2.2cqw;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:1.4cqw;margin-bottom:1.6cqw">
+          <div style="width:6.2cqw;height:6.2cqw;border-radius:50%;background:linear-gradient(135deg,#FF8A47,#FF6B1A);display:flex;align-items:center;justify-content:center;font-size:3cqw;font-weight:800;color:#fff;flex:0 0 auto">임</div>
+          <div>
+            <div style="font-size:1.35cqw;font-weight:800;color:var(--peach);letter-spacing:.06em">FOUNDER · CEO</div>
+            <div style="font-size:2.5cqw;font-weight:800;color:#fff;line-height:1.1;margin-top:.2cqw">임남규</div>
+          </div>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:1.05cqw">
+          <li style="font-size:1.62cqw;line-height:1.35;color:#e6ecf7;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--orange)"></span>세종대 컴퓨터공학과 <b style="color:#fff">석사</b></li>
+          <li style="font-size:1.62cqw;line-height:1.35;color:#e6ecf7;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--orange)"></span>스마트홈 스타트업 <b style="color:#fff">대표 7년</b></li>
+          <li style="font-size:1.62cqw;line-height:1.35;color:#e6ecf7;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--orange)"></span>업계 <b style="color:#fff">1위 교육용 요리키트</b> 런칭</li>
+        </ul>
       </div>
-      <div>
-        <div class="partner"><b>김효진 (팀원)</b><span>부경대 디자인학과 학사 · 부산대 미술교육학 석사 · 미술학원 운영 — 놀이 교구 공동 설계</span></div>
-        <div class="partner"><b>푸드희스토리 (협력사)</b><span>제조·물류 지원 · 5천만원 규모 MOU</span></div>
-        <div class="partner" style="margin-bottom:0;background:var(--navy);color:#fff"><b style="color:#fff">Why us</b><span style="color:#c7d0e0">HW(키트)와 SW(코칭)를 둘 다 해야만 하는 서비스 — 어느 진영도 못 들어옵니다</span></div>
+      <!-- 타일2: 김효진 -->
+      <div style="background:var(--cream);border:1px solid #f0e2d3;border-radius:14px;padding:2.4cqw 2.2cqw;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:1.4cqw;margin-bottom:1.6cqw">
+          <div style="width:6.2cqw;height:6.2cqw;border-radius:50%;background:#fff;border:2px solid var(--peach);display:flex;align-items:center;justify-content:center;font-size:3cqw;font-weight:800;color:var(--orange-d);flex:0 0 auto">김</div>
+          <div>
+            <div style="font-size:1.35cqw;font-weight:800;color:var(--orange);letter-spacing:.06em">놀이 교구 설계</div>
+            <div style="font-size:2.5cqw;font-weight:800;color:var(--navy);line-height:1.1;margin-top:.2cqw">김효진</div>
+          </div>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:1.05cqw">
+          <li style="font-size:1.62cqw;line-height:1.35;color:#4a5568;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--peach)"></span>부경대 디자인학과 <b style="color:var(--navy)">학사</b></li>
+          <li style="font-size:1.62cqw;line-height:1.35;color:#4a5568;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--peach)"></span>부산대 미술교육학 <b style="color:var(--navy)">석사</b></li>
+          <li style="font-size:1.62cqw;line-height:1.35;color:#4a5568;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--peach)"></span>디자인 교사 2년 · 미술학원 <b style="color:var(--navy)">3년 운영</b></li>
+        </ul>
+        <div style="margin-top:auto;padding-top:1.2cqw;font-size:1.4cqw;color:var(--orange-d);font-weight:700">밀프레드 편식 놀이 교구 공동 설계</div>
+      </div>
+      <!-- 타일3: 협력사 -->
+      <div style="background:var(--cream);border:1px solid #f0e2d3;border-radius:14px;padding:2.4cqw 2.2cqw;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:1.4cqw;margin-bottom:1.6cqw">
+          <div style="width:6.2cqw;height:6.2cqw;border-radius:50%;background:#fff;border:2px solid var(--peach);display:flex;align-items:center;justify-content:center;font-size:2.9cqw;flex:0 0 auto">🏭</div>
+          <div>
+            <div style="font-size:1.35cqw;font-weight:800;color:var(--orange);letter-spacing:.06em">제조 · 물류 협력사</div>
+            <div style="font-size:2.5cqw;font-weight:800;color:var(--navy);line-height:1.1;margin-top:.2cqw">푸드희스토리</div>
+          </div>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:1.05cqw">
+          <li style="font-size:1.62cqw;line-height:1.35;color:#4a5568;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--peach)"></span>업계 <b style="color:var(--navy)">1위 교육용 요리키트</b> 운영 (26년 YoY 70% 성장)</li>
+          <li style="font-size:1.62cqw;line-height:1.35;color:#4a5568;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--peach)"></span>연 <b style="color:var(--navy)">50만 인분</b> 생산 · 물류 capa 보유</li>
+          <li style="font-size:1.62cqw;line-height:1.35;color:#4a5568;padding-left:2cqw;position:relative"><span style="position:absolute;left:0;top:.55cqw;width:.9cqw;height:.9cqw;border-radius:3px;background:var(--peach)"></span>밀프레드 편식키트 <b style="color:var(--navy)">5,000만원 투자 MOU</b></li>
+        </ul>
       </div>
     </div>
     <div class="bm">밀프레드</div><div class="pg">07</div>
@@ -203,34 +253,39 @@
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">성장전략 ①</div>
     <h2>기존 고객사 자산 레버리지</h2>
-    <div style="display:flex;align-items:center;justify-content:center;gap:1cqw;margin-top:2.4cqw">
-      <div style="flex:0 0 15cqw;text-align:center">
-        <div style="width:13cqw;height:13cqw;margin:0 auto;border-radius:22px;background:#fff;border:3px solid var(--orange);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(255,107,26,.2)"><div style="font-size:2.3cqw;font-weight:800;color:var(--orange)">밀프레드</div></div>
-        <div style="font-size:1.4cqw;font-weight:700;color:var(--muted);margin-top:.7cqw">브랜드 · 키트 제조</div>
+    <div style="position:relative;width:63cqw;margin:1.4cqw auto 0">
+      <svg viewBox="0 0 760 400" style="width:100%;display:block">
+        <defs>
+          <marker id="ah" markerWidth="10" markerHeight="10" refX="7" refY="3.2" orient="auto"><path d="M0 0 L8 3.2 L0 6.4 Z" fill="#FF6B1A"/></marker>
+        </defs>
+        <g stroke="#FF6B1A" stroke-width="3.5" fill="none" marker-end="url(#ah)">
+          <path d="M336 106 L217 227"/>
+          <path d="M243 290 L541 290"/>
+          <path d="M561 246 L424 106"/>
+        </g>
+      </svg>
+      <div style="position:absolute;left:50%;top:15.5%;transform:translate(-50%,-50%);text-align:center;width:22cqw">
+        <img src="pitch-img/logo.png" style="width:9cqw;height:9cqw;border-radius:20px;box-shadow:0 8px 24px rgba(255,107,26,.3);display:block;margin:0 auto">
+        <div style="font-size:1.95cqw;font-weight:800;color:var(--navy);margin-top:.5cqw">밀프레드</div>
+        <div style="font-size:1.3cqw;color:var(--muted);font-weight:600">편식 솔루션 · 커머스</div>
       </div>
-      <div style="flex:0 0 15.5cqw;text-align:center">
-        <div style="font-size:1.5cqw;font-weight:800;color:var(--navy)">요리키트·교육 제공</div>
-        <div style="font-size:3cqw;color:var(--orange);line-height:1;margin:.2cqw 0">⇄</div>
-        <div style="font-size:1.5cqw;font-weight:800;color:var(--navy)">누적 10만명 브랜드 경험</div>
+      <div style="position:absolute;left:20.4%;top:72.5%;transform:translate(-50%,-50%);text-align:center;width:22cqw">
+        <img src="pitch-img/cooking.jpg" style="width:14cqw;height:14cqw;border-radius:50%;object-fit:cover;object-position:center 40%;box-shadow:0 10px 28px rgba(20,30,55,.26);display:block;margin:0 auto">
+        <div style="font-size:1.8cqw;font-weight:800;color:var(--navy);margin-top:.5cqw">어린이집 · 유치원</div>
+        <div style="font-size:1.3cqw;color:var(--muted);font-weight:600">전국 3,000곳 · 누적 10만 아동</div>
       </div>
-      <div style="flex:0 0 16cqw;text-align:center">
-        <img src="pitch-img/cooking.jpg" style="width:14cqw;height:14cqw;border-radius:50%;object-fit:cover;object-position:center 40%;box-shadow:0 8px 24px rgba(20,30,55,.22)">
-        <div style="font-size:1.4cqw;font-weight:700;color:var(--muted);margin-top:.7cqw">기관 아이들 · 3,000곳</div>
-      </div>
-      <div style="flex:0 0 15.5cqw;text-align:center">
-        <div style="font-size:1.5cqw;font-weight:800;color:var(--navy)">완성물·경험 가정 전달</div>
-        <div style="font-size:3cqw;color:var(--orange);line-height:1;margin:.2cqw 0">⇄</div>
-        <div style="font-size:1.5cqw;font-weight:800;color:var(--navy)">학부모 신뢰·구매 전환</div>
-      </div>
-      <div style="flex:0 0 15cqw;text-align:center">
-        <div style="width:13cqw;height:13cqw;margin:0 auto;border-radius:22px;background:var(--cream);border:3px solid var(--peach);display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div style="position:absolute;left:79.6%;top:72.5%;transform:translate(-50%,-50%);text-align:center;width:22cqw">
+        <div style="width:9cqw;height:9cqw;margin:0 auto;border-radius:20px;background:var(--cream);border:3px solid var(--peach);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 22px rgba(20,30,55,.14)">
           <svg viewBox="0 0 100 90" style="width:5.6cqw;height:auto"><path d="M50 8 L92 44 L82 44 L82 84 L18 84 L18 44 L8 44 Z" fill="#FF6B1A"/><rect x="42" y="58" width="16" height="26" fill="#fff"/></svg>
-          <div style="font-size:1.7cqw;font-weight:800;color:var(--navy);margin-top:.2cqw">각 가정</div>
         </div>
-        <div style="font-size:1.4cqw;font-weight:700;color:var(--muted);margin-top:.7cqw">학부모</div>
+        <div style="font-size:1.8cqw;font-weight:800;color:var(--navy);margin-top:.5cqw">각 가정</div>
+        <div style="font-size:1.3cqw;color:var(--muted);font-weight:600">학부모</div>
       </div>
+      <div style="position:absolute;left:19.7%;top:41.2%;transform:translate(-50%,-50%);background:#fff;border:1.5px solid #f0e2d3;border-radius:100px;padding:.5cqw 1.1cqw;font-size:1.35cqw;font-weight:800;color:var(--orange-d);box-shadow:0 4px 12px rgba(0,0,0,.06);white-space:nowrap">요리키트 · 편식교육 공급</div>
+      <div style="position:absolute;left:80.3%;top:41.2%;transform:translate(-50%,-50%);background:#fff;border:1.5px solid #f0e2d3;border-radius:100px;padding:.5cqw 1.1cqw;font-size:1.35cqw;font-weight:800;color:var(--orange-d);box-shadow:0 4px 12px rgba(0,0,0,.06);white-space:nowrap">밀프레드에서 직접 구매</div>
+      <div style="position:absolute;left:51%;top:63.75%;transform:translate(-50%,-50%);background:var(--navy);border-radius:100px;padding:.5cqw 1.2cqw;font-size:1.35cqw;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.14);white-space:nowrap">선생님이 학부모에게 추천</div>
     </div>
-    <div style="text-align:center;margin-top:2.6cqw;font-size:1.75cqw;font-weight:700;color:var(--navy)">원 안내문 한 장 = <b style="color:var(--orange-d)">광고비 0원</b>으로 학부모 전체 도달 · 한 원에서 <b>정원 절반이 코칭 신청</b> · 파일럿 개선효과 <b style="color:var(--orange-d)">90% 목표</b></div>
+    <div style="text-align:center;margin-top:1.4cqw;font-size:1.55cqw;font-weight:700;color:var(--navy)">공급 → 추천 → 구매로 도는 <b style="color:var(--orange-d)">선순환</b> · 원 안내문 한 장이면 <b style="color:var(--orange-d)">광고비 0원</b>으로 학부모 전체 도달</div>
     <div class="bm">밀프레드</div><div class="pg">08</div>
   </div></div></section>
 
@@ -277,6 +332,7 @@
           <div style="text-align:left"><div style="display:flex;align-items:center;gap:.7cqw;font-size:1.35cqw;font-weight:600;color:#33405a;margin-bottom:.5cqw"><span style="width:1.2cqw;height:1.2cqw;border-radius:3px;background:#4285F4;flex:0 0 auto"></span>0원 <b style="color:var(--navy)">23.8%</b></div><div style="display:flex;align-items:center;gap:.7cqw;font-size:1.35cqw;font-weight:600;color:#33405a;margin-bottom:.5cqw"><span style="width:1.2cqw;height:1.2cqw;border-radius:3px;background:#DB4437;flex:0 0 auto"></span>~5만원 <b style="color:var(--navy)">4.8%</b></div><div style="display:flex;align-items:center;gap:.7cqw;font-size:1.35cqw;font-weight:600;color:#33405a;margin-bottom:.5cqw"><span style="width:1.2cqw;height:1.2cqw;border-radius:3px;background:#F4B400;flex:0 0 auto"></span>5~20만원 <b style="color:var(--navy)">9.5%</b></div><div style="display:flex;align-items:center;gap:.7cqw;font-size:1.35cqw;font-weight:600;color:#33405a;margin-bottom:.5cqw"><span style="width:1.2cqw;height:1.2cqw;border-radius:3px;background:#0F9D58;flex:0 0 auto"></span>20~50만원 <b style="color:var(--navy)">47.6%</b></div><div style="display:flex;align-items:center;gap:.7cqw;font-size:1.35cqw;font-weight:600;color:#33405a;margin-bottom:.5cqw"><span style="width:1.2cqw;height:1.2cqw;border-radius:3px;background:#AB47BC;flex:0 0 auto"></span>50만원 이상 <b style="color:var(--navy)">14.3%</b></div></div>
         </div>
         <div style="margin-top:1cqw;font-size:1.9cqw;font-weight:800;color:var(--orange-d)">가구당 연 평균 약 26만원</div>
+        <div style="margin-top:.5cqw;font-size:1.2cqw;color:var(--muted)">고객사 어린이집·유치원 10곳 부모님 설문조사 결과</div>
       </div>
       <div style="flex:1">
         <div class="tam" style="margin-top:0">
@@ -284,7 +340,6 @@
           <div class="ring r2"><span class="rl">SAM · 성장기 헬스케어</span><span class="rv">만 2~6세 130만</span></div>
           <div class="ring r1"><span class="rl">TAM · 글로벌 진출</span><span class="rv">해외 아동 헬스케어</span></div>
         </div>
-        <div style="margin-top:1.4cqw;font-size:1.5cqw;color:#33405a;line-height:1.5">섭식 관련 병원·사설 치료는 <b style="color:var(--navy)">50~100만원대</b> · <b style="color:var(--navy)">골드키즈</b> — 한 아이에게 프리미엄 소비를 집중하는 시대</div>
       </div>
     </div>
     <div class="bm">밀프레드</div><div class="pg">10</div>
@@ -294,10 +349,27 @@
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Competition</div>
     <h2>해자</h2>
-    <div class="grid2" style="margin-top:1cqw">
-      <div class="card"><div class="ct">해자 ① 데이터 비즈니스</div><p>본질적으로 <b>개인화 데이터 사업</b>입니다. 아이별로 쌓인 몇 달치 식사 기록은 복제 불가 — 쌓일수록 추천이 정확해지고 이탈이 어려워집니다.</p></div>
-      <div class="card"><div class="ct">해자 ② HW + SW 동시</div><p>키트(식재료+교육 교구)와 AI 코칭을 <b>동시에</b> 제공합니다. 식품사엔 코칭이 없고, 교육사엔 제조·콜드체인이 없습니다.</p></div>
+    <div style="display:flex;align-items:stretch;gap:1.4cqw;margin-top:1.4cqw">
+      <!-- 단계1: 앱 데이터 (폰) -->
+      <div style="flex:0 0 21cqw;display:flex;flex-direction:column">
+        <div style="font-size:1.4cqw;font-weight:800;color:var(--orange);letter-spacing:.04em;margin-bottom:.7cqw">① 아이별 식습관 데이터</div>
+        <div style="flex:1;background:#0f1830;border-radius:20px;padding:1.2cqw;box-shadow:0 10px 26px rgba(20,30,55,.22)">
+          <div style="background:#fff;border-radius:12px;padding:1.1cqw;height:100%">
+            <div style="font-size:1.25cqw;font-weight:800;color:var(--navy);margin-bottom:.7cqw">식품군 다양성 · 신호등</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4cqw"><div style="background:#e8f3ea;border-radius:6px;padding:.5cqw .2cqw;text-align:center"><div style="font-size:1.5cqw;line-height:1">🌾</div><div style="font-size:.85cqw;font-weight:800;color:#1B5E20;margin-top:.15cqw">곡물</div></div><div style="background:#fbe9e7;border-radius:6px;padding:.5cqw .2cqw;text-align:center"><div style="font-size:1.5cqw;line-height:1">🫘</div><div style="font-size:.85cqw;font-weight:800;color:#c62828;margin-top:.15cqw">콩</div></div><div style="background:#e8f3ea;border-radius:6px;padding:.5cqw .2cqw;text-align:center"><div style="font-size:1.5cqw;line-height:1">🥛</div><div style="font-size:.85cqw;font-weight:800;color:#1B5E20;margin-top:.15cqw">유제품</div></div><div style="background:#e8f3ea;border-radius:6px;padding:.5cqw .2cqw;text-align:center"><div style="font-size:1.5cqw;line-height:1">🍗</div><div style="font-size:.85cqw;font-weight:800;color:#1B5E20;margin-top:.15cqw">고기·계란</div></div><div style="background:#fff4e0;border-radius:6px;padding:.5cqw .2cqw;text-align:center"><div style="font-size:1.5cqw;line-height:1">🐟</div><div style="font-size:.85cqw;font-weight:800;color:#C45A00;margin-top:.15cqw">생선</div></div><div style="background:#fff4e0;border-radius:6px;padding:.5cqw .2cqw;text-align:center"><div style="font-size:1.5cqw;line-height:1">🥕</div><div style="font-size:.85cqw;font-weight:800;color:#C45A00;margin-top:.15cqw">녹황채소</div></div><div style="background:#e8f3ea;border-radius:6px;padding:.5cqw .2cqw;text-align:center"><div style="font-size:1.5cqw;line-height:1">🥬</div><div style="font-size:.85cqw;font-weight:800;color:#1B5E20;margin-top:.15cqw">일반채소</div></div><div style="background:#fff4e0;border-radius:6px;padding:.5cqw .2cqw;text-align:center"><div style="font-size:1.5cqw;line-height:1">🍓</div><div style="font-size:.85cqw;font-weight:800;color:#C45A00;margin-top:.15cqw">과일</div></div></div>
+            <div style="margin-top:.9cqw;background:var(--cream);border-radius:8px;padding:.7cqw;font-size:1.05cqw;font-weight:700;color:var(--navy);line-height:1.35">🫘 콩 <b style="color:#c62828">부족</b> · 🐟 생선 조금 부족 — <b style="color:var(--orange-d)">비어있는 식재료</b> 자동 검출</div>
+          </div>
+        </div>
+        <div style="font-size:1.15cqw;color:var(--muted);margin-top:.6cqw;text-align:center">매일 식사·수용도·영양·성장 기록</div>
+      </div>
+      <div style="align-self:center;color:var(--peach);font-size:3cqw;font-weight:800">→</div>
+      <!-- 단계2: 분석 -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:1.4cqw">
+        <div class="card" style="flex:1"><div style="display:flex;align-items:center;gap:1cqw;margin-bottom:.6cqw"><div style="font-size:2.6cqw">🔍</div><div class="ct" style="margin:0">② 결핍 식재료 분석</div></div><p>아이마다 <b>비어있는 영양·식재료가 다릅니다.</b> 전세계 35가지 편식 지침을 결정론 엔진으로 계량 — 이 아이에게 <b>지금 필요한 것</b>만 골라냅니다.</p></div>
+        <div class="card" style="flex:1;background:var(--navy);border-color:var(--navy)"><div style="display:flex;align-items:center;gap:1cqw;margin-bottom:.6cqw"><div style="font-size:2.6cqw">🏭</div><div class="ct" style="margin:0;color:#fff">③ 초개인화 공장 <span style="font-size:1.3cqw;color:var(--peach)">(목표)</span></div></div><p style="color:#d3dcec">아이별 <b style="color:#fff">커스텀 배합·극다품종 소량 생산</b>. 부족한 식재료만 담아 각 가정에 공급 — 데이터가 만드는 세상에 없던 공급망.</p></div>
+      </div>
     </div>
+    <div style="margin-top:1.4cqw;background:var(--cream);border:1px solid #f0e2d3;border-radius:12px;padding:1.3cqw 1.8cqw;text-align:center;font-size:1.55cqw;font-weight:700;color:var(--navy)">식품 대기업엔 <b style="color:var(--orange-d)">개인 데이터</b>가 없고, 데이터 스타트업엔 <b style="color:var(--orange-d)">공장</b>이 없습니다 — 쌓일수록 커스텀 정밀도가 오르는 <b style="color:var(--orange-d)">복제 불가 해자</b></div>
     <div class="bm">밀프레드</div><div class="pg">11</div>
   </div></div></section>
 
@@ -306,9 +378,9 @@
     <div class="label">Business Model</div>
     <h2>Business Model / GTM</h2>
     <div class="steps">
-      <div class="step"><div class="sn">수익 ①</div><div class="sh">AI 코칭 구독료</div><p>매일 처방하는 코치. 데이터가 쌓이는 원료이자 반복 매출.</p></div>
+      <div class="step"><div class="sn">수익 ①</div><div class="sh">AI 코칭 구독료 <span style="color:var(--orange-d)">월 4,900원</span></div><p>전세계 35가지 편식 지침을 <b>결정론 엔진</b>으로 설계 — LLM 원가 <b>현재 월 300원</b>. 데이터가 쌓이는 원료이자 반복 매출.</p></div>
       <div class="arrowsm">+</div>
-      <div class="step"><div class="sn">수익 ②</div><div class="sh">실물 키트 구매</div><p>골고루 키트(구독) + 집중 키트(고관여). 본격 매출원.</p></div>
+      <div class="step"><div class="sn">수익 ②</div><div class="sh">실물 키트 2종</div><p><b>집중 키트</b> 20만원 (거부 식재료 1종 집중·고관여) · <b>골고루 키트</b> 주 19,900원 (다품종 소분 구독). 본격 매출원.</p></div>
     </div>
     <div class="grid2" style="margin-top:1.7cqw">
       <div class="card"><div class="ct">GTM ① 거래처 3,000곳</div><p>원 안내문 한 장이면 학부모 전체에 <b>광고비 0원</b> 침투.</p></div>
