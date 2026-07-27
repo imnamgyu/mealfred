@@ -72,22 +72,41 @@
 <div class="deck" id="deck">
 
   <!-- 1 COVER -->
-  <section class="slide"><div class="frame cover"><div class="pad">
-    <div class="kick">밀프레드 · MEALFRED</div>
-    <h1>세상의 모든 편식을<br>해결합니다</h1>
-    <div class="tag">전 세계 편식 이론 35가지를 하나로 통합한, 우리 아이 편식 전담 코치.<br>강요 없는 놀이형 키트와 AI 코칭으로 편식을 교정합니다.</div>
-    <div class="foot">Seed Pitch · 2026</div>
-  </div></div></section>
+  <section class="slide"><div class="frame cover">
+    <img src="pitch-img/cover-bg.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(3px) saturate(1.05);transform:scale(1.06)">
+    <div style="position:absolute;inset:0;background:rgba(15,22,40,.6)"></div>
+    <div class="pad" style="z-index:2;justify-content:center;align-items:center;text-align:center">
+      <div class="kick" style="margin-bottom:1.6cqw">밀프레드 · MEALFRED</div>
+      <h1 style="text-shadow:0 2px 24px rgba(0,0,0,.35)">세상의 모든 편식을<br>해결합니다</h1>
+      <div style="margin-top:2.6cqw;display:inline-block;padding:1.1cqw 2.6cqw;border:2px solid rgba(255,255,255,.5);border-radius:100px;font-size:1.9cqw;font-weight:700;color:#fff">우리 아이 편식 전담 코치</div>
+    </div>
+    <div class="foot" style="z-index:2;color:#c7d0e0">Seed Pitch · 2026</div>
+  </div></section>
 
   <!-- 2 편식의 현황 -->
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Problem · 편식의 현황</div>
     <h2>영유아 40%가 겪는, 흔하지만 방치된 문제</h2>
-    <div class="fillbar"><div class="fl"><b>40%</b></div><div class="rest">영유아가 편식</div></div>
-    <div class="grid3" style="margin-top:1.6cqw">
-      <div class="card"><div class="ct">건강 문제 4가지</div><p>성장 지연 · 면역력 저하 · 신경과민 · 학습장애 (식약처). 철분 결핍은 ADHD와도 연관.</p></div>
-      <div class="card"><div class="ct">골든타임 만 2~6세</div><p>식습관이 형성되는 시기. 놓치면 편향된 식습관이 굳어집니다.</p></div>
-      <div class="card"><div class="ct">→ 성인병으로</div><p>어릴 때 방치된 편식은 평생 식습관이 되어 비만·만성질환의 씨앗이 됩니다.</p></div>
+    <div style="display:flex;gap:4cqw;margin-top:1.2cqw;align-items:center">
+      <div style="flex:0 0 21cqw;text-align:center">
+        <svg viewBox="0 0 200 280" style="width:100%;height:auto">
+          <defs>
+            <clipPath id="kidclip"><path d="M100 10 c-25 0 -45 20 -45 45 c0 18 11 34 26 41 c-22 5 -37 22 -43 45 c-6 23 -8 62 -8 99 c0 22 5 40 14 40 h112 c9 0 14 -18 14 -40 c0 -37 -2 -76 -8 -99 c-6 -23 -21 -40 -43 -45 c15 -7 26 -23 26 -41 c0 -25 -20 -45 -45 -45 z"/></clipPath>
+            <linearGradient id="og" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#FF6B1A"/><stop offset="1" stop-color="#FFB877"/></linearGradient>
+          </defs>
+          <g clip-path="url(#kidclip)">
+            <rect x="0" y="0" width="200" height="280" fill="#e6eaf0"/>
+            <rect x="0" y="168" width="200" height="112" fill="url(#og)"/>
+          </g>
+          <text x="100" y="212" text-anchor="middle" font-size="44" font-weight="800" fill="#fff" font-family="Pretendard,sans-serif">40%</text>
+        </svg>
+        <div style="font-size:1.7cqw;font-weight:800;color:var(--navy);margin-top:.8cqw">영유아가 편식</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:1.5cqw">
+        <div class="card"><div class="ct">건강 문제 4가지</div><p>성장 지연 · 면역력 저하 · 신경과민 · 학습장애 (식약처). 철분 결핍은 ADHD와도 연관.</p></div>
+        <div class="card"><div class="ct">골든타임 만 2~6세</div><p>식습관이 형성되는 시기. 놓치면 편향된 식습관이 굳어집니다.</p></div>
+        <div class="card"><div class="ct">→ 성인병으로</div><p>방치된 편식은 평생 식습관이 되어 비만·만성질환의 씨앗이 됩니다.</p></div>
+      </div>
     </div>
     <div class="bm">밀프레드</div><div class="pg">02</div>
   </div></div></section>
@@ -151,15 +170,15 @@
   <section class="slide"><div class="frame"><div class="pad">
     <div class="label">Solution</div>
     <h2>전 세계 35가지 편식 이론을 하나로 통합했습니다</h2>
-    <div class="grid3" style="margin-top:.4cqw">
-      <div class="card"><div class="ct">① 단계적 접근 · 물리 키트</div><p>SOS 6단계로 '먹기'를 잘게 쪼갠 <b>비강요 놀이형 키트</b>.</p></div>
-      <div class="card"><div class="ct">② 개인화 AI 코칭</div><p>기록을 시계열 분석해 <b>매일 오늘의 처방</b>. 결정론적 엔진이라 환각 없이, <b style="color:var(--orange-d)">월 300원</b>.</p></div>
-      <div class="card"><div class="ct">③ 놀이교육</div><p>감각놀이 → 직접 요리로 <b>'내가 만든 음식'</b>을 스스로 먹는 이케아 효과.</p></div>
+    <div class="grid3" style="margin-top:.3cqw">
+      <div class="card" style="padding:1.5cqw 1.6cqw"><div class="ct" style="font-size:1.6cqw;margin-bottom:.4cqw">① 단계적 접근 · 물리 키트</div><p style="font-size:1.35cqw">SOS 6단계로 '먹기'를 잘게 쪼갠 <b>비강요 놀이형 키트</b>.</p></div>
+      <div class="card" style="padding:1.5cqw 1.6cqw"><div class="ct" style="font-size:1.6cqw;margin-bottom:.4cqw">② 개인화 AI 코칭</div><p style="font-size:1.35cqw">기록을 시계열 분석해 <b>매일 오늘의 처방</b>. 결정론적 엔진, <b style="color:var(--orange-d)">월 300원</b>.</p></div>
+      <div class="card" style="padding:1.5cqw 1.6cqw"><div class="ct" style="font-size:1.6cqw;margin-bottom:.4cqw">③ 놀이교육</div><p style="font-size:1.35cqw">감각놀이 → 직접 요리로 <b>'내가 만든 음식'</b>을 스스로 먹는 이케아 효과.</p></div>
     </div>
-    <div style="display:flex;gap:1.4cqw;margin-top:1.8cqw">
-      <figure style="flex:1"><img class="photo" src="pitch-img/play-color.jpg" style="width:100%;height:15cqw"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">감각놀이 (색깔 탐험)</figcaption></figure>
-      <figure style="flex:1"><img class="photo" src="pitch-img/play-touch.jpg" style="width:100%;height:15cqw"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">촉감·모양 놀이</figcaption></figure>
-      <figure style="flex:1"><img class="photo" src="pitch-img/log.jpg" style="width:100%;height:15cqw"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">부모 기록지 → AI 입력</figcaption></figure>
+    <div style="display:flex;gap:1.5cqw;margin-top:1.6cqw">
+      <figure style="flex:1"><img class="photo" src="pitch-img/play-color.jpg" style="width:100%;height:22cqw;object-position:center 35%"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">감각놀이 (색깔 탐험)</figcaption></figure>
+      <figure style="flex:1"><img class="photo" src="pitch-img/play-cut.jpg" style="width:100%;height:22cqw;object-position:center 40%"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">놀이로 만나는 채소</figcaption></figure>
+      <figure style="flex:1"><img class="photo" src="pitch-img/log.jpg" style="width:100%;height:22cqw;object-position:center 30%"><figcaption style="font-size:1.3cqw;color:var(--muted);margin-top:.6cqw;text-align:center">부모 기록지 → AI 입력</figcaption></figure>
     </div>
     <div class="bm">밀프레드</div><div class="pg">06</div>
   </div></div></section>
