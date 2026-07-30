@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>국가별 편식 유병률 지도 — 14개국 검증 표</title>
+<meta property="og:title" content="국가별 편식 유병률 — 14개국 1차 출처 검증">
+<meta property="og:description" content="지역 분담 스윕 30건을 1차 출처 대조로 검증(교정 8건). 임상 축 vs 부모 인지 축을 분리한 국가별 표 + IR 인용 가이드.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB;--bg-warm-1:#FFE8D0;--bg-warm-2:#FFDBB8;--bg-warm-3:#FFD0A0;
+    --bg-soft:#FFFBF5;--bg-page:#FAFAF7;
+    --orange-main:#FF6B1A;--orange-soft:#FF8A47;--orange-deep:#C45A00;
+    --orange-tint:rgba(255,107,26,0.1);--orange-tint-line:rgba(255,107,26,0.25);
+    --navy:#1a2b4a;--brown-deep:#3a2a1a;--brown-mid:#5a4a3a;--brown-soft:#8a7a6a;
+    --green-bg:#E8F5E9;--green-deep:#1B5E20;
+    --warn-bg:#FFF8E1;--warn-deep:#F57F17;
+    --red-bg:#FFEBEE;--red-deep:#C62828;
+    --blue-bg:#E3F2FD;--blue-fg:#1565C0;
+    --card-border:#FFE8D0;--r:14px;--r-pill:100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg-page);color:var(--navy);line-height:1.7;-webkit-font-smoothing:antialiased}
+  cite{font-style:normal;color:var(--brown-soft);font-size:11.5px;font-weight:600}
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);padding:56px 20px 42px;text-align:center;color:var(--brown-deep)}
+  .hero-inner{max-width:820px;margin:0 auto}
+  .hero .tag{display:inline-block;background:var(--orange-tint);border:1px solid var(--orange-tint-line);color:var(--orange-deep);padding:7px 18px;border-radius:var(--r-pill);font-size:12px;font-weight:700;margin-bottom:16px}
+  .hero h1{font-size:clamp(26px,5vw,38px);font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.25;margin-bottom:13px}
+  .hero h1 .accent{color:var(--orange-soft)}
+  .hero p{font-size:15px;color:var(--brown-mid);font-weight:500;margin:0 auto 8px;line-height:1.75;max-width:660px}
+  .hero p strong{color:var(--orange-deep);font-weight:700}
+  .hero-meta{margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .hero-meta .pill{background:rgba(255,255,255,0.6);border:1px solid var(--orange-tint-line);color:var(--brown-mid);font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:var(--r-pill)}
+  main{max-width:1000px;margin:0 auto;padding:28px 24px 44px}
+  section{margin-bottom:44px;scroll-margin-top:20px}
+  h2{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:10px;padding-bottom:8px;border-bottom:3px solid var(--orange-main)}
+  h3{font-size:16.5px;font-weight:800;color:var(--navy);margin:20px 0 10px;padding-left:12px;border-left:4px solid var(--orange-main)}
+  p{font-size:14px;color:var(--brown-mid);font-weight:500;margin-bottom:10px}
+  .lead{font-size:15.5px;color:var(--brown-deep);font-weight:600;line-height:1.8}
+  strong{color:var(--navy);font-weight:700}
+  .ohl{color:var(--orange-deep);font-weight:800}
+  .card{background:#fff;border:1px solid var(--card-border);border-radius:var(--r);padding:18px 20px;margin-bottom:14px;box-shadow:0 2px 16px rgba(0,0,0,0.04)}
+  .card.green{background:var(--green-bg);border-color:#c8e6c9}
+  .card.warn{background:var(--warn-bg);border-color:#ffe082}
+  .card.red{background:var(--red-bg);border-color:#ffcdd2}
+  .card.blue{background:var(--blue-bg);border-color:#bbdefb}
+  .card h4{font-size:14px;font-weight:800;margin-bottom:6px}
+  .card p{font-size:13.5px;margin-bottom:6px}
+  .tbl-wrap{overflow-x:auto;background:#fff;border:1px solid var(--card-border);border-radius:var(--r);margin:12px 0 6px}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:860px}
+  th{background:var(--bg-soft);color:var(--navy);font-weight:800;padding:10px 12px;text-align:left;border-bottom:2px solid var(--card-border);white-space:nowrap}
+  td{padding:10px 12px;border-bottom:1px solid #f3ece3;vertical-align:top;color:var(--brown-mid)}
+  td b{color:var(--navy)}
+  tr:last-child td{border-bottom:none}
+  .num{font-weight:800;color:var(--orange-deep);white-space:nowrap}
+  .conf{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);white-space:nowrap}
+  .conf.hi{background:var(--green-bg);color:var(--green-deep)}
+  .conf.mid{background:var(--warn-bg);color:var(--warn-deep)}
+  .conf.lo{background:var(--red-bg);color:var(--red-deep)}
+  .axis-tag{display:inline-block;font-size:11px;font-weight:800;padding:3px 12px;border-radius:var(--r-pill);margin-bottom:8px}
+  .axis-tag.clinical{background:var(--blue-bg);color:var(--blue-fg)}
+  .axis-tag.cohort{background:var(--green-bg);color:var(--green-deep)}
+  .axis-tag.percept{background:var(--warn-bg);color:var(--warn-deep)}
+  ul.pts{list-style:none;margin:8px 0 10px}
+  ul.pts li{font-size:13.5px;color:var(--brown-mid);padding-left:20px;position:relative;margin-bottom:7px;line-height:1.65}
+  ul.pts li::before{content:"";position:absolute;left:4px;top:9px;width:8px;height:8px;border-radius:2px;background:var(--orange-main)}
+  ul.pts li b{color:var(--navy)}
+  .foot{max-width:1000px;margin:0 auto;padding:20px 24px 40px;font-size:12px;color:var(--brown-soft);border-top:1px solid var(--card-border)}
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+  <div class="tag">🌍 리서치 정본 · 2026-07-30</div>
+  <h1>국가별 편식 유병률 지도<br><span class="accent">14개국 · 1차 출처 검증 표</span></h1>
+  <p>지역 분담 스윕(북미·유럽·아시아·오세아니아)으로 모은 <strong>원자료 30건</strong>을 1차 출처와 직접 대조해 검증했다. 교정 8건(국가 오귀속 1건 적발 포함). 핵심 발견 — 편식 유병률은 하나의 숫자가 아니라 <strong>두 개의 측정 축</strong>이며, 축을 섞으면 IR에서 반드시 깨진다.</p>
+  <div class="hero-meta">
+    <span class="pill">국가 14 + 글로벌 앵커 2</span><span class="pill">교정 8건</span><span class="pill">메타분석 pooled 22%</span><span class="pill">인용 금지 2건 플래그</span><span class="pill">🇯🇵 정책·서비스 스캔 4방향</span>
+  </div>
+</div></div>
+<main>
+
+<section>
+  <h2>0. 한눈에 — 두 개의 측정 축</h2>
+  <p class="lead">"각국 편식 비율"은 한 줄로 답할 수 없다. 같은 나라 안에서도 <span class="ohl">무엇을 편식으로 세느냐</span>에 따라 수치가 5배 갈린다(네덜란드 같은 코호트에서 5.6% vs 27.6%). 문헌은 크게 두 축으로 나뉜다.</p>
+  <div class="card blue">
+    <h4>축 A — 임상·코호트 판정 축 ("이 아이는 편식아인가")</h4>
+    <p>구조화 면접(PAPA)이나 인구 코호트 설문으로 아이를 편식/비편식으로 <b>판정</b>한 비율. 국제 비교가 가능한 축. 대체로 <b>10~27%</b>에 수렴하고, 영유아 메타분석 통합치는 <b>22%</b>.</p>
+  </div>
+  <div class="card warn">
+    <h4>축 B — 부모 인지·경험 보고 축 ("우리 아이가 편식한다고 느끼는가")</h4>
+    <p>부모가 자녀를 편식아로 <b>인지</b>하거나 특정 거부 행동을 <b>경험</b>했다고 보고한 비율. 미국 FITS 50%, 한국 61.2%, 중국 54~59%, 대만 54%, 싱가포르 49%가 모두 이 축이다. <b>시장(불안·수요)의 크기</b>를 보여주지만 유병률이 아니다.</p>
+  </div>
+  <p>사업적 해석: <strong>축 B(부모 인지 ~50%+)가 마케팅 시장</strong>이고, <strong>축 A(임상 10~27%)가 개입 시장</strong>이다. 쿠키 서비스·커뮤니티는 B를, 집중 키트·코칭은 A를 겨냥한다 — 두 숫자를 역할에 맞게 나눠 쓰면 된다.</p>
+</section>
+
+<section>
+  <h2>1. IR 인용 가이드 — 그대로 쓰는 문장</h2>
+  <div class="card green">
+    <h4>✅ 표준 버전</h4>
+    <p>"주요 선진국의 유아 편식 유병률은 측정 정의에 따라 <b>13~50%</b>로 보고되며, 영유아 대상 메타분석의 통합(pooled) 추정치는 <b>22%</b>다."</p>
+    <p><cite>Cole et al., Nutrition Reviews 75(7), 2017 (32개 연구 메타분석, 출생~30개월) · Decoding Picky Eating in Children, Nutrients 17(24):3884, 2025 (DOI 10.3390/nu17243884)</cite></p>
+  </div>
+  <div class="card green">
+    <h4>✅ 보수 버전 (공격적 실사 대비)</h4>
+    <p>"인구 기반 코호트에서 확인된 유아기 편식 유병률은 <b>14~27%</b> 수준이며(캐나다 14~17% · 영국 10~15% · 네덜란드 최대 27.6% · 노르웨이 26%), 이 중 학령기까지 이어지는 <b>지속형은 약 4%</b>다."</p>
+    <p><cite>Dubois 2007 · Taylor(ALSPAC) 2015 · Cardona Cano 2015 · Steinsbekk(TESS) 2017</cite></p>
+  </div>
+  <div class="card red">
+    <h4>🚫 금지 표기</h4>
+    <ul class="pts">
+      <li>"전 세계 편식률 50~60%" 형태의 <b>상단값 단독 인용</b> — 축 B 수치를 유병률로 오표기하는 것</li>
+      <li>한국 61.2%를 국제 유병률과 <b>같은 문장에 병렬 배치</b> — 측정 축이 다르다 (아래 3절)</li>
+      <li>스웨덴 47% — 컷오프 제안 방법론 논문의 혼합표본 산물, <b>국가 유병률로 인용 불가</b></li>
+      <li>프랑스 수치 — 인구 기반 유병률 보고 자체가 없음 (연속척도 연구만 존재)</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>2. 국가별 표</h2>
+
+  <h3>축 A-1 · 임상 구조화 면접 (가장 엄격)</h3>
+  <span class="axis-tag clinical">PAPA 정신의학 면접 — 같은 도구로 국가 간 직접 비교 가능</span>
+  <div class="tbl-wrap"><table>
+    <tr><th>국가</th><th>대표치</th><th>연령</th><th>근거</th><th>신뢰도</th><th>비고</th></tr>
+    <tr><td><b>🇺🇸 미국</b></td><td class="num">20.3%</td><td>24~71개월</td><td>Zucker et al. 2015, <i>Pediatrics</i> — n=917 층화가중 (중등도 17.7 + 중증 3.0)</td><td><span class="conf hi">상</span></td><td>임상 기준이라 보수적</td></tr>
+    <tr><td><b>🇳🇴 노르웨이</b></td><td class="num">약 26%</td><td>4세→6세 종단</td><td>Steinsbekk et al. 2017(TESS) — n=997→795</td><td><span class="conf hi">상</span></td><td><b>4세 편식아의 50%가 6세에도 지속</b> — 골든타임 개입 논거</td></tr>
+  </table></div>
+  <p>같은 도구(PAPA)로도 20.3% vs 26% — 도구를 통제해도 국가·표본 차가 5~6%p 남는다는 대조쌍.</p>
+
+  <h3>축 A-2 · 인구 코호트 부모설문 판정</h3>
+  <span class="axis-tag cohort">출생코호트·대표표본 — 국제 비교의 기준선</span>
+  <div class="tbl-wrap"><table>
+    <tr><th>국가</th><th>대표치</th><th>범위·궤적</th><th>연령</th><th>근거</th><th>신뢰도</th></tr>
+    <tr><td><b>🇨🇦 캐나다</b></td><td class="num">14~17%</td><td>2.5세 14.0 → 3.5세 16.9 → 4.5세 15.9</td><td>2.5~4.5세</td><td>Dubois et al. 2007, 퀘벡 QLSCD 코호트 n=1,498</td><td><span class="conf hi">상</span></td></tr>
+    <tr><td><b>🇬🇧 영국</b></td><td class="num">15%</td><td>10~15% (38개월 정점, 'very choosy'만 계수)</td><td>24~65개월</td><td>ALSPAC — Taylor et al. 2015, <i>Appetite</i></td><td><span class="conf hi">상</span></td></tr>
+    <tr><td><b>🇳🇱 네덜란드</b></td><td class="num">27.6% / 5.6%</td><td>⭐같은 코호트에서 도구 따라 5배: CBCL 27.6%(3세 정점) vs CEBQ 잠재프로파일 5.6%. 궤적 = 비편식 55 · 관해 32 · 후발 4 · <b>지속 4%</b></td><td>1.5~6세</td><td>Generation R — Cardona Cano 2015 n=4,018 · Tharner 2014 n=4,914</td><td><span class="conf hi">상</span></td></tr>
+    <tr><td><b>🇩🇪 독일</b></td><td class="num">18%</td><td>단일 지역 연구</td><td>8~12세</td><td>Jacobi, Schmitz &amp; Agras 2008 — n=426</td><td><span class="conf mid">중</span></td></tr>
+    <tr><td><b>🇨🇿 체코</b></td><td class="num">16.7%</td><td>346/2,068</td><td>1.5~5세</td><td>ELSPAC-CZ 2022, <i>Nutrients</i> — n=2,068 (2개 지역)</td><td><span class="conf mid">중</span></td></tr>
+    <tr><td><b>🇦🇺 호주</b></td><td class="num">31%</td><td>very 10 + somewhat 88 = 98/330</td><td>생후 14개월</td><td>Byrne et al. 2017(NOURISH) — n=330</td><td><span class="conf mid">중</span></td></tr>
+  </table></div>
+
+  <h3>축 B · 부모 인지·경험 보고 (시장 크기 지표)</h3>
+  <span class="axis-tag percept">유병률 아님 — "부모가 그렇게 느끼는 비율"</span>
+  <div class="tbl-wrap"><table>
+    <tr><th>국가</th><th>대표치</th><th>내용</th><th>연령</th><th>근거</th><th>신뢰도</th></tr>
+    <tr><td><b>🇺🇸 미국</b></td><td class="num">19→50%</td><td>부모의 '편식아' 인지, 월령 따라 급증</td><td>4~24개월</td><td>FITS 전국조사 — Carruth et al. 2004, n=3,022</td><td><span class="conf hi">상</span></td></tr>
+    <tr><td><b>🇰🇷 한국</b></td><td class="num">61.2%</td><td>'특정 식품군 거부' 보고율 (신식품 거부 46.8 · 소식 29.5, 중복응답)</td><td>만 3~5세</td><td>김지선 외 2021, 대한지역사회영양학회지 26(1) — n=237 서울·경기</td><td><span class="conf mid">중</span></td></tr>
+    <tr><td><b>🇯🇵 일본</b></td><td class="num">32.4%</td><td>'偏食する' 고민 보고 (전국 국가조사, 2~3세 정점)</td><td>0~6세</td><td>후생노동성 2015 유유아영양조사</td><td><span class="conf mid">중</span></td></tr>
+    <tr><td><b>🇨🇳 중국</b></td><td class="num">54~59.3%</td><td>부모 보고('somewhat' 포함), 도시&gt;농촌 · 연령 따라 증가</td><td>3~7세 / 7~12세</td><td>Xue et al. 2015 n=937 · Li et al., <i>Appetite</i></td><td><span class="conf mid">중</span></td></tr>
+    <tr><td><b>🇹🇼 대만</b></td><td class="num">54%</td><td>4항목 중 1개 이상 '항상' — 관대한 기준의 산물</td><td>2~4세</td><td>Chao 2018, <i>Front Pediatr</i> — n=300</td><td><span class="conf mid">중</span></td></tr>
+    <tr><td><b>🇸🇬 싱가포르</b></td><td class="num">49.2%</td><td>자발 보고 25.1% → 행동 목록 제시 시 49.6% (프레이밍 효과 사례)</td><td>1~10세</td><td>Goh &amp; Jacob 2012 — n=407</td><td><span class="conf mid">중</span></td></tr>
+  </table></div>
+
+  <h3>글로벌 앵커 + 인용 불가 플래그</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>구분</th><th>수치</th><th>내용</th><th>근거</th><th>판정</th></tr>
+    <tr><td><b>메타분석</b></td><td class="num">pooled 22%</td><td>32개 연구 통합 — 단 대상이 <b>출생~30개월</b>이라 유아 전체로 확대 적용 금지</td><td>Cole et al. 2017, <i>Nutrition Reviews</i></td><td><span class="conf hi">인용 1순위</span></td></tr>
+    <tr><td><b>정의 리뷰</b></td><td class="num">5.6~59%</td><td>"유병률은 정의에 따라 갈린다"의 표준 인용 앵커 (통상 13~50%)</td><td>Taylor et al. 2015, <i>Appetite</i> · Nutrients 2025 (17:3884)</td><td><span class="conf hi">인용 앵커</span></td></tr>
+    <tr><td><b>🇸🇪 스웨덴</b></td><td class="num">47%</td><td>컷오프 '제안' 방법론 논문 · 혼합표본(응답률 29%+비만 임상시험 174명 포함)</td><td>Sandvik et al. 2018</td><td><span class="conf lo">인용 금지</span></td></tr>
+    <tr><td><b>🇫🇷 프랑스</b></td><td class="num">—</td><td>인구 기반 유병률 보고 없음 (CFRS 연속척도 연구만)</td><td>Rioux et al. 2017</td><td><span class="conf lo">수치 없음</span></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2>3. 한국 61.2% — 정확히 무엇인가</h2>
+  <p class="lead">사내 정본 수치 61.2%(김지선 외 2021)는 <span class="ohl">'편식아 유병률'이 아니라 '특정 식품군을 거부한다고 어머니가 보고한 아이의 비율'</span>이다. 국제 축 A와 같은 줄에 놓을 수 없다.</p>
+  <ul class="pts">
+    <li><b>분모가 다르다</b> — 국제 코호트는 "이 아이는 편식아인가"를 판정해 이분한다. 김지선 2021은 소식·신식품 거부·특정 식품군 거부 <b>3개 행동범주 각각의 보고율</b>이고 중복응답이 가능하다.</li>
+    <li><b>축이 다르다</b> — 61.2%는 축 B(경험 보고). 같은 축끼리는 비교 가능하다: 한국 61.2 vs 미국 FITS 50 vs 중국 54~59 vs 싱가포르 49 — <b>한국이 유별나게 높은 게 아니라 축 B의 정상 범위</b>다.</li>
+    <li><b>표본 한계</b> — n=237, 서울·경기 편의표본, 임상 진단 아님. 가장 많이 거부된 식품은 조개류·콩류·버섯·새우·채소.</li>
+    <li><b>권장 표기</b> — "한국 유아 어머니의 61.2%가 자녀가 특정 식품군을 거부한다고 보고했다(2021년 진행된 국내 조사)". '유병률'·'10명 중 6명이 편식'·'세계 최고 수준' 표현 금지. '가장 최근' 수식 금지(기존 규칙 유지).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>4. 전략 연결 — 이 표가 받치는 주장</h2>
+  <ul class="pts">
+    <li><b>TAM 논리(pitch-seed 슬10)</b> — "편식·푸드네오포비아는 주로 선진국(developed countries) 인구에서 나타난다"(Nutrients 2025 체계적 문헌고찰, PMC11720204). 이 표의 14개국이 전부 고소득권이라는 사실 자체가 <b>'TAM = 고소득국 만 2~12세 1.6억 명'</b> 필터의 증거다. 고소득국 = World Bank 분류 <b>87개 경제권</b>(FY2027, 1인당 GNI $14,375 초과 — 원출처 Country and Lending Groups 확인). 아동은 편중: 미국 약 4,320만(≈¼), 상위 10개국이 대부분.</li>
+    <li><b>보수적 개입 시장 앵커</b> — 네덜란드 궤적의 <b>지속형 4%</b>는 "진짜 개입이 필요한 코어 시장"을 가장 보수적으로 잡을 때의 하한 앵커.</li>
+    <li><b>골든타임 논거</b> — 노르웨이 TESS: 4세 편식아의 <b>50%가 6세에도 지속</b> + 미국 Mascola 종단: 편식 에피소드의 40%가 2년 이상 지속. "저절로 낫겠지"에 대한 반박 근거.</li>
+    <li><b>인지-임상 갭 = 퍼널 구조</b> — 부모 인지(~50%+)와 임상(10~27%)의 갭이 곧 우리 퍼널: 쿠키 서비스(인지 축 전체) → 측정·코칭(판정) → 집중 키트(임상 축).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>5. "편식률 낮은 고소득국은 있나" — 정책·서비스 스캔 (2026-07-30 추가)</h2>
+  <p class="lead">4방향 스캔(일본 식육 · 프랑스 미각교육 · 북유럽 Sapere · 글로벌 피딩테라피) + 판정 에이전트 결론: <span class="ohl">'낮은 지표 + 유명 정책 + 한국과 같은 측정 축' 3요소를 모두 갖춘 나라는 일본뿐</span>이다. 단 인과 주장("정책 덕분에 낮다")은 금지.</p>
+
+  <div class="card green">
+    <h4>🇯🇵 최적 사례 — 일본 (IR 인용 1순위)</h4>
+    <ul class="pts">
+      <li><b>같은 축 비교 성립(유일)</b> — 후생노동성 유유아영양조사(2015, 전국) 부모 편식 고민 보고 <b>32.4%</b> vs 한국 49.5~61.2%(국내 연구들). ⚠️문항 설계가 다른 <b>별도 조사</b>임을 반드시 병기.</li>
+      <li><b>세계 최초 식육기본법(2005)</b> + 5년 주기 식육추진기본계획(현 4차) + 2024년 법 개정.</li>
+      <li><b>영양교사(栄養教諭) 제도</b> — 2005년 34명 → 2024년 <b>6,945명</b>. 편식·비만 아동 <b>개별 상담지도가 정규 교원 직무</b>이며, 문부과학성이 편식 지도 성과 12사례를 공식 보고(2021). 급식지도는 '강제 완식 → 조금씩 도전·강요 금지'로 전환.</li>
+      <li><b>민간 지형</b> — homeal(편식 유아식 냉동택배 80종+, 관리영양사 감수 — <b>밀프레드 최유사 일본 벤치마크</b>) · 가나가와현립 어린이의료센터 '편식외래'(2021~, 온라인 상담) · 오츠카제약 식육 게임앱.</li>
+      <li><b>허용 문형</b> — "일본은 편식을 법·교원 제도로 대응하는 대표 사례이며, 부모 편식 고민 보고율도 한국보다 낮게 조사된다(단, 조사 설계는 상이)." <b>"정책 덕분에 낮다"는 단정 금지.</b></li>
+    </ul>
+  </div>
+
+  <h3>후보국 판정표</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>후보</th><th>'낮다' 근거</th><th>정책·서비스 유명도</th><th>한국과 비교 가능성</th><th>판정</th></tr>
+    <tr><td><b>🇯🇵 일본</b></td><td>중상 — 전국조사 32.4% 실재</td><td>최상 — 식육기본법·영양교사 6,945명</td><td>상(유일) — 같은 '부모 보고' 축</td><td><span class="conf hi">최적 사례</span></td></tr>
+    <tr><td><b>🇫🇷 프랑스</b></td><td>하 — 유병률 연구 부재. 자체 연구는 오히려 신기피 <b>~77% 보편</b> 보고. 'French Kids Eat Everything'류는 일화</td><td>상 — Classes du Goût(1974~)·미각주간 누적 550만 아동·Sapere 원류 (단 미각주간은 설탕업계 기원 흠결)</td><td>불가</td><td><span class="conf lo">'낮은 나라' 인용 금지</span> — 방법론 원류로만</td></tr>
+    <tr><td><b>🇫🇮🇸🇪 핀란드·스웨덴</b></td><td>하 — 낮다는 국가 수치 자체가 없음</td><td>중상 — 핀란드 Sapere의 <b>국가 조기교육 핵심커리큘럼 편입</b>(2016 구속력)·스웨덴 국립식품청 20년+ 공식 교재</td><td>불가</td><td><span class="conf mid">'미각교육 국가 제도화' 사례로만</span></td></tr>
+    <tr><td><b>🇳🇱 네덜란드</b></td><td>역설 — 5.6%는 엄격 정의의 산물. 같은 코호트도 단일문항이면 26~28%</td><td>하</td><td>불가(함정)</td><td><span class="conf lo">인용 금지</span> — "차이는 국가 아닌 측정 정의" 근거로만</td></tr>
+    <tr><td><b>🇺🇸🇬🇧🇦🇺 미·영·호</b></td><td>해당 없음(치료 수요는 오히려 큼)</td><td>중 — SOS Approach·Satter sDOR, 미국 PFD 전용 ICD 코드(2022)·보험 편입, NHS 무료 지침</td><td>불가</td><td><span class="conf mid">경쟁 지형·가격 벤치마크용</span> (평가 $450~500 · 세션 $165~175)</td></tr>
+  </table></div>
+
+  <div class="card warn">
+    <h4>⚠️ 인과 판정 — "정책 → 낮은 편식률" 주장은 불가</h4>
+    <p>①일본-한국 수치는 문항 설계가 달라 차이 크기가 측정 아티팩트일 수 있음 ②일본조차 '급식·영양교사가 편식을 개선한 비율'의 전국 계량 통계 미확인(공식 자료는 사례 12건) ③네덜란드가 보여주듯 정의만 바꿔도 유병률이 5배 이동 ④프랑스는 유명 미각교육에도 신기피 ~77% — <b>정책 유명도와 낮은 유병률이 동행하지 않는 직접 반례</b>. 유일한 통제 실증(Reverdy 2008, 미각수업 12차시 RCT성 연구)도 신기피 감소는 확인했으나 10개월 후 효과 소멸 경향.</p>
+  </div>
+
+  <h3>전략 시사점 3</h3>
+  <ul class="pts">
+    <li><b>측정이 곧 해자</b> — 정의에 따라 5.6%↔28%가 갈리는 시장에서는 표준화된 측정을 가진 쪽이 서사를 지배한다. 밀프레드의 측정+데이터 루프 = '한국의 Generation R' 포지션 선점 (기존 신뢰성 측정 해자 전략과 정합).</li>
+    <li><b>일본 영양교사 6,945명 = '편식 전담 코치'의 국가 단위 선례이자 한국의 공백 증명</b> — "일본이 공교육으로 하는 1:1 편식 지도를, 한국에서는 밀프레드가 앱+키트로 제공한다" = 캐치프레이즈('우리 아이 편식 전담 코치')와 정확히 맞물리는 서사.</li>
+    <li><b>방법론은 각국 정부가 검증, 통합 모델은 글로벌 공백</b> — 일본(조금씩 도전)·프랑스 지침(강요 없는 반복 노출)·핀란드(Sapere 감각교육)가 모두 우리의 단계적 노출 방법론과 일치. 반면 글로벌 시장은 실물 구독(Little Spoon·Yumi)·앱(Solid Starts 6M+ 사용자)·코스(Kids Eat in Color)·클리닉(SOS) 4조각으로 분절 — <b>'앱+실물 키트+데이터 루프' 통합 사업자는 확인되지 않음</b>. SOS/Satter는 '방법론 준거'로만 표현(정직 가드).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>6. 검증 내역 (교정 8건)</h2>
+  <ul class="pts">
+    <li><b>① 국가 오귀속 적발</b> — '호주 5.6%'의 인용 원문(PMC3922255)을 직접 확인한 결과 네덜란드 Generation R(Tharner 2014) 논문. 호주 행에서 삭제, 네덜란드로 이관.</li>
+    <li><b>② 중복 6쌍 병합</b> — FITS·Mascola·Cardona Cano·Xue가 각 2행씩 중복 유입 → 국가별 1행 통합.</li>
+    <li><b>③ 체코 표본 교정</b> — "수천 명 규모" → 원문 확인 n=2,068, 평가시점 1.5·3·5세, 16.7%=346/2,068 산식 일치.</li>
+    <li><b>④ 스웨덴 신뢰도 하향(중→하)</b> — 방법론 논문·혼합표본 확인, 국가 유병률 인용 금지 판정.</li>
+    <li><b>⑤ 독일 18% 재확인</b> — 리뷰 문헌(PMC4422022)에서 교차 확인.</li>
+    <li><b>⑥ 일본 항목 혼동 주의</b> — 같은 조사에서 3~4세 '먹는 데 시간이 걸림'도 32.4%로 동률. 인용 시 '偏食する' 항목임을 명시.</li>
+    <li><b>⑦ 중국 59.3% 정밀화</b> — "약 59%" → 원출처 59.3% 확인. 부수 소견 중 'IQ 오히려 높음'은 교란 가능성 커 인용 비권장.</li>
+    <li><b>⑧ 2025 Nutrients 리뷰 실재 확인</b> — DOI 10.3390/nu17243884, "13~50% + pooled 22% 재인용" 원문 확인.</li>
+  </ul>
+</section>
+
+</main>
+<div class="foot">
+  밀프레드 위키 · 국가별 편식 유병률 지도 — 2026-07-30 멀티에이전트 스윕(지역 4갈래 + 메타분석 앵커 + 정규화 검증) · 원자료 30건 → 검증 통과 16행 · 관련 정본: <a href="/picky-eating-cost-report.html" style="color:var(--orange-deep)">편식 손실 근거 보고서</a> · <a href="/pitch-seed.html" style="color:var(--orange-deep)">시드 피치덱</a>
+</div>
+</body>
+</html>
