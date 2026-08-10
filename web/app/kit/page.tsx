@@ -2,17 +2,30 @@
  * /kit — 편식키트 탭 (구 팁/커뮤니티 탭 개편, 2026-08-10 이사님 결정).
  * 골고루 키트(정기·AI 개인화·주 19,900원 베타 잠정가) + 집중 키트(9종 코스·출시 준비 중·가격 미표기).
  * 사전예약 = 결제 아님(이름·연락처·주소 수집 → 확정 시 개별 연락). 포인트는 확정 시 1P=1원 할인 차감.
+ * 비주얼 = 생성 아이콘(/icons/ui/* + FoodIcon) — 이모지 금지 규칙(이사님 2026-08-10). 폴백만 이모지 허용.
  */
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import LoginCta from '@/components/LoginCta';
+import FoodIcon from '@/components/FoodIcon';
 import { FOCUS_COURSES, GOLLO_WEEK_PRICE, ORDER_STATUS_LABEL, normalizePhone, type KitType, type FocusCourse } from '@/lib/kitOrder';
 
 type MyOrder = { id: string; kit_type: KitType; course: string | null; use_points: number; status: string; created_at: string };
 
+// FoodIcon 폴백용 이모지(도감 아이콘 없을 때만) — 버섯은 범용명이라 전용 생성 아이콘 사용
 const COURSE_EM: Record<FocusCourse, string> = { 당근: '🥕', 양파: '🧅', 두부: '🍲', 버섯: '🍄', 브로콜리: '🥦', 시금치: '🥬', 토마토: '🍅', 파프리카: '🫑', 가지: '🍆' };
+
+function UiIcon({ src, px, alt = '' }: { src: string; px: number; alt?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={src} alt={alt} width={px} height={px} style={{ width: px, height: px, objectFit: 'contain', flexShrink: 0 }} />;
+}
+
+function CourseIcon({ nm, px }: { nm: FocusCourse; px: number }) {
+  if (nm === '버섯') return <UiIcon src="/icons/ui/course-mushroom.png" px={px} alt="버섯" />;
+  return <FoodIcon nm={nm} em={COURSE_EM[nm]} px={px} />;
+}
 
 export default function KitPage() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -46,7 +59,8 @@ export default function KitPage() {
     <main className="max-w-md mx-auto w-full min-h-screen flex flex-col overflow-x-hidden" style={{ background: '#FFFDFB' }}>
       <header className="flex items-center justify-between px-5 pt-6 pb-1">
         <div className="flex items-center gap-2">
-          <h1 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>🎁 키트</h1>
+          <UiIcon src="/icons/ui/tab-kit.png" px={20} />
+          <h1 className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>키트</h1>
           <span className="text-[11px] font-bold" style={{ color: '#9CA3AF' }}>매주 골고루, 막히면 집중.</span>
         </div>
         {!loggedIn && <LoginCta />}
@@ -55,8 +69,9 @@ export default function KitPage() {
       {/* 포인트 안내 스트립 */}
       <div className="px-5 pt-2 pb-3">
         <div className="rounded-2xl px-4 py-3 flex items-center justify-between" style={{ background: 'linear-gradient(135deg,#FFF8F0,#FFE8D0)', border: '1px solid #FFD0A0' }}>
-          <div className="text-[12px] font-bold" style={{ color: '#8a7a6a' }}>
-            🪙 내 포인트 <strong className="text-[14px]" style={{ color: '#C45A00' }}>{loggedIn ? balance.toLocaleString() : 0}P</strong>
+          <div className="flex items-center gap-1.5 text-[12px] font-bold" style={{ color: '#8a7a6a' }}>
+            <UiIcon src="/icons/ui/point-coin.png" px={18} />
+            <span>내 포인트 <strong className="text-[14px]" style={{ color: '#C45A00' }}>{loggedIn ? balance.toLocaleString() : 0}P</strong></span>
           </div>
           <div className="text-[10.5px] text-right leading-snug" style={{ color: '#8a7a6a' }}>키트 확정 시 <b style={{ color: '#16A085' }}>1P=1원 할인</b><br />끼니 기록마다 +50P</div>
         </div>
@@ -65,28 +80,32 @@ export default function KitPage() {
       <div className="flex-1 px-5 pb-4 space-y-3">
         {/* 골고루 키트 */}
         <section className="bg-white rounded-2xl p-4 shadow-sm border" style={{ borderColor: '#FFE8D0' }}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">📦</span>
-            <h2 className="text-[15px] font-extrabold" style={{ color: '#1a2b4a' }}>골고루 키트</h2>
-            <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#FFF0E0', color: '#C45A00' }}>정기 · AI 개인화</span>
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <UiIcon src="/icons/ui/kit-gollo.png" px={44} alt="골고루 키트" />
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-[15px] font-extrabold" style={{ color: '#1a2b4a' }}>골고루 키트</h2>
+                <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#FFF0E0', color: '#C45A00' }}>정기 · AI 개인화</span>
+              </div>
+              <div>
+                <span className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>주 19,900원</span>
+                <span className="text-[11px] ml-1.5" style={{ color: '#9CA3AF' }}>월 약 79,600원 · *베타 잠정가</span>
+              </div>
+            </div>
           </div>
-          <div className="mb-2">
-            <span className="text-lg font-extrabold" style={{ color: '#1a2b4a' }}>주 19,900원</span>
-            <span className="text-[11px] ml-1.5" style={{ color: '#9CA3AF' }}>월 약 79,600원 · *베타 잠정가</span>
-          </div>
-          <ul className="text-[12px] leading-relaxed space-y-1 mb-2.5" style={{ color: '#5a6575' }}>
-            <li>🧬 <b>우리 아이 데이터로 매주 배합</b> — 핵심 도전 5종 + 맛보기 2종, 총 7종 소량</li>
-            <li>🍽 집 14끼니(아침·저녁) 분량 · 매주 회전 = 한 달 28종 노출</li>
-            <li>🃏 식재료마다 <b>&ldquo;왜 왔는지&rdquo; 이유 카드</b> + SOS 단계 가이드 동봉</li>
-            <li>🧊 신선 콜드체인 · 매운맛/알레르겐/연령 부적합 자동 제외</li>
+          <ul className="text-[12px] leading-relaxed space-y-1 mb-2.5 list-none" style={{ color: '#5a6575' }}>
+            <li><b style={{ color: '#1a2b4a' }}>우리 아이 데이터로 매주 배합</b> — 핵심 도전 5종 + 맛보기 2종, 총 7종 소량</li>
+            <li>집 14끼니(아침·저녁) 분량 · 매주 회전 = 한 달 28종 노출</li>
+            <li>식재료마다 <b style={{ color: '#1a2b4a' }}>&ldquo;왜 왔는지&rdquo; 이유 카드</b> + SOS 단계 가이드 동봉</li>
+            <li>신선 콜드체인 · 매운맛/알레르겐/연령 부적합 자동 제외</li>
           </ul>
-          <a href="/" className="block text-[11.5px] font-bold mb-3" style={{ color: '#1565C0' }}>👀 코칭 홈에서 &lsquo;이번 주 우리 아이 박스 구성&rsquo; 미리보기 →</a>
+          <a href="/" className="block text-[11.5px] font-bold mb-3" style={{ color: '#1565C0' }}>코칭 홈에서 &lsquo;이번 주 우리 아이 박스 구성&rsquo; 미리보기 →</a>
           {pending('gollo') ? (
             <div className="rounded-xl py-3 text-center text-sm font-extrabold" style={{ background: '#EAF6F0', color: '#16A085' }}>✓ 사전예약 접수됨 — 확정 시 연락드려요</div>
           ) : (
             <button onClick={() => loggedIn ? setForm({ open: true, type: 'gollo' }) : undefined} disabled={!loggedIn}
               className="w-full rounded-xl py-3.5 text-sm font-extrabold text-white" style={{ background: loggedIn ? 'linear-gradient(135deg,#FF6B1A,#C45A00)' : '#D1D5DB' }}>
-              {loggedIn ? '📦 사전예약 신청하기' : '로그인하면 사전예약할 수 있어요'}
+              {loggedIn ? '사전예약 신청하기' : '로그인하면 사전예약할 수 있어요'}
             </button>
           )}
           <a href="https://www.mealfred.com/box-product.html?app=1" target="_blank" rel="noopener" className="block text-center text-[11px] font-bold mt-2" style={{ color: '#9CA3AF' }}>구성·안전 기준 자세히 보기 →</a>
@@ -94,17 +113,21 @@ export default function KitPage() {
 
         {/* 집중 키트 */}
         <section className="bg-white rounded-2xl p-4 shadow-sm border" style={{ borderColor: '#E8E4F0' }}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">🎯</span>
-            <h2 className="text-[15px] font-extrabold" style={{ color: '#1a2b4a' }}>집중 키트</h2>
-            <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#EEF2FF', color: '#3949AB' }}>출시 준비 중</span>
+          <div className="flex items-center gap-2.5 mb-1.5">
+            <UiIcon src="/icons/ui/kit-focus.png" px={44} alt="집중 키트" />
+            <div className="flex items-center gap-2">
+              <h2 className="text-[15px] font-extrabold" style={{ color: '#1a2b4a' }}>집중 키트</h2>
+              <span className="text-[9.5px] font-extrabold px-2 py-0.5 rounded-full" style={{ background: '#EEF2FF', color: '#3949AB' }}>출시 준비 중</span>
+            </div>
           </div>
           <p className="text-[12px] leading-relaxed mb-2" style={{ color: '#5a6575' }}>
-            자꾸 막히는 <b>식재료 1가지를 5주간 집중 공략</b>해요 — 1가지 식재료 × 7가지 형태, SOS 6단계 활동 카드, 부모 가이드까지. 주 1회 × 5주 배송.
+            자꾸 막히는 <b style={{ color: '#1a2b4a' }}>식재료 1가지를 5주간 집중 공략</b>해요 — 1가지 식재료 × 7가지 형태, SOS 6단계 활동 카드, 부모 가이드까지. 주 1회 × 5주 배송.
           </p>
           <div className="flex flex-wrap gap-1.5 mb-3">
             {FOCUS_COURSES.map((c) => (
-              <span key={c} className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ background: '#F8F7FC', color: '#3949AB', border: '1px solid #E8E4F0' }}>{COURSE_EM[c]} {c}</span>
+              <span key={c} className="text-[11px] font-bold pl-1.5 pr-2.5 py-1 rounded-full inline-flex items-center gap-1" style={{ background: '#F8F7FC', color: '#3949AB', border: '1px solid #E8E4F0' }}>
+                <CourseIcon nm={c} px={16} /> {c}
+              </span>
             ))}
           </div>
           {pending('focus') ? (
@@ -112,7 +135,7 @@ export default function KitPage() {
           ) : (
             <button onClick={() => loggedIn ? setForm({ open: true, type: 'focus' }) : undefined} disabled={!loggedIn}
               className="w-full rounded-xl py-3 text-sm font-extrabold" style={loggedIn ? { background: 'white', color: '#C45A00', border: '1.5px solid #FF6B1A' } : { background: '#F4F4F5', color: '#B0B0B0', border: '1.5px solid #E5E7EB' }}>
-              {loggedIn ? '🔔 출시 사전신청 (가격 확정 전)' : '로그인하면 사전신청할 수 있어요'}
+              {loggedIn ? '출시 사전신청 (가격 확정 전)' : '로그인하면 사전신청할 수 있어요'}
             </button>
           )}
         </section>
@@ -120,13 +143,14 @@ export default function KitPage() {
         {/* 내 신청 내역 */}
         {orders.length > 0 && (
           <section className="bg-white rounded-2xl p-4 shadow-sm border" style={{ borderColor: '#F0E8E0' }}>
-            <div className="text-xs font-bold mb-2" style={{ color: '#8a7a6a' }}>📋 내 신청 내역</div>
+            <div className="text-xs font-bold mb-2" style={{ color: '#8a7a6a' }}>내 신청 내역</div>
             <div className="space-y-1.5">
               {orders.map((o) => (
                 <div key={o.id} className="flex items-center justify-between text-[12px]">
-                  <span style={{ color: '#1a2b4a', fontWeight: 700 }}>
-                    {o.kit_type === 'gollo' ? '📦 골고루 키트' : `🎯 집중 키트${o.course ? ` · ${o.course}` : ''}`}
-                    {o.use_points > 0 && <span className="ml-1" style={{ color: '#16A085', fontWeight: 700 }}>(-{o.use_points.toLocaleString()}P 할인 신청)</span>}
+                  <span className="inline-flex items-center gap-1.5" style={{ color: '#1a2b4a', fontWeight: 700 }}>
+                    <UiIcon src={o.kit_type === 'gollo' ? '/icons/ui/kit-gollo.png' : '/icons/ui/kit-focus.png'} px={16} />
+                    {o.kit_type === 'gollo' ? '골고루 키트' : `집중 키트${o.course ? ` · ${o.course}` : ''}`}
+                    {o.use_points > 0 && <span style={{ color: '#16A085', fontWeight: 700 }}>(-{o.use_points.toLocaleString()}P 할인 신청)</span>}
                   </span>
                   <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full shrink-0"
                     style={o.status === 'requested' ? { background: '#FFF0E0', color: '#C45A00' } : o.status === 'cancelled' ? { background: '#F4F4F5', color: '#9CA3AF' } : { background: '#EAF6F0', color: '#16A085' }}>
@@ -153,7 +177,7 @@ export default function KitPage() {
       )}
       {justDone && (
         <div className="fixed left-1/2 -translate-x-1/2 z-50 rounded-full px-4 py-2 text-[12.5px] font-extrabold text-white shadow-md" style={{ bottom: 76, background: '#16A085' }}>
-          🎉 신청 완료! 확정 시 연락드려요
+          신청 완료! 확정 시 연락드려요
         </div>
       )}
       <BottomNav active="/kit" />
@@ -196,8 +220,12 @@ function ReserveSheet({ type, balance, onClose, onDone }: { type: KitType; balan
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: 'rgba(26,43,74,0.45)' }} onClick={onClose}>
       <div className="w-full max-w-md rounded-t-3xl p-5 pb-7 max-h-[85vh] overflow-y-auto" style={{ background: '#FFFDFB' }} onClick={(e) => e.stopPropagation()}>
-        <div className="text-[15px] font-extrabold mb-1" style={{ color: '#1a2b4a' }}>
-          {type === 'gollo' ? '📦 골고루 키트 사전예약' : '🎯 집중 키트 출시 사전신청'}
+        <div className="flex items-center gap-2 mb-1">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={type === 'gollo' ? '/icons/ui/kit-gollo.png' : '/icons/ui/kit-focus.png'} alt="" width={22} height={22} style={{ width: 22, height: 22, objectFit: 'contain' }} />
+          <div className="text-[15px] font-extrabold" style={{ color: '#1a2b4a' }}>
+            {type === 'gollo' ? '골고루 키트 사전예약' : '집중 키트 출시 사전신청'}
+          </div>
         </div>
         <p className="text-[11.5px] mb-3.5" style={{ color: '#8a7a6a' }}>
           {type === 'gollo' ? '결제가 아니에요 — 확정 시 연락드리고, 그때 포인트 할인이 적용돼요.' : '가격 확정 전이라 신청만 받아요 — 출시되면 가장 먼저 안내드려요.'}
@@ -208,9 +236,9 @@ function ReserveSheet({ type, balance, onClose, onDone }: { type: KitType; balan
             <div className="text-[12px] font-bold mb-1.5" style={{ color: '#5a6575' }}>집중할 식재료 코스</div>
             <div className="flex flex-wrap gap-1.5">
               {FOCUS_COURSES.map((c) => (
-                <button key={c} onClick={() => setCourse(c)} className="text-[12px] font-bold px-3 py-1.5 rounded-full"
+                <button key={c} onClick={() => setCourse(c)} className="text-[12px] font-bold pl-1.5 pr-3 py-1.5 rounded-full inline-flex items-center gap-1"
                   style={course === c ? { background: '#1a2b4a', color: 'white', border: '1px solid #1a2b4a' } : { background: 'white', color: '#3949AB', border: '1px solid #E8E4F0' }}>
-                  {COURSE_EM[c]} {c}
+                  <CourseIcon nm={c} px={16} /> {c}
                 </button>
               ))}
             </div>

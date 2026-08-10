@@ -968,7 +968,8 @@ export default function Home() {
           {/* 골고루 키트 CTA — 키트 탭(사전예약·포인트 할인)으로 */}
           <a href="/kit" className="block mt-2 rounded-xl p-3.5" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
             <div className="flex items-center gap-3">
-              <span className="text-2xl">📦</span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/icons/ui/kit-gollo.png" alt="" width={34} height={34} style={{ width: 34, height: 34, objectFit: 'contain', flexShrink: 0 }} />
               <div className="flex-1">
                 <div className="text-sm font-extrabold text-white">{boxItems.length > 0 ? '이 구성 그대로 집으로 받기' : '골고루 키트로 집에서 만나보세요'}</div>
                 <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.9)' }}>AI가 매주 분석해 구성 · 포인트로 할인(1P=1원)</div>
@@ -986,7 +987,7 @@ export default function Home() {
         {blogs.length > 0 && (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2 px-0.5">
-              <div className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>📰 밀프레드 팁</div>
+              <div className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>밀프레드 팁</div>
               <a href="/blog" className="text-[10.5px] font-bold" style={{ color: '#C45A00' }}>전체 보기 →</a>
             </div>
             {blogs.map((b) => <BlogFeedCard key={b.slug} blog={b} />)}

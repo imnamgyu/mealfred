@@ -1,10 +1,14 @@
-/** care 앱 하단 탭 네비게이션 (코칭·기록·도감·키트·내 정보) — 팁(커뮤니티) 탭은 2026-08-10 키트 탭으로 개편 */
+/**
+ * care 앱 하단 탭 네비게이션 (코칭·기록·도감·키트·내 정보).
+ * 아이콘 = gen-ui-icons.mjs로 생성한 밀프레드 두톤 세트(/icons/ui/tab-*.png) — 이모지 금지 규칙(이사님 2026-08-10).
+ * 비활성 탭은 CSS grayscale로 톤다운(별도 비활성 에셋 불필요).
+ */
 const TABS = [
-  { href: '/', emoji: '💌', label: '코칭' },
-  { href: '/care', emoji: '✏️', label: '기록' },
-  { href: '/foods', emoji: '🗂', label: '도감' },
-  { href: '/kit', emoji: '🎁', label: '키트' },
-  { href: '/care/me', emoji: '👤', label: '내 정보' },
+  { href: '/', icon: '/icons/ui/tab-coach.png', label: '코칭' },
+  { href: '/care', icon: '/icons/ui/tab-care.png', label: '기록' },
+  { href: '/foods', icon: '/icons/ui/tab-foods.png', label: '도감' },
+  { href: '/kit', icon: '/icons/ui/tab-kit.png', label: '키트' },
+  { href: '/care/me', icon: '/icons/ui/tab-me.png', label: '내 정보' },
 ];
 
 // 항상 화면 하단에 고정. sticky는 페이지 <main>의 overflow-x-hidden(도감 줌 픽스) 때문에
@@ -18,14 +22,19 @@ export default function BottomNav({ active }: { active: string }) {
       <div aria-hidden style={{ height: NAV_H }} />
       <nav className="fixed bottom-0 inset-x-0 z-40 bg-white border-t" style={{ borderColor: '#E5E7EB' }}>
         <div className="grid grid-cols-5 max-w-md mx-auto w-full">
-          {TABS.map((t) => (
-            <a key={t.href} href={t.href}
-              className="flex flex-col items-center py-2.5"
-              style={{ color: t.href === active ? '#FF6B1A' : '#9CA3AF' }}>
-              <span className="text-lg leading-none">{t.emoji}</span>
-              <span className="text-[10px] font-bold mt-0.5">{t.label}</span>
-            </a>
-          ))}
+          {TABS.map((t) => {
+            const on = t.href === active;
+            return (
+              <a key={t.href} href={t.href}
+                className="flex flex-col items-center py-2.5"
+                style={{ color: on ? '#FF6B1A' : '#9CA3AF' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={t.icon} alt="" width={22} height={22}
+                  style={{ width: 22, height: 22, objectFit: 'contain', filter: on ? 'none' : 'grayscale(1) opacity(0.5)' }} />
+                <span className="text-[10px] font-bold mt-0.5">{t.label}</span>
+              </a>
+            );
+          })}
         </div>
       </nav>
     </>

@@ -239,7 +239,8 @@ export default function MePage() {
                 { ic: '🍽', t: '끼니 기록', p: '+50P', d: '매 끼니 · 하루 5끼까지', on: true },
                 { ic: '📋', t: '식단표 등록', p: '+1,000P', d: '어린이집 식단표 사진 업로드(월 1회)', on: true },
                 { ic: '👥', t: '친구 가입', p: '+4,900P', d: <>친구가 <strong style={{ color: '#D6453D' }}>아이 첫 끼니를 입력</strong>하면 적립 · 많이 모으면 계속 무료</>, on: true },
-                { ic: '🎁', t: '키트 탭에서 사용', p: '1P=1원', d: <><a href="/kit" style={{ color: '#C45A00', fontWeight: 700 }}>골고루 키트 사전예약</a> 확정 시 보유 포인트만큼 할인돼요</>, on: true },
+                // eslint-disable-next-line @next/next/no-img-element
+                { ic: <img src="/icons/ui/tab-kit.png" alt="" width={18} height={18} style={{ width: 18, height: 18, objectFit: 'contain' }} />, t: '키트 탭에서 사용', p: '1P=1원', d: <><a href="/kit" style={{ color: '#C45A00', fontWeight: 700 }}>골고루 키트 사전예약</a> 확정 시 보유 포인트만큼 할인돼요</>, on: true },
               ].map((x, i) => (
                 <div key={i} className="flex items-center gap-2.5 py-1.5" style={{ borderTop: i ? '1px solid #F5F0EA' : 'none' }}>
                   <span className="text-base shrink-0">{x.ic}</span>
