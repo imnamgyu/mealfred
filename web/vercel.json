@@ -6,10 +6,6 @@
   "installCommand": "npm install",
   "crons": [
     {
-      "path": "/api/cron/community-rewards",
-      "schedule": "0 16 * * *"
-    },
-    {
       "path": "/api/cron/coach",
       "schedule": "0 17 * * *"
     },

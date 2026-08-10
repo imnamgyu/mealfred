@@ -1,9 +1,9 @@
-/** care 앱 하단 탭 네비게이션 (코칭·기록·도감·팁·내 정보) */
+/** care 앱 하단 탭 네비게이션 (코칭·기록·도감·키트·내 정보) — 팁(커뮤니티) 탭은 2026-08-10 키트 탭으로 개편 */
 const TABS = [
   { href: '/', emoji: '💌', label: '코칭' },
   { href: '/care', emoji: '✏️', label: '기록' },
   { href: '/foods', emoji: '🗂', label: '도감' },
-  { href: '/tips', emoji: '💡', label: '팁' },
+  { href: '/kit', emoji: '🎁', label: '키트' },
   { href: '/care/me', emoji: '👤', label: '내 정보' },
 ];
 

@@ -18,6 +18,8 @@ import { loadIngredientsLight, loadCatMap } from '@/lib/staticData';
 import BottomNav from '@/components/BottomNav';
 import FoodIcon from '@/components/FoodIcon';
 import AuthModal from '@/components/AuthModal';
+import BlogFeedCard from '@/components/BlogFeedCard';
+import type { BlogCard } from '@/lib/blog';
 import { kakaoErrorText } from '@/lib/kakaoAuth';
 import { parseQuizHandoff, quizWelcome, type QuizHandoff } from '@/lib/quizHandoff';
 
@@ -152,6 +154,7 @@ export default function Home() {
   const [pool, setPool] = useState<{ nm: string; cat: string; grade: string; em: string; must_eat?: boolean; must_eat_tier?: 'core' | 'good'; must_eat_nutrient?: string }[]>([]);
   const [eatenSet, setEatenSet] = useState<Set<string>>(new Set());
   const [kitGuide, setKitGuide] = useState<Record<string, { d: string; em: string; s: number }[]>>({});   // 키트 식재료→넣기 좋은 음식(public/kit-guide.json)
+  const [blogs, setBlogs] = useState<(BlogCard & { reason?: string | null })[]>([]);   // 밀프레드 팁 글 — 팁(커뮤니티) 탭 개편으로 홈 하단에 노출
 
   // ① 자녀 목록 로드 + 선택 자녀 결정(localStorage 유지·기본 첫째). 선택이 정해지면 ②가 그 아이 데이터를 로드.
   useEffect(() => {
@@ -195,6 +198,11 @@ export default function Home() {
 
   // 익명 방문 기록(펀넬 Phase2 · 방문→가입 전환). 진입 1회 fire-and-forget.
   useEffect(() => { fetch('/api/funnel', { method: 'POST' }).catch(() => {}); }, []);
+
+  // 밀프레드 팁 글 — 마운트=공개(CDN 캐시) 피드 → loggedIn 확정 시 개인화(?me=1, user_tip_ranking 순서·🎯reason)로 교체.
+  useEffect(() => {
+    fetch(`/api/blog/feed?limit=5${loggedIn ? '&me=1' : ''}`).then((r) => r.json()).then((j) => setBlogs(j.posts || [])).catch(() => {});
+  }, [loggedIn]);
 
   // ② 선택된 자녀의 전체 데이터 로드 (switcher로 selectedId 바뀌면 재실행)
   useEffect(() => {
@@ -957,13 +965,13 @@ export default function Home() {
             </div>
           )}
 
-          {/* 골고루 키트 CTA */}
-          <a href={`https://www.mealfred.com/box-product.html?app=1${childName ? `&name=${encodeURIComponent(childName)}` : ''}`} target="_blank" rel="noopener" className="block mt-2 rounded-xl p-3.5" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
+          {/* 골고루 키트 CTA — 키트 탭(사전예약·포인트 할인)으로 */}
+          <a href="/kit" className="block mt-2 rounded-xl p-3.5" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
             <div className="flex items-center gap-3">
               <span className="text-2xl">📦</span>
               <div className="flex-1">
                 <div className="text-sm font-extrabold text-white">{boxItems.length > 0 ? '이 구성 그대로 집으로 받기' : '골고루 키트로 집에서 만나보세요'}</div>
-                <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.9)' }}>AI가 매주 분석해 구성 · 소량 배송</div>
+                <div className="text-[11px]" style={{ color: 'rgba(255,255,255,0.9)' }}>AI가 매주 분석해 구성 · 포인트로 할인(1P=1원)</div>
               </div>
               <span className="text-white">›</span>
             </div>
@@ -973,6 +981,17 @@ export default function Home() {
             🗂 식재료 도감 전체 보기 →
           </a>
         </div>
+
+        {/* 📰 밀프레드 팁 — 팁(커뮤니티) 탭 개편(→키트)으로 블로그 진입점이 홈으로 이동 */}
+        {blogs.length > 0 && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2 px-0.5">
+              <div className="text-[13px] font-extrabold" style={{ color: '#1a2b4a' }}>📰 밀프레드 팁</div>
+              <a href="/blog" className="text-[10.5px] font-bold" style={{ color: '#C45A00' }}>전체 보기 →</a>
+            </div>
+            {blogs.map((b) => <BlogFeedCard key={b.slug} blog={b} />)}
+          </div>
+        )}
 
         {/* 하단 CTA — 로그인=오늘 식단 기록하기 / 비로그인=가입(카카오 팝업, 페이지 이동 없음). 항상 노출(기록 동선 상시 제공) */}
         {loggedIn ? (
