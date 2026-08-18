@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>세션스타트 훅 명세 — 2KB 코어 + 반감기 주입</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB; --bg-warm-1:#FFE8D0; --bg-soft:#FFFBF5; --bg-page:#FAFAF7;
+    --orange-main:#FF6B1A; --orange-deep:#C45A00; --orange-deeper:#E65100;
+    --navy:#1a2b4a; --navy-deep:#0F1D35;
+    --brown-deep:#3a2a1a; --brown-mid:#5a4a3a; --brown-soft:#8a7a6a;
+    --card-bg:#FFFFFF; --card-border:#FFE8D0; --green:#2D8B4E; --blue:#1565C0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo',sans-serif;background:var(--bg-page);color:var(--brown-mid);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 20px 80px;}
+  .hero{background:linear-gradient(160deg,var(--bg-warm-0),var(--bg-warm-1));border-radius:20px;padding:40px 36px;margin-bottom:36px;}
+  .tag{display:inline-block;background:rgba(255,107,26,.1);border:1px solid rgba(255,107,26,.25);color:var(--orange-deep);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:700;letter-spacing:.04em;margin-bottom:14px;}
+  h1{color:var(--navy);font-size:clamp(26px,5vw,34px);font-weight:800;letter-spacing:-0.03em;line-height:1.3;}
+  h2{color:var(--navy);font-size:22px;font-weight:800;letter-spacing:-0.02em;margin:44px 0 14px;}
+  h3{color:var(--navy);font-size:15.5px;font-weight:800;margin:20px 0 8px;}
+  p{font-size:14.5px;}
+  .lead{font-size:15.5px;color:var(--brown-deep);margin-top:10px;}
+  strong{color:var(--orange-deep);font-weight:700;}
+  code{background:var(--bg-soft);border:1px solid var(--card-border);border-radius:5px;padding:1px 6px;font-size:12.5px;color:var(--navy);font-family:ui-monospace,Menlo,monospace;}
+  .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 22px;margin:14px 0;}
+  .callout{background:var(--bg-soft);border-left:4px solid var(--orange-main);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0;font-size:13.5px;}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;}
+  th{color:var(--orange-deep);font-weight:800;text-align:left;padding:9px 10px;border-bottom:2px solid var(--card-border);white-space:nowrap;}
+  td{padding:9px 10px;border-bottom:1px solid var(--card-border);vertical-align:top;color:var(--brown-deep);}
+  /* 파이프라인 다이어그램 */
+  .pipe{display:flex;flex-direction:column;gap:0;margin:18px 0;}
+  .pnode{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;padding:13px 18px;font-size:13.5px;}
+  .pnode b{color:var(--navy);font-size:14px;display:block;margin-bottom:2px;}
+  .pnode.warn{border-color:var(--orange-main);background:var(--bg-warm-0);}
+  .parrow{text-align:center;color:var(--orange-main);font-weight:900;font-size:16px;padding:2px 0;}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:640px){.split{grid-template-columns:1fr;}}
+  /* 반감기 바 차트 */
+  .bar-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;}
+  .bar-label{flex:0 0 150px;color:var(--brown-deep);font-weight:600;text-align:right;}
+  .bar-track{flex:1;background:var(--bg-soft);border-radius:6px;height:22px;overflow:hidden;}
+  .bar{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--orange-main),#FF8A47);display:flex;align-items:center;padding-left:8px;color:#fff;font-weight:700;font-size:11.5px;white-space:nowrap;}
+  .bar.dim1{background:linear-gradient(90deg,#FF8A47,#FFB07A);}
+  .bar.dim2{background:#FFC9A3;color:var(--orange-deeper);}
+  .bar.dim3{background:var(--bg-warm-1);color:var(--brown-soft);}
+  pre{background:var(--navy-deep);color:#EAEFF7;border-radius:12px;padding:16px 18px;font-size:12px;line-height:1.6;overflow-x:auto;font-family:ui-monospace,Menlo,monospace;margin:12px 0;}
+  .foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--card-border);font-size:12px;color:var(--brown-soft);}
+  a{color:var(--orange-main);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <div class="tag">거버넌스 · 세션 인프라 명세 (정본) · v2 2026-08-18</div>
+  <h1>세션스타트 훅 — 컨텍스트 자동 주입,<br>확실히 보장되는 건 <u>앞 2KB</u>뿐</h1>
+  <p class="lead">매 세션 시작 때 Claude에게 위키 인덱스·lint·최근 일지를 자동 주입하는 훅의 구조 명세.
+  출력이 크면 하네스가 전문을 파일로 빼고 <strong>앞 2KB 프리뷰만 인라인 주입</strong>한다는 사실이 확인되어(2026-08-18 실측),
+  <strong>"2KB 코어 다이제스트 + 반감기 전문"</strong> 구조로 개편했다.</p>
+</div>
+
+<h2>1. 훅은 언제, 어떻게 도는가</h2>
+<div class="pipe">
+  <div class="pnode"><b>① 세션 시작 (Claude Code 실행)</b>
+    <code>~/.claude/settings.json</code>의 <code>hooks.SessionStart</code>에 등록된 명령이 자동 실행된다 — 우리 등록: <code>sh ~/.claude/hooks/worklog-context.sh</code> (timeout 10초).</div>
+  <div class="parrow">↓</div>
+  <div class="pnode"><b>② 스크립트가 stdout으로 컨텍스트 생성</b>
+    위키 인덱스(docs.html 파싱) + <code>wiki_lint.py --quick</code> + 주간 롤업 + 최근 일 파일을 조립해 출력.</div>
+  <div class="parrow">↓</div>
+  <div class="pnode warn"><b>③ 하네스의 크기 분기 — 여기가 함정</b>
+    <div class="split" style="margin-top:8px;">
+      <div class="pnode" style="border-style:dashed;"><b style="color:var(--green);">출력이 작으면</b>전부 인라인으로 Claude 컨텍스트에 주입.</div>
+      <div class="pnode" style="border-style:dashed;"><b style="color:var(--orange-deeper);">출력이 크면 (실측: 16~21KB)</b>전문을 <code>hook-*-stdout.txt</code>로 저장하고, 인라인에는 <strong>앞 2KB 프리뷰만</strong> 주입.</div>
+    </div></div>
+  <div class="parrow">↓</div>
+  <div class="pnode"><b>④ Claude가 프롬프트를 받기 전, 이 내용이 이미 컨텍스트에 존재</b>
+    단 ③에서 잘렸다면 잘린 뒷부분은 Claude가 <strong>파일을 직접 Read해야만</strong> 볼 수 있다 (자동 아님).</div>
+</div>
+
+<h2>2. <code>hook-*-stdout.txt</code> 파일의 규칙</h2>
+<div class="card">
+<table>
+  <tr><th>생성 시점</th><td>세션 시작 직후, 훅 stdout이 인라인 임계를 넘을 때 하네스가 자동 생성. (임계값 자체는 하네스 내부값 — 실측으로만 확인: 21,322B 출력 → 파일 저장 + 앞 2KB 프리뷰)</td></tr>
+  <tr><th>위치</th><td><code>~/.claude/projects/&lt;프로젝트&gt;/&lt;세션ID&gt;/tool-results/</code></td></tr>
+  <tr><th>이름</th><td><code>hook-&lt;호출UUID&gt;-stdout.txt</code> — 세션·호출마다 UUID가 달라져 매번 새 파일</td></tr>
+  <tr><th>내용</th><td>훅 stdout 전문 (인라인에서 잘린 부분 포함 전체)</td></tr>
+  <tr><th>읽는 법</th><td>Claude에게 "훅 전문 파일 열어봐"라고 하면 Read로 열람. 세션 시작 시스템 메시지에 경로가 찍혀 있다</td></tr>
+</table>
+</div>
+
+<h2>3. v2 출력 구조 — 2KB 코어 + 전문</h2>
+<p>순서가 곧 보장이다. <strong>앞 2,000B는 스크립트가 예산으로 강제</strong>하는 코어 다이제스트, 그 뒤는 잘려도 파일로 보존되는 전문.</p>
+
+<div class="split" style="margin-top:14px;">
+  <div class="card" style="border-color:var(--orange-main);border-width:2px;">
+    <h3 style="margin-top:0;">🅰 코어 (≤2,000B · 인라인 보장)</h3>
+    <table>
+      <tr><th>1</th><td><b>규칙 1줄</b> — 위키 정본 먼저·산출물은 위키 게시 마감 (헌법·가정레지스터 포인터)</td></tr>
+      <tr><th>2</th><td><b>lint/review 상태</b> — <code>high·med·low</code> 건수 + review 대기 (v1에선 맨 아래라 늘 잘리던 것 → 승격)</td></tr>
+      <tr><th>3</th><td><b>최근 일지 반감기 요약</b> — 아래 §4</td></tr>
+      <tr><th>4</th><td><b>위키 섹션별 카드 수</b> — "투자 9 · 그로스 7 · …" (전체 목록은 전문에)</td></tr>
+    </table>
+    <p style="font-size:12.5px;color:var(--brown-soft);">예산 초과 시 줄 단위로 아래부터 탈락 — 우선순위 위쪽이 항상 생존.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;">🅱 전문 (프리뷰 밖 · 파일 보존)</h3>
+    <table>
+      <tr><th>1</th><td>위키 <b>전체 카드 인덱스</b> (≤6KB)</td></tr>
+      <tr><th>2</th><td>lint 상세 (이슈 목록 + review 큐 항목)</td></tr>
+      <tr><th>3</th><td>최신 <b>주간 롤업</b> (≤4KB)</td></tr>
+      <tr><th>4</th><td>최근 3일 <b>일 파일</b> — 반감기 캡 적용 (아래 §4)</td></tr>
+    </table>
+    <p style="font-size:12.5px;color:var(--brown-soft);">전문 시작 지점에 마커 한 줄: <code>---(이하 전문 · 인라인 프리뷰 밖 — 잘렸으면 hook-*-stdout.txt에서 읽기)---</code></p>
+  </div>
+</div>
+
+<h2>4. 반감기(LRU) 규칙 — 최근일수록 풍성, 오래될수록 흐릿하게</h2>
+<p>사람 기억처럼: 방금 한 작업은 세밀하게, 오래된 작업은 제목만, 더 오래된 것은 존재만 남긴다.</p>
+
+<h3>코어 다이제스트의 반감기 (일지 요약)</h3>
+<div class="card">
+  <div class="bar-row"><div class="bar-label">가장 최근 작업일</div><div class="bar-track"><div class="bar" style="width:100%;">세션 제목 전부 (병행 세션 포함)</div></div></div>
+  <div class="bar-row"><div class="bar-label">2~3번째 작업일</div><div class="bar-track"><div class="bar dim1" style="width:55%;">첫 세션 제목 한 줄 (80자)</div></div></div>
+  <div class="bar-row"><div class="bar-label">4번째 작업일</div><div class="bar-track"><div class="bar dim2" style="width:18%;">날짜만 "…"</div></div></div>
+  <div class="bar-row"><div class="bar-label">그 이전</div><div class="bar-track"><div class="bar dim3" style="width:30%;">주간 롤업 포인터 1줄</div></div></div>
+</div>
+
+<h3>전문의 반감기 (일 파일 주입 캡)</h3>
+<div class="card">
+  <div class="bar-row"><div class="bar-label">최신 일 파일</div><div class="bar-track"><div class="bar" style="width:100%;">5,000B (머리 3,000 + 꼬리 2,000)</div></div></div>
+  <div class="bar-row"><div class="bar-label">2번째</div><div class="bar-track"><div class="bar dim1" style="width:50%;">2,500B (1,800 + 700)</div></div></div>
+  <div class="bar-row"><div class="bar-label">3번째</div><div class="bar-track"><div class="bar dim2" style="width:24%;">1,200B (머리만)</div></div></div>
+  <div class="bar-row"><div class="bar-label">4번째~</div><div class="bar-track"><div class="bar dim3" style="width:10%;">0B — 주·월 롤업으로만</div></div></div>
+  <p style="font-size:12.5px;color:var(--brown-soft);margin-top:8px;">꼬리를 보존하는 이유: 일 파일은 append 전용이라 최신 세션이 항상 파일 끝에 있다.</p>
+</div>
+
+<div class="callout">💡 <b>설계 원칙</b>: 코어에 넣을 항목의 기준은 하나 — <b>"Claude가 첫 프롬프트를 받기 전에 모르면 사고가 나는 것"</b>.
+그 외 모든 것은 전문(잘려도 파일에 있음)이나 드릴다운(위키·일지 직접 열기)으로 밀어낸다. 상세 지식 본문은 절대 훅에 넣지 않는다 — 훅은 지도이지 책이 아니다.</div>
+
+<h2>5. 운영 · 수정 가이드</h2>
+<div class="card">
+<table>
+  <tr><th>실행본</th><td><code>~/.claude/hooks/worklog-context.sh</code> — 실제로 도는 파일</td></tr>
+  <tr><th>정본 사본</th><td><code>편식극복키트/tools/hooks/worklog-context.sh</code> (git 추적) — <b>수정 시 양쪽 동기화</b></td></tr>
+  <tr><th>등록 위치</th><td><code>~/.claude/settings.json</code> → <code>hooks.SessionStart</code></td></tr>
+  <tr><th>테스트</th><td><code>sh ~/.claude/hooks/worklog-context.sh | head -c 2048</code> — 이 결과가 곧 "보장 구간"이다. 코어가 2KB를 넘으면 스크립트의 예산 로직이 잘라주지만, 항목 추가는 우선순위 순서에 유의</td></tr>
+  <tr><th>의존</th><td>python3 · <code>tools/wiki_lint.py</code> · <code>deploy/docs.html</code> · <code>09_업무일지/</code> 3계층 구조</td></tr>
+</table>
+</div>
+
+<h3>변경 이력</h3>
+<table>
+  <tr><th>v1</th><td>~2026-08-17 — 위키 인덱스→lint→롤업→일 파일 3건(각 5KB 캡) 순서로 총 16~21KB 출력. lint·review가 항상 프리뷰 밖으로 잘리는 문제.</td></tr>
+  <tr><th>v2</th><td>2026-08-18 — 이사님 지시(LRU·반감기 컨셉)로 개편: 2KB 코어 다이제스트 신설(예산 강제) + lint 코어 승격 + 일지 반감기 캡(5,000→2,500→1,200→0B) + 정본 사본 git 추적 시작.</td></tr>
+</table>
+
+<div class="foot">밀프레드 위키 · 거버넌스 명세 · 소스 = deploy/session-hook-spec.html · 훅 실측 근거 = 2026-08-18 세션 (출력 21,322B → 인라인 앞 2KB 프리뷰)</div>
+</div>
+</body>
+</html>
