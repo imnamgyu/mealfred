@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-08-18~19 — 어린이집 당근키트 제안서 v1.3 + 폴더 개편 + 세션훅 v2</title>
+<meta property="og:title" content="작업 일지 2026-08-18~19 — 보장되는 건 앞 2KB뿐이었다">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+table.tb{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+table.tb th{background:#F7F8FA;color:var(--n600);font-weight:700;font-size:12px;text-align:left;padding:7px 10px;border:1px solid var(--n200)}
+table.tb td{padding:7px 10px;border:1px solid var(--n200);color:var(--n700)}
+table.tb td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-08-18 ~ 08-19 · 어린이집 제안서·인프라 세션 (병행)</div>
+  <h1>여덟 번의 피드백이 만든 4주 15회, 주당 17,600원</h1>
+  <p class="sub">"당근키트 어린이집 제안서 만들어줄 수 있을까?"로 시작한 세션이 하루 반 동안 여덟 바퀴를 돌았다. 색소가 빠지고, 당근이 예시가 되고, 5주가 4주가 되고, 가격이 회당으로 쪼개졌다. 그 사이에 최상위 폴더가 정리됐고 &mdash; 세션 시작마다 주입되던 21KB 중 <b>실제로 보장되는 건 앞 2KB뿐</b>이라는 사실도 드러났다.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">12p · v1.3</div><div class="l">어린이집 제안서 (피드백 8루프)</div></div>
+    <div class="gcard"><div class="n">17,600원</div><div class="l">주당 균일 과금 설계 (원가율 46%)</div></div>
+    <div class="gcard"><div class="n">23종</div><div class="l">gpt-image-1 아이콘 (이모지 0)</div></div>
+    <div class="gcard"><div class="n">2KB</div><div class="l">세션훅 인라인 보장 구간 (v2 개편)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>어린이집 당근키트 제안서 — 리서치 3방향 → 12p PDF</h2><span class="commit">b99f84b</span></div>
+    <ul class="wl">
+      <li>Explore 3병렬로 원전 정독·사진 전수 인벤토리·B2B 선례를 훑고 시작. <b>기관용 정본(5주 21회)과 가정용 레거시(15회)가 폴더에 섞여 있다</b>는 게 첫 발견 &mdash; 잘못 인용하면 제안서 안에서 숫자가 충돌할 뻔했다.</li>
+      <li>시범 운영 실사진(5712px 원본)·수업자료 실렌더 캡쳐·남양주 실출고 프로세스로 조립. 표본수 노출 0·인용 규약 준수.</li>
+      <li>병행으로 최상위 폴더 개편: 모두의창업 4폴더·근거자료를 <code>12_정부지원사업/</code>으로 git mv, WIKI·HARNESS·review.json·메모리 포인터 동기화.</li>
+    </ul>
+    <div class="out"><b>산출</b> · 05_마케팅/어린이집_당근키트_제안서/ (HTML 소스 + PDF + README 확정대기 목록) · 가정레지스터 A-11 등재</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>세션스타트 훅 v2 — 2KB 코어 + 반감기</h2><span class="commit">bee5a36</span></div>
+    <ul class="wl">
+      <li>훅 출력 21,322B 중 인라인 주입은 <b>앞 2KB 프리뷰뿐</b> &mdash; lint 결과와 review 대기 57건이 매 세션 잘려 나가고 있었다.</li>
+      <li>이사님의 LRU·반감기 컨셉으로 재작성: 코어(예산 2,000B 강제)에 규칙·lint·일지 반감기 요약을 올리고, 전문은 뒤로. 일지도 최신일수록 길게(5,000→2,500→1,200→0B).</li>
+      <li>명세를 위키에 게시: <a href="/session-hook-spec.html">session-hook-spec.html</a> (파이프라인 도해·hook 파일 규칙·수정 가이드).</li>
+    </ul>
+    <div class="out"><b>라이브</b> · mealfred.com/session-hook-spec.html · 정본 사본 tools/hooks/ git 추적</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>피드백 8루프 — v1.1 → v1.3</h2><span class="commit">00a21ce → 65ca2ca</span></div>
+    <ul class="wl">
+      <li><b>색소 미제공</b> → 스탬프·색칠 사진 전량 교체(쿠키커터·얼굴·강판·디핑 실사진 발굴, 8.2GB zip을 콘택트시트로 저토큰 스캔). 조카 실명 노출 컷 2곳 크롭.</li>
+      <li><b>채소 일반 프레임</b> → 표지 "채소 안 먹어!", 당근은 예시로 강등, P2에 SOS×Satter 방법론 카드 + 40% 인포그래픽("치료" 배지는 정직 가드로 크롭).</li>
+      <li><b>5주→4주 15회</b> → 감각 주4회 + 불 없는 간단 요리 3회. "권장치를 넘긴 21회" 서사를 "<b>권장 노출 8~15회를 끝까지 채우는 15회</b>"로 교체 &mdash; 논리가 오히려 깔끔해졌다. 4주판 완주 카드도 실자료로 신설.</li>
+      <li>PDF 뷰어 회색 액자 버그(blur box-shadow) 제거 · 이모지 전량을 gpt-image-1 아이콘 23종으로 · 유인물은 인쇄·동봉으로 전환(원 준비물 4→3가지).</li>
+    </ul>
+    <div class="out"><b>산출</b> · 밀프레드_당근키트_어린이집_제안서_v1.3.pdf (전 12p 정밀검증 통과) + 발송 메일 문안</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>원가·가격 설계 — 회차별 원가표에서 주간과금까지</h2><span class="commit">25bbd66</span></div>
+    <ul class="wl">
+      <li>기관용 원가율표 실단가로 Day 1~15 회차별 원가표 작성: 감각놀이 ~700원/회 vs 요리 ~3,970원/회 &mdash; <b>원가의 절반이 마지막 3회에 몰린 비쌍봉 구조</b>.</li>
+      <li>가격 확정: 감각 3,900 · 요리 5,200 · 배송 2,000/인/주 = <b>주당 17,600원 균일 × 4주 = 70,400원/인</b> (원가율 46%, 요리 주는 87%로 사실상 피날레 서비스).</li>
+      <li>원가표 스테일 발견: 요약 27,000 vs 상세 36,500 불일치 · Day7 사과·오이 누락 · 유인물 인쇄행 부재 → review 큐 등록.</li>
+    </ul>
+    <div class="out"><b>표지 후크</b> · "1인 1회 3,900원부터 · 주당 17,600원" &mdash; 원장이 표지에서 가격 감을 잡는다</div>
+  </section>
+
+  <div class="next">
+    <h3>남은 외부 액션</h3>
+    <ul>
+      <li>발송 전 이사님 확인: 아이 얼굴 초상권 · "3,000여 기관" 정합 · 컬러당근 조달처 · 유인물 인쇄 단가 실측(원가율 49~55% 확정) · 메일 발송</li>
+      <li>수주 시: 실자료 Day 리넘버링(구 21일 체계) · Week 기록지 4행판 · 15회 키트 구성 확정</li>
+      <li>훅 v2는 다음 세션부터 적용 — 코어에 lint·review가 들어오는지 확인</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-08-18~19 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
