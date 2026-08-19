@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>세션 기억 3층 방어 — 기록·회수·납품 개선 계획</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB; --bg-warm-1:#FFE8D0; --bg-soft:#FFFBF5; --bg-page:#FAFAF7;
+    --orange-main:#FF6B1A; --orange-deep:#C45A00; --orange-deeper:#E65100;
+    --navy:#1a2b4a; --navy-deep:#0F1D35;
+    --brown-deep:#3a2a1a; --brown-mid:#5a4a3a; --brown-soft:#8a7a6a;
+    --card-bg:#FFFFFF; --card-border:#FFE8D0; --green:#2D8B4E; --blue:#1565C0; --red:#C62828;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo',sans-serif;background:var(--bg-page);color:var(--brown-mid);line-height:1.65;}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 20px 80px;}
+  .hero{background:linear-gradient(160deg,var(--bg-warm-0),var(--bg-warm-1));border-radius:20px;padding:40px 36px;margin-bottom:36px;}
+  .tag{display:inline-block;background:rgba(255,107,26,.1);border:1px solid rgba(255,107,26,.25);color:var(--orange-deep);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:700;letter-spacing:.04em;margin-bottom:14px;}
+  h1{color:var(--navy);font-size:clamp(26px,5vw,34px);font-weight:800;letter-spacing:-0.03em;line-height:1.3;}
+  h2{color:var(--navy);font-size:22px;font-weight:800;letter-spacing:-0.02em;margin:44px 0 14px;}
+  h3{color:var(--navy);font-size:15.5px;font-weight:800;margin:20px 0 8px;}
+  p{font-size:14.5px;}
+  .lead{font-size:15.5px;color:var(--brown-deep);margin-top:10px;}
+  strong{color:var(--orange-deep);font-weight:700;}
+  code{background:var(--bg-soft);border:1px solid var(--card-border);border-radius:5px;padding:1px 6px;font-size:12.5px;color:var(--navy);font-family:ui-monospace,Menlo,monospace;}
+  .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:14px;padding:20px 22px;margin:14px 0;}
+  .callout{background:var(--bg-soft);border-left:4px solid var(--orange-main);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0;font-size:13.5px;}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;}
+  th{color:var(--orange-deep);font-weight:800;text-align:left;padding:9px 10px;border-bottom:2px solid var(--card-border);white-space:nowrap;}
+  td{padding:9px 10px;border-bottom:1px solid var(--card-border);vertical-align:top;color:var(--brown-deep);}
+  .pipe{display:flex;flex-direction:column;gap:0;margin:18px 0;}
+  .pnode{background:var(--card-bg);border:1.5px solid var(--card-border);border-radius:12px;padding:13px 18px;font-size:13.5px;}
+  .pnode b{color:var(--navy);font-size:14px;display:block;margin-bottom:2px;}
+  .pnode.warn{border-color:var(--orange-main);background:var(--bg-warm-0);}
+  .parrow{text-align:center;color:var(--orange-main);font-weight:900;font-size:16px;padding:2px 0;}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  @media(max-width:640px){.split,.split3{grid-template-columns:1fr;}}
+  .layer{border-top:4px solid var(--orange-main);}
+  .layer h3{margin-top:0;}
+  .layer .who{font-size:11.5px;font-weight:800;color:var(--green);letter-spacing:.03em;}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--orange-main);color:#fff;font-size:12px;font-weight:800;margin-right:8px;flex:none;}
+  .foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--card-border);font-size:12px;color:var(--brown-soft);}
+  a{color:var(--orange-main);font-weight:600;}
+  .bad{color:var(--red);font-weight:700;}
+  .ok{color:var(--green);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <div class="tag">거버넌스 · 개선 계획 v2 · 2026-08-19 · ⏳승인 대기</div>
+  <h1>세션 기억 3층 방어 —<br>"치매" 근절 계획 (기록 · 회수 · 납품)</h1>
+  <p class="lead">증상: 세션마다 맥락을 까먹고, 받은 피드백("PDF 이미지 액자 음영 금지" 등)을 며칠 뒤 같은 유형 작업에서 반복 위반.
+  탐색 에이전트 3 + 적대 검증 4(반박 렌즈 3 + Claude Code 훅 사양 팩트체크)를 거친 결론:
+  <strong>프롬프트 주입 단층으로는 못 막는다</strong> — 기록·회수·납품 3층 + 이월작업 결정론화로 간다.</p>
+</div>
+
+<h2>1. 실사고 해부 — 원인은 "몰라서"가 아니라 3중이었다</h2>
+<p>08-07 지적("앱 화면 아니면 폰 프레임 금지") → 08-14 같은 프로젝트에서 재발. <code>project_modu_startup_1r.md</code> 실기록을 해부한 결과:</p>
+<div class="pipe">
+  <div class="pnode warn"><b>① 기록 실패 — 지적이 규칙으로 승격되지 않음</b>
+    규칙이 68KB 프로젝트 이력 파일에 서사로만 묻힘. 매 세션 로드되는 피드백 규칙 21개·디자인 스펙·스킬 어디에도 없음.
+    승격을 <span class="bad">"세션 끝에 모델이 자율로"</span> 하는 현행 방식이 바로 이 사고를 못 막은 당사자.</div>
+  <div class="parrow">＋</div>
+  <div class="pnode warn"><b>② 이월 TODO 유실</b>
+    08-07에 액자 버전을 만들어 놓고 "문서 교체 보류(클립보드 충돌)"가 일지 서사에만 남아 망각 → 그대로 통과.</div>
+  <div class="parrow">＋</div>
+  <div class="pnode warn"><b>③ 납품 전 대조 부재</b>
+    규칙을 알아도 "기존 폴더 이미지 가져다 넣기"는 규칙 대조를 유발하지 않는다.
+    반복 실수가 <em>안</em> 나는 작업들(영어수업 등 스킬 7종)의 비결은 프롬프트가 아니라 <strong>파이프라인 안의 검수 게이트</strong>(리뷰게이트 62장 육안)였다.</div>
+</div>
+
+<h2>2. 시스템 진단 (실측)</h2>
+<div class="card">
+<table>
+  <tr><th>MEMORY.md</th><td><span class="bad">34,544B · 최장 줄 7,909자</span> · 70.5%가 만료된 인라인 이력 · 활성 13개 중 11개 좀비 · 고아 피드백 3건 영구 미로드(그중 하나가 <b>"보고 전 육안검수"</b> 규칙!) · 6/18 슬림화 후 2달 재증식 = 유지 루프 부재. 단 <b>인덱스가 topic보다 신선</b>(CAC 사례) — 무지성 포인터화는 신선도 역전 사고 유발</td></tr>
+  <tr><th>검증된 채널</th><td>MEMORY.md 피드백 섹션(매 세션 결정론 주입)에 등재된 규칙은 반복 위반 기록 없음. <span class="ok">채널은 살아 있다 — 문제는 등재 누락</span></td></tr>
+  <tr><th>SessionStart 훅</th><td>lint 실측 0.358s로 타임아웃 위험은 이론적. 결함 12건 중 실수술 대상은 소수 — <b>전면 재작성은 과잉</b>(적대 검증 판정)</td></tr>
+  <tr><th>worklog</th><td><span class="ok">건강</span> — README 831B 모범 인덱스 · 롤업 무결. 손댈 필요 없음</td></tr>
+  <tr><th>review.json</th><td>스키마 드리프트 — 비규약 type 27건 · severity <code>med/medium</code> 혼용 · pending 57건 적체</td></tr>
+</table>
+</div>
+
+<h2>3. 설계 — 3층 방어 + 이월 결정론화</h2>
+<div class="split3" style="margin-top:14px;">
+  <div class="card layer"><h3>🖊 1층 · 기록</h3>
+    <div class="who">결정론 (훅이 강제)</div>
+    <p style="font-size:13px;margin-top:6px;">지적 패턴("하지 마·왜 또·금지")을 훅이 감지해 <b>승격 대기 큐에 자동 적재</b>.
+    누락이 조용히 사라지는 대신 <b>시끄럽게 남는다</b> — 코어가 "미승격 지적 N건"을 해소까지 매 세션 표시.</p></div>
+  <div class="card layer"><h3>📤 2층 · 회수</h3>
+    <div class="who">결정론 (훅이 주입)</div>
+    <p style="font-size:13px;margin-top:6px;">작업 유형 키워드 + <b>프로젝트명 매핑</b> 매칭 시 규칙 카드를 <b>그 자리에서 읽어</b> ❌규칙 주입(stale 원리적 불가).
+    첫 매칭은 전문, 같은 세션 재매칭은 1줄 — 소음 방지와 컴팩션 내성 양립.</p></div>
+  <div class="card layer"><h3>✅ 3층 · 납품</h3>
+    <div class="who">게이트 (산출물 대조)</div>
+    <p style="font-size:13px;margin-top:6px;">보고 전 산출물을 렌더해 카드 ❌항목과 대조 — <b>재사용 자산 포함</b>.
+    기억이 아니라 산출물을 검사한다. 훅이 못 잡는 파생 작업·서브에이전트의 최종 방어선.</p></div>
+</div>
+<div class="callout">⏳ <b>+이월작업 결정론화</b>: "다음 세션에 X할 것"은 서사 일지 금지 → <code>review.json</code>에 <code>carryover</code> 타입으로 적재,
+해소될 때까지 SessionStart 코어가 매 세션 주입. (08-14 사고의 절반이 이월 TODO 유실이었다.)</div>
+
+<h2>4. 실행 계획 P0~P5</h2>
+<div class="card">
+<table>
+  <tr><th>P0</th><td><b>작업규칙 카드 신설</b> — <code>편식극복키트/00_작업규칙/</code> (학술 백과사전 <code>00_설계원칙</code>과 도메인 분리 · lint SCAN_DIRS 추가). 사고 이력 실재하는 3~5장만 먼저: <code>발표자료-이미지</code>(폰 프레임·액자 음영) · <code>구글닥스-편집</code>(fresh read·클립보드 충돌) · <code>납품-게이트</code>(공통 마감 조항). 형식 = front-matter(키워드·프로젝트 매핑) + 규칙 ID(W-001…) ❌/✅ 불릿 + 근거 일지 링크. 서사 금지 · 4KB 캡. 각 카드를 MEMORY.md 피드백 섹션에 한 줄 등재(검증된 채널). 스킬 있는 유형은 SKILL.md가 정본(카드는 포인터) — 이중 관리 금지</td></tr>
+  <tr><th>P1</th><td><b>UserPromptSubmit 훅 신설</b> — 0단계: 스텁으로 stdin 스키마 실측(문서 상충 해소). 기능 A = 지적 감지기(1층) · 기능 B = 규칙 주입(2층, 2축 매칭 — 단일 저정밀 키워드 금지). 매칭/미매칭 전량 로그 → 2주 데이터로 키워드 튜닝. 서브에이전트는 훅이 못 잡음을 명세에 정직 기재(3층이 받침)</td></tr>
+  <tr><th>P2</th><td><b>SessionStart 훅 v3 최소 수술</b> — 코어에 행동 강제 상태만 추가(미승격 지적 N건 · 이월작업 N건 — "필독" 류 훈계문은 예방가치 0 판정으로 배제). 안정화 3건: timeout 10→30 + lint 시간 가드 폴백 + tmp 정리. 실행본↔정본은 사본 유지 + 해시 불일치 시 코어 1줄 경고(심링크는 iCloud 축출 리스크로 대안). 나머지 8건 결함은 이론적·장식으로 보류</td></tr>
+  <tr><th>P3</th><td><b>이월작업 결정론화</b> — review.json <code>carryover</code> 타입 정식 편입 + 겸사 스키마 정규화(type 통일·만료 일괄 close로 경보 총량 실감축) + lint 스키마 검증</td></tr>
+  <tr><th>P4</th><td><b>MEMORY.md 수술 + 재증식 방지</b> — 13개 비대 불릿을 topic 파일로 <b>기계적 이식</b>(요약 금지 — 뉘앙스 유실 방지, "충돌 시 인덱스 승리" 명기). 인덱스에는 구조화 핫스테이트 포인터만: [상태·D-day·정본 fileId·다음 액션·블로커] ≤200자 — 마감 정보는 인덱스 잔존(신선도 역전 방지). 정정은 <code>[정정 YYYY-MM-DD]</code> 마커 병기(원문 삭제 금지). lint 신규 3종: <code>memory-index-bloat</code>(줄&gt;250자·총량&gt;10KB — worklog 마감 채널로만 소비, 코어 소음 금지) · 카드↔인덱스 정합 · feedback_* 신규 생성 감지</td></tr>
+  <tr><th>P5</th><td><b>거버넌스 마감</b> — WIKI.md 조항(지적 즉시 승격 · 이월 큐 · 단일소스 컴파일 · SKILL.md 우선순위 · [정정] 마커) + <code>/mealfred-worklog</code> 마감 확장(미승격 큐 소진·오매칭률 보고·bloat 집도) + 훅 명세 v3 개정 + <code>task-rules.html</code>은 카드에서 <b>자동 컴파일</b>(수동 사본 금지) + 카드 등록 + 양 레포 커밋</td></tr>
+</table>
+</div>
+
+<h2>5. 검증 — 수용 기준은 "주입이 떴는가"가 아니다</h2>
+<div class="card">
+<table>
+  <tr><th>1</th><td><b>프롬프트 코퍼스 회귀 셋</b> — 실사고 재현("발표자료 PDF에 이미지") · 프로젝트명만("모두의창업 v9.4 마무리") · 승인형("네 진행해" — 스티키로 커버) · 네거티브("PDF 읽어줘" — 침묵 확인). 매칭률 &lt;70%면 키워드 재설계</td></tr>
+  <tr><th>2</th><td>지적 감지 — "왜 또 액자 넣었어" 스텁 입력 → 승격 큐 append → 다음 세션 코어에 건수 표시</td></tr>
+  <tr><th>3</th><td>새 세션 실기동 — 코어 2KB 생존 · 세션 중간 파생 작업 프로브("그거 슬라이드로도 만들어줘")</td></tr>
+  <tr><th>4</th><td>MEMORY 이식 후 "원문 바이트가 topic에 존재" 자동 대조 · lint 신규 체크 발화/해소</td></tr>
+  <tr><th>★</th><td><b>최종 수용 기준</b>: 새 세션에서 발표자료 이미지 작업을 지시했을 때, 산출물에 폰 프레임/액자 음영 규칙이 <b>실제 적용</b>되고 보고 전 카드 대조가 수행되는가</td></tr>
+</table>
+</div>
+
+<h2>6. 결정 대기 (이사님 3건)</h2>
+<div class="pipe">
+  <div class="pnode"><span class="num">1</span><b style="display:inline;">주입 강도</b> — <strong>추천: 첫 매칭 시 카드 ❌불릿 전문 주입</strong>(fresh read라 항상 최신 · 컴팩션 내성) / 대안: 제목+경로+개정일만(토큰 절약)</div>
+  <div class="pnode"><span class="num">2</span><b style="display:inline;">MEMORY 수술 범위</b> — <strong>추천: 13개 전면</strong>(기계 이식 절차 전제) / 대안: 최악 3줄(7.9K·6.4K·3.0K)만 1주 파일럿 후 확대</div>
+  <div class="pnode"><span class="num">3</span><b style="display:inline;">실행 순서</b> — <strong>추천: P0~P5 한 번에</strong>(1~2세션) / 대안: 카드+MEMORY 수술 선행 출고 → 2주 재발 데이터로 훅 필요성 재판정(효과 귀속은 명확해지나 봉합이 늦어짐)</div>
+</div>
+
+<div class="callout">💡 <b>설계 원칙 계승</b>: "Claude가 첫 프롬프트를 받기 전에 모르면 사고가 나는 것"만 코어에(<a href="/session-hook-spec.html">훅 명세 v2</a>) —
+여기에 하나를 추가한다: <b>"모델의 자율 준수에 의존해 실패한 것은, 같은 방식으로 다시 시도하지 않는다. 결정론(훅·게이트·lint)으로 옮긴다."</b></div>
+
+<div class="foot">밀프레드 위키 · 거버넌스 개선 계획 (승인 대기) · 소스 = deploy/session-memory-plan.html · 정본 = 편식극복키트/02_기획/세션기억_3층방어_개선계획.md ·
+근거 = 2026-08-18~19 세션(탐색 에이전트 3 · 적대 검증 렌즈 3 · Claude Code 훅 사양 팩트체크 1) · 관련 = <a href="/session-hook-spec.html">세션스타트 훅 명세 v2</a></div>
+</div>
+</body>
+</html>
