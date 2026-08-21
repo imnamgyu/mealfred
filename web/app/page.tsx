@@ -818,7 +818,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-2">
             <strong className="text-sm" style={{ color: '#1a2b4a' }}>🚦 31종 필수 영양소 신호등</strong>
           </div>
-          <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>기준: <strong style={{ color: '#1a2b4a' }}>보건복지부 KDRI 2025</strong> · 만 1-2세{!isMockup && kRef > 0 ? ` · ${kG + kY + kR}종 평가 · ${kRef}종 참고지표` : ''}</div>
+          <div className="text-[10.5px] mb-3" style={{ color: '#6B7280' }}>출처: <strong style={{ color: '#1a2b4a' }}>2025 한국인 영양소 섭취기준(KDRI)</strong> · 만 1-2세{!isMockup && kRef > 0 ? ` · ${kG + kY + kR}종 평가 · ${kRef}종 참고지표` : ''}</div>
           <div className="grid grid-cols-3 gap-2">
             <div className="rounded-xl py-3 text-center" style={{ background: '#E8F5E9', border: '1.5px solid #16A085' }}><div className="text-2xl font-extrabold" style={{ color: '#1B5E20' }}>{kG}</div><div className="text-[11px] font-extrabold" style={{ color: '#1B5E20' }}>잘 챙김</div></div>
             <div className="rounded-xl py-3 text-center" style={{ background: '#FFF4D6', border: '1.5px solid #F9A825' }}><div className="text-2xl font-extrabold" style={{ color: '#F57F17' }}>{kY}</div><div className="text-[11px] font-extrabold" style={{ color: '#F57F17' }}>조금 부족</div></div>
@@ -1159,7 +1159,7 @@ export default function Home() {
                   ))}
                 </div>
               </details>
-              <div className="text-[10px] text-center mt-3 pb-2" style={{ color: '#C0C0C0' }}>기준: 보건복지부 한국인 영양소 섭취기준 (KDRI) 2025</div>
+              <div className="text-[10px] text-center mt-3 pb-2" style={{ color: '#C0C0C0' }}>출처: 「2025 한국인 영양소 섭취기준(KDRI)」(보건복지부·한국영양학회 발간) · 밀프레드는 보건복지부와 무관하며 승인·인증을 받지 않은 민간 서비스입니다 · 전문가 검토 없는 자동 산출 참고 정보</div>
             </div>
           </div>
         </div>

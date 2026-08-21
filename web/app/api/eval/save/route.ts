@@ -1,59 +1,22 @@
+/**
+ * 서비스 종료(2026-08-21): 어린이집·유치원 식단표 평가(영양 점수·전국 비교) 서비스를 종료했습니다.
+ * 이 엔드포인트는 410 Gone만 반환합니다. 종료 전 구현은 git 이력(2026-08-20 이전) 참조.
+ */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-const ALLOWED_ORIGINS = [
-  'https://www.mealfred.com',
-  'https://mealfred.com',
-  'https://app.mealfred.com',
-  'https://mealfred-app.vercel.app',
-];
-
+export const dynamic = 'force-dynamic';
+const ALLOWED_ORIGINS = ['https://www.mealfred.com', 'https://mealfred.com', 'https://app.mealfred.com', 'https://mealfred-app.vercel.app'];
 function cors(req: NextRequest) {
   const origin = req.headers.get('origin') || '';
   return {
     'Access-Control-Allow-Origin': ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
-
-export async function OPTIONS(req: NextRequest) {
-  return NextResponse.json(null, { headers: cors(req) });
-}
-
-export async function POST(req: NextRequest) {
-  const headers = cors(req);
-  try {
-    const body = await req.json();
-
-    const { data, error } = await supabase.from('eval_results').insert({
-      age_band: body.age_band,
-      input_mode: body.input_mode,
-      total_score: body.total_score,
-      grade: body.grade,
-      axis_scores: body.axis_scores,
-      matched_count: body.matched_count,
-      total_menus: body.total_menus,
-      matched_ingredients: body.matched_ingredients,
-      missing_essential: body.missing_essential,
-      result_json: body.result_json ?? null,
-    }).select('id').single();
-
-    if (error) {
-      console.error('[eval/save] DB error:', error.message);
-      return NextResponse.json({ error: error.message }, { status: 500, headers });
-    }
-
-    console.log('[eval/save] 저장 완료:', { id: data.id, grade: body.grade, score: body.total_score });
-    return NextResponse.json({ id: data.id }, { headers });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'Unknown error';
-    console.error('[eval/save] error:', msg);
-    return NextResponse.json({ error: msg }, { status: 500, headers });
-  }
-}
+const gone = (req: NextRequest) => NextResponse.json(
+  { ok: false, discontinued: true, reason: '어린이집·유치원 식단표 평가 서비스는 2026-08-21부로 종료되었습니다.' },
+  { status: 410, headers: cors(req) },
+);
+export async function OPTIONS(req: NextRequest) { return NextResponse.json(null, { headers: cors(req) }); }
+export async function GET(req: NextRequest) { return gone(req); }
+export async function POST(req: NextRequest) { return gone(req); }

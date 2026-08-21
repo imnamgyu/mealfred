@@ -58,90 +58,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const headers = cors(req);
-  try {
-    const body = await req.json();
-    const institutionId: string = body.institution_id || '';
-    const month: string = String(body.month || '').slice(0, 7);
-    const items: OcrMenuItem[] = Array.isArray(body.items) ? body.items : [];
-    if (!institutionId || !/^\d{4}-\d{2}$/.test(month) || !items.length) {
-      return NextResponse.json({ error: 'institution_id·month(YYYY-MM)·items 필요' }, { status: 400, headers });
-    }
-
-    const { data: inst } = await supabase.from('institutions')
-      .select('id,name,type,sido,sigungu').eq('id', institutionId).maybeSingle();
-    if (!inst) return NextResponse.json({ error: '기관을 찾을 수 없습니다' }, { status: 404, headers });
-
-    // ⭐ 중복분석 5회 캡(이사님 2026-06-22): 사람들이 사진을 자기멋대로 올려 잘못된 분석으로 스코어 오염·비용 폭주하는 걸 방지.
-    //   (inst,month)당 5회까지만 재채점 저장, 초과 시 저장본 결과만 돌려줌(덮어쓰기 차단).
-    const { data: existingMenu } = await supabase.from('institution_menus')
-      .select('id, analysis_count').eq('institution_id', institutionId).eq('month', month).maybeSingle();
-    if (existingMenu && (existingMenu.analysis_count || 0) >= 5) {
-      const { data: capped } = await supabase.from('institution_scores')
-        .select('score, day_count, summary').eq('institution_id', institutionId).eq('month', month).maybeSingle();
-      return NextResponse.json({ ok: true, capped: true, score: capped?.score ?? null, summary: capped?.summary ?? null, dayCount: capped?.day_count ?? null,
-        message: '이 기관·이번 달은 이미 충분히 분석됐어요(최대 5회) — 저장된 결과로 보여드려요.' }, { headers });
-    }
-    const nextCount = (existingMenu?.analysis_count || 0) + 1;
-
-    // ⭐ 점수는 items에서 서버계산 — DB 쓰기 성공여부와 무관하게 항상 사용자에게 반환(500 방지, 이사님 2026-06-23)
-    //   런칭 트래픽 중 스키마 드리프트/일시 DB오류가 있어도 사용자는 결과를 본다. 저장·순위는 best-effort.
-    const sc = scoreInstitutionMonth(items);           // diversity_base·gate_cap·감점 등 진단 컬럼용(공식 점수 아님)
-    const dims = computeStandoutDims(items, month);
-    const axes = computeSevenAxes(items, month);       // 7축(어드민 리스트용)
-    const totalScore = sevenAxisScore(axes);           // ⭐ 공식 종합점수 = 7축 가중 평균(단일 산식)
-    let summary: string | null = null;
-    try { summary = await summarizeInstitutionMenu({ institutionName: inst.name }); } catch { summary = null; }
-
-    // ── 저장(영속화·순위용) — 실패해도 결과 반환을 막지 않음 ──
-    let stored = false;
-    try {
-      // ① 식단 upsert (institution+month = 1벌 · 분석횟수 누적)
-      const menuUpsert: Record<string, unknown> = {
-        institution_id: institutionId, month,
-        source: body.source || 'eval_upload',
-        raw_ocr_text: typeof body.raw_ocr_text === 'string' ? body.raw_ocr_text.slice(0, 20000) : null,
-        created_by: body.created_by || null,
-        analysis_count: nextCount,
-        updated_at: new Date().toISOString(),
-      };
-      if (Array.isArray(body.image_urls) && body.image_urls.length) menuUpsert.image_urls = body.image_urls.slice(0, 12);
-      let up = await supabase.from('institution_menus').upsert(menuUpsert, { onConflict: 'institution_id,month' }).select('id').single();
-      // 캡/이미지 컬럼이 prod에 없으면(스키마 드리프트) 옵션 컬럼 빼고 1회 재시도 — 500 대신 핵심 저장 유지
-      if (up.error) {
-        const core: Record<string, unknown> = { ...menuUpsert }; delete core.analysis_count; delete core.image_urls;
-        up = await supabase.from('institution_menus').upsert(core, { onConflict: 'institution_id,month' }).select('id').single();
-      }
-      const menuRow = up.data;
-      if (up.error || !menuRow) {
-        console.error('[institution/menu] menu upsert(비치명적):', up.error?.message);
-      } else {
-        // ② items 교체(이번 달 1벌)
-        await supabase.from('institution_menu_items').delete().eq('institution_menu_id', menuRow.id);
-        const rows = buildMenuItemRows(items, month, menuRow.id);
-        if (rows.length) await supabase.from('institution_menu_items').insert(rows);
-        // ③ 점수 upsert (axes/standout_dims 컬럼 없으면 빼고 재시도)
-        const scoreRow: Record<string, unknown> = {
-          institution_id: institutionId, month, type: inst.type, sido: inst.sido, sigungu: inst.sigungu,
-          score: totalScore, diversity_base: sc.diversityBase, gate_cap: sc.gateCap, processed: sc.processed, repeat_pen: sc.repeat,
-          red_groups: sc.redGroups, summary, day_count: sc.dayCount, item_count: sc.itemCount, standout_dims: dims, axes, computed_at: new Date().toISOString(),
-        };
-        let sUp = await supabase.from('institution_scores').upsert(scoreRow, { onConflict: 'institution_id,month' });
-        if (sUp.error) {
-          const sCore: Record<string, unknown> = { ...scoreRow }; delete sCore.axes; delete sCore.standout_dims;
-          sUp = await supabase.from('institution_scores').upsert(sCore, { onConflict: 'institution_id,month' });
-        }
-        if (sUp.error) console.error('[institution/menu] score upsert(비치명적):', sUp.error.message);
-        else stored = true;
-      }
-    } catch (e: unknown) {
-      console.error('[institution/menu] 저장 실패(비치명적):', e instanceof Error ? e.message : e);
-    }
-
-    return NextResponse.json({ ok: true, score: totalScore, summary, dayCount: sc.dayCount, stored }, { headers });
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : 'unknown';
-    console.error('[institution/menu] error:', msg);
-    return NextResponse.json({ error: msg }, { status: 500, headers });
-  }
+  // 서비스 종료(2026-08-21): 이용자 업로드 식단의 기관 귀속·채점(식단표 평가 서비스 전용) 중단 → 410.
+  //   종료 전 구현(기관 귀속 upsert + sevenAxisScore 채점)은 git 이력(2026-08-20 이전) 참조.
+  return NextResponse.json(
+    { ok: false, discontinued: true, reason: '어린이집·유치원 식단표 평가 서비스는 2026-08-21부로 종료되었습니다.' },
+    { status: 410, headers: cors(req) },
+  );
 }
