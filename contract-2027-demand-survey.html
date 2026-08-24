@@ -4,9 +4,9 @@
 <script src="/docs-gate.js?v=4"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>2027 연간계약 수요조사 설계 — 기부원 유료 전환 3트랙 패키지</title>
-<meta property="og:title" content="2027 연간계약 수요조사 설계">
-<meta property="og:description" content="기부원 8곳 대상 1년 계약(3,900원) 수요조사 — 설문 2장이 아니라 교사 설문·원장 설문·오퍼 실험 3트랙. 제도 팩트 8·커밋먼트 사다리·조기경보 지표">
+<title>2027 연간계약 수요조사 — 원장님·선생님 설문 뼈대 v1.1</title>
+<meta property="og:title" content="2027 연간계약 수요조사 설문 뼈대">
+<meta property="og:description" content="기부원 8곳 · 월 1회×12회 · 1인분 3,900원 1년 계약 — 원장님 질문 10 · 선생님 질문 7 + 설계 설명">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
@@ -50,6 +50,10 @@
   strong{color:var(--navy);font-weight:700}
   ul.plain{margin:8px 0 12px 18px}
   ul.plain li{font-size:13.5px;color:var(--brown-mid);margin-bottom:6px}
+  ol.q{margin:10px 0 14px 0;counter-reset:qn;list-style:none}
+  ol.q li{counter-increment:qn;position:relative;background:white;border:1px solid var(--card-border);border-radius:var(--r-sm);padding:11px 15px 11px 46px;margin-bottom:8px;font-size:14px;color:var(--brown-deep);font-weight:500;line-height:1.7;box-shadow:var(--card-shadow-sm)}
+  ol.q li::before{content:counter(qn);position:absolute;left:13px;top:12px;width:23px;height:23px;border-radius:50%;background:var(--orange-tint);color:var(--orange-deep);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  ol.q li .why{display:block;font-size:12px;color:var(--brown-soft);font-weight:500;margin-top:3px}
   ol.plain{margin:8px 0 12px 20px}
   ol.plain li{font-size:13.5px;color:var(--brown-mid);margin-bottom:7px;line-height:1.75}
   .tbl-wrap{overflow-x:auto;border:1px solid var(--card-border);border-radius:var(--r);background:white;box-shadow:var(--card-shadow-sm);margin:14px 0}
@@ -62,7 +66,6 @@
   .c-mid{background:var(--blue-bg);color:var(--blue-fg)}
   .c-weak{background:var(--n200);color:var(--n500)}
   .c-risk{background:var(--red-bg);color:var(--red-deep)}
-  .c-warn{background:var(--warn-bg);color:var(--warn-deep)}
   .callout{background:linear-gradient(135deg,var(--bg-soft-2),#fff);border:1px solid var(--card-border);border-left:5px solid var(--orange-main);border-radius:var(--r);padding:18px 20px;margin:14px 0;box-shadow:var(--card-shadow-sm)}
   .callout h4{font-size:14px;font-weight:800;color:var(--orange-deep);margin-bottom:8px}
   .callout p{font-size:13.5px;color:var(--brown-deep);line-height:1.85;margin-bottom:6px}
@@ -75,11 +78,6 @@
   .kcard .num{font-size:22px;font-weight:800;color:var(--orange-deep);letter-spacing:-0.02em}
   .src{font-size:11.5px;color:var(--brown-soft);margin-top:4px}
   .src a{color:var(--brown-soft)}
-  .ladder{background:white;border:1px solid var(--card-border);border-radius:var(--r);box-shadow:var(--card-shadow-sm);margin:14px 0;overflow:hidden}
-  .ladder .step{display:flex;align-items:flex-start;gap:12px;padding:11px 16px;border-bottom:1px solid #F3EDE5;font-size:13px}
-  .ladder .step:last-child{border-bottom:none}
-  .ladder .lv{flex-shrink:0;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px}
-  .ladder .step p{margin:0;font-size:13px;line-height:1.6}
   footer{background:var(--navy);color:rgba(255,255,255,0.7);text-align:center;padding:24px 20px;font-size:12px}
 </style>
 </head>
@@ -87,224 +85,150 @@
 
 <div class="hero">
   <div class="hero-inner">
-    <span class="tag">🏫 기관 B2B · 수요조사 설계 뼈대 v1</span>
-    <h1>2027 연간계약 수요조사 —<br>설문 2장이 아니라 <span class="accent">3트랙 패키지</span></h1>
-    <p>기부원 8곳에 "1인분 <strong>4,900 → 3,900원</strong> + 배송비 무료, 지정 커리큘럼 12개월" 1년 계약 오퍼.
-    계약 의향을 설문 체크박스로 물으면 무상 수혜자의 <strong>예의상 긍정(가짜 양성)</strong>만 수집된다 —
-    계약 의사는 <strong>행동(커밋먼트 사다리)</strong>으로만, 설문은 팩트·개선점만.</p>
+    <span class="tag">🏫 기부원 유료 전환 · 설문 뼈대 v1.1</span>
+    <h1>2027 연간계약 수요조사 —<br><span class="accent">원장님 질문 10 · 선생님 질문 7</span></h1>
+    <p>월 1회 × 총 12회(연간) · 1인분 <strong>4,900 → 3,900원</strong> + 배송비 무료 · 지정 커리큘럼 1년.
+    설문 질문부터 먼저, 설계 이유는 뒤에.</p>
     <div class="hero-meta">
-      <span class="pill">2026-08-24 · 4렌즈 워크플로(예산조달·가격방법론·현장운영·적대검증)</span>
-      <span class="pill">정본: synthesis/2026-08-24-2027-연간계약-수요조사-설계.md</span>
-      <span class="pill">이사님 확정 대기 8건 (§8)</span>
+      <span class="pill">2026-08-24 · v1.1 (선생님 문항 캐묻기 제거 · 월 1회 확정 · 두괄식)</span>
+      <span class="pill">이사님 확정 대기 7건 (§확정)</span>
     </div>
   </div>
 </div>
 
 <nav class="toc"><div class="toc-inner">
-  <a href="#s0">⓪ 오퍼·구조</a>
-  <a href="#s1">① 목표↔도구</a>
-  <a href="#s2">② 제도 팩트 8</a>
-  <a href="#s3">③ 교사 설문</a>
-  <a href="#s4">④ 원장 설문</a>
-  <a href="#s5">⑤ 오퍼 실험</a>
-  <a href="#s6">⑥ 금지·인트로</a>
-  <a href="#s7">⑦ 원별 예측</a>
-  <a href="#s8">⑧ 확정 대기 8</a>
-  <a href="#s9">⑨ 타임라인</a>
+  <a href="#won">① 원장님 설문</a>
+  <a href="#teacher">② 선생님 설문</a>
+  <a href="#why">③ 왜 이렇게 짰나</a>
+  <a href="#law">④ 제도 사실</a>
+  <a href="#read">⑤ 응답 읽는 법</a>
+  <a href="#decide">⑥ 확정 대기 7</a>
+  <a href="#run">⑦ 실행 순서</a>
 </div></nav>
 
 <main>
 
-<section id="s0">
-  <h2>⓪ 오퍼 정의와 조사 구조</h2>
-  <p class="sub">이사님 지시(2026-08-24) 기준 오퍼 + 이번 설계의 핵심 결정 = 채널 분리</p>
-  <div class="grid2">
-    <div class="kcard"><h4>오퍼</h4><p class="num">3,900원</p><p>1인분 4,900 → 3,900원(-20.4%) + 배송비 무료. 조건 = 밀프레드 지정 커리큘럼(2027년 24종·월 2메뉴)을 <b>매달 빠짐없이 1년</b> 진행하는 연간 계약.</p></div>
-    <div class="kcard"><h4>규모 감각 (20명 원)</h4><p class="num">연 93.6만</p><p>월 1회 = 월 78,000원·연 936,000원 / 월 2회 = 연 187만. <b>4월 실측 식생활 예산(연 수십만 원)의 2.7~5배</b> → "어느 주머니에서 나오나"가 조사의 최대 축.</p></div>
-  </div>
+<section id="won">
+  <h2>① 원장님 설문</h2>
   <div class="callout">
-    <h4>핵심 설계 결정 — 3트랙 채널 분리 (가격 정보는 트랙 C에만)</h4>
-    <p><b>트랙 A · 실무교사 설문</b> (키트 동봉) — 상품 개선 + "빠짐없이 12회" 이행 리스크. 가격·계약 문항 0개.</p>
-    <p><b>트랙 B · 원장 설문</b> (키트 동봉) — 예산 주머니·계약 절차·원장 네트워크를 과거 행동으로 실측. 가격 정보 0.</p>
-    <p><b>트랙 C · 오퍼시트 + 가계약 카드 + 1:1 통화</b> (원장 단독 채널) — 계약 의사는 여기서 행동으로만 측정. 키트 동봉 금지(교사 개봉 → 학부모 채팅방 왜곡 전파 차단).</p>
+    <h4>목적 한 줄</h4>
+    <p>1년 계약을 제안하기 전에 — ① 이 비용(20명 원 기준 <b>연 93.6만 원</b>)이 실제로 <b>어떤 돈</b>(원 예산 / 학부모 부담 / 시 지원금)에서 나갈 수 있는지 ② <b>언제·누가</b> 결정하는지 ③ 다른 원으로 퍼질 길(원장님 네트워크)이 있는지 파악.</p>
   </div>
-  <h3>이사님 요청 항목 → 설계 반영 위치</h3>
-  <div class="tbl-wrap"><table>
-    <tr><th>이사님 메모</th><th>반영 위치</th></tr>
-    <tr><td>원장: 금액</td><td>트랙B Q1(현재 업체·단가·주머니 실측) + 트랙C 통화 어젠다②(비교 앵커의 정체)</td></tr>
-    <tr><td>원장: 방문교사(특활비)</td><td>트랙B Q1·Q2 + 제도 팩트 F1(우리는 법적 '특별활동' 아님 — 용어 주의)</td></tr>
-    <tr><td>원장: 원장 네트워크</td><td>트랙B Q9 + 트랙C 카드 소개란(실명 소개 = 최강 신호)</td></tr>
-    <tr><td>원장: 1년계약 3,900원</td><td><b>설문에 싣지 않음</b> → 트랙C(오퍼 실험)로 분리</td></tr>
-    <tr><td>교사: 개선·조리도구·불편</td><td>트랙A T2·T4 (불만 대신 '대체 행동'으로 측정)</td></tr>
-    <tr><td>교사: 요리행사 지원금·예산 항목</td><td><b>원장 트랙으로 이동</b>(교사는 회계를 모름) → 트랙B Q3·Q4</td></tr>
-    <tr><td>교사: 학부모가 좋아하는 결과물</td><td>트랙A T6 (실제 발생한 반응 에피소드)</td></tr>
-  </table></div>
-</section>
-
-<section id="s1">
-  <h2>① 목표 ↔ 도구 매핑 + 측정 한계 선언</h2>
-  <div class="tbl-wrap"><table>
-    <tr><th>목표</th><th>측정 도구</th><th>답할 수 있는 것</th><th>답할 수 없는 것</th></tr>
-    <tr><td><b>① 기부원 전환</b></td><td>트랙C 커밋먼트 사다리</td><td>"1년 무상 경험 후에도 안 사는가" = 콜드 전환율의 <b>상한</b> proxy + 거절 사유 구조</td><td>—</td></tr>
-    <tr><td><b>② 콜드 확장 ("몰려들까")</b></td><td>트랙B Q2·Q9 + 트랙C 실명 소개</td><td>도달 채널 지도 · 추천 행동의 실재</td><td><span class="chip c-risk">콜드 전환율·가격 앵커·획득 비용</span> — 별도 콜드 실험 필요</td></tr>
-    <tr><td><b>③ 상품 매력화</b></td><td>트랙A 전체 + 트랙B Q7·Q8</td><td>마찰 지점·메뉴 랭킹·학부모 반응 결과물</td><td>—</td></tr>
-  </table></div>
-  <div class="warnbox"><b>8곳은 통계가 아니라 8개의 케이스 스터디.</b> 집계 %가 아니라 <b>원별 사다리 도달 단계 + 거절의 구체 이유</b>가 산출물. 성공 기준(사전 선언) = 가능성 상·중상 원 2곳 중 1곳+ 계약 + 8곳 거절 사유 지도 + 실명 소개 1건+. 매출(현실적 최대 연 200~400만)은 부산물 — 진짜 산출물은 <b>유료 레퍼런스 원 · 거절 지도 · 소개 네트워크</b>.</div>
-</section>
-
-<section id="s2">
-  <h2>② 제도 팩트 8 — 오퍼 설계를 바꾸는 발견</h2>
-  <p class="sub">웹검증 완료(2026-08-24). 미확인 항목은 표기 — 설문으로 실측한다.</p>
-  <div class="tbl-wrap"><table>
-    <tr><th>#</th><th>팩트</th><th>오퍼에 미치는 영향</th></tr>
-    <tr><td><b>F1</b></td><td>법령상 '특별활동' = <b>외부 강사</b> 진행 프로그램. 밀프레드는 담임 진행 → <b>특활 아님</b></td><td>특활비(부산 월 8만 한도) 프레임 못 탐 → <b>행사비(213목)·교재교구비(212목)</b> 프레임. 특활 규제(12~18시·24개월↑·업체 공개) 회피 장점. <span class="chip c-risk">설문·계약서에 "특별활동" 용어 금지</span></td></tr>
-    <tr><td><b>F2</b></td><td>부산 부모부담 <b>행사비 한도 월 1만·연 12만</b> (연초/사전 운영위 결정 행사만)</td><td>월 1회 3,900원(연 46,800)은 여유. <b>월 2회(연 93,600)는 한도의 78% 잠식</b>(생일·소풍과 공유) → 월 2회안은 행사비 단일 경로로 빠듯</td></tr>
-    <tr><td><b>F3</b></td><td><b>부산 3~5세 필요경비 무상화</b> — 시가 특활·행사·현장학습비 월 13.7만 규모 전액 지원(2026~)</td><td>"학부모 주머니" 질문이 구식 — 성패는 <b>시 지원금 안에서 기존 특활 업체와 제로섬 경쟁</b>. 0~2세는 대상 밖 → 영아 많은 가정어린이집 수혜 폭 작음. 집행 방식(부모/원 수령) 미확인 → 설문 실측</td></tr>
-    <tr><td><b>F4</b></td><td>예산·특활 계약·수납한도 고시 전부 <b>학년도(3월~익년 2월)</b> 단위. 공립유치원 강사 관행 4~12월</td><td><b>1월 시작 달력연도 계약은 제도 역행</b> + 3월 반 편성 격변에 걸침 → 학년도(3~2월) 시작 검토. 커리큘럼은 시작점만 회전하면 재사용 가능</td></tr>
-    <tr><td><b>F5</b></td><td>필요경비·행사는 <b>운영위원회(학부모 ½ 이상) 심의</b> + 부모 동의 관행</td><td>원장 단독 확약 불가 → "운영위 승인 조건부" 리드타임 필요. 역으로 <b>운영위 통과용 안건 자료를 우리가 만들어주는 것 = 강력한 영업 도구</b></td></tr>
-    <tr><td><b>F6</b></td><td>참여 강제 금지 + 참여 아동만 수납</td><td><b>"최소 주문 인원" 조항은 원이 제도적으로 약속 불가</b> → 최소 주문액 또는 원 예산 분담형으로 설계</td></tr>
-    <tr><td><b>F7</b></td><td>2027학년도 결정 실무 = 전년 11월~2월 추정 (공식 문서 미확인 → 설문 실측)</td><td>영업 골든윈도우 = <b>2026.10 ~ 2027.2</b>. 운영위 분기 개최 감안, 연초 안건 상정 전 조건 확정</td></tr>
-    <tr><td><b>F8</b></td><td>기부원은 4,900원을 내 본 적 없음 → "할인"은 <b>0원→3,900 인상으로 지각</b></td><td>기부원에겐 할인 프레임 대신 <b>"2027 파트너 원 조건"</b>(1년 함께한 원 전용). 가격 검증(4,900 정가 대비)은 콜드에서만 유효</td></tr>
-  </table></div>
-  <p class="src">Sources: <a href="https://www.busan.go.kr/childcare/childcare010213" target="_blank">부산시 2026학년도 필요경비 수납한도액</a> · <a href="https://www.busan.go.kr/news/snsbusan01/view?dataNo=72088" target="_blank">부산시 3~5세 무상보육(필요경비 지원)</a> · <a href="https://gwangju.childcare.go.kr/lgwangju/d6_30000/d6_30026/d18_30031.jsp" target="_blank">특별활동 운영 기준(육아종합지원센터)</a> · <a href="https://central.childcare.go.kr/lcentral/30000/30003/30011/d1_30025.jsp" target="_blank">어린이집 시설회계 세입세출과목</a> · <a href="https://central.childcare.go.kr/lcentral/d1_30000/d1_600058/d1_600065.jsp" target="_blank">어린이집운영위원회</a> · <a href="https://www.ibabynews.com/news/articleView.html?idxno=141730" target="_blank">2026 무상보육 확대(베이비뉴스)</a> · <a href="https://www.busan.com/view/busan/view.php?code=2025112417401884524" target="_blank">부산 사립유치원 무상교육(부산일보)</a></p>
-</section>
-
-<section id="s3">
-  <h2>③ 트랙 A — 실무교사 설문 뼈대</h2>
-  <p class="sub">키트 동봉 · 가격 정보 0 · 목표 10~12문항/5분 · ⚫문항 0개(교사는 결제 주체 아님) · 메뉴 문항은 그 원이 진행한 메뉴 체크리스트로 인쇄(재인 방식)</p>
-  <div class="tbl-wrap"><table>
-    <tr><th>섹션</th><th>목적</th><th>핵심 문항(요지)</th></tr>
-    <tr><td><b>T1 응답자 확인</b></td><td>반·연령만 (4월 정적 정보 재수집 금지)</td><td>—</td></tr>
-    <tr><td><b>T2 운영 리와인드</b></td><td>1회의 부대노동 실측 정량화</td><td><b>B1</b> 🔴 최근 1회 단계별 실제 시간(준비/세팅/진행/뒷정리/기록 ___분) · <b>B2</b> 🟡 계획이 깨진 지점 1가지 · <b>B3</b> 🔴 행사한 날 실제로 밀린 일과(바깥놀이·낮잠…)</td></tr>
-    <tr><td><b>T3 연기·결번 이력 ⭐</b></td><td>"매달 빠짐없이"의 실행 가능성 직접 예측 — <b>이 설문 최중요</b></td><td><b>B5</b> 🔴 12회 중 미루거나 건너뛴 횟수+이유(원 행사 겹침/재료/교사 사정/질병 유행) · <b>B6</b> 🟡 미룬 회차의 결말(대체일/결번/합반)</td></tr>
-    <tr><td><b>T4 조리도구·재료 실전</b></td><td>불만 대신 <b>대체 행동</b>으로 결함 확정</td><td><b>B7</b> 🔴 제공 도구 대신 원 도구로 대체·추가 동원한 것+이유 · <b>B8</b> 🟡 세척·정리 실제 담당자와 소요 분 · <b>B9</b> 🟡 알레르기로 재료 제외·참여 조정 횟수+현장 해법 · (신규) 에어프라이어/오븐 보유 — 2027 커리큘럼 2종(과일타르트·모양쿠키)이 장비 필요</td></tr>
-    <tr><td><b>T5 메뉴 랭킹</b></td><td>24종 배치·교체 근거</td><td><b>B10</b> 🟡 "다시 하라면 피하고 싶은" 1개+이유 축 · <b>B11</b> 🟡 제일 수월+반응 좋았던 1개+결정 요인 · <b>B12</b> 🟡 만들고 안 먹은/버려진 메뉴(몇 명 중 몇 명)</td></tr>
-    <tr><td><b>T6 학부모에게 닿은 순간</b></td><td>원장 결제 정당화의 탄약</td><td><b>B13</b> 🟡 학부모 반응이 실제로 온 최근 사례(메뉴/경로/뭐라고) · <b>B14</b> 🔴 집에서 다시 만들었다·레시피 물어온 횟수(<b>가정 전이 = 최강 신호</b>)</td></tr>
-    <tr><td><b>T7 달력·지속성</b></td><td>1년 이탈 신호</td><td><b>B15</b> 🔴 "이번 달은 없었으면" 싶던 달+겹친 일(발표회·신학기·방학) · <b>B16</b> 🔴 진행을 넘기거나 도움 청한 횟수 + 강사형 특활 대비 담임 진행의 실제 차이</td></tr>
-  </table></div>
-
-  <h3>계약 리스크 조기경보 지표 — 교사 응답으로 "1년 지속 실패"를 예측</h3>
-  <div class="tbl-wrap"><table>
-    <tr><th>지표</th><th>발동 조건</th><th>예측 실패 모드</th><th>대응 설계</th></tr>
-    <tr><td><b>C1 결번 전과</b></td><td>B5 ≥2회(특히 행사 겹침)</td><td>계약 후에도 결번 반복</td><td>월내 대체일 조항 + 행사철 저부담 메뉴</td></tr>
-    <tr><td><b>C2 부대노동 과부하</b></td><td>B1 합계 ≥90분(수업 외 ≥40분)</td><td>6개월차 피로 → 형식적 진행</td><td>월 2회 상향 금지 신호 · 부대노동 30분↓ 목표</td></tr>
-    <tr><td><b>C3 일과 침범</b></td><td>B3 낮잠·바깥놀이 침범</td><td>교사가 내부 반대자화</td><td>진행 40분↓ 재설계</td></tr>
-    <tr><td><b>C4 키트 신뢰 균열</b></td><td>B7 대체 ≥2종 · 재료 문제 반복</td><td>유료 전환 시 가격 저항의 실체</td><td>도구 교체 — <b>유료 전환 전 QC 선결</b></td></tr>
-    <tr><td><b>C5 위임 발생</b></td><td>B16 ≥1회</td><td>신학기 담임 교체 시 인수인계 실패</td><td>'원 단위' 운영 매뉴얼 + 2월 인수인계 키트</td></tr>
-    <tr><td><b>C6 시식 실패 누적</b></td><td>B12 ≥2개 + B14 0건</td><td>'만들기 행사'로 전락 → 재계약 가치 붕괴</td><td>메뉴 유형 교체·시식 브릿지 추가</td></tr>
-    <tr><td><b>C7 학부모 신호 부재</b></td><td>B13 없음 + B14 0건</td><td>교내 옹호자 부재 → 결제 정당화 실패</td><td>반응이 강제 발생하는 결과물(지참 포장·사진 템플릿) 내장</td></tr>
-    <tr><td><b>C8 달력 블랙아웃 수렴</b></td><td>B15 특정 달 다수 원 수렴</td><td>구조적 충돌 → 전체 이행률 하락</td><td>해당 월 저부담 메뉴 고정 or 연 10회+예비 2회 구조</td></tr>
-  </table></div>
-  <div class="warnbox"><b>판독 규칙</b>: C1·C2·C5 중 2개+ 발동 원 = 계약해도 중도 형해화 고위험 → 조건 완화 협상 대상. C 전부 미발동 + B14 ≥1건 = <b>콜드 레퍼런스·소개 요청 1순위</b>.</div>
-</section>
-
-<section id="s4">
-  <h2>④ 트랙 B — 원장 설문 뼈대</h2>
-  <p class="sub">키트 동봉 가능 · 가격 정보 0 · 9~10문항 · 인트로 = "내년 준비를 위해 원 운영 실제를 여쭙습니다"(오퍼 언급 없음) · 4월 기수집 정보 재질문 금지</p>
-  <div class="tbl-wrap"><table>
-    <tr><th>#</th><th>문항(요지)</th><th>신호</th><th>의도</th></tr>
-    <tr><td>Q1</td><td>올해 진행 중인 외부 프로그램 전부 — 과목/업체명/1인당 월 비용/<b>돈이 나가는 곳</b>(학부모 수납·원 예산 항목명·시 지원금)</td><td>🔴</td><td>가격 앵커와 '주머니'를 현재 사실로 실측</td></tr>
-    <tr><td>Q2</td><td>그 업체들을 각각 <b>어떻게 알게 됐나</b>(원장 소개/영업 방문/박람회/검색/교사 추천)</td><td>🔴</td><td>콜드 진입 채널을 실제 구매 경로로 역산</td></tr>
-    <tr><td>Q3</td><td>업체별 계약 단위(연/학기/월/회차) + <b>중간에 바꾼·해지한 사례와 이유</b></td><td>🔴</td><td>"1년 락인"이 관행인지 + 해지 트리거</td></tr>
-    <tr><td>Q4</td><td>정부·지자체·급식지원센터 <b>지원금으로 비용을 충당해본 사례</b> + 부산시 필요경비 지원의 실집행(어디로 들어와 어디에 쓰는지)</td><td>🔴</td><td>제3의 주머니 실측 — 수익자부담 0 구조(가정·국공립)의 유일 경로</td></tr>
-    <tr><td>Q5</td><td>작년 요리·쿠킹 지출이 있었다면 <b>어느 계정</b>에서(행사비/교재교구비/급간식비/특활비) 대략 얼마</td><td>🔴</td><td>우리 상품이 앉을 회계 자리 확인</td></tr>
-    <tr><td>Q6</td><td>2027학년도 프로그램·예산 <b>확정 시기와 절차</b> + 작년 운영위 필요경비 안건을 다룬 달</td><td>🔴</td><td>원별 영업 데드라인 특정(F7 실측)</td></tr>
-    <tr><td>Q7</td><td>수익자부담 항목을 신설·폐지한 <b>가장 최근 사례</b>(무엇/절차/학부모 반응)</td><td>🔴</td><td>학부모 수납 경로의 실제 마찰 비용</td></tr>
-    <tr><td>Q8</td><td>동봉한 2027 커리큘럼 표(가격 없음)에서 <b>우리 원 여건상 어려워 보이는 메뉴</b> 체크+이유(알레르기/난이도/연령/정리/장비)</td><td>🟡</td><td>"지정 메뉴" 마찰을 메뉴 단위로 특정 — 지정 강도 결정 데이터</td></tr>
-    <tr><td>Q9</td><td>소속 원장 모임·연합회·단톡방 + <b>최근 3개월 실제 화제가 된 업체·프로그램</b></td><td>🔴</td><td>콜드 도달 경로 지도 + 추천이 일어나는 장(場)인지</td></tr>
-    <tr><td>통화 전용</td><td>밀프레드를 다른 원장·지인 원에 이야기한 적 — 언제·누구에게·뭐라고</td><td>🔴</td><td>이미 일어난 추천 = 콜드 확장 최강 선행 지표. 지면에선 오염 → 통화에서만</td></tr>
-  </table></div>
-</section>
-
-<section id="s5">
-  <h2>⑤ 트랙 C — 오퍼시트 + 가계약 카드 + 1:1 통화</h2>
-  <p class="sub">원장 단독 채널(통화 예고 후 서면 전달) · 계약 의사는 행동으로만 측정</p>
-
-  <h3>커밋먼트 사다리 — 원별 태깅 루브릭</h3>
-  <div class="ladder">
-    <div class="step"><span class="lv c-weak">L0</span><p><b>무반응 / 칭찬만</b>("좋은 제안이네요") — ⚫ 거절로 집계. <b>미회신도 데이터</b>(무상 수혜 중 미회신 ≈ L0)</p></div>
-    <div class="step"><span class="lv c-weak">L1</span><p><b>자료·견적서 요청</b> — 🟢 관심의 최소 증거</p></div>
-    <div class="step"><span class="lv c-warn">L2</span><p><b>조건 협상 요구</b>("학년도로"·"메뉴는 우리가"·"10회로") — 🟡 협상은 관심이다</p></div>
-    <div class="step"><span class="lv c-mid">L3</span><p><b>시작 월 지정 + 예상 인원 기재</b> — 🔴 자기 원에 대입해 계산했다는 증거</p></div>
-    <div class="step"><span class="lv c-strong">L4</span><p><b>가계약 신청서 서명·회신</b> — 🔴🔴 평판을 건 커밋</p></div>
-    <div class="step"><span class="lv c-strong">L5</span><p><b>선납 의사 또는 타 원장 실명 소개</b> — 🔴🔴🔴 돈·관계의 실제 투입</p></div>
-  </div>
-  <div class="callout"><h4>판정 기준 (사전 선언)</h4>
-    <p><b>L4+ 3곳↑</b> → 가격·조건 검증, 콜드 아웃바운드 GO / <b>L4 1~2곳</b> → 거절 사유 코딩 후 조건 수정 v2 재오퍼 / <b>L4 0 + L2 다수</b> → 가격이 아니라 주머니 문제 → 지원금 연계·모델 재설계.</p>
-  </div>
-
-  <h3>가계약 카드 골격 (A5 양면)</h3>
-  <ul class="plain">
-    <li><b>앞면 — "2027 파트너 원 조건"</b>: ① 사실 서사 먼저("처음 약속드린 지원 단위는 1개원 12회이며 2026년으로 예정대로 완료됩니다") ② 조건 요약(3,900원·배송비 무료·연간 커리큘럼 24종) ③ 우선 신청 마감일 ④ <b>거절 안전핀 명문</b>("신청 여부와 무관하게 남은 2026년 회차는 동일하게 끝까지 진행됩니다")</li>
-    <li><b>뒷면 — 신청서</b>: 시작 시점(1월/3월) · 예상 참여 인원 ___명 · 결제(월별/분기 선납) · 기관명·서명 / <b>신청이 어려운 경우 체크 3</b>(통화 원함·자료 원함·계획 없음+사유) / <b>소개란</b>(맞을 것 같은 원장님 성함·원명·연락처)</li>
-    <li><b>소개에 금전 인센티브 없음</b> — 보상이 붙는 순간 소개는 신호가 아니라 거래가 된다. 실명 제공 자체가 L5 신호여야 한다.</li>
-  </ul>
-  <div class="warnbox">렌즈 간 이견 1건 — 미확정 조건을 카드 선택란으로 열지(선택 기입 = 커밋 행동) vs 단일 오퍼로 고정할지(응답 합산 가능성). <b>권고 = 횟수·지정 강도는 기본형 고정, 시작 시점·인원·결제만 선택란</b>. §8-1~3 확정 후 반영.</div>
-
-  <h3>통화 고정 어젠다 3 (전 8곳 · 팔지 말고 듣기)</h3>
-  <ol class="plain">
-    <li>카드 회신 여부와 걸리는 조건 — 거절 사유를 축별 태깅(가격/주머니/조건/시기/메뉴)</li>
-    <li>가격이 걸린다면 <b>무엇과 비교해서</b>인지 (특활 월단가? 행사 재료비? — 앵커의 정체가 콜드 포지셔닝을 결정)</li>
-    <li>추천 에피소드 + 실명 소개 요청</li>
+  <ol class="q">
+    <li>지금 원에서 하고 있는 외부 프로그램(영어·체육·음악 등)을 알려주세요 — 과목 / 1인당 월 비용 / 비용이 나가는 곳(학부모 부담 · 원 예산 · 시 지원금)<span class="why">→ 가격 비교 기준과 '돈 나오는 주머니'를 현재 사실로 확인</span></li>
+    <li>그 업체들은 처음에 어떻게 알게 되셨어요? (다른 원장님 소개 / 영업 방문·전화 / 박람회 / 인터넷 검색 / 선생님 추천)<span class="why">→ 새 원들이 우리를 알게 될 경로를 역산</span></li>
+    <li>외부 업체와는 보통 어떤 단위로 계약하세요? (1년 / 학기 / 월) 중간에 바꾸거나 그만둔 적이 있다면 이유는?<span class="why">→ "1년 계약"이 이 동네 관행인지 + 해지되는 이유</span></li>
+    <li>부산시에서 나오는 특별활동비·행사비 지원(3~5세)은 지금 어떻게 받고 계세요? 다 쓰는 항목과 남는 항목이 있다면요?<span class="why">→ 2026년 신설된 '제3의 주머니'(시 지원 월 13.7만 규모)의 실제 흐름</span></li>
+    <li>작년에 요리·쿠킹 활동에 쓴 비용이 있다면 어떤 예산 항목(행사비 / 교재교구비 / 급간식비 등)에서 대략 얼마였나요?<span class="why">→ 우리 상품이 앉을 회계 자리</span></li>
+    <li>내년(2027학년도) 프로그램과 예산은 몇 월에, 어떤 절차로 정하세요? (원장님 단독 / 운영위원회 / 법인)<span class="why">→ 원별 영업 데드라인</span></li>
+    <li>학부모님께 새로 비용을 받기 시작한 가장 최근 사례가 있다면 — 무엇이었고, 어떤 절차를 거쳤고, 반응은 어땠나요?<span class="why">→ 학부모 부담 경로의 실제 난이도</span></li>
+    <li>올해 밀프레드 요리행사 중 사정상 진행 못 하고 넘어간 달이 있었다면, 어떤 사정이었나요?<span class="why">→ "매달 빠짐없이" 조건의 현실성 — 운영 책임자인 원장님께 묻는 게 자연스러움</span></li>
+    <li>동봉한 내년 커리큘럼 표에서 우리 원 여건상 어려워 보이는 메뉴가 있다면 체크해주세요 (알레르기 / 난이도 / 정리 부담 / 오븐·에어프라이어 없음) — 원에 에어프라이어나 오븐이 있는지도 함께요<span class="why">→ '지정 메뉴' 조건의 걸림돌을 메뉴 단위로 특정 (커리큘럼 2종은 오븐 필요)</span></li>
+    <li>원장님들 모임·연합회·단톡방에 속해 계세요? 최근 3개월 안에 거기서 화제가 된 업체나 프로그램이 있었나요?<span class="why">→ 다른 원으로 퍼질 길이 실제로 있는지</span></li>
   </ol>
+  <div class="riskbox"><b>⚠️ 계약 제안(3,900원)은 설문에 넣지 않습니다.</b> 설문과 별도로 원장님께만 전화 → 안내문+신청 카드 전달. 이유는 §③.</div>
 </section>
 
-<section id="s6">
-  <h2>⑥ 금지 문항 목록 + 인트로 원칙</h2>
-  <div class="riskbox"><b>절대 금지 (이 조사 한정)</b> — ① 계약·도입 의향형("2027 계약 의향 있으십니까" 모든 변형) ② 가격 수용도 직문("3,900원 어떠세요"·적정가·Van Westendorp) ③ If/가정형 ④ 오퍼 설계 위임형("월 1회 vs 2회 선호는?") ⑤ 감사 유도→오퍼 연결 ⑥ 학부모 전가 유도("학부모께 3,900원 받으시면") — 규제 우회를 벤더가 유도한 모양새 ⑦ 타인 추측형("다른 원장님들도 관심 가질까요") ⑧ 매력도 리커트 ⑨ "무상일 땐 하셨는데 유료면 안 하실 건가요" ⑩ 4월 기수집 정보 재질문</div>
+<section id="teacher">
+  <h2>② 선생님 설문</h2>
+  <div class="callout">
+    <h4>목적 한 줄</h4>
+    <p>1년 커리큘럼을 매달 진행할 때 선생님이 힘들지 않도록 <b>키트와 자료를 고치기 위한 것</b> — 평가·확인이 아니라 도움 요청. <b>시간 재기·횟수 캐묻기 없음</b>(불쾌·방어적 거짓 응답 방지 — 이사님 지침).</p>
+  </div>
+  <ol class="q">
+    <li>지금까지 한 요리행사 중 <b>제일 수월하고 아이들 반응도 좋았던 메뉴</b>는 무엇이었나요? (진행한 메뉴 체크리스트에서 선택)<span class="why">→ 성공 메뉴의 성공 요인을 커리큘럼 설계 기준으로</span></li>
+    <li>반대로 <b>다시 하라면 조금 부담스러운 메뉴</b>가 있다면? 어떤 점이 부담이었나요? (준비 / 당일 진행 / 뒷정리 / 아이들이 어려워함)<span class="why">→ 운영 난이도 최악 메뉴를 실명으로 — 2027 배치 전 교체 판단</span></li>
+    <li>만들고 나서 <b>아이들이 잘 안 먹었던 메뉴</b>가 있었나요?<span class="why">→ '만들기는 성공, 시식은 실패' 메뉴 — 편식 개선 가치와 직결</span></li>
+    <li>보내드린 <b>조리도구 중 아쉬웠던 것</b>(수량·크기·품질·세척)이 있다면? 원에 있는 도구를 대신 쓰신 적이 있다면 어떤 것이었나요?<span class="why">→ 실제 대체가 일어난 도구 = 키트의 확정 결함. 유료 전환 전 고쳐야 할 것</span></li>
+    <li>행사 준비부터 뒷정리까지 중에 <b>"이것 하나만 바뀌면 훨씬 편하겠다"</b> 싶은 것 한 가지는?<span class="why">→ 개선 우선순위를 현장이 직접 지목</span></li>
+    <li>요리행사 후에 <b>학부모님 반응이 온 적</b>이 있나요? (하원 때 말씀 / 키즈노트 댓글 / "레시피 알려달라" 문의) 어떤 메뉴 때였나요?<span class="why">→ 학부모를 실제로 움직인 결과물 — 원장님 결제 정당화의 근거</span></li>
+    <li>1년 중 <b>요리행사 하기 힘든 달</b>이 있다면 언제인가요? (원 행사·발표회 겹침 / 신학기 / 방학)<span class="why">→ 여러 원에서 같은 달이 나오면 커리큘럼 해당 월을 저부담 메뉴로 교체</span></li>
+  </ol>
+  <div class="warnbox"><b>v1.1에서 제거한 문항</b>: 단계별 소요 시간(분) 실측 · 결번 횟수 · 세척 담당자와 시간 · 진행 위임 횟수 · 알레르기 조정 횟수 — 취조당하는 느낌 → 불쾌하거나 거짓 응답 위험. 결번 이력은 원장님 설문 8번으로 이동.</div>
+</section>
+
+<section id="why">
+  <h2>③ 왜 이렇게 짰나</h2>
+  <h3>계약 제안을 설문에 안 넣는 이유</h3>
+  <p>무상으로 받아온 8곳에 "계약하시겠어요?"를 설문지로 물으면 <b>예의상 "긍정 검토"만 나온다</b>(거절 비용이 0이라서). 그래서 3단계로 분리:</p>
+  <ol class="plain">
+    <li><b>설문 2종은 키트에 동봉</b> — 가격 얘기 0. (선생님이 가격 문서를 먼저 열면 "특활비 오른대요"가 학부모 채팅방으로 퍼짐)</li>
+    <li><b>원장님께 전화로 예고 → 안내문 + 신청 카드를 원장님께만 전달</b></li>
+    <li><b>진심은 행동으로만 판정</b>: 자료 요청 &lt; 조건 협상("학년도로 해달라") &lt; 시작 월·인원 기재 &lt; <b>신청 카드 서명</b> &lt; 선납 의사·다른 원장님 실명 소개. <b>서명 이상 3곳+</b> → 다른 원 마케팅 GO / 0곳인데 협상 요구는 많다 → 가격 문제가 아니라 돈 나올 주머니 문제.</li>
+  </ol>
+  <h3>신청 카드 골격 (A5 양면)</h3>
   <ul class="plain">
-    <li><b>사실을 먼저, 그대로</b>: 12회 약속이 예정대로 완료됨을 먼저 말하고 2027 선택지를 안내. <b>"원래부터 유료 전환 계획이었다"는 사후 재해석 금지</b>(당시 고지 목적은 페인 탐색이었음을 인정).</li>
-    <li><b>거절 안전핀을 문장으로 명시</b>: "2027 진행 여부와 관계없이 남은 2026년 회차는 동일하게 끝까지 진행됩니다. 하지 않으셔도 됩니다."</li>
-    <li><b>설문과 오퍼를 한 문서에 섞지 않는다</b> — 인트로가 두 목적을 겸하는 순간 둘 다 죽는다.</li>
-    <li><b>압박 어휘 금지</b>: 할인 강조·한정 슬롯·"그동안 무상으로"류 회수성 표현 배제. 감사는 한 문장.</li>
-    <li><b>다음 행동은 하나만</b>: 체크박스가 아니라 "통화 일정 확정"이라는 실제 행동 하나만 요청.</li>
+    <li><b>앞면 = "2027 파트너 원 조건"</b> — 1년 함께한 원 전용 조건. <b>"할인" 강조 금지</b>: 0원으로 받아온 원에겐 3,900원이 할인이 아니라 인상으로 느껴짐. + <b>"신청 안 하셔도 남은 2026년 회차는 끝까지 동일하게 진행됩니다"</b> 명문(거절을 안전하게 — 예의상 긍정을 줄이는 유일한 방법).</li>
+    <li><b>뒷면 = 신청서</b> — 시작 시점(1월/3월) · 예상 인원 · 결제 방식 기재란 + 어려운 경우 체크 3(통화 원함 / 자료 원함 / 계획 없음) + <b>소개란</b>(맞을 것 같은 원장님 성함·연락처 — 사례금 없음: 보상이 붙으면 소개가 신호가 아니라 거래가 됨).</li>
   </ul>
 </section>
 
-<section id="s7">
-  <h2>⑦ 원별 사전 예측 — 오퍼 순차 진행 지도</h2>
-  <p class="sub">4월 실측 기반 가설(검증 전 — review 큐 R-070). 오퍼는 상·중상부터, 최하 2곳은 오퍼 대신 "2026 종료 안내+감사"만(관계·남은 무상 회차의 설문 품질 보호).</p>
+<section id="law">
+  <h2>④ 조사하며 확인한 제도 사실</h2>
+  <p class="sub">오퍼 조건에 직접 영향 주는 것만. 웹검증 완료(2026-08-24).</p>
   <div class="tbl-wrap"><table>
-    <tr><th>기관</th><th>판정</th><th>근거</th></tr>
+    <tr><th>사실</th><th>시사점</th></tr>
+    <tr><td>법령상 '특별활동' = <b>외부 강사</b>가 진행하는 프로그램. 우리는 담임 선생님 진행 → <b>특활이 아님</b></td><td>특활비 한도(부산 월 8만) 틀을 못 탐 → <b>행사비·교재교구비</b> 항목이 우리 자리. 계약서·설문에 "특별활동" 단어 금지</td></tr>
+    <tr><td>부산 학부모 부담 행사비 한도 = <b>월 1만 원·연 12만 원</b></td><td>월 1회 3,900원(연 46,800원)은 한도 안에서 여유</td></tr>
+    <tr><td><b>부산 3~5세 필요경비 무상화</b> — 시가 특활·행사·현장학습비 월 13.7만 규모를 지원(2026~)</td><td>학부모 주머니보다 <b>시 지원금 안에서 기존 특활 업체와 자리 경쟁</b>이 진짜 게임. 0~2세는 대상 밖(영아 많은 가정어린이집은 불리). 실제 흐름은 원장님 설문 4번으로 확인</td></tr>
+    <tr><td>원 예산·계약·수납한도가 전부 <b>학년도(3월~다음해 2월)</b> 단위</td><td><b>1월 시작 계약은 제도 흐름 역행</b> + 두 달 뒤 반 편성이 다 바뀜 → 학년도(3월) 시작 권고. 영업 골든타임 = <b>2026.10 ~ 2027.2</b></td></tr>
+    <tr><td>비용·행사는 <b>운영위원회(학부모 절반 이상) 심의</b> 사항</td><td>원장님 단독 확약 불가 → <b>운영위 통과용 안건 자료를 우리가 만들어드리면 강력한 영업 도구</b></td></tr>
+    <tr><td>참여 강제 금지 · 참여 아동에게만 수납 가능</td><td>"최소 인원" 조항은 원이 약속할 수 없는 것 → <b>최소 주문액</b>으로 설계</td></tr>
+  </table></div>
+  <p class="src">Sources: <a href="https://www.busan.go.kr/childcare/childcare010213" target="_blank">부산시 2026학년도 필요경비 수납한도액</a> · <a href="https://www.busan.go.kr/news/snsbusan01/view?dataNo=72088" target="_blank">부산시 3~5세 무상보육</a> · <a href="https://gwangju.childcare.go.kr/lgwangju/d6_30000/d6_30026/d18_30031.jsp" target="_blank">특별활동 운영 기준</a> · <a href="https://central.childcare.go.kr/lcentral/30000/30003/30011/d1_30025.jsp" target="_blank">어린이집 시설회계 세출과목</a> · <a href="https://central.childcare.go.kr/lcentral/d1_30000/d1_600058/d1_600065.jsp" target="_blank">어린이집운영위원회</a></p>
+</section>
+
+<section id="read">
+  <h2>⑤ 응답을 어떻게 읽나</h2>
+  <ul class="plain">
+    <li><b>8곳은 통계가 아니라 8개의 개별 케이스</b> — 집계 %가 아니라 원별 반응 단계 + 거절의 구체 이유가 산출물.</li>
+    <li><b>성공 기준(미리 정해둠)</b>: 유력 2곳 중 1곳+ 계약 + 8곳 거절 이유 지도 + 실명 소개 1건+. 매출(최대 연 수백만 원)은 부산물 — 진짜 산출물은 <b>유료 레퍼런스 원 · 거절 이유 지도 · 소개 네트워크</b>.</li>
+    <li>선생님 설문의 "부담 메뉴·힘든 달"이 여러 원에서 같은 답으로 수렴하면 → 개별 원 문제가 아니라 <b>커리큘럼 구조 문제</b> → 해당 월 메뉴 교체.</li>
+    <li>이 조사가 답 못 하는 것: <b>모르는 원(콜드)의 전환율·획득 비용</b> — 8곳은 상한선 참고치. 콜드 검증은 소개받은 원 + 별도 아웃바운드로.</li>
+  </ul>
+  <h3>원별 사전 예측 (4월 설문 실측 기반 가설 — 검증 전)</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>기관</th><th>가능성</th><th>근거</th></tr>
     <tr><td>피어든 (민간 28/30)</td><td><span class="chip c-strong">상</span></td><td>특활 월 5만+ 지불 문화 · 식생활 지출 실측 유일 · 원아 유지</td></tr>
-    <tr><td>사랑가득 (가정 20/20)</td><td><span class="chip c-strong">중상</span></td><td>편식이 운영 정체성 · 수익자부담 2~4만 문화 · 만원</td></tr>
-    <tr><td>유경 (가정 14/20)</td><td><span class="chip c-mid">중하</span></td><td>pain 최고이나 공석↑ 재정 취약</td></tr>
-    <tr><td>영지 (민간)</td><td><span class="chip c-mid">중하</span></td><td>차별화 지출 의지 有, 편식 자리 불명확</td></tr>
+    <tr><td>사랑가득 (가정 20/20)</td><td><span class="chip c-strong">중상</span></td><td>편식이 운영 정체성 · 학부모 부담 2~4만 문화 · 정원 만원</td></tr>
+    <tr><td>유경 (가정 14/20)</td><td><span class="chip c-mid">중하</span></td><td>편식 고민은 최고이나 공석 많아 재정 취약</td></tr>
+    <tr><td>영지 (민간)</td><td><span class="chip c-mid">중하</span></td><td>차별화 지출 의지 있으나 편식 자리 불명확</td></tr>
     <tr><td>사립유치원</td><td><span class="chip c-weak">하</span></td><td>원아 극소수 · 1~2월 방학 구조</td></tr>
-    <tr><td>에이든 (가정 12/16)</td><td><span class="chip c-weak">하</span></td><td>pain 얕음</td></tr>
-    <tr><td>둥이 (가정)</td><td><span class="chip c-risk">최하</span></td><td>수익자부담 0 + 급식지원센터 대체재</td></tr>
-    <tr><td>국공립</td><td><span class="chip c-risk">최하</span></td><td>수익자부담 불가 · 예산 경직 (지자체 조달은 별도 트랙)</td></tr>
+    <tr><td>에이든 (가정 12/16)</td><td><span class="chip c-weak">하</span></td><td>편식 고민 얕음</td></tr>
+    <tr><td>둥이 (가정)</td><td><span class="chip c-risk">최하</span></td><td>학부모 부담 0 + 급식지원센터가 대체재</td></tr>
+    <tr><td>국공립</td><td><span class="chip c-risk">최하</span></td><td>학부모 부담 불가 · 예산 경직</td></tr>
   </table></div>
+  <div class="warnbox"><b>둥이·국공립 2곳은 계약 제안 없이 "2026 종료 안내 + 감사"만</b> — 돈 나올 주머니가 없는 곳에 제안하면 관계만 상함.</div>
 </section>
 
-<section id="s8">
-  <h2>⑧ 이사님 확정 대기 8건</h2>
+<section id="decide">
+  <h2>⑥ 이사님 확정 대기 7건</h2>
+  <p class="sub">횟수는 <b>월 1회 × 총 12회로 확정됨</b>(2026-08-24 이사님). 남은 결정:</p>
   <ol class="plain">
-    <li><b>횟수</b>: 월 1회 vs 2회 — 권고 = <b>월 1회 기본</b> (F2 행사비 한도 · C2 교사 부대노동)</li>
-    <li><b>지정 강도</b>: 완전 지정 vs 월 2메뉴 중 원이 택1 — 권고 = <b>택1</b> ("지정 커리큘럼 내 선택" — 원장 1st pain=차별화·자율성 충돌 완화)</li>
-    <li><b>계약 단위</b>: 1~12월 vs 학년도 3~2월 — 권고 = <b>학년도</b> (F4). 커리큘럼 시작점만 회전</li>
-    <li><b>최소 주문</b>: 인원 조항은 제도상 불가(F6) → 최소 주문액 설정 여부·수준 (에이든 12명·유경 14명이 하한 검증 케이스)</li>
+    <li><b>지정 강도</b>: 완전 지정 vs 월 2메뉴 중 원이 택1 — 권고 = <b>택1</b> (원장님들 최대 관심사가 '우리 원 차별화'라 자율성 완전 박탈은 반감)</li>
+    <li><b>계약 단위</b>: 1~12월 vs 학년도 3월~2월 — 권고 = <b>학년도</b> (§④ 제도 흐름)</li>
+    <li><b>최소 주문</b>: 인원 조항은 제도상 불가 → 최소 주문액 설정 여부·수준 (에이든 12명·유경 14명이 하한 검증 케이스)</li>
     <li><b>결제 주기</b>: 월별 정산 vs 선납 — 기존 "계산서 계좌이체 5% 할인"과 3,900원 중복 적용 여부 포함</li>
-    <li><b>미이행(결번) 처리</b>: 할인 소급 박탈? — 권고 = 월내 대체일 조항 + 완충(예: 연 10회 이상 이행 시 할인 유지)</li>
-    <li><b>우선 신청 마감일</b> + "파트너 원 조건" 프레임 승인</li>
-    <li><b>대원칙.md Phase 2 개정 승인</b>: "오퍼 검증 트랙(2026-09~)" 신설 — 페인 탐색(월간 설문)과 오퍼 검증(원장 상담) 트랙 분리 명문화</li>
+    <li><b>진행 못 한 달 처리</b>: 할인 취소? — 권고 = 그 달 안 대체일 + 완충(예: 연 10회 이상 진행하면 할인 유지)</li>
+    <li><b>우선 신청 마감일</b> + "파트너 원 조건" 문구 승인</li>
+    <li><b>대원칙.md 개정 승인</b>: 지금까지 설문은 "세일즈 금지"가 원칙이었음 — 계약 제안 트랙을 별도로 신설하는 개정</li>
   </ol>
 </section>
 
-<section id="s9">
-  <h2>⑨ 실행 타임라인 (권고)</h2>
+<section id="run">
+  <h2>⑦ 실행 순서 (권고)</h2>
   <div class="tbl-wrap"><table>
     <tr><th>시점</th><th>액션</th></tr>
-    <tr><td><b>T0</b> (9월 키트 배송)</td><td>교사 설문(A) + 원장 설문(B) + 커리큘럼 포스터(가격 없음) 동봉. <b>오퍼는 미동봉</b></td></tr>
-    <tr><td><b>T+1주</b></td><td>설문 회수 → C1~C8 조기경보 판독 + Q1~Q9 주머니 지도 작성</td></tr>
-    <tr><td><b>T+2주</b></td><td>원장 1:1 통화(이사님) — 상·중상 원부터. 통화 후 오퍼시트+가계약 카드 서면 전달</td></tr>
-    <tr><td><b>T+4주</b></td><td>원별 사다리 매트릭스(8곳×L0~L5) + 거절 사유 코딩 → §8 조건 확정 반영 → 콜드용 오퍼 v2 설계</td></tr>
-    <tr><td><b>2026.10~2027.2</b></td><td>콜드 아웃바운드 골든윈도우(F7) — 소개받은 원부터</td></tr>
+    <tr><td><b>9월 키트 배송</b></td><td>원장님 설문 + 선생님 설문 + 내년 커리큘럼 표(가격 없음) 동봉. <b>계약 제안은 미동봉</b></td></tr>
+    <tr><td><b>+1주</b></td><td>설문 회수 → 돈 주머니 지도 + 메뉴·개선 정리</td></tr>
+    <tr><td><b>+2주</b></td><td>원장님 1:1 전화(이사님) — 유력 원(피어든·사랑가득)부터. 통화 후 안내문+신청 카드 전달</td></tr>
+    <tr><td><b>+4주</b></td><td>원별 반응 정리(서명/협상/거절+이유) → 남은 조건 확정 → 다른 원용 제안서 v2</td></tr>
+    <tr><td><b>10월~내년 2월</b></td><td>다른 원 영업 골든타임 — 소개받은 원부터</td></tr>
   </table></div>
-  <p class="src">정본: <code>synthesis/2026-08-24-2027-연간계약-수요조사-설계.md</code> · 근거: 4렌즈 워크플로 wf_45f814d5(예산조달 웹검증 15출처 · 가격방법론 · 현장운영 · 적대검증 리스크 14건) · 기존 자산: 08_고객개발/설문조사/(대원칙 · 2026-04_분석 · 2026-05 설문지 v3 2종) · 2027 커리큘럼 gsheet</p>
+  <p class="src">정본: <code>synthesis/2026-08-24-2027-연간계약-수요조사-설계.md</code> (v1.1) · 근거: 4렌즈 워크플로 wf_45f814d5 + 기존 설문 자산(대원칙·2026-04 분석·2026-05 설문지 v3) + 2027 커리큘럼 gsheet</p>
 </section>
 
 </main>
-<footer>밀프레드 위키 · 2027 연간계약 수요조사 설계 뼈대 v1 · 2026-08-24</footer>
+<footer>밀프레드 위키 · 2027 연간계약 수요조사 설문 뼈대 v1.1 · 2026-08-24</footer>
 </body>
 </html>
