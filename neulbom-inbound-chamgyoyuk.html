@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>참교육사협 인바운드 분석 — 어떤 업체인가 · 왜 지금인가</title>
+<meta property="og:title" content="참교육사회적협동조합 인바운드 분석">
+<meta property="og:description" content="경기 남부 늘봄·방과후 위탁 애그리게이터의 2027 도입 문의 — 회사 실체·늘봄 시장·트리거·리스크·대응 플레이북">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB;--bg-warm-1:#FFE8D0;--bg-warm-2:#FFDBB8;--bg-warm-3:#FFD0A0;
+    --bg-soft:#FFFBF5;--bg-soft-2:#FFF9F3;--bg-page:#FAFAF7;
+    --orange-main:#FF6B1A;--orange-soft:#FF8A47;--orange-deep:#C45A00;
+    --orange-tint:rgba(255,107,26,0.1);--orange-tint-line:rgba(255,107,26,0.25);
+    --navy:#1a2b4a;
+    --brown-deep:#3a2a1a;--brown-mid:#5a4a3a;--brown-soft:#8a7a6a;
+    --green-bg:#E8F5E9;--green-fg:#2D8B4E;--green-deep:#1B5E20;
+    --warn-bg:#FFF8E1;--warn-deep:#F57F17;
+    --red-bg:#FFEBEE;--red-fg:#E53935;--red-deep:#C62828;
+    --blue-bg:#E3F2FD;--blue-fg:#1565C0;
+    --n200:#E5E7EB;--n500:#6B7280;
+    --card-border:#FFE8D0;
+    --card-shadow-sm:0 2px 16px rgba(0,0,0,0.05);
+    --r-sm:8px;--r:14px;--r-pill:100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg-page);color:var(--navy);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);padding:54px 20px 40px;text-align:center;color:var(--brown-deep)}
+  .hero-inner{max-width:880px;margin:0 auto}
+  .hero .tag{display:inline-block;background:var(--orange-tint);border:1px solid var(--orange-tint-line);color:var(--orange-deep);padding:7px 18px;border-radius:var(--r-pill);font-size:12px;font-weight:800;margin-bottom:16px;letter-spacing:.02em}
+  .hero h1{font-size:clamp(23px,4.6vw,33px);font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px}
+  .hero h1 .accent{color:var(--orange-deep)}
+  .hero p{font-size:14.5px;color:var(--brown-mid);font-weight:500;margin:0 auto 6px;line-height:1.75;max-width:720px}
+  .hero p strong{color:var(--orange-deep);font-weight:700}
+  .hero-meta{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .hero-meta .pill{background:rgba(255,255,255,0.6);border:1px solid var(--orange-tint-line);color:var(--brown-mid);font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:var(--r-pill)}
+  .toc{background:white;border-bottom:1px solid var(--card-border);padding:12px 20px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1020px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--brown-mid);font-weight:700;padding:6px 11px;border-radius:var(--r-pill);background:var(--bg-soft);text-decoration:none;flex-shrink:0;transition:all .15s}
+  .toc a:hover{background:var(--orange-main);color:white}
+  main{max-width:1020px;margin:0 auto;padding:26px 24px 48px}
+  section{margin-bottom:44px;scroll-margin-top:60px}
+  h2{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:6px;padding-bottom:8px;border-bottom:3px solid var(--orange-main)}
+  h3{font-size:16px;font-weight:800;color:var(--brown-deep);margin:18px 0 8px}
+  .sub{font-size:13px;color:var(--brown-soft);font-weight:600;margin-bottom:14px}
+  p{font-size:14px;color:var(--brown-mid);font-weight:500;margin-bottom:10px}
+  strong{color:var(--navy);font-weight:700}
+  ul.plain{margin:8px 0 12px 18px}
+  ul.plain li{font-size:13.5px;color:var(--brown-mid);margin-bottom:6px}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--card-border);border-radius:var(--r);background:white;box-shadow:var(--card-shadow-sm);margin:14px 0}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+  th{background:var(--bg-soft-2);color:var(--brown-deep);font-weight:800;text-align:left;padding:10px 13px;border-bottom:2px solid var(--card-border);white-space:nowrap}
+  td{padding:9px 13px;border-bottom:1px solid #F3EDE5;color:var(--brown-mid);font-weight:500;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .chip{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);vertical-align:middle;white-space:nowrap}
+  .c-strong{background:var(--green-bg);color:var(--green-deep)}
+  .c-mid{background:var(--blue-bg);color:var(--blue-fg)}
+  .c-weak{background:var(--n200);color:var(--n500)}
+  .c-risk{background:var(--red-bg);color:var(--red-deep)}
+  .c-conf{background:var(--green-bg);color:var(--green-deep)}
+  .c-likely{background:var(--warn-bg);color:var(--warn-deep)}
+  .c-spec{background:var(--n200);color:var(--n500)}
+  .callout{background:linear-gradient(135deg,var(--bg-soft-2),#fff);border:1px solid var(--card-border);border-left:5px solid var(--orange-main);border-radius:var(--r);padding:18px 20px;margin:14px 0;box-shadow:var(--card-shadow-sm)}
+  .callout h4{font-size:14px;font-weight:800;color:var(--orange-deep);margin-bottom:8px}
+  .callout p{font-size:13.5px;color:var(--brown-deep);line-height:1.85;margin-bottom:6px}
+  .warnbox{background:var(--warn-bg);border-left:5px solid var(--warn-deep);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin:12px 0;font-size:13px;color:var(--brown-deep)}
+  .riskbox{background:var(--red-bg);border-left:5px solid var(--red-fg);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin:12px 0;font-size:13px;color:var(--brown-deep)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
+  .kcard{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--card-shadow-sm)}
+  .kcard h4{font-size:13.5px;font-weight:800;color:var(--navy);margin-bottom:6px}
+  .kcard p{font-size:12.5px;line-height:1.7;margin-bottom:4px}
+  .kcard .num{font-size:22px;font-weight:800;color:var(--orange-deep);letter-spacing:-0.02em}
+  .qa{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:4px 18px 10px;margin:12px 0;box-shadow:var(--card-shadow-sm)}
+  .qa ol{margin:10px 0 6px 20px}
+  .qa li{font-size:13.5px;color:var(--brown-mid);margin-bottom:7px;line-height:1.7}
+  .qa li b{color:var(--navy)}
+  .src{font-size:11.5px;color:var(--brown-soft);margin-top:4px}
+  .src a{color:var(--blue-fg);text-decoration:none;font-weight:600}
+  .src a:hover{text-decoration:underline}
+  .guard{background:var(--bg-soft);border:1px dashed var(--orange-tint-line);border-radius:var(--r);padding:14px 18px;font-size:12.5px;color:var(--brown-mid);margin-top:10px}
+  footer{text-align:center;padding:26px;font-size:12px;color:var(--brown-soft);border-top:1px solid var(--card-border)}
+  footer a{color:var(--orange-deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+  <div class="tag">B2B 인바운드 분석 · 2026-08-24</div>
+  <h1>참교육사회적협동조합 — <span class="accent">어떤 업체인가 · 왜 지금 우리를 찾았나</span></h1>
+  <p><strong>경기 남부 초등 늘봄·방과후 '전체위탁'을 공공입찰로 수주하는 3인 소형 애그리게이터(2025 매출 14억)</strong>가, 2027학년도 위탁 제안서 라인업을 짜는 8월 소싱 시즌에 — <strong>초4 방과후 바우처 확대 발표(08-05) 14일 뒤</strong> — 구글·블로그·강사 네트워크에서 노출이 급증한 우리 키트를 발견하고 먼저 연락해 온 것으로 분석된다.</p>
+  <div class="hero-meta">
+    <span class="pill">8각도 웹리서치 + 적대 검증</span>
+    <span class="pill">경영공시 2021~2025 실측</span>
+    <span class="pill">검색 노출 실측 08-23</span>
+    <span class="pill">인바운드 수신 08-19</span>
+  </div>
+</div></div>
+<nav class="toc"><div class="toc-inner">
+  <a href="#s1">① 회사 정체</a><a href="#s2">② 시장</a><a href="#s3">③ 왜 지금</a><a href="#s4">④ 뭘 사러 왔나</a><a href="#s5">⑤ 기회 vs 리스크</a><a href="#s6">⑥ 플레이북</a><a href="#s7">⑦ 미확인</a>
+</div></nav>
+<main>
+
+<section id="s1">
+<h2>① 회사 정체 — "늘봄 애그리게이터"</h2>
+<p class="sub">전 항목 공식 자료 교차확인: coop.go.kr 설립현황·경영공시(2021~2025), 입찰나라 개찰결과, 학교 홈페이지 공지, 잡코리아·알바몬 채용공고 24건, 화성시 사회적경제 명부</p>
+<div class="tbl-wrap"><table>
+<tr><th>항목</th><th>내용</th></tr>
+<tr><td><b>법적 실체</b></td><td>교육부 인가 사회적협동조합 <span class="chip c-conf">확인</span> — 인가 2019-05-16(인가번호 2019-1340-SO-5739) · 법인성립 2019-08-16 · 사업자 629-82-00296 · 부가세 면세 비영리법인 · 계속사업자</td></tr>
+<tr><td><b>연혁</b></td><td>원명 <b>'글로벌교육문화원 사회적협동조합'</b>(안양, 이사장 김대식) → 2023-06-15 현 상호 변경(평택 시절, 안정현) → 2025~ 동탄, 이사장 <b>문엄상</b>. 명함 주소(광장프리미엄밸리2 613호)는 등록 주소와 일치</td></tr>
+<tr><td><b>규모</b></td><td>조합원 5명(직원 3+후원 2) · <b>직원 3명</b>(취약계층 2) · 출자금 10만원 · 강사 전원 프리랜서(채용공고 24건 중 정규직 0)</td></tr>
+<tr><td><b>재무</b></td><td>매출 2021 0.34억 → 2023 1.78억(순손실·자본잠식) → 2024 8.37억(순익 0.40억) → <b>2025 14.05억(순익 0.61억, 이익률 4.4%)</b>. 자산 1.43억 · 부채 0.60억 · 자본 0.82억</td></tr>
+<tr><td><b>사업 구성(2025)</b></td><td>방과후 위탁운영 결산 6.95억(예산 10.29억) + 원어민영어 1.23억. 2024년 공시엔 '교구재공급' 라인 존재(결산액 입력오류 의심)</td></tr>
+<tr><td><b>핵심 실적</b></td><td><b>여주교육지원청 늘봄 위탁 7.93억 낙찰</b>(2025, 참다솜·대교에듀캠프 제침) · 평택안일초 방과후 전체위탁 1.66억(2024) · 용인 이현초 늘봄 특강 · 공시 자기신고 "평택·용인·여주·이천·파주·안성 6개 교육지원청 지역연계 늘봄 운영" · 2026 오산 대호초 방과후 영어 · 포천 원어민영어·청소년캠프</td></tr>
+<tr><td><b>탈락 이력</b></td><td>한마음초(기초 2.92억)·용인 독정초(2.87억) 입찰 <b>규격서평가 부적격 탈락</b> — 제안서 경쟁력 보강 압력의 직접 증거</td></tr>
+<tr><td><b>뿌리</b></td><td>원어민 영어: 2014~ MBC 후원 TEFL International TESOL 운영, 방과후 원어민 영어교실(명함의 '원어민영어'와 일치). 2013~18 실적은 법인 설립 전(전신 'KG TESOL' 추정)</td></tr>
+<tr><td><b>홍보 채널</b></td><td>홈페이지·블로그·SNS·언론보도·학부모 후기 <b>전무</b> — 영업은 100% 입찰·조달</td></tr>
+<tr><td><b>유의</b></td><td>'더 참교육 사회적협동조합'(남양주, 2024 인가)은 <b>별개 법인</b>(관계 미확인) · 명함 전화 031-615-4544는 공개 DB 미등재(공시 연락처는 별도) · 공시 주소는 메타폴리스로 42(동탄 내 2곳 병존)</td></tr>
+</table></div>
+<div class="callout"><h4>본질</h4>
+<p>직원 3명이 강사·프로그램·교구를 외부 조달해 학교 제안서로 묶어 입찰하는 <b>'늘봄 애그리게이터'</b>. 자체 콘텐츠가 없어 <b>벤더 라인업이 곧 상품</b>이다. 우리에게는 단일 '고객'이라기보다 <b>경기 남부 수십 개 학교로 들어가는 유통 채널</b>에 가깝다.</p></div>
+<div class="warnbox">⚠️ <b>대표자명</b>: 공식 등기·공시·채용공고 전부 '문엄상'. 명함도 '문엄상'으로 읽는 것이 맞아 보임(초기 판독 '문명상'은 오독 가능성 높음). 첫 통화에서 자연스럽게 확인.</div>
+</section>
+
+<section id="s2">
+<h2>② 이들이 뛰는 시장 — 늘봄·방과후 2026~2027</h2>
+<div class="grid2">
+  <div class="kcard"><h4>정책 골격</h4><p>2024 초1 → 2025 초1·2(55.2만 명, 81.3%) → <b>2026 '온동네 초등돌봄·교육' 개편</b>: 초1·2 매일 2h 무상 + <b>초3 방과후 이용권 연 50만원 신설</b>(1,060억). <b>2027 초4 확대 공식 발표(08-05 하반기 업무계획)</b></p></div>
+  <div class="kcard"><h4>돈의 구조 (경기 2026)</h4><p>초1·2 맞춤형 학급당 월 195만원 = 강사비 40h×4만 + 운영비 5만 + <b>교재·교구비 30만(1인 월 ~1.36만원)</b>. 위탁 입찰은 '강사료'만 대상 — <b>교구·재료는 별도 물품계약</b>이라 키트가 조합 마진과 충돌하지 않음</p></div>
+  <div class="kcard"><h4>시장 규모 (자체 추정)</h4><p class="num">연 6,000~7,000억</p><p>학교가 '프로그램(강사+교구)'으로 사는 돈: 초1·2 맞춤형 ~4,900억 + 초3 바우처 1,060억 + 소외지역 공급 150억. '요리'는 늘봄허브 8개 분야에 없는 미분류 틈새</p></div>
+  <div class="kcard"><h4>위탁 시장 급성장</h4><p class="num">10.8% → 20.9%</p><p>경기 방과후·늘봄 위탁 비율(2023→2025, 2년 2배). 사협은 <b>5천만원까지 1인 견적 수의계약 특례</b>(일반 2천만) — '교육부 인가 사협' 간판 자체가 조달 자산</p></div>
+  <div class="kcard"><h4>경쟁 위탁사</h4><p>참다솜교육사협(고양) 92.3억·영업손실 / 아라사협(군포) 54.6억·경기 40+교(화성 포함) / 대교에듀캠프 — 수십억 매출에도 영업이익 0 안팎의 박리 패스스루. 참교육(14억)은 중소형이지만 흑자</p></div>
+  <div class="kcard"><h4>화성 로컬</h4><p>출생아 3년 연속 전국 1위(2025년 8,116명)·평균연령 38.8세. 초등 110교(동탄 42교)·초등학생 6.5만(도내 1~2위). 화성오산 137교 중 늘봄전담실장 119교(경기 최대). <b>아동 요리 학원 0곳·요리 기반 방과후 사회적경제 0곳 = 지역 공급 공백</b></p></div>
+</div>
+</section>
+
+<section id="s3">
+<h2>③ 왜 '지금(8월)' 우리를 찾았나 — 트리거 강도순</h2>
+<div class="tbl-wrap"><table>
+<tr><th>#</th><th>트리거</th><th>강도</th><th>내용</th></tr>
+<tr><td>1</td><td><b>2027학년도 조달 캘린더</b></td><td><span class="chip c-strong">확정</span></td><td>경기 표준: 11~12월 수요조사·업체선정계획 → 12월 학운위 → 12~2월 공고·제안서평가·계약 → 3월 개시. 늘봄허브 심사 연 2회(5·10월). <b>"내년 도입" = 2027학년도 제안서 등재이고 라인업은 9~10월 전 확정 필요. 8월 = 방학 직후 유일한 소싱 공백기</b></td></tr>
+<tr><td>2</td><td><b>초4 바우처 확대 발표</b></td><td><span class="chip c-strong">확정</span></td><td>인바운드 <b>14일 전(08-05)</b> 교육부가 초3 연 50만원 이용권의 2027 초4 확대를 공식화. 초3~4는 돌봄(참여 6%)이 아닌 '교육 선택권' 수요 — <b>바우처로 고르는 체험형 유료 프로그램 시장이 2027에 커짐</b></td></tr>
+<tr><td>3</td><td>제안서 경쟁 압력</td><td><span class="chip c-mid">강</span></td><td>위탁 2배 증가로 경쟁 심화 + <b>본인들 규격서평가 부적격 탈락 2건</b> + "자체 프로그램 없이 강사 송출만 하는 업체는 계약 불가" 규정 + 제안서에 '교재·재료 활용 계획서' 필수 → <b>차별화 라인업(요리×영어)이 곧 낙찰 무기</b></td></tr>
+<tr><td>4</td><td>원어민영어 × 영어요리 정합</td><td><span class="chip c-mid">강</span></td><td>뿌리가 TESOL·원어민 파견(시급 8만 프리랜서 풀). 초1·2 영어 방과후는 '놀이·활동 중심' 조건 재허용 — <b>'영어로 하는 요리' = 저학년 합법 포맷</b>. 우리 영어 요리수업 3종과 정확히 맞물림</td></tr>
+<tr><td>5</td><td>식생활교육 정책 순풍 (부처 삼중)</td><td><span class="chip c-mid">중</span></td><td>농식품부·교육부 늘봄 식생활교육(조리실습 포함) 2025-04 시범 → 전국 확대·전학년 콘텐츠 예고. 4차 식생활교육기본계획 + <b>식약처 6차 어린이 식생활안전 종합계획</b> 모두 늘봄 연계 명시. 현장에서도 '창의요리 교실(햄버거·유부초밥·김밥)'이 늘봄·돌봄 인기 프로그램으로 반복 보도(공식 통계는 없음)</td></tr>
+<tr><td>6</td><td>우리 노출 급증 (최근 2개월)</td><td><span class="chip c-strong">실측 ×2 재현</span></td><td>구글 <b>'늘봄 요리 키트'·'초등 요리수업 키트'·'어린이 요리 밀키트 기관' 1위 = cooking-kit.html</b>("전국 3000곳+" 스니펫·늘봄 FAQ·학교장터·수의계약 서류 완비) · 블로그 7월 늘봄/영유 타깃 글 연속 · 인스타 강사 체험단(#늘봄요리, <b>화성 듬뿍농원 3주 전 '#동탄어린이요리수업' 후기</b>) · 교사몰 아이스크림몰 입점 · 함초(초등교사 카페) 배포 글 · 부산일보 기부 기사. <b>08-24 재실측: 네이버 '영어 요리수업 키트' 이미지팩 1위 포함 7슬롯을 우리 7/16 블로그 글이 독점</b> · 브랜드 검색에 유튜브(구독 2.6천·영상 330) 동반 · 블로그 6~7월 거의 매일 방과후·캠프 SEO 글 → 08-10 송편 공지 직후 08-19 인바운드(시점 정합)</td></tr>
+<tr><td>7</td><td>위탁사의 '강사 리스크' 헤지</td><td><span class="chip c-mid">강</span></td><td>방과후 강사료 급감(주 50~60만→30만 수준)·단기계약·구인난 + 2025-11 경기도의회 늘봄 위생 부실 공론화 → <b>강사 의존도 낮고 위생 검증된 완제품 키트</b>가 위탁사의 마진·안전 리스크를 동시에 줄임</td></tr>
+</table></div>
+<h3>유입 경로 추정 (순위)</h3>
+<ul class="plain">
+<li><b>① 늘봄 담당자의 구글 검색</b> — '늘봄 요리 키트' 류 검색 → cooking-kit 1위 → 전화/카톡. 가장 정합.</li>
+<li><b>② 방과후·아동요리 강사 네트워크 추천</b> — 화성 강사들이 이미 키트 사용 중(기산초 아동요리 개인강사·수현초 요리교실, 듬뿍농원). 단 기산초·수현초는 개인위탁 모델이라 이 조합의 위탁교는 아닌 것으로 보임.</li>
+<li><b>③ 교사 커뮤니티·아이스크림몰·인스타 간접 노출.</b> 확정은 카톡 채널·수신 전화 로그의 첫 문의 문맥 확인이 가장 빠름.</li>
+</ul>
+<div class="warnbox">📉 <b>네이버는 취약</b>: '늘봄 요리 키트' 등 일반 키워드에서 우리 0건(떡카소·키트야놀자·에듀팜몰·이로운쿠키 점유 — 이로운은 3주 전 '늘봄교육지원센터 대상 요리교육 키트' 글로 진입). 브랜드검색 광고만 집행 중 → <b>일반 키워드 파워링크 + 늘봄 타깃 블로그 SEO가 다음 액션</b>.</div>
+</section>
+
+<section id="s4">
+<h2>④ 무엇을 사러 왔나 — 시나리오</h2>
+<div class="tbl-wrap"><table>
+<tr><th>시나리오</th><th>개연성</th><th>근거</th><th>매출 귀속</th></tr>
+<tr><td><b>A. 2027 위탁 제안서 라인업용 '요리 프로그램 패키지'</b> (키트+커리큘럼, 위탁교 늘봄·방과후 편성)</td><td><span class="chip c-conf">최유력</span></td><td>조달 캘린더 · 탈락 이력 · "자체 프로그램" 요건</td><td>키트=푸드희스토리 / 자료=밀프레드</td></tr>
+<tr><td><b>B. 원어민 사업부의 '영어 요리수업'</b> (자기 원어민 강사 + 우리 자료 3종 + 키트)</td><td><span class="chip c-likely">유력</span></td><td>TESOL 뿌리 · 원어민 풀 · 7/16 블로그('영어유치원 맞춤 요리수업 키트') 노출</td><td><b>자료 라이선스가 핵심 쟁점</b></td></tr>
+<tr><td>C. 학교 밖 거점(온동네 센터·교육문화센터·작은도서관·캠프) 무강사 키트</td><td><span class="chip c-likely">중</span></td><td>포천 센터 운영 실적 · 경기 학교밖자원활용형 112개소</td><td>키트 위주</td></tr>
+<tr><td>D. 편식 프로그램 (foodbridge·골고루)</td><td><span class="chip c-spec">낮음</span></td><td>해당 페이지 검색 미색인 · 조합 사업과 무관</td><td>—</td></tr>
+</table></div>
+</section>
+
+<section id="s5">
+<h2>⑤ 딜 밸류 — 기회 vs 리스크</h2>
+<h3>기회</h3>
+<ul class="plain">
+<li><b>경기 남부 6개 교육지원청 권역 위탁 채널</b> — 여주형 일괄 위탁(7.9억) 안에 요리 편성 시 볼륨 큼. 우리가 직접 뚫기 힘든 입찰 시장을 대신 뚫어주는 유통 파트너.</li>
+<li>사협 수의계약 특례(5천만)로 학교 직계약도 빠름. <b>재료비는 별도 물품계약이라 우리 단가가 조합 마진과 충돌하지 않는 구조.</b></li>
+<li>영어 요리수업 신사업의 <b>초등 늘봄 트랙 첫 B2B 레퍼런스</b> 후보(영유 트랙과 별개 판로).</li>
+</ul>
+<h3>리스크 (레드팀 8축)</h3>
+<div class="tbl-wrap"><table>
+<tr><th>#</th><th>리스크</th><th>내용 · 방어</th></tr>
+<tr><td>1</td><td><b>카탈로그 수집으로 끝남</b></td><td>제안서에만 싣고 낙찰·개설 불발 시 발주 0. 수요조사에서 수요 없으면 개설 불가, 계약 1년 단위 → <b>등재는 환영하되 무상 제공 없음, 파일럿 약정 요구</b></td></tr>
+<tr><td>2</td><td><b>단가 부정합 (무상 트랙)</b></td><td>초1·2 무상 재료비 1인 하루 ~1,342원·늘봄허브 조리 프로그램 재료비 500원/차시 사례 → <b>5천원 키트는 무상 트랙 상시 편성 불가(월 1~2회 스팟만)</b>. 정합 채널 = <b>수익자부담 방과후(재료비 회당 4,750~6,750원)와 초3~4 바우처</b> — 여기가 본 시장</td></tr>
+<tr><td>3</td><td><b>식품 사고 책임 — 요리는 이미 감사 표적</b></td><td><b>2025-11 경기도의회 행정감사: 늘봄 요리 프로그램의 학생 제조 샌드위치 '썩은 식재료' 적발</b>(검수 부재·책임소재 불명확 지적). 2013 우유 알레르기 급식 뇌사 사건 이후 알레르기 책임 극도로 민감. 영업배상책임보험 명시 필수·알레르기 유발식품 '반드시 제거' 지침·공급자 1차 배상 선례(2018 초코케이크) → <b>역으로 'HACCP OEM·성분표 전수 공개'가 감사 국면의 셀링 포인트</b></td></tr>
+<tr><td>4</td><td>결제 리스크</td><td>학교→조합→우리 구조면 조합 신용(자본 0.82억·여주 단일 계약 의존)이 우리 리스크. 위탁업체 폐업·미지급 사례 존재 → <b>학교 직접 결제(별도 물품계약) 우선, 조합 경유는 소액 여신+선결제</b></td></tr>
+<tr><td>5</td><td>가격 후려치기</td><td>재료 공급업체에 '총매출 30%' 요구 사례. 위탁 이윤이 강사료 10% 이내로 묶여 마진을 재료·교재에서 찾는 유인 + 경기교육청 최저가 입찰 확산(도의회 질 저하 지적)의 하위 벤더 전가 구조</td></tr>
+<tr><td>6</td><td><b>자료만 라이선스 요구</b></td><td>자체 원어민 풀 보유 → 슬라이드 3종만 받아 자기 강사로 운영할 개연성 → <b>자료는 키트 구매 연동 원칙(단독 제공 금지 또는 별도 과금)</b></td></tr>
+<tr><td>7</td><td>역할·귀속 혼선</td><td>키트 매출=푸드희스토리 / 수업자료·코칭=밀프레드 — 계약 주체 분리 명시. 기존 화성 학교 직거래(지마켓)가 조합 경유 저마진 채널로 대체되는 카니발라이즈 주의</td></tr>
+<tr><td>8</td><td>'교육부 인가' ≠ 보증</td><td>설립요건 확인·감독 대상일 뿐. 2025 리박스쿨·글로리협동조합 사태로 공급기관 검증 강화 국면 — 역으로 우리의 '검증된 벤더' 서류(보험·HACCP OEM·성분표)가 무기</td></tr>
+</table></div>
+</section>
+
+<section id="s6">
+<h2>⑥ 대응 플레이북 — 첫 통화/미팅</h2>
+<div class="qa"><h3>확인 질문 8</h3><ol>
+<li><b>수행 현황</b> — 2026년 현재 운영 중인 학교·기관 목록과 규모(여주 외 어디? 화성 관내 있나?)</li>
+<li><b>도입 대상</b> — 키트만 / 키트+커리큘럼 / 키트+영어 수업자료+원어민? 대상 학년(초1·2 무상 vs 초3·4 바우처 vs 수익자부담 방과후)?</li>
+<li><b>편성 경로</b> — 학교 업체위탁 제안서 라인업? 늘봄허브 등록? 학교밖 센터? 2027 제안 대상 학교 수·공모 일정?</li>
+<li><b>재료비 예산</b> — 회당 1인 재료비와 재원(무상 교부금 / 바우처 / 수익자부담)?</li>
+<li><b>결제 주체</b> — 학교 직접 물품계약 가능? 조합 경유면 지급 기한·최근 결산서 공유 가능?</li>
+<li><b>발주 약정</b> — 제안서 등재만인가, 낙찰 전 최소 발주(파일럿) 약정 가능한가?</li>
+<li><b>강사</b> — 누가 진행? (조합 원어민이면 자료 라이선스 조건 협의 필수)</li>
+<li><b>안전</b> — 영업배상책임보험 가입 여부, 알레르기 확인서 수집·보관 주체.</li>
+</ol></div>
+<div class="callout"><h4>이 건과 무관하게 당장 할 액션 2</h4>
+<p>· <b>늘봄허브(창의재단) 기관 프로그램 등록</b> — 심사 연 2회(5·10월). <b>다음 라운드 = 2026년 10월</b> → 조합 없이도 2027학년도 학교 매칭 창구 확보(현재 등록 여부 미확인 — 미등록이면 즉시). 사회적기업진흥원 '늘봄 참여기업' 모집도 10월 예상.</p>
+<p>· <b>네이버 일반 키워드 보강</b> — '늘봄 요리 키트'·'방과후 요리 키트'류에서 우리 0건(떡카소·키트야놀자·이로운 점유). 파워링크 소액 + 늘봄 타깃 블로그 글('영어 요리수업' 계열은 이미 이미지팩 독점).</p></div>
+<div class="callout"><h4>협상 원칙</h4>
+<p>· 제안서 등재 환영하되 <b>무상 제공 없음</b> — 시연·견적·행정서류(사업자·통장·수의계약각서·보험증권)는 제공, 본 발주는 소량 파일럿(1~2교 1회차)부터.</p>
+<p>· <b>학교 직접 물품계약 우선</b>(cooking-kit.html의 후불·학교장터 프로세스 그대로). 조합 경유 시 여신 한도 소액 + 선결제.</p>
+<p>· 영어 수업자료는 <b>키트 동봉 QR 원칙 유지</b> — 자료 단독 라이선스는 과금 테이블 확정 전 불가.</p>
+<p>· 단가표는 수익자부담 방과후·바우처 기준(회당 1인 4,000~6,000원대 정합 강조), 무상 트랙엔 '월 1회 스페셜' 포맷 제안.</p></div>
+</section>
+
+<section id="s7">
+<h2>⑦ 미확인 · 정직 고지</h2>
+<ul class="plain">
+<li>도입 대상 제품·경로는 <b>본인 확인 전 전부 추정</b>. 명함 전화번호(031-615-4544)·대표자명 표기는 첫 통화에서 확인.</li>
+<li>2024 공시 '교구재공급 결산 8.23억'은 입력오류 의심(총매출 초과) — 실제 교구 매출 비중 미확인.</li>
+<li>조합의 화성 관내 수주 실적 공개자료 없음. 나라장터·S2B 전체 이력 미확보(입찰나라 3건+학교 공지 2건만 확인).</li>
+<li>늘봄 '요리 프로그램' 공식 인기 통계는 존재하지 않음(학부모 수요 1순위는 체육 44.9%·문화예술 39.3%).</li>
+<li>시장 규모 연 6,000~7,000억은 경기 단가의 전국 적용 <b>자체 추정치</b>.</li>
+<li>리서치 커버리지: 8각도 중 '요리 경쟁 지형' 전담 각도는 미완(타 각도가 대부분 커버). <b>'왜 지금'·'유입 경로'·'레드팀' 3각도는 독립 2회 실행 모순 0(재현 검증 통과)</b>. 회사 사실은 다출처 교차확인(coop.go.kr·NICE·잡코리아·알바몬·화성시 명부·입찰나라·학교 공지).</li>
+<li>구글 순위 실측은 로그인·부산 위치 브라우저 기준 — 개인화 보정 가능성(시크릿·타 지역 재확인 권장).</li>
+</ul>
+<div class="guard">원자료: <code>편식극복키트/synthesis/2026-08-24-참교육사협-인바운드-분석.md</code> (출처 URL 전량 포함) · 리서치 = 멀티에이전트 8각도 스윕 + 적대 검증(wf_7b164776). 주요 출처: coop.go.kr 설립현황·경영공시 / 교육부 2026-02-03 추진방안·2026-08-05 하반기 업무계획 / 경기도교육청 2026 기본계획·업체위탁 실무 가이드북 / 입찰나라 개찰결과 / 잡코리아·알바몬 / 늘봄허브 / 네이버·구글·지마켓·아이스크림몰 실측(2026-08-23).</div>
+</section>
+
+</main>
+<footer>밀프레드 위키 · <a href="/docs.html">← 위키 홈</a></footer>
+</body>
+</html>
