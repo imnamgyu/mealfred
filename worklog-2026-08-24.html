@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-08-24 — ECONNRESET 규명 · 스킬 v1.3 · 트리플베리 편집 가이드</title>
+<meta property="og:title" content="작업 일지 2026-08-24 — 회선 절단 원인 규명 · 이미지 격리 v1.3 · 트리플베리 레모네이드청 가이드 31장">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-08-24 · ECONNRESET 진단·영상편집 스킬 세션 (병행)</div>
+  <h1>회선 절단 원인 규명 · 이미지 격리 v1.3 · 트리플베리 레모네이드청 편집 가이드 완성</h1>
+  <p class="sub">며칠째 세션을 죽이던 ECONNRESET을 커널 로그로 확진 → 스킬을 격리 구조로 패치 → 밀렸던 가이드 덱 31장을 그 방식으로 완주.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">8건/16.5h</div><div class="l">ECONNRESET 전수 — 커널 RST와 초 단위 일치</div></div>
+    <div class="gcard"><div class="n">2MB·15.2s</div><div class="l">회선 절단 임계(버스트 감지형 중간자)</div></div>
+    <div class="gcard"><div class="n">31장</div><div class="l">네이티브 gslides 덱 (자막 24 · 보조컷 6)</div></div>
+    <div class="gcard"><div class="n">9/9</div><div class="l">실렌더 재검수 통과 (메인 세션 에러 0)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>ECONNRESET 원인 규명 — 커널 TCP 로그 확진</h2><span class="commit">5레인 워크플로</span></div>
+    <ul class="wl">
+      <li>연결 끊김은 전 기간 <b>9건뿐</b>(8건이 08-23 밤~08-24 오후 창, 3개 버전 걸침 = 버전 무관). 에러 순간 다른 세션은 수백 건 정상 → 머신·서버 전체 문제 아님.</li>
+      <li>⭐커널 로그: 실패 요청 전부 "TLS 정상 → 본문 2.0~3.4MB 업로드 → <b>정확히 15.2초에 인바운드 RST</b>" 후 동일 바이트 10~11회 재시도 전멸. 라이브 재현 = 2MB+는 절단, 1.5MB는 통과, 같은 2.5MB도 100KB/s로 보내면 성공.</li>
+      <li>트리거 실체: 대화에 이미지 3~4장 쌓이면 매 요청 재전송으로 2MB 초과 — "이미지 읽는 작업"만 골라 죽던 이유. 범인 층(공유기/KT/뱅킹 보안 프로그램)은 미특정 — 재현 명령을 메모리에 정본화.</li>
+    </ul>
+    <div class="out"><b>확진</b> · 맥 무슬립 53일·VPN/프록시 없음·WiFi 정상 = 전부 무죄 · Anthropic 장애 해소 후에도 증상 지속 → <b>회선 경로의 버스트 감지형 중간자</b> · 근본해결 테스트(공유기 재부팅→핫스팟 비교→ASTx 종료)는 이사님 몫</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>스킬 /mealfred-video-edit-guide v1.3 — 🛡 이미지 격리</h2><span class="commit">SKILL.md</span></div>
+    <ul class="wl">
+      <li>메인 세션의 이미지 직접 Read 전면 금지 — 시트·키프레임·설명서·실렌더 전부 <b>서브에이전트 위임</b>(에이전트당 이미지 예산 ≤700KB), 텍스트 보고만 회수.</li>
+      <li>추가 함정: 에이전트가 저해상도 시트를 <b>스스로 크롭해 재읽기</b>하다 자기 요청이 한도 초과로 사망(같은 창 4연속) → "Read 정확히 1회·크롭/확대 금지" 프롬프트 규칙화.</li>
+      <li><code>build_guide_deck.py</code> 4종 개선: 실제 이미지 비율 배치(가로 키프레임 첫 대응)·캡션이 사진 높이 추종·대본 21줄 초과 자동 축소·표지 원칙 박스 한글 광폭 렌더 보정.</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>트리플베리 레모네이드청 편집 가이드 — v1.3 첫 완주</h2><span class="commit">gslides 31장</span></div>
+    <ul class="wl">
+      <li>영상 3개(세로 본편 20:34 + 가로 2:05 + 가로 15초) + 조리설명서 9스텝 전사. ⭐<b>영상 역할이 전달과 반대</b>(2:05=타먹기·15초=포장 연출) — 확인 사항 등재.</li>
+      <li>세로 본편 화면비: 3위치 크롭 검증 → 5/5 중앙 통과 → <b>이사님 "중앙 크롭 가로" 확정</b>. 에이전트 26개(코스 6+정밀 17+검증 3)로 타임코드 25개 확정, 키프레임 32장 2라운드 검증(7장 교체).</li>
+      <li>자막 24개(본편 18 + 포장 2 + 타먹기 4 신규) — 화전·송편 코퍼스 밀도·어미 준수, 안내서 오탈자 "뜸뿍" 교정. 실렌더 31장 QA: 블로커 3 수정 → 재검수 9/9 통과.</li>
+    </ul>
+    <div class="out"><b>산출</b> · 네이티브 「트리플베리레모네이드청_영상편집_가이드」 = 드라이브 <code>수업자료/트리플베리 레모네이드 청/</code> (<code>1nOSN1FI…Dtp0</code>) · 확인 사항 8건 덱 말미 · pptx·구버전 정리 완료 · <b>메인 세션 ECONNRESET 0회</b></div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>메모리 인덱스 압축 + 회선 진단 정본화</h2><span class="commit">memory</span></div>
+    <ul class="wl">
+      <li><code>reference_econnreset_line_diagnosis.md</code> 신규(재현 명령·이미지 격리 패턴·미해결 테스트 목록).</li>
+      <li>MEMORY.md 24.4KB 한도 초과 → 큰 항목 10개의 상세를 각 topic 파일로 원문 이관(손실 0) — 인덱스 37KB→16.4KB.</li>
+    </ul>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li><b>이사님</b>: 덱 확인 사항 8건(영상 역할·설탕 2숟갈 vs 통째 붓기·맨손 구간·타먹기 자막) → 편집자 전달.</li>
+      <li><b>이사님</b>: 회선 근본해결 테스트 — 공유기 재부팅 → 핫스팟 curl 비교 → ASTx 임시 종료 비교.</li>
+      <li>편집자 피드백 오면 스킬 v1.4 반영 · 최종본 나오면 자막 채택률·타임코드 대조(송편 v1.1 방식).</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-08-24 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
