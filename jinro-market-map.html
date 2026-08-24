@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>진로체험 시장 지도 — 꿈길 전수 데이터 · 전국 위탁운영사 415</title>
+<meta property="og:title" content="진로체험 시장 지도 + 전국 위탁운영사 415">
+<meta property="og:description" content="꿈길 API 전수 추출(체험처 5,599곳) · 진로체험 시장 별도 분석 · 입찰 기반 전국 늘봄·방과후 위탁운영사 415곳">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB;--bg-warm-1:#FFE8D0;--bg-warm-2:#FFDBB8;--bg-warm-3:#FFD0A0;
+    --bg-soft:#FFFBF5;--bg-soft-2:#FFF9F3;--bg-page:#FAFAF7;
+    --orange-main:#FF6B1A;--orange-soft:#FF8A47;--orange-deep:#C45A00;
+    --orange-tint:rgba(255,107,26,0.1);--orange-tint-line:rgba(255,107,26,0.25);
+    --navy:#1a2b4a;--brown-deep:#3a2a1a;--brown-mid:#5a4a3a;--brown-soft:#8a7a6a;
+    --green-bg:#E8F5E9;--green-fg:#2D8B4E;--green-deep:#1B5E20;
+    --warn-bg:#FFF8E1;--warn-deep:#F57F17;
+    --red-bg:#FFEBEE;--red-fg:#E53935;--red-deep:#C62828;
+    --blue-bg:#E3F2FD;--blue-fg:#1565C0;
+    --n200:#E5E7EB;--n500:#6B7280;--card-border:#FFE8D0;
+    --card-shadow-sm:0 2px 16px rgba(0,0,0,0.05);
+    --r-sm:8px;--r:14px;--r-pill:100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg-page);color:var(--navy);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);padding:54px 20px 40px;text-align:center;color:var(--brown-deep)}
+  .hero-inner{max-width:880px;margin:0 auto}
+  .hero .tag{display:inline-block;background:var(--orange-tint);border:1px solid var(--orange-tint-line);color:var(--orange-deep);padding:7px 18px;border-radius:var(--r-pill);font-size:12px;font-weight:800;margin-bottom:16px}
+  .hero h1{font-size:clamp(23px,4.6vw,33px);font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px}
+  .hero h1 .accent{color:var(--orange-deep)}
+  .hero p{font-size:14.5px;color:var(--brown-mid);font-weight:500;margin:0 auto 6px;line-height:1.75;max-width:740px}
+  .hero p strong{color:var(--orange-deep);font-weight:700}
+  .hero-meta{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .hero-meta .pill{background:rgba(255,255,255,0.6);border:1px solid var(--orange-tint-line);color:var(--brown-mid);font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:var(--r-pill)}
+  .toc{background:white;border-bottom:1px solid var(--card-border);padding:12px 20px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1020px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--brown-mid);font-weight:700;padding:6px 11px;border-radius:var(--r-pill);background:var(--bg-soft);text-decoration:none;flex-shrink:0}
+  .toc a:hover{background:var(--orange-main);color:white}
+  main{max-width:1020px;margin:0 auto;padding:26px 24px 48px}
+  section{margin-bottom:44px;scroll-margin-top:60px}
+  h2{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:6px;padding-bottom:8px;border-bottom:3px solid var(--orange-main)}
+  h3{font-size:16px;font-weight:800;color:var(--brown-deep);margin:18px 0 8px}
+  .sub{font-size:13px;color:var(--brown-soft);font-weight:600;margin-bottom:14px}
+  p{font-size:14px;color:var(--brown-mid);font-weight:500;margin-bottom:10px}
+  strong{color:var(--navy);font-weight:700}
+  ul.plain{margin:8px 0 12px 18px}
+  ul.plain li{font-size:13.5px;color:var(--brown-mid);margin-bottom:6px}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--card-border);border-radius:var(--r);background:white;box-shadow:var(--card-shadow-sm);margin:14px 0}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+  th{background:var(--bg-soft-2);color:var(--brown-deep);font-weight:800;text-align:left;padding:10px 13px;border-bottom:2px solid var(--card-border);white-space:nowrap}
+  td{padding:9px 13px;border-bottom:1px solid #F3EDE5;color:var(--brown-mid);font-weight:500;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .chip{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);white-space:nowrap}
+  .c-conf{background:var(--green-bg);color:var(--green-deep)}
+  .c-mid{background:var(--blue-bg);color:var(--blue-fg)}
+  .c-warn{background:var(--warn-bg);color:var(--warn-deep)}
+  .callout{background:linear-gradient(135deg,var(--bg-soft-2),#fff);border:1px solid var(--card-border);border-left:5px solid var(--orange-main);border-radius:var(--r);padding:18px 20px;margin:14px 0;box-shadow:var(--card-shadow-sm)}
+  .callout h4{font-size:14px;font-weight:800;color:var(--orange-deep);margin-bottom:8px}
+  .callout p{font-size:13.5px;color:var(--brown-deep);line-height:1.85;margin-bottom:6px}
+  .warnbox{background:var(--warn-bg);border-left:5px solid var(--warn-deep);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin:12px 0;font-size:13px;color:var(--brown-deep)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
+  .kcard{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--card-shadow-sm)}
+  .kcard h4{font-size:13.5px;font-weight:800;color:var(--navy);margin-bottom:6px}
+  .kcard p{font-size:12.5px;line-height:1.7;margin-bottom:4px}
+  .kcard .num{font-size:22px;font-weight:800;color:var(--orange-deep)}
+  .guard{background:var(--bg-soft);border:1px dashed var(--orange-tint-line);border-radius:var(--r);padding:14px 18px;font-size:12.5px;color:var(--brown-mid);margin-top:10px}
+  footer{text-align:center;padding:26px;font-size:12px;color:var(--brown-soft);border-top:1px solid var(--card-border)}
+  footer a{color:var(--orange-deep);font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+  <div class="tag">시장 지도 · 2026-08-24</div>
+  <h1>진로체험 시장 지도 — <span class="accent">꿈길 전수 데이터 · 전국 위탁운영사 415</span></h1>
+  <p>진로체험은 늘봄·방과후와 <strong>다른 버킷</strong>(연 용역 입찰 vs 회당 행사·출강)이다. 꿈길 API를 전수 추출해 <strong>체험처 5,599곳</strong>을 확보했고, 입찰·개찰기록 기준으로 <strong>전국 늘봄·방과후 위탁운영사 415곳</strong>을 리스트업했다. 요리는 <strong>무료 잠식을 피하는 유일한 유료 지대</strong>(꿈길 요리 프로그램의 89%가 유료·중앙값 2만원)다.</p>
+  <div class="hero-meta">
+    <span class="pill">꿈길 19,479건 API 전수</span>
+    <span class="pill">나라장터 리그테이블 968건·128사</span>
+    <span class="pill">학교 예산서 단가 실측</span>
+    <span class="pill">플레이어 24곳 실명</span>
+  </div>
+</div></div>
+<nav class="toc"><div class="toc-inner">
+  <a href="#a1">① 전국 위탁운영사 415</a><a href="#b1">② 진로체험 제도·돈</a><a href="#b2">③ 플레이어 5계층</a><a href="#b3">④ 요리 적합성 판정</a><a href="#c1">⑤ 꿈길 데이터</a><a href="#d1">⑥ 한계</a>
+</div></nav>
+<main>
+
+<section id="a1">
+<h2>① 전국 늘봄·방과후 위탁운영사 — 415곳 (입찰공고 기준 중심)</h2>
+<p class="sub">파일: 드라이브 「전국_늘봄방과후_위탁운영사_2026-08-24.xlsx」(4시트) · 원본 `01_참고자료/늘봄방과후_위탁운영사_2026-08-24/`</p>
+<div class="grid2">
+  <div class="kcard"><h4>소스 4중 병합</h4><p>① 1차 6각도 181곳 ② 전국 8권역 입찰·개찰 스윕 <b>신규 194곳</b>(공고번호·금액·연도 확정) ③ <b>나라장터 낙찰 리그테이블</b>('방과후' 최근 365일: 낙찰 968건·128개사) ④ 교육부 사협 인가목록 174곳</p></div>
+  <div class="kcard"><h4>지역 분포</h4><p>서울 82 · 경기 66 · 인천 34 · 대전 27 · 전북 25 · 충남 24 · 경상권 28+ · 충북 11 · 강원 9 등 전국 커버</p></div>
+</div>
+<h3>낙찰 리그테이블 (키워드 '방과후' · 최근 1년 968건 기준 + 서울 누적)</h3>
+<div class="tbl-wrap"><table>
+<tr><th>#</th><th>기업</th><th>1년 낙찰</th><th>규모</th><th>비고</th></tr>
+<tr><td>1</td><td><b>(주)에듀베스트교육</b></td><td>61건</td><td>약 163억/년</td><td>낙찰률 86.9% · 사협((주)와 이중구조)</td></tr>
+<tr><td>2</td><td><b>에스이방과후교육원</b></td><td>57건</td><td>약 180억/년</td><td>공시 매출 202.6억과 정합(단위 검증) · 입찰 참여 누적 1,993건</td></tr>
+<tr><td>3</td><td><b>참다솜교육사협</b></td><td>35건</td><td>약 93억/년</td><td>여주 늘봄에서 참교육에 패배한 그 회사</td></tr>
+<tr><td>4</td><td>마루한사협</td><td>24건</td><td>약 52억/년</td><td>인천 중심</td></tr>
+<tr><td>5</td><td>아라사협</td><td>23건</td><td>약 57억/년</td><td>경기 40+교(화성 포함)</td></tr>
+<tr><td>—</td><td>올림피아드교육</td><td colspan=2>서울 누적 86건 · 229억(2020~26)</td><td>서울 최다 낙찰</td></tr>
+<tr><td>—</td><td>미래엔에듀파트너</td><td colspan=2>서울 누적 71건 · 197억</td><td>교과서 미래엔 계열</td></tr>
+<tr><td>—</td><td>아이샘교육</td><td colspan=2>서울 누적 44건 · 119억</td><td>염리초 4.1억 등</td></tr>
+<tr><td>—</td><td>크로마에듀케이션 / 스쿨케어 / 세한스텐다드 / 씨디에이에듀(영어) / 이포에스 / 제이엘에스정상교육(정상어학원 계열) 등</td><td colspan=3>서울권 신규 발굴 12곳+ — 마스터 xlsx 참조</td></tr>
+</table></div>
+<div class="warnbox">⚠️ <b>한계</b>: 부산·울산·경남 / 대구·경북 입찰 스윕 에이전트 2개 실패(연결 오류) — 남부권 입찰분 과소 대표(재스윕 가능). '늘봄' 키워드 리그는 미러 서버 타임아웃으로 미확보. 사협 인가 174곳은 인가 사실만(실수주 미검증).</div>
+</section>
+
+<section id="b1">
+<h2>② 진로체험 — 제도가 만든 시장, 돈의 구조 (실측)</h2>
+<ul class="plain">
+<li><b>법적 골격 = 진로교육법(2015)</b>: §12 진로체험=수업시간 인정 · §18 꿈길 구축 의무 · §19 교육기부 인증제 · §20 협력체계.</li>
+<li><b>수요 재편</b>: 자유학기 2025 축소(중1 1개 학기·102시간) → <b>진로연계교육(초6·중3·고3) + 고교학점제(2025 전면)</b>로 전 학년 분산. 캘린더 = 전환기 학년 + 진로체험의 날(연중) + 방학 캠프.</li>
+<li><b>체험 유형 6종</b> 중 일터 없는 민간의 주력 = <b>직업실무체험형(모의일터·멘토 1:10)</b> — 우리 키트는 '찾아가는 조리사 모의일터'로 규격 정합.</li>
+</ul>
+<div class="tbl-wrap"><table>
+<tr><th>발주 경로</th><th>실측 단가·규모</th></tr>
+<tr><td><b>① 꿈길 매칭</b></td><td>프로그램 19,479건 중 <b>유료 81%</b> · 요리 유료 중앙값 <b>2만원/인</b>(무료 11%뿐)</td></tr>
+<tr><td><b>② 진로체험지원센터</b> (전국 219곳 실측·경기 31)</td><td>학교-체험처 무료 매칭 기본. 센터 자체가 위탁 발주 대상(구미 연 3,500만원). <b>센터 공급업체 풀 등록 = 실질 B2G 관문</b></td></tr>
+<tr><td><b>③ 학교 S2B 수의계약</b> (한도 1억)</td><td>실거래: 진로캠프 용역 150만원. 학교 예산서 실측 = <b>1인 25,000원×2회 · 학년당 회당 30~40만원 · 자유학기 강좌당 50만원 · 강사료 3.5만/차시</b>. 업체 딜 사이즈 100만~1,000만원 · 출강 만들기 '1인 만원대'</td></tr>
+<tr><td><b>④ 교육청 박람회 용역</b></td><td>서울 5.87억(컵아이앤엠) · 서울진로직업박람회 5.75억(경동기획) · 평택 2.45억(EBS미디어) · 무주 1.8억(두인) → <b>낙찰 대행사의 '직업 부스' 협력사로 진입</b>이 현실적</td></tr>
+</table></div>
+<div class="callout"><h4>무료 공급층과 유료 지대</h4>
+<p>교육기부 인증기관 <b>2,627곳(연 4회 무료 의무 = 연 1만 회+ 무료 체험)</b> + 센터 무료 매칭 + 공공 체험관이 <b>강연·견학형 유료를 구조적으로 잠식</b>. 반면 <b>재료가 드는 체험형(요리)은 유료가 성립하는 유일 지대</b>(실측: 요리 유료 89%). 인증제의 '무료'는 "외부기관 경비 지원으로 무료 제공"도 인정 → <b>B2G 예산 받고 학생 무료 = 교육부 인증마크 취득 루트</b>.</p></div>
+</section>
+
+<section id="b2">
+<h2>③ 진로체험 플레이어 5계층 (실명 24곳)</h2>
+<div class="tbl-wrap"><table>
+<tr><th>계층</th><th>실명</th><th>시사점</th></tr>
+<tr><td>전국형</td><td>한국잡월드(고용부) · <b>키자니아 'JOB PLAY'(2026~ 학교 출강 진출</b> · 회당 75~100명·서울경기)</td><td>출강 슬롯 최상위 경쟁자 등장</td></tr>
+<tr><td>출강 전문</td><td>한국미래진로센터(목동) · 새희망교육(광주·50종+) · 드림캐쳐 에듀투어 · 한국진로개발원(안산) · 한국진로개발교육원(광명) · 참좋은진로(대전) · (사)에듀펀플러스(순천·<b>방과후 위탁+찾아가는 요리교실 겸업</b>)</td><td>'학교급·인원·예산 맞춤 + 직업 부스 여러 종'이 표준 상품</td></tr>
+<tr><td>검사·교구</td><td>어세스타(MBTI/Strong) · 인싸이트 · 한국가이던스 · 한국콘텐츠미디어(직업카드) · 학토재 · 스쿨에듀</td><td>경쟁 아님 — <b>스쿨에듀·학토재 '진로인성교구 몰' = 우리 키트 입점 후보</b></td></tr>
+<tr><td>⭐요리 직접 경쟁</td><td><b>한솔요리학원</b>(한솔진로연구소·주니어셰프·전국 15+ 지점, 부산 포함) · 새희망교육 요리 부스 · 충남제과제빵커피학교 · 한국아동요리지도자협회</td><td>부스형 출강업체는 조리시설 없이 운영 → <b>우리 키트의 B2B 고객이기도 함</b></td></tr>
+<tr><td>박람회 대행</td><td>경동기획 · EBS미디어 · 컵아이앤엠 · 두인 · 펨코이엔티(화성시 박람회)</td><td>수억짜리 행사에 부스 콘텐츠 외주 수요 — 부스 1개 단위 납품 영업 가능</td></tr>
+</table></div>
+</section>
+
+<section id="b3">
+<h2>④ 요리 진로체험 — 수요 실증과 우리 판정</h2>
+<div class="grid2">
+<div class="kcard"><h4>수요 실증</h4><p><b>요리사 = 초등 희망직업 5위(3.9%)</b>(2025 교육부·직능연) · 꿈길 요리·식품 프로그램 <b>1,883건(전체의 10%)</b> · <b>초등 대상 74%</b> · 초등 자체 실행: 포항장흥초 '나도 요리사! 샌드위치'(우리 키트와 동일 물성) · 2025-11 경기 늘봄 요리 위생사고 후 <b>위생 증빙이 구매 결정 요인</b> = 우리 차별화</p></div>
+<div class="kcard"><h4>판정: 전용 진입 우선순위 = 중(中)</h4><p>(a) 찾아가는 출강 <span class="chip c-mid">중</span> 공공 무료·한솔 경쟁 실존 (b) <b>키트 단품 납품 <span class="chip c-conf">중상</span></b> 물성 일치·단가 정합(1인 4~7천원 &lt; 학교 단가 1~2.5만원) (c) 꿈길 유료 등록 <span class="chip c-mid">중</span> 유료 관행 실측·화성 0건 공백. <b>중등 전면 개조 불요</b> — '직업 서사 애드온'(셰프의 하루·메뉴개발 미션·원가계산 워크시트)이면 충분</p></div>
+</div>
+<div class="callout"><h4>최소 실험 1개 (9~11월 진로체험의 날 시즌)</h4>
+<p>기존 샌드위치 키트 + 진로 워크시트 = <b>'나도 요리사' 출강 패키지</b>(강사 1 + 키트 25인분, 1인 1.5만원대 견적형) → <b>위탁운영사 2곳 + 부산 진로체험지원센터 1곳</b>에 제안, 실판매·재구매 의사 검증. 중등 상향 투자는 중학 수요가 실측될 때만.</p></div>
+</section>
+
+<section id="c1">
+<h2>⑤ 꿈길 명단 — API 전수 추출 (2026-08-24)</h2>
+<p class="sub">드라이브 「꿈길_체험처_명단_2026-08-24.xlsx」(3시트) · 원본 `01_참고자료/꿈길_진로체험처_2026-08-24/`</p>
+<div class="grid2">
+<div class="kcard"><h4>규모</h4><p class="num">19,479건 → 5,599곳</p><p>활성 프로그램 전수 → 고유 체험처. 개인사업장 3,338(60%) · 민간기업 1,029 · 공공 792 · 학교/대학 248 · 단체 192</p></div>
+<div class="kcard"><h4>지역</h4><p>전남 710 · 경기 695 · 충남 613 · 충북 478 · 부산 477 · 경남 463 · 서울 461 · <b>화성 36곳(요리는 3건뿐)</b></p></div>
+<div class="kcard"><h4>요리·식품</h4><p class="num">802곳 · 1,883건</p><p>유료 중앙값 2만원 · 상위: 울산동구청소년진로지원센터(32) · 도리몽베이커리(26) · 빵을사랑한농부(19)</p></div>
+</div>
+<div class="warnbox">⚠️ 명단에 <b>전화번호·이메일 없음</b>(꿈길 정책 — 연락은 플랫폼 쪽지·신청). 콜드콜 리스트로 쓰려면 상호→사업자 매칭 별도 작업 필요. '활성(신청 가능)' 스냅샷 기준. 이사님 드라이브의 「교육기부 진로체험기관 인증제 기관 목록.xls」(인증 2,627곳)과 상호보완.</div>
+</section>
+
+<section id="d1">
+<h2>⑥ 한계 · 정직 고지</h2>
+<ul class="plain">
+<li>진로체험지원센터 219곳 = 꿈길 센터목록 실측. 공식 통계 문서 미확인(2017 언론 '220개').</li>
+<li>센터가 체험처에 주는 강사비·재료비 표준 단가 미확보(지급 사실만 확인).</li>
+<li>위탁운영사 리스트: 남부권(부산·울산·경남/대구·경북) 입찰분 과소 대표 · '늘봄' 키워드 리그 미확보 · 리그 총액 단위=만원 추정(공시 매출로 1건 교차 검증).</li>
+<li>진로체험 플레이어는 포털 노출 편향 가능. 진로체험 업체와 위탁운영사는 <b>별도 버킷 + 겸업 태그</b>로 관리(에듀펀플러스·대교에듀캠프·더 참교육 등 겸업 실증).</li>
+</ul>
+<div class="guard">원자료: <code>synthesis/2026-08-24-진로체험시장-전국위탁사.md</code> · 리서치 = 꿈길·todayjiwon·dima-g2b API 직접 호출 + 멀티에이전트 12(전국 8권역 입찰 + 진로체험 4각도) + 학교 예산서 실측(충북 칠성초중 2025 본예산). 연관: <a href="/neulbom-inbound-chamgyoyuk.html">참교육사협 인바운드 분석</a>.</div>
+</section>
+
+</main>
+<footer>밀프레드 위키 · <a href="/docs.html">← 위키 홈</a></footer>
+</body>
+</html>
