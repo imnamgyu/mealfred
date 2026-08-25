@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>작업 일지 · 2026-08-25 — 떡 질식예방 안내 · 죽은 세션 복구 · 송편 덱 슬라이드 3장</title>
+<meta property="og:title" content="작업 일지 2026-08-25 — ECONNRESET 재발 분석 · 리서치 10건 복구 · 송편 키트 덱 안전 슬라이드">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--p50:#FFF8F2;--p100:#FFE8D1;--p300:#FFB375;--p500:#E89244;--p700:#B86A20;--b500:#3498DB;--b700:#1565C0;--g500:#16A085;--g700:#1B5E20;--v500:#9C27B0;--v700:#6A1B9A;--r500:#E53935;--s700:#2C3E50;--s800:#1F2D3D;--n100:#F4F4F5;--n200:#E5E7EB;--n300:#D1D5DB;--n400:#9CA3AF;--n500:#6B7280;--n600:#4B5563;--n700:#374151;--n900:#111827}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,sans-serif;background:linear-gradient(180deg,#FFFDFB,#FFF8F2);color:var(--n900);line-height:1.62;-webkit-font-smoothing:antialiased}
+code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:.82em;background:#EEF1F5;color:#43566b;padding:1px 6px;border-radius:5px;font-weight:600}
+b{font-weight:700}
+a{color:var(--b700)}
+.hero{padding:46px 24px 34px;text-align:center;background:linear-gradient(155deg,#1F2D3D,#2C3E50 50%,#243447);color:#fff;position:relative;overflow:hidden}
+.hero-in{position:relative;z-index:1;max-width:840px;margin:0 auto}
+.crumbs{font-size:13px;color:#cdd6df;margin-bottom:12px}
+.crumbs a{color:#FFD9A8;text-decoration:none;font-weight:600}
+.hero .date{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:4px 14px;font-size:12.5px;font-weight:700;letter-spacing:.02em;margin-bottom:13px}
+.hero h1{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.34}
+.hero p.sub{margin-top:11px;font-size:14.5px;color:#e7ecf1;font-weight:500}
+main{max-width:920px;margin:0 auto;padding:14px 20px 70px}
+.glance{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.gcard{flex:1;min-width:150px;background:#fff;border:1px solid var(--n200);border-radius:13px;padding:14px 16px;border-top:4px solid var(--p500)}
+.gcard .n{font-size:21px;font-weight:800;color:var(--s800)}
+.gcard .l{font-size:12px;color:var(--n500);font-weight:600;margin-top:2px}
+section.work{margin:18px 0;background:#fff;border:1px solid var(--n200);border-radius:15px;padding:20px 22px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.wh{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;padding-bottom:9px;border-bottom:2px solid var(--n200);flex-wrap:wrap}
+.wh .no{font-size:12px;font-weight:800;color:#fff;background:var(--s700);width:24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.wh h2{font-size:17px;font-weight:800;color:var(--s800);letter-spacing:-.01em}
+.wh .commit{margin-left:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--g700);background:#F1FBF7;border:1px solid #bce8d8;border-radius:6px;padding:2px 8px}
+ul.wl{margin:4px 0 0;padding-left:18px}
+ul.wl li{font-size:13.7px;color:var(--n700);margin:6px 0;line-height:1.6}
+.out{margin-top:10px;font-size:12.7px;color:var(--n600);background:#FAFAFA;border:1px solid var(--n200);border-radius:9px;padding:9px 12px}
+.out b{color:var(--g700)}
+.next{background:linear-gradient(135deg,#FFF8F2,#FFEFE0);border:1px solid var(--p300);border-radius:13px;padding:16px 18px;margin:18px 0}
+.next h3{font-size:14.5px;font-weight:800;color:var(--p700);margin-bottom:7px}
+.next ul{margin:0;padding-left:18px}.next li{font-size:13.4px;color:#7a4a1a;margin:4px 0}
+.foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--n200);font-size:12px;color:var(--n400);text-align:center}
+</style></head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="crumbs"><a href="/docs.html">← 문서 허브</a> · 📓 작업 일지 (세션 로그)</div>
+  <div class="date">2026-08-25 · 떡 질식예방 안내 세션</div>
+  <h1>죽은 세션 원인 규명 + 작업물 전량 복구 → 송편 키트 덱에 안전 슬라이드 3장</h1>
+  <p class="sub">ECONNRESET 재발 사례 분석 → 리서치 10건·일러스트 4장 무손실 회수 → 식약처 지침 기반 질식예방·알림장 슬라이드 제작·삽입·교체까지.</p>
+</div></div>
+
+<main>
+  <div class="glance">
+    <div class="gcard"><div class="n">10건</div><div class="l">리서치 복구 (검증 포함 · 재비용 0)</div></div>
+    <div class="gcard"><div class="n">3장</div><div class="l">덱 슬라이드 (신규 2 + v2 교체 1)</div></div>
+    <div class="gcard"><div class="n">5장</div><div class="l">일러스트 (복구 4 + 가위컷 신규 1)</div></div>
+    <div class="gcard"><div class="n">0회</div><div class="l">ECONNRESET 재발 (격리 수칙 준수)</div></div>
+  </div>
+
+  <section class="work">
+    <div class="wh"><span class="no">1</span><h2>세션 사망 원인 분석 — 회선 2MB 절단 재발 사례</h2><span class="commit">분석</span></div>
+    <ul class="wl">
+      <li>08-24 밤 "떡 질식 방지 인포그래픽" 세션이 30분 턴 끝에 <code>ECONNRESET</code> 사망. 트랜스크립트 실측: 덱 스크린샷 2장 + 생성 일러스트 8장을 <b>본문 컨텍스트에 직접 Read → 이미지만 1.58MB</b> 축적.</li>
+      <li>기존 확진 진단(요청 본문 ~2MB 초과 시 15초 절단)과 정확히 일치 — <b>"이미지 검수는 서브에이전트 격리·예산 ≤700KB" 수칙을 그 세션이 스스로 위반</b>한 것이 직접 원인.</li>
+      <li>이번 세션 대응: 일러스트 검수는 <code>sips</code> 320px 축소본(8~18KB)만, 브라우저 작업은 전부 서브에이전트 격리 → 재발 0.</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">2</span><h2>죽은 세션 작업물 전량 복구 — 식약처 지침 원문 검증 리서치</h2><span class="commit">복구</span></div>
+    <ul class="wl">
+      <li>워크플로 저널에서 리서치 결과 <b>10건(조사 3 + 적대 검증 7) 무손실 회수</b> — 정본 = 식약처 「어린이급식관리지원센터 식단 운영·관리 지침」, <b>2025-07-04 일부개정</b>(계기: 2025-05 김포 어린이집 18개월 백설기 질식 사망).</li>
+      <li>핵심 조항: 떡류 <b>만 2세(35개월 이하) 원칙적 제공 금지</b>(전통 체험 목적은 학부모 안내+운영위 협의 시 예외) · 36개월 이상 원형 금지, 잘라서 제공 + 교사 모니터링 필수 · 배식 원문 "2~4등분 잘게, 음료와 함께, 말랑한 상태 확인".</li>
+      <li>검증 노트: 언론 표기 정정(경향신문 → 한국일보 단독) · "2023 지침서" 공식 미확인 → 인용 금지 · 고령자 통계(소방청: 기도막힘 이송 83.5%가 60세 이상)까지 확보.</li>
+    </ul>
+    <div class="out"><b>아카이브</b> · <code>01_참고자료/2026-08-24_떡질식예방_정부지침_검증리서치_원문.txt</code> + 일러스트 v2 4장 · 재조사 비용 0</div>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">3</span><h2>송편 키트 덱에 안전 슬라이드 2장 삽입</h2><span class="commit">슬라이드 2·3</span></div>
+    <ul class="wl">
+      <li>대상: 「[필독]선생님 숙지용 레시피 포인트」 덱(5장 → 7장). 영유 스킬의 <code>build_3slides.py</code> 디자인 파이프라인 재사용 → pptx 빌드(겹침 감사 0) → 서브에이전트 브라우저 Import.</li>
+      <li><b>2번 「송편, 꼭 잘라서 주세요!」</b>: ①2~4등분 ②물과 함께·지켜보기 ③만 2세 이하 금지 + 하단 응급처치(등 두드리기 5회·하임리히 5회, 1세 미만 금지) 스트립. 전 문구 = 검증된 지침 원문 표현만.</li>
+      <li><b>3번 「가정에도 꼭 알려주세요」</b>: 알림장·키즈노트 복붙용 학부모 문안. 알레르겐 언급 없음(성분표 동봉 관행 유지).</li>
+      <li>⚠️발견: 브라우저 Slides 세션 계정 = continueing@gmail.com — gyu 드라이브의 pptx가 Import 검색에 안 잡힘. <b>Import용 파일은 continueing 드라이브에 넣을 것</b>(운영 노트).</li>
+    </ul>
+  </section>
+
+  <section class="work">
+    <div class="wh"><span class="no">4</span><h2>가위 절단 일러스트 생성 → 알림장 v2 교체</h2><span class="commit">gpt-image-1 · $0.17</span></div>
+    <ul class="wl">
+      <li>이사님 아이디어: "가위로 송편 4~5등분 자르는 만화 이미지". <code>gpt-image-1</code>로 생성(흰배경·무텍스트·세이지/코랄 팔레트 — 덱 일러스트와 동일 스타일).</li>
+      <li>알림장 문구 박스 <b>바로 아래</b>에 일러스트 + "이렇게 가위로 잘게 잘라 주세요!" 캡션 배치한 v2 슬라이드 빌드 → 서브에이전트가 Import 후 구버전 삭제 → 3번 교체 완료(총 7장 유지, 렌더 검수 정상).</li>
+    </ul>
+    <div class="out"><b>아카이브</b> · <code>01_참고자료/떡질식예방_일러스트v2/</code> (일러스트 5 png + pptx 2)</div>
+  </section>
+
+  <div class="next">
+    <h3>🔜 남은 액션</h3>
+    <ul>
+      <li>이사님: 노인복지관 추석 송편 메일(발송 대기)에 "잘라서 드세요" 한 줄 추가 검토 — 떡 질식 최대 위험군이 고령자(소방청 83.5%). 확정 문안이라 이사님 판단(R-072).</li>
+      <li>이사님: pptx가 gyu·continueing 두 계정 드라이브에 1부씩 — 정리 여부.</li>
+      <li>선택: 가위 일러스트 흰 배경 사각형이 거슬리면 투명 처리 버전 재삽입.</li>
+    </ul>
+  </div>
+
+  <div class="foot">밀프레드 작업 일지 · 2026-08-25 · <a href="/docs.html">문서 허브</a> · <code>/mealfred-worklog</code></div>
+</main>
+</body></html>
