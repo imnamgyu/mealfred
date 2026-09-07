@@ -5,6 +5,9 @@ import { createSupabaseBrowser } from '@/lib/supabase/client';
 import BottomNav from '@/components/BottomNav';
 import LoginCta from '@/components/LoginCta';
 import type { ReferralBilling } from '@/lib/billing';
+import { launchCopy, LAUNCH_MONTH_LABEL } from '@/lib/launch';
+
+const LC = launchCopy();   // 11월 정식 출시 · 테스터 모집(출시 후 자동 원복)
 
 type Child = { id: string; nickname: string; age_band: string; birth_year: number | null; birth_month: number | null; allergens: string[] | null; chronic_conditions: string | null; created_at: string | null };
 type Referral = { code: string; visits: number; billing: ReferralBilling; signups?: number; earned?: number; pending?: number };
@@ -26,6 +29,8 @@ export default function MePage() {
   const [ledger, setLedger] = useState<{ kind: string; amount: number; created_at: string; meta: { date?: string } | null }[]>([]);
   const [sub, setSub] = useState<{ lifetime: boolean; paidMs: number } | null>(null);   // 계정 단위: 평생무료 + 포인트 결제분(paid_until). 자녀별 무료체험은 각 아이 created_at 기준으로 계산
   const [redeeming, setRedeeming] = useState(false);   // 포인트로 구독 결제 처리 중
+  const [notify, setNotify] = useState<{ on: boolean; at: string | null }>({ on: false, at: null });   // 출시 알림 신청(user_metadata.launch_notify)
+  const [notifyBusy, setNotifyBusy] = useState(false);
 
   async function loadReferral() {
     setRefLoading(true); setRefErr('');
@@ -51,6 +56,7 @@ export default function MePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
       setNickname((user.user_metadata?.nickname as string) || '');
+      setNotify({ on: user.user_metadata?.launch_notify === true, at: (user.user_metadata?.launch_notify_at as string) || null });
       const em = user.email || '';
       setAccount({ email: em, isKakao: em.endsWith('@kakao.local') });   // 카카오 부모=kakao_*@kakao.local, 그 외(구글 @mealfred.com 등)=관리자/타 계정
       // BM = 자녀 한 명당 월 4,900원. 무료 첫 달은 자녀별(각 아이 등록 +30일). 계정 평생무료·포인트 결제분(app_subscriptions)은 전체 자녀에 적용(결제 붙기 전 과도기).
@@ -90,6 +96,18 @@ export default function MePage() {
     else alert(r?.reason === 'insufficient' ? '포인트가 부족해요 — 4,900P가 필요해요. 끼니 기록·친구 초대로 모아보세요!' : '결제에 실패했어요. 잠시 후 다시 시도해주세요.');
   }
 
+  // 출시 알림 신청/해제 — 본인 auth 메타데이터만 갱신(테이블·RLS 불필요). 발송 명단은 어드민 auth API로 추출.
+  async function toggleNotify() {
+    if (notifyBusy) return;
+    setNotifyBusy(true);
+    const next = !notify.on;
+    const at = next ? new Date().toISOString() : null;
+    const { error } = await supabase.auth.updateUser({ data: { launch_notify: next, launch_notify_at: at } });
+    setNotifyBusy(false);
+    if (error) { alert('알림 신청을 저장하지 못했어요. 잠시 후 다시 시도해주세요.'); return; }
+    setNotify({ on: next, at });
+  }
+
   async function logout() {
     // scope:'local' = 서버 revoke 네트워크 호출 없이 이 브라우저 세션만 즉시 제거.
     // 기본 'global'은 revoke가 행/실패하면 await가 안 끝나(또는 throw) 리다이렉트가 안 돼 '로그아웃 안 됨'으로 보였음.
@@ -124,8 +142,17 @@ export default function MePage() {
         ) : !account.email ? (
           <div className="text-center mt-12 px-6">
             <div className="text-4xl mb-3">👤</div>
-            <p className="text-[14px] font-extrabold mb-1" style={{ color: '#1a2b4a' }}>로그인이 필요해요</p>
-            <p className="text-[12px] leading-relaxed mb-5" style={{ color: '#8a7a6a' }}>카카오로 시작하면 우리 아이 정보·포인트·구독을<br />여기서 관리할 수 있어요.</p>
+            {LC.pre ? (
+              <>
+                <p className="text-[14px] font-extrabold mb-1" style={{ color: '#1a2b4a' }}>{LAUNCH_MONTH_LABEL} 정식 출시 · 테스터 모집 중</p>
+                <p className="text-[12px] leading-relaxed mb-5" style={{ color: '#8a7a6a' }}>카카오로 미리 가입해 두면 출시 알림과<br />테스터 초대를 먼저 받아요. 아이 정보·포인트도 여기서 관리해요.</p>
+              </>
+            ) : (
+              <>
+                <p className="text-[14px] font-extrabold mb-1" style={{ color: '#1a2b4a' }}>로그인이 필요해요</p>
+                <p className="text-[12px] leading-relaxed mb-5" style={{ color: '#8a7a6a' }}>카카오로 시작하면 우리 아이 정보·포인트·구독을<br />여기서 관리할 수 있어요.</p>
+              </>
+            )}
             <div className="flex justify-center"><LoginCta /></div>
           </div>
         ) : (
@@ -144,6 +171,27 @@ export default function MePage() {
               <div className="text-base font-extrabold" style={{ color: '#1a2b4a' }}>{account.isKakao ? `${nickname || '카카오 회원'}님` : account.email}</div>
               <div className="text-[11px] mt-0.5" style={{ color: '#9CA3AF' }}>{account.isKakao ? '카카오 로그인' : (children.length === 0 ? '구글 로그인 · 부모 데이터는 카카오 계정에 있어요' : '구글 로그인')}</div>
             </div>
+
+            {/* 🔔 출시 알림 — 11월 정식 출시 전 테스터 모집. 신청 여부는 auth user_metadata.launch_notify. 출시 후엔 카드 자동 숨김 */}
+            {LC.pre && (
+              <div className="rounded-2xl p-4 mb-4 border" style={{ background: notify.on ? '#EAF6F0' : 'linear-gradient(135deg,#FFF8F0,#FFE8D0)', borderColor: notify.on ? '#B7E1CD' : '#FFD0A0' }}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-extrabold" style={{ color: notify.on ? '#16A085' : '#C45A00' }}>{notify.on ? `✓ ${LAUNCH_MONTH_LABEL} 출시 알림 신청됨` : `🔔 ${LAUNCH_MONTH_LABEL} 정식 출시 알림 받기`}</div>
+                    <div className="text-[11.5px] mt-0.5 leading-relaxed" style={{ color: '#8a7a6a' }}>
+                      {notify.on
+                        ? <>출시되면 카카오 계정으로 안내드려요. 지금은 <strong style={{ color: '#5a4a3a' }}>테스터로 미리 써보는 중</strong>이에요.{notify.at ? ` · 신청 ${notify.at.slice(0, 10)}` : ''}</>
+                        : <>정식 출시는 <strong style={{ color: '#5a4a3a' }}>{LAUNCH_MONTH_LABEL} 중</strong>이에요. 신청해 두면 출시 소식과 테스터 초대를 먼저 받아요.</>}
+                    </div>
+                  </div>
+                  <button onClick={toggleNotify} disabled={notifyBusy}
+                    className="shrink-0 rounded-xl px-3.5 py-2 text-[12px] font-extrabold"
+                    style={notify.on ? { background: 'white', color: '#6B7280', border: '1px solid #E5E7EB' } : { background: 'linear-gradient(135deg,#FF6B1A,#C45A00)', color: 'white' }}>
+                    {notifyBusy ? '저장 중…' : notify.on ? '알림 해제' : '알림 신청'}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* ━━━━━ ① 우리 아이 (보호자 바로 아래) ━━━━━ */}
             <div className="text-[11px] font-extrabold mb-1.5 px-1" style={{ color: '#C45A00' }}>👶 우리 아이</div>

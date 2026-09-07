@@ -9,6 +9,7 @@
 'use client';
 import { useState } from 'react';
 import { startKakaoLogin } from '@/lib/kakaoAuth';
+import { launchCopy } from '@/lib/launch';
 
 export default function AuthModal({ open, onClose, initialError }: { open: boolean; onClose: () => void; initialError?: string | null }) {
   const [agree, setAgree] = useState(false);
@@ -45,7 +46,11 @@ export default function AuthModal({ open, onClose, initialError }: { open: boole
 
         {/* 혜택 */}
         <div style={{ background: 'linear-gradient(135deg,#FFF3E0,#FFE0B2)', border: '1.5px solid #FFB877', borderRadius: 12, padding: '11px 14px', margin: '14px 0', textAlign: 'center' }}>
-          <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a2b4a' }}>🎁 첫 달 무료 <span style={{ color: '#FF6B1A' }}>· 친구 초대마다 한 달 무료</span></div>
+          {launchCopy().pre ? (
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a2b4a' }}>{launchCopy().authBenefit} <span style={{ color: '#FF6B1A' }}>· 첫 달 무료</span></div>
+          ) : (
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a2b4a' }}>🎁 첫 달 무료 <span style={{ color: '#FF6B1A' }}>· 친구 초대마다 한 달 무료</span></div>
+          )}
         </div>
 
         {/* 약관 동의(필수) — 민감정보(자녀 건강·식이) 처리 포함 */}

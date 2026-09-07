@@ -22,6 +22,9 @@ import BlogFeedCard from '@/components/BlogFeedCard';
 import type { BlogCard } from '@/lib/blog';
 import { kakaoErrorText } from '@/lib/kakaoAuth';
 import { parseQuizHandoff, quizWelcome, type QuizHandoff } from '@/lib/quizHandoff';
+import { launchCopy } from '@/lib/launch';
+
+const LC = launchCopy();   // 11월 정식 출시 · 테스터 모집 문구(출시 후 자동 원복)
 
 const todayStr = kstToday;   // KST 기준 — 새벽 크론(letter_date)과 동일 앵커
 
@@ -643,14 +646,14 @@ export default function Home() {
                   style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)', boxShadow: '0 6px 16px rgba(255,107,26,.22)' }}>
                   우리 아이 실전 점수 재러 가기 — 3초 카카오 가입
                 </button>
-                <div className="text-[10.5px] mt-1.5 text-center" style={{ color: '#9a8468' }}>가입 없이 아래 예시 화면 먼저 둘러봐도 돼요 👇</div>
+                <div className="text-[10.5px] mt-1.5 text-center" style={{ color: '#9a8468' }}>{LC.pre ? `${LC.badge} · 아래 예시 화면 먼저 둘러봐도 돼요 👇` : '가입 없이 아래 예시 화면 먼저 둘러봐도 돼요 👇'}</div>
               </div>
             ) : (
               <div className="flex items-start gap-2 mb-1">
-                <span className="text-xl leading-none mt-0.5">👀</span>
+                <span className="text-xl leading-none mt-0.5">{LC.pre ? '🚀' : '👀'}</span>
                 <div className="flex-1">
-                  <div className="text-[13.5px] font-extrabold" style={{ color: '#C45A00' }}>아래는 예시 화면이에요 · 가입 없이 둘러보세요</div>
-                  <div className="text-[11.5px] mt-0.5 leading-relaxed" style={{ color: '#8a7a6a' }}>식단만 기록하면 — <strong style={{ color: '#5a4a3a' }}>우리 아이</strong> 데이터로 매일 자동으로 채워져요.</div>
+                  <div className="text-[13.5px] font-extrabold" style={{ color: '#C45A00' }}>{LC.homeTitle}</div>
+                  <div className="text-[11.5px] mt-0.5 leading-relaxed" style={{ color: '#8a7a6a' }}>{LC.homeBody}</div>
                 </div>
               </div>
             )}
@@ -666,8 +669,8 @@ export default function Home() {
           <div className="rounded-xl px-4 py-3 mb-3 flex items-center gap-3" style={{ background: '#FFF5EB', border: '1.5px solid #FFD0A0' }}>
             <span className="text-xl">👀</span>
             <div className="flex-1">
-              <div className="text-xs font-extrabold" style={{ color: '#C45A00' }}>아래는 예시 화면이에요</div>
-              <div className="text-[11px] mt-0.5" style={{ color: '#8a7a6a' }}>3일만 기록하면 우리 아이 진짜 점수로 채워져요</div>
+              <div className="text-xs font-extrabold" style={{ color: '#C45A00' }}>{LC.pre ? `아래는 예시 화면이에요 · ${LC.badge}` : '아래는 예시 화면이에요'}</div>
+              <div className="text-[11px] mt-0.5" style={{ color: '#8a7a6a' }}>{LC.pre ? '테스터로 미리 써보는 중 — 3일만 기록하면 우리 아이 진짜 점수로 채워져요' : '3일만 기록하면 우리 아이 진짜 점수로 채워져요'}</div>
             </div>
           </div>
         )}
@@ -1002,8 +1005,8 @@ export default function Home() {
           </a>
         ) : (
           <button onClick={() => { setAuthErr(null); setAuthOpen(true); }} className="w-full block rounded-2xl p-5 text-center text-white shadow-md" style={{ background: 'linear-gradient(135deg,#FF6B1A,#C45A00)' }}>
-            <div className="text-base font-extrabold mb-1">🌱 카카오로 1초 시작하기</div>
-            <div className="text-xs opacity-90">가입하면 이 화면이 우리 아이 진짜 데이터로 채워져요 · 첫 달 무료</div>
+            <div className="text-base font-extrabold mb-1">{LC.ctaTitle}</div>
+            <div className="text-xs opacity-90">{LC.ctaBody}</div>
           </button>
         )}
       </div>
