@@ -141,8 +141,8 @@
 .rel-label ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
 .rel-label li{font-size:13px;font-weight:700;color:var(--secondary-700);padding-left:16px;position:relative;word-break:keep-all}
 .rel-label li::before{content:"";position:absolute;left:2px;top:.55em;width:7px;height:7px;border-radius:50%;background:#10B981}
-.rel-bypass{position:absolute;left:75px;right:75px;top:14px;height:96px;border:2.5px dashed #CBD5E1;border-bottom:none;border-radius:60px 60px 0 0;z-index:1;display:flex;justify-content:center}
-.rel-bypass span{position:absolute;top:-15px;display:inline-flex;align-items:center;gap:5px;background:#FFF1F1;color:#C62828;border:1px solid #FECACA;border-radius:100px;padding:5px 12px;font-size:12.5px;font-weight:800;white-space:nowrap}
+.rel-bypass{position:absolute;left:75px;right:75px;top:14px;height:96px;border:2.5px dashed #B9C4D4;border-bottom:none;border-radius:60px 60px 0 0;z-index:1;display:flex;justify-content:center}
+.rel-bypass span{position:absolute;top:-15px;display:inline-flex;align-items:center;gap:5px;background:#fff;color:var(--secondary-700);border:1.5px solid #B9C4D4;border-radius:100px;padding:5px 12px;font-size:12.5px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(27,45,79,.06)}
 .rel-foot{text-align:center;font-size:15px;color:var(--neutral-600);margin:18px 0 var(--sp-10);word-break:keep-all}
 .rel-foot b{color:var(--secondary-700)}
 @media (max-width:900px){
@@ -152,8 +152,34 @@
   .rel-line{width:4px;height:36px;margin:4px auto 0;background:linear-gradient(180deg,#FFB380,var(--primary-500))}
   .rel-line::before{left:50%;top:-4px;transform:translateX(-50%)}.rel-line::after{left:50%;right:auto;top:auto;bottom:-4px;transform:translateX(-50%)}
   .rel-label{margin:8px auto 10px}
-  .rel-foot::before{content:"선생님이 서류 들고 행정실 오갈 일 없어요 · ";color:#C62828;font-weight:800}
+  .rel-foot::before{content:"선생님은 에듀파인 품의·검수만 하시면 돼요. ";color:var(--secondary-700);font-weight:800}
 }
+/* 기관 행정 — 학교 예산 안내 + 지출품의 예시 (2026-09-11) */
+.bud-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px;margin:0 0 var(--sp-12);align-items:start}
+.bud-card{background:#fff;border:1px solid var(--neutral-200);border-radius:20px;padding:24px 24px 20px;box-shadow:0 2px 12px rgba(27,45,79,.05)}
+.bud-kicker{display:inline-block;font-size:12.5px;font-weight:800;color:var(--primary-500);background:#FFF3E8;border-radius:100px;padding:4px 10px;margin-bottom:8px}
+.bud-title{font-size:19px;font-weight:900;color:var(--secondary-700);margin:0 0 14px;word-break:keep-all}
+.bud-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.bud-list li{position:relative;padding:10px 12px 10px 34px;background:#FAFAF8;border-radius:12px;word-break:keep-all}
+.bud-list li::before{content:"";position:absolute;left:13px;top:15px;width:9px;height:9px;border-radius:50%;background:var(--primary-500);box-shadow:0 0 0 3px #FFE0C4}
+.bud-list b{display:block;font-size:14.5px;font-weight:800;color:var(--secondary-700)}
+.bud-list span{display:block;font-size:13px;color:var(--neutral-600);margin-top:2px}
+.bud-note{font-size:12.5px;color:var(--neutral-500,#6B7280);margin:12px 0 0;line-height:1.6;word-break:keep-all}
+.bud-pay{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:14px;background:#FFF7F0;border:1.5px solid #FFB380}
+.bud-pay img{width:48px;height:48px;flex:none}
+.bud-pay b{display:block;font-size:14.5px;font-weight:900;color:var(--secondary-700)}
+.bud-pay span{display:block;font-size:13px;font-weight:700;color:var(--primary-500)}
+.bud-pumui-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.bud-copy{flex:none;display:inline-flex;align-items:center;gap:6px;background:var(--secondary-700);color:#fff;border:0;border-radius:10px;padding:9px 14px;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer}
+.bud-copy:hover{background:#243a63}
+.bud-copy.is-done{background:#10B981}
+.bud-pre{margin:0;white-space:pre-wrap;word-break:keep-all;font-family:inherit;font-size:13.5px;line-height:1.75;color:var(--secondary-700);background:#FAFAF8;border:1px dashed #D6DCE5;border-radius:12px;padding:16px 18px}
+@media (max-width:900px){.bud-wrap{grid-template-columns:1fr}.bud-card{padding:20px 16px 16px}.bud-pre{font-size:13px;padding:14px}}
+.pm-best{position:relative;border:2px solid var(--primary-500)!important;background:#FFF7F0!important}
+.pm-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-style:normal;font-size:11.5px;font-weight:800;color:#fff;background:var(--primary-500);border-radius:100px;padding:3px 9px;white-space:nowrap}
+/* 히어로 사진 2장 — 겹침 줄이기 (앞 사진이 뒷 사진을 덜 가리게) */
+.hero-img-1{width:60%;height:60%;top:2%;left:0}
+.hero-img-2{width:57%;height:62%;bottom:0;right:0}
 /* 기관 행정 — 서류 예시 가로 스크롤 */
 .doc-strip-wrap{margin-top:var(--sp-10)}
 .doc-strip-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
@@ -186,7 +212,6 @@
 .tm-quote::after{content:"\201D";color:var(--primary-500);font-weight:900;margin-left:2px}
 .tm-meta{margin:auto 0 0;font-size:13px;color:var(--neutral-400);font-weight:600}
 .tm-meta .tm-who{color:var(--primary-500);font-weight:800}
-.tm-note{margin-top:var(--sp-5);text-align:center;font-size:12.5px;color:var(--neutral-400)}
 @media (max-width:900px){.tm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:600px){
   .tm-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding:0 2px 12px;margin:0 calc(-1 * var(--container-pad,20px));padding-left:var(--container-pad,20px);padding-right:var(--container-pad,20px);-webkit-overflow-scrolling:touch}
@@ -321,7 +346,7 @@
       </div>
     </div>
     <div class="trust-admin">
-      지마켓 · 11번가 · 네이버 · 쿠팡 · 아이스크림몰 · 학교장터 입점 &nbsp;│&nbsp; 카드결제 · 계좌이체 &nbsp;│&nbsp; 서류 즉시 발행
+      지마켓 · 11번가 · 네이버 · 쿠팡 · 아이스크림몰 · 학교장터 입점 &nbsp;│&nbsp; 계좌이체 · 카드결제 &nbsp;│&nbsp; 서류 즉시 발행
     </div>
   </div>
 </section>
@@ -487,20 +512,67 @@
     <h2 class="h1">기관 행정,<br><span class="highlight">저희가 맞춰드립니다</span></h2>
     <p class="desc">선생님이 편한 방식으로 주문하고, 필요한 서류를 바로 받으세요</p>
     <div class="rel-diagram" aria-label="선생님, 밀프레드, 행정실 관계도">
-      <div class="rel-bypass" aria-hidden="true"><span><i data-lucide="x" style="width:14px;height:14px;"></i>선생님이 서류 들고 행정실 오갈 일 없어요</span></div>
+      <div class="rel-bypass" aria-hidden="true"><span><i data-lucide="file-pen-line" style="width:14px;height:14px;"></i>선생님은 에듀파인 품의·검수만 하시면 돼요</span></div>
       <div class="rel-node"><div class="rel-ava"><img src="assets/images/rel/rel-teacher.webp" alt="" width="120" height="120" loading="lazy"></div><strong>선생님</strong><span>수업에만 집중</span></div>
       <div class="rel-link">
         <div class="rel-line"></div>
-        <div class="rel-label"><b>선생님과는 이것만</b><ul><li>행사일·인원 조율</li><li>수업자료·영상 전달</li><li>배송 일정 문자 안내</li></ul></div>
+        <div class="rel-label"><b>선생님과는 이것만</b><ul><li>견적서·품의서 문안 전달</li><li>행사일·인원 조율</li><li>수업자료·영상 전달</li><li>배송 일정 문자 안내</li></ul></div>
       </div>
-      <div class="rel-node rel-center"><div class="rel-ava"><img src="logo.png" alt="밀프레드" width="120" height="120" loading="lazy"></div><strong>밀프레드</strong><span>중간에서 전부 처리</span></div>
+      <div class="rel-node rel-center"><div class="rel-ava"><img src="logo.png" alt="밀프레드" width="120" height="120" loading="lazy"></div><strong>밀프레드</strong><span>중간에서 서류 처리</span></div>
       <div class="rel-link">
         <div class="rel-line"></div>
-        <div class="rel-label"><b>행정실과는 저희가 직접</b><ul><li>견적서·비교견적서 제출</li><li>세금계산서·거래명세서 발행</li><li>검수확인서·각서·서약서</li><li>카드·계좌·쇼핑몰 결제 맞춤</li></ul></div>
+        <div class="rel-label"><b>행정실과는 저희가 직접</b><ul><li>견적서·비교견적서 제출</li><li>세금계산서·거래명세서 발행</li><li>검수확인서·각서·서약서</li><li>계좌이체·카드·쇼핑몰 결제 맞춤</li></ul></div>
       </div>
       <div class="rel-node"><div class="rel-ava"><img src="assets/images/rel/rel-admin.webp" alt="" width="120" height="120" loading="lazy"></div><strong>행정실</strong><span>서류·결제 담당</span></div>
     </div>
-    <p class="rel-foot"><b>행정실 연락처만 알려주세요.</b> 나머지 서류와 결제는 밀프레드가 알아서 처리합니다.</p>
+    <p class="rel-foot"><b>행정실 연락처만 알려주세요.</b> 견적서·세금계산서·거래명세서·검수 서류와 결제 확인은 밀프레드가 행정실과 직접 처리해요. 품의서는 아래 예시를 복사해 쓰시면 됩니다.</p>
+    <div class="bud-wrap" id="school-budget">
+      <div class="bud-card">
+        <span class="bud-kicker">학교 예산으로 구입하기</span>
+        <h3 class="bud-title">요리수업 예산, 이렇게 쓰실 수 있어요</h3>
+        <ul class="bud-list">
+          <li><b>교과 수업 실습비</b><span>실과·기술가정 등 교과 담당 선생님과 협의해 주세요.</span></li>
+          <li><b>창의적 체험활동·동아리 운영비</b><span>담당 부장 선생님과 협의해 주세요.</span></li>
+          <li><b>늘봄·방과후 프로그램 운영비</b><span>늘봄 담당 선생님과 협의해 주세요.</span></li>
+          <li><b>학급운영비</b><span>학년 선생님들과 협의해 주세요. 잔액은 행정실에서 확인할 수 있어요.</span></li>
+          <li><b>유치원 교육과정·방과후과정 운영비</b><span>원감 선생님, 행정실과 협의해 주세요.</span></li>
+        </ul>
+        <p class="bud-note">사용 가능 여부와 예산 과목(통계목)은 학교마다 달라 행정실에서 안내해 드립니다. 어린이집·지역아동센터·복지관은 프로그램 사업비로 구입하실 수 있어요.</p>
+        <div class="bud-pay"><img src="assets/images/icons/convenience-pay-transfer.webp" alt="" width="48" height="48" loading="lazy"><div><b>결제는 계좌이체를 추천해요</b><span>전자세금계산서를 바로 발행하고 5% 추가 할인해 드려요</span></div></div>
+      </div>
+      <div class="bud-card bud-pumui">
+        <div class="bud-pumui-head"><div><span class="bud-kicker">지출품의 작성 예시</span><h3 class="bud-title">에듀파인에 붙여 넣고 상신하세요</h3></div><button type="button" class="bud-copy" data-copy="#pumui-text"><i data-lucide="copy" style="width:15px;height:15px;"></i><span>복사하기</span></button></div>
+        <pre class="bud-pre" id="pumui-text">제목: 교육용 요리키트(밀프레드) 구입 지출 요청
+
+1. 목적
+  가. 학생 요리 실습 활동(실과·창의적 체험활동 연계)에 필요한 교육용 요리키트 구입
+  나. 불과 칼을 쓰지 않는 안전한 조리 활동으로 식생활 교육 실시
+
+2. 구입 내역
+  가. 품명: 교육용 요리키트 알록달록 카나페(밀프레드)
+  나. 규격: 4인분 1세트(식재료·조리도구 포함)
+  다. 수량: 6세트(24명분)
+  라. 단가: 17,990원
+  마. 금액: 107,940원(금일십만칠천구백사십원정)
+
+3. 구매 방법
+  추정가격 2천만원 이하 물품으로 1인 견적에 의한 수의계약으로 구매하고,
+  대금은 계좌 입금(전자세금계산서 발행)으로 지급
+  붙임: 견적서, 사업자등록증 사본, 통장 사본 각 1부
+
+4. 기대 효과
+  가. 직접 만들고 맛보는 경험으로 다양한 식재료에 친숙해지고 바른 식습관 형성
+  나. 모둠별 협동 조리로 역할 분담과 소통 능력 향상
+  다. 조리 전후 손 씻기와 위생 수칙을 익혀 식품 안전 의식 함양</pre>
+        <p class="bud-note">※ 메뉴·수량·금액은 받으신 견적서에 맞게 바꿔 주세요. 계좌이체 5% 할인이 반영된 견적서를 카카오톡으로 바로 보내드려요.</p>
+      </div>
+    </div>
+    <script>
+    (function(){function fb(t){var a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(a);}
+    document.querySelectorAll('.bud-copy').forEach(function(b){b.addEventListener('click',function(){var el=document.querySelector(b.getAttribute('data-copy'));if(!el)return;var t=el.textContent,l=b.querySelector('span');
+    var ok=function(){l.textContent='복사됐어요';b.classList.add('is-done');setTimeout(function(){l.textContent='복사하기';b.classList.remove('is-done');},1800);};
+    if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(ok,function(){fb(t);ok();});}else{fb(t);ok();}});});})();
+    </script>
     <div class="convenience-grid">
       <div>
         <div class="platform-logos store-row store-row-lg">
@@ -514,8 +586,8 @@
         <div class="platform-note">계좌이체 세금계산서 발행 시 5% 추가 할인</div>
         <h3 class="h3" style="margin-bottom:var(--sp-4);">결제 방식</h3>
         <div class="payment-methods">
+          <div class="payment-method pm-best"><em class="pm-badge">5% 할인 · 추천</em><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-transfer.webp" alt="" width="56" height="56" loading="lazy"></div><span>계좌이체</span></div>
           <div class="payment-method"><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-card.webp" alt="" width="56" height="56" loading="lazy"></div><span>카드 수기결제</span></div>
-          <div class="payment-method"><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-transfer.webp" alt="" width="56" height="56" loading="lazy"></div><span>계좌이체</span></div>
           <div class="payment-method"><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-platform.webp" alt="" width="56" height="56" loading="lazy"></div><span>플랫폼 결제</span></div>
         </div>
       </div>
@@ -677,7 +749,6 @@
         </figure>
       </div>
     </div>
-    <p class="tm-note">사용 후기 설문 응답을 원문 그대로 옮겼습니다 · 사진은 밀프레드 수업 현장과 제품 사진으로, 후기를 쓴 기관의 사진이 아닐 수 있습니다 · 얼굴은 흐리게 처리했습니다</p>
   </div>
 </section>
 <script>
@@ -828,7 +899,8 @@ panels.forEach(function(p){p.classList.toggle('is-active',p.getAttribute('data-t
       <div class="faq-item"><div class="faq-question">안전한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">3,000곳+ 교육기관, 10만명+ 아이들이 체험한 검증된 키트입니다. 모든 메뉴는 불·칼을 사용하지 않으며, 삼성화재 생산물배상책임보험 5억원에 가입되어 있습니다.</div></div></div>
       <div class="faq-item"><div class="faq-question">신선도는 괜찮나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">5중 보냉 시스템으로 48시간 냉기가 유지됩니다. 전날 수령해도 다음날 신선하며, 10만명+ 아이들이 체험한 동안 안전사고 0건입니다.</div></div></div>
       <div class="faq-item"><div class="faq-question">교육과정과 연계되나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">2022 개정 교육과정 실과·기술가정·누리과정과 연계된 PPT와 커리큘럼을 제공합니다.</div></div></div>
-      <div class="faq-item"><div class="faq-question">어떤 결제 방식이 가능한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">지마켓·11번가·네이버·쿠팡·아이스크림몰·학교장터 결제와 카드 수기결제, 계좌이체가 가능합니다. 견적서·세금계산서·거래명세서를 즉시 발급해 드립니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">어떤 결제 방식이 가능한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">계좌이체를 가장 추천드려요. 전자세금계산서를 바로 발행하고 5% 추가 할인해 드립니다. 카드 수기결제와 지마켓·11번가·네이버·쿠팡·아이스크림몰·학교장터 결제도 가능하며, 견적서·거래명세서는 즉시 발급해 드립니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">학교 예산·에듀파인 품의는 어떻게 하나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">교과 실습비, 창의적 체험활동·동아리 운영비, 늘봄·방과후 프로그램 운영비, 학급운영비 등으로 구입하실 수 있어요. 위 기관 행정 섹션의 지출품의 작성 예시를 복사해 에듀파인에 붙여 넣고 메뉴·수량·금액만 바꿔 주세요. 견적서는 바로 보내드리고, 세금계산서·거래명세서는 행정실로 직접 보내드립니다.</div></div></div>
 
       <div class="faq-item"><div class="faq-question">배송은 얼마나 걸리나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">행사 전날 반드시 도착합니다. 5중 보냉으로 냉장고 없이도 안전합니다.</div></div></div>
       <div class="faq-item"><div class="faq-question">알레르기 대응이 가능한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">전 메뉴 알레르기 유발 물질을 표시합니다. 사전 상담 시 대체 메뉴를 안내해 드립니다.</div></div></div>
