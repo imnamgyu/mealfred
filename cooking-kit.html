@@ -33,7 +33,35 @@
 .store-btn img{width:30px;height:30px;border-radius:8px;flex:none;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
 .store-btn:hover,.store-btn:focus-visible{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.10);border-color:var(--brand,#1a2b4a);color:#1a2b4a}
 .store-btn-kakao{background:#FEE500;border-color:#FEE500}
+.btn-kakao{display:inline-flex;align-items:center;gap:10px;background:#FEE500;color:#191919;border:none;border-radius:12px;padding:14px 26px;font-weight:800;font-size:16px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:transform .15s ease,box-shadow .15s ease}
+.btn-kakao img{width:28px;height:28px;border-radius:8px;display:block}
+.btn-kakao:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.12);background:#FDD800;color:#191919}
 .trust-admin{word-break:keep-all}
+.step-card p,.steps-cta .hero-micro{word-break:keep-all}
+/* 문제 섹션 — 선생님 부담 5가지 보드 (2026-09-11, 일러스트 gpt-image-1) */
+.burden-board{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;align-items:end;margin-top:var(--sp-10);background:linear-gradient(180deg,#FFF3E8 0%,#FFE8D3 100%);border:1px solid #FFE0C4;border-radius:24px;padding:28px 24px 0 28px;overflow:hidden}
+.burden-list{list-style:none;margin:0;padding:0 0 28px 0;display:flex;flex-direction:column;gap:12px}
+.burden-row{display:grid;grid-template-columns:auto 64px minmax(0,1fr);align-items:center;gap:14px;background:#fff;border-radius:16px;padding:10px 18px 10px 12px;box-shadow:0 1px 3px rgba(27,45,79,.06)}
+.burden-num{width:30px;height:30px;border-radius:50%;background:var(--primary-500);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex:none}
+.burden-ico{width:64px;height:64px;border-radius:50%;background:#FFF7F0;display:flex;align-items:center;justify-content:center}
+.burden-ico img{width:52px;height:52px;object-fit:contain;display:block}
+.burden-text{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px}
+.burden-text strong{font-size:18px;font-weight:800;color:var(--secondary-700);word-break:keep-all}
+.burden-fix{display:inline-flex;align-items:center;gap:5px;font-size:13.5px;font-weight:700;color:#0B7A53;background:#E7F7EF;border-radius:100px;padding:6px 12px;word-break:keep-all}
+.burden-teacher img{display:block;width:100%;height:auto}
+.burden-foot{margin-top:18px;text-align:center;font-size:18px;font-weight:800;color:var(--secondary-700);word-break:keep-all}
+.burden-foot b{color:var(--primary-500)}
+@media (max-width:768px){
+  .burden-board{grid-template-columns:1fr;padding:18px 14px 16px;gap:8px}
+  .burden-teacher{order:-1;justify-self:center;width:190px}
+  .burden-list{padding:0;gap:10px}
+  .burden-row{grid-template-columns:auto 48px minmax(0,1fr);gap:10px;padding:10px 12px 10px 10px}
+  .burden-ico{width:48px;height:48px}.burden-ico img{width:40px;height:40px}
+  .burden-text{flex-direction:column;align-items:flex-start;gap:5px}
+  .burden-text strong{font-size:16px}
+  .burden-fix{font-size:12.5px;padding:5px 10px}
+  .burden-foot{font-size:16px}
+}
 .platform-logos.store-row-lg{gap:10px}
 .store-row-lg .store-btn{min-height:56px;font-size:16px;padding:10px 18px 10px 10px}
 .store-row-lg .store-btn img{width:36px;height:36px;border-radius:9px}
@@ -143,44 +171,8 @@
   </div>
 </section>
 
-<!-- ── SEC 3: PROBLEM ── -->
-<section class="section" id="problem" style="padding-bottom:40px;">
-  <div class="container">
-    <div class="section-tag">Problem</div>
-    <h2 class="h1">선생님, 요리수업<br><span class="highlight">이렇게 힘드셨죠?</span></h2>
-    <p class="desc">설문조사 결과, 동료 선생님들이 밀프레드를 모르는 이유 1위는 "아직 몰라서"(64%)였습니다</p>
-    <div class="problem-grid">
-      <div class="problem-card">
-        <div class="problem-icon"><i data-lucide="shopping-cart" style="width:24px;height:24px;"></i></div>
-        <h4>재료 준비가 막막</h4>
-        <p>장보기, 소분, 위생 관리까지 혼자 감당</p>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon"><i data-lucide="shield-alert" style="width:24px;height:24px;"></i></div>
-        <h4>안전 사고 걱정</h4>
-        <p>불·칼 사용 시 아이들 다칠까 불안</p>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon"><i data-lucide="thermometer" style="width:24px;height:24px;"></i></div>
-        <h4>식재료 신선도</h4>
-        <p>냉장고 없는 교실, 전날 배송 시 상할까 걱정</p>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon"><i data-lucide="file-text" style="width:24px;height:24px;"></i></div>
-        <h4>복잡한 결제·행정</h4>
-        <p>학교 예산 결제, 서류 발행, 정산까지</p>
-      </div>
-      <div class="problem-card">
-        <div class="problem-icon"><i data-lucide="trash-2" style="width:24px;height:24px;"></i></div>
-        <h4>뒷정리 부담</h4>
-        <p>음식물 쓰레기, 일회용품, 설거지</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── SEC 5: DELIVERY (moved after Problem) ── -->
-<section class="section" id="delivery" style="padding-top:40px;">
+<!-- ── SEC 5: DELIVERY (2026-09-11 Problem 위로 이동) ── -->
+<section class="section" id="delivery" style="padding-bottom:40px;">
   <div class="container">
     <div class="section-tag">Delivery</div>
     <h2 class="h1">냉장고가 없어도<br><span class="highlight">걱정 마세요</span></h2>
@@ -219,6 +211,46 @@
       <div class="delivery-quote">"수업 1시간 전 10시에 개봉하니 굉장히 차가웠다. 매우 신선했다."</div>
       <div class="delivery-quote">"전날 16시 수령, 대부분 재료가 얼어있었음"</div>
     </div>
+  </div>
+</section>
+
+<!-- ── SEC 3: PROBLEM ── -->
+<section class="section" id="problem" style="padding-top:40px;">
+  <div class="container">
+    <div class="section-tag">Problem</div>
+    <h2 class="h1">선생님, 요리수업<br><span class="highlight">이렇게 힘드셨죠?</span></h2>
+    <p class="desc">요리수업 한 번 준비하는 데 선생님이 챙길 일이 이렇게 많았습니다</p>
+    <div class="burden-board">
+      <ol class="burden-list">
+        <li class="burden-row">
+          <span class="burden-num">1</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-1-basket.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>재료 선별 구매</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>인원수대로 소분해 배송</span></div>
+        </li>
+        <li class="burden-row">
+          <span class="burden-num">2</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-2-fresh.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>신선도(식중독) 관리</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>5중 보냉, 냉장고 없이 OK</span></div>
+        </li>
+        <li class="burden-row">
+          <span class="burden-num">3</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-3-safety.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>안전사고 예방</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>불·칼 없는 메뉴, 도구 동봉</span></div>
+        </li>
+        <li class="burden-row">
+          <span class="burden-num">4</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-4-material.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>수업자료 제작</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>그림 레시피·영상·PPT 제공</span></div>
+        </li>
+        <li class="burden-row">
+          <span class="burden-num">5</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-5-admin.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>행정 처리</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>견적서·세금계산서 즉시 발행</span></div>
+        </li>
+      </ol>
+      <div class="burden-teacher"><img src="assets/images/problem/teacher-worried.webp" alt="장보기 상자를 안고 난감해하는 선생님 일러스트" width="290" height="526" loading="lazy"></div>
+    </div>
+    <p class="burden-foot">이 다섯 가지, <b>밀프레드 키트 하나로</b> 끝납니다</p>
   </div>
 </section>
 
@@ -337,7 +369,7 @@
           <a href="https://i-screammall.co.kr/display/shop/minishop/1003872" target="_blank" rel="noopener" class="store-btn" style="--brand:#2BA8E0"><img src="assets/images/brand/iscreammall.png" alt="" width="30" height="30" loading="lazy">아이스크림몰</a>
           <a href="https://www.s2b.kr/S2BNCustomer/S2B/scrweb/remu/rema/searchengine/s2bCustomerSearch.jsp?actionType=MAIN_SEARCH&amp;searchField=&amp;startIndex=&amp;viewCount=50&amp;viewType=LIST&amp;sortField=RANK&amp;priceMin=0&amp;priceMax=0&amp;priceMinSet=0&amp;priceMaxSet=0&amp;categoryLevel1Code=&amp;categoryLevel2Code=&amp;categoryLevel3Code=&amp;categoryLevel3Name=&amp;areaCode=&amp;categoryWinStatus=none&amp;companyCodeParam=&amp;priceNewSet=true&amp;publicPurchaseCode=&amp;f_edufine_code=&amp;submit_yn=Y&amp;searchQuery=%C7%AA%B5%E5%C8%F1%BD%BA%C5%E4%B8%AE&amp;searchRequery=&amp;locationGbn=all" target="_blank" rel="noopener" class="store-btn" style="--brand:#2D6AD3"><img src="assets/images/brand/s2b.png" alt="" width="30" height="30" loading="lazy">학교장터</a>
         </div>
-        <div class="platform-note">선생님의 55.7%가 지마켓을 이용하십니다</div>
+        <div class="platform-note">계좌이체 세금계산서 발행 시 5% 추가 할인</div>
         <h3 class="h3" style="margin-bottom:var(--sp-4);">결제 방식</h3>
         <div class="payment-methods">
           <div class="payment-method"><div class="payment-method-icon"><i data-lucide="credit-card" style="width:20px;height:20px;"></i></div><span>카드 수기결제</span></div>
@@ -379,7 +411,7 @@
       </div>
       <div class="step-card">
         <div class="step-num">2</div>
-        <img src="assets/images/delivery/box-1.jpeg" alt="키트 수령" class="img-unified" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
+        <img src="assets/images/steps/step-receive-coldchain.jpg" alt="택배를 열자 보냉가방과 아이스팩이 든 스티로폼 박스가 보이는 수령 사진" class="img-unified" loading="lazy" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
         <h4>키트 수령</h4>
         <p>수업 전날 초신선 배송<br>냉장고 보관 불필요</p>
       </div>
@@ -391,8 +423,8 @@
       </div>
     </div>
     <div class="steps-cta">
-      <a href="http://pf.kakao.com/_jtyxoxj/chat" target="_blank" class="btn btn-primary">
-        <i data-lucide="message-circle" style="width:18px;height:18px;"></i>
+      <a href="http://pf.kakao.com/_jtyxoxj/chat" target="_blank" rel="noopener" class="btn btn-kakao">
+        <img src="assets/images/brand/kakaotalk.png" alt="" width="28" height="28" loading="lazy">
         카카오톡으로 문의하기
       </a>
       <p class="hero-micro">견적·주문·상담 모두 카카오톡에서</p>
