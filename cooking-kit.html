@@ -107,6 +107,7 @@
 .sol-mini{grid-template-columns:auto 72px minmax(0,1fr) auto;gap:16px;padding:16px 22px;text-decoration:none;color:inherit;transition:border-color .15s ease,box-shadow .15s ease}
 .sol-mini:hover{border-color:var(--primary-300);box-shadow:0 6px 18px rgba(27,45,79,.08)}
 .sol-mini-thumb{width:72px;height:72px;border-radius:14px;object-fit:cover;display:block}
+.sol-mini-thumb.is-illust{object-fit:contain;background:#FFF7F0;padding:6px}
 .sol-mini-text{display:flex;flex-direction:column;gap:4px}
 .sol-mini-text strong{font-size:17px;font-weight:800;color:var(--secondary-700);word-break:keep-all}
 .sol-link{font-size:13.5px;font-weight:800;color:var(--primary-500);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
@@ -165,34 +166,32 @@
 .bud-list b{display:block;font-size:14.5px;font-weight:800;color:var(--secondary-700)}
 .bud-list span{display:block;font-size:13px;color:var(--neutral-600);margin-top:2px}
 .bud-note{font-size:12.5px;color:var(--neutral-500,#6B7280);margin:12px 0 0;line-height:1.6;word-break:keep-all}
-.bud-pay{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:14px;background:#FFF7F0;border:1.5px solid #FFB380}
-.bud-pay img{width:48px;height:48px;flex:none}
-.bud-pay b{display:block;font-size:14.5px;font-weight:900;color:var(--secondary-700)}
-.bud-pay span{display:block;font-size:13px;font-weight:700;color:var(--primary-500)}
 .bud-pumui-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .bud-copy{flex:none;display:inline-flex;align-items:center;gap:6px;background:var(--secondary-700);color:#fff;border:0;border-radius:10px;padding:9px 14px;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer}
 .bud-copy:hover{background:#243a63}
 .bud-copy.is-done{background:#10B981}
 .bud-pre{margin:0;white-space:pre-wrap;word-break:keep-all;font-family:inherit;font-size:13.5px;line-height:1.75;color:var(--secondary-700);background:#FAFAF8;border:1px dashed #D6DCE5;border-radius:12px;padding:16px 18px}
 @media (max-width:900px){.bud-wrap{grid-template-columns:1fr}.bud-card{padding:20px 16px 16px}.bud-pre{font-size:13px;padding:14px}}
-.pm-best{position:relative;border:2px solid var(--primary-500)!important;background:#FFF7F0!important}
-.pm-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-style:normal;font-size:11.5px;font-weight:800;color:#fff;background:var(--primary-500);border-radius:100px;padding:3px 9px;white-space:nowrap}
+/* 기관 행정 — 결제 방식 | 행정실 서류(시점별) */
+.pd-wrap{margin-top:-24px}
+.pd-pay{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.pd-pay li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:#FAFAF8;border:1.5px solid transparent}
+.pd-pay li.is-best{background:#FFF7F0;border-color:#FFB380}
+.pd-pay img{width:48px;height:48px;flex:none}
+.pd-pay b{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:15px;font-weight:900;color:var(--secondary-700)}
+.pd-pay em{font-style:normal;font-size:11.5px;font-weight:800;color:#fff;background:var(--primary-500);border-radius:100px;padding:2px 8px}
+.pd-pay span{display:block;font-size:13px;color:var(--neutral-600);margin-top:2px;word-break:keep-all}
+.pd-pay li.is-best span{color:var(--primary-500);font-weight:700}
+.pd-docs{display:flex;flex-direction:column;gap:12px}
+.pd-step{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:start}
+.pd-when{font-size:12.5px;font-weight:900;color:var(--secondary-700);background:#EEF2F7;border-radius:8px;padding:6px 0;text-align:center}
+.pd-chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.pd-chips li{font-size:13px;font-weight:700;color:var(--secondary-700);background:#fff;border:1px solid var(--neutral-200);border-radius:100px;padding:5px 11px 5px 24px;position:relative;white-space:nowrap}
+.pd-chips li::before{content:"";position:absolute;left:10px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#10B981}
+@media (max-width:900px){.pd-wrap{margin-top:-28px}.pd-step{grid-template-columns:1fr;gap:6px}.pd-when{justify-self:start;padding:4px 10px}}
 /* 히어로 사진 2장 — 겹침 줄이기 (앞 사진이 뒷 사진을 덜 가리게) */
 .hero-img-1{width:60%;height:60%;top:2%;left:0}
 .hero-img-2{width:57%;height:62%;bottom:0;right:0}
-/* 기관 행정 — 서류 예시 가로 스크롤 */
-.doc-strip-wrap{margin-top:var(--sp-10)}
-.doc-strip-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.doc-strip-head .h3{margin:0}
-.doc-ex{font-size:12px;font-weight:800;color:#fff;background:var(--primary-500);border-radius:100px;padding:3px 9px;vertical-align:middle;margin-left:6px}
-.doc-hint{font-size:13px;color:var(--neutral-400);font-weight:600;display:inline-flex;align-items:center;gap:4px}
-.doc-strip{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 4px 16px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
-.doc-fig{flex:0 0 210px;margin:0;scroll-snap-align:start}
-.doc-fig img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--neutral-200);box-shadow:0 6px 18px rgba(27,45,79,.10);background:#fff;transition:transform .2s ease}
-.doc-fig:hover img{transform:translateY(-4px)}
-.doc-fig figcaption{text-align:center;font-size:13.5px;font-weight:800;color:var(--secondary-700);margin-top:10px}
-.doc-note{font-size:12px;color:var(--neutral-400);margin-top:4px;word-break:keep-all}
-@media (max-width:600px){.doc-fig{flex-basis:62%}}
 /* 후기 섹션 — 사진+후기 1:1 카드, 탭 필터 (2026-09-11) */
 .tm-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:var(--sp-8) 0 var(--sp-6)}
 .tm-tab{padding:10px 20px;border-radius:100px;font-size:15px;font-weight:700;color:var(--neutral-600);background:var(--neutral-100);border:none;cursor:pointer;transition:all .15s ease}
@@ -496,9 +495,9 @@
       </article>
       <a class="sol-row sol-mini" href="#convenience">
         <span class="sol-num">5</span>
-        <img class="sol-mini-thumb" src="assets/images/solution/sol-5-docs.webp" alt="견적서와 거래명세서 예시" width="72" height="72" loading="lazy">
+        <img class="sol-mini-thumb is-illust" src="assets/images/rel/rel-admin.webp" alt="" width="72" height="72" loading="lazy">
         <div class="sol-mini-text"><span class="sol-prob">행정 처리</span><strong>견적서·세금계산서·거래명세서 즉시 발행</strong></div>
-        <span class="sol-link">서류 예시 보기 <i data-lucide="arrow-down" style="width:15px;height:15px;"></i></span>
+        <span class="sol-link">예산·품의 안내 보기 <i data-lucide="arrow-down" style="width:15px;height:15px;"></i></span>
       </a>
     </div>
     <div class="sol-eco"><img src="assets/images/icons/delivery-reuse-loop.webp" alt="" width="40" height="40" loading="lazy"><span><b>환경까지 생각한 수거 시스템</b> 쿨러백·스티로폼·아이스팩 회수 → 위생 살균 후 재사용, 일회용품 90% 감소</span></div>
@@ -538,7 +537,6 @@
           <li><b>유치원 교육과정·방과후과정 운영비</b><span>원감 선생님, 행정실과 협의해 주세요.</span></li>
         </ul>
         <p class="bud-note">사용 가능 여부와 예산 과목(통계목)은 학교마다 달라 행정실에서 안내해 드립니다. 어린이집·지역아동센터·복지관은 프로그램 사업비로 구입하실 수 있어요.</p>
-        <div class="bud-pay"><img src="assets/images/icons/convenience-pay-transfer.webp" alt="" width="48" height="48" loading="lazy"><div><b>결제는 계좌이체를 추천해요</b><span>전자세금계산서를 바로 발행하고 5% 추가 할인해 드려요</span></div></div>
       </div>
       <div class="bud-card bud-pumui">
         <div class="bud-pumui-head"><div><span class="bud-kicker">지출품의 작성 예시</span><h3 class="bud-title">에듀파인에 붙여 넣고 상신하세요</h3></div><button type="button" class="bud-copy" data-copy="#pumui-text"><i data-lucide="copy" style="width:15px;height:15px;"></i><span>복사하기</span></button></div>
@@ -573,52 +571,27 @@
     var ok=function(){l.textContent='복사됐어요';b.classList.add('is-done');setTimeout(function(){l.textContent='복사하기';b.classList.remove('is-done');},1800);};
     if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(ok,function(){fb(t);ok();});}else{fb(t);ok();}});});})();
     </script>
-    <div class="convenience-grid">
-      <div>
-        <div class="platform-logos store-row store-row-lg">
-          <a href="https://minishop.gmarket.co.kr/mealfred11" target="_blank" rel="noopener" class="store-btn" style="--brand:#00B04F"><img src="assets/images/brand/gmarket.png" alt="" width="30" height="30" loading="lazy">지마켓</a>
-          <a href="https://shop.11st.co.kr/stores/991247" target="_blank" rel="noopener" class="store-btn" style="--brand:#FF0038"><img src="assets/images/brand/11st.png" alt="" width="30" height="30" loading="lazy">11번가</a>
-          <a href="https://smartstore.naver.com/heefoodstory/category/e89c46f3cfbd4fae9bdbdf9671354b95" target="_blank" rel="noopener" class="store-btn" style="--brand:#03C75A"><img src="assets/images/brand/naver.png" alt="" width="30" height="30" loading="lazy">네이버</a>
-          <a href="https://shop.coupang.com/mealfred" target="_blank" rel="noopener" class="store-btn" style="--brand:#E52528"><img src="assets/images/brand/coupang.png" alt="" width="30" height="30" loading="lazy">쿠팡</a>
-          <a href="https://i-screammall.co.kr/display/shop/minishop/1003872" target="_blank" rel="noopener" class="store-btn" style="--brand:#2BA8E0"><img src="assets/images/brand/iscreammall.png" alt="" width="30" height="30" loading="lazy">아이스크림몰</a>
-          <a href="https://www.s2b.kr/S2BNCustomer/S2B/scrweb/remu/rema/searchengine/s2bCustomerSearch.jsp?actionType=MAIN_SEARCH&amp;searchField=&amp;startIndex=&amp;viewCount=50&amp;viewType=LIST&amp;sortField=RANK&amp;priceMin=0&amp;priceMax=0&amp;priceMinSet=0&amp;priceMaxSet=0&amp;categoryLevel1Code=&amp;categoryLevel2Code=&amp;categoryLevel3Code=&amp;categoryLevel3Name=&amp;areaCode=&amp;categoryWinStatus=none&amp;companyCodeParam=&amp;priceNewSet=true&amp;publicPurchaseCode=&amp;f_edufine_code=&amp;submit_yn=Y&amp;searchQuery=%C7%AA%B5%E5%C8%F1%BD%BA%C5%E4%B8%AE&amp;searchRequery=&amp;locationGbn=all" target="_blank" rel="noopener" class="store-btn" style="--brand:#2D6AD3"><img src="assets/images/brand/s2b.png" alt="" width="30" height="30" loading="lazy">학교장터</a>
-        </div>
-        <div class="platform-note">계좌이체 세금계산서 발행 시 5% 추가 할인</div>
-        <h3 class="h3" style="margin-bottom:var(--sp-4);">결제 방식</h3>
-        <div class="payment-methods">
-          <div class="payment-method pm-best"><em class="pm-badge">5% 할인 · 추천</em><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-transfer.webp" alt="" width="56" height="56" loading="lazy"></div><span>계좌이체</span></div>
-          <div class="payment-method"><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-card.webp" alt="" width="56" height="56" loading="lazy"></div><span>카드 수기결제</span></div>
-          <div class="payment-method"><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-platform.webp" alt="" width="56" height="56" loading="lazy"></div><span>플랫폼 결제</span></div>
-        </div>
+    <div class="bud-wrap pd-wrap">
+      <div class="bud-card">
+        <span class="bud-kicker">결제 방식</span>
+        <h3 class="bud-title">학교에서 편한 방식으로 결제하세요</h3>
+        <ul class="pd-pay">
+          <li class="is-best"><img src="assets/images/icons/convenience-pay-transfer.webp" alt="" width="48" height="48" loading="lazy"><div><b>계좌이체 <em>추천 · 5% 추가 할인</em></b><span>전자세금계산서를 바로 발행해 드려요</span></div></li>
+          <li><img src="assets/images/icons/convenience-pay-card.webp" alt="" width="48" height="48" loading="lazy"><div><b>카드 수기결제</b><span>학교 카드로 결제하실 수 있어요</span></div></li>
+          <li><img src="assets/images/icons/convenience-pay-platform.webp" alt="" width="48" height="48" loading="lazy"><div><b>쇼핑몰·학교장터 결제</b><span>지마켓·11번가·네이버·쿠팡·아이스크림몰·학교장터</span></div></li>
+        </ul>
+        <p class="bud-note">납품과 검수가 끝난 뒤 후불로 결제하셔도 됩니다.</p>
       </div>
-      <div>
-        <h3 class="h3" style="margin-bottom:var(--sp-5);">행정 서류 체크리스트</h3>
-        <div class="admin-checklist">
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>비교견적서 즉시 발행</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>전자세금계산서 발행</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>거래명세서 발행</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>후불 결제 가능</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>납품검사원</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>4대보험 완납증명서</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>국세 / 지방세 완납증명서</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>수의계약각서</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>승낙사항</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>청렴서약서</div>
-          <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>기타 필요 서류 맞춤 발급</div>
+      <div class="bud-card">
+        <span class="bud-kicker">행정실에 보내드리는 서류</span>
+        <h3 class="bud-title">필요한 서류는 저희가 챙겨요</h3>
+        <div class="pd-docs">
+          <div class="pd-step"><span class="pd-when">계약 전</span><ul class="pd-chips"><li>견적서·비교견적서</li><li>사업자등록증·통장 사본</li><li>수의계약 각서</li><li>승낙사항</li><li>청렴서약서</li></ul></div>
+          <div class="pd-step"><span class="pd-when">납품 후</span><ul class="pd-chips"><li>거래명세서</li><li>납품검사원</li><li>전자세금계산서</li></ul></div>
+          <div class="pd-step"><span class="pd-when">요청 시</span><ul class="pd-chips"><li>4대보험 완납증명서</li><li>국세·지방세 완납증명서</li><li>기관 양식 서류</li></ul></div>
         </div>
+        <p class="bud-note">행정실 연락처를 알려주시면 순서에 맞춰 바로 보내드려요.</p>
       </div>
-        </div>
-    <div class="doc-strip-wrap">
-      <div class="doc-strip-head"><h3 class="h3">이런 서류, 바로 발급해 드려요 <span class="doc-ex">예시</span></h3><span class="doc-hint">옆으로 넘겨 보세요 <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
-      <div class="doc-strip">
-          <figure class="doc-fig"><img src="assets/images/docs/doc-quote.webp" alt="견적서·비교견적서 예시" width="600" height="848" loading="lazy"><figcaption>견적서·비교견적서</figcaption></figure>
-          <figure class="doc-fig"><img src="assets/images/docs/doc-statement.webp" alt="거래명세서 예시" width="600" height="848" loading="lazy"><figcaption>거래명세서</figcaption></figure>
-          <figure class="doc-fig"><img src="assets/images/docs/doc-taxinvoice.webp" alt="전자세금계산서 예시" width="600" height="848" loading="lazy"><figcaption>전자세금계산서</figcaption></figure>
-          <figure class="doc-fig"><img src="assets/images/docs/doc-inspection.webp" alt="납품 검수 확인서 예시" width="600" height="848" loading="lazy"><figcaption>납품 검수 확인서</figcaption></figure>
-          <figure class="doc-fig"><img src="assets/images/docs/doc-contract.webp" alt="수의계약 각서 예시" width="600" height="848" loading="lazy"><figcaption>수의계약 각서</figcaption></figure>
-          <figure class="doc-fig"><img src="assets/images/docs/doc-integrity.webp" alt="청렴서약서 예시" width="600" height="848" loading="lazy"><figcaption>청렴서약서</figcaption></figure>
-      </div>
-      <p class="doc-note">예시 이미지입니다. 실제 서류는 주문하신 기관 정보로 발행되며, 완납증명서 등 공공 서류도 요청하시면 함께 보내드립니다.</p>
     </div>
   </div>
 </section>
