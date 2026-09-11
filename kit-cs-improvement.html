@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>요리키트 CS 시트 분석 — 반복 이슈 36유형 · 실행 과제 19</title>
+<meta property="og:title" content="요리키트 CS 시트 분석 — 반복 이슈 36유형 · 실행 과제 19">
+<meta property="og:description" content="CS 시트 6탭 478행 전수 코딩 + 과제별 근거·실행성 2중 검증. 돈이 새는 곳 3곳, 이번 주 할 일, 이사님 결정 21건.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB;--bg-warm-1:#FFE8D0;--bg-warm-2:#FFDBB8;--bg-warm-3:#FFD0A0;
+    --bg-soft:#FFFBF5;--bg-soft-2:#FFF9F3;--bg-page:#FAFAF7;
+    --orange-main:#FF6B1A;--orange-soft:#FF8A47;--orange-deep:#C45A00;
+    --orange-tint:rgba(255,107,26,0.1);--orange-tint-line:rgba(255,107,26,0.25);
+    --navy:#1a2b4a;
+    --brown-deep:#3a2a1a;--brown-mid:#5a4a3a;--brown-soft:#8a7a6a;
+    --green-bg:#E8F5E9;--green-fg:#2D8B4E;--green-deep:#1B5E20;
+    --warn-bg:#FFF8E1;--warn-deep:#F57F17;
+    --red-bg:#FFEBEE;--red-fg:#E53935;--red-deep:#C62828;
+    --blue-bg:#E3F2FD;--blue-fg:#1565C0;
+    --n200:#E5E7EB;--n500:#6B7280;
+    --card-border:#FFE8D0;
+    --card-shadow-sm:0 2px 16px rgba(0,0,0,0.05);
+    --r-sm:8px;--r:14px;--r-pill:100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg-page);color:var(--navy);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);padding:54px 20px 40px;text-align:center;color:var(--brown-deep)}
+  .hero-inner{max-width:880px;margin:0 auto}
+  .hero .tag{display:inline-block;background:var(--orange-tint);border:1px solid var(--orange-tint-line);color:var(--orange-deep);padding:7px 18px;border-radius:var(--r-pill);font-size:12px;font-weight:800;margin-bottom:16px;letter-spacing:.02em}
+  .hero h1{font-size:clamp(23px,4.6vw,33px);font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px}
+  .hero h1 .accent{color:var(--orange-deep)}
+  .hero p{font-size:14.5px;color:var(--brown-mid);font-weight:500;margin:0 auto 6px;line-height:1.75;max-width:720px}
+  .hero p strong{color:var(--orange-deep);font-weight:700}
+  .hero-meta{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .hero-meta .pill{background:rgba(255,255,255,0.6);border:1px solid var(--orange-tint-line);color:var(--brown-mid);font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:var(--r-pill)}
+  .toc{background:white;border-bottom:1px solid var(--card-border);padding:12px 20px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1020px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--brown-mid);font-weight:700;padding:6px 11px;border-radius:var(--r-pill);background:var(--bg-soft);text-decoration:none;flex-shrink:0;transition:all .15s}
+  .toc a:hover{background:var(--orange-main);color:white}
+  main{max-width:1020px;margin:0 auto;padding:26px 24px 48px}
+  section{margin-bottom:44px;scroll-margin-top:60px}
+  h2{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:6px;padding-bottom:8px;border-bottom:3px solid var(--orange-main)}
+  h3{font-size:16px;font-weight:800;color:var(--brown-deep);margin:18px 0 8px}
+  .sub{font-size:13px;color:var(--brown-soft);font-weight:600;margin-bottom:14px}
+  p{font-size:14px;color:var(--brown-mid);font-weight:500;margin-bottom:10px}
+  strong{color:var(--navy);font-weight:700}
+  ul.plain{margin:8px 0 12px 18px}
+  ul.plain li{font-size:13.5px;color:var(--brown-mid);margin-bottom:6px}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--card-border);border-radius:var(--r);background:white;box-shadow:var(--card-shadow-sm);margin:14px 0}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:13px}
+  th{background:var(--bg-soft-2);color:var(--brown-deep);font-weight:800;text-align:left;padding:10px 13px;border-bottom:2px solid var(--card-border);white-space:nowrap}
+  td{padding:9px 13px;border-bottom:1px solid #F3EDE5;color:var(--brown-mid);font-weight:500;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .chip{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);vertical-align:middle;white-space:nowrap}
+  .c-strong{background:var(--green-bg);color:var(--green-deep)}
+  .c-mid{background:var(--blue-bg);color:var(--blue-fg)}
+  .c-weak{background:var(--n200);color:var(--n500)}
+  .c-risk{background:var(--red-bg);color:var(--red-deep)}
+  .c-conf{background:var(--green-bg);color:var(--green-deep)}
+  .c-likely{background:var(--warn-bg);color:var(--warn-deep)}
+  .c-spec{background:var(--n200);color:var(--n500)}
+  .callout{background:linear-gradient(135deg,var(--bg-soft-2),#fff);border:1px solid var(--card-border);border-left:5px solid var(--orange-main);border-radius:var(--r);padding:18px 20px;margin:14px 0;box-shadow:var(--card-shadow-sm)}
+  .callout h4{font-size:14px;font-weight:800;color:var(--orange-deep);margin-bottom:8px}
+  .callout p{font-size:13.5px;color:var(--brown-deep);line-height:1.85;margin-bottom:6px}
+  .warnbox{background:var(--warn-bg);border-left:5px solid var(--warn-deep);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin:12px 0;font-size:13px;color:var(--brown-deep)}
+  .riskbox{background:var(--red-bg);border-left:5px solid var(--red-fg);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin:12px 0;font-size:13px;color:var(--brown-deep)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:14px 0}
+  .kcard{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--card-shadow-sm)}
+  .kcard h4{font-size:13.5px;font-weight:800;color:var(--navy);margin-bottom:6px}
+  .kcard p{font-size:12.5px;line-height:1.7;margin-bottom:4px}
+  .kcard .num{font-size:22px;font-weight:800;color:var(--orange-deep);letter-spacing:-0.02em}
+  .qa{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:4px 18px 10px;margin:12px 0;box-shadow:var(--card-shadow-sm)}
+  .qa ol{margin:10px 0 6px 20px}
+  .qa li{font-size:13.5px;color:var(--brown-mid);margin-bottom:7px;line-height:1.7}
+  .qa li b{color:var(--navy)}
+  .src{font-size:11.5px;color:var(--brown-soft);margin-top:4px}
+  .src a{color:var(--blue-fg);text-decoration:none;font-weight:600}
+  .src a:hover{text-decoration:underline}
+  .guard{background:var(--bg-soft);border:1px dashed var(--orange-tint-line);border-radius:var(--r);padding:14px 18px;font-size:12.5px;color:var(--brown-mid);margin-top:10px}
+  footer{text-align:center;padding:26px;font-size:12px;color:var(--brown-soft);border-top:1px solid var(--card-border)}
+  footer a{color:var(--orange-deep);font-weight:700;text-decoration:none}
+</style>
+
+<style>
+  main h2{margin-top:6px}
+  main section > h3, main h3{font-size:16px;font-weight:800;color:var(--brown-deep);margin:18px 0 8px}
+  main ul, main ol{margin:8px 0 12px 20px}
+  main li{font-size:13.5px;color:var(--brown-mid);margin-bottom:6px;line-height:1.7}
+  main li b, main li strong{color:var(--navy)}
+  main h4{font-size:15px;font-weight:800;color:var(--navy);margin:22px 0 6px;padding:10px 14px;background:var(--bg-soft-2);border-left:4px solid var(--orange-main);border-radius:0 8px 8px 0}
+  main h4 + ul{margin-top:6px}
+  main blockquote{background:var(--bg-soft-2);border-left:4px solid var(--orange-main);border-radius:0 var(--r) var(--r) 0;padding:10px 16px;margin:10px 0;color:var(--brown-deep);font-size:13px}
+  main code{background:var(--bg-soft);border:1px solid var(--card-border);border-radius:5px;padding:0 5px;font-size:12px}
+  main table td, main table th{font-size:12.5px}
+  main table td:first-child{white-space:nowrap}
+  .srcbox{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:14px 18px;margin:14px 0;font-size:12.5px;color:var(--brown-mid)}
+  .srcbox a{color:var(--blue-fg);font-weight:700;text-decoration:none}
+  @media (max-width:560px){ main{padding:20px 16px 40px} table{min-width:560px} }
+</style>
+
+</head>
+<body>
+<div class="hero"><div class="hero-inner">
+  <div class="tag">B2B 운영 · CS 분석 · 2026-09-11</div>
+  <h1>요리키트 CS 시트 분석 — <span class="accent">어디서 새고, 무엇부터 고치나</span></h1>
+  <p>교사 피드백 333행 중 <strong>246행(74%)이 불만 없는 칭찬</strong>이고 65행이 재구매를 먼저 말한다. 제품은 이미 다시 사는 수준이다. 돈은 <strong>배송 구간 냉해</strong>, <strong>출고 누락과 추적 안 되는 보상 약속</strong>, <strong>결제 뒤에야 인원을 확인하는 주문 단계</strong>에서 샌다. 이슈 사건 188건 → 2회 이상 반복 36유형 → 검증된 실행 과제 19개.</p>
+  <div class="hero-meta"><span class="pill">6탭 478행 전수 코딩</span><span class="pill">이슈 사건 188 · 반복 36유형</span><span class="pill">과제 57 → 2중 검증 56 생존</span><span class="pill">기관명·연락처 비공개</span></div>
+</div></div>
+<nav class="toc"><div class="toc-inner"><a href="#s1">1. 한눈에 결론</a><a href="#s2">2. 숫자로 본 현황</a><a href="#s3">3. 개선 과제 우선순위</a><a href="#s4">4. 이번 주 바로 할 것</a><a href="#s5">5. 정책·문구 불일치 정리</a><a href="#s6">6. 이미 약속했는데 재발한 것</a><a href="#s7">7. 유지해야 할 강점</a><a href="#s8">8. 시트 자체 개선안</a><a href="#s9">9. 이사님 결정 필요 사항</a><a href="#s10">10. 부록</a></div></nav>
+<main>
+<div class="srcbox"><b>원자료·관련 문서</b><ul class="plain"><li>반복 이슈 빈도표(구글 문서): <a href="https://docs.google.com/document/d/186MU-jIo0VudKF5JmIsUXiS9WgQHYeHgPSB-EZ1nido/edit" target="_blank">상위 20 · 2회 이상 36유형</a></li><li>원본: 푸드희스토리 운영 CS 구글시트(교사 연락처 포함이라 링크 비공개) · 스냅샷 <code>01_참고자료/N_CS_이슈피드백_시트/</code></li><li>정본: <code>synthesis/2026-09-11-CS시트-개선과제-분석.md</code> · 코딩·검증 원자료 <code>06_운영/CS_이슈분석_2026-09/</code></li><li>행 ID 표기: FB=피드백 정리 · IS=전체 이슈 정리 · MS=누락 체크 · BL=블랙리스트 · AG=아젠다 · SP=샘플 신청 (시트 행 순번)</li></ul></div>
+<p>원자료는 CS 시트 6탭이다. 피드백 정리 333행(2026-04-01~09-10), 전체 이슈 정리 88행, 누락 체크 건 14행, 블랙리스트 3행, 샘플 신청 목록 17행, 아젠다 23행, 합계 478행. 반복 이슈 빈도의 정본은 이사님께 먼저 드린 빈도표다(<a href="https://docs.google.com/document/d/186MU-jIo0VudKF5JmIsUXiS9WgQHYeHgPSB-EZ1nido/edit">구글 문서</a>). CS 시트 밖 자료(위키 review 큐, 업무일지, 구글폼, 드라이브 문서)에서 온 내용은 <strong>[시트 밖]</strong>으로 표시하고 출처를 적었다. 게시용이라 기관은 행 ID와 유형으로만 적고, 교사 이름·전화번호는 쓰지 않는다.</p>
+<section id="s1"><h2>1. 한눈에 결론</h2>
+<p>교사 피드백 333행 중 246행(73.9%)이 불만 없는 칭찬이고(부정 9행, 2.7%) 65행(19.5%)은 재구매·재이용을 먼저 말해, 제품과 수업은 이미 다시 사는 수준이다. 돈은 아래 세 곳에서 샌다.</p>
+<ul>
+<li><strong>배송 구간.</strong> 냉해·과냉동 사건 24건(22행)이 행사 전체 무료 1건(MS05)과 교사 자비 구입 3건(FB097·FB099·FB198)으로 이어졌고, 늦어서 재출고했는데 원래 택배가 당일 도착하면 "환불도 안됨"(AG10)이다(재출고 건수 기록 없음).</li>
+<li><strong>출고 누락과 추적 안 되는 보상 약속.</strong> 검수 이슈 19건(식탁보 5건 포함)에 품질·누락 보상 10건이 나갔고, '다음 주문 무료' 약속 중 2건은 대기(MS09·MS10), 1건은 기록 밖(IS027)이다.</li>
+<li><strong>결제 뒤에야 인원·수업일을 확인하는 주문 단계.</strong> 4인분 부족분 5세트를 무상으로 채웠고(IS002·IS018), 배송비 '이번에만' 면제와 할인 중복(계좌이체 5%+예산 맞춤 최대 5%)에 기준이 없다.</li>
+</ul>
+<p>보상액은 수량이 확인되는 것만 11개월 약 26만원(가정을 넣으면 최대 약 63만원)으로 작고 대부분 비용 0~소액 규칙으로 막을 수 있으니, 1순위는 적재 규칙·출고 계수 통제·보상 약속 이행 확인이다.</p>
+</section>
+<section id="s2"><h2>2. 숫자로 본 현황</h2>
+<h3>2-1. 피드백 감성 분포(333행)</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>구분</th>
+<th>행</th>
+<th>비율</th>
+<th>메모</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>순긍정</td>
+<td>246</td>
+<td>73.9%</td>
+<td>불편 언급 없음</td>
+</tr>
+<tr>
+<td>혼합(칭찬+불편)</td>
+<td>78</td>
+<td>23.4%</td>
+<td>대부분 "다른 건 다 좋았다" 뒤 한두 줄</td>
+</tr>
+<tr>
+<td>부정</td>
+<td>9</td>
+<td>2.7%</td>
+<td>FB099(유치원, 새싹 냉해·방토 부족), FB150(기타, 애플민트 냉해), FB152(초등, 접시·수저 누락·파손), FB184(초등, 장갑), FB211(중등, 방토 무름), FB252(초등, 레몬즙 누락), FB303(초등, 양 부족), FB314(초등, 누텔라 굳음), FB330(초등 샘플, 한과 부서짐)</td>
+</tr>
+<tr>
+<td>재구매·재이용 언급</td>
+<td>65</td>
+<td>19.5%</td>
+<td>검증 재계산 62~66행. 조건부 인사("기회가 되면") 약 10행, 시기 명시 12행(팔로업 대상은 3-1 13번)</td>
+</tr>
+<tr>
+<td>이슈 신호가 있는 행</td>
+<td>87</td>
+<td>26.1%</td>
+<td>신호 129개(한 행에 여러 개)</td>
+</tr>
+</tbody>
+</table></div>
+<h3>2-2. 불만 카테고리 상위 10</h3>
+<p>행 수 기준이다. 괄호는 신호 수(한 행에 여러 신호 가능).</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>순위</th>
+<th>카테고리</th>
+<th>피드백 탭 행(신호)</th>
+<th>전 탭 행(신호)</th>
+<th>대표 세부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>C 소모품·조리도구</td>
+<td>30 (33)</td>
+<td>34 (37)</td>
+<td>장갑 찢어짐·사이즈, 접시·스푼 부족</td>
+</tr>
+<tr>
+<td>2</td>
+<td>A 재료 품질·신선도</td>
+<td>19 (21)</td>
+<td>26 (28)</td>
+<td>새싹·허브 냉해, 방울토마토 무름</td>
+</tr>
+<tr>
+<td>3</td>
+<td>B 재료 양 부족</td>
+<td>15 (15)</td>
+<td>19 (19)</td>
+<td>소스·크림, 과일, 중등 1인분</td>
+</tr>
+<tr>
+<td>4</td>
+<td>M 구성 변경 요청</td>
+<td>13 (14)</td>
+<td>20 (21)</td>
+<td>흰밥 선택, 5인조, 소형 식탁보</td>
+</tr>
+<tr>
+<td>5</td>
+<td>D 포장·개봉·쓰레기</td>
+<td>10 (10)</td>
+<td>20 (20)</td>
+<td>비닐 안 뜯김, 쓰레기 많음</td>
+</tr>
+<tr>
+<td>6</td>
+<td>G 조리 공정 실패</td>
+<td>9 (9)</td>
+<td>13 (13)</td>
+<td>스텐실 고정, 1교시 해동</td>
+</tr>
+<tr>
+<td>7</td>
+<td>E 누락·수량 오류·파손</td>
+<td>8 (10)</td>
+<td>24 (26)</td>
+<td>식탁보, 레몬즙, 깍지 파손</td>
+</tr>
+<tr>
+<td>7</td>
+<td>F 설명서·수업자료</td>
+<td>8 (8)</td>
+<td>22 (22)</td>
+<td>삽스푼 미기재, 영상 링크 누락</td>
+</tr>
+<tr>
+<td>9</td>
+<td>P 기타</td>
+<td>3 (3)</td>
+<td>14 (14)</td>
+<td>새싹 기피, 녹차가루 호불호</td>
+</tr>
+<tr>
+<td>10</td>
+<td>I 주문·결제·증빙</td>
+<td>2 (2)</td>
+<td>24 (24)</td>
+<td>택배비 문의, 주문량 불일치</td>
+</tr>
+</tbody>
+</table></div>
+<p>전 탭에서만 큰 카테고리가 있다. H 배송·일정 29행, L 이벤트·후기 28행, O 내부 운영·시트 14행, J 회수·보냉용품 9행, K 가격·가치 8행이다. 대부분 이슈 탭의 응대 템플릿과 아젠다에서 나온 수치라 인입 건수로 읽으면 안 된다.</p>
+<h3>2-3. 반복 이슈 상위 20(빈도 정본)</h3>
+<p>이슈 사건 188건을 유형 50개로 묶었다. 단발 요청 모음 2그룹('기타 낱개 누락', '구성 변경 요청 각 1회')을 뺀 48유형 중 2회 이상이 36개, 1회가 12개다. 탭 간 중복 6쌍은 1건으로 셌다. 표는 빈도표 파일 순서(사건 수 내림차순, 같으면 기관 수 순) 그대로다. 모음 2그룹은 제자리에 '제외'로 두고 순위에서 뺐다.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>순위</th>
+<th>유형</th>
+<th>그룹</th>
+<th>사건</th>
+<th>기관</th>
+<th>기간</th>
+<th>심각도</th>
+<th>근거 ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>위생장갑 잘 찢어짐(얇음)</td>
+<td>소모품</td>
+<td>11</td>
+<td>11</td>
+<td>2026-04~09</td>
+<td>3</td>
+<td>FB014·FB031·FB101·FB109·FB150·FB184·FB230·FB241·FB259·FB329·FB333</td>
+</tr>
+<tr>
+<td>제외</td>
+<td>기타 낱개 누락(종이컵·투명용기·핑거쿠키·호두·레몬즙·라임·용기 뚜껑·콘샐러드 오배송·반납 종이), 품목별 1회 모음</td>
+<td>검수</td>
+<td>9</td>
+<td>9</td>
+<td>2025-11~2026-09</td>
+<td>3</td>
+<td>FB124·FB190·FB252·IS027·IS034·MS02·MS06·MS12·MS14</td>
+</tr>
+<tr>
+<td>2</td>
+<td>위생장갑 사이즈 작음(아동용이 초1~고학년에 작음)</td>
+<td>소모품</td>
+<td>8</td>
+<td>8</td>
+<td>2026-04~07</td>
+<td>2</td>
+<td>FB040·FB053·FB077·FB108·FB129·FB175·FB184·FB214</td>
+</tr>
+<tr>
+<td>3</td>
+<td>소스·크림·토핑 양 부족(조청·잼·크림치즈·슈가파우더·팥소·모나카 속)</td>
+<td>재료 양</td>
+<td>8</td>
+<td>8</td>
+<td>2025-10~2026-09</td>
+<td>2</td>
+<td>FB145·FB163·FB201·FB271·FB272·FB279·FB332·IS001</td>
+</tr>
+<tr>
+<td>제외</td>
+<td>구성 변경 요청 각 1회(흰밥 선택·유색 반죽·추가구매 옵션·5인조 SKU·통쪽파·오렌지 통조각·튜브 용기·어린잎 대체), 모음</td>
+<td>구성</td>
+<td>8</td>
+<td>8</td>
+<td>2026-04~09</td>
+<td>2</td>
+<td>FB008·FB108·FB118·FB163·FB166·FB215·FB320·FB327</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4인분 단위 불편(홀수 반·5인 모둠·교사용·1/5인분 요청)</td>
+<td>정책</td>
+<td>8</td>
+<td>7</td>
+<td>2025-10~2026-07</td>
+<td>2</td>
+<td>FB031·FB037·FB166·FB294·IS002·IS018·IS022·IS065</td>
+</tr>
+<tr>
+<td>5</td>
+<td>과냉동·해동 문제(1교시 해동 불가·냉장품 냉동·단무지 물기·누텔라 굳음·면 딱딱·베리 드립)</td>
+<td>콜드체인</td>
+<td>8</td>
+<td>6</td>
+<td>2026-04~09</td>
+<td>3</td>
+<td>FB025·FB050·FB159·FB198·FB238·FB311·FB314·IS049</td>
+</tr>
+<tr>
+<td>6</td>
+<td>새싹·허브류 냉해(새싹·무순·어린잎·애플민트·바질·쪽파)</td>
+<td>콜드체인</td>
+<td>7</td>
+<td>7</td>
+<td>2026-05~09</td>
+<td>3</td>
+<td>FB097·FB099·FB150·FB215·FB285·FB320·FB332</td>
+</tr>
+<tr>
+<td>7</td>
+<td>구성품 용도·수량·사용법 안내 부족(삽스푼·블루베리 용도·도우 반절·젓는 시간·와트·영상 링크)</td>
+<td>자료</td>
+<td>7</td>
+<td>6</td>
+<td>2025-11~2026-07</td>
+<td>3</td>
+<td>FB192·FB207·FB230·FB259·IS025·IS033·IS049</td>
+</tr>
+<tr>
+<td>8</td>
+<td>주재료 양 부족(과일·밥·베이컨·크래미·방울토마토 개수)</td>
+<td>재료 양</td>
+<td>6</td>
+<td>6</td>
+<td>2026-04~06</td>
+<td>3</td>
+<td>FB020·FB031·FB099·FB105·FB131·FB158</td>
+</tr>
+<tr>
+<td>9</td>
+<td>보냉용품 반납 문제(전량 폐기·아이스박스 미사용·쓰레기 혼입·라벨 없음·무게)</td>
+<td>회수</td>
+<td>6</td>
+<td>5</td>
+<td>2025-12~2026-06</td>
+<td>4</td>
+<td>BL01·BL02·BL03·FB158·IS034·IS053</td>
+</tr>
+<tr>
+<td>10</td>
+<td>기프티콘·후기 이벤트 절차 문의</td>
+<td>이벤트</td>
+<td>6</td>
+<td>2</td>
+<td>2025-10</td>
+<td>2</td>
+<td>IS019·IS030·IS032·IS077·IS082·IS083</td>
+</tr>
+<tr>
+<td>11</td>
+<td>방울토마토 터짐·물러짐·눌림</td>
+<td>콜드체인</td>
+<td>5</td>
+<td>5</td>
+<td>2025-11~2026-09</td>
+<td>4</td>
+<td>FB190·FB211·FB312·FB320·IS020</td>
+</tr>
+<tr>
+<td>12</td>
+<td>식탁보(테이블보) 누락</td>
+<td>검수</td>
+<td>5</td>
+<td>5</td>
+<td>2026-05~07</td>
+<td>3</td>
+<td>FB120·FB124·FB277·MS04·MS10</td>
+</tr>
+<tr>
+<td>13</td>
+<td>접시·수저·스푼·유산지 수량 부족·누락</td>
+<td>도구</td>
+<td>5</td>
+<td>5</td>
+<td>2026-06</td>
+<td>2</td>
+<td>FB152·FB153·FB156·FB176·FB181</td>
+</tr>
+<tr>
+<td>14</td>
+<td>견적서·거래명세서 등 증빙 서류 요청</td>
+<td>증빙</td>
+<td>5</td>
+<td>1</td>
+<td>2025-10</td>
+<td>1</td>
+<td>IS012·IS044·IS047·IS076·IS079</td>
+</tr>
+<tr>
+<td>15</td>
+<td>소분 비닐·봉투 개봉 어려움</td>
+<td>포장</td>
+<td>4</td>
+<td>4</td>
+<td>2026-04~09</td>
+<td>2</td>
+<td>FB008·FB012·FB050·FB329</td>
+</tr>
+<tr>
+<td>16</td>
+<td>스텐실·카네이션 파우더 고정 실패</td>
+<td>공정</td>
+<td>4</td>
+<td>4</td>
+<td>2026-05</td>
+<td>2</td>
+<td>FB071·FB073·FB074·FB086</td>
+</tr>
+<tr>
+<td>17</td>
+<td>쓰레기·일회용품 많음</td>
+<td>포장</td>
+<td>4</td>
+<td>4</td>
+<td>2026-04~07</td>
+<td>2</td>
+<td>FB031·FB040·FB256·FB274</td>
+</tr>
+<tr>
+<td>18</td>
+<td>저학년 조작 난이도·도구 부적합(뿌리기·김발 없음·꼬치 위험·떡 붙음)</td>
+<td>공정</td>
+<td>4</td>
+<td>4</td>
+<td>2026-04~07</td>
+<td>2</td>
+<td>FB048·FB108·FB210·FB274</td>
+</tr>
+<tr>
+<td>19</td>
+<td>읍·면 주소 주말·공휴일 출고 불가로 일정 조정</td>
+<td>배송</td>
+<td>4</td>
+<td>4</td>
+<td>2025-10~11</td>
+<td>2</td>
+<td>IS014·IS021·IS050·IS060</td>
+</tr>
+<tr>
+<td>20</td>
+<td>1인분 양 학년 불일치(중3·5학년 부족, 아보카도 빵 반쪽, 초1~2 과다)</td>
+<td>재료 양</td>
+<td>4</td>
+<td>4</td>
+<td>2026-03~07</td>
+<td>3</td>
+<td>FB040·FB120·FB201·IS078</td>
+</tr>
+</tbody>
+</table></div>
+<p>기관 수가 사건 수보다 적은 행은 같은 기관 반복이거나 기관명 없는 응대 템플릿이다. 심각도(1~5)는 LLM 판정이다. 표 밖 21위는 전통다과 조청·한과 취급(4건/3기관)이다. 한 행이 여러 유형에 걸리기도 한다(예: FB031은 장갑·4인분·주재료·쓰레기에 모두 들어감). 반대로 한 메뉴에 몰린 불만이 여러 유형으로 흩어지기도 한다. 김밥 교실 부담(FB031·FB050·FB123·FB220)이 그렇고, 3-1 7번에서 묶었다.</p>
+<h3>2-4. 심각도 3 이상</h3>
+<ul>
+<li><strong>피드백 탭</strong>: 신호 129개 중 심각도 1이 91개, 2가 32개, 3이 6개(5행)다. 3 이상 5행은 전부 냉해·방울토마토다. FB099(유치원), FB150(기타), FB190(초등), FB211(중등), FB285(초등).</li>
+<li><strong>전 탭</strong>: 신호 314개 중 3 이상이 36개(33행)다. 누락 체크 탭 14행 전부(MS01은 내용이 비었는데 3으로 코딩됨), 냉해·방토 7행(IS010, IS020은 4), 반납 2행(BL01은 4, BL02), 조리 실패 3행(IS026·IS049·IS066), 가격 불만 3행(IS070·IS078·AG14), 기타 4행(IS027·IS037·IS072·IS081)이다.</li>
+</ul>
+<h3>2-5. 교사가 대체 준비한 건수: LLM 코딩 21행 → 원문 재분류 18행</h3>
+<p>LLM이 '교사 우회'로 표시한 피드백 행은 21행이다. 원문을 다시 읽어 3행을 뺐다. FB008은 샘플 교사의 예상('결국 교사 일이 될 것 같다')이고, FB012는 아이들 불편만 말했고, FB272는 회사가 넣은 여분 깍지로 대체해 교사 부담이 없었다.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>방식</th>
+<th>행</th>
+<th>ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>재료·도구 직접 구입</td>
+<td>6</td>
+<td>FB097(보건소, 새싹), FB099(유치원, 방토·새싹), FB118(초등, 햇반), FB120(중등, 식빵), FB192(초등, 삽스푼, 실제로는 동봉돼 있었음), FB198(유치원, 블루베리)</td>
+</tr>
+<tr>
+<td>학교 비품·보유 물품으로 대체</td>
+<td>3</td>
+<td>FB031(장갑 5명분), FB277(식탁보), FB311(원형 종이호일)</td>
+</tr>
+<tr>
+<td>교사가 대신 개봉·해동·손질</td>
+<td>3</td>
+<td>FB025(단무지 물기 짜기), FB031(전부 뜯고 밥 해동하러 이동), FB050(1교시 해동, 봉지 잘라 주기)</td>
+</tr>
+<tr>
+<td>빌림·재배분·보조·없이 진행</td>
+<td>7</td>
+<td>FB048(장갑에 물), FB108(뿌리기 보조), FB152(빠진 접시·수저 없이 진행), FB166(5인 모둠 재배분), FB181(다른 반 나무젓가락), FB230(도우 분량 판단), FB303(아껴 씀)</td>
+</tr>
+</tbody>
+</table></div>
+<p>FB031이 두 방식에 걸쳐 고유 18행이다. FB220(김밥, 아침에 속재료까지 전자레인지)은 교사가 불만 없이 스스로 해동한 경우라 세지 않았다.</p>
+<h3>2-6. 보상 발생(2025-10~2026-09, 11개월)</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>유형</th>
+<th>건수</th>
+<th>행 ID(유형)</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>다음 주문·다음 행사 무료(세트 수 명시)</td>
+<td>4건 11세트</td>
+<td>MS02(초등) 3, MS09(병원) 1, MS10(유치원) 6, IS027(초등) 1</td>
+<td>MS02 이행 표시(단 같은 행사 교사 회신 FB028은 "다른메뉴 서비스는 괜찮습니다"), MS09·MS10 대기, IS027 누락 탭 미등재</td>
+</tr>
+<tr>
+<td>행사 전체 무료(규모 미기재)</td>
+<td>2건</td>
+<td>MS05(유치원, 6월 행사 무료), MS06(초등, 다음 행사 무료+포장용기)</td>
+<td>시트 서식상 이행(취소선). 6월 무료 행사의 세트 수는 원문에 없음</td>
+</tr>
+<tr>
+<td>재배송 제안</td>
+<td>1건 5세트</td>
+<td>IS020(초등, 방토 터짐)</td>
+<td>수락 여부 불명</td>
+</tr>
+<tr>
+<td>기프티콘·커피쿠폰</td>
+<td>4건</td>
+<td>MS09, MS11(초등), MS14(지역아동센터), FB211(중등)</td>
+<td>MS09 기프티콘은 이행 표시</td>
+</tr>
+<tr>
+<td>보상 칸 공란</td>
+<td>6행</td>
+<td>MS01, MS03(도안 파일로 해결), MS04, MS07, MS08, MS13</td>
+<td>무보상인지 무기록인지 불명</td>
+</tr>
+<tr>
+<td>영업성 무상(품질 비용과 분리)</td>
+<td>4인분 부족분 2건 5세트, 박스 분할 잔여 1박스, 배송비 면제 템플릿</td>
+<td>IS002 2세트, IS018 3세트, IS011, IS016=IS051</td>
+<td>실제 면제 횟수는 기록 없음</td>
+</tr>
+<tr>
+<td>청구 철회</td>
+<td>1건</td>
+<td>BL01(초등)</td>
+<td>회사가 안내 부족 인정</td>
+</tr>
+</tbody>
+</table></div>
+<p>금액 환산은 세트당 약 1.96만원(4인×4,900원), 기프티콘 약 5천원을 가정했다.</p>
+<ul>
+<li>수량이 확인되는 것(11세트, MS06 1세트+포장용기, 기프티콘 4장): 약 26만원.</li>
+<li>MS05의 6월 무료 행사를 5월 원주문 규모(카나페 14세트)로 가정하면 약 27만원이 더해져 약 53만원. 6월 행사 규모는 원문에 없으니 이 27만원은 가정이다.</li>
+<li>IS020 재배송 제안 5세트까지 넣으면 약 63만원.</li>
+</ul>
+<p>원가 기준은 그 절반 안팎이다(가설). 금액보다 큰 위험은 재주문 때 밀린 약속을 놓치는 것이다.</p>
+<h3>2-7. 기관 유형별 분포</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>유형</th>
+<th>행</th>
+<th>비중</th>
+<th>순긍정</th>
+<th>혼합</th>
+<th>부정</th>
+<th>순긍정률</th>
+<th>재구매 언급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>초등</td>
+<td>222</td>
+<td>66.7%</td>
+<td>155</td>
+<td>61</td>
+<td>6</td>
+<td>69.8%</td>
+<td>46</td>
+</tr>
+<tr>
+<td>중등</td>
+<td>25</td>
+<td>7.5%</td>
+<td>18</td>
+<td>6</td>
+<td>1</td>
+<td>72.0%</td>
+<td>5</td>
+</tr>
+<tr>
+<td>지역아동센터·돌봄</td>
+<td>24</td>
+<td>7.2%</td>
+<td>18</td>
+<td>6</td>
+<td>0</td>
+<td>75.0%</td>
+<td>4</td>
+</tr>
+<tr>
+<td>유치원·어린이집</td>
+<td>17</td>
+<td>5.1%</td>
+<td>14</td>
+<td>2</td>
+<td>1</td>
+<td>82.4%</td>
+<td>3</td>
+</tr>
+<tr>
+<td>복지관(노인·장애인)</td>
+<td>12</td>
+<td>3.6%</td>
+<td>11</td>
+<td>1</td>
+<td>0</td>
+<td>91.7%</td>
+<td>1</td>
+</tr>
+<tr>
+<td>특수학교</td>
+<td>11</td>
+<td>3.3%</td>
+<td>11</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>2</td>
+</tr>
+<tr>
+<td>고등</td>
+<td>9</td>
+<td>2.7%</td>
+<td>8</td>
+<td>1</td>
+<td>0</td>
+<td>88.9%</td>
+<td>3</td>
+</tr>
+<tr>
+<td>기타</td>
+<td>6</td>
+<td>1.8%</td>
+<td>5</td>
+<td>0</td>
+<td>1</td>
+<td>83.3%</td>
+<td>0</td>
+</tr>
+<tr>
+<td>병원·보건소</td>
+<td>4</td>
+<td>1.2%</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+<td>75.0%</td>
+<td>0</td>
+</tr>
+<tr>
+<td>대학</td>
+<td>2</td>
+<td>0.6%</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>0</td>
+</tr>
+<tr>
+<td>미상</td>
+<td>1</td>
+<td>0.3%</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>100%</td>
+<td>1</td>
+</tr>
+<tr>
+<td>합계</td>
+<td>333</td>
+<td>100%</td>
+<td>246</td>
+<td>78</td>
+<td>9</td>
+<td>73.9%</td>
+<td>65</td>
+</tr>
+</tbody>
+</table></div>
+<p>초등의 순긍정률이 가장 낮다. 장갑 사이즈, 개봉, 양처럼 초등 교실에 몰리는 이슈 때문으로 본다(가설). 유형은 기관명으로 분류했다. 마을건강센터는 병원·보건소로 들어갔다. 복지관 12행에는 노인·종합 복지시설 7행과 장애인복지 5행이 섞여 있다.</p>
+<h3>2-8. 월별 추이</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>월</th>
+<th>피드백 행</th>
+<th>순긍정</th>
+<th>혼합</th>
+<th>부정</th>
+<th>이슈 행(비율)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-04</td>
+<td>55</td>
+<td>41</td>
+<td>14</td>
+<td>0</td>
+<td>14 (25%)</td>
+</tr>
+<tr>
+<td>2026-05</td>
+<td>76</td>
+<td>56</td>
+<td>19</td>
+<td>1</td>
+<td>20 (26%)</td>
+</tr>
+<tr>
+<td>2026-06</td>
+<td>66</td>
+<td>48</td>
+<td>15</td>
+<td>3</td>
+<td>18 (27%)</td>
+</tr>
+<tr>
+<td>2026-07</td>
+<td>97</td>
+<td>75</td>
+<td>20</td>
+<td>2</td>
+<td>22 (23%)</td>
+</tr>
+<tr>
+<td>2026-08</td>
+<td>18</td>
+<td>14</td>
+<td>3</td>
+<td>1</td>
+<td>4 (22%)</td>
+</tr>
+<tr>
+<td>2026-09(~10일)</td>
+<td>20</td>
+<td>12</td>
+<td>6</td>
+<td>2</td>
+<td>8 (40%)</td>
+</tr>
+<tr>
+<td>날짜 미상</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<p>7월 97행은 학기말 행사량이고, 8월은 방학이다.</p>
+<ul>
+<li><strong>8월 이슈 4행</strong>: 샤인머스켓 물컹(FB299), 양 부족(FB303), 냉장품 냉동·접시 작음(FB311, 08-27), 방토 눌림·새싹 흐트러짐(FB312, 08-28).</li>
+<li><strong>9월 이슈 8행</strong>: 냉해 2행(FB320·FB332), 조청·한과 2행(FB317·FB330), 장갑 2행(FB329·FB333), 누텔라 굳음 1행(FB314), 송편 색 반죽 요청 1행(FB327).</li>
+</ul>
+<p>9월 이슈 비율 40%는 표본(20행)이 작다. 이슈 탭은 날짜 있는 행이 2025-10~11에 몰려 있어 월별 비교에서 뺐다.</p>
+</section>
+<section id="s3"><h2>3. 개선 과제 우선순위</h2>
+<p>후보 과제 57개를 두 단계로 걸렀다. 근거 검증(원문 대조·빈도 재계산)과 실행성 검증(이미 해결 여부·비용·4인분 신고 제약·강점 훼손)이다. 56개가 살아남았고 1개(T24)는 탈락했다. 검증 미완료 과제는 0건이다. 실행성 반박을 받은 12개는 권고를 고쳐 다른 과제에 흡수하거나 보류했다(3-2). 겹치는 과제는 한 줄로 묶었고, 빈도는 2-3 빈도표 기준으로 정정했다.</p>
+<p>7번(해동 품목)과 10번(배송 구간)은 새 후보가 아니다. 검증을 거친 T10·T14·T24·T31의 남은 부분을 따로 묶었다.</p>
+<h3>3-1. 실행 과제 19개</h3>
+<h4>1. 박스 적재 규칙 1장: 냉해 취약군 격리, 상온 봉투, 취성품 최상단 (T01·T05·T33, T10·T11 일부)</h4>
+<ul>
+<li><strong>근거</strong>: 새싹·허브 냉해 7건/7기관, 방울토마토 5건/5기관, 바나나 2, 샤인머스켓 1, 마요네즈 1, 적재가 원인인 과냉동 3(FB025 단무지, FB311 냉장품 냉동, FB314 누텔라 굳음), 파손 3(FB152·FB231·FB272). 피드백 심각도 3 이상 5행(FB099·FB150·FB190·FB211·FB285)이 전부 이 계열. 보상 2건(MS05 행사 전체 무료, FB211 쿠폰), 교사 자비 구입 3건(FB097·FB099·FB198). "새싹은 얼어서 눌러져서 오는 바람에 사용도 못해서"(FB099, CS 정리 메모). 검증 정정: 심각도 critical→high</li>
+<li><strong>근본 원인</strong>: 취약 재료가 드라이아이스·하드팩과 같은 구획에서 닿는다. 계절·거리·세트수별 냉매 사양표가 없다(AG10 "데이터가 없어서", 정리 공란). 냉기 유지 칭찬(19~24행)과 함께 나오므로 냉매 양보다 배치 문제로 본다(가설)</li>
+<li><strong>권고</strong>: 내일: 규칙 두 줄을 포장대에 붙인다. ① 장식컵: 새싹·무순·어린잎·애플민트·바질·방울토마토·쪽파·마요네즈를 뚜껑 PP컵에 담아, 냉장군 위에 골판지 1장을 올린 뒤 맨 마지막에 냉매와 닿지 않게. 바나나는 냉매·냉장군과 완전 분리. ② 상온 봉투: 조청·누텔라·연유·약과·슈가파우더를 냉매 없는 봉투에 묶어 최상단. 모나카 깍지·접시는 원 트레이째 최상단 또는 벽면.<br>봉함 전 상단 사진 1장. 마요네즈는 시판 1회용 파우치, 쪽파는 통째+'가위로 자르기' 1줄.<br>9월: 창고 벤치 테스트(로거 3개, 30~35℃ 36시간). 2027-04말~05초: 실배송 로거 3회로 사양표 확정(9절 16번).<br>냉매 감량·3존 재설계·원재료 대체는 로거 결과와 비수기(12~2월) 뒤로</li>
+<li><strong>난이도 · 효과</strong>: 낮음(박스당 100~200원, +10초) · 높음</li>
+<li><strong>지표</strong>: 냉해·과냉동 태그 행/월 → 0. 벤치 테스트 장식컵 최저 0℃ 이상, 냉장군 최고 10℃ 이하. 콜드체인 칭찬 유지</li>
+</ul>
+<h4>2. 출고 계수 통제: 식탁보·부자재·낱개 재료 누락 방지 (T13·T18·T36·T32, T37·T38 흡수)</h4>
+<ul>
+<li><strong>근거</strong>: 검수 이슈 19건(기타 낱개 누락 9, 식탁보 5, 파손 3, 도안 2)+접시·수저·스푼 부족 5+장갑 수량 3. 누락 체크 탭 14행 중 비식품 10행. 행사일이 같은 5/28에 중등 2곳이 동시에 식탁보 누락(MS07·MS08, 33·28세트). 누락 탭의 날짜는 행사일이라 같은 출고 배치였는지는 가설이다. 행사 전에 먼저 알린 사례는 1/14(MS12, 발견 경위 기록 없음). "5개 포장온 큰 박스에 테이블보가 누락되긴했어요"(FB277). 검증 정정: '5세트 이상 6/6'은 오류(MS06·MS09 1세트, MS11 2세트)</li>
+<li><strong>근본 원인</strong>: 부자재 수량을 담는 사람의 기억에 맡긴다. 메뉴별 구성표(BOM)도, 마감 때 남은 수량 대조도 없다. 유치원 인원맞춤 포장은 식탁보 몇 장인지 기준이 없다</li>
+<li><strong>권고</strong>: 오늘: 출고시트에 '식탁보 수' 열(세트수, 인원맞춤은 올림(인원/4))+박스당 1장. 출고일 아침 그날 부자재를 트레이에 미리 세어 두고, 마감 때 트레이가 비어야 택배 인계. 남으면 박스를 다시 연다. 식탁보는 음식 팩과 따로 맨 위 봉투에(FB123). 기존 반 라벨에 1줄 '박스 n/N · 세트 k · 식탁보 · 장갑 아동/성인 · 인쇄물 · 즉시 섭취 스티커'.<br>이번 주: 메뉴별 피킹 카드 A4 1장(정답 사진·품목·개수·온도대). 누락 이력 메뉴부터(스낵랩·롤·디카페인·샌드·카나페·스텐실). 스텐실 도안은 파우더 봉투에 넣고 PDF를 수업자료 폴더에 상시.<br>2인 검수는 고위험 주문만(유치원 인원맞춤, 5세트 단위로 안 나뉘는 대량, 신메뉴, 보상 재진행)</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 높음</li>
+<li><strong>지표</strong>: 고객 신고 누락 건/월(5~7월 3~6 → 1 이하). 행사 전 자체 발견 비율(1/14 → 50% 이상). 잔량 대조 실시일 비율</li>
+</ul>
+<h4>3. 보상 약속 이행 확인, 보상 기준 4줄, 사고 기록 한 곳으로 (T19·T17·T20, T42 일부)</h4>
+<ul>
+<li><strong>근거</strong>: 품질·누락 보상 10건/11개월. 이연 무료 약속 6건 중 서식상 이행 3(취소선: MS02·MS05·MS06), 대기 2(빨간 채움: MS09 5월부터, MS10 9월 적용 예정), 기록 밖 1(IS027). 식탁보 누락 5건 중 보상 기록 1건. 누락 탭에 없는 누락 7건(FB124 오포장, FB152, FB190, FB252, FB272, IS027, IS034). MS02는 탭 기록('텃밭3으로 도와드림')과 교사 회신(FB028, 서비스 사양)이 어긋난다. "1개 메뉴 무료해 드려야함+스타벅스 기프티콘"(MS09). 검증 정정: 심각도 high→medium, 공란은 무기록일 수 있음</li>
+<li><strong>근본 원인</strong>: 보상 기준이 문서로 없다(암묵 규칙은 있음: 영향 세트 1:1, 낱개는 기프티콘). 재주문을 받을 때 밀린 약속을 보여주는 장치가 없다</li>
+<li><strong>권고</strong>: 오늘: MS10 9월 주문에 6세트 무상이 반영됐는지 확인(최우선). MS09 재주문 여부 확인. IS027에는 유효기간 안내.<br>이번 주: 보상 기준 4줄(9절 6번). C 도착 전 해결=사과만. B 낱개 1품목 결손·교사 대체=당일 기프티콘 1장(담당 전결). A 핵심 재료·세트 전체 결손·자비 구입=영향 세트 1:1 다음 주문 무료+실비. 상한=영향 세트 수, 행사 전체 무료는 대표 예외. 이연 보상 유효기간은 학년도 말.<br>누락 탭 3열(등급·보상 원가·이행). 결제관리 시트 기관명 옆에 미이행 플래그. 지금 사과+기프티콘을 보낼 곳 3곳: 같은 기관의 두 번째 이슈 2곳(FB272 유치원=MS04와 같은 기관, FB152 초등=직전 주문 접시 파손에 이어)과 재구매 기관의 첫 누락 1곳(FB252 초등, 직전 회신 FB132는 불편 없음). 미등재 7건 소급</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간(재주문 신뢰)</li>
+<li><strong>지표</strong>: 이연 약속 이행 기록률 100%. 재주문 접수 때 밀린 약속 누락 0. B등급 보상 편차 0</li>
+</ul>
+<h4>4. 식품 안전 안내 2종: 알레르기 응대 1종, 기본 용기 '즉시 섭취' 스티커 (T22, AG09·T30 일부)</h4>
+<ul>
+<li><strong>근거</strong>: 알레르기 문의 1건(IS075)에 함유 여부 없이 교차 접촉 고지로 답했다. 템플릿 2종의 경고 강도가 다르다(IS067 '절대 섭취를 금합니다'+'사이토카인', IS075 '가급적 권장드리지 않는'). 목록은 같지만 알류·난류 중복. 실제 사고 0건, 동봉 안내 칭찬 1(FB285). 화전·스텐실·강정의 기본 용기에 '즉시 섭취' 안내가 없어 겉포장을 사지 않고 집에 가져가면 식중독 예방을 할 수 없다(AG09). 스티커 제작은 매니저에게 배정됐지만 완료 기록이 없다. 보관·섭취 안내문은 유료 포장(인당 800원)에만 들어 있다(IS070). "난류 알레르기 친구가 있는데 혹시 여기에 들어가는 음식이 있을까요?!"(IS075)</li>
+<li><strong>근본 원인</strong>: 메뉴별 함유 알레르겐 정본이 확정되지 않아 CS가 면책 문구로 답한다. [시트 밖] 위키 review 큐에 함유 알레르겐 확인 대기가 7건(약 14메뉴) 있다(검증 단계에서 review.json 확인, 재확인 필요). 식품 안전 안내를 유료 포장의 장점으로 설계했다</li>
+<li><strong>권고</strong>: 오늘: 매니저에게 AG09 스티커 제작·부착 여부 확인. 안 됐으면 기본 용기가 들어가는 메뉴부터 붙인다. 범위·문구는 9절 3번에서 정한다. IS070에서 '식중독 예방 안내문'을 유료 옵션 장점에서 뺀다.<br>알레르기: 기존 메뉴 실측표의 '알레르기·빼기 조합'을 내부 조회 시트 1장으로 모은다(2시간). 이사님 O/X 일괄 확인(1시간, 9절 8번).<br>템플릿 1종: 함유 알레르겐 / 따로 소분돼 빼고 참여할 수 있는 팩 / 교차 접촉 원문 1줄 / 성분표 링크. 메뉴를 모르면 '어떤 메뉴로 진행하실까요?'부터. '사이토카인·절대·가급적'은 삭제. 알류·난류 중복은 성분표 원문부터 고친다.<br>빨간 스티커, 전 메뉴 금지 문구는 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 높음(안전)</li>
+<li><strong>지표</strong>: 알레르기 문의 첫 회신에 함유·빼기 가능 여부 포함 100%. 확인일 빈 메뉴 0. 기본 용기 스티커 부착률 100%</li>
+</ul>
+<h4>5. 노인복지관 캠페인의 '실적 0' 가드 정정 (T52)</h4>
+<ul>
+<li><strong>근거</strong>: 피드백 탭에 노인복지관 2곳(FB089·FB263), 양로원 1곳 2회(FB290·FB310) 공급 실적이 있다. 마을건강센터 1곳도 반복 이용(FB199·FB236)이지만 원문은 '주민들' 반응이라 어르신 프로그램으로 단정하지 않는다. 이 기관들의 이슈·누락·블랙리스트 기록 0건. 성인 기관 양 칭찬 2행(FB097·FB304), 양·단맛 불만 0. [시트 밖] 캠페인 가드 '노인복지관 실적 0', 249곳 메일 발송 대기, 추석 블로그 미발행은 08-21 업무일지와 송편 블로그 확정 목록(R-081) 기준이다(검증 단계 확인, 현재 상태 재확인 필요). "재료도 소분돼 냉장 상태로 유지돼서 준비가 수월했습니다"(FB263)</li>
+<li><strong>근본 원인</strong>: 성인 세그먼트가 '기타'로 묶여 따로 집계되지 않았다</li>
+<li><strong>권고</strong>: 가드를 '노인복지관·양로원 공급 실적 있음(샌드위치·김밥·롤)'으로 고친다(9절 10번). 마을건강센터는 '주민 프로그램'으로 따로 적는다. 송편 실적과 섞지 않는다.<br>메일에 1~2줄+익명 인용(FB263 첫 메시지만, 쿠폰 언급 뒤 문장은 제외). 블로그에 '어르신 프로그램에서도 다시 찾아 주세요' 1줄. 기관 수는 쓰지 않는다.<br>성인용 양·단맛 안내는 넣지 않는다. FB304 기관은 유형 확인 전에는 '어르신' 문구에 쓰지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간(발송 전이면 시급)</li>
+<li><strong>지표</strong>: 캠페인 회신·주문 전환 수. 10~11월 2차 주문</li>
+</ul>
+<h4>6. 위생장갑: 기관 유형 기본값, 주문 문구 정리, 반별 팩 통째 동봉 (T06·T07)</h4>
+<ul>
+<li><strong>근거</strong>: 찢어짐 11건/11기관(4·5·6·7·9월, 8월 0), 사이즈 작음 8건/8기관(4~7월), 수량 부족 3건, 합 22건(고유 20행). 단일 유형 1위. 찢어짐·사이즈는 사건 19건, 고유 18행(FB184가 두 유형에 걸림)이고 유치원·어린이집은 0. 교사 우회 2(FB031 학교 장갑 교체, FB241 손만 씻고 참여). 보상 1(MS11). 사이즈를 주문 때 교사가 고르는 구조다: "장갑 사이즈 결정이 어려워서 반반을 했는데"(FB129), '장갑은 사이즈 반반으로'(IS011), 협업 양식 '학년(장갑 사이즈 지정용)'(AG03). 검증 정정: 심각도 high→medium</li>
+<li><strong>근본 원인</strong>: 기본값 없이 교사에게 사이즈를 고르게 하고, 고르기 어려우면 반반이 된다. 초등에 유아 규격 아동용이 나가 늘어나며 찢어진다(가설). 세트마다 낱장을 세서 넣어 수량 오류가 생긴다</li>
+<li><strong>권고</strong>: 오늘: 소분팀에 7월 이후 사이즈를 바꿨는지 확인(7/8 이후 사이즈 언급 0). 규칙: 유치원·어린이집은 아동용, 초등·센터·중고·성인 기관은 성인 프리 기본, 초1~2는 요청 시 아동용.<br>주문·컨펌 문구도 같이 고친다. 사이즈를 묻지 말고 '초등 이상은 성인 프리 사이즈로 보냅니다. 1~2학년 아동용이 필요하면 회신' 1줄. AG03 협업 양식의 '학년(장갑 사이즈 지정용)' 설명을 바꾸고, 반반 관행(IS011)은 멈춘다.<br>이번 주: 세트별 낱장 계수를 없애고 반별 박스에 밀봉팩 1팩 통째(여분·교사용 자동 포함, 박스당 +500~1,000원 추정, 9절 7번). 팩 스티커 '여분 포함 · 냉장 봉투는 장갑 끼기 전에 개봉'.<br>2주: 엠보싱 PE 0.03mm 성인 프리 1종 샘플·견적. TPE는 보류</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 장갑 계열 태그 행/월(약 4 → 0.5 이하). 문구 변경 뒤 사이즈 문의 건수</li>
+</ul>
+<h4>7. 해동 품목 대응: 김밥 교실 준비 부담, 냉동 베리 과즙 (T10 권고 중 남은 부분)</h4>
+<ul>
+<li><strong>근거</strong>: 김밥 교실 부담 4행: FB031(교사가 다 뜯어 책상에 올리고 밥 해동하러 이동), FB050(1교시 냉동품이 꽁꽁 얼어 따뜻한 물로 녹임), FB123(식탁보를 음식 팩과 같이 꺼내 어수선), FB220(아침에 속재료까지 전자레인지, 불만 아님). 빈도표에서는 '김밥 교실 준비 부담'(1회), 과냉동·해동, 식탁보 옵션 요청 유형에 흩어져 김밥 문제로는 1회만 잡혔다. 냉동 베리 해동 과즙 3행: FB159(책상·바닥 오염), FB198(흐물흐물해져 교사가 블루베리 자비 구입), FB238(옷 오염). "냉동 김밥이랑 냉장 김밥을 꺼내고 식탁보를 펴니까 조금 어수선하더라고요"(FB123)</li>
+<li><strong>근본 원인</strong>: 냉동 품목의 해동 순서·시간을 안내하지 않는다. 식탁보가 음식 팩과 같이 들어 있다. 동결 베리 과즙에 대한 대비가 없다. 김밥 대책은 '1~2교시면 다른 메뉴 추천' 1줄뿐이었다</li>
+<li><strong>권고</strong>: 김밥: ① 식탁보는 맨 위 별도 봉투(2번과 같은 조치). ② 교사 안내 페이지의 기존 보관 문단을 5줄로 바꾼다: 밥은 전자레인지 N초(주방 실측), 속재료는 실온 N분, 단무지는 물기 짜기, 식탁보부터 펴기, 1~2교시면 전날 퇴근 전 냉동 봉지만 냉장실로. ③ 확정 문자 교시 질문(9번)에서 1~2교시면 샌드·카나페·크레페도 함께 안내. ④ 단무지 같은 시판 부자재를 냉동 존에서 빼는 시험(가설). 밥 등 자체 제조 품목은 보관 기준 때문에 그대로 둔다.<br>베리: 동결 베리는 유지(맛 칭찬 FB008). 키친타월 2장 동봉 + '키친타월 위에 5분 둔 뒤 올리기' 1줄.<br>10-2에서 기각한 '해동 카드 3곳 동봉'과 달리 새 인쇄물 없이 기존 문단을 대체한다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 김밥·베리 메뉴의 '해동·과즙·어수선' 언급 행/월 → 0. 1~2교시 김밥 행사 해동 불만 0</li>
+</ul>
+<h4>8. 정책·가격 문구 상충 4쌍 확정 (T28·T30·T41·T16·T31)</h4>
+<ul>
+<li><strong>근거</strong>: 실제 상충 4쌍: 포장용기 300원↔800원, 알레르기 경고 강도, 읍·면 주말 도착, 유치원 배송비 무료↔4,900원+20명당 4,900원. 여기에 미확정 의상가 1(4,900원↔'1월말 1,900원 조정 예정' 메모), 반영 안 된 결정 1(AG06→IS061), 안전 안내 위치 1(IS070↔AG09, 4번). 포장용기 가격 이슈 2건(FB188·IS070), 분할배송·배송비 3건/3기관, 읍·면 4건/4기관. "무료라면서 왜 800원이냐"(IS070 인입). 검증 정정: '6쌍 이상' 중 3쌍은 대상·채널 차이라 상충 아님</li>
+<li><strong>근본 원인</strong>: 정책 값이 템플릿 문장 안에만 있고, 개정해도 옛 행을 폐기하지 않는다</li>
+<li><strong>권고</strong>: 이사님 30분 결정(9절 1~5·11번). 해당 템플릿 숫자를 직접 고치고 옛 행은 취소선.<br>상용구 탭 상단에 '현행 수치' 10줄 고정: 배송비, 분할배송 5세트, 선물 포장, 의상, 조리도구 미포함 -100원, 계좌 5%, 예산 맞춤 한도, 4인분 단위, 주말 출고 원칙, 도서산간. 아젠다 탭에 '템플릿 반영' 열.<br>포장용기는 이미 정한 AG18(학교·센터는 문자 주문 때 묻지 않고 요청 때만)을 유지한다.<br>배송 원칙 3줄: 행사 전 마지막 수령 가능일 도착 / 일·공휴일 도착은 휴일배송 권역만 / 도착~행사 1일 초과 때만 즉시 냉장.<br>정책ID 치환, 9열 레지스터, 분기 리뷰는 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: '안내와 다르다' 되묻기 월 0. 아젠다 결정 중 템플릿 반영 공란 0</li>
+</ul>
+<h4>9. 주문 단계에서 수업일·반별 인원·실무자 번호 받기 (T09·T15·T21·T39, T02·T55 일부)</h4>
+<ul>
+<li><strong>근거</strong>: 4인분 단위 불편 8건/7기관(무상 보정 2건 5세트: IS002 2·IS018 3), 출고일 오기입 3건(+읍·면 일정 4, 당일 출고 요청 2), 실무자 번호 미기재 2건(요구 템플릿 7종), 행사 연기 자동취소 1건(IS037, 특수학교), 1교시 해동 1건(FB050). "주문하신 67세트보다 3세트가 더 필요하답니다"(IS018). 검증 정정: 심각도 medium, 날짜 오류로 행사가 실패한 사례는 0(확정 문자에서 전부 걸러짐)</li>
+<li><strong>근본 원인</strong>: 결제가 끝난 뒤 컨펌 단계에서야 인원·수업일을 확인한다. 학교는 결제 후 추가 결제가 어려워 무상 보정으로 끝난다</li>
+<li><strong>권고</strong>: 스토어 날짜 칸이 직접입력 옵션인지 먼저 확인하고, 이름을 '수업일(미정·여러 날 가능)'로 바꾼다.<br>컨펌 문자 1번 질문을 '반별 학생 수(명)'로 바꾸고 세트 환산은 우리가 한다. 첫 줄은 통보형 '수업 ○/○ → 출고 ○/○ → 도착 ○/○, 다르면 회신'. 행사 교시 1줄(1~2교시면 7번 김밥 안내 적용).<br>결제관리 시트 수령인 번호 010 검사(유선이면 즉시 전화), 실무자 번호를 송장에 반영. 행사 연기 접수 때 채널 발송기한 확인 1줄. 교사지도안에 '5인 모둠이면 남는 1세트를 공용 보충 바구니로' 1줄.<br>1인 보충팩 SKU, 학년 필수 입력, 기관/가정 옵션은 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 결제 후 수량 부족 발견 건/학기 → 0. 날짜 정정 태그 건/월. 출고 전날 실무자 미확보 0</li>
+</ul>
+<h4>10. 배송 구간: 택배기사 소통·도착 시각·재출고 이중 비용·출고 당일 문자 (T24 남은 증상, T14·T31 일부)</h4>
+<ul>
+<li><strong>근거</strong>: AG10(정리 공란): "문자,전화 안되는 기사님도 있고, 도착시간 물어봤는데도 뭐라하시는 기사님도 있음", "늦어서 재출고 해드렸는데 당일배송이 될 경우 환불도 안됨". 송장 1개로 3박스 수거가 혼선된 경우의 템플릿(IS053). 도착 시각 불안 1건(FB067, 당일 오전 도착 추정)과 응대 문자의 '오후 늦게 도착' 안내 2건(IS060·IS017). 출고 당일 문자 여부 미결(AG11, 정리 공란). 재출고 건수·비용 기록 0</li>
+<li><strong>근본 원인</strong>: 기사·집하 영업소와의 연락 경로가 없다. 재출고 판단 기준과 기록이 없다</li>
+<li><strong>권고</strong>: 이번 주: 재출고 규칙 1줄(9절 18번). 행사 전날 오후 배송조회에서 '배송출발'이면 재출고하지 않고 영업소에 먼저 확인한다. 재출고하면 사고 기록 탭(8절)에 사유·비용을 적는다.<br>집하 영업소 담당 연락처 1개를 확보해, 기사 연락이 안 되면 영업소로 묻는다.<br>반품 수거는 CJ 반품 접수 때 박스 수를 입력하거나 박스 수만큼 송장을 발행한다(IS053 원천 차단, 14번과 같이).<br>지방·읍면 '오후 늦게 도착할 수 있음' 1줄은 IS060 문구를 재사용한다.<br>출고 당일 문자는 9절 20번에서 정한다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 재출고 건수·비용/월(기록 시작). 도착 시각 문의 건수</li>
+</ul>
+<h4>11. 개인정보·시트 권한 정리 (T29, T49 일부)</h4>
+<ul>
+<li><strong>근거</strong>: 교사 휴대폰 번호 21셀(이슈 탭 19셀은 2025-10~11에만, 블랙리스트 2셀), 실명 8셀(누락 탭 기타사항 4셀은 2026-05~09에도 발생 중), 기관명 종교 부기 1(IS047). BL01은 회사 귀책 인정·청구 철회 건인데 교사 번호·반 표기와 함께 등재. (인용 생략: 개인정보)</li>
+<li><strong>근본 원인</strong>: 연락처가 케이스 행마다 복사되고, 담당 교사를 실명으로만 구분한다. 공유 범위를 점검한 기록이 없다(가설)</li>
+<li><strong>권고</strong>: 이사님 5분: 공유 설정 확인. 링크 공개면 즉시 '제한됨', 퇴사자·외부 계정 제거.<br>전화번호 열은 옮기지 말고 삭제(원본은 주문관리·결제관리에 있다고 봄, 삭제 전 확인). 실명은 '문자/카톡·주문번호'로, 가정 수령 행(FB058)은 '개인(가정 수령)'으로. IS047 괄호 삭제. 탭 상단에 '이름·전화번호 쓰지 않기' 1줄.<br>범위 보호, 주소 시군구 절삭, 2년 삭제 규칙은 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음(20~30분) · 중간(링크 공개면 높음)</li>
+<li><strong>지표</strong>: 월 1회 '010-'·'○○○T' 검색 0건. 편집 권한자 수</li>
+</ul>
+<h4>12. 측정 기반: 반복 이슈 탭, 이슈 태그, 피벗 1개 (T04·T50·T26)</h4>
+<ul>
+<li><strong>근거</strong>: 6탭 전체에 수식·피벗·드롭다운 0개. 장갑 찢어짐이 6개월 중 5개월(4·5·6·7·9월, 8월 0)에 나왔는데 아젠다 안건 0. 메뉴 공란 152/333(4~6월 집중, 6/12 이후 0). (+) 표기 35행은 복수 메뉴 주문 표시. '--&gt;' 조치 메모 6행뿐. 대표 인용 없음(구조 문제). 검증 정정: 20컬럼 수기 코딩은 기록 자체가 끊길 위험</li>
+<li><strong>근본 원인</strong>: 시트가 기록 도구로만 설계돼 읽는 사람용 뷰가 없다</li>
+<li><strong>권고</strong>: 오늘 30분: '반복 이슈' 탭(빈도표 50유형 붙여넣기+담당·조치·기한·상태).<br>피드백 탭에 3열: 채널, 이슈태그(칩 10개), 조치·회신. 메뉴는 복수선택 칩으로 바꾸고 (+) 폐지. 과거 행은 이번 코딩 결과를 일괄 붙여넣기. 피벗 1개(태그×월, 범위 한정). 월 첫 회의 5분 확인.<br>감정·심각도·재구매·학년은 분기 1회 자동 코딩 탭으로 뺀다. IMPORTRANGE, 월 SUMIFS, 자동 아젠다 생성은 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 반복 이슈 탭 조치완료 비율. 이슈 행 태그율 90% 이상. 2개월 연속 유형의 아젠다 등재율</li>
+</ul>
+<h4>13. 재구매 예정·샘플 팔로업 (T25·T48)</h4>
+<ul>
+<li><strong>근거</strong>: 재구매·재이용 언급 62~66행. 시기 명시 12행에서 4행을 뺀다(재주문 FB022→FB231·FB132→FB252, 이미 추적 중 FB186=MS10, 내년 FB194). 남은 8곳(FB054 10월, FB115 2학기 4반, FB117, FB175, FB203 텃밭케이크, FB247, FB307 9월 전통다과, FB309 샘플·11월 초 김밥)에 시기 없이 가까운 주문을 말한 2곳(FB332 '조만간', FB328 샘플=SP14 '행사 날짜에 맞춰 이전에 주문')을 더해 팔로업 10곳. 구전 7~8행. 샘플 17행 중 주소·메뉴 미기재 6(SP05·06·09·14·16·17), 날짜 공란 5(SP05·06·07·16·17). SP14는 빈칸인데 실제로 발송돼 회신(FB328)까지 왔다. 탭이 발송 뒤 갱신되지 않는다는 뜻이다. 샘플→주문은 피드백 탭에 주소가 없어 이름 일치 수준 3건(SP04→FB204, SP05→FB168, SP10→FB123·FB151·FB223)이고 결제 기록 대조 전까지 '확인 필요'다. 기존 고객 1(SP12), 탭에 없는 샘플 2(FB008·FB049). "2학기에 4반이 또 신청할게요"(FB115). 검증 정정: '3회 이상 37곳'은 오류(2행 이상 37~38곳, 3행 이상 6곳), '확정 전환 2'는 과장</li>
+<li><strong>근본 원인</strong>: 피드백 수집이 불편 확인용이라 예정월·구전을 적는 칸이 없다. 샘플 탭은 발송 메모 수준이고 발송 뒤 갱신되지 않는다</li>
+<li><strong>권고</strong>: 피드백 탭 '팔로업월'(해당 행만)과 누락 탭 보상 약속을 한 목록으로 본다. 발송은 예정월 3주 전 1:1 문자, 결제 데이터로 이미 주문한 기관은 뺀다. 이번 달 대상: FB307(9월), FB328(행사일 확인), FB054(10월 예정 → 9월 셋째 주).<br>샘플 이름 일치 3건은 결제관리와 대조해 전환 여부를 확정한다. 5개월째 소식 없는 샘플 FB008은 1회만 연락.<br>피드백 답장 템플릿에 '계획하신 달을 알려주시면 3주 전에 먼저 연락드려도 될까요?' 1줄(예정월과 수신 동의를 함께 받음). 동의 없이 거래 후 6개월 지난 번호에는 혜택 권유 문자를 보내지 않는다(정보통신망법, 가설 수준 검토).<br>샘플 탭 4열(유형·상태·예정월·첫 주문일)을 추가하고, 발송 당일 주소·메뉴·발송일을 채운다. 새 할인, 7일차 문자, 월 전환율 아젠다는 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 팔로업월 행의 30일 내 주문 전환율. 학기 재구매 기관 비율. 샘플 분기 코호트 전환율. 샘플 탭 빈칸 0</li>
+</ul>
+<h4>14. 보냉용품 반납 체계 (T14·T49)</h4>
+<ul>
+<li><strong>근거</strong>: 반납 문제 6건/5기관(2025-12~2026-06). 블랙리스트 3행 전부 회수 사유, 2026-06 이후 신규 등재 0. 다만 경미한 반납 포장 어긋남은 7월에도 있다: "두 박스에 적절히 나누어서 담느라 아이스팩과 보냉백이 섞였습니다"(FB268, 초등, 07-23, 교사 불편 없음). BL01(초등) 개선 약속 뒤 BL02·BL03 재발(유형은 다름). 반납 종이 누락 1(IS034). "사진처럼 반납해 주시면 쿨러백은 다시 쓰지를 못해서 폐기처분해야합니다"(BL02 회사 문자). 검증 정정: 심각도 medium</li>
+<li><strong>근본 원인</strong>: 반납 규칙이 3단으로 복잡하고 반납 종이가 가끔 빠진다. 청구 근거가 되는 사전 동의가 없다</li>
+<li><strong>권고</strong>: 기존 반납 종이 1장 재인쇄. 앞면 반품 라벨, 뒷면 그림 2컷('박스 밖으로 내놓지 않기', '쓰레기 섞지 않기'), 뚜껑 안쪽 테이프 부착. 여러 박스에 나눠 담는 것(FB268)은 허용하고 이 두 가지만 지키게 한다. 검수표 '반납 종이' 1줄은 2번에 합친다.<br>출고 문자에 중립 1줄(청구 문구 없음). CJ 반품 접수 때 박스 수 입력. 청구 대신 해당 기관 재주문 때 폐기형 냉매.<br>블랙리스트 탭은 없애고 사고 기록 탭(유형=회수, 귀책)으로 옮긴다. BL01 귀책=당사. AG10(회수형·폐기형)은 11월 원가 계산으로 정해 2027-04부터 적용(9절 17번). 젤팩 전환, A/B 테스트는 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 회수 실패율(실패/회수 박스, 월). 반납 종이 누락 0</li>
+</ul>
+<h4>15. 수업자료 정합성, 구성품 안내 (T23·T44·T12, T46·T55·T45 흡수)</h4>
+<ul>
+<li><strong>근거</strong>: 구성품 용도·수량·사용법 안내 부족 7건/6기관, 설명서·영상 불일치 3건/2기관, 스텐실·카네이션 고정 실패 4건/4기관(2026-05-06~08 어버이날 주간에만, 이후 스텐실 4행은 모두 긍정). 교사 자비 구입 1(FB192). "삽스푼이 예시 사진에는 꽂혀 있는데, 준비물에는 포함되어있다는 문구가 없어서"(FB192). 검증 정정: 심각도 low~medium, '구성품 표 부재'가 아니라 CS 답변이 자료로 돌아가지 않는 문제</li>
+<li><strong>근본 원인</strong>: CS 답변 템플릿(IS087 등)을 만들어도 설명서·교사 페이지에 반영하지 않는다. [시트 밖] 검증 단계에서 조리설명서 문서를 열어 보니, 아보카도 안내서가 07-30 수정 뒤 '미신청 시 레시피 포인트 참고'라고 쓰는데 레시피 포인트 문서에는 달걀 삶는 법이 없었다(끊긴 참조, 재확인 필요)</li>
+<li><strong>권고</strong>: 오늘 1~2시간: 문구 4건. 다과 블루베리=약과 장식용 / 크레페 도우 1장=2인분, 반 잘라 1인 / 김밥 단무지 물기 짜기 / 텃밭 삽스푼 동봉.<br>아보카도 안내서의 끊긴 참조를 확인해 삶는 법 3줄을 직접 적고, 달걀 봉투에 상태 스티커(생달걀/삶은 달걀). 스텐실 '정수 사용' 문구를 요리 이야기 첫 줄로. 안내서 '요리 이야기' 제목 아래 '배경지식 코너, 조리는 설명서·영상대로' 1줄. 교사 페이지 영상 링크 전수 점검(송편 먼저, 크리스마스 스텐실은 10월 중).<br>스텐실: 9월 흔들기 테스트, 10월 중순까지 돔 뚜껑 용기(IS069 약속 이행, 9절 15번). 규칙: CS 답변을 만든 날 자료에도 반영. 새 표·동봉 카드는 추가하지 않는다(FB031 자료 과다)</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 자료에 반영 안 된 CS 답변 0. 설명서·영상 불일치 문의 0. 스텐실 시즌당 불량 언급 1 이하</li>
+</ul>
+<h4>16. 템플릿 위생, 상용구 탭 분리, 회신 가시화 (T57·T43·T40, T27 흡수)</h4>
+<ul>
+<li><strong>근거</strong>: 본문 자리표시자 1(IS024), 날짜 박힌 범용 템플릿 4종(IS023·IS036·IS040=IS052·IS073), 내부 메모·고객 답변 혼입 6행, 템플릿 중복 4쌍. 이슈 탭 88행 중 날짜 공란 61행(날짜·기관 모두 빈 행 51, 날짜 없이 기관만 있는 행 10). 질문형 피드백 5~8행 중 조치 메모 1. 이벤트 템플릿 5행(IS019·IS030·IS077·IS082·IS083)의 보상명은 스타벅스다. [시트 밖] 검증 단계에서 현행 구글폼 상단 문구는 '메가커피 아메리카노 2장'으로 확인됐다(재확인 필요). 문체 불만 0. "안녕하세요. 00초등학교 선생님 밀프레드입니다!"(IS024, 중등 발송 기록)</li>
+<li><strong>근본 원인</strong>: 실제 발송문을 사례 로그에 붙여 쌓아서 템플릿과 로그가 한 탭에 섞였다</li>
+<li><strong>권고</strong>: 30분 청소: IS024 '00초등학교'→【기관명】, IS040 날짜→【출고일】【행사일】, IS059 고객 답변 줄과 IS067 조정 예정 메모 삭제, 요금 부과 문장의 'ㅠㅠㅠ' 삭제, IS066에 '해소, 복붙 금지' 표시.<br>이슈 탭에서 날짜나 기관이 있는 37행은 아카이브로, 범용 문안 15~20개는 상용구 탭으로. 기한 있는 5행에만 확인일.<br>피드백 탭 질문형 행에 노란 조건부 서식, 답하면 '--&gt; 답변 요지'. AG21 일일 체크에 '노란 셀 0·스토어 미답변' 2줄. 이벤트 템플릿 보상명은 현행 보상을 확정한 뒤 맞춘다(9절 12번).<br>150~350자 제한, ㅜㅜ 금지, 호칭 변수화, 5컬럼 티켓화는 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 낮음~중간</li>
+<li><strong>지표</strong>: 상용구 탭 '【' 잔존·지난 날짜 0. 노란 셀 주 1회 0</li>
+</ul>
+<h4>17. 재료 양·1인분 기대치 (T08, T47 흡수)</h4>
+<ul>
+<li><strong>근거</strong>: 소스·크림·토핑 부족 8건/8기관, 주재료 부족 6건/6기관, 1인분 학년 불일치 4건/4기관. 중등 양 부족 4행, 고교 0행. '양 넉넉' 칭찬이 부족보다 많다. 교사 자비 구입 2(FB118 햇반, FB120 식빵). "중3 학생들이라 빵1개는 양이 많이 부족해서 따로 식빵을 준비했습니다"(FB120). 검증 정정: 심각도 medium, '고교 부족'·'여유 0%'는 근거 없음</li>
+<li><strong>근본 원인</strong>: 메뉴별 소분량을 검증한 적이 없고, 주문 전에 1인 구성·권장 학년을 알려주지 않는다</li>
+<li><strong>권고</strong>: 이번 주: 텃밭 크림·파우더, 모나카 속, 롤 소스의 실소분량을 계량해 부족률 15% 이상인 메뉴만 조정. 나머지는 박스당 소스 여유팩 1개. 수업자료에 크림 1인 도포 기준 1줄.<br>확정 문자에 '중등 이상은 김밥·주먹밥·스낵랩·롤 추천' 1줄. IS039 '양' 공란 답변 채우기. 김밥 흰밥 대체는 요청 시 즉석밥 무료 동봉(9절 14번). 재료 추가 요청은 '4인분 세트 추가(조리도구 제외 시 인당 100원 할인)'로 안내. 메뉴표에 '1인 구성(빵 ½장 등)' 1열(중량 g 표기는 하지 않음).<br>전 키트 +25%, 1.5인분 권장, 보충 SKU는 하지 않는다</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 텃밭·모나카 양 부족 행/분기 → 0. 중등 양 부족 4행 → 분기 2행 이하. '쓰레기' 지적 증가 없음</li>
+</ul>
+<h4>18. 교사 원문 카피 뱅크, 특수교육 세그먼트 (T53·T51)</h4>
+<ul>
+<li><strong>근거</strong>: 맛 칭찬 34행/33기관, 편함 약 65행, '준비할 것 없이' 명시 11행, 콜드체인 칭찬 19~24행, 특수학교 11행/8기관 전부 순긍정, 통합·특수학급 4행. 인용 동의 절차 없음. 협찬(인스타)·샘플 원문이 섞여 있음. "정말 더 손가거나 준비할거 없이 완벽한 패키지였어요"(FB016). 검증 정정: 심각도 low(기회 과제)</li>
+<li><strong>근본 원인</strong>: 피드백을 CS 추적용으로만 쓰고, 마케팅으로 넘기는 경로와 동의 항목이 없다</li>
+<li><strong>권고</strong>: 피드백 탭에 인용 열(인용축·대가 여부·동의·공개 표기). 대가 없는 최근 원문 15건에 1:1로 동의 요청(교사 익명, 학교명 없이).<br>협찬·샘플·쿠폰 이벤트 원문은 표기 없이 광고에 인용하지 않는다(표시광고법 추천·보증 심사지침, 가설 수준 검토). 동의 원문은 추석 송편 캠페인과 가격 방어 템플릿(FB332 가성비, FB016 준비 제로, FB122 소분)에 먼저 쓴다.<br>특수교육 1p는 카피 뱅크 태그로 만들고 '1인 단독 작업' 표현은 쓰지 않는다(4인분 세트)</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 중간</li>
+<li><strong>지표</strong>: 동의 확보 원문 15건. DM 협업 수락률. 특수·장애 세그먼트 신규 기관 수(분기)</li>
+</ul>
+<h4>19. 전통다과·저학년 도구·봉투 개봉 (T11·T35·T34)</h4>
+<ul>
+<li><strong>근거</strong>: 조청·한과 취급 4건/3기관(샘플 2 포함), 저학년 조작·도구 4건/4기관, 봉투 개봉 4건/4기관(순수 개봉 불가는 4월 3건, 5월 이후 0). 교사가 낸 도구 대안 3(튜브·약병·김발). "조청을 묻히는 과정에서 한과가 부서져서 아이들이 할 수 있을까 우려됐습니다"(FB330, 샘플). 검증 정정: 전부 심각도 low~medium</li>
+<li><strong>근본 원인</strong>: 차가운 점성 소스를 비닐에서 떠서 바르는 공정이다(저온 경화, 가설). 도구 목록이 학년과 관계없이 같다</li>
+<li><strong>권고</strong>: 조청 비닐 → 기존 뚜껑 소스컵. 공정 문구 '유과 끝을 조청에 살짝 담근 뒤 고물에 굴리기'. 1번 상온 봉투에 '수업 30분 전 꺼내 두기 · 굳으면 미지근한 물 5분 · 약과 전자레인지 10초' 스티커. 슈가파우더는 소분 비닐 모서리 구멍 안내.<br>롤 꼬치는 끝이 둥근 짧은 픽으로 전 주문 공통 교체. 김밥은 김발 대신 유산지 말기 10초 컷. 봉투 개봉은 4월 이후 사양이 바뀌었는지부터 확인하고, 안 바뀌었으면 실링 날개 V노치 사내 테스트.<br>스퀴즈 보틀, 지퍼백, 안전가위, 김발 동봉은 재발할 때만</li>
+<li><strong>난이도 · 효과</strong>: 낮음 · 낮음~중간</li>
+<li><strong>지표</strong>: 다과·크레페·디카페인 '굳음·안 뜯김·부서짐' 행/월. 꼬치 언급 0</li>
+</ul>
+<h3>3-2. 흡수·보류 과제(실행성 반박 12개)</h3>
+<p>아래 12개는 과제 자체는 근거가 있지만, 원래 권고가 실행성 검증에서 반박됐다. 권고를 고쳐 3-1에 흡수했거나 보류했다. 나머지 과제는 3-1 각 행의 괄호 안 ID로 묶었다.</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>과제</th>
+<th>원래 권고</th>
+<th>판정</th>
+<th>반박 이유</th>
+<th>대신 할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T02</td>
+<td>정책 12항 고정 블록(상세페이지 최상단·문자·수업자료)</td>
+<td>보류</td>
+<td>'예방 가능 78%'는 날짜·기관이 모두 빈 템플릿 51행을 인입으로 센 착시(날짜나 기관이 있는 37행 중 정책 문구로 막을 건 약 10행). 상세페이지 최상단 고지가 있어도 IS024가 생김. 결제 문구는 스토어 제재 위험</td>
+<td>3-1 8·9번. 상세 공통 하단 3줄(AG13 담당), 확정 문자 2줄</td>
+</tr>
+<tr>
+<td>T03</td>
+<td>기관 마스터 신설, 전 탭 주문ID·기관ID</td>
+<td>보류</td>
+<td>이중 등재 0쌍, 기관명 변형 실측 5곳(괄호 태그), 결제관리에 사업자정보 마스터가 이미 있음, 열 삽입은 합계 함수 파손 위험</td>
+<td>3-1 3·11번. TRIM 청소 30분, 보상 이행 열</td>
+</tr>
+<tr>
+<td>T27</td>
+<td>이슈 탭을 'CS 케이스'와 '응대 템플릿'으로 나누고 4월 이후 재기록</td>
+<td>보류</td>
+<td>4월 이후 케이스는 피드백·누락·블랙리스트 탭에 기록되고 있음. 권고 대부분이 다른 과제와 중복</td>
+<td>3-1 16번 상용구 탭 분리</td>
+</tr>
+<tr>
+<td>T37</td>
+<td>인쇄물 키트 주 단위 사전 조립, QR 자가복구</td>
+<td>보류</td>
+<td>3건/11개월, 5월 이후 재발 0. 시즌 도안이라 재고 폐기 위험</td>
+<td>3-1 2번(도안을 파우더 봉투에), 14번(반납 종이)</td>
+</tr>
+<tr>
+<td>T38</td>
+<td>도착 즉시 개봉해 라벨 대조하도록 유도</td>
+<td>폐기</td>
+<td>'냉장고 불필요·당일 개봉' 약속과 충돌. 전날 도착이라 보완 배송이 물리적으로 어려움</td>
+<td>3-1 2번 잔량 대조를 픽업 전으로. 도착일 문자에 '열었을 때 빠진 것 있으면 사진과 문자' 1줄(10번). 피드백 문의를 '재료·도구·인쇄물' 1줄로</td>
+</tr>
+<tr>
+<td>T42</td>
+<td>조리 실패 3단 사과 템플릿, 실패 세트 수만큼 무료</td>
+<td>보류</td>
+<td>휘핑은 2026 재발 0, 역질문은 1건, 자진 신고 보상은 검증 불가</td>
+<td>3-1 3번 보상 기준 1줄. 진단 질문을 '실온에 몇 분 두셨는지 알려주시면'으로(16번). 스텐실 팁(15번)</td>
+</tr>
+<tr>
+<td>T45</td>
+<td>디카페인 휘핑 설명서 3줄, 사전 문자 '크림 실온 30분'</td>
+<td>보류</td>
+<td>크림치즈 방식으로 이미 바뀜(FB181). 옛 처방은 새 공정에 해로움</td>
+<td>4절: IS026·IS033 '해소' 기록, IS066 경고, 자료의 옛 라임 문구 삭제</td>
+</tr>
+<tr>
+<td>T46</td>
+<td>자료 3층 재편, 동봉 카드 2종</td>
+<td>보류</td>
+<td>종이 설명서는 이미 동봉(IS006 이행). 동봉물 추가는 누락 위험과 쓰레기를 늘림</td>
+<td>3-1 15번. 설명서 상단 실패 방지 3줄, 재료 봉투 스티커</td>
+</tr>
+<tr>
+<td>T47</td>
+<td>여분·보충·흰밥 옵션 SKU</td>
+<td>보류</td>
+<td>별도 구매 6건(FB097·099·118·120·192·198)과 학교 장갑 교체 1건(FB031) 중 5건은 자사 결함(냉해 3, 장갑 1, 안내 누락 1). 돈 내고 사겠다는 의사는 1건(FB163)</td>
+<td>3-1 17번(흰밥 무료 1줄, 세트 추가 안내), 2번(부자재 여분)</td>
+</tr>
+<tr>
+<td>T54</td>
+<td>'불변 6품목', 종이·PLA 전환, 학교 반 10인 포장 권유</td>
+<td>보류</td>
+<td>쓰레기 지적 4건(1.2%). 10인 포장은 반별 소분 강점을 깸. PLA는 분리배출이 안 됨</td>
+<td>응대 문구 1개(위생 이유, 식탁보로 모아 버리기, 학교 도구가 있으면 인당 100원 할인)+반납 종이 뒷면 뒷정리 안내(14번)</td>
+</tr>
+<tr>
+<td>T55</td>
+<td>메뉴 카드에 권장 학년·준비 시간·1교시 가능 라벨</td>
+<td>보류</td>
+<td>'저학년 불가' 인식 기록 0. 제한형 라벨은 판매를 막음</td>
+<td>3-1 15번(교사 전날 페이지에 유아 밑작업 3줄), 9번(교시 분기), 7번(김밥 해동 5줄)</td>
+</tr>
+<tr>
+<td>T56</td>
+<td>송편 리뉴얼 고지, 컬러 반죽 업체 문의</td>
+<td>보류</td>
+<td>[시트 밖] 리뉴얼 고지는 이미 나갔다(08-09 상세 멘트 문서, 08-10 블로그 공지, 재구매 문자 명단 시트, 검증 단계 확인). 색 요청은 1건(가벼운 희망)</td>
+<td>4절: FB327 회신, 스토어 썸네일 확인. 10월 아젠다 '2027 송편 색 반죽'</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="s4"><h2>4. 이번 주 바로 할 것(비용 거의 0)</h2>
+<ul>
+<li>☐ (매니저, 오늘) MS10(유치원) 9월 주문에 약속한 6세트 무상이 반영됐는지 확인한다. MS09(병원) 1메뉴 무료 대기 건의 재주문 여부, IS027(초등) 1세트 무료 약속의 유효기간 안내도 함께.</li>
+<li>☐ (매니저, 오늘) AG09 '즉시 섭취' 스티커가 만들어져 붙고 있는지 확인한다. 안 됐으면 기본 용기가 들어가는 메뉴부터 붙인다. 범위·문구는 9절 3번.</li>
+<li>☐ (포장, 내일) 적재 규칙 두 줄을 포장대에 붙인다. "장식컵(새싹·무순·어린잎·애플민트·바질·방울토마토·쪽파·마요네즈)은 맨 마지막에, 냉매와 닿지 않게." "조청·누텔라·연유·약과·슈가파우더는 상온 봉투로 최상단." 봉함 전 상단 사진 1장.</li>
+<li>☐ (포장, 오늘) 출고시트에 '식탁보 수' 열을 만든다. 출고일 아침 부자재를 트레이에 미리 세고, 마감 때 트레이가 비어야 택배를 넘긴다. 식탁보는 음식 팩과 따로 맨 위 봉투에 넣는다.</li>
+<li>☐ (소분, 오늘) 7월 이후 장갑 사이즈를 바꿨는지 확인한다. 안 바꿨으면 초등·센터·중고·성인 기관은 성인 프리, 유치원·어린이집만 아동용으로. 주문·컨펌 문자와 협업 양식(AG03)의 사이즈 질문도 같은 날 고치고, 반반 관행은 멈춘다.</li>
+<li>☐ (포장, 이번 주) 냉동 베리가 들어가는 메뉴(카나페·과일샌드·롤)에 키친타월 2장과 '키친타월 위에 5분 둔 뒤 올리기' 1줄을 넣는다.</li>
+<li>☐ (자료, 1~2시간) 문구 4건 반영(다과 블루베리 용도, 크레페 도우 1장=2인분, 김밥 단무지 물기 짜기, 텃밭 삽스푼 동봉). 김밥 교사 페이지의 보관 문단을 해동 순서 5줄로 바꾼다(밥 전자레인지 시간은 주방 실측). 아보카도 안내서의 끊긴 참조를 확인해 삶는 법 3줄.</li>
+<li>☐ (이사님, 5분) CS 시트 공유 설정을 확인한다. 링크 공개면 '제한됨'으로 바꾸고 퇴사자·외부 계정을 뺀다.</li>
+<li>☐ (매니저, 20분) 이슈 탭 전화번호 열 삭제, 실명 8셀을 주문번호로 치환, IS047 기관명 괄호 삭제.</li>
+<li>☐ (매니저, 10분) 알레르기: IS067의 '사이토카인…절대 섭취를 금합니다' 문장을 지운다. IS075 앞에 '어떤 메뉴로 진행하실까요?' 1줄을 넣는다. 정본 확정 뒤 1종으로 바꾼다.</li>
+<li>☐ (이사님) 노인복지관 캠페인 가드 '실적 0'을 정정하고 메일에 노인복지관·양로원 실적 1~2줄을 넣을지 정한다. 마을건강센터는 '주민 프로그램'으로 따로 적는다. 기존 발송 전 확정 사항과 한 번에.</li>
+<li>☐ (매니저, 30분) 템플릿 청소: IS024 '00초등학교'→【기관명】, IS040 날짜→【출고일】【행사일】, IS059 고객 답변 줄·IS067 '1월말 조정 예정' 메모 삭제, IS066에 '해소, 복붙 금지' 표시, IS061에 '문자 주문 건 제외' 1줄.</li>
+<li>☐ (매니저) 결제 안내 IS023·IS074의 '최대한 빠르게 결제'를 '행사 2~3주 전 결제(11번가는 2주 이내)'로 바꾼다.</li>
+<li>☐ (매니저) 현행 후기 이벤트 보상을 폼 문구로 먼저 확인하고, 이벤트 템플릿 5행(IS019·IS030·IS077·IS082·IS083)의 보상명을 맞춘다.</li>
+<li>☐ (매니저, 10분) 피드백 탭 질문형 행에 노란 조건부 서식 1개. AG21 일일 체크에 '노란 셀 0, 스토어 문의 미답변 확인' 2줄.</li>
+<li>☐ (매니저, 30분) '반복 이슈' 탭을 만든다. 빈도표 50유형 붙여넣기+담당·조치·기한·상태 4열.</li>
+<li>☐ (매니저) 확정 문자에 '행사 몇 교시인지' 1줄. 1~2교시면 김밥 해동 안내를 붙이고 샌드·카나페·크레페도 함께 안내.</li>
+<li>☐ (매니저) 재출고 규칙 1줄: 행사 전날 오후 배송조회가 '배송출발'이면 재출고하지 않고 영업소에 먼저 확인한다. 재출고하면 누락 체크 탭에 사유·비용을 적는다.</li>
+<li>☐ (매니저) 샘플 탭 빈칸 6행을 채운다(SP14는 FB328 회신으로 발송 확인됨). 팔로업 10곳 중 이번 달 대상(FB307 9월, FB328 행사일 확인, FB054 10월 예정)에 1:1 문자.</li>
+<li>☐ (포장) 반납 종이 뒷면에 그림 2컷('박스 밖으로 내놓지 않기', '쓰레기 섞지 않기')을 넣어 다시 인쇄한다.</li>
+<li>☐ (매니저) FB327(지역아동센터, 송편 색 반죽 희망)에 1줄 회신. 송편 스토어 대표 사진이 2025년 4색 사진이면 리뉴얼 구성 사진으로 교체.</li>
+<li>☐ (주방, 9월 중) 스텐실 흔들기 테스트(단면/껍질면 × 물 살짝/크림/없음 × 비닐백/뚜껑 용기). 크리스마스 판매 전 공정 확정용.</li>
+</ul>
+</section>
+<section id="s5"><h2>5. 정책·문구 불일치 정리</h2>
+<h3>5-1. 실제 상충과 통일안</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>한쪽 문안</th>
+<th>다른 쪽 문안</th>
+<th>판정</th>
+<th>통일안</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>포장용기(선물 포장) 가격</td>
+<td>IS069: 유치원·어린이집 제공, 초등·기타 인당 300원</td>
+<td>IS070: 인당 800원(업그레이드). 인입 자체가 "무료라면서 왜 800원이냐"</td>
+<td>실제 상충</td>
+<td>300원 폐기([시트 밖] 06-18 업무일지 원가 추정 약 500원에 못 미침, 재확인 필요). 용어 2개로 나눔: '기본 용기(키트 포함·무료)', '선물 포장(메뉴별 유료 옵션)'. 단가·판매 단위는 이사님 결정(9절 2번). 학교·센터에는 이미 정한 AG18대로 문자 주문 때 묻지 않고 요청 때만 안내. 여분 요청(FB188, 2~3개)과 초과 주문(IS088, 키트 수량만큼만)은 같은 규칙으로 처리. IS069 취소선</td>
+</tr>
+<tr>
+<td>식품 안전 안내 위치</td>
+<td>IS070: '식중독 예방을 위한 보관·섭취 안내문'을 유료 포장 구성으로 안내</td>
+<td>AG09: 화전·스텐실·강정 기본 용기에는 '즉시 섭취' 안내가 없음. 스티커 제작 배정 뒤 완료 기록 없음</td>
+<td>실제 상충(안전)</td>
+<td>섭취 안내는 기본 용기에 스티커로 무료 부착. 유료 포장은 '형태 유지 내용기+외포장'으로만 설명. 범위·문구는 9절 3번</td>
+</tr>
+<tr>
+<td>알레르기 경고 강도</td>
+<td>IS067: "사이토카인 면역 반응이 있는 아이에게는 절대 섭취를 금합니다"</td>
+<td>IS075: "섭취는 가급적 권장드리지 않는"</td>
+<td>실제 상충(안전)</td>
+<td>템플릿 1종: 함유 여부 → 빼기 가능 소분팩 → 교차 접촉 원문 1줄 → 성분표 링크. 알류·난류 중복은 성분표 원문부터 수정</td>
+</tr>
+<tr>
+<td>읍·면 주말 도착</td>
+<td>IS014·IS021·IS036·IS050: 읍·면은 금·토 출고 불가, 토·일·공휴일 도착 불가</td>
+<td>IS060(기타 기관, 읍 지역): 금 출고·토 도착을 선택지로 제안</td>
+<td>실제 상충</td>
+<td>원칙 3줄: 행사 전 마지막 수령 가능일 도착(학교는 평일, 주말 운영 기관은 토요일 가능) / 일·공휴일 도착은 휴일배송 권역만 / 도착~행사 1일 초과 때만 즉시 냉장. 읍·면 토요일 배송 여부는 CJ 집하 영업소에 1회 확인</td>
+</tr>
+<tr>
+<td>유치원·어린이집 배송비</td>
+<td>IS039: "배송비도 또한 무료"</td>
+<td>IS067(26년 카탈로그): 기본 4,900원+20명마다 4,900원</td>
+<td>실제 상충</td>
+<td>이사님 결정(9절 1번). 원칙 후보는 전 채널 '박스(약 20인분)당 4,900원'</td>
+</tr>
+<tr>
+<td>의상 대여가</td>
+<td>IS067 답변: 4,900원</td>
+<td>같은 행 메모: '1월말 1,900원 조정 예정'(7개월 경과)</td>
+<td>미확정</td>
+<td>현행가 확인 → 답변 수정 → 메모 삭제(9절 4번)</td>
+</tr>
+<tr>
+<td>유치원 서비스 증정</td>
+<td>IS061: 2인분 여유 더 챙겨드림</td>
+<td>AG06: 문자 주문 건은 무료증정 안 함</td>
+<td>결정 미반영</td>
+<td>IS061에 '문자 주문 건 제외' 조건 추가</td>
+</tr>
+<tr>
+<td>할인 중복</td>
+<td>IS062: 계좌이체 시 5% 할인</td>
+<td>AG01: 예산 맞춤 때 5% 내외 손해 허용, 끝전은 배송비로</td>
+<td>한도 미정</td>
+<td>합산 상한 결정(9절 5번). 견적서에 조정분을 '기관 할인' 1줄로 표시하고 배송비 라인은 '박스 수×4,900원' 이내로</td>
+</tr>
+<tr>
+<td>인분 신고 단위 문구</td>
+<td>IS022: 4인분으로 구청 신고, 5인분 불가</td>
+<td>IS065: 4인/10인분으로 신고</td>
+<td>표현 불일치(대상 차이일 수 있음)</td>
+<td>사실 확인 후 1문구(9절 9번). 확인 전까지는 '4인분(유치원·어린이집 10인분) 소분 공정 기준'으로</td>
+</tr>
+<tr>
+<td>후기 이벤트 보상</td>
+<td>IS019·IS030·IS077·IS082·IS083: 스타벅스(스벅) 기프티콘</td>
+<td>[시트 밖] 현행 구글폼 상단: 메가커피 아메리카노 2장(검증 단계에서 폼을 열어 확인, 재확인 필요)</td>
+<td>표기 불일치</td>
+<td>현행 보상을 확정하고 템플릿을 맞춘다. '학기당 1회'(IS019) 유효 여부도 함께(9절 12번)</td>
+</tr>
+<tr>
+<td>결제 시점</td>
+<td>IS023·IS074: 최대한 빠르게 결제 권장</td>
+<td>IS062·IS063: 행사 2~3주 전 주문 권장. 11번가는 선처리 2주 한도(AG02)</td>
+<td>3주 전 11번가 주문은 한도 초과</td>
+<td>'행사 2~3주 전 결제(11번가는 2주 이내)'로 통일. 카드 수기결제의 행사 후 결제(IS064)는 그대로</td>
+</tr>
+<tr>
+<td>도서산간</td>
+<td>IS058: 신선식품이라 배송 불가. IS057: '샘플 주소 안될 때'(섬 지역 예시)</td>
+<td>섬 지역 병설유치원 배송 호평(FB198, "편하고 빠르게 배송해주셔서")</td>
+<td>사실과 불일치</td>
+<td>결정 사항(9절 11번). 검증 의견은 조건부 상담(D-3 출고, 냉동에 강한 메뉴, 추가 운임), 3일 이상 걸리는 권역만 불가</td>
+</tr>
+</tbody>
+</table></div>
+<h3>5-2. 상충처럼 보이지만 아닌 것(정리만)</h3>
+<ul>
+<li><strong>보관 규칙</strong>: IS024·IS060·AG03 '냉장고 보관 필요 없이'와 IS014·IS021·IS036·IS040·IS050·IS052·IS086 '수령 즉시 냉장·냉동'은 조건부다. 앞은 도착 다음 날 행사, 뒤는 도착~행사 2일 이상이다. 조건을 한 곳에 적지 않아 교사가 헷갈린다(FB332 "미리 받아서 냉장보관해야하는 줄 알았는데"). 확정 문자 말미에 3줄로 고정한다: 전날 도착·다음날 행사면 그대로 / 2일 이상이면 즉시 냉장·냉동 / 메뉴별 보관일(IS050 기준).</li>
+<li><strong>인당 예산</strong>: IS063 '인당 5천원 정도'와 IS061·IS078 '최소 4,900원'은 모순이 아니다.</li>
+<li><strong>'이번에만' 문구</strong>: IS061의 금지는 유치원·어린이집 서비스 증정에만 해당한다. IS016·IS051·IS077은 규칙 위반이 아니다. 문구는 유지하고 결제관리 시트에 '예외 제공' 메모 열을 둬서 같은 기관에 두 번 주지 않게 한다.</li>
+<li><strong>조리도구 미포함 할인</strong>: IS039와 IS067이 모두 인당 100원으로 같다.</li>
+<li><strong>결제 시점 IS008·IS023</strong>: 둘 다 '먼저 결제 가능' 방향이다. IS064(카드 수기결제는 행사 후)는 결제수단 차이다.</li>
+</ul>
+</section>
+<section id="s6"><h2>6. 이미 약속했는데 재발한 것</h2>
+<h3>6-1. 약속 → 재발 표</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>약속</th>
+<th>시점·근거</th>
+<th>이후 경과(재발 근거)</th>
+<th>판정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>냉해 포장 개선</td>
+<td>IS010(초등, 2025-10-21): "포장 방식을 개선하여 냉해 문제 없도록 하겠습니다"</td>
+<td>FB042(04-29 바나나), FB097(05-14 보건소, 무순), FB099(05-14 유치원, 새싹. MS05와 같은 행사로 행사 전체 무료 보상), FB150(06-11), FB215(07-08), FB285(07-29), FB311(08-27), FB312(08-28), FB320(09-04), FB332(09-09). AG10 정리 칸 공란</td>
+<td>재발, 약속 이행 기록 없음</td>
+</tr>
+<tr>
+<td>방울토마토 파손 대응</td>
+<td>IS020(초등, 2025-11-04): 5세트 재배송 제안</td>
+<td>FB190(06-26), FB211(07-06, 커피쿠폰), FB312(08-28), FB320(09-04)</td>
+<td>재발, 포장 방식 변화 없음</td>
+</tr>
+<tr>
+<td>반납 사전 동의 절차 개선</td>
+<td>BL01(초등, 2025-12-24): "반납 사전 동의 절차를 개선하겠습니다"</td>
+<td>BL02(초등, 2026-05-22), BL03=IS084(기타, 2026-05-27). 블랙리스트 신규는 6월 이후 0이지만, 7월에도 두 박스에 나눠 담다 아이스팩·보냉백이 섞인 회신이 있다(FB268, 07-23, 교사 불편 없음)</td>
+<td>재발(유형은 다름: 폐기→포장 오류→쓰레기 혼입). 경미한 어긋남은 지속</td>
+</tr>
+<tr>
+<td>부자재 누락 '절대 실수없이'</td>
+<td>MS06(초등, 2026-05-21, 해당 기관 한정 메모)</td>
+<td>MS07·MS08(05-28 행사), MS09(05-30 도안), FB152(06-12), MS10(06-25), FB190(06-26), MS11(07-21), FB252(07-21 레몬즙), MS12(07-22), FB272(07-24), MS13(07-27), MS14(09-03 호두, 가장 최근)</td>
+<td>재발. 전사 절차는 만들어지지 않음</td>
+</tr>
+<tr>
+<td>4인분 '다음부터 넉넉히'</td>
+<td>IS002(초등, 2025-10-13, 2세트 무상), IS018(초등, 2025-10-31, 3세트 무상)</td>
+<td>FB037(04-28), FB166(06-18), FB294(07-31)</td>
+<td>다른 기관에서 반복</td>
+</tr>
+<tr>
+<td>스텐실 높이 안내</td>
+<td>FB071(지역아동센터, 2026-05-06) 응대. 교사는 "그렇게 했다"고 답함</td>
+<td>FB073·FB074(05-07), FB086(05-08)</td>
+<td>같은 주 다른 기관 3곳에서 반복. 구두 안내로는 해결 안 됨</td>
+</tr>
+<tr>
+<td>'즉시 섭취' 스티커</td>
+<td>AG09: "스티커로 제작-매니저님"</td>
+<td>완료 기록 없음. 섭취 안내는 여전히 유료 포장 구성으로 안내(IS070)</td>
+<td>이행 미확인(안전)</td>
+</tr>
+<tr>
+<td>상세페이지 주말 출고 문구</td>
+<td>AG13: "저번에 수정해 주기로 했는데 안한듯" → "제가 수정"</td>
+<td>완료 기록 없음</td>
+<td>두 번째 약속, 이행 미확인</td>
+</tr>
+<tr>
+<td>휘핑크림 방식 변경</td>
+<td>IS026(초등, 2025-11-13) 헤비크림 교체 → IS033(고등, 2025-11 추정) 재발 → IS066 '새 방식으로 변경 예정'</td>
+<td>2026 디카페인 피드백 10행 실패 0. FB181에 '생크림+크림치즈'</td>
+<td>해소로 추정. 기록 없고 IS066 문구는 '예정' 그대로</td>
+</tr>
+<tr>
+<td>메뉴별 전용 포장용기</td>
+<td>IS069: "올해 안에 메뉴별 전용 포장용기"</td>
+<td>[시트 밖] 송편 전용 상자 등 일부 이행(검증 단계 확인). 스텐실은 겉포장 비닐백 그대로(IS054, FB073 흐트러짐)</td>
+<td>부분 이행</td>
+</tr>
+<tr>
+<td>파스타면 테스트</td>
+<td>IS049: "내부적으로 한 번 더 테스트 해보겠습니다"</td>
+<td>결과 기록 없음</td>
+<td>이행 미확인</td>
+</tr>
+<tr>
+<td>송편 팥소·반죽</td>
+<td>IS001(중등, 2025-10-01) 팥 가득, IS027(초등, 2025-11-14) 반죽 업체 변경</td>
+<td>2026 송편 8행에서 팥 부족 0</td>
+<td>해소. 단 IS027의 '다음 주문 1세트 무료'는 기록 밖</td>
+</tr>
+<tr>
+<td>학생용 종이 설명지</td>
+<td>IS006(초등, 2025-10-16): "피드백 반영하여 개선하겠습니다"</td>
+<td>인쇄 설명서 동봉 확인(IS081, FB036)</td>
+<td>이행</td>
+</tr>
+</tbody>
+</table></div>
+<h3>6-2. 이행 확인이 필요한 보상 약속</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>행 ID(유형)</th>
+<th>약속</th>
+<th>시트 표시</th>
+<th>할 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MS10(유치원, 2026-06-25)</td>
+<td>식탁보 누락 → 6세트 무료, 9월 14인분 행사에 적용</td>
+<td>빨간 채움(대기). 같은 행사 교사 회신(FB186)은 "불편한 점 없었습니다"</td>
+<td>이번 달 출고 전 매니저 이중 확인</td>
+</tr>
+<tr>
+<td>MS09(병원, 2026-05-30)</td>
+<td>스텐실 도안 누락 → 1개 메뉴 무료+기프티콘</td>
+<td>기프티콘만 취소선, 1메뉴 무료는 빨간 채움</td>
+<td>재주문 여부 확인, 유효기간 안내</td>
+</tr>
+<tr>
+<td>IS027(초등, 2025-11-14)</td>
+<td>라임 누락 → 다음 주문 시 1세트 무료</td>
+<td>누락 탭에 없음</td>
+<td>누락 탭에 등재, 유효기간 안내</td>
+</tr>
+<tr>
+<td>MS06(초등, 2026-05-21)</td>
+<td>다음 행사 무료+포장용기 무료</td>
+<td>취소선(이행 추정)</td>
+<td>6/18 재주문(FB167)에 반영됐는지 결제 기록 확인</td>
+</tr>
+<tr>
+<td>MS05(유치원, 2026-05-14)</td>
+<td>6월 행사 무료</td>
+<td>취소선(이행 추정)</td>
+<td>결제관리와 대조. 6월 행사 세트 수도 함께 기록</td>
+</tr>
+<tr>
+<td>MS02(초등, 2026-04-23)</td>
+<td>3세트 무료 → 텃밭 3세트로 대체</td>
+<td>취소선(이행 추정)</td>
+<td>같은 행사 교사 회신(FB028) "다른메뉴 서비스는 괜찮습니다"와 대조</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="s7"><h2>7. 유지해야 할 강점</h2>
+<h3>7-1. 정량</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>강점</th>
+<th>정량</th>
+<th>근거 행 예</th>
+<th>지킬 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>준비 부담 없음(편함)</td>
+<td>'편함' 약 65행(키워드 74행), '준비할 것 없이' 명시 11행</td>
+<td>FB016·FB038·FB178·FB247</td>
+<td>동봉물·설명서 분량을 늘리지 않는다(FB031 자료 과다)</td>
+</tr>
+<tr>
+<td>반별·모둠 소분</td>
+<td>편함의 이유로 약 13행, 순수 소분 칭찬 12~14행</td>
+<td>FB037·FB038·FB122·FB238</td>
+<td>4인분 단위 유지, 학교에 10인 포장 선권유 금지</td>
+</tr>
+<tr>
+<td>콜드체인(전날 도착, 냉장고 불필요)</td>
+<td>칭찬 19행(배송 칭찬 포함 24행)</td>
+<td>FB122·FB238·FB332</td>
+<td>냉매 감량은 로거 검증 뒤에. 취약 재료만 격리</td>
+</tr>
+<tr>
+<td>맛·재료 신선</td>
+<td>맛 칭찬 34행/33기관</td>
+<td>FB302·FB316·FB333</td>
+<td>원재료 등급 하향 금지</td>
+</tr>
+<tr>
+<td>여유분·조리도구 넉넉</td>
+<td>넉넉·충분 칭찬 13~15행, 여분으로 돌발 상황 대처 4행</td>
+<td>FB231·FB248·FB272·FB329</td>
+<td>잔량 대조를 하면서 여분까지 빼지 않는다</td>
+</tr>
+<tr>
+<td>수업자료·영상</td>
+<td>자료 칭찬 13~16행</td>
+<td>FB165·FB226·FB277</td>
+<td>새 층을 더하지 말고 정합성부터</td>
+</tr>
+<tr>
+<td>식탁보</td>
+<td>명시 칭찬 4~5행</td>
+<td>FB040·FB238·FB256·FB311</td>
+<td>누락 1위 품목이라 계수 통제가 먼저</td>
+</tr>
+<tr>
+<td>특수·통합·성인 세그먼트</td>
+<td>특수학교 11행/8기관 순긍정 11/11, 장애인복지 4/5, 노인복지관·양로원 4행 무불만, 성인 기관 양·단맛 불만 0</td>
+<td>FB002·FB248·FB263·FB264</td>
+<td>세그먼트 카피는 사실만('1인 단독 작업' 표현 금지)</td>
+</tr>
+<tr>
+<td>재구매·구전</td>
+<td>재구매 언급 62~66행, 구전 7~8행, 30일 이상 간격으로 다시 온 기관 17곳</td>
+<td>FB115·FB199·FB235·FB316</td>
+<td>팔로업은 1:1, 예정월 기준 1회</td>
+</tr>
+<tr>
+<td>CS 응대 톤</td>
+<td>응대 칭찬 5행 이상, 문체 불만 0</td>
+<td>FB263·FB296</td>
+<td>사과 문장의 ㅜㅜ, 긴 설명형 문안(반별 포장·콜드체인)은 유지</td>
+</tr>
+</tbody>
+</table></div>
+<h3>7-2. 교사 원문 인용 5개(마케팅 카피 후보)</h3>
+<p>외부에 쓰기 전에 인용 동의가 필요하다. 협찬(인스타)·샘플·쿠폰 이벤트 행은 뺐다. 교사 이름과 학교명은 쓰지 않는다.</p>
+<blockquote>
+<p>"정말 더 손가거나 준비할거 없이 완벽한 패키지였어요" (FB016, 초등) — 준비 제로</p>
+<p>"학교에서 냉장,냉동 보관이 힘든데 실습 하루 전날 날짜 맞춰서 보내주신 점이 가장 좋았고, 4인용으로 재료 담아주셔서 배분도 수월했습니다." (FB122, 초등) — 콜드체인·소분</p>
+<p>"아이들 입에서 저마다 천상의 맛이라니 지도하는 사람으로서 만족도 최상입니다." (FB302, 초등, 카나페) — 맛. 카나페는 냉해 불만이 같이 있으니 1번 과제 효과를 확인한 뒤 메뉴 카드에 쓴다</p>
+<p>"이번 수업은 중학교 일반 학생과 장애 학생이 함께 하는 통합동아리 활동이었는데요 난이도, 위생, 완성된 음식 퀄리티까지 모두 만족했습니다!" (FB002, 중등) — 통합·특수교육</p>
+<p>"재료도 소분돼 냉장 상태로 유지돼서 준비가 수월했습니다. 행사 전후로 꼼꼼히 연락도 주시고 교육자료까지 챙겨주셔서 정말 편했어요." (FB263, 노인복지관) — 성인 기관·CS. 같은 행 뒷부분의 쿠폰 언급은 인용하지 않는다</p>
+</blockquote>
+</section>
+<section id="s8"><h2>8. 시트 자체 개선안</h2>
+<p>원칙은 세 가지다. 입력 부담은 행당 5초 이내. 감정·심각도·재구매 같은 분석 값은 사람이 입력하지 않고 분기 1회 자동 코딩으로 뽑는다. 파일 간 IMPORTRANGE는 쓰지 않는다(AG17 속도 문제).</p>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>탭</th>
+<th>조치</th>
+<th>추가·변경 컬럼</th>
+<th>입력 규칙</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>피드백 정리</td>
+<td>붙여넣기 로그로 유지</td>
+<td>채널(일반/샘플/인스타/블로그), 이슈태그(칩 10개: 냉해·해동, 무름·파손, 누락·수량, 장갑, 개봉·포장, 양 부족, 배송·일정, 반납, 자료·안내, 기타), 교사 직접구입(체크), 조치·회신('--&gt;' 메모 이동), 팔로업월(해당 행만), 인용 동의(Y·날짜, 대가 구분)</td>
+<td>칭찬만 있는 행은 태그 빈칸 허용. 메뉴는 복수선택 칩, (+) 폐지. 기관명에 괄호 태그 금지</td>
+<td>T04·T25·T26·T50·T53</td>
+</tr>
+<tr>
+<td>누락 체크 건 → '사고 기록'</td>
+<td>이름 변경. 블랙리스트 3행 이관</td>
+<td>유형(누락/수량부족/오포장/파손/회수/재출고), 품목 표준명(드롭다운), 발견경로(출고 전/도착 직후/행사 당일/행사 후), 주문 세트수, 귀책(고객/당사/택배), 등급(A/B/C/영업), 보상 내용(원가 원), 이행(미/완+일자)</td>
+<td>어느 탭이든 누락을 본 사람이 그 자리에서 1행. 여분으로 흡수된 건은 '여분 흡수'로 표시하고 건수에서 뺀다. 재출고는 사유·비용을 함께 적는다(AG10)</td>
+<td>T19·T20·T33·T49·AG10</td>
+</tr>
+<tr>
+<td>전체 이슈 정리 → '이슈 아카이브' + '상용구'</td>
+<td>날짜나 기관이 있는 37행은 아카이브(읽기 전용, 접근 제한), 범용 문안 15~20개는 상용구 탭</td>
+<td>상용구 탭: 상황명, 대상(유치원·어린이집/학교·센터/전체), 채널(스토어/계좌/카드수기), 문안, 확인일(기한 있는 5행만). 상단에 '현행 수치' 10줄</td>
+<td>전화번호 열 삭제. 자리표시자는 【 】. 발송 전 '【' 검색</td>
+<td>T27·T28·T29·T57</td>
+</tr>
+<tr>
+<td>아젠다</td>
+<td>유지</td>
+<td>번호(=ROW()-1), 날짜 필수, 담당·기한, 템플릿 반영(IS 번호 또는 '해당 없음')</td>
+<td>탭 상단 범례: 취소선=완료, 빨간 채움=대기. 정리 칸이 빈 안건(AG10·AG11·AG20)과 할 일만 적힌 안건(AG08·AG19)에는 담당·기한을 붙인다</td>
+<td>T17·T28</td>
+</tr>
+<tr>
+<td>샘플 신청 목록</td>
+<td>탭 이름에서 '초등학교' 삭제</td>
+<td>유형(초/중/유·어린이집/센터), 발송일, 상태(신청/발송/회신/주문/무응답/기존고객), 예정월, 첫 주문일+채널, 피드백 요약(FB 날짜)</td>
+<td>발송 당일 주소·메뉴·발송일을 채운다. 지금은 SP14처럼 빈칸인 채 발송돼 회신까지 온 행이 있다. 문제는 '빈칸이면 출고'가 아니라 '발송 뒤 갱신 누락'이다. 월 1회 빈칸 점검</td>
+<td>T48</td>
+</tr>
+<tr>
+<td>블랙리스트</td>
+<td>폐지</td>
+<td>사고 기록 탭 '유형=회수'로 이관</td>
+<td>교사 번호·반 표기 삭제. BL01 귀책=당사</td>
+<td>T29·T49</td>
+</tr>
+<tr>
+<td>신규: 반복 이슈</td>
+<td>빈도표 50유형 붙여넣기</td>
+<td>담당, 조치, 기한, 상태</td>
+<td>월 첫 회의 5분. 2개월 연속 유형은 아젠다에 담당·기한과 함께 올린다</td>
+<td>T50</td>
+</tr>
+<tr>
+<td>신규: 약속 트래커</td>
+<td>미래에 이행할 약속만</td>
+<td>약속일, 원천 행(IS/AG/MS/BL), 대상, 약속 한 줄, 담당, 기한, 상태, 확인 근거</td>
+<td>출고 때 끝나는 무상 보정과 템플릿 행은 넣지 않는다. 첫 입력 약 12행(IS010·BL01·IS049·AG09·AG13·MS09·MS10·IS027 등)</td>
+<td>T17</td>
+</tr>
+<tr>
+<td>신규: 피벗 1개</td>
+<td>이슈태그×월</td>
+<td>범위 한정(A2:F2000 등)</td>
+<td>월별 증감 색칠 대신 '최근 3개월 중 2개월 이상 등장'만 표시</td>
+<td>T50</td>
+</tr>
+<tr>
+<td>결제관리 시트(별도 파일)</td>
+<td>열 추가만</td>
+<td>미이행 보상 플래그(사고 기록 COUNTIFS), 일정조정 사유(지역/휴일/기타), 예외 제공 메모, 정가합계·청구합계·차액%, 실무자 휴대폰, 송장 반영 Y/N</td>
+<td>수령인 번호가 010이 아니면 조건부 서식</td>
+<td>T19·T21·T28·T31·T41</td>
+</tr>
+<tr>
+<td>DB 시트(서류 발급)·메일 검색</td>
+<td>검색 문제 2건 해결</td>
+<td>접수일, 메일주소, 요청 서류, 상태(접수/발급완료), 발급일</td>
+<td>AG20: 발급완료를 입력하기 전에는 메일주소 검색이 안 된다(정리 공란). 요청이 들어온 날 '접수' 상태로 행을 먼저 만들고, 검색 수식이 '발급완료' 행만 보도록 걸려 있으면 조건을 넓힌다(가설, 수식 확인 필요). AG19: 메일을 주소로 검색하면 일부만 보인다('챗지피티 문의' 대기). 빠지는 메일 1건을 재현해 원인(받은/보낸 메일 구분, 스레드 묶임 등)부터 확인한다(가설)</td>
+<td>AG19·AG20</td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="s9"><h2>9. 이사님 결정 필요 사항</h2>
+<p>괄호는 기한이다.</p>
+<ol>
+<li><strong>유치원·어린이집 배송비(이번 주).</strong> A: 무료 유지(IS039). B: 기본 4,900원+20명마다 4,900원(IS067). C: 전 채널 '박스(약 20인분)당 4,900원'. 검증 의견은 C다.</li>
+<li><strong>선물 포장(포장용기) 가격(이번 주).</strong> 공통으로 300원은 폐기하고 기본 용기는 무료로 둔다. 학교·센터에는 AG18대로 문자 주문 때 묻지 않고 요청 때만 안내한다. 식품 안전 안내는 유료 포장의 장점에서 뺀다(3번). A: 인당 800원 단일. B: 메뉴별 세트 단가(4개 1세트). 함께 정할 것: 여분 소량 요청(FB188, 2~3개)을 '키트 수량만큼만'(IS088)의 예외로 받을지.</li>
+<li><strong>기본 용기 '즉시 섭취' 스티커(AG09, 이번 주, 안전).</strong> A: 화전·스텐실·강정만, '즉시 섭취' 문구. B: 기본 용기가 들어가는 전 메뉴, '가져가면 바로 냉장, 당일 섭취' 문구. 검증 의견은 B다. 어느 쪽이든 박스 라벨 한 줄(3-1 2번)로 부착 여부를 확인한다.</li>
+<li><strong>의상 대여가(이번 주).</strong> A: 4,900원 유지. B: 1,900원 적용.</li>
+<li><strong>할인 합산 상한(계좌이체 5%+예산 맞춤).</strong> A: 합산 5%. B: 합산 7%. C: 합산 10%. 공통으로 견적서에 '기관 할인' 1줄로 드러낸다.</li>
+<li><strong>보상 기준 4줄(3-1 3번).</strong> A: 제안대로 확정(C 사과만, B 당일 기프티콘 1장, A 영향 세트 1:1 무료+실비, 상한은 영향 세트 수, 이연 보상은 학년도 말까지). B: 금액을 고친 뒤 확정.</li>
+<li><strong>위생장갑.</strong> A: 초등 이상 성인 프리 기본+반별 밀봉팩 통째 동봉(박스당 +500~1,000원 추정). B: 사이즈 규칙만 바꾸고 동봉 방식은 유지. 어느 쪽이든 주문·컨펌 문구와 협업 양식(AG03)에서 사이즈 질문을 정리하고 반반 관행(IS011)을 멈춘다.</li>
+<li><strong>알레르겐 O/X 일괄 확인 1시간(이번 주).</strong> [시트 밖] 위키 review 큐의 알레르겐 확인 대기 건과 추석 블로그 알레르겐 항목(R-081)이 함께 풀린다.</li>
+<li><strong>'4인분으로 구청 신고' 문구의 사실 여부.</strong> 검증 의견이 갈렸다. 한쪽은 즉석판매제조·가공업이라 품목제조보고 대상이 아니라고 봤고, 다른 쪽은 원재료·포장재를 바꾸면 신고·표시 변경이 필요하다고 봤다. A: 신고가 사실이면 IS065 기준 '4인분/10인분'으로 통일. B: 아니면 '4인분 소분 공정 기준'으로 교체. 이 답이 새싹 대체, 포장재 변경, 소분 단위 결정의 전제다.</li>
+<li><strong>노인복지관 캠페인(발송 전).</strong> '노인복지관 실적 0' 가드를 '노인복지관·양로원 공급 실적 있음'으로 정정하고 메일·블로그에 1~2줄을 넣을지. 마을건강센터(FB199·FB236)는 원문이 '주민' 반응이라 '주민 프로그램'으로 따로 적는다. A: 넣는다. B: 현행 유지. 이미 대기 중인 발송 전 확정 사항과 한 번에 정한다.</li>
+<li><strong>도서산간.</strong> A: 전면 불가 유지(IS058, IS057 샘플 주소 거절), 스토어 배송불가지역 등록. B: 조건부 상담(D-3 출고, 냉동에 강한 메뉴, 추가 운임), 3일 이상 권역만 불가. 섬 지역 병설유치원이 배송을 칭찬한 기록(FB198)이 IS057·IS058과 정면으로 부딪친다.</li>
+<li><strong>후기 이벤트.</strong> 현행 보상이 템플릿의 스타벅스인지, 폼의 메가커피인지([시트 밖] 폼 문구는 검증 단계 확인) 확정한다. '학기당 1회'(IS019)는 A: 유효, 폼 상단에 1줄. B: 폐기.</li>
+<li><strong>단골 우대(30일 이상 간격 2회 이상 주문 기관).</strong> A: 5세트 미만 분할배송비 면제. B: 4인분 올림 부족분 1세트 무료. C: 도입 안 함. 어느 쪽이든 반별 포장·맞춤 소분을 단골 혜택으로 걸지 않는다.</li>
+<li><strong>김밥 흰밥 대체.</strong> 요청 시 즉석밥 무료 동봉(건당 약 1천원). A: 도입. B: 보류.</li>
+<li><strong>스텐실 크리스마스 에디션 겉포장(10월 중순).</strong> A: 돔 뚜껑 용기 기본 포함. B: 옵션 구매 필수 안내.</li>
+<li><strong>냉매·포장 사양 확정 일정.</strong> A: 9월 벤치 테스트, 2027-04 실배송 로거로 확정. 3존 재설계·원재료 대체는 12~2월에 검토. B: 올해 안으로 앞당긴다.</li>
+<li><strong>AG10 쿨러백 회수형·폐기형 기준선(11월).</strong> 원가 비교 회의 일정을 잡는다. 대상 비용은 반품 택배비, 세척·검수 인건비, 손실률×자산 단가 대 물팩·스티로폼 추가 단가다.</li>
+<li><strong>재출고 기준(AG10 하위, 이번 주).</strong> A: 행사 전날 오후 배송조회가 '배송출발'이면 재출고하지 않고 영업소 확인 먼저, 재출고 건은 사고 기록 탭에 사유·비용 기록. B: 지금처럼 담당 판단, 기록만 추가. 검증 의견은 A다.</li>
+<li><strong>AG08 화전 꽃 배송 경로(2027 봄 화전 판매 전, 늦어도 2027-03).</strong> 정리란이 '대표님과 논의하기'로 남아 있다. A: 안건대로 요일별 이원화(수·목 행사는 꽃을 기관으로 직배송, 화 행사는 토요일 밀프레드 수령 후 일요일 키트와 함께 출고). B: 모든 화전 행사를 밀프레드 경유. 직배송은 우리 검수를 거치지 않고 박스가 둘로 나뉘어 누락·혼선 위험이 있고, 경유는 꽃 보관일이 늘어 신선도 위험이 있다(둘 다 가설).</li>
+<li><strong>AG11 출고 당일 문자(이번 달).</strong> 정리란이 비어 있다. A: 출고 당일 짧은 문자 추가(출고 사실·도착 예정일·특이사항 있으면 연락), 다음날 문자는 반납 안내 위주로 유지. B: 지금처럼 출고 다음날 1통에 '특이사항 있으면 연락' 1줄만 추가. 주문확정·출고 안내 문자 2종이 이미 있어(AG05·IS011) 문자 수와 교사 부담(FB031 자료 과다)을 같이 봐야 한다. 검증 의견은 B부터 하고, 도착 시각 문의(3-1 10번)가 줄지 않으면 A다.</li>
+<li><strong>AG19·AG20 메일·DB 검색(이번 주).</strong> A: 매니저가 이번 주 검색 수식과 빠지는 메일 1건을 재현해 보고. B: 시트를 만든 담당자나 외부 도움으로 수식 수정. 어느 쪽이든 담당·기한을 아젠다에 적는다.</li>
+</ol>
+</section>
+<section id="s10"><h2>10. 부록</h2>
+<h3>10-1. 탈락 과제</h3>
+<div class="tbl-wrap"><table>
+<thead>
+<tr>
+<th>과제</th>
+<th>주장</th>
+<th>탈락 이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T24 문자 시퀀스</td>
+<td>수업자료·준비물·보관·회수·도착 예정이 출고 다음 날 문자 1통에 몰려 교사가 전날에야 알고 따로 산다</td>
+<td>전제가 틀렸다. 주문확정 문자와 출고 안내 문자 2종이 이미 따로 나간다(AG05·IS011·IS074·IS023·IS028). '늦은 정보' 근거 7행 중 시점을 말한 행은 0이다(표기 누락·레시피 모호·설명서 오류·과냉동). '도착 불확실' 8행 중 실제 해당은 3행이다. 남는 증상(출고 당일 문자 미결, 기사 소통, 도착 시각)은 3-1 10번과 9절 20번에서 다룬다</td>
+</tr>
+</tbody>
+</table></div>
+<h3>10-2. 검증에서 기각된 권고(하지 말 것)</h3>
+<ul>
+<li>12구 PET 트레이, 미세척 발송, 대추방토 전환(냉해를 못 막음, 교사 준비를 늘림)</li>
+<li>3존 전면 재설계, 젤팩 직접 접촉, '냉동 금지' 스티커, 로거 검증 전 냉매 감량</li>
+<li>박스별 서명·닫기 전 사진, 20세트 이상 출고일 검수 전담 인력</li>
+<li>지퍼백 전환, 안전가위 동봉, 스퀴즈 보틀 즉시 도입</li>
+<li>1인 보충팩·5인조·보충 옵션 SKU, 전 키트 소스 +25%, 중등 1.5인분 권장</li>
+<li>기관 마스터 신설, 전 탭 주문ID·A·B열 삽입, 피드백 탭 20컬럼 수기 코딩, '공란 0%' 지표</li>
+<li>정책ID 치환, 9열 정책 레지스터, 분기 리뷰</li>
+<li>템플릿 150~350자 제한, ㅜㅜ 전면 금지, 호칭 변수화</li>
+<li>상세페이지 최상단 정책 12항, '교사 준비물 0개' 문구, 상세페이지 '반죽 업체 변경' 고지</li>
+<li>톡톡 '결제는 문자로' 자동응답, 결제 FAQ 즉답 권한 확대, 계좌이체 '행사 전 입금' 규칙</li>
+<li>도착 즉시 개봉 검수 유도</li>
+<li>보냉팩 젤팩 전환, 하절기 A/B 테스트, 미반납 실비 청구 동의 문구</li>
+<li>종이접시·PLA 전환, 학교 반에 10인 포장 선권유, 소형(60×60) 식탁보 SKU</li>
+<li>권장 학년 제한형 라벨, '1교시 불가' 라벨, '샘플 없이는 출고 금지'</li>
+<li>기프티콘 기준을 '후기 제출 번호'로 변경, '이번에만' 문구 삭제</li>
+<li>해동 카드 3곳 동봉(설명서 첫 장·박스·문자), 오렌지 통조각 발송, 누텔라 냉장 이동. 김밥·베리는 기존 문단 대체와 키친타월로만 대응한다(3-1 7번)</li>
+<li>특수교육 소개서의 '1인 단독 작업' 표현</li>
+</ul>
+<h3>10-3. 코딩 방법</h3>
+<ul>
+<li><strong>대상</strong>: 6탭 478행(피드백 333, 이슈 88, 누락 14, 블랙리스트 3, 샘플 17, 아젠다 23). 2026-09-11 내보내기 기준이다.</li>
+<li><strong>행 코딩</strong>: LLM이 행마다 감성(순긍정/혼합/부정), 이슈 신호(카테고리 A~P, 세부, 심각도 1~5, 교사 우회 여부, 보상), 칭찬 포인트, 재구매 의향, 기관 유형을 붙였다. 사람 검수는 거치지 않았다. 교사 우회 21행은 원문을 다시 읽어 18행으로 줄였다(2-5).</li>
+<li><strong>과제 도출</strong>: 8개 렌즈(제품·키트 구성, 콜드체인·배송·물류, CS 운영·응대, 누락·출고 검수, 시트·데이터 구조, 레시피·수업자료·조리 공정, 상품 정책·가격·수익, 강점)로 후보 57개를 뽑았다. 과제마다 근거 검증과 실행성 검증을 따로 돌렸다. 결과는 56개 생존, 1개 탈락, 12개 흡수·보류다. 3-1 7번·10번은 기존 검증 과제의 남은 부분을 따로 세운 것이다.</li>
+<li><strong>빈도 정본</strong>: 이슈 사건 188건 → 유형 50개(빈도표). 3-1의 근거 행 수가 빈도표와 다르면 빈도표를 따랐다. 예: 장갑 수량 부족 2→3건(FB101 포함), 과냉동·해동 15행→8건/6기관, 조청·한과 8행→4건/3기관(인접 2건 별도), 출고일 오기입 10행→3건(읍·면 4, 당일 출고 2는 별도 유형), 실무자 번호 8템플릿→2건(템플릿 7종).</li>
+<li><strong>중복 처리</strong>: 빈도표에서 탭 간 중복 6쌍을 1건으로 셌다(FB099=MS05, FB120=MS07, FB124=MS08, FB254=MS11, FB277=MS13, IS078=AG14). 같은 건이 두 번 적힌 BL03=IS084와 문안이 같은 템플릿(IS016=IS051, IS040=IS052)도 한 번만 봤다. 이 밖에 같은 행사가 두 탭에 있지만 피드백 쪽이 순긍정으로 코딩돼 이슈 사건에 잡히지 않은 3쌍이 더 있다. FB028=MS02(04-23 핑거쿠키 누락), FB186=MS10(06-25 식탁보 누락), FB268≈MS12(07-22·23 종이컵 누락, 날짜 하루 차이). 사건 수(188)에는 영향이 없다.</li>
+<li><strong>시트 밖 자료</strong>: 본문의 [시트 밖] 표시(구글폼 보상명, 위키 review 큐, 캠페인 가드·발송 상태, 송편 리뉴얼 고지와 전용 상자, 아보카도 안내서 참조, 포장용기 원가)는 검증 단계에서 CS 시트 밖 문서를 확인한 내용이다. 쓰기 전에 현재 상태를 다시 확인한다.</li>
+</ul>
+<h3>10-4. 한계</h3>
+<ul>
+<li><strong>메뉴 미기재 152/333행</strong>(4~6월 집중, 6/12 이후 0). 메뉴별 이슈율은 산출할 수 없다.</li>
+<li><strong>분모 없음</strong>: 결제관리 시트(출고 주문 수)가 빠져 누락률·메뉴별 이슈율·재구매율을 비율로 낼 수 없다. 피드백 행 수는 출고 건수가 아니다.</li>
+<li><strong>이슈 탭의 성격</strong>: 88행 중 날짜 공란이 61행이다. 이 중 10행(IS005·IS032·IS033·IS034·IS047·IS048·IS050·IS052·IS060·IS062)은 기관명이 있는 실제 케이스다. 날짜와 기관이 모두 빈 행은 51행이고, LLM이 '응대 템플릿'으로 코딩한 행은 38행이다. 날짜나 기관이 있는 행은 37행(날짜 있음 27+기관만 10)이다. 날짜 있는 케이스는 2025-10~11에 몰려 있고 2026-03-27 이후는 0행이다. 2026년 사전 문의(배송일·결제·증빙)는 적게 잡혔을 수 있다.</li>
+<li><strong>회신 컬럼 없음</strong>: 피드백 탭에 회신 칸이 없어 '무응답'은 판정할 수 없다. 보상 기록도 탭 사이에 흩어져 있다.</li>
+<li><strong>응답 편향</strong>: 피드백은 회사가 행사 뒤 보낸 문자에 대한 회신이다. 답하지 않은 기관의 불만은 잡히지 않는다. 직접 근거도 있다. 누락 탭에 사고로 오른 행사 3건의 피드백 회신이 모두 순긍정으로 코딩됐다. FB028=MS02(교사는 서비스 사양), FB186=MS10("불편한 점 없었습니다"), FB268≈MS12(반납 이야기만 하고 종이컵 누락은 말하지 않음). 반대로 FB120=MS07, FB124=MS08, FB277=MS13처럼 교사가 스스로 누락을 쓴 경우도 있다. 피드백 탭만 보면 사고를 적게 잡고, 긍정은 과대일 수 있다.</li>
+<li><strong>LLM 판정</strong>: 감성·심각도는 LLM이 판정했다. 원문 어조가 대부분 완곡해서, 검증 단계에서 과제 심각도를 여럿 낮췄다. 교사 우회도 21행에서 18행으로 줄었다.</li>
+<li><strong>신호와 행</strong>: 한 행에 신호가 여러 개일 수 있다(예: C 카테고리 33신호=30행).</li>
+<li><strong>기관 식별</strong>: 기관 유형은 기관명으로 분류했다. 표기 변형(원문 고유 350개, 정규화 334개) 때문에 같은 기관 판별이 완전하지 않다. 샘플→주문 전환도 이름 일치 수준이다.</li>
+<li><strong>금액</strong>: 세트당 약 1.96만원, 기프티콘 약 5천원을 가정했다. MS05의 6월 무료 행사 규모는 원문에 없다.</li>
+<li><strong>법규</strong>: 표시광고법 추천·보증 심사지침, 정보통신망법 제50조, 식품위생법 신고 요건은 법률 검토 없이 검증 의견을 옮긴 것이다(가설).</li>
+<li><strong>인용</strong>: 인용 원문은 동의를 받기 전이다. 이 보고서 안에서만 쓴다.</li>
+</ul>
+<h3>10-5. 위생장갑 상세(2026-09-11 이사님 질문: 크기 문제인가 강도 문제인가, 어떤 상황인가)</h3>
+<ul>
+<li><strong>결론은 둘 다다.</strong> 찢어짐 11건/11기관, 사이즈 작음 8건/8기관, 수량 부족 3건이다. 떡·조청이 장갑에 붙는 2건은 장갑 결함이 아니라 안내 문제다. 한 초등(FB184)은 "아동용이 너무 작기도 했고, 일반용도 장갑이 너무 잘 찢어지네요"라고 둘 다 지적했다.</li>
+<li><strong>찢어지는 상황</strong>(상황이 적힌 4행): 끼울 때 손땀(FB241, 7월 "손을 넣으면서 찢어진 학생"), 장갑 낀 채 냉장 패키지 개봉(FB329, 9월), 학교 조각칼 사용(FB014, 키트 구성품 아님), 활동 중(FB329). 나머지 7행은 상황 미기재. 숫자를 적은 곳은 한 반 3명(FB329), 5명(FB031).</li>
+<li><strong>메뉴와 무관</strong>: 김밥·텃밭·스낵랩·크레페·다과·롤·송편 7종에 흩어져 있다.</li>
+<li><strong>사이즈</strong>: 1학년 3건(FB053·FB108·FB214, FB214는 장갑 미사용), 초1~2 1건(FB040), 4학년(FB175), 고학년(FB129), 초등생 위주 센터(FB077), 학년 미상(FB184). '크다'는 0건. 유치원·어린이집 17행에서는 사이즈 불만 0. 7/8 이후 114행에서 사이즈 언급 0이라 배정이 이미 바뀌었을 수 있다.</li>
+<li><strong>구조</strong>: 메뉴 실측표 4종(참치마요주먹밥·디카페인 티라미수·유부초밥·텃밭케이크) 기준 4인 세트 장갑은 아동용 4장+교사용 1장이라 아이 여분이 0이다. 9월에 여분을 받은 반(FB329)은 "여유분으로 충당 가능했어요". 영유 수업자료 제작 때 이미 "위생장갑 낀 손으로 포장 뜯기 어려워요, 가위 준비"를 적어 두었다.</li>
+<li><strong>원인(가설)</strong>: 초등에 유아 규격 아동용이 가서 늘어나며 찢어진다(검증 의견). 여기에 PE 재질의 얇음(성인용도 찢어짐, FB184)과 장갑 낀 채 봉투 개봉이 겹친다.</li>
+<li><strong>조치</strong>(3-1 6번과 같음): ① 기본값 전환(초등·센터·중고·성인 기관=성인 프리, 유치원·어린이집=아동용, 초1~2는 요청 시 아동용) ② 반별 박스에 밀봉팩 1팩 통째 동봉(여분·교사용 자동 포함, 세트별 낱장 계수 폐지로 계수 오류 3건 원천 제거) ③ 팩 스티커 '여분 포함 · 냉장 봉투는 장갑 끼기 전에 개봉' ④ 2주 안에 엠보싱 PE 0.03mm 성인 프리 1종 샘플·견적(TPE는 단가 부담으로 보류, 추정) ⑤ 떡·조청 메뉴 안내에 '장갑에 물 살짝'.</li>
+<li><strong>확인 필요</strong>: 현재 장갑의 재질·두께·사이즈 규격, 7월 배정 변경 여부.</li>
+</ul></section>
+<div class="guard"><b>읽는 법·한계</b> — 행 코딩·심각도는 LLM 판정이고 과제마다 원문 대조 근거 검증과 실무 실행성 검증을 따로 거쳤다. 출고 주문 수(분모)가 없어 비율은 피드백 행 기준이다. 피드백은 회사 문자에 대한 회신이라 불만이 적게 잡힌다(누락 사고 행사 3건의 회신이 순긍정). <b>[시트 밖]</b> 표시는 CS 시트 밖 문서에서 확인한 내용이라 쓰기 전에 재확인한다. 교사 원문 인용은 동의 전 내부용이다.</div>
+</main>
+<footer>밀프레드 위키 · <a href="/docs.html">← 위키 홈</a></footer>
+</body>
+</html>
