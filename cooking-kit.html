@@ -84,6 +84,11 @@
 .sol-points li svg,.sol-points li i{color:#0B7A53;flex:none}
 .sol-visual{margin:0}
 .sol-visual>img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:16px;display:block}
+.sol-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sol-duo figcaption{grid-column:1/-1}
+.sol-duo-item{position:relative}
+.sol-duo-item img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:14px;display:block;border:1px solid var(--neutral-200)}
+.sol-duo-tag{position:absolute;left:10px;top:10px;background:rgba(255,255,255,.95);color:var(--secondary-700);font-size:12.5px;font-weight:800;padding:4px 10px;border-radius:100px;box-shadow:0 2px 6px rgba(27,45,79,.12)}
 .sol-visual figcaption,.sol-collage figcaption{font-size:12px;color:var(--neutral-400);margin-top:6px;text-align:center}
 .sol-badges{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .sol-badge{display:inline-flex;align-items:center;gap:6px;background:#FFF7F0;border:1px solid #FFE0C4;border-radius:100px;padding:4px 12px 4px 4px;font-size:13.5px;font-weight:800;color:var(--secondary-700)}
@@ -421,7 +426,11 @@
             <li><i data-lucide="check" style="width:16px;height:16px;"></i>조리도구·식탁보·포장용기까지 동봉</li>
           </ul>
         </div>
-        <figure class="sol-visual"><img src="assets/images/solution/sol-1-portion.jpg" alt="카나페 키트 구성품이 1인분씩 소분돼 놓인 모습" width="960" height="640" loading="lazy"><figcaption>실제 카나페 키트 구성품</figcaption></figure>
+        <figure class="sol-visual sol-duo">
+          <div class="sol-duo-item"><img src="assets/images/solution/sol-1-wrap-ingredients.jpg" alt="또띠아 스낵랩 식재료가 소분 포장돼 놓인 모습" width="780" height="520" loading="lazy"><span class="sol-duo-tag">식재료 구성</span></div>
+          <div class="sol-duo-item"><img src="assets/images/solution/sol-1-wrap-tools.jpg" alt="또띠아 스낵랩과 함께 오는 플라스틱 나이프·숟가락·위생장갑·접시·유산지" width="780" height="520" loading="lazy"><span class="sol-duo-tag">조리도구 구성</span></div>
+          <figcaption>또띠아 스낵랩 세트 실제 구성</figcaption>
+        </figure>
       </article>
       <a class="sol-row sol-mini" href="#delivery">
         <span class="sol-num">2</span>
