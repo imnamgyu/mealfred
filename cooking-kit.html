@@ -38,6 +38,35 @@
 .btn-kakao:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.12);background:#FDD800;color:#191919}
 .trust-admin{word-break:keep-all}
 .step-card p,.steps-cta .hero-micro{word-break:keep-all}
+#how-it-works .step-card img{border-radius:14px!important;box-shadow:0 2px 10px rgba(27,45,79,.08)}
+#how-it-works .step-card h4{font-size:17px}
+#how-it-works .step-card p{font-size:13.5px;color:var(--neutral-600)}
+/* 후기 섹션 — 사진+후기 1:1 카드, 탭 필터 (2026-09-11) */
+.tm-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:var(--sp-8) 0 var(--sp-6)}
+.tm-tab{padding:10px 20px;border-radius:100px;font-size:15px;font-weight:700;color:var(--neutral-600);background:var(--neutral-100);border:none;cursor:pointer;transition:all .15s ease}
+.tm-tab:hover{color:var(--secondary-700);background:var(--secondary-100)}
+.tm-tab.is-active{background:var(--secondary-700);color:#fff}
+.tm-panel{display:none}
+.tm-panel.is-active{display:block;animation:tmIn .35s ease}
+@keyframes tmIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tm-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.tm-card{margin:0;background:#fff;border:1px solid var(--neutral-200);border-radius:18px;overflow:hidden;box-shadow:0 2px 10px rgba(27,45,79,.05);display:flex;flex-direction:column;transition:transform .2s ease,box-shadow .2s ease}
+.tm-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(27,45,79,.10)}
+.tm-photo{aspect-ratio:4/3;background:var(--neutral-100);overflow:hidden}
+.tm-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.tm-card figcaption{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.tm-quote{margin:0;font-size:17px;line-height:1.55;font-weight:800;color:var(--secondary-700);word-break:keep-all}
+.tm-quote::before{content:"\201C";color:var(--primary-500);font-weight:900;margin-right:2px}
+.tm-quote::after{content:"\201D";color:var(--primary-500);font-weight:900;margin-left:2px}
+.tm-meta{margin:auto 0 0;font-size:13px;color:var(--neutral-400);font-weight:600}
+.tm-meta .tm-who{color:var(--primary-500);font-weight:800}
+.tm-note{margin-top:var(--sp-5);text-align:center;font-size:12.5px;color:var(--neutral-400)}
+@media (max-width:900px){.tm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){
+  .tm-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding:0 2px 12px;margin:0 calc(-1 * var(--container-pad,20px));padding-left:var(--container-pad,20px);padding-right:var(--container-pad,20px);-webkit-overflow-scrolling:touch}
+  .tm-card{flex:0 0 82%;scroll-snap-align:center}
+  .tm-quote{font-size:16px}
+}
 /* 문제 섹션 — 선생님 부담 5가지 보드 (2026-09-11, 일러스트 gpt-image-1) */
 .burden-board{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;align-items:end;margin-top:var(--sp-10);background:linear-gradient(180deg,#FFF3E8 0%,#FFE8D3 100%);border:1px solid #FFE0C4;border-radius:24px;padding:28px 24px 0 28px;overflow:hidden}
 .burden-list{list-style:none;margin:0;padding:0 0 28px 0;display:flex;flex-direction:column;gap:12px}
@@ -405,19 +434,19 @@
     <div class="steps-grid">
       <div class="step-card">
         <div class="step-num">1</div>
-        <img src="assets/images/steps/step-menu-gmarket.jpg" alt="지마켓 밀프레드 미니샵 상품 목록" class="img-unified" loading="lazy" style="width:100%;height:140px;object-fit:cover;object-position:center top;border-radius:var(--radius-md);margin-bottom:var(--sp-4);border:1px solid var(--neutral-200);">
+        <img src="assets/images/steps/step-menu-gmarket.jpg" alt="지마켓 밀프레드 미니샵 상품 목록" class="img-unified" loading="lazy" style="width:100%;aspect-ratio:3/2;height:auto;object-fit:cover;object-position:center top;border-radius:var(--radius-md);margin-bottom:var(--sp-4);border:1px solid var(--neutral-200);">
         <h4>메뉴 선택</h4>
         <p>카카오톡 상담 or<br>쇼핑몰(지마켓·11번가·네이버·쿠팡·아이스크림몰·학교장터) 주문</p>
       </div>
       <div class="step-card">
         <div class="step-num">2</div>
-        <img src="assets/images/steps/step-receive-coldchain.jpg" alt="택배를 열자 보냉가방과 아이스팩이 든 스티로폼 박스가 보이는 수령 사진" class="img-unified" loading="lazy" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
+        <img src="assets/images/steps/step-receive-coldchain.jpg" alt="택배를 열자 보냉가방과 아이스팩이 든 스티로폼 박스가 보이는 수령 사진" class="img-unified" loading="lazy" style="width:100%;aspect-ratio:3/2;height:auto;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
         <h4>키트 수령</h4>
         <p>수업 전날 초신선 배송<br>냉장고 보관 불필요</p>
       </div>
       <div class="step-card">
         <div class="step-num">3</div>
-        <img src="assets/images/class-kindergarten-pair.jpeg" alt="수업 시작" class="img-unified" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
+        <img src="assets/images/class-kindergarten-pair.jpeg" alt="수업 시작" class="img-unified" style="width:100%;aspect-ratio:3/2;height:auto;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
         <h4>수업 시작!</h4>
         <p>개봉 → 배분 → 만들기 → 먹기 → 정리<br>30~40분이면 끝</p>
       </div>
