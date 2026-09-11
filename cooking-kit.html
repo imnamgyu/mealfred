@@ -38,9 +38,103 @@
 .btn-kakao:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.12);background:#FDD800;color:#191919}
 .trust-admin{word-break:keep-all}
 .step-card p,.steps-cta .hero-micro{word-break:keep-all}
+#faq-institution .section-tag{display:flex;justify-content:center}
 #how-it-works .step-card img{border-radius:14px!important;box-shadow:0 2px 10px rgba(27,45,79,.08)}
 #how-it-works .step-card h4{font-size:17px}
 #how-it-works .step-card p{font-size:13.5px;color:var(--neutral-600)}
+/* 해결 섹션 — 문제 5가지와 번호 매핑 (2026-09-11) */
+.sol-list{display:flex;flex-direction:column;gap:18px;margin-top:var(--sp-10)}
+.sol-row{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:center;background:#fff;border:1px solid var(--neutral-200);border-radius:22px;padding:26px;box-shadow:0 2px 12px rgba(27,45,79,.05)}
+.sol-rev{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.sol-rev .sol-text{order:2}
+.sol-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sol-num{width:32px;height:32px;border-radius:50%;background:var(--primary-500);color:#fff;font-weight:800;font-size:15px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.sol-prob{font-size:13px;font-weight:800;color:var(--neutral-400);text-decoration:line-through;text-decoration-color:rgba(255,107,26,.6);text-decoration-thickness:2px}
+.sol-title{font-size:24px;line-height:1.35;font-weight:800;color:var(--secondary-700);margin:0 0 14px;word-break:keep-all}
+.sol-title em{font-style:normal;color:var(--primary-500)}
+.sol-points{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.sol-points li{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--neutral-600);font-weight:600}
+.sol-points li svg,.sol-points li i{color:#0B7A53;flex:none}
+.sol-visual{margin:0}
+.sol-visual>img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:16px;display:block}
+.sol-visual figcaption,.sol-collage figcaption{font-size:12px;color:var(--neutral-400);margin-top:6px;text-align:center}
+.sol-badges{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.sol-badge{display:inline-flex;align-items:center;gap:6px;background:#FFF7F0;border:1px solid #FFE0C4;border-radius:100px;padding:4px 12px 4px 4px;font-size:13.5px;font-weight:800;color:var(--secondary-700)}
+.sol-badge img{width:30px;height:30px;display:block}
+.sol-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.sol-tags span{font-size:12px;font-weight:700;padding:4px 11px;border-radius:100px;background:var(--secondary-100);color:var(--secondary-500)}
+.sol-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.sol-cta a{font-size:13.5px;font-weight:800;color:var(--secondary-700);text-decoration:none;border:1.5px solid var(--neutral-200);border-radius:10px;padding:8px 14px;background:#fff}
+.sol-cta a:hover{border-color:var(--primary-500);color:var(--primary-500)}
+.sol-collage{display:grid;grid-template-columns:1fr 1fr 1.35fr;gap:10px;align-items:start}
+.sol-collage figure{margin:0}
+.sol-collage img{width:100%;display:block;border-radius:10px;border:1px solid var(--neutral-200);box-shadow:0 2px 8px rgba(27,45,79,.06)}
+.sol-collage-col{display:flex;flex-direction:column;gap:10px}
+.sol-video{position:relative}
+.sol-video::after{content:"";position:absolute;left:50%;top:calc(50% - 10px);width:44px;height:44px;transform:translate(-50%,-50%);border-radius:50%;background:rgba(255,107,26,.92) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 7l8 5-8 5z' fill='white'/%3E%3C/svg%3E") center/24px no-repeat;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.sol-mini{grid-template-columns:auto 72px minmax(0,1fr) auto;gap:16px;padding:16px 22px;text-decoration:none;color:inherit;transition:border-color .15s ease,box-shadow .15s ease}
+.sol-mini:hover{border-color:var(--primary-300);box-shadow:0 6px 18px rgba(27,45,79,.08)}
+.sol-mini-thumb{width:72px;height:72px;border-radius:14px;object-fit:cover;display:block}
+.sol-mini-text{display:flex;flex-direction:column;gap:4px}
+.sol-mini-text strong{font-size:17px;font-weight:800;color:var(--secondary-700);word-break:keep-all}
+.sol-link{font-size:13.5px;font-weight:800;color:var(--primary-500);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.sol-eco{margin-top:18px;display:flex;align-items:center;gap:10px;justify-content:center;font-size:14px;color:var(--neutral-600);background:#EAF7F1;border-radius:14px;padding:12px 16px;word-break:keep-all}
+.sol-eco b{color:#0B7A53;margin-right:6px}
+.sol-eco svg{color:#0B7A53;flex:none}
+@media (max-width:900px){
+  .sol-row,.sol-rev{grid-template-columns:1fr;gap:16px;padding:18px}
+  .sol-rev .sol-text{order:0}
+  .sol-title{font-size:21px}
+  .sol-mini{grid-template-columns:auto 56px minmax(0,1fr);gap:12px;padding:14px 16px}
+  .sol-mini-thumb{width:56px;height:56px}
+  .sol-link{grid-column:2/-1}
+  .sol-mini-text strong{font-size:15.5px}
+}
+/* 기관 행정 — 선생님·밀프레드·행정실 관계도 */
+.rel-diagram{position:relative;display:grid;grid-template-columns:150px minmax(0,1fr) 170px minmax(0,1fr) 150px;align-items:start;gap:0;margin:var(--sp-12) 0 10px;padding-top:54px}
+.rel-node{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;position:relative;z-index:2}
+.rel-ava{width:112px;height:112px;border-radius:50%;background:#fff;border:2px solid #FFE0C4;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(27,45,79,.08);overflow:hidden;margin-bottom:6px}
+.rel-ava img{width:86%;height:86%;object-fit:contain;display:block}
+.rel-center .rel-ava{width:132px;height:132px;border:3px solid var(--primary-500);background:#FFF7F0}
+.rel-center .rel-ava img{width:70%;height:70%;border-radius:18px}
+.rel-node strong{font-size:17px;font-weight:900;color:var(--secondary-700)}
+.rel-node span{font-size:12.5px;font-weight:700;color:var(--neutral-400)}
+.rel-center span{color:var(--primary-500)}
+.rel-link{position:relative;padding:0 10px}
+.rel-line{position:relative;height:4px;margin-top:54px;background:linear-gradient(90deg,#FFB380,var(--primary-500));border-radius:4px}
+.rel-line::before,.rel-line::after{content:"";position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:var(--primary-500);transform:translateY(-50%);box-shadow:0 0 0 4px #FFE8D6}
+.rel-line::before{left:-4px}.rel-line::after{right:-4px}
+.rel-label{margin:14px auto 0;max-width:240px;background:#fff;border:1px solid var(--neutral-200);border-radius:14px;padding:12px 14px;box-shadow:0 2px 10px rgba(27,45,79,.05)}
+.rel-label b{display:block;font-size:13.5px;font-weight:900;color:var(--primary-500);margin-bottom:6px}
+.rel-label ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.rel-label li{font-size:13px;font-weight:700;color:var(--secondary-700);padding-left:16px;position:relative;word-break:keep-all}
+.rel-label li::before{content:"";position:absolute;left:2px;top:.55em;width:7px;height:7px;border-radius:50%;background:#10B981}
+.rel-bypass{position:absolute;left:75px;right:75px;top:14px;height:96px;border:2.5px dashed #CBD5E1;border-bottom:none;border-radius:60px 60px 0 0;z-index:1;display:flex;justify-content:center}
+.rel-bypass span{position:absolute;top:-15px;display:inline-flex;align-items:center;gap:5px;background:#FFF1F1;color:#C62828;border:1px solid #FECACA;border-radius:100px;padding:5px 12px;font-size:12.5px;font-weight:800;white-space:nowrap}
+.rel-foot{text-align:center;font-size:15px;color:var(--neutral-600);margin:18px 0 var(--sp-10);word-break:keep-all}
+.rel-foot b{color:var(--secondary-700)}
+@media (max-width:900px){
+  .rel-diagram{grid-template-columns:1fr;padding-top:0;gap:6px;max-width:360px;margin-left:auto;margin-right:auto}
+  .rel-bypass{display:none}
+  .rel-link{padding:0}
+  .rel-line{width:4px;height:36px;margin:4px auto 0;background:linear-gradient(180deg,#FFB380,var(--primary-500))}
+  .rel-line::before{left:50%;top:-4px;transform:translateX(-50%)}.rel-line::after{left:50%;right:auto;top:auto;bottom:-4px;transform:translateX(-50%)}
+  .rel-label{margin:8px auto 10px}
+  .rel-foot::before{content:"선생님이 서류 들고 행정실 오갈 일 없어요 · ";color:#C62828;font-weight:800}
+}
+/* 기관 행정 — 서류 예시 가로 스크롤 */
+.doc-strip-wrap{margin-top:var(--sp-10)}
+.doc-strip-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.doc-strip-head .h3{margin:0}
+.doc-ex{font-size:12px;font-weight:800;color:#fff;background:var(--primary-500);border-radius:100px;padding:3px 9px;vertical-align:middle;margin-left:6px}
+.doc-hint{font-size:13px;color:var(--neutral-400);font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.doc-strip{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 4px 16px;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.doc-fig{flex:0 0 210px;margin:0;scroll-snap-align:start}
+.doc-fig img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--neutral-200);box-shadow:0 6px 18px rgba(27,45,79,.10);background:#fff;transition:transform .2s ease}
+.doc-fig:hover img{transform:translateY(-4px)}
+.doc-fig figcaption{text-align:center;font-size:13.5px;font-weight:800;color:var(--secondary-700);margin-top:10px}
+.doc-note{font-size:12px;color:var(--neutral-400);margin-top:4px;word-break:keep-all}
+@media (max-width:600px){.doc-fig{flex-basis:62%}}
 /* 후기 섹션 — 사진+후기 1:1 카드, 탭 필터 (2026-09-11) */
 .tm-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:var(--sp-8) 0 var(--sp-6)}
 .tm-tab{padding:10px 20px;border-radius:100px;font-size:15px;font-weight:700;color:var(--neutral-600);background:var(--neutral-100);border:none;cursor:pointer;transition:all .15s ease}
@@ -173,7 +267,7 @@
       <div class="trust-stat">
         <div class="trust-stat-icon"><i data-lucide="school" style="width:22px;height:22px;"></i></div>
         <div>
-          <div class="trust-stat-num" data-target="3000" data-suffix="곳+">0</div>
+          <div class="trust-stat-num" data-target="3000" data-suffix="곳+">3,000곳+</div>
           <div class="trust-stat-label">교육기관 이용</div>
         </div>
       </div>
@@ -181,7 +275,7 @@
       <div class="trust-stat">
         <div class="trust-stat-icon"><i data-lucide="users" style="width:22px;height:22px;"></i></div>
         <div>
-          <div class="trust-stat-num" data-target="100000" data-suffix="명+">0</div>
+          <div class="trust-stat-num" data-target="100000" data-suffix="명+">100,000명+</div>
           <div class="trust-stat-label">아이들이 체험</div>
         </div>
       </div>
@@ -200,8 +294,48 @@
   </div>
 </section>
 
-<!-- ── SEC 5: DELIVERY (2026-09-11 Problem 위로 이동) ── -->
-<section class="section" id="delivery" style="padding-bottom:40px;">
+<!-- ── SEC 3: PROBLEM ── -->
+<section class="section" id="problem" style="padding-bottom:40px;">
+  <div class="container">
+    <div class="section-tag">Problem</div>
+    <h2 class="h1">선생님, 요리수업<br><span class="highlight">이렇게 힘드셨죠?</span></h2>
+    <p class="desc">요리수업 한 번 준비하는 데 선생님이 챙길 일이 이렇게 많았습니다</p>
+    <div class="burden-board">
+      <ol class="burden-list">
+        <li class="burden-row">
+          <span class="burden-num">1</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-1-basket.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>재료 선별 구매</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>인원수대로 소분해 배송</span></div>
+        </li>
+        <li class="burden-row">
+          <span class="burden-num">2</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-2-fresh.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>신선도(식중독) 관리</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>5중 보냉, 냉장고 없이 OK</span></div>
+        </li>
+        <li class="burden-row">
+          <span class="burden-num">3</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-3-safety.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>안전사고 예방</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>불·칼 없는 메뉴, 도구 동봉</span></div>
+        </li>
+        <li class="burden-row">
+          <span class="burden-num">4</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-4-material.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>수업자료 제작</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>그림 레시피·영상·PPT 제공</span></div>
+        </li>
+        <li class="burden-row">
+          <span class="burden-num">5</span>
+          <span class="burden-ico"><img src="assets/images/problem/burden-5-admin.webp" alt="" width="52" height="52" loading="lazy"></span>
+          <div class="burden-text"><strong>행정 처리</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>견적서·세금계산서 즉시 발행</span></div>
+        </li>
+      </ol>
+      <div class="burden-teacher"><img src="assets/images/problem/teacher-worried.webp" alt="장보기 상자를 안고 난감해하는 선생님 일러스트" width="290" height="526" loading="lazy"></div>
+    </div>
+    <p class="burden-foot">이 다섯 가지, <b>밀프레드 키트 하나로</b> 끝납니다</p>
+  </div>
+</section>
+
+<!-- ── SEC 5: DELIVERY (Problem 다음) ── -->
+<section class="section" id="delivery" style="padding-top:40px;">
   <div class="container">
     <div class="section-tag">Delivery</div>
     <h2 class="h1">냉장고가 없어도<br><span class="highlight">걱정 마세요</span></h2>
@@ -243,142 +377,76 @@
   </div>
 </section>
 
-<!-- ── SEC 3: PROBLEM ── -->
-<section class="section" id="problem" style="padding-top:40px;">
-  <div class="container">
-    <div class="section-tag">Problem</div>
-    <h2 class="h1">선생님, 요리수업<br><span class="highlight">이렇게 힘드셨죠?</span></h2>
-    <p class="desc">요리수업 한 번 준비하는 데 선생님이 챙길 일이 이렇게 많았습니다</p>
-    <div class="burden-board">
-      <ol class="burden-list">
-        <li class="burden-row">
-          <span class="burden-num">1</span>
-          <span class="burden-ico"><img src="assets/images/problem/burden-1-basket.webp" alt="" width="52" height="52" loading="lazy"></span>
-          <div class="burden-text"><strong>재료 선별 구매</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>인원수대로 소분해 배송</span></div>
-        </li>
-        <li class="burden-row">
-          <span class="burden-num">2</span>
-          <span class="burden-ico"><img src="assets/images/problem/burden-2-fresh.webp" alt="" width="52" height="52" loading="lazy"></span>
-          <div class="burden-text"><strong>신선도(식중독) 관리</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>5중 보냉, 냉장고 없이 OK</span></div>
-        </li>
-        <li class="burden-row">
-          <span class="burden-num">3</span>
-          <span class="burden-ico"><img src="assets/images/problem/burden-3-safety.webp" alt="" width="52" height="52" loading="lazy"></span>
-          <div class="burden-text"><strong>안전사고 예방</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>불·칼 없는 메뉴, 도구 동봉</span></div>
-        </li>
-        <li class="burden-row">
-          <span class="burden-num">4</span>
-          <span class="burden-ico"><img src="assets/images/problem/burden-4-material.webp" alt="" width="52" height="52" loading="lazy"></span>
-          <div class="burden-text"><strong>수업자료 제작</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>그림 레시피·영상·PPT 제공</span></div>
-        </li>
-        <li class="burden-row">
-          <span class="burden-num">5</span>
-          <span class="burden-ico"><img src="assets/images/problem/burden-5-admin.webp" alt="" width="52" height="52" loading="lazy"></span>
-          <div class="burden-text"><strong>행정 처리</strong><span class="burden-fix"><i data-lucide="check" style="width:15px;height:15px;"></i>견적서·세금계산서 즉시 발행</span></div>
-        </li>
-      </ol>
-      <div class="burden-teacher"><img src="assets/images/problem/teacher-worried.webp" alt="장보기 상자를 안고 난감해하는 선생님 일러스트" width="290" height="526" loading="lazy"></div>
-    </div>
-    <p class="burden-foot">이 다섯 가지, <b>밀프레드 키트 하나로</b> 끝납니다</p>
-  </div>
-</section>
-
 <!-- ── SEC 4: SOLUTION ── -->
 <section class="section section-alt" id="solution">
   <div class="container">
     <div class="section-tag">Solution</div>
     <h2 class="h1">밀프레드가<br><span class="highlight">전부 해결</span>합니다</h2>
-    <p class="desc">누리과정부터 초등 실과까지, 교육과정 연계 올인원 키트</p>
-    <div class="bento-grid">
-      <div class="bento-card bento-featured">
-        <div class="bento-icon bento-icon-navy"><i data-lucide="book-open" style="width:24px;height:24px;"></i></div>
-        <h4>교육과정 연계 커리큘럼</h4>
-        <p>2022 개정 교육과정 대응<br>유치원·어린이집 <strong>누리과정</strong> · 초등 <strong>실과</strong> · 중학 <strong>기술가정</strong><br>PPT · 영상 · 레시피 제공</p>
-        <div style="display:flex;gap:10px;margin-top:var(--sp-4);justify-content:center;flex-wrap:wrap;">
-          <a href="https://m.site.naver.com/1tmQa" target="_blank" style="background:var(--neutral-100);border-radius:10px;padding:14px 12px;text-align:center;flex:1;min-width:60px;text-decoration:none;transition:all 0.2s;cursor:pointer;" onmouseover="this.style.background='#E3F2FD'" onmouseout="this.style.background='var(--neutral-100)'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--secondary-500)" stroke-width="1.5"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 17h18"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            <div style="font-size:10px;font-weight:700;color:var(--neutral-600);margin-top:4px;">수업자료</div>
-          </a>
-          <a href="https://www.youtube.com/@mealfred" target="_blank" style="background:var(--neutral-100);border-radius:10px;padding:14px 12px;text-align:center;flex:1;min-width:60px;text-decoration:none;transition:all 0.2s;cursor:pointer;" onmouseover="this.style.background='#FFF3E0'" onmouseout="this.style.background='var(--neutral-100)'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E00034" stroke-width="1.5"><polygon points="5,3 19,12 5,21"/></svg>
-            <div style="font-size:10px;font-weight:700;color:var(--neutral-600);margin-top:4px;">유튜브 영상</div>
-          </a>
-          <a href="https://m.site.naver.com/1tmQa" target="_blank" style="background:var(--neutral-100);border-radius:10px;padding:14px 12px;text-align:center;flex:1;min-width:60px;text-decoration:none;transition:all 0.2s;cursor:pointer;" onmouseover="this.style.background='#E8F5E9'" onmouseout="this.style.background='var(--neutral-100)'">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--secondary-500)" stroke-width="1.5"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h5"/><circle cx="16" cy="16" r="2"/></svg>
-            <div style="font-size:10px;font-weight:700;color:var(--neutral-600);margin-top:4px;">레시피</div>
-          </a>
+    <p class="desc">앞의 다섯 가지, 이렇게 해결해 드려요</p>
+    <div class="sol-list">
+      <article class="sol-row">
+        <div class="sol-text">
+          <div class="sol-head"><span class="sol-num">1</span><span class="sol-prob">재료 선별 구매</span></div>
+          <h3 class="sol-title">인원수대로 <em>소분해서</em> 보내드려요</h3>
+          <ul class="sol-points">
+            <li><i data-lucide="check" style="width:16px;height:16px;"></i>1인분씩 나눠 담은 4인 1세트</li>
+            <li><i data-lucide="check" style="width:16px;height:16px;"></i>반별로 박스를 나눠 포장</li>
+            <li><i data-lucide="check" style="width:16px;height:16px;"></i>조리도구·식탁보·포장용기까지 동봉</li>
+          </ul>
         </div>
-        <div style="display:flex;gap:8px;margin-top:var(--sp-4);justify-content:center;flex-wrap:wrap;">
-          <span style="background:#E8F5E9;color:#2D8B4E;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;">누리과정</span>
-          <span style="background:#FFF3E0;color:#E65100;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;">초등 실과</span>
-          <span style="background:#E3F2FD;color:#1565C0;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;">중학 기술가정</span>
-          <span style="background:#F3E5F5;color:#7B1FA2;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;">특수교육</span>
-          <span style="background:#FFF8E1;color:#F57F17;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;">다문화교육</span>
+        <figure class="sol-visual"><img src="assets/images/solution/sol-1-portion.jpg" alt="카나페 키트 구성품이 1인분씩 소분돼 놓인 모습" width="960" height="640" loading="lazy"><figcaption>실제 카나페 키트 구성품</figcaption></figure>
+      </article>
+      <a class="sol-row sol-mini" href="#delivery">
+        <span class="sol-num">2</span>
+        <img class="sol-mini-thumb" src="assets/images/solution/sol-2-coldbox.jpg" alt="은박 보냉 안감을 두른 스티로폼 박스" width="72" height="72" loading="lazy">
+        <div class="sol-mini-text"><span class="sol-prob">신선도(식중독) 관리</span><strong>5중 보냉으로 교실까지 신선하게, 냉장고 없이 OK</strong></div>
+        <span class="sol-link">보냉 구조 보기 <i data-lucide="arrow-up" style="width:15px;height:15px;"></i></span>
+      </a>
+      <article class="sol-row sol-rev">
+        <div class="sol-text">
+          <div class="sol-head"><span class="sol-num">3</span><span class="sol-prob">안전사고 예방</span></div>
+          <h3 class="sol-title"><em>불·칼 없이</em> 책상 위에서 끝나요</h3>
+          <div class="sol-badges">
+            <span class="sol-badge" data-badge="fire"><img src="assets/images/solution/sol-no-fire.webp" alt="" width="40" height="40" loading="lazy">불 없음</span>
+            <span class="sol-badge" data-badge="knife"><img src="assets/images/solution/sol-no-knife.webp" alt="" width="40" height="40" loading="lazy">칼 없음</span>
+            <span class="sol-badge" data-badge="zero"><img src="assets/images/solution/sol-zero-accident.webp" alt="" width="40" height="40" loading="lazy">10만 명 사고 0건</span>
+          </div>
+          <ul class="sol-points">
+            <li><i data-lucide="check" style="width:16px;height:16px;"></i>플라스틱 안전 나이프·위생장갑 동봉</li>
+            <li><i data-lucide="check" style="width:16px;height:16px;"></i>20종+ 세계 요리, 시즌 특별 메뉴</li>
+          </ul>
         </div>
-      </div>
-      <div class="bento-card">
-        <div class="bento-icon bento-icon-orange"><i data-lucide="package" style="width:24px;height:24px;"></i></div>
-        <h4>올인원 수업 구성</h4>
-        <p>개봉 즉시 수업 시작<br>1인분 개별포장 · 조리도구 · 포장용기</p>
-        <div style="display:flex;gap:10px;margin-top:var(--sp-4);justify-content:center;">
-          <div style="background:#FFF3E0;border-radius:10px;padding:14px 12px;text-align:center;flex:1;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="1.5"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5z"/><path d="M3 7l9 5 9-5"/><line x1="12" y1="12" x2="12" y2="22"/></svg>
-            <div style="font-size:10px;font-weight:700;color:#E65100;margin-top:4px;">개별포장</div>
-          </div>
-          <div style="background:#FFF3E0;border-radius:10px;padding:14px 12px;text-align:center;flex:1;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="1.5"><path d="M15 3h6v6M9 21H3v-6"/><path d="M21 3l-7 7M3 21l7-7"/></svg>
-            <div style="font-size:10px;font-weight:700;color:#E65100;margin-top:4px;">조리도구</div>
-          </div>
-          <div style="background:#FFF3E0;border-radius:10px;padding:14px 12px;text-align:center;flex:1;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="1.5"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M7 8V6a5 5 0 0110 0v2"/></svg>
-            <div style="font-size:10px;font-weight:700;color:#E65100;margin-top:4px;">포장용기</div>
-          </div>
+        <figure class="sol-visual"><img src="assets/images/solution/sol-3-safe-tools.jpg" alt="위생장갑을 낀 손이 플라스틱 나이프로 카나페를 만드는 모습" width="960" height="640" loading="lazy"><figcaption>플라스틱 나이프와 위생장갑으로 만드는 카나페</figcaption></figure>
+      </article>
+      <article class="sol-row">
+        <div class="sol-text">
+          <div class="sol-head"><span class="sol-num">4</span><span class="sol-prob">수업자료 제작</span></div>
+          <h3 class="sol-title">그림 레시피·영상·수업계획서 <em>다 드려요</em></h3>
+          <ul class="sol-points">
+            <li><i data-lucide="check" style="width:16px;height:16px;"></i>학생용 그림 레시피 출력본</li>
+            <li><i data-lucide="check" style="width:16px;height:16px;"></i>자막 달린 만들기 영상·PPT</li>
+            <li><i data-lucide="check" style="width:16px;height:16px;"></i>연간 계획안·수업계획서</li>
+          </ul>
+          <div class="sol-tags"><span>누리과정</span><span>초등 실과</span><span>중학 기술가정</span><span>특수교육</span><span>다문화교육</span></div>
+          <div class="sol-cta"><a href="https://m.site.naver.com/1tmQa" target="_blank" rel="noopener">수업자료 미리보기</a><a href="https://www.youtube.com/@mealfred" target="_blank" rel="noopener">유튜브 영상</a></div>
         </div>
-      </div>
-      <div class="bento-card">
-        <div class="bento-icon bento-icon-navy"><i data-lucide="shield-check" style="width:24px;height:24px;"></i></div>
-        <h4>불·칼 없는 안전 메뉴</h4>
-        <p>20종+ 세계 요리<br>10만명 사고 0건 · 시즌 특별 메뉴</p>
-        <div style="display:flex;gap:10px;margin-top:var(--sp-4);justify-content:center;">
-          <div style="background:#E8F5E9;border-radius:10px;padding:14px 12px;text-align:center;flex:1;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2D8B4E" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><line x1="8" y1="8" x2="16" y2="16" stroke="#C62828" stroke-width="2"/><path d="M15 4l2 5M7 4l-1 5" stroke="#C62828" stroke-width="1.5" opacity="0.4"/></svg>
-            <div style="font-size:10px;font-weight:700;color:#2D8B4E;margin-top:4px;">불 없음</div>
-          </div>
-          <div style="background:#E8F5E9;border-radius:10px;padding:14px 12px;text-align:center;flex:1;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2D8B4E" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><line x1="8" y1="8" x2="16" y2="16" stroke="#C62828" stroke-width="2"/><path d="M10 6v10M14 8l-6 3" stroke="#C62828" stroke-width="1.5" opacity="0.4"/></svg>
-            <div style="font-size:10px;font-weight:700;color:#2D8B4E;margin-top:4px;">칼 없음</div>
-          </div>
-          <div style="background:#E8F5E9;border-radius:10px;padding:14px 12px;text-align:center;flex:1;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2D8B4E" stroke-width="1.5"><path d="M12 2l3 6h6l-5 4 2 6-6-4-6 4 2-6-5-4h6z"/></svg>
-            <div style="font-size:10px;font-weight:700;color:#2D8B4E;margin-top:4px;">사고 0건</div>
+        <div class="sol-visual sol-collage">
+          <figure><img src="assets/images/solution/sol-4-recipe-canape.jpg" alt="알록달록 카나페 만들기 학생용 그림 레시피" width="480" height="640" loading="lazy"><figcaption>그림 레시피</figcaption></figure>
+          <figure><img src="assets/images/solution/sol-4-recipe-avocado.jpg" alt="아보카도 에그 샌드위치 만들기 학생용 그림 레시피" width="480" height="640" loading="lazy"><figcaption>그림 레시피</figcaption></figure>
+          <div class="sol-collage-col">
+            <figure class="sol-video"><img src="assets/images/solution/sol-4-video.jpg" alt="자막이 달린 수업 영상 장면" width="640" height="400" loading="lazy"><figcaption>수업 영상</figcaption></figure>
+            <figure><img src="assets/images/solution/sol-4-annual-plan.jpg" alt="2026 유아 요리활동 연간 계획안" width="640" height="400" loading="lazy"><figcaption>연간 계획안</figcaption></figure>
           </div>
         </div>
-      </div>
-      <div class="bento-card bento-wide">
-        <div style="display:flex;gap:var(--sp-6);align-items:center;">
-          <div style="flex:1;">
-            <div class="bento-icon bento-icon-orange"><i data-lucide="recycle" style="width:24px;height:24px;"></i></div>
-            <h4>환경까지 생각한 수거 시스템</h4>
-            <p>쿨러백·스티로폼·아이스팩 회수 → 위생 살균 재사용. 일회용품 90% 감소.</p>
-            <div class="bento-tag" style="margin-top:var(--sp-3);">일회용품 90% 감소</div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
-            <div style="display:flex;align-items:center;gap:8px;background:var(--neutral-100);border-radius:10px;padding:10px 14px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2D8B4E" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              <span style="font-size:12px;font-weight:600;color:var(--neutral-700);">쿨러백 회수</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;background:var(--neutral-100);border-radius:10px;padding:10px 14px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2D8B4E" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              <span style="font-size:12px;font-weight:600;color:var(--neutral-700);">위생 살균</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;background:var(--neutral-100);border-radius:10px;padding:10px 14px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2D8B4E" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              <span style="font-size:12px;font-weight:600;color:var(--neutral-700);">재사용</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      </article>
+      <a class="sol-row sol-mini" href="#convenience">
+        <span class="sol-num">5</span>
+        <img class="sol-mini-thumb" src="assets/images/solution/sol-5-docs.webp" alt="견적서와 거래명세서 예시" width="72" height="72" loading="lazy">
+        <div class="sol-mini-text"><span class="sol-prob">행정 처리</span><strong>견적서·세금계산서·거래명세서 즉시 발행</strong></div>
+        <span class="sol-link">서류 예시 보기 <i data-lucide="arrow-down" style="width:15px;height:15px;"></i></span>
+      </a>
     </div>
+    <div class="sol-eco"><i data-lucide="recycle" style="width:20px;height:20px;"></i><span><b>환경까지 생각한 수거 시스템</b> 쿨러백·스티로폼·아이스팩 회수 → 위생 살균 후 재사용, 일회용품 90% 감소</span></div>
   </div>
 </section>
 
@@ -388,6 +456,21 @@
     <div class="section-tag">Convenience</div>
     <h2 class="h1">기관 행정,<br><span class="highlight">저희가 맞춰드립니다</span></h2>
     <p class="desc">선생님이 편한 방식으로 주문하고, 필요한 서류를 바로 받으세요</p>
+    <div class="rel-diagram" aria-label="선생님, 밀프레드, 행정실 관계도">
+      <div class="rel-bypass" aria-hidden="true"><span><i data-lucide="x" style="width:14px;height:14px;"></i>선생님이 서류 들고 행정실 오갈 일 없어요</span></div>
+      <div class="rel-node"><div class="rel-ava"><img src="assets/images/rel/rel-teacher.webp" alt="" width="120" height="120" loading="lazy"></div><strong>선생님</strong><span>수업에만 집중</span></div>
+      <div class="rel-link">
+        <div class="rel-line"></div>
+        <div class="rel-label"><b>선생님과는 이것만</b><ul><li>행사일·인원 조율</li><li>수업자료·영상 전달</li><li>배송 일정 문자 안내</li></ul></div>
+      </div>
+      <div class="rel-node rel-center"><div class="rel-ava"><img src="logo.png" alt="밀프레드" width="120" height="120" loading="lazy"></div><strong>밀프레드</strong><span>중간에서 전부 처리</span></div>
+      <div class="rel-link">
+        <div class="rel-line"></div>
+        <div class="rel-label"><b>행정실과는 저희가 직접</b><ul><li>견적서·비교견적서 제출</li><li>세금계산서·거래명세서 발행</li><li>검수확인서·각서·서약서</li><li>카드·계좌·쇼핑몰 결제 맞춤</li></ul></div>
+      </div>
+      <div class="rel-node"><div class="rel-ava"><img src="assets/images/rel/rel-admin.webp" alt="" width="120" height="120" loading="lazy"></div><strong>행정실</strong><span>서류·결제 담당</span></div>
+    </div>
+    <p class="rel-foot"><b>행정실 연락처만 알려주세요.</b> 나머지 서류와 결제는 밀프레드가 알아서 처리합니다.</p>
     <div class="convenience-grid">
       <div>
         <div class="platform-logos store-row store-row-lg">
@@ -422,6 +505,18 @@
           <div class="admin-check"><div class="admin-check-icon"><i data-lucide="check" style="width:14px;height:14px;"></i></div>기타 필요 서류 맞춤 발급</div>
         </div>
       </div>
+        </div>
+    <div class="doc-strip-wrap">
+      <div class="doc-strip-head"><h3 class="h3">이런 서류, 바로 발급해 드려요 <span class="doc-ex">예시</span></h3><span class="doc-hint">옆으로 넘겨 보세요 <i data-lucide="arrow-right" style="width:14px;height:14px;"></i></span></div>
+      <div class="doc-strip">
+          <figure class="doc-fig"><img src="assets/images/docs/doc-quote.webp" alt="견적서·비교견적서 예시" width="600" height="848" loading="lazy"><figcaption>견적서·비교견적서</figcaption></figure>
+          <figure class="doc-fig"><img src="assets/images/docs/doc-statement.webp" alt="거래명세서 예시" width="600" height="848" loading="lazy"><figcaption>거래명세서</figcaption></figure>
+          <figure class="doc-fig"><img src="assets/images/docs/doc-taxinvoice.webp" alt="전자세금계산서 예시" width="600" height="848" loading="lazy"><figcaption>전자세금계산서</figcaption></figure>
+          <figure class="doc-fig"><img src="assets/images/docs/doc-inspection.webp" alt="납품 검수 확인서 예시" width="600" height="848" loading="lazy"><figcaption>납품 검수 확인서</figcaption></figure>
+          <figure class="doc-fig"><img src="assets/images/docs/doc-contract.webp" alt="수의계약 각서 예시" width="600" height="848" loading="lazy"><figcaption>수의계약 각서</figcaption></figure>
+          <figure class="doc-fig"><img src="assets/images/docs/doc-integrity.webp" alt="청렴서약서 예시" width="600" height="848" loading="lazy"><figcaption>청렴서약서</figcaption></figure>
+      </div>
+      <p class="doc-note">예시 이미지입니다. 실제 서류는 주문하신 기관 정보로 발행되며, 완납증명서 등 공공 서류도 요청하시면 함께 보내드립니다.</p>
     </div>
   </div>
 </section>
@@ -466,49 +561,101 @@
   <div class="container">
     <div class="section-tag">Testimonials</div>
     <h2 class="h1">전국에서 밀프레드와<br><span class="highlight">함께하고 있습니다</span></h2>
-    <p class="desc">280명의 선생님이 직접 들려주신 이야기입니다</p>
-    <div class="testimonial-tabs">
-      <button class="testimonial-tab active" data-tab="reaction">아이들 반응</button>
-      <button class="testimonial-tab" data-tab="convenience">수업 편의성</button>
-      <button class="testimonial-tab" data-tab="freshness">신선도</button>
+    <p class="desc">330명의 선생님이 직접 들려주신 371건의 후기입니다</p>
+    <div class="tm-tabs" role="tablist" aria-label="후기 분류">
+      <button class="tm-tab is-active" type="button" role="tab" aria-selected="true" data-tm="reaction">아이들 반응</button>
+      <button class="tm-tab" type="button" role="tab" aria-selected="false" data-tm="convenience">수업 편의성</button>
+      <button class="tm-tab" type="button" role="tab" aria-selected="false" data-tm="freshness">신선도</button>
     </div>
-    <div class="testimonial-panel active" data-panel="reaction">
-      <div class="testimonial-slider"><div class="testimonial-track">
-        <div class="testimonial-card"><div class="testimonial-quote">엄마가 해준 것보다 맛있어요!</div><div class="testimonial-author">수업 참여 학생</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">선생님 더 먹으면 안돼요?</div><div class="testimonial-author">수업 참여 학생</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">항상 부정적인 아이의 입에서 맛있다는 말이 나옴</div><div class="testimonial-author">교사</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">입맛 까다로운 아이들도 다 잘 먹었어요!</div><div class="testimonial-author">교사</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">잔반이 하나 없게 다들 잘 먹었습니다</div><div class="testimonial-author">교사</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">학교에서 먹은 것 중 제일 맛있다</div><div class="testimonial-author">수업 참여 학생</div></div>
-      </div></div>
+    <div class="tm-panel is-active" role="tabpanel" data-tm-panel="reaction">
+      <div class="tm-grid">
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-r1.webp" alt="초등 실과 수업 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">저 원래 아보카도 안먹는데 이번에 먹었어요!</p><p class="tm-meta"><span class="tm-who">수업 참여 학생</span> · 초등 실과 수업</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-r2.webp" alt="초등 실과 수업 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">강정은 닭강정만 알았는데, 우리 전통 음식인 강정은 곡식으로 만드는 거구나.</p><p class="tm-meta"><span class="tm-who">수업 참여 학생</span> · 초등 실과 수업</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-r3.webp" alt="중학교 진로체험 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">맛있다! 진짜 티라미수같다!</p><p class="tm-meta"><span class="tm-who">수업 참여 학생</span> · 중학교 진로체험</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-r4.webp" alt="유치원 요리활동 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">아이들이 맛있다고 하며 만든것을 남김없이 다 먹었습니다.</p><p class="tm-meta"><span class="tm-who">교사</span> · 유치원 요리활동</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-r5.webp" alt="복지관 유아 독후활동 프로그램 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">맛있었어요. 엄마아빠도 나눠줬어요</p><p class="tm-meta"><span class="tm-who">프로그램 참여자</span> · 복지관 유아 독후활동 프로그램</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-r6.webp" alt="초등 다문화 수업 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">클레이 같이 조물조물 하니 재미있어 했어요.</p><p class="tm-meta"><span class="tm-who">교사</span> · 초등 다문화 수업</p></figcaption>
+        </figure>
+      </div>
     </div>
-    <div class="testimonial-panel" data-panel="convenience">
-      <div class="testimonial-slider"><div class="testimonial-track">
-        <div class="testimonial-card"><div class="testimonial-quote">재료가 다 준비되어 있고 실습하기에 편해서 너무 좋았습니다</div><div class="testimonial-author">교사</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">요리에 자신이 없는 선생님도 전혀 걱정 없어요</div><div class="testimonial-author">교사</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">학년 부장님들께 공유하고 내년도 교육과정에 반영했습니다</div><div class="testimonial-author">교사</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">키트는 보통 맛이 없는데 밀프레드 제품은 전부 다 맛있었습니다</div><div class="testimonial-author">교사</div></div>
-      </div></div>
+    <div class="tm-panel" role="tabpanel" data-tm-panel="convenience">
+      <div class="tm-grid">
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-c1.webp" alt="초등 실과 수업 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">그대로 따라하기만 하면 돼 아주 편리했다.</p><p class="tm-meta"><span class="tm-who">교사</span> · 초등 실과 수업</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-c2.webp" alt="학생용 그림 레시피" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">학생용 설명서를 주니 제가 설명할 것도 없이 알아서 잘 만드네요!!</p><p class="tm-meta"><span class="tm-who">교사</span> · 초등 창의적체험활동</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-c3.webp" alt="초등 실과 수업 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">식탁보까지 모든 재료가 있었던게 좋았습니다.</p><p class="tm-meta"><span class="tm-who">교사</span> · 초등 실과 수업</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-c4.webp" alt="자막이 달린 밀프레드 만들기 영상 장면" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">유튜브 본 후 아이들에게 설명하기 쉬웠습니다.</p><p class="tm-meta"><span class="tm-who">교사</span> · 돌봄센터 창의적체험활동</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-c5.webp" alt="카나페와 주먹밥 완성 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">45분에 주먹밥 카나페 두 개의 음식 완성</p><p class="tm-meta"><span class="tm-who">교사</span> · 중학교 영어융합 수업</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-c6.webp" alt="초등 실과 수업 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">학년 부장님들께 공유를 함. 내년도 교육과정에 반영.</p><p class="tm-meta"><span class="tm-who">교사</span> · 초등 실과 수업</p></figcaption>
+        </figure>
+      </div>
     </div>
-    <div class="testimonial-panel" data-panel="freshness">
-      <div class="testimonial-slider"><div class="testimonial-track">
-        <div class="testimonial-card"><div class="testimonial-quote">수업 1시간 전 개봉하니 굉장히 차가웠다. 매우 신선했다</div><div class="testimonial-author">교사</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">전날 오후 수령했는데 다음날 아침 냉동식품은 완전 얼어 있었어요</div><div class="testimonial-author">교사</div></div>
-        <div class="testimonial-card"><div class="testimonial-quote">여름에도 안심하고 구입해도 괜찮겠다</div><div class="testimonial-author">교사</div></div>
-      </div></div>
+    <div class="tm-panel" role="tabpanel" data-tm-panel="freshness">
+      <div class="tm-grid">
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-f1.webp" alt="초등 창의적체험활동 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">개별 포장 된 아이스팩이 녹지 않고 그대로 있어서 깜짝 놀랐다</p><p class="tm-meta"><span class="tm-who">교사</span> · 초등 창의적체험활동</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-f2.webp" alt="초등 급식대체 활동 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">전날 받은 택배임에도 재료들이 차갑게 보관되어있었습니다.</p><p class="tm-meta"><span class="tm-who">교사</span> · 초등 급식대체 활동</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-f3.webp" alt="초등 실과 수업 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">재료들이 수업 시간에 맞춰서 냉동 보관 해동이 잘되었습니다</p><p class="tm-meta"><span class="tm-who">교사</span> · 초등 실과 수업</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-f4.webp" alt="소분 포장된 키트 구성품" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">꼼꼼하게 포장되어 와서 신선한 상태였음</p><p class="tm-meta"><span class="tm-who">교사</span> · 유치원 창의적체험활동</p></figcaption>
+        </figure>
+        <figure class="tm-card">
+          <div class="tm-photo"><img src="assets/images/reviews/review-f5.webp" alt="고등학교 동아리 사진" width="800" height="600" loading="lazy"></div>
+          <figcaption><p class="tm-quote">꽝꽝 얼어있었고 신선함</p><p class="tm-meta"><span class="tm-who">교사</span> · 고등학교 동아리</p></figcaption>
+        </figure>
+      </div>
     </div>
-    <div class="photo-grid">
-      <img src="assets/images/hero-kids-happy.jpeg" alt="유치원생 크레페 완성">
-      <img src="assets/images/hero-class-group.jpeg" alt="유치원 단체 수업">
-      <img src="assets/images/class-kindergarten-cooking.jpeg" alt="유치원생 요리 중">
-      <img src="assets/images/class-kindergarten-pair.jpeg" alt="유치원생 짝 요리">
-      <img src="assets/images/class/institution-1.jpeg" alt="공공기관 수업 1">
-      <img src="assets/images/class/institution-2.jpeg" alt="공공기관 수업 2">
-      <img src="assets/images/class/institution-3.jpeg" alt="공공기관 수업 3">
-      <img src="assets/images/class/daycare-cooking.jpeg" alt="어린이집 요리">
-    </div>
+    <p class="tm-note">사용 후기 설문 응답을 원문 그대로 옮겼습니다 · 사진은 밀프레드 수업 현장과 제품 사진으로, 후기를 쓴 기관의 사진이 아닐 수 있습니다 · 얼굴은 흐리게 처리했습니다</p>
   </div>
 </section>
+<script>
+(function(){var tabs=document.querySelectorAll('#testimonials .tm-tab'),panels=document.querySelectorAll('#testimonials .tm-panel');
+tabs.forEach(function(t){t.addEventListener('click',function(){var k=t.getAttribute('data-tm');
+tabs.forEach(function(x){var on=x===t;x.classList.toggle('is-active',on);x.setAttribute('aria-selected',on?'true':'false');});
+panels.forEach(function(p){p.classList.toggle('is-active',p.getAttribute('data-tm-panel')===k);});});});})();
+</script>
 
 <!-- ── SEC 8: TRACTION (KPI) ── -->
 <section class="section-lg section-navy" id="traction">
@@ -516,10 +663,10 @@
     <div class="section-tag" style="color:var(--primary-400);justify-content:center;">Traction</div>
     <h2 class="h1" style="color:white;">숫자가 <span class="highlight">증명</span>합니다</h2>
     <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-num" data-target="3000" data-suffix="+">0</div><div class="kpi-label">교육기관 이용</div></div>
-      <div class="kpi-card"><div class="kpi-num" data-target="100000" data-suffix="+">0</div><div class="kpi-label">아이들이 체험</div></div>
-      <div class="kpi-card"><div class="kpi-num" data-target="89.6" data-suffix="%">0</div><div class="kpi-label">동료 추천율</div><div class="kpi-source">설문 280건</div></div>
-      <div class="kpi-card"><div class="kpi-num" data-target="97.4" data-suffix="%">0</div><div class="kpi-label">잔반 거의 없음</div><div class="kpi-source">설문 280건</div></div>
+      <div class="kpi-card"><div class="kpi-num" data-target="3000" data-suffix="+">3,000+</div><div class="kpi-label">교육기관 이용</div></div>
+      <div class="kpi-card"><div class="kpi-num" data-target="100000" data-suffix="+">100,000+</div><div class="kpi-label">아이들이 체험</div></div>
+      <div class="kpi-card"><div class="kpi-num" data-target="89.6" data-suffix="%">89.6%</div><div class="kpi-label">동료 추천율</div><div class="kpi-source">설문 280건</div></div>
+      <div class="kpi-card"><div class="kpi-num" data-target="97.4" data-suffix="%">97.4%</div><div class="kpi-label">잔반 거의 없음</div><div class="kpi-source">설문 280건</div></div>
       <div class="kpi-card"><div class="kpi-num">30~40분</div><div class="kpi-label">수업 소요시간</div><div class="kpi-source">설문 280건</div></div>
     </div>
   </div>
