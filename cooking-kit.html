@@ -42,6 +42,33 @@
 #how-it-works .step-card img{border-radius:14px!important;box-shadow:0 2px 10px rgba(27,45,79,.08)}
 #how-it-works .step-card h4{font-size:17px}
 #how-it-works .step-card p{font-size:13.5px;color:var(--neutral-600)}
+/* 아이콘 교체 (2026-09-11, gpt-image-1 카툰 세트) */
+.trust-stat-icon{background:none!important;width:56px!important;height:56px!important;border-radius:0!important;box-shadow:none!important}
+.trust-stat-icon img{width:56px;height:56px;display:block}
+.trust-stat-num{font-size:30px}
+.delivery-step-icon{background:none!important;width:64px!important;height:64px!important;flex:none}
+.delivery-step-icon img{width:64px;height:64px;display:block}
+.dl-illust{width:100%;max-width:520px;display:block;margin:0 auto var(--sp-4)}
+.payment-method-icon{background:none!important;width:56px!important;height:56px!important}
+.payment-method-icon img{width:56px;height:56px;display:block}
+.sol-eco img{width:40px;height:40px;flex:none}
+#traction.section-navy{background:#FFF3E8!important}
+#traction .h1{color:var(--secondary-700)}
+#traction .kpi-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+#traction .kpi-card{background:#fff!important;border:1px solid rgba(27,45,79,.10)!important;border-radius:20px;box-shadow:0 2px 10px rgba(27,45,79,.05)}
+#traction .kpi-card:hover{background:#fff!important}
+#traction .kpi-ico img{width:56px;height:56px;display:block;margin:0 auto 6px}
+#traction .kpi-num{color:var(--secondary-700)!important}
+#traction .kpi-label{color:var(--neutral-600)!important}
+#traction .kpi-source{color:var(--neutral-400)!important;font-weight:600}
+#traction .kpi-num{font-size:clamp(26px,2.6vw,36px)!important;letter-spacing:-.02em;white-space:nowrap}
+#delivery .delivery-grid{align-items:start}
+#delivery .delivery-steps{position:sticky;top:96px}
+#delivery .delivery-diagram{background:#FFF7F0!important;border:1px solid #FFE0C4}
+@media (max-width:900px){#traction .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#traction .kpi-card:last-child{grid-column:1/-1}}
+.dc-gift img{width:44px;height:44px;display:block}
+.dc-call{display:inline-block;background:var(--primary-500);color:#fff;font-weight:800;font-size:15px;padding:10px 20px;border-radius:12px;text-decoration:none}
+.dc-call:hover{background:#F25E0F;color:#fff}
 /* 해결 섹션 — 문제 5가지와 번호 매핑 (2026-09-11) */
 .sol-list{display:flex;flex-direction:column;gap:18px;margin-top:var(--sp-10)}
 .sol-row{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px;align-items:center;background:#fff;border:1px solid var(--neutral-200);border-radius:22px;padding:26px;box-shadow:0 2px 12px rgba(27,45,79,.05)}
@@ -265,7 +292,7 @@
   <div class="container">
     <div class="trust-stats">
       <div class="trust-stat">
-        <div class="trust-stat-icon"><i data-lucide="school" style="width:22px;height:22px;"></i></div>
+        <div class="trust-stat-icon"><img src="assets/images/icons/stat-institutions.webp" alt="" width="56" height="56" loading="lazy"></div>
         <div>
           <div class="trust-stat-num" data-target="3000" data-suffix="곳+">3,000곳+</div>
           <div class="trust-stat-label">교육기관 이용</div>
@@ -273,7 +300,7 @@
       </div>
       <div class="trust-divider"></div>
       <div class="trust-stat">
-        <div class="trust-stat-icon"><i data-lucide="users" style="width:22px;height:22px;"></i></div>
+        <div class="trust-stat-icon"><img src="assets/images/icons/stat-children.webp" alt="" width="56" height="56" loading="lazy"></div>
         <div>
           <div class="trust-stat-num" data-target="100000" data-suffix="명+">100,000명+</div>
           <div class="trust-stat-label">아이들이 체험</div>
@@ -281,7 +308,7 @@
       </div>
       <div class="trust-divider"></div>
       <div class="trust-stat">
-        <div class="trust-stat-icon"><i data-lucide="file-badge" style="width:22px;height:22px;"></i></div>
+        <div class="trust-stat-icon"><img src="assets/images/icons/stat-insurance.webp" alt="" width="56" height="56" loading="lazy"></div>
         <div>
           <div class="trust-stat-num">삼성화재 5억원</div>
           <div class="trust-stat-label">생산물배상책임보험</div>
@@ -342,30 +369,30 @@
     <p class="desc">5중 보냉으로 48시간 냉기 유지, 교실까지 초신선 안심배송</p>
     <div class="delivery-grid">
       <div class="delivery-diagram">
-        <img src="assets/images/delivery/5layer.png" alt="5중 보냉 시스템 인포그래픽" class="img-unified" style="width:100%;margin-bottom:var(--sp-4);border-radius:var(--radius-md);">
+        <img src="assets/images/icons/delivery-5layer-exploded.webp" alt="5중 보냉 구조 일러스트" class="dl-illust" style="width:100%;margin-bottom:var(--sp-4);border-radius:var(--radius-md);">
         <div style="font-size:14px;font-weight:700;color:var(--secondary-700);margin-bottom:var(--sp-3);text-align:center;">5중 보냉 시스템</div>
         <div class="delivery-layer"><div class="delivery-layer-num">1</div><div class="delivery-layer-text">드라이아이스</div></div>
         <div class="delivery-layer"><div class="delivery-layer-num">2</div><div class="delivery-layer-text">SPA 냉매재</div></div>
         <div class="delivery-layer"><div class="delivery-layer-num">3</div><div class="delivery-layer-text">은박 보냉백</div></div>
-        <div class="delivery-layer"><div class="delivery-layer-num">4</div><div class="delivery-layer-text">방수원단 EVA 칸단</div></div>
+        <div class="delivery-layer"><div class="delivery-layer-num">4</div><div class="delivery-layer-text">방수 원단 EVA 보강재</div></div>
         <div class="delivery-layer"><div class="delivery-layer-num">5</div><div class="delivery-layer-text">스티로폼 박스</div></div>
         <img src="assets/images/delivery/box-open.jpeg" alt="실제 배송 박스 개봉" class="img-unified" style="width:100%;margin-top:var(--sp-4);border-radius:var(--radius-md);">
       </div>
       <div class="delivery-steps">
         <div class="delivery-step">
-          <div class="delivery-step-icon"><i data-lucide="box" style="width:22px;height:22px;"></i></div>
+          <div class="delivery-step-icon"><img src="assets/images/icons/delivery-double-cooler.webp" alt="" width="64" height="64" loading="lazy"></div>
           <div><h4>2중 보냉 구성</h4><p>아이스박스 + 아웃도어 전용 쿨러로 이중 냉기</p></div>
         </div>
         <div class="delivery-step">
-          <div class="delivery-step-icon"><i data-lucide="thermometer-snowflake" style="width:22px;height:22px;"></i></div>
+          <div class="delivery-step-icon"><img src="assets/images/icons/delivery-overnight-cold.webp" alt="" width="64" height="64" loading="lazy"></div>
           <div><h4>냉장고 필요 없음</h4><p>드라이아이스 + 전용 냉매재, 전날 수령해도 다음날 OK</p></div>
         </div>
         <div class="delivery-step">
-          <div class="delivery-step-icon"><i data-lucide="leaf" style="width:22px;height:22px;"></i></div>
+          <div class="delivery-step-icon"><img src="assets/images/icons/delivery-reuse-loop.webp" alt="" width="64" height="64" loading="lazy"></div>
           <div><h4>일회용품 90% 감소</h4><p>쿨러백 · 스티로폼 · 아이스팩 수거, 쓰레기 1/10 수준</p></div>
         </div>
         <div class="delivery-step">
-          <div class="delivery-step-icon"><i data-lucide="sparkles" style="width:22px;height:22px;"></i></div>
+          <div class="delivery-step-icon"><img src="assets/images/icons/delivery-sanitize.webp" alt="" width="64" height="64" loading="lazy"></div>
           <div><h4>위생 살균 관리</h4><p>회수 보냉백 · 냉매재 위생 살균, 식재료 보냉백 이중 포장</p></div>
         </div>
       </div>
@@ -446,7 +473,7 @@
         <span class="sol-link">서류 예시 보기 <i data-lucide="arrow-down" style="width:15px;height:15px;"></i></span>
       </a>
     </div>
-    <div class="sol-eco"><i data-lucide="recycle" style="width:20px;height:20px;"></i><span><b>환경까지 생각한 수거 시스템</b> 쿨러백·스티로폼·아이스팩 회수 → 위생 살균 후 재사용, 일회용품 90% 감소</span></div>
+    <div class="sol-eco"><img src="assets/images/icons/delivery-reuse-loop.webp" alt="" width="40" height="40" loading="lazy"><span><b>환경까지 생각한 수거 시스템</b> 쿨러백·스티로폼·아이스팩 회수 → 위생 살균 후 재사용, 일회용품 90% 감소</span></div>
   </div>
 </section>
 
@@ -484,9 +511,9 @@
         <div class="platform-note">계좌이체 세금계산서 발행 시 5% 추가 할인</div>
         <h3 class="h3" style="margin-bottom:var(--sp-4);">결제 방식</h3>
         <div class="payment-methods">
-          <div class="payment-method"><div class="payment-method-icon"><i data-lucide="credit-card" style="width:20px;height:20px;"></i></div><span>카드 수기결제</span></div>
-          <div class="payment-method"><div class="payment-method-icon"><i data-lucide="landmark" style="width:20px;height:20px;"></i></div><span>계좌이체</span></div>
-          <div class="payment-method"><div class="payment-method-icon"><i data-lucide="smartphone" style="width:20px;height:20px;"></i></div><span>플랫폼 결제</span></div>
+          <div class="payment-method"><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-card.webp" alt="" width="56" height="56" loading="lazy"></div><span>카드 수기결제</span></div>
+          <div class="payment-method"><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-transfer.webp" alt="" width="56" height="56" loading="lazy"></div><span>계좌이체</span></div>
+          <div class="payment-method"><div class="payment-method-icon"><img src="assets/images/icons/convenience-pay-platform.webp" alt="" width="56" height="56" loading="lazy"></div><span>플랫폼 결제</span></div>
         </div>
       </div>
       <div>
@@ -661,13 +688,13 @@ panels.forEach(function(p){p.classList.toggle('is-active',p.getAttribute('data-t
 <section class="section-lg section-navy" id="traction">
   <div class="container text-center">
     <div class="section-tag" style="color:var(--primary-400);justify-content:center;">Traction</div>
-    <h2 class="h1" style="color:white;">숫자가 <span class="highlight">증명</span>합니다</h2>
+    <h2 class="h1">숫자가 <span class="highlight">증명</span>합니다</h2>
     <div class="kpi-grid">
-      <div class="kpi-card"><div class="kpi-num" data-target="3000" data-suffix="+">3,000+</div><div class="kpi-label">교육기관 이용</div></div>
-      <div class="kpi-card"><div class="kpi-num" data-target="100000" data-suffix="+">100,000+</div><div class="kpi-label">아이들이 체험</div></div>
-      <div class="kpi-card"><div class="kpi-num" data-target="89.6" data-suffix="%">89.6%</div><div class="kpi-label">동료 추천율</div><div class="kpi-source">설문 280건</div></div>
-      <div class="kpi-card"><div class="kpi-num" data-target="97.4" data-suffix="%">97.4%</div><div class="kpi-label">잔반 거의 없음</div><div class="kpi-source">설문 280건</div></div>
-      <div class="kpi-card"><div class="kpi-num">30~40분</div><div class="kpi-label">수업 소요시간</div><div class="kpi-source">설문 280건</div></div>
+      <div class="kpi-card"><div class="kpi-ico"><img src="assets/images/icons/stat-institutions.webp" alt="" width="56" height="56" loading="lazy"></div><div class="kpi-num" data-target="3000" data-suffix="+">3,000+</div><div class="kpi-label">교육기관 이용</div></div>
+      <div class="kpi-card"><div class="kpi-ico"><img src="assets/images/icons/stat-children.webp" alt="" width="56" height="56" loading="lazy"></div><div class="kpi-num" data-target="100000" data-suffix="+">100,000+</div><div class="kpi-label">아이들이 체험</div></div>
+      <div class="kpi-card"><div class="kpi-ico"><img src="assets/images/icons/stat-recommend.webp" alt="" width="56" height="56" loading="lazy"></div><div class="kpi-num" data-target="89.6" data-suffix="%">89.6%</div><div class="kpi-label">동료 추천율</div><div class="kpi-source">설문 280건</div></div>
+      <div class="kpi-card"><div class="kpi-ico"><img src="assets/images/icons/stat-clean-plate.webp" alt="" width="56" height="56" loading="lazy"></div><div class="kpi-num" data-target="97.4" data-suffix="%">97.4%</div><div class="kpi-label">잔반 거의 없음</div><div class="kpi-source">설문 280건</div></div>
+      <div class="kpi-card"><div class="kpi-ico"><img src="assets/images/icons/stat-class-time.webp" alt="" width="56" height="56" loading="lazy"></div><div class="kpi-num">30~40분</div><div class="kpi-label">수업 소요시간</div><div class="kpi-source">설문 280건</div></div>
     </div>
   </div>
 </section>
@@ -727,61 +754,61 @@ panels.forEach(function(p){p.classList.toggle('is-active',p.getAttribute('data-t
     <p class="desc desc-center">구매 수량이 늘수록 <strong>무료 증정 서비스 세트</strong>가 늘어납니다.<br>학교 예산으로 고민되신다면 동료 선생님과 함께 요리수업을 진행해보세요.</p>
     <div style="max-width:520px;margin:24px auto 0;display:flex;flex-direction:column;gap:20px;">
       <!-- 10세트 -->
-      <div style="background:#FFFDE7;border:2px solid #FFF9C4;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#FFC107;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">9% 상당의 할인 <span style="background:#FF5252;color:#fff;padding:1px 6px;border-radius:4px;margin-left:4px;font-size:10px;">NEW</span></div>
+      <div style="background:#fff;border:2px solid #FF6B1A;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#FFF3E8;color:#C45A00;border:1px solid #FFB380;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">9% 상당의 할인</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;">
-          <div><span style="font-size:36px;font-weight:900;color:#333;">10세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
-          <span style="font-size:24px;color:#999;">+</span>
-          <div><span style="font-size:36px;font-weight:900;color:#FF5252;">1세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
+          <div><span style="font-size:36px;font-weight:800;color:#1B2D4F;">10세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
+          <span class="dc-gift"><img src="assets/images/icons/discount-gift-kit.webp" alt="무료 증정" width="44" height="44" loading="lazy"></span>
+          <div><span style="font-size:36px;font-weight:800;color:#FF6B1A;">1세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
         </div>
         <p style="font-size:11px;color:#aaa;margin-top:8px;">* 가장 많은 선생님들이 주문하시는 구간이에요</p>
       </div>
       <!-- 25세트 -->
-      <div style="background:#FFFDE7;border:2px solid #FFE082;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#FFA000;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">10% 상당의 할인</div>
+      <div style="background:#fff;border:1.5px solid #FFE0C4;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#FFF3E8;color:#C45A00;border:1px solid #FFB380;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">10% 상당의 할인</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;">
-          <div><span style="font-size:36px;font-weight:900;color:#333;">25세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
-          <span style="font-size:24px;color:#999;">+</span>
-          <div><span style="font-size:36px;font-weight:900;color:#FF5252;">3세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
+          <div><span style="font-size:36px;font-weight:800;color:#1B2D4F;">25세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
+          <span class="dc-gift"><img src="assets/images/icons/discount-gift-kit.webp" alt="무료 증정" width="44" height="44" loading="lazy"></span>
+          <div><span style="font-size:36px;font-weight:800;color:#FF6B1A;">3세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
         </div>
         <p style="font-size:11px;color:#aaa;margin-top:8px;">* 한 학급 단위 주문에 딱 맞는 구간!</p>
       </div>
       <!-- 40세트 -->
-      <div style="background:#FFF8E1;border:2px solid #FFCC80;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#F57C00;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">11% 상당의 할인</div>
+      <div style="background:#fff;border:1.5px solid #FFE0C4;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#FFF3E8;color:#C45A00;border:1px solid #FFB380;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">11% 상당의 할인</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;">
-          <div><span style="font-size:36px;font-weight:900;color:#333;">40세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
-          <span style="font-size:24px;color:#999;">+</span>
-          <div><span style="font-size:36px;font-weight:900;color:#FF5252;">5세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
+          <div><span style="font-size:36px;font-weight:800;color:#1B2D4F;">40세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
+          <span class="dc-gift"><img src="assets/images/icons/discount-gift-kit.webp" alt="무료 증정" width="44" height="44" loading="lazy"></span>
+          <div><span style="font-size:36px;font-weight:800;color:#FF6B1A;">5세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
         </div>
         <p style="font-size:11px;color:#aaa;margin-top:8px;">* 2개 학급 합산 주문 시 혜택 UP</p>
       </div>
       <!-- 50세트 -->
-      <div style="background:#FFF3E0;border:2px solid #FFAB91;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#E65100;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">12% 상당의 할인</div>
+      <div style="background:#fff;border:1.5px solid #FFE0C4;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#FFF3E8;color:#C45A00;border:1px solid #FFB380;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">12% 상당의 할인</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;">
-          <div><span style="font-size:36px;font-weight:900;color:#333;">50세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
-          <span style="font-size:24px;color:#999;">+</span>
-          <div><span style="font-size:36px;font-weight:900;color:#FF5252;">7세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
+          <div><span style="font-size:36px;font-weight:800;color:#1B2D4F;">50세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
+          <span class="dc-gift"><img src="assets/images/icons/discount-gift-kit.webp" alt="무료 증정" width="44" height="44" loading="lazy"></span>
+          <div><span style="font-size:36px;font-weight:800;color:#FF6B1A;">7세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
         </div>
         <p style="font-size:11px;color:#aaa;margin-top:8px;">* 학년 합산 주문 시 더 큰 혜택!</p>
       </div>
       <!-- 60세트 -->
-      <div style="background:#FFEBEE;border:2px solid #EF9A9A;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#C62828;color:#fff;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">13% 상당의 할인</div>
+      <div style="background:#fff;border:1.5px solid #FFE0C4;border-radius:16px;padding:20px 24px;text-align:center;position:relative;">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#FFF3E8;color:#C45A00;border:1px solid #FFB380;font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;">13% 상당의 할인</div>
         <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px;">
-          <div><span style="font-size:36px;font-weight:900;color:#333;">60세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
-          <span style="font-size:24px;color:#999;">+</span>
-          <div><span style="font-size:36px;font-weight:900;color:#FF5252;">9세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
+          <div><span style="font-size:36px;font-weight:800;color:#1B2D4F;">60세트</span><div style="font-size:12px;color:#888;">이상 구매시</div></div>
+          <span class="dc-gift"><img src="assets/images/icons/discount-gift-kit.webp" alt="무료 증정" width="44" height="44" loading="lazy"></span>
+          <div><span style="font-size:36px;font-weight:800;color:#FF6B1A;">9세트</span><div style="font-size:12px;color:#888;">무료증정</div></div>
         </div>
         <p style="font-size:11px;color:#aaa;margin-top:8px;">* 학년 단위 대량주문 최대 혜택!</p>
       </div>
     </div>
-    <div style="max-width:520px;margin:24px auto 0;text-align:left;font-size:13px;color:#666;line-height:1.8;background:#f8f8f6;border-radius:12px;padding:20px 24px;">
+    <div style="max-width:520px;margin:24px auto 0;text-align:left;font-size:13px;color:#666;line-height:1.8;background:#fff;border:1px solid var(--neutral-200);border-radius:12px;padding:20px 24px;">
       <p>* <strong>다른 메뉴와 합산이 가능해요!</strong><br>&nbsp;&nbsp;ex) 샌드위치 5세트, 카나페 5세트 구매 시 1세트 서비스</p>
       <p style="margin-top:8px;">* <strong>무료 증정 세트 메뉴는 다른 4인분 메뉴로 변경할 수 있습니다.</strong><br>&nbsp;&nbsp;ex) 주먹밥 60세트를 구매하셨다면, 김밥 9세트를 요청하셔도 돼요</p>
       <p style="margin-top:8px;">* 대량주문/커리큘럼 상담은 편하게 문의주세요 :)</p>
-      <p style="margin-top:12px;text-align:center;font-weight:700;color:#FF5252;font-size:15px;">010-9396-7078</p>
+      <p style="margin-top:12px;text-align:center;"><a class="dc-call" href="tel:01093967078">전화 상담 010-9396-7078</a></p>
       <p style="text-align:center;font-size:13px;color:#888;">또는 카카오톡 채널 "밀프레드"</p>
     </div>
   </div>
