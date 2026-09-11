@@ -8,7 +8,7 @@
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="교육용 요리키트 — 선생님을 위한 요리수업 올인원 키트 | 밀프레드">
-<meta name="twitter:description" content="냉장보관 필요 없고 조리도구까지 전부 챙겨드려요. 선생님은 열고 따라하기만 하면 OK. 전국 3,000곳+ 교육기관이 선택 · 지마켓·11번가·네이버 어디서나 구매.">
+<meta name="twitter:description" content="냉장보관 필요 없고 조리도구까지 전부 챙겨드려요. 선생님은 열고 따라하기만 하면 OK. 전국 3,000곳+ 교육기관이 선택 · 지마켓·11번가·네이버·쿠팡·아이스크림몰·학교장터 어디서나 구매.">
 <meta name="twitter:image" content="https://www.mealfred.com/og-cooking-kit.png">
 <!-- SEO -->
 <meta name="description" content="선생님을 위한 교육용 요리키트. 냉장보관 필요 없고 조리도구까지 전부 포함, 받는 즉시 수업 OK. 그림 레시피 + 누리과정·실과·기술가정 연계, 전국 3,000곳+ 교육기관이 선택한 밀프레드.">
@@ -27,11 +27,30 @@
 
 <!-- Styles -->
 <link rel="stylesheet" href="style.css">
+<style>
+/* 구매처 버튼 — 공식 앱 아이콘 + 채널명 (2026-09-11). 이 페이지 전용 */
+.store-btn{display:inline-flex;align-items:center;gap:9px;min-height:48px;padding:8px 16px 8px 9px;background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;font-size:15px;font-weight:800;color:#1a2b4a;text-decoration:none;line-height:1.1;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.store-btn img{width:30px;height:30px;border-radius:8px;flex:none;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.06)}
+.store-btn:hover,.store-btn:focus-visible{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.10);border-color:var(--brand,#1a2b4a);color:#1a2b4a}
+.store-btn-kakao{background:#FEE500;border-color:#FEE500}
+.trust-admin{word-break:keep-all}
+.platform-logos.store-row-lg{gap:10px}
+.store-row-lg .store-btn{min-height:56px;font-size:16px;padding:10px 18px 10px 10px}
+.store-row-lg .store-btn img{width:36px;height:36px;border-radius:9px}
+/* 폰: 앱 서랍처럼 3칸 격자(아이콘 위·이름 아래), 카카오 상담은 한 줄 전체 */
+@media (max-width:768px){
+  .hero-actions.store-row,.platform-logos.store-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:420px;margin-left:auto;margin-right:auto;flex-direction:initial}
+  .store-row .store-btn{flex-direction:column;justify-content:center;gap:6px;min-height:78px;padding:10px 4px;font-size:13px;white-space:normal;text-align:center;border-radius:14px}
+  .store-row .store-btn img{width:36px;height:36px;border-radius:9px}
+  .store-row .store-btn-kakao{grid-column:1/-1;flex-direction:row;min-height:52px;font-size:15px;gap:9px}
+  .store-row .store-btn-kakao img{width:30px;height:30px}
+}
+</style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-3FRTKL3NFL"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-3FRTKL3NFL");</script>
 <meta property="og:title" content="교육용 요리키트 — 선생님을 위한 요리수업 올인원 키트 | 밀프레드">
-<meta property="og:description" content="냉장보관 필요 없고 조리도구까지 전부 챙겨드려요. 선생님은 열고 따라하기만 하면 OK · 그림 레시피 + 누리·실과 연계. 전국 3,000곳+ 교육기관이 선택 · 지마켓·11번가·네이버 어디서나 구매.">
+<meta property="og:description" content="냉장보관 필요 없고 조리도구까지 전부 챙겨드려요. 선생님은 열고 따라하기만 하면 OK · 그림 레시피 + 누리·실과 연계. 전국 3,000곳+ 교육기관이 선택 · 지마켓·11번가·네이버·쿠팡·아이스크림몰·학교장터 어디서나 구매.">
 <meta property="og:image" content="https://www.mealfred.com/og-cooking-kit.png">
 <meta property="og:url" content="https://www.mealfred.com/cooking-kit.html">
 <meta property="og:type" content="website">
@@ -61,17 +80,19 @@
 <!-- ── SEC 1: HERO ── -->
 <section class="hero" id="hero">
   <div class="hero-content">
-    <div style="background:#FFF3E0;border-left:4px solid #E65100;padding:8px 14px;border-radius:8px;margin:0 0 12px;font-size:12px;font-weight:700;color:#E65100;display:inline-block">🌐 전 세계 35개 국제기준 종합 · 한국 최초 편식개선 키트</div>
+    <div style="background:#FFF3E0;border-left:4px solid #E65100;padding:8px 14px;border-radius:8px;margin:0 0 12px;font-size:12px;font-weight:700;color:#E65100;display:inline-block">교육용 요리키트 전문 브랜드</div>
     <div class="hero-sub-label">전국 <strong>3,000곳+</strong> 교육기관이 선택한</div>
     <h1 class="display">선생님은<br><span class="highlight">수업에만 집중</span>하세요</h1>
     <p class="hero-desc">재료·도구·커리큘럼·초신선배송까지<br>전부 포함된 교육용 요리키트</p>
-    <p style="display:inline-block;font-size:14px;color:#1a2b4a;background:rgba(255,255,255,0.92);padding:8px 18px;border-radius:20px;margin:0 0 var(--sp-4) 0;font-weight:700;backdrop-filter:blur(4px);">▼ 50종+ 메뉴 바로 보러가기</p>
-    <div class="hero-actions" style="flex-wrap:wrap;gap:10px;justify-content:flex-start;">
-      <a href="https://minishop.gmarket.co.kr/mealfred11" target="_blank" class="btn" style="font-size:14px;padding:12px 20px;background:#00C73C;color:#fff;border:none;border-radius:8px;font-weight:700;text-decoration:none;">지마켓</a>
-      <a href="https://shop.11st.co.kr/stores/991247" target="_blank" class="btn" style="font-size:14px;padding:12px 20px;background:#E00034;color:#fff;border:none;border-radius:8px;font-weight:700;text-decoration:none;">11번가</a>
-      <a href="https://smartstore.naver.com/heefoodstory/category/e89c46f3cfbd4fae9bdbdf9671354b95" target="_blank" class="btn" style="font-size:14px;padding:12px 20px;background:#03C75A;color:#fff;border:none;border-radius:8px;font-weight:700;text-decoration:none;">네이버</a>
-      <a href="https://www.s2b.kr/S2BNCustomer/S2B/scrweb/remu/rema/searchengine/s2bCustomerSearch.jsp?actionType=MAIN_SEARCH&amp;searchField=&amp;startIndex=&amp;viewCount=50&amp;viewType=LIST&amp;sortField=RANK&amp;priceMin=0&amp;priceMax=0&amp;priceMinSet=0&amp;priceMaxSet=0&amp;categoryLevel1Code=&amp;categoryLevel2Code=&amp;categoryLevel3Code=&amp;categoryLevel3Name=&amp;areaCode=&amp;categoryWinStatus=none&amp;companyCodeParam=&amp;priceNewSet=true&amp;publicPurchaseCode=&amp;f_edufine_code=&amp;submit_yn=Y&amp;searchQuery=%C7%AA%B5%E5%C8%F1%BD%BA%C5%E4%B8%AE&amp;searchRequery=&amp;locationGbn=all" target="_blank" class="btn" style="font-size:14px;padding:12px 20px;background:#2D6AD3;color:#fff;border:none;border-radius:8px;font-weight:700;text-decoration:none;">학교장터</a>
-      <a href="http://pf.kakao.com/_jtyxoxj/chat" target="_blank" class="btn" style="font-size:14px;padding:12px 20px;background:#FEE500;color:#1a2b4a;border:none;border-radius:8px;font-weight:800;text-decoration:none;">계좌이체 5% 할인</a>
+    <p style="display:inline-block;font-size:14px;color:#1a2b4a;background:rgba(255,255,255,0.92);padding:8px 18px;border-radius:20px;margin:0 0 var(--sp-4) 0;font-weight:700;backdrop-filter:blur(4px);">▼ 20종+ 메뉴 바로 보러가기</p>
+    <div class="hero-actions store-row" style="flex-wrap:wrap;gap:10px;justify-content:flex-start;">
+      <a href="https://minishop.gmarket.co.kr/mealfred11" target="_blank" rel="noopener" class="store-btn" style="--brand:#00B04F"><img src="assets/images/brand/gmarket.png" alt="" width="30" height="30">지마켓</a>
+      <a href="https://shop.11st.co.kr/stores/991247" target="_blank" rel="noopener" class="store-btn" style="--brand:#FF0038"><img src="assets/images/brand/11st.png" alt="" width="30" height="30">11번가</a>
+      <a href="https://smartstore.naver.com/heefoodstory/category/e89c46f3cfbd4fae9bdbdf9671354b95" target="_blank" rel="noopener" class="store-btn" style="--brand:#03C75A"><img src="assets/images/brand/naver.png" alt="" width="30" height="30">네이버</a>
+      <a href="https://shop.coupang.com/mealfred" target="_blank" rel="noopener" class="store-btn" style="--brand:#E52528"><img src="assets/images/brand/coupang.png" alt="" width="30" height="30">쿠팡</a>
+      <a href="https://i-screammall.co.kr/display/shop/minishop/1003872" target="_blank" rel="noopener" class="store-btn" style="--brand:#2BA8E0"><img src="assets/images/brand/iscreammall.png" alt="" width="30" height="30">아이스크림몰</a>
+      <a href="https://www.s2b.kr/S2BNCustomer/S2B/scrweb/remu/rema/searchengine/s2bCustomerSearch.jsp?actionType=MAIN_SEARCH&amp;searchField=&amp;startIndex=&amp;viewCount=50&amp;viewType=LIST&amp;sortField=RANK&amp;priceMin=0&amp;priceMax=0&amp;priceMinSet=0&amp;priceMaxSet=0&amp;categoryLevel1Code=&amp;categoryLevel2Code=&amp;categoryLevel3Code=&amp;categoryLevel3Name=&amp;areaCode=&amp;categoryWinStatus=none&amp;companyCodeParam=&amp;priceNewSet=true&amp;publicPurchaseCode=&amp;f_edufine_code=&amp;submit_yn=Y&amp;searchQuery=%C7%AA%B5%E5%C8%F1%BD%BA%C5%E4%B8%AE&amp;searchRequery=&amp;locationGbn=all" target="_blank" rel="noopener" class="store-btn" style="--brand:#2D6AD3"><img src="assets/images/brand/s2b.png" alt="" width="30" height="30">학교장터</a>
+      <a href="http://pf.kakao.com/_jtyxoxj/chat" target="_blank" rel="noopener" class="store-btn store-btn-kakao" style="--brand:#E6CF00"><img src="assets/images/brand/kakaotalk.png" alt="" width="30" height="30">계좌이체 5% 할인</a>
     </div>
 
   </div>
@@ -117,7 +138,7 @@
       </div>
     </div>
     <div class="trust-admin">
-      지마켓 · 11번가 · 네이버 · 학교장터 입점 &nbsp;│&nbsp; 카드결제 · 계좌이체 &nbsp;│&nbsp; 서류 즉시 발행
+      지마켓 · 11번가 · 네이버 · 쿠팡 · 아이스크림몰 · 학교장터 입점 &nbsp;│&nbsp; 카드결제 · 계좌이체 &nbsp;│&nbsp; 서류 즉시 발행
     </div>
   </div>
 </section>
@@ -256,7 +277,7 @@
       <div class="bento-card">
         <div class="bento-icon bento-icon-navy"><i data-lucide="shield-check" style="width:24px;height:24px;"></i></div>
         <h4>불·칼 없는 안전 메뉴</h4>
-        <p>50종+ 세계 요리<br>10만명 사고 0건 · 시즌 특별 메뉴</p>
+        <p>20종+ 세계 요리<br>10만명 사고 0건 · 시즌 특별 메뉴</p>
         <div style="display:flex;gap:10px;margin-top:var(--sp-4);justify-content:center;">
           <div style="background:#E8F5E9;border-radius:10px;padding:14px 12px;text-align:center;flex:1;">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2D8B4E" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><line x1="8" y1="8" x2="16" y2="16" stroke="#C62828" stroke-width="2"/><path d="M15 4l2 5M7 4l-1 5" stroke="#C62828" stroke-width="1.5" opacity="0.4"/></svg>
@@ -308,11 +329,13 @@
     <p class="desc">선생님이 편한 방식으로 주문하고, 필요한 서류를 바로 받으세요</p>
     <div class="convenience-grid">
       <div>
-        <div class="platform-logos">
-          <a href="https://minishop.gmarket.co.kr/mealfred11" target="_blank" class="platform-logo" style="background:#00C73C;color:#fff;border-color:#00C73C;text-decoration:none;">지마켓</a>
-          <a href="https://shop.11st.co.kr/stores/991247" target="_blank" class="platform-logo" style="background:#E00034;color:#fff;border-color:#E00034;text-decoration:none;">11번가</a>
-          <a href="https://smartstore.naver.com/heefoodstory/category/e89c46f3cfbd4fae9bdbdf9671354b95" target="_blank" class="platform-logo" style="background:#03C75A;color:#fff;border-color:#03C75A;text-decoration:none;">네이버</a>
-          <a href="https://www.s2b.kr/S2BNCustomer/S2B/scrweb/remu/rema/searchengine/s2bCustomerSearch.jsp?actionType=MAIN_SEARCH&amp;searchField=&amp;startIndex=&amp;viewCount=50&amp;viewType=LIST&amp;sortField=RANK&amp;priceMin=0&amp;priceMax=0&amp;priceMinSet=0&amp;priceMaxSet=0&amp;categoryLevel1Code=&amp;categoryLevel2Code=&amp;categoryLevel3Code=&amp;categoryLevel3Name=&amp;areaCode=&amp;categoryWinStatus=none&amp;companyCodeParam=&amp;priceNewSet=true&amp;publicPurchaseCode=&amp;f_edufine_code=&amp;submit_yn=Y&amp;searchQuery=%C7%AA%B5%E5%C8%F1%BD%BA%C5%E4%B8%AE&amp;searchRequery=&amp;locationGbn=all" target="_blank" class="platform-logo" style="background:#2D6AD3;color:#fff;border-color:#2D6AD3;text-decoration:none;">학교장터</a>
+        <div class="platform-logos store-row store-row-lg">
+          <a href="https://minishop.gmarket.co.kr/mealfred11" target="_blank" rel="noopener" class="store-btn" style="--brand:#00B04F"><img src="assets/images/brand/gmarket.png" alt="" width="30" height="30" loading="lazy">지마켓</a>
+          <a href="https://shop.11st.co.kr/stores/991247" target="_blank" rel="noopener" class="store-btn" style="--brand:#FF0038"><img src="assets/images/brand/11st.png" alt="" width="30" height="30" loading="lazy">11번가</a>
+          <a href="https://smartstore.naver.com/heefoodstory/category/e89c46f3cfbd4fae9bdbdf9671354b95" target="_blank" rel="noopener" class="store-btn" style="--brand:#03C75A"><img src="assets/images/brand/naver.png" alt="" width="30" height="30" loading="lazy">네이버</a>
+          <a href="https://shop.coupang.com/mealfred" target="_blank" rel="noopener" class="store-btn" style="--brand:#E52528"><img src="assets/images/brand/coupang.png" alt="" width="30" height="30" loading="lazy">쿠팡</a>
+          <a href="https://i-screammall.co.kr/display/shop/minishop/1003872" target="_blank" rel="noopener" class="store-btn" style="--brand:#2BA8E0"><img src="assets/images/brand/iscreammall.png" alt="" width="30" height="30" loading="lazy">아이스크림몰</a>
+          <a href="https://www.s2b.kr/S2BNCustomer/S2B/scrweb/remu/rema/searchengine/s2bCustomerSearch.jsp?actionType=MAIN_SEARCH&amp;searchField=&amp;startIndex=&amp;viewCount=50&amp;viewType=LIST&amp;sortField=RANK&amp;priceMin=0&amp;priceMax=0&amp;priceMinSet=0&amp;priceMaxSet=0&amp;categoryLevel1Code=&amp;categoryLevel2Code=&amp;categoryLevel3Code=&amp;categoryLevel3Name=&amp;areaCode=&amp;categoryWinStatus=none&amp;companyCodeParam=&amp;priceNewSet=true&amp;publicPurchaseCode=&amp;f_edufine_code=&amp;submit_yn=Y&amp;searchQuery=%C7%AA%B5%E5%C8%F1%BD%BA%C5%E4%B8%AE&amp;searchRequery=&amp;locationGbn=all" target="_blank" rel="noopener" class="store-btn" style="--brand:#2D6AD3"><img src="assets/images/brand/s2b.png" alt="" width="30" height="30" loading="lazy">학교장터</a>
         </div>
         <div class="platform-note">선생님의 55.7%가 지마켓을 이용하십니다</div>
         <h3 class="h3" style="margin-bottom:var(--sp-4);">결제 방식</h3>
@@ -350,9 +373,9 @@
     <div class="steps-grid">
       <div class="step-card">
         <div class="step-num">1</div>
-        <img src="assets/images/menu/또띠아-스낵랩.png" alt="메뉴 선택" class="img-unified" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-md);margin-bottom:var(--sp-4);">
+        <img src="assets/images/steps/step-menu-gmarket.jpg" alt="지마켓 밀프레드 미니샵 상품 목록" class="img-unified" loading="lazy" style="width:100%;height:140px;object-fit:cover;object-position:center top;border-radius:var(--radius-md);margin-bottom:var(--sp-4);border:1px solid var(--neutral-200);">
         <h4>메뉴 선택</h4>
-        <p>카카오톡 상담 or<br>플랫폼(지마켓·11번가·네이버) 주문</p>
+        <p>카카오톡 상담 or<br>쇼핑몰(지마켓·11번가·네이버·쿠팡·아이스크림몰·학교장터) 주문</p>
       </div>
       <div class="step-card">
         <div class="step-num">2</div>
@@ -567,7 +590,7 @@
       <div class="faq-item"><div class="faq-question">안전한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">3,000곳+ 교육기관, 10만명+ 아이들이 체험한 검증된 키트입니다. 모든 메뉴는 불·칼을 사용하지 않으며, 삼성화재 생산물배상책임보험 5억원에 가입되어 있습니다.</div></div></div>
       <div class="faq-item"><div class="faq-question">신선도는 괜찮나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">5중 보냉 시스템으로 48시간 냉기가 유지됩니다. 전날 수령해도 다음날 신선하며, 10만명+ 아이들이 체험한 동안 안전사고 0건입니다.</div></div></div>
       <div class="faq-item"><div class="faq-question">교육과정과 연계되나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">2022 개정 교육과정 실과·기술가정·누리과정과 연계된 PPT와 커리큘럼을 제공합니다.</div></div></div>
-      <div class="faq-item"><div class="faq-question">어떤 결제 방식이 가능한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">지마켓, 11번가, 네이버 플랫폼 결제와 카드 수기결제, 계좌이체가 가능합니다. 견적서·세금계산서·거래명세서를 즉시 발급해 드립니다.</div></div></div>
+      <div class="faq-item"><div class="faq-question">어떤 결제 방식이 가능한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">지마켓·11번가·네이버·쿠팡·아이스크림몰·학교장터 결제와 카드 수기결제, 계좌이체가 가능합니다. 견적서·세금계산서·거래명세서를 즉시 발급해 드립니다.</div></div></div>
 
       <div class="faq-item"><div class="faq-question">배송은 얼마나 걸리나요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">행사 전날 반드시 도착합니다. 5중 보냉으로 냉장고 없이도 안전합니다.</div></div></div>
       <div class="faq-item"><div class="faq-question">알레르기 대응이 가능한가요?<div class="faq-icon"><i data-lucide="plus" style="width:16px;height:16px;"></i></div></div><div class="faq-answer"><div class="faq-answer-inner">전 메뉴 알레르기 유발 물질을 표시합니다. 사전 상담 시 대체 메뉴를 안내해 드립니다.</div></div></div>
