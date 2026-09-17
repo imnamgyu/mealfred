@@ -95,6 +95,9 @@
   .demo{display:flex;align-items:flex-end;gap:9px;margin:10px 0 8px}
   .demo i{display:block;background:var(--bg-warm-1);border:1px solid var(--orange-tint-line);border-radius:5px;flex:0 0 auto}
   .demo span{font-size:11px;color:var(--brown-soft);font-weight:700}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:14px 0}
+  .kcard{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--card-shadow-sm)}
+  .kcard h4{font-size:13px;font-weight:800;color:var(--navy);margin:0 0 2px;line-height:1.45}
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:14px 0}
   .step{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--card-shadow-sm)}
   .step .n{font-size:11px;font-weight:800;color:var(--orange-deep);margin-bottom:5px;letter-spacing:.03em}
@@ -115,7 +118,7 @@
   <p><strong>이번 지적은 "글자"가 아니라 "그림"입니다.</strong> 09-15에 모든 글자를 9.5pt 이상으로 올렸는데, 이번 11건은 전부 아이콘·사진·라벨이 <strong>작고 위계가 없다</strong>는 얘기입니다. 방향은 하나 — 시각 요소를 키우고, 그 자리를 만들기 위해 글자 수를 더 줄입니다.</p>
   <div class="hero-meta">
     <span class="pill">앞면 5건 · 뒷면 6건</span>
-    <span class="pill">즉시 반영 7 · 결정 필요 4</span>
+    <span class="pill">✅ 7건 반영 완료 · 4건 확답 대기</span>
     <span class="pill">P6은 사진에 글자가 박혀 있음</span>
     <span class="pill">인쇄본 = 월남쌈 추가 전 24메뉴 빌드</span>
   </div>
@@ -128,7 +131,8 @@
   <a href="#s4">4. P4 충돌</a>
   <a href="#s5">5. P6 제약</a>
   <a href="#s6">6. 확인 필요 4</a>
-  <a href="#s7">7. 반영 순서</a>
+  <a href="#s7">7. 남은 순서</a>
+  <a href="#s8">8. 적용 결과</a>
 </div></nav>
 
 <main>
@@ -343,18 +347,62 @@
 </tbody></table></div>
 </section>
 
-<section id="s7"><h2>7. 반영 순서</h2>
-<p class="sub">확답이 오면 이 순서로 작업합니다. 재출력은 <code>./finish_v6.sh</code> 한 번으로 빌드·검사·PNG·쪽별 PDF·드라이브 복사까지 끝납니다.</p>
+<section id="s7"><h2>7. 남은 순서</h2>
+<p class="sub">✅ 표시는 9/17 저녁에 이미 반영한 것(<a href="#s8" style="color:var(--orange-deep);font-weight:700">8번 절</a>). 나머지는 확답이 오면 이 순서로 작업합니다.</p>
 <ol class="plain">
-  <li><b>P6</b> — 사진 글자 제거 + HTML 텍스트 재배치(가장 오래 걸리므로 먼저)</li>
-  <li><b>P2</b> — 아이콘 3종 교체·원형화 + 두 박스 위계(3·4번)</li>
-  <li><b>P1</b> — 하단 아이콘 확대 + 픽토그램 교체</li>
-  <li><b>P4</b> — 메뉴 수 결정 후 재설계 + 카테고리 라벨 확대 + 참치마요 사진 처리</li>
-  <li><b>P4·P5·P6</b> — 제목 색상 통일</li>
-  <li><b>검사</b> — <code>measure_type.py</code> TYPE-OK · <code>check.sh</code> data-check OK 재확인 후 디자이너 폴더 갱신</li>
+  <li>✅ <b>P6</b> — 사진 글자 제거 + HTML 텍스트 재배치</li>
+  <li>✅ <b>P2</b> — 선생님·밀프레드 아이콘 교체·원형화 + 왼쪽 박스 확대 <span class="chip c-ask">오른쪽 박스는 R-113 대기</span></li>
+  <li>✅ <b>P1</b> — 하단 아이콘 확대 + 냉장고 픽토그램 교체</li>
+  <li><b>P4</b> — 카테고리 라벨은 ✅ 완료. 썸네일 확대·참치마요 처리는 <span class="chip c-ask">R-114 · R-116 대기</span></li>
+  <li><b>P4·P5·P6</b> — 제목 색상 통일 <span class="chip c-ask">R-115 대기</span></li>
+  <li><b>마감</b> — 확답 4건 반영 후 <code>./finish_v6.sh</code> 한 번으로 빌드·검사·PNG·쪽별 PDF·<b>드라이브 폴더 갱신</b>까지</li>
 </ol>
 
 <div class="warnbox"><b>함께 열려 있는 리플렛 액션</b> — 3색경단·모나카파이 AI 의심 썸네일 교체 · 후기 사진 사용 동의(구일초·매안초·안양센터) · 김치 만들기 사진. 이번 수정에 묶어 처리하면 재출력을 한 번으로 줄일 수 있습니다.</div>
+</section>
+
+<section id="s8"><h2>8. 적용 결과 — 확답 없이 가능한 7건</h2>
+<p class="sub">2026-09-17 저녁 작업 · <code>data-check="OK"</code>(넘침 0) · <code>measure_type.py</code> <b>TYPE-OK</b>(6면 위반 0)</p>
+
+<div class="callout">
+  <h4>무엇을 했고 무엇을 남겼나</h4>
+  <p><b>반영 7</b> — 선생님 아이콘 · 로고 원형화 · 선생님 박스 글씨 확대(문구 축약 동반) · P1 아이콘 확대 · 냉장고 픽토그램 · 카테고리 라벨 확대 · P6 문구 합치기.</p>
+  <p><b>보류 4</b> — 오른쪽 박스(R-113) · 참치마요 사진(R-114) · 제목 색상(R-115) · 썸네일과 메뉴 수(R-116)는 <b>손대지 않았습니다.</b> 왼쪽 박스만 키운 결과 좌우 위계는 이미 생겼습니다.</p>
+</div>
+
+<div class="tbl-wrap"><table>
+<thead><tr><th>#</th><th>지시</th><th>적용 내용</th><th>바뀐 값</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>선생님 아이콘</td><td>체크(✓) → 사람 픽토그램 신설</td><td><code>#i-teacher</code></td></tr>
+<tr><td>2</td><td>동그라미</td><td>밀프레드 로고 사각 타일 → 원형, 세 노드 원 크기 통일</td><td>7.6mm 사각 → <b>11mm 원형</b></td></tr>
+<tr><td>3</td><td>글씨 크게</td><td>왼쪽 박스만 확대 + 항목 문구 축약("견적서·품의서 문안"→"품의서 문안" 등)</td><td>제목 14→<b>16.5px</b> · 항목 13.5→<b>15px</b></td></tr>
+<tr><td>5</td><td>아이콘 더 크게<br>직관적으로</td><td>원·아이콘 확대 + <b>눈송이 → 냉장고+사선</b>으로 교체</td><td>원 12→<b>14.5mm</b> · 아이콘 6.4→<b>8.2mm</b></td></tr>
+<tr><td>8</td><td>크게(카테고리)</td><td>알약 라벨 확대</td><td>6.4→<b>7.2mm</b> · 13.5→<b>15px</b></td></tr>
+<tr><td>11</td><td>5중 보냉으로</td><td>사진에 박힌 두 문구를 지우고 한 줄로 합쳐 HTML 텍스트로 재배치</td><td>17px · "5중 보냉"만 오렌지</td></tr>
+</tbody></table></div>
+
+<h3>바뀐 면 — P1 · P2 · P6</h3>
+<div class="grid2">
+  <div class="kcard"><h4>P1 표지 — 아이콘 확대 + 냉장고</h4>
+    <img src="/assets/images/leaflet-v6/lf-after-p1.jpg" alt="적용 후 P1 표지" style="width:100%;display:block;margin-top:8px;border-radius:8px;border:1px solid #F0E6DA"></div>
+  <div class="kcard"><h4>P2 행정 — 사람 아이콘 · 원형 로고 · 왼쪽 박스</h4>
+    <img src="/assets/images/leaflet-v6/lf-after-p2.jpg" alt="적용 후 P2 행정 면" style="width:100%;display:block;margin-top:8px;border-radius:8px;border:1px solid #F0E6DA"></div>
+  <div class="kcard"><h4>P6 콜드체인 — 문구 합침</h4>
+    <img src="/assets/images/leaflet-v6/lf-after-p6.jpg" alt="적용 후 P6 콜드체인 면" style="width:100%;display:block;margin-top:8px;border-radius:8px;border:1px solid #F0E6DA"></div>
+</div>
+
+<h3>전체 — 300dpi 출력본</h3>
+<div class="shots">
+  <div class="shot"><img src="/assets/images/leaflet-v6/lf-after-front.jpg" alt="적용 후 앞면 전체">
+    <div class="shot-cap">앞면 — P3 이벤트 · P2 행정(아이콘·박스 반영) · P1 표지(아이콘 반영)</div></div>
+  <div class="shot"><img src="/assets/images/leaflet-v6/lf-after-back.jpg" alt="적용 후 뒷면 전체">
+    <div class="shot-cap">뒷면 — P4 메뉴(카테고리 라벨만 반영) · P5 수업자료(변경 없음) · P6 콜드체인(문구 합침)</div></div>
+</div>
+
+<h3>P6 이미지 처리 — 재현용 메모</h3>
+<p><code>5layer-nolabel.png</code>(1200×1467, 배경 균일 #EAE8E9)에서 글자 영역을 배경색으로 덮었는데, <b>스티로폼 그림자까지 같이 지워져 계단 자국이 남았습니다.</b> 자동 bbox 탐지는 그림자의 어두운 픽셀을 글자로 오인합니다. 최종 방법은 <b>덮은 뒤 그림자 영역(x 700~886, y 1230~1325)만 원본에서 다시 붙이는 것</b>입니다(두 번 실패 후 확정). 결과 파일 = <code>5layer-nolabel-clean.png</code>.</p>
+
+<div class="warnbox"><b>출력은 로컬만 했습니다.</b> <code>out/</code>에 앞뒷면 300dpi PNG와 trim·bleed·디자이너용 PDF를 새로 만들었지만, <b>드라이브 <code>v6_디자이너_작업</code> 폴더는 갱신하지 않았습니다</b> — 확답 4건이 남은 중간본을 디자이너가 작업본으로 오해하지 않도록, 확답 반영 후 <code>./finish_v6.sh</code>로 한 번에 올립니다.</div>
 </section>
 
 </main>
