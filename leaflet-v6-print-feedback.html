@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script src="/docs-gate.js?v=4"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>리플렛 v6 인쇄본 펜 피드백 — 11건 판독과 개선방향</title>
+<meta property="og:title" content="리플렛 v6 인쇄본 펜 피드백 — 11건 판독과 개선방향">
+<meta property="og:description" content="2026-09-17 인쇄본에 직접 표시된 11건을 확대 판독. 이번 지적은 글자가 아니라 그림 — 아이콘·사진·라벨 크기와 위계. 면별 개선안·P4 충돌 3안·P6 기술 제약·확인 필요 4건.">
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg-warm-0:#FFF5EB;--bg-warm-1:#FFE8D0;--bg-warm-2:#FFDBB8;--bg-warm-3:#FFD0A0;
+    --bg-soft:#FFFBF5;--bg-soft-2:#FFF9F3;--bg-page:#FAFAF7;
+    --orange-main:#FF6B1A;--orange-soft:#FF8A47;--orange-deep:#C45A00;
+    --orange-tint:rgba(255,107,26,0.1);--orange-tint-line:rgba(255,107,26,0.25);
+    --navy:#1a2b4a;
+    --brown-deep:#3a2a1a;--brown-mid:#5a4a3a;--brown-soft:#8a7a6a;
+    --green-bg:#E8F5E9;--green-fg:#2D8B4E;--green-deep:#1B5E20;
+    --warn-bg:#FFF8E1;--warn-deep:#F57F17;
+    --red-bg:#FFEBEE;--red-fg:#E53935;--red-deep:#C62828;
+    --blue-bg:#E3F2FD;--blue-fg:#1565C0;
+    --n200:#E5E7EB;--n500:#6B7280;
+    --card-border:#FFE8D0;
+    --card-shadow-sm:0 2px 16px rgba(0,0,0,0.05);
+    --r-sm:8px;--r:14px;--r-pill:100px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg-page);color:var(--navy);line-height:1.7;-webkit-font-smoothing:antialiased}
+  .hero{background:linear-gradient(160deg,#FFF5EB 0%,#FFE8D0 40%,#FFDBB8 70%,#FFD0A0 100%);padding:54px 20px 40px;text-align:center;color:var(--brown-deep)}
+  .hero-inner{max-width:880px;margin:0 auto}
+  .hero .tag{display:inline-block;background:var(--orange-tint);border:1px solid var(--orange-tint-line);color:var(--orange-deep);padding:7px 18px;border-radius:var(--r-pill);font-size:12px;font-weight:800;margin-bottom:16px;letter-spacing:.02em}
+  .hero h1{font-size:clamp(23px,4.6vw,33px);font-weight:800;color:var(--navy);letter-spacing:-0.03em;line-height:1.3;margin-bottom:12px}
+  .hero h1 .accent{color:var(--orange-deep)}
+  .hero p{font-size:14.5px;color:var(--brown-mid);font-weight:500;margin:0 auto 6px;line-height:1.75;max-width:720px}
+  .hero p strong{color:var(--orange-deep);font-weight:700}
+  .hero-meta{margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .hero-meta .pill{background:rgba(255,255,255,0.6);border:1px solid var(--orange-tint-line);color:var(--brown-mid);font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:var(--r-pill)}
+  .toc{background:white;border-bottom:1px solid var(--card-border);padding:12px 20px;position:sticky;top:0;z-index:50;overflow-x:auto}
+  .toc-inner{max-width:1020px;margin:0 auto;display:flex;gap:6px;white-space:nowrap}
+  .toc a{font-size:11.5px;color:var(--brown-mid);font-weight:700;padding:6px 11px;border-radius:var(--r-pill);background:var(--bg-soft);text-decoration:none;flex-shrink:0;transition:all .15s}
+  .toc a:hover{background:var(--orange-main);color:white}
+  main{max-width:1020px;margin:0 auto;padding:26px 24px 48px}
+  section{margin-bottom:44px;scroll-margin-top:60px}
+  h2{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-0.02em;margin-bottom:6px;padding-bottom:8px;border-bottom:3px solid var(--orange-main)}
+  h3{font-size:16px;font-weight:800;color:var(--brown-deep);margin:18px 0 8px}
+  .sub{font-size:13px;color:var(--brown-soft);font-weight:600;margin-bottom:14px}
+  p{font-size:14px;color:var(--brown-mid);font-weight:500;margin-bottom:10px}
+  strong{color:var(--navy);font-weight:700}
+  ul.plain{margin:8px 0 12px 18px}
+  ul.plain li{font-size:13.5px;color:var(--brown-mid);margin-bottom:6px}
+  ol.plain{margin:8px 0 12px 20px}
+  ol.plain li{font-size:13.5px;color:var(--brown-mid);margin-bottom:7px}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--card-border);border-radius:var(--r);background:white;box-shadow:var(--card-shadow-sm);margin:14px 0}
+  table{border-collapse:collapse;width:100%;min-width:680px;font-size:13px}
+  th{background:var(--bg-soft-2);color:var(--brown-deep);font-weight:800;text-align:left;padding:10px 13px;border-bottom:2px solid var(--card-border);white-space:nowrap}
+  td{padding:9px 13px;border-bottom:1px solid #F3EDE5;color:var(--brown-mid);font-weight:500;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  .chip{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:var(--r-pill);vertical-align:middle;white-space:nowrap}
+  .c-strong{background:var(--green-bg);color:var(--green-deep)}
+  .c-mid{background:var(--blue-bg);color:var(--blue-fg)}
+  .c-weak{background:var(--n200);color:var(--n500)}
+  .c-risk{background:var(--red-bg);color:var(--red-deep)}
+  .c-ask{background:var(--warn-bg);color:var(--warn-deep)}
+  .callout{background:linear-gradient(135deg,var(--bg-soft-2),#fff);border:1px solid var(--card-border);border-left:5px solid var(--orange-main);border-radius:var(--r);padding:18px 20px;margin:14px 0;box-shadow:var(--card-shadow-sm)}
+  .callout h4{font-size:14px;font-weight:800;color:var(--orange-deep);margin-bottom:8px}
+  .callout p{font-size:13.5px;color:var(--brown-deep);line-height:1.85;margin-bottom:6px}
+  .warnbox{background:var(--warn-bg);border-left:5px solid var(--warn-deep);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin:12px 0;font-size:13px;color:var(--brown-deep)}
+  .riskbox{background:var(--red-bg);border-left:5px solid var(--red-fg);border-radius:0 var(--r) var(--r) 0;padding:14px 18px;margin:12px 0;font-size:13px;color:var(--brown-deep)}
+  code{background:var(--bg-soft-2);border:1px solid var(--card-border);border-radius:5px;padding:1px 6px;font-size:12px;color:var(--brown-deep)}
+  .src{font-size:11.5px;color:var(--brown-soft);margin-top:10px}
+  /* 인쇄본 지도 */
+  .shots{display:grid;grid-template-columns:1fr;gap:18px;margin:16px 0}
+  .shot{position:relative;border:1px solid var(--card-border);border-radius:var(--r);overflow:hidden;box-shadow:var(--card-shadow-sm);background:#fff}
+  .shot img{display:block;width:100%}
+  .pin{position:absolute;transform:translate(-50%,-50%);width:clamp(19px,2.5vw,27px);height:clamp(19px,2.5vw,27px);border-radius:50%;background:var(--orange-main);color:#fff;font-size:clamp(9.5px,1.35vw,13px);font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.42)}
+  .shot-cap{font-size:12px;color:var(--brown-soft);font-weight:700;padding:8px 12px;background:var(--bg-soft-2);border-top:1px solid var(--card-border)}
+  /* 판독 카드 */
+  .items{display:grid;gap:14px;margin:16px 0}
+  .item{display:grid;grid-template-columns:320px 1fr;gap:18px;background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:16px;box-shadow:var(--card-shadow-sm)}
+  .item .pic img{width:100%;display:block;border-radius:var(--r-sm);border:1px solid #F0E6DA;margin-bottom:8px}
+  .item h4{font-size:14.5px;font-weight:800;color:var(--navy);margin-bottom:8px}
+  .item p{font-size:13px;margin-bottom:7px;line-height:1.75}
+  .num{display:inline-flex;width:21px;height:21px;border-radius:50%;background:var(--orange-main);color:#fff;font-size:11.5px;font-weight:800;align-items:center;justify-content:center;margin-right:5px;vertical-align:middle}
+  .pen{display:inline-block;background:var(--warn-bg);border:1px dashed var(--warn-deep);color:var(--brown-deep);padding:1px 10px;border-radius:var(--r-pill);font-size:12.5px;font-weight:800}
+  .kv{font-size:12px;color:var(--brown-soft);font-weight:600;margin-top:6px}
+  /* 3안·단계 */
+  .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:14px 0}
+  .opt{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:16px;box-shadow:var(--card-shadow-sm)}
+  .opt.pick{border:2px solid var(--orange-main);background:linear-gradient(135deg,var(--bg-soft-2),#fff)}
+  .opt h4{font-size:13.5px;font-weight:800;color:var(--navy);margin-bottom:6px}
+  .opt p{font-size:12.5px;margin-bottom:5px;line-height:1.7}
+  .demo{display:flex;align-items:flex-end;gap:9px;margin:10px 0 8px}
+  .demo i{display:block;background:var(--bg-warm-1);border:1px solid var(--orange-tint-line);border-radius:5px;flex:0 0 auto}
+  .demo span{font-size:11px;color:var(--brown-soft);font-weight:700}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:14px 0}
+  .step{background:white;border:1px solid var(--card-border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--card-shadow-sm)}
+  .step .n{font-size:11px;font-weight:800;color:var(--orange-deep);margin-bottom:5px;letter-spacing:.03em}
+  .step p{font-size:12.5px;margin:0;line-height:1.7}
+  footer{background:white;border-top:1px solid var(--card-border);padding:20px;text-align:center;font-size:11.5px;color:var(--brown-soft)}
+  footer a{color:var(--orange-deep);font-weight:700;text-decoration:none}
+  @media(max-width:720px){
+    .item{grid-template-columns:1fr}
+    main{padding:20px 16px 40px}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero"><div class="hero-inner">
+  <span class="tag">2026-09-17 · 리플렛 v6 인쇄본 피드백</span>
+  <h1>인쇄본에 펜으로 쓰신 <span class="accent">11건</span>을 판독했습니다</h1>
+  <p><strong>이번 지적은 "글자"가 아니라 "그림"입니다.</strong> 09-15에 모든 글자를 9.5pt 이상으로 올렸는데, 이번 11건은 전부 아이콘·사진·라벨이 <strong>작고 위계가 없다</strong>는 얘기입니다. 방향은 하나 — 시각 요소를 키우고, 그 자리를 만들기 위해 글자 수를 더 줄입니다.</p>
+  <div class="hero-meta">
+    <span class="pill">앞면 5건 · 뒷면 6건</span>
+    <span class="pill">즉시 반영 7 · 결정 필요 4</span>
+    <span class="pill">P6은 사진에 글자가 박혀 있음</span>
+    <span class="pill">인쇄본 = 월남쌈 추가 전 24메뉴 빌드</span>
+  </div>
+</div></div>
+
+<nav class="toc"><div class="toc-inner">
+  <a href="#s1">1. 한눈에</a>
+  <a href="#s2">2. 표시 지도</a>
+  <a href="#s3">3. 판독 11건</a>
+  <a href="#s4">4. P4 충돌</a>
+  <a href="#s5">5. P6 제약</a>
+  <a href="#s6">6. 확인 필요 4</a>
+  <a href="#s7">7. 반영 순서</a>
+</div></nav>
+
+<main>
+
+<section id="s1"><h2>1. 한눈에</h2>
+<p class="sub">사진 2장은 90° 회전 + EXIF 방향이 붙어 있어, 보정 후 표시 지점을 4~5배 확대해 판독했습니다.</p>
+
+<div class="callout">
+  <h4>09-15와 09-17은 서로 다른 지적입니다</h4>
+  <p><b>09-15</b> — "글자가 너무 작다. 내용을 잘라내는 한이 있어도 가독성." → 6면 글자의 87~96%가 6.8~7.5pt였던 것을 <b>전부 9.5pt 이상</b>으로 올리고 위반 144건을 0으로 만들었습니다.</p>
+  <p><b>09-17(이번)</b> — 글자 지적은 한 건도 없습니다. 대신 <b>아이콘을 키워라 · 사진을 키워라 · 라벨을 키워라 · 색을 통일하라 · 문구를 합쳐라</b>. 즉 시각 요소의 크기와 위계 문제입니다.</p>
+</div>
+
+<div class="tbl-wrap"><table>
+<thead><tr><th>면</th><th>#</th><th>필기</th><th>뜻</th><th>처리</th></tr></thead>
+<tbody>
+<tr><td rowspan="4">P2 행정</td><td>1</td><td>선생님 아이콘</td><td>체크(✓) 대신 사람 픽토그램</td><td><span class="chip c-strong">즉시</span></td></tr>
+<tr><td>2</td><td>동그라미</td><td>사각 로고를 원형으로</td><td><span class="chip c-strong">즉시</span></td></tr>
+<tr><td>3</td><td>글씨 크게</td><td>"선생님과는 이것만" 박스 확대</td><td><span class="chip c-mid">문구 축약 동반</span></td></tr>
+<tr><td>4</td><td>적게</td><td>행정실 박스를 줄이거나 작게</td><td><span class="chip c-ask">확인</span></td></tr>
+<tr><td>P1 표지</td><td>5</td><td>아이콘 더 크게 직관적으로</td><td>하단 3아이콘 확대 + 픽토그램 교체</td><td><span class="chip c-strong">즉시</span></td></tr>
+<tr><td rowspan="2">P4·P5 머리</td><td>6</td><td>색상통일</td><td>P4 제목 영역 처리 통일</td><td><span class="chip c-ask">확인</span></td></tr>
+<tr><td>7</td><td>색상통일</td><td>P5도 같은 지시</td><td><span class="chip c-ask">확인</span></td></tr>
+<tr><td rowspan="3">P4 메뉴</td><td>8</td><td>크게</td><td>카테고리 알약 라벨 확대</td><td><span class="chip c-strong">즉시</span></td></tr>
+<tr><td>9</td><td>이미지 크게</td><td>메뉴 썸네일 확대</td><td><span class="chip c-risk">메뉴 수와 충돌</span></td></tr>
+<tr><td>10</td><td>없애기</td><td>참치마요 주먹밥 사진</td><td><span class="chip c-ask">확인</span></td></tr>
+<tr><td>P6 콜드체인</td><td>11</td><td>5중 보냉으로</td><td>"5중 보냉으로 48시간 냉기 지속" 한 문장</td><td><span class="chip c-mid">사진 편집 필요</span></td></tr>
+</tbody></table></div>
+
+<div class="warnbox"><b>P3(이벤트 면)과 P2 하단(결제 8채널·연락처)에는 표시가 없습니다.</b> 그 두 덩어리는 이번 라운드에서 손대지 않습니다.</div>
+</section>
+
+<section id="s2"><h2>2. 표시 지도 — 어디에 무엇이 쓰여 있나</h2>
+<p class="sub">번호는 <b>펜 글씨가 쓰인 자리</b>입니다. 무엇을 지목했는지는 3번 절의 확대 사진에서 확인하세요.</p>
+
+<div class="shots">
+  <div class="shot">
+    <img src="/assets/images/leaflet-v6/lf-front.jpg" alt="리플렛 v6 앞면 인쇄본에 펜으로 표시된 피드백">
+    <span class="pin" style="left:43.0%;top:22.2%">1</span>
+    <span class="pin" style="left:52.4%;top:20.9%">2</span>
+    <span class="pin" style="left:39.0%;top:29.3%">3</span>
+    <span class="pin" style="left:45.5%;top:29.3%">4</span>
+    <span class="pin" style="left:73.8%;top:66.4%">5</span>
+    <div class="shot-cap">앞면 — 왼쪽부터 P3 이벤트(날개) · P2 행정 · P1 표지. 표시는 P2와 P1에만. 번호는 펜 글씨를 가리지 않도록 글씨 왼쪽에 붙였습니다.</div>
+  </div>
+  <div class="shot">
+    <img src="/assets/images/leaflet-v6/lf-back.jpg" alt="리플렛 v6 뒷면 인쇄본에 펜으로 표시된 피드백">
+    <span class="pin" style="left:31.8%;top:6.2%">6</span>
+    <span class="pin" style="left:37.6%;top:4.8%">7</span>
+    <span class="pin" style="left:18.4%;top:17.2%">8</span>
+    <span class="pin" style="left:25.2%;top:18.0%">9</span>
+    <span class="pin" style="left:32.4%;top:23.6%">10</span>
+    <span class="pin" style="left:86.2%;top:23.4%">11</span>
+    <span class="pin" style="left:84.0%;top:56.2%">11</span>
+    <div class="shot-cap">뒷면 — 왼쪽부터 P4 메뉴 · P5 수업자료 · P6 콜드체인. 11번은 위(동그라미)와 아래(삽입 위치) 두 곳이 선으로 이어져 있습니다.</div>
+  </div>
+</div>
+</section>
+
+<section id="s3"><h2>3. 판독 11건과 개선안</h2>
+<p class="sub">각 카드 = 확대 사진 + 필기 원문 + 현재 수치 + 개선안.</p>
+
+<div class="items">
+
+  <div class="item">
+    <div class="pic">
+      <img src="/assets/images/leaflet-v6/lf-m12-nodes.jpg" alt="P2 관계도 — 선생님 아이콘, 동그라미 표시">
+    </div>
+    <div>
+      <h4><span class="num">1</span><span class="num">2</span>P2 관계도 아이콘 — <span class="pen">선생님 아이콘</span> <span class="pen">동그라미</span></h4>
+      <p><b>지목</b> — 체크 표시(✓) 아이콘과 밀프레드 로고 타일.</p>
+      <p><b>문제</b> — 세 노드가 전부 '주체'인데 선생님 자리만 동작 기호입니다. 그리고 선생님·행정실은 11mm 원형인데 <b>밀프레드만 사각 타일</b>이라 혼자 튑니다.</p>
+      <p><b>개선</b> — 아이콘 문법을 <b>선생님=사람 / 밀프레드=로고(원형) / 행정실=서류</b>로 통일합니다. 로고는 P1에서 이미 <code>border-radius:50%</code>를 쓰고 있으니 같은 처리를 P2에 적용하면 됩니다.</p>
+      <p class="kv">현재 <code>.node .dot</code> 11mm · <code>.ico</code> 5.8mm · <code>.dot.brand img</code> 7.6mm(사각)</p>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="pic">
+      <img src="/assets/images/leaflet-v6/lf-m34-labels.jpg" alt="P2 두 박스 라벨 — 글씨 크게, 적게">
+    </div>
+    <div>
+      <h4><span class="num">3</span><span class="num">4</span>P2 두 박스 — <span class="pen">글씨 크게</span> <span class="pen">적게</span></h4>
+      <p><b>지목</b> — 왼쪽 "선생님과는 이것만"에 동그라미 + "글씨 크게", 오른쪽 "행정실과는 저희가 직접"에 동그라미 + "적게".</p>
+      <p><b>개선</b> — 왼쪽 제목 14→16~17px, 항목 13.5→15px. 단 항목이 한 줄 고정(<code>nowrap</code>)이라 폭이 빠듯합니다. <b>글씨를 키우려면 문구를 짧게 줄여야 합니다</b>("견적서·품의서 문안" → "품의서 문안").</p>
+      <p><b>4번 해석</b> — 항목을 줄이라는 뜻인지, 왼쪽보다 작게 처리하라는 뜻인지 두 갈래입니다. 어느 쪽이든 결론은 <b>"선생님 쪽 크게, 행정실 쪽 작게"라는 위계</b>로 수렴하므로, 두 박스를 같은 크기로 두지 않는 설계로 갑니다.</p>
+      <p class="kv">현재 <code>.col-h</code> 14px · <code>.col li</code> 13.5px · 행정실 항목 3줄(서류 6종)</p>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="pic">
+      <img src="/assets/images/leaflet-v6/lf-m5-p1.jpg" alt="P1 표지 하단 3아이콘 — 아이콘 더 크게 직관적으로">
+    </div>
+    <div>
+      <h4><span class="num">5</span>P1 표지 하단 — <span class="pen">아이콘 더 크게 직관적으로</span></h4>
+      <p><b>지목</b> — 냉장고 불필요 · 불·칼 없음 · 1인분 4,273원 3칸, 화살표는 눈송이를 가리킵니다.</p>
+      <p><b>개선</b> — 원 12→14~15mm, 아이콘 6.4→8mm 이상. <b>직관성</b>: 눈송이는 "냉장고 불필요"로 읽히지 않습니다 → <b>냉장고에 사선</b>이 직설적입니다. 불·칼은 현행 유지, 가격은 동전보다 <b>가격표/원화 태그</b>가 빠르게 읽힙니다.</p>
+      <p class="kv">현재 <code>.k-feat .dot</code> 12mm · <code>.ico</code> 6.4mm · 라벨 16px · 아이콘 자산 <code>img/icons/no-fridge·no-fire·no-knife.png</code> 재사용 검토</p>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="pic">
+      <img src="/assets/images/leaflet-v6/lf-m67-color.jpg" alt="P4·P5 머리 위 색상통일 표시">
+    </div>
+    <div>
+      <h4><span class="num">6</span><span class="num">7</span>P4·P5 제목 영역 — <span class="pen">색상통일</span> ×2</h4>
+      <p><b>지목</b> — 두 면 모두 제목 아래에 가로선을 긋고 그 위에 "색상통일"이라고 쓰셨습니다. 즉 <b>제목 영역(머리 부분)</b>을 가리킵니다.</p>
+      <p><b>현재</b> — P4는 흰 바탕 + 검정 제목, P5는 크림 바탕 + 검정 제목, P6은 흰 바탕 + <b>오렌지 알약 제목</b>. 세 면의 머리 처리가 제각각입니다.</p>
+      <p><b>개선</b> — 가장 깔끔한 안은 <b>P6처럼 오렌지 띠 제목으로 세 면 통일</b>입니다. 단 v5 때 세운 "오렌지 띠는 한 곳만" 내부 규칙(<code>STYLE_V5.md</code>)을 폐기하는 셈이라 확답이 필요합니다.</p>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="pic">
+      <img src="/assets/images/leaflet-v6/lf-m8910-p4.jpg" alt="P4 메뉴 면 — 크게, 이미지 크게, 없애기">
+    </div>
+    <div>
+      <h4><span class="num">8</span><span class="num">9</span><span class="num">10</span>P4 메뉴 — <span class="pen">크게</span> <span class="pen">이미지 크게</span> <span class="pen">없애기</span></h4>
+      <p><b>8 카테고리 알약</b> — 「실과 · 건강한 식생활」 라벨을 6.4mm·13.5px → 7.4mm·15px로. 여백 안에서 가능합니다.</p>
+      <p><b>9 썸네일</b> — 또띠아 스낵랩 사진을 지목. 이게 가장 큰 숙제라 <a href="#s4" style="color:var(--orange-deep);font-weight:700">4번 절</a>에서 따로 다룹니다.</p>
+      <p><b>10 참치마요 주먹밥</b> — 현 사진은 랩에 싼 주먹밥을 손이 들고 있어 <b>음식이 잘 안 보입니다</b>. 사진 교체가 정석이고, 대체 사진이 없으면 김치 만들기처럼 "준비중" 칸으로 돌리는 방법도 있습니다. 메뉴 자체를 빼라는 뜻인지 확인이 필요합니다.</p>
+      <p class="kv">현재 <code>--t:10.2mm</code> · 4열 · 메뉴명 12.5px · 카테고리 알약 6.4mm/13.5px</p>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="pic">
+      <img src="/assets/images/leaflet-v6/lf-m11a-p6.jpg" alt="P6 5중 보냉 동그라미">
+      <img src="/assets/images/leaflet-v6/lf-m11b-p6.jpg" alt="P6 48시간 냉기 지속 앞에 5중 보냉으로 삽입">
+    </div>
+    <div>
+      <h4><span class="num">11</span>P6 콜드체인 — <span class="pen">5중 보냉으로</span></h4>
+      <p><b>지목</b> — 사진 위쪽 "5중 보냉"을 동그라미로 묶고, 선을 아래로 그어 "48시간 냉기 지속" 앞에 <b>"5중 보냉으로"</b>를 써 넣으셨습니다.</p>
+      <p><b>뜻</b> — 따로 떨어진 두 문구를 <b>"5중 보냉으로 48시간 냉기 지속"</b> 한 문장으로 합치라는 것.</p>
+      <p><b>단, 기술 제약이 있습니다.</b> 이 두 문구는 HTML 글자가 아니라 원본 사진에 박힌 글자입니다 → <a href="#s5" style="color:var(--orange-deep);font-weight:700">5번 절</a>.</p>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<section id="s4"><h2>4. P4 충돌 — "이미지 크게"와 "메뉴 전부"는 같이 못 간다</h2>
+<p class="sub">09-15 지시(메뉴·썸네일 전부 싣기)와 09-17 지시(이미지 크게)가 같은 면에서 부딪칩니다.</p>
+
+<div class="riskbox"><b>지금 상태</b> — 썸네일 10.2mm × 25메뉴 × 4열이 세로를 꽉 채웠습니다. 09-17 월남쌈을 넣으면서 줄 수를 유지하려고 썸네일을 11.5→10.2mm로 <b>더 줄인</b> 상태입니다. 즉 인쇄해 보신 24메뉴 판보다 지금 파일이 더 작습니다. 여기서 이미지를 키우면 무조건 넘칩니다.</div>
+
+<div class="opts">
+  <div class="opt pick">
+    <h4>1안 · 메뉴 16~18개로 압축 <span class="chip c-strong">권고</span></h4>
+    <div class="demo"><i style="width:49px;height:49px"></i><span>13mm</span></div>
+    <p>대표 메뉴만 싣고 나머지는 "전체 40종" QR로 넘깁니다. 썸네일 13mm+ 확보.</p>
+    <p><b>근거</b> — "선생님들은 대충 보신다"는 기조와 "이미지 크게" 지시 둘 다에 맞는 유일한 안.</p>
+    <p><b>대가</b> — 09-15 "전부 싣기" 지시를 뒤집습니다.</p>
+  </div>
+  <div class="opt">
+    <h4>2안 · 4열 → 3열</h4>
+    <div class="demo"><i style="width:51px;height:51px"></i><span>13.5mm</span></div>
+    <p>열을 줄여 칸을 키우면 행이 늘어 세로가 모자랍니다 → 결국 6~8개를 빼야 해서 <b>1안과 같은 결론</b>에 도달합니다.</p>
+  </div>
+  <div class="opt">
+    <h4>3안 · 썸네일 유지, 라벨만 확대</h4>
+    <div class="demo"><i style="width:39px;height:39px"></i><span>10.2mm(현재)</span></div>
+    <p>카테고리 알약과 메뉴명만 키웁니다. 메뉴 25개를 지키지만 <b>지시의 절반만 반영</b>됩니다.</p>
+  </div>
+</div>
+<p class="src">사각형은 실제 인쇄 크기 비례입니다(1mm ≒ 3.78px).</p>
+</section>
+
+<section id="s5"><h2>5. P6 기술 제약 — 문구가 사진에 박혀 있다</h2>
+<p class="sub">빌드 HTML 주석에 남아 있는 사실: <code>5layer-nolabel.png</code>는 원본에서 <b>작은 라벨 7개만</b> 지운 파생본이고, "5중 보냉"·"48시간 냉기 지속"·지시선은 <b>원본 그대로</b>입니다.</p>
+
+<div class="steps">
+  <div class="step"><div class="n">현재</div><p>라벨 7개(드라이아이스·SPA 냉매제 …)는 <b>HTML 글자 13px</b>. 반면 "5중 보냉"과 "48시간 냉기 지속"은 <b>사진 픽셀</b>이라 문구 수정이 불가능합니다.</p></div>
+  <div class="step"><div class="n">1단계</div><p>사진에서 두 문구와 연결선을 지웁니다(다른 라벨을 지울 때 쓴 것과 같은 방식).</p></div>
+  <div class="step"><div class="n">2단계</div><p>HTML 텍스트로 <b>"5중 보냉으로 48시간 냉기 지속"</b> 한 줄을 다시 얹습니다. 위치는 <code>.cc-lab</code>과 같은 좌표계.</p></div>
+  <div class="step"><div class="n">이득</div><p>크기·위치가 자유로워지고 <b>디자이너가 일러스트에서 수정</b>할 수 있습니다. 합치면 글자를 더 크게 넣을 수 있어 가독성에도 이득.</p></div>
+</div>
+</section>
+
+<section id="s6"><h2>6. 착수 전 확답이 필요한 4가지</h2>
+<p class="sub">전부 review 큐에 등록했습니다. 답이 오면 그대로 반영합니다.</p>
+
+<div class="tbl-wrap"><table>
+<thead><tr><th>ID</th><th>질문</th><th>선택지</th><th>영향</th></tr></thead>
+<tbody>
+<tr>
+  <td><b>R-113</b></td>
+  <td>P2 "적게"는 무슨 뜻인가</td>
+  <td>① 행정실 항목(서류 6종)을 줄이기 ② 박스를 선생님 쪽보다 작게</td>
+  <td>P2 오른쪽 박스 구성</td>
+</tr>
+<tr>
+  <td><b>R-114</b></td>
+  <td>P4 "없애기"는 어디까지인가</td>
+  <td>① 참치마요 주먹밥 <b>사진만</b> 교체 ② <b>메뉴 자체</b> 삭제</td>
+  <td>메뉴 수 25 → 24</td>
+</tr>
+<tr>
+  <td><b>R-115</b></td>
+  <td>"색상통일"의 범위</td>
+  <td>① 세 면 제목을 오렌지 띠로 통일 ② 바탕색만 맞추기</td>
+  <td>P4·P5·P6 머리 + STYLE_V5 규칙</td>
+</tr>
+<tr>
+  <td><b>R-116</b></td>
+  <td>P4 메뉴 수를 줄여도 되는가</td>
+  <td>① 16~18개로 압축(썸네일 13mm) ② 25개 유지(썸네일 그대로)</td>
+  <td>"이미지 크게" 반영 가능 여부</td>
+</tr>
+</tbody></table></div>
+</section>
+
+<section id="s7"><h2>7. 반영 순서</h2>
+<p class="sub">확답이 오면 이 순서로 작업합니다. 재출력은 <code>./finish_v6.sh</code> 한 번으로 빌드·검사·PNG·쪽별 PDF·드라이브 복사까지 끝납니다.</p>
+<ol class="plain">
+  <li><b>P6</b> — 사진 글자 제거 + HTML 텍스트 재배치(가장 오래 걸리므로 먼저)</li>
+  <li><b>P2</b> — 아이콘 3종 교체·원형화 + 두 박스 위계(3·4번)</li>
+  <li><b>P1</b> — 하단 아이콘 확대 + 픽토그램 교체</li>
+  <li><b>P4</b> — 메뉴 수 결정 후 재설계 + 카테고리 라벨 확대 + 참치마요 사진 처리</li>
+  <li><b>P4·P5·P6</b> — 제목 색상 통일</li>
+  <li><b>검사</b> — <code>measure_type.py</code> TYPE-OK · <code>check.sh</code> data-check OK 재확인 후 디자이너 폴더 갱신</li>
+</ol>
+
+<div class="warnbox"><b>함께 열려 있는 리플렛 액션</b> — 3색경단·모나카파이 AI 의심 썸네일 교체 · 후기 사진 사용 동의(구일초·매안초·안양센터) · 김치 만들기 사진. 이번 수정에 묶어 처리하면 재출력을 한 번으로 줄일 수 있습니다.</div>
+</section>
+
+</main>
+<footer>밀프레드 위키 · 정본 <code>synthesis/2026-09-17-리플렛-v6-인쇄본-펜피드백.md</code> · 작업 파일 <code>~/Desktop/밀프레드/리플렛/v3/src_v6/</code> · <a href="/docs.html">위키 목록으로</a></footer>
+</body>
+</html>
