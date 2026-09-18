@@ -133,6 +133,7 @@
   <a href="#s6">6. 확인 필요 4</a>
   <a href="#s7">7. 남은 순서</a>
   <a href="#s8">8. 적용 결과</a>
+  <a href="#s9">9. 09-18 변경</a>
 </div></nav>
 
 <main>
@@ -403,6 +404,42 @@
 <p><code>5layer-nolabel.png</code>(1200×1467, 배경 균일 #EAE8E9)에서 글자 영역을 배경색으로 덮었는데, <b>스티로폼 그림자까지 같이 지워져 계단 자국이 남았습니다.</b> 자동 bbox 탐지는 그림자의 어두운 픽셀을 글자로 오인합니다. 최종 방법은 <b>덮은 뒤 그림자 영역(x 700~886, y 1230~1325)만 원본에서 다시 붙이는 것</b>입니다(두 번 실패 후 확정). 결과 파일 = <code>5layer-nolabel-clean.png</code>.</p>
 
 <div class="warnbox"><b>출력은 로컬만 했습니다.</b> <code>out/</code>에 앞뒷면 300dpi PNG와 trim·bleed·디자이너용 PDF를 새로 만들었지만, <b>드라이브 <code>v6_디자이너_작업</code> 폴더는 갱신하지 않았습니다</b> — 확답 4건이 남은 중간본을 디자이너가 작업본으로 오해하지 않도록, 확답 반영 후 <code>./finish_v6.sh</code>로 한 번에 올립니다.</div>
+</section>
+
+<section id="s9"><h2>9. 09-18 추가 변경 — 표지 문구와 메뉴명 폰트</h2>
+<p class="sub">펜 피드백 11건과 별개로, 이사님이 따로 지시한 2건</p>
+
+<div class="tbl-wrap"><table>
+<thead><tr><th>대상</th><th>변경</th><th>이유</th></tr></thead>
+<tbody>
+<tr>
+  <td><b>P1 표지</b><br>세 번째 칸</td>
+  <td>"1인분 4,273원" → <b>"메뉴 30종+"</b><br>아이콘도 동전(₩) → <b>격자</b>(<code>#i-menu</code> 신설)</td>
+  <td>가격 대신 <b>가짓수</b>로 소구. 표지에서 단가 표기가 빠지면서 단가가 바뀌어도 리플렛을 다시 찍지 않아도 됩니다.</td>
+</tr>
+<tr>
+  <td><b>P4 메뉴명</b></td>
+  <td>GmarketSans Bold 700 → <b>Pretendard 600</b><br>크기 12.5px(9.4pt)는 유지</td>
+  <td>굵은 메뉴명이 사진과 같은 무게로 경쟁해 면이 답답했습니다. 얇게 내리면 <b>사진이 주인공으로 올라오고</b>, 제목(GmarketSans)과 서체가 갈려 위계도 생깁니다.</td>
+</tr>
+</tbody></table></div>
+
+<h3>메뉴명 폰트 — 4안을 실제로 렌더해 비교</h3>
+<div class="shot">
+  <img src="/assets/images/leaflet-v6/lf-menu-font-compare.jpg" alt="메뉴명 폰트 4안 비교 — 현재 Bold 700 / GmarketSans Medium 500 / Pretendard 600 / Pretendard 500">
+  <div class="shot-cap">왼쪽부터 현재(Bold 700) · A(GmarketSans Medium 500) · B(Pretendard 600, <b>채택</b>) · C(Pretendard 500). 말로 고르기 어려운 선택이라 네 가지를 모두 빌드해 비교했습니다.</div>
+</div>
+<p>C가 가장 시원하지만 메뉴명은 9.4pt여서 인쇄 조건에 따라 흐려질 수 있고, A는 제목과 같은 서체라 위계 대비가 약합니다. <b>B가 두 문제를 모두 피합니다.</b></p>
+
+<h3>바뀐 P4</h3>
+<div class="grid2">
+  <div class="kcard"><h4>P4 메뉴 — 메뉴명 Pretendard 600</h4>
+    <img src="/assets/images/leaflet-v6/lf-after-p4.jpg" alt="메뉴명 폰트를 바꾼 뒤의 P4 메뉴 면" style="width:100%;display:block;margin-top:8px;border-radius:8px;border:1px solid #F0E6DA"></div>
+  <div class="kcard"><h4>P1 표지 — 메뉴 30종+</h4>
+    <img src="/assets/images/leaflet-v6/lf-after-p1.jpg" alt="세 번째 칸을 메뉴 30종+로 바꾼 P1 표지" style="width:100%;display:block;margin-top:8px;border-radius:8px;border:1px solid #F0E6DA"></div>
+</div>
+
+<div class="warnbox"><b>확인 필요 — "30종+"가 실제 보유 메뉴 수와 맞습니까?</b> P4에 실린 대표 메뉴는 25종이고 전체는 QR로 안내합니다. 표지 숫자는 전체 보유 기준인데, 구 원고에는 "전체 40종"이라는 표현이 있었습니다. 30종+는 보수적인 표기라 안전하지만, 실제 수치를 알려주시면 맞추겠습니다.</div>
 </section>
 
 </main>
